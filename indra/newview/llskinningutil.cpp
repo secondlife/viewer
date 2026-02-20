@@ -186,7 +186,7 @@ void LLSkinningUtil::initSkinningMatrixPalette(
 void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
 {
 #if DEBUG_SKINNING
-    const S32 max_joints = skin->mJointNames.size();
+    const S32 max_joints = narrow(skin->mJointNames.size());
     for (U32 j=0; j<num_vertices; j++)
     {
         F32 *w = weights[j].getF32ptr();

@@ -1,0 +1,7 @@
+{
+  "name": "bugsplat",
+  "version-string": "6.1.1.0",
+  "description": "Bugsplat crash reporting framework for windows",
+  "homepage": "https://github.com/secondlife/3p-bugsplat",
+  "supports": "windows & x64"
+}

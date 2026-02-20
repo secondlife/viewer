@@ -1,14 +1,9 @@
 # -*- cmake -*-
 
-project(llplugin)
+add_library (llplugin STATIC)
 
-include(00-Common)
-include(CURL)
-include(LLCommon)
-include(LLImage)
-include(LLWindow)
-
-set(llplugin_SOURCE_FILES
+target_sources(llplugin
+    PRIVATE
     llpluginclassmedia.cpp
     llplugininstance.cpp
     llpluginmessage.cpp
@@ -16,10 +11,10 @@ set(llplugin_SOURCE_FILES
     llpluginprocesschild.cpp
     llpluginprocessparent.cpp
     llpluginsharedmemory.cpp
-    )
 
-set(llplugin_HEADER_FILES
-    CMakeLists.txt
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     llpluginclassmedia.h
     llpluginclassmediaowner.h
     llplugininstance.h
@@ -31,15 +26,9 @@ set(llplugin_HEADER_FILES
     llpluginsharedmemory.h
     )
 
-list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})
-
-add_library (llplugin ${llplugin_SOURCE_FILES})
-target_include_directories( llplugin  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries( llplugin llcommon llmath llmessage llxml )
-
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llplugin REUSE_FROM llprecompiled)
-endif ()
+target_link_libraries(llplugin PUBLIC llcommon llmath llmessage llxml)
+target_include_directories(llplugin INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_precompile_headers(llplugin REUSE_FROM llprecompiled)
 
 add_subdirectory(slplugin)
 

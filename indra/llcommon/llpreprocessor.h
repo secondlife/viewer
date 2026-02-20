@@ -119,15 +119,6 @@
 
 #endif
 
-#if defined(LL_WINDOWS)
-#define BOOST_REGEX_NO_LIB 1
-#define CURL_STATICLIB 1
-#ifndef XML_STATIC
-#define XML_STATIC
-#endif
-#endif  //  LL_WINDOWS
-
-
 // Deal with VC++ problems
 #if LL_MSVC
 // level 4 warnings that we need to disable:
@@ -212,15 +203,36 @@
 #endif
 
 #if LL_ARM64
-#define GLM_FORCE_NEON 1
+    #ifndef GLM_FORCE_NEON
+    #define GLM_FORCE_NEON 1
+    #endif
 #else
-#define GLM_FORCE_SSE2 1
-#endif
+    #ifdef LL_DARWIN
+        #ifndef GLM_FORCE_SSE42
+        #define GLM_FORCE_SSE42 1
+        #endif // GLM_FORCE_SSE42
+    #else
+        #if defined(__AVX2__)
+            #ifndef GLM_FORCE_AVX2
+            #define GLM_FORCE_AVX2 1
+            #endif // GLM_FORCE_AVX2
+        #elif defined(__AVX__)
+            #ifndef GLM_FORCE_AVX
+            #define GLM_FORCE_AVX 1
+            #endif // GLM_FORCE_AVX
+        #else
+            #ifndef GLM_FORCE_SSE2
+            #define GLM_FORCE_SSE2 1
+            #endif // GLM_FORCE_SSE2
+        #endif // AVX2 vs AVX
+    #endif // LL_DARWIN
+#endif // LL_ARM64
 
 #if LL_ARM64
 #define KDU_NEON_INTRINSICS 1
 #else
 #define KDU_X86_INTRINSICS 1
+
 #endif
 
 #endif  //  not LL_LINDEN_PREPROCESSOR_H

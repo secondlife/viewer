@@ -1,16 +1,5 @@
 # -*- cmake -*-
 
-project(appearance_utility)
-
-include(00-Common)
-include(Boost)
-include(LLAppearance)
-include(LLCommon)
-include(LLImage)
-include(LLMath)
-include(LLWindow)
-include(Linking)
-
 set(appearance_utility_SOURCE_FILES
     appearance_utility.cpp
     llappappearanceutility.cpp
@@ -30,7 +19,6 @@ set(appearance_utility_SOURCE_FILES
     )
 
 set(appearance_utility_HEADER_FILES
-    CMakeLists.txt
     llappappearanceutility.h
     llbakingavatar.h
     llbakingjoint.h
@@ -63,13 +51,11 @@ target_link_libraries(appearance-utility-bin
     llxml
     )
 
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(appearance-utility-bin REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(appearance-utility-bin REUSE_FROM llprecompiled_exe)
 
 if (BUILD_HEADLESS)
   add_executable(appearance-utility-headless-bin ${appearance_utility_SOURCE_FILES})
-  
+
   target_link_libraries(appearance-utility-headless-bin
     llcharacter
     llinventory
@@ -78,9 +64,7 @@ if (BUILD_HEADLESS)
     llrenderheadless
     llxml
     )
-    
-  if (USE_PRECOMPILED_HEADERS)
-    target_precompile_headers(appearance-utility-headless-bin REUSE_FROM llprecompiled)
-  endif ()
+
+  target_precompile_headers(appearance-utility-headless-bin REUSE_FROM llprecompiled_exe)
 endif (BUILD_HEADLESS)
 

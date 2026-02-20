@@ -2089,14 +2089,13 @@ bool LLDataPackerAsciiFile::unpackUUID(LLUUID &value, const char *name)
 void LLDataPackerAsciiFile::writeIndentedName(const char *name)
 {
     std::string indent_buf;
-    indent_buf.reserve(mIndent+1);
+    indent_buf.resize(mIndent);
 
     S32 i;
     for(i = 0; i < mIndent; i++)
     {
         indent_buf[i] = '\t';
     }
-    indent_buf[i] = 0;
     if (mFP)
     {
         fprintf(mFP,"%s%s\t",indent_buf.c_str(), name);

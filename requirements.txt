@@ -1,0 +1,2 @@
+# Python modules required by the viewer build and test suite
+llsd

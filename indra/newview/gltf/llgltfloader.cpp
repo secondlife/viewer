@@ -25,7 +25,8 @@
  */
 
 #include "llgltfloader.h"
-#include "meshoptimizer.h"
+
+#include <meshoptimizer.h>
 #include <glm/gtc/packing.hpp>
 
 // Import & define single-header gltf import/export lib
@@ -45,7 +46,7 @@
 // Additionally, disable inclusion of STB header files entirely with
 // TINYGLTF_NO_INCLUDE_STB_IMAGE
 // TINYGLTF_NO_INCLUDE_STB_IMAGE_WRITE
-#include "tinygltf/tiny_gltf.h"
+#include <tiny_gltf.h>
 
 
 // TODO: includes inherited from dae loader.  Validate / prune

@@ -1,0 +1,529 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "common",
+      "hidden": true,
+      "binaryDir": "${sourceParentDir}/build-${hostSystemName}-${presetName}"
+    },
+    {
+      "name": "linux",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "macos",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-arm64",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES": "arm64"
+      }
+    },
+    {
+      "name": "macos-x64",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES": "x86_64"
+      }
+    },
+    {
+      "name": "windows",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "nonfree",
+      "hidden": true,
+      "cacheVariables": {
+        "INSTALL_PROPRIETARY": true
+      }
+    },
+    {
+      "name": "ninja-os",
+      "displayName": "Ninja Multi-Config",
+      "generator": "Ninja Multi-Config",
+      "inherits": "common",
+      "cacheVariables": {
+        "CMAKE_DEFAULT_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "ninja",
+      "displayName": "Ninja Multi-Config Proprietary",
+      "inherits": [
+        "ninja-os",
+        "nonfree"
+      ]
+    },
+    {
+      "name": "vs2022-os",
+      "displayName": "Visual Studio 2022",
+      "inherits": [
+        "common",
+        "windows"
+      ],
+      "generator": "Visual Studio 17 2022"
+    },
+    {
+      "name": "vs2022",
+      "displayName": "Visual Studio 2022 Proprietary",
+      "inherits": [
+        "vs2022-os",
+        "nonfree"
+      ]
+    },
+    {
+      "name": "vs2026-os",
+      "displayName": "Visual Studio 2026",
+      "inherits": [
+        "common",
+        "windows"
+      ],
+      "generator": "Visual Studio 18 2026"
+    },
+    {
+      "name": "vs2026",
+      "displayName": "Visual Studio 2026 Proprietary",
+      "inherits": [
+        "vs2026-os",
+        "nonfree"
+      ]
+    },
+    {
+      "name": "ninja-os-arm64",
+      "displayName": "Ninja Multi-Config(arm64)",
+      "inherits": [
+        "ninja-os",
+        "macos",
+        "macos-arm64"
+      ]
+    },
+    {
+      "name": "ninja-os-x64",
+      "displayName": "Ninja Multi-Config(x86_64)",
+      "inherits": [
+        "ninja-os",
+        "macos",
+        "macos-x64"
+      ]
+    },
+    {
+      "name": "ninja-arm64",
+      "displayName": "Ninja Multi-Config(arm64)",
+      "inherits": [
+        "ninja",
+        "macos",
+        "macos-arm64"
+      ]
+    },
+    {
+      "name": "ninja-x64",
+      "displayName": "Ninja Multi-Config(x86_64)",
+      "inherits": [
+        "ninja",
+        "macos",
+        "macos-x64"
+      ]
+    },
+    {
+      "name": "xcode-os",
+      "displayName": "Xcode OS",
+      "inherits": [
+        "common",
+        "macos"
+      ],
+      "generator": "Xcode"
+    },
+    {
+      "name": "xcode-os-arm64",
+      "displayName": "Xcode OS(arm64)",
+      "inherits": [
+        "xcode-os",
+        "macos-arm64"
+      ]
+    },
+    {
+      "name": "xcode-os-x64",
+      "displayName": "Xcode OS(x86_64)",
+      "inherits": [
+        "xcode-os",
+        "macos-x64"
+      ]
+    },
+    {
+      "name": "xcode",
+      "displayName": "Xcode Proprietary",
+      "inherits": [
+        "xcode-os",
+        "nonfree"
+      ]
+    },
+    {
+      "name": "xcode-arm64",
+      "displayName": "Xcode Proprietary(arm64)",
+      "inherits": [
+        "xcode-os-arm64",
+        "nonfree"
+      ]
+    },
+    {
+      "name": "xcode-x64",
+      "displayName": "Xcode Proprietary(x86_64)",
+      "inherits": [
+        "xcode-os-x64",
+        "nonfree"
+      ]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "macos",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "windows",
+      "hidden": true,
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ninja-debug",
+      "configurePreset": "ninja",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-optdebug",
+      "configurePreset": "ninja",
+      "configuration": "OptDebug"
+    },
+    {
+      "name": "ninja-relwithdebinfo",
+      "configurePreset": "ninja",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "ninja-release",
+      "configurePreset": "ninja",
+      "configuration": "Release"
+    },
+    {
+      "name": "ninja-os-debug",
+      "configurePreset": "ninja-os",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-os-optdebug",
+      "configurePreset": "ninja-os",
+      "configuration": "OptDebug"
+    },
+    {
+      "name": "ninja-os-relwithdebinfo",
+      "configurePreset": "ninja-os",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "ninja-os-release",
+      "configurePreset": "ninja-os",
+      "configuration": "Release"
+    },
+    {
+      "name": "vs2022-debug",
+      "configurePreset": "vs2022",
+      "configuration": "Debug",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-optdebug",
+      "configurePreset": "vs2022",
+      "configuration": "OptDebug",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-relwithdebinfo",
+      "configurePreset": "vs2022",
+      "configuration": "RelWithDebInfo",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-release",
+      "configurePreset": "vs2022",
+      "configuration": "Release",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-os-debug",
+      "configurePreset": "vs2022-os",
+      "configuration": "Debug",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-os-optdebug",
+      "configurePreset": "vs2022-os",
+      "configuration": "OptDebug",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-os-relwithdebinfo",
+      "configurePreset": "vs2022-os",
+      "configuration": "RelWithDebInfo",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2022-os-release",
+      "configurePreset": "vs2022-os",
+      "configuration": "Release",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2026-release",
+      "configurePreset": "vs2026",
+      "configuration": "Release",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "vs2026-os-release",
+      "configurePreset": "vs2026-os",
+      "configuration": "Release",
+      "inherits": [
+        "windows"
+      ]
+    },
+    {
+      "name": "ninja-arm64-release",
+      "configurePreset": "ninja-arm64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "ninja-x64-release",
+      "configurePreset": "ninja-x64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "ninja-os-arm64-release",
+      "configurePreset": "ninja-os-arm64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "ninja-os-x64-release",
+      "configurePreset": "ninja-os-x64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-release",
+      "configurePreset": "xcode",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-arm64-release",
+      "configurePreset": "xcode-arm64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-x64-release",
+      "configurePreset": "xcode-x64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-os-release",
+      "configurePreset": "xcode-os",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-os-arm64-release",
+      "configurePreset": "xcode-os-arm64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    },
+    {
+      "name": "xcode-os-x64-release",
+      "configurePreset": "xcode-os-x64",
+      "configuration": "Release",
+      "inherits": [
+        "macos"
+      ]
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "ninja-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "ninja"
+        },
+        {
+          "type": "build",
+          "name": "ninja-release"
+        }
+      ]
+    },
+    {
+      "name": "ninja-os-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "ninja-os"
+        },
+        {
+          "type": "build",
+          "name": "ninja-os-release"
+        }
+      ]
+    },
+    {
+      "name": "vs2022-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "vs2022"
+        },
+        {
+          "type": "build",
+          "name": "vs2022-release"
+        }
+      ]
+    },
+    {
+      "name": "vs2022-os",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "vs2022-os"
+        },
+        {
+          "type": "build",
+          "name": "vs2022-os-release"
+        }
+      ]
+    },
+    {
+      "name": "vs2026-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "vs2026"
+        },
+        {
+          "type": "build",
+          "name": "vs2026-release"
+        }
+      ]
+    },
+    {
+      "name": "vs2026-os-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "vs2026-os"
+        },
+        {
+          "type": "build",
+          "name": "vs2026-os-release"
+        }
+      ]
+    },
+    {
+      "name": "xcode-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "xcode"
+        },
+        {
+          "type": "build",
+          "name": "xcode-release"
+        }
+      ]
+    },
+    {
+      "name": "xcode-os-release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "xcode-os"
+        },
+        {
+          "type": "build",
+          "name": "xcode-os-release"
+        }
+      ]
+    }
+  ]
+}

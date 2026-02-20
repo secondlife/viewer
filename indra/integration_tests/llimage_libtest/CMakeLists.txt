@@ -1,21 +1,13 @@
 # -*- cmake -*-
 
 # Integration tests of the llimage library (JPEG2000, PNG, jpeg, etc... images reading and writing)
-if (LL_TESTS)
-
-project (llimage_libtest)
-
-include(00-Common)
-include(LLCommon)
-include(LLImage)
-include(LLMath)
+if (BUILD_TESTING)
 
 set(llimage_libtest_SOURCE_FILES
     llimage_libtest.cpp
     )
 
 set(llimage_libtest_HEADER_FILES
-    CMakeLists.txt
     llimage_libtest.h
     )
 
@@ -30,13 +22,6 @@ set_target_properties(llimage_libtest
                     FOLDER "Tests"
                     )
 
-if(DARWIN)
-    set_target_properties(llimage_libtest
-                        PROPERTIES
-                        OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
-                        )
-endif()
-
 # Libraries on which this application depends on
 # Sort by high-level to low-level
 target_link_libraries(llimage_libtest
@@ -46,7 +31,9 @@ target_link_libraries(llimage_libtest
         llimage
         )
 
-# Ensure people working on the viewer don't break this library
-add_dependencies(viewer llimage_libtest)
+if (BUILD_VIEWER)
+    # Ensure people working on the viewer don't break this library
+    add_dependencies(viewer llimage_libtest)
+endif (BUILD_VIEWER)
 
-endif(LL_TESTS)
+endif()

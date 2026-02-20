@@ -1,19 +1,9 @@
 # -*- cmake -*-
 
-project(llcorehttp)
+add_library (llcorehttp STATIC)
 
-include(00-Common)
-include(CURL)
-include(OpenSSL)
-include(NGHTTP2)
-include(ZLIBNG)
-include(LLCoreHttp)
-include(LLAddBuildTest)
-include(LLCommon)
-include(Tut)
-include(bugsplat)
-
-set(llcorehttp_SOURCE_FILES
+target_sources(llcorehttp
+    PRIVATE
     bufferarray.cpp
     bufferstream.cpp
     httpcommon.cpp
@@ -38,9 +28,10 @@ set(llcorehttp_SOURCE_FILES
     _refcounted.cpp
     )
 
-set(llcorehttp_HEADER_FILES
-    CMakeLists.txt
-
+target_sources(llcorehttp
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     bufferarray.h
     bufferstream.h
     httpcommon.h
@@ -70,37 +61,24 @@ set(llcorehttp_HEADER_FILES
     _thread.h
     )
 
-if (DARWIN OR LINUX)
-  # Boost headers define unused members in condition_variable so...
-  set_source_files_properties(${llcorehttp_SOURCE_FILES}
-                              PROPERTIES COMPILE_FLAGS -Wno-unused-variable)
-endif (DARWIN OR LINUX)
-
-list(APPEND llcorehttp_SOURCE_FILES ${llcorehttp_HEADER_FILES})
-
-add_library (llcorehttp ${llcorehttp_SOURCE_FILES})
 target_link_libraries(
         llcorehttp
+        PUBLIC
         llmath
         llcommon
         ll::libcurl
         ll::openssl
-        ll::nghttp2
   )
 target_include_directories( llcorehttp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 # llmessage depends on llcorehttp, yet llcorehttp also depends on llmessage (at least for includes).
 # Cannot/Should not use target_link_libraries here to add llmessage to the dependencies, as that would
 # lead to circular dependencies (or in case of cmake, the first project declaring it's dependencies wins)
-target_include_directories( llcorehttp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage)
-
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llcorehttp REUSE_FROM llprecompiled)
-endif ()
+target_include_directories(llcorehttp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage)
+target_precompile_headers(llcorehttp REUSE_FROM llprecompiled)
 
 # tests
-set(LLCOREHTTP_TESTS ON CACHE BOOL
-    "Build and run llcorehttp integration tests specifically")
-if (LL_TESTS AND LLCOREHTTP_TESTS)
+option(LLCOREHTTP_TESTS "Build and run llcorehttp integration tests specifically" ON)
+if (BUILD_TESTING AND LLCOREHTTP_TESTS)
   SET(llcorehttp_TEST_SOURCE_FILES
       )
 
@@ -125,6 +103,7 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
           llmessage
           llcommon
       )
+  set(test_project llcorehttp)
 
   # If http_proxy is in the current environment (e.g. to fetch s3-proxy
   # autobuild packages), suppress it for this integration test: it screws up
@@ -132,8 +111,9 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
   LL_ADD_INTEGRATION_TEST(llcorehttp
                           "${llcorehttp_TEST_SOURCE_FILES}"
                           "${test_libs}"
+                          "${test_project}"
                           "-Dhttp_proxy"
-                          ${PYTHON_EXECUTABLE}
+                          ${Python3_EXECUTABLE}
                           "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
                           )
 
@@ -156,26 +136,13 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
   set_target_properties(http_texture_load
                         PROPERTIES
                         RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
-                        FOLDER "Tests"
+                        FOLDER "Tests/llcorehttp"
                         )
-
-  if (WINDOWS)
-    # The following come from LLAddBuildTest.cmake's INTEGRATION_TEST_xxxx target.
-    set_target_properties(http_texture_load
-                          PROPERTIES
-                          LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
-                          LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-                          LINK_FLAGS_RELEASE ""
-                          )
-  endif (WINDOWS)
-
-  if(DARWIN)
-    set_target_properties(http_texture_load
-                        PROPERTIES
-                        OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
-                        )
-  endif()
 
   target_link_libraries(http_texture_load ${example_libs})
 
-endif (LL_TESTS AND LLCOREHTTP_TESTS)
+  if (WINDOWS)
+    target_link_options(http_texture_load PRIVATE $<$<CONFIG:Release>:/DEBUG:NONE>)
+  endif()
+
+endif (BUILD_TESTING AND LLCOREHTTP_TESTS)

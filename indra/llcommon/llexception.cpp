@@ -19,19 +19,6 @@
 // external library headers
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/exception/error_info.hpp>
-// On Mac, got:
-// #error "Boost.Stacktrace requires `_Unwind_Backtrace` function. Define
-// `_GNU_SOURCE` macro or `BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED` if
-// _Unwind_Backtrace is available without `_GNU_SOURCE`."
-#define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
-
-#if LL_WINDOWS
-// On Windows, header-only implementation causes macro collisions -- use
-// prebuilt library
-#define BOOST_STACKTRACE_LINK
-#include <excpt.h>
-#endif // LL_WINDOWS
-
 #include <boost/stacktrace.hpp>
 // other Linden headers
 #include "llerror.h"

@@ -2,7 +2,6 @@
 
 include_guard()
 
-include(Prebuilt)
 include(GLIB)
 
 add_library( ll::gstreamer10 INTERFACE IMPORTED )
@@ -23,5 +22,5 @@ if (GSTREAMER10_FOUND AND GSTREAMER10_PLUGINS_BASE_FOUND)
 endif (GSTREAMER10_FOUND AND GSTREAMER10_PLUGINS_BASE_FOUND)
 
 if (GSTREAMER10)
-  add_definitions(-DLL_GSTREAMER10_ENABLED=1)
+  add_compile_definitions(LL_GSTREAMER10_ENABLED=1)
 endif (GSTREAMER10)

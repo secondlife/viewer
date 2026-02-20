@@ -1,0 +1,4 @@
+The Certificate Authority bundle included in this package is built
+from the data provided by the Mozilla NSS Project:
+
+https://www.mozilla.org/en-US/about/governance/policies/security-group/certs/

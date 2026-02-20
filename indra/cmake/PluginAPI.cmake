@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include_guard()
 
 include(OpenGL)
 
@@ -17,4 +18,4 @@ endif (WINDOWS)
 
 target_link_libraries( ll::pluginlibraries INTERFACE OpenGL::GL)
 
-target_include_directories( ll::pluginlibraries INTERFACE ${CMAKE_SOURCE_DIR}/llimage ${CMAKE_SOURCE_DIR}/llrender)
+target_include_directories( ll::pluginlibraries INTERFACE ${INDRA_SOURCE_DIR}/llimage ${INDRA_SOURCE_DIR}/llrender)

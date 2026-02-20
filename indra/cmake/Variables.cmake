@@ -11,213 +11,48 @@
 
 include_guard()
 
-# Switches set here and in 00-Common.cmake must agree with
-# https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables
-# Reading $LL_BUILD is an attempt to directly use those switches.
-if ("$ENV{AUTOBUILD_ADDRSIZE}" STREQUAL "" AND "${AUTOBUILD_ADDRSIZE_ENV}" STREQUAL "" )
-  message(FATAL_ERROR "Environment variable AUTOBUILD_ADDRSIZE must be set")
-elseif("$ENV{AUTOBUILD_ADDRSIZE}" STREQUAL "")
-  set( ENV{AUTOBUILD_ADDRSIZE} "${AUTOBUILD_ADDRSIZE_ENV}" )
-  message( "Setting ENV{AUTOBUILD_ADDRSIZE} to cached variable ${AUTOBUILD_ADDRSIZE_ENV}" )
+# Location of scripts directory
+set(SCRIPTS_DIR ${INDRA_SOURCE_DIR}/../scripts)
+
+# Select arch based on requested target processor
+string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} processor_lower)
+if(processor_lower STREQUAL "arm64" OR processor_lower STREQUAL "aarch64")
+  set(ARCH arm64)
+  set(BUILD_TARGET_IS_ARM64 ON CACHE INTERNAL "ARM64 BUILD" FORCE)
 else()
-  set( AUTOBUILD_ADDRSIZE_ENV "$ENV{AUTOBUILD_ADDRSIZE}" CACHE STRING "Save environment AUTOBUILD_ADDRSIZE" FORCE )
-endif ()
-
-if ("$ENV{AUTOBUILD_PLATFORM}" STREQUAL "" AND "${AUTOBUILD_PLATFORM_ENV}" STREQUAL "" )
-  message(FATAL_ERROR "Environment variable AUTOBUILD_PLATFORM must be set")
-elseif("$ENV{AUTOBUILD_PLATFORM}" STREQUAL "")
-  set( ENV{AUTOBUILD_PLATFORM} "${AUTOBUILD_PLATFORM_ENV}" )
-  message( "Setting ENV{AUTOBUILD_PLATFORM} to cached variable ${AUTOBUILD_PLATFORM_ENV}" )
-else()
-  set( AUTOBUILD_PLATFORM_ENV "$ENV{AUTOBUILD_PLATFORM}" CACHE STRING "Save environment AUTOBUILD_PLATFORM" FORCE )
-endif ()
-
-# Switches set here and in 00-Common.cmake must agree with
-# https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables
-# Reading $LL_BUILD is an attempt to directly use those switches.
-if ("$ENV{LL_BUILD_RELEASE}" STREQUAL "" AND "${LL_BUILD_RELEASE_ENV}" STREQUAL "" )
-  message(FATAL_ERROR "Environment variable LL_BUILD_RELEASE must be set")
-elseif("$ENV{LL_BUILD_RELEASE}" STREQUAL "")
-  set( ENV{LL_BUILD_RELEASE} "${LL_BUILD_RELEASE_ENV}" )
-  message( "Setting ENV{LL_BUILD_RELEASE} to cached variable ${LL_BUILD_RELEASE_ENV}" )
-else()
-  set( LL_BUILD_RELEASE_ENV "$ENV{LL_BUILD_RELEASE}" CACHE STRING "Save environment RELEASE" FORCE )
-endif ()
-
-if ("$ENV{LL_BUILD_RELWITHDEBINFO}" STREQUAL "" AND "${LL_BUILD_RELWITHDEBINFO_ENV}" STREQUAL "" )
-  message(FATAL_ERROR "Environment variable LL_BUILD_RELWITHDEBINFO must be set")
-elseif("$ENV{LL_BUILD_RELWITHDEBINFO}" STREQUAL "")
-  set( ENV{LL_BUILD_RELWITHDEBINFO} "${LL_BUILD_RELWITHDEBINFO_ENV}" )
-  message( "Setting ENV{LL_BUILD_RELWITHDEBINFO} to cached variable ${LL_BUILD_RELWITHDEBINFO_ENV}" )
-else()
-  set( LL_BUILD_RELWITHDEBINFO_ENV "$ENV{LL_BUILD_RELWITHDEBINFO}" CACHE STRING "Save environment RELWITHDEBINFO" FORCE )
-endif ()
-
-# Relative and absolute paths to subtrees.
-if(NOT DEFINED COMMON_CMAKE_DIR)
-    set(COMMON_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
-endif(NOT DEFINED COMMON_CMAKE_DIR)
-
-set(LIBS_CLOSED_PREFIX)
-set(LIBS_OPEN_PREFIX)
-set(SCRIPTS_PREFIX ../scripts)
-set(VIEWER_PREFIX)
-set(INTEGRATION_TESTS_PREFIX)
-set(LL_TESTS OFF CACHE BOOL "Build and run unit and integration tests (disable for build timing runs to reduce variation")
-set(INCREMENTAL_LINK OFF CACHE BOOL "Use incremental linking on win32 builds (enable for faster links on some machines)")
-set(ENABLE_MEDIA_PLUGINS ON CACHE BOOL "Turn off building media plugins if they are imported by third-party library mechanism")
-set(VIEWER_SYMBOL_FILE "" CACHE STRING "Name of tarball into which to place symbol files")
-
-if(LIBS_CLOSED_DIR)
-  file(TO_CMAKE_PATH "${LIBS_CLOSED_DIR}" LIBS_CLOSED_DIR)
-else(LIBS_CLOSED_DIR)
-  set(LIBS_CLOSED_DIR ${CMAKE_SOURCE_DIR}/${LIBS_CLOSED_PREFIX})
-endif(LIBS_CLOSED_DIR)
-if(LIBS_COMMON_DIR)
-  file(TO_CMAKE_PATH "${LIBS_COMMON_DIR}" LIBS_COMMON_DIR)
-else(LIBS_COMMON_DIR)
-  set(LIBS_COMMON_DIR ${CMAKE_SOURCE_DIR}/${LIBS_OPEN_PREFIX})
-endif(LIBS_COMMON_DIR)
-set(LIBS_OPEN_DIR ${LIBS_COMMON_DIR})
-
-set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/${SCRIPTS_PREFIX})
-set(VIEWER_DIR ${CMAKE_SOURCE_DIR}/${VIEWER_PREFIX})
-
-set(AUTOBUILD_INSTALL_DIR ${CMAKE_BINARY_DIR}/packages)
-
-set(LIBS_PREBUILT_DIR ${AUTOBUILD_INSTALL_DIR} CACHE PATH
-    "Location of prebuilt libraries.")
-
-if (EXISTS ${CMAKE_SOURCE_DIR}/Server.cmake)
-  # We use this as a marker that you can try to use the proprietary libraries.
-  set(INSTALL_PROPRIETARY ON CACHE BOOL "Install proprietary binaries")
-endif (EXISTS ${CMAKE_SOURCE_DIR}/Server.cmake)
-set(TEMPLATE_VERIFIER_OPTIONS "" CACHE STRING "Options for scripts/template_verifier.py")
-set(TEMPLATE_VERIFIER_MASTER_URL "https://github.com/secondlife/master-message-template/raw/master/message_template.msg" CACHE STRING "Location of the master message template")
-
-if (NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-      "Build type.  One of: Release RelWithDebInfo" FORCE)
-endif (NOT CMAKE_BUILD_TYPE)
-
-# If someone has specified an address size, use that to determine the
-# architecture.  Otherwise, let the architecture specify the address size.
-if (ADDRESS_SIZE EQUAL 32)
-  set(ARCH i686)
-elseif (ADDRESS_SIZE EQUAL 64)
   set(ARCH x86_64)
-else (ADDRESS_SIZE EQUAL 32)
-  # Note we cannot use if(DARWIN) here, this variable is set way lower
-  if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
-    set(ADDRESS_SIZE 64)
-    set(ARCH x86_64)
-  else()
-    # Use Python's platform.machine() since uname -m isn't available everywhere.
-    # Even if you can assume cygwin uname -m, the answer depends on whether
-    # you're running 32-bit cygwin or 64-bit cygwin! But even 32-bit Python will
-    # report a 64-bit processor.
-    execute_process(COMMAND
-            "${PYTHON_EXECUTABLE}" "-c"
-            "import platform; print( platform.machine() )"
-            OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string( REGEX MATCH ".*(64)$" RE_MATCH "${ARCH}" )
-    if( RE_MATCH AND ${CMAKE_MATCH_1} STREQUAL "64" )
-      set(ADDRESS_SIZE 64)
-      set(ARCH x86_64)
-    else()
-      set(ADDRESS_SIZE 32)
-      set(ARCH i686)
-    endif()
-  endif()
-endif (ADDRESS_SIZE EQUAL 32)
+  set(BUILD_TARGET_IS_X86_64 ON CACHE INTERNAL "X86_64 BUILD" FORCE)
+endif()
 
+# Only 64-bit architectures are supported
+set(ADDRESS_SIZE 64)
+
+# Determine build platform
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  set(WINDOWS ON BOOL FORCE)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(WINDOWS ON CACHE INTERNAL "Windows Build" FORCE)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(LINUX ON CACHE INTERNAL "Linux Build" FORCE)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(DARWIN ON CACHE INTERNAL "Darwin Build" FORCE)
+endif ()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(LINUX ON BOOl FORCE)
-
-  if (ADDRESS_SIZE EQUAL 32)
-    set(DEB_ARCHITECTURE i386)
-    set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
-    set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib32 ${CMAKE_SYSTEM_LIBRARY_PATH})
-  else (ADDRESS_SIZE EQUAL 32)
-    set(DEB_ARCHITECTURE amd64)
-    set(FIND_LIBRARY_USE_LIB64_PATHS ON)
-  endif (ADDRESS_SIZE EQUAL 32)
-
-  execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH
-      RESULT_VARIABLE DPKG_RESULT
-      OUTPUT_VARIABLE DPKG_ARCH
-      OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-  #message (STATUS "DPKG_RESULT ${DPKG_RESULT}, DPKG_ARCH ${DPKG_ARCH}")
-  if (DPKG_RESULT EQUAL 0)
-    set(CMAKE_LIBRARY_ARCHITECTURE ${DPKG_ARCH})
-    set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib/${DPKG_ARCH} /usr/local/lib/${DPKG_ARCH} ${CMAKE_SYSTEM_LIBRARY_PATH})
-  endif (DPKG_RESULT EQUAL 0)
-
-  # Only turn on headless if we can find osmesa libraries.
-  find_package(PkgConfig)
-  pkg_check_modules(OSMESA IMPORTED_TARGET GLOBAL osmesa)
-  if (OSMESA_FOUND)
-   set(BUILD_HEADLESS ON CACHE BOOL "Build headless libraries.")
-  endif (OSMESA_FOUND)
-
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(DARWIN 1)
-
-  string(REGEX MATCH "-mmacosx-version-min=([^ ]+)" scratch "$ENV{LL_BUILD}")
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "${CMAKE_MATCH_1}" CACHE STRING "macOS Deploy Target" FORCE)
-  message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET = '${CMAKE_OSX_DEPLOYMENT_TARGET}'")
-
-  # Use dwarf symbols for most libraries for compilation speed
-  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf")
-
-  string(REGEX MATCH "-O([^ ]*)" scratch "$ENV{LL_BUILD}")
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL "${CMAKE_MATCH_1}")
-  message(STATUS "CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL = '${CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL}'")
-
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_STRICT_ALIASING NO)
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH NO)
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS sse4.2)
-  # we must hard code this to off for now.  xcode's built in signing does not
-  # handle embedded app bundles such as CEF and others. Any signing for local
-  # development must be done after the build as we do in viewer_manifest.py for
-  # released builds
-  # https://stackoverflow.com/a/54296008
-  # With Xcode 14.1, apparently you must take drastic steps to prevent
-  # implicit signing.
-  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO)
-  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO)
-  # "-" represents "Sign to Run Locally" and empty string represents "Do Not Sign"
-  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
-  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "")
-  set(CMAKE_XCODE_ATTRIBUTE_DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING YES)
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_WARN_64_TO_32_BIT_CONVERSION NO)
-  set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "macOS Build Arch" FORCE)
-  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-    set(LL_MACOS_TEST_ARCHITECTURE "arm64")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  set(COMPILER_IS_MSVC ON CACHE INTERNAL "MSVC BUILD" FORCE)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    set(COMPILER_IS_CLANG_CL ON CACHE INTERNAL "CLANG-CL BUILD" FORCE)
   else()
-    set(LL_MACOS_TEST_ARCHITECTURE "x86_64")
+    set(COMPILER_IS_CLANG ON CACHE INTERNAL "CLANG BUILD" FORCE)
   endif()
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(COMPILER_IS_GCC ON CACHE INTERNAL "GCC BUILD" FORCE)
+endif ()
 
-# Default deploy grid
-set(GRID agni CACHE STRING "Target Grid")
 
-set(VIEWER_CHANNEL "Second Life Test" CACHE STRING "Viewer Channel Name")
-
-set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")
-set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
-
-set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
-
-set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")
-
-source_group("CMake Rules" FILES CMakeLists.txt)
-
+# Check if generator is multiconfig
 get_property(LL_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
+# Compatibility with legacy cmake flags
+if(DEFINED LL_TESTS)
+  set(BUILD_TESTING ${LL_TESTS} CACHE BOOL "Build and run unit and integration tests: disable for build timing runs to reduce variation" FORCE)
+endif()

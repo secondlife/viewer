@@ -33,11 +33,7 @@
 #include "llvector4a.h"
 #include "hbxxh.h"
 
-#ifdef LL_USESYSTEMLIBS
-# include <zlib.h>
-#else
-# include "zlib-ng/zlib.h"
-#endif
+#include <zlib.h>
 
 std::string model_names[] =
 {

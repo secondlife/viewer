@@ -35,6 +35,11 @@ class LLViewerObject;
 class LLMessageSystem;
 class LLMuteListObserver;
 
+#if LL_GNUC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object" // False positive in LLMuteList::compare_by_name
+#endif
+
 // An entry in the mute list.
 class LLMute
 {
@@ -213,5 +218,8 @@ private:
     observer_set_t mObservers;
 };
 
+#if LL_GNUC
+#pragma GCC diagnostic pop
+#endif
 
 #endif //LL_MUTELIST_H

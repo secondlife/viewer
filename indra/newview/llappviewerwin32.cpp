@@ -26,9 +26,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#ifdef INCLUDE_VLD
-#include "vld.h"
-#endif
 #include "llwin32headers.h"
 
 #include "llwindowwin32.h" // *FIX: for setting gIconResource.
@@ -76,7 +73,7 @@
 
 // Bugsplat (http://bugsplat.com) crash reporting tool
 #ifdef LL_BUGSPLAT
-#include "BugSplat.h"
+#include "bugsplat/BugSplat.h"
 #include "boost/json.hpp"                 // Boost.Json
 #include "llagent.h"                // for agent location
 #include "llstartup.h"
@@ -437,7 +434,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 
     LLWindowWin32::setDPIAwareness();
 
-#if WINDOWS_CRT_MEM_CHECKS && !INCLUDE_VLD
+#if WINDOWS_CRT_MEM_CHECKS
     _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF ); // dump memory leaks on exit
 #elif 0
     // Experimental - enable the low fragmentation heap

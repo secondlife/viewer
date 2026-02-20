@@ -1,0 +1,8 @@
+{
+  "name": "nvapi",
+  "version-string": "R580",
+  "description": "NVAPI is NVIDIA's core software development kit that allows direct access to NVIDIA GPUs and drivers on supported platforms.",
+  "homepage": "https://github.com/NVIDIA/nvapi",
+  "license": "MIT",
+  "supports": "windows & x64"
+}

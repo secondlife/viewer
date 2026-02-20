@@ -479,15 +479,15 @@ namespace tut
 
         lldp1.unpackFixed(f_unpkval, "linden_lab", FALSE, 8, 8);
 
-        ensure_approximately_equals("LLDataPackerAsciiFile::packFixed (iostring) failed", f_val, f_unpkval, 8);
+        ensure_approximately_equals("LLDataPackerAsciiFile::packFixed (iostring) failed", f_unpkval, f_val, 8);
     }
 
     template<> template<>
     void datapacker_test_object_t::test<14>()
     {
-        char str[] = "SecondLife is virtual World\0";
-        char strBinary[] = "SecondLife is virtual World";
-        char strBinaryFixed[] = "Fixed Data";
+        const char str[] = "SecondLife is virtual World";
+        const char strBinary[] = "SecondLife is virtual World";
+        const char strBinaryFixed[] = "Fixed Data";
         S32 sizeBinaryFixed = sizeof(strBinaryFixed);
         U8 valU8 = 'C';
         U16 valU16 = 0xFFFF;

@@ -2,14 +2,11 @@
 
 include_guard()
 
-if( NOT LL_TESTS )
+if(NOT BUILD_TESTING)
   return()
 endif()
 
-include(00-Common)
 include(LLTestCommand)
-include(bugsplat)
-include(Tut)
 
 #*****************************************************************************
 #   LL_ADD_PROJECT_UNIT_TESTS
@@ -34,23 +31,18 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   # Setup includes, paths, etc
   set(alltest_SOURCE_FILES
           )
-  set(alltest_DEP_TARGETS
-          # needed by the test harness itself
-          llcommon
-          )
-
   set(alltest_LIBRARIES
           lltut_runner_lib
           llcommon
+          ll::tut
           )
   if(NOT "${project}" STREQUAL "llmath")
     # add llmath as a dep unless the tested module *is* llmath!
-    list(APPEND alltest_DEP_TARGETS llmath)
     list(APPEND alltest_LIBRARIES llmath )
   endif()
 
   # Headers, for convenience in targets.
-  set(alltest_HEADER_FILES ${CMAKE_SOURCE_DIR}/test/test.h)
+  set(alltest_HEADER_FILES ${INDRA_SOURCE_DIR}/test/test.h)
 
   # start the source test executable definitions
   set(${project}_TEST_OUTPUT "")
@@ -95,20 +87,18 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_INCLUDE_DIRS ${source} LL_TEST_ADDITIONAL_INCLUDE_DIRS)
     target_include_directories (PROJECT_${project}_TEST_${name} PRIVATE ${${name}_test_additional_INCLUDE_DIRS} )
 
-    target_include_directories (PROJECT_${project}_TEST_${name} PRIVATE ${LIBS_OPEN_DIR}/test )
+    target_include_directories (PROJECT_${project}_TEST_${name} PRIVATE ${INDRA_SOURCE_DIR}/test ${INDRA_SOURCE_DIR}/llmath ${INDRA_SOURCE_DIR}/llui)
 
     set_target_properties(PROJECT_${project}_TEST_${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
     if (DARWIN)
       set_target_properties(PROJECT_${project}_TEST_${name}
           PROPERTIES
           BUILD_WITH_INSTALL_RPATH 1
-          INSTALL_RPATH "@executable_path/Resources"
+          INSTALL_RPATH "@executable_path/Frameworks"
           )
     endif(DARWIN)
 
-    if (USE_PRECOMPILED_HEADERS)
-      target_precompile_headers(PROJECT_${project}_TEST_${name} REUSE_FROM llprecompiled)
-    endif ()
+    target_precompile_headers(PROJECT_${project}_TEST_${name} REUSE_FROM llprecompiled_exe)
 
     #
     # Per-codefile additional / external project dep and lib dep property extraction
@@ -126,24 +116,31 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
 
     # Add to project
     target_link_libraries(PROJECT_${project}_TEST_${name} ${alltest_LIBRARIES} ${${name}_test_additional_PROJECTS} ${${name}_test_additional_LIBRARIES} )
-    add_dependencies( PROJECT_${project}_TEST_${name} ${alltest_DEP_TARGETS})
     # Compile-time Definitions
     GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_CFLAGS ${source} LL_TEST_ADDITIONAL_CFLAGS)
+    target_compile_options(PROJECT_${project}_TEST_${name} PRIVATE ${${name}_test_additional_CFLAGS})
+
+    # Add to Tests folder in IDE
     set_target_properties(PROJECT_${project}_TEST_${name}
             PROPERTIES
-            COMPILE_FLAGS "${${name}_test_additional_CFLAGS}"
-            COMPILE_DEFINITIONS "LL_TEST=${name};LL_TEST_${name}"
-            FOLDER "Tests"
+            FOLDER "Tests/${project}"
     )
+
+    target_compile_definitions(PROJECT_${project}_TEST_${name} PRIVATE
+            "LL_TEST=${name}"
+            "LL_TEST_${name}"
+    )
+
     if(LL_TEST_VERBOSE)
       message("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_CFLAGS ${${name}_test_additional_CFLAGS}")
     endif()
 
-    if (DARWIN)
+    if (WINDOWS)
+      target_link_options(PROJECT_${project}_TEST_${name} PRIVATE $<$<CONFIG:Release>:/DEBUG:NONE>)
+    elseif (DARWIN)
       # test binaries always need to be signed for local development
       set_target_properties(PROJECT_${project}_TEST_${name}
           PROPERTIES
-              OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
               XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-")
     endif ()
 
@@ -194,6 +191,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
         testname
         additional_source_files
         library_dependencies
+        testproject
         # variable args
         )
   if(TEST_DEBUG)
@@ -207,6 +205,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
   set(libraries
           lltut_runner_lib
+          ll::tut
           ${library_dependencies}
           )
 
@@ -219,27 +218,24 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   set_target_properties(INTEGRATION_TEST_${testname}
           PROPERTIES
           RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
-          COMPILE_DEFINITIONS "LL_TEST=${testname};LL_TEST_${testname}"
-          FOLDER "Tests"
+          FOLDER "Tests/${testproject}"
           )
+  target_compile_definitions(INTEGRATION_TEST_${testname} PRIVATE
+          "LL_TEST=${testname}"
+          "LL_TEST_${testname}"
+  )
 
-  # The following was copied to llcorehttp/CMakeLists.txt's texture_load target.
-  # Any changes made here should be replicated there.
   if (WINDOWS)
-    set_target_properties(INTEGRATION_TEST_${testname}
-            PROPERTIES
-            LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
-            )
-  endif ()
+    target_link_options(INTEGRATION_TEST_${testname} PRIVATE $<$<CONFIG:Release>:/DEBUG:NONE>)
+  endif()
 
   if (DARWIN)
     # test binaries always need to be signed for local development
     set_target_properties(INTEGRATION_TEST_${testname}
             PROPERTIES
-            OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
             XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
             BUILD_WITH_INSTALL_RPATH 1
-            INSTALL_RPATH "@executable_path/Resources"
+            INSTALL_RPATH "@executable_path/Frameworks"
             )
   endif ()
 
@@ -249,12 +245,8 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   endif()
 
   target_link_libraries(INTEGRATION_TEST_${testname} ${libraries})
-  target_include_directories (INTEGRATION_TEST_${testname} PRIVATE ${LIBS_OPEN_DIR}/test )
-
-  if (USE_PRECOMPILED_HEADERS)
-    target_include_directories (INTEGRATION_TEST_${testname} PRIVATE ${LIBS_OPEN_DIR}/llmath )
-    target_precompile_headers(INTEGRATION_TEST_${testname} REUSE_FROM llprecompiled)
-  endif ()
+  target_include_directories (INTEGRATION_TEST_${testname} PRIVATE ${INDRA_SOURCE_DIR}/test ${INDRA_SOURCE_DIR}/llmath ${INDRA_SOURCE_DIR}/llui)
+  target_precompile_headers(INTEGRATION_TEST_${testname} REUSE_FROM llprecompiled_exe)
 
   # Create the test running command
   set(test_command ${ARGN})
@@ -303,7 +295,7 @@ MACRO(SET_TEST_PATH LISTVAR)
     # We typically build/package only Release variants of third-party
     # libraries, so append the Release staging dir in case the library being
     # sought doesn't have a debug variant.
-    set(${LISTVAR} ${SHARED_LIB_STAGING_DIR} ${SHARED_LIB_STAGING_DIR}/Release/Resources /usr/lib)
+    set(${LISTVAR} ${SHARED_LIB_STAGING_DIR} ${SHARED_LIB_STAGING_DIR}/Release/Frameworks /usr/lib)
   ELSE(WINDOWS)
     # Linux uses a single staging directory anyway.
     set(${LISTVAR} ${SHARED_LIB_STAGING_DIR} /usr/lib)

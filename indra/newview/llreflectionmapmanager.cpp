@@ -46,9 +46,9 @@
 #pragma warning (disable : 4702) // compiler complains unreachable code
 #endif
 #define TINYEXR_USE_MINIZ 0
-#include "zlib.h"
+#include <zlib.h>
 #define TINYEXR_IMPLEMENTATION
-#include "tinyexr/tinyexr.h"
+#include <tinyexr.h>
 #if LL_WINDOWS
 #pragma warning (pop)
 #endif

@@ -1,16 +1,9 @@
 # -*- cmake -*-
 
-project(llui)
+add_library (llui STATIC)
 
-include(00-Common)
-include(Hunspell)
-include(LLCommon)
-include(LLImage)
-include(LLCoreHttp)
-include(LLWindow)
-include(LLCoreHttp)
-
-set(llui_SOURCE_FILES
+target_sources(llui
+    PRIVATE
     llaccordionctrl.cpp
     llaccordionctrltab.cpp
     llbadge.cpp
@@ -39,7 +32,7 @@ set(llui_SOURCE_FILES
     llfloater.cpp
     llfloaterreg.cpp
     llfloaterreglistener.cpp
-    llflyoutbutton.cpp 
+    llflyoutbutton.cpp
     llfocusmgr.cpp
     llfolderview.cpp
     llfolderviewitem.cpp
@@ -53,7 +46,7 @@ set(llui_SOURCE_FILES
     llmenubutton.cpp
     llmenugl.cpp
     llmodaldialog.cpp
-    llmultifloater.cpp 
+    llmultifloater.cpp
     llmultislider.cpp
     llmultisliderctrl.cpp
     llnotifications.cpp
@@ -117,11 +110,10 @@ set(llui_SOURCE_FILES
     llwindowshade.cpp
     llxuiparser.cpp
     llxyvector.cpp
-    )
-    
-set(llui_HEADER_FILES
-    CMakeLists.txt
 
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     llaccordionctrl.h
     llaccordionctrltab.h
     llbadge.h
@@ -146,13 +138,13 @@ set(llui_HEADER_FILES
     llemojidictionary.h
     llemojihelper.h
     llf32uictrl.h
-    llfiltereditor.h 
+    llfiltereditor.h
     llflashtimer.h
     llflatlistview.h
     llfloater.h
     llfloaterreg.h
     llfloaterreglistener.h
-    llflyoutbutton.h 
+    llflyoutbutton.h
     llfocusmgr.h
     llfolderview.h
     llfolderviewitem.h
@@ -169,7 +161,7 @@ set(llui_HEADER_FILES
     llmenubutton.h
     llmenugl.h
     llmodaldialog.h
-    llmultifloater.h 
+    llmultifloater.h
     llmultisliderctrl.h
     llmultislider.h
     llnotificationptr.h
@@ -186,7 +178,7 @@ set(llui_HEADER_FILES
     llresmgr.h
     llrngwriter.h
     llsearchablecontrol.h
-    llsearcheditor.h 
+    llsearcheditor.h
     llscrollbar.h
     llscrollcontainer.h
     llscrollingpanellist.h
@@ -252,13 +244,11 @@ set_source_files_properties(llurlentry.cpp
     "${llurlentry_TEST_DEPENDENCIES}"
     )
 
-list(APPEND llui_SOURCE_FILES ${llui_HEADER_FILES})
-
-add_library (llui ${llui_SOURCE_FILES})
 target_include_directories( llui  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llui
+        PUBLIC
         llrender
         llwindow
         llimage
@@ -268,17 +258,14 @@ target_link_libraries(llui
         llfilesystem
         llxml
         llmath
-        ll::hunspell
         llcommon
+        ll::hunspell
     )
 
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llui REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llui REUSE_FROM llprecompiled)
 
 # Add tests
-if(LL_TESTS)
-  include(LLAddBuildTest)
+if(BUILD_TESTING)
   set(test_libs llmessage llcorehttp llxml llrender llcommon ll::hunspell)
 
   SET(llui_TEST_SOURCE_FILES
@@ -288,6 +275,7 @@ if(LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")
 
   # INTEGRATION TESTS
-  set(test_libs llui llmessage llcorehttp llxml llrender llcommon ll::hunspell )
-  LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
-endif(LL_TESTS)
+  set(test_libs llui llmessage llcorehttp llxml llrender llcommon ll::hunspell)
+  set(test_project llui)
+  LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}" "${test_project}")
+endif()

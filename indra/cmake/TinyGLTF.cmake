@@ -1,7 +1,6 @@
 # -*- cmake -*-
-include(Prebuilt)
+include_guard()
+add_library( ll::tinygltf INTERFACE IMPORTED )
 
-use_prebuilt_binary(tinygltf)
-
-set(TINYGLTF_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/tinygltf)
-
+find_path(TINYGLTF_INCLUDE_DIRS "tiny_gltf.h" REQUIRED)
+target_include_directories(ll::tinygltf SYSTEM INTERFACE ${TINYGLTF_INCLUDE_DIRS})

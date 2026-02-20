@@ -32,7 +32,7 @@
 #include "llsdserialize.h"
 
 // NOTE -- this should be the one and only place tiny_gltf.h is included
-#include "tinygltf/tiny_gltf.h"
+#include <tiny_gltf.h>
 #include "llgltfmaterial_templates.h"
 
 const char* const LLGLTFMaterial::ASSET_VERSION = "1.1";

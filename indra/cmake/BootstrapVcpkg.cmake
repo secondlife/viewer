@@ -1,0 +1,105 @@
+# -*- cmake -*-
+#
+# Automatic clone and bootstrap of a vcpkg_root environment when VCPKG_ROOT is not found
+# Automatic vcpkg target triplet selection based on generator and platform
+
+include_guard(GLOBAL)
+
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+  include(FetchContent)
+
+  if(DEFINED ENV{VCPKG_ROOT})
+    set(VCPKG_ROOT $ENV{VCPKG_ROOT})
+
+    if(WIN32)
+        set(VCPKG_EXECUTABLE ${VCPKG_ROOT}/vcpkg.exe)
+    else()
+        set(VCPKG_EXECUTABLE ${VCPKG_ROOT}/vcpkg)
+    endif()
+
+    if(NOT EXISTS "${VCPKG_EXECUTABLE}")
+        message(FATAL_ERROR "VCPKG_ROOT found in environment but vcpkg executable could not be found.")
+    endif()
+  else()
+    set(VCPKG_ROOT ${CMAKE_BINARY_DIR}/vcpkg_root)
+    set(ENV{VCPKG_ROOT} ${VCPKG_ROOT})
+
+    FetchContent_Populate(
+        vcpkg
+        GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
+        SOURCE_DIR ${VCPKG_ROOT}
+    )
+
+    if(WIN32)
+        set(VCPKG_EXECUTABLE ${VCPKG_ROOT}/vcpkg.exe)
+        set(VCPKG_BOOTSTRAP ${VCPKG_ROOT}/bootstrap-vcpkg.bat)
+    else()
+        set(VCPKG_EXECUTABLE ${VCPKG_ROOT}/vcpkg)
+        set(VCPKG_BOOTSTRAP ${VCPKG_ROOT}/bootstrap-vcpkg.sh)
+    endif()
+
+    if(NOT EXISTS "${VCPKG_EXECUTABLE}")
+        message("Bootstrapping vcpkg in ${VCPKG_ROOT}")
+        execute_process(COMMAND "${VCPKG_BOOTSTRAP}" WORKING_DIRECTORY "${VCPKG_ROOT}")
+        if(NOT EXISTS "${VCPKG_EXECUTABLE}")
+            message(FATAL_ERROR "Could not bootstrap vcpkg")
+        endif()
+    endif()
+  endif()
+
+  set(CMAKE_TOOLCHAIN_FILE ${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake CACHE STRING "")
+endif()
+
+if(NOT DEFINED VCPKG_TARGET_TRIPLET)
+    # Check if generator is multiconfig
+    get_property(LL_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+    if(WIN32)
+        if(LL_GENERATOR_IS_MULTI_CONFIG)
+            set(VCPKG_TARGET_TRIPLET "x64-windows-secondlife")
+        else()
+            if(CMAKE_BUILD_TYPE STREQUAL Debug)
+                set(VCPKG_TARGET_TRIPLET "x64-windows-secondlife")
+            else()
+                set(VCPKG_TARGET_TRIPLET "x64-windows-secondlife-release")
+            endif()
+        endif()
+    elseif(APPLE)
+        if(DEFINED CMAKE_OSX_ARCHITECTURES)
+            set(OS_PLATFORM "${CMAKE_OSX_ARCHITECTURES}")
+        else()
+            cmake_host_system_information(RESULT OS_PLATFORM QUERY OS_PLATFORM)
+        endif()
+        if(LL_GENERATOR_IS_MULTI_CONFIG)
+            if(OS_PLATFORM STREQUAL arm64)
+                set(VCPKG_TARGET_TRIPLET "arm64-osx-secondlife")
+            else()
+                set(VCPKG_TARGET_TRIPLET "x64-osx-secondlife")
+            endif()
+        else()
+            if(OS_PLATFORM STREQUAL arm64)
+                if(CMAKE_BUILD_TYPE STREQUAL Debug)
+                    set(VCPKG_TARGET_TRIPLET "arm64-osx-secondlife")
+                else()
+                    set(VCPKG_TARGET_TRIPLET "arm64-osx-secondlife-release")
+                endif()
+            else()
+                if(CMAKE_BUILD_TYPE STREQUAL Debug)
+                    set(VCPKG_TARGET_TRIPLET "x64-osx-secondlife")
+                else()
+                    set(VCPKG_TARGET_TRIPLET "x64-osx-secondlife-release")
+                endif()
+            endif()
+        endif()
+    else()
+        if(LL_GENERATOR_IS_MULTI_CONFIG)
+            set(VCPKG_TARGET_TRIPLET "x64-linux-secondlife")
+        else()
+            if(CMAKE_BUILD_TYPE STREQUAL Debug)
+                set(VCPKG_TARGET_TRIPLET "x64-linux-secondlife")
+            else()
+                set(VCPKG_TARGET_TRIPLET "x64-linux-secondlife-release")
+            endif()
+        endif()
+    endif()
+endif()

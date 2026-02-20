@@ -1,14 +1,9 @@
 # -*- cmake -*-
 
-project(llmath)
+add_library(llmath STATIC)
 
-include(00-Common)
-include(LLCommon)
-include(bugsplat)
-include(Boost)
-include(SSE2NEON)
-
-set(llmath_SOURCE_FILES
+target_sources(llmath
+    PRIVATE
     llbbox.cpp
     llbboxlocal.cpp
     llcalc.cpp
@@ -18,6 +13,7 @@ set(llmath_SOURCE_FILES
     llline.cpp
     llmatrix3a.cpp
     llmatrix4a.cpp
+    llmeshoptimizer.cpp
     llmodularmath.cpp
     lloctree.cpp
     llperlin.cpp
@@ -42,9 +38,10 @@ set(llmath_SOURCE_FILES
     xform.cpp
     )
 
-set(llmath_HEADER_FILES
-    CMakeLists.txt
-
+target_sources(llmath
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     llbbox.h
     llbboxlocal.h
     llcalc.h
@@ -58,6 +55,7 @@ set(llmath_HEADER_FILES
     llmatrix3a.h
     llmatrix3a.inl
     llmatrix4a.h
+    llmeshoptimizer.h
     llmodularmath.h
     lloctree.h
     llperlin.h
@@ -93,20 +91,12 @@ set(llmath_HEADER_FILES
     xform.h
     )
 
-list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
-
-add_library(llmath ${llmath_SOURCE_FILES})
-
-target_link_libraries(llmath llcommon llmeshoptimizer ll::sse2neon)
+target_link_libraries(llmath PUBLIC llcommon ll::mikktspace ll::sse2neon ll::meshoptimizer)
 target_include_directories(llmath  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llmath REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llmath REUSE_FROM llprecompiled)
 
 # Add tests
-if (LL_TESTS)
-  include(LLAddBuildTest)
+if (BUILD_TESTING)
   # UNIT TESTS
   SET(llmath_TEST_SOURCE_FILES
     llbboxlocal.cpp
@@ -122,14 +112,15 @@ if (LL_TESTS)
 
   # INTEGRATION TESTS
   set(test_libs llmath llcommon)
+  set(test_project llmath)
   # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
-  LL_ADD_INTEGRATION_TEST(alignment "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llbbox llbbox.cpp "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llquaternion llquaternion.cpp "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(mathmisc "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(m3math "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(v3dmath v3dmath.cpp "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}")
-endif (LL_TESTS)
+  LL_ADD_INTEGRATION_TEST(alignment "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llbbox llbbox.cpp "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llquaternion llquaternion.cpp "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(mathmisc "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(m3math "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(v3dmath v3dmath.cpp "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}" "${test_project}")
+endif ()

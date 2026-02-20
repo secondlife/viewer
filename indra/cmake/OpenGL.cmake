@@ -1,6 +1,4 @@
 # -*- cmake -*-
-
-include(Variables)
-include(Prebuilt)
-include(FindOpenGL)
+include_guard()
+find_package(OpenGL REQUIRED)
 

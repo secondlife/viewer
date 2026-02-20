@@ -1,5 +1,7 @@
 # -*- cmake -*-
 include_guard()
 
-include(Prebuilt)
-use_prebuilt_binary(xxhash)
+add_library(ll::xxhash INTERFACE IMPORTED)
+
+find_package(xxHash CONFIG REQUIRED)
+target_link_libraries(ll::xxhash INTERFACE xxHash::xxhash)

@@ -33,20 +33,32 @@
 #include "stringize.h"
 #include <openssl/evp.h>
 #include <openssl/err.h>
+#include <openssl/provider.h>
 #include <map>
 
 
 
 std::map<std::string, LLPointer<LLSecAPIHandler> > gHandlerMap;
 LLPointer<LLSecAPIHandler> gSecAPIHandler;
+OSSL_PROVIDER* gOSSLLegacyProvider = nullptr;
 
 void initializeSecHandler()
 {
+#if LL_WINDOWS
+    // We dynamiclly link openssl on windows
+    OSSL_PROVIDER_set_default_search_path(nullptr, gDirUtilp->getExecutableDir().c_str());
+#endif
+    /* Load Legacy provider into the default (nullptr) library context */
+    gOSSLLegacyProvider = OSSL_PROVIDER_try_load(nullptr, "legacy", 1);
+    if (!gOSSLLegacyProvider)
+    {
+        LL_WARNS() << "Failed to load OpenSSL legacy provider, expect problems." << LL_ENDL;
+    }
+
     ERR_load_crypto_strings();
     OpenSSL_add_all_algorithms();
 
     gHandlerMap[BASIC_SECHANDLER] = new LLSecAPIBasicHandler();
-
 
     // Currently, we only have the Basic handler, so we can point the main sechandler
     // pointer to the basic handler.  Later, we'll create a wrapper handler that
@@ -64,7 +76,7 @@ void initializeSecHandler()
         {
             handler->init();
         }
-        catch (LLProtectedDataException& e)
+        catch (const LLProtectedDataException& e)
         {
             exception_msg = e.what();
         }
@@ -78,9 +90,15 @@ void initializeSecHandler()
 
 void clearSecHandler()
 {
-    gSecAPIHandler = NULL;
+    gSecAPIHandler = nullptr;
     gHandlerMap.clear();
+    if (gOSSLLegacyProvider)
+    {
+        OSSL_PROVIDER_unload(gOSSLLegacyProvider);
+        gOSSLLegacyProvider = nullptr;
+    }
 }
+
 // start using a given security api handler.  If the string is empty
 // the default is used
 LLPointer<LLSecAPIHandler> getSecHandler(const std::string& handler_type)

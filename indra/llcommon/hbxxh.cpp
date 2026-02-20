@@ -33,8 +33,12 @@
 // (*) SSE2 is normally used for x86(_64) builds, unless you enabled AVX2
 // in your build, in which case the latter would be used instead. For ARM64
 // builds, this would also automatically enable NEON vectorization.
+#if LL_WINDOWS || LL_DARWIN
 #define XXH_INLINE_ALL
-#include "xxhash/xxhash.h"
+#else // GCC has issues force inlining all of xxhash
+#define XXH_STATIC_LINKING_ONLY
+#endif
+#include <xxhash.h>
 
 #include "hbxxh.h"
 

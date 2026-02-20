@@ -1,0 +1,93 @@
+diff --git a/lib/multi.c b/lib/multi.c
+index c3a0d122cb..a7f870aef5 100644
+--- a/lib/multi.c
++++ b/lib/multi.c
+@@ -400,6 +400,8 @@ CURLMcode curl_multi_add_handle(struct Curl_multi *multi,
+   /* Point to the multi's connection cache */
+   data->state.conn_cache = &multi->conn_cache;
+ 
++  data->state.infilesize = data->set.filesize;
++
+   /* This adds the new entry at the 'end' of the doubly-linked circular
+      list of Curl_easy structs to try and maintain a FIFO queue so
+      the pipelined requests are in order. */
+@@ -1394,7 +1396,16 @@ static CURLMcode multi_runsingle(struct Curl_multi *multi,
+           stream_error = TRUE;
+         }
+         result = CURLE_OPERATION_TIMEDOUT;
+-        (void)multi_done(&data->easy_conn, result, TRUE);
++        /* Linden 1420 */
++        /* https://curl.haxx.se/mail/tracker-2014-10/0040.html */
++        if(data->easy_conn) {
++          infof(data, "Request timed out.  Signal all requests on connection.\n");
++          data->easy_conn->bits.poisoned_1420 = TRUE;
++          Curl_posttransfer(data);
++          multi_done(&data->easy_conn, result, FALSE);
++        } else {
++          (void)multi_done(&data->easy_conn, result, TRUE);
++        }
+         /* Skip the statemachine and go directly to error handling section. */
+         goto statemachine_end;
+       }
+@@ -1811,6 +1822,14 @@ static CURLMcode multi_runsingle(struct Curl_multi *multi,
+         multistate(data, CURLM_STATE_PERFORM);
+         rc = CURLM_CALL_MULTI_PERFORM;
+       }
++#ifdef DEBUGBUILD
++      else {
++        infof(data, "WAITPERFORM: Conn %ld recv pipe %zu inuse %s\n",
++              data->easy_conn->connection_id,
++              data->easy_conn->recv_pipe.size,
++              data->easy_conn->readchannel_inuse?"TRUE":"FALSE");
++      }
++#endif
+       break;
+ 
+     case CURLM_STATE_TOOFAST: /* limit-rate exceeded in either direction */
+@@ -2688,7 +2707,7 @@ CURLMcode curl_multi_setopt(struct Curl_multi *multi,
+     multi->push_userp = va_arg(param, void *);
+     break;
+   case CURLMOPT_PIPELINING:
+-    multi->pipelining = va_arg(param, long);
++    multi->pipelining = (0 != va_arg(param, long)) ? CURLPIPE_HTTP1 : 0L;
+     break;
+   case CURLMOPT_TIMERFUNCTION:
+     multi->timer_cb = va_arg(param, curl_multi_timer_callback);
+diff --git a/lib/url.c b/lib/url.c
+index 87446dbca3..f9359ec418 100644
+--- a/lib/url.c
++++ b/lib/url.c
+@@ -3143,8 +3143,8 @@ static int IsPipeliningPossible(const struct Curl_easy *handle,
+ 
+   /* If a HTTP protocol and pipelining is enabled */
+   if((conn->handler->protocol & PROTO_FAMILY_HTTP) &&
+-     (!conn->bits.protoconnstart || !conn->bits.close)) {
+-
++     (!conn->bits.protoconnstart || !conn->bits.close) &&
++     (!conn->bits.poisoned_1420)) { /* Linden 1420 */
+     if(Curl_pipeline_wanted(handle->multi, CURLPIPE_HTTP1) &&
+        (handle->set.httpversion != CURL_HTTP_VERSION_1_0) &&
+        (handle->set.httpreq == HTTPREQ_GET ||
+@@ -4217,7 +4217,8 @@ static struct connectdata *allocate_conn(struct Curl_easy *data)
+   conn->bits.user_passwd = (data->set.str[STRING_USERNAME]) ? TRUE : FALSE;
+   conn->bits.ftp_use_epsv = data->set.ftp_use_epsv;
+   conn->bits.ftp_use_eprt = data->set.ftp_use_eprt;
+-
++  conn->bits.poisoned_1420 = FALSE;                     /* Linden 1420 */
++  
+   conn->ssl_config.verifystatus = data->set.ssl.primary.verifystatus;
+   conn->ssl_config.verifypeer = data->set.ssl.primary.verifypeer;
+   conn->ssl_config.verifyhost = data->set.ssl.primary.verifyhost;
+diff --git a/lib/urldata.h b/lib/urldata.h
+index d4a4a98dcd..edd5344b3c 100644
+--- a/lib/urldata.h
++++ b/lib/urldata.h
+@@ -574,6 +574,8 @@ struct ConnectBits {
+                  connection */
+   bool type_set;  /* type= was used in the URL */
+   bool multiplex; /* connection is multiplexed */
++  bool poisoned_1420; /* Linden 1420 - Connection became unusable and must not
++                         be considered for pipelining. */
+ 
+   bool tcp_fastopen; /* use TCP Fast Open */
+   bool tls_enable_npn;  /* TLS NPN extension? */

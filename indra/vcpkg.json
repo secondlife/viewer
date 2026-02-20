@@ -1,0 +1,200 @@
+{
+  "builtin-baseline": "66c0373dc7fca549e5803087b9487edfe3aca0a1",
+  "dependencies": [
+    "apr",
+    "apr-util",
+    "boost-asio",
+    "boost-circular-buffer",
+    "boost-fiber",
+    "boost-graph",
+    "boost-iostreams",
+    "boost-json",
+    "boost-program-options",
+    "boost-random",
+    "boost-regex",
+    "boost-signals2",
+    "boost-spirit",
+    "boost-stacktrace",
+    "boost-url",
+    "collada-dom",
+    {
+      "name": "curl",
+      "features": [
+        "http2",
+        "openssl"
+      ]
+    },
+    "dullahan-bin",
+    "expat",
+    {
+      "name": "fontconfig",
+      "platform": "linux"
+    },
+    {
+      "name": "fontconfig",
+      "platform": "linux"
+    },
+    "freealut",
+    {
+      "name": "freetype",
+      "features": [
+        "brotli",
+        "error-strings",
+        "png",
+        "subpixel-rendering",
+        "zlib"
+      ]
+    },
+    "glm",
+    "hunspell",
+    {
+      "name": "libjpeg-turbo",
+      "features": [
+        "jpeg8"
+      ]
+    },
+    {
+      "name": "libndofdev",
+      "platform": "windows | osx"
+    },
+    "libpng",
+    "libvorbis",
+    "meshoptimizer",
+    "minizip",
+    "nanosvg",
+    {
+      "name": "nvapi",
+      "platform": "windows & x64"
+    },
+    {
+      "name": "open-libndofdev",
+      "platform": "linux"
+    },
+    {
+      "name": "openal-soft",
+      "features": [
+        {
+          "name": "pipewire",
+          "platform": "linux"
+        },
+        {
+          "name": "pulseaudio",
+          "platform": "linux"
+        }
+      ]
+    },
+    "opengl-registry",
+    "openjpeg",
+    {
+      "name": "openssl",
+      "features": [
+        "weak-ssl-ciphers"
+      ]
+    },
+    {
+      "name": "pkgconf",
+      "platform": "windows | osx"
+    },
+    "secondlife-certificates",
+    "secondlife-dictionaries",
+    "secondlife-emoji-shortcodes",
+    "secondlife-fonts",
+    "slvoice",
+    {
+      "name": "sse2neon",
+      "platform": "osx"
+    },
+    "tinyexr",
+    "tinygltf",
+    "v-hacd",
+    {
+      "name": "viewer-manager",
+      "platform": "windows | osx"
+    },
+    {
+      "name": "vlc-bin",
+      "platform": "windows | osx"
+    },
+    "webrtc-bin",
+    "xxhash",
+    "zlib"
+  ],
+  "default-features": [
+    {
+      "name": "sdl3",
+      "platform": "linux"
+    }
+  ],
+  "features": {
+    "bugsplat": {
+      "description": "Build with support for Bugsplat crash reporting",
+      "dependencies": [
+        {
+          "name": "bugsplat",
+          "platform": "windows & x64"
+        },
+        {
+          "name": "bugsplat-apple",
+          "platform": "osx"
+        }
+      ]
+    },
+    "kdu": {
+      "description": "Build with support for Kakadu JPEG2000",
+      "dependencies": [
+        "kdu"
+      ]
+    },
+    "openxr": {
+      "description": "Build with support for OpenXR(experimental)",
+      "dependencies": [
+        "openxr-loader"
+      ]
+    },
+    "sdl3": {
+      "description": "Build with platform independent SDL window backend",
+      "dependencies": [
+        "sdl3"
+      ]
+    },
+    "tracy": {
+      "description": "Build with Tracy profiler support",
+      "dependencies": [
+        "tracy"
+      ]
+    },
+    "tracy-gui": {
+      "description": "Build with Tracy profiler GUI support",
+      "dependencies": [
+        {
+          "name": "tracy",
+          "features": [
+            "gui-tools"
+          ]
+        }
+      ]
+    },
+    "tracy-local": {
+      "description": "Build with Tracy profiler with localhost only",
+      "dependencies": [
+        {
+          "name": "tracy",
+          "features": [
+            "localhost"
+          ]
+        }
+      ]
+    },
+    "tracy-on-demand": {
+      "description": "Build with Tracy profiler support",
+      "dependencies": [
+        {
+          "name": "tracy",
+          "features": [
+            "on-demand"
+          ]
+        }
+      ]
+    }
+  }
+}

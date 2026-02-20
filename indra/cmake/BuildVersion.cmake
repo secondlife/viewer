@@ -1,8 +1,10 @@
 # -*- cmake -*-
-# Construct the viewer version number based on the indra/VIEWER_VERSION file
 
+set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
+
+# Construct the viewer version number based on the indra/VIEWER_VERSION file
 if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/newview/
-    set(VIEWER_VERSION_BASE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/newview/VIEWER_VERSION.txt")
+    set(VIEWER_VERSION_BASE_FILE "${INDRA_SOURCE_DIR}/newview/VIEWER_VERSION.txt")
 
     if ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
         file(STRINGS ${VIEWER_VERSION_BASE_FILE} VIEWER_SHORT_VERSION REGEX "^[0-9]+\\.[0-9]+\\.[0-9]+")
@@ -14,15 +16,15 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
            set(VIEWER_VERSION_REVISION $ENV{revision})
            message(STATUS "Revision (from environment): ${VIEWER_VERSION_REVISION}")
 
-        elseif (DEFINED ENV{AUTOBUILD_BUILD_ID})
-           set(VIEWER_VERSION_REVISION $ENV{AUTOBUILD_BUILD_ID})
-           message(STATUS "Revision (from autobuild environment): ${VIEWER_VERSION_REVISION}")
+        elseif (DEFINED ENV{GITHUB_RUN_ID})
+           set(VIEWER_VERSION_REVISION $ENV{GITHUB_RUN_ID})
+           message(STATUS "Revision (from github environment): ${VIEWER_VERSION_REVISION}")
 
-        else (DEFINED ENV{revision})
-            find_program(GIT git)
-            if (DEFINED GIT )
+        else ()
+            find_package(Git)
+            if (Git_FOUND)
                 execute_process(
-                        COMMAND ${GIT} rev-list --count HEAD
+                        COMMAND ${GIT_EXECUTABLE} rev-list --count HEAD
                         OUTPUT_VARIABLE VIEWER_VERSION_REVISION
                         OUTPUT_STRIP_TRAILING_WHITESPACE
                 )
@@ -32,10 +34,10 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
                     message(STATUS "Revision not set (repository not found?); using 0")
                     set(VIEWER_VERSION_REVISION 0 )
                 endif ("${VIEWER_VERSION_REVISION}" MATCHES "^[0-9]+$")
-            else (DEFINED GIT )
-                message(STATUS "Revision not set: 'git' found; using 0")
+            else ()
+                message(STATUS "Revision not set: 'git' not found; using 0")
                 set(VIEWER_VERSION_REVISION 0)
-            endif (DEFINED GIT)
+            endif ()
         endif (DEFINED ENV{revision})
         message(STATUS "Building '${VIEWER_CHANNEL}' Version ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
     else ( EXISTS ${VIEWER_VERSION_BASE_FILE} )

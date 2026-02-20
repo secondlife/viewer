@@ -1,17 +1,9 @@
 # -*- cmake -*-
 
-project(llmessage)
+add_library(llmessage STATIC)
 
-include(00-Common)
-include(LLAddBuildTest)
-include(LLCommon)
-include(LLCoreHttp)
-include(LLAddBuildTest)
-include(Python)
-include(Tut)
-include(Python)
-
-set(llmessage_SOURCE_FILES
+target_sources(llmessage
+    PRIVATE
     llassetstorage.cpp
     llavatarname.cpp
     llavatarnamecache.cpp
@@ -85,9 +77,10 @@ set(llmessage_SOURCE_FILES
     sound_ids.cpp
     )
 
-set(llmessage_HEADER_FILES
-    CMakeLists.txt
-
+target_sources(llmessage
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     llassetstorage.h
     llavatarname.h
     llavatarnamecache.h
@@ -175,25 +168,19 @@ set(llmessage_HEADER_FILES
     sound_ids.h
     )
 
-list(APPEND llmessage_SOURCE_FILES ${llmessage_HEADER_FILES})
-
-add_library (llmessage ${llmessage_SOURCE_FILES})
-
 target_link_libraries(
         llmessage
+        PUBLIC
         llcommon
         llfilesystem
         llmath
         llcorehttp
 )
 target_include_directories( llmessage  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llmessage REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llmessage REUSE_FROM llprecompiled)
 
 # tests
-if (LL_TESTS)
+if (BUILD_TESTING)
   SET(llmessage_TEST_SOURCE_FILES
     llcoproceduremanager.cpp
     llnamevalue.cpp
@@ -213,22 +200,24 @@ if (LL_TESTS)
           llcommon
           )
 
-  LL_ADD_INTEGRATION_TEST(io "tests/llpipeutil.cpp" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llbuffer "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(lldatapacker "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llhttpnode "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(lliohttpserver "tests/llpipeutil.cpp" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llsdmessagebuilder "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llsdmessagereader "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llmessageconfig "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llmessagetemplateparser "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llservicebuilder "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(lltemplatemessagebuilder "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llxorcipher "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(message "" "${test_libs}")
-endif (LL_TESTS)
+  set(test_project llmessage)
+
+  LL_ADD_INTEGRATION_TEST(io "tests/llpipeutil.cpp" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llbuffer "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(lldatapacker "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llhttpnode "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(lliohttpserver "tests/llpipeutil.cpp" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llsdmessagebuilder "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llsdmessagereader "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llmessageconfig "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llmessagetemplateparser "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llservicebuilder "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(lltemplatemessagebuilder "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(llxorcipher "" "${test_libs}" "${test_project}")
+  LL_ADD_INTEGRATION_TEST(message "" "${test_libs}" "${test_project}")
+endif ()
 

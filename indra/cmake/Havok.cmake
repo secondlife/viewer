@@ -1,6 +1,11 @@
 # -*- cmake -*-
-include(Prebuilt)
 include_guard()
+
+# TODO: Remove once Havok is integrated into vcpkg
+return()
+
+include(Prebuilt)
+
 
 use_prebuilt_binary(havok-source)
 

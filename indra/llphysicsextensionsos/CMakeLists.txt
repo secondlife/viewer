@@ -1,13 +1,9 @@
 # -*- cmake -*-
 
-project(llphysicsextensionsos)
+add_library(llphysicsextensionsos STATIC)
 
-include(00-Common)
-include(LLCommon)
-include(LLMath)
-include(VHACD)
-
-set(llphysicsextensionsos_SOURCE_FILES
+target_sources(llphysicsextensionsos
+        PRIVATE
         llconvexdecomposition.cpp
         llconvexdecompositionvhacd.cpp
         llpathinglib.cpp
@@ -16,8 +12,10 @@ set(llphysicsextensionsos_SOURCE_FILES
         LLPhysicsExtensionsStubImpl.cpp
         )
 
-set(llphysicsextensionsos_HEADER_FILES
-        CMakeLists.txt
+target_sources(llphysicsextensionsos
+        PUBLIC
+        FILE_SET HEADERS
+        FILES
         llconvexdecomposition.h
         llconvexdecompositionvhacd.h
         llpathinglib.h
@@ -26,26 +24,18 @@ set(llphysicsextensionsos_HEADER_FILES
         LLPhysicsExtensionsStubImpl.h
         )
 
-set_source_files_properties(${llphysicsextensionsos_HEADER_FILES}
-        PROPERTIES HEADER_FILE_ONLY TRUE)
-
-list(APPEND llphysicsextensionsos_SOURCE_FILES ${llphysicsextensionsos_HEADER_FILES})
-
-add_library (llphysicsextensionsos ${llphysicsextensionsos_SOURCE_FILES})
 target_include_directories(llphysicsextensionsos INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-
 target_link_libraries(llphysicsextensionsos
-        llcommon
+        PUBLIC
         llmath
+        llcommon
         ll::vhacd)
+
+target_precompile_headers(llphysicsextensionsos REUSE_FROM llprecompiled)
 
 if(WINDOWS)
   target_compile_options(llphysicsextensionsos PRIVATE /bigobj)
 endif()
-
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llphysicsextensionsos REUSE_FROM llprecompiled)
-endif ()
 
 # Add tests
 

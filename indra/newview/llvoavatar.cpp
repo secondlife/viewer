@@ -6311,11 +6311,11 @@ void LLVOAvatar::addDebugText(const std::string& text)
 // virtual
 std::string LLVOAvatar::getDebugName() const
 {
-#if LL_RELEASE_WITH_DEBUG_INFO
+#if LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO
     return getFullname();
 #else
     return getID().asString();
-#endif // LL_RELEASE_WITH_DEBUG_INFO
+#endif // LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO
 }
 
 //-----------------------------------------------------------------------------

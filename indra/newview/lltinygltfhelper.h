@@ -29,7 +29,7 @@
 #include "llgltfmaterial.h"
 #include "llgltfmateriallist.h"
 #include "llpointer.h"
-#include "tinygltf/tiny_gltf.h"
+#include <tiny_gltf.h>
 
 class LLImageRaw;
 class LLViewerFetchedTexture;

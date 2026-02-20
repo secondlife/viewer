@@ -1,14 +1,5 @@
 # -*- cmake -*-
 
-project(llrender)
-
-include(00-Common)
-include(OpenGL)
-include(FreeType)
-include(LLCommon)
-include(LLImage)
-include(LLWindow)
-
 set(llrender_SOURCE_FILES
     llcubemap.cpp
     llcubemaparray.cpp
@@ -34,10 +25,8 @@ set(llrender_SOURCE_FILES
     llvertexbuffer.cpp
     llglcommonfunc.cpp
     )
-    
-set(llrender_HEADER_FILES
-    CMakeLists.txt
 
+set(llrender_HEADER_FILES
     llcubemap.h
     llcubemaparray.h
     llfontgl.h
@@ -69,7 +58,7 @@ set(llrender_HEADER_FILES
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
 if (BUILD_HEADLESS)
-  add_library (llrenderheadless
+  add_library (llrenderheadless STATIC
     ${llrender_SOURCE_FILES}
     )
   target_include_directories(llrenderheadless INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -82,15 +71,15 @@ if (BUILD_HEADLESS)
           llfilesystem
           llwindowheadless
           ll::freetype
+          ll::nanosvg
+          ll::glext
           OpenGL::GL
           )
 
-  if (USE_PRECOMPILED_HEADERS)
-    target_precompile_headers(llrenderheadless REUSE_FROM llprecompiled)
-  endif()
+  target_precompile_headers(llrenderheadless REUSE_FROM llprecompiled)
 endif (BUILD_HEADLESS)
 
-add_library (llrender ${llrender_SOURCE_FILES})
+add_library (llrender STATIC ${llrender_SOURCE_FILES})
 target_include_directories(llrender INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Libraries on which this library depends, needed for Linux builds
@@ -103,15 +92,13 @@ target_link_libraries(llrender
         llxml
         llwindow
         ll::freetype
+        ll::glext
         )
+
+target_precompile_headers(llrender REUSE_FROM llprecompiled)
 
 if (NOT USE_SDL_WINDOW)
-target_link_libraries(llrender
-        OpenGL::GL
-        )
-
+  target_link_libraries(llrender
+          OpenGL::GL
+          )
 endif()
-
-if (USE_PRECOMPILED_HEADERS)
- target_precompile_headers(llrender REUSE_FROM llprecompiled)
-endif ()

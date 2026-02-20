@@ -2111,7 +2111,7 @@ namespace tut
                "]\n"
                // Don't forget raw-string syntax for Windows pathnames.
                // N.B. Using 'print' implicitly adds newlines.
-               "with open(r'" << (const char*)file.getPath().u8string().c_str() << "', 'wb') as f:\n"
+               "with open(r'" << ll_convert<std::string>(file.getPath().u8string()).c_str() << "', 'wb') as f:\n"
                "    for item in DATA:\n"
                "        serialized = llsd." << pyformatter << "(item)\n"
                "        f.write(lenformat.pack(len(serialized)))\n"

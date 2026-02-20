@@ -23,6 +23,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+
+#ifndef DISABLE_WEBRTC
+
 #include <algorithm>
 #include "llvoicewebrtc.h"
 
@@ -34,11 +37,7 @@
 #include "llbufferstream.h"
 #include "llfile.h"
 #include "llmenugl.h"
-#ifdef LL_USESYSTEMLIBS
-# include "expat.h"
-#else
-# include "expat/expat.h"
-#endif
+#include <expat.h>
 #include "llcallbacklist.h"
 #include "llviewernetwork.h"        // for gGridChoice
 #include "llbase64.h"
@@ -92,7 +91,7 @@ namespace {
     const uint32_t MUTE_FADE_DELAY_MS       = 500;   // 20ms fade followed by 480ms silence gets rid of the click just after unmuting.
                                                      // This is because the buffers and processing is cleared by the silence.
 
-    const F32 SPEAKING_AUDIO_LEVEL = 0.30;
+    const F32 SPEAKING_AUDIO_LEVEL = 0.30f;
 
     const uint32_t PEER_GAIN_CONVERSION_FACTOR = 220;
 
@@ -3383,3 +3382,5 @@ void LLVoiceWebRTCAdHocConnection::requestVoiceConnection()
     }
     mOutstandingRequests--;
 }
+
+#endif // DISABLE_WEBRTC

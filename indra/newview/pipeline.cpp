@@ -5333,25 +5333,11 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
         break;
 
     case LLDrawPool::POOL_TREE:
-        #ifdef _DEBUG
-            {
-                bool found = mTreePools.erase( (uintptr_t)poolp->getTexture() );
-                llassert( found );
-            }
-        #else
-            mTreePools.erase( (uintptr_t)poolp->getTexture() );
-        #endif
+        mTreePools.erase( (uintptr_t)poolp->getTexture() );
         break;
 
     case LLDrawPool::POOL_TERRAIN:
-        #ifdef _DEBUG
-            {
-                bool found = mTerrainPools.erase( (uintptr_t)poolp->getTexture() );
-                llassert( found );
-            }
-        #else
-            mTerrainPools.erase( (uintptr_t)poolp->getTexture() );
-        #endif
+        mTerrainPools.erase( (uintptr_t)poolp->getTexture() );
         break;
 
     case LLDrawPool::POOL_BUMP:

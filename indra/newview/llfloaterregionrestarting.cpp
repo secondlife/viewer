@@ -100,10 +100,10 @@ void LLFloaterRegionRestarting::draw()
 {
     LLFloater::draw();
 
-    const F32 SHAKE_INTERVAL = 0.025;
-    const F32 SHAKE_TOTAL_DURATION = 1.8; // the length of the default alert tone for this
-    const F32 SHAKE_INITIAL_MAGNITUDE = 1.5;
-    const F32 SHAKE_HORIZONTAL_BIAS = 0.25;
+    const F32 SHAKE_INTERVAL = 0.025f;
+    const F32 SHAKE_TOTAL_DURATION = 1.8f; // the length of the default alert tone for this
+    const F32 SHAKE_INITIAL_MAGNITUDE = 1.5f;
+    const F32 SHAKE_HORIZONTAL_BIAS = 0.25f;
     F32 time_shaking;
 
     if(SHAKE_START == sShakeState)

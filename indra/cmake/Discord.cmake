@@ -1,15 +1,9 @@
-include(Prebuilt)
-
 include_guard()
 
-option(USE_DISCORD "Enable Discord SDK" OFF)
+add_library(ll::discord_sdk INTERFACE IMPORTED)
 
 if(USE_DISCORD)
-    add_library(ll::discord_sdk INTERFACE IMPORTED)
-
     target_compile_definitions(ll::discord_sdk INTERFACE LL_DISCORD=1)
-
-    use_prebuilt_binary(discord_sdk)
 
     find_library(DISCORD_SDK_LIBRARY
         NAMES

@@ -61,7 +61,7 @@
 #include "llviewertexturelist.h"
 #include "llfloaterperms.h"
 
-#include "tinygltf/tiny_gltf.h"
+#include <tiny_gltf.h>
 #include "lltinygltfhelper.h"
 
 #include <boost/iostreams/device/array.hpp>

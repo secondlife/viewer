@@ -1,0 +1,19 @@
+{
+  "registries": [
+    {
+      "kind": "git",
+      "baseline": "b21b50b5f376596aa30b342cba1cb7d9b650ca7f",
+      "reference": "main",
+      "repository": "git@github.com:RyeMutt/secondlife-registry.git",
+      "packages": [
+        "kdu"
+      ]
+    }
+  ],
+  "overlay-ports": [
+    "vcpkg/ports"
+  ],
+  "overlay-triplets": [
+    "vcpkg/triplets"
+  ]
+}

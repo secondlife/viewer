@@ -8,7 +8,7 @@ install(DIRECTORY skins app_settings linux_tools
         )
 
 find_file(IS_ARTWORK_PRESENT NAMES have_artwork_bundle.marker
-          PATHS ${VIEWER_DIR}/newview/res)
+          PATHS ${INDRA_SOURCE_DIR}/newview/res)
 
 if (IS_ARTWORK_PRESENT)
   install(DIRECTORY res res-sdl character

@@ -667,7 +667,7 @@ bool LLGLSLShader::mapAttributes()
     }
 
     mAttribute.clear();
-#if LL_RELEASE_WITH_DEBUG_INFO
+#if LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO
     mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size(), { -1, NULL });
 #else
     mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size(), -1);
@@ -685,7 +685,7 @@ bool LLGLSLShader::mapAttributes()
             S32 index = glGetAttribLocation(mProgramObject, (const GLchar*)name);
             if (index != -1)
             {
-#if LL_RELEASE_WITH_DEBUG_INFO
+#if LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO
                 mAttribute[i] = { index, name };
 #else
                 mAttribute[i] = index;

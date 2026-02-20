@@ -1,0 +1,17 @@
+set(VCPKG_TARGET_ARCHITECTURE arm64)
+set(VCPKG_CRT_LINKAGE dynamic)
+set(VCPKG_LIBRARY_LINKAGE static)
+set(VCPKG_BUILD_TYPE release)
+
+set(VCPKG_CMAKE_SYSTEM_NAME Darwin)
+set(VCPKG_OSX_ARCHITECTURES arm64)
+
+set(VCPKG_OSX_DEPLOYMENT_TARGET 12.0)
+
+if(PORT MATCHES "hunspell")
+    set(VCPKG_LIBRARY_LINKAGE dynamic)
+endif()
+
+if(PORT MATCHES "freealut" OR PORT MATCHES "openal-soft")
+    set(VCPKG_LIBRARY_LINKAGE dynamic)
+endif()

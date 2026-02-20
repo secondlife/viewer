@@ -1,11 +1,9 @@
 # -*- cmake -*-
 
-project(llfilesystem)
+add_library(llfilesystem STATIC)
 
-include(00-Common)
-include(LLCommon)
-
-set(llfilesystem_SOURCE_FILES
+target_sources(llfilesystem
+    PRIVATE
     lldir.cpp
     lldiriterator.cpp
     lllfsthread.cpp
@@ -13,8 +11,10 @@ set(llfilesystem_SOURCE_FILES
     llfilesystem.cpp
     )
 
-set(llfilesystem_HEADER_FILES
-    CMakeLists.txt
+target_sources(llfilesystem
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     lldir.h
     lldirguard.h
     lldiriterator.h
@@ -24,10 +24,16 @@ set(llfilesystem_HEADER_FILES
     )
 
 if (DARWIN)
-  LIST(APPEND llfilesystem_SOURCE_FILES lldir_utils_objc.mm)
-  LIST(APPEND llfilesystem_SOURCE_FILES lldir_utils_objc.h)
-  LIST(APPEND llfilesystem_SOURCE_FILES lldir_mac.cpp)
-  LIST(APPEND llfilesystem_HEADER_FILES lldir_mac.h)
+  target_sources(llfilesystem
+      PRIVATE
+      lldir_mac.cpp
+      lldir_utils_objc.mm
+      PUBLIC
+      FILE_SET HEADERS
+      FILES
+      lldir_mac.h
+      lldir_utils_objc.h
+      )
 
   set_source_files_properties(
     lldir_utils_objc.mm
@@ -37,49 +43,55 @@ if (DARWIN)
 endif (DARWIN)
 
 if (LINUX)
-  LIST(APPEND llfilesystem_SOURCE_FILES lldir_linux.cpp)
-  LIST(APPEND llfilesystem_HEADER_FILES lldir_linux.h)
+  target_sources(llfilesystem
+      PRIVATE
+      lldir_linux.cpp
+      PUBLIC
+      FILE_SET HEADERS
+      FILES
+      lldir_linux.h
+      )
 
   if (INSTALL)
     set_source_files_properties(lldir_linux.cpp
                                 PROPERTIES COMPILE_FLAGS
                                 "-DAPP_RO_DATA_DIR=\\\"${APP_SHARE_DIR}\\\""
                                 )
-  endif (INSTALL)
-endif (LINUX)
-
-if (WINDOWS)
-  LIST(APPEND llfilesystem_SOURCE_FILES lldir_win32.cpp)
-  LIST(APPEND llfilesystem_HEADER_FILES lldir_win32.h)
-endif (WINDOWS)
-
-list(APPEND llfilesystem_SOURCE_FILES ${llfilesystem_HEADER_FILES})
-
-add_library (llfilesystem ${llfilesystem_SOURCE_FILES})
-
-target_link_libraries(llfilesystem
-        llmath
-        llcommon
-    )
-target_include_directories( llfilesystem  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-
-if (USE_PRECOMPILED_HEADERS)
-    target_precompile_headers(llfilesystem REUSE_FROM llprecompiled)
+  endif ()
 endif ()
 
+if (WINDOWS)
+  target_sources(llfilesystem
+      PRIVATE
+      lldir_win32.cpp
+      PUBLIC
+      FILE_SET HEADERS
+      FILES
+      lldir_win32.h
+      )
+endif ()
+
+target_link_libraries(llfilesystem
+      PUBLIC
+      llmath
+      llcommon
+    )
+target_include_directories( llfilesystem  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+target_precompile_headers(llfilesystem REUSE_FROM llprecompiled)
+
 # Add tests
-if (LL_TESTS)
-    include(LLAddBuildTest)
+if (BUILD_TESTING)
     # UNIT TESTS
     SET(llfilesystem_TEST_SOURCE_FILES
-    lldiriterator.cpp
+      lldiriterator.cpp
     )
 
     LL_ADD_PROJECT_UNIT_TESTS(llfilesystem "${llfilesystem_TEST_SOURCE_FILES}")
 
     # INTEGRATION TESTS
     set(test_libs llmath llcommon llfilesystem )
+    set(test_project llfilesystem)
 
     # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
-    LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
-endif (LL_TESTS)
+    LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}" "${test_project}")
+endif ()

@@ -1,3 +1,5 @@
+include_guard()
+
 # Allow explicit Python path via environment variable
 if(DEFINED ENV{PYTHON})
     set(Python3_ROOT_DIR "$ENV{PYTHON}")
@@ -10,9 +12,8 @@ if(WINDOWS)
     set(Python3_FIND_REGISTRY FIRST CACHE STRING "Python search order")
 endif()
 
+# We always want to find the active virtual env first
+set(Python3_FIND_VIRTUALENV FIRST)
+
 # Find Python 3 interpreter
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
-
-# Set legacy variable name for compatibility with existing code
-set(PYTHON_EXECUTABLE "${Python3_EXECUTABLE}" CACHE FILEPATH "Python interpreter for builds")
-mark_as_advanced(PYTHON_EXECUTABLE)

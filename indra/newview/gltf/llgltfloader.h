@@ -27,7 +27,7 @@
 #ifndef LL_LLGLTFLoader_H
 #define LL_LLGLTFLoader_H
 
-#include "tinygltf/tiny_gltf.h"
+#include <tiny_gltf.h>
 
 #include "asset.h"
 

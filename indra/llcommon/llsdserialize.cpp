@@ -32,16 +32,11 @@
 #include "llstreamtools.h" // for fullread
 
 #include <iostream>
-#include "apr_base64.h"
+#include <apr_base64.h>
 
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
-
-#ifdef LL_USESYSTEMLIBS
-# include <zlib.h>
-#else
-# include "zlib-ng/zlib.h"  // for davep's dirty little zip functions
-#endif
+#include <zlib.h>
 
 #if !LL_WINDOWS
 #include <netinet/in.h> // htonl & ntohl

@@ -3,55 +3,37 @@
 include_guard()
 include(Variables)
 
-set(ARCH_PREBUILT_DIRS ${AUTOBUILD_INSTALL_DIR}/lib)
-set(ARCH_PREBUILT_DIRS_PLUGINS ${AUTOBUILD_INSTALL_DIR}/plugins)
-set(ARCH_PREBUILT_DIRS_RELEASE ${AUTOBUILD_INSTALL_DIR}/lib/release)
-set(ARCH_PREBUILT_DIRS_DEBUG ${AUTOBUILD_INSTALL_DIR}/lib/debug)
-if (WINDOWS OR DARWIN )
-  # Kludge for older cmake versions, 3.20+ is needed to use a genex in add_custom_command( OUTPUT <var> ... )
-  # Using this will work okay-ish, as Debug is not supported anyway. But for property multi config and also
-  # ninja support the genex version is preferred.
-  if(${CMAKE_VERSION} VERSION_LESS "3.20.0")
-    if(CMAKE_BUILD_TYPE MATCHES Release)
-      set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/Release)
-    elseif (CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
-      set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/RelWithDebInfo)
-    endif()
+set(SYMBOLS_STAGING_DIR ${INDRA_BINARY_DIR}/symbols/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>/,>${VIEWER_CHANNEL})
+
+if (WINDOWS OR DARWIN)
+  set(SHARED_LIB_STAGING_DIR ${INDRA_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>)
+
+  if(DARWIN)
+    set(SHARED_LIB_STAGING_DIR ${SHARED_LIB_STAGING_DIR}/Frameworks)
+    set(VIEWER_STAGING_DIR ${INDRA_BINARY_DIR}/newview/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>)
   else()
-    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>)
-    set(SYMBOLS_STAGING_DIR ${CMAKE_BINARY_DIR}/symbols/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/${VIEWER_CHANNEL})
+    set(VIEWER_STAGING_DIR ${INDRA_BINARY_DIR}/newview/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,packaged>)
   endif()
+  set(EXE_STAGING_DIR ${INDRA_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>)
+elseif(LINUX)
+  set(SHARED_LIB_STAGING_DIR ${INDRA_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/lib)
+  set(EXE_STAGING_DIR ${INDRA_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/bin)
+  set(VIEWER_STAGING_DIR ${INDRA_BINARY_DIR}/newview/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,packaged>)
+endif()
 
-  if( DARWIN )
-    set( SHARED_LIB_STAGING_DIR ${SHARED_LIB_STAGING_DIR}/Resources)
-  endif()
-  set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>)
-elseif (LINUX)
-  set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/lib)
-  set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/bin)
-endif ()
+# Setup threading options
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
-# Autobuild packages must provide 'release' versions of libraries, but may provide versions for
-# specific build types.  AUTOBUILD_LIBS_INSTALL_DIRS lists first the build type directory and then
-# the 'release' directory (as a default fallback).
-# *NOTE - we have to take special care to use CMAKE_CFG_INTDIR on IDE generators (like mac and
-# windows) and CMAKE_BUILD_TYPE on Makefile based generators (like linux).  The reason for this is
-# that CMAKE_BUILD_TYPE is essentially meaningless at configuration time for IDE generators and
-# CMAKE_CFG_INTDIR is meaningless at build time for Makefile generators
-if(NOT DARWIN)
-  link_directories(${AUTOBUILD_INSTALL_DIR}/lib/$<LOWER_CASE:$<CONFIG>>)
-  link_directories(${AUTOBUILD_INSTALL_DIR}/lib/release)
-endif(NOT DARWIN)
+add_library(ll::oslibraries INTERFACE IMPORTED)
 
-add_library( ll::oslibraries INTERFACE IMPORTED )
-
-if (LINUX)
-  target_link_libraries( ll::oslibraries INTERFACE
-          dl
-          pthread
+if(LINUX)
+  target_link_libraries(ll::oslibraries INTERFACE
+          ${CMAKE_DL_LIBS}
+          Threads::Threads
           rt)
 elseif (WINDOWS)
-  target_link_libraries( ll::oslibraries INTERFACE
+  target_link_libraries(ll::oslibraries INTERFACE
           advapi32
           shell32
           ws2_32
@@ -65,7 +47,7 @@ elseif (WINDOWS)
           ole32
           dbghelp
           rpcrt4.lib
-          legacy_stdio_definitions
+          Threads::Threads
           )
 else()
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)
@@ -87,6 +69,7 @@ else()
           ${COREAUDIO_LIBRARY}
           ${AUDIOTOOLBOX_LIBRARY}
           ${COREGRAPHICS_LIBRARY}
+          Threads::Threads
           )
 endif()
 

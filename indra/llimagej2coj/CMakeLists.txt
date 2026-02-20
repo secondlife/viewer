@@ -1,32 +1,22 @@
 # -*- cmake -*-
 
-project(llimagej2coj)
+add_library(llimagej2coj STATIC)
 
-include(00-Common)
-include(LLCommon)
-include(LLImage)
-include(OpenJPEG)
-
-set(llimagej2coj_SOURCE_FILES
+target_sources(llimagej2coj
+    PRIVATE
     llimagej2coj.cpp
-    )
 
-set(llimagej2coj_HEADER_FILES
-    CMakeLists.txt
-
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     llimagej2coj.h
     )
 
-list(APPEND llimagej2coj_SOURCE_FILES ${llimagej2coj_HEADER_FILES})
-
-add_library (llimagej2coj ${llimagej2coj_SOURCE_FILES})
-
-target_link_libraries( llimagej2coj
-        llcommon
+target_link_libraries(llimagej2coj
+        PUBLIC
         llimage
+        llcommon
         ll::openjpeg
     )
 
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llimagej2coj REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llimagej2coj REUSE_FROM llprecompiled)

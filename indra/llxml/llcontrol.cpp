@@ -48,7 +48,7 @@
 #include "lltimer.h"
 #include "lldir.h"
 
-#if LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
+#ifdef SHOW_ASSERT
 #define CONTROL_ERRS LL_ERRS("ControlErrors")
 #else
 #define CONTROL_ERRS LL_WARNS("ControlErrors")

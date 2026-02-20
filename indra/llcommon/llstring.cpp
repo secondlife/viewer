@@ -505,6 +505,24 @@ std::string utf16str_to_utf8str(const U16* utf16str, size_t len)
     return wstring_to_utf8str(utf16str_to_wstring(utf16str, len));
 }
 
+std::u8string str_to_u8str(const char* str, size_t len)
+{
+    if (!str || len == 0) return {};
+
+    // We treat std::string as utf8 in this codebase so pass through
+    std::string_view str_view(str, len);
+    return std::u8string(str_view.begin(), str_view.end());
+}
+
+std::string u8str_to_str(const char8_t* u8str, size_t len)
+{
+    if (!u8str || len == 0) return {};
+
+    // We treat std::string as utf8 in this codebase so pass through
+    std::u8string_view u8str_view(u8str, len);
+    return std::string(u8str_view.begin(), u8str_view.end());
+}
+
 std::string utf8str_trim(const std::string& utf8str)
 {
     LLWString wstr = utf8str_to_wstring(utf8str);
@@ -1759,7 +1777,7 @@ void LLStringUtilBase<T>::testHarness()
 
     std::string s4 = s2;
     llassert( !s4.empty() );
-    s4.empty();
+    s4.clear();
     llassert( s4.empty() );
 
     std::string s5("");

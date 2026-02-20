@@ -44,7 +44,7 @@
 #include "llvocache.h"
 #include "llworld.h"
 
-#include "tinygltf/tiny_gltf.h"
+#include <tiny_gltf.h>
 
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>

@@ -228,7 +228,7 @@ bool LLStatusBar::postBuild()
     pgp.precision(1);
     pgp.per_sec(false);
     LLStatGraph::Thresholds thresholds;
-    thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1).color(LLColor4::green))
+    thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1f).color(LLColor4::green))
                         .add(LLStatGraph::ThresholdParams().value(0.25f).color(LLColor4::yellow))
                         .add(LLStatGraph::ThresholdParams().value(0.6f).color(LLColor4::red));
 

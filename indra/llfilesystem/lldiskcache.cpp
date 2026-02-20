@@ -39,7 +39,9 @@
 
 #include "lldiskcache.h"
 
- /**
+using namespace std::literals;
+
+/**
   * The prefix inserted at the start of a cache file filename to
   * help identify it as a cache file. It's probably not required
   * (just the presence in the cache folder is enough) but I am
@@ -48,6 +50,11 @@
   * this will help to offset any damage if that happens.
   */
 static const std::string CACHE_FILENAME_PREFIX("sl_cache");
+#if LL_WINDOWS
+static constexpr std::wstring_view CACHE_FILENAME_PREFIX_NATIVE(L"sl_cache"sv);
+#else
+static constexpr std::string_view CACHE_FILENAME_PREFIX_NATIVE("sl_cache"sv);
+#endif
 
 std::string LLDiskCache::sCacheDir;
 
@@ -101,7 +108,7 @@ void LLDiskCache::purge()
     std::error_code ec;
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    typedef std::pair<std::filesystem::file_time_type, std::pair<uintmax_t, std::string>> file_info_t;
+    typedef std::pair<std::filesystem::file_time_type, std::pair<uintmax_t, std::filesystem::path>> file_info_t;
     std::vector<file_info_t> file_info;
 
     std::filesystem::path cache_path = fsyspath(sCacheDir);
@@ -116,21 +123,20 @@ void LLDiskCache::purge()
             }
             if (std::filesystem::is_regular_file(*iter, ec) && !ec)
             {
-                if ((*iter).path().string().find(CACHE_FILENAME_PREFIX) != std::string::npos)
+                if ((*iter).path().native().find(CACHE_FILENAME_PREFIX_NATIVE) != std::filesystem::path::string_type::npos)
                 {
                     uintmax_t file_size = std::filesystem::file_size(*iter, ec);
                     if (ec)
                     {
                         continue;
                     }
-                    const std::string file_path = (*iter).path().string();
                     const std::filesystem::file_time_type file_time = std::filesystem::last_write_time(*iter, ec);
                     if (ec)
                     {
                         continue;
                     }
 
-                    file_info.push_back(file_info_t(file_time, { file_size, file_path }));
+                    file_info.push_back(file_info_t(file_time, { file_size, (*iter).path() }));
                 }
             }
             iter.increment(ec);
@@ -245,7 +251,7 @@ void LLDiskCache::clearCache()
         {
             if (std::filesystem::is_regular_file(*iter, ec) && !ec)
             {
-                if ((*iter).path().string().find(CACHE_FILENAME_PREFIX) != std::string::npos)
+                if ((*iter).path().native().find(CACHE_FILENAME_PREFIX_NATIVE) != std::filesystem::path::string_type::npos)
                 {
                     std::filesystem::remove(*iter, ec);
                     if (ec)
@@ -262,8 +268,13 @@ void LLDiskCache::clearCache()
 void LLDiskCache::removeOldVFSFiles()
 {
     //VFS files won't be created, so consider removing this code later
-    static const char CACHE_FORMAT[] = "inv.llsd";
-    static const char DB_FORMAT[] = "db2.x";
+#if LL_WINDOWS
+    static constexpr std::wstring_view CACHE_FORMAT(L"inv.llsd"sv);
+    static constexpr std::wstring_view DB_FORMAT(L"db2.x"sv);
+#else
+    static constexpr std::string_view CACHE_FORMAT("inv.llsd"sv);
+    static constexpr std::string_view DB_FORMAT("db2.x"sv);
+#endif
 
     std::error_code ec;
     std::filesystem::path cache_path = fsyspath(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""));
@@ -274,8 +285,8 @@ void LLDiskCache::removeOldVFSFiles()
         {
             if (std::filesystem::is_regular_file(*iter, ec) && !ec)
             {
-                if (((*iter).path().string().find(CACHE_FORMAT) != std::string::npos) ||
-                    ((*iter).path().string().find(DB_FORMAT) != std::string::npos))
+                if (((*iter).path().native().find(CACHE_FORMAT) != std::filesystem::path::string_type::npos) ||
+                    ((*iter).path().native().find(DB_FORMAT) != std::filesystem::path::string_type::npos))
                 {
                     std::filesystem::remove(*iter, ec);
                     if (ec)
@@ -311,7 +322,7 @@ uintmax_t LLDiskCache::dirFileSize(const std::string& dir)
         {
             if (std::filesystem::is_regular_file(*iter, ec) && !ec)
             {
-                if ((*iter).path().string().find(CACHE_FILENAME_PREFIX) != std::string::npos)
+                if ((*iter).path().native().find(CACHE_FILENAME_PREFIX_NATIVE) != std::filesystem::path::string_type::npos)
                 {
                     uintmax_t file_size = std::filesystem::file_size(*iter, ec);
                     if (!ec)

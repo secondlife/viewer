@@ -26,10 +26,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#ifdef INCLUDE_VLD
-#include "vld.h"
-#endif
-
 #include "llviewermenu.h"
 
 // linden library includes
@@ -239,7 +235,6 @@ void handle_buy_contents(LLSaleInfo sale_info);
 void near_sit_down_point(bool success, void*);
 
 // Debug menu
-void handle_visual_leak_detector_toggle();
 void handle_rebake_textures();
 bool check_admin_override();
 void handle_admin_override_toggle();
@@ -2537,15 +2532,6 @@ class LLAdvancedToggleViewAdminOptions : public view_listener_t
     }
 };
 
-class LLAdvancedToggleVisualLeakDetector : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        handle_visual_leak_detector_toggle();
-        return true;
-    }
-};
-
 class LLAdvancedCheckViewAdminOptions : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -4339,35 +4325,6 @@ void handle_admin_override_toggle()
 
     // The above may have affected which debug menus are visible
     show_debug_menus();
-}
-
-void handle_visual_leak_detector_toggle()
-{
-    static bool vld_enabled = false;
-
-    if ( vld_enabled )
-    {
-#ifdef INCLUDE_VLD
-        // only works for debug builds (hard coded into vld.h)
-#ifdef _DEBUG
-        // start with Visual Leak Detector turned off
-        VLDDisable();
-#endif // _DEBUG
-#endif // INCLUDE_VLD
-        vld_enabled = false;
-    }
-    else
-    {
-#ifdef INCLUDE_VLD
-        // only works for debug builds (hard coded into vld.h)
-    #ifdef _DEBUG
-        // start with Visual Leak Detector turned off
-        VLDEnable();
-    #endif // _DEBUG
-#endif // INCLUDE_VLD
-
-        vld_enabled = true;
-    };
 }
 
 void handle_god_mode()
@@ -10089,7 +10046,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
     view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");
     view_listener_t::addMenu(new LLAdvancedCheckViewAdminOptions(), "Advanced.CheckViewAdminOptions");
-    view_listener_t::addMenu(new LLAdvancedToggleVisualLeakDetector(), "Advanced.ToggleVisualLeakDetector");
 
     view_listener_t::addMenu(new LLAdvancedRequestAdminStatus(), "Advanced.RequestAdminStatus");
     view_listener_t::addMenu(new LLAdvancedLeaveAdminStatus(), "Advanced.LeaveAdminStatus");

@@ -1,7 +1,6 @@
 # -*- cmake -*-
-include(Prebuilt)
+include_guard()
+add_library(ll::glm INTERFACE IMPORTED)
 
-add_library( ll::glm INTERFACE IMPORTED )
-
-use_system_binary( glm )
-use_prebuilt_binary(glm)
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(ll::glm INTERFACE glm::glm-header-only)

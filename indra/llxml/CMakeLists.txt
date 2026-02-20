@@ -1,48 +1,40 @@
 # -*- cmake -*-
 
-project(llxml)
+add_library(llxml STATIC)
 
-include(00-Common)
-include(LLCommon)
-
-set(llxml_SOURCE_FILES
+target_sources(llxml
+    PRIVATE
     llcontrol.cpp
     llxmlnode.cpp
     llxmlparser.cpp
     llxmltree.cpp
     )
 
-set(llxml_HEADER_FILES
-    CMakeLists.txt
-
+target_sources(llxml
+    PUBLIC
+    FILE_SET HEADERS
+    FILES
     llcontrol.h
     llxmlnode.h
     llxmlparser.h
     llxmltree.h
     )
 
-list(APPEND llxml_SOURCE_FILES ${llxml_HEADER_FILES})
-
-add_library (llxml ${llxml_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
-target_link_libraries( llxml
-        llfilesystem
-        llmath
-        llcommon
-        ll::expat
+target_link_libraries(llxml
+    PUBLIC
+    llfilesystem
+    llmath
+    llcommon
+    ll::expat
     )
 target_include_directories( llxml  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-
-if (USE_PRECOMPILED_HEADERS)
-  target_precompile_headers(llxml REUSE_FROM llprecompiled)
-endif ()
+target_precompile_headers(llxml REUSE_FROM llprecompiled)
 
 # tests
-
-if (LL_TESTS)
+if (BUILD_TESTING)
     # unit tests
-
     SET(llxml_TEST_SOURCE_FILES
       # none yet!
       )
@@ -50,12 +42,13 @@ if (LL_TESTS)
 
     # integration tests
 
-    #    set(TEST_DEBUG on)
+    # set(TEST_DEBUG on)
     set(test_libs
             llxml
             llmath
             llcommon
             )
+    set(test_project llxml)
 
-    LL_ADD_INTEGRATION_TEST(llcontrol "" "${test_libs}")
-endif (LL_TESTS)
+    LL_ADD_INTEGRATION_TEST(llcontrol "" "${test_libs}" "${test_project}")
+endif ()
