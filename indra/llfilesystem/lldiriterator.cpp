@@ -127,7 +127,7 @@ bool LLDirIterator::Impl::next(std::string &fname)
         while (mIter != end_itr && !found)
         {
             boost::smatch match;
-            std::string name = std::string((const char*)mIter->path().filename().u8string().c_str());
+            std::string name = ll_convert<std::string>(mIter->path().filename().u8string());
             found = ll_regex_match(name, match, mFilterExp);
             if (found)
             {

@@ -103,7 +103,7 @@ std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
         {
             if (std::filesystem::is_regular_file(dir_itr->status()))
             {
-                v.push_back((const char*)dir_itr->path().filename().u8string().c_str());
+                v.push_back(ll_convert<std::string>(dir_itr->path().filename().u8string()));
             }
         }
     }

@@ -678,6 +678,10 @@ ll_convert_forms(ll_convert_u16_alias, std::string, llutf16string, utf16str_to_u
 // an older alias for utf16str_to_utf8str(llutf16string)
 inline std::string wstring_to_utf8str(const llutf16string &utf16str) { return utf16str_to_utf8str(utf16str);}
 
+// Convert to/from u8string
+ll_convert_forms(ll_convert_alias, std::string, std::u8string, u8str_to_str);
+ll_convert_forms(ll_convert_alias, std::u8string, std::string, str_to_u8str);
+
 // Length of this UTF32 string in bytes when transformed to UTF8
 LL_COMMON_API S32 wstring_utf8_length(const LLWString& wstr);
 
