@@ -2203,7 +2203,7 @@ void LLTabContainer::setTabVisibility( LLPanel const *aPanel, bool aVisible )
     updateMaxScrollPos();
 }
 
-bool LLTabContainer::getTabVisibility(const LLPanel* panel)
+bool LLTabContainer::getTabVisibility(const LLPanel* panel) const
 {
     for (tuple_list_t::const_iterator itr = mTabList.begin(); itr != mTabList.end(); ++itr)
     {

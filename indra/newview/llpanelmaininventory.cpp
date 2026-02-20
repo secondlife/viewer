@@ -1617,8 +1617,10 @@ void LLPanelMainInventory::initSingleFolderRoot(const LLUUID& start_folder_id)
 void LLPanelMainInventory::initInventoryViews()
 {
     mAllItemsPanel->initializeViewBuilding();
-    mRecentPanel->initializeViewBuilding();
-    mWornItemsPanel->initializeViewBuilding();
+    if (gSavedSettings.getBOOL("InventoryShowRecentTab"))
+        mRecentPanel->initializeViewBuilding();
+    if (gSavedSettings.getBOOL("InventoryShowWornTab"))
+        mWornItemsPanel->initializeViewBuilding();
 }
 
 void LLPanelMainInventory::toggleViewMode()
@@ -2066,12 +2068,14 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
         bool visibility = !gSavedSettings.getBOOL("InventoryShowRecentTab");
         gSavedSettings.setBOOL("InventoryShowRecentTab", visibility);
         mFilterTabs->setTabVisibility(mRecentPanel, visibility);
+        mRecentPanel->initializeViewBuilding();
     }
     if (command_name == "toggle_worn_tab")
     {
         bool visibility = !gSavedSettings.getBOOL("InventoryShowWornTab");
         gSavedSettings.setBOOL("InventoryShowWornTab", visibility);
         mFilterTabs->setTabVisibility(mWornItemsPanel, visibility);
+        mWornItemsPanel->initializeViewBuilding();
     }
     if (command_name == "toggle_favorites_tab")
     {
