@@ -1747,7 +1747,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llmath
         llcorehttp
         llcommon
-        llmeshoptimizer
         lllogin
         llprimitive
         llappearance

@@ -13,6 +13,7 @@ target_sources(llmath
     llline.cpp
     llmatrix3a.cpp
     llmatrix4a.cpp
+    llmeshoptimizer.cpp
     llmodularmath.cpp
     lloctree.cpp
     llperlin.cpp
@@ -56,6 +57,7 @@ target_sources(llmath
     llmatrix3a.h
     llmatrix3a.inl
     llmatrix4a.h
+    llmeshoptimizer.h
     llmodularmath.h
     lloctree.h
     llperlin.h
@@ -91,7 +93,7 @@ target_sources(llmath
     xform.h
     )
 
-target_link_libraries(llmath PUBLIC llmeshoptimizer llcommon ll::mikktspace ll::sse2neon)
+target_link_libraries(llmath PUBLIC llcommon ll::mikktspace ll::sse2neon ll::meshoptimizer)
 target_include_directories(llmath  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 target_precompile_headers(llmath REUSE_FROM llprecompiled)
 
