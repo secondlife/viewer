@@ -12,8 +12,6 @@ target_sources(lltut_runner_lib
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     catch_and_store_what_in.h
     chained_callback.h
     debug.h

@@ -28,7 +28,7 @@
 
 #include "llmeshoptimizer.h"
 
-#include "meshoptimizer.h"
+#include <meshoptimizer.h>
 
 #include "llmath.h"
 #include "v2math.h"

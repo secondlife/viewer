@@ -3,8 +3,8 @@
 # cmake_minimum_required should appear before any
 # other commands to guarantee full compatibility
 # with the version specified
-# 3.26 is our minimum required cmake version while 4.2 is our cmake policy max version(meaning any policies of version 4.2 or below are set to NEW)
-cmake_minimum_required(VERSION 3.26.0...4.2 FATAL_ERROR)
+# 3.27 is our minimum required cmake version while 4.2 is our cmake policy max version(meaning any policies of version 4.2 or below are set to NEW)
+cmake_minimum_required(VERSION 3.27...4.2 FATAL_ERROR)
 
 include(CMakeDependentOption)
 
@@ -81,7 +81,7 @@ endif ()
 # Tracy Profiler
 # Default Tracy profiling on for test builds, but off for all others
 set(BUILDING_TEST_CHANNEL OFF)
-string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
+string(TOLOWER "${VIEWER_CHANNEL}" channel_lower)
 if(channel_lower MATCHES "^second life test")
   set(BUILDING_TEST_CHANNEL ON)
 endif()
@@ -201,7 +201,7 @@ if (BUILD_TESTING)
         )
 endif ()
 
-# Declare All Dependecy Includes
+# Declare All Dependency Includes
 include(APR)
 include(Boost)
 include(bugsplat)
@@ -219,8 +219,8 @@ include(Hunspell)
 include(JPEG)
 include(LLKDU)
 include(LLPhysicsExtensions)
-include(Mikktspace)
 include(Meshoptimizer)
+include(Mikktspace)
 include(NDOF)
 include(NanoSVG)
 include(NVAPI)
@@ -233,6 +233,7 @@ include(PNG)
 include(SDL3)
 include(SSE2NEON)
 include(TinyEXR)
+include(TinyGLTF)
 include(Tracy)
 include(Tut)
 include(VHACD)

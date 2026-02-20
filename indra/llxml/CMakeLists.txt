@@ -14,8 +14,6 @@ target_sources(llxml
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     llcontrol.h
     llxmlnode.h
     llxmlparser.h

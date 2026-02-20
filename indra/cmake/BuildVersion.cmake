@@ -35,7 +35,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
                     set(VIEWER_VERSION_REVISION 0 )
                 endif ("${VIEWER_VERSION_REVISION}" MATCHES "^[0-9]+$")
             else ()
-                message(STATUS "Revision not set: 'git' found; using 0")
+                message(STATUS "Revision not set: 'git' not found; using 0")
                 set(VIEWER_VERSION_REVISION 0)
             endif ()
         endif (DEFINED ENV{revision})

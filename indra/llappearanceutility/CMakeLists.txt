@@ -19,7 +19,6 @@ set(appearance_utility_SOURCE_FILES
     )
 
 set(appearance_utility_HEADER_FILES
-    CMakeLists.txt
     llappappearanceutility.h
     llbakingavatar.h
     llbakingjoint.h

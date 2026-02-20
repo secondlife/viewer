@@ -8,7 +8,6 @@ set(llimage_libtest_SOURCE_FILES
     )
 
 set(llimage_libtest_HEADER_FILES
-    CMakeLists.txt
     llimage_libtest.h
     )
 

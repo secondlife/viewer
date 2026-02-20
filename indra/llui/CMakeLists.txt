@@ -114,8 +114,6 @@ target_sources(llui
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     llaccordionctrl.h
     llaccordionctrltab.h
     llbadge.h
@@ -278,6 +276,6 @@ if(BUILD_TESTING)
 
   # INTEGRATION TESTS
   set(test_libs llui llmessage llcorehttp llxml llrender llcommon ll::hunspell)
-  set(test_project llmath)
+  set(test_project llui)
   LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}" "${test_project}")
 endif()

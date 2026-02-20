@@ -49,11 +49,7 @@ void initializeSecHandler()
     OSSL_PROVIDER_set_default_search_path(nullptr, gDirUtilp->getExecutableDir().c_str());
 #endif
     /* Load Legacy provider into the default (nullptr) library context */
-    if (!gOSSLLegacyProvider && (OSSL_PROVIDER_available(nullptr, "legacy") == 0))
-    {
-        gOSSLLegacyProvider = OSSL_PROVIDER_try_load(nullptr, "legacy", 1);
-    }
-
+    gOSSLLegacyProvider = OSSL_PROVIDER_try_load(nullptr, "legacy", 1);
     if (!gOSSLLegacyProvider)
     {
         LL_WARNS() << "Failed to load OpenSSL legacy provider, expect problems." << LL_ENDL;

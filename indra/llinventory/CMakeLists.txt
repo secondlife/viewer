@@ -27,8 +27,6 @@ target_sources(llinventory
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     llcategory.h
     llfoldertype.h
     llinventory.h

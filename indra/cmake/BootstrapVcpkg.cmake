@@ -1,6 +1,6 @@
 # -*- cmake -*-
 #
-# Automatic clone and bootstrap of a vcpkg_root environment when VCPKG_ROOT or VCPKG_INSTALLATION_ROOT are not found
+# Automatic clone and bootstrap of a vcpkg_root environment when VCPKG_ROOT is not found
 # Automatic vcpkg target triplet selection based on generator and platform
 
 include_guard(GLOBAL)
@@ -10,9 +10,19 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 
   if(DEFINED ENV{VCPKG_ROOT})
     set(VCPKG_ROOT $ENV{VCPKG_ROOT})
+
+    if(WIN32)
+        set(VCPKG_EXECUTABLE ${VCPKG_ROOT}/vcpkg.exe)
+    else()
+        set(VCPKG_EXECUTABLE ${VCPKG_ROOT}/vcpkg)
+    endif()
+
+    if(NOT EXISTS "${VCPKG_EXECUTABLE}")
+        message(FATAL_ERROR "VCPKG_ROOT found in environment but vcpkg executable could not be found.")
+    endif()
   else()
     set(VCPKG_ROOT ${CMAKE_BINARY_DIR}/vcpkg_root)
-    set($ENV{VCPKG_ROOT} ${VCPKG_ROOT})
+    set(ENV{VCPKG_ROOT} ${VCPKG_ROOT})
 
     FetchContent_Populate(
         vcpkg
@@ -28,10 +38,10 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
         set(VCPKG_BOOTSTRAP ${VCPKG_ROOT}/bootstrap-vcpkg.sh)
     endif()
 
-    if(NOT EXISTS ${VCPKG_EXECUTABLE})
+    if(NOT EXISTS "${VCPKG_EXECUTABLE}")
         message("Bootstrapping vcpkg in ${VCPKG_ROOT}")
-        execute_process(COMMAND ${VCPKG_BOOTSTRAP} WORKING_DIRECTORY ${VCPKG_ROOT})
-        if(NOT EXISTS ${VCPKG_EXECUTABLE})
+        execute_process(COMMAND "${VCPKG_BOOTSTRAP}" WORKING_DIRECTORY "${VCPKG_ROOT}")
+        if(NOT EXISTS "${VCPKG_EXECUTABLE}")
             message(FATAL_ERROR "Could not bootstrap vcpkg")
         endif()
     endif()

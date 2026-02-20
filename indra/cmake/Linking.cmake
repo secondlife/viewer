@@ -21,6 +21,10 @@ elseif(LINUX)
   set(VIEWER_STAGING_DIR ${INDRA_BINARY_DIR}/newview/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,packaged>)
 endif()
 
+# Setup threading options
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 add_library(ll::oslibraries INTERFACE IMPORTED)
 
 if(LINUX)
@@ -43,6 +47,7 @@ elseif (WINDOWS)
           ole32
           dbghelp
           rpcrt4.lib
+          Threads::Threads
           )
 else()
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)
@@ -64,6 +69,7 @@ else()
           ${COREAUDIO_LIBRARY}
           ${AUDIOTOOLBOX_LIBRARY}
           ${COREGRAPHICS_LIBRARY}
+          Threads::Threads
           )
 endif()
 

@@ -32,8 +32,6 @@ target_sources(llcorehttp
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     bufferarray.h
     bufferstream.h
     httpcommon.h

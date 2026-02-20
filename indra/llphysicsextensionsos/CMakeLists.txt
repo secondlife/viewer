@@ -16,7 +16,6 @@ target_sources(llphysicsextensionsos
         PUBLIC
         FILE_SET HEADERS
         FILES
-        CMakeLists.txt
         llconvexdecomposition.h
         llconvexdecompositionvhacd.h
         llpathinglib.h

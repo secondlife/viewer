@@ -21,8 +21,6 @@ set(llwindow_BASE_SOURCE_FILES
 )
 
 set(llwindow_BASE_HEADER_FILES
-  CMakeLists.txt
-
   llcursortypes.h
   llkeyboard.h
   llkeyboardheadless.h

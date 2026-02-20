@@ -102,8 +102,6 @@ target_sources(llcommon
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     always_return.h
     apply.h
     chrono.h

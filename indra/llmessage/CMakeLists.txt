@@ -81,8 +81,6 @@ target_sources(llmessage
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     llassetstorage.h
     llavatarname.h
     llavatarnamecache.h
@@ -202,7 +200,7 @@ if (BUILD_TESTING)
           llcommon
           )
 
-  set(test_project llmath)
+  set(test_project llmessage)
 
   LL_ADD_INTEGRATION_TEST(io "tests/llpipeutil.cpp" "${test_libs}" "${test_project}")
   LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}" "${test_project}")

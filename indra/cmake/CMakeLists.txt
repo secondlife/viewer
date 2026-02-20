@@ -1,10 +1,10 @@
 # -*- cmake -*-
 
 set(cmake_SOURCE_FILES
-        CMakeLists.txt
         00-Common.cmake
         APR.cmake
         Boost.cmake
+        BootstrapVcpkg.cmake
         bugsplat.cmake
         BuildPackagesInfo.cmake
         BuildVersion.cmake
@@ -25,22 +25,26 @@ set(cmake_SOURCE_FILES
         Havok.cmake
         Hunspell.cmake
         JPEG.cmake
+        LibVLCPlugin.cmake
+        Linking.cmake
         LLAddBuildTest.cmake
         LLKDU.cmake
         LLPhysicsExtensions.cmake
         LLTestCommand.cmake
-        Linking.cmake
         Meshoptimizer.cmake
+        Mikktspace.cmake
+        NanoSVG.cmake
         NDOF.cmake
         NVAPI.cmake
-        Mikktspace.cmake
         OpenAL.cmake
         OpenGL.cmake
         OpenJPEG.cmake
         OpenSSL.cmake
-        PNG.cmake
+        OpenXR.cmake
         PluginAPI.cmake
+        PNG.cmake
         Python.cmake
+        run_build_test.py
         SDL3.cmake
         SSE2NEON.cmake
         TemplateCheck.cmake
@@ -53,13 +57,14 @@ set(cmake_SOURCE_FILES
         Variables.cmake
         VHACD.cmake
         Vorbis.cmake
-        LibVLCPlugin.cmake
         WebRTC.cmake
         xxHash.cmake
         ZLIBNG.cmake
         )
 
 source_group("Shared Rules" FILES ${cmake_SOURCE_FILES})
+
+source_group("CMake Rules" FILES CMakeLists.txt)
 
 set(master_SOURCE_FILES
         ${CMAKE_SOURCE_DIR}/CMakeLists.txt
@@ -72,5 +77,3 @@ add_library(cmake
         ${cmake_SOURCE_FILES}
         ${master_SOURCE_FILES}
         )
-
-source_group("CMake Rules" FILES CMakeLists.txt)

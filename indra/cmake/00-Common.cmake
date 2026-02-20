@@ -35,10 +35,6 @@ set(CMAKE_C_VISIBILITY_PRESET "hidden")
 set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
-# Setup threading options
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads)
-
 # Link Time Optimization
 if(USE_LTO)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
@@ -74,6 +70,7 @@ add_compile_definitions(
 # OptDebug Global Defines
 add_compile_definitions(
   $<$<CONFIG:OptDebug>:LL_DEBUG=1>
+  $<$<CONFIG:OptDebug>:LL_OPTDEBUG=1>
   $<$<CONFIG:OptDebug>:NDEBUG>
 )
 
@@ -189,7 +186,7 @@ if(WINDOWS)
 
   # RelWithDebInfo MSVC Options
   add_compile_options(
-    $<$<CONFIG:Release>:/O2>
+    $<$<CONFIG:RelWithDebInfo>:/O2>
   )
 
   # Release MSVC Options
@@ -354,7 +351,7 @@ if(DARWIN)
     endif()
 
     if(ENABLE_UBSAN)
-      set(CMAKE_XCODE_UNDEFINED_BEHAVIOUR_SANITIZER ON)
+      set(CMAKE_XCODE_SCHEME_UNDEFINED_BEHAVIOUR_SANITIZER ON)
     endif()
 
     if(ENABLE_THREADSAN)
@@ -391,7 +388,7 @@ if(DARWIN)
   # Ensure debug symbols are always generated
   add_compile_options(-g2 -gdwarf -fno-fast-math -fno-strict-aliasing)
 
-  if(ARCH STREQUAL x86_64)
+  if(BUILD_TARGET_IS_X86_64)
     add_compile_options(-msse4.2)
   endif()
 
@@ -437,7 +434,9 @@ if(LINUX OR DARWIN)
     add_compile_options(-Wno-array-bounds)
   endif()
 
-  add_compile_options(-m${ADDRESS_SIZE})
+  if (BUILD_TARGET_IS_X86_64)
+    add_compile_options(-m${ADDRESS_SIZE})
+  endif()
 endif()
 
 # Enable support for Drag and Drop

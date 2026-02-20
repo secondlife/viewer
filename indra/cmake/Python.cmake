@@ -13,7 +13,7 @@ if(WINDOWS)
 endif()
 
 # We always want to find the active virtual env first
-set(Python_FIND_VIRTUALENV FIRST)
+set(Python3_FIND_VIRTUALENV FIRST)
 
 # Find Python 3 interpreter
 find_package(Python3 REQUIRED COMPONENTS Interpreter)

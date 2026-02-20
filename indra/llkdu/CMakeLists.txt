@@ -1,7 +1,7 @@
 # -*- cmake -*-
 
 if (USE_KDU)
-  add_library (llkdu ${llkdu_SOURCE_FILES})
+  add_library (llkdu STATIC)
 
 
 target_sources(llkdu
@@ -12,16 +12,15 @@ target_sources(llkdu
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
     llimagej2ckdu.h
     llkdumem.h
     )
 
   target_link_libraries(llkdu PUBLIC ll::kdu llimage llcommon)
-  target_include_directories( llkdu  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+  target_include_directories(llkdu INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
   # Add tests
-  if (LL_TESTS)
+  if (BUILD_TESTING)
     SET(llkdu_TEST_SOURCE_FILES
       llimagej2ckdu.cpp
       )
@@ -31,10 +30,10 @@ target_sources(llkdu
       lltut.h
       )
 
-    get_property( llimage_include_dir TARGET llimage PROPERTY INTERFACE_INCLUDE_DIRECTORIES )
-    set_property( SOURCE ${llkdu_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_LIBRARIES  ll::kdu llcommon)
-    set_property( SOURCE ${llkdu_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_INCLUDE_DIRS ${llimage_include_dir})
+    get_property(llimage_include_dir TARGET llimage PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+    set_property(SOURCE ${llkdu_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_LIBRARIES ll::kdu llcommon)
+    set_property(SOURCE ${llkdu_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_INCLUDE_DIRS ${llimage_include_dir})
 
     LL_ADD_PROJECT_UNIT_TESTS(llkdu "${llkdu_TEST_SOURCE_FILES}")
-  endif (LL_TESTS)
-endif (USE_KDU)
+  endif ()
+endif ()

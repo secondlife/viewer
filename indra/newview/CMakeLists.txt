@@ -746,7 +746,6 @@ set(viewer_SOURCE_FILES
     )
 
 set(viewer_HEADER_FILES
-    CMakeLists.txt
     ViewerInstall.cmake
     gltfscenemanager.h
     groupchatlistener.h
@@ -1757,6 +1756,8 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::openxr
         ll::discord_sdk
         ll::nvapi
+        ll::tinygltf
+        ll::tinyexr
         )
 
 if (NOT DISABLE_WEBRTC)
@@ -2029,7 +2030,6 @@ if (PACKAGE)
           --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
           --vcpkg_dir=${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}
           ${SIGNING_SETTING}
-    DEPENDS
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt

@@ -42,7 +42,6 @@ elseif(WINDOWS)
           dxgi
           d3d9
           opengl32
-          comdlg32
           dxguid
           kernel32
           odbc32

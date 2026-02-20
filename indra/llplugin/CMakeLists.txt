@@ -15,7 +15,6 @@ target_sources(llplugin
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
     llpluginclassmedia.h
     llpluginclassmediaowner.h
     llplugininstance.h

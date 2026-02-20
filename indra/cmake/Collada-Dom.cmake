@@ -20,16 +20,16 @@ find_library(COLLADA14_LIBRARY_RELEASE
     NO_DEFAULT_PATH
 )
 
+target_link_libraries(ll::colladadom INTERFACE optimized ${COLLADA14_LIBRARY_RELEASE})
+
 find_library(COLLADA14_LIBRARY_DEBUG
     NAMES collada14dom
     PATHS "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/lib"
     NO_DEFAULT_PATH
 )
 
-if (COLLADA14_LIBRARY_DEBUG)
-    target_link_libraries(ll::colladadom INTERFACE debug ${COLLADA14_LIBRARY_DEBUG} optimized ${COLLADA14_LIBRARY_RELEASE})
-else()
-    target_link_libraries(ll::colladadom INTERFACE optimized ${COLLADA14_LIBRARY_RELEASE})
+if (NOT COLLADA14_LIBRARY_DEBUG STREQUAL "COLLADA14_LIBRARY_DEBUG-NOTFOUND")
+    target_link_libraries(ll::colladadom INTERFACE debug ${COLLADA14_LIBRARY_DEBUG})
 endif()
 
 find_package(minizip CONFIG REQUIRED)

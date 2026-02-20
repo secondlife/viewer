@@ -6,6 +6,6 @@ find_package(CURL REQUIRED)
 target_link_libraries(ll::libcurl INTERFACE CURL::libcurl)
 
 if(LINUX OR DARWIN)
-    find_library(NGHTTPS_LIBRARIES nghttp2 REQUIRED)
-    target_link_libraries(ll::libcurl INTERFACE ${NGHTTPS_LIBRARIES})
+    find_library(NGHTTP2_LIBRARIES nghttp2 REQUIRED)
+    target_link_libraries(ll::libcurl INTERFACE ${NGHTTP2_LIBRARIES})
 endif()

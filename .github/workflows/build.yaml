@@ -100,8 +100,9 @@ jobs:
           if [[ "${{inputs.channel}}" != "" && "${{inputs.channel}}" != "Auto" ]];
           then
               if [[ "${{inputs.channel}}" == "Project" ]];
-                  export viewer_channel="${{ env.VIEWER_CHANNEL_BASE }} Project ${{inputs.project}}"
               then
+                  export viewer_channel="${{ env.VIEWER_CHANNEL_BASE }} Project ${{inputs.project}}"
+              else
                   export viewer_channel="${{ env.VIEWER_CHANNEL_BASE }} ${{inputs.channel}}"
               fi
           elif [[ "$edu" == "true" ]];
@@ -232,25 +233,25 @@ jobs:
       #   run: |
       #     if [[ "$RUNNER_OS" == "Windows" ]]
       #     then
-      #       `${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1` \
+      #       $(${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1) \
       #         sources add \
       #         -Source "${{ env.VCPKG_FEED_URL }}" \
       #         -StorePasswordInClearText \
       #         -Name GitHubPackages \
       #         -UserName "${{ env.VCPKG_USERNAME }}" \
       #         -Password "${{ secrets.GITHUB_TOKEN }}"
-      #       `${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1` \
+      #       $(${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1) \
       #         setapikey "${{ secrets.GITHUB_TOKEN }}" \
       #         -Source "${{ env.VCPKG_FEED_URL }}"
       #     else
-      #       mono `${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1` \
+      #       mono $(${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1) \
       #         sources add \
       #         -Source "${{ env.VCPKG_FEED_URL }}" \
       #         -StorePasswordInClearText \
       #         -Name GitHubPackages \
       #         -UserName "${{ env.VCPKG_USERNAME }}" \
       #         -Password "${{ secrets.GITHUB_TOKEN }}"
-      #       mono `${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1` \
+      #       mono $(${VCPKG_INSTALLATION_ROOT}/vcpkg fetch nuget | tail -n 1) \
       #         setapikey "${{ secrets.GITHUB_TOKEN }}" \
       #         -Source "${{ env.VCPKG_FEED_URL }}"
       #     fi
@@ -316,6 +317,7 @@ jobs:
         id: build
         shell: bash
         env:
+          BUILD_DIRECTORY: ${{ steps.configure.outputs.build_directory }}
           CMAKE_PRESET_NAME: ${{ steps.configure.outputs.cmake_preset }}
           CTEST_OUTPUT_ON_FAILURE: 1 # Output log on test failure
         working-directory: "${{ github.workspace }}/indra"
@@ -363,7 +365,7 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix-$BUILD_ARCH" >> $GITHUB_OUTPUT
 
           # Gather version metadata
-          if [ -r "$build_dir/newview/viewer_version.txt" ]
+          if [ -r "$BUILD_DIRECTORY/newview/viewer_version.txt" ]
           then
               viewer_version="$(<"$BUILD_DIRECTORY/newview/viewer_version.txt")"
               echo "viewer_version=$viewer_version" >> "$GITHUB_OUTPUT"
@@ -419,7 +421,7 @@ jobs:
       # artifact for that too.
       - name: Upload Windows symbol file
         uses: actions/upload-artifact@v6
-        if: matrix.configuration == 'release' && matrix.build_variant == 'Viewer' && needs.setup.outputs.build_type == 'proprietary'
+        if: runner.os == 'Windows' && matrix.configuration == 'release' && matrix.build_variant == 'Viewer' && needs.setup.outputs.build_type == 'proprietary'
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
           if-no-files-found: error
@@ -428,7 +430,7 @@ jobs:
 
       - name: Upload macOS symbol file
         uses: actions/upload-artifact@v6
-        if: matrix.configuration == 'release' && matrix.build_variant == 'Viewer' && needs.setup.outputs.build_type == 'proprietary'
+        if: runner.os == 'macOS' && matrix.configuration == 'release' && matrix.build_variant == 'Viewer' && needs.setup.outputs.build_type == 'proprietary'
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
           if-no-files-found: error

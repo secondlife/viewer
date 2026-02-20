@@ -9,8 +9,6 @@ target_sources(llimagej2coj
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     llimagej2coj.h
     )
 

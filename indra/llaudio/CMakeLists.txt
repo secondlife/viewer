@@ -14,8 +14,6 @@ target_sources(llaudio
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     llaudioengine.h
     lllistener.h
     llaudiodecodemgr.h

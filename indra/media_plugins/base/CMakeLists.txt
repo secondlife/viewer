@@ -7,8 +7,6 @@ set(media_plugin_base_SOURCE_FILES
 )
 
 set(media_plugin_base_HEADER_FILES
-    CMakeLists.txt
-
     media_plugin_base.h
 )
 

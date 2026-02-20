@@ -15,7 +15,6 @@ target_sources(llfilesystem
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
     lldir.h
     lldirguard.h
     lldiriterator.h

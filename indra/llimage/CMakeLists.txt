@@ -21,8 +21,6 @@ target_sources(llimage
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     llimage.h
     llimagebmp.h
     llimagedimensionsinfo.h

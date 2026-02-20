@@ -42,8 +42,6 @@ target_sources(llmath
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
-
     llbbox.h
     llbboxlocal.h
     llcalc.h

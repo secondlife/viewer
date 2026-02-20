@@ -7,6 +7,6 @@ updates:
       interval: monthly
 
   - package-ecosystem: vcpkg
-    directory: indra # The location of vcpkg.json
+    directory: /indra # The location of vcpkg.json
     schedule:
       interval: weekly

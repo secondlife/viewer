@@ -23,7 +23,6 @@ target_sources(llprimitive
     PUBLIC
     FILE_SET HEADERS
     FILES
-    CMakeLists.txt
     lldaeloader.h
     llgltfmaterial.h
     llgltfmaterial_templates.h
@@ -59,6 +58,7 @@ target_link_libraries(llprimitive
         llmath
         ll::colladadom
         ll::glm
+        ll::tinygltf
         )
 
 if (HAVOK OR HAVOK_TPV)

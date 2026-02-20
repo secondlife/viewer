@@ -169,7 +169,7 @@ LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity() const
 
 std::string LLVersionInfo::getBuildConfig() const
 {
-#if LL_DEBUG && !defined(_DEBUG)
+#if LL_OPTDEBUG
     return "OptDebug";
 #elif LL_DEBUG
     return "Debug";

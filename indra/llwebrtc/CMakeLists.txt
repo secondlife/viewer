@@ -5,7 +5,6 @@ set(llwebrtc_SOURCE_FILES
     )
 
 set(llwebrtc_HEADER_FILES
-    CMakeLists.txt
     llwebrtc.h
     llwebrtc_impl.h
     )
