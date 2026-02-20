@@ -225,6 +225,7 @@ public:
     S32         getMaxTabWidth() const { return mMaxTabWidth; }
 
     void setTabVisibility( LLPanel const *aPanel, bool );
+    bool getTabVisibility(const LLPanel* panel);
 
     void        startDragAndDropDelayTimer() { mDragAndDropDelayTimer.start(); }
 

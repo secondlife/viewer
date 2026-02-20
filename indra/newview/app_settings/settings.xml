@@ -16431,6 +16431,39 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>InventoryShowRecentTab</key>
+  <map>
+    <key>Comment</key>
+    <string>Show/hide Recent tab in the Inventory floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>InventoryShowWornTab</key>
+  <map>
+    <key>Comment</key>
+    <string>Show/hide Worn tab in the Inventory floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>InventoryShowFavoritesTab</key>
+  <map>
+    <key>Comment</key>
+    <string>Show/hide Favorites tab in the Inventory floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>StatsReportMaxDuration</key>
   <map>
     <key>Comment</key>
