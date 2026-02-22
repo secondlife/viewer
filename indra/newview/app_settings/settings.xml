@@ -7687,14 +7687,14 @@
   <key>RenderScreenSpaceReflectionIterations</key>
   <map>
     <key>Comment</key>
-    <string>Number of times the ray march algorithm runs to find a potential hit.</string>
+    <string>X = max ray march steps. Y, Z unused.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>30</real>
+      <real>64</real>
       <real>16</real>
       <real>16</real>
     </array>
@@ -7702,14 +7702,14 @@
   <key>RenderScreenSpaceReflectionRayStep</key>
   <map>
     <key>Comment</key>
-    <string>How big the step is between each run.</string>
+    <string>X = initial ray march step size. Y, Z unused.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.035</real>
+      <real>0.025</real>
       <real>0.75</real>
       <real>1</real>
     </array>
@@ -7717,14 +7717,14 @@
   <key>RenderScreenSpaceReflectionDistanceBias</key>
   <map>
     <key>Comment</key>
-    <string>Distance bias to apply when rejecting a potential sample.</string>
+    <string>X = max step size cap. Y, Z unused.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.01</real>
+      <real>10.0</real>
       <real>0.4</real>
       <real>10</real>
     </array>
@@ -7732,29 +7732,29 @@
   <key>RenderScreenSpaceReflectionDepthRejectBias</key>
   <map>
     <key>Comment</key>
-    <string>Bias against the depth buffer before rejecting a sample.</string>
+    <string>X = max thickness for hit validation. Y = depth bias scale for ray origin offset. Z unused.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.001</real>
-      <real>0.001</real>
+      <real>1.0</real>
+      <real>0</real>
       <real>0.001</real>
     </array>
   </map>
   <key>RenderScreenSpaceReflectionAdaptiveStepMultiplier</key>
   <map>
     <key>Comment</key>
-    <string>Multiplier to scale adaptive stepping.</string>
+    <string>X = step growth rate per iteration. Y, Z unused.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>1.197</real>
+      <real>1.13</real>
       <real>1.5</real>
       <real>2</real>
     </array>
@@ -7798,7 +7798,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>2</integer>
+    <integer>4</integer>
   </map>
   <key>RenderScreenSpaceReflectionMaxDepth</key>
   <map>
@@ -7820,7 +7820,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.45</real>
+    <real>1</real>
   </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>

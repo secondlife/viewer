@@ -8027,8 +8027,6 @@ void LLPipeline::renderFinalize()
     bool hdr = gGLManager.mGLVersion > 4.05f && has_hdr();
     if (hdr)
     {
-        copyScreenSpaceReflections(&mRT->screen, &mSceneMap);
-
         generateLuminance(&mRT->screen, &mLuminanceMap);
 
         generateExposure(&mLuminanceMap, &mExposureMap);
