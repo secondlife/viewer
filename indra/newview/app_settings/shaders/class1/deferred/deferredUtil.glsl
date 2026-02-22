@@ -612,7 +612,7 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
     }
     else
     {
-        color += clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit * 3.0 * scol;
+        color += clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit * scol;
     }
 
     color.rgb += iblSpec.rgb;

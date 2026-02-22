@@ -5246,6 +5246,13 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
         mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
     }
 
+    // Ensure render material is built if we have a base material and override
+    // (texture entry may have been copied without its render material)
+    if (getTE(te)->getGLTFMaterial() && getTE(te)->getGLTFMaterialOverride())
+    {
+        initRenderMaterial(te);
+    }
+
     LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*) getTE(te)->getGLTFRenderMaterial();
     llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(getTE(te)->getGLTFRenderMaterial()) != nullptr);
     LLUUID mat_id = getRenderMaterialID(te);

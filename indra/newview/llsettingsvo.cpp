@@ -804,17 +804,35 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     static LLCachedControl<F32> sunlight_scale(gSavedSettings, "RenderSkySunlightScale", 1.5f);
     static LLCachedControl<F32> sunlight_hdr_scale(gSavedSettings, "RenderHDRSkySunlightScale", 1.5f);
     static LLCachedControl<F32> ambient_scale(gSavedSettings, "RenderSkyAmbientScale", 1.5f);
-    static LLCachedControl<F32> tonemap_mix_setting(gSavedSettings, "RenderTonemapMix", 1.f);
-
     // sky is a "classic" sky following pre SL 7.0 shading
     bool classic_mode = psky->canAutoAdjust() && !should_auto_adjust();
 
-    if (!classic_mode)
-    {
-        psky->setTonemapMix(tonemap_mix_setting);
-    }
+    // Shaders normalize sun_lux: intensity = sun_lux / 100000.0
+    // Reference: 100000 lux (bright sunlight) = 1.0 normalized intensity
+    //
+    // V2+ skies: use lux directly from getSunBrightness()
+    // V1 legacy skies: convert legacy scale to equivalent lux
+    //   - Legacy scale ~1.0-1.5 was multiplied by 3.0 in shader
+    //   - To match: legacy_scale * 3.0 = sun_lux / 100000
+    //   - Therefore: sun_lux = legacy_scale * 3.0 * 100000 = legacy_scale * 300000
+    static LLCachedControl<S32> sky_version_override(gSavedSettings, "RenderSkyVersionOverride", 0);
+    S32 sky_version = (sky_version_override > 0) ? sky_version_override : psky->getSkySettingVersion();
 
-    shader->uniform1f(LLShaderMgr::SKY_SUNLIGHT_SCALE, hdr ? sunlight_hdr_scale : sunlight_scale);
+    F32 sun_lux;
+    if (sky_version > 1)
+    {
+        // V2+ sky: use lux directly
+        sun_lux = psky->getSunBrightness();
+    }
+    else
+    {
+        // V1 legacy sky: convert legacy scale to lux
+        // Shader divides by 100000, old shader multiplied by 3.0
+        // So: sun_lux = legacy_scale * 3.0 * 100000
+        F32 legacy_scale = hdr ? sunlight_hdr_scale : sunlight_scale;
+        sun_lux = legacy_scale * 300000.f;
+    }
+    shader->uniform1f(LLShaderMgr::SUN_LUX, sun_lux);
     shader->uniform1f(LLShaderMgr::SKY_AMBIENT_SCALE, ambient_scale);
     shader->uniform1i(LLShaderMgr::CLASSIC_MODE, classic_mode);
 

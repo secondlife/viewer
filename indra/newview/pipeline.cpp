@@ -7258,18 +7258,36 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
         shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
 
         static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
-
-        F32 e = llclamp(exposure(), 0.5f, 4.f);
+        static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
+        static LLCachedControl<F32> tonemap_mix_setting(gSavedSettings, "RenderTonemapMix", 1.f);
+        static LLCachedControl<bool> use_env_hdr_settings(gSavedSettings, "RenderHDRUseEnvironmentSettings", false);
 
         static LLStaticHashedString s_exposure("exposure");
         static LLStaticHashedString tonemap_mix("tonemap_mix");
         static LLStaticHashedString tonemap_type("tonemap_type");
 
-        shader->uniform1f(s_exposure, e);
+        // When use_env_hdr_settings is enabled, use environment HDR settings
+        // Otherwise use user's debug settings
+        F32 e;
+        U32 tonemap_type_value;
+        F32 tonemap_mix_value;
 
-        static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
-        shader->uniform1i(tonemap_type, tonemap_type_setting);
-        shader->uniform1f(tonemap_mix, psky->getTonemapMix(should_auto_adjust()));
+        if (use_env_hdr_settings)
+        {
+            e = llclamp(psky->getHDROffset(should_auto_adjust()), 0.5f, 4.f);
+            tonemap_type_value = psky->getTonemapper();
+            tonemap_mix_value = psky->getTonemapMix(should_auto_adjust());
+        }
+        else
+        {
+            e = llclamp(exposure(), 0.5f, 4.f);
+            tonemap_type_value = tonemap_type_setting();
+            tonemap_mix_value = tonemap_mix_setting();
+        }
+
+        shader->uniform1f(s_exposure, e);
+        shader->uniform1i(tonemap_type, tonemap_type_value);
+        shader->uniform1f(tonemap_mix, tonemap_mix_value);
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);

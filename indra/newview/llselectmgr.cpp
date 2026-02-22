@@ -2080,6 +2080,8 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                 // Update local state
                 objectp->setRenderMaterialID(te, asset_id, false, true);
                 tep->setGLTFMaterialOverride(preserved_override);
+                // Ensure render material is built with the override
+                objectp->initRenderMaterial(te);
             }
             else
             {

@@ -211,12 +211,36 @@
                     width="215"
                     can_edit_text="true"/>
             <text
-                    name="star_brightness_label"
+                    name="sun_brightness_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
                     left_delta="-5"
                     top_delta="22"
+                    width="200">
+                Sun Brightness (lux):
+            </text>
+            <slider
+                    decimal_digits="0"
+                    follows="left|top"
+                    height="16"
+                    increment="1000"
+                    initial_value="0"
+                    layout="topleft"
+                    left_delta="5"
+                    min_val="0"
+                    max_val="2000000"
+                    name="sun_brightness"
+                    top_delta="13"
+                    width="215"
+                    can_edit_text="true"/>
+            <text
+                    name="star_brightness_label"
+                    follows="left|top"
+                    height="10"
+                    layout="topleft"
+                    left_delta="-5"
+                    top_delta="25"
                     width="200">
                 Star Brightness:
             </text>

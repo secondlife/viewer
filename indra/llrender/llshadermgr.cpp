@@ -1305,11 +1305,12 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("cloud_noise_texture_next");
     mReservedUniforms.push_back("lightnorm");
     mReservedUniforms.push_back("sunlight_color");
+    mReservedUniforms.push_back("sun_intensity");
     mReservedUniforms.push_back("ambient_color");
     mReservedUniforms.push_back("sky_hdr_scale");
-    mReservedUniforms.push_back("sky_sunlight_scale");
     mReservedUniforms.push_back("sky_ambient_scale");
     mReservedUniforms.push_back("classic_mode");
+    mReservedUniforms.push_back("sun_lux");
     mReservedUniforms.push_back("blue_horizon");
     mReservedUniforms.push_back("blue_density");
     mReservedUniforms.push_back("haze_horizon");

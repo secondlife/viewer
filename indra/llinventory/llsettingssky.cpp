@@ -135,6 +135,15 @@ const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
 
 const std::string LLSettingsSky::SETTING_REFLECTION_PROBE_AMBIANCE("reflection_probe_ambiance");
 
+const std::string LLSettingsSky::SETTING_SKY_VERSION("sky_version");
+const std::string LLSettingsSky::SETTING_SUN_BRIGHTNESS("sun_brightness");
+
+const std::string LLSettingsSky::SETTING_HDR_OFFSET("hdr_offset");
+const std::string LLSettingsSky::SETTING_HDR_MAX("hdr_max");
+const std::string LLSettingsSky::SETTING_HDR_MIN("hdr_min");
+const std::string LLSettingsSky::SETTING_HDR_TONEMAPPER("hdr_tonemapper");
+const std::string LLSettingsSky::SETTING_HDR_TONEMAPPER_AMOUNT("hdr_tonemapper_amount");
+
 const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("651510b8-5f4d-8991-1592-e7eeab2a5a06");
 
 const F32 LLSettingsSky::DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE = 1.f;
@@ -442,12 +451,15 @@ void LLSettingsSky::replaceSettings(const LLSettingsBase::ptr_t& other_sky)
 
     LLSettingsSky::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(other_sky);
 
+    mSkySettingVersion = other->mSkySettingVersion;
+
     mCanAutoAdjust = other->mCanAutoAdjust;
     mReflectionProbeAmbiance = other->mReflectionProbeAmbiance;
 
     mSunScale = other->mSunScale;
     mSunRotation = other->mSunRotation;
     mSunlightColor = other->mSunlightColor;
+    mSunBrightness = other->mSunBrightness;
     mStarBrightness = other->mStarBrightness;
     mMoonBrightness = other->mMoonBrightness;
     mMoonScale = other->mMoonScale;
@@ -498,6 +510,12 @@ void LLSettingsSky::replaceSettings(const LLSettingsBase::ptr_t& other_sky)
     mHaloTextureId = other->mHaloTextureId;
     mRainbowTextureId = other->mRainbowTextureId;
     mBloomTextureId = other->mBloomTextureId;
+    
+    mHDRMin = other->mHDRMin;
+    mHDRMax = other->mHDRMax;
+    mHDROffset = other->mHDROffset;
+    mTonemapper = other->mTonemapper;
+    mTonemapMix = other->mTonemapMix;
 
     mNextSunTextureId.setNull();
     mNextMoonTextureId.setNull();
@@ -605,6 +623,7 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mCanAutoAdjust = other->mCanAutoAdjust;
 
         mSunRotation = slerp((F32)blendf, mSunRotation, other->mSunRotation);
+        mSunBrightness = lerp(mSunBrightness, other->mSunBrightness, (F32)blendf);
         mMoonRotation = slerp((F32)blendf, mMoonRotation, other->mMoonRotation);
         lerpColor(mSunlightColor, other->mSunlightColor, (F32)blendf);
         lerpColor(mGlow, other->mGlow, (F32)blendf);
@@ -630,6 +649,13 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mSkyDropletRadius = lerp(mSkyDropletRadius, other->mSkyDropletRadius, (F32)blendf);
         mSkyIceLevel = lerp(mSkyIceLevel, other->mSkyIceLevel, (F32)blendf);
         mPlanetRadius = lerp(mPlanetRadius, other->mPlanetRadius, (F32)blendf);
+        
+        mTonemapMix = lerp(mTonemapMix, other->mTonemapMix, (F32)blendf);
+        mHDRMax = lerp(mHDRMax, other->mHDRMax, (F32)blendf);
+        mHDRMin = lerp(mHDRMax, other->mHDRMin, (F32)blendf);
+        mHDROffset = lerp(mHDROffset, other->mHDROffset, (F32)blendf);
+        
+        mTonemapper = other->mTonemapper;
 
         // Legacy settings
 
@@ -1179,11 +1205,40 @@ void LLSettingsSky::loadValuesFromLLSD()
         mReflectionProbeAmbiance = (F32)settings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
     }
 
-    mHDRMax = 2.0f;
-    mHDRMin = 0.5f;
-    mHDROffset = 1.0f;
-    mTonemapMix = 1.0f;
 
+    // Legacy (pre-Visual Polish) skies are version 1.
+    // Post-VP skies are are 2 and higher.
+    // Note: version increments should be saved for behavioral changes, not necessarily param additions.
+    // The version should be set server-side, not viewer-side.
+    // - Geenz, Feb 21, 2026
+    if (settings.has(SETTING_SKY_VERSION))
+    {
+        mSkySettingVersion = (U8)settings[SETTING_SKY_VERSION].asReal();
+    }
+    else
+    {
+        mSkySettingVersion = 1;
+    }
+    
+    if (mSkySettingVersion > 1)
+    {
+        mHDRMax = settings[SETTING_HDR_MAX].asReal();
+        mHDRMin = settings[SETTING_HDR_MIN].asReal();
+        mHDROffset = settings[SETTING_HDR_OFFSET].asReal();
+        mTonemapMix = settings[SETTING_HDR_TONEMAPPER_AMOUNT].asReal();
+        mTonemapper = settings[SETTING_HDR_TONEMAPPER].asReal();
+        mSunBrightness = settings[SETTING_SUN_BRIGHTNESS].asReal();
+    }
+    else
+    {
+        mHDRMax = 2.0f;
+        mHDRMin = 0.5f;
+        mHDROffset = 1.0f;
+        mTonemapMix = 1.0f;
+        mTonemapper = 0;
+        mSunBrightness = 130000.f; // Brightness roughly around high noon in lux.
+    }
+    
     mSunTextureId = settings[SETTING_SUN_TEXTUREID].asUUID();
     mMoonTextureId = settings[SETTING_MOON_TEXTUREID].asUUID();
     mCloudTextureId = settings[SETTING_CLOUD_TEXTUREID].asUUID();
@@ -1277,6 +1332,7 @@ void LLSettingsSky::saveValuesToLLSD()
     settings[SETTING_SUN_SCALE] = mSunScale;
     settings[SETTING_SUN_ROTATION] = mSunRotation.getValue();
     settings[SETTING_SUNLIGHT_COLOR] = mSunlightColor.getValue();
+    settings[SETTING_SUN_BRIGHTNESS] = mSunBrightness;
     settings[SETTING_STAR_BRIGHTNESS] = mStarBrightness;
     settings[SETTING_MOON_BRIGHTNESS] = mMoonBrightness;
     settings[SETTING_MOON_SCALE] = mMoonScale;
@@ -1301,6 +1357,11 @@ void LLSettingsSky::saveValuesToLLSD()
     settings[SETTING_SKY_DROPLET_RADIUS] = mSkyDropletRadius;
     settings[SETTING_SKY_ICE_LEVEL] = mSkyIceLevel;
     settings[SETTING_PLANET_RADIUS] = mPlanetRadius;
+    settings[SETTING_HDR_MAX] = mHDRMax;
+    settings[SETTING_HDR_MIN] = mHDRMin;
+    settings[SETTING_HDR_OFFSET] = mHDROffset;
+    settings[SETTING_HDR_TONEMAPPER] = mTonemapper;
+    settings[SETTING_HDR_TONEMAPPER_AMOUNT] = mTonemapMix;
 
     LLSD& legacy = settings[SETTING_LEGACY_HAZE];
     set_legacy(settings, legacy, SETTING_DISTANCE_MULTIPLIER, mLegacyDistanceMultiplier, LLSD::Real(mDistanceMultiplier));
@@ -2060,6 +2121,27 @@ F32 LLSettingsSky::getHDROffset(bool auto_adjust) const
     return mHDROffset;
 }
 
+void LLSettingsSky::setHDRMin(F32 val)
+{
+    mHDRMin = val;
+    setDirtyFlag(true);
+    setLLSDDirty();
+}
+
+void LLSettingsSky::setHDRMax(F32 val)
+{
+    mHDRMax = val;
+    setDirtyFlag(true);
+    setLLSDDirty();
+}
+
+void LLSettingsSky::setHDROffset(F32 val)
+{
+    mHDROffset = val;
+    setDirtyFlag(true);
+    setLLSDDirty();
+}
+
 F32 LLSettingsSky::getTonemapMix(bool auto_adjust) const
 {
     if (mCanAutoAdjust && !auto_adjust)
@@ -2074,6 +2156,25 @@ F32 LLSettingsSky::getTonemapMix(bool auto_adjust) const
 void LLSettingsSky::setTonemapMix(F32 mix)
 {
     mTonemapMix = mix;
+    setDirtyFlag(true);
+    setLLSDDirty();
+}
+
+U8 LLSettingsSky::getTonemapper() const
+{
+    return mTonemapper;
+}
+
+void LLSettingsSky::setTonemapper(U8 tonemapper)
+{
+    mTonemapper = tonemapper;
+    setDirtyFlag(true);
+    setLLSDDirty();
+}
+
+U8 LLSettingsSky::getSkySettingVersion() const
+{
+    return mSkySettingVersion;
 }
 
 void LLSettingsSky::setGamma(F32 val)
@@ -2161,6 +2262,18 @@ F32 LLSettingsSky::getStarBrightness() const
 void LLSettingsSky::setStarBrightness(F32 val)
 {
     mStarBrightness = val;
+    setLLSDDirty();
+}
+
+F32 LLSettingsSky::getSunBrightness() const
+{
+    return mSunBrightness;
+}
+
+void LLSettingsSky::setSunBrightness(F32 val)
+{
+    mSunBrightness = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 

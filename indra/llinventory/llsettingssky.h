@@ -40,6 +40,7 @@ const F32 MOON_DIST     =    384.400e6f;
 class LLSettingsSky: public LLSettingsBase
 {
 public:
+    static const std::string SETTING_SKY_VERSION;
     static const std::string SETTING_AMBIENT;
     static const std::string SETTING_BLOOM_TEXTUREID;
     static const std::string SETTING_RAINBOW_TEXTUREID;
@@ -75,6 +76,7 @@ public:
     static const std::string SETTING_SUN_ROTATION;
     static const std::string SETTING_SUN_SCALE;
     static const std::string SETTING_SUN_TEXTUREID;
+    static const std::string SETTING_SUN_BRIGHTNESS;
 
     static const std::string SETTING_PLANET_RADIUS;
     static const std::string SETTING_SKY_BOTTOM_RADIUS;
@@ -105,6 +107,13 @@ public:
 
     static const F32 DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE;
     static F32 sAutoAdjustProbeAmbiance;
+    
+    static const std::string SETTING_HDR_OFFSET;
+    static const std::string SETTING_HDR_MAX;
+    static const std::string SETTING_HDR_MIN;
+    
+    static const std::string SETTING_HDR_TONEMAPPER;
+    static const std::string SETTING_HDR_TONEMAPPER_AMOUNT;
 
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsSky> ptr_t;
 
@@ -213,8 +222,16 @@ public:
     F32 getHDRMin(bool auto_adjust = false) const;
     F32 getHDRMax(bool auto_adjust = false) const;
     F32 getHDROffset(bool auto_adjust = false) const;
+    void setHDRMin(F32 val);
+    void setHDRMax(F32 val);
+    void setHDROffset(F32 val);
+
     F32 getTonemapMix(bool auto_adjust = false) const;
     void setTonemapMix(F32 mix);
+    U8 getTonemapper() const;
+    void setTonemapper(U8 tonemapper);
+
+    U8 getSkySettingVersion() const;
 
     void setGamma(F32 val);
 
@@ -239,6 +256,9 @@ public:
 
     F32 getStarBrightness() const;
     void setStarBrightness(F32 val);
+
+    F32 getSunBrightness() const;
+    void setSunBrightness(F32 val);
 
     LLColor3 getSunlightColor() const;
     void setSunlightColor(const LLColor3 &val);
@@ -373,9 +393,11 @@ protected:
     LLUUID      mNextHaloTextureId;
 
     bool mCanAutoAdjust;
+    U8 mSkySettingVersion;
     LLQuaternion mSunRotation;
     LLQuaternion mMoonRotation;
     LLColor3 mSunlightColor;
+    F32 mSunBrightness;
     LLColor3 mGlow;
     F32 mReflectionProbeAmbiance;
     F32 mSunScale;
@@ -387,6 +409,7 @@ protected:
     F32 mCloudVariance;
     F32 mCloudShadow;
     F32 mCloudScale;
+    U8  mTonemapper;
     F32 mTonemapMix;
     F32 mHDROffset;
     F32 mHDRMax;

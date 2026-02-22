@@ -72,6 +72,7 @@ private:
 
     void                        onGlowChanged();
     void                        onStarBrightnessChanged();
+    void                        onSunBrightnessChanged();
     void                        onSunRotationChanged();
     void                        onSunAzimElevChanged();
     void                        onSunScaleChanged();
@@ -83,6 +84,11 @@ private:
     void                        onWaterMapChanged();
 
     void                        onReflectionProbeAmbianceChanged();
+    void                        onTonemapperChanged();
+    void                        onTonemapMixChanged();
+    void                        onHDROffsetChanged();
+    void                        onHDRMinChanged();
+    void                        onHDRMaxChanged();
     void                        updateGammaLabel();
     void                        onButtonReset();
 

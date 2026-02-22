@@ -928,6 +928,7 @@
 
   <slider
     control_name="RenderExposure"
+    disabled_control="RenderHDRUseEnvironmentSettings"
     decimal_digits="1"
     follows="left|top"
     height="16"
@@ -1061,6 +1062,17 @@
   </slider>
   <!-- End of Sharpening Settings-->
   <!-- Tone Mapping Settings -->
+  <check_box
+    control_name="RenderHDRUseEnvironmentSettings"
+    follows="left|top"
+    height="16"
+    label="Use Environment HDR Settings"
+    layout="topleft"
+    left="420"
+    name="UseEnvHDRSettings"
+    tool_tip="When enabled, use HDR and tonemapper settings from the current environment instead of the settings below."
+    top_delta="25"
+    width="260"/>
   <text
     type="string"
     length="1"
@@ -1070,12 +1082,13 @@
     left="420"
     name="TonemapTypeText"
     text_readonly_color="LabelDisabledColor"
-    top_delta="25"
+    top_delta="20"
     width="128">
     Tone Mapper:
   </text>
   <combo_box
     control_name="RenderTonemapType"
+    disabled_control="RenderHDRUseEnvironmentSettings"
     height="18"
     layout="topleft"
     left_delta="130"
@@ -1093,6 +1106,7 @@
   </combo_box>
   <slider
    control_name="RenderTonemapMix"
+   disabled_control="RenderHDRUseEnvironmentSettings"
    decimal_digits="1"
    follows="left|top"
    height="16"

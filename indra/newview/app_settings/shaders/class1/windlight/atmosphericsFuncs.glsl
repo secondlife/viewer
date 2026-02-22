@@ -25,6 +25,7 @@
 
 uniform vec3  lightnorm;
 uniform vec3  sunlight_color;
+uniform float sun_intensity;
 uniform vec3  moonlight_color;
 uniform int   sun_up_factor;
 uniform vec3  ambient_color;
@@ -39,7 +40,7 @@ uniform float max_y;
 uniform vec3  glow;
 uniform float scene_light_strength;
 uniform float sun_moon_glow_factor;
-uniform float sky_sunlight_scale;
+uniform float sun_lux;
 uniform float sky_ambient_scale;
 uniform int classic_mode;
 
@@ -158,8 +159,8 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
         sunlit = srgb_to_linear(sunlit);
     }
 
-    // multiply to get similar colors as when the "scaleSoftClip" implementation was doubling color values
-    // (allows for mixing of light sources other than sunlight e.g. reflection probes)
-    sunlit *= sky_sunlight_scale;
+    // Apply sun illuminance (lux) normalized for PBR lighting.
+    // Reference: 100000 lux (bright sunlight) = 1.0 normalized intensity
+    sunlit *= sun_lux / 100000.0;
     amblit *= sky_ambient_scale;
 }

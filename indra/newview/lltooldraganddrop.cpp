@@ -1377,6 +1377,8 @@ void LLToolDragAndDrop::dropMaterialOneFace(LLViewerObject* hit_obj,
         // Update local state
         hit_obj->setRenderMaterialID(hit_face, asset_id, false, true);
         tep->setGLTFMaterialOverride(preserved_override);
+        // Ensure render material is built with the override
+        hit_obj->initRenderMaterial(hit_face);
     }
     else
     {
@@ -1534,6 +1536,8 @@ void LLToolDragAndDrop::dropMaterialAllFaces(LLViewerObject* hit_obj,
                 // Update local state
                 hit_obj->setRenderMaterialID(te, asset_id, false, true);
                 hit_obj->getTE(te)->setGLTFMaterialOverride(preserved_override);
+                // Ensure render material is built with the override
+                hit_obj->initRenderMaterial(te);
             }
             else
             {
