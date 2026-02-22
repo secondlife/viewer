@@ -11856,6 +11856,22 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
+    <key>TextureChannelPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Per-channel texture streaming aggressiveness. X=normals, Y=diffuse, Z=specular/metallic, W=emissive. 1.0=baseline, higher=more aggressive downrez.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector4</string>
+      <key>Value</key>
+      <array>
+        <real>10.0</real>
+        <real>20.0</real>
+        <real>40.0</real>
+        <real>20.0</real>
+      </array>
+    </map>
     <key>TextureCameraBoost</key>
     <map>
       <key>Comment</key>
