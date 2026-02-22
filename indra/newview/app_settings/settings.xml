@@ -11866,10 +11866,10 @@
       <string>Vector4</string>
       <key>Value</key>
       <array>
-        <real>10.0</real>
-        <real>20.0</real>
-        <real>40.0</real>
-        <real>20.0</real>
+        <real>5</real>
+        <real>7.5</real>
+        <real>20</real>
+        <real>7.5</real>
       </array>
     </map>
     <key>TextureCameraBoost</key>
