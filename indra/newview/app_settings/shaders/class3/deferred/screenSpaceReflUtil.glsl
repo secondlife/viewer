@@ -295,8 +295,8 @@ float tapScreenSpaceReflection(
         return 0.0;
     }
 
-    accumColor /= float(hits);
-    accumFade /= float(hits);
+    accumColor /= float(numSamples);
+    accumFade /= float(numSamples);
 
     float remappedRoughness = clamp((roughness - (maxRoughness * 0.6)) / (maxRoughness - (maxRoughness * 0.6)), 0.0, 1.0);
     float roughnessFade = 1.0 - remappedRoughness;

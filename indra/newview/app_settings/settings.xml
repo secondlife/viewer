@@ -7694,7 +7694,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>128</real>
+      <real>64</real>
       <real>16</real>
       <real>16</real>
     </array>
@@ -7709,7 +7709,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.05</real>
+      <real>0.025</real>
       <real>0.75</real>
       <real>1</real>
     </array>
@@ -7740,7 +7740,7 @@
     <key>Value</key>
     <array>
       <real>1.0</real>
-      <real>0.0004</real>
+      <real>0</real>
       <real>0.001</real>
     </array>
   </map>
@@ -7754,7 +7754,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>1.04</real>
+      <real>1.13</real>
       <real>1.5</real>
       <real>2</real>
     </array>
@@ -7820,7 +7820,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.45</real>
+    <real>1</real>
   </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>

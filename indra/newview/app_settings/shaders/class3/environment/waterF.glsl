@@ -292,7 +292,7 @@ void main()
 #endif
 
     float metallic = 1.0;
-    float perceptualRoughness = blurMultiplier;
+    float perceptualRoughness = blurMultiplier * blurMultiplier;
     float gloss      = 1 - perceptualRoughness;
 
     vec3  irradiance = vec3(0);
