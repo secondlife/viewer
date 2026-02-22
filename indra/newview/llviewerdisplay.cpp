@@ -1035,6 +1035,10 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         if (LLPipeline::sRenderDeferred)
         {
             gPipeline.renderDeferredLighting();
+
+            // Copy screen to scene map for SSR to trace against next frame/pass.
+            // Must happen after deferred lighting so the lit scene is available.
+            gPipeline.copyScreenSpaceReflections(&gPipeline.mRT->screen, &gPipeline.mSceneMap);
         }
 
         LLPipeline::sUnderWaterRender = false;

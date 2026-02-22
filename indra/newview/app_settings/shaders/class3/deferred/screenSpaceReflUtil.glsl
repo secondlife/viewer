@@ -47,12 +47,18 @@ uniform float noiseSine;
 uniform float maxZDepth;
 uniform float maxRoughness;
 
-// Hardcoded ray march parameters
-const float STEP_SIZE       = 0.5;
-const float STEP_GROWTH     = 1.05;
-const int   MAX_STEPS       = 64;
+// Ray march parameters wired to uniforms (.x component of each)
+//   rayStep.x              = step size (default 0.5)
+//   iterationCount.x       = max steps (default 96)
+//   adaptiveStepMultiplier.x = step growth rate (default 1.03)
+//   distanceBias.x         = max step size cap (default 5.0)
+//   depthRejectBias.x      = max thickness for hit validation (default 1.0)
+#define STEP_SIZE       rayStep.x
+#define STEP_GROWTH     adaptiveStepMultiplier.x
+#define MAX_STEP_SIZE   distanceBias.x
+#define MAX_THICKNESS   depthRejectBias.x
+#define DEPTH_BIAS      depthRejectBias.y
 const int   BINARY_STEPS    = 8;
-const float MAX_THICKNESS   = 1.0;
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
@@ -78,6 +84,7 @@ float getLinearDepth(vec2 tc)
 vec3 binarySearch(vec3 dir, inout vec3 hitCoord, inout float dDepth)
 {
     float depth;
+    float initialStepLen = length(dir);
 
     for (int i = 0; i < BINARY_STEPS; i++)
     {
@@ -94,8 +101,11 @@ vec3 binarySearch(vec3 dir, inout vec3 hitCoord, inout float dDepth)
 
     vec2 projectedCoord = generateProjectedPosition(hitCoord);
 
-    // Reject if the ray ended up too far behind the surface
-    if (abs(dDepth) > MAX_THICKNESS)
+    // After 8 binary steps, precision is initialStep / 256.
+    // Scale acceptance with depth — precision degrades at distance.
+    float depthScale = max(1.0, depth * 0.01);
+    float maxError = max(initialStepLen * 0.1, 0.05) * depthScale;
+    if (abs(dDepth) > maxError)
         return vec3(-1.0, -1.0, depth);
 
     return vec3(projectedCoord, depth);
@@ -105,7 +115,7 @@ vec3 rayMarch(vec3 dir, inout vec3 hitCoord, out float dDepth, float startDepth)
 {
     dir *= STEP_SIZE;
 
-    for (int i = 0; i < MAX_STEPS; i++)
+    for (int i = 0; i < int(iterationCount.x); i++)
     {
         hitCoord += dir;
 
@@ -118,7 +128,7 @@ vec3 rayMarch(vec3 dir, inout vec3 hitCoord, out float dDepth, float startDepth)
         float depth = getLinearDepth(projectedCoord);
         dDepth = abs(hitCoord.z) - depth;
 
-        if (abs(depth - startDepth) < 0.001)
+        if (i < 1)
             continue;
 
         if (depth > maxZDepth)
@@ -126,16 +136,18 @@ vec3 rayMarch(vec3 dir, inout vec3 hitCoord, out float dDepth, float startDepth)
 
         if (dDepth > 0.0)
         {
-            // If we overshot by more than the thickness limit, skip this surface
-            if (dDepth > MAX_THICKNESS)
+            float stepLen = length(dir);
+            float thickness = max(MAX_THICKNESS, stepLen * 1.5);
+            if (dDepth > thickness)
             {
-                dir *= STEP_GROWTH;
+                dir = normalize(dir) * min(stepLen * STEP_GROWTH, MAX_STEP_SIZE);
                 continue;
             }
             return binarySearch(dir, hitCoord, dDepth);
         }
 
-        dir *= STEP_GROWTH;
+        // Grow step but cap at max to avoid skipping geometry
+        dir = normalize(dir) * min(length(dir) * STEP_GROWTH, MAX_STEP_SIZE);
     }
 
     return vec3(-1.0);
@@ -162,7 +174,7 @@ float tapScreenSpaceReflection(
     return 0;
 #endif
 
-    float roughness = (1.0 - glossiness) * 0.5;
+    float roughness = 1.0 - glossiness;
 
     if (roughness >= maxRoughness)
         return 0.0;
@@ -185,7 +197,13 @@ float tapScreenSpaceReflection(
         return 0.0;
     }
 
-    vec3 transformedPos = (inv_modelview_delta * vec4(viewPos, 1.0)).xyz;
+    // Bias the ray origin along the normal, scaled by distance.
+    // Prevents grazing-angle rays from scraping the originating surface
+    // at distance where depth precision breaks down.
+    float depthBias = max(0.01, -viewPos.z * DEPTH_BIAS);
+    vec3 biasedPos = viewPos - normal * depthBias;
+
+    vec3 transformedPos = (inv_modelview_delta * vec4(biasedPos, 1.0)).xyz;
     float startDepth = -transformedPos.z;
 
     if (startDepth > maxZDepth)
@@ -194,81 +212,97 @@ float tapScreenSpaceReflection(
         return 0.0;
     }
 
-    vec3 reflectDir = normalize(reflect(viewDir, normal));
+    vec3 perfectReflDir = normalize(reflect(viewDir, normal));
 
-    // Jitter reflection direction based on roughness (importance-sampled GGX)
-    if (roughness > 0.001)
+    int numSamples = max(1, int(glossySampleCount));
+    vec3 accumColor = vec3(0.0);
+    float accumFade = 0.0;
+    int hits = 0;
+
+    for (int s = 0; s < numSamples; s++)
     {
-        float alpha = roughness * roughness;
-        float u1 = random(tc * screen_res + noiseSine);
-        float u2 = random(tc * screen_res * 1.7 + noiseSine + 0.5);
+        vec3 reflectDir = perfectReflDir;
 
-        float theta = atan(alpha * sqrt(u1) / sqrt(1.0 - u1));
-        float phi = 2.0 * 3.14159265 * u2;
+        // Jitter reflection direction based on roughness (importance-sampled GGX)
+        if (roughness > 0.001)
+        {
+            float alpha = roughness * roughness;
+            float u1 = random(tc * screen_res + noiseSine + float(s) * 0.123);
+            float u2 = random(tc * screen_res * 1.7 + noiseSine + float(s) * 0.456 + 0.5);
 
-        vec3 up = abs(reflectDir.y) < 0.999 ? vec3(0, 1, 0) : vec3(1, 0, 0);
-        vec3 tangent = normalize(cross(up, reflectDir));
-        vec3 bitangent = cross(reflectDir, tangent);
+            float theta = atan(alpha * sqrt(u1) / sqrt(1.0 - u1));
+            float phi = 2.0 * 3.14159265 * u2;
 
-        vec3 h = normalize(
-            sin(theta) * cos(phi) * tangent +
-            sin(theta) * sin(phi) * bitangent +
-            cos(theta) * reflectDir
-        );
+            vec3 up = abs(reflectDir.y) < 0.999 ? vec3(0, 1, 0) : vec3(1, 0, 0);
+            vec3 tangent = normalize(cross(up, reflectDir));
+            vec3 bitangent = cross(reflectDir, tangent);
 
-        reflectDir = normalize(reflect(-reflectDir, h));
+            vec3 h = normalize(
+                sin(theta) * cos(phi) * tangent +
+                sin(theta) * sin(phi) * bitangent +
+                cos(theta) * reflectDir
+            );
+
+            reflectDir = normalize(reflect(-reflectDir, h));
+        }
+
+        vec3 reflTarget = viewPos + reflectDir;
+        vec3 transformedTarget = (inv_modelview_delta * vec4(reflTarget, 1.0)).xyz;
+        vec3 transformedReflDir = normalize(transformedTarget - transformedPos);
+
+        if (transformedReflDir.z >= 0.5)
+            continue;
+
+        // Jitter ray origin along the surface normal (outward only) to break up step-boundary striations.
+        // Each pixel gets a different offset, so concentric banding from discrete steps dissolves into noise.
+        float normalJitter = random(tc * screen_res + float(s) * 0.789) * max(STEP_SIZE, -viewPos.z * 0.005);
+        vec3 jitteredPos = biasedPos + normal * normalJitter;
+        vec3 transformedJitteredPos = (inv_modelview_delta * vec4(jitteredPos, 1.0)).xyz;
+        vec3 hitCoord = transformedJitteredPos;
+        float dDepth;
+
+        vec3 result = rayMarch(transformedReflDir, hitCoord, dDepth, startDepth);
+
+        if (result.x < 0.0)
+            continue;
+
+        vec2 hitTC = result.xy;
+        float hitDepth = result.z;
+
+        float edgeFade = calculateEdgeFade(hitTC);
+
+        float zFadeStart = maxZDepth * 0.8;
+        float zFade = 1.0 - smoothstep(zFadeStart, maxZDepth, hitDepth);
+
+        float rayLength = length(hitCoord - transformedJitteredPos);
+        float maxMipLevels = floor(log2(max(screen_res.x, screen_res.y)));
+        float distanceFactor = clamp(rayLength / maxZDepth, 0.0, 1.0);
+        float effectiveRoughness = clamp(roughness + distanceFactor * roughness, 0.0, 1.0);
+        float mipLevel = maxMipLevels * effectiveRoughness;
+        vec4 sampledColor = textureLod(source, hitTC, mipLevel);
+
+        float rayFade = 1.0 - smoothstep(maxZDepth * 0.6, maxZDepth, rayLength);
+        float sampleFade = edgeFade * zFade * rayFade;
+
+        accumColor += sampledColor.rgb;
+        accumFade += sampleFade;
+        hits++;
     }
 
-    vec3 reflTarget = viewPos + reflectDir;
-    vec3 transformedTarget = (inv_modelview_delta * vec4(reflTarget, 1.0)).xyz;
-    vec3 transformedReflDir = normalize(transformedTarget - transformedPos);
-
-    if (transformedReflDir.z >= 0.5)
+    if (hits == 0)
     {
         collectedColor = vec4(0.0);
         return 0.0;
     }
 
-    // Jitter ray start by a fraction of the first step to break up banding
-    float jitter = random(tc * screen_res) * STEP_SIZE * 0.5;
-    vec3 hitCoord = transformedPos + transformedReflDir * jitter;
-    float dDepth;
-
-    vec3 result = rayMarch(transformedReflDir, hitCoord, dDepth, startDepth);
-
-    if (result.x < 0.0)
-    {
-        collectedColor = vec4(0.0);
-        return 0.0;
-    }
-
-    vec2 hitTC = result.xy;
-    float hitDepth = result.z;
-
-    float edgeFade = calculateEdgeFade(hitTC);
-
-    float zFadeStart = maxZDepth * 0.8;
-    float zFade = 1.0 - smoothstep(zFadeStart, maxZDepth, hitDepth);
+    accumColor /= float(hits);
+    accumFade /= float(hits);
 
     float remappedRoughness = clamp((roughness - (maxRoughness * 0.6)) / (maxRoughness - (maxRoughness * 0.6)), 0.0, 1.0);
     float roughnessFade = 1.0 - remappedRoughness;
 
-    // Estimate effective roughness from surface roughness + ray travel distance.
-    // A rough surface scatters reflected rays into a cone; the further the hit,
-    // the larger that cone's footprint on screen, so we blur more.
-    float rayLength = length(hitCoord - transformedPos);
-    float maxMipLevels = floor(log2(max(screen_res.x, screen_res.y)));
-    float distanceFactor = clamp(rayLength / maxZDepth, 0.0, 1.0);
-    float effectiveRoughness = clamp(roughness + distanceFactor * roughness, 0.0, 1.0);
-    float mipLevel = maxMipLevels * effectiveRoughness;
-    vec4 sampledColor = textureLod(source, hitTC, mipLevel);
+    float combinedFade = accumFade * roughnessFade * baseEdgeFade;
 
-    // Fade out distant ray hits — long rays at grazing angles lack
-    // depth buffer precision and produce unreliable results.
-    float rayFade = 1.0 - smoothstep(maxZDepth * 0.3, maxZDepth * 0.7, rayLength);
-
-    float combinedFade = edgeFade * zFade * roughnessFade * baseEdgeFade * rayFade;
-
-    collectedColor = vec4(sampledColor.rgb, combinedFade);
+    collectedColor = vec4(accumColor, combinedFade);
     return 1.0;
 }
