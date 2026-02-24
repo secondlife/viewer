@@ -702,7 +702,12 @@ std::string LLGLTFLoader::processTexture(std::string& full_path_out, S32 texture
     // Process embedded textures
     if (image.mBufferView >= 0)
     {
-        return extractTextureToTempFile(texture_index, texture_type);
+        std::string temp_path = extractTextureToTempFile(texture_index, texture_type);
+        if (!temp_path.empty())
+        {
+            full_path_out = temp_path;
+        }
+        return temp_path;
     }
 
     return "";
