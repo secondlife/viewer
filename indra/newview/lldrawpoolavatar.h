@@ -54,7 +54,7 @@ public:
     };
 
     ~LLDrawPoolAvatar();
-    /*virtual*/ bool isDead();
+    bool isDead() override;
 
 typedef enum
     {
@@ -64,34 +64,39 @@ typedef enum
         NUM_SHADOW_PASSES
     } eShadowPass;
 
-    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
 
-    virtual S32 getShaderLevel() const;
+    S32 getShaderLevel() const override;
 
     LLDrawPoolAvatar(U32 type);
 
     static LLMatrix4& getModelView();
 
-    /*virtual*/ S32  getNumPasses();
-    /*virtual*/ void beginRenderPass(S32 pass);
-    /*virtual*/ void endRenderPass(S32 pass);
-    /*virtual*/ void prerender();
-    /*virtual*/ void render(S32 pass = 0);
+    S32  getNumPasses() override;
+    void beginRenderPass(S32 pass) override;
+    void endRenderPass(S32 pass) override;
+    void prerender() override;
+    void render(S32 pass = 0) override;
 
-    /*virtual*/ S32 getNumDeferredPasses();
-    /*virtual*/ void beginDeferredPass(S32 pass);
-    /*virtual*/ void endDeferredPass(S32 pass);
-    /*virtual*/ void renderDeferred(S32 pass);
+    S32 getNumDeferredPasses() override;
+    void beginDeferredPass(S32 pass) override;
+    void endDeferredPass(S32 pass) override;
+    void renderDeferred(S32 pass) override;
 
-    /*virtual*/ S32 getNumPostDeferredPasses();
-    /*virtual*/ void beginPostDeferredPass(S32 pass);
-    /*virtual*/ void endPostDeferredPass(S32 pass);
-    /*virtual*/ void renderPostDeferred(S32 pass);
+    S32 getNumPostDeferredPasses() override;
+    void beginPostDeferredPass(S32 pass) override;
+    void endPostDeferredPass(S32 pass) override;
+    void renderPostDeferred(S32 pass) override;
 
-    /*virtual*/ S32 getNumShadowPasses();
-    /*virtual*/ void beginShadowPass(S32 pass);
-    /*virtual*/ void endShadowPass(S32 pass);
-    /*virtual*/ void renderShadow(S32 pass);
+    S32 getNumShadowPasses() override;
+    void beginShadowPass(S32 pass) override;
+    void endShadowPass(S32 pass) override;
+    void renderShadow(S32 pass) override;
+
+    S32 getNumMotionBlurPasses() override;
+    void beginMotionBlurPass(S32 pass) override;
+    void endMotionBlurPass(S32 pass) override;
+    void renderMotionBlur(S32 pass) override;
 
     void beginRigid();
     void beginImpostor();
@@ -109,8 +114,8 @@ typedef enum
     void endDeferredImpostor();
     void endDeferredSkinned();
 
-    /*virtual*/ LLViewerTexture *getDebugTexture();
-    /*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
+    LLViewerTexture *getDebugTexture() override;
+    LLColor3 getDebugColor() const; // For AGP debug display
 
     void renderAvatars(LLVOAvatar *single_avatar, S32 pass = -1); // renders only one avatar if single_avatar is not null.
 

@@ -343,6 +343,7 @@ bool    LLPipeline::sReflectionProbesEnabled = false;
 S32     LLPipeline::sVisibleLightCount = 0;
 bool    LLPipeline::sRenderingHUDs;
 F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
+bool    LLPipeline::RenderMotionBlur = false;
 
 // EventHost API LLPipeline listener.
 static LLPipelineListener sPipelineListener;
@@ -612,6 +613,7 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderHeroProbeUpdateRate");
     connectRefreshCachedSettingsSafe("RenderHeroProbeConservativeUpdateMultiplier");
     connectRefreshCachedSettingsSafe("RenderAvatarCloth");
+    connectRefreshCachedSettingsSafe("RenderMotionBlur");
 
     LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl("CollectFontVertexBuffers");
     if (cntrl_ptr.notNull())
@@ -923,6 +925,16 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
         mPostPingMap.allocate(resX, resY, GL_RGBA);
         mPostPongMap.allocate(resX, resY, GL_RGBA);
 
+        if (RenderMotionBlur)
+        {
+            mVelocityMap.allocate(resX, resY, GL_RG16F);
+            mRT->deferredScreen.shareDepthBuffer(mVelocityMap);
+        }
+        else
+        {
+            mVelocityMap.release();
+        }
+
         // The water exclusion mask needs its own depth buffer so we can take care of the problem of multiple water planes.
         // Should we ever make water not just a plane, it also aids with that as well as the water planes will be rendered into the mask.
         // Why do we do this? Because it saves us some janky logic in the exclusion shader when we generate the mask.
@@ -1140,6 +1152,7 @@ void LLPipeline::refreshCachedSettings()
     RenderHeroProbeUpdateRate = gSavedSettings.getS32("RenderHeroProbeUpdateRate");
     RenderHeroProbeConservativeUpdateMultiplier = gSavedSettings.getS32("RenderHeroProbeConservativeUpdateMultiplier");
     RenderAvatarCloth = gSavedSettings.getBOOL("RenderAvatarCloth");
+    RenderMotionBlur = gSavedSettings.getBOOL("RenderMotionBlur");
 
     sReflectionProbesEnabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionsEnabled") && gSavedSettings.getBOOL("RenderReflectionsEnabled");
     RenderSpotLight = nullptr;
@@ -4119,6 +4132,33 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 
 // Render all of our geometry that's required after our deferred pass.
 // This is gonna be stuff like alpha, water, etc.
+void LLPipeline::renderGeomMotionBlur()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LL_PROFILE_GPU_ZONE("renderGeomMotionBlur");
+
+    mVelocityMap.bindTarget();
+    mVelocityMap.clear(GL_COLOR_BUFFER_BIT);
+
+    gGL.setColorMask(true, true);
+    LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+
+    // Each draw pool is responsible for producing its own velocity
+    for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
+    {
+        LLDrawPool* poolp = *iter;
+        S32 num_passes = poolp->getNumMotionBlurPasses();
+        for (S32 i = 0; i < num_passes; ++i)
+        {
+            poolp->beginMotionBlurPass(i);
+            poolp->renderMotionBlur(i);
+            poolp->endMotionBlurPass(i);
+        }
+    }
+
+    mVelocityMap.flush();
+}
+
 void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
@@ -7808,6 +7848,28 @@ void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
     dst->flush();
 }
 
+void LLPipeline::renderMotionBlurComposite(LLRenderTarget* src, LLRenderTarget* dst)
+{
+    LL_PROFILE_GPU_ZONE("motion blur");
+
+    dst->bindTarget();
+
+    gDeferredMotionBlurProgram.bind();
+    gDeferredMotionBlurProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src);
+    gDeferredMotionBlurProgram.bindTexture(LLShaderMgr::DEFERRED_VELOCITY, &mVelocityMap);
+    gDeferredMotionBlurProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES,
+        (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
+
+    static LLCachedControl<S32> blur_strength(gSavedSettings, "RenderMotionBlurStrength", 32);
+    gDeferredMotionBlurProgram.uniform1i(LLShaderMgr::MOTION_BLUR_STRENGTH, blur_strength);
+
+    mScreenTriangleVB->setBuffer();
+    mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+    gDeferredMotionBlurProgram.unbind();
+    dst->flush();
+}
+
 void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
 {
     LL_PROFILE_GPU_ZONE("dof");
@@ -8057,6 +8119,12 @@ void LLPipeline::renderFinalize()
     combineGlow(sourceBuffer, targetBuffer);
     std::swap(sourceBuffer, targetBuffer);
 
+    if (RenderMotionBlur && !gCubeSnapshot)
+    {
+        renderMotionBlurComposite(sourceBuffer, targetBuffer);
+        std::swap(sourceBuffer, targetBuffer);
+    }
+
     gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
     gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
     gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
@@ -8109,6 +8177,14 @@ void LLPipeline::renderFinalize()
             if (RenderFSAAType == 2)
             {
                 visualizeBuffers(&mSMAABlendBuffer, sourceBuffer, 0);
+            }
+            break;
+        }
+        case 7:
+        {
+            if (RenderMotionBlur)
+            {
+                visualizeBuffers(&mVelocityMap, sourceBuffer, 0);
             }
             break;
         }
@@ -8929,6 +9005,11 @@ void LLPipeline::renderDeferredLighting()
 
         renderGeomPostDeferred(*LLViewerCamera::getInstance());
         popRenderTypeMask();
+    }
+
+    if (RenderMotionBlur)
+    {
+        renderGeomMotionBlur();
     }
 
     screen_target->flush();

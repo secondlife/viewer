@@ -231,6 +231,7 @@ public:
         DEFERRED_LIGHTFUNC,                 //  "lightFunc"
         DEFERRED_LIGHT,                     //  "lightMap"
         DEFERRED_BLOOM,                     //  "bloomMap"
+        DEFERRED_VELOCITY,                  //  "velocityMap"
         DEFERRED_PROJECTION,                //  "projectionMap"
         DEFERRED_NORM_MATRIX,               //  "norm_mat"
         SPECULAR_COLOR,                     //  "specular_color"
@@ -346,6 +347,14 @@ public:
         SMAA_AREA_TEX,                      //  "areaTex"
         SMAA_SEARCH_TEX,                    //  "searchTex"
         SMAA_BLEND_TEX,                     //  "blendTex"
+
+        CURRENT_MODELVIEW_MATRIX,           //  "current_modelview_matrix"
+        LAST_MODELVIEW_MATRIX,              //  "last_modelview_matrix"
+        LAST_MODELVIEW_MATRIX_INVERSE,      //  "last_modelview_matrix_inverse"
+        CURRENT_OBJECT_MATRIX,              //  "current_object_matrix"
+        LAST_OBJECT_MATRIX,                 //  "last_object_matrix"
+        AVATAR_LAST_MATRIX,                 //  "lastMatrixPalette"
+        MOTION_BLUR_STRENGTH,               //  "motion_blur_strength"
 
         END_RESERVED_UNIFORMS
     } eGLSLReservedUniforms;

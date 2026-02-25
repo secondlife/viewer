@@ -181,6 +181,169 @@ void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
     }
 }
 
+// ============================================
+// Motion Blur Velocity Passes
+// ============================================
+
+// LLDrawPoolSimple
+S32 LLDrawPoolSimple::getNumMotionBlurPasses()
+{
+    return 1;
+}
+
+void LLDrawPoolSimple::beginMotionBlurPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityProgram.bind();
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    gVelocityProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+}
+
+void LLDrawPoolSimple::endMotionBlurPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityProgram.unbind();
+}
+
+void LLDrawPoolSimple::renderMotionBlur(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    pushVelocityBatches(LLRenderPass::PASS_SIMPLE);
+
+    gVelocityProgram.bind(true);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+    pushRiggedVelocityBatches(LLRenderPass::PASS_SIMPLE_RIGGED);
+}
+
+// LLDrawPoolGrass
+S32 LLDrawPoolGrass::getNumMotionBlurPasses()
+{
+    return 1;
+}
+
+void LLDrawPoolGrass::beginMotionBlurPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityProgram.bind();
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    gVelocityProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+}
+
+void LLDrawPoolGrass::endMotionBlurPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityProgram.unbind();
+}
+
+void LLDrawPoolGrass::renderMotionBlur(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    pushVelocityBatches(LLRenderPass::PASS_GRASS);
+}
+
+// LLDrawPoolAlphaMask
+S32 LLDrawPoolAlphaMask::getNumMotionBlurPasses()
+{
+    return 1;
+}
+
+void LLDrawPoolAlphaMask::beginMotionBlurPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityAlphaProgram.bind();
+    gVelocityAlphaProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    gVelocityAlphaProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    gVelocityAlphaProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+}
+
+void LLDrawPoolAlphaMask::endMotionBlurPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityAlphaProgram.unbind();
+}
+
+void LLDrawPoolAlphaMask::renderMotionBlur(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    pushVelocityBatchesTextured(LLRenderPass::PASS_ALPHA_MASK);
+
+    gVelocityAlphaProgram.bind(true);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+    pushRiggedVelocityBatchesTextured(LLRenderPass::PASS_ALPHA_MASK_RIGGED);
+}
+
+// LLDrawPoolFullbrightAlphaMask
+S32 LLDrawPoolFullbrightAlphaMask::getNumMotionBlurPasses()
+{
+    return 1;
+}
+
+void LLDrawPoolFullbrightAlphaMask::beginMotionBlurPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityAlphaProgram.bind();
+    gVelocityAlphaProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    gVelocityAlphaProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    gVelocityAlphaProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+}
+
+void LLDrawPoolFullbrightAlphaMask::endMotionBlurPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityAlphaProgram.unbind();
+}
+
+void LLDrawPoolFullbrightAlphaMask::renderMotionBlur(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    pushVelocityBatchesTextured(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
+
+    gVelocityAlphaProgram.bind(true);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+    pushRiggedVelocityBatchesTextured(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED);
+}
+
+// LLDrawPoolFullbright
+S32 LLDrawPoolFullbright::getNumMotionBlurPasses()
+{
+    return 1;
+}
+
+void LLDrawPoolFullbright::beginMotionBlurPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityProgram.bind();
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    gVelocityProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+}
+
+void LLDrawPoolFullbright::endMotionBlurPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityProgram.unbind();
+}
+
+void LLDrawPoolFullbright::renderMotionBlur(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    pushVelocityBatches(LLRenderPass::PASS_FULLBRIGHT);
+
+    gVelocityProgram.bind(true);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+    pushRiggedVelocityBatches(LLRenderPass::PASS_FULLBRIGHT_RIGGED);
+}
+
 void LLDrawPoolFullbrightAlphaMask::renderPostDeferred(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_FULLBRIGHT);

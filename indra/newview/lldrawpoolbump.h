@@ -48,11 +48,11 @@ public:
     static U32 sVertexMask;
     bool mShiny;
 
-    virtual U32 getVertexDataMask() override { return sVertexMask; }
+    U32 getVertexDataMask() override { return sVertexMask; }
 
     LLDrawPoolBump();
 
-    /*virtual*/ void prerender() override;
+    void prerender() override;
 
     void pushBumpBatches(U32 type);
     void renderGroup(LLSpatialGroup* group, U32 type, bool texture) override;
@@ -70,11 +70,16 @@ public:
     static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
     static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
 
-    virtual S32 getNumDeferredPasses() override;
-    /*virtual*/ void renderDeferred(S32 pass) override;
+    S32 getNumDeferredPasses() override;
+    void renderDeferred(S32 pass) override;
 
-    virtual S32 getNumPostDeferredPasses() override { return 1; }
-    /*virtual*/ void renderPostDeferred(S32 pass) override;
+    S32 getNumMotionBlurPasses() override;
+    void beginMotionBlurPass(S32 pass) override;
+    void endMotionBlurPass(S32 pass) override;
+    void renderMotionBlur(S32 pass) override;
+
+    S32 getNumPostDeferredPasses() override { return 1; }
+    void renderPostDeferred(S32 pass) override;
 
     static bool bindBumpMap(LLDrawInfo& params, S32 channel = -2);
     static bool bindBumpMap(LLFace* face, S32 channel = -2);

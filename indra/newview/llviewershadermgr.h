@@ -254,6 +254,7 @@ extern LLGLSLShader         gCASProgram;
 extern LLGLSLShader         gCASLegacyGammaProgram;
 extern LLGLSLShader         gDeferredPostNoDoFProgram;
 extern LLGLSLShader         gDeferredPostNoDoFNoiseProgram;
+extern LLGLSLShader         gDeferredMotionBlurProgram;
 extern LLGLSLShader         gDeferredPostGammaCorrectProgram;
 extern LLGLSLShader         gLegacyPostGammaCorrectProgram;
 extern LLGLSLShader         gDeferredPostTonemapProgram;
@@ -327,4 +328,10 @@ enum TerrainPaintType : U32
     TERRAIN_PAINT_TYPE_COUNT                = 2,
 };
 extern LLGLSLShader         gDeferredPBRTerrainProgram[TERRAIN_PAINT_TYPE_COUNT];
+
+extern LLGLSLShader         gVelocityProgram;
+extern LLGLSLShader         gVelocitySkinnedProgram;
+extern LLGLSLShader         gVelocityAlphaProgram;
+extern LLGLSLShader         gVelocityAlphaSkinnedProgram;
+extern LLGLSLShader         gAvatarVelocityProgram;
 #endif

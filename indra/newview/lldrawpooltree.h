@@ -41,23 +41,28 @@ public:
                             LLVertexBuffer::MAP_TEXCOORD0
     };
 
-    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
 
     LLDrawPoolTree(LLViewerTexture *texturep);
 
-    /*virtual*/ S32 getNumDeferredPasses() { return 1; }
-    /*virtual*/ void beginDeferredPass(S32 pass);
-    /*virtual*/ void endDeferredPass(S32 pass);
-    /*virtual*/ void renderDeferred(S32 pass);
+    S32 getNumDeferredPasses() override { return 1; }
+    void beginDeferredPass(S32 pass) override;
+    void endDeferredPass(S32 pass) override;
+    void renderDeferred(S32 pass) override;
 
-    /*virtual*/ S32 getNumShadowPasses() { return 1; }
-    /*virtual*/ void beginShadowPass(S32 pass);
-    /*virtual*/ void endShadowPass(S32 pass);
-    /*virtual*/ void renderShadow(S32 pass);
+    S32 getNumShadowPasses() override { return 1; }
+    void beginShadowPass(S32 pass) override;
+    void endShadowPass(S32 pass) override;
+    void renderShadow(S32 pass) override;
 
-    /*virtual*/ bool verify() const;
-    /*virtual*/ LLViewerTexture *getTexture();
-    /*virtual*/ LLViewerTexture *getDebugTexture();
+    S32 getNumMotionBlurPasses() override;
+    void beginMotionBlurPass(S32 pass) override;
+    void endMotionBlurPass(S32 pass) override;
+    void renderMotionBlur(S32 pass) override;
+
+    bool verify() const override;
+    LLViewerTexture *getTexture() override;
+    LLViewerTexture *getDebugTexture() override;
     /*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
     static S32 sDiffTex;

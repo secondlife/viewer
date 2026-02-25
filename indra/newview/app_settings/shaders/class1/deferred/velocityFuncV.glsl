@@ -1,5 +1,5 @@
 /**
- * @file postDeferredNoDoFF.glsl
+ * @file velocityFuncV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,19 +23,11 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
+out vec4 vary_cur_clip;
+out vec4 vary_last_clip;
 
-out vec4 frag_color;
-
-uniform sampler2D diffuseRect;
-uniform float mipLevel;
-
-in vec2 vary_fragcoord;
-
-void main()
+void writeVaryVelocity(vec4 pos, vec4 last_pos)
 {
-    vec4 diff = textureLod(diffuseRect, vary_fragcoord.xy, mipLevel);
-
-    frag_color = (diff * 0.5 + 0.5);
+    vary_cur_clip = pos;
+    vary_last_clip = last_pos;
 }
-

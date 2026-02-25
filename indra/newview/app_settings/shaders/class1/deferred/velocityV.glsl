@@ -1,5 +1,5 @@
 /**
- * @file postDeferredNoDoFF.glsl
+ * @file velocityV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,19 +23,36 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
+uniform mat4 modelview_projection_matrix;
+uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+uniform mat4 last_modelview_matrix;
+uniform mat4 last_object_matrix;
 
-out vec4 frag_color;
+in vec3 position;
 
-uniform sampler2D diffuseRect;
-uniform float mipLevel;
+void writeVaryVelocity(vec4 pos, vec4 last_pos);
 
-in vec2 vary_fragcoord;
+#ifdef HAS_SKIN
+mat4 getObjectSkinnedTransform();
+mat4 getLastObjectSkinnedTransform();
+#endif
 
 void main()
 {
-    vec4 diff = textureLod(diffuseRect, vary_fragcoord.xy, mipLevel);
+#ifdef HAS_SKIN
+    mat4 cur_mat = getObjectSkinnedTransform();
+    vec4 pos = projection_matrix * modelview_matrix * cur_mat * vec4(position.xyz, 1.0);
+    gl_Position = pos;
 
-    frag_color = (diff * 0.5 + 0.5);
+    mat4 last_mat = getLastObjectSkinnedTransform();
+    vec4 last_pos = projection_matrix * last_modelview_matrix * last_mat * vec4(position.xyz, 1.0);
+#else
+    vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
+    gl_Position = pos;
+
+    vec4 last_pos = projection_matrix * last_modelview_matrix * last_object_matrix * vec4(position.xyz, 1.0);
+#endif
+
+    writeVaryVelocity(pos, last_pos);
 }
-

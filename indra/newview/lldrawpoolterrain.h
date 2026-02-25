@@ -42,25 +42,30 @@ public:
                     LLVertexBuffer::MAP_TEXCOORD1
     };
 
-    virtual U32 getVertexDataMask();
+    U32 getVertexDataMask() override;
     LLDrawPoolTerrain(LLViewerTexture *texturep);
     virtual ~LLDrawPoolTerrain();
 
-    /*virtual*/ S32 getNumDeferredPasses() { return 1; }
-    /*virtual*/ void beginDeferredPass(S32 pass);
-    /*virtual*/ void endDeferredPass(S32 pass);
-    /*virtual*/ void renderDeferred(S32 pass);
+    S32 getNumDeferredPasses() override { return 1; }
+    void beginDeferredPass(S32 pass) override;
+    void endDeferredPass(S32 pass) override;
+    void renderDeferred(S32 pass) override;
 
-    /*virtual*/ S32 getNumShadowPasses() { return 1; }
-    /*virtual*/ void beginShadowPass(S32 pass);
-    /*virtual*/ void endShadowPass(S32 pass);
-    /*virtual*/ void renderShadow(S32 pass);
+    S32 getNumShadowPasses() override { return 1; }
+    void beginShadowPass(S32 pass) override;
+    void endShadowPass(S32 pass) override;
+    void renderShadow(S32 pass) override;
 
-    /*virtual*/ void prerender();
-    /*virtual*/ void dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures);
-    /*virtual*/ LLViewerTexture *getTexture();
-    /*virtual*/ LLViewerTexture *getDebugTexture();
-    /*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
+    S32 getNumMotionBlurPasses() override;
+    void beginMotionBlurPass(S32 pass) override;
+    void endMotionBlurPass(S32 pass) override;
+    void renderMotionBlur(S32 pass) override;
+
+    void prerender() override;
+    void dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures) override;
+    LLViewerTexture *getTexture() override;
+    LLViewerTexture *getDebugTexture() override;
+    LLColor3 getDebugColor() const; // For AGP debug display
 
     LLPointer<LLViewerTexture> mAlphaRampImagep;
     LLPointer<LLViewerTexture> m2DAlphaRampImagep;

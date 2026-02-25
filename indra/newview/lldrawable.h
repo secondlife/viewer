@@ -288,6 +288,8 @@ public:
 
     F32             mDistanceWRTCamera;
 
+    LLMatrix4       mLastVelocityMatrix;
+
     static F32 sCurPixelAngle; //current pixels per radian
 
 private:

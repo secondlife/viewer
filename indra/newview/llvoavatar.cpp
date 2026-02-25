@@ -9988,6 +9988,12 @@ const LLVOAvatar::MatrixPaletteCache& LLVOAvatar::updateSkinInfoMatrixPalette(co
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
+        if (entry.mFrame > 0)
+        {
+            entry.mLastGLMp = entry.mGLMp;
+            entry.mLastFrame = entry.mFrame;
+        }
+
         entry.mFrame = gFrameCount;
 
         //build matrix palette

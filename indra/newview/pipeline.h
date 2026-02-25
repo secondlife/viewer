@@ -308,6 +308,8 @@ public:
 
     void renderGeomDeferred(LLCamera& camera, bool do_occlusion = false);
     void renderGeomPostDeferred(LLCamera& camera);
+    void renderGeomMotionBlur();
+    void renderMotionBlurComposite(LLRenderTarget* src, LLRenderTarget* dst);
     void renderGeomShadow(LLCamera& camera);
     void bindLightFunc(LLGLSLShader& shader);
 
@@ -734,6 +736,8 @@ public:
     LLRenderTarget          mPostPingMap;
     LLRenderTarget          mPostPongMap;
 
+    LLRenderTarget          mVelocityMap;
+
     // FXAA helper target
     LLRenderTarget          mFXAAMap;
     LLRenderTarget          mSMAABlendBuffer;
@@ -1089,6 +1093,7 @@ public:
     static S32 RenderHeroProbeUpdateRate;
     static S32 RenderHeroProbeConservativeUpdateMultiplier;
     static bool RenderAvatarCloth;
+    static bool RenderMotionBlur;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

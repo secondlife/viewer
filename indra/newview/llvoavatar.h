@@ -833,6 +833,10 @@ public:
         // Float array ready to be sent to GL
         std::vector<F32> mGLMp;
 
+        // Previous frame's mGLMp for velocity buffer
+        std::vector<F32> mLastGLMp;
+        S32 mLastFrame = -1;
+
         MatrixPaletteCache() :
             mFrame(gFrameCount - 1)
         {

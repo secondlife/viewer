@@ -110,6 +110,11 @@ public:
     virtual S32 getNumShadowPasses();
     virtual void renderShadow(S32 pass = 0);
 
+    virtual void beginMotionBlurPass(S32 pass);
+    virtual void endMotionBlurPass(S32 pass);
+    virtual S32 getNumMotionBlurPasses();
+    virtual void renderMotionBlur(S32 pass = 0);
+
     virtual void render(S32 pass = 0) {};
     virtual void prerender() {};
     virtual U32 getVertexDataMask() { return 0; } // DEPRECATED -- draw pool doesn't actually determine vertex data mask any more
@@ -345,10 +350,10 @@ public:
 
     LLRenderPass(const U32 type);
     virtual ~LLRenderPass();
-    /*virtual*/ LLViewerTexture* getDebugTexture() { return NULL; }
-    LLViewerTexture* getTexture() { return NULL; }
-    bool isDead() { return false; }
-    void resetDrawOrders() { }
+    LLViewerTexture* getDebugTexture() override { return NULL; }
+    LLViewerTexture* getTexture() override { return NULL; }
+    bool isDead() override { return false; }
+    void resetDrawOrders() override { }
 
     static void applyModelMatrix(const LLDrawInfo& params);
     // For rendering that doesn't use LLDrawInfo for some reason
@@ -392,6 +397,14 @@ public:
     static bool uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo, const LLVOAvatar*& lastAvatar, U64& lastMeshId, const LLGLSLShader*& lastAvatarShader, bool& skipLastSkin);
     virtual void renderGroup(LLSpatialGroup* group, U32 type, bool texture = true);
     virtual void renderRiggedGroup(LLSpatialGroup* group, U32 type, bool texture = true);
+
+    // Velocity buffer helpers — iterate render map, upload per-object last/current matrices, draw
+    void pushVelocityBatches(U32 type);
+    void pushRiggedVelocityBatches(U32 type);
+    void pushVelocityBatchesTextured(U32 type);
+    void pushRiggedVelocityBatchesTextured(U32 type);
+
+    static bool uploadLastMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo);
 };
 
 class LLFacePool : public LLDrawPool
@@ -408,18 +421,18 @@ public:
     LLFacePool(const U32 type);
     virtual ~LLFacePool();
 
-    bool isDead() { return mReferences.empty(); }
+    bool isDead() override { return mReferences.empty(); }
 
-    virtual LLViewerTexture *getTexture();
+    LLViewerTexture *getTexture() override;
     virtual void dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures);
 
     virtual void enqueue(LLFace *face);
     virtual bool addFace(LLFace *face);
     virtual bool removeFace(LLFace *face);
 
-    virtual bool verify() const;        // Verify that all data in the draw pool is correct!
+    bool verify() const override;        // Verify that all data in the draw pool is correct!
 
-    virtual void resetDrawOrders();
+    void resetDrawOrders() override;
     void resetAll();
 
     void destroy();
@@ -431,10 +444,10 @@ public:
 
     void printDebugInfo() const;
 
-    bool isFacePool() { return true; }
+    bool isFacePool() override { return true; }
 
     // call drawIndexed on every draw face
-    void pushFaceGeometry();
+    void pushFaceGeometry() override;
 
     friend class LLFace;
     friend class LLPipeline;
