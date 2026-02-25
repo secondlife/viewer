@@ -3489,6 +3489,17 @@
       <key>Value</key>
       <string>http://guidebooks.secondlife.io/welcome/index.html</string>
     </map>
+    <key>LoginPageURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for Login page</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://viewer-splash.secondlife.com/</string>
+    </map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>

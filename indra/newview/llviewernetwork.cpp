@@ -114,13 +114,19 @@ void LLGridManager::initialize(const std::string& grid_file)
     // set to undefined
     mGridList = LLSD();
     mGridFile = grid_file;
+
+    std::string login_page = gSavedSettings.getString("LoginPageURL");
+    if (login_page.empty())
+    {
+        login_page = DEFAULT_LOGIN_PAGE;
+    }
     // as we don't want an attacker to override our grid list
     // to point the default grid to an invalid grid
     addSystemGrid(LLTrans::getString("AgniGridLabel"),
                   MAINGRID,
                   MAIN_GRID_LOGIN_URI,
                   "https://secondlife.com/helpers/",
-                  DEFAULT_LOGIN_PAGE,
+                  login_page,
                   SL_UPDATE_QUERY_URL,
                   MAIN_GRID_WEB_PROFILE_URL,
                   "Agni");
@@ -128,7 +134,7 @@ void LLGridManager::initialize(const std::string& grid_file)
                   "util.aditi.lindenlab.com",
                   "https://login.aditi.lindenlab.com/cgi-bin/login.cgi",
                   "https://secondlife.aditi.lindenlab.com/helpers/",
-                  DEFAULT_LOGIN_PAGE,
+                  login_page,
                   SL_UPDATE_QUERY_URL,
                   "https://my.secondlife-beta.com/",
                   "Aditi");
