@@ -209,6 +209,8 @@ LLGLSLShader            gFXAAProgram[4];
 LLGLSLShader            gSMAAEdgeDetectProgram[4];
 LLGLSLShader            gSMAABlendWeightsProgram[4];
 LLGLSLShader            gSMAANeighborhoodBlendProgram[4];
+LLGLSLShader            gSMAANeighborhoodBlendT2xProgram[4];
+LLGLSLShader            gSMAAResolveProgram[4];
 LLGLSLShader            gCASProgram;
 LLGLSLShader            gCASLegacyGammaProgram;
 LLGLSLShader            gDeferredPostNoDoFProgram;
@@ -1161,6 +1163,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
             gSMAAEdgeDetectProgram[i].unload();
             gSMAABlendWeightsProgram[i].unload();
             gSMAANeighborhoodBlendProgram[i].unload();
+            gSMAANeighborhoodBlendT2xProgram[i].unload();
+            gSMAAResolveProgram[i].unload();
         }
         gCASProgram.unload();
         gCASLegacyGammaProgram.unload();
@@ -2793,6 +2797,81 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                 gSMAAEdgeDetectProgram[i].unload();
                 gSMAABlendWeightsProgram[i].unload();
                 gSMAANeighborhoodBlendProgram[i].unload();
+            }
+        }
+
+        // SMAA T2x variants: neighborhood blend with reprojection and temporal resolve
+        if (!failed)
+        {
+            int t2x_i = 0;
+            bool t2x_failed = false;
+            for (const auto& smaa_pair : quality_levels)
+            {
+                std::map<std::string, std::string> t2x_defines;
+                if (gGLManager.mGLVersion >= 4.f)
+                    t2x_defines.emplace("SMAA_GLSL_4", "1");
+                else if (gGLManager.mGLVersion >= 3.1f)
+                    t2x_defines.emplace("SMAA_GLSL_3", "1");
+                else
+                    t2x_defines.emplace("SMAA_GLSL_2", "1");
+                t2x_defines.emplace("SMAA_PREDICATION", "0");
+                t2x_defines.emplace("SMAA_REPROJECTION", "1");
+                t2x_defines.emplace("SMAA_REPROJECTION_WEIGHT_SCALE", "10.0");
+                t2x_defines.emplace(smaa_pair.first, "1");
+
+                if (success)
+                {
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mName = llformat("SMAA T2x Neighborhood Blending (%s)", smaa_pair.second.c_str());
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mFeatures.isDeferred = true;
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].clearPermutations();
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].addPermutations(t2x_defines);
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderFiles.clear();
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAANeighborhoodBlendF.glsl", GL_FRAGMENT_SHADER_ARB));
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAANeighborhoodBlendV.glsl", GL_VERTEX_SHADER_ARB));
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_FRAGMENT_SHADER_ARB));
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_VERTEX_SHADER_ARB));
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+                    success = gSMAANeighborhoodBlendT2xProgram[t2x_i].createShader();
+                    if (!success)
+                    {
+                        LL_WARNS() << "Failed to create shader '" << gSMAANeighborhoodBlendT2xProgram[t2x_i].mName << "', disabling!" << LL_ENDL;
+                        t2x_failed = true;
+                        success = true;
+                        break;
+                    }
+                }
+
+                if (success)
+                {
+                    gSMAAResolveProgram[t2x_i].mName = llformat("SMAA T2x Resolve (%s)", smaa_pair.second.c_str());
+                    gSMAAResolveProgram[t2x_i].mFeatures.isDeferred = true;
+                    gSMAAResolveProgram[t2x_i].clearPermutations();
+                    gSMAAResolveProgram[t2x_i].addPermutations(t2x_defines);
+                    gSMAAResolveProgram[t2x_i].mShaderFiles.clear();
+                    gSMAAResolveProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAAResolveF.glsl", GL_FRAGMENT_SHADER_ARB));
+                    gSMAAResolveProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAAResolveV.glsl", GL_VERTEX_SHADER_ARB));
+                    gSMAAResolveProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_FRAGMENT_SHADER_ARB));
+                    gSMAAResolveProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_VERTEX_SHADER_ARB));
+                    gSMAAResolveProgram[t2x_i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+                    success = gSMAAResolveProgram[t2x_i].createShader();
+                    if (!success)
+                    {
+                        LL_WARNS() << "Failed to create shader '" << gSMAAResolveProgram[t2x_i].mName << "', disabling!" << LL_ENDL;
+                        t2x_failed = true;
+                        success = true;
+                        break;
+                    }
+                }
+                ++t2x_i;
+            }
+
+            if (t2x_failed)
+            {
+                for (auto j = 0; j < 4; ++j)
+                {
+                    gSMAANeighborhoodBlendT2xProgram[j].unload();
+                    gSMAAResolveProgram[j].unload();
+                }
             }
         }
     }

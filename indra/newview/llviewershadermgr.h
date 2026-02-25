@@ -250,6 +250,8 @@ extern LLGLSLShader         gFXAAProgram[4];
 extern LLGLSLShader         gSMAAEdgeDetectProgram[4];
 extern LLGLSLShader         gSMAABlendWeightsProgram[4];
 extern LLGLSLShader         gSMAANeighborhoodBlendProgram[4];
+extern LLGLSLShader         gSMAANeighborhoodBlendT2xProgram[4];
+extern LLGLSLShader         gSMAAResolveProgram[4];
 extern LLGLSLShader         gCASProgram;
 extern LLGLSLShader         gCASLegacyGammaProgram;
 extern LLGLSLShader         gDeferredPostNoDoFProgram;

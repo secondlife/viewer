@@ -1552,6 +1552,10 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("areaTex");
     mReservedUniforms.push_back("searchTex");
     mReservedUniforms.push_back("blendTex");
+    mReservedUniforms.push_back("subsampleIndices");
+    mReservedUniforms.push_back("currentColorTex");
+    mReservedUniforms.push_back("previousColorTex");
+    mReservedUniforms.push_back("velocityTex");
 
     mReservedUniforms.push_back("current_modelview_matrix");
     mReservedUniforms.push_back("last_modelview_matrix");

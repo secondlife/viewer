@@ -899,15 +899,24 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
         if (RenderFSAAType > 0)
         {
             if (!mFXAAMap.allocate(resX, resY, GL_RGBA)) return false;
-            if (RenderFSAAType == 2)
+            if (RenderFSAAType == 2 || RenderFSAAType == 3)
             {
                 if (!mSMAABlendBuffer.allocate(resX, resY, GL_RGBA, false)) return false;
+            }
+            if (RenderFSAAType == 3)
+            {
+                if (!mSMAAHistory.allocate(resX, resY, GL_RGBA)) return false;
+            }
+            else
+            {
+                mSMAAHistory.release();
             }
         }
         else
         {
             mFXAAMap.release();
             mSMAABlendBuffer.release();
+            mSMAAHistory.release();
         }
 
         //water reflection texture (always needed as scratch space whether or not transparent water is enabled)
@@ -925,7 +934,7 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
         mPostPingMap.allocate(resX, resY, GL_RGBA);
         mPostPongMap.allocate(resX, resY, GL_RGBA);
 
-        if (RenderMotionBlur)
+        if (RenderMotionBlur || RenderFSAAType == 3)
         {
             mVelocityMap.allocate(resX, resY, GL_RG16F);
             mRT->deferredScreen.shareDepthBuffer(mVelocityMap);
@@ -7628,7 +7637,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
 {
     llassert(!gCubeSnapshot);
-    bool multisample = RenderFSAAType == 2 && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
+    bool multisample = (RenderFSAAType == 2 || RenderFSAAType == 3) && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
 
     // Present everything.
     if (multisample)
@@ -7702,6 +7711,21 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
             blend_weights_shader.bind();
             blend_weights_shader.uniform4fv(sSmaaRTMetrics, 1, rt_metrics);
 
+            // T2x subsample indices: alternates between (1,1,1,0) and (2,2,2,0) each frame
+            float subsample[4] = {0.f, 0.f, 0.f, 0.f};
+            if (RenderFSAAType == 3)
+            {
+                if (mSMAAFrameIndex & 1)
+                {
+                    subsample[0] = 2.f; subsample[1] = 2.f; subsample[2] = 2.f; subsample[3] = 0.f;
+                }
+                else
+                {
+                    subsample[0] = 1.f; subsample[1] = 1.f; subsample[2] = 1.f; subsample[3] = 0.f;
+                }
+            }
+            blend_weights_shader.uniform4fv(LLShaderMgr::SMAA_SUBSAMPLE_INDICES, 1, subsample);
+
             S32 edge_tex_channel = blend_weights_shader.enableTexture(LLShaderMgr::SMAA_EDGE_TEX, mFXAAMap.getUsage());
             if (edge_tex_channel > -1)
             {
@@ -7747,9 +7771,8 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
     LL_PROFILE_GPU_ZONE("SMAA");
     llassert(!gCubeSnapshot);
-    bool multisample = RenderFSAAType == 2 && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
+    bool multisample = (RenderFSAAType == 2 || RenderFSAAType == 3) && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
 
-    // Present everything.
     if (multisample)
     {
         static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
@@ -7762,15 +7785,11 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
 
         LLGLDepthTest    depth(GL_FALSE, GL_FALSE);
 
-        static LLCachedControl<bool> use_sample(gSavedSettings, "RenderSMAAUseSample", false);
-        //static LLCachedControl<bool> use_stencil(gSavedSettings, "RenderSMAAUseStencil", true);
-
         {
-            //LLGLDisable stencil(GL_STENCIL_TEST);
-
-            // Bind setup:
             LLRenderTarget* bound_target = dst;
-            LLGLSLShader& blend_shader = gSMAANeighborhoodBlendProgram[fsaa_quality];
+            LLGLSLShader& blend_shader = (RenderFSAAType == 3)
+                ? gSMAANeighborhoodBlendT2xProgram[fsaa_quality]
+                : gSMAANeighborhoodBlendProgram[fsaa_quality];
 
             bound_target->bindTarget();
             bound_target->clear(GL_COLOR_BUFFER_BIT);
@@ -7791,6 +7810,15 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
                 mSMAABlendBuffer.bindTexture(0, blend_channel, LLTexUnit::TFO_BILINEAR);
             }
 
+            if (RenderFSAAType == 3)
+            {
+                S32 vel_channel = blend_shader.enableTexture(LLShaderMgr::SMAA_VELOCITY_TEX);
+                if (vel_channel > -1)
+                {
+                    mVelocityMap.bindTexture(0, vel_channel, LLTexUnit::TFO_BILINEAR);
+                }
+            }
+
             mScreenTriangleVB->setBuffer();
             mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
@@ -7804,6 +7832,49 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
     {
         copyRenderTarget(src, dst);
     }
+}
+
+void LLPipeline::resolveSMAAT2x(LLRenderTarget* src, LLRenderTarget* dst)
+{
+    LL_PROFILE_GPU_ZONE("SMAA T2x Resolve");
+
+    static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
+    U32 q = std::clamp(aa_quality(), 0U, 3U);
+
+    dst->bindTarget();
+
+    LLGLSLShader& shader = gSMAAResolveProgram[q];
+    shader.bind();
+
+    S32 cur_ch = shader.enableTexture(LLShaderMgr::SMAA_CURRENT_COLOR_TEX);
+    if (cur_ch > -1)
+    {
+        src->bindTexture(0, cur_ch, LLTexUnit::TFO_POINT);
+    }
+
+    S32 prev_ch = shader.enableTexture(LLShaderMgr::SMAA_PREVIOUS_COLOR_TEX);
+    if (prev_ch > -1)
+    {
+        mSMAAHistory.bindTexture(0, prev_ch, LLTexUnit::TFO_POINT);
+    }
+
+    S32 vel_ch = shader.enableTexture(LLShaderMgr::SMAA_VELOCITY_TEX);
+    if (vel_ch > -1)
+    {
+        mVelocityMap.bindTexture(0, vel_ch, LLTexUnit::TFO_BILINEAR);
+    }
+
+    mScreenTriangleVB->setBuffer();
+    mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+    shader.unbind();
+    dst->flush();
+
+    // Save the current SMAA'd frame (not the resolved output) to history.
+    // The resolve blends current and previous SMAA outputs — if we stored
+    // the resolved result, it would create exponential decay instead of a
+    // true 50/50 blend between the two jitter samples.
+    copyRenderTarget(src, &mSMAAHistory);
 }
 
 void LLPipeline::copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst)
@@ -8149,6 +8220,17 @@ void LLPipeline::renderFinalize()
         generateSMAABuffers(sourceBuffer);
         applySMAA(sourceBuffer, targetBuffer);
         std::swap(sourceBuffer, targetBuffer);
+    }
+    else if (RenderFSAAType == 3)
+    {
+        generateSMAABuffers(sourceBuffer);
+        applySMAA(sourceBuffer, targetBuffer);
+        std::swap(sourceBuffer, targetBuffer);
+
+        resolveSMAAT2x(sourceBuffer, targetBuffer);
+        std::swap(sourceBuffer, targetBuffer);
+
+        mSMAAFrameIndex ^= 1;
     }
 
     if (RenderBufferVisualization > -1)
@@ -9007,7 +9089,7 @@ void LLPipeline::renderDeferredLighting()
         popRenderTypeMask();
     }
 
-    if (RenderMotionBlur)
+    if (RenderMotionBlur || RenderFSAAType == 3)
     {
         renderGeomMotionBlur();
     }

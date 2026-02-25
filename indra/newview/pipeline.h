@@ -162,6 +162,7 @@ public:
     void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
     void generateSMAABuffers(LLRenderTarget* src);
     void applySMAA(LLRenderTarget* src, LLRenderTarget* dst);
+    void resolveSMAAT2x(LLRenderTarget* src, LLRenderTarget* dst);
     void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
     void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
     void combineGlow(LLRenderTarget* src, LLRenderTarget* dst);
@@ -741,6 +742,8 @@ public:
     // FXAA helper target
     LLRenderTarget          mFXAAMap;
     LLRenderTarget          mSMAABlendBuffer;
+    LLRenderTarget          mSMAAHistory;
+    U32                     mSMAAFrameIndex = 0;
 
     // render ui to buffer target
     LLRenderTarget          mUIScreen;
