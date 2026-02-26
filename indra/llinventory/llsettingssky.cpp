@@ -510,7 +510,7 @@ void LLSettingsSky::replaceSettings(const LLSettingsBase::ptr_t& other_sky)
     mHaloTextureId = other->mHaloTextureId;
     mRainbowTextureId = other->mRainbowTextureId;
     mBloomTextureId = other->mBloomTextureId;
-    
+
     mHDRMin = other->mHDRMin;
     mHDRMax = other->mHDRMax;
     mHDROffset = other->mHDROffset;
@@ -649,12 +649,12 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mSkyDropletRadius = lerp(mSkyDropletRadius, other->mSkyDropletRadius, (F32)blendf);
         mSkyIceLevel = lerp(mSkyIceLevel, other->mSkyIceLevel, (F32)blendf);
         mPlanetRadius = lerp(mPlanetRadius, other->mPlanetRadius, (F32)blendf);
-        
+
         mTonemapMix = lerp(mTonemapMix, other->mTonemapMix, (F32)blendf);
         mHDRMax = lerp(mHDRMax, other->mHDRMax, (F32)blendf);
         mHDRMin = lerp(mHDRMin, other->mHDRMin, (F32)blendf);
         mHDROffset = lerp(mHDROffset, other->mHDROffset, (F32)blendf);
-        
+
         mTonemapper = other->mTonemapper;
 
         // Legacy settings
@@ -1219,7 +1219,7 @@ void LLSettingsSky::loadValuesFromLLSD()
     {
         mSkySettingVersion = 1;
     }
-    
+
     if (mSkySettingVersion > 1)
     {
         mHDRMax = settings[SETTING_HDR_MAX].asReal();
@@ -1238,7 +1238,7 @@ void LLSettingsSky::loadValuesFromLLSD()
         mTonemapper = 0;
         mSunBrightness = 130000.f; // Brightness roughly around high noon in lux.
     }
-    
+
     mSunTextureId = settings[SETTING_SUN_TEXTUREID].asUUID();
     mMoonTextureId = settings[SETTING_MOON_TEXTUREID].asUUID();
     mCloudTextureId = settings[SETTING_CLOUD_TEXTUREID].asUUID();

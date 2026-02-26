@@ -108,11 +108,11 @@ public:
 
     static const F32 DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE;
     static F32 sAutoAdjustProbeAmbiance;
-    
+
     static const std::string SETTING_HDR_OFFSET;
     static const std::string SETTING_HDR_MAX;
     static const std::string SETTING_HDR_MIN;
-    
+
     static const std::string SETTING_HDR_TONEMAPPER;
     static const std::string SETTING_HDR_TONEMAPPER_AMOUNT;
 
