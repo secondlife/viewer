@@ -428,6 +428,10 @@
           label="SMAA"
           name="SMAA"
           value="2" />
+        <combo_box.item
+          label="SMAA T2x"
+          name="SMAA T2x"
+          value="3" />
     </combo_box>
   <text
     type="string"
@@ -1112,6 +1116,18 @@
   </slider>
   <!-- End of Tone Mapping Settings-->
   <!-- End of Advanced Settings block -->
+  
+  <check_box
+    control_name="RenderMotionBlur"
+    height="16"
+    initial_value="false"
+    label="Motionblur"
+    layout="topleft"
+    left="420"
+    name="Motionblur"
+    top_delta="22"
+    width="240">
+    </check_box>
 	<view_border
       bevel_style="in"
       height="0"
