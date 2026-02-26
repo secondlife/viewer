@@ -371,7 +371,7 @@ void LLViewerCamera::setPerspective(bool for_selection,
 
     proj_mat *= glm::perspective(fov_y, aspect, z_near, z_far);
 
-    if (LLPipeline::RenderFSAAType == 3 && !for_selection && !gCubeSnapshot)
+    if (LLPipeline::sT2xJitterEnabled && !for_selection && !gCubeSnapshot)
     {
         // SMAA T2x subpixel jitter (alternating ±0.25 pixels)
         static const float jitters[2][2] = {

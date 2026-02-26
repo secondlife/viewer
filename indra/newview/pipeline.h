@@ -687,6 +687,7 @@ public:
     static bool             sReflectionProbesEnabled;
     static S32              sVisibleLightCount;
     static bool             sRenderingHUDs;
+    static bool             sT2xJitterEnabled;
     static F32              sDistortionWaterClipPlaneMargin;
 
     static LLTrace::EventStatHandle<S64> sStatBatchSize;

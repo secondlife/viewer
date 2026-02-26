@@ -342,6 +342,7 @@ bool    LLPipeline::sRenderDeferred = false;
 bool    LLPipeline::sReflectionProbesEnabled = false;
 S32     LLPipeline::sVisibleLightCount = 0;
 bool    LLPipeline::sRenderingHUDs;
+bool    LLPipeline::sT2xJitterEnabled = false;
 F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
 bool    LLPipeline::RenderMotionBlur = false;
 

@@ -223,6 +223,7 @@ void display_update_camera()
     }
     LLViewerCamera::getInstance()->setFar(final_far);
     LLVOAvatar::sRenderDistance = llclamp(final_far, 16.f, 256.f);
+    LLPipeline::sT2xJitterEnabled = (LLPipeline::RenderFSAAType == 3);
     gViewerWindow->setup3DRender();
 
     if (!gCubeSnapshot)
@@ -1487,6 +1488,10 @@ void render_ui(F32 zoom_factor, int subfield)
         set_current_modelview(glm::make_mat4(gGLLastModelView));
     }
 
+    // Disable T2x jitter before any projection setup in the UI path.
+    // The main scene projection was jittered; UI/HUD/nametags must not be.
+    LLPipeline::sT2xJitterEnabled = false;
+
     if(LLSceneMonitor::getInstance()->needsUpdate())
     {
         gGL.pushMatrix();
@@ -1498,6 +1503,10 @@ void render_ui(F32 zoom_factor, int subfield)
 
     // apply gamma correction and post effects
     gPipeline.renderFinalize();
+
+    // Reload the projection matrix without jitter for HUD/nametag rendering.
+    // sT2xJitterEnabled is already false, so this produces an unjittered matrix.
+    gViewerWindow->setup3DRender();
 
     {
         LLGLState::checkStates();
