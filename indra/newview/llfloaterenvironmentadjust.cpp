@@ -71,6 +71,7 @@ namespace
     const std::string FIELD_SKY_MOON_ELEVATION("moon_elevation");
     const std::string FIELD_REFLECTION_PROBE_AMBIANCE("probe_ambiance");
     const std::string BTN_RESET("btn_reset");
+    const std::string BTN_UPGRADE("btn_upgrade");
 
     const F32 SLIDER_SCALE_SUN_AMBIENT(3.0f);
     const F32 SLIDER_SCALE_BLUE_HORIZON_DENSITY(2.0f);
@@ -117,6 +118,7 @@ bool LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonAzimElevChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonAzimElevChanged(); });
     getChild<LLUICtrl>(BTN_RESET)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onButtonReset(); });
+    getChild<LLUICtrl>(BTN_UPGRADE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onButtonUpgrade(); });
 
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudMapChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setDefaultImageAssetID(LLSettingsSky::GetDefaultCloudNoiseTextureId());
@@ -175,6 +177,16 @@ void LLFloaterEnvironmentAdjust::refresh()
 
     setEnabled(true);
     setAllChildrenEnabled(true);
+
+    bool can_upgrade = mLiveSky->getSkySettingVersion() < LLSettingsSky::MAX_SKY_SETTINGS_VERSION;
+    bool is_v2 = mLiveSky->getSkySettingVersion() >= 2;
+    getChild<LLUICtrl>(BTN_UPGRADE)->setVisible(can_upgrade);
+    getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setEnabled(is_v2);
+    getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setEnabled(is_v2);
+    getChild<LLUICtrl>(FIELD_SKY_HDR_OFFSET)->setEnabled(is_v2);
+    getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setEnabled(is_v2);
+    getChild<LLUICtrl>(FIELD_SKY_HDR_MAX)->setEnabled(is_v2);
+    getChild<LLUICtrl>(FIELD_SKY_SUN_BRIGHTNESS)->setEnabled(is_v2);
 
     getChild<LLColorSwatchCtrl>(FIELD_SKY_AMBIENT_LIGHT)->set(mLiveSky->getAmbientColor() / SLIDER_SCALE_SUN_AMBIENT);
     getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_HORIZON)->set(mLiveSky->getBlueHorizon() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
@@ -279,6 +291,15 @@ void LLFloaterEnvironmentAdjust::onButtonReset()
     });
 
 }
+
+void LLFloaterEnvironmentAdjust::onButtonUpgrade()
+{
+    if (!mLiveSky) return;
+    mLiveSky->setSkySettingVersion(LLSettingsSky::MAX_SKY_SETTINGS_VERSION);
+    mLiveSky->update();
+    refresh();
+}
+
 //-------------------------------------------------------------------------
 void LLFloaterEnvironmentAdjust::onAmbientLightChanged()
 {

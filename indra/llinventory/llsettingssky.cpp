@@ -1362,6 +1362,7 @@ void LLSettingsSky::saveValuesToLLSD()
     settings[SETTING_HDR_OFFSET] = mHDROffset;
     settings[SETTING_HDR_TONEMAPPER] = mTonemapper;
     settings[SETTING_HDR_TONEMAPPER_AMOUNT] = mTonemapMix;
+    settings[SETTING_SKY_VERSION] = mSkySettingVersion;
 
     LLSD& legacy = settings[SETTING_LEGACY_HAZE];
     set_legacy(settings, legacy, SETTING_DISTANCE_MULTIPLIER, mLegacyDistanceMultiplier, LLSD::Real(mDistanceMultiplier));
@@ -2175,6 +2176,13 @@ void LLSettingsSky::setTonemapper(U8 tonemapper)
 U8 LLSettingsSky::getSkySettingVersion() const
 {
     return mSkySettingVersion;
+}
+
+void LLSettingsSky::setSkySettingVersion(U8 version)
+{
+    mSkySettingVersion = version;
+    setDirtyFlag(true);
+    setLLSDDirty();
 }
 
 void LLSettingsSky::setGamma(F32 val)

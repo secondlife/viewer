@@ -661,6 +661,15 @@
                 top_pad="5"
                 width="200"
                 can_edit_text="true"/>
+        <button follows="right|bottom"
+                height="23"
+                label="Upgrade"
+                tool_tip="Upgrade this sky to enable post process settings"
+                layout="topleft"
+                name="btn_upgrade"
+                right="-10"
+                bottom="-10"
+                width="100"/>
     </panel>
     </tab_container>
 </floater>

@@ -650,7 +650,32 @@
                     layout="topleft"
                     left_pad="10"
                     name="cancel_btn"
-                    width="150" /> 
+                    width="150" />
+
+            <button
+                    follows="top|left"
+                    height="23"
+                    label="Upgrade"
+                    tool_tip="Upgrade this sky to enable post process settings"
+                    layout="topleft"
+                    left_pad="10"
+                    name="btn_upgrade"
+                    width="100" />
+
+            <button
+                    follows="top|left"
+                    height="23"
+                    name="btn_upgrade_flyout"
+                    label=""
+                    layout="topleft"
+                    left_pad="-20"
+                    top="0"
+                    image_selected="SegmentedBtn_Right_Selected_Press"
+                    image_unselected="SegmentedBtn_Right_Off"
+                    image_pressed="SegmentedBtn_Right_Press"
+                    image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+                    image_overlay="Arrow_Small_Up"
+                    width="20"/>
 
         </layout_panel>
     </layout_stack>

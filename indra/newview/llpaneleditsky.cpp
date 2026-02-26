@@ -208,6 +208,13 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     setEnabled(getCanChangeSettings());
     setAllChildrenEnabled(getCanChangeSettings());
 
+    bool is_v2 = mSkySettings->getSkySettingVersion() >= 2;
+    getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setEnabled(is_v2 && getCanChangeSettings());
+    getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setEnabled(is_v2 && getCanChangeSettings());
+    getChild<LLUICtrl>(FIELD_SKY_HDR_OFFSET)->setEnabled(is_v2 && getCanChangeSettings());
+    getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setEnabled(is_v2 && getCanChangeSettings());
+    getChild<LLUICtrl>(FIELD_SKY_HDR_MAX)->setEnabled(is_v2 && getCanChangeSettings());
+
     getChild<LLColorSwatchCtrl>(FIELD_SKY_AMBIENT_LIGHT)->set(mSkySettings->getAmbientColor() / SLIDER_SCALE_SUN_AMBIENT);
     getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_HORIZON)->set(mSkySettings->getBlueHorizon() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
     getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_DENSITY)->set(mSkySettings->getBlueDensity() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
@@ -638,6 +645,9 @@ void LLPanelSettingsSkySunMoonTab::refresh()
         setEnabled(true);
         setAllChildrenEnabled(true);
     }
+
+    bool is_v2 = mSkySettings->getSkySettingVersion() > 1;
+    getChild<LLUICtrl>(FIELD_SKY_SUN_BRIGHTNESS)->setEnabled(is_v2 && getCanChangeSettings());
 
     getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_MOON_COLOR)->set(mSkySettings->getSunlightColor() / SLIDER_SCALE_SUN_AMBIENT);
 

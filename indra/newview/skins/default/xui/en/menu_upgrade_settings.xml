@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu
+        height="602"
+        layout="topleft"
+        mouse_opaque="false"
+        name="upgrade_settings_menu"
+        width="120">
+    <menu_item_check
+            name="upgrade_current"
+            label="Upgrade">
+        <menu_item_check.on_check
+                function="FlyoutCombo.Button.Check"
+                userdata="upgrade_current" />
+        <menu_item_check.on_click
+                function="FlyoutCombo.Button.Action"
+                userdata="upgrade_current"/>
+    </menu_item_check>
+    <menu_item_check
+            name="upgrade_all"
+            label="Upgrade All">
+        <menu_item_check.on_check
+                function="FlyoutCombo.Button.Check"
+                userdata="upgrade_all" />
+        <menu_item_check.on_click
+                function="FlyoutCombo.Button.Action"
+                userdata="upgrade_all"/>
+    </menu_item_check>
+</toggleable_menu>

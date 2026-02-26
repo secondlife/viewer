@@ -91,6 +91,7 @@ private:
     void                        onHDRMaxChanged();
     void                        updateGammaLabel();
     void                        onButtonReset();
+    void                        onButtonUpgrade();
 
     void                        onEnvironmentUpdated(LLEnvironment::EnvSelection_t env, S32 version);
 

@@ -41,6 +41,7 @@ class LLSettingsSky: public LLSettingsBase
 {
 public:
     static const std::string SETTING_SKY_VERSION;
+    static const U8 MAX_SKY_SETTINGS_VERSION = 2;
     static const std::string SETTING_AMBIENT;
     static const std::string SETTING_BLOOM_TEXTUREID;
     static const std::string SETTING_RAINBOW_TEXTUREID;
@@ -232,6 +233,7 @@ public:
     void setTonemapper(U8 tonemapper);
 
     U8 getSkySettingVersion() const;
+    void setSkySettingVersion(U8 version);
 
     void setGamma(F32 val);
 
