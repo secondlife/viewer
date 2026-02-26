@@ -54,7 +54,6 @@
 
 #include "llregioninfomodel.h"
 
-#include "llatmosphere.h"
 #include "llagent.h"
 #include "roles_constants.h"
 #include "llestateinfomodel.h"
@@ -963,54 +962,6 @@ LLSettingsWater::ptr_t LLEnvironment::getCurrentWater() const
         }
     }
     return pwater;
-}
-
-void LayerConfigToDensityLayer(const LLSD& layerConfig, DensityLayer& layerOut)
-{
-    layerOut.constant_term  = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
-    layerOut.exp_scale      = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
-    layerOut.exp_term       = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
-    layerOut.linear_term    = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
-    layerOut.width          = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
-}
-
-void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settingsOut, const LLSettingsSky::ptr_t &psky)
-{
-    settingsOut.m_skyBottomRadius   = psky->getSkyBottomRadius();
-    settingsOut.m_skyTopRadius      = psky->getSkyTopRadius();
-    settingsOut.m_sunArcRadians     = psky->getSunArcRadians();
-    settingsOut.m_mieAnisotropy     = psky->getMieAnisotropy();
-
-    LLSD rayleigh = psky->getRayleighConfigs();
-    settingsOut.m_rayleighProfile.clear();
-    for (LLSD::array_iterator itf = rayleigh.beginArray(); itf != rayleigh.endArray(); ++itf)
-    {
-        DensityLayer layer;
-        LLSD& layerConfig = (*itf);
-        LayerConfigToDensityLayer(layerConfig, layer);
-        settingsOut.m_rayleighProfile.push_back(layer);
-    }
-
-    LLSD mie = psky->getMieConfigs();
-    settingsOut.m_mieProfile.clear();
-    for (LLSD::array_iterator itf = mie.beginArray(); itf != mie.endArray(); ++itf)
-    {
-        DensityLayer layer;
-        LLSD& layerConfig = (*itf);
-        LayerConfigToDensityLayer(layerConfig, layer);
-        settingsOut.m_mieProfile.push_back(layer);
-    }
-    settingsOut.m_mieAnisotropy = psky->getMieAnisotropy();
-
-    LLSD absorption = psky->getAbsorptionConfigs();
-    settingsOut.m_absorptionProfile.clear();
-    for (LLSD::array_iterator itf = absorption.beginArray(); itf != absorption.endArray(); ++itf)
-    {
-        DensityLayer layer;
-        LLSD& layerConfig = (*itf);
-        LayerConfigToDensityLayer(layerConfig, layer);
-        settingsOut.m_absorptionProfile.push_back(layer);
-    }
 }
 
 bool LLEnvironment::canAgentUpdateParcelEnvironment() const
@@ -2022,8 +1973,8 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ResetEnvironment", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("ResetEnvironment", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     std::string url = gAgent.getRegionCapability("ExtEnvironment");
     if (url.empty())
@@ -2070,8 +2021,8 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ResetEnvironment", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("ResetEnvironment", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     std::string url = gAgent.getRegionCapability("ExtEnvironment");
     if (url.empty())
@@ -2186,8 +2137,8 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environmen
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ResetEnvironment", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("ResetEnvironment", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     std::string url = gAgent.getRegionCapability("ExtEnvironment");
     if (url.empty())
@@ -2742,13 +2693,6 @@ bool LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
     mSky->mReplaced |= different_sky;
     mSky->update();
     mBlenderSky.reset();
-
-    if (gAtmosphere)
-    {
-        AtmosphericModelSettings settings;
-        LLEnvironment::getAtmosphericModelSettings(settings, psky);
-        gAtmosphere->configureAtmosphericModel(settings);
-    }
 
     return changed;
 }
@@ -3418,8 +3362,8 @@ namespace
     {
         LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
         LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-            httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("testExperiencesOnParcelCoro", httpPolicy));
-        LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+            httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("testExperiencesOnParcelCoro", httpPolicy);
+        LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
         std::string url = gAgent.getRegionCapability("ExperienceQuery");
 
         if (url.empty())

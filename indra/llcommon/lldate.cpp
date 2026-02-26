@@ -41,6 +41,9 @@
 #include "llstring.h"
 #include "llfasttimer.h"
 
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+
 static const F64 LL_APR_USEC_PER_SEC = 1000000.0;
     // should be APR_USEC_PER_SEC, but that relies on INT64_C which
     // isn't defined in glib under our build set up for some reason
@@ -64,7 +67,7 @@ std::string LLDate::asString() const
 {
     std::ostringstream stream;
     toStream(stream);
-    return stream.str();
+    return std::move(stream).str();
 }
 
 //@ brief Converts time in seconds since EPOCH
@@ -184,7 +187,7 @@ bool LLDate::split(S32 *year, S32 *month, S32 *day, S32 *hour, S32 *min, S32 *se
 
 bool LLDate::fromString(const std::string& iso8601_date)
 {
-    std::istringstream stream(iso8601_date);
+    boost::iostreams::stream<boost::iostreams::array_source> stream(iso8601_date.data(), iso8601_date.size());
     return fromStream(stream);
 }
 

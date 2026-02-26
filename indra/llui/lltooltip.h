@@ -67,8 +67,8 @@ public:
 
     struct Params : public LLInitParam::Block<Params, LLPanel::Params>
     {
-        typedef boost::function<void(void)> click_callback_t;
-        typedef boost::function<LLToolTip*(LLToolTip::Params)> create_callback_t;
+        typedef std::function<void(void)> click_callback_t;
+        typedef std::function<LLToolTip*(LLToolTip::Params)> create_callback_t;
 
         Optional<std::string>       message;
         Multiple<StyledText>        styled_message;

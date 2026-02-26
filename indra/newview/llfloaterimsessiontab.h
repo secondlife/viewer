@@ -85,6 +85,8 @@ public:
     void closeFloater(bool app_quitting = false) override;
     void deleteAllChildren() override;
 
+    virtual void onClickCloseBtn(bool app_quitting = false) override;
+
     // Handle the left hand participant list widgets
     void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
     void removeConversationViewParticipant(const LLUUID& participant_id);

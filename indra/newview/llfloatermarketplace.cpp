@@ -39,6 +39,27 @@ LLFloaterMarketplace::~LLFloaterMarketplace()
 {
 }
 
+void LLFloaterMarketplace::onOpen(const LLSD& key)
+{
+    Params params(key);
+
+    if (!params.validateBlock())
+    {
+        closeFloater();
+        return;
+    }
+
+    if (params.url().empty())
+    {
+        openMarketplace();
+    }
+    else
+    {
+        openMarketplaceURL(params.url);
+        set_current_url(params.url); // Fix looping back to previous url when using the viewer navigation bar
+    }
+}
+
 // just to override LLFloaterWebContent
 void LLFloaterMarketplace::onClose(bool app_quitting)
 {
@@ -46,9 +67,16 @@ void LLFloaterMarketplace::onClose(bool app_quitting)
 
 bool LLFloaterMarketplace::postBuild()
 {
-    LLFloaterWebContent::postBuild();
-    mWebBrowser = getChild<LLMediaCtrl>("marketplace_contents");
-    mWebBrowser->addObserver(this);
+    if (!LLFloaterWebContent::postBuild())
+        return false;
+
+    mWebBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+    std::string url = gSavedSettings.getString("MarketplaceURL");
+    mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+
+    // If cookie is there, will set it now, Otherwise will have to wait for login completion
+    // which will also update marketplace instance if it already exists.
+    LLViewerMedia::getInstance()->getOpenIDCookie(mWebBrowser);
 
     return true;
 }
@@ -60,4 +88,19 @@ void LLFloaterMarketplace::openMarketplace()
     {
         mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
     }
+}
+
+void LLFloaterMarketplace::openMarketplaceURL(const std::string& url)
+{
+    if (mCurrentURL != url)
+    {
+        mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+    }
+}
+
+// static
+bool LLFloaterMarketplace::isMarketplaceURL(const std::string& url)
+{
+    static LLCachedControl<std::string> marketplace_url(gSavedSettings, "MarketplaceURL", "https://marketplace.secondlife.com/");
+    return url.starts_with(marketplace_url());
 }

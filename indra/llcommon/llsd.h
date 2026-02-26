@@ -34,6 +34,7 @@
 #include "stdtypes.h"
 
 #include "lldate.h"
+#include "llstl.h"
 #include "lluri.h"
 #include "lluuid.h"
 
@@ -321,11 +322,34 @@ public:
         bool has(const std::string_view) const;
         LLSD get(const std::string_view) const;
         LLSD getKeys() const;               // Return an LLSD array with keys as strings
+        void insert(const char* k, const LLSD& v)
+        {
+            return insert(std::string_view(k), v);
+        }
+        void insert(const char* k , LLSD&& v)
+        {
+            return insert(std::string_view(k), std::move(v));
+        }
+        void insert(std::string&&, const LLSD&);
+        void insert(std::string&&, LLSD&&);
         void insert(std::string_view, const LLSD&);
+        void insert(std::string_view, LLSD&&);
         void erase(const String&);
+        LLSD& with(const char* k, const LLSD& v)
+        {
+            return with(std::string_view(k), v);
+        }
+        LLSD& with(const char* k, LLSD&& v)
+        {
+            return with(std::string_view(k), std::move(v));
+        }
+        LLSD& with(std::string&&, const LLSD&);
+        LLSD& with(std::string&&, LLSD&&);
         LLSD& with(std::string_view, const LLSD&);
+        LLSD& with(std::string_view, LLSD&&);
 
         LLSD& operator[](const std::string_view);
+        LLSD& operator[](std::string&&);
         LLSD& operator[](const char* c)
         {
             return c ? (*this)[std::string_view(c)] : *this;
@@ -339,14 +363,22 @@ public:
 
     /** @name Array Values */
     //@{
+        // Allocate an empty array
         static LLSD emptyArray();
+
+        // Allocate an array with internal storage reserved but not initialized like a std::vector
+        static LLSD emptyReservedArray(size_t size);
 
         LLSD get(Integer) const;
         void set(Integer, const LLSD&);
+        void set(Integer, LLSD&&);
         void insert(Integer, const LLSD&);
+        void insert(Integer, LLSD&&);
         LLSD& append(const LLSD&);
+        LLSD& append(LLSD&&);
         void erase(Integer);
         LLSD& with(Integer, const LLSD&);
+        LLSD& with(Integer, LLSD&&);
 
         // accept size_t so we can index relative to size()
         const LLSD& operator[](size_t) const;
@@ -366,8 +398,9 @@ public:
     //@{
         size_t size() const;
 
-        typedef std::map<String, LLSD>::iterator        map_iterator;
-        typedef std::map<String, LLSD>::const_iterator  map_const_iterator;
+        using llsd_map_t = std::map<String, LLSD, std::less<>>;
+        typedef llsd_map_t::iterator       map_iterator;
+        typedef llsd_map_t::const_iterator map_const_iterator;
 
         map_iterator        beginMap();
         map_iterator        endMap();
@@ -512,6 +545,8 @@ LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLSD& llsd);
 
 namespace llsd
 {
+    // Used by LLSD::ImplString to convert string type to real
+    LLSD::Real string_to_real(std::string_view in_string);
 
 #ifdef LLSD_DEBUG_INFO
 /** @name Unit Testing Interface */

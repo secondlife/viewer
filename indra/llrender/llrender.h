@@ -450,9 +450,16 @@ public:
     void diffuseColor4ubv(const U8* c);
     void diffuseColor4ub(U8 r, U8 g, U8 b, U8 a);
 
-    void vertexBatchPreTransformed(LLVector4a* verts, S32 vert_count);
-    void vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, S32 vert_count);
-    void vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, LLColor4U*, S32 vert_count);
+    void transform(LLVector3& vert);
+    void transform(LLVector4a& vert);
+    void untransform(LLVector3& vert);
+
+    void batchTransform(LLVector4a* verts, U32 vert_count);
+
+    void vertexBatchPreTransformed(const std::vector<LLVector4a>& verts);
+    void vertexBatchPreTransformed(const LLVector4a* verts, S32 vert_count);
+    void vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, S32 vert_count);
+    void vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, const LLColor4U*, S32 vert_count);
 
     void setColorMask(bool writeColor, bool writeAlpha);
     void setColorMask(bool writeColorR, bool writeColorG, bool writeColorB, bool writeAlpha);

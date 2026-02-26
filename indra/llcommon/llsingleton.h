@@ -25,11 +25,10 @@
 #ifndef LLSINGLETON_H
 #define LLSINGLETON_H
 
-#include <boost/noncopyable.hpp>
-#include <boost/unordered_set.hpp>
 #include <initializer_list>
 #include <list>
 #include <typeinfo>
+#include <unordered_set>
 #include <vector>
 #include "mutex.h"
 #include "lockstatic.h"
@@ -43,10 +42,13 @@
 #pragma warning(disable : 4506)   // no definition for inline function
 #endif
 
-class LLSingletonBase: private boost::noncopyable
+class LLSingletonBase
 {
 public:
     class MasterList;
+
+    LLSingletonBase(const LLSingletonBase&) = delete;
+    LLSingletonBase& operator=(const LLSingletonBase&) = delete;
 
 private:
     // All existing LLSingleton instances are tracked in this master list.
@@ -59,7 +61,7 @@ private:
     static vec_t dep_sort();
 
     // we directly depend on these other LLSingletons
-    typedef boost::unordered_set<LLSingletonBase*> set_t;
+    typedef std::unordered_set<LLSingletonBase*> set_t;
     set_t mDepends;
 
 protected:

@@ -216,10 +216,15 @@ void LL::WorkQueueBase::callWork(const Work& work)
             LL_WARNS("LLCoros") << "Capturing and rethrowing uncaught exception in WorkQueueBase "
                                 << getKey() << LL_ENDL;
 
+            std::string name = getKey();
             LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
             main_queue->post(
                              // Bind the current exception, rethrow it in main loop.
-                             [exc = std::current_exception()]() { std::rethrow_exception(exc); });
+                             [exc = std::current_exception(), name]()
+            {
+                LL_INFOS("LLCoros") << "Rethrowing exception from WorkQueueBase::callWork " << name << LL_ENDL;
+                std::rethrow_exception(exc);
+            });
         }
         else
         {
@@ -276,12 +281,30 @@ bool LL::WorkQueue::done()
 
 bool LL::WorkQueue::post(const Work& callable)
 {
-    return mQueue.pushIfOpen(callable);
+    try
+    {
+        return mQueue.pushIfOpen(callable);
+    }
+    catch (std::bad_alloc&)
+    {
+        LLError::LLUserWarningMsg::showOutOfMemory();
+        LL_ERRS("LLCoros") << "Bad memory allocation in WorkQueue::post" << LL_ENDL;
+        return false;
+    }
 }
 
 bool LL::WorkQueue::tryPost(const Work& callable)
 {
-    return mQueue.tryPush(callable);
+    try
+    {
+        return mQueue.tryPush(callable);
+    }
+    catch (std::bad_alloc&)
+    {
+        LLError::LLUserWarningMsg::showOutOfMemory();
+        LL_ERRS("LLCoros") << "Bad memory allocation in WorkQueue::tryPost" << LL_ENDL;
+        return false;
+    }
 }
 
 LL::WorkQueue::Work LL::WorkQueue::pop_()

@@ -54,11 +54,10 @@ public:
     void reset();
 
     const std::string& getTrigger() const { return mTrigger; }
-protected:
-    LLMultiGesture(const LLMultiGesture& gest);
-    const LLMultiGesture& operator=(const LLMultiGesture& rhs);
 
-public:
+    LLMultiGesture(const LLMultiGesture& gest) = delete;
+    const LLMultiGesture& operator=(const LLMultiGesture& rhs) = delete;
+
     KEY mKey { 0 };
     MASK mMask { 0 };
 

@@ -1234,9 +1234,9 @@ void LLStringUtilBase<T>::getTokens(const string_type& string, std::vector<strin
     // (unless there ARE no escapes).
     std::unique_ptr< LLStringUtilBaseImpl::InString<T> > instrp;
     if (escapes.empty())
-        instrp.reset(new LLStringUtilBaseImpl::InString<T>(string.begin(), string.end()));
+        instrp = std::make_unique<LLStringUtilBaseImpl::InString<T>>(string.begin(), string.end());
     else
-        instrp.reset(new LLStringUtilBaseImpl::InEscString<T>(string.begin(), string.end(), escapes));
+        instrp = std::make_unique<LLStringUtilBaseImpl::InEscString<T>>(string.begin(), string.end(), escapes);
     LLStringUtilBaseImpl::getTokens(*instrp, tokens, drop_delims, keep_delims, quotes);
 }
 

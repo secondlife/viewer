@@ -581,7 +581,7 @@ S32 LLTextEditor::indentLine( S32 pos, S32 spaces )
             LLWString wtext = getWText();
             if (wtext[pos] == ' ')
             {
-                delta_spaces += remove( pos, 1, false );
+                delta_spaces -= remove( pos, 1, false );
             }
         }
     }
@@ -1242,7 +1242,7 @@ void LLTextEditor::addChar(llwchar wc)
     tryToShowEmojiHelper();
     tryToShowMentionHelper();
 
-    if (!mReadOnly && mAutoreplaceCallback != NULL)
+    if (!mReadOnly && mAutoreplaceCallback != nullptr)
     {
         // autoreplace the text, if necessary
         S32 replacement_start;

@@ -274,10 +274,10 @@ public:
     S32 getNumSeedCapRetries();
     void setCapability(const std::string& name, const std::string& url);
     void setCapabilityDebug(const std::string& name, const std::string& url);
-    bool isCapabilityAvailable(const std::string& name) const;
+    bool isCapabilityAvailable(std::string_view name) const;
     // implements LLCapabilityProvider
-    virtual std::string getCapability(const std::string& name) const;
-    std::string getCapabilityDebug(const std::string& name) const;
+    virtual std::string getCapability(std::string_view name) const;
+    std::string getCapabilityDebug(std::string_view name) const;
 
 
     // has region received its final (not seed) capability list?
@@ -287,7 +287,7 @@ public:
     void setCapabilitiesError();
     boost::signals2::connection setCapabilitiesReceivedCallback(const caps_received_signal_t::slot_type& cb);
 
-    static bool isSpecialCapabilityName(const std::string &name);
+    static bool isSpecialCapabilityName(std::string_view name);
     void logActiveCapabilities() const;
 
     // Utilities to post and get via
@@ -295,10 +295,10 @@ public:
     typedef LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t httpCallback_t;
     bool requestPostCapability(const std::string &capName,
                                LLSD              &postData,
-                               httpCallback_t     cbSuccess = NULL,
-                               httpCallback_t     cbFailure = NULL);
-    bool requestGetCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
-    bool requestDelCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+                               httpCallback_t     cbSuccess = nullptr,
+                               httpCallback_t     cbFailure = nullptr);
+    bool requestGetCapability(const std::string& capName, httpCallback_t cbSuccess = nullptr, httpCallback_t cbFailure = nullptr);
+    bool requestDelCapability(const std::string& capName, httpCallback_t cbSuccess = nullptr, httpCallback_t cbFailure = nullptr);
 
     /// implements LLCapabilityProvider
     /*virtual*/ const LLHost& getHost() const;

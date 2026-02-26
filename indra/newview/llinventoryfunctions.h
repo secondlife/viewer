@@ -151,13 +151,13 @@ class LLMarketplaceValidator: public LLSingleton<LLMarketplaceValidator>
     LOG_CLASS(LLMarketplaceValidator);
 public:
 
-    typedef boost::function<void(std::string& validation_message, S32 depth, LLError::ELevel log_level)> validation_msg_callback_t;
-    typedef boost::function<void(bool result)> validation_done_callback_t;
+    typedef std::function<void(std::string& validation_message, S32 depth, LLError::ELevel log_level)> validation_msg_callback_t;
+    typedef std::function<void(bool result)> validation_done_callback_t;
 
     void validateMarketplaceListings(
         const LLUUID &category_id,
-        validation_done_callback_t cb_done = NULL,
-        validation_msg_callback_t cb_msg = NULL,
+        validation_done_callback_t cb_done = nullptr,
+        validation_msg_callback_t cb_msg = nullptr,
         bool fix_hierarchy = true,
         S32 depth = -1);
 

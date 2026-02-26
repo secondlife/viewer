@@ -123,19 +123,32 @@ void LLFloaterSearch::initiateSearch(const LLSD& tokens)
     subs["COLLECTION"] = "";
     if (subs["TYPE"] == "standard")
     {
+        std::string collection_args;
         if (mCollectionType.find(collection) != mCollectionType.end())
         {
-            subs["COLLECTION"] = "&collection_chosen=" + std::string(collection);
+            collection_args = "&collection_chosen=" + std::string(collection);
         }
-        else
+        else if (tokens.has("collections") && tokens["collections"].isArray())
         {
-            std::string collection_args("");
+            const LLSD &sd = tokens["collections"];
+            for (LLSD::array_const_iterator it = sd.beginArray();
+                it != sd.endArray();
+                ++it)
+            {
+                if (mCollectionType.find(it->asString()) != mCollectionType.end())
+                {
+                    collection_args += "&collection_chosen=" + std::string(*it);
+                }
+            }
+        }
+        if (collection_args.empty())
+        {
             for (std::set<std::string>::iterator it = mCollectionType.begin(); it != mCollectionType.end(); ++it)
             {
                 collection_args += "&collection_chosen=" + std::string(*it);
             }
-            subs["COLLECTION"] = collection_args;
         }
+        subs["COLLECTION"] = collection_args;
     }
 
     // Default to PG
@@ -161,15 +174,20 @@ void LLFloaterSearch::initiateSearch(const LLSD& tokens)
 
     // Naviation to the calculated URL - we know it's HTML so we can
     // tell the media system not to bother with the MIME type check.
-    LLMediaCtrl* search_browser = findChild<LLMediaCtrl>("search_contents");
-    search_browser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+    mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
 }
 
 bool LLFloaterSearch::postBuild()
 {
-    LLFloaterWebContent::postBuild();
-    mWebBrowser = getChild<LLMediaCtrl>("search_contents");
-    mWebBrowser->addObserver(this);
+    if (!LLFloaterWebContent::postBuild())
+        return false;
+
+    mWebBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+
+    // If cookie is there, will set it now, Otherwise will have to wait for login completion
+    // which will also update search instance if it already exists.
+    LLViewerMedia::getInstance()->getOpenIDCookie(mWebBrowser);
+
     getChildView("address")->setEnabled(false);
     getChildView("popexternal")->setEnabled(false);
 

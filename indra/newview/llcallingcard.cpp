@@ -680,6 +680,8 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
                         LLNotifications::instance().add("RevokedModifyRights",args, payload);
                     }
                 }
+                // update modify permissions flags for affected objects
+                LLViewerObject::markObjectsForUpdate(agent_id);
                 (mBuddyInfo[agent_id])->setRightsFrom(new_rights);
             }
         }

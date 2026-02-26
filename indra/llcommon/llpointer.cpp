@@ -1,11 +1,12 @@
 /**
- * @file llfloatersounddevices.h
- * @author Leyla Farazha
- * @brief Sound Preferences used for minimal skin
+ * @file   llpointer.cpp
+ * @author Nat Goodspeed
+ * @date   2024-09-26
+ * @brief  Implementation for llpointer.
  *
-* $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,25 +26,18 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSOUNDDEVICES_H
-#define LL_LLFLOATERSOUNDDEVICES_H
+// Precompiled header
+#include "linden_common.h"
+// associated header
+#include "llpointer.h"
+// STL headers
+// std headers
+// external library headers
+// other Linden headers
+#include "llerror.h"
 
-#include "lltransientdockablefloater.h"
-
-class LLFloaterSoundDevices : public LLTransientDockableFloater
+void LLPointerBase::wild_dtor(std::string_view msg)
 {
-public:
-
-    LOG_CLASS(LLFloaterSoundDevices);
-
-    LLFloaterSoundDevices(const LLSD& key);
-    ~LLFloaterSoundDevices();
-
-    bool postBuild() override;
-    void setDocked(bool docked, bool pop_on_undock = true) override;
-    void setFocus(bool b) override;
-};
-
-
-#endif //LL_LLFLOATERSOUNDDEVICES_H
-
+//  LL_WARNS() << msg << LL_ENDL;
+    llassert_msg(false, msg);
+}

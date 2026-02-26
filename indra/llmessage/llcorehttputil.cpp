@@ -37,6 +37,7 @@
 #include "llsdserialize.h"
 #include "boost/json.hpp" // Boost.Json
 #include "llfilesystem.h"
+#include "workqueue.h"
 
 #include "message.h" // for getting the port
 
@@ -57,7 +58,7 @@ namespace
 
     inline bool getBoolSetting(const std::string &keyname)
     {
-        if (!mBoolSettingGet || mBoolSettingGet.empty())
+        if (mBoolSettingGet == nullptr)
             return(false);
         return mBoolSettingGet(HTTP_LOGBODY_KEY);
     }
@@ -69,7 +70,7 @@ void setPropertyMethods(BoolSettingQuery_t queryfn, BoolSettingUpdate_t updatefn
     mBoolSettingGet = queryfn;
     mBoolSettingPut = updatefn;
 
-    if (mBoolSettingPut && !mBoolSettingPut.empty())
+    if (mBoolSettingPut != nullptr)
     {
         mBoolSettingPut(HTTP_LOGBODY_KEY, false, "Log the entire HTTP body in the case of an HTTP error.");
     }
@@ -295,41 +296,73 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
     }
     else
     {
-        try
+        constexpr size_t MAX_BODY_SIZE_THRESHOLD = 65536;
+        bool posted = false;
+        // Some messsages (ex: AISAPI) can return large bodies.
+        // If the body is larger than our threshold, post the
+        // parsing to the general queue to avoid stalling the
+        // main thread.
+        if (response->getBodySize() > MAX_BODY_SIZE_THRESHOLD)
         {
-            result = this->handleSuccess(response, status);
+            response->addRef();
+
+            LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+            LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
+            posted  = main_queue->postTo(
+                general_queue,
+                [handler = shared_from_this(), response, status]() // Work done on general queue
+                {
+                    std::pair<LLSD, LLCore::HttpStatus> result;
+                    result.second = status;
+                    try
+                    {
+                        result.first = handler->handleSuccess(response, result.second);
+                    }
+                    catch (std::bad_alloc&)
+                    {
+                        LLError::LLUserWarningMsg::showOutOfMemory();
+                        LL_ERRS("CoreHTTP") << "Failed to allocate memory for response handling (threaded)." << LL_ENDL;
+                    }
+                    // LLSD is not thread safe! Be carefull with moving the result around.
+                    return result;
+                },
+                [handler = shared_from_this(), response](std::pair<LLSD, LLCore::HttpStatus> result) mutable // Callback to main thread
+                {
+                    handler->replyPost(response, result.second, result.first);
+                    response->release();
+                });
+
+            if (posted)
+            {
+                // Thread will do the cleanup and notify the pump. Done.
+                return;
+            }
+            else
+            {
+                // For whatever reason, failed to post, clean up and
+                // do the work on the main thread.
+                response->release();
+            }
         }
-        catch (std::bad_alloc&)
+
+        if (!posted)
         {
-            LLError::LLUserWarningMsg::showOutOfMemory();
-            LL_ERRS("CoreHTTP") << "Failed to allocate memory for response handling." << LL_ENDL;
+            try
+            {
+                result = this->handleSuccess(response, status);
+            }
+            catch (std::bad_alloc&)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS("CoreHTTP") << "Failed to allocate memory for response handling." << LL_ENDL;
+            }
         }
     }
 
-    buildStatusEntry(response, status, result);
-
-    if (!status)
-    {
-        LLSD &httpStatus = result[HttpCoroutineAdapter::HTTP_RESULTS];
-
-        LLCore::BufferArray *body = response->getBody();
-        LLCore::BufferArrayStream bas(body);
-        LLSD::String bodyData;
-        bodyData.reserve(response->getBodySize());
-        bas >> std::noskipws;
-        bodyData.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
-        httpStatus["error_body"] = LLSD(bodyData);
-        if (getBoolSetting(HTTP_LOGBODY_KEY))
-        {
-            // commenting out, but keeping since this can be useful for debugging
-            LL_WARNS("CoreHTTP") << "Returned body=" << std::endl << httpStatus["error_body"].asString() << LL_ENDL;
-        }
-    }
-
-    mReplyPump.post(result);
+    replyPost(response, status, result);
 }
 
-void HttpCoroHandler::buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result)
+void HttpCoroHandler::buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result) const
 {
     LLSD httpresults = LLSD::emptyMap();
 
@@ -355,6 +388,31 @@ void HttpCoroHandler::buildStatusEntry(LLCore::HttpResponse *response, LLCore::H
 
     httpresults[HttpCoroutineAdapter::HTTP_RESULTS_HEADERS] = httpHeaders;
     result[HttpCoroutineAdapter::HTTP_RESULTS] = httpresults;
+}
+
+void HttpCoroHandler::replyPost(LLCore::HttpResponse* response, LLCore::HttpStatus &status, LLSD& result)
+{
+    buildStatusEntry(response, status, result);
+
+    if (!status)
+    {
+        LLSD& httpStatus = result[HttpCoroutineAdapter::HTTP_RESULTS];
+
+        LLCore::BufferArray* body = response->getBody();
+        LLCore::BufferArrayStream bas(body);
+        LLSD::String bodyData;
+        bodyData.reserve(response->getBodySize());
+        bas >> std::noskipws;
+        bodyData.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
+        httpStatus["error_body"] = LLSD(bodyData);
+        if (getBoolSetting(HTTP_LOGBODY_KEY))
+        {
+            // commenting out, but keeping since this can be useful for debugging
+            LL_WARNS("CoreHTTP") << "Returned body=" << std::endl << httpStatus["error_body"].asString() << LL_ENDL;
+        }
+    }
+
+    mReplyPump.post(result);
 }
 
 void HttpCoroHandler::writeStatusCodes(LLCore::HttpStatus status, const std::string &url, LLSD &result)
@@ -389,8 +447,8 @@ public:
     HttpCoroLLSDHandler(LLEventStream &reply);
 
 protected:
-    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
-    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success);
+    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) const;
+    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success) const;
 };
 
 //-------------------------------------------------------------------------
@@ -400,7 +458,7 @@ HttpCoroLLSDHandler::HttpCoroLLSDHandler(LLEventStream &reply):
 }
 
 
-LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status)
+LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) const
 {
     LLSD result;
 
@@ -465,7 +523,7 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     return result;
 }
 
-LLSD HttpCoroLLSDHandler::parseBody(LLCore::HttpResponse *response, bool &success)
+LLSD HttpCoroLLSDHandler::parseBody(LLCore::HttpResponse *response, bool &success) const
 {
     success = true;
     if (response->getBodySize() == 0)
@@ -496,8 +554,8 @@ class HttpCoroRawHandler : public HttpCoroHandler
 public:
     HttpCoroRawHandler(LLEventStream &reply);
 
-    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
-    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success);
+    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) const;
+    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success) const;
 };
 
 //-------------------------------------------------------------------------
@@ -506,7 +564,7 @@ HttpCoroRawHandler::HttpCoroRawHandler(LLEventStream &reply):
 {
 }
 
-LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status)
+LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) const
 {
     LLSD result = LLSD::emptyMap();
 
@@ -552,7 +610,7 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
     return result;
 }
 
-LLSD HttpCoroRawHandler::parseBody(LLCore::HttpResponse *response, bool &success)
+LLSD HttpCoroRawHandler::parseBody(LLCore::HttpResponse *response, bool &success) const
 {
     success = true;
     return LLSD();
@@ -571,8 +629,8 @@ class HttpCoroJSONHandler : public HttpCoroHandler
 public:
     HttpCoroJSONHandler(LLEventStream &reply);
 
-    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
-    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success);
+    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) const;
+    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success) const;
 };
 
 //-------------------------------------------------------------------------
@@ -581,7 +639,7 @@ HttpCoroJSONHandler::HttpCoroJSONHandler(LLEventStream &reply) :
 {
 }
 
-LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status)
+LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) const
 {
     LLSD result = LLSD::emptyMap();
 
@@ -607,7 +665,7 @@ LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     return result;
 }
 
-LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &success)
+LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &success) const
 {
     success = true;
     BufferArray * body(response->getBody());
@@ -666,9 +724,9 @@ const std::string HttpCoroutineAdapter::HTTP_RESULTS_HEADERS("headers");
 const std::string HttpCoroutineAdapter::HTTP_RESULTS_CONTENT("content");
 const std::string HttpCoroutineAdapter::HTTP_RESULTS_RAW("raw");
 
-HttpCoroutineAdapter::HttpCoroutineAdapter(const std::string &name,
+HttpCoroutineAdapter::HttpCoroutineAdapter(std::string name,
     LLCore::HttpRequest::policy_t policyId) :
-    mAdapterName(name),
+    mAdapterName(std::move(name)),
     mPolicyId(policyId),
     mYieldingHandle(LLCORE_HTTP_HANDLE_INVALID),
     mWeakRequest(),
@@ -686,7 +744,7 @@ LLSD HttpCoroutineAdapter::postAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName, true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroLLSDHandler>(replyPump);
 
     return postAndSuspend_(request, url, body, options, headers, httpHandler);
 }
@@ -723,7 +781,7 @@ LLSD HttpCoroutineAdapter::postAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName, true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroLLSDHandler>(replyPump);
 
     return postAndSuspend_(request, url, rawbody, options, headers, httpHandler);
 }
@@ -733,7 +791,7 @@ LLSD HttpCoroutineAdapter::postRawAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName, true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroRawHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroRawHandler>(replyPump);
 
     return postAndSuspend_(request, url, rawbody, options, headers, httpHandler);
 }
@@ -797,7 +855,7 @@ LLSD HttpCoroutineAdapter::postJsonAndSuspend(LLCore::HttpRequest::ptr_t request
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName, true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroJSONHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroJSONHandler>(replyPump);
 
     LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
 
@@ -846,7 +904,7 @@ LLSD HttpCoroutineAdapter::putAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroLLSDHandler>(replyPump);
 
     return putAndSuspend_(request, url, body, options, headers, httpHandler);
 }
@@ -856,7 +914,7 @@ LLSD HttpCoroutineAdapter::putJsonAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName, true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroJSONHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroJSONHandler>(replyPump);
 
     LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
 
@@ -931,7 +989,7 @@ LLSD HttpCoroutineAdapter::getAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroLLSDHandler>(replyPump);
 
     return getAndSuspend_(request, url, options, headers, httpHandler);
 }
@@ -941,7 +999,7 @@ LLSD HttpCoroutineAdapter::getRawAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroRawHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroRawHandler>(replyPump);
 
     return getAndSuspend_(request, url, options, headers, httpHandler);
 }
@@ -950,7 +1008,7 @@ LLSD HttpCoroutineAdapter::getJsonAndSuspend(LLCore::HttpRequest::ptr_t request,
     const std::string & url, LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroJSONHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroJSONHandler>(replyPump);
 
     return getAndSuspend_(request, url, options, headers, httpHandler);
 }
@@ -987,7 +1045,7 @@ LLSD HttpCoroutineAdapter::deleteAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroLLSDHandler>(replyPump);
 
     return deleteAndSuspend_(request, url, options, headers, httpHandler);
 }
@@ -997,7 +1055,7 @@ LLSD HttpCoroutineAdapter::deleteJsonAndSuspend(LLCore::HttpRequest::ptr_t reque
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroJSONHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroJSONHandler>(replyPump);
 
     return deleteAndSuspend_(request, url, options, headers, httpHandler);
 }
@@ -1032,7 +1090,7 @@ LLSD HttpCoroutineAdapter::patchAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroLLSDHandler>(replyPump);
 
     return patchAndSuspend_(request, url, body, options, headers, httpHandler);
 }
@@ -1070,10 +1128,10 @@ LLSD HttpCoroutineAdapter::copyAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroLLSDHandler>(replyPump);
 
     if (!headers)
-        headers.reset(new LLCore::HttpHeaders);
+        headers = std::make_shared<LLCore::HttpHeaders>();
     headers->append(HTTP_OUT_HEADER_DESTINATION, dest);
 
     return copyAndSuspend_(request, url, options, headers, httpHandler);
@@ -1112,10 +1170,10 @@ LLSD HttpCoroutineAdapter::moveAndSuspend(LLCore::HttpRequest::ptr_t request,
     LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
     LLEventStream  replyPump(mAdapterName + "Reply", true);
-    HttpCoroHandler::ptr_t httpHandler(new HttpCoroLLSDHandler(replyPump));
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroLLSDHandler>(replyPump);
 
     if (!headers)
-        headers.reset(new LLCore::HttpHeaders);
+        headers = std::make_shared<LLCore::HttpHeaders>();
     headers->append(HTTP_OUT_HEADER_DESTINATION, dest);
 
     return moveAndSuspend_(request, url, options, headers, httpHandler);
@@ -1153,7 +1211,7 @@ LLSD HttpCoroutineAdapter::moveAndSuspend_(LLCore::HttpRequest::ptr_t &request,
 void HttpCoroutineAdapter::checkDefaultHeaders(LLCore::HttpHeaders::ptr_t &headers)
 {
     if (!headers)
-        headers.reset(new LLCore::HttpHeaders);
+        headers = std::make_shared<LLCore::HttpHeaders>();
     if (!headers->find(HTTP_OUT_HEADER_ACCEPT))
     {
         headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_LLSD_XML);
@@ -1236,9 +1294,9 @@ void HttpCoroutineAdapter::callbackHttpGet(const std::string &url, LLCore::HttpR
 /*static*/
 void HttpCoroutineAdapter::messageHttpGet(const std::string &url, const std::string &success, const std::string &failure)
 {
-    completionCallback_t cbSuccess = (success.empty()) ? NULL :
+    completionCallback_t cbSuccess = (success.empty()) ? nullptr :
         static_cast<completionCallback_t>(boost::bind(&logMessageSuccess, "HttpCoroutineAdapter", url, success));
-    completionCallback_t cbFailure = (failure.empty()) ? NULL :
+    completionCallback_t cbFailure = (failure.empty()) ? nullptr :
         static_cast<completionCallback_t>(boost::bind(&logMessageFail, "HttpCoroutineAdapter", url, failure));
     callbackHttpGet(url, cbSuccess, cbFailure);
 }
@@ -1247,9 +1305,9 @@ void HttpCoroutineAdapter::messageHttpGet(const std::string &url, const std::str
 void HttpCoroutineAdapter::trivialGetCoro(std::string url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success, completionCallback_t failure)
 {
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericGetCoro", policyId));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("genericGetCoro", policyId);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
 
     httpOpts->setWantHeaders(true);
 
@@ -1286,9 +1344,9 @@ void HttpCoroutineAdapter::callbackHttpPost(const std::string &url, LLCore::Http
 /*static*/
 void HttpCoroutineAdapter::messageHttpPost(const std::string &url, const LLSD &postData, const std::string &success, const std::string &failure)
 {
-    completionCallback_t cbSuccess = (success.empty()) ? NULL :
+    completionCallback_t cbSuccess = (success.empty()) ? nullptr :
         static_cast<completionCallback_t>(boost::bind(&logMessageSuccess, "HttpCoroutineAdapter", url, success));
-    completionCallback_t cbFailure = (failure.empty()) ? NULL :
+    completionCallback_t cbFailure = (failure.empty()) ? nullptr :
         static_cast<completionCallback_t>(boost::bind(&logMessageFail, "HttpCoroutineAdapter", url, failure));
 
     callbackHttpPost(url, postData, cbSuccess, cbFailure);
@@ -1298,9 +1356,9 @@ void HttpCoroutineAdapter::messageHttpPost(const std::string &url, const LLSD &p
 void HttpCoroutineAdapter::trivialPostCoro(std::string url, LLCore::HttpRequest::policy_t policyId, LLSD postData, completionCallback_t success, completionCallback_t failure)
 {
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", policyId));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("genericPostCoro", policyId);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
 
     httpOpts->setWantHeaders(true);
 
@@ -1342,9 +1400,9 @@ void HttpCoroutineAdapter::callbackHttpDel(const std::string &url, LLCore::HttpR
 void HttpCoroutineAdapter::trivialDelCoro(std::string url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success,
                                           completionCallback_t failure)
 {
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericDelCoro", policyId));
-    LLCore::HttpRequest::ptr_t                  httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t                  httpOpts(new LLCore::HttpOptions);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("genericDelCoro", policyId);
+    LLCore::HttpRequest::ptr_t                  httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t                  httpOpts = std::make_shared<LLCore::HttpOptions>();
 
     httpOpts->setWantHeaders(true);
 

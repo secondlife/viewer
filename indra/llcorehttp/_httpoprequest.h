@@ -73,8 +73,8 @@ public:
     virtual ~HttpOpRequest();                           // Use release()
 
 private:
-    HttpOpRequest(const HttpOpRequest &);               // Not defined
-    void operator=(const HttpOpRequest &);              // Not defined
+    HttpOpRequest(const HttpOpRequest&)  = delete;
+    void operator=(const HttpOpRequest&) = delete;
 
 public:
     enum EMethod

@@ -417,8 +417,8 @@ void LLFloaterReporter::requestAbuseCategoriesCoro(std::string url, LLHandle<LLF
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestAbuseCategoriesCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("requestAbuseCategoriesCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
@@ -860,7 +860,7 @@ void LLFloaterReporter::sendReportViaCaps(std::string url, std::string sshot_url
     if(!sshot_url.empty())
     {
         // try to upload screenshot
-        LLResourceUploadInfo::ptr_t uploadInfo(new  LLARScreenShotUploader(report, mResourceDatap->mAssetInfo.mUuid, mResourceDatap->mAssetInfo.mType));
+        LLResourceUploadInfo::ptr_t uploadInfo = std::make_shared<LLARScreenShotUploader>(report, mResourceDatap->mAssetInfo.mUuid, mResourceDatap->mAssetInfo.mType);
         LLViewerAssetUpload::EnqueueInventoryUpload(sshot_url, uploadInfo);
     }
     else

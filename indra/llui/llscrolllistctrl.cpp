@@ -190,19 +190,19 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
     mColumnsDirty(false),
     mMaxItemCount(INT_MAX),
     mBorderThickness( 2 ),
-    mOnDoubleClickCallback( NULL ),
-    mOnMaximumSelectCallback( NULL ),
-    mOnSortChangedCallback( NULL ),
+    mOnDoubleClickCallback(nullptr),
+    mOnMaximumSelectCallback(nullptr),
+    mOnSortChangedCallback(nullptr),
     mHighlightedItem(-1),
-    mBorder(NULL),
-    mSortCallback(NULL),
+    mBorder(nullptr),
+    mSortCallback(nullptr),
     mNumDynamicWidthColumns(0),
     mTotalStaticColumnWidth(0),
     mTotalColumnPadding(0),
     mSorted(false),
     mDirty(false),
     mOriginalSelection(-1),
-    mLastSelected(NULL),
+    mLastSelected(nullptr),
     mHeadingHeight(p.heading_height),
     mAllowMultipleSelection(p.multi_select),
     mDisplayColumnHeaders(p.draw_heading),
@@ -222,7 +222,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
     mRowPadding(p.row_padding),
     mAlternateSort(false),
     mContextMenuType(MENU_NONE),
-    mIsFriendSignal(NULL)
+    mIsFriendSignal(nullptr)
 {
     mItemListRect.setOriginAndSize(
         mBorderThickness,
@@ -3185,6 +3185,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
             if (cell_p.width.isProvided())
             {
                 new_column.width.pixel_width = cell_p.width;
+                new_column.width.pixel_width.choose();
             }
             addColumn(new_column);
             columnp = mColumns[column];

@@ -1259,9 +1259,6 @@ bool LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
     // trigger mouse move callback
     LLCoordGL gl_pos;
     convertCoords(position, &gl_pos);
-    float scale = getSystemUISize();
-    gl_pos.mX *= scale;
-    gl_pos.mY *= scale;
     mCallbacks->handleMouseMove(this, gl_pos, (MASK)0);
 
     return result;

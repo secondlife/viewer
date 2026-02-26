@@ -32,11 +32,11 @@
 
 const F32 FOCUS_FADE_TIME = 0.3f;
 
-LLFocusableElement::LLFocusableElement()
-:   mFocusLostCallback(NULL),
-    mFocusReceivedCallback(NULL),
-    mFocusChangedCallback(NULL),
-    mTopLostCallback(NULL)
+LLFocusableElement::LLFocusableElement() :
+    mFocusLostCallback(nullptr),
+    mFocusReceivedCallback(nullptr),
+    mFocusChangedCallback(nullptr),
+    mTopLostCallback(nullptr)
 {
 }
 

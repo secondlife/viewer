@@ -191,7 +191,7 @@ public:
     // Prefer getChild<LLUICtrl>("foo")->setCommitCallback(boost:bind(...)),
     // which takes a generic slot.  Or use mCommitCallbackRegistrar.add() with
     // a named callback and reference it in XML.
-    void childSetCommitCallback(std::string_view id, boost::function<void (LLUICtrl*,void*)> cb, void* data);
+    void childSetCommitCallback(std::string_view id, std::function<void (LLUICtrl*,void*)> cb, void* data);
     void childSetColor(std::string_view id, const LLUIColor& color);
 
     LLCtrlSelectionInterface* childGetSelectionInterface(std::string_view id) const;
@@ -208,7 +208,7 @@ public:
     bool childSetLabelArg(std::string_view id, const std::string& key, const LLStringExplicit& text);
 
     // LLButton
-    void childSetAction(std::string_view id, boost::function<void(void*)> function, void* value);
+    void childSetAction(std::string_view id, std::function<void(void*)> function, void* value);
     void childSetAction(std::string_view id, const commit_signal_t::slot_type& function);
 
     static LLView*  fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
@@ -250,7 +250,7 @@ private:
     LLButton*       mDefaultBtn;
     LLUIString      mLabel;
 
-    typedef std::map<std::string, std::string, std::less<>> ui_string_map_t;
+    typedef std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>> ui_string_map_t;
     ui_string_map_t mUIStrings;
 
 
@@ -262,7 +262,7 @@ extern template class LLPanel* LLView::getChild<class LLPanel>(
     std::string_view name, bool recurse) const;
 #endif
 
-typedef boost::function<LLPanel* (void)> LLPanelClassCreatorFunc;
+typedef std::function<LLPanel* (void)> LLPanelClassCreatorFunc;
 
 // local static instance for registering a particular panel class
 
@@ -292,7 +292,7 @@ public:
     }
 
 private:
-    typedef std::map< std::string, LLPanelClassCreatorFunc, std::less<>> param_name_map_t;
+    typedef std::unordered_map<std::string, LLPanelClassCreatorFunc, ll::string_hash, std::equal_to<>> param_name_map_t;
 
     param_name_map_t mPanelClassesNames;
 };

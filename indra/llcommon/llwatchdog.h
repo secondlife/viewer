@@ -27,18 +27,20 @@
 #ifndef LL_LLTHREADWATCHDOG_H
 #define LL_LLTHREADWATCHDOG_H
 
-#include <boost/function.hpp>
-
 #ifndef LL_TIMER_H
     #include "lltimer.h"
 #endif
+#include "llmutex.h"
+#include "llsingleton.h"
+
+#include <functional>
 
 // LLWatchdogEntry is the interface used by the tasks that
 // need to be watched.
 class LLWatchdogEntry
 {
 public:
-    LLWatchdogEntry();
+    LLWatchdogEntry(const std::string &thread_name);
     virtual ~LLWatchdogEntry();
 
     // isAlive is accessed by the watchdog thread.
@@ -48,12 +50,19 @@ public:
     virtual void reset() = 0;
     virtual void start();
     virtual void stop();
+    virtual std::string getLastState() const { return std::string(); }
+    typedef std::thread::id id_t;
+    std::string getThreadName() const;
+
+private:
+    id_t mThreadID; // ID of the thread being watched
+    std::string mThreadName;
 };
 
 class LLWatchdogTimeout : public LLWatchdogEntry
 {
 public:
-    LLWatchdogTimeout();
+    LLWatchdogTimeout(const std::string& thread_name);
     virtual ~LLWatchdogTimeout();
 
     bool isAlive() const override;
@@ -65,6 +74,7 @@ public:
     void setTimeout(F32 d);
     void ping(std::string_view state);
     const std::string& getState() {return mPingState; }
+    std::string getLastState() const override { return mPingState; }
 
 private:
     LLTimer mTimer;
@@ -83,9 +93,11 @@ public:
     void add(LLWatchdogEntry* e);
     void remove(LLWatchdogEntry* e);
 
-    void init();
+    typedef std::function<void()> func_t;
+    void init(func_t set_error_state_callback);
     void run();
     void cleanup();
+
 
 private:
     void lockThread();
@@ -96,6 +108,11 @@ private:
     LLMutex* mSuspectsAccessMutex;
     LLWatchdogTimerThread* mTimer;
     U64 mLastClockCount;
+
+    // At the moment watchdog expects app to set markers in mCreateMarkerFnc,
+    // but technically can be used to set any error states or do some cleanup
+    // or show warnings.
+    func_t mCreateMarkerFnc;
 };
 
 #endif // LL_LLTHREADWATCHDOG_H

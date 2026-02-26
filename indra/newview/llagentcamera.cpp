@@ -975,6 +975,10 @@ void LLAgentCamera::cameraZoomIn(const F32 fraction)
             new_distance = llclamp(new_distance, APPEARANCE_MIN_ZOOM, APPEARANCE_MAX_ZOOM);
         }
     }
+    else
+    {
+        new_distance = llmin(new_distance, getCameraMaxZoomDistance());
+    }
 
     mCameraFocusOffsetTarget = new_distance * camera_offset_unit;
 }
@@ -1034,6 +1038,10 @@ void LLAgentCamera::cameraOrbitIn(const F32 meters)
             {
                 new_distance = llclamp(new_distance, APPEARANCE_MIN_ZOOM, APPEARANCE_MAX_ZOOM);
             }
+        }
+        else
+        {
+            new_distance = llmin(new_distance, getCameraMaxZoomDistance());
         }
 
         // Compute new camera offset

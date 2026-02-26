@@ -125,10 +125,7 @@
 #include "llpanel.h"
 #include "llfloater.h"
 
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/unordered_map.hpp>
 #include <boost/json.hpp>
 
 #include "glm/glm.hpp"

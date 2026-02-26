@@ -767,8 +767,21 @@ Function un.UserSettingsFiles
 
 StrCmp $DO_UNINSTALL_V2 "true" Keep			# Don't remove user's settings files on auto upgrade
 
-# Ask if user wants to keep data files or not
-MessageBox MB_YESNO|MB_ICONQUESTION $(RemoveDataFilesMB) IDYES Remove IDNO Keep
+ClearErrors
+Push $0
+${GetParameters} $COMMANDLINE
+${GetOptionsS} $COMMANDLINE "/clrusrfiles" $0
+# GetOptionsS returns an error if option does not exist, jump past Goto.
+IfErrors +3 0
+  Pop $0
+  Goto Remove
+
+Pop $0
+ClearErrors
+
+ifSilent Keep 0
+  # Ask if user wants to keep data files or not
+  MessageBox MB_YESNO|MB_ICONQUESTION $(RemoveDataFilesMB) IDYES Remove IDNO Keep
 
 Remove:
 Push $0
@@ -864,11 +877,25 @@ RMDir "$INSTDIR"
 IfFileExists "$INSTDIR" FOLDERFOUND NOFOLDER
 
 FOLDERFOUND:
+ifSilent NOFOLDER 0
   MessageBox MB_OK $(DeleteProgramFilesMB) /SD IDOK IDOK NOFOLDER
 
 NOFOLDER:
 
-MessageBox MB_YESNO $(DeleteRegistryKeysMB) IDYES DeleteKeys IDNO NoDelete
+ClearErrors
+Push $0
+${GetParameters} $COMMANDLINE
+${GetOptionsS} $COMMANDLINE "/clearreg" $0
+# GetOptionsS returns an error if option does not exist, jump past Goto.
+IfErrors +3 0
+  Pop $0
+  Goto DeleteKeys
+
+Pop $0
+ClearErrors
+
+ifSilent NoDelete 0
+	MessageBox MB_YESNO $(DeleteRegistryKeysMB) IDYES DeleteKeys IDNO NoDelete
 
 DeleteKeys:
   DeleteRegKey SHELL_CONTEXT "SOFTWARE\Classes\x-grid-location-info"

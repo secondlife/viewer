@@ -1316,6 +1316,9 @@ const char* LLAssetStorage::getErrorString(S32 status)
         case LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE:
             return "Asset request: asset not found in database";
 
+        case LL_ERR_NO_CAP:
+            return "Asset request: region or asset capability not available";
+
         case LL_ERR_EOF:
             return "End of file";
 

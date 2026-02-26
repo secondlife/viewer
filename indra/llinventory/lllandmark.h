@@ -28,8 +28,8 @@
 #ifndef LL_LLLANDMARK_H
 #define LL_LLLANDMARK_H
 
+#include <functional>
 #include <map>
-#include <boost/function.hpp>
 #include "llframetimer.h"
 #include "lluuid.h"
 #include "v3dmath.h"
@@ -41,7 +41,7 @@ class LLLandmark
 {
 public:
     // for calling back interested parties when a region handle comes back.
-    typedef boost::function<void(const LLUUID& region_id, const U64& region_handle)> region_handle_callback_t;
+    typedef std::function<void(const LLUUID& region_id, const U64& region_handle)> region_handle_callback_t;
 
     ~LLLandmark() {}
 

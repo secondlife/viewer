@@ -187,13 +187,34 @@ static unsigned short get_fileattr(const std::wstring& utf16path, bool dontFollo
             CloseHandle(file_handle);
             return st_mode;
         }
-    }
-    // Retrieve last error and set errno before calling CloseHandle()
-    set_errno_from_oserror(GetLastError());
-
-    if (file_handle != INVALID_HANDLE_VALUE)
-    {
+        // Retrieve last error before calling CloseHandle()
+        DWORD last_error = GetLastError();
         CloseHandle(file_handle);
+        set_errno_from_oserror(last_error);
+    }
+    else
+    {
+        set_errno_from_oserror(GetLastError());
+    }
+
+    // If CreateFileW approach failed (e.g., exFAT), try the simpler GetFileAttributesW()
+    // GetFileAttributesW() always follows symlinks, so we skip this fallback when dontFollowSymLink is true.
+    if (!dontFollowSymLink)
+    {
+        DWORD attributes = GetFileAttributesW(utf16path.c_str());
+        if (attributes != INVALID_FILE_ATTRIBUTES)
+        {
+            bool is_directory = (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+            unsigned short st_mode = is_directory ? S_IFDIR : S_IFREG;
+            st_mode |= (attributes & FILE_ATTRIBUTE_READONLY) ? S_IREAD : S_IREAD | S_IWRITE;
+
+            // propagate user bits to group/other fields:
+            st_mode |= (st_mode & 0700) >> 3;
+            st_mode |= (st_mode & 0700) >> 6;
+
+            return st_mode;
+        }
+        set_errno_from_oserror(GetLastError());
     }
     return 0;
 }

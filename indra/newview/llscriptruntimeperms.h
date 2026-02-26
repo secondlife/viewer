@@ -24,10 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSCRIPTRUNTIME_PERMS_H
-#define LL_LLSCRIPTRUNTIME_PERMS_H
-
-#include <boost/array.hpp>
+#pragma once
 
 typedef struct _script_perm {
     std::string question;
@@ -37,12 +34,12 @@ typedef struct _script_perm {
     question(q), permbit(b), caution(c) {}
 } script_perm_t;
 
-const U32 NUM_SCRIPT_PERMISSIONS = 18;
+const U32 NUM_SCRIPT_PERMISSIONS = 19;
 const S32 SCRIPT_PERMISSION_DEBIT = 0;
 const S32 SCRIPT_PERMISSION_TRIGGER_ANIMATION = 3;
 const S32 SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS = 14;
 
-static const boost::array<script_perm_t, NUM_SCRIPT_PERMISSIONS> SCRIPT_PERMISSIONS = {{
+static const std::array<script_perm_t, NUM_SCRIPT_PERMISSIONS> SCRIPT_PERMISSIONS = {{
     _script_perm("ScriptTakeMoney",     (0x1 << 1),  true),
     _script_perm("ActOnControlInputs",  (0x1 << 2),  false),
     _script_perm("RemapControlInputs",  (0x1 << 3),  false),
@@ -60,7 +57,7 @@ static const boost::array<script_perm_t, NUM_SCRIPT_PERMISSIONS> SCRIPT_PERMISSI
     _script_perm("OverrideYourAnimations", (0x1 << 15), false),
     _script_perm("ScriptReturnObjects", (0x1 << 16), false),
     _script_perm("ForceSitAvatar",      (0x1 << 17), false),
-    _script_perm("ChangeEnvSettings",   (0x1 << 18), false)
+    _script_perm("ChangeEnvSettings",   (0x1 << 18), false),
+    _script_perm("PrivilegedLandAccess",(0x1 << 19), true)
     } };
 
-#endif // LL_LLSCRIPTRUNTIME_PERMS_H

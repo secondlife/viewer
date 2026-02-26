@@ -176,10 +176,17 @@ namespace
             LLAppViewer* app = LLAppViewer::instance();
             if (!app->isSecondInstance() && !app->errorMarkerExists())
             {
-                // If marker doesn't exist, create a marker with 'other' code for next launch
+                // If marker doesn't exist, create a marker with 'other' or 'logout' code for next launch
                 // otherwise don't override existing file
                 // Any unmarked crashes will be considered as freezes
-                app->createErrorMarker(LAST_EXEC_OTHER_CRASH);
+                if (app->logoutRequestSent())
+                {
+                    app->createErrorMarker(LAST_EXEC_LOGOUT_CRASH);
+                }
+                else
+                {
+                    app->createErrorMarker(LAST_EXEC_OTHER_CRASH);
+                }
             }
         } // MDSCB_EXCEPTIONCODE
 

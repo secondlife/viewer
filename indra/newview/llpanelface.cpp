@@ -852,6 +852,27 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
                 LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
                 LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
             }
+
+            // Also align GLTF material if any
+            S32 gltf_info_index = 0; // base texture
+            LLVector2 gltf_offset, gltf_scale;
+            F32 gltf_rot;
+            if (facep->calcAlignedPlanarGLTF(mCenterFace, &gltf_offset, &gltf_scale, &gltf_rot, gltf_info_index))
+            {
+                LLGLTFMaterial new_override;
+                const LLTextureEntry* tep = object->getTE(te);
+                if (tep && tep->getGLTFMaterialOverride())
+                {
+                    new_override = *tep->getGLTFMaterialOverride();
+                }
+
+                LLGLTFMaterial::TextureTransform& transform = new_override.mTextureTransform[gltf_info_index];
+                transform.mOffset.set(gltf_offset.mV[0], gltf_offset.mV[1]);
+                transform.mScale.set(gltf_scale.mV[0], gltf_scale.mV[1]);
+                transform.mRotation = gltf_rot;
+
+                LLGLTFMaterialList::queueModify(object, te, &new_override);
+            }
         }
         if (!set_aligned)
         {
@@ -1166,26 +1187,22 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         bool missing_asset = false;
         {
             LLGLenum image_format = GL_RGB;
+            bool has_alpha = false;
             bool identical_image_format = false;
-            LLSelectedTE::getImageFormat(image_format, identical_image_format, missing_asset);
+            LLSelectedTE::getImageFormat(image_format, has_alpha, identical_image_format, missing_asset);
 
             if (!missing_asset)
             {
-                mIsAlpha = false;
+                mIsAlpha = has_alpha;
                 switch (image_format)
                 {
                     case GL_RGBA:
                     case GL_ALPHA:
-                    {
-                        mIsAlpha = true;
-                    }
-                    break;
-
                     case GL_RGB:
                         break;
                     default:
                     {
-                        LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
+                        LL_WARNS() << "Unexpected tex format in LLPanelFace..." << LL_ENDL;
                     }
                     break;
                 }
@@ -1205,7 +1222,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
             // See if that's been overridden by a material setting for same...
             //
-            LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(alpha_mode, identical_alpha_mode, mIsAlpha);
+            LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(alpha_mode, identical_alpha_mode);
 
             // it is invalid to have any alpha mode other than blend if transparency is greater than zero ...
             // Want masking? Want emissive? Tough! You get BLEND!
@@ -1215,6 +1232,12 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             alpha_mode = mIsAlpha ? alpha_mode : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
 
             mComboAlphaMode->getSelectionInterface()->selectNthItem(alpha_mode);
+            mComboAlphaMode->setTentative(!identical_alpha_mode);
+            if (!identical_alpha_mode)
+            {
+                std::string multiple = LLTrans::getString("multiple_textures");
+                mComboAlphaMode->setLabel(multiple);
+            }
             updateAlphaControls();
 
             mExcludeWater &= (LLMaterial::DIFFUSE_ALPHA_MODE_BLEND == alpha_mode);
@@ -3292,23 +3315,22 @@ void LLPanelFace::onSelectTexture()
     sendTexture();
 
     LLGLenum image_format;
+    bool has_alpha;
     bool identical_image_format = false;
     bool missing_asset = false;
-    LLSelectedTE::getImageFormat(image_format, identical_image_format, missing_asset);
+    LLSelectedTE::getImageFormat(image_format, has_alpha, identical_image_format, missing_asset);
 
-    U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
     if (!missing_asset)
     {
+        U32 alpha_mode = has_alpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
         switch (image_format)
         {
         case GL_RGBA:
         case GL_ALPHA:
-            alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
-            break;
         case GL_RGB:
             break;
         default:
-            LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
+            LL_WARNS() << "Unexpected tex format in LLPanelFace..." << LL_ENDL;
             break;
         }
 
@@ -5258,12 +5280,13 @@ void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical
     identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, face_to_return, false, (LLFace*)nullptr);
 }
 
-void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& identical_face, bool& missing_asset)
+void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& has_alpha, bool& identical_face, bool& missing_asset)
 {
     struct LLSelectedTEGetmatId : public LLSelectedTEFunctor
     {
         LLSelectedTEGetmatId()
             : mImageFormat(GL_RGB)
+            , mHasAlpha(false)
             , mIdentical(true)
             , mMissingAsset(false)
             , mFirstRun(true)
@@ -5278,6 +5301,10 @@ void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return,
             {
                 format = image->getPrimaryFormat();
                 missing = image->isMissingAsset();
+                if (format == GL_RGBA || format == GL_ALPHA)
+                {
+                    mHasAlpha = true;
+                }
             }
 
             if (mFirstRun)
@@ -5294,6 +5321,7 @@ void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return,
             return true;
         }
         LLGLenum mImageFormat;
+        bool mHasAlpha;
         bool mIdentical;
         bool mMissingAsset;
         bool mFirstRun;
@@ -5301,6 +5329,7 @@ void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return,
     LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
 
     image_format_to_return = func.mImageFormat;
+    has_alpha = func.mHasAlpha;
     identical_face = func.mIdentical;
     missing_asset = func.mMissingAsset;
 }
@@ -5482,32 +5511,40 @@ void LLPanelFace::LLSelectedTEMaterial::getMaxNormalRepeats(F32& repeats, bool& 
     identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &max_norm_repeats_func, repeats);
 }
 
-void LLPanelFace::LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical, bool diffuse_texture_has_alpha)
+void LLPanelFace::LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical)
 {
     struct LLSelectedTEGetDiffuseAlphaMode : public LLSelectedTEGetFunctor<U8>
     {
-        LLSelectedTEGetDiffuseAlphaMode() : _isAlpha(false) {}
-        LLSelectedTEGetDiffuseAlphaMode(bool diffuse_texture_has_alpha) : _isAlpha(diffuse_texture_has_alpha) {}
+        LLSelectedTEGetDiffuseAlphaMode() {}
         virtual ~LLSelectedTEGetDiffuseAlphaMode() {}
 
         U8 get(LLViewerObject* object, S32 face)
         {
-            U8 diffuse_mode = _isAlpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-
             LLTextureEntry* tep = object->getTE(face);
             if (tep)
             {
                 LLMaterial* mat = tep->getMaterialParams().get();
                 if (mat)
                 {
-                    diffuse_mode = mat->getDiffuseAlphaMode();
+                    return mat->getDiffuseAlphaMode();
                 }
             }
 
+            bool has_alpha = false;
+            LLViewerTexture* image = object->getTEImage(face);
+            if (image)
+            {
+                LLGLenum format = image->getPrimaryFormat();
+                if (format == GL_RGBA || format == GL_ALPHA)
+                {
+                    has_alpha = true;
+                }
+            }
+
+            U8 diffuse_mode = has_alpha ? LLMaterial::DIFFUSE_ALPHA_MODE_BLEND : LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
             return diffuse_mode;
         }
-        bool _isAlpha; // whether or not the diffuse texture selected contains alpha information
-    } get_diff_mode(diffuse_texture_has_alpha);
+    } get_diff_mode;
     identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &get_diff_mode, diffuse_alpha_mode);
 }
 

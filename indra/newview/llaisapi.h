@@ -44,7 +44,7 @@ public:
         LIBRARY
     } ITEM_TYPE;
 
-    typedef boost::function<void(const LLUUID &invItem)>    completion_t;
+    typedef std::function<void(const LLUUID& invItem)> completion_t;
 
     static bool isAvailable();
     static void getCapNames(LLSD& capNames);
@@ -89,7 +89,7 @@ private:
     static const std::string INVENTORY_CAP_NAME;
     static const std::string LIBRARY_CAP_NAME;
 
-    typedef boost::function < LLSD (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
+    typedef std::function<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
         const std::string, LLSD, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) > invokationFn_t;
 
     static void EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc);
@@ -130,9 +130,13 @@ private:
     void clearParseResults();
     void checkTimeout();
 
-    // Fetch can return large packets of data, throttle it to not cause lags
-    // Todo: make throttle work over all fetch requests isntead of per-request
-    const F32 AIS_EXPIRY_SECONDS = 0.008f;
+    // Fetches can return large packets of data,
+    // throttle them individually to not get stuck
+    // on a single large task. And throttle sum total
+    // to not cause lags when multiple large fetches
+    // returned results.
+    const F32 AIS_TASK_EXPIRY_SECONDS = 0.008f;
+    const F32 AIS_BATCH_EXPIRY_SECONDS = 0.010f;
 
     typedef std::map<LLUUID,size_t> uuid_int_map_t;
     uuid_int_map_t mCatDescendentDeltas;
@@ -154,7 +158,9 @@ private:
     uuid_list_t mCategoryIds;
     bool mFetch;
     S32 mFetchDepth;
-    LLTimer mTimer;
+    LLTimer mTaskTimer;
+    static LLTimer sBatchTimer;
+    static U32 sBatchFrameCount;
     AISAPI::COMMAND_TYPE mType;
 };
 

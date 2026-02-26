@@ -44,14 +44,11 @@
 #include <typeinfo>
 // external library headers
 #include <boost/bind.hpp>
-#include <boost/assign/list_of.hpp>
 // other Linden headers
 #include "tests/listener.h"             // must PRECEDE lltut.h
 #include "lltut.h"
 #include "catch_and_store_what_in.h"
 #include "stringize.h"
-
-using boost::assign::list_of;
 
 template<typename T>
 T make(const T& value)
@@ -178,7 +175,7 @@ void events_object::test<2>()
     LLBoundListener bound0 = listener0.listenTo(per_frame, &Listener::callstop);
     LLBoundListener bound1 = listener1.listenTo(per_frame, &Listener::call,
                                                 // after listener0
-                                                make<LLEventPump::NameList>(list_of(listener0.getName())));
+                                                make<LLEventPump::NameList>(LLEventPump::NameList{ listener0.getName() }));
     ensure("enabled", per_frame.enabled());
     ensure("connected 0", bound0.connected());
     ensure("unblocked 0", !bound0.blocked());
@@ -278,24 +275,24 @@ void events_object::test<6>()
     button.listen("Mary",
                   boost::bind(&Collect::add, boost::ref(collector), "Mary", _1),
                   // state that "Mary" must come after "checked"
-                  make<NameList> (list_of("checked")));
+                  make<NameList>(NameList{ "checked" }));
     button.listen("checked",
                   boost::bind(&Collect::add, boost::ref(collector), "checked", _1),
                   // "checked" must come after "spot"
-                  make<NameList> (list_of("spot")));
+                  make<NameList>(NameList{ "spot" }));
     button.listen("spot",
                   boost::bind(&Collect::add, boost::ref(collector), "spot", _1));
     button.post(1);
-    ensure_equals(collector.result, make<StringVec>(list_of("spot")("checked")("Mary")));
+    ensure_equals(collector.result, make<StringVec>(StringVec{ "spot", "checked", "Mary" }));
     collector.clear();
     button.stopListening("Mary");
     button.listen("Mary",
             boost::bind(&Collect::add, boost::ref(collector), "Mary", _1),
             LLEventPump::empty, // no after dependencies
             // now "Mary" must come before "spot"
-            make<NameList>(list_of("spot")));
+                  make<NameList>(NameList{ "spot" }));
     button.post(2);
-    ensure_equals(collector.result, make<StringVec>(list_of("Mary")("spot")("checked")));
+    ensure_equals(collector.result, make<StringVec>(StringVec{ "Mary", "spot", "checked" }));
     collector.clear();
     button.stopListening("spot");
     std::string threw = catch_what<LLEventPump::Cycle>(
@@ -303,7 +300,7 @@ void events_object::test<6>()
             button.listen("spot",
                           boost::bind(&Collect::add, boost::ref(collector), "spot", _1),
                           // after "Mary" and "checked" -- whoops!
-                          make<NameList>(list_of("Mary")("checked")));
+                          make<NameList>(NameList{ "Mary", "checked" }));
         });
     // Obviously the specific wording of the exception text can
     // change; go ahead and change the test to match.
@@ -321,20 +318,18 @@ void events_object::test<6>()
     ensure_contains("cyclic dependencies", threw,
                     "after (\"Mary\", \"checked\") -> \"spot\"");
     button.listen("yellow",
-                  boost::bind(&Collect::add, boost::ref(collector), "yellow", _1),
-                  make<NameList>(list_of("checked")));
+                  boost::bind(&Collect::add, boost::ref(collector), "yellow", _1), make<NameList>(NameList{ "checked" }));
     button.listen("shoelaces",
-                  boost::bind(&Collect::add, boost::ref(collector), "shoelaces", _1),
-                  make<NameList>(list_of("checked")));
+                  boost::bind(&Collect::add, boost::ref(collector), "shoelaces", _1), make<NameList>(NameList{ "checked" }));
     button.post(3);
-    ensure_equals(collector.result, make<StringVec>(list_of("Mary")("checked")("yellow")("shoelaces")));
+    ensure_equals(collector.result, make<StringVec>(StringVec{ "Mary", "checked", "yellow", "shoelaces" }));
     collector.clear();
     threw = catch_what<LLEventPump::OrderChange>(
         [&button, &collector](){
             button.listen("of",
                           boost::bind(&Collect::add, boost::ref(collector), "of", _1),
-                          make<NameList>(list_of("shoelaces")),
-                          make<NameList>(list_of("yellow")));
+                          make<NameList>(NameList{ "shoelaces" }),
+                          make<NameList>(NameList{ "yellow" }));
         });
     // Same remarks about the specific wording of the exception. Just
     // ensure that it contains enough information to clarify the
@@ -347,7 +342,7 @@ void events_object::test<6>()
     ensure_contains("old order", threw, "was: Mary, checked, yellow, shoelaces");
     ensure_contains("new order", threw, "now: Mary, checked, shoelaces, of, yellow");
     button.post(4);
-    ensure_equals(collector.result, make<StringVec>(list_of("Mary")("checked")("yellow")("shoelaces")));
+    ensure_equals(collector.result, make<StringVec>(StringVec{ "Mary", "checked", "yellow", "shoelaces" }));
 }
 
 template<> template<>

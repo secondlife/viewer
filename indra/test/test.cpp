@@ -77,12 +77,14 @@ public:
     virtual void replay(std::ostream&) {}
 };
 
-class RecordToTempFile : public LLError::Recorder, public boost::noncopyable
+class RecordToTempFile : public LLError::Recorder
 {
 public:
+    RecordToTempFile(const RecordToTempFile&)        = delete;
+    RecordToTempFile& operator=(const RecordToTempFile&) = delete;
+
     RecordToTempFile()
         : LLError::Recorder(),
-        boost::noncopyable(),
         mTempFile("log", ""),
         mFile(mTempFile.getName().c_str())
     {
@@ -121,12 +123,14 @@ private:
     llofstream mFile;
 };
 
-class LLReplayLogReal: public LLReplayLog, public boost::noncopyable
+class LLReplayLogReal: public LLReplayLog
 {
 public:
+    LLReplayLogReal(const LLReplayLogReal&)            = delete;
+    LLReplayLogReal& operator=(const LLReplayLogReal&) = delete;
+
     LLReplayLogReal(LLError::ELevel level)
         : LLReplayLog(),
-        boost::noncopyable(),
         mOldSettings(LLError::saveAndResetSettings()),
         mRecorder(new RecordToTempFile())
     {

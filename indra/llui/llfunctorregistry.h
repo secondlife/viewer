@@ -29,10 +29,9 @@
 #define LL_LLFUNCTORREGISTRY_H
 
 #include <string>
-#include <map>
+#include <unordered_map>
 
-#include <boost/function.hpp>
-
+#include "llstring.h"
 #include "llsd.h"
 #include "llsingleton.h"
 
@@ -58,7 +57,7 @@ class LLFunctorRegistry : public LLSingleton<LLFunctorRegistry<FUNCTOR_TYPE> >
 
 public:
     typedef FUNCTOR_TYPE ResponseFunctor;
-    typedef typename std::map<std::string, FUNCTOR_TYPE> FunctorMap;
+    typedef typename std::unordered_map<std::string, FUNCTOR_TYPE, ll::string_hash, std::equal_to<>> FunctorMap;
 
     bool registerFunctor(const std::string& name, ResponseFunctor f)
     {

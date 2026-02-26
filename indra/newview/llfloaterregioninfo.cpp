@@ -94,7 +94,6 @@
 #include "llmeshrepository.h"
 #include "llfloaterregionrestarting.h"
 #include "llpanelexperiencelisteditor.h"
-#include <boost/function.hpp>
 #include "llpanelexperiencepicker.h"
 #include "llexperiencecache.h"
 #include "llpanelexperiences.h"
@@ -270,10 +269,12 @@ bool LLFloaterRegionInfo::postBuild()
     static LLCachedControl<bool> feature_pbr_terrain_transforms_enabled(gSavedSettings, "RenderTerrainPBRTransformsEnabled", false);
     if (!feature_pbr_terrain_transforms_enabled() || !feature_pbr_terrain_enabled())
     {
+        LL_INFOS("Terrain") << "Building region terrain panel from panel_region_terrain.xml" << LL_ENDL;
         panel->buildFromFile("panel_region_terrain.xml");
     }
     else
     {
+        LL_INFOS("Terrain") << "Building region terrain panel from panel_region_terrain_texture_transform.xml" << LL_ENDL;
         panel->buildFromFile("panel_region_terrain_texture_transform.xml");
     }
     mTab->addTabPanel(panel);
@@ -537,6 +538,18 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     panel->getChildView("access_combo")->setEnabled(gAgent.isGodlike() || (region && region->canManageEstate() && !teen_grid));
     panel->setCtrlsEnabled(allow_modify);
 
+    panel->getChild<LLLineEditor>("estate_id")->setValue((S32)region_info.mEstateID);
+
+    if (region)
+    {
+        panel->getChild<LLLineEditor>("grid_position_x")->setValue((S32)(region->getOriginGlobal()[VX] / 256));
+        panel->getChild<LLLineEditor>("grid_position_y")->setValue((S32)(region->getOriginGlobal()[VY] / 256));
+    }
+    else
+    {
+        panel->getChild<LLLineEditor>("grid_position_x")->setDefaultText();
+        panel->getChild<LLLineEditor>("grid_position_y")->setDefaultText();
+    }
 
     // DEBUG PANEL
     panel = tab->getChild<LLPanel>("Debug");
@@ -901,6 +914,9 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
     getChildView("apply_btn")->setEnabled(false);
     getChildView("access_text")->setEnabled(allow_modify);
     // getChildView("access_combo")->setEnabled(allow_modify);
+    getChildView("estate_id")->setEnabled(false);
+    getChildView("grid_position_x")->setEnabled(false);
+    getChildView("grid_position_y")->setEnabled(false);
     // now set in processRegionInfo for teen grid detection
     getChildView("kick_btn")->setEnabled(allow_modify);
     getChildView("kick_all_btn")->setEnabled(allow_modify);
@@ -1490,6 +1506,11 @@ bool LLPanelRegionTerrainInfo::validateMaterials()
         const LLUUID& material_asset_id = material_ctrl->getImageAssetID();
         llassert(material_asset_id.notNull());
         if (material_asset_id.isNull()) { return false; }
+        if (material_asset_id == BLANK_MATERIAL_ASSET_ID)
+        {
+            // Default/Blank material is valid by default
+            continue;
+        }
         const LLFetchedGLTFMaterial* material = gGLTFMaterialList.getMaterial(material_asset_id);
         if (!material->isLoaded())
         {
@@ -1999,18 +2020,7 @@ void LLPanelRegionTerrainInfo::initMaterialCtrl(LLTextureCtrl*& ctrl, const std:
     ctrl->setCommitCallback(
         [this, index](LLUICtrl* ctrl, const LLSD& param)
     {
-        if (!mMaterialScaleUCtrl[index]
-            || !mMaterialScaleVCtrl[index]
-            || !mMaterialRotationCtrl[index]
-            || !mMaterialOffsetUCtrl[index]
-            || !mMaterialOffsetVCtrl[index]) return;
-
-        mMaterialScaleUCtrl[index]->setValue(1.f);
-        mMaterialScaleVCtrl[index]->setValue(1.f);
-        mMaterialRotationCtrl[index]->setValue(0.f);
-        mMaterialOffsetUCtrl[index]->setValue(0.f);
-        mMaterialOffsetVCtrl[index]->setValue(0.f);
-        onChangeAnything();
+        callbackMaterialCommit(index);
     });
 }
 
@@ -2096,6 +2106,25 @@ bool LLPanelRegionTerrainInfo::callbackBakeTerrain(const LLSD& notification, con
     sendEstateOwnerMessage(gMessageSystem, "terrain", invoice, strings);
 
     return false;
+}
+
+void LLPanelRegionTerrainInfo::callbackMaterialCommit(S32 index)
+{
+    // These can be null if 'transforms' panel was not inited
+    if (mMaterialScaleUCtrl[index]
+        && mMaterialScaleVCtrl[index]
+        && mMaterialRotationCtrl[index]
+        && mMaterialOffsetUCtrl[index]
+        && mMaterialOffsetVCtrl[index])
+    {
+        mMaterialScaleUCtrl[index]->setValue(1.f);
+        mMaterialScaleVCtrl[index]->setValue(1.f);
+        mMaterialRotationCtrl[index]->setValue(0.f);
+        mMaterialOffsetUCtrl[index]->setValue(0.f);
+        mMaterialOffsetVCtrl[index]->setValue(0.f);
+    }
+
+    onChangeAnything();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -4033,8 +4062,8 @@ void LLPanelEstateAccess::updateLists()
 void LLPanelEstateAccess::requestEstateGetAccessCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestEstateGetAccessoCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("requestEstateGetAccessoCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 

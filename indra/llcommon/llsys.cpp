@@ -51,9 +51,6 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_float.hpp>
 #include "llfasttimer.h"
 
 using namespace llsd;
@@ -722,7 +719,7 @@ public:
     // Store every integer type as LLSD::Integer.
     template <class T>
     void add(const LLSD::String& name, const T& value,
-             typename boost::enable_if<boost::is_integral<T> >::type* = 0)
+             typename std::enable_if_t<std::is_integral_v<T> >* = 0)
     {
         mStats[name] = LLSD::Integer(value);
     }
@@ -730,7 +727,7 @@ public:
     // Store every floating-point type as LLSD::Real.
     template <class T>
     void add(const LLSD::String& name, const T& value,
-             typename boost::enable_if<boost::is_float<T> >::type* = 0)
+             typename std::enable_if_t<std::is_floating_point_v<T> >* = 0)
     {
         mStats[name] = LLSD::Real(value);
     }

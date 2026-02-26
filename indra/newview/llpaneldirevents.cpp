@@ -100,8 +100,8 @@ void LLPanelDirEvents::setDay(S32 day)
     internal_time = utc_to_pacific_time(utc_time, is_daylight_savings());
 
     std::string buffer = llformat("%d/%d",
-            1 + internal_time->tm_mon,		// Jan = 0
-            internal_time->tm_mday);	// 2001 = 101
+            1 + internal_time->tm_mon,      // Jan = 0
+            internal_time->tm_mday);    // 2001 = 101
     childSetValue("date_text", buffer);
 }
 
@@ -132,8 +132,8 @@ void LLPanelDirEvents::performQueryOrDelete(U32 event_id)
     internal_time = utc_to_pacific_time(utc_time, is_daylight_savings());
 
     std::string buffer = llformat("%d/%d",
-            1 + internal_time->tm_mon,		// Jan = 0
-            internal_time->tm_mday);	// 2001 = 101
+            1 + internal_time->tm_mon,      // Jan = 0
+            internal_time->tm_mday);    // 2001 = 101
     childSetValue("date_text", buffer);
 
     // Record the relative day so back and forward buttons
@@ -143,17 +143,16 @@ void LLPanelDirEvents::performQueryOrDelete(U32 event_id)
     static LLUICachedControl<bool> incpg("ShowPGEvents", true);
     static LLUICachedControl<bool> incmature("ShowMatureEvents", false);
     static LLUICachedControl<bool> incadult("ShowAdultEvents", false);
+    if (!(incpg || incmature || incadult))
+    {
+        LLNotificationsUtil::add("NoContentToSearch");
+        return;
+    }
 
     U32 scope = DFQ_DATE_EVENTS;
     if (incpg) scope |= DFQ_INC_PG;
     if (incmature && gAgent.canAccessMature()) scope |= DFQ_INC_MATURE;
     if (incadult && gAgent.canAccessAdult()) scope |= DFQ_INC_ADULT;
-
-    if ( !( scope & (DFQ_INC_PG | DFQ_INC_MATURE | DFQ_INC_ADULT )))
-    {
-        LLNotificationsUtil::add("NoContentToSearch");
-        return;
-    }
 
     setupNewSearch();
 

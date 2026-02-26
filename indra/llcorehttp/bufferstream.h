@@ -91,8 +91,8 @@ public:
     virtual ~BufferArrayStreamBuf();
 
 private:
-    BufferArrayStreamBuf(const BufferArrayStreamBuf &); // Not defined
-    void operator=(const BufferArrayStreamBuf &);       // Not defined
+    BufferArrayStreamBuf(const BufferArrayStreamBuf&) = delete;
+    void operator=(const BufferArrayStreamBuf&) = delete;
 
 public:
     // Input interfaces from std::streambuf

@@ -57,7 +57,7 @@ public:
     typedef boost::signals2::signal<void(const EState& old_state, const EState& new_state, const EDirection& direction, bool ended_by_agent, const LLUUID& session_id)> state_changed_signal_t;
 
     // on current channel changed signal
-    typedef boost::function<void(const LLUUID& session_id)> channel_changed_callback_t;
+    typedef std::function<void(const LLUUID& session_id)> channel_changed_callback_t;
     typedef boost::signals2::signal<void(const LLUUID& session_id)> channel_changed_signal_t;
     static channel_changed_signal_t sCurrentVoiceChannelChangedSignal;
     static boost::signals2::connection setCurrentVoiceChannelChangedCallback(channel_changed_callback_t cb, bool at_front = false);

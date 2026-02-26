@@ -39,6 +39,9 @@
 
 #include <limits>
 
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+
 // Defend against a caller forcibly passing a negative number into an unsigned
 // size_t index param
 inline
@@ -103,6 +106,9 @@ protected:
     U32 mUseCount;
 
 public:
+    static void destruct(Impl*& var);
+        ///< safely decrement or destroy var
+
     static void reset(Impl*& var, Impl* impl);
         ///< safely set var to refer to the new impl (possibly shared)
 
@@ -166,7 +172,7 @@ public:
     virtual const LLSD& ref(size_t) const       { return undef(); }
 
     virtual LLSD::map_const_iterator beginMap() const { return endMap(); }
-    virtual LLSD::map_const_iterator endMap() const { static const std::map<String, LLSD> empty; return empty.end(); }
+    virtual LLSD::map_const_iterator endMap() const { static const LLSD::llsd_map_t empty; return empty.end(); }
     virtual LLSD::array_const_iterator beginArray() const { return endArray(); }
     virtual LLSD::array_const_iterator endArray() const { static const std::vector<LLSD> empty; return empty.end(); }
 
@@ -345,18 +351,7 @@ namespace
 
     LLSD::Real ImplString::asReal() const
     {
-        F64 v = 0.0;
-        std::istringstream i_stream(mValue);
-        i_stream >> v;
-
-        // we would probably like to ignore all trailing whitespace as
-        // well, but for now, simply eat the next character, and make
-        // sure we reached the end of the string.
-        // *NOTE: gcc 2.95 does not generate an eof() event on the
-        // stream operation above, so we manually get here to force it
-        // across platforms.
-        int c = i_stream.get();
-        return ((EOF ==c) ? v : 0.0);
+        return llsd::string_to_real(mValue);
     }
 
 
@@ -431,7 +426,7 @@ namespace
     class ImplMap final : public LLSD::Impl
     {
     private:
-        typedef std::map<LLSD::String, LLSD, std::less<>> DataMap;
+        using DataMap = LLSD::llsd_map_t;
 
         DataMap mData;
 
@@ -457,7 +452,7 @@ namespace
                     << it.second.asXMLRPCValue() << "</member>";
             }
             os << "</struct>";
-            return os.str();
+            return std::move(os).str();
         }
 
         virtual bool has(std::string_view) const;
@@ -467,8 +462,13 @@ namespace
         using LLSD::Impl::ref; // Unhiding ref(size_t)
         virtual LLSD get(std::string_view) const;
         virtual LLSD getKeys() const;
+        void insert(std::string&& k, const LLSD& v);
+        void insert(std::string&& k, LLSD&& v);
         void insert(std::string_view k, const LLSD& v);
+        void insert(std::string_view k, LLSD&& v);
         virtual void erase(const LLSD::String&);
+                      LLSD& ref(std::string&&);
+        virtual const LLSD& ref(std::string&&) const;
                       LLSD& ref(std::string_view);
         virtual const LLSD& ref(std::string_view) const;
 
@@ -525,16 +525,56 @@ namespace
         return keys;
     }
 
+    void ImplMap::insert(std::string&& k, const LLSD& v)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
+        mData.emplace(std::move(k), v);
+    }
+
+    void ImplMap::insert(std::string&& k, LLSD&& v)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
+        mData.emplace(std::move(k), std::move(v));
+    }
+
     void ImplMap::insert(std::string_view k, const LLSD& v)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
         mData.emplace(k, v);
     }
 
+    void ImplMap::insert(std::string_view k, LLSD&& v)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
+        mData.emplace(k, std::move(v));
+    }
+
     void ImplMap::erase(const LLSD::String& k)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
         mData.erase(k);
+    }
+
+    LLSD& ImplMap::ref(std::string&& k)
+    {
+        DataMap::iterator i = mData.lower_bound(k);
+        if (i == mData.end() || mData.key_comp()(k, i->first))
+        {
+            return mData.emplace_hint(i, std::make_pair(std::move(k), LLSD()))->second;
+        }
+
+        return i->second;
+    }
+
+    const LLSD& ImplMap::ref(std::string&& k) const
+    {
+        DataMap::const_iterator i = mData.lower_bound(k);
+        if (i == mData.end() || mData.key_comp()(k, i->first))
+        {
+            return undef();
+        }
+
+        return i->second;
     }
 
     LLSD& ImplMap::ref(std::string_view k)
@@ -598,7 +638,7 @@ namespace
         ImplArray(const DataVector& data) : mData(data) { }
 
     public:
-        ImplArray() { }
+        ImplArray() = default;
 
         virtual ImplArray& makeArray(Impl*&);
 
@@ -615,7 +655,7 @@ namespace
                 os << it.asXMLRPCValue();
             }
             os << "</data></array>";
-            return os.str();
+            return std::move(os).str();
         }
 
         using LLSD::Impl::get; // Unhiding get(LLSD::String)
@@ -625,10 +665,13 @@ namespace
         virtual LLSD get(size_t) const;
                 void set(size_t, const LLSD&);
                 void insert(size_t, const LLSD&);
+                void insert(size_t, LLSD&&);
                 LLSD& append(const LLSD&);
+                LLSD& append(LLSD&&);
         virtual void erase(size_t);
                       LLSD& ref(size_t);
         virtual const LLSD& ref(size_t) const;
+        void reserve(size_t size) { mData.reserve(size); }
 
         LLSD::array_iterator beginArray() { return mData.begin(); }
         LLSD::array_iterator endArray() { return mData.end(); }
@@ -690,9 +733,28 @@ namespace
         mData.insert(mData.begin() + index, v);
     }
 
+    void ImplArray::insert(size_t i, LLSD&& v)
+    {
+        NEGATIVE_EXIT(i);
+        DataVector::size_type index = i;
+
+        if (index >= mData.size()) // tbd - sanity check limit for index ?
+        {
+            mData.resize(index + 1);
+        }
+
+        mData.insert(mData.begin() + index, std::move(v));
+    }
+
     LLSD& ImplArray::append(const LLSD& v)
     {
         mData.push_back(v);
+        return mData.back();
+    }
+
+    LLSD& ImplArray::append(LLSD&& v)
+    {
+        mData.push_back(std::move(v));
         return mData.back();
     }
 
@@ -761,6 +823,14 @@ LLSD::Impl::Impl(StaticAllocationMarker)
 LLSD::Impl::~Impl()
 {
     --sOutstandingCount;
+}
+
+void LLSD::Impl::destruct(Impl*& var)
+{
+    if (var && var->mUseCount != STATIC_USAGE_COUNT && --var->mUseCount == 0)
+    {
+        delete var;
+    }
 }
 
 void LLSD::Impl::reset(Impl*& var, Impl* impl)
@@ -961,7 +1031,7 @@ namespace
 
 
 LLSD::LLSD() : impl(0)                  { ALLOC_LLSD_OBJECT; }
-LLSD::~LLSD()                           { FREE_LLSD_OBJECT; Impl::reset(impl, 0); }
+LLSD::~LLSD()                           { FREE_LLSD_OBJECT; Impl::destruct(impl); }
 
 LLSD::LLSD(const LLSD& other) : impl(0) { ALLOC_LLSD_OBJECT;  assign(other); }
 void LLSD::assign(const LLSD& other)    { Impl::assign(impl, other.impl); }
@@ -1037,11 +1107,29 @@ LLSD LLSD::emptyMap()
 bool LLSD::has(const std::string_view k) const  { return safe(impl).has(k); }
 LLSD LLSD::get(const std::string_view k) const  { return safe(impl).get(k); }
 LLSD LLSD::getKeys() const              { return safe(impl).getKeys(); }
+void LLSD::insert(std::string&& k, const LLSD& v)    { makeMap(impl).insert(std::move(k), v); }
+void LLSD::insert(std::string&& k, LLSD&& v)         { makeMap(impl).insert(std::move(k), std::move(v)); }
 void LLSD::insert(std::string_view k, const LLSD& v) { makeMap(impl).insert(k, v); }
+void LLSD::insert(std::string_view k, LLSD&& v)      { makeMap(impl).insert(k, std::move(v)); }
 
+LLSD& LLSD::with(std::string&& k, const LLSD& v)
+                                        {
+                                            makeMap(impl).insert(std::move(k), v);
+                                            return *this;
+                                        }
+LLSD& LLSD::with(std::string&& k, LLSD&& v)
+                                        {
+                                            makeMap(impl).insert(std::move(k), std::move(v));
+                                            return *this;
+                                        }
 LLSD& LLSD::with(std::string_view k, const LLSD& v)
                                         {
                                             makeMap(impl).insert(k, v);
+                                            return *this;
+                                        }
+LLSD& LLSD::with(std::string_view k, LLSD&& v)
+                                        {
+                                            makeMap(impl).insert(k, std::move(v));
                                             return *this;
                                         }
 void LLSD::erase(const String& k)       { makeMap(impl).erase(k); }
@@ -1051,6 +1139,13 @@ LLSD& LLSD::operator[](const std::string_view k)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
     return makeMap(impl).ref(k);
 }
+
+LLSD& LLSD::operator[](std::string&& k)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
+    return makeMap(impl).ref(std::move(k));
+}
+
 const LLSD& LLSD::operator[](const std::string_view k) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
@@ -1064,18 +1159,33 @@ LLSD LLSD::emptyArray()
     return v;
 }
 
+LLSD LLSD::emptyReservedArray(size_t size)
+{
+    LLSD v;
+    makeArray(v.impl).reserve(size);
+    return v;
+}
+
 size_t LLSD::size() const               { return safe(impl).size(); }
 
 LLSD LLSD::get(Integer i) const         { return safe(impl).get(i); }
 void LLSD::set(Integer i, const LLSD& v){ makeArray(impl).set(i, v); }
+void LLSD::set(Integer i, LLSD&& v)     { makeArray(impl).set(i, std::move(v)); }
 void LLSD::insert(Integer i, const LLSD& v) { makeArray(impl).insert(i, v); }
+void LLSD::insert(Integer i, LLSD&& v) { makeArray(impl).insert(i, std::move(v)); }
 
 LLSD& LLSD::with(Integer i, const LLSD& v)
                                         {
                                             makeArray(impl).insert(i, v);
                                             return *this;
                                         }
+LLSD& LLSD::with(Integer i, LLSD&& v)
+                                        {
+                                            makeArray(impl).insert(i, std::move(v));
+                                            return *this;
+                                        }
 LLSD& LLSD::append(const LLSD& v)       { return makeArray(impl).append(v); }
+LLSD& LLSD::append(LLSD&& v)            { return makeArray(impl).append(std::move(v)); }
 void LLSD::erase(Integer i)             { makeArray(impl).erase(i); }
 
 LLSD& LLSD::operator[](size_t i)
@@ -1142,6 +1252,22 @@ LLSD::reverse_array_iterator    LLSD::rendArray()       { return makeArray(impl)
 
 namespace llsd
 {
+
+LLSD::Real string_to_real(std::string_view in_string)
+{
+    LLSD::Real v = 0.0;
+    boost::iostreams::stream<boost::iostreams::array_source> i_stream(in_string.data(), in_string.size());
+    i_stream >> v;
+
+    // we would probably like to ignore all trailing whitespace as
+    // well, but for now, simply eat the next character, and make
+    // sure we reached the end of the string.
+    // *NOTE: gcc 2.95 does not generate an eof() event on the
+    // stream operation above, so we manually get here to force it
+    // across platforms.
+    int c = i_stream.get();
+    return ((EOF == c) ? v : 0.0);
+}
 
 U32 allocationCount()                               { return LLSD::Impl::sAllocationCount; }
 U32 outstandingCount()                              { return LLSD::Impl::sOutstandingCount; }

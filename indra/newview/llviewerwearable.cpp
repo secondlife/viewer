@@ -96,6 +96,7 @@ LLViewerWearable::~LLViewerWearable()
 // virtual
 LLWearable::EImportResult LLViewerWearable::importStream( std::istream& input_stream, LLAvatarAppearance* avatarp )
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     // suppress texlayerset updates while wearables are being imported. Layersets will be updated
     // when the wearables are "worn", not loaded. Note state will be restored when this object is destroyed.
     LLOverrideBakedTextureUpdate stop_bakes(false);

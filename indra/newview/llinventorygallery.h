@@ -44,14 +44,14 @@ class LLGalleryGestureObserver;
 
 class LLInventoryGalleryContextMenu;
 
-typedef boost::function<void()> callback_t;
+typedef std::function<void()> callback_t;
 
 class LLInventoryGallery : public LLPanel, public LLEditMenuHandler
 {
 public:
 
     typedef boost::signals2::signal<void(const LLUUID&)> selection_change_signal_t;
-    typedef boost::function<void(const LLUUID&)> selection_change_callback_t;
+    typedef std::function<void(const LLUUID&)> selection_change_callback_t;
     typedef std::deque<LLUUID> selection_deque;
 
     struct Params

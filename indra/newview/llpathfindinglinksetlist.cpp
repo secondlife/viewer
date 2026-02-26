@@ -206,7 +206,7 @@ void LLPathfindingLinksetList::parseLinksetListData(const LLSD& pLinksetListData
         const LLSD& linksetData = linksetDataIter->second;
         if(linksetData.size() != 0)
         {
-            LLPathfindingObjectPtr linksetPtr(new LLPathfindingLinkset(uuid, linksetData));
+            LLPathfindingObjectPtr linksetPtr = std::make_shared<LLPathfindingLinkset>(uuid, linksetData);
             objectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(uuid, linksetPtr));
         }
     }

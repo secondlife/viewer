@@ -136,7 +136,7 @@ bool LLFindAgentCallingCard::operator()(LLInventoryCategory* cat, LLInventoryIte
 class LLInitialFriendCardsFetch : public LLInventoryFetchDescendentsObserver
 {
 public:
-    typedef boost::function<void()> callback_t;
+    typedef std::function<void()> callback_t;
 
     LLInitialFriendCardsFetch(const LLUUID& folder_id,
                               callback_t cb) :

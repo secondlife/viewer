@@ -31,11 +31,8 @@
 #include "linden_common.h"
 
 #include "fix_macros.h"
-#include <boost/thread.hpp>
 #include <boost/intrusive_ptr.hpp>
-
 #include "llatomic.h"
-
 
 namespace LLCoreInt
 {
@@ -44,8 +41,9 @@ namespace LLCoreInt
 class RefCounted
 {
 private:
-    RefCounted();                               // Not defined - may not be default constructed
-    void operator=(const RefCounted &);         // Not defined
+    RefCounted() = delete; // may not be default constructed
+    RefCounted(const RefCounted&) = delete;
+    RefCounted& operator=(const RefCounted&) = delete;
 
 public:
     explicit RefCounted(bool const implicit)

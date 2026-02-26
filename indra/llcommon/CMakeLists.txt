@@ -68,6 +68,7 @@ set(llcommon_SOURCE_FILES
     llmetricperformancetester.cpp
     llmortician.cpp
     llmutex.cpp
+    llpointer.cpp
     llptrto.cpp 
     llpredicate.cpp
     llprocess.cpp
@@ -101,6 +102,7 @@ set(llcommon_SOURCE_FILES
     lluri.cpp
     lluriparser.cpp
     lluuid.cpp
+    llwatchdog.cpp
     llworkerthread.cpp
     hbxxh.cpp
     u64.cpp
@@ -240,6 +242,7 @@ set(llcommon_HEADER_FILES
     lluri.h
     lluriparser.h
     lluuid.h
+    llwatchdog.h
     llwin32headers.h
     llworkerthread.h
     hbxxh.h

@@ -284,9 +284,9 @@ private:
     LLUUID mTargetLandmarkId;
 };
 
-typedef boost::function<void(const LLUUID&)> inventory_func_type;
-typedef boost::function<void(const LLSD&)> llsd_func_type;
-typedef boost::function<void()> nullary_func_type;
+typedef std::function<void(const LLUUID&)> inventory_func_type;
+typedef std::function<void(const LLSD&)> llsd_func_type;
+typedef std::function<void()> nullary_func_type;
 
 void no_op_inventory_func(const LLUUID&); // A do-nothing inventory_func
 void no_op_llsd_func(const LLSD&); // likewise for LLSD
@@ -470,7 +470,7 @@ void menu_create_inventory_item(LLInventoryPanel* root,
                                 const LLSD& userdata,
                                 const LLUUID& default_parent_uuid = LLUUID::null);
 
-void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const LLSD& userdata, const LLUUID& default_parent_uuid = LLUUID::null, std::function<void(const LLUUID&)> folder_created_cb = NULL);
+void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const LLSD& userdata, const LLUUID& default_parent_uuid = LLUUID::null, std::function<void(const LLUUID&)> folder_created_cb = nullptr);
 
 void slam_inventory_folder(const LLUUID& folder_id,
                            const LLSD& contents,

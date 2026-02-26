@@ -51,9 +51,7 @@ in vec3 vary_norm;
 in vec4 vertex_color; //vertex color should be treated as sRGB
 #endif
 
-#ifdef HAS_ALPHA_MASK
 uniform float minimum_alpha;
-#endif
 
 uniform mat4 proj_mat;
 uniform mat4 inv_proj;
@@ -224,6 +222,13 @@ void main()
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir; // TODO -- factor out "sun_up_factor" and just send in the appropriate light vector
 
     float final_alpha = diffuse_linear.a;
+
+#ifdef IS_AVATAR_SKIN
+    if(final_alpha < minimum_alpha)
+    {
+        discard;
+    }
+#endif
 
 #ifdef USE_VERTEX_COLOR
     final_alpha *= vertex_color.a;

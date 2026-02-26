@@ -96,7 +96,7 @@ public:
     void syncFriendCardsFolders();
 
 private:
-    typedef boost::function<void()> callback_t;
+    typedef std::function<void()> callback_t;
 
 
 

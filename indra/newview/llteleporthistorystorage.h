@@ -77,7 +77,7 @@ public:
     typedef std::vector<LLTeleportHistoryPersistentItem> slurl_list_t;
 
     // removed_index is index of removed item, which replaced by more recent
-    typedef boost::function<void(S32 removed_index)>        history_callback_t;
+    typedef std::function<void(S32 removed_index)>              history_callback_t;
     typedef boost::signals2::signal<void(S32 removed_index)>    history_signal_t;
 
     /**

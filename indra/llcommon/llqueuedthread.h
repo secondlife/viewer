@@ -117,11 +117,11 @@ public:
     virtual ~LLQueuedThread();
     virtual void shutdown();
 
-private:
     // No copy constructor or copy assignment
-    LLQueuedThread(const LLQueuedThread&);
-    LLQueuedThread& operator=(const LLQueuedThread&);
+    LLQueuedThread(const LLQueuedThread&) = delete;
+    LLQueuedThread& operator=(const LLQueuedThread&) = delete;
 
+private:
     virtual bool runCondition(void);
     virtual void run(void);
     virtual void startThread(void);

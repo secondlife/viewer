@@ -105,8 +105,11 @@ private:
     static void onRememberPasswordCheck(void*);
     static void onPassKey(LLLineEditor* caller, void* user_data);
 
+    bool onUpdateNotification(const LLSD& notify);
+
 private:
     std::unique_ptr<LLPanelLoginListener> mListener;
+    LLTempBoundListener mAlertListener;
 
     void updateLoginButtons();
     void populateUserList(LLPointer<LLCredential> credential);
@@ -126,6 +129,9 @@ private:
     unsigned int mUsernameLength;
     unsigned int mPasswordLength;
     unsigned int mLocationLength;
+
+    bool mAlertNotif;
+    LLButton* mLoginBtn;
 };
 
 #endif
