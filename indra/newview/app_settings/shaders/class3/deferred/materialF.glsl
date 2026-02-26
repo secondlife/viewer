@@ -339,7 +339,7 @@ void main()
     vec3 ambenv = amblit;
     vec3 glossenv;
     vec3 legacyenv;
-    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xy*0.5+0.5, pos.xyz, norm.xyz, glossiness, env, true, amblit_linear);
+    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, gl_FragCoord.xy / screen_res, pos.xyz, norm.xyz, glossiness, env, true, amblit_linear);
 
     color = ambenv;
 

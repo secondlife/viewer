@@ -253,13 +253,19 @@ float tapScreenSpaceReflection(
         if (transformedReflDir.z >= 0.5)
             continue;
 
-        // Jitter ray origin along the surface normal (outward only) to break up step-boundary striations.
-        // Each pixel gets a different offset, so concentric banding from discrete steps dissolves into noise.
-        float normalJitter = random(tc * screen_res + float(s) * 0.789) * (STEP_SIZE + -viewPos.z * 0.005);
-        vec3 jitteredPos = biasedPos + normal * normalJitter;
-        vec3 transformedJitteredPos = (inv_modelview_delta * vec4(jitteredPos, 1.0)).xyz;
-        vec3 hitCoord = transformedJitteredPos;
+        // Push ray origin along surface normal to prevent self-intersection.
+        // Deterministic (not random) to avoid per-pixel noise.
+        // Scales with distance to match depth-buffer precision degradation.
+        float clearance = max(STEP_SIZE * 2.0, -viewPos.z * 0.002);
+        vec3 clearedPos = biasedPos + normal * clearance;
+        vec3 transformedClearedPos = (inv_modelview_delta * vec4(clearedPos, 1.0)).xyz;
+        vec3 hitCoord = transformedClearedPos;
         float dDepth;
+
+        // Sub-step dither: offset start along ray by a fraction of one step.
+        // Breaks step-boundary striations without shifting the ray origin.
+        float dither = random(tc * screen_res + float(s) * 0.789);
+        hitCoord += transformedReflDir * STEP_SIZE * dither;
 
         vec3 result = rayMarch(transformedReflDir, hitCoord, dDepth, startDepth);
 
@@ -274,7 +280,7 @@ float tapScreenSpaceReflection(
         float zFadeStart = maxZDepth * 0.8;
         float zFade = 1.0 - smoothstep(zFadeStart, maxZDepth, hitDepth);
 
-        float rayLength = length(hitCoord - transformedJitteredPos);
+        float rayLength = length(hitCoord - transformedClearedPos);
         float maxMipLevels = floor(log2(max(screen_res.x, screen_res.y)));
         float distanceFactor = clamp(rayLength / maxZDepth, 0.0, 1.0);
         float effectiveRoughness = clamp(roughness + distanceFactor * roughness, 0.0, 1.0);
