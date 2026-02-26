@@ -489,6 +489,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RecentJumpThresholdSecs</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds after a jump input during which finish-anim is suppressed to avoid interrupting rapid successive jumps.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>AvatarAxisDeadZone0</key>
     <map>
       <key>Comment</key>
@@ -7465,7 +7476,7 @@
   <key>RenderBufferVisualization</key>
   <map>
     <key>Comment</key>
-    <string>Outputs a selected buffer to the screen.  -1 = final render buffer.  0 = Albedo, 1 = Specular/ORM, 2 = Normal, 3 = Emissive, 4 = Eye luminance, 5 = FXAA Luminance/SMAA Edge Tex, 6 = SMAA Blend Weights</string>
+    <string>Outputs a selected buffer to the screen.  -1 = final render buffer.  0 = Albedo, 1 = Specular/ORM, 2 = Normal, 3 = Emissive, 4 = Eye luminance, 5 = FXAA Luminance/SMAA Edge Tex, 6 = SMAA Blend Weights, 7 = Velocity</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
@@ -7673,6 +7684,28 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderMotionBlur</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable per-object motion blur velocity buffer generation.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderMotionBlurStrength</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum motion blur length in pixels (higher = stronger blur)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>32</integer>
+  </map>
   <key>RenderScreenSpaceReflections</key>
   <map>
     <key>Comment</key>
@@ -7687,14 +7720,14 @@
   <key>RenderScreenSpaceReflectionIterations</key>
   <map>
     <key>Comment</key>
-    <string>Number of times the ray march algorithm runs to find a potential hit.</string>
+    <string>X = max ray march steps. Y, Z unused.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>30</real>
+      <real>64</real>
       <real>16</real>
       <real>16</real>
     </array>
@@ -7702,14 +7735,14 @@
   <key>RenderScreenSpaceReflectionRayStep</key>
   <map>
     <key>Comment</key>
-    <string>How big the step is between each run.</string>
+    <string>X = initial ray march step size. Y, Z unused.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.035</real>
+      <real>0.025</real>
       <real>0.75</real>
       <real>1</real>
     </array>
@@ -7717,14 +7750,14 @@
   <key>RenderScreenSpaceReflectionDistanceBias</key>
   <map>
     <key>Comment</key>
-    <string>Distance bias to apply when rejecting a potential sample.</string>
+    <string>X = max step size cap. Y, Z unused.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.01</real>
+      <real>10.0</real>
       <real>0.4</real>
       <real>10</real>
     </array>
@@ -7732,29 +7765,29 @@
   <key>RenderScreenSpaceReflectionDepthRejectBias</key>
   <map>
     <key>Comment</key>
-    <string>Bias against the depth buffer before rejecting a sample.</string>
+    <string>X = max thickness for hit validation. Y = depth bias scale for ray origin offset. Z unused.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>0.001</real>
-      <real>0.001</real>
+      <real>1.0</real>
+      <real>0</real>
       <real>0.001</real>
     </array>
   </map>
   <key>RenderScreenSpaceReflectionAdaptiveStepMultiplier</key>
   <map>
     <key>Comment</key>
-    <string>Multiplier to scale adaptive stepping.</string>
+    <string>X = step growth rate per iteration. Y, Z unused.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>1.197</real>
+      <real>1.13</real>
       <real>1.5</real>
       <real>2</real>
     </array>
@@ -7798,7 +7831,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>2</integer>
+    <integer>4</integer>
   </map>
   <key>RenderScreenSpaceReflectionMaxDepth</key>
   <map>
@@ -7820,7 +7853,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.45</real>
+    <real>1</real>
   </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>
@@ -10740,6 +10773,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>GroupTitlesTagMode</key>
+    <map>
+      <key>Comment</key>
+      <string>Select Group Titles tag mode: 0 - no group tags, 1 - only my group tag, 2 - all group tags</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
     <key>ShowAxes</key>
     <map>
       <key>Comment</key>
@@ -11877,6 +11921,22 @@
       <string>F32</string>
       <key>Value</key>
       <real>20.0</real>
+    </map>
+    <key>TextureChannelPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Per-channel texture streaming aggressiveness. X=normals, Y=diffuse, Z=specular/metallic, W=emissive. 1.0=baseline, higher=more aggressive downrez.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector4</string>
+      <key>Value</key>
+      <array>
+        <real>5</real>
+        <real>7.5</real>
+        <real>20</real>
+        <real>7.5</real>
+      </array>
     </map>
     <key>TextureCameraBoost</key>
     <map>
@@ -16513,6 +16573,39 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>InventoryShowRecentTab</key>
+  <map>
+    <key>Comment</key>
+    <string>Show/hide Recent tab in the Inventory floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>InventoryShowWornTab</key>
+  <map>
+    <key>Comment</key>
+    <string>Show/hide Worn tab in the Inventory floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>InventoryShowFavoritesTab</key>
+  <map>
+    <key>Comment</key>
+    <string>Show/hide Favorites tab in the Inventory floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
   </map>
   <key>StatsReportMaxDuration</key>
   <map>

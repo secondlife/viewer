@@ -550,7 +550,7 @@ uniform vec4 SMAA_RT_METRICS;
 #endif
 
 #ifndef SMAA_DECODE_VELOCITY
-#define SMAA_DECODE_VELOCITY(sample) sample.rg
+#define SMAA_DECODE_VELOCITY(sample) (sample.rg * 0.5)
 #endif
 
 //-----------------------------------------------------------------------------

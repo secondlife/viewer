@@ -133,6 +133,63 @@ void LLDrawPoolTree::endShadowPass(S32 pass)
     gDeferredTreeShadowProgram.unbind();
 }
 
+//============================================
+// velocity buffer implementation
+//============================================
+S32 LLDrawPoolTree::getNumVelocityPasses()
+{
+    return 1;
+}
+
+void LLDrawPoolTree::beginVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    gVelocityProgram.bind();
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    gVelocityProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+}
+
+void LLDrawPoolTree::endVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    gVelocityProgram.unbind();
+}
+
+void LLDrawPoolTree::renderVelocity(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
+
+    if (mDrawFace.empty())
+    {
+        return;
+    }
+
+    for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+        iter != mDrawFace.end(); iter++)
+    {
+        LLFace* face = *iter;
+        LLVertexBuffer* buff = face->getVertexBuffer();
+
+        if (buff)
+        {
+            LLMatrix4* model_matrix = &(face->getDrawable()->getRegion()->mRenderMatrix);
+
+            llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
+            LLRenderPass::applyModelMatrix(model_matrix);
+
+            LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::CURRENT_OBJECT_MATRIX, 1, GL_FALSE, (GLfloat*)model_matrix->mMatrix);
+            LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_OBJECT_MATRIX, 1, GL_FALSE, (GLfloat*)model_matrix->mMatrix);
+
+            buff->setBuffer();
+            buff->drawRange(LLRender::TRIANGLES, 0, buff->getNumVerts() - 1, buff->getNumIndices(), 0);
+        }
+    }
+}
+
 bool LLDrawPoolTree::verify() const
 {
     return true;

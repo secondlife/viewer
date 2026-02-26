@@ -68,6 +68,10 @@ public:
 
     bool isAnimatable() const override { return false; }
 
+    // Previous frame matrix palette for motion blur
+    F32 mLastMatrixPalette[45 * 4];
+    S32 mLastMatrixPaletteFrame = -1;
+
 private:
 
     //copy mesh into given face's vertex buffer, applying current animation pose

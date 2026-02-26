@@ -34,6 +34,7 @@ in vec4 vary_offset[3];
 uniform sampler2D edgesTex;
 uniform sampler2D areaTex;
 uniform sampler2D searchTex;
+uniform vec4 subsampleIndices;
 
 vec4 SMAABlendingWeightCalculationPS(vec2 texcoord,
                                        vec2 pixcoord,
@@ -51,7 +52,7 @@ void main()
                                                  edgesTex,
                                                  areaTex,
                                                  searchTex,
-                                                 vec4(0.0)
+                                                 subsampleIndices
                                                  );
 }
 

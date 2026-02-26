@@ -162,6 +162,7 @@ public:
     void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
     void generateSMAABuffers(LLRenderTarget* src);
     void applySMAA(LLRenderTarget* src, LLRenderTarget* dst);
+    void resolveSMAAT2x(LLRenderTarget* src, LLRenderTarget* dst);
     void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
     void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
     void combineGlow(LLRenderTarget* src, LLRenderTarget* dst);
@@ -308,6 +309,8 @@ public:
 
     void renderGeomDeferred(LLCamera& camera, bool do_occlusion = false);
     void renderGeomPostDeferred(LLCamera& camera);
+    void renderGeomVelocity();
+    void renderMotionBlurComposite(LLRenderTarget* src, LLRenderTarget* dst);
     void renderGeomShadow(LLCamera& camera);
     void bindLightFunc(LLGLSLShader& shader);
 
@@ -668,6 +671,7 @@ public:
     static bool             sNoAlpha;
     static bool             sUseFarClip;
     static bool             sShadowRender;
+    static bool             sVelocityRender;
     static bool             sDynamicLOD;
     static bool             sPickAvatar;
     static bool             sReflectionRender;
@@ -684,6 +688,7 @@ public:
     static bool             sReflectionProbesEnabled;
     static S32              sVisibleLightCount;
     static bool             sRenderingHUDs;
+    static bool             sT2xJitterEnabled;
     static F32              sDistortionWaterClipPlaneMargin;
 
     static LLTrace::EventStatHandle<S64> sStatBatchSize;
@@ -734,9 +739,13 @@ public:
     LLRenderTarget          mPostPingMap;
     LLRenderTarget          mPostPongMap;
 
+    LLRenderTarget          mVelocityMap;
+
     // FXAA helper target
     LLRenderTarget          mFXAAMap;
     LLRenderTarget          mSMAABlendBuffer;
+    LLRenderTarget          mSMAAHistory;
+    U32                     mSMAAFrameIndex = 0;
 
     // render ui to buffer target
     LLRenderTarget          mUIScreen;
@@ -1089,6 +1098,7 @@ public:
     static S32 RenderHeroProbeUpdateRate;
     static S32 RenderHeroProbeConservativeUpdateMultiplier;
     static bool RenderAvatarCloth;
+    static bool RenderMotionBlur;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

@@ -354,7 +354,7 @@ public:
     //--------------------------------------------------------------------
 public:
     static S32      sRenderName;
-    static bool     sRenderGroupTitles;
+    static S32      sRenderGroupTitles;
     static const U32 NON_IMPOSTORS_MAX_SLIDER; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
                                                 * slider in panel_preferences_graphics1.xml */
     static U32      sMaxNonImpostors; // affected by control "RenderAvatarMaxNonImpostors"
@@ -833,6 +833,10 @@ public:
         // Float array ready to be sent to GL
         std::vector<F32> mGLMp;
 
+        // Previous frame's mGLMp for velocity buffer
+        std::vector<F32> mLastGLMp;
+        S32 mLastFrame = -1;
+
         MatrixPaletteCache() :
             mFrame(gFrameCount - 1)
         {
@@ -1120,7 +1124,7 @@ private:
     bool            mNameFriend;
     bool            mNameCloud;
     F32             mNameAlpha;
-    bool            mRenderGroupTitles;
+    S32             mRenderGroupTitles;
 
     //--------------------------------------------------------------------
     // Display the name (then optionally fade it out)

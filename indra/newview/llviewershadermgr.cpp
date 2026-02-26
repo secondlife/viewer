@@ -209,10 +209,13 @@ LLGLSLShader            gFXAAProgram[4];
 LLGLSLShader            gSMAAEdgeDetectProgram[4];
 LLGLSLShader            gSMAABlendWeightsProgram[4];
 LLGLSLShader            gSMAANeighborhoodBlendProgram[4];
+LLGLSLShader            gSMAANeighborhoodBlendT2xProgram[4];
+LLGLSLShader            gSMAAResolveProgram[4];
 LLGLSLShader            gCASProgram;
 LLGLSLShader            gCASLegacyGammaProgram;
 LLGLSLShader            gDeferredPostNoDoFProgram;
 LLGLSLShader            gDeferredPostNoDoFNoiseProgram;
+LLGLSLShader            gDeferredMotionBlurProgram;
 LLGLSLShader            gDeferredWLSkyProgram;
 LLGLSLShader            gEnvironmentMapProgram;
 LLGLSLShader            gDeferredWLCloudProgram;
@@ -240,6 +243,12 @@ LLGLSLShader            gHUDPBRAlphaProgram;
 LLGLSLShader            gDeferredPBRAlphaProgram;
 LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
 LLGLSLShader            gDeferredPBRTerrainProgram[TERRAIN_PAINT_TYPE_COUNT];
+
+LLGLSLShader            gVelocityProgram;
+LLGLSLShader            gVelocitySkinnedProgram;
+LLGLSLShader            gVelocityAlphaProgram;
+LLGLSLShader            gVelocityAlphaSkinnedProgram;
+LLGLSLShader            gAvatarVelocityProgram;
 
 LLGLSLShader            gGLTFPBRMetallicRoughnessProgram;
 
@@ -792,6 +801,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     shaders.push_back( make_pair( "avatar/avatarSkinV.glsl",                1 ) );
     shaders.push_back( make_pair( "avatar/objectSkinV.glsl",                1 ) );
     shaders.push_back( make_pair( "deferred/textureUtilV.glsl",             1 ) );
+    shaders.push_back( make_pair( "deferred/velocityFuncV.glsl",            1 ) );
     if (gGLManager.mGLSLVersionMajor >= 2 || gGLManager.mGLSLVersionMinor >= 30)
     {
         shaders.push_back( make_pair( "objects/indexedTextureV.glsl",           1 ) );
@@ -1153,6 +1163,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
             gSMAAEdgeDetectProgram[i].unload();
             gSMAABlendWeightsProgram[i].unload();
             gSMAANeighborhoodBlendProgram[i].unload();
+            gSMAANeighborhoodBlendT2xProgram[i].unload();
+            gSMAAResolveProgram[i].unload();
         }
         gCASProgram.unload();
         gCASLegacyGammaProgram.unload();
@@ -1191,6 +1203,13 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         {
             gDeferredPBRTerrainProgram[paint_type].unload();
         }
+
+        gVelocityProgram.unload();
+        gVelocitySkinnedProgram.unload();
+        gVelocityAlphaProgram.unload();
+        gVelocityAlphaSkinnedProgram.unload();
+        gAvatarVelocityProgram.unload();
+        gDeferredMotionBlurProgram.unload();
 
         return true;
     }
@@ -2780,6 +2799,81 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                 gSMAANeighborhoodBlendProgram[i].unload();
             }
         }
+
+        // SMAA T2x variants: neighborhood blend with reprojection and temporal resolve
+        if (!failed)
+        {
+            int t2x_i = 0;
+            bool t2x_failed = false;
+            for (const auto& smaa_pair : quality_levels)
+            {
+                std::map<std::string, std::string> t2x_defines;
+                if (gGLManager.mGLVersion >= 4.f)
+                    t2x_defines.emplace("SMAA_GLSL_4", "1");
+                else if (gGLManager.mGLVersion >= 3.1f)
+                    t2x_defines.emplace("SMAA_GLSL_3", "1");
+                else
+                    t2x_defines.emplace("SMAA_GLSL_2", "1");
+                t2x_defines.emplace("SMAA_PREDICATION", "0");
+                t2x_defines.emplace("SMAA_REPROJECTION", "1");
+                t2x_defines.emplace("SMAA_REPROJECTION_WEIGHT_SCALE", "30.0");
+                t2x_defines.emplace(smaa_pair.first, "1");
+
+                if (success)
+                {
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mName = llformat("SMAA T2x Neighborhood Blending (%s)", smaa_pair.second.c_str());
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mFeatures.isDeferred = true;
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].clearPermutations();
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].addPermutations(t2x_defines);
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderFiles.clear();
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAANeighborhoodBlendF.glsl", GL_FRAGMENT_SHADER_ARB));
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAANeighborhoodBlendV.glsl", GL_VERTEX_SHADER_ARB));
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_FRAGMENT_SHADER_ARB));
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_VERTEX_SHADER_ARB));
+                    gSMAANeighborhoodBlendT2xProgram[t2x_i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+                    success = gSMAANeighborhoodBlendT2xProgram[t2x_i].createShader();
+                    if (!success)
+                    {
+                        LL_WARNS() << "Failed to create shader '" << gSMAANeighborhoodBlendT2xProgram[t2x_i].mName << "', disabling!" << LL_ENDL;
+                        t2x_failed = true;
+                        success = true;
+                        break;
+                    }
+                }
+
+                if (success)
+                {
+                    gSMAAResolveProgram[t2x_i].mName = llformat("SMAA T2x Resolve (%s)", smaa_pair.second.c_str());
+                    gSMAAResolveProgram[t2x_i].mFeatures.isDeferred = true;
+                    gSMAAResolveProgram[t2x_i].clearPermutations();
+                    gSMAAResolveProgram[t2x_i].addPermutations(t2x_defines);
+                    gSMAAResolveProgram[t2x_i].mShaderFiles.clear();
+                    gSMAAResolveProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAAResolveF.glsl", GL_FRAGMENT_SHADER_ARB));
+                    gSMAAResolveProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAAResolveV.glsl", GL_VERTEX_SHADER_ARB));
+                    gSMAAResolveProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_FRAGMENT_SHADER_ARB));
+                    gSMAAResolveProgram[t2x_i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_VERTEX_SHADER_ARB));
+                    gSMAAResolveProgram[t2x_i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+                    success = gSMAAResolveProgram[t2x_i].createShader();
+                    if (!success)
+                    {
+                        LL_WARNS() << "Failed to create shader '" << gSMAAResolveProgram[t2x_i].mName << "', disabling!" << LL_ENDL;
+                        t2x_failed = true;
+                        success = true;
+                        break;
+                    }
+                }
+                ++t2x_i;
+            }
+
+            if (t2x_failed)
+            {
+                for (auto j = 0; j < 4; ++j)
+                {
+                    gSMAANeighborhoodBlendT2xProgram[j].unload();
+                    gSMAAResolveProgram[j].unload();
+                }
+            }
+        }
     }
 
     if (success && gGLManager.mGLVersion > 4.05f)
@@ -2882,6 +2976,18 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
         gDeferredPostNoDoFNoiseProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gDeferredPostNoDoFNoiseProgram.createShader();
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gDeferredMotionBlurProgram.mName = "Deferred Motion Blur Shader";
+        gDeferredMotionBlurProgram.mFeatures.isDeferred = true;
+        gDeferredMotionBlurProgram.mShaderFiles.clear();
+        gDeferredMotionBlurProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gDeferredMotionBlurProgram.mShaderFiles.push_back(make_pair("deferred/motionBlurF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredMotionBlurProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gDeferredMotionBlurProgram.createShader();
         llassert(success);
     }
 
@@ -3047,6 +3153,44 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         add_common_permutations(&gDeferredBufferVisualProgram);
 
         success = gDeferredBufferVisualProgram.createShader();
+    }
+
+    if (success)
+    {
+        gVelocityProgram.mName = "Velocity Shader";
+        gVelocityProgram.mFeatures.hasMotionBlur = true;
+        gVelocityProgram.mShaderFiles.clear();
+        gVelocityProgram.mShaderFiles.push_back(make_pair("deferred/velocityV.glsl", GL_VERTEX_SHADER));
+        gVelocityProgram.mShaderFiles.push_back(make_pair("deferred/velocityF.glsl", GL_FRAGMENT_SHADER));
+        gVelocityProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = make_rigged_variant(gVelocityProgram, gVelocitySkinnedProgram);
+        success = success && gVelocityProgram.createShader();
+    }
+
+    if (success)
+    {
+        gVelocityAlphaProgram.mName = "Velocity Alpha Shader";
+        gVelocityAlphaProgram.mFeatures.hasMotionBlur = true;
+        gVelocityAlphaProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+        gVelocityAlphaProgram.mShaderFiles.clear();
+        gVelocityAlphaProgram.mShaderFiles.push_back(make_pair("deferred/velocityAlphaV.glsl", GL_VERTEX_SHADER));
+        gVelocityAlphaProgram.mShaderFiles.push_back(make_pair("deferred/velocityAlphaF.glsl", GL_FRAGMENT_SHADER));
+        gVelocityAlphaProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        add_common_permutations(&gVelocityAlphaProgram);
+        success = make_rigged_variant(gVelocityAlphaProgram, gVelocityAlphaSkinnedProgram);
+        success = success && gVelocityAlphaProgram.createShader();
+    }
+
+    if (success)
+    {
+        gAvatarVelocityProgram.mName = "Avatar Velocity Shader";
+        gAvatarVelocityProgram.mFeatures.hasSkinning = true;
+        gAvatarVelocityProgram.mFeatures.hasMotionBlur = true;
+        gAvatarVelocityProgram.mShaderFiles.clear();
+        gAvatarVelocityProgram.mShaderFiles.push_back(make_pair("deferred/avatarVelocityV.glsl", GL_VERTEX_SHADER));
+        gAvatarVelocityProgram.mShaderFiles.push_back(make_pair("deferred/avatarVelocityF.glsl", GL_FRAGMENT_SHADER));
+        gAvatarVelocityProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gAvatarVelocityProgram.createShader();
     }
 
     return success;

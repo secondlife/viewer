@@ -2555,7 +2555,7 @@ bool get_is_favorite(const LLUUID& obj_id)
         return obj && obj->getIsFavorite();
     }
 
-    return object->getIsFavorite();
+    return object && object->getIsFavorite();
 }
 
 void set_favorite(const LLUUID& obj_id, bool favorite)

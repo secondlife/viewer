@@ -408,6 +408,74 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
     }
 }
 
+S32 LLDrawPoolAvatar::getNumVelocityPasses()
+{
+    return 1;
+}
+
+void LLDrawPoolAvatar::beginVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+    sVertexProgram = &gAvatarVelocityProgram;
+
+    if (sShaderLevel > 0)
+    {
+        sRenderingSkinned = true;
+        sVertexProgram->bind();
+    }
+
+    sVertexProgram->uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    sVertexProgram->uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    sVertexProgram->uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+
+    gGL.diffuseColor4f(1, 1, 1, 1);
+}
+
+void LLDrawPoolAvatar::endVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+    if (sShaderLevel > 0)
+    {
+        sVertexProgram->unbind();
+    }
+    sVertexProgram = NULL;
+    sRenderingSkinned = false;
+}
+
+void LLDrawPoolAvatar::renderVelocity(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+    LLGLEnable cull(GL_CULL_FACE);
+
+    if (mDrawFace.empty())
+    {
+        return;
+    }
+
+    const LLFace* facep = mDrawFace[0];
+    if (!facep->getDrawable())
+    {
+        return;
+    }
+    LLVOAvatar* avatarp = (LLVOAvatar*)facep->getDrawable()->getVObj().get();
+
+    if (avatarp->isDead() || avatarp->isUIAvatar() || avatarp->mDrawable.isNull())
+    {
+        return;
+    }
+
+    LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
+    bool impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor();
+    if (avatarp->isTooSlow() || impostor || (oa == LLVOAvatar::AOA_INVISIBLE))
+    {
+        return;
+    }
+
+    avatarp->renderSkinned();
+}
+
 S32 LLDrawPoolAvatar::getNumPasses()
 {
     return 3;

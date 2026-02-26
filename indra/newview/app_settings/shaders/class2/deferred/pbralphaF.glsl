@@ -186,7 +186,7 @@ void main()
     float gloss      = 1.0 - perceptualRoughness;
     vec3  irradiance = amblit;
     vec3  radiance  = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true, amblit);
+    sampleReflectionProbes(irradiance, radiance, frag, pos.xyz, norm.xyz, gloss, true, amblit);
 
     vec3 diffuseColor;
     vec3 specularColor;

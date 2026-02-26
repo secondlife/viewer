@@ -960,7 +960,8 @@
           </menu_item_check>
           <menu_item_check
              label="Midday (Legacy)"
-             name="legacy noon">
+             name="legacy noon"
+             shortcut="control|shift|T">
             <menu_item_check.on_click
              function="World.EnvSettings"
              parameter="legacy noon" />
@@ -992,7 +993,8 @@
             </menu_item_check>
             <menu_item_check
              label="Use Shared Environment"
-             name="Use Shared Environment">
+             name="Use Shared Environment"
+             shortcut="control|shift|X">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="region" />

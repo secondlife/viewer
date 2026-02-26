@@ -1898,12 +1898,10 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                 mRawDiscardLevel = INVALID_DISCARD_LEVEL;
                 mIsFetching = false;
                 mLastPacketTimer.reset();
+                return false;
             }
-            else
-            {
-                mIsRawImageValid = true;
-                addToCreateTexture();
-            }
+
+            mIsRawImageValid = true;
 
             if (mBoostLevel == LLGLTexture::BOOST_ICON)
             {
@@ -1916,7 +1914,11 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                     //
                     // BOOST_ICON gets scaling because profile icons can have a bunch of different formats, not just j2c
                     // Might need another pass to use discard for j2c and scaling for everything else.
-                    mRawImage = mRawImage->scaled(expected_width, expected_height);
+                    LLPointer<LLImageRaw> scaled = mRawImage->scaled(expected_width, expected_height);
+                    if (scaled.notNull())
+                    {
+                        mRawImage = scaled;
+                    }
                 }
             }
 
@@ -1931,9 +1933,15 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                     //
                     // Todo: probably needs to be remade to use discard, all thumbnails are supposed to be j2c,
                     // so no need to scale, should be posible to use discard to scale image down.
-                    mRawImage = mRawImage->scaled(expected_width, expected_height);
+                    LLPointer<LLImageRaw> scaled = mRawImage->scaled(expected_width, expected_height);
+                    if (scaled.notNull())
+                    {
+                        mRawImage = scaled;
+                    }
                 }
             }
+
+            addToCreateTexture();
 
             return true;
         }

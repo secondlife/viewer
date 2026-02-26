@@ -36,6 +36,6 @@ void main()
 {
     vec4 diff = textureLod(diffuseRect, vary_fragcoord.xy, mipLevel);
 
-    frag_color = diff;
+    frag_color = (diff * 0.5 + 0.5);
 }
 

@@ -216,14 +216,14 @@ bool LLPanelMainInventory::postBuild()
         mWornItemsPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mWornItemsPanel, _1, _2));
     }
 
-    LLInventoryPanel* favorites_panel = getChild<LLInventoryPanel>(FAVORITES);
-    if (favorites_panel)
+    mFavoritesPanel = getChild<LLInventoryPanel>(FAVORITES);
+    if (mFavoritesPanel)
     {
-        favorites_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
-        LLInventoryFilter& favorites_filter = favorites_panel->getFilter();
+        mFavoritesPanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
+        LLInventoryFilter& favorites_filter = mFavoritesPanel->getFilter();
         favorites_filter.setEmptyLookupMessage("InventoryNoMatchingFavorites");
         favorites_filter.markDefault();
-        favorites_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, favorites_panel, _1, _2));
+        mFavoritesPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mFavoritesPanel, _1, _2));
     }
 
     mSearchTypeCombo  = getChild<LLComboBox>("search_type");
@@ -318,6 +318,10 @@ bool LLPanelMainInventory::postBuild()
         menu->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", sound_upload_cost_str);
         menu->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", animation_upload_cost_str);
     }
+
+    mFilterTabs->setTabVisibility(mRecentPanel, gSavedSettings.getBOOL("InventoryShowRecentTab"));
+    mFilterTabs->setTabVisibility(mWornItemsPanel, gSavedSettings.getBOOL("InventoryShowWornTab"));
+    mFilterTabs->setTabVisibility(mFavoritesPanel, gSavedSettings.getBOOL("InventoryShowFavoritesTab"));
 
     // Trigger callback for focus received so we can deselect items in inbox/outbox
     LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMainInventory::onFocusReceived, this));
@@ -1613,8 +1617,10 @@ void LLPanelMainInventory::initSingleFolderRoot(const LLUUID& start_folder_id)
 void LLPanelMainInventory::initInventoryViews()
 {
     mAllItemsPanel->initializeViewBuilding();
-    mRecentPanel->initializeViewBuilding();
-    mWornItemsPanel->initializeViewBuilding();
+    if (gSavedSettings.getBOOL("InventoryShowRecentTab"))
+        mRecentPanel->initializeViewBuilding();
+    if (gSavedSettings.getBOOL("InventoryShowWornTab"))
+        mWornItemsPanel->initializeViewBuilding();
 }
 
 void LLPanelMainInventory::toggleViewMode()
@@ -2056,6 +2062,27 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
     {
         setViewMode(MODE_COMBINATION);
     }
+
+    if (command_name == "toggle_recent_tab")
+    {
+        bool visibility = !gSavedSettings.getBOOL("InventoryShowRecentTab");
+        gSavedSettings.setBOOL("InventoryShowRecentTab", visibility);
+        mFilterTabs->setTabVisibility(mRecentPanel, visibility);
+        mRecentPanel->initializeViewBuilding();
+    }
+    if (command_name == "toggle_worn_tab")
+    {
+        bool visibility = !gSavedSettings.getBOOL("InventoryShowWornTab");
+        gSavedSettings.setBOOL("InventoryShowWornTab", visibility);
+        mFilterTabs->setTabVisibility(mWornItemsPanel, visibility);
+        mWornItemsPanel->initializeViewBuilding();
+    }
+    if (command_name == "toggle_favorites_tab")
+    {
+        bool visibility = !gSavedSettings.getBOOL("InventoryShowFavoritesTab");
+        gSavedSettings.setBOOL("InventoryShowFavoritesTab", visibility);
+        mFilterTabs->setTabVisibility(mFavoritesPanel, visibility);
+    }
 }
 
 void LLPanelMainInventory::onVisibilityChange( bool new_visibility )
@@ -2281,6 +2308,19 @@ bool LLPanelMainInventory::isActionChecked(const LLSD& userdata)
     if (command_name == "combination_view")
     {
         return isCombinationViewMode();
+    }
+
+    if (command_name == "recent_tab")
+    {
+        return mFilterTabs->getTabVisibility(mRecentPanel);
+    }
+    if (command_name == "worn_tab")
+    {
+        return mFilterTabs->getTabVisibility(mWornItemsPanel);
+    }
+    if (command_name == "favorites_tab")
+    {
+        return mFilterTabs->getTabVisibility(mFavoritesPanel);
     }
 
     return false;

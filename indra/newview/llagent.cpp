@@ -426,6 +426,7 @@ LLAgent::LLAgent() :
     mIsDoNotDisturb(false),
 
     mControlFlags(0x00000000),
+    mLastJumpInputTime(0.0),
 
     mAutoPilot(false),
     mAutoPilotFlyOnStop(false),
@@ -780,6 +781,10 @@ void LLAgent::moveUp(S32 direction)
 
     if (direction > 0)
     {
+        if (!getFlying())
+        {
+            mLastJumpInputTime = LLTimer::getTotalSeconds();
+        }
         setControlFlags(AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP);
     }
     else if (direction < 0)
@@ -2663,7 +2668,21 @@ void LLAgent::onAnimStop(const LLUUID& id)
     }
     else if (id == ANIM_AGENT_PRE_JUMP || id == ANIM_AGENT_LAND || id == ANIM_AGENT_MEDIUM_LAND)
     {
-        setControlFlags(AGENT_CONTROL_FINISH_ANIM);
+        // FIRE-34049/FIRE-34273/https://github.com/secondlife/viewer/issues/4218
+        // Avoid forcing AGENT_CONTROL_FINISH_ANIM, which can short-circuit the next pre-jump
+        // during rapid successive jumps.
+        // TODO: a more robust fix would require knowing which specific animation finished,
+        // information that is not currently provided by the simulator.
+        const bool up_pos = (mControlFlags & AGENT_CONTROL_UP_POS) != 0;
+        const F64 now = LLTimer::getTotalSeconds();
+        const F64 elapsed = now - mLastJumpInputTime;
+        static LLCachedControl<F32> recent_jump_threshold_secs(gSavedSettings, "RecentJumpThresholdSecs");
+        const bool recent_jump = (mLastJumpInputTime > 0.0) && (elapsed < recent_jump_threshold_secs);
+
+        if (!up_pos && !recent_jump)
+        {
+            setControlFlags(AGENT_CONTROL_FINISH_ANIM);
+        }
     }
 }
 

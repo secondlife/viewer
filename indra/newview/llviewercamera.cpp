@@ -50,10 +50,13 @@
 #include "llquaternion.h"
 #include "llwindow.h"           // getPixelAspectRatio()
 #include "lltracerecording.h"
+#include "pipeline.h"
 #include "llenvironment.h"
 
 // System includes
 #include <iomanip> // for setprecision
+
+extern bool gCubeSnapshot;
 
 LLTrace::CountStatHandle<> LLViewerCamera::sVelocityStat("camera_velocity");
 LLTrace::CountStatHandle<> LLViewerCamera::sAngularVelocityStat("camera_angular_velocity");
@@ -367,6 +370,20 @@ void LLViewerCamera::setPerspective(bool for_selection,
     calcProjection(z_far); // Update the projection matrix cache
 
     proj_mat *= glm::perspective(fov_y, aspect, z_near, z_far);
+
+    if (LLPipeline::sT2xJitterEnabled && !for_selection && !gCubeSnapshot)
+    {
+        // SMAA T2x subpixel jitter (alternating ±0.25 pixels)
+        static const float jitters[2][2] = {
+            { 0.25f, -0.25f},   // Frame 0
+            {-0.25f,  0.25f},   // Frame 1
+        };
+        U32 idx = gPipeline.mSMAAFrameIndex & 1;
+        float jx = jitters[idx][0] * 2.0f / (float)width;
+        float jy = jitters[idx][1] * 2.0f / (float)height;
+        proj_mat[2][0] += jx;
+        proj_mat[2][1] += jy;
+    }
 
     gGL.loadMatrix(glm::value_ptr(proj_mat));
 

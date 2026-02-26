@@ -1,11 +1,9 @@
 /**
- * @file llfloatersounddevices.h
- * @author Leyla Farazha
- * @brief Sound Preferences used for minimal skin
+ * @file avatarVelocityF.glsl
  *
-* $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2007, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,25 +23,26 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSOUNDDEVICES_H
-#define LL_LLFLOATERSOUNDDEVICES_H
+/*[EXTRA_CODE_HERE]*/
 
-#include "lltransientdockablefloater.h"
+out vec4 frag_color;
 
-class LLFloaterSoundDevices : public LLTransientDockableFloater
+uniform sampler2D diffuseMap;
+
+in vec4 vary_cur_clip;
+in vec4 vary_last_clip;
+in vec2 vary_texcoord0;
+
+void main()
 {
-public:
+    float alpha = texture(diffuseMap, vary_texcoord0.xy).a;
+    if (alpha < 0.2)
+    {
+        discard;
+    }
 
-    LOG_CLASS(LLFloaterSoundDevices);
+    vec2 cur_ndc  = vary_cur_clip.xy / vary_cur_clip.w;
+    vec2 last_ndc = vary_last_clip.xy / vary_last_clip.w;
 
-    LLFloaterSoundDevices(const LLSD& key);
-    ~LLFloaterSoundDevices();
-
-    bool postBuild() override;
-    void setDocked(bool docked, bool pop_on_undock = true) override;
-    void setFocus(bool b) override;
-};
-
-
-#endif //LL_LLFLOATERSOUNDDEVICES_H
-
+    frag_color = vec4(cur_ndc - last_ndc, 0.0, 1.0);
+}

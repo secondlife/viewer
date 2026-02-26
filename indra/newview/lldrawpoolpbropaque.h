@@ -41,6 +41,11 @@ public:
 
     S32 getNumPostDeferredPasses() override;
     void renderPostDeferred(S32 pass) override;
+
+    S32 getNumVelocityPasses() override;
+    void beginVelocityPass(S32 pass) override;
+    void endVelocityPass(S32 pass) override;
+    void renderVelocity(S32 pass) override;
 };
 
 #endif // LL_LLDRAWPOOLPBROPAQUE_H

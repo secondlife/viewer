@@ -440,7 +440,25 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
             (LLModel::NO_ERRORS == pModel->getStatus()) &&
             validate_model(pModel))
         {
-            mTransform.setIdentity();
+            // Build the scene transform.
+            // Non-skinned meshes: scene transform carries coord rotation + hierarchy,
+            // preserving the object's rotation/position/scale for upload.
+            // Skinned meshes: transform is already baked into vertices, so scene is identity.
+            if (node.mSkin >= 0)
+            {
+                mTransform.setIdentity();
+            }
+            else
+            {
+                glm::mat4 hierarchy_transform;
+                computeCombinedNodeTransform(mGLTFAsset, node_idx, hierarchy_transform);
+                glm::mat4 combined = coord_system_rotation * hierarchy_transform;
+                if (mApplyXYRotation)
+                {
+                    combined = coord_system_rotationxy * combined;
+                }
+                mTransform = LLMatrix4(glm::value_ptr(combined));
+            }
             transformation = mTransform;
 
             // adjust the transformation to compensate for mesh normalization
@@ -684,7 +702,12 @@ std::string LLGLTFLoader::processTexture(std::string& full_path_out, S32 texture
     // Process embedded textures
     if (image.mBufferView >= 0)
     {
-        return extractTextureToTempFile(texture_index, texture_type);
+        std::string temp_path = extractTextureToTempFile(texture_index, texture_type);
+        if (!temp_path.empty())
+        {
+            full_path_out = temp_path;
+        }
+        return temp_path;
     }
 
     return "";
@@ -734,23 +757,47 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
 
     S32 skinIdx = nodeno.mSkin;
 
-    // Compute final combined transform matrix (hierarchy + coordinate rotation)
+    // Compute the vertex transform for this mesh.
+    // Non-skinned meshes: vertices are left untransformed; the node's hierarchy transform
+    // (rotation, translation, scale) is stored in the scene transform instead, matching
+    // the DAE loader. This ensures the uploaded object's bounding box and transform
+    // properties are correct. See: https://github.com/secondlife/viewer/issues/5431
+    // Skinned meshes: coord rotation + hierarchy are baked into vertex positions because
+    // inverse bind matrices and skin weights are already computed in that space.
+    // TODO: consider aligning skinned meshes with the DAE loader (scene transform instead
+    // of vertex baking), which would require adjusting inverse bind matrices, bind shape
+    // matrix, and weight keying to match.
     S32 node_index = static_cast<S32>(&nodeno - &mGLTFAsset.mNodes[0]);
     glm::mat4 hierarchy_transform;
     computeCombinedNodeTransform(mGLTFAsset, node_index, hierarchy_transform);
 
-    // Combine transforms: coordinate rotation applied to hierarchy transform
-    glm::mat4 final_transform = coord_system_rotation * hierarchy_transform;
-    if (mApplyXYRotation)
+    glm::mat4 vertex_transform;
+    if (skinIdx >= 0)
     {
-        final_transform = coord_system_rotationxy * final_transform;
+        // Skinned mesh: bake coord rotation + hierarchy into vertices.
+        // Inverse bind matrices and skin weights depend on this transform being applied.
+        vertex_transform = coord_system_rotation * hierarchy_transform;
+        if (mApplyXYRotation)
+        {
+            vertex_transform = coord_system_rotationxy * vertex_transform;
+        }
+    }
+    else
+    {
+        // Non-skinned mesh: don't apply any transform to vertices.
+        // The hierarchy transform will be stored in the scene transform matrix.
+        vertex_transform = glm::mat4(1.0f); // identity
     }
 
     // Check if we have a negative scale (flipped coordinate system)
-    bool hasNegativeScale = glm::determinant(final_transform) < 0.0f;
+    // coord_system_rotation and coord_system_rotationxy are pure rotations (det=1),
+    // so negative scale depends only on the hierarchy transform.
+    bool hasNegativeScale = glm::determinant(hierarchy_transform) < 0.0f;
+
+    bool hasVertexTransform = (vertex_transform != glm::mat4(1.0f));
 
     // Pre-compute normal transform matrix (transpose of inverse of upper-left 3x3)
-    const glm::mat3 normal_transform = glm::transpose(glm::inverse(glm::mat3(final_transform)));
+    const glm::mat3 normal_transform = glm::transpose(glm::inverse(glm::mat3(vertex_transform)));
 
     // Mark unsuported joints with '-1' so that they won't get added into weights
     // GLTF maps all joints onto all meshes. Gather use count per mesh to cut unused ones.
@@ -803,27 +850,45 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
             return false; // Skip this primitive
         }
 
-        // Apply the global scale and center offset to all vertices
+        // Apply vertex transform (if any) to all vertices.
+        // Skinned meshes: this bakes coord rotation + hierarchy into vertices.
+        // Non-skinned meshes: vertex_transform is identity (no baking).
         for (U32 i = 0; i < prim.getVertexCount(); i++)
         {
-            // Use pre-computed final_transform
-            glm::vec4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
-            glm::vec4 transformed_pos = final_transform * pos;
-
             GLTFVertex vert;
-            vert.position = glm::vec3(transformed_pos);
 
-            if (!prim.mNormals.empty())
+            if (hasVertexTransform)
             {
-                // Use pre-computed normal_transform
-                glm::vec3 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
-                vert.normal = glm::normalize(normal_transform * normal_vec);
+                glm::vec4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
+                glm::vec4 transformed_pos = vertex_transform * pos;
+                vert.position = glm::vec3(transformed_pos);
+
+                if (!prim.mNormals.empty())
+                {
+                    glm::vec3 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
+                    vert.normal = glm::normalize(normal_transform * normal_vec);
+                }
+                else
+                {
+                    vert.normal = glm::normalize(normal_transform * glm::vec3(0.0f, 0.0f, 1.0f));
+                    LL_DEBUGS("GLTF_IMPORT") << "No normals found for primitive, using default normal." << LL_ENDL;
+                }
             }
             else
             {
-                // Use default normal (pointing up in model space)
-                vert.normal = glm::normalize(normal_transform * glm::vec3(0.0f, 0.0f, 1.0f));
-                LL_DEBUGS("GLTF_IMPORT") << "No normals found for primitive, using default normal." << LL_ENDL;
+                // No transform: store raw GLTF positions and normals.
+                // The scene transform will carry coord rotation + hierarchy.
+                vert.position = glm::vec3(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2]);
+
+                if (!prim.mNormals.empty())
+                {
+                    vert.normal = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
+                }
+                else
+                {
+                    vert.normal = glm::vec3(0.0f, 0.0f, 1.0f);
+                    LL_DEBUGS("GLTF_IMPORT") << "No normals found for primitive, using default normal." << LL_ENDL;
+                }
             }
 
             // Flip texture V coordinate
