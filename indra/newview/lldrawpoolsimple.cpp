@@ -209,6 +209,7 @@ void LLDrawPoolSimple::endMotionBlurPass(S32 pass)
 void LLDrawPoolSimple::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
     pushVelocityBatches(LLRenderPass::PASS_SIMPLE);
 
     gVelocityProgram.bind(true);
@@ -242,6 +243,7 @@ void LLDrawPoolGrass::endMotionBlurPass(S32 pass)
 void LLDrawPoolGrass::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
     pushVelocityBatches(LLRenderPass::PASS_GRASS);
 }
 
@@ -269,6 +271,7 @@ void LLDrawPoolAlphaMask::endMotionBlurPass(S32 pass)
 void LLDrawPoolAlphaMask::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
     pushVelocityBatchesTextured(LLRenderPass::PASS_ALPHA_MASK);
 
     gVelocityAlphaProgram.bind(true);
@@ -302,6 +305,7 @@ void LLDrawPoolFullbrightAlphaMask::endMotionBlurPass(S32 pass)
 void LLDrawPoolFullbrightAlphaMask::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
     pushVelocityBatchesTextured(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
 
     gVelocityAlphaProgram.bind(true);
@@ -335,6 +339,7 @@ void LLDrawPoolFullbright::endMotionBlurPass(S32 pass)
 void LLDrawPoolFullbright::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
     pushVelocityBatches(LLRenderPass::PASS_FULLBRIGHT);
 
     gVelocityProgram.bind(true);

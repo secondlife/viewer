@@ -122,6 +122,7 @@ void LLDrawPoolGLTFPBR::endMotionBlurPass(S32 pass)
 void LLDrawPoolGLTFPBR::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
 
     bool alpha_mask = (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK);
 

@@ -161,6 +161,7 @@ void LLDrawPoolTree::endMotionBlurPass(S32 pass)
 void LLDrawPoolTree::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
 
     if (mDrawFace.empty())
     {

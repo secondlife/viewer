@@ -194,6 +194,8 @@ void LLViewerJointMesh::uploadJointMatrices()
             if (LLGLSLShader::sCurBoundShaderPtr == &gAvatarVelocityProgram)
             {
                 LLGLSLShader::sCurBoundShaderPtr->uniform4fv(LLViewerShaderMgr::AVATAR_LAST_MATRIX, 45, mLastMatrixPalette);
+                // Save current palette as "last" for next frame
+                memcpy(mLastMatrixPalette, mat, sizeof(GLfloat) * 45 * 4);
             }
         }
         stop_glerror();

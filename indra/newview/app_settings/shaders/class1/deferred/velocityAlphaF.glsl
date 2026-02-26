@@ -28,6 +28,7 @@
 out vec4 frag_color;
 
 vec4 diffuseLookup(vec2 texcoord);
+void bayerDitherDiscard(float alpha, float threshold);
 
 in vec4 vary_cur_clip;
 in vec4 vary_last_clip;
@@ -39,10 +40,7 @@ void main()
     float alpha = diffuseLookup(vary_texcoord0.xy).a;
     alpha *= vertex_color.a;
 
-    if (alpha < 0.75)
-    {
-        discard;
-    }
+    bayerDitherDiscard(alpha, 0.88);
 
     vec2 cur_ndc  = vary_cur_clip.xy / vary_cur_clip.w;
     vec2 last_ndc = vary_last_clip.xy / vary_last_clip.w;

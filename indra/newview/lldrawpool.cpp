@@ -790,6 +790,8 @@ void LLRenderPass::pushVelocityBatches(U32 type)
             continue;
         }
 
+        LLGLDisable cull_face(params.mGLTFMaterial && params.mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
+
         applyModelMatrix(params);
 
         // Upload the previous matrix from the drawable
@@ -856,6 +858,8 @@ void LLRenderPass::pushVelocityBatchesTextured(U32 type)
         {
             continue;
         }
+
+        LLGLDisable cull_face(params.mGLTFMaterial && params.mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
 
         applyModelMatrix(params);
 

@@ -328,6 +328,7 @@ bool    LLPipeline::sBakeSunlight = false;
 bool    LLPipeline::sNoAlpha = false;
 bool    LLPipeline::sUseFarClip = true;
 bool    LLPipeline::sShadowRender = false;
+bool    LLPipeline::sVelocityRender = false;
 bool    LLPipeline::sRenderGlow = false;
 bool    LLPipeline::sReflectionRender = false;
 bool    LLPipeline::sDefaultProbeRender = false;
@@ -4153,6 +4154,8 @@ void LLPipeline::renderGeomMotionBlur()
     gGL.setColorMask(true, true);
     LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
 
+    sVelocityRender = true;
+
     // Each draw pool is responsible for producing its own velocity
     for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
     {
@@ -4165,6 +4168,8 @@ void LLPipeline::renderGeomMotionBlur()
             poolp->endMotionBlurPass(i);
         }
     }
+
+    sVelocityRender = false;
 
     mVelocityMap.flush();
 }

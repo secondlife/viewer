@@ -447,6 +447,7 @@ void LLDrawPoolAvatar::endMotionBlurPass(S32 pass)
 void LLDrawPoolAvatar::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+    LLGLEnable cull(GL_CULL_FACE);
 
     if (mDrawFace.empty())
     {

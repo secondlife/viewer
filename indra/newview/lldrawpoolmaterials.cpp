@@ -312,6 +312,7 @@ void LLDrawPoolMaterials::endMotionBlurPass(S32 pass)
 void LLDrawPoolMaterials::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
 
     // Static passes
     pushVelocityBatches(LLRenderPass::PASS_MATERIAL);

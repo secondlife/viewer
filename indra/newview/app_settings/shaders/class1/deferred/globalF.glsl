@@ -59,3 +59,32 @@ vec4 decodeNormal(vec4 norm)
     n.z = 1-f/2;
     return n;
 }
+
+// 4x4 Bayer dither matrix normalized to [0, 1]
+const float BAYER_PATTERN[16] = float[16](
+     0.0/16.0,  8.0/16.0,  2.0/16.0, 10.0/16.0,
+    12.0/16.0,  4.0/16.0, 14.0/16.0,  6.0/16.0,
+     3.0/16.0, 11.0/16.0,  1.0/16.0,  9.0/16.0,
+    15.0/16.0,  7.0/16.0, 13.0/16.0,  5.0/16.0
+);
+
+// Discard fragment based on dithered alpha threshold.
+// Fragments with alpha < 0.05 are always discarded.
+// Fragments with alpha >= threshold are always kept.
+// Fragments in between are dithered using a 4x4 Bayer pattern.
+void bayerDitherDiscard(float alpha, float threshold)
+{
+    if (alpha < 0.05)
+    {
+        discard;
+    }
+
+    if (alpha < threshold)
+    {
+        ivec2 ipos = ivec2(mod(gl_FragCoord.xy, 4.0));
+        if (alpha < BAYER_PATTERN[ipos.y * 4 + ipos.x])
+        {
+            discard;
+        }
+    }
+}

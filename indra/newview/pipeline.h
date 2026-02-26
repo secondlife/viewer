@@ -671,6 +671,7 @@ public:
     static bool             sNoAlpha;
     static bool             sUseFarClip;
     static bool             sShadowRender;
+    static bool             sVelocityRender;
     static bool             sDynamicLOD;
     static bool             sPickAvatar;
     static bool             sReflectionRender;

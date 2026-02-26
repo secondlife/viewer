@@ -229,6 +229,7 @@ void LLDrawPoolTerrain::endMotionBlurPass(S32 pass)
 void LLDrawPoolTerrain::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LLGLEnable cull(GL_CULL_FACE);
 
     if (mDrawFace.empty())
     {

@@ -915,6 +915,7 @@ void LLDrawPoolAlpha::endMotionBlurPass(S32 pass)
 void LLDrawPoolAlpha::renderMotionBlur(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
     pushVelocityBatchesTextured(LLRenderPass::PASS_ALPHA);
 
     gVelocityAlphaProgram.bind(true);
