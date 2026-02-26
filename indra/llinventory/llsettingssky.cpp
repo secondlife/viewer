@@ -652,7 +652,7 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         
         mTonemapMix = lerp(mTonemapMix, other->mTonemapMix, (F32)blendf);
         mHDRMax = lerp(mHDRMax, other->mHDRMax, (F32)blendf);
-        mHDRMin = lerp(mHDRMax, other->mHDRMin, (F32)blendf);
+        mHDRMin = lerp(mHDRMin, other->mHDRMin, (F32)blendf);
         mHDROffset = lerp(mHDROffset, other->mHDROffset, (F32)blendf);
         
         mTonemapper = other->mTonemapper;

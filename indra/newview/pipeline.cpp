@@ -7220,7 +7220,7 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
 
         static LLCachedControl<bool> use_exposure_sky_settings(gSavedSettings, "RenderUseExposureSkySettings", false);
 
-        if (use_exposure_sky_settings)
+        if (use_exposure_sky_settings && sky->getSkySettingVersion() > 1)
         {
             if (dynamic_exposure_enabled)
             {
@@ -7327,7 +7327,7 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
         U32 tonemap_type_value;
         F32 tonemap_mix_value;
 
-        if (use_env_hdr_settings)
+        if (use_env_hdr_settings && psky->getSkySettingVersion() > 1)
         {
             e = llclamp(psky->getHDROffset(should_auto_adjust()), 0.5f, 4.f);
             tonemap_type_value = psky->getTonemapper();
