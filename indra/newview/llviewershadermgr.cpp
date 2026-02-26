@@ -2816,7 +2816,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                     t2x_defines.emplace("SMAA_GLSL_2", "1");
                 t2x_defines.emplace("SMAA_PREDICATION", "0");
                 t2x_defines.emplace("SMAA_REPROJECTION", "1");
-                t2x_defines.emplace("SMAA_REPROJECTION_WEIGHT_SCALE", "10.0");
+                t2x_defines.emplace("SMAA_REPROJECTION_WEIGHT_SCALE", "30.0");
                 t2x_defines.emplace(smaa_pair.first, "1");
 
                 if (success)
