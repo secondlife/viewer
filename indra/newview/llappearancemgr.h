@@ -250,7 +250,7 @@ private:
 
 private:
 
-    void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type, S32 max_total);
+    void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type, S32 max_total, bool skip_bodyparts = false);
 
     void getDescendentsOfAssetType(const LLUUID& category,
                                           LLInventoryModel::item_array_t& items,
