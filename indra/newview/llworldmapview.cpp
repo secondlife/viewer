@@ -532,10 +532,47 @@ void LLWorldMapView::draw()
                         use_ellipses);
                 };
 
-            std::string grid_name = info->getName();
+            std::string grid_name;
             if (info->isDown())
             {
-                grid_name += " (" + sStringsMap["offline"] + ")";
+                // Offline: "RegionName (offline) (Rating)"
+                grid_name = llformat("%s (%s) (%s)",
+                    info->getName().c_str(),
+                    sStringsMap["offline"].c_str(),
+                    info->getShortAccessString().c_str());
+            }
+            else
+            {
+                S32 agent_count = info->getAgentCount();
+                LLViewerRegion* region = gAgent.getRegion();
+                if (region && (region->getHandle() == handle))
+                {
+                    ++agent_count; // Include self if in this region
+                }
+
+                if (agent_count > 0)
+                {
+                    // Online with agents: "RegionName (AgentCount) (Rating)"
+                    grid_name = llformat("%s (%d) (%s)",
+                        info->getName().c_str(),
+                        agent_count,
+                        info->getShortAccessString().c_str());
+                }
+                else
+                {
+                    // Online without agents: "RegionName (Rating)"
+                    grid_name = llformat("%s (%s)",
+                        info->getName().c_str(),
+                        info->getShortAccessString().c_str());
+                }
+            }
+
+            // Fallback: just name and rating
+            if (grid_name.empty())
+            {
+                grid_name = llformat("%s (%s)",
+                    info->getName().c_str(),
+                    info->getShortAccessString().c_str());
             }
 
             if (print_coords)
