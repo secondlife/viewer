@@ -36,6 +36,7 @@
 #include "lltextutil.h"
 
 // newview
+#include "llagent.h"
 #include "llagentdata.h" // for comparator
 #include "llavatariconctrl.h"
 #include "llavatarnamecache.h"
@@ -47,11 +48,12 @@
 #include "llvoiceclient.h"
 #include "llviewercontrol.h"    // for gSavedSettings
 #include "lltooldraganddrop.h"
+#include "llworld.h"
 
 static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
 
 // Last interaction time update period.
-static const F32 LIT_UPDATE_PERIOD = 5;
+static const F32 LIT_UPDATE_PERIOD = 2;
 
 // Maximum number of avatars that can be added to a list in one pass.
 // Used to limit time spent for avatar list update per frame.
@@ -120,6 +122,7 @@ static const LLFlatListView::ItemReverseComparator REVERSE_NAME_COMPARATOR(NAME_
 LLAvatarList::Params::Params()
 : ignore_online_status("ignore_online_status", false)
 , show_last_interaction_time("show_last_interaction_time", false)
+, show_distance("show_distance", false)
 , show_info_btn("show_info_btn", true)
 , show_profile_btn("show_profile_btn", true)
 , show_speaking_indicator("show_speaking_indicator", true)
@@ -131,6 +134,7 @@ LLAvatarList::LLAvatarList(const Params& p)
 :   LLFlatListViewEx(p)
 , mIgnoreOnlineStatus(p.ignore_online_status)
 , mShowLastInteractionTime(p.show_last_interaction_time)
+, mShowDistance(p.show_distance)
 , mContextMenu(NULL)
 , mDirty(true) // to force initial update
 , mNeedUpdateNames(false)
@@ -148,7 +152,7 @@ LLAvatarList::LLAvatarList(const Params& p)
     // Set default sort order.
     setComparator(&NAME_COMPARATOR);
 
-    if (mShowLastInteractionTime)
+    if (mShowLastInteractionTime || mShowDistance)
     {
         mLITUpdateTimer = new LLTimer();
         mLITUpdateTimer->setTimerExpirySec(0); // zero to force initial update
@@ -201,6 +205,11 @@ void LLAvatarList::draw()
     {
         updateLastInteractionTimes();
         mLITUpdateTimer->setTimerExpirySec(LIT_UPDATE_PERIOD); // restart the timer
+    }
+    else if (mShowDistance && mLITUpdateTimer->hasExpired())
+    {
+        updateDistances();
+        mLITUpdateTimer->setTimerExpirySec(LIT_UPDATE_PERIOD);
     }
 }
 
@@ -428,7 +437,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, bool is
     // This sets the name as a side effect
     item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus);
     item->setOnline(mIgnoreOnlineStatus ? true : is_online);
-    item->showLastInteractionTime(mShowLastInteractionTime);
+    item->showTimeOrDistanceColumn(mShowLastInteractionTime || mShowDistance);
 
     item->setAvatarIconVisible(mShowIcons);
     item->setShowInfoBtn(mShowInfoBtn);
@@ -549,6 +558,44 @@ void LLAvatarList::updateLastInteractionTimes()
         S32 secs_since = now - (S32) LLRecentPeople::instance().getDate(item->getAvatarId()).secondsSinceEpoch();
         if (secs_since >= 0)
             item->setLastInteractionTime(secs_since);
+    }
+}
+
+void LLAvatarList::updateDistances()
+{
+    std::vector<LLPanel*> items;
+    getItems(items);
+
+    static LLCachedControl<F32> near_me_range(gSavedSettings, "NearMeRange");
+    uuid_vec_t avatar_ids;
+    std::vector<LLVector3d> positions;
+    LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgent.getPositionGlobal(), near_me_range);
+
+    std::map<LLUUID, LLVector3d> pos_map;
+    for (size_t i = 0; i < avatar_ids.size() && i < positions.size(); ++i)
+    {
+        pos_map[avatar_ids[i]] = positions[i];
+    }
+
+    for (std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); ++it)
+    {
+        LLAvatarListItem* item = static_cast<LLAvatarListItem*>(*it);
+
+        if (item->getAvatarId() == gAgentID)
+        {
+            item->setTextFieldDistance(0.f);
+            continue;
+        }
+
+        std::map<LLUUID, LLVector3d>::iterator iter = pos_map.find(item->getAvatarId());
+        if (iter != pos_map.end())
+        {
+            item->setTextFieldDistance(F32((iter->second - gAgent.getPositionGlobal()).magVec()));
+        }
+        else
+        {
+            item->setTextFieldDistance(0.f);
+        }
     }
 }
 

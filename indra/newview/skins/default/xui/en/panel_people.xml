@@ -242,6 +242,7 @@ Learn about [https://community.secondlife.com/knowledgebase/joining-and-particip
                keep_one_selected="false"
                multi_select="true"
                name="avatar_list"
+               show_distance="true"
                right="-1"
                top="2" />
            </layout_panel>

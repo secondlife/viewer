@@ -99,12 +99,17 @@ public:
     void setState(EItemState item_style);
     void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false, bool is_resident = true);
     void setLastInteractionTime(U32 secs_since);
+    void setTextFieldDistance(F32 distance);
     //Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
     void setShowProfileBtn(bool show);
     void setShowInfoBtn(bool show);
     void showSpeakingIndicator(bool show);
     void setShowPermissions(bool show) { mShowPermissions = show; };
-    void showLastInteractionTime(bool show);
+    /**
+     * Show or hide the optional text column (displays last interaction time or
+     * distance depending on list configuration).
+     */
+    void showTimeOrDistanceColumn(bool show);
     void setAvatarIconVisible(bool visible);
     void setShowCompleteName(bool show, bool force = false) { mShowCompleteName = show; mForceCompleteName = force;};
 
@@ -151,13 +156,13 @@ private:
      */
     typedef enum e_avatar_item_child {
         ALIC_SPEAKER_INDICATOR,
+        ALIC_INTERACTION_TIME,
         ALIC_PROFILE_BUTTON,
         ALIC_INFO_BUTTON,
         ALIC_PERMISSION_ONLINE,
         ALIC_PERMISSION_MAP,
         ALIC_PERMISSION_EDIT_MINE,
         ALIC_PERMISSION_EDIT_THEIRS,
-        ALIC_INTERACTION_TIME,
         ALIC_NAME,
         ALIC_ICON,
         ALIC_COUNT,
@@ -199,7 +204,7 @@ private:
     LLView* getItemChildView(EAvatarListItemChildIndex child_index);
 
     LLTextBox* mAvatarName;
-    LLTextBox* mLastInteractionTime;
+    LLTextBox* mTimeOrDistanceText;
     LLStyle::Params mAvatarNameStyle;
 
     LLButton* mInfoBtn;

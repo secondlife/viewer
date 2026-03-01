@@ -65,7 +65,7 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
     LLFriendObserver(),
     mAvatarIcon(NULL),
     mAvatarName(NULL),
-    mLastInteractionTime(NULL),
+    mTimeOrDistanceText(NULL),
     mIconPermissionOnline(NULL),
     mIconPermissionMap(NULL),
     mIconPermissionEditMine(NULL),
@@ -108,7 +108,8 @@ bool LLAvatarListItem::postBuild()
 {
     mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
     mAvatarName = getChild<LLTextBox>("avatar_name");
-    mLastInteractionTime = getChild<LLTextBox>("last_interaction");
+    mTimeOrDistanceText = getChild<LLTextBox>("last_interaction");
+    mTimeOrDistanceText->setRightAlign();
 
     mIconPermissionOnline = getChild<LLIconCtrl>("permission_online_icon");
     mIconPermissionMap = getChild<LLIconCtrl>("permission_map_icon");
@@ -302,15 +303,23 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, b
     }
 }
 
-void LLAvatarListItem::showLastInteractionTime(bool show)
+void LLAvatarListItem::showTimeOrDistanceColumn(bool show)
 {
-    mLastInteractionTime->setVisible(show);
+    mTimeOrDistanceText->setVisible(show);
     updateChildren();
 }
 
 void LLAvatarListItem::setLastInteractionTime(U32 secs_since)
 {
-    mLastInteractionTime->setValue(formatSeconds(secs_since));
+    mTimeOrDistanceText->setValue(formatSeconds(secs_since));
+}
+
+void LLAvatarListItem::setTextFieldDistance(F32 distance)
+{
+    if (distance == 0.f)
+        mTimeOrDistanceText->setValue(LLStringUtil::null);
+    else
+        mTimeOrDistanceText->setValue(llformat("%0.1fm", distance));
 }
 
 void LLAvatarListItem::setShowInfoBtn(bool show)
@@ -517,8 +526,11 @@ void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
     //speaking indicator width + padding
     S32 speaking_indicator_width = avatar_item->getRect().getWidth() - avatar_item->mSpeakingIndicator->getRect().mLeft;
 
+    // Optional column: time since last interaction or distance (between profile btn and speaker)
+    S32 time_or_distance_width = avatar_item->mSpeakingIndicator->getRect().mLeft - avatar_item->mTimeOrDistanceText->getRect().mLeft;
+
     //profile btn width + padding
-    S32 profile_btn_width = avatar_item->mSpeakingIndicator->getRect().mLeft - avatar_item->mProfileBtn->getRect().mLeft;
+    S32 profile_btn_width = avatar_item->mTimeOrDistanceText->getRect().mLeft - avatar_item->mProfileBtn->getRect().mLeft;
 
     //info btn width + padding
     S32 info_btn_width = avatar_item->mProfileBtn->getRect().mLeft - avatar_item->mInfoBtn->getRect().mLeft;
@@ -535,9 +547,6 @@ void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
     // edit their objects permission icon width + padding
     S32 permission_edit_theirs_width = avatar_item->mIconPermissionEditMine->getRect().mLeft - avatar_item->mIconPermissionEditTheirs->getRect().mLeft;
 
-    // last interaction time textbox width + padding
-    S32 last_interaction_time_width = avatar_item->mIconPermissionEditTheirs->getRect().mLeft - avatar_item->mLastInteractionTime->getRect().mLeft;
-
     // avatar icon width + padding
     S32 icon_width = avatar_item->mAvatarName->getRect().mLeft - avatar_item->mAvatarIcon->getRect().mLeft;
 
@@ -546,13 +555,13 @@ void LLAvatarListItem::initChildrenWidths(LLAvatarListItem* avatar_item)
     S32 index = ALIC_COUNT;
     sChildrenWidths[--index] = icon_width;
     sChildrenWidths[--index] = 0; // for avatar name we don't need its width, it will be calculated as "left available space"
-    sChildrenWidths[--index] = last_interaction_time_width;
     sChildrenWidths[--index] = permission_edit_theirs_width;
     sChildrenWidths[--index] = permission_edit_mine_width;
     sChildrenWidths[--index] = permission_map_width;
     sChildrenWidths[--index] = permission_online_width;
     sChildrenWidths[--index] = info_btn_width;
     sChildrenWidths[--index] = profile_btn_width;
+    sChildrenWidths[--index] = time_or_distance_width;
     sChildrenWidths[--index] = speaking_indicator_width;
     llassert(index == 0);
 }
@@ -667,7 +676,7 @@ LLView* LLAvatarListItem::getItemChildView(EAvatarListItemChildIndex child_view_
         child_view = mAvatarName;
         break;
     case ALIC_INTERACTION_TIME:
-        child_view = mLastInteractionTime;
+        child_view = mTimeOrDistanceText;
         break;
     case ALIC_SPEAKER_INDICATOR:
         child_view = mSpeakingIndicator;
