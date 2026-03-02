@@ -388,7 +388,8 @@ public:
     // face - which cube face to update
     // near_clip - near clip setting to use
     bool cubeSnapshot(const LLVector3 &origin, LLCubeMapArray *cubearray, S32 index, S32 face, F32 near_clip, bool render_avatars,
-                      bool customCullingPlane = false, LLPlane cullingPlane = LLPlane(LLVector3(0, 0, 0), LLVector3(0, 0, 1)));
+                      bool customCullingPlane = false, LLPlane cullingPlane = LLPlane(LLVector3(0, 0, 0), LLVector3(0, 0, 1)),
+                      const LLVector3* overrideLookDir = nullptr, const LLVector3* overrideUpDir = nullptr);
 
 
     // special implementation of simpleSnapshot for reflection maps

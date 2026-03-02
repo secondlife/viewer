@@ -99,6 +99,8 @@ public:
         GLint heroShape;
         GLint heroMipCount;
         GLint heroProbeCount;
+
+        LLMatrix4 heroPlaneMatrix;
     };
 
     // allocate an environment map of the given resolution

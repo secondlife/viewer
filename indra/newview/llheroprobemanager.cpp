@@ -189,6 +189,18 @@ void LLHeroProbeManager::update()
             mMirrorPosition = hero_pos;
             mMirrorNormal   = face_normal;
 
+            mIsPlanar = mNearestHero->getScale().mV[VZ] < 0.02f;
+
+            if (mIsPlanar)
+            {
+                LLVector3 camFwd = LLViewerCamera::instance().getAtAxis();
+                LLVector3 camUp  = LLViewerCamera::instance().getUpAxis();
+                mPlanarLookDir = camFwd - 2.0f * (camFwd * face_normal) * face_normal;
+                mPlanarUpDir   = camUp  - 2.0f * (camUp  * face_normal) * face_normal;
+                mPlanarLookDir.normalize();
+                mPlanarUpDir.normalize();
+            }
+
             probe_pos.load3(point.mV);
 
             // Detect visible faces of a cube based on camera direction and distance
@@ -264,15 +276,27 @@ void LLHeroProbeManager::renderProbes()
             LL_PROFILE_ZONE_NUM(rate);
 
             bool dynamic = mNearestHero->getReflectionProbeIsDynamic() && sDetail() > 0;
-            for (U32 i = 0; i < 6; ++i)
+
+            if (mIsPlanar)
             {
-                if ((gFrameCount % rate) == (i % rate))
-                { // update 6/rate faces per frame
-                    LL_PROFILE_ZONE_NUM(i);
-                    updateProbeFace(mProbes[0], i, dynamic, near_clip);
+                updateProbeFace(mProbes[0], 0, dynamic, near_clip);
+            }
+            else
+            {
+                for (U32 i = 0; i < 6; ++i)
+                {
+                    if ((gFrameCount % rate) == (i % rate))
+                    { // update 6/rate faces per frame
+                        LL_PROFILE_ZONE_NUM(i);
+                        updateProbeFace(mProbes[0], i, dynamic, near_clip);
+                    }
                 }
             }
-            generateRadiance(mProbes[0]);
+
+            if (!mIsPlanar)
+            {
+                generateRadiance(mProbes[0]);
+            }
         }
 
         mRenderingMirror = false;
@@ -300,7 +324,16 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mHeroProbeRT;
 
-    probe->update(mRenderTarget.getWidth(), face, is_dynamic, near_clip);
+    if (mIsPlanar)
+    {
+        probe->update(mRenderTarget.getWidth(), face, is_dynamic, near_clip,
+                      true, mCurrentClipPlane, &mPlanarLookDir, &mPlanarUpDir);
+    }
+    else
+    {
+        probe->update(mRenderTarget.getWidth(), face, is_dynamic, near_clip,
+                      true, mCurrentClipPlane);
+    }
 
     gPipeline.mRT = &gPipeline.mMainRT;
 
@@ -398,6 +431,13 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
                 mTexture->bind(0);
 
                 glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, sourceIdx * 6 + face, 0, 0, res, res);
+
+                if (mIsPlanar)
+                {
+                    // For planar probes we skip generateRadiance, so copy
+                    // directly to the probe's cubemap layer as well.
+                    glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
+                }
 
                 mTexture->unbind();
             }
@@ -518,6 +558,23 @@ void LLHeroProbeManager::updateUniforms()
 
         mHeroData.heroSphere.set(oa.getF32ptr());
         mHeroData.heroSphere.mV[3] = mProbes[0]->mRadius;
+
+        if (mIsPlanar)
+        {
+            mHeroData.heroShape = 2;
+
+            LLVector3 reflRight = mPlanarLookDir % mPlanarUpDir;
+            reflRight.normalize();
+
+            // Build rotation mapping world directions to face 0 cubemap space.
+            // initRows sets mMatrix[i] which becomes GLSL column i via std140,
+            // so each "row" argument here is actually a GLSL column.
+            mHeroData.heroPlaneMatrix.initRows(
+                LLVector4(mPlanarLookDir.mV[VX], -mPlanarUpDir.mV[VX], -reflRight.mV[VX], 0),
+                LLVector4(mPlanarLookDir.mV[VY], -mPlanarUpDir.mV[VY], -reflRight.mV[VY], 0),
+                LLVector4(mPlanarLookDir.mV[VZ], -mPlanarUpDir.mV[VZ], -reflRight.mV[VZ], 0),
+                LLVector4(0, 0, 0, 1));
+        }
     }
 
     llassert(mMipChain.size() <= size_t(S32_MAX));

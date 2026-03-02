@@ -5481,7 +5481,8 @@ bool LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
 
 void display_cube_face();
 
-bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 cubeIndex, S32 face, F32 near_clip, bool dynamic_render, bool useCustomClipPlane, LLPlane clipPlane)
+bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 cubeIndex, S32 face, F32 near_clip, bool dynamic_render, bool useCustomClipPlane, LLPlane clipPlane,
+    const LLVector3* overrideLookDir, const LLVector3* overrideUpDir)
 {
     // NOTE: implementation derived from LLFloater360Capture::capture360Images() and simpleSnapshot
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
@@ -5584,7 +5585,10 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     int i = face;
     {
         // set up camera to look in each direction
-        camera->lookDir(look_dirs[i], look_upvecs[i]);
+        if (overrideLookDir && overrideUpDir)
+            camera->lookDir(*overrideLookDir, *overrideUpDir);
+        else
+            camera->lookDir(look_dirs[i], look_upvecs[i]);
 
         // turning this flag off here prohibits the screen swap
         // to present the new page to the viewer - this stops

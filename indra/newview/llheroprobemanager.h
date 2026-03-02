@@ -45,6 +45,7 @@ struct HeroProbeData
     GLint     heroShape;
     GLint     heroMipCount;
     GLint     heroProbeCount;
+    LLMatrix4 heroPlaneMatrix;
 };
 
 class alignas(16) LLHeroProbeManager
@@ -113,6 +114,10 @@ private:
     LLPointer<LLVertexBuffer> mVertexBuffer;
 
     LLPlane mCurrentClipPlane;
+
+    bool mIsPlanar = false;
+    LLVector3 mPlanarLookDir;
+    LLVector3 mPlanarUpDir;
 
 
     // update the specified face of the specified probe

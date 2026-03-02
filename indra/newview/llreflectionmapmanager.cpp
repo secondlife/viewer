@@ -1302,6 +1302,7 @@ void LLReflectionMapManager::updateUniforms()
     mProbeData.heroShape  = gPipeline.mHeroProbeManager.mHeroData.heroShape;
     mProbeData.heroMipCount   = gPipeline.mHeroProbeManager.mHeroData.heroMipCount;
     mProbeData.heroProbeCount = gPipeline.mHeroProbeManager.mHeroData.heroProbeCount;
+    mProbeData.heroPlaneMatrix = gPipeline.mHeroProbeManager.mHeroData.heroPlaneMatrix;
 
     //copy mProbeData into uniform buffer object
     if (mUBO == 0)
