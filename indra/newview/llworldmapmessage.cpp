@@ -33,7 +33,8 @@
 #include "llagent.h"
 #include "llfloaterworldmap.h"
 
-const U32 LAYER_FLAG = 2;
+constexpr U32 LAYER_FLAG = 2;
+constexpr S32 MAP_SIM_RETURN_NULL_SIMS = 0x00010000;
 
 //---------------------------------------------------------------------------
 // World Map Message Handling
@@ -135,7 +136,11 @@ void LLWorldMapMessage::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16
     msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
     msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
     U32 flags = LAYER_FLAG;
-    flags |= (return_nonexistent ? 0x10000 : 0);
+    if (return_nonexistent)
+    {
+        // overwrite LAYER_FLAG, otherwise server won't respond to missing regions
+        flags = MAP_SIM_RETURN_NULL_SIMS;
+    }
     msg->addU32Fast(_PREHASH_Flags, flags);
     msg->addU32Fast(_PREHASH_EstateID, 0); // Filled in on sim
     msg->addBOOLFast(_PREHASH_Godlike, false); // Filled in on sim
@@ -157,15 +162,17 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
     U32 agent_flags;
     msg->getU32Fast(_PREHASH_AgentData, _PREHASH_Flags, agent_flags);
 
-    // There's only one flag that we ever use here
-    if (agent_flags != LAYER_FLAG)
+    S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_Data);
+
+    // There's only one flag that we ever use here, unless we also want an existence check.
+    if (agent_flags != LAYER_FLAG
+        && num_blocks != 1) // we check existence for a single region
     {
         LL_WARNS() << "Invalid map image type returned! layer = " << agent_flags << LL_ENDL;
         return;
     }
 
-    S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_Data);
-    //LL_INFOS("WorldMap") << "num_blocks = " << num_blocks << LL_ENDL;
+    LL_DEBUGS("WorldMap") << "num_blocks = " << num_blocks << LL_ENDL;
 
     bool found_null_sim = false;
 
@@ -191,26 +198,31 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
         U32 x_world = (U32)(x_regions) * REGION_WIDTH_UNITS;
         U32 y_world = (U32)(y_regions) * REGION_WIDTH_UNITS;
 
-        // name shouldn't be empty, see EXT-4568
-        llassert(!name.empty());
+        // Name shouldn't be empty unless region doesn't exist
+        if (!name.empty())
+        {
+            // Insert that region in the world map, if failure, flag it as a "null_sim"
+            if (!(LLWorldMap::getInstance()->insertRegion(x_world, y_world, name, image_id, (U32)accesscode, region_flags)))
+            {
+                found_null_sim = true;
+            }
 
-        // Insert that region in the world map, if failure, flag it as a "null_sim"
-        if (!(LLWorldMap::getInstance()->insertRegion(x_world, y_world, name, image_id, (U32)accesscode, region_flags)))
+            // If we hit a valid tracking location, do what needs to be done app level wise
+            if (LLWorldMap::getInstance()->isTrackingValidLocation())
+            {
+                LLVector3d pos_global = LLWorldMap::getInstance()->getTrackedPositionGlobal();
+                if (LLWorldMap::getInstance()->isTrackingDoubleClick())
+                {
+                    // Teleport if the user double clicked
+                    gAgent.teleportViaLocation(pos_global);
+                }
+                // Update the "real" tracker information
+                gFloaterWorldMap->trackLocation(pos_global);
+            }
+        }
+        else
         {
             found_null_sim = true;
-        }
-
-        // If we hit a valid tracking location, do what needs to be done app level wise
-        if (LLWorldMap::getInstance()->isTrackingValidLocation())
-        {
-            LLVector3d pos_global = LLWorldMap::getInstance()->getTrackedPositionGlobal();
-            if (LLWorldMap::getInstance()->isTrackingDoubleClick())
-            {
-                // Teleport if the user double clicked
-                gAgent.teleportViaLocation(pos_global);
-            }
-            // Update the "real" tracker information
-            gFloaterWorldMap->trackLocation(pos_global);
         }
 
         // Handle the SLURL callback if any
