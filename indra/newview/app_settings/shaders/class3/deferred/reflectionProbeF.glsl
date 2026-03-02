@@ -715,7 +715,7 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
 uniform vec4 clipPlane;
 uniform samplerCubeArray   heroProbes;
 
-void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
+void tapHeroProbe(inout vec3 ambenv, inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 {
     float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
     float w = 0;
@@ -770,11 +770,13 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
             vec4(env_mat * refnormpersp, 0),
             (1.0 - glossiness) * heroMipCount).xyz, w);
     }
+
+    ambenv *= (1.0 - w);
 }
 
 #else
 
-void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
+void tapHeroProbe(inout vec3 ambenv, inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 {
 }
 
@@ -817,7 +819,7 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
     }
 #endif
 
-    tapHeroProbe(glossenv, pos, norm, glossiness);
+    tapHeroProbe(ambenv, glossenv, pos, norm, glossiness);
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
@@ -933,8 +935,8 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     }
 #endif
 
-    tapHeroProbe(glossenv, pos, norm, glossiness);
-    tapHeroProbe(legacyenv, pos, norm, 1.0);
+    tapHeroProbe(ambenv, glossenv, pos, norm, glossiness);
+    tapHeroProbe(ambenv, legacyenv, pos, norm, 1.0);
 
     glossenv = clamp(glossenv, vec3(0), vec3(10));
 }

@@ -92,6 +92,8 @@ public:
     LLVector3     mMirrorNormal;
     HeroProbeData mHeroData;
 
+    bool mHeroShadowsComplete = false;
+
 private:
     friend class LLPipeline;
     friend class LLReflectionMapManager;

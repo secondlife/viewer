@@ -255,6 +255,7 @@ void LLHeroProbeManager::renderProbes()
 
         gPipeline.mReflectionMapManager.mRadiancePass = true;
         mRenderingMirror = true;
+        mHeroShadowsComplete = false;
 
         S32 rate = sUpdateRate;
 
@@ -293,10 +294,7 @@ void LLHeroProbeManager::renderProbes()
                 }
             }
 
-            if (!mIsPlanar)
-            {
-                generateRadiance(mProbes[0]);
-            }
+            generateRadiance(mProbes[0]);
         }
 
         mRenderingMirror = false;
@@ -431,13 +429,6 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
                 mTexture->bind(0);
 
                 glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, sourceIdx * 6 + face, 0, 0, res, res);
-
-                if (mIsPlanar)
-                {
-                    // For planar probes we skip generateRadiance, so copy
-                    // directly to the probe's cubemap layer as well.
-                    glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
-                }
 
                 mTexture->unbind();
             }

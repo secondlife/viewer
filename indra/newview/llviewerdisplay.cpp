@@ -1195,9 +1195,14 @@ void display_cube_face()
     display_update_camera();
 
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Env Update");
-        // update all the sky/atmospheric/water settings
-        LLEnvironment::instance().update(LLViewerCamera::getInstance());
+        bool heroSkipEnv = gPipeline.mHeroProbeManager.isMirrorPass()
+                        && gPipeline.mHeroProbeManager.mHeroShadowsComplete;
+        if (!heroSkipEnv)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Env Update");
+            // update all the sky/atmospheric/water settings
+            LLEnvironment::instance().update(LLViewerCamera::getInstance());
+        }
     }
 
     LLSpatialGroup::sNoDelete = true;
@@ -1214,7 +1219,17 @@ void display_cube_face()
     gGL.setColorMask(true, true);
 
     glClearColor(0.f, 0.f, 0.f, 0.f);
-    gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
+
+    {
+        bool heroSkipShadow = gPipeline.mHeroProbeManager.isMirrorPass()
+                           && gPipeline.mHeroProbeManager.mHeroShadowsComplete;
+        if (!heroSkipShadow)
+        {
+            gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
+            if (gPipeline.mHeroProbeManager.isMirrorPass())
+                gPipeline.mHeroProbeManager.mHeroShadowsComplete = true;
+        }
+    }
 
     glClear(GL_DEPTH_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
 
