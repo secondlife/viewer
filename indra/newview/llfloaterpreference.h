@@ -401,8 +401,9 @@ public:
 
     void onOpen(const LLSD& key) override;
 
-    // This function squirrels away the current values of the controls so that
-    // cancel() can restore them.
+    void apply() override;
+    void cancel(const std::vector<std::string> settings_to_skip = {}) override;
+
     void saveSettings() override;
 
     void updateDeviceListInternal();
@@ -450,6 +451,7 @@ private:
     void resetAxisOptionsToDefaults();
     void resetAxisMappingsToDefaults();
     void resetButtonMappingsToDefaults();
+    void rememberOriginalSettings();
 
     // Above the tab container
     LLCheckBoxCtrl* mCheckGameControlToServer { nullptr }; // send game_control data to server
@@ -492,6 +494,9 @@ private:
     };
     std::map<std::string, DeviceOptions> mDeviceOptions;
     std::string mSelectedDeviceGUID;
+
+    // map of previous settings to restore after 'cancel'
+    LLSD mOrigSettings;
 };
 
 class LLAvatarComplexityControls

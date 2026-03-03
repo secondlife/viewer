@@ -1150,7 +1150,7 @@ static std::string getMappings(const std::vector<std::string>& actions, LLGameCo
     std::vector<std::pair<std::string, LLGameControl::InputChannel>> default_mappings;
     LLGameControl::getDefaultMappings(default_mappings);
 
-    // Walk through the all known actions of the chosen type
+    // Walk through all known actions of the chosen type
     for (const std::string& action : actions)
     {
         LLGameControl::InputChannel channel = getChannel(action);
@@ -1208,37 +1208,47 @@ std::string LLGameControllerManager::getFlycamMappings() const
 
 // Common implementation of setAnalogMappings(), setBinaryMappings() and setFlycamMappings()
 static void setMappings(const std::string& mappings,
-    const std::vector<std::string>& actions, LLGameControl::InputChannel::Type type,
+    const std::vector<std::string>& known_actions,
+    LLGameControl::InputChannel::Type type,
     std::function<void(const std::string& action, LLGameControl::InputChannel channel)> updateMap)
 {
-    if (mappings.empty())
-        return;
+    // 'known_actions' is a list of all available actions ('forward', 'jump', etc)
 
-    std::map<std::string, std::string> pairs;
+    // 'mappings' is a comma-separated list of action:input pairs
+    // where 'action' is the name of an avatar behavior ('jump', 'fly')
+    // and 'input' is a game controller input ('AXIS_4+', 'BUTTON_5')
+
+    if (mappings.empty())
+    {
+        // an empty mappings means all actions are using default inputs
+        return;
+    }
+
+    // convert the CSV mappings string a real map<action,input>
+    std::map<std::string, std::string> action_to_input_map;
     LLStringOps::splitString(mappings, ',', [&](const std::string& mapping)
         {
             std::size_t pos = mapping.find(':');
             if (pos > 0 && pos != std::string::npos)
             {
-                pairs[mapping.substr(0, pos)] = mapping.substr(pos + 1);
+                action_to_input_map[mapping.substr(0, pos)] = mapping.substr(pos + 1);
             }
         });
 
-    static const LLGameControl::InputChannel channelNone;
-
-    for (const std::string& action : actions)
+    // only update actions listed in the map
+    // (any action not itemized will use the default input)
+    for (auto [action_name, input_name] : action_to_input_map)
     {
-        auto it = pairs.find(action);
-        if (it != pairs.end())
+        auto it = std::find(known_actions.begin(), known_actions.end(), action_name);
+        if (it != known_actions.end())
         {
-            LLGameControl::InputChannel channel = LLGameControl::getChannelByName(it->second);
+            LLGameControl::InputChannel channel = LLGameControl::getChannelByName(input_name);
             if (channel.isNone() || channel.mType == type)
             {
-                updateMap(action, channel);
+                updateMap(action_name, channel);
                 continue;
             }
         }
-        updateMap(action, channelNone);
     }
 }
 
@@ -1519,8 +1529,8 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
     llassert(saveObject);
     llassert(updateUI);
 
-    int result = SDL_InitSubSystem(SDL_INIT_GAMEPAD | SDL_INIT_SENSOR);
-    if (result < 0)
+    bool result = SDL_InitSubSystem(SDL_INIT_GAMEPAD | SDL_INIT_SENSOR);
+    if (!result)
     {
         // This error is critical, we stop working with SDL and return
         LL_WARNS("SDL3") << "Error initializing GameController subsystems : " << SDL_GetError() << LL_ENDL;
