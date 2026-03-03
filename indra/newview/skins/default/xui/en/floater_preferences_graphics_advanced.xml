@@ -805,6 +805,10 @@
       label="High"
       name="2"
       value="2"/>
+    <combo_box.item
+      label="Ultra"
+      name="3"
+      value="3"/>
     <combo_box.commit_callback
       function="Pref.UpdateReflectionsQuality" />
   </combo_box>
@@ -950,20 +954,6 @@
   </slider>
 
   <!-- Mirror settings. -->
-  <check_box
-    control_name="RenderMirrors"
-    height="16"
-    initial_value="false"
-    label="Mirrors"
-    layout="topleft"
-    left="420"
-    name="Mirrors"
-    top_delta="22"
-    width="240">
-    <check_box.commit_callback
-      function="Pref.RenderOptionUpdate" />
-  </check_box>
-
   <text
     type="string"
     length="1"

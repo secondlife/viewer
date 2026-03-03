@@ -1145,6 +1145,14 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
         F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - water_height;
         bool underwater = (eyedepth <= 0.0f);
 
+        // During water probe rendering, the reflected camera is below water but
+        // we're rendering the above-water scene. Force above-water fog.
+        if (underwater && gPipeline.mHeroProbeManager.isMirrorPass()
+            && gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx == 0)
+        {
+            underwater = false;
+        }
+
         F32 waterFogDensity = env.getCurrentWater()->getModifiedWaterFogDensity(underwater);
         shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, waterFogDensity);
 

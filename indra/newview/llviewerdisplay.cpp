@@ -1195,8 +1195,10 @@ void display_cube_face()
     display_update_camera();
 
     {
+        S32 probeIdx = gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx;
         bool heroSkipEnv = gPipeline.mHeroProbeManager.isMirrorPass()
-                        && gPipeline.mHeroProbeManager.mHeroShadowsComplete;
+                        && probeIdx >= 0
+                        && gPipeline.mHeroProbeManager.mHeroShadowsComplete[probeIdx];
         if (!heroSkipEnv)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Env Update");
@@ -1214,6 +1216,15 @@ void display_cube_face()
     static LLCullResult result;
     LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
     LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater();
+
+    // During water probe rendering, the reflected camera is below water but
+    // we're rendering the above-water scene for the reflection.
+    if (LLPipeline::sUnderWaterRender && gPipeline.mHeroProbeManager.isMirrorPass()
+        && gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx == 0)
+    {
+        LLPipeline::sUnderWaterRender = false;
+    }
+
     gPipeline.updateCull(*LLViewerCamera::getInstance(), result);
 
     gGL.setColorMask(true, true);
@@ -1221,13 +1232,15 @@ void display_cube_face()
     glClearColor(0.f, 0.f, 0.f, 0.f);
 
     {
+        S32 probeIdx = gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx;
         bool heroSkipShadow = gPipeline.mHeroProbeManager.isMirrorPass()
-                           && gPipeline.mHeroProbeManager.mHeroShadowsComplete;
+                           && probeIdx >= 0
+                           && gPipeline.mHeroProbeManager.mHeroShadowsComplete[probeIdx];
         if (!heroSkipShadow)
         {
             gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
-            if (gPipeline.mHeroProbeManager.isMirrorPass())
-                gPipeline.mHeroProbeManager.mHeroShadowsComplete = true;
+            if (gPipeline.mHeroProbeManager.isMirrorPass() && probeIdx >= 0)
+                gPipeline.mHeroProbeManager.mHeroShadowsComplete[probeIdx] = true;
         }
     }
 
@@ -1254,6 +1267,12 @@ void display_cube_face()
     LLAppViewer::instance()->pingMainloopTimeout("Display:RenderStart");
 
     LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater();
+
+    if (LLPipeline::sUnderWaterRender && gPipeline.mHeroProbeManager.isMirrorPass()
+        && gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx == 0)
+    {
+        LLPipeline::sUnderWaterRender = false;
+    }
 
     gGL.setColorMask(true, true);
 

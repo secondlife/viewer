@@ -69,7 +69,7 @@ LLHeroProbeManager::~LLHeroProbeManager()
     cleanup();
 
     mHeroVOList.clear();
-    mNearestHero = nullptr;
+    mActiveHeroes.clear();
 }
 
 // helper class to seed octree with probes
@@ -124,24 +124,58 @@ void LLHeroProbeManager::update()
 
     llassert(mProbes[0] == mDefaultProbe);
 
-    LLVector4a probe_pos;
     LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
-    bool       probe_present = false;
     LLQuaternion cameraOrientation = LLViewerCamera::instance().getQuaternion();
     LLVector3    cameraDirection   = LLVector3::z_axis * cameraOrientation;
 
-    if (mHeroVOList.size() > 0)
+    S32 probeCount = (S32)mReflectionProbeCount;
+
+    // --- Probe 0: System water mirror probe ---
     {
-        // Find our nearest hero candidate.
-        float last_distance = 99999.f;
-        float camera_center_distance = 99999.f;
-        mNearestHero = nullptr;
+        F32 waterHeight = LLEnvironment::instance().getWaterHeight();
+        LLVector3 waterPos(camera_pos.mV[VX], camera_pos.mV[VY], waterHeight);
+        LLVector3 waterNormal(0.f, 0.f, 1.f);
+
+        LLVector3 offset = camera_pos - waterPos;
+        LLVector3 project = waterNormal * (offset * waterNormal);
+        LLVector3 reject  = offset - project;
+        LLVector3 point   = (reject - project) + waterPos;
+
+        LLVector4a probe_pos;
+        probe_pos.load3(point.mV);
+
+        mProbes[0]->mOrigin = probe_pos;
+        mProbes[0]->mRadius = 256.0f * 0.5f * sqrtf(2.0f);
+
+        mCurrentClipPlane.setVec(waterPos, waterNormal);
+        mIsPlanar = true;
+
+        LLVector3 camFwd = LLViewerCamera::instance().getAtAxis();
+        LLVector3 camUp  = LLViewerCamera::instance().getUpAxis();
+        mPlanarLookDir = camFwd - 2.0f * (camFwd * waterNormal) * waterNormal;
+        mPlanarUpDir   = camUp  - 2.0f * (camUp  * waterNormal) * waterNormal;
+        mPlanarLookDir.normalize();
+        mPlanarUpDir.normalize();
+    }
+
+    // --- User probes (indices 1..N-1) ---
+    mActiveHeroes.clear();
+
+    if (mHeroVOList.size() > 0 && probeCount > 1)
+    {
+        // Build sorted candidate list by distance
+        struct HeroCandidate
+        {
+            LLPointer<LLVOVolume> vo;
+            float distance;
+        };
+        std::vector<HeroCandidate> candidates;
+
         for (auto vo : mHeroVOList)
         {
             if (vo && !vo->isDead() && vo->mDrawable.notNull() && vo->isReflectionProbe() && vo->getReflectionProbeIsBox())
             {
-                float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
-                float center_distance = cameraDirection * (vo->getPositionAgent() - camera_pos);
+                float distance = (camera_pos - vo->getPositionAgent()).magVec();
 
                 if (distance > LLViewerCamera::instance().getFar())
                     continue;
@@ -149,18 +183,12 @@ void LLHeroProbeManager::update()
                 LLVector4a center;
                 center.load3(vo->getPositionAgent().mV);
                 LLVector4a size;
-
                 size.load3(vo->getScale().mV);
 
-                bool visible = LLViewerCamera::instance().AABBInFrustum(center, size);
+                if (!LLViewerCamera::instance().AABBInFrustum(center, size))
+                    continue;
 
-                if (distance < last_distance && center_distance < camera_center_distance && visible)
-                {
-                    probe_present = true;
-                    mNearestHero = vo;
-                    last_distance = distance;
-                    camera_center_distance = center_distance;
-                }
+                candidates.push_back({ vo, distance });
             }
             else
             {
@@ -168,16 +196,26 @@ void LLHeroProbeManager::update()
             }
         }
 
-        // Don't even try to do anything if we didn't find a single mirror present.
-        if (!probe_present)
-            return;
+        // Sort by distance, nearest first
+        std::sort(candidates.begin(), candidates.end(),
+            [](const HeroCandidate& a, const HeroCandidate& b) { return a.distance < b.distance; });
 
-        if (mNearestHero != nullptr && !mNearestHero->isDead() && mNearestHero->mDrawable.notNull())
+        // Pick up to N-1 nearest user probes
+        S32 maxUserProbes = probeCount - 1;
+        for (S32 i = 0; i < (S32)candidates.size() && i < maxUserProbes; ++i)
         {
-            LLVector3 hero_pos = mNearestHero->getPositionAgent();
-            LLVector3 face_normal = LLVector3(0, 0, 1);
+            mActiveHeroes.push_back(candidates[i].vo);
+        }
 
-            face_normal *= mNearestHero->mDrawable->getWorldRotation();
+        // Set up each user probe
+        for (S32 i = 0; i < (S32)mActiveHeroes.size(); ++i)
+        {
+            S32 probeIdx = i + 1; // probe 0 is water
+            LLVOVolume* hero = mActiveHeroes[i];
+
+            LLVector3 hero_pos = hero->getPositionAgent();
+            LLVector3 face_normal = LLVector3(0, 0, 1);
+            face_normal *= hero->mDrawable->getWorldRotation();
             face_normal.normalize();
 
             LLVector3 offset = camera_pos - hero_pos;
@@ -185,52 +223,34 @@ void LLHeroProbeManager::update()
             LLVector3 reject  = offset - project;
             LLVector3 point   = (reject - project) + hero_pos;
 
-            mCurrentClipPlane.setVec(hero_pos, face_normal);
-            mMirrorPosition = hero_pos;
-            mMirrorNormal   = face_normal;
-
-            mIsPlanar = mNearestHero->getScale().mV[VZ] < 0.02f;
-
-            if (mIsPlanar)
-            {
-                LLVector3 camFwd = LLViewerCamera::instance().getAtAxis();
-                LLVector3 camUp  = LLViewerCamera::instance().getUpAxis();
-                mPlanarLookDir = camFwd - 2.0f * (camFwd * face_normal) * face_normal;
-                mPlanarUpDir   = camUp  - 2.0f * (camUp  * face_normal) * face_normal;
-                mPlanarLookDir.normalize();
-                mPlanarUpDir.normalize();
-            }
-
+            LLVector4a probe_pos;
             probe_pos.load3(point.mV);
 
-            // Detect visible faces of a cube based on camera direction and distance
-
-            // Define the cube faces
-            static LLVector3 cubeFaces[6] = {
-                LLVector3(1, 0, 0),
-                LLVector3(-1, 0, 0),
-                LLVector3(0, 1, 0),
-                LLVector3(0, -1, 0),
-                LLVector3(0, 0, 1),
-                LLVector3(0, 0, -1)
-            };
-
-            mProbes[0]->mOrigin = probe_pos;
-            mProbes[0]->mRadius = mNearestHero->getScale().magVec() * 0.5f;
+            mProbes[probeIdx]->mOrigin = probe_pos;
+            mProbes[probeIdx]->mRadius = hero->getScale().magVec() * 0.5f;
+            mProbes[probeIdx]->mViewerObject = hero;
         }
-        else
-        {
-            mNearestHero = nullptr;
-            mDefaultProbe->mViewerObject = nullptr;
-        }
+    }
 
-        mHeroProbeStrength = 1;
+    // Set backward compat mMirrorPosition/mMirrorNormal from nearest user probe (for clipPlane uniform)
+    if (!mActiveHeroes.empty())
+    {
+        LLVOVolume* nearest = mActiveHeroes[0];
+        LLVector3 face_normal = LLVector3(0, 0, 1);
+        face_normal *= nearest->mDrawable->getWorldRotation();
+        face_normal.normalize();
+        mMirrorPosition = nearest->getPositionAgent();
+        mMirrorNormal   = face_normal;
     }
     else
     {
-        mNearestHero = nullptr;
-        mDefaultProbe->mViewerObject = nullptr;
+        // Fall back to water plane
+        F32 waterHeight = LLEnvironment::instance().getWaterHeight();
+        mMirrorPosition = LLVector3(camera_pos.mV[VX], camera_pos.mV[VY], waterHeight);
+        mMirrorNormal   = LLVector3(0.f, 0.f, 1.f);
     }
+
+    mHeroProbeStrength = 1;
 }
 
 void LLHeroProbeManager::renderProbes()
@@ -246,8 +266,7 @@ void LLHeroProbeManager::renderProbes()
     static LLCachedControl<S32> sUpdateRate(gSavedSettings, "RenderHeroProbeUpdateRate", 0);
 
     F32 near_clip = 0.01f;
-    if (mNearestHero != nullptr && !mNearestHero->isDead() &&
-        !gTeleportDisplay && !gDisconnected && !LLAppViewer::instance()->logoutRequestSent())
+    if (!gTeleportDisplay && !gDisconnected && !LLAppViewer::instance()->logoutRequestSent())
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("hpmu - realtime");
 
@@ -255,7 +274,12 @@ void LLHeroProbeManager::renderProbes()
 
         gPipeline.mReflectionMapManager.mRadiancePass = true;
         mRenderingMirror = true;
-        mHeroShadowsComplete = false;
+
+        // Reset shadow tracking for all probes
+        for (S32 i = 0; i < LL_MAX_HERO_PROBE_COUNT; ++i)
+        {
+            mHeroShadowsComplete[i] = false;
+        }
 
         S32 rate = sUpdateRate;
 
@@ -269,40 +293,92 @@ void LLHeroProbeManager::renderProbes()
             rate = 6;
         }
 
-        S32 face = gFrameCount % 6;
+        S32 activeCount = 1 + (S32)mActiveHeroes.size(); // water probe + user probes
 
-        if (!mProbes.empty() && !mProbes[0].isNull() && !mProbes[0]->mOccluded)
+        for (S32 probeIdx = 0; probeIdx < activeCount; ++probeIdx)
         {
-            LL_PROFILE_ZONE_NUM(gFrameCount % rate);
-            LL_PROFILE_ZONE_NUM(rate);
+            if (probeIdx >= (S32)mProbes.size() || mProbes[probeIdx].isNull() || mProbes[probeIdx]->mOccluded)
+                continue;
 
-            bool dynamic = mNearestHero->getReflectionProbeIsDynamic() && sDetail() > 0;
+            mCurrentRenderingProbeIdx = probeIdx;
+
+            // Set per-probe active state and mirror plane for applySpecial()
+            if (probeIdx == 0)
+            {
+                // Water probe — always planar
+                // Clip plane is set just above water to avoid Z-fighting
+                // with underwater fog at the water surface boundary.
+                F32 waterHeight = LLEnvironment::instance().getWaterHeight();
+                LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
+                LLVector3 waterPos(camera_pos.mV[VX], camera_pos.mV[VY], waterHeight);
+                LLVector3 waterNormal(0.f, 0.f, 1.f);
+
+                LLVector3 clipPos(camera_pos.mV[VX], camera_pos.mV[VY], waterHeight + 0.0001f);
+                mCurrentClipPlane.setVec(clipPos, waterNormal);
+                mMirrorPosition = clipPos;
+                mMirrorNormal   = waterNormal;
+                mIsPlanar = true;
+
+                LLVector3 camFwd = LLViewerCamera::instance().getAtAxis();
+                LLVector3 camUp  = LLViewerCamera::instance().getUpAxis();
+                mPlanarLookDir = camFwd - 2.0f * (camFwd * waterNormal) * waterNormal;
+                mPlanarUpDir   = camUp  - 2.0f * (camUp  * waterNormal) * waterNormal;
+                mPlanarLookDir.normalize();
+                mPlanarUpDir.normalize();
+            }
+            else
+            {
+                // User probe
+                LLVOVolume* hero = mActiveHeroes[probeIdx - 1];
+                LLVector3 hero_pos = hero->getPositionAgent();
+                LLVector3 face_normal = LLVector3(0, 0, 1);
+                face_normal *= hero->mDrawable->getWorldRotation();
+                face_normal.normalize();
+
+                mCurrentClipPlane.setVec(hero_pos, face_normal);
+                mMirrorPosition = hero_pos;
+                mMirrorNormal   = face_normal;
+                mIsPlanar = hero->getScale().mV[VZ] < 0.02f;
+
+                if (mIsPlanar)
+                {
+                    LLVector3 camFwd = LLViewerCamera::instance().getAtAxis();
+                    LLVector3 camUp  = LLViewerCamera::instance().getUpAxis();
+                    mPlanarLookDir = camFwd - 2.0f * (camFwd * face_normal) * face_normal;
+                    mPlanarUpDir   = camUp  - 2.0f * (camUp  * face_normal) * face_normal;
+                    mPlanarLookDir.normalize();
+                    mPlanarUpDir.normalize();
+                }
+            }
+
+            bool dynamic = false;
+            if (probeIdx > 0)
+            {
+                dynamic = mActiveHeroes[probeIdx - 1]->getReflectionProbeIsDynamic() && sDetail() > 0;
+            }
 
             if (mIsPlanar)
             {
-                updateProbeFace(mProbes[0], 0, dynamic, near_clip);
+                updateProbeFace(mProbes[probeIdx], 0, dynamic, near_clip);
             }
             else
             {
                 for (U32 i = 0; i < 6; ++i)
                 {
                     if ((gFrameCount % rate) == (i % rate))
-                    { // update 6/rate faces per frame
-                        LL_PROFILE_ZONE_NUM(i);
-                        updateProbeFace(mProbes[0], i, dynamic, near_clip);
+                    {
+                        updateProbeFace(mProbes[probeIdx], i, dynamic, near_clip);
                     }
                 }
             }
 
-            generateRadiance(mProbes[0]);
+            generateRadiance(mProbes[probeIdx]);
         }
 
+        mCurrentRenderingProbeIdx = -1;
         mRenderingMirror = false;
 
         gPipeline.mReflectionMapManager.mRadiancePass = radiance_pass;
-
-        mProbes[0]->mViewerObject = mNearestHero;
-        mProbes[0]->autoAdjustOrigin();
     }
 }
 
@@ -524,47 +600,134 @@ void LLHeroProbeManager::updateUniforms()
 
     LLMatrix4a modelview;
     modelview.loadu(gGLModelView);
-    LLVector4a oa; // scratch space for transformed origin
+    LLVector4a oa;
     oa.set(0, 0, 0, 0);
-    mHeroData.heroProbeCount = 1;
 
-    if (mNearestHero != nullptr && !mNearestHero->isDead())
+    // Zero out the hero data
+    memset(&mHeroData, 0, sizeof(mHeroData));
+
+    S32 activeCount = 1 + (S32)mActiveHeroes.size(); // water + user probes
+    mHeroData.heroProbeCount = activeCount;
+
+    LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
+
+    for (S32 pi = 0; pi < activeCount; ++pi)
     {
-        if (mNearestHero->getReflectionProbeIsBox())
+        if (pi >= (S32)mProbes.size() || mProbes[pi].isNull())
+            continue;
+
+        // Transform probe origin to eye space
+        modelview.affineTransform(mProbes[pi]->mOrigin, oa);
+        mHeroData.heroSphere[pi].set(oa.getF32ptr());
+        mHeroData.heroSphere[pi].mV[3] = mProbes[pi]->mRadius;
+
+        // heroParams: x=shape, y=cubeIndex
+        mHeroData.heroParams[pi][1] = mProbes[pi]->mCubeIndex;
+
+        if (pi == 0)
         {
-            LLVector3 s = mNearestHero->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-            mProbes[0]->mRadius = s.magVec();
+            // Water probe — always planar
+            mHeroData.heroParams[pi][0] = 2; // planar shape
+
+            F32 waterHeight = LLEnvironment::instance().getWaterHeight();
+            LLVector3 waterNormal(0.f, 0.f, 1.f);
+
+            LLVector3 camFwd = LLViewerCamera::instance().getAtAxis();
+            LLVector3 camUp  = LLViewerCamera::instance().getUpAxis();
+            LLVector3 lookDir = camFwd - 2.0f * (camFwd * waterNormal) * waterNormal;
+            LLVector3 upDir   = camUp  - 2.0f * (camUp  * waterNormal) * waterNormal;
+            lookDir.normalize();
+            upDir.normalize();
+
+            LLVector3 reflRight = lookDir % upDir;
+            reflRight.normalize();
+
+            mHeroData.heroPlaneMatrix[pi].initRows(
+                LLVector4(lookDir.mV[VX], -upDir.mV[VX], -reflRight.mV[VX], 0),
+                LLVector4(lookDir.mV[VY], -upDir.mV[VY], -reflRight.mV[VY], 0),
+                LLVector4(lookDir.mV[VZ], -upDir.mV[VZ], -reflRight.mV[VZ], 0),
+                LLVector4(0, 0, 0, 1));
+
+            // Clip plane set just above water to avoid Z-fighting with underwater fog.
+            // Computed camera-relative to avoid float32 precision loss at large world coords.
+            glm::mat4 mat = glm::make_mat4(gGLModelView);
+            glm::mat3 R(mat);
+
+            F32 clipHeight = waterHeight + 0.0001f;
+            glm::vec3 relPos(0.f, 0.f, clipHeight - camera_pos.mV[VZ]);
+
+            glm::vec3 enorm = glm::normalize(R * glm::vec3(0.f, 0.f, 1.f));
+            glm::vec3 ep = R * relPos;
+            mHeroData.heroClipPlane[pi].set(enorm.x, enorm.y, enorm.z, -glm::dot(ep, enorm));
+
+            // Box transform in eye space — 256x256x0.01 volume, no world-space rotation.
+            {
+                glm::vec3 halfScale(128.f, 128.f, 0.1f);
+                glm::mat4 boxMat = glm::inverse(glm::mat4(R) * glm::translate(glm::mat4(1.0f), relPos) * glm::scale(glm::mat4(1.0f), halfScale));
+                mHeroData.heroBox[pi] = LLMatrix4(glm::value_ptr(boxMat));
+            }
         }
         else
         {
-            mProbes[0]->mRadius = mNearestHero->getScale().mV[0] * 0.5f;
-        }
+            // User probe
+            LLVOVolume* hero = mActiveHeroes[pi - 1];
 
-        modelview.affineTransform(mProbes[0]->mOrigin, oa);
-        mHeroData.heroShape = 0;
-        if (!mProbes[0]->getBox(mHeroData.heroBox))
-        {
-            mHeroData.heroShape = 1;
-        }
+            if (hero->getReflectionProbeIsBox())
+            {
+                LLVector3 s = hero->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
+                mProbes[pi]->mRadius = s.magVec();
+            }
+            else
+            {
+                mProbes[pi]->mRadius = hero->getScale().mV[0] * 0.5f;
+            }
 
-        mHeroData.heroSphere.set(oa.getF32ptr());
-        mHeroData.heroSphere.mV[3] = mProbes[0]->mRadius;
+            // Update sphere with correct radius
+            mHeroData.heroSphere[pi].mV[3] = mProbes[pi]->mRadius;
 
-        if (mIsPlanar)
-        {
-            mHeroData.heroShape = 2;
+            mHeroData.heroParams[pi][0] = 0; // box shape
+            if (!mProbes[pi]->getBox(mHeroData.heroBox[pi]))
+            {
+                mHeroData.heroParams[pi][0] = 1; // sphere shape
+            }
 
-            LLVector3 reflRight = mPlanarLookDir % mPlanarUpDir;
-            reflRight.normalize();
+            LLVector3 hero_pos = hero->getPositionAgent();
+            LLVector3 face_normal = LLVector3(0, 0, 1);
+            face_normal *= hero->mDrawable->getWorldRotation();
+            face_normal.normalize();
 
-            // Build rotation mapping world directions to face 0 cubemap space.
-            // initRows sets mMatrix[i] which becomes GLSL column i via std140,
-            // so each "row" argument here is actually a GLSL column.
-            mHeroData.heroPlaneMatrix.initRows(
-                LLVector4(mPlanarLookDir.mV[VX], -mPlanarUpDir.mV[VX], -reflRight.mV[VX], 0),
-                LLVector4(mPlanarLookDir.mV[VY], -mPlanarUpDir.mV[VY], -reflRight.mV[VY], 0),
-                LLVector4(mPlanarLookDir.mV[VZ], -mPlanarUpDir.mV[VZ], -reflRight.mV[VZ], 0),
-                LLVector4(0, 0, 0, 1));
+            bool isPlanar = hero->getScale().mV[VZ] < 0.02f;
+
+            if (isPlanar)
+            {
+                mHeroData.heroParams[pi][0] = 2; // planar shape
+
+                LLVector3 camFwd = LLViewerCamera::instance().getAtAxis();
+                LLVector3 camUp  = LLViewerCamera::instance().getUpAxis();
+                LLVector3 lookDir = camFwd - 2.0f * (camFwd * face_normal) * face_normal;
+                LLVector3 upDir   = camUp  - 2.0f * (camUp  * face_normal) * face_normal;
+                lookDir.normalize();
+                upDir.normalize();
+
+                LLVector3 reflRight = lookDir % upDir;
+                reflRight.normalize();
+
+                mHeroData.heroPlaneMatrix[pi].initRows(
+                    LLVector4(lookDir.mV[VX], -upDir.mV[VX], -reflRight.mV[VX], 0),
+                    LLVector4(lookDir.mV[VY], -upDir.mV[VY], -reflRight.mV[VY], 0),
+                    LLVector4(lookDir.mV[VZ], -upDir.mV[VZ], -reflRight.mV[VZ], 0),
+                    LLVector4(0, 0, 0, 1));
+            }
+
+            // Clip plane in eye space
+            glm::mat4 mat = glm::make_mat4(gGLModelView);
+            glm::mat4 invtrans = glm::transpose(glm::inverse(mat));
+            invtrans[0][3] = invtrans[1][3] = invtrans[2][3] = 0.f;
+
+            glm::vec3 enorm = glm::normalize(glm::vec3(invtrans * glm::vec4(face_normal.mV[VX], face_normal.mV[VY], face_normal.mV[VZ], 0.f)));
+            glm::vec3 ep = glm::vec3(mat * glm::vec4(hero_pos.mV[VX], hero_pos.mV[VY], hero_pos.mV[VZ], 1.f));
+
+            mHeroData.heroClipPlane[pi].set(enorm.x, enorm.y, enorm.z, -glm::dot(ep, enorm));
         }
     }
 
@@ -587,12 +750,11 @@ void LLHeroProbeManager::renderDebug()
 
 void LLHeroProbeManager::initReflectionMaps()
 {
-    U32 count = LL_MAX_HERO_PROBE_COUNT;
+    S32 count = llclamp(LLPipeline::RenderMirrorCount, 1, LL_MAX_HERO_PROBE_COUNT);
 
-    if ((mTexture.isNull() || mReflectionProbeCount != count || mReset) && LLPipeline::RenderMirrors)
+    if ((mTexture.isNull() || mReflectionProbeCount != (U32)count || mReset) && LLPipeline::RenderMirrors)
     {
-
-        if (mReset)
+        if (mReset || mReflectionProbeCount != (U32)count)
         {
             cleanup();
         }
@@ -606,28 +768,23 @@ void LLHeroProbeManager::initReflectionMaps()
 
         static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
 
-        // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
+        // store count+2 cube maps (count probes + 2 scratch/staging)
         mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2, true, render_hdr);
 
-        if (mDefaultProbe.isNull())
+        // Create all probes
+        for (S32 i = 0; i < count; ++i)
         {
-            llassert(mProbes.empty()); // default probe MUST be the first probe created
-            mDefaultProbe = new LLReflectionMap();
-            mProbes.push_back(mDefaultProbe);
+            LLPointer<LLReflectionMap> probe = new LLReflectionMap();
+            probe->mCubeIndex = i;
+            probe->mCubeArray = mTexture;
+            probe->mDistance  = gSavedSettings.getF32("RenderHeroProbeDistance");
+            probe->mRadius = 4096.f;
+            probe->mProbeIndex = i;
+            touch_default_probe(probe);
+            mProbes.push_back(probe);
         }
 
-        llassert(mProbes[0] == mDefaultProbe);
-
-        // For hero probes, we treat this as the main mirror probe.
-
-        mDefaultProbe->mCubeIndex = 0;
-        mDefaultProbe->mCubeArray = mTexture;
-        mDefaultProbe->mDistance  = gSavedSettings.getF32("RenderHeroProbeDistance");
-        mDefaultProbe->mRadius = 4096.f;
-        mDefaultProbe->mProbeIndex = 0;
-        touch_default_probe(mDefaultProbe);
-
-        mProbes.push_back(mDefaultProbe);
+        mDefaultProbe = mProbes[0];
     }
 
     if (mVertexBuffer.isNull())

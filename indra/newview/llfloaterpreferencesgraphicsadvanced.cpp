@@ -176,9 +176,14 @@ void LLFloaterPreferenceGraphicsAdvanced::refresh()
     // Set Reflections Quality dropdown based on current settings
     S32 probe_quality = gSavedSettings.getS32("RenderReflectionProbeQuality");
     bool ssr_enabled = gSavedSettings.getBOOL("RenderScreenSpaceReflections");
+    bool mirrors_enabled = gSavedSettings.getBOOL("RenderMirrors");
     LLComboBox* reflections_combo = getChild<LLComboBox>("ReflectionsQuality");
 
-    if (probe_quality == 0)
+    if (mirrors_enabled && probe_quality == 1 && ssr_enabled)
+    {
+        reflections_combo->setValue(3); // Ultra
+    }
+    else if (probe_quality == 0)
     {
         reflections_combo->setValue(0); // Low
     }
@@ -190,6 +195,13 @@ void LLFloaterPreferenceGraphicsAdvanced::refresh()
     {
         reflections_combo->setValue(2); // High
     }
+
+    // Show/hide mirror sub-controls based on Ultra
+    bool show_mirror_controls = (reflections_combo->getValue().asInteger() == 3);
+    getChildView("MirrorResolutionText")->setVisible(show_mirror_controls);
+    getChildView("MirrorResolution")->setVisible(show_mirror_controls);
+    getChildView("HeroProbeUpdateText")->setVisible(show_mirror_controls);
+    getChildView("HeroProbeUpdateRate")->setVisible(show_mirror_controls);
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledGraphics()
@@ -431,25 +443,42 @@ void LLFloaterPreferenceGraphicsAdvanced::onReflectionsQualityChanged()
     S32 quality = combo->getValue().asInteger();
 
     // Map quality levels to settings:
-    // 0 (Low) = probe quality 0, SSR off
-    // 1 (Medium) = probe quality 1, SSR off
-    // 2 (High) = probe quality 1, SSR on
+    // 0 (Low) = probe quality 0, SSR off, mirrors off
+    // 1 (Medium) = probe quality 1, SSR off, mirrors off
+    // 2 (High) = probe quality 1, SSR on, mirrors off
+    // 3 (Ultra) = probe quality 1, SSR on, mirrors on
 
     if (quality == 0)
     {
         gSavedSettings.setS32("RenderReflectionProbeQuality", 0);
         gSavedSettings.setBOOL("RenderScreenSpaceReflections", false);
+        gSavedSettings.setBOOL("RenderMirrors", false);
     }
     else if (quality == 1)
     {
         gSavedSettings.setS32("RenderReflectionProbeQuality", 1);
         gSavedSettings.setBOOL("RenderScreenSpaceReflections", false);
+        gSavedSettings.setBOOL("RenderMirrors", false);
     }
-    else // quality == 2
+    else if (quality == 2)
     {
         gSavedSettings.setS32("RenderReflectionProbeQuality", 1);
         gSavedSettings.setBOOL("RenderScreenSpaceReflections", true);
+        gSavedSettings.setBOOL("RenderMirrors", false);
     }
+    else // quality == 3 (Ultra)
+    {
+        gSavedSettings.setS32("RenderReflectionProbeQuality", 1);
+        gSavedSettings.setBOOL("RenderScreenSpaceReflections", true);
+        gSavedSettings.setBOOL("RenderMirrors", true);
+    }
+
+    // Show/hide mirror sub-controls based on Ultra
+    bool show_mirror_controls = (quality == 3);
+    getChildView("MirrorResolutionText")->setVisible(show_mirror_controls);
+    getChildView("MirrorResolution")->setVisible(show_mirror_controls);
+    getChildView("HeroProbeUpdateText")->setVisible(show_mirror_controls);
+    getChildView("HeroProbeUpdateRate")->setVisible(show_mirror_controls);
 
     onRenderOptionEnable();
 }

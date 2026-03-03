@@ -216,6 +216,7 @@ F32 LLPipeline::RenderScreenSpaceReflectionAdaptiveStepMultiplier;
 S32 LLPipeline::RenderScreenSpaceReflectionGlossySamples;
 S32 LLPipeline::RenderBufferVisualization;
 bool LLPipeline::RenderMirrors;
+S32 LLPipeline::RenderMirrorCount;
 S32 LLPipeline::RenderHeroProbeUpdateRate;
 S32 LLPipeline::RenderHeroProbeConservativeUpdateMultiplier;
 bool LLPipeline::RenderAvatarCloth;
@@ -612,6 +613,7 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionGlossySamples");
     connectRefreshCachedSettingsSafe("RenderBufferVisualization");
     connectRefreshCachedSettingsSafe("RenderMirrors");
+    connectRefreshCachedSettingsSafe("RenderMirrorCount");
     connectRefreshCachedSettingsSafe("RenderHeroProbeUpdateRate");
     connectRefreshCachedSettingsSafe("RenderHeroProbeConservativeUpdateMultiplier");
     connectRefreshCachedSettingsSafe("RenderAvatarCloth");
@@ -1160,6 +1162,7 @@ void LLPipeline::refreshCachedSettings()
     RenderScreenSpaceReflectionGlossySamples = gSavedSettings.getS32("RenderScreenSpaceReflectionGlossySamples");
     RenderBufferVisualization = gSavedSettings.getS32("RenderBufferVisualization");
     RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
+    RenderMirrorCount = gSavedSettings.getS32("RenderMirrorCount");
     RenderHeroProbeUpdateRate = gSavedSettings.getS32("RenderHeroProbeUpdateRate");
     RenderHeroProbeConservativeUpdateMultiplier = gSavedSettings.getS32("RenderHeroProbeConservativeUpdateMultiplier");
     RenderAvatarCloth = gSavedSettings.getBOOL("RenderAvatarCloth");
@@ -9113,7 +9116,7 @@ void LLPipeline::renderDeferredLighting()
         popRenderTypeMask();
     }
 
-    if (RenderMotionBlur || RenderFSAAType == 3)
+    if ((RenderMotionBlur || RenderFSAAType == 3) && !gCubeSnapshot)
     {
         renderGeomVelocity();
     }

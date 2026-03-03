@@ -1296,13 +1296,22 @@ void LLReflectionMapManager::updateUniforms()
     gPipeline.mHeroProbeManager.updateUniforms();
 
     // Get the hero data.
-
-    mProbeData.heroBox = gPipeline.mHeroProbeManager.mHeroData.heroBox;
-    mProbeData.heroSphere = gPipeline.mHeroProbeManager.mHeroData.heroSphere;
-    mProbeData.heroShape  = gPipeline.mHeroProbeManager.mHeroData.heroShape;
-    mProbeData.heroMipCount   = gPipeline.mHeroProbeManager.mHeroData.heroMipCount;
-    mProbeData.heroProbeCount = gPipeline.mHeroProbeManager.mHeroData.heroProbeCount;
-    mProbeData.heroPlaneMatrix = gPipeline.mHeroProbeManager.mHeroData.heroPlaneMatrix;
+    {
+        const HeroProbeData& hd = gPipeline.mHeroProbeManager.mHeroData;
+        for (S32 i = 0; i < LL_MAX_HERO_PROBE_COUNT; ++i)
+        {
+            mProbeData.heroBox[i]         = hd.heroBox[i];
+            mProbeData.heroSphere[i]      = hd.heroSphere[i];
+            mProbeData.heroParams[i][0]   = hd.heroParams[i][0];
+            mProbeData.heroParams[i][1]   = hd.heroParams[i][1];
+            mProbeData.heroParams[i][2]   = hd.heroParams[i][2];
+            mProbeData.heroParams[i][3]   = hd.heroParams[i][3];
+            mProbeData.heroPlaneMatrix[i] = hd.heroPlaneMatrix[i];
+            mProbeData.heroClipPlane[i]   = hd.heroClipPlane[i];
+        }
+        mProbeData.heroMipCount   = hd.heroMipCount;
+        mProbeData.heroProbeCount = hd.heroProbeCount;
+    }
 
     //copy mProbeData into uniform buffer object
     if (mUBO == 0)

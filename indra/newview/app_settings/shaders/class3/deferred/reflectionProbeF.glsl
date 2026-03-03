@@ -42,6 +42,8 @@ uniform int classic_mode;
 
 #define MAX_REFMAP_COUNT 256  // must match LL_MAX_REFLECTION_PROBE_COUNT
 
+#define MAX_HERO_PROBE_COUNT 8
+
 layout (std140) uniform ReflectionProbes
 {
     // list of OBBs for user override probes
@@ -50,7 +52,7 @@ layout (std140) uniform ReflectionProbes
     /// box[0..2] - plane 0 .. 2 in [A,B,C,D] notation
     //  box[3][0..2] - plane thickness
     mat4 refBox[MAX_REFMAP_COUNT];
-    mat4 heroBox;
+    mat4 heroBox[MAX_HERO_PROBE_COUNT];
     // list of bounding spheres for reflection probes sorted by distance to camera (closest first)
     vec4 refSphere[MAX_REFMAP_COUNT];
     // extra parameters
@@ -59,7 +61,7 @@ layout (std140) uniform ReflectionProbes
     //  z - fade in
     //  w - znear
     vec4 refParams[MAX_REFMAP_COUNT];
-    vec4 heroSphere;
+    vec4 heroSphere[MAX_HERO_PROBE_COUNT];
     // index  of cube map in reflectionProbes for a corresponding reflection probe
     // e.g. cube map channel of refSphere[2] is stored in refIndex[2]
     // refIndex.x - cubemap channel in reflectionProbes
@@ -76,11 +78,13 @@ layout (std140) uniform ReflectionProbes
     // number of reflection probes present in refSphere
     int refmapCount;
 
-    int heroShape;
     int heroMipCount;
     int heroProbeCount;
 
-    mat4 heroPlaneMatrix;
+    // heroParams[i] = { shape, cubeIndex, 0, 0 }
+    ivec4 heroParams[MAX_HERO_PROBE_COUNT];
+    mat4 heroPlaneMatrix[MAX_HERO_PROBE_COUNT];
+    vec4 heroClipPlane[MAX_HERO_PROBE_COUNT];
 };
 
 // Inputs
@@ -712,71 +716,78 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
 
 #if defined(HERO_PROBES)
 
-uniform vec4 clipPlane;
 uniform samplerCubeArray   heroProbes;
 
-void tapHeroProbe(inout vec3 ambenv, inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
+void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 {
-    float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
-    float w = 0;
-    float dw = 0;
     float falloffMult = 10;
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    if (heroShape < 1)
-    {   // box
-        float d = 0;
-        boxIntersect(pos, norm, heroBox, d, 1.0);
-        w = max(d, 0);
-    }
-    else if (heroShape == 1)
-    {   // sphere
-        float r = heroSphere.w;
-        w = sphereWeight(pos, refnormpersp, heroSphere.xyz, r, vec4(1), dw);
-    }
-    else
-    {   // planar (heroShape == 2)
-        float d = 0;
-        boxIntersect(pos, norm, heroBox, d, 1.0);
-        w = max(d, 0);
-    }
-
-    clipDist = clipDist * 0.95 + 0.05;
-    clipDist = clamp(clipDist * falloffMult, 0, 1);
-    w = clamp(w * falloffMult * clipDist, 0, 1);
-    w = mix(0, w, clamp(glossiness - 0.75, 0, 1) * 4);
-
-    if (heroShape == 2)
+    for (int pi = 0; pi < heroProbeCount; ++pi)
     {
-        // Planar: apply correction matrix then sample face 0
-        vec3 worldDir = env_mat * refnormpersp;
-        vec3 corrected = mat3(heroPlaneMatrix) * worldDir;
-        vec3 cubemapDir = corrected;
+        int shape = heroParams[pi].x;
+        int cubeIndex = heroParams[pi].y;
 
-        // Angular fade: attenuate for directions near face edges
-        float cosAngle = cubemapDir.x / max(length(cubemapDir), 0.001);
-        w *= smoothstep(0.0, 0.1, cosAngle);
+        float clipDist = dot(pos.xyz, heroClipPlane[pi].xyz) + heroClipPlane[pi].w;
+        float w = 0;
+        float dw = 0;
 
-        // Ensure face 0 is sampled
-        cubemapDir.x = max(cubemapDir.x, 0.001);
+        if (shape < 1)
+        {   // box
+            float d = 0;
+            boxIntersect(pos, norm, heroBox[pi], d, 1.0);
+            w = max(d, 0);
+        }
+        else if (shape == 1)
+        {   // sphere
+            float r = heroSphere[pi].w;
+            w = sphereWeight(pos, refnormpersp, heroSphere[pi].xyz, r, vec4(1), dw);
+        }
+        else
+        {   // planar (shape == 2)
+            float d = 0;
+            boxIntersect(pos, norm, heroBox[pi], d, 1.0);
+            w = max(d, 0);
+        }
 
-        glossenv = mix(glossenv, textureLod(heroProbes,
-            vec4(cubemapDir, 0),
-            (1.0 - glossiness) * heroMipCount).xyz, w);
+        clipDist = clipDist * 0.95 + 0.05;
+        clipDist = clamp(clipDist * falloffMult, 0, 1);
+        w = clamp(w * falloffMult * clipDist, 0, 1);
+        w = mix(0, w, clamp(glossiness - 0.75, 0, 1) * 4);
+
+        if (w < 0.001)
+            continue;
+
+        if (shape == 2)
+        {
+            // Planar: apply correction matrix then sample face 0
+            vec3 worldDir = env_mat * refnormpersp;
+            vec3 corrected = mat3(heroPlaneMatrix[pi]) * worldDir;
+            vec3 cubemapDir = corrected;
+
+            // Angular fade: attenuate for directions near face edges
+            float cosAngle = cubemapDir.x / max(length(cubemapDir), 0.001);
+            w *= smoothstep(0.0, 0.1, cosAngle);
+
+            // Ensure face 0 is sampled
+            cubemapDir.x = max(cubemapDir.x, 0.001);
+
+            glossenv = mix(glossenv, textureLod(heroProbes,
+                vec4(cubemapDir, cubeIndex),
+                (1.0 - glossiness) * heroMipCount).xyz, w);
+        }
+        else
+        {
+            glossenv = mix(glossenv, textureLod(heroProbes,
+                vec4(env_mat * refnormpersp, cubeIndex),
+                (1.0 - glossiness) * heroMipCount).xyz, w);
+        }
     }
-    else
-    {
-        glossenv = mix(glossenv, textureLod(heroProbes,
-            vec4(env_mat * refnormpersp, 0),
-            (1.0 - glossiness) * heroMipCount).xyz, w);
-    }
-
-    ambenv *= (1.0 - w);
 }
 
 #else
 
-void tapHeroProbe(inout vec3 ambenv, inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
+void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 {
 }
 
@@ -819,7 +830,7 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
     }
 #endif
 
-    tapHeroProbe(ambenv, glossenv, pos, norm, glossiness);
+    tapHeroProbe(glossenv, pos, norm, glossiness);
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
@@ -935,8 +946,8 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     }
 #endif
 
-    tapHeroProbe(ambenv, glossenv, pos, norm, glossiness);
-    tapHeroProbe(ambenv, legacyenv, pos, norm, 1.0);
+    tapHeroProbe(glossenv, pos, norm, glossiness);
+    tapHeroProbe(legacyenv, pos, norm, 1.0);
 
     glossenv = clamp(glossenv, vec3(0), vec3(10));
 }

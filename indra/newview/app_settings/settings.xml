@@ -7673,6 +7673,17 @@
       <real>0.00</real>
     </array>
   </map>
+  <key>RenderMirrorCount</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of mirror probes. Includes system water probe. Min 1.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>2</integer>
+  </map>
   <key>RenderMirrors</key>
   <map>
     <key>Comment</key>
