@@ -1034,9 +1034,6 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
         LLUIColorTable::instance().saveUserSettings();
         gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), true);
 
-        // save current config to settings
-        LLGameControl::saveToSettings();
-
         // Only save once logged in and loaded per account settings
         if (mGotPersonalInfo)
         {
@@ -1082,9 +1079,6 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
         cancel();
         closeFloater();
     }
-
-    // restore config from settings
-    LLGameControl::loadFromSettings();
 }
 
 //static
@@ -2276,7 +2270,6 @@ bool LLPanelPreference::postBuild()
     }
 #endif
 
-    apply();
     return true;
 }
 
@@ -3301,29 +3294,32 @@ void LLPanelPreferenceControls::onCancelKeyBind()
 
 //------------------------LLPanelPreferenceGameControl--------------------------------
 
-// LLPanelPreferenceGameControl is effectively a singleton, so we track its instance
-static LLPanelPreferenceGameControl* gGameControlPanel { nullptr };
-static LLScrollListCtrl* gSelectedGrid { nullptr };
-static LLScrollListItem* gSelectedItem { nullptr };
-static LLScrollListCell* gSelectedCell { nullptr };
+namespace
+{
+    // LLPanelPreferenceGameControl is effectively a singleton, so we track its instance
+    static LLPanelPreferenceGameControl* sGameControlPanel { nullptr };
+    static LLScrollListCtrl* sSelectedGrid { nullptr };
+    static LLScrollListItem* sSelectedItem { nullptr };
+    static LLScrollListCell* sSelectedCell { nullptr };
+}
 
 // static
 void LLPanelPreferenceGameControl::updateDeviceList()
 {
-    if (gGameControlPanel)
+    if (sGameControlPanel)
     {
-        gGameControlPanel->updateDeviceListInternal();
+        sGameControlPanel->updateDeviceListInternal();
     }
 }
 
 LLPanelPreferenceGameControl::LLPanelPreferenceGameControl()
 {
-    gGameControlPanel = this;
+    sGameControlPanel = this;
 }
 
 LLPanelPreferenceGameControl::~LLPanelPreferenceGameControl()
 {
-    gGameControlPanel = nullptr;
+    sGameControlPanel = nullptr;
 }
 
 static LLPanelInjector<LLPanelPreferenceGameControl> t_pref_game_control("panel_preference_game_control");
@@ -3349,7 +3345,12 @@ void LLPanelPreferenceGameControl::saveSettings()
         return LLGameControl::InputChannel();
     };
 
-    // Use string formatting functions provided by class LLGameControl:
+    if (mOrigSettings.isEmpty())
+    {
+        rememberOriginalSettings();
+    }
+
+    // Use string formatting functions provided by LLGameControl
     if (LLControlVariable* analogMappings = gSavedSettings.getControl("AnalogChannelMappings"))
     {
         analogMappings->set(LLGameControl::stringifyAnalogMappings(getChannel));
@@ -3413,13 +3414,13 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     LLComboBox* combobox = nullptr;
     if (grid == mActionTable)
     {
-    std::string action = item->getValue();
-    LLGameControl::ActionNameType actionNameType = LLGameControl::getActionNameType(action);
+        std::string action = item->getValue();
+        LLGameControl::ActionNameType actionNameType = LLGameControl::getActionNameType(action);
         combobox =
-        actionNameType == LLGameControl::ACTION_NAME_ANALOG ? mAnalogChannelSelector :
-        actionNameType == LLGameControl::ACTION_NAME_BINARY ? mBinaryChannelSelector :
-        actionNameType == LLGameControl::ACTION_NAME_FLYCAM ? mAnalogChannelSelector :
-        nullptr;
+            actionNameType == LLGameControl::ACTION_NAME_ANALOG ? mAnalogChannelSelector :
+            actionNameType == LLGameControl::ACTION_NAME_BINARY ? mBinaryChannelSelector :
+            actionNameType == LLGameControl::ACTION_NAME_FLYCAM ? mAnalogChannelSelector :
+            nullptr;
     }
     else if (grid == mAxisMappings)
     {
@@ -3469,16 +3470,16 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     combobox->setVisible(true);
     combobox->showList();
 
-    gSelectedGrid = grid;
-    gSelectedItem = item;
-    gSelectedCell = cell;
+    sSelectedGrid = grid;
+    sSelectedItem = item;
+    sSelectedCell = cell;
 
     return true;
 }
 
 void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
 {
-    if (!gSelectedGrid || !gSelectedItem || !gSelectedCell)
+    if (!sSelectedGrid || !sSelectedItem || !sSelectedCell)
         return;
 
     LLComboBox* combobox = dynamic_cast<LLComboBox*>(ctrl);
@@ -3486,22 +3487,22 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
     if (!combobox)
         return;
 
-    if (gSelectedGrid == mActionTable)
+    if (sSelectedGrid == mActionTable)
     {
         std::string value = combobox->getValue();
         std::string label = (value == "NONE") ?
             LLStringUtil::null : combobox->getSelectedItemLabel();
-    gSelectedCell->setValue(label);
+        sSelectedCell->setValue(label);
     }
     else
     {
         S32 chosen_index = combobox->getCurrentIndex();
         if (chosen_index >= 0)
         {
-            int row_index = gSelectedGrid->getItemIndex(gSelectedItem);
+            int row_index = sSelectedGrid->getItemIndex(sSelectedItem);
             llassert(row_index >= 0);
             LLGameControl::Options& deviceOptions = getSelectedDeviceOptions();
-            std::vector<U8>& map = gSelectedGrid == mAxisMappings ?
+            std::vector<U8>& map = sSelectedGrid == mAxisMappings ?
                 deviceOptions.getAxisMap() : deviceOptions.getButtonMap();
             if (chosen_index >= map.size())
             {
@@ -3509,35 +3510,35 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
             }
             std::string label = chosen_index == row_index ?
                 LLStringUtil::null : combobox->getSelectedItemLabel();
-            gSelectedCell->setValue(label);
+            sSelectedCell->setValue(label);
             map[row_index] = chosen_index;
         }
     }
-    gSelectedGrid->deselectAllItems();
+    sSelectedGrid->deselectAllItems();
     clearSelectionState();
 }
 
 bool LLPanelPreferenceGameControl::isWaitingForInputChannel()
 {
-    return gSelectedCell != nullptr;
+    return sSelectedCell != nullptr;
 }
 
 // static
 void LLPanelPreferenceGameControl::applyGameControlInput()
 {
-    if (!gGameControlPanel || !gSelectedGrid || !gSelectedCell)
+    if (!sGameControlPanel || !sSelectedGrid || !sSelectedCell)
         return;
 
     LLComboBox* combobox;
     LLGameControl::InputChannel::Type expectedType;
-    if (gGameControlPanel->mAnalogChannelSelector->getVisible())
+    if (sGameControlPanel->mAnalogChannelSelector->getVisible())
     {
-        combobox = gGameControlPanel->mAnalogChannelSelector;
+        combobox = sGameControlPanel->mAnalogChannelSelector;
         expectedType = LLGameControl::InputChannel::TYPE_AXIS;
     }
-    else if (gGameControlPanel->mBinaryChannelSelector->getVisible())
+    else if (sGameControlPanel->mBinaryChannelSelector->getVisible())
     {
-        combobox = gGameControlPanel->mBinaryChannelSelector;
+        combobox = sGameControlPanel->mBinaryChannelSelector;
         expectedType = LLGameControl::InputChannel::TYPE_BUTTON;
     }
     else
@@ -3550,9 +3551,10 @@ void LLPanelPreferenceGameControl::applyGameControlInput()
     {
         std::string channel_name = channel.getLocalName();
         std::string channel_label = LLPanelPreferenceGameControl::getChannelLabel(channel_name, combobox->getAllData());
-        gSelectedCell->setValue(channel_label);
-        gSelectedGrid->deselectAllItems();
-        gGameControlPanel->clearSelectionState();
+        sSelectedCell->setValue(channel_label);
+        sSelectedGrid->deselectAllItems();
+        sGameControlPanel->clearSelectionState();
+        sGameControlPanel->saveSettings();
     }
 }
 
@@ -3717,6 +3719,7 @@ bool LLPanelPreferenceGameControl::postBuild()
     return true;
 }
 
+// override
 // Update all UI control values from real objects
 // This function is called before floater is shown
 void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
@@ -3733,6 +3736,52 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
 
     updateDeviceListInternal();
     updateEnable();
+    mOrigSettings = LLSD::emptyMap();
+}
+
+// override
+void LLPanelPreferenceGameControl::apply()
+{
+    LLPanelPreference::apply();
+    clearSelectionState();
+
+    // save current config to settings
+    LLGameControl::saveToSettings();
+}
+
+void LLPanelPreferenceGameControl::cancel(const std::vector<std::string> settings_to_skip)
+{
+    LLPanelPreference::cancel(settings_to_skip);
+    clearSelectionState();
+
+    // Use string formatting functions provided by LLGameControl
+    if (LLControlVariable* analogMappings = gSavedSettings.getControl("AnalogChannelMappings"))
+    {
+        analogMappings->set(mOrigSettings["AnalogChannelMappings"]);
+        mSavedValues[analogMappings] = analogMappings->getValue();
+    }
+
+    if (LLControlVariable* binaryMappings = gSavedSettings.getControl("BinaryChannelMappings"))
+    {
+        binaryMappings->set(mOrigSettings["BinaryChannelMappings"]);
+        mSavedValues[binaryMappings] = binaryMappings->getValue();
+    }
+
+    if (LLControlVariable* flycamMappings = gSavedSettings.getControl("FlycamChannelMappings"))
+    {
+        flycamMappings->set(mOrigSettings["FlycamChannelMappings"]);
+        mSavedValues[flycamMappings] = flycamMappings->getValue();
+    }
+
+    if (LLControlVariable* knownControllers = gSavedSettings.getControl("KnownGameControllers"))
+    {
+        LLSD deviceOptions = mOrigSettings["KnownGameControllers"];
+        knownControllers->set(deviceOptions);
+        mSavedValues[knownControllers] = deviceOptions;
+    }
+
+    // load from settings to clear any temporary changes while UI was open
+    LLGameControl::loadFromSettings();
 }
 
 void LLPanelPreferenceGameControl::updateDeviceListInternal()
@@ -3904,8 +3953,6 @@ void LLPanelPreferenceGameControl::populateDeviceTitle()
 
 void LLPanelPreferenceGameControl::populateDeviceSettings(const std::string& guid)
 {
-    LL_INFOS() << "guid: '" << guid << "'" << LL_ENDL;
-
     mSelectedDeviceGUID = guid;
     auto options_it = mDeviceOptions.find(guid);
     llassert_always(options_it != mDeviceOptions.end());
@@ -4058,9 +4105,9 @@ void LLPanelPreferenceGameControl::fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* g
 
 void LLPanelPreferenceGameControl::clearSelectionState()
 {
-    gSelectedGrid = nullptr;
-    gSelectedItem = nullptr;
-    gSelectedCell = nullptr;
+    sSelectedGrid = nullptr;
+    sSelectedItem = nullptr;
+    sSelectedCell = nullptr;
     mNumericValueEditor->setVisible(false);
     mAnalogChannelSelector->setVisible(false);
     mBinaryChannelSelector->setVisible(false);
@@ -4211,6 +4258,26 @@ void LLPanelPreferenceGameControl::resetButtonMappingsToDefaults()
     {
         rows[i]->getColumn(1)->setValue(LLStringUtil::null);
         options.getButtonMap()[i] = i;
+    }
+}
+
+void LLPanelPreferenceGameControl::rememberOriginalSettings()
+{
+    if (LLControlVariable* analogMappings = gSavedSettings.getControl("AnalogChannelMappings"))
+    {
+        mOrigSettings.insert("AnalogChannelMappings", gSavedSettings.getString("AnalogChannelMappings"));
+    }
+    if (LLControlVariable* binaryMappings = gSavedSettings.getControl("BinaryChannelMappings"))
+    {
+        mOrigSettings.insert("BinaryChannelMappings", gSavedSettings.getString("BinaryChannelMappings"));
+    }
+    if (LLControlVariable* flycamMappings = gSavedSettings.getControl("FlycamChannelMappings"))
+    {
+        mOrigSettings.insert("FlycamChannelMappings", gSavedSettings.getString("FlycamChannelMappings"));
+    }
+    if (LLControlVariable* knownControllers = gSavedSettings.getControl("KnownGameControllers"))
+    {
+        mOrigSettings.insert("KnownGameControllers", gSavedSettings.getLLSD("KnownGameControllers"));
     }
 }
 
