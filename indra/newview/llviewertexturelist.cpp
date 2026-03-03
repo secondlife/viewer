@@ -931,7 +931,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
             {
                 LLFace* face = (*(imagep->getFaceList(i)))[fi];
 
-                if (face && face->getViewerObject())
+                if (face && face->getViewerObject() && !face->getViewerObject()->isDead())
                 {
                     F32 radius;
                     F32 cos_angle_to_view_dir;
