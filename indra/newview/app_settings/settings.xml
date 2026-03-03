@@ -7738,7 +7738,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>64</real>
+      <real>32</real>
       <real>16</real>
       <real>16</real>
     </array>
@@ -7798,7 +7798,7 @@
     <string>Vector3</string>
     <key>Value</key>
     <array>
-      <real>1.13</real>
+      <real>1.3</real>
       <real>1.5</real>
       <real>2</real>
     </array>
