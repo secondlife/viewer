@@ -352,7 +352,12 @@ void LLHeroProbeManager::renderProbes()
             }
 
             bool dynamic = false;
-            if (probeIdx > 0)
+            if (probeIdx == 0)
+            {
+                // Water probe: render avatars only when hero probe detail allows dynamic content
+                dynamic = sDetail() > 0;
+            }
+            else
             {
                 dynamic = mActiveHeroes[probeIdx - 1]->getReflectionProbeIsDynamic() && sDetail() > 0;
             }
