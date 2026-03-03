@@ -382,6 +382,15 @@ private:
     S32 mEditingMode;
 };
 
+// Preference panel for configuring game controller (gamepad) input.
+//
+// Provides two main tabs:
+//   1. Channel Mappings - Maps viewer actions to controller inputs (axes/buttons)
+//   2. Device Settings  - Per-device configuration (axis options, remapping)
+//
+// Supports live input capture: pressing a controller input while editing
+// automatically assigns that input to the selected action.
+//
 class LLPanelPreferenceGameControl : public LLPanelPreference
 {
     LOG_CLASS(LLPanelPreferenceGameControl);
@@ -394,6 +403,7 @@ public:
         TYPE_NONE
     };
 
+    // Called when a device is connected/disconnected
     static void updateDeviceList();
 
     LLPanelPreferenceGameControl();
@@ -403,100 +413,110 @@ public:
 
     void apply() override;
     void cancel(const std::vector<std::string> settings_to_skip = {}) override;
-
     void saveSettings() override;
 
-    void updateDeviceListInternal();
+    void updateDeviceListInternal(); // Refresh device list and settings
 
-    void onGridSelect(LLUICtrl* ctrl);
-    void onCommitInputChannel(LLUICtrl* ctrl);
+    // UI event handlers
+    void onGridSelect(LLUICtrl* ctrl);         // Handle table row selection
+    void onCommitInputChannel(LLUICtrl* ctrl); // Handle channel combobox selection
+    void onAxisOptionsSelect();                // Handle axis options table selection
+    void onCommitNumericValue();               // Handle deadzone/offset value changes
 
-    void onAxisOptionsSelect();
-    void onCommitNumericValue();
-
-    static bool isWaitingForInputChannel();
-    static void applyGameControlInput();
+    // Live input capture support
+    static bool isWaitingForInputChannel();    // True if a cell is waiting for input
+    static void applyGameControlInput();       // Assign detected input to selected cell
 
 protected:
     bool postBuild() override;
 
-    void populateActionTableRows(const std::string& filename);
-    void populateActionTableCells();
+    // Action table population (Tab 1: Channel Mappings)
+    void populateActionTableRows(const std::string& filename);  // Load action rows from XML
+    void populateActionTableCells();                            // Fill channel column with current mappings
     static bool parseXmlFile(LLScrollListCtrl::Contents& contents,
         const std::string& filename, const std::string& what);
 
-    void populateDeviceTitle();
-    void populateDeviceSettings(const std::string& guid);
-    void populateOptionsTableRows();
-    void populateOptionsTableCells();
+    // Device settings population (Tab 2: Device Settings)
+    void populateDeviceTitle();         // Update device selector UI
+    void populateDeviceSettings(const std::string& guid);  // Load settings for device
+    void populateOptionsTableRows();    // Create axis options rows
+    void populateOptionsTableCells();   // Fill axis options with current values
     void populateMappingTableRows(LLScrollListCtrl* target,
-        const LLComboBox* source, size_t row_count);
+        const LLComboBox* source, size_t row_count);  // Create mapping table rows
     void populateMappingTableCells(LLScrollListCtrl* target,
-        const std::vector<U8>& mappings, const LLComboBox* source);
-    LLGameControl::Options& getSelectedDeviceOptions();
+        const std::vector<U8>& mappings, const LLComboBox* source);  // Fill mapping cells
+    LLGameControl::Options& getSelectedDeviceOptions();  // Get options for selected device
 
+    // Utility methods
     static std::string getChannelLabel(const std::string& channelName,
-        const std::vector<LLScrollListItem*>& items);
-    static void setNumericLabel(LLScrollListCell* cell, S32 value);
-    static void fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* grid, S32 row_index, S32 col_index);
+        const std::vector<LLScrollListItem*>& items);  // Look up display label
+    static void setNumericLabel(LLScrollListCell* cell, S32 value);  // Format numeric cell
+    static void fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* grid, S32 row_index, S32 col_index);  // Position editor over cell
 
 private:
-    bool initCombobox(LLScrollListItem* item, LLScrollListCtrl* grid);
-    void clearSelectionState();
-    void addActionTableSeparator();
-    void updateEnable();
-    void updateActionTableState();
-    void onResetToDefaults();
-    void resetChannelMappingsToDefaults();
-    void resetAxisOptionsToDefaults();
-    void resetAxisMappingsToDefaults();
-    void resetButtonMappingsToDefaults();
-    void rememberOriginalSettings();
+    // Inline editing support
+    bool initCombobox(LLScrollListItem* item, LLScrollListCtrl* grid);  // Show combobox over cell
+    void clearSelectionState();  // Hide editors and clear selection tracking
 
-    // Above the tab container
-    LLCheckBoxCtrl* mCheckGameControlToServer { nullptr }; // send game_control data to server
-    LLCheckBoxCtrl* mCheckGameControlToAgent { nullptr };  // use game_control data to move avatar
-    LLCheckBoxCtrl* mCheckAgentToGameControl { nullptr };  // translate external avatar actions to game_control data
+    // UI helpers
+    void addActionTableSeparator();   // Add visual separator to action table
+    void updateEnable();              // Enable/disable UI based on global setting
+    void updateActionTableState();    // Update action table enabled state
 
-    // 1st tab "Channel mappings"
+    // Reset to defaults handlers
+    void onResetToDefaults();         // Route to appropriate reset method
+    void resetChannelMappingsToDefaults();  // Reset action->channel mappings
+    void resetAxisOptionsToDefaults();      // Reset axis invert/deadzone/offset
+    void resetAxisMappingsToDefaults();     // Reset axis remapping to identity
+    void resetButtonMappingsToDefaults();   // Reset button remapping to identity
+
+    void rememberOriginalSettings();  // Capture settings for cancel restoration
+
+    // Main checkboxes controlling how game input is used
+    LLCheckBoxCtrl* mCheckGameControlToServer { nullptr };  // Send game_control data to server
+    LLCheckBoxCtrl* mCheckGameControlToAgent { nullptr };   // Use game_control data to move avatar
+    LLCheckBoxCtrl* mCheckAgentToGameControl { nullptr };   // Translate avatar actions to game_control
+
+    // Tab 1: Channel Mappings - maps actions to controller inputs
     LLPanel* mTabChannelMappings { nullptr };
-    LLScrollListCtrl* mActionTable { nullptr };
+    LLScrollListCtrl* mActionTable { nullptr };  // Action name | Channel assignment
 
-    // 2nd tab "Device settings"
+    // Tab 2: Device Settings - per-device configuration
     LLPanel* mTabDeviceSettings { nullptr };
-    LLTextBox* mNoDeviceMessage { nullptr };
-    LLTextBox* mDevicePrompt { nullptr };
-    LLTextBox* mSingleDevice { nullptr };
-    LLComboBox* mDeviceList { nullptr };
-    LLCheckBoxCtrl* mCheckShowAllDevices { nullptr };
+    LLTextBox* mNoDeviceMessage { nullptr };     // Shown when no devices connected
+    LLTextBox* mDevicePrompt { nullptr };        // "Select device:" label
+    LLTextBox* mSingleDevice { nullptr };        // Shows single device name
+    LLComboBox* mDeviceList { nullptr };         // Dropdown for multiple devices
+    LLCheckBoxCtrl* mCheckShowAllDevices { nullptr };  // Include disconnected devices
     LLPanel* mPanelDeviceSettings { nullptr };
+
+    // Device settings sub-tabs
     LLPanel* mTabAxisOptions { nullptr };
-    LLScrollListCtrl* mAxisOptions { nullptr };
+    LLScrollListCtrl* mAxisOptions { nullptr };    // Axis | Invert | Deadzone | Offset
     LLPanel* mTabAxisMappings { nullptr };
-    LLScrollListCtrl* mAxisMappings { nullptr };
+    LLScrollListCtrl* mAxisMappings { nullptr };   // Physical axis | Mapped to
     LLPanel* mTabButtonMappings { nullptr };
-    LLScrollListCtrl* mButtonMappings { nullptr };
+    LLScrollListCtrl* mButtonMappings { nullptr }; // Physical button | Mapped to
 
     LLButton* mResetToDefaults { nullptr };
 
-    // Numeric value editor
-    LLSpinCtrl* mNumericValueEditor { nullptr };
+    // Inline editors - positioned over table cells when editing
+    LLSpinCtrl* mNumericValueEditor { nullptr };    // For deadzone/offset values
+    LLComboBox* mAnalogChannelSelector { nullptr }; // For axis channel selection
+    LLComboBox* mBinaryChannelSelector { nullptr }; // For button channel selection
+    LLComboBox* mAxisSelector { nullptr };          // For axis remapping
 
-    // Channel selectors
-    LLComboBox* mAnalogChannelSelector { nullptr };
-    LLComboBox* mBinaryChannelSelector { nullptr };
-    LLComboBox* mAxisSelector { nullptr };
-
+    // Per-device options storage
     struct DeviceOptions
     {
-        std::string name, settings;
-        LLGameControl::Options options;
+        std::string name;      // Device display name
+        std::string settings;  // Serialized settings string
+        LLGameControl::Options options;  // Parsed options (axis settings, mappings)
     };
-    std::map<std::string, DeviceOptions> mDeviceOptions;
-    std::string mSelectedDeviceGUID;
+    std::map<std::string, DeviceOptions> mDeviceOptions;  // Keyed by device GUID
+    std::string mSelectedDeviceGUID;  // Currently selected device
 
-    // map of previous settings to restore after 'cancel'
-    LLSD mOrigSettings;
+    LLSD mOrigSettings;  // Captured settings for cancel restoration
 };
 
 class LLAvatarComplexityControls

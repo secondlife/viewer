@@ -3278,17 +3278,38 @@ void LLPanelPreferenceControls::onCancelKeyBind()
 }
 
 //------------------------LLPanelPreferenceGameControl--------------------------------
+//
+// Preference panel for configuring game controller (gamepad) input.
+//
+// This panel provides two main tabs:
+//   1. Channel Mappings - Maps avatar actions (move forward, jump, etc.) to controller inputs
+//   2. Device Settings  - Per-device configuration including:
+//      - Axis Options:   Invert, deadzone, and offset for each axis
+//      - Axis Mappings:  Remap physical axes to different logical axes
+//      - Button Mappings: Remap physical buttons to different logical buttons
+//
+// Settings are stored in:
+//   - AnalogChannelMappings, BinaryChannelMappings, FlycamChannelMappings (action mappings)
+//   - KnownGameControllers (per-device options keyed by device GUID)
+//
+// The panel supports live input capture: when a combobox is open, pressing a controller
+// button or moving an axis will automatically select that input channel.
+//
 
 namespace
 {
-    // LLPanelPreferenceGameControl is effectively a singleton, so we track its instance
+    // Singleton instance pointer - only one game control panel exists at a time
     static LLPanelPreferenceGameControl* sGameControlPanel { nullptr };
+
+    // Track current UI selection state for input channel assignment.
+    // When user clicks a cell to change its mapping, these track which cell is being edited.
     static LLScrollListCtrl* sSelectedGrid { nullptr };
     static LLScrollListItem* sSelectedItem { nullptr };
     static LLScrollListCell* sSelectedCell { nullptr };
 }
 
-// static
+// Static entry point called when device list changes (device connected/disconnected).
+// Delegates to the singleton instance if it exists.
 void LLPanelPreferenceGameControl::updateDeviceList()
 {
     if (sGameControlPanel)
@@ -3297,11 +3318,13 @@ void LLPanelPreferenceGameControl::updateDeviceList()
     }
 }
 
+// Constructor - registers this instance as the singleton
 LLPanelPreferenceGameControl::LLPanelPreferenceGameControl()
 {
     sGameControlPanel = this;
 }
 
+// Destructor - clears singleton pointer
 LLPanelPreferenceGameControl::~LLPanelPreferenceGameControl()
 {
     sGameControlPanel = nullptr;
@@ -3309,14 +3332,16 @@ LLPanelPreferenceGameControl::~LLPanelPreferenceGameControl()
 
 static LLPanelInjector<LLPanelPreferenceGameControl> t_pref_game_control("panel_preference_game_control");
 
-// Collect all UI control values into mSavedValues
+// Saves current UI state to settings.
+// Extracts channel mappings from the action table and converts to string format.
+// Also saves per-device options (axis settings, remappings) to KnownGameControllers.
 void LLPanelPreferenceGameControl::saveSettings()
 {
     LLPanelPreference::saveSettings();
 
     std::vector<LLScrollListItem*> items = mActionTable->getAllData();
 
-    // Find the channel visually associated with the specified action
+    // Lambda to find the channel associated with an action by looking it up in the UI table
     LLGameControl::getChannel_t getChannel =
     [&](const std::string& action) -> LLGameControl::InputChannel
     {
@@ -3335,7 +3360,7 @@ void LLPanelPreferenceGameControl::saveSettings()
         rememberOriginalSettings();
     }
 
-    // Use string formatting functions provided by LLGameControl
+    // Save action->channel mappings as strings (analog=axes, binary=buttons, flycam=camera)
     if (LLControlVariable* analogMappings = gSavedSettings.getControl("AnalogChannelMappings"))
     {
         analogMappings->set(LLGameControl::stringifyAnalogMappings(getChannel));
@@ -3370,6 +3395,8 @@ void LLPanelPreferenceGameControl::saveSettings()
     }
 }
 
+// Handles row selection in any of the mapping tables (action, axis, button).
+// If user clicked the editable channel column, shows the appropriate combobox for editing.
 void LLPanelPreferenceGameControl::onGridSelect(LLUICtrl* ctrl)
 {
     clearSelectionState();
@@ -3380,6 +3407,7 @@ void LLPanelPreferenceGameControl::onGridSelect(LLUICtrl* ctrl)
 
     if (LLScrollListItem* item = table->getFirstSelected())
     {
+        // Try to show combobox for editing; if not applicable, deselect
         if (initCombobox(item, table))
             return;
 
@@ -3387,8 +3415,12 @@ void LLPanelPreferenceGameControl::onGridSelect(LLUICtrl* ctrl)
     }
 }
 
+// Initializes and displays the appropriate combobox over the selected cell.
+// Determines which combobox to use based on the table and action type.
+// Returns true if a combobox was shown, false if the click wasn't on an editable cell.
 bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScrollListCtrl* grid)
 {
+    // Only column 1 (the channel/mapping column) is editable
     if (item->getSelectedCell() != 1)
         return false;
 
@@ -3396,6 +3428,7 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     if (!cell)
         return false;
 
+    // Select combobox based on table type and action category
     LLComboBox* combobox = nullptr;
     if (grid == mActionTable)
     {
@@ -3462,6 +3495,8 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     return true;
 }
 
+// Called when user selects a channel from the dropdown combobox.
+// Updates the cell display and, for device mappings, updates the internal options.
 void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
 {
     if (!sSelectedGrid || !sSelectedItem || !sSelectedCell)
@@ -3503,12 +3538,15 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
     clearSelectionState();
 }
 
+// Returns true if a cell is currently selected and waiting for input channel assignment.
+// Used to determine whether to capture live controller input.
 bool LLPanelPreferenceGameControl::isWaitingForInputChannel()
 {
     return sSelectedCell != nullptr;
 }
 
-// static
+// Static method called when controller input is detected while a channel selector is open.
+// Automatically assigns the detected input channel to the selected cell.
 void LLPanelPreferenceGameControl::applyGameControlInput()
 {
     if (!sGameControlPanel || !sSelectedGrid || !sSelectedCell)
@@ -3544,6 +3582,8 @@ void LLPanelPreferenceGameControl::applyGameControlInput()
     }
 }
 
+// Handles selection in the axis options table (invert, deadzone, offset).
+// Shows numeric editor for deadzone/offset columns, updates invert flag immediately.
 void LLPanelPreferenceGameControl::onAxisOptionsSelect()
 {
     clearSelectionState();
@@ -3554,8 +3594,8 @@ void LLPanelPreferenceGameControl::onAxisOptionsSelect()
         S32 row_index = mAxisOptions->getItemIndex(row);
 
         {
-            // always update invert checkbox value because even though it may have been clicked
-            // the row does not know its cell has been selected
+            // Always sync invert checkbox - clicking the checkbox selects the row
+            // but doesn't automatically update the underlying option
             constexpr S32 invert_checkbox_column = 1;
             bool invert = row->getColumn(invert_checkbox_column)->getValue().asBoolean();
             options.getAxisOptions()[row_index].mMultiplier = invert ? -1 : 1;
@@ -3586,6 +3626,8 @@ void LLPanelPreferenceGameControl::onAxisOptionsSelect()
     }
 }
 
+// Called when user commits a numeric value (deadzone or offset) in the spin control.
+// Validates and clamps the value, then updates both the UI and device options.
 void LLPanelPreferenceGameControl::onCommitNumericValue()
 {
     if (LLScrollListItem* row = mAxisOptions->getFirstSelected())
@@ -3594,7 +3636,7 @@ void LLPanelPreferenceGameControl::onCommitNumericValue()
         S32 value = mNumericValueEditor->getValue().asInteger();
         S32 row_index = mAxisOptions->getItemIndex(row);
         S32 column_index = row->getSelectedCell();
-        llassert(column_index == 2 || column_index == 3);
+        llassert(column_index == 2 || column_index == 3);  // 2=deadzone, 3=offset
         if (column_index < 2 || column_index > 3)
             return;
 
@@ -3613,9 +3655,11 @@ void LLPanelPreferenceGameControl::onCommitNumericValue()
     }
 }
 
+// Initializes all UI controls and sets up callbacks.
+// Called once when the panel is first built from XML.
 bool LLPanelPreferenceGameControl::postBuild()
 {
-    // Above the tab container
+    // Main checkboxes that control how game input is used
     mCheckGameControlToServer = getChild<LLCheckBoxCtrl>("game_control_to_server");
     mCheckGameControlToAgent = getChild<LLCheckBoxCtrl>("game_control_to_agent");
     mCheckAgentToGameControl = getChild<LLCheckBoxCtrl>("agent_to_game_control");
@@ -3656,6 +3700,7 @@ bool LLPanelPreferenceGameControl::postBuild()
     mCheckShowAllDevices->setCommitCallback([this](LLUICtrl*, const LLSD&) { populateDeviceTitle(); });
     mDeviceList->setCommitCallback([this](LLUICtrl*, const LLSD& value) { populateDeviceSettings(value); });
 
+    // Device settings sub-tabs: Axis Options, Axis Mappings, Button Mappings
     mTabAxisOptions = getChild<LLPanel>("tab_axis_options");
     mAxisOptions = getChild<LLScrollListCtrl>("axis_options");
     mAxisOptions->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAxisOptionsSelect(); });
@@ -3671,26 +3716,27 @@ bool LLPanelPreferenceGameControl::postBuild()
     mResetToDefaults = getChild<LLButton>("reset_to_defaults");
     mResetToDefaults->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onResetToDefaults(); });
 
-    // Numeric value editor
+    // Spin control for editing deadzone/offset values inline
     mNumericValueEditor = getChild<LLSpinCtrl>("numeric_value_editor");
     mNumericValueEditor->setCommitCallback([this](LLUICtrl*, const LLSD&) { onCommitNumericValue(); });
 
-    // Channel selectors
-    mAnalogChannelSelector = getChild<LLComboBox>("analog_channel_selector");
+    // Dropdown selectors shown inline when editing channel assignments.
+    // These are positioned over table cells dynamically by fitInRect().
+    mAnalogChannelSelector = getChild<LLComboBox>("analog_channel_selector");  // For axis actions
     mAnalogChannelSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
 
-    mBinaryChannelSelector = getChild<LLComboBox>("binary_channel_selector");
+    mBinaryChannelSelector = getChild<LLComboBox>("binary_channel_selector");  // For button actions
     mBinaryChannelSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
 
-    mAxisSelector = getChild<LLComboBox>("axis_selector");
+    mAxisSelector = getChild<LLComboBox>("axis_selector");  // For axis remapping
     mAxisSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
 
-    // Setup the 1st tab
-    populateActionTableRows("game_control_table_rows.xml");
+    // Populate action table with rows from XML config files
+    populateActionTableRows("game_control_table_rows.xml");      // Avatar movement actions
     addActionTableSeparator();
-    populateActionTableRows("game_control_table_camera_rows.xml");
+    populateActionTableRows("game_control_table_camera_rows.xml"); // Flycam actions
 
-    // Setup the 2nd tab
+    // Populate device settings tables with empty rows
     populateOptionsTableRows();
     populateMappingTableRows(mAxisMappings, mAxisSelector, LLGameControl::NUM_AXES);
     populateMappingTableRows(mButtonMappings, mBinaryChannelSelector, LLGameControl::NUM_BUTTONS);
@@ -3705,49 +3751,57 @@ bool LLPanelPreferenceGameControl::postBuild()
     return true;
 }
 
-// override
-// Update all UI control values from real objects
-// This function is called before floater is shown
+// Called when the preferences floater is opened.
+// Loads current LLGameControl state into UI controls and refreshes all tables.
 void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
 {
+    // Sync checkboxes with current LLGameControl state
     mCheckGameControlToServer->setValue(LLGameControl::getSendToServer());
     mCheckGameControlToAgent->setValue(LLGameControl::getControlAgent());
     mCheckAgentToGameControl->setValue(LLGameControl::getTranslateAgentActions());
 
     clearSelectionState();
 
-    // Setup the 1st tab
+    // Refresh action mappings table with current channel assignments
     populateActionTableCells();
     updateActionTableState();
 
+    // Refresh device list and settings
     updateDeviceListInternal();
     updateEnable();
+
+    // Clear original settings - will be populated on first saveSettings() call
     mOrigSettings = LLSD::emptyMap();
 }
 
-// override
+// Called when user clicks OK. Clears selections and prepares for onClose()
 void LLPanelPreferenceGameControl::apply()
 {
     LLPanelPreference::apply();
     clearSelectionState();
 
-    // clear mOrigSettings because for some mysterious reason (a bug?) cancel()
-    // is invoked in onClose() and we don't want to restore LLGameControl settings.
+    // Clear mOrigSettings to prevent cancel() from reverting changes.
+    // Note: cancel() is called in onClose() even after OK, so we must clear this.
     mOrigSettings = LLSD::emptyMap();
+
+    // Note: any settings changes have already been written to global-settings
+    // via the LLControlVariables assigned to the UI elements. LLGameControl has
+    // already loaded from global-settings in saveSettings().
 }
 
+// Called when user clicks Cancel. Restores all settings to their original values.
 void LLPanelPreferenceGameControl::cancel(const std::vector<std::string> settings_to_skip)
 {
     LLPanelPreference::cancel(settings_to_skip);
     clearSelectionState();
 
+    // Skip restore if original settings were cleared in apply().
     if (mOrigSettings.isEmpty())
     {
         return;
     }
 
-    // restore original settings to the control variables
-    // which will write their state to global settings
+    // Restore original settings to the control variables
     if (LLControlVariable* analogMappings = gSavedSettings.getControl("AnalogChannelMappings"))
     {
         analogMappings->set(mOrigSettings["AnalogChannelMappings"]);
@@ -3777,17 +3831,21 @@ void LLPanelPreferenceGameControl::cancel(const std::vector<std::string> setting
     LLGameControl::loadFromSettings();
 }
 
+// Rebuilds the internal device options map from LLGameControl state.
+// Merges saved options with currently connected devices.
 void LLPanelPreferenceGameControl::updateDeviceListInternal()
 {
-    // Setup the 2nd tab
     mDeviceOptions.clear();
+
+    // Load saved device options from settings
     for (const auto& [guid, options] : LLGameControl::getDeviceOptions())
     {
         DeviceOptions deviceOptions = { LLStringUtil::null, options, LLGameControl::Options() };
         deviceOptions.options.loadFromString(deviceOptions.name, deviceOptions.settings);
         mDeviceOptions.emplace(guid, deviceOptions);
     }
-    // Add missing device settings/options even if they are default
+
+    // Add currently connected devices that don't have saved settings yet
     for (const auto& device : LLGameControl::getDevices())
     {
         if (mDeviceOptions.find(device.getGUID()) == mDeviceOptions.end())
@@ -3795,17 +3853,20 @@ void LLPanelPreferenceGameControl::updateDeviceListInternal()
             mDeviceOptions[device.getGUID()] = { device.getName(), device.saveOptionsToString(true), device.getOptions() };
         }
     }
+
     mCheckShowAllDevices->setValue(false);
     populateDeviceTitle();
 }
 
+// Loads action definitions from an XML file and adds them as rows to the action table.
+// Each row gets a second column for the channel assignment (populated later).
 void LLPanelPreferenceGameControl::populateActionTableRows(const std::string& filename)
 {
     LLScrollListCtrl::Contents contents;
     if (!parseXmlFile(contents, filename, "rows"))
         return;
 
-    // init basic cell params
+    // Setup params for the channel column (column 1)
     LLScrollListCell::Params second_cell_params;
     second_cell_params.font = LLFontGL::getFontSansSerif();
     second_cell_params.font_halign = LLFontGL::LEFT;
@@ -3834,6 +3895,7 @@ void LLPanelPreferenceGameControl::populateActionTableRows(const std::string& fi
     }
 }
 
+// Fills in the channel column for each action row based on current LLGameControl mappings.
 void LLPanelPreferenceGameControl::populateActionTableCells()
 {
     std::vector<LLScrollListItem*> rows = mActionTable->getAllData();
@@ -3842,7 +3904,7 @@ void LLPanelPreferenceGameControl::populateActionTableCells()
 
     for (LLScrollListItem* row : rows)
     {
-        if (row->getNumColumns() >= 2) // Skip separators
+        if (row->getNumColumns() >= 2)  // Skip title and separator rows
         {
             std::string name = row->getValue().asString();
             if (!name.empty() && name != "menu_separator")
@@ -3859,7 +3921,8 @@ void LLPanelPreferenceGameControl::populateActionTableCells()
     }
 }
 
-// static
+// Parses an XML file containing scroll list row definitions.
+// Used to load action table rows from external configuration files.
 bool LLPanelPreferenceGameControl::parseXmlFile(LLScrollListCtrl::Contents& contents,
     const std::string& filename, const std::string& what)
 {
@@ -3881,10 +3944,13 @@ bool LLPanelPreferenceGameControl::parseXmlFile(LLScrollListCtrl::Contents& cont
     return true;
 }
 
+// Updates the device selection UI based on available devices.
+// Shows single device name, dropdown list, or "no device" message as appropriate.
 void LLPanelPreferenceGameControl::populateDeviceTitle()
 {
     mSelectedDeviceGUID.clear();
 
+    // "Show all devices" includes saved settings for disconnected devices
     bool showAllDevices = mCheckShowAllDevices->getValue().asBoolean();
     std::size_t deviceCount = showAllDevices ? mDeviceOptions.size() : LLGameControl::getDevices().size();
 
@@ -3944,6 +4010,7 @@ void LLPanelPreferenceGameControl::populateDeviceTitle()
     }
 }
 
+// Loads settings for the specified device into the device settings sub-tabs.
 void LLPanelPreferenceGameControl::populateDeviceSettings(const std::string& guid)
 {
     mSelectedDeviceGUID = guid;
@@ -3951,11 +4018,14 @@ void LLPanelPreferenceGameControl::populateDeviceSettings(const std::string& gui
     llassert_always(options_it != mDeviceOptions.end());
     const DeviceOptions& deviceOptions = options_it->second;
 
+    // Populate all three device settings sub-tabs
     populateOptionsTableCells();
     populateMappingTableCells(mAxisMappings, deviceOptions.options.getAxisMap(), mAxisSelector);
     populateMappingTableCells(mButtonMappings, deviceOptions.options.getButtonMap(), mBinaryChannelSelector);
 }
 
+// Creates empty rows in the axis options table (one per axis).
+// Columns: axis name, invert checkbox, deadzone, offset
 void LLPanelPreferenceGameControl::populateOptionsTableRows()
 {
     mAxisOptions->clearRows();
@@ -3970,9 +4040,10 @@ void LLPanelPreferenceGameControl::populateOptionsTableRows()
         row_params.columns.add(cell_params);
     }
 
-    row_params.columns(1).type = "checkbox";
-    row_params.columns(2).font_halign = "right";
-    row_params.columns(3).font_halign = "right";
+    // Configure column types and alignment
+    row_params.columns(1).type = "checkbox";   // Invert
+    row_params.columns(2).font_halign = "right"; // Deadzone
+    row_params.columns(3).font_halign = "right"; // Offset
 
     for (size_t i = 0; i < LLGameControl::NUM_AXES; ++i)
     {
@@ -3981,6 +4052,7 @@ void LLPanelPreferenceGameControl::populateOptionsTableRows()
     }
 }
 
+// Fills axis options table cells with current device settings.
 void LLPanelPreferenceGameControl::populateOptionsTableCells()
 {
     std::vector<LLScrollListItem*> rows = mAxisOptions->getAllData();
@@ -3991,17 +4063,20 @@ void LLPanelPreferenceGameControl::populateOptionsTableCells()
     {
         LLScrollListItem* row = rows[i];
         const LLGameControl::Options::AxisOptions& axis_options = all_axis_options[i];
-        row->getColumn(1)->setValue(axis_options.mMultiplier == -1 ? true : false);
+        row->getColumn(1)->setValue(axis_options.mMultiplier == -1);  // Invert checkbox
         setNumericLabel(row->getColumn(2), axis_options.mDeadZone);
         setNumericLabel(row->getColumn(3), axis_options.mOffset);
     }
 }
 
+// Creates empty rows in a mapping table (axis or button remapping).
+// Column 0 shows the physical input name, column 1 will show the mapped target.
 void LLPanelPreferenceGameControl::populateMappingTableRows(LLScrollListCtrl* target,
     const LLComboBox* source, size_t row_count)
 {
     target->clearRows();
 
+    // Use the channel selector combobox as source for input names
     std::vector<LLScrollListItem*> items = source->getAllData();
 
     LLScrollListItem::Params row_params;
@@ -4019,6 +4094,8 @@ void LLPanelPreferenceGameControl::populateMappingTableRows(LLScrollListCtrl* ta
     }
 }
 
+// Fills mapping table cells with current remapping settings.
+// Only shows a value if the input is remapped to something different.
 void LLPanelPreferenceGameControl::populateMappingTableCells(LLScrollListCtrl* target,
     const std::vector<U8>& mappings, const LLComboBox* source)
 {
@@ -4030,12 +4107,13 @@ void LLPanelPreferenceGameControl::populateMappingTableCells(LLScrollListCtrl* t
     {
         U8 mapping = mappings[i];
         llassert(mapping < items.size());
-        // Default values should look as empty cells
+        // Show empty for default (identity) mapping, otherwise show target name
         rows[i]->getColumn(1)->setValue(mapping == i ? LLSD() :
             items[mapping]->getColumn(0)->getValue());
     }
 }
 
+// Returns the options struct for the currently selected device.
 LLGameControl::Options& LLPanelPreferenceGameControl::getSelectedDeviceOptions()
 {
     auto options_it = mDeviceOptions.find(mSelectedDeviceGUID);
@@ -4043,7 +4121,8 @@ LLGameControl::Options& LLPanelPreferenceGameControl::getSelectedDeviceOptions()
     return options_it->second.options;
 }
 
-// static
+// Looks up the display label for a channel name by searching the combobox items.
+// Returns empty string if not found or if channel is "NONE".
 std::string LLPanelPreferenceGameControl::getChannelLabel(const std::string& channel_name,
     const std::vector<LLScrollListItem*>& items)
 {
@@ -4064,13 +4143,15 @@ std::string LLPanelPreferenceGameControl::getChannelLabel(const std::string& cha
     return LLStringUtil::null;
 }
 
-// static
+// Formats a numeric value for display in a table cell.
+// Shows empty string for zero (default) values.
 void LLPanelPreferenceGameControl::setNumericLabel(LLScrollListCell* cell, S32 value)
 {
-    // Default values should look as empty cells
     cell->setValue(value ? llformat("%d ", value) : LLStringUtil::null);
 }
 
+// Positions a UI control (combobox or spin control) to overlay a specific table cell.
+// Used to show editors inline within the scroll list tables.
 void LLPanelPreferenceGameControl::fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* grid, S32 row_index, S32 col_index)
 {
     LLRect rect(grid->getCellRect(row_index, col_index));
@@ -4096,6 +4177,7 @@ void LLPanelPreferenceGameControl::fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* g
     }
 }
 
+// Clears the current cell selection state and hides all popup editors.
 void LLPanelPreferenceGameControl::clearSelectionState()
 {
     sSelectedGrid = nullptr;
@@ -4107,6 +4189,7 @@ void LLPanelPreferenceGameControl::clearSelectionState()
     mAxisSelector->setVisible(false);
 }
 
+// Adds a visual separator row to the action table.
 void LLPanelPreferenceGameControl::addActionTableSeparator()
 {
     LLScrollListItem::Params separator_params;
@@ -4121,6 +4204,7 @@ void LLPanelPreferenceGameControl::addActionTableSeparator()
     mActionTable->addRow(separator_params, EAddPosition::ADD_BOTTOM);
 }
 
+// Enables or disables UI controls based on whether game control is enabled globally.
 void LLPanelPreferenceGameControl::updateEnable()
 {
     bool enabled = LLGameControl::isEnabled();
@@ -4145,10 +4229,12 @@ void LLPanelPreferenceGameControl::updateEnable()
     }
 }
 
+// Updates action table enabled state based on checkbox settings.
+// Table is only editable if game control affects agent movement.
 void LLPanelPreferenceGameControl::updateActionTableState()
 {
-    // Enable the table if at least one of the GameControl<-->Agent options is enabled
-    bool enable_table = LLGameControl::isEnabled() && (mCheckGameControlToAgent->get() || mCheckAgentToGameControl->get());
+    bool enable_table = LLGameControl::isEnabled() &&
+        (mCheckGameControlToAgent->get() || mCheckAgentToGameControl->get());
 
     mActionTable->deselectAllItems();
     mActionTable->setEnabled(enable_table);
@@ -4156,6 +4242,8 @@ void LLPanelPreferenceGameControl::updateActionTableState()
     mBinaryChannelSelector->setVisible(false);
 }
 
+// Handles "Reset to Defaults" button click.
+// Resets the appropriate settings based on which tab/sub-tab is currently visible.
 void LLPanelPreferenceGameControl::onResetToDefaults()
 {
     clearSelectionState();
@@ -4180,6 +4268,7 @@ void LLPanelPreferenceGameControl::onResetToDefaults()
     }
 }
 
+// Resets action-to-channel mappings to built-in defaults.
 void LLPanelPreferenceGameControl::resetChannelMappingsToDefaults()
 {
     std::vector<std::pair<std::string, LLGameControl::InputChannel>> mappings;
@@ -4213,6 +4302,7 @@ void LLPanelPreferenceGameControl::resetChannelMappingsToDefaults()
     }
 }
 
+// Resets axis options (invert, deadzone, offset) to defaults for selected device.
 void LLPanelPreferenceGameControl::resetAxisOptionsToDefaults()
 {
     std::vector<LLScrollListItem*> rows = mAxisOptions->getAllData();
@@ -4221,13 +4311,14 @@ void LLPanelPreferenceGameControl::resetAxisOptionsToDefaults()
     llassert(options.getAxisOptions().size() == LLGameControl::NUM_AXES);
     for (U8 i = 0; i < LLGameControl::NUM_AXES; ++i)
     {
-        rows[i]->getColumn(1)->setValue(false);
-        rows[i]->getColumn(2)->setValue(LLStringUtil::null);
-        rows[i]->getColumn(3)->setValue(LLStringUtil::null);
+        rows[i]->getColumn(1)->setValue(false);          // Invert = false
+        rows[i]->getColumn(2)->setValue(LLStringUtil::null); // Deadzone = 0
+        rows[i]->getColumn(3)->setValue(LLStringUtil::null); // Offset = 0
         options.getAxisOptions()[i].resetToDefaults();
     }
 }
 
+// Resets axis remapping to identity (each axis maps to itself) for selected device.
 void LLPanelPreferenceGameControl::resetAxisMappingsToDefaults()
 {
     std::vector<LLScrollListItem*> rows = mAxisMappings->getAllData();
@@ -4237,10 +4328,11 @@ void LLPanelPreferenceGameControl::resetAxisMappingsToDefaults()
     for (U8 i = 0; i < LLGameControl::NUM_AXES; ++i)
     {
         rows[i]->getColumn(1)->setValue(LLStringUtil::null);
-        options.getAxisMap()[i] = i;
+        options.getAxisMap()[i] = i;  // Identity mapping
     }
 }
 
+// Resets button remapping to identity (each button maps to itself) for selected device.
 void LLPanelPreferenceGameControl::resetButtonMappingsToDefaults()
 {
     std::vector<LLScrollListItem*> rows = mButtonMappings->getAllData();
@@ -4250,10 +4342,11 @@ void LLPanelPreferenceGameControl::resetButtonMappingsToDefaults()
     for (U8 i = 0; i < LLGameControl::NUM_BUTTONS; ++i)
     {
         rows[i]->getColumn(1)->setValue(LLStringUtil::null);
-        options.getButtonMap()[i] = i;
+        options.getButtonMap()[i] = i;  // Identity mapping
     }
 }
 
+// Captures current settings values into mOrigSettings for later restoration upon cancel().
 void LLPanelPreferenceGameControl::rememberOriginalSettings()
 {
     if (LLControlVariable* analogMappings = gSavedSettings.getControl("AnalogChannelMappings"))
