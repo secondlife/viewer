@@ -980,6 +980,8 @@ void LLFloaterPreference::onClose(bool app_quitting)
     LLPanelLogin::setAlwaysRefresh(false);
     if (!app_quitting)
     {
+        // is this a BUG? cancel() should only be called in onBtnCancel()
+        // but not during closing after onBtnOK()
         cancel();
     }
 }
@@ -3538,6 +3540,7 @@ void LLPanelPreferenceGameControl::applyGameControlInput()
         sSelectedGrid->deselectAllItems();
         sGameControlPanel->clearSelectionState();
         sGameControlPanel->saveSettings();
+        LLGameControl::loadFromSettings();
     }
 }
 
@@ -3728,8 +3731,9 @@ void LLPanelPreferenceGameControl::apply()
     LLPanelPreference::apply();
     clearSelectionState();
 
-    // save current config to settings
-    LLGameControl::saveToSettings();
+    // clear mOrigSettings because for some mysterious reason (a bug?) cancel()
+    // is invoked in onClose() and we don't want to restore LLGameControl settings.
+    mOrigSettings = LLSD::emptyMap();
 }
 
 void LLPanelPreferenceGameControl::cancel(const std::vector<std::string> settings_to_skip)
@@ -3737,7 +3741,13 @@ void LLPanelPreferenceGameControl::cancel(const std::vector<std::string> setting
     LLPanelPreference::cancel(settings_to_skip);
     clearSelectionState();
 
-    // Use string formatting functions provided by LLGameControl
+    if (mOrigSettings.isEmpty())
+    {
+        return;
+    }
+
+    // restore original settings to the control variables
+    // which will write their state to global settings
     if (LLControlVariable* analogMappings = gSavedSettings.getControl("AnalogChannelMappings"))
     {
         analogMappings->set(mOrigSettings["AnalogChannelMappings"]);
@@ -3763,7 +3773,7 @@ void LLPanelPreferenceGameControl::cancel(const std::vector<std::string> setting
         mSavedValues[knownControllers] = deviceOptions;
     }
 
-    // load from settings to clear any temporary changes while UI was open
+    // load from global settings after values have been restored
     LLGameControl::loadFromSettings();
 }
 
