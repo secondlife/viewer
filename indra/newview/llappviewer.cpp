@@ -1240,6 +1240,7 @@ bool LLAppViewer::init()
     // TODO: consider moving proxy initialization here or LLCopocedureManager after proxy initialization, may be implement
     // some other protection to make sure we don't use network before initializng proxy
 
+    LLWatchdog::createInstance();
     /*----------------------------------------------------------------------*/
     // nat 2016-06-29 moved the following here from the former mainLoop().
     mMainloopTimeout = new LLWatchdogTimeout("mainloop");
