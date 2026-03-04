@@ -1529,7 +1529,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                         U16 param_type;
                         S32 param_size;
                         dp.unpackU16(param_type, "param_type");
-                        dp.unpackBinaryData(param_block, param_size, "param_data");
+                        dp.unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data");
                         //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
                         LLDataPackerBinaryBuffer dp2(param_block, param_size);
                         unpackParameterEntry(param_type, &dp2);
@@ -1786,7 +1786,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     dp->unpackU32(size, "ScratchPadSize");
                     delete [] mData;
                     mData = new U8[size];
-                    dp->unpackBinaryData((U8 *)mData, sp_size, "PartData");
+                    dp->unpackBinaryData((U8 *)mData, size, sp_size, "PartData");
                 }
                 else
                 {
@@ -1859,7 +1859,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     U16 param_type;
                     S32 param_size;
                     dp->unpackU16(param_type, "param_type");
-                    dp->unpackBinaryData(param_block, param_size, "param_data");
+                    dp->unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data");
                     //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
                     LLDataPackerBinaryBuffer dp2(param_block, param_size);
                     unpackParameterEntry(param_type, &dp2);
