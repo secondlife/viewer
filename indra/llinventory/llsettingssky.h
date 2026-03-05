@@ -101,6 +101,7 @@ public:
     static const std::string SETTING_SKY_ICE_LEVEL;
 
     static const std::string SETTING_REFLECTION_PROBE_AMBIANCE;
+    static const std::string SETTING_AMBIENT_SKY_SATURATION;
 
     static const std::string SETTING_LEGACY_HAZE;
 
@@ -183,6 +184,9 @@ public:
     void setSkyIceLevel(F32 ice_level);
 
     void setReflectionProbeAmbiance(F32 ambiance);
+
+    F32 getAmbientSkySaturation() const;
+    void setAmbientSkySaturation(F32 val);
 
     //---------------------------------------------------------------------
     LLColor3 getAmbientColor() const;
@@ -402,6 +406,7 @@ protected:
     F32 mSunBrightness;
     LLColor3 mGlow;
     F32 mReflectionProbeAmbiance;
+    F32 mAmbientSkySaturation;
     F32 mSunScale;
     F32 mStarBrightness;
     F32 mMoonBrightness;

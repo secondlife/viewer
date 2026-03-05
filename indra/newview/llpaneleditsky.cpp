@@ -116,6 +116,7 @@ namespace
     const std::string   FIELD_SKY_DENSITY_ICE_LEVEL("ice_level");
 
     const std::string   FIELD_REFLECTION_PROBE_AMBIANCE("probe_ambiance");
+    const std::string   FIELD_AMBIENT_SKY_SATURATION("ambient_sky_saturation");
 
     const F32 SLIDER_SCALE_SUN_AMBIENT(3.0f);
     const F32 SLIDER_SCALE_BLUE_HORIZON_DENSITY(2.0f);
@@ -160,6 +161,7 @@ bool LLPanelSettingsSkyAtmosTab::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onDropletRadiusChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onIceLevelChanged(); });
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onReflectionProbeAmbianceChanged(); });
+    getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAmbientSkySaturationChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTonemapperChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTonemapMixChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onHDRMinChanged(); });
@@ -188,6 +190,7 @@ void LLPanelSettingsSkyAtmosTab::setEnabled(bool enabled)
         getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setEnabled(enabled);
+        getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setEnabled(enabled);
@@ -239,6 +242,8 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->setValue(droplet_radius);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->setValue(ice_level);
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setValue(rp_ambiance);
+    getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->setEnabled(is_v2 && getCanChangeSettings());
+    getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->setValue(mSkySettings->getAmbientSkySaturation());
 
     getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setValue((S32)mSkySettings->getTonemapper());
     getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setValue(mSkySettings->getTonemapMix());
@@ -361,6 +366,14 @@ void LLPanelSettingsSkyAtmosTab::onReflectionProbeAmbianceChanged()
     setIsDirty();
 
     updateGammaLabel();
+}
+
+void LLPanelSettingsSkyAtmosTab::onAmbientSkySaturationChanged()
+{
+    if (!mSkySettings) return;
+    mSkySettings->setAmbientSkySaturation((F32)getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->getValue().asReal());
+    mSkySettings->update();
+    setIsDirty();
 }
 
 void LLPanelSettingsSkyAtmosTab::onTonemapperChanged()

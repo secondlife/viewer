@@ -84,6 +84,7 @@ private:
     void                        onWaterMapChanged();
 
     void                        onReflectionProbeAmbianceChanged();
+    void                        onAmbientSkySaturationChanged();
     void                        onTonemapperChanged();
     void                        onTonemapMixChanged();
     void                        onHDROffsetChanged();

@@ -371,6 +371,30 @@
                           top_delta="20"
                           width="219"
                           can_edit_text="true"/>
+                  <text follows="left|top"
+                            height="10"
+                            layout="topleft"
+                            left_delta="-5"
+                            top_delta="25"
+                            tool_tip="Controls how much sky color contributes to ambient lighting."
+                            width="200">
+                    Ambient Sky Saturation:
+                  </text>
+                  <slider
+                          decimal_digits="2"
+                          follows="left|top"
+                          height="16"
+                          increment="0.01"
+                          initial_value="0"
+                          layout="topleft"
+                          left_delta="5"
+                          min_val="0"
+                          max_val="1"
+                          name="ambient_sky_saturation"
+                          tool_tip="0 = fully desaturated, 1 = full color"
+                          top_delta="20"
+                          width="219"
+                          can_edit_text="true"/>
                   <text
                             name="scene_gamma_label"
                             follows="left|top"

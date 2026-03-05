@@ -134,6 +134,7 @@ const std::string LLSettingsSky::SETTING_SKY_DROPLET_RADIUS("droplet_radius");
 const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
 
 const std::string LLSettingsSky::SETTING_REFLECTION_PROBE_AMBIANCE("reflection_probe_ambiance");
+const std::string LLSettingsSky::SETTING_AMBIENT_SKY_SATURATION("ambient_sky_saturation");
 
 const std::string LLSettingsSky::SETTING_SKY_VERSION("sky_version");
 const std::string LLSettingsSky::SETTING_SUN_BRIGHTNESS("sun_brightness");
@@ -654,6 +655,7 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mHDRMax = lerp(mHDRMax, other->mHDRMax, (F32)blendf);
         mHDRMin = lerp(mHDRMin, other->mHDRMin, (F32)blendf);
         mHDROffset = lerp(mHDROffset, other->mHDROffset, (F32)blendf);
+        mAmbientSkySaturation = lerp(mAmbientSkySaturation, other->mAmbientSkySaturation, (F32)blendf);
 
         mTonemapper = other->mTonemapper;
 
@@ -835,6 +837,9 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
 
         validation.push_back(Validator(SETTING_REFLECTION_PROBE_AMBIANCE, false, LLSD::TypeReal,
             boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(llsd::array(0.0f, 10.0f)))));
+
+        validation.push_back(Validator(SETTING_AMBIENT_SKY_SATURATION, false, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, _2, llsd::array(0.0f, 1.0f))));
 
         validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
         validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
@@ -1228,6 +1233,9 @@ void LLSettingsSky::loadValuesFromLLSD()
         mTonemapMix = (F32)settings[SETTING_HDR_TONEMAPPER_AMOUNT].asReal();
         mTonemapper = (U8)settings[SETTING_HDR_TONEMAPPER].asInteger();
         mSunBrightness = (F32)settings[SETTING_SUN_BRIGHTNESS].asReal();
+        mAmbientSkySaturation = settings.has(SETTING_AMBIENT_SKY_SATURATION)
+            ? (F32)settings[SETTING_AMBIENT_SKY_SATURATION].asReal()
+            : 0.0f;
     }
     else
     {
@@ -1237,6 +1245,7 @@ void LLSettingsSky::loadValuesFromLLSD()
         mTonemapMix = 1.0f;
         mTonemapper = 0;
         mSunBrightness = 130000.f; // Brightness roughly around high noon in lux.
+        mAmbientSkySaturation = 0.0f;
     }
 
     mSunTextureId = settings[SETTING_SUN_TEXTUREID].asUUID();
@@ -1365,6 +1374,7 @@ void LLSettingsSky::saveValuesToLLSD()
         settings[SETTING_HDR_TONEMAPPER_AMOUNT] = mTonemapMix;
         settings[SETTING_SKY_VERSION] = mSkySettingVersion;
         settings[SETTING_SUN_BRIGHTNESS] = mSunBrightness;
+        settings[SETTING_AMBIENT_SKY_SATURATION] = mAmbientSkySaturation;
     }
 
     LLSD& legacy = settings[SETTING_LEGACY_HAZE];
@@ -1577,6 +1587,18 @@ void LLSettingsSky::setReflectionProbeAmbiance(F32 ambiance)
 {
     mReflectionProbeAmbiance = ambiance;
     mCanAutoAdjust = false;
+    setLLSDDirty();
+}
+
+F32 LLSettingsSky::getAmbientSkySaturation() const
+{
+    return mAmbientSkySaturation;
+}
+
+void LLSettingsSky::setAmbientSkySaturation(F32 val)
+{
+    mAmbientSkySaturation = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 

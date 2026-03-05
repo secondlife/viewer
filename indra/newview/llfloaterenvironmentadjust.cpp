@@ -70,6 +70,7 @@ namespace
     const std::string FIELD_SKY_MOON_AZIMUTH("moon_azimuth");
     const std::string FIELD_SKY_MOON_ELEVATION("moon_elevation");
     const std::string FIELD_REFLECTION_PROBE_AMBIANCE("probe_ambiance");
+    const std::string FIELD_AMBIENT_SKY_SATURATION("ambient_sky_saturation");
     const std::string BTN_RESET("btn_reset");
     const std::string BTN_UPGRADE("btn_upgrade");
 
@@ -129,6 +130,7 @@ bool LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onWaterMapChanged(); });
 
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onReflectionProbeAmbianceChanged(); });
+    getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAmbientSkySaturationChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTonemapperChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTonemapMixChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_HDR_OFFSET)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onHDROffsetChanged(); });
@@ -187,6 +189,7 @@ void LLFloaterEnvironmentAdjust::refresh()
     getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setEnabled(is_v2);
     getChild<LLUICtrl>(FIELD_SKY_HDR_MAX)->setEnabled(is_v2);
     getChild<LLUICtrl>(FIELD_SKY_SUN_BRIGHTNESS)->setEnabled(is_v2);
+    getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->setEnabled(is_v2);
 
     getChild<LLColorSwatchCtrl>(FIELD_SKY_AMBIENT_LIGHT)->set(mLiveSky->getAmbientColor() / SLIDER_SCALE_SUN_AMBIENT);
     getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_HORIZON)->set(mLiveSky->getBlueHorizon() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
@@ -204,6 +207,7 @@ void LLFloaterEnvironmentAdjust::refresh()
 
     static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setValue(mLiveSky->getReflectionProbeAmbiance(should_auto_adjust));
+    getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->setValue(mLiveSky->getAmbientSkySaturation());
 
     getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setValue((S32)mLiveSky->getTonemapper());
     getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setValue(mLiveSky->getTonemapMix());
@@ -552,6 +556,13 @@ void LLFloaterEnvironmentAdjust::onReflectionProbeAmbianceChanged()
     mLiveSky->setReflectionProbeAmbiance(ambiance);
 
     updateGammaLabel();
+    mLiveSky->update();
+}
+
+void LLFloaterEnvironmentAdjust::onAmbientSkySaturationChanged()
+{
+    if (!mLiveSky) return;
+    mLiveSky->setAmbientSkySaturation((F32)getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->getValue().asReal());
     mLiveSky->update();
 }
 
