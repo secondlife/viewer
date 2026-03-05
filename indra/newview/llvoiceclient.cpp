@@ -669,6 +669,9 @@ void LLVoiceClient::setUserPTTState(bool ptt)
 {
     if (ptt)
     {
+        // Nearby chat is muted by moderator, don't toggle PTT
+        if (!mUserPTTState && LLNearbyVoiceModeration::getInstance()->showNotificationIfNeeded())
+            return;
         LLUIUsage::instance().logCommand("Agent.EnableMicrophone");
     }
     mUserPTTState = ptt;
@@ -713,13 +716,6 @@ bool LLVoiceClient::getPTTIsToggle()
 
 void LLVoiceClient::inputUserControlState(bool down)
 {
-    if (down && !getUserPTTState())
-    {
-        // Nearby chat is muted by moderator, don't toggle PTT
-        if (LLNearbyVoiceModeration::getInstance()->showNotificationIfNeeded())
-            return;
-    }
-
     if(mPTTIsToggle)
     {
         if(down) // toggle open-mic state on 'down'
