@@ -739,6 +739,8 @@ public:
     LLRenderTarget          mSSRBuffer;
     std::vector<LLRenderTarget> mSSRMipTemp;  // Per-mip temp targets for SSR Gaussian ping-pong
 
+    bool mInForwardAlphaPass = false;
+
     // exposure map for getting average color in scene
     LLRenderTarget          mLuminanceMap;
     LLRenderTarget          mExposureMap;

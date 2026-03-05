@@ -9492,7 +9492,9 @@ void LLPipeline::renderDeferredLighting()
                           LLPipeline::RENDER_TYPE_WATEREXCLUSION,
                           END_RENDER_TYPES);
 
+        mInForwardAlphaPass = true;
         renderGeomPostDeferred(*LLViewerCamera::getInstance());
+        mInForwardAlphaPass = false;
         popRenderTypeMask();
     }
 
@@ -9941,11 +9943,7 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
                            || (&shader == &gSSRAlphaProgram)
                            || (&shader == &gSkinnedSSRAlphaProgram)
                            || (&shader == &gSSRWaterProgram)
-                           || (&shader == &gDeferredPBRAlphaProgram)
-                           || (gDeferredPBRAlphaProgram.mRiggedVariant && &shader == gDeferredPBRAlphaProgram.mRiggedVariant)
-                           || (&shader == &gDeferredAlphaProgram)
-                           || (gDeferredAlphaProgram.mRiggedVariant && &shader == gDeferredAlphaProgram.mRiggedVariant)
-                           || (&shader == &gDeferredAvatarAlphaProgram);
+                           || mInForwardAlphaPass;
 
         channel = shader.enableTexture(LLShaderMgr::SCENE_MAP);
         if (channel > -1)
