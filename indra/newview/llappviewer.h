@@ -257,6 +257,9 @@ public:
     void createErrorMarker(eLastExecEvent error_code) const;
     bool errorMarkerExists() const;
 
+    void createWatchdogMarker() const;
+    void removeWatchdogMarker() const;
+
     // Attempt a 'soft' quit with disconnect and saving of settings/cache.
     // Intended to be thread safe.
     // Good chance of viewer crashing either way, but better than alternatives.
