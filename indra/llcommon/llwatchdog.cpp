@@ -173,6 +173,17 @@ void LLWatchdog::add(LLWatchdogEntry* e)
 {
     lockThread();
     mSuspects.insert(e);
+
+    if (!mFrozeList.empty())
+    {
+        mFrozeList.erase(e);
+        if (mFrozeList.empty())
+        {
+            // Clear error marker file if there is no frozen threads,
+            // viewer is responsive again.
+            mClearMarkerFnc();
+        }
+    }
     unlockThread();
 }
 
@@ -183,7 +194,12 @@ void LLWatchdog::remove(LLWatchdogEntry* e)
     unlockThread();
 }
 
-void LLWatchdog::init(func_t set_error_state_callback)
+void LLWatchdog::init(
+    create_marker_func_t error_state_callback,
+    clear_marker_func_t clear_marker_callback,
+    report_func_t report_callback,
+    notify_func_t notify_callback,
+    bool crash_on_freeze)
 {
     if (!mSuspectsAccessMutex && !mTimer)
     {
@@ -196,7 +212,11 @@ void LLWatchdog::init(func_t set_error_state_callback)
         // start needs to use the mSuspectsAccessMutex
         mTimer->start();
     }
-    mCreateMarkerFnc = set_error_state_callback;
+    mCreateMarkerFnc = error_state_callback;
+    mClearMarkerFnc  = clear_marker_callback;
+    mCrashReportFnc = report_callback;
+    mNotifyFnc = notify_callback;
+    mCrashOnFreeze = crash_on_freeze;
 }
 
 void LLWatchdog::cleanup()
@@ -251,21 +271,45 @@ void LLWatchdog::run()
                 mTimer->stop();
             }
 
-            // Sets error marker file
-            mCreateMarkerFnc();
-            // Todo1: Warn user?
-            // Todo2: We probably want to report even if 5 seconds passed, just not error 'yet'.
             std::string last_state = (*result)->getLastState();
-            if (last_state.empty())
+            std::string description = "Watchdog timer for thread " + (*result)->getThreadName() + " expired";
+            if (!last_state.empty())
             {
-                LL_ERRS() << "Watchdog timer for thread " << (*result)->getThreadName()
-                    << " expired; assuming viewer is hung and crashing" << LL_ENDL;
+                description += " with state: " + last_state;
+            }
+            description += "; assuming viewer is hung and crashing";
+
+            if (!mCrashOnFreeze)
+            {
+                // Sets watchdog marker file
+                mCreateMarkerFnc(false);
+                // If it's mainloop and it somehow recovers, it will re-add itself
+                mSuspects.erase(*result);
+                mFrozeList.insert(*result);
+                LL_WARNS() << description << LL_ENDL;
             }
             else
             {
-                LL_ERRS() << "Watchdog timer for thread " << (*result)->getThreadName()
-                    << " expired with state: " << last_state
-                    << "; assuming viewer is hung and crashing" << LL_ENDL;
+
+                if (!mCrashReportFnc(description))
+                {
+                    // Sets error marker file
+                    mCreateMarkerFnc(true);
+                    // If false is returned, then we failed to report the issue to bugsplat,
+                    // instead, Notify user, then crash viewer.
+                    // Todo: ask user if viewer should quit or wait?
+                    mNotifyFnc();
+                    LL_ERRS() << description << LL_ENDL;
+                }
+                else
+                {
+                    // Sets watchdog marker file
+                    mCreateMarkerFnc(false);
+                    // Already reported, don't report again.
+                    // If it's mainloop and it somehow recovers, it will re-add itself
+                    mSuspects.erase(result);
+                    mFrozeList.insert(*result);
+                }
             }
         }
     }
