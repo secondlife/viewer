@@ -10426,7 +10426,7 @@ vector position - position in local coordinates
                      <key>tooltip</key>
                      <string></string>
                      <key>type</key>
-                     <string>number</string>
+                     <string>boolean</string>
                   </map>
                </map>
                <map>
@@ -10440,7 +10440,7 @@ vector position - position in local coordinates
                </map>
             </array>
             <key>tooltip</key>
-            <string>Triggered by llTransferMoney() function.</string>
+            <string>Triggered by llTransferLindenDollars() function.</string>
          </map>
       </map>
       <key>functions</key>
@@ -15199,7 +15199,7 @@ Returns true if result is non-zero.</string>
                      <key>tooltip</key>
                      <string>Table to clear.</string>
                      <key>type</key>
-                     <string>{[any]: any}</string>
+                     <string>{}</string>
                   </map>
                </map>
             </array>
@@ -15216,8 +15216,7 @@ Returns true if result is non-zero.</string>
          <map>
             <key>type-arguments</key>
             <array>
-               <string>K</string>
-               <string>V</string>
+               <string>table</string>
             </array>
             <key>arguments</key>
             <array>
@@ -15227,14 +15226,14 @@ Returns true if result is non-zero.</string>
                      <key>tooltip</key>
                      <string>Table to clone.</string>
                      <key>type</key>
-                     <string>{[K]: V}</string>
+                     <string>table</string>
                   </map>
                </map>
             </array>
             <key>energy</key>
             <real>10.0</real>
             <key>return</key>
-            <string>{[K]: V}</string>
+            <string>table</string>
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
@@ -15490,8 +15489,7 @@ Returns true if result is non-zero.</string>
          <map>
             <key>type-arguments</key>
             <array>
-               <string>K</string>
-               <string>V</string>
+               <string>table</string>
             </array>
             <key>arguments</key>
             <array>
@@ -15501,14 +15499,14 @@ Returns true if result is non-zero.</string>
                      <key>tooltip</key>
                      <string>Table to freeze.</string>
                      <key>type</key>
-                     <string>{[K]: V}</string>
+                     <string>table</string>
                   </map>
                </map>
             </array>
             <key>energy</key>
             <real>10.0</real>
             <key>return</key>
-            <string>{[K]: V}</string>
+            <string>table</string>
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
@@ -15594,7 +15592,7 @@ Returns true if result is non-zero.</string>
                      <key>tooltip</key>
                      <string>Table to check.</string>
                      <key>type</key>
-                     <string>{[any]: any}</string>
+                     <string>{}</string>
                   </map>
                </map>
             </array>
@@ -15760,7 +15758,6 @@ Returns true if result is non-zero.</string>
          <map>
             <key>type-arguments</key>
             <array>
-               <string>K</string>
                <string>V</string>
             </array>
             <key>arguments</key>
@@ -15771,7 +15768,7 @@ Returns true if result is non-zero.</string>
                      <key>tooltip</key>
                      <string>Table to shrink.</string>
                      <key>type</key>
-                     <string>{[K]: V}</string>
+                     <string>{V}</string>
                   </map>
                </map>
                <map>
@@ -15787,7 +15784,7 @@ Returns true if result is non-zero.</string>
             <key>energy</key>
             <real>10.0</real>
             <key>return</key>
-            <string>{[K]: V}</string>
+            <string>{V}</string>
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
@@ -18736,7 +18733,7 @@ Returns true if result is non-zero.</string>
                   <key>StartMatch</key>
                   <map>
                      <key>tooltip</key>
-                     <string>The number of matches to skip before returning values.</string>
+                     <string>Index of the first match to return.</string>
                      <key>type</key>
                      <string>number</string>
                   </map>
@@ -22928,7 +22925,7 @@ Returns true if result is non-zero.</string>
                   <key>start</key>
                   <map>
                      <key>tooltip</key>
-                     <string>First entry to return. 0 for start of list.</string>
+                     <string>Index of the first entry to return.</string>
                      <key>type</key>
                      <string>number</string>
                   </map>
@@ -23561,11 +23558,11 @@ Returns true if result is non-zero.</string>
             <key>energy</key>
             <real>10.0</real>
             <key>return</key>
-            <string>number</string>
+            <string>number?</string>
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Returns the index of the first instance of Find in ListVariable. Returns -1 if not found.\nReturns the position of the first instance of the Find list in the ListVariable. Returns -1 if not found.</string>
+            <string>Returns the first index where Find appears in ListVariable. Returns nil if not found.</string>
          </map>
          <key>ll.ListFindListNext</key>
          <map>
@@ -23593,7 +23590,7 @@ Returns true if result is non-zero.</string>
                   <key>Instance</key>
                   <map>
                      <key>tooltip</key>
-                     <string></string>
+                     <string>Index of the match to return.</string>
                      <key>type</key>
                      <string>number</string>
                   </map>
@@ -23602,11 +23599,11 @@ Returns true if result is non-zero.</string>
             <key>energy</key>
             <real>10.0</real>
             <key>return</key>
-            <string>number</string>
+            <string>number?</string>
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Returns the index of the nth instance of Find in ListVariable. Returns -1 if not found.</string>
+            <string>Returns the nth index where Find appears in ListVariable. Returns nil if not found.</string>
          </map>
          <key>ll.ListFindStrided</key>
          <map>
@@ -23661,11 +23658,11 @@ Returns true if result is non-zero.</string>
             <key>energy</key>
             <real>10.0</real>
             <key>return</key>
-            <string>number</string>
+            <string>number?</string>
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Returns the index of the first instance of Find in ListVariable. Returns -1 if not found.\nReturns the position of the first instance of the Find list in the ListVariable after the start index and before the end index. Steps through ListVariable by stride.  Returns -1 if not found.</string>
+            <string>Returns the first index (where Start &lt;= index &lt;= End) where Find appears in ListVariable. Steps through ListVariable by Stride.  Returns nil if not found.</string>
          </map>
          <key>ll.ListInsertList</key>
          <map>
@@ -26004,7 +26001,7 @@ Returns true if result is non-zero.</string>
                      <key>tooltip</key>
                      <string></string>
                      <key>type</key>
-                     <string>string</string>
+                     <string>string | uuid</string>
                   </map>
                </map>
             </array>
@@ -26037,7 +26034,7 @@ Returns true if result is non-zero.</string>
                      <string>Name of inventory item, or UUID of environment resource to apply.
                          Use NULL_KEY or empty string to remove environment.</string>
                      <key>type</key>
-                     <string>string</string>
+                     <string>string | uuid</string>
                   </map>
                </map>
                <map>
@@ -29524,7 +29521,7 @@ Returns true if result is non-zero.</string>
                      <key>tooltip</key>
                      <string>If TRUE, the Velocity is treated as a local directional vector instead of a regional directional vector.</string>
                      <key>type</key>
-                     <string>number</string>
+                     <string>boolean | number</string>
                   </map>
                </map>
             </array>
@@ -30072,11 +30069,11 @@ Returns true if result is non-zero.</string>
             <key>energy</key>
             <real>10.0</real>
             <key>return</key>
-            <string>number</string>
+            <string>number?</string>
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Returns an integer that is the index in Text where string pattern Sequence first appears. Returns -1 if not found.</string>
+            <string>Returns the first index where Sequence appears in Text. Returns nil if not found.</string>
          </map>
          <key>ll.TakeCamera</key>
          <map>

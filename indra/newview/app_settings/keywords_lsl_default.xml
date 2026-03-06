@@ -10226,7 +10226,7 @@ If another state is defined before the default state, the compiler will report a
                </map>
             </array>
             <key>tooltip</key>
-            <string>Triggered by llTransferMoney() function.</string>
+            <string>Triggered by llTransferLindenDollars() function.</string>
          </map>
       </map>
       <key>functions</key>
@@ -12355,7 +12355,7 @@ If another state is defined before the default state, the compiler will report a
                   <key>StartMatch</key>
                   <map>
                      <key>tooltip</key>
-                     <string>The number of matches to skip before returning values.</string>
+                     <string>Index of the first match to return.</string>
                      <key>type</key>
                      <string>integer</string>
                   </map>
@@ -16567,7 +16567,7 @@ If another state is defined before the default state, the compiler will report a
                   <key>start</key>
                   <map>
                      <key>tooltip</key>
-                     <string>First entry to return. 0 for start of list.</string>
+                     <string>Index of the first entry to return.</string>
                      <key>type</key>
                      <string>integer</string>
                   </map>
@@ -17192,7 +17192,7 @@ If another state is defined before the default state, the compiler will report a
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Returns the index of the first instance of Find in ListVariable. Returns -1 if not found.\nReturns the position of the first instance of the Find list in the ListVariable. Returns -1 if not found.</string>
+            <string>Returns the first index where Find appears in ListVariable. Returns -1 if not found.</string>
          </map>
          <key>llListFindListNext</key>
          <map>
@@ -17220,7 +17220,7 @@ If another state is defined before the default state, the compiler will report a
                   <key>Instance</key>
                   <map>
                      <key>tooltip</key>
-                     <string></string>
+                     <string>Index of the match to return.</string>
                      <key>type</key>
                      <string>integer</string>
                   </map>
@@ -17233,7 +17233,7 @@ If another state is defined before the default state, the compiler will report a
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Returns the index of the nth instance of Find in ListVariable. Returns -1 if not found.</string>
+            <string>Returns the nth index where Find appears in ListVariable. Returns -1 if not found.</string>
          </map>
          <key>llListFindStrided</key>
          <map>
@@ -17292,7 +17292,7 @@ If another state is defined before the default state, the compiler will report a
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Returns the index of the first instance of Find in ListVariable. Returns -1 if not found.\nReturns the position of the first instance of the Find list in the ListVariable after the start index and before the end index. Steps through ListVariable by stride.  Returns -1 if not found.</string>
+            <string>Returns the first index (where Start &lt;= index &lt;= End) where Find appears in ListVariable. Steps through ListVariable by Stride.  Returns -1 if not found.</string>
          </map>
          <key>llListInsertList</key>
          <map>
@@ -23693,7 +23693,7 @@ If another state is defined before the default state, the compiler will report a
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Returns an integer that is the index in Text where string pattern Sequence first appears. Returns -1 if not found.</string>
+            <string>Returns the first index where Sequence appears in Text. Returns -1 if not found.</string>
          </map>
          <key>llTakeCamera</key>
          <map>
