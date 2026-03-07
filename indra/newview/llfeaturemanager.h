@@ -123,6 +123,7 @@ public:
     S32 getVersion() const              { return mTableVersion; }
     void setSafe(const bool safe)       { mSafe = safe; }
     bool isSafe() const                 { return mSafe; }
+    bool skipProfiling() const          { return mSkipProfiling; }
 
     LLFeatureList *findMask(const std::string& name);
     bool maskFeatures(const std::string& name);
@@ -170,6 +171,7 @@ protected:
     F32         mExpectedGLVersion;     //expected GL version according to gpu table
     std::string mGPUString;
     bool        mGPUSupported;
+    bool        mSkipProfiling = false;
 };
 
 inline

@@ -60,7 +60,7 @@ void LLNotificationManager::init()
     mChannels.emplace_back(new LLBrowserNotification());
     mChannels.emplace_back(new LLIMHandler());
 
-    mChatHandler = std::shared_ptr<LLFloaterIMNearbyChatHandler>(new LLFloaterIMNearbyChatHandler());
+    mChatHandler = std::make_shared<LLFloaterIMNearbyChatHandler>();
 }
 
 //--------------------------------------------------------------------------

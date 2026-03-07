@@ -227,6 +227,7 @@ public:
 
                 void    setTexture(const S32 face);
                 S32     getIndexInTex(U32 ch) const {return mIndexInTex[ch];}
+                void    unregisterOldMeshAndSkin();
     /*virtual*/ bool    setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false) override;
                 void    updateSculptTexture();
                 void    setIndexInTex(U32 ch, S32 index) { mIndexInTex[ch] = index ;}
@@ -283,9 +284,9 @@ public:
     // Get the light color in sRGB color space scaled by intensity.
     LLColor3 getLightSRGBColor() const;
 
-    LLUUID  getLightTextureID() const;
+    const LLUUID&  getLightTextureID() const;
     bool isLightSpotlight() const;
-    LLVector3 getSpotLightParams() const;
+    const LLVector3& getSpotLightParams() const;
     void    updateSpotLightPriority();
     F32     getSpotLightPriority() const;
 

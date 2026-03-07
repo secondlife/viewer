@@ -2073,7 +2073,6 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
 
             objectp->clearTEWaterExclusion(te);
             // Blank out most override data on the object and send to server
-            objectp->setRenderMaterialID(te, asset_id);
             if (should_preserve_transforms && preserved_override)
             {
                 // Apply material with preserved transforms
@@ -6194,6 +6193,15 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
         node->mCategory = category;
         node->mName.assign(name);
         node->mDescription.assign(desc);
+
+        LLViewerObject* obj = node->getObject();
+        if (obj && LLViewerObject::isObjectInPendingUpdate(owner_id, obj))
+        {
+            // current response doesn't return modify permissions flags,
+            // so we should request it separately if needed
+            obj->requestObjectUpdate();
+        }
+
     }
 
     dialog_refresh_all();

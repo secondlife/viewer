@@ -34,19 +34,6 @@
 
 #include "../test/lltut.h"
 #include "stringize.h"
-#include <boost/assign/list_of.hpp>
-
-using boost::assign::list_of;
-
-// We use ensure_equals(..., vec(list_of(...))) not because it's functionally
-// required, but because ensure_equals() knows how to format a StringVec.
-// Turns out that when ensure_equals() displays a test failure with just
-// list_of("string")("another"), you see 'stringanother' vs. '("string",
-// "another")'.
-StringVec vec(const StringVec& v)
-{
-    return v;
-}
 
 // For some tests, use a dummy LLDir that uses memory data instead of touching
 // the filesystem
@@ -590,20 +577,18 @@ namespace tut
 
         // top-level directory of a skin isn't localized
         ensure_equals(lldir.findSkinnedFilenames(LLDir::SKINBASE, "colors.xml", LLDir::ALL_SKINS),
-                      vec(list_of("install/skins/default/colors.xml")
-                                 ("user/skins/default/colors.xml")));
+                      StringVec{ "install/skins/default/colors.xml", "user/skins/default/colors.xml" });
         // We should not have needed to check for skins/default/en. We should
         // just "know" that SKINBASE is not localized.
         lldir.ensure_not_checked("install/skins/default/en");
 
         ensure_equals(lldir.findSkinnedFilenames(LLDir::TEXTURES, "only_default.jpeg"),
-                      vec(list_of("install/skins/default/textures/only_default.jpeg")));
+                      StringVec{ "install/skins/default/textures/only_default.jpeg" });
         // Nor should we have needed to check skins/default/textures/en
         // because textures is known not to be localized.
         lldir.ensure_not_checked("install/skins/default/textures/en");
 
-        StringVec expected(vec(list_of("install/skins/default/xui/en/strings.xml")
-                               ("user/skins/default/xui/en/strings.xml")));
+        StringVec expected(StringVec{ "install/skins/default/xui/en/strings.xml", "user/skins/default/xui/en/strings.xml" });
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
                       expected);
         // The first time, we had to probe to find out whether xui was localized.
@@ -616,23 +601,19 @@ namespace tut
         lldir.ensure_not_checked("install/skins/default/xui/en");
 
         // localized subdir with "en-us" instead of "en"
-        ensure_equals(lldir.findSkinnedFilenames("html", "welcome.html"),
-                      vec(list_of("install/skins/default/html/en-us/welcome.html")));
+        ensure_equals(lldir.findSkinnedFilenames("html", "welcome.html"), StringVec{ "install/skins/default/html/en-us/welcome.html" });
         lldir.ensure_checked("install/skins/default/html/en");
         lldir.ensure_checked("install/skins/default/html/en-us");
         lldir.clear_checked();
-        ensure_equals(lldir.findSkinnedFilenames("html", "welcome.html"),
-                      vec(list_of("install/skins/default/html/en-us/welcome.html")));
+        ensure_equals(lldir.findSkinnedFilenames("html", "welcome.html"), StringVec{ "install/skins/default/html/en-us/welcome.html" });
         lldir.ensure_not_checked("install/skins/default/html/en");
         lldir.ensure_not_checked("install/skins/default/html/en-us");
 
-        ensure_equals(lldir.findSkinnedFilenames("future", "somefile.txt"),
-                      vec(list_of("install/skins/default/future/somefile.txt")));
+        ensure_equals(lldir.findSkinnedFilenames("future", "somefile.txt"), StringVec{ "install/skins/default/future/somefile.txt" });
         // Test probing for an unrecognized unlocalized future subdir.
         lldir.ensure_checked("install/skins/default/future/en");
         lldir.clear_checked();
-        ensure_equals(lldir.findSkinnedFilenames("future", "somefile.txt"),
-                      vec(list_of("install/skins/default/future/somefile.txt")));
+        ensure_equals(lldir.findSkinnedFilenames("future", "somefile.txt"), StringVec{ "install/skins/default/future/somefile.txt" });
         // Second time it should remember that future is unlocalized.
         lldir.ensure_not_checked("install/skins/default/future/en");
 
@@ -643,8 +624,7 @@ namespace tut
         // make the default localization be "en" and allow "en-gb" (or
         // whatever) localizations, which would work much more the way you'd
         // expect.
-        ensure_equals(lldir.findSkinnedFilenames("html", "welcome.html"),
-                      vec(list_of("install/skins/default/html/en-us/welcome.html")));
+        ensure_equals(lldir.findSkinnedFilenames("html", "welcome.html"), StringVec{ "install/skins/default/html/en-us/welcome.html" });
 
         /*------------------------ "default", "fr" -------------------------*/
         // We start being able to distinguish localized subdirs from
@@ -654,100 +634,74 @@ namespace tut
 
         // pass merge=true to request this filename in all relevant skins
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
-                      vec(list_of
-                          ("install/skins/default/xui/en/strings.xml")
-                          ("install/skins/default/xui/fr/strings.xml")
-                          ("user/skins/default/xui/en/strings.xml")
-                          ("user/skins/default/xui/fr/strings.xml")));
+                      StringVec{ "install/skins/default/xui/en/strings.xml", "install/skins/default/xui/fr/strings.xml",
+                                 "user/skins/default/xui/en/strings.xml", "user/skins/default/xui/fr/strings.xml" });
 
         // pass (or default) merge=false to request only most specific skin
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml"),
-                      vec(list_of
-                          ("user/skins/default/xui/en/strings.xml")
-                          ("user/skins/default/xui/fr/strings.xml")));
+                      StringVec{ "user/skins/default/xui/en/strings.xml", "user/skins/default/xui/fr/strings.xml" });
 
         // Our dummy floater.xml has a user localization (for "fr") but no
         // English override. This is a case in which CURRENT_SKIN nonetheless
         // returns paths from two different skins.
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "floater.xml"),
-                      vec(list_of
-                          ("install/skins/default/xui/en/floater.xml")
-                          ("user/skins/default/xui/fr/floater.xml")));
+                      StringVec{ "install/skins/default/xui/en/floater.xml", "user/skins/default/xui/fr/floater.xml" });
 
         // Our dummy newfile.xml has an English override but no user
         // localization. This is another case in which CURRENT_SKIN
         // nonetheless returns paths from two different skins.
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "newfile.xml"),
-                      vec(list_of
-                          ("user/skins/default/xui/en/newfile.xml")
-                          ("install/skins/default/xui/fr/newfile.xml")));
+                      StringVec{ "user/skins/default/xui/en/newfile.xml", "install/skins/default/xui/fr/newfile.xml" });
 
         ensure_equals(lldir.findSkinnedFilenames("html", "welcome.html"),
-                      vec(list_of
-                          ("install/skins/default/html/en-us/welcome.html")
-                          ("install/skins/default/html/fr/welcome.html")));
+                      StringVec{ "install/skins/default/html/en-us/welcome.html", "install/skins/default/html/fr/welcome.html" });
 
         /*------------------------ "default", "zh" -------------------------*/
         lldir.setSkinFolder("default", "zh");
         // Because strings.xml has only a "fr" override but no "zh" override
         // in any skin, the most localized version we can find is "en".
-        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml"),
-                      vec(list_of("user/skins/default/xui/en/strings.xml")));
+        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml"), StringVec{ "user/skins/default/xui/en/strings.xml" });
 
         /*------------------------- "steam", "en" --------------------------*/
         lldir.setSkinFolder("steam", "en");
 
         ensure_equals(lldir.findSkinnedFilenames(LLDir::SKINBASE, "colors.xml", LLDir::ALL_SKINS),
-                      vec(list_of
-                          ("install/skins/default/colors.xml")
-                          ("install/skins/steam/colors.xml")
-                          ("user/skins/default/colors.xml")
-                          ("user/skins/steam/colors.xml")));
+                      StringVec{ "install/skins/default/colors.xml", "install/skins/steam/colors.xml", "user/skins/default/colors.xml",
+                                 "user/skins/steam/colors.xml" });
 
         ensure_equals(lldir.findSkinnedFilenames(LLDir::TEXTURES, "only_default.jpeg"),
-                      vec(list_of("install/skins/default/textures/only_default.jpeg")));
+                      StringVec{ "install/skins/default/textures/only_default.jpeg" });
 
         ensure_equals(lldir.findSkinnedFilenames(LLDir::TEXTURES, "only_steam.jpeg"),
-                      vec(list_of("install/skins/steam/textures/only_steam.jpeg")));
+                      StringVec{ "install/skins/steam/textures/only_steam.jpeg" });
 
         ensure_equals(lldir.findSkinnedFilenames(LLDir::TEXTURES, "only_user_default.jpeg"),
-                      vec(list_of("user/skins/default/textures/only_user_default.jpeg")));
+                      StringVec{ "user/skins/default/textures/only_user_default.jpeg" });
 
         ensure_equals(lldir.findSkinnedFilenames(LLDir::TEXTURES, "only_user_steam.jpeg"),
-                      vec(list_of("user/skins/steam/textures/only_user_steam.jpeg")));
+                      StringVec{ "user/skins/steam/textures/only_user_steam.jpeg" });
 
         // CURRENT_SKIN
-        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml"),
-                      vec(list_of("user/skins/steam/xui/en/strings.xml")));
+        ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml"), StringVec{ "user/skins/steam/xui/en/strings.xml" });
 
         // pass constraint=ALL_SKINS to request this filename in all relevant skins
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
-                      vec(list_of
-                          ("install/skins/default/xui/en/strings.xml")
-                          ("install/skins/steam/xui/en/strings.xml")
-                          ("user/skins/default/xui/en/strings.xml")
-                          ("user/skins/steam/xui/en/strings.xml")));
+                      StringVec{ "install/skins/default/xui/en/strings.xml", "install/skins/steam/xui/en/strings.xml",
+                                 "user/skins/default/xui/en/strings.xml", "user/skins/steam/xui/en/strings.xml" });
 
         /*------------------------- "steam", "fr" --------------------------*/
         lldir.setSkinFolder("steam", "fr");
 
         // pass CURRENT_SKIN to request only the most specialized files
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml"),
-                      vec(list_of
-                          ("user/skins/steam/xui/en/strings.xml")
-                          ("user/skins/steam/xui/fr/strings.xml")));
+                      StringVec{ "user/skins/steam/xui/en/strings.xml", "user/skins/steam/xui/fr/strings.xml" });
 
         // pass ALL_SKINS to request this filename in all relevant skins
         ensure_equals(lldir.findSkinnedFilenames(LLDir::XUI, "strings.xml", LLDir::ALL_SKINS),
-                      vec(list_of
-                          ("install/skins/default/xui/en/strings.xml")
-                          ("install/skins/default/xui/fr/strings.xml")
-                          ("install/skins/steam/xui/en/strings.xml")
-                          ("install/skins/steam/xui/fr/strings.xml")
-                          ("user/skins/default/xui/en/strings.xml")
-                          ("user/skins/default/xui/fr/strings.xml")
-                          ("user/skins/steam/xui/en/strings.xml")
-                          ("user/skins/steam/xui/fr/strings.xml")));
+                      StringVec{ "install/skins/default/xui/en/strings.xml", "install/skins/default/xui/fr/strings.xml",
+                                 "install/skins/steam/xui/en/strings.xml", "install/skins/steam/xui/fr/strings.xml",
+                                 "user/skins/default/xui/en/strings.xml", "user/skins/default/xui/fr/strings.xml",
+                                 "user/skins/steam/xui/en/strings.xml", "user/skins/steam/xui/fr/strings.xml" });
     }
 
     template<> template<>

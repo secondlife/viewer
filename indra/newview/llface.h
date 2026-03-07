@@ -58,16 +58,8 @@ class alignas(16) LLFace
 {
     LL_ALIGN_NEW
 public:
-    LLFace(const LLFace& rhs)
-    {
-        *this = rhs;
-    }
-
-    const LLFace& operator=(const LLFace& rhs)
-    {
-        LL_ERRS() << "Illegal operation!" << LL_ENDL;
-        return *this;
-    }
+    LLFace(const LLFace& rhs) = delete;
+    const LLFace& operator=(const LLFace& rhs) = delete;
 
     enum EMasks
     {
@@ -111,6 +103,8 @@ public:
     LLVector3       getPositionAgent()  const;
     LLVector2       surfaceToTexture(LLVector2 surface_coord, const LLVector4a& position, const LLVector4a& normal);
     void            getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_pos, F32* scale) const;
+    bool            calcAlignedPlanarGLTF(const LLFace* align_to, LLVector2* res_st_offset,
+                                        LLVector2* res_st_scale, F32* res_st_rot, S32 gltf_info_index = 0) const;
     bool            calcAlignedPlanarTE(const LLFace* align_to, LLVector2* st_offset,
                                         LLVector2* st_scale, F32* st_rot, LLRender::eTexIndex map = LLRender::DIFFUSE_MAP) const;
 
@@ -127,7 +121,7 @@ public:
     void            setIndexInTex(U32 ch, S32 index) { llassert(ch < LLRender::NUM_TEXTURE_CHANNELS); mIndexInTex[ch] = index; }
 
     void            setWorldMatrix(const LLMatrix4& mat);
-    const LLTextureEntry* getTextureEntry() const { return mVObjp->getTE(mTEOffset); }
+    const LLTextureEntry* getTextureEntry() const { return mVObjp ? mVObjp->getTE(mTEOffset) : nullptr; }
 
     LLFacePool*     getPool()           const   { return mDrawPoolp; }
     U32             getPoolType()       const   { return mPoolType; }

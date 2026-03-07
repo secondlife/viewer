@@ -602,7 +602,7 @@ void LLXUIXSDWriter::writeXSD(const std::string& type_name, const std::string& p
     LLXSDWriter::writeXSD(type_name, root_nodep, block, "http://www.lindenlab.com/xui");
 
     // add includes for all possible children
-    const std::type_info* type = *LLWidgetTypeRegistry::instance().getValue(type_name);
+    const std::type_index& type = *LLWidgetTypeRegistry::instance().getValue(type_name);
     const widget_registry_t* widget_registryp = LLChildRegistryRegistry::instance().getValue(type);
 
     // add choices for valid children
@@ -1459,7 +1459,7 @@ void LLSimpleXUIParser::characterDataHandler(void *userData, const char *s, int 
 
 void LLSimpleXUIParser::characterData(const char *s, int len)
 {
-    mTextContents += std::string(s, len);
+    mTextContents.append(s, len);
 }
 
 void LLSimpleXUIParser::startElement(const char *name, const char **atts)
@@ -1480,24 +1480,24 @@ void LLSimpleXUIParser::startElement(const char *name, const char **atts)
 
     mOutputStack.back().second++;
     S32 num_tokens_pushed = 0;
-    std::string child_name(name);
+    std::string_view child_name(name);
 
     if (mOutputStack.back().second == 1)
     {   // root node for this block
-        mScope.push_back(child_name);
+        mScope.emplace_back(child_name);
     }
     else
     {   // compound attribute
         if (child_name.find(".") == std::string::npos)
         {
-            mNameStack.push_back(std::make_pair(child_name, true));
+            mNameStack.emplace_back(child_name, true);
             num_tokens_pushed++;
-            mScope.push_back(child_name);
+            mScope.emplace_back(child_name);
         }
         else
         {
             // parse out "dotted" name into individual tokens
-            tokenizer name_tokens(child_name, sep);
+            tokenizer name_tokens(std::string(child_name), sep);
 
             tokenizer::iterator name_token_it = name_tokens.begin();
             if(name_token_it == name_tokens.end())
@@ -1603,8 +1603,8 @@ bool LLSimpleXUIParser::processText()
         LLStringUtil::trim(mTextContents);
         if (!mTextContents.empty())
         {
-            mNameStack.push_back(std::make_pair(std::string("value"), true));
-            mCurAttributeValueBegin = mTextContents.c_str();
+            mNameStack.emplace_back("value", true);
+            mCurAttributeValueBegin = std::move(mTextContents);
             mOutputStack.back().first->submitValue(mNameStack, *this, mParseSilently);
             mNameStack.pop_back();
         }
@@ -1648,12 +1648,12 @@ bool LLSimpleXUIParser::readFlag(Parser& parser, void* val_ptr)
 bool LLSimpleXUIParser::readBoolValue(Parser& parser, void* val_ptr)
 {
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
-    if (!strcmp(self.mCurAttributeValueBegin, "true"))
+    if (!strcmp(self.mCurAttributeValueBegin.c_str(), "true"))
     {
         *((bool*)val_ptr) = true;
         return true;
     }
-    else if (!strcmp(self.mCurAttributeValueBegin, "false"))
+    else if (!strcmp(self.mCurAttributeValueBegin.c_str(), "false"))
     {
         *((bool*)val_ptr) = false;
         return true;
@@ -1665,56 +1665,56 @@ bool LLSimpleXUIParser::readBoolValue(Parser& parser, void* val_ptr)
 bool LLSimpleXUIParser::readStringValue(Parser& parser, void* val_ptr)
 {
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
-    *((std::string*)val_ptr) = self.mCurAttributeValueBegin;
+    *((std::string*)val_ptr) = std::move(self.mCurAttributeValueBegin);
     return true;
 }
 
 bool LLSimpleXUIParser::readU8Value(Parser& parser, void* val_ptr)
 {
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
-    return parse(self.mCurAttributeValueBegin, uint_p[assign_a(*(U8*)val_ptr)]).full;
+    return parse(self.mCurAttributeValueBegin.c_str(), uint_p[assign_a(*(U8*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readS8Value(Parser& parser, void* val_ptr)
 {
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
-    return parse(self.mCurAttributeValueBegin, int_p[assign_a(*(S8*)val_ptr)]).full;
+    return parse(self.mCurAttributeValueBegin.c_str(), int_p[assign_a(*(S8*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readU16Value(Parser& parser, void* val_ptr)
 {
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
-    return parse(self.mCurAttributeValueBegin, uint_p[assign_a(*(U16*)val_ptr)]).full;
+    return parse(self.mCurAttributeValueBegin.c_str(), uint_p[assign_a(*(U16*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readS16Value(Parser& parser, void* val_ptr)
 {
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
-    return parse(self.mCurAttributeValueBegin, int_p[assign_a(*(S16*)val_ptr)]).full;
+    return parse(self.mCurAttributeValueBegin.c_str(), int_p[assign_a(*(S16*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readU32Value(Parser& parser, void* val_ptr)
 {
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
-    return parse(self.mCurAttributeValueBegin, uint_p[assign_a(*(U32*)val_ptr)]).full;
+    return parse(self.mCurAttributeValueBegin.c_str(), uint_p[assign_a(*(U32*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readS32Value(Parser& parser, void* val_ptr)
 {
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
-    return parse(self.mCurAttributeValueBegin, int_p[assign_a(*(S32*)val_ptr)]).full;
+    return parse(self.mCurAttributeValueBegin.c_str(), int_p[assign_a(*(S32*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readF32Value(Parser& parser, void* val_ptr)
 {
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
-    return parse(self.mCurAttributeValueBegin, real_p[assign_a(*(F32*)val_ptr)]).full;
+    return parse(self.mCurAttributeValueBegin.c_str(), real_p[assign_a(*(F32*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readF64Value(Parser& parser, void* val_ptr)
 {
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
-    return parse(self.mCurAttributeValueBegin, real_p[assign_a(*(F64*)val_ptr)]).full;
+    return parse(self.mCurAttributeValueBegin.c_str(), real_p[assign_a(*(F64*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readColor4Value(Parser& parser, void* val_ptr)
@@ -1722,7 +1722,7 @@ bool LLSimpleXUIParser::readColor4Value(Parser& parser, void* val_ptr)
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     LLColor4 value;
 
-    if (parse(self.mCurAttributeValueBegin, real_p[assign_a(value.mV[0])] >> real_p[assign_a(value.mV[1])] >> real_p[assign_a(value.mV[2])] >> real_p[assign_a(value.mV[3])], space_p).full)
+    if (parse(self.mCurAttributeValueBegin.c_str(), real_p[assign_a(value.mV[0])] >> real_p[assign_a(value.mV[1])] >> real_p[assign_a(value.mV[2])] >> real_p[assign_a(value.mV[3])], space_p).full)
     {
         *(LLColor4*)(val_ptr) = value;
         return true;
@@ -1736,7 +1736,7 @@ bool LLSimpleXUIParser::readUIColorValue(Parser& parser, void* val_ptr)
     LLColor4 value;
     LLUIColor* colorp = (LLUIColor*)val_ptr;
 
-    if (parse(self.mCurAttributeValueBegin, real_p[assign_a(value.mV[0])] >> real_p[assign_a(value.mV[1])] >> real_p[assign_a(value.mV[2])] >> real_p[assign_a(value.mV[3])], space_p).full)
+    if (parse(self.mCurAttributeValueBegin.c_str(), real_p[assign_a(value.mV[0])] >> real_p[assign_a(value.mV[1])] >> real_p[assign_a(value.mV[2])] >> real_p[assign_a(value.mV[3])], space_p).full)
     {
         colorp->set(value);
         return true;
@@ -1749,7 +1749,7 @@ bool LLSimpleXUIParser::readUUIDValue(Parser& parser, void* val_ptr)
     LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     LLUUID temp_id;
     // LLUUID::set is destructive, so use temporary value
-    if (temp_id.set(std::string(self.mCurAttributeValueBegin)))
+    if (temp_id.set(self.mCurAttributeValueBegin))
     {
         *(LLUUID*)(val_ptr) = temp_id;
         return true;

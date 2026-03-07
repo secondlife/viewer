@@ -77,9 +77,9 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("AvatarRenderInfoAccountant", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("AvatarRenderInfoAccountant", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
 
     // Going to request each 15 seconds either way, so don't wait
     // too long and don't repeat
@@ -194,9 +194,9 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("AvatarRenderInfoAccountant", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("AvatarRenderInfoAccountant", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
 
     // Going to request each 60+ seconds, timeout is 30s.
     // Don't repeat too often, will be sending newer data soon

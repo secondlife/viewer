@@ -113,7 +113,7 @@ protected:
 class LLInvPanelComplObserver : public LLInventoryCompletionObserver
 {
 public:
-    typedef boost::function<void()> callback_t;
+    typedef std::function<void()> callback_t;
 
     LLInvPanelComplObserver(callback_t cb)
     :   mCallback(cb)
@@ -627,7 +627,7 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
     // This could be anything.  For now, just refresh the item.
     if (mask & LLInventoryObserver::INTERNAL)
     {
-        if (view_item)
+        if (view_item && view_item->getViewModelItem())
         {
             view_item->refresh();
         }
@@ -646,7 +646,7 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
 
     if (mask & LLInventoryObserver::UPDATE_FAVORITE)
     {
-        if (view_item)
+        if (view_item && view_item->getViewModelItem())
         {
             view_item->refresh();
             LLFolderViewFolder* parent = view_item->getParentFolder();
@@ -1595,7 +1595,7 @@ void LLInventoryPanel::setSelection(const LLUUID& obj_id, bool take_keyboard_foc
     setSelectionByID(obj_id, take_keyboard_focus);
 }
 
-void LLInventoryPanel::setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, bool user_action)>& cb)
+void LLInventoryPanel::setSelectCallback(const std::function<void (const std::deque<LLFolderViewItem*>& items, bool user_action)>& cb)
 {
     if (mFolderRoot.get())
     {
@@ -1849,6 +1849,7 @@ void LLInventoryPanel::purgeSelectedItems()
 {
     if (!mFolderRoot.get()) return;
 
+    const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
     const std::set<LLFolderViewItem*> inventory_selected = mFolderRoot.get()->getSelectionList();
     if (inventory_selected.empty()) return;
     LLSD args;
@@ -1858,12 +1859,17 @@ void LLInventoryPanel::purgeSelectedItems()
         it != end_it;
         ++it)
     {
+        // Selection allows items outside trash folder, only count the ones inside.
         LLUUID item_id = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID();
-        LLInventoryModel::cat_array_t cats;
-        LLInventoryModel::item_array_t items;
-        gInventory.collectDescendents(item_id, cats, items, LLInventoryModel::INCLUDE_TRASH);
-        count += items.size() + cats.size();
-        selected_items.push_back(item_id);
+        LLInventoryObject* obj = gInventory.getObject(item_id);
+        if (obj->getParentUUID() == trash_id)
+        {
+            LLInventoryModel::cat_array_t cats;
+            LLInventoryModel::item_array_t items;
+            gInventory.collectDescendents(item_id, cats, items, LLInventoryModel::INCLUDE_TRASH);
+            count += items.size() + cats.size();
+            selected_items.push_back(item_id);
+        }
     }
     args["COUNT"] = static_cast<S32>(count);
     LLNotificationsUtil::add("PurgeSelectedItems", args, LLSD(), boost::bind(callbackPurgeSelectedItems, _1, _2, selected_items));
@@ -2119,8 +2125,7 @@ LLFolderViewItem* LLInventoryPanel::getItemByID(const LLUUID& id)
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    std::map<LLUUID, LLFolderViewItem*>::iterator map_it;
-    map_it = mItemMap.find(id);
+    auto map_it = mItemMap.find(id);
     if (map_it != mItemMap.end())
     {
         return map_it->second;
@@ -2762,7 +2767,7 @@ void LLInventorySingleFolderPanel::updateSingleFolderRoot()
             mFolderRoot.get()->setFollowsAll();
             mFolderRoot.get()->addChild(mFolderRoot.get()->mStatusTextBox);
 
-            if (!mSelectionCallback.empty())
+            if (mSelectionCallback != nullptr)
             {
                 mFolderRoot.get()->setSelectCallback(mSelectionCallback);
             }

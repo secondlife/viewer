@@ -77,11 +77,10 @@ bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType fil
     LL_PROFILE_ZONE_SCOPED;
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    llifstream file(filename, std::ios::binary);
-    if (file.is_open())
+    boost::system::error_code ec;
+    if (boost::filesystem::exists(filename, ec) && boost::filesystem::is_regular_file(filename, ec))
     {
-        file.seekg(0, std::ios::end);
-        return file.tellg() > 0;
+        return boost::filesystem::file_size(filename, ec) > 0;
     }
     return false;
 }
@@ -103,9 +102,6 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
     const std::string old_filename = LLDiskCache::metaDataToFilepath(old_file_id, old_file_type);
     const std::string new_filename = LLDiskCache::metaDataToFilepath(new_file_id, new_file_type);
 
-    // Rename needs the new file to not exist.
-    LLFileSystem::removeFile(new_file_id, new_file_type, ENOENT);
-
     if (LLFile::rename(old_filename, new_filename) != 0)
     {
         // We would like to return false here indicating the operation
@@ -123,15 +119,12 @@ S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType fi
 {
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    S32 file_size = 0;
-    llifstream file(filename, std::ios::binary);
-    if (file.is_open())
+    boost::system::error_code ec;
+    if (boost::filesystem::exists(filename, ec) && boost::filesystem::is_regular_file(filename, ec))
     {
-        file.seekg(0, std::ios::end);
-        file_size = (S32)file.tellg();
+        return static_cast<S32>(boost::filesystem::file_size(filename, ec));
     }
-
-    return file_size;
+    return 0;
 }
 
 bool LLFileSystem::read(U8* buffer, S32 bytes)

@@ -218,6 +218,7 @@ S32 LLPipeline::RenderBufferVisualization;
 bool LLPipeline::RenderMirrors;
 S32 LLPipeline::RenderHeroProbeUpdateRate;
 S32 LLPipeline::RenderHeroProbeConservativeUpdateMultiplier;
+bool LLPipeline::RenderAvatarCloth;
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const U32 LLPipeline::MAX_PREVIEW_WIDTH = 512;
@@ -601,6 +602,7 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderMirrors");
     connectRefreshCachedSettingsSafe("RenderHeroProbeUpdateRate");
     connectRefreshCachedSettingsSafe("RenderHeroProbeConservativeUpdateMultiplier");
+    connectRefreshCachedSettingsSafe("RenderAvatarCloth");
 
     LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl("CollectFontVertexBuffers");
     if (cntrl_ptr.notNull())
@@ -1133,6 +1135,7 @@ void LLPipeline::refreshCachedSettings()
     RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
     RenderHeroProbeUpdateRate = gSavedSettings.getS32("RenderHeroProbeUpdateRate");
     RenderHeroProbeConservativeUpdateMultiplier = gSavedSettings.getS32("RenderHeroProbeConservativeUpdateMultiplier");
+    RenderAvatarCloth = gSavedSettings.getBOOL("RenderAvatarCloth");
 
     sReflectionProbesEnabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionsEnabled") && gSavedSettings.getBOOL("RenderReflectionsEnabled");
     RenderSpotLight = nullptr;
@@ -2731,6 +2734,10 @@ void LLPipeline::clearRebuildGroups()
     {
         LLSpatialGroup* group = *iter;
 
+        if (!group || group->isDead())
+        {
+            continue;
+        }
         // If the group contains HUD objects, save the group
         if (group->isHUDGroup())
         {
@@ -2952,7 +2959,7 @@ void LLPipeline::markMoved(LLDrawable *drawablep, bool damped_motion)
 
 void LLPipeline::markShift(LLDrawable *drawablep)
 {
-    if (!drawablep || drawablep->isDead())
+    if (!drawablep || drawablep->isDead() || !drawablep->getVObj())
     {
         return;
     }
@@ -2986,7 +2993,7 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
             iter != mShiftList.end(); iter++)
     {
         LLDrawable *drawablep = *iter;
-        if (drawablep->isDead())
+        if (drawablep->isDead() || !drawablep->getVObj())
         {
             continue;
         }
@@ -5522,7 +5529,7 @@ static F32 calc_light_dist(LLVOVolume* light, const LLVector3& cam_pos, F32 max_
     if (light->mDrawable.notNull() && light->mDrawable->isState(LLDrawable::ACTIVE))
     {
         // moving lights get a little higher priority (too much causes artifacts)
-        dist = llmax(dist - light->getLightRadius()*0.25f, 0.f);
+        dist = llmax(dist - radius * 0.25f, 0.f);
     }
     return dist;
 }
@@ -8346,34 +8353,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     }
 
     bindReflectionProbes(shader);
-
-    if (gAtmosphere)
-    {
-        // bind precomputed textures necessary for calculating sun and sky luminance
-        channel = shader.enableTexture(LLShaderMgr::TRANSMITTANCE_TEX, LLTexUnit::TT_TEXTURE);
-        if (channel > -1)
-        {
-            shader.bindTexture(LLShaderMgr::TRANSMITTANCE_TEX, gAtmosphere->getTransmittance());
-        }
-
-        channel = shader.enableTexture(LLShaderMgr::SCATTER_TEX, LLTexUnit::TT_TEXTURE_3D);
-        if (channel > -1)
-        {
-            shader.bindTexture(LLShaderMgr::SCATTER_TEX, gAtmosphere->getScattering());
-        }
-
-        channel = shader.enableTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, LLTexUnit::TT_TEXTURE_3D);
-        if (channel > -1)
-        {
-            shader.bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getMieScattering());
-        }
-
-        channel = shader.enableTexture(LLShaderMgr::ILLUMINANCE_TEX, LLTexUnit::TT_TEXTURE);
-        if (channel > -1)
-        {
-            shader.bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
-        }
-    }
 
     /*if (gCubeSnapshot)
     { // we only really care about the first two values, but the shader needs increasing separation between clip planes

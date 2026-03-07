@@ -57,11 +57,11 @@ public:
     void operator delete(void *);
     void operator delete(void *, size_t len);
 
+    Block(const Block&) = delete;
+    Block& operator=(const Block&) = delete;
+
 protected:
     Block(size_t len);
-
-    Block(const Block &);                       // Not defined
-    void operator=(const Block &);              // Not defined
 
     // Allocate the block with the additional space for the
     // buffered data at the end of the object.

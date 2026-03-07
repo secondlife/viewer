@@ -432,11 +432,11 @@ public:
 
     virtual SortType& getSorter()                    { return *mSorter; }
     virtual const SortType& getSorter() const        { return *mSorter; }
-    virtual void setSorter(const SortType& sorter)   { mSorter.reset(new SortType(sorter)); requestSortAll(); }
+    virtual void setSorter(const SortType& sorter)   { mSorter = std::make_unique<SortType>(sorter); requestSortAll(); }
 
     virtual FilterType& getFilter() override                  { return *mFilter; }
     virtual const FilterType& getFilter() const override      { return *mFilter; }
-    virtual void setFilter(const FilterType& filter) { mFilter.reset(new FilterType(filter)); }
+    virtual void setFilter(const FilterType& filter) { mFilter = std::make_unique<FilterType>(filter); }
 
     // By default, we assume the content is available. If a network fetch mechanism is implemented for the model,
     // this method needs to be overloaded and return the relevant fetch status.

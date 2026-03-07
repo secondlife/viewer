@@ -114,7 +114,7 @@ class LLUI : public LLSimpleton<LLUI>
 {
     LOG_CLASS(LLUI);
 public:
-    typedef std::map<std::string, LLControlGroup*, std::less<> > settings_map_t;
+    typedef std::unordered_map<std::string, LLControlGroup*, ll::string_hash, std::equal_to<>> settings_map_t;
 
     LLUI(const settings_map_t &settings,
                            LLImageProviderInterface* image_provider,
@@ -241,9 +241,9 @@ public:
     //
     // Methods
     //
-    typedef boost::function<void(LLView*)> add_popup_t;
-    typedef boost::function<void(LLView*)> remove_popup_t;
-    typedef boost::function<void(void)> clear_popups_t;
+    typedef std::function<void(LLView*)> add_popup_t;
+    typedef std::function<void(LLView*)> remove_popup_t;
+    typedef std::function<void(void)> clear_popups_t;
 
     void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );
 

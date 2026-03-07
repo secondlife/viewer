@@ -178,8 +178,8 @@ void LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro(std::string url
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getLandScriptResourcesCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("getLandScriptResourcesCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     LLSD postData;
 
@@ -222,8 +222,8 @@ void LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getLandScriptSummaryCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("getLandScriptSummaryCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
@@ -274,8 +274,8 @@ void LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getLandScriptDetailsCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("getLandScriptDetailsCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
@@ -487,13 +487,13 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
                         names_requested.push_back(owner_id);
                         if (is_group_owned)
                         {
-                            gCacheName->getGroup(owner_id,
+                            mGroupNameCacheConnection = gCacheName->getGroup(owner_id,
                                 boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
                                     this, _1, _2));
                         }
                         else
                         {
-                            LLAvatarNameCache::get(owner_id,
+                            mAvatarNameCacheConnection = LLAvatarNameCache::get(owner_id,
                                 boost::bind(&LLPanelScriptLimitsRegionMemory::onAvatarNameCache,
                                     this, _1, _2));
                         }

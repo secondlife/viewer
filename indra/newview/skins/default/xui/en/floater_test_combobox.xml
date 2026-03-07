@@ -155,4 +155,36 @@
          name="item3"
          value="tx" />
     </combo_box>
+    <text
+     type="string"
+     length="1"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     top_pad="24"
+     width="200">
+        Multiple columns:
+    </text>
+    <combo_box
+      name="multi_column_combo"
+      layout="topleft"
+      height="20"
+      width="150"
+      left_delta="0"
+      top_pad="4">
+        <combo_item  name="combo_item1" value="0">
+        <column width="40"  name="label"    label="|Abc|" />
+        <column name="longtext" label="Match full text" />
+        </combo_item>
+
+        <combo_item  name="combo_item2" value="1">
+        <column name="label"    label="*Abc*" />
+        <column name="longtext" label="Match substring" />
+        </combo_item>
+
+        <combo_item  name="combo_item3" value="2">
+        <column name="label"    label="/ *. /" />
+        <column name="longtext" label="Match regular expression" />
+        </combo_item>
+    </combo_box>
 </floater>

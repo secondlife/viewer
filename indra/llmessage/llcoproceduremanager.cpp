@@ -53,13 +53,17 @@ static const U32 DEFAULT_POOL_SIZE = 5;
 const U32 LLCoprocedureManager::DEFAULT_QUEUE_SIZE = 1024*512;
 
 //=========================================================================
-class LLCoprocedurePool: private boost::noncopyable
+class LLCoprocedurePool
 {
 public:
     typedef LLCoprocedureManager::CoProcedure_t CoProcedure_t;
 
     LLCoprocedurePool(const std::string &name, size_t size, size_t queue_size);
     ~LLCoprocedurePool();
+
+    // Non-copyable
+    LLCoprocedurePool(const LLCoprocedurePool&) = delete;
+    LLCoprocedurePool& operator=(const LLCoprocedurePool&) = delete;
 
     /// Places the coprocedure on the queue for processing.
     ///
@@ -151,8 +155,8 @@ LLCoprocedureManager::~LLCoprocedureManager()
         // Shutting down, just log it
         LL_WARNS() << "Exception during ~LLCoprocedureManager(): " << e.what() << LL_ENDL;
     }
-    mPropertyQueryFn.clear();
-    mPropertyDefineFn.clear();
+    mPropertyQueryFn = nullptr;
+    mPropertyDefineFn = nullptr;
     mPoolMap.clear();
 }
 
@@ -195,7 +199,7 @@ void LLCoprocedureManager::initializePool(const std::string &poolName, size_t qu
         LL_WARNS("CoProcMgr") << "LLCoprocedureManager: No setting for \"" << keyName << "\" setting pool size to default of " << size << LL_ENDL;
     }
 
-    poolPtr_t pool(new LLCoprocedurePool(poolName, size, queue_size));
+    poolPtr_t pool = std::make_shared<LLCoprocedurePool>(poolName, size, queue_size);
     LL_ERRS_IF(!pool, "CoprocedureManager") << "Unable to create pool named \"" << poolName << "\" FATAL!" << LL_ENDL;
 
     bool inserted = mPoolMap.emplace(poolName, pool).second;
@@ -365,7 +369,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size, s
 
     for (size_t count = 0; count < mPoolSize; ++count)
     {
-        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter( mPoolName + "Adapter", mHTTPPolicy));
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>(mPoolName + "Adapter", mHTTPPolicy);
 
         std::string pooledCoro = LLCoros::instance().launch(
             "LLCoprocedurePool("+mPoolName+")::coprocedureInvokerCoro",

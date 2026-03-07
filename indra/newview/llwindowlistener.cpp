@@ -41,9 +41,9 @@
 #include "llrootview.h"
 #include "llsdutil.h"
 #include "stringize.h"
+#include <functional>
 #include <typeinfo>
 #include <map>
-#include <boost/bind.hpp>
 
 LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter& kbgetter)
     : LLEventAPI("LLWindow", "Inject input events into the LLWindow instance"),
@@ -54,7 +54,7 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
         "Given [\"keysym\"], [\"keycode\"] or [\"char\"], inject the specified ";
     std::string keyExplain =
         "(integer keycode values, or keysym string from any addKeyName() call in\n"
-        "http://bitbucket.org/lindenlab/viewer-release/src/tip/indra/llwindow/llkeyboard.cpp )\n";
+        "https://github.com/secondlife/viewer/blob/develop/indra/llwindow/llkeyboard.cpp )\n";
     std::string mask =
         "Specify optional [\"mask\"] as an array containing any of \"CTL\", \"ALT\",\n"
         "\"SHIFT\" or \"MAC_CONTROL\"; the corresponding modifier bits will be combined\n"
@@ -69,7 +69,7 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
         "(button values \"LEFT\", \"MIDDLE\", \"RIGHT\")\n";
     std::string paramsExplain =
         "[\"path\"] is as for LLUI::getInstance()->resolvePath(), described in\n"
-        "http://bitbucket.org/lindenlab/viewer-release/src/tip/indra/llui/llui.h\n"
+        "https://github.com/secondlife/viewer/blob/develop/indra/llui/llui.h\n"
         "If you omit [\"path\"], you must specify both [\"x\"] and [\"y\"].\n"
         "If you specify [\"path\"] without both [\"x\"] and [\"y\"], will synthesize (x, y)\n"
         "in the center of the LLView selected by [\"path\"].\n"
@@ -352,7 +352,7 @@ struct WhichButton: public StringLookup<Actions>
 };
 static WhichButton buttons;
 
-typedef boost::function<bool(LLCoordGL, MASK)> MouseFunc;
+typedef std::function<bool(LLCoordGL, MASK)> MouseFunc;
 
 // Wrap a function returning 'void' to return 'true' instead. I'm sure there's
 // a more generic way to accomplish this, but generically handling the
@@ -363,7 +363,7 @@ typedef boost::function<bool(LLCoordGL, MASK)> MouseFunc;
 // seem to overload comma the same way; or at least not with bind().)
 class MouseFuncTrue
 {
-    typedef boost::function<void(LLCoordGL, MASK)> MouseFuncVoid;
+    typedef std::function<void(LLCoordGL, MASK)> MouseFuncVoid;
     MouseFuncVoid mFunc;
 
 public:
@@ -463,9 +463,9 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
 
         // Instantiate a TemporaryDrilldownFunc to route incoming mouse events
         // to the target LLView*. But put it on the heap since "path" is
-        // optional. Nonetheless, manage it with a boost::scoped_ptr so it
+        // optional. Nonetheless, manage it with a std::unique_ptr so it
         // will be destroyed when we leave.
-        tempfunc.reset(new LLView::TemporaryDrilldownFunc(llview::TargetEvent(target)));
+        tempfunc = std::make_unique<LLView::TemporaryDrilldownFunc>(llview::TargetEvent(target));
     }
 
     // The question of whether the requested LLView actually handled the
@@ -484,11 +484,11 @@ void LLWindowListener::mouseDown(LLSD const & request)
     if (actions.valid)
     {
         // Normally you can pass NULL to an LLWindow* without compiler
-        // complaint, but going through boost::bind() evidently
+        // complaint, but going through std::bind() evidently
         // bypasses that special case: it only knows you're trying to pass an
         // int to a pointer. Explicitly cast NULL to the desired pointer type.
-        mouseEvent(boost::bind(actions.down, mWindow,
-                             static_cast<LLWindow*>(NULL), _1, _2),
+        mouseEvent(std::bind(actions.down, mWindow,
+                             static_cast<LLWindow*>(NULL), std::placeholders::_1, std::placeholders::_2),
                    request);
     }
 }
@@ -498,8 +498,7 @@ void LLWindowListener::mouseUp(LLSD const & request)
     Actions actions(buttons.lookup(request["button"]));
     if (actions.valid)
     {
-        mouseEvent(boost::bind(actions.up, mWindow,
-                             static_cast<LLWindow*>(NULL), _1, _2),
+        mouseEvent(std::bind(actions.up, mWindow, static_cast<LLWindow*>(NULL), std::placeholders::_1, std::placeholders::_2),
                    request);
     }
 }
@@ -511,8 +510,8 @@ void LLWindowListener::mouseMove(LLSD const & request)
     // void, whereas mouseEvent() accepts a function returning bool -- and
     // uses that bool return. Use MouseFuncTrue to construct a callable that
     // returns bool anyway.
-    mouseEvent(MouseFuncTrue(boost::bind(&LLWindowCallbacks::handleMouseMove, mWindow,
-                          static_cast<LLWindow*>(NULL), _1, _2)),
+    mouseEvent(MouseFuncTrue(std::bind(&LLWindowCallbacks::handleMouseMove, mWindow, static_cast<LLWindow*>(NULL), std::placeholders::_1,
+                                         std::placeholders::_2)),
                request);
 }
 

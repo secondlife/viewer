@@ -57,8 +57,8 @@ protected:
     virtual ~HttpRequestQueue();                        // Use release()
 
 private:
-    HttpRequestQueue(const HttpRequestQueue &);         // Not defined
-    void operator=(const HttpRequestQueue &);           // Not defined
+    HttpRequestQueue(const HttpRequestQueue&) = delete;
+    void operator=(const HttpRequestQueue&)   = delete;
 
 public:
     typedef std::shared_ptr<HttpOperation> opPtr_t;

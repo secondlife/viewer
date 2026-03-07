@@ -166,6 +166,14 @@ bool LLEventNotifier::handleResponse(U32 eventId, const LLSD& notification, cons
     return true;
 }
 
+bool LLEventNotifier::add(LLEventInfo event)
+{
+    if (mEventInfoSignal(event))
+        return false;
+
+    return add(event.mID, event.mUnixTime, event.mTimeStr, event.mName);
+}
+
 bool LLEventNotifier::add(U32 eventId, F64 eventEpoch, const std::string& eventDateStr, const std::string &eventName)
 {
     LLEventNotification *new_enp = new LLEventNotification(eventId, eventEpoch, eventDateStr, eventName);
@@ -198,20 +206,9 @@ void LLEventNotifier::add(U32 eventId)
 //static
 void LLEventNotifier::processEventInfoReply(LLMessageSystem *msg, void **)
 {
-    // extract the agent id
-    LLUUID agent_id;
-    U32 event_id;
-    std::string event_name;
-    std::string eventd_date;
-    U32 event_time_utc;
-
-    msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
-    msg->getU32("EventData", "EventID", event_id);
-    msg->getString("EventData", "Name", event_name);
-    msg->getString("EventData", "Date", eventd_date);
-    msg->getU32("EventData", "DateUTC", event_time_utc);
-
-    gEventNotifier.add(event_id, (F64)event_time_utc, eventd_date, event_name);
+    LLEventInfo info;
+    info.unpack(msg);
+    gEventNotifier.add(info);
 }
 
 
@@ -296,6 +293,52 @@ void LLEventNotifier::serverPushRequest(U32 event_id, bool add)
     gAgent.sendReliableMessage();
 }
 
+void LLEventInfo::unpack(LLMessageSystem* msg)
+{
+    U32 event_id;
+    msg->getU32("EventData", "EventID", event_id);
+    mID = event_id;
+
+    msg->getString("EventData", "Name", mName);
+
+    msg->getString("EventData", "Category", mCategoryStr);
+
+    msg->getString("EventData", "Date", mTimeStr);
+
+    U32 duration;
+    msg->getU32("EventData", "Duration", duration);
+    mDuration = duration;
+
+    U32 date;
+    msg->getU32("EventData", "DateUTC", date);
+    mUnixTime = date;
+
+    msg->getString("EventData", "Desc", mDesc);
+
+    std::string buffer;
+    msg->getString("EventData", "Creator", buffer);
+    mRunByID = LLUUID(buffer);
+
+    U32 foo;
+    msg->getU32("EventData", "Cover", foo);
+
+    mHasCover = foo ? true : false;
+    if (mHasCover)
+    {
+        U32 cover;
+        msg->getU32("EventData", "Amount", cover);
+        mCover = cover;
+    }
+
+    msg->getString("EventData", "SimName", mSimName);
+
+    msg->getVector3d("EventData", "GlobalPos", mPosGlobal);
+
+    // Mature content
+    U32 event_flags;
+    msg->getU32("EventData", "EventFlags", event_flags);
+    mEventFlags = event_flags;
+}
 
 LLEventNotification::LLEventNotification(U32 eventId, F64 eventEpoch, const std::string& eventDateStr, const std::string &eventName) :
     mEventID(eventId),

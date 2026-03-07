@@ -280,7 +280,7 @@ void LLFloaterImagePreview::onBtnOK()
             LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
             fmt_file.write(formatted->getData(), formatted->getDataSize());
 
-            LLResourceUploadInfo::ptr_t assetUploadInfo(new LLResourceUploadInfo(
+            LLResourceUploadInfo::ptr_t assetUploadInfo = std::make_shared<LLResourceUploadInfo>(
                 tid, LLAssetType::AT_TEXTURE,
                 getChild<LLUICtrl>("name_form")->getValue().asString(),
                 getChild<LLUICtrl>("description_form")->getValue().asString(),
@@ -289,8 +289,9 @@ void LLFloaterImagePreview::onBtnOK()
                 LLFloaterPerms::getNextOwnerPerms("Uploads"),
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
-                expected_upload_cost
-            ));
+                expected_upload_cost,
+                mDestinationFolderId
+            );
 
             upload_new_resource(assetUploadInfo);
         }

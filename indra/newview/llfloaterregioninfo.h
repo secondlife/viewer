@@ -272,6 +272,7 @@ public:
     static void onClickBakeTerrain(void*);
     bool callbackBakeTerrain(const LLSD& notification, const LLSD& response);
     bool callbackTextureHeights(const LLSD& notification, const LLSD& response);
+    void callbackMaterialCommit(S32 index);
 
 protected:
     bool sendUpdate() override;

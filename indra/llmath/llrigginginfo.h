@@ -70,11 +70,10 @@ public:
     LLJointRiggingInfo* begin() { return mRigInfoPtr; }
     LLJointRiggingInfo* end() { return mRigInfoPtr + mSize; }
 
-private:
-    // Not implemented
-    LLJointRiggingInfoTab& operator=(const LLJointRiggingInfoTab& src);
-    LLJointRiggingInfoTab(const LLJointRiggingInfoTab& src);
+    LLJointRiggingInfoTab& operator=(const LLJointRiggingInfoTab& src) = delete;
+    LLJointRiggingInfoTab(const LLJointRiggingInfoTab& src) = delete;
 
+private:
     LLJointRiggingInfo *mRigInfoPtr;
     S32 mSize;
     bool mNeedsUpdate;

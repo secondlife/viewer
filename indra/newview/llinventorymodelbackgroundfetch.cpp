@@ -125,9 +125,8 @@ public:
             LLInventoryModelBackgroundFetch::instance().incrFetchCount(-1);
         }
 
-protected:
-    BGItemHttpHandler(const BGItemHttpHandler&);               // Not defined
-    void operator=(const BGItemHttpHandler&);                  // Not defined
+    BGItemHttpHandler(const BGItemHttpHandler&) = delete;
+    BGItemHttpHandler& operator=(const BGItemHttpHandler&) = delete;
 };
 
 
@@ -159,8 +158,8 @@ public:
         }
 
 protected:
-    BGFolderHttpHandler(const BGFolderHttpHandler&);           // Not defined
-    void operator=(const BGFolderHttpHandler&);                // Not defined
+    BGFolderHttpHandler(const BGFolderHttpHandler&) = delete;
+    BGFolderHttpHandler& operator=(const BGFolderHttpHandler&) = delete;
 
 public:
     virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse* response);
@@ -829,7 +828,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
             // Intent is for marketplace request to happen after
             // main inventory is done, unless requested by floater
             mRecursiveMarketplaceFetchStarted = true;
-            const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+            const LLUUID& marketplacelistings_id = gInventory.getMarketplaceListingsUUID();
             if (marketplacelistings_id.notNull())
             {
                 mFetchFolderQueue.emplace_front(marketplacelistings_id, FT_FOLDER_AND_CONTENT);
@@ -886,31 +885,34 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                     static LLCachedControl<S32> ais_batch(gSavedSettings, "BatchSizeAIS3", 20);
                     S32 batch_limit = llclamp(ais_batch(), 1, 40);
 
-                    for (LLInventoryModel::cat_array_t::iterator it = categories->begin();
-                         it != categories->end();
-                         ++it)
+                    if (categories)
                     {
-                        LLViewerInventoryCategory* child_cat = (*it);
-                        if (LLViewerInventoryCategory::VERSION_UNKNOWN != child_cat->getVersion()
-                            || child_cat->getFetching() >= target_state)
+                        for (LLInventoryModel::cat_array_t::iterator it = categories->begin();
+                             it != categories->end();
+                             ++it)
                         {
-                            continue;
-                        }
+                            LLViewerInventoryCategory* child_cat = (*it);
+                            if (LLViewerInventoryCategory::VERSION_UNKNOWN != child_cat->getVersion()
+                                || child_cat->getFetching() >= target_state)
+                            {
+                                continue;
+                            }
 
-                        if (child_cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_LISTINGS)
-                        {
-                            // special case, marketplace will fetch that as needed
-                            continue;
-                        }
+                            if (child_cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_LISTINGS)
+                            {
+                                // special case, marketplace will fetch that as needed
+                                continue;
+                            }
 
-                        children.emplace_back(child_cat->getUUID());
-                        mExpectedFolderIds.emplace_back(child_cat->getUUID());
-                        child_cat->setFetching(target_state);
+                            children.emplace_back(child_cat->getUUID());
+                            mExpectedFolderIds.emplace_back(child_cat->getUUID());
+                            child_cat->setFetching(target_state);
 
-                        if (children.size() >= batch_limit)
-                        {
-                            content_done = false;
-                            break;
+                            if (children.size() >= batch_limit)
+                            {
+                                content_done = false;
+                                break;
+                            }
                         }
                     }
 
@@ -940,14 +942,17 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                         // This will have a bit of overlap with onAISContentCalback,
                         // but something else might have downloaded folders, so verify
                         // every child that is complete has it's children done as well
-                        for (LLInventoryModel::cat_array_t::iterator it = categories->begin();
-                             it != categories->end();
-                             ++it)
+                        if (categories)
                         {
-                            LLViewerInventoryCategory* child_cat = (*it);
-                            if (LLViewerInventoryCategory::VERSION_UNKNOWN != child_cat->getVersion())
+                            for (LLInventoryModel::cat_array_t::iterator it = categories->begin();
+                                 it != categories->end();
+                                 ++it)
                             {
-                                mFetchFolderQueue.emplace_back(child_cat->getUUID(), FT_RECURSIVE);
+                                LLViewerInventoryCategory* child_cat = (*it);
+                                if (LLViewerInventoryCategory::VERSION_UNKNOWN != child_cat->getVersion())
+                                {
+                                    mFetchFolderQueue.emplace_back(child_cat->getUUID(), FT_RECURSIVE);
+                                }
                             }
                         }
                     }
@@ -998,12 +1003,15 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                         LLInventoryModel::cat_array_t* categories(NULL);
                         LLInventoryModel::item_array_t* items(NULL);
                         gInventory.getDirectDescendentsOf(cat_id, categories, items);
-                        for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
-                            it != categories->end();
-                            ++it)
+                        if (categories)
                         {
-                            // not emplace_front to not cause an infinite loop
-                            mFetchFolderQueue.emplace_back((*it)->getUUID(), FT_RECURSIVE);
+                            for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
+                                 it != categories->end();
+                                 ++it)
+                            {
+                                // not emplace_front to not cause an infinite loop
+                                mFetchFolderQueue.emplace_back((*it)->getUUID(), FT_RECURSIVE);
+                            }
                         }
                     }
                 }
@@ -1208,7 +1216,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 
                 if (! url.empty())
                 {
-                    LLCore::HttpHandler::ptr_t  handler(new BGFolderHttpHandler(folder_request_body, recursive_cats));
+                    LLCore::HttpHandler::ptr_t handler = std::make_shared<BGFolderHttpHandler>(folder_request_body, recursive_cats);
                     gInventory.requestPost(false, url, folder_request_body, handler, "Inventory Folder");
                 }
             }
@@ -1219,7 +1227,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 
                 if (! url.empty())
                 {
-                    LLCore::HttpHandler::ptr_t  handler(new BGFolderHttpHandler(folder_request_body_lib, recursive_cats));
+                    LLCore::HttpHandler::ptr_t handler = std::make_shared<BGFolderHttpHandler>(folder_request_body_lib, recursive_cats);
                     gInventory.requestPost(false, url, folder_request_body_lib, handler, "Library Folder");
                 }
             }
@@ -1235,7 +1243,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
                 {
                     LLSD body;
                     body["items"] = item_request_body;
-                    LLCore::HttpHandler::ptr_t  handler(new BGItemHttpHandler(body));
+                    LLCore::HttpHandler::ptr_t handler = std::make_shared<BGItemHttpHandler>(body);
                     gInventory.requestPost(false, url, body, handler, "Inventory Item");
                 }
             }
@@ -1248,7 +1256,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
                 {
                     LLSD body;
                     body["items"] = item_request_body_lib;
-                    LLCore::HttpHandler::ptr_t handler(new BGItemHttpHandler(body));
+                    LLCore::HttpHandler::ptr_t handler = std::make_shared<BGItemHttpHandler>(body);
                     gInventory.requestPost(false, url, body, handler, "Library Item");
                 }
             }
@@ -1534,7 +1542,7 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
                 {
                     LLSD request_body;
                     request_body["folders"] = folders;
-                    LLCore::HttpHandler::ptr_t  handler(new BGFolderHttpHandler(request_body, recursive_cats));
+                    LLCore::HttpHandler::ptr_t handler = std::make_shared<BGFolderHttpHandler>(request_body, recursive_cats);
                     gInventory.requestPost(false, url, request_body, handler, "Inventory Folder");
                     recursive_cats.clear();
                     folders.clear();
@@ -1544,7 +1552,7 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
 
             LLSD request_body;
             request_body["folders"] = folders;
-            LLCore::HttpHandler::ptr_t  handler(new BGFolderHttpHandler(request_body, recursive_cats));
+            LLCore::HttpHandler::ptr_t handler = std::make_shared<BGFolderHttpHandler>(request_body, recursive_cats);
             gInventory.requestPost(false, url, request_body, handler, "Inventory Folder");
             return;
         }

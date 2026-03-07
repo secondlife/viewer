@@ -155,6 +155,7 @@ class LLVector3
         friend const LLVector3& operator*=(LLVector3 &a, const LLVector3 &b);   // Returns a * b;
         friend const LLVector3& operator*=(LLVector3 &a, F32 k);                // Return a times scaler k
         friend const LLVector3& operator/=(LLVector3 &a, F32 k);                // Return a divided by scaler k
+        friend const LLVector3& operator/=(LLVector3& a, const LLVector3& b);
         friend const LLVector3& operator*=(LLVector3 &a, const LLQuaternion &b);    // Returns a * b;
 
         friend LLVector3 operator-(const LLVector3 &a);                 // Return vector -a
@@ -457,6 +458,14 @@ inline const LLVector3& operator*=(LLVector3& a, const LLVector3& b)
 inline const LLVector3& operator/=(LLVector3& a, F32 k)
 {
     a *= 1.f / k;
+    return a;
+}
+
+inline const LLVector3& operator/=(LLVector3& a, const LLVector3& b)
+{
+    a.mV[VX] /= b.mV[VX];
+    a.mV[VY] /= b.mV[VY];
+    a.mV[VZ] /= b.mV[VZ];
     return a;
 }
 

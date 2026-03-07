@@ -122,6 +122,7 @@ LLLineEditor::Params::Params()
 
 LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 :   LLUICtrl(p),
+    mDefaultText(p.default_text),
     mMaxLengthBytes(p.max_length.bytes),
     mMaxLengthChars(p.max_length.chars),
     mCursorPos( 0 ),

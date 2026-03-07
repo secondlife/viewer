@@ -40,9 +40,9 @@
 LLFloaterReg::instance_list_t LLFloaterReg::sNullInstanceList;
 LLFloaterReg::instance_map_t LLFloaterReg::sInstanceMap;
 LLFloaterReg::build_map_t LLFloaterReg::sBuildMap;
-std::map<std::string, std::string, std::less<>> LLFloaterReg::sGroupMap;
+LLFloaterReg::group_map_t LLFloaterReg::sGroupMap;
 bool LLFloaterReg::sBlockShowFloaters = false;
-std::set<std::string, std::less<>> LLFloaterReg::sAlwaysShowableList;
+LLFloaterReg::always_showable_t LLFloaterReg::sAlwaysShowableList;
 
 static LLFloaterRegListener sFloaterRegListener;
 
@@ -96,11 +96,8 @@ LLFloater* LLFloaterReg::getLastFloaterCascading()
     candidate_rect.mTop = 100000;
     LLFloater* candidate_floater = NULL;
 
-    std::map<std::string,std::string>::const_iterator it = sGroupMap.begin(), it_end = sGroupMap.end();
-    for( ; it != it_end; ++it)
+    for (const auto& [floater_name, group_name] : sGroupMap)
     {
-        const std::string& group_name = it->second;
-
         instance_list_t& instances = sInstanceMap[group_name];
 
         for (LLFloater* inst : instances)
@@ -604,17 +601,11 @@ U32 LLFloaterReg::getVisibleFloaterInstanceCount()
 {
     U32 count = 0;
 
-    std::map<std::string,std::string>::const_iterator it = sGroupMap.begin(), it_end = sGroupMap.end();
-    for( ; it != it_end; ++it)
+    for (const auto& [floater_name, group_name] : sGroupMap)
     {
-        const std::string& group_name = it->second;
-
         instance_list_t& instances = sInstanceMap[group_name];
-
-        for (instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); ++iter)
+        for (LLFloater* inst : instances)
         {
-            LLFloater* inst = *iter;
-
             if (inst->getVisible() && !inst->isMinimized())
             {
                 count++;

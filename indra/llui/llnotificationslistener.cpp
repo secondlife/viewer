@@ -266,7 +266,7 @@ void LLNotificationsListener::forward(const LLSD& params)
         entry(mForwarders.insert(ForwarderMap::value_type(channel, ForwarderMap::mapped_type())).first);
     if (! entry->second)
     {
-        entry->second.reset(new Forwarder(mNotifications, channel));
+        entry->second = std::make_shared<Forwarder>(mNotifications, channel);
     }
     // Now, whether this Forwarder is brand-new or not, update it with the new
     // request info.

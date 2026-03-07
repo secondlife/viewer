@@ -75,10 +75,7 @@ LLCDResult LLConvexDecompositionVHACD::quitSystem()
 
 LLConvexDecompositionVHACD::LLConvexDecompositionVHACD()
 {
-    //Create our vhacd instance and setup default parameters
-    mVHACD = VHACD::CreateVHACD();
-
-    mVHACDParameters.m_callback = &mVHACDCallback;
+    // Setup default parameters
     mVHACDParameters.m_logger = &mVHACDLogger;
 
     mDecompStages[0].mName = "Analyze";
@@ -206,27 +203,33 @@ LLConvexDecompositionVHACD::LLConvexDecompositionVHACD()
 
 LLConvexDecompositionVHACD::~LLConvexDecompositionVHACD()
 {
-    mBoundDecomp = nullptr;
-    mDecompData.clear();
-
-    mVHACD->Release();
+    {
+        LLMutexLock lock(&mDecompDataMutex);
+        mBoundDecompID = INVALID_DECOMP_ID;
+        mDecompData.clear();
+    }
 }
 
 void LLConvexDecompositionVHACD::genDecomposition(int& decomp)
 {
-    int new_decomp_id = static_cast<int>(mDecompData.size()) + 1;
-    mDecompData[new_decomp_id] = LLDecompData();
-    decomp = new_decomp_id;
+    LLMutexLock lock(&mDecompDataMutex);
+
+    mDecompData[mNextDecompID] = std::make_shared<LLDecompData>();
+    decomp = mNextDecompID;
+
+    ++mNextDecompID; // Increment decomposition ID. Never reuse to protect downstream consumers from misuse
 }
 
 void LLConvexDecompositionVHACD::deleteDecomposition(int decomp)
 {
+    LLMutexLock lock(&mDecompDataMutex);
+
     auto iter = mDecompData.find(decomp);
     if (iter != mDecompData.end())
     {
-        if (mBoundDecomp == &iter->second)
+        if (mBoundDecompID == decomp)
         {
-            mBoundDecomp = nullptr;
+            mBoundDecompID = INVALID_DECOMP_ID;
         }
         mDecompData.erase(iter);
     }
@@ -234,29 +237,48 @@ void LLConvexDecompositionVHACD::deleteDecomposition(int decomp)
 
 void LLConvexDecompositionVHACD::bindDecomposition(int decomp)
 {
-    auto iter = mDecompData.find(decomp);
-    if (iter != mDecompData.end())
+    LLMutexLock lock(&mDecompDataMutex);
+
+    if (mDecompData.contains(decomp))
     {
-        mBoundDecomp = &iter->second;
+        mBoundDecompID = decomp;
     }
     else
     {
         LL_WARNS() << "Failed to bind unknown decomposition: " << decomp << LL_ENDL;
-        mBoundDecomp = nullptr;
+        mBoundDecompID = INVALID_DECOMP_ID;
     }
+}
+
+LLConvexDecompositionVHACD::data_ptr_t LLConvexDecompositionVHACD::getBoundDecomp()
+{
+    data_ptr_t bound_decomp;
+    {
+        LLMutexLock lock(&mDecompDataMutex);
+        auto it = mDecompData.find(mBoundDecompID);
+        if (it != mDecompData.end())
+        {
+            bound_decomp = it->second; // Take a copy of the shared_ptr to avoid potential deletion
+        }
+    }
+    return bound_decomp;
 }
 
 LLCDResult LLConvexDecompositionVHACD::setParam(const char* name, float val)
 {
-    if (name == std::string("Num Hulls"))
+    LLMutexLock lock(&mParamsMutex);
+
+    using namespace std::literals;
+
+    if (name == "Num Hulls"sv)
     {
         mVHACDParameters.m_maxConvexHulls = llclamp(ll_round(val), 1, MAX_HULLS);
     }
-    else if (name == std::string("Num Vertices"))
+    else if (name == "Num Vertices"sv)
     {
         mVHACDParameters.m_maxNumVerticesPerCH = llclamp(ll_round(val), 3, MAX_VERTICES_PER_HULL);
     }
-    else if (name == std::string("Error Tolerance"))
+    else if (name == "Error Tolerance"sv)
     {
         mVHACDParameters.m_minimumVolumePercentErrorAllowed = val;
     }
@@ -270,11 +292,15 @@ LLCDResult LLConvexDecompositionVHACD::setParam(const char* name, bool val)
 
 LLCDResult LLConvexDecompositionVHACD::setParam(const char* name, int val)
 {
-    if (name == std::string("Fill Mode"))
+    LLMutexLock lock(&mParamsMutex);
+
+    using namespace std::literals;
+
+    if (name == "Fill Mode"sv)
     {
         mVHACDParameters.m_fillMode = (VHACD::FillMode)val;
     }
-    else if (name == std::string("Voxel Resolution"))
+    else if (name == "Voxel Resolution"sv)
     {
         mVHACDParameters.m_resolution = val;
     }
@@ -283,19 +309,21 @@ LLCDResult LLConvexDecompositionVHACD::setParam(const char* name, int val)
 
 LLCDResult LLConvexDecompositionVHACD::setMeshData( const LLCDMeshData* data, bool vertex_based )
 {
-    if (!mBoundDecomp)
+    data_ptr_t bound_decomp = getBoundDecomp();
+    if (!bound_decomp)
     {
         return LLCD_NULL_PTR;
     }
 
-    return mBoundDecomp->mSourceMesh.from(data, vertex_based);
+    return bound_decomp->mSourceMesh.from(data, vertex_based);
 }
 
 LLCDResult LLConvexDecompositionVHACD::registerCallback(int stage, llcdCallbackFunc callback )
 {
     if (stage == 0)
     {
-        mVHACDCallback.setCallbackFunc(callback);
+        LLMutexLock lock(&mParamsMutex);
+        mCurrentCallbackFunc = callback;
         return LLCD_OK;
     }
     else
@@ -306,44 +334,68 @@ LLCDResult LLConvexDecompositionVHACD::registerCallback(int stage, llcdCallbackF
 
 LLCDResult LLConvexDecompositionVHACD::executeStage(int stage)
 {
-    if (!mBoundDecomp)
-    {
-        return LLCD_NULL_PTR;
-    }
-
     if (stage != 0)
     {
         return LLCD_INVALID_STAGE;
     }
 
-    mBoundDecomp->mDecomposedHulls.clear();
-
-    const auto& decomp_mesh = mBoundDecomp->mSourceMesh;
-    if (!mVHACD->Compute((const double* const)decomp_mesh.mVertices.data(), static_cast<uint32_t>(decomp_mesh.mVertices.size()), (const uint32_t* const)decomp_mesh.mIndices.data(), static_cast<uint32_t>(decomp_mesh.mIndices.size()), mVHACDParameters))
+    data_ptr_t bound_decomp = getBoundDecomp();
+    if (!bound_decomp)
     {
+        return LLCD_NULL_PTR;
+    }
+
+    bound_decomp->mDecomposedHulls.clear();
+
+    const auto& decomp_mesh = bound_decomp->mSourceMesh;
+
+    VHACDCallback callbacks;
+    VHACD::IVHACD::Parameters current_params;
+    {
+        LLMutexLock lock(&mParamsMutex);
+
+        current_params = mVHACDParameters;
+        callbacks.setCallbackFunc(mCurrentCallbackFunc);
+    }
+    current_params.m_callback = &callbacks;
+
+    auto vhacd_impl = VHACD::CreateVHACD();
+    if (!vhacd_impl)
+    {
+        LL_WARNS() << "Failed to create VHACD instance" << LL_ENDL;
+        return LLCD_NULL_PTR;
+    }
+
+
+    if (!vhacd_impl->Compute((const double*)decomp_mesh.mVertices.data(), static_cast<uint32_t>(decomp_mesh.mVertices.size()),
+                             (const uint32_t*)decomp_mesh.mIndices.data(), static_cast<uint32_t>(decomp_mesh.mIndices.size()),
+                             current_params))
+    {
+        vhacd_impl->Release();
         return LLCD_INVALID_HULL_DATA;
     }
 
-    uint32_t num_nulls = mVHACD->GetNConvexHulls();
-    if (num_nulls == 0)
+    uint32_t num_convex_hulls = vhacd_impl->GetNConvexHulls();
+    if (num_convex_hulls == 0)
     {
+        vhacd_impl->Release();
         return LLCD_INVALID_HULL_DATA;
     }
 
-    for (uint32_t i = 0; num_nulls > i; ++i)
+    for (uint32_t i = 0; num_convex_hulls > i; ++i)
     {
         VHACD::IVHACD::ConvexHull ch;
-        if (!mVHACD->GetConvexHull(i, ch))
+        if (!vhacd_impl->GetConvexHull(i, ch))
             continue;
 
         LLConvexMesh out_mesh;
         out_mesh.setVertices(ch.m_points);
         out_mesh.setIndices(ch.m_triangles);
 
-        mBoundDecomp->mDecomposedHulls.push_back(std::move(out_mesh));
+        bound_decomp->mDecomposedHulls.push_back(std::move(out_mesh));
     }
 
-    mVHACD->Clean();
+    vhacd_impl->Release();
 
     return LLCD_OK;
 }
@@ -351,19 +403,21 @@ LLCDResult LLConvexDecompositionVHACD::executeStage(int stage)
 LLCDResult LLConvexDecompositionVHACD::buildSingleHull()
 {
     LL_INFOS() << "Building single hull mesh" << LL_ENDL;
-    if (!mBoundDecomp || mBoundDecomp->mSourceMesh.mVertices.empty())
+
+    data_ptr_t bound_decomp = getBoundDecomp();
+    if (!bound_decomp || bound_decomp->mSourceMesh.mVertices.empty())
     {
         return LLCD_NULL_PTR;
     }
 
-    mBoundDecomp->mSingleHullMesh.clear();
+    bound_decomp->mSingleHullMesh.clear();
 
     VHACD::QuickHull quickhull;
-    uint32_t num_tris = quickhull.ComputeConvexHull(mBoundDecomp->mSourceMesh.mVertices, MAX_VERTICES_PER_HULL);
+    uint32_t num_tris = quickhull.ComputeConvexHull(bound_decomp->mSourceMesh.mVertices, MAX_VERTICES_PER_HULL);
     if (num_tris > 0)
     {
-        mBoundDecomp->mSingleHullMesh.setVertices(quickhull.GetVertices());
-        mBoundDecomp->mSingleHullMesh.setIndices(quickhull.GetIndices());
+        bound_decomp->mSingleHullMesh.setVertices(quickhull.GetVertices());
+        bound_decomp->mSingleHullMesh.setIndices(quickhull.GetIndices());
 
         return LLCD_OK;
     }
@@ -373,29 +427,31 @@ LLCDResult LLConvexDecompositionVHACD::buildSingleHull()
 
 int LLConvexDecompositionVHACD::getNumHullsFromStage(int stage)
 {
-    if (!mBoundDecomp || stage != 0)
+    data_ptr_t bound_decomp = getBoundDecomp();
+    if (!bound_decomp || stage != 0)
     {
         return 0;
     }
 
-    return narrow(mBoundDecomp->mDecomposedHulls.size());
+    return narrow(bound_decomp->mDecomposedHulls.size());
 }
 
 LLCDResult LLConvexDecompositionVHACD::getSingleHull( LLCDHull* hullOut )
 {
     memset( hullOut, 0, sizeof(LLCDHull) );
 
-    if (!mBoundDecomp)
+    data_ptr_t bound_decomp = getBoundDecomp();
+    if (!bound_decomp)
     {
         return LLCD_NULL_PTR;
     }
 
-    if (mBoundDecomp->mSingleHullMesh.vertices.empty())
+    if (bound_decomp->mSingleHullMesh.vertices.empty())
     {
         return LLCD_INVALID_HULL_DATA;
     }
 
-    mBoundDecomp->mSingleHullMesh.to(hullOut);
+    bound_decomp->mSingleHullMesh.to(hullOut);
     return LLCD_OK;
 }
 
@@ -403,7 +459,8 @@ LLCDResult LLConvexDecompositionVHACD::getHullFromStage( int stage, int hull, LL
 {
     memset( hullOut, 0, sizeof(LLCDHull) );
 
-    if (!mBoundDecomp)
+    data_ptr_t bound_decomp = getBoundDecomp();
+    if (!bound_decomp)
     {
         return LLCD_NULL_PTR;
     }
@@ -413,19 +470,21 @@ LLCDResult LLConvexDecompositionVHACD::getHullFromStage( int stage, int hull, LL
         return LLCD_INVALID_STAGE;
     }
 
-    if (mBoundDecomp->mDecomposedHulls.empty() || mBoundDecomp->mDecomposedHulls.size() <= hull)
+    if (bound_decomp->mDecomposedHulls.empty() || S32(bound_decomp->mDecomposedHulls.size()) <= hull)
     {
         return LLCD_REQUEST_OUT_OF_RANGE;
     }
 
-    mBoundDecomp->mDecomposedHulls[hull].to(hullOut);
+    bound_decomp->mDecomposedHulls[hull].to(hullOut);
     return LLCD_OK;
 }
 
 LLCDResult LLConvexDecompositionVHACD::getMeshFromStage( int stage, int hull, LLCDMeshData* meshDataOut )
 {
     memset( meshDataOut, 0, sizeof(LLCDMeshData));
-    if (!mBoundDecomp)
+
+    data_ptr_t bound_decomp = getBoundDecomp();
+    if (!bound_decomp)
     {
         return LLCD_NULL_PTR;
     }
@@ -435,12 +494,12 @@ LLCDResult LLConvexDecompositionVHACD::getMeshFromStage( int stage, int hull, LL
         return LLCD_INVALID_STAGE;
     }
 
-    if (mBoundDecomp->mDecomposedHulls.empty() || mBoundDecomp->mDecomposedHulls.size() <= hull)
+    if (bound_decomp->mDecomposedHulls.empty() || S32(bound_decomp->mDecomposedHulls.size()) <= hull)
     {
         return LLCD_REQUEST_OUT_OF_RANGE;
     }
 
-    mBoundDecomp->mDecomposedHulls[hull].to(meshDataOut);
+    bound_decomp->mDecomposedHulls[hull].to(meshDataOut);
     return LLCD_OK;
 }
 

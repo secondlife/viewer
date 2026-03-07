@@ -202,8 +202,18 @@ void inventory_offer_handler(LLOfferInfo* info)
     auto indx = msg.find(" ( http://slurl.com/secondlife/");
     if (indx == std::string::npos)
     {
-        // try to find new slurl host
+        // https
+        indx = msg.find(" ( https://slurl.com/secondlife/");
+    }
+    if (indx == std::string::npos)
+    {
+        // try to find new slurl http host
         indx = msg.find(" ( http://maps.secondlife.com/secondlife/");
+    }
+    if (indx == std::string::npos)
+    {
+        // try to find new slurl https host
+        indx = msg.find(" ( https://maps.secondlife.com/secondlife/");
     }
     if (indx >= 0)
     {
@@ -1551,8 +1561,8 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestOfflineMessagesCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("requestOfflineMessagesCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 

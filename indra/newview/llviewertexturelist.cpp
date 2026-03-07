@@ -1096,7 +1096,17 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 
     while (!mCreateTextureList.empty())
     {
-        LLViewerFetchedTexture* imagep = mCreateTextureList.front();
+        // Hold a smart pointer to keep the texture alive throughout processing,
+        // even if side effects (e.g. pipeline rebuilds, GL operations) indirectly
+        // cause other references to be released. (see: #5426)
+        LLPointer<LLViewerFetchedTexture> imagep = mCreateTextureList.front();
+        mCreateTextureList.pop();
+
+        if (!imagep)
+        {
+            continue;
+        }
+
         llassert(imagep->mCreatePending);
 
         // desired discard may change while an image is being decoded. If the texture in VRAM is sufficient
@@ -1111,7 +1121,6 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 
         imagep->postCreateTexture();
         imagep->mCreatePending = false;
-        mCreateTextureList.pop();
 
         if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel() &&
            (imagep->getDesiredDiscardLevel() <= MAX_DISCARD_LEVEL))
@@ -1190,15 +1199,19 @@ F32 LLViewerTextureList::updateImagesLoadingFastCache(F32 max_time)
 
     LLTimer timer;
     image_list_t::iterator enditer = mFastCacheList.begin();
-    for (image_list_t::iterator iter = mFastCacheList.begin();
-         iter != mFastCacheList.end();)
     {
-        image_list_t::iterator curiter = iter++;
-        enditer = iter;
-        LLViewerFetchedTexture *imagep = *curiter;
-        imagep->loadFromFastCache();
-        if (timer.getElapsedTimeF32() > max_time)
-            break;
+        // prelock fast cache mutex to avoid waiting multiple times.
+        LLMutexLock cache_lock(LLAppViewer::getTextureCache()->getFastCacheMutex());
+        for (image_list_t::iterator iter = mFastCacheList.begin();
+            iter != mFastCacheList.end();)
+        {
+            image_list_t::iterator curiter = iter++;
+            enditer = iter;
+            LLViewerFetchedTexture* imagep = *curiter;
+            imagep->loadFromFastCache();
+            if (timer.getElapsedTimeF32() > max_time)
+                break;
+        }
     }
     mFastCacheList.erase(mFastCacheList.begin(), enditer);
     return timer.getElapsedTimeF32();

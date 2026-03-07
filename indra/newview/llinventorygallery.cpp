@@ -1726,7 +1726,7 @@ bool is_category_removable(const LLUUID& folder_id, bool check_worn)
         }
     }
 
-    const LLUUID mp_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    const LLUUID mp_id = gInventory.getMarketplaceListingsUUID();
     if (mp_id.notNull() && gInventory.isObjectDescendentOf(folder_id, mp_id))
     {
         return false;
@@ -1768,7 +1768,7 @@ void LLInventoryGallery::paste()
         return;
     }
 
-    const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    const LLUUID& marketplacelistings_id = gInventory.getMarketplaceListingsUUID();
     if (mSelectedItemIDs.size() == 1 && gInventory.isObjectDescendentOf(*mSelectedItemIDs.begin(), marketplacelistings_id))
     {
         return;
@@ -1816,8 +1816,8 @@ void LLInventoryGallery::paste(const LLUUID& dest,
                                const LLUUID& marketplacelistings_id)
 {
     LLHandle<LLPanel> handle = getHandle();
-    std::function <void(const LLUUID)> on_copy_callback = NULL;
-    LLPointer<LLInventoryCallback> cb = NULL;
+    std::function<void(const LLUUID)> on_copy_callback = nullptr;
+    LLPointer<LLInventoryCallback> cb = nullptr;
     if (dest == mFolderID)
     {
         on_copy_callback = [handle](const LLUUID& inv_item)
@@ -2114,7 +2114,7 @@ void LLInventoryGallery::pasteAsLink()
     }
 
     const LLUUID& current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-    const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    const LLUUID& marketplacelistings_id = gInventory.getMarketplaceListingsUUID();
     const LLUUID& my_outifts_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 
     std::vector<LLUUID> objects;
@@ -3333,7 +3333,7 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
     const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
     const LLUUID &favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
     const LLUUID &landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
-    const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    const LLUUID& marketplacelistings_id = model->getMarketplaceListingsUUID();
     const LLUUID &my_outifts_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 
     const bool move_is_into_current_outfit = (folder_id == current_outfit_id);
@@ -3582,12 +3582,12 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
 
         if (accept && drop)
         {
-            std::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
+            std::shared_ptr<LLMoveInv> move_inv = std::make_shared<LLMoveInv>();
             move_inv->mObjectID = inv_item->getParentUUID();
             std::pair<LLUUID, LLUUID> item_pair(folder_id, inv_item->getUUID());
             move_inv->mMoveList.push_back(item_pair);
-            move_inv->mCallback = NULL;
-            move_inv->mUserData = NULL;
+            move_inv->mCallback = nullptr;
+            move_inv->mUserData = nullptr;
             if (is_move)
             {
                 warn_move_inventory(object, move_inv);
@@ -3727,7 +3727,7 @@ bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
 
     const LLUUID &cat_id = inv_cat->getUUID();
     const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-    const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    const LLUUID& marketplacelistings_id = model->getMarketplaceListingsUUID();
     //const LLUUID from_folder_uuid = inv_cat->getParentUUID();
     const bool move_is_into_current_outfit = (dest_id == current_outfit_id);
     const bool move_is_into_marketplacelistings = model->isObjectDescendentOf(dest_id, marketplacelistings_id);

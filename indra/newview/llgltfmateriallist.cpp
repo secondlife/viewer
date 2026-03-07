@@ -170,7 +170,7 @@ namespace
 
 void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::string& data_in)
 {
-    std::istringstream str(data_in);
+    boost::iostreams::stream<boost::iostreams::array_source> str(data_in.data(), data_in.size());
 
     LLSD data;
 
@@ -723,9 +723,9 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("modifyMaterialCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("modifyMaterialCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
     httpOpts->setFollowRedirects(true);

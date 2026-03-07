@@ -36,7 +36,6 @@
 #include "llrect.h"
 #include "llscrolllistctrl.h"
 #include "lllineeditor.h"
-#include <boost/function.hpp>
 
 // Classes
 

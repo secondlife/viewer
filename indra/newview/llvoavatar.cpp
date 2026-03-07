@@ -217,6 +217,13 @@ enum ERenderName
     RENDER_NAME_FADE
 };
 
+enum ERenderGroupTitle
+{
+    RENDER_GROUP_TITLE_NEVER,
+    RENDER_GROUP_TITLE_SELF,
+    RENDER_GROUP_TITLE_ALWAYS
+};
+
 #define JELLYDOLLS_SHOULD_IMPOSTOR
 
 //-----------------------------------------------------------------------------
@@ -607,7 +614,7 @@ const LLUUID LLVOAvatar::sStepSounds[LL_MCODE_END] =
 };
 
 S32 LLVOAvatar::sRenderName = RENDER_NAME_ALWAYS;
-bool LLVOAvatar::sRenderGroupTitles = true;
+S32 LLVOAvatar::sRenderGroupTitles = RENDER_GROUP_TITLE_ALWAYS;
 S32 LLVOAvatar::sNumVisibleChatBubbles = 0;
 bool LLVOAvatar::sDebugInvisible = false;
 bool LLVOAvatar::sShowAttachmentPoints = false;
@@ -3300,7 +3307,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 void LLVOAvatar::idleUpdateWindEffect()
 {
     // update wind effect
-    if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH))
+    if (LLPipeline::RenderAvatarCloth)
     {
         F32 hover_strength = 0.f;
         F32 time_delta = mRippleTimer.getElapsedTimeF32() - mRippleTimeLast;
@@ -3552,9 +3559,10 @@ void LLVOAvatar::idleUpdateNameTagText(bool new_name)
             addNameTagLine(line, name_tag_color, LLFontGL::NORMAL,
                 LLFontGL::getFontSansSerifSmall());
         }
+        bool render_title = (sRenderGroupTitles == RENDER_GROUP_TITLE_ALWAYS) ||
+                            (isSelf() && (sRenderGroupTitles == RENDER_GROUP_TITLE_SELF));
 
-        if (sRenderGroupTitles
-            && title && title->getString() && title->getString()[0] != '\0')
+        if (render_title && title && title->getString() && title->getString()[0] != '\0')
         {
             std::string title_str = title->getString();
             LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
@@ -4422,10 +4430,10 @@ void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
 
             LLVector3 pelvisDir( mRoot->getWorldMatrix().getFwdRow4().mV );
 
-            const F32 AVATAR_PELVIS_ROTATE_THRESHOLD_SLOW = 60.0f;
-            const F32 AVATAR_PELVIS_ROTATE_THRESHOLD_FAST = 2.0f;
+            static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow", 60.0);
+            static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast", 2.0);
 
-            F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, AVATAR_PELVIS_ROTATE_THRESHOLD_SLOW, AVATAR_PELVIS_ROTATE_THRESHOLD_FAST);
+            F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
 
             if (self_in_mouselook)
             {
@@ -11417,12 +11425,17 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
             LLPerfStats::tunables.userFPSTuningStrategy != LLPerfStats::TUNE_SCENE_ONLY &&
             !isVisuallyMuted())
         {
-            LLUUID id = getID(); // <== use id to make sure this avatar didn't get deleted between frames
-            LL::WorkQueue::getInstance("mainloop")->post([this, id]()
+            const LLUUID id = getID(); // <== use id to make sure this avatar didn't get deleted between frames
+            LL::WorkQueue::getInstance("mainloop")->post([id]()
                 {
-                    if (gObjectList.findObject(id) != nullptr)
+                    LLViewerObject* obj = gObjectList.findObject(id);
+                    if (obj
+                        && !obj->isDead()
+                        && obj->isAvatar()
+                        && obj->mDrawable)
                     {
-                        gPipeline.profileAvatar(this);
+                        LLVOAvatar* avatar = (LLVOAvatar*)obj;
+                        gPipeline.profileAvatar(avatar);
                     }
                 });
         }

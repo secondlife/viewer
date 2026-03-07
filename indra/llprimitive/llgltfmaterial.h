@@ -222,6 +222,14 @@ public:
                                              LLVector2& pbr_scale,
                                              LLVector2& pbr_offset,
                                              F32& pbr_rotation);
+
+    // Convert PBR transform values to legacy TE transform values.
+    static void convertPBRTransformToTexture(const LLVector2& pbr_scale,
+                                             const LLVector2& pbr_offset,
+                                             F32 pbr_rotation,
+                                             F32& tex_scale_s, F32& tex_scale_t,
+                                             F32& tex_offset_s, F32& tex_offset_t,
+                                             F32& tex_rotation);
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
     static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);

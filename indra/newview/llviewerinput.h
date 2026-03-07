@@ -38,7 +38,7 @@ class LLWindow;
 class LLNamedFunction
 {
 public:
-    LLNamedFunction() : mFunction(NULL) { };
+    LLNamedFunction() : mFunction(nullptr) { };
     ~LLNamedFunction() { };
 
     std::string mName;

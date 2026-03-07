@@ -26,7 +26,6 @@
 #ifndef LLREFCOUNT_H
 #define LLREFCOUNT_H
 
-#include <boost/noncopyable.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include "llatomic.h"
 

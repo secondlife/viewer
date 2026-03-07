@@ -499,8 +499,9 @@ public:
     /**
      * Filters the list, rearranges and notifies parent about shape changes.
      * Derived classes may want to overload rearrangeItems() to exclude repeated separators after filtration.
+     * Returns true in case of changes
      */
-    void filterItems(bool re_sort, bool notify_parent);
+    bool filterItems(bool re_sort, bool notify_parent);
 
     /**
      * Returns true if last call of filterItems() found at least one matching item

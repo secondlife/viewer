@@ -338,14 +338,21 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
         {
             LLVector3d global_pos;
             landmark->getGlobalPos(global_pos);
-            boost::function<void(std::string& slurl)> copy_slurl_to_clipboard_cb = [](const std::string& slurl)
+            if (!global_pos.isExactlyZero())
             {
-               gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
-               LLSD args;
-               args["SLURL"] = slurl;
-               LLNotificationsUtil::add("CopySLURL", args);
-            };
-            LLLandmarkActions::getSLURLfromPosGlobal(global_pos, copy_slurl_to_clipboard_cb, true);
+                boost::function<void(std::string& slurl)> copy_slurl_to_clipboard_cb = [](const std::string& slurl)
+                {
+                    gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
+                    LLSD args;
+                    args["SLURL"] = slurl;
+                    LLNotificationsUtil::add("CopySLURL", args);
+                };
+                LLLandmarkActions::getSLURLfromPosGlobal(global_pos, copy_slurl_to_clipboard_cb, true);
+            }
+            else
+            {
+                LLNotificationsUtil::add("LandmarkLocationUnknown");
+            }
         };
         LLLandmark* landmark = LLLandmarkActions::getLandmark(mUUIDs.front(), copy_slurl_cb);
         if (landmark)
@@ -362,7 +369,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
     }
     else if ("show_on_map" == action)
     {
-        boost::function<void(LLLandmark*)> show_on_map_cb = [](LLLandmark* landmark)
+        std::function<void(LLLandmark*)> show_on_map_cb = [](LLLandmark* landmark)
         {
             LLVector3d landmark_global_pos;
             if (landmark->getGlobalPos(landmark_global_pos))
@@ -400,7 +407,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
 
         if (can_copy)
         {
-            const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+            const LLUUID& marketplacelistings_id = gInventory.getMarketplaceListingsUUID();
             if (itemp)
             {
                 move_item_to_marketplacelistings(itemp, marketplacelistings_id, copy_operation);
@@ -419,7 +426,7 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
                     // option == 0  Move no copy item(s)
                     // option == 1  Don't move no copy item(s) (leave them behind)
                     bool copy_and_move = option == 0;
-                    const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+                    const LLUUID& marketplacelistings_id = gInventory.getMarketplaceListingsUUID();
 
                     // main inventory only allows one item?
                     LLViewerInventoryItem* itemp = gInventory.getItem(lamdba_list.front());
@@ -535,7 +542,7 @@ bool can_list_on_marketplace(const LLUUID &id)
         if (can_list)
         {
             std::string error_msg;
-            const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+            const LLUUID& marketplacelistings_id = gInventory.getMarketplaceListingsUUID();
             if (marketplacelistings_id.notNull())
             {
                 LLViewerInventoryCategory* master_folder = gInventory.getCategory(marketplacelistings_id);
@@ -1033,7 +1040,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
 
         // Marketplace
         bool can_list = false;
-        const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+        const LLUUID marketplacelistings_id = gInventory.getMarketplaceListingsUUID();
         if (marketplacelistings_id.notNull() && !is_inbox && !obj->getIsLinkType())
         {
             if (is_folder)

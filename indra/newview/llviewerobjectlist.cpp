@@ -65,6 +65,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "llkeyboard.h"
+#include "llmeshrepository.h"
 #include "u64.h"
 #include "llviewertexturelist.h"
 #include "lldatapacker.h"
@@ -173,7 +174,7 @@ bool LLViewerObjectList::removeFromLocalIDTable(LLViewerObject* objectp)
         U32 local_id = objectp->mLocalID;
         U64 indexid = (((U64)objectp->mRegionIndex) << 32) | (U64)local_id;
 
-        std::map<U64, LLUUID>::iterator iter = mIndexAndLocalIDToUUID.find(indexid);
+        auto iter = mIndexAndLocalIDToUUID.find(indexid);
         if (iter == mIndexAndLocalIDToUUID.end())
         {
             return false;
@@ -1055,8 +1056,8 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("fetchObjectCostsCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
 
 
@@ -1179,8 +1180,8 @@ void LLViewerObjectList::fetchPhisicsFlagsCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("genericPostCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("fetchPhisicsFlagsCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
     LLSD idList;
     U32 objectIndex = 0;
@@ -1397,6 +1398,8 @@ void LLViewerObjectList::killAllObjects()
         // Object must be dead, or it's the LLVOAvatarSelf which never dies.
         llassert((objectp == gAgentAvatarp) || objectp->isDead());
     }
+
+    gMeshRepo.unregisterAllMeshes();
 
     cleanDeadObjects(false);
 

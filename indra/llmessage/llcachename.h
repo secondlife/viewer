@@ -136,7 +136,8 @@ public:
     void localizeCacheName(std::string key, std::string value);
 
 private:
-    std::map<std::string, std::string> mCacheName;
+    using cache_map_t = std::unordered_map<std::string, std::string>;
+    cache_map_t mCacheName;
 
     class Impl;
     Impl& impl;

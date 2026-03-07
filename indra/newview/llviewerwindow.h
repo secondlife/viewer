@@ -48,8 +48,9 @@
 #include "lltrace.h"
 #include "llsnapshotmodel.h"
 
-#include <boost/function.hpp>
 #include <boost/signals2.hpp>
+
+#include <functional>
 
 class LLView;
 class LLViewerObject;
@@ -141,6 +142,10 @@ private:
 
     bool            mWantSurfaceInfo;   // do we populate mUVCoord, mNormal, mBinormal?
 
+};
+
+struct MainPanel : public LLPanel
+{
 };
 
 static const U32 MAX_SNAPSHOT_IMAGE_SIZE = 7680; // max snapshot image size 7680 * 7680 UHDTV2
@@ -238,7 +243,7 @@ public:
                     const std::map<std::string, std::string>& args);
 
     // signal on update of WorldView rect
-    typedef boost::function<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_callback_t;
+    typedef std::function<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_callback_t;
     typedef boost::signals2::signal<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_signal_t;
     world_rect_signal_t mOnWorldViewRectUpdated;
     boost::signals2::connection setOnWorldViewRectUpdated(world_rect_callback_t cb) { return mOnWorldViewRectUpdated.connect(cb); }
@@ -247,6 +252,7 @@ public:
     // ACCESSORS
     //
     LLRootView*         getRootView()       const;
+    MainPanel*          getMainView()       const { return mMainView; }
 
     // 3D world area in scaled pixels (via UI scale), use for most UI computations
     LLRect          getWorldViewRectScaled() const;
@@ -404,6 +410,7 @@ public:
     void resetSnapshotLoc();
 
     void            playSnapshotAnimAndSound();
+    static void     onSnapshotNotificationClick(const LLSD& notification, const LLSD& response);
 
     // draws selection boxes around selected objects, must call displayObjects first
     void            renderSelections( bool for_gl_pick, bool pick_parcel_walls, bool for_hud );
@@ -500,6 +507,7 @@ private:
     LLRect          mWorldViewRectRaw;          // area of screen for 3D world
     LLRect          mWorldViewRectScaled;       // area of screen for 3D world scaled by UI size
     LLRootView*     mRootView;                  // a view of size mWindowRectRaw, containing all child views
+    MainPanel*      mMainView;                  // a view of size mWindowRectRaw, directly containing the base elements of the ui tree
     LLView*         mFloaterSnapRegion = nullptr;
     LLView*         mNavBarContainer = nullptr;
     LLPanel*        mStatusBarContainer = nullptr;

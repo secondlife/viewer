@@ -51,7 +51,7 @@ class LLWebProfile
     LOG_CLASS(LLWebProfile);
 
 public:
-    typedef boost::function<void(bool ok)> status_callback_t;
+    typedef std::function<void(bool ok)> status_callback_t;
 
     static void uploadImage(LLPointer<LLImageFormatted> image, const std::string& caption, bool add_location);
     static void setAuthCookie(const std::string& cookie);

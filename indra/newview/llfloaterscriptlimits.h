@@ -136,6 +136,9 @@ private:
 
     std::vector<LLSD> mObjectListItems;
 
+    boost::signals2::scoped_connection mAvatarNameCacheConnection;
+    boost::signals2::scoped_connection mGroupNameCacheConnection;
+
     void getLandScriptResourcesCoro(std::string url);
     void getLandScriptSummaryCoro(std::string url);
     void getLandScriptDetailsCoro(std::string url);

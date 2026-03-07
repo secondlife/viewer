@@ -27,17 +27,19 @@
 #ifndef LLCALLBACKMAP_H
 #define LLCALLBACKMAP_H
 
-#include <map>
+#include "llstl.h"
+
 #include <string>
-#include <boost/function.hpp>
+#include <functional>
+#include <unordered_map>
 
 class LLCallbackMap
 {
 public:
     // callback definition.
-    typedef boost::function<void* (void* data)> callback_t;
+    typedef std::function<void* (void* data)> callback_t;
 
-    typedef std::map<std::string, LLCallbackMap> map_t;
+    typedef std::unordered_map<std::string, LLCallbackMap> map_t;
     typedef map_t::iterator map_iter_t;
     typedef map_t::const_iterator map_const_iter_t;
 
@@ -48,8 +50,8 @@ public:
         return (void*)panel;
     }
 
-    LLCallbackMap() : mCallback(NULL), mData(NULL) { }
-    LLCallbackMap(callback_t callback, void* data = NULL) : mCallback(callback), mData(data) { }
+    LLCallbackMap() : mCallback(nullptr), mData(nullptr) {}
+    LLCallbackMap(callback_t callback, void* data = nullptr) : mCallback(callback), mData(data) {}
 
     callback_t  mCallback;
     void*       mData;

@@ -28,15 +28,17 @@
 #define LL_LLCONTROL_H
 
 #include "llboost.h"
-#include "llevent.h"
 #include "llstring.h"
+#include "llpointer.h"
 #include "llrect.h"
 #include "llrefcount.h"
 #include "llinstancetracker.h"
+#include "llstl.h"
 
+#include <functional>
+#include <unordered_map>
 #include <vector>
 
-#include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 
 class LLVector3;
@@ -165,7 +167,7 @@ class LLControlGroup : public LLInstanceTracker<LLControlGroup, std::string>
     LOG_CLASS(LLControlGroup);
 
 protected:
-    typedef std::map<std::string, LLControlVariablePtr, std::less<> > ctrl_name_table_t;
+    using ctrl_name_table_t = std::unordered_map<std::string, LLControlVariablePtr, ll::string_hash, std::equal_to<>>;
     ctrl_name_table_t mNameTable;
     static const std::string mTypeString[TYPE_COUNT];
 
@@ -278,7 +280,7 @@ public:
     // as the given type.
     U32 loadFromFileLegacy(const std::string& filename, bool require_declaration = true, eControlType declare_as = TYPE_STRING);
     U32 saveToFile(const std::string& filename, bool nondefault_only);
-    U32 loadFromFile(const std::string& filename, bool default_values = false, bool save_values = true);
+    U32 loadFromFile(const std::string& filename, bool default_values = false, bool save_values = true, bool error_when_no_comment = true);
     void    resetToDefaults();
     void    incrCount(std::string_view name);
 
@@ -341,7 +343,7 @@ private:
         // Add a listener to the controls signal...
         // NOTE: All listeners connected to 0 group, for guaranty that variable handlers (gSavedSettings) call last
         mConnection = controlp->getSignal()->connect(0,
-            boost::bind(&LLControlCache<T>::handleValueChange, this, _2)
+            std::bind(&LLControlCache<T>::handleValueChange, this, std::placeholders::_2)
             );
         mType = controlp->type();
     }
@@ -400,7 +402,7 @@ public:
     }
 
     operator const T&() const { return mCachedControlPtr->getValue(); }
-    operator boost::function<const T&()> () const { return boost::function<const T&()>(*this); }
+    operator std::function<const T&()> () const { return std::function<const T&()>(*this); }
     const T& operator()() { return mCachedControlPtr->getValue(); }
 
 private:

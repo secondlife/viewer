@@ -54,11 +54,11 @@ void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, L
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("post_profile_image_coro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("post_profile_image_coro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
     httpOpts->setFollowRedirects(true);
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, first_data, httpOpts, httpHeaders);
@@ -87,9 +87,9 @@ void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, L
 
     // Upload the image
 
-    LLCore::HttpRequest::ptr_t uploaderhttpRequest(new LLCore::HttpRequest);
-    LLCore::HttpHeaders::ptr_t uploaderhttpHeaders(new LLCore::HttpHeaders);
-    LLCore::HttpOptions::ptr_t uploaderhttpOpts(new LLCore::HttpOptions);
+    LLCore::HttpRequest::ptr_t uploaderhttpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpHeaders::ptr_t uploaderhttpHeaders = std::make_shared<LLCore::HttpHeaders>();
+    LLCore::HttpOptions::ptr_t uploaderhttpOpts = std::make_shared<LLCore::HttpOptions>();
     S64 length;
 
     {

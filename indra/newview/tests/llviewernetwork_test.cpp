@@ -391,7 +391,7 @@ namespace tut
                       std::string("https://minimal.long.name/helpers/"));
         ensure_equals("minimal grid login page",
                       LLGridManager::getInstance()->getLoginPage("minimal.long.name"),
-                      std::string("http://minimal.long.name/app/login/"));
+                      std::string("https://minimal.long.name/app/login/"));
 
     }
 

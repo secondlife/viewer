@@ -1,0 +1,300 @@
+<panel
+ border="true"
+ top="30"
+ default_tab_group="1"
+ follows="left|top|right|bottom"
+ height="533"
+ label="Events"
+ left="1"
+ mouse_opaque="false"
+ name="panel_dir_events"
+ width="778">
+    <string name="searching_text">
+        Searching...
+    </string>
+    <string name="not_found_text">
+        None Found.
+    </string>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     top="8"
+     layout="topleft"
+     follows="left|top"
+     font="SansSerif"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="5"
+     mouse_opaque="true"
+     name="find"
+     width="150">
+        Enter search terms:
+    </text>
+    <combo_box
+     allow_text_entry="false"
+     top_delta="0"
+     left="525"
+     layout="topleft"
+     follows="right|top"
+     height="18"
+     max_chars="20"
+     mouse_opaque="true"
+     name="category_combo"
+     width="128">
+        <combo_item name="All" value="0" label="Any Category"/>
+        <combo_item name="Discussion" value="18" label="Discussion"/>
+        <combo_item name="Sports" value="19" label="Sports"/>
+        <combo_item name="LiveMusic" value="20" label="Live Music"/>
+        <combo_item name="LiveDJ" value="30" label="Live DJ"/>
+        <combo_item name="Commercial" value="22" label="Commercial"/>
+        <combo_item name="Nightlife/Entertainment" value="23" label="Nightlife/Entertainment"/>
+        <combo_item name="Games/Contests" value="24" label="Games/Contests"/>
+        <combo_item name="Pageants" value="25" label="Pageants"/>
+        <combo_item name="Education" value="26" label="Education"/>
+        <combo_item name="ArtsandCulture" value="27" label="Arts and Culture"/>
+        <combo_item name="Charity/SupportGroups" value="28" label="Charity/Support Groups"/>
+        <combo_item name="Miscellaneous" value="29" label="Miscellaneous"/>
+    </combo_box>
+    <check_box
+     left_pad="5"
+     control_name="ShowPGEvents"
+     follows="right|top"
+     layout="topleft"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="true"
+     label=""
+     mouse_opaque="true"
+     name="incpg"
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_PG_Dark"
+     tool_tip="General"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_general"
+     width="16"/>
+    <check_box
+     left_pad="4"
+     top_delta="1"
+     layout="topleft"
+     control_name="ShowMatureEvents"
+     follows="right|top"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="true"
+     label=""
+     mouse_opaque="true"
+     name="incmature"
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_M_Dark"
+     tool_tip="Moderate"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_moderate"
+     width="16"/>
+    <check_box
+     left_pad="4"
+     top_delta="1"
+     layout="topleft"
+     control_name="ShowAdultEvents"
+     follows="right|top"
+     font="SansSerifSmall"
+     height="16"
+     initial_value="false"
+     label=""
+     mouse_opaque="true"
+     name="incadult"
+     width="15" />
+    <icon
+     follows="right|top"
+     height="16"
+     top_delta="-1"
+     image_name="Parcel_R_Dark"
+     tool_tip="Adult"
+     layout="topleft"
+     left_pad="2"
+     name="rating_icon_adult"
+     width="16"/>
+    <line_editor
+     bevel_style="in"
+     border_style="line"
+     border_thickness="1"
+     top_pad="3"
+     follows="left|right|top"
+     layout="topleft"
+     font="SansSerif"
+     height="18"
+     left="5"
+     max_length="63"
+     mouse_opaque="true"
+     name="event_search_text"
+     width="650" />
+    <button
+     follows="right|top"
+     layout="topleft"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="Search"
+     top_delta="0"
+     left_pad="5"
+     mouse_opaque="true"
+     name="Search"
+     width="105" />
+    <scroll_list
+     background_visible="true"
+     layout="topleft"
+     top_pad="3"
+     column_padding="0"
+     draw_border="true"
+     draw_heading="true"
+     follows="left|top|right|bottom"
+     height="450"
+     left="5"
+     mouse_opaque="true"
+     multi_select="false"
+     name="results"
+     search_column="2"
+     width="336">
+        <column label="" name="icon" width="24" />
+        <column label="" name="type" width="-1" />
+        <column dynamicwidth="true" label="Name" name="name" />
+        <column label="Time (PT)" name="date" sort="time" width="106" />
+        <column label="" name="event_id" width="-1" />
+        <column label="Time" name="time" width="-1" />
+    </scroll_list>
+    <text
+     bg_visible="false"
+     border_visible="false"
+     bottom_delta="-20"
+     drop_shadow_visible="true"
+     follows="left|bottom"
+     font="SansSerifSmall"
+     h_pad="0"
+     halign="left"
+     height="16"
+     left="4"
+     mouse_opaque="true"
+     name="result_text"
+     v_pad="0"
+     width="80" />
+    <button
+     image_overlay="Arrow_Left_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     hover_glow_amount="0.15"
+     tool_tip="Previous page"
+     follows="right|bottom"
+     height="22"
+     right="305"
+     bottom="-533"
+     name="prev_btn"
+     width="32" />
+    <button
+     image_overlay="Arrow_Right_Off"
+     image_disabled="PushButton_Disabled"
+     image_disabled_selected="PushButton_Disabled"
+     image_selected="PushButton_Selected"
+     image_unselected="PushButton_Off"
+     chrome="true"
+     tool_tip="Next page"
+     follows="right|bottom"
+     height="22"
+     layout="topleft"
+     left_pad="5"
+     name="next_btn"
+     top_delta="0"
+     width="32"/>
+    <radio_group
+     top="5"
+     draw_border="false"
+     follows="top|left"
+     layout="topleft"
+     height="16"
+     left="160"
+     mouse_opaque="true"
+     name="date_mode"
+     initial_value="current"
+     width="200">
+        <radio_item
+         layout="topleft"
+         left="3"
+         top="0"
+         follows="left|top"
+         height="20"
+         mouse_opaque="true"
+         name="current"
+         width="170"
+         label="In-Progress &amp; Upcoming"/>
+        <radio_item
+         layout="topleft"
+         follows="left|top"
+         height="20"
+         top_delta="0"
+         left_delta="151"
+         mouse_opaque="true"
+         name="date"
+         width="56"
+         label="Date"/>
+    </radio_group>
+    <button
+     top="6"
+     left_pad="15"
+     layout="topleft"
+     follows="left|top"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="&lt;&lt;"
+     label_selected="&lt;&lt;"
+     left_delta="54"
+     mouse_opaque="true"
+     name="back_btn"
+     tool_tip="Go back a day"
+     width="20" />
+    <text
+     top="8"
+     bg_visible="false"
+     border_visible="false"
+     left_pad="1"
+     layout="topleft"
+     drop_shadow_visible="true"
+     follows="left|top"
+     font="SansSerif"
+     h_pad="0"
+     halign="center"
+     height="14"
+     mouse_opaque="true"
+     name="date_text"
+     v_pad="0"
+     width="48">
+        6/6
+    </text>
+    <button
+     top="6"
+     left_pad="1"
+     layout="topleft"
+     follows="left|top"
+     font="SansSerif"
+     halign="center"
+     height="20"
+     label="&gt;&gt;"
+     label_selected="&gt;&gt;"
+     left_delta="50"
+     mouse_opaque="true"
+     name="forward_btn"
+     tool_tip="Go forward a day"
+     width="20" />
+</panel>

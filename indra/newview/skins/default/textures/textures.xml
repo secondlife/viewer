@@ -837,7 +837,13 @@ with the same filename but different name
   <texture name="icon_avatar_online.tga" />
   <texture name="icon_diurnal.tga" />
   <texture name="icon_for_sale.tga" file_name="icons/Icon_For_Sale.png" />
+  <texture name="icon_auction.tga"/>
+  <texture name="icon_place.tga"/>
   <texture name="icon_top_pick.tga" />
+
+  <texture name="icon_event.tga"/>
+  <texture name="icon_event_adult.tga"/>
+  <texture name="icon_event_mature.tga" />
 
   <texture name="lag_status_critical.tga" />
   <texture name="lag_status_good.tga" />

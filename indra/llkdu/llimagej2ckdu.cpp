@@ -615,6 +615,11 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
                     return false;
                 }
             }
+            catch (std::bad_alloc&)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Bad memory allocation in J2C KDU" << LL_ENDL;
+            }
             catch (const KDUError& msg)
             {
                 base.setLastError(msg.what());

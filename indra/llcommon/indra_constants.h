@@ -163,6 +163,28 @@ constexpr U8 SIM_ACCESS_ADULT   = 42;       // Seriously Adult Only
 constexpr U8 SIM_ACCESS_DOWN    = 254;
 constexpr U8 SIM_ACCESS_MAX     = SIM_ACCESS_ADULT;
 
+// map item types
+constexpr U32 MAP_ITEM_TELEHUB             = 0x01;
+constexpr U32 MAP_ITEM_PG_EVENT            = 0x02;
+constexpr U32 MAP_ITEM_MATURE_EVENT        = 0x03;
+// constexpr U32 MAP_ITEM_POPULAR          = 0x04; // No longer supported, 2009-03-02 KLW
+// constexpr U32 MAP_ITEM_AGENT_COUNT      = 0x05;
+constexpr U32 MAP_ITEM_AGENT_LOCATIONS     = 0x06;
+constexpr U32 MAP_ITEM_LAND_FOR_SALE       = 0x07;
+constexpr U32 MAP_ITEM_CLASSIFIED          = 0x08;
+constexpr U32 MAP_ITEM_ADULT_EVENT         = 0x09;
+constexpr U32 MAP_ITEM_LAND_FOR_SALE_ADULT = 0x0a;
+
+// Region map layer numbers
+constexpr S32 MAP_SIM_OBJECTS          = 0;
+constexpr S32 MAP_SIM_TERRAIN          = 1;
+constexpr S32 MAP_SIM_LAND_FOR_SALE    = 2;          // Transparent alpha overlay of land for sale
+constexpr S32 MAP_SIM_IMAGE_TYPES      = 3;          // Number of map layers
+constexpr S32 MAP_SIM_INFO_MASK        = 0x00FFFFFF; // Agent access may be stuffed into upper byte
+constexpr S32 MAP_SIM_LAYER_MASK       = 0x0000FFFF; // Layer info is in lower 16 bits
+constexpr S32 MAP_SIM_RETURN_NULL_SIMS = 0x00010000;
+constexpr S32 MAP_SIM_PRELUDE          = 0x00020000;
+
 // attachment constants
 constexpr U8  ATTACHMENT_ADD = 0x80;
 

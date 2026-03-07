@@ -251,7 +251,7 @@ static LLPanelInjector<LLPanelPeople> t_people("panel_people");
 class LLPanelPeople::Updater
 {
 public:
-    typedef boost::function<void()> callback_t;
+    typedef std::function<void()> callback_t;
     Updater(callback_t cb)
     : mCallback(cb)
     {

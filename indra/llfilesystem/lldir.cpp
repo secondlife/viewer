@@ -44,15 +44,9 @@
 #include "stringize.h"
 #include "llstring.h"
 #include <boost/filesystem.hpp>
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
-#include <boost/assign/list_of.hpp>
+#include "llprocess.h"
 #include <boost/bind.hpp>
-#include <boost/ref.hpp>
 #include <algorithm>
-
-using boost::assign::list_of;
-using boost::assign::map_list_of;
 
 #if LL_WINDOWS
 #include "lldir_win32.h"
@@ -448,28 +442,28 @@ const std::string &LLDir::getUserName() const
 static std::string ELLPathToString(ELLPath location)
 {
     typedef std::map<ELLPath, const char*> ELLPathMap;
-#define ENT(symbol) (symbol, #symbol)
-    static const ELLPathMap sMap = map_list_of
-        ENT(LL_PATH_NONE)
-        ENT(LL_PATH_USER_SETTINGS)
-        ENT(LL_PATH_APP_SETTINGS)
-        ENT(LL_PATH_PER_SL_ACCOUNT) // returns/expands to blank string if we don't know the account name yet
-        ENT(LL_PATH_CACHE)
-        ENT(LL_PATH_CHARACTER)
-        ENT(LL_PATH_HELP)
-        ENT(LL_PATH_LOGS)
-        ENT(LL_PATH_TEMP)
-        ENT(LL_PATH_SKINS)
-        ENT(LL_PATH_TOP_SKIN)
-        ENT(LL_PATH_CHAT_LOGS)
-        ENT(LL_PATH_PER_ACCOUNT_CHAT_LOGS)
-        ENT(LL_PATH_USER_SKIN)
-        ENT(LL_PATH_LOCAL_ASSETS)
-        ENT(LL_PATH_EXECUTABLE)
-        ENT(LL_PATH_DEFAULT_SKIN)
-        ENT(LL_PATH_FONTS)
-        ENT(LL_PATH_LAST)
-    ;
+#define ENT(symbol) { symbol, #symbol }
+    static const ELLPathMap sMap = {
+        ENT(LL_PATH_NONE),
+        ENT(LL_PATH_USER_SETTINGS),
+        ENT(LL_PATH_APP_SETTINGS),
+        ENT(LL_PATH_PER_SL_ACCOUNT), // returns/expands to blank string if we don't know the account name yet
+        ENT(LL_PATH_CACHE),
+        ENT(LL_PATH_CHARACTER),
+        ENT(LL_PATH_HELP),
+        ENT(LL_PATH_LOGS),
+        ENT(LL_PATH_TEMP),
+        ENT(LL_PATH_SKINS),
+        ENT(LL_PATH_TOP_SKIN),
+        ENT(LL_PATH_CHAT_LOGS),
+        ENT(LL_PATH_PER_ACCOUNT_CHAT_LOGS),
+        ENT(LL_PATH_USER_SKIN),
+        ENT(LL_PATH_LOCAL_ASSETS),
+        ENT(LL_PATH_EXECUTABLE),
+        ENT(LL_PATH_DEFAULT_SKIN),
+        ENT(LL_PATH_FONTS),
+        ENT(LL_PATH_LAST),
+    };
 #undef ENT
 
     ELLPathMap::const_iterator found = sMap.find(location);
@@ -725,10 +719,10 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
     // Recognize subdirs that have no localization.
-    static const std::set<std::string> sUnlocalized = list_of
-        ("")                        // top-level directory not localized
-        ("textures")                // textures not localized
-    ;
+    static const std::set<std::string> sUnlocalized = {
+        "",        // top-level directory not localized
+        "textures" // textures not localized
+    };
 
     LL_DEBUGS("LLDir") << "subdir '" << subdir << "', filename '" << filename
                        << "', constraint "
@@ -1105,6 +1099,61 @@ LLDir::SepOff LLDir::needSep(const std::string& path, const std::string& name) c
     // but not both. So don't add a separator, and don't skip any characters:
     // simple concatenation will do the trick.
     return SepOff(false, 0);
+}
+
+void LLDir::openDir(const std::string& filepath)
+{
+    if (filepath.empty())
+    {
+        LL_WARNS() << "Cannot open file browser: filepath is empty" << LL_ENDL;
+        return;
+    }
+
+    // Extract directory path from full filepath
+    std::string dir_path = getDirName(filepath);
+
+    LLProcess::Params params;
+
+#if LL_WINDOWS
+    // Windows: Use explorer.exe with /select flag to highlight the file
+    std::string system_root = LLStringUtil::getenv("SystemRoot");
+    if (system_root.empty())
+    {
+        system_root = LLStringUtil::getenv("WINDIR");
+    }
+    if (system_root.empty())
+    {
+        LL_WARNS() << "Neither SystemRoot nor WINDIR environment variable is set" << LL_ENDL;
+        system_root = "C:\\Windows"; // Last resort fallback
+    }
+    params.executable = system_root + "\\explorer.exe";
+    params.args.add("/select,");
+    params.args.add(filepath);
+#elif LL_DARWIN
+    // macOS: Use 'open' command with -R flag to reveal in Finder
+    params.executable = "/usr/bin/open";
+    params.args.add("-R");
+    params.args.add(filepath);
+#elif LL_LINUX
+    // Linux: Use xdg-open to open the directory
+    // Note: Most file managers don't support file selection, so we open the directory
+    params.executable = "/usr/bin/xdg-open";
+    params.args.add(dir_path);
+#else
+    LL_WARNS() << "Platform not supported for file browser opening" << LL_ENDL;
+    return;
+#endif
+
+    params.autokill = false; // Don't kill the file browser when viewer exits
+
+    if (!LLProcess::create(params))
+    {
+        LL_WARNS() << "Failed to open file browser for: " << filepath << LL_ENDL;
+    }
+    else
+    {
+        LL_INFOS() << "Opened file browser for: " << filepath << LL_ENDL;
+    }
 }
 
 void dir_exists_or_crash(const std::string &dir_name)

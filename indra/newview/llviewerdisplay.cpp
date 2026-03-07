@@ -240,8 +240,11 @@ void display_stats()
     if (gRecentFPSTime.getElapsedTimeF32() >= FPS_LOG_FREQUENCY)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("DS - FPS");
+        LLTrace::Recording& recording = LLTrace::get_frame_recording().getLastRecording();
+        F64 normalized_session_jitter = recording.getLastValue(LLStatViewer::NOTRMALIZED_FRAMETIME_JITTER_SESSION);
+        F64 normalized_period_jitter = recording.getLastValue(LLStatViewer::NORMALIZED_FRAMTIME_JITTER_PERIOD);
         F32 fps = gRecentFrameCount / FPS_LOG_FREQUENCY;
-        LL_INFOS() << llformat("FPS: %.02f", fps) << LL_ENDL;
+        LL_INFOS() << llformat("FPS: %.02f SESSION JITTER: %.4f PERIOD JITTER: %.4f", fps, normalized_session_jitter, normalized_period_jitter) << LL_ENDL;
         gRecentFrameCount = 0;
         gRecentFPSTime.reset();
     }
@@ -573,9 +576,9 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     LLImageGL::updateStats(gFrameTimeSeconds);
 
     static LLCachedControl<S32> avatar_name_tag_mode(gSavedSettings, "AvatarNameTagMode", 1);
-    static LLCachedControl<bool> name_tag_show_group_titles(gSavedSettings, "NameTagShowGroupTitles", true);
+    static LLCachedControl<S32> name_tag_show_group_titles(gSavedSettings, "GroupTitlesTagMode", 2 /*all group tags*/);
     LLVOAvatar::sRenderName = avatar_name_tag_mode;
-    LLVOAvatar::sRenderGroupTitles = name_tag_show_group_titles && avatar_name_tag_mode > 0;
+    LLVOAvatar::sRenderGroupTitles = avatar_name_tag_mode > 0 ? name_tag_show_group_titles : 0;
 
     gPipeline.mBackfaceCull = true;
     gFrameCount++;

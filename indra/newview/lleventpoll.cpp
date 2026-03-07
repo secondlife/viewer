@@ -56,6 +56,7 @@ namespace Details
     private:
         void                            eventPollCoro(std::string url);
 
+        void                            handleMessage(const std::string& msg_name, const LLSD& body);
         void                            handleMessage(const LLSD &content);
 
         bool                            mDone;
@@ -90,9 +91,19 @@ namespace Details
     {
         LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
 
-        mHttpRequest = LLCore::HttpRequest::ptr_t(new LLCore::HttpRequest);
+        mHttpRequest = std::make_shared<LLCore::HttpRequest>();
         mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_LONG_POLL);
         mSenderIp = sender.getIPandPort();
+    }
+
+    void LLEventPollImpl::handleMessage(const std::string &msg_name, const LLSD &body)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
+        LLSD message;
+        message["sender"] = mSenderIp;
+        message["body"] = body;
+
+        LLMessageSystem::dispatch(msg_name, message);
     }
 
     void LLEventPollImpl::handleMessage(const LLSD& content)
@@ -100,16 +111,8 @@ namespace Details
         LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
         std::string msg_name = content["message"].asString();
         LLSD message;
-        try
-        {
-            message["sender"] = mSenderIp;
-            message["body"] = content["body"];
-        }
-        catch (std::bad_alloc&)
-        {
-            LLError::LLUserWarningMsg::showOutOfMemory();
-            LL_ERRS("LLCoros") << "Bad memory allocation on message: " << msg_name << LL_ENDL;
-        }
+        message["sender"] = mSenderIp;
+        message["body"] = content["body"];
 
         LLMessageSystem::dispatch(msg_name, message);
     }
@@ -144,7 +147,7 @@ namespace Details
 
     void LLEventPollImpl::eventPollCoro(std::string url)
     {
-        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("EventPoller", mHttpPolicy));
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("EventPoller", mHttpPolicy);
         LLSD acknowledge;
         int errorCount = 0;
         int counter = mCounter; // saved on the stack for logging.
@@ -156,7 +159,7 @@ namespace Details
 
         // This is a loop with its own waitToRetry implementation,
         // so disable retries.
-        LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
         httpOpts->setRetries(0);
 
         LL::WorkQueue::ptr_t main_queue = nullptr;
@@ -194,7 +197,7 @@ namespace Details
                 break;
             }
 
-            LLSD httpResults = result["http_result"];
+            LLSD &httpResults = result["http_result"];
             LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
             if (!status)
@@ -299,7 +302,7 @@ namespace Details
             }
 
             acknowledge = result["id"];
-            LLSD events = result["events"];
+            LLSD &events = result["events"];
 
             if (acknowledge.isUndefined())
             {
@@ -310,20 +313,37 @@ namespace Details
             LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> " << events.size() << "events (id " << acknowledge << ")" << LL_ENDL;
 
 
-            LLSD::array_const_iterator i = events.beginArray();
-            LLSD::array_const_iterator end = events.endArray();
+            LLSD::array_iterator i = events.beginArray();
+            LLSD::array_iterator end = events.endArray();
             for (; i != end; ++i)
             {
                 if (i->has("message"))
                 {
                     if (main_queue)
-                    { // shuttle to a sensible spot in the main thread instead
+                    {
+                        // Shuttle copy to a sensible spot in the main thread instead
                         // of wherever this coroutine happens to be executing
-                        const LLSD& msg = *i;
-                        main_queue->post([this, msg]()
+
+                        LL::WorkQueue::Work work;
+                        {
+                            // LLSD is too smart for it's own good and may act like a smart
+                            // pointer for the content of (*i), so instead of passing (*i)
+                            // pass a prepared name and move ownership of "body",
+                            // as we are not going to need "body" anywhere else.
+                            std::string msg_name = (*i)["message"].asString();
+
+                            // WARNING: This is a shallow copy!
+                            // If something still retains the data (like in httpAdapter?) this might still
+                            // result in a crash, if it does appear to be the case, make a deep copy or
+                            // convert data to string and pass that string.
+                            const LLSD body = (*i)["body"];
+                            (*i)["body"].clear();
+                            work = [this, msg_name, body]()
                             {
-                                handleMessage(msg);
-                            });
+                                handleMessage(msg_name, body);
+                            };
+                        }
+                        main_queue->post(work);
                     }
                     else
                     {

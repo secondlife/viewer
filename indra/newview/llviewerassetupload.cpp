@@ -300,17 +300,19 @@ void LLResourceUploadInfo::assignDefaults()
     {
         mDescription = "(No Description)";
     }
-
-    if (mAssetType == LLAssetType::AT_GLTF ||
-        mAssetType == LLAssetType::AT_GLTF_BIN)
+    if (mFolderId.isNull()) // don't overwrite if destination is already specified
     {
-        mFolderId = LLUUID::null;
-    }
-    else
-    {
-        mFolderId = gInventory.findUserDefinedCategoryUUIDForType(
-            (mDestinationFolderType == LLFolderType::FT_NONE) ?
-            (LLFolderType::EType)mAssetType : mDestinationFolderType);
+        if (mAssetType == LLAssetType::AT_GLTF ||
+            mAssetType == LLAssetType::AT_GLTF_BIN)
+        {
+            mFolderId = LLUUID::null;
+        }
+        else
+        {
+            mFolderId = gInventory.findUserDefinedCategoryUUIDForType(
+                (mDestinationFolderType == LLFolderType::FT_NONE) ?
+                (LLFolderType::EType)mAssetType : mDestinationFolderType);
+        }
     }
 }
 
@@ -862,8 +864,8 @@ LLUUID LLViewerAssetUpload::EnqueueInventoryUpload(const std::string &url, const
 void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter,
     const LLUUID &id, std::string url, LLResourceUploadInfo::ptr_t uploadInfo)
 {
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOptions(new LLCore::HttpOptions);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOptions = std::make_shared<LLCore::HttpOptions>();
     httpOptions->setTimeout(LL_ASSET_UPLOAD_TIMEOUT_SEC);
 
     LLSD result = uploadInfo->prepareUpload();

@@ -652,7 +652,7 @@ public:
         static void getCurrent(LLMaterialPtr& material_ptr, bool& identical_material);
         static void getMaxSpecularRepeats(F32& repeats, bool& identical);
         static void getMaxNormalRepeats(F32& repeats, bool& identical);
-        static void getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical, bool diffuse_texture_has_alpha);
+        static void getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical);
         static void selectionNormalScaleAutofit(LLPanelFace* panel_face, F32 repeats_per_meter);
         static void selectionSpecularScaleAutofit(LLPanelFace* panel_face, F32 repeats_per_meter);
 
@@ -697,7 +697,7 @@ public:
     {
     public:
         static void getFace(class LLFace*& face_to_return, bool& identical_face);
-        static void getImageFormat(LLGLenum& image_format_to_return, bool& identical_face, bool& missing_asset);
+        static void getImageFormat(LLGLenum& image_format_to_return, bool& has_alpha, bool& identical_face, bool& missing_asset);
         static void getTexId(LLUUID& id, bool& identical);
         static void getPbrMaterialId(LLUUID& id, bool& identical, bool& has_pbr, bool& has_faces_without_pbr);
         static void getObjectScaleS(F32& scale_s, bool& identical);

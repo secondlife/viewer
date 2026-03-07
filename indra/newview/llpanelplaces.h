@@ -81,6 +81,8 @@ public:
 
     /*virtual*/ S32 notifyParent(const LLSD& info);
 
+    void hideBackBtn();
+
 private:
     void onLandmarkLoaded(LLLandmark* landmark);
     void onFilterEdit(const std::string& search_string, bool force_filter);

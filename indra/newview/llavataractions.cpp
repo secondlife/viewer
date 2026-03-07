@@ -29,8 +29,6 @@
 
 #include "llavataractions.h"
 
-#include "boost/lambda/lambda.hpp"  // for lambda::constant
-
 #include "llavatarnamecache.h"  // IDEVO
 #include "llsd.h"
 #include "llnotifications.h"

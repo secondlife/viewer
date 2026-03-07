@@ -176,13 +176,13 @@ public:
             // In general, our streambuf might contain a number of different
             // physical buffers; iterate over those.
             bool keepwriting = true;
-            for (const_buffer_sequence::const_iterator bufi(bufs.begin()), bufend(bufs.end());
+            for (auto bufi(boost::asio::buffer_sequence_begin(bufs)), bufend(boost::asio::buffer_sequence_end(bufs));
                  bufi != bufend && keepwriting; ++bufi)
             {
                 // http://www.boost.org/doc/libs/1_49_0_beta1/doc/html/boost_asio/reference/buffer.html#boost_asio.reference.buffer.accessing_buffer_contents
                 // Although apr_file_write() accepts const void*, we
                 // manipulate const char* so we can increment the pointer.
-                const char* remainptr = boost::asio::buffer_cast<const char*>(*bufi);
+                const char* remainptr = static_cast<const char*>(bufi->data());
                 std::size_t remainlen = boost::asio::buffer_size(*bufi);
                 while (remainlen)
                 {
@@ -377,14 +377,14 @@ public:
             // In general, the mutable_buffer_sequence returned by prepare() might
             // contain a number of different physical buffers; iterate over those.
             std::size_t tocommit(0);
-            for (mutable_buffer_sequence::const_iterator bufi(bufs.begin()), bufend(bufs.end());
+            for (auto bufi(boost::asio::buffer_sequence_begin(bufs)), bufend(boost::asio::buffer_sequence_end(bufs));
                  bufi != bufend; ++bufi)
             {
                 // http://www.boost.org/doc/libs/1_49_0_beta1/doc/html/boost_asio/reference/buffer.html#boost_asio.reference.buffer.accessing_buffer_contents
                 std::size_t toread(boost::asio::buffer_size(*bufi));
                 apr_size_t gotten(toread);
                 apr_status_t err = apr_file_read(mPipe,
-                                                 boost::asio::buffer_cast<void*>(*bufi),
+                                                 bufi->data(),
                                                  &gotten);
                 // EAGAIN is exactly what we want from a nonblocking pipe.
                 // Rather than waiting for data, it should return immediately.
@@ -457,7 +457,8 @@ public:
                        ("slot", LLSD::Integer(mIndex))
                        ("name", whichfile(mIndex))
                        ("desc", mDesc)
-                       ("eof", state == CLOSED));
+                       ("eof", state == CLOSED)
+                       ("exhst", state == EXHAUSTED));
         }
 
         return false;
@@ -528,18 +529,9 @@ LLProcess::LLProcess(const LLSDOrParams& params):
     // preserve existing semantics, we promise that mAttached defaults to the
     // same setting as mAutokill.
     mAttached(params.attached.isProvided()? params.attached : params.autokill),
-    mPool(NULL),
-    mPipes(NSLOTS)
+    mPool(NULL)
 {
-    // Hmm, when you construct a ptr_vector with a size, it merely reserves
-    // space, it doesn't actually make it that big. Explicitly make it bigger.
-    // Because of ptr_vector's odd semantics, have to push_back(0) the right
-    // number of times! resize() wants to default-construct new BasePipe
-    // instances, which fails because it's pure virtual. But because of the
-    // constructor call, these push_back() calls should require no new
-    // allocation.
-    for (size_t i = 0; i < mPipes.capacity(); ++i)
-        mPipes.push_back(0);
+    mPipes.resize(NSLOTS);
 
     if (! params.validateBlock(true))
     {
@@ -665,10 +657,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
     // case), e.g. by calling operator(), returns a reference to *the same
     // instance* of the wrapped type that's stored in our Block subclass.
     // That's important! We know 'params' persists throughout this method
-    // call; but without that guarantee, we'd have to assume that converting
-    // one of its members to std::string might return a different (temp)
-    // instance. Capturing the c_str() from a temporary std::string is Bad Bad
-    // Bad. But armed with this knowledge, when you see params.cwd().c_str(),
+    // call; but without that guarantee, when you see params.cwd().c_str(),
     // grit your teeth and smile and carry on.
 
     if (params.cwd.isProvided())
@@ -751,11 +740,11 @@ LLProcess::LLProcess(const LLSDOrParams& params):
         apr_file_t* pipe(mProcess.*(members[i]));
         if (i == STDIN)
         {
-            mPipes.replace(i, new WritePipeImpl(desc, pipe));
+            mPipes[i] = std::make_unique<WritePipeImpl>(desc, pipe);
         }
         else
         {
-            mPipes.replace(i, new ReadPipeImpl(desc, pipe, FILESLOT(i)));
+            mPipes[i] = std::make_unique<ReadPipeImpl>(desc, pipe, FILESLOT(i));
         }
         // Removed temporaily for Xcode 7 build tests: error was:
         // "error: expression with side effects will be evaluated despite
@@ -1063,14 +1052,14 @@ PIPETYPE* LLProcess::getPipePtr(std::string& error, FILESLOT slot)
         error = STRINGIZE(mDesc << " has no slot " << slot);
         return NULL;
     }
-    if (mPipes.is_null(slot))
+    if (!mPipes[slot])
     {
         error = STRINGIZE(mDesc << ' ' << whichfile(slot) << " not a monitored pipe");
         return NULL;
     }
     // Make sure we dynamic_cast in pointer domain so we can test, rather than
     // accepting runtime's exception.
-    PIPETYPE* ppipe = dynamic_cast<PIPETYPE*>(&mPipes[slot]);
+    PIPETYPE* ppipe = dynamic_cast<PIPETYPE*>(mPipes[slot].get());
     if (! ppipe)
     {
         error = STRINGIZE(mDesc << ' ' << whichfile(slot) << " not a " << typeid(PIPETYPE).name());

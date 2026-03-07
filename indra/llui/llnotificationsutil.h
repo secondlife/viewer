@@ -32,7 +32,7 @@
 #include "llnotificationptr.h"
 #include "lluuid.h"
 
-#include <boost/function.hpp>
+#include <functional>
 
 class LLSD;
 
@@ -55,7 +55,7 @@ namespace LLNotificationsUtil
     LLNotificationPtr add(const std::string& name,
                           const LLSD& substitutions,
                           const LLSD& payload,
-                          boost::function<void (const LLSD&, const LLSD&)> functor);
+                          std::function<void (const LLSD&, const LLSD&)> functor);
 
     S32 getSelectedOption(const LLSD& notification, const LLSD& response);
 

@@ -31,6 +31,8 @@
 #include <deque>
 
 #include "apr_base64.h"
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 #include <boost/regex.hpp>
 
 extern "C"
@@ -645,7 +647,7 @@ void LLSDXMLParser::Impl::startElementHandler(const XML_Char* name, const XML_Ch
         if (mCurrentKey.empty()) { return startSkipping(); }
 
         LLSD& map = *mStack.back();
-        LLSD& newElement = map[mCurrentKey];
+        LLSD& newElement = map[std::move(mCurrentKey)];
         mStack.push_back(&newElement);
 
         mCurrentKey.clear();
@@ -709,7 +711,8 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
             return;
 
         case ELEMENT_KEY:
-            mCurrentKey = mCurrentContent;
+            mCurrentKey = std::move(mCurrentContent); // This is safe to move as we are in the end element handler
+            mCurrentContent.clear(); // Ensure mCurrentContent is empty for subsequent use
             return;
 
         default:
@@ -742,14 +745,22 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
                 }
                 else
                 {
-                    value = LLSD(mCurrentContent).asInteger();
+                    // This must treat "1.23" not as an error, but as a number, which is
+                    // then truncated down to an integer.  Hence, this code doesn't call
+                    // std::istringstream::operator>>(int&), which would not consume the
+                    // ".23" portion.
+
+                    // Utilizes implementation used internally by LLSD::ImplString::asInteger
+                    value = (int)llsd::string_to_real(mCurrentContent);
                 }
             }
             break;
 
         case ELEMENT_REAL:
             {
-                value = LLSD(mCurrentContent).asReal();
+                // Utilizes implementation used internally by LLSD::ImplString::asReal
+                value = llsd::string_to_real(mCurrentContent);
+
                 // removed since this breaks when locale has decimal separator that isn't '.'
                 // investigated changing local to something compatible each time but deemed higher
                 // risk that just using LLSD.asReal() each time.
@@ -766,19 +777,19 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
             break;
 
         case ELEMENT_STRING:
-            value = mCurrentContent;
+            value = std::move(mCurrentContent);  // This is safe to move as we are in the end element handler and this is cleared below
             break;
 
         case ELEMENT_UUID:
-            value = LLSD(mCurrentContent).asUUID();
+            value = LLUUID(mCurrentContent);
             break;
 
         case ELEMENT_DATE:
-            value = LLSD(mCurrentContent).asDate();
+            value = LLDate(mCurrentContent);
             break;
 
         case ELEMENT_URI:
-            value = LLSD(mCurrentContent).asURI();
+            value = LLURI(mCurrentContent);
             break;
 
         case ELEMENT_BINARY:
@@ -787,15 +798,14 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
             // created by python and other non-linden systems - DEV-39358
             // Fortunately we have very little binary passing now,
             // so performance impact shold be negligible. + poppy 2009-09-04
-            boost::regex r;
-            r.assign("\\s");
+            static const boost::regex r("\\s");
             std::string stripped = boost::regex_replace(mCurrentContent, r, "");
             S32 len = apr_base64_decode_len(stripped.c_str());
             std::vector<U8> data;
             data.resize(len);
             len = apr_base64_decode_binary(&data[0], stripped.c_str());
             data.resize(len);
-            value = data;
+            value = std::move(data);
             break;
         }
 

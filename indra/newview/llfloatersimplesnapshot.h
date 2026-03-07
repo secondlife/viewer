@@ -63,7 +63,7 @@ public:
 
     void postSave();
 
-    typedef boost::function<void(const LLUUID& asset_id)> completion_t;
+    typedef std::function<void(const LLUUID& asset_id)> completion_t;
     void setComplectionCallback(completion_t callback) { mUploadCompletionCallback = callback; }
     static void uploadThumbnail(const std::string &file_path,
                                 const LLUUID &inventory_id,

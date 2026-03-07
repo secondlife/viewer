@@ -41,6 +41,7 @@ LLFloaterBulkUpload::LLFloaterBulkUpload(const LLSD& key)
     mUploadCost = key["upload_cost"].asInteger();
     mUploadCount = key["upload_count"].asInteger();
     mHas2kTextures = key["has_2k_textures"].asBoolean();
+    mDestinationFolderId = key["dest"];
     if (key["files"].isArray())
     {
         const LLSD& files = key["files"];
@@ -125,7 +126,7 @@ void LLFloaterBulkUpload::onUpload2KCheckBox()
 
 void LLFloaterBulkUpload::onClickUpload()
 {
-    do_bulk_upload(mFiles, mAllow2kTextures);
+    do_bulk_upload(mFiles, mAllow2kTextures, mDestinationFolderId);
     closeFloater();
 }
 

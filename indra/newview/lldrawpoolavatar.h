@@ -46,12 +46,6 @@ class LLDrawPoolAvatar : public LLFacePool
 public:
     enum
     {
-        SHADER_LEVEL_BUMP = 2,
-        SHADER_LEVEL_CLOTH = 3
-    };
-
-    enum
-    {
         VERTEX_DATA_MASK =  LLVertexBuffer::MAP_VERTEX |
                             LLVertexBuffer::MAP_NORMAL |
                             LLVertexBuffer::MAP_TEXCOORD0 |

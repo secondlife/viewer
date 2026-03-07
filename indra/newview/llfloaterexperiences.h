@@ -43,7 +43,7 @@ public:
     static LLFloaterExperiences* findInstance();
 protected:
     typedef std::map<std::string, std::string> NameMap_t;
-    typedef boost::function<void(LLPanelExperiences*, const LLSD&)> Callback_t;
+    typedef std::function<void(LLPanelExperiences*, const LLSD&)> Callback_t;
 
     void clearFromRecent(const LLSD& ids);
     void resizeToTabs();
@@ -65,12 +65,13 @@ protected:
         const std::string &errorNotify, Callback_t cback);
 
 private:
-    typedef boost::function < LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
+    typedef std::function<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
         const std::string, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) > invokationFn_t;
 
     static void retrieveExperienceListCoro(std::string url, LLHandle<LLFloaterExperiences> hparent,
         NameMap_t tabMapping, std::string errorNotify, Callback_t cback, invokationFn_t invoker);
     std::vector<LLUUID> mPrepurchaseIds;
+    boost::signals2::scoped_connection mCapsReceivedConnection;
 };
 
 #endif //LL_LLFLOATEREXPERIENCES_H

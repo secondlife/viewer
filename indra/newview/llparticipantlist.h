@@ -27,8 +27,8 @@
 #ifndef LL_PARTICIPANTLIST_H
 #define LL_PARTICIPANTLIST_H
 
-#include "llviewerprecompiledheaders.h"
 #include "llconversationmodel.h"
+#include "llevent.h"
 
 class LLSpeakerMgr;
 class LLUICtrl;
@@ -38,7 +38,7 @@ class LLParticipantList : public LLConversationItemSession
     LOG_CLASS(LLParticipantList);
 public:
 
-    typedef boost::function<bool (const LLUUID& speaker_id)> validate_speaker_callback_t;
+    typedef std::function<bool (const LLUUID& speaker_id)> validate_speaker_callback_t;
 
     LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewModelInterface& root_view_model);
     ~LLParticipantList();

@@ -403,7 +403,7 @@ void LLFloater360Capture::suspendForAFrame()
     U32 curr_frame_count = LLFrameTimer::getFrameCount();
     while (LLFrameTimer::getFrameCount() <= curr_frame_count + frame_count_delta)
     {
-        llcoro::suspend();
+        llcoro::suspendUntilNextFrame();
     }
 }
 
@@ -716,7 +716,7 @@ void LLFloater360Capture::onSaveLocalBtn()
 {
     // region name and URL
     std::string region_name; // no sensible default
-    std::string region_url("http://secondlife.com");
+    std::string region_url("https://secondlife.com");
     LLViewerRegion* region = gAgent.getRegion();
     if (region)
     {

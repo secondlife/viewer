@@ -167,7 +167,7 @@ std::map<S32, std::string> LLTeleportRequest::sTeleportStatusName = { { kPending
 class LLTeleportRequestViaLandmark : public LLTeleportRequest
 {
 public:
-    LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId);
+    LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId, bool log = true);
     virtual ~LLTeleportRequestViaLandmark();
 
     virtual void toOstream(std::ostream& os) const;
@@ -179,6 +179,7 @@ public:
 
 protected:
     inline const LLUUID &getLandmarkId() const {return mLandmarkId;};
+    bool mLogOnDestruction = true;
 
 private:
     LLUUID mLandmarkId;
@@ -425,6 +426,7 @@ LLAgent::LLAgent() :
     mIsDoNotDisturb(false),
 
     mControlFlags(0x00000000),
+    mLastJumpInputTime(0.0),
 
     mAutoPilot(false),
     mAutoPilotFlyOnStop(false),
@@ -436,8 +438,8 @@ LLAgent::LLAgent() :
     mAutoPilotTargetDist(0.f),
     mAutoPilotNoProgressFrameCount(0),
     mAutoPilotRotationThreshold(0.f),
-    mAutoPilotFinishedCallback(NULL),
-    mAutoPilotCallbackData(NULL),
+    mAutoPilotFinishedCallback(nullptr),
+    mAutoPilotCallbackData(nullptr),
 
     mMovementKeysLocked(false),
 
@@ -454,8 +456,8 @@ LLAgent::LLAgent() :
 
     mVoiceConnected(false),
 
-    mMouselookModeInSignal(NULL),
-    mMouselookModeOutSignal(NULL)
+    mMouselookModeInSignal(nullptr),
+    mMouselookModeOutSignal(nullptr)
 {
     for (U32 i = 0; i < TOTAL_CONTROLS; i++)
     {
@@ -463,7 +465,7 @@ LLAgent::LLAgent() :
         mControlsTakenPassedOnCount[i] = 0;
     }
 
-    mListener.reset(new LLAgentListener(*this));
+    mListener = std::make_shared<LLAgentListener>(*this);
 
     addParcelChangedCallback(&setCanEditParcel);
 
@@ -779,6 +781,10 @@ void LLAgent::moveUp(S32 direction)
 
     if (direction > 0)
     {
+        if (!getFlying())
+        {
+            mLastJumpInputTime = LLTimer::getTotalSeconds();
+        }
         setControlFlags(AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP);
     }
     else if (direction < 0)
@@ -2662,7 +2668,21 @@ void LLAgent::onAnimStop(const LLUUID& id)
     }
     else if (id == ANIM_AGENT_PRE_JUMP || id == ANIM_AGENT_LAND || id == ANIM_AGENT_MEDIUM_LAND)
     {
-        setControlFlags(AGENT_CONTROL_FINISH_ANIM);
+        // FIRE-34049/FIRE-34273/https://github.com/secondlife/viewer/issues/4218
+        // Avoid forcing AGENT_CONTROL_FINISH_ANIM, which can short-circuit the next pre-jump
+        // during rapid successive jumps.
+        // TODO: a more robust fix would require knowing which specific animation finished,
+        // information that is not currently provided by the simulator.
+        const bool up_pos = (mControlFlags & AGENT_CONTROL_UP_POS) != 0;
+        const F64 now = LLTimer::getTotalSeconds();
+        const F64 elapsed = now - mLastJumpInputTime;
+        static LLCachedControl<F32> recent_jump_threshold_secs(gSavedSettings, "RecentJumpThresholdSecs");
+        const bool recent_jump = (mLastJumpInputTime > 0.0) && (elapsed < recent_jump_threshold_secs);
+
+        if (!up_pos && !recent_jump)
+        {
+            setControlFlags(AGENT_CONTROL_FINISH_ANIM);
+        }
     }
 }
 
@@ -4699,9 +4719,9 @@ void LLAgent::requestAgentUserInfoCoro(std::string capurl)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestAgentUserInfoCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("requestAgentUserInfoCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
     httpOpts->setFollowRedirects(true);
@@ -4759,9 +4779,9 @@ void LLAgent::updateAgentUserInfoCoro(std::string capurl, std::string directory_
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestAgentUserInfoCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("requestAgentUserInfoCoro", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+    LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
     httpOpts->setFollowRedirects(true);
@@ -4849,6 +4869,8 @@ const std::string& LLAgent::getTeleportStateName() const
 
 void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     LLXMLNodePtr root;
     bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
 
@@ -5008,16 +5030,25 @@ void LLTeleportRequest::toOstream(std::ostream& os) const
 //-----------------------------------------------------------------------------
 // LLTeleportRequestViaLandmark
 //-----------------------------------------------------------------------------
-LLTeleportRequestViaLandmark::LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId)
-    : LLTeleportRequest(),
-    mLandmarkId(pLandmarkId)
+LLTeleportRequestViaLandmark::LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId, bool log)
+    : LLTeleportRequest()
+    , mLandmarkId(pLandmarkId)
+    , mLogOnDestruction(true)
 {
-    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark created, " << *this << LL_ENDL;
+    if (log)
+    {
+        // Workaround to not log twice for LLTeleportRequestViaLure, besides this wouldn't have logged fully.
+        LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark created, " << *this << LL_ENDL;
+    }
 }
 
 LLTeleportRequestViaLandmark::~LLTeleportRequestViaLandmark()
 {
-    LL_INFOS("Teleport") << "~LLTeleportRequestViaLandmark, " << *this << LL_ENDL;
+    if (mLogOnDestruction)
+    {
+        // Workaround to not crash on toOstream for derived classes and to not log twice.
+        LL_INFOS("Teleport") << "~LLTeleportRequestViaLandmark, " << *this << LL_ENDL;
+    }
 }
 
 void LLTeleportRequestViaLandmark::toOstream(std::ostream& os) const
@@ -5047,16 +5078,20 @@ void LLTeleportRequestViaLandmark::restartTeleport()
 // LLTeleportRequestViaLure
 //-----------------------------------------------------------------------------
 
-LLTeleportRequestViaLure::LLTeleportRequestViaLure(const LLUUID &pLureId, bool pIsLureGodLike)
-    : LLTeleportRequestViaLandmark(pLureId),
+LLTeleportRequestViaLure::LLTeleportRequestViaLure(const LLUUID& pLureId, bool pIsLureGodLike)
+    : LLTeleportRequestViaLandmark(pLureId, false),
     mIsLureGodLike(pIsLureGodLike)
 {
-    LL_INFOS("Teleport") << "LLTeleportRequestViaLure created" << LL_ENDL;
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLure created: " << *this << LL_ENDL;
 }
 
 LLTeleportRequestViaLure::~LLTeleportRequestViaLure()
 {
-    LL_INFOS("Teleport") << "~LLTeleportRequestViaLure" << LL_ENDL;
+    if (mLogOnDestruction)
+    {
+        LL_INFOS("Teleport") << "~LLTeleportRequestViaLure: " << *this << LL_ENDL;
+        mLogOnDestruction = false;
+    }
 }
 
 void LLTeleportRequestViaLure::toOstream(std::ostream& os) const

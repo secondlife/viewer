@@ -194,6 +194,9 @@ class LLDir
 
     virtual void dumpCurrentDirectories(LLError::ELevel level = LLError::LEVEL_DEBUG);
 
+    // Open the system file browser to reveal a file or directory
+    void openDir(const std::string& filepath);
+
     // Utility routine
     std::string buildSLOSCacheDir() const;
 
