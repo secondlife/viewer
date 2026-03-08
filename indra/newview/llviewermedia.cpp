@@ -1758,6 +1758,7 @@ void LLViewerMediaImpl::createMediaSource()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::destroyMediaSource()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     mNeedsNewTexture = true;
 
     // Tell the viewer media texture it's no longer active
@@ -2628,19 +2629,30 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::navigateInternal()
+void LLViewerMediaImpl::navigateInternal(bool should_log)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     // Helpful to have media urls in log file. Shouldn't be spammy.
     {
         // Do not log the query parts
         LLURI u(mMediaURL);
         std::string sanitized_url = (u.query().empty() ? mMediaURL : u.scheme() + "://" + u.authority() + u.path());
-        LL_INFOS() << "media id= " << mTextureId << " url=" << sanitized_url << ", mime_type=" << mMimeType << LL_ENDL;
+        if (should_log)
+        {
+            LL_INFOS("Media") << "media id= " << mTextureId << " url=" << sanitized_url << ", mime_type=" << mMimeType << LL_ENDL;
+        }
+        else
+        {
+            LL_DEBUGS("Media") << "media id= " << mTextureId << " url=" << sanitized_url << ", mime_type=" << mMimeType << LL_ENDL;
+        }
     }
 
     if(mNavigateSuspended)
     {
-        LL_WARNS() << "Deferring navigate." << LL_ENDL;
+        if (should_log || !mNavigateSuspendedDeferred)
+        {
+            LL_WARNS() << "Deferring navigate." << LL_ENDL;
+        }
         mNavigateSuspendedDeferred = true;
         return;
     }
@@ -2648,7 +2660,13 @@ void LLViewerMediaImpl::navigateInternal()
 
     if (!mMimeProbe.expired())
     {
-        LL_WARNS() << "MIME type probe already in progress -- bailing out." << LL_ENDL;
+        if (should_log)
+        {
+            // media periodically suspends and unsuspends (should_log == false),
+            // unsuspend calls this function, it's epxected that sometimes
+            // unsuspend will be attempted while a probe is in flight.
+            LL_WARNS() << "MIME type probe already in progress -- bailing out." << LL_ENDL;
+        }
         return;
     }
 
@@ -2709,9 +2727,13 @@ void LLViewerMediaImpl::navigateInternal()
     {
         loadURI();
     }
-    else
+    else if (should_log)
     {
         LL_WARNS("Media") << "Couldn't navigate to: " << mMediaURL << " as there is no media type for: " << mMimeType << LL_ENDL;
+    }
+    else
+    {
+        LL_DEBUGS("Media") << "Couldn't navigate to: " << mMediaURL << " as there is no media type for: " << mMimeType << LL_ENDL;
     }
 }
 
@@ -3978,7 +4000,7 @@ void LLViewerMediaImpl::setNavigateSuspended(bool suspend)
             if(mNavigateSuspendedDeferred)
             {
                 mNavigateSuspendedDeferred = false;
-                navigateInternal();
+                navigateInternal(false /*suspend happens periodically, don't log*/);
             }
         }
     }
