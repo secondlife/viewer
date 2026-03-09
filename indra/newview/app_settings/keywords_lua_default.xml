@@ -11184,7 +11184,7 @@ vector position - position in local coordinates
                      <key>tooltip</key>
                      <string></string>
                      <key>type</key>
-                     <string>string | quaternion</string>
+                     <string>string? | quaternion</string>
                   </map>
                </map>
             </array>
@@ -11207,7 +11207,7 @@ vector position - position in local coordinates
                      <key>tooltip</key>
                      <string></string>
                      <key>type</key>
-                     <string>string | quaternion</string>
+                     <string>string? | quaternion</string>
                   </map>
                </map>
             </array>
@@ -11230,7 +11230,7 @@ vector position - position in local coordinates
                      <key>tooltip</key>
                      <string></string>
                      <key>type</key>
-                     <string>string | buffer | uuid</string>
+                     <string>string? | buffer | uuid</string>
                   </map>
                </map>
             </array>
@@ -11241,7 +11241,7 @@ vector position - position in local coordinates
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Converts a string, buffer, or uuid to a uuid, returns nil if invalid</string>
+            <string>Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID, or the the buffer is shorter than 16 bytes.</string>
          </map>
          <key>tovector</key>
          <map>
@@ -11253,7 +11253,7 @@ vector position - position in local coordinates
                      <key>tooltip</key>
                      <string></string>
                      <key>type</key>
-                     <string>string | vector</string>
+                     <string>string? | vector</string>
                   </map>
                </map>
             </array>
@@ -16059,18 +16059,18 @@ Returns true if result is non-zero.</string>
                      <key>tooltip</key>
                      <string></string>
                      <key>type</key>
-                     <string>string | buffer | uuid</string>
+                     <string>string? | buffer | uuid</string>
                   </map>
                </map>
             </array>
             <key>energy</key>
             <real>10.0</real>
             <key>return</key>
-            <string>uuid?</string>
+            <string>uuid</string>
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID. Throws an error if the buffer is shorter than 16 bytes. Alias of uuid.create</string>
+            <string>Creates a new uuid from a string, buffer, or existing uuid. Throws an error if the string is not a valid UUID, or the the buffer is shorter than 16 bytes. Alias of uuid.create.</string>
          </map>
          <key>uuid.create</key>
          <map>
@@ -16082,18 +16082,18 @@ Returns true if result is non-zero.</string>
                      <key>tooltip</key>
                      <string></string>
                      <key>type</key>
-                     <string>string | buffer | uuid</string>
+                     <string>string? | buffer | uuid</string>
                   </map>
                </map>
             </array>
             <key>energy</key>
             <real>10.0</real>
             <key>return</key>
-            <string>uuid?</string>
+            <string>uuid</string>
             <key>sleep</key>
             <real>0.0</real>
             <key>tooltip</key>
-            <string>Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID. Throws an error if the buffer is shorter than 16 bytes.</string>
+            <string>Creates a new uuid from a string, buffer, or existing uuid. Throws an error if the string is not a valid UUID, or the the buffer is shorter than 16 bytes.</string>
          </map>
          <!-- vector library-->
          <key>vector</key>
