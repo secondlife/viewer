@@ -421,6 +421,13 @@ static void on_progress(void* user_data, size_t progress)
     }
 }
 
+static void on_vpk_log(void* p_user_data,
+    const char* psz_level,
+    const char* psz_message)
+{
+    LL_DEBUGS("Velopack") << ll_safe_string(psz_message) << LL_ENDL;
+}
+
 //
 // Public API - Cross-platform
 //
@@ -464,6 +471,10 @@ void velopack_check_for_updates()
 
     if (result == UPDATE_AVAILABLE && update_info)
     {
+        LL_DEBUGS("Velopack") << "Setting up detailed logging";
+        // Will be executed only with debug level enabled.
+        vpkc_set_logger(on_vpk_log, nullptr);
+        LL_CONT << LL_ENDL;
         LL_INFOS("Velopack") << "Update available, downloading..." << LL_ENDL;
         if (vpkc_download_updates(sUpdateManager, update_info, on_progress, nullptr))
         {
@@ -476,7 +487,9 @@ void velopack_check_for_updates()
         }
         else
         {
-            LL_WARNS("Velopack") << "Failed to download update" << LL_ENDL;
+            char descr[512];
+            vpkc_get_last_error(descr, sizeof(descr));
+            LL_WARNS("Velopack") << "Failed to download update: " << ll_safe_string((const char*)descr) <<  LL_ENDL;
             vpkc_free_update_info(update_info);
         }
     }
