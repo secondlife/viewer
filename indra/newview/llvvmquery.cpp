@@ -82,7 +82,8 @@ namespace
         }
 
         // Gather parameters for VVM query
-        std::string channel = "QA Target for Velopack";
+        std::string channel = LLVersionInfo::instance().getChannel();
+        // std::string channel = "QA Target for Velopack";
         std::string version = LLVersionInfo::instance().getVersion();
         std::string platform = get_platform_string();
         std::string platform_version = get_platform_version();
