@@ -29,6 +29,11 @@
 #include "llviewerprecompiledheaders.h"
 #include "llvelopack.h"
 #include "llstring.h"
+#include "llcorehttputil.h"
+
+#include <boost/json.hpp>
+#include <fstream>
+#include <unordered_map>
 
 #include "Velopack.h"
 
@@ -50,6 +55,187 @@ static std::string sUpdateUrl;
 static std::function<void(int)> sProgressCallback;
 static vpkc_update_manager_t* sUpdateManager = nullptr;
 static vpkc_update_info_t* sPendingUpdate = nullptr;
+static vpkc_update_source_t* sUpdateSource = nullptr;
+static std::unordered_map<std::string, std::string> sAssetUrlMap; // basename -> original absolute URL
+
+//
+// Custom update source helpers
+//
+
+static std::string extract_basename(const std::string& url)
+{
+    // Strip query params / fragment
+    std::string path = url;
+    auto qpos = path.find('?');
+    if (qpos != std::string::npos) path = path.substr(0, qpos);
+    auto fpos = path.find('#');
+    if (fpos != std::string::npos) path = path.substr(0, fpos);
+
+    auto spos = path.rfind('/');
+    if (spos != std::string::npos && spos + 1 < path.size())
+        return path.substr(spos + 1);
+    return path;
+}
+
+static void rewrite_asset_urls(boost::json::value& jv)
+{
+    if (jv.is_object())
+    {
+        auto& obj = jv.as_object();
+        auto it = obj.find("FileName");
+        if (it != obj.end() && it->value().is_string())
+        {
+            std::string filename(it->value().as_string());
+            if (filename.find("://") != std::string::npos)
+            {
+                std::string basename = extract_basename(filename);
+                sAssetUrlMap[basename] = filename;
+                it->value() = basename;
+                LL_DEBUGS("Velopack") << "Rewrote FileName: " << basename << LL_ENDL;
+            }
+        }
+        for (auto& kv : obj)
+        {
+            rewrite_asset_urls(kv.value());
+        }
+    }
+    else if (jv.is_array())
+    {
+        for (auto& elem : jv.as_array())
+        {
+            rewrite_asset_urls(elem);
+        }
+    }
+}
+
+static std::string rewrite_release_feed(const std::string& json_str)
+{
+    boost::json::value jv = boost::json::parse(json_str);
+    rewrite_asset_urls(jv);
+    return boost::json::serialize(jv);
+}
+
+static std::string download_url_raw(const std::string& url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("VelopackSource", httpPolicy);
+    auto httpRequest = std::make_shared<LLCore::HttpRequest>();
+    auto httpOpts = std::make_shared<LLCore::HttpOptions>();
+
+    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts);
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+    if (!status)
+    {
+        LL_WARNS("Velopack") << "HTTP request failed for " << url << ": " << status.toString() << LL_ENDL;
+        return {};
+    }
+
+    const LLSD::Binary& rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+    return std::string(rawBody.begin(), rawBody.end());
+}
+
+static bool download_url_to_file(const std::string& url, const std::string& local_path)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("VelopackDownload", httpPolicy);
+    auto httpRequest = std::make_shared<LLCore::HttpRequest>();
+    auto httpOpts = std::make_shared<LLCore::HttpOptions>();
+
+    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts);
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+    if (!status)
+    {
+        LL_WARNS("Velopack") << "Download failed for " << url << ": " << status.toString() << LL_ENDL;
+        return false;
+    }
+
+    const LLSD::Binary& rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+    llofstream outFile(local_path, std::ios::binary | std::ios::trunc);
+    if (!outFile.is_open())
+    {
+        LL_WARNS("Velopack") << "Failed to open file for writing: " << local_path << LL_ENDL;
+        return false;
+    }
+    outFile.write(reinterpret_cast<const char*>(rawBody.data()), rawBody.size());
+    outFile.close();
+    return true;
+}
+
+//
+// Custom source callbacks
+//
+
+static char* custom_get_release_feed(void* user_data, const char* releases_name)
+{
+    std::string url = sUpdateUrl + "/" + releases_name;
+    LL_INFOS("Velopack") << "Fetching release feed: " << url << LL_ENDL;
+
+    std::string json_str = download_url_raw(url);
+    if (json_str.empty())
+    {
+        return nullptr;
+    }
+
+    try
+    {
+        std::string rewritten = rewrite_release_feed(json_str);
+        char* result = static_cast<char*>(malloc(rewritten.size() + 1));
+        if (result)
+        {
+            memcpy(result, rewritten.c_str(), rewritten.size() + 1);
+        }
+        return result;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS("Velopack") << "Failed to parse/rewrite release feed: " << e.what() << LL_ENDL;
+        // Return original unmodified feed as fallback
+        char* result = static_cast<char*>(malloc(json_str.size() + 1));
+        if (result)
+        {
+            memcpy(result, json_str.c_str(), json_str.size() + 1);
+        }
+        return result;
+    }
+}
+
+static void custom_free_release_feed(void* user_data, char* feed)
+{
+    free(feed);
+}
+
+static bool custom_download_asset(void* user_data,
+                                   const vpkc_asset_t* asset,
+                                   const char* local_path,
+                                   size_t progress_callback_id)
+{
+    std::string filename = asset->FileName ? asset->FileName : "";
+    std::string url;
+
+    auto it = sAssetUrlMap.find(filename);
+    if (it != sAssetUrlMap.end())
+    {
+        url = it->second;
+    }
+    else
+    {
+        url = sUpdateUrl + "/" + filename;
+    }
+
+    LL_INFOS("Velopack") << "Downloading asset: " << filename << " from " << url << LL_ENDL;
+    vpkc_source_report_progress(progress_callback_id, 0);
+
+    bool success = download_url_to_file(url, local_path);
+
+    if (success)
+    {
+        vpkc_source_report_progress(progress_callback_id, 100);
+        LL_INFOS("Velopack") << "Asset download complete: " << filename << LL_ENDL;
+    }
+    return success;
+}
 
 //
 // Platform-specific helpers and hooks
@@ -459,7 +645,16 @@ void velopack_check_for_updates()
         options.AllowVersionDowngrade = false;
         options.ExplicitChannel = nullptr;
 
-        if (!vpkc_new_update_manager(sUpdateUrl.c_str(), &options, nullptr, &sUpdateManager))
+        if (!sUpdateSource)
+        {
+            sUpdateSource = vpkc_new_source_custom_callback(
+                custom_get_release_feed,
+                custom_free_release_feed,
+                custom_download_asset,
+                nullptr);
+        }
+
+        if (!vpkc_new_update_manager_with_source(sUpdateSource, &options, nullptr, &sUpdateManager))
         {
             LL_WARNS("Velopack") << "Failed to create update manager" << LL_ENDL;
             return;
