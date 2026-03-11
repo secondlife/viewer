@@ -82,8 +82,8 @@ namespace
         }
 
         // Gather parameters for VVM query
-        std::string channel = LLVersionInfo::instance().getChannel();
-        // std::string channel = "QA Target for Velopack";
+        //std::string channel = LLVersionInfo::instance().getChannel();
+        std::string channel = "QA Target for Velopack";
         std::string version = LLVersionInfo::instance().getVersion();
         std::string platform = get_platform_string();
         std::string platform_version = get_platform_version();
@@ -124,6 +124,10 @@ namespace
             return;
         }
 
+        // Read whether this update is required or optional
+        bool update_required = result["required"].asBoolean();
+        std::string relnotes = result["more_info"].asString();
+
         // Extract update URL for current platform
         LLSD platforms = result["platforms"];
         if (platforms.has(platform))
@@ -133,9 +137,16 @@ namespace
             std::string velopack_url = platforms[platform]["velopack_url"].asString();
             if (!velopack_url.empty())
             {
-                LL_INFOS("VVM") << "Velopack update URL: " << velopack_url << LL_ENDL;
+                LL_INFOS("VVM") << "Velopack update URL: " << velopack_url
+                                << " required: " << update_required << LL_ENDL;
                 velopack_set_update_url(velopack_url);
-                LLCoros::instance().launch("VelopackUpdateCheck", &velopack_check_for_updates);
+
+                std::string update_version = result["version"].asString();
+                LLCoros::instance().launch("VelopackUpdateCheck",
+                    [update_required, update_version, relnotes]()
+                    {
+                        velopack_check_for_updates(update_required, update_version, relnotes);
+                    });
             }
             else
 #endif
@@ -150,7 +161,6 @@ namespace
         }
 
         // Post release notes URL to the relnotes event pump
-        std::string relnotes = result["more_info"].asString();
         if (!relnotes.empty())
         {
             LL_INFOS("VVM") << "Release notes URL: " << relnotes << LL_ENDL;

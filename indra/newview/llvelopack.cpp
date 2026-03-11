@@ -34,6 +34,8 @@
 #include <boost/json.hpp>
 #include <fstream>
 #include <unordered_map>
+#include "llnotificationsutil.h"
+#include "llcoros.h"
 
 #include "Velopack.h"
 
@@ -665,7 +667,7 @@ bool velopack_initialize()
     return true;
 }
 
-void velopack_check_for_updates()
+static void velopack_download_update()
 {
     if (sUpdateUrl.empty())
     {
@@ -757,6 +759,36 @@ void velopack_check_for_updates()
     else
     {
         LL_DEBUGS("Velopack") << "No update available (result=" << result << ")" << LL_ENDL;
+    }
+}
+
+static void on_optional_update_response(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0) // "Install"
+    {
+        LL_INFOS("Velopack") << "User accepted optional update, starting download" << LL_ENDL;
+        LLCoros::instance().launch("VelopackOptionalUpdate", [](){ velopack_download_update(); });
+    }
+    else
+    {
+        LL_INFOS("Velopack") << "User declined optional update (option=" << option << ")" << LL_ENDL;
+    }
+}
+
+void velopack_check_for_updates(bool required, const std::string& version, const std::string& relnotes_url)
+{
+    if (required)
+    {
+        velopack_download_update();
+    }
+    else
+    {
+        LL_INFOS("Velopack") << "Optional update available (version " << version << "), prompting user" << LL_ENDL;
+        LLSD args;
+        args["VERSION"] = version;
+        args["URL"] = relnotes_url;
+        LLNotificationsUtil::add("PromptOptionalUpdate", args, LLSD(), on_optional_update_response);
     }
 }
 
