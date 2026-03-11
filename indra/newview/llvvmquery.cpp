@@ -82,7 +82,7 @@ namespace
         }
 
         // Gather parameters for VVM query
-        std::string channel = LLVersionInfo::instance().getChannel();
+        std::string channel = "QA Target for Velopack";
         std::string version = LLVersionInfo::instance().getVersion();
         std::string platform = get_platform_string();
         std::string platform_version = get_platform_version();
@@ -134,7 +134,7 @@ namespace
             {
                 LL_INFOS("VVM") << "Velopack update URL: " << velopack_url << LL_ENDL;
                 velopack_set_update_url(velopack_url);
-                velopack_check_for_updates();
+                LLCoros::instance().launch("VelopackUpdateCheck", &velopack_check_for_updates);
             }
             else
 #endif

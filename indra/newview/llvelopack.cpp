@@ -121,6 +121,7 @@ static std::string download_url_raw(const std::string& url)
     auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("VelopackSource", httpPolicy);
     auto httpRequest = std::make_shared<LLCore::HttpRequest>();
     auto httpOpts = std::make_shared<LLCore::HttpOptions>();
+    httpOpts->setFollowRedirects(true);
 
     LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts);
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
@@ -141,6 +142,8 @@ static bool download_url_to_file(const std::string& url, const std::string& loca
     auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("VelopackDownload", httpPolicy);
     auto httpRequest = std::make_shared<LLCore::HttpRequest>();
     auto httpOpts = std::make_shared<LLCore::HttpOptions>();
+    httpOpts->setFollowRedirects(true);
+    httpOpts->setTransferTimeout(1200);
 
     LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts);
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
@@ -169,7 +172,10 @@ static bool download_url_to_file(const std::string& url, const std::string& loca
 
 static char* custom_get_release_feed(void* user_data, const char* releases_name)
 {
-    std::string url = sUpdateUrl + "/" + releases_name;
+    std::string base = sUpdateUrl;
+    if (!base.empty() && base.back() == '/')
+        base.pop_back();
+    std::string url = base + "/" + releases_name;
     LL_INFOS("Velopack") << "Fetching release feed: " << url << LL_ENDL;
 
     std::string json_str = download_url_raw(url);
@@ -206,35 +212,43 @@ static void custom_free_release_feed(void* user_data, char* feed)
     free(feed);
 }
 
+static std::string sPreDownloadedAssetPath;
+
 static bool custom_download_asset(void* user_data,
                                    const vpkc_asset_t* asset,
                                    const char* local_path,
                                    size_t progress_callback_id)
 {
+    // The asset has already been downloaded at the coroutine level (before vpkc_download_updates).
+    // This callback just copies the pre-downloaded file to where Velopack expects it.
+    // We cannot use getRawAndSuspend here — coroutine context is lost through the Rust FFI boundary.
+    if (sPreDownloadedAssetPath.empty())
+    {
+        LL_WARNS("Velopack") << "No pre-downloaded asset available" << LL_ENDL;
+        return false;
+    }
+
     std::string filename = asset->FileName ? asset->FileName : "";
-    std::string url;
-
-    auto it = sAssetUrlMap.find(filename);
-    if (it != sAssetUrlMap.end())
-    {
-        url = it->second;
-    }
-    else
-    {
-        url = sUpdateUrl + "/" + filename;
-    }
-
-    LL_INFOS("Velopack") << "Downloading asset: " << filename << " from " << url << LL_ENDL;
+    LL_INFOS("Velopack") << "Download asset callback: filename=" << filename
+        << " local_path=" << local_path
+        << " size=" << asset->Size << LL_ENDL;
     vpkc_source_report_progress(progress_callback_id, 0);
 
-    bool success = download_url_to_file(url, local_path);
-
-    if (success)
+    std::ifstream src(sPreDownloadedAssetPath, std::ios::binary);
+    llofstream dst(local_path, std::ios::binary | std::ios::trunc);
+    if (!src.is_open() || !dst.is_open())
     {
-        vpkc_source_report_progress(progress_callback_id, 100);
-        LL_INFOS("Velopack") << "Asset download complete: " << filename << LL_ENDL;
+        LL_WARNS("Velopack") << "Failed to open files for copy" << LL_ENDL;
+        return false;
     }
-    return success;
+
+    dst << src.rdbuf();
+    dst.close();
+    src.close();
+
+    vpkc_source_report_progress(progress_callback_id, 100);
+    LL_INFOS("Velopack") << "Asset copy complete" << LL_ENDL;
+    return true;
 }
 
 //
@@ -621,6 +635,7 @@ static void on_vpk_log(void* p_user_data,
 bool velopack_initialize()
 {
     vpkc_set_logger(on_log_message, nullptr);
+    vpkc_app_set_auto_apply_on_startup(false);
 
 #if LL_WINDOWS || LL_DARWIN
     vpkc_app_set_hook_after_install(on_after_install);
@@ -628,6 +643,25 @@ bool velopack_initialize()
 #endif
 
     vpkc_app_run(nullptr);
+
+    // Check if a previously downloaded update is ready to apply.
+    // This runs early in startup (WINMAIN) before any heavy initialization.
+    vpkc_update_options_t options = {};
+    options.AllowVersionDowngrade = false;
+    options.ExplicitChannel = nullptr;
+
+    vpkc_update_manager_t* mgr = nullptr;
+    if (vpkc_new_update_manager(sUpdateUrl.empty() ? "" : sUpdateUrl.c_str(), &options, nullptr, &mgr))
+    {
+        vpkc_asset_t* pending = nullptr;
+        if (vpkc_update_pending_restart(mgr, &pending) && pending)
+        {
+            LL_INFOS("Velopack") << "Pending update found, applying now..." << LL_ENDL;
+            vpkc_wait_exit_then_apply_updates(mgr, pending, false, true, nullptr, 0);
+            // If we get here, the update will be applied after we exit
+        }
+        vpkc_free_update_manager(mgr);
+    }
     return true;
 }
 
@@ -671,6 +705,38 @@ void velopack_check_for_updates()
         vpkc_set_logger(on_vpk_log, nullptr);
         LL_CONT << LL_ENDL;
         LL_INFOS("Velopack") << "Update available, downloading..." << LL_ENDL;
+
+        // Pre-download the nupkg at the coroutine level where getRawAndSuspend works.
+        // The download callback inside the Rust FFI cannot use coroutine HTTP.
+        std::string asset_filename = update_info->TargetFullRelease->FileName
+            ? update_info->TargetFullRelease->FileName : "";
+        std::string asset_url;
+        auto url_it = sAssetUrlMap.find(asset_filename);
+        if (url_it != sAssetUrlMap.end())
+        {
+            asset_url = url_it->second;
+        }
+        else
+        {
+            std::string base = sUpdateUrl;
+            if (!base.empty() && base.back() == '/')
+                base.pop_back();
+            asset_url = base + "/" + asset_filename;
+        }
+
+        sPreDownloadedAssetPath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, asset_filename);
+        LL_INFOS("Velopack") << "Pre-downloading " << asset_url
+            << " to " << sPreDownloadedAssetPath << LL_ENDL;
+
+        if (!download_url_to_file(asset_url, sPreDownloadedAssetPath))
+        {
+            LL_WARNS("Velopack") << "Failed to pre-download update asset" << LL_ENDL;
+            sPreDownloadedAssetPath.clear();
+            vpkc_free_update_info(update_info);
+            return;
+        }
+
+        LL_INFOS("Velopack") << "Pre-download complete, handing to Velopack" << LL_ENDL;
         if (vpkc_download_updates(sUpdateManager, update_info, on_progress, nullptr))
         {
             if (sPendingUpdate)
@@ -729,6 +795,26 @@ void velopack_apply_pending_update(bool restart)
                                        false,
                                        restart,
                                        nullptr, 0);
+}
+
+void velopack_cleanup()
+{
+    if (sUpdateManager)
+    {
+        vpkc_free_update_manager(sUpdateManager);
+        sUpdateManager = nullptr;
+    }
+    if (sUpdateSource)
+    {
+        vpkc_free_source(sUpdateSource);
+        sUpdateSource = nullptr;
+    }
+    if (sPendingUpdate)
+    {
+        vpkc_free_update_info(sPendingUpdate);
+        sPendingUpdate = nullptr;
+    }
+    sAssetUrlMap.clear();
 }
 
 void velopack_set_update_url(const std::string& url)
