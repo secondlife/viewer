@@ -2623,7 +2623,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DoubleClickTeleport</key> 
+    <key>DoubleClickTeleport</key>
     <map>
       <key>Comment</key>
       <string>Enable double-click to teleport where allowed (afects minimap and people panel)</string>
@@ -9285,7 +9285,7 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-  
+
   <key>RenderReflectionProbeDrawDistance</key>
   <map>
     <key>Comment</key>
@@ -9484,7 +9484,7 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-  
+
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
   <map>
     <key>Comment</key>
@@ -11019,7 +11019,7 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>0</integer>
-    </map> 
+    </map>
     <key>NearbyListShowMap</key>
     <map>
       <key>Comment</key>
@@ -13140,7 +13140,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>3</integer>
+      <integer>20</integer>
     </map>
     <key>UseCircuitCodeTimeout</key>
     <map>
@@ -13151,7 +13151,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>5.0</real>
+      <real>0.5</real>
     </map>
     <key>UseDebugLogin</key>
     <map>
@@ -16319,7 +16319,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>        
+    <integer>1</integer>
   </map>
   <key>UpdateAppWindowTitleBar</key>
   <map>

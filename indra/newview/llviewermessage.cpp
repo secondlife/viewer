@@ -418,7 +418,26 @@ void send_complete_agent_movement(const LLHost& sim_host)
     msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
     msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
     msg->addU32Fast(_PREHASH_CircuitCode, msg->mOurCircuitCode);
-    msg->sendReliable(sim_host);
+
+    // build a lambda to be used as callback on ACK or timeout
+    void (*complete_agent_movement_callback)(void**, S32) = [](void**, S32 result)
+    {
+        if(LLApp::isExiting()) return;
+        if (result != LL_ERR_NOERR)
+        {
+            LL_WARNS("Messaging") << "CompleteAgentMovement failed with err=" << result << LL_ENDL;
+        }
+    };
+
+    // We use same retry strategy as UseCircuitCode because this is a crucial message
+    // that MUST arrive else we'll suffer a failed login/teleport/region-cross
+    msg->sendReliable(
+        sim_host,
+        gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
+        false,
+        (F32Seconds)gSavedSettings.getF32("UseCircuitCodeTimeout"),
+        complete_agent_movement_callback,
+        NULL);
 }
 
 void process_logout_reply(LLMessageSystem* msg, void**)
