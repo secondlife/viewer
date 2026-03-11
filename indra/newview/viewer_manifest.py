@@ -801,6 +801,10 @@ class Windows_x86_64_Manifest(ViewerManifest):
             '--packDir', pack_dir,
             '--mainExe', main_exe,
             '--packTitle', pack_title,
+            # Exclude build artifacts that end up in packDir but aren't part of the viewer.
+            # Default --exclude already covers *.pdb; this adds .map, .bat, .exp, .lib,
+            # .tar.xz (symbol tarballs), and the NSIS/Velopack setup exes.
+            '--exclude', r'.*\.pdb|.*\.map|.*\.bat|.*\.exp|.*\.lib|.*\.nsi|.*\.tar\.xz|secondlife-bin\..*|.*_Setup\.exe|.*-Setup\.exe',
         ]
 
         # Add icon if exists
