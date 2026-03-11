@@ -768,7 +768,15 @@ static void on_optional_update_response(const LLSD& notification, const LLSD& re
     if (option == 0) // "Install"
     {
         LL_INFOS("Velopack") << "User accepted optional update, starting download" << LL_ENDL;
-        LLCoros::instance().launch("VelopackOptionalUpdate", [](){ velopack_download_update(); });
+        LLCoros::instance().launch("VelopackOptionalUpdate", []()
+        {
+            velopack_download_update();
+            if (velopack_is_update_pending())
+            {
+                LL_INFOS("Velopack") << "Optional update downloaded, applying and restarting" << LL_ENDL;
+                velopack_apply_pending_update(true);
+            }
+        });
     }
     else
     {
