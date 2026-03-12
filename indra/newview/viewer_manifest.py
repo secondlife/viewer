@@ -767,9 +767,11 @@ class Windows_x86_64_Manifest(ViewerManifest):
         # packId determines install folder: %LocalAppData%\{packId}
         # Uses same naming as NSIS INSTNAME for channel separation
         pack_id = self.app_name_oneword()  # "SecondLife", "SecondLifeBeta", etc.
-        # Velopack requires SemVer2 (3-part: major.minor.patch), viewer has 4 parts
-        # TODO: Treat patch as build number.
+        # Velopack requires SemVer2. Use major.minor.patch-buildnumber so that
+        # Velopack can distinguish builds and order them correctly.
         pack_version = '.'.join(self.args['version'][:3])
+        if len(self.args['version']) > 3 and self.args['version'][3]:
+            pack_version += '-' + self.args['version'][3]
         pack_title = self.app_name()  # Display name with spaces
         pack_dir = self.get_dst_prefix()
         main_exe = self.final_exe()
@@ -824,12 +826,19 @@ class Windows_x86_64_Manifest(ViewerManifest):
         # which are rebuilt during signing, but Velopack installers are created here.
         # Velopack creates: {packId}-win-Setup.exe
         velopack_setup = os.path.join(releases_dir, '%s-win-Setup.exe' % pack_id)
-        # Use versioned name with hyphen: Second_Life_26_1_0_53294_x86_64-Setup.exe
         self.package_file = self.installer_base_name() + '-Setup.exe'
         our_setup = os.path.join(pack_dir, self.package_file)
         if os.path.exists(velopack_setup):
             shutil.move(velopack_setup, our_setup)
             print("Moved %s to %s" % (velopack_setup, our_setup))
+
+        # Rename the portable zip to include the version number
+        # Velopack creates: {packId}-win-Portable.zip
+        velopack_portable = os.path.join(releases_dir, '%s-win-Portable.zip' % pack_id)
+        if os.path.exists(velopack_portable):
+            our_portable = os.path.join(releases_dir, self.installer_base_name() + '-Portable.zip')
+            shutil.move(velopack_portable, our_portable)
+            print("Moved %s to %s" % (velopack_portable, our_portable))
 
         # Output the Releases directory path for artifact upload (contains nupkg, RELEASES for updates)
         self.set_github_output('velopack_releases', releases_dir)
@@ -1203,8 +1212,11 @@ class Darwin_x86_64_Manifest(ViewerManifest):
         """
         # packId determines install identification - same as Windows for consistency
         pack_id = self.app_name_oneword()  # "SecondLife", "SecondLifeBeta", etc.
-        # Velopack requires SemVer2 (3-part: major.minor.patch), viewer has 4 parts
+        # Velopack requires SemVer2. Use major.minor.patch-buildnumber so that
+        # Velopack can distinguish builds and order them correctly.
         pack_version = '.'.join(self.args['version'][:3])
+        if len(self.args['version']) > 3 and self.args['version'][3]:
+            pack_version += '-' + self.args['version'][3]
         pack_title = self.app_name()  # Display name with spaces
 
         # The .app bundle path (e.g., "/path/to/Second Life Release.app")
