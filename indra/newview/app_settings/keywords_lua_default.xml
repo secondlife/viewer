@@ -11711,6 +11711,61 @@ Returns true if result is non-zero.</string>
             <key>tooltip</key>
             <string>Shifts n by i bits to the right. If i is negative, a left shift is performed.</string>
          </map>
+         <key>bit32.s32</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>n</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Number to truncate.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>tooltip</key>
+            <string>Wrap this number from float64 range to signed int32 range and truncate to integer. Makes integer arithmetic compatable with LSL.</string>
+         </map>
+         <key>bit32.smul</key>
+         <map>
+            <key>arguments</key>
+            <array>
+               <map>
+                  <key>a</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Left factor.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+               <map>
+                  <key>b</key>
+                  <map>
+                     <key>tooltip</key>
+                     <string>Right factor.</string>
+                     <key>type</key>
+                     <string>number</string>
+                  </map>
+               </map>
+            </array>
+            <key>energy</key>
+            <real>10.0</real>
+            <key>return</key>
+            <string>number</string>
+            <key>sleep</key>
+            <real>0.0</real>
+            <key>tooltip</key>
+            <string>Multiplies two signed 32-bit integers. Returns the result as a signed 32-bit integer, wrapping as necessary. Avoids precision loss ascociated with float64 multiplication. Compatible with LSL integer multiplication.</string>
+         </map>
          <!-- buffer library-->
          <key>buffer</key>
          <map>
