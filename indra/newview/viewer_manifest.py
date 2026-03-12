@@ -540,18 +540,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                                 '*.bat',
                                                 '*.tar.xz')))
 
-            with self.prefix(src=os.path.join(pkgdir, "VMP")):
-                # include the compiled launcher scripts so that it gets included in the file_list
-                self.path('SLVersionChecker.exe')
-
-            with self.prefix(dst="vmp_icons"):
-                with self.prefix(src=self.icon_path()):
-                    self.path("secondlife.ico")
-                #VMP  Tkinter icons
-                with self.prefix(src="vmp_icons"):
-                    self.path("*.png")
-                    self.path("*.gif")
-
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),
@@ -864,7 +852,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
         substitution_strings['installer_file'] = installer_file
 
         version_vars = """
-        !define INSTEXE "SLVersionChecker.exe"
+        !define INSTEXE "%(final_exe)s"
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
@@ -1049,15 +1037,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # need .icns file referenced by Info.plist
                 with self.prefix(src=self.icon_path(), dst="") :
                     self.path("secondlife.icns")
-
-                # Copy in the updater script and helper modules
-                self.path(src=os.path.join(pkgdir, 'VMP'), dst="updater")
-
-                with self.prefix(src="", dst=os.path.join("updater", "icons")):
-                    self.path2basename(self.icon_path(), "secondlife.ico")
-                    with self.prefix(src="vmp_icons", dst=""):
-                        self.path("*.png")
-                        self.path("*.gif")
 
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")

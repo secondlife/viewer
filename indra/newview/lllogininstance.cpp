@@ -277,11 +277,6 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
     mRequestData["params"] = request_params;
     mRequestData["options"] = requested_options;
     mRequestData["http_params"] = http_params;
-#if LL_RELEASE_FOR_DOWNLOAD
-    mRequestData["wait_for_updater"] = LLAppViewer::instance()->waitForUpdater();
-#else
-    mRequestData["wait_for_updater"] = false;
-#endif
 }
 
 bool LLLoginInstance::handleLoginEvent(const LLSD& event)
@@ -316,13 +311,6 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
     // Login has failed.
     // Figure out why and respond...
     LLSD response = event["data"];
-    LLSD updater  = response["updater"];
-
-    // Always provide a response to the updater, if in fact the updater
-    // contacted us, if in fact the ping contains a 'reply' key. Most code
-    // paths tell it not to proceed with updating.
-    ResponsePtr resp(std::make_shared<LLEventAPI::Response>
-                         (LLSDMap("update", false), updater));
 
     std::string reason_response = response["reason"].asString();
     std::string message_response = response["message"].asString();
@@ -385,26 +373,15 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
     }
     else if(reason_response == "update")
     {
-        // This can happen if the user clicked Login quickly, before we heard
-        // back from the Viewer Version Manager, but login failed because
-        // login.cgi is insisting on a required update. We were called with an
-        // event that bundles both the login.cgi 'response' and the
-        // synchronization event from the 'updater'.
+        // login.cgi rejected login and requires an update. Since Velopack
+        // handles updates now, the best we can do here is tell the user
+        // to download the update manually via the release notes URL.
         std::string login_version = response["message_args"]["VERSION"];
-        std::string vvm_version   = updater["VERSION"];
-        std::string relnotes      = updater["URL"];
         LL_WARNS("LLLogin") << "Login failed because an update to version " << login_version << " is required." << LL_ENDL;
-        // vvm_version might be empty because we might not have gotten
-        // SLVersionChecker's LoginSync handshake. But if it IS populated, it
-        // should (!) be the same as the version we got from login.cgi.
-        if ((! vvm_version.empty()) && vvm_version != login_version)
-        {
-            LL_WARNS("LLLogin") << "VVM update version " << vvm_version
-                                << " differs from login version " << login_version
-                                << "; presenting VVM version to match release notes URL"
-                                << LL_ENDL;
-            login_version = vvm_version;
-        }
+
+        // Try to use the release notes URL from the VVM query if available,
+        // otherwise fall back to constructing one from the version.
+        std::string relnotes = LLVersionInfo::instance().getReleaseNotes();
         if (relnotes.empty() || relnotes.find("://") == std::string::npos)
         {
             relnotes = LLTrans::getString("RELEASE_NOTES_BASE_URL");
@@ -420,32 +397,11 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         args["VERSION"] = login_version;
         args["URL"] = relnotes;
 
-        if (updater.isUndefined())
-        {
-            // If the updater failed to shake hands, better advise the user to
-            // download the update him/herself.
-            LLNotificationsUtil::add(
-                "RequiredUpdate",
-                args,
-                updater,
-                boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
-        }
-        else
-        {
-            // If we've heard from the updater that an update is required,
-            // then display the prompt that assures the user we'll take care
-            // of it. This is the one case in which we bind 'resp':
-            // instead of destroying our Response object (and thus sending a
-            // negative reply to the updater) as soon as we exit this
-            // function, bind our shared_ptr so it gets passed into
-            // syncWithUpdater. That ensures that the response is delayed
-            // until the user has responded to the notification.
-            LLNotificationsUtil::add(
-                "PauseForUpdate",
-                args,
-                updater,
-                boost::bind(&LLLoginInstance::syncWithUpdater, this, resp, _1, _2));
-        }
+        LLNotificationsUtil::add(
+            "RequiredUpdate",
+            args,
+            LLSD(),
+            boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
     }
     else if(reason_response == "mfa_challenge")
     {
@@ -477,19 +433,6 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 
         LLNotificationsUtil::add("LoginFailedUnknown", LLSD::emptyMap(), LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
     }
-}
-
-void LLLoginInstance::syncWithUpdater(ResponsePtr resp, const LLSD& notification, const LLSD& response)
-{
-    LL_INFOS("LLLogin") << "LLLoginInstance::syncWithUpdater" << LL_ENDL;
-    // 'resp' points to an instance of LLEventAPI::Response that will be
-    // destroyed as soon as we return and the notification response functor is
-    // unregistered. Modify it so that it tells the updater to go ahead and
-    // perform the update. Naturally, if we allowed the user a choice as to
-    // whether to proceed or not, this assignment would reflect the user's
-    // selection.
-    (*resp)["update"] = true;
-    attemptComplete();
 }
 
 void LLLoginInstance::handleLoginDisallowed(const LLSD& notification, const LLSD& response)

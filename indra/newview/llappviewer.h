@@ -117,9 +117,6 @@ public:
     bool quitRequested() { return mQuitRequested; }
     bool logoutRequestSent() { return mLogoutRequestSent; }
     bool isSecondInstance() { return mSecondInstance; }
-    bool isUpdaterMissing(); // In use by tests
-    bool waitForUpdater();
-
     void writeDebugInfo(bool isStatic=true);
 
     void setServerReleaseNotesURL(const std::string& url) { mServerReleaseNotesURL = url; }
@@ -327,7 +324,6 @@ private:
     static LLAppViewer* sInstance;
 
     bool mSecondInstance; // Is this a second instance of the app?
-    bool mUpdaterNotFound; // True when attempt to start updater failed
 
     std::string mMarkerFileName;
     LLAPRFile mMarkerFile; // A file created to indicate the app is running.
