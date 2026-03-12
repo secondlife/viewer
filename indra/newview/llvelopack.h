@@ -36,6 +36,8 @@ bool velopack_initialize();
 void velopack_check_for_updates(bool required = true, const std::string& version = std::string(), const std::string& relnotes_url = std::string());
 std::string velopack_get_current_version();
 bool velopack_is_update_pending();
+bool velopack_should_restart_after_update();
+void velopack_request_restart_after_update();
 void velopack_apply_pending_update(bool restart = true);
 void velopack_set_update_url(const std::string& url);
 void velopack_set_progress_callback(std::function<void(int)> callback);

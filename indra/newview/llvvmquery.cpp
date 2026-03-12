@@ -75,6 +75,10 @@ namespace
     {
         // Get base URL from grid manager
         std::string base_url = LLGridManager::getInstance()->getUpdateServiceURL();
+
+        // We use this for dev testing when working with VVM and working on the updater.  Not advisable to uncomment it.
+        //std::string base_url = "https://update.qa.secondlife.io/update";
+
         if (base_url.empty())
         {
             LL_WARNS("VVM") << "No update service URL configured" << LL_ENDL;
@@ -82,8 +86,11 @@ namespace
         }
 
         // Gather parameters for VVM query
-        //std::string channel = LLVersionInfo::instance().getChannel();
-        std::string channel = "QA Target for Velopack";
+        std::string channel = LLVersionInfo::instance().getChannel();
+
+        // We use this for dev testing when working with VVM and working on the updater.  Not advisable to uncomment it.
+        // std::string channel = "QA Target for Velopack";
+
         std::string version = LLVersionInfo::instance().getVersion();
         std::string platform = get_platform_string();
         std::string platform_version = get_platform_version();

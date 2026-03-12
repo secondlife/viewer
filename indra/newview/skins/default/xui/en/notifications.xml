@@ -4437,6 +4437,14 @@ Click OK to download and install.
 
   <notification
    icon="alertmodal.tga"
+   name="DownloadingUpdate"
+   type="alertmodal">
+Downloading update [VERSION]...
+The viewer will restart once the download is complete.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OptionalUpdateReady"
    type="alertmodal">
 Version [VERSION] has been downloaded and is ready to install.
