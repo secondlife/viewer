@@ -62,7 +62,10 @@ if (WINDOWS)
     set_property(TARGET llwebrtc PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
 else()
-    target_compile_options(llwebrtc PRIVATE -Wno-deprecated-declarations) # webrtc::CreateAudioDeviceWithDataObserver is deprecated
+    target_compile_options(llwebrtc PRIVATE
+        -Wno-deprecated-declarations  # webrtc::CreateAudioDeviceWithDataObserver is deprecated
+        -fpermissive                  # webrtc p2p/base/port_interface.h: Network() method shadows Network class name
+    )
 endif (WINDOWS)
 
 ADD_CUSTOM_COMMAND(TARGET llwebrtc POST_BUILD
