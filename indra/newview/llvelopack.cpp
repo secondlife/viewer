@@ -34,6 +34,10 @@
 #include <boost/json.hpp>
 #include <fstream>
 #include <unordered_map>
+#include "llnotificationsutil.h"
+#include "llviewercontrol.h"
+#include "llappviewer.h"
+#include "llcoros.h"
 
 #include "Velopack.h"
 
@@ -56,6 +60,15 @@ static std::function<void(int)> sProgressCallback;
 static vpkc_update_manager_t* sUpdateManager = nullptr;
 static vpkc_update_info_t* sPendingUpdate = nullptr;
 static vpkc_update_source_t* sUpdateSource = nullptr;
+static LLNotificationPtr sDownloadingNotification;
+static bool sRestartAfterUpdate = false;
+
+// Forward declarations
+static void show_required_update_prompt();
+static void show_downloading_notification(const std::string& version);
+static bool sRequiredUpdateInProgress = false;
+static std::string sRequiredUpdateVersion;
+static std::string sRequiredUpdateRelnotes;
 static std::unordered_map<std::string, std::string> sAssetUrlMap; // basename -> original absolute URL
 
 //
@@ -643,29 +656,10 @@ bool velopack_initialize()
 #endif
 
     vpkc_app_run(nullptr);
-
-    // Check if a previously downloaded update is ready to apply.
-    // This runs early in startup (WINMAIN) before any heavy initialization.
-    vpkc_update_options_t options = {};
-    options.AllowVersionDowngrade = false;
-    options.ExplicitChannel = nullptr;
-
-    vpkc_update_manager_t* mgr = nullptr;
-    if (vpkc_new_update_manager(sUpdateUrl.empty() ? "" : sUpdateUrl.c_str(), &options, nullptr, &mgr))
-    {
-        vpkc_asset_t* pending = nullptr;
-        if (vpkc_update_pending_restart(mgr, &pending) && pending)
-        {
-            LL_INFOS("Velopack") << "Pending update found, applying now..." << LL_ENDL;
-            vpkc_wait_exit_then_apply_updates(mgr, pending, false, true, nullptr, 0);
-            // If we get here, the update will be applied after we exit
-        }
-        vpkc_free_update_manager(mgr);
-    }
     return true;
 }
 
-void velopack_check_for_updates()
+static void velopack_download_update()
 {
     if (sUpdateUrl.empty())
     {
@@ -753,11 +747,129 @@ void velopack_check_for_updates()
             LL_WARNS("Velopack") << "Failed to download update: " << ll_safe_string((const char*)descr) <<  LL_ENDL;
             vpkc_free_update_info(update_info);
         }
+
     }
     else
     {
         LL_DEBUGS("Velopack") << "No update available (result=" << result << ")" << LL_ENDL;
     }
+}
+
+static void on_downloading_closed(const LLSD& notification, const LLSD& response)
+{
+    sDownloadingNotification = nullptr;
+    if (sRequiredUpdateInProgress)
+    {
+        // User closed the downloading dialog during a required update — re-show it
+        show_downloading_notification(sRequiredUpdateVersion);
+    }
+}
+
+static void show_downloading_notification(const std::string& version)
+{
+    LLSD args;
+    args["VERSION"] = version;
+    sDownloadingNotification = LLNotificationsUtil::add("DownloadingUpdate", args, LLSD(), on_downloading_closed);
+}
+
+static void dismiss_downloading_notification()
+{
+    if (sDownloadingNotification)
+    {
+        LLNotificationsUtil::cancel(sDownloadingNotification);
+        sDownloadingNotification = nullptr;
+    }
+}
+
+static void on_required_update_response(const LLSD& notification, const LLSD& response)
+{
+    std::string version = notification["substitutions"]["VERSION"].asString();
+    LL_INFOS("Velopack") << "Required update acknowledged, starting download" << LL_ENDL;
+    show_downloading_notification(version);
+    LLCoros::instance().launch("VelopackRequiredUpdate", []()
+    {
+        velopack_download_update();
+        dismiss_downloading_notification();
+        if (velopack_is_update_pending())
+        {
+            LL_INFOS("Velopack") << "Required update downloaded, quitting to apply" << LL_ENDL;
+            velopack_request_restart_after_update();
+            LLAppViewer::instance()->requestQuit();
+        }
+    });
+}
+
+static void on_optional_update_response(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0) // "Install"
+    {
+        std::string version = notification["substitutions"]["VERSION"].asString();
+        LL_INFOS("Velopack") << "User accepted optional update, starting download" << LL_ENDL;
+        show_downloading_notification(version);
+        LLCoros::instance().launch("VelopackOptionalUpdate", []()
+        {
+            velopack_download_update();
+            dismiss_downloading_notification();
+            if (velopack_is_update_pending())
+            {
+                LL_INFOS("Velopack") << "Optional update downloaded, quitting to apply" << LL_ENDL;
+                velopack_request_restart_after_update();
+                LLAppViewer::instance()->requestQuit();
+            }
+        });
+    }
+    else
+    {
+        LL_INFOS("Velopack") << "User declined optional update (option=" << option << ")" << LL_ENDL;
+    }
+}
+
+static void show_required_update_prompt()
+{
+    LLSD args;
+    args["VERSION"] = sRequiredUpdateVersion;
+    args["URL"] = sRequiredUpdateRelnotes;
+    LLNotificationsUtil::add("PauseForUpdate", args, LLSD(), on_required_update_response);
+}
+
+void velopack_check_for_updates(bool required, const std::string& version, const std::string& relnotes_url)
+{
+    if (required)
+    {
+        LL_INFOS("Velopack") << "Required update to version " << version << ", prompting user" << LL_ENDL;
+        sRequiredUpdateInProgress = true;
+        sRequiredUpdateVersion = version;
+        sRequiredUpdateRelnotes = relnotes_url;
+        show_required_update_prompt();
+        return;
+    }
+
+    // Optional update — check user preference
+    U32 updater_setting = gSavedSettings.getU32("UpdaterServiceSetting");
+    if (updater_setting == 0)
+    {
+        // "Install only mandatory updates" — skip optional
+        LL_INFOS("Velopack") << "Optional update to version " << version
+                             << " skipped (UpdaterServiceSetting=0)" << LL_ENDL;
+        return;
+    }
+
+    if (updater_setting == 3)
+    {
+        // "Install each update automatically" — download silently, apply on quit
+        LL_INFOS("Velopack") << "Optional update to version " << version
+                             << ", downloading automatically (UpdaterServiceSetting=3)" << LL_ENDL;
+        velopack_download_update();
+        return;
+    }
+
+    // Default / value 1: "Ask me when an optional update is ready to install"
+    LL_INFOS("Velopack") << "Optional update available (version " << version << "), prompting user" << LL_ENDL;
+    LLSD args;
+    args["VERSION"] = version;
+    args["URL"] = relnotes_url;
+    LLNotificationsUtil::add("PromptOptionalUpdate", args, LLSD(), on_optional_update_response);
 }
 
 std::string velopack_get_current_version()
@@ -779,6 +891,26 @@ std::string velopack_get_current_version()
 bool velopack_is_update_pending()
 {
     return sPendingUpdate != nullptr;
+}
+
+bool velopack_is_required_update_in_progress()
+{
+    return sRequiredUpdateInProgress;
+}
+
+std::string velopack_get_required_update_version()
+{
+    return sRequiredUpdateVersion;
+}
+
+bool velopack_should_restart_after_update()
+{
+    return sRestartAfterUpdate;
+}
+
+void velopack_request_restart_after_update()
+{
+    sRestartAfterUpdate = true;
 }
 
 void velopack_apply_pending_update(bool restart)

@@ -37,6 +37,9 @@
 
 #include "llappviewer.h"
 #include "llbutton.h"
+#if LL_VELOPACK
+#include "llvelopack.h"
+#endif
 #include "llcheckboxctrl.h"
 #include "llcommandhandler.h"       // for secondlife:///app/login/
 #include "llcombobox.h"
@@ -936,6 +939,19 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 // static
 void LLPanelLogin::onClickConnect(bool commit_fields)
 {
+#if LL_VELOPACK
+    // In theory, you should never be able to get here.
+    // If there's a required update, try as you might you're not supposed to actually close the downloading update dialog.
+    // But just in case...
+    if (velopack_is_required_update_in_progress())
+    {
+        LLSD args;
+        args["VERSION"] = velopack_get_required_update_version();
+        LLNotificationsUtil::add("DownloadingUpdate", args);
+        return;
+    }
+#endif
+
     if (sInstance && sInstance->mCallback)
     {
         if (commit_fields)
