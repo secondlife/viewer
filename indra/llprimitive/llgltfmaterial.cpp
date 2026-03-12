@@ -937,6 +937,12 @@ void LLGLTFMaterial::updateTextureTracking()
 // Case 4.
 // Input: scale 1.0,1.0; Offset horizontal 0.5, Offset vertical 0.0 Rotation 0.349066;
 // Expected output: scale 1.0,1.0; Offset horizontal 0.701, Offset vertical -0.141 Rotation -0.349066;
+// Case 5.
+// Input: scale 10.0,15.0; Offset horizontal 0.0, Offset vertical 0.0 Rotation -1.57079637
+// Expected output: scale 15.0,10.0; Offset horizontal 7.5, Offset vertical -4.0 Rotation 1.57079637;
+// Case 6.
+// Input: scale 10.0,15.0; Offset horizontal 0.0, Offset vertical 0.0 Rotation 0
+// Expected output: scale 10.0,15.0; Offset horizontal 0.5, Offset vertical .0 Rotation 0;
 //
 // Legacy offsets are right to left and top to bottom.
 // PBR offsets are right to left and bottom to top.
@@ -953,16 +959,32 @@ void LLGLTFMaterial::convertTextureTransformToPBR(
     LLVector2& pbr_offset,
     F32& pbr_rotation)
 {
-    pbr_scale.set(tex_scale_s, tex_scale_t);
+    // Legacy is counter-clockwise, PBR is clockwise
     pbr_rotation = -tex_rotation;
 
     // Center of the tile
     const F32 center_s = 0.5f;
     const F32 center_t = 0.5f;
 
+    // Calculate the rotated scale
+    F32 cos_rot = cosf(tex_rotation);
+    F32 sin_rot = sinf(tex_rotation);
+    F32 cos_sq = cos_rot * cos_rot;
+    F32 sin_sq = sin_rot * sin_rot;
+
+    // GLTF scale doesn't match legacy scaling when rotation is applied.
+    // Legacy applies scale then rotation, which allows for planar aligment
+    // withoutn deformations, but gltf rotates first, so when scale gets
+    // aplied image gets deformed by rotation.
+    // It appears to be imposible to properly match legacy scale, so this
+    // is an approximation that at least matches at 0, 90, 180, 270 degree
+    // rotations, and is close enough at angles like 45.
+    pbr_scale.mV[VX] = tex_scale_s * cos_sq + tex_scale_t * sin_sq;
+    pbr_scale.mV[VY] = tex_scale_s * sin_sq + tex_scale_t * cos_sq;
+
     // Center adjustment for scale
-    F32 center_adjust_s = 0.5f * (1.0f - tex_scale_s);
-    F32 center_adjust_t = 0.5f * (1.0f - tex_scale_t);
+    F32 center_adjust_s = 0.5f * (1.0f - pbr_scale.mV[VX]);
+    F32 center_adjust_t = 0.5f * (1.0f - pbr_scale.mV[VY]);
 
     // 2. Offset from center
     F32 pos_s = center_adjust_s - center_s;
@@ -990,17 +1012,43 @@ void LLGLTFMaterial::convertPBRTransformToTexture(
     F32& tex_offset_t,
     F32& tex_rotation)
 {
-    tex_scale_s = pbr_scale.mV[0];
-    tex_scale_t = pbr_scale.mV[1];
     tex_rotation = -pbr_rotation;
+
+    // Reverse the scale transformation
+    // From: pbr_s = tex_s * cos² + tex_t * sin²
+    //       pbr_t = tex_s * sin² + tex_t * cos²
+    // Solve for tex_s and tex_t
+    F32 cos_rot = cosf(tex_rotation);
+    F32 sin_rot = sinf(tex_rotation);
+    F32 cos_sq = cos_rot * cos_rot;
+    F32 sin_sq = sin_rot * sin_rot;
+
+    F32 denom = cos_sq * cos_sq - sin_sq * sin_sq;
+
+    if (fabsf(denom) < 0.0001f) // Near 45 degrees (cos²≈sin²≈0.5)
+    {
+        // At 45°: both scales contribute equally
+        // pbr_s = pbr_t = (tex_s + tex_t) / 2
+        // So: tex_s + tex_t = 2 * pbr_avg
+        // Use the average and assume symmetric scaling
+        tex_scale_s = tex_scale_t = (pbr_scale.mV[VX] + pbr_scale.mV[VY]) / 2.f;
+    }
+    else
+    {
+        // Solve the 2x2 system:
+        // pbr_s * cos² - pbr_t * sin² = tex_s * (cos⁴ - sin⁴)
+        // pbr_t * cos² - pbr_s * sin² = tex_t * (cos⁴ - sin⁴)
+        tex_scale_s = (pbr_scale.mV[VX] * cos_sq - pbr_scale.mV[VY] * sin_sq) / denom;
+        tex_scale_t = (pbr_scale.mV[VY] * cos_sq - pbr_scale.mV[VX] * sin_sq) / denom;
+    }
 
     // Center of the tile
     const F32 center_s = 0.5f;
     const F32 center_t = 0.5f;
 
     // Center adjustment for scale
-    F32 center_adjust_s = 0.5f * (1.0f - tex_scale_s);
-    F32 center_adjust_t = 0.5f * (1.0f - tex_scale_t);
+    F32 center_adjust_s = 0.5f * (1.0f - pbr_scale.mV[VX]);
+    F32 center_adjust_t = 0.5f * (1.0f - pbr_scale.mV[VY]);
 
     // 2. Offset from center
     F32 pos_s = center_adjust_s - center_s;
