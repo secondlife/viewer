@@ -62,6 +62,13 @@ static vpkc_update_info_t* sPendingUpdate = nullptr;
 static vpkc_update_source_t* sUpdateSource = nullptr;
 static LLNotificationPtr sDownloadingNotification;
 static bool sRestartAfterUpdate = false;
+
+// Forward declarations
+static void show_required_update_prompt();
+static void show_downloading_notification(const std::string& version);
+static bool sRequiredUpdateInProgress = false;
+static std::string sRequiredUpdateVersion;
+static std::string sRequiredUpdateRelnotes;
 static std::unordered_map<std::string, std::string> sAssetUrlMap; // basename -> original absolute URL
 
 //
@@ -748,11 +755,21 @@ static void velopack_download_update()
     }
 }
 
+static void on_downloading_closed(const LLSD& notification, const LLSD& response)
+{
+    sDownloadingNotification = nullptr;
+    if (sRequiredUpdateInProgress)
+    {
+        // User closed the downloading dialog during a required update — re-show it
+        show_downloading_notification(sRequiredUpdateVersion);
+    }
+}
+
 static void show_downloading_notification(const std::string& version)
 {
     LLSD args;
     args["VERSION"] = version;
-    sDownloadingNotification = LLNotificationsUtil::add("DownloadingUpdate", args);
+    sDownloadingNotification = LLNotificationsUtil::add("DownloadingUpdate", args, LLSD(), on_downloading_closed);
 }
 
 static void dismiss_downloading_notification()
@@ -808,15 +825,23 @@ static void on_optional_update_response(const LLSD& notification, const LLSD& re
     }
 }
 
+static void show_required_update_prompt()
+{
+    LLSD args;
+    args["VERSION"] = sRequiredUpdateVersion;
+    args["URL"] = sRequiredUpdateRelnotes;
+    LLNotificationsUtil::add("PauseForUpdate", args, LLSD(), on_required_update_response);
+}
+
 void velopack_check_for_updates(bool required, const std::string& version, const std::string& relnotes_url)
 {
     if (required)
     {
         LL_INFOS("Velopack") << "Required update to version " << version << ", prompting user" << LL_ENDL;
-        LLSD args;
-        args["VERSION"] = version;
-        args["URL"] = relnotes_url;
-        LLNotificationsUtil::add("PauseForUpdate", args, LLSD(), on_required_update_response);
+        sRequiredUpdateInProgress = true;
+        sRequiredUpdateVersion = version;
+        sRequiredUpdateRelnotes = relnotes_url;
+        show_required_update_prompt();
         return;
     }
 
@@ -866,6 +891,16 @@ std::string velopack_get_current_version()
 bool velopack_is_update_pending()
 {
     return sPendingUpdate != nullptr;
+}
+
+bool velopack_is_required_update_in_progress()
+{
+    return sRequiredUpdateInProgress;
+}
+
+std::string velopack_get_required_update_version()
+{
+    return sRequiredUpdateVersion;
 }
 
 bool velopack_should_restart_after_update()
