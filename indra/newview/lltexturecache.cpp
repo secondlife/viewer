@@ -341,7 +341,7 @@ bool LLTextureCacheRemoteWorker::doRead()
     if (!done && (mState == LOCAL))
     {
         llassert(local_size != 0);  // we're assuming there is a non empty local file here...
-        if (!mDataSize || mDataSize > local_size)
+        if (mDataSize <= 0 || mDataSize > local_size)
         {
             mDataSize = local_size;
         }
