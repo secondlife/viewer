@@ -943,6 +943,9 @@ void LLGLTFMaterial::updateTextureTracking()
 // Case 6.
 // Input: scale 10.0,15.0; Offset horizontal 0.0, Offset vertical 0.0 Rotation 0
 // Expected output: scale 10.0,15.0; Offset horizontal 0.5, Offset vertical .0 Rotation 0;
+// Case 7.
+// Input: scale 10.0,15.0; Offset horizontal 0.0, Offset vertical 0.0 Rotation -0.785398163
+// Expected output: scale 12.74,12.74; Offset horizontal 0.5, Offset vertical .0 Rotation 0.785398163;
 //
 // Legacy offsets are right to left and top to bottom.
 // PBR offsets are right to left and bottom to top.
