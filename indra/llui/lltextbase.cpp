@@ -1091,13 +1091,12 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
     getViewModel()->getEditableDisplay().insert(pos, wstr);
 
-    if ( truncate() )
-    {
-        insert_len = getLength() - old_len;
-    }
-
     if (mTrackValueChange)
     {
+        if (truncate())
+        {
+            insert_len = getLength() - old_len;
+        }
         onValueChange(pos, pos + insert_len);
     }
     needsReflow(pos);
@@ -2373,6 +2372,7 @@ void LLTextBase::setText(const LLStringExplicit &utf8str, const LLStyle::Params&
         startOfDoc();
     }
 
+    truncate(); // was postponed to avoid micro truncations and expensive checks
     mTrackValueChange = true;
     onValueChange(0, getLength());
 }
@@ -2403,6 +2403,10 @@ void LLTextBase::appendTextImpl(const std::string& new_text, const LLStyle::Para
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     LLStyle::Params style_params(getStyleParams());
     style_params.overwriteFrom(input_params);
+
+    // todo: this does not check for maximum size, might
+    // want to stop once maximum size was reached to avoid
+    // expensive findUrl, replaceUrl calls.
 
     S32 part = (S32)LLTextParser::WHOLE;
     if ((mParseHTML || force_slurl) && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
@@ -2595,6 +2599,7 @@ void LLTextBase::copyContents(const LLTextBase* source)
 
     getViewModel()->setDisplay(source->getViewModel()->getDisplay());
 
+    truncate(); // was postponed to avoid micro truncations and expensive checks
     mTrackValueChange = true;
     onValueChange(0, getLength());
     needsReflow();
