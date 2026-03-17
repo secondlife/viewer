@@ -658,7 +658,10 @@ bool LLFloaterTexturePicker::postBuild()
 
     mSavedFolderState.setApply(false);
 
-    LLToolPipette::getInstance()->setToolSelectCallback(boost::bind(&LLFloaterTexturePicker::onTextureSelect, this, _1));
+    mPipetteConnection = LLToolPipette::getInstance()->setToolSelectCallback([this](LLPointer<LLViewerObject> object, S32 te_index)
+    {
+        onPipetteSelect(object, te_index);
+    });
 
     getChild<LLComboBox>("l_bake_use_texture_combo_box")->setCommitCallback(onBakeTextureSelect, this);
 
@@ -1640,39 +1643,88 @@ void LLFloaterTexturePicker::onPickerCallback(const std::vector<std::string>& fi
     }
 }
 
-void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
+void LLFloaterTexturePicker::onPipetteSelect(LLPointer<LLViewerObject>& object, S32 te_index)
 {
-    LLUUID inventory_item_id = findItemID(te.getID(), true);
-    if (inventory_item_id.notNull())
+    if (mInventoryPickType == PICK_MATERIAL)
     {
-        LLToolPipette::getInstance()->setResult(true, "");
-        if (mInventoryPickType == PICK_MATERIAL)
+        // Note: does not copy overrides!
+        LLUUID mat_id = object->getRenderMaterialID(te_index);
+        if (mat_id == BLANK_MATERIAL_ASSET_ID)
         {
-            // tes have no data about material ids
-            // Plus gltf materials are layered with overrides,
-            // which mean that end result might have no id.
-            LL_WARNS() << "tes have no data about material ids" << LL_ENDL;
+            // It's fine if blank material isn't in inventory, just set it
+            LLToolPipette::getInstance()->setResult(true, "");
+            setImageID(mat_id);
+            setTentative(false);
+
+            mNoCopyTextureSelected = false;
+
+            commitIfImmediateSet();
+        }
+        else if (mat_id.isNull())
+        {
+            LLToolPipette::getInstance()->setResult(false, LLTrans::getString("InventoryNoMaterial"));
         }
         else
         {
-            setImageID(te.getID());
-            setTentative(false);
+            LLUUID inventory_item_id = findItemID(mat_id, true);
+            if (inventory_item_id.notNull())
+            {
+                LLToolPipette::getInstance()->setResult(true, "");
+                setImageID(mat_id);
+                setTentative(false);
+
+                mNoCopyTextureSelected = false;
+                LLInventoryItem* itemp = gInventory.getItem(inventory_item_id);
+
+                if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
+                {
+                    // no copy texture
+                    mNoCopyTextureSelected = true;
+                }
+
+                commitIfImmediateSet();
+            }
+            else
+            {
+                // Not in inventory, can't apply
+                LLToolPipette::getInstance()->setResult(false, LLTrans::getString("InventoryNoMaterial"));
+            }
         }
-
-        mNoCopyTextureSelected = false;
-        LLInventoryItem* itemp = gInventory.getItem(inventory_item_id);
-
-        if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
-        {
-            // no copy texture
-            mNoCopyTextureSelected = true;
-        }
-
-        commitIfImmediateSet();
     }
     else
     {
-        LLToolPipette::getInstance()->setResult(false, LLTrans::getString("InventoryNoTexture"));
+        const LLTextureEntry* entry = object->getTE(te_index);
+        if (!entry)
+        {
+            // Whatever was selected is not a face/TE,
+            // no texture to check, so do nothing.
+            // Should not be reachable, if you hit this,
+            // check what happens in pipette tool.
+            llassert(false);
+            return;
+        }
+        LLUUID inventory_item_id = findItemID(entry->getID(), true);
+        if (inventory_item_id.notNull())
+        {
+            LLToolPipette::getInstance()->setResult(true, "");
+            setImageID(entry->getID());
+            setTentative(false);
+
+            mNoCopyTextureSelected = false;
+            LLInventoryItem* itemp = gInventory.getItem(inventory_item_id);
+
+            if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
+            {
+                // no copy texture
+                mNoCopyTextureSelected = true;
+            }
+
+            commitIfImmediateSet();
+        }
+        else
+        {
+            LLToolPipette::getInstance()->setResult(false, LLTrans::getString("InventoryNoTexture"));
+        }
     }
 }
 
