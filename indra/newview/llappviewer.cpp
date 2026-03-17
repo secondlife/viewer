@@ -961,6 +961,7 @@ bool LLAppViewer::init()
 
     // Initialize event recorder
     LLViewerEventRecorder::createInstance();
+    LLWatchdog::createInstance();
 
     //
     // Initialize the window

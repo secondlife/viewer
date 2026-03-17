@@ -289,32 +289,46 @@ bool LLDataPackerBinaryBuffer::packBinaryData(const U8 *value, S32 size, const c
 }
 
 
-bool LLDataPackerBinaryBuffer::unpackBinaryData(U8 *value, S32 &size, const char *name)
+bool LLDataPackerBinaryBuffer::unpackBinaryData(U8 *value, S32 value_size, S32 &out_size, const char *name)
 {
     if (!verifyLength(4, name))
     {
         LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData would unpack invalid data, aborting!" << LL_ENDL;
+        out_size = 0;
         return false;
     }
 
-    htolememcpy(&size, mCurBufferp, MVT_S32, 4);
+    if (value_size < 0)
+    {
+        LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData passed negative buffer size, aborting!" << LL_ENDL;
+        out_size = 0;
+        return false;
+    }
 
-    if (size < 0)
+    htolememcpy(&out_size, mCurBufferp, MVT_S32, 4);
+
+    if (out_size < 0)
     {
         LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData unpacked invalid size, aborting!" << LL_ENDL;
+        out_size = 0;
         return false;
     }
 
     mCurBufferp += 4;
 
-    if (!verifyLength(size, name))
+    if (!verifyLength(out_size, name))
     {
         LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData would unpack invalid data, aborting!" << LL_ENDL;
         return false;
     }
+    S32 copy_size = llmin(out_size, value_size);
+    htolememcpy(value, mCurBufferp, MVT_VARIABLE, copy_size);
+    mCurBufferp += out_size;
 
-    htolememcpy(value, mCurBufferp, MVT_VARIABLE, size);
-    mCurBufferp += size;
+    if (value_size < out_size)
+    {
+        LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData buffer too small for data, truncating!" << LL_ENDL;
+    }
 
     return true;
 }
@@ -836,21 +850,34 @@ bool LLDataPackerAsciiBuffer::packBinaryData(const U8 *value, S32 size, const ch
 }
 
 
-bool LLDataPackerAsciiBuffer::unpackBinaryData(U8 *value, S32 &size, const char *name)
+bool LLDataPackerAsciiBuffer::unpackBinaryData(U8 *value, S32 value_size, S32 &out_size, const char *name)
 {
     bool success = true;
     char valuestr[DP_BUFSIZE];      /* Flawfinder: ignore */
     if (!getValueStr(name, valuestr, DP_BUFSIZE))
     {
+        out_size = 0;
+        return false;
+    }
+
+    if (value_size < 0)
+    {
+        LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData passed negative buffer size, aborting!" << LL_ENDL;
+        out_size = 0;
         return false;
     }
 
     char *cur_pos = &valuestr[0];
-    sscanf(valuestr,"%010d", &size);
+    sscanf(valuestr,"%010d", &out_size);
     cur_pos += 11;
 
+    S32 max_bytes = llmin(out_size, value_size);
+    if (max_bytes != out_size)
+    {
+        LL_WARNS() << "LLDataPackerAsciiBuffer::unpackBinaryData: buffer too small for data, truncating!" << LL_ENDL;
+    }
     S32 i;
-    for (i = 0; i < size; i++)
+    for (i = 0; i < max_bytes; i++)
     {
         S32 val;
         sscanf(cur_pos,"%02x", &val);
@@ -1634,28 +1661,40 @@ bool LLDataPackerAsciiFile::packBinaryData(const U8 *value, S32 size, const char
 }
 
 
-bool LLDataPackerAsciiFile::unpackBinaryData(U8 *value, S32 &size, const char *name)
+bool LLDataPackerAsciiFile::unpackBinaryData(U8 *value, S32 value_size, S32 &out_size, const char *name)
 {
-    bool success = true;
     char valuestr[DP_BUFSIZE]; /*Flawfinder: ignore*/
     if (!getValueStr(name, valuestr, DP_BUFSIZE))
     {
+        out_size = 0;
+        return false;
+    }
+
+    if (value_size < 0)
+    {
+        LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData passed negative buffer size, aborting!" << LL_ENDL;
+        out_size = 0;
         return false;
     }
 
     char *cur_pos = &valuestr[0];
-    sscanf(valuestr,"%010d", &size);
+    sscanf(valuestr,"%010d", &out_size);
     cur_pos += 11;
 
+    S32 max_bytes = llmin(out_size, value_size);
+    if (max_bytes != out_size)
+    {
+        LL_WARNS() << "LLDataPackerAsciiBuffer::unpackBinaryData: buffer too small for data, truncating!" << LL_ENDL;
+    }
     S32 i;
-    for (i = 0; i < size; i++)
+    for (i = 0; i < max_bytes; i++)
     {
         S32 val;
         sscanf(cur_pos,"%02x", &val);
         value[i] = val;
         cur_pos += 3;
     }
-    return success;
+    return true;
 }
 
 

@@ -473,6 +473,11 @@ void LLLandmarkActions::copySLURLtoClipboard(const LLUUID& landmarkInventoryItem
 
 void copy_slurl_to_clipboard_callback(const std::string& slurl)
 {
+    if (slurl.empty())
+    {
+        LLNotificationsUtil::add("LandmarkLocationUnknown");
+        return;
+    }
     gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
     LLSD args;
     args["SLURL"] = slurl;

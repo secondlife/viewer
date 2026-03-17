@@ -87,7 +87,7 @@ void LLWatchdogEntry::start()
 void LLWatchdogEntry::stop()
 {
     // this can happen very late in the shutdown sequence
-    if (!LLWatchdog::wasDeleted())
+    if (LLWatchdog::instanceExists())
     {
         LLWatchdog::getInstance()->remove(this);
     }
