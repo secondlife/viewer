@@ -209,7 +209,8 @@ No tutorial is currently available.
 The uninstaller may display additional prompts requesting permission to access or modify files on your disk.
       <tag>confirm</tag>
     <usetemplate
-     name="okcancelbuttons"
+     ignoretext="Ask to remove legacy installation"
+     name="okcancelignore"
      notext="Cancel"
      yestext="Uninstall"/>
   </notification>

@@ -2631,6 +2631,16 @@ void uninstall_nsis_if_required()
     gSavedSettings.setString("LastInstallVersion",
         ver_inst->getChannelAndVersion());
 
+    if (LLNotifications::instance().getIgnored("PromptRemoveNsisInstallation"))
+    {
+        // By default 'ignore' returns default button, which is uninstall
+        // for PromptRemoveNsisInstallation, but while we want the button
+        // to be the default, we don't want a scary UAC without a notice
+        // as a default action, so if this notification is ignored,
+        // we will treat it as if user is going to cancel the uninstall.
+        return;
+    }
+
     LL_INFOS() << "Looking for previous NSIS installs" << LL_ENDL;
 
     wchar_t buffer[MAX_PATH];
