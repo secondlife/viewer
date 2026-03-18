@@ -499,7 +499,10 @@ static void register_uninstall_info(const std::wstring& install_dir,
                                     const std::wstring& version)
 {
     std::wstring app_name_oneword = get_app_name_oneword();
-    std::wstring key_path = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + app_name_oneword;
+    // Use a unique key name to avoid conflicts with any existing NSIS-based uninstall info,
+    // which can cause nly one of the two entries to show up in the Add/Remove Programs list.
+    // The UI will show DisplayName, so the key name itself is not important to be user-friendly.
+    std::wstring key_path = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Vlpk" + app_name_oneword;
     HKEY hkey;
 
     if (RegCreateKeyExW(HKEY_CURRENT_USER, key_path.c_str(), 0, NULL,
@@ -547,7 +550,7 @@ static void register_uninstall_info(const std::wstring& install_dir,
 static void unregister_uninstall_info()
 {
     std::wstring app_name_oneword = get_app_name_oneword();
-    std::wstring key_path = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + app_name_oneword;
+    std::wstring key_path = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Vlpk" + app_name_oneword;
     RegDeleteTreeW(HKEY_CURRENT_USER, key_path.c_str());
 }
 
