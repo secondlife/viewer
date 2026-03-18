@@ -285,7 +285,7 @@ void LLFloaterTexturePicker::setImageIDFromItem(const LLInventoryItem* itemp, bo
 
 void LLFloaterTexturePicker::setActive( bool active )
 {
-    if (!active && getChild<LLUICtrl>("Pipette")->getValue().asBoolean())
+    if (!active && mPipetteBtn->getValue().asBoolean())
     {
         stopUsingPipette();
     }
@@ -1072,7 +1072,7 @@ void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 
 void LLFloaterTexturePicker::onBtnPipette()
 {
-    bool pipette_active = getChild<LLUICtrl>("Pipette")->getValue().asBoolean();
+    bool pipette_active = mPipetteBtn->getValue().asBoolean();
     pipette_active = !pipette_active;
     if (pipette_active)
     {
@@ -1422,8 +1422,7 @@ void LLFloaterTexturePicker::changeMode()
     getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(index == PICKER_BAKE);
     getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(false);// index == 2);
 
-    bool pipette_visible = (index == PICKER_INVENTORY)
-        && (mInventoryPickType != PICK_MATERIAL);
+    bool pipette_visible = (index == PICKER_INVENTORY);
     mPipetteBtn->setVisible(pipette_visible);
 
     if (index == PICKER_BAKE)
@@ -1563,15 +1562,8 @@ void LLFloaterTexturePicker::setInventoryPickType(EPickInventoryType type)
     refreshLocalList();
     refreshInventoryFilter();
 
-    if (mInventoryPickType == PICK_MATERIAL)
-    {
-        getChild<LLButton>("Pipette")->setVisible(false);
-    }
-    else
-    {
-        S32 index = mModeSelector->getValue().asInteger();
-        getChild<LLButton>("Pipette")->setVisible(index == 0);
-    }
+    S32 index = mModeSelector->getValue().asInteger();
+    mPipetteBtn->setVisible(index == 0);
 
     if (!mLabel.empty())
     {
