@@ -435,6 +435,20 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
     if (!velopack_initialize())
     {
         // Velopack handled the invocation (install/uninstall hook)
+
+        // Drop install related settings
+        gDirUtilp->initAppDirs("SecondLife");
+
+        std::string user_settings_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml");
+        LLControlGroup settings("global");
+        if (settings.loadFromFile(user_settings_path))
+        {
+            if (settings.controlExists("LastInstallVersion"))
+            {
+                settings.setString("LastInstallVersion", std::string());
+            }
+            settings.saveToFile(user_settings_path, true);
+        }
         return 0;
     }
 #endif

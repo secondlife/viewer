@@ -2619,15 +2619,12 @@ void release_notes_coro(const std::string url)
 void uninstall_nsis_if_required()
 {
 #if LL_VELOPACK && LL_WINDOWS
-    // Todo: perhaps use marker files?
-    // Debug variable isn't specific to one channel
-    // and something channel specific is needed.
     std::string last_install_ver = gSavedSettings.getString("LastInstallVersion");
-    LLVersionInfo* ver_inst = LLVersionInfo::getInstance();
-    if (ver_inst->getChannelAndVersion() == last_install_ver)
+    if (!last_install_ver.empty())
     {
         return;
     }
+    LLVersionInfo* ver_inst = LLVersionInfo::getInstance();
     gSavedSettings.setString("LastInstallVersion",
         ver_inst->getChannelAndVersion());
 
