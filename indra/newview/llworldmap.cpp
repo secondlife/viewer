@@ -623,7 +623,7 @@ void LLWorldMap::updateRegions(S32 x0, S32 y0, S32 x1, S32 y1)
     block_y0 = llmax(block_y0, 0);
     block_y1 = llmin(block_y1, MAP_BLOCK_RES - 1);
 
-    // Process blocks, grouping unloaded blocks into larger requests up to MAX_BLOCKS
+    // Process blocks, grouping unloaded blocks into larger requests up to MAX_TOTAL_BLOCKS
     for (S32 block_y = block_y0; block_y <= block_y1; )
     {
         for (S32 block_x = block_x0; block_x <= block_x1; )
@@ -651,7 +651,7 @@ void LLWorldMap::updateRegions(S32 x0, S32 y0, S32 x1, S32 y1)
                 // Expand height (check vertical contiguous unloaded blocks)
                 while (request_height < MAX_BLOCKS_PER_SIDE &&
                     (block_y + request_height) <= block_y1 &&
-                    (request_width * request_height < MAX_TOTAL_BLOCKS)) // Don't exceed 64 total regions
+                    (request_width * (request_height + 1) <= MAX_TOTAL_BLOCKS)) // Don't exceed 64 total regions
                 {
                     bool can_expand = true;
                     // Width can be >1, loop over blocks in the line
