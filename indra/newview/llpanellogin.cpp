@@ -242,6 +242,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     // change z sort of clickable text to be behind buttons
     sendChildToBack(getChildView("forgot_password_text"));
 
+    mLoginStack = getChild<LLLayoutStack>("login_stack");
+    mGridPanel = getChild<LLLayoutPanel>("grid_panel");
+
     std::string current_grid = LLGridManager::getInstance()->getGrid();
     if (!mFirstLoginThisInstall)
     {
@@ -766,6 +769,7 @@ void LLPanelLogin::updateLocationSelectorsVisibility()
         {
             grid_txt->setVisible(show_server);
         }
+        sInstance->collapseGridPanel(!show_server);
     }
 }
 
@@ -1400,4 +1404,14 @@ bool LLPanelLogin::onUpdateNotification(const LLSD& notify)
         updateLoginButtons();
     }
     return false;
+}
+
+void LLPanelLogin::collapseGridPanel(bool collapse)
+{
+    if (mGridPanel->isCollapsed() == collapse)
+    {
+        return;
+    }
+    mLoginStack->collapsePanel(mGridPanel, collapse);
+    mLoginStack->updateLayout();
 }

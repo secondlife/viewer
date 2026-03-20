@@ -208,90 +208,123 @@
               name="MyHome"
               value="home" />
           </combo_box>
-          <text
+          <layout_stack
            follows="left|top"
-           font="SansSerif"
-           text_color="white"
-           height="12"
-           name="grid_text"
-           top_pad="18"
-           width="120"
-           valign="center">
-           Grid
-          </text>
-          <combo_box
-           allow_text_entry="false"
-           font="SansSerifTiny"
-           follows="left|top"
-           height="28"
-           top_pad="6"
-           max_chars="128"
-           label="Select grid"
            layout="topleft"
-           name="server_combo"
-           width="220">
-             <combo_box.drop_down_button
-              pad_bottom="1"
-              pad_left="10"
-              font="SansSerif"
-              label_color="Black"
-              label_color_selected="Black"
-              draw_focus_border="false"
-              image_overlay="ComboButton_Arrow"
-              image_overlay_right_delta="10"
-              image_unselected="TextField_Active"
-              image_selected="TextField_Active"
-              image_pressed="TextField_Active"
-              image_pressed_selected="TextField_Active"/>
-          </combo_box>
-          <button
-           follows="left|top"
-           image_unselected="PushButton_Login"
-           image_pressed="PushButton_Login_Pressed"
-           image_hover_unselected="PushButton_Login_Over"
-           label="Log in"
-           label_color="Black"
-           label_color_disabled="Black"
-           font="SansSerifLarge"
-           font.style="BOLD"
-           name="connect_btn"
-           draw_focus_border="false"
-           hover_hand_cursor="true"
-           enabled="true"
-           width="220"
-           height="30"
-           top_pad="25"
-           pad_bottom="1" />
-          <text
-           follows="left|top"
-           font="SansSerifMedium"
-           text_color="EmphasisColor"
-           height="15"
-           name="forgot_password_text"
-           left="60"
-           top_pad="9"
-           width="180"
-           halign="center">
-           Need help logging in?
-          </text>
-          <button
-           follows="left|top"
-           image_unselected="PushButton_Sign"
-           image_pressed="PushButton_Sign_Pressed"
-           image_hover_unselected="PushButton_Sign_Over"
-           label="Create account"
-           label_color="White"
-           label_color_disabled="Black"
-           font="SansSerifMedium"
-           font.style="BOLD"
-           name="sign_btn"
-           draw_focus_border="false"
-           hover_hand_cursor="true"
-           width="220"
-           height="35"
-           left="40"
-           top_pad="25"
-           pad_bottom="1" />
+           orientation="vertical"
+           name="login_stack"
+           border_size="0"
+           animate="false"
+           top_pad="0"
+           left="0"
+           height="218"
+           width="300">
+            <layout_panel
+             auto_resize="false"
+             user_resize="false"
+             layout="topleft"
+             name="grid_panel"
+             background_visible="false"
+             height="64"
+             width="300">
+              <text
+               follows="left|top"
+               font="SansSerif"
+               text_color="white"
+               height="12"
+               name="grid_text"
+               top="18"
+               left="40"
+               width="120"
+               valign="center">
+               Grid
+              </text>
+              <combo_box
+               allow_text_entry="false"
+               font="SansSerifTiny"
+               follows="left|top"
+               height="28"
+               top_pad="6"
+               left="40"
+               max_chars="128"
+               label="Select grid"
+               layout="topleft"
+               name="server_combo"
+               width="220">
+                 <combo_box.drop_down_button
+                  pad_bottom="1"
+                  pad_left="10"
+                  font="SansSerif"
+                  label_color="Black"
+                  label_color_selected="Black"
+                  draw_focus_border="false"
+                  image_overlay="ComboButton_Arrow"
+                  image_overlay_right_delta="10"
+                  image_unselected="TextField_Active"
+                  image_selected="TextField_Active"
+                  image_pressed="TextField_Active"
+                  image_pressed_selected="TextField_Active"/>
+              </combo_box>
+            </layout_panel>
+            <layout_panel
+             auto_resize="false"
+             user_resize="false"
+             layout="topleft"
+             name="login_panel"
+             background_visible="false"
+             height="172"
+             width="300">
+              <button
+               follows="left|top"
+               image_unselected="PushButton_Login"
+               image_pressed="PushButton_Login_Pressed"
+               image_hover_unselected="PushButton_Login_Over"
+               label="Log in"
+               label_color="Black"
+               label_color_disabled="Black"
+               font="SansSerifLarge"
+               font.style="BOLD"
+               name="connect_btn"
+               draw_focus_border="false"
+               hover_hand_cursor="true"
+               enabled="true"
+               width="220"
+               height="30"
+               left="40"
+               top="25"
+               pad_bottom="1" />
+              <text
+               follows="left|top"
+               font="SansSerifMedium"
+               text_color="EmphasisColor"
+               height="15"
+               name="forgot_password_text"
+               left="60"
+               top_pad="9"
+               width="180"
+               halign="center">
+               Need help logging in?
+              </text>
+              <button
+               follows="left|top"
+               image_unselected="PushButton_Sign"
+               image_pressed="PushButton_Sign_Pressed"
+               image_hover_unselected="PushButton_Sign_Over"
+               label="Create account"
+               label_color="White"
+               label_color_disabled="Black"
+               font="SansSerifMedium"
+               font.style="BOLD"
+               name="sign_btn"
+               draw_focus_border="false"
+               hover_hand_cursor="true"
+               width="220"
+               height="35"
+               left="40"
+               top_pad="25"
+               pad_bottom="1" />
+            </layout_panel>
+          </layout_stack>
         </layout_panel>
         <layout_panel
          auto_resize="false"

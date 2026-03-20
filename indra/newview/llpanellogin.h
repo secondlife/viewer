@@ -87,6 +87,8 @@ public:
     // extract name from cred in a format apropriate for username field
     static std::string getUserName(LLPointer<LLCredential> &cred);
 
+    void collapseGridPanel(bool collapse);
+
 private:
     friend class LLPanelLoginListener;
     void addFavoritesToStartLocation();
@@ -132,6 +134,8 @@ private:
 
     bool mAlertNotif;
     LLButton* mLoginBtn;
+    LLLayoutPanel* mGridPanel;
+    LLLayoutStack* mLoginStack;
 };
 
 #endif
