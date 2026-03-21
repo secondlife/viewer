@@ -30,10 +30,27 @@ echo "Running from ${RUN_PATH}"
 cd "${RUN_PATH}"
 
 # Re-register the secondlife:// protocol handler every launch, for now.
-./etc/register_secondlifeprotocol.sh
+#./etc/register_secondlifeprotocol.sh
 
 # Re-register the application with the desktop system every launch, for now.
-./etc/refresh_desktop_app_entry.sh
+#./etc/refresh_desktop_app_entry.sh
+
+# Above re-registering no longer used as viewer now registers itself via XDG and the Desktop Environment.
+
+#Below is a function to check if any additional parameters passed are a valid SLURL.
+function is_valid_secondlife_uri() {
+	local uri="$1"
+	# Check if it starts with secondlife://
+	if [[ ! "$uri" =~ ^secondlife:// ]]; then
+		return 1
+	fi
+	# Pattern: secondlife://<region>/<x>/<y>/<z> with optional additional parameters
+	if [[ "$uri" =~ ^secondlife://[^/]+/[0-9]+/[0-9]+/[0-9]+(/.*)?$ ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
 
 ## Before we mess with LD_LIBRARY_PATH, save the old one to restore for
 ##  subprocesses that care.
@@ -52,12 +69,22 @@ for ARG in "$@"; do
     fi
 done
 
-# Run the program.
-# Don't quote $LL_WRAPPER because, if empty, it should simply vanish from the
-# command line. But DO quote "${ARGS[@]}": preserve separate args as
-# individually quoted.
-$LL_WRAPPER bin/do-not-directly-run-secondlife-bin "${ARGS[@]}"
-LL_RUN_ERR=$?
+#Check if any additional arguments are valid SLURLs, and if so, check if a viewer instance is already running. If so, send the SLURL to be handled by the running viewer, instead of starting a new instance.
+#Poll DBus to get a list of registered services, then look through the list for the Second Life API Service - if present, this means a viewer is running, if not, then no viewer is running and a new instance should be launched.
+service_name="com.secondlife.ViewerAppAPIService" #Name of Second Life DBus service. This should be the same across all viewers.
+if is_valid_secondlife_uri "${ARGS[@]}" && \
+	dbus-send --print-reply --dest=org.freedesktop.DBus  /org/freedesktop/DBus org.freedesktop.DBus.ListNames | grep -q "${service_name}"; then
+	echo "Found a Second Life compatible Viewer running, sending SLURL to DBus...";
+	exec dbus-send --type=method_call --dest="${service_name}"  /com/secondlife/ViewerAppAPI com.secondlife.ViewerAppAPI.GoSLURL string:"${ARGS[@]}"
+else
+	# Run the program.
+	# Don't quote $LL_WRAPPER because, if empty, it should simply vanish from the
+	# command line. But DO quote "${ARGS[@]}": preserve separate args as
+	# individually quoted.
+	echo "No running Second Life Viewer found, launching new instance...";
+	$LL_WRAPPER bin/do-not-directly-run-secondlife-bin "${ARGS[@]}"
+	LL_RUN_ERR=$?
+fi
 
 # Handle any resulting errors
 if [ $LL_RUN_ERR -ne 0 ]; then

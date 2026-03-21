@@ -10,6 +10,18 @@ SCRIPTSRC=`readlink -f "$0" || echo "$0"`
 RUN_PATH=`dirname "${SCRIPTSRC}" || echo .`
 tarball_path=${RUN_PATH}
 
+build_data_file="${RUN_PATH}/build_data.json"
+if [ -f "${build_data_file}" ]; then
+    version=$(sed -n 's/.*"Version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "${build_data_file}")
+    channel=$(sed -n 's/.*"Channel"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "${build_data_file}")
+    installdir_name=$(echo "$channel" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' )-install
+else
+    echo "Error: File ${build_data_file} not found." >&2
+    exit 1
+fi
+
+echo "Installing ${channel} version ${version}"
+
 function prompt()
 {
     local prompt=$1
@@ -58,13 +70,18 @@ function homedir_install()
 	exit 0
     fi
 
-    install_to_prefix "$HOME/.secondlife-install"
-    $HOME/.secondlife-install/etc/refresh_desktop_app_entry.sh
+    if [ -n "$XDG_DATA_HOME" ] ; then
+        local install_prefix="$XDG_DATA_HOME/$installdir_name" #$XDG_DATA_HOME is a synonym for $HOME/.local/share/ unless the user has specified otherwise (unlikely).
+    else
+        local install_prefix="$HOME/.local/share/$installdir_name"
+    fi
+    install_to_prefix "$install_prefix"
+    update_desktop_entry "$install_prefix"
 }
 
 function root_install()
 {
-    local default_prefix="/opt/secondlife-install"
+    local default_prefix="/opt/$installdir_name"
 
     echo -n "Enter the desired installation directory [${default_prefix}]: ";
     read
@@ -77,7 +94,7 @@ function root_install()
     install_to_prefix "$install_prefix"
 
     mkdir -p /usr/local/share/applications
-    ${install_prefix}/etc/refresh_desktop_app_entry.sh
+    update_desktop_entry "$install_prefix"
 }
 
 function install_to_prefix()
@@ -98,6 +115,24 @@ function backup_previous_installation()
     mv "$1" "$backup_dir" || die "Failed to create backup of existing installation!"
 }
 
+#Below function is not currently used as the desktop environment should prompt the user to associate SLURLs upon first use following installation, however is included here if it's determined in future to be needed.
+function set_slurl_handler()
+{
+    local install_prefix=$1
+    echo
+    prompt "Would you like to set Second Life as your default SLURL handler? [Y/N]: "
+    if [ $? -eq 0 ]; then
+	return 0
+    fi
+    "${install_prefix}"/etc/register_secondlifeprotocol.sh #Should prompt the desktop environment to set association. Normally not needed as it will prompt upon the first use of a SLURL after installation.
+}
+
+function update_desktop_entry()
+{
+    local install_prefix=$1
+    sed -i "s|@INSTALLATION_PREFIX@|$install_prefix|g" "$install_prefix/etc/com.secondlife.SecondLifeViewer.desktop"
+    "${install_prefix}"/etc/refresh_desktop_app_entry.sh
+}
 
 if [ "$UID" == "0" ]; then
     root_install

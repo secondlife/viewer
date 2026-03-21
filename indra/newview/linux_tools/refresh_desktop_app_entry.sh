@@ -10,28 +10,12 @@ function install_desktop_entry()
     local installation_prefix="$1"
     local desktop_entries_dir="$2"
 
-    local desktop_entry="\
-[Desktop Entry]\n\
-Name=Second Life\n\
-GenericName=Second Life Viewer\n\
-Comment=Client for the On-line Virtual World, Second Life\n\
-Path=${installation_prefix}\n\
-Exec=${installation_prefix}/secondlife\n\
-Icon=${installation_prefix}/secondlife_icon.png\n\
-Terminal=false\n\
-Type=Application\n\
-Categories=Game;Simulation;\n\
-StartupNotify=true\n\
-StartupWMClass="com.secondlife.indra.viewer"\n\
-X-Desktop-File-Install-Version=3.0"
+    printf "Installing menu entries via XDG..."
+	xdg-icon-resource install --novendor --size 256 "${installation_prefix}/secondlife_icon.png" "com.secondlife.indra.viewer"
+	#NOTE: Above command takes the path to the icon to install && The name of the icon to be used by XDG. This should always be in the format of "xViewer" to avoid potential naming conflicts, as per XDG spec.
+	xdg-desktop-menu install --novendor "${installation_prefix}"/etc/com.secondlife.indra.viewer.desktop
 
-    echo " - Installing menu entries in ${desktop_entries_dir}"
-    WORK_DIR=`mktemp -d`
-    echo -e $desktop_entry > "${WORK_DIR}/secondlife-viewer.desktop" || "Failed to install application menu!"
-    desktop-file-install --dir="${desktop_entries_dir}" ${WORK_DIR}/secondlife-viewer.desktop
-    rm -r $WORK_DIR
-
-    update-desktop-database "${desktop_entries_dir}"
+    xdg-desktop-menu forceupdate #Above command should update the menu system, but do it a second time just in case.
 }
 
 if [ "$UID" == "0" ]; then
