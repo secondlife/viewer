@@ -330,7 +330,7 @@ void do_startup_frame()
                 break;
             }
         }
-        if (needs_drain || gMessageSystem->mPacketRing.getNumBufferedPackets() > 0)
+        if (needs_drain || gMessageSystem->getNumBufferedPackets() > 0)
         {
              gMessageSystem->drainUdpSocket();
         }
@@ -714,7 +714,7 @@ bool idle_startup()
 
 
             F32 dropPercent = gSavedSettings.getF32("PacketDropPercentage");
-            msg->mPacketRing.setDropPercentage(dropPercent);
+            msg->setDropPercentage(dropPercent);
         }
 
         LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
