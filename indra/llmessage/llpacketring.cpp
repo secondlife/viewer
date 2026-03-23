@@ -84,7 +84,7 @@ void LLPacketRing::pushPacket(const LLPacketBuffer& packet)
     {
         // Ring is at maximum capacity; oldest packet was overwritten.
         // This is VERY BAD because we've already ACKed the packet we're loosing
-        // (if it was "relaible").
+        // (if it was "reliable").
         LL_WARNS("PacketRing") << "buffer overflow at " << mNumBufferedPackets << " packets" << LL_ENDL;
         mNumBufferedBytes += packet.getSize() - old_size;
     }
