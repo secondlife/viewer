@@ -6,7 +6,7 @@ include(00-Common)
 include(LLCommon)
 include(LLCoreHttp)
 include(Linking)
-include(Doctest)
+include(Tut)
 include(LLAddBuildTest)
 include(bugsplat)
 
@@ -55,14 +55,7 @@ list(APPEND test_SOURCE_FILES ${test_HEADER_FILES})
 
 add_executable(lltest ${test_SOURCE_FILES})
 
-# Add indra/test itself to the include path so that:
-#   #include "doctest/doctest.h"  →  indra/test/doctest/doctest.h
-#   #include <tut/tut.hpp>        →  indra/test/tut/tut.hpp  (compat shim)
-#   #include "lltut.h"            →  indra/test/lltut.h
-target_include_directories(lltest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
 target_link_libraries(lltest
-        doctest
         llinventory
         llmessage
         llmath

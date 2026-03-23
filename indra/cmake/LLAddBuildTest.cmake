@@ -2,7 +2,7 @@
 include(00-Common)
 include(LLTestCommand)
 include(bugsplat)
-include(Doctest)
+include(Tut)
 
 #*****************************************************************************
 #   LL_ADD_PROJECT_UNIT_TESTS
@@ -14,7 +14,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   # * this macro is being executed in the project file that is passed in
   # * current working SOURCE dir is that project dir
   # * there is a subfolder tests/ with test code corresponding to the filenames passed in
-  # * properties for each sourcefile passed in indicate what libs to link that file with (MAKE NO ASSUMPTIONS ASIDE FROM DOCTEST)
+  # * properties for each sourcefile passed in indicate what libs to link that file with (MAKE NO ASSUMPTIONS ASIDE FROM TUT)
   #
   # More info and examples at: https://wiki.secondlife.com/wiki/How_to_add_unit_tests_to_indra_code
 
@@ -115,7 +115,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     endif()
 
     # Add to project
-    target_link_libraries(PROJECT_${project}_TEST_${name} doctest ${alltest_LIBRARIES} ${${name}_test_additional_PROJECTS} ${${name}_test_additional_LIBRARIES} )
+    target_link_libraries(PROJECT_${project}_TEST_${name} ${alltest_LIBRARIES} ${${name}_test_additional_PROJECTS} ${${name}_test_additional_LIBRARIES} )
     add_dependencies( PROJECT_${project}_TEST_${name} ${alltest_DEP_TARGETS})
     # Compile-time Definitions
     GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_CFLAGS ${source} LL_TEST_ADDITIONAL_CFLAGS)
@@ -243,7 +243,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     message(STATUS "TARGET_LINK_LIBRARIES(INTEGRATION_TEST_${testname} ${libraries})")
   endif()
 
-  target_link_libraries(INTEGRATION_TEST_${testname} doctest ${libraries})
+  target_link_libraries(INTEGRATION_TEST_${testname} ${libraries})
   target_include_directories (INTEGRATION_TEST_${testname} PRIVATE ${LIBS_OPEN_DIR}/test )
 
   # Create the test running command
