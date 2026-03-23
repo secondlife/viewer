@@ -3213,8 +3213,8 @@ void LLViewerRegion::unpackRegionHandshake()
         }
     };
 
-    // We use same retry strategy as UseCircuitCode because this is a crucial message
-    // that MUST arrive else we'll suffer a failed login/teleport/region-cross
+    // This is a crucial message for establishing a connection to a region
+    // (either the main region or a visible neighbor).
     msg->sendReliable(
         host,
         gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
