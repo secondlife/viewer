@@ -5589,7 +5589,6 @@ void LLAppViewer::idleNetwork()
 
         // Process packets from network
         LockMessageChecker lmc(gMessageSystem);
-        static U64 t0 = totalTime();
         while (lmc.checkAllMessages(frame_count, gServicePump))
         {
             ++total_decoded;

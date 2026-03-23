@@ -1041,9 +1041,13 @@ S32 LLMessageSystem::bufferInboundPacket()
         }
 
         if (isHighPriorityMessage(pkt))
+        {
             mHighPriorityInbound.pushPacket(pkt);
+        }
         else
+        {
             mLowPriorityInbound.pushPacket(pkt);
+        }
     }
 
     return packet_size;
@@ -2870,7 +2874,7 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
     str << buffer << std::endl << std::endl;
     buffer = llformat( "SendPacket failures:       %20d", mSendPacketFailureCount);
     str << buffer << std::endl;
-    buffer = llformat( "Dropped packets:           %20d", mLostPackets);
+    buffer = llformat( "Dropped packets:           %20d", getTotalNumDroppedPackets());
     str << buffer << std::endl;
     buffer = llformat( "Resent packets:            %20d", mResentPackets);
     str << buffer << std::endl;

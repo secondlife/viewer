@@ -966,7 +966,7 @@ private:
     // Socket I/O helpers
 
     // Receive one packet: pop from ring if buffered, else read from mSocket.
-    // Applies drop simulation.  Sets mLastSender and mLastReceivingIF.
+    // Sets mLastSender and mLastReceivingIF.
     // Returns packet_size, or 0 if no packet or packet was dropped.
     S32  receivePacketOrDrop(char* datap);
 

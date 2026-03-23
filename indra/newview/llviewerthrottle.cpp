@@ -312,17 +312,17 @@ void LLViewerThrottle::resetDynamicThrottle()
 void LLViewerThrottle::updateDynamicThrottle()
 {
     // User configurable bandwidth settings are merely vague aspirations.  Translating those
-    // to what should be sent to the servers complicated, especially since the servers
-    // will tend to spike data transmission upon arrival, packets will arrive faster than
-    // we can process them, and might even overflow buffer, which causes packet loss.
+    // to what should be sent to the servers is complicated.  Servers will tend to spike data
+    // transmission upon arrival, packets will arrive faster than we can process them, and this
+    // can overflow the buffer, which causes packet loss.
     //
-    // In an attempt to avoid catastrophe we periodically measure buffer load and packet
-    // loss, modify the desired bandwidth, and transmit that info to the server.  However,
-    // this system does not work well for spikey data bursts because:
+    // In an attempt to avoid catastrophe we periodically measure buffer load and packet loss
+    // and then transmit a modified desired bandwidth to the server.  Unfortunately, this system
+    // does not work well for spikey data bursts because:
     //   (1) the response takes too long (up to 5 seconds) to kick in
     //   (2) once it starts it tends to ramp up too slowly
-    //   (3) it doesn't know which region is providing the flood; it just assumes the
-    //       main region
+    //   (3) it doesn't know which region is providing the flood; it just assumes it is
+    //       all from the main region
     //
     // TODO: fix those ^^^ problems
 
