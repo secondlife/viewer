@@ -2652,6 +2652,9 @@ void uninstall_nsis_if_required()
         return;
     }
 
+    // Clean legacy links regardless of whether we will proceed with uninstall or not.
+    clear_nsis_links();
+
     // Compose command line: "<uninstaller_path>" /S /clearreg
     std::wstring params = L"\"";
     params += buffer;

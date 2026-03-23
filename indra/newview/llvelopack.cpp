@@ -405,6 +405,50 @@ static void register_protocol_handler(const std::wstring& protocol,
     }
 }
 
+void clear_nsis_links()
+{
+    wchar_t path[MAX_PATH];
+
+    // 1. The 'start' shortcuts set by nsis would be global, like app shortcut:
+    // C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Second Life Viewer\Second Life Viewer.lnk
+    // But it isn't just one link, it's a whole directory that needs to be removed.
+    if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_COMMON_PROGRAMS, NULL, 0, path)))
+    {
+        std::wstring start_menu_path = path;
+        std::wstring folder_path   = start_menu_path + L"\\" + get_app_name();
+
+        std::error_code ec;
+        std::filesystem::path dir(folder_path);
+        if (std::filesystem::exists(dir, ec))
+        {
+            std::filesystem::remove_all(dir, ec);
+            if (ec)
+            {
+                LL_WARNS("Velopack") << "Failed to remove NSIS start menu directory: "
+                    << ll_convert_wide_to_string(folder_path) << LL_ENDL;
+            }
+        }
+    }
+
+    // 2. Desktop link, also a global one.
+    // C:\Users\Public\Desktop
+    if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL, 0, path)))
+    {
+        std::wstring desktop_path = path;
+        std::wstring shortcut_path = desktop_path + L"\\" + get_app_name() + L".lnk";
+        if (!DeleteFileW(shortcut_path.c_str()))
+        {
+            DWORD error = GetLastError();
+            if (error != ERROR_FILE_NOT_FOUND)
+            {
+                LL_WARNS("Velopack") << "Failed to delete NSIS desktop shortcut: "
+                    << ll_convert_wide_to_string(shortcut_path)
+                    << " (error: " << error << ")" << LL_ENDL;
+            }
+        }
+    }
+}
+
 static void parse_version(const wchar_t* version_str, int& major, int& minor, int& patch, uint64_t& build)
 {
     major = minor = patch = 0;
