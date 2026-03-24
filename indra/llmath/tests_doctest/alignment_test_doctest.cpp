@@ -7,6 +7,8 @@
 #include "../llsimdmath.h"
 #include "../llvector4a.h"
 
+#include <iostream>
+
 /**
  * @file v3dmath_test.cpp
  * @author Vir
