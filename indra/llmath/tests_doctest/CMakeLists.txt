@@ -5,6 +5,8 @@ set(LLMATH_DOCTEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/v2math_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/v3math_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/v4math_test_doctest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/llbbox_test_doctest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/llbboxlocal_test_doctest.cpp
 )
 
 add_executable(llmath_doctest
