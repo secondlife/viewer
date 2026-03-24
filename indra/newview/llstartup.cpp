@@ -2724,10 +2724,20 @@ void show_release_notes_if_required()
     // below. If viewer release notes stop working, might be because that
     // LLEventMailDrop got moved out of LLVersionInfo and hasn't yet been
     // instantiated.
-    if (!release_notes_shown && (LLVersionInfo::instance().getChannelAndVersion() != gLastRunVersion)
-        && LLVersionInfo::instance().getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
-        && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
-        && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
+    if (release_notes_shown
+        || LLVersionInfo::instance().getChannelAndVersion() == gLastRunVersion
+        || gSavedSettings.getBOOL("FirstLoginThisInstall")) // New users don't need to see release notes
+    {
+        return;
+    }
+    S32 mode = gSavedSettings.getS32("UpdaterShowReleaseNotes");
+    if (mode == 0)
+    {
+        return;
+    }
+    if (mode == 2 // Show even for test builds
+        || LLVersionInfo::instance().getViewerMaturity() != LLVersionInfo::TEST_VIEWER) // don't show Release Notes for the test builds
+
     {
 
 #if LL_RELEASE_FOR_DOWNLOAD

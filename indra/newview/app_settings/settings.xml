@@ -13067,11 +13067,11 @@
     <key>UpdaterShowReleaseNotes</key>
     <map>
         <key>Comment</key>
-        <string>Enables displaying of the Release notes in a web floater after update.</string>
+        <string>Enables displaying of the Release notes in a web floater after update. 0 - don't show, 1 - show, 2 - show even for test viewers</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
-        <string>Boolean</string>
+        <string>S32</string>
         <key>Value</key>
         <integer>1</integer>
     </map>
