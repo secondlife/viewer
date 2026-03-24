@@ -12,7 +12,9 @@ set(LLMATH_DOCTEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/llbboxlocal_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/llmodularmath_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/llrect_test_doctest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/mathmisc_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/m3math_test_doctest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/v3dmath_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/xform_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/v4color_test_doctest.cpp
 )
