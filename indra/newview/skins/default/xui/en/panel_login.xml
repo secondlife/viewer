@@ -78,9 +78,18 @@
            left="70"
            top="39"
            name="sl_logo_small" />
-          <combo_box
+          <icon
            left="40"
            top_pad="30"
+           width="220"
+           height="28"
+           image_name="TextField_Active"
+           layout="topleft"
+           follows="left|top"
+           name="text_field_bg1" />
+          <combo_box
+           left="40"
+           top_delta="0"
            allow_text_entry="true"
            follows="left|top"
            layout="topleft"
@@ -96,14 +105,14 @@
               <combo_box.combo_button
                image_overlay="ComboButton_Arrow"
                image_overlay_right_delta="10"
-               image_unselected="ComboButton_White"
+               image_unselected="ComboButton_Transparent"
                hover_glow_amount="0"
-               image_selected="ComboButton_White"
-               image_disabled="ComboButton_White" />
+               image_selected="ComboButton_Transparent"
+               image_disabled="ComboButton_Transparent" />
               <combo_box.combo_editor
-               background_image="Text_Field_Cropped"
-               background_image_disabled="Text_Field_Cropped"
-               background_image_focused="Text_Field_Cropped"
+               background_image="TextField_Transparent"
+               background_image_disabled="TextField_Transparent"
+               background_image_focused="TextField_Transparent"
                draw_focus_border="false"
                text_pad_left="8"
                bg_image_always_focused="true"/>
@@ -173,6 +182,14 @@
            valign="center">
            Start here
           </text>
+          <icon
+           top_pad="6"
+           width="220"
+           height="28"
+           image_name="TextField_Active"
+           layout="topleft"
+           follows="left|top"
+           name="text_field_bg2" />
           <combo_box
            allow_text_entry="true"
            control_name="NextLoginLocation"
@@ -181,7 +198,7 @@
            height="28"
            max_chars="128"
            combo_editor.font="SansSerifLarge"
-           top_pad="6"
+           top_delta="0"
            name="start_location_combo"
            width="220"
            combo_button.scale_image="true">
@@ -189,13 +206,13 @@
                image_overlay="ComboButton_Arrow"
                hover_glow_amount="0"
                image_overlay_right_delta="10"
-               image_unselected="ComboButton_White"
-               image_selected="ComboButton_White"
-               image_disabled="ComboButton_White" />
+               image_unselected="ComboButton_Transparent"
+               image_selected="ComboButton_Transparent"
+               image_disabled="ComboButton_Transparent" />
               <combo_box.combo_editor
-               background_image="Text_Field_Cropped"
-               background_image_disabled="Text_Field_Cropped"
-               background_image_focused="Text_Field_Cropped"
+               background_image="TextField_Transparent"
+               background_image_disabled="TextField_Transparent"
+               background_image_focused="TextField_Transparent"
                draw_focus_border="false"
                text_pad_left="8"
                bg_image_always_focused="true"/>
