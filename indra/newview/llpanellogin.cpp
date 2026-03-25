@@ -197,7 +197,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     mCallback(callback),
     mCallbackData(cb_data),
     mListener(std::make_unique<LLPanelLoginListener>(this)),
-    mFirstLoginThisInstall(gSavedSettings.getBOOL("FirstLoginThisInstall")),
     mUsernameLength(0),
     mPasswordLength(0),
     mLocationLength(0),
@@ -217,15 +216,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
         login_holder->addChild(this);
     }
 
-    if (mFirstLoginThisInstall)
-    {
-        buildFromFile( "panel_login_first.xml");
-    }
-    else
-    {
-        buildFromFile( "panel_login.xml");
-    }
-
+    buildFromFile( "panel_login.xml");
     reshape(rect.getWidth(), rect.getHeight());
 
     LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
@@ -246,8 +237,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     mGridPanel = getChild<LLLayoutPanel>("grid_panel");
 
     std::string current_grid = LLGridManager::getInstance()->getGrid();
-    if (!mFirstLoginThisInstall)
-    {
+
         LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
         updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
         favorites_combo->setReturnCallback(boost::bind(&LLPanelLogin::onClickConnect, false));
@@ -277,7 +267,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
             current_grid,
             ADD_TOP);
         server_choice_combo->selectFirstItem();
-    }
 
     LLSLURL start_slurl(LLStartUp::getStartSLURL());
     // The StartSLURL might have been set either by an explicit command-line
@@ -347,15 +336,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 void LLPanelLogin::addFavoritesToStartLocation()
 {
-    if (mFirstLoginThisInstall)
-    {
-        // first login panel has no favorites, just update name length and buttons
-        std::string user_defined_name = getChild<LLComboBox>("username_combo")->getSimple();
-        mUsernameLength = static_cast<unsigned int>(user_defined_name.length());
-        updateLoginButtons();
-        return;
-    }
-
     // Clear the combo.
     LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
     if (!combo) return;
@@ -575,16 +555,8 @@ void LLPanelLogin::resetFields()
         // function is used to reset list in case of changes by external sources
         return;
     }
-    if (sInstance->mFirstLoginThisInstall)
-    {
-        // no list to populate
-        LL_WARNS() << "Shouldn't happen, user should have no ability to modify list on first install" << LL_ENDL;
-    }
-    else
-    {
-        LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());
-        sInstance->populateUserList(cred);
-    }
+    LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());
+    sInstance->populateUserList(cred);
 }
 
 // static
@@ -1102,8 +1074,7 @@ void LLPanelLogin::onRememberUserCheck(void*)
         LLComboBox* user_combo(sInstance->getChild<LLComboBox>("username_combo"));
 
         bool remember = remember_name->getValue().asBoolean();
-        if (!sInstance->mFirstLoginThisInstall
-            && user_combo->getCurrentIndex() != -1
+        if (user_combo->getCurrentIndex() != -1
             && !remember)
         {
             remember = true;
@@ -1216,17 +1187,14 @@ void LLPanelLogin::updateLoginButtons()
 {
     mLoginBtn->setEnabled(mUsernameLength != 0 && mPasswordLength != 0 && !mAlertNotif);
 
-    if (!mFirstLoginThisInstall)
+    LLComboBox* user_combo = getChild<LLComboBox>("username_combo");
+    LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
+    if (user_combo->getCurrentIndex() != -1)
     {
-        LLComboBox* user_combo = getChild<LLComboBox>("username_combo");
-        LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
-        if (user_combo->getCurrentIndex() != -1)
-        {
-            remember_name->setValue(true);
-            LLCheckBoxCtrl* remember_pass = getChild<LLCheckBoxCtrl>("remember_password");
-            remember_pass->setEnabled(true);
-        } // Note: might be good idea to do "else remember_name->setValue(mRememberedState)" but it might behave 'weird' to user
-    }
+        remember_name->setValue(true);
+        LLCheckBoxCtrl* remember_pass = getChild<LLCheckBoxCtrl>("remember_password");
+        remember_pass->setEnabled(true);
+    } // Note: might be good idea to do "else remember_name->setValue(mRememberedState)" but it might behave 'weird' to user
 }
 
 void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
