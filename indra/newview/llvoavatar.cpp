@@ -11151,6 +11151,74 @@ void LLVOAvatar::updateVisualComplexity()
 }
 
 
+U32 LLVOAvatar::calculateBodyPartsComplexity()
+{
+    static const U32 COMPLEXITY_BODY_PART_COST = 200;
+    U32 cost = 0;
+    for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
+    {
+        const LLAvatarAppearanceDictionary::BakedEntry* baked_dict
+            = LLAvatarAppearance::getDictionary()->getBakedTexture((EBakedTextureIndex)baked_index);
+        ETextureIndex tex_index = baked_dict->mTextureIndex;
+        if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(LLWearableType::WT_SKIRT)))
+        {
+            // Same as isTextureVisible(), but doesn't account for isSelf to ensure identical numbers for all avatars
+            if (isIndexLocalTexture(tex_index))
+            {
+                if (isTextureDefined(tex_index, 0))
+                {
+                    cost += COMPLEXITY_BODY_PART_COST;
+                }
+            }
+            else
+            {
+                // baked textures can use TE images directly
+                if (isTextureDefined(tex_index)
+                    && (getTEImage(tex_index)->getID() != IMG_INVISIBLE || LLDrawPoolAlpha::sShowDebugAlpha))
+                {
+                    cost += COMPLEXITY_BODY_PART_COST;
+                }
+            }
+        }
+    }
+    LL_DEBUGS("ARCdetail") << "Avatar body parts complexity: " << cost << LL_ENDL;
+    return cost;
+}
+
+void LLVOAvatar::processComplexityCostChange(hud_complexity_list_t hud_complexity_list, object_complexity_list_t object_complexity_list)
+{
+    static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
+
+    if (isSelf() && show_my_complexity_changes)
+    {
+        // Avatar complexity
+        LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
+        LLAvatarRenderNotifier::getInstance()->setObjectComplexityList(object_complexity_list);
+        // HUD complexity
+        LLHUDRenderNotifier::getInstance()->updateNotificationHUD(hud_complexity_list);
+    }
+
+    //schedule an update to ART next frame if needed
+    if (LLPerfStats::tunables.userAutoTuneEnabled &&
+        LLPerfStats::tunables.userFPSTuningStrategy != LLPerfStats::TUNE_SCENE_ONLY &&
+        !isVisuallyMuted())
+    {
+        const LLUUID id = getID(); // <== use id to make sure this avatar didn't get deleted between frames
+        LL::WorkQueue::getInstance("mainloop")->post([id]()
+        {
+            LLViewerObject* obj = gObjectList.findObject(id);
+            if (obj
+                && !obj->isDead()
+                && obj->isAvatar()
+                && obj->mDrawable)
+            {
+                LLVOAvatar* avatar = (LLVOAvatar*)obj;
+                gPipeline.profileAvatar(avatar);
+            }
+        });
+    }
+}
+
 // Account for the complexity of a single top-level object associated
 // with an avatar. This will be either an attached object or an animated
 // object.
@@ -11317,7 +11385,6 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
-        static const U32 COMPLEXITY_BODY_PART_COST = 200;
         static LLCachedControl<F32> max_complexity_setting(gSavedSettings, "MaxAttachmentComplexity");
         F32 max_attachment_complexity = max_complexity_setting;
         max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
@@ -11330,33 +11397,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
         hud_complexity_list_t hud_complexity_list;
         object_complexity_list_t object_complexity_list;
 
-        for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
-        {
-            const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
-                = LLAvatarAppearance::getDictionary()->getBakedTexture((EBakedTextureIndex)baked_index);
-            ETextureIndex tex_index = baked_dict->mTextureIndex;
-            if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(LLWearableType::WT_SKIRT)))
-            {
-                // Same as isTextureVisible(), but doesn't account for isSelf to ensure identical numbers for all avatars
-                if (isIndexLocalTexture(tex_index))
-                {
-                    if (isTextureDefined(tex_index, 0))
-                    {
-                        cost += COMPLEXITY_BODY_PART_COST;
-                    }
-                }
-                else
-                {
-                    // baked textures can use TE images directly
-                    if (isTextureDefined(tex_index)
-                        && (getTEImage(tex_index)->getID() != IMG_INVISIBLE || LLDrawPoolAlpha::sShowDebugAlpha))
-                    {
-                        cost += COMPLEXITY_BODY_PART_COST;
-                    }
-                }
-            }
-        }
-        LL_DEBUGS("ARCdetail") << "Avatar body parts complexity: " << cost << LL_ENDL;
+        cost += calculateBodyPartsComplexity();
 
         mAttachmentVisibleTriangleCount = 0;
         mAttachmentEstTriangleCount = 0.f;
@@ -11409,36 +11450,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
         mVisualComplexity = cost;
         mVisualComplexityStale = false;
 
-        static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
-
-        if (isSelf() && show_my_complexity_changes)
-        {
-            // Avatar complexity
-            LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
-            LLAvatarRenderNotifier::getInstance()->setObjectComplexityList(object_complexity_list);
-            // HUD complexity
-            LLHUDRenderNotifier::getInstance()->updateNotificationHUD(hud_complexity_list);
-        }
-
-        //schedule an update to ART next frame if needed
-        if (LLPerfStats::tunables.userAutoTuneEnabled &&
-            LLPerfStats::tunables.userFPSTuningStrategy != LLPerfStats::TUNE_SCENE_ONLY &&
-            !isVisuallyMuted())
-        {
-            const LLUUID id = getID(); // <== use id to make sure this avatar didn't get deleted between frames
-            LL::WorkQueue::getInstance("mainloop")->post([id]()
-                {
-                    LLViewerObject* obj = gObjectList.findObject(id);
-                    if (obj
-                        && !obj->isDead()
-                        && obj->isAvatar()
-                        && obj->mDrawable)
-                    {
-                        LLVOAvatar* avatar = (LLVOAvatar*)obj;
-                        gPipeline.profileAvatar(avatar);
-                    }
-                });
-        }
+        processComplexityCostChange(hud_complexity_list, object_complexity_list);
     }
 }
 

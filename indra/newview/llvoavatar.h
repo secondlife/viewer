@@ -594,6 +594,9 @@ private:
 
     VisualMuteSettings      mVisuallyMuteSetting;           // Always or never visually mute this AV
 
+    U32 calculateBodyPartsComplexity();
+
+    void processComplexityCostChange(hud_complexity_list_t hud_complexity_list, object_complexity_list_t object_complexity_list);
     //--------------------------------------------------------------------
     // animated object status
     //--------------------------------------------------------------------
@@ -630,7 +633,6 @@ private:
     // Shadowing
     //--------------------------------------------------------------------
 public:
-    void        updateShadowFaces();
     LLDrawable* mShadow;
 private:
     LLFace*     mShadow0Facep;
