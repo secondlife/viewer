@@ -34,7 +34,10 @@
 
 #include <boost/json.hpp>
 #include <fstream>
+#include <mutex>
+#include <thread>
 #include <unordered_map>
+#include <vector>
 #include "llnotificationsutil.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
@@ -55,25 +58,45 @@
 #pragma comment(lib, "shell32.lib")
 #endif // LL_WINDOWS
 
-// Common state
-static std::string sUpdateUrl;
-static std::function<void(int)> sProgressCallback;
-static vpkc_update_manager_t* sUpdateManager = nullptr;
-static vpkc_update_info_t* sPendingUpdate = nullptr;        // Downloaded, ready to apply
-static vpkc_update_info_t* sPendingCheckInfo = nullptr;     // Checked, awaiting user response
-static vpkc_update_source_t* sUpdateSource = nullptr;
-static LLNotificationPtr sDownloadingNotification;
-static bool sRestartAfterUpdate = false;
-static bool sIsRequired = false;                             // Is the pending check a required update?
-static std::string sReleaseNotesUrl;
-static std::string sTargetVersion;                           // Velopack's actual target version
+struct VelopackDownloadRequest
+{
+    bool allow_downgrade = false;
+    bool show_progress_notification = false;
+    bool quit_when_ready = false;
+    bool required_update = false;
+    std::string version;
+};
+
+class VelopackUpdaterController
+{
+public:
+    std::string mUpdateUrl;
+    std::function<void(int)> mProgressCallback;
+    vpkc_update_manager_t* mUpdateManager = nullptr;
+    vpkc_update_info_t* mPendingUpdate = nullptr;
+    vpkc_update_source_t* mUpdateSource = nullptr;
+    LLNotificationPtr mDownloadingNotification;
+    bool mRestartAfterUpdate = false;
+    bool mBackgroundStageActive = false;
+    bool mRequiredUpdateInProgress = false;
+    std::string mRequiredUpdateVersion;
+    std::string mRequiredUpdateRelnotes;
+    std::unordered_map<std::string, std::string> mAssetUrlMap;
+    std::unordered_map<std::string, std::string> mPreDownloadedAssets;
+    std::mutex mStateMutex;
+    std::thread mBackgroundStageThread;
+};
+
+static VelopackUpdaterController& updater()
+{
+    static VelopackUpdaterController sController;
+    return sController;
+}
 
 // Forward declarations
 static void show_required_update_prompt();
 static void show_downloading_notification(const std::string& version);
-static void ensure_update_manager(bool allow_downgrade);
-static void velopack_download_pending_update();
-static std::unordered_map<std::string, std::string> sAssetUrlMap; // basename -> original absolute URL
+static void dismiss_downloading_notification();
 
 //
 // Custom update source helpers
@@ -94,6 +117,24 @@ static std::string extract_basename(const std::string& url)
     return path;
 }
 
+static std::string sanitize_asset_filename(const std::string& filename)
+{
+    std::string basename = extract_basename(filename);
+    if (basename.empty() || basename == "." || basename == "..")
+    {
+        return {};
+    }
+
+    if (basename.find('/') != std::string::npos ||
+        basename.find('\\') != std::string::npos ||
+        basename.find("..") != std::string::npos)
+    {
+        return {};
+    }
+
+    return basename;
+}
+
 static void rewrite_asset_urls(boost::json::value& jv)
 {
     if (jv.is_object())
@@ -106,7 +147,7 @@ static void rewrite_asset_urls(boost::json::value& jv)
             if (filename.find("://") != std::string::npos)
             {
                 std::string basename = extract_basename(filename);
-                sAssetUrlMap[basename] = filename;
+                updater().mAssetUrlMap[basename] = filename;
                 it->value() = basename;
                 LL_DEBUGS("Velopack") << "Rewrote FileName: " << basename << LL_ENDL;
             }
@@ -189,7 +230,7 @@ static bool download_url_to_file(const std::string& url, const std::string& loca
 
 static char* custom_get_release_feed(void* user_data, const char* releases_name)
 {
-    std::string base = sUpdateUrl;
+    std::string base = updater().mUpdateUrl;
     if (!base.empty() && base.back() == '/')
         base.pop_back();
     std::string url = base + "/" + releases_name;
@@ -229,8 +270,6 @@ static void custom_free_release_feed(void* user_data, char* feed)
     free(feed);
 }
 
-static std::string sPreDownloadedAssetPath;
-
 static bool custom_download_asset(void* user_data,
                                    const vpkc_asset_t* asset,
                                    const char* local_path,
@@ -239,19 +278,22 @@ static bool custom_download_asset(void* user_data,
     // The asset has already been downloaded at the coroutine level (before vpkc_download_updates).
     // This callback just copies the pre-downloaded file to where Velopack expects it.
     // We cannot use getRawAndSuspend here — coroutine context is lost through the Rust FFI boundary.
-    if (sPreDownloadedAssetPath.empty())
+    std::string filename = asset->FileName ? asset->FileName : "";
+    auto& pre_downloaded_assets = updater().mPreDownloadedAssets;
+    auto it = pre_downloaded_assets.find(filename);
+    if (it == pre_downloaded_assets.end())
     {
-        LL_WARNS("Velopack") << "No pre-downloaded asset available" << LL_ENDL;
+        LL_WARNS("Velopack") << "No pre-downloaded asset available for: " << filename << LL_ENDL;
         return false;
     }
 
-    std::string filename = asset->FileName ? asset->FileName : "";
+    std::string source_path = it->second;
     LL_INFOS("Velopack") << "Download asset callback: filename=" << filename
         << " local_path=" << local_path
         << " size=" << asset->Size << LL_ENDL;
     vpkc_source_report_progress(progress_callback_id, 0);
 
-    std::ifstream src(sPreDownloadedAssetPath, std::ios::binary);
+    std::ifstream src(source_path, std::ios::binary);
     llofstream dst(local_path, std::ios::binary | std::ios::trunc);
     if (!src.is_open() || !dst.is_open())
     {
@@ -291,14 +333,11 @@ static std::wstring get_install_dir()
 
 static std::wstring get_app_name()
 {
-    // Match viewer_manifest.py app_name() logic: release channel uses "Viewer"
-    // suffix instead of "Release" for display purposes (shortcuts, uninstall, etc.)
+    // Release installs should use the base brand name; special channels keep their suffix.
     std::wstring channel = LL_TO_WSTRING(LL_VIEWER_CHANNEL);
-    std::wstring release_suffix = L" Release";
-    if (channel.size() >= release_suffix.size() &&
-        channel.compare(channel.size() - release_suffix.size(), release_suffix.size(), release_suffix) == 0)
+    if (channel.size() >= 8 && channel.compare(channel.size() - 8, 8, L" Release") == 0)
     {
-        channel.replace(channel.size() - release_suffix.size(), release_suffix.size(), L" Viewer");
+        return channel.substr(0, channel.size() - 8);
     }
     return channel;
 }
@@ -409,14 +448,9 @@ void clear_nsis_links()
 {
     wchar_t path[MAX_PATH];
 
-    // 1. The 'start' shortcuts set by nsis would be global, like app shortcut:
-    // C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Second Life Viewer\Second Life Viewer.lnk
-    // But it isn't just one link, it's a whole directory that needs to be removed.
     if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_COMMON_PROGRAMS, NULL, 0, path)))
     {
-        std::wstring start_menu_path = path;
-        std::wstring folder_path   = start_menu_path + L"\\" + get_app_name();
-
+        std::wstring folder_path = std::wstring(path) + L"\\" + get_app_name();
         std::error_code ec;
         std::filesystem::path dir(folder_path);
         if (std::filesystem::exists(dir, ec))
@@ -430,12 +464,9 @@ void clear_nsis_links()
         }
     }
 
-    // 2. Desktop link, also a global one.
-    // C:\Users\Public\Desktop
     if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL, 0, path)))
     {
-        std::wstring desktop_path = path;
-        std::wstring shortcut_path = desktop_path + L"\\" + get_app_name() + L".lnk";
+        std::wstring shortcut_path = std::wstring(path) + L"\\" + get_app_name() + L".lnk";
         if (!DeleteFileW(shortcut_path.c_str()))
         {
             DWORD error = GetLastError();
@@ -543,13 +574,7 @@ static void register_uninstall_info(const std::wstring& install_dir,
                                     const std::wstring& version)
 {
     std::wstring app_name_oneword = get_app_name_oneword();
-    // Clear previous 'alpha' name just in case, won't be needed after one-click releases.
     std::wstring key_path = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + app_name_oneword;
-    RegDeleteTreeW(HKEY_CURRENT_USER, key_path.c_str());
-    // Use a unique key name to avoid conflicts with any existing NSIS-based uninstall info,
-    // which can cause nly one of the two entries to show up in the Add/Remove Programs list.
-    // The UI will show DisplayName, so the key name itself is not important to be user-friendly.
-    key_path = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Vlpk" + app_name_oneword;
     HKEY hkey;
 
     if (RegCreateKeyExW(HKEY_CURRENT_USER, key_path.c_str(), 0, NULL,
@@ -597,7 +622,7 @@ static void register_uninstall_info(const std::wstring& install_dir,
 static void unregister_uninstall_info()
 {
     std::wstring app_name_oneword = get_app_name_oneword();
-    std::wstring key_path = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Vlpk" + app_name_oneword;
+    std::wstring key_path = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + app_name_oneword;
     RegDeleteTreeW(HKEY_CURRENT_USER, key_path.c_str());
 }
 
@@ -692,9 +717,9 @@ static void on_log_message(void* user_data, const char* level, const char* messa
 
 static void on_progress(void* user_data, size_t progress)
 {
-    if (sProgressCallback)
+    if (updater().mProgressCallback)
     {
-        sProgressCallback(static_cast<int>(progress));
+        updater().mProgressCallback(static_cast<int>(progress));
     }
 }
 
@@ -705,12 +730,6 @@ static void on_vpk_log(void* p_user_data,
     LL_DEBUGS("Velopack") << ll_safe_string(psz_message) << LL_ENDL;
 }
 
-//
-// Version comparison helper
-//
-
-// Compare running version against a VVM version string "major.minor.patch.build".
-// Returns -1 if running < vvm, 0 if equal, 1 if running > vvm.
 static int compare_running_version(const std::string& vvm_version)
 {
     S32 major = 0, minor = 0, patch = 0;
@@ -718,131 +737,11 @@ static int compare_running_version(const std::string& vvm_version)
     sscanf(vvm_version.c_str(), "%d.%d.%d.%llu", &major, &minor, &patch, &build);
 
     const LLVersionInfo& vi = LLVersionInfo::instance();
-    S32 cur_major = vi.getMajor();
-    S32 cur_minor = vi.getMinor();
-    S32 cur_patch = vi.getPatch();
-    U64 cur_build = vi.getBuild();
-
-    if (cur_major != major) return cur_major < major ? -1 : 1;
-    if (cur_minor != minor) return cur_minor < minor ? -1 : 1;
-    if (cur_patch != patch) return cur_patch < patch ? -1 : 1;
-    if (cur_build != build) return cur_build < build ? -1 : 1;
+    if (vi.getMajor() != major) return vi.getMajor() < major ? -1 : 1;
+    if (vi.getMinor() != minor) return vi.getMinor() < minor ? -1 : 1;
+    if (vi.getPatch() != patch) return vi.getPatch() < patch ? -1 : 1;
+    if (vi.getBuild() != build) return vi.getBuild() < build ? -1 : 1;
     return 0;
-}
-
-//
-// Update manager lifecycle
-//
-
-static void ensure_update_manager(bool allow_downgrade)
-{
-    if (sUpdateManager)
-        return;
-
-    vpkc_update_options_t options = {};
-    options.AllowVersionDowngrade = allow_downgrade;
-    options.ExplicitChannel = nullptr;
-
-    if (!sUpdateSource)
-    {
-        sUpdateSource = vpkc_new_source_custom_callback(
-            custom_get_release_feed,
-            custom_free_release_feed,
-            custom_download_asset,
-            nullptr);
-    }
-
-    vpkc_locator_config_t* locator_ptr = nullptr;
-
-#if LL_DARWIN
-    // Try auto-detection first (works when the app bundle was packaged by vpk
-    // and has UpdateMac + sq.version already present)
-    if (!vpkc_new_update_manager_with_source(sUpdateSource, &options, nullptr, &sUpdateManager))
-    {
-        char err[512];
-        vpkc_get_last_error(err, sizeof(err));
-        LL_INFOS("Velopack") << "Auto-detect failed (" << ll_safe_string(err)
-                             << "), falling back to explicit locator" << LL_ENDL;
-
-        // Auto-detection failed — construct an explicit locator.
-        // This handles legacy DMG installs that don't have Velopack's
-        // install state (UpdateMac, sq.version) in the bundle.
-        vpkc_locator_config_t locator = {};
-
-        // The executable lives at <bundle>/Contents/MacOS/<exe>
-        // The app bundle root is two levels up from the executable directory.
-        std::string exe_dir = gDirUtilp->getExecutableDir();
-        std::string bundle_root = exe_dir + "/../..";
-        char resolved[PATH_MAX];
-        if (realpath(bundle_root.c_str(), resolved))
-        {
-            bundle_root = resolved;
-        }
-
-        // Construct a version string in Velopack SemVer format: major.minor.patch-build
-        const LLVersionInfo& vi = LLVersionInfo::instance();
-        std::string current_version = llformat("%d.%d.%d-%llu",
-            vi.getMajor(), vi.getMinor(), vi.getPatch(), vi.getBuild());
-
-        // Create a minimal sq.version manifest so Velopack knows our version.
-        // Proper vpk-packaged builds have this in the bundle already.
-        std::string manifest_path = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, "sq.version");
-        {
-            std::string app_name = LLVersionInfo::instance().getChannel();
-            std::string pack_id = app_name;
-            pack_id.erase(std::remove(pack_id.begin(), pack_id.end(), ' '), pack_id.end());
-
-            std::string nuspec = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                "<package xmlns=\"http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd\">\n"
-                "  <metadata>\n"
-                "    <id>" + pack_id + "</id>\n"
-                "    <version>" + current_version + "</version>\n"
-                "    <title>" + app_name + "</title>\n"
-                "  </metadata>\n"
-                "</package>\n";
-
-            llofstream manifest_file(manifest_path, std::ios::trunc);
-            if (manifest_file.is_open())
-            {
-                manifest_file << nuspec;
-                manifest_file.close();
-            }
-        }
-
-        std::string packages_dir = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, "velopack-packages");
-        LLFile::mkdir(packages_dir);
-
-        locator.RootAppDir = const_cast<char*>(bundle_root.c_str());
-        locator.CurrentBinaryDir = const_cast<char*>(exe_dir.c_str());
-        locator.ManifestPath = const_cast<char*>(manifest_path.c_str());
-        locator.PackagesDir = const_cast<char*>(packages_dir.c_str());
-        locator.UpdateExePath = nullptr;
-        locator.IsPortable = false;
-
-        locator_ptr = &locator;
-
-        LL_INFOS("Velopack") << "Explicit locator: RootAppDir=" << bundle_root
-                             << " CurrentBinaryDir=" << exe_dir
-                             << " Version=" << current_version << LL_ENDL;
-
-        if (!vpkc_new_update_manager_with_source(sUpdateSource, &options, locator_ptr, &sUpdateManager))
-        {
-            char err2[512];
-            vpkc_get_last_error(err2, sizeof(err2));
-            LL_WARNS("Velopack") << "Failed to create update manager: " << ll_safe_string(err2) << LL_ENDL;
-        }
-    }
-    return;
-#endif
-
-    // Windows: Velopack auto-detection works because the viewer is installed
-    // by Velopack's Setup.exe which creates the proper install structure.
-    if (!vpkc_new_update_manager_with_source(sUpdateSource, &options, nullptr, &sUpdateManager))
-    {
-        char err[512];
-        vpkc_get_last_error(err, sizeof(err));
-        LL_WARNS("Velopack") << "Failed to create update manager: " << ll_safe_string(err) << LL_ENDL;
-    }
 }
 
 //
@@ -863,76 +762,306 @@ bool velopack_initialize()
     return true;
 }
 
-// Downloads the update that was found during the check phase.
-// Operates on sPendingCheckInfo which was set by velopack_check_for_updates.
-static void velopack_download_pending_update()
+static void join_background_stage_thread()
 {
-    if (!sUpdateManager || !sPendingCheckInfo)
+    if (updater().mBackgroundStageThread.joinable())
     {
-        LL_WARNS("Velopack") << "No pending check info to download" << LL_ENDL;
+        updater().mBackgroundStageThread.join();
+    }
+}
+
+static bool try_begin_update_job()
+{
+    if (updater().mBackgroundStageActive)
+    {
+        LL_INFOS("Velopack") << "Update staging already in progress, skipping duplicate request" << LL_ENDL;
+        return false;
+    }
+
+    updater().mBackgroundStageActive = true;
+    return true;
+}
+
+static void finish_update_job(const VelopackDownloadRequest& request, bool success)
+{
+    join_background_stage_thread();
+    updater().mBackgroundStageActive = false;
+
+    if (request.show_progress_notification)
+    {
+        dismiss_downloading_notification();
+    }
+
+    if (success && request.quit_when_ready && velopack_is_update_pending())
+    {
+        LL_INFOS("Velopack")
+            << (request.required_update ? "Required" : "Optional")
+            << " update downloaded, quitting to apply" << LL_ENDL;
+        velopack_request_restart_after_update();
+        LLAppViewer::instance()->requestQuit();
         return;
+    }
+
+    if (!success && request.required_update)
+    {
+        LL_WARNS("Velopack") << "Required update did not finish staging, returning to prompt" << LL_ENDL;
+        show_required_update_prompt();
+    }
+}
+
+static bool pre_download_assets(const std::vector<vpkc_asset_t*>& assets)
+{
+    for (vpkc_asset_t* target_asset : assets)
+    {
+        std::string asset_filename = target_asset->FileName ? target_asset->FileName : "";
+        std::string safe_asset_filename = sanitize_asset_filename(asset_filename);
+        if (safe_asset_filename.empty())
+        {
+            LL_WARNS("Velopack") << "Rejecting unsafe update asset filename: " << asset_filename << LL_ENDL;
+            return false;
+        }
+
+        if (updater().mPreDownloadedAssets.count(safe_asset_filename))
+        {
+            continue;
+        }
+
+        std::string asset_url;
+        auto url_it = updater().mAssetUrlMap.find(safe_asset_filename);
+        if (url_it != updater().mAssetUrlMap.end())
+        {
+            asset_url = url_it->second;
+        }
+        else
+        {
+            std::string base = updater().mUpdateUrl;
+            if (!base.empty() && base.back() == '/')
+            {
+                base.pop_back();
+            }
+            asset_url = base + "/" + safe_asset_filename;
+        }
+
+        std::string local_path = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, safe_asset_filename);
+        LL_INFOS("Velopack") << "Pre-downloading " << ll_safe_string(target_asset->Type)
+                             << " asset: " << asset_url << " to " << local_path << LL_ENDL;
+
+        if (!download_url_to_file(asset_url, local_path))
+        {
+            LL_WARNS("Velopack") << "Failed to pre-download update asset: " << safe_asset_filename << LL_ENDL;
+            return false;
+        }
+
+        updater().mPreDownloadedAssets[safe_asset_filename] = local_path;
+    }
+
+    return true;
+}
+
+static bool prepare_update_manager(bool allow_downgrade)
+{
+    if (updater().mUpdateManager)
+    {
+        return true;
+    }
+
+    vpkc_update_options_t options = {};
+    options.AllowVersionDowngrade = allow_downgrade;
+    options.ExplicitChannel = nullptr;
+
+    if (!updater().mUpdateSource)
+    {
+        updater().mUpdateSource = vpkc_new_source_custom_callback(
+            custom_get_release_feed,
+            custom_free_release_feed,
+            custom_download_asset,
+            nullptr);
+    }
+
+    if (!vpkc_new_update_manager_with_source(updater().mUpdateSource, &options, nullptr, &updater().mUpdateManager))
+    {
+        LL_WARNS("Velopack") << "Failed to create update manager" << LL_ENDL;
+        return false;
+    }
+
+    return true;
+}
+
+static bool query_available_update(bool allow_downgrade, vpkc_update_info_t*& update_info)
+{
+    update_info = nullptr;
+
+    if (updater().mUpdateUrl.empty())
+    {
+        LL_DEBUGS("Velopack") << "No update URL set, skipping update check" << LL_ENDL;
+        return false;
+    }
+
+    if (!prepare_update_manager(allow_downgrade))
+    {
+        return false;
+    }
+
+    vpkc_update_check_t result = vpkc_check_for_updates(updater().mUpdateManager, &update_info);
+    if (result != UPDATE_AVAILABLE || !update_info)
+    {
+        LL_DEBUGS("Velopack") << "No update available (result=" << result << ")" << LL_ENDL;
+        return false;
+    }
+
+    return true;
+}
+
+static bool prepare_update_download(bool allow_downgrade, vpkc_update_info_t*& update_info)
+{
+    if (!query_available_update(allow_downgrade, update_info))
+    {
+        return false;
     }
 
     LL_DEBUGS("Velopack") << "Setting up detailed logging";
     vpkc_set_logger(on_vpk_log, nullptr);
     LL_CONT << LL_ENDL;
-    LL_INFOS("Velopack") << "Downloading update..." << LL_ENDL;
+    LL_INFOS("Velopack") << "Update available, preparing download..." << LL_ENDL;
 
-    // Pre-download the nupkg at the coroutine level where getRawAndSuspend works.
-    // The download callback inside the Rust FFI cannot use coroutine HTTP.
-    std::string asset_filename = sPendingCheckInfo->TargetFullRelease->FileName
-        ? sPendingCheckInfo->TargetFullRelease->FileName : "";
-    std::string asset_url;
-    auto url_it = sAssetUrlMap.find(asset_filename);
-    if (url_it != sAssetUrlMap.end())
+    bool has_deltas = update_info->DeltasToTargetCount > 0;
+    std::vector<vpkc_asset_t*> first_pass;
+
+    if (has_deltas)
     {
-        asset_url = url_it->second;
+        for (size_t i = 0; i < update_info->DeltasToTargetCount; ++i)
+        {
+            first_pass.push_back(update_info->DeltasToTarget[i]);
+        }
     }
     else
     {
-        std::string base = sUpdateUrl;
-        if (!base.empty() && base.back() == '/')
-            base.pop_back();
-        asset_url = base + "/" + asset_filename;
+        first_pass.push_back(update_info->TargetFullRelease);
     }
 
-    sPreDownloadedAssetPath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, asset_filename);
-    LL_INFOS("Velopack") << "Pre-downloading " << asset_url
-        << " to " << sPreDownloadedAssetPath << LL_ENDL;
-
-    if (!download_url_to_file(asset_url, sPreDownloadedAssetPath))
+    if (!pre_download_assets(first_pass))
     {
-        LL_WARNS("Velopack") << "Failed to pre-download update asset" << LL_ENDL;
-        sPreDownloadedAssetPath.clear();
-        return;
+        updater().mPreDownloadedAssets.clear();
+        vpkc_free_update_info(update_info);
+        update_info = nullptr;
+        return false;
     }
 
-    LL_INFOS("Velopack") << "Pre-download complete, handing to Velopack" << LL_ENDL;
-    if (vpkc_download_updates(sUpdateManager, sPendingCheckInfo, on_progress, nullptr))
+    return true;
+}
+
+static bool stage_prepared_update(vpkc_update_info_t* update_info)
+{
+    bool has_deltas = update_info->DeltasToTargetCount > 0;
+
+    LL_INFOS("Velopack") << "Pre-download complete, staging with Velopack in background" << LL_ENDL;
+    if (vpkc_download_updates(updater().mUpdateManager, update_info, on_progress, nullptr))
     {
-        if (sPendingUpdate)
+        std::lock_guard<std::mutex> lock(updater().mStateMutex);
+        if (updater().mPendingUpdate)
         {
-            vpkc_free_update_info(sPendingUpdate);
+            vpkc_free_update_info(updater().mPendingUpdate);
         }
-        sPendingUpdate = sPendingCheckInfo;
-        sPendingCheckInfo = nullptr; // Ownership transferred
+        updater().mPendingUpdate = update_info;
         LL_INFOS("Velopack") << "Update downloaded and pending" << LL_ENDL;
+        return true;
+    }
+
+    if (has_deltas && update_info->TargetFullRelease)
+    {
+        LL_INFOS("Velopack") << "Delta update failed, attempting fallback to full release..." << LL_ENDL;
+        if (pre_download_assets({ update_info->TargetFullRelease }) &&
+            vpkc_download_updates(updater().mUpdateManager, update_info, on_progress, nullptr))
+        {
+            std::lock_guard<std::mutex> lock(updater().mStateMutex);
+            if (updater().mPendingUpdate)
+            {
+                vpkc_free_update_info(updater().mPendingUpdate);
+            }
+            updater().mPendingUpdate = update_info;
+            LL_INFOS("Velopack") << "Update downloaded via fallback" << LL_ENDL;
+            return true;
+        }
+
+        char descr[512];
+        vpkc_get_last_error(descr, sizeof(descr));
+        LL_WARNS("Velopack") << "Fallback also failed: " << ll_safe_string((const char*)descr) << LL_ENDL;
     }
     else
     {
         char descr[512];
         vpkc_get_last_error(descr, sizeof(descr));
-        LL_WARNS("Velopack") << "Failed to download update: " << ll_safe_string((const char*)descr) << LL_ENDL;
+        LL_WARNS("Velopack") << "Update failed: " << ll_safe_string((const char*)descr) << LL_ENDL;
     }
+
+    vpkc_free_update_info(update_info);
+    return false;
+}
+
+static void start_background_stage(vpkc_update_info_t* update_info, const VelopackDownloadRequest request)
+{
+    join_background_stage_thread();
+    updater().mBackgroundStageThread = std::thread([update_info, request]()
+    {
+        bool success = stage_prepared_update(update_info);
+        if (success && request.quit_when_ready)
+        {
+            std::lock_guard<std::mutex> lock(updater().mStateMutex);
+            updater().mRestartAfterUpdate = true;
+        }
+        updater().mAssetUrlMap.clear();
+        updater().mPreDownloadedAssets.clear();
+
+        LLAppViewer::instance()->postToMainCoro([request, success]()
+        {
+            finish_update_job(request, success);
+        });
+    });
+}
+
+static void velopack_download_update(const VelopackDownloadRequest& request)
+{
+    if (!try_begin_update_job())
+    {
+        return;
+    }
+
+    if (request.show_progress_notification)
+    {
+        show_downloading_notification(request.version);
+    }
+
+    LLCoros::instance().launch(request.required_update ? "VelopackRequiredStagePrep" : "VelopackOptionalStagePrep",
+        [request]()
+        {
+            vpkc_update_info_t* update_info = nullptr;
+            if (!prepare_update_download(request.allow_downgrade, update_info))
+            {
+                finish_update_job(request, false);
+                return;
+            }
+
+            start_background_stage(update_info, request);
+        });
 }
 
 static void on_downloading_closed(const LLSD& notification, const LLSD& response)
 {
-    sDownloadingNotification = nullptr;
-    if (sIsRequired)
+    updater().mDownloadingNotification = nullptr;
+    std::string version;
+    {
+        std::lock_guard<std::mutex> lock(updater().mStateMutex);
+        if (!updater().mRequiredUpdateInProgress)
+        {
+            return;
+        }
+        version = updater().mRequiredUpdateVersion;
+    }
+
+    if (!version.empty())
     {
         // User closed the downloading dialog during a required update — re-show it
-        show_downloading_notification(sTargetVersion);
+        show_downloading_notification(version);
     }
 }
 
@@ -940,33 +1069,23 @@ static void show_downloading_notification(const std::string& version)
 {
     LLSD args;
     args["VERSION"] = version;
-    sDownloadingNotification = LLNotificationsUtil::add("DownloadingUpdate", args, LLSD(), on_downloading_closed);
+    updater().mDownloadingNotification = LLNotificationsUtil::add("DownloadingUpdate", args, LLSD(), on_downloading_closed);
 }
 
 static void dismiss_downloading_notification()
 {
-    if (sDownloadingNotification)
+    if (updater().mDownloadingNotification)
     {
-        LLNotificationsUtil::cancel(sDownloadingNotification);
-        sDownloadingNotification = nullptr;
+        LLNotificationsUtil::cancel(updater().mDownloadingNotification);
+        updater().mDownloadingNotification = nullptr;
     }
 }
 
 static void on_required_update_response(const LLSD& notification, const LLSD& response)
 {
+    std::string version = notification["substitutions"]["VERSION"].asString();
     LL_INFOS("Velopack") << "Required update acknowledged, starting download" << LL_ENDL;
-    show_downloading_notification(sTargetVersion);
-    LLCoros::instance().launch("VelopackRequiredUpdate", []()
-    {
-        velopack_download_pending_update();
-        dismiss_downloading_notification();
-        if (velopack_is_update_pending())
-        {
-            LL_INFOS("Velopack") << "Required update downloaded, quitting to apply" << LL_ENDL;
-            velopack_request_restart_after_update();
-            LLAppViewer::instance()->requestQuit();
-        }
-    });
+    velopack_download_update({ true, true, true, true, version });
 }
 
 static void on_optional_update_response(const LLSD& notification, const LLSD& response)
@@ -974,108 +1093,90 @@ static void on_optional_update_response(const LLSD& notification, const LLSD& re
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0) // "Install"
     {
+        std::string version = notification["substitutions"]["VERSION"].asString();
         LL_INFOS("Velopack") << "User accepted optional update, starting download" << LL_ENDL;
-        show_downloading_notification(sTargetVersion);
-        LLCoros::instance().launch("VelopackOptionalUpdate", []()
-        {
-            velopack_download_pending_update();
-            dismiss_downloading_notification();
-            if (velopack_is_update_pending())
-            {
-                LL_INFOS("Velopack") << "Optional update downloaded, quitting to apply" << LL_ENDL;
-                velopack_request_restart_after_update();
-                LLAppViewer::instance()->requestQuit();
-            }
-        });
+        velopack_download_update({ false, true, true, false, version });
     }
     else
     {
         LL_INFOS("Velopack") << "User declined optional update (option=" << option << ")" << LL_ENDL;
-        // Free the check info since user declined
-        if (sPendingCheckInfo)
-        {
-            vpkc_free_update_info(sPendingCheckInfo);
-            sPendingCheckInfo = nullptr;
-        }
     }
 }
 
 static void show_required_update_prompt()
 {
     LLSD args;
-    args["VERSION"] = sTargetVersion;
-    args["URL"] = sReleaseNotesUrl;
+    {
+        std::lock_guard<std::mutex> lock(updater().mStateMutex);
+        args["VERSION"] = updater().mRequiredUpdateVersion;
+        args["URL"] = updater().mRequiredUpdateRelnotes;
+    }
     LLNotificationsUtil::add("PauseForUpdate", args, LLSD(), on_required_update_response);
 }
 
 void velopack_check_for_updates(const std::string& required_version, const std::string& relnotes_url)
 {
-    if (sUpdateUrl.empty())
+    if (updater().mUpdateUrl.empty())
     {
         LL_DEBUGS("Velopack") << "No update URL set, skipping update check" << LL_ENDL;
         return;
     }
 
-    // Allow downgrades only for rollbacks: VVM requires a version that's
-    // strictly lower than what we're running (e.g., a retracted build).
     bool has_required = !required_version.empty();
     int ver_cmp = has_required ? compare_running_version(required_version) : 0;
-    bool allow_downgrade = ver_cmp > 0; // running > required → rollback scenario
-    ensure_update_manager(allow_downgrade);
-    if (!sUpdateManager)
-        return;
+    bool allow_downgrade = ver_cmp > 0;
 
-    // Ask Velopack to check its feed — this is the source of truth
     vpkc_update_info_t* update_info = nullptr;
-    vpkc_update_check_t result = vpkc_check_for_updates(sUpdateManager, &update_info);
-
-    if (result != UPDATE_AVAILABLE || !update_info)
+    if (!query_available_update(allow_downgrade, update_info))
     {
-        LL_INFOS("Velopack") << "No update available from feed (result=" << result << ")" << LL_ENDL;
         return;
     }
 
-    // Extract the actual target version from Velopack's feed
-    std::string target_version = update_info->TargetFullRelease->Version
-        ? update_info->TargetFullRelease->Version : "";
-    LL_INFOS("Velopack") << "Update available: " << target_version
-                         << " (required_version=" << required_version << ")" << LL_ENDL;
+    std::string target_version = (update_info &&
+                                  update_info->TargetFullRelease &&
+                                  update_info->TargetFullRelease->Version)
+        ? update_info->TargetFullRelease->Version
+        : std::string();
+    vpkc_free_update_info(update_info);
 
-    // Store state for the prompt/download phase
-    sReleaseNotesUrl = relnotes_url;
-    sTargetVersion = target_version;
-    if (sPendingCheckInfo)
+    if (target_version.empty())
     {
-        vpkc_free_update_info(sPendingCheckInfo);
+        LL_WARNS("Velopack") << "Update feed reported an update without a target version" << LL_ENDL;
+        return;
     }
-    sPendingCheckInfo = update_info;
 
-    // Determine if this is mandatory: running version is below VVM's required floor
-    bool is_required = ver_cmp < 0; // running < required → must update
-    sIsRequired = is_required;
-
+    bool is_required = has_required && ver_cmp < 0;
     if (is_required)
     {
-        LL_INFOS("Velopack") << "Required update (running below " << required_version
-                             << "), prompting user for " << target_version << LL_ENDL;
+        LL_INFOS("Velopack") << "Required update available from feed: " << target_version
+                             << " (required floor " << required_version << ")" << LL_ENDL;
+        {
+            std::lock_guard<std::mutex> lock(updater().mStateMutex);
+            updater().mRequiredUpdateInProgress = true;
+            updater().mRequiredUpdateVersion = target_version;
+            updater().mRequiredUpdateRelnotes = relnotes_url;
+        }
         show_required_update_prompt();
         return;
     }
 
-    // Optional update — check user preference
     U32 updater_setting = gSavedSettings.getU32("UpdaterServiceSetting");
-
-    if (updater_setting == 3)
+    if (updater_setting == 0)
     {
-        // "Install each update automatically" — download silently, apply on quit
-        LL_INFOS("Velopack") << "Optional update to " << target_version
-                             << ", downloading automatically (UpdaterServiceSetting=3)" << LL_ENDL;
-        velopack_download_pending_update();
+        LL_INFOS("Velopack") << "Optional update to version " << target_version
+                             << " skipped (UpdaterServiceSetting=0)" << LL_ENDL;
         return;
     }
 
-    // Default / value 1: "Ask me when an optional update is ready to install"
-    LL_INFOS("Velopack") << "Optional update available (" << target_version << "), prompting user" << LL_ENDL;
+    if (updater_setting == 3)
+    {
+        LL_INFOS("Velopack") << "Optional update to version " << target_version
+                             << ", downloading automatically (UpdaterServiceSetting=3)" << LL_ENDL;
+        velopack_download_update({ false, false, false, false, target_version });
+        return;
+    }
+
+    LL_INFOS("Velopack") << "Optional update available (version " << target_version << "), prompting user" << LL_ENDL;
     LLSD args;
     args["VERSION"] = target_version;
     args["URL"] = relnotes_url;
@@ -1084,13 +1185,13 @@ void velopack_check_for_updates(const std::string& required_version, const std::
 
 std::string velopack_get_current_version()
 {
-    if (!sUpdateManager)
+    if (!updater().mUpdateManager)
     {
         return "";
     }
 
     char version[64];
-    size_t len = vpkc_get_current_version(sUpdateManager, version, sizeof(version));
+    size_t len = vpkc_get_current_version(updater().mUpdateManager, version, sizeof(version));
     if (len > 0)
     {
         return std::string(version, len);
@@ -1100,40 +1201,57 @@ std::string velopack_get_current_version()
 
 bool velopack_is_update_pending()
 {
-    return sPendingUpdate != nullptr;
+    std::lock_guard<std::mutex> lock(updater().mStateMutex);
+    return updater().mPendingUpdate != nullptr;
 }
 
 bool velopack_is_required_update_in_progress()
 {
-    return sIsRequired && sPendingCheckInfo != nullptr;
+    std::lock_guard<std::mutex> lock(updater().mStateMutex);
+    return updater().mRequiredUpdateInProgress;
 }
 
 std::string velopack_get_required_update_version()
 {
-    return sTargetVersion;
+    std::lock_guard<std::mutex> lock(updater().mStateMutex);
+    return updater().mRequiredUpdateVersion;
 }
 
 bool velopack_should_restart_after_update()
 {
-    return sRestartAfterUpdate;
+    std::lock_guard<std::mutex> lock(updater().mStateMutex);
+    return updater().mRestartAfterUpdate;
 }
 
 void velopack_request_restart_after_update()
 {
-    sRestartAfterUpdate = true;
+    std::lock_guard<std::mutex> lock(updater().mStateMutex);
+    updater().mRestartAfterUpdate = true;
+}
+
+void velopack_wait_for_background_update()
+{
+    join_background_stage_thread();
+    updater().mBackgroundStageActive = false;
 }
 
 void velopack_apply_pending_update(bool restart)
 {
-    if (!sUpdateManager || !sPendingUpdate || !sPendingUpdate->TargetFullRelease)
+    vpkc_update_info_t* pending_update = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(updater().mStateMutex);
+        pending_update = updater().mPendingUpdate;
+    }
+
+    if (!updater().mUpdateManager || !pending_update || !pending_update->TargetFullRelease)
     {
         LL_WARNS("Velopack") << "Cannot apply update: no pending update or manager" << LL_ENDL;
         return;
     }
 
     LL_INFOS("Velopack") << "Applying pending update (restart=" << restart << ")" << LL_ENDL;
-    vpkc_wait_exit_then_apply_updates(sUpdateManager,
-                                       sPendingUpdate->TargetFullRelease,
+    vpkc_wait_exit_then_apply_updates(updater().mUpdateManager,
+                                       pending_update->TargetFullRelease,
                                        false,
                                        restart,
                                        nullptr, 0);
@@ -1141,38 +1259,43 @@ void velopack_apply_pending_update(bool restart)
 
 void velopack_cleanup()
 {
-    if (sUpdateManager)
+    velopack_wait_for_background_update();
+
+    if (updater().mUpdateManager)
     {
-        vpkc_free_update_manager(sUpdateManager);
-        sUpdateManager = nullptr;
+        vpkc_free_update_manager(updater().mUpdateManager);
+        updater().mUpdateManager = nullptr;
     }
-    if (sUpdateSource)
+    if (updater().mUpdateSource)
     {
-        vpkc_free_source(sUpdateSource);
-        sUpdateSource = nullptr;
+        vpkc_free_source(updater().mUpdateSource);
+        updater().mUpdateSource = nullptr;
     }
-    if (sPendingUpdate)
     {
-        vpkc_free_update_info(sPendingUpdate);
-        sPendingUpdate = nullptr;
+        std::lock_guard<std::mutex> lock(updater().mStateMutex);
+        if (updater().mPendingUpdate)
+        {
+            vpkc_free_update_info(updater().mPendingUpdate);
+            updater().mPendingUpdate = nullptr;
+        }
+        updater().mRestartAfterUpdate = false;
+        updater().mRequiredUpdateInProgress = false;
+        updater().mRequiredUpdateVersion.clear();
+        updater().mRequiredUpdateRelnotes.clear();
     }
-    if (sPendingCheckInfo)
-    {
-        vpkc_free_update_info(sPendingCheckInfo);
-        sPendingCheckInfo = nullptr;
-    }
-    sAssetUrlMap.clear();
+    updater().mAssetUrlMap.clear();
+    updater().mPreDownloadedAssets.clear();
 }
 
 void velopack_set_update_url(const std::string& url)
 {
-    sUpdateUrl = url;
+    updater().mUpdateUrl = url;
     LL_INFOS("Velopack") << "Update URL set to: " << url << LL_ENDL;
 }
 
 void velopack_set_progress_callback(std::function<void(int)> callback)
 {
-    sProgressCallback = callback;
+    updater().mProgressCallback = callback;
 }
 
 #endif // LL_VELOPACK

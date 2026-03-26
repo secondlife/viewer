@@ -31,6 +31,7 @@
 #include "llcoros.h"
 #include "llevents.h"
 #include "llviewernetwork.h"
+#include "llstring.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llhasheduniqueid.h"
@@ -71,8 +72,41 @@ namespace
         return "unknown";
     }
 
+    std::string get_direct_velopack_update_url()
+    {
+        auto direct_update_url = LLStringUtil::getoptenv("VELOPACK_UPDATE_URL");
+        if (!direct_update_url)
+        {
+            return {};
+        }
+
+        if (direct_update_url->compare(0, 7, "http://") == 0 ||
+            direct_update_url->compare(0, 8, "https://") == 0)
+        {
+            return *direct_update_url;
+        }
+
+        LL_WARNS("VVM") << "Ignoring VELOPACK_UPDATE_URL without http/https scheme" << LL_ENDL;
+        return {};
+    }
+
     void query_vvm_coro()
     {
+#if LL_VELOPACK
+        std::string direct_update_url = get_direct_velopack_update_url();
+        if (!direct_update_url.empty())
+        {
+            LL_INFOS("VVM") << "Using direct Velopack feed URL from VELOPACK_UPDATE_URL" << LL_ENDL;
+            velopack_set_update_url(direct_update_url);
+            LLCoros::instance().launch("VelopackUpdateCheck",
+                []()
+                {
+                    velopack_check_for_updates(std::string(), std::string());
+                });
+            return;
+        }
+#endif
+
         // Get base URL from grid manager
         std::string base_url = LLGridManager::getInstance()->getUpdateServiceURL();
 

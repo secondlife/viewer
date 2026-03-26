@@ -1673,6 +1673,7 @@ void LLAppViewer::flushLFSIO()
 bool LLAppViewer::cleanup()
 {
 #if LL_VELOPACK
+    velopack_wait_for_background_update();
     // Apply any pending Velopack update before shutdown
     if (velopack_is_update_pending())
     {
