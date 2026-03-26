@@ -682,7 +682,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mUpdatePeriod(1),
     mOverallAppearance(AOA_INVISIBLE),
     mVisualComplexityStale(true),
-    mLastFullComplexityUpdate(0.0),
     mVisuallyMuteSetting(AV_RENDER_NORMALLY),
     mMutedAVColor(LLColor4::white /* used for "uninitialize" */),
     mFirstFullyVisible(true),
@@ -7872,7 +7871,7 @@ bool LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 
         if (attachment->isObjectAttached(viewer_object))
         {
-            markAttachmentComplexityDirty(viewer_object->getID());
+            markAttachmentComplexityDirty(viewer_object->getID(), true);
             bool is_animated_object = viewer_object->isAnimatedObject();
             cleanupAttachedMesh(viewer_object);
 
@@ -11155,12 +11154,9 @@ void LLVOAvatar::updateVisualComplexity()
 {
     LL_DEBUGS("AvatarRender") << "avatar " << getID() << " appearance changed" << LL_ENDL;
     // Trigger cache recalculation on next idle update.
-    // Will recalculate stale data and control avatar.
+    // Will recalculate stale, missing data and control avatar.
     mVisualComplexityStale = true;
 }
-
-// Constants for body part costs
-static const F32 CACHE_LIFETIME_SECONDS = 30.0; // Todo: should be indefinite, until something actually changes
 
 void LLVOAvatar::calculateAttachmentComplexity(LLViewerObject* attached_object,
     const F32 max_attachment_complexity,
@@ -11170,20 +11166,11 @@ void LLVOAvatar::calculateAttachmentComplexity(LLViewerObject* attached_object,
 
     cache.reset();
 
-    if (!attached_object || attached_object->isDead())
+    if (!attached_object
+        || attached_object->isDead())
     {
         return;
     }
-
-    // Reuse the existing accountRenderComplexityForObject logic
-    // This ensures compatibility with the legacy implementation
-    hud_complexity_list_t attachment_hud_list;
-    object_complexity_list_t attachment_object_list;
-    cache.render_cost = 0;
-    cache.textures.clear();
-    cache.triangle_count = 0;
-    cache.est_triangle_count = 0;
-    cache.surface_area = 0;
 
     accountRenderComplexityForObject(
         attached_object,
@@ -11193,19 +11180,9 @@ void LLVOAvatar::calculateAttachmentComplexity(LLViewerObject* attached_object,
         cache.triangle_count,
         cache.est_triangle_count,
         cache.surface_area,
-        attachment_hud_list,
-        attachment_object_list
+        cache.hud_complexity,
+        cache.object_complexity
     );
-
-    // Store HUD/object complexity info for later reporting
-    if (!attachment_hud_list.empty())
-    {
-        cache.hud_complexity = attachment_hud_list.front();
-    }
-    if (!attachment_object_list.empty())
-    {
-        cache.object_complexity = attachment_object_list.front();
-    }
 
     cache.last_update_time = LLFrameTimer::getTotalSeconds();
     cache.needs_update = false;
@@ -11235,6 +11212,7 @@ bool LLVOAvatar::shouldUpdateComplexityComponent(const ComplexityComponent& comp
         return true;
     }
 
+    constexpr F32 CACHE_LIFETIME_SECONDS = 30.0; // Todo: should be indefinite, until something actually changes
     F64 current_time = LLFrameTimer::getTotalSeconds();
     return (current_time - component.last_update_time) > CACHE_LIFETIME_SECONDS;
 }
@@ -11245,8 +11223,6 @@ bool LLVOAvatar::calculateControlAvatarComplexity(ComplexityComponent& cache, co
 
     cache.reset();
 
-    // For control avatars (animated objects), we need to account for
-    // the skeleton and animation system overhead
     if (!isControlAvatar())
     {
         return false;
@@ -11264,14 +11240,6 @@ bool LLVOAvatar::calculateControlAvatarComplexity(ComplexityComponent& cache, co
         return false;
     }
 
-    hud_complexity_list_t hud_list;
-    object_complexity_list_t object_list;
-    cache.render_cost = 0;
-    cache.textures.clear();
-    cache.triangle_count = 0;
-    cache.est_triangle_count = 0;
-    cache.surface_area = 0;
-
     accountRenderComplexityForObject(
         volp,
         max_attachment_complexity,
@@ -11280,20 +11248,11 @@ bool LLVOAvatar::calculateControlAvatarComplexity(ComplexityComponent& cache, co
         cache.triangle_count,
         cache.est_triangle_count,
         cache.surface_area,
-        hud_list,
-        object_list
+        cache.hud_complexity,
+        cache.object_complexity
     );
 
-    // Store HUD/object complexity info for later reporting
-    if (!hud_list.empty())
-    {
-        cache.hud_complexity = hud_list.front();
-    }
-    if (!object_list.empty())
-    {
-        cache.object_complexity = object_list.front();
-    }
-
+    // todo: store 'expires' time instead or make it indefinite?
     cache.last_update_time = LLFrameTimer::getTotalSeconds();
     cache.needs_update = false;
 
@@ -11302,7 +11261,6 @@ bool LLVOAvatar::calculateControlAvatarComplexity(ComplexityComponent& cache, co
 
 void LLVOAvatar::accumulateComplexityComponent(const ComplexityComponent& component,
     U32& total_cost,
-    LLVOVolume::texture_cost_t& all_textures,
     hud_complexity_list_t& hud_list,
     object_complexity_list_t& object_list)
 {
@@ -11310,9 +11268,6 @@ void LLVOAvatar::accumulateComplexityComponent(const ComplexityComponent& compon
     mAttachmentSurfaceArea += component.surface_area;
     mAttachmentVisibleTriangleCount += component.triangle_count;
     mAttachmentEstTriangleCount += component.est_triangle_count;
-
-    // Merge textures (avoid double-counting)
-    all_textures.insert(component.textures.begin(), component.textures.end());
 
     // Add HUD/object complexity info if present
     if (component.hud_complexity.objectId.notNull())
@@ -11325,33 +11280,23 @@ void LLVOAvatar::accumulateComplexityComponent(const ComplexityComponent& compon
     }
 }
 
-void LLVOAvatar::markAttachmentComplexityDirty(const LLUUID& object_id)
+void LLVOAvatar::markAttachmentComplexityDirty(const LLUUID& object_id, bool force_reset_attachment)
 {
-    mDirtyComplexityAttachments.insert(object_id);
-
-    // Also mark the cache entry if it exists
+    // Mark the cache entry if it exists
     complexity_cache_map_t::iterator it = mComplexityCache.find(object_id);
     if (it != mComplexityCache.end())
     {
+        if (force_reset_attachment)
+        {
+            // Object was detached.
+            // Force reset it in case it lingers in gObjectList for some reason (ex: dropped to world).
+            it->second.reset();
+        }
         it->second.needs_update = true;
     }
 
     // Launch update process if not already scheduled
-    mVisualComplexityStale = true;
-}
-
-void LLVOAvatar::markAllComplexityDirty()
-{
-    for (complexity_cache_map_t::iterator it = mComplexityCache.begin();
-        it != mComplexityCache.end(); ++it)
-    {
-        it->second.needs_update = true;
-        mDirtyComplexityAttachments.insert(it->first);
-    }
-    mBodyPartsComplexity.needs_update = true;
-    mControlAvatarComplexity.needs_update = true;
-
-    // Launch update process if not already scheduled
+    // It will add any missing attachments.
     mVisualComplexityStale = true;
 }
 
@@ -11363,83 +11308,15 @@ void LLVOAvatar::markBodyPartsComplexityDirty()
     mVisualComplexityStale = true;
 }
 
-void LLVOAvatar::updateDirtyAttachmentComplexity(const F32 max_attachment_complexity)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
-
-    if (mDirtyComplexityAttachments.empty())
-    {
-        return;
-    }
-
-    // Update only attachments marked as dirty
-    for (std::set<LLUUID>::iterator dirty_it = mDirtyComplexityAttachments.begin();
-        dirty_it != mDirtyComplexityAttachments.end(); ++dirty_it)
-    {
-        const LLUUID& object_id = *dirty_it;
-
-        // Find the actual attachment object
-        LLViewerObject* attached_obj = gObjectList.findObject(object_id);
-        if (attached_obj && !attached_obj->isDead() && attached_obj->getAttachmentItemID().notNull())
-        {
-            ComplexityComponent& cache = mComplexityCache[object_id];
-            calculateAttachmentComplexity(attached_obj, max_attachment_complexity, cache);
-        }
-        else
-        {
-            // Object no longer exists, remove from cache
-            mComplexityCache.erase(object_id);
-        }
-    }
-
-    mDirtyComplexityAttachments.clear();
-}
-
-void LLVOAvatar::performFullComplexityUpdate(const F32 max_attachment_complexity)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
-
-    // Clear the cache and recalculate everything
-    mComplexityCache.clear();
-    mDirtyComplexityAttachments.clear();
-
-    // Recalculate all attachments
-    for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
-        iter != mAttachmentPoints.end(); ++iter)
-    {
-        LLViewerJointAttachment* attachment = iter->second;
-        if (!attachment || !attachment->getValid())
-        {
-            continue;
-        }
-
-        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-            attachment_iter != attachment->mAttachedObjects.end(); ++attachment_iter)
-        {
-            LLViewerObject* attached_object = attachment_iter->get();
-            if (attached_object && !attached_object->isDead())
-            {
-                LLUUID object_id = attached_object->getID();
-                ComplexityComponent& cache = mComplexityCache[object_id];
-                calculateAttachmentComplexity(attached_object, max_attachment_complexity, cache);
-            }
-        }
-    }
-
-    // Recalculate body parts
-    calculateBodyPartsComplexity(mBodyPartsComplexity);
-
-    mLastFullComplexityUpdate = LLFrameTimer::getTotalSeconds();
-}
-
 void LLVOAvatar::performPartialComplexityUpdate(const F32 max_attachment_complexity)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
     // Update any attachments marked as dirty
-    updateDirtyAttachmentComplexity(max_attachment_complexity);
+    // Todo: might want to limit time or count here and defer the rest
+    // till next run. In such a case will need to make sure
+    // mVisualComplexityStale remains true.
 
-    // Update stale cache entries
     for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
         iter != mAttachmentPoints.end(); ++iter)
     {
@@ -11458,7 +11335,7 @@ void LLVOAvatar::performPartialComplexityUpdate(const F32 max_attachment_complex
                 LLUUID object_id = attached_object->getID();
                 ComplexityComponent& cache = mComplexityCache[object_id];
 
-                // Update if cache is stale
+                // Update if cache is stale or a new entry.
                 if (shouldUpdateComplexityComponent(cache))
                 {
                     calculateAttachmentComplexity(attached_object, max_attachment_complexity, cache);
@@ -11475,6 +11352,8 @@ void LLVOAvatar::performPartialComplexityUpdate(const F32 max_attachment_complex
 }
 
 // Calculations for mVisualComplexity value
+// Call rate is flexible, can be once in 20, can be once in 200 frames,
+// depends on priority and known cost of an avatar in question.
 void LLVOAvatar::calculateUpdateRenderComplexity()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
@@ -11496,35 +11375,24 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
     F32 max_attachment_complexity = max_complexity_setting;
     max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
 
+    // Update complexity for any dirty attachments or body parts.
+    //
+    // Todo: Limit this by time or count and continue later as
+    // doing everything in one go can be very expensive (multiple ms)
+    // Note that calculateUpdateRenderComplexity() can be launched once
+    // per 200 frames. Limiting it by time or count runs the risk of
+    // already checked attachments getting stale on last_update_time,
+    // thus function will keep running indefinetely.
+    performPartialComplexityUpdate(max_attachment_complexity);
+
     // Reset per-run counters
     mAttachmentSurfaceArea = 0.f;
     mAttachmentVisibleTriangleCount = 0;
     mAttachmentEstTriangleCount = 0.f;
 
     U32 total_cost = 0;
-    LLVOVolume::texture_cost_t all_textures; // Not currently in use. Perhaps add cost from unique textures?
     hud_complexity_list_t hud_complexity_list;
     object_complexity_list_t object_complexity_list;
-
-    // Determine update strategy
-    F64 current_time = LLFrameTimer::getTotalSeconds();
-
-    // Todo: check if it changes anything, then get rid of FULL_UPDATE_INTERVAL,
-    // full recalculation can take over 10ms for very complex avatars,
-    // thus is not practical to do. Leave only partial updates.
-    constexpr F64 FULL_UPDATE_INTERVAL = 60.0; // seconds
-    bool do_full_update = (current_time - mLastFullComplexityUpdate) > FULL_UPDATE_INTERVAL;
-
-    // Perform update based on strategy
-    if (do_full_update)
-    {
-        // Expensive! Todo: don't do.
-        performFullComplexityUpdate(max_attachment_complexity);
-    }
-    else
-    {
-        performPartialComplexityUpdate(max_attachment_complexity);
-    }
 
     // Calculate and accumulate control avatar complexity if applicable
     // For now this is on each run.
@@ -11534,14 +11402,12 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
         accumulateComplexityComponent(
             mControlAvatarComplexity,
             total_cost,
-            all_textures,
             hud_complexity_list,
             object_complexity_list);
     }
 
     // Accumulate body parts complexity
-    accumulateComplexityComponent(mBodyPartsComplexity, total_cost,
-        all_textures, hud_complexity_list, object_complexity_list);
+    accumulateComplexityComponent(mBodyPartsComplexity, total_cost, hud_complexity_list, object_complexity_list);
 
     // Accumulate all attachment complexity from cache
     // Clean up cache entries for attachments that no longer exist
@@ -11554,7 +11420,9 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 
         // Verify object still exists
         LLViewerObject* obj = gObjectList.findObject(object_id);
-        if (!obj || obj->isDead())
+        if (!obj
+            || obj->isDead()
+            || !obj->isAttachment())
         {
             to_remove.push_back(object_id);
             continue;
@@ -11562,13 +11430,28 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 
         // Accumulate this attachment's complexity
         accumulateComplexityComponent(cache_iter->second, total_cost,
-            all_textures, hud_complexity_list, object_complexity_list);
+            hud_complexity_list, object_complexity_list);
     }
 
     // Remove stale cache entries
     for (std::vector<LLUUID>::iterator it = to_remove.begin(); it != to_remove.end(); ++it)
     {
         mComplexityCache.erase(*it);
+    }
+
+    if (total_cost != mVisualComplexity)
+    {
+        LL_DEBUGS("AvatarRender") << "Avatar " << getID()
+            << " complexity updated was " << mVisualComplexity << " now " << total_cost
+            << " reported " << mReportedVisualComplexity
+            << LL_ENDL;
+    }
+    else
+    {
+        LL_DEBUGS("AvatarRender") << "Avatar " << getID()
+            << " complexity updated no change " << mVisualComplexity
+            << " reported " << mReportedVisualComplexity
+            << LL_ENDL;
     }
 
     // Store results
@@ -11583,7 +11466,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 
 U32 LLVOAvatar::calculateBodyPartsComplexity()
 {
-    static const U32 COMPLEXITY_BODY_PART_COST = 200;
+    constexpr U32 COMPLEXITY_BODY_PART_COST = 200;
     U32 cost = 0;
     for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
     {
@@ -11615,7 +11498,7 @@ U32 LLVOAvatar::calculateBodyPartsComplexity()
     return cost;
 }
 
-void LLVOAvatar::processComplexityCostChange(hud_complexity_list_t hud_complexity_list, object_complexity_list_t object_complexity_list)
+void LLVOAvatar::processComplexityCostChange(const hud_complexity_list_t &hud_complexity_list, const object_complexity_list_t &object_complexity_list)
 {
     static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
 
@@ -11660,8 +11543,8 @@ void LLVOAvatar::accountRenderComplexityForObject(
     U32& visible_triangle_count,
     F32& est_triangle_count,
     F32& surface_area,
-    hud_complexity_list_t& hud_complexity_list,
-    object_complexity_list_t& object_complexity_list)
+    LLHUDComplexity& hud_object_complexity,
+    LLObjectComplexity& object_complexity)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     if (attached_object && !attached_object->isHUDAttachment())
@@ -11723,11 +11606,9 @@ void LLVOAvatar::accountRenderComplexityForObject(
 
                 if (isSelf())
                 {
-                    LLObjectComplexity object_complexity;
                     object_complexity.objectName = attached_object->getAttachmentItemName();
                     object_complexity.objectId = attached_object->getAttachmentItemID();
                     object_complexity.objectCost = (U32)attachment_total_cost;
-                    object_complexity_list.push_back(object_complexity);
                 }
             }
         }
@@ -11745,7 +11626,6 @@ void LLVOAvatar::accountRenderComplexityForObject(
         if (volume)
         {
             bool is_rigged_mesh = volume->isRiggedMeshFast();
-            LLHUDComplexity hud_object_complexity;
             hud_object_complexity.objectName = attached_object->getAttachmentItemName();
             hud_object_complexity.objectId = attached_object->getAttachmentItemID();
             std::string joint_name;
@@ -11800,106 +11680,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
                     }
                 }
             }
-            hud_complexity_list.push_back(hud_object_complexity);
         }
-    }
-}
-
-// Calculations for mVisualComplexity value
-void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
-{
-    /*****************************************************************
-     * This calculation should not be modified by third party viewers,
-     * since it is used to limit rendering and should be uniform for
-     * everyone. If you have suggested improvements, submit them to
-     * the official viewer for consideration.
-     *****************************************************************/
-    if (mVisualComplexityStale)
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
-
-        static LLCachedControl<F32> max_complexity_setting(gSavedSettings, "MaxAttachmentComplexity");
-        F32 max_attachment_complexity = max_complexity_setting;
-        max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
-
-        // Diagnostic list of all textures on our avatar
-        static std::unordered_set<const LLViewerTexture*> all_textures;
-
-        U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
-        LLVOVolume::texture_cost_t textures;
-        hud_complexity_list_t hud_complexity_list;
-        object_complexity_list_t object_complexity_list;
-
-        cost += calculateBodyPartsComplexity();
-
-        mAttachmentVisibleTriangleCount = 0;
-        mAttachmentEstTriangleCount = 0.f;
-        mAttachmentSurfaceArea = 0.f;
-
-        // A standalone animated object needs to be accounted for
-        // using its associated volume. Attached animated objects
-        // will be covered by the subsequent loop over attachments.
-        LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
-        if (control_av)
-        {
-            LLVOVolume *volp = control_av->mRootVolp;
-            if (volp && !volp->isAttachment())
-            {
-                accountRenderComplexityForObject(
-                    volp,
-                    max_attachment_complexity,
-                    textures,
-                    cost,
-                    mAttachmentVisibleTriangleCount,
-                    mAttachmentEstTriangleCount,
-                    mAttachmentSurfaceArea,
-                    hud_complexity_list,
-                    object_complexity_list);
-            }
-        }
-
-        // Account for complexity of all attachments.
-        for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin();
-             attachment_point != mAttachmentPoints.end();
-             ++attachment_point)
-        {
-            LLViewerJointAttachment* attachment = attachment_point->second;
-            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-                 attachment_iter != attachment->mAttachedObjects.end();
-                 ++attachment_iter)
-            {
-                LLViewerObject* attached_object = attachment_iter->get();
-                accountRenderComplexityForObject(
-                    attached_object,
-                    max_attachment_complexity,
-                    textures,
-                    cost,
-                    mAttachmentVisibleTriangleCount,
-                    mAttachmentEstTriangleCount,
-                    mAttachmentSurfaceArea,
-                    hud_complexity_list,
-                    object_complexity_list);
-            }
-        }
-
-        if ( cost != mVisualComplexity )
-        {
-            LL_DEBUGS("AvatarRender") << "Avatar "<< getID()
-                                      << " complexity updated was " << mVisualComplexity << " now " << cost
-                                      << " reported " << mReportedVisualComplexity
-                                      << LL_ENDL;
-        }
-        else
-        {
-            LL_DEBUGS("AvatarRender") << "Avatar "<< getID()
-                                      << " complexity updated no change " << mVisualComplexity
-                                      << " reported " << mReportedVisualComplexity
-                                      << LL_ENDL;
-        }
-        mVisualComplexity = cost;
-        mVisualComplexityStale = false;
-
-        processComplexityCostChange(hud_complexity_list, object_complexity_list);
     }
 }
 

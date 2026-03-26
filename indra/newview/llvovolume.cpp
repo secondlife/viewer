@@ -1276,9 +1276,9 @@ void LLVOVolume::updateVisualComplexity()
     if (rigged_avatar && (rigged_avatar != avatar))
     {
         // This might be wrong. Control avatars update each run,
-        // due to lack of dirty mechanics and this might be
+        // due to lack of dirty mechanics, and this might be
         // where we should implement and call
-        // markCotrolAvatarComplexityDirty() if !isAttachment().
+        // markControlAvatarComplexityDirty() if !isAttachment().
         rigged_avatar->markAttachmentComplexityDirty(lobj->getID());
     }
     /*LLVOAvatar* avatar = getAvatarAncestor();

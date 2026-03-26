@@ -305,15 +305,13 @@ public:
                                                      U32& visible_triangle_count,
                                                      F32& est_triangle_count,
                                                      F32& surface_area,
-                                                     hud_complexity_list_t& hud_complexity_list,
-                                                     object_complexity_list_t& object_complexity_list);
+                                                     LLHUDComplexity& hud_object_complexity,
+                                                     LLObjectComplexity& object_complexity);
     void            calculateUpdateRenderComplexity();
-    void            calculateUpdateRenderComplexityLegacy();
     static const U32 VISUAL_COMPLEXITY_UNKNOWN;
     void            updateVisualComplexity();
     // Mark that an attachment needs complexity recalculation
-    void markAttachmentComplexityDirty(const LLUUID& object_id);
-    void markAllComplexityDirty();
+    void markAttachmentComplexityDirty(const LLUUID& object_id, bool force_reset_attachment = false);
     void markBodyPartsComplexityDirty();
 
     void placeProfileQuery();
@@ -650,16 +648,13 @@ private:
 
     void accumulateComplexityComponent(const ComplexityComponent& component,
         U32& total_cost,
-        LLVOVolume::texture_cost_t& all_textures,
         hud_complexity_list_t& hud_list,
         object_complexity_list_t& object_list);
 
     bool shouldUpdateComplexityComponent(const ComplexityComponent& component) const;
-    void updateDirtyAttachmentComplexity(const F32 max_attachment_complexity);
-    void performFullComplexityUpdate(const F32 max_attachment_complexity);
     void performPartialComplexityUpdate(const F32 max_attachment_complexity);
 
-    void processComplexityCostChange(hud_complexity_list_t hud_complexity_list, object_complexity_list_t object_complexity_list);
+    void processComplexityCostChange(const hud_complexity_list_t &hud_complexity_list, const object_complexity_list_t &object_complexity_list);
 
     // Todo: probably safe to store by local instead of global id
     // since they should be unique to this avatar, but local id might be not known.
@@ -667,12 +662,6 @@ private:
     complexity_cache_map_t mComplexityCache; // Cache per-attachment complexity
     ComplexityComponent mBodyPartsComplexity; // Cache for body parts (mesh, eyes, hair, etc)
     ComplexityComponent mControlAvatarComplexity; // Cache for animated object control avatar
-    F64 mLastFullComplexityUpdate;
-
-    // Attachments marked for update,
-    // Todo: probably safe to store by local instead of global id
-    // since they should be unique to this avatar, but local id might be not known.
-    std::set<LLUUID> mDirtyComplexityAttachments;
 
     // the isTooComplex method uses these mutable values to avoid recalculating too frequently
     // DEPRECATED -- obsolete avatar render cost values
