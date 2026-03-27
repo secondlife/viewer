@@ -57,16 +57,27 @@ inline void ensure(const char* message, bool condition)
     CHECK_MESSAGE(condition, message);
 }
 
+inline void ensure(const std::string& message, bool condition)
+{
+    CHECK_MESSAGE(condition, message.c_str());
+}
+
 template <typename Left, typename Right>
 inline void ensure_equals(const Left& lhs, const Right& rhs)
 {
-    CHECK(lhs == rhs);
+    CHECK_MESSAGE((lhs == rhs), "ensure_equals failed");
 }
 
 template <typename Left, typename Right>
 inline void ensure_equals(const char* message, const Left& lhs, const Right& rhs)
 {
-    CHECK_MESSAGE(lhs == rhs, message);
+    CHECK_MESSAGE((lhs == rhs), message);
+}
+
+template <typename Left, typename Right>
+inline void ensure_equals(const std::string& message, const Left& lhs, const Right& rhs)
+{
+    CHECK_MESSAGE((lhs == rhs), message.c_str());
 }
 
 template <typename Expr>
@@ -79,6 +90,12 @@ template <typename Expr>
 inline void ensure_not(const char* message, const Expr& value)
 {
     CHECK_MESSAGE(!value, message);
+}
+
+template <typename Expr>
+inline void ensure_not(const std::string& message, const Expr& value)
+{
+    CHECK_MESSAGE(!value, message.c_str());
 }
 
 template <typename Func>
@@ -94,9 +111,41 @@ inline void ensure_throws(const char* message, Func&& fn, Exception)
     CHECK_THROWS_AS(fn(), Exception);
 }
 
+template <typename Left, typename Right>
+inline void ensure_not_equals(const Left& lhs, const Right& rhs)
+{
+    CHECK_MESSAGE((lhs != rhs), "ensure_not_equals failed");
+}
+
+template <typename Left, typename Right>
+inline void ensure_not_equals(const char* message, const Left& lhs, const Right& rhs)
+{
+    CHECK_MESSAGE((lhs != rhs), message);
+}
+
+template <typename Left, typename Right>
+inline void ensure_not_equals(const std::string& message, const Left& lhs, const Right& rhs)
+{
+    CHECK_MESSAGE((lhs != rhs), message.c_str());
+}
+
 inline void set_test_name(const char* name)
 {
     INFO("test name: " << (name ? name : "<null>"));
+}
+
+inline void fail(const char* message)
+{
+    if (message)
+    {
+        DOCTEST_FAIL(message);
+    }
+    DOCTEST_FAIL("TUT fail()");
+}
+
+inline void fail(const std::string& message)
+{
+    DOCTEST_FAIL(message.c_str());
 }
 
 inline void skip(const char* reason)
@@ -108,8 +157,10 @@ inline void skip(const char* reason)
 
 #define TUT_ENSURE(...) ::tut_compat::ensure(__VA_ARGS__)
 #define TUT_ENSURE_EQ(...) ::tut_compat::ensure_equals(__VA_ARGS__)
+#define TUT_ENSURE_NE(...) ::tut_compat::ensure_not_equals(__VA_ARGS__)
 #define TUT_ENSURE_NOT(...) ::tut_compat::ensure_not(__VA_ARGS__)
 #define TUT_ENSURE_THROWS(expr) ::tut_compat::ensure_throws([&]() { expr; })
+#define TUT_FAIL(message) ::tut_compat::fail(message)
 #define TUT_CHECK_MSG(cond, msg) CHECK_MESSAGE((cond), (msg))
 #define TUT_SUITE(name) TEST_SUITE(name)
 #define TUT_CASE(name) TEST_CASE(name)
