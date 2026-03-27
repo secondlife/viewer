@@ -59,7 +59,6 @@ public:
 
     void setStatsVisible(bool visible);
 
-    LLFastTimerView* mFastTimerView;
     LLConsole*       mDebugConsolep;
     LLView*          mFloaterSnapRegion;
 };

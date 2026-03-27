@@ -3589,6 +3589,12 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 
         LL_INFOS(LOG_INV) << "Inventory saved: " << (S32)cat_count << " categories, " << (S32)it_count << " items." << LL_ENDL;
     }
+    catch(std::bad_alloc&)
+    {
+        // We are quiting, so just log an error and move on.
+        LL_WARNS(LOG_INV) << "Failed to save inventory to cache due to memory allocation failure." << LL_ENDL;
+        return false;
+    }
     catch (...)
     {
         LOG_UNHANDLED_EXCEPTION("");
