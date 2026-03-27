@@ -38,6 +38,7 @@ target_include_directories( llxml  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 # tests
 
 if (LL_TESTS)
+    include(Doctest)
     # unit tests
 
     SET(llxml_TEST_SOURCE_FILES
@@ -55,4 +56,5 @@ if (LL_TESTS)
             )
 
     LL_ADD_INTEGRATION_TEST(llcontrol "" "${test_libs}")
+    add_subdirectory(tests_doctest)
 endif (LL_TESTS)
