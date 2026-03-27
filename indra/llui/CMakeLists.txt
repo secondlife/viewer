@@ -275,6 +275,7 @@ target_link_libraries(llui
 # Add tests
 if(LL_TESTS)
   include(LLAddBuildTest)
+  include(Doctest)
   set(test_libs llmessage llcorehttp llxml llrender llcommon ll::hunspell)
 
   SET(llui_TEST_SOURCE_FILES
@@ -288,4 +289,6 @@ if(LL_TESTS)
     set(test_libs llui llmessage llcorehttp llxml llrender llcommon ll::hunspell )
     LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
   endif(NOT LINUX)
+
+  add_subdirectory(tests_doctest)
 endif(LL_TESTS)
