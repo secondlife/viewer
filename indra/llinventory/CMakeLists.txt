@@ -62,6 +62,7 @@ target_include_directories( llinventory  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR}
 #add unit tests
 if (LL_TESTS)
     INCLUDE(LLAddBuildTest)
+    include(Doctest)
     SET(llinventory_TEST_SOURCE_FILES
       # no real unit tests yet!
       )
@@ -71,4 +72,5 @@ if (LL_TESTS)
     set(test_libs llinventory llmath llcorehttp llfilesystem )
     LL_ADD_INTEGRATION_TEST(inventorymisc "" "${test_libs}")
     LL_ADD_INTEGRATION_TEST(llparcel "" "${test_libs}")
+    add_subdirectory(tests_doctest)
 endif (LL_TESTS)
