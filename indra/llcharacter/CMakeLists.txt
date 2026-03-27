@@ -70,3 +70,8 @@ target_link_libraries(
         llfilesystem
         llxml
     )
+
+if (LL_TESTS)
+  include(Doctest)
+  add_subdirectory(tests_doctest)
+endif (LL_TESTS)
