@@ -3,6 +3,7 @@ include(Doctest)
 add_executable(llprimitive_doctest
     ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
     ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/llgltfmaterial_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/llmediaentry_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/llprimitive_test_doctest.cpp
 )
