@@ -2489,8 +2489,9 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
 
+  add_subdirectory(tests_doctest)
+
 
 endif (LL_TESTS)
 
 check_message_template(${VIEWER_BINARY_NAME})
-
