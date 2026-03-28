@@ -91,3 +91,33 @@ target_link_libraries(lltemplatemessagedispatcher_doctest
 )
 
 add_test(NAME lltemplatemessagedispatcher_doctest COMMAND lltemplatemessagedispatcher_doctest)
+
+add_executable(llcoproceduremanager_doctest
+    ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
+    ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
+    ${CMAKE_SOURCE_DIR}/llmessage/llcoproceduremanager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/llcoproceduremanager_test_doctest.cpp
+)
+
+target_include_directories(llcoproceduremanager_doctest
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/extern/doctest
+        ${CMAKE_SOURCE_DIR}/..
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/test
+        ${CMAKE_SOURCE_DIR}/llmessage
+        ${CMAKE_SOURCE_DIR}/llcommon
+        ${CMAKE_SOURCE_DIR}/llmath
+        ${CMAKE_SOURCE_DIR}/llcorehttp
+        ${CMAKE_SOURCE_DIR}/llmeshoptimizer
+)
+
+target_link_libraries(llcoproceduremanager_doctest
+    PRIVATE
+        llmath
+        llcorehttp
+        llcommon
+        llmeshoptimizer
+)
+
+add_test(NAME llcoproceduremanager_doctest COMMAND llcoproceduremanager_doctest)
