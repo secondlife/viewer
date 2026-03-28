@@ -121,3 +121,35 @@ target_link_libraries(llcoproceduremanager_doctest
 )
 
 add_test(NAME llcoproceduremanager_doctest COMMAND llcoproceduremanager_doctest)
+
+add_executable(llhost_doctest
+    ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
+    ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/llhost_test_doctest.cpp
+)
+
+target_include_directories(llhost_doctest
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/extern/doctest
+        ${CMAKE_SOURCE_DIR}/..
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/test
+        ${CMAKE_SOURCE_DIR}/llfilesystem
+        ${CMAKE_SOURCE_DIR}/llcommon
+        ${CMAKE_SOURCE_DIR}/llmath
+        ${CMAKE_SOURCE_DIR}/llmeshoptimizer
+        ${CMAKE_SOURCE_DIR}/llcorehttp
+        ${CMAKE_SOURCE_DIR}/llmessage
+)
+
+target_link_libraries(llhost_doctest
+    PRIVATE
+        llfilesystem
+        llmath
+        llcorehttp
+        llmessage
+        llcommon
+        llmeshoptimizer
+)
+
+add_test(NAME llhost_doctest COMMAND llhost_doctest)
