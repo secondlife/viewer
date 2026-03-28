@@ -244,3 +244,52 @@ target_link_libraries(llworldmipmap_doctest
 )
 
 add_test(NAME llworldmipmap_doctest COMMAND llworldmipmap_doctest)
+
+add_executable(llworldmap_doctest
+    ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
+    ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
+    ${CMAKE_SOURCE_DIR}/newview/llworldmap.cpp
+    ${CMAKE_SOURCE_DIR}/newview/tests/llviewertexture_stub.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/llworldmap_test_doctest.cpp
+)
+
+target_include_directories(llworldmap_doctest
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/extern/doctest
+        ${CMAKE_SOURCE_DIR}/..
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/test
+        ${CMAKE_SOURCE_DIR}/newview
+        ${CMAKE_SOURCE_DIR}/llcommon
+        ${CMAKE_SOURCE_DIR}/llmath
+        ${CMAKE_SOURCE_DIR}/llmeshoptimizer
+        ${CMAKE_SOURCE_DIR}/llfilesystem
+        ${CMAKE_SOURCE_DIR}/llxml
+        ${CMAKE_SOURCE_DIR}/llmessage
+        ${CMAKE_SOURCE_DIR}/llcorehttp
+        ${CMAKE_SOURCE_DIR}/llcharacter
+        ${CMAKE_SOURCE_DIR}/llui
+        ${CMAKE_SOURCE_DIR}/llrender
+        ${CMAKE_SOURCE_DIR}/llimage
+        ${CMAKE_SOURCE_DIR}/llwindow
+        ${CMAKE_SOURCE_DIR}/llinventory
+        ${CMAKE_SOURCE_DIR}/viewer_components/login
+        ${CMAKE_SOURCE_DIR}/llplugin
+        ${CMAKE_SOURCE_DIR}/llappearance
+)
+
+target_link_libraries(llworldmap_doctest
+    PRIVATE
+        llcommon
+        llmath
+        llfilesystem
+        llxml
+        llmessage
+        llcharacter
+        llui
+        lllogin
+        llplugin
+        llappearance
+)
+
+add_test(NAME llworldmap_doctest COMMAND llworldmap_doctest)
