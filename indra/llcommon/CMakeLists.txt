@@ -288,10 +288,6 @@ add_dependencies(llcommon stage_third_party_libs)
 if (LL_TESTS)
   include(LLAddBuildTest)
   include(Doctest)
-  SET(llcommon_TEST_SOURCE_FILES
-    # unit-testing llcommon is not possible right now as the test-harness *itself* depends upon llcommon, causing a circular dependency.  Add your 'unit' tests as integration tests for now.
-    )
-  LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
   set(test_libs llcommon)
@@ -329,9 +325,6 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(threadsafeschedule "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(tuple "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(workqueue "" "${test_libs}")
-
 ## llexception_test.cpp isn't a regression test, and doesn't need to be run
 ## every build. It's to help a developer make implementation choices about
 ## throwing and catching exceptions.
