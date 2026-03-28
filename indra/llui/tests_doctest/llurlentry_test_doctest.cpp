@@ -64,7 +64,6 @@ bool LLControlGroup::getBOOL(const std::string& name)
 {
     return false;
 }
-
 LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& default_color) const
 {
     return LLUIColor();
@@ -933,4 +932,3 @@ TUT_SUITE("LLUrlEntry")
             "");
     }
 }
-

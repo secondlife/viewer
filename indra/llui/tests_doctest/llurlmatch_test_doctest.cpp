@@ -42,7 +42,6 @@ LLUIColor::LLUIColor()
 LLStyle::Params::Params()
 {
 }
-
 LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
 {
 }
@@ -277,4 +276,3 @@ TUT_SUITE("LLUrlMatch")
         ensure("getLocation() empty (2)", match.getLocation().empty());
     }
 }
-

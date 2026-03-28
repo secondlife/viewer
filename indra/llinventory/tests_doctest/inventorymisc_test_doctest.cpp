@@ -68,7 +68,6 @@ void set_random_inventory_metadata(LLInventoryObject* obj)
         break;
     }
 }
-
 LLPointer<LLInventoryItem> create_random_inventory_item()
 {
     LLUUID item_id;
@@ -559,4 +558,3 @@ TUT_SUITE("LLInventory")
         ensure_equals("14.favorites::getIsFavorite() failed", false, src2->getIsFavorite()); // currently not supposed to carry over
     }
 }
-

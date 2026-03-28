@@ -2,7 +2,7 @@
  * @file llsechandler_basic_test_doctest.cpp
  * @author Roxie
  * @date 2026-03-28
- * @brief doctest wrapper for the legacy llsechandler_basic TUT cases.
+ * @brief doctest wrapper for llsechandler_basic tests.
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code

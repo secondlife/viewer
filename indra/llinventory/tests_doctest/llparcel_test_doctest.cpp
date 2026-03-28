@@ -47,7 +47,6 @@ namespace tut
     {
     };
 }
-
 TUT_SUITE("LLInventoryParcel")
 {
     TUT_CASE("LLInventoryParcel::llinventoryparcel_object_test_1")
@@ -75,5 +74,3 @@ TUT_SUITE("LLInventoryParcel")
         ensure_equals("LLParcel::ECategory mapping of uistring back to enum", LLParcel::getCategoryFromUIString(catuistring), LLParcel::C_ANY);
     }
 }
-
-

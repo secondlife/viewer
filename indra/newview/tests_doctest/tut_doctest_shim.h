@@ -2,7 +2,7 @@
  * @file tut_doctest_shim.h
  * @author Linden Research, Inc.
  * @date 2026-03-28
- * @brief Minimal TUT compatibility shim used by doctest-wrapped legacy tests.
+ * @brief TUT compatibility declarations for doctest-wrapped tests.
  *
  * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code

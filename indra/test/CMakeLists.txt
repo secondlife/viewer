@@ -10,9 +10,6 @@ include(Tut)
 include(LLAddBuildTest)
 include(bugsplat)
 
-# The doctest targets compile the shared sources in this directory directly.
-# Stop building the legacy TUT driver from here, but keep the sources available
-# for the migrated ports and any remaining legacy references.
 return()
 
 set(test_SOURCE_FILES
