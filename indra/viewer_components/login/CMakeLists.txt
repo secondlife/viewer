@@ -38,17 +38,6 @@ target_link_libraries(lllogin
 
 if(LL_TESTS)
   enable_testing()
-  SET(lllogin_TEST_SOURCE_FILES
-      lllogin.cpp
-      )
-  set_source_files_properties(
-    lllogin.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES llmessage llcorehttp llcommon
-    )
-
-  LL_ADD_PROJECT_UNIT_TESTS(lllogin "${lllogin_TEST_SOURCE_FILES}")
-
   add_executable(login_doctest
       tests/lllogin_doctest.cpp
       ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
