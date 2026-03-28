@@ -192,6 +192,7 @@ target_include_directories( llmessage  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 # tests
 if (LL_TESTS)
+  include(Doctest)
   SET(llmessage_TEST_SOURCE_FILES
     llcoproceduremanager.cpp
     llnamevalue.cpp
@@ -215,5 +216,5 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
+  add_subdirectory(tests_doctest)
 endif (LL_TESTS)
-
