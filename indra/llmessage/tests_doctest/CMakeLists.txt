@@ -153,3 +153,33 @@ target_link_libraries(llhost_doctest
 )
 
 add_test(NAME llhost_doctest COMMAND llhost_doctest)
+
+add_executable(llnamevalue_doctest
+    ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
+    ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
+    ${CMAKE_SOURCE_DIR}/llmessage/llnamevalue.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/llnamevalue_test_doctest.cpp
+)
+
+target_include_directories(llnamevalue_doctest
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/extern/doctest
+        ${CMAKE_SOURCE_DIR}/..
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/test
+        ${CMAKE_SOURCE_DIR}/llmessage
+        ${CMAKE_SOURCE_DIR}/llcommon
+        ${CMAKE_SOURCE_DIR}/llmath
+        ${CMAKE_SOURCE_DIR}/llmeshoptimizer
+        ${CMAKE_SOURCE_DIR}/llcorehttp
+)
+
+target_link_libraries(llnamevalue_doctest
+    PRIVATE
+        llcommon
+        llmath
+        llcorehttp
+        llmeshoptimizer
+)
+
+add_test(NAME llnamevalue_doctest COMMAND llnamevalue_doctest)
