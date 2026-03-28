@@ -83,13 +83,5 @@ endif ()
 if (LL_TESTS)
     INCLUDE(LLAddBuildTest)
     include(Doctest)
-    SET(llprimitive_TEST_SOURCE_FILES
-      llmediaentry.cpp
-      llprimitive.cpp
-      llgltfmaterial.cpp
-      )
-
-    set_property(SOURCE llprimitive.cpp PROPERTY LL_TEST_ADDITIONAL_LIBRARIES llmessage)
-    LL_ADD_PROJECT_UNIT_TESTS(llprimitive "${llprimitive_TEST_SOURCE_FILES}")
     add_subdirectory(tests_doctest)
 endif (LL_TESTS)
