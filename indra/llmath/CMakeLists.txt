@@ -107,31 +107,5 @@ target_include_directories( llmath  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 # Add tests
 if (LL_TESTS)
   include(LLAddBuildTest)
-  # UNIT TESTS
-  SET(llmath_TEST_SOURCE_FILES
-    llbboxlocal.cpp
-    llmodularmath.cpp
-    llrect.cpp
-    v2math.cpp
-    v3color.cpp
-    v4color.cpp
-    v4coloru.cpp
-    )
-
-  LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
-
-  # INTEGRATION TESTS
-  set(test_libs llmath llcommon)
-  # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
-  LL_ADD_INTEGRATION_TEST(alignment "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llbbox llbbox.cpp "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llquaternion llquaternion.cpp "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(mathmisc "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(m3math "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(v3dmath v3dmath.cpp "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}")
-
   add_subdirectory(tests_doctest)
 endif (LL_TESTS)
