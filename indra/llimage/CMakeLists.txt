@@ -66,11 +66,6 @@ target_link_libraries(llimage
 # Add tests
 if (LL_TESTS)
   include(Doctest)
-  SET(llimage_TEST_SOURCE_FILES
-    llimageworker.cpp
-    )
-  LL_ADD_PROJECT_UNIT_TESTS(llimage "${llimage_TEST_SOURCE_FILES}")
   add_subdirectory(tests_doctest)
 endif (LL_TESTS)
-
 
