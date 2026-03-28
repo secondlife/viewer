@@ -30,3 +30,33 @@ target_link_libraries(llmessage_doctest
 )
 
 add_test(NAME llmessage_doctest COMMAND llmessage_doctest)
+
+add_executable(lltrustedmessageservice_doctest
+    ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
+    ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
+    ${CMAKE_SOURCE_DIR}/llmessage/lltrustedmessageservice.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/lltrustedmessageservice_test_doctest.cpp
+)
+
+target_include_directories(lltrustedmessageservice_doctest
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/extern/doctest
+        ${CMAKE_SOURCE_DIR}/..
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/test
+        ${CMAKE_SOURCE_DIR}/llmessage
+        ${CMAKE_SOURCE_DIR}/llcommon
+        ${CMAKE_SOURCE_DIR}/llfilesystem
+        ${CMAKE_SOURCE_DIR}/llmath
+        ${CMAKE_SOURCE_DIR}/llcorehttp
+)
+
+target_link_libraries(lltrustedmessageservice_doctest
+    PRIVATE
+        llfilesystem
+        llmath
+        llcorehttp
+        llcommon
+)
+
+add_test(NAME lltrustedmessageservice_doctest COMMAND lltrustedmessageservice_doctest)
