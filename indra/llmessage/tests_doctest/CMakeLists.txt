@@ -4,6 +4,7 @@ add_executable(llmessage_doctest
     ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
     ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/llavatarnamecache_test_doctest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/llpartdata_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/llxfer_file_test_doctest.cpp
 )
 
