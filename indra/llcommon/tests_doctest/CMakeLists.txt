@@ -1,3 +1,5 @@
+include(Doctest)
+
 set(LLCOMMON_DOCTEST_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/tuple_test_doctest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/workqueue_test_doctest.cpp
@@ -13,6 +15,7 @@ target_include_directories(llcommon_doctest
     PRIVATE
         ${CMAKE_SOURCE_DIR}
         ${DOCTEST_INCLUDE_DIR}
+        ${CMAKE_SOURCE_DIR}/extern/doctest
         ${CMAKE_SOURCE_DIR}/test
         ${CMAKE_SOURCE_DIR}/llcommon
         ${CMAKE_SOURCE_DIR}/llcommon/tests
