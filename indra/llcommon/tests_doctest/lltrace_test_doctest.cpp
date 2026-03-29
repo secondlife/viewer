@@ -27,7 +27,7 @@
 
 // ---------------------------------------------------------------------------
 // Auto-generated from lltrace_test.cpp at 2025-10-16T18:47:17Z
-// This file is a TODO stub produced by gen_tut_to_doctest.py.
+// Placeholder doctest stub produced by gen_tut_to_doctest.py.
 // ---------------------------------------------------------------------------
 #include "doctest.h"
 #include "ll_doctest_helpers.h"
@@ -41,7 +41,7 @@ TUT_SUITE("llcommon")
 {
     TUT_CASE("lltrace_test::trace_object_t_test_1")
     {
-        DOCTEST_FAIL("TODO: convert lltrace_test.cpp::trace_object_t::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lltrace_test.cpp::trace_object_t::test<1>");
         // Original snippet:
         // template<> template<>
         //     void trace_object_t::test<1>()
@@ -100,4 +100,3 @@ TUT_SUITE("llcommon")
     }
 
 }
-

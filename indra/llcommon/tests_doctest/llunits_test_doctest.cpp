@@ -27,7 +27,7 @@
 
 // ---------------------------------------------------------------------------
 // Auto-generated from llunits_test.cpp at 2025-10-16T18:47:17Z
-// This file is a TODO stub produced by gen_tut_to_doctest.py.
+// Placeholder doctest stub produced by gen_tut_to_doctest.py.
 // ---------------------------------------------------------------------------
 #include "doctest.h"
 #include "ll_doctest_helpers.h"
@@ -39,7 +39,7 @@ TUT_SUITE("llcommon")
 {
     TUT_CASE("llunits_test::units_object_t_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llunits_test.cpp::units_object_t::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llunits_test.cpp::units_object_t::test<1>");
         // Original snippet:
         // template<> template<>
         //     void units_object_t::test<1>()
@@ -81,7 +81,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llunits_test::units_object_t_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llunits_test.cpp::units_object_t::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llunits_test.cpp::units_object_t::test<2>");
         // Original snippet:
         // template<> template<>
         //     void units_object_t::test<2>()
@@ -102,7 +102,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llunits_test::units_object_t_test_3")
     {
-        DOCTEST_FAIL("TODO: convert llunits_test.cpp::units_object_t::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llunits_test.cpp::units_object_t::test<3>");
         // Original snippet:
         // template<> template<>
         //     void units_object_t::test<3>()
@@ -118,7 +118,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llunits_test::units_object_t_test_4")
     {
-        DOCTEST_FAIL("TODO: convert llunits_test.cpp::units_object_t::test<4> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llunits_test.cpp::units_object_t::test<4>");
         // Original snippet:
         // template<> template<>
         //     void units_object_t::test<4>()
@@ -171,7 +171,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llunits_test::units_object_t_test_5")
     {
-        DOCTEST_FAIL("TODO: convert llunits_test.cpp::units_object_t::test<5> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llunits_test.cpp::units_object_t::test<5>");
         // Original snippet:
         // template<> template<>
         //     void units_object_t::test<5>()
@@ -192,7 +192,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llunits_test::units_object_t_test_6")
     {
-        DOCTEST_FAIL("TODO: convert llunits_test.cpp::units_object_t::test<6> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llunits_test.cpp::units_object_t::test<6>");
         // Original snippet:
         // template<> template<>
         //     void units_object_t::test<6>()
@@ -205,7 +205,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llunits_test::units_object_t_test_7")
     {
-        DOCTEST_FAIL("TODO: convert llunits_test.cpp::units_object_t::test<7> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llunits_test.cpp::units_object_t::test<7>");
         // Original snippet:
         // template<> template<>
         //     void units_object_t::test<7>()
@@ -278,7 +278,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llunits_test::units_object_t_test_8")
     {
-        DOCTEST_FAIL("TODO: convert llunits_test.cpp::units_object_t::test<8> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llunits_test.cpp::units_object_t::test<8>");
         // Original snippet:
         // template<> template<>
         //     void units_object_t::test<8>()
@@ -297,7 +297,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llunits_test::units_object_t_test_9")
     {
-        DOCTEST_FAIL("TODO: convert llunits_test.cpp::units_object_t::test<9> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llunits_test.cpp::units_object_t::test<9>");
         // Original snippet:
         // template<> template<>
         //     void units_object_t::test<9>()
@@ -362,7 +362,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llunits_test::units_object_t_test_10")
     {
-        DOCTEST_FAIL("TODO: convert llunits_test.cpp::units_object_t::test<10> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llunits_test.cpp::units_object_t::test<10>");
         // Original snippet:
         // template<> template<>
         //     void units_object_t::test<10>()
@@ -384,4 +384,3 @@ TUT_SUITE("llcommon")
     }
 
 }
-

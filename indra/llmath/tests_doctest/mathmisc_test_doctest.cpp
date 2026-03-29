@@ -445,7 +445,7 @@ TUT_SUITE("LLLine")
 
         // these tests will have some floating point error,
         // so we need to specify how much error is ok
-        // TODO -- make nearestApproach() algorithm more accurate so
+        // nearestApproach() still needs to be more accurate so
         // we can tighten the allowable_error.  Most tests are tighter
         // than one milimeter, however when doing randomized testing
         // you can walk into inaccurate cases.

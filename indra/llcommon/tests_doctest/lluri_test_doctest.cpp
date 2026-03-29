@@ -27,7 +27,7 @@
 
 // ---------------------------------------------------------------------------
 // Auto-generated from lluri_test.cpp at 2025-10-16T18:47:17Z
-// This file is a TODO stub produced by gen_tut_to_doctest.py.
+// Placeholder doctest stub produced by gen_tut_to_doctest.py.
 // ---------------------------------------------------------------------------
 #include "doctest.h"
 #include "ll_doctest_helpers.h"
@@ -40,7 +40,7 @@ TUT_SUITE("llcommon")
 {
     TUT_CASE("lluri_test::URITestObject_test_1")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<1>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<1>()
@@ -67,7 +67,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_2")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<2>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<2>()
@@ -79,7 +79,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_3")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<3>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<3>()
@@ -92,7 +92,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_4")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<4> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<4>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<4>()
@@ -107,7 +107,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_5")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<5> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<5>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<5>()
@@ -129,7 +129,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_6")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<6> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<6>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<6>()
@@ -148,7 +148,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_7")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<7> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<7>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<7>()
@@ -170,7 +170,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_8")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<8> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<8>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<8>()
@@ -217,7 +217,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_9")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<9> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<9>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<9>()
@@ -233,7 +233,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_10")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<10> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<10>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<10>()
@@ -253,7 +253,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_11")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<11> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<11>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<11>()
@@ -270,7 +270,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_12")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<12> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<12>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<12>()
@@ -293,7 +293,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_13")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<13> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<13>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<13>()
@@ -323,7 +323,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_14")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<14> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<14>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<14>()
@@ -338,7 +338,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_15")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<15> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<15>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<15>()
@@ -354,7 +354,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_16")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<16> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<16>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<16>()
@@ -375,7 +375,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_17")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<17> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<17>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<17>()
@@ -403,7 +403,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_18")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<18> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<18>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<18>()
@@ -432,7 +432,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_19")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<19> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<19>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<19>()
@@ -450,7 +450,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("lluri_test::URITestObject_test_20")
     {
-        DOCTEST_FAIL("TODO: convert lluri_test.cpp::URITestObject::test<20> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: lluri_test.cpp::URITestObject::test<20>");
         // Original snippet:
         // template<> template<>
         //     void URITestObject::test<20>()
@@ -489,4 +489,3 @@ TUT_SUITE("llcommon")
     }
 
 }
-

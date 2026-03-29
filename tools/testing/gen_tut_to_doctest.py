@@ -109,7 +109,7 @@ def generate_doctest_file(
     lines: List[str] = []
     lines.append("// ---------------------------------------------------------------------------")
     lines.append(f"// Auto-generated from {src_path.name} at {timestamp}")
-    lines.append("// This file is a TODO stub produced by gen_tut_to_doctest.py.")
+    lines.append("// Placeholder doctest stub produced by gen_tut_to_doctest.py.")
     lines.append("// ---------------------------------------------------------------------------")
     lines.append('#include "doctest.h"')
     lines.append('#include "ll_doctest_helpers.h"')
@@ -123,7 +123,7 @@ def generate_doctest_file(
     if not tests:
         lines.append("    TUT_CASE(\"{0}::no_tests_detected\")".format(src_path.stem))
         lines.append("    {")
-        lines.append('        DOCTEST_FAIL("TODO: no TUT tests discovered in source file");')
+        lines.append('        DOCTEST_FAIL("No TUT tests discovered in source file");')
         lines.append("    }")
     else:
         for object_name, index, snippet in tests:
@@ -131,7 +131,7 @@ def generate_doctest_file(
             lines.append(f'    TUT_CASE("{case_name}")')
             lines.append("    {")
             lines.append(
-                f'        DOCTEST_FAIL("TODO: convert {src_path.name}::{object_name}::test<{index}> from TUT to doctest");'
+                f'        DOCTEST_FAIL("Unported TUT case: {src_path.name}::{object_name}::test<{index}>");'
             )
             lines.append("        // Original snippet:")
             snippet_comment = textwrap.indent(textwrap.dedent(snippet).rstrip(), "        // ")

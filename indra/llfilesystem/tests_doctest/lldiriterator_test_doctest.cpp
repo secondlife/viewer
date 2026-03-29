@@ -57,6 +57,9 @@ namespace tut
         LLDirIterator iter(".","+bad-group-name]+?\?-??.*");
         LLDirIterator iter1(".","))--@---bad-group-name2((?\?-??.*\\.txt");
         LLDirIterator iter2(".","__^v--x)Cuide d sua vida(x--v^__?\?-??.*");
+        (void)iter;
+        (void)iter1;
+        (void)iter2;
     }
 
 } // namespace tut

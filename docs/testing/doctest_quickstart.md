@@ -3,8 +3,8 @@
 This repository uses a header-only doctest setup with a thin helpers/compat layer.
 
 - Enable: `autobuild configure -c RelWithDebInfoOS -- -DLL_TESTS=ON`
-- Build targets: `llcommon_doctest` (subset of llcommon tests), `llmath_doctest`, `llcorehttp_doctest`, `login_doctest`
-- Run: `ctest -C RelWithDebInfo -R "(llcommon_doctest|llmath_doctest|llcorehttp_doctest|login_doctest)" -V`
+- Build targets: module-local `*_doctest` targets, for example `llcommon_doctest`, `llmath_doctest`, `llcorehttp_doctest`, `llprimitive_doctest`, and `login_doctest`
+- Run: `ctest -C RelWithDebInfo -R "doctest$" -V`
 
 Notes:
 - Hand-authored tests are marked with `// DOCTEST_SKIP_AUTOGEN` to keep the generator idempotent.
@@ -33,7 +33,7 @@ Assumes a Windows setup with Visual Studio and Autobuild available on PATH.
 
 6. Run the doctest-based targets via CTest (adjust the build directory name if needed):
     ctest -C RelWithDebInfo ^
-          -R "(llcommon_doctest|llmath_doctest|llcorehttp_doctest|login_doctest)" ^
+          -R "doctest$" ^
           -V --test-dir build-vc170-64
 
 The Autobuild configuration name (`RelWithDebInfoOS`) maps to the Visual Studio configuration `RelWithDebInfo`, which is the value used with `ctest -C`.

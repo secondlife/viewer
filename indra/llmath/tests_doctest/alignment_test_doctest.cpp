@@ -7,8 +7,6 @@
 #include "../llsimdmath.h"
 #include "../llvector4a.h"
 
-#include <iostream>
-
 /**
  * @file v3dmath_test.cpp
  * @author Vir
@@ -88,10 +86,6 @@ TUT_SUITE("alignment_test")
     {
         using namespace tut;
 
-#       ifdef LL_DEBUG
-//      skip("This test fails on Windows when compiled in debug mode.");
-#       endif
-
         const int num_tests = 7;
         void *align_ptr;
         for (int i=0; i<num_tests; i++)
@@ -127,10 +121,6 @@ TUT_SUITE("alignment_test")
     {
         using namespace tut;
 
-#       ifdef LL_DEBUG
-//      skip("This test fails on Windows when compiled in debug mode.");
-#       endif
-
         const int ARR_SIZE = 7;
         for(int i=0; i<ARR_SIZE; i++)
         {
@@ -140,11 +130,9 @@ TUT_SUITE("alignment_test")
         }
 
         MyVector4a *veca = new MyVector4a[ARR_SIZE];
-        //std::cout << "veca base is " << (S32) veca << std::endl;
         TUT_ENSURE("LLAligment veca base", is_aligned(veca,16));
         for(int i=0; i<ARR_SIZE; i++)
         {
-            std::cout << "veca[" << i << "]" << std::endl;
             TUT_ENSURE("LLAlignment veca member unaligned", is_aligned(&veca[i],16));
         }
         delete [] veca;

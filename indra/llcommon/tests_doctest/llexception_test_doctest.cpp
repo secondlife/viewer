@@ -27,7 +27,7 @@
 
 // ---------------------------------------------------------------------------
 // Auto-generated from llexception_test.cpp at 2025-10-16T18:47:17Z
-// This file is a TODO stub produced by gen_tut_to_doctest.py.
+// Placeholder doctest stub produced by gen_tut_to_doctest.py.
 // ---------------------------------------------------------------------------
 #include "doctest.h"
 #include "ll_doctest_helpers.h"
@@ -41,7 +41,7 @@ TUT_SUITE("llcommon")
 {
     TUT_CASE("llexception_test::object_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llexception_test.cpp::object::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llexception_test.cpp::object::test<1>");
         // Original snippet:
         // template<> template<>
         //     void object::test<1>()
@@ -78,7 +78,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llexception_test::object_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llexception_test.cpp::object::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llexception_test.cpp::object::test<2>");
         // Original snippet:
         // template<> template<>
         //     void object::test<2>()
@@ -97,4 +97,3 @@ TUT_SUITE("llcommon")
     }
 
 }
-

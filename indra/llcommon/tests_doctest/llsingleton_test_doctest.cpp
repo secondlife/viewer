@@ -27,7 +27,7 @@
 
 // ---------------------------------------------------------------------------
 // Auto-generated from llsingleton_test.cpp at 2025-10-16T18:47:17Z
-// This file is a TODO stub produced by gen_tut_to_doctest.py.
+// Placeholder doctest stub produced by gen_tut_to_doctest.py.
 // ---------------------------------------------------------------------------
 #include "doctest.h"
 #include "ll_doctest_helpers.h"
@@ -41,7 +41,7 @@ TUT_SUITE("llcommon")
 {
     TUT_CASE("llsingleton_test::singleton_object_t_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llsingleton_test.cpp::singleton_object_t::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsingleton_test.cpp::singleton_object_t::test<1>");
         // Original snippet:
         // template<> template<>
         //     void singleton_object_t::test<1>()
@@ -52,7 +52,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsingleton_test::singleton_object_t_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llsingleton_test.cpp::singleton_object_t::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsingleton_test.cpp::singleton_object_t::test<2>");
         // Original snippet:
         // template<> template<>
         //     void singleton_object_t::test<2>()
@@ -64,7 +64,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsingleton_test::singleton_object_t_test_3")
     {
-        DOCTEST_FAIL("TODO: convert llsingleton_test.cpp::singleton_object_t::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsingleton_test.cpp::singleton_object_t::test<3>");
         // Original snippet:
         // template<> template<>
         //     void singleton_object_t::test<3>()
@@ -86,7 +86,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsingleton_test::singleton_object_t_test_12")
     {
-        DOCTEST_FAIL("TODO: convert llsingleton_test.cpp::singleton_object_t::test<12> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsingleton_test.cpp::singleton_object_t::test<12>");
         // Original snippet:
         // template<> template<>
         //     void singleton_object_t::test<12>()
@@ -133,7 +133,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsingleton_test::singleton_object_t_test_13")
     {
-        DOCTEST_FAIL("TODO: convert llsingleton_test.cpp::singleton_object_t::test<13> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsingleton_test.cpp::singleton_object_t::test<13>");
         // Original snippet:
         // template<> template<>
         //     void singleton_object_t::test<13>()
@@ -160,7 +160,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsingleton_test::singleton_object_t_test_14")
     {
-        DOCTEST_FAIL("TODO: convert llsingleton_test.cpp::singleton_object_t::test<14> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsingleton_test.cpp::singleton_object_t::test<14>");
         // Original snippet:
         // template<> template<>
         //     void singleton_object_t::test<14>()
@@ -176,7 +176,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsingleton_test::singleton_object_t_test_15")
     {
-        DOCTEST_FAIL("TODO: convert llsingleton_test.cpp::singleton_object_t::test<15> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsingleton_test.cpp::singleton_object_t::test<15>");
         // Original snippet:
         // template<> template<>
         //     void singleton_object_t::test<15>()
@@ -191,4 +191,3 @@ TUT_SUITE("llcommon")
     }
 
 }
-

@@ -25,11 +25,6 @@
  * $/LicenseInfo$
  */
 
-/**
- * @file http_fakes.cpp
- * @brief Implementation of deterministic llcorehttp doctest fakes; see docs/testing/doctest_quickstart.md.
- */
-
 #include "http_fakes.h"
 
 namespace llcorehttp_test
@@ -56,10 +51,8 @@ void FakeBufferArray::drop()
 
 void FakeBufferArray::assign(const std::string& data)
 {
-    if (!mBuffer)
-    {
-        mBuffer = new LLCore::BufferArray();
-    }
+    drop();
+    mBuffer = new LLCore::BufferArray();
     mBuffer->append(data.data(), data.size());
 }
 
@@ -193,9 +186,8 @@ bool FakeTransport::pump()
 
 LLCore::HttpHandle FakeTransport::nextHandle()
 {
-    ++mNextId;
-    return reinterpret_cast<LLCore::HttpHandle>(mNextId);
+    mHandleIds.push_back(++mNextId);
+    return static_cast<LLCore::HttpHandle>(&mHandleIds.back());
 }
 
 } // namespace llcorehttp_test
-

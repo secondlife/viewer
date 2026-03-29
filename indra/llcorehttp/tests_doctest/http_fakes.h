@@ -25,10 +25,6 @@
  * $/LicenseInfo$
  */
 
-/**
- * @file http_fakes.h
- * @brief Deterministic fakes for llcorehttp doctests (no network/IO); see docs/testing/doctest_quickstart.md.
- */
 #pragma once
 
 #include "httpcommon.h"
@@ -38,6 +34,7 @@
 #include "bufferarray.h"
 
 #include <cstdint>
+#include <deque>
 #include <map>
 #include <queue>
 #include <string>
@@ -125,6 +122,7 @@ private:
     LLCore::HttpHandle nextHandle();
 
     std::uintptr_t mNextId;
+    std::deque<std::uintptr_t> mHandleIds;
     std::queue<Pending> mPending;
     std::map<LLCore::HttpHandle, std::queue<Scheduled>> mResponses;
 };

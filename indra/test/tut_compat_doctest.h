@@ -151,7 +151,7 @@ inline void fail(const std::string& message)
 inline void skip(const char* reason)
 {
     INFO("skip requested: " << (reason ? reason : "<unspecified>"));
-    DOCTEST_FAIL("TODO: original test requested skip");
+    DOCTEST_FAIL("Original test requested skip");
 }
 } // namespace tut_compat
 

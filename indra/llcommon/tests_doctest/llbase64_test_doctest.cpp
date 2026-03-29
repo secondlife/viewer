@@ -27,7 +27,7 @@
 
 // ---------------------------------------------------------------------------
 // Auto-generated from llbase64_test.cpp at 2025-10-16T18:47:16Z
-// This file is a TODO stub produced by gen_tut_to_doctest.py.
+// Placeholder doctest stub produced by gen_tut_to_doctest.py.
 // ---------------------------------------------------------------------------
 #include "doctest.h"
 #include "ll_doctest_helpers.h"
@@ -41,7 +41,7 @@ TUT_SUITE("llcommon")
 {
     TUT_CASE("llbase64_test::base64_object_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llbase64_test.cpp::base64_object::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llbase64_test.cpp::base64_object::test<1>");
         // Original snippet:
         // template<> template<>
         //     void base64_object::test<1>()
@@ -66,7 +66,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llbase64_test::base64_object_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llbase64_test.cpp::base64_object::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llbase64_test.cpp::base64_object::test<2>");
         // Original snippet:
         // template<> template<>
         //     void base64_object::test<2>()
@@ -81,4 +81,3 @@ TUT_SUITE("llcommon")
     }
 
 }
-

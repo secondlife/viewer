@@ -72,8 +72,10 @@ public:
                 auto headers = response->getHeaders();
                 if (headers && headers->size() > 0)
                 {
-                    recorded_locations.push_back(headers->find("Location") ? *headers->find("Location") : std::string());
-                    recorded_content_types.push_back(headers->find("Content-Type") ? *headers->find("Content-Type") : std::string());
+                    const std::string* location = headers->find("Location");
+                    const std::string* content_type = headers->find("Content-Type");
+                    recorded_locations.push_back(location ? *location : std::string());
+                    recorded_content_types.push_back(content_type ? *content_type : std::string());
                 }
                 else
                 {

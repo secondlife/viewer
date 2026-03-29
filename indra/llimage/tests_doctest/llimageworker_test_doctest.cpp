@@ -37,6 +37,8 @@
 // for lltrace class
 #include "../llcommon/lltrace.h"
 
+#include <atomic>
+
 // -------------------------------------------------------------------------------------------
 // Stubbing: Declarations required to link and run the class being tested
 // Notes:
@@ -100,20 +102,20 @@ namespace tut
     class responder_test : public LLImageDecodeThread::Responder
     {
         public:
-            responder_test(bool* res)
+            responder_test(std::atomic_bool* res)
             {
                 done = res;
-                *done = false;
+                done->store(false, std::memory_order_relaxed);
             }
             virtual void completed(bool success, const std::string& error_message, LLImageRaw* raw, LLImageRaw* aux, U32 request_id)
             {
-                *done = true;
+                done->store(true, std::memory_order_release);
             }
         private:
             // This is what can be thought of as the minimal implementation of a responder
             // Done will be switched to true when completed() is called and can be tested
             // outside the responder. A better way of doing this is to store a callback here.
-            bool* done;
+            std::atomic_bool* done;
     };
 
     // Test wrapper declaration : decode thread
@@ -157,7 +159,7 @@ TUT_SUITE("LLImageDecodeThread")
         mThread = new LLImageDecodeThread(true);
         ensure("LLImageDecodeThread: threaded constructor failed", mThread != NULL);
         // Insert something in the queue
-        bool done = false;
+        std::atomic_bool done(false);
         LLImageDecodeThread::handle_t decodeHandle = mThread->decodeImage(NULL, 0, false, new responder_test(&done));
         // Verifies we get back a valid handle
         ensure("LLImageDecodeThread:  threaded decodeImage(), returned handle is null", decodeHandle != 0);
@@ -165,12 +167,13 @@ TUT_SUITE("LLImageDecodeThread")
         const U32 INCREMENT_TIME = 500;             // 500 milliseconds
         const U32 MAX_TIME = 20 * INCREMENT_TIME;   // Do the loop 20 times max, i.e. wait 10 seconds but no more
         U32 total_time = 0;
-        while ((done == false) && (total_time < MAX_TIME))
+        while ((!done.load(std::memory_order_acquire)) && (total_time < MAX_TIME))
         {
             ms_sleep(INCREMENT_TIME);
             total_time += INCREMENT_TIME;
         }
         // Verifies that the responder has now been called
-        ensure("LLImageDecodeThread: threaded work unit not processed", done == true);
+        ensure("LLImageDecodeThread: threaded work unit not processed",
+               done.load(std::memory_order_acquire));
     }
 }

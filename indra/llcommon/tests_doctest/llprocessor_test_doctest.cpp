@@ -27,7 +27,7 @@
 
 // ---------------------------------------------------------------------------
 // Auto-generated from llprocessor_test.cpp at 2025-10-16T18:47:17Z
-// This file is a TODO stub produced by gen_tut_to_doctest.py.
+// Placeholder doctest stub produced by gen_tut_to_doctest.py.
 // ---------------------------------------------------------------------------
 #include "doctest.h"
 #include "ll_doctest_helpers.h"
@@ -39,7 +39,7 @@ TUT_SUITE("llcommon")
 {
     TUT_CASE("llprocessor_test::processor_object_t_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llprocessor_test.cpp::processor_object_t::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llprocessor_test.cpp::processor_object_t::test<1>");
         // Original snippet:
         // template<> template<>
         //     void processor_object_t::test<1>()
@@ -62,4 +62,3 @@ TUT_SUITE("llcommon")
     }
 
 }
-

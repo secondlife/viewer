@@ -27,7 +27,7 @@
 
 // ---------------------------------------------------------------------------
 // Auto-generated from llsdserialize_test.cpp at 2025-10-16T18:47:17Z
-// This file is a TODO stub produced by gen_tut_to_doctest.py.
+// Placeholder doctest stub produced by gen_tut_to_doctest.py.
 // ---------------------------------------------------------------------------
 #include "doctest.h"
 #include "ll_doctest_helpers.h"
@@ -60,7 +60,7 @@ TUT_SUITE("llcommon")
 {
     TUT_CASE("llsdserialize_test::sd_xml_object_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::sd_xml_object::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::sd_xml_object::test<1>");
         // Original snippet:
         // template<> template<>
         //     void sd_xml_object::test<1>()
@@ -114,7 +114,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::sd_xml_object_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::sd_xml_object::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::sd_xml_object::test<2>");
         // Original snippet:
         // template<> template<>
         //     void sd_xml_object::test<2>()
@@ -142,7 +142,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::sd_xml_object_test_3")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::sd_xml_object::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::sd_xml_object::test<3>");
         // Original snippet:
         // template<> template<>
         //     void sd_xml_object::test<3>()
@@ -174,7 +174,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::sd_xml_object_test_4")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::sd_xml_object::test<4> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::sd_xml_object::test<4>");
         // Original snippet:
         // template<> template<>
         //     void sd_xml_object::test<4>()
@@ -198,7 +198,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::sd_xml_object_test_5")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::sd_xml_object::test<5> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::sd_xml_object::test<5>");
         // Original snippet:
         // template<> template<>
         //     void sd_xml_object::test<5>()
@@ -222,7 +222,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::sd_xml_object_test_6")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::sd_xml_object::test<6> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::sd_xml_object::test<6>");
         // Original snippet:
         // template<> template<>
         //     void sd_xml_object::test<6>()
@@ -243,7 +243,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDSerializeObject_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDSerializeObject::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDSerializeObject::test<1>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDSerializeObject::test<1>()
@@ -256,7 +256,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDSerializeObject_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDSerializeObject::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDSerializeObject::test<2>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDSerializeObject::test<2>()
@@ -269,7 +269,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDSerializeObject_test_3")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDSerializeObject::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDSerializeObject::test<3>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDSerializeObject::test<3>()
@@ -281,7 +281,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDSerializeObject_test_4")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDSerializeObject::test<4> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDSerializeObject::test<4>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDSerializeObject::test<4>()
@@ -293,7 +293,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDSerializeObject_test_5")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDSerializeObject::test<5> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDSerializeObject::test<5>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDSerializeObject::test<5>()
@@ -309,7 +309,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDSerializeObject_test_6")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDSerializeObject::test<6> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDSerializeObject::test<6>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDSerializeObject::test<6>()
@@ -325,7 +325,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDSerializeObject_test_7")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDSerializeObject::test<7> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDSerializeObject::test<7>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDSerializeObject::test<7>()
@@ -343,7 +343,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDSerializeObject_test_8")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDSerializeObject::test<8> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDSerializeObject::test<8>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDSerializeObject::test<8>()
@@ -359,7 +359,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDSerializeObject_test_9")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDSerializeObject::test<9> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDSerializeObject::test<9>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDSerializeObject::test<9>()
@@ -375,7 +375,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDSerializeObject_test_10")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDSerializeObject::test<10> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDSerializeObject::test<10>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDSerializeObject::test<10>()
@@ -391,7 +391,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDXMLParsingObject_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDXMLParsingObject::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDXMLParsingObject::test<1>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDXMLParsingObject::test<1>()
@@ -423,7 +423,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDXMLParsingObject_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDXMLParsingObject::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDXMLParsingObject::test<2>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDXMLParsingObject::test<2>()
@@ -448,7 +448,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDXMLParsingObject_test_3")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDXMLParsingObject::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDXMLParsingObject::test<3>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDXMLParsingObject::test<3>()
@@ -534,7 +534,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDXMLParsingObject_test_4")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDXMLParsingObject::test<4> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDXMLParsingObject::test<4>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDXMLParsingObject::test<4>()
@@ -576,7 +576,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDXMLParsingObject_test_5")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDXMLParsingObject::test<5> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDXMLParsingObject::test<5>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDXMLParsingObject::test<5>()
@@ -616,7 +616,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<1>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<1>()
@@ -625,7 +625,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<2>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<2>()
@@ -636,7 +636,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_3")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<3>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<3>()
@@ -662,7 +662,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_4")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<4> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<4>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<4>()
@@ -676,7 +676,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_5")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<5> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<5>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<5>()
@@ -690,7 +690,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_6")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<6> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<6>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<6>()
@@ -712,7 +712,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_7")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<7> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<7>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<7>()
@@ -730,7 +730,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_8")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<8> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<8>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<8>()
@@ -750,7 +750,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_9")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<9> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<9>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<9>()
@@ -762,7 +762,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_10")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<10> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<10>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<10>()
@@ -774,7 +774,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_11")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<11> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<11>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<11>()
@@ -791,7 +791,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_12")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<12> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<12>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<12>()
@@ -811,7 +811,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_13")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<13> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<13>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<13>()
@@ -834,7 +834,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_14")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<14> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<14>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<14>()
@@ -852,7 +852,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_15")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<15> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<15>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<15>()
@@ -881,7 +881,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_16")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<16> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<16>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<16>()
@@ -898,7 +898,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_17")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<17> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<17>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<17>()
@@ -915,7 +915,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_18")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<18> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<18>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<18>()
@@ -1997,7 +1997,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_19")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<19> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<19>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<19>()
@@ -2028,7 +2028,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_20")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<20> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<20>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<20>()
@@ -2115,7 +2115,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDNotationParsingObject_test_21")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<21> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDNotationParsingObject::test<21>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDNotationParsingObject::test<21>()
@@ -2132,7 +2132,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<1>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<1>()
@@ -2176,7 +2176,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<2>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<2>()
@@ -2219,7 +2219,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_3")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<3>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<3>()
@@ -2336,7 +2336,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_4")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<4> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<4>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<4>()
@@ -2347,7 +2347,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_5")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<5> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<5>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<5>()
@@ -2365,7 +2365,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_6")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<6> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<6>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<6>()
@@ -2411,7 +2411,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_7")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<7> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<7>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<7>()
@@ -2471,7 +2471,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_8")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<8> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<8>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<8>()
@@ -2493,7 +2493,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_9")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<9> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<9>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<9>()
@@ -2515,7 +2515,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_10")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<10> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<10>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<10>()
@@ -2552,7 +2552,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDBinaryParsingObject_test_11")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<11> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDBinaryParsingObject::test<11>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDBinaryParsingObject::test<11>()
@@ -2562,7 +2562,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDCompatibleObject_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDCompatibleObject::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDCompatibleObject::test<1>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDCompatibleObject::test<1>()
@@ -2599,7 +2599,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDCompatibleObject_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDCompatibleObject::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDCompatibleObject::test<2>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDCompatibleObject::test<2>()
@@ -2613,7 +2613,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDCompatibleObject_test_3")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDCompatibleObject::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDCompatibleObject::test<3>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDCompatibleObject::test<3>()
@@ -2629,7 +2629,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDCompatibleObject_test_4")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDCompatibleObject::test<4> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDCompatibleObject::test<4>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDCompatibleObject::test<4>()
@@ -2643,7 +2643,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDCompatibleObject_test_5")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDCompatibleObject::test<5> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDCompatibleObject::test<5>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDCompatibleObject::test<5>()
@@ -2657,7 +2657,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDCompatibleObject_test_6")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDCompatibleObject::test<6> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDCompatibleObject::test<6>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDCompatibleObject::test<6>()
@@ -2682,7 +2682,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDCompatibleObject_test_7")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDCompatibleObject::test<7> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDCompatibleObject::test<7>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDCompatibleObject::test<7>()
@@ -2698,7 +2698,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestLLSDCompatibleObject_test_8")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestLLSDCompatibleObject::test<8> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestLLSDCompatibleObject::test<8>");
         // Original snippet:
         // template<> template<>
         //     void TestLLSDCompatibleObject::test<8>()
@@ -2714,7 +2714,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<1>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<1>()
@@ -2729,7 +2729,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<2>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<2>()
@@ -2743,7 +2743,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_3")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<3>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<3>()
@@ -2757,7 +2757,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_4")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<4> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<4>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<4>()
@@ -2771,7 +2771,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_5")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<5> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<5>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<5>()
@@ -2785,7 +2785,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_6")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<6> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<6>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<6>()
@@ -2797,7 +2797,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_7")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<7> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<7>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<7>()
@@ -2809,7 +2809,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_8")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<8> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<8>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<8>()
@@ -2823,7 +2823,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_8")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<8> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<8>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<8>()
@@ -2835,7 +2835,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_9")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<9> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<9>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<9>()
@@ -2847,7 +2847,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_10")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<10> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<10>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<10>()
@@ -2859,7 +2859,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_11")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<11> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<11>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<11>()
@@ -2874,7 +2874,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_12")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<12> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<12>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<12>()
@@ -2888,7 +2888,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llsdserialize_test::TestPythonCompatibleObject_test_13")
     {
-        DOCTEST_FAIL("TODO: convert llsdserialize_test.cpp::TestPythonCompatibleObject::test<13> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llsdserialize_test.cpp::TestPythonCompatibleObject::test<13>");
         // Original snippet:
         // template<> template<>
         //     void TestPythonCompatibleObject::test<13>()
@@ -2903,4 +2903,3 @@ TUT_SUITE("llcommon")
     }
 
 }
-

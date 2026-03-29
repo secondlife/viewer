@@ -27,7 +27,7 @@
 
 // ---------------------------------------------------------------------------
 // Auto-generated from llframetimer_test.cpp at 2025-10-16T18:47:17Z
-// This file is a TODO stub produced by gen_tut_to_doctest.py.
+// Placeholder doctest stub produced by gen_tut_to_doctest.py.
 // ---------------------------------------------------------------------------
 #include "doctest.h"
 #include "ll_doctest_helpers.h"
@@ -40,7 +40,7 @@ TUT_SUITE("llcommon")
 {
     TUT_CASE("llframetimer_test::frametimer_object_t_test_1")
     {
-        DOCTEST_FAIL("TODO: convert llframetimer_test.cpp::frametimer_object_t::test<1> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llframetimer_test.cpp::frametimer_object_t::test<1>");
         // Original snippet:
         // template<> template<>
         //     void frametimer_object_t::test<1>()
@@ -59,7 +59,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llframetimer_test::frametimer_object_t_test_2")
     {
-        DOCTEST_FAIL("TODO: convert llframetimer_test.cpp::frametimer_object_t::test<2> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llframetimer_test.cpp::frametimer_object_t::test<2>");
         // Original snippet:
         // template<> template<>
         //     void frametimer_object_t::test<2>()
@@ -87,7 +87,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llframetimer_test::frametimer_object_t_test_3")
     {
-        DOCTEST_FAIL("TODO: convert llframetimer_test.cpp::frametimer_object_t::test<3> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llframetimer_test.cpp::frametimer_object_t::test<3>");
         // Original snippet:
         // template<> template<>
         //     void frametimer_object_t::test<3>()
@@ -123,7 +123,7 @@ TUT_SUITE("llcommon")
 
     TUT_CASE("llframetimer_test::frametimer_object_t_test_4")
     {
-        DOCTEST_FAIL("TODO: convert llframetimer_test.cpp::frametimer_object_t::test<4> from TUT to doctest");
+        DOCTEST_FAIL("Unported TUT case: llframetimer_test.cpp::frametimer_object_t::test<4>");
         // Original snippet:
         // template<> template<>
         //     void frametimer_object_t::test<4>()
@@ -132,4 +132,3 @@ TUT_SUITE("llcommon")
     }
 
 }
-
