@@ -812,8 +812,10 @@ void LLKeywords::collectSegmentOps(segment_ops_t& ops, const LLWString& wtext, b
 
                                     if (map_iter != mWordTokenMap.end())
                                     {
-                                        // Found a match for the function part
-                                        ops.push_back({SegmentOp::OP_TOKEN, seg_start, seg_end, map_iter->second});
+                                        // Found a match for the function part.
+                                        // Start must be after the dot (seg_start + prefix_len + 1),
+                                        // not at seg_start, to avoid overlapping with the prefix segment.
+                                        ops.push_back({SegmentOp::OP_TOKEN, seg_start + prefix_len + 1, seg_end, map_iter->second});
                                     }
                                 }
                             }
