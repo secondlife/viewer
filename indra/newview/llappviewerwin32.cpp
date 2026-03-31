@@ -225,7 +225,6 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
     return 0;
 }
 
-const std::string LLAppViewerWin32::sWindowClass = "Second Life";
 
 /*
     This function is used to print to the command line a text message
@@ -963,7 +962,7 @@ bool LLAppViewerWin32::restoreErrorTrap()
 bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
 {
     wchar_t window_class[256]; /* Flawfinder: ignore */   // Assume max length < 255 chars.
-    mbstowcs(window_class, sWindowClass.c_str(), 255);
+    mbstowcs(window_class, sWindowClass, 255);
     window_class[255] = 0;
     // Use the class instead of the window name.
     HWND other_window = FindWindow(window_class, NULL);
