@@ -75,7 +75,7 @@ namespace Details
     // until we finally give up after MAX_EVENT_POLL_HTTP_ERRORS attempts.
     constexpr F32 EVENT_POLL_ERROR_RETRY_SECONDS = 1.f;
     constexpr F32 EVENT_POLL_ERROR_RETRY_SECONDS_INC = 3.f;
-    constexpr S32 MAX_EVENT_POLL_HTTP_ERRORS = 15; // ~5 minutes, by the above rules.
+    constexpr S32 MAX_EVENT_POLL_ERRORS = 15; // ~5 minutes, by the above rules.
     constexpr F64 MIN_SECONDS_PASSED = 10.0; // Minimum time we expect the server to hold the request.
 
     int LLEventPollImpl::sNextCounter = 1;
@@ -238,14 +238,16 @@ namespace Details
                 }
                 else if (!status.isHttpStatus())
                 {
-                    /// Some LLCore or LIBCurl error was returned.  This is unlikely to be recoverable
-                    LL_WARNS("LLEventPollImpl") << "<" << counter << "> Critical error from poll request returned from libraries.  Canceling coroutine." << LL_ENDL;
-                    break;
+                    // Some LLCore or LIBCurl error was returned.
+                    LL_WARNS("LLEventPollImpl") << "<" << counter << "> Error from poll request returned from libraries. " << status.toTerseString() << LL_ENDL;
                 }
-                LL_WARNS("LLEventPollImpl") << "<" << counter << "> Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
-                    << status.toTerseString() << ": '" << httpResults["message"] << "'" << LL_ENDL;
+                else
+                {
+                    LL_WARNS("LLEventPollImpl") << "<" << counter << "> Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
+                        << status.toTerseString() << ": '" << httpResults["message"] << "'" << LL_ENDL;
+                }
 
-                if (errorCount < MAX_EVENT_POLL_HTTP_ERRORS)
+                if (errorCount < MAX_EVENT_POLL_ERRORS)
                 {   // An unanticipated error has been received from our poll
                     // request. Calculate a timeout and wait for it to expire(sleep)
                     // before trying again.  The sleep time is increased by 3 seconds
