@@ -92,7 +92,7 @@ public:
         const LLUUID& invoice,
         const sparam_t& strings)
     {
-        LLMuteList::getInstance()->setLoaded();
+        LLMuteList::getInstance()->setLoaded(LLMuteList::MLS_SERVER_EMPTY);
         return true;
     }
 };
@@ -155,7 +155,9 @@ std::string LLMute::getDisplayType() const
 //-----------------------------------------------------------------------------
 LLMuteList::LLMuteList() :
     mLoadState(ML_INITIAL),
-    mRequestStartTime(0.f)
+    mLoadSource(MLS_NONE),
+    mRequestStartTime(0.f),
+    mTriedCacheFallback(false)
 {
     gGenericDispatcher.addHandler("emptymutelist", &sDispatchEmptyMuteList);
 
@@ -210,7 +212,7 @@ bool LLMuteList::isLinden(const std::string& name)
     return last_name == "linden";
 }
 
-bool LLMuteList::getLoadFailed() const
+bool LLMuteList::getLoadFailed()
 {
     if (mLoadState == ML_FAILED)
     {
@@ -221,9 +223,75 @@ bool LLMuteList::getLoadFailed() const
         constexpr F64 WAIT_SECONDS = 30;
         if (mRequestStartTime + WAIT_SECONDS < LLTimer::getTotalSeconds())
         {
-            return true;
+            LL_WARNS() << "Mute list request timed out; trying cache fallback once" << LL_ENDL;
+            tryLoadCacheFallback(gAgent.getID(), "request timeout");
+            return mLoadState == ML_FAILED;
         }
     }
+    return false;
+}
+
+const char* LLMuteList::sourceToString(EMuteListSource source)
+{
+    switch (source)
+    {
+    case MLS_NONE:
+        return "none";
+    case MLS_SERVER:
+        return "server";
+    case MLS_SERVER_EMPTY:
+        return "server-empty";
+    case MLS_SERVER_CACHE:
+        return "server-cached";
+    case MLS_FALLBACK_CACHE:
+        return "fallback-cache";
+    default:
+        return "unknown";
+    }
+}
+
+std::string LLMuteList::getCacheFilename(const LLUUID& agent_id) const
+{
+    std::string agent_id_string;
+    agent_id.toString(agent_id_string);
+    return gDirUtilp->getExpandedFilename(LL_PATH_CACHE, agent_id_string) + ".cached_mute";
+}
+
+void LLMuteList::setFailed(const std::string& reason)
+{
+    mLoadState = ML_FAILED;
+    if (mLoadSource == MLS_NONE)
+    {
+        LL_WARNS() << "Mute list unavailable: " << reason << LL_ENDL;
+    }
+    else
+    {
+        LL_WARNS() << "Mute list unavailable: " << reason << " (last source=" << sourceToString(mLoadSource) << ")" << LL_ENDL;
+    }
+}
+
+bool LLMuteList::tryLoadCacheFallback(const LLUUID& agent_id, const std::string& reason)
+{
+    if (mTriedCacheFallback)
+    {
+        if (!isLoaded())
+        {
+            setFailed("cache fallback already attempted before " + reason);
+        }
+        return isLoaded();
+    }
+
+    mTriedCacheFallback = true;
+    const std::string filename = getCacheFilename(agent_id);
+    LL_INFOS() << "Trying mute list cache fallback due to " << reason << ": " << filename << LL_ENDL;
+
+    if (loadFromFile(filename, MLS_FALLBACK_CACHE))
+    {
+        LL_WARNS() << "Loaded mute list from cache fallback due to " << reason << LL_ENDL;
+        return true;
+    }
+
+    setFailed("cache fallback failed after " + reason);
     return false;
 }
 
@@ -580,14 +648,14 @@ std::vector<LLMute> LLMuteList::getMutes() const
 //-----------------------------------------------------------------------------
 // loadFromFile()
 //-----------------------------------------------------------------------------
-bool LLMuteList::loadFromFile(const std::string& filename)
+bool LLMuteList::loadFromFile(const std::string& filename, EMuteListSource source)
 {
     LL_PROFILE_ZONE_SCOPED;
 
     if(!filename.size())
     {
         LL_WARNS() << "Mute List Filename is Empty!" << LL_ENDL;
-        mLoadState = ML_FAILED;
+        setFailed("empty filename");
         return false;
     }
 
@@ -595,9 +663,13 @@ bool LLMuteList::loadFromFile(const std::string& filename)
     if (!fp)
     {
         LL_WARNS() << "Couldn't open mute list " << filename << LL_ENDL;
-        mLoadState = ML_FAILED;
+        setFailed("cannot open " + filename);
         return false;
     }
+
+    // Replace previous server-backed state so fallback can be superseded by authoritative data.
+    mMutes.clear();
+    mLegacyMutes.clear();
 
     // *NOTE: Changing the size of these buffers will require changes
     // in the scanf below.
@@ -627,7 +699,7 @@ bool LLMuteList::loadFromFile(const std::string& filename)
         }
     }
     fclose(fp);
-    setLoaded();
+    setLoaded(source);
 
     // server does not maintain up-to date account names (not display names!)
     // in this list, so it falls to viewer.
@@ -737,12 +809,11 @@ bool LLMuteList::isMuted(const std::string& username, U32 flags) const
 //-----------------------------------------------------------------------------
 void LLMuteList::requestFromServer(const LLUUID& agent_id)
 {
-    std::string agent_id_string;
-    std::string filename;
-    agent_id.toString(agent_id_string);
-    filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string) + ".cached_mute";
+    const std::string filename = getCacheFilename(agent_id);
     LLCRC crc;
     crc.update(filename);
+    mTriedCacheFallback = false;
+    mLoadSource = MLS_NONE;
 
     LLMessageSystem* msg = gMessageSystem;
     msg->newMessageFast(_PREHASH_MuteListRequest);
@@ -755,17 +826,17 @@ void LLMuteList::requestFromServer(const LLUUID& agent_id)
     if (gDisconnected)
     {
         LL_WARNS() << "Trying to request mute list when disconnected!" << LL_ENDL;
-        mLoadState = ML_FAILED;
+        tryLoadCacheFallback(agent_id, "disconnected before request");
         return;
     }
     if (!gAgent.getRegion())
     {
         LL_WARNS() << "No region for agent yet, skipping mute list request!" << LL_ENDL;
-        mLoadState = ML_FAILED;
+        tryLoadCacheFallback(agent_id, "no region for request");
         return;
     }
     mLoadState = ML_REQUESTED;
-    mRequestStartTime = LLTimer::getElapsedSeconds();
+    mRequestStartTime = LLTimer::getTotalSeconds();
     // Double amount of retries due to this request happening during busy stage
     // Ideally this should be turned into a capability
     gMessageSystem->sendReliable(gAgent.getRegionHost(), LL_DEFAULT_RELIABLE_RETRIES * 2, true, LL_PING_BASED_TIMEOUT_DUMMY, NULL, NULL);
@@ -777,14 +848,15 @@ void LLMuteList::requestFromServer(const LLUUID& agent_id)
 
 void LLMuteList::cache(const LLUUID& agent_id)
 {
-    // Write to disk even if empty.
-    if(isLoaded())
+    // Write to disk even if empty, but never from degraded fallback state.
+    if (isLoaded() && mLoadSource != MLS_FALLBACK_CACHE)
     {
-        std::string agent_id_string;
-        std::string filename;
-        agent_id.toString(agent_id_string);
-        filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string) + ".cached_mute";
+        const std::string filename = getCacheFilename(agent_id);
         saveToFile(filename);
+    }
+    else if (isLoaded())
+    {
+        LL_WARNS() << "Skipping mute list cache write from fallback-only state" << LL_ENDL;
     }
 }
 
@@ -812,7 +884,7 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
 
     LLMuteList* mute_list = getInstance();
     mute_list->mLoadState = ML_REQUESTED;
-    mute_list->mRequestStartTime = LLTimer::getElapsedSeconds();
+    mute_list->mRequestStartTime = LLTimer::getTotalSeconds();
 
     // Todo: Based of logs and testing, there is no callback
     // from server if file doesn't exist server side.
@@ -831,12 +903,7 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
 void LLMuteList::processUseCachedMuteList(LLMessageSystem* msg, void**)
 {
     LL_INFOS() << "LLMuteList::processUseCachedMuteList()" << LL_ENDL;
-
-    std::string agent_id_string;
-    gAgent.getID().toString(agent_id_string);
-    std::string filename;
-    filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string) + ".cached_mute";
-    LLMuteList::getInstance()->loadFromFile(filename);
+    LLMuteList::getInstance()->loadFromFile(LLMuteList::getInstance()->getCacheFilename(gAgent.getID()), MLS_SERVER_CACHE);
 }
 
 void LLMuteList::onFileMuteList(void** user_data, S32 error_code, LLExtStat ext_status)
@@ -845,13 +912,13 @@ void LLMuteList::onFileMuteList(void** user_data, S32 error_code, LLExtStat ext_
     if(local_filename_and_path && !local_filename_and_path->empty() && (error_code == 0))
     {
         LL_INFOS() << "Received mute list from server" << LL_ENDL;
-        LLMuteList::getInstance()->loadFromFile(*local_filename_and_path);
+        LLMuteList::getInstance()->loadFromFile(*local_filename_and_path, MLS_SERVER);
         LLFile::remove(*local_filename_and_path);
     }
     else
     {
         LL_INFOS() << "LLMuteList xfer failed with code " << error_code << LL_ENDL;
-        LLMuteList::getInstance()->mLoadState = ML_FAILED;
+        LLMuteList::getInstance()->tryLoadCacheFallback(gAgent.getID(), "xfer failure");
     }
     delete local_filename_and_path;
 }
@@ -908,9 +975,10 @@ void LLMuteList::removeObserver(LLMuteListObserver* observer)
     mObservers.erase(observer);
 }
 
-void LLMuteList::setLoaded()
+void LLMuteList::setLoaded(EMuteListSource source)
 {
     mLoadState = ML_LOADED;
+    mLoadSource = source;
     notifyObservers();
 }
 

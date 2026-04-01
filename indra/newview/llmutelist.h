@@ -82,6 +82,15 @@ class LLMuteList : public LLSingleton<LLMuteList>
         ML_LOADED,
         ML_FAILED,
     };
+
+    enum EMuteListSource
+    {
+        MLS_NONE,
+        MLS_SERVER,
+        MLS_SERVER_EMPTY,
+        MLS_SERVER_CACHE,
+        MLS_FALLBACK_CACHE,
+    };
 public:
     // reasons for auto-unmuting a resident
     enum EAutoReason
@@ -116,7 +125,7 @@ public:
     static bool isLinden(const std::string& name);
 
     bool isLoaded() const { return mLoadState == ML_LOADED; }
-    bool getLoadFailed() const;
+    bool getLoadFailed();
 
     std::vector<LLMute> getMutes() const;
 
@@ -127,10 +136,14 @@ public:
     void cache(const LLUUID& agent_id);
 
 private:
-    bool loadFromFile(const std::string& filename);
+    bool loadFromFile(const std::string& filename, EMuteListSource source);
     bool saveToFile(const std::string& filename);
+    bool tryLoadCacheFallback(const LLUUID& agent_id, const std::string& reason);
+    void setFailed(const std::string& reason);
+    static const char* sourceToString(EMuteListSource source);
+    std::string getCacheFilename(const LLUUID& agent_id) const;
 
-    void setLoaded();
+    void setLoaded(EMuteListSource source);
     void notifyObservers();
     void notifyObserversDetailed(const LLMute &mute);
 
@@ -177,7 +190,9 @@ private:
     observer_set_t mObservers;
 
     EMuteListState mLoadState;
+    EMuteListSource mLoadSource;
     F64 mRequestStartTime;
+    bool mTriedCacheFallback;
 
     friend class LLDispatchEmptyMuteList;
 };
