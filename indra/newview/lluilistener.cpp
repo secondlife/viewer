@@ -37,6 +37,7 @@
 #include "llui.h" // getRootView(), resolvePath()
 #include "lluictrl.h"
 #include "llerror.h"
+#include "llcombobox.h"
 
 
 LLUIListener::LLUIListener():
@@ -55,6 +56,12 @@ LLUIListener::LLUIListener():
         "current value as [\"value\"] reply.",
         &LLUIListener::getValue,
         LLSDMap("path", LLSD())("reply", LLSD()));
+
+    add("setSelectedByValue",
+        "For the combobox identified by the path in [\"path\"] set selection by [\"value\"],\n"
+        "and return result as [\"reply\"]",
+        &LLUIListener::setSelectedByValue,
+        llsd::map("path", LLSD(), "value", LLSD(), "reply", LLSD()));
 }
 
 void LLUIListener::call(const LLSD& event) const
@@ -98,4 +105,21 @@ void LLUIListener::getValue(const LLSD&event) const
     }
 
     sendReply(reply, event);
+}
+
+void LLUIListener::setSelectedByValue(const LLSD& event) const
+{
+    Response response(LLSD(), event);
+    std::string path(event["path"]);
+    LLComboBox* combo_ctrl = dynamic_cast<LLComboBox*>(LLUI::getInstance()->resolvePath(LLUI::getInstance()->getRootView(), path));
+    if (combo_ctrl)
+    {
+        response.setResponse(combo_ctrl->setSelectedByValue(event["value"], true));
+        return;
+    }
+    else
+    {
+        LL_WARNS() << "Specified combobox doesn't exist: " << path << LL_ENDL;
+    }
+    response.setResponse(false);
 }
