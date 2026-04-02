@@ -107,7 +107,7 @@ public:
     std::vector<std::string> mResponses;
     std::string mProposedName;
 
-    typedef boost::signals2::signal<void(const std::vector<std::string>& filenames, std::string proposed_name)> dir_picked_signal_t;
+    using dir_picked_signal_t = boost::signals2::signal<void(const std::vector<std::string>& filenames, std::string proposed_name)>;
 
     LLDirPickerThread(const dir_picked_signal_t::slot_type& cb, const std::string &proposed_name);
     ~LLDirPickerThread();

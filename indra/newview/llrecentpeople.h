@@ -53,8 +53,8 @@ class LLRecentPeople: public LLSingleton<LLRecentPeople>, public LLOldEvents::LL
     LLSINGLETON_EMPTY_CTOR(LLRecentPeople);
     LOG_CLASS(LLRecentPeople);
 public:
-    typedef std::map <LLUUID, F64> id_to_time_map_t;
-    typedef boost::signals2::signal<void ()> signal_t;
+    using id_to_time_map_t = std::map <LLUUID, F64>;
+    using signal_t = boost::signals2::signal<void ()>;
 
     /**
      * Add specified avatar to the list if it's not there already.
@@ -113,7 +113,7 @@ public:
 
 private:
 
-    typedef std::map<LLUUID, LLSD> recent_people_t;
+    using recent_people_t = std::map<LLUUID, LLSD>;
     recent_people_t     mPeople;
     signal_t            mChangedSignal;
     id_to_time_map_t    mAvatarsArrivalTime;

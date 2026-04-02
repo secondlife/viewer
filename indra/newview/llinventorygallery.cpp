@@ -891,13 +891,11 @@ void LLInventoryGallery::setSearchType(LLInventoryFilter::ESearchType type)
 
 void LLInventoryGallery::getCurrentCategories(uuid_vec_t& vcur)
 {
-    for (gallery_item_map_t::const_iterator iter = mItemMap.begin();
-        iter != mItemMap.end();
-        iter++)
+    for (const auto& [id, item] : mItemMap)
     {
-        if ((*iter).second != NULL)
+        if (item != NULL)
         {
-            vcur.push_back((*iter).first);
+            vcur.push_back(id);
         }
     }
 }
@@ -3176,10 +3174,8 @@ bool LLInventoryGalleryItem::isFadeItem()
 void LLThumbnailsObserver::changed(U32 mask)
 {
     std::vector<LLUUID> deleted_ids;
-    for (item_map_t::value_type& it : mItemMap)
+    for (auto& [obj_id, data] : mItemMap)
     {
-        const LLUUID& obj_id = it.first;
-        LLItemData& data = it.second;
 
         LLInventoryObject* obj = gInventory.getObject(obj_id);
         if (!obj)

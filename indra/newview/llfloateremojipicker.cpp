@@ -684,10 +684,10 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
         for (const auto& group : mFilteredEmojis)
         {
             // List all categories in the group
-            for (const auto& category : group)
+            for (const auto& [cat_name, cat_emojis] : group)
             {
                 // List all emojis in the category
-                fillEmojisCategory(category.second, category.first, row_panel_params,
+                fillEmojisCategory(cat_emojis, cat_name, row_panel_params,
                     row_list_params, icon_params, icon_rect, max_icons, bg_color);
             }
         }
@@ -696,10 +696,10 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
     {
         // List all categories in the selected group
         const auto& group = mFilteredEmojis[mSelectedGroupIndex - 1];
-        for (const auto& category : group)
+        for (const auto& [cat_name, cat_emojis] : group)
         {
             // List all emojis in the category
-            fillEmojisCategory(category.second, category.first, row_panel_params,
+            fillEmojisCategory(cat_emojis, cat_name, row_panel_params,
                 row_list_params, icon_params, icon_rect, max_icons, bg_color);
         }
     }
@@ -1305,12 +1305,12 @@ void LLFloaterEmojiPicker::saveState()
     {
         U32 maxCount = 20;
         std::string frequentlyUsed;
-        for (auto& it : sFrequentlyUsed)
+        for (const auto& [character, count] : sFrequentlyUsed)
         {
             if (!frequentlyUsed.empty())
                 frequentlyUsed += ",";
             char buffer[32];
-            snprintf(buffer, sizeof(buffer), "%u:%u", (U32)it.first, (U32)it.second);
+            snprintf(buffer, sizeof(buffer), "%u:%u", (U32)character, (U32)count);
             frequentlyUsed += buffer;
             if (!--maxCount)
                 break;

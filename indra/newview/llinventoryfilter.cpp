@@ -126,7 +126,7 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
     if (!mExactToken.empty() && (mSearchType == SEARCHTYPE_NAME))
     {
         passed = false;
-        typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+        using tokenizer = boost::tokenizer<boost::char_separator<char> >;
         boost::char_separator<char> sep(" ");
         tokenizer tokens(desc, sep);
 
@@ -1029,7 +1029,7 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
         mFilterTokens.clear();
         if (filter_sub_string_new.find_first_of("+") != std::string::npos)
         {
-            typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+            using tokenizer = boost::tokenizer<boost::char_separator<char> >;
             boost::char_separator<char> sep("+");
             tokenizer tokens(filter_sub_string_new, sep);
 

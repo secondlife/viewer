@@ -44,7 +44,7 @@ public:
     struct Params : public LLInitParam::Block<Params, LLUICtrl::Params> {};
 
     // Note: valid children for LLToolBarView are stored in this registry
-    typedef LLDefaultChildRegistry child_registry_t;
+    using child_registry_t = LLDefaultChildRegistry;
 
     // Xml structure of the toolbars.xml setting
     // Those live in a toolbars.xml found in app_settings (for the default) and in

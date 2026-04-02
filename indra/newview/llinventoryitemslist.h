@@ -132,7 +132,7 @@ private:
     commit_signal_t mRefreshCompleteSignal;
 
     // Update synchronization
-    typedef std::vector<LLInventoryItemsList*> all_list_t;
+    using all_list_t = std::vector<LLInventoryItemsList*>;
     static all_list_t sAllLists;
     static all_list_t::iterator sAllListIter;
     static bool sListIdleRegistered;

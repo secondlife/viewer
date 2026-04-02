@@ -35,12 +35,13 @@
 
 class LLChatMsgBox;
 
-typedef enum e_show_item_header
+enum e_show_item_header
 {
     CHATITEMHEADER_SHOW_ONLY_NAME = 0,
     CHATITEMHEADER_SHOW_ONLY_ICON = 1,
     CHATITEMHEADER_SHOW_BOTH
-} EShowItemHeader;
+};
+using EShowItemHeader = e_show_item_header;
 
 class LLFloaterIMNearbyChatToastPanel : public LLPanel
 {

@@ -41,12 +41,13 @@ class LLColorSwatchCtrl
 : public LLUICtrl
 {
 public:
-    typedef enum e_color_pick_op
+    enum e_color_pick_op
     {
         COLOR_CHANGE,
         COLOR_SELECT,
         COLOR_CANCEL
-    } EColorPickOp;
+    };
+    using EColorPickOp = e_color_pick_op;
 
     struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
     {

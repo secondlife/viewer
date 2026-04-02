@@ -30,6 +30,8 @@
 #include "llgl.h"
 #include "llglslshader.h"
 
+#include <string_view>
+
 class LLShaderMgr
 {
 public:
@@ -351,7 +353,7 @@ public:
     virtual void initAttribsAndUniforms(void);
 
     bool attachShaderFeatures(LLGLSLShader * shader);
-    void dumpObjectLog(GLuint ret, bool warns = true, const std::string& filename = "");
+    void dumpObjectLog(GLuint ret, bool warns = true, std::string_view filename = "");
     void dumpShaderSource(U32 shader_code_count, GLchar** shader_code_text);
     bool    linkProgramObject(GLuint obj, bool suppress_errors = false);
     bool    validateProgramObject(GLuint obj);

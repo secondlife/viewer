@@ -40,11 +40,12 @@ class LLSplitButton
     :   public LLUICtrl
 {
 public:
-    typedef enum e_arrow_position
+    enum e_arrow_position
     {
         LEFT,
         RIGHT
-    } EArrowPosition;
+    };
+    using EArrowPosition = e_arrow_position;
 
     struct ArrowPositionValues : public LLInitParam::TypeValuesHelper<EArrowPosition, ArrowPositionValues>
     {

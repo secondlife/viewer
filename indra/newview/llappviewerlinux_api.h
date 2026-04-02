@@ -89,7 +89,7 @@ dbus_glib_marshal_viewerapp_BOOLEAN__STRING_POINTER_POINTER (GClosure     *closu
                                                              gpointer      invocation_hint,
                                                              gpointer      marshal_data)
 {
-  typedef gboolean (*GMarshalFunc_BOOLEAN__STRING_POINTER_POINTER) (gpointer     data1,
+  using GMarshalFunc_BOOLEAN__STRING_POINTER_POINTER = gboolean(*)(gpointer     data1,
                                                                     gpointer     arg_1,
                                                                     gpointer     arg_2,
                                                                     gpointer     arg_3,

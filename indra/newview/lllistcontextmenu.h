@@ -63,7 +63,7 @@ public:
     virtual void hide();
 
 protected:
-    typedef std::function<void (const LLUUID& id)> functor_t;
+    using functor_t = std::function<void (const LLUUID& id)>;
 
     virtual LLContextMenu* createMenu() = 0;
 

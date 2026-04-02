@@ -844,11 +844,9 @@ void LLPanelOutfitEdit::onShopButtonClicked()
     if (isAgentAvatarValid())
     {
         // try to get wearable type from 'Add More' panel first (EXT-7639)
-        selection_info_t selection_info = getAddMorePanelSelectionType();
+        auto [type, count] = getAddMorePanelSelectionType();
 
-        LLWearableType::EType type = selection_info.first;
-
-        if (selection_info.second > 1)
+        if (count > 1)
         {
             // the second argument is not important in this case: generic market place will be opened
             url = url_resolver.resolveURL(LLWearableType::WT_NONE, SEX_FEMALE);

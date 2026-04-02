@@ -1803,9 +1803,7 @@ bool LLStringUtilBase<T>::startsWith(
     const string_type& substr)
 {
     if(string.empty() || (substr.empty())) return false;
-    if (substr.length() > string.length()) return false;
-    if (0 == string.compare(0, substr.length(), substr)) return true;
-    return false;
+    return string.starts_with(substr);
 }
 
 // static
@@ -1815,11 +1813,7 @@ bool LLStringUtilBase<T>::endsWith(
     const string_type& substr)
 {
     if(string.empty() || (substr.empty())) return false;
-    size_t sub_len = substr.length();
-    size_t str_len = string.length();
-    if (sub_len > str_len) return false;
-    if (0 == string.compare(str_len - sub_len, sub_len, substr)) return true;
-    return false;
+    return string.ends_with(substr);
 }
 
 // static

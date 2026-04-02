@@ -73,10 +73,11 @@ public:
         Params();
     };
 
-    typedef enum e_item_state {
+    enum e_item_state {
         IS_DEFAULT,
         IS_WORN,
-    } EItemState;
+    };
+    using EItemState = e_item_state;
 
     static LLPanelInventoryListItemBase* create(LLViewerInventoryItem* item);
 
@@ -161,7 +162,7 @@ protected:
 
     LLPanelInventoryListItemBase(LLViewerInventoryItem* item, const Params& params);
 
-    typedef std::vector<LLUICtrl*> widget_array_t;
+    using widget_array_t = std::vector<LLUICtrl*>;
 
     /**
      * Called after inventory item was updated, update panel widgets to reflect inventory changes.

@@ -40,10 +40,10 @@ class LLConversationItem;
 class LLConversationItemSession;
 class LLConversationItemParticipant;
 
-typedef std::map<LLUUID, LLPointer<LLConversationItem> > conversations_items_map;
-typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
+using conversations_items_map = std::map<LLUUID, LLPointer<LLConversationItem> >;
+using conversations_widgets_map = std::map<LLUUID, LLFolderViewItem*>;
 
-typedef std::vector<std::string> menuentry_vec_t;
+using menuentry_vec_t = std::vector<std::string>;
 
 // Conversation items: we hold a list of those and create an LLFolderViewItem widget for each
 // that we tuck into the mConversationsListPanel.
@@ -303,7 +303,7 @@ class LLConversationViewModel
 :   public LLFolderViewModel<LLConversationSort, LLConversationItem, LLConversationItem, LLConversationFilter>
 {
 public:
-    typedef LLFolderViewModel<LLConversationSort, LLConversationItem, LLConversationItem, LLConversationFilter> base_t;
+    using base_t = LLFolderViewModel<LLConversationSort, LLConversationItem, LLConversationItem, LLConversationFilter>;
     LLConversationViewModel()
     :   base_t(new LLConversationSort(), new LLConversationFilter())
     {}

@@ -50,7 +50,7 @@ class LLIconDictionary : public LLSingleton<LLIconDictionary>,
     LLSINGLETON(LLIconDictionary);
 };
 
-typedef LLPointer<LLUIImage> LLUIImagePtr;
+using LLUIImagePtr = LLPointer<LLUIImage>;
 
 LLIconDictionary::LLIconDictionary()
 {

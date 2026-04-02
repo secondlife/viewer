@@ -1460,7 +1460,7 @@ void LLTextureCache::readHeaderCache()
         if (num_entries)
         {
             U32 empty_entries = 0;
-            typedef std::pair<U32, S32> lru_data_t;
+            using lru_data_t = std::pair<U32, S32>;
             std::set<lru_data_t> lru;
             std::set<U32> purge_list;
             for (U32 i=0; i<num_entries; i++)
@@ -1637,7 +1637,7 @@ void LLTextureCache::purgeTexturesLazy(F32 time_limit_sec)
         }
 
         // Use mTexturesSizeMap to collect UUIDs of textures with bodies
-        typedef std::set<std::pair<U32, S32> > time_idx_set_t;
+        using time_idx_set_t = std::set<std::pair<U32, S32> >;
         std::set<std::pair<U32, S32> > time_idx_set;
         for (size_map_t::iterator iter1 = mTexturesSizeMap.begin();
             iter1 != mTexturesSizeMap.end(); ++iter1)
@@ -1682,8 +1682,7 @@ void LLTextureCache::purgeTexturesLazy(F32 time_limit_sec)
         LLTimer timer;
         while (!mPurgeEntryList.empty() && timer.getElapsedTimeF32() < time_limit_sec)
         {
-            S32 idx = mPurgeEntryList.back().first;
-            Entry entry = mPurgeEntryList.back().second;
+            auto [idx, entry] = mPurgeEntryList.back();
             mPurgeEntryList.pop_back();
             // make sure record is still valid
             bool remove_entry = false;
@@ -1728,7 +1727,7 @@ void LLTextureCache::purgeTextures(bool validate)
     }
 
     // Use mTexturesSizeMap to collect UUIDs of textures with bodies
-    typedef std::set<std::pair<U32,S32> > time_idx_set_t;
+    using time_idx_set_t = std::set<std::pair<U32,S32> >;
     std::set<std::pair<U32,S32> > time_idx_set;
     for (size_map_t::iterator iter1 = mTexturesSizeMap.begin();
          iter1 != mTexturesSizeMap.end(); ++iter1)

@@ -26,13 +26,14 @@
 
 #pragma once
 
-typedef struct _script_perm {
+struct _script_perm {
     std::string question;
     U32 permbit;
     bool caution;
     _script_perm(const std::string& q, const U32 b, const bool c) :
     question(q), permbit(b), caution(c) {}
-} script_perm_t;
+};
+using script_perm_t = _script_perm;
 
 const U32 NUM_SCRIPT_PERMISSIONS = 19;
 const S32 SCRIPT_PERMISSION_DEBIT = 0;

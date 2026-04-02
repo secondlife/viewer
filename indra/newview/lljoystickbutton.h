@@ -32,14 +32,15 @@
 #include "llviewertexture.h"
 #include "llquaternion.h"
 
-typedef enum e_joystick_quadrant
+enum e_joystick_quadrant
 {
     JQ_ORIGIN,
     JQ_UP,
     JQ_DOWN,
     JQ_LEFT,
     JQ_RIGHT
-} EJoystickQuadrant;
+};
+using EJoystickQuadrant = e_joystick_quadrant;
 
 struct QuadrantNames : public LLInitParam::TypeValuesHelper<EJoystickQuadrant, QuadrantNames>
 {

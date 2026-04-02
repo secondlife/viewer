@@ -113,9 +113,9 @@ public:
         ,LOAD
     };
 
-    typedef std::vector<LLLocationHistoryItem>  location_list_t;
-    typedef std::function<void(EChangeType event)>              history_changed_callback_t;
-    typedef boost::signals2::signal<void(EChangeType event)>    history_changed_signal_t;
+    using location_list_t = std::vector<LLLocationHistoryItem>;
+    using history_changed_callback_t = std::function<void(EChangeType event)>;
+    using history_changed_signal_t = boost::signals2::signal<void(EChangeType event)>;
 
 
     void                    addItem(const LLLocationHistoryItem& item);

@@ -39,8 +39,8 @@ class LLLandmark;
 class LLLandmarkActions
 {
 public:
-    typedef std::function<void(std::string& slurl)> slurl_callback_t;
-    typedef std::function<void(std::string& slurl, S32 x, S32 y, S32 z)> region_name_and_coords_callback_t;
+    using slurl_callback_t = std::function<void(std::string& slurl)>;
+    using region_name_and_coords_callback_t = std::function<void(std::string& slurl, S32 x, S32 y, S32 z)>;
 
     /**
      * @brief Fetches landmark LLViewerInventoryItems for the given landmark name.

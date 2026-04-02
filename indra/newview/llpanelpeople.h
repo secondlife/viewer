@@ -66,14 +66,15 @@ public:
 
 private:
 
-    typedef enum e_sort_oder {
+    enum e_sort_oder {
         E_SORT_BY_NAME = 0,
         E_SORT_BY_STATUS = 1,
         E_SORT_BY_MOST_RECENT = 2,
         E_SORT_BY_DISTANCE = 3,
         E_SORT_BY_RECENT_SPEAKERS = 4,
         E_SORT_BY_RECENT_ARRIVAL = 5
-    } ESortOrder;
+    };
+    using ESortOrder = e_sort_oder;
 
     void                    removePicker();
 

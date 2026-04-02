@@ -356,7 +356,7 @@ static bool parse_lure_bucket(const std::string& bucket,
     U8& region_access)
 {
     // tokenize the bucket
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
     tokenizer tokens(bucket, sep);
     tokenizer::iterator iter = tokens.begin();
@@ -686,7 +686,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 {
                     std::string str_bucket = ll_safe_string((char*)binary_bucket, binary_bucket_size);
 
-                    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+                    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
                     boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
                     tokenizer tokens(str_bucket, sep);
                     tokenizer::iterator iter = tokens.begin();
@@ -782,7 +782,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
 
             // Tokenize the string.
             // TODO: Support escaped tokens ("||" -> "|")
-            typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+            using tokenizer = boost::tokenizer<boost::char_separator<char> >;
             boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
             tokenizer tokens(str, sep);
             tokenizer::iterator iter = tokens.begin();

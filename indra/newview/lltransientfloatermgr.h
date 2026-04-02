@@ -54,8 +54,8 @@ public:
     void removeControlView(LLView* view);
 
 private:
-    typedef std::set<LLHandle<LLView> > controls_set_t;
-    typedef std::map<ETransientGroup, controls_set_t > group_controls_t;
+    using controls_set_t = std::set<LLHandle<LLView> >;
+    using group_controls_t = std::map<ETransientGroup, controls_set_t >;
 
     void hideTransientFloaters(S32 x, S32 y);
     void leftMouseClickCallback(S32 x, S32 y, MASK mask);

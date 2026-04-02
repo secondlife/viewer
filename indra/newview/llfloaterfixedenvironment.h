@@ -58,7 +58,7 @@ public:
     virtual LLSettingsBase::ptr_t getEditSettings()   const override                { return mSettings; }
 
 protected:
-    typedef std::function<void()> on_confirm_fn;
+    using on_confirm_fn = std::function<void()>;
 
     virtual void            refresh()                   override;
     void                    setEditSettingsAndUpdate(const LLSettingsBase::ptr_t &settings) override;

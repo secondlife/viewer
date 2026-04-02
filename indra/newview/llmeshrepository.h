@@ -52,7 +52,7 @@ class LLMutex;
 class LLCondition;
 class LLMeshRepository;
 
-typedef enum e_mesh_processing_result_enum
+enum e_mesh_processing_result_enum
 {
     MESH_OK = 0,
     MESH_NO_DATA = 1,
@@ -61,9 +61,10 @@ typedef enum e_mesh_processing_result_enum
     MESH_PARSE_FAILURE,
     MESH_INVALID,
     MESH_UNKNOWN
-} EMeshProcessingResult;
+};
+using EMeshProcessingResult = e_mesh_processing_result_enum;
 
-typedef enum e_mesh_request_type_enum
+enum e_mesh_request_type_enum
 {
     MESH_REQUEST_HEADER,
     MESH_REQUEST_LOD,
@@ -71,7 +72,8 @@ typedef enum e_mesh_request_type_enum
     MESH_REQUEST_DECOMPOSITION,
     MESH_REQUEST_PHYSICS,
     MESH_REQUEST_UKNOWN
-} EMeshRequestType;
+};
+using EMeshRequestType = e_mesh_request_type_enum;
 
 class LLMeshUploadData
 {
@@ -117,7 +119,7 @@ class LLPhysicsDecomp : public LLThread
 {
 public:
 
-    typedef std::map<std::string, LLSD> decomp_params;
+    using decomp_params = std::map<std::string, LLSD>;
 
     class Request : public LLRefCount
     {
@@ -180,7 +182,7 @@ public:
 
     std::map<std::string, S32> mStageID;
 
-    typedef std::queue<LLPointer<Request> > request_queue;
+    using request_queue = std::queue<LLPointer<Request> >;
     request_queue mRequestQ;
 
     LLPointer<Request> mCurRequest;
@@ -442,7 +444,7 @@ public:
     LLCondition* mSignal;
 
     //map of known mesh headers
-    typedef std::unordered_map<LLUUID, LLMeshHeader> mesh_header_map; // pair is header_size and data
+    using mesh_header_map = std::unordered_map<LLUUID, LLMeshHeader>; // pair is header_size and data
     mesh_header_map mMeshHeader;
 
     class HeaderRequest : public RequestStats
@@ -537,12 +539,12 @@ public:
     std::deque<LoadedMesh> mLoadedQ;
 
     //map of pending header requests and currently desired LODs
-    typedef std::unordered_map<LLUUID, std::array<S32, LLModel::NUM_LODS> > pending_lod_map;
+    using pending_lod_map = std::unordered_map<LLUUID, std::array<S32, LLModel::NUM_LODS> >;
     pending_lod_map mPendingLOD;
 
     // map of mesh ID to skin info (mirrors LLMeshRepository::mSkinMap)
     /// NOTE: LLMeshRepository::mSkinMap is accessed very frequently, so maintain a copy here to avoid mutex overhead
-    typedef std::unordered_map<LLUUID, LLPointer<LLMeshSkinInfo>> skin_map;
+    using skin_map = std::unordered_map<LLUUID, LLPointer<LLMeshSkinInfo>>;
     skin_map mSkinMap;
 
     // workqueue for processing generic requests
@@ -559,7 +561,7 @@ public:
     LLCore::HttpRequest::policy_t       mHttpPolicyClass;
     LLCore::HttpRequest::policy_t       mHttpLargePolicyClass;
 
-    typedef std::unordered_set<LLCore::HttpHandler::ptr_t> http_request_set;
+    using http_request_set = std::unordered_set<LLCore::HttpHandler::ptr_t>;
     http_request_set                    mHttpRequestSet;            // Outstanding HTTP requests
 
     std::string mGetMeshCapability;
@@ -671,10 +673,10 @@ public:
     LLPointer<DecompRequest> mFinalDecomp;
     volatile bool   mPhysicsComplete;
 
-    typedef std::map<LLPointer<LLModel>, std::vector<LLVector3> > hull_map_t;
+    using hull_map_t = std::map<LLPointer<LLModel>, std::vector<LLVector3> >;
     hull_map_t      mHullMap;
 
-    typedef std::vector<LLModelInstance> instance_list_t;
+    using instance_list_t = std::vector<LLModelInstance>;
     instance_list_t mInstanceList;
 
     // Upload should happen in deterministic order, so sort instances by model name.
@@ -692,9 +694,9 @@ public:
             return a->mLabel > b->mLabel;
         }
     };
-    typedef std::map<LLPointer<LLModel>, instance_list_t, LLUploadModelInstanceLess> instance_map_t;
+    using instance_map_t = std::map<LLPointer<LLModel>, instance_list_t, LLUploadModelInstanceLess>;
     instance_map_t    mInstance;
-    typedef std::map<std::string, std::string> lod_sources_map_t;
+    using lod_sources_map_t = std::map<std::string, std::string>;
     lod_sources_map_t mLodSources;
 
     LLMutex*        mMutex;
@@ -910,22 +912,22 @@ public:
     static void metricsProgress(unsigned int count);
     static void metricsUpdate();
 
-    typedef std::unordered_map<LLUUID, MeshLoadData> mesh_load_map;
+    using mesh_load_map = std::unordered_map<LLUUID, MeshLoadData>;
     mesh_load_map mLoadingMeshes[4];
 
-    typedef std::unordered_map<LLUUID, LLPointer<LLMeshSkinInfo>> skin_map;
+    using skin_map = std::unordered_map<LLUUID, LLPointer<LLMeshSkinInfo>>;
     skin_map mSkinMap;
 
-    typedef std::map<LLUUID, LLModel::Decomposition*> decomposition_map;
+    using decomposition_map = std::map<LLUUID, LLModel::Decomposition*>;
     decomposition_map mDecompositionMap;
 
     LLMutex*                    mMeshMutex;
 
-    typedef std::vector <std::shared_ptr<PendingRequestBase> > pending_requests_vec;
+    using pending_requests_vec = std::vector <std::shared_ptr<PendingRequestBase> >;
     pending_requests_vec mPendingRequests;
 
     //list of mesh ids awaiting skin info
-    typedef std::unordered_map<LLUUID, MeshLoadData > skin_load_map;
+    using skin_load_map = std::unordered_map<LLUUID, MeshLoadData >;
     skin_load_map mLoadingSkins;
 
     //list of mesh ids awaiting decompositions

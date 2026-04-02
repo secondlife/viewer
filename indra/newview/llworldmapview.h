@@ -195,7 +195,7 @@ public:
     S32             mSelectIDStart;
 
     // Keep the list of regions that are displayed on screen. Avoids iterating through the whole region map after draw().
-    typedef std::vector<U64> handle_list_t;
+    using handle_list_t = std::vector<U64>;
     handle_list_t mVisibleRegions; // set every frame
 
     static std::map<std::string,std::string> sStringsMap;

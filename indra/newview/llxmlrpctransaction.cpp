@@ -65,7 +65,7 @@ public:
     void onCompleted(LLCore::HttpHandle handle,
                      LLCore::HttpResponse* response) override;
 
-    typedef std::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
+    using ptr_t = std::shared_ptr<LLXMLRPCTransaction::Handler>;
 
 private:
     LLXMLRPCTransaction::Impl *mImpl;
@@ -75,7 +75,7 @@ private:
 class LLXMLRPCTransaction::Impl
 {
 public:
-    typedef LLXMLRPCTransaction::EStatus    EStatus;
+    using EStatus = LLXMLRPCTransaction::EStatus;
 
     LLCore::HttpRequest::ptr_t  mHttpRequest;
 

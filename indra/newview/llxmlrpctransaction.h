@@ -43,7 +43,7 @@ public:
 
     ~LLXMLRPCTransaction();
 
-    typedef enum e_status
+    enum e_status
     {
         StatusNotStarted,
         StatusStarted,
@@ -52,7 +52,8 @@ public:
         StatusCURLError,
         StatusXMLRPCError,
         StatusOtherError
-    } EStatus;
+    };
+    using EStatus = e_status;
 
     /// Run the request a little, returns true when done
     bool process();

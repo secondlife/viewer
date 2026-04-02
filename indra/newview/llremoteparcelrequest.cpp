@@ -112,7 +112,7 @@ void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, v
 
     LLRemoteParcelInfoProcessor::observer_multimap_t & observers = inst->mObservers;
 
-    typedef std::vector<observer_multimap_t::iterator> deadlist_t;
+    using deadlist_t = std::vector<observer_multimap_t::iterator>;
     deadlist_t dead_iters;
 
     observer_multimap_t::iterator oi = observers.lower_bound(parcel_data.parcel_id);

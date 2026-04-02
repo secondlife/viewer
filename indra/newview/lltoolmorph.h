@@ -96,7 +96,7 @@ protected:
 
     LLUIImagePtr mBackgroundp;
 
-    typedef std::set< LLVisualParamHint* > instance_list_t;
+    using instance_list_t = std::set< LLVisualParamHint* >;
     static instance_list_t sInstances;
 };
 

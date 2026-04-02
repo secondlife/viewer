@@ -81,7 +81,7 @@ public:
     virtual void        setVisible(bool visible);
 
 private:
-    typedef std::map<F32, LLViewerVisualParam*> value_map_t;
+    using value_map_t = std::map<F32, LLViewerVisualParam*>;
 
     void                showWearable(LLViewerWearable* wearable, bool show, bool disable_camera_switch = false);
     void                updateScrollingPanelUI();
@@ -179,10 +179,10 @@ private:
     std::unordered_map<std::string, LLAccordionCtrlTab*> mAccordionTabs;
     std::unordered_map<std::string, LLScrollingPanelList*> mParamPanels;
 
-    typedef std::vector<std::pair<LLCheckBoxCtrl*, LLAvatarAppearanceDefines::ETextureIndex>> checkbox_texture_index_vec_t;
+    using checkbox_texture_index_vec_t = std::vector<std::pair<LLCheckBoxCtrl*, LLAvatarAppearanceDefines::ETextureIndex>>;
     checkbox_texture_index_vec_t mAlphaCheckbox2Index;
 
-    typedef std::map<LLAvatarAppearanceDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
+    using s32_uuid_map_t = std::map<LLAvatarAppearanceDefines::ETextureIndex, LLUUID>;
     s32_uuid_map_t mPreviousAlphaTexture;
 };
 

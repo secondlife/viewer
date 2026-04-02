@@ -518,9 +518,7 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
         gmd->mIsOwner = (role_id == mOwnerRole) ? false : gmd->mIsOwner;
     }
 
-    lluuid_pair role_member;
-    role_member.first = role_id;
-    role_member.second = member_id;
+    lluuid_pair role_member{role_id, member_id};
 
     change_map_t::iterator it = mRoleMemberChanges.find(role_member);
     if (it != mRoleMemberChanges.end())
@@ -1869,8 +1867,7 @@ void LLGroupMgr::sendGroupMemberInvites(const LLUUID& group_id, std::map<LLUUID,
     bool start_message = true;
     LLMessageSystem* msg = gMessageSystem;
 
-    for (std::map<LLUUID,LLUUID>::iterator it = member_role_pairs.begin();
-         it != member_role_pairs.end(); ++it)
+    for (const auto& [member_id, role_id] : member_role_pairs)
     {
         if (start_message)
         {
@@ -1884,8 +1881,8 @@ void LLGroupMgr::sendGroupMemberInvites(const LLUUID& group_id, std::map<LLUUID,
         }
 
         msg->nextBlock("InviteData");
-        msg->addUUID("InviteeID",(*it).first);
-        msg->addUUID("RoleID",(*it).second);
+        msg->addUUID("InviteeID",member_id);
+        msg->addUUID("RoleID",role_id);
 
         if (msg->isSendFull())
         {
@@ -1949,7 +1946,7 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
             for (LLGroupMemberData::role_list_t::iterator rit = member_data->roleBegin();
                  rit != member_data->roleEnd(); ++rit)
             {
-                if ((*rit).first.notNull() && (*rit).second!=0)
+                if ((*rit).first.notNull() && (*rit).second != 0)
                 {
                     (*rit).second->removeMember(ejected_member_id);
                 }

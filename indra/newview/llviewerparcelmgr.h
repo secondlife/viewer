@@ -80,10 +80,10 @@ class LLViewerParcelMgr : public LLSingleton<LLViewerParcelMgr>
     ~LLViewerParcelMgr();
 
 public:
-    typedef std::function<void (const LLVector3d&, const bool& local)> teleport_finished_callback_t;
-    typedef boost::signals2::signal<void (const LLVector3d&, const bool&)> teleport_finished_signal_t;
-    typedef std::function<void()> teleport_failed_callback_t;
-    typedef boost::signals2::signal<void()> teleport_failed_signal_t;
+    using teleport_finished_callback_t = std::function<void (const LLVector3d&, const bool& local)>;
+    using teleport_finished_signal_t = boost::signals2::signal<void (const LLVector3d&, const bool&)>;
+    using teleport_failed_callback_t = std::function<void()>;
+    using teleport_failed_signal_t = boost::signals2::signal<void()>;
 
     static void cleanupGlobals();
 

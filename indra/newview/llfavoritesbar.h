@@ -252,10 +252,10 @@ private:
     void onLandmarkLoaded(const LLUUID& asset_id, class LLLandmark* landmark);
     void storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl);
 
-    typedef std::map<LLUUID, S32> sort_index_map_t;
+    using sort_index_map_t = std::map<LLUUID, S32>;
     sort_index_map_t mSortIndexes;
 
-    typedef std::map<LLUUID, std::string> slurls_map_t;
+    using slurls_map_t = std::map<LLUUID, std::string>;
     slurls_map_t mSLURLs;
     std::set<LLUUID> mMissingSLURLs;
     bool mIsDirty;

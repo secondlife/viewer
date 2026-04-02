@@ -46,7 +46,7 @@ class LLTabContainer;
 class LLInventoryItem;
 class LLDaySettingCopiedCallback;
 
-typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
+using LLSettingsBasePtr_t = std::shared_ptr<LLSettingsBase>;
 
 /**
  * Floater for creating or editing a day cycle.
@@ -72,8 +72,8 @@ public:
         CONTEXT_REGION
     };
 
-    typedef boost::signals2::signal<void(LLSettingsDay::ptr_t)> edit_commit_signal_t;
-    typedef boost::signals2::connection connection_t;
+    using edit_commit_signal_t = boost::signals2::signal<void(LLSettingsDay::ptr_t)>;
+    using connection_t = boost::signals2::connection;
 
                                 LLFloaterEditExtDayCycle(const LLSD &key);
     virtual                     ~LLFloaterEditExtDayCycle();
@@ -105,7 +105,7 @@ protected:
     virtual void                setEditSettingsAndUpdate(const LLSettingsBase::ptr_t &settings) override;
 
 private:
-    typedef std::function<void()> on_confirm_fn;
+    using on_confirm_fn = std::function<void()>;
     F32 getCurrentFrame() const;
 
     // flyout response/click
@@ -238,7 +238,7 @@ private:
         F32 mFrame;
         LLSettingsBase::ptr_t pSettings;
     };
-    typedef std::map<std::string, FrameData> keymap_t;
+    using keymap_t = std::map<std::string, FrameData>;
     keymap_t mSliderKeyMap; //slider's keys vs old_frames&settings, shadows mFramesSlider
 };
 

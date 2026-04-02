@@ -227,7 +227,7 @@ std::string LLURI::escapePathAndData(const std::string &str)
     std::string result;
 
     const std::string data_marker = "data:";
-    if (str.compare(0, data_marker.length(), data_marker) == 0)
+    if (str.starts_with(data_marker))
     {
         // This is not url, but data, data part needs to be properly escaped
         // data part is separated by ',' from header. Minimal data uri is "data:,"

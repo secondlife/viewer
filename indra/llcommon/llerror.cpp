@@ -374,7 +374,7 @@ namespace LLError
         std::string name = mangled;
         for (const auto& prefix : std::vector<std::string>{ "class ", "struct " })
         {
-            if (0 == name.compare(0, prefix.length(), prefix))
+            if (name.starts_with(prefix))
             {
                 return name.substr(prefix.length());
             }

@@ -113,7 +113,7 @@ protected:
 class LLInvPanelComplObserver : public LLInventoryCompletionObserver
 {
 public:
-    typedef std::function<void()> callback_t;
+    using callback_t = std::function<void()>;
 
     LLInvPanelComplObserver(callback_t cb)
     :   mCallback(cb)
@@ -2836,7 +2836,7 @@ void LLAssetFilteredInventoryPanel::initFromParams(const Params& p)
     // Init asset types
     std::string types = p.filter_asset_types.getValue();
 
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep("|");
     tokenizer tokens(types, sep);
     tokenizer::iterator token_iter = tokens.begin();

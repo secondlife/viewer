@@ -150,10 +150,10 @@ bool LLAppViewerLinux::restoreErrorTrap()
 /////////////////////////////////////////
 #if LL_DBUS_ENABLED
 
-typedef struct
+struct ViewerAppAPIClass
 {
         GObjectClass parent_class;
-} ViewerAppAPIClass;
+};
 
 static void viewerappapi_init(ViewerAppAPI *server);
 static void viewerappapi_class_init(ViewerAppAPIClass *klass);

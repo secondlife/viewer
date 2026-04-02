@@ -326,13 +326,13 @@ private:
     LLTextureCache* mTextureCache;
 
     // Map of all requests by UUID
-    typedef std::map<LLUUID,LLTextureFetchWorker*> map_t;
+    using map_t = std::map<LLUUID,LLTextureFetchWorker*>;
     map_t mRequestMap;                                                  // Mfq
 
     // Set of requests that require network data
-    typedef std::set<LLUUID> queue_t;
+    using queue_t = std::set<LLUUID>;
     queue_t mHTTPTextureQueue;                                          // Mfnq
-    typedef std::map<LLHost,std::set<LLUUID> > cancel_queue_t;
+    using cancel_queue_t = std::map<LLHost,std::set<LLUUID> >;
     F32 mTextureBandwidth;                                              // <none>
     F32 mMaxBandwidth;                                                  // Mfnq
     LLTextureInfo mTextureInfo;
@@ -349,7 +349,7 @@ private:
     // is logically tied to LLQueuedThread's list of
     // QueuedRequest instances and so must be covered by the
     // same locks.
-    typedef std::vector<TFRequest *> command_queue_t;
+    using command_queue_t = std::vector<TFRequest *>;
     command_queue_t mCommands;                                          // Mfq
 
     // If true, modifies some behaviors that help with QA tasks.
@@ -381,7 +381,7 @@ private:
     // exceed the high water level (but not go below zero).
     LLAtomicS32                         mHttpSemaphore;                 // Ttf
 
-    typedef std::set<LLUUID> wait_http_res_queue_t;
+    using wait_http_res_queue_t = std::set<LLUUID>;
     wait_http_res_queue_t               mHttpWaitResource;              // Mfnq
 
     // Cumulative stats on the states/requests issued by

@@ -43,7 +43,7 @@ public:
     LLHandle<LLView> getHintTarget(const std::string& name);
 private:
     LLRegistry<std::string, LLHandle<LLView> > mTargetRegistry;
-    typedef std::map<LLNotificationPtr, class LLHintPopup*> hint_map_t;
+    using hint_map_t = std::map<LLNotificationPtr, class LLHintPopup*>;
     hint_map_t mHints;
     void showHints(const LLSD& show);
 

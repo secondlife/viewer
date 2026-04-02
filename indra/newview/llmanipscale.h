@@ -45,18 +45,20 @@ F32 get_default_max_prim_scale(bool is_flora = false);
 class LLToolComposite;
 class LLColor4;
 
-typedef enum e_scale_manipulator_type
+enum e_scale_manipulator_type
 {
     SCALE_MANIP_CORNER,
     SCALE_MANIP_FACE
-} EScaleManipulatorType;
+};
+using EScaleManipulatorType = e_scale_manipulator_type;
 
-typedef enum e_snap_regimes
+enum e_snap_regimes
 {
     SNAP_REGIME_NONE = 0, //!< The cursor is not in either of the snap regimes.
     SNAP_REGIME_UPPER = 0x1, //!< The cursor is, non-exclusively, in the first of the snap regimes. Prefer to treat as bitmask.
     SNAP_REGIME_LOWER = 0x2 //!< The cursor is, non-exclusively, in the second of the snap regimes. Prefer to treat as bitmask.
-} ESnapRegimes;
+};
+using ESnapRegimes = e_snap_regimes;
 
 
 class LLManipScale : public LLManip
@@ -150,7 +152,7 @@ private:
     S32             mLastMouseY;
     bool            mSendUpdateOnMouseUp;
     U32             mLastUpdateFlags;
-    typedef std::set<ManipulatorHandle*, compare_manipulators> manipulator_list_t;
+    using manipulator_list_t = std::set<ManipulatorHandle*, compare_manipulators>;
     manipulator_list_t mProjectedManipulators;
     LLVector4       mManipulatorVertices[14];
     F32             mScaleSnapUnit1; //!< Size of snap multiples for the upper scale.

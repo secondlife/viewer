@@ -67,17 +67,18 @@ class LLIMModel :  public LLSingleton<LLIMModel>
 
 public:
 
-    typedef std::list<LLSD> chat_message_list_t;
+    using chat_message_list_t = std::list<LLSD>;
 
     struct LLIMSession : public boost::signals2::trackable
     {
-        typedef enum e_session_type
+        enum e_session_type
         {   // for now we have 4 predefined types for a session
             P2P_SESSION,
             GROUP_SESSION,
             ADHOC_SESSION,
             NONE_SESSION,
-        } SType;
+        };
+        using SType = e_session_type;
 
         LLIMSession(const LLUUID& session_id, const std::string& name,
             const EInstantMessage& type, const LLUUID& other_participant_id, const LLSD& voiceChannelInfo, const uuid_vec_t& ids, bool has_offline_msg);
@@ -173,7 +174,7 @@ public:
     /** Session id to session object */
     std::map<LLUUID, LLIMSession*> mId2SessionMap;
 
-    typedef boost::signals2::signal<void(const LLSD&)> session_signal_t;
+    using session_signal_t = boost::signals2::signal<void(const LLSD&)>;
     session_signal_t mNewMsgSignal;
     session_signal_t mNoUnreadMsgsSignal;
 
@@ -516,7 +517,7 @@ private:
 
 private:
 
-    typedef std::list <LLIMSessionObserver *> session_observers_list_t;
+    using session_observers_list_t = std::list <LLIMSessionObserver *>;
     session_observers_list_t mSessionObservers;
 
     // EXP-901
@@ -524,7 +525,7 @@ private:
     // the user should be notified that to be able to see this message the option should be OFF.
     // This set stores session IDs in which user was notified. Need to store this IDs so that the user
     // be notified only one time per session with non-friend.
-    typedef std::set<LLUUID> notified_non_friend_sessions_t;
+    using notified_non_friend_sessions_t = std::set<LLUUID>;
     notified_non_friend_sessions_t mNotifiedNonFriendSessions;
 
     LLSD mPendingInvitations;

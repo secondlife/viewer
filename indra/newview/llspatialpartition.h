@@ -204,13 +204,13 @@ public:
     static U32 sNodeCount;
     static bool sNoDelete; //deletion of spatial groups and draw info not allowed if true
 
-    typedef std::vector<LLPointer<LLSpatialGroup> > sg_vector_t;
-    typedef std::vector<LLPointer<LLSpatialBridge> > bridge_list_t;
-    typedef std::vector<LLPointer<LLDrawInfo> > drawmap_elem_t;
-    typedef std::unordered_map<U32, drawmap_elem_t > draw_map_t;
-    typedef std::vector<LLPointer<LLVertexBuffer> > buffer_list_t;
-    typedef std::unordered_map<LLFace*, buffer_list_t> buffer_texture_map_t;
-    typedef std::unordered_map<U32, buffer_texture_map_t> buffer_map_t;
+    using sg_vector_t = std::vector<LLPointer<LLSpatialGroup> >;
+    using bridge_list_t = std::vector<LLPointer<LLSpatialBridge> >;
+    using drawmap_elem_t = std::vector<LLPointer<LLDrawInfo> >;
+    using draw_map_t = std::unordered_map<U32, drawmap_elem_t >;
+    using buffer_list_t = std::vector<LLPointer<LLVertexBuffer> >;
+    using buffer_texture_map_t = std::unordered_map<LLFace*, buffer_list_t>;
+    using buffer_map_t = std::unordered_map<U32, buffer_texture_map_t>;
 
     struct CompareDistanceGreater
     {
@@ -249,7 +249,7 @@ public:
         }
     };
 
-    typedef enum
+    enum eSpatialState
     {
         GEOM_DIRTY              = LLViewerOctreeGroup::INVALID_STATE,
         ALPHA_DIRTY             = (GEOM_DIRTY << 1),
@@ -260,7 +260,7 @@ public:
         IN_BUILD_Q1             = (NEW_DRAWINFO << 1),
         IN_BUILD_Q2             = (IN_BUILD_Q1 << 1),
         STATE_MASK              = 0x0000FFFF,
-    } eSpatialState;
+    };
 
     LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part);
 
@@ -434,7 +434,7 @@ protected:
     ~LLSpatialBridge();
 
 public:
-    typedef std::vector<LLPointer<LLSpatialBridge> > bridge_vector_t;
+    using bridge_vector_t = std::vector<LLPointer<LLSpatialBridge> >;
 
     LLSpatialBridge(LLDrawable* root, bool render_by_group, U32 data_mask, LLViewerRegion* regionp);
 
@@ -465,15 +465,15 @@ class LLCullResult
 public:
     LLCullResult();
 
-    typedef std::vector<LLSpatialGroup*> sg_list_t;
-    typedef std::vector<LLDrawable*> drawable_list_t;
-    typedef std::vector<LLSpatialBridge*> bridge_list_t;
-    typedef std::vector<LLDrawInfo*> drawinfo_list_t;
+    using sg_list_t = std::vector<LLSpatialGroup*>;
+    using drawable_list_t = std::vector<LLDrawable*>;
+    using bridge_list_t = std::vector<LLSpatialBridge*>;
+    using drawinfo_list_t = std::vector<LLDrawInfo*>;
 
-    typedef LLSpatialGroup** sg_iterator;
-    typedef LLSpatialBridge** bridge_iterator;
-    typedef LLDrawInfo** drawinfo_iterator;
-    typedef LLDrawable** drawable_iterator;
+    using sg_iterator = LLSpatialGroup**;
+    using bridge_iterator = LLSpatialBridge**;
+    using drawinfo_iterator = LLDrawInfo**;
+    using drawable_iterator = LLDrawable**;
 
     // Helper function for taking advantage of _mm_prefetch when iterating over cull results
     static inline void increment_iterator(LLCullResult::drawinfo_iterator& i, const LLCullResult::drawinfo_iterator& end)
@@ -649,12 +649,12 @@ protected:
 class LLVolumeGeometryManager: public LLGeometryManager
 {
  public:
-    typedef enum
+    enum eSortType
     {
         NONE = 0,
         BATCH_SORT,
         DISTANCE_SORT
-    } eSortType;
+    };
 
     LLVolumeGeometryManager();
     virtual ~LLVolumeGeometryManager();

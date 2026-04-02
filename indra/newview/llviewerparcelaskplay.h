@@ -38,7 +38,7 @@ class LLViewerParcelAskPlay : public LLSingleton<LLViewerParcelAskPlay>
     void cleanupSingleton() override;
 public:
     // functor expects functor(region_id, parcel_id, url, play/stop)
-    typedef std::function<void(const LLUUID&, const S32&, const std::string&, const bool&)> ask_callback;
+    using ask_callback = std::function<void(const LLUUID&, const S32&, const std::string&, const bool&)>;
     void        askToPlay(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, ask_callback cb);
     void        cancelNotification();
 
@@ -77,8 +77,8 @@ private:
 private:
     // Variables
 
-    typedef std::map<S32, ParcelData> parcel_data_map_t;
-    typedef std::map<LLUUID, parcel_data_map_t> region_map_t;
+    using parcel_data_map_t = std::map<S32, ParcelData>;
+    using region_map_t = std::map<LLUUID, parcel_data_map_t>;
     region_map_t mRegionMap;
 
     // only one notification is supposed to exists and be visible

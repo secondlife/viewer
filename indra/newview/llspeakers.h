@@ -40,14 +40,15 @@ class LLAvatarName;
 class LLSpeaker : public LLRefCount, public LLOldEvents::LLObservable, public LLHandleProvider<LLSpeaker>, public boost::signals2::trackable
 {
 public:
-    typedef enum e_speaker_type
+    enum e_speaker_type
     {
         SPEAKER_AGENT,
         SPEAKER_OBJECT,
         SPEAKER_EXTERNAL    // Speaker that doesn't map to an avatar or object (i.e. PSTN caller in a group)
-    } ESpeakerType;
+    };
+    using ESpeakerType = e_speaker_type;
 
-    typedef enum e_speaker_status
+    enum e_speaker_status
     {
         STATUS_SPEAKING,
         STATUS_HAS_SPOKEN,
@@ -55,7 +56,8 @@ public:
         STATUS_TEXT_ONLY,
         STATUS_NOT_IN_CHANNEL,
         STATUS_MUTED
-    } ESpeakerStatus;
+    };
+    using ESpeakerStatus = e_speaker_status;
 
 
     LLSpeaker(const LLUUID& id, const std::string& name = LLStringUtil::null, const ESpeakerType type = SPEAKER_AGENT);
@@ -141,11 +143,11 @@ private:
 class LLSpeakerActionTimer : public LLEventTimer
 {
 public:
-    typedef std::function<bool(const LLUUID&)>      action_callback_t;
-    typedef std::map<LLUUID, LLSpeakerActionTimer*> action_timers_map_t;
-    typedef action_timers_map_t::value_type         action_value_t;
-    typedef action_timers_map_t::const_iterator     action_timer_const_iter_t;
-    typedef action_timers_map_t::iterator           action_timer_iter_t;
+    using action_callback_t = std::function<bool(const LLUUID&)>;
+    using action_timers_map_t = std::map<LLUUID, LLSpeakerActionTimer*>;
+    using action_value_t = action_timers_map_t::value_type;
+    using action_timer_const_iter_t = action_timers_map_t::const_iterator;
+    using action_timer_iter_t = action_timers_map_t::iterator;
 
     /**
      * Constructor.
@@ -241,7 +243,7 @@ public:
 
     bool isVoiceActive();
 
-    typedef std::vector<LLPointer<LLSpeaker> > speaker_list_t;
+    using speaker_list_t = std::vector<LLPointer<LLSpeaker> >;
     void getSpeakerList(speaker_list_t* speaker_list, bool include_text);
     LLVoiceChannel* getVoiceChannel() { return mVoiceChannel; }
     void setVoiceChannel(LLVoiceChannel *voiceChannel) { mVoiceChannel = voiceChannel;  }
@@ -260,7 +262,7 @@ protected:
     void setSpeakerNotInChannel(LLPointer<LLSpeaker> speackerp);
     bool removeSpeaker(const LLUUID& speaker_id);
 
-    typedef std::map<LLUUID, LLPointer<LLSpeaker> > speaker_map_t;
+    using speaker_map_t = std::map<LLUUID, LLPointer<LLSpeaker> >;
     speaker_map_t       mSpeakers;
     bool                mSpeakerListUpdated;
     LLTimer             mGetListTime;

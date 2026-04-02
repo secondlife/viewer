@@ -90,7 +90,7 @@ public:
         friend bool operator == (shader_iter const & a, shader_iter const & b);
         friend bool operator != (shader_iter const & a, shader_iter const & b);
 
-        typedef std::vector<LLGLSLShader *>::const_iterator base_iter_t;
+        using base_iter_t = std::vector<LLGLSLShader *>::const_iterator;
     public:
         shader_iter()
         {

@@ -74,17 +74,19 @@ protected:
     };
 
 public:
-    typedef enum e_text_alignment
+    enum e_text_alignment
     {
         ALIGN_TEXT_LEFT,
         ALIGN_TEXT_CENTER
-    } ETextAlignment;
+    };
+    using ETextAlignment = e_text_alignment;
 
-    typedef enum e_vert_alignment
+    enum e_vert_alignment
     {
         ALIGN_VERT_TOP,
         ALIGN_VERT_CENTER
-    } EVertAlignment;
+    };
+    using EVertAlignment = e_vert_alignment;
 
 public:
     // Set entire string, eliminating existing lines
@@ -168,8 +170,8 @@ private:
     static std::set<LLPointer<LLHUDText> > sTextObjects;
     static std::vector<LLPointer<LLHUDText> > sVisibleTextObjects;
     static std::vector<LLPointer<LLHUDText> > sVisibleHUDTextObjects;
-    typedef std::set<LLPointer<LLHUDText> >::iterator TextObjectIterator;
-    typedef std::vector<LLPointer<LLHUDText> >::iterator VisibleTextObjectIterator;
+    using TextObjectIterator = std::set<LLPointer<LLHUDText> >::iterator;
+    using VisibleTextObjectIterator = std::vector<LLPointer<LLHUDText> >::iterator;
 };
 
 #endif // LL_LLHUDTEXT_H

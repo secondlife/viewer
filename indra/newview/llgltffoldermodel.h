@@ -79,7 +79,7 @@ class LLGLTFViewModel
     : public LLFolderViewModel<LLGLTFSort, LLGLTFFolderItem, LLGLTFFolderItem, LLGLTFFilter>
 {
 public:
-    typedef LLFolderViewModel< LLGLTFSort, LLGLTFFolderItem, LLGLTFFolderItem, LLGLTFFilter> base_t;
+    using base_t = LLFolderViewModel< LLGLTFSort, LLGLTFFolderItem, LLGLTFFolderItem, LLGLTFFilter>;
     LLGLTFViewModel();
 
     void sort(LLFolderViewFolder* folder);

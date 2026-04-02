@@ -68,7 +68,7 @@ private:
     static void enqueue(const LLErrorEntry &ent);
     static void onIdle(void *userdata);
 
-    typedef std::list<LLErrorEntry> ErrorQueue;
+    using ErrorQueue = std::list<LLErrorEntry>;
 
     static ErrorQueue sQueue;
 };

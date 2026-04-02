@@ -47,7 +47,7 @@ class LLObjectMediaNavigateClient;
 class LLVOAvatar;
 class LLMeshSkinInfo;
 
-typedef std::vector<viewer_media_t> media_list_t;
+using media_list_t = std::vector<viewer_media_t>;
 
 enum LLVolumeInterfaceType
 {
@@ -146,7 +146,7 @@ public:
     const LLMatrix4&    getRelativeXform() const                { return mRelativeXform; }
     const LLMatrix3&    getRelativeXformInvTrans() const        { return mRelativeXformInvTrans; }
     /*virtual*/ const LLMatrix4 getRenderMatrix() const override;
-                typedef std::unordered_set<const LLViewerTexture*> texture_cost_t;
+                using texture_cost_t = std::unordered_set<const LLViewerTexture*>;
                 static S32 getTextureCost(const LLViewerTexture* img);
                 U32     getRenderCost(texture_cost_t &textures) const;
     /*virtual*/ F32     getEstTrianglesMax() const override;

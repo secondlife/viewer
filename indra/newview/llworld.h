@@ -151,10 +151,10 @@ public:
 
     void clearAllVisibleObjects();
 public:
-    typedef std::list<LLViewerRegion*> region_list_t;
+    using region_list_t = std::list<LLViewerRegion*>;
     const region_list_t& getRegionList() const { return mActiveRegionList; }
 
-    typedef boost::signals2::signal<void(LLViewerRegion*)> region_remove_signal_t;
+    using region_remove_signal_t = boost::signals2::signal<void(LLViewerRegion*)>;
     boost::signals2::connection setRegionRemovedCallback(const region_remove_signal_t::slot_type& cb);
 
     // Returns lists of avatar IDs and their world-space positions within a given distance of a point.

@@ -67,16 +67,17 @@ class LLPanelOutfitEdit : public LLPanel
 public:
 
     // NOTE: initialize mFolderViewItemTypes at the index of any new enum you add in the LLPanelOutfitEdit() constructor
-    typedef enum e_folder_view_item_type
+    enum e_folder_view_item_type
     {
         FVIT_ALL = 0,
         FVIT_WEARABLE, // clothing or shape
         FVIT_ATTACHMENT,
         NUM_FOLDER_VIEW_ITEM_TYPES
-    } EFolderViewItemType;
+    };
+    using EFolderViewItemType = e_folder_view_item_type;
 
     //should reflect order from LLWearableType::EType
-    typedef enum e_list_view_item_type
+    enum e_list_view_item_type
     {
         LVIT_ALL = 0,
         LVIT_CLOTHING,
@@ -100,7 +101,8 @@ public:
         LVIT_PHYSICS,
         LVIT_UNIVERSAL,
         NUM_LIST_VIEW_ITEM_TYPES
-    } EListViewItemType;
+    };
+    using EListViewItemType = e_list_view_item_type;
 
     struct LLLookItemType {
         std::string displayName;
@@ -204,7 +206,7 @@ private:
 
     void updateWearablesPanelVerbButtons();
 
-    typedef std::pair<LLWearableType::EType, size_t> selection_info_t;
+    using selection_info_t = std::pair<LLWearableType::EType, size_t>;
 
     LLWearableType::EType getCOFWearablesSelectionType() const;
     selection_info_t getAddMorePanelSelectionType() const;

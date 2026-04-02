@@ -3273,28 +3273,28 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
 
     if (mat->hasLocalTextures())
     {
-        for (LLGLTFMaterial::local_tex_map_t::value_type &val : mat->mTrackingIdToLocalTexture)
+        for (auto& [tracking_id, world_tex_id] : mat->mTrackingIdToLocalTexture)
         {
-            LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(val.first);
-            if (val.second != world_id)
+            LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+            if (world_tex_id != world_id)
             {
                 LL_WARNS() << "world id mismatch" << LL_ENDL;
             }
             if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR])
             {
-                subscribeToLocalTexture(MATERIAL_BASE_COLOR_TEX_DIRTY, val.first);
+                subscribeToLocalTexture(MATERIAL_BASE_COLOR_TEX_DIRTY, tracking_id);
             }
             if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS])
             {
-                subscribeToLocalTexture(MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY, val.first);
+                subscribeToLocalTexture(MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY, tracking_id);
             }
             if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE])
             {
-                subscribeToLocalTexture(MATERIAL_EMISIVE_TEX_DIRTY, val.first);
+                subscribeToLocalTexture(MATERIAL_EMISIVE_TEX_DIRTY, tracking_id);
             }
             if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL])
             {
-                subscribeToLocalTexture(MATERIAL_NORMAL_TEX_DIRTY, val.first);
+                subscribeToLocalTexture(MATERIAL_NORMAL_TEX_DIRTY, tracking_id);
             }
         }
     }

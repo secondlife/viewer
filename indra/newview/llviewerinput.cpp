@@ -1165,7 +1165,7 @@ bool LLViewerInput::handleGlobalBindsMouse(EMouseClickType clicktype, MASK mask,
 bool LLViewerInput::bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name)
 {
     size_t index;
-    typedef std::function<bool(EKeystate)> function_t;
+    using function_t = std::function<bool(EKeystate)>;
     function_t function = nullptr;
     std::string name;
 
@@ -1255,7 +1255,7 @@ bool LLViewerInput::bindKey(const S32 mode, const KEY key, const MASK mask, cons
 bool LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const std::string& function_name)
 {
     size_t index;
-    typedef std::function<bool(EKeystate)> function_t;
+    using function_t = std::function<bool(EKeystate)>;
     function_t function = nullptr;
 
     if (mouse == CLICK_LEFT

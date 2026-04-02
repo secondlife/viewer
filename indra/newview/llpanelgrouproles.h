@@ -39,7 +39,7 @@ class LLScrollListCtrl;
 class LLScrollListItem;
 class LLTextEditor;
 
-typedef std::map<std::string,std::string> icon_map_t;
+using icon_map_t = std::map<std::string,std::string>;
 
 
 class LLPanelGroupRoles : public LLPanelGroupTab
@@ -204,8 +204,8 @@ public:
     void onNameCache(const LLUUID& update_id, LLGroupMemberData* member, const LLAvatarName& av_name, const LLUUID& av_id);
 
 protected:
-    typedef std::map<LLUUID, LLRoleMemberChangeType> role_change_data_map_t;
-    typedef std::map<LLUUID, role_change_data_map_t*> member_role_changes_map_t;
+    using role_change_data_map_t = std::map<LLUUID, LLRoleMemberChangeType>;
+    using member_role_changes_map_t = std::map<LLUUID, role_change_data_map_t*>;
 
     bool matchesSearchFilter(const std::string& fullname);
 
@@ -230,7 +230,7 @@ protected:
     U32 mNumOwnerAdditions;
 
     LLGroupMgrGroupData::member_list_t::iterator mMemberProgress;
-    typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
+    using avatar_name_cache_connection_map_t = std::map<LLUUID, boost::signals2::connection>;
     avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
 };
 

@@ -44,15 +44,15 @@ class LLGalleryGestureObserver;
 
 class LLInventoryGalleryContextMenu;
 
-typedef std::function<void()> callback_t;
+using callback_t = std::function<void()>;
 
 class LLInventoryGallery : public LLPanel, public LLEditMenuHandler
 {
 public:
 
-    typedef boost::signals2::signal<void(const LLUUID&)> selection_change_signal_t;
-    typedef std::function<void(const LLUUID&)> selection_change_callback_t;
-    typedef std::deque<LLUUID> selection_deque;
+    using selection_change_signal_t = boost::signals2::signal<void(const LLUUID&)>;
+    using selection_change_callback_t = std::function<void(const LLUUID&)>;
+    using selection_deque = std::deque<LLUUID>;
 
     struct Params
         : public LLInitParam::Block<Params, LLPanel::Params>
@@ -271,7 +271,7 @@ private:
     LLInventoryFilter* mFilter;
     U32 mSortOrder;
 
-    typedef std::map<LLUUID, LLInventoryGalleryItem*> gallery_item_map_t;
+    using gallery_item_map_t = std::map<LLUUID, LLInventoryGalleryItem*>;
     gallery_item_map_t mItemMap;
     uuid_vec_t mCOFLinkedItems;
     uuid_vec_t mActiveGestures;
@@ -407,8 +407,8 @@ protected:
         LLUUID mThumbnailID;
     };
 
-    typedef std::map<LLUUID, LLItemData> item_map_t;
-    typedef item_map_t::value_type item_map_value_t;
+    using item_map_t = std::map<LLUUID, LLItemData>;
+    using item_map_value_t = item_map_t::value_type;
     item_map_t mItemMap;
 };
 

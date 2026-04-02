@@ -35,7 +35,7 @@
 // Lightweight class for holding and managing mappings between UUIDs and links.
 // Used (for example) to create clickable name links off of IM chat.
 
-typedef std::map<LLUUID, LLStyle::Params> style_map_t;
+using style_map_t = std::map<LLUUID, LLStyle::Params>;
 
 class LLStyleMap : public LLSingleton<LLStyleMap>
 {

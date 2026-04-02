@@ -147,7 +147,7 @@ size_t LLExternalEditor::tokenize(string_vec_t& tokens, const std::string& str)
     tokens.clear();
 
     // Split the argument string into separate strings for each argument
-    typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer< boost::char_separator<char> >;
     boost::char_separator<char> sep("", "\" ", boost::drop_empty_tokens);
 
     tokenizer tokens_list(str, sep);

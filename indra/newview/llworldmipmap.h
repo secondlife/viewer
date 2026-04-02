@@ -86,7 +86,7 @@ private:
 
     // The mipmap is organized by resolution level (MAP_LEVELS of them). Each resolution level is an std::map
     // using a region_handle as a key and storing a smart pointer to the image as a value.
-    typedef std::map<U64, LLPointer<LLViewerFetchedTexture> > sublevel_tiles_t;
+    using sublevel_tiles_t = std::map<U64, LLPointer<LLViewerFetchedTexture> >;
     sublevel_tiles_t mWorldObjectsMipMap[MAP_LEVELS];
 //  sublevel_tiles_t mWorldTerrainMipMap[MAP_LEVELS];
 

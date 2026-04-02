@@ -292,7 +292,7 @@ void LLViewerTextureList::shutdown()
     mImagePreloads.clear();
 
     // Write out list of currently loaded textures for precaching on startup
-    typedef std::set<std::pair<S32,LLViewerFetchedTexture*> > image_area_list_t;
+    using image_area_list_t = std::set<std::pair<S32,LLViewerFetchedTexture*> >;
     image_area_list_t image_area_list;
     for (image_list_t::iterator iter = mImageList.begin();
          iter != mImageList.end(); ++iter)
@@ -1221,7 +1221,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
-    typedef std::vector<LLPointer<LLViewerFetchedTexture> > entries_list_t;
+    using entries_list_t = std::vector<LLPointer<LLViewerFetchedTexture> >;
     entries_list_t entries;
 
     // update N textures at beginning of mImageList
@@ -1730,7 +1730,7 @@ void LLUIImageList::onUIImageLoaded( bool success, LLViewerFetchedTexture *src_v
 
         // for images grabbed from local files, apply clipping rectangle to restore original dimensions
         // from power-of-2 gl image
-        if (success && imagep.notNull() && src_vi && (src_vi->getUrl().compare(0, 7, "file://")==0))
+        if (success && imagep.notNull() && src_vi && src_vi->getUrl().starts_with("file://"))
         {
             F32 full_width = (F32)src_vi->getFullWidth();
             F32 full_height = (F32)src_vi->getFullHeight();

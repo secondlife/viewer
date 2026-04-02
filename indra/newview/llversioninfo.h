@@ -85,13 +85,13 @@ public:
     /// return the bit width of an address
     S32 getAddressSize() const { return ADDRESS_SIZE; }
 
-    typedef enum
+    enum ViewerMaturity
     {
         TEST_VIEWER,
         PROJECT_VIEWER,
         BETA_VIEWER,
         RELEASE_VIEWER
-    } ViewerMaturity;
+    };
     ViewerMaturity getViewerMaturity() const;
 
     /// get the release-notes URL, once it becomes available -- until then,

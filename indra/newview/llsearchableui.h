@@ -41,13 +41,13 @@ namespace ll
         struct PanelData;
         struct TabContainerData;
 
-        typedef std::shared_ptr< SearchableItem > SearchableItemPtr;
-        typedef std::shared_ptr< PanelData > PanelDataPtr;
-        typedef std::shared_ptr< TabContainerData > TabContainerDataPtr;
+        using SearchableItemPtr = std::shared_ptr< SearchableItem >;
+        using PanelDataPtr = std::shared_ptr< PanelData >;
+        using TabContainerDataPtr = std::shared_ptr< TabContainerData >;
 
-        typedef std::vector< TabContainerData > tTabContainerDataList;
-        typedef std::vector< SearchableItemPtr > tSearchableItemList;
-        typedef std::vector< PanelDataPtr > tPanelDataList;
+        using tTabContainerDataList = std::vector< TabContainerData >;
+        using tSearchableItemList = std::vector< SearchableItemPtr >;
+        using tPanelDataList = std::vector< PanelDataPtr >;
 
         struct SearchableItem
         {
@@ -93,9 +93,9 @@ namespace ll
     {
         struct SearchableItem;
 
-        typedef std::shared_ptr< SearchableItem > SearchableItemPtr;
+        using SearchableItemPtr = std::shared_ptr< SearchableItem >;
 
-        typedef std::vector< SearchableItemPtr > tSearchableItemList;
+        using tSearchableItemList = std::vector< SearchableItemPtr >;
 
         struct SearchableItem
         {

@@ -805,13 +805,11 @@ void LLOutfitGallery::onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid)
 
 void LLOutfitGallery::getCurrentCategories(uuid_vec_t& vcur)
 {
-    for (outfit_map_t::const_iterator iter = mOutfitMap.begin();
-        iter != mOutfitMap.end();
-        iter++)
+    for (const auto& [id, item] : mOutfitMap)
     {
-        if ((*iter).second != NULL)
+        if (item != NULL)
         {
-            vcur.push_back((*iter).first);
+            vcur.push_back(id);
         }
     }
 }

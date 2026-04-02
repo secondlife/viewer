@@ -74,17 +74,19 @@ protected:
     };
 
 public:
-    typedef enum e_text_alignment
+    enum e_text_alignment
     {
         ALIGN_TEXT_LEFT,
         ALIGN_TEXT_CENTER
-    } ETextAlignment;
+    };
+    using ETextAlignment = e_text_alignment;
 
-    typedef enum e_vert_alignment
+    enum e_vert_alignment
     {
         ALIGN_VERT_TOP,
         ALIGN_VERT_CENTER
-    } EVertAlignment;
+    };
+    using EVertAlignment = e_vert_alignment;
 
     static const F32 NAMETAG_MAX_WIDTH; // 298px, made to fit 31 M's
     static const F32 HUD_TEXT_MAX_WIDTH; // 190px
@@ -189,8 +191,8 @@ private:
     static std::set<LLPointer<LLHUDNameTag> > sTextObjects;
     static std::vector<LLPointer<LLHUDNameTag> > sVisibleTextObjects;
 //  static std::vector<LLPointer<LLHUDNameTag> > sVisibleHUDTextObjects;
-    typedef std::set<LLPointer<LLHUDNameTag> >::iterator TextObjectIterator;
-    typedef std::vector<LLPointer<LLHUDNameTag> >::iterator VisibleTextObjectIterator;
+    using TextObjectIterator = std::set<LLPointer<LLHUDNameTag> >::iterator;
+    using VisibleTextObjectIterator = std::vector<LLPointer<LLHUDNameTag> >::iterator;
 };
 
 #endif

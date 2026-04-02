@@ -436,7 +436,7 @@ U64 LLXferManager::requestFile(const std::string& local_filename,
         // Note: according to AaronB, this is here to deal with locks on files that were
         // in transit during a crash,
         if(delete_remote_on_completion &&
-           (remote_filename.substr(remote_filename.length()-4) == ".tmp"))
+           (remote_filename.ends_with(".tmp")))
         {
             LLFile::remove(local_filename, ENOENT);
         }

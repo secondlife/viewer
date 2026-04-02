@@ -40,8 +40,8 @@
 #include "llviewervisualparam.h"
 #include "llvoavatarself.h"
 
-typedef std::map<std::string, std::string> controller_map_t;
-typedef std::map<std::string, F32> default_controller_map_t;
+using controller_map_t = std::map<std::string, std::string>;
+using default_controller_map_t = std::map<std::string, F32>;
 
 #define MIN_REQUIRED_PIXEL_AREA_AVATAR_PHYSICS_MOTION 0.f
 // we use TIME_ITERATION_STEP_MAX in division operation, make sure this is a simple
@@ -69,7 +69,7 @@ inline F64 llsgn(const F64 a)
 class LLPhysicsMotion
 {
 public:
-    typedef enum
+    enum eParamName
     {
         SMOOTHING = 0,
         MASS,
@@ -80,7 +80,7 @@ public:
         DRAG,
         MAX_EFFECT,
         NUM_PARAMS
-    } eParamName;
+    };
 
         /*
           param_driver_name: The param that controls the params that are being affected by the physics.

@@ -113,7 +113,7 @@ public:
 
 protected:
     LLTool*         mSelectedTool;
-    typedef std::vector<LLTool*> tool_list_t;
+    using tool_list_t = std::vector<LLTool*>;
     tool_list_t     mToolList;
     bool            mIsShowFloaterTools;
 };

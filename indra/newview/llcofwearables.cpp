@@ -423,7 +423,7 @@ void LLCOFWearables::refresh()
     mCOFVersion = catp->getVersion();
 
     // Save current scrollbar position.
-    typedef std::map<LLFlatListView*, LLRect> scroll_pos_map_t;
+    using scroll_pos_map_t = std::map<LLFlatListView*, LLRect>;
     scroll_pos_map_t saved_scroll_pos;
 
     saved_scroll_pos[mAttachments] = mAttachments->getVisibleContentRect();
@@ -431,8 +431,8 @@ void LLCOFWearables::refresh()
     saved_scroll_pos[mBodyParts] = mBodyParts->getVisibleContentRect();
 
     // Save current selection.
-    typedef std::vector<LLSD> values_vector_t;
-    typedef std::map<LLFlatListView*, values_vector_t> selection_map_t;
+    using values_vector_t = std::vector<LLSD>;
+    using selection_map_t = std::map<LLFlatListView*, values_vector_t>;
 
     selection_map_t preserve_selection;
 
@@ -697,7 +697,7 @@ void LLCOFWearables::clear()
 
 LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 {
-    typedef std::map<std::string, LLAssetType::EType> type_map_t;
+    using type_map_t = std::map<std::string, LLAssetType::EType>;
 
     static type_map_t type_map;
 

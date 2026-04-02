@@ -79,15 +79,16 @@ class LLNameListCtrl
 :   public LLScrollListCtrl, public LLInstanceTracker<LLNameListCtrl>
 {
 public:
-    typedef boost::signals2::signal<void(bool)> namelist_complete_signal_t;
+    using namelist_complete_signal_t = boost::signals2::signal<void(bool)>;
 
-    typedef enum e_name_type
+    enum e_name_type
     {
         INDIVIDUAL,
         GROUP,
         SPECIAL,
         EXPERIENCE
-    } ENameType;
+    };
+    using ENameType = e_name_type;
 
     // provide names for enums
     struct NameTypeNames : public LLInitParam::TypeValuesHelper<LLNameListCtrl::ENameType, NameTypeNames>
@@ -197,7 +198,7 @@ private:
     std::string     mNameColumn;
     bool            mAllowCallingCardDrop;
     bool            mShortNames;  // display name only, no SLID
-    typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
+    using avatar_name_cache_connection_map_t = std::map<LLUUID, boost::signals2::connection>;
     avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
     avatar_name_cache_connection_map_t mGroupNameCacheConnections;
 

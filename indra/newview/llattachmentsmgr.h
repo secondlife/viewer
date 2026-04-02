@@ -71,7 +71,7 @@ public:
         U8 mAttachmentPt;
         bool mAdd;
     };
-    typedef std::deque<AttachmentsInfo> attachments_vec_t;
+    using attachments_vec_t = std::deque<AttachmentsInfo>;
 
     void addAttachmentRequest(const LLUUID& item_id,
                               const U8 attachment_pt,

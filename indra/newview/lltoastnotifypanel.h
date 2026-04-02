@@ -83,7 +83,7 @@ protected:
     };
     std::vector<InstanceAndS32*> mBtnCallbackData;
 
-    typedef std::pair<int,LLButton*> index_button_pair_t;
+    using index_button_pair_t = std::pair<int,LLButton*>;
     void adjustPanelForScriptNotice(S32 max_width, S32 max_height);
     void adjustPanelForTipNotice();
     void addDefaultButton();
@@ -110,8 +110,7 @@ protected:
     // internal handler for button being clicked
     static void onClickButton(void* data);
 
-    typedef boost::signals2::signal <void (const LLUUID& notification_id, const std::string btn_name)>
-        button_click_signal_t;
+    using button_click_signal_t = boost::signals2::signal <void (const LLUUID& notification_id, const std::string btn_name)>;
     static button_click_signal_t sButtonClickSignal;
     boost::signals2::connection mButtonClickConnection;
 

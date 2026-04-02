@@ -44,7 +44,7 @@ public:
 
     void notifyOutfitLockChanged() { mOutfitLockChanged();  }
 
-    typedef boost::signals2::signal<void (void)> signal_t;
+    using signal_t = boost::signals2::signal<void (void)>;
 
     void addBOFReplacedCallback(const signal_t::slot_type& cb) { mBOFReplaced.connect(cb); }
 

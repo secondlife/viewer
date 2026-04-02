@@ -641,7 +641,7 @@ class LLMeshHandlerBase : public LLCore::HttpHandler,
     public std::enable_shared_from_this<LLMeshHandlerBase>
 {
 public:
-    typedef std::shared_ptr<LLMeshHandlerBase> ptr_t;
+    using ptr_t = std::shared_ptr<LLMeshHandlerBase>;
 
     LOG_CLASS(LLMeshHandlerBase);
     LLMeshHandlerBase(U32 offset, U32 requested_bytes)
@@ -831,7 +831,7 @@ void log_upload_error(
                        << " (" << status.toTerseString() << ")" << LL_ENDL;
 
     std::ostringstream details;
-    typedef std::unordered_set<std::string> mav_errors_set_t;
+    using mav_errors_set_t = std::unordered_set<std::string>;
     mav_errors_set_t mav_errors;
 
     if (content.has("error"))
@@ -2901,9 +2901,9 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
     res["instance_list"] = LLSD::emptyArray();
     LLSD& lod_sources = res["source_format"];
     lod_sources["high"] = 0;
-    for (auto &source : mLodSources)
+    for (auto& [name, value] : mLodSources)
     {
-        lod_sources[source.first] = source.second;
+        lod_sources[name] = value;
     }
     S32 mesh_num = 0;
     S32 texture_num = 0;
@@ -2948,22 +2948,22 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
     // Probably should pre-sort by mSubmodelID instead of running twice.
     // Note: mInstance should be sorted by model name for the sake of
     // deterministic order.
-    for (auto& iter : mInstance)
+    for (auto& [model, instance] : mInstance)
     {
-        if (iter.first->mSubmodelID)
+        if (model->mSubmodelID)
         {
             // These are handled below to insure correct parenting order on creation
             // due to map walking being based on model address (aka random)
             continue;
         }
-        if (root_model == iter.first)
+        if (root_model == model)
         {
             // Reached root, root was already packed and is last non-submodel
             break;
         }
         packModelIntance(
-            iter.first,
-            iter.second,
+            model,
+            instance,
             model_name,
             res,
             mesh_num,
@@ -2977,16 +2977,16 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
     }
 
     // Now handle the submodels.
-    for (auto& iter : mInstance)
+    for (auto& [model, instance] : mInstance)
     {
-        if (!iter.first->mSubmodelID)
+        if (!model->mSubmodelID)
         {
             // These were handled above already...
             continue;
         }
         packModelIntance(
-            iter.first,
-            iter.second,
+            model,
+            instance,
             model_name,
             res,
             mesh_num,

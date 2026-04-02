@@ -196,7 +196,7 @@ void LLMuteList::cleanupSingleton()
 bool LLMuteList::isLinden(const std::string& name)
 {
     std::string username = boost::replace_all_copy(name, ".", " ");
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep(" ");
     tokenizer tokens(username, sep);
     tokenizer::iterator token_iter = tokens.begin();
@@ -290,8 +290,8 @@ bool LLMuteList::add(const LLMute& mute, U32 flags)
             return false;
         }
 
-        std::pair<string_set_t::iterator, bool> result = mLegacyMutes.insert(mute.mName);
-        if (result.second)
+        auto [iter, inserted] = mLegacyMutes.insert(mute.mName);
+        if (inserted)
         {
             LL_INFOS() << "Muting by name " << mute.mName << LL_ENDL;
             updateAdd(mute);
@@ -340,8 +340,8 @@ bool LLMuteList::add(const LLMute& mute, U32 flags)
 
         // (re)add the mute entry.
         {
-            std::pair<mute_set_t::iterator, bool> result = mMutes.insert(localmute);
-            if (result.second)
+            auto [iter, inserted] = mMutes.insert(localmute);
+            if (inserted)
             {
                 LL_INFOS() << "Muting " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << LL_ENDL;
                 updateAdd(localmute);
@@ -874,8 +874,8 @@ void LLMuteList::onAccountNameChanged(const LLUUID& id, const std::string& usern
 
             // (re)add the mute entry.
             {
-                std::pair<mute_set_t::iterator, bool> result = mMutes.insert(mute);
-                if (result.second)
+                auto [iter, inserted] = mMutes.insert(mute);
+                if (inserted)
                 {
                     LL_INFOS() << "Muting " << mute.mName << " id " << mute.mID << " flags " << mute.mFlags << LL_ENDL;
                     updateAdd(mute);

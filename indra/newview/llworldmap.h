@@ -123,7 +123,7 @@ public:
     void dump() const;  // Print the region info to the standard output
 
     // Items lists handling
-    typedef std::vector<LLItemInfo> item_info_list_t;
+    using item_info_list_t = std::vector<LLItemInfo>;
     void clearItems();
 
     void insertTeleHub(const LLItemInfo& item) { mTelehubs.push_back(item); }
@@ -194,7 +194,7 @@ public:
     void reloadItems(bool force = false);   // Reload the items (people, hub, etc...)
 
     // Region Map access
-    typedef std::map<U64, LLSimInfo*> sim_info_map_t;
+    using sim_info_map_t = std::map<U64, LLSimInfo*>;
     const LLWorldMap::sim_info_map_t& getRegionMap() const { return mSimInfoMap; }
     void updateRegions(S32 x0, S32 y0, S32 x1, S32 y1);     // Requests region info for a rectangle of regions (in grid coordinates)
 

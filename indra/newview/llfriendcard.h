@@ -44,7 +44,7 @@ class LLFriendCardsManager
     friend class CreateFriendCardCallback;
 
 public:
-    typedef std::map<LLUUID, uuid_vec_t > folderid_buddies_map_t;
+    using folderid_buddies_map_t = std::map<LLUUID, uuid_vec_t >;
 
     enum EManagerState
     {
@@ -96,7 +96,7 @@ public:
     void syncFriendCardsFolders();
 
 private:
-    typedef std::function<void()> callback_t;
+    using callback_t = std::function<void()>;
 
 
 
@@ -156,7 +156,7 @@ private:
 
 
 private:
-    typedef std::set<LLUUID> avatar_uuid_set_t;
+    using avatar_uuid_set_t = std::set<LLUUID>;
 
     avatar_uuid_set_t mBuddyIDSet;
     EManagerState mState;

@@ -99,11 +99,11 @@ struct LLAvatarData
     std::string notes;
 
     struct LLGroupData;
-    typedef std::list<LLGroupData> group_list_t;
+    using group_list_t = std::list<LLGroupData>;
     group_list_t group_list;
 
-    typedef std::pair<LLUUID, std::string> pick_data_t;
-    typedef std::list< pick_data_t> picks_list_t;
+    using pick_data_t = std::pair<LLUUID, std::string>;
+    using picks_list_t = std::list< pick_data_t>;
     picks_list_t picks_list;
 };
 
@@ -146,7 +146,7 @@ struct LLAvatarClassifieds
     LLUUID target_id;
 
     struct classified_data;
-    typedef std::list<classified_data> classifieds_list_t;
+    using classifieds_list_t = std::list<classified_data>;
 
     classifieds_list_t classifieds_list;
 
@@ -269,12 +269,12 @@ protected:
     // Call this when the reply to the request is received
     void removePendingRequest(const LLUUID& avatar_id, EAvatarProcessorType type);
 
-    typedef void* (*processor_method_t)(LLMessageSystem*);
+    using processor_method_t = void*(*)(LLMessageSystem*);
     static processor_method_t getProcessor(EAvatarProcessorType type);
 
 protected:
 
-    typedef std::multimap<LLUUID, LLAvatarPropertiesObserver*> observer_multimap_t;
+    using observer_multimap_t = std::multimap<LLUUID, LLAvatarPropertiesObserver*>;
 
     observer_multimap_t mObservers;
 
@@ -282,7 +282,7 @@ protected:
     // Maintain a timestamp for each request so a request that receives no reply
     // does not block future requests forever.
     // Map avatar_id+request_type -> U32 timestamp in seconds
-    typedef std::map< std::pair<LLUUID, EAvatarProcessorType>, U32> timestamp_map_t;
+    using timestamp_map_t = std::map< std::pair<LLUUID, EAvatarProcessorType>, U32>;
     timestamp_map_t mRequestTimestamps;
 
     // Is returned by isHideAgeSupportedByServer()

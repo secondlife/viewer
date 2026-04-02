@@ -104,7 +104,7 @@ S32  LLViewerRegion::sLastCameraUpdated = 0;
 S32  LLViewerRegion::sNewObjectCreationThrottle = -1;
 LLViewerRegion::vocache_entry_map_t LLViewerRegion::sRegionCacheCleanup;
 
-typedef std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>> CapabilityMap;
+using CapabilityMap = std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>>;
 
 static void log_capabilities(const CapabilityMap &capmap);
 
@@ -3789,9 +3789,9 @@ void LLViewerRegion::applyCacheMiscExtras(LLViewerObject* obj)
         }
         llassert(iter->second.mGLTFMaterial.size() == iter->second.mSides.size());
 
-        for (auto& side : iter->second.mGLTFMaterial)
+        for (auto& [side_index, material] : iter->second.mGLTFMaterial)
         {
-            obj->setTEGLTFMaterialOverride(side.first, side.second);
+            obj->setTEGLTFMaterialOverride(side_index, material);
         }
     }
 }

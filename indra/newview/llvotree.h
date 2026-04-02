@@ -182,7 +182,7 @@ protected:
 
     U32 mFrameCount;
 
-    typedef std::map<U32, TreeSpeciesData*> SpeciesMap;
+    using SpeciesMap = std::map<U32, TreeSpeciesData*>;
     static SpeciesMap sSpeciesTable;
 
     static S32 sLODIndexOffset[4];

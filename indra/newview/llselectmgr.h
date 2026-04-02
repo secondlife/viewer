@@ -129,22 +129,24 @@ template <typename T> struct LLCheckIdenticalFunctor
     static bool same(const T& a, const T& b, const T& tolerance);
 };
 
-typedef enum e_send_type
+enum e_send_type
 {
     SEND_ONLY_ROOTS,
     SEND_INDIVIDUALS,
     SEND_ROOTS_FIRST, // useful for serial undos on linked sets
     SEND_CHILDREN_FIRST // useful for serial transforms of linked sets
-} ESendType;
+};
+using ESendType = e_send_type;
 
-typedef enum e_grid_mode
+enum e_grid_mode
 {
     GRID_MODE_WORLD,
     GRID_MODE_LOCAL,
     GRID_MODE_REF_OBJECT
-} EGridMode;
+};
+using EGridMode = e_grid_mode;
 
-typedef enum e_action_type
+enum e_action_type
 {
     SELECT_ACTION_TYPE_BEGIN,
     SELECT_ACTION_TYPE_PICK,
@@ -152,16 +154,18 @@ typedef enum e_action_type
     SELECT_ACTION_TYPE_ROTATE,
     SELECT_ACTION_TYPE_SCALE,
     NUM_ACTION_TYPES
-}EActionType;
+};
+using EActionType = e_action_type;
 
-typedef enum e_selection_type
+enum e_selection_type
 {
     SELECT_TYPE_WORLD,
     SELECT_TYPE_ATTACHMENT,
     SELECT_TYPE_HUD
-}ESelectType;
+};
+using ESelectType = e_selection_type;
 
-typedef std::vector<LLPointer<LLGLTFMaterial> > gltf_materials_vec_t;
+using gltf_materials_vec_t = std::vector<LLPointer<LLGLTFMaterial> >;
 
 const S32 TE_SELECT_MASK_ALL = 0xFFFFFFFF;
 
@@ -267,7 +271,7 @@ protected:
     ~LLObjectSelection();
 
 public:
-    typedef std::list<LLSelectNode*> list_t;
+    using list_t = std::list<LLSelectNode*>;
 
     // Iterators
     struct is_non_null
@@ -277,7 +281,7 @@ public:
             return (node->getObject() != NULL);
         }
     };
-    typedef boost::filter_iterator<is_non_null, list_t::iterator > iterator;
+    using iterator = boost::filter_iterator<is_non_null, list_t::iterator >;
     iterator begin() { return iterator(mList.begin(), mList.end()); }
     iterator end() { return iterator(mList.end(), mList.end()); }
 
@@ -288,7 +292,7 @@ public:
             return (node->getObject() != NULL) && node->mValid;
         }
     };
-    typedef boost::filter_iterator<is_valid, list_t::iterator > valid_iterator;
+    using valid_iterator = boost::filter_iterator<is_valid, list_t::iterator >;
     valid_iterator valid_begin() { return valid_iterator(mList.begin(), mList.end()); }
     valid_iterator valid_end() { return valid_iterator(mList.end(), mList.end()); }
 
@@ -296,7 +300,7 @@ public:
     {
         bool operator()(LLSelectNode* node);
     };
-    typedef boost::filter_iterator<is_root, list_t::iterator > root_iterator;
+    using root_iterator = boost::filter_iterator<is_root, list_t::iterator >;
     root_iterator root_begin() { return root_iterator(mList.begin(), mList.end()); }
     root_iterator root_end() { return root_iterator(mList.end(), mList.end()); }
 
@@ -304,7 +308,7 @@ public:
     {
         bool operator()(LLSelectNode* node);
     };
-    typedef boost::filter_iterator<is_valid_root, list_t::iterator > valid_root_iterator;
+    using valid_root_iterator = boost::filter_iterator<is_valid_root, list_t::iterator >;
     valid_root_iterator valid_root_begin() { return valid_root_iterator(mList.begin(), mList.end()); }
     valid_root_iterator valid_root_end() { return valid_root_iterator(mList.end(), mList.end()); }
 
@@ -312,7 +316,7 @@ public:
     {
         bool operator()(LLSelectNode* node);
     };
-    typedef boost::filter_iterator<is_root_object, list_t::iterator > root_object_iterator;
+    using root_object_iterator = boost::filter_iterator<is_root_object, list_t::iterator >;
     root_object_iterator root_object_begin() { return root_object_iterator(mList.begin(), mList.end()); }
     root_object_iterator root_object_end() { return root_object_iterator(mList.end(), mList.end()); }
 
@@ -420,7 +424,7 @@ private:
     ESelectType mSelectType;
 };
 
-typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
+using LLObjectSelectionHandle = LLSafeHandle<LLObjectSelection>;
 
 // Build time optimization, generate this once in .cpp file
 #ifndef LLSELECTMGR_CPP
@@ -519,7 +523,7 @@ public:
 
     // Avatar overrides should persist even after selection
     // was removed as long as edit floater is up
-    typedef std::map<LLUUID, AvatarPositionOverride> uuid_av_override_map_t;
+    using uuid_av_override_map_t = std::map<LLUUID, AvatarPositionOverride>;
     uuid_av_override_map_t mAvatarOverridesMap;
 public:
 
@@ -912,7 +916,7 @@ private:
 public:
     // Observer/callback support for when object selection changes or
     // properties are received/updated
-    typedef boost::signals2::signal< void ()> update_signal_t;
+    using update_signal_t = boost::signals2::signal< void ()>;
     update_signal_t mUpdateSignal;
 
 private:

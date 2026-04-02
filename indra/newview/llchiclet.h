@@ -187,8 +187,7 @@ public:
     /*virtual*/ boost::signals2::connection setLeftButtonClickCallback(
         const commit_callback_t& cb);
 
-    typedef std::function<void(LLChiclet* ctrl, const LLSD& param)>
-        chiclet_size_changed_callback_t;
+    using chiclet_size_changed_callback_t = std::function<void(LLChiclet* ctrl, const LLSD& param)>;
 
     /**
      * Connects chiclets size changed event with callback.
@@ -227,8 +226,7 @@ private:
 
     bool mShowCounter;
 
-    typedef boost::signals2::signal<void (LLChiclet* ctrl, const LLSD& param)>
-        chiclet_size_changed_signal_t;
+    using chiclet_size_changed_signal_t = boost::signals2::signal<void (LLChiclet* ctrl, const LLSD& param)>;
 
     chiclet_size_changed_signal_t mChicletSizeChangedSignal;
 };
@@ -340,7 +338,7 @@ protected:
 
     template<typename Container>
     struct CollectChicletCombiner {
-        typedef Container result_type;
+        using result_type = Container;
 
         template<typename InputIterator>
         Container operator()(InputIterator first, InputIterator last) const {
@@ -795,7 +793,7 @@ protected:
 
     void objectChicletCallback(const LLSD& data);
 
-    typedef std::vector<LLChiclet*> chiclet_list_t;
+    using chiclet_list_t = std::vector<LLChiclet*>;
 
     /**
      * Removes chiclet from scroll area and chiclet list.

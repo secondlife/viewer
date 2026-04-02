@@ -93,7 +93,7 @@ struct SimMeasurementSampler : public LLInstanceTracker<SimMeasurementSampler, E
 template<typename T = F64>
 struct SimMeasurement : public LLTrace::SampleStatHandle<T>, public SimMeasurementSampler
 {
-    typedef SimMeasurement<T> self_t;
+    using self_t = SimMeasurement<T>;
 
     SimMeasurement(const char* name, const char* description, ESimStatID stat_id)
     :   LLTrace::SampleStatHandle<T>(name, description),
@@ -246,12 +246,12 @@ public:
 
     void addToMessage(LLSD &body);
 
-    typedef LLStatsAccumulator StatsAccumulator;
+    using StatsAccumulator = LLStatsAccumulator;
 
     // Phase tracking (originally put in for avatar rezzing), tracking
     // progress of active/completed phases for activities like outfit changing.
-    typedef std::map<std::string,LLTimer>   phase_map_t;
-    typedef std::map<std::string,StatsAccumulator>  phase_stats_t;
+    using phase_map_t = std::map<std::string,LLTimer>;
+    using phase_stats_t = std::map<std::string,StatsAccumulator>;
     class PhaseMap
     {
     private:

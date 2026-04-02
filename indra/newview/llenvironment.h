@@ -73,8 +73,8 @@ public:
     {
         EnvironmentInfo();
 
-        typedef std::shared_ptr<EnvironmentInfo>    ptr_t;
-        typedef std::array<std::string, 5>          namelist_t;
+        using ptr_t = std::shared_ptr<EnvironmentInfo>;
+        using namelist_t = std::array<std::string, 5>;
 
         S32                     mParcelId;
         LLUUID                  mRegionId;
@@ -107,14 +107,14 @@ public:
         ENV_NONE = -2
     };
 
-    typedef boost::signals2::connection     connection_t;
+    using connection_t = boost::signals2::connection;
 
-    typedef std::pair<LLSettingsSky::ptr_t, LLSettingsWater::ptr_t> fixedEnvironment_t;
-    typedef std::function<void(S32, EnvironmentInfo::ptr_t)>        environment_apply_fn;
-    typedef boost::signals2::signal<void(EnvSelection_t, S32)>      env_changed_signal_t;
-    typedef env_changed_signal_t::slot_type                         env_changed_fn;
-    typedef std::array<F32, 4>                                      altitude_list_t;
-    typedef std::vector<F32>                                        altitudes_vect_t;
+    using fixedEnvironment_t = std::pair<LLSettingsSky::ptr_t, LLSettingsWater::ptr_t>;
+    using environment_apply_fn = std::function<void(S32, EnvironmentInfo::ptr_t)>;
+    using env_changed_signal_t = boost::signals2::signal<void(EnvSelection_t, S32)>;
+    using env_changed_fn = env_changed_signal_t::slot_type;
+    using altitude_list_t = std::array<F32, 4>;
+    using altitudes_vect_t = std::vector<F32>;
 
     ~LLEnvironment();
 
@@ -249,7 +249,7 @@ public:
     class DayInstance: public std::enable_shared_from_this<DayInstance>
     {
     public:
-        typedef std::shared_ptr<DayInstance> ptr_t;
+        using ptr_t = std::shared_ptr<DayInstance>;
 
         static const U32                NO_ANIMATE_SKY;
         static const U32                NO_ANIMATE_WATER;
@@ -348,17 +348,17 @@ private:
     LLVector4 toCFR(const LLVector3 vec) const;
     LLVector4 toLightNorm(const LLVector3 vec) const;
 
-    typedef std::array<DayInstance::ptr_t, ENV_END> InstanceArray_t;
+    using InstanceArray_t = std::array<DayInstance::ptr_t, ENV_END>;
 
     struct ExpEnvironmentEntry
     {
-        typedef std::shared_ptr<ExpEnvironmentEntry> ptr_t;
+        using ptr_t = std::shared_ptr<ExpEnvironmentEntry>;
 
         S32Seconds  mTime;
         LLUUID      mExperienceId;
         LLSD        mEnvironmentOverrides;
     };
-    typedef std::deque<ExpEnvironmentEntry::ptr_t>  mPushOverrides;
+    using mPushOverrides = std::deque<ExpEnvironmentEntry::ptr_t>;
 
     LLUUID                      mPushEnvironmentExpId;
 
@@ -387,7 +387,7 @@ private:
 
     LLSD                        mSkyOverrides;
     LLSD                        mWaterOverrides;
-    typedef std::map<std::string, LLUUID> experience_overrides_t;
+    using experience_overrides_t = std::map<std::string, LLUUID>;
     experience_overrides_t      mExperienceOverrides;
 
     DayInstance::ptr_t          getEnvironmentInstance(EnvSelection_t env, bool create = false);
@@ -408,7 +408,7 @@ private:
 
     struct UpdateInfo
     {
-        typedef std::shared_ptr<UpdateInfo> ptr_t;
+        using ptr_t = std::shared_ptr<UpdateInfo>;
 
         UpdateInfo(LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset, altitudes_vect_t altitudes):
             mDayp(pday),
@@ -479,7 +479,7 @@ public:
     virtual void                switchTrack(S32 trackno, const LLSettingsBase::TrackPosition& position) override;
     S32                         getTrack() const { return mTrackNo; }
 
-    typedef std::shared_ptr<LLTrackBlenderLoopingManual> ptr_t;
+    using ptr_t = std::shared_ptr<LLTrackBlenderLoopingManual>;
 protected:
     LLSettingsDay::TrackBound_t getBoundingEntries(F64 position);
     F64                         getSpanLength(const LLSettingsDay::TrackBound_t &bounds) const;

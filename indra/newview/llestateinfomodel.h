@@ -42,7 +42,7 @@ class LLEstateInfoModel : public LLSingleton<LLEstateInfoModel>
     LOG_CLASS(LLEstateInfoModel);
 
 public:
-    typedef boost::signals2::signal<void()> update_signal_t;
+    using update_signal_t = boost::signals2::signal<void()>;
     boost::signals2::connection setUpdateCallback(const update_signal_t::slot_type& cb); /// the model has been externally updated
     boost::signals2::connection setCommitCallback(const update_signal_t::slot_type& cb); /// our changes have been applied
 
@@ -78,7 +78,7 @@ public:
     void setSunHour(F32 sun_hour) { mSunHour = sun_hour; }
 
 protected:
-    typedef std::vector<std::string> strings_t;
+    using strings_t = std::vector<std::string>;
 
     friend class LLDispatchEstateUpdateInfo;
 

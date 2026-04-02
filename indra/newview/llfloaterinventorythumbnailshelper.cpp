@@ -281,13 +281,10 @@ void LLFloaterInventoryThumbnailsHelper::updateDisplayList()
 {
     mInventoryThumbnailsList->deleteAllItems();
 
-    std::map<std::string, LLViewerInventoryItem*>::iterator item_iter = mItemNamesItems.begin();
-    while (item_iter != mItemNamesItems.end())
+    for (const auto& [item_name, item] : mItemNamesItems)
     {
-        std::string item_name = (*item_iter).first;
-
         std::string existing_texture_name = std::string();
-        LLUUID existing_thumbnail_id = (*item_iter).second->getThumbnailUUID();
+        LLUUID existing_thumbnail_id = item->getThumbnailUUID();
         if (existing_thumbnail_id != LLUUID::null)
         {
             existing_texture_name = existing_thumbnail_id.asString();
@@ -325,8 +322,6 @@ void LLFloaterInventoryThumbnailsHelper::updateDisplayList()
         row["columns"][EListColumnNum::NEW_TEXTURE]["value"] = new_texture_name;
 
         mInventoryThumbnailsList->addElement(row);
-
-        ++item_iter;
     }
 }
 
@@ -379,22 +374,19 @@ void LLFloaterInventoryThumbnailsHelper::onWriteThumbnails()
         S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
         if (opt == 0)
         {
-            std::map<std::string, LLViewerInventoryItem*>::iterator item_iter = mItemNamesItems.begin();
-            while (item_iter != mItemNamesItems.end())
+            for (auto& [item_name, inv_item] : mItemNamesItems)
             {
-                std::string item_name = (*item_iter).first;
-
                 std::map<std::string, LLUUID>::iterator texture_iter = mTextureNamesIDs.find(item_name);
                 if (texture_iter != mTextureNamesIDs.end())
                 {
-                    LLUUID item_id = (*item_iter).second->getUUID();
+                    LLUUID item_id = inv_item->getUUID();
 
                     LLUUID thumbnail_asset_id = (*texture_iter).second;
 
                     writeToLog(
                         STRINGIZE(
                             "WRITING THUMB " <<
-                            (*item_iter).first <<
+                            item_name <<
                             "\n" <<
                             "item ID: " <<
                             item_id <<
@@ -405,14 +397,12 @@ void LLFloaterInventoryThumbnailsHelper::onWriteThumbnails()
                         ), true);
 
 
-                    (*item_iter).second->setThumbnailUUID(thumbnail_asset_id);
+                    inv_item->setThumbnailUUID(thumbnail_asset_id);
 
                     // This additional step (notifying AIS API) is required
                     // to make the changes persist outside of the local cache
                     writeInventoryThumbnailID(item_id, thumbnail_asset_id);
                 }
-
-                ++item_iter;
             }
 
             updateDisplayList();
@@ -430,22 +420,19 @@ void LLFloaterInventoryThumbnailsHelper::onWriteThumbnails()
 // a thumbnail
 void LLFloaterInventoryThumbnailsHelper::onLogMissingThumbnails()
 {
-    std::map<std::string, LLViewerInventoryItem*>::iterator item_iter = mItemNamesItems.begin();
-    while (item_iter != mItemNamesItems.end())
+    for (const auto& [item_name, inv_item] : mItemNamesItems)
     {
-        LLUUID thumbnail_id = (*item_iter).second->getThumbnailUUID();
+        LLUUID thumbnail_id = inv_item->getThumbnailUUID();
 
         if (thumbnail_id == LLUUID::null)
         {
             writeToLog(
                 STRINGIZE(
                     "Missing thumbnail: " <<
-                    (*item_iter).first <<
+                    item_name <<
                     std::endl
                 ), true);
         }
-
-        ++item_iter;
     }
 }
 

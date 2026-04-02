@@ -71,11 +71,11 @@ protected:
 };
 
 #if LL_DBUS_ENABLED
-typedef struct
+struct ViewerAppAPI
 {
         GObject parent;
         DBusGConnection *connection;
-} ViewerAppAPI;
+};
 
 extern "C" {
     gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **success_rtn, GError **error);

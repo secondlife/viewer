@@ -47,7 +47,7 @@ struct SelectionCost
     //LLTransactionID mTransactionId;
 };
 
-typedef enum { Roots = 0 , Prims } eSelectionType;
+enum eSelectionType { Roots = 0 , Prims };
 
 #endif
 

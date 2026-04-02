@@ -45,7 +45,7 @@ public:
     class LLSearchHistoryItem;
 
     // Search history container
-    typedef std::list<LLSearchHistoryItem>  search_history_list_t;
+    using search_history_list_t = std::list<LLSearchHistoryItem>;
 
     /**
      * Saves search history to file

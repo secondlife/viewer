@@ -94,7 +94,7 @@ protected:
 
     LLRenderTarget* mBoundTarget;
 
-    typedef std::set<LLViewerDynamicTexture*> instance_list_t;
+    using instance_list_t = std::set<LLViewerDynamicTexture*>;
     static instance_list_t sInstances[ LLViewerDynamicTexture::ORDER_COUNT ];
     static S32 sNumRenders;
 };

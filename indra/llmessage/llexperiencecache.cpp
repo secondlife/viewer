@@ -994,7 +994,7 @@ bool LLExperienceCacheImpl::maxAgeFromCacheControl(const std::string& cache_cont
         std::string token = *token_it;
         LLStringUtil::trim(token);
 
-        if (token.compare(0, MAX_AGE.size(), MAX_AGE) == 0)
+        if (token.starts_with(MAX_AGE))
         {
             // ...this token starts with max-age, so let's chop it up by "="
             tokenizer subtokens(token, EQUALS_SEPARATOR);

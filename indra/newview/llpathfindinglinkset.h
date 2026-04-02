@@ -36,7 +36,7 @@ class LLSD;
 class LLPathfindingLinkset : public LLPathfindingObject
 {
 public:
-    typedef enum
+    enum ELinksetUse
     {
         kUnknown,
         kWalkable,
@@ -45,7 +45,7 @@ public:
         kMaterialVolume,
         kExclusionVolume,
         kDynamicPhantom
-    } ELinksetUse;
+    };
 
     LLPathfindingLinkset(const LLSD &pTerrainData);
     LLPathfindingLinkset(const std::string &pUUID, const LLSD &pLinksetData);
@@ -82,12 +82,12 @@ public:
 protected:
 
 private:
-    typedef enum
+    enum ENavMeshGenerationCategory
     {
         kNavMeshGenerationIgnore,
         kNavMeshGenerationInclude,
         kNavMeshGenerationExclude
-    } ENavMeshGenerationCategory;
+    };
 
     void                              parseLinksetData(const LLSD &pLinksetData);
     void                              parsePathfindingData(const LLSD &pLinksetData);

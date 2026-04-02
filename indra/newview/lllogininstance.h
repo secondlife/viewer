@@ -72,7 +72,7 @@ public:
     void saveMFAHash(LLSD const& response);
 
 private:
-    typedef std::shared_ptr<LLEventAPI::Response> ResponsePtr;
+    using ResponsePtr = std::shared_ptr<LLEventAPI::Response>;
     void constructAuthParams(LLPointer<LLCredential> user_credentials);
     void updateApp(bool mandatory, const std::string& message);
     bool updateDialogCallback(const LLSD& notification, const LLSD& response);

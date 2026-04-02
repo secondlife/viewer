@@ -765,7 +765,7 @@ LLSD LLFastTimerView::analyzePerformanceLogDefault(std::istream& is)
     LLSD::Real total_time = 0.0;
     LLSD::Integer total_frames = 0;
 
-    typedef std::map<std::string,LLViewerStats::StatsAccumulator> stats_map_t;
+    using stats_map_t = std::map<std::string,LLViewerStats::StatsAccumulator>;
     stats_map_t time_stats;
     stats_map_t sample_stats;
 

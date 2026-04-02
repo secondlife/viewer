@@ -391,12 +391,12 @@ void LLInventoryValidationInfo::asLLSD(LLSD& sd) const
     if (mWarningCount>0)
     {
         sd["warnings"] = LLSD::emptyArray();
-        for (auto const& it : mWarnings)
+        for (const auto& [warning_name, count] : mWarnings)
         {
-            S32 val =LLSD::Integer(it.second);
-            if (val>0)
+            S32 val = LLSD::Integer(count);
+            if (val > 0)
             {
-                sd["warnings"][it.first] = val;
+                sd["warnings"][warning_name] = val;
             }
         }
     }
@@ -2639,12 +2639,10 @@ void LLInventoryModel::accountForUpdate(
     const LLInventoryModel::update_map_t& update) const
 {
     LLCategoryUpdate up;
-    update_map_t::const_iterator it = update.begin();
-    update_map_t::const_iterator end = update.end();
-    for(; it != end; ++it)
+    for (const auto& [cat_id, delta] : update)
     {
-        up.mCategoryID = (*it).first;
-        up.mDescendentDelta = (*it).second.mValue;
+        up.mCategoryID = cat_id;
+        up.mDescendentDelta = delta.mValue;
         accountForUpdate(up);
     }
 }
@@ -2706,7 +2704,7 @@ bool LLInventoryModel::loadSkeleton(
     LL_DEBUGS(LOG_INV) << "importing inventory skeleton for " << owner_id << LL_ENDL;
 
     LLTimer timer;
-    typedef std::set<LLPointer<LLViewerInventoryCategory>, InventoryIDPtrLess> cat_set_t;
+    using cat_set_t = std::set<LLPointer<LLViewerInventoryCategory>, InventoryIDPtrLess>;
     cat_set_t temp_cats;
     bool rv = true;
 
@@ -4461,7 +4459,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
     S32 desc_unknown_count = 0;
     S32 version_unknown_count = 0;
 
-    typedef std::map<LLFolderType::EType, S32> ft_count_map;
+    using ft_count_map = std::map<LLFolderType::EType, S32>;
     ft_count_map ft_counts_under_root;
     ft_count_map ft_counts_elsewhere;
 

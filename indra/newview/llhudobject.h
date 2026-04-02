@@ -117,7 +117,7 @@ protected:
     LLPointer<LLViewerObject> mTargetObject;
 
 private:
-    typedef std::list<LLPointer<LLHUDObject> > hud_object_list_t;
+    using hud_object_list_t = std::list<LLPointer<LLHUDObject> >;
     static hud_object_list_t sHUDObjects;
 };
 

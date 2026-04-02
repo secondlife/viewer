@@ -1902,13 +1902,12 @@ void LLFloaterModelPreview::resetUploadOptions()
         childSetValue("lod_file_" + lod_name[lod], "");
     }
 
-    for(auto& p : mDefaultDecompParams)
+    for (auto& [ctrl_name, value] : mDefaultDecompParams)
     {
-        std::string ctrl_name(p.first);
         LLUICtrl* ctrl = getChild<LLUICtrl>(ctrl_name);
         if (ctrl)
         {
-            ctrl->setValue(p.second);
+            ctrl->setValue(value);
         }
     }
     getChild<LLComboBox>("physics_lod_combo")->setCurrentByIndex(0);

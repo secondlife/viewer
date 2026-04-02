@@ -53,7 +53,7 @@ public:
     void scheduleFolderFetch(const LLUUID& cat_id, bool forced = false);
     void scheduleItemFetch(const LLUUID& item_id, bool forced = false);
 
-    typedef std::function<void()> nullary_func_t;
+    using nullary_func_t = std::function<void()>;
     // AIS3 only, Fetches folder and everything links inside the folder point to
     // Intended for outfits
     void fetchFolderAndLinks(const LLUUID& cat_id, nullary_func_t callback);
@@ -78,7 +78,7 @@ public:
     bool isBulkFetchProcessingComplete() const;
     void setAllFoldersFetched();
 
-    typedef std::function<void()> folders_fetched_callback_t;
+    using folders_fetched_callback_t = std::function<void()>;
     boost::signals2::connection setFetchCompletionCallback(folders_fetched_callback_t cb);
 
     void addRequestAtFront(const LLUUID& id, bool recursive, bool is_category);
@@ -87,13 +87,13 @@ public:
 protected:
     bool isFolderFetchProcessingComplete() const;
 
-    typedef enum {
+    enum EFetchType {
         FT_DEFAULT = 0,
         FT_FORCED, // request non-recursively even if already loaded
         FT_CONTENT_RECURSIVE, // request content recursively
         FT_FOLDER_AND_CONTENT, // request folder, then content recursively
         FT_RECURSIVE, // request everything recursively
-    } EFetchType;
+    };
     struct FetchQueueInfo
     {
         FetchQueueInfo(const LLUUID& id, EFetchType recursive, bool is_category = true)
@@ -106,7 +106,7 @@ protected:
         bool mIsCategory;
         EFetchType mFetchType;
     };
-    typedef std::deque<FetchQueueInfo> fetch_queue_t;
+    using fetch_queue_t = std::deque<FetchQueueInfo>;
 
     void onAISContentCalback(const LLUUID& request_id, const uuid_vec_t& content_ids, const LLUUID& response_id, EFetchType fetch_type);
     void onAISFolderCalback(const LLUUID& request_id, const LLUUID& response_id, EFetchType fetch_type);
@@ -124,7 +124,7 @@ private:
     bool mRecursiveLibraryFetchStarted;
     bool mRecursiveMarketplaceFetchStarted; // AIS3 specific
     bool mAllRecursiveFoldersFetched;
-    typedef boost::signals2::signal<void()> folders_fetched_signal_t;
+    using folders_fetched_signal_t = boost::signals2::signal<void()>;
     folders_fetched_signal_t mFoldersFetchedSignal;
 
     bool mBackgroundFetchActive;

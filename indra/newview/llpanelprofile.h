@@ -180,7 +180,7 @@ private:
     void onCommitProfileImage(const LLUUID& id);
 
 private:
-    typedef std::map<std::string, LLUUID> group_map_t;
+    using group_map_t = std::map<std::string, LLUUID>;
     group_map_t             mGroups;
     void                    openGroupProfile();
 

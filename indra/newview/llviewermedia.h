@@ -51,7 +51,7 @@ class LLMediaEntry;
 class LLVOVolume;
 class LLMimeDiscoveryResponder;
 
-typedef LLPointer<LLViewerMediaImpl> viewer_media_t;
+using viewer_media_t = LLPointer<LLViewerMediaImpl>;
 ///////////////////////////////////////////////////////////////////////////////
 //
 class LLViewerMediaEventEmitter
@@ -64,7 +64,7 @@ public:
     virtual void emitEvent(LLPluginClassMedia* self, LLViewerMediaObserver::EMediaEvent event);
 
 private:
-    typedef std::list< LLViewerMediaObserver* > observerListType;
+    using observerListType = std::list< LLViewerMediaObserver* >;
     observerListType mObservers;
 };
 
@@ -85,9 +85,9 @@ public:
     static const char* SHOW_MEDIA_WITHIN_PARCEL_SETTING;
     static const char* SHOW_MEDIA_OUTSIDE_PARCEL_SETTING;
 
-    typedef std::list<LLViewerMediaImpl*> impl_list;
+    using impl_list = std::list<LLViewerMediaImpl*>;
 
-    typedef std::map<LLUUID, LLViewerMediaImpl*> impl_id_map;
+    using impl_id_map = std::map<LLUUID, LLViewerMediaImpl*>;
 
     // Special case early init for just web browser component
     // so we can show login screen.  See .cpp file for details. JC
@@ -403,7 +403,7 @@ public:
     bool isTrustedBrowser() { return mTrustedBrowser; }
     void setTrustedBrowser(bool trusted) { mTrustedBrowser = trusted; }
 
-    typedef enum
+    enum EMediaNavState
     {
         MEDIANAVSTATE_NONE,                                     // State is outside what we need to track for navigation.
         MEDIANAVSTATE_BEGUN,                                    // a MEDIA_EVENT_NAVIGATE_BEGIN has been received which was not server-directed
@@ -416,7 +416,7 @@ public:
         MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED,            // first LOCATION_CHANGED event after a server-directed BEGIN
         MEDIANAVSTATE_SERVER_COMPLETE_BEFORE_LOCATION_CHANGED   // we received a NAVIGATE_COMPLETE event before the first LOCATION_CHANGED
 
-    }EMediaNavState;
+    };
 
     // Returns the current nav state of the media.
     // note that this will be updated BEFORE listeners and objects receive media messages

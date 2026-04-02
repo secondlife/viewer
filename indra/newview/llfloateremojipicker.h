@@ -40,8 +40,8 @@ class LLFloaterEmojiPicker : public LLFloater
 
 public:
     // The callback function will be called with an emoji char.
-    typedef std::function<void(llwchar)> pick_callback_t;
-    typedef std::function<void ()> close_callback_t;
+    using pick_callback_t = std::function<void(llwchar)>;
+    using close_callback_t = std::function<void ()>;
 
     LLFloaterEmojiPicker(const LLSD& key);
 

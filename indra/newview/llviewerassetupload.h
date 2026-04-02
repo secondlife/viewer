@@ -40,7 +40,7 @@
 class LLResourceUploadInfo
 {
 public:
-    typedef std::shared_ptr<LLResourceUploadInfo> ptr_t;
+    using ptr_t = std::shared_ptr<LLResourceUploadInfo>;
 
     LLResourceUploadInfo(
         LLTransactionID transactId,
@@ -180,8 +180,8 @@ private:
 class LLNewBufferedResourceUploadInfo : public LLResourceUploadInfo
 {
 public:
-    typedef std::function<void(LLUUID newAssetId, LLSD response)> uploadFinish_f;
-    typedef std::function<bool(LLUUID assetId, LLSD response, std::string reason)> uploadFailure_f;
+    using uploadFinish_f = std::function<void(LLUUID newAssetId, LLSD response)>;
+    using uploadFailure_f = std::function<bool(LLUUID assetId, LLSD response, std::string reason)>;
 
     LLNewBufferedResourceUploadInfo(
         const std::string& buffer,
@@ -219,9 +219,9 @@ private:
 class LLBufferedAssetUploadInfo : public LLResourceUploadInfo
 {
 public:
-    typedef std::function<void(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)> invnUploadFinish_f;
-    typedef std::function<void(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)> taskUploadFinish_f;
-    typedef std::function<bool(LLUUID itemId, LLUUID taskId, LLSD response, std::string reason)> uploadFailed_f;
+    using invnUploadFinish_f = std::function<void(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)>;
+    using taskUploadFinish_f = std::function<void(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)>;
+    using uploadFailed_f = std::function<bool(LLUUID itemId, LLUUID taskId, LLSD response, std::string reason)>;
 
     // destFolderId is the folder to put the new item in, leave null for default
     LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed);

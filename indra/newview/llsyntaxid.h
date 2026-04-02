@@ -43,7 +43,7 @@ class LLSyntaxIdLSL : public LLSingleton<LLSyntaxIdLSL>
 
 private:
     std::set<std::string> mInflightFetches;
-    typedef boost::signals2::signal<void()> syntax_id_changed_signal_t;
+    using syntax_id_changed_signal_t = boost::signals2::signal<void()>;
     syntax_id_changed_signal_t mSyntaxIDChangedSignal;
     boost::signals2::connection mRegionChangedCallback;
 

@@ -37,7 +37,7 @@ class LLPanel;
 class LLVoiceChannel : public LLVoiceClientStatusObserver
 {
 public:
-    typedef enum e_voice_channel_state
+    enum e_voice_channel_state
     {
         STATE_NO_CHANNEL_INFO,
         STATE_ERROR,
@@ -46,19 +46,21 @@ public:
         STATE_CALL_STARTED,
         STATE_RINGING,
         STATE_CONNECTED
-    } EState;
+    };
+    using EState = e_voice_channel_state;
 
-    typedef enum e_voice_channel_direction
+    enum e_voice_channel_direction
     {
         INCOMING_CALL,
         OUTGOING_CALL
-    } EDirection;
+    };
+    using EDirection = e_voice_channel_direction;
 
-    typedef boost::signals2::signal<void(const EState& old_state, const EState& new_state, const EDirection& direction, bool ended_by_agent, const LLUUID& session_id)> state_changed_signal_t;
+    using state_changed_signal_t = boost::signals2::signal<void(const EState& old_state, const EState& new_state, const EDirection& direction, bool ended_by_agent, const LLUUID& session_id)>;
 
     // on current channel changed signal
-    typedef std::function<void(const LLUUID& session_id)> channel_changed_callback_t;
-    typedef boost::signals2::signal<void(const LLUUID& session_id)> channel_changed_signal_t;
+    using channel_changed_callback_t = std::function<void(const LLUUID& session_id)>;
+    using channel_changed_signal_t = boost::signals2::signal<void(const LLUUID& session_id)>;
     static channel_changed_signal_t sCurrentVoiceChannelChangedSignal;
     static boost::signals2::connection setCurrentVoiceChannelChangedCallback(channel_changed_callback_t cb, bool at_front = false);
 
@@ -125,7 +127,7 @@ public:
     bool        mIgnoreNextSessionLeave;
     LLHandle<LLPanel> mLoginNotificationHandle;
 
-    typedef std::map<LLUUID, LLVoiceChannel*> voice_channel_map_t;
+    using voice_channel_map_t = std::map<LLUUID, LLVoiceChannel*>;
     static voice_channel_map_t sVoiceChannelMap;
 
     static LLVoiceChannel* sProximalVoiceChannel;

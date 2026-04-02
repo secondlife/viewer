@@ -6413,9 +6413,9 @@ LLJoint *LLVOAvatar::getJoint( S32 joint_num )
 void LLVOAvatar::initAllJoints()
 {
     getJointAliases();
-    for (auto& alias : mJointAliasMap)
+    for (auto& [alias_name, joint_name] : mJointAliasMap)
     {
-        mJointMap[alias.first] = mRoot->findJoint(alias.second);
+        mJointMap[alias_name] = mRoot->findJoint(joint_name);
     }
     // ignore mScreen and mRoot
 }
@@ -10274,7 +10274,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 std::string get_sequential_numbered_file_name(const std::string& prefix,
                                               const std::string& suffix)
 {
-    typedef std::map<std::string,S32> file_num_type;
+    using file_num_type = std::map<std::string,S32>;
     static  file_num_type file_nums;
     file_num_type::iterator it = file_nums.find(prefix);
     S32 num = 0;

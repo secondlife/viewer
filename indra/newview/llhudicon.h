@@ -81,7 +81,7 @@ private:
     F32             mScale;
     bool            mHidden;
 
-    typedef std::vector<LLPointer<LLHUDIcon> > icon_instance_t;
+    using icon_instance_t = std::vector<LLPointer<LLHUDIcon> >;
     static icon_instance_t sIconInstances;
 };
 

@@ -165,15 +165,15 @@ private:
             return a.mID < b.mID;
         }
     };
-    typedef std::set<LLMute, compare_by_id> mute_set_t;
+    using mute_set_t = std::set<LLMute, compare_by_id>;
     mute_set_t mMutes;
-    typedef std::map<LLUUID, std::string> pending_names_t;
+    using pending_names_t = std::map<LLUUID, std::string>;
     pending_names_t mPendingAgentNameUpdates;
 
-    typedef std::set<std::string> string_set_t;
+    using string_set_t = std::set<std::string>;
     string_set_t mLegacyMutes;
 
-    typedef std::set<LLMuteListObserver*> observer_set_t;
+    using observer_set_t = std::set<LLMuteListObserver*>;
     observer_set_t mObservers;
 
     EMuteListState mLoadState;
@@ -209,7 +209,7 @@ public:
 
 private:
     void notifyObservers();
-    typedef std::set<LLMuteListObserver*> observer_set_t;
+    using observer_set_t = std::set<LLMuteListObserver*>;
     observer_set_t mObservers;
 };
 

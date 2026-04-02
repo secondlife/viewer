@@ -55,7 +55,7 @@ class LLWebRTCProtocolParser;
 
 class LLAvatarName;
 class LLVoiceWebRTCConnection;
-typedef std::shared_ptr<LLVoiceWebRTCConnection> connectionPtr_t;
+using connectionPtr_t = std::shared_ptr<LLVoiceWebRTCConnection>;
 
 extern const std::string WEBRTC_VOICE_SERVER_TYPE;
 
@@ -254,7 +254,7 @@ public:
         bool mIsModeratorMuted;
         LLUUID mRegion;
     };
-    typedef std::shared_ptr<participantState> participantStatePtr_t;
+    using participantStatePtr_t = std::shared_ptr<participantState>;
 
     participantStatePtr_t findParticipantByID(const std::string &channelID, const LLUUID &id);
     participantStatePtr_t addParticipantByID(const std::string& channelID, const LLUUID &id, const LLUUID& region);
@@ -262,15 +262,15 @@ public:
 
   protected:
 
-    typedef std::map<const LLUUID, participantStatePtr_t> participantUUIDMap;
+    using participantUUIDMap = std::map<const LLUUID, participantStatePtr_t>;
 
     class sessionState
     {
     public:
-        typedef std::shared_ptr<sessionState> ptr_t;
-        typedef std::weak_ptr<sessionState> wptr_t;
+        using ptr_t = std::shared_ptr<sessionState>;
+        using wptr_t = std::weak_ptr<sessionState>;
 
-        typedef std::function<void(const ptr_t &)> sessionFunc_t;
+        using sessionFunc_t = std::function<void(const ptr_t &)>;
 
         static void addSession(const std::string &channelID, ptr_t& session);
         virtual ~sessionState();
@@ -339,8 +339,8 @@ public:
                                       sessionFunc_t func);
     };
 
-    typedef std::shared_ptr<sessionState> sessionStatePtr_t;
-    typedef std::map<std::string, sessionStatePtr_t> sessionMap;
+    using sessionStatePtr_t = std::shared_ptr<sessionState>;
+    using sessionMap = std::map<std::string, sessionStatePtr_t>;
 
     class estateSessionState : public sessionState
     {
@@ -522,12 +522,12 @@ private:
     bool  mVoiceEnabled;
     bool  mProcessChannels;
 
-    typedef std::set<LLVoiceClientParticipantObserver*> observer_set_t;
+    using observer_set_t = std::set<LLVoiceClientParticipantObserver*>;
     observer_set_t mParticipantObservers;
 
     void notifyParticipantObservers();
 
-    typedef std::set<LLVoiceClientStatusObserver*> status_observer_set_t;
+    using status_observer_set_t = std::set<LLVoiceClientStatusObserver*>;
     status_observer_set_t mStatusObservers;
 
     void notifyStatusObservers(LLVoiceClientStatusObserver::EStatusType status);
@@ -639,7 +639,7 @@ class LLVoiceWebRTCConnection :
     void OnVoiceConnectionRequestSuccess(const LLSD &body);
 
   protected:
-    typedef enum e_voice_connection_state
+    enum e_voice_connection_state
     {
         VOICE_STATE_ERROR                  = 0x0,
         VOICE_STATE_START_SESSION          = 0x1,
@@ -656,7 +656,8 @@ class LLVoiceWebRTCConnection :
         VOICE_STATE_WAIT_FOR_CLOSE         = 0x800,
         VOICE_STATE_CLOSED                 = 0x1000,
         VOICE_STATE_SESSION_STOPPING       = 0x1F80
-    } EVoiceConnectionState;
+    };
+    using EVoiceConnectionState = e_voice_connection_state;
 
     EVoiceConnectionState mVoiceConnectionState;
     LL::WorkQueue::weak_t mMainQueue;

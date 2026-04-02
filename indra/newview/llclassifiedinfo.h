@@ -41,7 +41,7 @@ public:
 
     static void loadCategories(const LLSD& options);
 
-    typedef std::map<U32, std::string> cat_map;
+    using cat_map = std::map<U32, std::string>;
     static  cat_map sCategories;
 };
 

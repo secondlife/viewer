@@ -159,11 +159,11 @@ private:
     void updateParentBoundingInfo(const LLVOCacheEntry* child);
 
 public:
-    typedef std::map<U32, LLPointer<LLVOCacheEntry> >      vocache_entry_map_t;
-    typedef std::set<LLVOCacheEntry*>                      vocache_entry_set_t;
-    typedef std::set<LLVOCacheEntry*, CompareVOCacheEntry> vocache_entry_priority_list_t;
+    using vocache_entry_map_t = std::map<U32, LLPointer<LLVOCacheEntry> >;
+    using vocache_entry_set_t = std::set<LLVOCacheEntry*>;
+    using vocache_entry_priority_list_t = std::set<LLVOCacheEntry*, CompareVOCacheEntry>;
 
-    typedef std::unordered_map<U32, LLGLTFOverrideCacheEntry>  vocache_gltf_overrides_map_t;
+    using vocache_gltf_overrides_map_t = std::unordered_map<U32, LLGLTFOverrideCacheEntry>;
 
     S32                         mLastCameraUpdated;
 protected:
@@ -277,8 +277,8 @@ private:
             return lhs->mTime < rhs->mTime ; // older entry in front of queue (set)
         }
     };
-    typedef std::set<HeaderEntryInfo*, header_entry_less> header_entry_queue_t;
-    typedef std::map<U64, HeaderEntryInfo*> handle_entry_map_t;
+    using header_entry_queue_t = std::set<HeaderEntryInfo*, header_entry_less>;
+    using handle_entry_map_t = std::map<U64, HeaderEntryInfo*>;
 
 public:
     // We need this init to be separate from constructor, since we might construct cache, purge it, then init.

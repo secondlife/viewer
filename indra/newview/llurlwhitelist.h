@@ -47,7 +47,7 @@ class LLUrlWhiteList : public LLSingleton<LLUrlWhiteList>
         bool getNext ( std::string& valueOut );
 
     private:
-        typedef std::vector < std::string > string_list_t ;
+        using string_list_t = std::vector < std::string >;
 
         bool mLoaded;
         const std::string mFilename;

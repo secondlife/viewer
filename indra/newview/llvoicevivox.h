@@ -310,19 +310,19 @@ protected:
         bool mAvatarIDValid;
         bool mIsSelf;
     };
-    typedef std::shared_ptr<participantState> participantStatePtr_t;
-    typedef std::weak_ptr<participantState> participantStateWptr_t;
+    using participantStatePtr_t = std::shared_ptr<participantState>;
+    using participantStateWptr_t = std::weak_ptr<participantState>;
 
-    typedef std::map<const std::string, participantStatePtr_t> participantMap;
-    typedef std::map<const LLUUID, participantStatePtr_t> participantUUIDMap;
+    using participantMap = std::map<const std::string, participantStatePtr_t>;
+    using participantUUIDMap = std::map<const LLUUID, participantStatePtr_t>;
 
     struct sessionState
     {
     public:
-        typedef std::shared_ptr<sessionState> ptr_t;
-        typedef std::weak_ptr<sessionState> wptr_t;
+        using ptr_t = std::shared_ptr<sessionState>;
+        using wptr_t = std::weak_ptr<sessionState>;
 
-        typedef std::function<void(const ptr_t &)> sessionFunc_t;
+        using sessionFunc_t = std::function<void(const ptr_t &)>;
 
         static ptr_t createSession();
         ~sessionState();
@@ -400,9 +400,9 @@ protected:
         static bool testByCallerId(const LLVivoxVoiceClient::sessionState::wptr_t &a, LLUUID participantId);
 
     };
-    typedef std::shared_ptr<sessionState> sessionStatePtr_t;
+    using sessionStatePtr_t = std::shared_ptr<sessionState>;
 
-    typedef std::map<std::string, sessionStatePtr_t> sessionMap;
+    using sessionMap = std::map<std::string, sessionStatePtr_t>;
 
     ///////////////////////////////////////////////////////
     // Private Member Functions
@@ -563,7 +563,7 @@ protected:
         bool mInVivoxBuddies;
     };
 
-    typedef std::map<std::string, buddyListEntry*> buddyListMap;
+    using buddyListMap = std::map<std::string, buddyListEntry*>;
 
     /////////////////////////////
     // session control messages
@@ -788,17 +788,17 @@ private:
     std::string mWriteString;
     size_t      mWriteOffset;
 
-    typedef std::set<LLVoiceClientParticipantObserver*> observer_set_t;
+    using observer_set_t = std::set<LLVoiceClientParticipantObserver*>;
     observer_set_t mParticipantObservers;
 
     void notifyParticipantObservers();
 
-    typedef std::set<LLVoiceClientStatusObserver*> status_observer_set_t;
+    using status_observer_set_t = std::set<LLVoiceClientStatusObserver*>;
     status_observer_set_t mStatusObservers;
 
     void notifyStatusObservers(LLVoiceClientStatusObserver::EStatusType status);
 
-    typedef std::set<LLFriendObserver*> friend_observer_set_t;
+    using friend_observer_set_t = std::set<LLFriendObserver*>;
     friend_observer_set_t mFriendObservers;
     void notifyFriendObservers();
 
@@ -819,21 +819,23 @@ private:
     void updateVoiceMorphingMenu();
     void notifyVoiceFontObservers();
 
-    typedef enum e_voice_font_type
+    enum e_voice_font_type
     {
         VOICE_FONT_TYPE_NONE = 0,
         VOICE_FONT_TYPE_ROOT = 1,
         VOICE_FONT_TYPE_USER = 2,
         VOICE_FONT_TYPE_UNKNOWN
-    } EVoiceFontType;
+    };
+    using EVoiceFontType = e_voice_font_type;
 
-    typedef enum e_voice_font_status
+    enum e_voice_font_status
     {
         VOICE_FONT_STATUS_NONE = 0,
         VOICE_FONT_STATUS_FREE = 1,
         VOICE_FONT_STATUS_NOT_FREE = 2,
         VOICE_FONT_STATUS_UNKNOWN
-    } EVoiceFontStatus;
+    };
+    using EVoiceFontStatus = e_voice_font_status;
 
     struct voiceFontEntry
     {
@@ -857,11 +859,11 @@ private:
     voice_effect_list_t mVoiceFontList;
     voice_effect_list_t mVoiceFontTemplateList;
 
-    typedef std::map<const LLUUID, voiceFontEntry*> voice_font_map_t;
+    using voice_font_map_t = std::map<const LLUUID, voiceFontEntry*>;
     voice_font_map_t    mVoiceFontMap;
     voice_font_map_t    mVoiceFontTemplateMap;
 
-    typedef std::set<LLVoiceEffectObserver*> voice_font_observer_set_t;
+    using voice_font_observer_set_t = std::set<LLVoiceEffectObserver*>;
     voice_font_observer_set_t mVoiceFontObservers;
 
     LLFrameTimer    mVoiceFontExpiryTimer;

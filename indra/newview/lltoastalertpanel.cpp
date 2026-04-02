@@ -96,7 +96,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
     LLToastPanel::setBackgroundOpaque(true);
 
 
-    typedef std::vector<std::pair<std::string, std::string> > options_t;
+    using options_t = std::vector<std::pair<std::string, std::string> >;
     options_t supplied_options;
 
     // for now, get LLSD to iterator over form elements

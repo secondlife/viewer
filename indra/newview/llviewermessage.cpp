@@ -931,7 +931,7 @@ private:
     }
 
     LLHandle<LLPanel> mActivePanel;
-    typedef std::set<LLUUID> selected_items_t;
+    using selected_items_t = std::set<LLUUID>;
     selected_items_t mSelectedItems;
 
     /**
@@ -5720,7 +5720,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
     if (LLMuteList::getInstance()->isMuted(taskid)) return;
 
     // throttle excessive requests from any specific user's scripts
-    typedef LLKeyThrottle<std::string> LLStringThrottle;
+    using LLStringThrottle = LLKeyThrottle<std::string>;
     static LLStringThrottle question_throttle( LLREQUEST_PERMISSION_THROTTLE_LIMIT, LLREQUEST_PERMISSION_THROTTLE_INTERVAL );
 
     switch (question_throttle.noteAction(throttle_name))

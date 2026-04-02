@@ -336,7 +336,7 @@ private:
         LLPointer<LLInventoryItem> mItemPtr;
         bool mSaved;
     };
-    typedef std::map<llwchar, embedded_info_t > item_map_t;
+    using item_map_t = std::map<llwchar, embedded_info_t >;
     static item_map_t sEntries;
     static std::stack<llwchar> sFreeEntries;
 

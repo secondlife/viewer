@@ -43,7 +43,7 @@ public:
 
     void    clear()                                     { mParamMap.clear(); for( S32 i=0; i<LLAvatarAppearanceDefines::TEX_NUM_INDICES; i++ ) mTextures[i].setNull(); }
 
-    typedef std::map<S32, F32> param_map_t;
+    using param_map_t = std::map<S32, F32>;
     param_map_t mParamMap;
     LLUUID  mTextures[LLAvatarAppearanceDefines::TEX_NUM_INDICES];
 };

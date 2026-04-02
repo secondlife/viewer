@@ -97,7 +97,7 @@ public:
         F32     mBladeSizeY;
     };
 
-    typedef std::map<U32, GrassSpeciesData*> SpeciesMap;
+    using SpeciesMap = std::map<U32, GrassSpeciesData*>;
 
     U8              mSpecies;       // Species of grass
     F32             mBladeSizeX;

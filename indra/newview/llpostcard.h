@@ -40,7 +40,7 @@ class LLPostCard
     LOG_CLASS(LLPostCard);
 
 public:
-    typedef std::function<void(bool ok)> result_callback_t;
+    using result_callback_t = std::function<void(bool ok)>;
 
     static void setPostResultCallback(result_callback_t cb) { mResultCallback = cb; }
     static void reportPostResult(bool ok);

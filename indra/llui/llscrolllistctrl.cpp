@@ -1350,7 +1350,7 @@ bool LLScrollListCtrl::selectItemByPrefix(const LLWString& target, bool case_sen
             LLWString trimmed_label = item_label;
             LLWStringUtil::trim(trimmed_label);
 
-            bool select = item->getEnabled() && trimmed_label.compare(0, target_trimmed.size(), target_trimmed) == 0;
+            bool select = item->getEnabled() && trimmed_label.starts_with(target_trimmed);
 
             if (select)
             {

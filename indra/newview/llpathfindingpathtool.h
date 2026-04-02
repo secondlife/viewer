@@ -40,7 +40,7 @@ class LLPathfindingPathTool : public LLTool, public LLSingleton<LLPathfindingPat
     virtual ~LLPathfindingPathTool();
 
 public:
-    typedef enum
+    enum EPathStatus
     {
         kPathStatusUnknown,
         kPathStatusChooseStartAndEndPoints,
@@ -51,20 +51,20 @@ public:
         kPathStatusNotEnabled,
         kPathStatusNotImplemented,
         kPathStatusError
-    } EPathStatus;
+    };
 
-    typedef enum
+    enum ECharacterType
     {
         kCharacterTypeNone,
         kCharacterTypeA,
         kCharacterTypeB,
         kCharacterTypeC,
         kCharacterTypeD
-    } ECharacterType;
+    };
 
-    typedef std::function<void(void)>            path_event_callback_t;
-    typedef boost::signals2::signal<void (void)> path_event_signal_t;
-    typedef boost::signals2::connection          path_event_slot_t;
+    using path_event_callback_t = std::function<void(void)>;
+    using path_event_signal_t = boost::signals2::signal<void (void)>;
+    using path_event_slot_t = boost::signals2::connection;
 
     virtual bool      handleMouseDown(S32 pX, S32 pY, MASK pMask) override;
     virtual bool      handleMouseUp(S32 pX, S32 pY, MASK pMask) override;

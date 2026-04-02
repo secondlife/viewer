@@ -84,8 +84,8 @@ public:
     virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
     //callbacks
-    typedef std::function<void (LLNotificationListItem* item)> item_callback_t;
-    typedef boost::signals2::signal<void (LLNotificationListItem* item)> item_signal_t;
+    using item_callback_t = std::function<void (LLNotificationListItem* item)>;
+    using item_signal_t = boost::signals2::signal<void (LLNotificationListItem* item)>;
     item_signal_t mOnItemClose;
     item_signal_t mOnItemClick;
     boost::signals2::connection setOnItemCloseCallback(item_callback_t cb) { return mOnItemClose.connect(cb); }
@@ -96,12 +96,13 @@ public:
     virtual bool postBuild();
     void reshapeNotification();
 
-    typedef enum e_time_type
+    enum e_time_type
     {
         SLT = 1,
         Local = 2,
         UTC = 3,
-    }ETimeType;
+    };
+    using ETimeType = e_time_type;
 
 protected:
     LLNotificationListItem(const Params& p);

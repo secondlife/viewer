@@ -134,11 +134,11 @@ protected:
         S32 status,
         LLExtStat ext_status);
 
-    typedef std::unordered_map<LLUUID, LLPointer<LLFetchedGLTFMaterial > > uuid_mat_map_t;
+    using uuid_mat_map_t = std::unordered_map<LLUUID, LLPointer<LLFetchedGLTFMaterial > >;
     uuid_mat_map_t mList;
 
-    typedef std::vector<LLPointer<LLGLTFMaterial> > override_list_t;
-    typedef std::unordered_map<LLUUID, override_list_t > queued_override_map_t;
+    using override_list_t = std::vector<LLPointer<LLGLTFMaterial> >;
+    using queued_override_map_t = std::unordered_map<LLUUID, override_list_t >;
     queued_override_map_t mQueuedOverrides;
 
     LLUUID mLastUpdateKey;
@@ -152,7 +152,7 @@ protected:
         bool has_override = false;
     };
 
-    typedef std::list<ModifyMaterialData> modify_queue_t;
+    using modify_queue_t = std::list<ModifyMaterialData>;
     static modify_queue_t sModifyQueue;
 
     struct ApplyMaterialAssetData
@@ -164,7 +164,7 @@ protected:
         std::string override_json;
     };
 
-    typedef std::list<ApplyMaterialAssetData> apply_queue_t;
+    using apply_queue_t = std::list<ApplyMaterialAssetData>;
     static apply_queue_t sApplyQueue;
 
     // data to be flushed to ModifyMaterialParams capability

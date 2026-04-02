@@ -114,7 +114,7 @@ class StringLookup
 {
 private:
     std::string mDesc;
-    typedef std::map<std::string, MAPPED> Map;
+    using Map = std::map<std::string, MAPPED>;
     Map mMap;
 
 public:
@@ -329,7 +329,7 @@ void LLWindowListener::keyUp(LLSD const & evt)
 }
 
 // for WhichButton
-typedef bool (LLWindowCallbacks::*MouseMethod)(LLWindow *, LLCoordGL, MASK);
+using MouseMethod = bool(LLWindowCallbacks::*)(LLWindow *, LLCoordGL, MASK);
 struct Actions
 {
     Actions(const MouseMethod& d, const MouseMethod& u): down(d), up(u), valid(true) {}
@@ -352,7 +352,7 @@ struct WhichButton: public StringLookup<Actions>
 };
 static WhichButton buttons;
 
-typedef std::function<bool(LLCoordGL, MASK)> MouseFunc;
+using MouseFunc = std::function<bool(LLCoordGL, MASK)>;
 
 // Wrap a function returning 'void' to return 'true' instead. I'm sure there's
 // a more generic way to accomplish this, but generically handling the
@@ -363,7 +363,7 @@ typedef std::function<bool(LLCoordGL, MASK)> MouseFunc;
 // seem to overload comma the same way; or at least not with bind().)
 class MouseFuncTrue
 {
-    typedef std::function<void(LLCoordGL, MASK)> MouseFuncVoid;
+    using MouseFuncVoid = std::function<void(LLCoordGL, MASK)>;
     MouseFuncVoid mFunc;
 
 public:

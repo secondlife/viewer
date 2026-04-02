@@ -1019,14 +1019,13 @@ void LLFloaterEditExtDayCycle::cloneTrack(const LLSettingsDay::ptr_t &source_day
     mEditDay->clearCycleTrack(dest_index); // because source can be empty
     LLSettingsDay::CycleTrack_t source_track = source_day->getCycleTrack(source_index);
     S32 addcount(0);
-    for (auto &track_frame : source_track)
+    for (auto& [frame_pos, pframe] : source_track)
     {
-        LLSettingsBase::ptr_t pframe = track_frame.second;
         LLSettingsBase::ptr_t pframeclone = pframe->buildDerivedClone();
         if (pframeclone)
         {
             ++addcount;
-            mEditDay->setSettingsAtKeyframe(pframeclone, track_frame.first, dest_index);
+            mEditDay->setSettingsAtKeyframe(pframeclone, frame_pos, dest_index);
         }
     }
 
@@ -1237,9 +1236,9 @@ void LLFloaterEditExtDayCycle::updateSlider()
     }
 
     LLSettingsDay::CycleTrack_t track = mEditDay->getCycleTrack(mCurrentTrack);
-    for (auto &track_frame : track)
+    for (auto& [frame_pos, settings] : track)
     {
-        addSliderFrame(track_frame.first, track_frame.second, false);
+        addSliderFrame(frame_pos, settings, false);
     }
 
     if (mSliderKeyMap.size() > 0)

@@ -123,8 +123,8 @@ void LLSyntaxIdLSL::fetchKeywordsFileCoro(std::string url, std::string fileSpec)
         httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("fetchKeywordsFileCoro", httpPolicy);
     LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
 
-    std::pair<std::set<std::string>::iterator, bool> insrt = mInflightFetches.insert(fileSpec);
-    if (!insrt.second)
+    auto [iter, inserted] = mInflightFetches.insert(fileSpec);
+    if (!inserted)
     {
         LL_WARNS("SyntaxLSL") << "Already downloading keyword file called \"" << fileSpec << "\"." << LL_ENDL;
         return;

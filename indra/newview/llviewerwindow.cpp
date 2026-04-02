@@ -419,7 +419,7 @@ private:
 
     LLViewerWindow *mWindow;
 
-    typedef std::vector<Line> line_list_t;
+    using line_list_t = std::vector<Line>;
     line_list_t mLineList;
     LLColor4 mTextColor;
 
@@ -3635,7 +3635,7 @@ void LLViewerWindow::updateUI()
         }
     }
 
-    typedef std::vector<LLHandle<LLView> > view_handle_list_t;
+    using view_handle_list_t = std::vector<LLHandle<LLView> >;
 
     // call onMouseEnter() on all views which contain the mouse cursor but did not before
     view_handle_list_t mouse_enter_views;

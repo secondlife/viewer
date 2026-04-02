@@ -42,7 +42,7 @@ const S32 MIN_DIVISION_PIXEL_WIDTH = 3;
 class LLManip : public LLTool
 {
 public:
-    typedef enum e_manip_part
+    enum e_manip_part
     {
         LL_NO_PART = 0,
 
@@ -95,10 +95,11 @@ public:
         LL_ROT_Y,
         LL_ROT_Z,
         LL_ROT_ROLL
-    } EManipPart;
+    };
+    using EManipPart = e_manip_part;
 
     // For use in loops and range checking.
-    typedef enum e_select_part_ranges
+    enum e_select_part_ranges
     {
         LL_ARROW_MIN = LL_X_ARROW,
         LL_ARROW_MAX = LL_Z_ARROW,
@@ -111,7 +112,8 @@ public:
 
         LL_EDGE_MIN   = LL_EDGE_NEGX_NEGY,
         LL_EDGE_MAX   = LL_EDGE_POSZ_POSX
-    } EManipPartRanges;
+    };
+    using EManipPartRanges = e_select_part_ranges;
 public:
     static void rebuild(LLViewerObject* vobj);
 

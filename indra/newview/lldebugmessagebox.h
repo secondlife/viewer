@@ -42,7 +42,7 @@ class LLSliderCtrl;
 // LLDebugVarMessageBox
 //----------------------------------------------------------------------------
 
-typedef enum e_debug_var_type
+enum e_debug_var_type
 {
     VAR_TYPE_F32,
     VAR_TYPE_S32,
@@ -50,7 +50,8 @@ typedef enum e_debug_var_type
     VAR_TYPE_VEC3,
     VAR_TYPE_VEC4,
     VAR_TYPE_COUNT
-} EDebugVarType;
+};
+using EDebugVarType = e_debug_var_type;
 
 class LLDebugVarMessageBox : public LLFloater
 {

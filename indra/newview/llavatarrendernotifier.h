@@ -61,7 +61,7 @@ struct LLHUDComplexity
     F64Bytes texturesMemoryTotal;
 };
 
-typedef std::list<LLHUDComplexity> hud_complexity_list_t;
+using hud_complexity_list_t = std::list<LLHUDComplexity>;
 
 struct LLObjectComplexity
 {
@@ -80,7 +80,7 @@ struct LLObjectComplexity
     U32 objectCost;
 };
 
-typedef std::list<LLObjectComplexity> object_complexity_list_t;
+using object_complexity_list_t = std::list<LLObjectComplexity>;
 
 // Class to notify user about drastic changes in agent's render weights or if other agents
 // reported that user's agent is too 'heavy' for their settings

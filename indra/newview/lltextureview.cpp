@@ -786,7 +786,7 @@ LLTextureView::~LLTextureView()
     mAvatarTexBar = 0;
 }
 
-typedef std::pair<F32,LLViewerFetchedTexture*> decode_pair_t;
+using decode_pair_t = std::pair<F32,LLViewerFetchedTexture*>;
 struct compare_decode_pair
 {
     bool operator()(const decode_pair_t& a, const decode_pair_t& b) const
@@ -828,7 +828,7 @@ void LLTextureView::draw()
             mAvatarTexBar = 0;
         }
 
-        typedef std::multiset<decode_pair_t, compare_decode_pair > display_list_t;
+        using display_list_t = std::multiset<decode_pair_t, compare_decode_pair >;
         display_list_t display_image_list;
 
         if (mPrintList)

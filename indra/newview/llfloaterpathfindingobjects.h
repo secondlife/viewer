@@ -59,7 +59,7 @@ public:
 protected:
     friend class LLFloaterReg;
 
-    typedef enum
+    enum EMessagingState
     {
         kMessagingUnknown,
         kMessagingGetRequestSent,
@@ -68,7 +68,7 @@ protected:
         kMessagingSetError,
         kMessagingComplete,
         kMessagingNotEnabled
-    } EMessagingState;
+    };
 
     LLFloaterPathfindingObjects(const LLSD &pSeed);
     virtual ~LLFloaterPathfindingObjects();
@@ -161,7 +161,7 @@ private:
     EMessagingState                    mMessagingState;
     LLPathfindingManager::request_id_t mMessagingRequestId;
 
-    typedef std::map<std::string, LLScrollListItem *> scroll_list_item_map;
+    using scroll_list_item_map = std::map<std::string, LLScrollListItem *>;
     scroll_list_item_map               mMissingNameObjectsScrollListItems;
 
     LLPathfindingObjectListPtr         mObjectList;

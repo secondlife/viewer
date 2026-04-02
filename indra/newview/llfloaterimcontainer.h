@@ -123,7 +123,7 @@ public:
 
 
 private:
-    typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
+    using avatarID_panel_map_t = std::map<LLUUID,LLFloater*>;
     avatarID_panel_map_t mSessions;
     boost::signals2::connection mNewMessageConnection;
 
@@ -213,7 +213,7 @@ public:
     bool isScrolledOutOfSight(LLConversationViewSession* conversation_item_widget);
     boost::signals2::connection mMicroChangedSignal;
     S32 getConversationListItemSize() { return static_cast<S32>(mConversationsWidgets.size()); }
-    typedef std::list<LLFloater*> floater_list_t;
+    using floater_list_t = std::list<LLFloater*>;
     void getDetachedConversationFloaters(floater_list_t& floaters);
 
 private:
@@ -230,7 +230,7 @@ private:
     LLFolderView* mConversationsRoot;
     LLEventStream mConversationsEventStream;
 
-    typedef std::map<LLUUID, std::deque<LLSD> > conversations_items_deque;
+    using conversations_items_deque = std::map<LLUUID, std::deque<LLSD> >;
     conversations_items_deque mConversationEventQueue;
 
     LLTimer mParticipantRefreshTimer;

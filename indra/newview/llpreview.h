@@ -57,13 +57,14 @@ public:
 class LLPreview : public LLFloater, LLInventoryObserver
 {
 public:
-    typedef enum e_asset_status
+    enum e_asset_status
     {
         PREVIEW_ASSET_ERROR,
         PREVIEW_ASSET_UNLOADED,
         PREVIEW_ASSET_LOADING,
         PREVIEW_ASSET_LOADED
-    } EAssetStatus;
+    };
+    using EAssetStatus = e_asset_status;
 public:
     LLPreview(const LLSD& key );
     virtual ~LLPreview();

@@ -397,7 +397,7 @@ public:
 class LLFacePool : public LLDrawPool
 {
 public:
-    typedef std::vector<LLFace*> face_array_t;
+    using face_array_t = std::vector<LLFace*>;
 
     enum
     {

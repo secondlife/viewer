@@ -140,7 +140,7 @@ protected:
 class LLAvatarItemDistanceComparator : public LLAvatarItemComparator
 {
 public:
-    typedef std::map < LLUUID, LLVector3d > id_to_pos_map_t;
+    using id_to_pos_map_t = std::map < LLUUID, LLVector3d >;
     LLAvatarItemDistanceComparator() {};
 
     void updateAvatarsPositions(std::vector<LLVector3d>& positions, uuid_vec_t& uuids)
@@ -251,7 +251,7 @@ static LLPanelInjector<LLPanelPeople> t_people("panel_people");
 class LLPanelPeople::Updater
 {
 public:
-    typedef std::function<void()> callback_t;
+    using callback_t = std::function<void()>;
     Updater(callback_t cb)
     : mCallback(cb)
     {

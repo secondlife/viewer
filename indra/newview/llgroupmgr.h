@@ -77,7 +77,7 @@ class LLGroupMemberData
 friend class LLGroupMgrGroupData;
 
 public:
-    typedef std::map<LLUUID,LLGroupRoleData*> role_list_t;
+    using role_list_t = std::map<LLUUID,LLGroupRoleData*>;
 
     LLGroupMemberData(const LLUUID& id,
                         S32 contribution,
@@ -193,7 +193,7 @@ struct LLRoleMemberChange
     LLRoleMemberChangeType mChange;
 };
 
-typedef std::pair<LLUUID,LLUUID> lluuid_pair;
+using lluuid_pair = std::pair<LLUUID,LLUUID>;
 
 struct lluuid_pair_less
 {
@@ -279,11 +279,11 @@ public:
     void banMemberById(const LLUUID& participant_uuid);
 
 public:
-    typedef std::map<LLUUID,LLGroupMemberData*> member_list_t;
-    typedef std::map<LLUUID,LLGroupRoleData*> role_list_t;
-    typedef std::map<lluuid_pair,LLRoleMemberChange,lluuid_pair_less> change_map_t;
-    typedef std::map<LLUUID,LLRoleData> role_data_map_t;
-    typedef std::map<LLUUID,LLGroupBanData> ban_list_t;
+    using member_list_t = std::map<LLUUID,LLGroupMemberData*>;
+    using role_list_t = std::map<LLUUID,LLGroupRoleData*>;
+    using change_map_t = std::map<lluuid_pair,LLRoleMemberChange,lluuid_pair_less>;
+    using role_data_map_t = std::map<LLUUID,LLRoleData>;
+    using ban_list_t = std::map<LLUUID,LLGroupBanData>;
 
     member_list_t       mMembers;
     role_list_t         mRoles;
@@ -451,18 +451,18 @@ private:
     bool hasPendingPropertyRequest(const LLUUID& id);
     void addPendingPropertyRequest(const LLUUID& id);
 
-    typedef std::multimap<LLUUID,LLGroupMgrObserver*> observer_multimap_t;
+    using observer_multimap_t = std::multimap<LLUUID,LLGroupMgrObserver*>;
     observer_multimap_t mObservers;
 
-    typedef std::map<LLUUID, LLGroupMgrGroupData*> group_map_t;
+    using group_map_t = std::map<LLUUID, LLGroupMgrGroupData*>;
     group_map_t mGroups;
 
     const U64MicrosecondsImplicit MIN_GROUP_PROPERTY_REQUEST_FREQ = 100000;//100ms between requests should be enough to avoid spamming.
-    typedef std::map<LLUUID, U64MicrosecondsImplicit> properties_request_map_t;
+    using properties_request_map_t = std::map<LLUUID, U64MicrosecondsImplicit>;
     properties_request_map_t mPropRequests;
 
-    typedef std::set<LLParticularGroupObserver*> observer_set_t;
-    typedef std::map<LLUUID,observer_set_t> observer_map_t;
+    using observer_set_t = std::set<LLParticularGroupObserver*>;
+    using observer_map_t = std::map<LLUUID,observer_set_t>;
     observer_map_t mParticularObservers;
 
     bool mMemberRequestInFlight { false };

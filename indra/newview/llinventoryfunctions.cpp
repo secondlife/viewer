@@ -1748,7 +1748,7 @@ bool sort_alpha(const LLViewerInventoryCategory* cat1, const LLViewerInventoryCa
 // The only inventory changes that are done is to move and sort folders containing no-copy items to stock folders.
 // @pending_callbacks - how many callbacks we are waiting for, must be inited before use
 // @result - true if things validate, false if issues are raised, must be inited before use
-typedef std::function<void(S32 pending_callbacks, bool result)> validation_result_callback_t;
+using validation_result_callback_t = std::function<void(S32 pending_callbacks, bool result)>;
 void validate_marketplacelistings(
     LLInventoryCategory* cat,
     validation_result_callback_t cb_result,
@@ -3530,8 +3530,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     }
 
     static const std::string change_folder_string = "change_folder_type_";
-    if (action.length() > change_folder_string.length() &&
-        (action.compare(0,change_folder_string.length(),"change_folder_type_") == 0))
+    if (action.starts_with(change_folder_string))
     {
         LLFolderType::EType new_folder_type = LLViewerFolderType::lookupTypeFromXUIName(action.substr(change_folder_string.length()));
         LLFolderViewModelItemInventory* inventory_item = static_cast<LLFolderViewModelItemInventory*>(root->getViewModelItem());

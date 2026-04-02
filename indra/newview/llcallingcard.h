@@ -108,8 +108,8 @@ public:
 
     // add or remove agents from buddy list. Each method takes a set
     // of buddies and returns how many were actually added or removed.
-    typedef std::map<LLUUID, LLRelationship*> buddy_map_t;
-    typedef std::queue<std::pair<LLUUID, bool>> buddy_status_queue_t;
+    using buddy_map_t = std::map<LLUUID, LLRelationship*>;
+    using buddy_status_queue_t = std::queue<std::pair<LLUUID, bool>>;
 
     S32 addBuddyList(const buddy_map_t& buddies);
     //S32 removeBuddyList(const buddy_list_t& exes);
@@ -197,14 +197,14 @@ protected:
     buddy_map_t mBuddyInfo;
     buddy_status_queue_t mBuddyStatusQueue;
 
-    typedef std::set<LLUUID> changed_buddy_t;
+    using changed_buddy_t = std::set<LLUUID>;
     changed_buddy_t mChangedBuddyIDs;
 
-    typedef std::vector<LLFriendObserver*> observer_list_t;
+    using observer_list_t = std::vector<LLFriendObserver*>;
     observer_list_t mObservers;
 
-    typedef std::set<LLFriendObserver*> observer_set_t;
-    typedef std::map<LLUUID, observer_set_t> observer_map_t;
+    using observer_set_t = std::set<LLFriendObserver*>;
+    using observer_map_t = std::map<LLUUID, observer_set_t>;
     observer_map_t mParticularFriendObserverMap;
 
 private:
@@ -227,7 +227,7 @@ public:
     LLCollectProxyBuddies() = default;
     virtual ~LLCollectProxyBuddies() = default;
     virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
-    typedef std::set<LLUUID> buddy_list_t;
+    using buddy_list_t = std::set<LLUUID>;
     buddy_list_t mProxy;
 };
 
@@ -238,7 +238,7 @@ public:
     LLCollectMappableBuddies() = default;
     virtual ~LLCollectMappableBuddies() = default;
     virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
-    typedef std::map<LLUUID, std::string> buddy_map_t;
+    using buddy_map_t = std::map<LLUUID, std::string>;
     buddy_map_t mMappable;
     std::string mFullName;
 };
@@ -250,7 +250,7 @@ public:
     LLCollectOnlineBuddies() = default;
     virtual ~LLCollectOnlineBuddies() = default;
     virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
-    typedef std::map<LLUUID, std::string> buddy_map_t;
+    using buddy_map_t = std::map<LLUUID, std::string>;
     buddy_map_t mOnline;
     std::string mFullName;
 };
@@ -263,7 +263,7 @@ public:
     LLCollectAllBuddies() = default;
     virtual ~LLCollectAllBuddies() = default;
     virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
-    typedef std::map<LLUUID, std::string> buddy_map_t;
+    using buddy_map_t = std::map<LLUUID, std::string>;
     buddy_map_t mOnline;
     buddy_map_t mOffline;
     std::string mFullName;

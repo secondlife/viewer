@@ -149,7 +149,7 @@ private:
     // conflict mask 0 means that any conflicts will be ignored
     void registerTemporaryControl(const std::string &control_name, U32 conflict_mask = 0);
 
-    typedef std::map<std::string, LLKeyConflict> control_map_t;
+    using control_map_t = std::map<std::string, LLKeyConflict>;
     void loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination);
     bool loadFromSettings(const ESourceMode &load_mode, const std::string &filename, control_map_t *destination);
     void generatePlaceholders(ESourceMode load_mode); //E.x. non-assignable values

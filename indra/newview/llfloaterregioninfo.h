@@ -121,7 +121,7 @@ protected:
 
     // member data
     LLTabContainer* mTab;
-    typedef std::vector<LLPanelRegionInfo*> info_panels_t;
+    using info_panels_t = std::vector<LLPanelRegionInfo*>;
     info_panels_t mInfoPanels;
     LLPanelRegionEnvironment *mEnvironmentPanel;
     //static S32 sRequestSerial;    // serial # of last EstateOwnerRequest
@@ -165,7 +165,7 @@ protected:
     // disabled.
     virtual bool sendUpdate() { return true; }
 
-    typedef std::vector<std::string> strings_t;
+    using strings_t = std::vector<std::string>;
     //typedef std::vector<U32> integers_t;
     void sendEstateOwnerMessage(
                      LLMessageSystem* msg,
@@ -400,13 +400,14 @@ public:
     void setOwnerName(const std::string& name);
     void setCovenantTextEditor(const std::string& text);
 
-    typedef enum e_asset_status
+    enum e_asset_status
     {
         ASSET_ERROR,
         ASSET_UNLOADED,
         ASSET_LOADING,
         ASSET_LOADED
-    } EAssetStatus;
+    };
+    using EAssetStatus = e_asset_status;
 
 protected:
     bool sendUpdate() override;

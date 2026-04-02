@@ -60,7 +60,7 @@ private:
 protected:
 
     LLTabContainer* mTab;
-    typedef std::vector<LLPanelScriptLimitsInfo*> info_panels_t;
+    using info_panels_t = std::vector<LLPanelScriptLimitsInfo*>;
     info_panels_t mInfoPanels;
 };
 
@@ -77,7 +77,7 @@ public:
 protected:
     void initCtrl(const std::string& name);
 
-    typedef std::vector<std::string> strings_t;
+    using strings_t = std::vector<std::string>;
 
     LLHost mHost;
 };

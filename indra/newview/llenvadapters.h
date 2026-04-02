@@ -412,7 +412,7 @@ public:
 class LLSkySettingsAdapter
 {
 public:
-    typedef std::shared_ptr<LLSkySettingsAdapter> ptr_t;
+    using ptr_t = std::shared_ptr<LLSkySettingsAdapter>;
 
     LLSkySettingsAdapter();
 
@@ -434,7 +434,7 @@ public:
 class LLWatterSettingsAdapter
 {
 public:
-    typedef std::shared_ptr<LLWatterSettingsAdapter> ptr_t;
+    using ptr_t = std::shared_ptr<LLWatterSettingsAdapter>;
 
     LLWatterSettingsAdapter();
 

@@ -205,14 +205,14 @@ private:
     // so it needs own pool (not thread safe by itself, relies onto header's mutex)
     LLVolatileAPRPool*   mHeaderAPRFilePoolp;
 
-    typedef std::map<handle_t, LLTextureCacheWorker*> handle_map_t;
+    using handle_map_t = std::map<handle_t, LLTextureCacheWorker*>;
     handle_map_t mReaders;
     handle_map_t mWriters;
 
-    typedef std::vector<handle_t> handle_list_t;
+    using handle_list_t = std::vector<handle_t>;
     handle_list_t mPrioritizeWriteList;
 
-    typedef std::vector<std::pair<LLPointer<Responder>, bool> > responder_list_t;
+    using responder_list_t = std::vector<std::pair<LLPointer<Responder>, bool> >;
     responder_list_t mCompletedList;
 
     bool mReadOnly;
@@ -224,7 +224,7 @@ private:
     EntriesInfo mHeaderEntriesInfo;
     std::set<S32> mFreeList; // deleted entries
     std::set<LLUUID> mLRU;
-    typedef std::map<LLUUID, S32> id_map_t;
+    using id_map_t = std::map<LLUUID, S32>;
     id_map_t mHeaderIDMap;
 
     LLAPRFile*   mFastCachep;
@@ -233,14 +233,14 @@ private:
 
     // BODIES (TEXTURES minus headers)
     std::string mTexturesDirName;
-    typedef std::map<LLUUID,S32> size_map_t;
+    using size_map_t = std::map<LLUUID,S32>;
     size_map_t mTexturesSizeMap;
     S64 mTexturesSizeTotal;
     LLAtomicBool mDoPurge;
 
-    typedef std::map<S32, Entry> idx_entry_map_t;
+    using idx_entry_map_t = std::map<S32, Entry>;
     idx_entry_map_t mUpdatedEntryMap;
-    typedef std::vector<std::pair<S32, Entry> > idx_entry_vector_t;
+    using idx_entry_vector_t = std::vector<std::pair<S32, Entry> >;
     idx_entry_vector_t mPurgeEntryList;
 
     // Statics

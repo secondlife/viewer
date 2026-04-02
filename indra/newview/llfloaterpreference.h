@@ -60,16 +60,16 @@ namespace ll
     }
 }
 
-typedef std::map<std::string, std::string> notifications_map;
+using notifications_map = std::map<std::string, std::string>;
 
-typedef enum
+enum EGraphicsSettings
     {
         GS_LOW_GRAPHICS,
         GS_MID_GRAPHICS,
         GS_HIGH_GRAPHICS,
         GS_ULTRA_GRAPHICS
 
-    } EGraphicsSettings;
+    };
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver
@@ -279,7 +279,7 @@ public:
     class Updater;
 
 protected:
-    typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
+    using control_values_map_t = std::map<LLControlVariable*, LLSD>;
     control_values_map_t mSavedValues;
 
 private:
@@ -291,7 +291,7 @@ private:
     static void handleFavoritesOnLoginChanged(LLUICtrl* checkbox, const LLSD& value);
 
     static void toggleMuteWhenMinimized();
-    typedef std::map<std::string, LLColor4> string_color_map_t;
+    using string_color_map_t = std::map<std::string, LLColor4>;
     string_color_map_t mSavedColors;
 
     Updater* mBandWidthUpdater;
@@ -408,7 +408,7 @@ protected:
 private:
 
     bool mSocksSettingsDirty;
-    typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
+    using control_values_map_t = std::map<LLControlVariable*, LLSD>;
     control_values_map_t mSavedValues;
     LOG_CLASS(LLFloaterPreferenceProxy);
 };

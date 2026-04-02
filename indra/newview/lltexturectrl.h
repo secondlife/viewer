@@ -50,8 +50,8 @@ class LLViewerFetchedTexture;
 class LLFetchedGLTFMaterial;
 
 // used for setting drag & drop callbacks.
-typedef std::function<bool (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback;
-typedef std::function<void (LLInventoryItem*)> texture_selected_callback;
+using drag_n_drop_callback = std::function<bool (LLUICtrl*, LLInventoryItem*)>;
+using texture_selected_callback = std::function<void (LLInventoryItem*)>;
 
 // Helper functions for UI that work with picker
 bool get_is_predefined_texture(LLUUID asset_id);
@@ -65,12 +65,13 @@ LLUUID get_copy_free_item_by_asset_id(LLUUID image_id, bool no_trans_perm = fals
 bool get_can_copy_texture(LLUUID image_id);
 
 
-typedef enum e_pick_inventory_type
+enum e_pick_inventory_type
 {
     PICK_TEXTURE_MATERIAL = 0,
     PICK_TEXTURE = 1,
     PICK_MATERIAL = 2,
-} EPickInventoryType;
+};
+using EPickInventoryType = e_pick_inventory_type;
 
 namespace LLInitParam
 {
@@ -97,12 +98,13 @@ class LLTextureCtrl
 : public LLUICtrl
 {
 public:
-    typedef enum e_texture_pick_op
+    enum e_texture_pick_op
     {
         TEXTURE_CHANGE,
         TEXTURE_SELECT,
         TEXTURE_CANCEL
-    } ETexturePickOp;
+    };
+    using ETexturePickOp = e_texture_pick_op;
 
 public:
     struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
@@ -299,10 +301,10 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLFloaterTexturePicker
-typedef std::function<void(LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inventory_id, const LLUUID& tracking_id)> floater_commit_callback;
-typedef std::function<void()> floater_close_callback;
-typedef std::function<void(const LLUUID& asset_id)> set_image_asset_id_callback;
-typedef std::function<void(LLPointer<LLViewerTexture> texture)> set_on_update_image_stats_callback;
+using floater_commit_callback = std::function<void(LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID& inventory_id, const LLUUID& tracking_id)>;
+using floater_close_callback = std::function<void()>;
+using set_image_asset_id_callback = std::function<void(const LLUUID& asset_id)>;
+using set_on_update_image_stats_callback = std::function<void(LLPointer<LLViewerTexture> texture)>;
 
 class LLFloaterTexturePicker : public LLFloater
 {

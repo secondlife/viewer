@@ -1153,7 +1153,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
             add(LLTextureFetch::sCacheAttempt, 1.0);
 
-            if (mUrl.compare(0, 7, "file://") == 0)
+            if (mUrl.starts_with("file://"))
             {
                 // read file from local disk
                 ++mCacheReadCount;
@@ -1232,7 +1232,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
         }
         else
         {
-            if (mUrl.compare(0, 7, "file://") == 0)
+            if (mUrl.starts_with("file://"))
             {
                 // failed to load local file, we're done.
                 LL_WARNS(LOG_TXT) << mID << ": abort, failed to load local file " << mUrl << LL_ENDL;
@@ -3266,7 +3266,7 @@ void LLTextureFetch::releaseHttpWaiters()
 
     // Quickly make a copy of all the LLUIDs.  Get off the
     // mutex as early as possible.
-    typedef std::vector<LLUUID> uuid_vec_t;
+    using uuid_vec_t = std::vector<LLUUID>;
     uuid_vec_t tids;
 
     {
@@ -3285,7 +3285,7 @@ void LLTextureFetch::releaseHttpWaiters()
     // ordering assumption of std::set, std::map, etc. so we
     // don't use those containers.  We use a vector and an explicit
     // sort to keep the containers valid later.
-    typedef std::vector<LLTextureFetchWorker *> worker_list_t;
+    using worker_list_t = std::vector<LLTextureFetchWorker *>;
     worker_list_t tids2;
 
     tids2.reserve(tids.size());
@@ -3628,7 +3628,7 @@ truncate_viewer_metrics(int max_regions, LLSD & metrics)
     }
 
     // Build map of region hashes ordered by duration
-    typedef std::multimap<LLSD::Real, int> reg_ordered_list_t;
+    using reg_ordered_list_t = std::multimap<LLSD::Real, int>;
     reg_ordered_list_t regions_by_duration;
 
     int ind(0);

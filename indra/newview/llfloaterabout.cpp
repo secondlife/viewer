@@ -343,7 +343,7 @@ void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
 //This is bound as a callback in postBuild()
 void LLFloaterAbout::setUpdateListener()
 {
-    typedef std::vector<std::string> vec;
+    using vec = std::vector<std::string>;
 
     //There are four possibilities:
     //no downloads directory or version directory in "getOSUserAppDir()/downloads"

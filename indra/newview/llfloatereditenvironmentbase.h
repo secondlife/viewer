@@ -60,7 +60,7 @@ public:
     virtual bool            isDirty() const override            { return getIsDirty(); }
 
 protected:
-    typedef std::function<void()> on_confirm_fn;
+    using on_confirm_fn = std::function<void()>;
 
     virtual void            setEditSettingsAndUpdate(const LLSettingsBase::ptr_t &settings) = 0;
     virtual void            updateEditEnvironment() = 0;
@@ -116,8 +116,8 @@ class LLSettingsEditPanel : public LLPanel
 public:
     virtual void setSettings(const LLSettingsBase::ptr_t &) = 0;
 
-    typedef boost::signals2::signal<void(LLPanel *, bool)> on_dirty_charged_sg;
-    typedef boost::signals2::connection connection_t;
+    using on_dirty_charged_sg = boost::signals2::signal<void(LLPanel *, bool)>;
+    using connection_t = boost::signals2::connection;
 
     inline bool         getIsDirty() const      { return mIsDirty; }
     inline void         setIsDirty()            { mIsDirty = true; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }

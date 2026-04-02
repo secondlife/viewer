@@ -303,7 +303,7 @@ void LLAppViewerMacOSX::forceErrorOSSpecificException()
 // look for this method to be added to the parser in parseAndStoreResults.
 std::pair<std::string, std::string> parse_psn(const std::string& s)
 {
-    if (s.find("-psn_") == 0)
+    if (s.starts_with("-psn_"))
     {
         // *FIX:Mani Not sure that the value makes sense.
         // fix it once the actual -psn_XXX syntax is known.

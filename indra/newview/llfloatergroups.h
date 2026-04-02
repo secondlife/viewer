@@ -58,7 +58,7 @@ public:
     ~LLFloaterGroupPicker();
 
     // Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
-    typedef boost::signals2::signal<void (LLUUID id)> signal_t;
+    using signal_t = boost::signals2::signal<void (LLUUID id)>;
     void setSelectGroupCallback(const signal_t::slot_type& cb) { mGroupSelectSignal.connect(cb); }
     void setPowersMask(U64 powers_mask);
     bool postBuild();
@@ -76,7 +76,7 @@ protected:
     U64 mPowersMask;
     signal_t mGroupSelectSignal;
 
-    typedef std::map<const LLUUID, LLFloaterGroupPicker*> instance_map_t;
+    using instance_map_t = std::map<const LLUUID, LLFloaterGroupPicker*>;
     static instance_map_t sInstances;
 };
 

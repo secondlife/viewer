@@ -40,11 +40,11 @@ class LLPanelExperienceListEditor : public LLPanel
 {
 public:
 
-    typedef boost::signals2::signal<void (const LLUUID&) > list_changed_signal_t;
+    using list_changed_signal_t = boost::signals2::signal<void (const LLUUID&) >;
     // filter function for experiences, return true if the experience should be hidden.
-    typedef std::function<bool(const LLSD&)> experience_function;
-    typedef std::vector<experience_function> filter_list;
-    typedef LLHandle<LLFloaterExperiencePicker> PickerHandle;
+    using experience_function = std::function<bool(const LLSD&)>;
+    using filter_list = std::vector<experience_function>;
+    using PickerHandle = LLHandle<LLFloaterExperiencePicker>;
     LLPanelExperienceListEditor();
     ~LLPanelExperienceListEditor();
     bool postBuild();

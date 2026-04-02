@@ -818,8 +818,8 @@ void AISAPI::onIdle(void *userdata)
         auto pending_in_pool = inst.countPending("AIS");
         while (pending_in_pool < MAX_SIMULTANEOUS_COROUTINES && !sPostponedQuery.empty())
         {
-            ais_query_item_t &item = sPostponedQuery.front();
-            inst.enqueueCoprocedure("AIS", item.first, item.second);
+            auto& [name, proc] = sPostponedQuery.front();
+            inst.enqueueCoprocedure("AIS", name, proc);
             sPostponedQuery.pop_front();
             pending_in_pool++;
         }

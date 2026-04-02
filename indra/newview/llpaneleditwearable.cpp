@@ -110,7 +110,7 @@ enum ESubpart {
 
 using namespace LLAvatarAppearanceDefines;
 
-typedef std::vector<ESubpart> subpart_vec_t;
+using subpart_vec_t = std::vector<ESubpart>;
 
 // Locally defined classes
 
@@ -438,9 +438,9 @@ template <typename T>
 const LLEditWearableDictionary::PickerControlEntry*
 get_picker_entry (const ETextureIndex index) { return NULL; }
 
-typedef std::function<void(LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry*)> function_t;
+using function_t = std::function<void(LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry*)>;
 
-typedef struct PickerControlEntryNamePredicate
+struct PickerControlEntryNamePredicate
 {
         PickerControlEntryNamePredicate(const std::string name) : mName (name) {};
         bool operator()(const LLEditWearableDictionary::PickerControlEntry* entry) const
@@ -449,7 +449,7 @@ typedef struct PickerControlEntryNamePredicate
         }
 private:
         const std::string mName;
-} PickerControlEntryNamePredicate;
+};
 
 // A full specialization of get_pickers_indexes for LLColorSwatchCtrl
 template <>
@@ -1658,10 +1658,9 @@ void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LL
 
 void LLPanelEditWearable::updateAlphaCheckboxes()
 {
-        for (const auto& check_pair : mAlphaCheckbox2Index)
+        for (const auto& [ctrl, tex_index] : mAlphaCheckbox2Index)
         {
-                LLAvatarAppearanceDefines::ETextureIndex te = (LLAvatarAppearanceDefines::ETextureIndex)check_pair.second;
-                LLCheckBoxCtrl* ctrl = check_pair.first;
+                LLAvatarAppearanceDefines::ETextureIndex te = (LLAvatarAppearanceDefines::ETextureIndex)tex_index;
                 if (ctrl)
                 {
                         ctrl->set(!gAgentAvatarp->isTextureVisible(te, mWearablePtr));

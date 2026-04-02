@@ -112,7 +112,7 @@ public:
 private:
     std::list<LLPointer<LLLocalGLTFMaterial> >    mMaterialList;
     LLLocalGLTFMaterialTimer           mTimer;
-    typedef std::list<LLPointer<LLLocalGLTFMaterial> >::iterator local_list_iter;
+    using local_list_iter = std::list<LLPointer<LLLocalGLTFMaterial> >::iterator;
 };
 
 #endif // LL_LOCALGLTFMATERIALS_H

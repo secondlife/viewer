@@ -71,7 +71,7 @@ private:
     LLHandle<LLContextMenu> mPopupMenuHandle;
     LLUUID mItemUUID;
 
-    typedef std::map<LLUUID, std::string> uuid_map_t;
+    using uuid_map_t = std::map<LLUUID, std::string>;
     uuid_map_t mNames;
 
 };

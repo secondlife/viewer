@@ -89,7 +89,7 @@ private:
 
     bool mForAgent;
     bool mShowNone;
-    typedef std::map< std::string,LLUUID>   group_map_t;
+    using group_map_t = std::map< std::string,LLUUID>;
     group_map_t             mGroups;
 };
 

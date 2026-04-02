@@ -222,10 +222,10 @@ public:
 
 protected:
 
-    typedef std::map<LLUUID, LLFollowCamParams*> param_map_t;
+    using param_map_t = std::map<LLUUID, LLFollowCamParams*>;
     param_map_t mParamMap;
 
-    typedef std::vector<LLFollowCamParams*> param_stack_t;
+    using param_stack_t = std::vector<LLFollowCamParams*>;
     param_stack_t mParamStack;
 };
 

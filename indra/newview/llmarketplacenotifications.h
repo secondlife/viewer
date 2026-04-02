@@ -48,7 +48,7 @@ namespace LLMarketplaceInventoryNotifications
 {
     void update();
 
-    typedef std::function<void (const LLSD&)> NoCopyCallbackFunction;
+    using NoCopyCallbackFunction = std::function<void (const LLSD&)>;
 
     void addNoCopyNotification(const LLSD& payload, const NoCopyCallbackFunction& cb);
 };

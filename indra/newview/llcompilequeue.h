@@ -89,7 +89,7 @@ protected:
         LLUUID mObjectId;
         std::string mObjectName;
     };
-    typedef std::vector<ObjectData> object_data_list_t;
+    using object_data_list_t = std::vector<ObjectData>;
 
     object_data_list_t mObjectList;
     LLUUID mCurrentObjectID;
@@ -98,7 +98,7 @@ protected:
     std::string mStartString;
     bool mMono;
 
-    typedef std::function<bool(const LLPointer<LLViewerObject> &, LLInventoryObject*, LLEventPump &)>   fnQueueAction_t;
+    using fnQueueAction_t = std::function<bool(const LLPointer<LLViewerObject> &, LLInventoryObject*, LLEventPump &)>;
     static void objectScriptProcessingQueueCoro(std::string action, LLHandle<LLFloaterScriptQueue> hfloater, object_data_list_t objectList, fnQueueAction_t func);
 
 };

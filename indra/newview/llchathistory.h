@@ -146,7 +146,7 @@ class LLChatHistory : public LLUICtrl
         class LLLayoutPanel*    mMoreChatPanel;
         LLTextBox*      mMoreChatText;
         LLTextEditor*   mEditor;
-        typedef std::set<std::string> unread_chat_source_t;
+        using unread_chat_source_t = std::set<std::string>;
         unread_chat_source_t mUnreadChatSources;
 };
 #endif /* LLCHATHISTORY_H_ */

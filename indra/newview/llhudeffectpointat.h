@@ -33,14 +33,15 @@
 class LLViewerObject;
 class LLVOAvatar;
 
-typedef enum e_pointat_type
+enum e_pointat_type
 {
     POINTAT_TARGET_NONE,
     POINTAT_TARGET_SELECT,
     POINTAT_TARGET_GRAB,
     POINTAT_TARGET_CLEAR,
     POINTAT_NUM_TARGETS
-} EPointAtType;
+};
+using EPointAtType = e_pointat_type;
 
 class LLHUDEffectPointAt : public LLHUDEffect
 {

@@ -39,7 +39,7 @@ class LLRootViewRegistry : public LLChildRegistry<LLRootViewRegistry>
 class LLRootView : public LLView
 {
 public:
-    typedef LLRootViewRegistry child_registry_t;
+    using child_registry_t = LLRootViewRegistry;
 
     LLRootView(const Params& p)
     :   LLView(p)

@@ -50,7 +50,7 @@
 // Aux types and methods
 //----------------------------------------------------------------------------
 
-typedef std::pair<LLUUID, std::string> folder_pair_t;
+using folder_pair_t = std::pair<LLUUID, std::string>;
 
 static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right);
 
@@ -501,7 +501,7 @@ void LLPanelLandmarkInfo::populateFoldersList()
         mFolderCombo->add(cat_full_name, lmcat->getUUID());
     }
 
-    typedef std::vector<folder_pair_t> folder_vec_t;
+    using folder_vec_t = std::vector<folder_pair_t>;
     folder_vec_t folders;
     // Sort the folders by their full name.
     for (S32 i = 0; i < cats.size(); i++)

@@ -355,7 +355,7 @@ namespace
     class LLSettingsInjected : public SETTINGT
     {
     public:
-        typedef std::shared_ptr<LLSettingsInjected<SETTINGT> >  ptr_t;
+        using ptr_t = std::shared_ptr<LLSettingsInjected<SETTINGT> >;
 
         LLSettingsInjected(typename SETTINGT::ptr_t source) :
             SETTINGT(),
@@ -551,7 +551,7 @@ namespace
             bool                                mBlendIn;
             bool                                mFirstTime;
 
-            typedef std::shared_ptr<Injection>  ptr_t;
+            using ptr_t = std::shared_ptr<Injection>;
         };
 
 
@@ -587,8 +587,8 @@ namespace
         void                        updateSpecial(const typename Injection::ptr_t &injection, typename LLSettingsBase::BlendFactor mix);
 
     private:
-        typedef std::map<std::string, LLUUID>   key_to_expid_t;
-        typedef std::deque<typename Injection::ptr_t>    injections_t;
+        using key_to_expid_t = std::map<std::string, LLUUID>;
+        using injections_t = std::deque<typename Injection::ptr_t>;
 
         size_t                      mLastSourceHash;
         size_t                      mLastHash;
@@ -725,8 +725,8 @@ namespace
         }
     }
 
-    typedef LLSettingsInjected<LLSettingsVOSky>   LLSettingsInjectedSky;
-    typedef LLSettingsInjected<LLSettingsVOWater> LLSettingsInjectedWater;
+    using LLSettingsInjectedSky = LLSettingsInjected<LLSettingsVOSky>;
+    using LLSettingsInjectedWater = LLSettingsInjected<LLSettingsVOWater>;
 
     //=====================================================================
     class DayInjection : public LLEnvironment::DayInstance
@@ -734,8 +734,8 @@ namespace
         friend class InjectedTransition;
 
     public:
-        typedef std::shared_ptr<DayInjection> ptr_t;
-        typedef std::weak_ptr<DayInjection> wptr_t;
+        using ptr_t = std::shared_ptr<DayInjection>;
+        using wptr_t = std::weak_ptr<DayInjection>;
 
                                             DayInjection(LLEnvironment::EnvSelection_t env);
         virtual                             ~DayInjection();

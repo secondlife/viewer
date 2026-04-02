@@ -38,18 +38,19 @@ public:
         SNAPSHOT_WEB
     };
 
-    typedef enum e_snapshot_format
+    enum e_snapshot_format
     {
         SNAPSHOT_FORMAT_PNG,
         SNAPSHOT_FORMAT_JPEG,
         SNAPSHOT_FORMAT_BMP
-    } ESnapshotFormat;
+    };
+    using ESnapshotFormat = e_snapshot_format;
 
-    typedef enum
+    enum ESnapshotLayerType
     {
         SNAPSHOT_TYPE_COLOR,
         SNAPSHOT_TYPE_DEPTH
-    } ESnapshotLayerType;
+    };
 };
 
 #endif // LL_LLSNAPSHOTMODEL_H

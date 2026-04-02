@@ -42,14 +42,14 @@ class LLMenuOptionPathfindingRebakeNavmesh : public LLSingleton<LLMenuOptionPath
     LOG_CLASS(LLMenuOptionPathfindingRebakeNavmesh);
 
 public:
-    typedef enum
+    enum ERebakeNavMeshMode
     {
         kRebakeNavMesh_Available,
         kRebakeNavMesh_RequestSent,
         kRebakeNavMesh_InProgress,
         kRebakeNavMesh_NotAvailable,
         kRebakeNavMesh_Default = kRebakeNavMesh_NotAvailable
-    } ERebakeNavMeshMode;
+    };
 
 
     void               initialize();

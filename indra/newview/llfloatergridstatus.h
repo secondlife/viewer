@@ -39,7 +39,7 @@ class LLFloaterGridStatus :
     public LLFloaterWebContent
 {
 public:
-    typedef LLSDParamAdapter<_Params> Params;
+    using Params = LLSDParamAdapter<_Params>;
 
     LLFloaterGridStatus(const Params& key);
 

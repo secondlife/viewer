@@ -106,14 +106,14 @@ public:
      * for compatibility with the pre-existing timestamp on the texture
      * fetcher class, LLTextureFetch.
      */
-    typedef U64Microseconds duration_t;
+    using duration_t = U64Microseconds;
 
     /**
      * Type for the region identifier used in stats.  Currently uses
      * the region handle's type (a U64) rather than the regions's LLUUID
      * as the latter isn't available immediately.
      */
-    typedef U64 region_handle_t;
+    using region_handle_t = U64;
 
     struct AssetRequestType : public LLInitParam::Block<AssetRequestType>
     {
@@ -208,7 +208,7 @@ protected:
     void handleStop();
     void handleReset();
 
-    typedef std::map<region_handle_t, LLTrace::Recording > PerRegionRecordingContainer;
+    using PerRegionRecordingContainer = std::map<region_handle_t, LLTrace::Recording >;
 
     // Region of the currently-active region.  Always valid but may
     // be zero after construction or when explicitly set.  Unchanged

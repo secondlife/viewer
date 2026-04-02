@@ -44,7 +44,7 @@ class alignas(16) LLViewerCamera : public LLCamera, public LLSimpleton<LLViewerC
 public:
     LLViewerCamera();
 
-    typedef enum
+    enum eCameraID
     {
         CAMERA_WORLD = 0,
         CAMERA_SUN_SHADOW0,
@@ -56,7 +56,7 @@ public:
         CAMERA_WATER0,
         CAMERA_WATER1,
         NUM_CAMERAS
-    } eCameraID;
+    };
 
     static eCameraID sCurCameraID;
 

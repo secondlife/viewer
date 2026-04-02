@@ -40,19 +40,21 @@ namespace LLNotificationsUI
 
     const S32 NOTIFY_BOX_WIDTH = 305;
 
-typedef enum e_notification_toast_alignment
+enum e_notification_toast_alignment
 {
     NA_TOP,
     NA_CENTRE,
     NA_BOTTOM,
-} EToastAlignment;
+};
+using EToastAlignment = e_notification_toast_alignment;
 
-typedef enum e_channel_alignment
+enum e_channel_alignment
 {
     CA_LEFT,
     CA_CENTRE,
     CA_RIGHT,
-} EChannelAlignment;
+};
+using EChannelAlignment = e_channel_alignment;
 
 class LLScreenChannelBase : public LLUICtrl
 {
@@ -232,7 +234,7 @@ public:
 
     // Channel's signals
     // signal on storing of faded toasts event
-    typedef boost::signals2::signal<void (LLPanel* info_panel, const LLUUID id)> store_toast_signal_t;
+    using store_toast_signal_t = boost::signals2::signal<void (LLPanel* info_panel, const LLUUID id)>;
     boost::signals2::connection addOnStoreToastCallback(store_toast_signal_t::slot_type cb) { return mOnStoreToast.connect(cb); }
 
 private:

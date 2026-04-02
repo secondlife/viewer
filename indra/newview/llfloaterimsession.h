@@ -44,7 +44,7 @@ class LLChatHistory;
 class LLInventoryItem;
 class LLInventoryCategory;
 
-typedef boost::signals2::signal<void(const LLUUID& session_id)> floater_showed_signal_t;
+using floater_showed_signal_t = boost::signals2::signal<void(const LLUUID& session_id)>;
 
 /**
  * Individual IM window that appears at the bottom of the screen,

@@ -61,7 +61,7 @@ class LLTeleportRequest;
 
 
 
-typedef std::shared_ptr<LLTeleportRequest> LLTeleportRequestPtr;
+using LLTeleportRequestPtr = std::shared_ptr<LLTeleportRequest>;
 
 //--------------------------------------------------------------------
 // Types
@@ -187,7 +187,7 @@ private:
     // Position
     //--------------------------------------------------------------------
 public:
-    typedef boost::signals2::signal<void(const LLVector3 &position_local, const LLVector3d &position_global)> position_signal_t;
+    using position_signal_t = boost::signals2::signal<void(const LLVector3 &position_local, const LLVector3d &position_global)>;
 
     LLVector3       getPosAgentFromGlobal(const LLVector3d &pos_global) const;
     LLVector3d      getPosGlobalFromAgent(const LLVector3 &pos_agent) const;
@@ -255,13 +255,13 @@ public:
     void changeParcels(); // called by LLViewerParcelMgr when we cross a parcel boundary
 
     // Register a boost callback to be called when the agent changes parcels
-    typedef std::function<void()> parcel_changed_callback_t;
+    using parcel_changed_callback_t = std::function<void()>;
     boost::signals2::connection     addParcelChangedCallback(parcel_changed_callback_t);
 
 private:
     static void capabilityReceivedCallback(const LLUUID &region_id, LLViewerRegion *regionp);
 
-    typedef boost::signals2::signal<void()> parcel_changed_signal_t;
+    using parcel_changed_signal_t = boost::signals2::signal<void()>;
     parcel_changed_signal_t     mParcelChangedSignal;
 
     //--------------------------------------------------------------------
@@ -294,7 +294,7 @@ public:
      *       // you may or may not want to remove that callback
      *   }
      */
-    typedef boost::signals2::signal<void()> region_changed_signal_t;
+    using region_changed_signal_t = boost::signals2::signal<void()>;
 
     boost::signals2::connection     addRegionChangedCallback(const region_changed_signal_t::slot_type& cb);
     void                            removeRegionChangedCallback(boost::signals2::connection callback);
@@ -506,7 +506,7 @@ public:
     bool            getCustomAnim() const { return mCustomAnim; }
     void            setCustomAnim(bool anim) { mCustomAnim = anim; }
 
-    typedef boost::signals2::signal<void ()> camera_signal_t;
+    using camera_signal_t = boost::signals2::signal<void ()>;
     boost::signals2::connection setMouselookModeInCallback( const camera_signal_t::slot_type& cb );
     boost::signals2::connection setMouselookModeOutCallback( const camera_signal_t::slot_type& cb );
 
@@ -758,9 +758,9 @@ public:
     void            requestEnterGodMode();
     void            requestLeaveGodMode();
 
-    typedef std::function<void(U8)>            god_level_change_callback_t;
-    typedef boost::signals2::signal<void (U8)> god_level_change_signal_t;
-    typedef boost::signals2::connection        god_level_change_slot_t;
+    using god_level_change_callback_t = std::function<void(U8)>;
+    using god_level_change_signal_t = boost::signals2::signal<void (U8)>;
+    using god_level_change_slot_t = boost::signals2::connection;
 
     god_level_change_slot_t registerGodLevelChanageListener(god_level_change_callback_t pGodLevelChangeCallback);
 
@@ -962,7 +962,7 @@ public:
  **                    UTILITY
  **/
 public:
-    typedef LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t httpCallback_t;
+    using httpCallback_t = LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t;
 
     /// Utilities for allowing the the agent sub managers to post and get via
     /// HTTP using the agent's policy settings and headers.

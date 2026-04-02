@@ -60,8 +60,8 @@ class LLPresetsManager : public LLSingleton<LLPresetsManager>
 
 public:
 
-    typedef std::list<std::string> preset_name_list_t;
-    typedef boost::signals2::signal<void()> preset_list_signal_t;
+    using preset_name_list_t = std::list<std::string>;
+    using preset_list_signal_t = boost::signals2::signal<void()>;
 
     void createMissingDefault(const std::string& subdirectory);
     void startWatching(const std::string& subdirectory);

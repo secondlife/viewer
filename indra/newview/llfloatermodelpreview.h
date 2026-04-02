@@ -47,7 +47,7 @@ public:
     std::set<std::string> mModelsNoOverrides; // models without defined overrides
     bool mHasConflicts;
 };
-typedef std::map<std::string, LLJointOverrideData> joint_override_data_map_t;
+using joint_override_data_map_t = std::map<std::string, LLJointOverrideData>;
 
 class LLFloaterModelPreview : public LLFloaterModelUploadBase
 {
@@ -224,7 +224,7 @@ private:
     void createSmoothComboBox(LLComboBox* combo_box, float min, float max);
 
     static std::string getBoundingBoxCubePath();
-    typedef std::map<std::string, std::string> lod_sources_map_t;
+    using lod_sources_map_t = std::map<std::string, std::string>;
     void fillLODSourceStatistics(lod_sources_map_t& lod_sources) const;
 
     LLUUID mDestinationFolderId;

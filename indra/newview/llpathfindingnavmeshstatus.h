@@ -36,13 +36,13 @@ class LLSD;
 class LLPathfindingNavMeshStatus
 {
 public:
-    typedef enum
+    enum ENavMeshStatus
     {
         kPending,
         kBuilding,
         kComplete,
         kRepending
-    } ENavMeshStatus;
+    };
 
     LLPathfindingNavMeshStatus();
     LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID);

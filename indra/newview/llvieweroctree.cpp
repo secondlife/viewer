@@ -47,7 +47,7 @@ static LLTrace::CountStatHandle<S32> sOcclusionQueries("occlusion_queries", "Num
 //-----------------------------------------------------------------------------------
 //some global functions definitions
 //-----------------------------------------------------------------------------------
-typedef enum
+enum eLoveTheBits
 {
     b000 = 0x00,
     b001 = 0x01,
@@ -57,7 +57,7 @@ typedef enum
     b101 = 0x05,
     b110 = 0x06,
     b111 = 0x07,
-} eLoveTheBits;
+};
 
 //contact Runitai Linden for a copy of the SL object used to write this table
 //basically, you give the table a bitmask of the look-at vector to a node and it

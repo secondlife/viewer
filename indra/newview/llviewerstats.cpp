@@ -103,16 +103,16 @@
 // Types
     VK_DEFINE_HANDLE(VkInstance);
 
-    typedef enum VkResult
+    enum VkResult
     {
         VK_SUCCESS = 0,
         VK_RESULT_MAX_ENUM = 0x7FFFFFFF
-    } VkResult;
+    };
 
 // Prototypes
-    typedef void               (VKAPI_PTR *PFN_vkVoidFunction            )(void);
-    typedef PFN_vkVoidFunction (VKAPI_PTR *PFN_vkGetInstanceProcAddr     )(VkInstance instance, const char* pName);
-    typedef VkResult           (VKAPI_PTR *PFN_vkEnumerateInstanceVersion)(uint32_t* pApiVersion);
+    using PFN_vkVoidFunction             = void              (VKAPI_PTR *)(void);
+    using PFN_vkGetInstanceProcAddr      = PFN_vkVoidFunction(VKAPI_PTR *)(VkInstance instance, const char* pName);
+    using PFN_vkEnumerateInstanceVersion = VkResult          (VKAPI_PTR *)(uint32_t* pApiVersion);
 
 namespace LLStatViewer
 {
@@ -475,7 +475,7 @@ void update_statistics()
     sample(LLStatViewer::DRAW_DISTANCE,   (F64)gSavedSettings.getF32("RenderFarClip"));
     sample(LLStatViewer::CHAT_BUBBLES,    gSavedSettings.getBOOL("UseChatBubbles"));
 
-    typedef LLTrace::StatType<LLTrace::TimeBlockAccumulator>::instance_tracker_t stat_type_t;
+    using stat_type_t = LLTrace::StatType<LLTrace::TimeBlockAccumulator>::instance_tracker_t;
 
     record(LLStatViewer::FRAME_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Frame")));
 

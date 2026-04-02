@@ -1092,13 +1092,9 @@ void LLFloaterWorldMap::buildAvatarIDList()
     // Get all of the calling cards for avatar that are currently online
     LLCollectMappableBuddies collector;
     LLAvatarTracker::instance().applyFunctor(collector);
-    LLCollectMappableBuddies::buddy_map_t::iterator it;
-    LLCollectMappableBuddies::buddy_map_t::iterator end;
-    it  = collector.mMappable.begin();
-    end = collector.mMappable.end();
-    for (; it != end; ++it)
+    for (const auto& [buddy_id, buddy_name] : collector.mMappable)
     {
-        mFriendCombo->addSimpleElement((*it).second, ADD_BOTTOM, (*it).first);
+        mFriendCombo->addSimpleElement(buddy_name, ADD_BOTTOM, buddy_id);
     }
 
     mFriendCombo->setCurrentByID(LLAvatarTracker::instance().getAvatarID());

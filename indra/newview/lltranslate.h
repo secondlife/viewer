@@ -53,15 +53,16 @@ class LLTranslate: public LLSingleton<LLTranslate>
 
 public :
 
-    typedef enum e_service {
+    enum e_service {
         SERVICE_AZURE,
         SERVICE_GOOGLE,
         SERVICE_DEEPL,
-    } EService;
+    };
+    using EService = e_service;
 
-    typedef std::function<void(EService, bool, S32)> KeyVerificationResult_fn;
-    typedef std::function<void(std::string, std::string)> TranslationSuccess_fn;
-    typedef std::function<void(int, std::string)> TranslationFailure_fn;
+    using KeyVerificationResult_fn = std::function<void(EService, bool, S32)>;
+    using TranslationSuccess_fn = std::function<void(std::string, std::string)>;
+    using TranslationFailure_fn = std::function<void(int, std::string)>;
 
     /**
      * Translate given text.

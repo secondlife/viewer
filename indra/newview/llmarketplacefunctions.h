@@ -86,8 +86,8 @@ class LLMarketplaceInventoryImporter
 public:
     static void update();
 
-    typedef boost::signals2::signal<void (bool)> status_changed_signal_t;
-    typedef boost::signals2::signal<void (U32, const LLSD&)> status_report_signal_t;
+    using status_changed_signal_t = boost::signals2::signal<void (bool)>;
+    using status_report_signal_t = boost::signals2::signal<void (U32, const LLSD&)>;
 
     boost::signals2::connection setInitializationErrorCallback(const status_report_signal_t::slot_type& cb);
     boost::signals2::connection setStatusChangedCallback(const status_changed_signal_t::slot_type& cb);
@@ -157,8 +157,8 @@ private:
 // Notes:
 // * The mListingFolderId is used as a key to this map. It could therefore be taken off the LLMarketplaceTuple objects themselves.
 // * The SLM DB however uses mListingId as its primary key and it shows in its API. In the viewer though, the mListingFolderId is what we use to grab an inventory record.
-typedef std::map<LLUUID, LLMarketplaceTuple> marketplace_items_list_t;
-typedef std::map<LLUUID, LLUUID> version_folders_list_t;
+using marketplace_items_list_t = std::map<LLUUID, LLMarketplaceTuple>;
+using version_folders_list_t = std::map<LLUUID, LLUUID>;
 
 // Session cache of all Marketplace tuples
 // Notes:
@@ -191,7 +191,7 @@ public:
     static LLSD getMarketplaceStringSubstitutions();
 
     // Public SLM API : Initialization and status
-    typedef boost::signals2::signal<void ()> status_updated_signal_t;
+    using status_updated_signal_t = boost::signals2::signal<void ()>;
     void initializeSLM(const status_updated_signal_t::slot_type& cb);
     U32  getSLMStatus() const { return mMarketPlaceStatus; }
     std::string getSLMConnectionfailureReason() { return mMarketPlaceFailureReason; }
@@ -282,7 +282,7 @@ private:
     std::set<LLUUID> mPendingUpdateSet;
 
     // Listing folders waiting for validation
-    typedef std::map<LLUUID,S32> waiting_list_t;
+    using waiting_list_t = std::map<LLUUID,S32>;
     waiting_list_t mValidationWaitingList;
 
     // The cache of SLM data (at last...)

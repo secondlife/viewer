@@ -43,7 +43,7 @@ class LLAppCoreHttp : public LLCore::HttpHandler
 public:
     static const long           PIPELINING_DEPTH;
 
-    typedef LLCore::HttpRequest::policy_t policy_t;
+    using policy_t = LLCore::HttpRequest::policy_t;
 
     enum EAppPolicy
     {

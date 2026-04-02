@@ -66,7 +66,7 @@ LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
 
 void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
 {
-    typedef std::map<LLSD::String, LLSnapshotModel::ESnapshotLayerType> TypeMap;
+    using TypeMap = std::map<LLSD::String, LLSnapshotModel::ESnapshotLayerType>;
     TypeMap types;
 #define tp(name) types[#name] = LLSnapshotModel::SNAPSHOT_TYPE_##name
     tp(COLOR);

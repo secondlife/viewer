@@ -240,15 +240,13 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
     using namespace std;
 
     U32 new_buddy_count = 0;
-    LLUUID agent_id;
-    for(buddy_map_t::const_iterator itr = buds.begin(); itr != buds.end(); ++itr)
+    for (const auto& [agent_id, relationship] : buds)
     {
-        agent_id = (*itr).first;
         buddy_map_t::const_iterator existing_buddy = mBuddyInfo.find(agent_id);
         if(existing_buddy == mBuddyInfo.end())
         {
             ++new_buddy_count;
-            mBuddyInfo[agent_id] = (*itr).second;
+            mBuddyInfo[agent_id] = relationship;
 
             // pre-request name for notifications?
             LLAvatarName av_name;
@@ -264,7 +262,7 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
         else
         {
             LLRelationship* e_r = (*existing_buddy).second;
-            LLRelationship* n_r = (*itr).second;
+            LLRelationship* n_r = relationship;
             LL_WARNS() << "!! Add buddy for existing buddy: " << agent_id
                     << " [" << (e_r->isOnline() ? "Online" : "Offline") << "->" << (n_r->isOnline() ? "Online" : "Offline")
                     << ", " <<  e_r->getRightsGrantedTo() << "->" << n_r->getRightsGrantedTo()
@@ -279,12 +277,12 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
     // -Geenz 2025-03-12
     while (!mBuddyStatusQueue.empty())
     {
-        auto buddyStatus = mBuddyStatusQueue.front();
+        auto [buddy_id, online] = mBuddyStatusQueue.front();
         mBuddyStatusQueue.pop();
 
-        if (mBuddyInfo.find(buddyStatus.first) != mBuddyInfo.end())
+        if (mBuddyInfo.find(buddy_id) != mBuddyInfo.end())
         {
-            setBuddyOnline(buddyStatus.first, buddyStatus.second);
+            setBuddyOnline(buddy_id, online);
         }
     }
 
@@ -296,11 +294,9 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
 
 void LLAvatarTracker::copyBuddyList(buddy_map_t& buddies) const
 {
-    buddy_map_t::const_iterator it = mBuddyInfo.begin();
-    buddy_map_t::const_iterator end = mBuddyInfo.end();
-    for(; it != end; ++it)
+    for (const auto& [id, rel] : mBuddyInfo)
     {
-        buddies[(*it).first] = (*it).second;
+        buddies[id] = rel;
     }
 }
 
@@ -580,11 +576,9 @@ void LLAvatarTracker::addChangedMask(U32 mask, const LLUUID& referent)
 
 void LLAvatarTracker::applyFunctor(LLRelationshipFunctor& f)
 {
-    buddy_map_t::iterator it = mBuddyInfo.begin();
-    buddy_map_t::iterator end = mBuddyInfo.end();
-    for(; it != end; ++it)
+    for (auto& [id, rel] : mBuddyInfo)
     {
-        f((*it).first, (*it).second);
+        f(id, rel);
     }
 }
 

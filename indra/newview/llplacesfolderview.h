@@ -65,7 +65,7 @@ private:
      * holds pointer to landmark panel. This pointer is used in @c LLPlacesFolderView::handleRightMouseDown
      */
     LLLandmarksPanel* mParentLandmarksPanel;
-    typedef std::map<LLInventoryType::EType, LLHandle<LLView> > inventory_type_menu_handle_t;
+    using inventory_type_menu_handle_t = std::map<LLInventoryType::EType, LLHandle<LLView> >;
     inventory_type_menu_handle_t mMenuHandlesByInventoryType;
 
 };

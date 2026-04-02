@@ -2020,11 +2020,12 @@ void LLToolPie::showVisualContextMenuEffect()
     effectp->setDuration(0.25f);
 }
 
-typedef enum e_near_far
+enum e_near_far
 {
     NEAR_INTERSECTION,
     FAR_INTERSECTION
-} ENearFar;
+};
+using ENearFar = e_near_far;
 
 bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_dir, const LLVector3& sphere_center, F32 sphere_radius, e_near_far near_far, LLVector3& intersection_pt)
 {

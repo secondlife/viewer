@@ -170,7 +170,7 @@ protected:
         U32 mLabelIndex;
         F32 mAltitude;
     };
-    typedef std::map<std::string, AltitudeData>      altitudes_data_t;
+    using altitudes_data_t = std::map<std::string, AltitudeData>;
     altitudes_data_t                mAltitudes;
     S32                             mCurEnvVersion; // used to filter duplicate callbacks/refreshes
 
@@ -206,7 +206,7 @@ protected:
     std::array<LLView*, ALTITUDE_PREFIXERS_COUNT> mAltitudePanels;
 
 protected:
-    typedef boost::signals2::connection connection_t;
+    using connection_t = boost::signals2::connection;
 
     void                            refreshFromEstate();
     bool                            mAllowOverride;

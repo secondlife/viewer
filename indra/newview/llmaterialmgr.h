@@ -75,16 +75,16 @@ class LLMaterialMgr : public LLSingleton<LLMaterialMgr>
     virtual ~LLMaterialMgr();
 
 public:
-    typedef std::map<LLMaterialID, LLMaterialPtr> material_map_t;
+    using material_map_t = std::map<LLMaterialID, LLMaterialPtr>;
 
-    typedef boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr)> get_callback_t;
+    using get_callback_t = boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr)>;
     const LLMaterialPtr         get(const LLUUID& region_id, const LLMaterialID& material_id);
     boost::signals2::connection get(const LLUUID& region_id, const LLMaterialID& material_id, get_callback_t::slot_type cb);
 
-    typedef boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr, U32 te)> get_callback_te_t;
+    using get_callback_te_t = boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr, U32 te)>;
     boost::signals2::connection getTE(const LLUUID& region_id, const LLMaterialID& material_id, U32 te, get_callback_te_t::slot_type cb);
 
-    typedef boost::signals2::signal<void (const LLUUID&, const material_map_t&)> getall_callback_t;
+    using getall_callback_t = boost::signals2::signal<void (const LLUUID&, const material_map_t&)>;
     void                        getAll(const LLUUID& region_id);
     boost::signals2::connection getAll(const LLUUID& region_id, getall_callback_t::slot_type cb);
     void put(const LLUUID& object_id, const U8 te, const LLMaterial& material);
@@ -116,19 +116,19 @@ private:
     void onRegionRemoved(LLViewerRegion* regionp);
 
 private:
-    typedef std::set<LLMaterialID> material_queue_t;
-    typedef std::map<LLUUID, material_queue_t> get_queue_t;
-    typedef std::pair<const LLUUID, LLMaterialID> pending_material_t;
-    typedef std::map<const pending_material_t, F64> get_pending_map_t;
-    typedef std::map<LLMaterialID, get_callback_t*> get_callback_map_t;
+    using material_queue_t = std::set<LLMaterialID>;
+    using get_queue_t = std::map<LLUUID, material_queue_t>;
+    using pending_material_t = std::pair<const LLUUID, LLMaterialID>;
+    using get_pending_map_t = std::map<const pending_material_t, F64>;
+    using get_callback_map_t = std::map<LLMaterialID, get_callback_t*>;
 
 
-    typedef std::unordered_map<TEMaterialPair, get_callback_te_t*> get_callback_te_map_t;
-    typedef std::set<LLUUID> getall_queue_t;
-    typedef std::map<LLUUID, F64> getall_pending_map_t;
-    typedef std::map<LLUUID, getall_callback_t*> getall_callback_map_t;
-    typedef std::map<U8, LLMaterial> facematerial_map_t;
-    typedef std::map<LLUUID, facematerial_map_t> put_queue_t;
+    using get_callback_te_map_t = std::unordered_map<TEMaterialPair, get_callback_te_t*>;
+    using getall_queue_t = std::set<LLUUID>;
+    using getall_pending_map_t = std::map<LLUUID, F64>;
+    using getall_callback_map_t = std::map<LLUUID, getall_callback_t*>;
+    using facematerial_map_t = std::map<U8, LLMaterial>;
+    using put_queue_t = std::map<LLUUID, facematerial_map_t>;
 
 
     get_queue_t             mGetQueue;

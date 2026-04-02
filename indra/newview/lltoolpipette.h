@@ -51,7 +51,7 @@ public:
     virtual bool    handleHover(S32 x, S32 y, MASK mask) override;
     virtual bool    handleToolTip(S32 x, S32 y, MASK mask) override;
 
-    typedef boost::signals2::signal<void (LLPointer<LLViewerObject> obj, S32 te_index)> signal_t;
+    using signal_t = boost::signals2::signal<void (LLPointer<LLViewerObject> obj, S32 te_index)>;
     boost::signals2::connection setToolSelectCallback(const signal_t::slot_type& cb) { return mSignal.connect(cb); }
     void setResult(bool success, const std::string& msg);
 

@@ -58,14 +58,15 @@ public:
         Params();
     };
 
-    typedef enum e_item_state_type {
+    enum e_item_state_type {
         IS_DEFAULT,
         IS_VOICE_INVITED,
         IS_VOICE_JOINED,
         IS_VOICE_LEFT,
         IS_ONLINE,
         IS_OFFLINE,
-    } EItemState;
+    };
+    using EItemState = e_item_state_type;
 
     /**
      * Creates an instance of LLAvatarListItem.
@@ -136,11 +137,12 @@ protected:
 
 private:
 
-    typedef enum e_online_status {
+    enum e_online_status {
         E_OFFLINE,
         E_ONLINE,
         E_UNKNOWN,
-    } EOnlineStatus;
+    };
+    using EOnlineStatus = e_online_status;
 
     /**
      * Enumeration of item elements in order from right to left.
@@ -149,7 +151,7 @@ private:
      *
      * @see updateChildren()
      */
-    typedef enum e_avatar_item_child {
+    enum e_avatar_item_child {
         ALIC_SPEAKER_INDICATOR,
         ALIC_PROFILE_BUTTON,
         ALIC_INFO_BUTTON,
@@ -161,14 +163,15 @@ private:
         ALIC_NAME,
         ALIC_ICON,
         ALIC_COUNT,
-    } EAvatarListItemChildIndex;
+    };
+    using EAvatarListItemChildIndex = e_avatar_item_child;
 
     void setNameInternal(const std::string& name, const std::string& highlight);
     void onAvatarNameCache(const LLAvatarName& av_name);
 
     std::string formatSeconds(U32 secs);
 
-    typedef std::map<EItemState, LLColor4> icon_color_map_t;
+    using icon_color_map_t = std::map<EItemState, LLColor4>;
     static icon_color_map_t& getItemIconColorMap();
 
     /**

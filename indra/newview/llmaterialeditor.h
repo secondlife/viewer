@@ -51,7 +51,7 @@ namespace tinygltf
 class LLFloaterComboOptions : public LLFloater
 {
 public:
-    typedef std::function<void(const std::string&, S32)> combo_callback;
+    using combo_callback = std::function<void(const std::string&, S32)>;
     LLFloaterComboOptions();
 
     virtual ~LLFloaterComboOptions();
@@ -126,7 +126,7 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
 
     void inventoryChanged(LLViewerObject* object, LLInventoryObject::object_list_t* inventory, S32 serial_num, void* user_data) override;
 
-    typedef std::function<void(LLUUID newAssetId, LLSD response)> upload_callback_f;
+    using upload_callback_f = std::function<void(LLUUID newAssetId, LLSD response)>;
     void saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id, upload_callback_f cb);
     void setFailedToUploadTexture();
 
@@ -319,7 +319,7 @@ private:
         LLUUID mTrackingId;
         boost::signals2::connection mConnection;
     };
-    typedef std::map<S32, LocalTextureConnection> mat_connection_map_t;
+    using mat_connection_map_t = std::map<S32, LocalTextureConnection>;
     mat_connection_map_t mTextureChangesUpdates;
 };
 

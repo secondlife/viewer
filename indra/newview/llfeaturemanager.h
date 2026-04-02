@@ -35,7 +35,7 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 
-typedef enum EGPUClass
+enum EGPUClass
 {
     GPU_CLASS_UNKNOWN = -1,
     GPU_CLASS_0 = 0,
@@ -44,7 +44,7 @@ typedef enum EGPUClass
     GPU_CLASS_3 = 3,
     GPU_CLASS_4 = 4,
     GPU_CLASS_5 = 5
-} EGPUClass;
+};
 
 
 class LLFeatureInfo
@@ -66,7 +66,7 @@ public:
 class LLFeatureList
 {
 public:
-    typedef std::map<std::string, LLFeatureInfo> feature_map_t;
+    using feature_map_t = std::map<std::string, LLFeatureInfo>;
 
     LLFeatureList(const std::string& name);
     virtual ~LLFeatureList();

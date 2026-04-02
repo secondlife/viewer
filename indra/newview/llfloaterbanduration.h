@@ -31,7 +31,7 @@
 
 class LLFloaterBanDuration : public LLFloater
 {
-    typedef std::function<void(const uuid_vec_t&, const S32 duration)> select_callback_t;
+    using select_callback_t = std::function<void(const uuid_vec_t&, const S32 duration)>;
 
 public:
     LLFloaterBanDuration(const LLSD& target);

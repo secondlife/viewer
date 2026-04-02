@@ -326,7 +326,7 @@ private:
 
     static void handleSearchStatResponse(LLUUID classifiedId, LLSD result);
 
-    typedef std::list<LLPanelProfileClassified*> panel_list_t;
+    using panel_list_t = std::list<LLPanelProfileClassified*>;
     static panel_list_t sAllPanels;
 
 

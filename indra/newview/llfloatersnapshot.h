@@ -78,12 +78,13 @@ protected:
 class LLFloaterSnapshotBase::ImplBase
 {
 public:
-    typedef enum e_status
+    enum e_status
     {
         STATUS_READY,
         STATUS_WORKING,
         STATUS_FINISHED
-    } EStatus;
+    };
+    using EStatus = e_status;
 
     ImplBase(LLFloaterSnapshotBase* floater) : mAvatarPauseHandles(),
         mLastToolset(NULL),
@@ -163,7 +164,7 @@ public:
     static LLFloaterSnapshot* findInstance();
     /*virtual*/ void saveTexture();
 
-    typedef boost::signals2::signal<void(void)> snapshot_saved_signal_t;
+    using snapshot_saved_signal_t = boost::signals2::signal<void(void)>;
     void saveLocal(const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
     static void setAgentEmail(const std::string& email);
 

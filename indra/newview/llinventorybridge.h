@@ -48,9 +48,9 @@ class LLViewerJointAttachment;
 class LLFolderView;
 struct LLMoveInv;
 
-typedef std::vector<std::string> menuentry_vec_t;
-typedef std::pair<LLUUID, LLUUID> two_uuids_t;
-typedef std::list<two_uuids_t> two_uuids_list_t;
+using menuentry_vec_t = std::vector<std::string>;
+using two_uuids_t = std::pair<LLUUID, LLUUID>;
+using two_uuids_list_t = std::list<two_uuids_t>;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInvFVBridge
 //
@@ -239,7 +239,7 @@ public:
                  const LLUUID& uuid) :
         LLInvFVBridge(inventory, root, uuid) {}
 
-    typedef std::function<void(std::string& slurl)> slurl_callback_t;
+    using slurl_callback_t = std::function<void(std::string& slurl)>;
 
     virtual void performAction(LLInventoryModel* model, std::string action);
     virtual void selectItem();

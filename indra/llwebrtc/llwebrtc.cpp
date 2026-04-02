@@ -1378,7 +1378,7 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
             opus_payload = std::to_string(payload_id);
             sdp_mangled_stream << "a=rtpmap:" << opus_payload << " opus/48000/2" << "\n";
         }
-        else if (sdp_line.find("a=fmtp:" + opus_payload) == 0)
+        else if (sdp_line.starts_with("a=fmtp:" + opus_payload))
         {
             sdp_mangled_stream << sdp_line << "a=fmtp:" << opus_payload
             << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=1;maxplaybackrate=48000;sprop-maxplaybackrate=48000;sprop-maxcapturerate=48000\n";

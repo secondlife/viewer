@@ -110,7 +110,7 @@ protected:
 private:
     LLCharacter*        mCharacter;
 
-    typedef std::vector<LLPhysicsMotion *> motion_vec_t;
+    using motion_vec_t = std::vector<LLPhysicsMotion *>;
     motion_vec_t mMotions;
 };
 

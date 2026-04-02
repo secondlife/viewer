@@ -642,11 +642,11 @@ cam_params[] =
 void LLAgentListener::setFollowCamParams(const LLSD& event) const
 {
     auto& followcam{ LLFollowCamMgr::instance() };
-    for (const auto& pair : cam_params)
+    for (const auto& [name, setter] : cam_params)
     {
-        if (event.has(pair.first))
+        if (event.has(name))
         {
-            pair.second(followcam, gAgentID, event[pair.first]);
+            setter(followcam, gAgentID, event[name]);
         }
     }
     followcam.setCameraActive(gAgentID, true);

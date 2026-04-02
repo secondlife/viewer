@@ -303,7 +303,7 @@ bool LLUUID::set(const std::string& in_string, bool emit)
     return true;
 }
 
-bool LLUUID::validate(const std::string& in_string)
+bool LLUUID::validate(std::string_view in_string)
 {
     bool broken_format = false;
     if (in_string.length() != (UUID_STR_LENGTH - 1))        /* Flawfinder: ignore */
@@ -873,14 +873,14 @@ U32 LLUUID::getRandomSeed()
    return U32(seed64) ^ U32(seed64 >> 32);
 }
 
-bool LLUUID::parseUUID(const std::string& buf, LLUUID* value)
+bool LLUUID::parseUUID(std::string_view buf, LLUUID* value)
 {
     if (buf.empty() || value == NULL)
     {
         return false;
     }
 
-    std::string temp(buf);
+    std::string temp{buf};
     LLStringUtil::trim(temp);
     if (LLUUID::validate(temp))
     {

@@ -796,7 +796,7 @@ bool LLViewerObject::isReturnable()
 
         //Build aabb's - for root and all children
         std::vector<PotentialReturnableObject> returnables;
-        typedef std::vector<LLViewerRegion*>::iterator RegionIt;
+        using RegionIt = std::vector<LLViewerRegion*>::iterator;
         RegionIt regionStart = uniqueRegions.begin();
         RegionIt regionEnd   = uniqueRegions.end();
 
@@ -815,7 +815,7 @@ bool LLViewerObject::isReturnable()
         }
 
         //TBD#Eventually create a region -> box list map
-        typedef std::vector<PotentialReturnableObject>::iterator ReturnablesIt;
+        using ReturnablesIt = std::vector<PotentialReturnableObject>::iterator;
         ReturnablesIt retCurrentIt = returnables.begin();
         ReturnablesIt retEndIt = returnables.end();
 

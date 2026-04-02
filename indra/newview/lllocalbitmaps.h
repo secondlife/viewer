@@ -60,10 +60,10 @@ class LLLocalBitmap
 
         bool updateSelf(EUpdateType = UT_REGUPDATE);
 
-        typedef boost::signals2::signal<void(const LLUUID& tracking_id,
+        using LLLocalTextureChangedSignal = boost::signals2::signal<void(const LLUUID& tracking_id,
                                              const LLUUID& old_id,
-                                             const LLUUID& new_id)> LLLocalTextureChangedSignal;
-        typedef LLLocalTextureChangedSignal::slot_type LLLocalTextureCallback;
+                                             const LLUUID& new_id)>;
+        using LLLocalTextureCallback = LLLocalTextureChangedSignal::slot_type;
         boost::signals2::connection setChangedCallback(const LLLocalTextureCallback& cb);
         void addGLTFMaterial(LLGLTFMaterial* mat);
 
@@ -107,7 +107,7 @@ class LLLocalBitmap
 
         // Store a list of accosiated materials
         // Might be a better idea to hold this in LLGLTFMaterialList
-        typedef std::list<LLPointer<LLGLTFMaterial> > mat_list_t;
+        using mat_list_t = std::list<LLPointer<LLGLTFMaterial> >;
         mat_list_t mGLTFMaterialWithLocalTextures;
 
 };
@@ -152,8 +152,8 @@ private:
     std::list<LLLocalBitmap*>    mBitmapList;
     LLLocalBitmapTimer           mTimer;
     bool                         mNeedsRebake;
-    typedef std::list<LLLocalBitmap*>::iterator local_list_iter;
-    typedef std::list<LLLocalBitmap*>::const_iterator local_list_citer;
+    using local_list_iter = std::list<LLLocalBitmap*>::iterator;
+    using local_list_citer = std::list<LLLocalBitmap*>::const_iterator;
 };
 
 #endif

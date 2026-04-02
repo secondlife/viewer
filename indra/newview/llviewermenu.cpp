@@ -151,7 +151,7 @@
 
 using namespace LLAvatarAppearanceDefines;
 
-typedef LLPointer<LLViewerObject> LLViewerObjectPtr;
+using LLViewerObjectPtr = LLPointer<LLViewerObject>;
 
 static std::unordered_map<std::string, LLStringExplicit> sDefaultItemLabels;
 
@@ -8046,7 +8046,7 @@ void handle_selected_texture_info()
 
         U8 te_count = node->getObject()->getNumTEs();
         // map from texture ID to list of faces using it
-        typedef std::map< LLUUID, std::vector<U8> > map_t;
+        using map_t = std::map< LLUUID, std::vector<U8> >;
         map_t faces_per_texture;
         for (U8 i = 0; i < te_count; i++)
         {
@@ -8093,7 +8093,7 @@ void handle_selected_material_info()
 
         U8 te_count = node->getObject()->getNumTEs();
         // map from material ID to list of faces using it
-        typedef std::map<LLMaterialID, std::vector<U8> > map_t;
+        using map_t = std::map<LLMaterialID, std::vector<U8> >;
         map_t faces_per_material;
         for (U8 i = 0; i < te_count; i++)
         {

@@ -40,7 +40,7 @@ class LLRegionInfoModel : public LLSingleton<LLRegionInfoModel>
     LOG_CLASS(LLRegionInfoModel);
 
 public:
-    typedef boost::signals2::signal<void()> update_signal_t;
+    using update_signal_t = boost::signals2::signal<void()>;
     boost::signals2::connection setUpdateCallback(const update_signal_t::slot_type& cb);
 
     void sendRegionTerrain(const LLUUID& invoice) const; /// upload region terrain data

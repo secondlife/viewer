@@ -547,7 +547,7 @@ void LLSceneMonitor::dumpToFile(const std::string &file_name)
         os << '\n';
 
 
-        typedef LLTrace::StatType<LLTrace::CountAccumulator> trace_count;
+        using trace_count = LLTrace::StatType<LLTrace::CountAccumulator>;
         for (auto& it : trace_count::instance_snapshot())
         {
             std::ostringstream row;
@@ -578,7 +578,7 @@ void LLSceneMonitor::dumpToFile(const std::string &file_name)
             }
         }
 
-        typedef LLTrace::StatType<LLTrace::EventAccumulator> trace_event;
+        using trace_event = LLTrace::StatType<LLTrace::EventAccumulator>;
 
         for (auto& it : trace_event::instance_snapshot())
         {
@@ -617,7 +617,7 @@ void LLSceneMonitor::dumpToFile(const std::string &file_name)
             }
         }
 
-        typedef LLTrace::StatType<LLTrace::SampleAccumulator> trace_sample;
+        using trace_sample = LLTrace::StatType<LLTrace::SampleAccumulator>;
 
         for (auto& it : trace_sample::instance_snapshot())
         {

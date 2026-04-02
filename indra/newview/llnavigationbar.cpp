@@ -75,12 +75,13 @@
 class LLTeleportHistoryMenuItem : public LLMenuItemCallGL
 {
 public:
-    typedef enum e_item_type
+    enum e_item_type
     {
         TYPE_BACKWARD,
         TYPE_CURRENT,
         TYPE_FORWARD,
-    } EType;
+    };
+    using EType = e_item_type;
 
     struct Params : public LLInitParam::Block<Params, LLMenuItemCallGL::Params>
     {

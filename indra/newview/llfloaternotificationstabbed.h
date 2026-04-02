@@ -58,9 +58,9 @@ public:
 private:
     static void getItemsFromList(std::vector<LLNotificationListItem*>& items, LLNotificationListView* list);
 
-    typedef std::map<std::string, LLNotificationListView*> notification_list_map_t;
+    using notification_list_map_t = std::map<std::string, LLNotificationListView*>;
     notification_list_map_t mNotificationListMap;
-    typedef std::list<LLNotificationListView*> notification_list_list_t;
+    using notification_list_list_t = std::list<LLNotificationListView*>;
     notification_list_list_t mNotificationLists;
     LLNotificationListView* mUnTaggedList;
 };

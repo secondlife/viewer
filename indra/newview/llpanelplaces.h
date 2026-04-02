@@ -49,7 +49,7 @@ class LLToggleableMenu;
 class LLMenuButton;
 class LLLayoutStack;
 
-typedef std::pair<LLUUID, std::string>  folder_pair_t;
+using folder_pair_t = std::pair<LLUUID, std::string>;
 
 class LLPanelPlaces : public LLPanel
 {

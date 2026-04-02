@@ -50,7 +50,7 @@ public:
     LLPointer<LLViewerFetchedTexture> getImage() {return mImage;}
     void draw() override;
 
-    typedef boost::signals2::signal<void(bool success, LLViewerFetchedTexture* imagep)> image_loaded_signal_t;
+    using image_loaded_signal_t = boost::signals2::signal<void(bool success, LLViewerFetchedTexture* imagep)>;
     boost::signals2::connection setImageLoadedCallback(const image_loaded_signal_t::slot_type& cb);
 private:
     void onImageLoaded(bool success, LLViewerFetchedTexture* src_vi);

@@ -370,8 +370,8 @@ bool remove_task_inventory_callback(const LLSD& notification, const LLSD& respon
 
 // helper for remove
 // ! REFACTOR ! two_uuids_list_t is also defined in llinventorybridge.h, but differently.
-typedef std::pair<LLUUID, std::list<LLUUID> > panel_two_uuids_list_t;
-typedef std::pair<LLPanelObjectInventory*, panel_two_uuids_list_t> remove_data_t;
+using panel_two_uuids_list_t = std::pair<LLUUID, std::list<LLUUID> >;
+using remove_data_t = std::pair<LLPanelObjectInventory*, panel_two_uuids_list_t>;
 bool LLTaskInvFVBridge::removeItem()
 {
     if (isItemRemovable() && mPanel)
@@ -1588,7 +1588,7 @@ void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root
     }
 }
 
-typedef std::pair<LLInventoryObject*, LLFolderViewFolder*> obj_folder_pair;
+using obj_folder_pair = std::pair<LLInventoryObject*, LLFolderViewFolder*>;
 
 void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_list_t* inventory,
                                               LLInventoryObject* parent,

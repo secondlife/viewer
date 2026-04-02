@@ -54,11 +54,12 @@ class LLGLSLShader;
 class LLDrawPoolAlpha;
 class LLSettingsSky;
 
-typedef enum e_avatar_skinning_method
+enum e_avatar_skinning_method
 {
     SKIN_METHOD_SOFTWARE,
     SKIN_METHOD_VERTEX_PROGRAM
-} EAvatarSkinningMethod;
+};
+using EAvatarSkinningMethod = e_avatar_skinning_method;
 
 bool compute_min_max(LLMatrix4& box, LLVector2& min, LLVector2& max); // Shouldn't be defined here!
 bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& origin, const LLVector3& dir, LLVector3 &coord, F32 epsilon = 0);
@@ -116,11 +117,11 @@ public:
     //returns true if full size buffer allocated, false if some other size is allocated
     bool allocateScreenBuffer(U32 resX, U32 resY);
 
-    typedef enum {
+    enum eFBOStatus {
         FBO_SUCCESS_FULLRES = 0,
         FBO_SUCCESS_LOWRES,
         FBO_FAILURE
-    } eFBOStatus;
+    };
 
 private:
     //implementation of above, wrapped for easy error handling
@@ -855,7 +856,7 @@ protected:
             }
         };
     };
-    typedef std::set< Light, Light::compare > light_set_t;
+    using light_set_t = std::set< Light, Light::compare >;
 
     LLDrawable::ordered_drawable_set_t  mLights;
     light_set_t                     mNearbyLights; // lights near camera
@@ -936,7 +937,7 @@ protected:
             }
         }
     };
-    typedef std::set<LLDrawPool*, compare_pools > pool_set_t;
+    using pool_set_t = std::set<LLDrawPool*, compare_pools >;
     pool_set_t mPools;
     LLDrawPool* mLastRebuildPool;
 

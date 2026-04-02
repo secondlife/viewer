@@ -65,7 +65,7 @@ public:
     // Select current landmark folder in combobox.
     bool setLandmarkFolder(const LLUUID& id);
 
-    typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
+    using cat_array_t = std::vector<LLPointer<LLViewerInventoryCategory> >;
     static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
     static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 

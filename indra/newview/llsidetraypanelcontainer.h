@@ -86,7 +86,7 @@ protected:
     * S32 - index of previous panel
     * *NOTE - no forward navigation implemented yet
     */
-    typedef std::map<std::string, S32> panel_navigation_history_t;
+    using panel_navigation_history_t = std::map<std::string, S32>;
 
     // Navigation history
     panel_navigation_history_t mPanelHistory;

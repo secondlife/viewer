@@ -93,7 +93,7 @@ class LLCLPValue : public po::value_semantic_codecvt_helper<char>
     unsigned mMinTokens;
     unsigned mMaxTokens;
     bool mIsComposing;
-    typedef std::function<void(const LLCommandLineParser::token_vector_t&)> notify_callback_t;
+    using notify_callback_t = std::function<void(const LLCommandLineParser::token_vector_t&)>;
     notify_callback_t mNotifyCallback;
     bool mLastOption;
 

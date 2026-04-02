@@ -110,7 +110,7 @@ class LLTeleportHistoryFlatItemStorage: public LLSingleton<LLTeleportHistoryFlat
 {
     LLSINGLETON_EMPTY_CTOR(LLTeleportHistoryFlatItemStorage);
 protected:
-    typedef std::vector< LLHandle<LLTeleportHistoryFlatItem> > flat_item_list_t;
+    using flat_item_list_t = std::vector< LLHandle<LLTeleportHistoryFlatItem> >;
 
 public:
     LLTeleportHistoryFlatItem* getFlatItemForPersistentItem (

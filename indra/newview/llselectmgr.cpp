@@ -2992,7 +2992,7 @@ void LLSelectMgr::selectionSetClickAction(U8 action)
 // godlike requests
 //-----------------------------------------------------------------------------
 
-typedef std::pair<const std::string, const std::string> godlike_request_t;
+using godlike_request_t = std::pair<const std::string, const std::string>;
 
 void LLSelectMgr::sendGodlikeRequest(const std::string& request, const std::string& param)
 {
@@ -8137,11 +8137,11 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 {
        S32 cost = 0;
        LLVOVolume::texture_cost_t textures;
-       typedef std::set<LLUUID> uuid_list_t;
+       using uuid_list_t = std::set<LLUUID>;
        uuid_list_t computed_objects;
 
-       typedef std::list<LLPointer<LLViewerObject> > child_list_t;
-       typedef const child_list_t const_child_list_t;
+       using child_list_t = std::list<LLPointer<LLViewerObject> >;
+       using const_child_list_t = const child_list_t;
 
        // add render cost of complete linksets first, to get accurate texture counts
        for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)

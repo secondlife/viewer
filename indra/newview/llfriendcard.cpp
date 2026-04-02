@@ -136,7 +136,7 @@ bool LLFindAgentCallingCard::operator()(LLInventoryCategory* cat, LLInventoryIte
 class LLInitialFriendCardsFetch : public LLInventoryFetchDescendentsObserver
 {
 public:
-    typedef std::function<void()> callback_t;
+    using callback_t = std::function<void()>;
 
     LLInitialFriendCardsFetch(const LLUUID& folder_id,
                               callback_t cb) :
@@ -175,9 +175,8 @@ LLFriendCardsManager::~LLFriendCardsManager()
 void LLFriendCardsManager::putAvatarData(const LLUUID& avatarID)
 {
     LL_INFOS() << "Store avatar data, avatarID: " << avatarID << LL_ENDL;
-    std::pair< avatar_uuid_set_t::iterator, bool > pr;
-    pr = mBuddyIDSet.insert(avatarID);
-    if (!pr.second)
+    auto [iter, inserted] = mBuddyIDSet.insert(avatarID);
+    if (!inserted)
     {
         LL_WARNS() << "Trying to add avatar UUID for the stored avatar: "
             << avatarID

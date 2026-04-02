@@ -69,7 +69,7 @@ public:
     virtual bool isNew() const = 0;
 
     // smart pointer
-    typedef LLPointer<LLMediaDataClientObject> ptr_t;
+    using ptr_t = LLPointer<LLMediaDataClientObject>;
 };
 
 
@@ -119,7 +119,7 @@ protected:
         public std::enable_shared_from_this<Request>
     {
     public:
-        typedef std::shared_ptr<Request> ptr_t;
+        using ptr_t = std::shared_ptr<Request>;
 
         // Subclasses must implement this to build a payload for their request type.
         virtual LLSD getPayload() const = 0;
@@ -227,8 +227,8 @@ protected:
 
 
 protected:
-    typedef std::list<Request::ptr_t> request_queue_t;
-    typedef std::set<Request::ptr_t> request_set_t;
+    using request_queue_t = std::list<Request::ptr_t>;
+    using request_set_t = std::set<Request::ptr_t>;
 
     // Subclasses must override to return a cap name
     virtual const char *getCapabilityName() const = 0;

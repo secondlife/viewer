@@ -52,7 +52,7 @@ class LLAvatarName;
 class LLViewerInventoryItem : public LLInventoryItem, public boost::signals2::trackable
 {
 public:
-    typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
+    using item_array_t = std::vector<LLPointer<LLViewerInventoryItem> >;
 
 protected:
     ~LLViewerInventoryItem( void ); // ref counted
@@ -180,7 +180,7 @@ public:
 class LLViewerInventoryCategory  : public LLInventoryCategory
 {
 public:
-    typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
+    using cat_array_t = std::vector<LLPointer<LLViewerInventoryCategory> >;
 
 protected:
     ~LLViewerInventoryCategory();
@@ -213,12 +213,12 @@ public:
     // no requests will happen during expiry_seconds even if fetch completed
     bool fetch(S32 expiry_seconds = 10);
 
-    typedef enum {
+    enum EFetchType {
         FETCH_NONE = 0,
         FETCH_NORMAL,
         FETCH_RECURSIVE,
         FETCH_FAILED, // back off
-    } EFetchType;
+    };
     EFetchType getFetching();
     // marks as fetch being in progress or as done
     void setFetching(EFetchType);
@@ -284,9 +284,9 @@ private:
     LLUUID mTargetLandmarkId;
 };
 
-typedef std::function<void(const LLUUID&)> inventory_func_type;
-typedef std::function<void(const LLSD&)> llsd_func_type;
-typedef std::function<void()> nullary_func_type;
+using inventory_func_type = std::function<void(const LLUUID&)>;
+using llsd_func_type = std::function<void(const LLSD&)>;
+using nullary_func_type = std::function<void()>;
 
 void no_op_inventory_func(const LLUUID&); // A do-nothing inventory_func
 void no_op_llsd_func(const LLSD&); // likewise for LLSD
@@ -347,7 +347,7 @@ public:
     void fire(U32 callback_id, const LLUUID& item_id);
     U32 registerCB(LLPointer<LLInventoryCallback> cb);
 private:
-    typedef std::map<U32, LLPointer<LLInventoryCallback> > callback_map_t;
+    using callback_map_t = std::map<U32, LLPointer<LLInventoryCallback> >;
     callback_map_t mMap;
     U32 mLastCallback;
     static LLInventoryCallbackManager *sInstance;

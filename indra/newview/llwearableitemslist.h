@@ -390,7 +390,7 @@ private:
     bool sortAssetTypeByName(LLAssetType::EType item_type) const;
     bool sortWearableTypeByName(LLAssetType::EType item_type) const;
 
-    typedef std::map<LLAssetType::EType,LLWearableTypeOrder> wearable_type_order_map_t;
+    using wearable_type_order_map_t = std::map<LLAssetType::EType,LLWearableTypeOrder>;
     wearable_type_order_map_t mWearableOrder;
 };
 
@@ -467,13 +467,14 @@ public:
         Params();
     };
 
-    typedef enum e_sort_order {
+    enum e_sort_order {
         // Values should be compatible with InventorySortOrder setting.
         E_SORT_BY_NAME          = 0,
         E_SORT_BY_MOST_RECENT   = 1,
         E_SORT_BY_TYPE_LAYER    = 2,
         E_SORT_BY_TYPE_NAME     = 3,
-    } ESortOrder;
+    };
+    using ESortOrder = e_sort_order;
 
     virtual ~LLWearableItemsList();
 

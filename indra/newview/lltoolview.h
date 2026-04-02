@@ -76,7 +76,7 @@ private:
 
 
 private:
-    typedef std::vector<LLToolContainer*> contain_list_t;
+    using contain_list_t = std::vector<LLToolContainer*>;
     contain_list_t          mContainList;
     S32                     mButtonCount;           // used to compute rectangles
 };

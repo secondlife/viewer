@@ -39,12 +39,13 @@
 #define NDOF_HotPlugResult S32
 #endif
 
-typedef enum e_joystick_driver_state
+enum e_joystick_driver_state
 {
     JDS_UNINITIALIZED,
     JDS_INITIALIZED,
     JDS_INITIALIZING
-} EJoystickDriverState;
+};
+using EJoystickDriverState = e_joystick_driver_state;
 
 class LLViewerJoystick : public LLSingleton<LLViewerJoystick>
 {

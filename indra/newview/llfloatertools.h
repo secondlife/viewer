@@ -49,7 +49,7 @@ class LLParcelSelection;
 class LLObjectSelection;
 class LLLandImpactsObserver;
 
-typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
+using LLObjectSelectionHandle = LLSafeHandle<LLObjectSelection>;
 
 class LLFloaterTools
 : public LLFloater

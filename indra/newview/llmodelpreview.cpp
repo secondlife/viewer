@@ -135,14 +135,14 @@ std::string getLodSuffix(S32 lod)
 
 static bool FindModel(const LLModelLoader::scene& scene, const std::string& name_to_match, LLModel*& baseModelOut, LLMatrix4& matOut)
 {
-    for (const auto& scene_pair : scene)
+    for (const auto& [mat, models] : scene)
     {
-        for (const auto& model_iter : scene_pair.second)
+        for (const auto& model_iter : models)
         {
             if (model_iter.mModel && (model_iter.mModel->mLabel == name_to_match))
             {
                 baseModelOut = model_iter.mModel;
-                matOut = scene_pair.first;
+                matOut = mat;
                 return true;
             }
         }

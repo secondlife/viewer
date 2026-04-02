@@ -51,7 +51,7 @@ public:
     void removePopup(LLView* popup);
     void clearPopups();
 
-    typedef std::list<LLHandle<LLView> > popup_list_t;
+    using popup_list_t = std::list<LLHandle<LLView> >;
     popup_list_t getCurrentPopups() { return mPopups; }
 
 private:

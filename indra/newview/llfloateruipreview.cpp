@@ -120,7 +120,7 @@ public:
     }
     virtual void draw();
 
-    typedef std::map<LLView*, std::list<LLView*> >  OverlapMap;
+    using OverlapMap = std::map<LLView*, std::list<LLView*> >;
     OverlapMap mOverlapMap;                     // map, of XUI element to a list of XUI elements it overlaps
 
     // LLView *mClickedElement;
@@ -156,9 +156,9 @@ public:
     bool                        mHighlightingOverlaps;      // bool for whether overlapping elements are being highlighted
 
     // typedef std::map<std::string,std::pair<std::list<std::string>,std::list<std::string> > > DiffMap; // this version copies the lists etc., and thus is bad memory-wise
-    typedef std::list<std::string> StringList;
-    typedef std::shared_ptr<StringList> StringListPtr;
-    typedef std::map<std::string, std::pair<StringListPtr,StringListPtr> > DiffMap;
+    using StringList = std::list<std::string>;
+    using StringListPtr = std::shared_ptr<StringList>;
+    using DiffMap = std::map<std::string, std::pair<StringListPtr,StringListPtr> >;
     DiffMap mDiffsMap;                          // map, of filename to pair of list of changed element paths and list of errors
 
 private:
@@ -1256,7 +1256,7 @@ void LLFloaterUIPreview::highlightChangedElements()
         }
 
         // Split element hierarchy path on period (*HACK: it's possible that the element name will have a period in it, in which case this won't work.  See https://wiki.lindenlab.com/wiki/Viewer_Localization_Tool_Documentation.)
-        typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+        using tokenizer = boost::tokenizer<boost::char_separator<char> >;
         boost::char_separator<char> sep(".");
         tokenizer tokens(*iter, sep);
         tokenizer::iterator token_iter;

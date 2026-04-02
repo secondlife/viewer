@@ -66,14 +66,15 @@ public:
 };
 
 
-typedef enum e_keyboard_mode
+enum e_keyboard_mode
 {
     MODE_FIRST_PERSON,
     MODE_THIRD_PERSON,
     MODE_EDIT_AVATAR,
     MODE_SITTING,
     MODE_COUNT
-} EKeyboardMode;
+};
+using EKeyboardMode = e_keyboard_mode;
 
 class LLViewerInput : public LLKeyBindingToStringHandler
 {
@@ -183,7 +184,7 @@ private:
     std::vector<LLKeyboardBinding>  mGlobalKeyBindings[MODE_COUNT];
     std::vector<LLMouseBinding>     mGlobalMouseBindings[MODE_COUNT];
 
-    typedef std::map<U32, U32> key_remap_t;
+    using key_remap_t = std::map<U32, U32>;
     key_remap_t     mRemapKeys[MODE_COUNT];
     std::set<KEY>   mKeysSkippedByUI;
     bool            mKeyHandledByUI[KEY_COUNT];     // key processed successfully by UI

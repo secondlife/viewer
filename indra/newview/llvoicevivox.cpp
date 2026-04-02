@@ -674,7 +674,7 @@ void LLVivoxVoiceClient::idle(void* user_data)
 //
 //
 
-typedef enum e_voice_control_coro_state
+enum e_voice_control_coro_state
 {
     VOICE_STATE_ERROR = -1,
     VOICE_STATE_DONE = 0,
@@ -687,7 +687,8 @@ typedef enum e_voice_control_coro_state
     VOICE_STATE_WAIT_FOR_CHANNEL,
     VOICE_STATE_DISCONNECT,
     VOICE_STATE_WAIT_FOR_EXIT,
-} EVoiceControlCoroState;
+};
+using EVoiceControlCoroState = e_voice_control_coro_state;
 
 void LLVivoxVoiceClient::voiceControlCoro()
 {
@@ -1928,7 +1929,7 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
 }
 
 
-typedef enum e_voice_wait_for_channel_state
+enum e_voice_wait_for_channel_state
 {
     VOICE_CHANNEL_STATE_LOGIN = 0, // entry point
     VOICE_CHANNEL_STATE_CHECK_EFFECTS,
@@ -1939,7 +1940,8 @@ typedef enum e_voice_wait_for_channel_state
     VOICE_CHANNEL_STATE_LOGOUT,
     VOICE_CHANNEL_STATE_RELOG,
     VOICE_CHANNEL_STATE_DONE,
-} EVoiceWaitForChannelState;
+};
+using EVoiceWaitForChannelState = e_voice_wait_for_channel_state;
 
 bool LLVivoxVoiceClient::waitForChannel()
 {
@@ -5848,10 +5850,10 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::create
 {
     sessionState::ptr_t ptr(new sessionState());
 
-    std::pair<std::set<wptr_t>::iterator, bool>  result = mSession.insert(ptr);
+    auto [iter, inserted] = mSession.insert(ptr);
 
-    if (result.second)
-        ptr->mMyIterator = result.first;
+    if (inserted)
+        ptr->mMyIterator = iter;
 
     return ptr;
 }

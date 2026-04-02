@@ -443,7 +443,7 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
 
         bool ext_valid = false;
 
-        typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+        using tokenizer = boost::tokenizer<boost::char_separator<char> >;
         boost::char_separator<char> sep(" ");
         tokenizer tokens(valid_extensions, sep);
         tokenizer::iterator token_iter;

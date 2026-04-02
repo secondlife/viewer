@@ -91,11 +91,11 @@ public:
     void onParticipantsChanged() override;
 
 private:
-    typedef std::set<LLUUID> speaker_ids_t;
-    typedef std::multimap<LLUUID, LLSpeakingIndicator*> speaking_indicators_mmap_t;
-    typedef speaking_indicators_mmap_t::value_type speaking_indicator_value_t;
-    typedef speaking_indicators_mmap_t::const_iterator indicator_const_iterator;
-    typedef std::pair<indicator_const_iterator, indicator_const_iterator> indicator_range_t;
+    using speaker_ids_t = std::set<LLUUID>;
+    using speaking_indicators_mmap_t = std::multimap<LLUUID, LLSpeakingIndicator*>;
+    using speaking_indicator_value_t = speaking_indicators_mmap_t::value_type;
+    using indicator_const_iterator = speaking_indicators_mmap_t::const_iterator;
+    using indicator_range_t = std::pair<indicator_const_iterator, indicator_const_iterator>;
 
     /**
      * Callback to determine when voice channel is changed.

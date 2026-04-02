@@ -658,7 +658,7 @@ private:
 
     // Todo: probably safe to store by local instead of global id
     // since they should be unique to this avatar, but local id might be not known.
-    typedef std::map<LLUUID, ComplexityComponent> complexity_cache_map_t;
+    using complexity_cache_map_t = std::map<LLUUID, ComplexityComponent>;
     complexity_cache_map_t mComplexityCache; // Cache per-attachment complexity
     ComplexityComponent mBodyPartsComplexity; // Cache for body parts (mesh, eyes, hair, etc)
     ComplexityComponent mControlAvatarComplexity; // Cache for animated object control avatar
@@ -919,7 +919,7 @@ public:
     const MatrixPaletteCache& updateSkinInfoMatrixPalette(const LLMeshSkinInfo* skinInfo);
 
     // Map of LLMeshSkinInfo::mHash to MatrixPaletteCache
-    typedef std::unordered_map<U64, MatrixPaletteCache> matrix_palette_cache_t;
+    using matrix_palette_cache_t = std::unordered_map<U64, MatrixPaletteCache>;
     matrix_palette_cache_t mMatrixPaletteCache;
 
 protected:
@@ -1023,7 +1023,7 @@ protected:
     //--------------------------------------------------------------------
 public:
     S32                 getAttachmentCount() const; // Warning: order(N) not order(1)
-    typedef std::map<S32, LLViewerJointAttachment*> attachment_map_t;
+    using attachment_map_t = std::map<S32, LLViewerJointAttachment*>;
     attachment_map_t                                mAttachmentPoints;
     std::vector<LLPointer<LLViewerObject> >         mPendingAttachment;
 
@@ -1074,12 +1074,12 @@ private:
     // Animation state data
     //--------------------------------------------------------------------
 public:
-    typedef std::map<LLUUID, S32>::iterator AnimIterator;
+    using AnimIterator = std::map<LLUUID, S32>::iterator;
     std::map<LLUUID, S32>                   mSignaledAnimations; // requested state of Animation name/value
     std::map<LLUUID, S32>                   mPlayingAnimations; // current state of Animation name/value
 
-    typedef std::multimap<LLUUID, LLUUID>   AnimationSourceMap;
-    typedef AnimationSourceMap::iterator    AnimSourceIterator;
+    using AnimationSourceMap = std::multimap<LLUUID, LLUUID>;
+    using AnimSourceIterator = AnimationSourceMap::iterator;
     AnimationSourceMap                      mAnimationSources; // object ids that triggered anim ids
 
     //--------------------------------------------------------------------

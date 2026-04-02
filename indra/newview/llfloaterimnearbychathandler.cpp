@@ -63,8 +63,8 @@ class LLFloaterIMNearbyChatScreenChannel: public LLScreenChannelBase
 {
     LOG_CLASS(LLFloaterIMNearbyChatScreenChannel);
 public:
-    typedef std::vector<LLHandle<LLToast> > toast_vec_t;
-    typedef std::list<LLHandle<LLToast> > toast_list_t;
+    using toast_vec_t = std::vector<LLHandle<LLToast> >;
+    using toast_list_t = std::list<LLHandle<LLToast> >;
 
     LLFloaterIMNearbyChatScreenChannel(const Params& p)
         : LLScreenChannelBase(p)
@@ -87,7 +87,7 @@ public:
     void addChat    (LLSD& chat);
     void arrangeToasts      ();
 
-    typedef std::function<LLFloaterIMNearbyChatToastPanel*(void)> create_toast_panel_callback_t;
+    using create_toast_panel_callback_t = std::function<LLFloaterIMNearbyChatToastPanel*(void)>;
     void setCreatePanelCallback(create_toast_panel_callback_t value) { m_create_toast_panel_callback_t = value;}
 
     void onToastDestroyed   (LLToast* toast, bool app_quitting);

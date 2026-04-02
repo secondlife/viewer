@@ -53,7 +53,7 @@ class LLVoiceDevice
     {
     };
 };
-typedef std::vector<LLVoiceDevice> LLVoiceDeviceList;
+using LLVoiceDeviceList = std::vector<LLVoiceDevice>;
 
 class LLVoiceClientParticipantObserver
 {
@@ -68,7 +68,7 @@ public:
 class LLVoiceClientStatusObserver
 {
 public:
-    typedef enum e_voice_status_type
+    enum e_voice_status_type
     {
         // NOTE: when updating this enum, please also update the switch in
         //  LLVoiceClientStatusObserver::status2string().
@@ -84,7 +84,8 @@ public:
         ERROR_CHANNEL_LOCKED,
         ERROR_NOT_AVAILABLE,
         ERROR_UNKNOWN
-    } EStatusType;
+    };
+    using EStatusType = e_voice_status_type;
 
     virtual ~LLVoiceClientStatusObserver() = default;
     virtual void onChange(EStatusType status, const LLSD& channelInfo, bool proximal) = 0;
@@ -132,7 +133,7 @@ class LLVoiceP2PIncomingCallInterface
     virtual void declineInvite() = 0;
 };
 
-typedef std::shared_ptr<LLVoiceP2PIncomingCallInterface> LLVoiceP2PIncomingCallInterfacePtr;
+using LLVoiceP2PIncomingCallInterfacePtr = std::shared_ptr<LLVoiceP2PIncomingCallInterface>;
 
 //////////////////////////////////
 /// @class LLVoiceModuleInterface
@@ -296,7 +297,7 @@ public:
     virtual void onVoiceEffectChanged(bool effect_list_updated) = 0;
 };
 
-typedef std::multimap<const std::string, const LLUUID, LLDictionaryLess> voice_effect_list_t;
+using voice_effect_list_t = std::multimap<const std::string, const LLUUID, LLDictionaryLess>;
 
 //////////////////////////////////
 /// @class LLVoiceEffectInterface
@@ -351,7 +352,7 @@ class LLVoiceClient: public LLParamSingleton<LLVoiceClient>
     ~LLVoiceClient();
 
 public:
-    typedef boost::signals2::signal<void(void)> micro_changed_signal_t;
+    using micro_changed_signal_t = boost::signals2::signal<void(void)>;
     micro_changed_signal_t mMicroChangedSignal;
 
     void terminate();   // Call this to clean up during shutdown
@@ -584,7 +585,7 @@ private:
     static F32 transformFromLegacyVolume(F32 volume_in);
     static F32 transformToLegacyVolume(F32 volume_in);
 
-    typedef std::map<LLUUID, F32> speaker_data_map_t;
+    using speaker_data_map_t = std::map<LLUUID, F32>;
     speaker_data_map_t mSpeakersData;
 };
 

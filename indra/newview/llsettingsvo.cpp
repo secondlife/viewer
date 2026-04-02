@@ -80,7 +80,7 @@ namespace
     class LLSettingsInventoryCB : public LLInventoryCallback
     {
     public:
-        typedef std::function<void(const LLUUID &)> callback_t;
+        using callback_t = std::function<void(const LLUUID &)>;
 
         LLSettingsInventoryCB(callback_t cbfn) :
             mCbfn(cbfn)
@@ -1540,12 +1540,12 @@ LLSD LLSettingsVODay::convertToLegacy(const LLSettingsVODay::ptr_t &pday)
 
     LLSD llsdskylist(LLSD::emptyMap());
 
-    for (std::map<std::string, LLSettingsSky::ptr_t>::iterator its = skys.begin(); its != skys.end(); ++its)
+    for (const auto& [sky_name, sky_ptr] : skys)
     {
-        LLSD llsdsky = LLSettingsVOSky::convertToLegacy((*its).second, false);
-        llsdsky[SETTING_NAME] = (*its).first;
+        LLSD llsdsky = LLSettingsVOSky::convertToLegacy(sky_ptr, false);
+        llsdsky[SETTING_NAME] = sky_name;
 
-        llsdskylist[(*its).first] = llsdsky;
+        llsdskylist[sky_name] = llsdsky;
     }
 
     return llsd::array(LLSD::emptyMap(), llsdcycle, llsdskylist, llsdwater);

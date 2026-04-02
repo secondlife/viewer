@@ -249,7 +249,7 @@ void activate_camera_tool()
 class LLCameraInfoPanel : public LLPanel
 {
 public:
-    typedef std::function<LLVector3()> get_vector_t;
+    using get_vector_t = std::function<LLVector3()>;
 
     LLCameraInfoPanel(
         const LLView* parent,
@@ -293,11 +293,10 @@ public:
         S32 row_height = (height - VPADDING * 2) / row_count;
         S32 top = height - VPADDING - row_height / 2;
         mFont->renderUTF8(mTitle, 0, HPADDING, top, LLColor4::white, LLFontGL::LEFT, LLFontGL::VCENTER);
-        for (const auto& row : data)
+        for (const auto& [label, vector] : data)
         {
             top -= row_height;
-            mFont->renderUTF8(row.first, 0, HPADDING, top, LLColor4::white, LLFontGL::LEFT, LLFontGL::VCENTER);
-            const LLVector3& vector = row.second;
+            mFont->renderUTF8(label, 0, HPADDING, top, LLColor4::white, LLFontGL::LEFT, LLFontGL::VCENTER);
             for (S32 i = 0; i < 3; ++i)
             {
                 std::string text = llformat("%.6f", vector[i]);

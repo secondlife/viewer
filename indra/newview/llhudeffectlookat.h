@@ -33,7 +33,7 @@ class LLViewerObject;
 class LLVOAvatar;
 class LLAttentionSet;
 
-typedef enum e_lookat_type
+enum e_lookat_type
 {
     LOOKAT_TARGET_NONE,
     LOOKAT_TARGET_IDLE,
@@ -47,7 +47,8 @@ typedef enum e_lookat_type
     LOOKAT_TARGET_MOUSELOOK,
     LOOKAT_TARGET_CLEAR,
     LOOKAT_NUM_TARGETS
-} ELookAtType;
+};
+using ELookAtType = e_lookat_type;
 
 class LLHUDEffectLookAt : public LLHUDEffect
 {

@@ -52,7 +52,7 @@ class LLViewerMediaTexture ;
 class LLTexturePipelineTester ;
 
 
-typedef void    (*loaded_callback_func)( bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, bool final, void* userdata );
+using loaded_callback_func = void(*)( bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, bool final, void* userdata );
 
 class LLFileSystem;
 class LLMessageSystem;
@@ -63,7 +63,7 @@ struct LLTextureKey;
 class LLLoadedCallbackEntry
 {
 public:
-    typedef std::set< LLTextureKey > source_callback_list_t;
+    using source_callback_list_t = std::set< LLTextureKey >;
 
 public:
     LLLoadedCallbackEntry(loaded_callback_func cb,
@@ -103,8 +103,8 @@ public:
         INVALID_TEXTURE_TYPE
     };
 
-    typedef std::vector<class LLFace*> ll_face_list_t;
-    typedef std::vector<LLVOVolume*> ll_volume_list_t;
+    using ll_face_list_t = std::vector<class LLFace*>;
+    using ll_volume_list_t = std::vector<LLVOVolume*>;
 
 
 protected:
@@ -178,7 +178,7 @@ public:
         S32 mIndex = LL::GLTF::INVALID_INDEX;
         std::shared_ptr<LL::GLTF::Asset> mAsset;
     };
-    typedef std::vector<MaterialEntry> material_list_t;
+    using material_list_t = std::vector<MaterialEntry>;
     material_list_t   mMaterialList;  // reverse pointer pointing to LL::GLTF::Materials using this image as texture
 
 protected:
@@ -473,7 +473,7 @@ protected:
     FTType mFTType; // What category of image is this - map tile, server bake, etc?
     mutable bool mIsMissingAsset;       // True if we know that there is no image asset with this image id in the database.
 
-    typedef std::list<LLLoadedCallbackEntry*> callback_list_t;
+    using callback_list_t = std::list<LLLoadedCallbackEntry*>;
     S8              mLoadedCallbackDesiredDiscardLevel;
     bool            mPauseLoadedCallBacks;
     callback_list_t mLoadedCallbackList;
@@ -611,7 +611,7 @@ public:
     static void removeMediaImplFromTexture(const LLUUID& media_id) ;
 
 private:
-    typedef std::map< LLUUID, LLPointer<LLViewerMediaTexture> > media_map_t ;
+    using media_map_t = std::map< LLUUID, LLPointer<LLViewerMediaTexture> >;
     static media_map_t sMediaMap ;
 };
 
@@ -773,13 +773,14 @@ private:
         S32 mTotalBytesLoadedForLargeImage ;
         S32 mTotalBytesLoadedForSculpties ;
 
-        typedef struct _texture_instant_preformance_t
+        struct _texture_instant_preformance_t
         {
             S32 mAverageBytesUsedPerSecond ;
             S32 mAverageBytesUsedForLargeImagePerSecond ;
             F32 mAveragePercentageBytesUsedPerSecond ;
             F32 mTime ;
-        }texture_instant_preformance_t ;
+        };
+        using texture_instant_preformance_t = _texture_instant_preformance_t;
         std::vector<texture_instant_preformance_t> mInstantPerformanceList ;
         S32 mInstantPerformanceListCounter ;
     };

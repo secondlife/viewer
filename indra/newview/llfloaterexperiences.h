@@ -42,8 +42,8 @@ public:
     virtual void onOpen(const LLSD& key);
     static LLFloaterExperiences* findInstance();
 protected:
-    typedef std::map<std::string, std::string> NameMap_t;
-    typedef std::function<void(LLPanelExperiences*, const LLSD&)> Callback_t;
+    using NameMap_t = std::map<std::string, std::string>;
+    using Callback_t = std::function<void(LLPanelExperiences*, const LLSD&)>;
 
     void clearFromRecent(const LLSD& ids);
     void resizeToTabs();
@@ -65,8 +65,8 @@ protected:
         const std::string &errorNotify, Callback_t cback);
 
 private:
-    typedef std::function<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
-        const std::string, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) > invokationFn_t;
+    using invokationFn_t = std::function<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
+        const std::string, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) >;
 
     static void retrieveExperienceListCoro(std::string url, LLHandle<LLFloaterExperiences> hparent,
         NameMap_t tabMapping, std::string errorNotify, Callback_t cback, invokationFn_t invoker);

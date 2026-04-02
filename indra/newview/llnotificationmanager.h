@@ -46,7 +46,7 @@ class LLNotificationManager : public LLSingleton<LLNotificationManager>
 {
     LLSINGLETON(LLNotificationManager);
     virtual ~LLNotificationManager();
-    typedef std::pair<std::string, LLEventHandler*> eventhandlers;
+    using eventhandlers = std::pair<std::string, LLEventHandler*>;
 
 public:
     //TODO: make private

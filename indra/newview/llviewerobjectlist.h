@@ -195,7 +195,7 @@ protected:
     S32 mNumOrphans;
     S32 mNumAvatars;
 
-    typedef std::vector<LLPointer<LLViewerObject> > vobj_list_t;
+    using vobj_list_t = std::vector<LLPointer<LLViewerObject> >;
 
     vobj_list_t mObjects;
     std::vector<LLPointer<LLViewerObject> > mActiveObjects;

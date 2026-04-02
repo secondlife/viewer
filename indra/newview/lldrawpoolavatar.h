@@ -56,13 +56,13 @@ public:
     ~LLDrawPoolAvatar();
     /*virtual*/ bool isDead();
 
-typedef enum
+enum eShadowPass
     {
         SHADOW_PASS_AVATAR_OPAQUE,
         SHADOW_PASS_AVATAR_ALPHA_BLEND,
         SHADOW_PASS_AVATAR_ALPHA_MASK,
         NUM_SHADOW_PASSES
-    } eShadowPass;
+    };
 
     virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 

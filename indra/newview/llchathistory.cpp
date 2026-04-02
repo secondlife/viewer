@@ -1293,8 +1293,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     std::string whisper = LLTrans::getString("whisper");
     if (chat.mChatType == CHAT_TYPE_SHOUT ||
         chat.mChatType == CHAT_TYPE_WHISPER ||
-        chat.mText.compare(0, shout.length(), shout) == 0 ||
-        chat.mText.compare(0, whisper.length(), whisper) == 0)
+        chat.mText.starts_with(shout) ||
+        chat.mText.starts_with(whisper))
     {
         delimiter = " ";
     }
@@ -1523,7 +1523,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         {
             std::string slurl_about = SLURL_APP_AGENT + chat.mFromID.asString() + SLURL_ABOUT;
             if (message.length() > slurl_about.length() &&
-                message.compare(0, slurl_about.length(), slurl_about) == 0)
+                message.starts_with(slurl_about))
             {
                 message = message.substr(slurl_about.length(), message.length()-1);
             }

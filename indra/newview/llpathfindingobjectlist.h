@@ -34,8 +34,8 @@
 
 class LLPathfindingObjectList;
 
-typedef std::shared_ptr<LLPathfindingObjectList> LLPathfindingObjectListPtr;
-typedef std::map<std::string, LLPathfindingObjectPtr> LLPathfindingObjectMap;
+using LLPathfindingObjectListPtr = std::shared_ptr<LLPathfindingObjectList>;
+using LLPathfindingObjectMap = std::map<std::string, LLPathfindingObjectPtr>;
 
 class LLPathfindingObjectList
 {
@@ -52,7 +52,7 @@ public:
 
     LLPathfindingObjectPtr find(const std::string &pObjectId) const;
 
-    typedef LLPathfindingObjectMap::const_iterator const_iterator;
+    using const_iterator = LLPathfindingObjectMap::const_iterator;
     const_iterator begin() const;
     const_iterator end() const;
 

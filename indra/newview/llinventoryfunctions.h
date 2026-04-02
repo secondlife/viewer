@@ -151,8 +151,8 @@ class LLMarketplaceValidator: public LLSingleton<LLMarketplaceValidator>
     LOG_CLASS(LLMarketplaceValidator);
 public:
 
-    typedef std::function<void(std::string& validation_message, S32 depth, LLError::ELevel log_level)> validation_msg_callback_t;
-    typedef std::function<void(bool result)> validation_done_callback_t;
+    using validation_msg_callback_t = std::function<void(std::string& validation_message, S32 depth, LLError::ELevel log_level)>;
+    using validation_done_callback_t = std::function<void(bool result)>;
 
     void validateMarketplaceListings(
         const LLUUID &category_id,

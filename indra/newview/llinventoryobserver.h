@@ -179,7 +179,7 @@ protected:
     virtual void onAssetAdded(const LLUUID& asset_id) {}
     virtual void done() = 0;
 
-    typedef std::vector<LLUUID> item_ref_t;
+    using item_ref_t = std::vector<LLUUID>;
     item_ref_t mAddedItems;
     item_ref_t mWatchedAssets;
 
@@ -214,7 +214,7 @@ class LLInventoryCategoryAddedObserver : public LLInventoryObserver
 {
 public:
 
-    typedef std::vector<LLViewerInventoryCategory*> cat_vec_t;
+    using cat_vec_t = std::vector<LLViewerInventoryCategory*>;
 
     LLInventoryCategoryAddedObserver() : mAddedCategories() {}
     /*virtual*/ void changed(U32 mask);
@@ -258,7 +258,7 @@ protected:
 class LLInventoryCategoriesObserver : public LLInventoryObserver
 {
 public:
-    typedef std::function<void()> callback_t;
+    using callback_t = std::function<void()>;
 
     LLInventoryCategoriesObserver() = default;
     virtual void changed(U32 mask);
@@ -274,7 +274,7 @@ public:
     void removeCategory(const LLUUID& cat_id);
 
 protected:
-    typedef LLUUID digest_t; // To clarify the actual usage of this "UUID"
+    using digest_t = LLUUID; // To clarify the actual usage of this "UUID"
     struct LLCategoryData
     {
         LLCategoryData(
@@ -302,8 +302,8 @@ protected:
         LLUUID      mThumbnailId;
     };
 
-    typedef std::map<LLUUID, LLCategoryData>    category_map_t;
-    typedef category_map_t::value_type          category_map_value_t;
+    using category_map_t = std::map<LLUUID, LLCategoryData>;
+    using category_map_value_t = category_map_t::value_type;
 
     category_map_t              mCategoryMap;
 };

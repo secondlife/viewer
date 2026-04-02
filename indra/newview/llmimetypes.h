@@ -111,8 +111,8 @@ public:
         bool mAllowLooping;
             // enable/disable media looping checkbox
     };
-    typedef std::map< std::string, LLMIMEInfo > mime_info_map_t;
-    typedef std::map< std::string, LLMIMEWidgetSet > mime_widget_set_map_t;
+    using mime_info_map_t = std::map< std::string, LLMIMEInfo >;
+    using mime_widget_set_map_t = std::map< std::string, LLMIMEWidgetSet >;
 
     // Public so users can iterate over it
     static mime_info_map_t sMap;

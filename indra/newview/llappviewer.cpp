@@ -3770,7 +3770,7 @@ void getFileList()
 {
     std::stringstream filenames;
 
-    typedef std::vector<std::string> vec;
+    using vec = std::vector<std::string>;
     std::string pathname = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"");
     vec file_vec = gDirUtilp->getFilesInDir(pathname);
     for(vec::const_iterator iter=file_vec.begin(); iter!=file_vec.end(); ++iter)
@@ -3911,7 +3911,7 @@ bool LLAppViewer::getMarkerData(const std::string& marker_name, std::string& dat
             data = marker_string.substr(pos + 1, marker_version_length - pos - 1);
             marker_string = marker_string.substr(0, pos);
         }
-        if (0 == my_version.compare(0, my_version.length(), marker_string, 0, marker_string.length()))
+        if (my_version == marker_string)
         {
             sameVersion = true;
         }

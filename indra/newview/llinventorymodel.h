@@ -103,9 +103,9 @@ public:
         CHILDREN_MAYBE
     };
 
-    typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
-    typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
-    typedef std::set<LLUUID> changed_items_t;
+    using cat_array_t = std::vector<LLPointer<LLViewerInventoryCategory> >;
+    using item_array_t = std::vector<LLPointer<LLViewerInventoryItem> >;
+    using changed_items_t = std::set<LLUUID>;
 
     // Rider: This is using the old responder patter.  It should be refactored to
     // take advantage of coroutines.
@@ -201,19 +201,19 @@ private:
     // the inventory using several different identifiers.
     // mInventory member data is the 'master' list of inventory, and
     // mCategoryMap and mItemMap store uuid->object mappings.
-    typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
-    typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryItem>>     item_map_t;
+    using cat_map_t = std::unordered_map<LLUUID, LLPointer<LLViewerInventoryCategory> >;
+    using item_map_t = std::unordered_map<LLUUID, LLPointer<LLViewerInventoryItem>>;
     cat_map_t mCategoryMap;
     item_map_t mItemMap;
     // This last set of indices is used to map parents to children.
-    typedef std::unordered_map<LLUUID, cat_array_t*> parent_cat_map_t;
-    typedef std::unordered_map<LLUUID, item_array_t*> parent_item_map_t;
+    using parent_cat_map_t = std::unordered_map<LLUUID, cat_array_t*>;
+    using parent_item_map_t = std::unordered_map<LLUUID, item_array_t*>;
     parent_cat_map_t mParentChildCategoryTree;
     parent_item_map_t mParentChildItemTree;
 
     // Track links to items and categories. We do not store item or
     // category pointers here, because broken links are also supported.
-    typedef std::multimap<LLUUID, LLUUID> backlink_mmap_t;
+    using backlink_mmap_t = std::multimap<LLUUID, LLUUID>;
     backlink_mmap_t mBacklinkMMap; // key = target_id: ID of item, values = link_ids: IDs of item or folder links referencing it.
     // For internal use only
     bool hasBacklinkInfo(const LLUUID& link_id, const LLUUID& target_id) const;
@@ -260,7 +260,7 @@ public:
                                 item_array_t*& items) const;
     void getDirectDescendentsOf(const LLUUID& cat_id, cat_array_t& categories, item_array_t& items, LLInventoryCollectFunctor& f) const;
 
-    typedef LLUUID digest_t; // To clarify the actual usage of this "UUID"
+    using digest_t = LLUUID; // To clarify the actual usage of this "UUID"
     // Compute a hash of direct descendant names (for detecting child name changes)
     digest_t hashDirectDescendentNames(const LLUUID& cat_id) const;
 
@@ -526,7 +526,7 @@ public:
         S32 mDescendentDelta;
         bool mChangeVersion;
     };
-    typedef std::vector<LLCategoryUpdate> update_list_t;
+    using update_list_t = std::vector<LLCategoryUpdate>;
 
     // This exists to make it easier to account for deltas in a map.
     struct LLInitializedS32
@@ -537,7 +537,7 @@ public:
         LLInitializedS32& operator++() { ++mValue; return *this; }
         LLInitializedS32& operator--() { --mValue; return *this; }
     };
-    typedef std::map<LLUUID, LLInitializedS32> update_map_t;
+    using update_map_t = std::map<LLUUID, LLInitializedS32>;
 
     // Call when there are category updates.  Call them *before* the
     // actual update so the method can do descendent accounting correctly.
@@ -592,7 +592,7 @@ private:
     U32 mModifyMaskBacklog;
     changed_items_t mChangedItemIDsBacklog;
     changed_items_t mAddedItemIDsBacklog;
-    typedef std::map<LLUUID , changed_items_t> broken_links_t;
+    using broken_links_t = std::map<LLUUID , changed_items_t>;
     broken_links_t mPossiblyBrockenLinks; // there can be multiple links per item
     changed_items_t mLinksRebuildList;
     boost::signals2::connection mBulkFecthCallbackSlot;
@@ -607,7 +607,7 @@ public:
     void removeObserver(LLInventoryObserver* observer);
     bool containsObserver(LLInventoryObserver* observer) const;
 private:
-    typedef std::set<LLInventoryObserver*> observer_list_t;
+    using observer_list_t = std::set<LLInventoryObserver*>;
     observer_list_t mObservers;
 
 /**                    Notifications

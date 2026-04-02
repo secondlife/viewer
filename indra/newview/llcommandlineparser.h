@@ -37,7 +37,7 @@ namespace boost
     namespace program_options
     {
         template <class charT> class basic_command_line_parser;
-        typedef basic_command_line_parser<char> command_line_parser;
+        using command_line_parser = basic_command_line_parser<char>;
     }
 }
 
@@ -49,7 +49,7 @@ namespace boost
 class LLCommandLineParser
 {
 public:
-    typedef std::vector< std::string > token_vector_t;
+    using token_vector_t = std::vector< std::string >;
 
     /**
      * @brief Add a value-less option to the command line description.
@@ -121,7 +121,7 @@ public:
      * The parser_func takes an input string, and should return a
      * name/value pair as the result.
      */
-    typedef std::function<std::pair<std::string, std::string>(const std::string&)> parser_func;
+    using parser_func = std::function<std::pair<std::string, std::string>(const std::string&)>;
     void setCustomParser(parser_func f) { mExtraParser = f; }
 
 private:

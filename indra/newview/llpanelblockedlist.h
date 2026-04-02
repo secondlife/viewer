@@ -58,10 +58,11 @@ public:
 
 private:
 
-    typedef enum e_sort_oder{
+    enum e_sort_oder{
         E_SORT_BY_NAME = 0,
         E_SORT_BY_TYPE = 1,
-    } ESortOrder;
+    };
+    using ESortOrder = e_sort_oder;
 
     void removePicker();
     void updateButtons();
@@ -95,7 +96,7 @@ class LLFloaterGetBlockedObjectName : public LLFloater
 {
     friend class LLFloaterReg;
 public:
-    typedef std::function<void(const std::string&)> get_object_name_callback_t;
+    using get_object_name_callback_t = std::function<void(const std::string&)>;
 
     bool postBuild() override;
 

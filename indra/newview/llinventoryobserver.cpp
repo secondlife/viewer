@@ -267,7 +267,7 @@ void LLInventoryFetchItemsObserver::startFetch()
 
     LLSD items_llsd;
 
-    typedef std::map<LLUUID, uuid_vec_t> requests_by_folders_t;
+    using requests_by_folders_t = std::map<LLUUID, uuid_vec_t>;
     requests_by_folders_t requests;
     for (uuid_vec_t::const_iterator it = mIDs.begin(); it < mIDs.end(); ++it)
     {
@@ -335,9 +335,9 @@ void LLInventoryFetchItemsObserver::startFetch()
 
     if (aisv3)
     {
-        for (requests_by_folders_t::value_type &folder : requests)
+        for (auto& [folder_id, item_ids] : requests)
         {
-            LLViewerInventoryCategory* cat = gInventory.getCategory(folder.first);
+            LLViewerInventoryCategory* cat = gInventory.getCategory(folder_id);
             if (cat)
             {
                 if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
@@ -345,22 +345,22 @@ void LLInventoryFetchItemsObserver::startFetch()
                     // start fetching whole folder since it's not ready either way
                     cat->fetch();
                 }
-                else if (folder.second.size() > MAX_INDIVIDUAL_ITEM_REQUESTS)
+                else if (item_ids.size() > MAX_INDIVIDUAL_ITEM_REQUESTS)
                 {
                     // requesting one by one will take a while
                     // do whole folder
-                    LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder.first, true);
+                    LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder_id, true);
                 }
-                else if (cat->getViewerDescendentCount() <= folder.second.size()
-                         || cat->getDescendentCount() <= folder.second.size())
+                else if (cat->getViewerDescendentCount() <= item_ids.size()
+                         || cat->getDescendentCount() <= item_ids.size())
                 {
                     // Start fetching whole folder since we need all items
-                    LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder.first, true);
+                    LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder_id, true);
                 }
                 else
                 {
                     // get items one by one
-                    for (LLUUID& item_id : folder.second)
+                    for (LLUUID& item_id : item_ids)
                     {
                         LLInventoryModelBackgroundFetch::getInstance()->scheduleItemFetch(item_id);
                     }
@@ -371,10 +371,10 @@ void LLInventoryFetchItemsObserver::startFetch()
                 // Isn't supposed to happen? We should have all folders
                 // and if item exists, folder is supposed to exist as well.
                 llassert(false);
-                LL_WARNS("Inventory") << "Missing folder: " << folder.first << " fetching items individually" << LL_ENDL;
+                LL_WARNS("Inventory") << "Missing folder: " << folder_id << " fetching items individually" << LL_ENDL;
 
                 // get items one by one
-                for (LLUUID& item_id : folder.second)
+                for (LLUUID& item_id : item_ids)
                 {
                     LLInventoryModelBackgroundFetch::getInstance()->scheduleItemFetch(item_id);
                 }
@@ -674,12 +674,8 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 
     std::vector<LLUUID> deleted_categories_ids;
 
-    for (category_map_t::iterator iter = mCategoryMap.begin();
-         iter != mCategoryMap.end();
-         ++iter)
+    for (auto& [cat_id, cat_data] : mCategoryMap)
     {
-        const LLUUID& cat_id = (*iter).first;
-        LLCategoryData& cat_data = (*iter).second;
 
         LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
         if (!category)

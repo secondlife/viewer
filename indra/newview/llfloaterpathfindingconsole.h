@@ -97,7 +97,7 @@ public:
 protected:
 
 private:
-    typedef enum
+    enum EConsoleState
     {
         kConsoleStateUnknown,
         kConsoleStateLibraryNotImplemented,
@@ -107,7 +107,7 @@ private:
         kConsoleStateDownloading,
         kConsoleStateHasNavMesh,
         kConsoleStateError
-    } EConsoleState;
+    };
 
     // Does its own instance management, so clients not allowed
     // to allocate or destroy.

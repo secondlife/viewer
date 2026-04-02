@@ -65,7 +65,7 @@ class LLDrawable
 {
     LL_ALIGN_NEW;
 public:
-    typedef std::vector<LLFace*> face_list_t;
+    using face_list_t = std::vector<LLFace*>;
 
     LLDrawable(const LLDrawable& rhs) = delete;
     const LLDrawable& operator=(const LLDrawable& rhs) = delete;
@@ -215,11 +215,11 @@ public:
     friend class LLDrawPool;
     friend class LLSpatialBridge;
 
-    typedef std::unordered_set<LLPointer<LLDrawable> > drawable_set_t;
-    typedef std::set<LLPointer<LLDrawable> > ordered_drawable_set_t;
-    typedef std::vector<LLPointer<LLDrawable> > drawable_vector_t;
-    typedef std::list<LLPointer<LLDrawable> > drawable_list_t;
-    typedef std::queue<LLPointer<LLDrawable> > drawable_queue_t;
+    using drawable_set_t = std::unordered_set<LLPointer<LLDrawable> >;
+    using ordered_drawable_set_t = std::set<LLPointer<LLDrawable> >;
+    using drawable_vector_t = std::vector<LLPointer<LLDrawable> >;
+    using drawable_list_t = std::list<LLPointer<LLDrawable> >;
+    using drawable_queue_t = std::queue<LLPointer<LLDrawable> >;
 
     struct CompareDistanceGreater
     {
@@ -246,7 +246,7 @@ public:
         }
     };
 
-    typedef enum e_drawable_flags
+    enum e_drawable_flags
     {
         IN_REBUILD_Q    = 0x00000001,
         EARLY_MOVE      = 0x00000004,
@@ -278,7 +278,8 @@ public:
         ACTIVE_CHILD    = 0x02000000,
         FOR_UNLOAD      = 0x04000000, //should be unload from memory
         MIRROR          = 0x08000000, // Used as a mirror, needs a hero probe position to be calculated.
-    } EDrawableFlags;
+    };
+    using EDrawableFlags = e_drawable_flags;
 
 public:
     LLXformMatrix       mXform;

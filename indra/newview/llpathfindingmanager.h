@@ -56,12 +56,12 @@ class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
     friend class LLAgentStateChangeNode;
     friend class AgentStateResponder;
 public:
-    typedef enum {
+    enum ERequestStatus {
         kRequestStarted,
         kRequestCompleted,
         kRequestNotEnabled,
         kRequestError
-    } ERequestStatus;
+    };
 
     void initSystem();
     void quitSystem();
@@ -75,29 +75,29 @@ public:
     LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForRegion(LLViewerRegion *pRegion, LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);
     void requestGetNavMeshForRegion(LLViewerRegion *pRegion, bool pIsGetStatusOnly);
 
-    typedef U32 request_id_t;
-    typedef std::function<void(request_id_t, ERequestStatus, LLPathfindingObjectListPtr)> object_request_callback_t;
+    using request_id_t = U32;
+    using object_request_callback_t = std::function<void(request_id_t, ERequestStatus, LLPathfindingObjectListPtr)>;
 
     void requestGetLinksets(request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const;
     void requestSetLinksets(request_id_t pRequestId, const LLPathfindingObjectListPtr &pLinksetListPtr, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, object_request_callback_t pLinksetsCallback) const;
 
     void requestGetCharacters(request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
 
-    typedef std::function<void(bool)>            agent_state_callback_t;
-    typedef boost::signals2::signal<void (bool)> agent_state_signal_t;
-    typedef boost::signals2::connection          agent_state_slot_t;
+    using agent_state_callback_t = std::function<void(bool)>;
+    using agent_state_signal_t = boost::signals2::signal<void (bool)>;
+    using agent_state_slot_t = boost::signals2::connection;
 
     agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
     void requestGetAgentState();
 
-    typedef std::function<void(bool)> rebake_navmesh_callback_t;
+    using rebake_navmesh_callback_t = std::function<void(bool)>;
     void requestRebakeNavMesh(rebake_navmesh_callback_t pRebakeNavMeshCallback);
 
 protected:
 
 private:
 
-    typedef std::map<LLUUID, LLPathfindingNavMeshPtr> NavMeshMap;
+    using NavMeshMap = std::map<LLUUID, LLPathfindingNavMeshPtr>;
 
     void handleDeferredGetAgentStateForRegion(const LLUUID &pRegionUUID);
     void handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID, bool pIsGetStatusOnly);

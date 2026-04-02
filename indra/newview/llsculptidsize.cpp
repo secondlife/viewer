@@ -36,7 +36,7 @@ extern LLControlGroup gSavedSettings;
 
 //...........
 
-typedef std::pair<LLSculptIDSize::container_BY_SCULPT_ID_view::iterator, LLSculptIDSize::container_BY_SCULPT_ID_view::iterator> pair_iter_iter_BY_SCULPT_ID_t;
+using pair_iter_iter_BY_SCULPT_ID_t = std::pair<LLSculptIDSize::container_BY_SCULPT_ID_view::iterator, LLSculptIDSize::container_BY_SCULPT_ID_view::iterator>;
 
 //...........
 

@@ -29,6 +29,7 @@
 #include <functional>
 #include <iostream>
 #include <set>
+#include <string_view>
 #include <vector>
 #include "stdtypes.h"
 #include "llpreprocessor.h"
@@ -121,7 +122,7 @@ public:
         return tmp[0] ^ tmp[1];
     }
 
-    static bool validate(const std::string& in_string); // Validate that the UUID string is legal.
+    static bool validate(std::string_view in_string); // Validate that the UUID string is legal.
 
     static const LLUUID null;
     static LLMutex * mMutex;
@@ -129,7 +130,7 @@ public:
     static U32 getRandomSeed();
     static S32 getNodeID(unsigned char * node_id);
 
-    static bool parseUUID(const std::string& buf, LLUUID* value);
+    static bool parseUUID(std::string_view buf, LLUUID* value);
 
     U8 mData[UUID_BYTES];
 };

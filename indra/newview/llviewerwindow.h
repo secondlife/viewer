@@ -77,7 +77,7 @@ class LLCubeMapArray;
 class LLPickInfo
 {
 public:
-    typedef enum
+    enum EPickType
     {
         PICK_OBJECT,
         PICK_FLORA,
@@ -85,7 +85,7 @@ public:
         PICK_ICON,
         PICK_PARCEL_WALL,
         PICK_INVALID
-    } EPickType;
+    };
 
 public:
     LLPickInfo();
@@ -243,8 +243,8 @@ public:
                     const std::map<std::string, std::string>& args);
 
     // signal on update of WorldView rect
-    typedef std::function<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_callback_t;
-    typedef boost::signals2::signal<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_signal_t;
+    using world_rect_callback_t = std::function<void (LLRect old_world_rect, LLRect new_world_rect)>;
+    using world_rect_signal_t = boost::signals2::signal<void (LLRect old_world_rect, LLRect new_world_rect)>;
     world_rect_signal_t mOnWorldViewRectUpdated;
     boost::signals2::connection setOnWorldViewRectUpdated(world_rect_callback_t cb) { return mOnWorldViewRectUpdated.connect(cb); }
 
@@ -398,7 +398,7 @@ public:
     bool            isSnapshotLocSet() const;
     void            resetSnapshotLoc() const;
 
-    typedef boost::signals2::signal<void(void)> snapshot_saved_signal_t;
+    using snapshot_saved_signal_t = boost::signals2::signal<void(void)>;
 
     void            saveImageNumbered(LLImageFormatted *image, bool force_picker, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
     void            onDirectorySelected(const std::vector<std::string>& filenames, LLImageFormatted *image, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
@@ -533,7 +533,7 @@ private:
     bool            mFocusCycleMode;
     bool            mAllowMouseDragging;
     LLFrameTimer    mMouseDownTimer;
-    typedef std::set<LLHandle<LLView> > view_handle_set_t;
+    using view_handle_set_t = std::set<LLHandle<LLView> >;
     view_handle_set_t mMouseHoverViews;
 
     // Variables used for tool override switching based on modifier keys.  JC

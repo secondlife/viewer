@@ -2580,18 +2580,18 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                                                                              {"39", "Ultra"} };
         int i = 0;
         bool failed = false;
-        for (const auto& quality_pair : quality_levels)
+        for (const auto& [preset, label] : quality_levels)
         {
             if (success)
             {
-                gFXAAProgram[i].mName = llformat("FXAA Shader (%s)", quality_pair.second.c_str());
+                gFXAAProgram[i].mName = llformat("FXAA Shader (%s)", label.c_str());
                 gFXAAProgram[i].mFeatures.isDeferred = true;
                 gFXAAProgram[i].mShaderFiles.clear();
                 gFXAAProgram[i].mShaderFiles.push_back(make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER));
                 gFXAAProgram[i].mShaderFiles.push_back(make_pair("deferred/fxaaF.glsl", GL_FRAGMENT_SHADER));
 
                 gFXAAProgram[i].clearPermutations();
-                gFXAAProgram[i].addPermutation("FXAA_QUALITY__PRESET", quality_pair.first);
+                gFXAAProgram[i].addPermutation("FXAA_QUALITY__PRESET", preset);
                 gFXAAProgram[i].addPermutation("FXAA_GLSL_400", "1");
 
                 gFXAAProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
@@ -2626,17 +2626,17 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                                                                           {"SMAA_PRESET_ULTRA", "Ultra"} };
         int i = 0;
         bool failed = false;
-        for (const auto& smaa_pair : quality_levels)
+        for (const auto& [preset_define, label] : quality_levels)
         {
             std::map<std::string, std::string> defines;
             defines.emplace("SMAA_GLSL_4", "1");
             defines.emplace("SMAA_PREDICATION", "0");
             defines.emplace("SMAA_REPROJECTION", "0");
-            defines.emplace(smaa_pair.first, "1");
+            defines.emplace(preset_define, "1");
 
             if (success)
             {
-                gSMAAEdgeDetectProgram[i].mName = llformat("SMAA Edge Detection (%s)", smaa_pair.second.c_str());
+                gSMAAEdgeDetectProgram[i].mName = llformat("SMAA Edge Detection (%s)", label.c_str());
                 gSMAAEdgeDetectProgram[i].mFeatures.isDeferred = true;
 
                 gSMAAEdgeDetectProgram[i].clearPermutations();
@@ -2662,7 +2662,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
             if (success)
             {
-                gSMAABlendWeightsProgram[i].mName = llformat("SMAA Blending Weights (%s)", smaa_pair.second.c_str());
+                gSMAABlendWeightsProgram[i].mName = llformat("SMAA Blending Weights (%s)", label.c_str());
                 gSMAABlendWeightsProgram[i].mFeatures.isDeferred = true;
 
                 gSMAABlendWeightsProgram[i].clearPermutations();
@@ -2688,7 +2688,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
             if (success)
             {
-                gSMAANeighborhoodBlendProgram[i].mName = llformat("SMAA Neighborhood Blending (%s)", smaa_pair.second.c_str());
+                gSMAANeighborhoodBlendProgram[i].mName = llformat("SMAA Neighborhood Blending (%s)", label.c_str());
                 gSMAANeighborhoodBlendProgram[i].mFeatures.isDeferred = true;
 
                 gSMAANeighborhoodBlendProgram[i].clearPermutations();

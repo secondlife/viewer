@@ -51,7 +51,7 @@
 template <typename STATUS>
 class StatusMapperBase
 {
-    typedef std::map<STATUS, std::string> MapType;
+    using MapType = std::map<STATUS, std::string>;
 
 public:
     StatusMapperBase(const std::string& desc):

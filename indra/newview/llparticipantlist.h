@@ -38,7 +38,7 @@ class LLParticipantList : public LLConversationItemSession
     LOG_CLASS(LLParticipantList);
 public:
 
-    typedef std::function<bool (const LLUUID& speaker_id)> validate_speaker_callback_t;
+    using validate_speaker_callback_t = std::function<bool (const LLUUID& speaker_id)>;
 
     LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewModelInterface& root_view_model);
     ~LLParticipantList();

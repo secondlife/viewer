@@ -174,7 +174,7 @@ public:
     static void     userRemoveWearable(const LLWearableType::EType &type, const U32 &index);
     static void     userRemoveWearablesOfType(const LLWearableType::EType &type);
 
-    typedef std::vector<LLViewerObject*> llvo_vec_t;
+    using llvo_vec_t = std::vector<LLViewerObject*>;
 
     static void     findAttachmentsAddRemoveInfo(LLInventoryModel::item_array_t& obj_item_array,
                                                  llvo_vec_t& objects_to_remove,
@@ -189,12 +189,12 @@ public:
     // Signals
     //--------------------------------------------------------------------
 public:
-    typedef std::function<void()>           loading_started_callback_t;
-    typedef boost::signals2::signal<void()> loading_started_signal_t;
+    using loading_started_callback_t = std::function<void()>;
+    using loading_started_signal_t = boost::signals2::signal<void()>;
     boost::signals2::connection             addLoadingStartedCallback(loading_started_callback_t cb);
 
-    typedef std::function<void()>           loaded_callback_t;
-    typedef boost::signals2::signal<void()> loaded_signal_t;
+    using loaded_callback_t = std::function<void()>;
+    using loaded_signal_t = boost::signals2::signal<void()>;
     boost::signals2::connection             addLoadedCallback(loaded_callback_t cb);
 
     bool                                    changeInProgress() const;

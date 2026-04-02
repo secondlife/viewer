@@ -44,7 +44,7 @@ class LLFloaterWebContent :
 {
 public:
 
-    typedef LLInstanceTracker<LLFloaterWebContent, std::string, LLInstanceTrackerReplaceOnCollision> instance_tracker_t;
+    using instance_tracker_t = LLInstanceTracker<LLFloaterWebContent, std::string, LLInstanceTrackerReplaceOnCollision>;
     LOG_CLASS(LLFloaterWebContent);
 
     struct _Params : public LLInitParam::Block<_Params>
@@ -65,7 +65,7 @@ public:
         _Params();
     };
 
-    typedef LLSDParamAdapter<_Params> Params;
+    using Params = LLSDParamAdapter<_Params>;
 
     LLFloaterWebContent(const Params& params);
 

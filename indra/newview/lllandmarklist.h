@@ -40,7 +40,7 @@ class LLInventoryItem;
 class LLLandmarkList
 {
 public:
-    typedef std::function<void(LLLandmark*)> loaded_callback_t;
+    using loaded_callback_t = std::function<void(LLLandmark*)>;
 
     LLLandmarkList() = default;
     ~LLLandmarkList();
@@ -67,19 +67,19 @@ protected:
     void eraseCallbacks(const LLUUID& landmark_id);
     void makeCallbacks(const LLUUID& landmark_id);
 
-    typedef std::map<LLUUID, LLLandmark*> landmark_list_t;
+    using landmark_list_t = std::map<LLUUID, LLLandmark*>;
     landmark_list_t mList;
 
-    typedef std::set<LLUUID> landmark_uuid_list_t;
+    using landmark_uuid_list_t = std::set<LLUUID>;
     landmark_uuid_list_t mBadList;
     landmark_uuid_list_t mRetryList;
 
-    typedef std::map<LLUUID,F32> landmark_requested_list_t;
+    using landmark_requested_list_t = std::map<LLUUID,F32>;
     landmark_requested_list_t mRequestedList;
 
     // *TODO: make the callback multimap a template class and make use of it
     // here and in LLLandmark.
-    typedef std::multimap<LLUUID, loaded_callback_t> loaded_callback_map_t;
+    using loaded_callback_map_t = std::multimap<LLUUID, loaded_callback_t>;
     loaded_callback_map_t mLoadedCallbackMap;
 };
 

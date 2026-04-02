@@ -115,26 +115,26 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex, public LLH
 {
     LOG_CLASS(LLModelPreview);
 
-    typedef boost::signals2::signal<void(F32 x, F32 y, F32 z)> details_signal_t;
-    typedef boost::signals2::signal<void(void)> model_loaded_signal_t;
-    typedef boost::signals2::signal<void(bool)> model_updated_signal_t;
+    using details_signal_t = boost::signals2::signal<void(F32 x, F32 y, F32 z)>;
+    using model_loaded_signal_t = boost::signals2::signal<void(void)>;
+    using model_updated_signal_t = boost::signals2::signal<void(bool)>;
 
 public:
 
-    typedef enum
+    enum eLoDMode
     {
         LOD_FROM_FILE = 0,
         MESH_OPTIMIZER_AUTO, // automatically selects method based on model or face
         MESH_OPTIMIZER_PRECISE, // combines faces into a single model, simplifies, then splits back into faces
         MESH_OPTIMIZER_SLOPPY, // uses sloppy method, works per face
         USE_LOD_ABOVE,
-    } eLoDMode;
+    };
 
-    typedef enum
+    enum eLoDLimit
     {
         LIMIT_TRIANGLES = 0,
         LIMIT_ERROR_TRESHOLD,
-    } eLoDLimit;
+    };
 
 public:
     // Todo: model preview shouldn't need floater dependency, it
@@ -247,13 +247,13 @@ private:
     S32 mNumOfFetchingTextures;
     bool mTexturesNeedScaling;
 
-    typedef enum
+    enum eSimplificationMode
     {
         MESH_OPTIMIZER_FULL,
         MESH_OPTIMIZER_NO_NORMALS,
         MESH_OPTIMIZER_NO_UVS,
         MESH_OPTIMIZER_NO_TOPOLOGY,
-    } eSimplificationMode;
+    };
 
     // Merges faces into single mesh, simplifies using mesh optimizer,
     // then splits back into faces.
@@ -308,8 +308,8 @@ protected:
     LLModelLoader::model_list mModel[LLModel::NUM_LODS];
     LLModelLoader::model_list mBaseModel;
 
-    typedef std::vector<LLVolumeFace>       v_LLVolumeFace_t;
-    typedef std::vector<v_LLVolumeFace_t>   vv_LLVolumeFace_t;
+    using v_LLVolumeFace_t = std::vector<LLVolumeFace>;
+    using vv_LLVolumeFace_t = std::vector<v_LLVolumeFace_t>;
 
     vv_LLVolumeFace_t mModelFacesCopy[LLModel::NUM_LODS];
     vv_LLVolumeFace_t mBaseModelFacesCopy;

@@ -1564,15 +1564,15 @@ U64 LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges(const LLUUID& ag
     {
         uuid_vec_t roles_to_be_removed;
 
-        for (const auto& role : *role_change_datap)
+        for (const auto& [role_id, change_type] : *role_change_datap)
         {
-            if (role.second == RMC_ADD)
+            if (change_type == RMC_ADD)
             {
-                new_powers |= gdatap->getRolePowers(role.first);
+                new_powers |= gdatap->getRolePowers(role_id);
             }
             else
             {
-                roles_to_be_removed.push_back(role.first);
+                roles_to_be_removed.push_back(role_id);
             }
         }
 
@@ -2144,21 +2144,18 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 
         LLScrollListItem* item = NULL;
 
-        LLGroupMgrGroupData::role_list_t::iterator rit = gdatap->mRoles.begin();
-        LLGroupMgrGroupData::role_list_t::iterator end = gdatap->mRoles.end();
-
-        for ( ; rit != end; ++rit)
+        for (const auto& [role_id, role_data_ptr] : gdatap->mRoles)
         {
             LLRoleData rd;
-            if (gdatap->getRoleData((*rit).first,rd))
+            if (gdatap->getRoleData(role_id, rd))
             {
                 if (matchesSearchFilter(rd.mRoleName, rd.mRoleTitle))
                 {
                     // If this is the everyone role, then EVERYONE is in it.
-                    S32 members_in_role = (*rit).first.isNull() ? static_cast<S32>(gdatap->mMembers.size()) : (*rit).second->getTotalMembersInRole();
-                    LLSD row = createRoleItem((*rit).first,rd.mRoleName, rd.mRoleTitle, members_in_role);
-                    item = mRolesList->addElement(row, ((*rit).first.isNull()) ? ADD_TOP : ADD_BOTTOM, this);
-                    if (had_selection && ((*rit).first == last_selected))
+                    S32 members_in_role = role_id.isNull() ? static_cast<S32>(gdatap->mMembers.size()) : role_data_ptr->getTotalMembersInRole();
+                    LLSD row = createRoleItem(role_id, rd.mRoleName, rd.mRoleTitle, members_in_role);
+                    item = mRolesList->addElement(row, (role_id.isNull()) ? ADD_TOP : ADD_BOTTOM, this);
+                    if (had_selection && (role_id == last_selected))
                     {
                         item->setSelected(true);
                     }
@@ -2166,7 +2163,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
             }
             else
             {
-                LL_WARNS() << "LLPanelGroupRolesSubTab::update() No role data for role " << (*rit).first << LL_ENDL;
+                LL_WARNS() << "LLPanelGroupRolesSubTab::update() No role data for role " << role_id << LL_ENDL;
             }
         }
 

@@ -435,11 +435,11 @@ void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLchar** shader_code_t
     LL_CONT << LL_ENDL;
 }
 
-void LLShaderMgr::dumpObjectLog(GLuint ret, bool warns, const std::string& filename)
+void LLShaderMgr::dumpObjectLog(GLuint ret, bool warns, std::string_view filename)
 {
     std::string log;
     log = get_object_log(ret);
-    std::string fname = filename;
+    std::string fname{filename};
     if (filename.empty())
     {
         fname = "unknown shader file";

@@ -94,7 +94,7 @@ struct ViewerFolderEntry : public LLDictionaryEntry
     const std::string mIconNameOpen;
     const std::string mIconNameClosed;
     const std::string mNewCategoryName;
-    typedef std::vector<std::string> name_vec_t;
+    using name_vec_t = std::vector<std::string>;
     name_vec_t mAllowedNames;
     bool mIsQuiet;
     bool mHideIfEmpty;

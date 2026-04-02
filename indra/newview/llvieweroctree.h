@@ -45,11 +45,11 @@ class LLViewerOctreeGroup;
 class LLViewerOctreeEntry;
 class LLViewerOctreePartition;
 
-typedef LLOctreeListener<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>> OctreeListener;
-typedef LLTreeNode<LLViewerOctreeEntry> TreeNode;
-typedef LLOctreeNode<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>> OctreeNode;
-typedef LLOctreeRoot<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>> OctreeRoot;
-typedef LLOctreeTraveler<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>> OctreeTraveler;
+using OctreeListener = LLOctreeListener<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>>;
+using TreeNode = LLTreeNode<LLViewerOctreeEntry>;
+using OctreeNode = LLOctreeNode<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>>;
+using OctreeRoot = LLOctreeRoot<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>>;
+using OctreeTraveler = LLOctreeTraveler<LLViewerOctreeEntry, LLPointer<LLViewerOctreeEntry>>;
 
 #if LL_OCTREE_PARANOIA_CHECK
 #define assert_octree_valid(x) x->validate()
@@ -77,12 +77,12 @@ class LLViewerOctreeEntry : public LLRefCount
     friend class LLViewerOctreeEntryData;
 
 public:
-    typedef enum
+    enum eEntryDataType_t
     {
         LLDRAWABLE = 0,
         LLVOCACHEENTRY,
         NUM_DATA_TYPE
-    }eEntryDataType_t;
+    };
 
 protected:
     virtual ~LLViewerOctreeEntry();
@@ -198,8 +198,8 @@ public:
     };
 
 public:
-    typedef OctreeNode::element_iter element_iter;
-    typedef OctreeNode::element_list element_list;
+    using element_iter = OctreeNode::element_iter;
+    using element_list = OctreeNode::element_list;
 
     LLViewerOctreeGroup(OctreeNode* node);
     LLViewerOctreeGroup(const LLViewerOctreeGroup& rhs)
@@ -274,22 +274,22 @@ protected:
 class LLOcclusionCullingGroup : public LLViewerOctreeGroup
 {
 public:
-    typedef enum
+    enum eOcclusionState
     {
         OCCLUDED                = 0x00010000,
         QUERY_PENDING           = 0x00020000,
         ACTIVE_OCCLUSION        = 0x00040000,
         DISCARD_QUERY           = 0x00080000,
         EARLY_FAIL              = 0x00100000,
-    } eOcclusionState;
+    };
 
-    typedef enum
+    enum eSetStateMode
     {
         STATE_MODE_SINGLE = 0,      //set one node
         STATE_MODE_BRANCH,          //set entire branch
         STATE_MODE_DIFF,            //set entire branch as long as current state is different
         STATE_MODE_ALL_CAMERAS,     //used for occlusion state, set state for all cameras
-    } eSetStateMode;
+    };
 
 protected:
     virtual ~LLOcclusionCullingGroup();

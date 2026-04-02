@@ -45,7 +45,7 @@ class LLToolDragAndDrop : public LLTool, public LLSingleton<LLToolDragAndDrop>
 {
     LLSINGLETON(LLToolDragAndDrop);
 public:
-    typedef boost::signals2::signal<void ()> enddrag_signal_t;
+    using enddrag_signal_t = boost::signals2::signal<void ()>;
 
     // overridden from LLTool
     virtual bool    handleMouseUp(S32 x, S32 y, MASK mask) override;
@@ -114,8 +114,7 @@ protected:
     // dragOrDrop3dImpl points to a member of LLToolDragAndDrop that
     // takes parameters (LLViewerObject* obj, S32 face, MASK, bool
     // drop) and returns a bool if drop is ok
-    typedef EAcceptance (LLToolDragAndDrop::*dragOrDrop3dImpl)
-        (LLViewerObject*, S32, MASK, bool);
+    using dragOrDrop3dImpl = EAcceptance(LLToolDragAndDrop::*)(LLViewerObject*, S32, MASK, bool);
 
     void dragOrDrop(S32 x, S32 y, MASK mask, bool drop,
                     EAcceptance* acceptance);

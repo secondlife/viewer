@@ -33,7 +33,7 @@
 class LLConversationLogObserver;
 struct ConversationParams;
 
-typedef LLIMModel::LLIMSession::SType SessionType;
+using SessionType = LLIMModel::LLIMSession::SType;
 
 /*
  * This class represents a particular session(conversation) of any type(im/voice/p2p/group/...) by storing some of session's data.
@@ -189,7 +189,7 @@ private:
 
 
 
-    typedef std::vector<LLConversation> conversations_vec_t;
+    using conversations_vec_t = std::vector<LLConversation>;
     std::vector<LLConversation>             mConversations;
     std::set<LLConversationLogObserver*>    mObservers;
 

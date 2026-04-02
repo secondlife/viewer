@@ -45,9 +45,9 @@ class LLGLSLShader;
 class LLSettingsVOBase : public LLSettingsBase
 {
 public:
-    typedef std::function<void(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status, LLExtStat extstat)>  asset_download_fn;
-    typedef std::function<void(LLInventoryItem *inv_item, LLSettingsBase::ptr_t settings, S32 status, LLExtStat extstat)> inventory_download_fn;
-    typedef std::function<void(LLUUID asset_id, LLUUID inventory_id, LLUUID object_id, LLSD results)>           inventory_result_fn;
+    using asset_download_fn = std::function<void(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status, LLExtStat extstat)>;
+    using inventory_download_fn = std::function<void(LLInventoryItem *inv_item, LLSettingsBase::ptr_t settings, S32 status, LLExtStat extstat)>;
+    using inventory_result_fn = std::function<void(LLUUID asset_id, LLUUID inventory_id, LLUUID object_id, LLSD results)>;
 
     static void     createNewInventoryItem(LLSettingsType::type_e stype, const LLUUID& parent_id, std::function<void(const LLUUID&)> created_cb);
     static void     createNewInventoryItem(LLSettingsType::type_e stype, const LLUUID &parent_id, inventory_result_fn callback = inventory_result_fn());
@@ -67,7 +67,7 @@ public:
 private:
     struct SettingsSaveData
     {
-        typedef std::shared_ptr<SettingsSaveData> ptr_t;
+        using ptr_t = std::shared_ptr<SettingsSaveData>;
         std::string             mType;
         std::string             mTempFile;
         LLSettingsBase::ptr_t   mSettings;
@@ -154,7 +154,7 @@ private:
 class LLSettingsVODay : public LLSettingsDay
 {
 public:
-    typedef std::function<void(LLSettingsDay::ptr_t day)>  asset_built_fn;
+    using asset_built_fn = std::function<void(LLSettingsDay::ptr_t day)>;
 
     // Todo: find a way to make this cnstructor private
     // It shouldn't be used outside shared_prt and LLSettingsVODay

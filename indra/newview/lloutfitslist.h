@@ -75,8 +75,8 @@ public:
 class LLOutfitListBase : public LLPanelAppearanceTab
 {
 public:
-    typedef std::function<void(const LLUUID&)>           selection_change_callback_t;
-    typedef boost::signals2::signal<void(const LLUUID&)> selection_change_signal_t;
+    using selection_change_callback_t = std::function<void(const LLUUID&)>;
+    using selection_change_signal_t = boost::signals2::signal<void(const LLUUID&)>;
 
     LLOutfitListBase();
     virtual ~LLOutfitListBase();
@@ -438,12 +438,12 @@ private:
     LLAccordionCtrl*                mAccordion;
     LLPanel*                        mListCommands;
 
-    typedef std::map<LLUUID, LLWearableItemsList*>      wearables_lists_map_t;
-    typedef wearables_lists_map_t::value_type           wearables_lists_map_value_t;
+    using wearables_lists_map_t = std::map<LLUUID, LLWearableItemsList*>;
+    using wearables_lists_map_value_t = wearables_lists_map_t::value_type;
     wearables_lists_map_t           mSelectedListsMap;
 
-    typedef std::map<LLUUID, LLOutfitAccordionCtrlTab*>       outfits_map_t;
-    typedef outfits_map_t::value_type                   outfits_map_value_t;
+    using outfits_map_t = std::map<LLUUID, LLOutfitAccordionCtrlTab*>;
+    using outfits_map_value_t = outfits_map_t::value_type;
     outfits_map_t                   mOutfitsMap;
 
     // IDs of original items which are worn and linked in COF.

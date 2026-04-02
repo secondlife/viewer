@@ -47,12 +47,12 @@ public:
 
     LLDragAndDropButton(const Params& params);
 
-    typedef std::function<bool (
+    using drag_drop_handler_t = std::function<bool (
         S32 /*x*/, S32 /*y*/, MASK /*mask*/, bool /*drop*/,
         EDragAndDropType /*cargo_type*/,
         void* /*cargo_data*/,
         EAcceptance* /*accept*/,
-        std::string& /*tooltip_msg*/)> drag_drop_handler_t;
+        std::string& /*tooltip_msg*/)>;
 
 
     /**

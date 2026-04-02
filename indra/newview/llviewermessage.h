@@ -121,7 +121,7 @@ void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data);
 void process_alert_core(const std::string& message, bool modal);
 
 // "Mean" or player-vs-player abuse
-typedef std::list<LLMeanCollisionData*> mean_collision_list_t;
+using mean_collision_list_t = std::list<LLMeanCollisionData*>;
 extern mean_collision_list_t gMeanCollisionList;
 
 void process_mean_collision_alert_message(LLMessageSystem* msg, void**);
@@ -217,8 +217,8 @@ class LLViewerMessage : public  LLSingleton<LLViewerMessage>
 {
     LLSINGLETON_EMPTY_CTOR(LLViewerMessage);
 public:
-    typedef std::function<void()> teleport_started_callback_t;
-    typedef boost::signals2::signal<void()> teleport_started_signal_t;
+    using teleport_started_callback_t = std::function<void()>;
+    using teleport_started_signal_t = boost::signals2::signal<void()>;
     boost::signals2::connection setTeleportStartedCallback(teleport_started_callback_t cb);
 
     teleport_started_signal_t   mTeleportStartedSignal;
@@ -265,8 +265,8 @@ private:
     std::string getSanitizedDescription();
     void sendReceiveResponse(bool accept, const LLUUID &destination_folder_id);
 
-    typedef std::function<bool (const LLSD&, const LLSD&)> respond_function_t;
-    typedef std::map<std::string, respond_function_t> respond_function_map_t;
+    using respond_function_t = std::function<bool (const LLSD&, const LLSD&)>;
+    using respond_function_map_t = std::map<std::string, respond_function_t>;
 
     respond_function_map_t mRespondFunctions;
 };

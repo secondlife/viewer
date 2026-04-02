@@ -51,8 +51,8 @@ public:
         TRACK_WATER,
         TRACK_SKY
     };
-    typedef std::function<void()>                           close_callback_t;
-    typedef std::function<void(const LLUUID& item_id)>     id_changed_callback_t;
+    using close_callback_t = std::function<void()>;
+    using id_changed_callback_t = std::function<void(const LLUUID& item_id)>;
 
     LLFloaterSettingsPicker(LLView * owner, LLUUID setting_item_id, const LLSD &params = LLSD());
 
@@ -99,7 +99,7 @@ public:
 
 
 private:
-    typedef std::deque<LLFolderViewItem *>  itemlist_t;
+    using itemlist_t = std::deque<LLFolderViewItem *>;
 
     void                    onFilterEdit(const std::string& search_string);
     void                    onSelectionChange(const itemlist_t &items, bool user_action);

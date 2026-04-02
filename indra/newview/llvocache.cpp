@@ -140,12 +140,12 @@ LLSD LLGLTFOverrideCacheEntry::toLLSD() const
     data["local_id"] = (LLSD::Integer) mLocalId;
 
     llassert(mSides.size() == mGLTFMaterial.size());
-    for (auto const & side : mSides)
+    for (const auto& [side_index, side_llsd] : mSides)
     {
         // check that mSides and mGLTFMaterial have exactly the same keys present
-        llassert(mGLTFMaterial.count(side.first) == 1);
-        data["sides"].append(LLSD::Integer(side.first));
-        data["gltf_llsd"].append(side.second);
+        llassert(mGLTFMaterial.count(side_index) == 1);
+        data["sides"].append(LLSD::Integer(side_index));
+        data["gltf_llsd"].append(side_llsd);
     }
 
     return data;
@@ -1572,7 +1572,7 @@ void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCac
     // file formats need versions, let's add one. legacy cache files will be considered version 0
     // This will make it easier to upgrade/revise later.
     int versionNumber=0;
-    if (line.compare(0, LLGLTFOverrideCacheEntry::VERSION_LABEL.length(), LLGLTFOverrideCacheEntry::VERSION_LABEL) == 0)
+    if (line.starts_with(LLGLTFOverrideCacheEntry::VERSION_LABEL))
     {
         std::string versionStr = line.substr(LLGLTFOverrideCacheEntry::VERSION_LABEL.length()+1); // skip the version label and ':'
         versionNumber = std::stol(versionStr);

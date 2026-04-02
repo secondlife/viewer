@@ -50,7 +50,7 @@ class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
     friend class LLOutfitUnLockTimer;
 
 public:
-    typedef std::vector<LLInventoryModel::item_array_t> wearables_by_type_t;
+    using wearables_by_type_t = std::vector<LLInventoryModel::item_array_t>;
 
     void updateAppearanceFromCOF(bool enforce_item_restrictions = true,
                                  bool enforce_ordering = true,
@@ -215,7 +215,7 @@ public:
     //Divvy items into arrays by wearable type
     static void divvyWearablesByType(const LLInventoryModel::item_array_t& items, wearables_by_type_t& items_by_type);
 
-    typedef std::map<LLUUID,std::string> desc_map_t;
+    using desc_map_t = std::map<LLUUID,std::string>;
 
     void getWearableOrderingDescUpdates(LLInventoryModel::item_array_t& wear_items, desc_map_t& desc_map);
 
@@ -236,8 +236,8 @@ public:
     void setAppearanceServiceURL(const std::string& url) { mAppearanceServiceURL = url; }
     std::string getAppearanceServiceURL() const;
 
-    typedef std::function<void()>            attachments_changed_callback_t;
-    typedef boost::signals2::signal<void ()> attachments_changed_signal_t;
+    using attachments_changed_callback_t = std::function<void()>;
+    using attachments_changed_signal_t = boost::signals2::signal<void ()>;
     boost::signals2::connection setAttachmentsChangedCallback(attachments_changed_callback_t cb);
 
 
@@ -285,7 +285,7 @@ private:
     std::unique_ptr<LLOutfitUnLockTimer> mUnlockOutfitTimer;
 
     // Set of temp attachment UUIDs that should be removed
-    typedef std::set<LLUUID> doomed_temp_attachments_t;
+    using doomed_temp_attachments_t = std::set<LLUUID>;
     doomed_temp_attachments_t   mDoomedTempAttachmentIDs;
 
     void addDoomedTempAttachment(const LLUUID& id_to_remove);

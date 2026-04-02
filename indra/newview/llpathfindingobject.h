@@ -40,7 +40,7 @@
 class LLPathfindingObject;
 class LLSD;
 
-typedef std::shared_ptr<LLPathfindingObject> LLPathfindingObjectPtr;
+using LLPathfindingObjectPtr = std::shared_ptr<LLPathfindingObject>;
 
 class LLPathfindingObject
 {
@@ -61,9 +61,9 @@ public:
     inline bool               isGroupOwned() const   {return mIsGroupOwned;};
     inline const LLVector3&   getLocation() const    {return mLocation;};
 
-    typedef std::function<void(const LLPathfindingObject*)>             name_callback_t;
-    typedef boost::signals2::signal<void (const LLPathfindingObject *)> name_signal_t;
-    typedef boost::signals2::connection                                 name_connection_t;
+    using name_callback_t = std::function<void(const LLPathfindingObject*)>;
+    using name_signal_t = boost::signals2::signal<void (const LLPathfindingObject *)>;
+    using name_connection_t = boost::signals2::connection;
 
     name_connection_t registerOwnerNameListener(name_callback_t pOwnerNameCallback);
 

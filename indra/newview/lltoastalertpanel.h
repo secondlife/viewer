@@ -50,7 +50,7 @@ class LLToastAlertPanel
 {
     LOG_CLASS(LLToastAlertPanel);
 public:
-    typedef bool (*display_callback_t)(S32 modal);
+    using display_callback_t = bool(*)(S32 modal);
 
 public:
     // User's responsibility to call show() after creating these.

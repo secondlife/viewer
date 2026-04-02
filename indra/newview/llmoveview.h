@@ -69,12 +69,13 @@ protected:
     void moveDown();
 
 private:
-    typedef enum movement_mode_t
+    enum movement_mode_t
     {
         MM_WALK,
         MM_RUN,
         MM_FLY
-    } EMovementMode;
+    };
+    using EMovementMode = movement_mode_t;
     void onWalkButtonClick();
     void onRunButtonClick();
     void onFlyButtonClick();
@@ -101,11 +102,11 @@ public:
 private:
     LLPanel*                mModeActionsPanel;
 
-    typedef std::map<LLView*, std::string> control_tooltip_map_t;
-    typedef std::map<EMovementMode, control_tooltip_map_t> mode_control_tooltip_map_t;
+    using control_tooltip_map_t = std::map<LLView*, std::string>;
+    using mode_control_tooltip_map_t = std::map<EMovementMode, control_tooltip_map_t>;
     mode_control_tooltip_map_t mModeControlTooltipsMap;
 
-    typedef std::map<EMovementMode, LLButton*> mode_control_button_map_t;
+    using mode_control_button_map_t = std::map<EMovementMode, LLButton*>;
     mode_control_button_map_t mModeControlButtonMap;
     EMovementMode mCurrentMode;
 
@@ -119,11 +120,12 @@ class LLPanelStandStopFlying : public LLPanel
 {
     LOG_CLASS(LLPanelStandStopFlying);
 public:
-    typedef enum stand_stop_flying_mode_t
+    enum stand_stop_flying_mode_t
     {
         SSFM_STAND,
         SSFM_STOP_FLYING
-    } EStandStopFlyingMode;
+    };
+    using EStandStopFlyingMode = stand_stop_flying_mode_t;
 
     /**
      * Attach or detach the panel to/from the movement controls floater.

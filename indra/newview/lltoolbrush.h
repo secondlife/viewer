@@ -44,7 +44,7 @@ class LLViewerRegion;
 class LLToolBrushLand : public LLTool, public LLEditMenuHandler, public LLSingleton<LLToolBrushLand>
 {
     LLSINGLETON(LLToolBrushLand);
-    typedef std::set<LLViewerRegion*> region_list_t;
+    using region_list_t = std::set<LLViewerRegion*>;
 
 public:
 

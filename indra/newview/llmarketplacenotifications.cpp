@@ -38,7 +38,7 @@
 
 namespace LLMarketplaceInventoryNotifications
 {
-    typedef boost::signals2::signal<void (const LLSD& param)>   no_copy_payload_cb_signal_t;
+    using no_copy_payload_cb_signal_t = boost::signals2::signal<void (const LLSD& param)>;
 
     static no_copy_payload_cb_signal_t* no_copy_cb_action = NULL;
     static bool                         no_copy_notify_active = false;

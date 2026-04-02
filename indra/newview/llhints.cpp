@@ -40,14 +40,15 @@ class LLHintPopup : public LLPanel
 {
 public:
 
-    typedef enum e_popup_direction
+    enum e_popup_direction
     {
         LEFT,
         TOP,
         RIGHT,
         BOTTOM,
         TOP_RIGHT
-    } EPopupDirection;
+    };
+    using EPopupDirection = e_popup_direction;
 
     struct PopupDirections : public LLInitParam::TypeValuesHelper<LLHintPopup::EPopupDirection, PopupDirections>
     {

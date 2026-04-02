@@ -850,10 +850,8 @@ void LLOutfitsList::onChangeSortOrder(const LLSD& userdata)
 
         if (!getFilterSubString().empty())
         {
-            for (outfits_map_t::value_type& outfit : mOutfitsMap)
+            for (auto& [category_id, tab] : mOutfitsMap)
             {
-                LLOutfitAccordionCtrlTab* tab = outfit.second;
-                const LLUUID& category_id = outfit.first;
                 if (!tab) continue;
 
                 LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());

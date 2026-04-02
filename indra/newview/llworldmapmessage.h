@@ -38,8 +38,7 @@ class LLWorldMapMessage : public LLSingleton<LLWorldMapMessage>
     ~LLWorldMapMessage();
 
 public:
-    typedef std::function<void(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)>
-        url_callback_t;
+    using url_callback_t = std::function<void(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)>;
 
     // Process incoming answers to map stuff requests
     static void processMapBlockReply(LLMessageSystem*, void**);

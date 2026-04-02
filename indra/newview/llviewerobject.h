@@ -82,18 +82,19 @@ class LLWorld;
 
 class LLMeshCostData;
 
-typedef enum e_object_update_type
+enum e_object_update_type
 {
     OUT_FULL,
     OUT_TERSE_IMPROVED,
     OUT_FULL_COMPRESSED,
     OUT_FULL_CACHED,
     OUT_UNKNOWN,
-} EObjectUpdateType;
+};
+using EObjectUpdateType = e_object_update_type;
 
 
 // callback typedef for inventory
-typedef void (*inventory_callback)(LLViewerObject*,
+using inventory_callback = void(*)(LLViewerObject*,
                                    LLInventoryObject::object_list_t*,
                                    S32 serial_num,
                                    void*);
@@ -137,10 +138,10 @@ private:
     std::vector<ExtraParameter> mExtraParameterList;
 
 public:
-    typedef std::list<LLPointer<LLViewerObject> > child_list_t;
-    typedef std::list<LLPointer<LLViewerObject> > vobj_list_t;
+    using child_list_t = std::list<LLPointer<LLViewerObject> >;
+    using vobj_list_t = std::list<LLPointer<LLViewerObject> >;
 
-    typedef const child_list_t const_child_list_t;
+    using const_child_list_t = const child_list_t;
 
     LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, bool is_global = false);
 
@@ -736,7 +737,7 @@ public:
     //
     // Viewer-side only types - use the LL_PCODE_APP mask.
     //
-    typedef enum e_vo_types
+    enum e_vo_types
     {
         LL_VO_CLOUDS =              LL_PCODE_APP | 0x20, // no longer used
         LL_VO_SURFACE_PATCH =       LL_PCODE_APP | 0x30,
@@ -748,14 +749,16 @@ public:
         LL_VO_PART_GROUP =          LL_PCODE_APP | 0xa0,
         LL_VO_TRIANGLE_TORUS =      LL_PCODE_APP | 0xb0,
         LL_VO_HUD_PART_GROUP =      LL_PCODE_APP | 0xc0,
-    } EVOType;
+    };
+    using EVOType = e_vo_types;
 
-    typedef enum e_physics_shape_types
+    enum e_physics_shape_types
     {
         PHYSICS_SHAPE_PRIM = 0,
         PHYSICS_SHAPE_NONE,
         PHYSICS_SHAPE_CONVEX_HULL,
-    } EPhysicsShapeType;
+    };
+    using EPhysicsShapeType = e_physics_shape_types;
 
     LLUUID          mID;
     LLUUID          mOwnerID; //null if unknown
@@ -901,7 +904,7 @@ private:
 
 protected:
 
-    typedef std::map<char *, LLNameValue *> name_value_map_t;
+    using name_value_map_t = std::map<char *, LLNameValue *>;
     name_value_map_t mNameValuePairs;   // Any name-value pairs stored by script
 
     child_list_t    mChildList;
@@ -935,7 +938,7 @@ protected:
         LLVOInventoryListener* mListener;
         void* mInventoryData;
     };
-    typedef std::list<LLInventoryCallbackInfo*> callback_list_t;
+    using callback_list_t = std::list<LLInventoryCallbackInfo*>;
     callback_list_t mInventoryCallbacks;
     S16 mInventorySerialNum;
     S16 mExpectedInventorySerialNum;

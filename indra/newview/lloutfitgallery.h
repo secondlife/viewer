@@ -184,11 +184,11 @@ private:
     LLListContextMenu* mOutfitGalleryMenu;
     LLOutfitGallerySortMenu* mSortMenu;
 
-    typedef std::map<LLUUID, LLOutfitGalleryItem*>      outfit_map_t;
-    typedef outfit_map_t::value_type                    outfit_map_value_t;
+    using outfit_map_t = std::map<LLUUID, LLOutfitGalleryItem*>;
+    using outfit_map_value_t = outfit_map_t::value_type;
     outfit_map_t                                        mOutfitMap;
-    typedef std::map<LLOutfitGalleryItem*, S32>         item_num_map_t;
-    typedef item_num_map_t::value_type                  item_numb_map_value_t;
+    using item_num_map_t = std::map<LLOutfitGalleryItem*, S32>;
+    using item_numb_map_value_t = item_num_map_t::value_type;
     item_num_map_t                                      mItemIndexMap;
     std::map<S32, LLOutfitGalleryItem*>                 mIndexToItemMap;
     std::set<LLUUID>                                  mPendingOutfitRefreshes;

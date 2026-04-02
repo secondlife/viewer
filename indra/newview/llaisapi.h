@@ -39,12 +39,12 @@ class AISAPI
 {
 public:
     static const S32 HTTP_TIMEOUT;
-    typedef enum {
+    enum ITEM_TYPE {
         INVENTORY,
         LIBRARY
-    } ITEM_TYPE;
+    };
 
-    typedef std::function<void(const LLUUID& invItem)> completion_t;
+    using completion_t = std::function<void(const LLUUID& invItem)>;
 
     static bool isAvailable();
     static void getCapNames(LLSD& capNames);
@@ -66,7 +66,7 @@ public:
     static void FetchOrphans(completion_t callback = completion_t() );
     static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback = completion_t());
 
-    typedef enum {
+    enum COMMAND_TYPE {
         COPYINVENTORY,
         SLAMFOLDER,
         REMOVECATEGORY,
@@ -83,14 +83,14 @@ public:
         FETCHCOF,
         FETCHORPHANS,
         FETCHCATEGORYLINKS
-    } COMMAND_TYPE;
+    };
 
 private:
     static const std::string INVENTORY_CAP_NAME;
     static const std::string LIBRARY_CAP_NAME;
 
-    typedef std::function<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
-        const std::string, LLSD, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) > invokationFn_t;
+    using invokationFn_t = std::function<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
+        const std::string, LLSD, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) >;
 
     static void EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc);
     static void onIdle(void *userdata); // launches postponed AIS commands
@@ -103,7 +103,7 @@ private:
         invokationFn_t invoke, std::string url, LLUUID targetId, LLSD body,
         completion_t callback, COMMAND_TYPE type);
 
-    typedef std::pair<std::string, LLCoprocedureManager::CoProcedure_t> ais_query_item_t;
+    using ais_query_item_t = std::pair<std::string, LLCoprocedureManager::CoProcedure_t>;
     static std::list<ais_query_item_t> sPostponedQuery;
 };
 
@@ -138,16 +138,16 @@ private:
     const F32 AIS_TASK_EXPIRY_SECONDS = 0.008f;
     const F32 AIS_BATCH_EXPIRY_SECONDS = 0.010f;
 
-    typedef std::map<LLUUID,size_t> uuid_int_map_t;
+    using uuid_int_map_t = std::map<LLUUID,size_t>;
     uuid_int_map_t mCatDescendentDeltas;
     uuid_int_map_t mCatDescendentsKnown;
     uuid_int_map_t mCatVersionsUpdated;
 
-    typedef std::map<LLUUID,LLPointer<LLViewerInventoryItem> > deferred_item_map_t;
+    using deferred_item_map_t = std::map<LLUUID,LLPointer<LLViewerInventoryItem> >;
     deferred_item_map_t mItemsCreated;
     deferred_item_map_t mItemsLost;
     deferred_item_map_t mItemsUpdated;
-    typedef std::map<LLUUID,LLPointer<LLViewerInventoryCategory> > deferred_category_map_t;
+    using deferred_category_map_t = std::map<LLUUID,LLPointer<LLViewerInventoryCategory> >;
     deferred_category_map_t mCategoriesCreated;
     deferred_category_map_t mCategoriesUpdated;
 

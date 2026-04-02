@@ -197,7 +197,7 @@ private:
         LLError::ELevel mErrorLevel;
         std::string mMessage;
     };
-    typedef std::vector<Message> message_list_t;
+    using message_list_t = std::vector<Message>;
 
     void handleCurrentListing();
 

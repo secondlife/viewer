@@ -44,10 +44,11 @@ class LLConversationLogList: public LLFlatListViewEx, public LLConversationLogOb
     LOG_CLASS(LLConversationLogList);
 public:
 
-    typedef enum e_sort_oder{
+    enum e_sort_oder{
         E_SORT_BY_NAME = 0,
         E_SORT_BY_DATE = 1,
-    } ESortOrder;
+    };
+    using ESortOrder = e_sort_oder;
 
     struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
     {

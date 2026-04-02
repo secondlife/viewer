@@ -47,7 +47,7 @@ public:
 
     static void processPlacesReply(LLMessageSystem* msg, void**);
 
-    typedef std::map<LLUUID, LLPanelGroupLandMoney*> group_id_map_t;
+    using group_id_map_t = std::map<LLUUID, LLPanelGroupLandMoney*>;
     static group_id_map_t sGroupIDs;
 
     static void processGroupAccountDetailsReply(LLMessageSystem* msg,  void** data);

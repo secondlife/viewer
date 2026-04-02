@@ -84,7 +84,7 @@ class LLViewerRegion: public LLCapabilityProvider // implements this interface
 {
 public:
     //MUST MATCH THE ORDER OF DECLARATION IN CONSTRUCTOR
-    typedef enum
+    enum eObjectPartitions
     {
         PARTITION_HUD=0,
         PARTITION_TERRAIN,
@@ -101,9 +101,9 @@ public:
         PARTITION_VO_CACHE,
         PARTITION_NONE,
         NUM_PARTITIONS
-    } eObjectPartitions;
+    };
 
-    typedef boost::signals2::signal<void(const LLUUID& region_id, LLViewerRegion* regionp)> caps_received_signal_t;
+    using caps_received_signal_t = boost::signals2::signal<void(const LLUUID& region_id, LLViewerRegion* regionp)>;
 
     LLViewerRegion(const U64 &handle,
                    const LLHost &host,
@@ -292,7 +292,7 @@ public:
 
     // Utilities to post and get via
     // HTTP using the agent's policy settings and headers.
-    typedef LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t httpCallback_t;
+    using httpCallback_t = LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t;
     bool requestPostCapability(const std::string &capName,
                                LLSD              &postData,
                                httpCallback_t     cbSuccess = nullptr,
@@ -351,20 +351,20 @@ public:
 
     bool avatarHoverHeightEnabled() const;
 
-    typedef enum
+    enum eCacheMissType
     {
         CACHE_MISS_TYPE_TOTAL = 0,  // total cache miss - object not in cache
         CACHE_MISS_TYPE_CRC,        // object in cache, but CRC doesn't match
         CACHE_MISS_TYPE_NONE        // not a miss:  cache hit
-    } eCacheMissType;
+    };
 
-    typedef enum
+    enum eCacheUpdateResult
     {
         CACHE_UPDATE_DUPE = 0,
         CACHE_UPDATE_CHANGED,
         CACHE_UPDATE_ADDED,
         CACHE_UPDATE_REPLACED
-    } eCacheUpdateResult;
+    };
 
     // handle a full update message
     eCacheUpdateResult cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags);
@@ -505,7 +505,7 @@ public:
             }
         }
     };
-    typedef std::set<LLViewerRegion*, CompareRegionByLastUpdate> region_priority_list_t;
+    using region_priority_list_t = std::set<LLViewerRegion*, CompareRegionByLastUpdate>;
 
     void setInterestListMode(const std::string & new_mode);
     const std::string & getInterestListMode() const { return mInterestListMode; }
@@ -571,16 +571,16 @@ public:
     bool    mDead;  //if true, this region is in the process of deleting.
     bool    mPaused; //pause processing the objects in the region
 
-    typedef enum
+    enum eCababilitiesState
     {
         CAPABILITIES_STATE_INIT = 0,
         CAPABILITIES_STATE_ERROR,
         CAPABILITIES_STATE_RECEIVED
-    } eCababilitiesState;
+    };
 
     eCababilitiesState  mCapabilitiesState;
 
-    typedef std::map<U32, std::vector<U32> > orphan_list_t;
+    using orphan_list_t = std::map<U32, std::vector<U32> >;
     orphan_list_t mOrphanMap;
 
     class CacheMissItem
@@ -591,7 +591,7 @@ public:
         U32                         mID;     //local object id
         LLViewerRegion::eCacheMissType  mType;  // cache miss type
 
-        typedef std::list<CacheMissItem> cache_miss_list_t;
+        using cache_miss_list_t = std::list<CacheMissItem>;
     };
     CacheMissItem::cache_miss_list_t   mCacheMissList;
     U64 mRegionCacheHitCount;
@@ -602,7 +602,7 @@ public:
 
     LLSD mSimulatorFeatures;
 
-    typedef std::map<U32, LLPointer<LLVOCacheEntry> >      vocache_entry_map_t;
+    using vocache_entry_map_t = std::map<U32, LLPointer<LLVOCacheEntry> >;
     static vocache_entry_map_t sRegionCacheCleanup;
 
     // the materials capability throttle

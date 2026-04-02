@@ -70,12 +70,12 @@ public:
     bool hasNotification(const U32 event_id);
     void serverPushRequest(U32 event_id, bool add);
 
-    typedef std::map<U32, LLEventNotification *> en_map;
+    using en_map = std::map<U32, LLEventNotification *>;
     bool  handleResponse(U32 eventId, const LLSD& notification, const LLSD& response);
 
     static void processEventInfoReply(LLMessageSystem *msg, void **);
 
-    typedef boost::signals2::signal<bool(LLEventInfo event)> info_received_signal_t;
+    using info_received_signal_t = boost::signals2::signal<bool(LLEventInfo event)>;
     boost::signals2::connection setEventInfoCallback(const info_received_signal_t::slot_type& cb) { return mEventInfoSignal.connect(cb); };
 
 protected:

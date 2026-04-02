@@ -140,8 +140,8 @@ class LLLogChatTimeScanner: public LLSingleton<LLLogChatTimeScanner>
 public:
     date getTodayPacificDate()
     {
-        typedef boost::date_time::local_adjustor<ptime, -8, no_dst> pst;
-        typedef boost::date_time::local_adjustor<ptime, -7, no_dst> pdt;
+        using pst = boost::date_time::local_adjustor<ptime, -8, no_dst>;
+        using pdt = boost::date_time::local_adjustor<ptime, -7, no_dst>;
         time_t t_time = time(NULL);
         ptime p_time = LLStringOps::getPacificDaylightTime()
             ? pdt::utc_to_local(from_time_t(t_time))

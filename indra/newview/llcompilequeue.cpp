@@ -74,7 +74,7 @@ namespace
     class ObjectInventoryFetcher: public LLVOInventoryListener
     {
     public:
-        typedef std::shared_ptr<ObjectInventoryFetcher> ptr_t;
+        using ptr_t = std::shared_ptr<ObjectInventoryFetcher>;
 
         ObjectInventoryFetcher(LLEventPump &pump, LLViewerObject* object, void* user_data) :
             mPump(pump),

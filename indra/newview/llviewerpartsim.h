@@ -39,7 +39,7 @@ class LLVOPartGroup;
 
 #define LL_MAX_PARTICLE_COUNT 8192
 
-typedef void (*LLVPCallback)(LLViewerPart &part, const F32 dt);
+using LLVPCallback = void(*)(LLViewerPart &part, const F32 dt);
 
 ///////////////////
 //
@@ -106,7 +106,7 @@ public:
     F32 getBoxRadius() { return mBoxRadius; }
     F32 getBoxSide() { return mBoxSide; }
 
-    typedef std::vector<LLViewerPart*>  part_list_t;
+    using part_list_t = std::vector<LLViewerPart*>;
     part_list_t mParticles;
 
     const LLVector3 &getCenterAgent() const     { return mCenterAgent; }
@@ -139,8 +139,8 @@ class LLViewerPartSim : public LLSingleton<LLViewerPartSim>
 public:
     void destroyClass();
 
-    typedef std::vector<LLViewerPartGroup *> group_list_t;
-    typedef std::vector<LLPointer<LLViewerPartSource> > source_list_t;
+    using group_list_t = std::vector<LLViewerPartGroup *>;
+    using source_list_t = std::vector<LLPointer<LLViewerPartSource> >;
 
     void enable(bool enabled);
 

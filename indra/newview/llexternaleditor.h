@@ -38,17 +38,18 @@
  */
 class LLExternalEditor
 {
-    typedef std::vector<std::string> string_vec_t;
+    using string_vec_t = std::vector<std::string>;
 
 public:
 
-    typedef enum e_error_code {
+    enum e_error_code {
         EC_SUCCESS,             /// No error.
         EC_NOT_SPECIFIED,       /// Editor path not specified.
         EC_PARSE_ERROR,         /// Editor command parsing error.
         EC_BINARY_NOT_FOUND,    /// Could find the editor binary (missing or not quoted).
         EC_FAILED_TO_RUN,       /// Could not execute the editor binary.
-    } EErrorCode;
+    };
+    using EErrorCode = e_error_code;
 
     /**
      * Set editor command.

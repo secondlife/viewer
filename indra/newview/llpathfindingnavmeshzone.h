@@ -42,7 +42,7 @@ class LLViewerRegion;
 class LLPathfindingNavMeshZone
 {
 public:
-    typedef enum {
+    enum ENavMeshZoneRequestStatus {
         kNavMeshZoneRequestUnknown,
         kNavMeshZoneRequestWaiting,
         kNavMeshZoneRequestChecking,
@@ -51,20 +51,20 @@ public:
         kNavMeshZoneRequestCompleted,
         kNavMeshZoneRequestNotEnabled,
         kNavMeshZoneRequestError
-    } ENavMeshZoneRequestStatus;
+    };
 
-    typedef enum {
+    enum ENavMeshZoneStatus {
         kNavMeshZonePending,
         kNavMeshZoneBuilding,
         kNavMeshZoneSomePending,
         kNavMeshZoneSomeBuilding,
         kNavMeshZonePendingAndBuilding,
         kNavMeshZoneComplete
-    } ENavMeshZoneStatus;
+    };
 
-    typedef std::function<void(ENavMeshZoneRequestStatus)>            navmesh_zone_callback_t;
-    typedef boost::signals2::signal<void (ENavMeshZoneRequestStatus)> navmesh_zone_signal_t;
-    typedef boost::signals2::connection                               navmesh_zone_slot_t;
+    using navmesh_zone_callback_t = std::function<void(ENavMeshZoneRequestStatus)>;
+    using navmesh_zone_signal_t = boost::signals2::signal<void (ENavMeshZoneRequestStatus)>;
+    using navmesh_zone_slot_t = boost::signals2::connection;
 
     LLPathfindingNavMeshZone();
     virtual ~LLPathfindingNavMeshZone();
@@ -81,7 +81,7 @@ public:
 protected:
 
 private:
-    typedef std::function<void(void)> navmesh_location_callback_t;
+    using navmesh_location_callback_t = std::function<void(void)>;
     class NavMeshLocation
     {
     public:
@@ -113,8 +113,8 @@ private:
         LLPathfindingNavMesh::navmesh_slot_t        mNavMeshSlot;
     };
 
-    typedef std::shared_ptr<NavMeshLocation> NavMeshLocationPtr;
-    typedef std::vector<NavMeshLocationPtr> NavMeshLocationPtrs;
+    using NavMeshLocationPtr = std::shared_ptr<NavMeshLocation>;
+    using NavMeshLocationPtrs = std::vector<NavMeshLocationPtr>;
 
     void handleNavMeshLocation();
     void updateStatus();

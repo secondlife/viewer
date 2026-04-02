@@ -51,7 +51,7 @@ class LLImageJ2C;
 class LLMessageSystem;
 class LLTextureView;
 
-typedef void (*LLImageCallback)(bool success,
+using LLImageCallback = void(*)(bool success,
                                 LLViewerFetchedTexture *src_vi,
                                 LLImageRaw* src,
                                 LLImageRaw* src_aux,
@@ -208,8 +208,8 @@ private:
     { return getImage(image_id, f_type, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }
 
 public:
-    typedef std::unordered_set<LLPointer<LLViewerFetchedTexture> > image_list_t;
-    typedef std::queue<LLPointer<LLViewerFetchedTexture> > image_queue_t;
+    using image_list_t = std::unordered_set<LLPointer<LLViewerFetchedTexture> >;
+    using image_queue_t = std::queue<LLPointer<LLViewerFetchedTexture> >;
 
     // images that have been loaded but are waiting to be uploaded to GL
     image_queue_t mCreateTextureList;
@@ -227,7 +227,7 @@ public:
     const image_list_t::const_iterator end() const { return mImageList.cend(); }
 
 private:
-    typedef std::map< LLTextureKey, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
+    using uuid_map_t = std::map< LLTextureKey, LLPointer<LLViewerFetchedTexture> >;
     uuid_map_t mUUIDMap;
     LLTextureKey mLastUpdateKey;
 
@@ -281,7 +281,7 @@ private:
         LLRect mImageClipRegion;
     };
 
-    typedef std::map< std::string, LLPointer<LLUIImage> > uuid_ui_image_map_t;
+    using uuid_ui_image_map_t = std::map< std::string, LLPointer<LLUIImage> >;
     uuid_ui_image_map_t mUIImages;
 
     //

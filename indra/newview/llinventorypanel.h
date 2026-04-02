@@ -156,7 +156,7 @@ public:
     virtual ~LLInventoryPanel();
 
 public:
-    typedef std::set<LLFolderViewItem*> selected_items_t;
+    using selected_items_t = std::set<LLFolderViewItem*>;
 
     LLInventoryModel* getModel() { return mInventory; }
     LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
@@ -387,13 +387,14 @@ protected:
                                               const EBuildModes &mode,
                                               S32 depth = -1);
 
-    typedef enum e_views_initialization_state
+    enum e_views_initialization_state
     {
         VIEWS_UNINITIALIZED = 0,
         VIEWS_INITIALIZING,
         VIEWS_BUILDING, // Root folder exists
         VIEWS_INITIALIZED,
-    } EViewsInitializationState;
+    };
+    using EViewsInitializationState = e_views_initialization_state;
 
     bool                        mBuildViewsOnInit;
     EViewsInitializationState   mViewsInitialized; // Whether views have been generated
@@ -437,7 +438,7 @@ public:
     std::list<LLUUID> getNavBackwardList() { return mBackwardFolders; }
     std::list<LLUUID> getNavForwardList() { return mForwardFolders; }
 
-    typedef std::function<void()> root_changed_callback_t;
+    using root_changed_callback_t = std::function<void()>;
     boost::signals2::connection setRootChangedCallback(root_changed_callback_t cb);
 
 protected:

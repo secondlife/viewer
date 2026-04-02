@@ -39,11 +39,11 @@ class LLScrollListCtrl;
 class LLFloaterAvatarPicker :public LLFloater
 {
 public:
-    typedef boost::signals2::signal<bool(const uuid_vec_t&), boost_boolean_combiner> validate_signal_t;
-    typedef validate_signal_t::slot_type validate_callback_t;
+    using validate_signal_t = boost::signals2::signal<bool(const uuid_vec_t&), boost_boolean_combiner>;
+    using validate_callback_t = validate_signal_t::slot_type;
 
     // The callback function will be called with an avatar name and UUID.
-    typedef std::function<void(const uuid_vec_t&, const std::vector<LLAvatarName>&)> select_callback_t;
+    using select_callback_t = std::function<void(const uuid_vec_t&, const std::vector<LLAvatarName>&)>;
     // Call this to select an avatar.
     static LLFloaterAvatarPicker* show(select_callback_t callback,
                                        bool allow_multiple = false,

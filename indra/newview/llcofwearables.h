@@ -54,7 +54,7 @@ public:
         LLCOFCallbacks() = default;
         virtual ~LLCOFCallbacks() = default;
 
-        typedef std::function<void()> cof_callback_t;
+        using cof_callback_t = std::function<void()>;
 
         cof_callback_t mAddWearable;
         cof_callback_t mMoveWearableCloser;

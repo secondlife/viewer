@@ -509,7 +509,7 @@ public:
                                     const std::string& grid)=0;
 
     // load map of credentials from specific storage
-    typedef std::map<std::string, LLPointer<LLCredential> > credential_map_t;
+    using credential_map_t = std::map<std::string, LLPointer<LLCredential> >;
     virtual void loadCredentialMap(const std::string& storage,
                                    const std::string& grid,
                                    credential_map_t& credential_map)=0;

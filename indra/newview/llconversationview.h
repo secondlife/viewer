@@ -173,11 +173,12 @@ private:
     LLOutputMonitorCtrl* mSpeakingIndicator;
     LLUUID mUUID;       // UUID of the participant
 
-    typedef enum e_avatar_item_child {
+    enum e_avatar_item_child {
         ALIC_SPEAKER_INDICATOR,
         ALIC_INFO_BUTTON,
         ALIC_COUNT,
-    } EAvatarListItemChildIndex;
+    };
+    using EAvatarListItemChildIndex = e_avatar_item_child;
 
     static bool sStaticInitialized; // this variable is introduced to improve code readability
     static S32 sChildrenWidths[ALIC_COUNT];

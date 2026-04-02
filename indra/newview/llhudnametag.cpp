@@ -407,7 +407,7 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
         {
             font = mFontp;
         }
-        typedef boost::tokenizer<boost::char_separator<llwchar>, LLWString::const_iterator, LLWString > tokenizer;
+        using tokenizer = boost::tokenizer<boost::char_separator<llwchar>, LLWString::const_iterator, LLWString >;
         LLWString seps(utf8str_to_wstring("\r\n"));
         boost::char_separator<llwchar> sep(seps.c_str());
 
@@ -479,7 +479,7 @@ void LLHUDNameTag::addLabel(const std::string& label_utf8, F32 max_pixels)
         LLWString seps(utf8str_to_wstring("\r\n"));
         LLWString empty;
 
-        typedef boost::tokenizer<boost::char_separator<llwchar>, LLWString::const_iterator, LLWString > tokenizer;
+        using tokenizer = boost::tokenizer<boost::char_separator<llwchar>, LLWString::const_iterator, LLWString >;
         boost::char_separator<llwchar> sep(seps.c_str(), empty.c_str(), boost::keep_empty_tokens);
 
         tokenizer tokens(wstr, sep);

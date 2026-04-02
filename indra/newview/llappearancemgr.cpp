@@ -713,7 +713,7 @@ public:
     void onWearableAssetFetch(LLViewerWearable *wearable);
     void onAllComplete();
 
-    typedef std::list<LLFoundData> found_list_t;
+    using found_list_t = std::list<LLFoundData>;
     found_list_t& getFoundList();
     void eraseTypeToLink(LLWearableType::EType type);
     void eraseTypeToRecover(LLWearableType::EType type);
@@ -727,13 +727,13 @@ public:
 private:
     found_list_t mFoundList;
     LLInventoryModel::item_array_t mGestItems;
-    typedef std::set<S32> type_set_t;
+    using type_set_t = std::set<S32>;
     type_set_t mTypesToRecover;
     type_set_t mTypesToLink;
     S32 mResolved;
     LLTimer mWaitTime;
     bool mFired;
-    typedef std::set<LLWearableHoldingPattern*> type_set_hp;
+    using type_set_hp = std::set<LLWearableHoldingPattern*>;
     static type_set_hp sActiveHoldingPatterns;
     static S32 sNextIndex;
     S32 mIndex;

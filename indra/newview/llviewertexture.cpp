@@ -1464,7 +1464,7 @@ bool LLViewerFetchedTexture::preCreateTexture(S32 usename/*= 0*/)
     bool res = true;
 
     // store original size only for locally-sourced images
-    if (mUrl.compare(0, 7, "file://") == 0)
+    if (mUrl.starts_with("file://"))
     {
         mOrigWidth = mRawImage->getWidth();
         mOrigHeight = mRawImage->getHeight();

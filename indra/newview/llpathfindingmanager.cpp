@@ -112,20 +112,20 @@ public:
     void handleTerrainLinksetsResult(const LLSD &pContent);
     void handleTerrainLinksetsError();
 
-    typedef std::shared_ptr<LinksetsResponder> ptr_t;
+    using ptr_t = std::shared_ptr<LinksetsResponder>;
 
 protected:
 
 private:
     void sendCallback();
 
-    typedef enum
+    enum EMessagingState
     {
         kNotRequested,
         kWaiting,
         kReceivedGood,
         kReceivedError
-    } EMessagingState;
+    };
 
     LLPathfindingManager::request_id_t              mRequestId;
     LLPathfindingManager::object_request_callback_t mLinksetsCallback;
@@ -137,7 +137,7 @@ private:
     LLPathfindingObjectPtr                          mTerrainLinksetPtr;
 };
 
-typedef std::shared_ptr<LinksetsResponder> LinksetsResponderPtr;
+using LinksetsResponderPtr = std::shared_ptr<LinksetsResponder>;
 
 //---------------------------------------------------------------------------
 // LLPathfindingManager

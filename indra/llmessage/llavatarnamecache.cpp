@@ -884,7 +884,7 @@ bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age)
         std::string token = *token_it;
         LLStringUtil::trim(token);
 
-        if (token.compare(0, MAX_AGE.size(), MAX_AGE) == 0)
+        if (token.starts_with(MAX_AGE))
         {
             // ...this token starts with max-age, so let's chop it up by "="
             tokenizer subtokens(token, EQUALS_SEPARATOR);

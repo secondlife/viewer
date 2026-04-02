@@ -67,7 +67,7 @@ class LLViewerRegion;
 
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
-typedef enum
+enum eLastExecEvent
 {
     LAST_EXEC_NORMAL = 0,
     LAST_EXEC_FROZE,
@@ -81,7 +81,7 @@ typedef enum
     LAST_EXEC_UNKNOWN,
     LAST_EXEC_LOGOUT_UNKNOWN,
     LAST_EXEC_COUNT
-} eLastExecEvent;
+};
 
 class LLAppViewer : public LLApp
 {
@@ -220,7 +220,7 @@ public:
     void handleLoginComplete();
 
     // On LoginCompleted callback
-    typedef boost::signals2::signal<void (void)> login_completed_signal_t;
+    using login_completed_signal_t = boost::signals2::signal<void (void)>;
     login_completed_signal_t mOnLoginCompleted;
     boost::signals2::connection setOnLoginCompletedCallback( const login_completed_signal_t::slot_type& cb )
     {

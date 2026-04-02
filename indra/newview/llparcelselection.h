@@ -74,6 +74,6 @@ private:
     S32         mSelectedPublicCount;
 };
 
-typedef LLSafeHandle<LLParcelSelection> LLParcelSelectionHandle;
+using LLParcelSelectionHandle = LLSafeHandle<LLParcelSelection>;
 
 #endif

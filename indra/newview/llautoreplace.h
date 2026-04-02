@@ -57,12 +57,12 @@ class LLAutoReplaceSettings
     LLSD getListNames();
 
     /// Status values returned from the addList method
-    typedef enum
+    enum AddListResult
     {
         AddListOk,
         AddListDuplicateName,
         AddListInvalidList,
-    } AddListResult;
+    };
 
     /// Inserts a new list at the end of the priority order
     AddListResult addList(const LLSD& newList);

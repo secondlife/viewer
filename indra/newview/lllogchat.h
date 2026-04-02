@@ -60,7 +60,7 @@ public:
     virtual void loadHistory(const std::string& file_name, std::list<LLSD>* messages, const LLSD& load_params);
     virtual void run();
 
-    typedef boost::signals2::signal<void (std::list<LLSD>* messages,const std::string& file_name)> load_end_signal_t;
+    using load_end_signal_t = boost::signals2::signal<void (std::list<LLSD>* messages,const std::string& file_name)>;
     load_end_signal_t * mLoadEndSignal;
     boost::signals2::connection setLoadEndSignal(const load_end_signal_t::slot_type& cb);
     void removeLoadEndSignal(const load_end_signal_t::slot_type& cb);
@@ -110,7 +110,7 @@ public:
 
     static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params = LLSD(), bool is_group = false);
 
-    typedef boost::signals2::signal<void ()> save_history_signal_t;
+    using save_history_signal_t = boost::signals2::signal<void ()>;
     boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
 
     static bool moveTranscripts(const std::string currentDirectory,

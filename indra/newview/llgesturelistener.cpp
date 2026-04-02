@@ -67,10 +67,8 @@ void LLGestureListener::getActiveGestures(const LLSD& event_data) const
     const LLGestureMgr::item_map_t& active_gestures = LLGestureMgr::instance().getActiveGestures();
 
     // Scan active gesture map and get all the names
-    LLGestureMgr::item_map_t::const_iterator it;
-    for (it = active_gestures.begin(); it != active_gestures.end(); ++it)
+    for (const auto& [item_id, gesture] : active_gestures)
     {
-        LLMultiGesture* gesture = (*it).second;
         if (gesture)
         {   // Add an entry to the result map with the LLUUID as key with a map containing data
             LLSD info = LLSD::emptyMap();
@@ -78,7 +76,7 @@ void LLGestureListener::getActiveGestures(const LLSD& event_data) const
             info["trigger"] = (LLSD::String) gesture->mTrigger;
             info["playing"] = (LLSD::Boolean) gesture->mPlaying;
 
-            gesture_map[(*it).first.asString()] = info;
+            gesture_map[item_id.asString()] = info;
         }
     }
 

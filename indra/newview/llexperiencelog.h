@@ -35,10 +35,9 @@ class LLExperienceLog : public LLSingleton<LLExperienceLog>
 {
     LLSINGLETON(LLExperienceLog);
 public:
-    typedef boost::signals2::signal<void(LLSD&)>
-        callback_signal_t;
-    typedef callback_signal_t::slot_type callback_slot_t;
-    typedef boost::signals2::connection callback_connection_t;
+    using callback_signal_t = boost::signals2::signal<void(LLSD&)>;
+    using callback_slot_t = callback_signal_t::slot_type;
+    using callback_connection_t = boost::signals2::connection;
     callback_connection_t addUpdateSignal(const callback_slot_t& cb);
 
     void initialize();

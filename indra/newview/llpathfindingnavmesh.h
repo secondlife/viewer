@@ -38,12 +38,12 @@
 class LLPathfindingNavMesh;
 class LLUUID;
 
-typedef std::shared_ptr<LLPathfindingNavMesh> LLPathfindingNavMeshPtr;
+using LLPathfindingNavMeshPtr = std::shared_ptr<LLPathfindingNavMesh>;
 
 class LLPathfindingNavMesh
 {
 public:
-    typedef enum {
+    enum ENavMeshRequestStatus {
         kNavMeshRequestUnknown,
         kNavMeshRequestWaiting,
         kNavMeshRequestChecking,
@@ -52,11 +52,11 @@ public:
         kNavMeshRequestCompleted,
         kNavMeshRequestNotEnabled,
         kNavMeshRequestError
-    } ENavMeshRequestStatus;
+    };
 
-    typedef std::function<void(ENavMeshRequestStatus, const LLPathfindingNavMeshStatus&, const LLSD::Binary&)>              navmesh_callback_t;
-    typedef boost::signals2::signal<void (ENavMeshRequestStatus, const LLPathfindingNavMeshStatus &, const LLSD::Binary &)> navmesh_signal_t;
-    typedef boost::signals2::connection                                                                                     navmesh_slot_t;
+    using navmesh_callback_t = std::function<void(ENavMeshRequestStatus, const LLPathfindingNavMeshStatus&, const LLSD::Binary&)>;
+    using navmesh_signal_t = boost::signals2::signal<void (ENavMeshRequestStatus, const LLPathfindingNavMeshStatus &, const LLSD::Binary &)>;
+    using navmesh_slot_t = boost::signals2::connection;
 
     LLPathfindingNavMesh(const LLUUID &pRegionUUID);
     virtual ~LLPathfindingNavMesh();

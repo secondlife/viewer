@@ -102,7 +102,7 @@ private:
     bool                mDirty;
     S32             mCurrentItem;
 
-    typedef std::vector<LLAccordionCtrlTab*> item_containers_t;
+    using item_containers_t = std::vector<LLAccordionCtrlTab*>;
     item_containers_t mItemContainers;
 
     LLContextMenu*          mAccordionTabMenu;

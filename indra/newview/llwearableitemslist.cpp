@@ -524,7 +524,7 @@ LLPanelDummyClothingListItem::LLPanelDummyClothingListItem(LLWearableType::EType
     setSeparatorVisible(true);
 }
 
-typedef std::map<LLWearableType::EType, std::string> clothing_to_string_map_t;
+using clothing_to_string_map_t = std::map<LLWearableType::EType, std::string>;
 
 clothing_to_string_map_t init_clothing_string_map()
 {

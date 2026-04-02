@@ -54,7 +54,7 @@ static const std::string AZURE_NOTRANSLATE_CLOSING_TAG("</div>");
 class LLTranslationAPIHandler
 {
 public:
-    typedef std::pair<std::string, std::string> LanguagePair_t;
+    using LanguagePair_t = std::pair<std::string, std::string>;
 
     /**
     * Get URL for translation of the given string.
@@ -226,14 +226,15 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
     initHttpHeader(httpHeaders, user_agent);
     httpOpts->setSSLVerifyPeer(false);
 
-    std::string url = this->getTranslateURL(fromTo.first, fromTo.second, msg);
+    auto& [from_lang, to_lang] = fromTo;
+    std::string url = this->getTranslateURL(from_lang, to_lang, msg);
     if (url.empty())
     {
         LL_INFOS("Translate") << "No translation URL" << LL_ENDL;
         return;
     }
 
-    LLSD result = sendMessageAndSuspend(httpAdapter, httpRequest, httpOpts, httpHeaders, url, msg, fromTo.first, fromTo.second);
+    LLSD result = sendMessageAndSuspend(httpAdapter, httpRequest, httpOpts, httpHeaders, url, msg, from_lang, to_lang);
 
     if (LLApp::isQuitting())
     {
@@ -244,7 +245,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     std::string translation, err_msg;
-    std::string detected_lang(fromTo.second);
+    std::string detected_lang(to_lang);
 
     int parseResult = status.getType();
     const LLSD::Binary &rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();

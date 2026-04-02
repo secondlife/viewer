@@ -43,7 +43,7 @@ public:
 
     static bool filterByDoNotDisturbStatus(LLNotificationPtr);
 
-    typedef std::multimap<LLDate, LLNotificationPtr> history_list_t;
+    using history_list_t = std::multimap<LLDate, LLNotificationPtr>;
     S32 getHistorySize() const;
     history_list_t::const_iterator beginHistory() const;
     history_list_t::const_iterator endHistory() const;

@@ -52,7 +52,7 @@ public:
 
     struct Info
     {
-        typedef std::shared_ptr<SizeSum> PtrSizeSum;
+        using PtrSizeSum = std::shared_ptr<SizeSum>;
 
         Info(const LLDrawable *drawable, int size, PtrSizeSum sizeInfo, LLUUID sculptId)
             : mDrawable(drawable)
@@ -80,7 +80,7 @@ public:
     struct tag_BY_SIZE {};
 
     //container
-    typedef boost::multi_index_container <
+    using container = boost::multi_index_container <
         Info,
         boost::multi_index::indexed_by <
         boost::multi_index::ordered_unique< boost::multi_index::tag<tag_BY_DRAWABLE>
@@ -93,12 +93,12 @@ public:
         , boost::multi_index::const_mem_fun < Info, unsigned int, &Info::getSizeSum >
         >
         >
-    > container;
+    >;
 
     //views
-    typedef container::index<tag_BY_DRAWABLE>::type         container_BY_DRAWABLE_view;
-    typedef container::index<tag_BY_SCULPT_ID>::type        container_BY_SCULPT_ID_view;
-    typedef container::index<tag_BY_SIZE>::type             container_BY_SIZE_view;
+    using container_BY_DRAWABLE_view = container::index<tag_BY_DRAWABLE>::type;
+    using container_BY_SCULPT_ID_view = container::index<tag_BY_SCULPT_ID>::type;
+    using container_BY_SIZE_view = container::index<tag_BY_SIZE>::type;
 
 private:
     LLSculptIDSize()
@@ -127,7 +127,7 @@ public:
 
 private:
     container mSizeInfo;
-    typedef std::set<LLUUID> std_LLUUID;
+    using std_LLUUID = std::set<LLUUID>;
     std_LLUUID mMarkAsUnloaded;
 };
 

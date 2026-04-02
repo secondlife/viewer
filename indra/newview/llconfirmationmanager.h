@@ -49,7 +49,7 @@ public:
     class Listener : public ListenerBase
     {
     public:
-        typedef void (T::*ConfirmationMemberFunction)(const std::string&);
+        using ConfirmationMemberFunction = void(T::*)(const std::string&);
 
         Listener(T& object, ConfirmationMemberFunction function)
             : mObject(object), mFunction(function)

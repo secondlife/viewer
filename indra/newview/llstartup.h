@@ -54,7 +54,7 @@ enum EStartLocation
     START_LOCATION_ID_COUNT
 };
 
-typedef enum {
+enum EStartupState {
     STATE_FIRST,                    // Initial startup
     STATE_BROWSER_INIT,             // Initialize web browser for login screen
     STATE_LOGIN_SHOW,               // Show login screen
@@ -80,7 +80,7 @@ typedef enum {
     STATE_WEARABLES_WAIT,           // Wait for clothing to download
     STATE_CLEANUP,                  // Final cleanup
     STATE_STARTED                   // Up and running in-world
-} EStartupState;
+};
 
 // exported symbols
 extern bool gAgentMovementCompleted;

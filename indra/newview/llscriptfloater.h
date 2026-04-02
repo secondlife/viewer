@@ -44,23 +44,25 @@ class LLScriptFloaterManager : public LLSingleton<LLScriptFloaterManager>
     LLSINGLETON(LLScriptFloaterManager);
 public:
 
-    typedef enum e_object_type
+    enum e_object_type
     {
         OBJ_SCRIPT,
         OBJ_GIVE_INVENTORY,
         OBJ_LOAD_URL,
 
         OBJ_UNKNOWN
-    }EObjectType;
+    };
+    using EObjectType = e_object_type;
 
-    typedef enum e_limitation_type
+    enum e_limitation_type
     {
         SCRIPT_PER_OBJECT = 0,
         SCRIPT_PER_CHANNEL = 1,
         SCRIPT_ATTACHMENT_PER_CHANNEL,
         SCRIPT_HUD_PER_CHANNEL,
         SCRIPT_HUD_UNCONSTRAINED
-    }ELimitationType;
+    };
+    using ELimitationType = e_limitation_type;
 
     /**
      * Handles new notifications.
@@ -94,7 +96,7 @@ public:
 
     static std::string getObjectName(const LLUUID& notification_id);
 
-    typedef boost::signals2::signal<void(const LLSD&)> object_signal_t;
+    using object_signal_t = boost::signals2::signal<void(const LLSD&)>;
 
     boost::signals2::connection addNewObjectCallback(const object_signal_t::slot_type& cb) { return mNewObjectSignal.connect(cb); }
     boost::signals2::connection addToggleObjectFloaterCallback(const object_signal_t::slot_type& cb) { return mToggleFloaterSignal.connect(cb); }
@@ -118,12 +120,12 @@ protected:
      */
     static void clearScriptNotifications();
 
-    typedef std::map<std::string, EObjectType> object_type_map;
+    using object_type_map = std::map<std::string, EObjectType>;
 
     static object_type_map initObjectTypeMap();
 
     // <notification_id, object_id>
-    typedef std::map<LLUUID, LLUUID> script_notification_map_t;
+    using script_notification_map_t = std::map<LLUUID, LLUUID>;
 
     script_notification_map_t::const_iterator findUsingObjectId(const LLUUID& object_id);
     script_notification_map_t::const_iterator findUsingObjectIdAndChannel(const LLUUID& object_id, S32 im_channel);
@@ -136,7 +138,7 @@ private:
     object_signal_t mToggleFloaterSignal;
 
     // <object_id, floater position>
-    typedef std::map<LLUUID, FloaterPositionInfo> floater_position_map_t;
+    using floater_position_map_t = std::map<LLUUID, FloaterPositionInfo>;
 
     floater_position_map_t mFloaterPositions;
     boost::signals2::connection mDialogLimitationsSlot;
