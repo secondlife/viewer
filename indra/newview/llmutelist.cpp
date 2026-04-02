@@ -833,7 +833,9 @@ void LLMuteList::requestFromServer(const LLUUID& agent_id)
     if (gDisconnected)
     {
         LL_WARNS() << "Trying to request mute list when disconnected!" << LL_ENDL;
-        tryLoadCacheFallback(agent_id, "disconnected before request");
+        // Guard against potentially writing back to disk since we're not recovering our connection
+        mLoadState = ML_LOADED;
+        mLoadSource = MLS_FALLBACK_CACHE;
         return;
     }
     if (!gAgent.getRegion())
