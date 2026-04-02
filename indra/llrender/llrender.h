@@ -66,7 +66,7 @@ class LLTexUnit
 public:
     static U32 sWhiteTexture;
 
-    typedef enum
+    enum eTextureType
     {
         TT_TEXTURE = 0,         // Standard 2D Texture
         TT_RECT_TEXTURE,        // Non power of 2 texture
@@ -75,31 +75,31 @@ public:
         TT_MULTISAMPLE_TEXTURE, // see GL_ARB_texture_multisample
         TT_TEXTURE_3D,          // standard 3D Texture
         TT_NONE,                // No texture type is currently enabled
-    } eTextureType;
+    };
 
-    typedef enum
+    enum eTextureAddressMode
     {
         TAM_WRAP = 0,           // Standard 2D Texture
         TAM_MIRROR,             // Non power of 2 texture
         TAM_CLAMP               // No texture type is currently enabled
-    } eTextureAddressMode;
+    };
 
-    typedef enum
+    enum eTextureFilterOptions
     {   // Note: If mipmapping or anisotropic are not enabled or supported it should fall back gracefully
         TFO_POINT = 0,          // Equal to: min=point, mag=point, mip=none.
         TFO_BILINEAR,           // Equal to: min=linear, mag=linear, mip=point.
         TFO_TRILINEAR,          // Equal to: min=linear, mag=linear, mip=linear.
         TFO_ANISOTROPIC         // Equal to: min=anisotropic, max=anisotropic, mip=linear.
-    } eTextureFilterOptions;
+    };
 
-    typedef enum
+    enum eTextureMipGeneration
     {
         TMG_NONE = 0,           // Mipmaps are not automatically generated for this texture.
         TMG_AUTO,               // Mipmaps are automatically generated for this texture.
         TMG_MANUAL              // Mipmaps are manually generated for this texture.
-    } eTextureMipGeneration;
+    };
 
-    typedef enum
+    enum eTextureBlendType
     {
         TB_REPLACE = 0,
         TB_ADD,
@@ -107,9 +107,9 @@ public:
         TB_MULT_X2,
         TB_ALPHA_BLEND,
         TB_COMBINE          // Doesn't need to be set directly, setTexture___Blend() set TB_COMBINE automatically
-    } eTextureBlendType;
+    };
 
-    typedef enum
+    enum eTextureBlendOp
     {
         TBO_REPLACE = 0,            // Use Source 1
         TBO_MULT,                   // Multiply: ( Source1 * Source2 )
@@ -122,9 +122,9 @@ public:
         TBO_LERP_TEX_ALPHA,         // Interpolate based on Texture Alpha (TA): ( Source1 * TA + Source2 * (1-TA) )
         TBO_LERP_PREV_ALPHA,        // Interpolate based on Previous Alpha (PA): ( Source1 * PA + Source2 * (1-PA) )
         TBO_LERP_CONST_ALPHA        // Interpolate based on Const Alpha (CA): ( Source1 * CA + Source2 * (1-CA) )
-    } eTextureBlendOp;
+    };
 
-    typedef enum
+    enum eTextureBlendSrc
     {
         TBS_PREV_COLOR = 0,         // Color from the previous texture stage
         TBS_PREV_ALPHA,
@@ -142,13 +142,13 @@ public:
         TBS_CONST_ALPHA,
         TBS_ONE_MINUS_CONST_COLOR,
         TBS_ONE_MINUS_CONST_ALPHA
-    } eTextureBlendSrc;
+    };
 
-    typedef enum
+    enum eTextureColorSpace
     {
         TCS_LINEAR = 0,
         TCS_SRGB
-    } eTextureColorSpace;
+    };
 
     LLTexUnit(S32 index = -1);
 

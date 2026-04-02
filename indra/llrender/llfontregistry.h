@@ -32,7 +32,7 @@
 
 class LLFontGL;
 
-typedef std::vector<std::string> string_vec_t;
+using string_vec_t = std::vector<std::string>;
 
 struct LLFontFileInfo
 {
@@ -51,7 +51,7 @@ struct LLFontFileInfo
     std::string FileName;
     std::function<bool(llwchar)> CharFunctor;
 };
-typedef std::vector<LLFontFileInfo> font_file_info_vec_t;
+using font_file_info_vec_t = std::vector<LLFontFileInfo>;
 
 class LLFontDescriptor
 {
@@ -88,7 +88,7 @@ private:
     font_file_info_vec_t mFontCollectionFiles;
     U8 mStyle;
 
-    typedef std::map<std::string, std::function<bool(llwchar)>> char_functor_map_t;
+    using char_functor_map_t = std::map<std::string, std::function<bool(llwchar)>>;
     static char_functor_map_t mCharFunctors;
 };
 
@@ -127,8 +127,8 @@ public:
 private:
     LLFontRegistry(const LLFontRegistry& other); // no-copy
     LLFontGL *createFont(const LLFontDescriptor& desc);
-    typedef std::map<LLFontDescriptor,LLFontGL*> font_reg_map_t;
-    typedef std::map<std::string,F32> font_size_map_t;
+    using font_reg_map_t = std::map<LLFontDescriptor, LLFontGL*>;
+    using font_size_map_t = std::map<std::string, F32>;
 
     // Given a descriptor, look up specific font instantiation.
     font_reg_map_t mFontMap;

@@ -43,8 +43,8 @@ namespace tut
     struct v3math_data
     {
     };
-    typedef test_group<v3math_data> v3math_test;
-    typedef v3math_test::object v3math_object;
+    using v3math_test = test_group<v3math_data>;
+    using v3math_object = v3math_test::object;
     tut::v3math_test v3math_testcase("v3math_h");
 
     template<> template<>

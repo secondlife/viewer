@@ -36,7 +36,7 @@ struct LL_COMMON_API LLParamSDParserUtilities
 {
     static LLSD& getSDWriteNode(LLSD& input, LLInitParam::Parser::name_stack_range_t& name_stack_range);
 
-    typedef std::function<void (const LLSD&, LLInitParam::Parser::name_stack_t&)> read_sd_cb_t;
+    using read_sd_cb_t = std::function<void (const LLSD&, LLInitParam::Parser::name_stack_t&)>;
     static void readSDValues(read_sd_cb_t cb, const LLSD& sd, LLInitParam::Parser::name_stack_t& stack);
     static void readSDValues(read_sd_cb_t cb, const LLSD& sd);
 };
@@ -46,8 +46,7 @@ class LL_COMMON_API LLParamSDParser
 {
 LOG_CLASS(LLParamSDParser);
 
-typedef LLInitParam::Parser parser_t;
-
+using parser_t = LLInitParam::Parser;
 public:
     LLParamSDParser();
     void readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool silent = false);

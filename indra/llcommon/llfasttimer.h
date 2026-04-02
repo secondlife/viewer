@@ -56,9 +56,8 @@ class BlockTimer timeThisBlock(class BlockTimerStatHandle& timer);
 class BlockTimer
 {
 public:
-    typedef BlockTimer self_t;
-    typedef class BlockTimerStatHandle DeclareTimer;
-
+    using self_t = BlockTimer;
+    using DeclareTimer = class BlockTimerStatHandle;
     ~BlockTimer();
 
     F64Seconds getElapsedTime();
@@ -241,8 +240,8 @@ public:
     BlockTimerStatHandle* getParent() const { return getTreeNode().getParent(); }
     void setParent(BlockTimerStatHandle* parent) { getTreeNode().setParent(parent); }
 
-    typedef std::vector<BlockTimerStatHandle*>::iterator child_iter;
-    typedef std::vector<BlockTimerStatHandle*>::const_iterator child_const_iter;
+    using child_iter = std::vector<BlockTimerStatHandle*>::iterator;
+    using child_const_iter = std::vector<BlockTimerStatHandle*>::const_iterator;
     child_iter beginChildren();
     child_iter endChildren();
     bool hasChildren();
@@ -262,10 +261,9 @@ public:
 };
 
 // iterators and helper functions for walking the call hierarchy of block timers in different ways
-typedef LLTreeDFSIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> block_timer_tree_df_iterator_t;
-typedef LLTreeDFSPostIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> block_timer_tree_df_post_iterator_t;
-typedef LLTreeBFSIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter> block_timer_tree_bf_iterator_t;
-
+using block_timer_tree_df_iterator_t = LLTreeDFSIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter>;
+using block_timer_tree_df_post_iterator_t = LLTreeDFSPostIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter>;
+using block_timer_tree_bf_iterator_t = LLTreeBFSIter<BlockTimerStatHandle, BlockTimerStatHandle::child_const_iter>;
 block_timer_tree_df_iterator_t begin_block_timer_tree_df(BlockTimerStatHandle& id);
 block_timer_tree_df_iterator_t end_block_timer_tree_df();
 block_timer_tree_df_post_iterator_t begin_block_timer_tree_df_post(BlockTimerStatHandle& id);
@@ -331,6 +329,5 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 
 }
 
-typedef LLTrace::BlockTimer LLFastTimer;
-
+using LLFastTimer = LLTrace::BlockTimer;
 #endif // LL_LLFASTTIMER_H

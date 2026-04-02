@@ -37,15 +37,15 @@ class LLPostProcess
 {
 public:
 
-    typedef enum _QuadType {
+    enum QuadType {
         QUAD_NORMAL,
         QUAD_NOISE,
         QUAD_BLOOM_EXTRACT,
         QUAD_BLOOM_COMBINE
-    } QuadType;
+    };
 
     /// GLSL Shader Encapsulation Struct
-    typedef LLStaticStringTable<GLuint> glslUniforms;
+    using glslUniforms = LLStaticStringTable<GLuint>;
 
     struct PostProcessTweaks : public LLSD {
         inline PostProcessTweaks() : LLSD(LLSD::emptyMap())

@@ -52,20 +52,20 @@ public:
 
 private:
     // All existing LLSingleton instances are tracked in this master list.
-    typedef std::list<LLSingletonBase*> list_t;
+    using list_t = std::list<LLSingletonBase*>;
     // Size of stack whose top indicates the LLSingleton currently being
     // initialized.
     static list_t::size_type get_initializing_size();
     // Produce a vector<LLSingletonBase*> of master list, in dependency order.
-    typedef std::vector<LLSingletonBase*> vec_t;
+    using vec_t = std::vector<LLSingletonBase*>;
     static vec_t dep_sort();
 
     // we directly depend on these other LLSingletons
-    typedef std::unordered_set<LLSingletonBase*> set_t;
+    using set_t = std::unordered_set<LLSingletonBase*>;
     set_t mDepends;
 
 protected:
-    typedef enum e_init_state
+    enum EInitState
     {
         UNINITIALIZED = 0,          // must be default-initialized state
         QUEUED,                     // construction queued, not yet executing
@@ -73,7 +73,7 @@ protected:
         INITIALIZING,               // within DERIVED_TYPE::initSingleton()
         INITIALIZED,                // normal case
         DELETED                     // deleteSingleton() or deleteAll() called
-    } EInitState;
+    };
 
     // Define tag<T> to pass to our template constructor. You can't explicitly
     // invoke a template constructor with ordinary template syntax:
@@ -81,7 +81,7 @@ protected:
     template <typename T>
     struct tag
     {
-        typedef T type;
+        using type = T;
     };
 
     // Base-class constructor should only be invoked by the DERIVED_TYPE
@@ -122,7 +122,7 @@ protected:
 
     // delegate logging calls to llsingleton.cpp
 public:
-    typedef std::initializer_list<const std::string> string_params;
+    using string_params = std::initializer_list<const std::string>;
 protected:
     static void logerrs  (const string_params&);
     static void logwarns (const string_params&);
@@ -301,14 +301,13 @@ private:
     {
         // Use a recursive_mutex in case of constructor circularity. With a
         // non-recursive mutex, that would result in deadlock.
-        typedef std::recursive_mutex mutex_t;
+        using mutex_t = std::recursive_mutex;
         LL_PROFILE_MUTEX_NAMED(mutex_t, mMutex, "Singleton Data"); // LockStatic looks for mMutex
 
         EInitState      mInitState{UNINITIALIZED};
         DERIVED_TYPE*   mInstance{nullptr};
     };
-    typedef llthread::LockStatic<SingletonData> LockStatic;
-
+    using LockStatic = llthread::LockStatic<SingletonData>;
     // Allow LLParamSingleton subclass -- but NOT DERIVED_TYPE itself -- to
     // access our private members.
     friend class LLParamSingleton<DERIVED_TYPE>;
@@ -637,7 +636,7 @@ template <typename DERIVED_TYPE>
 class LLParamSingleton : public LLSingleton<DERIVED_TYPE>
 {
 private:
-    typedef LLSingleton<DERIVED_TYPE> super;
+    using super = LLSingleton<DERIVED_TYPE>;
     using typename super::LockStatic;
 
     // Passes arguments to DERIVED_TYPE's constructor and sets appropriate
@@ -769,8 +768,7 @@ public:
 template <typename DT>
 class LLLockedSingleton : public LLParamSingleton<DT>
 {
-    typedef LLParamSingleton<DT> super;
-
+    using super = LLParamSingleton<DT>;
 public:
     using super::deleteSingleton;
     using super::getInstance;

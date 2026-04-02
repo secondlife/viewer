@@ -527,8 +527,7 @@ struct Data
 // LLSD::Type lookup class into which we load the above static data
 class TypeLookup
 {
-    typedef std::map<LLSD::Type, std::string> MapType;
-
+    using MapType = std::map<LLSD::Type, std::string>;
 public:
     TypeLookup()
     {
@@ -579,8 +578,7 @@ static std::string colon(const std::string& pfx)
 }
 
 // param type for match_types
-typedef std::vector<LLSD::Type> TypeVector;
-
+using TypeVector = std::vector<LLSD::Type>;
 // The scalar cases in llsd_matches() use this helper. In most cases, we can
 // accept not only the exact type specified in the prototype, but also other
 // types convertible to the expected type. That implies looping over an array

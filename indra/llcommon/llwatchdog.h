@@ -51,7 +51,7 @@ public:
     virtual void start();
     virtual void stop();
     virtual std::string getLastState() const { return std::string(); }
-    typedef std::thread::id id_t;
+    using id_t = std::thread::id;
     std::string getThreadName() const;
 
 private:
@@ -93,7 +93,7 @@ public:
     void add(LLWatchdogEntry* e);
     void remove(LLWatchdogEntry* e);
 
-    typedef std::function<void()> func_t;
+    using func_t = std::function<void()>;
     void init(func_t set_error_state_callback);
     void run();
     void cleanup();
@@ -103,7 +103,7 @@ private:
     void lockThread();
     void unlockThread();
 
-    typedef std::set<LLWatchdogEntry*> SuspectsRegistry;
+    using SuspectsRegistry = std::set<LLWatchdogEntry*>;
     SuspectsRegistry mSuspects;
     LLMutex* mSuspectsAccessMutex;
     LLWatchdogTimerThread* mTimer;

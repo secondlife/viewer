@@ -37,8 +37,8 @@ namespace tut
     struct v3color_data
     {
     };
-    typedef test_group<v3color_data> v3color_test;
-    typedef v3color_test::object v3color_object;
+    using v3color_test = test_group<v3color_data>;
+    using v3color_object = v3color_test::object;
     tut::v3color_test v3color_testcase("v3color_h");
 
     template<> template<>

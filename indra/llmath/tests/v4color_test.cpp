@@ -41,8 +41,8 @@ namespace tut
     struct v4color_data
     {
     };
-    typedef test_group<v4color_data> v4color_test;
-    typedef v4color_test::object v4color_object;
+    using v4color_test = test_group<v4color_data>;
+    using v4color_object = v4color_test::object;
     tut::v4color_test v4color_testcase("v4color_h");
 
     template<> template<>

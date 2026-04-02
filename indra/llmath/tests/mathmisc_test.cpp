@@ -43,8 +43,8 @@ namespace tut
     struct math_data
     {
     };
-    typedef test_group<math_data> math_test;
-    typedef math_test::object math_object;
+    using math_test = test_group<math_data>;
+    using math_object = math_test::object;
     tut::math_test tm("BasicLindenMath");
 
     template<> template<>
@@ -176,8 +176,8 @@ namespace tut
     {
         LLUUID id;
     };
-    typedef test_group<uuid_data> uuid_test;
-    typedef uuid_test::object uuid_object;
+    using uuid_test = test_group<uuid_data>;
+    using uuid_object = uuid_test::object;
     tut::uuid_test tu("LLUUID");
 
     template<> template<>
@@ -231,8 +231,8 @@ namespace tut
     struct crc_data
     {
     };
-    typedef test_group<crc_data> crc_test;
-    typedef crc_test::object crc_object;
+    using crc_test = test_group<crc_data>;
+    using crc_object = crc_test::object;
     tut::crc_test tc("LLCrc");
 
     template<> template<>
@@ -283,8 +283,8 @@ namespace tut
     struct sphere_data
     {
     };
-    typedef test_group<sphere_data> sphere_test;
-    typedef sphere_test::object sphere_object;
+    using sphere_test = test_group<sphere_data>;
+    using sphere_object = sphere_test::object;
     tut::sphere_test tsphere("LLSphere");
 
     template<> template<>
@@ -447,8 +447,8 @@ namespace tut
     struct line_data
     {
     };
-    typedef test_group<line_data> line_test;
-    typedef line_test::object line_object;
+    using line_test = test_group<line_data>;
+    using line_object = line_test::object;
     tut::line_test tline("LLLine");
 
     template<> template<>

@@ -31,9 +31,9 @@ struct LL_COORD_TYPE_GL;
 struct LL_COORD_TYPE_WINDOW;
 struct LL_COORD_TYPE_SCREEN;
 
-typedef LLCoord<LL_COORD_TYPE_GL> LLCoordGL;
-typedef LLCoord<LL_COORD_TYPE_WINDOW> LLCoordWindow;
-typedef LLCoord<LL_COORD_TYPE_SCREEN> LLCoordScreen;
+using LLCoordGL = LLCoord<LL_COORD_TYPE_GL>;
+using LLCoordWindow = LLCoord<LL_COORD_TYPE_WINDOW>;
+using LLCoordScreen = LLCoord<LL_COORD_TYPE_SCREEN>;
 
 struct LLCoordCommon
 {
@@ -48,7 +48,7 @@ template<typename COORD_FRAME>
 class LLCoord : protected COORD_FRAME
 {
 public:
-    typedef LLCoord<COORD_FRAME> self_t;
+    using self_t = LLCoord<COORD_FRAME>;
     typename COORD_FRAME::value_t   mX;
     typename COORD_FRAME::value_t   mY;
 
@@ -77,7 +77,7 @@ public:
 
 struct LL_COORD_TYPE_GL
 {
-    typedef S32 value_t;
+    using value_t = S32;
 
     LLCoordCommon convertToCommon() const
     {
@@ -95,7 +95,7 @@ struct LL_COORD_TYPE_GL
 
 struct LL_COORD_TYPE_WINDOW
 {
-    typedef S32 value_t;
+    using value_t = S32;
 
     LLCoordCommon convertToCommon() const;
     void convertFromCommon(const LLCoordCommon& from);
@@ -103,7 +103,7 @@ struct LL_COORD_TYPE_WINDOW
 
 struct LL_COORD_TYPE_SCREEN
 {
-    typedef S32 value_t;
+    using value_t = S32;
 
     LLCoordCommon convertToCommon() const;
     void convertFromCommon(const LLCoordCommon& from);

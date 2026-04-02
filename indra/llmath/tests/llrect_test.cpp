@@ -36,8 +36,8 @@ namespace tut
     {
     };
 
-    typedef test_group<LLRectData> factory;
-    typedef factory::object object;
+    using factory = test_group<LLRectData>;
+    using object = factory::object;
 }
 
 namespace

@@ -237,9 +237,8 @@ template<typename Type>
 class LLCopyOnWritePointer : public LLPointer<Type>
 {
 public:
-    typedef LLCopyOnWritePointer<Type> self_t;
-    typedef LLPointer<Type> pointer_t;
-
+    using self_t = LLCopyOnWritePointer<Type>;
+    using pointer_t = LLPointer<Type>;
     LLCopyOnWritePointer()
     :   mStayUnique(false)
     {}

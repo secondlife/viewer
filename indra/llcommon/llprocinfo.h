@@ -48,7 +48,7 @@ class LL_COMMON_API LLProcInfo
 public:
     /// Public types
 
-    typedef U64 time_type;                              /// Relative microseconds
+    using time_type = U64;                               /// Relative microseconds
 
 private:
     LLProcInfo() = delete;

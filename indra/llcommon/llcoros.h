@@ -110,10 +110,9 @@ public:
     /// simpler, more transient kinds of coroutines. Semantically they've
     /// always been fibers. But at this point in history, we're pretty much
     /// stuck with the term "coroutine."
-    typedef boost::fibers::fiber coro;
+    using coro = boost::fibers::fiber;
     /// Canonical callable type
-    typedef std::function<void()> callable_t;
-
+    using callable_t = std::function<void()>;
     /**
      * Create and start running a new coroutine with specified name. The name
      * string you pass is a suggestion; it will be tweaked for uniqueness. The

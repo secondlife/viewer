@@ -480,10 +480,9 @@ namespace
     }
 
 
-    typedef std::unordered_map<std::string, LLError::ELevel> LevelMap;
-    typedef std::vector<LLError::RecorderPtr> Recorders;
-    typedef std::vector<LLError::CallSite*> CallSiteVector;
-
+    using LevelMap = std::unordered_map<std::string, LLError::ELevel>;
+    using Recorders = std::vector<LLError::RecorderPtr>;
+    using CallSiteVector = std::vector<LLError::CallSite*>;
     class SettingsConfig : public LLRefCount
     {
         friend class Globals;
@@ -515,8 +514,7 @@ namespace
         SettingsConfig();
     };
 
-    typedef LLPointer<SettingsConfig> SettingsConfigPtr;
-
+    using SettingsConfigPtr = LLPointer<SettingsConfig>;
     SettingsConfig::SettingsConfig()
         : LLRefCount(),
         mDefaultLevel(LLError::LEVEL_DEBUG),

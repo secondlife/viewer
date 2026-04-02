@@ -41,7 +41,6 @@
 #include <iostream>
 #include <new>
 
-#include <boost/thread.hpp>
 
 struct BlockHeader
 {

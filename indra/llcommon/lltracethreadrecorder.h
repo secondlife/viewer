@@ -39,7 +39,7 @@ namespace LLTrace
     {
     protected:
         struct ActiveRecording;
-        typedef std::vector<ActiveRecording*> active_recording_list_t;
+        using active_recording_list_t = std::vector<ActiveRecording*>;
     public:
         ThreadRecorder();
         explicit ThreadRecorder(ThreadRecorder& parent);
@@ -81,8 +81,7 @@ namespace LLTrace
         class BlockTimer*               mRootTimer;
         TimeBlockTreeNode*              mTimeBlockTreeNodes;
         size_t                          mNumTimeBlockTreeNodes;
-        typedef std::list<class ThreadRecorder*> child_thread_recorder_list_t;
-
+        using child_thread_recorder_list_t = std::list<class ThreadRecorder*>;
         child_thread_recorder_list_t    mChildThreadRecorders;  // list of child thread recorders associated with this master
         LLMutex                         mChildListMutex;        // protects access to child list
         LLMutex                         mSharedRecordingMutex;

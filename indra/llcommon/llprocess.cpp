@@ -167,7 +167,7 @@ public:
 
     bool tick(const LLSD&)
     {
-        typedef boost::asio::streambuf::const_buffers_type const_buffer_sequence;
+        using const_buffer_sequence = boost::asio::streambuf::const_buffers_type;
         // If there's anything to send, try to send it.
         std::size_t total(mStreambuf.size()), consumed(0);
         if (total)
@@ -363,7 +363,7 @@ public:
         if (mEOF)
             return false;
 
-        typedef boost::asio::streambuf::mutable_buffers_type mutable_buffer_sequence;
+        using mutable_buffer_sequence = boost::asio::streambuf::mutable_buffers_type;
         // Try, every time, to read into our streambuf. In fact, we have no
         // idea how much data the child might be trying to send: keep trying
         // until we're convinced we've temporarily exhausted the pipe.
@@ -729,7 +729,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 
     // Instantiate the proper pipe I/O machinery
     // want to be able to point to apr_proc_t::in, out, err by index
-    typedef apr_file_t* apr_proc_t::*apr_proc_file_ptr;
+    using apr_proc_file_ptr = apr_file_t* apr_proc_t::*;
     static apr_proc_file_ptr members[] =
         { &apr_proc_t::in, &apr_proc_t::out, &apr_proc_t::err };
     for (size_t i = 0; i < NSLOTS; ++i)
@@ -1083,16 +1083,16 @@ PIPETYPE& LLProcess::getPipe(FILESLOT slot)
 }
 
 template <class PIPETYPE>
-boost::optional<PIPETYPE&> LLProcess::getOptPipe(FILESLOT slot)
+PIPETYPE* LLProcess::getOptPipe(FILESLOT slot)
 {
     std::string error;
     PIPETYPE* wp = getPipePtr<PIPETYPE>(error, slot);
     if (! wp)
     {
         LL_DEBUGS("LLProcess") << error << LL_ENDL;
-        return boost::optional<PIPETYPE&>();
+        return nullptr;
     }
-    return *wp;
+    return wp;
 }
 
 LLProcess::WritePipe& LLProcess::getWritePipe(FILESLOT slot)
@@ -1100,7 +1100,7 @@ LLProcess::WritePipe& LLProcess::getWritePipe(FILESLOT slot)
     return getPipe<WritePipe>(slot);
 }
 
-boost::optional<LLProcess::WritePipe&> LLProcess::getOptWritePipe(FILESLOT slot)
+LLProcess::WritePipe* LLProcess::getOptWritePipe(FILESLOT slot)
 {
     return getOptPipe<WritePipe>(slot);
 }
@@ -1110,7 +1110,7 @@ LLProcess::ReadPipe& LLProcess::getReadPipe(FILESLOT slot)
     return getPipe<ReadPipe>(slot);
 }
 
-boost::optional<LLProcess::ReadPipe&> LLProcess::getOptReadPipe(FILESLOT slot)
+LLProcess::ReadPipe* LLProcess::getOptReadPipe(FILESLOT slot)
 {
     return getOptPipe<ReadPipe>(slot);
 }

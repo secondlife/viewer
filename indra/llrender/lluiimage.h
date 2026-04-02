@@ -50,7 +50,7 @@ public:
         SCALE_OUTER
     };
 
-    typedef boost::signals2::signal<void (void)> image_loaded_signal_t;
+    using image_loaded_signal_t = boost::signals2::signal<void (void)>;
 
     LLUIImage(const std::string& name, LLPointer<LLTexture> image);
     virtual ~LLUIImage();
@@ -120,8 +120,8 @@ namespace LLInitParam
     class ParamValue<LLUIImage*>
     :   public CustomParamValue<LLUIImage*>
     {
-        typedef std::add_lvalue_reference<std::add_const<LLUIImage*>::type>::type  T_const_ref;
-        typedef CustomParamValue<LLUIImage*> super_t;
+        using T_const_ref = std::add_lvalue_reference<std::add_const<LLUIImage*>::type>::type;
+        using super_t = CustomParamValue<LLUIImage*>;
     public:
         Optional<std::string> name;
 
@@ -145,5 +145,5 @@ namespace LLInitParam
     };
 }
 
-typedef LLPointer<LLUIImage> LLUIImagePtr;
+using LLUIImagePtr = LLPointer<LLUIImage>;
 #endif

@@ -128,7 +128,7 @@ private:
 // Static members managing the collection of testers
 public:
     // Map of all the tester instances in use
-    typedef std::map< std::string, LLMetricPerformanceTesterBasic* > name_tester_map_t;
+    using name_tester_map_t = std::map< std::string, LLMetricPerformanceTesterBasic* >;
     static name_tester_map_t sTesterMap ;
 
     /**

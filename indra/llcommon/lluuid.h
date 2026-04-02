@@ -137,8 +137,8 @@ static_assert(std::is_trivially_copyable<LLUUID>::value, "LLUUID must be trivial
 static_assert(std::is_trivially_move_assignable<LLUUID>::value, "LLUUID must be trivial move");
 static_assert(std::is_standard_layout<LLUUID>::value, "LLUUID must be a standard layout type");
 
-typedef std::vector<LLUUID> uuid_vec_t;
-typedef std::set<LLUUID> uuid_set_t;
+using uuid_vec_t = std::vector<LLUUID>;
+using uuid_set_t = std::set<LLUUID>;
 
 // Helper structure for ordering lluuids in stl containers.  eg:
 // std::map<LLUUID, LLWidget*, lluuid_less> widget_map;
@@ -154,12 +154,12 @@ struct lluuid_less
     }
 };
 
-typedef std::set<LLUUID, lluuid_less> uuid_list_t;
+using uuid_list_t = std::set<LLUUID, lluuid_less>;
 /*
  * Sub-classes for keeping transaction IDs and asset IDs
  * straight.
  */
-typedef LLUUID LLAssetID;
+using LLAssetID = LLUUID;
 
 class LL_COMMON_API LLTransactionID : public LLUUID
 {

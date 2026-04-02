@@ -176,14 +176,14 @@ public:
         The scalar types, and how they map onto C++
     */
     //@{
-        typedef bool            Boolean;
-        typedef S32             Integer;
-        typedef F64             Real;
-        typedef std::string     String;
-        typedef LLUUID          UUID;
-        typedef LLDate          Date;
-        typedef LLURI           URI;
-        typedef std::vector<U8> Binary;
+        using Boolean = bool;
+        using Integer = S32;
+        using Real = F64;
+        using String = std::string;
+        using UUID = LLUUID;
+        using Date = LLDate;
+        using URI = LLURI;
+        using Binary = std::vector<U8>;
     //@}
 
     /** @name Scalar Constructors */
@@ -399,18 +399,16 @@ public:
         size_t size() const;
 
         using llsd_map_t = std::map<String, LLSD, std::less<>>;
-        typedef llsd_map_t::iterator       map_iterator;
-        typedef llsd_map_t::const_iterator map_const_iterator;
-
+        using map_iterator = llsd_map_t::iterator;
+        using map_const_iterator = llsd_map_t::const_iterator;
         map_iterator        beginMap();
         map_iterator        endMap();
         map_const_iterator  beginMap() const;
         map_const_iterator  endMap() const;
 
-        typedef std::vector<LLSD>::iterator         array_iterator;
-        typedef std::vector<LLSD>::const_iterator   array_const_iterator;
-        typedef std::vector<LLSD>::reverse_iterator reverse_array_iterator;
-
+        using array_iterator = std::vector<LLSD>::iterator;
+        using array_const_iterator = std::vector<LLSD>::const_iterator;
+        using reverse_array_iterator = std::vector<LLSD>::reverse_iterator;
         array_iterator          beginArray();
         array_iterator          endArray();
         array_const_iterator    beginArray() const;

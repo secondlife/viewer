@@ -76,10 +76,10 @@ public:
         T mValue{};
     };
 
-    typedef UniformSetting<S32> IntSetting;
-    typedef UniformSetting<F32> FloatSetting;
-    typedef UniformSetting<LLVector4> VectorSetting;
-    typedef UniformSetting<LLVector3> Vector3Setting;
+    using IntSetting = UniformSetting<S32>;
+    using FloatSetting = UniformSetting<F32>;
+    using VectorSetting = UniformSetting<LLVector4>;
+    using Vector3Setting = UniformSetting<LLVector3>;
 
     void clear()
     {
@@ -139,14 +139,14 @@ public:
     };
 
     // enum primarily used to control application sky settings uniforms
-    typedef enum
+    enum eGroup
     {
         SG_DEFAULT = 0,  // not sky or water specific
         SG_SKY,  //
         SG_WATER,
         SG_ANY,
         SG_COUNT
-    } eGroup;
+    };
 
     enum UniformBlock : GLuint
     {
@@ -304,7 +304,7 @@ public:
     U32 mAttributeMask;  //mask of which reserved attributes are set (lines up with LLVertexBuffer::getTypeMask())
     std::vector<GLint> mUniform;   //lookup table of uniform enum to uniform location
     LLStaticStringTable<GLint> mUniformMap; //lookup map of uniform name to uniform location
-    typedef std::unordered_map<GLint, LLVector4> uniform_value_map_t;
+    using uniform_value_map_t = std::unordered_map<GLint, LLVector4>;
     uniform_value_map_t mValue; //lookup map of uniform location to last known value
     std::vector<GLint> mTexture;
     S32 mTotalUniformSize;
@@ -315,7 +315,7 @@ public:
     LLShaderFeatures mFeatures;
     std::vector< std::pair< std::string, GLenum > > mShaderFiles;
     std::string mName;
-    typedef std::map<std::string, std::string> defines_map_t; //NOTE: this must be an ordered map to maintain hash consistency
+    using defines_map_t = std::map<std::string, std::string>; //NOTE: this must be an ordered map to maintain hash consistency
     defines_map_t mDefines;
     static defines_map_t sGlobalDefines;
     LLUUID mShaderHash;

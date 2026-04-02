@@ -78,8 +78,7 @@ template<typename ElementT, typename QueueT=std::queue<ElementT>>
 class LLThreadSafeQueue
 {
 public:
-    typedef ElementT value_type;
-
+    using value_type = ElementT;
     // Limiting the number of pending items prevents unbounded growth of the
     // underlying queue.
     LLThreadSafeQueue(size_t capacity = 1024);
@@ -177,13 +176,13 @@ public:
     bool done();
 
 protected:
-    typedef QueueT queue_type;
+    using queue_type = QueueT;
     QueueT mStorage;
     size_t mCapacity;
     bool mClosed;
 
     boost::fibers::timed_mutex mLock;
-    typedef std::unique_lock<decltype(mLock)> lock_t;
+    using lock_t = std::unique_lock<decltype(mLock)>;
     boost::fibers::condition_variable_any mCapacityCond;
     boost::fibers::condition_variable_any mEmptyCond;
 
@@ -228,14 +227,13 @@ namespace LL
     {
     public:
         // publish all the same types
-        typedef std::priority_queue<T, Container, Compare> queue_type;
-        typedef typename queue_type::container_type  container_type;
-        typedef typename queue_type::value_compare   value_compare;
-        typedef typename queue_type::value_type      value_type;
-        typedef typename queue_type::size_type       size_type;
-        typedef typename queue_type::reference       reference;
-        typedef typename queue_type::const_reference const_reference;
-
+        using queue_type = std::priority_queue<T, Container, Compare>;
+        using container_type = typename queue_type::container_type;
+        using value_compare = typename queue_type::value_compare;
+        using value_type = typename queue_type::value_type;
+        using size_type = typename queue_type::size_type;
+        using reference = typename queue_type::reference;
+        using const_reference = typename queue_type::const_reference;
         // Although std::queue defines both const and non-const front()
         // methods, std::priority_queue defines only const top().
         const_reference front() const { return mQ.top(); }

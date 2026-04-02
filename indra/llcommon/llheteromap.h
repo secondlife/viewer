@@ -74,8 +74,7 @@ private:
 
     // What we actually store is a map from std::type_index (permitting lookup
     // by object type) to a void* pointer to the object PLUS its deleter.
-    typedef std::unordered_map<std::type_index, std::pair<void*, void (*)(void*)>>
-    TypeMap;
+    using TypeMap = std::unordered_map<std::type_index, std::pair<void*, void (*)(void*)>>;
     TypeMap mMap;
 };
 

@@ -39,7 +39,7 @@ public:
     // Note: although you can use statically hashed strings to just bind a random uniform, it's generally preferably that you use this.
     // Always document what the actual shader uniform is next to the shader uniform in this struct.
     // clang-format off
-    typedef enum
+    enum eGLSLReservedUniforms
     {                                       // Shader uniform name, set in LLShaderMgr::initAttribsAndUniforms()
         MODELVIEW_MATRIX = 0,               //  "modelview_matrix"
         PROJECTION_MATRIX,                  //  "projection_matrix"
@@ -342,7 +342,7 @@ public:
         SMAA_BLEND_TEX,                     //  "blendTex"
 
         END_RESERVED_UNIFORMS
-    } eGLSLReservedUniforms;
+    };
     // clang-format on
 
     // singleton pattern implementation

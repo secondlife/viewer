@@ -81,7 +81,7 @@ public:
     static LLCalc* getInstance();
     static void cleanUp();
 
-    typedef std::map<std::string, F32> calc_map_t;
+    using calc_map_t = std::map<std::string, F32>;
 
 private:
     std::string::size_type  mLastErrorPos;

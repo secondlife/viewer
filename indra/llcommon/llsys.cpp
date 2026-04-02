@@ -178,7 +178,7 @@ LLOSInfo::LLOSInfo() :
     }
 
     ///get native system info if available..
-    typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO); ///function pointer for loading GetNativeSystemInfo
+    using PGNSI = void (WINAPI *)(LPSYSTEM_INFO); ///function pointer for loading GetNativeSystemInfo
     SYSTEM_INFO si; //System Info object file contains architecture info
     PGNSI pGNSI; //pointer object
     ZeroMemory(&si, sizeof(SYSTEM_INFO)); //zero out the memory in information

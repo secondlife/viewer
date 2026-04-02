@@ -80,7 +80,7 @@ protected:
     void clearDeleteList() ;
 
 private:
-    typedef std::list<LLWorkerClass*> delete_list_t;
+    using delete_list_t = std::list<LLWorkerClass*>;
     delete_list_t mDeleteList;
     LLMutex* mDeleteMutex;
 
@@ -122,7 +122,7 @@ class LL_COMMON_API LLWorkerClass
     friend class LLWorkerThread::WorkRequest;
 
 public:
-    typedef LLWorkerThread::handle_t handle_t;
+    using handle_t = LLWorkerThread::handle_t;
     enum FLAGS
     {
         WCF_HAVE_WORK = 0x01,

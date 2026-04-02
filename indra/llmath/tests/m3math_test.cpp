@@ -52,8 +52,8 @@ namespace tut
     struct m3math_test
     {
     };
-    typedef test_group<m3math_test> m3math_test_t;
-    typedef m3math_test_t::object m3math_test_object_t;
+    using m3math_test_t = test_group<m3math_test>;
+    using m3math_test_object_t = m3math_test_t::object;
     tut::m3math_test_t tut_m3math_test("m3math_h");
 
     //test case for setIdentity() fn.

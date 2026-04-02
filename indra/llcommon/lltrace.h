@@ -74,7 +74,7 @@ class StatType
     public LLInstanceTracker<StatType<ACCUMULATOR>, std::string>
 {
 public:
-    typedef LLInstanceTracker<StatType<ACCUMULATOR>, std::string> instance_tracker_t;
+    using instance_tracker_t = LLInstanceTracker<StatType<ACCUMULATOR>, std::string>;
     StatType(const char* name, const char* description)
     :   instance_tracker_t(name),
         StatBase(name, description),
@@ -122,9 +122,9 @@ class EventStatHandle
 :   public StatType<EventAccumulator>
 {
 public:
-    typedef F64 storage_t;
-    typedef StatType<EventAccumulator> stat_t;
-    typedef EventStatHandle<T> self_t;
+    using storage_t = F64;
+    using stat_t    = StatType<EventAccumulator>;
+    using self_t    = EventStatHandle<T>;
 
     EventStatHandle(const char* name, const char* description = NULL)
     :   stat_t(name, description)
@@ -148,9 +148,9 @@ class SampleStatHandle
 :   public StatType<SampleAccumulator>
 {
 public:
-    typedef F64 storage_t;
-    typedef StatType<SampleAccumulator> stat_t;
-    typedef SampleStatHandle<T> self_t;
+    using storage_t = F64;
+    using stat_t    = StatType<SampleAccumulator>;
+    using self_t    = SampleStatHandle<T>;
 
     SampleStatHandle(const char* name, const char* description = NULL)
     :   stat_t(name, description)
@@ -173,9 +173,9 @@ class CountStatHandle
 :   public StatType<CountAccumulator>
 {
 public:
-    typedef F64 storage_t;
-    typedef StatType<CountAccumulator> stat_t;
-    typedef CountStatHandle<T> self_t;
+    using storage_t = F64;
+    using stat_t    = StatType<CountAccumulator>;
+    using self_t    = CountStatHandle<T>;
 
     CountStatHandle(const char* name, const char* description = NULL)
     :   stat_t(name, description)

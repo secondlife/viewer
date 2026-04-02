@@ -488,9 +488,8 @@ public:
         _array(array)
     {}
 
-    typedef LLSD::array_const_iterator const_iterator;
-    typedef LLSD::array_iterator iterator;
-
+    using const_iterator = LLSD::array_const_iterator;
+    using iterator = LLSD::array_iterator;
     iterator begin() { return _array.beginArray(); }
     iterator end()   { return _array.endArray(); }
     const_iterator begin() const { return _array.beginArray(); }
@@ -501,8 +500,7 @@ private:
 };
 
 /// MapEntry is what you get from dereferencing an LLSD::map_[const_]iterator.
-typedef std::map<LLSD::String, LLSD>::value_type MapEntry;
-
+using MapEntry = std::map<LLSD::String, LLSD>::value_type;
 /// Usage: for([const] MapEntry& e : inMap(someLLSDmap)) { ... }
 class inMap
 {
@@ -511,9 +509,8 @@ public:
         _map(map)
     {}
 
-    typedef LLSD::map_const_iterator const_iterator;
-    typedef LLSD::map_iterator iterator;
-
+    using const_iterator = LLSD::map_const_iterator;
+    using iterator = LLSD::map_iterator;
     iterator begin() { return _map.beginMap(); }
     iterator end()   { return _map.endMap(); }
     const_iterator begin() const { return _map.beginMap(); }
@@ -653,8 +650,8 @@ namespace boost
 template <>
 struct hash<LLSD>
 {
-    typedef LLSD argument_type;
-    typedef std::size_t result_type;
+    using argument_type = LLSD;
+    using result_type = std::size_t;
     result_type operator()(argument_type const& s) const
     {
         result_type seed(0);

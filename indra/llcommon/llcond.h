@@ -40,8 +40,7 @@ template <typename DATA>
 class LLCond
 {
 public:
-    typedef DATA value_type;
-
+    using value_type = DATA;
 private:
     // This is the DATA controlled by the condition_variable.
     value_type mData;

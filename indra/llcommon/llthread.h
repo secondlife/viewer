@@ -43,15 +43,14 @@ private:
     friend class LLMutex;
 
 public:
-    typedef enum e_thread_status
+    enum EThreadStatus
     {
         STOPPED = 0,    // The thread is not running.  Not started, or has exited its run function
         RUNNING = 1,    // The thread is currently running
         QUITTING= 2,    // Someone wants this thread to quit
         CRASHED = -1    // An uncaught exception was thrown by the thread
-    } EThreadStatus;
-    typedef std::thread::id id_t;
-
+    };
+    using id_t = std::thread::id;
     LLThread(const std::string& name, apr_pool_t *poolp = NULL);
     virtual ~LLThread(); // Warning!  You almost NEVER want to destroy a thread unless it's in the STOPPED state.
     virtual void shutdown(); // stops the thread

@@ -44,10 +44,9 @@ template <class Index, class Entry>
 class LLDictionary : public std::map<Index, Entry *>
 {
 public:
-    typedef std::map<Index, Entry *> map_t;
-    typedef typename map_t::iterator iterator_t;
-    typedef typename map_t::const_iterator const_iterator_t;
-
+    using map_t = std::map<Index, Entry *>;
+    using iterator_t = typename map_t::iterator;
+    using const_iterator_t = typename map_t::const_iterator;
     LLDictionary() {}
     virtual ~LLDictionary()
     {

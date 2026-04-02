@@ -65,9 +65,8 @@ public:
      */
     struct Source
     {
-        typedef Ch char_type;
-        typedef boost::iostreams::source_tag category;
-
+        using char_type = Ch;
+        using category = boost::iostreams::source_tag;
         /// Bind the underlying LLGenericStreamQueue
         Source(LLGenericStreamQueue& sq):
             mStreamQueue(sq)
@@ -92,9 +91,8 @@ public:
      */
     struct Sink
     {
-        typedef Ch char_type;
-        typedef boost::iostreams::sink_tag category;
-
+        using char_type = Ch;
+        using category = boost::iostreams::sink_tag;
         /// Bind the underlying LLGenericStreamQueue
         Sink(LLGenericStreamQueue& sq):
             mStreamQueue(sq)
@@ -176,8 +174,8 @@ public:
     }
 
 private:
-    typedef std::basic_string<Ch> string;
-    typedef std::list<string> BufferList;
+    using string = std::basic_string<Ch>;
+    using BufferList = std::list<string>;
     BufferList mBuffer;
     std::streamsize mSize;
     bool mClosed;
@@ -234,7 +232,6 @@ std::streamsize LLGenericStreamQueue<Ch>::skip(std::streamsize n)
     return skipped;
 }
 
-typedef LLGenericStreamQueue<char>    LLStreamQueue;
-typedef LLGenericStreamQueue<wchar_t> LLWStreamQueue;
-
+using LLStreamQueue = LLGenericStreamQueue<char>;
+using LLWStreamQueue = LLGenericStreamQueue<wchar_t>;
 #endif /* ! defined(LL_LLSTREAMQUEUE_H) */

@@ -209,8 +209,7 @@ namespace
     protected:
         Data mValue;
 
-        typedef ImplBase Base;
-
+        using Base = ImplBase;
     public:
         ImplBase(DataRef value) : mValue(value) { }
         ImplBase(DataMove value) : mValue(std::move(value)) { }
@@ -630,8 +629,7 @@ namespace
     class ImplArray : public LLSD::Impl
     {
     private:
-        typedef std::vector<LLSD> DataVector;
-
+        using DataVector = std::vector<LLSD>;
         DataVector mData;
 
     protected:

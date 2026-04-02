@@ -167,7 +167,7 @@ constexpr U8    LL_PCODE_PATH_MAX       = 0x08;
 //============================================================================
 
 // face identifiers
-typedef U16 LLFaceID;
+using LLFaceID = U16;
 
 constexpr LLFaceID  LL_FACE_PATH_BEGIN      = 0x1 << 0;
 constexpr LLFaceID  LL_FACE_PATH_END        = 0x1 << 1;
@@ -555,8 +555,8 @@ inline bool LLPathParams::operator<(const LLPathParams &params) const
     }
 }
 
-typedef LLVolumeParams* LLVolumeParamsPtr;
-typedef const LLVolumeParams* const_LLVolumeParamsPtr;
+using LLVolumeParamsPtr = LLVolumeParams*;
+using const_LLVolumeParamsPtr = const LLVolumeParams*;
 
 class LLVolumeParams
 {
@@ -902,7 +902,7 @@ public:
             bool operator()(const LLVector3& a, const LLVector3& b) const;
         };
 
-        typedef std::map<LLVector3, std::vector<VertexMapData>, VertexMapData::ComparePosition > PointMap;
+        using PointMap = std::map<LLVector3, std::vector<VertexMapData>, VertexMapData::ComparePosition >;
     };
 
     // Eliminates non unique triangles, takes positions,
@@ -1012,7 +1012,7 @@ protected:
     virtual ~LLVolume(); // use unref
 
 public:
-    typedef std::vector<LLVolumeFace> face_list_t;
+    using face_list_t = std::vector<LLVolumeFace>;
 
     struct FaceParams
     {

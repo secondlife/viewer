@@ -128,7 +128,7 @@ protected:
     LLPointer<LLTombStone> mTombStone;
 
 private:
-    typedef T* pointer_t;
+    using pointer_t = T*;
     static LLPointer<LLTombStone>& getDefaultTombStone()
     {
         static LLPointer<LLTombStone> sDefaultTombStone = new LLTombStone;
@@ -148,9 +148,8 @@ template <typename T>
 class LLRootHandle : public LLHandle<T>
 {
 public:
-    typedef LLRootHandle<T> self_t;
-    typedef LLHandle<T> base_t;
-
+    using self_t = LLRootHandle<T>;
+    using base_t = LLHandle<T>;
     LLRootHandle(T* object) { bind(object); }
     LLRootHandle() {};
     ~LLRootHandle() { unbind(); }
@@ -205,7 +204,7 @@ public:
     }
 
 protected:
-    typedef LLHandle<T> handle_type_t;
+    using handle_type_t = LLHandle<T>;
     LLHandleProvider()
     {
         // provided here to enforce T deriving from LLHandleProvider<T>

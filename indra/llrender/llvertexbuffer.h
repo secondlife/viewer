@@ -87,7 +87,7 @@ public:
     glm::mat4 mModelView;
     glm::mat4 mTexture0;
 };
-typedef std::list<LLVertexBufferData> buffer_data_list_t;
+using buffer_data_list_t = std::list<LLVertexBufferData>;
 
 class LLVertexBuffer final : public LLRefCount
 {

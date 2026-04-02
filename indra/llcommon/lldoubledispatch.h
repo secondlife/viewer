@@ -113,8 +113,7 @@
 template<class ReturnType, class ParamBaseType>
 class LLDoubleDispatch
 {
-    typedef LLDoubleDispatch<ReturnType, ParamBaseType> self_type;
-
+    using self_type = LLDoubleDispatch<ReturnType, ParamBaseType>;
 public:
     LLDoubleDispatch() {}
 
@@ -252,9 +251,9 @@ private:
     };
 
     /// shared_ptr manages Entry lifespan for us
-    typedef std::shared_ptr<EntryBase> EntryPtr;
+    using EntryPtr = std::shared_ptr<EntryBase>;
     /// use a @c list to make it easy to insert
-    typedef std::list<EntryPtr> DispatchTable;
+    using DispatchTable = std::list<EntryPtr>;
     DispatchTable mDispatch;
 
     /// Look up the location of the first matching entry.

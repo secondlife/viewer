@@ -85,8 +85,7 @@ public:
     /// of time operations in this class.  This is likely
     /// to change in a future version in a move to TSC-based
     /// timing.
-    typedef U64 time_type;
-
+    using time_type = U64;
 public:
     /// Construct and initialize an LLDeadmanTimer
     ///

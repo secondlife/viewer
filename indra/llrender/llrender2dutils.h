@@ -96,14 +96,14 @@ void gl_rect_2d_simple_tex( S32 width, S32 height );
       |                  |
 */
 
-typedef enum e_rounded_edge
+enum ERoundedEdge : int
 {
     ROUNDED_RECT_LEFT   = 0x1,
     ROUNDED_RECT_TOP    = 0x2,
     ROUNDED_RECT_RIGHT  = 0x4,
     ROUNDED_RECT_BOTTOM = 0x8,
     ROUNDED_RECT_ALL    = 0xf
-}ERoundedEdge;
+};
 
 
 void gl_segmented_rect_2d_tex(const S32 left, const S32 top, const S32 right, const S32 bottom, const S32 texture_width, const S32 texture_height, const S32 border_size, const U32 edges = ROUNDED_RECT_ALL);
@@ -160,13 +160,13 @@ public:
     virtual void cleanUp() = 0;
 
     // to notify holders when pointer gets deleted
-    typedef void(*callback_t)();
+    using callback_t = void(*)();
     void addOnRemovalCallback(callback_t func);
     void deleteOnRemovalCallback(callback_t func);
 
 private:
 
-    typedef std::list< callback_t > callback_list_t;
+    using callback_list_t = std::list< callback_t >;
     callback_list_t mCallbackList;
 };
 

@@ -41,8 +41,8 @@ namespace tut
     struct llquat_test
     {
     };
-    typedef test_group<llquat_test> llquat_test_t;
-    typedef llquat_test_t::object llquat_test_object_t;
+    using llquat_test_t = test_group<llquat_test>;
+    using llquat_test_object_t = llquat_test_t::object;
     tut::llquat_test_t tut_llquat_test("LLQuaternion");
 
     //test case for LLQuaternion::LLQuaternion(void) fn.

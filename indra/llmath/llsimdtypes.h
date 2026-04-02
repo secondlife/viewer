@@ -31,7 +31,7 @@
 #error "Please include llmath.h before this file."
 #endif
 
-typedef __m128  LLQuad;
+using LLQuad = __m128;
 
 class LLBool32
 {

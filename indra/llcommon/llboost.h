@@ -38,13 +38,12 @@
         process_token_string( tok );
     }
 */
-typedef boost::tokenizer<boost::char_separator<char> > boost_tokenizer;
-
+using boost_tokenizer = boost::tokenizer<boost::char_separator<char> >;
 // Useful combiner for boost signals that return a bool (e.g. validation)
 //  returns false if any of the callbacks return false
 struct boost_boolean_combiner
 {
-    typedef bool result_type;
+    using result_type = bool;
     template<typename InputIterator>
     bool operator()(InputIterator first, InputIterator last) const
     {

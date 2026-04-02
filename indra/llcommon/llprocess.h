@@ -31,7 +31,7 @@
 #include "llsdparam.h"
 #include "llexception.h"
 #include "apr_thread_proc.h"
-#include <boost/optional.hpp>
+#include <optional>
 #include <iosfwd>                   // std::ostream
 
 #if LL_WINDOWS
@@ -47,8 +47,7 @@ class LLEventPump;
 class LLProcess;
 /// LLProcess instances are created on the heap by static factory methods and
 /// managed by ref-counted pointers.
-typedef std::shared_ptr<LLProcess> LLProcessPtr;
-
+using LLProcessPtr = std::shared_ptr<LLProcess>;
 /**
  * LLProcess handles launching an external process with specified command line
  * arguments. It also keeps track of whether the process is still running, and
@@ -247,8 +246,7 @@ public:
          */
         Optional<std::string> desc;
     };
-    typedef LLSDParamAdapter<Params> LLSDOrParams;
-
+    using LLSDOrParams = LLSDParamAdapter<Params>;
     /**
      * Factory accepting either plain LLSD::Map or Params block.
      * MAY RETURN DEFAULT-CONSTRUCTED LLProcessPtr if params invalid!
@@ -310,11 +308,11 @@ public:
     static bool kill(const LLProcessPtr& p, const std::string& who="");
 
 #if LL_WINDOWS
-    typedef int id;                 ///< as returned by getProcessID()
-    typedef HANDLE handle;          ///< as returned by getProcessHandle()
+    using id     = int;             ///< as returned by getProcessID()
+    using handle = HANDLE;          ///< as returned by getProcessHandle()
 #else
-    typedef pid_t id;
-    typedef pid_t handle;
+    using id = pid_t;
+    using handle = pid_t;
 #endif
     /**
      * Get an int-like id value. This is primarily intended for a human reader
@@ -364,7 +362,7 @@ public:
     public:
         virtual ~BasePipe() = 0;
 
-        typedef std::size_t size_type;
+        using size_type = std::size_t;
         static const size_type npos;
 
         /**
@@ -512,12 +510,12 @@ public:
     WritePipe& getWritePipe(FILESLOT slot=STDIN);
 
     /**
-     * Get a boost::optional<WritePipe&> to the (only) WritePipe for this
-     * LLProcess. @a slot, if specified, must be STDIN. The return value is
-     * empty if you did not request a "pipe" for child stdin. Use this method
-     * for inspecting an LLProcess you did not create.
+     * Get a pointer to the (only) WritePipe for this LLProcess. @a slot, if
+     * specified, must be STDIN. Returns nullptr if you did not request a
+     * "pipe" for child stdin. Use this method for inspecting an LLProcess
+     * you did not create.
      */
-    boost::optional<WritePipe&> getOptWritePipe(FILESLOT slot=STDIN);
+    WritePipe* getOptWritePipe(FILESLOT slot=STDIN);
 
     /**
      * Get a reference to one of the ReadPipes for this LLProcess. @a slot, if
@@ -528,12 +526,12 @@ public:
     ReadPipe& getReadPipe(FILESLOT slot);
 
     /**
-     * Get a boost::optional<ReadPipe&> to one of the ReadPipes for this
-     * LLProcess. @a slot, if specified, must be STDOUT or STDERR. The return
-     * value is empty if you did not request a "pipe" for child stdout or
-     * stderr. Use this method for inspecting an LLProcess you did not create.
+     * Get a pointer to one of the ReadPipes for this LLProcess. @a slot, if
+     * specified, must be STDOUT or STDERR. Returns nullptr if you did not
+     * request a "pipe" for child stdout or stderr. Use this method for
+     * inspecting an LLProcess you did not create.
      */
-    boost::optional<ReadPipe&> getOptReadPipe(FILESLOT slot);
+    ReadPipe* getOptReadPipe(FILESLOT slot);
 
     /// little utilities that really should already be somewhere else in the
     /// code base
@@ -556,7 +554,7 @@ private:
     template <class PIPETYPE>
     PIPETYPE& getPipe(FILESLOT slot);
     template <class PIPETYPE>
-    boost::optional<PIPETYPE&> getOptPipe(FILESLOT slot);
+    PIPETYPE* getOptPipe(FILESLOT slot);
     template <class PIPETYPE>
     PIPETYPE* getPipePtr(std::string& error, FILESLOT slot);
 
@@ -566,7 +564,7 @@ private:
     bool mAutokill, mAttached;
     Status mStatus;
     // explicitly want this ptr_vector to be able to store NULLs
-    typedef std::vector<std::unique_ptr<BasePipe>> PipeVector;
+    using PipeVector = std::vector<std::unique_ptr<BasePipe>>;
     PipeVector mPipes;
     apr_pool_t* mPool;
 };

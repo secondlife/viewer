@@ -285,7 +285,7 @@ namespace LLError
     class LL_COMMON_API LLCallStacks
     {
     private:
-        typedef std::vector<std::string> StringVector;
+        using StringVector = std::vector<std::string>;
         static StringVector sBuffer ;
 
     public:
@@ -309,15 +309,15 @@ namespace LLError
     {
     public:
         // error codes, tranlates to last_exec states like LAST_EXEC_OTHER_CRASH
-        typedef enum
+        enum eLastExecEvent
         {
             ERROR_OTHER = 0,
             ERROR_BAD_ALLOC = 1,
             ERROR_MISSING_FILES = 2,
-        } eLastExecEvent;
+        };
 
         // tittle, message and error code to include in error marker file
-        typedef std::function<void(const std::string&, const std::string&, S32 error_code)> Handler;
+        using Handler = std::function<void(const std::string&, const std::string&, S32 error_code)>;
         static void setHandler(const Handler&);
         static void setOutOfMemoryStrings(const std::string& title, const std::string& message);
 
@@ -360,7 +360,7 @@ namespace LLError
     // Declares class to tag logged messages with.
     // See top of file for example of how to use this
 
-typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
+using _LL_CLASS_TO_LOG = LLError::NoClassInfo;
     // Outside a class declaration, or in class without LOG_CLASS(), this
     // typedef causes the messages to not be associated with any class.
 

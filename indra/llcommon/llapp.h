@@ -39,7 +39,7 @@ class LLLiveFile;
 #include <signal.h>
 #endif
 
-typedef void (*LLAppErrorHandler)();
+using LLAppErrorHandler = void(*)();
 
 #if !LL_WINDOWS
 extern S32 LL_SMACKDOWN_SIGNAL;
@@ -55,13 +55,13 @@ extern bool gDisconnected;
 class LL_COMMON_API LLApp
 {
 public:
-    typedef enum e_app_status
+    enum EAppStatus
     {
         APP_STATUS_RUNNING,     // The application is currently running - the default status
         APP_STATUS_QUITTING,    // The application is currently quitting - threads should listen for this and clean up
         APP_STATUS_STOPPED,     // The application is no longer running - tells the error thread it can exit
         APP_STATUS_ERROR        // The application had a fatal error occur - tells the error thread to run
-    } EAppStatus;
+    };
 
 
     LLApp();
@@ -288,7 +288,7 @@ public:
 #endif
 
 public:
-    typedef std::map<std::string, std::string> string_map;
+    using string_map = std::map<std::string, std::string>;
     string_map mOptionMap;  // Contains all command-line options and arguments in a map
 
 protected:
@@ -317,7 +317,7 @@ private:
     // *NOTE: On Windows, we need a routine to reset the structured
     // exception handler when some evil driver has taken it over for
     // their own purposes
-    typedef int(*signal_handler_func)(int signum);
+    using signal_handler_func = int(*)(int signum);
     static LLAppErrorHandler sErrorHandler;
 
     // This is the application level runnable scheduler.

@@ -39,8 +39,8 @@ namespace tut
     struct v4math_data
     {
     };
-    typedef test_group<v4math_data> v4math_test;
-    typedef v4math_test::object v4math_object;
+    using v4math_test = test_group<v4math_data>;
+    using v4math_object = v4math_test::object;
     tut::v4math_test v4math_testcase("v4math_h");
 
     template<> template<>

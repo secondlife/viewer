@@ -496,7 +496,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
                 // Describe the change to the order of our listeners. Copy
                 // everything but the newest listener to a vector we can sort to
                 // obtain the old order.
-                typedef std::vector< std::pair<float, std::string> > SortNameList;
+                using SortNameList = std::vector< std::pair<float, std::string> >;
                 SortNameList sortnames;
                 for (DependencyMap::sorted_iterator cdmi(sorted_range.begin()), cdmend(sorted_range.end());
                     cdmi != cdmend; ++cdmi)

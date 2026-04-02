@@ -68,12 +68,10 @@ template <class DATA_TYPE>
 class LLPriQueueMap
 {
 public:
-    typedef typename std::map<LLPQMKey<DATA_TYPE>, DATA_TYPE>::iterator pqm_iter;
-    typedef std::pair<LLPQMKey<DATA_TYPE>, DATA_TYPE> pqm_pair;
-    typedef void (*set_pri_fn)(DATA_TYPE &data, const F32 priority);
-    typedef F32 (*get_pri_fn)(DATA_TYPE &data);
-
-
+    using pqm_iter = typename std::map<LLPQMKey<DATA_TYPE>, DATA_TYPE>::iterator;
+    using pqm_pair = std::pair<LLPQMKey<DATA_TYPE>, DATA_TYPE>;
+    using set_pri_fn = void(*)(DATA_TYPE &data, const F32 priority);
+    using get_pri_fn = F32(*)(DATA_TYPE &data);
     LLPriQueueMap(set_pri_fn set_pri, get_pri_fn get_pri) : mSetPriority(set_pri), mGetPriority(get_pri)
     {
     }

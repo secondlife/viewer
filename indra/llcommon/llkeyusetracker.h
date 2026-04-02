@@ -58,8 +58,8 @@ public:
 template <class TKey, class TData>
 class LLKeyUseTracker
 {
-    typedef KeyUseTrackerNodeImpl<TKey,TData> TKeyUseTrackerNode;
-    typedef std::list<TKeyUseTrackerNode *> TKeyList;
+    using TKeyUseTrackerNode = KeyUseTrackerNodeImpl<TKey,TData>;
+    using TKeyList = std::list<TKeyUseTrackerNode *>;
     TKeyList mKeyList;
     U64 mMemUsecs;
     U64 mLastExpire;

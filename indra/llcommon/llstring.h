@@ -59,12 +59,11 @@ namespace std
 template<>
 struct char_traits<U16>
 {
-    typedef U16         char_type;
-    typedef int         int_type;
-    typedef streampos   pos_type;
-    typedef streamoff   off_type;
-    typedef mbstate_t   state_type;
-
+    using char_type = U16;
+    using int_type = int;
+    using pos_type = streampos;
+    using off_type = streamoff;
+    using state_type = mbstate_t;
     static void
         assign(char_type& __c1, const char_type& __c2)
     { __c1 = __c2; }
@@ -247,16 +246,15 @@ private:
     static std::string sLocale;
 
 public:
-    typedef std::basic_string<T> string_type;
-    typedef typename string_type::size_type size_type;
-
+    using string_type = std::basic_string<T>;
+    using size_type = typename string_type::size_type;
 public:
     /////////////////////////////////////////////////////////////////////////////////////////
     // Static Utility functions that operate on std::strings
 
     static const string_type null;
 
-    typedef std::map<LLFormatMapString, LLFormatMapString> format_map_t;
+    using format_map_t = std::map<LLFormatMapString, LLFormatMapString>;
     /// considers any sequence of delims as a single field separator
     LL_COMMON_API static void getTokens(const string_type& instr,
                                         std::vector<string_type >& tokens,
@@ -444,11 +442,10 @@ private:
 template<class T> const std::basic_string<T> LLStringUtilBase<T>::null;
 template<class T> std::string LLStringUtilBase<T>::sLocale;
 
-typedef LLStringUtilBase<char> LLStringUtil;
-typedef LLStringUtilBase<llwchar> LLWStringUtil;
-typedef std::basic_string<llwchar> LLWString;
-typedef std::basic_string_view<llwchar> LLWStringView;
-
+using LLStringUtil = LLStringUtilBase<char>;
+using LLWStringUtil = LLStringUtilBase<llwchar>;
+using LLWString = std::basic_string<llwchar>;
+using LLWStringView = std::basic_string_view<llwchar>;
 //@ Use this where we want to disallow input in the form of "foo"
 //  This is used to catch places where english text is embedded in the code
 //  instead of in a translatable XUI file.
@@ -634,8 +631,7 @@ LL_COMMON_API std::string rawstr_to_utf8(const std::string& raw);
 //
 // This typedef may or may not be identical to std::wstring, depending on
 // LL_WCHAR_T_NATIVE.
-typedef std::basic_string<U16> llutf16string;
-
+using llutf16string = std::basic_string<U16>;
 // Considering wchar_t, llwchar and U16, there are three relevant cases:
 #if LLWCHAR_IS_WCHAR_T         // every which way but Windows
 // llwchar is identical to wchar_t, LLWString is identical to std::wstring.
@@ -974,9 +970,8 @@ namespace LLStringUtilBaseImpl
 template <class T>
 struct InString
 {
-    typedef std::basic_string<T> string_type;
-    typedef typename string_type::const_iterator const_iterator;
-
+    using string_type = std::basic_string<T>;
+    using const_iterator = typename string_type::const_iterator;
     InString(const_iterator b, const_iterator e):
         mIter(b),
         mEnd(e)
@@ -1037,9 +1032,9 @@ template <class T>
 class InEscString: public InString<T>
 {
 public:
-    typedef InString<T> super;
-    typedef typename super::string_type string_type;
-    typedef typename super::const_iterator const_iterator;
+    using super = InString<T>;
+    using string_type = typename super::string_type;
+    using const_iterator = typename super::const_iterator;
     using super::done;
     using super::mIter;
     using super::mEnd;

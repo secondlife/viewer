@@ -94,9 +94,9 @@ public:
         return NULL;
     }
 
-    typedef std::map<const char *, DATA> name_map_t;
-    typedef typename std::map<const char *,DATA>::iterator iter_t;
-    typedef typename std::map<const char *,DATA>::const_iterator const_iter_t;
+    using name_map_t = std::map<const char *, DATA>;
+    using iter_t = typename std::map<const char *,DATA>::iterator;
+    using const_iter_t = typename std::map<const char *,DATA>::const_iterator;
     name_map_t      mNameMap;
 };
 

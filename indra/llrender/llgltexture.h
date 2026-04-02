@@ -79,12 +79,12 @@ public:
         MAX_GL_IMAGE_CATEGORY
     };
 
-    typedef enum
+    enum LLGLTextureState
     {
         DELETED = 0,         //removed from memory
         ACTIVE,              //just being used, can become inactive if not being used for a certain time (10 seconds).
         NO_DELETE = 99       //stay in memory, can not be removed.
-    } LLGLTextureState;
+    };
 
 protected:
     virtual ~LLGLTexture();

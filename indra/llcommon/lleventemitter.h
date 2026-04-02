@@ -43,9 +43,9 @@ template < class T >
 class eventEmitter
 {
     public:
-        typedef typename T::EventType EventType;
-        typedef std::list< T* > ObserverContainer;
-        typedef void ( T::*observerMethod )( const EventType& );
+        using EventType = typename T::EventType;
+        using ObserverContainer = std::list< T* >;
+        using observerMethod = void ( T::* )( const EventType& );
 
     protected:
         ObserverContainer observers;

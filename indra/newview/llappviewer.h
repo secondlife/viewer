@@ -51,6 +51,7 @@
 #include "llappcorehttp.h"
 #include "threadpool_fwd.h"
 
+#include <optional>
 #include <boost/signals2.hpp>
 
 class LLCommandLineParser;
@@ -357,7 +358,7 @@ private:
     bool mSavedFinalSnapshot;
     bool mSavePerAccountSettings;       // only save per account settings if login succeeded
 
-    boost::optional<U32> mForceGraphicsLevel;
+    std::optional<U32> mForceGraphicsLevel;
 
     bool mQuitRequested;                // User wants to quit, may have modified documents open.
     bool mClosingFloaters;

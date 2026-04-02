@@ -36,8 +36,8 @@ namespace tut
     {
     };
 
-    typedef test_group<LLBBoxLocalData> factory;
-    typedef factory::object object;
+    using factory = test_group<LLBBoxLocalData>;
+    using object = factory::object;
 }
 
 namespace

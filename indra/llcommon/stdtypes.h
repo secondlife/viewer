@@ -32,16 +32,16 @@
 #include <limits>
 #include <type_traits>
 
-typedef signed char             S8;
-typedef unsigned char           U8;
-typedef signed short            S16;
-typedef unsigned short          U16;
-typedef signed int              S32;
-typedef unsigned int            U32;
+using S8  = signed char;
+using U8  = unsigned char;
+using S16 = signed short;
+using U16 = unsigned short;
+using S32 = signed int;
+using U32 = unsigned int;
 
 // to express an index that might go negative
 // (ssize_t is provided by SOME compilers, don't collide)
-typedef typename std::make_signed<std::size_t>::type llssize;
+using llssize = std::make_signed<std::size_t>::type;
 
 #if LL_WINDOWS
 // https://docs.microsoft.com/en-us/cpp/build/reference/zc-wchar-t-wchar-t-is-native-type
@@ -52,9 +52,9 @@ typedef typename std::make_signed<std::size_t>::type llssize;
 // The version of clang available with VS 2019 also defines wchar_t as __wchar_t
 // which is also 16 bits.
 // In any case, llwchar should be a UTF-32 type.
-typedef U32                 llwchar;
+using llwchar = U32;
 #else
-typedef wchar_t             llwchar;
+using llwchar = wchar_t;
 // What we'd actually want is a simple module-scope 'if constexpr' to test
 // std::is_same<wchar_t, llwchar>::value and use that to define, or not
 // define, string conversion specializations. Since we don't have that, we'll
@@ -63,27 +63,27 @@ typedef wchar_t             llwchar;
 #endif
 
 #if LL_WINDOWS
-typedef signed __int64          S64;
+using S64 = signed __int64;
 // probably should be 'hyper' or similiar
 #define S64L(a)                 (a)
-typedef unsigned __int64        U64;
+using U64 = unsigned __int64;
 #define U64L(a)                 (a)
 #else
-typedef long long int           S64;
-typedef long long unsigned int      U64;
+using S64 = long long int;
+using U64 = long long unsigned int;
 #if LL_DARWIN || LL_LINUX
 #define S64L(a)             (a##LL)
 #define U64L(a)             (a##ULL)
 #endif
 #endif
 
-typedef float               F32;
-typedef double              F64;
+using F32 = float;
+using F64 = double;
 
-typedef S32             BOOL;
-typedef U8              KEY;
-typedef U32             MASK;
-typedef U32             TPACKETID;
+using BOOL      = S32;
+using KEY       = U8;
+using MASK      = U32;
+using TPACKETID = U32;
 
 // Use #define instead of consts to avoid conversion headaches
 #define S8_MAX      (SCHAR_MAX)
@@ -117,12 +117,12 @@ typedef U32             TPACKETID;
 #define NULL            (0)
 #endif
 
-typedef U8 LLPCode;
+using LLPCode = U8;
 
 #define LL_ARRAY_SIZE( _kArray ) ( sizeof( (_kArray) ) / sizeof( _kArray[0] ) )
 
 #if LL_LINUX && __GNUC__ <= 2
-typedef int intptr_t;
+using intptr_t = int;
 #endif
 
 /*****************************************************************************

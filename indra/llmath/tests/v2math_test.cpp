@@ -37,8 +37,8 @@ namespace tut
     struct v2math_data
     {
     };
-    typedef test_group<v2math_data> v2math_test;
-    typedef v2math_test::object v2math_object;
+    using v2math_test = test_group<v2math_data>;
+    using v2math_object = v2math_test::object;
     tut::v2math_test v2math_testcase("v2math_h");
 
     template<> template<>

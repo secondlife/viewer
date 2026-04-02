@@ -55,7 +55,7 @@ protected:
     bool          mScaleChildOffset;
 
 public:
-    typedef enum e_changed_flags
+    enum e_changed_flags
     {
         UNCHANGED   = 0x00,
         TRANSLATED  = 0x01,
@@ -67,7 +67,7 @@ public:
         MOVED       = TRANSLATED|ROTATED|SCALED,
         SILHOUETTE  = 0x40,
         ALL_CHANGED = 0x7f
-    }EChangedFlags;
+    };
 
     void init()
     {

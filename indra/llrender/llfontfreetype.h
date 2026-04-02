@@ -40,9 +40,9 @@
 // and the main include file is 200K.
 // We'll forward declare the struct here.  JC
 struct FT_FaceRec_;
-typedef struct FT_FaceRec_* LLFT_Face;
+using LLFT_Face = FT_FaceRec_*;
 struct FT_StreamRec_;
-typedef struct FT_StreamRec_ LLFT_Stream;
+using LLFT_Stream = FT_StreamRec_;
 
 namespace ll
 {
@@ -104,7 +104,7 @@ public:
 
     S32 getNumFaces(const std::string& filename);
 
-    typedef std::function<bool(llwchar)> char_functor_t;
+    using char_functor_t = std::function<bool(llwchar)>;
     void addFallbackFont(const LLPointer<LLFontFreetype>& fallback_font, const char_functor_t& functor = nullptr);
 
     // Global font metrics - in units of pixels
@@ -180,12 +180,12 @@ private:
     LLFT_Face mFTFace;
 
     bool mIsFallback;
-    typedef std::pair<LLPointer<LLFontFreetype>, char_functor_t> fallback_font_t;
-    typedef std::vector<fallback_font_t> fallback_font_vector_t;
+    using fallback_font_t = std::pair<LLPointer<LLFontFreetype>, char_functor_t>;
+    using fallback_font_vector_t = std::vector<fallback_font_t>;
     fallback_font_vector_t mFallbackFonts; // A list of fallback fonts to look for glyphs in (for Unicode chars)
 
     // *NOTE: the same glyph can be present with multiple representations (but the pointer is always unique)
-    typedef std::unordered_multimap<llwchar, LLFontGlyphInfo*> char_glyph_info_map_t;
+    using char_glyph_info_map_t = std::unordered_multimap<llwchar, LLFontGlyphInfo*>;
     mutable char_glyph_info_map_t mCharGlyphInfoMap; // Information about glyph location in bitmap
 
     mutable LLFontBitmapCache* mFontBitmapCachep;

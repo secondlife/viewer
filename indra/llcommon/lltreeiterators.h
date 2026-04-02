@@ -90,11 +90,11 @@ class LLBaseIter: public boost::iterator_facade<SELFTYPE,
 {
 protected:
     /// LLPtrTo<NODE>::type is either NODE* or LLPointer<NODE>, as appropriate
-    typedef typename LLPtrTo<NODE>::type ptr_type;
+    using ptr_type  = typename LLPtrTo<NODE>::type;
     /// function that advances from this node to next accepts a node pointer
     /// and returns another
-    typedef std::function<ptr_type(const ptr_type&)> func_type;
-    typedef SELFTYPE self_type;
+    using func_type = std::function<ptr_type(const ptr_type&)>;
+    using self_type = SELFTYPE;
 };
 
 /// Functor returning NULL, suitable for an end-iterator's 'next' functor
@@ -130,12 +130,12 @@ typename LLPtrTo<NODE>::type LLNullNextFunctor(const typename LLPtrTo<NODE>::typ
 template <class NODE>
 class LLLinkedIter: public LLBaseIter<LLLinkedIter<NODE>, NODE>
 {
-    typedef LLBaseIter<LLLinkedIter<NODE>, NODE> super;
+    using super = LLBaseIter<LLLinkedIter<NODE>, NODE>;
 protected:
     /// some methods need to return a reference to self
-    typedef typename super::self_type self_type;
-    typedef typename super::ptr_type ptr_type;
-    typedef typename super::func_type func_type;
+    using self_type = typename super::self_type;
+    using ptr_type  = typename super::ptr_type;
+    using func_type = typename super::func_type;
 public:
     /// Instantiate an LLLinkedIter to start a range, or to end a range before
     /// a particular list entry. Pass a functor to extract the 'next' pointer
@@ -178,7 +178,7 @@ private:
 template <class NODE>
 class LLTreeUpIter: public LLLinkedIter<NODE>
 {
-    typedef LLLinkedIter<NODE> super;
+    using super = LLLinkedIter<NODE>;
 public:
     /// Instantiate an LLTreeUpIter to start from a particular tree node, or
     /// to end a parent traversal before reaching a particular ancestor. Pass
@@ -209,13 +209,13 @@ public:
 template <class NODE>
 class LLTreeDownIter: public LLBaseIter<LLTreeDownIter<NODE>, NODE>
 {
-    typedef LLBaseIter<LLTreeDownIter<NODE>, NODE> super;
-    typedef typename super::self_type self_type;
+    using super     = LLBaseIter<LLTreeDownIter<NODE>, NODE>;
+    using self_type = typename super::self_type;
 protected:
-    typedef typename super::ptr_type ptr_type;
-    typedef typename super::func_type func_type;
+    using ptr_type  = typename super::ptr_type;
+    using func_type = typename super::func_type;
 private:
-    typedef std::vector<ptr_type> list_type;
+    using list_type = std::vector<ptr_type>;
 public:
     /// Instantiate an LLTreeDownIter to end at a particular tree node. Pass a
     /// functor to extract the 'parent' pointer from the current node.
@@ -271,7 +271,7 @@ public:
 template <class NODE>
 class LLTreeRootIter<LLTreeIter::UP, NODE>: public LLTreeUpIter<NODE>
 {
-    typedef LLTreeUpIter<NODE> super;
+    using super = LLTreeUpIter<NODE>;
 public:
     /// forward begin ctor
     LLTreeRootIter(const typename super::ptr_type& node,
@@ -288,7 +288,7 @@ public:
 template <class NODE>
 class LLTreeRootIter<LLTreeIter::DOWN, NODE>: public LLTreeDownIter<NODE>
 {
-    typedef LLTreeDownIter<NODE> super;
+    using super = LLTreeDownIter<NODE>;
 public:
     /// forward begin ctor
     LLTreeRootIter(const typename super::ptr_type& node,
@@ -324,15 +324,15 @@ public:
 template <class NODE, typename CHILDITER>
 class LLTreeDFSIter: public LLBaseIter<LLTreeDFSIter<NODE, CHILDITER>, NODE>
 {
-    typedef LLBaseIter<LLTreeDFSIter<NODE, CHILDITER>, NODE> super;
-    typedef typename super::self_type self_type;
+    using super     = LLBaseIter<LLTreeDFSIter<NODE, CHILDITER>, NODE>;
+    using self_type = typename super::self_type;
 protected:
-    typedef typename super::ptr_type ptr_type;
+    using ptr_type  = typename super::ptr_type;
     // The func_type is different for this: from a NODE pointer, we must
     // obtain a CHILDITER.
-    typedef std::function<CHILDITER(const ptr_type&)> func_type;
+    using func_type = std::function<CHILDITER(const ptr_type&)>;
 private:
-    typedef std::vector<ptr_type> list_type;
+    using list_type = std::vector<ptr_type>;
 public:
     /// Instantiate an LLTreeDFSIter to start a depth-first walk. Pass
     /// functors to extract the 'child begin' and 'child end' iterators from
@@ -429,18 +429,18 @@ private:
 template <class NODE, typename CHILDITER>
 class LLTreeDFSPostIter: public LLBaseIter<LLTreeDFSPostIter<NODE, CHILDITER>, NODE>
 {
-    typedef LLBaseIter<LLTreeDFSPostIter<NODE, CHILDITER>, NODE> super;
-    typedef typename super::self_type self_type;
+    using super     = LLBaseIter<LLTreeDFSPostIter<NODE, CHILDITER>, NODE>;
+    using self_type = typename super::self_type;
 protected:
-    typedef typename super::ptr_type ptr_type;
+    using ptr_type  = typename super::ptr_type;
     // The func_type is different for this: from a NODE pointer, we must
     // obtain a CHILDITER.
-    typedef std::function<CHILDITER(const ptr_type&)> func_type;
+    using func_type = std::function<CHILDITER(const ptr_type&)>;
 private:
     // Upon reaching a given node in our pending list, we need to know whether
     // we've already pushed that node's children, so we must associate a bool
     // with each node pointer.
-    typedef std::vector< std::pair<ptr_type, bool> > list_type;
+    using list_type = std::vector< std::pair<ptr_type, bool> >;
 public:
     /// Instantiate an LLTreeDFSPostIter to start a depth-first walk. Pass
     /// functors to extract the 'child begin' and 'child end' iterators from
@@ -568,17 +568,17 @@ private:
 template <class NODE, typename CHILDITER>
 class LLTreeBFSIter: public LLBaseIter<LLTreeBFSIter<NODE, CHILDITER>, NODE>
 {
-    typedef LLBaseIter<LLTreeBFSIter<NODE, CHILDITER>, NODE> super;
-    typedef typename super::self_type self_type;
+    using super     = LLBaseIter<LLTreeBFSIter<NODE, CHILDITER>, NODE>;
+    using self_type = typename super::self_type;
 protected:
-    typedef typename super::ptr_type ptr_type;
+    using ptr_type  = typename super::ptr_type;
     // The func_type is different for this: from a NODE pointer, we must
     // obtain a CHILDITER.
-    typedef std::function<CHILDITER(const ptr_type&)> func_type;
+    using func_type = std::function<CHILDITER(const ptr_type&)>;
 private:
     // We need a FIFO queue rather than a LIFO stack. Use a deque rather than
     // a vector, since vector can't implement pop_front() efficiently.
-    typedef std::deque<ptr_type> list_type;
+    using list_type = std::deque<ptr_type>;
 public:
     /// Instantiate an LLTreeBFSIter to start a depth-first walk. Pass
     /// functors to extract the 'child begin' and 'child end' iterators from
@@ -650,7 +650,7 @@ template <class NODE, typename CHILDITER>
 class LLTreeWalkIter<LLTreeIter::DFS_PRE, NODE, CHILDITER>:
     public LLTreeDFSIter<NODE, CHILDITER>
 {
-    typedef LLTreeDFSIter<NODE, CHILDITER> super;
+    using super = LLTreeDFSIter<NODE, CHILDITER>;
 public:
     /// forward begin ctor
     LLTreeWalkIter(const typename super::ptr_type& node,
@@ -669,7 +669,7 @@ template <class NODE, typename CHILDITER>
 class LLTreeWalkIter<LLTreeIter::DFS_POST, NODE, CHILDITER>:
     public LLTreeDFSPostIter<NODE, CHILDITER>
 {
-    typedef LLTreeDFSPostIter<NODE, CHILDITER> super;
+    using super = LLTreeDFSPostIter<NODE, CHILDITER>;
 public:
     /// forward begin ctor
     LLTreeWalkIter(const typename super::ptr_type& node,
@@ -688,7 +688,7 @@ template <class NODE, typename CHILDITER>
 class LLTreeWalkIter<LLTreeIter::BFS, NODE, CHILDITER>:
     public LLTreeBFSIter<NODE, CHILDITER>
 {
-    typedef LLTreeBFSIter<NODE, CHILDITER> super;
+    using super = LLTreeBFSIter<NODE, CHILDITER>;
 public:
     /// forward begin ctor
     LLTreeWalkIter(const typename super::ptr_type& node,

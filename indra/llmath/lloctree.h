@@ -61,8 +61,8 @@ template <class T, typename T_PTR>
 class LLOctreeListener: public LLTreeListener<T>
 {
 public:
-    typedef LLTreeListener<T> BaseType;
-    typedef LLOctreeNode<T, T_PTR> oct_node;
+    using BaseType = LLTreeListener<T>;
+    using oct_node = LLOctreeNode<T, T_PTR>;
 
     virtual void handleChildAddition(const oct_node* parent, oct_node* child) = 0;
     virtual void handleChildRemoval(const oct_node* parent, const oct_node* child) = 0;
@@ -89,18 +89,18 @@ class alignas(16) LLOctreeNode : public LLTreeNode<T>
     LL_ALIGN_NEW
 public:
 
-    typedef LLOctreeTraveler<T, T_PTR>                          oct_traveler;
-    typedef LLTreeTraveler<T>                                   tree_traveler;
-    typedef std::vector<T_PTR>                                  element_list;
-    typedef typename element_list::iterator                     element_iter;
-    typedef typename element_list::const_iterator               const_element_iter;
-    typedef typename std::vector<LLTreeListener<T>*>::iterator  tree_listener_iter;
-    typedef LLOctreeNode<T, T_PTR>**                            child_list;
-    typedef LLOctreeNode<T, T_PTR>**                            child_iter;
+    using oct_traveler      = LLOctreeTraveler<T, T_PTR>;
+    using tree_traveler     = LLTreeTraveler<T>;
+    using element_list      = std::vector<T_PTR>;
+    using element_iter      = typename element_list::iterator;
+    using const_element_iter = typename element_list::const_iterator;
+    using tree_listener_iter = typename std::vector<LLTreeListener<T>*>::iterator;
+    using child_list        = LLOctreeNode<T, T_PTR>**;
+    using child_iter        = LLOctreeNode<T, T_PTR>**;
 
-    typedef LLTreeNode<T>               BaseType;
-    typedef LLOctreeNode<T, T_PTR>      oct_node;
-    typedef LLOctreeListener<T, T_PTR>  oct_listener;
+    using BaseType          = LLTreeNode<T>;
+    using oct_node          = LLOctreeNode<T, T_PTR>;
+    using oct_listener      = LLOctreeListener<T, T_PTR>;
 
     enum
     {
@@ -647,13 +647,13 @@ public:
     }
 
 protected:
-    typedef enum
+    enum eDName
     {
         CENTER = 0,
         SIZE = 1,
         MAX = 2,
         MIN = 3
-    } eDName;
+    };
 
     LLVector4a mCenter;
     LLVector4a mSize;
@@ -675,8 +675,8 @@ template <class T, typename T_PTR>
 class LLOctreeRoot : public LLOctreeNode<T, T_PTR>
 {
 public:
-    typedef LLOctreeNode<T, T_PTR> BaseType;
-    typedef LLOctreeNode<T, T_PTR> oct_node;
+    using BaseType = LLOctreeNode<T, T_PTR>;
+    using oct_node = LLOctreeNode<T, T_PTR>;
 
     LLOctreeRoot(const LLVector4a& center,
                  const LLVector4a& size,

@@ -41,8 +41,7 @@
 // used to attach and extract stacktrace information to/from boost::exception,
 // see https://www.boost.org/doc/libs/release/doc/html/stacktrace/getting_started.html#stacktrace.getting_started.exceptions_with_stacktrace
 // apparently the struct passed as the first template param needs no definition?
-typedef boost::error_info<struct errinfo_stacktrace_, boost::stacktrace::stacktrace>
-        errinfo_stacktrace;
+using errinfo_stacktrace = boost::error_info<struct errinfo_stacktrace_, boost::stacktrace::stacktrace>;
 
 namespace {
 // used by crash_on_unhandled_exception_() and log_unhandled_exception_()

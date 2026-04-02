@@ -58,10 +58,9 @@ private:
     // manipulating some data in the master list, we must also check whether
     // it's safe to log -- which involves querying a different LLSingleton --
     // which requires accessing the master list.
-    typedef std::recursive_mutex mutex_t;
+    using mutex_t = std::recursive_mutex;
     LL_PROFILE_MUTEX_NAMED(mutex_t, mMutex, "Singleton MasterList");
-    typedef std::unique_lock<decltype(mMutex)> lock_t;
-
+    using lock_t = std::unique_lock<decltype(mMutex)>;
 public:
     // Instantiate this to both obtain a reference to MasterList::instance()
     // and lock its mutex for the lifespan of this Lock instance.
@@ -360,7 +359,7 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
     // removing LLSingletons as they are created and destroyed, in practice
     // it's less messy to construct it on demand. The overhead of doing so
     // should happen basically once: for deleteAll().
-    typedef LLDependencies<LLSingletonBase*> SingletonDeps;
+    using SingletonDeps = LLDependencies<LLSingletonBase*>;
     SingletonDeps sdeps;
     // Lock while traversing the master list
     MasterList::LockedMaster master;

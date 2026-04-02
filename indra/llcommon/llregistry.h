@@ -36,18 +36,16 @@ template <typename KEY, typename VALUE>
 class LLRegistry
 {
 public:
-    typedef LLRegistry<KEY, VALUE>      registry_t;
-    typedef const KEY&                              ref_const_key_t;
-    typedef const VALUE&                            ref_const_value_t;
-    typedef const VALUE*                            ptr_const_value_t;
-    typedef VALUE*                                  ptr_value_t;
-
+    using registry_t = LLRegistry<KEY, VALUE>;
+    using ref_const_key_t = const KEY&;
+    using ref_const_value_t = const VALUE&;
+    using ptr_const_value_t = const VALUE*;
+    using ptr_value_t = VALUE*;
     class Registrar
     {
         friend class LLRegistry<KEY, VALUE>;
     public:
-        typedef std::map<KEY, VALUE> registry_map_t;
-
+        using registry_map_t = std::map<KEY, VALUE>;
         bool add(ref_const_key_t key, ref_const_value_t value)
         {
             if (!mMap.insert(std::make_pair(key, value)).second)
@@ -120,10 +118,9 @@ public:
         registry_map_t                                          mMap;
     };
 
-    typedef typename std::list<Registrar*> scope_list_t;
-    typedef typename std::list<Registrar*>::iterator scope_list_iterator_t;
-    typedef typename std::list<Registrar*>::const_iterator scope_list_const_iterator_t;
-
+    using scope_list_t = typename std::list<Registrar*>;
+    using scope_list_iterator_t = typename std::list<Registrar*>::iterator;
+    using scope_list_const_iterator_t = typename std::list<Registrar*>::const_iterator;
     LLRegistry()
     {}
 
@@ -234,13 +231,12 @@ class LLRegistrySingleton
     // LLRegistrySingleton. So each concrete subclass needs
     // LLSINGLETON(whatever) -- not this intermediate base class.
 public:
-    typedef LLRegistry<KEY, VALUE>      registry_t;
-    typedef const KEY&                              ref_const_key_t;
-    typedef const VALUE&                            ref_const_value_t;
-    typedef VALUE*                                  ptr_value_t;
-    typedef const VALUE*                            ptr_const_value_t;
-    typedef LLSingleton<DERIVED_TYPE>               singleton_t;
-
+    using registry_t = LLRegistry<KEY, VALUE>;
+    using ref_const_key_t = const KEY&;
+    using ref_const_value_t = const VALUE&;
+    using ptr_value_t = VALUE*;
+    using ptr_const_value_t = const VALUE*;
+    using singleton_t = LLSingleton<DERIVED_TYPE>;
     class ScopedRegistrar : public registry_t::Registrar
     {
     public:
@@ -299,7 +295,7 @@ public:
     };
 
     // convenience functions
-    typedef typename LLRegistry<KEY, VALUE>::Registrar& ref_registrar_t;
+    using ref_registrar_t = typename LLRegistry<KEY, VALUE>::Registrar&;
     static ref_registrar_t currentRegistrar()
     {
         return singleton_t::instance().registry_t::currentRegistrar();

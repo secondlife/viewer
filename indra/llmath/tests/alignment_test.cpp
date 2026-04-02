@@ -42,8 +42,8 @@ namespace tut
 
 struct alignment_test {};
 
-typedef test_group<alignment_test> alignment_test_t;
-typedef alignment_test_t::object alignment_test_object_t;
+using alignment_test_t = test_group<alignment_test>;
+using alignment_test_object_t = alignment_test_t::object;
 tut::alignment_test_t tut_alignment_test("LLAlignment");
 
 LL_ALIGN_PREFIX(16)

@@ -44,11 +44,11 @@ class LLEventPumpOrPumpName
 public:
     /// Pass an actual LLEventPump&
     LLEventPumpOrPumpName(LLEventPump& pump):
-        mPump(pump)
+        mPump(&pump)
     {}
     /// Pass the string name of an LLEventPump
     LLEventPumpOrPumpName(const std::string& pumpname):
-        mPump(LLEventPumps::instance().obtain(pumpname))
+        mPump(&LLEventPumps::instance().obtain(pumpname))
     {}
     /// Pass string constant name of an LLEventPump. This override must be
     /// explicit, since otherwise passing <tt>const char*</tt> to a function
@@ -56,17 +56,17 @@ public:
     /// different implicit conversions: <tt>const char*</tt> -> <tt>const
     /// std::string&</tt> -> <tt>const LLEventPumpOrPumpName&</tt>.
     LLEventPumpOrPumpName(const char* pumpname):
-        mPump(LLEventPumps::instance().obtain(pumpname))
+        mPump(&LLEventPumps::instance().obtain(pumpname))
     {}
     /// Unspecified: "I choose not to identify an LLEventPump."
     LLEventPumpOrPumpName() {}
     operator LLEventPump& () const { return *mPump; }
     LLEventPump& getPump() const { return *mPump; }
-    operator bool() const { return bool(mPump); }
-    bool operator!() const { return ! mPump; }
+    operator bool() const { return mPump != nullptr; }
+    bool operator!() const { return mPump == nullptr; }
 
 private:
-    boost::optional<LLEventPump&> mPump;
+    LLEventPump* mPump = nullptr;
 };
 
 namespace llcoro

@@ -39,7 +39,7 @@ namespace LLPredicate
     class Value
     {
     public:
-        typedef U32 predicate_flag_t;
+        using predicate_flag_t = U32;
         static constexpr S32 cMaxEnum = 5;
 
         Value(ENUM e, bool predicate_value = true)

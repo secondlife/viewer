@@ -63,11 +63,10 @@ protected:
         F32 mTimeScale;
         F32 mInterpolant;
     };
-    typedef std::vector<Interpolant> interpolant_vec_t;
+    using interpolant_vec_t = std::vector<Interpolant>;
     static interpolant_vec_t    sInterpolants;
     static F32                  sTimeDelta;
 };
 
-typedef LLSmoothInterpolation LLCriticalDamp;
-
+using LLCriticalDamp = LLSmoothInterpolation;
 #endif  // LL_LLCRITICALDAMP_H

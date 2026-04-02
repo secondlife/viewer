@@ -6,7 +6,7 @@
  *         a value that may or may not exist yet. Unlike a future, though,
  *         LLPounceable freely allows reading the held value. (If the held
  *         type T does not have a distinguished "empty" value, consider using
- *         LLPounceable<boost::optional<T>>.)
+ *         LLPounceable<std::optional<T>>.)
  *
  *         LLPounceable::callWhenReady() is this template's claim to fame. It
  *         allows its caller to "pounce" on the held value as soon as it
@@ -52,11 +52,11 @@ template <typename T, typename TAG>
 struct LLPounceableTraits
 {
     // Our "queue" is a signal object with correct signature.
-    typedef boost::signals2::signal<void (typename boost::call_traits<T>::param_type)> signal_t;
+    using signal_t = boost::signals2::signal<void (typename boost::call_traits<T>::param_type)>;
     // Call callWhenReady() with any callable accepting T.
-    typedef typename signal_t::slot_type func_t;
+    using func_t = typename signal_t::slot_type;
     // owner pointer type
-    typedef LLPounceable<T, TAG>* owner_ptr;
+    using owner_ptr = LLPounceable<T, TAG>*;
 };
 
 // Tag types distinguish the two different implementations of LLPounceable's
@@ -78,16 +78,14 @@ class LLPounceableQueueSingleton:
 {
     LLSINGLETON_EMPTY_CTOR(LLPounceableQueueSingleton);
 
-    typedef LLPounceableTraits<T, LLPounceableStatic> traits;
-    typedef typename traits::owner_ptr owner_ptr;
-    typedef typename traits::signal_t signal_t;
-
+    using traits = LLPounceableTraits<T, LLPounceableStatic>;
+    using owner_ptr = typename traits::owner_ptr;
+    using signal_t = typename traits::signal_t;
     // For a given held type T, every LLPounceable<T, LLPounceableStatic>
     // instance will call on the SAME LLPounceableQueueSingleton instance --
     // given how class statics work. We must keep a separate queue for each
     // LLPounceable instance. Use a hash map for that.
-    typedef std::unordered_map<owner_ptr, signal_t> map_t;
-
+    using map_t = std::unordered_map<owner_ptr, signal_t>;
 public:
     // Disambiguate queues belonging to different LLPounceables.
     signal_t& get(owner_ptr owner)
@@ -105,10 +103,9 @@ template <typename T>
 class LLPounceableQueueImpl<T, LLPounceableStatic>
 {
 public:
-    typedef LLPounceableTraits<T, LLPounceableStatic> traits;
-    typedef typename traits::owner_ptr owner_ptr;
-    typedef typename traits::signal_t signal_t;
-
+    using traits = LLPounceableTraits<T, LLPounceableStatic>;
+    using owner_ptr = typename traits::owner_ptr;
+    using signal_t = typename traits::signal_t;
     signal_t& get(owner_ptr owner) const
     {
         // this Impl contains nothing; it delegates to the Singleton
@@ -123,10 +120,9 @@ template <typename T>
 class LLPounceableQueueImpl<T, LLPounceableQueue>
 {
 public:
-    typedef LLPounceableTraits<T, LLPounceableQueue> traits;
-    typedef typename traits::owner_ptr owner_ptr;
-    typedef typename traits::signal_t signal_t;
-
+    using traits = LLPounceableTraits<T, LLPounceableQueue>;
+    using owner_ptr = typename traits::owner_ptr;
+    using signal_t = typename traits::signal_t;
     signal_t& get(owner_ptr)
     {
         return mQueue;
@@ -142,13 +138,11 @@ template <typename T, class TAG=LLPounceableQueue>
 class LLPounceable
 {
 private:
-    typedef LLPounceableTraits<T, TAG> traits;
-    typedef typename traits::owner_ptr owner_ptr;
-    typedef typename traits::signal_t signal_t;
-
+    using traits = LLPounceableTraits<T, TAG>;
+    using owner_ptr = typename traits::owner_ptr;
+    using signal_t = typename traits::signal_t;
 public:
-    typedef typename traits::func_t func_t;
-
+    using func_t = typename traits::func_t;
     // By default, both the initial value and the distinguished empty value
     // are a default-constructed T instance. However you can explicitly
     // specify each.

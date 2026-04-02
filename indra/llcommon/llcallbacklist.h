@@ -35,13 +35,11 @@
 class LLCallbackList
 {
 public:
-    typedef void (*callback_t)(void*);
-
-    typedef std::pair< callback_t,void* >   callback_pair_t;
+    using callback_t = void(*)(void*);
+    using callback_pair_t = std::pair< callback_t,void* >;
     // NOTE: It is confirmed that we DEPEND on the order provided by using a list :(
     //
-    typedef std::list< callback_pair_t >    callback_list_t;
-
+    using callback_list_t = std::list< callback_pair_t >;
     LLCallbackList();
     ~LLCallbackList();
 
@@ -60,9 +58,8 @@ protected:
     callback_list_t mCallbackList;
 };
 
-typedef std::function<void ()> nullary_func_t;
-typedef std::function<bool ()> bool_func_t;
-
+using nullary_func_t = std::function<void ()>;
+using bool_func_t = std::function<bool ()>;
 // Call a given callable once in idle loop.
 void doOnIdleOneTime(nullary_func_t callable);
 

@@ -99,13 +99,13 @@ F64 LL_COMMON_API ll_drand(F64 val);
  *  double bar = foo();
  */
 
-typedef boost::lagged_fibonacci607 LLRandLagFib607;
+using LLRandLagFib607 = boost::lagged_fibonacci607;
 /**<
  * lengh of cycle: 2^32,000
  * memory: 607*sizeof(double) (about 5K)
  */
 
-typedef boost::lagged_fibonacci2281 LLRandLagFib2281;
+using LLRandLagFib2281 = boost::lagged_fibonacci2281;
 /**<
  * lengh of cycle: 2^120,000
  * memory: 2281*sizeof(double) (about 17K)
@@ -123,5 +123,5 @@ typedef boost::lagged_fibonacci2281 LLRandLagFib2281;
  * lengh of cycle: 2^19,937-1
  * memory: about 2496 bytes
  */
-typedef boost::mt11213b LLRandMT19937;
+using LLRandMT19937 = boost::mt11213b;
 #endif

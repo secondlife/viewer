@@ -92,7 +92,7 @@ class LLStopWatchControlsMixin
 {
 public:
 
-    typedef LLStopWatchControlsMixin<DERIVED> self_t;
+    using self_t = LLStopWatchControlsMixin<DERIVED>;
     virtual void splitTo(DERIVED& other)
     {
         EPlayState play_state = getPlayState();
@@ -136,22 +136,22 @@ namespace LLTrace
     template<typename T>
     struct RelatedTypes
     {
-        typedef F64 fractional_t;
-        typedef T   sum_t;
+        using fractional_t = F64;
+        using sum_t        = T;
     };
 
     template<typename T, typename UNIT_T>
     struct RelatedTypes<LLUnit<T, UNIT_T> >
     {
-        typedef LLUnit<typename RelatedTypes<T>::fractional_t, UNIT_T> fractional_t;
-        typedef LLUnit<typename RelatedTypes<T>::sum_t, UNIT_T> sum_t;
+        using fractional_t = LLUnit<typename RelatedTypes<T>::fractional_t, UNIT_T>;
+        using sum_t        = LLUnit<typename RelatedTypes<T>::sum_t, UNIT_T>;
     };
 
     template<>
     struct RelatedTypes<bool>
     {
-        typedef F64 fractional_t;
-        typedef S32 sum_t;
+        using fractional_t = F64;
+        using sum_t        = S32;
     };
 
     class Recording

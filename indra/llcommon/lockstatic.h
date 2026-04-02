@@ -24,7 +24,7 @@ namespace llthread
 template <typename Static>
 class LockStatic
 {
-    typedef std::unique_lock<decltype(Static::mMutex)> lock_t;
+    using lock_t = std::unique_lock<decltype(Static::mMutex)>;
 public:
     LockStatic():
         mData(getStatic()),

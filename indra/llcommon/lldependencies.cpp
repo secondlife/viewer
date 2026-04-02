@@ -55,14 +55,14 @@ LLDependenciesBase::VertexList LLDependenciesBase::topo_sort(size_t vertices, co
     // edges because the same dependency may be stated twice: Node "a" may
     // specify that it must precede "b", while "b" may also state that it
     // must follow "a".
-    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS,
-                                  boost::no_property> Graph;
+    using Graph = boost::adjacency_list<boost::setS, boost::vecS, boost::directedS,
+                                       boost::no_property>;
     // Instantiate the graph. Without vertex properties, we need say no
     // more about vertices than the total number.
     Graph g(edges.begin(), edges.end(), vertices);
     // topo sort
-    typedef boost::graph_traits<Graph>::vertex_descriptor VertexDesc;
-    typedef std::vector<VertexDesc> SortedList;
+    using VertexDesc = boost::graph_traits<Graph>::vertex_descriptor;
+    using SortedList = std::vector<VertexDesc>;
     SortedList sorted;
     // note that it throws not_a_dag if it finds a cycle
     try

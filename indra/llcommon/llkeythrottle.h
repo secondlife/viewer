@@ -55,8 +55,7 @@ protected:
         Entry() : count(0), blocked(false) { }
     };
 
-    typedef std::map<T, Entry> EntryMap;
-
+    using EntryMap = std::map<T, Entry>;
     EntryMap* prevMap;
     EntryMap* currMap;
 

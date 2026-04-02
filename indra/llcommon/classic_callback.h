@@ -107,8 +107,7 @@ struct index_of<idx, sought, candidate>
 template <typename SIGNATURE, typename USERDATA=void*, typename CALLABLE=void(*)()>
 class ClassicCallback
 {
-    typedef ClassicCallback<SIGNATURE, USERDATA, CALLABLE> self_t;
-
+    using self_t = ClassicCallback<SIGNATURE, USERDATA, CALLABLE>;
 public:
     /// ClassicCallback binds any modern C++ callable.
     ClassicCallback(CALLABLE&& callable):
@@ -222,9 +221,8 @@ auto makeClassicCallback(CALLABLE&& callable)
 template <typename SIGNATURE, typename USERDATA=void*, typename CALLABLE=void(*)()>
 class HeapClassicCallback: public ClassicCallback<SIGNATURE, USERDATA, CALLABLE>
 {
-    typedef ClassicCallback<SIGNATURE, USERDATA, CALLABLE> super;
-    typedef HeapClassicCallback<SIGNATURE, USERDATA, CALLABLE> self_t;
-
+    using super = ClassicCallback<SIGNATURE, USERDATA, CALLABLE>;
+    using self_t = HeapClassicCallback<SIGNATURE, USERDATA, CALLABLE>;
     // This destructor is intentionally private to prevent allocation anywhere
     // but the heap. (The Design and Evolution of C++, section 11.4.2: Control
     // of Allocation)

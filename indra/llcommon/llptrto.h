@@ -51,21 +51,21 @@
 template <class T, class ENABLE=void>
 struct LLPtrTo
 {
-    typedef T* type;
+    using type = T*;
 };
 
 /// specialize for subclasses of LLRefCount
 template <class T>
 struct LLPtrTo<T, typename std::enable_if< std::is_base_of<LLRefCount, T>::value >::type>
 {
-    typedef LLPointer<T> type;
+    using type = LLPointer<T>;
 };
 
 /// specialize for subclasses of LLThreadSafeRefCount
 template <class T>
 struct LLPtrTo<T, typename std::enable_if< std::is_base_of<LLThreadSafeRefCount, T>::value >::type>
 {
-    typedef LLPointer<T> type;
+    using type = LLPointer<T>;
 };
 
 /**
@@ -74,14 +74,14 @@ struct LLPtrTo<T, typename std::enable_if< std::is_base_of<LLThreadSafeRefCount,
 template <typename PTRTYPE>
 struct LLRemovePointer
 {
-    typedef typename std::remove_pointer<PTRTYPE>::type type;
+    using type = typename std::remove_pointer<PTRTYPE>::type;
 };
 
 /// specialize for LLPointer<SOMECLASS>
 template <typename SOMECLASS>
 struct LLRemovePointer< LLPointer<SOMECLASS> >
 {
-    typedef SOMECLASS type;
+    using type = SOMECLASS;
 };
 
 namespace LL

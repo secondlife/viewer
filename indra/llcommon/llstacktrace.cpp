@@ -35,7 +35,7 @@
 #include "llwin32headers.h"
 #include <dbghelp.h>
 
-typedef USHORT NTAPI RtlCaptureStackBackTrace_Function(
+using RtlCaptureStackBackTrace_Function = USHORT NTAPI(
     IN ULONG frames_to_skip,
     IN ULONG frames_to_capture,
     OUT PVOID *backtrace,

@@ -36,8 +36,8 @@ namespace tut
     struct xform_test
     {
     };
-    typedef test_group<xform_test> xform_test_t;
-    typedef xform_test_t::object xform_test_object_t;
+    using xform_test_t = test_group<xform_test>;
+    using xform_test_object_t = xform_test_t::object;
     tut::xform_test_t tut_xform_test("LLXForm");
 
     //test case for init(), getParent(), getRotation(), getPositionW(), getWorldRotation() fns.

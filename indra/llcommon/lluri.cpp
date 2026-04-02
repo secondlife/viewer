@@ -656,7 +656,7 @@ std::string LLURI::path() const
 
 LLSD LLURI::pathArray() const
 {
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep("/", "", boost::drop_empty_tokens);
     tokenizer tokens(mEscapedPath, sep);
     tokenizer::iterator it = tokens.begin();

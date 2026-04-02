@@ -50,7 +50,7 @@ namespace LLTrace
     template<typename ACCUMULATOR>
     class AccumulatorBuffer : public LLRefCount
     {
-        typedef AccumulatorBuffer<ACCUMULATOR> self_t;
+        using self_t = AccumulatorBuffer<ACCUMULATOR>;
         static constexpr S32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 32;
     private:
         struct StaticAllocationMarker { };
@@ -246,7 +246,7 @@ namespace LLTrace
     class EventAccumulator
     {
     public:
-        typedef F64 value_t;
+        using value_t = F64;
         static F64 getDefaultValue() { return NaN; }
 
         EventAccumulator()
@@ -317,7 +317,7 @@ namespace LLTrace
     class SampleAccumulator
     {
     public:
-        typedef F64 value_t;
+        using value_t = F64;
         static F64 getDefaultValue() { return NaN; }
 
         SampleAccumulator()
@@ -414,7 +414,7 @@ namespace LLTrace
     class CountAccumulator
     {
     public:
-        typedef F64 value_t;
+        using value_t = F64;
         static F64 getDefaultValue() { return 0; }
 
         CountAccumulator()
@@ -457,20 +457,20 @@ namespace LLTrace
     class alignas(32) TimeBlockAccumulator
     {
     public:
-        typedef F64Seconds value_t;
+        using value_t = F64Seconds;
         static F64Seconds getDefaultValue() { return F64Seconds(0); }
 
-        typedef TimeBlockAccumulator self_t;
+        using self_t = TimeBlockAccumulator;
 
         // fake classes that allows us to view different facets of underlying statistic
         struct CallCountFacet
         {
-            typedef S32 value_t;
+            using value_t = S32;
         };
 
         struct SelfTimeFacet
         {
-            typedef F64Seconds value_t;
+            using value_t = F64Seconds;
         };
 
         // arrays are allocated with 32 byte alignment

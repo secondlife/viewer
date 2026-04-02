@@ -37,8 +37,8 @@ namespace tut
     struct modularmath_data
     {
     };
-    typedef test_group<modularmath_data> modularmath_test;
-    typedef modularmath_test::object modularmath_object;
+    using modularmath_test = test_group<modularmath_data>;
+    using modularmath_object = modularmath_test::object;
     tut::modularmath_test modularmath_testcase("LLModularMath");
 
     template<> template<>

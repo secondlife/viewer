@@ -103,7 +103,7 @@ protected:
     virtual LLVolumeLODGroup* createNewGroup(const LLVolumeParams& volume_params);
 
 protected:
-    typedef std::map<const LLVolumeParams*, LLVolumeLODGroup*, LLVolumeParams::compare> volume_lod_group_map_t;
+    using volume_lod_group_map_t = std::map<const LLVolumeParams*, LLVolumeLODGroup*, LLVolumeParams::compare>;
     volume_lod_group_map_t mVolumeLODGroups;
 
     LLMutex* mDataMutex;

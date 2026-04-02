@@ -385,7 +385,7 @@ public:
 class LLDefaultVBOPool final : public LLVBOPool
 {
 public:
-    typedef std::chrono::steady_clock::time_point Time;
+    using Time = std::chrono::steady_clock::time_point;
     struct Entry
     {
         U8* mData;
@@ -398,7 +398,7 @@ public:
         clear();
     }
 
-    typedef std::unordered_map<U32, std::list<Entry>> Pool;
+    using Pool = std::unordered_map<U32, std::list<Entry>>;
 
     Pool mVBOPool;
     Pool mIBOPool;
@@ -1478,7 +1478,7 @@ void LLVertexBuffer::_unmapBuffer()
 
 template <class T,LLVertexBuffer::AttributeType type> struct VertexBufferStrider
 {
-    typedef LLStrider<T> strider_t;
+    using strider_t = LLStrider<T>;
     static bool get(LLVertexBuffer& vbo,
                     strider_t& strider,
                     S32 index, S32 count)

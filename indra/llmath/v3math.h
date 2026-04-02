@@ -169,7 +169,7 @@ static_assert(std::is_trivially_copyable<LLVector3>::value, "LLVector3 must be t
 static_assert(std::is_trivially_move_assignable<LLVector3>::value, "LLVector3 must be trivial move");
 static_assert(std::is_standard_layout<LLVector3>::value, "LLVector3 must be a standard layout type");
 
-typedef LLVector3 LLSimLocalVec;
+using LLSimLocalVec = LLVector3;
 
 // Non-member functions
 

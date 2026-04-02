@@ -147,12 +147,12 @@ public:
     // The following are called often, frequently with large buffers, so do not use a string interface
 
     // Returns the max number of complete characters from text (up to max_chars) that can be drawn in max_pixels
-    typedef enum e_word_wrap_style
+    enum EWordWrapStyle
     {
         ONLY_WORD_BOUNDARIES,
         WORD_BOUNDARY_IF_POSSIBLE,
         ANYWHERE
-    } EWordWrapStyle ;
+    };
     S32 maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars = S32_MAX, EWordWrapStyle end_on_word_boundary = ANYWHERE) const;
 
     // Returns the index of the first complete characters from text that can be drawn in max_pixels

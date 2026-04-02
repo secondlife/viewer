@@ -36,7 +36,7 @@
 template <class Type> class LLRectBase
 {
 public:
-    typedef Type tCoordType;
+    using tCoordType = Type;
     Type        mLeft;
     Type        mTop;
     Type        mRight;
@@ -288,8 +288,8 @@ public:
 
 template <class Type> LLRectBase<Type> LLRectBase<Type>::null(0,0,0,0);
 
-typedef LLRectBase<S32> LLRect;
-typedef LLRectBase<F32> LLRectf;
+using LLRect = LLRectBase<S32>;
+using LLRectf = LLRectBase<F32>;
 
 static_assert(std::is_trivially_copyable<LLRect>::value, "LLRect must be trivial copy");
 static_assert(std::is_trivially_move_assignable<LLRect>::value, "LLRect must be trivial move");

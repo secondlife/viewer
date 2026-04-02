@@ -127,12 +127,12 @@ private:
     // store it as a map from name string to position index. Of course that's
     // easy to generate from the incoming names array, but why do it more than
     // once?
-    typedef std::map<LLSD::String, size_t> IndexMap;
+    using IndexMap = std::map<LLSD::String, size_t>;
     IndexMap _indexes;
     // Generated array of default values, aligned with the array of param names.
     LLSD _defaults;
     // Indicate whether we have a default value for each param.
-    typedef std::vector<char> FilledVector;
+    using FilledVector = std::vector<char>;
     FilledVector _has_dft;
 };
 

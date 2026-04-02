@@ -40,11 +40,11 @@ template <typename Type, typename Key, int BlockSize = 32>
 class LLIndexedVector
 {
 public:
-    typedef typename std::vector<Type>::iterator iterator;
-    typedef typename std::vector<Type>::const_iterator const_iterator;
-    typedef typename std::vector<Type>::reverse_iterator reverse_iterator;
-    typedef typename std::vector<Type>::const_reverse_iterator const_reverse_iterator;
-    typedef typename std::vector<Type>::size_type size_type;
+    using iterator = typename std::vector<Type>::iterator;
+    using const_iterator = typename std::vector<Type>::const_iterator;
+    using reverse_iterator = typename std::vector<Type>::reverse_iterator;
+    using const_reverse_iterator = typename std::vector<Type>::const_reverse_iterator;
+    using size_type = typename std::vector<Type>::size_type;
 protected:
     std::vector<Type> mVector;
     std::map<Key, size_t> mIndexMap;

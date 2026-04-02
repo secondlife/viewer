@@ -78,8 +78,7 @@ public:
     //@{
 
     /// Accept any C++ callable with the right signature
-    typedef std::function<LLSD(const LLSD&)> Callable;
-
+    using Callable = std::function<LLSD(const LLSD&)>;
     /**
      * Register a @a callable by @a name. The passed @a callable accepts a
      * single LLSD value and uses it in any way desired, e.g. extract
@@ -453,8 +452,7 @@ public:
 
     /// @name Iterate over defined names
     //@{
-    typedef std::pair<std::string, std::string> NameDesc;
-
+    using NameDesc = std::pair<std::string, std::string>;
 private:
     struct DispatchEntry
     {
@@ -477,14 +475,13 @@ private:
             mParent->callFail<LLEventDispatcher::DispatchError>(std::forward<ARGS>(args)...);
         }
     };
-    typedef std::map<std::string, std::unique_ptr<DispatchEntry> > DispatchMap;
-
+    using DispatchMap = std::map<std::string, std::unique_ptr<DispatchEntry> >;
 public:
     /// We want the flexibility to redefine what data we store per name,
     /// therefore our public interface doesn't expose DispatchMap iterators,
     /// or DispatchMap itself, or DispatchEntry. Instead we explicitly
     /// transform each DispatchMap item to NameDesc on dereferencing.
-    typedef boost::transform_iterator<NameDesc(*)(const DispatchMap::value_type&), DispatchMap::const_iterator> const_iterator;
+    using const_iterator = boost::transform_iterator<NameDesc(*)(const DispatchMap::value_type&), DispatchMap::const_iterator>;
     const_iterator begin() const
     {
         return boost::make_transform_iterator(mDispatch.begin(), makeNameDesc);
@@ -637,8 +634,7 @@ private:
     struct MapParamsDispatchEntry;
 
     // call target function with args from LLSD array
-    typedef std::function<LLSD(const LLSD&)> invoker_function;
-
+    using invoker_function = std::function<LLSD(const LLSD&)>;
     template <typename Function>
     invoker_function make_invoker(Function f);
     template <typename Method, typename InstanceGetter>
