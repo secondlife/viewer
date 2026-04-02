@@ -30,7 +30,7 @@
 #include "net.h"
 #include "llhost.h"
 
-typedef enum e_machine_type
+enum EMachineType
 {
     MT_NULL,
     MT_SIMULATOR,
@@ -39,7 +39,7 @@ typedef enum e_machine_type
     MT_OBJECT_REPOSITORY,
     MT_PROXY,
     MT_EOF
-} EMachineType;
+};
 
 const U32 ADDRESS_STRING_SIZE = 12;
 

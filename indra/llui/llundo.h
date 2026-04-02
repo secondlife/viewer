@@ -40,7 +40,7 @@ public:
         virtual void cleanup() {};
     protected:
         LLUndoAction(): mClusterID(0) {};
-        virtual ~LLUndoAction(){};
+        virtual ~LLUndoAction() = default;
     private:
         S32 mClusterID;
     };

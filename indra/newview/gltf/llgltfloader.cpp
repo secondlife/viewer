@@ -124,7 +124,6 @@ LLGLTFLoader::LLGLTFLoader(std::string                filename,
 {
 }
 
-LLGLTFLoader::~LLGLTFLoader() {}
 
 bool LLGLTFLoader::OpenFile(const std::string &filename)
 {

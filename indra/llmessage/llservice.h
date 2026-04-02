@@ -52,7 +52,7 @@
 class LLService : public LLIOPipe
 {
 public:
-    typedef std::shared_ptr<LLChainIOFactory> creator_t;
+    using creator_t = std::shared_ptr<LLChainIOFactory>;
 
     /**
      * @brief This method is used to register a protocol name with a
@@ -87,7 +87,7 @@ public:
 
 protected:
     // The creation factory static data.
-    typedef std::map<std::string, creator_t> creators_t;
+    using creators_t = std::map<std::string, creator_t>;
     static creators_t sCreatorFunctors;
 
 protected:

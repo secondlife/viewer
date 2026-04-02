@@ -44,7 +44,7 @@ template <typename DERIVED_TYPE>
 class LLChildRegistry : public LLRegistrySingleton<std::string, LLWidgetCreatorFunc, DERIVED_TYPE>
 {
 public:
-    typedef LLRegistrySingleton<std::string, LLWidgetCreatorFunc, DERIVED_TYPE> super_t;
+    using super_t = LLRegistrySingleton<std::string, LLWidgetCreatorFunc, DERIVED_TYPE>;
     // local static instance for registering a particular widget
     template<typename T>
     class Register : public super_t::StaticRegistrar
@@ -55,7 +55,7 @@ public:
     };
 
 protected:
-    LLChildRegistry() {}
+    LLChildRegistry() = default;
 };
 
 class LLDefaultChildRegistry : public LLChildRegistry<LLDefaultChildRegistry>
@@ -254,7 +254,7 @@ private:
         T::applyXUILayout(params, parent);
         T* widget = createWidgetImpl<T>(params, parent);
 
-        typedef typename T::child_registry_t registry_t;
+        using registry_t = typename T::child_registry_t;
 
         createChildren(widget, node, registry_t::instance(), output_node);
 

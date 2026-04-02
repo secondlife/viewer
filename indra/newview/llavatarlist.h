@@ -151,8 +151,8 @@ class LLAvatarItemComparator : public LLFlatListView::ItemComparator
     LOG_CLASS(LLAvatarItemComparator);
 
 public:
-    LLAvatarItemComparator() {};
-    virtual ~LLAvatarItemComparator() {};
+    LLAvatarItemComparator() = default;
+    virtual ~LLAvatarItemComparator() = default;
 
     virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
 
@@ -172,8 +172,8 @@ class LLAvatarItemNameComparator : public LLAvatarItemComparator
     LOG_CLASS(LLAvatarItemNameComparator);
 
 public:
-    LLAvatarItemNameComparator() {};
-    virtual ~LLAvatarItemNameComparator() {};
+    LLAvatarItemNameComparator() = default;
+    virtual ~LLAvatarItemNameComparator() = default;
 
 protected:
     virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
@@ -184,8 +184,8 @@ class LLAvatarItemAgentOnTopComparator : public LLAvatarItemNameComparator
     LOG_CLASS(LLAvatarItemAgentOnTopComparator);
 
 public:
-    LLAvatarItemAgentOnTopComparator() {};
-    virtual ~LLAvatarItemAgentOnTopComparator() {};
+    LLAvatarItemAgentOnTopComparator() = default;
+    virtual ~LLAvatarItemAgentOnTopComparator() = default;
 
 protected:
     virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;

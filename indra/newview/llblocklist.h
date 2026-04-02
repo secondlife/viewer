@@ -48,7 +48,7 @@ class LLBlockList: public LLFlatListViewEx, public LLMuteListObserver
 public:
     struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
     {
-        Params(){};
+        Params() = default;
     };
 
     LLBlockList(const Params& p);
@@ -112,8 +112,8 @@ class LLBlockListItemComparator : public LLFlatListView::ItemComparator
     LOG_CLASS(LLBlockListItemComparator);
 
 public:
-    LLBlockListItemComparator() {};
-    virtual ~LLBlockListItemComparator() {};
+    LLBlockListItemComparator() = default;
+    virtual ~LLBlockListItemComparator() = default;
 
     virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
 
@@ -131,8 +131,8 @@ class LLBlockListNameComparator : public LLBlockListItemComparator
     LOG_CLASS(LLBlockListNameComparator);
 
 public:
-    LLBlockListNameComparator() {};
-    virtual ~LLBlockListNameComparator() {};
+    LLBlockListNameComparator() = default;
+    virtual ~LLBlockListNameComparator() = default;
 
 protected:
 
@@ -148,8 +148,8 @@ class LLBlockListNameTypeComparator : public LLBlockListItemComparator
     LOG_CLASS(LLBlockListNameTypeComparator);
 
 public:
-    LLBlockListNameTypeComparator() {};
-    virtual ~LLBlockListNameTypeComparator() {};
+    LLBlockListNameTypeComparator() = default;
+    virtual ~LLBlockListNameTypeComparator() = default;
 
 protected:
 

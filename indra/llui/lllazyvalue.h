@@ -36,8 +36,8 @@ template<typename T>
 class LLLazyValue
 {
 public:
-    typedef typename std::add_lvalue_reference<typename std::add_const<T>::type>::type T_const_ref;
-    typedef typename std::function<T_const_ref (void)>                            function_type;
+    using T_const_ref = typename std::add_lvalue_reference<typename std::add_const<T>::type>::type;
+    using function_type = typename std::function<T_const_ref (void)>;
 
 public:
     LLLazyValue(const function_type& value)

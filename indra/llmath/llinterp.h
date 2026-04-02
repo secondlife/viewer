@@ -40,7 +40,7 @@
 class LLInterpVal
 {
 public:
-    virtual ~LLInterpVal() {}
+    virtual ~LLInterpVal() = default;
 };
 
 template <typename Type>
@@ -48,7 +48,7 @@ class LLInterp
 {
 public:
         LLInterp();
-    virtual ~LLInterp() {}
+    virtual ~LLInterp() = default;
 
     virtual void start();
     virtual void update(const F32 time) = 0;

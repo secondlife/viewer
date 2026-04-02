@@ -137,9 +137,9 @@ class LLCertificate : public LLThreadSafeRefCount
 {
     LOG_CLASS(LLCertificate);
 public:
-    LLCertificate() {}
+    LLCertificate() = default;
 
-    virtual ~LLCertificate() {}
+    virtual ~LLCertificate() = default;
 
     // return a PEM encoded certificate.  The encoding
     // includes the -----BEGIN CERTIFICATE----- and end certificate elements
@@ -166,16 +166,16 @@ class LLCertificateVector : public LLThreadSafeRefCount
 
 public:
 
-    LLCertificateVector() {};
-    virtual ~LLCertificateVector() {};
+    LLCertificateVector() = default;
+    virtual ~LLCertificateVector() = default;
 
     // base iterator implementation class, providing
     // the functionality needed for the iterator class.
     class iterator_impl : public LLThreadSafeRefCount
     {
     public:
-        iterator_impl() {};
-        virtual ~iterator_impl() {};
+        iterator_impl() = default;
+        virtual ~iterator_impl() = default;
         virtual void seek(bool incr)=0;
         virtual LLPointer<iterator_impl> clone() const=0;
         virtual bool equals(const LLPointer<iterator_impl>& _iter) const=0;
@@ -189,7 +189,7 @@ public:
         iterator(LLPointer<iterator_impl> impl) : mImpl(impl) {}
         iterator() : mImpl(NULL) {}
         iterator(const iterator& _iter) {mImpl = _iter.mImpl->clone(); }
-        ~iterator() {}
+        ~iterator() = default;
         iterator& operator++() { if(mImpl.notNull()) mImpl->seek(true); return *this;}
         iterator& operator--() { if(mImpl.notNull()) mImpl->seek(false); return *this;}
 
@@ -234,9 +234,9 @@ class LLCertificateChain : virtual public LLCertificateVector
 {
 
 public:
-    LLCertificateChain() {}
+    LLCertificateChain() = default;
 
-    virtual ~LLCertificateChain() {}
+    virtual ~LLCertificateChain() = default;
 
 };
 
@@ -250,8 +250,8 @@ class LLCertificateStore : virtual public LLCertificateVector
 
 public:
 
-    LLCertificateStore() {}
-    virtual ~LLCertificateStore() {}
+    LLCertificateStore() = default;
+    virtual ~LLCertificateStore() = default;
 
     // persist the store
     virtual void save()=0;
@@ -296,7 +296,7 @@ class LLCredential  : public LLThreadSafeRefCount
 {
 public:
 
-    LLCredential() {}
+    LLCredential() = default;
 
     LLCredential(const std::string& grid)
     {
@@ -305,7 +305,7 @@ public:
         mAuthenticator = LLSD::emptyMap();
     }
 
-    virtual ~LLCredential() {}
+    virtual ~LLCredential() = default;
 
     virtual void setCredentialData(const LLSD& identifier, const LLSD& authenticator)
     {
@@ -339,7 +339,7 @@ class LLCertException: public LLException
 {
 public:
     LLCertException(const LLSD& cert_data, const std::string& msg);
-    virtual ~LLCertException() throw() {}
+    virtual ~LLCertException() = default;
     LLSD getCertData() const { return mCertData; }
 protected:
     LLSD mCertData;
@@ -351,7 +351,7 @@ public:
     LLAllocationCertException(const LLSD& cert_data) : LLCertException(cert_data, "CertAllocationFailure")
     {
     }
-    virtual ~LLAllocationCertException() throw() {}
+    virtual ~LLAllocationCertException() = default;
 protected:
 };
 
@@ -361,7 +361,7 @@ public:
     LLInvalidCertificate(const LLSD& cert_data) : LLCertException(cert_data, "CertInvalid")
     {
     }
-    virtual ~LLInvalidCertificate() throw() {}
+    virtual ~LLInvalidCertificate() = default;
 protected:
 };
 
@@ -371,7 +371,7 @@ public:
     LLCertValidationTrustException(const LLSD& cert_data) : LLCertException(cert_data, "CertUntrusted")
     {
     }
-    virtual ~LLCertValidationTrustException() throw() {}
+    virtual ~LLCertValidationTrustException() = default;
 protected:
 };
 
@@ -383,7 +383,7 @@ public:
     {
         mHostname = hostname;
     }
-    virtual ~LLCertValidationHostnameException() throw() {}
+    virtual ~LLCertValidationHostnameException() = default;
     std::string getHostname() { return mHostname; }
 protected:
     std::string mHostname;
@@ -397,7 +397,7 @@ public:
     {
         mTime = current_time;
     }
-    virtual ~LLCertValidationExpirationException() throw() {}
+    virtual ~LLCertValidationExpirationException() = default;
     LLDate GetTime() { return mTime; }
 protected:
     LLDate mTime;
@@ -409,7 +409,7 @@ public:
     LLCertKeyUsageValidationException(const LLSD& cert_data) : LLCertException(cert_data, "CertKeyUsage")
     {
     }
-    virtual ~LLCertKeyUsageValidationException() throw() {}
+    virtual ~LLCertKeyUsageValidationException() = default;
 protected:
 };
 
@@ -419,7 +419,7 @@ public:
     LLCertBasicConstraintsValidationException(const LLSD& cert_data) : LLCertException(cert_data, "CertBasicConstraints")
     {
     }
-    virtual ~LLCertBasicConstraintsValidationException() throw() {}
+    virtual ~LLCertBasicConstraintsValidationException() = default;
 protected:
 };
 
@@ -429,7 +429,7 @@ public:
     LLCertValidationInvalidSignatureException(const LLSD& cert_data) : LLCertException(cert_data, "CertInvalidSignature")
     {
     }
-    virtual ~LLCertValidationInvalidSignatureException() throw() {}
+    virtual ~LLCertValidationInvalidSignatureException() = default;
 protected:
 };
 
@@ -440,8 +440,8 @@ class LLSecAPIHandler : public LLThreadSafeRefCount
 public:
 
 
-    LLSecAPIHandler() {}
-    virtual ~LLSecAPIHandler() {}
+    LLSecAPIHandler() = default;
+    virtual ~LLSecAPIHandler() = default;
 
     // initialize the SecAPIHandler
     virtual void init() {};

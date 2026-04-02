@@ -89,7 +89,7 @@ namespace LLInitParam
 
 struct LL_COORD_FLOATER
 {
-    typedef F32 value_t;
+    using value_t = F32;
 
     LLCoordCommon convertToCommon() const;
     void convertFromCommon(const LLCoordCommon& from);
@@ -99,9 +99,9 @@ protected:
 
 struct LLCoordFloater : LLCoord<LL_COORD_FLOATER>
 {
-    typedef LLCoord<LL_COORD_FLOATER> coord_t;
+    using coord_t = LLCoord<LL_COORD_FLOATER>;
 
-    LLCoordFloater() {}
+    LLCoordFloater() = default;
     LLCoordFloater(F32 x, F32 y, LLFloater& floater);
     LLCoordFloater(const LLCoordCommon& other, LLFloater& floater);
 
@@ -513,8 +513,8 @@ private:
 
     bool            mFirstLook;         // true if the _next_ time this floater is visible will be the first time in the session that it is visible.
 
-    typedef std::set<LLHandle<LLFloater> > handle_set_t;
-    typedef std::set<LLHandle<LLFloater> >::iterator handle_set_iter_t;
+    using handle_set_t = std::set<LLHandle<LLFloater> >;
+    using handle_set_iter_t = std::set<LLHandle<LLFloater> >::iterator;
     handle_set_t    mDependents;
     bool            mTranslateWithDependents { false };
 
@@ -536,7 +536,7 @@ private:
     static std::string  sButtonToolTips[BUTTON_COUNT];
     static std::string  sButtonToolTipsIndex[BUTTON_COUNT];
 
-    typedef void(*click_callback)(LLFloater*);
+    using click_callback = void(*)(LLFloater*);
     static click_callback sButtonCallbacks[BUTTON_COUNT];
 
     bool            mHasBeenDraggedWhileMinimized;
@@ -578,7 +578,7 @@ public:
     void            setMinimizePositionVerticalOffset(S32 offset) { mMinimizePositionVOffset = offset; }
     void            getMinimizePosition( S32 *left, S32 *bottom);
     void            restoreAll();       // un-minimize all floaters
-    typedef std::set<LLView*> skip_list_t;
+    using skip_list_t = std::set<LLView*>;
     void pushVisibleAll(bool visible, const skip_list_t& skip_list = skip_list_t());
     void popVisibleAll(const skip_list_t& skip_list = skip_list_t());
 
@@ -626,7 +626,7 @@ private:
     S32             mSnapOffsetBottom;
     S32             mSnapOffsetRight;
     S32             mMinimizePositionVOffset;
-    typedef std::vector<std::pair<LLHandle<LLFloater>, boost::signals2::connection> > hidden_floaters_t;
+    using hidden_floaters_t = std::vector<std::pair<LLHandle<LLFloater>, boost::signals2::connection> >;
     hidden_floaters_t mHiddenFloaters;
     LLHandle<LLFloater> mFrontChildHandle;
 };

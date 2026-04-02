@@ -36,7 +36,7 @@ class LLPanelGroupBulkBan : public LLPanelGroupBulk
 {
 public:
     LLPanelGroupBulkBan(const LLUUID& group_id);
-    ~LLPanelGroupBulkBan() {}
+    ~LLPanelGroupBulkBan() = default;
 
     virtual bool postBuild();
 

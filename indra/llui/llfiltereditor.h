@@ -43,7 +43,7 @@ class LLFilterEditor : public LLSearchEditor
 public:
     struct Params : public LLInitParam::Block<Params, LLSearchEditor::Params>
     {};
-    virtual ~LLFilterEditor() {}
+    virtual ~LLFilterEditor() = default;
 
 protected:
     LLFilterEditor(const Params&);

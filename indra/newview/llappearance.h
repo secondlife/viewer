@@ -32,7 +32,7 @@
 class LLAppearance
 {
 public:
-    LLAppearance()                                      {}
+    LLAppearance() = default;
     ~LLAppearance()                                     { mParamMap.clear(); }
 
     void    addParam( S32 id, F32 value )               { mParamMap[id] = value; }

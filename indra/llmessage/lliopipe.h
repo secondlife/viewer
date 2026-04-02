@@ -83,12 +83,12 @@ public:
      * as you need, but if you need to maintain a reference to one,
      * you need to hold a ptr_t.
      */
-    typedef boost::intrusive_ptr<LLIOPipe> ptr_t;
+    using ptr_t = boost::intrusive_ptr<LLIOPipe>;
 
     /**
      * @brief Scattered memory container.
      */
-    typedef std::shared_ptr<LLBufferArray> buffer_ptr_t;
+    using buffer_ptr_t = std::shared_ptr<LLBufferArray>;
 
     /**
      * @brief Enumeration for IO return codes

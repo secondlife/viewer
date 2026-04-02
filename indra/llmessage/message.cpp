@@ -3405,7 +3405,7 @@ std::string get_shared_secret()
     return g_shared_secret;
 }
 
-typedef std::map<const char*, LLMessageBuilder*> BuilderMap;
+using BuilderMap = std::map<const char*, LLMessageBuilder*>;
 
 void LLMessageSystem::newMessageFast(const char *name)
 {

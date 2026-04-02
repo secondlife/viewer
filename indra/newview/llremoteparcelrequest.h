@@ -62,7 +62,7 @@ class LLRemoteParcelInfoObserver
 {
 public:
     LLRemoteParcelInfoObserver() { mObserverHandle.bind(this); }
-    virtual ~LLRemoteParcelInfoObserver() {}
+    virtual ~LLRemoteParcelInfoObserver() = default;
     virtual void processParcelInfo(const LLParcelData& parcel_data) = 0;
     virtual void setParcelID(const LLUUID& parcel_id) = 0;
     virtual void setErrorStatus(S32 status, const std::string& reason) = 0;
@@ -75,7 +75,7 @@ protected:
 class LLRemoteParcelInfoProcessor : public LLSingleton<LLRemoteParcelInfoProcessor>
 {
     LLSINGLETON_EMPTY_CTOR(LLRemoteParcelInfoProcessor);
-    virtual ~LLRemoteParcelInfoProcessor() {}
+    virtual ~LLRemoteParcelInfoProcessor() = default;
 
 public:
     void addObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer);

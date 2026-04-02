@@ -51,7 +51,7 @@ protected:
     mSourceType(CHAT_SOURCE_OBJECT)
     {};
 public:
-    ~LLFloaterIMNearbyChatToastPanel(){}
+    ~LLFloaterIMNearbyChatToastPanel() = default;
 
     static LLFloaterIMNearbyChatToastPanel* createInstance();
 

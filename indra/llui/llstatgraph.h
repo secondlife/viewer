@@ -129,7 +129,7 @@ private:
             return mValue < other.mValue;
         }
     };
-    typedef std::vector<Threshold> threshold_vec_t;
+    using threshold_vec_t = std::vector<Threshold>;
     threshold_vec_t mThresholds;
 };
 

@@ -983,7 +983,7 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
     LL_PROFILE_ZONE_SCOPED;
     LL_INFOS("ShaderMgr") << "Initializing shader cache" << LL_ENDL;
 
-    mShaderCacheEnabled = gGLManager.mGLVersion >= 4.09 && enabled;
+    mShaderCacheEnabled = enabled;
 
     if(!mShaderCacheEnabled || mShaderCacheVersion.notNull())
         return;

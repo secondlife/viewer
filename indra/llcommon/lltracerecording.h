@@ -43,7 +43,7 @@
 class LLStopWatchControlsMixinCommon
 {
 public:
-    virtual ~LLStopWatchControlsMixinCommon() {}
+    virtual ~LLStopWatchControlsMixinCommon() = default;
 
     enum EPlayState
     {

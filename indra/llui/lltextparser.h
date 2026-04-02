@@ -41,10 +41,10 @@ class LLTextParser : public LLSingleton<LLTextParser>
     LLSINGLETON(LLTextParser);
 
 public:
-    typedef enum e_condition_type { CONTAINS, MATCHES, STARTS_WITH, ENDS_WITH } EConditionType;
-    typedef enum e_highlight_type { PART, ALL } EHighlightType;
-    typedef enum e_highlight_position { WHOLE, START, MIDDLE, END } EHighlightPosition;
-    typedef enum e_dialog_action { ACTION_NONE, ACTION_CLOSE, ACTION_ADD, ACTION_COPY, ACTION_UPDATE } EDialogAction;
+    enum EConditionType { CONTAINS, MATCHES, STARTS_WITH, ENDS_WITH };
+    enum EHighlightType { PART, ALL };
+    enum EHighlightPosition { WHOLE, START, MIDDLE, END };
+    enum EDialogAction { ACTION_NONE, ACTION_CLOSE, ACTION_ADD, ACTION_COPY, ACTION_UPDATE };
 
     using parser_out_vec_t = std::vector<std::pair<std::string, LLUIColor>>;
 

@@ -48,7 +48,7 @@ public:
 
     LLInventoryLinkReplaceDropTarget(const Params& p)
         : LLLineEditor(p) {}
-    ~LLInventoryLinkReplaceDropTarget() {}
+    ~LLInventoryLinkReplaceDropTarget() = default;
 
     typedef boost::signals2::signal<void(const LLUUID& id)> item_dad_callback_t;
     boost::signals2::connection setDADCallback(const item_dad_callback_t::slot_type& cb)

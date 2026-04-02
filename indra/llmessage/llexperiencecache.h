@@ -46,8 +46,8 @@ class LLExperienceCache: public LLSingleton < LLExperienceCache >
     LLSINGLETON(LLExperienceCache);
 
 public:
-    typedef std::function<std::string(const std::string &)> CapabilityQuery_t;
-    typedef std::function<void(const LLSD &)> ExperienceGetFn_t;
+    using CapabilityQuery_t = std::function<std::string(const std::string &)>;
+    using ExperienceGetFn_t = std::function<void(const LLSD &)>;
 
     void setCapabilityQuery(CapabilityQuery_t queryfn);
     void cleanup();
@@ -108,19 +108,19 @@ private:
 
     virtual void initSingleton() override;
 
-    typedef std::function<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLCore::HttpRequest::ptr_t, std::string)> permissionInvoker_fn;
+    using permissionInvoker_fn = std::function<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, LLCore::HttpRequest::ptr_t, std::string)>;
 
     // Callback types for get()
-    typedef boost::signals2::signal < void(const LLSD &) > callback_signal_t;
-    typedef std::shared_ptr<callback_signal_t> signal_ptr;
+    using callback_signal_t = boost::signals2::signal < void(const LLSD &) >;
+    using signal_ptr = std::shared_ptr<callback_signal_t>;
     // May have multiple callbacks for a single ID, which are
     // represented as multiple slots bound to the signal.
     // Avoid copying signals via pointers.
-    typedef std::map<LLUUID, signal_ptr> signal_map_t;
-    typedef std::map<LLUUID, LLSD> cache_t;
+    using signal_map_t = std::map<LLUUID, signal_ptr>;
+    using cache_t = std::map<LLUUID, LLSD>;
 
-    typedef std::set<LLUUID> RequestQueue_t;
-    typedef std::map<LLUUID, F64> PendingQueue_t;
+    using RequestQueue_t = std::set<LLUUID>;
+    using PendingQueue_t = std::map<LLUUID, F64>;
 
     //--------------------------------------------
     static const std::string PRIVATE_KEY;   // "private_id"

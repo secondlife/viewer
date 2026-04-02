@@ -47,9 +47,9 @@ class LLWidgetTypeRegistry
 
 
 // global static instance for registering all widget types
-typedef std::function<LLView* (LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)> LLWidgetCreatorFunc;
+using LLWidgetCreatorFunc = std::function<LLView* (LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)>;
 
-typedef LLRegistry<std::string, LLWidgetCreatorFunc> widget_registry_t;
+using widget_registry_t = LLRegistry<std::string, LLWidgetCreatorFunc>;
 
 class LLChildRegistryRegistry
 : public LLRegistrySingleton<std::type_index, widget_registry_t, LLChildRegistryRegistry>
@@ -66,7 +66,7 @@ public:
     /*virtual*/ std::string getCurrentElementName() { return LLStringUtil::null; }
     /*virtual*/ std::string getCurrentFileName() { return LLStringUtil::null; }
     LLXSDWriter();
-    ~LLXSDWriter();
+    ~LLXSDWriter() = default;
 
 protected:
     void writeAttribute(const std::string& type, const Parser::name_stack_t&, S32 min_count, S32 max_count, const std::vector<std::string>* possible_values);
@@ -75,8 +75,8 @@ protected:
     LLXMLNodePtr mElementNode;
     LLXMLNodePtr mSchemaNode;
 
-    typedef std::set<std::string> string_set_t;
-    typedef std::map<LLXMLNodePtr, string_set_t> attributes_map_t;
+    using string_set_t = std::set<std::string>;
+    using attributes_map_t = std::map<LLXMLNodePtr, string_set_t>;
     attributes_map_t    mAttributesWritten;
 };
 
@@ -99,7 +99,7 @@ LOG_CLASS(LLXUIParser);
 
 public:
     LLXUIParser();
-    typedef LLInitParam::Parser::name_stack_t name_stack_t;
+    using name_stack_t = LLInitParam::Parser::name_stack_t;
 
     /*virtual*/ std::string getCurrentElementName();
     /*virtual*/ std::string getCurrentFileName() { return mCurFileName; }
@@ -174,7 +174,7 @@ private:
     // Root of the widget XML sub-tree, for example, "line_editor"
     LLXMLNodePtr                    mWriteRootNode;
 
-    typedef std::map<std::string, LLXMLNodePtr> out_nodes_t;
+    using out_nodes_t = std::map<std::string, LLXMLNodePtr>;
     out_nodes_t                     mOutNodes;
     LLXMLNodePtr                    mLastWrittenChild;
     S32                             mCurReadDepth;
@@ -198,8 +198,8 @@ class LLSimpleXUIParser : public LLInitParam::Parser
 {
 LOG_CLASS(LLSimpleXUIParser);
 public:
-    typedef LLInitParam::Parser::name_stack_t name_stack_t;
-    typedef LLInitParam::BaseBlock* (*element_start_callback_t)(LLSimpleXUIParser&, const char* block_name);
+    using name_stack_t = LLInitParam::Parser::name_stack_t;
+    using element_start_callback_t = LLInitParam::BaseBlock*(*)(LLSimpleXUIParser&, const char* block_name);
 
     LLSimpleXUIParser(element_start_callback_t element_cb = NULL);
     virtual ~LLSimpleXUIParser();

@@ -78,11 +78,11 @@ struct Occurs : public LLInitParam::Block<Occurs>
     {}
 };
 
-typedef enum
+enum EUse
 {
     USE_REQUIRED,
     USE_OPTIONAL
-} EUse;
+};
 
 namespace LLInitParam
 {
@@ -333,7 +333,6 @@ LLXSDWriter::LLXSDWriter()
     registerInspectFunc<LLSD>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
 }
 
-LLXSDWriter::~LLXSDWriter() {}
 
 void LLXSDWriter::writeXSD(const std::string& type_name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace)
 {
@@ -699,7 +698,7 @@ void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, cons
 
 bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
 {
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep(".");
 
     bool values_parsed = false;
@@ -825,7 +824,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
 
 bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
 {
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep(".");
 
     bool any_parsed = false;
@@ -1466,7 +1465,7 @@ void LLSimpleXUIParser::startElement(const char *name, const char **atts)
 {
     processText();
 
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep(".");
 
     if (mElementCB)
@@ -1567,7 +1566,7 @@ void LLSimpleXUIParser::endElement(const char *name)
 
 bool LLSimpleXUIParser::readAttributes(const char **atts)
 {
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep(".");
 
     bool any_parsed = false;

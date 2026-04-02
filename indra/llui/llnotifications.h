@@ -102,14 +102,14 @@
 #include "llnotificationslistener.h"
 
 class LLAvatarName;
-typedef enum e_notification_priority
+enum ENotificationPriority
 {
     NOTIFICATION_PRIORITY_UNSPECIFIED,
     NOTIFICATION_PRIORITY_LOW,
     NOTIFICATION_PRIORITY_NORMAL,
     NOTIFICATION_PRIORITY_HIGH,
     NOTIFICATION_PRIORITY_CRITICAL
-} ENotificationPriority;
+};
 
 struct NotificationPriorityValues : public LLInitParam::TypeValuesHelper<ENotificationPriority, NotificationPriorityValues>
 {
@@ -119,8 +119,8 @@ struct NotificationPriorityValues : public LLInitParam::TypeValuesHelper<ENotifi
 class LLNotificationResponderInterface
 {
 public:
-    LLNotificationResponderInterface(){};
-    virtual ~LLNotificationResponderInterface(){};
+    LLNotificationResponderInterface() = default;
+    virtual ~LLNotificationResponderInterface() = default;
 
     virtual void handleRespond(const LLSD& notification, const LLSD& response) = 0;
 
@@ -129,12 +129,12 @@ public:
     virtual void fromLLSD(const LLSD& params) = 0;
 };
 
-typedef std::function<void (const LLSD&, const LLSD&)> LLNotificationResponder;
+using LLNotificationResponder = std::function<void (const LLSD&, const LLSD&)>;
 
-typedef std::shared_ptr<LLNotificationResponderInterface> LLNotificationResponderPtr;
+using LLNotificationResponderPtr = std::shared_ptr<LLNotificationResponderInterface>;
 
-typedef LLFunctorRegistry<LLNotificationResponder> LLNotificationFunctorRegistry;
-typedef LLFunctorRegistration<LLNotificationResponder> LLNotificationFunctorRegistration;
+using LLNotificationFunctorRegistry = LLFunctorRegistry<LLNotificationResponder>;
+using LLNotificationFunctorRegistration = LLFunctorRegistration<LLNotificationResponder>;
 
 // context data that can be looked up via a notification's payload by the display logic
 // derive from this class to implement specific contexts
@@ -146,7 +146,7 @@ public:
     {
     }
 
-    virtual ~LLNotificationContext() {}
+    virtual ~LLNotificationContext() = default;
 
     LLSD asLLSD() const
     {
@@ -232,7 +232,7 @@ public:
         Params();
     };
 
-    typedef enum e_ignore_type
+    enum EIgnoreType
     {
         IGNORE_CHECKBOX_ONLY = -1, // ignore won't be handled, will set value/checkbox only
         IGNORE_NO = 0,
@@ -240,7 +240,7 @@ public:
         IGNORE_WITH_DEFAULT_RESPONSE_SESSION_ONLY,
         IGNORE_WITH_LAST_RESPONSE,
         IGNORE_SHOW_AGAIN
-    } EIgnoreType;
+    };
 
     LLNotificationForm();
     LLNotificationForm(const LLNotificationForm&);
@@ -276,19 +276,19 @@ private:
     bool                                mInvertSetting;
 };
 
-typedef std::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
+using LLNotificationFormPtr = std::shared_ptr<LLNotificationForm>;
 
 
 struct LLNotificationTemplate;
 
 // we want to keep a map of these by name, and it's best to manage them
 // with smart pointers
-typedef std::shared_ptr<LLNotificationTemplate> LLNotificationTemplatePtr;
+using LLNotificationTemplatePtr = std::shared_ptr<LLNotificationTemplate>;
 
 
 struct LLNotificationVisibilityRule;
 
-typedef std::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibilityRulePtr;
+using LLNotificationVisibilityRulePtr = std::shared_ptr<LLNotificationVisibilityRule>;
 
 /**
  * @class LLNotification
@@ -438,11 +438,11 @@ public:
 
     void setResponseFunctor(const LLNotificationResponderPtr& responder);
 
-    typedef enum e_response_template_type
+    enum EResponseTemplateType
     {
         WITHOUT_DEFAULT_BUTTON,
         WITH_DEFAULT_BUTTON
-    } EResponseTemplateType;
+    };
 
     // return response LLSD filled in with default form contents and (optionally) the default button selected
     LLSD getResponseTemplate(EResponseTemplateType type = WITHOUT_DEFAULT_BUTTON);
@@ -569,14 +569,14 @@ public:
     bool hasFormElements() const;
     void playSound();
 
-    typedef enum e_combine_behavior
+    enum ECombineBehavior
     {
         REPLACE_WITH_NEW,
         COMBINE_WITH_NEW,
         KEEP_OLD,
         CANCEL_OLD
 
-    } ECombineBehavior;
+    };
 
     ECombineBehavior getCombineBehavior() const;
 
@@ -646,7 +646,7 @@ public:
 
     bool matchesTag(std::string_view tag);
 
-    virtual ~LLNotification() {}
+    virtual ~LLNotification() = default;
 };
 
 std::ostream& operator<<(std::ostream& s, const LLNotification& notification);
@@ -656,21 +656,21 @@ namespace LLNotificationFilters
     // a sample filter
     bool includeEverything(LLNotificationPtr p);
 
-    typedef enum e_comparison
+    enum EComparison
     {
         EQUAL,
         LESS,
         GREATER,
         LESS_EQUAL,
         GREATER_EQUAL
-    } EComparison;
+    };
 
     // generic filter functor that takes method or member variable reference
     template<typename T>
     struct filterBy
     {
-        typedef std::function<T (LLNotificationPtr)>  field_t;
-        typedef typename std::remove_reference<T>::type       value_t;
+        using field_t = std::function<T (LLNotificationPtr)>;
+        using value_t = typename std::remove_reference<T>::type;
 
         filterBy(field_t field, value_t value, EComparison comparison = EQUAL)
             :   mField(field),
@@ -715,9 +715,9 @@ namespace LLNotificationComparators
     };
 };
 
-typedef std::function<bool (LLNotificationPtr)> LLNotificationFilter;
-typedef std::set<LLNotificationPtr, LLNotificationComparators::orderByUUID> LLNotificationSet;
-typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
+using LLNotificationFilter = std::function<bool (LLNotificationPtr)>;
+using LLNotificationSet = std::set<LLNotificationPtr, LLNotificationComparators::orderByUUID>;
+using LLNotificationMap = std::multimap<std::string, LLNotificationPtr>;
 
 // ========================================================
 // Abstract base class (interface) for a channel; also used for the master container.
@@ -815,7 +815,7 @@ protected:
 // destroy it, but if it becomes necessary to do so, the shared_ptr model
 // will ensure that we don't leak resources.
 class LLNotificationChannel;
-typedef boost::intrusive_ptr<LLNotificationChannel> LLNotificationChannelPtr;
+using LLNotificationChannelPtr = boost::intrusive_ptr<LLNotificationChannel>;
 
 // manages a list of notifications
 // Note that if this is ever copied around, we might find ourselves with multiple copies
@@ -843,14 +843,14 @@ public:
     LLNotificationChannel(const std::string& name, const std::string& parent, LLNotificationFilter filter);
 
     virtual ~LLNotificationChannel();
-    typedef LLNotificationSet::iterator Iterator;
+    using Iterator = LLNotificationSet::iterator;
 
     // Non-copyable
     LLNotificationChannel(const LLNotificationChannel&) = delete;
     LLNotificationChannel& operator=(const LLNotificationChannel&) = delete;
 
     std::string getName() const { return mName; }
-    typedef std::vector<std::string>::const_iterator parents_iter;
+    using parents_iter = std::vector<std::string>::const_iterator;
     boost::iterator_range<parents_iter> getParents() const
     {
         return boost::iterator_range<parents_iter>(mParents);
@@ -860,7 +860,7 @@ public:
     S32 size() const;
     size_t size();
 
-    typedef std::function<void(LLNotificationPtr)> NotificationProcess;
+    using NotificationProcess = std::function<void(LLNotificationPtr)>;
     void forEachNotification(NotificationProcess process);
 
     std::string summarize();
@@ -943,10 +943,10 @@ public:
     LLNotificationTemplatePtr getTemplate(std::string_view name);
 
     // get the whole collection
-    typedef std::vector<std::string> TemplateNames;
+    using TemplateNames = std::vector<std::string>;
     TemplateNames getTemplateNames() const;  // returns a list of notification names
 
-    typedef std::unordered_map<std::string, LLNotificationTemplatePtr, ll::string_hash, std::equal_to<>> TemplateMap;
+    using TemplateMap = std::unordered_map<std::string, LLNotificationTemplatePtr, ll::string_hash, std::equal_to<>>;
 
     TemplateMap::const_iterator templatesBegin() { return mTemplates.begin(); }
     TemplateMap::const_iterator templatesEnd() { return mTemplates.end(); }
@@ -954,7 +954,7 @@ public:
     // test for existence
     bool templateExists(std::string_view name);
 
-    typedef std::list<LLNotificationVisibilityRulePtr> VisibilityRuleList;
+    using VisibilityRuleList = std::list<LLNotificationVisibilityRulePtr>;
 
     void forceResponse(const LLNotification::Params& params, S32 option);
 
@@ -992,7 +992,7 @@ private:
 
     LLNotificationMap mUniqueNotifications;
 
-    typedef std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>> GlobalStringMap;
+    using GlobalStringMap = std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>>;
     GlobalStringMap mGlobalStrings;
 
     bool mIgnoreAllNotifications;
@@ -1091,7 +1091,7 @@ public:
         mHistory.clear();
     }
 
-    typedef std::vector<LLNotificationPtr> history_list_t;
+    using history_list_t = std::vector<LLNotificationPtr>;
     history_list_t::iterator beginHistory() { sortHistory(); return mHistory.begin(); }
     history_list_t::iterator endHistory() { return mHistory.end(); }
 

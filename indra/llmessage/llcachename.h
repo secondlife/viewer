@@ -35,13 +35,11 @@ class LLHost;
 class LLUUID;
 
 
-typedef boost::signals2::signal<void (const LLUUID& id,
-                                      const std::string& name,
-                                      bool is_group)> LLCacheNameSignal;
-typedef LLCacheNameSignal::slot_type LLCacheNameCallback;
+using LLCacheNameSignal = boost::signals2::signal<void (const LLUUID& id, const std::string& name, bool is_group)>;
+using LLCacheNameCallback = LLCacheNameSignal::slot_type;
 
 // Old callback with user data for compatibility
-typedef void (*old_callback_t)(const LLUUID&, const std::string&, bool, void*);
+using old_callback_t = void(*)(const LLUUID&, const std::string&, bool, void*);
 
 // Here's the theory:
 // If you request a name that isn't in the cache, it returns "waiting"

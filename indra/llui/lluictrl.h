@@ -48,13 +48,13 @@ class LLUICtrl
     : public LLView, public boost::signals2::trackable
 {
 public:
-    typedef std::function<void (LLUICtrl* ctrl, const LLSD& param)> commit_callback_t;
-    typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> commit_signal_t;
+    using commit_callback_t = std::function<void (LLUICtrl* ctrl, const LLSD& param)>;
+    using commit_signal_t = boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)>;
     // *TODO: add xml support for this type of signal in the future
-    typedef boost::signals2::signal<void (LLUICtrl* ctrl, S32 x, S32 y, MASK mask)> mouse_signal_t;
+    using mouse_signal_t = boost::signals2::signal<void (LLUICtrl* ctrl, S32 x, S32 y, MASK mask)>;
 
-    typedef std::function<bool (LLUICtrl* ctrl, const LLSD& param)> enable_callback_t;
-    typedef boost::signals2::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner> enable_signal_t;
+    using enable_callback_t = std::function<bool (LLUICtrl* ctrl, const LLSD& param)>;
+    using enable_signal_t = boost::signals2::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner>;
 
     struct CallbackParam : public LLInitParam::Block<CallbackParam>
     {

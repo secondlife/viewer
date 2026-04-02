@@ -874,7 +874,7 @@ static const boost::char_separator<char> COMMA_SEPARATOR(",");
 bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age)
 {
     // Split the string on "," to get a list of directives
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     tokenizer directives(cache_control, COMMA_SEPARATOR);
 
     tokenizer::iterator token_it = directives.begin();

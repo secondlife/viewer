@@ -74,7 +74,7 @@ private:
         LLTransactionID         mTransId;
     };
 
-    LLSettingsVOBase() {}
+    LLSettingsVOBase() = default;
 
     static void     onInventoryItemCreated(const LLUUID &inventoryId, LLSettingsBase::ptr_t settings, inventory_result_fn callback);
 

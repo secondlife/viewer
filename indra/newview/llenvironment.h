@@ -255,7 +255,7 @@ public:
         static const U32                NO_ANIMATE_WATER;
 
                                         DayInstance(EnvSelection_t env);
-        virtual                         ~DayInstance() { };
+        virtual                         ~DayInstance() = default;
 
         virtual ptr_t                   clone() const;
 
@@ -323,7 +323,7 @@ public:
     {
     public:
                                     DayTransition(const LLSettingsSky::ptr_t &skystart, const LLSettingsWater::ptr_t &waterstart, DayInstance::ptr_t &end, LLSettingsDay::Seconds time);
-        virtual                     ~DayTransition() { };
+        virtual                     ~DayTransition() = default;
 
         virtual bool                applyTimeDelta(const LLSettingsBase::Seconds& delta) override;
         virtual void                animate() override;

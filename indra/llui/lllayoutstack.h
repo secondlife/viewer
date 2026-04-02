@@ -64,7 +64,7 @@ public:
         Params();
     };
 
-    typedef LayoutStackRegistry child_registry_t;
+    using child_registry_t = LayoutStackRegistry;
 
     virtual ~LLLayoutStack();
 
@@ -75,11 +75,11 @@ public:
     /*virtual*/ bool addChild(LLView* child, S32 tab_group = 0);
     /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
 
-    typedef enum e_animate
+    enum EAnimate
     {
         NO_ANIMATE,
         ANIMATE
-    } EAnimate;
+    };
 
     void addPanel(LLLayoutPanel* panel, EAnimate animate = NO_ANIMATE);
     void collapsePanel(LLPanel* panel, bool collapsed = true);
@@ -104,7 +104,7 @@ private:
 
     const EOrientation mOrientation;
 
-    typedef std::vector<LLLayoutPanel*> e_panel_list_t;
+    using e_panel_list_t = std::vector<LLLayoutPanel*>;
     e_panel_list_t mPanels;
 
     LLLayoutPanel* findEmbeddedPanel(LLPanel* panelp) const;

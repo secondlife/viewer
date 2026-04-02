@@ -340,7 +340,7 @@ class LLPanelGroupBanListSubTab : public LLPanelGroupSubTab
 {
 public:
     LLPanelGroupBanListSubTab();
-    virtual ~LLPanelGroupBanListSubTab() {}
+    virtual ~LLPanelGroupBanListSubTab() = default;
 
     virtual bool postBuildSubTab(LLView* root);
 

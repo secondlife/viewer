@@ -189,7 +189,7 @@ class LLPanelRegionGeneralInfo : public LLPanelRegionInfo
 public:
     LLPanelRegionGeneralInfo()
         :   LLPanelRegionInfo() {}
-    ~LLPanelRegionGeneralInfo() {}
+    ~LLPanelRegionGeneralInfo() = default;
 
     bool refreshFromRegion(LLViewerRegion* region) override;
 
@@ -219,7 +219,7 @@ class LLPanelRegionDebugInfo : public LLPanelRegionInfo
 public:
     LLPanelRegionDebugInfo()
         :   LLPanelRegionInfo(), mTargetAvatar() {}
-    ~LLPanelRegionDebugInfo() {}
+    ~LLPanelRegionDebugInfo() = default;
 
     bool postBuild() override;
 
@@ -251,7 +251,7 @@ class LLPanelRegionTerrainInfo : public LLPanelRegionInfo
 
 public:
     LLPanelRegionTerrainInfo();
-    ~LLPanelRegionTerrainInfo() {}
+    ~LLPanelRegionTerrainInfo() = default;
 
     bool postBuild() override;
 
@@ -364,7 +364,7 @@ class LLPanelEstateCovenant : public LLPanelRegionInfo
 {
 public:
     LLPanelEstateCovenant();
-    ~LLPanelEstateCovenant() {}
+    ~LLPanelEstateCovenant() = default;
 
     bool postBuild() override;
     void updateChild(LLUICtrl* child_ctrl) override;
@@ -427,7 +427,7 @@ class LLPanelRegionExperiences : public LLPanelRegionInfo
     LOG_CLASS(LLPanelRegionExperiences);
 
 public:
-    LLPanelRegionExperiences(){}
+    LLPanelRegionExperiences() = default;
     bool postBuild() override;
 
     static bool experienceCoreConfirm(const LLSD& notification, const LLSD& response);

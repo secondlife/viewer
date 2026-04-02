@@ -457,7 +457,7 @@ private:
     struct DispatchEntry
     {
         DispatchEntry(LLEventDispatcher* parent, const std::string& desc);
-        virtual ~DispatchEntry() {} // suppress MSVC warning, sigh
+        virtual ~DispatchEntry() = default;// suppress MSVC warning, sigh
 
         // store a plain dumb back-pointer because the parent
         // LLEventDispatcher manages the lifespan of each DispatchEntry
@@ -842,7 +842,7 @@ public:
     template <typename... ARGS>
     LLDispatchListener(const std::string& pumpname, const std::string& key,
                        ARGS&&... args);
-    virtual ~LLDispatchListener() {}
+    virtual ~LLDispatchListener() = default;
 
 private:
     bool process(const LLSD& event) const;

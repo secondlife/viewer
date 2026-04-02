@@ -2374,7 +2374,7 @@ void LLView::parseFollowsFlags(const LLView::Params& params)
 
         std::string follows = params.follows.string;
 
-        typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+        using tokenizer = boost::tokenizer<boost::char_separator<char> >;
         boost::char_separator<char> sep("|");
         tokenizer tokens(follows, sep);
         tokenizer::iterator token_iter = tokens.begin();

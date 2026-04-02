@@ -63,8 +63,8 @@ public:
     class ItemComparator
     {
     public:
-        ItemComparator() {};
-        virtual ~ItemComparator() {};
+        ItemComparator() = default;
+        virtual ~ItemComparator() = default;
 
         /** Returns true if item1 < item2, false otherwise */
         virtual bool compare(const LLPanel* item1, const LLPanel* item2) const = 0;
@@ -77,7 +77,7 @@ public:
     {
     public:
         ItemReverseComparator(const ItemComparator& comparator) : mComparator(comparator) {};
-        virtual ~ItemReverseComparator() {};
+        virtual ~ItemReverseComparator() = default;
 
         virtual bool compare(const LLPanel* item1, const LLPanel* item2) const
         {
@@ -306,11 +306,11 @@ public:
 protected:
 
     /** Pairs LLpanel representing a single item LLPanel and LLSD associated with it */
-    typedef std::pair<LLPanel*, LLSD> item_pair_t;
+    using item_pair_t = std::pair<LLPanel*, LLSD>;
 
-    typedef std::list<item_pair_t*> pairs_list_t;
-    typedef pairs_list_t::iterator pairs_iterator_t;
-    typedef pairs_list_t::const_iterator pairs_const_iterator_t;
+    using pairs_list_t = std::list<item_pair_t*>;
+    using pairs_iterator_t = pairs_list_t::iterator;
+    using pairs_const_iterator_t = pairs_list_t::const_iterator;
 
     /** An adapter for a ItemComparator */
     struct ComparatorAdaptor

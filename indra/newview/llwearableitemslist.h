@@ -126,7 +126,7 @@ public:
 
     static LLPanelDeletableWearableListItem* create(LLViewerInventoryItem* item);
 
-    virtual ~LLPanelDeletableWearableListItem() {};
+    virtual ~LLPanelDeletableWearableListItem() = default;
 
     /*virtual*/ bool postBuild();
 
@@ -145,7 +145,7 @@ class LLPanelAttachmentListItem : public LLPanelDeletableWearableListItem
     LOG_CLASS(LLPanelAttachmentListItem);
 public:
     static LLPanelAttachmentListItem* create(LLViewerInventoryItem* item);
-    virtual ~LLPanelAttachmentListItem() {};
+    virtual ~LLPanelAttachmentListItem() = default;
 
     /** Set item title. Joint name is added to the title in parenthesis */
     /*virtual*/ void updateItem(const std::string& name,
@@ -268,8 +268,8 @@ class LLWearableListItemComparator : public LLFlatListView::ItemComparator
     LOG_CLASS(LLWearableListItemComparator);
 
 public:
-    LLWearableListItemComparator() {};
-    virtual ~LLWearableListItemComparator() {};
+    LLWearableListItemComparator() = default;
+    virtual ~LLWearableListItemComparator() = default;
 
     virtual bool compare(const LLPanel* item1, const LLPanel* item2) const
     {
@@ -304,8 +304,8 @@ class LLWearableItemNameComparator : public LLWearableListItemComparator
     LOG_CLASS(LLWearableItemNameComparator);
 
 public:
-    LLWearableItemNameComparator() {};
-    virtual ~LLWearableItemNameComparator() {};
+    LLWearableItemNameComparator() = default;
+    virtual ~LLWearableItemNameComparator() = default;
 
 protected:
     /*virtual*/ bool doCompare(const LLPanelInventoryListItemBase* wearable_item1, const LLPanelInventoryListItemBase* wearable_item2) const;
@@ -323,7 +323,7 @@ class LLWearableItemTypeNameComparator : public LLWearableItemNameComparator
 public:
 
     LLWearableItemTypeNameComparator();
-    virtual ~LLWearableItemTypeNameComparator() {};
+    virtual ~LLWearableItemTypeNameComparator() = default;
 
     enum ETypeListOrder
     {
@@ -405,7 +405,7 @@ class LLWearableItemCreationDateComparator : public LLWearableItemNameComparator
 
 public:
     // clang demands a default ctor here
-    LLWearableItemCreationDateComparator() {}
+    LLWearableItemCreationDateComparator() = default;
 
 protected:
     /*virtual*/ bool doCompare(const LLPanelInventoryListItemBase* item1, const LLPanelInventoryListItemBase* item2) const;
@@ -513,8 +513,8 @@ protected:
 class LLFindOutfitItems : public LLInventoryCollectFunctor
 {
 public:
-    LLFindOutfitItems() {}
-    virtual ~LLFindOutfitItems() {}
+    LLFindOutfitItems() = default;
+    virtual ~LLFindOutfitItems() = default;
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 };
 

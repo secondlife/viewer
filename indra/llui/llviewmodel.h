@@ -49,9 +49,9 @@ class LLTextViewModel;
 class LLListViewModel;
 // Because LLViewModel is derived from LLRefCount, always pass, store
 // and return LLViewModelPtr rather than plain LLViewModel*.
-typedef LLPointer<LLViewModel> LLViewModelPtr;
-typedef LLPointer<LLTextViewModel> LLTextViewModelPtr;
-typedef LLPointer<LLListViewModel> LLListViewModelPtr;
+using LLViewModelPtr = LLPointer<LLViewModel>;
+using LLTextViewModelPtr = LLPointer<LLTextViewModel>;
+using LLListViewModelPtr = LLPointer<LLListViewModel>;
 
 /**
  * LLViewModel stores a scalar LLSD data item, the current display value of a
@@ -137,7 +137,7 @@ private:
 class LLListViewModel: public LLViewModel
 {
 public:
-    LLListViewModel() {}
+    LLListViewModel() = default;
     LLListViewModel(const LLSD& values);
 
     virtual void addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM);

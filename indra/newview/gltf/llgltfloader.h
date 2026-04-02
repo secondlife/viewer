@@ -94,7 +94,7 @@ class LLGLTFLoader : public LLModelLoader
                     U32                                               debugMode,
                     std::vector<LLJointData>                          viewer_skeleton); //,
                     //bool                                            preprocess );
-    virtual ~LLGLTFLoader();
+    virtual ~LLGLTFLoader() = default;
 
     virtual bool OpenFile(const std::string &filename);
 

@@ -43,8 +43,8 @@ class LLAvatarNameCache : public LLSingleton<LLAvatarNameCache>
     LLSINGLETON(LLAvatarNameCache);
     ~LLAvatarNameCache();
 public:
-    typedef boost::signals2::signal<void (void)> use_display_name_signal_t;
-    typedef std::function<void (const LLUUID id, const LLAvatarName& av_name)> account_name_changed_callback_t;
+    using use_display_name_signal_t = boost::signals2::signal<void (void)>;
+    using account_name_changed_callback_t = std::function<void (const LLUUID id, const LLAvatarName& av_name)>;
 
     // Import/export the name cache to file.
     bool importFile(std::istream& istr);
@@ -70,11 +70,9 @@ public:
     bool getName(const LLUUID& agent_id, LLAvatarName *av_name);
 
     // Callback types for get() below
-    typedef boost::signals2::signal<
-        void (const LLUUID& agent_id, const LLAvatarName& av_name)>
-            callback_signal_t;
-    typedef callback_signal_t::slot_type callback_slot_t;
-    typedef boost::signals2::connection callback_connection_t;
+    using callback_signal_t = boost::signals2::signal< void (const LLUUID& agent_id, const LLAvatarName& av_name)>;
+    using callback_slot_t = callback_signal_t::slot_type;
+    using callback_connection_t = boost::signals2::connection;
 
     // Fetches name information and calls callbacks.
     // If name information is in cache, callbacks will be called immediately.

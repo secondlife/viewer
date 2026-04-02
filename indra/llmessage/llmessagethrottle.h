@@ -32,12 +32,12 @@
 #include "linden_common.h"
 #include "lluuid.h"
 
-typedef enum e_message_throttle_categories
+enum EMessageThrottleCats
 {
     MTC_VIEWER_ALERT,
     MTC_AGENT_ALERT,
     MTC_EOF
-} EMessageThrottleCats;
+};
 
 class LLMessageThrottleEntry
 {
@@ -65,11 +65,11 @@ public:
     void pruneEntries();
 
 protected:
-    typedef std::deque<LLMessageThrottleEntry>                          message_list_t;
-    typedef std::deque<LLMessageThrottleEntry>::iterator                message_list_iterator_t;
-    typedef std::deque<LLMessageThrottleEntry>::reverse_iterator        message_list_reverse_iterator_t;
-    typedef std::deque<LLMessageThrottleEntry>::const_iterator          message_list_const_iterator_t;
-    typedef std::deque<LLMessageThrottleEntry>::const_reverse_iterator  message_list_const_reverse_iterator_t;
+    using message_list_t = std::deque<LLMessageThrottleEntry>;
+    using message_list_iterator_t = std::deque<LLMessageThrottleEntry>::iterator;
+    using message_list_reverse_iterator_t = std::deque<LLMessageThrottleEntry>::reverse_iterator;
+    using message_list_const_iterator_t = std::deque<LLMessageThrottleEntry>::const_iterator;
+    using message_list_const_reverse_iterator_t = std::deque<LLMessageThrottleEntry>::const_reverse_iterator;
     message_list_t  mMessageList[MTC_EOF];
 };
 

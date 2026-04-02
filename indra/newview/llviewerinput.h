@@ -39,7 +39,7 @@ class LLNamedFunction
 {
 public:
     LLNamedFunction() : mFunction(nullptr) { };
-    ~LLNamedFunction() { };
+    ~LLNamedFunction() = default;
 
     std::string mName;
     LLKeyFunc   mFunction;

@@ -34,7 +34,7 @@
 const F32 MEAN_COLLISION_TIMEOUT = 5.f;
 const S32 MAX_MEAN_COLLISIONS = 5;
 
-typedef enum e_mean_collision_types
+enum EMeanCollisionType
 {
     MEAN_INVALID,
     MEAN_BUMP,
@@ -43,7 +43,7 @@ typedef enum e_mean_collision_types
     MEAN_SCRIPTED_OBJECT_COLLIDE,
     MEAN_PHYSICAL_OBJECT_COLLIDE,
     MEAN_EOF
-} EMeanCollisionType;
+};
 
 class LLMeanCollisionData
 {

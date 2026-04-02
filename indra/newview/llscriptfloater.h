@@ -156,7 +156,7 @@ public:
      */
     LLScriptFloater(const LLSD& key);
 
-    virtual ~LLScriptFloater(){};
+    virtual ~LLScriptFloater() = default;
 
     /**
      * Toggle existing floater or create and show a new one.

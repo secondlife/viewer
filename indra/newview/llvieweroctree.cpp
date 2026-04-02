@@ -1212,7 +1212,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 
                     LLGLEnable clamp(use_depth_clamp ? GL_DEPTH_CLAMP : 0);
 
-                    U32 mode = gGLManager.mGLVersion >= 3.3f ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED;
+                    U32 mode = GL_ANY_SAMPLES_PASSED;
 
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
                     sPendingQueries.insert(mOcclusionQuery[LLViewerCamera::sCurCameraID]);

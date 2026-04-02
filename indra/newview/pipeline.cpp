@@ -352,7 +352,7 @@ bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
 
     static LLCachedControl<bool> has_emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
     static LLCachedControl<bool> has_hdr(gSavedSettings, "RenderHDREnabled", true);
-    bool hdr = has_hdr() && gGLManager.mGLVersion > 4.05f;
+    bool hdr = has_hdr();
 
     if (!hdr)
     {
@@ -810,7 +810,7 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 
     static LLCachedControl<bool> has_hdr(gSavedSettings, "RenderHDREnabled", true);
-    bool hdr = gGLManager.mGLVersion > 4.05f && has_hdr();
+    bool hdr = has_hdr();
 
     if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
@@ -7914,7 +7914,7 @@ void LLPipeline::renderFinalize()
     glClearColor(0, 0, 0, 0);
 
     static LLCachedControl<bool> has_hdr(gSavedSettings, "RenderHDREnabled", true);
-    bool hdr = gGLManager.mGLVersion > 4.05f && has_hdr();
+    bool hdr = has_hdr();
     if (hdr)
     {
         copyScreenSpaceReflections(&mRT->screen, &mSceneMap);
@@ -10579,11 +10579,6 @@ void LLPipeline::renderRiggedGroups(LLRenderPass* pass, U32 type, bool texture)
 
 void LLPipeline::profileAvatar(LLVOAvatar* avatar, bool profile_attachments)
 {
-    if (gGLManager.mGLVersion < 3.25f)
-    { // profiling requires GL 3.3 or later
-        return;
-    }
-
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
 
     // don't continue to profile an avatar that is known to be too slow

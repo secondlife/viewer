@@ -53,7 +53,7 @@ LLUIColorTable::Params::Params()
 void LLUIColorTable::insertFromParams(const Params& p, string_color_map_t& table)
 {
     // this map will contain all color references after the following loop
-    typedef std::map<std::string, std::string> string_string_map_t;
+    using string_string_map_t = std::map<std::string, std::string>;
     string_string_map_t unresolved_refs;
 
     for(LLInitParam::ParamIterator<ColorEntryParams>::const_iterator it = p.color_entries.begin();
@@ -72,11 +72,11 @@ void LLUIColorTable::insertFromParams(const Params& p, string_color_map_t& table
     }
 
     // maintain an in order queue of visited references for better debugging of cycles
-    typedef std::queue<std::string> string_queue_t;
+    using string_queue_t = std::queue<std::string>;
     string_queue_t ref_chain;
 
     // maintain a map of the previously visited references in the reference chain for detecting cycles
-    typedef std::map<std::string, string_string_map_t::iterator> string_color_ref_iter_map_t;
+    using string_color_ref_iter_map_t = std::map<std::string, string_string_map_t::iterator>;
     string_color_ref_iter_map_t visited_refs;
 
     // loop through the unresolved color references until there are none left

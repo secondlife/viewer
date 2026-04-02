@@ -359,7 +359,7 @@ class LLGeometryManager
 {
 public:
     std::vector<LLFace*> mFaceList;
-    virtual ~LLGeometryManager() { }
+    virtual ~LLGeometryManager() = default;
     virtual void rebuildGeom(LLSpatialGroup* group) = 0;
     virtual void rebuildMesh(LLSpatialGroup* group) = 0;
     virtual void getGeometry(LLSpatialGroup* group) = 0;

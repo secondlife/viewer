@@ -132,7 +132,6 @@ LLFollowCamParams::LLFollowCamParams()
 
 }
 
-LLFollowCamParams::~LLFollowCamParams() { }
 
 //---------------------------------------------------------
 // buncho set methods

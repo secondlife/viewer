@@ -92,7 +92,7 @@ const S32 SELECT_MAX_TES = 32;
 // the operation was successful.
 struct LLSelectedObjectFunctor
 {
-    virtual ~LLSelectedObjectFunctor() {};
+    virtual ~LLSelectedObjectFunctor() = default;
     virtual bool apply(LLViewerObject* object) = 0;
 };
 
@@ -102,25 +102,25 @@ struct LLSelectedObjectFunctor
 // the operation was successful.
 struct LLSelectedNodeFunctor
 {
-    virtual ~LLSelectedNodeFunctor() {};
+    virtual ~LLSelectedNodeFunctor() = default;
     virtual bool apply(LLSelectNode* node) = 0;
 };
 
 struct LLSelectedTEFunctor
 {
-    virtual ~LLSelectedTEFunctor() {};
+    virtual ~LLSelectedTEFunctor() = default;
     virtual bool apply(LLViewerObject* object, S32 face) = 0;
 };
 
 struct LLSelectedTEMaterialFunctor
 {
-    virtual ~LLSelectedTEMaterialFunctor() {};
+    virtual ~LLSelectedTEMaterialFunctor() = default;
     virtual LLMaterialPtr apply(LLViewerObject* object, S32 face, LLTextureEntry* tep, LLMaterialPtr& current_material) = 0;
 };
 
 template <typename T> struct LLSelectedTEGetFunctor
 {
-    virtual ~LLSelectedTEGetFunctor() {};
+    virtual ~LLSelectedTEGetFunctor() = default;
     virtual T get(LLViewerObject* object, S32 te) = 0;
 };
 

@@ -233,15 +233,15 @@ protected:
     U32Milliseconds     mPingDelay;             // raw ping delay
     F32Milliseconds     mPingDelayAveraged;     // averaged ping delay (fast attack/slow decay)
 
-    typedef std::map<TPACKETID, U64Microseconds> packet_time_map;
+    using packet_time_map = std::map<TPACKETID, U64Microseconds>;
 
     packet_time_map                         mPotentialLostPackets;
     packet_time_map                         mRecentlyReceivedReliablePackets;
     std::vector<TPACKETID> mAcks;
     F32 mAckCreationTime; // first ack creation time
 
-    typedef std::map<TPACKETID, LLReliablePacket *> reliable_map;
-    typedef reliable_map::iterator                  reliable_iter;
+    using reliable_map = std::map<TPACKETID, LLReliablePacket *>;
+    using reliable_iter = reliable_map::iterator;
 
     reliable_map                            mUnackedPackets;
     reliable_map                            mFinalRetryPackets;
@@ -311,7 +311,7 @@ public:
 
     void            dumpResends();
 
-    typedef std::map<LLHost, LLCircuitData*> circuit_data_map;
+    using circuit_data_map = std::map<LLHost, LLCircuitData*>;
 
     /**
      * @brief This method gets an iterator range starting after key in
@@ -334,7 +334,7 @@ public:
 protected:
     circuit_data_map mCircuitData;
 
-    typedef std::set<LLCircuitData *, LLCircuitData::less> ping_set_t; // Circuits sorted by next ping time
+    using ping_set_t = std::set<LLCircuitData *, LLCircuitData::less>; // Circuits sorted by next ping time
 
     ping_set_t mPingSet;
 

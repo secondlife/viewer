@@ -49,7 +49,7 @@ public:
 
 public:
     // callback for a function getting a rect valid for control's position
-    typedef std::function<void (LLRect& )> get_allowed_rect_callback_t;
+    using get_allowed_rect_callback_t = std::function<void (LLRect& )>;
 
     LOG_CLASS(LLDockControl);
     LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,

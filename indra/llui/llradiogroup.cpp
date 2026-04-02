@@ -49,7 +49,7 @@ static LLDefaultChildRegistry::Register<LLRadioGroup> r1("radio_group");
 class LLRadioCtrl : public LLCheckBoxCtrl
 {
 public:
-    typedef LLRadioGroup::ItemParams Params;
+    using Params = LLRadioGroup::ItemParams;
     /*virtual*/ ~LLRadioCtrl();
     /*virtual*/ void setValue(const LLSD& value);
 

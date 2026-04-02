@@ -84,7 +84,7 @@ public:
 
     virtual ~LLTextEditor();
 
-    typedef boost::signals2::signal<void (LLTextEditor* caller)> keystroke_signal_t;
+    using keystroke_signal_t = boost::signals2::signal<void (LLTextEditor* caller)>;
 
     void    setKeystrokeCallback(const keystroke_signal_t::slot_type& callback);
 
@@ -164,7 +164,7 @@ public:
     bool            allowsEmbeddedItems() const { return mAllowEmbeddedItems; }
 
     // Autoreplace (formerly part of LLLineEditor)
-    typedef std::function<void(S32&, S32&, LLWString&, S32&, const LLWString&)> autoreplace_callback_t;
+    using autoreplace_callback_t = std::function<void(S32&, S32&, LLWString&, S32&, const LLWString&)>;
     autoreplace_callback_t mAutoreplaceCallback;
     void            setAutoreplaceCallback(autoreplace_callback_t cb) { mAutoreplaceCallback = cb; }
 
@@ -325,7 +325,7 @@ private:
 
     TextCmd*        mLastCmd;
 
-    typedef std::deque<TextCmd*> undo_stack_t;
+    using undo_stack_t = std::deque<TextCmd*>;
     undo_stack_t    mUndoStack;
 
     bool            mTabsToNextField;       // if true, tab moves focus to next field, else inserts spaces

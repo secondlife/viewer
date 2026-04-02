@@ -115,7 +115,7 @@ class LLDoubleDispatch
 {
     using self_type = LLDoubleDispatch<ReturnType, ParamBaseType>;
 public:
-    LLDoubleDispatch() {}
+    LLDoubleDispatch() = default;
 
     /**
      * Call the first matching entry.  If there's no registered Functor
@@ -220,7 +220,7 @@ private:
     /// This is the base class for each entry in our dispatch table.
     struct EntryBase
     {
-        virtual ~EntryBase() {}
+        virtual ~EntryBase() = default;
         virtual bool matches(const ParamBaseType& param1, const ParamBaseType& param2) const = 0;
         virtual ReturnType operator()(ParamBaseType& param1, ParamBaseType& param2) const = 0;
     };

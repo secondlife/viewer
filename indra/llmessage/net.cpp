@@ -65,7 +65,7 @@ struct sockaddr_in stLclAddr;
 #if LL_DARWIN
 #ifndef _SOCKLEN_T
 #define _SOCKLEN_T
-typedef int socklen_t;
+using socklen_t = int;
 #endif
 #endif
 

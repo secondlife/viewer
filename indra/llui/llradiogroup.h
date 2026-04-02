@@ -105,7 +105,7 @@ private:
     const LLFontGL*     mFont;
     S32                 mSelectedIndex;
 
-    typedef std::vector<class LLRadioCtrl*> button_list_t;
+    using button_list_t = std::vector<class LLRadioCtrl*>;
     button_list_t       mRadioButtons;
 
     bool                mAllowDeselect; // user can click on an already selected option to deselect it

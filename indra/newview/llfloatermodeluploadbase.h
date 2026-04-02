@@ -37,7 +37,7 @@ public:
 
     LLFloaterModelUploadBase(const LLSD& key);
 
-    virtual ~LLFloaterModelUploadBase(){};
+    virtual ~LLFloaterModelUploadBase() = default;
 
     virtual void setPermissonsErrorStatus(S32 status, const std::string& reason) = 0;
 

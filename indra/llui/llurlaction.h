@@ -93,8 +93,8 @@ public:
     static void unblockObject(std::string url);
 
     /// specify the callbacks to enable this class's functionality
-    typedef std::function<void (const std::string&)> url_callback_t;
-    typedef std::function<bool(const std::string& url, bool trusted_content)> execute_url_callback_t;
+    using url_callback_t = std::function<void (const std::string&)>;
+    using execute_url_callback_t = std::function<bool(const std::string& url, bool trusted_content)>;
 
     static void setOpenURLCallback(url_callback_t cb);
     static void setOpenURLInternalCallback(url_callback_t cb);

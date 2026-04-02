@@ -310,7 +310,7 @@ protected:
     std::string     mTooltip;
 };
 
-typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
+using LLTextSegmentPtr = LLPointer<LLTextSegment>;
 
 ///
 /// The LLTextBase class provides a base class for all text fields, such
@@ -328,9 +328,9 @@ public:
     friend class LLNormalTextSegment;
     friend class LLUICtrlFactory;
 
-    typedef boost::signals2::signal<bool (const LLUUID& user_id)> is_friend_signal_t;
-    typedef boost::signals2::signal<bool (const LLUUID& blocked_id, const std::string from)> is_blocked_signal_t;
-    typedef boost::signals2::signal<bool (const LLUUID& obj_id)> is_obj_reachable_signal_t;
+    using is_friend_signal_t = boost::signals2::signal<bool (const LLUUID& user_id)>;
+    using is_blocked_signal_t = boost::signals2::signal<bool (const LLUUID& blocked_id, const std::string from)>;
+    using is_obj_reachable_signal_t = boost::signals2::signal<bool (const LLUUID& obj_id)>;
 
     struct LineSpacingParams : public LLInitParam::ChoiceBlock<LineSpacingParams>
     {
@@ -557,7 +557,7 @@ protected:
         LLRect mRect;
         S32 mLineNum; // actual line count (ignoring soft newlines due to word wrap)
     };
-    typedef std::vector<line_info> line_list_t;
+    using line_list_t = std::vector<line_info>;
 
     // helper structs
     struct compare_bottom
@@ -573,7 +573,7 @@ protected:
         bool operator()(const line_info& a, const line_info& b) const;
     };
     struct line_end_compare;
-    typedef std::vector<LLTextSegmentPtr> segment_vec_t;
+    using segment_vec_t = std::vector<LLTextSegmentPtr>;
 
     // Abstract inner base class representing an undoable editor command.
     // Concrete sub-classes can be defined for operations such as insert, remove, etc.
@@ -590,7 +590,7 @@ protected:
                 mSegments.push_back(segment);
             }
         }
-        virtual         ~TextCmd() {}
+        virtual         ~TextCmd() = default;
         virtual bool    execute(LLTextBase* editor, S32* delta) = 0;
         virtual S32     undo(LLTextBase* editor) = 0;
         virtual S32     redo(LLTextBase* editor) = 0;
@@ -617,8 +617,8 @@ protected:
     {
         bool operator()(const LLTextSegmentPtr& a, const LLTextSegmentPtr& b) const;
     };
-    typedef std::multiset<LLTextSegmentPtr, compare_segment_end> segment_set_t;
-    typedef LLStyle::EUnderlineLink e_underline;
+    using segment_set_t = std::multiset<LLTextSegmentPtr, compare_segment_end>;
+    using e_underline = LLStyle::EUnderlineLink;
 
     // member functions
     LLTextBase(const Params &p);

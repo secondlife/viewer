@@ -108,13 +108,13 @@ void make_ui_sound_deferred(const char * name);
 
 class LLImageProviderInterface;
 
-typedef void (*LLUIAudioCallback)(const LLUUID& uuid);
+using LLUIAudioCallback = void(*)(const LLUUID& uuid);
 
 class LLUI : public LLSimpleton<LLUI>
 {
     LOG_CLASS(LLUI);
 public:
-    typedef std::unordered_map<std::string, LLControlGroup*, ll::string_hash, std::equal_to<>> settings_map_t;
+    using settings_map_t = std::unordered_map<std::string, LLControlGroup*, ll::string_hash, std::equal_to<>>;
 
     LLUI(const settings_map_t &settings,
                            LLImageProviderInterface* image_provider,
@@ -241,9 +241,9 @@ public:
     //
     // Methods
     //
-    typedef std::function<void(LLView*)> add_popup_t;
-    typedef std::function<void(LLView*)> remove_popup_t;
-    typedef std::function<void(void)> clear_popups_t;
+    using add_popup_t = std::function<void(LLView*)>;
+    using remove_popup_t = std::function<void(LLView*)>;
+    using clear_popups_t = std::function<void(void)>;
 
     void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );
 
@@ -373,7 +373,7 @@ namespace LLInitParam
     class ParamValue<LLRect>
     :   public CustomParamValue<LLRect>
     {
-        typedef CustomParamValue<LLRect> super_t;
+        using super_t = CustomParamValue<LLRect>;
     public:
         Optional<S32>   left,
                         top,
@@ -392,7 +392,7 @@ namespace LLInitParam
     class ParamValue<LLUIColor>
     :   public CustomParamValue<LLUIColor>
     {
-        typedef CustomParamValue<LLUIColor> super_t;
+        using super_t = CustomParamValue<LLUIColor>;
 
     public:
         Optional<F32>           red,
@@ -410,7 +410,7 @@ namespace LLInitParam
     class ParamValue<const LLFontGL*>
     :   public CustomParamValue<const LLFontGL* >
     {
-        typedef CustomParamValue<const LLFontGL*> super_t;
+        using super_t = CustomParamValue<const LLFontGL*>;
     public:
         Optional<std::string>   name,
                                 size,
@@ -450,7 +450,7 @@ namespace LLInitParam
     class ParamValue<LLCoordGL>
     :   public CustomParamValue<LLCoordGL>
     {
-        typedef CustomParamValue<LLCoordGL> super_t;
+        using super_t = CustomParamValue<LLCoordGL>;
     public:
         Optional<S32>   x,
                         y;

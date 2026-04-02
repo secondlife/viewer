@@ -87,7 +87,7 @@ public:
 private:
 
     LLFloaterCamera(const LLSD& val);
-    ~LLFloaterCamera() {};
+    ~LLFloaterCamera() = default;
 
     /* return instance if it exists - created by LLFloaterReg */
     static LLFloaterCamera* findInstance();

@@ -34,7 +34,7 @@
 class LLTextureManagerBridge
 {
 public:
-    virtual ~LLTextureManagerBridge() {}
+    virtual ~LLTextureManagerBridge() = default;
 
     virtual LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = true, bool generate_gl_tex = true) = 0;
     virtual LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = true) = 0;

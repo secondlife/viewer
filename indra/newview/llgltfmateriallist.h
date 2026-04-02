@@ -40,7 +40,7 @@ class LLGLTFOverrideCacheEntry;
 class LLGLTFMaterialList
 {
 public:
-    LLGLTFMaterialList() {}
+    LLGLTFMaterialList() = default;
 
 
     LLFetchedGLTFMaterial* getMaterial(const LLUUID& id);

@@ -34,7 +34,7 @@
 class LLGLTFSort
 {
 public:
-    LLGLTFSort() { }
+    LLGLTFSort() = default;
     bool operator()(const LLGLTFFolderItem* const& a, const LLGLTFFolderItem* const& b) const;
 private:
 };
@@ -43,7 +43,7 @@ class LLGLTFFilter : public LLFolderViewFilter
 {
 public:
     LLGLTFFilter() { mEmpty = ""; }
-    ~LLGLTFFilter() {}
+    ~LLGLTFFilter() = default;
 
     bool                check(const LLFolderViewModelItem* item) { return true; }
     bool                checkFolder(const LLFolderViewModelItem* folder) const { return true; }

@@ -66,7 +66,7 @@ namespace LLNotificationsUI
 class LLEventHandler
 {
 public:
-    virtual ~LLEventHandler() {};
+    virtual ~LLEventHandler() = default;
 
 protected:
     virtual void onDeleteToast(LLToast* toast) {}
@@ -91,7 +91,7 @@ class LLNotificationHandler : public LLEventHandler, public LLNotificationChanne
 {
 public:
     LLNotificationHandler(const std::string& name, const std::string& notification_type, const std::string& parentName);
-    virtual ~LLNotificationHandler() {};
+    virtual ~LLNotificationHandler() = default;
 
     // base interface functions
     virtual void onAdd(LLNotificationPtr p) { processNotification(p); }
@@ -106,14 +106,14 @@ class LLSystemNotificationHandler : public LLNotificationHandler
 {
 public:
     LLSystemNotificationHandler(const std::string& name, const std::string& notification_type);
-    virtual ~LLSystemNotificationHandler() {};
+    virtual ~LLSystemNotificationHandler() = default;
 };
 
 class LLCommunicationNotificationHandler : public LLNotificationHandler
 {
 public:
     LLCommunicationNotificationHandler(const std::string& name, const std::string& notification_type);
-    virtual ~LLCommunicationNotificationHandler() {};
+    virtual ~LLCommunicationNotificationHandler() = default;
 };
 
 /**
@@ -122,7 +122,7 @@ public:
 class LLChatHandler : public LLEventHandler
 {
 public:
-    virtual ~LLChatHandler() {};
+    virtual ~LLChatHandler() = default;
 
     virtual void processChat(const LLChat& chat_msg, const LLSD &args)=0;
 };
@@ -217,7 +217,7 @@ class LLViewerAlertHandler  : public LLSystemNotificationHandler
     LOG_CLASS(LLViewerAlertHandler);
 public:
     LLViewerAlertHandler(const std::string& name, const std::string& notification_type);
-    virtual ~LLViewerAlertHandler() {};
+    virtual ~LLViewerAlertHandler() = default;
 
     virtual void onDelete(LLNotificationPtr p) {};
     virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
@@ -251,7 +251,7 @@ class LLHintHandler : public LLSystemNotificationHandler
 {
 public:
     LLHintHandler();
-    virtual ~LLHintHandler() {}
+    virtual ~LLHintHandler() = default;
 
     virtual void onAdd(LLNotificationPtr p);
     virtual void onLoad(LLNotificationPtr p);
@@ -269,7 +269,7 @@ class LLBrowserNotification : public LLSystemNotificationHandler
 {
 public:
     LLBrowserNotification();
-    virtual ~LLBrowserNotification() {}
+    virtual ~LLBrowserNotification() = default;
 
     virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
 

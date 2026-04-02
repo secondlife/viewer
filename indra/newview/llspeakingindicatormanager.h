@@ -34,7 +34,7 @@ class SpeakingIndicatorManager;
 class LLSpeakingIndicator
 {
 public:
-    virtual ~LLSpeakingIndicator(){}
+    virtual ~LLSpeakingIndicator() = default;
     virtual void switchIndicator(bool switch_on) = 0;
 
 private:

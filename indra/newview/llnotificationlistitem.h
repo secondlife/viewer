@@ -61,7 +61,7 @@ public:
         LLDate          received_time;
         LLSD            inventory_offer;
         e_notification_priority notification_priority;
-        Params()        {};
+        Params() = default;
     };
 
     static LLNotificationListItem* create(const Params& p);

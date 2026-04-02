@@ -40,7 +40,7 @@ class LLScrollbar
 {
 public:
 
-    typedef std::function<void (S32, LLScrollbar*)> callback_t;
+    using callback_t = std::function<void (S32, LLScrollbar*)>;
     struct Params
     :   public LLInitParam::Block<Params, LLUICtrl::Params>
     {

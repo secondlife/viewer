@@ -36,7 +36,7 @@ class LLPumpIO;
 class LLIOHTTPServer
 {
 public:
-    typedef void (*timing_callback_t)(const char* hashed_name, F32 time, void* data);
+    using timing_callback_t = void(*)(const char* hashed_name, F32 time, void* data);
 
     static LLHTTPNode& create(apr_pool_t* pool, LLPumpIO& pump, U16 port);
     /**< Creates an HTTP wire server on the pump for the given TCP port.

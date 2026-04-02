@@ -37,11 +37,11 @@ class LLCallbackMap
 {
 public:
     // callback definition.
-    typedef std::function<void* (void* data)> callback_t;
+    using callback_t = std::function<void* (void* data)>;
 
-    typedef std::unordered_map<std::string, LLCallbackMap> map_t;
-    typedef map_t::iterator map_iter_t;
-    typedef map_t::const_iterator map_const_iter_t;
+    using map_t = std::unordered_map<std::string, LLCallbackMap>;
+    using map_iter_t = map_t::iterator;
+    using map_const_iter_t = map_t::const_iterator;
 
     template <class T>
     static void* buildPanel(void* data)

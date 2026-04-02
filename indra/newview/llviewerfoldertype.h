@@ -47,8 +47,8 @@ public:
     static U64                  lookupValidFolderTypes(const std::string& item_name); // which folders allow an item of this type?
 
 protected:
-    LLViewerFolderType() {}
-    ~LLViewerFolderType() {}
+    LLViewerFolderType() = default;
+    ~LLViewerFolderType() = default;
 };
 
 #endif // LL_LLVIEWERFOLDERTYPE_H

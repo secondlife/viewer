@@ -35,7 +35,7 @@ class LLUploadPermissionsObserver
 public:
 
     LLUploadPermissionsObserver(){mUploadPermObserverHandle.bind(this);}
-    virtual ~LLUploadPermissionsObserver() {}
+    virtual ~LLUploadPermissionsObserver() = default;
 
     virtual void onPermissionsReceived(const LLSD& result) = 0;
     virtual void setPermissonsErrorStatus(S32 status, const std::string& reason) = 0;
@@ -50,7 +50,7 @@ class LLWholeModelFeeObserver
 {
 public:
     LLWholeModelFeeObserver() { mWholeModelFeeObserverHandle.bind(this); }
-    virtual ~LLWholeModelFeeObserver() {}
+    virtual ~LLWholeModelFeeObserver() = default;
 
     virtual void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url) = 0;
     virtual void setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason, const LLSD& result) = 0;
@@ -66,7 +66,7 @@ class LLWholeModelUploadObserver
 {
 public:
     LLWholeModelUploadObserver() { mWholeModelUploadObserverHandle.bind(this); }
-    virtual ~LLWholeModelUploadObserver() {}
+    virtual ~LLWholeModelUploadObserver() = default;
 
     virtual void onModelUploadSuccess() = 0;
 

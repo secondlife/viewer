@@ -38,12 +38,12 @@ class LLConsole : public LLFixedBuffer, public LLUICtrl, public LLInstanceTracke
 {
 public:
 
-    typedef enum e_font_size
+    enum EFontSize
     {
         MONOSPACE = -1,
         SMALL = 0,
         BIG = 1
-    } EFontSize;
+    };
 
     struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
     {
@@ -91,7 +91,7 @@ public:
             F32       mXPosition;
     };
 
-    typedef std::list<LineColorSegment> line_color_segments_t;
+    using line_color_segments_t = std::list<LineColorSegment>;
 
     //A line is composed of one or more color segments.
     class Line
@@ -100,8 +100,8 @@ public:
             line_color_segments_t mLineColorSegments;
     };
 
-    typedef std::list<Line> lines_t;
-    typedef std::list<ParagraphColorSegment> paragraph_color_segments_t;
+    using lines_t = std::list<Line>;
+    using paragraph_color_segments_t = std::list<ParagraphColorSegment>;
 
     //A paragraph is a processed element containing the entire text of the
     //message (used for recalculating positions on screen resize)
@@ -124,10 +124,10 @@ public:
     };
 
     //The console contains a deque of paragraphs which represent the individual messages.
-    typedef std::deque<Paragraph> paragraph_t;
+    using paragraph_t = std::deque<Paragraph>;
     paragraph_t mParagraphs;
 
-    ~LLConsole(){};
+    ~LLConsole() = default;
 
     // each line lasts this long after being added
     void            setLinePersistTime(F32 seconds);

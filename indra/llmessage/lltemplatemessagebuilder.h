@@ -41,7 +41,7 @@ class LLTemplateMessageBuilder : public LLMessageBuilder
 {
 public:
 
-    typedef std::map<const char* , LLMessageTemplate*> message_template_name_map_t;
+    using message_template_name_map_t = std::map<const char* , LLMessageTemplate*>;
 
     LLTemplateMessageBuilder(const message_template_name_map_t&);
     virtual ~LLTemplateMessageBuilder();

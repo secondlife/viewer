@@ -114,7 +114,7 @@ struct SortScrollListItem
     }
 
 
-    typedef std::vector<std::pair<S32, bool> > sort_order_t;
+    using sort_order_t = std::vector<std::pair<S32, bool> >;
     const LLScrollListCtrl::sort_signal_t* mSortSignal;
     const sort_order_t& mSortOrders;
     const bool mAltSort;

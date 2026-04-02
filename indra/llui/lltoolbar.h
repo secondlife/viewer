@@ -39,9 +39,9 @@ class LLToolBar;
 class LLToolBarButton;
 class LLIconCtrl;
 
-typedef std::function<void (S32 x, S32 y, LLToolBarButton* button)> tool_startdrag_callback_t;
-typedef std::function<bool (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> tool_handledrag_callback_t;
-typedef std::function<bool (void* data, EDragAndDropType cargo_type, S32 x, S32 y, LLToolBar* toolbar)> tool_handledrop_callback_t;
+using tool_startdrag_callback_t = std::function<void (S32 x, S32 y, LLToolBarButton* button)>;
+using tool_handledrag_callback_t = std::function<bool (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)>;
+using tool_handledrop_callback_t = std::function<bool (void* data, EDragAndDropType cargo_type, S32 x, S32 y, LLToolBar* toolbar)>;
 
 class LLToolBarButton : public LLButton
 {
@@ -167,9 +167,9 @@ public:
     class LLCenterLayoutPanel : public LLLayoutPanel
     {
     public:
-        typedef std::function<void(LLToolBarEnums::EToolBarLocation tb, const LLRect& rect)> reshape_callback_t;
+        using reshape_callback_t = std::function<void(LLToolBarEnums::EToolBarLocation tb, const LLRect& rect)>;
 
-        virtual ~LLCenterLayoutPanel() {}
+        virtual ~LLCenterLayoutPanel() = default;
         /*virtual*/ void handleReshape(const LLRect& rect, bool by_user);
 
         void setLocationId(LLToolBarEnums::EToolBarLocation id) { mLocationId = id; }
@@ -238,7 +238,7 @@ public:
 
     LLToolBarButton* createButton(const LLCommandId& id);
 
-    typedef boost::signals2::signal<void (LLView* button)> button_signal_t;
+    using button_signal_t = boost::signals2::signal<void (LLView* button)>;
     boost::signals2::connection setButtonAddCallback(const button_signal_t::slot_type& cb);
     boost::signals2::connection setButtonEnterCallback(const button_signal_t::slot_type& cb);
     boost::signals2::connection setButtonLeaveCallback(const button_signal_t::slot_type& cb);
@@ -296,8 +296,8 @@ private:
                                     mDragy,
                                     mDragGirth;
 
-    typedef std::list<LLToolBarButton*> toolbar_button_list;
-    typedef std::map<LLUUID, LLToolBarButton*> command_id_map;
+    using toolbar_button_list = std::list<LLToolBarButton*>;
+    using command_id_map = std::map<LLUUID, LLToolBarButton*>;
     toolbar_button_list             mButtons;
     command_id_list_t               mButtonCommands;
     command_id_map                  mButtonMap;

@@ -64,7 +64,7 @@ public:
     static const S32 DEFAULT_SPACING = 6;
     static const S32 DEFAULT_PADDING = 2;
 
-    typedef std::deque<LLScrollingPanel*>   panel_list_t;
+    using panel_list_t = std::deque<LLScrollingPanel*>;
 
     virtual void setValue(const LLSD& value) {};
 

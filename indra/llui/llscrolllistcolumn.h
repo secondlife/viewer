@@ -75,11 +75,11 @@ private:
 class LLScrollListColumn
 {
 public:
-    typedef enum e_sort_direction
+    enum ESortDirection
     {
         DESCENDING,
         ASCENDING
-    } ESortDirection;
+    };
 
     struct SortNames
     :   public LLInitParam::TypeValuesHelper<LLScrollListColumn::ESortDirection, SortNames>

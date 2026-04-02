@@ -258,7 +258,7 @@ protected:
 class LLInventoryCallback : public LLRefCount
 {
 public:
-    virtual ~LLInventoryCallback() {}
+    virtual ~LLInventoryCallback() = default;
     virtual void fire(const LLUUID& inv_item) = 0;
 };
 

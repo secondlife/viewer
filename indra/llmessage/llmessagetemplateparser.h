@@ -61,7 +61,7 @@ private:
 class LLTemplateParser
 {
 public:
-    typedef std::list<LLMessageTemplate *>::const_iterator message_iterator;
+    using message_iterator = std::list<LLMessageTemplate *>::const_iterator;
 
     static LLMessageTemplate * parseMessage(LLTemplateTokenizer & tokens);
     static LLMessageBlock * parseBlock(LLTemplateTokenizer & tokens);

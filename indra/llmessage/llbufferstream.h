@@ -49,8 +49,8 @@ public:
 
 protected:
 #if( LL_WINDOWS || __GNUC__ > 2 )
-    typedef std::streambuf::pos_type pos_type;
-    typedef std::streambuf::off_type off_type;
+    using pos_type = std::streambuf::pos_type;
+    using off_type = std::streambuf::off_type;
 #endif
 
     /* @name streambuf vrtual implementations

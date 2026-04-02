@@ -56,7 +56,7 @@ const U32 LLCoprocedureManager::DEFAULT_QUEUE_SIZE = 1024*512;
 class LLCoprocedurePool
 {
 public:
-    typedef LLCoprocedureManager::CoProcedure_t CoProcedure_t;
+    using CoProcedure_t = LLCoprocedureManager::CoProcedure_t;
 
     LLCoprocedurePool(const std::string &name, size_t size, size_t queue_size);
     ~LLCoprocedurePool();
@@ -99,7 +99,7 @@ public:
 private:
     struct QueuedCoproc
     {
-        typedef std::shared_ptr<QueuedCoproc> ptr_t;
+        using ptr_t = std::shared_ptr<QueuedCoproc>;
 
         QueuedCoproc(const std::string &name, const LLUUID &id, CoProcedure_t proc) :
             mName(name),
@@ -115,18 +115,18 @@ private:
     // we use a buffered_channel here rather than unbuffered_channel since we want to be able to
     // push values without blocking,even if there's currently no one calling a pop operation (due to
     // fiber running right now)
-    typedef boost::fibers::buffered_channel<QueuedCoproc::ptr_t>  CoprocQueue_t;
+    using CoprocQueue_t = boost::fibers::buffered_channel<QueuedCoproc::ptr_t>;
     // Use shared_ptr to control the lifespan of our CoprocQueue_t instance
     // because the consuming coroutine might outlive this LLCoprocedurePool
     // instance.
-    typedef std::shared_ptr<CoprocQueue_t> CoprocQueuePtr;
+    using CoprocQueuePtr = std::shared_ptr<CoprocQueue_t>;
 
     std::string     mPoolName;
     size_t          mPoolSize, mQueueSize, mActiveCoprocsCount, mPending;
     CoprocQueuePtr  mPendingCoprocs;
     LLTempBoundListener mStatusListener;
 
-    typedef std::map<std::string, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t> CoroAdapterMap_t;
+    using CoroAdapterMap_t = std::map<std::string, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t>;
     LLCore::HttpRequest::policy_t mHTTPPolicy;
 
     CoroAdapterMap_t mCoroMapping;

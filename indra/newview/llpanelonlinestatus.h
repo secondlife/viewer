@@ -41,7 +41,7 @@ private:
     friend class LLToastPanel;
 
     LLPanelOnlineStatus(const LLNotificationPtr& notification);
-    virtual ~LLPanelOnlineStatus() {}
+    virtual ~LLPanelOnlineStatus() = default;
 };
 
 #endif /* LL_PANELONLINESTATUS_H */

@@ -75,7 +75,7 @@ public:
                                        LLFolderView* root,
                                        const LLUUID& uuid,
                                        U32 flags = 0x00);
-    virtual ~LLInvFVBridge() {}
+    virtual ~LLInvFVBridge() = default;
 
     bool canShare() const;
     bool canListOnMarketplace() const;
@@ -219,8 +219,8 @@ protected:
 class LLInventoryFolderViewModelBuilder
 {
 public:
-    LLInventoryFolderViewModelBuilder() {}
-    virtual ~LLInventoryFolderViewModelBuilder() {}
+    LLInventoryFolderViewModelBuilder() = default;
+    virtual ~LLInventoryFolderViewModelBuilder() = default;
     virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
                                         LLAssetType::EType actual_asset_type,
                                         LLInventoryType::EType inv_type,
@@ -709,7 +709,7 @@ public:
     static void doAction(const LLUUID& uuid, LLInventoryModel* model);
 
     virtual void doIt() {};
-    virtual ~LLInvFVBridgeAction() {} // need this because of warning on OSX
+    virtual ~LLInvFVBridgeAction() = default;// need this because of warning on OSX
 protected:
     LLInvFVBridgeAction(const LLUUID& id, LLInventoryModel* model) :
         mUUID(id), mModel(model) {}
@@ -746,7 +746,7 @@ public:
 class LLRecentInventoryBridgeBuilder : public LLInventoryFolderViewModelBuilder
 {
 public:
-    LLRecentInventoryBridgeBuilder() {}
+    LLRecentInventoryBridgeBuilder() = default;
     // Overrides FolderBridge for Recent Inventory Panel.
     // It use base functionality for bridges other than FolderBridge.
     virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
@@ -786,7 +786,7 @@ public:
 class LLFavoritesInventoryBridgeBuilder : public LLInventoryFolderViewModelBuilder
 {
 public:
-    LLFavoritesInventoryBridgeBuilder() {}
+    LLFavoritesInventoryBridgeBuilder() = default;
     // Overrides FolderBridge for Recent Inventory Panel.
     // It use base functionality for bridges other than FolderBridge.
     virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,

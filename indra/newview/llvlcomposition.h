@@ -51,7 +51,7 @@ class LLTerrainMaterials : public LLModifyRegion
 public:
     friend class LLDrawPoolTerrain;
 
-    LLTerrainMaterials() {}
+    LLTerrainMaterials() = default;
     virtual ~LLTerrainMaterials();
 
     void apply(const LLModifyRegion& other);

@@ -51,8 +51,8 @@ public:
     class LLCOFCallbacks
     {
     public:
-        LLCOFCallbacks() {};
-        virtual ~LLCOFCallbacks() {};
+        LLCOFCallbacks() = default;
+        virtual ~LLCOFCallbacks() = default;
 
         typedef std::function<void()> cof_callback_t;
 

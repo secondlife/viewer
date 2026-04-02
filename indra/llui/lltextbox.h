@@ -36,7 +36,7 @@ class LLTextBox :
 public:
 
     // *TODO: Add callback to Params
-    typedef std::function<void (void)> callback_t;
+    using callback_t = std::function<void (void)>;
 
     struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
     {};

@@ -145,7 +145,7 @@ protected:
  */
 struct ll_delete_apr_pollset_fd_client_data
 {
-    typedef std::pair<LLIOPipe::ptr_t, apr_pollfd_t> pipe_conditional_t;
+    using pipe_conditional_t = std::pair<LLIOPipe::ptr_t, apr_pollfd_t>;
     void operator()(const pipe_conditional_t& conditional)
     {
         S32* client_id = (S32*)conditional.second.client_data;
@@ -500,7 +500,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
     // *TODO: may want to pass in a poll timeout so it works correctly
     // in single and multi threaded processes.
     PUMP_DEBUG;
-    typedef std::map<S32, S32> signal_client_t;
+    using signal_client_t = std::map<S32, S32>;
     signal_client_t signalled_client;
     const apr_pollfd_t* poll_fd = NULL;
     if(mPollset)

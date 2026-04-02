@@ -212,7 +212,7 @@ public:
             CHANGED_OfflineIMs = 3
         };
 
-    virtual ~LLConversationLogObserver(){}
+    virtual ~LLConversationLogObserver() = default;
     virtual void changed() = 0;
     virtual void changed(const LLUUID& session_id, U32 mask){};
 };

@@ -33,7 +33,7 @@
  * behavior can be tweeked by name using general-purpose script calls.
  */
 
-typedef enum e_vehicle_param
+enum EVehicleParam
 {
     VEHICLE_TYPE_NONE,      // TYPE_0
     VEHICLE_TYPE_SLED,
@@ -95,7 +95,7 @@ typedef enum e_vehicle_param
     VEHICLE_ROTATION_PARAM_2,
     VEHICLE_ROTATION_PARAM_3,
 
-} EVehicleParam;
+};
 
 
 // some flags that effect how the vehicle moves

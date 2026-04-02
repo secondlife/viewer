@@ -45,7 +45,7 @@ static const U32 DEFAULT_KEY_FILTER = ALLOW_MOUSE | ALLOW_MASK_MOUSE | ALLOW_KEY
 class LLKeyBindResponderInterface
 {
 public:
-    virtual ~LLKeyBindResponderInterface() {};
+    virtual ~LLKeyBindResponderInterface() = default;
 
     virtual void onCancelKeyBind() = 0;
     virtual void onDefaultKeyBind(bool all_modes) = 0;

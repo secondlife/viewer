@@ -41,7 +41,7 @@ public:
         Params();
     };
 
-    virtual ~LLScriptEditor() {};
+    virtual ~LLScriptEditor() = default;
 
     // LLView override
     virtual void    draw();

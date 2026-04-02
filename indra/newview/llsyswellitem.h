@@ -41,7 +41,7 @@ public:
     {
         LLUUID          notification_id;
         std::string     title;
-        Params()        {};
+        Params() = default;
     };
 
 

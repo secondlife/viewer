@@ -48,7 +48,7 @@ public:
         mDistance(0.f),
         mRenderLevel(0),
         mRenderStride(0) { };
-    ~LLPatchVisibilityInfo() { };
+    ~LLPatchVisibilityInfo() = default;
 
     bool mbIsVisible;
     F32 mDistance;          // Distance from camera

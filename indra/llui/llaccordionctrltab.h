@@ -93,7 +93,7 @@ public:
         Params();
     };
 
-    typedef LLDefaultChildRegistry child_registry_t;
+    using child_registry_t = LLDefaultChildRegistry;
 
     virtual ~LLAccordionCtrlTab();
 

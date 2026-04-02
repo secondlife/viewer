@@ -82,7 +82,7 @@ private:
     LLUUID      mUUID;
 };
 
-typedef std::list<LLCommandId> command_id_list_t;
+using command_id_list_t = std::list<LLCommandId>;
 
 
 class LLCommand
@@ -198,8 +198,8 @@ protected:
     void addCommand(LLCommand * command);
 
 private:
-    typedef std::map<LLUUID, size_t>    CommandIndexMap;
-    typedef std::vector<LLCommand *>    CommandVector;
+    using CommandIndexMap = std::map<LLUUID, size_t>;
+    using CommandVector = std::vector<LLCommand *>;
 
     CommandVector   mCommands;
     CommandIndexMap mCommandIndices;

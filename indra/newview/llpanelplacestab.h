@@ -36,7 +36,7 @@ class LLPanelPlacesTab : public LLPanel
 {
 public:
     LLPanelPlacesTab() : LLPanel() {}
-    virtual ~LLPanelPlacesTab() {}
+    virtual ~LLPanelPlacesTab() = default;
 
     virtual void onSearchEdit(const std::string& string) = 0;
     virtual void updateVerbs() = 0;     // Updates buttons at the bottom of Places panel

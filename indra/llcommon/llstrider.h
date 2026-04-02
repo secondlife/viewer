@@ -39,7 +39,7 @@ template <class Object> class LLStrider
 public:
     LLStrider()  { mObjectp = NULL; mSkip = sizeof(Object); }
     LLStrider(Object* first) { mObjectp = first; mSkip = sizeof(Object); }
-    ~LLStrider() { }
+    ~LLStrider() = default;
 
     const LLStrider<Object>& operator=(const LLStrider<Object>& rhs)
     {

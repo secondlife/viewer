@@ -413,7 +413,7 @@ public:
     };
 
     // my valid children are contained in MenuRegistry
-    typedef MenuRegistry child_registry_t;
+    using child_registry_t = MenuRegistry;
 
     void initFromParams(const Params&);
 
@@ -424,13 +424,13 @@ public:
     static const std::string ARROW_DOWN;
 
     // for scrollable menus
-    typedef enum e_scrolling_direction
+    enum EScrollingDirection
     {
         SD_UP = 0,
         SD_DOWN = 1,
         SD_BEGIN = 2,
         SD_END = 3
-    } EScrollingDirection;
+    };
 
 protected:
     LLMenuGL(const LLMenuGL::Params& p);
@@ -577,12 +577,12 @@ public:
     bool addContextChild(LLView* view, S32 tab_group);
 
     // TODO: create accessor methods for these?
-    typedef std::list< LLMenuItemGL* > item_list_t;
+    using item_list_t = std::list< LLMenuItemGL* >;
     item_list_t mItems;
     LLMenuItemGL*mFirstVisibleItem;
     LLMenuItemGL *mArrowUpItem, *mArrowDownItem;
 
-    typedef std::map<KEY, LLMenuItemGL*> navigation_key_map_t;
+    using navigation_key_map_t = std::map<KEY, LLMenuItemGL*>;
     navigation_key_map_t mJumpKeys;
     S32             mLastMouseX;
     S32             mLastMouseY;
@@ -716,7 +716,7 @@ protected:
     friend class LLUICtrlFactory;
 
 public:
-    virtual ~LLContextMenu() {}
+    virtual ~LLContextMenu() = default;
 
     // LLView Functionality
     // can't set visibility directly, must call show or hide
@@ -835,7 +835,7 @@ public:
     struct Params : public LLInitParam::Block<Params, LLPanel::Params>
     {};
     LLMenuHolderGL(const Params& p);
-    virtual ~LLMenuHolderGL() {}
+    virtual ~LLMenuHolderGL() = default;
 
     virtual bool hideMenus();
     void reshape(S32 width, S32 height, bool called_from_parent = true);
@@ -929,9 +929,9 @@ public:
         static LLEditMenuHandlerMgr instance;
         return instance;
     }
-    virtual ~LLEditMenuHandlerMgr() {}
+    virtual ~LLEditMenuHandlerMgr() = default;
 private:
-    LLEditMenuHandlerMgr() {};
+    LLEditMenuHandlerMgr() = default;
 };
 
 
@@ -971,8 +971,8 @@ public:
     }
 
 private:
-    typedef std::set<view_listener_t*> listener_map_t;
-    typedef std::vector<view_listener_t*> listener_vector_t;
+    using listener_map_t = std::set<view_listener_t*>;
+    using listener_vector_t = std::vector<view_listener_t*>;
     static listener_map_t sListeners;
 };
 

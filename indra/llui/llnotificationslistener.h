@@ -60,7 +60,7 @@ private:
     static LLSD asLLSD(LLNotificationPtr);
 
     class Forwarder;
-    typedef std::map<std::string, std::shared_ptr<Forwarder> > ForwarderMap;
+    using ForwarderMap = std::map<std::string, std::shared_ptr<Forwarder> >;
     ForwarderMap mForwarders;
     LLNotifications & mNotifications;
 };

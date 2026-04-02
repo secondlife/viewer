@@ -46,7 +46,7 @@ class LLFloaterIMNearbyChat
 public:
     // constructor for inline chat-bars (e.g. hosted in chat history window)
     LLFloaterIMNearbyChat(const LLSD& key = LLSD(LLUUID()));
-    ~LLFloaterIMNearbyChat() {}
+    ~LLFloaterIMNearbyChat() = default;
 
     static LLFloaterIMNearbyChat* buildFloater(const LLSD& key);
 

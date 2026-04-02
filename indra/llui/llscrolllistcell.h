@@ -95,7 +95,7 @@ public:
     static LLScrollListCell* create(const Params&);
 
     LLScrollListCell(const LLScrollListCell::Params&);
-    virtual ~LLScrollListCell() {};
+    virtual ~LLScrollListCell() = default;
 
     virtual void            draw(const LLColor4& color, const LLColor4& highlight_color) {};      // truncate to given width, if possible
     virtual S32             getWidth() const {return mWidth;}
@@ -127,7 +127,7 @@ class LLScrollListSpacer : public LLScrollListCell
 {
 public:
     LLScrollListSpacer(const LLScrollListCell::Params& p) : LLScrollListCell(p) {}
-    /*virtual*/ ~LLScrollListSpacer() {};
+    /*virtual*/ ~LLScrollListSpacer() = default;
     /*virtual*/ void            draw(const LLColor4& color, const LLColor4& highlight_color) {}
 };
 

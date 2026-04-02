@@ -37,7 +37,7 @@ const int LL_ERR_FILE_NOT_FOUND = -43;
 const int LL_ERR_CANNOT_OPEN_FILE = -42;
 const int LL_ERR_EOF = -39;
 
-typedef enum ELLXferStatus {
+enum ELLXferStatus {
     e_LL_XFER_UNINITIALIZED,
     e_LL_XFER_REGISTERED,         // a buffer which has been registered as available for a request
     e_LL_XFER_PENDING,            // a transfer which has been requested but is waiting for a free slot
@@ -45,7 +45,7 @@ typedef enum ELLXferStatus {
     e_LL_XFER_COMPLETE,
     e_LL_XFER_ABORTED,
     e_LL_XFER_NONE
-} ELLXferStatus;
+};
 
 class LLXfer
 {

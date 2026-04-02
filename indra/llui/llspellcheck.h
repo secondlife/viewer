@@ -49,7 +49,7 @@ protected:
     void initHunspell(const std::string& dict_language);
 
 public:
-    typedef std::list<std::string> dict_list_t;
+    using dict_list_t = std::list<std::string>;
 
     const std::string&  getPrimaryDictionary() const { return mDictLanguage; }
     const dict_list_t&  getSecondaryDictionaries() const { return mDictSecondary; }
@@ -72,7 +72,7 @@ protected:
     static void              saveUserDictionaryMap(const LLSD& dict_map);
 
 public:
-    typedef boost::signals2::signal<void()> settings_change_signal_t;
+    using settings_change_signal_t = boost::signals2::signal<void()>;
     static boost::signals2::connection setSettingsChangeCallback(const settings_change_signal_t::slot_type& cb);
 
 protected:

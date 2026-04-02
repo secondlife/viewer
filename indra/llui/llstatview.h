@@ -53,7 +53,7 @@ public:
     };
 
     // my valid children are stored in this registry
-    typedef StatViewRegistry child_registry_t;
+    using child_registry_t = StatViewRegistry;
 
     ~LLStatView();
 

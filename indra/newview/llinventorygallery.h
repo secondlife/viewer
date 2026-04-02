@@ -386,7 +386,7 @@ private:
 class LLThumbnailsObserver : public LLInventoryObserver
 {
 public:
-    LLThumbnailsObserver(){};
+    LLThumbnailsObserver() = default;
 
     virtual void changed(U32 mask);
     bool addItem(const LLUUID& obj_id, callback_t cb);
@@ -416,7 +416,7 @@ class LLGalleryGestureObserver : public LLGestureManagerObserver
 {
 public:
     LLGalleryGestureObserver(LLInventoryGallery* gallery) : mGallery(gallery) {}
-    virtual ~LLGalleryGestureObserver() {}
+    virtual ~LLGalleryGestureObserver() = default;
     virtual void changed() { mGallery->onGesturesChanged(); }
 
 private:

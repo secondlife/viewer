@@ -35,11 +35,7 @@ class LLFileSystem;
 
 // Lame, an S32 for now until I figure out the deal with how we want to do
 // error codes.
-typedef void (*LLTTVFCompleteCallback)(
-    S32 status,
-    const LLUUID& file_id,
-    LLAssetType::EType file_type,
-    LLBaseDownloadRequest* user_data, LLExtStat ext_status );
+using LLTTVFCompleteCallback = void(*)( S32 status, const LLUUID& file_id, LLAssetType::EType file_type, LLBaseDownloadRequest* user_data, LLExtStat ext_status );
 
 class LLTransferTargetParamsVFile : public LLTransferTargetParams
 {

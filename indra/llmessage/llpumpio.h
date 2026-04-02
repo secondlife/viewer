@@ -97,7 +97,7 @@ public:
     /**
      * @brief Typedef for having a chain of pipes.
      */
-    typedef std::vector<LLIOPipe::ptr_t> chain_t;
+    using chain_t = std::vector<LLIOPipe::ptr_t>;
 
     /**
      * @brief Add a chain to this pump and process in the next cycle.
@@ -126,7 +126,7 @@ public:
      * @brief Typedef for having a chain of <code>LLLinkInfo</code>
      * instances.
      */
-    typedef std::vector<LLLinkInfo> links_t;
+    using links_t = std::vector<LLLinkInfo>;
 
     /**
      * @brief Add a chain to this pump and process in the next cycle.
@@ -364,24 +364,24 @@ protected:
         LLSD mContext;
 
         // tracking inside the pump
-        typedef std::pair<LLIOPipe::ptr_t, apr_pollfd_t> pipe_conditional_t;
-        typedef std::vector<pipe_conditional_t> conditionals_t;
+        using pipe_conditional_t = std::pair<LLIOPipe::ptr_t, apr_pollfd_t>;
+        using conditionals_t = std::vector<pipe_conditional_t>;
         conditionals_t mDescriptors;
     };
 
     // All the running chains & info
-    typedef std::vector<LLChainInfo> pending_chains_t;
+    using pending_chains_t = std::vector<LLChainInfo>;
     pending_chains_t mPendingChains;
-    typedef std::list<LLChainInfo> running_chains_t;
+    using running_chains_t = std::list<LLChainInfo>;
     running_chains_t mRunningChains;
 
-    typedef running_chains_t::iterator current_chain_t;
+    using current_chain_t = running_chains_t::iterator;
     current_chain_t mCurrentChain;
 
     // structures necessary for doing callbacks
     // since the callbacks only get one chance to run, we do not have
     // to maintain a list.
-    typedef std::vector<LLChainInfo> callbacks_t;
+    using callbacks_t = std::vector<LLChainInfo>;
     callbacks_t mPendingCallbacks;
     callbacks_t mCallbacks;
 

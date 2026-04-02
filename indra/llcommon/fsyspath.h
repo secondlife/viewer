@@ -57,7 +57,7 @@ class fsyspath: public std::filesystem::path
 
 public:
     // default
-    fsyspath() {}
+    fsyspath() = default;
     // construct from UTF-8 encoded string
     fsyspath(const std::string& path): fsyspath(std::string_view(path)) {}
     fsyspath(const char* path):        fsyspath(std::string_view(path)) {}

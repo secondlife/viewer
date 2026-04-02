@@ -36,7 +36,7 @@ class LL_COMMON_API LLProcessorInfo
 {
 public:
     LLProcessorInfo();
-    ~LLProcessorInfo();
+    ~LLProcessorInfo() = default;
 
     F64MegahertzImplicit getCPUFrequency() const;
     bool hasSSE() const;

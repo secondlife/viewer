@@ -34,7 +34,7 @@ class LLMatrix4;
 class LLBBoxLocal
 {
 public:
-    LLBBoxLocal() {}
+    LLBBoxLocal() = default;
     LLBBoxLocal( const LLVector3& min, const LLVector3& max ) : mMin( min ), mMax( max ) {}
     // Default copy constructor is OK.
 

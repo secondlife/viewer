@@ -35,7 +35,7 @@
 struct LL_COMMON_API LLDictionaryEntry
 {
     LLDictionaryEntry(const std::string &name);
-    virtual ~LLDictionaryEntry() {}
+    virtual ~LLDictionaryEntry() = default;
     const std::string mName;
     std::string mNameCapitalized;
 };
@@ -47,7 +47,7 @@ public:
     using map_t = std::map<Index, Entry *>;
     using iterator_t = typename map_t::iterator;
     using const_iterator_t = typename map_t::const_iterator;
-    LLDictionary() {}
+    LLDictionary() = default;
     virtual ~LLDictionary()
     {
         for (iterator_t iter = map_t::begin(); iter != map_t::end(); ++iter)

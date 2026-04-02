@@ -58,7 +58,7 @@ typedef std::vector<LLVoiceDevice> LLVoiceDeviceList;
 class LLVoiceClientParticipantObserver
 {
 public:
-    virtual ~LLVoiceClientParticipantObserver() { }
+    virtual ~LLVoiceClientParticipantObserver() = default;
     virtual void onParticipantsChanged() = 0;
 };
 
@@ -86,7 +86,7 @@ public:
         ERROR_UNKNOWN
     } EStatusType;
 
-    virtual ~LLVoiceClientStatusObserver() { }
+    virtual ~LLVoiceClientStatusObserver() = default;
     virtual void onChange(EStatusType status, const LLSD& channelInfo, bool proximal) = 0;
 
     static std::string status2string(EStatusType inStatus);
@@ -126,7 +126,7 @@ class LLVoiceP2POutgoingCallInterface
 class LLVoiceP2PIncomingCallInterface
 {
   public:
-    virtual ~LLVoiceP2PIncomingCallInterface() {}
+    virtual ~LLVoiceP2PIncomingCallInterface() = default;
 
     virtual bool answerInvite()  = 0;
     virtual void declineInvite() = 0;
@@ -144,8 +144,8 @@ typedef std::shared_ptr<LLVoiceP2PIncomingCallInterface> LLVoiceP2PIncomingCallI
 class LLVoiceModuleInterface
 {
 public:
-    LLVoiceModuleInterface() {}
-    virtual ~LLVoiceModuleInterface() {}
+    LLVoiceModuleInterface() = default;
+    virtual ~LLVoiceModuleInterface() = default;
 
     virtual void init(LLPumpIO *pump)=0;    // Call this once at application startup (creates connector)
     virtual void terminate()=0; // Call this to clean up during shutdown
@@ -292,7 +292,7 @@ public:
 class LLVoiceEffectObserver
 {
 public:
-    virtual ~LLVoiceEffectObserver() { }
+    virtual ~LLVoiceEffectObserver() = default;
     virtual void onVoiceEffectChanged(bool effect_list_updated) = 0;
 };
 
@@ -308,8 +308,8 @@ typedef std::multimap<const std::string, const LLUUID, LLDictionaryLess> voice_e
 class LLVoiceEffectInterface
 {
 public:
-    LLVoiceEffectInterface() {}
-    virtual ~LLVoiceEffectInterface() {}
+    LLVoiceEffectInterface() = default;
+    virtual ~LLVoiceEffectInterface() = default;
 
     //////////////////////////
     /// @name Accessors

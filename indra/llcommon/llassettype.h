@@ -170,8 +170,8 @@ public:
     static const std::string    BADLOOKUP;
 
 protected:
-    LLAssetType() {}
-    ~LLAssetType() {}
+    LLAssetType() = default;
+    ~LLAssetType() = default;
 };
 
 #endif // LL_LLASSETTYPE_H

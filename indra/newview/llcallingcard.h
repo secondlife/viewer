@@ -55,7 +55,7 @@ public:
         POWERS = 8,
         ALL = 0xffffffff
     };
-    virtual ~LLFriendObserver() {}
+    virtual ~LLFriendObserver() = default;
     virtual void changed(U32 mask) = 0;
 };
 
@@ -72,7 +72,7 @@ struct LLBuddyInfo
 class LLRelationshipFunctor
 {
 public:
-    virtual ~LLRelationshipFunctor() {}
+    virtual ~LLRelationshipFunctor() = default;
     virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy) = 0;
 };
 
@@ -224,8 +224,8 @@ public:
 class LLCollectProxyBuddies : public LLRelationshipFunctor
 {
 public:
-    LLCollectProxyBuddies() {}
-    virtual ~LLCollectProxyBuddies() {}
+    LLCollectProxyBuddies() = default;
+    virtual ~LLCollectProxyBuddies() = default;
     virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
     typedef std::set<LLUUID> buddy_list_t;
     buddy_list_t mProxy;
@@ -235,8 +235,8 @@ public:
 class LLCollectMappableBuddies : public LLRelationshipFunctor
 {
 public:
-    LLCollectMappableBuddies() {}
-    virtual ~LLCollectMappableBuddies() {}
+    LLCollectMappableBuddies() = default;
+    virtual ~LLCollectMappableBuddies() = default;
     virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
     typedef std::map<LLUUID, std::string> buddy_map_t;
     buddy_map_t mMappable;
@@ -247,8 +247,8 @@ public:
 class LLCollectOnlineBuddies : public LLRelationshipFunctor
 {
 public:
-    LLCollectOnlineBuddies() {}
-    virtual ~LLCollectOnlineBuddies() {}
+    LLCollectOnlineBuddies() = default;
+    virtual ~LLCollectOnlineBuddies() = default;
     virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
     typedef std::map<LLUUID, std::string> buddy_map_t;
     buddy_map_t mOnline;
@@ -260,8 +260,8 @@ public:
 class LLCollectAllBuddies : public LLRelationshipFunctor
 {
 public:
-    LLCollectAllBuddies() {}
-    virtual ~LLCollectAllBuddies() {}
+    LLCollectAllBuddies() = default;
+    virtual ~LLCollectAllBuddies() = default;
     virtual bool operator()(const LLUUID& buddy_id, LLRelationship* buddy);
     typedef std::map<LLUUID, std::string> buddy_map_t;
     buddy_map_t mOnline;

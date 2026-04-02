@@ -41,10 +41,10 @@ class LLCoprocedureManager : public LLSingleton < LLCoprocedureManager >
     virtual ~LLCoprocedureManager();
 
 public:
-    typedef std::function<U32(const std::string &)> SettingQuery_t;
-    typedef std::function<void(const std::string &, U32, const std::string &)> SettingUpdate_t;
+    using SettingQuery_t = std::function<U32(const std::string &)>;
+    using SettingUpdate_t = std::function<void(const std::string &, U32, const std::string &)>;
 
-    typedef std::function<void(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, const LLUUID &id)> CoProcedure_t;
+    using CoProcedure_t = std::function<void(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, const LLUUID &id)>;
 
     /// Places the coprocedure on the queue for processing.
     ///
@@ -83,8 +83,8 @@ public:
 
 private:
 
-    typedef std::shared_ptr<LLCoprocedurePool> poolPtr_t;
-    typedef std::map<std::string, poolPtr_t> poolMap_t;
+    using poolPtr_t = std::shared_ptr<LLCoprocedurePool>;
+    using poolMap_t = std::map<std::string, poolPtr_t>;
 
     poolMap_t mPoolMap;
 

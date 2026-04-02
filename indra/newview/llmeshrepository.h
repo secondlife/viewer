@@ -218,7 +218,7 @@ public:
     };
 
     PendingRequestBase() : mScore(0.f), mTrackedData(nullptr), mScoreDirty(true) {};
-    virtual ~PendingRequestBase() {}
+    virtual ~PendingRequestBase() = default;
 
     bool operator<(const PendingRequestBase& rhs) const
     {
@@ -321,7 +321,7 @@ class LLMeshHeader
 {
 public:
 
-    LLMeshHeader() {}
+    LLMeshHeader() = default;
 
     explicit LLMeshHeader(const LLSD& header)
     {

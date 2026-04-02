@@ -60,7 +60,7 @@ class LLLineEditor
 {
 public:
 
-    typedef std::function<void (LLLineEditor* caller)> keystroke_callback_t;
+    using keystroke_callback_t = std::function<void (LLLineEditor* caller)>;
 
     struct MaxLength : public LLInitParam::ChoiceBlock<MaxLength>
     {
@@ -260,7 +260,7 @@ public:
     void            setSelectAllonCommit(bool b) { mSelectAllonCommit = b; }
 
     void            onKeystroke();
-    typedef std::function<void (LLLineEditor* caller, void* user_data)> callback_t;
+    using callback_t = std::function<void (LLLineEditor* caller, void* user_data)>;
     void            setKeystrokeCallback(callback_t callback, void* user_data);
 
     void            setMaxTextLength(S32 max_text_length);
@@ -338,7 +338,7 @@ protected:
 
     // line history support:
     bool        mHaveHistory;               // flag for enabled line history
-    typedef std::vector<std::string>    line_history_t;
+    using line_history_t = std::vector<std::string>;
     line_history_t  mLineHistory;           // line history storage
     line_history_t::iterator    mCurrentHistoryLine;    // currently browsed history line
 

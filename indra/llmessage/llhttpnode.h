@@ -162,7 +162,7 @@ public:
         LLSD mHeaders;
     };
 
-    typedef LLPointer<Response> ResponsePtr;
+    using ResponsePtr = LLPointer<Response>;
 
     virtual void get(ResponsePtr, const LLSD& context) const;
     virtual void put(

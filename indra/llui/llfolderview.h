@@ -66,7 +66,7 @@ class LLTextBox;
 class LLFolderViewScrollContainer : public LLScrollContainer
 {
 public:
-    /*virtual*/ ~LLFolderViewScrollContainer() {};
+    /*virtual*/ ~LLFolderViewScrollContainer() = default;
     /*virtual*/ const LLRect getScrolledViewRect() const;
 
 protected:
@@ -104,7 +104,7 @@ public:
     };
 
     friend class LLFolderViewScrollContainer;
-    typedef folder_view_item_deque selected_items_t;
+    using selected_items_t = folder_view_item_deque;
 
     LLFolderView(const Params&);
     virtual ~LLFolderView( void );
@@ -120,7 +120,7 @@ public:
     LLFolderViewGroupedItemModel* getFolderViewGroupedItemModel() { return mGroupedItemModel; }
     const LLFolderViewGroupedItemModel* getFolderViewGroupedItemModel() const { return mGroupedItemModel; }
 
-    typedef boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, bool user_action)> signal_t;
+    using signal_t = boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, bool user_action)>;
     void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
     void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 
@@ -369,7 +369,7 @@ public:
 class LLFolderViewFunctor
 {
 public:
-    virtual ~LLFolderViewFunctor() {}
+    virtual ~LLFolderViewFunctor() = default;
     virtual void doFolder(LLFolderViewFolder* folder) = 0;
     virtual void doItem(LLFolderViewItem* item) = 0;
 };
@@ -389,7 +389,7 @@ class LLSelectFirstFilteredItem : public LLFolderViewFunctor
 {
 public:
     LLSelectFirstFilteredItem() : mItemSelected(false), mFolderSelected(false) {}
-    virtual ~LLSelectFirstFilteredItem() {}
+    virtual ~LLSelectFirstFilteredItem() = default;
     virtual void doFolder(LLFolderViewFolder* folder);
     virtual void doItem(LLFolderViewItem* item);
     bool wasItemSelected() const { return mItemSelected || mFolderSelected; }
@@ -401,8 +401,8 @@ protected:
 class LLOpenFilteredFolders : public LLFolderViewFunctor
 {
 public:
-    LLOpenFilteredFolders()  {}
-    virtual ~LLOpenFilteredFolders() {}
+    LLOpenFilteredFolders() = default;
+    virtual ~LLOpenFilteredFolders() = default;
     virtual void doFolder(LLFolderViewFolder* folder);
     virtual void doItem(LLFolderViewItem* item);
 };
@@ -411,7 +411,7 @@ class LLSaveFolderState : public LLFolderViewFunctor
 {
 public:
     LLSaveFolderState() : mApply(false) {}
-    virtual ~LLSaveFolderState() {}
+    virtual ~LLSaveFolderState() = default;
     virtual void doFolder(LLFolderViewFolder* folder);
     virtual void doItem(LLFolderViewItem* item) {}
     void setApply(bool apply);
@@ -425,8 +425,8 @@ protected:
 class LLOpenFoldersWithSelection : public LLFolderViewFunctor
 {
 public:
-    LLOpenFoldersWithSelection() {}
-    virtual ~LLOpenFoldersWithSelection() {}
+    LLOpenFoldersWithSelection() = default;
+    virtual ~LLOpenFoldersWithSelection() = default;
     virtual void doFolder(LLFolderViewFolder* folder);
     virtual void doItem(LLFolderViewItem* item);
 };
@@ -435,7 +435,7 @@ class LLAllDescendentsPassedFilter : public LLFolderViewFunctor
 {
 public:
     LLAllDescendentsPassedFilter() : mAllDescendentsPassedFilter(true) {}
-    /*virtual*/ ~LLAllDescendentsPassedFilter() {}
+    /*virtual*/ ~LLAllDescendentsPassedFilter() = default;
     /*virtual*/ void doFolder(LLFolderViewFolder* folder);
     /*virtual*/ void doItem(LLFolderViewItem* item);
     bool allDescendentsPassedFilter() const { return mAllDescendentsPassedFilter; }

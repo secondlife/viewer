@@ -49,7 +49,7 @@
 class LLNameValue;
 class LLStringTable;
 
-typedef enum e_name_value_types
+enum ENameValueType
 {
     NVT_NULL,
     NVT_STRING,
@@ -61,17 +61,17 @@ typedef enum e_name_value_types
     NVT_ASSET,
     NVT_U64,
     NVT_EOF
-} ENameValueType;
+};
 
-typedef enum e_name_value_class
+enum ENameValueClass
 {
     NVC_NULL,
     NVC_READ_ONLY,
     NVC_READ_WRITE,
     NVC_EOF
-} ENameValueClass;
+};
 
-typedef enum e_name_value_sento
+enum ENameValueSendto
 {
     NVS_NULL,
     NVS_SIM,
@@ -79,7 +79,7 @@ typedef enum e_name_value_sento
     NVS_SIM_VIEWER,
     NVS_DATA_SIM_VIEWER,
     NVS_EOF
-} ENameValueSendto;
+};
 
 
 // NameValues can always be "printed" into a buffer of this length.
@@ -101,7 +101,7 @@ extern char NameValueTypeStrings[NVT_EOF][NAME_VALUE_TYPE_STRING_LENGTH];       
 extern char NameValueClassStrings[NVC_EOF][NAME_VALUE_CLASS_STRING_LENGTH];     /* Flawfinder: Ignore */
 extern char NameValueSendtoStrings[NVS_EOF][NAME_VALUE_SENDTO_STRING_LENGTH];       /* Flawfinder: Ignore */
 
-typedef union u_name_value_reference
+union UNameValueReference
 {
     char        *string;
     F32         *f32;
@@ -109,7 +109,7 @@ typedef union u_name_value_reference
     LLVector3   *vec3;
     U32         *u32;
     U64         *u64;
-} UNameValueReference;
+};
 
 
 class LLNameValue

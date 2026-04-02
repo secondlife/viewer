@@ -32,8 +32,8 @@
 class LLViewBorder : public LLView
 {
 public:
-    typedef enum e_bevel { BEVEL_IN, BEVEL_OUT, BEVEL_BRIGHT, BEVEL_NONE } EBevel ;
-    typedef enum e_style { STYLE_LINE, STYLE_TEXTURE } EStyle;
+    enum EBevel { BEVEL_IN, BEVEL_OUT, BEVEL_BRIGHT, BEVEL_NONE };
+    enum EStyle { STYLE_LINE, STYLE_TEXTURE };
 
     struct BevelValues
     :   public LLInitParam::TypeValuesHelper<LLViewBorder::EBevel, BevelValues>

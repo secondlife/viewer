@@ -235,7 +235,7 @@ bool    b_positive_integer_ok(const char *token)
 
 // Done with C functions, here's the tokenizer.
 
-typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
+using tokenizer = boost::tokenizer< boost::char_separator<char> >;
 
 LLTemplateTokenizer::LLTemplateTokenizer(const std::string & contents) : mStarted(false), mTokens()
 {

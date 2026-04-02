@@ -85,7 +85,7 @@ protected:
 class LLPlacesInventoryBridgeBuilder : public LLInventoryFolderViewModelBuilder
 {
 public:
-    LLPlacesInventoryBridgeBuilder() {}
+    LLPlacesInventoryBridgeBuilder() = default;
 
     /*virtual*/ LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
                                             LLAssetType::EType actual_asset_type,

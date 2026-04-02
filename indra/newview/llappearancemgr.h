@@ -336,7 +336,7 @@ private:
 class LLRequestServerAppearanceUpdateOnDestroy: public LLInventoryCallback
 {
 public:
-    LLRequestServerAppearanceUpdateOnDestroy() {}
+    LLRequestServerAppearanceUpdateOnDestroy() = default;
     ~LLRequestServerAppearanceUpdateOnDestroy();
 
     /* virtual */ void fire(const LLUUID& item_id) {}

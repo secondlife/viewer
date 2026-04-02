@@ -39,7 +39,7 @@ class LLMultiFloater : public LLFloater
 {
 public:
     LLMultiFloater(const LLSD& key, const Params& params = getDefaultParams());
-    virtual ~LLMultiFloater() {};
+    virtual ~LLMultiFloater() = default;
 
     void buildTabContainer();
 
@@ -88,7 +88,7 @@ protected:
 
     LLTabContainer*     mTabContainer;
 
-    typedef std::map<LLHandle<LLFloater>, LLFloaterData> floater_data_map_t;
+    using floater_data_map_t = std::map<LLHandle<LLFloater>, LLFloaterData>;
     floater_data_map_t  mFloaterDataMap;
 
     LLTabContainer::TabPosition mTabPos;

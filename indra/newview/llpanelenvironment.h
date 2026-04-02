@@ -241,7 +241,7 @@ public:
         }
     };
     LLSettingsDropTarget(const Params&);
-    ~LLSettingsDropTarget() {};
+    ~LLSettingsDropTarget() = default;
 
     virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         EDragAndDropType cargo_type,

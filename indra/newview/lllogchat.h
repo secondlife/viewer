@@ -155,7 +155,7 @@ class LLChatLogFormatter
 {
 public:
     LLChatLogFormatter(const LLSD& im) : mIM(im) {}
-    virtual ~LLChatLogFormatter() {};
+    virtual ~LLChatLogFormatter() = default;
 
     friend std::ostream& operator<<(std::ostream& str, const LLChatLogFormatter& formatter)
     {
@@ -197,7 +197,7 @@ public:
 
 protected:
     LLChatLogParser();
-    virtual ~LLChatLogParser() {};
+    virtual ~LLChatLogParser() = default;
 };
 
 extern const std::string GROUP_CHAT_SUFFIX;

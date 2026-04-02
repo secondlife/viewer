@@ -35,7 +35,7 @@
 // 2) Add display code to LLStupidObject::render2(LLAgent* agentp) in llstupidobject.cpp
 // 3) Add any additional code to support new opcodes you create
 
-typedef enum e_lltask_name
+enum ELLTaskName
 {
     LLTASK_NULL             = 0, // Not a valid task
     LLTASK_AGENT            = 1, // The player's agent in Linden World
@@ -56,5 +56,5 @@ typedef enum e_lltask_name
     LLTASK_PRIMITIVE        = 16,
 //  LLTASK_GHOST            = 17, // a ghost (Boo!)
     LLTASK_TREE_NEW         = 18
-} ELLTaskName;
+};
 #endif

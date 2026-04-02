@@ -59,8 +59,8 @@ public:
 
 public:
 
-    LLFolderViewFilter() {}
-    virtual ~LLFolderViewFilter() {}
+    LLFolderViewFilter() = default;
+    virtual ~LLFolderViewFilter() = default;
 
     // +-------------------------------------------------------------------+
     // + Execution And Results
@@ -114,7 +114,7 @@ public:
     LLFolderViewModelInterface()
     {}
 
-    virtual ~LLFolderViewModelInterface() {}
+    virtual ~LLFolderViewModelInterface() = default;
     virtual void requestSortAll() = 0;
 
     virtual void sort(class LLFolderViewFolder*) = 0;
@@ -138,7 +138,7 @@ public:
     LLFolderViewModelItem()
     {}
 
-    virtual ~LLFolderViewModelItem() { }
+    virtual ~LLFolderViewModelItem() = default;
 
     virtual void update() {}    //called when drawing
     virtual const std::string& getName() const = 0;
@@ -289,7 +289,7 @@ public:
     std::string::size_type getFilterStringOffset() override;
     std::string::size_type getFilterStringSize() override;
 
-    typedef std::list<LLPointer<LLFolderViewModelItem> > child_list_t;
+    using child_list_t = std::list<LLPointer<LLFolderViewModelItem> >;
 
     virtual void addChild(LLFolderViewModelItem* child) override
     {
@@ -418,17 +418,17 @@ template <typename SORT_TYPE, typename ITEM_TYPE, typename FOLDER_TYPE, typename
 class LLFolderViewModel : public LLFolderViewModelCommon
 {
 public:
-    typedef SORT_TYPE       SortType;
-    typedef ITEM_TYPE       ItemType;
-    typedef FOLDER_TYPE     FolderType;
-    typedef FILTER_TYPE     FilterType;
+    using SortType = SORT_TYPE;
+    using ItemType = ITEM_TYPE;
+    using FolderType = FOLDER_TYPE;
+    using FilterType = FILTER_TYPE;
 
     LLFolderViewModel(SortType* sorter, FilterType* filter)
     :   mSorter(sorter),
         mFilter(filter)
     {}
 
-    virtual ~LLFolderViewModel() {}
+    virtual ~LLFolderViewModel() = default;
 
     virtual SortType& getSorter()                    { return *mSorter; }
     virtual const SortType& getSorter() const        { return *mSorter; }

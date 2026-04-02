@@ -40,7 +40,7 @@ class LLPanelBlockedList : public LLPanel
 {
 public:
     LLPanelBlockedList();
-    ~LLPanelBlockedList(){};
+    ~LLPanelBlockedList() = default;
 
     bool postBuild() override;
     void draw() override;

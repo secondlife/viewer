@@ -29,6 +29,6 @@
 // and llnotifications.h is very large, so define this ligher header.
 
 class LLNotification;
-typedef std::shared_ptr<LLNotification> LLNotificationPtr;
+using LLNotificationPtr = std::shared_ptr<LLNotification>;
 
 #endif

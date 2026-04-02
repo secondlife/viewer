@@ -58,7 +58,7 @@ class LLGroupMgrObserver
 public:
     LLGroupMgrObserver(const LLUUID& id) : mID(id){};
     LLGroupMgrObserver() : mID(LLUUID::null){};
-    virtual ~LLGroupMgrObserver(){};
+    virtual ~LLGroupMgrObserver() = default;
     virtual void changed(LLGroupChange gc) = 0;
     const LLUUID& getID() { return mID; }
 protected:
@@ -68,7 +68,7 @@ protected:
 class LLParticularGroupObserver
 {
 public:
-    virtual ~LLParticularGroupObserver(){}
+    virtual ~LLParticularGroupObserver() = default;
     virtual void changed(const LLUUID& group_id, LLGroupChange gc) = 0;
 };
 
@@ -210,7 +210,7 @@ struct lluuid_pair_less
 struct LLGroupBanData
 {
     LLGroupBanData(): mBanDate()    {}
-    ~LLGroupBanData()   {}
+    ~LLGroupBanData() = default;
 
     LLDate mBanDate;
     // TODO: std:string ban_reason;

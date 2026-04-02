@@ -48,7 +48,7 @@ public:
     virtual void    setFocus( bool b );
     virtual bool    hasFocus() const;
 
-    typedef boost::signals2::signal<void(LLFocusableElement*)> focus_signal_t;
+    using focus_signal_t = boost::signals2::signal<void(LLFocusableElement*)>;
 
     boost::signals2::connection setFocusLostCallback( const focus_signal_t::slot_type& cb);
     boost::signals2::connection setFocusReceivedCallback(const focus_signal_t::slot_type& cb);

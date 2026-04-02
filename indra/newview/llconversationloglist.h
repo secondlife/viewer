@@ -51,7 +51,7 @@ public:
 
     struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
     {
-        Params(){};
+        Params() = default;
     };
 
     LLConversationLogList(const Params& p);
@@ -114,8 +114,8 @@ class LLConversationLogListItemComparator : public LLFlatListView::ItemComparato
     LOG_CLASS(LLConversationLogListItemComparator);
 
 public:
-    LLConversationLogListItemComparator() {};
-    virtual ~LLConversationLogListItemComparator() {};
+    LLConversationLogListItemComparator() = default;
+    virtual ~LLConversationLogListItemComparator() = default;
 
     virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
 
@@ -129,8 +129,8 @@ class LLConversationLogListNameComparator : public LLConversationLogListItemComp
     LOG_CLASS(LLConversationLogListNameComparator);
 
 public:
-    LLConversationLogListNameComparator() {};
-    virtual ~LLConversationLogListNameComparator() {};
+    LLConversationLogListNameComparator() = default;
+    virtual ~LLConversationLogListNameComparator() = default;
 
 protected:
 
@@ -142,8 +142,8 @@ class LLConversationLogListDateComparator : public LLConversationLogListItemComp
     LOG_CLASS(LLConversationLogListDateComparator);
 
 public:
-    LLConversationLogListDateComparator() {};
-    virtual ~LLConversationLogListDateComparator() {};
+    LLConversationLogListDateComparator() = default;
+    virtual ~LLConversationLogListDateComparator() = default;
 
 protected:
 

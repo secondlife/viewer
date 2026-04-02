@@ -105,7 +105,7 @@ protected:
     LLPanel(const LLPanel::Params& params = getDefaultParams());
 
 public:
-    typedef std::vector<class LLUICtrl *>               ctrl_list_t;
+    using ctrl_list_t = std::vector<class LLUICtrl *>;
 
     bool buildFromFile(const std::string &filename, const LLPanel::Params& default_params = getDefaultParams());
 
@@ -231,7 +231,7 @@ protected:
     commit_signal_t* mVisibleSignal;        // Called when visibility changes, passes new visibility as LLSD()
 
     std::string     mHelpTopic;         // the name of this panel's help topic to display in the Help Viewer
-    typedef std::deque<const LLCallbackMap::map_t*> factory_stack_t;
+    using factory_stack_t = std::deque<const LLCallbackMap::map_t*>;
     static factory_stack_t  sFactoryStack;
 
     // for setting the xml filename when building panel in context dependent cases
@@ -250,7 +250,7 @@ private:
     LLButton*       mDefaultBtn;
     LLUIString      mLabel;
 
-    typedef std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>> ui_string_map_t;
+    using ui_string_map_t = std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>>;
     ui_string_map_t mUIStrings;
 
 
@@ -262,7 +262,7 @@ extern template class LLPanel* LLView::getChild<class LLPanel>(
     std::string_view name, bool recurse) const;
 #endif
 
-typedef std::function<LLPanel* (void)> LLPanelClassCreatorFunc;
+using LLPanelClassCreatorFunc = std::function<LLPanel* (void)>;
 
 // local static instance for registering a particular panel class
 
@@ -292,7 +292,7 @@ public:
     }
 
 private:
-    typedef std::unordered_map<std::string, LLPanelClassCreatorFunc, ll::string_hash, std::equal_to<>> param_name_map_t;
+    using param_name_map_t = std::unordered_map<std::string, LLPanelClassCreatorFunc, ll::string_hash, std::equal_to<>>;
 
     param_name_map_t mPanelClassesNames;
 };

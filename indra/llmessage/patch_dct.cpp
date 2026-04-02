@@ -30,13 +30,13 @@
 #include "v3math.h"
 #include "patch_dct.h"
 
-typedef struct s_patch_compress_global_data
+struct PCGD
 {
     S32 patch_size;
     S32 patch_stride;
     U32 charptr;
     S32 layer_type;
-} PCGD;
+};
 
 PCGD    gPatchCompressGlobalData;
 

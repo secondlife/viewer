@@ -300,12 +300,12 @@ private:
 class LLBufferArray
 {
 public:
-    typedef std::vector<LLBuffer*> buffer_list_t;
-    typedef buffer_list_t::iterator buffer_iterator_t;
-    typedef buffer_list_t::const_iterator const_buffer_iterator_t;
-    typedef std::list<LLSegment> segment_list_t;
-    typedef segment_list_t::const_iterator const_segment_iterator_t;
-    typedef segment_list_t::iterator segment_iterator_t;
+    using buffer_list_t = std::vector<LLBuffer*>;
+    using buffer_iterator_t = buffer_list_t::iterator;
+    using const_buffer_iterator_t = buffer_list_t::const_iterator;
+    using segment_list_t = std::list<LLSegment>;
+    using const_segment_iterator_t = segment_list_t::const_iterator;
+    using segment_iterator_t = segment_list_t::iterator;
     enum { npos = 0xffffffff };
 
     LLBufferArray();

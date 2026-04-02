@@ -348,8 +348,8 @@ protected:
     virtual bool isCollapsed() { return false; }
 
 public:
-    typedef std::list<LLFolderViewItem*> items_t;
-    typedef std::list<LLFolderViewFolder*> folders_t;
+    using items_t = std::list<LLFolderViewItem*>;
+    using folders_t = std::list<LLFolderViewFolder*>;
 
 protected:
     items_t mItems;
@@ -366,13 +366,13 @@ protected:
     bool        mAreChildrenInited; // indicates that no children were initialized
 
 public:
-    typedef enum e_recurse_type
+    enum ERecurseType
     {
         RECURSE_NO,
         RECURSE_UP,
         RECURSE_DOWN,
         RECURSE_UP_DOWN
-    } ERecurseType;
+    };
 
 
     virtual ~LLFolderViewFolder( void );
@@ -518,7 +518,7 @@ public:
     template<typename SORT_FUNC> void sortItems(const SORT_FUNC& func) { mItems.sort(func); }
 };
 
-typedef std::deque<LLFolderViewItem*> folder_view_item_deque;
+using folder_view_item_deque = std::deque<LLFolderViewItem*>;
 
 class LLFolderViewGroupedItemModel: public LLRefCount
 {

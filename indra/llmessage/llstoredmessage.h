@@ -45,7 +45,7 @@ private:
     std::string mName;
 };
 
-typedef std::shared_ptr<LLStoredMessage> LLStoredMessagePtr;
+using LLStoredMessagePtr = std::shared_ptr<LLStoredMessage>;
 
 
 #endif // LL_STOREDMESSAGE_H

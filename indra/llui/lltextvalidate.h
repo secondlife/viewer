@@ -36,8 +36,8 @@ namespace LLTextValidate
     class ValidatorImpl
     {
     public:
-        ValidatorImpl() {}
-        virtual ~ValidatorImpl() {}
+        ValidatorImpl() = default;
+        virtual ~ValidatorImpl() = default;
 
         virtual bool validate(const std::string& str) = 0;
         virtual bool validate(const LLWString& str) = 0;

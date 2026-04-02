@@ -90,11 +90,11 @@ class LLXferManager
     };
 
     // Linked FIFO list, add to the front and pull from back
-    typedef std::deque<LLXfer *> xfer_list_t;
+    using xfer_list_t = std::deque<LLXfer *>;
     xfer_list_t     mSendList;
     xfer_list_t     mReceiveList;
 
-    typedef std::list<LLHostStatus*> status_list_t;
+    using status_list_t = std::list<LLHostStatus*>;
     status_list_t mOutgoingHosts;
 
  protected:

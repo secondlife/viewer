@@ -34,21 +34,21 @@
 
 class LLView;
 
-typedef std::list<LLView *>         viewList_t;
-typedef std::pair<bool, bool>       filterResult_t;
+using viewList_t = std::list<LLView *>;
+using filterResult_t = std::pair<bool, bool>;
 
 // Abstract base class for all query filters.
 class LLQueryFilter
 {
 public:
-    virtual ~LLQueryFilter() {};
+    virtual ~LLQueryFilter() = default;
     virtual filterResult_t operator() (const LLView* const view, const viewList_t & children) const = 0;
 };
 
 class LLQuerySorter
 {
 public:
-    virtual ~LLQuerySorter() {};
+    virtual ~LLQuerySorter() = default;
     virtual void sort(LLView * parent, viewList_t &children) const;
 };
 
@@ -102,12 +102,12 @@ class LLWidgetTypeFilter : public LLQueryFilter
 class LLViewQuery
 {
 public:
-    typedef std::list<const LLQueryFilter*>     filterList_t;
-    typedef filterList_t::iterator              filterList_iter_t;
-    typedef filterList_t::const_iterator        filterList_const_iter_t;
+    using filterList_t = std::list<const LLQueryFilter*>;
+    using filterList_iter_t = filterList_t::iterator;
+    using filterList_const_iter_t = filterList_t::const_iterator;
 
     LLViewQuery() : mPreFilters(), mPostFilters(), mSorterp() {}
-    virtual ~LLViewQuery() {}
+    virtual ~LLViewQuery() = default;
 
     void addPreFilter(const LLQueryFilter* prefilter) { mPreFilters.push_back(prefilter); }
     void addPostFilter(const LLQueryFilter* postfilter) { mPostFilters.push_back(postfilter); }

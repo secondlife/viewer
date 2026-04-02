@@ -44,13 +44,13 @@ public:
         BOTTOM,
         LEFT
     };
-    typedef enum e_insertion_point
+    enum eInsertionPoint
     {
         START,
         END,
         LEFT_OF_CURRENT,
         RIGHT_OF_CURRENT
-    } eInsertionPoint;
+    };
 
     struct TabPositions : public LLInitParam::TypeValuesHelper<LLTabContainer::TabPosition, TabPositions>
     {
@@ -269,7 +269,7 @@ private:
 
     // Variables
 
-    typedef std::vector<LLTabTuple*> tuple_list_t;
+    using tuple_list_t = std::vector<LLTabTuple*>;
     tuple_list_t                    mTabList;
 
     S32                             mCurrentTabIdx;

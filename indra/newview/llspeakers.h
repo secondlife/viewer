@@ -59,7 +59,7 @@ public:
 
 
     LLSpeaker(const LLUUID& id, const std::string& name = LLStringUtil::null, const ESpeakerType type = SPEAKER_AGENT);
-    ~LLSpeaker() {};
+    ~LLSpeaker() = default;
     void lookupName();
 
     void onNameCache(const LLUUID& id, const LLAvatarName& full_name);
@@ -155,7 +155,7 @@ public:
      * @param speaker_id - LLUUID of speaker which will be passed into action callback.
      */
     LLSpeakerActionTimer(action_callback_t action_cb, F32 action_period, const LLUUID& speaker_id);
-    virtual ~LLSpeakerActionTimer() {};
+    virtual ~LLSpeakerActionTimer() = default;
 
     /**
      * Implements timer "tick".

@@ -47,7 +47,7 @@ public:
                             time,
                             message;
 
-        Params() {}
+        Params() = default;
     };
 
     LLToastIMPanel(LLToastIMPanel::Params &p);

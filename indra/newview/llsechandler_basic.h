@@ -85,9 +85,9 @@ class LLBasicCertificateVector : virtual public LLCertificateVector
 {
 
 public:
-    LLBasicCertificateVector() {}
+    LLBasicCertificateVector() = default;
 
-    virtual ~LLBasicCertificateVector() {}
+    virtual ~LLBasicCertificateVector() = default;
 
     // Implementation of the basic iterator implementation.
     // The implementation uses a vector iterator derived from
@@ -96,7 +96,7 @@ public:
     {
     public:
         BasicIteratorImpl(std::vector<LLPointer<LLCertificate> >::iterator _iter) { mIter = _iter;}
-        virtual ~BasicIteratorImpl() {};
+        virtual ~BasicIteratorImpl() = default;
         // seek forward or back.  Used by the operator++/operator-- implementations
         virtual void seek(bool incr)
         {
@@ -207,7 +207,7 @@ class LLBasicCertificateChain : virtual public LLBasicCertificateVector, public 
 public:
     LLBasicCertificateChain(X509_STORE_CTX * store);
 
-    virtual ~LLBasicCertificateChain() {}
+    virtual ~LLBasicCertificateChain() = default;
 
 };
 
@@ -218,7 +218,7 @@ class LLSecAPIBasicCredential : public LLCredential
 {
 public:
     LLSecAPIBasicCredential(const std::string& grid) : LLCredential(grid) {}
-    virtual ~LLSecAPIBasicCredential() {}
+    virtual ~LLSecAPIBasicCredential() = default;
     // return a value representing the user id, used for server and voice
     // (could be guid, name in format "name_resident", whatever)
     virtual std::string userID() const;

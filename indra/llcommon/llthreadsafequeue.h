@@ -82,7 +82,7 @@ public:
     // Limiting the number of pending items prevents unbounded growth of the
     // underlying queue.
     LLThreadSafeQueue(size_t capacity = 1024);
-    virtual ~LLThreadSafeQueue() {}
+    virtual ~LLThreadSafeQueue() = default;
 
     // Add an element to the queue (will block if the queue has reached
     // capacity).

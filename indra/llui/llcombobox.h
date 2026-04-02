@@ -48,11 +48,11 @@ class LLComboBox
 , public ll::ui::SearchableControl
 {
 public:
-    typedef enum e_preferred_position
+    enum EPreferredPosition
     {
         ABOVE,
         BELOW
-    } EPreferredPosition;
+    };
 
     struct PreferredPositionValues : public LLInitParam::TypeValuesHelper<EPreferredPosition, PreferredPositionValues>
     {
@@ -282,7 +282,7 @@ private:
 
     friend class LLUICtrlFactory;
     LLIconsComboBox(const Params&);
-    virtual ~LLIconsComboBox() {};
+    virtual ~LLIconsComboBox() = default;
 
     S32         mIconColumnIndex;
     S32         mLabelColumnIndex;

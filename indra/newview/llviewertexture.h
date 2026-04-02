@@ -531,7 +531,7 @@ public:
 class LLViewerLODTexture : public LLViewerFetchedTexture
 {
 protected:
-    /*virtual*/ ~LLViewerLODTexture(){}
+    /*virtual*/ ~LLViewerLODTexture() = default;
 
 public:
     LLViewerLODTexture(const LLUUID& id, FTType f_type, const LLHost& host = LLHost(), bool usemipmaps = true);
@@ -620,7 +620,7 @@ class LLViewerTextureManager
 {
 private:
     //make the constructor private to preclude creating instances from this class.
-    LLViewerTextureManager(){}
+    LLViewerTextureManager() = default;
 
 public:
     //texture pipeline tester

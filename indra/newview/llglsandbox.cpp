@@ -942,11 +942,6 @@ F32 shader_timer_benchmark(std::vector<LLRenderTarget> & dest, TextureHolder & t
 //-----------------------------------------------------------------------------
 F32 gpu_benchmark()
 {
-    if (gGLManager.mGLVersion < 3.3f)
-    { // don't bother benchmarking venerable drivers which don't support accurate timing anyway
-        return -1.f;
-    }
-
     if (gBenchmarkProgram.mProgramObject == 0)
     {
         LLViewerShaderMgr::instance()->initAttribsAndUniforms();

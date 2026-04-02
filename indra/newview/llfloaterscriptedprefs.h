@@ -40,7 +40,7 @@ public:
     bool postBuild() override;
 
 private:
-    ~LLFloaterScriptEdPrefs() {};
+    ~LLFloaterScriptEdPrefs() = default;
 
     void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
     void getUIColor(LLUICtrl* ctrl, const LLSD& param);

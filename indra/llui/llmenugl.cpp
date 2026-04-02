@@ -1792,7 +1792,7 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
     mShortcutPad(p.shortcut_pad),
     mFont(p.font)
 {
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep("_");
     tokenizer tokens(p.label(), sep);
     tokenizer::iterator token_iter;
@@ -2492,7 +2492,7 @@ void LLMenuGL::createJumpKeys()
     std::set<std::string> shared_words;
 
     item_list_t::iterator item_it;
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep(" ");
 
     for(item_it = mItems.begin(); item_it != mItems.end(); ++item_it)

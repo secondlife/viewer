@@ -37,7 +37,7 @@ class LLAccountingCostObserver
 {
 public:
     LLAccountingCostObserver() { mObserverHandle.bind(this); }
-    virtual ~LLAccountingCostObserver() {}
+    virtual ~LLAccountingCostObserver() = default;
     virtual void onWeightsUpdate(const SelectionCost& selection_cost) = 0;
     virtual void setErrorStatus(S32 status, const std::string& reason) = 0;
     const LLHandle<LLAccountingCostObserver>& getObserverHandle() const { return mObserverHandle; }

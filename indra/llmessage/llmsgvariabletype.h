@@ -27,7 +27,7 @@
 #ifndef LL_LLMSGVARIABLETYPE_H
 #define LL_LLMSGVARIABLETYPE_H
 
-typedef enum e_message_variable_type
+enum EMsgVariableType
 {
     MVT_NULL,
     MVT_FIXED,
@@ -54,6 +54,6 @@ typedef enum e_message_variable_type
     MVT_U16Quat,
     MVT_S16Array,
     MVT_EOL
-} EMsgVariableType;
+};
 
 #endif // LL_LLMSGVARIABLETYPE_H

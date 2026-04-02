@@ -45,10 +45,8 @@ class LLVector3d;
 
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
 
-typedef boost::signals2::signal<void (const std::string& url,
-                                      const std::string& label,
-                                      const std::string& icon)> LLUrlLabelSignal;
-typedef LLUrlLabelSignal::slot_type LLUrlLabelCallback;
+using LLUrlLabelSignal = boost::signals2::signal<void (const std::string& url, const std::string& label, const std::string& icon)>;
+using LLUrlLabelCallback = LLUrlLabelSignal::slot_type;
 
 ///
 /// LLUrlEntryBase is the base class of all Url types registered in the
@@ -127,10 +125,10 @@ protected:
     std::string urlToGreyQuery(const std::string &url) const;
     virtual void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 
-    typedef struct {
+    struct LLUrlEntryObserver {
         std::string url;
         LLUrlLabelSignal *signal;
-    } LLUrlEntryObserver;
+    };
 
     boost::regex                                    mPattern;
     std::string                                     mIcon;
@@ -245,7 +243,7 @@ protected:
 private:
     void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 
-    typedef std::multimap<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
+    using avatar_name_cache_connection_map_t = std::multimap<LLUUID, boost::signals2::connection>;
     avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
 };
 
@@ -290,7 +288,7 @@ protected:
 private:
     void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 
-    typedef std::multimap<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
+    using avatar_name_cache_connection_map_t = std::multimap<LLUUID, boost::signals2::connection>;
     avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
 };
 
@@ -597,7 +595,7 @@ private:
 
     struct LLLocalizationData
     {
-        LLLocalizationData() {}
+        LLLocalizationData() = default;
         LLLocalizationData(const std::string& localization, const std::string& tooltip)
             : mLocalization(localization)
             , mTooltip(tooltip)

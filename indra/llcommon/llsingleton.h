@@ -88,7 +88,7 @@ protected:
     // constructor, which passes tag<DERIVED_TYPE> for various purposes.
     template <typename DERIVED_TYPE>
     LLSingletonBase(tag<DERIVED_TYPE>);
-    virtual ~LLSingletonBase();
+    virtual ~LLSingletonBase() = default;
 
     // Every new LLSingleton should be added to/removed from the master list
     void add_master();

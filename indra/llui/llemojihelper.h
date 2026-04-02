@@ -53,7 +53,7 @@ public:
     void onCommitEmoji(llwchar emoji);
     void onCloseHelper(LLUICtrl* ctrl, const LLSD& param);
 
-    typedef boost::signals2::signal<void(LLUICtrl* ctrl, const LLSD& param)> commit_signal_t;
+    using commit_signal_t = boost::signals2::signal<void(LLUICtrl* ctrl, const LLSD& param)>;
     boost::signals2::connection setCloseCallback(const commit_signal_t::slot_type& cb);
 
 protected:

@@ -39,7 +39,7 @@ public:
     static LLFloaterBanDuration* show(select_callback_t callback, uuid_vec_t id);
 
 private:
-    ~LLFloaterBanDuration() {};
+    ~LLFloaterBanDuration() = default;
     void onClickBan();
     void onClickCancel();
     void onClickRadio();

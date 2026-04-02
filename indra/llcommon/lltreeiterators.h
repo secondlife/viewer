@@ -226,7 +226,7 @@ public:
             mParents.push_back(n);
     }
     /// Instantiate an LLTreeDownIter representing "here", the end of the loop
-    LLTreeDownIter() {}
+    LLTreeDownIter() = default;
 
 private:
     /// leverage boost::iterator_facade
@@ -591,7 +591,7 @@ public:
             mPending.push_back(node);
     }
     /// Instantiate an LLTreeBFSIter to mark the end of the walk
-    LLTreeBFSIter() {}
+    LLTreeBFSIter() = default;
 
 private:
     /// leverage boost::iterator_facade

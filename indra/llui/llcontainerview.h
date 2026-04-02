@@ -57,7 +57,7 @@ public:
     };
 
     // my valid children are stored in this registry
-    typedef ContainerViewRegistry child_registry_t;
+    using child_registry_t = ContainerViewRegistry;
 
 protected:
     LLContainerView(const Params& p);

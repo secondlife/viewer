@@ -48,8 +48,8 @@ class LLSD;
 class LLLineBuffer
 {
 public:
-    LLLineBuffer() {};
-    virtual ~LLLineBuffer() {};
+    LLLineBuffer() = default;
+    virtual ~LLLineBuffer() = default;
 
     virtual void clear() = 0; // Clear the buffer, and reset it.
 

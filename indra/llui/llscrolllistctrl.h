@@ -54,12 +54,12 @@ class LLScrollListCtrl : public LLUICtrl, public LLEditMenuHandler,
     public LLCtrlListInterface, public LLCtrlScrollInterface
 {
 public:
-    typedef enum e_selection_type
+    enum ESelectionType
     {
         ROW, // default
         CELL, // does not support multi-selection
         HEADER, // when pointing to cells in column 0 will highlight whole row, otherwise cell, no multi-select
-    } ESelectionType;
+    };
 
     struct SelectionTypeNames : public LLInitParam::TypeValuesHelper<LLScrollListCtrl::ESelectionType, SelectionTypeNames>
     {
@@ -77,11 +77,11 @@ public:
     };
 
     // *TODO: Add callbacks to Params
-    typedef std::function<void (void)> callback_t;
+    using callback_t = std::function<void (void)>;
 
     template<typename T> struct maximum
     {
-        typedef T result_type;
+        using result_type = T;
 
         template<typename InputIterator>
         T operator()(InputIterator first, InputIterator last) const
@@ -101,8 +101,8 @@ public:
     };
 
 
-    typedef boost::signals2::signal<S32 (S32,const LLScrollListItem*,const LLScrollListItem*),maximum<S32> > sort_signal_t;
-    typedef boost::signals2::signal<bool(const LLUUID& user_id)> is_friend_signal_t;
+    using sort_signal_t = boost::signals2::signal<S32 (S32,const LLScrollListItem*,const LLScrollListItem*),maximum<S32> >;
+    using is_friend_signal_t = boost::signals2::signal<bool(const LLUUID& user_id)>;
 
     struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
     {
@@ -448,7 +448,7 @@ protected:
     // returns false if item faile to be added to list, does NOT delete 'item'
     bool            addItem( LLScrollListItem* item, EAddPosition pos = ADD_BOTTOM, bool requires_column = true );
 
-    typedef std::deque<LLScrollListItem *> item_list;
+    using item_list = std::deque<LLScrollListItem *>;
     item_list&      getItemList() { return mItemList; }
 
     void            updateLineHeight();
@@ -540,7 +540,7 @@ private:
 
     mutable bool    mSorted;
 
-    typedef std::map<std::string, LLScrollListColumn*> column_map_t;
+    using column_map_t = std::map<std::string, LLScrollListColumn*>;
     column_map_t mColumns;
 
     bool            mDirty;
@@ -548,10 +548,10 @@ private:
 
     ContextMenuType mContextMenuType;
 
-    typedef std::vector<LLScrollListColumn*> ordered_columns_t;
+    using ordered_columns_t = std::vector<LLScrollListColumn*>;
     ordered_columns_t   mColumnsIndexed;
 
-    typedef std::pair<S32, bool> sort_column_t;
+    using sort_column_t = std::pair<S32, bool>;
     std::vector<sort_column_t>  mSortColumns;
 
     sort_signal_t*  mSortCallback;

@@ -55,8 +55,8 @@ class LLOutfitTabNameComparator : public LLAccordionCtrl::LLTabComparator
     LOG_CLASS(LLOutfitTabNameComparator);
 
 public:
-    LLOutfitTabNameComparator() {};
-    virtual ~LLOutfitTabNameComparator() {};
+    LLOutfitTabNameComparator() = default;
+    virtual ~LLOutfitTabNameComparator() = default;
 
     /*virtual*/ bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const;
 };
@@ -66,8 +66,8 @@ class LLOutfitTabFavComparator : public LLAccordionCtrl::LLTabComparator
     LOG_CLASS(LLOutfitTabFavComparator);
 
 public:
-    LLOutfitTabFavComparator() {};
-    virtual ~LLOutfitTabFavComparator() {};
+    LLOutfitTabFavComparator() = default;
+    virtual ~LLOutfitTabFavComparator() = default;
 
     /*virtual*/ bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const;
 };

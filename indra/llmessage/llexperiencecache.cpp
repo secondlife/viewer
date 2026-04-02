@@ -51,7 +51,7 @@ namespace LLExperienceCacheImpl
     static const boost::char_separator<char> COMMA_SEPARATOR(",");
 
     // *TODO$: this seems to be tied to mapKeys which is used by bootstrap.... but I don't think that bootstrap is used.
-    typedef std::map<LLUUID, LLUUID> KeyMap;
+    using KeyMap = std::map<LLUUID, LLUUID>;
     KeyMap privateToPublicKeyMap;
 }
 
@@ -984,7 +984,7 @@ F64 LLExperienceCacheImpl::getErrorRetryDeltaTime(S32 status, LLSD headers)
 bool LLExperienceCacheImpl::maxAgeFromCacheControl(const std::string& cache_control, S32 *max_age)
 {
     // Split the string on "," to get a list of directives
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     tokenizer directives(cache_control, COMMA_SEPARATOR);
 
     tokenizer::iterator token_it = directives.begin();

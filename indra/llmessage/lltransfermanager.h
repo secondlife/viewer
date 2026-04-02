@@ -44,16 +44,16 @@
 //
 
 
-typedef enum e_transfer_channel_type
+enum LLTransferChannelType
 {
     LLTCT_UNKNOWN = 0,
     LLTCT_MISC,
     LLTCT_ASSET,
     LLTCT_NUM_TYPES
-} LLTransferChannelType;
+};
 
 
-typedef enum e_transfer_source_type
+enum LLTransferSourceType
 {
     LLTST_UNKNOWN = 0,
     LLTST_FILE,
@@ -61,20 +61,20 @@ typedef enum e_transfer_source_type
     LLTST_SIM_INV_ITEM, // Simulator specific, may not be handled
     LLTST_SIM_ESTATE,   // Simulator specific, may not be handled
     LLTST_NUM_TYPES
-} LLTransferSourceType;
+};
 
 
-typedef enum e_transfer_target_type
+enum LLTransferTargetType
 {
     LLTTT_UNKNOWN = 0,
     LLTTT_FILE,
     LLTTT_VFILE,
     LLTTT_NUM_TYPES
-} LLTransferTargetType;
+};
 
 
 // Errors are negative, expected values are positive.
-typedef enum e_status_codes
+enum LLTSCode
 {
     LLTS_OK = 0,
     LLTS_DONE = 1,
@@ -83,14 +83,14 @@ typedef enum e_status_codes
     LLTS_ERROR = -1,
     LLTS_UNKNOWN_SOURCE = -2, // Equivalent of a 404
     LLTS_INSUFFICIENT_PERMISSIONS = -3  // Not enough permissions
-} LLTSCode;
+};
 
 // Types of requests for estate wide information
-typedef enum e_estate_type
+enum EstateAssetType
 {
     ET_Covenant = 0,
     ET_NONE = -1
-} EstateAssetType;
+};
 
 class LLMessageSystem;
 class LLDataPacker;
@@ -142,7 +142,7 @@ protected:
 
 protected:
     // Convenient typedefs
-    typedef std::map<LLHost, LLTransferConnection *> host_tc_map;
+    using host_tc_map = std::map<LLHost, LLTransferConnection *>;
 
     bool    mValid;
     LLHost  mHost;
@@ -170,8 +170,8 @@ public:
     LLTransferTargetChannel *getTargetChannel(const LLTransferChannelType type);
 
     // Convenient typedefs
-    typedef std::list<LLTransferSourceChannel *>::iterator tsc_iter;
-    typedef std::list<LLTransferTargetChannel *>::iterator ttc_iter;
+    using tsc_iter = std::list<LLTransferSourceChannel *>::iterator;
+    using ttc_iter = std::list<LLTransferTargetChannel *>::iterator;
     friend class LLTransferManager;
 protected:
 
@@ -207,7 +207,7 @@ public:
     LLHost                  getHost() const             { return mHost; }
 
 protected:
-    typedef std::list<LLTransferSource *>::iterator ts_iter;
+    using ts_iter = std::list<LLTransferSource *>::iterator;
 
     LLTransferChannelType               mChannelType;
     LLHost                              mHost;
@@ -248,7 +248,7 @@ protected:
     friend class LLTransferTarget;
     friend class LLTransferManager;
 protected:
-    typedef std::list<LLTransferTarget *>::iterator tt_iter;
+    using tt_iter = std::list<LLTransferTarget *>::iterator;
 
     LLTransferChannelType           mChannelType;
     LLHost                          mHost;
@@ -275,7 +275,7 @@ protected:
 //
 // LLTransferSource is an interface, all transfer sources should be derived from it.
 //
-typedef LLTransferSource *(*LLTransferSourceCreateFunc)(const LLUUID &id, const F32 priority);
+using LLTransferSourceCreateFunc = LLTransferSource *(*)(const LLUUID &id, const F32 priority);
 
 class LLTransferSource
 {
@@ -326,7 +326,7 @@ protected:
     static void sSetPriority(LLTransferSource *&tsp, const F32 priority);
     static F32  sGetPriority(LLTransferSource *&tsp);
 protected:
-    typedef std::map<LLTransferSourceType, LLTransferSourceCreateFunc> stype_scfunc_map;
+    using stype_scfunc_map = std::map<LLTransferSourceType, LLTransferSourceCreateFunc>;
     static stype_scfunc_map sSourceCreateMap;
 
     LLTransferSourceType mType;
@@ -418,8 +418,8 @@ protected:
         const S32 size);
 
 protected:
-    typedef std::map<S32, LLTransferPacket *> transfer_packet_map;
-    typedef std::map<S32, LLTransferPacket *>::iterator tpm_iter;
+    using transfer_packet_map = std::map<S32, LLTransferPacket *>;
+    using tpm_iter = std::map<S32, LLTransferPacket *>::iterator;
 
     LLTransferTargetType    mType;
     LLTransferSourceType mSourceType;

@@ -38,7 +38,7 @@ class LLPanelSearchExperiences
     : public LLPanel
 {
 public:
-    LLPanelSearchExperiences(){}
+    LLPanelSearchExperiences() = default;
     static LLPanelSearchExperiences* create(const std::string& name);
     /*virtual*/ bool postBuild(void);
 
@@ -77,8 +77,8 @@ class LLExperienceItemComparator : public LLFlatListView::ItemComparator
     LOG_CLASS(LLExperienceItemComparator);
 
 public:
-    LLExperienceItemComparator() {};
-    virtual ~LLExperienceItemComparator() {};
+    LLExperienceItemComparator() = default;
+    virtual ~LLExperienceItemComparator() = default;
 
     virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
 };

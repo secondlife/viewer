@@ -27,7 +27,7 @@
 #ifndef LL_LLCLASSIFIEDFLAGS_H
 #define LL_LLCLASSIFIEDFLAGS_H
 
-typedef U8 ClassifiedFlags;
+using ClassifiedFlags = U8;
 
 const U8 CLASSIFIED_FLAG_NONE       = 1 << 0;
 const U8 CLASSIFIED_FLAG_MATURE     = 1 << 1;

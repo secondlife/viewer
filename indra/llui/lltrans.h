@@ -125,7 +125,7 @@ public:
     }
 
 private:
-    typedef std::unordered_map<std::string, LLTransTemplate, ll::string_hash, std::equal_to<>> template_map_t;
+    using template_map_t = std::unordered_map<std::string, LLTransTemplate, ll::string_hash, std::equal_to<>>;
     static template_map_t sStringTemplates;
     static template_map_t sDefaultStringTemplates;
     static LLStringUtil::format_map_t sDefaultArgs;

@@ -113,7 +113,7 @@ template<typename T>
 class LLSDParamAdapter : public T
 {
 public:
-    LLSDParamAdapter() {}
+    LLSDParamAdapter() = default;
     LLSDParamAdapter(const LLSD& sd)
     {
         LL_PROFILE_ZONE_SCOPED;

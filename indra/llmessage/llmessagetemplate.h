@@ -102,7 +102,7 @@ public:
     }
 
     S32                                 mBlockNumber;
-    typedef LLIndexedVector<LLMsgVarData, const char *, 8> msg_var_data_map_t;
+    using msg_var_data_map_t = LLIndexedVector<LLMsgVarData, const char *, 8>;
     msg_var_data_map_t                  mMemberVarData;
     char                                *mName;
     S32                                 mTotalSize;
@@ -129,7 +129,7 @@ public:
     void addDataFast(char *blockname, char *varname, const void *data, S32 size, EMsgVariableType type, S32 data_size = -1);
 
 public:
-    typedef std::map<char*, LLMsgBlkData*> msg_blk_data_map_t;
+    using msg_blk_data_map_t = std::map<char*, LLMsgBlkData*>;
     msg_blk_data_map_t                  mMemberBlocks;
     char                                *mName;
     S32                                 mTotalSize;
@@ -167,14 +167,14 @@ protected:
 };
 
 
-typedef enum e_message_block_type
+enum EMsgBlockType
 {
     MBT_NULL,
     MBT_SINGLE,
     MBT_MULTIPLE,
     MBT_VARIABLE,
     MBT_EOF
-} EMsgBlockType;
+};
 
 class LLMessageBlock
 {
@@ -226,7 +226,7 @@ public:
 
     friend std::ostream&     operator<<(std::ostream& s, LLMessageBlock &msg);
 
-    typedef LLIndexedVector<LLMessageVariable*, const char *, 8> message_variable_map_t;
+    using message_variable_map_t = LLIndexedVector<LLMessageVariable*, const char *, 8>;
     message_variable_map_t                  mMemberVariables;
     char                                    *mName;
     EMsgBlockType                           mType;
@@ -243,11 +243,11 @@ enum EMsgFrequency
     MFT_LOW     = 4
 };
 
-typedef enum e_message_trust
+enum EMsgTrust
 {
     MT_TRUST,
     MT_NOTRUST
-} EMsgTrust;
+};
 
 enum EMsgEncoding
 {
@@ -392,7 +392,7 @@ public:
     }
 
 public:
-    typedef LLIndexedVector<LLMessageBlock*, char*, 8> message_block_map_t;
+    using message_block_map_t = LLIndexedVector<LLMessageBlock*, char*, 8>;
     message_block_map_t                     mMemberBlocks;
     char                                    *mName;
     EMsgFrequency                           mFrequency;

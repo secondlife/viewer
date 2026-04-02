@@ -73,7 +73,7 @@ class LLMaterialEditFunctor
 {
 public:
     LLMaterialEditFunctor(const DataType& data) : _data(data) {}
-    virtual ~LLMaterialEditFunctor() {}
+    virtual ~LLMaterialEditFunctor() = default;
     virtual void apply(LLMaterialPtr& material) { (material->*(MaterialEditFunc))(_data); }
     DataType _data;
 };
@@ -84,7 +84,7 @@ template<
 class LLMaterialGetFunctor
 {
 public:
-    LLMaterialGetFunctor() {}
+    LLMaterialGetFunctor() = default;
     virtual DataType get(LLMaterialPtr& material) { return (material->*(MaterialGetFunc)); }
 };
 
@@ -94,7 +94,7 @@ template<
 class LLTEGetFunctor
 {
 public:
-    LLTEGetFunctor() {}
+    LLTEGetFunctor() = default;
     virtual DataType get(LLTextureEntry* entry) { return (entry*(TEGetFunc)); }
 };
 
@@ -409,7 +409,7 @@ private:
         struct LLSelectedTEEditMaterial : public LLSelectedTEMaterialFunctor
         {
             LLSelectedTEEditMaterial(LLPanelFace* panel, LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc >* editp, const LLUUID &only_for_object_id) : _panel(panel), _edit(editp), _only_for_object_id(only_for_object_id) {}
-            virtual ~LLSelectedTEEditMaterial() {};
+            virtual ~LLSelectedTEEditMaterial() = default;
             virtual LLMaterialPtr apply(LLViewerObject* object, S32 face, LLTextureEntry* tep, LLMaterialPtr& current_material)
             {
                 if (_edit && (_only_for_object_id.isNull() || _only_for_object_id == object->getID()))
@@ -492,7 +492,7 @@ private:
         struct GetTEMaterialVal : public LLSelectedTEGetFunctor<DataType>
         {
             GetTEMaterialVal(DataType default_value) : _default(default_value) {}
-            virtual ~GetTEMaterialVal() {}
+            virtual ~GetTEMaterialVal() = default;
 
             DataType get(LLViewerObject* object, S32 face)
             {
@@ -525,7 +525,7 @@ private:
         struct GetTEVal : public LLSelectedTEGetFunctor<DataType>
         {
             GetTEVal(DataType default_value) : _default(default_value) {}
-            virtual ~GetTEVal() {}
+            virtual ~GetTEVal() = default;
 
             DataType get(LLViewerObject* object, S32 face) {
                 LLTextureEntry* tep = object ? object->getTE(face) : NULL;

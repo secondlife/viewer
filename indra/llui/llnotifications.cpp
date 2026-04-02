@@ -1521,7 +1521,7 @@ LLNotifications::TemplateNames LLNotifications::getTemplateNames() const
     return names;
 }
 
-typedef std::map<std::string, std::string> StringMap;
+using StringMap = std::map<std::string, std::string>;
 void replaceSubstitutionStrings(LLXMLNodePtr node, StringMap& replacements)
 {
     // walk the list of attributes looking for replacements

@@ -59,7 +59,7 @@ protected:
     LLSpinCtrl(const Params&);
     friend class LLUICtrlFactory;
 public:
-    virtual ~LLSpinCtrl() {} // Children all cleaned up by default view destructor.
+    virtual ~LLSpinCtrl() = default;// Children all cleaned up by default view destructor.
 
     virtual void    forceSetValue(const LLSD& value ) ;
     virtual void    setValue(const LLSD& value );

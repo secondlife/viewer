@@ -37,7 +37,7 @@ class LLToastScriptQuestion : public LLToastPanel
 public:
     LLToastScriptQuestion(const LLNotificationPtr& notification);
     bool postBuild() override;
-    virtual ~LLToastScriptQuestion(){};
+    virtual ~LLToastScriptQuestion() = default;
 
     void setFocus(bool b) override;
 

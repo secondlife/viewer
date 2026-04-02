@@ -226,7 +226,7 @@ class HeapClassicCallback: public ClassicCallback<SIGNATURE, USERDATA, CALLABLE>
     // This destructor is intentionally private to prevent allocation anywhere
     // but the heap. (The Design and Evolution of C++, section 11.4.2: Control
     // of Allocation)
-    ~HeapClassicCallback() {}
+    ~HeapClassicCallback() = default;
 
 public:
     HeapClassicCallback(CALLABLE&& callable):

@@ -53,7 +53,7 @@ private:
     F64Seconds  mLastSendTime;      // Time since last send on this channel
 };
 
-typedef enum e_throttle_categories
+enum EThrottleCats
 {
     TC_RESEND,
     TC_LAND,
@@ -63,7 +63,7 @@ typedef enum e_throttle_categories
     TC_TEXTURE,
     TC_ASSET,
     TC_EOF
-} EThrottleCats;
+};
 
 
 class LLThrottleGroup

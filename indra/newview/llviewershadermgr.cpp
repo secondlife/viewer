@@ -811,7 +811,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
     bool mirrors = gSavedSettings.getBOOL("RenderMirrors");
 
-    bool has_reflection_probes = gSavedSettings.getBOOL("RenderReflectionsEnabled") && gGLManager.mGLVersion > 3.99f;
+    bool has_reflection_probes = gSavedSettings.getBOOL("RenderReflectionsEnabled");
 
     S32 probe_level = llclamp(gSavedSettings.getS32("RenderReflectionProbeLevel"), 0, 3);
 
@@ -2572,7 +2572,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         llassert(success);
     }
 
-    if (success && gGLManager.mGLVersion > 3.9f)
+    if (success)
     {
         std::vector<std::pair<std::string, std::string>> quality_levels = { {"12", "Low"},
                                                                              {"23", "Medium"},
@@ -2592,14 +2592,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
                 gFXAAProgram[i].clearPermutations();
                 gFXAAProgram[i].addPermutation("FXAA_QUALITY__PRESET", quality_pair.first);
-                if (gGLManager.mGLVersion > 3.9)
-                {
-                    gFXAAProgram[i].addPermutation("FXAA_GLSL_400", "1");
-                }
-                else
-                {
-                    gFXAAProgram[i].addPermutation("FXAA_GLSL_130", "1");
-                }
+                gFXAAProgram[i].addPermutation("FXAA_GLSL_400", "1");
 
                 gFXAAProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
                 success = gFXAAProgram[i].createShader();
@@ -2625,7 +2618,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         }
     }
 
-    if (gGLManager.mGLVersion > 3.15f && success)
+    if (success)
     {
         std::vector<std::pair<std::string, std::string>> quality_levels = { {"SMAA_PRESET_LOW", "Low"},
                                                                              {"SMAA_PRESET_MEDIUM", "Medium"},
@@ -2636,12 +2629,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         for (const auto& smaa_pair : quality_levels)
         {
             std::map<std::string, std::string> defines;
-            if (gGLManager.mGLVersion >= 4.f)
-                defines.emplace("SMAA_GLSL_4", "1");
-            else if (gGLManager.mGLVersion >= 3.1f)
-                defines.emplace("SMAA_GLSL_3", "1");
-            else
-                defines.emplace("SMAA_GLSL_2", "1");
+            defines.emplace("SMAA_GLSL_4", "1");
             defines.emplace("SMAA_PREDICATION", "0");
             defines.emplace("SMAA_REPROJECTION", "0");
             defines.emplace(smaa_pair.first, "1");
@@ -2737,7 +2725,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         }
     }
 
-    if (success && gGLManager.mGLVersion > 4.05f)
+    if (success)
     {
         gCASProgram.mName = "Contrast Adaptive Sharpening Shader";
         gCASProgram.mFeatures.hasSrgb = true;
@@ -2755,7 +2743,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         }
     }
 
-    if (success && gGLManager.mGLVersion > 4.05f)
+    if (success)
     {
         gCASLegacyGammaProgram.mName = "Contrast Adaptive Sharpening Legacy Gamma Shader";
         gCASLegacyGammaProgram.mFeatures.hasSrgb = true;

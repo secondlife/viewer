@@ -85,7 +85,7 @@ struct SimMeasurementSampler : public LLInstanceTracker<SimMeasurementSampler, E
     SimMeasurementSampler(ESimStatID id)
     :   LLInstanceTracker<SimMeasurementSampler, ESimStatID>(id)
     {}
-    virtual ~SimMeasurementSampler() {}
+    virtual ~SimMeasurementSampler() = default;
 
     virtual void sample(F64 value) = 0;
 };

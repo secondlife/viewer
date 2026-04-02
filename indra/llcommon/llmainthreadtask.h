@@ -45,7 +45,7 @@ class LLMainThreadTask
 {
 private:
     // Don't instantiate this class -- use dispatch() instead.
-    LLMainThreadTask() {}
+    LLMainThreadTask() = default;
 
 public:
     /// dispatch() is the only way to invoke this functionality.

@@ -136,7 +136,7 @@ private:
     bool                mDrawHighlightBg;
 };
 
-typedef LLPointer<LLStyle> LLStyleSP;
-typedef LLPointer<const LLStyle> LLStyleConstSP;
+using LLStyleSP = LLPointer<LLStyle>;
+using LLStyleConstSP = LLPointer<const LLStyle>;
 
 #endif  // LL_LLSTYLE_H

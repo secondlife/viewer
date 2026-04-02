@@ -42,7 +42,7 @@ class LLLandmarkList
 public:
     typedef std::function<void(LLLandmark*)> loaded_callback_t;
 
-    LLLandmarkList() {}
+    LLLandmarkList() = default;
     ~LLLandmarkList();
 
     //S32                   getLength() { return mList.getLength(); }

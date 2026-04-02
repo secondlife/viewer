@@ -48,7 +48,7 @@ const std::string CONTEXT_WILDCARD("wildcard");
 class LLHTTPNode::Impl
 {
 public:
-    typedef std::map<std::string, LLHTTPNode*> ChildMap;
+    using ChildMap = std::map<std::string, LLHTTPNode*>;
 
     ChildMap mNamedChildren;
     LLHTTPNode* mWildcardChild;
@@ -240,7 +240,7 @@ bool LLHTTPNode::validate(const std::string& name, LLSD& context) const
 const LLHTTPNode* LLHTTPNode::traverse(
     const std::string& path, LLSD& context) const
 {
-    typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer< boost::char_separator<char> >;
     boost::char_separator<char> sep("/", "", boost::drop_empty_tokens);
     tokenizer tokens(path, sep);
     tokenizer::iterator iter = tokens.begin();
@@ -273,7 +273,7 @@ const LLHTTPNode* LLHTTPNode::traverse(
 
 void LLHTTPNode::addNode(const std::string& path, LLHTTPNode* nodeToAdd)
 {
-    typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer< boost::char_separator<char> >;
     boost::char_separator<char> sep("/", "", boost::drop_empty_tokens);
     tokenizer tokens(path, sep);
     tokenizer::iterator iter = tokens.begin();
@@ -438,7 +438,7 @@ const LLChainIOFactory* LLHTTPNode::getProtocolHandler() const
 
 namespace
 {
-    typedef std::map<std::string, LLHTTPRegistrar::NodeFactory*>  FactoryMap;
+    using FactoryMap = std::map<std::string, LLHTTPRegistrar::NodeFactory*>;
 
     FactoryMap& factoryMap()
     {

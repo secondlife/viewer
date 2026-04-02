@@ -141,8 +141,8 @@ boost::signals2::connection LLFocusableElement::setTopLostCallback(const focus_s
 
 
 
-typedef std::list<LLHandle<LLView> > view_handle_list_t;
-typedef std::map<LLHandle<LLView>, LLHandle<LLView> > focus_history_map_t;
+using view_handle_list_t = std::list<LLHandle<LLView> >;
+using focus_history_map_t = std::map<LLHandle<LLView>, LLHandle<LLView> >;
 struct LLFocusMgr::Impl
 {
     // caching list of keyboard focus ancestors for calling onFocusReceived and onFocusLost

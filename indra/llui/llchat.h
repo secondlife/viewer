@@ -32,7 +32,7 @@
 #include "v3math.h"
 
 // enumerations used by the chat system
-typedef enum e_chat_source_type
+enum EChatSourceType
 {
     CHAT_SOURCE_SYSTEM = 0,
     CHAT_SOURCE_AGENT = 1,
@@ -40,9 +40,9 @@ typedef enum e_chat_source_type
     CHAT_SOURCE_TELEPORT = 3,
     CHAT_SOURCE_UNKNOWN = 4,
     CHAT_SOURCE_REGION = 5,
-} EChatSourceType;
+};
 
-typedef enum e_chat_type
+enum EChatType
 {
     CHAT_TYPE_WHISPER = 0,
     CHAT_TYPE_NORMAL = 1,
@@ -53,22 +53,22 @@ typedef enum e_chat_type
     CHAT_TYPE_REGION = 7,
     CHAT_TYPE_OWNER = 8,
     CHAT_TYPE_DIRECT = 9        // From llRegionSayTo()
-} EChatType;
+};
 
-typedef enum e_chat_audible_level
+enum EChatAudible
 {
     CHAT_AUDIBLE_NOT = -1,
     CHAT_AUDIBLE_BARELY = 0,
     CHAT_AUDIBLE_FULLY = 1
-} EChatAudible;
+};
 
-typedef enum e_chat_style
+enum EChatStyle
 {
     CHAT_STYLE_NORMAL,
     CHAT_STYLE_IRC,
     CHAT_STYLE_HISTORY,
     CHAT_STYLE_TELEPORT_SEP
-}EChatStyle;
+};
 
 // A piece of chat
 class LLChat

@@ -51,7 +51,7 @@ extern LL_COMMON_API bool on_main_thread();
 
 //----------------------------------------------------------------------------
 const F32 MIN_TEXTURE_LIFETIME = 10.f;
-const F32 CONVERSION_SCRATCH_BUFFER_GL_VERSION = 3.29f;
+// Removed: CONVERSION_SCRATCH_BUFFER_GL_VERSION â€” GL 4.6 minimum
 
 //which power of 2 is i?
 //assumes i is a power of 2 > 0
@@ -259,25 +259,14 @@ void LLImageGL::initClass(LLWindow* window, S32 num_catagories, bool skip_analyz
     if (thread_texture_loads || thread_media_updates)
     {
         LLImageGLThread::createInstance(window);
-        LLImageGLThread::sEnabledTextures = gGLManager.mGLVersion > 3.95f ? thread_texture_loads : false;
-        LLImageGLThread::sEnabledMedia = gGLManager.mGLVersion > 3.95f ? thread_media_updates : false;
+        LLImageGLThread::sEnabledTextures = thread_texture_loads;
+        LLImageGLThread::sEnabledMedia = thread_media_updates;
     }
 }
 
 void LLImageGL::allocateConversionBuffer()
 {
-    if (gGLManager.mGLVersion < CONVERSION_SCRATCH_BUFFER_GL_VERSION)
-    {
-        try
-        {
-            sManualScratch = new U32[MAX_IMAGE_AREA];
-        }
-        catch (std::bad_alloc&)
-        {
-            LLError::LLUserWarningMsg::showOutOfMemory();
-            LL_ERRS() << "Failed to allocate sManualScratch" << LL_ENDL;
-        }
-    }
+    // GL 4.6 — scratch buffer no longer needed (swizzle path always used)
 }
 
 //static
@@ -1317,7 +1306,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
     if (LLRender::sGLCoreProfile)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-        if (gGLManager.mGLVersion >= CONVERSION_SCRATCH_BUFFER_GL_VERSION)
+        // GL 4.6 — always use swizzle path
         {
             if (pixformat == GL_ALPHA)
             { //GL_ALPHA is deprecated, convert to RGBA
@@ -1343,69 +1332,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
                 intformat = GL_RG8;
             }
         }
-        else
-        {
-            if (pixformat == GL_ALPHA && pixtype == GL_UNSIGNED_BYTE)
-            { //GL_ALPHA is deprecated, convert to RGBA
-                if (pixels != nullptr)
-                {
-                    U32 pixel_count = (U32)(width * height);
-                    for (U32 i = 0; i < pixel_count; i++)
-                    {
-                        U8* pix = (U8*)&sManualScratch[i];
-                        pix[0] = pix[1] = pix[2] = 0;
-                        pix[3] = ((U8*)pixels)[i];
-                    }
 
-                    pixels = sManualScratch;
-                }
-
-                pixformat = GL_RGBA;
-                intformat = GL_RGBA8;
-            }
-
-            if (pixformat == GL_LUMINANCE_ALPHA && pixtype == GL_UNSIGNED_BYTE)
-            { //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
-                if (pixels != nullptr)
-                {
-                    U32 pixel_count = (U32)(width * height);
-                    for (U32 i = 0; i < pixel_count; i++)
-                    {
-                        U8 lum = ((U8*)pixels)[i * 2 + 0];
-                        U8 alpha = ((U8*)pixels)[i * 2 + 1];
-
-                        U8* pix = (U8*)&sManualScratch[i];
-                        pix[0] = pix[1] = pix[2] = lum;
-                        pix[3] = alpha;
-                    }
-
-                    pixels = sManualScratch;
-                }
-
-                pixformat = GL_RGBA;
-                intformat = GL_RGBA8;
-            }
-
-            if (pixformat == GL_LUMINANCE && pixtype == GL_UNSIGNED_BYTE)
-            { //GL_LUMINANCE_ALPHA is deprecated, convert to RGB
-                if (pixels != nullptr)
-                {
-                    U32 pixel_count = (U32)(width * height);
-                    for (U32 i = 0; i < pixel_count; i++)
-                    {
-                        U8 lum = ((U8*)pixels)[i];
-
-                        U8* pix = (U8*)&sManualScratch[i];
-                        pix[0] = pix[1] = pix[2] = lum;
-                        pix[3] = 255;
-                    }
-
-                    pixels = sManualScratch;
-                }
-                pixformat = GL_RGBA;
-                intformat = GL_RGB8;
-            }
-        }
     }
 
     const bool compress = LLImageGL::sCompressTextures && allow_compression;

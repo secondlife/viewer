@@ -39,7 +39,7 @@
 #include "llpointer.h"
 
 class LLTextSegment;
-typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
+using LLTextSegmentPtr = LLPointer<LLTextSegment>;
 
 class LLKeywordToken
 {
@@ -54,7 +54,7 @@ public:
      * - TT_TWO_SIDED_DELIMITER are for delimiters that end with a different delimiter than they open with.
      * - TT_DOUBLE_QUOTATION_MARKS are for delimiting areas using the same delimiter to open and close.
      */
-    typedef enum e_token_type
+    enum ETokenType
     {
         TT_UNKNOWN,
         TT_WORD,
@@ -70,7 +70,7 @@ public:
         TT_LABEL,                           // LINE
         TT_SECTION,                         // WORD
         TT_TYPE                             // WORD
-    } ETokenType;
+    };
 
     LLKeywordToken( ETokenType type, const LLUIColor& color, const LLWString& token, const LLWString& tool_tip, const LLWString& delimiter  )
         :
@@ -156,13 +156,13 @@ public:
         LLUIColor            mColor;
     };
 
-    typedef std::map<WStringMapIndex, LLKeywordToken*> word_token_map_t;
-    typedef word_token_map_t::const_iterator keyword_iterator_t;
+    using word_token_map_t = std::map<WStringMapIndex, LLKeywordToken*>;
+    using keyword_iterator_t = word_token_map_t::const_iterator;
     keyword_iterator_t begin() const { return mWordTokenMap.begin(); }
     keyword_iterator_t end() const { return mWordTokenMap.end(); }
 
-    typedef std::map<WStringMapIndex, LLUIColor> group_color_map_t;
-    typedef group_color_map_t::const_iterator color_iterator_t;
+    using group_color_map_t = std::map<WStringMapIndex, LLUIColor>;
+    using color_iterator_t = group_color_map_t::const_iterator;
     group_color_map_t   mColorGroupMap;
 
 #ifdef _DEBUG
@@ -190,12 +190,12 @@ protected:
     bool        mLoaded;
     LLSD        mSyntax;
     word_token_map_t mWordTokenMap;
-    typedef std::deque<LLKeywordToken*> token_list_t;
+    using token_list_t = std::deque<LLKeywordToken*>;
     token_list_t mLineTokenList;
     token_list_t mDelimiterTokenList;
 
-    typedef std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>> element_attributes_t;
-    typedef element_attributes_t::const_iterator attribute_iterator_t;
+    using element_attributes_t = std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>>;
+    using attribute_iterator_t = element_attributes_t::const_iterator;
     element_attributes_t mAttributes;
     std::string getAttribute(std::string_view key);
 

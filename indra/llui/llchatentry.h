@@ -91,7 +91,7 @@ private:
     commit_signal_t*            mTextExpandedSignal;
 
     // line history support:
-    typedef std::vector<std::string>    line_history_t;
+    using line_history_t = std::vector<std::string>;
     line_history_t::iterator            mCurrentHistoryLine;    // currently browsed history line
     line_history_t                      mLineHistory;           // line history storage
     bool                                mHasHistory;            // flag for enabled/disabled line history

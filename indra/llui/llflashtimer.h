@@ -34,7 +34,7 @@ class LLFlashTimer : public LLEventTimer
 {
 public:
 
-    typedef std::function<void (bool)> callback_t;
+    using callback_t = std::function<void (bool)>;
 
     /**
      * Constructor.
@@ -44,7 +44,7 @@ public:
      * @param cb - callback to be called each tick
      */
     LLFlashTimer(callback_t cb = nullptr, S32 count = 0, F32 period = 0.0);
-    ~LLFlashTimer() {};
+    ~LLFlashTimer() = default;
 
     /*virtual*/ bool tick();
 

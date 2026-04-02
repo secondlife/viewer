@@ -79,7 +79,7 @@ public:
     /// return the SL location that this Url describes, or "" if none.
     std::string getLocation() const { return mLocation; }
 
-    typedef LLStyle::EUnderlineLink e_underline;
+    using e_underline = LLStyle::EUnderlineLink;
     e_underline getUnderline() const { return mUnderline; }
 
     /// Return true if Url is trusted.

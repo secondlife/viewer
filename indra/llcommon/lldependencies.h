@@ -99,7 +99,7 @@ struct instance_from_range: public TYPE
 class LL_COMMON_API LLDependenciesBase
 {
 public:
-    virtual ~LLDependenciesBase() {}
+    virtual ~LLDependenciesBase() = default;
 
     /**
      * Exception thrown by sort() if there's a cycle
@@ -169,7 +169,7 @@ std::ostream& LLDependencies_describe(std::ostream& out, const std::string& key)
  */
 struct LLDependenciesEmpty
 {
-    LLDependenciesEmpty() {}
+    LLDependenciesEmpty() = default;
     /**
      * Give it a constructor accepting void* so caller can pass placeholder
      * values such as NULL or 0 rather than having to write
@@ -215,7 +215,7 @@ class LLDependencies: public LLDependenciesBase
     /// separately, pass a dep_selector so we can apply each to either.
     using dep_selector = std::function<const typename DepNode::dep_set&(const DepNode&)>;
 public:
-    LLDependencies() {}
+    LLDependencies() = default;
 
     using key_type = KEY;
     using node_type = NODE;

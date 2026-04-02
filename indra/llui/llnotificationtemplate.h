@@ -31,7 +31,7 @@
 #include "llinitparam.h"
 #include "llnotifications.h"
 
-typedef std::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
+using LLNotificationFormPtr = std::shared_ptr<LLNotificationForm>;
 
 // This is the class of object read from the XML file (notifications.xml,
 // from the appropriate local language directory).

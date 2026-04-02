@@ -50,7 +50,7 @@ class LLSessionTimeoutTimer : public LLEventTimer
 {
 public:
     LLSessionTimeoutTimer(const LLUUID& session_id, F32 period) : LLEventTimer(period), mSessionId(session_id) {}
-    virtual ~LLSessionTimeoutTimer() {};
+    virtual ~LLSessionTimeoutTimer() = default;
     /* virtual */ bool tick();
 
 private:
@@ -332,7 +332,7 @@ private:
 class LLIMSessionObserver
 {
 public:
-    virtual ~LLIMSessionObserver() {}
+    virtual ~LLIMSessionObserver() = default;
     virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg) = 0;
     virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) = 0;
     virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) = 0;

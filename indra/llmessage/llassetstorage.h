@@ -64,8 +64,8 @@ const int LL_ERR_PRICE_MISMATCH = -23018;
 // future project would be to convert these to C++ callables (std::function<>) so that
 // we can use bind and remove the userData parameter.
 //
-typedef std::function<void(const LLUUID &asset_id, LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status)> LLGetAssetCallback;
-typedef std::function<void(const LLUUID &asset_id, void *user_data, S32 status, LLExtStat ext_status)> LLStoreAssetCallback;
+using LLGetAssetCallback = std::function<void(const LLUUID &asset_id, LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status)>;
+using LLStoreAssetCallback = std::function<void(const LLUUID &asset_id, void *user_data, S32 status, LLExtStat ext_status)>;
 
 
 class LLAssetInfo
@@ -190,15 +190,15 @@ protected:
 
 
 // Map of known bad assets
-typedef std::map<LLUUID,U64,lluuid_less> toxic_asset_map_t;
+using toxic_asset_map_t = std::map<LLUUID,U64,lluuid_less>;
 
 
 
 class LLAssetStorage
 {
 public:
-    typedef ::LLStoreAssetCallback LLStoreAssetCallback;
-    typedef ::LLGetAssetCallback LLGetAssetCallback;
+    using LLStoreAssetCallback = ::LLStoreAssetCallback;
+    using LLGetAssetCallback = ::LLGetAssetCallback;
 
     enum ERequestType
     {
@@ -217,7 +217,7 @@ protected:
     LLXferManager   *mXferManager;
 
 
-    typedef std::list<LLAssetRequest*> request_list_t;
+    using request_list_t = std::list<LLAssetRequest*>;
     request_list_t mPendingDownloads;
     request_list_t mPendingUploads;
     request_list_t mPendingLocalUploads;

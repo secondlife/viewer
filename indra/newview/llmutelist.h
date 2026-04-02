@@ -185,7 +185,7 @@ private:
 class LLMuteListObserver
 {
 public:
-    virtual ~LLMuteListObserver() { }
+    virtual ~LLMuteListObserver() = default;
     virtual void onChange() = 0;
     virtual void onChangeDetailed(const LLMute& ) { }
 };

@@ -53,7 +53,7 @@ class LLFollowCamParams
 {
 public:
     LLFollowCamParams();
-    virtual ~LLFollowCamParams();
+    virtual ~LLFollowCamParams() = default;
 
     //--------------------------------------
     // setty setty set set

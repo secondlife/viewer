@@ -41,9 +41,9 @@
 class LLHTTPRetryPolicy: public LLThreadSafeRefCount
 {
 public:
-    LLHTTPRetryPolicy() {}
+    LLHTTPRetryPolicy() = default;
 
-    virtual ~LLHTTPRetryPolicy() {}
+    virtual ~LLHTTPRetryPolicy() = default;
     // Call after a sucess to reset retry state.
 
     virtual void onSuccess() = 0;

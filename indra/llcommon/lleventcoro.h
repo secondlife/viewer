@@ -59,7 +59,7 @@ public:
         mPump(&LLEventPumps::instance().obtain(pumpname))
     {}
     /// Unspecified: "I choose not to identify an LLEventPump."
-    LLEventPumpOrPumpName() {}
+    LLEventPumpOrPumpName() = default;
     operator LLEventPump& () const { return *mPump; }
     LLEventPump& getPump() const { return *mPump; }
     operator bool() const { return mPump != nullptr; }

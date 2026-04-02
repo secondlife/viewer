@@ -29,7 +29,7 @@
 
 #include "lltransfermanager.h"
 
-typedef void (*LLTTFCompleteCallback)(const LLTSCode status, void *user_data);
+using LLTTFCompleteCallback = void(*)(const LLTSCode status, void *user_data);
 
 class LLTransferTargetParamsFile : public LLTransferTargetParams
 {

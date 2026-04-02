@@ -38,7 +38,7 @@ class LLTemplateMessageReader : public LLMessageReader
 {
 public:
 
-    typedef std::map<U32, LLMessageTemplate*> message_template_number_map_t;
+    using message_template_number_map_t = std::map<U32, LLMessageTemplate*>;
 
     LLTemplateMessageReader(message_template_number_map_t&);
     virtual ~LLTemplateMessageReader();

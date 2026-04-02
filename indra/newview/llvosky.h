@@ -147,7 +147,7 @@ protected:
 
 public:
     LLHeavenBody(const F32 rad);
-    ~LLHeavenBody() {}
+    ~LLHeavenBody() = default;
 
     const LLQuaternion& getRotation() const;
     void                setRotation(const LLQuaternion& rot);

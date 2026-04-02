@@ -249,7 +249,7 @@ public:
     static const U32 SO_DEFAULT = (SO_SESSION_TYPE << 16) | (SO_DATE);
 
     LLConversationFilter() { mEmpty = ""; }
-    ~LLConversationFilter() {}
+    ~LLConversationFilter() = default;
 
     bool                check(const LLFolderViewModelItem* item) { return true; }
     bool                checkFolder(const LLFolderViewModelItem* folder) const { return true; }

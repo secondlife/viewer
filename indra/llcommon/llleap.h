@@ -86,7 +86,7 @@ public:
         Error(const std::string& what): LLException(what) {}
     };
 
-    virtual ~LLLeap();
+    virtual ~LLLeap() = default;
 
 protected:
     LLLeap();

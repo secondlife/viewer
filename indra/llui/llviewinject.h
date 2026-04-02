@@ -47,7 +47,7 @@ namespace llview
 
     private:
         // For a given parent LLView, identify which child to select.
-        typedef std::map<LLView*, LLView*> ChildMap;
+        using ChildMap = std::map<LLView*, LLView*>;
         ChildMap mChildMap;
     };
 

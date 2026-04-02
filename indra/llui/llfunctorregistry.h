@@ -56,8 +56,8 @@ class LLFunctorRegistry : public LLSingleton<LLFunctorRegistry<FUNCTOR_TYPE> >
     LOG_CLASS(LLFunctorRegistry);
 
 public:
-    typedef FUNCTOR_TYPE ResponseFunctor;
-    typedef typename std::unordered_map<std::string, FUNCTOR_TYPE, ll::string_hash, std::equal_to<>> FunctorMap;
+    using ResponseFunctor = FUNCTOR_TYPE;
+    using FunctorMap = typename std::unordered_map<std::string, FUNCTOR_TYPE, ll::string_hash, std::equal_to<>>;
 
     bool registerFunctor(const std::string& name, ResponseFunctor f)
     {

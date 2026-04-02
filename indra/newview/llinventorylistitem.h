@@ -155,7 +155,7 @@ public:
     void setSeparatorVisible(bool visible) { mSeparatorVisible = visible; }
     void resetHighlight() { mHovered = false; }
 
-    virtual ~LLPanelInventoryListItemBase(){}
+    virtual ~LLPanelInventoryListItemBase() = default;
 
 protected:
 

@@ -51,9 +51,9 @@ private:
     LLXMLNodePtr    mGrammarNode;
     std::string     mDefinitionName;
 
-    typedef std::pair<LLXMLNodePtr, std::set<std::string> >  attribute_data_t;
-    typedef std::map<std::string, attribute_data_t> elements_map_t;
-    typedef std::set<std::string> defined_elements_t;
+    using attribute_data_t = std::pair<LLXMLNodePtr, std::set<std::string> >;
+    using elements_map_t = std::map<std::string, attribute_data_t>;
+    using defined_elements_t = std::set<std::string>;
 
     defined_elements_t  mDefinedElements;
     attribute_data_t    mAttributesWritten;

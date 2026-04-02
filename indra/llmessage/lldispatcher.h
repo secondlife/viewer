@@ -46,7 +46,7 @@ class LLUUID;
 class LLDispatchHandler
 {
 public:
-    typedef std::vector<std::string> sparam_t;
+    using sparam_t = std::vector<std::string>;
     //typedef std::vector<S32> iparam_t;
     LLDispatchHandler() {}
     virtual ~LLDispatchHandler() {}
@@ -67,9 +67,9 @@ public:
 class LLDispatcher
 {
 public:
-    typedef std::string key_t;
-    typedef std::vector<std::string> keys_t;
-    typedef std::vector<std::string> sparam_t;
+    using key_t = std::string;
+    using keys_t = std::vector<std::string>;
+    using sparam_t = std::vector<std::string>;
     //typedef std::vector<S32> iparam_t;
 
     // construct a dispatcher.
@@ -112,7 +112,7 @@ public:
         sparam_t& parameters);
 
 protected:
-    typedef std::map<key_t, LLDispatchHandler*> dispatch_map_t;
+    using dispatch_map_t = std::map<key_t, LLDispatchHandler*>;
     dispatch_map_t mHandlers;
 };
 

@@ -228,7 +228,7 @@ LL_COMMON_API std::string ll_safe_string(const char* in, S32 maxlen);
 class LLFormatMapString
 {
 public:
-    LLFormatMapString() {};
+    LLFormatMapString() = default;
     LLFormatMapString(const char* s) : mString(ll_safe_string(s)) {};
     LLFormatMapString(const std::string& s) : mString(s) {};
     operator std::string() const { return mString; }
@@ -976,7 +976,7 @@ struct InString
         mIter(b),
         mEnd(e)
     {}
-    virtual ~InString() {}
+    virtual ~InString() = default;
 
     bool done() const { return mIter == mEnd; }
     /// Is the current character (*mIter) escaped? This implementation can

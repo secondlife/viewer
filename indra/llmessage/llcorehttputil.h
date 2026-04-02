@@ -58,8 +58,8 @@
 namespace LLCoreHttpUtil
 {
 /// Allow access to to the property settings methods.
-typedef std::function<bool(const std::string &)> BoolSettingQuery_t;
-typedef std::function<void(const std::string &, bool, const std::string &)> BoolSettingUpdate_t;
+using BoolSettingQuery_t = std::function<bool(const std::string &)>;
+using BoolSettingUpdate_t = std::function<void(const std::string &, bool, const std::string &)>;
 
 void setPropertyMethods(BoolSettingQuery_t queryfn, BoolSettingUpdate_t updatefn);
 
@@ -263,8 +263,8 @@ class HttpCoroHandler : public LLCore::HttpHandler, public std::enable_shared_fr
 {
 public:
 
-    typedef std::shared_ptr<HttpCoroHandler>  ptr_t;
-    typedef std::weak_ptr<HttpCoroHandler>    wptr_t;
+    using ptr_t = std::shared_ptr<HttpCoroHandler>;
+    using wptr_t = std::weak_ptr<HttpCoroHandler>;
 
     HttpCoroHandler(LLEventStream &reply);
 
@@ -318,8 +318,8 @@ public:
     static const std::string HTTP_RESULTS_CONTENT;
     static const std::string HTTP_RESULTS_RAW;
 
-    typedef std::shared_ptr<HttpCoroutineAdapter> ptr_t;
-    typedef std::weak_ptr<HttpCoroutineAdapter>   wptr_t;
+    using ptr_t = std::shared_ptr<HttpCoroutineAdapter>;
+    using wptr_t = std::weak_ptr<HttpCoroutineAdapter>;
 
     HttpCoroutineAdapter(std::string name, LLCore::HttpRequest::policy_t policyId);
     ~HttpCoroutineAdapter();
@@ -586,7 +586,7 @@ public:
     /// should match this form.
     /// @sa callbackHttpGet
     /// @sa callbackHttpPost
-    typedef std::function<void(const LLSD &)> completionCallback_t;
+    using completionCallback_t = std::function<void(const LLSD &)>;
 
     static void callbackHttpGet(const std::string &url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success = nullptr, completionCallback_t failure = nullptr);
     static void callbackHttpGet(const std::string &url, completionCallback_t success = nullptr, completionCallback_t failure = nullptr)

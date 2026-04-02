@@ -37,13 +37,13 @@ class LLMenuButton
     LOG_CLASS(LLMenuButton);
 
 public:
-    typedef enum e_menu_position
+    enum EMenuPosition
     {
         MP_TOP_LEFT,
         MP_TOP_RIGHT,
         MP_BOTTOM_LEFT,
         MP_BOTTOM_RIGHT
-    } EMenuPosition;
+    };
 
     struct MenuPositions
         :   public LLInitParam::TypeValuesHelper<EMenuPosition, MenuPositions>

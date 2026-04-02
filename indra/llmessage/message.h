@@ -170,7 +170,7 @@ enum EMessageException
     MX_RAN_OFF_END_OF_PACKET, // ran off the end of the packet during decode
     MX_WROTE_PAST_BUFFER_SIZE // wrote past buffer size in zero code expand
 };
-typedef void (*msg_exception_callback)(LLMessageSystem*,void*,EMessageException);
+using msg_exception_callback = void(*)(LLMessageSystem*,void*,EMessageException);
 
 
 // message data pieces are used to collect the data called for by the message template
@@ -300,8 +300,8 @@ class LLMessageSystem : public LLMessageSenderInterface
 
     F32                         mMessageFileVersionNumber;
 
-    typedef std::map<const char *, LLMessageTemplate*> message_template_name_map_t;
-    typedef std::map<U32, LLMessageTemplate*> message_template_number_map_t;
+    using message_template_name_map_t = std::map<const char *, LLMessageTemplate*>;
+    using message_template_number_map_t = std::map<U32, LLMessageTemplate*>;
 
 private:
     message_template_name_map_t     mMessageTemplates;
@@ -395,7 +395,7 @@ public:
     // Set a function that will be called once per packet processed with the
     // hashed message name and the time spent in the processing handler function
     // measured in seconds.  JC
-    typedef void (*msg_timing_callback)(const char* hashed_name, F32 time, void* data);
+    using msg_timing_callback = void(*)(const char* hashed_name, F32 time, void* data);
     void setTimingFunc(msg_timing_callback func, void* data = NULL);
     msg_timing_callback getTimingCallback()
     {
@@ -699,7 +699,7 @@ public:
 
 private:
     // A list of the circuits that need to be sent DenyTrustedCircuit messages.
-    typedef std::set<LLHost> host_set_t;
+    using host_set_t = std::set<LLHost>;
     host_set_t mDenyTrustedCircuitSet;
 
     // Really sends the DenyTrustedCircuit message to a given host
@@ -826,7 +826,7 @@ public:
     void receivedMessageFromTrustedSender();
 
 private:
-    typedef std::function<void(S32)>  UntrustedCallback_t;
+    using UntrustedCallback_t = std::function<void(S32)>;
     void sendUntrustedSimulatorMessageCoro(std::string url, std::string message, LLSD body, UntrustedCallback_t callback);
 
 
@@ -834,7 +834,7 @@ private:
 
     // The mCircuitCodes is a map from circuit codes to session
     // ids. This allows us to verify sessions on connect.
-    typedef std::map<U32, LLUUID> code_session_map_t;
+    using code_session_map_t = std::map<U32, LLUUID>;
     code_session_map_t mCircuitCodes;
 
     // Viewers need to track a process session in order to make sure
@@ -878,8 +878,8 @@ private:
     F64Seconds mCurrentMessageTime; // The current "message system time" (updated the first call to checkMessages after a resetReceiveCount
 
     // message system exceptions
-    typedef std::pair<msg_exception_callback, void*> exception_t;
-    typedef std::map<EMessageException, exception_t> callbacks_t;
+    using exception_t = std::pair<msg_exception_callback, void*>;
+    using callbacks_t = std::map<EMessageException, exception_t>;
     callbacks_t mExceptionCallbacks;
 
     // stuff for logging

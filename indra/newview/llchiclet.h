@@ -164,7 +164,7 @@ public:
         Params();
     };
 
-    virtual ~LLChiclet() {}
+    virtual ~LLChiclet() = default;
 
     /**
      * Associates chat session id with chiclet.
@@ -543,7 +543,7 @@ protected:
             connectToChannel("Offer");
             connectToChannel("Notifications");
         }
-        virtual ~ChicletNotificationChannel() {}
+        virtual ~ChicletNotificationChannel() = default;
 
         static bool filterNotification(LLNotificationPtr notify);
         // connect counter updaters to the corresponding signals

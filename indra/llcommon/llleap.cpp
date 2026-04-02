@@ -37,7 +37,6 @@
 #endif
 
 LLLeap::LLLeap() {}
-LLLeap::~LLLeap() {}
 
 class LLLeapImpl: public LLLeap
 {

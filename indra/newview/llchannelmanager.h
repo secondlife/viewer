@@ -54,7 +54,7 @@ public:
         LLUUID                          id;
         LLHandle<LLScreenChannelBase>   channel;
 
-        ChannelElem() { }
+        ChannelElem() = default;
 
         ChannelElem(const ChannelElem &elem)
         {

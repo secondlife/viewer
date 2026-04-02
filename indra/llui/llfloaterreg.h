@@ -43,7 +43,7 @@
 class LLFloater;
 class LLUICtrl;
 
-typedef std::function<LLFloater* (const LLSD& key)> LLFloaterBuildFunc;
+using LLFloaterBuildFunc = std::function<LLFloater* (const LLSD& key)>;
 
 class LLFloaterReg
 {
@@ -51,16 +51,16 @@ public:
     // We use a list of LLFloater's instead of a set for two reasons:
     // 1) With a list we have a predictable ordering, useful for finding the last opened floater of a given type.
     // 2) We can change the key of a floater without altering the list.
-    typedef std::list<LLFloater*> instance_list_t;
-    typedef const instance_list_t const_instance_list_t;
-    typedef std::unordered_map<std::string, instance_list_t, ll::string_hash, std::equal_to<>> instance_map_t;
+    using instance_list_t = std::list<LLFloater*>;
+    using const_instance_list_t = const instance_list_t;
+    using instance_map_t = std::unordered_map<std::string, instance_list_t, ll::string_hash, std::equal_to<>>;
 
     struct BuildData
     {
         LLFloaterBuildFunc mFunc;
         std::string mFile;
     };
-    typedef std::unordered_map<std::string, BuildData, ll::string_hash, std::equal_to<>> build_map_t;
+    using build_map_t = std::unordered_map<std::string, BuildData, ll::string_hash, std::equal_to<>>;
 
 private:
     friend class LLFloaterRegListener;

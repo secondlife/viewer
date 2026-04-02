@@ -91,11 +91,11 @@ public:
     S32 mMaxUniformBlockSize = 0;
     S32 mMaxVaryingVectors = 0;
 
-    // GL 4.x capabilities
-    bool mHasCubeMapArray = false;
-    bool mHasDebugOutput = false;
-    bool mHasTransformFeedback = false;
-    bool mHasAnisotropic = false;
+    // GL 4.6 core — always true, kept for code compatibility
+    bool mHasCubeMapArray = true;
+    bool mHasDebugOutput = true;
+    bool mHasTransformFeedback = true;
+    bool mHasAnisotropic = true;
 
     // Vendor-specific extensions
     bool mHasAMDAssociations = false;

@@ -71,7 +71,7 @@ class LLCheckBoxToastPanel : public LLToastPanel
 {
 public:
     LLCheckBoxToastPanel(const LLNotificationPtr& p_ntf);
-    virtual ~LLCheckBoxToastPanel() {};
+    virtual ~LLCheckBoxToastPanel() = default;
 
     // set checkboxes acording to defaults from form
     void            setCheckBoxes(const S32 &h_pad, const S32 &v_pad, LLView *parent_view = NULL);

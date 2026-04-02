@@ -87,7 +87,7 @@ public:
     void deleteExpiredOperations();
 
 private:
-    typedef std::map<LLUUID, LLUserOperation*> user_operation_list_t;
+    using user_operation_list_t = std::map<LLUUID, LLUserOperation*>;
     user_operation_list_t mUserOperationList;
     LLUUID mLastOperationConsidered;
 };
