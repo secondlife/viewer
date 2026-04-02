@@ -92,7 +92,9 @@ public:
         const LLUUID& invoice,
         const sparam_t& strings)
     {
-        LLMuteList::getInstance()->setLoaded(LLMuteList::MLS_SERVER_EMPTY);
+        LLMuteList* mute_list = LLMuteList::getInstance();
+        mute_list->clearCachedMutes();
+        mute_list->setLoaded(LLMuteList::MLS_SERVER_EMPTY);
         return true;
     }
 };
@@ -229,6 +231,12 @@ bool LLMuteList::getLoadFailed()
         }
     }
     return false;
+}
+
+void LLMuteList::clearCachedMutes()
+{
+    mMutes.clear();
+    mLegacyMutes.clear();
 }
 
 const char* LLMuteList::sourceToString(EMuteListSource source)
@@ -668,8 +676,7 @@ bool LLMuteList::loadFromFile(const std::string& filename, EMuteListSource sourc
     }
 
     // Replace previous server-backed state so fallback can be superseded by authoritative data.
-    mMutes.clear();
-    mLegacyMutes.clear();
+    clearCachedMutes();
 
     // *NOTE: Changing the size of these buffers will require changes
     // in the scanf below.

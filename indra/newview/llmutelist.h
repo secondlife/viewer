@@ -136,6 +136,7 @@ public:
     void cache(const LLUUID& agent_id);
 
 private:
+    void clearCachedMutes();
     bool loadFromFile(const std::string& filename, EMuteListSource source);
     bool saveToFile(const std::string& filename);
     bool tryLoadCacheFallback(const LLUUID& agent_id, const std::string& reason);
