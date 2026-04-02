@@ -38,6 +38,7 @@
 #include "llnotifications.h"
 #include "lluiconstants.h"
 #include "llrect.h"
+#include "llstring.h"
 #include "lltrans.h"
 #include "llnotificationsutil.h"
 #include "llviewermessage.h"
@@ -90,8 +91,24 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, bool is_opt
     std::string name = form_element["name"].asString();
     std::string text = form_element["text"].asString();
     bool make_small_btn = index == -1 || index == -2; // for block and ignore buttons in script dialog
+
+    // Use Emoji font as exception if text contains red heart emoji (10084 U+2764) to ensure proper rendering
+    std::string font_name = mIsScriptDialog ? sFontScript : sFontDefault;
+    if (mIsScriptDialog)
+    {
+        LLWString wtext = utf8str_to_wstring(text);
+        for (llwchar ch : wtext)
+        {
+            if (ch == 0x2764)
+            {
+                font_name = "Emoji";
+                break;
+            }
+        }
+    }
+
     const LLFontGL* font = LLFontGL::getFont(LLFontDescriptor(
-        mIsScriptDialog ? sFontScript : sFontDefault, make_small_btn ? "Small" : "Medium", 0));
+        font_name, make_small_btn ? "Small" : "Medium", 0));
     p.name = name;
     p.label = text;
     p.tool_tip = text;
