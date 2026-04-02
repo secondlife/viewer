@@ -1200,8 +1200,18 @@ F32 LLViewerTextureList::updateImagesLoadingFastCache(F32 max_time)
     LLTimer timer;
     image_list_t::iterator enditer = mFastCacheList.begin();
     {
-        // prelock fast cache mutex to avoid waiting multiple times.
-        LLMutexLock cache_lock(LLAppViewer::getTextureCache()->getFastCacheMutex());
+        // Prelock fast cache mutex to avoid waiting multiple times.
+        LLMutexTrylock fast_cache_lock(LLAppViewer::getTextureCache()->getFastCacheMutex());
+        if (!fast_cache_lock.isLocked())
+        {
+            // Cache is busy, skip this update cycle to avoid blocking the main thread.
+            //
+            // Generally fast cache operations are brief and rare in comparison to writing
+            // main texture body, but if disk is busy, it can get stuck for multiple
+            // seconds, waiting for that long is not practical.
+            // But some variant of a timed try lock for 0.1ms or less might be optimal.
+            return 0.0f;
+        }
         for (image_list_t::iterator iter = mFastCacheList.begin();
             iter != mFastCacheList.end();)
         {
