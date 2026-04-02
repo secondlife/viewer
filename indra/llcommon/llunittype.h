@@ -837,19 +837,19 @@ LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, un
     return result.mDivisor;                                                                      \
 }
 
-#define LL_DECLARE_UNIT_TYPEDEFS(ns, unit_name)                         \
-    typedef LLUnit<F32, ns::unit_name> F32##unit_name;                  \
-    typedef LLUnitImplicit<F32, ns::unit_name> F32##unit_name##Implicit;\
-    typedef LLUnit<F64, ns::unit_name> F64##unit_name;                  \
-    typedef LLUnitImplicit<F64, ns::unit_name> F64##unit_name##Implicit;\
-    typedef LLUnit<S32, ns::unit_name> S32##unit_name;                  \
-    typedef LLUnitImplicit<S32, ns::unit_name> S32##unit_name##Implicit;\
-    typedef LLUnit<S64, ns::unit_name> S64##unit_name;                  \
-    typedef LLUnitImplicit<S64, ns::unit_name> S64##unit_name##Implicit;\
-    typedef LLUnit<U32, ns::unit_name> U32##unit_name;                  \
-    typedef LLUnitImplicit<U32, ns::unit_name> U32##unit_name##Implicit;\
-    typedef LLUnit<U64, ns::unit_name> U64##unit_name;                  \
-    typedef LLUnitImplicit<U64, ns::unit_name> U64##unit_name##Implicit
+#define LL_DECLARE_UNIT_TYPEDEFS(ns, unit_name)                                  \
+    using F32##unit_name           = LLUnit<F32, ns::unit_name>;                 \
+    using F32##unit_name##Implicit = LLUnitImplicit<F32, ns::unit_name>;         \
+    using F64##unit_name           = LLUnit<F64, ns::unit_name>;                 \
+    using F64##unit_name##Implicit = LLUnitImplicit<F64, ns::unit_name>;         \
+    using S32##unit_name           = LLUnit<S32, ns::unit_name>;                 \
+    using S32##unit_name##Implicit = LLUnitImplicit<S32, ns::unit_name>;         \
+    using S64##unit_name           = LLUnit<S64, ns::unit_name>;                 \
+    using S64##unit_name##Implicit = LLUnitImplicit<S64, ns::unit_name>;         \
+    using U32##unit_name           = LLUnit<U32, ns::unit_name>;                 \
+    using U32##unit_name##Implicit = LLUnitImplicit<U32, ns::unit_name>;         \
+    using U64##unit_name           = LLUnit<U64, ns::unit_name>;                 \
+    using U64##unit_name##Implicit = LLUnitImplicit<U64, ns::unit_name>
 
 #ifdef LL_WINDOWS
 #pragma warning(pop)

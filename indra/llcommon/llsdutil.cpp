@@ -955,13 +955,13 @@ LLSD llsd_clone(LLSD value, LLSD filter)
     {
     case LLSD::TypeMap:
         clone = LLSD::emptyMap();
-        for (LLSD::map_const_iterator itm = value.beginMap(); itm != value.endMap(); ++itm)
+        for (const auto& [key, val] : llsd::inMap(value))
         {
             if (has_filter)
             {
-                if (filter.has((*itm).first))
+                if (filter.has(key))
                 {
-                    if (!filter[(*itm).first].asBoolean())
+                    if (!filter[key].asBoolean())
                         continue;
                 }
                 else if (filter.has("*"))
@@ -974,7 +974,7 @@ LLSD llsd_clone(LLSD value, LLSD filter)
                     continue;
                 }
             }
-            clone[(*itm).first] = llsd_clone((*itm).second, filter);
+            clone[key] = llsd_clone(val, filter);
         }
         break;
     case LLSD::TypeArray:
@@ -1005,13 +1005,13 @@ LLSD llsd_shallow(LLSD value, LLSD filter)
     if (value.isMap())
     {
         shallow = LLSD::emptyMap();
-        for (LLSD::map_const_iterator itm = value.beginMap(); itm != value.endMap(); ++itm)
+        for (const auto& [key, val] : llsd::inMap(value))
         {
             if (has_filter)
             {
-                if (filter.has((*itm).first))
+                if (filter.has(key))
                 {
-                    if (!filter[(*itm).first].asBoolean())
+                    if (!filter[key].asBoolean())
                         continue;
                 }
                 else if (filter.has("*"))
@@ -1024,7 +1024,7 @@ LLSD llsd_shallow(LLSD value, LLSD filter)
                     continue;
                 }
             }
-            shallow[(*itm).first] = (*itm).second;
+            shallow[key] = val;
         }
     }
     else if (value.isArray())

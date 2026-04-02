@@ -838,10 +838,8 @@ void LLDispatchListener::call_map(const LLSD& reqmap, const LLSD& event) const
     std::ostringstream errors;
     const char* delim = "";
 
-    for (const auto& pair : llsd::inMap(reqmap))
+    for (const auto& [name, args] : llsd::inMap(reqmap))
     {
-        const LLSD::String& name{ pair.first };
-        const LLSD& args{ pair.second };
         try
         {
             // in case of errors, tell user the dispatch key, the fact that

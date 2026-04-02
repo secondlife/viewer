@@ -568,18 +568,18 @@ public:
 
     void clear()
     {
-        for (auto& entries : mIBOPool)
+        for (auto& [size, entry_list] : mIBOPool)
         {
-            for (auto& entry : entries.second)
+            for (auto& entry : entry_list)
             {
                 ll_aligned_free_16(entry.mData);
                 delete_buffers(1, &entry.mGLName);
             }
         }
 
-        for (auto& entries : mVBOPool)
+        for (auto& [size, entry_list] : mVBOPool)
         {
-            for (auto& entry : entries.second)
+            for (auto& entry : entry_list)
             {
                 ll_aligned_free_16(entry.mData);
                 delete_buffers(1, &entry.mGLName);

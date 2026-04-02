@@ -219,22 +219,22 @@ void LLEventPumps::reset(bool log_pumps)
         LL_INFOS() << "Resetting " << (S32)mPumpMap.size() << " pumps" << LL_ENDL;
     }
 
-    for (PumpMap::value_type& pair : mPumpMap)
+    for (auto& [name, pump] : mPumpMap)
     {
         if (log_pumps)
         {
-            LL_INFOS() << "Resetting pump " << pair.first << LL_ENDL;
+            LL_INFOS() << "Resetting pump " << name << LL_ENDL;
         }
-        pair.second->reset();
+        pump->reset();
     }
 }
 
 std::string LLEventPumps::registerNew(const LLEventPump& pump, const std::string& name, bool tweak)
 {
-    std::pair<PumpMap::iterator, bool> inserted =
+    auto [it, success] =
         mPumpMap.insert(PumpMap::value_type(name, const_cast<LLEventPump*>(&pump)));
     // If the insert worked, then the name is unique; return that.
-    if (inserted.second)
+    if (success)
         return name;
     // Here the new entry was NOT inserted, and therefore name isn't unique.
     // Unless we're permitted to tweak it, that's Bad.
@@ -244,7 +244,7 @@ std::string LLEventPumps::registerNew(const LLEventPump& pump, const std::string
     }
     // The passed name isn't unique, but we're permitted to tweak it. Find the
     // first decimal-integer suffix not already taken. The insert() attempt
-    // above will have set inserted.first to the iterator of the existing
+    // above will have set 'it' to the iterator of the existing
     // entry by that name. Starting there, walk forward until we reach an
     // entry that doesn't start with 'name'. For each entry consisting of name
     // + integer suffix, capture the integer suffix in a set. Use a set
@@ -252,8 +252,8 @@ std::string LLEventPumps::registerNew(const LLEventPump& pump, const std::string
     // name10, name11, name2, ... Walking those possibilities in that order
     // isn't convenient to detect the first available "hole."
     std::set<int> suffixes;
-    PumpMap::iterator pmi(inserted.first), pmend(mPumpMap.end());
-    // We already know inserted.first references the existing entry with
+    PumpMap::iterator pmi(it), pmend(mPumpMap.end());
+    // We already know 'it' references the existing entry with
     // 'name' as the key; skip that one and start with the next.
     while (++pmi != pmend)
     {

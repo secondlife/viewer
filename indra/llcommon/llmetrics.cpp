@@ -31,6 +31,7 @@
 
 #include "llsd.h"
 #include "llsdserialize.h"
+#include "llsdutil.h"
 #include "llframetimer.h"
 
 class LLMetricsImpl
@@ -102,20 +103,10 @@ void LLMetricsImpl::printTotals(LLSD metadata)
 
     LLSD stats = LLSD::emptyArray();
 
-    LLSD::map_const_iterator loc_it = mMetricsMap.beginMap();
-    LLSD::map_const_iterator loc_end = mMetricsMap.endMap();
-    for ( ; loc_it != loc_end; ++loc_it)
+    for (const auto& [location, loc_map] : llsd::inMap(mMetricsMap))
     {
-        const std::string& location = (*loc_it).first;
-
-        const LLSD& loc_map = (*loc_it).second;
-        LLSD::map_const_iterator mesg_it = loc_map.beginMap();
-        LLSD::map_const_iterator mesg_end = loc_map.endMap();
-        for ( ; mesg_it != mesg_end; ++mesg_it)
+        for (const auto& [mesg, mesg_map] : llsd::inMap(loc_map))
         {
-            const std::string& mesg = (*mesg_it).first;
-            const LLSD& mesg_map = (*mesg_it).second;
-
             LLSD entry = LLSD::emptyMap();
             entry["location"] = location;
             entry["mesg"] = mesg;

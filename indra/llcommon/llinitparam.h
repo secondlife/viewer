@@ -344,11 +344,11 @@ namespace LLInitParam
         std::string calcValueName(const value_t& value) const
         {
             value_name_map_t* map = getValueNames();
-            for (typename value_name_map_t::value_type& map_pair : *map)
+            for (auto& [name, mapped_value] : *map)
             {
-                if (ParamCompare<T>::equals(map_pair.second, value))
+                if (ParamCompare<T>::equals(mapped_value, value))
                 {
-                    return map_pair.first;
+                    return name;
                 }
             }
 

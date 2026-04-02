@@ -1024,13 +1024,13 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
             if (old_cache_version == current_cache_version
                 && in_data["version"].asUUID() == current_cache_version)
             {
-                for (const auto& data_pair : llsd::inMap(in_data["shaders"]))
+                for (const auto& [shader_id, shader_data] : llsd::inMap(in_data["shaders"]))
                 {
                     ProgramBinaryData binary_info = ProgramBinaryData();
-                    binary_info.mBinaryFormat = data_pair.second["binary_format"].asInteger();
-                    binary_info.mBinaryLength = data_pair.second["binary_size"].asInteger();
-                    binary_info.mLastUsedTime = (F32)data_pair.second["last_used"].asReal();
-                    mShaderBinaryCache.insert_or_assign(LLUUID(data_pair.first), binary_info);
+                    binary_info.mBinaryFormat = shader_data["binary_format"].asInteger();
+                    binary_info.mBinaryLength = shader_data["binary_size"].asInteger();
+                    binary_info.mLastUsedTime = (F32)shader_data["last_used"].asReal();
+                    mShaderBinaryCache.insert_or_assign(LLUUID(shader_id), binary_info);
                 }
             }
             else if (!second_instance)

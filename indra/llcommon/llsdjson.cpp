@@ -116,9 +116,9 @@ boost::json::value LlsdToJson(const LLSD &val)
     {
         boost::json::object& obj = result.emplace_object();
         obj.reserve(val.size());
-        for (const auto& llsd_dat : llsd::inMap(val))
+        for (const auto& [key, value] : llsd::inMap(val))
         {
-            obj[llsd_dat.first] = LlsdToJson(llsd_dat.second);
+            obj[key] = LlsdToJson(value);
         }
         break;
     }

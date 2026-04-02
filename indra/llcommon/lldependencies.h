@@ -268,25 +268,24 @@ public:
             before_set(before.begin(), before.end());
         // Try to insert the new node; if it already exists, find the old
         // node instead.
-        std::pair<typename DepNodeMap::iterator, bool> inserted =
+        auto [iter, was_new] =
             mNodes.insert(typename DepNodeMap::value_type(key,
                                                           DepNode(node, after_set, before_set)));
-        if (! inserted.second)      // bool indicating success of insert()
+        if (! was_new)              // bool indicating success of insert()
         {
             // We already have a node by this name. Have its dependencies
             // changed? If the existing node's dependencies are identical, the
             // result will be unchanged, so we can leave the cache intact.
-            // Regardless of inserted.second, inserted.first is the iterator
-            // to the newly-inserted (or existing) map entry. Of course, that
-            // entry's second is the DepNode of interest.
-            if (inserted.first->second.after  != after_set ||
-                inserted.first->second.before != before_set)
+            // 'iter' is the iterator to the newly-inserted (or existing) map
+            // entry. iter->second is the DepNode of interest.
+            if (iter->second.after  != after_set ||
+                iter->second.before != before_set)
             {
                 // Dependencies have changed: clear the cached result.
                 mCache.clear();
                 // save the new dependencies
-                inserted.first->second.after  = after_set;
-                inserted.first->second.before = before_set;
+                iter->second.after  = after_set;
+                iter->second.before = before_set;
             }
         }
         else                        // this node is new
@@ -294,7 +293,7 @@ public:
             // This will change results.
             mCache.clear();
         }
-        return inserted.first->second.node;
+        return iter->second.node;
     }
 
     /// the value of an iterator, showing both KEY and its NODE

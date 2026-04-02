@@ -445,10 +445,10 @@ namespace
         {
             std::ostringstream os;
             os << "<struct>";
-            for (const auto& it : mData)
+            for (const auto& [key, value] : mData)
             {
-                os << "<member><name>" << LLStringFn::xml_encode(it.first) << "</name>"
-                    << it.second.asXMLRPCValue() << "</member>";
+                os << "<member><name>" << LLStringFn::xml_encode(key) << "</name>"
+                    << value.asXMLRPCValue() << "</member>";
             }
             os << "</struct>";
             return std::move(os).str();

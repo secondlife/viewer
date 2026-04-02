@@ -26,6 +26,7 @@
 
 #include "linden_common.h"
 #include "llsdserialize_xml.h"
+#include "llsdutil.h"
 
 #include <iostream>
 #include <deque>
@@ -103,12 +104,10 @@ S32 LLSDXMLFormatter::format_impl(const LLSD& data, std::ostream& ostr,
         else
         {
             ostr << pre << "<map>" << post;
-            LLSD::map_const_iterator iter = data.beginMap();
-            LLSD::map_const_iterator end = data.endMap();
-            for(; iter != end; ++iter)
+            for (const auto& [key, value] : llsd::inMap(data))
             {
-                ostr << pre << "<key>" << escapeString((*iter).first) << "</key>" << post;
-                format_count += format_impl((*iter).second, ostr, options, level + 1);
+                ostr << pre << "<key>" << escapeString(key) << "</key>" << post;
+                format_count += format_impl(value, ostr, options, level + 1);
             }
             ostr << pre <<  "</map>" << post;
         }

@@ -28,6 +28,7 @@
 
 #include "linden_common.h"
 #include "llsdserialize.h"
+#include "llsdutil.h"
 #include "llpointer.h"
 #include "llstreamtools.h" // for fullread
 
@@ -1384,16 +1385,14 @@ S32 LLSDNotationFormatter::format_impl(const LLSD& data, std::ostream& ostr,
         }
 
         bool need_comma = false;
-        LLSD::map_const_iterator iter = data.beginMap();
-        LLSD::map_const_iterator end = data.endMap();
-        for(; iter != end; ++iter)
+        for (const auto& [key, value] : llsd::inMap(data))
         {
             if(need_comma) ostr << ",";
             need_comma = true;
             ostr << post << inner_pre << '\'';
-            serialize_string((*iter).first, ostr);
+            serialize_string(key, ostr);
             ostr << "':";
-            format_count += format_impl((*iter).second, ostr, options, level + 2);
+            format_count += format_impl(value, ostr, options, level + 2);
         }
         ostr << post << pre << "}";
         break;
@@ -1545,13 +1544,11 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
         ostr.put('{');
         U32 size_nbo = htonl(static_cast<u_long>(data.size()));
         ostr.write((const char*)(&size_nbo), sizeof(U32));
-        LLSD::map_const_iterator iter = data.beginMap();
-        LLSD::map_const_iterator end = data.endMap();
-        for(; iter != end; ++iter)
+        for (const auto& [key, value] : llsd::inMap(data))
         {
             ostr.put('k');
-            formatString((*iter).first, ostr);
-            format_count += format_impl((*iter).second, ostr, options, level+1);
+            formatString(key, ostr);
+            format_count += format_impl(value, ostr, options, level+1);
         }
         ostr.put('}');
         break;

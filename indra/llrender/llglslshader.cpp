@@ -2058,21 +2058,21 @@ LLUUID LLGLSLShader::hash()
     hash_obj.update(mName);
     hash_obj.update(&mShaderGroup, sizeof(mShaderGroup));
     hash_obj.update(&mShaderLevel, sizeof(mShaderLevel));
-    for (const auto& shdr_pair : mShaderFiles)
+    for (const auto& [filename, shader_type] : mShaderFiles)
     {
-        hash_obj.update(shdr_pair.first);
-        hash_obj.update(&shdr_pair.second, sizeof(GLenum));
+        hash_obj.update(filename);
+        hash_obj.update(&shader_type, sizeof(GLenum));
     }
-    for (const auto& define_pair : mDefines)
+    for (const auto& [name, value] : mDefines)
     {
-        hash_obj.update(define_pair.first);
-        hash_obj.update(define_pair.second);
+        hash_obj.update(name);
+        hash_obj.update(value);
 
     }
-    for (const auto& define_pair : LLGLSLShader::sGlobalDefines)
+    for (const auto& [name, value] : LLGLSLShader::sGlobalDefines)
     {
-        hash_obj.update(define_pair.first);
-        hash_obj.update(define_pair.second);
+        hash_obj.update(name);
+        hash_obj.update(value);
 
     }
     hash_obj.update(&mFeatures, sizeof(LLShaderFeatures));

@@ -1212,26 +1212,26 @@ namespace LLStringFn
 
     static void literals_encode(std::string& text, const literals_t& literals)
     {
-        for (const std::pair<char, std::string> it : literals)
+        for (const auto& [ch, replacement] : literals)
         {
             std::string::size_type pos = 0;
-            while ((pos = text.find(it.first, pos)) != std::string::npos)
+            while ((pos = text.find(ch, pos)) != std::string::npos)
             {
-                text.replace(pos, 1, it.second);
-                pos += it.second.size();
+                text.replace(pos, 1, replacement);
+                pos += replacement.size();
             }
         }
     }
 
     static void literals_decode(std::string& text, const literals_t& literals)
     {
-        for (const std::pair<char, std::string> it : literals)
+        for (const auto& [ch, replacement] : literals)
         {
             std::string::size_type pos = 0;
-            while ((pos = text.find(it.second, pos)) != std::string::npos)
+            while ((pos = text.find(replacement, pos)) != std::string::npos)
             {
-                text[pos++] = it.first;
-                text.erase(pos, it.second.size() - 1);
+                text[pos++] = ch;
+                text.erase(pos, replacement.size() - 1);
             }
         }
     }

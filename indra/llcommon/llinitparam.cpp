@@ -207,10 +207,10 @@ namespace LLInitParam
         if (!mValidated)
         {
         const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
-        for (const BlockDescriptor::param_validation_list_t::value_type& pair : block_data.mValidationList)
+        for (const auto& [handle, validator] : block_data.mValidationList)
         {
-            const Param* param = getParamFromHandle(pair.first);
-            if (!pair.second(param))
+            const Param* param = getParamFromHandle(handle);
+            if (!validator(param))
             {
                 if (emit_errors)
                 {
@@ -247,11 +247,11 @@ namespace LLInitParam
             }
         }
 
-        for (const BlockDescriptor::param_map_t::value_type& pair : block_data.mNamedParams)
+        for (const auto& [name, descriptor] : block_data.mNamedParams)
         {
-            param_handle_t param_handle = pair.second->mParamHandle;
+            param_handle_t param_handle = descriptor->mParamHandle;
             const Param* param = getParamFromHandle(param_handle);
-            ParamDescriptor::serialize_func_t serialize_func = pair.second->mSerializeFunc;
+            ParamDescriptor::serialize_func_t serialize_func = descriptor->mSerializeFunc;
             if (serialize_func && predicate_rule.check(ll_make_predicate(PROVIDED, param->anyProvided())))
             {
                 // Ensure this param has not already been serialized
@@ -273,7 +273,7 @@ namespace LLInitParam
                     continue;
                 }
 
-                name_stack.push_back(std::make_pair(pair.first, !duplicate));
+                name_stack.push_back(std::make_pair(name, !duplicate));
                 const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
                 serialized |= serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
                 name_stack.pop_back();
@@ -307,11 +307,11 @@ namespace LLInitParam
             }
         }
 
-        for(const BlockDescriptor::param_map_t::value_type& pair : block_data.mNamedParams)
+        for (const auto& [name, descriptor] : block_data.mNamedParams)
         {
-            param_handle_t param_handle = pair.second->mParamHandle;
+            param_handle_t param_handle = descriptor->mParamHandle;
             const Param* param = getParamFromHandle(param_handle);
-            ParamDescriptor::inspect_func_t inspect_func = pair.second->mInspectFunc;
+            ParamDescriptor::inspect_func_t inspect_func = descriptor->mInspectFunc;
             if (inspect_func)
             {
                 // Ensure this param has not already been inspected
@@ -325,8 +325,8 @@ namespace LLInitParam
                     }
                 }
 
-                name_stack.push_back(std::make_pair(pair.first, !duplicate));
-                inspect_func(*param, parser, name_stack, pair.second->mMinCount, pair.second->mMaxCount);
+                name_stack.push_back(std::make_pair(name, !duplicate));
+                inspect_func(*param, parser, name_stack, descriptor->mMinCount, descriptor->mMaxCount);
                 name_stack.pop_back();
             }
         }

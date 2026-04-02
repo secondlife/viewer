@@ -29,6 +29,7 @@
 #include "indra_constants.h"
 #include "llerror.h"
 #include "llsdserialize.h"
+#include "llsdutil.h"
 #include "lltreeiterators.h"
 #include "llmetricperformancetester.h"
 #include "llfasttimer.h"
@@ -42,9 +43,9 @@ LLMetricPerformanceTesterBasic::name_tester_map_t LLMetricPerformanceTesterBasic
 /*static*/
 void LLMetricPerformanceTesterBasic::cleanupClass()
 {
-    for (name_tester_map_t::value_type& pair : sTesterMap)
+    for (auto& [name, tester] : sTesterMap)
     {
-        delete pair.second;
+        delete tester;
     }
     sTesterMap.clear() ;
 }
@@ -102,19 +103,17 @@ LLSD LLMetricPerformanceTesterBasic::analyzeMetricPerformanceLog(std::istream& i
 
     while (!is.eof() && LLSDParser::PARSE_FAILURE != LLSDSerialize::fromXML(cur, is))
     {
-        for (LLSD::map_iterator iter = cur.beginMap(); iter != cur.endMap(); ++iter)
+        for (auto& [label, data] : llsd::inMap(cur))
         {
-            std::string label = iter->first;
-
-            LLMetricPerformanceTesterBasic* tester = LLMetricPerformanceTesterBasic::getTester(iter->second["Name"].asString()) ;
+            LLMetricPerformanceTesterBasic* tester = LLMetricPerformanceTesterBasic::getTester(data["Name"].asString()) ;
             if(tester)
             {
-                ret[label]["Name"] = iter->second["Name"] ;
+                ret[label]["Name"] = data["Name"] ;
 
                 auto num_of_metrics = tester->getNumberOfMetrics() ;
                 for(size_t index = 0 ; index < num_of_metrics ; index++)
                 {
-                    ret[label][ tester->getMetricName(index) ] = iter->second[ tester->getMetricName(index) ] ;
+                    ret[label][ tester->getMetricName(index) ] = data[ tester->getMetricName(index) ] ;
                 }
             }
         }
@@ -154,9 +153,9 @@ void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std
     llofstream os(output.c_str());
 
     os << "Label, Metric, Base(B), Target(T), Diff(T-B), Percentage(100*T/B)\n";
-    for (LLMetricPerformanceTesterBasic::name_tester_map_t::value_type& pair : LLMetricPerformanceTesterBasic::sTesterMap)
+    for (auto& [name, tester_ptr] : LLMetricPerformanceTesterBasic::sTesterMap)
     {
-        LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)pair.second);
+        LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)tester_ptr);
         tester->analyzePerformance(&os, &base, &current) ;
     }
 

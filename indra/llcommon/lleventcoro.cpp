@@ -262,10 +262,10 @@ LLSD llcoro::postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requ
 
     // Store both connections into LLTempBoundListeners so we implicitly
     // disconnect on return from this function.
-    auto connections =
+    auto [conn, stop] =
         postAndSuspendSetup("postAndSuspend()", listenerName, promise,
                             event, requestPump, replyPump, replyPumpNamePath);
-    LLTempBoundListener connection(connections.first), stopper(connections.second);
+    LLTempBoundListener connection(conn), stopper(stop);
 
     // declare the future
     LLCoros::Future<LLSD> future = LLCoros::getFuture(promise);
@@ -289,10 +289,10 @@ LLSD llcoro::postAndSuspendWithTimeout(const LLSD& event,
 
     // Store both connections into LLTempBoundListeners so we implicitly
     // disconnect on return from this function.
-    auto connections =
+    auto [conn, stop] =
         postAndSuspendSetup("postAndSuspendWithTimeout()", listenerName, promise,
                             event, requestPump, replyPump, replyPumpNamePath);
-    LLTempBoundListener connection(connections.first), stopper(connections.second);
+    LLTempBoundListener connection(conn), stopper(stop);
 
     // declare the future
     LLCoros::Future<LLSD> future = LLCoros::getFuture(promise);

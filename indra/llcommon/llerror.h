@@ -356,7 +356,7 @@ namespace LLError
     Class type information for logging
  */
 
-#define LOG_CLASS(s)    typedef s _LL_CLASS_TO_LOG
+#define LOG_CLASS(s)    using _LL_CLASS_TO_LOG = s
     // Declares class to tag logged messages with.
     // See top of file for example of how to use this
 

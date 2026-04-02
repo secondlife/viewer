@@ -644,9 +644,9 @@ namespace tut
                 std::ostringstream out;
                 out << "LLEventDispatcher failed to report";
                 const char* delim = ": ";
-                for (const DescMap::value_type& fme: forgotten)
+                for (const auto& [name, desc]: forgotten)
                 {
-                    out << delim << fme.first;
+                    out << delim << name;
                     delim = ", ";
                 }
                 throw failure(out.str());

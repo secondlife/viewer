@@ -52,11 +52,11 @@ public:
             // we capture that type information in our deleter.
             void* ptr = new T();
             void (*dlfn)(void*) = &deleter<T>;
-            std::pair<TypeMap::iterator, bool> inserted =
+            auto [iter, was_new] =
                 mMap.emplace(typeid(T),
                     TypeMap::mapped_type(ptr, dlfn));
             // Okay, now that we have an entry, claim we found it.
-            found = inserted.first;
+            found = iter;
         }
         // found->second is the std::pair; second.first is the void*
         // pointer to the object in question. Cast it to correct type and

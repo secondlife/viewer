@@ -294,8 +294,8 @@ private:
         case LLInstanceTrackerErrorOnCollision:
         {
             // map stores shared_ptr to self
-            auto pair = map.emplace(key, ptr);
-            if (! pair.second)
+            auto [iter, inserted] = map.emplace(key, ptr);
+            if (! inserted)
             {
                 LLInstanceTrackerPrivate::logerrs(typeid(*this).name(), " instance with key ",
                                                   report(key), " already exists!");
