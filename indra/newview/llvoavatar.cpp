@@ -5984,6 +5984,7 @@ const LLUUID& LLVOAvatar::getStepSound() const
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAnimationStateChanges()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     if ( isAnyAnimationSignaled(AGENT_WALK_ANIMS, NUM_AGENT_WALK_ANIMS) )
     {
         startMotion(ANIM_AGENT_WALK_ADJUST);

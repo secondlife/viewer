@@ -3210,6 +3210,7 @@ S32 LLFilenameAndTask::sCount = 0;
 // static
 void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID task_id;
     msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_TaskID, task_id);
     LLViewerObject* object = gObjectList.findObject(task_id);
