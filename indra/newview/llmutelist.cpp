@@ -214,9 +214,9 @@ bool LLMuteList::isLinden(const std::string& name)
     return last_name == "linden";
 }
 
-bool LLMuteList::getLoadFailed()
+bool LLMuteList::updateLoadState()
 {
-    if (mLoadState == ML_FAILED)
+    if (isLoaded() || isFailed())
     {
         return true;
     }
@@ -227,7 +227,7 @@ bool LLMuteList::getLoadFailed()
         {
             LL_WARNS() << "Mute list request timed out; trying cache fallback once" << LL_ENDL;
             tryLoadCacheFallback(gAgent.getID(), "request timeout");
-            return mLoadState == ML_FAILED;
+            return isLoaded() || isFailed();
         }
     }
     return false;

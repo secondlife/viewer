@@ -125,7 +125,11 @@ public:
     static bool isLinden(const std::string& name);
 
     bool isLoaded() const { return mLoadState == ML_LOADED; }
-    bool getLoadFailed();
+    bool isFailed() const { return mLoadState == ML_FAILED; }
+
+    // Advance the load state machine, trying cache fallback if necessary.
+    // Return value indicates mute list consumption readiness.
+    bool updateLoadState();
 
     std::vector<LLMute> getMutes() const;
 
