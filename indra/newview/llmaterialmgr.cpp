@@ -62,8 +62,6 @@
 #define MATERIALS_PUT_THROTTLE_SECS               1.f
 #define MATERIALS_PUT_MAX_ENTRIES                 50
 
-
-
 class LLMaterialHttpHandler : public LLHttpSDHandler
 {
 public:
@@ -113,8 +111,6 @@ void LLMaterialHttpHandler::onFailure(LLCore::HttpResponse * response, LLCore::H
     LLSD emptyResult;
     mCallback(false, emptyResult);
 }
-
-
 
 /**
  * LLMaterialMgr class
@@ -709,97 +705,6 @@ void LLMaterialMgr::processGetQueue()
 
 void LLMaterialMgr::processGetQueueCoro()
 {
-#if 0
-    get_queue_t::iterator itRegionQueue = loopRegionQueue++;
-
-    const LLUUID& region_id = itRegionQueue->first;
-    if (isGetAllPending(region_id))
-    {
-        continue;
-    }
-
-    LLViewerRegion* regionp = LLWorld::instance().getRegionFromID(region_id);
-    if (!regionp)
-    {
-        LL_WARNS("Materials") << "Unknown region with id " << region_id.asString() << LL_ENDL;
-        mGetQueue.erase(itRegionQueue);
-        continue;
-    }
-    else if (!regionp->capabilitiesReceived() || regionp->materialsCapThrottled())
-    {
-        continue;
-    }
-    else if (mGetAllRequested.end() == mGetAllRequested.find(region_id))
-    {
-        LL_DEBUGS("Materials") << "calling getAll for " << regionp->getName() << LL_ENDL;
-        getAll(region_id);
-        continue;
-    }
-
-    const std::string capURL = regionp->getCapability(MATERIALS_CAPABILITY_NAME);
-    if (capURL.empty())
-    {
-        LL_WARNS("Materials") << "Capability '" << MATERIALS_CAPABILITY_NAME
-            << "' is not defined on region '" << regionp->getName() << "'" << LL_ENDL;
-        mGetQueue.erase(itRegionQueue);
-        continue;
-    }
-
-    LLSD materialsData = LLSD::emptyArray();
-
-    material_queue_t& materials = itRegionQueue->second;
-    U32 max_entries = regionp->getMaxMaterialsPerTransaction();
-    material_queue_t::iterator loopMaterial = materials.begin();
-    while ((materials.end() != loopMaterial) && (materialsData.size() < max_entries))
-    {
-        material_queue_t::iterator itMaterial = loopMaterial++;
-        materialsData.append((*itMaterial).asLLSD());
-        materials.erase(itMaterial);
-        markGetPending(region_id, *itMaterial);
-    }
-    if (materials.empty())
-    {
-        mGetQueue.erase(itRegionQueue);
-    }
-
-    std::string materialString = zip_llsd(materialsData);
-
-    S32 materialSize = materialString.size();
-    if (materialSize <= 0)
-    {
-        LL_ERRS("Materials") << "cannot zip LLSD binary content" << LL_ENDL;
-        return;
-    }
-
-    LLSD::Binary materialBinary;
-    materialBinary.resize(materialSize);
-    memcpy(materialBinary.data(), materialString.data(), materialSize);
-
-    LLSD postData = LLSD::emptyMap();
-    postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
-
-    LLMaterialHttpHandler * handler =
-        new LLMaterialHttpHandler("POST",
-        boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id)
-        );
-
-    LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '" << capURL << " for " << materialsData.size() << " materials."
-        << "\ndata: " << ll_pretty_print_sd(materialsData) << LL_ENDL;
-
-    LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest,
-        mHttpPolicy, mHttpPriority, capURL,
-        postData, mHttpOptions, mHttpHeaders, handler);
-
-    if (handle == LLCORE_HTTP_HANDLE_INVALID)
-    {
-        delete handler;
-        LLCore::HttpStatus status = mHttpRequest->getStatus();
-        LL_ERRS("Meterials") << "Failed to execute material POST. Status = " <<
-            status.toULong() << "\"" << status.toString() << "\"" << LL_ENDL;
-    }
-
-    regionp->resetMaterialsCapThrottle();
-#endif
 
 }
 

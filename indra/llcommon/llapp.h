@@ -258,7 +258,7 @@ public:
     //@}
 
     // the maximum length of the minidump filename returned by getMiniDumpFilename()
-    static const U32 MAX_MINDUMP_PATH_LENGTH = 256;
+    static constexpr U32 MAX_MINDUMP_PATH_LENGTH = 256;
 
     // change the directory where Breakpad minidump files are written to
     void setDebugFileNames(const std::string &path);

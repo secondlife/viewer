@@ -216,7 +216,6 @@ void calc_tangent_from_triangle(
 
 }
 
-
 // intersect test between triangle vert0, vert1, vert2 and a ray from orig in direction dir.
 // returns true if intersecting and returns barycentric coordinates in intersection_a, intersection_b,
 // and returns the intersection point along dir in intersection_t.
@@ -262,7 +261,6 @@ bool LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, co
             LLVector4a v;
             v.setAllDot3(dir, qvec);
 
-
             //if (!(v < 0.f || u + v > det))
 
             LLVector4a sum_uv;
@@ -301,7 +299,6 @@ bool LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
     LLVector4a edge1;
     edge1.setSub(vert1, vert0);
 
-
     LLVector4a edge2;
     edge2.setSub(vert2, vert0);
 
@@ -311,7 +308,6 @@ bool LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
 
     /* if determinant is near zero, ray lies in plane of triangle */
     F32 det = edge1.dot3(pvec).getF32();
-
 
     if (det > -F_APPROXIMATELY_ZERO && det < F_APPROXIMATELY_ZERO)
     {
@@ -349,14 +345,12 @@ bool LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
     intersection_b = v;
     intersection_t = t;
 
-
     return true;
 }
 
 //-------------------------------------------------------------------
 // statics
 //-------------------------------------------------------------------
-
 
 //----------------------------------------------------
 
@@ -726,10 +720,8 @@ S32 LLProfile::getNumPoints(const LLProfileParams& params, bool path_open,F32 de
        break;
     };
 
-
     return np;
 }
-
 
 bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detail, S32 split,
                          bool is_sculpted, S32 sculpt_size)
@@ -1007,8 +999,6 @@ bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detai
     return true;
 }
 
-
-
 bool LLProfileParams::importFile(LLFILE *fp)
 {
     const S32 BUFSIZE = 16384;
@@ -1070,7 +1060,6 @@ bool LLProfileParams::importFile(LLFILE *fp)
     return true;
 }
 
-
 bool LLProfileParams::exportFile(LLFILE *fp) const
 {
     fprintf(fp,"\t\tprofile 0\n");
@@ -1082,7 +1071,6 @@ bool LLProfileParams::exportFile(LLFILE *fp) const
     fprintf(fp, "\t\t}\n");
     return true;
 }
-
 
 bool LLProfileParams::importLegacyStream(std::istream& input_stream)
 {
@@ -1142,7 +1130,6 @@ bool LLProfileParams::importLegacyStream(std::istream& input_stream)
     return true;
 }
 
-
 bool LLProfileParams::exportLegacyStream(std::ostream& output_stream) const
 {
     output_stream <<"\t\tprofile 0\n";
@@ -1182,7 +1169,6 @@ void LLProfileParams::copyParams(const LLProfileParams &params)
     setEnd(params.getEnd());
     setHollow(params.getHollow());
 }
-
 
 LLPath::~LLPath()
 {
@@ -1292,7 +1278,6 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     ang     = 2.0f*F_PI*revolutions * t;
     s       = sin(ang)*lerp(radius_start, radius_end, t);
     c       = cos(ang)*lerp(radius_start, radius_end, t);
-
 
     pt->mPos.set(0 + lerp(0.f, params.getShear().mV[VX], s)
                       + lerp(-skew ,skew, t) * 0.5f,
@@ -1608,7 +1593,6 @@ bool LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split,
     return true;
 }
 
-
 bool LLPathParams::importFile(LLFILE *fp)
 {
     const S32 BUFSIZE = 16384;
@@ -1727,7 +1711,6 @@ bool LLPathParams::importFile(LLFILE *fp)
     return true;
 }
 
-
 bool LLPathParams::exportFile(LLFILE *fp) const
 {
     fprintf(fp, "\t\tpath 0\n");
@@ -1751,7 +1734,6 @@ bool LLPathParams::exportFile(LLFILE *fp) const
     fprintf(fp, "\t\t}\n");
     return true;
 }
-
 
 bool LLPathParams::importLegacyStream(std::istream& input_stream)
 {
@@ -1867,7 +1849,6 @@ bool LLPathParams::importLegacyStream(std::istream& input_stream)
     return true;
 }
 
-
 bool LLPathParams::exportLegacyStream(std::ostream& output_stream) const
 {
     output_stream << "\t\tpath 0\n";
@@ -1950,7 +1931,6 @@ void LLPathParams::copyParams(const LLPathParams &params)
 LLProfile::~LLProfile()
 {
 }
-
 
 S32 LLVolume::sNumMeshPoints = 0;
 
@@ -2199,7 +2179,6 @@ const LLVector4a& LLVolumeFace::VertexData::getNormal() const
 {
     return mData[NORMAL];
 }
-
 
 void LLVolumeFace::VertexData::setPosition(const LLVector4a& pos)
 {
@@ -2466,34 +2445,6 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
                 }
             }
 
-#if 0 // keep this code for now in case we decide to add support for on-the-wire tangents
-            {
-                if (!tangent.empty())
-                {
-                    face.allocateTangents(face.mNumVertices);
-                    U16* t = (U16*)&(tangent[0]);
-
-                    // NOTE: tangents coming from the asset may not be mikkt space, but they should always be used by the GLTF shaders to
-                    // maintain compliance with the GLTF spec
-                    LLVector4a* t_out = face.mTangents;
-
-                    for (U32 j = 0; j < num_verts; ++j)
-                    {
-                        t_out->set((F32)t[0], (F32)t[1], (F32)t[2], (F32) t[3]);
-                        t_out->div(65535.f);
-                        t_out->mul(2.f);
-                        t_out->sub(1.f);
-
-                        F32* tp = t_out->getF32ptr();
-                        tp[3] = tp[3] < 0.f ? -1.f : 1.f;
-
-                        t_out++;
-                        t += 4;
-                    }
-                }
-            }
-#endif
-
             {
                 if (!tc.empty())
                 {
@@ -2602,7 +2553,6 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
             bool do_mirror = (mParams.getSculptType() & LL_SCULPT_FLAG_MIRROR);
             bool do_invert = (mParams.getSculptType() &LL_SCULPT_FLAG_INVERT);
 
-
             // translate to actions:
             bool do_reflect_x = false;
             bool do_reverse_triangles = false;
@@ -2710,7 +2660,6 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
     return true;
 }
 
-
 bool LLVolume::isMeshAssetLoaded() const
 {
     return mIsMeshAssetLoaded;
@@ -2768,12 +2717,10 @@ bool LLVolume::cacheOptimize(bool gen_tangents)
     return true;
 }
 
-
 S32 LLVolume::getNumFaces() const
 {
     return mIsMeshAssetLoaded ? getNumVolumeFaces() : (S32)mProfilep->mFaces.size();
 }
-
 
 void LLVolume::createVolumeFaces()
 {
@@ -2868,7 +2815,6 @@ void LLVolume::createVolumeFaces()
     }
 }
 
-
 inline LLVector4a sculpt_rgb_to_vector(U8 r, U8 g, U8 b)
 {
     // maps RGB values to vector values [0..255] -> [-0.5..0.5]
@@ -2888,7 +2834,6 @@ inline U32 sculpt_xy_to_index(U32 x, U32 y, U16 sculpt_width, U16 sculpt_height,
     return index;
 }
 
-
 inline U32 sculpt_st_to_index(S32 s, S32 t, S32 size_s, S32 size_t, U16 sculpt_width, U16 sculpt_height, S8 sculpt_components)
 {
     U32 x = (U32) ((F32)s/(size_s) * (F32) sculpt_width);
@@ -2896,7 +2841,6 @@ inline U32 sculpt_st_to_index(S32 s, S32 t, S32 size_s, S32 size_t, U16 sculpt_w
 
     return sculpt_xy_to_index(x, y, sculpt_width, sculpt_height, sculpt_components);
 }
-
 
 inline LLVector4a sculpt_index_to_vector(U32 index, const U8* sculpt_data)
 {
@@ -2918,7 +2862,6 @@ inline LLVector4a sculpt_xy_to_vector(U32 x, U32 y, U16 sculpt_width, U16 sculpt
 
     return sculpt_index_to_vector(index, sculpt_data);
 }
-
 
 F32 LLVolume::sculptGetSurfaceArea()
 {
@@ -3002,7 +2945,6 @@ void LLVolume::sculptGenerateSpherePlaceholder()
             S32 i = t + line;
             LLVector4a& pt = mMesh[i];
 
-
             F32 u = (F32)s / (sizeS - 1);
             F32 v = (F32)t / (sizeT - 1);
 
@@ -3049,7 +2991,6 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
 
             U32 x = (U32) ((F32)reversed_t/(sizeT-1) * (F32) sculpt_width);
             U32 y = (U32) ((F32)s/(sizeS-1) * (F32) sculpt_height);
-
 
             if (y == 0)  // top row stitching
             {
@@ -3110,7 +3051,6 @@ void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8
     }
 }
 
-
 constexpr S32 SCULPT_REZ_1 = 6;  // changed from 4 to 6 - 6 looks round whereas 4 looks square
 constexpr S32 SCULPT_REZ_2 = 8;
 constexpr S32 SCULPT_REZ_3 = 16;
@@ -3138,8 +3078,6 @@ S32 sculpt_sides(F32 detail)
     }
 }
 
-
-
 // determine the number of vertices in both s and t direction for this sculpt
 void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32& s, S32& t)
 {
@@ -3158,13 +3096,11 @@ void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32
     else
         vertices = max_vertices_lod;
 
-
     F32 ratio;
     if ((width == 0) || (height == 0))
         ratio = 1.f;
     else
         ratio = (F32) width / (F32) height;
-
 
     s = (S32)(F32) sqrt(((F32)vertices / ratio));
 
@@ -3257,9 +3193,6 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
     createVolumeFaces();
 }
 
-
-
-
 bool LLVolume::isCap(S32 face)
 {
     return mProfilep->mFaces[face].mCap;
@@ -3269,7 +3202,6 @@ bool LLVolume::isFlat(S32 face)
 {
     return mProfilep->mFaces[face].mFlat;
 }
-
 
 bool LLVolumeParams::isSculpt() const
 {
@@ -3315,7 +3247,6 @@ bool LLVolumeParams::operator<(const LLVolumeParams &params) const
     }
 
     return mSculptType < params.mSculptType;
-
 
 }
 
@@ -3708,7 +3639,6 @@ void LLVolume::getLoDTriangleCounts(const LLVolumeParams& params, S32* counts)
     }
 }
 
-
 S32 LLVolume::getNumTriangles(S32* vcount) const
 {
     U32 triangle_count = 0;
@@ -3721,7 +3651,6 @@ S32 LLVolume::getNumTriangles(S32* vcount) const
 
         vertex_count += face.mNumVertices;
     }
-
 
     if (vcount)
     {
@@ -4294,7 +4223,6 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
                                 *intersection = intersect;
                             }
 
-
                             if (tex_coord != NULL)
                             {
                                 LLVector2* tc = (LLVector2*) face.mTexCoords;
@@ -4363,7 +4291,6 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
             }
         }
     }
-
 
     return hit_face;
 }
@@ -4518,7 +4445,6 @@ bool LLVolumeParams::exportFile(LLFILE *fp) const
     fprintf(fp, "\t}\n");
     return true;
 }
-
 
 bool LLVolumeParams::importLegacyStream(std::istream& input_stream)
 {
@@ -4809,7 +4735,6 @@ bool LLVolume::isConvex() const
     return mParams.isConvex();
 }
 
-
 std::ostream& operator<<(std::ostream &s, const LLProfileParams &profile_params)
 {
     s << "{type=" << (U32) profile_params.mCurveType;
@@ -4819,7 +4744,6 @@ std::ostream& operator<<(std::ostream &s, const LLProfileParams &profile_params)
     s << "}";
     return s;
 }
-
 
 std::ostream& operator<<(std::ostream &s, const LLPathParams &path_params)
 {
@@ -4838,7 +4762,6 @@ std::ostream& operator<<(std::ostream &s, const LLPathParams &path_params)
     return s;
 }
 
-
 std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params)
 {
     s << "{profileparams = " << volume_params.mProfileParams;
@@ -4846,7 +4769,6 @@ std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params)
     s << "}";
     return s;
 }
-
 
 std::ostream& operator<<(std::ostream &s, const LLProfile &profile)
 {
@@ -4857,7 +4779,6 @@ std::ostream& operator<<(std::ostream &s, const LLProfile &profile)
     s << "}";
     return s;
 }
-
 
 std::ostream& operator<<(std::ostream &s, const LLPath &path)
 {
@@ -4877,7 +4798,6 @@ std::ostream& operator<<(std::ostream &s, const LLVolume &volume)
     s << "}";
     return s;
 }
-
 
 std::ostream& operator<<(std::ostream &s, const LLVolume *volumep)
 {
@@ -5291,7 +5211,6 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
         }
     }
 
-
     if (angle_cutoff > 1.f && !mNormals)
     {
         // Now alloc'd with positions
@@ -5613,9 +5532,7 @@ struct MikktData
             LL_ERRS("LLCoros") << "Bad memory allocation in MikktData, elements count: " << count << LL_ENDL;
         }
 
-
         LLVector3 inv_scale(1.f / face->mNormalizedScale.mV[0], 1.f / face->mNormalizedScale.mV[1], 1.f / face->mNormalizedScale.mV[2]);
-
 
         for (S32 i = 0; i < face->mNumIndices; ++i)
         {
@@ -5696,7 +5613,6 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             LL_WARNS_ONCE("LLVolume") << "Mikktspace::genTangSpace() failed" << LL_ENDL;
             return false;
         }
-
 
         //re-weld
         meshopt_Stream mos[] =
@@ -5925,7 +5841,6 @@ const LLVolumeOctree* LLVolumeFace::getOctree() const
     return mOctree;
 }
 
-
 void LLVolumeFace::swapData(LLVolumeFace& rhs)
 {
     llswap(rhs.mPositions, mPositions);
@@ -6099,7 +6014,6 @@ bool LLVolumeFace::createUnCutCubeCap(LLVolume* volume, bool partial_build)
     return true;
 }
 
-
 bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
 {
     if (!(mTypeMask & HOLLOW_MASK) &&
@@ -6177,7 +6091,6 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
     min = *src;
     max = min;
 
-
     const LLVector4a* p = profile.mArray;
 
     if (mTypeMask & TOP_MASK)
@@ -6240,7 +6153,6 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
     mCenter->mul(0.5f);
 
     cuv = (min_uv + max_uv)*0.5f;
-
 
     VertexData vd;
     vd.setPosition(*mCenter);
@@ -6497,12 +6409,10 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
             mIndices[3*i+v2] = i + 1;
         }
 
-
     }
 
     LLVector4a d0,d1;
     LL_CHECK_MEMORY
-
 
     d0.setSub(mPositions[mIndices[1]], mPositions[mIndices[0]]);
     d1.setSub(mPositions[mIndices[2]], mPositions[mIndices[0]]);
@@ -6594,7 +6504,6 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
         mNormals = NULL;
         mTexCoords = NULL;
     }
-
 
     if (mPositions)
     {
@@ -7008,7 +6917,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
         a.setSub(b, v1);
         b.sub(v2);
 
-
         LLQuad& vector1 = *((LLQuad*) &v1);
         LLQuad& vector2 = *((LLQuad*) &v2);
 
@@ -7034,7 +6942,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
         llassert(v1.isFinite3());
 
         v1.store4a((F32*) output);
-
 
         output++;
         idx += 3;
@@ -7151,7 +7058,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
         if (sculpt_stitching == LL_SCULPT_TYPE_TORUS)
             wrap_t = true;
 
-
         if (average_poles)
         {
             // average normals for north pole
@@ -7186,7 +7092,6 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
             }
 
         }
-
 
         if (wrap_s)
         {
@@ -7321,5 +7226,4 @@ void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LL
 
     ll_aligned_free_16(tan1);
 }
-
 

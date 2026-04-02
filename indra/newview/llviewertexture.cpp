@@ -365,7 +365,6 @@ class LLViewerTextureManagerBridge : public LLTextureManagerBridge
     }
 };
 
-
 void LLViewerTextureManager::init()
 {
     {
@@ -389,16 +388,6 @@ void LLViewerTextureManager::init()
     {
         for (S32 j = 0; j<dim; j++)
         {
-#if 0
-            const S32 border = 2;
-            if (i<border || j<border || i>=(dim-border) || j>=(dim-border))
-            {
-                *data++ = 0xff;
-                *data++ = 0xff;
-                *data++ = 0xff;
-            }
-            else
-#endif
             {
                 *data++ = 0x7f;
                 *data++ = 0x7f;
@@ -968,7 +957,6 @@ S32 LLViewerTexture::getNumFaces(U32 ch) const
     return ch < LLRender::NUM_TEXTURE_CHANNELS ? mNumFaces[ch] : 0;
 }
 
-
 //virtual
 void LLViewerTexture::addVolume(U32 ch, LLVOVolume* volumep)
 {
@@ -1037,7 +1025,6 @@ void LLViewerTexture::reorganizeVolumeList()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     static const F32 MAX_WAIT_TIME = 20.f; // seconds
     static const U32 MAX_EXTRA_BUFFER_SIZE = 4;
-
 
     for (U32 i = 0; i < LLRender::NUM_VOLUME_TEXTURE_CHANNELS; ++i)
     {
@@ -1351,14 +1338,12 @@ bool LLViewerFetchedTexture::isDeleted()
     return mTextureState == DELETED;
 }
 
-
 bool LLViewerFetchedTexture::isFullyLoaded() const
 {
     // Unfortunately, the boolean "mFullyLoaded" is never updated correctly so we use that logic
     // to check if the texture is there and completely downloaded
     return (mFullWidth != 0) && (mFullHeight != 0) && !mIsFetching && !mHasFetcher;
 }
-
 
 // virtual
 void LLViewerFetchedTexture::dump()
@@ -2617,7 +2602,6 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
         best_aux_discard = 0;
     }
 
-
     //
     // See if any of the callbacks would actually run using the data that we can provide,
     // and also determine if we need to perform any readbacks or decodes.
@@ -3181,11 +3165,6 @@ void LLViewerMediaTexture::updateClass()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     static const F32 MAX_INACTIVE_TIME = 30.f;
-
-#if 0
-    //force to play media.
-    gSavedSettings.setBOOL("AudioStreamingMedia", true);
-#endif
 
     for(media_map_t::iterator iter = sMediaMap.begin(); iter != sMediaMap.end(); )
     {

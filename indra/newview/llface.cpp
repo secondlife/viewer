@@ -71,7 +71,6 @@ static LLStaticHashedString sColorIn("color_in");
 
 bool LLFace::sSafeRenderSelect = true; // false
 
-
 #define DOTVEC(a,b) (a.mV[0]*b.mV[0] + a.mV[1]*b.mV[1] + a.mV[2]*b.mV[2])
 
 /*
@@ -372,7 +371,6 @@ void LLFace::setTEOffset(const S32 te_offset)
     mTEOffset = te_offset;
 }
 
-
 void LLFace::setFaceColor(const LLColor4& color)
 {
     mFaceColor = color;
@@ -534,35 +532,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 
         gGL.diffuseColor4fv(color.mV);
 
-        if (mDrawablep->isState(LLDrawable::RIGGED))
-        {
-#if 0 // TODO --  there is no way this won't destroy our GL machine as implemented, rewrite it to not rely on software skinning
-            LLVOVolume* volume = mDrawablep->getVOVolume();
-            if (volume)
-            {
-                LLRiggedVolume* rigged = volume->getRiggedVolume();
-                if (rigged)
-                {
-                    // called when selecting a face during edit of a mesh object
-                    LLGLEnable offset(GL_POLYGON_OFFSET_FILL);
-                    glPolygonOffset(-1.f, -1.f);
-                    gGL.multMatrix((F32*) volume->getRelativeXform().mMatrix);
-                    const LLVolumeFace& vol_face = rigged->getVolumeFace(getTEOffset());
-                    LLVertexBuffer::unbind();
-                    glVertexPointer(3, GL_FLOAT, 16, vol_face.mPositions);
-                    if (vol_face.mTexCoords)
-                    {
-                        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                        glTexCoordPointer(2, GL_FLOAT, 8, vol_face.mTexCoords);
-                    }
-                    gGL.syncMatrices();
-                    glDrawElements(GL_TRIANGLES, vol_face.mNumIndices, GL_UNSIGNED_SHORT, vol_face.mIndices);
-                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                }
-            }
-#endif
-        }
-        else
+        if (!mDrawablep->isState(LLDrawable::RIGGED))
         {
             // cheaters sometimes prosper...
             //
@@ -587,7 +557,6 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
         gGL.popMatrix();
     }
 }
-
 
 void renderFace(LLDrawable* drawable, LLFace *face)
 {
@@ -706,28 +675,6 @@ void LLFace::printDebugInfo() const
         }
     }
 
-#if 0
-    LL_INFOS() << "Indices:" << LL_ENDL;
-    LL_INFOS() << "--------------------" << LL_ENDL;
-
-    const U32 *indicesp = getRawIndices();
-    S32 indices_count = getIndicesCount();
-    S32 geom_start = getGeomStart();
-
-    for (S32 i = 0; i < indices_count; i++)
-    {
-        LL_INFOS() << i << ":" << indicesp[i] << ":" << (S32)(indicesp[i] - geom_start) << LL_ENDL;
-    }
-    LL_INFOS() << LL_ENDL;
-
-    LL_INFOS() << "Vertices:" << LL_ENDL;
-    LL_INFOS() << "--------------------" << LL_ENDL;
-    for (S32 i = 0; i < mGeomCount; i++)
-    {
-        LL_INFOS() << mGeomIndex + i << ":" << poolp->getVertex(mGeomIndex + i) << LL_ENDL;
-    }
-    LL_INFOS() << LL_ENDL;
-#endif
 }
 
 // Transform the texture coordinates for this face.
@@ -798,7 +745,6 @@ static void xform4a(LLVector4a &tex_coord, const LLVector4a& trans, const LLVect
     tex_coord.setAdd(st, offset);
 }
 
-
 bool less_than_max_mag(const LLVector4a& vec)
 {
     LLVector4a MAX_MAG;
@@ -868,8 +814,6 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
     return true;
 }
 
-
-
 // convert surface coordinates to texture coordinates, based on
 // the values in the texture entry.  probably should be
 // integrated with getGeometryVolume() for its texture coordinate
@@ -929,7 +873,6 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& po
         xform(tc, cos(tep->getRotation()), sin(tep->getRotation()),
               tep->mOffsetS, tep->mOffsetT, tep->mScaleS, tep->mScaleT);
     }
-
 
     return tc;
 }
@@ -1164,7 +1107,6 @@ void LLFace::updateRebuildFlags()
     }
 }
 
-
 bool LLFace::canRenderAsMask()
 {
     const LLTextureEntry* te = getTextureEntry();
@@ -1187,7 +1129,6 @@ bool LLFace::canRenderAsMask()
     { // never auto alpha-mask rigged faces
         return false;
     }
-
 
     LLMaterial* mat = te->getMaterialParams();
     if (mat && mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
@@ -1465,7 +1406,6 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             }
         }
     }
-
 
     LLMaterial* mat = tep->getMaterialParams().get();
 
@@ -2011,7 +1951,6 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
             mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount);
 
-
             F32* dst = (F32*) vert.get();
             F32* end_f32 = dst+mGeomCount*4;
 
@@ -2019,7 +1958,6 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             //_mm_prefetch((char*)src, _MM_HINT_NTA);
 
             //_mm_prefetch((char*)dst, _MM_HINT_NTA);
-
 
             LLVector4a res0; //,res1,res2,res3;
 
@@ -2040,7 +1978,6 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             texIdx.set(0,0,0,val);
 
             LLVector4a tmp;
-
 
             while (src < end)
             {
@@ -2151,7 +2088,6 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
             LLVector4a src;
 
-
             LLColor4U glow4u = LLColor4U(0,0,0,glow);
 
             U32 glow32 = glow4u.asRGBA();
@@ -2190,7 +2126,6 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         mTexExtents[0][1] *= et ;
         mTexExtents[1][1] *= et ;
     }
-
 
     return true;
 }
@@ -2235,7 +2170,6 @@ F32 LLFace::getTextureVirtualSize()
     F32 radius;
     F32 cos_angle_to_view_dir;
     bool in_frustum = calcPixelArea(cos_angle_to_view_dir, radius);
-
 
     if (mPixelArea < F_ALMOST_ZERO || !in_frustum)
     {
@@ -2569,30 +2503,6 @@ bool LLFace::verify(const U32* indices_array) const
         LL_INFOS() << "Face references invalid indices!" << LL_ENDL;
     }
 
-#if 0
-    S32 geom_start = getGeomStart();
-    S32 geom_count = mGeomCount;
-
-    const U32 *indicesp = indices_array ? indices_array + mIndicesIndex : getRawIndices();
-
-    for (S32 i = 0; i < indices_count; i++)
-    {
-        S32 delta = indicesp[i] - geom_start;
-        if (0 > delta)
-        {
-            LL_WARNS() << "Face index too low!" << LL_ENDL;
-            LL_INFOS() << "i:" << i << " Index:" << indicesp[i] << " GStart: " << geom_start << LL_ENDL;
-            ok = false;
-        }
-        else if (delta >= geom_count)
-        {
-            LL_WARNS() << "Face index too high!" << LL_ENDL;
-            LL_INFOS() << "i:" << i << " Index:" << indicesp[i] << " GEnd: " << geom_start + geom_count << LL_ENDL;
-            ok = false;
-        }
-    }
-#endif
-
     if (!ok)
     {
         printDebugInfo();
@@ -2600,12 +2510,10 @@ bool LLFace::verify(const U32* indices_array) const
     return ok;
 }
 
-
 void LLFace::setViewerObject(LLViewerObject* objp)
 {
     mVObjp = objp;
 }
-
 
 const LLMatrix4& LLFace::getRenderMatrix() const
 {

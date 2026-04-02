@@ -128,7 +128,6 @@ void LLViewerObjectList::destroy()
     mUUIDObjectMap.clear();
 }
 
-
 void LLViewerObjectList::getUUIDFromLocal(LLUUID &id,
                                           const U32 local_id,
                                           const U32 ip,
@@ -656,20 +655,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
             }
             processUpdateCore(objectp, user_data, i, update_type, &compressed_dp, justCreated);
 
-#if 0
-            if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
-            {
-                U32 flags = 0;
-                mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
-
-                if(!(flags & FLAGS_TEMPORARY_ON_REZ))
-                {
-                    bCached = true;
-                    LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp, flags);
-                    recorder.cacheFullUpdate(result);
-                }
-            }
-#endif
         }
         else
         {
@@ -789,28 +774,6 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
     {
         mCurBin = (mCurBin + 1) % NUM_BINS;
     }
-
-#if 0
-    // Slam priorities for textures that we care about (hovered, selected, and focused)
-    // Hovered
-    // Assumes only one level deep of parenting
-    LLSelectNode* nodep = LLSelectMgr::instance().getHoverNode();
-    if (nodep)
-    {
-        objectp = nodep->getObject();
-        if (objectp)
-        {
-            objectp->boostTexturePriority();
-        }
-    }
-
-    // Focused
-    objectp = gAgentCamera.getFocusObject();
-    if (objectp)
-    {
-        objectp->boostTexturePriority();
-    }
-#endif
 
     // Selected
     struct f : public LLSelectedObjectFunctor
@@ -948,8 +911,6 @@ void LLViewerObjectList::update(LLAgent &agent)
         }
     }
 
-
-
     fetchObjectCosts();
     fetchPhysicsFlags();
 
@@ -1051,15 +1012,12 @@ void LLViewerObjectList::reportObjectCostFailure(LLSD &objectList)
     }
 }
 
-
 void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("fetchObjectCostsCoro", httpPolicy);
     LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
-
-
 
     uuid_set_t diff;
 
@@ -1278,7 +1236,6 @@ void LLViewerObjectList::clearDebugText()
     }
 }
 
-
 void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
@@ -1361,7 +1318,6 @@ void LLViewerObjectList::killObjects(LLViewerRegion *regionp)
 {
     LL_PROFILE_ZONE_SCOPED;
     LLViewerObject *objectp;
-
 
     for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
     {
@@ -1618,7 +1574,6 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
         return;
     }
 
-
     LLViewerObject *objectp;
     for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
     {
@@ -1712,7 +1667,6 @@ void LLViewerObjectList::clearAllMapObjectsInRegion(LLViewerRegion* regionp)
         }
     }
 }
-
 
 void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 {
@@ -1946,7 +1900,6 @@ S32 LLViewerObjectList::findReferences(LLDrawable *drawablep) const
     return num_refs;
 }
 
-
 void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip, U32 port)
 {
     LL_DEBUGS("ORPHANS") << "Orphaning object " << childp->getID() << " with parent " << parent_id << LL_ENDL;
@@ -1991,7 +1944,6 @@ void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip
         mNumOrphans++;
     }
 }
-
 
 void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 {
@@ -2136,7 +2088,6 @@ bool LLViewerObjectList::OrphanInfo::operator!=(const OrphanInfo &rhs) const
 {
     return !operator==(rhs);
 }
-
 
 LLDebugBeacon::~LLDebugBeacon()
 {

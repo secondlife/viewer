@@ -490,30 +490,4 @@ bool LLAttachmentsMgr::isAttachmentStateComplete() const
 
 void LLAttachmentsMgr::spamStatusInfo()
 {
-#if 0
-    static LLTimer spam_timer;
-    const F32 spam_frequency = 100.0F;
-
-    if (spam_timer.getElapsedTimeF32() > spam_frequency)
-    {
-        spam_timer.reset();
-
-        LLInventoryModel::cat_array_t cat_array;
-        LLInventoryModel::item_array_t item_array;
-        gInventory.collectDescendents(LLAppearanceMgr::instance().getCOF(),
-                                      cat_array,item_array,LLInventoryModel::EXCLUDE_TRASH);
-        for (S32 i=0; i<item_array.size(); i++)
-        {
-            const LLViewerInventoryItem* inv_item = item_array.at(i).get();
-            if (inv_item->getType() == LLAssetType::AT_OBJECT)
-            {
-                LL_DEBUGS("Avatar") << "item_id: " << inv_item->getUUID()
-                                    << " linked_item_id: " << inv_item->getLinkedUUID()
-                                    << " name: " << inv_item->getName()
-                                    << " parent: " << inv_item->getParentUUID()
-                                    << LL_ENDL;
-            }
-        }
-    }
-#endif
 }

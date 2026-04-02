@@ -29,7 +29,6 @@
 #include "llvolumemgr.h"
 #include "llvolume.h"
 
-
 const F32 BASE_THRESHOLD = 0.03f;
 
 //static
@@ -40,7 +39,6 @@ F32 LLVolumeLODGroup::mDetailThresholds[NUM_LODS] = {BASE_THRESHOLD,
 
 //static
 F32 LLVolumeLODGroup::mDetailScales[NUM_LODS] = {1.f, 1.5f, 2.5f, 4.f};
-
 
 //============================================================================
 
@@ -312,12 +310,6 @@ bool LLVolumeLODGroup::derefLOD(LLVolume *volumep)
         {
             llassert_always(mLODRefs[i] > 0);
             mLODRefs[i]--;
-#if 0 // SJB: Possible opt: keep other lods around
-            if (!mLODRefs[i])
-            {
-                mVolumeLODs[i] = NULL;
-            }
-#endif
             return true;
         }
     }

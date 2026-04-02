@@ -335,7 +335,6 @@ void LLFloaterBuyLandUI::SelectionObserver::changed()
     }
 }
 
-
 void LLFloaterBuyLandUI::updateAgentInfo()
 {
     mAgentCommittedTier = gStatusBar->getSquareMetersCommitted();
@@ -415,7 +414,6 @@ void LLFloaterBuyLandUI::updateParcelInfo()
     }
 
     mParcelSoldWithObjects = parcel->getSellWithObjects();
-
 
     LLVector3 center = parcel->getCenterpoint();
     mParcelLocation = llformat("%s %d,%d",
@@ -645,20 +643,6 @@ void LLFloaterBuyLandUI::updateWebSiteInfo()
     mPreflightAskBillableArea = askBillableArea;
     mPreflightAskCurrencyBuy = askCurrencyBuy;
 
-#if 0
-    // enable this code if you want the details to blank while we're talking
-    // to the web site... it's kind of jarring
-    mSiteValid = false;
-    mSiteMembershipUpgrade = false;
-    mSiteMembershipAction = "(waiting)";
-    mSiteMembershipPlanIDs.clear();
-    mSiteMembershipPlanNames.clear();
-    mSiteLandUseUpgrade = false;
-    mSiteLandUseAction = "(waiting)";
-    mSiteCurrencyEstimated = false;
-    mSiteCurrencyEstimatedCost = 0;
-#endif
-
     LLSD params = LLSD::emptyMap();
     params["agentId"] = gAgent.getID().asString();
     params["secureSessionId"] = gAgent.getSecureSessionID().asString();
@@ -734,7 +718,6 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
         sendBuyLand();
         return;
     }
-
 
     std::string newLevel = "noChange";
 
@@ -904,7 +887,6 @@ void LLFloaterBuyLandUI::tellUserError(
     mCannotBuyReason += message;
     mCannotBuyURI = uri;
 }
-
 
 // virtual
 bool LLFloaterBuyLandUI::postBuild()
@@ -1079,7 +1061,6 @@ void LLFloaterBuyLandUI::refreshUI()
         getChildView("error_message")->setVisible(false);
         getChildView("error_web")->setVisible(false);
     }
-
 
     // section one: account
     if (!showingError)
@@ -1273,7 +1254,6 @@ void LLFloaterBuyLandUI::refreshUI()
         getChildView("remove_group_donation")->setVisible(false);
     }
 
-
     bool agrees_to_covenant = false;
     LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("agree_covenant");
     if (check)
@@ -1320,7 +1300,6 @@ void LLFloaterBuyLandUI::startBuyPreConfirm()
     string_args["[SELLER]"] = mParcelSellerName;
     action += getString("pay_to_for_land", string_args);
 
-
     LLConfirmationManager::confirm(mSiteConfirm,
         action,
         *this,
@@ -1335,7 +1314,6 @@ void LLFloaterBuyLandUI::startBuyPostConfirm(const std::string& password)
     mCannotBuyReason = getString("processing");
     refreshUI();
 }
-
 
 void LLFloaterBuyLandUI::onClickBuy()
 {
@@ -1352,6 +1330,4 @@ void LLFloaterBuyLandUI::onClickErrorWeb()
     LLWeb::loadURLExternal(mCannotBuyURI);
     closeFloater();
 }
-
-
 

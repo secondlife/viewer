@@ -361,7 +361,6 @@ public:
         mMask |= mask;
     }
 
-
     /*virtual*/ bool tick()
     {
         if (!mIsActive) return false;
@@ -597,7 +596,6 @@ void LLPanelPeople::onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LL
         avatar_list->resetSelection();
     }
 }
-
 
 void LLPanelPeople::removePicker()
 {
@@ -1128,11 +1126,7 @@ void LLPanelPeople::onAvatarListDoubleClicked(LLUICtrl* ctrl)
         return;
     }
 
-#if 0 // SJB: Useful for testing, but not currently functional or to spec
-    LLAvatarActions::showProfile(clicked_id);
-#else // spec says open IM window
     LLAvatarActions::startIM(clicked_id);
-#endif
 }
 
 void LLPanelPeople::onAvatarListCommitted(LLAvatarList* list)
@@ -1568,6 +1562,5 @@ bool LLPanelPeople::updateNearbyArrivalTime()
     LLRecentPeople::instance().updateAvatarsArrivalTime(uuids);
     return LLApp::isExiting();
 }
-
 
 // EOF

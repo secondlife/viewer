@@ -92,7 +92,6 @@ LLVOTree::LLVOTree(const LLUUID &id, const LLPCode pcode, LLViewerRegion *region
     llassert(sMAX_NUM_TREE_LOD_LEVELS == LLVolumeLODGroup::NUM_LODS);
 }
 
-
 LLVOTree::~LLVOTree()
 {
     if (mData)
@@ -412,7 +411,6 @@ void LLVOTree::render(LLAgent &agent)
 {
 }
 
-
 void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
 {
     LLVector3 center = getPositionAgent();//center of tree.
@@ -445,12 +443,6 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
         mAppAngle = 180.f;
     }
 
-#if 0
-    // mAppAngle is a bit of voodoo;
-    // use the one calculated LLViewerObject::setPixelAreaAndAngle above
-    // to avoid LOD miscalculations
-    mAppAngle = (F32) atan2( max_scale, range) * RAD_TO_DEG;
-#endif
 }
 
 void LLVOTree::updateTextures()
@@ -463,7 +455,6 @@ void LLVOTree::updateTextures()
         }
     }
 }
-
 
 LLDrawable* LLVOTree::createDrawable(LLPipeline *pipeline)
 {
@@ -482,7 +473,6 @@ LLDrawable* LLVOTree::createDrawable(LLPipeline *pipeline)
 
     return mDrawable;
 }
-
 
 // Yes, I know this is bad.  I'll clean this up soon. - djs 04/02/02
 const S32 LEAF_INDICES = 24;
@@ -636,7 +626,6 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
         *(indicesp++) = 7;
         index_count++;
 
-
         // next leaf
         *(normals++) =      LLVector3(SRR2, -SRR2, 0.f);
         *(tex_coords++) =   LLVector2(LEAF_LEFT, LEAF_BOTTOM);
@@ -675,7 +664,6 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
         index_count++;
         *(indicesp++) = 9;
         index_count++;
-
 
         // other side of same leaf
         *(normals++) =      LLVector3(-SRR2, -SRR2, 0.f);
@@ -1005,7 +993,6 @@ void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices,
     cur_idx += vert_count;
 }
 
-
 void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
                                  LLStrider<LLVector3>& normals,
                                  LLStrider<LLVector2>& tex_coords,
@@ -1104,8 +1091,6 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
         }
     }
 }
-
-
 
 void LLVOTree::calcNumVerts(U32& vert_count, U32& index_count, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth, F32 branches)
 {

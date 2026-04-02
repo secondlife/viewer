@@ -89,7 +89,6 @@ const U32 LLMediaDataClient::MAX_ROUND_ROBIN_QUEUE_SIZE = 10000;
 std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue_t &q);
 std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::Request &q);
 
-
 //=========================================================================
 /// Uniary Predicate for matching requests in collections by either the request
 /// or by UUID
@@ -109,7 +108,6 @@ private:
     LLMediaDataClient::Request::Type  mMatchType;
     LLUUID                            mId;
 };
-
 
 PredicateMatchRequest::PredicateMatchRequest(const LLMediaDataClient::Request::ptr_t &request, LLMediaDataClient::Request::Type matchType) :
     mRequest(request),
@@ -313,7 +311,6 @@ bool LLMediaDataClient::isDoneProcessing() const
     return (isEmpty() && mUnQueuedRequests.empty());
 }
 
-
 void LLMediaDataClient::serviceQueue()
 {
     // Peel one off of the items from the queue and execute it
@@ -432,7 +429,6 @@ bool LLMediaDataClient::QueueTimer::tick()
     return result;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // LLMediaDataClient::Responder::RetryTimer
@@ -466,7 +462,6 @@ bool LLMediaDataClient::RetryTimer::tick()
     // Don't fire again
     return true;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -528,7 +523,6 @@ const char *LLMediaDataClient::Request::getTypeAsString() const
     }
     return "";
 }
-
 
 void LLMediaDataClient::Request::reEnqueue()
 {
@@ -603,7 +597,6 @@ LLMediaDataClient::Handler::Handler(const Request::ptr_t &request):
 {
 }
 
-
 void LLMediaDataClient::Handler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
 {
     mRequest->stopTracking();
@@ -648,7 +641,6 @@ void LLMediaDataClient::Handler::onFailure(LLCore::HttpResponse * response, LLCo
         LL_WARNS("LLMediaDataClient") << *mRequest << " HTTP failure " << LL_ENDL;
     }
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -883,7 +875,6 @@ LLCore::HttpHandler::ptr_t LLObjectMediaDataClient::RequestGet::createHandler()
     return std::make_shared<LLObjectMediaDataClient::Handler>(shared_from_this());
 }
 
-
 void LLObjectMediaDataClient::updateMedia(LLMediaDataClientObject *object)
 {
     // Create an update request and put it in the queue.
@@ -965,7 +956,6 @@ void LLObjectMediaDataClient::Handler::onSuccess(LLCore::HttpResponse * response
 
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // LLObjectMediaNavigateClient
@@ -1012,16 +1002,6 @@ void LLObjectMediaNavigateClient::enqueue(Request::ptr_t request)
         }
     }
 
-#if 0
-    // Sadly, this doesn't work.  It ends up creating a race condition when the user navigates and then hits the "back" button
-    // where the navigate-back appears to be spurious and doesn't get broadcast.
-    if(request->getObject()->isCurrentMediaUrl(request->getFace(), request->getURL()))
-    {
-        // This navigate request is trying to send the face to the current URL.  Drop it.
-        LL_DEBUGS("LLMediaDataClient") << "dropping spurious request " << (*request) << LL_ENDL;
-    }
-    else
-#endif
     {
         LL_DEBUGS("LLMediaDataClient") << "queuing new request " << (*request) << LL_ENDL;
         mQueue.push_back(request);

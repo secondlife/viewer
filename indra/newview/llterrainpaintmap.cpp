@@ -57,21 +57,6 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
     // *TODO: mHeightsGenerated isn't guaranteed to be true. Assume terrain is
     // loaded for now. Would be nice to fix the loading issue or find a better
     // heuristic to determine that the terrain is sufficiently loaded.
-#if 0
-    // Don't proceed if the region heightmap isn't loaded
-    for (U32 rj = 0; rj < patch_count; ++rj)
-    {
-        for (U32 ri = 0; ri < patch_count; ++ri)
-        {
-            const LLSurfacePatch* patch = surface.getPatch(ri, rj);
-            if (!patch->isHeightsGenerated())
-            {
-                LL_WARNS() << "Region heightmap not fully loaded" << LL_ENDL;
-                return false;
-            }
-        }
-    }
-#endif
 
     // Bind the debug shader and render terrain to tex
     // Use a scratch render target because its dimensions may exceed the standard bake target, and this is a one-off bake

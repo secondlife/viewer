@@ -45,7 +45,7 @@ class LLMatrix3;
 //             passed as arguments are normalized and unitary respectively.
 //             VERY VERY VERY VERY BAD THINGS will happen if these assumptions fail.
 
-static const U32 LENGTHOFQUAT = 4;
+static constexpr U32 LENGTHOFQUAT = 4;
 
 class LLQuaternion
 {

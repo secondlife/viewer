@@ -47,13 +47,13 @@ namespace LLTypeTags
     {
         typedef void        is_tag_t;
         typedef INNER_TYPE  inner_t;
-        static const int    SORT_ORDER=_SORT_ORDER;
+        static constexpr int    SORT_ORDER=_SORT_ORDER;
     };
 
     template <int VAL1, int VAL2>
     struct GreaterThan
     {
-        static const bool value = VAL1 > VAL2;
+        static constexpr bool value = VAL1 > VAL2;
     };
 
     template<typename ITEM, typename REST, bool NEEDS_SWAP = GreaterThan<ITEM::SORT_ORDER, REST::SORT_ORDER>::value >
@@ -71,13 +71,13 @@ namespace LLTypeTags
     template<typename T, typename SORTABLE = void>
     struct IsSortable
     {
-        static const bool value = false;
+        static constexpr bool value = false;
     };
 
     template<typename T>
     struct IsSortable<T, typename T::is_tag_t>
     {
-        static const bool value = true;
+        static constexpr bool value = true;
     };
 
     template<typename ITEM, typename REST, bool IS_REST_SORTABLE = IsSortable<REST>::value>

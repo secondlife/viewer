@@ -104,17 +104,9 @@ LLStringTable::~LLStringTable()
 #endif
 }
 
-
 static U32 hash_my_string(const char *str, int max_entries)
 {
     U32 retval = 0;
-#if 0
-    while (*str)
-    {
-        retval <<= 1;
-        retval += *str++;
-    }
-#else
     while (*str)
     {
         retval = (retval<<4) + *str;
@@ -123,7 +115,6 @@ static U32 hash_my_string(const char *str, int max_entries)
         retval = retval & (~x);
         str++;
     }
-#endif
     return (retval & (max_entries-1)); // max_entries is gauranteed to be power of 2
 }
 

@@ -171,7 +171,6 @@ public:
 };
 LLRegionHandler gRegionHandler;
 
-
 class LLViewerRegionImpl
 {
 public:
@@ -382,10 +381,6 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
                 << "Capability '" << iter->first << "' is '" << iter->second << "'" << LL_ENDL;
         }
 
-#if 0
-        log_capabilities(mCapabilities);
-#endif
-
         LL_DEBUGS("AppInit", "Capabilities", "Teleport") << "received caps for handle " << regionHandle
                                                          << " region name " << regionp->getName() << LL_ENDL;
         regionp->setCapabilitiesReceived(true);
@@ -400,7 +395,6 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
         regionp->showReleaseNotes();
     }
 }
-
 
 void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
 {
@@ -490,10 +484,6 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
             regionp->setCapabilityDebug(iter->first, iter->second);
             //LL_INFOS()<<"BaseCapabilitiesCompleteTracker New Caps "<<iter->first<<" "<< iter->second<<LL_ENDL;
         }
-
-#if 0
-        log_capabilities(impl->mCapabilities);
-#endif
 
         if (impl->mCapabilities.size() != impl->mSecondCapabilitiesTracker.size())
         {
@@ -700,7 +690,6 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
     setCapabilitiesReceivedCallback(boost::bind(&LLAvatarRenderInfoAccountant::scanNewRegion, _1));
 }
 
-
 void LLViewerRegion::initStats()
 {
     mImpl->mLastNetUpdate.reset();
@@ -743,9 +732,6 @@ LLViewerRegion::~LLViewerRegion()
     delete mParcelOverlay;
     delete mImpl->mLandp;
     delete mImpl->mEventPoll;
-#if 0
-    LLHTTPSender::clearSender(mImpl->mHost);
-#endif
     std::for_each(mImpl->mObjectPartition.begin(), mImpl->mObjectPartition.end(), DeletePointer());
 
     {
@@ -801,7 +787,6 @@ void LLViewerRegion::loadObjectCache()
         }
     }
 }
-
 
 void LLViewerRegion::saveObjectCache()
 {
@@ -869,7 +854,6 @@ void LLViewerRegion::setRegionFlags(U64 flags)
 {
     mRegionFlags = flags;
 }
-
 
 void LLViewerRegion::setOriginGlobal(const LLVector3d &origin_global)
 {
@@ -1094,7 +1078,6 @@ void LLViewerRegion::renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, co
         mParcelOverlay->renderPropertyLinesOnMinimap(scale_pixels_per_meter, parcel_outline_color);
     }
 }
-
 
 // This gets called when the height field changes.
 void LLViewerRegion::dirtyHeights()
@@ -1957,7 +1940,6 @@ void LLViewerRegion::connectNeighbor(LLViewerRegion *neighborp, U32 direction)
     mImpl->mLandp->connectNeighbor(neighborp->mImpl->mLandp, direction);
 }
 
-
 void LLViewerRegion::disconnectAllNeighbors()
 {
     mImpl->mLandp->disconnectAllNeighbors();
@@ -2089,7 +2071,6 @@ std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region)
     return s;
 }
 
-
 // ---------------- Protected Member Functions ----------------
 
 void LLViewerRegion::updateNetStats()
@@ -2120,7 +2101,6 @@ void LLViewerRegion::updateNetStats()
     mBitsReceived += mBitsIn - mLastBitsIn;
     mPacketsReceived += mPacketsIn - mLastPacketsIn;
 }
-
 
 U32 LLViewerRegion::getPacketsLost() const
 {
@@ -2310,7 +2290,6 @@ public:
 LLHTTPRegistration<CoarseLocationUpdate>
    gHTTPRegistrationCoarseLocationUpdate(
        "/message/CoarseLocationUpdate");
-
 
 // the deprecated coarse location handler
 void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
@@ -2517,7 +2496,6 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
                 gSavedSettings.setBOOL("RenderTerrainPBRTransformsEnabled", false);
             }
         };
-
 
     LLAppViewer::instance()->postToMainCoro(work);
 }
@@ -3123,7 +3101,6 @@ void LLViewerRegion::unpackRegionHandshake()
         changed |= (tmp_f32 != compp->getStartHeight(3));
         compp->setStartHeight(3, tmp_f32);
 
-
         msg->getF32("RegionInfo", "TerrainHeightRange00", tmp_f32);
         changed |= (tmp_f32 != compp->getHeightRange(0));
         compp->setHeightRange(0, tmp_f32);
@@ -3174,7 +3151,6 @@ void LLViewerRegion::unpackRegionHandshake()
             });
         }
     }
-
 
     // Now that we have the name, we can load the cache file
     // off disk.
@@ -3529,7 +3505,6 @@ void LLViewerRegion::logActiveCapabilities() const
     log_capabilities(mImpl->mCapabilities);
 }
 
-
 bool LLViewerRegion::requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess, httpCallback_t cbFailure)
 {
     std::string url = getCapability(capName);
@@ -3617,7 +3592,6 @@ void LLViewerRegion::setInterestListMode(const std::string &new_mode)
     }
 }
 
-
 void LLViewerRegion::resetInterestList()
 {
     if (requestDelCapability("InterestList", [](const LLSD &response) {
@@ -3631,7 +3605,6 @@ void LLViewerRegion::resetInterestList()
         LL_WARNS("360Capture") << "Region " << getRegionID() << " Unable to DEL InterestList capability request" << LL_ENDL;
     }
 }
-
 
 LLSpatialPartition *LLViewerRegion::getSpatialPartition(U32 type)
 {

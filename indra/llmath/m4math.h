@@ -90,7 +90,7 @@ class LLMatrix4a;
 //      of, ol, and ou mean the component of the "global" origin o in the f axis, l axis, and u axis.
 //
 
-static const U32 NUM_VALUES_IN_MAT4 = 4;
+static constexpr U32 NUM_VALUES_IN_MAT4 = 4;
 
 class LLMatrix4
 {

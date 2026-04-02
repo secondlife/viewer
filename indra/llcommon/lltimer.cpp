@@ -54,11 +54,9 @@ const U64 SEC_TO_MICROSEC_U64 = 1000000;
 S32 gUTCOffset = 0; // viewer's offset from server UTC, in seconds
 LLTimer* LLTimer::sTimer = NULL;
 
-
 //
 // Forward declarations
 //
-
 
 //---------------------------------------------------------------------------
 // Implementation
@@ -66,43 +64,10 @@ LLTimer* LLTimer::sTimer = NULL;
 
 #if LL_WINDOWS
 
-
-#if 0
-void ms_sleep(U32 ms)
-{
-    LL_PROFILE_ZONE_SCOPED;
-    using TimePoint = std::chrono::steady_clock::time_point;
-    auto resume_time = TimePoint::clock::now() + std::chrono::milliseconds(ms);
-    while (TimePoint::clock::now() < resume_time)
-    {
-        std::this_thread::yield(); //note: don't use LLThread::yield here to avoid yielding for too long
-    }
-}
-
-U32 micro_sleep(U64 us, U32 max_yields)
-{
-    // max_yields is unused; just fiddle with it to avoid warnings.
-    max_yields = 0;
-    ms_sleep((U32)(us / 1000));
-    return 0;
-}
-
-#else
-
 U32 micro_sleep(U64 us, U32 max_yields)
 {
     LL_PROFILE_ZONE_SCOPED;
-#if 0
-    LARGE_INTEGER ft;
-    ft.QuadPart = -static_cast<S64>(us * 10);  // '-' using relative time
-
-    HANDLE timer = CreateWaitableTimer(NULL, true, NULL);
-    SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
-    WaitForSingleObject(timer, INFINITE);
-    CloseHandle(timer);
-#else
     Sleep((DWORD)(us / 1000));
-#endif
 
     return 0;
 }
@@ -112,8 +77,6 @@ void ms_sleep(U32 ms)
     LL_PROFILE_ZONE_SCOPED;
     micro_sleep(ms * 1000, 0);
 }
-
-#endif
 
 #elif LL_LINUX || LL_DARWIN
 static void _sleep_loop(struct timespec& thiswait)
@@ -232,7 +195,6 @@ F64 calc_clock_frequency()
 }
 #endif // LL_WINDOWS
 
-
 #if LL_LINUX || LL_DARWIN
 // Both Linux and Mac use gettimeofday for accurate time
 F64 calc_clock_frequency()
@@ -248,7 +210,6 @@ U64 get_clock_count()
     return tv.tv_sec*SEC_TO_MICROSEC_U64 + tv.tv_usec;
 }
 #endif
-
 
 TimerInfo::TimerInfo()
 :   mClockFrequency(0.0),
@@ -313,7 +274,6 @@ U64MicrosecondsImplicit totalTime()
     U64Microseconds time(get_timer_info().mTotalTimeClockCount*get_timer_info().mClocksToMicroseconds);
     return time;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -400,7 +360,6 @@ U64 getElapsedTimeAndUpdate(U64& lastClockCount)
     return result;
 }
 
-
 F64SecondsImplicit LLTimer::getElapsedTimeF64() const
 {
     U64 last = mLastClockCount;
@@ -440,7 +399,6 @@ F32SecondsImplicit LLTimer::getRemainingTimeF32() const
     return F32((mExpirationTicks - cur_ticks) * get_timer_info().mClockFrequencyInv);
 }
 
-
 bool LLTimer::checkExpirationAndReset(F32 expiration)
 {
     U64 cur_ticks = get_clock_count();
@@ -453,7 +411,6 @@ bool LLTimer::checkExpirationAndReset(F32 expiration)
         + (U64)((F32)(expiration * get_timer_info().mClockFrequency));
     return true;
 }
-
 
 bool LLTimer::hasExpired() const
 {
@@ -529,7 +486,6 @@ time_t time_corrected()
     return time(NULL) + gUTCOffset;
 }
 
-
 // Is the current computer (in its current time zone)
 // observing daylight savings time?
 bool is_daylight_savings()
@@ -544,7 +500,6 @@ bool is_daylight_savings()
     // tm_isdst < 0  =>  can't tell
     return (internal_time->tm_isdst > 0);
 }
-
 
 struct tm* utc_to_pacific_time(time_t utc_time, bool pacific_daylight_time)
 {
@@ -577,7 +532,6 @@ struct tm* utc_to_pacific_time(time_t utc_time, bool pacific_daylight_time)
     return internal_time;
 }
 
-
 void microsecondsToTimecodeString(U64MicrosecondsImplicit current_time, std::string& tcstring)
 {
     U64 hours;
@@ -599,10 +553,8 @@ void microsecondsToTimecodeString(U64MicrosecondsImplicit current_time, std::str
     tcstring = llformat("%3.3d:%2.2d:%2.2d:%2.2d.%2.2d",(int)hours,(int)minutes,(int)seconds,(int)frames,(int)subframes);
 }
 
-
 void secondsToTimecodeString(F32SecondsImplicit current_time, std::string& tcstring)
 {
     microsecondsToTimecodeString(current_time, tcstring);
 }
-
 

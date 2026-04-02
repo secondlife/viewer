@@ -134,12 +134,10 @@ LLVertexBuffer* ll_create_cube_vb(U32 type_mask)
     return ret;
 }
 
-
 #define LL_TRACK_PENDING_OCCLUSION_QUERIES 0
 
 const F32 SG_OCCLUSION_FUDGE = 0.25f;
 #define SG_DISCARD_TOLERANCE 0.01f
-
 
 S32 AABBSphereIntersect(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &rad)
 {
@@ -179,7 +177,6 @@ S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVe
     return 1;
 }
 
-
 S32 AABBSphereIntersect(const LLVector4a& min, const LLVector4a& max, const LLVector3 &origin, const F32 &rad)
 {
     return AABBSphereIntersectR2(min, max, origin, rad*rad);
@@ -204,7 +201,6 @@ S32 AABBSphereIntersectR2(const LLVector4a& min, const LLVector4a& max, const LL
             return 2;
         }
     }
-
 
     for (U32 i = 0; i < 3; i++)
     {
@@ -860,7 +856,6 @@ public:
     }
 };
 
-
 LLOcclusionCullingGroup::LLOcclusionCullingGroup(OctreeNode* node, LLViewerOctreePartition* part) :
     LLViewerOctreeGroup(node),
     mSpatialPartition(part)
@@ -1329,7 +1324,6 @@ bool LLViewerOctreePartition::isOcclusionEnabled()
     return mOcclusionEnabled || LLPipeline::sUseOcclusion > 2;
 }
 
-
 //-----------------------------------------------------------------------------------
 //class LLViewerOctreeCull definitions
 //-----------------------------------------------------------------------------------
@@ -1510,13 +1504,6 @@ void LLViewerOctreeCull::visit(const OctreeNode* branch)
 //virtual
 void LLViewerOctreeDebug::visit(const OctreeNode* branch)
 {
-#if 0
-    LL_INFOS() << "Node: " << (U32)branch << " # Elements: " << branch->getElementCount() << " # Children: " << branch->getChildCount() << LL_ENDL;
-    for (U32 i = 0; i < branch->getChildCount(); i++)
-    {
-        LL_INFOS() << "Child " << i << " : " << (U32)branch->getChild(i) << LL_ENDL;
-    }
-#endif
     LLViewerOctreeGroup* group = (LLViewerOctreeGroup*) branch->getListener(0);
     processGroup(group);
 }
@@ -1524,27 +1511,5 @@ void LLViewerOctreeDebug::visit(const OctreeNode* branch)
 //virtual
 void LLViewerOctreeDebug::processGroup(LLViewerOctreeGroup* group)
 {
-#if 0
-    const LLVector4a* vec4 = group->getBounds();
-    LLVector3 vec[2];
-    vec[0].set(vec4[0].getF32ptr());
-    vec[1].set(vec4[1].getF32ptr());
-    LL_INFOS() << "Bounds: " << vec[0] << " : " << vec[1] << LL_ENDL;
-
-    vec4 = group->getExtents();
-    vec[0].set(vec4[0].getF32ptr());
-    vec[1].set(vec4[1].getF32ptr());
-    LL_INFOS() << "Extents: " << vec[0] << " : " << vec[1] << LL_ENDL;
-
-    vec4 = group->getObjectBounds();
-    vec[0].set(vec4[0].getF32ptr());
-    vec[1].set(vec4[1].getF32ptr());
-    LL_INFOS() << "ObjectBounds: " << vec[0] << " : " << vec[1] << LL_ENDL;
-
-    vec4 = group->getObjectExtents();
-    vec[0].set(vec4[0].getF32ptr());
-    vec[1].set(vec4[1].getF32ptr());
-    LL_INFOS() << "ObjectExtents: " << vec[0] << " : " << vec[1] << LL_ENDL;
-#endif
 }
 //--------------------------------------------------------------

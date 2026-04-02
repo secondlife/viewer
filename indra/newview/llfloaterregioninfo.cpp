@@ -147,7 +147,6 @@ public:
     static LLSD getIDs( sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count );
 };
 
-
 /*
 void unpack_request_params(
     LLMessageSystem* msg,
@@ -215,10 +214,7 @@ private:
     connection_t        mCommitConnect;
 };
 
-
-
 bool estate_dispatch_initialized = false;
-
 
 ///----------------------------------------------------------------------------
 /// LLFloaterRegionInfo
@@ -226,7 +222,6 @@ bool estate_dispatch_initialized = false;
 
 //S32 LLFloaterRegionInfo::sRequestSerial = 0;
 LLUUID LLFloaterRegionInfo::sRequestInvoice;
-
 
 LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
     : LLFloater(seed),
@@ -412,7 +407,6 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
     }
 }
 
-
 // static
 void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 {
@@ -422,13 +416,6 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     {
         return;
     }
-#if 0
-    // We need to re-request environment setting here,
-    // otherwise after we apply (send) updated region settings we won't get them back,
-    // so our environment won't be updated.
-    // This is also the way to know about externally changed region environment.
-    LLEnvManagerNew::instance().requestRegionSettings();
-#endif
     LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 
     LLViewerRegion* region = gAgent.getRegion();
@@ -786,7 +773,6 @@ void LLPanelRegionInfo::onChangeText(LLLineEditor* caller, void* user_data)
         panel->refresh();
     }
 }
-
 
 // virtual
 bool LLPanelRegionInfo::postBuild()
@@ -1250,7 +1236,6 @@ void LLPanelRegionDebugInfo::onClickChooseAvatar()
     }
 }
 
-
 void LLPanelRegionDebugInfo::callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
     if (ids.empty() || names.empty()) return;
@@ -1316,7 +1301,6 @@ bool LLPanelRegionDebugInfo::callbackReturn(const LLSD& notification, const LLSD
     }
     return false;
 }
-
 
 // static
 void LLPanelRegionDebugInfo::onClickTopColliders(void* data)
@@ -1850,7 +1834,6 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
     return LLPanelRegionInfo::refreshFromRegion(region);
 }
 
-
 // virtual
 bool LLPanelRegionTerrainInfo::sendUpdate()
 {
@@ -2348,7 +2331,6 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
     LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
     //integers.push_back(LLFloaterRegionInfo::());::getPanelEstate();
 
-
     sendEstateOwnerMessage(gMessageSystem, "getinfo", invoice, strings);
 
     refresh();
@@ -2367,7 +2349,6 @@ bool LLPanelEstateInfo::estateUpdate(LLMessageSystem* msg)
     LL_INFOS() << "LLPanelEstateInfo::estateUpdate()" << LL_ENDL;
     return false;
 }
-
 
 bool LLPanelEstateInfo::postBuild()
 {
@@ -2489,7 +2470,6 @@ bool LLPanelEstateInfo::callbackChangeLindenEstate(const LLSD& notification, con
     }
     return false;
 }
-
 
 /*
 // Request = "getowner"
@@ -3054,7 +3034,6 @@ LLPanelExperienceListEditor* LLPanelRegionExperiences::setupList( const char* co
     return child;
 }
 
-
 void LLPanelRegionExperiences::processResponse( const LLSD& content )
 {
     if(content.has("default"))
@@ -3133,7 +3112,6 @@ bool LLPanelRegionExperiences::experienceCoreConfirm(const LLSD& notification, c
     return false;
 }
 
-
 // Send the actual "estateexperiencedelta" message
 void LLPanelRegionExperiences::sendEstateExperienceDelta(U32 flags, const LLUUID& experience_id)
 {
@@ -3148,7 +3126,6 @@ void LLPanelRegionExperiences::sendEstateExperienceDelta(U32 flags, const LLUUID
         panel->sendEstateOwnerMessage(gMessageSystem, "estateexperiencedelta", LLFloaterRegionInfo::getLastInvoice(), str);
     }
 }
-
 
 void LLPanelRegionExperiences::infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content)
 {
@@ -3209,7 +3186,6 @@ LLSD LLPanelRegionExperiences::addIds(LLPanelExperienceListEditor* panel)
     }
     return ids;
 }
-
 
 bool LLPanelRegionExperiences::sendUpdate()
 {
@@ -3283,7 +3259,6 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
 
     onChangeAnything();
 }
-
 
 LLPanelEstateAccess::LLPanelEstateAccess()
 : LLPanelRegionInfo(), mPendingUpdate(false)
@@ -3523,7 +3498,6 @@ void LLPanelEstateAccess::onClickRemoveEstateManager()
 {
     accessRemoveCore(ESTATE_ACCESS_MANAGER_REMOVE, "EstateManagerRemove", "estate_manager_name_list");
 }
-
 
 // Special case callback for groups, since it has different callback format than names
 void LLPanelEstateAccess::addAllowedGroup2(LLUUID id)
@@ -4173,7 +4147,6 @@ void LLPanelEstateAccess::requestEstateGetAccessCoro(std::string url)
         estate_manager_name_list->sortByName(true);
     }
 
-
     panel->updateControls(gAgent.getRegion());
 }
 
@@ -4286,7 +4259,6 @@ bool LLPanelRegionEnvironment::postBuild()
     return true;
 }
 
-
 void LLPanelRegionEnvironment::refresh()
 {
     commitDayLenOffsetChanges(false); // commit unsaved changes if any
@@ -4381,7 +4353,6 @@ void LLPanelRegionEnvironment::onChkAllowOverride(bool value)
     setDirtyFlag(DIRTY_FLAG_OVERRIDE);
     mAllowOverrideRestore = mAllowOverride;
     mAllowOverride = value;
-
 
     std::string notification("EstateParcelEnvironmentOverride");
     if (LLPanelEstateInfo::isLindenEstate())

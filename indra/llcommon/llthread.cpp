@@ -42,7 +42,6 @@
 #include <sched.h>
 #endif
 
-
 #ifdef LL_WINDOWS
 
 const DWORD MS_VC_EXCEPTION=0x406D1388;
@@ -74,7 +73,6 @@ void set_thread_name( DWORD dwThreadID, const char* threadName)
     }
 }
 #endif
-
 
 //----------------------------------------------------------------------------
 // Usage:
@@ -110,7 +108,7 @@ namespace
 
 #if LL_WINDOWS
 
-    static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+    static constexpr U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 
     U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS* exception_infop)
     {
@@ -159,14 +157,6 @@ void LLThread::threadRun()
 #ifdef LL_WINDOWS
     set_thread_name(-1, mName.c_str());
 
-#if 0 // probably a bad idea, see usage of SetThreadIdealProcessor in LLWindowWin32)
-    HANDLE hThread = GetCurrentThread();
-    if (hThread)
-    {
-        SetThreadAffinityMask(hThread, (DWORD_PTR) 0xFFFFFFFFFFFFFFFE);
-    }
-#endif
-
 #endif
 
     LL_PROFILER_SET_THREAD_NAME( mName.c_str() );
@@ -190,7 +180,6 @@ void LLThread::threadRun()
     } while (true);
 
     //LL_INFOS() << "LLThread::staticRun() Exiting: " << threadp->mName << LL_ENDL;
-
 
     delete mRecorder;
     mRecorder = NULL;
@@ -281,7 +270,6 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
     mLocalAPRFilePoolp = NULL ;
 }
 
-
 LLThread::~LLThread()
 {
     shutdown();
@@ -368,7 +356,6 @@ void LLThread::shutdown()
         LLTrace::get_master_thread_recorder()->removeChildRecorder(mRecorder);
     }
 }
-
 
 void LLThread::start()
 {

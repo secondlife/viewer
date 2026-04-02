@@ -201,10 +201,6 @@
     TISInputSourceRef currentInput = TISCopyCurrentKeyboardInputSource();
     CFArrayRef languages = (CFArrayRef)TISGetInputSourceProperty(currentInput, kTISPropertyInputSourceLanguages);
 
-#if 0 // In the event of ever needing to add new language sources, change this to 1 and watch the terminal for "languages:"
-    NSLog(@"languages: %@", TISGetInputSourceProperty(currentInput, kTISPropertyInputSourceLanguages));
-#endif
-
     // Typically the language we want is going to be the very first result in the array.
     currentInputLanguage = (NSString*)CFArrayGetValueAtIndex(languages, 0);
 }

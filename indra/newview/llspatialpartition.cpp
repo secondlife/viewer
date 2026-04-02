@@ -399,7 +399,6 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
     group->clearState(LLSpatialGroup::GEOM_DIRTY);
 }
 
-
 void LLSpatialPartition::rebuildMesh(LLSpatialGroup* group)
 {
 
@@ -885,7 +884,6 @@ void LLSpatialGroup::destroyGLState(bool keep_occlusion)
         releaseOcclusionQueryObjectNames();
     }
 
-
     for (LLSpatialGroup::element_iter i = getDataBegin(); i != getDataEnd(); ++i)
     {
         LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
@@ -918,7 +916,6 @@ LLSpatialPartition::LLSpatialPartition(U32 data_mask, bool render_by_group, LLVi
 
     new LLSpatialGroup(mOctree, this);
 }
-
 
 LLSpatialPartition::~LLSpatialPartition()
 {
@@ -1370,7 +1367,6 @@ void drawBoxOutline(const LLVector4a& pos, const LLVector4a& size)
     drawBoxOutline(reinterpret_cast<const LLVector3&>(pos), reinterpret_cast<const LLVector3&>(size));
 }
 
-
 void LLSpatialPartition::restoreGL()
 {
 }
@@ -1586,63 +1582,6 @@ void pushVertsColorCoded(LLSpatialGroup* group)
 //  - a linked rigged drawable face has the wrong draw order index
 bool check_rigged_group(LLDrawable* drawable)
 {
-#if 0
-    if (drawable->isState(LLDrawable::RIGGED))
-    {
-        LLSpatialGroup* group = drawable->getSpatialGroup();
-        LLDrawable* root = drawable->getRoot();
-
-        if (root->isState(LLDrawable::RIGGED) && root->getSpatialGroup() != group)
-        {
-            LL_WARNS() << "[root->isState(LLDrawable::RIGGED) and root->getSpatialGroup() != group] is true"
-                " (" << root->getSpatialGroup() << " != " << group << ")" << LL_ENDL;
-            llassert(false);
-            return false;
-        }
-
-        S32 last_draw_index = -1;
-        if (root->isState(LLDrawable::RIGGED))
-        {
-            for (auto& face : root->getFaces())
-            {
-                if ((S32) face->getDrawOrderIndex() <= last_draw_index)
-                {
-                    LL_WARNS() << "[(S32)face->getDrawOrderIndex() <= last_draw_index] is true"
-                        " (" << (S32)face->getDrawOrderIndex() << " <= " << last_draw_index << ")" << LL_ENDL;
-                    llassert(false);
-                    return false;
-                }
-                last_draw_index = face->getDrawOrderIndex();
-            }
-        }
-
-        for (auto& child : root->getVObj()->getChildren())
-        {
-            if (child->mDrawable->isState(LLDrawable::RIGGED))
-            {
-                for (auto& face : child->mDrawable->getFaces())
-                {
-                    if ((S32) face->getDrawOrderIndex() <= last_draw_index)
-                    {
-                        LL_WARNS() << "[(S32)face->getDrawOrderIndex() <= last_draw_index] is true"
-                            " (" << (S32)face->getDrawOrderIndex() << " <= " << last_draw_index << ")" << LL_ENDL;
-                        llassert(false);
-                        return false;
-                    }
-                    last_draw_index = face->getDrawOrderIndex();
-                }
-            }
-
-            if (child->mDrawable->getSpatialGroup() != group)
-            {
-                LL_WARNS() << "[child->mDrawable->getSpatialGroup() != group] is true"
-                    " (" << child->mDrawable->getSpatialGroup() << " != " << group << ")" << LL_ENDL;
-                llassert(false);
-                return false;
-            }
-        }
-    }
-#endif
     return true;
 }
 
@@ -1778,8 +1717,6 @@ void renderOctree(LLSpatialGroup* group)
 }
 
 std::set<LLSpatialGroup*> visible_selected_groups;
-
-
 
 void renderXRay(LLSpatialGroup* group, LLCamera* camera)
 {
@@ -2564,36 +2501,6 @@ void renderPhysicsShapes(LLSpatialGroup* group, bool wireframe)
             }
             else
             {
-#if 0
-                LLViewerObject* object = drawable->getVObj();
-                if (object && object->getPCode() == LLViewerObject::LL_VO_SURFACE_PATCH)
-                {
-                    gGL.pushMatrix();
-                    gGL.multMatrix((F32*) object->getRegion()->mRenderMatrix.mMatrix);
-                    //push face vertices for terrain
-                    for (S32 i = 0; i < drawable->getNumFaces(); ++i)
-                    {
-                        LLFace* face = drawable->getFace(i);
-                        if (face)
-                        {
-                            LLVertexBuffer* buff = face->getVertexBuffer();
-                            if (buff)
-                            {
-                                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-                                buff->setBuffer();
-                                gGL.diffuseColor4f(0.2f, 0.5f, 0.3f, 0.5f);
-                                buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
-
-                                gGL.diffuseColor4f(0.2f, 1.f, 0.3f, 0.75f);
-                                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                                buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
-                            }
-                        }
-                    }
-                    gGL.popMatrix();
-                }
-#endif
             }
         }
     }
@@ -2688,7 +2595,6 @@ void renderBatchSize(LLDrawInfo* params)
         old_shader->mRiggedVariant->bind();
         LLRenderPass::uploadMatrixPalette(*params);
     }
-
 
     gGL.diffuseColor4ubv(params->getDebugColor().mV);
     pushVerts(params);
@@ -2802,7 +2708,6 @@ void renderTexelDensity(LLDrawable* drawable)
     //  //gGL.matrixMode(LLRender::MM_MODELVIEW);
     //}
 }
-
 
 void renderLights(LLDrawable* drawablep)
 {
@@ -3061,7 +2966,6 @@ void renderRaycast(LLDrawable* drawablep)
     }
 }
 
-
 void renderAvatarCollisionVolumes(LLVOAvatar* avatar)
 {
     avatar->renderCollisionVolumes();
@@ -3262,33 +3166,6 @@ public:
                 renderAgentTarget(avatar);
             }
 
-#if 0
-            if (gDebugGL)
-            {
-                for (U32 i = 0; i < drawable->getNumFaces(); ++i)
-                {
-                    LLFace* facep = drawable->getFace(i);
-                    if (facep)
-                    {
-                        U8 index = facep->getTextureIndex();
-                        if (facep->mDrawInfo)
-                        {
-                            if (index < FACE_DO_NOT_BATCH_TEXTURES)
-                            {
-                                if (facep->mDrawInfo->mTextureList.size() <= index)
-                                {
-                                    LL_ERRS() << "Face texture index out of bounds." << LL_ENDL;
-                                }
-                                else if (facep->mDrawInfo->mTextureList[index] != facep->getTexture())
-                                {
-                                    LL_ERRS() << "Face texture index incorrect." << LL_ENDL;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-#endif
         }
 
         for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
@@ -3460,7 +3337,6 @@ public:
 
         node->accept(this);
 
-
         U32 temp[LLViewerCamera::NUM_CAMERAS];
 
         for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
@@ -3479,7 +3355,6 @@ public:
             mInheritedMask[i] = temp[i];
         }
     }
-
 
     virtual void visit(const OctreeNode* state)
     {
@@ -3512,7 +3387,6 @@ public:
         }
     }
 };
-
 
 void LLSpatialPartition::renderPhysicsShapes(bool wireframe)
 {
@@ -3950,7 +3824,6 @@ void LLCullResult::clear()
     mVisibleBridgeSize = 0;
     mVisibleBridgeEnd = &mVisibleBridge[0];
 
-
     for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
     {
         drawinfo_list_t& render_map = mRenderMap[i];
@@ -4163,7 +4036,6 @@ void LLCullResult::pushDrawInfo(U32 type, LLDrawInfo* draw_info)
     ++mRenderMapSize[type];
     mRenderMapEnd[type] = &(mRenderMap[type][mRenderMapSize[type]]);
 }
-
 
 void LLCullResult::assertDrawMapsEmpty()
 {

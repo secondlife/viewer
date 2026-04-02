@@ -44,7 +44,7 @@
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
 
-static const F64 LL_APR_USEC_PER_SEC = 1000000.0;
+static constexpr F64 LL_APR_USEC_PER_SEC = 1000000.0;
     // should be APR_USEC_PER_SEC, but that relies on INT64_C which
     // isn't defined in glib under our build set up for some reason
 

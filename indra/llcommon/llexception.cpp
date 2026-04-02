@@ -94,7 +94,7 @@ void annotate_exception_(boost::exception& exc)
 
 // For windows SEH exception handling we sometimes need a filter that will
 // separate C++ exceptions from C SEH exceptions
-static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+static constexpr U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 
 U32 msc_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
 {

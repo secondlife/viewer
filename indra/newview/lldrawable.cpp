@@ -61,14 +61,11 @@ const F32 OBJECT_DAMPING_TIME_CONSTANT = 0.06f;
 
 extern bool gShiftFrame;
 
-
 ////////////////////////
 //
 // Inline implementations.
 //
 //
-
-
 
 //////////////////////////////
 //
@@ -158,7 +155,6 @@ void LLDrawable::initClass()
 {
 }
 
-
 void LLDrawable::destroy()
 {
     if (gDebugGL)
@@ -184,7 +180,6 @@ void LLDrawable::destroy()
 
     std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
     mFaces.clear();
-
 
     /*if (!(sNumZombieDrawables % 10))
     {
@@ -490,7 +485,6 @@ void LLDrawable::update()
     LL_ERRS() << "Shouldn't be called!" << LL_ENDL;
 }
 
-
 void LLDrawable::updateMaterial()
 {
 }
@@ -557,7 +551,6 @@ void LLDrawable::makeActive()
 
     llassert(isAvatar() || isRoot() || mParent->isActive());
 }
-
 
 void LLDrawable::makeStatic(bool warning_enabled)
 {
@@ -919,7 +912,6 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
                 }
             }
 
-
             // MAINT-7926 Handle volumes in an animated object as a special case
             // SL-937: add dynamic box handling for rigged mesh on regular avatars.
             //if (volume->getAvatar() && volume->getAvatar()->isControlAvatar())
@@ -1072,7 +1064,6 @@ void LLDrawable::updateSpatialExtents()
         getGroupPosition().splat(0.f);
     }
 }
-
 
 void LLDrawable::updateBinRadius()
 {
@@ -1439,42 +1430,10 @@ void LLSpatialBridge::transformExtents(const LLVector4a* src, LLVector4a* dst)
     matMulBoundBox(world_to_bridge, src, dst);
 }
 
-
 void LLDrawable::setVisible(LLCamera& camera, std::vector<LLDrawable*>* results, bool for_select)
 {
     LLViewerOctreeEntryData::setVisible();
 
-#if 0 && !LL_RELEASE_FOR_DOWNLOAD
-    //crazy paranoid rules checking
-    if (getVOVolume())
-    {
-        if (!isRoot())
-        {
-            if (isActive() && !mParent->isActive())
-            {
-                LL_ERRS() << "Active drawable has static parent!" << LL_ENDL;
-            }
-
-            if (isStatic() && !mParent->isStatic())
-            {
-                LL_ERRS() << "Static drawable has active parent!" << LL_ENDL;
-            }
-
-            if (mSpatialBridge)
-            {
-                LL_ERRS() << "Child drawable has spatial bridge!" << LL_ENDL;
-            }
-        }
-        else if (isActive() && !mSpatialBridge)
-        {
-            LL_ERRS() << "Active root drawable has no spatial bridge!" << LL_ENDL;
-        }
-        else if (isStatic() && mSpatialBridge.notNull())
-        {
-            LL_ERRS() << "Static drawable has spatial bridge!" << LL_ENDL;
-        }
-    }
-#endif
 }
 
 class LLOctreeMarkNotCulled: public OctreeTraveler
@@ -1505,7 +1464,6 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
     {
         return;
     }
-
 
     //HACK don't draw attachments for avatars that haven't been visible in more than a frame
     LLViewerObject *vobj = mDrawable->getVObj();
@@ -1545,7 +1503,6 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
             }
         }
     }
-
 
     LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
     group->rebound();
@@ -1809,7 +1766,6 @@ F32 LLHUDBridge::calcPixelArea(LLSpatialGroup* group, LLCamera& camera)
 {
     return 1024.f;
 }
-
 
 void LLHUDBridge::shiftPos(const LLVector4a& vec)
 {

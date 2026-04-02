@@ -41,7 +41,6 @@
 using namespace LL::GLTF;
 using namespace boost::json;
 
-
 namespace LL
 {
     namespace GLTF
@@ -253,7 +252,6 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
     LLVector4a local_end;
     LLVector4a p;
 
-
     for (auto& node : mNodes)
     {
         if (node.mMesh != INVALID_INDEX)
@@ -339,7 +337,6 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 
     return node_hit;
 }
-
 
 void Node::makeMatrixValid()
 {
@@ -621,29 +618,6 @@ bool Asset::prep()
                     if (vertex_count[variant] > 0)
                     {
                         U32 mat_idx = mat_id + 1;
-                        #if 0
-                        LLVertexBuffer* vb = new LLVertexBuffer(attribute_mask);
-
-                        rd.mBatches[variant][mat_idx].mVertexBuffer = vb;
-                        vb->allocateBuffer(vertex_count[variant],
-                            index_count[variant] * 2); // hack double index count... TODO: find a better way to indicate 32-bit indices will be used
-                        vb->setBuffer();
-
-                        for (auto& mesh : mMeshes)
-                        {
-                            for (auto& primitive : mesh.mPrimitives)
-                            {
-                                if (primitive.mMaterial == mat_id && primitive.mShaderVariant == variant)
-                                {
-                                    primitive.upload(vb);
-                                }
-                            }
-                        }
-
-                        vb->unmapBuffer();
-
-                        vb->unbind();
-                        #endif
                     }
                 }
             }
@@ -658,34 +632,6 @@ bool Asset::prep()
             }
         }
     }
-    #if 0
-    // build render batches
-    for (S32 node_id = 0; node_id < mNodes.size(); ++node_id)
-    {
-        Node& node = mNodes[node_id];
-
-        if (node.mMesh != INVALID_INDEX)
-        {
-            auto& mesh = mMeshes[node.mMesh];
-
-            S32 mat_idx = mesh.mPrimitives[0].mMaterial + 1;
-
-            S32 double_sided = mat_idx == 0 ? 0 : mMaterials[mat_idx - 1].mDoubleSided;
-
-            for (S32 j = 0; j < mesh.mPrimitives.size(); ++j)
-            {
-                auto& primitive = mesh.mPrimitives[j];
-
-                S32 variant = primitive.mShaderVariant;
-
-                RenderData& rd = mRenderData[double_sided];
-                RenderBatch& rb = rd.mBatches[variant][mat_idx];
-
-                rb.mPrimitives.push_back({ j, node_id });
-            }
-        }
-    }
-    #endif
     return true;
 }
 
@@ -1063,7 +1009,6 @@ bool Image::prepImpl(Asset& asset, const LLUUID& id)
     return true;
 }
 
-
 void Image::clearData(Asset& asset)
 {
     if (mBufferView != INVALID_INDEX)
@@ -1352,7 +1297,6 @@ void TextureTransform::serialize(object& dst) const
     write(mTexCoord, "texCoord", dst, -1);
 }
 
-
 void Material::serialize(object& dst) const
 {
     write(mName, "name", dst);
@@ -1385,7 +1329,6 @@ const Material& Material::operator=(const Value& src)
     }
     return *this;
 }
-
 
 void Mesh::serialize(object& dst) const
 {
@@ -1471,5 +1414,4 @@ const Sampler& Sampler::operator=(const Value& src)
 
     return *this;
 }
-
 

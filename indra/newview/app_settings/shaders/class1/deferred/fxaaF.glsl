@@ -36,9 +36,7 @@ out vec4 frag_color;
 
 /*============================================================================
 
-
                     NVIDIA FXAA 3.11 by TIMOTHY LOTTES
-
 
 ------------------------------------------------------------------------------
 COPYRIGHT (C) 2010, 2011 NVIDIA CORPORATION. ALL RIGHTS RESERVED.
@@ -129,7 +127,6 @@ such that inputs in the pixel shader provide,
 (7.)
 Insure the texture sampler(s) used by FXAA are set to bilinear filtering.
 
-
 ------------------------------------------------------------------------------
                     INTEGRATION - RGBL AND COLORSPACE
 ------------------------------------------------------------------------------
@@ -180,7 +177,6 @@ To use FXAA,
 
 Getting luma correct is required for the algorithm to work correctly.
 
-
 ------------------------------------------------------------------------------
                           BEING LINEARLY CORRECT?
 ------------------------------------------------------------------------------
@@ -188,7 +184,6 @@ Applying FXAA to a framebuffer with linear RGB color will look worse.
 This is very counter intuitive, but happends to be true in this case.
 The reason is because dithering artifacts will be more visiable
 in a linear colorspace.
-
 
 ------------------------------------------------------------------------------
                              COMPLEX INTEGRATION
@@ -384,12 +379,6 @@ A. Or use FXAA_GREEN_AS_LUMA.
     #if 1
         #define FXAA_CONSOLE__PS3_EDGE_SHARPNESS 8.0
     #endif
-    #if 0
-        #define FXAA_CONSOLE__PS3_EDGE_SHARPNESS 4.0
-    #endif
-    #if 0
-        #define FXAA_CONSOLE__PS3_EDGE_SHARPNESS 2.0
-    #endif
 #endif
 /*--------------------------------------------------------------------------*/
 #ifndef FXAA_CONSOLE__PS3_EDGE_THRESHOLD
@@ -444,7 +433,6 @@ NOTE the other tuning knobs are now in the shader function inputs!
     //
     #define FXAA_QUALITY__PRESET 12
 #endif
-
 
 /*============================================================================
 
@@ -649,8 +637,6 @@ NOTE the other tuning knobs are now in the shader function inputs!
     #define FXAA_QUALITY__P11 8.0
 #endif
 
-
-
 /*============================================================================
 
                                 API PORTING
@@ -753,7 +739,6 @@ NOTE the other tuning knobs are now in the shader function inputs!
     #define FxaaTexOffGreen4(t, p, o) t.tex.GatherGreen(t.smpl, p, o)
 #endif
 
-
 /*============================================================================
                    GREEN AS LUMA OPTION SUPPORT FUNCTION
 ============================================================================*/
@@ -762,9 +747,6 @@ NOTE the other tuning knobs are now in the shader function inputs!
 #else
     FxaaFloat FxaaLuma(FxaaFloat4 rgba) { return rgba.y; }
 #endif
-
-
-
 
 /*============================================================================
 
@@ -1294,9 +1276,6 @@ FxaaFloat4 FxaaPixelShader(
 /*==========================================================================*/
 #endif
 
-
-
-
 /*============================================================================
 
                          FXAA3 CONSOLE - PC VERSION
@@ -1388,8 +1367,6 @@ FxaaFloat4 FxaaPixelShader(
     return rgbyB; }
 /*==========================================================================*/
 #endif
-
-
 
 /*============================================================================
 
@@ -1484,8 +1461,6 @@ float4 FxaaPixelShader(
     return rgbyR; }
 /*==========================================================================*/
 #endif
-
-
 
 /*============================================================================
 
@@ -1772,8 +1747,6 @@ half4 FxaaPixelShader(
     return rgby2; }
 /*==========================================================================*/
 #endif
-
-
 
 /*============================================================================
 
@@ -2128,8 +2101,6 @@ void main()
                                         0.125,                      //fxaaConsoleEdgeThreshold
                                         0.05,                       //fxaaConsoleEdgeThresholdMin
                                         vec4(0,0,0,0));             //fxaaConsole360ConstDir
-
-
 
     frag_color = diff;
 

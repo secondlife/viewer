@@ -141,7 +141,6 @@ void    LLQuaternion::quantize8(F32 lower, F32 upper)
 
 // LLVector3 Magnitude and Normalization Functions
 
-
 // Set LLQuaternion routines
 
 const LLQuaternion& LLQuaternion::setAngleAxis(F32 angle, F32 x, F32 y, F32 z)
@@ -442,11 +441,7 @@ LLMatrix4   LLQuaternion::getMatrix4(void) const
     return mat;
 }
 
-
-
-
 // Other useful methods
-
 
 // calculate the shortest rotation from a to b
 void LLQuaternion::shortestArc(const LLVector3 &a, const LLVector3 &b)
@@ -529,7 +524,6 @@ std::ostream& operator<<(std::ostream &s, const LLQuaternion &a)
     return s;
 }
 
-
 // Does NOT renormalize the result
 LLQuaternion    operator*(const LLQuaternion &a, const LLQuaternion &b)
 {
@@ -551,8 +545,6 @@ LLMatrix4   operator*(const LLMatrix4 &m, const LLQuaternion &q)
     return (m*qmat);
 }
 */
-
-
 
 LLVector4       operator*(const LLVector4 &a, const LLQuaternion &rot)
 {
@@ -606,16 +598,6 @@ F32 dot(const LLQuaternion &a, const LLQuaternion &b)
 
 // DEMO HACK: This lerp is probably inocrrect now due intermediate normalization
 // it should look more like the lerp below
-#if 0
-// linear interpolation
-LLQuaternion lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q)
-{
-    LLQuaternion r;
-    r = t * (q - p) + p;
-    r.normalize();
-    return r;
-}
-#endif
 
 // lerp from identity to q
 LLQuaternion lerp(F32 t, const LLQuaternion &q)
@@ -643,7 +625,6 @@ LLQuaternion lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q)
     r.normalize();
     return r;
 }
-
 
 // spherical linear interpolation
 LLQuaternion slerp( F32 u, const LLQuaternion &a, const LLQuaternion &b )
@@ -975,6 +956,5 @@ bool LLQuaternion::parseQuat(const std::string& buf, LLQuaternion* value)
 
     return false;
 }
-
 
 // End

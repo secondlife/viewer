@@ -62,7 +62,6 @@
 //#define GL_STATE_VERIFY
 #endif
 
-
 bool gDebugSession = false;
 bool gDebugGLSession = false;
 bool gClothRipple = false;
@@ -178,7 +177,6 @@ void ll_init_fail_log(std::string filename)
 {
     gFailLog.open(filename.c_str());
 }
-
 
 void ll_fail(std::string msg)
 {
@@ -1069,41 +1067,6 @@ bool LLGLManager::initGL()
         LL_ERRS("RenderInit") << "Calling init on LLGLManager after already initialized!" << LL_ENDL;
     }
 
-#if 0 && LL_WINDOWS
-    if (!glGetStringi)
-    {
-        glGetStringi = (PFNGLGETSTRINGIPROC) GLH_EXT_GET_PROC_ADDRESS("glGetStringi");
-    }
-
-    //reload extensions string (may have changed after using wglCreateContextAttrib)
-    if (glGetStringi)
-    {
-        std::stringstream str;
-
-        GLint count = 0;
-        glGetIntegerv(GL_NUM_EXTENSIONS, &count);
-        for (GLint i = 0; i < count; ++i)
-        {
-            std::string ext = ll_safe_string((const char*) glGetStringi(GL_EXTENSIONS, i));
-            str << ext << " ";
-            LL_DEBUGS("GLExtensions") << ext << LL_ENDL;
-        }
-
-        {
-            PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = 0;
-            wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
-            if(wglGetExtensionsStringARB)
-            {
-                str << (const char*) wglGetExtensionsStringARB(wglGetCurrentDC());
-            }
-        }
-
-        free(gGLHExts.mSysExts);
-        std::string extensions = str.str();
-        gGLHExts.mSysExts = strdup(extensions.c_str());
-    }
-#endif
-
     // Extract video card strings and convert to upper case to
     // work around driver-to-driver variation in capitalization.
     mGLVendor = ll_safe_string((const char *)glGetString(GL_VENDOR));
@@ -1436,7 +1399,6 @@ void LLGLManager::initExtensions()
     wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)GLH_EXT_GET_PROC_ADDRESS("wglCreateContextAttribsARB");
 #endif
 
-
     // Load entire OpenGL API through GetProcAddress, leaving sections beyond mGLVersion unloaded
 
     // GL_VERSION_1_2
@@ -1448,7 +1410,6 @@ void LLGLManager::initExtensions()
     glTexImage3D = (PFNGLTEXIMAGE3DPROC)GLH_EXT_GET_PROC_ADDRESS("glTexImage3D");
     glTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC)GLH_EXT_GET_PROC_ADDRESS("glTexSubImage3D");
     glCopyTexSubImage3D = (PFNGLCOPYTEXSUBIMAGE3DPROC)GLH_EXT_GET_PROC_ADDRESS("glCopyTexSubImage3D");
-
 
     // GL_VERSION_1_3
     if (mGLVersion < 1.29f)
@@ -2363,7 +2324,6 @@ void assert_glerror()
     }
 }
 
-
 void clear_glerror()
 {
     glGetError();
@@ -2633,7 +2593,6 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
     }
 }
 
-
 void parse_glsl_version(S32& major, S32& minor)
 {
     // GL_SHADING_LANGUAGE_VERSION returns a null-terminated string with the format:
@@ -2860,8 +2819,6 @@ LLGLSquashToFarClip::~LLGLSquashToFarClip()
     gGL.matrixMode(last_matrix_mode);
 }
 
-
-
 LLGLSyncFence::LLGLSyncFence()
 {
     mSync = 0;
@@ -2941,5 +2898,4 @@ extern "C"
     __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
-
 

@@ -40,13 +40,13 @@
 template<typename S, typename T>
 struct LLIsSameType
 {
-    static const bool value = false;
+    static constexpr bool value = false;
 };
 
 template<typename T>
 struct LLIsSameType<T, T>
 {
-    static const bool value = true;
+    static constexpr bool value = true;
 };
 
 // workaround for decltype() not existing and typeof() not working inline in gcc 4.2
@@ -793,7 +793,7 @@ struct LLUnitInverseLinearOps
 #define LL_DECLARE_BASE_UNIT(base_unit_name, unit_label)                                             \
 struct base_unit_name                                                                                \
 {                                                                                                    \
-    static const int sLevel = 0;                                                                     \
+    static constexpr int sLevel = 0;                                                                  \
     typedef base_unit_name base_unit_t;                                                              \
     static const char* getUnitLabel() { return unit_label; }                                         \
     template<typename T>                                                                             \
@@ -807,7 +807,7 @@ struct base_unit_name                                                           
 #define LL_DECLARE_DERIVED_UNIT(unit_name, unit_label, base_unit_name, conversion_operation)     \
 struct unit_name                                                                                 \
 {                                                                                                \
-    static const int sLevel = base_unit_name::sLevel + 1;                                        \
+    static constexpr int sLevel = base_unit_name::sLevel + 1;                                     \
     typedef base_unit_name base_unit_t;                                                          \
     static const char* getUnitLabel() { return unit_label; }                                     \
     template<typename T>                                                                         \

@@ -370,7 +370,6 @@ void LLInventoryValidationInfo::toOstream(std::ostream& os) const
        << " mOrphanedCount " << mOrphanedCount;
 }
 
-
 std::ostream& operator<<(std::ostream& os, const LLInventoryValidationInfo& v)
 {
     v.toOstream(os);
@@ -455,7 +454,6 @@ LLInventoryModel::LLInventoryModel()
     mItemLock(),
     mValidationInfo(new LLInventoryValidationInfo)
 {}
-
 
 // Destroys the object
 LLInventoryModel::~LLInventoryModel()
@@ -1119,7 +1117,6 @@ void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inv
         httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("createNewCategoryCoro", httpPolicy);
     LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
     LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
-
 
     httpOpts->setWantHeaders(true);
 
@@ -2023,7 +2020,6 @@ void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool f
             onDescendentsPurgedFromServer(object_id, fix_broken_links);
         }
 
-
         // From item/cat removeFromServer()
         if (update_parent_version)
         {
@@ -2040,7 +2036,6 @@ void LLInventoryModel::onObjectDeletedFromServer(const LLUUID& object_id, bool f
         deleteObject(object_id, fix_broken_links, do_notify_observers);
     }
 }
-
 
 // Delete a particular inventory object by ID.
 void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, bool do_notify_observers)
@@ -2411,7 +2406,6 @@ void LLInventoryModel::cache(
         LL_WARNS(LOG_INV) << "Unable to compress " << temp_file << " into " << gzip_filename << LL_ENDL;
     }
 }
-
 
 void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 {
@@ -3130,7 +3124,6 @@ void LLInventoryModel::buildParentChildMap()
     const bool COF_exists = (findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT) != LLUUID::null);
     sFirstTimeInViewer2 = !COF_exists || gAgent.isFirstLogin();
 
-
     // Now the items. We allocated in the last step, so now all we
     // have to do is iterate over the items and put them in the right
     // place.
@@ -3636,7 +3629,6 @@ void LLInventoryModel::registerCallbacks(LLMessageSystem* msg)
     msg->setHandlerFunc("MoveInventoryItem", processMoveInventoryItem);
 }
 
-
 //  static
 void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, void**)
 {
@@ -3954,7 +3946,6 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
             }
         }
     }
-
 
     count = msg->getNumberOfBlocksFast(_PREHASH_ItemData);
     uuid_vec_t wearable_ids;
@@ -4590,7 +4581,6 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
                 warning_count++;
             }
 
-
             // Entries in items and mItemMap should correspond.
             item_map_t::const_iterator it = mItemMap.find(item_id);
             if (it == mItemMap.end())
@@ -4887,7 +4877,6 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
         }
     }
 
-
     if (cat_lock > 0 || item_lock > 0)
     {
         LL_INFOS("Inventory") << "Found locks on some categories: sub-cat arrays "
@@ -4936,49 +4925,6 @@ std::string LLInventoryModel::getFullPath(const LLInventoryObject *obj) const
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------
-
-
-#if 0
-bool decompress_file(const char* src_filename, const char* dst_filename)
-{
-    bool rv = false;
-    gzFile src = NULL;
-    U8* buffer = NULL;
-    LLFILE* dst = NULL;
-    S32 bytes = 0;
-    const S32 DECOMPRESS_BUFFER_SIZE = 32000;
-
-    // open the files
-    src = gzopen(src_filename, "rb");
-    if(!src) goto err_decompress;
-    dst = LLFile::fopen(dst_filename, "wb");
-    if(!dst) goto err_decompress;
-
-    // decompress.
-    buffer = new U8[DECOMPRESS_BUFFER_SIZE + 1];
-
-    do
-    {
-        bytes = gzread(src, buffer, DECOMPRESS_BUFFER_SIZE);
-        if (bytes < 0)
-        {
-            goto err_decompress;
-        }
-
-        fwrite(buffer, bytes, 1, dst);
-    } while(gzeof(src) == 0);
-
-    // success
-    rv = true;
-
- err_decompress:
-    if(src != NULL) gzclose(src);
-    if(buffer != NULL) delete[] buffer;
-    if(dst != NULL) fclose(dst);
-    return rv;
-}
-#endif
-
 
 ///----------------------------------------------------------------------------
 /// Class LLInventoryModel::FetchItemHttpHandler
@@ -5060,17 +5006,6 @@ void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore:
 {
     start_new_inventory_observer();
 
-#if 0
-    LLUUID agent_id;
-    agent_id = content["agent_id"].asUUID();
-    if (agent_id != gAgent.getID())
-    {
-        LL_WARNS(LOG_INV) << "Got a inventory update for the wrong agent: " << agent_id
-                          << LL_ENDL;
-        return;
-    }
-#endif
-
     LLInventoryModel::item_array_t items;
     LLInventoryModel::update_map_t update;
     LLUUID folder_id;
@@ -5121,7 +5056,6 @@ void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore:
     gInventory.notifyObservers();
     gViewerWindow->getWindow()->decBusyCount();
 }
-
 
 void LLInventoryModel::FetchItemHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::HttpResponse * response)
 {

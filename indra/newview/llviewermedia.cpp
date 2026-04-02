@@ -163,7 +163,6 @@ LLViewerMediaObserver::~LLViewerMediaObserver()
     }
 }
 
-
 static LLViewerMedia::impl_list sViewerMediaImplList;
 static LLViewerMedia::impl_id_map sViewerMediaTextureIDMap;
 static LLTimer sMediaCreateTimer;
@@ -202,7 +201,6 @@ class LLViewerMediaMuteListObserver : public LLMuteListObserver
 
 static LLViewerMediaMuteListObserver sViewerMediaMuteListObserver;
 static bool sViewerMediaMuteListObserverInitialized = false;
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLViewerMedia
@@ -649,7 +647,6 @@ static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE_VOLUME("Update/Volume");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT("Media Sort");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT2("Media Sort 2");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_MISC("Misc");
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMedia::onIdle(void *dummy_arg)
@@ -2276,7 +2273,6 @@ void LLViewerMediaImpl::clearCache()
     }
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::setPageZoomFactor( double factor )
 {
@@ -2657,7 +2653,6 @@ void LLViewerMediaImpl::navigateInternal(bool should_log)
         return;
     }
 
-
     if (!mMimeProbe.expired())
     {
         if (should_log)
@@ -2922,7 +2917,6 @@ static LLTrace::BlockTimerStatHandle FTM_MEDIA_DO_UPDATE("Do Update");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_GET_DATA("Get Data");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SET_SUBIMAGE("Set Subimage");
 
-
 void LLViewerMediaImpl::update()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA; //LL_RECORD_BLOCK_TIME(FTM_MEDIA_DO_UPDATE);
@@ -2966,7 +2960,6 @@ void LLViewerMediaImpl::update()
         // updateJavascriptObject();
     }
 
-
     if(mMediaSource == NULL)
     {
         return;
@@ -3000,7 +2993,6 @@ void LLViewerMediaImpl::update()
     {
         return;
     }
-
 
     LLViewerMediaTexture* media_tex;
     U8* data;
@@ -3201,7 +3193,6 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
     return media_tex;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////
 LLUUID LLViewerMediaImpl::getMediaTextureID() const
 {
@@ -3236,18 +3227,7 @@ void LLViewerMediaImpl::mouseCapture()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::scaleMouse(S32 *mouse_x, S32 *mouse_y)
 {
-#if 0
-    S32 media_width, media_height;
-    S32 texture_width, texture_height;
-    getMediaSize( &media_width, &media_height );
-    getTextureSize( &texture_width, &texture_height );
-    S32 y_delta = texture_height - media_height;
-
-    *mouse_y -= y_delta;
-#endif
 }
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::isMediaTimeBased()
@@ -3304,7 +3284,6 @@ void LLViewerMediaImpl::resetPreviousMediaState()
     mPreviousMediaState = MEDIA_NONE;
     mPreviousMediaTime = 0.0f;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //

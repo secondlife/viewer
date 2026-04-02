@@ -274,11 +274,9 @@ void LLManipTranslate::restoreGL()
     delete [] d;
 }
 
-
 LLManipTranslate::~LLManipTranslate()
 {
 }
-
 
 void LLManipTranslate::handleSelect()
 {
@@ -778,7 +776,6 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
         }
     }
 
-
     LLSelectMgr::getInstance()->updateSelectionCenter();
     gAgentCamera.clearFocusObject();
     dialog_refresh_all();       // ??? is this necessary?
@@ -1036,7 +1033,6 @@ F32 LLManipTranslate::getMinGridScale()
     return scale;
 }
 
-
 bool LLManipTranslate::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     // first, perform normal processing in case this was a quick-click
@@ -1058,7 +1054,6 @@ bool LLManipTranslate::handleMouseUp(S32 x, S32 y, MASK mask)
 
     return LLManip::handleMouseUp(x, y, mask);
 }
-
 
 void LLManipTranslate::render()
 {
@@ -1629,7 +1624,6 @@ void LLManipTranslate::renderGrid(F32 x, F32 y, F32 size, F32 r, F32 g, F32 b, F
         gGL.end();
     }
 
-
 }
 
 void LLManipTranslate::highlightIntersection(LLVector3 normal,
@@ -1637,127 +1631,6 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
                                              LLQuaternion grid_rotation,
                                              LLColor4 inner_color)
 {
-#if 0 // DEPRECATED
-    if (!gSavedSettings.getBOOL("GridCrossSections"))
-    {
-        return;
-    }
-
-
-    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-
-
-    static const U32 types[] = { LLRenderPass::PASS_SIMPLE, LLRenderPass::PASS_ALPHA, LLRenderPass::PASS_FULLBRIGHT, LLRenderPass::PASS_SHINY };
-    static const U32 num_types = LL_ARRAY_SIZE(types);
-
-    GLuint stencil_mask = 0xFFFFFFFF;
-    //stencil in volumes
-
-    gGL.flush();
-
-    if (shader)
-    {
-        gClipProgram.bind();
-    }
-
-    {
-        //glStencilMask(stencil_mask); //deprecated
-        //glClearStencil(1);
-        //glClear(GL_STENCIL_BUFFER_BIT);
-        LLGLEnable cull_face(GL_CULL_FACE);
-        //LLGLEnable stencil(GL_STENCIL_TEST);
-        LLGLDepthTest depth (GL_TRUE, GL_FALSE, GL_ALWAYS);
-        //glStencilFunc(GL_ALWAYS, 0, stencil_mask);
-        gGL.setColorMask(false, false);
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-        gGL.diffuseColor4f(1,1,1,1);
-
-        //setup clip plane
-        normal = normal * grid_rotation;
-        if (normal * (LLViewerCamera::getInstance()->getOrigin()-selection_center) < 0)
-        {
-            normal = -normal;
-        }
-        F32 d = -(selection_center * normal);
-        glm::vec4 plane(normal.mV[0], normal.mV[1], normal.mV[2], d );
-
-        plane = glm::inverse(gGL.getModelviewMatrix()) * plane;
-
-        static LLStaticHashedString sClipPlane("clip_plane");
-        gClipProgram.uniform4fv(sClipPlane, 1, plane.v);
-
-        bool particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
-        bool clouds = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
-
-        if (particles)
-        {
-            LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
-        }
-        if (clouds)
-        {
-            LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
-        }
-
-        //stencil in volumes
-        //glStencilOp(GL_INCR, GL_INCR, GL_INCR);
-        glCullFace(GL_FRONT);
-        for (U32 i = 0; i < num_types; i++)
-        {
-            gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, false);
-        }
-
-        //glStencilOp(GL_DECR, GL_DECR, GL_DECR);
-        glCullFace(GL_BACK);
-        for (U32 i = 0; i < num_types; i++)
-        {
-            gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, false);
-        }
-
-        if (particles)
-        {
-            LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
-        }
-        if (clouds)
-        {
-            LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
-        }
-
-        gGL.setColorMask(true, false);
-    }
-    gGL.color4f(1,1,1,1);
-
-    gGL.pushMatrix();
-
-    F32 x,y,z,angle_radians;
-    grid_rotation.getAngleAxis(&angle_radians, &x, &y, &z);
-    gGL.translatef(selection_center.mV[VX], selection_center.mV[VY], selection_center.mV[VZ]);
-    gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
-
-    F32 sz = mGridSizeMeters;
-    F32 tiles = sz;
-
-    if (shader)
-    {
-        shader->bind();
-    }
-
-    //draw volume/plane intersections
-    {
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-        LLGLDepthTest depth(GL_FALSE);
-        //LLGLEnable stencil(GL_STENCIL_TEST);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-        glStencilFunc(GL_EQUAL, 0, stencil_mask);
-        renderGrid(0,0,tiles,inner_color.mV[0], inner_color.mV[1], inner_color.mV[2], 0.25f);
-    }
-
-    glStencilFunc(GL_ALWAYS, 255, 0xFFFFFFFF);
-    glStencilMask(0xFFFFFFFF);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-    gGL.popMatrix();
-#endif
 }
 
 void LLManipTranslate::renderText()
@@ -2047,20 +1920,11 @@ void LLManipTranslate::renderTranslationHandles()
                               v2__v__v3 > X
 */
                     LLVector3 v0,v1,v2,v3;
-#if 0
-                    // This should theoretically work but looks off; could be tuned later -SJB
-                    gGL.translatef(-mPlaneManipOffsetMeters, -mPlaneManipOffsetMeters, 0.f);
-                    v0 = LLVector3(mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.25f), mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.25f), 0.f);
-                    v1 = LLVector3(mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.25f), mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.75f), 0.f);
-                    v2 = LLVector3(mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.25f), mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.25f), 0.f);
-                    v3 = LLVector3(mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.75f), mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.25f), 0.f);
-#else
                     gGL.translatef(mPlaneManipOffsetMeters, mPlaneManipOffsetMeters, 0.f);
                     v0 = LLVector3(mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.25f), mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.25f), 0.f);
                     v1 = LLVector3(mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.25f), mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.75f), 0.f);
                     v2 = LLVector3(mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.25f), mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.25f), 0.f);
                     v3 = LLVector3(mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.75f), mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.25f), 0.f);
-#endif
                     gGL.scalef(mPlaneScales.mV[VZ], mPlaneScales.mV[VZ], mPlaneScales.mV[VZ]);
                     if (mHighlightedPart == LL_XY_PLANE)
                     {
@@ -2184,7 +2048,6 @@ void LLManipTranslate::renderTranslationHandles()
     }
     gGL.popMatrix();
 }
-
 
 void LLManipTranslate::renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_size, F32 arrow_size, F32 handle_size, bool reverse_direction)
 {

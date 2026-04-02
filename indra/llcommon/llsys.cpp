@@ -88,12 +88,12 @@ LLMemoryInfo gSysMemory;
 
 // Don't log memory info any more often than this. It also serves as our
 // framerate sample size.
-static const F32 MEM_INFO_THROTTLE = 20;
+static constexpr F32 MEM_INFO_THROTTLE = 20;
 // Sliding window of samples. We intentionally limit the length of time we
 // remember "the slowest" framerate because framerate is very slow at login.
 // If we only triggered FrameWatcher logging when the session framerate
 // dropped below the login framerate, we'd have very little additional data.
-static const F32 MEM_INFO_WINDOW = 10*60;
+static constexpr F32 MEM_INFO_WINDOW = 10*60;
 
 LLOSInfo::LLOSInfo() :
     mMajorVer(0), mMinorVer(0), mBuild(0), mOSVersionString("")

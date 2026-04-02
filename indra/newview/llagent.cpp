@@ -24,7 +24,6 @@
  * $/LicenseInfo$
  */
 
-
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
@@ -916,7 +915,6 @@ void LLAgent::setFlying(bool fly, bool fail_sound)
     {
         clearControlFlags(AGENT_CONTROL_FLY);
     }
-
 
     // Update Movement Controls according to Fly mode
     LLFloaterMove::setFlyingMode(fly);
@@ -2265,9 +2263,6 @@ void LLAgent::endAnimationUpdateUI()
         // Only pop if we have pushed...
         if (true == mViewsPushed)
         {
-#if 0 // Use this once all floaters are registered
-            LLFloaterReg::restoreVisibleInstances();
-#else // Use this for now
             LLFloaterView::skip_list_t skip_list;
             if (LLFloaterReg::findInstance("mini_map"))
             {
@@ -2287,7 +2282,6 @@ void LLAgent::endAnimationUpdateUI()
             }
 
             gFloaterView->popVisibleAll(skip_list);
-#endif
             mViewsPushed = false;
         }
 
@@ -2390,16 +2384,10 @@ void LLAgent::endAnimationUpdateUI()
 
         // hide all floaters except the mini map
 
-#if 0 // Use this once all floaters are registered
-        std::set<std::string> exceptions;
-        exceptions.insert("mini_map");
-        LLFloaterReg::hideVisibleInstances(exceptions);
-#else // Use this for now
         LLFloaterView::skip_list_t skip_list;
         skip_list.insert(LLFloaterReg::findInstance("mini_map"));
         skip_list.insert(LLFloaterReg::findInstance("beacons"));
         gFloaterView->pushVisibleAll(false, skip_list);
-#endif
 
         if( gMorphView )
         {
@@ -3751,7 +3739,6 @@ void LLAgent::processAgentDataUpdate(LLMessageSystem *msg, void **)
     LLUUID active_id;
     msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_ActiveGroupID, active_id);
 
-
     if(active_id.notNull())
     {
         gAgent.mGroupID = active_id;
@@ -3990,24 +3977,6 @@ bool LLAgent::teleportCore(bool is_local)
     {
         gAgentAvatarp->getOffObject();
     }
-
-#if 0
-    // This should not exist. It has been added, removed, added, and now removed again.
-    // This change needs to come from the simulator. Otherwise, the agent ends up out of
-    // sync with other viewers. Discuss in DEV-14145/VWR-6744 before reenabling.
-
-    // Stop all animation before actual teleporting
-        if (isAgentAvatarValid())
-    {
-        for ( LLVOAvatar::AnimIterator anim_it= gAgentAvatarp->mPlayingAnimations.begin();
-              anim_it != gAgentAvatarp->mPlayingAnimations.end();
-              ++anim_it)
-               {
-                       gAgentAvatarp->stopMotion(anim_it->first);
-               }
-               gAgentAvatarp->processAnimationStateChanges();
-       }
-#endif
 
     // Don't call LLFirstUse::useTeleport because we don't know
     // yet if the teleport will succeed.  Look in
@@ -4612,7 +4581,6 @@ void LLAgent::fidget()
             {
                 LLAgent::stopFidget();
 
-
                 switch(mCurrentFidget)
                 {
                 case 0:
@@ -4787,7 +4755,6 @@ void LLAgent::updateAgentUserInfoCoro(std::string capurl, std::string directory_
     httpOpts->setFollowRedirects(true);
     LLSD body(LLSDMap
         ("dir_visibility",  LLSD::String(directory_visibility)));
-
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, capurl, body, httpOpts, httpHeaders);
 

@@ -62,7 +62,6 @@ const F32 LLViewerPartSim::PART_ADAPT_RATE_MULT = 2.0f;
 const F32 LLViewerPartSim::PART_THROTTLE_RESCALE = PART_THROTTLE_THRESHOLD / (1.0f-PART_THROTTLE_THRESHOLD);
 const F32 LLViewerPartSim::PART_ADAPT_RATE_MULT_RECIP = 1.0f/PART_ADAPT_RATE_MULT;
 
-
 U32 LLViewerPart::sNextPartID = 1;
 
 F32 calc_desired_size(LLViewerCamera* camera, LLVector3 pos, LLVector2 scale)
@@ -125,13 +124,11 @@ void LLViewerPart::init(LLPointer<LLViewerPartSource> sourcep, LLViewerTexture *
     mImagep = imagep;
 }
 
-
 /////////////////////////////
 //
 // LLViewerPartGroup implementation
 //
 //
-
 
 LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 box_side, bool hud)
  : mHud(hud)
@@ -246,7 +243,6 @@ bool LLViewerPartGroup::posInGroup(const LLVector3 &pos, const F32 desired_size)
     return true;
 }
 
-
 bool LLViewerPartGroup::addPart(LLViewerPart* part, F32 desired_size)
 {
     if (part->mFlags & LLPartData::LL_PART_HUD && !mHud)
@@ -271,7 +267,6 @@ bool LLViewerPartGroup::addPart(LLViewerPart* part, F32 desired_size)
     LLViewerPartSim::incPartCount(1);
     return true;
 }
-
 
 void LLViewerPartGroup::updateParticles(const F32 lastdt)
 {
@@ -333,7 +328,6 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
             part->mVelocity += step*delta_pos;
         }
 
-
         if (part->mFlags & LLPartData::LL_PART_TARGET_LINEAR_MASK)
         {
             LLVector3 delta_pos = part->mPartSourcep->mTargetPosAgent - part->mPartSourcep->mPosAgent;
@@ -361,7 +355,6 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
                 part->mVelocity.mV[VZ] *= -0.75f;
             }
         }
-
 
         // Reset the offset from the source position
         if (part->mFlags & LLPartData::LL_PART_FOLLOW_SRC_MASK)
@@ -394,7 +387,6 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 
         // Set the last update time to now.
         part->mLastUpdateTime = cur_time;
-
 
         // Kill dead particles (either flagged dead, or too old)
         if ((part->mLastUpdateTime > part->mMaxAge) || (LLViewerPart::LL_PART_DEAD_MASK == part->mFlags))
@@ -440,7 +432,6 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 
     LLViewerPartSim::checkParticleCount() ;
 }
-
 
 void LLViewerPartGroup::shift(const LLVector3 &offset)
 {
@@ -568,17 +559,12 @@ void LLViewerPartSim::addPart(LLViewerPart* part)
     }
 }
 
-
 LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 {
     const F32 MAX_MAG = 1000000.f*1000000.f; // 1 million
     LLViewerPartGroup *return_group = NULL ;
     if (part->mPosAgent.magVecSquared() > MAX_MAG || !part->mPosAgent.isFinite())
     {
-#if 0 && !LL_RELEASE_FOR_DOWNLOAD
-        LL_WARNS() << "LLViewerPartSim::put Part out of range!" << LL_ENDL;
-        LL_WARNS() << part->mPosAgent << LL_ENDL;
-#endif
     }
     else
     {
@@ -634,7 +620,6 @@ LLViewerPartGroup *LLViewerPartSim::createViewerPartGroup(const LLVector3 &pos_a
     mViewerPartGroups.push_back(groupp);
     return groupp;
 }
-
 
 void LLViewerPartSim::shift(const LLVector3 &offset)
 {

@@ -41,7 +41,6 @@ class LLMutex ;
 #define LL_CHECK_MEMORY
 #endif
 
-
 #if LL_WINDOWS
 #define LL_ALIGN_OF __alignof
 #else
@@ -55,7 +54,6 @@ class LLMutex ;
 #elif LL_LINUX
 #define LL_DEFAULT_HEAP_ALIGN 8
 #endif
-
 
 LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 
@@ -127,17 +125,11 @@ public:                                     \
         ll_aligned_free_16(ptr);            \
     }
 
-
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
     // for enable buffer overrun detection predefine LL_DEBUG_BUFFER_OVERRUN in current library
     // change preprocessor code to: #if 1 && defined(LL_WINDOWS)
 
-#if 0 && defined(LL_WINDOWS)
-    void* ll_aligned_malloc_fallback( size_t size, int align );
-    void ll_aligned_free_fallback( void* ptr );
-//------------------------------------------------------------------------------------------------
-#else
     inline void* ll_aligned_malloc_fallback( size_t size, size_t align )
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
@@ -172,7 +164,6 @@ public:                                     \
         }
     #endif
     }
-#endif
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
 
@@ -448,8 +439,5 @@ private:
 // LLSafeHandle moved to llsafehandle.h
 
 // LLSingleton moved to llsingleton.h
-
-
-
 
 #endif

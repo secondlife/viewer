@@ -248,7 +248,6 @@ public:
     void* mContext = nullptr;
 };
 
-
 static LLGLWorkerThread* sVBOThread[THREAD_COUNT];
 static GLWorkQueue* sQueue = nullptr;
 
@@ -316,7 +315,6 @@ static void delete_buffers(S32 count, GLuint* buffers)
         }
     }
 }
-
 
 #define ANALYZE_VBO_POOL 0
 
@@ -566,15 +564,6 @@ public:
             }
         }
 
-#if 0
-        LL_INFOS() << llformat("(%d/%d)/%d MB (distributed/allocated)/total in VBO Pool. Overhead: %d percent. Hit rate: %d percent",
-            mDistributed / 1000000,
-            mAllocated / 1000000,
-            (mAllocated + mReserved) / 1000000, // total bytes
-            ((mAllocated+mReserved-mDistributed)*100)/llmax(mDistributed, (U64) 1), // overhead percent
-            (mHits*100)/llmax(mMisses+mHits, (U32)1)) // hit rate percent
-            << LL_ENDL;
-#endif
     }
 
     void clear()
@@ -681,7 +670,6 @@ U32 LLVertexBuffer::sGLRenderBuffer = 0;
 U32 LLVertexBuffer::sGLRenderIndices = 0;
 U32 LLVertexBuffer::sLastMask = 0;
 U32 LLVertexBuffer::sVertexCount = 0;
-
 
 //NOTE: each component must be AT LEAST 4 bytes in size to avoid a performance penalty on AMD hardware
 const U32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
@@ -834,48 +822,6 @@ bool LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
         LL_ERRS() << "Bad index buffer draw range: [" << indices_offset << ", " << indices_offset+count << "]" << LL_ENDL;
     }
 
-    {
-#if 0  // not a reliable test for VBOs that are not backed by a CPU buffer
-        U16* idx = (U16*) mMappedIndexData+indices_offset;
-        for (U32 i = 0; i < count; ++i)
-        {
-            llassert(idx[i] >= start);
-            llassert(idx[i] <= end);
-
-            if (idx[i] < start || idx[i] > end)
-            {
-                LL_ERRS() << "Index out of range: " << idx[i] << " not in [" << start << ", " << end << "]" << LL_ENDL;
-            }
-        }
-
-        LLVector4a* v = (LLVector4a*)mMappedData;
-
-        for (U32 i = start; i <= end; ++i)
-        {
-            if (!v[i].isFinite3())
-            {
-                LL_ERRS() << "Non-finite vertex position data detected." << LL_ENDL;
-            }
-        }
-
-        LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-
-        if (shader && shader->mFeatures.mIndexedTextureChannels > 1)
-        {
-            LLVector4a* v = (LLVector4a*) mMappedData;
-
-            for (U32 i = start; i < end; i++)
-            {
-                U32 idx = (U32) (v[i][3]+0.25f);
-                if (idx >= (U32)shader->mFeatures.mIndexedTextureChannels)
-                {
-                    LL_ERRS() << "Bad texture index found in vertex data stream." << LL_ENDL;
-                }
-            }
-        }
-#endif
-    }
-
     return true;
 }
 
@@ -915,12 +861,10 @@ void LLVertexBuffer::drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 
         (GLvoid*)(indices_offset * (size_t)mIndicesStride));
 }
 
-
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
     drawRange(mode, 0, mNumVerts-1, count, indices_offset);
 }
-
 
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
@@ -1270,7 +1214,6 @@ bool expand_region(LLVertexBuffer::MappedRegion& region, U32 start, U32 end)
     return true;
 }
 
-
 // Map for data access
 U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 index, S32 count)
 {
@@ -1307,7 +1250,6 @@ U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 inde
     }
     return mMappedData+mOffsets[type]+sTypeSize[type]*index;
 }
-
 
 U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 {
@@ -1646,7 +1588,6 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 in
 
 //----------------------------------------------------------------------------
 
-
 // Set for rendering
 void LLVertexBuffer::setBuffer()
 {
@@ -1693,7 +1634,6 @@ void LLVertexBuffer::setBuffer()
 
     STOP_GLERROR;
 }
-
 
 // virtual (default)
 void LLVertexBuffer::setupVertexBuffer()
@@ -1908,7 +1848,4 @@ void LLVertexBuffer::setIndexData(const U32* data, U32 offset, U32 count)
     }
     flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data, mMappedIndexData);
 }
-
-
-
 

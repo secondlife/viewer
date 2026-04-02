@@ -42,24 +42,5 @@ private:
     std::list<LLViewerMediaEventEmitter *> mEmitters;
 };
 
-
-#if 0
-    // Classes that inherit from LLViewerMediaObserver should add this to their class declaration:
-
-    // inherited from LLViewerMediaObserver
-    /*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
-
-    /* and will probably need to add this to their cpp file:
-
-    #include "llpluginclassmedia.h"
-
-    */
-
-    // The list of events is in llpluginclassmediaowner.h
-
-
-#endif
-
-
 #endif // LLVIEWERMEDIAOBSERVER_H
 

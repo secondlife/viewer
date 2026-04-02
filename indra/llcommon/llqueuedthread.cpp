@@ -382,21 +382,6 @@ bool LLQueuedThread::completeRequest(handle_t handle)
 
 bool LLQueuedThread::check()
 {
-#if 0 // not a reliable check once mNextHandle wraps, just for quick and dirty debugging
-    for (int i=0; i<REQUEST_HASH_SIZE; i++)
-    {
-        LLSimpleHashEntry<handle_t>* entry = mRequestHash.get_element_at_index(i);
-        while (entry)
-        {
-            if (entry->getHashKey() > mNextHandle)
-            {
-                LL_ERRS() << "Hash Error" << LL_ENDL;
-                return false;
-            }
-            entry = entry->getNextEntry();
-        }
-    }
-#endif
     return true;
 }
 
@@ -469,24 +454,6 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
 
                 llassert(!mDataLock->isSelfLocked());
 
-#if 0
-                // try again on next frame
-                // NOTE: tried using "post" with a time in the future, but this
-                // would invariably cause this thread to wait for a long time (10+ ms)
-                // while work is pending
-                bool ret = LL::WorkQueue::postMaybe(
-                    mMainQueue,
-                    [=]()
-                    {
-                        LL_PROFILE_ZONE_NAMED("processRequest - retry");
-                        mRequestQueue.post([=]()
-                            {
-                                LL_PROFILE_ZONE_NAMED("processRequest - retry"); // <-- not redundant, track retry on both queues
-                                processRequest(req);
-                            });
-                    });
-                llassert(ret);
-#else
                 using namespace std::chrono_literals;
                 auto retry_time = LL::WorkQueue::TimePoint::clock::now() + 16ms;
                 mRequestQueue.post([=, this]
@@ -503,7 +470,6 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
                         }
                         processRequest(req);
                     });
-#endif
 
             }
         }
@@ -530,7 +496,6 @@ void LLQueuedThread::run()
     startThread();
     mStarted = true;
 
-
     /*while (1)
     {
         LL_PROFILE_ZONE_SCOPED;
@@ -555,7 +520,6 @@ void LLQueuedThread::run()
 
     endThread();
     LL_INFOS() << "LLQueuedThread " << mName << " EXITING." << LL_ENDL;
-
 
 }
 

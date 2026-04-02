@@ -50,7 +50,7 @@ class LLQuaternion;
 // "operate to the left".
 
 
-static const U32 NUM_VALUES_IN_MAT3 = 3;
+static constexpr U32 NUM_VALUES_IN_MAT3 = 3;
 class LLMatrix3
 {
     public:

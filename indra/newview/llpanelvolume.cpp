@@ -85,7 +85,6 @@
 
 #include <boost/bind.hpp>
 
-
 const F32 DEFAULT_GRAVITY_MULTIPLIER = 1.f;
 const F32 DEFAULT_DENSITY = 1000.f;
 
@@ -226,7 +225,6 @@ LLPanelVolume::LLPanelVolume()
     mCommitCallbackRegistrar.add("PanelVolume.menuDoToSelected", boost::bind(&LLPanelVolume::menuDoToSelected, this, _2));
     mEnableCallbackRegistrar.add("PanelVolume.menuEnable", boost::bind(&LLPanelVolume::menuEnableItem, this, _2));
 }
-
 
 LLPanelVolume::~LLPanelVolume()
 {
@@ -427,7 +425,6 @@ void LLPanelVolume::getState( )
             volume_type = "Sphere";
         }
 
-
         std::string update_type = "Static";
 
         if (volobjp->getReflectionProbeIsDynamic() && !volobjp->getReflectionProbeIsMirror())
@@ -458,18 +455,6 @@ void LLPanelVolume::getState( )
     if (root_volobjp && root_volobjp == volobjp)
     {
         enabled_animated_object_box = single_root_volume && root_volobjp && root_volobjp->canBeAnimatedObject() && editable;
-#if 0
-        if (!enabled_animated_object_box)
-        {
-            LL_INFOS() << "not enabled: srv " << single_root_volume << " root_volobjp " << (bool) root_volobjp << LL_ENDL;
-            if (root_volobjp)
-            {
-                LL_INFOS() << " cba " << root_volobjp->canBeAnimatedObject()
-                           << " editable " << editable << " permModify() " << root_volobjp->permModify()
-                           << " ispermenf " << root_volobjp->isPermanentEnforced() << LL_ENDL;
-            }
-        }
-#endif
         if (enabled_animated_object_box && !is_animated_mesh &&
             root_volobjp->isAttachment() && !gAgentAvatarp->canAttachMoreAnimatedObjects())
         {
@@ -686,7 +671,6 @@ bool LLPanelVolume::precommitValidate( const LLSD& data )
     return true; // false means that validation failed and new value should not be commited.
 }
 
-
 void LLPanelVolume::refresh()
 {
     getState();
@@ -719,7 +703,6 @@ void LLPanelVolume::refresh()
 
     /* TODO: add/remove individual physics shape types as per the PhysicsShapeTypes simulator features */
 }
-
 
 void LLPanelVolume::draw()
 {
@@ -996,7 +979,6 @@ void LLPanelVolume::onLightSelectColor(const LLSD& data)
     }
     LLVOVolume *volobjp = (LLVOVolume *)objectp;
 
-
     LLColorSwatchCtrl*  LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
     if(LightColorSwatch)
     {
@@ -1014,7 +996,6 @@ void LLPanelVolume::onLightSelectTexture(const LLSD& data)
         return;
     }
     LLVOVolume *volobjp = (LLVOVolume *) mObject.get();
-
 
     LLTextureCtrl*  LightTextureCtrl = getChild<LLTextureCtrl>("light texture control");
     if(LightTextureCtrl)
@@ -1385,7 +1366,6 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
     }
     LLVOVolume *volobjp = (LLVOVolume *)objectp;
 
-
     volobjp->setLightIntensity((F32)self->getChild<LLUICtrl>("Light Intensity")->getValue().asReal());
     volobjp->setLightRadius((F32)self->getChild<LLUICtrl>("Light Radius")->getValue().asReal());
     volobjp->setLightFalloff((F32)self->getChild<LLUICtrl>("Light Falloff")->getValue().asReal());
@@ -1434,7 +1414,6 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
             //self->getChildView("Light Ambiance")->setEnabled(false);
         }
     }
-
 
 }
 
@@ -1573,7 +1552,6 @@ void LLPanelVolume::onCommitFlexible( LLUICtrl* ctrl, void* userdata )
     {
         LLFlexibleObjectData new_attributes;
         new_attributes = *attributes;
-
 
         new_attributes.setSimulateLOD(self->getChild<LLUICtrl>("FlexNumSections")->getValue().asInteger());//(S32)self->mSpinSections->get());
         new_attributes.setGravity((F32)self->getChild<LLUICtrl>("FlexGravity")->getValue().asReal());

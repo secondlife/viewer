@@ -63,7 +63,6 @@
 #include <map>
 #include <cstring>
 
-
 //
 // Globals
 //
@@ -114,7 +113,6 @@ LLWorld::LLWorld() :
     LLViewerRegion::sVOCacheCullingEnabled = gSavedSettings.getBOOL("RequestFullRegionCache") && gSavedSettings.getBOOL("ObjectCacheEnabled");
 }
 
-
 void LLWorld::resetClass()
 {
     mHoleWaterObjects.clear();
@@ -139,7 +137,6 @@ void LLWorld::resetClass()
 
     LLSceneMonitor::deleteSingleton();
 }
-
 
 LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 {
@@ -211,7 +208,6 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
     mActiveRegionList.push_back(regionp);
     mCulledRegionList.push_back(regionp);
 
-
     // Find all the adjacent regions, and attach them.
     // Generate handles for all of the adjacent regions, and attach them in the correct way.
     // connect the edges
@@ -246,7 +242,6 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 
     return regionp;
 }
-
 
 void LLWorld::removeRegion(const LLHost &host)
 {
@@ -305,7 +300,6 @@ void LLWorld::removeRegion(const LLHost &host)
     delete regionp; // Delete last to prevent use after free
 }
 
-
 LLViewerRegion* LLWorld::getRegion(const LLHost &host)
 {
     for (region_list_t::iterator iter = mRegionList.begin();
@@ -338,7 +332,6 @@ LLViewerRegion* LLWorld::getRegionFromPosGlobal(const LLVector3d &pos)
     }
     return NULL;
 }
-
 
 LLVector3d  LLWorld::clipToVisibleRegions(const LLVector3d &start_pos, const LLVector3d &end_pos)
 {
@@ -439,16 +432,7 @@ LLViewerRegion* LLWorld::getRegionFromID(const LLUUID& region_id)
 
 void LLWorld::updateAgentOffset(const LLVector3d &offset_global)
 {
-#if 0
-    for (region_list_t::iterator iter = mRegionList.begin();
-         iter != mRegionList.end(); ++iter)
-    {
-        LLViewerRegion* regionp = *iter;
-        regionp->setAgentOffset(offset_global);
-    }
-#endif
 }
-
 
 bool LLWorld::positionRegionValidGlobal(const LLVector3d &pos_global)
 {
@@ -464,7 +448,6 @@ bool LLWorld::positionRegionValidGlobal(const LLVector3d &pos_global)
     return false;
 }
 
-
 // Allow objects to go up to their radius underground.
 F32 LLWorld::getMinAllowedZ(LLViewerObject* object, const LLVector3d &global_pos)
 {
@@ -472,8 +455,6 @@ F32 LLWorld::getMinAllowedZ(LLViewerObject* object, const LLVector3d &global_pos
     F32 radius = 0.5f * object->getScale().length();
     return land_height - radius;
 }
-
-
 
 LLViewerRegion* LLWorld::resolveRegionGlobal(LLVector3 &pos_region, const LLVector3d &pos_global)
 {
@@ -487,7 +468,6 @@ LLViewerRegion* LLWorld::resolveRegionGlobal(LLVector3 &pos_region, const LLVect
 
     return NULL;
 }
-
 
 LLViewerRegion* LLWorld::resolveRegionAgent(LLVector3 &pos_region, const LLVector3 &pos_agent)
 {
@@ -503,13 +483,11 @@ LLViewerRegion* LLWorld::resolveRegionAgent(LLVector3 &pos_region, const LLVecto
     return NULL;
 }
 
-
 F32 LLWorld::resolveLandHeightAgent(const LLVector3 &pos_agent)
 {
     LLVector3d pos_global = gAgent.getPosGlobalFromAgent(pos_agent);
     return resolveLandHeightGlobal(pos_global);
 }
-
 
 F32 LLWorld::resolveLandHeightGlobal(const LLVector3d &pos_global)
 {
@@ -520,7 +498,6 @@ F32 LLWorld::resolveLandHeightGlobal(const LLVector3d &pos_global)
     }
     return 0.0f;
 }
-
 
 // Takes a line defined by "point_a" and "point_b" and determines the closest (to point_a)
 // point where the the line intersects an object or the land surface.  Stores the results
@@ -592,7 +569,6 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
     return normalized_land_distance;
 }
 
-
 LLSurfacePatch * LLWorld::resolveLandPatchGlobal(const LLVector3d &pos_global)
 {
     //  returns a pointer to the patch at this location
@@ -605,7 +581,6 @@ LLSurfacePatch * LLWorld::resolveLandPatchGlobal(const LLVector3d &pos_global)
     return regionp->getLand().resolvePatchGlobal(pos_global);
 }
 
-
 LLVector3 LLWorld::resolveLandNormalGlobal(const LLVector3d &pos_global)
 {
     LLViewerRegion *regionp = getRegionFromPosGlobal(pos_global);
@@ -616,7 +591,6 @@ LLVector3 LLWorld::resolveLandNormalGlobal(const LLVector3d &pos_global)
 
     return regionp->getLand().resolveNormalGlobal(pos_global);
 }
-
 
 void LLWorld::updateVisibilities()
 {
@@ -777,7 +751,6 @@ void LLWorld::renderPropertyLines()
     }
 }
 
-
 void LLWorld::updateNetStats()
 {
     F64Bits bits;
@@ -817,7 +790,6 @@ void LLWorld::updateNetStats()
     mLastPacketsOut = gMessageSystem->mPacketsOut;
     mLastPacketsLost = gMessageSystem->mDroppedPackets;
 }
-
 
 void LLWorld::printPacketsLost()
 {
@@ -1038,7 +1010,6 @@ void LLWorld::updateWaterObjects()
     }
 }
 
-
 void LLWorld::shiftRegions(const LLVector3& offset)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
@@ -1214,7 +1185,6 @@ void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
     mesgsys->disableCircuit(host);
 }
 
-
 void process_region_handshake(LLMessageSystem* msg, void** user_data)
 {
     LLHost host = msg->getSender();
@@ -1228,7 +1198,6 @@ void process_region_handshake(LLMessageSystem* msg, void** user_data)
 
     regionp->unpackRegionHandshake();
 }
-
 
 void send_agent_pause()
 {
@@ -1263,7 +1232,6 @@ void send_agent_pause()
     LLViewerStats::instance().getRecording().stop();
 }
 
-
 void send_agent_resume()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
@@ -1282,7 +1250,6 @@ void send_agent_resume()
 
     gAgentPauseSerialNum++;
     gMessageSystem->addU32Fast(_PREHASH_SerialNum, gAgentPauseSerialNum);
-
 
     for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
          iter != LLWorld::getInstance()->getRegionList().end(); ++iter)

@@ -256,24 +256,12 @@ void preProbeSample(vec3 pos)
 bool intersect(const Ray &ray) const
 {
         float t0, t1; // solutions for t if the ray intersects
-#if 0
-        // geometric solution
-        Vec3f L = center - orig;
-        float tca = L.dotProduct(dir);
-        // if (tca < 0) return false;
-        float d2 = L.dotProduct(L) - tca * tca;
-        if (d2 > radius2) return false;
-        float thc = sqrt(radius2 - d2);
-        t0 = tca - thc;
-        t1 = tca + thc;
-#else
         // analytic solution
         Vec3f L = orig - center;
         float a = dir.dotProduct(dir);
         float b = 2 * dir.dotProduct(L);
         float c = L.dotProduct(L) - radius2;
         if (!solveQuadratic(a, b, c, t0, t1)) return false;
-#endif
         if (t0 > t1) std::swap(t0, t1);
 
         if (t0 < 0) {
@@ -409,7 +397,6 @@ void debugBoxCol(vec3 ro, vec3 rd, float t, vec3 p, inout vec4 col)
     v -= ro;
     vec3 pos = p - ro;
 
-
     bool behind = dot(v,v) > dot(pos,pos);
 
     float w = 0.25;
@@ -451,7 +438,6 @@ void boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, inout vec4 col)
     }
 }
 
-
 void boxIntersectDebug(vec3 origin, vec3 pos, mat4 i, inout vec4 col)
 {
     mat4 clipToLocal = i;
@@ -462,7 +448,6 @@ void boxIntersectDebug(vec3 origin, vec3 pos, mat4 i, inout vec4 col)
 
     boxIntersectionDebug(origin, pos, vec3(1), col);
 }
-
 
 // get the weight of a sphere probe
 //  pos - position to be weighted
@@ -731,8 +716,6 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 
 #endif
 
-
-
 void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit)
 {
@@ -762,7 +745,6 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
         {
             tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, glossiness);
         }
-
 
         glossenv = mix(glossenv, ssr.rgb, ssr.a);
     }
@@ -827,14 +809,6 @@ vec4 sampleReflectionProbesDebug(vec3 pos)
     {
         debugTapRefMap(pos, dir, d, i, col);
     }
-
-#if 0 //debug getStartIndex
-    col.g = float(getStartIndex(pos));
-
-    col.g /= 255.0;
-    col.rb = vec2(0);
-    col.a = 1.0;
-#endif
 
     return col;
 }

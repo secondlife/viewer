@@ -350,15 +350,9 @@ inline F32 LLColor3::normVec()
 
 inline void LLColor3::exp()
 {
-#if 0
-    mV[VRED] = ::exp(mV[VRED]);
-    mV[VGREEN] = ::exp(mV[VGREEN]);
-    mV[VBLUE] = ::exp(mV[VBLUE]);
-#else
     mV[VRED]   = (F32)LL_FAST_EXP(mV[VRED]);
     mV[VGREEN] = (F32)LL_FAST_EXP(mV[VGREEN]);
     mV[VBLUE]  = (F32)LL_FAST_EXP(mV[VBLUE]);
-#endif
 }
 
 inline LLColor3 operator+(const LLColor3& a, const LLColor3& b)

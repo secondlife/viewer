@@ -51,7 +51,7 @@ namespace LLTrace
     class AccumulatorBuffer : public LLRefCount
     {
         typedef AccumulatorBuffer<ACCUMULATOR> self_t;
-        static const S32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 32;
+        static constexpr S32 DEFAULT_ACCUMULATOR_BUFFER_SIZE = 32;
     private:
         struct StaticAllocationMarker { };
 

@@ -207,7 +207,6 @@ private:
     bool mNew;
 };
 
-
 LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
     : LLViewerObject(id, pcode, regionp),
       mVolumeImpl(NULL)
@@ -307,7 +306,6 @@ void LLVOVolume::markDead()
 
     LLViewerObject::markDead();
 }
-
 
 // static
 void LLVOVolume::initClass()
@@ -897,8 +895,6 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
     {
         updateSculptTexture();
 
-
-
         if (mSculptTexture.notNull())
         {
             mSculptTexture->setForSculpt() ;
@@ -1070,7 +1066,6 @@ void LLVOVolume::unregisterOldMeshAndSkin()
         }
     }
 }
-
 
 bool LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bool unique_volume)
 {
@@ -1535,7 +1530,6 @@ bool LLVOVolume::calcLOD()
 
         distance = avatar->mDrawable->mDistanceWRTCamera;
 
-
         if (avatar->isControlAvatar())
         {
             // MAINT-7926 Handle volumes in an animated object as a special case
@@ -1606,7 +1600,6 @@ bool LLVOVolume::calcLOD()
         distance *= distance;
         distance *= rampDist;
     }
-
 
     distance *= F_PI/3.f;
 
@@ -1992,7 +1985,6 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
                                 LLVector4(z_axis, 0.f),
                                 LLVector4(delta_pos, 1.f));
 
-
         // compute inverse transpose for normals
         // mRelativeXformInvTrans.setRows(x_axis, y_axis, z_axis);
         // mRelativeXformInvTrans.invert();
@@ -2005,7 +1997,6 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
         scale_inverse.setRows(LLVector3(1.0, 0.0, 0.0) / delta_scale.mV[VX],
                               LLVector3(0.0, 1.0, 0.0) / delta_scale.mV[VY],
                               LLVector3(0.0, 0.0, 1.0) / delta_scale.mV[VZ]);
-
 
         mRelativeXformInvTrans = rot_inverse * scale_inverse;
 
@@ -2043,7 +2034,6 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
         scale_inverse.setRows(LLVector3(1.0, 0.0, 0.0) / scale.mV[VX],
                               LLVector3(0.0, 1.0, 0.0) / scale.mV[VY],
                               LLVector3(0.0, 0.0, 1.0) / scale.mV[VZ]);
-
 
         mRelativeXformInvTrans = rot_inverse * scale_inverse;
 
@@ -2292,7 +2282,6 @@ void LLVOVolume::setNumTEs(const U8 num_tes)
     return ;
 }
 
-
 //virtual
 void LLVOVolume::changeTEImage(S32 index, LLViewerTexture* imagep)
 {
@@ -2534,7 +2523,6 @@ S32 LLVOVolume::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* mat)
 
     return retval;
 }
-
 
 S32 LLVOVolume::setTEScale(const U8 te, const F32 s, const F32 t)
 {
@@ -3304,7 +3292,6 @@ const LLUUID& LLVOVolume::getLightTextureID() const
     return LLUUID::null;
 }
 
-
 const LLVector3& LLVOVolume::getSpotLightParams() const
 {
     const LLLightImageParams *param_block = getLightImageParams();
@@ -3347,7 +3334,6 @@ void LLVOVolume::updateSpotLightPriority()
     }
 }
 
-
 bool LLVOVolume::isLightSpotlight() const
 {
     const LLLightImageParams* params = getLightImageParams();
@@ -3357,7 +3343,6 @@ bool LLVOVolume::isLightSpotlight() const
     }
     return false;
 }
-
 
 LLViewerTexture* LLVOVolume::getLightTexture()
 {
@@ -4019,7 +4004,6 @@ void LLVOVolume::updateRadius()
     mDrawable->setRadius(mVObjRadius);
 }
 
-
 bool LLVOVolume::isAttachment() const
 {
     return mAttachmentState != 0 ;
@@ -4033,7 +4017,6 @@ bool LLVOVolume::isHUDAttachment() const
     S32 attachment_id = ATTACHMENT_ID_FROM_STATE(mAttachmentState);
     return ( attachment_id >= 31 && attachment_id <= 38 );
 }
-
 
 const LLMatrix4 LLVOVolume::getRenderMatrix() const
 {
@@ -4101,7 +4084,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
     static const U32 ARC_LIGHT_COST = 500; // static cost for light-producing prims
     static const U32 ARC_MEDIA_FACE_COST = 1500; // static cost per media-enabled face
 
-
     // per-prim multipliers
     static const F32 ARC_GLOW_MULT = 1.5f; // tested based on performance
     static const F32 ARC_BUMP_MULT = 1.25f; // tested based on performance
@@ -4150,7 +4132,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
             num_triangles = (U32)costs.getRadiusWeightedTris(radius);
         }
     }
-
 
     if (num_triangles <= 0)
     {
@@ -4298,7 +4279,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
         shame *= shiny * ARC_SHINY_MULT;
     }
 
-
     // multiply shame by multipliers
     if (weighted_mesh)
     {
@@ -4309,7 +4289,6 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
     {
         shame *= flexi * ARC_FLEXI_MULT;
     }
-
 
     // add additional costs
     if (particles)
@@ -4720,7 +4699,6 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
     return ret;
 }
 
-
 bool LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32 *face_hitp,
                                       LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 
@@ -5041,7 +5019,6 @@ void LLRiggedVolume::update(
             }
         }
     }
-
 
     //build matrix palette
     static const size_t kMaxJoints = LL_MAX_JOINTS_PER_MESH_OBJECT;
@@ -5709,9 +5686,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
     //Determine if we've received skininfo that contains an
     //alternate bind matrix - if it does then apply the translational component
     //to the joints of the avatar.
-#if 0
-    bool pelvisGotSet = false;
-#endif
 
     {
         LL_PROFILE_ZONE_NAMED("rebuildGeom - face list");
@@ -6899,7 +6873,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
                         }
                     }
                 }
-
 
                 if (!gPipeline.shadersLoaded() &&
                     !is_alpha &&

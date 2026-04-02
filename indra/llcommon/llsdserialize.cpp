@@ -54,9 +54,9 @@
 #include "lluri.h"
 
 // File constants
-static const size_t MAX_HDR_LEN = 20;
-static const S32 UNZIP_LLSD_MAX_DEPTH = 96;
-static const char LEGACY_NON_HEADER[] = "<llsd>";
+static constexpr size_t MAX_HDR_LEN = 20;
+static constexpr S32 UNZIP_LLSD_MAX_DEPTH = 96;
+static constexpr char LEGACY_NON_HEADER[] = "<llsd>";
 const std::string LLSD_BINARY_HEADER("LLSD/Binary");
 const std::string LLSD_XML_HEADER("LLSD/XML");
 const std::string LLSD_NOTATION_HEADER("llsd/notation");
@@ -371,8 +371,8 @@ void serialize_string(const std::string& value, std::ostream& str);
 static const std::string NOTATION_TRUE_SERIAL("true");
 static const std::string NOTATION_FALSE_SERIAL("false");
 
-static const char BINARY_TRUE_SERIAL = '1';
-static const char BINARY_FALSE_SERIAL = '0';
+static constexpr char BINARY_TRUE_SERIAL = '1';
+static constexpr char BINARY_FALSE_SERIAL = '0';
 
 
 /**

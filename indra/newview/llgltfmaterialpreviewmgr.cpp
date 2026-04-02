@@ -221,7 +221,6 @@ void LLGLTFPreviewTexture::preRender(bool clear_depth)
     LLViewerDynamicTexture::preRender(clear_depth);
 }
 
-
 namespace {
 
 struct GLTFPreviewModel
@@ -489,13 +488,6 @@ bool LLGLTFPreviewTexture::render()
     // *HACK: Force reset of the model matrix
     gGLLastMatrix = nullptr;
 
-#if 0
-    if (mGLTFMaterial->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_OPAQUE || mGLTFMaterial->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
-    {
-        // *TODO: Opaque/alpha mask rendering
-    }
-    else
-#endif
     {
         // Alpha blend rendering
 

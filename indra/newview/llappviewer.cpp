@@ -340,7 +340,6 @@ LLTimer gLogoutTimer;
 static const F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
 F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 
-
 S32 gPendingMetricsUploads = 0;
 
 // Used to restore texture state after a mode switch
@@ -729,7 +728,6 @@ public:
     }
 };
 
-
 bool LLAppViewer::init()
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -1089,7 +1087,6 @@ bool LLAppViewer::init()
     }
 #endif
 
-
     // save the graphics card
     gDebugInfo["GraphicsCard"] = LLFeatureManager::getInstance()->getGPUString();
 
@@ -1303,7 +1300,6 @@ void LLAppViewer::initMaxHeapSize()
 
     LLMemory::initMaxHeapSizeGB(max_heap_size_gb);
 }
-
 
 // externally visible timers
 LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
@@ -1798,9 +1794,6 @@ bool LLAppViewer::cleanup()
     LLKeyframeDataCache::clear();
 
     // End TransferManager before deleting systems it depends on (Audio, AssetStorage)
-#if 0 // this seems to get us stuck in an infinite loop...
-    gTransferManager.cleanup();
-#endif
 
     // Note: this is where gWorldMap used to be deleted.
 
@@ -2350,7 +2343,6 @@ void LLAppViewer::initLoggingAndGetLastDuration()
     //LLError::setTimeFunction(getRuntime);
 
     LLError::LLUserWarningMsg::setHandler(errorHandler);
-
 
     if (mSecondInstance)
     {
@@ -4613,7 +4605,6 @@ bool finish_forced_disconnect(const LLSD& notification, const LLSD& response)
     return false;
 }
 
-
 void LLAppViewer::forceDisconnect(const std::string& mesg)
 {
     if (gDoDisconnect)
@@ -4798,7 +4789,6 @@ void LLAppViewer::saveNameCache()
     }
 }
 
-
 /*! @brief      This class is an LLFrameTimer that can be created with
                 an elapsed time that starts counting up from the given value
                 rather than 0.0.
@@ -4922,7 +4912,6 @@ void LLAppViewer::idle()
         gGLActive = false;
     }
 
-
     F32 yaw = 0.f;              // radians
 
     if (!gDisconnected)
@@ -4930,7 +4919,6 @@ void LLAppViewer::idle()
         LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("network"); //LL_RECORD_BLOCK_TIME(FTM_NETWORK);
         // Update spaceserver timeinfo
         LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + LLUnits::Seconds::fromValue(dt_raw));
-
 
         //////////////////////////////////////
         //
@@ -5012,7 +5000,6 @@ void LLAppViewer::idle()
         idleNameCache();
         idleNetwork();
 
-
         // Check for away from keyboard, kick idle agents.
         idle_afk_check();
 
@@ -5052,7 +5039,6 @@ void LLAppViewer::idle()
             report_interval.reset();
         }
     }
-
 
     // Update layonts, handle mouse events, tooltips, e t c
     // updateUI() needs to be called even in case viewer disconected
@@ -5560,7 +5546,6 @@ void LLAppViewer::idleNameCache()
 // Handle messages, and all message related stuff
 //
 
-
 constexpr F32 CHECK_MESSAGES_DEFAULT_MAX_TIME = 0.020f; // 50 ms = 50 fps (just for messages!)
 static F32 CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
 
@@ -5940,7 +5925,6 @@ void LLAppViewer::pingMainloopTimeout(std::string_view state)
         mMainloopTimeout->ping(state);
     }
 }
-
 
 F32 LLAppViewer::getMainloopTimeoutSec() const
 {

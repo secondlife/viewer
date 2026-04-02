@@ -165,7 +165,6 @@ public:
 
     //@}
 
-
     //////////////////////////
     /// @name LLVoiceP2POutgoingCallInterface
     //@{
@@ -273,7 +272,6 @@ protected:
 
     friend class LLVivoxVoiceClientMuteListObserver;
     friend class LLVivoxVoiceClientFriendsObserver;
-
 
     enum streamState
     {
@@ -410,8 +408,6 @@ protected:
     // Private Member Functions
     //////////////////////////////////////////////////////
 
-
-
     //////////////////////////////
     /// @name TVC/Server management and communication
     //@{
@@ -437,7 +433,6 @@ protected:
     void loginSendMessage();
     void logout();
     void logoutSendMessage();
-
 
     //@}
 
@@ -506,7 +501,6 @@ protected:
 
     void setEarLocation(S32 loc);
 
-
     /////////////////////////////
     // Accessors for data related to nearby speakers
 
@@ -527,17 +521,6 @@ protected:
     void filePlaybackSetMode(bool vox = false, float speed = 1.0f);
 
     participantStatePtr_t findParticipantByID(const LLUUID& id);
-
-
-#if 0
-    ////////////////////////////////////////
-    // voice sessions.
-    typedef std::set<sessionStatePtr_t> sessionSet;
-
-    typedef sessionSet::iterator sessionIterator;
-    sessionIterator sessionsBegin(void);
-    sessionIterator sessionsEnd(void);
-#endif
 
     sessionStatePtr_t findSession(const std::string &handle);
     sessionStatePtr_t findSessionBeingCreatedByURI(const std::string &uri);
@@ -561,7 +544,6 @@ protected:
 
     // Returns true if the session seems to indicate we've moved to a region on a different voice server
     bool sessionNeedsRelog(const sessionStatePtr_t &session);
-
 
     //////////////////////////////////////
     // buddy list stuff, needed for SLIM later
@@ -599,8 +581,6 @@ protected:
     void sessionMediaDisconnectSendMessage(const sessionStatePtr_t &session);
     // void sessionTextDisconnectSendMessage(sessionState *session);
 
-
-
     // Pokes the state machine to leave the audio session next time around.
     void sessionTerminate();
 
@@ -611,7 +591,6 @@ protected:
     void leaveAudioSession();
 
     friend class LLVivoxVoiceClientCapResponder;
-
 
     void lookupName(const LLUUID &id);
     void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
@@ -726,9 +705,6 @@ private:
     int mLoginRetryCount;
 
     sessionMap mSessionsByHandle;               // Active sessions, indexed by session handle.  Sessions which are being initiated may not be in this map.
-#if 0
-    sessionSet mSessions;                       // All sessions, not indexed.  This is the canonical session list.
-#endif
 
     bool mBuddyListMapPopulated;
     bool mBlockRulesListReceived;
@@ -768,14 +744,7 @@ private:
     void buildSetCaptureDevice(std::ostringstream &stream);
     void buildSetRenderDevice(std::ostringstream &stream);
 
-
     void sendFriendsListUpdates();
-
-#if 0
-    // start a text IM session with the specified user
-    // This will be asynchronous, the session may be established at a future time.
-    sessionStatePtr_t startUserIMSession(const LLUUID& uuid);
-#endif
 
     void enforceTether(void);
 
@@ -897,7 +866,6 @@ private:
 
     LLFrameTimer    mVoiceFontExpiryTimer;
 
-
     // Audio capture buffer
 
     void captureBufferRecordStartSendMessage();
@@ -930,7 +898,6 @@ private:
 
     LLEventMailDrop mVivoxPump;
 };
-
 
 /**
  * @class LLVivoxProtocolParser

@@ -268,7 +268,6 @@ private:
     S32 mRawDiscardLevel;
 };
 
-
 //virtual
 void LLTextureCacheWorker::startWork(S32 param)
 {
@@ -291,46 +290,7 @@ bool LLTextureCacheRemoteWorker::doRead()
     // First state / stage : find out if the file is local
     if (mState == INIT)
     {
-#if 0
-        std::string filename = mCache->getLocalFileName(mID);
-        // Is it a JPEG2000 file?
-        {
-            local_filename = filename + ".j2c";
-            local_size = LLAPRFile::size(local_filename, mCache->getLocalAPRFilePool());
-            if (local_size > 0)
-            {
-                mImageFormat = IMG_CODEC_J2C;
-            }
-        }
-        // If not, is it a jpeg file?
-        if (local_size == 0)
-        {
-            local_filename = filename + ".jpg";
-            local_size = LLAPRFile::size(local_filename, mCache->getLocalAPRFilePool());
-            if (local_size > 0)
-            {
-                mImageFormat = IMG_CODEC_JPEG;
-                mDataSize = local_size; // Only a complete .jpg file is valid
-            }
-        }
-        // Hmm... What about a targa file? (used for UI texture mostly)
-        if (local_size == 0)
-        {
-            local_filename = filename + ".tga";
-            local_size = LLAPRFile::size(local_filename, mCache->getLocalAPRFilePool());
-            if (local_size > 0)
-            {
-                mImageFormat = IMG_CODEC_TGA;
-                mDataSize = local_size; // Only a complete .tga file is valid
-            }
-        }
-        // Determine the next stage: if we found a file, then LOCAL else CACHE
-        mState = (local_size > 0 ? LOCAL : CACHE);
-
-        llassert_always(mState == CACHE) ;
-#else
         mState = CACHE;
-#endif
     }
 
     // Second state / stage : if the file is local, load it and leave
@@ -612,7 +572,6 @@ bool LLTextureCacheRemoteWorker::doWrite()
             }
         }
     }
-
 
     // Third stage / state : write the header record in the header file (texture.cache)
     if (!done && (mState == HEADER))
@@ -1968,7 +1927,6 @@ LLTextureCache::handle_t LLTextureCache::readFromCache(const LLUUID& id,
     mReaders[handle] = worker;
     return handle;
 }
-
 
 bool LLTextureCache::readComplete(handle_t handle, bool abort)
 {

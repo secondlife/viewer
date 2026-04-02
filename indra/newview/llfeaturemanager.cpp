@@ -67,8 +67,6 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
 const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
 #endif
 
-#if 0                               // consuming code in #if 0 below
-#endif
 LLFeatureInfo::LLFeatureInfo(const std::string& name, const bool available, const F32 level)
     : mValid(true), mName(name), mAvailable(available), mRecommendedLevel(level)
 {
@@ -277,7 +275,6 @@ bool LLFeatureManager::loadFeatureTables()
 
     return parse_ok;
 }
-
 
 bool LLFeatureManager::parseFeatureTable(std::string filename)
 {
@@ -812,8 +809,6 @@ LLSD LLFeatureManager::getRecommendedSettingsMap()
     map["RenderQualityPerformance"]["Comment"] = ctrl->getComment();;
     map["RenderQualityPerformance"]["Persist"] = 1;
     map["RenderQualityPerformance"]["Type"] = LLControlGroup::typeEnumToString(ctrl->type());
-
-
 
     for (feature_map_t::iterator mIt = mFeatures.begin(); mIt != mFeatures.end(); ++mIt)
     {

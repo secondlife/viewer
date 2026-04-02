@@ -254,16 +254,6 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
 
 void LLGLTFMaterialList::queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data)
 {
-#if 0
-    override_list_t& overrides = mQueuedOverrides[id];
-
-    if (overrides.size() < side + 1)
-    {
-        overrides.resize(side + 1);
-    }
-
-    overrides[side] = override_data;
-#endif
 }
 
 void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
@@ -272,57 +262,12 @@ void LLGLTFMaterialList::applyQueuedOverrides(LLViewerObject* obj)
 
     llassert(obj);
 
-#if 0
-    const LLUUID& id = obj->getID();
-    auto iter = mQueuedOverrides.find(id);
-
-    if (iter != mQueuedOverrides.end())
-    {
-        override_list_t& overrides = iter->second;
-        for (int i = 0; i < overrides.size(); ++i)
-        {
-            if (overrides[i].notNull())
-            {
-                if (!obj->getTE(i))
-                { // object is incomplete
-                    return;
-                }
-
-                if (!obj->getTE(i)->getGLTFMaterial())
-                {
-                    // doesn't have its base GLTF material yet, don't apply override(yet)
-                    return;
-                }
-
-                S32 status = obj->setTEGLTFMaterialOverride(i, overrides[i]);
-                if (status == TEM_CHANGE_NONE)
-                {
-                    // can't apply this yet, since failure to change the material override
-                    // probably means the base material is still being fetched.  leave in
-                    // the queue for later
-                    //obj->setDebugText("early out 3");
-                    return;
-                }
-
-                if (obj->getTE(i)->isSelected())
-                {
-                    handle_gltf_override_message.doSelectionCallbacks(id, i);
-                }
-                // success!
-                overrides[i] = nullptr;
-            }
-        }
-
-        mQueuedOverrides.erase(iter);
-    }
-#else
     // the override cache is the authoritarian source of the most recent override data
     LLViewerRegion* regionp = obj->getRegion();
     if (regionp)
     {
         regionp->applyCacheMiscExtras(obj);
     }
-#endif
 }
 
 void LLGLTFMaterialList::queueModify(const LLViewerObject* obj, S32 side, const LLGLTFMaterial* mat)
@@ -486,12 +431,6 @@ void LLGLTFMaterialList::flushUpdatesOnce(std::shared_ptr<CallbackHolder> callba
         ++i;
         sApplyQueue.pop_front();
     }
-
-#if 0 // debug output of data being sent to capability
-    std::stringstream str;
-    LLSDSerialize::serialize(data, str, LLSDSerialize::LLSD_NOTATION, LLSDFormatter::OPTIONS_PRETTY);
-    LL_INFOS() << "\n" << str.str() << LL_ENDL;
-#endif
 
     if (sUpdates.size() > 0)
     {

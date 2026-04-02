@@ -40,7 +40,7 @@ namespace LLPredicate
     {
     public:
         typedef U32 predicate_flag_t;
-        static const S32 cMaxEnum = 5;
+        static constexpr S32 cMaxEnum = 5;
 
         Value(ENUM e, bool predicate_value = true)
         :   mPredicateFlags(predicate_value ? cPredicateFlagsFromEnum[e] : ~cPredicateFlagsFromEnum[e])

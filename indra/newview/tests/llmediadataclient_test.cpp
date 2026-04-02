@@ -106,41 +106,6 @@ const char *DATA = _DATA(VALID_OBJECT_ID,"1.0","true");
 
 LLSD *gPostRecords = NULL;
 F64   gMinimumInterestLevel = (F64)0.0;
-#if 0
-// stubs:
-void LLHTTPClient::post(
-        const std::string& url,
-        const LLSD& body,
-        LLHTTPClient::ResponderPtr responder,
-        const LLSD& headers,
-        const F32 timeout)
-{
-    LLSD record;
-    record["url"] = url;
-    record["body"] = body;
-    record["headers"] = headers;
-    record["timeout"] = timeout;
-    gPostRecords->append(record);
-
-    // Magic URL that triggers a 503:
-    LLSD result;
-    result[LLTextureEntry::OBJECT_ID_KEY] = body[LLTextureEntry::OBJECT_ID_KEY];
-    if ( url == FAKE_OBJECT_MEDIA_CAP_URL_503 )
-    {
-        LLSD content;
-        content["reason"] = "fake reason";
-        responder->failureResult(HTTP_SERVICE_UNAVAILABLE, "fake reason", content);
-        return;
-    }
-    else if (url == FAKE_OBJECT_MEDIA_NAVIGATE_CAP_URL_ERROR)
-    {
-        LLSD error;
-        error["code"] = LLObjectMediaNavigateClient::ERROR_PERMISSION_DENIED_CODE;
-        result["error"] = error;
-    }
-    responder->successResult(result);
-}
-#endif
 
 const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
 
@@ -691,7 +656,6 @@ namespace tut
         ensure("refcount of o4", o4->getNumRefs(), 1);
     }
 
-
     template<> template<>
     void mediadataclient_object_t::test<10>()
     {
@@ -789,7 +753,6 @@ namespace tut
         ensure("refcount of o3", o3->getNumRefs(), 1);
         ensure("refcount of o4", o4->getNumRefs(), 1);
     }
-
 
     template<> template<>
     void mediadataclient_object_t::test<11>()

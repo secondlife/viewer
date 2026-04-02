@@ -49,7 +49,6 @@ LLShaderMgr::LLShaderMgr()
 {
 }
 
-
 LLShaderMgr::~LLShaderMgr()
 {
 }
@@ -478,7 +477,6 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         return 0;
     }
 
-
     //read in from file
     LLFILE* file = NULL;
 
@@ -487,24 +485,6 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
     std::string open_file_name;
 
-#if 0  // WIP -- try to come up with a way to fallback to an error shader without needing debug stubs all over the place in the shader tree
-    if (shader_level == -1)
-    {
-        // use "error" fallback
-        if (type == GL_VERTEX_SHADER)
-        {
-            open_file_name = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "shaders/errorV.glsl");
-        }
-        else
-        {
-            llassert(type == GL_FRAGMENT_SHADER);  // type must be vertex or fragment shader
-            open_file_name = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "shaders/errorF.glsl");
-        }
-
-        file = LLFile::fopen(open_file_name, "r");
-    }
-    else
-#endif
     {
         //find the most relevant file
         for (gpu_class = try_gpu_class; gpu_class > 0; gpu_class--)
@@ -558,7 +538,6 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     GLchar *shader_code_text[4096 + LL_ARRAY_SIZE(extra_code_text)] = { NULL };
     GLuint extra_code_count = 0, shader_code_count = 0;
     BOOST_STATIC_ASSERT(LL_ARRAY_SIZE(extra_code_text) < LL_ARRAY_SIZE(shader_code_text));
-
 
     S32 major_version = gGLManager.mGLSLVersionMajor;
     S32 minor_version = gGLManager.mGLSLVersionMinor;
@@ -698,7 +677,6 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
         extra_code_text[extra_code_count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
         extra_code_text[extra_code_count++] = strdup("{\n");
-
 
         if (texture_index_channels == 1)
         { //don't use flow control, that's silly
@@ -1350,7 +1328,6 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("box_center");
     mReservedUniforms.push_back("box_size");
 
-
     mReservedUniforms.push_back("minLuminance");
     mReservedUniforms.push_back("maxExtractAlpha");
     mReservedUniforms.push_back("lumWeights");
@@ -1361,7 +1338,6 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("glowNoiseMap");
 
     llassert(mReservedUniforms.size() == LLShaderMgr::GLOW_NOISE_MAP+1);
-
 
     mReservedUniforms.push_back("minimum_alpha");
     mReservedUniforms.push_back("emissive_brightness");

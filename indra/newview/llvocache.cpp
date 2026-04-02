@@ -419,7 +419,6 @@ void LLVOCacheEntry::recordHit()
     mHitCount++;
 }
 
-
 void LLVOCacheEntry::dump() const
 {
     LL_INFOS() << "local " << mLocalID
@@ -538,55 +537,7 @@ extern bool gCubeSnapshot;
 
 bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVector4a& local_camera_origin, F32 dist_threshold)
 {
-#if 0
-    // this is ill-conceived and should be removed pending QA
-    // In the name of saving memory, we evict objects that are still within view distance from memory
-    // This results in constant paging of objects in and out of memory, leading to poor performance
-    // and many unacceptable visual glitches when rotating the camera
-
-    // Honestly, the entire VOCache partition system needs to be removed since it doubles the overhead of
-    // the spatial partition system and is redundant to the object cache, but this is a start
-    //  - davep 2024.06.07
-
-    LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
-    if(!group)
-    {
-        return false;
-    }
-
-    //any visible
-    bool vis = group->isAnyRecentlyVisible();
-
-    //not ready to remove
-    if(!vis)
-    {
-        S32 cur_vis = llmax(group->getAnyVisible(), (S32)getVisible());
-        vis = (cur_vis + (S32)sMinFrameRange > LLViewerOctreeEntryData::getCurrentFrame());
-    }
-
-    //within the back sphere
-    if(!vis && !mParentID && !group->isOcclusionState(LLOcclusionCullingGroup::OCCLUDED))
-    {
-        LLVector4a lookAt;
-
-        if(mBSphereRadius > 0.f)
-        {
-            lookAt.setSub(mBSphereCenter, local_camera_origin);
-            dist_threshold += mBSphereRadius;
-        }
-        else
-        {
-            lookAt.setSub(getPositionGroup(), camera_origin);
-            dist_threshold += getBinRadius();
-        }
-
-        vis = (lookAt.dot3(lookAt).getF32() < dist_threshold * dist_threshold);
-    }
-
-    return vis;
-#else
     return true;
-#endif
 }
 
 void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update, F32 max_dist)
@@ -819,30 +770,22 @@ public:
 
     virtual S32 frustumCheck(const LLViewerOctreeGroup* group)
     {
-#if 0
-        S32 res = AABBInRegionFrustumGroupBounds(group);
-#else
         S32 res = AABBInRegionFrustumNoFarClipGroupBounds(group);
         if (res != 0)
         {
             res = llmin(res, AABBRegionSphereIntersectGroupExtents(group, mLocalShift));
         }
-#endif
 
         return res;
     }
 
     virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group)
     {
-#if 0
-        S32 res = AABBInRegionFrustumObjectBounds(group);
-#else
         S32 res = AABBInRegionFrustumNoFarClipObjectBounds(group);
         if (res != 0)
         {
             res = llmin(res, AABBRegionSphereIntersectObjectExtents(group, mLocalShift));
         }
-#endif
 
         if(res != 0)
         {
@@ -1148,7 +1091,6 @@ const U32 MIN_ENTRIES_TO_PURGE = 16 ;
 const U32 INVALID_TIME = 0 ;
 const char* object_cache_dirname = "objectcache";
 const char* header_filename = "object.cache";
-
 
 LLVOCache::LLVOCache(bool read_only) :
     mInitialized(false),
@@ -1485,7 +1427,6 @@ void LLVOCache::writeCacheHeader()
 
         //write the meta element
         success = check_write(&apr_file, &mMetaInfo, sizeof(HeaderMetaInfo)) ;
-
 
         mNumEntries = 0 ;
         for(header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ; success && iter != mHeaderEntryQueue.end(); ++iter)

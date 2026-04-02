@@ -511,22 +511,6 @@ void LLControlAvatar::updateDebugText()
                                   mScaleConstraintFixup));
         }
 
-#if 0
-        std::string region_name = "no region";
-        if (mRootVolp->getRegion())
-        {
-            region_name = mRootVolp->getRegion()->getName();
-        }
-        std::string skel_region_name = "skel no region";
-        if (getRegion())
-        {
-            skel_region_name = getRegion()->getName();
-        }
-        addDebugText(llformat("region %x %s skel %x %s",
-                              mRootVolp->getRegion(), region_name.c_str(),
-                              getRegion(), skel_region_name.c_str()));
-#endif
-
     }
     LLVOAvatar::updateDebugText();
 }

@@ -283,47 +283,6 @@ static int warnif(const std::string& desc, const std::string& filename, int rc, 
             LL_WARNS("LLFile") << "Couldn't " << desc << " '" << filename
                                << "' (errno " << errn << "): " << strerr(errn) << LL_ENDL;
         }
-#if 0 && LL_WINDOWS                 // turn on to debug file-locking problems
-        // If the problem is "Permission denied," maybe it's because another
-        // process has the file open. Try to find out.
-        if (errn == EACCES)         // *not* EPERM
-        {
-            // Only do any of this stuff (before LL_ENDL) if it will be logged.
-            LL_DEBUGS("LLFile") << empty;
-            // would be nice to use LLDir for this, but dependency goes the
-            // wrong way
-            const char* TEMP = LLFile::tmpdir();
-            if (! (TEMP && *TEMP))
-            {
-                LL_CONT << "No $TEMP, not running 'handle'";
-            }
-            else
-            {
-                std::string tf(TEMP);
-                tf += "\\handle.tmp";
-                // http://technet.microsoft.com/en-us/sysinternals/bb896655
-                std::string cmd(STRINGIZE("handle \"" << filename
-                                          // "openfiles /query /v | fgrep -i \"" << filename
-                                          << "\" > \"" << tf << '"'));
-                LL_CONT << cmd;
-                if (system(cmd.c_str()) != 0)
-                {
-                    LL_CONT << "\nDownload 'handle.exe' from http://technet.microsoft.com/en-us/sysinternals/bb896655";
-                }
-                else
-                {
-                    std::ifstream inf(tf);
-                    std::string line;
-                    while (std::getline(inf, line))
-                    {
-                        LL_CONT << '\n' << line;
-                    }
-                }
-                LLFile::remove(tf);
-            }
-            LL_CONT << LL_ENDL;
-        }
-#endif  // LL_WINDOWS hack to identify processes holding file open
     }
     return rc;
 }
@@ -607,9 +566,7 @@ void llifstream::open(const std::string& _Filename, ios_base::openmode _Mode)
                         _Mode | ios_base::in);
 }
 
-
 /************** output file stream ********************************/
-
 
 llofstream::llofstream() {}
 

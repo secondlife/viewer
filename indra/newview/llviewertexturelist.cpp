@@ -106,7 +106,6 @@ void LLViewerTextureList::init()
     doPreloadImages();
 }
 
-
 void LLViewerTextureList::doPreloadImages()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -785,7 +784,6 @@ void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image, ETexListTy
     new_image->setTextureListType(tex_type);
 }
 
-
 void LLViewerTextureList::deleteImage(LLViewerFetchedTexture *image)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -803,7 +801,6 @@ void LLViewerTextureList::deleteImage(LLViewerFetchedTexture *image)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
@@ -1015,16 +1012,6 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
         imagep->addTextureStats(max_vsize);
     }
-
-#if 0
-    imagep->setDebugText(llformat("%d/%d - %d/%d -- %d/%d",
-        (S32)sqrtf(max_vsize),
-        (S32)sqrtf(imagep->mMaxVirtualSize),
-        imagep->getDiscardLevel(),
-        imagep->getDesiredDiscardLevel(),
-        imagep->getWidth(),
-        imagep->getFullWidth()));
-#endif
 
     // make sure to addTextureStats for any spotlights that are using this texture
     for (S32 vi = 0; vi < imagep->getNumVolumes(LLRender::LIGHT_TEX); ++vi)
@@ -1543,7 +1530,6 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
         compressedImage->setReversible(true);
     }
 
-
     if (gSavedSettings.getBOOL("Jpeg2000AdvancedCompression"))
     {
         // This test option will create jpeg2000 images with precincts for each level, RPCL ordering
@@ -1590,7 +1576,6 @@ void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **
         image->setIsMissingAsset();
     }
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1914,5 +1899,4 @@ bool LLUIImageList::initFromFile()
     }
     return true;
 }
-
 

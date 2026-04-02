@@ -119,13 +119,9 @@ bool _read_file_into_string(std::string& str, const std::string& filename)
     return true;
 }
 
-
-
-
 // See http://www.unicode.org/Public/BETA/CVTUTF-1-2/ConvertUTF.c
 // for the Unicode implementation - this doesn't match because it was written before finding
 // it.
-
 
 std::ostream& operator<<(std::ostream &s, const LLWString &wstr)
 {
@@ -512,14 +508,12 @@ std::string utf8str_trim(const std::string& utf8str)
     return wstring_to_utf8str(wstr);
 }
 
-
 std::string utf8str_tolower(const std::string& utf8str)
 {
     LLWString out_str = utf8str_to_wstring(utf8str);
     LLWStringUtil::toLower(out_str);
     return wstring_to_utf8str(out_str);
 }
-
 
 S32 utf8str_compare_insensitive(const std::string& lhs, const std::string& rhs)
 {
@@ -1005,7 +999,6 @@ std::vector<std::string> LLStringOps::sWeekDayShortList;
 std::vector<std::string> LLStringOps::sMonthList;
 std::vector<std::string> LLStringOps::sMonthShortList;
 
-
 std::string LLStringOps::sDayFormat;
 std::string LLStringOps::sAM;
 std::string LLStringOps::sPM;
@@ -1013,14 +1006,8 @@ std::string LLStringOps::sPM;
 // static
 bool LLStringOps::isEmoji(llwchar a)
 {
-#if 0   // Do not consider special characters that might have a corresponding
-        // glyph in the monochorme fallback fonts as a "genuine" emoji. HB
-    return a == 0xa9 || a == 0xae || (a >= 0x2000 && a < 0x3300) ||
-           (a >= 0x1f000 && a < 0x20000);
-#else
     // These are indeed "genuine" emojis, we *do want* rendered as such. HB
     return a >= 0x1f000 && a < 0x20000;
-#endif
     }
 
 S32 LLStringOps::collate(const llwchar* a, const llwchar* b)
@@ -1118,7 +1105,6 @@ void LLStringOps::setupDayFormat(const std::string& data)
     sDayFormat = data;
 }
 
-
 std::string LLStringOps::getDatetimeCode (std::string key)
 {
     std::map<std::string, std::string>::iterator iter;
@@ -1169,7 +1155,6 @@ namespace LLStringFn
             }
         }
     }
-
 
     // NOTE - this restricts output to ascii
     void replace_nonprintable_and_pipe_in_ascii(std::basic_string<char>& str,
@@ -1501,17 +1486,9 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
         }
         else
         {
-#if 0
-            // EXT-1565 : Zai Lynch, James Linden : 15/Oct/09
-            // [BSI] Feedback: Viewer clock mentions SLT, but would prefer it to show PST/PDT
-            // "slt" = Second Life Time, which is deprecated.
-            // If not utc or user local time, fallback to Pacific time
-            replacement = LLStringOps::getPacificDaylightTime() ? "PDT" : "PST";
-#else
             // SL-20370 : Steeltoe Linden : 29/Sep/23
             // Change "PDT" to "SLT" on menu bar
             replacement = "SLT";
-#endif
         }
         return true;
     }
@@ -1585,7 +1562,6 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 // [FOO_123]
 // [FOO,number,precision]
 // [FOO,datetime,format]
-
 
 // static
 template<>
@@ -1775,7 +1751,6 @@ void LLStringUtilBase<T>::testHarness()
     s4 += s4;
     llassert( s4 == "hello again!hello again!" );
 
-
     std::string s6 = s2 + " " + s2;
     std::string s7 = s6;
     llassert( s6 == s7 );
@@ -1817,7 +1792,6 @@ void LLStringUtilBase<T>::testHarness()
     toLower(s9);
     llassert( s9 == "abc123&*(abc"  );
 
-
     std::string s10( 10, 'x' );
     llassert( s10 == "xxxxxxxxxx" );
 
@@ -1832,6 +1806,5 @@ void LLStringUtilBase<T>::testHarness()
     s13 += 'f';
     llassert( s13 == "f" );
 }
-
 
 #endif  // _DEBUG

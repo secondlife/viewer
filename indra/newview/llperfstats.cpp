@@ -175,15 +175,6 @@ namespace LLPerfStats
             // RENDER_MESHREPO,
             StatType_t::RENDER_IDLE };
 
-#if 0
-        static constexpr std::initializer_list<StatType_t> avatarStatsToAvg = {
-            StatType_t::RENDER_GEOMETRY,
-            StatType_t::RENDER_SHADOWS,
-            StatType_t::RENDER_COMBINED,
-            StatType_t::RENDER_IDLE };
-#endif
-
-
         if( /*sceneStats[static_cast<size_t>(StatType_t::RENDER_FPSLIMIT)] != 0 ||*/ sceneStats[static_cast<size_t>(StatType_t::RENDER_SLEEP)] != 0 )
         {
             unreliable = true;
@@ -340,7 +331,6 @@ namespace LLPerfStats
         auto tot_sleep_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_SLEEP);
         // similar to sleep time, induced by FPS limit
         //auto tot_limit_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_FPSLIMIT);
-
 
         // the time spent this frame on the "doFrame" call. Treated as "tot time for frame"
         auto tot_frame_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_FRAME);

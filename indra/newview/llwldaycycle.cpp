@@ -39,57 +39,12 @@ LLWLDayCycle::LLWLDayCycle() : mDayRate(120)
 {
 }
 
-
 LLWLDayCycle::~LLWLDayCycle()
 {
 }
 
 void LLWLDayCycle::loadDayCycle(const LLSD& day_data, LLWLParamKey::EScope scope)
 {
-#if 0
-    LL_DEBUGS() << "Loading day cycle (day_data.size() = " << day_data.size() << ", scope = " << scope << ")" << LL_ENDL;
-    mTimeMap.clear();
-
-    // add each key frame
-    for(S32 i = 0; i < day_data.size(); ++i)
-    {
-        // make sure it's a two array
-        if(day_data[i].size() != 2)
-        {
-            continue;
-        }
-
-        // check each param key exists in param manager
-        bool success;
-        LLWLParamSet pset;
-        LLWLParamKey frame = LLWLParamKey(day_data[i][1].asString(), scope);
-        success =
-            LLWLParamManager::getInstance()->getParamSet(frame, pset);
-        if(!success)
-        {
-            // *HACK: If loading region day cycle, try local sky presets as well.
-            // Local presets may be referenced by a region day cycle after
-            // it has been edited but the changes have not been uploaded.
-            if (scope == LLEnvKey::SCOPE_REGION)
-            {
-                frame.scope = LLEnvKey::SCOPE_LOCAL;
-                success = LLWLParamManager::getInstance()->getParamSet(frame, pset);
-            }
-
-            if (!success)
-            {
-                // alert the user
-                LLSD args;
-                args["SKY"] = day_data[i][1].asString();
-                LLNotifications::instance().add("WLMissingSky", args, LLSD());
-                continue;
-            }
-        }
-
-        // then add the keyframe
-        addKeyframe((F32)day_data[i][0].asReal(), frame);
-    }
-#endif
 }
 
 void LLWLDayCycle::loadDayCycleFromFile(const std::string & fileName)
@@ -198,7 +153,6 @@ void LLWLDayCycle::clearKeyframes()
     mTimeMap.clear();
 }
 
-
 bool LLWLDayCycle::addKeyframe(F32 newTime, LLWLParamKey frame)
 {
     // no adding negative time
@@ -254,7 +208,6 @@ bool LLWLDayCycle::changeKeyframeTime(F32 oldTime, F32 newTime)
 //  mTimeMap[time] = key;
 //  return true;
 // }
-
 
 bool LLWLDayCycle::removeKeyframe(F32 time)
 {
