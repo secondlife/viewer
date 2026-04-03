@@ -92,8 +92,16 @@ public:
         const LLUUID& invoice,
         const sparam_t& strings)
     {
+        // We've gotten a message from the server that indicates our mute list is empty there.
+
+        // First we want to make sure that if we had a cached mute list, we clear it assuming it is outdated.
         LLMuteList* mute_list = LLMuteList::getInstance();
-        mute_list->clearCachedMutes();
+        if(mute_list->mLoadSource == LLMuteList::MLS_FALLBACK_CACHE && !mute_list->getMutes().empty())
+        {
+            LL_WARNS() << "Our current mute list is not empty, but the server says that it should be. Is our cache outdated, or did our mutes get lost?" << LL_ENDL;
+            mute_list->clearCachedMutes();
+        }
+        // Lastly we set the load state to loaded with the source of server empty. We are now in a clean and ready state.
         mute_list->setLoaded(LLMuteList::MLS_SERVER_EMPTY);
         return true;
     }
@@ -237,6 +245,7 @@ void LLMuteList::clearCachedMutes()
 {
     mMutes.clear();
     mLegacyMutes.clear();
+    LL_WARNS() << "Cached mutes cleared" << LL_ENDL;
 }
 
 const char* LLMuteList::sourceToString(EMuteListSource source)
@@ -276,6 +285,7 @@ void LLMuteList::setFailed(const std::string& reason)
     {
         LL_WARNS() << "Mute list unavailable: " << reason << " (last source=" << sourceToString(mLoadSource) << ")" << LL_ENDL;
     }
+    notifyObservers();
 }
 
 bool LLMuteList::tryLoadCacheFallback(const LLUUID& agent_id, const std::string& reason)
@@ -880,7 +890,7 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
     msg->getUUIDFast(_PREHASH_MuteData, _PREHASH_AgentID, agent_id);
     if(agent_id != gAgent.getID())
     {
-        LL_WARNS() << "Got an mute list update for the wrong agent." << LL_ENDL;
+        LL_WARNS() << "Got a mute list update for the wrong agent." << LL_ENDL;
         return;
     }
     std::string unclean_filename;
@@ -986,9 +996,14 @@ void LLMuteList::removeObserver(LLMuteListObserver* observer)
 
 void LLMuteList::setLoaded(EMuteListSource source)
 {
+    if(isLoaded())
+    {
+        LL_WARNS() << "Mute list was already loaded from " << sourceToString(mLoadSource) << ", switching to " << sourceToString(source) << LL_ENDL;
+    }
     mLoadState = ML_LOADED;
     mLoadSource = source;
     notifyObservers();
+    LL_INFOS() << "Mute list loaded from " << sourceToString(source) << LL_ENDL;
 }
 
 void LLMuteList::notifyObservers()
