@@ -145,13 +145,13 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
             // Get the float params: mandatory min, max then the optional parameters (4 max)
             F32 min = (F32)(mFilterData[i][3].asReal());
             F32 max = (F32)(mFilterData[i][4].asReal());
-            F32 params[4] = {0.0, 0.0, 0.0, 0.0};
+            std::array<F32, 4> params = {0.0, 0.0, 0.0, 0.0};
             for (S32 j = 5; (j < mFilterData[i].size()) && (j < 9); j++)
             {
                 params[j-5] = (F32)(mFilterData[i][j].asReal());
             }
             // Set the stencil
-            setStencil(shape,mode,min,max,params);
+            setStencil(shape,mode,min,max,params.data());
         }
         else if (filter_name == "sepia")
         {
@@ -504,7 +504,7 @@ void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const 
     F32 cos = cosf(angle*DEG_TO_RAD);
 
     // Precompute the gamma table : gives us the gray level to use when cutting outside the screen (prevents strong aliasing on the screen)
-    U8 gamma[256];
+    std::array<U8, 256> gamma;
     for (S32 i = 0; i < 256; i++)
     {
         F32 gamma_i = llclampf((float)(powf((float)(i)/255.0f,1.0f/4.0f)));
@@ -750,9 +750,9 @@ void LLImageFilter::filterRotate(F32 angle)
 
 void LLImageFilter::filterGamma(F32 gamma, const LLColor3& alpha)
 {
-    U8 gamma_red_lut[256];
-    U8 gamma_green_lut[256];
-    U8 gamma_blue_lut[256];
+    std::array<U8, 256> gamma_red_lut;
+    std::array<U8, 256> gamma_green_lut;
+    std::array<U8, 256> gamma_blue_lut;
 
     for (S32 i = 0; i < 256; i++)
     {
@@ -763,7 +763,7 @@ void LLImageFilter::filterGamma(F32 gamma, const LLColor3& alpha)
         gamma_blue_lut[i]  = (U8)((1.0f - alpha.mV[2]) * (float)(i) + alpha.mV[2] * 255.0f * gamma_i);
     }
 
-    colorCorrect(gamma_red_lut,gamma_green_lut,gamma_blue_lut);
+    colorCorrect(gamma_red_lut.data(),gamma_green_lut.data(),gamma_blue_lut.data());
 }
 
 void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
@@ -772,7 +772,7 @@ void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
     U32* histo = getBrightnessHistogram();
 
     // Compute cumulated histogram
-    U32 cumulated_histo[256];
+    std::array<U32, 256> cumulated_histo;
     cumulated_histo[0] = histo[0];
     for (S32 i = 1; i < 256; i++)
     {
@@ -798,9 +798,9 @@ void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
     }
 
     // Compute linear lookup table
-    U8 linear_red_lut[256]{};
-    U8 linear_green_lut[256]{};
-    U8 linear_blue_lut[256]{};
+    std::array<U8, 256> linear_red_lut{};
+    std::array<U8, 256> linear_green_lut{};
+    std::array<U8, 256> linear_blue_lut{};
     if (max_v == min_v)
     {
         // Degenerated binary split case
@@ -829,7 +829,7 @@ void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
     }
 
     // Apply lookup table
-    colorCorrect(linear_red_lut,linear_green_lut,linear_blue_lut);
+    colorCorrect(linear_red_lut.data(),linear_green_lut.data(),linear_blue_lut.data());
 }
 
 void LLImageFilter::filterEqualize(S32 nb_classes, const LLColor3& alpha)
@@ -842,7 +842,7 @@ void LLImageFilter::filterEqualize(S32 nb_classes, const LLColor3& alpha)
     U32* histo = getBrightnessHistogram();
 
     // Compute cumulated histogram
-    U32 cumulated_histo[256];
+    std::array<U32, 256> cumulated_histo;
     cumulated_histo[0] = histo[0];
     for (S32 i = 1; i < 256; i++)
     {
@@ -857,9 +857,9 @@ void LLImageFilter::filterEqualize(S32 nb_classes, const LLColor3& alpha)
     U32 current_value = 0;
 
     // Compute equalized lookup table
-    U8 equalize_red_lut[256]{};
-    U8 equalize_green_lut[256]{};
-    U8 equalize_blue_lut[256]{};
+    std::array<U8, 256> equalize_red_lut{};
+    std::array<U8, 256> equalize_green_lut{};
+    std::array<U8, 256> equalize_blue_lut{};
     for (S32 i = 0; i < 256; i++)
     {
         // Blend in current_value with alpha values
@@ -875,14 +875,14 @@ void LLImageFilter::filterEqualize(S32 nb_classes, const LLColor3& alpha)
     }
 
     // Apply lookup table
-    colorCorrect(equalize_red_lut,equalize_green_lut,equalize_blue_lut);
+    colorCorrect(equalize_red_lut.data(),equalize_green_lut.data(),equalize_blue_lut.data());
 }
 
 void LLImageFilter::filterColorize(const LLColor3& color, const LLColor3& alpha)
 {
-    U8 red_lut[256];
-    U8 green_lut[256];
-    U8 blue_lut[256];
+    std::array<U8, 256> red_lut;
+    std::array<U8, 256> green_lut;
+    std::array<U8, 256> blue_lut;
 
     F32 red_composite   =  255.0f * alpha.mV[0] * color.mV[0];
     F32 green_composite =  255.0f * alpha.mV[1] * color.mV[1];
@@ -895,14 +895,14 @@ void LLImageFilter::filterColorize(const LLColor3& color, const LLColor3& alpha)
         blue_lut[i]  = (U8)(llclampb((S32)((1.0f - alpha.mV[2]) * (F32)(i) + blue_composite)));
     }
 
-    colorCorrect(red_lut,green_lut,blue_lut);
+    colorCorrect(red_lut.data(),green_lut.data(),blue_lut.data());
 }
 
 void LLImageFilter::filterContrast(F32 slope, const LLColor3& alpha)
 {
-    U8 contrast_red_lut[256];
-    U8 contrast_green_lut[256];
-    U8 contrast_blue_lut[256];
+    std::array<U8, 256> contrast_red_lut;
+    std::array<U8, 256> contrast_green_lut;
+    std::array<U8, 256> contrast_blue_lut;
 
     F32 translate = 128.0f * (1.0f - slope);
 
@@ -915,14 +915,14 @@ void LLImageFilter::filterContrast(F32 slope, const LLColor3& alpha)
         contrast_blue_lut[i]  = (U8)((1.0f - alpha.mV[2]) * (float)(i) + alpha.mV[2] * value_i);
     }
 
-    colorCorrect(contrast_red_lut,contrast_green_lut,contrast_blue_lut);
+    colorCorrect(contrast_red_lut.data(),contrast_green_lut.data(),contrast_blue_lut.data());
 }
 
 void LLImageFilter::filterBrightness(F32 add, const LLColor3& alpha)
 {
-    U8 brightness_red_lut[256];
-    U8 brightness_green_lut[256];
-    U8 brightness_blue_lut[256];
+    std::array<U8, 256> brightness_red_lut;
+    std::array<U8, 256> brightness_green_lut;
+    std::array<U8, 256> brightness_blue_lut;
 
     S32 add_value = (S32)(add * 255.0f);
 
@@ -935,7 +935,7 @@ void LLImageFilter::filterBrightness(F32 add, const LLColor3& alpha)
         brightness_blue_lut[i]  = (U8)((1.0f - alpha.mV[2]) * (float)(i) + alpha.mV[2] * value_i);
     }
 
-    colorCorrect(brightness_red_lut,brightness_green_lut,brightness_blue_lut);
+    colorCorrect(brightness_red_lut.data(),brightness_green_lut.data(),brightness_blue_lut.data());
 }
 
 //============================================================================

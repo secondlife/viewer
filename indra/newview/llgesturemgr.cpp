@@ -1130,7 +1130,7 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 
         std::vector<char> buffer(size+1);
 
-        file.read((U8*)&buffer[0], size);
+        file.read(std::span{reinterpret_cast<U8*>(&buffer[0]), static_cast<size_t>(size)});
         // ensure there's a trailing NULL so strlen will work.
         buffer[size] = '\0';
 

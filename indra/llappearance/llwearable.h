@@ -32,6 +32,8 @@
 #include "llsaleinfo.h"
 #include "llwearabletype.h"
 
+#include <span>
+
 class LLVisualParam;
 class LLTexGlobalColorInfo;
 class LLTexGlobalColor;
@@ -118,7 +120,7 @@ protected:
     void                destroyTextures();
     void                createVisualParams(LLAvatarAppearance *avatarp);
     void                createLayers(S32 te, LLAvatarAppearance *avatarp);
-    bool                getNextPopulatedLine(std::istream& input_stream, char* buffer, U32 buffer_size);
+    bool                getNextPopulatedLine(std::istream& input_stream, std::span<char> buffer);
 
     static S32          sCurrentDefinitionVersion;  // Depends on the current state of the avatar_lad.xml.
     S32                 mDefinitionVersion;         // Depends on the state of the avatar_lad.xml when this asset was created.

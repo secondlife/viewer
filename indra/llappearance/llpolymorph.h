@@ -57,12 +57,12 @@ public:
 
     // morphology
     U32                 mNumIndices;
-    U32*                mVertexIndices;
+    std::vector<U32>    mVertexIndices;
     U32                 mCurrentIndex;
     LLVector4a*         mCoords;
     LLVector4a*         mNormals;
     LLVector4a*         mBinormals;
-    LLVector2*          mTexCoords;
+    std::vector<LLVector2> mTexCoords;
 
     F32                 mTotalDistortion;   // vertex distortion summed over entire morph
     F32                 mMaxDistortion;     // maximum single vertex distortion in a given morph
@@ -89,7 +89,7 @@ public:
 
 
 protected:
-    F32*        mWeights;
+    std::vector<F32> mWeights;
     LLPolyMorphData *mMorphData;
     bool            mWeightsGenerated;
 

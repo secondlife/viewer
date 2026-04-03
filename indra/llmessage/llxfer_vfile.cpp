@@ -287,7 +287,7 @@ S32 LLXfer_VFile::suck(S32 start_position)
             return -1;
         }
 
-        if (mVFile->read((U8*)mBuffer, LL_MAX_XFER_FILE_BUFFER))        /* Flawfinder : ignore */
+        if (mVFile->read(std::span{reinterpret_cast<U8*>(mBuffer), static_cast<size_t>(LL_MAX_XFER_FILE_BUFFER)}))        /* Flawfinder : ignore */
         {
             mBufferLength = mVFile->getLastBytesRead();
             mBufferStartOffset = start_position;
@@ -316,7 +316,7 @@ S32 LLXfer_VFile::flush()
     {
         LLFileSystem file(mTempID, mType, LLFileSystem::APPEND);
 
-        file.write((U8*)mBuffer, mBufferLength);
+        file.write(std::span{reinterpret_cast<const U8*>(mBuffer), static_cast<size_t>(mBufferLength)});
 
         mBufferLength = 0;
     }

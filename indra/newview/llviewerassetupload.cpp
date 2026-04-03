@@ -555,7 +555,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         U8 copy_buf[buf_size];
         while ((file_size = infile.read(copy_buf, buf_size)))
         {
-            file.write(copy_buf, file_size);
+            file.write(std::span{copy_buf, static_cast<size_t>(file_size)});
         }
     }
     else
@@ -619,7 +619,7 @@ LLSD LLNewBufferedResourceUploadInfo::exportTempFile()
 
     // copy buffer to the cache for upload
     LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
-    file.write((U8*) mBuffer.c_str(), static_cast<S32>(mBuffer.size()));
+    file.write(std::span{reinterpret_cast<const U8*>(mBuffer.c_str()), mBuffer.size()});
 
     return LLSD();
 }
@@ -722,7 +722,7 @@ LLSD LLBufferedAssetUploadInfo::prepareUpload()
     LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
 
     S32 size = static_cast<S32>(mContents.length()) + 1;
-    file.write((U8*)mContents.c_str(), size);
+    file.write(std::span{reinterpret_cast<const U8*>(mContents.c_str()), static_cast<size_t>(size)});
 
     mStoredToCache = true;
 

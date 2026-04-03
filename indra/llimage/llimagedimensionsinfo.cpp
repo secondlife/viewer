@@ -30,6 +30,8 @@
 
 #include "llimagedimensionsinfo.h"
 
+#include <vector>
+
 // Value is true if one of Libjpeg's functions has encountered an error while working.
 static bool sJpegErrorEncountered = false;
 
@@ -219,9 +221,8 @@ bool LLImageDimensionsInfo::checkFileLength(S32 min_len)
 {
     // Make sure the file is not shorter than min_len bytes.
     // so that we don't have to check value returned by each read() or seek().
-    char* buf = new char[min_len];
-    int nread = mInfile.read(buf, min_len);
-    delete[] buf;
+    std::vector<char> buf(min_len);
+    int nread = mInfile.read(buf.data(), min_len);
     mInfile.seek(APR_SET, 0);
     return nread == min_len;
 }

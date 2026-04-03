@@ -251,7 +251,7 @@ void LLJointStateBlender::blendJointStates(bool apply_now)
     const S32 ROT_WEIGHT = 1;
     const S32 SCALE_WEIGHT = 2;
 
-    F32             sum_weights[3];
+    std::array<F32, 3> sum_weights;
     U32             sum_usage = 0;
 
     LLVector3       blended_pos = target_joint->getPosition();

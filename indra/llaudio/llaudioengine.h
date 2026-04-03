@@ -233,7 +233,7 @@ protected:
 
     F32 mMasterGain;
     F32 mInternalGain;          // Actual gain set; either mMasterGain or 0 when mMuted is true.
-    F32 mSecondaryGain[AUDIO_TYPE_COUNT];
+    std::array<F32, AUDIO_TYPE_COUNT> mSecondaryGain;
 
     F32 mNextWindUpdate;
 

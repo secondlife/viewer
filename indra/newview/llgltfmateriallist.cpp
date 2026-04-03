@@ -489,7 +489,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 }
 
                 buffer.resize(size);
-                file.read((U8*)&buffer[0], static_cast<S32>(buffer.size()));
+                file.read(std::span{reinterpret_cast<U8*>(&buffer[0]), buffer.size()});
             }
 
             {

@@ -27,6 +27,8 @@
 #ifndef LL_LLTEXLAYERPARAMS_H
 #define LL_LLTEXLAYERPARAMS_H
 
+#include <array>
+
 #include "llpointer.h"
 #include "v4color.h"
 #include "llviewervisualparam.h"
@@ -194,7 +196,7 @@ public:
 private:
     enum { MAX_COLOR_VALUES = 20 };
     LLTexLayerParamColor::EColorOperation       mOperation;
-    LLColor4            mColors[MAX_COLOR_VALUES];
+    std::array<LLColor4, MAX_COLOR_VALUES> mColors;
     S32                 mNumColors;
 };
 

@@ -619,24 +619,24 @@ attributedStringInfo getSegments(NSAttributedString *str)
         };
 
         int string_length = [aString length];
-        unichar *text = new unichar[string_length];
+        std::vector<unichar> text(string_length);
         attributedStringInfo segments;
         // I used 'respondsToSelector:@selector(string)'
         // to judge aString is an attributed string or not.
         if ([aString respondsToSelector:@selector(string)])
         {
             // aString is attibuted
-            [[aString string] getCharacters:text range:NSMakeRange(0, string_length)];
+            [[aString string] getCharacters:text.data() range:NSMakeRange(0, string_length)];
             segments = getSegments((NSAttributedString *)aString);
         }
         else
         {
             // aString is not attributed
-            [aString getCharacters:text range:NSMakeRange(0, string_length)];
+            [aString getCharacters:text.data() range:NSMakeRange(0, string_length)];
             segments.seg_lengths.push_back(string_length);
             segments.seg_standouts.push_back(true);
         }
-        setMarkedText(text, selected, replacement, string_length, segments);
+        setMarkedText(text.data(), selected, replacement, string_length, segments);
         if (string_length > 0)
         {
             mHasMarkedText = TRUE;
@@ -647,8 +647,6 @@ attributedStringInfo getSegments(NSAttributedString *str)
             // we must clear the marked text when aString is null.
             [self unmarkText];
         }
-
-        delete [] text;
     } else {
         if (mHasMarkedText)
         {

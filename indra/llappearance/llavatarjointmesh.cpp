@@ -153,8 +153,6 @@ LLAvatarJointMesh::LLAvatarJointMesh()
 
     mMesh = NULL;
 
-    mNumSkinJoints = 0;
-    mSkinJoints = NULL;
 
     mFace = NULL;
 
@@ -184,8 +182,7 @@ LLAvatarJointMesh::~LLAvatarJointMesh()
 //-----------------------------------------------------------------------------
 bool LLAvatarJointMesh::allocateSkinData( U32 numSkinJoints )
 {
-    mSkinJoints = new LLSkinJoint[ numSkinJoints ];
-    mNumSkinJoints = numSkinJoints;
+    mSkinJoints.resize(numSkinJoints);
     return true;
 }
 
@@ -194,9 +191,7 @@ bool LLAvatarJointMesh::allocateSkinData( U32 numSkinJoints )
 //-----------------------------------------------------------------------------
 void LLAvatarJointMesh::freeSkinData()
 {
-    mNumSkinJoints = 0;
-    delete [] mSkinJoints;
-    mSkinJoints = NULL;
+    mSkinJoints.clear();
 }
 
 //--------------------------------------------------------------------
@@ -341,7 +336,7 @@ void LLAvatarJointMesh::setupJoint(LLAvatarJoint* current_joint)
 {
     U32 sj;
 
-    for (sj=0; sj<mNumSkinJoints; sj++)
+    for (sj=0; sj<mSkinJoints.size(); sj++)
     {
         LLSkinJoint &js = mSkinJoints[sj];
 

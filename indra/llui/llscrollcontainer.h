@@ -34,6 +34,8 @@
 #include "llcoord.h"
 #include "llscrollbar.h"
 
+#include <array>
+
 
 class LLViewBorder;
 class LLUICtrlFactory;
@@ -137,7 +139,7 @@ private:
     bool autoScroll(S32 x, S32 y, bool do_scroll);
     void calcVisibleSize( S32 *visible_width, S32 *visible_height, bool* show_h_scrollbar, bool* show_v_scrollbar ) const;
 
-    LLScrollbar* mScrollbar[ORIENTATION_COUNT];
+    std::array<LLScrollbar*, ORIENTATION_COUNT> mScrollbar;
     S32         mSize;
     bool        mIsOpaque;
     LLUIColor   mBackgroundColor;

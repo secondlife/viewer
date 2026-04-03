@@ -1000,7 +1000,7 @@ void LLAggregatePermissions::unpackMessage(LLMessageSystem* msg, const char* blo
     mBits[PI_TRANSFER] = bits & TWO_BITS;
 }
 
-const std::string AGGREGATE_VALUES[4] =
+const std::array<std::string, 4> AGGREGATE_VALUES =
     {
         std::string( "Empty" ),
         std::string( "None" ),

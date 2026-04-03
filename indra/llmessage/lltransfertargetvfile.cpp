@@ -149,7 +149,7 @@ LLTSCode LLTransferTargetVFile::dataCallback(const S32 packet_id, U8 *in_datap, 
         return LLTS_OK;
     }
 
-    if (!vf.write(in_datap, in_size))
+    if (!vf.write(std::span{in_datap, static_cast<size_t>(in_size)}))
     {
         LL_WARNS() << "Failure in LLTransferTargetVFile::dataCallback!" << LL_ENDL;
         return LLTS_ERROR;

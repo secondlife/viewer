@@ -27,6 +27,8 @@
 #ifndef LL_LLCATEGORY_H
 #define LL_LLCATEGORY_H
 
+#include <array>
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLCategory
 //
@@ -91,7 +93,7 @@ protected:
         CATEGORY_DEPTH = 4,
     };
 
-    U8 mData[CATEGORY_DEPTH];
+    std::array<U8, CATEGORY_DEPTH> mData;
 };
 
 

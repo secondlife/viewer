@@ -76,12 +76,9 @@ LLPolyMeshSharedData::LLPolyMeshSharedData()
         mHasDetailTexCoords = false;
 
         mNumFaces = 0;
-        mFaces = NULL;
 
         mNumJointNames = 0;
-        mJointNames = NULL;
 
-        mTriangleIndices = NULL;
         mNumTriangleIndices = 0;
 
         mReferenceData = NULL;
@@ -148,15 +145,12 @@ void LLPolyMeshSharedData::freeMeshData()
         }
 
         mNumFaces = 0;
-        delete [] mFaces;
-        mFaces = NULL;
+        mFaces.clear();
 
         mNumJointNames = 0;
-        delete [] mJointNames;
-        mJointNames = NULL;
+        mJointNames.clear();
 
-        delete [] mTriangleIndices;
-        mTriangleIndices = NULL;
+        mTriangleIndices.clear();
 
 //      mVertFaceMap.deleteAllData();
 }
@@ -174,8 +168,7 @@ void LLPolyMeshSharedData::genIndices(S32 index_offset)
                 return;
         }
 
-        delete []mTriangleIndices;
-        mTriangleIndices = new U32[mNumTriangleIndices];
+        mTriangleIndices.resize(mNumTriangleIndices);
 
         S32 cur_index = 0;
         for (S32 i = 0; i < mNumFaces; i++)
@@ -251,7 +244,7 @@ bool LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 //-----------------------------------------------------------------------------
 bool LLPolyMeshSharedData::allocateFaceData( U32 numFaces )
 {
-        mFaces = new LLPolyFace[ numFaces ];
+        mFaces.resize(numFaces);
         mNumFaces = numFaces;
         mNumTriangleIndices = mNumFaces * 3;
         return true;
@@ -262,7 +255,7 @@ bool LLPolyMeshSharedData::allocateFaceData( U32 numFaces )
 //-----------------------------------------------------------------------------
 bool LLPolyMeshSharedData::allocateJointNames( U32 numJointNames )
 {
-        mJointNames = new std::string[ numJointNames ];
+        mJointNames.resize(numJointNames);
         mNumJointNames = numJointNames;
         return true;
 }

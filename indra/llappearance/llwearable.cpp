@@ -26,6 +26,8 @@
 
 #include "linden_common.h"
 
+#include <array>
+
 #include "llavatarappearance.h"
 #include "lllocaltextureobject.h"
 #include "lltexlayer.h"
@@ -226,7 +228,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     }
 
     // read header and version
-    if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
+    if (!getNextPopulatedLine(input_stream, buffer))
     {
         LL_WARNS() << "Failed to read wearable asset input stream." << LL_ENDL;
         return LLWearable::FAILURE;
@@ -271,7 +273,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     mDescription = buffer;
 
     // permissions may have extra empty lines before the correct line
-    if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
+    if (!getNextPopulatedLine(input_stream, buffer))
     {
         LL_WARNS() << "Bad Wearable asset: early end of input stream "
                 << "while reading permissions" << LL_ENDL;
@@ -290,7 +292,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     }
 
     // sale info
-    if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
+    if (!getNextPopulatedLine(input_stream, buffer))
     {
         LL_WARNS() << "Bad Wearable asset: early end of input stream "
                 << "while reading sale info" << LL_ENDL;
@@ -324,7 +326,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     }
 
     // wearable type
-    if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
+    if (!getNextPopulatedLine(input_stream, buffer))
     {
         LL_WARNS() << "Bad Wearable asset: early end of input stream "
                 << "while reading type" << LL_ENDL;
@@ -348,7 +350,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     }
 
     // parameters header
-    if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
+    if (!getNextPopulatedLine(input_stream, buffer))
     {
         LL_WARNS() << "Bad Wearable asset: early end of input stream "
                 << "while reading parameters header" << LL_ENDL;
@@ -379,7 +381,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     S32 i;
     for( i = 0; i < num_parameters; i++ )
     {
-        if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
+        if (!getNextPopulatedLine(input_stream, buffer))
         {
             LL_WARNS() << "Bad Wearable asset: early end of input stream "
                     << "while reading parameter #" << i << LL_ENDL;
@@ -396,7 +398,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     }
 
     // textures header
-    if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
+    if (!getNextPopulatedLine(input_stream, buffer))
     {
         LL_WARNS() << "Bad Wearable asset: early end of input stream "
                 << "while reading textures header" << i << LL_ENDL;
@@ -418,7 +420,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     // textures
     for( i = 0; i < num_textures; i++ )
     {
-        if (!getNextPopulatedLine(input_stream, buffer, PARSE_BUFFER_SIZE))
+        if (!getNextPopulatedLine(input_stream, buffer))
         {
             LL_WARNS() << "Bad Wearable asset: early end of input stream "
                     << "while reading textures #" << i << LL_ENDL;
@@ -469,7 +471,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     return LLWearable::SUCCESS;
 }
 
-bool LLWearable::getNextPopulatedLine(std::istream& input_stream, char* buffer, U32 buffer_size)
+bool LLWearable::getNextPopulatedLine(std::istream& input_stream, std::span<char> buffer)
 {
     if (!input_stream.good())
     {
@@ -478,7 +480,7 @@ bool LLWearable::getNextPopulatedLine(std::istream& input_stream, char* buffer, 
 
     do
     {
-        input_stream.getline(buffer, buffer_size);
+        input_stream.getline(buffer.data(), static_cast<std::streamsize>(buffer.size()));
     }
     while (input_stream.good() && buffer[0]=='\0');
 
@@ -699,8 +701,8 @@ void LLWearable::animateParams(F32 delta)
 LLColor4 LLWearable::getClothesColor(S32 te) const
 {
     LLColor4 color;
-    U32 param_name[3];
-    if( LLAvatarAppearance::teToColorParams( (LLAvatarAppearanceDefines::ETextureIndex)te, param_name ) )
+    std::array<U32, 3> param_name;
+    if( LLAvatarAppearance::teToColorParams( (LLAvatarAppearanceDefines::ETextureIndex)te, param_name.data() ) )
     {
         for( U8 index = 0; index < 3; index++ )
         {
@@ -712,8 +714,8 @@ LLColor4 LLWearable::getClothesColor(S32 te) const
 
 void LLWearable::setClothesColor( S32 te, const LLColor4& new_color)
 {
-    U32 param_name[3];
-    if( LLAvatarAppearance::teToColorParams( (LLAvatarAppearanceDefines::ETextureIndex)te, param_name ) )
+    std::array<U32, 3> param_name;
+    if( LLAvatarAppearance::teToColorParams( (LLAvatarAppearanceDefines::ETextureIndex)te, param_name.data() ) )
     {
         for( U8 index = 0; index < 3; index++ )
         {

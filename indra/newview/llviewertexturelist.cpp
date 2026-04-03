@@ -516,7 +516,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 
 LLImageRaw* LLViewerTextureList::getRawImageFromMemory(const U8* data, U32 size, std::string_view mimetype)
 {
-    LLPointer<LLImageFormatted> image = LLImageFormatted::loadFromMemory(data, size, mimetype);
+    LLPointer<LLImageFormatted> image = LLImageFormatted::loadFromMemory(std::span(data, size), mimetype);
 
     if (image)
     {

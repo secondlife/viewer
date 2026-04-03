@@ -2280,13 +2280,13 @@ LLImageFormatted* LLImageFormatted::createFromMimeType(std::string_view mimetype
 }
 
 // static
-LLImageFormatted* LLImageFormatted::loadFromMemory(const U8* data_in, U32 size, std::string_view mimetype)
+LLImageFormatted* LLImageFormatted::loadFromMemory(std::span<const U8> data_in, std::string_view mimetype)
 {
     LLImageFormatted* image = createFromMimeType(mimetype);
     if (image)
     {
-        U8* data = image->allocateData(size);
-        memcpy(data, data_in, size);
+        U8* data = image->allocateData(static_cast<S32>(data_in.size()));
+        memcpy(data, data_in.data(), data_in.size());
 
         if (!image->updateData())
         {

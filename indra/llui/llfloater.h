@@ -35,6 +35,7 @@
 #include "lltoolbar.h"
 #include "lluuid.h"
 //#include "llnotificationsutil.h"
+#include <array>
 #include <set>
 #include <boost/signals2.hpp>
 
@@ -475,10 +476,10 @@ protected:
     LLSD            mKey;               // Key used for retrieving instances; set (for now) by LLFLoaterReg
 
     LLDragHandle*   mDragHandle;
-    LLResizeBar*    mResizeBar[4];
-    LLResizeHandle* mResizeHandle[4];
+    std::array<LLResizeBar*, 4>    mResizeBar;
+    std::array<LLResizeHandle*, 4> mResizeHandle;
 
-    LLButton*       mButtons[BUTTON_COUNT];
+    std::array<LLButton*, BUTTON_COUNT>       mButtons;
 private:
     LLRect          mExpandedRect;
 
@@ -518,7 +519,7 @@ private:
     handle_set_t    mDependents;
     bool            mTranslateWithDependents { false };
 
-    bool            mButtonsEnabled[BUTTON_COUNT];
+    std::array<bool, BUTTON_COUNT>            mButtonsEnabled;
     F32             mButtonScale;
     bool            mAutoFocus;
     LLHandle<LLFloater> mSnappedTo;

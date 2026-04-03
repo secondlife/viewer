@@ -29,6 +29,8 @@
 
 #include "lltimer.h"
 
+#include <array>
+
 const S32 MAX_THROTTLE_SIZE = 32;
 
 class LLDataPacker;
@@ -83,17 +85,17 @@ public:
     void packThrottle(LLDataPacker &dp) const;
     void unpackThrottle(LLDataPacker &dp);
 public:
-    F32     mThrottleTotal[TC_EOF]; // BPS available, sent by viewer, sum for all simulators
+    std::array<F32, TC_EOF>     mThrottleTotal; // BPS available, sent by viewer, sum for all simulators
 
 protected:
-    F32     mNominalBPS[TC_EOF];    // BPS available, adjusted to be just this simulator
-    F32     mCurrentBPS[TC_EOF];    // BPS available, dynamically adjusted
+    std::array<F32, TC_EOF>     mNominalBPS;    // BPS available, adjusted to be just this simulator
+    std::array<F32, TC_EOF>     mCurrentBPS;    // BPS available, dynamically adjusted
 
-    F32     mBitsAvailable[TC_EOF]; // Bits available to send right now on each channel
-    F32     mBitsSentThisPeriod[TC_EOF];    // Sent in this dynamic allocation period
-    F32     mBitsSentHistory[TC_EOF];       // Sent before this dynamic allocation period, adjusted to one period length
+    std::array<F32, TC_EOF>     mBitsAvailable; // Bits available to send right now on each channel
+    std::array<F32, TC_EOF>     mBitsSentThisPeriod;    // Sent in this dynamic allocation period
+    std::array<F32, TC_EOF>     mBitsSentHistory;       // Sent before this dynamic allocation period, adjusted to one period length
 
-    F64Seconds  mLastSendTime[TC_EOF];      // Time since last send on this channel
+    std::array<F64Seconds, TC_EOF>  mLastSendTime;      // Time since last send on this channel
     F64Seconds  mDynamicAdjustTime; // Only dynamic adjust every 2 seconds or so.
 
 };

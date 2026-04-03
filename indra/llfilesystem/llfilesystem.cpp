@@ -127,7 +127,7 @@ S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType fi
     return 0;
 }
 
-bool LLFileSystem::read(U8* buffer, S32 bytes)
+bool LLFileSystem::read(std::span<U8> buffer)
 {
     bool success = false;
 
@@ -138,11 +138,11 @@ bool LLFileSystem::read(U8* buffer, S32 bytes)
     {
         file.seekg(mPosition, std::ios::beg);
 
-        file.read((char*)buffer, bytes);
+        file.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
 
         if (file)
         {
-            mBytesRead = bytes;
+            mBytesRead = static_cast<S32>(buffer.size());
         }
         else
         {
@@ -171,18 +171,19 @@ bool LLFileSystem::eof() const
     return mPosition >= getSize();
 }
 
-bool LLFileSystem::write(const U8* buffer, S32 bytes)
+bool LLFileSystem::write(std::span<const U8> data)
 {
     const std::string filename = LLDiskCache::metaDataToFilepath(mFileID, mFileType);
 
     bool success = false;
+    const auto bytes = static_cast<S32>(data.size());
 
     if (mMode == APPEND)
     {
         llofstream ofs(filename, std::ios::app | std::ios::binary);
         if (ofs)
         {
-            ofs.write((const char*)buffer, bytes);
+            ofs.write(reinterpret_cast<const char*>(data.data()), data.size());
 
             mPosition = (S32)ofs.tellp();
 
@@ -196,7 +197,7 @@ bool LLFileSystem::write(const U8* buffer, S32 bytes)
         if (ofs)
         {
             ofs.seekp(mPosition, std::ios::beg);
-            ofs.write((const char*)buffer, bytes);
+            ofs.write(reinterpret_cast<const char*>(data.data()), data.size());
             mPosition += bytes;
             success = true;
         }
@@ -206,7 +207,7 @@ bool LLFileSystem::write(const U8* buffer, S32 bytes)
             ofs.open(filename, std::ios::binary);
             if (ofs.is_open())
             {
-                ofs.write((const char*)buffer, bytes);
+                ofs.write(reinterpret_cast<const char*>(data.data()), data.size());
                 mPosition += bytes;
                 success = true;
             }
@@ -217,7 +218,7 @@ bool LLFileSystem::write(const U8* buffer, S32 bytes)
         llofstream ofs(filename, std::ios::binary);
         if (ofs)
         {
-            ofs.write((const char*)buffer, bytes);
+            ofs.write(reinterpret_cast<const char*>(data.data()), data.size());
 
             mPosition += bytes;
 

@@ -37,6 +37,7 @@
  */
 
 #include <list>
+#include <span>
 #include <vector>
 
 class LLMutex;
@@ -213,10 +214,9 @@ public:
     /**
      * @brief Construct a heap buffer of minimum size len, and copy from src.
      *
-     * @param src The source of the data to be copied.
-     * @param len The minimum size of the buffer.
+     * @param src The source data to be copied.
      */
-    LLHeapBuffer(const U8* src, S32 len);
+    explicit LLHeapBuffer(std::span<const U8> src);
 
     /**
      * @brief Simple destruction.

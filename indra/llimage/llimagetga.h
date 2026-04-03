@@ -29,6 +29,8 @@
 
 #include "llimage.h"
 
+#include <array>
+
 // This class compresses and decompressed TGA (targa) files
 
 class LLImageTGA : public LLImageFormatted
@@ -102,7 +104,7 @@ private:
 
     bool    mIs15Bit;
 
-    static const U8 s5to8bits[32];
+    static const std::array<U8, 32> s5to8bits;
 };
 
 #endif

@@ -27,8 +27,10 @@
 #ifndef LL_LLPOLYMESHINTERFACE_H
 #define LL_LLPOLYMESHINTERFACE_H
 
+#include <array>
 #include <string>
 #include <map>
+#include <vector>
 #include "llstl.h"
 
 #include "v3math.h"
@@ -49,7 +51,7 @@ class LLWearable;
 // An LLPolyFace can represent either a triangle or quad.
 // If the last index is -1, it's a triangle.
 //-----------------------------------------------------------------------------
-typedef S32 LLPolyFace[3];
+typedef std::array<S32, 3> LLPolyFace;
 
 //struct PrimitiveGroup;
 
@@ -84,11 +86,11 @@ private:
 
     // face data
     S32                     mNumFaces;
-    LLPolyFace              *mFaces;
+    std::vector<LLPolyFace> mFaces;
 
     // face set data
     U32                     mNumJointNames;
-    std::string*            mJointNames;
+    std::vector<std::string> mJointNames;
 
     // morph targets
     typedef std::set<LLPolyMorphData*> morphdata_list_t;
@@ -103,7 +105,7 @@ public:
     // Temporarily...
     // Triangle indices
     U32             mNumTriangleIndices;
-    U32             *mTriangleIndices;
+    std::vector<U32> mTriangleIndices;
 
 public:
     LLPolyMeshSharedData();
@@ -293,7 +295,7 @@ public:
     // Get faces
     LLPolyFace *getFaces() {
         llassert (mSharedData);
-        return mSharedData->mFaces;
+        return mSharedData->mFaces.data();
     }
 
     U32 getNumJointNames() {
@@ -303,7 +305,7 @@ public:
 
     std::string *getJointNames() {
         llassert (mSharedData);
-        return mSharedData->mJointNames;
+        return mSharedData->mJointNames.data();
     }
 
     LLPolyMorphData*    getMorphData(const std::string& morph_name);
@@ -314,7 +316,7 @@ public:
     LLPolyMesh *getReferenceMesh() { return mReferenceMesh ? mReferenceMesh : this; }
 
     // Get indices
-    U32*    getIndices() { return mSharedData ? mSharedData->mTriangleIndices : NULL; }
+    U32*    getIndices() { return mSharedData && !mSharedData->mTriangleIndices.empty() ? mSharedData->mTriangleIndices.data() : NULL; }
 
     bool    isLOD() { return mSharedData && mSharedData->isLOD(); }
 

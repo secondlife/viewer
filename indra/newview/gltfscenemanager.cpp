@@ -265,7 +265,7 @@ void GLTFSceneManager::uploadSelection()
                         auto& data = mUploadingAsset->mBuffers[idx].mData;
 
                         llassert(data.size() <= size_t(S32_MAX));
-                        cache.write((const U8 *) data.data(), S32(data.size()));
+                        cache.write(std::span{reinterpret_cast<const U8*>(data.data()), data.size()});
                     }
                 };
 #if GLTF_SIM_SUPPORT
@@ -440,7 +440,7 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
             std::string data;
             S32 file_size = file.getSize();
             data.resize(file_size);
-            file.read((U8*)data.data(), file_size);
+            file.read(std::span{reinterpret_cast<U8*>(data.data()), static_cast<size_t>(file_size)});
 
             boost::json::value json = boost::json::parse(data);
 
@@ -524,7 +524,7 @@ void GLTFSceneManager::update()
 
                             LL_INFOS("GLTF") << "Uploaded GLTF json: " << assetId << LL_ENDL;
                             llassert(buffer.size() <= size_t(S32_MAX));
-                            cache.write((const U8 *) buffer.c_str(), S32(buffer.size()));
+                            cache.write(std::span{reinterpret_cast<const U8*>(buffer.c_str()), buffer.size()});
 
                             mUploadingAsset = nullptr;
                         }

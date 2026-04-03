@@ -923,10 +923,10 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
     JointConstraintSharedData *shared_data = constraint->mSharedData;
     if (!shared_data) return;
 
-    LLVector3       positions[MAX_CHAIN_LENGTH];
-    const F32*      joint_lengths = constraint->mJointLengths;
-    LLVector3       velocities[MAX_CHAIN_LENGTH - 1];
-    LLQuaternion    old_rots[MAX_CHAIN_LENGTH];
+    std::array<LLVector3, MAX_CHAIN_LENGTH>       positions;
+    const F32*      joint_lengths = constraint->mJointLengths.data();
+    std::array<LLVector3, MAX_CHAIN_LENGTH - 1>   velocities;
+    std::array<LLQuaternion, MAX_CHAIN_LENGTH>    old_rots;
     S32             joint_num;
 
     if (time < shared_data->mEaseInStartTime)
@@ -1987,7 +1987,7 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                 return false;
             }
 
-            constraintp->mJointStateIndices = new S32[constraintp->mChainLength + 1]; // note: mChainLength is size-limited - comes from a byte
+            constraintp->mJointStateIndices.resize(constraintp->mChainLength + 1); // note: mChainLength is size-limited - comes from a byte
 
             for (S32 i = 0; i < constraintp->mChainLength + 1; i++)
             {
@@ -2452,7 +2452,7 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
                 LLError::LLUserWarningMsg::showOutOfMemory();
                 LL_ERRS() << "Bad memory allocation for buffer of size: " << size << LL_ENDL;
             }
-            file.read((U8*)buffer, size);   /*Flawfinder: ignore*/
+            file.read(std::span{buffer, static_cast<size_t>(size)});   /*Flawfinder: ignore*/
 
             LL_DEBUGS("Animation") << "Loading keyframe data for: " << motionp->getName() << ":" << motionp->getID() << " (" << size << " bytes)" << LL_ENDL;
 

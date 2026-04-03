@@ -115,18 +115,18 @@ LLHeapBuffer::LLHeapBuffer(S32 size) :
     allocate(size);
 }
 
-LLHeapBuffer::LLHeapBuffer(const U8* src, S32 len) :
+LLHeapBuffer::LLHeapBuffer(std::span<const U8> src) :
     mBuffer(NULL),
     mSize(0),
     mNextFree(NULL),
     mReclaimedBytes(0)
 {
-    if((len > 0) && src)
+    if(!src.empty())
     {
-        allocate(len);
+        allocate(static_cast<S32>(src.size()));
         if(mBuffer)
         {
-            memcpy(mBuffer, src, len);  /*Flawfinder: ignore*/
+            memcpy(mBuffer, src.data(), src.size());  /*Flawfinder: ignore*/
         }
     }
 }

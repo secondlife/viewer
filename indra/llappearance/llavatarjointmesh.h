@@ -27,6 +27,8 @@
 #ifndef LL_LLAVATARJOINTMESH_H
 #define LL_LLAVATARJOINTMESH_H
 
+#include <vector>
+
 #include "llavatarjoint.h"
 #include "llgltexture.h"
 #include "llpolymesh.h"
@@ -74,8 +76,7 @@ protected:
 
     U32                         mFaceIndexCount;
 
-    U32                         mNumSkinJoints;
-    LLSkinJoint*                mSkinJoints;
+    std::vector<LLSkinJoint>    mSkinJoints;
     S32                         mMeshID;
 
 public:

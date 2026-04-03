@@ -35,6 +35,7 @@
 #include "llinstancetracker.h"
 #include "llstl.h"
 
+#include <array>
 #include <functional>
 #include <unordered_map>
 #include <vector>
@@ -169,7 +170,7 @@ class LLControlGroup : public LLInstanceTracker<LLControlGroup, std::string>
 protected:
     using ctrl_name_table_t = std::unordered_map<std::string, LLControlVariablePtr, ll::string_hash, std::equal_to<>>;
     ctrl_name_table_t mNameTable;
-    static const std::string mTypeString[TYPE_COUNT];
+    static const std::array<std::string, TYPE_COUNT> mTypeString;
 
 public:
     static eControlType typeStringToEnum(const std::string& typestr);

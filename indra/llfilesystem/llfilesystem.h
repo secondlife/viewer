@@ -34,17 +34,19 @@
 #include "llassettype.h"
 #include "lldiskcache.h"
 
+#include <span>
+
 class LLFileSystem
 {
     public:
         LLFileSystem(const LLUUID& file_id, const LLAssetType::EType file_type, S32 mode = LLFileSystem::READ);
         ~LLFileSystem() = default;
 
-        bool read(U8* buffer, S32 bytes);
+        bool read(std::span<U8> buffer);
         S32  getLastBytesRead() const;
         bool eof() const;
 
-        bool write(const U8* buffer, S32 bytes);
+        bool write(std::span<const U8> data);
         bool seek(S32 offset, S32 origin = -1);
         S32  tell() const;
 

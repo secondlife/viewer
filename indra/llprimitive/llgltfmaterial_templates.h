@@ -66,7 +66,7 @@ void LLGLTFMaterial::setFromTexture(const tinygltf::Model& model, const T& textu
 {
     LL_PROFILE_ZONE_SCOPED;
     const std::string uri = gltf_get_texture_image(model, texture_info);
-    texture_id.set(uri);
+    (void)texture_id.set(uri);
 
     const tinygltf::Value::Object& extensions_object = texture_info.extensions;
     const auto transform_it = extensions_object.find(GLTF_FILE_EXTENSION_TRANSFORM);

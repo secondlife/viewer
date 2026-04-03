@@ -27,6 +27,7 @@
 #ifndef LL_MESSAGE_H
 #define LL_MESSAGE_H
 
+#include <array>
 #include <cstring>
 #include <functional>
 #include <set>
@@ -74,7 +75,7 @@ public:
     char *getString(const char *str);
 
     U32  mUsed;
-    bool mEmpty[MESSAGE_NUMBER_OF_HASH_BUCKETS];
+    std::array<bool, MESSAGE_NUMBER_OF_HASH_BUCKETS> mEmpty;
     char mString[MESSAGE_NUMBER_OF_HASH_BUCKETS][MESSAGE_MAX_STRINGS_LENGTH];   /* Flawfinder: ignore */
 };
 
@@ -868,7 +869,7 @@ private:
 
     F64Seconds                                      mResendDumpTime; // The last time we dumped resends
 
-    LLMessageCountInfo mMessageCountList[MAX_MESSAGE_COUNT_NUM];
+    std::array<LLMessageCountInfo, MAX_MESSAGE_COUNT_NUM> mMessageCountList;
     S32 mNumMessageCounts;
     F32Seconds mReceiveTime;
     F32Seconds mMaxMessageTime; // Max number of seconds for processing messages

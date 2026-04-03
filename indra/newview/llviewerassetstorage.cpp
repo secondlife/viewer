@@ -200,7 +200,7 @@ void LLViewerAssetStorage::storeAssetData(
             // Read the data from the cache if it'll fit in this packet.
             if (asset_size + 100 < MTUBYTES)
             {
-                bool res = vfile.read(buffer, asset_size);      /* Flawfinder: ignore */
+                bool res = vfile.read(std::span{buffer, static_cast<size_t>(asset_size)});      /* Flawfinder: ignore */
                 S32 bytes_read = res ? vfile.getLastBytesRead() : 0;
 
                 if( bytes_read == asset_size )
@@ -300,7 +300,7 @@ void LLViewerAssetStorage::storeAssetData(
         U8 copy_buf[buf_size];
         while ((size = (S32)fread(copy_buf, 1, buf_size, fp)))
         {
-            file.write(copy_buf, size);
+            file.write(std::span{copy_buf, static_cast<size_t>(size)});
         }
         fclose(fp);
 
@@ -606,7 +606,7 @@ void LLViewerAssetStorage::assetRequestCoro(
             temp_id.generate();
             LLFileSystem vf(temp_id, atype, LLFileSystem::WRITE);
             bytes_fetched = size;
-            if (!vf.write(raw.data(),size))
+            if (!vf.write(std::span{raw.data(), static_cast<size_t>(size)}))
             {
                 // TODO asset-http: handle error
                 LL_WARNS("ViewerAsset") << "Failure in vf.write()" << LL_ENDL;

@@ -290,8 +290,8 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
     // prior rectangle to be used on restore.
     mExpandedRect.set(0,0,0,0);
 
-    memset(mButtonsEnabled, 0, BUTTON_COUNT * sizeof(bool));
-    memset(mButtons, 0, BUTTON_COUNT * sizeof(LLButton*));
+    mButtonsEnabled.fill(false);
+    mButtons.fill(nullptr);
 
     addDragHandle();
     addResizeCtrls();

@@ -858,7 +858,7 @@ void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
             S32 size = file.getSize();
 
             std::vector<char> buffer(size+1);
-            file.read((U8*)&buffer[0], size);
+            file.read(std::span{reinterpret_cast<U8*>(&buffer[0]), static_cast<size_t>(size)});
             buffer[size] = '\0';
 
             LLMultiGesture* gesture = new LLMultiGesture();
@@ -1147,7 +1147,7 @@ void LLPreviewGesture::saveIfNeeded()
             LLFileSystem file(assetId, LLAssetType::AT_GESTURE, LLFileSystem::APPEND);
 
             S32 size = dp.getCurrentSize();
-            file.write((U8*)buffer.data(), size);
+            file.write(std::span{reinterpret_cast<const U8*>(buffer.data()), static_cast<size_t>(size)});
 
             LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
             LLSaveInfo* info = new LLSaveInfo(mItemUUID, mObjectUUID, descEditor->getText(), tid);

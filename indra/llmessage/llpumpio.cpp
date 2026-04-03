@@ -876,21 +876,18 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 #if LL_DEBUG_SPEW_BUFFER_CHANNEL_IN
         if(chain.mData)
         {
-            char* buf = NULL;
             S32 bytes = chain.mData->countAfter((*it).mChannels.in(), NULL);
             if(bytes)
             {
-                buf = new char[bytes + 1];
+                std::vector<char> buf(bytes + 1);
                 chain.mData->readAfter(
                     (*it).mChannels.in(),
                     NULL,
-                    (U8*)buf,
+                    (U8*)buf.data(),
                     bytes);
                 buf[bytes] = '\0';
                 LL_INFOS() << "CHANNEL IN(" << (*it).mChannels.in() << "): "
-                        << buf << LL_ENDL;
-                delete[] buf;
-                buf = NULL;
+                        << buf.data() << LL_ENDL;
             }
             else
             {
@@ -909,21 +906,18 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 #if LL_DEBUG_SPEW_BUFFER_CHANNEL_OUT
         if(chain.mData)
         {
-            char* buf = NULL;
             S32 bytes = chain.mData->countAfter((*it).mChannels.out(), NULL);
             if(bytes)
             {
-                buf = new char[bytes + 1];
+                std::vector<char> buf(bytes + 1);
                 chain.mData->readAfter(
                     (*it).mChannels.out(),
                     NULL,
-                    (U8*)buf,
+                    (U8*)buf.data(),
                     bytes);
                 buf[bytes] = '\0';
                 LL_INFOS() << "CHANNEL OUT(" << (*it).mChannels.out()<< "): "
-                        << buf << LL_ENDL;
-                delete[] buf;
-                buf = NULL;
+                        << buf.data() << LL_ENDL;
             }
             else
             {
@@ -991,22 +985,19 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 #if LL_DEBUG_SPEW_BUFFER_CHANNEL_IN_ON_ERROR
                 if(chain.mData)
                 {
-                    char* buf = NULL;
                     S32 bytes = chain.mData->countAfter(
                         (*it).mChannels.in(),
                         NULL);
                     if(bytes)
                     {
-                        buf = new char[bytes + 1];
+                        std::vector<char> buf(bytes + 1);
                         chain.mData->readAfter(
                             (*it).mChannels.in(),
                             NULL,
-                            (U8*)buf,
+                            (U8*)buf.data(),
                             bytes);
                         buf[bytes] = '\0';
-                        LL_INFOS() << "Input After Error: " << buf << LL_ENDL;
-                        delete[] buf;
-                        buf = NULL;
+                        LL_INFOS() << "Input After Error: " << buf.data() << LL_ENDL;
                     }
                     else
                     {

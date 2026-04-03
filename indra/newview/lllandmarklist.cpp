@@ -115,7 +115,7 @@ void LLLandmarkList::processGetAssetReply(
         if (file_length > 0)
         {
             std::vector<char> buffer(file_length + 1);
-            file.read((U8*)&buffer[0], file_length);
+            file.read(std::span{reinterpret_cast<U8*>(&buffer[0]), static_cast<size_t>(file_length)});
             buffer[file_length] = 0;
 
             LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0], static_cast<S32>(buffer.size()));

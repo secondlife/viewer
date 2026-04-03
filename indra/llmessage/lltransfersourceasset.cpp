@@ -123,7 +123,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
     delete_returned = true;
     U8 *tmpp = new U8[max_bytes];
     *data_handle = tmpp;
-    if (!vf.read(tmpp, max_bytes))      /* Flawfinder: Ignore */
+    if (!vf.read(std::span{tmpp, static_cast<size_t>(max_bytes)}))      /* Flawfinder: Ignore */
     {
         // Read failure, need to deal with it.
         delete[] tmpp;

@@ -362,7 +362,7 @@ LLPointer<LLControlVariable> LLControlGroup::getControl(std::string_view name)
 ////////////////////////////////////////////////////////////////////////////
 
 // Must match the type definition in llcontrol.h
-const std::string LLControlGroup::mTypeString[TYPE_COUNT] = { "U32"
+const std::array<std::string, TYPE_COUNT> LLControlGroup::mTypeString = { "U32"
                                                              ,"S32"
                                                              ,"F32"
                                                              ,"Boolean"

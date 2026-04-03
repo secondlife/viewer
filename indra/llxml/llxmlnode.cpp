@@ -27,6 +27,7 @@
 
 #include "linden_common.h"
 
+#include <array>
 #include <iostream>
 #include <map>
 
@@ -744,14 +745,14 @@ bool LLXMLNode::parseStream(
     XML_SetUserData(my_parser, (void *)file_node_ptr);
 
     const int BUFSIZE = 1024;
-    U8* buffer = new U8[BUFSIZE];
+    std::vector<U8> buffer(BUFSIZE);
 
     while(str.good())
     {
-        str.read((char*)buffer, BUFSIZE);
+        str.read((char*)buffer.data(), BUFSIZE);
         int count = (int)str.gcount();
 
-        if (XML_Parse(my_parser, (const char *)buffer, count, !str.good()) != XML_STATUS_OK)
+        if (XML_Parse(my_parser, (const char *)buffer.data(), count, !str.good()) != XML_STATUS_OK)
         {
             LL_WARNS() << "Error parsing xml error code: "
                     << XML_ErrorString(XML_GetErrorCode(my_parser))
@@ -760,8 +761,6 @@ bool LLXMLNode::parseStream(
             break;
         }
     }
-
-    delete [] buffer;
 
     // Deinit
     XML_ParserFree(my_parser);
@@ -2788,7 +2787,7 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
             break;
         case 1: // TYPE_BOOLEAN
             {
-                bool random_bool_values[30];
+                std::array<bool, 30> random_bool_values;
                 for (U32 value=0; value<array_size; ++value)
                 {
                     random_bool_values[value] = get_rand(2);
@@ -2797,29 +2796,29 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
                         ++bool_true_count;
                     }
                 }
-                new_child->setBoolValue(array_size, random_bool_values);
+                new_child->setBoolValue(array_size, random_bool_values.data());
             }
             break;
         case 2: // TYPE_INTEGER (32-bit)
             {
-                U32 random_int_values[30];
+                std::array<U32, 30> random_int_values;
                 for (U32 value=0; value<array_size; ++value)
                 {
                     random_int_values[value] = get_rand(0xffffffff);
                     integer_checksum ^= random_int_values[value];
                 }
-                new_child->setUnsignedValue(array_size, random_int_values, new_encoding);
+                new_child->setUnsignedValue(array_size, random_int_values.data(), new_encoding);
             }
             break;
         case 3: // TYPE_INTEGER (64-bit)
             {
-                U64 random_int_values[30];
+                std::array<U64, 30> random_int_values;
                 for (U64 value=0; value<array_size; ++value)
                 {
                     random_int_values[value] = (U64(get_rand(0xffffffff)) << 32) + get_rand(0xffffffff);
                     long_checksum ^= random_int_values[value];
                 }
-                new_child->setLongValue(array_size, random_int_values, new_encoding);
+                new_child->setLongValue(array_size, random_int_values.data(), new_encoding);
             }
             break;
         case 4: // TYPE_FLOAT (32-bit)
@@ -2864,7 +2863,7 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
             break;
         case 6: // TYPE_UUID
             {
-                LLUUID random_uuid_values[30];
+                std::array<LLUUID, 30> random_uuid_values;
                 for (U32 value=0; value<array_size; ++value)
                 {
                     random_uuid_values[value].generate();
@@ -2873,12 +2872,12 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
                         uuid_checksum.mData[byte] ^= random_uuid_values[value].mData[byte];
                     }
                 }
-                new_child->setUUIDValue(array_size, random_uuid_values);
+                new_child->setUUIDValue(array_size, random_uuid_values.data());
             }
             break;
         case 7: // TYPE_NODEREF
             {
-                LLXMLNode *random_node_array[30];
+                std::array<LLXMLNode*, 30> random_node_array;
                 LLXMLNode *root = getRoot();
                 for (U32 value=0; value<array_size; ++value)
                 {
@@ -2890,7 +2889,7 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
                         noderef_checksum ^= hash_contrib;
                     }
                 }
-                new_child->setNodeRefValue(array_size, (const LLXMLNode **)random_node_array);
+                new_child->setNodeRefValue(array_size, (const LLXMLNode **)random_node_array.data());
             }
             break;
         }
@@ -2949,8 +2948,8 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
             break;
         case TYPE_BOOLEAN:
             {
-                bool bool_array[30];
-                if (node->getBoolValue(node->mLength, bool_array) < node->mLength)
+                std::array<bool, 30> bool_array;
+                if (node->getBoolValue(node->mLength, bool_array.data()) < node->mLength)
                 {
                     error_buffer.append(llformat("ERROR Node %s: Could not read boolean array, child %s.\n", mName->mString, node->mName->mString));
                     return false;
@@ -2968,8 +2967,8 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
             {
                 if (node->mPrecision == 32)
                 {
-                    U32 integer_array[30];
-                    if (node->getUnsignedValue(node->mLength, integer_array, node->mEncoding) < node->mLength)
+                    std::array<U32, 30> integer_array;
+                    if (node->getUnsignedValue(node->mLength, integer_array.data(), node->mEncoding) < node->mLength)
                     {
                         error_buffer.append(llformat("ERROR Node %s: Could not read integer array, child %s.\n", mName->mString, node->mName->mString));
                         return false;
@@ -2981,8 +2980,8 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                 }
                 else
                 {
-                    U64 integer_array[30];
-                    if (node->getLongValue(node->mLength, integer_array, node->mEncoding) < node->mLength)
+                    std::array<U64, 30> integer_array;
+                    if (node->getLongValue(node->mLength, integer_array.data(), node->mEncoding) < node->mLength)
                     {
                         error_buffer.append(llformat("ERROR Node %s: Could not read long integer array, child %s.\n", mName->mString, node->mName->mString));
                         return false;
@@ -3030,8 +3029,8 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
             break;
         case TYPE_UUID:
             {
-                LLUUID uuid_array[30];
-                if (node->getUUIDValue(node->mLength, uuid_array) < node->mLength)
+                std::array<LLUUID, 30> uuid_array;
+                if (node->getUUIDValue(node->mLength, uuid_array.data()) < node->mLength)
                 {
                     error_buffer.append(llformat("ERROR Node %s: Could not read uuid array, child %s.\n", mName->mString, node->mName->mString));
                     return false;
@@ -3047,8 +3046,8 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
             break;
         case TYPE_NODEREF:
             {
-                LLXMLNode *node_array[30];
-                if (node->getNodeRefValue(node->mLength, node_array) < node->mLength)
+                std::array<LLXMLNode*, 30> node_array;
+                if (node->getNodeRefValue(node->mLength, node_array.data()) < node->mLength)
                 {
                     error_buffer.append(llformat("ERROR Node %s: Could not read node ref array, child %s.\n", mName->mString, node->mName->mString));
                     return false;

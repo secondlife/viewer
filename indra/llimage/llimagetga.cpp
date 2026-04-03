@@ -34,7 +34,7 @@
 
 // For expanding 5-bit pixel values to 8-bit with best rounding
 // static
-const U8 LLImageTGA::s5to8bits[32] =
+const std::array<U8, 32> LLImageTGA::s5to8bits =
     {
         0,   8,  16,  25,  33,  41,  49,  58,
        66,  74,  82,  90,  99, 107, 115, 123,

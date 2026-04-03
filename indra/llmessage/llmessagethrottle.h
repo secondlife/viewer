@@ -27,6 +27,7 @@
 #ifndef LL_LLMESSAGETHROTTLE_H
 #define LL_LLMESSAGETHROTTLE_H
 
+#include <array>
 #include <deque>
 
 #include "linden_common.h"
@@ -70,7 +71,7 @@ protected:
     using message_list_reverse_iterator_t = std::deque<LLMessageThrottleEntry>::reverse_iterator;
     using message_list_const_iterator_t = std::deque<LLMessageThrottleEntry>::const_iterator;
     using message_list_const_reverse_iterator_t = std::deque<LLMessageThrottleEntry>::const_reverse_iterator;
-    message_list_t  mMessageList[MTC_EOF];
+    std::array<message_list_t, MTC_EOF>  mMessageList;
 };
 
 extern LLMessageThrottle gMessageThrottle;

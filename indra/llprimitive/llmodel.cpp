@@ -26,6 +26,8 @@
 
 #include "linden_common.h"
 
+#include <array>
+
 #include "llmodel.h"
 #include "llmemory.h"
 #include "llconvexdecomposition.h"
@@ -39,7 +41,9 @@
 # include "zlib-ng/zlib.h"
 #endif
 
-std::string model_names[] =
+constexpr int MODEL_NAMES_LENGTH = 5;
+
+std::array<std::string, MODEL_NAMES_LENGTH> model_names =
 {
     "lowest_lod",
     "low_lod",
@@ -47,8 +51,6 @@ std::string model_names[] =
     "high_lod",
     "physics_mesh"
 };
-
-const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 
 LLModel::LLModel(const LLVolumeParams& params, F32 detail)
     : LLVolume(params, detail),
@@ -1151,7 +1153,7 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, EWriteModelMode 
         header["submodel_id"] = (LLSD::Integer)mdl["submodel_id"];
         }
 
-    std::string out[MODEL_NAMES_LENGTH];
+    std::array<std::string, MODEL_NAMES_LENGTH> out;
 
     for (S32 i = 0; i < MODEL_NAMES_LENGTH; i++)
     {

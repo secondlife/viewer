@@ -369,9 +369,9 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
             size = packetp->mSize;
             if (size)
             {
-                if ((packetp->mDatap != NULL) && (size<(S32)sizeof(tmp_data)))
+                if (!packetp->mData.empty() && (size<(S32)sizeof(tmp_data)))
                 {
-                    memcpy(tmp_data, packetp->mDatap, size);    /*Flawfinder: ignore*/
+                    memcpy(tmp_data, packetp->mData.data(), size);    /*Flawfinder: ignore*/
                 }
             }
             status = packetp->mStatus;
@@ -545,9 +545,9 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
             size = packetp->mSize;
             if (size)
             {
-                if ((packetp->mDatap != NULL) && (size<(S32)sizeof(tmp_data)))
+                if (!packetp->mData.empty() && (size<(S32)sizeof(tmp_data)))
                 {
-                    memcpy(tmp_data, packetp->mDatap, size);    /*Flawfinder: ignore*/
+                    memcpy(tmp_data, packetp->mData.data(), size);    /*Flawfinder: ignore*/
                 }
             }
             status = packetp->mStatus;
@@ -1175,24 +1175,12 @@ F32 LLTransferSource::sGetPriority(LLTransferSource *&tsp)
 LLTransferPacket::LLTransferPacket(const S32 packet_id, const LLTSCode status, const U8 *datap, const S32 size) :
     mPacketID(packet_id),
     mStatus(status),
-    mDatap(NULL),
     mSize(size)
 {
-    if (size == 0)
+    if (size > 0 && datap)
     {
-        return;
+        mData.assign(datap, datap + size);
     }
-
-    mDatap = new U8[size];
-    if (mDatap != NULL)
-    {
-        memcpy(mDatap, datap, size);    /*Flawfinder: ignore*/
-    }
-}
-
-LLTransferPacket::~LLTransferPacket()
-{
-    delete[] mDatap;
 }
 
 //
@@ -1265,7 +1253,7 @@ bool LLTransferTarget::addDelayedPacket(
     transfer_packet_map::iterator iter = mDelayedPacketMap.find(packet_id);
     if (iter != mDelayedPacketMap.end())
     {
-        if (!(iter->second->mSize == size) && !(iter->second->mDatap == datap))
+        if (!(iter->second->mSize == size) && !(iter->second->mData.data() == datap))
         {
             LL_ERRS() << "Packet ALREADY in delayed packet map!" << LL_ENDL;
         }

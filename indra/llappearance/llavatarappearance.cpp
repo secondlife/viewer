@@ -26,6 +26,8 @@
 
 #include "linden_common.h"
 
+#include <array>
+
 #include "llavatarappearance.h"
 #include "llavatarappearancedefines.h"
 #include "llavatarjointmesh.h"
@@ -1452,8 +1454,8 @@ bool LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )
 
 void LLAvatarAppearance::setClothesColor( ETextureIndex te, const LLColor4& new_color)
 {
-    U32 param_name[3];
-    if( teToColorParams( te, param_name ) )
+    std::array<U32, 3> param_name;
+    if( teToColorParams( te, param_name.data() ) )
     {
         setVisualParamWeight( param_name[0], new_color.mV[VRED]);
         setVisualParamWeight( param_name[1], new_color.mV[VGREEN]);
@@ -1464,8 +1466,8 @@ void LLAvatarAppearance::setClothesColor( ETextureIndex te, const LLColor4& new_
 LLColor4 LLAvatarAppearance::getClothesColor( ETextureIndex te )
 {
     LLColor4 color;
-    U32 param_name[3];
-    if( teToColorParams( te, param_name ) )
+    std::array<U32, 3> param_name;
+    if( teToColorParams( te, param_name.data() ) )
     {
         color.mV[VRED] = getVisualParamWeight( param_name[0] );
         color.mV[VGREEN] = getVisualParamWeight( param_name[1] );

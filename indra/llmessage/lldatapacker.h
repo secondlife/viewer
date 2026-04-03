@@ -27,6 +27,8 @@
 #ifndef LL_LLDATAPACKER_H
 #define LL_LLDATAPACKER_H
 
+#include <span>
+
 class LLColor4;
 class LLColor4U;
 class LLVector2;
@@ -60,11 +62,11 @@ public:
 
     virtual bool        packU16(const U16 value, const char *name) = 0;
     virtual bool        unpackU16(U16 &value, const char *name) = 0;
-    bool                unpackU16s(U16 *value, S32 count, const char *name);
+    bool                unpackU16s(std::span<U16> values, const char *name);
 
     virtual bool        packS16(const S16 value, const char *name) = 0;
     virtual bool        unpackS16(S16 &value, const char *name) = 0;
-    bool                unpackS16s(S16 *value, S32 count, const char *name);
+    bool                unpackS16s(std::span<S16> values, const char *name);
 
     virtual bool        packU32(const U32 value, const char *name) = 0;
     virtual bool        unpackU32(U32 &value, const char *name) = 0;
@@ -74,7 +76,7 @@ public:
 
     virtual bool        packF32(const F32 value, const char *name) = 0;
     virtual bool        unpackF32(F32 &value, const char *name) = 0;
-    bool                unpackF32s(F32 *values, S32 count, const char *name);
+    bool                unpackF32s(std::span<F32> values, const char *name);
 
     // Packs a float into an integer, using the given size
     // and picks the right U* data type to pack into.
@@ -88,7 +90,7 @@ public:
 
     virtual bool        packColor4U(const LLColor4U &value, const char *name) = 0;
     virtual bool        unpackColor4U(LLColor4U &value, const char *name) = 0;
-    bool                unpackColor4Us(LLColor4U *values, S32 count, const char *name);
+    bool                unpackColor4Us(std::span<LLColor4U> values, const char *name);
 
     virtual bool        packVector2(const LLVector2 &value, const char *name) = 0;
     virtual bool        unpackVector2(LLVector2 &value, const char *name) = 0;
@@ -101,7 +103,7 @@ public:
 
     virtual bool        packUUID(const LLUUID &value, const char *name) = 0;
     virtual bool        unpackUUID(LLUUID &value, const char *name) = 0;
-    bool                unpackUUIDs(LLUUID *values, S32 count, const char *name);
+    bool                unpackUUIDs(std::span<LLUUID> values, const char *name);
             U32         getPassFlags() const    { return mPassFlags; }
             void        setPassFlags(U32 flags) { mPassFlags = flags; }
 protected:

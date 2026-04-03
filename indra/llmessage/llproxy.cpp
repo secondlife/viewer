@@ -124,7 +124,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
         std::string socks_username(getSocksUser());
         std::string socks_password(getSocksPwd());
         U32 request_size = static_cast<S32>(socks_username.size() + socks_password.size() + 3);
-        char * password_auth = new char[request_size];
+        std::vector<char> password_auth(request_size);
         password_auth[0] = 0x01;
         password_auth[1] = (char)(socks_username.size());
         memcpy(&password_auth[2], socks_username.c_str(), socks_username.size());
@@ -134,11 +134,10 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
         authmethod_password_reply_t password_reply;
 
         result = tcp_blocking_handshake(mProxyControlChannel,
-                                        password_auth,
+                                        password_auth.data(),
                                         request_size,
                                         static_cast<char*>(static_cast<void*>(&password_reply)),
                                         sizeof(password_reply));
-        delete[] password_auth;
 
         if (result != APR_SUCCESS)
         {

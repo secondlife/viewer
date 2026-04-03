@@ -640,7 +640,7 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLU
                     if (formatted->encode(raw_image, 0.0f))
                     {
                         LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
-                        fmt_file.write(formatted->getData(), formatted->getDataSize());
+                        fmt_file.write(std::span{formatted->getData(), static_cast<size_t>(formatted->getDataSize())});
 
                         LLResourceUploadInfo::ptr_t assetUploadInfo = std::make_shared<LLResourceUploadInfo>(
                             tid, LLAssetType::AT_TEXTURE,

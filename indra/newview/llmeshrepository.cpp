@@ -26,6 +26,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <span>
+
 #include "llapr.h"
 #include "apr_portable.h"
 #include "apr_pools.h"
@@ -912,9 +914,9 @@ void log_upload_error(
 void write_preamble(LLFileSystem &file, S32 header_bytes, S32 flags)
 {
     LLMeshRepository::sCacheBytesWritten += CACHE_PREAMBLE_SIZE;
-    file.write((U8*)&CACHE_PREAMBLE_VERSION, sizeof(U32));
-    file.write((U8*)&header_bytes, sizeof(U32));
-    file.write((U8*)&flags, sizeof(U32));
+    file.write(std::span{reinterpret_cast<const U8*>(&CACHE_PREAMBLE_VERSION), sizeof(U32)});
+    file.write(std::span{reinterpret_cast<const U8*>(&header_bytes), sizeof(U32)});
+    file.write(std::span{reinterpret_cast<const U8*>(&flags), sizeof(U32)});
 }
 
 LLMeshRepoThread::LLMeshRepoThread()
@@ -1561,7 +1563,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
                 LLMeshRepository::sCacheBytesRead += size;
                 ++LLMeshRepository::sCacheReads;
                 file.seek(disk_ofset);
-                file.read(buffer, size);
+                file.read(std::span{buffer, static_cast<size_t>(size)});
 
                 //make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
                 bool zero = true;
@@ -1730,7 +1732,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
                 ++LLMeshRepository::sCacheReads;
 
                 file.seek(disk_ofset);
-                file.read(buffer, size);
+                file.read(std::span{buffer, static_cast<size_t>(size)});
 
                 //make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
                 bool zero = true;
@@ -1829,7 +1831,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
                     return true;
                 }
                 file.seek(disk_ofset);
-                file.read(buffer, size);
+                file.read(std::span{buffer, static_cast<size_t>(size)});
 
                 //make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
                 bool zero = true;
@@ -1941,7 +1943,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
             LLMeshRepository::sCacheBytesRead += bytes;
             ++LLMeshRepository::sCacheReads;
 
-            file.read(buffer, bytes);
+            file.read(std::span{buffer, static_cast<size_t>(bytes)});
 
             U32 version = 0;
             memcpy(&version, buffer, sizeof(U32));
@@ -1952,7 +1954,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params)
                 if (header_size + CACHE_PREAMBLE_SIZE > DISK_MINIMAL_READ)
                 {
                     bytes = llmin(size , DISK_MINIMAL_READ * 2);
-                    file.read(buffer + DISK_MINIMAL_READ, bytes - DISK_MINIMAL_READ);
+                    file.read(std::span{buffer + DISK_MINIMAL_READ, static_cast<size_t>(bytes - DISK_MINIMAL_READ)});
                 }
                 U32 flags = 0;
                 memcpy(&flags, buffer + 2 * sizeof(U32), sizeof(U32));
@@ -2059,7 +2061,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
                 LLMeshRepository::sCacheBytesRead += size;
                 ++LLMeshRepository::sCacheReads;
                 file.seek(disk_ofset);
-                file.read(buffer, size);
+                file.read(std::span{buffer, static_cast<size_t>(size)});
 
                 //make sure buffer isn't all 0's by checking the first 1KB (reserved block but not written)
                 bool zero = true;
@@ -3750,13 +3752,13 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
                 write_preamble(file, header_bytes, flags);
 
                 // write header
-                file.write(data, data_size);
+                file.write(std::span{data, static_cast<size_t>(data_size)});
 
                 S32 remaining = bytes - file.tell();
                 if (remaining > 0)
                 {
                     std::vector<U8> block(remaining, 0);
-                    file.write(block.data(), remaining);
+                    file.write(std::span<const U8>{block});
                 }
             }
         }
@@ -3837,7 +3839,7 @@ void LLMeshLODHandler::processLod(U8* data, S32 data_size)
             }
 
             file.seek(offset, 0);
-            file.write(data, size);
+            file.write(std::span{data, static_cast<size_t>(size)});
             LLMeshRepository::sCacheBytesWritten += size;
             ++LLMeshRepository::sCacheWrites;
         }
@@ -3960,7 +3962,7 @@ void LLMeshSkinInfoHandler::processSkin(U8* data, S32 data_size)
             }
 
             file.seek(offset, 0);
-            file.write(data, size);
+            file.write(std::span{data, static_cast<size_t>(size)});
         }
     }
     else
@@ -4079,7 +4081,7 @@ void LLMeshDecompositionHandler::processData(LLCore::BufferArray * /* body */, S
             }
 
             file.seek(offset, 0);
-            file.write(data, size);
+            file.write(std::span{data, static_cast<size_t>(size)});
         }
     }
     else
@@ -4152,7 +4154,7 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
             }
 
             file.seek(offset, 0);
-            file.write(data, size);
+            file.write(std::span{data, static_cast<size_t>(size)});
         }
     }
     else

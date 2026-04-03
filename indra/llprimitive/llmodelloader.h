@@ -29,6 +29,7 @@
 
 #include "llmodel.h"
 #include "llthread.h"
+#include <array>
 #include <functional>
 #include <list>
 
@@ -105,7 +106,7 @@ public:
 
     LLMatrix4 mTransform;
     bool mFirstTransform;
-    LLVector3 mExtents[2];
+    std::array<LLVector3, 2> mExtents;
 
     bool mTrySLM;
     bool mCacheOnlyHitIfRigged; // ignore cached SLM if it does not contain rig info (and we want rig info)

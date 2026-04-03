@@ -33,6 +33,8 @@
 #include "lltrace.h"
 #include "lluuid.h"
 
+#include <span>
+
 constexpr S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
 constexpr S32 MAX_IMAGE_MIP = 12; // 4096x4096
 
@@ -323,7 +325,7 @@ class LLImageFormatted : public LLImageBase
 {
 public:
     static LLImageFormatted* createFromType(S8 codec);
-    static LLImageFormatted* loadFromMemory(const U8* data, U32 size, std::string_view mimetype);
+    static LLImageFormatted* loadFromMemory(std::span<const U8> data, std::string_view mimetype);
     static LLImageFormatted* createFromExtension(const std::string& instring);
     static LLImageFormatted* createFromMimeType(std::string_view mimetype);
     static S8 getCodecFromMimeType(std::string_view mimetype);

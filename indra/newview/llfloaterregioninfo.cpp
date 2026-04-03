@@ -2754,7 +2754,7 @@ void LLPanelEstateCovenant::onLoadComplete(const LLUUID& asset_uuid,
             S32 file_length = file.getSize();
 
             std::vector<char> buffer(file_length+1);
-            file.read((U8*)&buffer[0], file_length);
+            file.read(std::span{reinterpret_cast<U8*>(&buffer[0]), static_cast<size_t>(file_length)});
             // put a EOS at the end
             buffer[file_length] = 0;
 

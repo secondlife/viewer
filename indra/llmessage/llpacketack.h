@@ -30,6 +30,8 @@
 #include "llhost.h"
 #include "llunits.h"
 
+#include <vector>
+
 class LLReliablePacketParams
 {
 public:
@@ -89,8 +91,6 @@ public:
     ~LLReliablePacket()
     {
         mCallback = NULL;
-        delete [] mBuffer;
-        mBuffer = NULL;
     };
 
     friend class LLCircuitData;
@@ -104,7 +104,7 @@ protected:
     void** mCallbackData;
     char* mMessageName;
 
-    U8* mBuffer;
+    std::vector<U8> mBuffer;
     S32 mBufferLength;
 
     TPACKETID mPacketID;

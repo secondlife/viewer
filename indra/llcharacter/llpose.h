@@ -35,6 +35,7 @@
 #include "lljoint.h"
 #include "llpointer.h"
 
+#include <array>
 #include <map>
 #include <string>
 
@@ -85,9 +86,9 @@ class LLJointStateBlender
 {
     LL_ALIGN_NEW
 protected:
-    LLPointer<LLJointState> mJointStates[JSB_NUM_JOINT_STATES];
-    S32             mPriorities[JSB_NUM_JOINT_STATES];
-    bool            mAdditiveBlends[JSB_NUM_JOINT_STATES];
+    std::array<LLPointer<LLJointState>, JSB_NUM_JOINT_STATES> mJointStates;
+    std::array<S32, JSB_NUM_JOINT_STATES>             mPriorities;
+    std::array<bool, JSB_NUM_JOINT_STATES>            mAdditiveBlends;
 public:
     LLJointStateBlender();
     ~LLJointStateBlender();

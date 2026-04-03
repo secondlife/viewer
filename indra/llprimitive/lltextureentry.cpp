@@ -786,7 +786,7 @@ LLUUID LLTextureEntry::getAgentIDFromMediaVersionString(const std::string &versi
             if (found != std::string::npos)
             {
                 std::string v = version_string.substr(found + 1);
-                id.set(v);
+                (void)id.set(v);
             }
         }
     }

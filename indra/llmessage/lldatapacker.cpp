@@ -166,9 +166,9 @@ bool LLDataPacker::unpackFixed(F32 &value, const char *name,
     return success;
 }
 
-bool LLDataPacker::unpackU16s(U16 *values, S32 count, const char *name)
+bool LLDataPacker::unpackU16s(std::span<U16> values, const char *name)
 {
-    for (S32 idx = 0; idx < count; ++idx)
+    for (S32 idx = 0; idx < static_cast<S32>(values.size()); ++idx)
     {
         if (!unpackU16(values[idx], name))
         {
@@ -179,9 +179,9 @@ bool LLDataPacker::unpackU16s(U16 *values, S32 count, const char *name)
     return true;
 }
 
-bool LLDataPacker::unpackS16s(S16 *values, S32 count, const char *name)
+bool LLDataPacker::unpackS16s(std::span<S16> values, const char *name)
 {
-    for (S32 idx = 0; idx < count; ++idx)
+    for (S32 idx = 0; idx < static_cast<S32>(values.size()); ++idx)
     {
         if (!unpackS16(values[idx], name))
         {
@@ -192,9 +192,9 @@ bool LLDataPacker::unpackS16s(S16 *values, S32 count, const char *name)
     return true;
 }
 
-bool LLDataPacker::unpackF32s(F32 *values, S32 count, const char *name)
+bool LLDataPacker::unpackF32s(std::span<F32> values, const char *name)
 {
-    for (S32 idx = 0; idx < count; ++idx)
+    for (S32 idx = 0; idx < static_cast<S32>(values.size()); ++idx)
     {
         if (!unpackF32(values[idx], name))
         {
@@ -205,9 +205,9 @@ bool LLDataPacker::unpackF32s(F32 *values, S32 count, const char *name)
     return true;
 }
 
-bool LLDataPacker::unpackColor4Us(LLColor4U *values, S32 count, const char *name)
+bool LLDataPacker::unpackColor4Us(std::span<LLColor4U> values, const char *name)
 {
-    for (S32 idx = 0; idx < count; ++idx)
+    for (S32 idx = 0; idx < static_cast<S32>(values.size()); ++idx)
     {
         if (!unpackColor4U(values[idx], name))
         {
@@ -218,9 +218,9 @@ bool LLDataPacker::unpackColor4Us(LLColor4U *values, S32 count, const char *name
     return true;
 }
 
-bool LLDataPacker::unpackUUIDs(LLUUID *values, S32 count, const char *name)
+bool LLDataPacker::unpackUUIDs(std::span<LLUUID> values, const char *name)
 {
-    for (S32 idx = 0; idx < count; ++idx)
+    for (S32 idx = 0; idx < static_cast<S32>(values.size()); ++idx)
     {
         if (!unpackUUID(values[idx], name))
         {

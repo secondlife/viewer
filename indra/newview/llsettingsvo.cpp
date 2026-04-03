@@ -327,7 +327,7 @@ void LLSettingsVOBase::onAssetDownloadComplete(const LLUUID &asset_id, S32 statu
         S32 size = file.getSize();
 
         std::string buffer(size + 1, '\0');
-        file.read((U8 *)buffer.data(), size);
+        file.read(std::span{reinterpret_cast<U8*>(buffer.data()), static_cast<size_t>(size)});
 
         std::stringstream llsdstream(buffer);
         LLSD llsdsettings;

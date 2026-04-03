@@ -1000,7 +1000,7 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
             LLFileSystem file(motionp->getID(), LLAssetType::AT_ANIMATION, LLFileSystem::APPEND);
 
             S32 size = dp.getCurrentSize();
-            if (file.write(buffer.data(), size))
+            if (file.write(std::span{buffer.data(), static_cast<size_t>(size)}))
             {
                 std::string name = floaterp->getChild<LLUICtrl>("name_form")->getValue().asString();
                 std::string desc = floaterp->getChild<LLUICtrl>("description_form")->getValue().asString();

@@ -2806,18 +2806,12 @@ bool LLTextEditor::importBuffer(const char* buffer, S32 length )
 
     bool success = true;
 
-    char* text = new char[ text_len + 1];
-    if (text == NULL)
-    {
-        LLError::LLUserWarningMsg::showOutOfMemory();
-        LL_ERRS() << "Memory allocation failure." << LL_ENDL;
-        return false;
-    }
-    instream.get(text, text_len + 1, '\0');
+    std::vector<char> text(text_len + 1);
+    instream.get(text.data(), text_len + 1, '\0');
     text[text_len] = '\0';
-    if( text_len != (S32)strlen(text) )/* Flawfinder: ignore */
+    if( text_len != (S32)strlen(text.data()) )/* Flawfinder: ignore */
     {
-        LL_WARNS() << llformat("Invalid text length: %d != %d ",strlen(text),text_len) << LL_ENDL;/* Flawfinder: ignore */
+        LL_WARNS() << llformat("Invalid text length: %d != %d ",strlen(text.data()),text_len) << LL_ENDL;/* Flawfinder: ignore */
         success = false;
     }
 
@@ -2831,10 +2825,8 @@ bool LLTextEditor::importBuffer(const char* buffer, S32 length )
     if( success )
     {
         // Actually set the text
-        setText( LLStringExplicit(text) );
+        setText( LLStringExplicit(text.data()) );
     }
-
-    delete[] text;
 
     startOfDoc();
     deselect();

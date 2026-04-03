@@ -27,6 +27,8 @@
 #ifndef LL_LLTREEPARAMS_H
 #define LL_LLTREEPARAMS_H
 
+#include <array>
+
 /* for information about formulas associated with each type
  * check the Weber + Penn paper
  */
@@ -117,44 +119,44 @@ public:
     // BRANCHES
 
     //~ angle away from parent
-    F32 mDownAngle[MAX_NUM_LEVELS - 1];
-    F32 mDownAngleV[MAX_NUM_LEVELS - 1];
+    std::array<F32, MAX_NUM_LEVELS - 1> mDownAngle;
+    std::array<F32, MAX_NUM_LEVELS - 1> mDownAngleV;
 
     //~ rotation around parent
-    F32 mRotate[MAX_NUM_LEVELS - 1];
-    F32 mRotateV[MAX_NUM_LEVELS - 1];
+    std::array<F32, MAX_NUM_LEVELS - 1> mRotate;
+    std::array<F32, MAX_NUM_LEVELS - 1> mRotateV;
 
     //~ num branches to spawn
-    U8 mBranches[MAX_NUM_LEVELS - 1];
+    std::array<U8, MAX_NUM_LEVELS - 1> mBranches;
 
     //~ fractional length of branch. 1 = same length as parent branch
-    F32 mLength[MAX_NUM_LEVELS];
-    F32 mLengthV[MAX_NUM_LEVELS];
+    std::array<F32, MAX_NUM_LEVELS> mLength;
+    std::array<F32, MAX_NUM_LEVELS> mLengthV;
 
     //!~ ratio and ratiopower determine radius/length
     F32 mRatio, mRatioPower;
 
     //*! taper of branches
-    F32 mTaper[MAX_NUM_LEVELS];
+    std::array<F32, MAX_NUM_LEVELS> mTaper;
             // 0 - non-tapering cylinder
             // 1 - taper to a point
             // 2 - taper to a spherical end
             // 3 - periodic tapering (concatenated spheres)
 
     //! SEG SPLITTING
-    U8 mBaseSplits;                     //! num segsplits at first curve cross section of trunk
-    F32 mSegSplits[MAX_NUM_LEVELS];     //~ splits per cross section. 1 = 1 split per section
-    F32 mSplitAngle[MAX_NUM_LEVELS];    //~ angle that splits go from parent (tempered by height)
-    F32 mSplitAngleV[MAX_NUM_LEVELS];   //~ variance of the splits
+    U8 mBaseSplits;                                             //! num segsplits at first curve cross section of trunk
+    std::array<F32, MAX_NUM_LEVELS> mSegSplits;                 //~ splits per cross section. 1 = 1 split per section
+    std::array<F32, MAX_NUM_LEVELS> mSplitAngle;                //~ angle that splits go from parent (tempered by height)
+    std::array<F32, MAX_NUM_LEVELS> mSplitAngleV;               //~ variance of the splits
 
     // CURVE
-    F32 mCurve[MAX_NUM_LEVELS];     //* general, 1-axis, overall curve of branch
-    F32 mCurveV[MAX_NUM_LEVELS];    //* curve variance at each cross section from general overall curve
-    U8 mCurveRes[MAX_NUM_LEVELS];   //* number of cross sections for curve
-    F32 mCurveBack[MAX_NUM_LEVELS]; //* curveback is amount branch curves back towards
+    std::array<F32, MAX_NUM_LEVELS> mCurve;                     //* general, 1-axis, overall curve of branch
+    std::array<F32, MAX_NUM_LEVELS> mCurveV;                    //* curve variance at each cross section from general overall curve
+    std::array<U8, MAX_NUM_LEVELS> mCurveRes;                   //* number of cross sections for curve
+    std::array<F32, MAX_NUM_LEVELS> mCurveBack;                 //* curveback is amount branch curves back towards
 
     //  vertices per cross section
-    U8 mVertices[MAX_NUM_LEVELS];
+    std::array<U8, MAX_NUM_LEVELS> mVertices;
 
     // * no longer useful with pre-instanced branches
     // specifies upward tendency of branches.

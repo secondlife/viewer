@@ -31,6 +31,7 @@
 #include "llstring.h"
 
 #include <list>
+#include <vector>
 
 class LLMaterialInfo;
 
@@ -90,9 +91,9 @@ public:
     typedef std::list<LLMaterialInfo*> info_list_t;
     info_list_t mMaterialInfoList;
 
-    LLUUID *mCollisionSoundMatrix;
-    LLUUID *mSlidingSoundMatrix;
-    LLUUID *mRollingSoundMatrix;
+    std::vector<LLUUID> mCollisionSoundMatrix;
+    std::vector<LLUUID> mSlidingSoundMatrix;
+    std::vector<LLUUID> mRollingSoundMatrix;
 
     static const F32 DEFAULT_FRICTION;
     static const F32 DEFAULT_RESTITUTION;

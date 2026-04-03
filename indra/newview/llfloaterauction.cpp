@@ -204,7 +204,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
         tga->encode(raw);
 
         LLFileSystem tga_file(self->mImageID, LLAssetType::AT_IMAGE_TGA, LLFileSystem::WRITE);
-        tga_file.write(tga->getData(), tga->getDataSize());
+        tga_file.write(std::span{tga->getData(), static_cast<size_t>(tga->getDataSize())});
 
         raw->biasedScaleToPowerOfTwo(LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT);
 
@@ -214,7 +214,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
         j2c->encode(raw, 0.0f);
 
         LLFileSystem j2c_file(self->mImageID, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
-        j2c_file.write(j2c->getData(), j2c->getDataSize());
+        j2c_file.write(std::span{j2c->getData(), static_cast<size_t>(j2c->getDataSize())});
 
         self->mImage = LLViewerTextureManager::getLocalTexture((LLImageRaw*)raw, false);
         gGL.getTexUnit(0)->bind(self->mImage);

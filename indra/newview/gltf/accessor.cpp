@@ -142,7 +142,7 @@ bool Buffer::prep(Asset& asset)
         }
 
         mData.resize(mByteLength);
-        if (!file.read((U8*)mData.data(), mByteLength))
+        if (!file.read(std::span{reinterpret_cast<U8*>(mData.data()), static_cast<size_t>(mByteLength)}))
         {
             LL_WARNS("GLTF") << "Failed to load buffer data from asset: " << id << LL_ENDL;
             return false;

@@ -31,7 +31,9 @@
 // Header files
 //-----------------------------------------------------------------------------
 
+#include <array>
 #include <string>
+#include <vector>
 
 #include "llassetstorage.h"
 #include "llbboxlocal.h"
@@ -216,9 +218,9 @@ protected:
             mConstraintTargetType(CONSTRAINT_TARGET_TYPE_BODY),
             mSourceConstraintVolume(0),
             mTargetConstraintVolume(0),
-            mJointStateIndices(NULL)
+            mJointStateIndices()
         { };
-        ~JointConstraintSharedData() { delete [] mJointStateIndices; }
+        ~JointConstraintSharedData() = default;
 
         S32                     mSourceConstraintVolume;
         LLVector3               mSourceConstraintOffset;
@@ -226,7 +228,7 @@ protected:
         LLVector3               mTargetConstraintOffset;
         LLVector3               mTargetConstraintDir;
         S32                     mChainLength;
-        S32*                    mJointStateIndices;
+        std::vector<S32>        mJointStateIndices;
         F32                     mEaseInStartTime;
         F32                     mEaseInStopTime;
         F32                     mEaseOutStartTime;
@@ -248,9 +250,9 @@ protected:
         JointConstraintSharedData*  mSharedData;
         F32                         mWeight;
         F32                         mTotalLength;
-        LLVector3                   mPositions[MAX_CHAIN_LENGTH];
-        F32                         mJointLengths[MAX_CHAIN_LENGTH];
-        F32                         mJointLengthFractions[MAX_CHAIN_LENGTH];
+        std::array<LLVector3, MAX_CHAIN_LENGTH>   mPositions;
+        std::array<F32, MAX_CHAIN_LENGTH>         mJointLengths;
+        std::array<F32, MAX_CHAIN_LENGTH>         mJointLengthFractions;
         bool                        mActive;
         LLVector3d                  mGroundPos;
         LLVector3                   mGroundNorm;

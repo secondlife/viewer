@@ -318,11 +318,10 @@ public:
     {
         tabs();
 
-        char* str = new char[len+1];
-        strncpy( str, s, len );
+        std::vector<char> str(len + 1);
+        strncpy( str.data(), s, len );
         str[len] = '\0';
-        printf("CharacterData %s\n", str);
-        delete str;
+        printf("CharacterData %s\n", str.data());
     }
 
     virtual void processingInstruction(const char *target, const char *data)
@@ -352,11 +351,10 @@ public:
     {
         tabs();
 
-        char* str = new char[len+1];
-        strncpy( str, s, len );
+        std::vector<char> str(len + 1);
+        strncpy( str.data(), s, len );
         str[len] = '\0';
-        printf("defaultData %s\n", str);
-        delete str;
+        printf("defaultData %s\n", str.data());
     }
 
     virtual void unparsedEntityDecl(

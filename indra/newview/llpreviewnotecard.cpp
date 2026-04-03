@@ -367,7 +367,7 @@ void LLPreviewNotecard::onLoadComplete(const LLUUID& asset_uuid,
             S32 file_length = file.getSize();
 
             std::vector<char> buffer(file_length+1);
-            file.read((U8*)&buffer[0], file_length);
+            file.read(std::span{reinterpret_cast<U8*>(&buffer[0]), static_cast<size_t>(file_length)});
 
             // put a EOS at the end
             buffer[file_length] = 0;
@@ -550,7 +550,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
                                                                 tid, copyitem);
 
                 S32 size = static_cast<S32>(buffer.length()) + 1;
-                file.write((U8*)buffer.c_str(), size);
+                file.write(std::span{reinterpret_cast<const U8*>(buffer.c_str()), static_cast<size_t>(size)});
 
                 gAssetStorage->storeAssetData(tid, LLAssetType::AT_NOTECARD,
                                                 &onSaveComplete,

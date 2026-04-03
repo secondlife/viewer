@@ -52,11 +52,9 @@ LLPolyMorphData::LLPolyMorphData(const std::string& morph_name)
     mTotalDistortion = 0.f;
     mAvgDistortion.clear();
     mMaxDistortion = 0.f;
-    mVertexIndices = NULL;
     mCoords = NULL;
     mNormals = NULL;
     mBinormals = NULL;
-    mTexCoords = NULL;
 
     mMesh = NULL;
 }
@@ -67,11 +65,11 @@ LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
     mTotalDistortion(rhs.mTotalDistortion),
     mAvgDistortion(rhs.mAvgDistortion),
     mMaxDistortion(rhs.mMaxDistortion),
-    mVertexIndices(NULL),
+    mVertexIndices(rhs.mVertexIndices),
     mCoords(NULL),
     mNormals(NULL),
     mBinormals(NULL),
-    mTexCoords(NULL)
+    mTexCoords(rhs.mTexCoords)
 {
     const S32 numVertices = mNumIndices;
 
@@ -80,16 +78,12 @@ LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
     mCoords = static_cast<LLVector4a*>( ll_aligned_malloc_16(size) );
     mNormals = static_cast<LLVector4a*>( ll_aligned_malloc_16(size) );
     mBinormals = static_cast<LLVector4a*>( ll_aligned_malloc_16(size) );
-    mTexCoords = new LLVector2[numVertices];
-    mVertexIndices = new U32[numVertices];
 
     for (S32 v=0; v < numVertices; v++)
     {
         mCoords[v] = rhs.mCoords[v];
         mNormals[v] = rhs.mNormals[v];
         mBinormals[v] = rhs.mBinormals[v];
-        mTexCoords[v] = rhs.mTexCoords[v];
-        mVertexIndices[v] = rhs.mVertexIndices[v];
     }
 }
 
@@ -132,9 +126,9 @@ bool LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
     mNormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(size));
     mBinormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(size));
 
-    mTexCoords = new LLVector2[numVertices];
+    mTexCoords.resize(numVertices);
     // Actually, we are allocating more space than we need for the skiplist
-    mVertexIndices = new U32[numVertices];
+    mVertexIndices.resize(numVertices);
     mNumIndices = 0;
     mTotalDistortion = 0.f;
     mMaxDistortion = 0.f;
@@ -239,17 +233,8 @@ void LLPolyMorphData::freeData()
         mBinormals = NULL;
     }
 
-    if (mTexCoords != NULL)
-    {
-        delete [] mTexCoords;
-        mTexCoords = NULL;
-    }
-
-    if (mVertexIndices != NULL)
-    {
-        delete [] mVertexIndices;
-        mVertexIndices = NULL;
-    }
+    mTexCoords.clear();
+    mVertexIndices.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -747,7 +732,7 @@ void LLPolyMorphTarget::applyVolumeChanges(F32 delta_weight)
 // LLPolyVertexMask()
 //-----------------------------------------------------------------------------
 LLPolyVertexMask::LLPolyVertexMask(LLPolyMorphData* morph_data)
-    : mWeights(new F32[morph_data->mNumIndices]),
+    : mWeights(morph_data->mNumIndices),
     mMorphData(morph_data),
     mWeightsGenerated(false)
 {
@@ -759,13 +744,12 @@ LLPolyVertexMask::LLPolyVertexMask(LLPolyMorphData* morph_data)
 // LLPolyVertexMask()
 //-----------------------------------------------------------------------------
 LLPolyVertexMask::LLPolyVertexMask(const LLPolyVertexMask& pOther)
-    : mWeights(new F32[pOther.mMorphData->mNumIndices]),
+    : mWeights(pOther.mWeights),
     mMorphData(pOther.mMorphData),
     mWeightsGenerated(pOther.mWeightsGenerated)
 {
     llassert(mMorphData != NULL);
     llassert(mMorphData->mNumIndices > 0);
-    memcpy(mWeights, pOther.mWeights, sizeof(F32) * mMorphData->mNumIndices);
 }
 
 //-----------------------------------------------------------------------------
@@ -773,8 +757,6 @@ LLPolyVertexMask::LLPolyVertexMask(const LLPolyVertexMask& pOther)
 //-----------------------------------------------------------------------------
 LLPolyVertexMask::~LLPolyVertexMask()
 {
-    delete [] mWeights;
-    mWeights = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -840,5 +822,5 @@ F32* LLPolyVertexMask::getMorphMaskWeights()
         return NULL;
     }
 
-    return mWeights;
+    return mWeights.data();
 }

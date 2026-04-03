@@ -1870,7 +1870,7 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
             S32 file_length = file.getSize();
 
             std::vector<char> buffer(file_length+1);
-            file.read((U8*)&buffer[0], file_length);
+            file.read(std::span{reinterpret_cast<U8*>(&buffer[0]), static_cast<size_t>(file_length)});
 
             // put a EOS at the end
             buffer[file_length] = 0;
@@ -2178,7 +2178,7 @@ void LLLiveLSLEditor::loadScriptText(const LLUUID &uuid, LLAssetType::EType type
     LLFileSystem file(uuid, type);
     S32 file_length = file.getSize();
     std::vector<char> buffer(file_length + 1);
-    file.read((U8*)&buffer[0], file_length);
+    file.read(std::span{reinterpret_cast<U8*>(&buffer[0]), static_cast<size_t>(file_length)});
 
     if (file.getLastBytesRead() != file_length ||
         file_length <= 0)

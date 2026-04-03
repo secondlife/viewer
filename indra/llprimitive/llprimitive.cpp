@@ -26,6 +26,8 @@
 
 #include "linden_common.h"
 
+#include <array>
+
 #include "material_codes.h"
 #include "llerror.h"
 #include "message.h"
@@ -882,7 +884,7 @@ bool LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
     }
 
     // initialize face_mapping
-    S32 face_mapping[9];
+    std::array<S32, 9> face_mapping;
     for (face_bit = 0; face_bit < 9; face_bit++)
     {
         face_mapping[face_bit] = face_bit;

@@ -33,6 +33,8 @@
 #include "llxmlnode.h"
 #include "llinventorytype.h"
 
+#include <array>
+
 // prototypes
 class LLMessageSystem;
 extern void mask_to_string(U32 mask, char* str);
@@ -429,7 +431,7 @@ protected:
     static EPermIndex perm2PermIndex(PermissionBit bit);
 
     // structure used to store the aggregate so far.
-    U8 mBits[PI_COUNT];
+    std::array<U8, PI_COUNT> mBits;
 };
 
 // These functions convert between structured data and permissions as

@@ -28,8 +28,10 @@
 #ifndef LL_LLTRANSFERMANAGER_H
 #define LL_LLTRANSFERMANAGER_H
 
+#include <array>
 #include <map>
 #include <list>
+#include <vector>
 
 #include "llhost.h"
 #include "lluuid.h"
@@ -147,8 +149,8 @@ protected:
     bool    mValid;
     LLHost  mHost;
 
-    S32     mTransferBitsIn[LLTTT_NUM_TYPES];
-    S32     mTransferBitsOut[LLTTT_NUM_TYPES];
+    std::array<S32, LLTTT_NUM_TYPES>     mTransferBitsIn;
+    std::array<S32, LLTTT_NUM_TYPES>     mTransferBitsOut;
 
     // We keep a map between each host and LLTransferConnection.
     host_tc_map mTransferConnections;
@@ -358,12 +360,12 @@ class LLTransferPacket
 protected:
 
     LLTransferPacket(const S32 packet_id, const LLTSCode status, const U8 *datap, const S32 size);
-    virtual ~LLTransferPacket();
+    virtual ~LLTransferPacket() = default;
 
 protected:
     S32         mPacketID;
     LLTSCode    mStatus;
-    U8          *mDatap;
+    std::vector<U8> mData;
     S32         mSize;
 };
 

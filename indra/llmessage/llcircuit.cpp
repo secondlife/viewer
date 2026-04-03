@@ -347,7 +347,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
             packetp->mBuffer[0] |= LL_RESENT_FLAG;  // tag packet id as being a resend
 
             gMessageSystem->mPacketRing.sendPacket(packetp->mSocket,
-                                               (char *)packetp->mBuffer, packetp->mBufferLength,
+                                               (char *)packetp->mBuffer.data(), packetp->mBufferLength,
                                                packetp->mHost);
 
             mThrottles.throttleOverflow(TC_RESEND, packetp->mBufferLength * 8.f);

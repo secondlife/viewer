@@ -86,9 +86,6 @@ F32 const LLMaterialTable::DEFAULT_FRICTION = 0.5f;
 F32 const LLMaterialTable::DEFAULT_RESTITUTION = 0.4f;
 
 LLMaterialTable::LLMaterialTable()
-    : mCollisionSoundMatrix(NULL),
-      mSlidingSoundMatrix(NULL),
-      mRollingSoundMatrix(NULL)
 {
 }
 
@@ -99,24 +96,6 @@ LLMaterialTable::LLMaterialTable(U8 isBasic)
 
 LLMaterialTable::~LLMaterialTable()
 {
-    if (mCollisionSoundMatrix)
-    {
-        delete [] mCollisionSoundMatrix;
-        mCollisionSoundMatrix = NULL;
-    }
-
-    if (mSlidingSoundMatrix)
-    {
-        delete [] mSlidingSoundMatrix;
-        mSlidingSoundMatrix = NULL;
-    }
-
-    if (mRollingSoundMatrix)
-    {
-        delete [] mRollingSoundMatrix;
-        mRollingSoundMatrix = NULL;
-    }
-
     for_each(mMaterialInfoList.begin(), mMaterialInfoList.end(), DeletePointer());
     mMaterialInfoList.clear();
 }
@@ -194,8 +173,7 @@ void LLMaterialTable::initBasicTable()
     addShatterSound(LL_MCODE_LIGHT,LLUUID("d55c7f3c-e1c3-4ddc-9eff-9ef805d9190e"));
 
     //  CollisionSounds
-    mCollisionSoundMatrix = new LLUUID[LL_MCODE_END*LL_MCODE_END];
-    if (mCollisionSoundMatrix)
+    mCollisionSoundMatrix.resize(LL_MCODE_END*LL_MCODE_END);
     {
         addCollisionSound(LL_MCODE_STONE, LL_MCODE_STONE, SND_STONE_STONE);
         addCollisionSound(LL_MCODE_STONE, LL_MCODE_METAL, SND_STONE_METAL);
@@ -243,8 +221,7 @@ void LLMaterialTable::initBasicTable()
     }
 
     //  Sliding Sounds
-    mSlidingSoundMatrix = new LLUUID[LL_MCODE_END*LL_MCODE_END];
-    if (mSlidingSoundMatrix)
+    mSlidingSoundMatrix.resize(LL_MCODE_END*LL_MCODE_END);
     {
         addSlidingSound(LL_MCODE_STONE, LL_MCODE_STONE, SND_SLIDE_STONE_STONE);
         addSlidingSound(LL_MCODE_STONE, LL_MCODE_METAL, SND_SLIDE_STONE_STONE_01);
@@ -292,8 +269,7 @@ void LLMaterialTable::initBasicTable()
     }
 
     //  Rolling Sounds
-    mRollingSoundMatrix = new LLUUID[LL_MCODE_END*LL_MCODE_END];
-    if (mRollingSoundMatrix)
+    mRollingSoundMatrix.resize(LL_MCODE_END*LL_MCODE_END);
     {
         addRollingSound(LL_MCODE_STONE, LL_MCODE_STONE, SND_ROLL_STONE_STONE);
         addRollingSound(LL_MCODE_STONE, LL_MCODE_METAL, SND_SLIDE_STONE_STONE_01);
@@ -357,7 +333,7 @@ bool LLMaterialTable::add(U8 mcode, const std::string& name, const LLUUID &uuid)
 
 bool LLMaterialTable::addCollisionSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 {
-    if (mCollisionSoundMatrix && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
+    if (!mCollisionSoundMatrix.empty() && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
     {
         mCollisionSoundMatrix[mcode * LL_MCODE_END + mcode2] = uuid;
         if (mcode != mcode2)
@@ -370,7 +346,7 @@ bool LLMaterialTable::addCollisionSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 
 bool LLMaterialTable::addSlidingSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 {
-    if (mSlidingSoundMatrix && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
+    if (!mSlidingSoundMatrix.empty() && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
     {
         mSlidingSoundMatrix[mcode * LL_MCODE_END + mcode2] = uuid;
         if (mcode != mcode2)
@@ -383,7 +359,7 @@ bool LLMaterialTable::addSlidingSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 
 bool LLMaterialTable::addRollingSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 {
-    if (mRollingSoundMatrix && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
+    if (!mRollingSoundMatrix.empty() && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
     {
         mRollingSoundMatrix[mcode * LL_MCODE_END + mcode2] = uuid;
         if (mcode != mcode2)
@@ -548,7 +524,7 @@ LLUUID LLMaterialTable::getCollisionSoundUUID(U8 mcode, U8 mcode2)
     mcode2 &= LL_MCODE_MASK;
 
     //LL_INFOS() << "code 1: " << ((U32) mcode) << " code 2:" << ((U32) mcode2) << LL_ENDL;
-    if (mCollisionSoundMatrix && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
+    if (!mCollisionSoundMatrix.empty() && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
     {
         return(mCollisionSoundMatrix[mcode * LL_MCODE_END + mcode2]);
     }
@@ -581,7 +557,7 @@ LLUUID LLMaterialTable::getSlidingSoundUUID(U8 mcode, U8 mcode2)
     mcode &= LL_MCODE_MASK;
     mcode2 &= LL_MCODE_MASK;
 
-    if (mSlidingSoundMatrix && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
+    if (!mSlidingSoundMatrix.empty() && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
     {
         return(mSlidingSoundMatrix[mcode * LL_MCODE_END + mcode2]);
     }
@@ -596,7 +572,7 @@ LLUUID LLMaterialTable::getRollingSoundUUID(U8 mcode, U8 mcode2)
     mcode &= LL_MCODE_MASK;
     mcode2 &= LL_MCODE_MASK;
 
-    if (mRollingSoundMatrix && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
+    if (!mRollingSoundMatrix.empty() && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
     {
         return(mRollingSoundMatrix[mcode * LL_MCODE_END + mcode2]);
     }

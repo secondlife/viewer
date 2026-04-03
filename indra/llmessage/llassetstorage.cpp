@@ -1410,7 +1410,7 @@ void LLAssetStorage::legacyGetDataCallback(const LLUUID &uuid,
         {
             const S32 buf_size = 65536;
             U8 copy_buf[buf_size];
-            while (file.read(copy_buf, buf_size))   /* Flawfinder: ignore */
+            while (file.read(std::span{copy_buf, static_cast<size_t>(buf_size)}))   /* Flawfinder: ignore */
             {
                 if (fwrite(copy_buf, file.getLastBytesRead(), 1, fp) < 1)
                 {

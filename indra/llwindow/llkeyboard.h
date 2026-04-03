@@ -27,6 +27,7 @@
 #ifndef LL_LLKEYBOARD_H
 #define LL_LLKEYBOARD_H
 
+#include <array>
 #include <functional>
 #include <map>
 
@@ -114,12 +115,12 @@ protected:
     std::map<KEY, U16>  mInvTranslateKeyMap;    // Map of translations from Linden KEYs to OS keys
     LLWindowCallbacks *mCallbacks;
 
-    LLTimer         mKeyLevelTimer[KEY_COUNT];  // Time since level was set
-    S32             mKeyLevelFrameCount[KEY_COUNT]; // Frames since level was set
-    bool            mKeyLevel[KEY_COUNT];       // Levels
-    bool            mKeyRepeated[KEY_COUNT];    // Key was repeated
-    bool            mKeyUp[KEY_COUNT];          // Up edge
-    bool            mKeyDown[KEY_COUNT];        // Down edge
+    std::array<LLTimer, KEY_COUNT>  mKeyLevelTimer;      // Time since level was set
+    std::array<S32, KEY_COUNT>      mKeyLevelFrameCount; // Frames since level was set
+    std::array<bool, KEY_COUNT>     mKeyLevel;           // Levels
+    std::array<bool, KEY_COUNT>     mKeyRepeated;        // Key was repeated
+    std::array<bool, KEY_COUNT>     mKeyUp;              // Up edge
+    std::array<bool, KEY_COUNT>     mKeyDown;            // Down edge
     KEY             mCurTranslatedKey;
     KEY             mCurScanKey;        // Used during the scanKeyboard()
 

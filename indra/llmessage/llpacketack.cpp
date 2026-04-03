@@ -71,12 +71,7 @@ LLReliablePacket::LLReliablePacket(
     mSocket = socket;
     if (mRetries)
     {
-        mBuffer = new U8[buf_len];
-        if (mBuffer != NULL)
-        {
-            memcpy(mBuffer,buf_ptr,buf_len);    /*Flawfinder: ignore*/
-            mBufferLength = buf_len;
-        }
-
+        mBuffer.assign(buf_ptr, buf_ptr + buf_len);
+        mBufferLength = buf_len;
     }
 }

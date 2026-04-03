@@ -118,7 +118,7 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
         return output;
     }
 
-    S32 groupings[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    std::array<S32, 10> groupings = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     S32 cur_group;
     for( cur_group = 0; grouping[ cur_group ]; cur_group++ )
     {
