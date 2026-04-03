@@ -2458,7 +2458,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)
 
 void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 {
-    if (group->isEmpty())
+    if (group->isEmpty()) [[unlikely]]
     {
         return;
     }
@@ -3038,7 +3038,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
     for (LLCullResult::sg_iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
     {
         LLSpatialGroup* group = *iter;
-        if (group->isDead())
+        if (group->isDead()) [[unlikely]]
         {
             continue;
         }
@@ -3101,7 +3101,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
     for (LLCullResult::sg_iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
     {
         LLSpatialGroup* group = *iter;
-        if (group->isDead())
+        if (group->isDead()) [[unlikely]]
         {
             continue;
         }
@@ -3127,7 +3127,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
              iter != sCull->endVisibleList(); ++iter)
         {
             LLDrawable *drawablep = *iter;
-            if (!drawablep->isDead())
+            if (!drawablep->isDead()) [[likely]]
             {
                 stateSort(drawablep, camera);
             }
@@ -3169,7 +3169,7 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     if (!drawablep
         || drawablep->isDead()
-        || !hasRenderType(drawablep->getRenderType()))
+        || !hasRenderType(drawablep->getRenderType())) [[unlikely]]
     {
         return;
     }
@@ -3890,7 +3890,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 
     llassert(!sRenderingHUDs);
 
-    if (gUseWireframe)
+    if (gUseWireframe) [[unlikely]]
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
@@ -3962,7 +3962,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
             }
 
             pool_set_t::iterator iter2 = iter1;
-            if (hasRenderType(poolp->getType()) && poolp->getNumDeferredPasses() > 0)
+            if (hasRenderType(poolp->getType()) && poolp->getNumDeferredPasses() > 0) [[likely]]
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pool render");
 
@@ -4013,7 +4013,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 
     } // Tracy ZoneScoped
 
-    if (gUseWireframe)
+    if (gUseWireframe) [[unlikely]]
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
@@ -4026,7 +4026,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LL_PROFILE_GPU_ZONE("renderGeomPostDeferred");
 
-    if (gUseWireframe)
+    if (gUseWireframe) [[unlikely]]
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }

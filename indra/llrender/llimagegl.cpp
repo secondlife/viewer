@@ -678,7 +678,7 @@ void LLImageGL::forceUpdateBindStats(void) const
 
 bool LLImageGL::updateBindStats() const
 {
-    if (mTexName != 0)
+    if (mTexName != 0) [[likely]]
     {
 #ifdef DEBUG_MISS
         mMissed = ! getIsResident(true);

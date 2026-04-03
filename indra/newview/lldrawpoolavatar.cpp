@@ -698,7 +698,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
         avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
     }
 
-    if (avatarp->isDead() || avatarp->mDrawable.isNull())
+    if (avatarp->isDead() || avatarp->mDrawable.isNull()) [[unlikely]]
     {
         return;
     }

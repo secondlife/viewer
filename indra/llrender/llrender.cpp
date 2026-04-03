@@ -197,7 +197,7 @@ void LLTexUnit::bindFast(LLTexture* texture)
     glActiveTexture(GL_TEXTURE0 + mIndex);
     gGL.mCurrTextureUnitIndex = mIndex;
     mCurrTexture = gl_tex->getTexName();
-    if (!mCurrTexture)
+    if (!mCurrTexture) [[unlikely]]
     {
         LL_PROFILE_ZONE_NAMED("MISSING TEXTURE");
         //if deleted, will re-generate it immediately
@@ -207,7 +207,7 @@ void LLTexUnit::bindFast(LLTexture* texture)
     }
     glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
     mHasMipMaps = gl_tex->mHasMipMaps;
-    if (gl_tex->mTexOptionsDirty)
+    if (gl_tex->mTexOptionsDirty) [[unlikely]]
     {
         gl_tex->mTexOptionsDirty = false;
         setTextureAddressModeFast(gl_tex->mAddressMode, gl_tex->getTarget());
@@ -219,15 +219,15 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     stop_glerror();
-    if (mIndex >= 0)
+    if (mIndex >= 0) [[likely]]
     {
         gGL.flush();
 
         LLImageGL* gl_tex = NULL ;
 
-        if (texture != NULL && (gl_tex = texture->getGLTexture()))
+        if (texture != NULL && (gl_tex = texture->getGLTexture())) [[likely]]
         {
-            if (gl_tex->getTexName()) //if texture exists
+            if (gl_tex->getTexName()) [[likely]] //if texture exists
             {
                 //in audit, replace the selected texture by the default one.
                 if ((mCurrTexture != gl_tex->getTexName()) || forceBind)
@@ -242,7 +242,7 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
                         texture->updateBindStatsForTester() ;
                     }
                     mHasMipMaps = gl_tex->mHasMipMaps;
-                    if (gl_tex->mTexOptionsDirty)
+                    if (gl_tex->mTexOptionsDirty) [[unlikely]]
                     {
                         gl_tex->mTexOptionsDirty = false;
                         setTextureAddressMode(gl_tex->mAddressMode);
@@ -283,17 +283,17 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32 usename)
 {
     stop_glerror();
-    if (mIndex < 0) return false;
+    if (mIndex < 0) [[unlikely]] return false;
 
     U32 texname = usename ? usename : texture->getTexName();
 
-    if(!texture)
+    if(!texture) [[unlikely]]
     {
         LL_DEBUGS() << "NULL LLTexUnit::bind texture" << LL_ENDL;
         return false;
     }
 
-    if(!texname)
+    if(!texname) [[unlikely]]
     {
         if(LLImageGL::sDefaultGLTexture && LLImageGL::sDefaultGLTexture->getTexName())
         {
@@ -316,7 +316,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32
         stop_glerror();
         texture->updateBindStats();
         mHasMipMaps = texture->mHasMipMaps;
-        if (texture->mTexOptionsDirty)
+        if (texture->mTexOptionsDirty) [[unlikely]]
         {
             stop_glerror();
             texture->mTexOptionsDirty = false;
@@ -333,11 +333,11 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32
 
 bool LLTexUnit::bind(LLCubeMap* cubeMap)
 {
-    if (mIndex < 0) return false;
+    if (mIndex < 0) [[unlikely]] return false;
 
     gGL.flush();
 
-    if (cubeMap == NULL)
+    if (cubeMap == NULL) [[unlikely]]
     {
         LL_WARNS() << "NULL LLTexUnit::bind cubemap" << LL_ENDL;
         return false;
@@ -1003,7 +1003,7 @@ void LLRender::syncMatrices()
     static glm::mat4 cached_normal;
     static U32 cached_normal_hash = 0xFFFFFFFF;
 
-    if (shader)
+    if (shader) [[likely]]
     {
         bool mvp_done = false;
 
@@ -1581,9 +1581,9 @@ void LLRender::flush()
         //store mCount in a local variable to avoid re-entrance (drawArrays may call flush)
         U32 count = mCount;
 
-        if (mMode == LLRender::TRIANGLES)
+        if (mMode == LLRender::TRIANGLES) [[likely]]
         {
-            if (mCount%3 != 0)
+            if (mCount%3 != 0) [[unlikely]]
             {
             count -= (mCount % 3);
             LL_WARNS() << "Incomplete triangle requested." << LL_ENDL;
@@ -1592,7 +1592,7 @@ void LLRender::flush()
 
         if (mMode == LLRender::LINES)
         {
-            if (mCount%2 != 0)
+            if (mCount%2 != 0) [[unlikely]]
             {
                 count -= (mCount % 2);
                 LL_WARNS() << "Incomplete line requested." << LL_ENDL;
@@ -1601,14 +1601,14 @@ void LLRender::flush()
 
         mCount = 0;
 
-        if (mBuffer)
+        if (mBuffer) [[likely]]
         {
 
             LLVertexBuffer *vb;
 
             U32 attribute_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
-            if (sBufferDataList)
+            if (sBufferDataList) [[unlikely]]
             {
                 vb = genBuffer(attribute_mask, count);
                 sBufferDataList->emplace_back(
@@ -1758,7 +1758,7 @@ void LLRender::resetStriders(S32 count)
 void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
     //the range of mVerticesp, mColorsp and mTexcoordsp is [0, 4095]
-    if (mCount > 2048)
+    if (mCount > 2048) [[unlikely]]
     { //break when buffer gets reasonably full to keep GL command buffers happy and avoid overflow below
         switch (mMode)
         {
@@ -1768,7 +1768,7 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
         }
     }
 
-    if (mCount > 4094)
+    if (mCount > 4094) [[unlikely]]
     {
     //  LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
         return;
@@ -1833,7 +1833,7 @@ void LLRender::vertexBatchPreTransformed(const std::vector<LLVector4a>& verts)
 
 void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, S32 vert_count)
 {
-    if (mCount + vert_count > 4094)
+    if (mCount + vert_count > 4094) [[unlikely]]
     {
         //  LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
         return;
@@ -1854,7 +1854,7 @@ void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, S32 vert_count
 
 void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, S32 vert_count)
 {
-    if (mCount + vert_count > 4094)
+    if (mCount + vert_count > 4094) [[unlikely]]
     {
         //  LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
         return;
@@ -1878,7 +1878,7 @@ void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, const LLVector
 
 void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, const LLColor4U* colors, S32 vert_count)
 {
-    if (mCount + vert_count > 4094)
+    if (mCount + vert_count > 4094) [[unlikely]]
     {
         //  LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
         return;

@@ -802,7 +802,7 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
 
 bool LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_offset) const
 {
-    if (!gDebugGL)
+    if (!gDebugGL) [[likely]]
     {
         return true;
     }
@@ -1339,7 +1339,7 @@ void LLVertexBuffer::unmapBuffer()
 
 void LLVertexBuffer::_mapBuffer()
 {
-    if (!mMapped)
+    if (!mMapped) [[likely]]
     {
         mMapped = true;
         sMappedBuffers.push_back(this);
@@ -1349,7 +1349,7 @@ void LLVertexBuffer::_mapBuffer()
 void LLVertexBuffer::_unmapBuffer()
 {
     STOP_GLERROR;
-    if (!mMapped)
+    if (!mMapped) [[unlikely]]
     {
         return;
     }
@@ -1593,7 +1593,7 @@ void LLVertexBuffer::setBuffer()
 {
     STOP_GLERROR;
 
-    if (mMapped)
+    if (mMapped) [[unlikely]]
     {
         LL_WARNS_ONCE() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
         _unmapBuffer();

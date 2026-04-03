@@ -557,7 +557,7 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 
 void LLRenderPass::applyModelMatrix(const LLMatrix4* model_matrix)
 {
-    if (model_matrix != gGLLastMatrix)
+    if (model_matrix != gGLLastMatrix) [[unlikely]]
     {
         gGLLastMatrix = model_matrix;
         gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -575,7 +575,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textur
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     llassert(texture);
 
-    if (!params.mCount)
+    if (!params.mCount) [[unlikely]]
     {
         return;
     }
@@ -597,10 +597,10 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textur
         }
         else
         { //not batching textures or batch has only 1 texture -- might need a texture matrix
-            if (params.mTexture.notNull())
+            if (params.mTexture.notNull()) [[likely]]
             {
                 gGL.getTexUnit(0)->bindFast(params.mTexture);
-                if (params.mTextureMatrix)
+                if (params.mTextureMatrix) [[unlikely]]
                 {
                     tex_setup = true;
                     gGL.getTexUnit(0)->activate();
@@ -619,7 +619,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textur
     params.mVertexBuffer->setBuffer();
     params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 
-    if (tex_setup)
+    if (tex_setup) [[unlikely]]
     {
         gGL.matrixMode(LLRender::MM_TEXTURE0);
         gGL.loadIdentity();
@@ -631,7 +631,7 @@ void LLRenderPass::pushUntexturedBatch(LLDrawInfo& params)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
-    if (!params.mCount)
+    if (!params.mCount) [[unlikely]]
     {
         return;
     }
@@ -654,14 +654,14 @@ bool LLRenderPass::uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinI
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
-    if (!avatar)
+    if (!avatar) [[unlikely]]
     {
         return false;
     }
     const LLVOAvatar::MatrixPaletteCache& mpc = avatar->updateSkinInfoMatrixPalette(skinInfo);
     U32 count = static_cast<U32>(mpc.mMatrixPalette.size());
 
-    if (count == 0)
+    if (count == 0) [[unlikely]]
     {
         //skin info not loaded yet, don't render
         return false;
@@ -818,7 +818,7 @@ void LLRenderPass::pushGLTFBatch(LLDrawInfo& params)
 {
     auto& mat = params.mGLTFMaterial;
 
-    if (mat.notNull())
+    if (mat.notNull()) [[likely]]
     {
         mat->bind(params.mTexture);
     }

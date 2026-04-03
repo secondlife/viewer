@@ -1068,7 +1068,7 @@ void LLGLSLShader::bind()
         LLVertexBuffer::setupClientArrays(mAttributeMask);
     }
 
-    if (mUniformsDirty)
+    if (mUniformsDirty) [[unlikely]]
     {
         LLShaderMgr::instance()->updateShaderUniforms(this);
         mUniformsDirty = false;
@@ -1128,7 +1128,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextu
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    if (uniform < 0 || uniform >= (S32)mTexture.size()) [[unlikely]]
     {
         LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
         llassert(false);
@@ -1137,7 +1137,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextu
 
     uniform = mTexture[uniform];
 
-    if (uniform > -1)
+    if (uniform > -1) [[likely]]
     {
         gGL.getTexUnit(uniform)->bindFast(texture);
     }
@@ -1149,7 +1149,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, 
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    if (uniform < 0 || uniform >= (S32)mTexture.size()) [[unlikely]]
     {
         LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
         llassert(false);
@@ -1158,7 +1158,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, 
 
     uniform = getTextureChannel(uniform);
 
-    if (uniform > -1)
+    if (uniform > -1) [[likely]]
     {
         if (depth) {
             gGL.getTexUnit(uniform)->bind(texture, true);
@@ -1198,7 +1198,7 @@ S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    if (uniform < 0 || uniform >= (S32)mTexture.size()) [[unlikely]]
     {
         LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
         llassert(false);
@@ -1224,7 +1224,7 @@ S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    if (uniform < 0 || uniform >= (S32)mTexture.size()) [[unlikely]]
     {
         LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
         llassert(false);
@@ -1245,7 +1245,7 @@ S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    if (uniform < 0 || uniform >= (S32)mTexture.size()) [[unlikely]]
     {
         LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
         llassert(false);
@@ -1292,16 +1292,16 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             if (iter == mValue.end() || iter->second.mV[0] != x)
@@ -1318,16 +1318,16 @@ void LLGLSLShader::uniform1f(U32 index, GLfloat x)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             if (iter == mValue.end() || iter->second.mV[0] != x)
@@ -1354,16 +1354,16 @@ void LLGLSLShader::uniform2f(U32 index, GLfloat x, GLfloat y)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(x, y, 0.f, 0.f);
@@ -1381,16 +1381,16 @@ void LLGLSLShader::uniform3f(U32 index, GLfloat x, GLfloat y, GLfloat z)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(x, y, z, 0.f);
@@ -1408,16 +1408,16 @@ void LLGLSLShader::uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(x, y, z, w);
@@ -1435,16 +1435,16 @@ void LLGLSLShader::uniform1iv(U32 index, U32 count, const GLint* v)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec((F32)v[0], 0.f, 0.f, 0.f);
@@ -1462,16 +1462,16 @@ void LLGLSLShader::uniform4iv(U32 index, U32 count, const GLint* v)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
@@ -1490,16 +1490,16 @@ void LLGLSLShader::uniform1fv(U32 index, U32 count, const GLfloat* v)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0], 0.f, 0.f, 0.f);
@@ -1517,16 +1517,16 @@ void LLGLSLShader::uniform2fv(U32 index, U32 count, const GLfloat* v)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0], v[1], 0.f, 0.f);
@@ -1544,16 +1544,16 @@ void LLGLSLShader::uniform3fv(U32 index, U32 count, const GLfloat* v)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0], v[1], v[2], 0.f);
@@ -1571,16 +1571,16 @@ void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0], v[1], v[2], v[3]);
@@ -1599,16 +1599,16 @@ void LLGLSLShader::uniform4uiv(U32 index, U32 count, const GLuint* v)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
@@ -1627,16 +1627,16 @@ void LLGLSLShader::uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, c
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             glUniformMatrix2fv(mUniform[index], count, transpose, v);
         }
@@ -1648,16 +1648,16 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, c
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             glUniformMatrix3fv(mUniform[index], count, transpose, v);
         }
@@ -1669,16 +1669,16 @@ void LLGLSLShader::uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose,
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             glUniformMatrix3x4fv(mUniform[index], count, transpose, v);
         }
@@ -1690,16 +1690,16 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
 
-    if (mProgramObject)
+    if (mProgramObject) [[likely]]
     {
-        if (mUniform.size() <= index)
+        if (mUniform.size() <= index) [[unlikely]]
         {
             LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
 
-        if (mUniform[index] >= 0)
+        if (mUniform[index] >= 0) [[likely]]
         {
             glUniformMatrix4fv(mUniform[index], count, transpose, v);
         }

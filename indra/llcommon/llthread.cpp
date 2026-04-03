@@ -58,11 +58,12 @@ struct THREADNAME_INFO
 
 void set_thread_name( DWORD dwThreadID, const char* threadName)
 {
-    THREADNAME_INFO info;
-    info.dwType = 0x1000;
-    info.szName = threadName;
-    info.dwThreadID = dwThreadID;
-    info.dwFlags = 0;
+    THREADNAME_INFO info = {
+        .dwType = 0x1000,
+        .szName = threadName,
+        .dwThreadID = dwThreadID,
+        .dwFlags = 0
+    };
 
     __try
     {

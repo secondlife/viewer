@@ -604,7 +604,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
         llassert(group->getSpatialPartition());
 
         if (group->getSpatialPartition()->mRenderByGroup &&
-            !group->isDead())
+            !group->isDead()) [[likely]]
         {
 
             LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();

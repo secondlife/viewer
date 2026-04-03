@@ -298,7 +298,7 @@ void LLSpatialGroup::expandExtents(const LLVector4a* addingExtents, const LLXfor
 
 bool LLSpatialGroup::addObject(LLDrawable *drawablep)
 {
-    if(!drawablep)
+    if(!drawablep) [[unlikely]]
     {
         return false;
     }

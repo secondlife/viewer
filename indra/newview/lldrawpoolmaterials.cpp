@@ -236,7 +236,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
         if (params.mTexture != lastDiffuse)
         {
             lastDiffuse = params.mTexture;
-            if (lastDiffuse)
+            if (lastDiffuse) [[likely]]
             {
                 gGL.getTexUnit(diffuseChannel)->bindFast(lastDiffuse);
             }
@@ -260,7 +260,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
         bool tex_setup = false;
 
         //not batching textures or batch has only 1 texture -- might need a texture matrix
-        if (params.mTextureMatrix)
+        if (params.mTextureMatrix) [[unlikely]]
         {
             gGL.getTexUnit(0)->activate();
             gGL.matrixMode(LLRender::MM_TEXTURE);
@@ -279,7 +279,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
         params.mVertexBuffer->setBuffer();
         params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 
-        if (tex_setup)
+        if (tex_setup) [[unlikely]]
         {
             gGL.getTexUnit(0)->activate();
             gGL.loadIdentity();

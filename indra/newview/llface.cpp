@@ -503,7 +503,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
 
-    if (mDrawablep == NULL || mDrawablep->getSpatialGroup() == NULL)
+    if (mDrawablep == NULL || mDrawablep->getSpatialGroup() == NULL) [[unlikely]]
     {
         return;
     }
@@ -511,7 +511,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
     mDrawablep->getSpatialGroup()->rebuildGeom();
     mDrawablep->getSpatialGroup()->rebuildMesh();
 
-    if (mVertexBuffer.isNull())
+    if (mVertexBuffer.isNull()) [[unlikely]]
     {
         return;
     }
@@ -1182,7 +1182,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
     LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
     llassert(verify());
 
-    if (face_index < 0 || face_index >= volume.getNumVolumeFaces())
+    if (face_index < 0 || face_index >= volume.getNumVolumeFaces()) [[unlikely]]
     {
         if (gDebugGL)
         {
@@ -1206,9 +1206,9 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         updateRebuildFlags();
     }
 
-    if (mVertexBuffer.notNull())
+    if (mVertexBuffer.notNull()) [[likely]]
     {
-        if (num_indices + mIndicesIndex > mVertexBuffer->getNumIndices())
+        if (num_indices + mIndicesIndex > mVertexBuffer->getNumIndices()) [[unlikely]]
         {
             if (gDebugGL)
             {
@@ -1224,7 +1224,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             return false;
         }
 
-        if (num_vertices + (U32)mGeomIndex > mVertexBuffer->getNumVerts())
+        if (num_vertices + (U32)mGeomIndex > mVertexBuffer->getNumVerts()) [[unlikely]]
         {
             if (gDebugGL)
             {
@@ -1237,7 +1237,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
     const LLTextureEntry* tep = mVObjp->getTE(face_index);
     llassert(tep);
-    if (!tep)
+    if (!tep) [[unlikely]]
         return false;
 
     LLGLTFMaterial* gltf_mat = tep->getGLTFRenderMaterial();
@@ -2132,7 +2132,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
 void LLFace::renderIndexed()
 {
-    if (mVertexBuffer.notNull())
+    if (mVertexBuffer.notNull()) [[likely]]
     {
         mVertexBuffer->setBuffer();
         mVertexBuffer->drawRange(LLRender::TRIANGLES, getGeomIndex(), getGeomIndex() + getGeomCount()-1, getIndicesCount(), getIndicesStart());
@@ -2171,7 +2171,7 @@ F32 LLFace::getTextureVirtualSize()
     F32 cos_angle_to_view_dir;
     bool in_frustum = calcPixelArea(cos_angle_to_view_dir, radius);
 
-    if (mPixelArea < F_ALMOST_ZERO || !in_frustum)
+    if (mPixelArea < F_ALMOST_ZERO || !in_frustum) [[unlikely]]
     {
         setVirtualSize(0.f) ;
         return 0.f;

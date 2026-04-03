@@ -1849,7 +1849,7 @@ bool LLVOVolume::genBBoxes(bool force_global, bool should_update_octree_bounds)
         i++)
     {
         LLFace* face = mDrawable->getFace(i);
-        if (!face)
+        if (!face) [[unlikely]]
         {
             continue;
         }
@@ -2138,7 +2138,7 @@ bool LLVOVolume::updateGeometry(LLDrawable *drawable)
 
     updateRelativeXform();
 
-    if (mDrawable.isNull()) // Not sure why this is happening, but it is...
+    if (mDrawable.isNull()) [[unlikely]] // Not sure why this is happening, but it is...
     {
         return true; // No update to complete
     }
@@ -2211,13 +2211,13 @@ bool LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 void LLVOVolume::updateFaceSize(S32 idx)
 {
-    if( mDrawable->getNumFaces() <= idx )
+    if( mDrawable->getNumFaces() <= idx ) [[unlikely]]
     {
         return;
     }
 
     LLFace* facep = mDrawable->getFace(idx);
-    if (facep)
+    if (facep) [[likely]]
     {
         if (idx >= getVolume()->getNumVolumeFaces())
         {

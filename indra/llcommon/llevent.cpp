@@ -177,10 +177,11 @@ void LLSimpleDispatcher::addListener(LLEventListener* listener, LLSD filter, con
 {
     if (listener == NULL) return;
     removeListener(listener);
-    LLListenerEntry new_entry;
-    new_entry.listener = listener;
-    new_entry.filter = filter;
-    new_entry.userdata = userdata;
+    LLListenerEntry new_entry = {
+        .listener = listener,
+        .filter = filter,
+        .userdata = userdata
+    };
     mListeners.push_back(new_entry);
     listener->handleAttach(mParent);
 }
