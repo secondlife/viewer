@@ -573,7 +573,7 @@ std::vector<LLMute> LLMuteList::getMutes() const
         mutes.push_back(legacy);
     }
 
-    std::sort(mutes.begin(), mutes.end(), compare_by_name());
+    std::ranges::sort(mutes, compare_by_name());
     return mutes;
 }
 

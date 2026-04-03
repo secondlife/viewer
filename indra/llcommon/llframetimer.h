@@ -43,20 +43,20 @@ public:
 
     // Return the number of seconds since the start of this
     // application instance.
-    static F64SecondsImplicit getElapsedSeconds()
+    [[nodiscard]] static F64SecondsImplicit getElapsedSeconds()
     {
         // Loses msec precision after ~4.5 hours...
         return sFrameTime;
     }
 
     // Return a low precision usec since epoch
-    static U64 getTotalTime()
+    [[nodiscard]] static U64 getTotalTime()
     {
         return sTotalTime ? U64MicrosecondsImplicit(sTotalTime) : totalTime();
     }
 
     // Return a low precision seconds since epoch
-    static F64 getTotalSeconds()
+    [[nodiscard]] static F64 getTotalSeconds()
     {
         return sTotalSeconds;
     }
@@ -68,12 +68,12 @@ public:
     // Call this method once, and only once, per frame to update the current frame count.
     static void updateFrameCount()                  { sFrameCount++; }
 
-    static U32  getFrameCount()                     { return sFrameCount; }
+    [[nodiscard]] static U32  getFrameCount()                     { return sFrameCount; }
 
-    static F32  getFrameDeltaTimeF32();
+    [[nodiscard]] static F32  getFrameDeltaTimeF32();
 
     // Return seconds since the current frame started
-    static F32  getCurrentFrameTime();
+    [[nodiscard]] static F32  getCurrentFrameTime();
 
     // MANIPULATORS
     void start();
@@ -85,15 +85,15 @@ public:
     void setTimerExpirySec(F32 expiration);
     void setExpiryAt(F64 seconds_since_epoch);
     bool checkExpirationAndReset(F32 expiration);
-    F32 getElapsedTimeAndResetF32()                 { F32 t = F32(sFrameTime - mStartTime); reset(); return t; }
+    [[nodiscard]] F32 getElapsedTimeAndResetF32()                 { F32 t = F32(sFrameTime - mStartTime); reset(); return t; }
 
     void setAge(const F64 age)                      { mStartTime = sFrameTime - age; }
 
     // ACCESSORS
-    bool hasExpired() const                         { return (sFrameTime >= mExpiry); }
-    F32  getTimeToExpireF32() const                 { return (F32)(mExpiry - sFrameTime); }
-    F32  getElapsedTimeF32() const                  { return mStarted ? (F32)(sFrameTime - mStartTime) : (F32)mStartTime; }
-    bool getStarted() const                         { return mStarted; }
+    [[nodiscard]] bool hasExpired() const                         { return (sFrameTime >= mExpiry); }
+    [[nodiscard]] F32  getTimeToExpireF32() const                 { return (F32)(mExpiry - sFrameTime); }
+    [[nodiscard]] F32  getElapsedTimeF32() const                  { return mStarted ? (F32)(sFrameTime - mStartTime) : (F32)mStartTime; }
+    [[nodiscard]] bool getStarted() const                         { return mStarted; }
 
     // return the seconds since epoch when this timer will expire.
     F64 expiresAt() const;

@@ -221,7 +221,7 @@ void LLFloaterTOS::onCancel( void* userdata )
 }
 
 //virtual
-void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent event)
+void LLFloaterTOS::handleMediaEvent([[maybe_unused]] LLPluginClassMedia* self, EMediaEvent event)
 {
     if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
     {

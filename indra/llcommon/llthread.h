@@ -55,9 +55,9 @@ public:
     virtual ~LLThread(); // Warning!  You almost NEVER want to destroy a thread unless it's in the STOPPED state.
     virtual void shutdown(); // stops the thread
 
-    bool isQuitting() const { return (QUITTING == mStatus); }
-    bool isStopped() const { return (STOPPED == mStatus) || (CRASHED == mStatus); }
-    bool isCrashed() const { return (CRASHED == mStatus); }
+    [[nodiscard]] bool isQuitting() const { return (QUITTING == mStatus); }
+    [[nodiscard]] bool isStopped() const { return (STOPPED == mStatus) || (CRASHED == mStatus); }
+    [[nodiscard]] bool isCrashed() const { return (CRASHED == mStatus); }
 
     static id_t currentID(); // Return ID of current thread
     static void yield(); // Static because it can be called by the main thread, which doesn't have an LLThread data structure.
@@ -67,7 +67,7 @@ public:
     // Called from MAIN THREAD.
     void pause();
     void unpause();
-    bool isPaused() const { return isStopped() || mPaused; }
+    [[nodiscard]] bool isPaused() const { return isStopped() || mPaused; }
 
     // Cause the thread to wake up and check its condition
     void wake();

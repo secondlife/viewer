@@ -192,13 +192,13 @@ public:
     // If force_read is true, will force an immediate readback (severe performance penalty)
     bool readProfileQuery(bool for_runtime = false, bool force_read = false);
 
-    bool createShader();
-    bool attachFragmentObject(std::string object);
-    bool attachVertexObject(std::string object);
+    [[nodiscard]] bool createShader();
+    [[nodiscard]] bool attachFragmentObject(std::string object);
+    [[nodiscard]] bool attachVertexObject(std::string object);
     void attachObject(GLuint object);
     void attachObjects(GLuint* objects = NULL, S32 count = 0);
-    bool mapAttributes();
-    bool mapUniforms();
+    [[nodiscard]] bool mapAttributes();
+    [[nodiscard]] bool mapUniforms();
     void mapUniform(GLint index);
     void uniform1i(U32 index, GLint i);
     void uniform1f(U32 index, GLfloat v);
@@ -238,10 +238,10 @@ public:
     void vertexAttrib4fv(U32 index, GLfloat* v);
 
     //GLint getUniformLocation(const std::string& uniform);
-    GLint getUniformLocation(const LLStaticHashedString& uniform);
-    GLint getUniformLocation(U32 index);
+    [[nodiscard]] GLint getUniformLocation(const LLStaticHashedString& uniform);
+    [[nodiscard]] GLint getUniformLocation(U32 index);
 
-    GLint getAttribLocation(U32 attrib);
+    [[nodiscard]] GLint getAttribLocation(U32 attrib);
     GLint mapUniformTextureChannel(GLint location, GLenum type, GLint size);
 
     void clearPermutations();
@@ -262,7 +262,7 @@ public:
     S32 disableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
 
     // get the texture channel of the given uniform, or -1 if uniform is not used as a texture
-    S32 getTextureChannel(S32 uniform) const;
+    [[nodiscard]] S32 getTextureChannel(S32 uniform) const;
 
     // bindTexture returns the texture unit we've bound the texture to.
     // You can reuse the return value to unbind a texture when required.
@@ -273,14 +273,14 @@ public:
     S32 unbindTexture(const std::string& uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
     S32 unbindTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
 
-    bool link(bool suppress_errors = false);
+    [[nodiscard]] bool link(bool suppress_errors = false);
     void bind();
     //helper to conditionally bind mRiggedVariant instead of this
     void bind(bool rigged);
 
-    bool isComplete() const { return mProgramObject != 0; }
+    [[nodiscard]] bool isComplete() const { return mProgramObject != 0; }
 
-    LLUUID hash();
+    [[nodiscard]] LLUUID hash();
 
     // Unbinds any previously bound shader by explicitly binding no shader.
     static void unbind();

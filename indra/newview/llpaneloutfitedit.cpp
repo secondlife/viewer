@@ -983,7 +983,7 @@ void LLPanelOutfitEdit::updatePlusButton()
     }
 
     // If any of the selected items are not wearable (due to already being worn OR being of the wrong type), disable the add button.
-    uuid_vec_t::iterator unwearable_item = std::find_if(selected_items.begin(), selected_items.end(), !boost::bind(&get_can_item_be_worn, _1));
+    uuid_vec_t::iterator unwearable_item = std::ranges::find_if(selected_items, !boost::bind(&get_can_item_be_worn, _1));
     bool can_add = ( unwearable_item == selected_items.end() );
 
     mPlusBtn->setEnabled(can_add);
@@ -1371,7 +1371,7 @@ void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
         std::vector<LLSD> item_set;
         mWearableItemsList->getSelectedValues(item_set);
 
-        std::for_each(item_set.begin(), item_set.end(), boost::bind( tmp, &uuid_list, boost::bind(&LLSD::asUUID, _1 )));
+        std::ranges::for_each(item_set, boost::bind( tmp, &uuid_list, boost::bind(&LLSD::asUUID, _1 )));
     }
 
 //  return selected_id;

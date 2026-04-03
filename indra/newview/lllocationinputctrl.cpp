@@ -675,9 +675,8 @@ void LLLocationInputCtrl::onNavMeshStatusChange(const LLPathfindingNavMeshStatus
     refreshParcelIcons();
 }
 
-void LLLocationInputCtrl::onLandmarkLoaded(LLLandmark* lm)
+void LLLocationInputCtrl::onLandmarkLoaded([[maybe_unused]] LLLandmark* lm)
 {
-    (void) lm;
     updateAddLandmarkButton();
 }
 

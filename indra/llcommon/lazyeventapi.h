@@ -193,7 +193,7 @@ namespace LL
         {}
 
     private:
-        LLEventPump* construct(const std::string& /*name*/) override
+        LLEventPump* construct([[maybe_unused]] const std::string& name) override
         {
             // base class has carefully assembled LazyEventAPIParams embedded
             // in this instance, just pass to LLEventAPI subclass constructor

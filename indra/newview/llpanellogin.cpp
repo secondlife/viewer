@@ -929,7 +929,7 @@ void LLPanelLogin::loadLoginPage()
     }
 }
 
-void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent event)
+void LLPanelLogin::handleMediaEvent([[maybe_unused]] LLPluginClassMedia* self, EMediaEvent event)
 {
 }
 

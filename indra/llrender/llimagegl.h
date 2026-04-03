@@ -69,16 +69,16 @@ public:
     // Does not include mipmaps.
     // NOTE: multiplying this number by two gives a good estimate for total
     // video memory usage based on testing in lagland against an NVIDIA GPU.
-    static U64 getTextureBytesAllocated();
+    [[nodiscard]] static U64 getTextureBytesAllocated();
 
     // These 2 functions replace glGenTextures() and glDeleteTextures()
     static void generateTextures(S32 numTextures, U32 *textures);
     static void deleteTextures(S32 numTextures, const U32 *textures);
 
     // Size calculation
-    static S32 dataFormatBits(S32 dataformat);
-    static S64 dataFormatBytes(S32 dataformat, S32 width, S32 height);
-    static S32 dataFormatComponents(S32 dataformat);
+    [[nodiscard]] static S32 dataFormatBits(S32 dataformat);
+    [[nodiscard]] static S64 dataFormatBytes(S32 dataformat, S32 width, S32 height);
+    [[nodiscard]] static S32 dataFormatComponents(S32 dataformat);
 
     bool updateBindStats() const ;
     F32 getTimePassedSinceLastBound();
@@ -91,7 +91,7 @@ public:
     static void destroyGL();
     static void dirtyTexOptions();
 
-    static bool checkSize(S32 width, S32 height);
+    [[nodiscard]] static bool checkSize(S32 width, S32 height);
 
     //for server side use only.
     // Not currently necessary for LLImageGL, but required in some derived classes,
@@ -123,65 +123,65 @@ public:
 
     static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression = true);
 
-    bool createGLTexture() ;
-    bool createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, bool to_create = true,
+    [[nodiscard]] bool createGLTexture() ;
+    [[nodiscard]] bool createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, bool to_create = true,
         S32 category = sMaxCategories-1, bool defer_copy = false, LLGLuint* tex_name = nullptr);
-    bool createGLTexture(S32 discard_level, const U8* data, bool data_hasmips = false, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
+    [[nodiscard]] bool createGLTexture(S32 discard_level, const U8* data, bool data_hasmips = false, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
     void setImage(const LLImageRaw* imageraw);
     bool setImage(const U8* data_in, bool data_hasmips = false, S32 usename = 0);
     // *TODO: This function may not work if the textures is compressed (i.e.
     // RenderCompressTextures is 0). Partial image updates do not work on
     // compressed textures.
-    bool setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, bool force_fast_update = false, LLGLuint use_name = 0);
-    bool setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, bool force_fast_update = false, LLGLuint use_name = 0);
-    bool setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
+    [[nodiscard]] bool setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, bool force_fast_update = false, LLGLuint use_name = 0);
+    [[nodiscard]] bool setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, bool force_fast_update = false, LLGLuint use_name = 0);
+    [[nodiscard]] bool setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
 
     // wait for gl commands to finish on current thread and push
     // a lambda to main thread to swap mNewTexName and mTexName
     void syncToMainThread(LLGLuint new_tex_name);
 
     // Read back a raw image for this discard level, if it exists
-    bool readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const;
+    [[nodiscard]] bool readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const;
     void destroyGLTexture();
     void forceToInvalidateGLTexture();
 
     void setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, bool swap_bytes = false);
     void setComponents(S8 ncomponents) { mComponents = ncomponents; }
 
-    S32  getDiscardLevel() const        { return mCurrentDiscardLevel; }
-    S32  getMaxDiscardLevel() const     { return mMaxDiscardLevel; }
+    [[nodiscard]] S32  getDiscardLevel() const        { return mCurrentDiscardLevel; }
+    [[nodiscard]] S32  getMaxDiscardLevel() const     { return mMaxDiscardLevel; }
 
     // override the current discard level
     // should only be used for local textures where you know exactly what you're doing
     void setDiscardLevel(S32 level) { mCurrentDiscardLevel = level; }
 
-    S32  getCurrentWidth() const { return mWidth ;}
-    S32  getCurrentHeight() const { return mHeight ;}
-    S32  getWidth(S32 discard_level = -1) const;
-    S32  getHeight(S32 discard_level = -1) const;
-    U8   getComponents() const { return mComponents; }
-    S64  getBytes(S32 discard_level = -1) const;
-    S64  getMipBytes(S32 discard_level = -1) const;
-    bool getBoundRecently() const;
-    bool isJustBound() const;
-    bool getHasExplicitFormat() const { return mHasExplicitFormat; }
-    LLGLenum getPrimaryFormat() const { return mFormatPrimary; }
-    LLGLenum getFormatType() const { return mFormatType; }
+    [[nodiscard]] S32  getCurrentWidth() const { return mWidth ;}
+    [[nodiscard]] S32  getCurrentHeight() const { return mHeight ;}
+    [[nodiscard]] S32  getWidth(S32 discard_level = -1) const;
+    [[nodiscard]] S32  getHeight(S32 discard_level = -1) const;
+    [[nodiscard]] U8   getComponents() const { return mComponents; }
+    [[nodiscard]] S64  getBytes(S32 discard_level = -1) const;
+    [[nodiscard]] S64  getMipBytes(S32 discard_level = -1) const;
+    [[nodiscard]] bool getBoundRecently() const;
+    [[nodiscard]] bool isJustBound() const;
+    [[nodiscard]] bool getHasExplicitFormat() const { return mHasExplicitFormat; }
+    [[nodiscard]] LLGLenum getPrimaryFormat() const { return mFormatPrimary; }
+    [[nodiscard]] LLGLenum getFormatType() const { return mFormatType; }
 
-    bool getHasGLTexture() const { return mTexName != 0; }
-    LLGLuint getTexName() const { return mTexName; }
+    [[nodiscard]] bool getHasGLTexture() const { return mTexName != 0; }
+    [[nodiscard]] LLGLuint getTexName() const { return mTexName; }
 
-    bool getIsAlphaMask() const;
+    [[nodiscard]] bool getIsAlphaMask() const;
 
     bool getIsResident(bool test_now = false); // not const
 
     void setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
 
-    LLTexUnit::eTextureType getTarget(void) const { return mBindTarget; }
-    bool isGLTextureCreated(void) const { return mGLTextureCreated ; }
+    [[nodiscard]] LLTexUnit::eTextureType getTarget(void) const { return mBindTarget; }
+    [[nodiscard]] bool isGLTextureCreated(void) const { return mGLTextureCreated ; }
     void setGLTextureCreated (bool initialized) { mGLTextureCreated = initialized; }
 
-    bool getUseMipMaps() const { return mUseMipMaps; }
+    [[nodiscard]] bool getUseMipMaps() const { return mUseMipMaps; }
     void setUseMipMaps(bool usemips) { mUseMipMaps = usemips; }
     void setHasMipMaps(bool hasmips) { mHasMipMaps = hasmips; }
     void updatePickMask(S32 width, S32 height, const U8* data_in);
@@ -219,7 +219,7 @@ public:
     // desired discard will be clamped to max discard
     // if desired discard is less than or equal to current discard, no scaling will occur
     // only works for GL_TEXTURE_2D target
-    bool scaleDown(S32 desired_discard);
+    [[nodiscard]] bool scaleDown(S32 desired_discard);
 
 public:
     // Various GL/Rendering options

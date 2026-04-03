@@ -512,8 +512,7 @@ namespace
                 mLastHash = hash;
             }
 
-            it = mInjections.begin();
-            it = std::find_if(mInjections.begin(), mInjections.end(), [](const typename Injection::ptr_t &a) { return a->mTimeRemaining > 0.0f; });
+            it = std::ranges::find_if(mInjections, [](const typename Injection::ptr_t &a) { return a->mTimeRemaining > 0.0f; });
 
             if (it != mInjections.begin())
             {

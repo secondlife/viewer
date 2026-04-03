@@ -406,7 +406,7 @@ void LLNetMap::draw()
         }
 
         // Sort avatars so non-friends are drawn first and friend dots will appear on top
-        std::sort(indexed_avatars.begin(), indexed_avatars.end(),
+        std::ranges::sort(indexed_avatars,
                     [](const auto& a, const auto& b) { return a.second < b.second; });
 
         uuid_vec_t sorted_avatar_ids;

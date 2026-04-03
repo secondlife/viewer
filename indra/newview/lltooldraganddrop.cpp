@@ -444,7 +444,7 @@ void LLToolDragAndDrop::beginMultiDrag(
             uuid_vec_t folder_ids;
             uuid_vec_t item_ids;
             std::back_insert_iterator<uuid_vec_t> copier(folder_ids);
-            std::copy(cat_ids.begin(), cat_ids.end(), copier);
+            std::ranges::copy(cat_ids, copier);
             LLCategoryFireAndForget fetcher(folder_ids, item_ids);
         }
     }

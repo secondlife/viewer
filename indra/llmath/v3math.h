@@ -81,7 +81,7 @@ class LLVector3
 
         void setValue(const LLSD& sd);
 
-        inline bool isFinite() const;                                   // checks to see if all values of LLVector3 are finite
+        [[nodiscard]] inline bool isFinite() const;                                   // checks to see if all values of LLVector3 are finite
         bool        clamp(F32 min, F32 max);        // Clamps all values to (min,max), returns true if data changed
         bool        clamp(const LLVector3 &min_vec, const LLVector3 &max_vec); // Scales vector by another vector
         bool        clampLength( F32 length_limit );                    // Scales vector to limit length to a value
@@ -112,15 +112,15 @@ class LLVector3
         const LLVector3& setVec(const LLVector4 &vec);  // deprecated
         const LLVector3& setVec(const LLVector3d &vec); // deprecated
 
-        F32 length() const;         // Returns magnitude of LLVector3
-        F32 lengthSquared() const;  // Returns magnitude squared of LLVector3
+        [[nodiscard]] F32 length() const;         // Returns magnitude of LLVector3
+        [[nodiscard]] F32 lengthSquared() const;  // Returns magnitude squared of LLVector3
         F32 magVec() const;         // deprecated
         F32 magVecSquared() const;  // deprecated
 
         inline F32 normalize();    // Normalizes and returns the magnitude of LLVector3
         inline F32 normVec();      // deprecated
 
-        inline bool inRange(F32 min, F32 max) const; // Returns true if all values of the vector are between min and max
+        [[nodiscard]] inline bool inRange(F32 min, F32 max) const; // Returns true if all values of the vector are between min and max
 
         const LLVector3& rotVec(F32 angle, const LLVector3 &vec);    // Rotates about vec by angle radians
         const LLVector3& rotVec(F32 angle, F32 x, F32 y, F32 z);     // Rotates about x,y,z by angle radians
@@ -131,8 +131,8 @@ class LLVector3
         const LLVector3& scaleVec(const LLVector3& vec);             // scales per component by vec
         LLVector3 scaledVec(const LLVector3& vec) const;             // get a copy of this vector scaled by vec
 
-        bool isNull() const;            // Returns true if vector has a _very_small_ length
-        bool isExactlyZero() const      { return !mV[VX] && !mV[VY] && !mV[VZ]; }
+        [[nodiscard]] bool isNull() const;            // Returns true if vector has a _very_small_ length
+        [[nodiscard]] bool isExactlyZero() const      { return !mV[VX] && !mV[VY] && !mV[VZ]; }
 
         F32 operator[](int idx) const { return mV[idx]; }
         F32 &operator[](int idx) { return mV[idx]; }

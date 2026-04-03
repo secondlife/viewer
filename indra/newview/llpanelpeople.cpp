@@ -294,9 +294,8 @@ public:
         LLAvatarTracker::instance().removeObserver(this);
     }
 
-    /*virtual*/ void changed(U32 mask)
+    /*virtual*/ void changed([[maybe_unused]] U32 mask)
     {
-        (void) mask;
         update();
     }
 };

@@ -482,7 +482,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
                 }
                 if(!name_is_cached)
                 {
-                    if(std::find(names_requested.begin(), names_requested.end(), owner_id) == names_requested.end())
+                    if(std::ranges::find(names_requested, owner_id) == names_requested.end())
                     {
                         names_requested.push_back(owner_id);
                         if (is_group_owned)

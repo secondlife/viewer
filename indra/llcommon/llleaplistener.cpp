@@ -261,7 +261,7 @@ void LLLeapListener::getAPI(const LLSD& request) const
         // Here the requested LLEventAPI doesn't yet exist, but do we have a
         // registered LazyEventAPI for it?
         LL::LazyEventAPIBase::instance_snapshot snap;
-        auto foundlea = std::find_if(snap.begin(), snap.end(),
+        auto foundlea = std::ranges::find_if(snap,
                                      [api = request["api"].asString()]
                                      (const auto& lea)
                                      { return (lea.getName() == api); });

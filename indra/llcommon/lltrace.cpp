@@ -25,6 +25,8 @@
 
 #include "linden_common.h"
 
+#include <algorithm>
+
 #include "lltrace.h"
 #include "lltracerecording.h"
 #include "lltracethreadrecorder.h"
@@ -69,7 +71,7 @@ void TimeBlockTreeNode::setParent( BlockTimerStatHandle* parent )
     if (mParent)
     {
         std::vector<BlockTimerStatHandle*>& children = mParent->getChildren();
-        std::vector<BlockTimerStatHandle*>::iterator found_it = std::find(children.begin(), children.end(), mBlock);
+        std::vector<BlockTimerStatHandle*>::iterator found_it = std::ranges::find(children, mBlock);
         if (found_it != children.end())
         {
             children.erase(found_it);

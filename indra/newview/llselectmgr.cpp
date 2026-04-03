@@ -7947,7 +7947,7 @@ void LLObjectSelection::removeNode(LLSelectNode *nodep)
 
 void LLObjectSelection::deleteAllNodes()
 {
-    std::for_each(mList.begin(), mList.end(), DeletePointer());
+    std::ranges::for_each(mList, DeletePointer());
     mList.clear();
     mSelectNodeMap.clear();
     mPrimaryObject = NULL;
@@ -8845,12 +8845,11 @@ bool LLCheckIdenticalFunctor<F32>::same(const F32& a, const F32& b, const F32& t
     return abs_delta <= tolerance;
 }
 
-#define DEF_DUMMY_CHECK_FUNCTOR(T)                                                  \
-template<>                                                                          \
-bool LLCheckIdenticalFunctor<T>::same(const T& a, const T& b, const T& tolerance)   \
-{                                                                                   \
-    (void)tolerance;                                                                \
-    return a == b;                                                                  \
+#define DEF_DUMMY_CHECK_FUNCTOR(T)                                                                          \
+template<>                                                                                                  \
+bool LLCheckIdenticalFunctor<T>::same(const T& a, const T& b, [[maybe_unused]] const T& tolerance)          \
+{                                                                                                           \
+    return a == b;                                                                                          \
 }
 
 DEF_DUMMY_CHECK_FUNCTOR(LLUUID)
@@ -8868,9 +8867,8 @@ DEF_DUMMY_CHECK_FUNCTOR(std::string)
 DEF_DUMMY_CHECK_FUNCTOR(std::vector<std::string>)
 
 template<>
-bool LLCheckIdenticalFunctor<class LLFace *>::same(class LLFace* const & a, class LLFace* const & b, class LLFace* const & tolerance)   \
-{                                                                                   \
-    (void)tolerance;                                                                \
-    return a == b;                                                                  \
+bool LLCheckIdenticalFunctor<class LLFace *>::same(class LLFace* const & a, class LLFace* const & b, [[maybe_unused]] class LLFace* const & tolerance)
+{
+    return a == b;
 }
 

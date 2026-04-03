@@ -196,7 +196,7 @@ LLToast::~LLToast()
 
     if (isModal())
     {
-        std::list<LLToast*>::iterator iter = std::find(sModalToastsList.begin(), sModalToastsList.end(), this);
+        auto iter = std::ranges::find(sModalToastsList, this);
         if (iter != sModalToastsList.end())
         {
             sModalToastsList.erase(iter);

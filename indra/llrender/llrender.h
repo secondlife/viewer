@@ -157,7 +157,7 @@ public:
     void refreshState(void);
 
     // returns the index of this texture unit
-    S32 getIndex(void) const { return mIndex; }
+    [[nodiscard]] S32 getIndex(void) const { return mIndex; }
 
     // Sets this tex unit to be the currently active one
     void activate(void);
@@ -218,11 +218,11 @@ public:
     // MUST already be active and bound
     void setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option, eTextureType tex_type);
 
-    static U32 getInternalType(eTextureType type);
+    [[nodiscard]] static U32 getInternalType(eTextureType type);
 
-    U32 getCurrTexture(void) { return mCurrTexture; }
+    [[nodiscard]] U32 getCurrTexture(void) { return mCurrTexture; }
 
-    eTextureType getCurrType(void) { return mCurrTexType; }
+    [[nodiscard]] eTextureType getCurrType(void) { return mCurrTexType; }
 
     void setHasMipMaps(bool hasMips) { mHasMipMaps = hasMips; }
 
@@ -379,7 +379,7 @@ public:
 
     LLRender();
     ~LLRender();
-    bool init(bool needs_vertex_buffer);
+    [[nodiscard]] bool init(bool needs_vertex_buffer);
     void initVertexBuffer();
     void resetVertexBuffer();
     void shutdown();
@@ -399,10 +399,10 @@ public:
     void loadIdentity();
     void multMatrix(const GLfloat* m);
     void matrixMode(eMatrixMode mode);
-    eMatrixMode getMatrixMode();
+    [[nodiscard]] eMatrixMode getMatrixMode();
 
-    const glm::mat4& getModelviewMatrix();
-    const glm::mat4& getProjectionMatrix();
+    [[nodiscard]] const glm::mat4& getModelviewMatrix();
+    [[nodiscard]] const glm::mat4& getProjectionMatrix();
 
     void syncMatrices();
     void syncLightState();
@@ -412,8 +412,8 @@ public:
     void pushUIMatrix();
     void popUIMatrix();
     void loadUIIdentity();
-    LLVector3 getUITranslation();
-    LLVector3 getUIScale();
+    [[nodiscard]] LLVector3 getUITranslation();
+    [[nodiscard]] LLVector3 getUIScale();
 
     void flush();
 
@@ -424,7 +424,7 @@ public:
     void begin(const GLuint& mode);
     void end();
 
-    U8 getMode() const { return mMode; }
+    [[nodiscard]] U8 getMode() const { return mMode; }
 
     void vertex2i(const GLint& x, const GLint& y);
     void vertex2f(const GLfloat& x, const GLfloat& y);
@@ -471,12 +471,12 @@ public:
     void blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
                eBlendFactor alpha_sfactor, eBlendFactor alpha_dfactor);
 
-    LLLightState* getLight(U32 index);
+    [[nodiscard]] LLLightState* getLight(U32 index);
     void setAmbientLightColor(const LLColor4& color);
 
-    LLTexUnit* getTexUnit(U32 index);
+    [[nodiscard]] LLTexUnit* getTexUnit(U32 index);
 
-    U32 getCurrentTexUnitIndex(void) const { return mCurrTextureUnitIndex; }
+    [[nodiscard]] U32 getCurrentTexUnitIndex(void) const { return mCurrTextureUnitIndex; }
 
     bool verifyTexUnitActive(U32 unitToVerify);
 
@@ -555,11 +555,11 @@ const F32 OGL_TO_CFR_ROTATION[16] = {  0.f,  0.f, -1.f,  0.f,   // -Z becomes X
                                        0.f,  1.f,  0.f,  0.f,   //  Y becomes Z
                                        0.f,  0.f,  0.f,  1.f };
 
-glm::mat4 copy_matrix(F32* src);
-glm::mat4 get_current_modelview();
-glm::mat4 get_current_projection();
-glm::mat4 get_last_modelview();
-glm::mat4 get_last_projection();
+[[nodiscard]] glm::mat4 copy_matrix(F32* src);
+[[nodiscard]] glm::mat4 get_current_modelview();
+[[nodiscard]] glm::mat4 get_current_projection();
+[[nodiscard]] glm::mat4 get_last_modelview();
+[[nodiscard]] glm::mat4 get_last_projection();
 
 void copy_matrix(const glm::mat4& src, F32* dst);
 void set_current_modelview(const glm::mat4& mat);
@@ -568,7 +568,7 @@ void set_last_modelview(const glm::mat4& mat);
 void set_last_projection(const glm::mat4& mat);
 
 // glh compat
-glm::vec3 mul_mat4_vec3(const glm::mat4& mat, const glm::vec3& vec);
+[[nodiscard]] glm::vec3 mul_mat4_vec3(const glm::mat4& mat, const glm::vec3& vec);
 
 #define LL_SHADER_LOADING_WARNS(...) LL_WARNS()
 

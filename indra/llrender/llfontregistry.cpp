@@ -494,7 +494,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
     {
         LLFontGL *fontp = NULL;
 
-        bool is_ft_collection = (std::find_if(font_collection_files.begin(), font_collection_files.end(),
+        bool is_ft_collection = (std::ranges::find_if(font_collection_files,
                                               [&font_file_it](const LLFontFileInfo& ffi) { return font_file_it->FileName == ffi.FileName; }) != font_collection_files.end());
 
         // *HACK: Fallback fonts don't render, so we can use that to suppress

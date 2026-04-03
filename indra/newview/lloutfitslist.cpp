@@ -1032,7 +1032,7 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
     mRefreshListState.Removed.clear();
     computeDifference(cat_array, mRefreshListState.Added, mRefreshListState.Removed);
     // Sort added items vector by item name.
-    std::sort(mRefreshListState.Added.begin(), mRefreshListState.Added.end(),
+    std::ranges::sort(mRefreshListState.Added,
         [names](const LLUUID& a, const LLUUID& b)
         {
             return LLStringUtil::compareDict(names.at(a), names.at(b)) < 0;

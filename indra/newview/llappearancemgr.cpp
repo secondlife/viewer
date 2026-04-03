@@ -2193,10 +2193,10 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 
     // Create links to new COF contents.
     LLInventoryModel::item_array_t all_items;
-    std::copy(body_items.begin(), body_items.end(), std::back_inserter(all_items));
-    std::copy(wear_items.begin(), wear_items.end(), std::back_inserter(all_items));
-    std::copy(obj_items.begin(), obj_items.end(), std::back_inserter(all_items));
-    std::copy(gest_items.begin(), gest_items.end(), std::back_inserter(all_items));
+    std::ranges::copy(body_items, std::back_inserter(all_items));
+    std::ranges::copy(wear_items, std::back_inserter(all_items));
+    std::ranges::copy(obj_items, std::back_inserter(all_items));
+    std::ranges::copy(gest_items, std::back_inserter(all_items));
 
     // Find any wearables that need description set to enforce ordering.
     desc_map_t desc_map;
@@ -2355,7 +2355,7 @@ void item_array_diff(LLInventoryModel::item_array_t& full_list,
          ++it)
     {
         LLViewerInventoryItem *item = *it;
-        if (std::find(keep_list.begin(), keep_list.end(), item) == keep_list.end())
+        if (std::ranges::find(keep_list, item) == keep_list.end())
         {
             kill_list.push_back(item);
         }
@@ -2454,8 +2454,8 @@ void get_sorted_base_and_cof_items(LLInventoryModel::item_array_t& cof_item_arra
             }
         }
 
-        std::sort(cof_item_array.begin(), cof_item_array.end(), sort_by_linked_uuid);
-        std::sort(outfit_item_array.begin(), outfit_item_array.end(), sort_by_linked_uuid);
+        std::ranges::sort(cof_item_array, sort_by_linked_uuid);
+        std::ranges::sort(outfit_item_array, sort_by_linked_uuid);
     }
 }
 
@@ -3338,8 +3338,8 @@ void LLAppearanceMgr::updateIsDirty()
         }
 
         //"dirty" - also means a difference in linked UUIDs and/or a difference in wearables order (links' descriptions)
-        std::sort(cof_items.begin(), cof_items.end(), sort_by_linked_uuid);
-        std::sort(outfit_items.begin(), outfit_items.end(), sort_by_linked_uuid);
+        std::ranges::sort(cof_items, sort_by_linked_uuid);
+        std::ranges::sort(outfit_items, sort_by_linked_uuid);
 
         for (U32 i = 0; i < cof_items.size(); ++i)
         {
@@ -3557,8 +3557,8 @@ void update_base_outfit_after_ordering()
             return;
         }
 
-        std::sort(cof_item_array.begin(), cof_item_array.end(), sort_by_linked_uuid);
-        std::sort(outfit_item_array.begin(), outfit_item_array.end(), sort_by_linked_uuid);
+        std::ranges::sort(cof_item_array, sort_by_linked_uuid);
+        std::ranges::sort(outfit_item_array, sort_by_linked_uuid);
 
         for (U32 i = 0; i < cof_item_array.size(); ++i)
         {
@@ -3684,7 +3684,7 @@ void LLAppearanceMgr::getWearableOrderingDescUpdates(LLInventoryModel::item_arra
         if (!size) continue;
 
         //sinking down invalid items which need reordering
-        std::sort(items_by_type[type].begin(), items_by_type[type].end(), WearablesOrderComparator((LLWearableType::EType) type));
+        std::ranges::sort(items_by_type[type], WearablesOrderComparator((LLWearableType::EType) type));
 
         //requesting updates only for those links which don't have "valid" descriptions
         for (U32 i = 0; i < size; i++)
@@ -4346,7 +4346,7 @@ void LLAppearanceMgr::sortItemsByActualDescription(LLInventoryModel::item_array_
 {
     if (items.size() < 2) return;
 
-    std::sort(items.begin(), items.end(), sort_by_actual_description);
+    std::ranges::sort(items, sort_by_actual_description);
 }
 
 //#define DUMP_CAT_VERBOSE

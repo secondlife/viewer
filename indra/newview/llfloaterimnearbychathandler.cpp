@@ -184,7 +184,7 @@ private:
 
 void LLFloaterIMNearbyChatScreenChannel::deactivateToast(LLToast* toast)
 {
-    toast_vec_t::iterator pos = std::find(m_active_toasts.begin(), m_active_toasts.end(), toast->getHandle());
+    toast_vec_t::iterator pos = std::ranges::find(m_active_toasts, toast->getHandle());
 
     if (pos != m_active_toasts.end())
     {
@@ -400,7 +400,7 @@ void LLFloaterIMNearbyChatScreenChannel::arrangeToasts()
     S32     margin = gSavedSettings.getS32("ToastGap");
 
     //sort active toasts
-    std::sort(m_active_toasts.begin(),m_active_toasts.end(),sort_toasts_predicate);
+    std::ranges::sort(m_active_toasts, sort_toasts_predicate);
 
     //calc max visible item and hide other toasts.
 

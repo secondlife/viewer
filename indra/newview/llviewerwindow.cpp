@@ -3508,8 +3508,8 @@ void LLViewerWindow::updateUI()
             if (!local_child_vec.empty() && local_child_vec != child_vec)
             {
                 std::vector<std::string> out_vec;
-                std::sort(local_child_vec.begin(), local_child_vec.end());
-                std::sort(child_vec.begin(), child_vec.end());
+                std::ranges::sort(local_child_vec);
+                std::ranges::sort(child_vec);
                 std::set_difference(child_vec.begin(), child_vec.end(), local_child_vec.begin(), local_child_vec.end(), std::inserter(out_vec, out_vec.begin()));
                 if (!out_vec.empty())
                 {

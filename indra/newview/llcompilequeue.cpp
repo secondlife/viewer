@@ -510,7 +510,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
             line < compile_errors.endArray(); line++)
         {
             std::string str = line->asString();
-            str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
+            std::erase(str, '\n');
 
             floater->addStringMessage(str);
         }

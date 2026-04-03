@@ -157,7 +157,7 @@ LLFontFreetype::~LLFontFreetype()
     mFTFace = nullptr;
 
     // Delete glyph info
-    std::for_each(mCharGlyphInfoMap.begin(), mCharGlyphInfoMap.end(), DeletePairedPointer());
+    std::ranges::for_each(mCharGlyphInfoMap, DeletePairedPointer());
     mCharGlyphInfoMap.clear();
 
     delete mFontBitmapCachep;

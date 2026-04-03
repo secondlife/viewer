@@ -247,7 +247,7 @@ bool LLFloaterModelPreview::postBuild()
         }
     }
     std::string current_grid = LLGridManager::getInstance()->getGridId();
-    std::transform(current_grid.begin(),current_grid.end(),current_grid.begin(),::tolower);
+    std::ranges::transform(current_grid, current_grid.begin(), ::tolower);
     std::string validate_url;
     if (current_grid == "agni")
     {

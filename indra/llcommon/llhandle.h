@@ -92,7 +92,7 @@ public:
     : mTombStone(other.mTombStone)
     {}
 
-    bool isDead() const
+    [[nodiscard]] bool isDead() const
     {
         return mTombStone->getTarget() == NULL;
     }
@@ -102,7 +102,7 @@ public:
         mTombStone = getDefaultTombStone();
     }
 
-    T* get() const
+    [[nodiscard]] T* get() const
     {
         return reinterpret_cast<T*>(mTombStone->getTarget());
     }

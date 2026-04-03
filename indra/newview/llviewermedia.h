@@ -102,7 +102,7 @@ public:
     LLViewerMediaImpl* getMediaImplFromTextureID(const LLUUID& texture_id);
     std::string getCurrentUserAgent();
     void updateBrowserUserAgent();
-    bool handleSkinCurrentChanged(const LLSD& /*newvalue*/);
+    bool handleSkinCurrentChanged(const LLSD& newvalue);
     bool textureHasMedia(const LLUUID& texture_id);
     void setVolume(F32 volume);
 

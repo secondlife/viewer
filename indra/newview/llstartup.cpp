@@ -3530,7 +3530,7 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
         }
 
         std::string name = iter->first;
-        std::transform(name.begin(), name.end(), name.begin(),
+        std::ranges::transform(name, name.begin(),
                        (int(*)(int))toupper);
         args[name.c_str()] = value;
     }

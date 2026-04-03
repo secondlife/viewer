@@ -307,8 +307,7 @@ void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVect
     // Sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
     LLColor3 light_atten = vars.light_atten;
-    LLColor3 light_transmittance = psky->getLightTransmittanceFast(vars.total_density, vars.density_multiplier, Plen);
-    (void)light_transmittance; // silence Clang warn-error
+    [[maybe_unused]] LLColor3 light_transmittance = psky->getLightTransmittanceFast(vars.total_density, vars.density_multiplier, Plen);
 
     // Calculate relative weights
     LLColor3 temp2(0.f, 0.f, 0.f);

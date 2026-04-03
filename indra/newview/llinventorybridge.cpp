@@ -766,7 +766,7 @@ void hide_context_entries(LLMenuGL& menu,
 
         bool found = false;
 
-        menuentry_vec_t::const_iterator itor2 = std::find(entries_to_show.begin(), entries_to_show.end(), name);
+        menuentry_vec_t::const_iterator itor2 = std::ranges::find(entries_to_show, name);
         if (itor2 != entries_to_show.end())
         {
             found = true;
@@ -797,7 +797,7 @@ void hide_context_entries(LLMenuGL& menu,
                     "Wearable Add",
                 };
 
-                menuentry_vec_t::const_iterator itor2 = std::find(exceptions.begin(), exceptions.end(), name);
+                menuentry_vec_t::const_iterator itor2 = std::ranges::find(exceptions, name);
                 if (itor2 == exceptions.end())
                 {
                     menu_item->setEnabled(false);
@@ -852,7 +852,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             items.push_back(std::string("Subfolder Separator"));
             std::set<LLUUID> selected_uuid_set = LLAvatarActions::getInventorySelectedUUIDs();
             uuid_vec_t ids;
-            std::copy(selected_uuid_set.begin(), selected_uuid_set.end(), std::back_inserter(ids));
+            std::ranges::copy(selected_uuid_set, std::back_inserter(ids));
             if (!is_only_items_selected(ids) && !is_only_cats_selected(ids))
             {
                 disabled_items.push_back(std::string("New folder from selected"));
@@ -8536,8 +8536,8 @@ void LLRecentItemsFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
     menuentry_vec_t disabled_items, items;
         buildContextMenuOptions(flags, items, disabled_items);
 
-    items.erase(std::remove(items.begin(), items.end(), std::string("New Folder")), items.end());
-    items.erase(std::remove(items.begin(), items.end(), std::string("New folder from selected")), items.end());
+    std::erase(items, std::string("New Folder"));
+    std::erase(items, std::string("New folder from selected"));
 
     hide_context_entries(menu, items, disabled_items);
 }
@@ -8581,8 +8581,8 @@ void LLFavoritesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
     menuentry_vec_t disabled_items, items;
     buildContextMenuOptions(flags, items, disabled_items);
 
-    items.erase(std::remove(items.begin(), items.end(), std::string("New Folder")), items.end());
-    items.erase(std::remove(items.begin(), items.end(), std::string("New folder from selected")), items.end());
+    std::erase(items, std::string("New Folder"));
+    std::erase(items, std::string("New folder from selected"));
 
     hide_context_entries(menu, items, disabled_items);
 }

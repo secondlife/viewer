@@ -73,8 +73,8 @@ public:
      *
      * @return A string representation of the date.
      */
-    std::string asString() const;
-    std::string asRFC1123() const;
+    [[nodiscard]] std::string asString() const;
+    [[nodiscard]] std::string asRFC1123() const;
     void toStream(std::ostream&) const;
     bool split(S32 *year, S32 *month = NULL, S32 *day = NULL, S32 *hour = NULL, S32 *min = NULL, S32 *sec = NULL) const;
     std::string toLocalDateString(std::string fmt) const;
@@ -92,16 +92,16 @@ public:
      * @param iso8601_date An iso-8601 compatible representation of the date.
      * @return Returns true if the string was successfully parsed.
      */
-    bool fromString(const std::string& iso8601_date);
-    bool fromStream(std::istream&);
-    bool fromYMDHMS(S32 year, S32 month = 1, S32 day = 0, S32 hour = 0, S32 min = 0, S32 sec = 0);
+    [[nodiscard]] bool fromString(const std::string& iso8601_date);
+    [[nodiscard]] bool fromStream(std::istream&);
+    [[nodiscard]] bool fromYMDHMS(S32 year, S32 month = 1, S32 day = 0, S32 hour = 0, S32 min = 0, S32 sec = 0);
 
     /**
      * @brief Return the date in seconds since epoch.
      *
      * @return The number of seconds since epoch UTC.
      */
-    F64 secondsSinceEpoch() const;
+    [[nodiscard]] F64 secondsSinceEpoch() const;
 
     /**
      * @brief Set the date in seconds since epoch.
@@ -115,7 +115,7 @@ public:
      *
      * @return The number of seconds since epoch UTC.
      */
-    static LLDate now();
+    [[nodiscard]] static LLDate now();
 
     /**
      * @brief Compare dates using operator< so we can order them using STL.
@@ -140,8 +140,8 @@ public:
      * @brief Compare to epoch UTC.
      */
 
-    bool isNull() const { return mSecondsSinceEpoch == 0.0; }
-    bool notNull() const { return mSecondsSinceEpoch != 0.0; }
+    [[nodiscard]] bool isNull() const { return mSecondsSinceEpoch == 0.0; }
+    [[nodiscard]] bool notNull() const { return mSecondsSinceEpoch != 0.0; }
 
 
 private:

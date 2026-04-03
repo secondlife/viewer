@@ -80,7 +80,7 @@ public:
     // color_fmt - GL color format (e.g. GL_RGB)
     // depth - if true, allocate a depth buffer
     // usage - deprecated, should always be TT_TEXTURE
-    bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth = false, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureMipGeneration generateMipMaps = LLTexUnit::TMG_NONE);
+    [[nodiscard]] bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth = false, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureMipGeneration generateMipMaps = LLTexUnit::TMG_NONE);
 
     //resize existing attachments to use new resolution and color format
     // CAUTION: if the GL runs out of memory attempting to resize, this render target will be undefined
@@ -108,10 +108,10 @@ public:
 
     //add color buffer attachment
     //limit of 4 color attachments per render target
-    bool addColorAttachment(U32 color_fmt);
+    [[nodiscard]] bool addColorAttachment(U32 color_fmt);
 
     //allocate a depth texture
-    bool allocateDepth();
+    [[nodiscard]] bool allocateDepth();
 
     //share depth buffer with provided render target
     void shareDepthBuffer(LLRenderTarget& target);
@@ -137,17 +137,17 @@ public:
     void getViewport(S32* viewport);
 
     //get X resolution
-    U32 getWidth() const { return mResX; }
+    [[nodiscard]] U32 getWidth() const { return mResX; }
 
     //get Y resolution
-    U32 getHeight() const { return mResY; }
+    [[nodiscard]] U32 getHeight() const { return mResY; }
 
-    LLTexUnit::eTextureType getUsage(void) const { return mUsage; }
+    [[nodiscard]] LLTexUnit::eTextureType getUsage(void) const { return mUsage; }
 
-    U32 getTexture(U32 attachment = 0) const;
-    U32 getNumTextures() const;
+    [[nodiscard]] U32 getTexture(U32 attachment = 0) const;
+    [[nodiscard]] U32 getNumTextures() const;
 
-    U32 getDepth(void) const { return mDepth; }
+    [[nodiscard]] U32 getDepth(void) const { return mDepth; }
 
     void bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options = LLTexUnit::TFO_BILINEAR);
 
@@ -162,10 +162,10 @@ public:
     //Returns TRUE if target is ready to be rendered into.
     //That is, if the target has been allocated with at least
     //one renderable attachment (i.e. color buffer, depth buffer).
-    bool isComplete() const;
+    [[nodiscard]] bool isComplete() const;
 
     // Returns true if this RenderTarget is bound somewhere in the stack
-    bool isBoundInStack() const;
+    [[nodiscard]] bool isBoundInStack() const;
 
     static LLRenderTarget* getCurrentBoundTarget() { return sBoundTarget; }
 

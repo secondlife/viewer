@@ -69,15 +69,15 @@ public:
     LLSD getValue() const;
     void setValue(const LLSD& sd);
 
-    bool isIdentity() const;
-    bool isNotIdentity() const;
-    bool isFinite() const;                                  // checks to see if all values of LLQuaternion are finite
+    [[nodiscard]] bool isIdentity() const;
+    [[nodiscard]] bool isNotIdentity() const;
+    [[nodiscard]] bool isFinite() const;                                  // checks to see if all values of LLQuaternion are finite
     void quantize16(F32 lower, F32 upper);                  // changes the vector to reflect quatization
     void quantize8(F32 lower, F32 upper);                           // changes the vector to reflect quatization
     void loadIdentity();                                            // Loads the quaternion that represents the identity rotation
 
-    bool isEqualEps(const LLQuaternion &quat, F32 epsilon) const;
-    bool isNotEqualEps(const LLQuaternion &quat, F32 epsilon) const;
+    [[nodiscard]] bool isEqualEps(const LLQuaternion &quat, F32 epsilon) const;
+    [[nodiscard]] bool isNotEqualEps(const LLQuaternion &quat, F32 epsilon) const;
 
     const LLQuaternion& set(F32 x, F32 y, F32 z, F32 w);        // Sets Quaternion to normalize(x, y, z, w)
     const LLQuaternion& set(const LLQuaternion &quat);          // Copies Quaternion

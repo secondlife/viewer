@@ -1861,7 +1861,7 @@ void LLImageProviderInterface::addOnRemovalCallback(callback_t func)
 
 void LLImageProviderInterface::deleteOnRemovalCallback(callback_t func)
 {
-    callback_list_t::iterator iter = std::find(mCallbackList.begin(), mCallbackList.end(), func);
+    callback_list_t::iterator iter = std::ranges::find(mCallbackList, func);
     if (iter != mCallbackList.end())
     {
         mCallbackList.erase(iter);

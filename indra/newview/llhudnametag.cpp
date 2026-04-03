@@ -730,7 +730,7 @@ void LLHUDNameTag::updateAll()
     }
 
     // sort back to front for rendering purposes
-    std::sort(sVisibleTextObjects.begin(), sVisibleTextObjects.end(), llhudnametag_further_away());
+    std::ranges::sort(sVisibleTextObjects, llhudnametag_further_away());
 
     // iterate from front to back, and set LOD based on current screen coverage
     F32 screen_area = (F32)(gViewerWindow->getWindowWidthScaled() * gViewerWindow->getWindowHeightScaled());

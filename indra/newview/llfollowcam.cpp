@@ -824,7 +824,7 @@ LLFollowCamParams* LLFollowCamMgr::getActiveFollowCamParams()
 void LLFollowCamMgr::setCameraActive( const LLUUID& source, bool active )
 {
     LLFollowCamParams* params = getParamsForID(source);
-    param_stack_t::iterator found_it = std::find(mParamStack.begin(), mParamStack.end(), params);
+    param_stack_t::iterator found_it = std::ranges::find(mParamStack, params);
     if (found_it != mParamStack.end())
     {
         mParamStack.erase(found_it);

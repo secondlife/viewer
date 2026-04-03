@@ -266,7 +266,7 @@ void LLImageGL::initClass(LLWindow* window, S32 num_catagories, bool skip_analyz
 
 void LLImageGL::allocateConversionBuffer()
 {
-    // GL 4.6 — scratch buffer no longer needed (swizzle path always used)
+    // GL 4.6 ï¿½ scratch buffer no longer needed (swizzle path always used)
 }
 
 //static
@@ -867,8 +867,7 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                 S32 w = width, h = height;
 
 
-                const U8* new_data = 0;
-                (void)new_data;
+                [[maybe_unused]] const U8* new_data = 0;
 
                 const U8* prev_mip_data = 0;
                 const U8* cur_mip_data = 0;
@@ -930,7 +929,6 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 
                     }
                     llassert(w > 0 && h > 0 && cur_mip_data);
-                    (void)cur_mip_data;
                     {
                         if(mFormatSwapBytes)
                         {
@@ -1306,7 +1304,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
     if (LLRender::sGLCoreProfile)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-        // GL 4.6 — always use swizzle path
+        // GL 4.6 ï¿½ always use swizzle path
         {
             if (pixformat == GL_ALPHA)
             { //GL_ALPHA is deprecated, convert to RGBA

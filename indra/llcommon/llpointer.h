@@ -110,7 +110,7 @@ public:
         unref();
     }
 
-    Type*   get() const                         { return mPointer; }
+    [[nodiscard]] Type*   get() const             { return mPointer; }
     const Type* operator->() const              { return mPointer; }
     Type*   operator->()                        { return mPointer; }
     const Type& operator*() const               { return *mPointer; }
@@ -118,8 +118,8 @@ public:
 
     operator bool() const                       { return (mPointer != nullptr); }
     bool operator!() const                      { return (mPointer == nullptr); }
-    bool isNull() const                         { return (mPointer == nullptr); }
-    bool notNull() const                        { return (mPointer != nullptr); }
+    [[nodiscard]] bool isNull() const           { return (mPointer == nullptr); }
+    [[nodiscard]] bool notNull() const          { return (mPointer != nullptr); }
 
     operator Type*() const                      { return mPointer; }
     template <typename Type1>

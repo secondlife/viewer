@@ -398,7 +398,7 @@ LLViewerRegion *LLPathfindingNavMeshZone::NavMeshLocation::getRegion() const
             std::vector<S32> availableRegions;
             currentRegion->getNeighboringRegionsStatus( availableRegions );
             //Is the desired region in the available list
-            std::vector<S32>::iterator foundElem = std::find(availableRegions.begin(),availableRegions.end(),mDirection);
+            auto foundElem = std::ranges::find(availableRegions, mDirection);
             if ( foundElem != availableRegions.end() )
             {
                 std::vector<LLViewerRegion*> neighborRegionsPtrs;

@@ -4915,7 +4915,7 @@ std::string LLInventoryModel::getFullPath(const LLInventoryObject *obj) const
     }
     std::stringstream s;
     std::string delim("/");
-    std::reverse(path_elts.begin(), path_elts.end());
+    std::ranges::reverse(path_elts);
     std::string result = "/" + boost::algorithm::join(path_elts, delim);
     return result;
 }

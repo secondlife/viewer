@@ -109,7 +109,7 @@ public:
      * @param argv The argv passed into main().
      * @return Returns true if the parse succeeded.
      */
-    bool parseCommandOptions(int argc, char** argv);
+    [[nodiscard]] bool parseCommandOptions(int argc, char** argv);
 
     /**
      * @brief Parse Unicode command line options and insert them into
@@ -123,7 +123,7 @@ public:
      * @param wargv The wargv passed into main().
      * @return Returns true if the parse succeeded.
      */
-    bool parseCommandOptions(int argc, wchar_t** wargv);
+    [[nodiscard]] bool parseCommandOptions(int argc, wchar_t** wargv);
 
     /**
      * @brief Keep track of live files automatically.
@@ -148,7 +148,7 @@ public:
      * @param data The data to set.
      * @return Returns true if the option was set.
      */
-    bool setOptionData(OptionPriority level, LLSD data);
+    [[nodiscard]] bool setOptionData(OptionPriority level, LLSD data);
 
     /**
      * @brief Get the option data at the specified priority.
@@ -189,7 +189,7 @@ public:
     // Crash logging
     //
     void disableCrashlogger();              // Let the OS handle the crashes
-    static bool isCrashloggerDisabled();    // Get the here above set value
+    [[nodiscard]] static bool isCrashloggerDisabled();    // Get the here above set value
 
     //
     // Application status
@@ -197,11 +197,11 @@ public:
     static void setQuitting();  // Set status to QUITTING, the app is now shutting down
     static void setStopped();   // Set status to STOPPED, the app is done running and should exit
     static void setError();     // Set status to ERROR, the error handler should run
-    static bool isStopped();
-    static bool isRunning();
-    static bool isQuitting();
-    static bool isError();
-    static bool isExiting(); // Either quitting or error (app is exiting, cleanly or not)
+    [[nodiscard]] static bool isStopped();
+    [[nodiscard]] static bool isRunning();
+    [[nodiscard]] static bool isQuitting();
+    [[nodiscard]] static bool isError();
+    [[nodiscard]] static bool isExiting(); // Either quitting or error (app is exiting, cleanly or not)
     static int getPid();
 
     static void notifyOutOfDiskSpace();

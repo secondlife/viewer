@@ -31,7 +31,7 @@ llview::TargetEvent::TargetEvent(LLView* view)
     }
 }
 
-bool llview::TargetEvent::operator()(const LLView* view, S32 /*x*/, S32 /*y*/) const
+bool llview::TargetEvent::operator()(const LLView* view, [[maybe_unused]] S32 x, [[maybe_unused]] S32 y) const
 {
     // We are being called to decide whether to direct an incoming mouse event
     // to this child view. (Normal LLView processing is to check whether the

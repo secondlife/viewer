@@ -966,7 +966,7 @@ void LLAvatarActions::buildResidentsString(std::vector<LLAvatarName> avatar_name
 {
     llassert(avatar_names.size() > 0);
 
-    std::sort(avatar_names.begin(), avatar_names.end());
+    std::ranges::sort(avatar_names);
     const std::string& separator = LLTrans::getString("words_separator");
     for (std::vector<LLAvatarName>::const_iterator it = avatar_names.begin(); ; )
     {

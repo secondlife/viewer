@@ -1067,8 +1067,8 @@ void LLFloaterIMSession::processAgentListUpdates(const LLSD& body)
     }
 
     // the vectors need to be sorted for computing the intersection and difference
-    std::sort(mInvitedParticipants.begin(), mInvitedParticipants.end());
-    std::sort(joined_uuids.begin(), joined_uuids.end());
+    std::ranges::sort(mInvitedParticipants);
+    std::ranges::sort(joined_uuids);
 
     uuid_vec_t intersection; // uuids of invited residents who have joined the conversation
     std::set_intersection(mInvitedParticipants.begin(), mInvitedParticipants.end(),

@@ -748,9 +748,8 @@ bool LLSettingsBase::Validator::verifyStringLength(LLSD &value, U32, S32 length)
 void LLSettingsBlender::update(const LLSettingsBase::BlendFactor& blendf)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
-    F64 res = setBlendFactor(blendf);
+    [[maybe_unused]] F64 res = setBlendFactor(blendf);
     llassert(res >= 0.0 && res <= 1.0);
-    (void)res;
     mTarget->update();
 }
 

@@ -51,10 +51,10 @@ public:
     virtual ~LLMutex();
 
     void lock();        // blocks
-    bool trylock();     // non-blocking, returns true if lock held.
+    [[nodiscard]] bool trylock();     // non-blocking, returns true if lock held.
     void unlock();      // undefined behavior when called on mutex not being held
-    bool isLocked();    // non-blocking, but does do a lock/unlock so not free
-    bool isSelfLocked(); //return true if locked in a same thread
+    [[nodiscard]] bool isLocked();    // non-blocking, but does do a lock/unlock so not free
+    [[nodiscard]] bool isSelfLocked(); //return true if locked in a same thread
     LLThread::id_t lockingThread() const; //get ID of locking thread
 
 protected:
@@ -74,16 +74,16 @@ class LL_COMMON_API LLSharedMutex
 public:
     LLSharedMutex();
 
-    bool isLocked() const;
-    bool isThreadLocked() const;
-    bool isShared() const { return mIsShared; }
+    [[nodiscard]] bool isLocked() const;
+    [[nodiscard]] bool isThreadLocked() const;
+    [[nodiscard]] bool isShared() const { return mIsShared; }
 
     void lockShared();
     void lockExclusive();
     template<bool SHARED> void lock();
 
-    bool trylockShared();
-    bool trylockExclusive();
+    [[nodiscard]] bool trylockShared();
+    [[nodiscard]] bool trylockExclusive();
     template<bool SHARED> bool trylock();
 
     void unlockShared();
@@ -229,7 +229,7 @@ public:
     LLMutexTrylock(LLMutex* mutex, U32 aTries, U32 delay_ms = 10);
     ~LLMutexTrylock();
 
-    bool isLocked() const
+    [[nodiscard]] bool isLocked() const
     {
         return mLocked;
     }
@@ -273,7 +273,7 @@ public:
     /**
     * @brief Check lock.
     */
-    bool isLocked() const { return mLocked; }
+    [[nodiscard]] bool isLocked() const { return mLocked; }
 
     /**
     * @brief This method unlocks the mutex.

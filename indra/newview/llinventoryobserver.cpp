@@ -509,7 +509,7 @@ LLInventoryFetchComboObserver::LLInventoryFetchComboObserver(const uuid_vec_t& f
     {
         const LLUUID& item_id = (*item_iter);
         const LLViewerInventoryItem* item = gInventory.getItem(item_id);
-        if (item && std::find(folder_ids.begin(), folder_ids.end(), item->getParentUUID()) == folder_ids.end())
+        if (item && std::ranges::find(folder_ids, item->getParentUUID()) == folder_ids.end())
         {
             continue;
         }
@@ -610,7 +610,7 @@ void LLInventoryAddItemByAssetObserver::watchAsset(const LLUUID& asset_id)
 
 bool LLInventoryAddItemByAssetObserver::isAssetWatched( const LLUUID& asset_id )
 {
-    return std::find(mWatchedAssets.begin(), mWatchedAssets.end(), asset_id) != mWatchedAssets.end();
+    return std::ranges::find(mWatchedAssets, asset_id) != mWatchedAssets.end();
 }
 
 // This observer used to explicitly check for whether it was being

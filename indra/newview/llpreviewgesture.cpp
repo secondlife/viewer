@@ -556,7 +556,7 @@ void LLPreviewGesture::addAnimations()
     }
 
     // Do the sort
-    std::sort(animations.begin(), animations.end(), SortItemPtrsByName());
+    std::ranges::sort(animations, SortItemPtrsByName());
 
     // And load up the combobox
     std::vector<LLInventoryItem*>::iterator it;
@@ -601,7 +601,7 @@ void LLPreviewGesture::addSounds()
     }
 
     // Do the sort
-    std::sort(sounds.begin(), sounds.end(), SortItemPtrsByName());
+    std::ranges::sort(sounds, SortItemPtrsByName());
 
     // And load up the combobox
     std::vector<LLInventoryItem*>::iterator it;

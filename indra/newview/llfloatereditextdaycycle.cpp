@@ -1322,7 +1322,7 @@ void LLFloaterEditExtDayCycle::removeCurrentSliderFrame()
 
 void LLFloaterEditExtDayCycle::removeSliderFrame(F32 frame)
 {
-    keymap_t::iterator it = std::find_if(mSliderKeyMap.begin(), mSliderKeyMap.end(),
+    keymap_t::iterator it = std::ranges::find_if(mSliderKeyMap,
         [frame](const keymap_t::value_type &value) { return fabs(value.second.mFrame - frame) < LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR; });
 
     if (it != mSliderKeyMap.end())

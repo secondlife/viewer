@@ -116,9 +116,9 @@ namespace LLInitParam
     void BlockDescriptor::aggregateBlockData(BlockDescriptor& src_block_data)
     {
         mNamedParams.insert(src_block_data.mNamedParams.begin(), src_block_data.mNamedParams.end());
-        std::copy(src_block_data.mUnnamedParams.begin(), src_block_data.mUnnamedParams.end(), std::back_inserter(mUnnamedParams));
-        std::copy(src_block_data.mValidationList.begin(), src_block_data.mValidationList.end(), std::back_inserter(mValidationList));
-        std::copy(src_block_data.mAllParams.begin(), src_block_data.mAllParams.end(), std::back_inserter(mAllParams));
+        std::ranges::copy(src_block_data.mUnnamedParams, std::back_inserter(mUnnamedParams));
+        std::ranges::copy(src_block_data.mValidationList, std::back_inserter(mValidationList));
+        std::ranges::copy(src_block_data.mAllParams, std::back_inserter(mAllParams));
     }
 
     void BlockDescriptor::addParam(const ParamDescriptorPtr in_param, const char* char_name)

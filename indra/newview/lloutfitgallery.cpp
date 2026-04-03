@@ -470,7 +470,7 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
 
     mItemsInRow += row_diff;
     updateGalleryWidth();
-    std::sort(buf_items.begin(), buf_items.end(), compareGalleryItem);
+    std::ranges::sort(buf_items, compareGalleryItem);
 
     std::string cur_filter = getFilterSubString();
     LLStringUtil::toUpper(cur_filter);
@@ -631,7 +631,7 @@ void LLOutfitGallery::removeFromGalleryMiddle(LLOutfitGalleryItem* item)
 {
     if(item->isHidden())
     {
-        mHiddenItems.erase(std::remove(mHiddenItems.begin(), mHiddenItems.end(), item), mHiddenItems.end());
+        std::erase(mHiddenItems, item);
         return;
     }
     int n = mItemIndexMap[item];

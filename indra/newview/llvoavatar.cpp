@@ -838,14 +838,14 @@ LLVOAvatar::~LLVOAvatar()
         LLPerfStats::tunedAvatars--;
         mTuned = false;
     }
-    sAVsIgnoringARTLimit.erase(std::remove(sAVsIgnoringARTLimit.begin(), sAVsIgnoringARTLimit.end(), mID), sAVsIgnoringARTLimit.end());
+    std::erase(sAVsIgnoringARTLimit, mID);
 
 
     logPendingPhases();
 
     LL_DEBUGS("Avatar") << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << LL_ENDL;
 
-    std::for_each(mAttachmentPoints.begin(), mAttachmentPoints.end(), DeletePairedPointer());
+    std::ranges::for_each(mAttachmentPoints, DeletePairedPointer());
     mAttachmentPoints.clear();
 
     mDead = true;
@@ -6854,7 +6854,7 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
     if (pos_names.size())
     {
         std::stringstream ss;
-        std::copy(pos_names.begin(), pos_names.end(), std::ostream_iterator<std::string>(ss, ","));
+        std::ranges::copy(pos_names, std::ostream_iterator<std::string>(ss, ","));
         LL_INFOS() << avString() << " attachment positions defined for joints: " << ss.str() << "\n" << LL_ENDL;
     }
     else
@@ -6865,7 +6865,7 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
     if (scale_names.size())
     {
         std::stringstream ss;
-        std::copy(scale_names.begin(), scale_names.end(), std::ostream_iterator<std::string>(ss, ","));
+        std::ranges::copy(scale_names, std::ostream_iterator<std::string>(ss, ","));
         LL_INFOS() << getDebugName() << " attachment scales defined for joints: " << ss.str() << "\n" << LL_ENDL;
     }
     else
@@ -7900,7 +7900,7 @@ bool LLVOAvatar::detachObject(LLViewerObject *viewer_object)
         }
     }
 
-    std::vector<LLPointer<LLViewerObject> >::iterator iter = std::find(mPendingAttachment.begin(), mPendingAttachment.end(), viewer_object);
+    auto iter = std::ranges::find(mPendingAttachment, viewer_object);
     if (iter != mPendingAttachment.end())
     {
         mPendingAttachment.erase(iter);
@@ -8677,7 +8677,7 @@ void LLVOAvatar::updateTooSlow()
     bool ignore_tune = false;
     if (autotune && sAVsIgnoringARTLimit.size() > 0)
     {
-        auto it = std::find(sAVsIgnoringARTLimit.begin(), sAVsIgnoringARTLimit.end(), mID);
+        auto it = std::ranges::find(sAVsIgnoringARTLimit, mID);
         if (it != sAVsIgnoringARTLimit.end())
         {
             S32 index = (S32)(it - sAVsIgnoringARTLimit.begin());
@@ -9649,7 +9649,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
     LLVisualParam* appearance_version_param = getVisualParam(11000);
     if (appearance_version_param)
     {
-        std::vector<LLVisualParam*>::iterator it = std::find(contents.mParams.begin(), contents.mParams.end(),appearance_version_param);
+        auto it = std::ranges::find(contents.mParams, appearance_version_param);
         if (it != contents.mParams.end())
         {
             S32 index = (S32)(it - contents.mParams.begin());
@@ -10328,7 +10328,7 @@ void LLVOAvatar::getSortedJointNames(S32 joint_type, std::vector<std::string>& r
             result.push_back(pJoint->getName());
         }
     }
-    std::sort(result.begin(), result.end());
+    std::ranges::sort(result);
 }
 
 void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_wearables )
@@ -11037,8 +11037,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
         }
         else if (!is_nearby)
         {
-            sAVsIgnoringARTLimit.erase(std::remove(sAVsIgnoringARTLimit.begin(), sAVsIgnoringARTLimit.end(), mID),
-                                       sAVsIgnoringARTLimit.end());
+            std::erase(sAVsIgnoringARTLimit, mID);
         }
         updateNearbyAvatarCount();
     }

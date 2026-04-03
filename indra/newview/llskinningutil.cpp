@@ -229,7 +229,7 @@ void LLSkinningUtil::getPerVertexSkinMatrix(
     LLMatrix4a& final_mat,
     U32 max_joints)
 {
-    bool valid_weights = true;
+    [[maybe_unused]] bool valid_weights = true;
     final_mat.clear();
 
     S32 idx[4];
@@ -276,9 +276,6 @@ void LLSkinningUtil::getPerVertexSkinMatrix(
     // SL-366 - with weight validation/cleanup code, it should no longer be
     // possible to hit the bad scale case.
     llassert(valid_weights);
-    // When building for Release, the above llassert() goes away. Ward off
-    // variable-set-but-unused error.
-    (void)valid_weights;
 }
 
 void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)

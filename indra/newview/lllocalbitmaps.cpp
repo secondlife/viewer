@@ -1053,7 +1053,7 @@ LLLocalBitmapMgr::LLLocalBitmapMgr()
 
 LLLocalBitmapMgr::~LLLocalBitmapMgr()
 {
-    std::for_each(mBitmapList.begin(), mBitmapList.end(), DeletePointer());
+    std::ranges::for_each(mBitmapList, DeletePointer());
     mBitmapList.clear();
 }
 

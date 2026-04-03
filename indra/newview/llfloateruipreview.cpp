@@ -1278,7 +1278,7 @@ void LLFloaterUIPreview::highlightChangedElements()
         if(!failed)
         {
             // Now that we have a pointer to the actual element, add it to the list of elements to be highlighted
-            std::set<LLView*>::iterator iter2 = std::find(LLView::sPreviewHighlightedElements.begin(), LLView::sPreviewHighlightedElements.end(), element);
+            std::set<LLView*>::iterator iter2 = std::ranges::find(LLView::sPreviewHighlightedElements, element);
             if(iter2 == LLView::sPreviewHighlightedElements.end())
             {
                 LLView::sPreviewHighlightedElements.insert(element);

@@ -48,7 +48,7 @@ public:
      * Need to be tested after creation of a tester instance so to know if the tester is correctly handled.
      * A tester might not be added to the map if another tester with the same name already exists.
      */
-    bool isValid() const { return mValidInstance; }
+    [[nodiscard]] bool isValid() const { return mValidInstance; }
 
     /**
      * @brief Write a set of test results to the log LLSD.

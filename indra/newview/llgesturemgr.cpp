@@ -1393,11 +1393,11 @@ void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
     }
 
     std::vector<LLMultiGesture*>::iterator it;
-    it = std::find(mPlaying.begin(), mPlaying.end(), gesture);
+    it = std::ranges::find(mPlaying, gesture);
     while (it != mPlaying.end())
     {
         mPlaying.erase(it);
-        it = std::find(mPlaying.begin(), mPlaying.end(), gesture);
+        it = std::ranges::find(mPlaying, gesture);
     }
 
     gesture->reset();
@@ -1437,7 +1437,7 @@ void LLGestureMgr::addObserver(LLGestureManagerObserver* observer)
 void LLGestureMgr::removeObserver(LLGestureManagerObserver* observer)
 {
     std::vector<LLGestureManagerObserver*>::iterator it;
-    it = std::find(mObservers.begin(), mObservers.end(), observer);
+    it = std::ranges::find(mObservers, observer);
     if (it != mObservers.end())
     {
         mObservers.erase(it);

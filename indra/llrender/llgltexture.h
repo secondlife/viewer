@@ -102,8 +102,8 @@ public:
     void setBoostLevel(S32 level);
     S32  getBoostLevel() { return mBoostLevel; }
 
-    S32 getFullWidth() const { return mFullWidth; }
-    S32 getFullHeight() const { return mFullHeight; }
+    [[nodiscard]] S32 getFullWidth() const { return mFullWidth; }
+    [[nodiscard]] S32 getFullHeight() const { return mFullHeight; }
 
     void generateGLTexture() ;
     void destroyGLTexture() ;
@@ -114,9 +114,9 @@ public:
     /*virtual*/S32         getWidth(S32 discard_level = -1) const;
     /*virtual*/S32         getHeight(S32 discard_level = -1) const;
 
-    bool       hasGLTexture() const ;
-    LLGLuint   getTexName() const ;
-    bool       createGLTexture() ;
+    [[nodiscard]] bool       hasGLTexture() const ;
+    [[nodiscard]] LLGLuint   getTexName() const ;
+    [[nodiscard]] bool       createGLTexture() ;
 
     // Create a GL Texture from an image raw
     // discard_level - mip level, 0 for highest resultion mip
@@ -126,7 +126,7 @@ public:
     // category - LLGLTexture category for this LLGLTexture
     // defer_copy - set to true to allocate GL texture but NOT initialize with imageraw data
     // tex_name - if not null, will be set to the GL name of the texture created
-    bool       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, bool to_create = true, S32 category = LLGLTexture::OTHER, bool defer_copy = false, LLGLuint* tex_name = nullptr);
+    [[nodiscard]] bool       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, bool to_create = true, S32 category = LLGLTexture::OTHER, bool defer_copy = false, LLGLuint* tex_name = nullptr);
 
     void       setFilteringOption(LLTexUnit::eTextureFilterOptions option);
     void       setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, bool swap_bytes = false);
@@ -139,22 +139,22 @@ public:
     void       setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
 
     LLTexUnit::eTextureAddressMode getAddressMode(void) const ;
-    S32        getMaxDiscardLevel() const;
-    S32        getDiscardLevel() const;
-    S8         getComponents() const;
-    bool       getBoundRecently() const;
-    S32Bytes   getTextureMemory() const ;
-    LLGLenum   getPrimaryFormat() const;
-    bool       getIsAlphaMask() const ;
-    LLTexUnit::eTextureType getTarget(void) const ;
-    bool       getMask(const LLVector2 &tc);
-    F32        getTimePassedSinceLastBound();
-    bool       getMissed() const ;
-    bool       isJustBound()const ;
+    [[nodiscard]] S32        getMaxDiscardLevel() const;
+    [[nodiscard]] S32        getDiscardLevel() const;
+    [[nodiscard]] S8         getComponents() const;
+    [[nodiscard]] bool       getBoundRecently() const;
+    [[nodiscard]] S32Bytes   getTextureMemory() const ;
+    [[nodiscard]] LLGLenum   getPrimaryFormat() const;
+    [[nodiscard]] bool       getIsAlphaMask() const ;
+    [[nodiscard]] LLTexUnit::eTextureType getTarget(void) const ;
+    [[nodiscard]] bool       getMask(const LLVector2 &tc);
+    [[nodiscard]] F32        getTimePassedSinceLastBound();
+    [[nodiscard]] bool       getMissed() const ;
+    [[nodiscard]] bool       isJustBound()const ;
     void       forceUpdateBindStats(void) const;
 
-    bool       isGLTextureCreated() const ;
-    LLGLTextureState getTextureState() const { return mTextureState; }
+    [[nodiscard]] bool       isGLTextureCreated() const ;
+    [[nodiscard]] LLGLTextureState getTextureState() const { return mTextureState; }
 
     //---------------------------------------------------------------------------------------------
     //end of functions to access LLImageGL
@@ -165,7 +165,7 @@ public:
     void forceActive() ;
     void setNoDelete() ;
     void dontDiscard() { mDontDiscard = 1; mTextureState = NO_DELETE; }
-    bool getDontDiscard() const { return mDontDiscard; }
+    [[nodiscard]] bool getDontDiscard() const { return mDontDiscard; }
     //-----------------
 
 private:

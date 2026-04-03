@@ -3700,10 +3700,10 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 
 void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 {
-    LLVector3 sun_direction;
-    LLVector3 moon_direction;
+    [[maybe_unused]] LLVector3 sun_direction;
+    [[maybe_unused]] LLVector3 moon_direction;
     LLVector3 sun_ang_velocity;
-    F32 phase;
+    [[maybe_unused]] F32 phase;
     U64 space_time_usec;
 
     U32 seconds_per_day;
@@ -3723,10 +3723,8 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
     LL_DEBUGS("WindlightSync") << "Sun phase: " << phase << " rad = " << fmodf(phase / F_TWO_PI + 0.25f, 1.f) * 24.f << " h" << LL_ENDL;
 
-    /* LAPRAS
-        We decode these parts of the message but ignore them
-        as the real values are provided elsewhere. */
-    (void)sun_direction, (void)moon_direction, (void)phase;
+    // LAPRAS: We decode these parts of the message but ignore them
+    // as the real values are provided elsewhere.
 }
 
 void process_sound_trigger(LLMessageSystem *msg, void **)

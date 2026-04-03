@@ -61,10 +61,10 @@ public:
 #ifndef LL_WINDOWS
     static long getMaxOpenFiles();
 #endif
-    static bool is64Bit();
+    [[nodiscard]] static bool is64Bit();
 
-    static U32 getProcessVirtualSizeKB();
-    static U32 getProcessResidentSizeKB();
+    [[nodiscard]] static U32 getProcessVirtualSizeKB();
+    [[nodiscard]] static U32 getProcessResidentSizeKB();
 private:
     std::string mOSString;
     std::string mOSStringSimple;
@@ -79,21 +79,21 @@ public:
     LLCPUInfo();
     void stream(std::ostream& s) const;
 
-    std::string getCPUString() const;
-    const LLSD& getSSEVersions() const;
+    [[nodiscard]] std::string getCPUString() const;
+    [[nodiscard]] const LLSD& getSSEVersions() const;
 
-    bool hasAltivec() const;
-    bool hasSSE() const;
-    bool hasSSE2() const;
-    bool hasSSE3() const;
-    bool hasSSE3S() const;
-    bool hasSSE41() const;
-    bool hasSSE42() const;
-    bool hasSSE4a() const;
-    F64 getMHz() const;
+    [[nodiscard]] bool hasAltivec() const;
+    [[nodiscard]] bool hasSSE() const;
+    [[nodiscard]] bool hasSSE2() const;
+    [[nodiscard]] bool hasSSE3() const;
+    [[nodiscard]] bool hasSSE3S() const;
+    [[nodiscard]] bool hasSSE41() const;
+    [[nodiscard]] bool hasSSE42() const;
+    [[nodiscard]] bool hasSSE4a() const;
+    [[nodiscard]] F64 getMHz() const;
 
     // Family is "AMD Duron" or "Intel Pentium Pro"
-    const std::string& getFamily() const { return mFamily; }
+    [[nodiscard]] const std::string& getFamily() const { return mFamily; }
 
 private:
     bool mHasSSE;

@@ -153,7 +153,7 @@ void LLPanelGroupBulkBan::submit()
     std::vector<LLAvatarName> banned_avatar_names;
     std::vector<LLAvatarName> out_of_limit_names;
     bool banning_self = false;
-    std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), gAgent.getID());
+    std::vector<LLUUID>::iterator conflict = std::ranges::find(banned_agent_list, gAgent.getID());
     if (conflict != banned_agent_list.end())
     {
         banned_agent_list.erase(conflict);
@@ -163,7 +163,7 @@ void LLPanelGroupBulkBan::submit()
     {
         for (const auto& [group_ban_agent_id, group_ban_data] : group_datap->mBanList)
         {
-            std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), group_ban_agent_id);
+            auto conflict = std::ranges::find(banned_agent_list, group_ban_agent_id);
             if (conflict != banned_agent_list.end())
             {
                 LLAvatarName av_name;

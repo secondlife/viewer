@@ -64,7 +64,7 @@ private:
 //----------------------------------------------------------------------------
 
 // MAIN THREAD
-LLImageDecodeThread::LLImageDecodeThread(bool /*threaded*/)
+LLImageDecodeThread::LLImageDecodeThread([[maybe_unused]] bool threaded)
     : mDecodeCount(0)
 {
     mThreadPool = std::make_unique<LL::ThreadPool>("ImageDecode", 8);

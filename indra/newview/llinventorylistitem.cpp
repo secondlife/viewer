@@ -382,8 +382,8 @@ private:
 
 void LLPanelInventoryListItemBase::setWidgetsVisible(bool visible)
 {
-    std::for_each(mLeftSideWidgets.begin(), mLeftSideWidgets.end(), WidgetVisibilityChanger(visible));
-    std::for_each(mRightSideWidgets.begin(), mRightSideWidgets.end(), WidgetVisibilityChanger(visible));
+    std::ranges::for_each(mLeftSideWidgets, WidgetVisibilityChanger(visible));
+    std::ranges::for_each(mRightSideWidgets, WidgetVisibilityChanger(visible));
 }
 
 void LLPanelInventoryListItemBase::reshapeWidgets()

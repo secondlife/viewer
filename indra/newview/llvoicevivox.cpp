@@ -5887,8 +5887,7 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::matchS
 {
     sessionStatePtr_t result;
 
-    // *TODO: My kingdom for a lambda!
-    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), boost::bind(testByHandle, _1, handle));
+    auto it = std::ranges::find_if(mSession, boost::bind(testByHandle, _1, handle));
 
     if (it != mSession.end())
         result = (*it).lock();
@@ -5901,8 +5900,7 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::matchC
 {
     sessionStatePtr_t result;
 
-    // *TODO: My kingdom for a lambda!
-    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), boost::bind(testByCreatingURI, _1, uri));
+    auto it = std::ranges::find_if(mSession, boost::bind(testByCreatingURI, _1, uri));
 
     if (it != mSession.end())
         result = (*it).lock();
@@ -5915,8 +5913,7 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::matchS
 {
     sessionStatePtr_t result;
 
-    // *TODO: My kingdom for a lambda!
-    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), boost::bind(testBySIPOrAlterateURI, _1, uri));
+    auto it = std::ranges::find_if(mSession, boost::bind(testBySIPOrAlterateURI, _1, uri));
 
     if (it != mSession.end())
         result = (*it).lock();
@@ -5929,8 +5926,7 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::matchS
 {
     sessionStatePtr_t result;
 
-    // *TODO: My kingdom for a lambda!
-    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), boost::bind(testByCallerId, _1, participant_id));
+    auto it = std::ranges::find_if(mSession, boost::bind(testByCallerId, _1, participant_id));
 
     if (it != mSession.end())
         result = (*it).lock();
@@ -5940,7 +5936,7 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::matchS
 
 void LLVivoxVoiceClient::sessionState::for_each(sessionFunc_t func)
 {
-    std::for_each(mSession.begin(), mSession.end(), boost::bind(for_eachPredicate, _1, func));
+    std::ranges::for_each(mSession, boost::bind(for_eachPredicate, _1, func));
 }
 
 // simple test predicates.

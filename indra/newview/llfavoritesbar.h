@@ -277,7 +277,7 @@ private:
             if (item.isNull()) return true;
 
             LLInventoryModel::item_array_t::const_iterator found_it =
-                std::find(mFavoriteItems.begin(), mFavoriteItems.end(), item);
+                std::ranges::find(mFavoriteItems, item);
 
             return found_it == mFavoriteItems.end();
         }

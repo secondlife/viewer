@@ -493,7 +493,7 @@ private:
     {
         if (mSkipAncestors)
         {
-            mPending.erase(std::remove_if(mPending.begin(), mPending.end(), isOpen()), mPending.end());
+            std::erase_if(mPending, isOpen());
             mSkipAncestors = false;
         }
 

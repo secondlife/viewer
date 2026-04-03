@@ -93,22 +93,22 @@ public:
     void setLastClockCount(U64 current_count);      // Sets the timer so that the next elapsed call will be relative to this time
     void setTimerExpirySec(F32SecondsImplicit expiration);
     bool checkExpirationAndReset(F32 expiration);
-    bool hasExpired() const;
-    F32SecondsImplicit getElapsedTimeAndResetF32(); // Returns elapsed time in seconds with reset
-    F64SecondsImplicit getElapsedTimeAndResetF64();
+    [[nodiscard]] bool hasExpired() const;
+    [[nodiscard]] F32SecondsImplicit getElapsedTimeAndResetF32(); // Returns elapsed time in seconds with reset
+    [[nodiscard]] F64SecondsImplicit getElapsedTimeAndResetF64();
 
-    F32SecondsImplicit getRemainingTimeF32() const;
+    [[nodiscard]] F32SecondsImplicit getRemainingTimeF32() const;
 
-    static bool knownBadTimer();
+    [[nodiscard]] static bool knownBadTimer();
 
     // ACCESSORS
-    F32SecondsImplicit getElapsedTimeF32() const;           // Returns elapsed time in seconds
-    F64SecondsImplicit getElapsedTimeF64() const;           // Returns elapsed time in seconds
+    [[nodiscard]] F32SecondsImplicit getElapsedTimeF32() const;           // Returns elapsed time in seconds
+    [[nodiscard]] F64SecondsImplicit getElapsedTimeF64() const;           // Returns elapsed time in seconds
 
-    bool getStarted() const { return mStarted; }
+    [[nodiscard]] bool getStarted() const { return mStarted; }
 
 
-    static U64 getCurrentClockCount();      // Returns the raw clockticks
+    [[nodiscard]] static U64 getCurrentClockCount();      // Returns the raw clockticks
 };
 
 //

@@ -178,7 +178,7 @@ void LLDrawable::destroy()
         LL_ERRS() << "Illegal deletion of LLDrawable!" << LL_ENDL;
     }*/
 
-    std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
+    std::ranges::for_each(mFaces, DeletePointer());
     mFaces.clear();
 
     /*if (!(sNumZombieDrawables % 10))
@@ -245,7 +245,7 @@ void LLDrawable::cleanupReferences()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
-    std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
+    std::ranges::for_each(mFaces, DeletePointer());
     mFaces.clear();
 
     if (gPipeline.mInitialized)

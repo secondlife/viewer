@@ -67,9 +67,9 @@
 LLEventPumps::LLEventPumps():
     mFactories
     {
-        { "LLEventStream",   [](const std::string& name, bool tweak, const std::string& /*type*/)
+        { "LLEventStream",   [](const std::string& name, bool tweak, [[maybe_unused]] const std::string& type)
                              { return new LLEventStream(name, tweak); } },
-        { "LLEventMailDrop", [](const std::string& name, bool tweak, const std::string& /*type*/)
+        { "LLEventMailDrop", [](const std::string& name, bool tweak, [[maybe_unused]] const std::string& type)
                              { return new LLEventMailDrop(name, tweak); } }
     },
     mTypes
@@ -120,7 +120,7 @@ bool LLEventPumps::registerPumpFactory(const std::string& name, const PumpFactor
     // does the trick.
     mFactories[type_name] =
         [factory]
-        (const std::string& name, bool /*tweak*/, const std::string& /*type*/)
+        (const std::string& name, [[maybe_unused]] bool tweak, [[maybe_unused]] const std::string& type)
         { return factory(name); };
     return true;
 }
@@ -506,7 +506,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
                         sortnames.push_back(SortNameList::value_type(cdmi->second, cdmi->first));
                     }
                 }
-                std::sort(sortnames.begin(), sortnames.end());
+                std::ranges::sort(sortnames);
                 std::ostringstream out;
                 out << "New listener '" << name << "' on " << typeid(*this).name() << " '" << getName()
                     << "' would move previous listener '" << dmi->first << "'\nwas: ";

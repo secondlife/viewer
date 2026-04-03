@@ -338,7 +338,7 @@ void LLHUDIcon::cleanupDeadIcons()
 
     for(icon_it = icons_to_erase.begin(); icon_it != icons_to_erase.end(); ++icon_it)
     {
-        icon_instance_t::iterator found_it = std::find(sIconInstances.begin(), sIconInstances.end(), *icon_it);
+        icon_instance_t::iterator found_it = std::ranges::find(sIconInstances, *icon_it);
         if (found_it != sIconInstances.end())
         {
             sIconInstances.erase(found_it);

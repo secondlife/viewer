@@ -98,7 +98,7 @@ LLCallbackList::callback_list_t::iterator
 LLCallbackList::find(callback_t func, void *data)
 {
     callback_pair_t t(func, data);
-    return std::find(mCallbackList.begin(), mCallbackList.end(), t);
+    return std::ranges::find(mCallbackList, t);
 }
 
 void LLCallbackList::deleteAllFunctions()

@@ -233,7 +233,7 @@ void BlockTimer::incrementalUpdateTimerTree()
         TimeBlockTreeNode& tree_node = timerp->getTreeNode();
         if (tree_node.mNeedsSorting)
 {
-            std::sort(tree_node.mChildren.begin(), tree_node.mChildren.end(), SortTimerByName());
+            std::ranges::sort(tree_node.mChildren, SortTimerByName());
 }
 
         // skip root timer

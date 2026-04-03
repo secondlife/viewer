@@ -41,7 +41,7 @@ public:
     ~LLAlignedArray();
 
     void push_back(const T& elem);
-    U32 size() const { return mElementCount; }
+    [[nodiscard]] U32 size() const { return mElementCount; }
     void resize(U32 size);
     T* append(S32 N);
     T& operator[](int idx);

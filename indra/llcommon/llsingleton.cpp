@@ -297,7 +297,7 @@ void LLSingletonBase::capture_dependency()
         // For what it's worth, normally 'initializing' should contain very
         // few elements.
         list_t::const_iterator found =
-            std::find(initializing.begin(), initializing.end(), this);
+            std::ranges::find(initializing, this);
         if (found != initializing.end())
         {
             list_t::const_iterator it_next = found;

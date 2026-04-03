@@ -60,11 +60,11 @@ public:
     void restart(); // moves to started state, always resetting
     void reset();   // resets
 
-    bool isStarted() const { return mPlayState == STARTED; }
-    bool isPaused() const  { return mPlayState == PAUSED; }
-    bool isStopped() const { return mPlayState == STOPPED; }
+    [[nodiscard]] bool isStarted() const { return mPlayState == STARTED; }
+    [[nodiscard]] bool isPaused() const  { return mPlayState == PAUSED; }
+    [[nodiscard]] bool isStopped() const { return mPlayState == STOPPED; }
 
-    EPlayState getPlayState() const { return mPlayState; }
+    [[nodiscard]] EPlayState getPlayState() const { return mPlayState; }
     // force play state to specific value by calling appropriate handle* methods
     void setPlayState(EPlayState state);
 
@@ -592,7 +592,7 @@ namespace LLTrace
                     buf.push_back(recording.getPerSec(stat));
                 }
             }
-            std::sort(buf.begin(), buf.end());
+            std::ranges::sort(buf);
 
             return typename RelatedTypes<T>::fractional_t((buf.size() % 2 == 0) ? (buf[buf.size() / 2 - 1] + buf[buf.size() / 2]) / 2 : buf[buf.size() / 2]);
         }

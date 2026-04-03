@@ -640,7 +640,7 @@ bool LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
 {
     llassert(drawablep != nullptr);
 
-    if (std::find(mHeroVOList.begin(), mHeroVOList.end(), drawablep) == mHeroVOList.end())
+    if (std::ranges::find(mHeroVOList, drawablep) == mHeroVOList.end())
     {
         // Probe isn't in our list for consideration.  Add it.
         mHeroVOList.push_back(drawablep);
@@ -652,7 +652,7 @@ bool LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
 
 void LLHeroProbeManager::unregisterViewerObject(LLVOVolume* drawablep)
 {
-    std::vector<LLPointer<LLVOVolume>>::iterator found_itr = std::find(mHeroVOList.begin(), mHeroVOList.end(), drawablep);
+    std::vector<LLPointer<LLVOVolume>>::iterator found_itr = std::ranges::find(mHeroVOList, drawablep);
     if (found_itr != mHeroVOList.end())
     {
         mHeroVOList.erase(found_itr);

@@ -1144,7 +1144,7 @@ bool LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t &it
     LLIsType is_type(LLAssetType::AT_LANDMARK);
     gInventory.collectDescendentsIf(mFavoriteFolderId, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
 
-    std::sort(items.begin(), items.end(), LLFavoritesSort());
+    std::ranges::sort(items, LLFavoritesSort());
 
     if (needToSaveItemsOrder(items))
     {
@@ -2086,7 +2086,7 @@ void LLFavoritesOrderStorage::saveOrder()
     LLIsType is_type(LLAssetType::AT_LANDMARK);
     LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
     gInventory.collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
-    std::sort(items.begin(), items.end(), LLViewerInventoryItemSort());
+    std::ranges::sort(items, LLViewerInventoryItemSort());
     saveItemsOrder(items);
 }
 
@@ -2125,7 +2125,7 @@ void LLFavoritesOrderStorage::rearrangeFavoriteLandmarks(const LLUUID& source_it
     gInventory.collectDescendentsIf(favorites_id, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
 
     // ensure items are sorted properly before changing order. EXT-3498
-    std::sort(items.begin(), items.end(), LLViewerInventoryItemSort());
+    std::ranges::sort(items, LLViewerInventoryItemSort());
 
     // update order
     gInventory.updateItemsOrder(items, source_item_id, target_item_id);
@@ -2156,7 +2156,7 @@ bool LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
     LLIsType is_type(LLAssetType::AT_LANDMARK);
     gInventory.collectDescendentsIf(favorite_folder, cats, items, LLInventoryModel::EXCLUDE_TRASH, is_type);
 
-    std::sort(items.begin(), items.end(), LLFavoritesSort());
+    std::ranges::sort(items, LLFavoritesSort());
     bool name_changed = false;
 
     for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); it++)

@@ -3499,7 +3499,7 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
     // Remove the group if it already exists remove it and add the new data to pick up changes.
     LLGroupData gd;
     gd.mID = group_id;
-    std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), gd);
+    std::vector<LLGroupData>::iterator found_it = std::ranges::find(gAgent.mGroups, gd);
     if (found_it != gAgent.mGroups.end())
     {
         gAgent.mGroups.erase(found_it);
@@ -3575,7 +3575,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
             // and add the new data to pick up changes.
             LLGroupData gd;
             gd.mID = group_id;
-            std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), gd);
+            std::vector<LLGroupData>::iterator found_it = std::ranges::find(gAgent.mGroups, gd);
             if (found_it != gAgent.mGroups.end())
             {
                 gAgent.mGroups.erase(found_it);
@@ -3644,7 +3644,7 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
         {
             need_floater_update = true;
             // Remove the group if it already exists remove it and add the new data to pick up changes.
-            std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), group);
+            std::vector<LLGroupData>::iterator found_it = std::ranges::find(gAgent.mGroups, group);
             if (found_it != gAgent.mGroups.end())
             {
                 gAgent.mGroups.erase(found_it);
@@ -3704,7 +3704,7 @@ class LLAgentGroupDataUpdateViewerNode : public LLHTTPNode
             {
                 need_floater_update = true;
                 // Remove the group if it already exists remove it and add the new data to pick up changes.
-                std::vector<LLGroupData>::iterator found_it = std::find(gAgent.mGroups.begin(), gAgent.mGroups.end(), group);
+                std::vector<LLGroupData>::iterator found_it = std::ranges::find(gAgent.mGroups, group);
                 if (found_it != gAgent.mGroups.end())
                 {
                     gAgent.mGroups.erase(found_it);

@@ -120,7 +120,7 @@ void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d
 {
     LLTeleportHistoryPersistentItem item(title, global_pos, date);
 
-    slurl_list_t::iterator item_iter = std::find_if(mItems.begin(), mItems.end(),
+    slurl_list_t::iterator item_iter = std::ranges::find_if(mItems,
                                 boost::bind(&LLTeleportHistoryStorage::compareByTitleAndGlobalPos, this, _1, item));
 
     // If there is such item already, remove it, since new item is more recent
@@ -151,7 +151,7 @@ void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d
         if (item_iter->mDate > item.mDate)
         {
             removed_index = -1;
-            std::sort(mItems.begin(), mItems.end(), LLSortItemsByDate());
+            std::ranges::sort(mItems, LLSortItemsByDate());
         }
     }
 
@@ -228,7 +228,7 @@ void LLTeleportHistoryStorage::load()
 
     file.close();
 
-    std::sort(mItems.begin(), mItems.end(), LLSortItemsByDate());
+    std::ranges::sort(mItems, LLSortItemsByDate());
 
     mHistoryChangedSignal(-1);
 }

@@ -1965,7 +1965,7 @@ LLWebRTCVoiceClient::sessionState::ptr_t LLWebRTCVoiceClient::sessionState::matc
 
 void LLWebRTCVoiceClient::sessionState::for_each(sessionFunc_t func)
 {
-    std::for_each(sSessions.begin(), sSessions.end(), boost::bind(for_eachPredicate, _1, func));
+    std::ranges::for_each(sSessions, boost::bind(for_eachPredicate, _1, func));
 }
 
 void LLWebRTCVoiceClient::sessionState::reapEmptySessions()
@@ -2806,7 +2806,7 @@ static llwebrtc::LLWebRTCPeerConnectionInterface::InitOptions getConnectionOptio
 
     // TODO: Pull these from login
     std::string grid = LLGridManager::getInstance()->getGridLoginID();
-    std::transform(grid.begin(), grid.end(), grid.begin(), [](unsigned char c){ return std::tolower(c); });
+    std::ranges::transform(grid, grid.begin(), [](unsigned char c){ return std::tolower(c); });
     int num_servers = 2;
     if (grid == "agni")
     {

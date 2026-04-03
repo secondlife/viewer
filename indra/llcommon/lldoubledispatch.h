@@ -267,7 +267,7 @@ private:
     /// Look up the location of the first matching entry.
     typename DispatchTable::iterator find(const ParamBaseType& param1, const ParamBaseType& param2)
     {
-        return std::find_if(mDispatch.begin(), mDispatch.end(),
+        return std::ranges::find_if(mDispatch,
                             std::bind(&EntryBase::matches, std::placeholders::_1,
                                         std::ref(param1), std::ref(param2)));
     }

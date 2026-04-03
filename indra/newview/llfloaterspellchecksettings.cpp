@@ -234,7 +234,7 @@ void LLFloaterSpellCheckerSettings::refreshDictionaries(bool from_settings)
     {
         const LLSD& dict = *dict_it;
         const std::string language = dict["language"].asString();
-        if ( (dict["installed"].asBoolean()) && (active_list.end() == std::find(active_list.begin(), active_list.end(), language)) )
+        if ( (dict["installed"].asBoolean()) && (active_list.end() == std::ranges::find(active_list, language)) )
         {
             row["value"] = language;
             row["columns"][0]["value"] = (!dict["user_installed"].asBoolean()) ? language : language + " " + LLTrans::getString("UserDictionary");

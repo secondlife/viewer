@@ -1131,7 +1131,7 @@ void LLFloaterWorldMap::buildLandmarkIDLists()
                                     LLInventoryModel::EXCLUDE_TRASH,
                                     is_landmark);
 
-    std::sort(items.begin(), items.end(), LLViewerInventoryItem::comparePointers());
+    std::ranges::sort(items, LLViewerInventoryItem::comparePointers());
 
     mLandmarkAssetIDList.reserve(mLandmarkAssetIDList.size() + items.size());
     mLandmarkItemIDList.reserve(mLandmarkItemIDList.size() + items.size());
@@ -1717,7 +1717,7 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
     S32 num_results = 0;
 
     std::vector<std::pair <U64, LLSimInfo*> > sim_info_vec(LLWorldMap::getInstance()->getRegionMap().begin(), LLWorldMap::getInstance()->getRegionMap().end());
-    std::sort(sim_info_vec.begin(), sim_info_vec.end(), SortRegionNames());
+    std::ranges::sort(sim_info_vec, SortRegionNames());
 
     for (std::vector<std::pair <U64, LLSimInfo*> >::const_iterator it = sim_info_vec.begin(); it != sim_info_vec.end(); ++it)
     {

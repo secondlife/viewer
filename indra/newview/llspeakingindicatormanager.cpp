@@ -198,7 +198,7 @@ void SpeakingIndicatorManager::cleanupSingleton()
     LLVoiceClient::removeObserver(this);
 }
 
-void SpeakingIndicatorManager::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
+void SpeakingIndicatorManager::sOnCurrentChannelChanged([[maybe_unused]] const LLUUID& session_id)
 {
     if (LLVoiceChannel::isSuspended())
     {

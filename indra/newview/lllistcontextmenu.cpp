@@ -71,7 +71,7 @@ void LLListContextMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32
     }
 
     mUUIDs.resize(uuids.size());
-    std::copy(uuids.begin(), uuids.end(), mUUIDs.begin());
+    std::ranges::copy(uuids, mUUIDs.begin());
 
     menup = createMenu();
     if (!menup)

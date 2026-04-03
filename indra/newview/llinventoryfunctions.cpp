@@ -2147,7 +2147,7 @@ void validate_marketplacelistings(
     gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
     LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
     // Sort the folders in alphabetical order first
-    std::sort(cat_array_copy.begin(), cat_array_copy.end(), sort_alpha);
+    std::ranges::sort(cat_array_copy, sort_alpha);
 
     for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
     {

@@ -2714,10 +2714,10 @@ const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, c
     bool name_includes_type = false;
     std::string stripped_uri_lower = stripped_uri;
     LLStringUtil::toLower(stripped_uri_lower);
-    stripped_uri_lower.erase(std::remove_if(stripped_uri_lower.begin(), stripped_uri_lower.end(), isspace), stripped_uri_lower.end());
+    std::erase_if(stripped_uri_lower, isspace);
     std::string texture_type_lower = texture_type;
     LLStringUtil::toLower(texture_type_lower);
-    texture_type_lower.erase(std::remove_if(texture_type_lower.begin(), texture_type_lower.end(), isspace), texture_type_lower.end());
+    std::erase_if(texture_type_lower, isspace);
     if (stripped_uri_lower.find(texture_type_lower) != std::string::npos)
     {
         name_includes_type = true;

@@ -43,10 +43,10 @@ public:
     Type        mBottom;
 
     // Note: follows GL_QUAD conventions: the top and right edges are not considered part of the rect
-    Type        getWidth()  const { return mRight - mLeft; }
-    Type        getHeight() const { return mTop - mBottom; }
-    Type        getCenterX() const { return (mLeft + mRight) / 2; }
-    Type        getCenterY() const { return (mTop + mBottom) / 2; }
+    [[nodiscard]] Type        getWidth()  const { return mRight - mLeft; }
+    [[nodiscard]] Type        getHeight() const { return mTop - mBottom; }
+    [[nodiscard]] Type        getCenterX() const { return (mLeft + mRight) / 2; }
+    [[nodiscard]] Type        getCenterY() const { return (mTop + mBottom) / 2; }
 
     LLRectBase():   mLeft(0), mTop(0), mRight(0), mBottom(0)
     {}
@@ -68,7 +68,7 @@ public:
         mBottom = (Type)sd[3].asInteger();
     }
 
-    LLSD getValue() const
+    [[nodiscard]] LLSD getValue() const
     {
         LLSD ret;
         ret[0] = mLeft;
@@ -79,14 +79,14 @@ public:
     }
 
     // Note: follows GL_QUAD conventions: the top and right edges are not considered part of the rect
-    bool        pointInRect(const Type x, const Type y) const
+    [[nodiscard]] bool        pointInRect(const Type x, const Type y) const
     {
         return  mLeft <= x && x < mRight &&
                 mBottom <= y && y < mTop;
     }
 
     //// Note: follows GL_QUAD conventions: the top and right edges are not considered part of the rect
-    bool        localPointInRect(const Type x, const Type y) const
+    [[nodiscard]] bool        localPointInRect(const Type x, const Type y) const
     {
         return  0 <= x && x < getWidth() &&
                 0 <= y && y < getHeight();
@@ -134,7 +134,7 @@ public:
 
     // Note: Does NOT follow GL_QUAD conventions: the top and right edges ARE considered part of the rect
     // returns true if any part of rect is is inside this LLRect
-    bool        overlaps(const LLRectBase& rect) const
+    [[nodiscard]] bool        overlaps(const LLRectBase& rect) const
     {
         return !(mLeft > rect.mRight
             || mRight < rect.mLeft
@@ -142,7 +142,7 @@ public:
             || mTop < rect.mBottom);
     }
 
-    bool        contains(const LLRectBase& rect) const
+    [[nodiscard]] bool        contains(const LLRectBase& rect) const
     {
         return mLeft <= rect.mLeft
             && mRight >= rect.mRight
@@ -221,17 +221,17 @@ public:
         return *this;
     }
 
-    bool isValid() const
+    [[nodiscard]] bool isValid() const
     {
         return mLeft <= mRight && mBottom <= mTop;
     }
 
-    bool isEmpty() const
+    [[nodiscard]] bool isEmpty() const
     {
         return mLeft == mRight || mBottom == mTop;
     }
 
-    bool notEmpty() const
+    [[nodiscard]] bool notEmpty() const
     {
         return !isEmpty();
     }

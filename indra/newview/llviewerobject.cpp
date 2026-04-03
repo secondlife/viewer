@@ -7773,7 +7773,7 @@ void LLViewerObject::removeObjectFromPendingUpdate(LLViewerObject* obj)
 {
     for (auto& [owner_id, objects] : sPendingUpdatesByOwner)
     {
-        objects.erase(std::remove(objects.begin(), objects.end(), obj), objects.end());
+        std::erase(objects, obj);
     }
 }
 
@@ -7787,7 +7787,7 @@ bool LLViewerObject::isObjectInPendingUpdate(const LLUUID& owner_id, LLViewerObj
     if (it != sPendingUpdatesByOwner.end())
     {
         const auto& objects = it->second;
-        return std::find(objects.begin(), objects.end(), obj) != objects.end();
+        return std::ranges::find(objects, obj) != objects.end();
     }
     return false;
 }

@@ -684,7 +684,7 @@ void LLPreviewTexture::adjustAspectRatio()
         {
             std::ostringstream ratio;
             ratio << num << ":" << denom;
-            std::vector<std::string>::const_iterator found = std::find(mRatiosList.begin(), mRatiosList.end(), ratio.str());
+            auto found = std::ranges::find(mRatiosList, ratio.str());
             if (found == mRatiosList.end())
             {
                 // No existing ratio found, create an element that will show image at original ratio

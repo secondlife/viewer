@@ -2797,7 +2797,7 @@ const std::array<std::string, 4> voice_call_types =
 
 bool is_voice_call_type(const std::string &value)
 {
-    return std::find(voice_call_types.begin(), voice_call_types.end(), value) != voice_call_types.end();
+    return std::ranges::find(voice_call_types, value) != voice_call_types.end();
 }
 
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :

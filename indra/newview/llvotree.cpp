@@ -269,7 +269,7 @@ void LLVOTree::initClass()
 //static
 void LLVOTree::cleanupClass()
 {
-    std::for_each(sSpeciesTable.begin(), sSpeciesTable.end(), DeletePairedPointer());
+    std::ranges::for_each(sSpeciesTable, DeletePairedPointer());
     sSpeciesTable.clear();
 }
 
@@ -545,8 +545,8 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
         mReferenceBuffer->getColorStrider(colors);
         mReferenceBuffer->getIndexStrider(indicesp);
 
-        S32 vertex_count = 0;
-        S32 index_count = 0;
+        [[maybe_unused]] S32 vertex_count = 0;
+        [[maybe_unused]] S32 index_count = 0;
 
         // First leaf
         *(normals++) =      LLVector3(-SRR2, -SRR2, 0.f);
@@ -848,10 +848,6 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
         mReferenceBuffer->unmapBuffer();
         llassert(vertex_count == max_vertices);
         llassert(index_count == max_indices);
-#ifndef SHOW_ASSERT
-        (void)vertex_count;
-        (void)index_count;
-#endif
     }
 
     //generate tree mesh

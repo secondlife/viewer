@@ -102,9 +102,9 @@ LLAvatarTracker::LLAvatarTracker() :
 LLAvatarTracker::~LLAvatarTracker()
 {
     deleteTrackingData();
-    std::for_each(mObservers.begin(), mObservers.end(), DeletePointer());
+    std::ranges::for_each(mObservers, DeletePointer());
     mObservers.clear();
-    std::for_each(mBuddyInfo.begin(), mBuddyInfo.end(), DeletePairedPointer());
+    std::ranges::for_each(mBuddyInfo, DeletePairedPointer());
     mBuddyInfo.clear();
 }
 
@@ -484,9 +484,7 @@ void LLAvatarTracker::addObserver(LLFriendObserver* observer)
 
 void LLAvatarTracker::removeObserver(LLFriendObserver* observer)
 {
-    mObservers.erase(
-        std::remove(mObservers.begin(), mObservers.end(), observer),
-        mObservers.end());
+    std::erase(mObservers, observer);
 }
 
 void LLAvatarTracker::idleNotifyObservers()

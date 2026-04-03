@@ -985,7 +985,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
         return;
     }
 
-    mLodsWithParsingError.erase(std::remove(mLodsWithParsingError.begin(), mLodsWithParsingError.end(), loaded_lod), mLodsWithParsingError.end());
+    std::erase(mLodsWithParsingError, loaded_lod);
     if (mLodsWithParsingError.empty())
     {
         mFMP->childEnable("calculate_btn");

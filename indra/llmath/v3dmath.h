@@ -68,7 +68,7 @@ public:
         return ret;
     }
 
-    inline bool isFinite() const;                                   // checks to see if all values of LLVector3d are finite
+    [[nodiscard]] inline bool isFinite() const;                                   // checks to see if all values of LLVector3d are finite
     bool        clamp(const F64 min, const F64 max);        // Clamps all values to (min,max), returns true if data changed
     bool        abs();                      // sets all values to absolute value of original value (first octant), returns true if changed
 
@@ -89,8 +89,8 @@ public:
     F64     magVecSquared() const;      // deprecated
     inline F64      normVec();                  // deprecated
 
-    F64 length() const;         // Returns magnitude of LLVector3d
-    F64 lengthSquared() const;  // Returns magnitude squared of LLVector3d
+    [[nodiscard]] F64 length() const;         // Returns magnitude of LLVector3d
+    [[nodiscard]] F64 lengthSquared() const;  // Returns magnitude squared of LLVector3d
     inline F64 normalize();     // Normalizes and returns the magnitude of LLVector3d
 
     const LLVector3d&   rotVec(const F64 angle, const LLVector3d &vec); // Rotates about vec by angle radians
@@ -98,8 +98,8 @@ public:
     const LLVector3d&   rotVec(const LLMatrix3 &mat);               // Rotates by LLMatrix4 mat
     const LLVector3d&   rotVec(const LLQuaternion &q);              // Rotates by LLQuaternion q
 
-    bool isNull() const;            // Returns true if vector has a _very_small_ length
-    bool isExactlyZero() const      { return !mdV[VX] && !mdV[VY] && !mdV[VZ]; }
+    [[nodiscard]] bool isNull() const;            // Returns true if vector has a _very_small_ length
+    [[nodiscard]] bool isExactlyZero() const      { return !mdV[VX] && !mdV[VY] && !mdV[VZ]; }
 
     const LLVector3d&   operator=(const LLVector4 &a);
 

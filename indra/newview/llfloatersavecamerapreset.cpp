@@ -125,7 +125,7 @@ void LLFloaterSaveCameraPreset::onBtnSave()
         {
             std::list<std::string> preset_names;
             LLPresetsManager::getInstance()->loadPresetNamesFromDir(PRESETS_CAMERA, preset_names, DEFAULT_HIDE);
-            if (std::find(preset_names.begin(), preset_names.end(), name) != preset_names.end())
+            if (std::ranges::find(preset_names, name) != preset_names.end())
             {
                 LLSD args;
                 args["NAME"] = name;

@@ -57,7 +57,7 @@ LL::LazyEventAPIBase::~LazyEventAPIBase()
 LLSD LL::LazyEventAPIBase::getMetadata(const std::string& name) const
 {
     // Since mOperations is a vector rather than a map, just search.
-    auto found = std::find_if(mOperations.begin(), mOperations.end(),
+    auto found = std::ranges::find_if(mOperations,
                               [&name](const auto& namedesc)
                               { return (namedesc.first == name); });
     if (found == mOperations.end())

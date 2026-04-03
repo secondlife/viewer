@@ -65,10 +65,10 @@ public:
     void    generate();                 // Generate a new UUID
     void    generate(const std::string& stream); //Generate a new UUID based on hash of input stream
 
-    static LLUUID generateNewID(std::string stream = "");   //static version of above for use in initializer expressions such as constructor params, etc.
+    [[nodiscard]] static LLUUID generateNewID(std::string stream = "");   //static version of above for use in initializer expressions such as constructor params, etc.
 
-    bool    set(const char *in_string, bool emit = true);   // Convert from string, if emit is false, do not emit warnings
-    bool    set(const std::string& in_string, bool emit = true);    // Convert from string, if emit is false, do not emit warnings
+    [[nodiscard]] bool    set(const char *in_string, bool emit = true);   // Convert from string, if emit is false, do not emit warnings
+    [[nodiscard]] bool    set(const std::string& in_string, bool emit = true);    // Convert from string, if emit is false, do not emit warnings
     void    setNull();                  // Faster than setting to LLUUID::null.
 
     S32     cmpTime(uuid_time_t *t1, uuid_time_t *t2);
@@ -78,8 +78,8 @@ public:
     //
     // ACCESSORS
     //
-    bool    isNull() const;         // Faster than comparing to LLUUID::null.
-    bool    notNull() const;        // Faster than comparing to LLUUID::null.
+    [[nodiscard]] bool    isNull() const;         // Faster than comparing to LLUUID::null.
+    [[nodiscard]] bool    notNull() const;        // Faster than comparing to LLUUID::null.
     // JC: This is dangerous.  It allows UUIDs to be cast automatically
     // to integers, among other things.  Use isNull() or notNull().
     //      operator bool() const;
@@ -99,7 +99,7 @@ public:
     // yields a third random UUID that can be reproduced from the two inputs
     // but which, given the result and one of the inputs can't be used to
     // deduce the other input
-    LLUUID combine(const LLUUID& other) const;
+    [[nodiscard]] LLUUID combine(const LLUUID& other) const;
     void combine(const LLUUID& other, LLUUID& result) const;
 
     friend LL_COMMON_API std::ostream&   operator<<(std::ostream& s, const LLUUID &uuid);
@@ -108,11 +108,11 @@ public:
     void toString(std::string& out) const;
     void toCompressedString(std::string& out) const;
 
-    std::string asString() const;
-    std::string getString() const;
+    [[nodiscard]] std::string asString() const;
+    [[nodiscard]] std::string getString() const;
 
-    U16 getCRC16() const;
-    U32 getCRC32() const;
+    [[nodiscard]] U16 getCRC16() const;
+    [[nodiscard]] U32 getCRC32() const;
 
     // Returns a 64 bits digest of the UUID, by XORing its two 64 bits long
     // words. HB
@@ -122,7 +122,7 @@ public:
         return tmp[0] ^ tmp[1];
     }
 
-    static bool validate(std::string_view in_string); // Validate that the UUID string is legal.
+    [[nodiscard]] static bool validate(std::string_view in_string); // Validate that the UUID string is legal.
 
     static const LLUUID null;
     static LLMutex * mMutex;
@@ -130,7 +130,7 @@ public:
     static U32 getRandomSeed();
     static S32 getNodeID(unsigned char * node_id);
 
-    static bool parseUUID(std::string_view buf, LLUUID* value);
+    [[nodiscard]] static bool parseUUID(std::string_view buf, LLUUID* value);
 
     U8 mData[UUID_BYTES];
 };

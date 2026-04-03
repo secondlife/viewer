@@ -36,8 +36,8 @@ void LLCommonUtils::computeDifference(
     uuid_vec_t vnew_copy(vnew);
     uuid_vec_t vcur_copy(vcur);
 
-    std::sort(vnew_copy.begin(), vnew_copy.end());
-    std::sort(vcur_copy.begin(), vcur_copy.end());
+    std::ranges::sort(vnew_copy, std::less<>{});
+    std::ranges::sort(vcur_copy, std::less<>{});
 
     size_t maxsize = llmax(vnew_copy.size(), vcur_copy.size());
     vadded.resize(maxsize);

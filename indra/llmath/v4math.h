@@ -83,7 +83,7 @@ public:
     explicit operator glm::vec3() const;      // Initializes glm::vec3 to (vec[0]. vec[1], vec[2])
     explicit operator glm::vec4() const;      // Initializes glm::vec4 to (vec[0]. vec[1], vec[2], vec[3])
 
-    inline bool isFinite() const;                                   // checks to see if all values of LLVector3 are finite
+    [[nodiscard]] inline bool isFinite() const;                                   // checks to see if all values of LLVector3 are finite
 
     inline void clear();        // Clears LLVector4 to (0, 0, 0, 1)
     inline void clearVec();     // deprecated
@@ -103,8 +103,8 @@ public:
     inline void setVec(const LLVector3 &vec, F32 w = 1.f); // deprecated
     inline void setVec(const F32 *vec);             // deprecated
 
-    F32 length() const;             // Returns magnitude of LLVector4
-    F32 lengthSquared() const;      // Returns magnitude squared of LLVector4
+    [[nodiscard]] F32 length() const;             // Returns magnitude of LLVector4
+    [[nodiscard]] F32 lengthSquared() const;      // Returns magnitude squared of LLVector4
     F32 normalize();                // Normalizes and returns the magnitude of LLVector4
 
     F32 magVec() const;             // deprecated
@@ -115,8 +115,8 @@ public:
     // Returns true if data changed
     bool abs();
 
-    bool isExactlyClear() const     { return (mV[VW] == 1.0f) && !mV[VX] && !mV[VY] && !mV[VZ]; }
-    bool isExactlyZero() const      { return !mV[VW] && !mV[VX] && !mV[VY] && !mV[VZ]; }
+    [[nodiscard]] bool isExactlyClear() const     { return (mV[VW] == 1.0f) && !mV[VX] && !mV[VY] && !mV[VZ]; }
+    [[nodiscard]] bool isExactlyZero() const      { return !mV[VW] && !mV[VX] && !mV[VY] && !mV[VZ]; }
 
     const LLVector4& rotVec(const LLMatrix4 &mat);               // Rotates by MAT4 mat
     const LLVector4& rotVec(const LLQuaternion &q);              // Rotates by QUAT q

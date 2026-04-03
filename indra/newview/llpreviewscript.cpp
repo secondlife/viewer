@@ -1088,9 +1088,9 @@ void LLScriptEdCore::openInExternalEditor()
     // Generate a suitable filename
     std::string script_name = mScriptName;
     std::string forbidden_chars = "<>:\"\\/|?*";
-    for (std::string::iterator c = forbidden_chars.begin(); c != forbidden_chars.end(); c++)
+    for (char c : forbidden_chars)
     {
-        script_name.erase(std::remove(script_name.begin(), script_name.end(), *c), script_name.end());
+        std::erase(script_name, c);
     }
     std::string filename = mContainer->getTmpFileName(script_name);
 

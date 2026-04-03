@@ -530,8 +530,8 @@ void LLHUDText::updateAll()
     }
 
     // sort back to front for rendering purposes
-    std::sort(sVisibleTextObjects.begin(), sVisibleTextObjects.end(), lltextobject_further_away());
-    std::sort(sVisibleHUDTextObjects.begin(), sVisibleHUDTextObjects.end(), lltextobject_further_away());
+    std::ranges::sort(sVisibleTextObjects, lltextobject_further_away());
+    std::ranges::sort(sVisibleHUDTextObjects, lltextobject_further_away());
 }
 
 //void LLHUDText::setLOD(S32 lod)

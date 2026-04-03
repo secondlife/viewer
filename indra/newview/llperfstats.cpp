@@ -307,7 +307,7 @@ namespace LLPerfStats
         }
 
         std::vector<U64> buf(frame_time_deque.begin(), frame_time_deque.end());
-        std::sort(buf.begin(), buf.end());
+        std::ranges::sort(buf);
 
         LLPerfStats::meanFrameTime = (buf.size() % 2 == 0) ? (buf[buf.size() / 2 - 1] + buf[buf.size() / 2]) / 2 : buf[buf.size() / 2];
     }

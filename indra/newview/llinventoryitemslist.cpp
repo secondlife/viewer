@@ -87,7 +87,7 @@ LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p
 // virtual
 LLInventoryItemsList::~LLInventoryItemsList()
 {
-    auto it = std::find(sAllLists.begin(), sAllLists.end(), this);
+    auto it = std::ranges::find(sAllLists, this);
     if (it != sAllLists.end())
     {
         sAllLists.erase(it);
@@ -130,7 +130,7 @@ void LLInventoryItemsList::updateSelection()
 
     for(std::vector<LLSD>::const_iterator cur_id_it = cur.begin(); cur_id_it != cur.end() && !mSelectTheseIDs.empty(); ++cur_id_it)
     {
-        uuid_vec_t::iterator select_ids_it = std::find(mSelectTheseIDs.begin(), mSelectTheseIDs.end(), cur_id_it->asUUID());
+        uuid_vec_t::iterator select_ids_it = std::ranges::find(mSelectTheseIDs, cur_id_it->asUUID());
         if(select_ids_it != mSelectTheseIDs.end())
         {
             selectItemByUUID(*select_ids_it);

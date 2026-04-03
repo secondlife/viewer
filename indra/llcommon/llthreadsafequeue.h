@@ -156,10 +156,10 @@ public:
     // no legacy name because this is a newer method
 
     // Returns the size of the queue.
-    size_t size();
+    [[nodiscard]] size_t size();
 
     //Returns the capacity of the queue.
-    U32 capacity() { return mCapacity; }
+    [[nodiscard]] U32 capacity() { return mCapacity; }
 
     // closes the queue:
     // - every subsequent push() call will throw LLThreadSafeQueueInterrupt
@@ -171,9 +171,9 @@ public:
     void close();
 
     // producer end: are we prevented from pushing any additional items?
-    bool isClosed();
+    [[nodiscard]] bool isClosed();
     // consumer end: are we done, is the queue entirely drained?
-    bool done();
+    [[nodiscard]] bool done();
 
 protected:
     using queue_type = QueueT;

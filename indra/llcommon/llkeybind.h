@@ -40,15 +40,15 @@ public:
     LLKeyData(const LLSD &key_data);
 
     LLSD asLLSD() const;
-    bool isEmpty() const;
-    bool empty() const { return isEmpty(); };
+    [[nodiscard]] bool isEmpty() const;
+    [[nodiscard]] bool empty() const { return isEmpty(); };
     void reset();
     LLKeyData& operator=(const LLKeyData& rhs);
     bool operator==(const LLKeyData& rhs);
     bool operator!=(const LLKeyData& rhs);
 
-    bool canHandle(const LLKeyData& data) const;
-    bool canHandle(EMouseClickType mouse, KEY key, MASK mask) const;
+    [[nodiscard]] bool canHandle(const LLKeyData& data) const;
+    [[nodiscard]] bool canHandle(EMouseClickType mouse, KEY key, MASK mask) const;
 
     EMouseClickType mMouse;
     KEY mKey;
@@ -66,25 +66,25 @@ public:
 
     bool operator==(const LLKeyBind& rhs);
     bool operator!=(const LLKeyBind& rhs);
-    bool isEmpty() const;
-    bool empty() const { return isEmpty(); };
+    [[nodiscard]] bool isEmpty() const;
+    [[nodiscard]] bool empty() const { return isEmpty(); };
 
     LLSD asLLSD() const;
 
-    bool canHandle(EMouseClickType mouse, KEY key, MASK mask) const;
-    bool canHandleKey(KEY key, MASK mask) const;
-    bool canHandleMouse(EMouseClickType mouse, MASK mask) const;
+    [[nodiscard]] bool canHandle(EMouseClickType mouse, KEY key, MASK mask) const;
+    [[nodiscard]] bool canHandleKey(KEY key, MASK mask) const;
+    [[nodiscard]] bool canHandleMouse(EMouseClickType mouse, MASK mask) const;
 
     // contains specified combination
-    bool hasKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore) const;
-    bool hasKeyData(const LLKeyData& data) const;
-    bool hasKeyData(U32 index) const;
+    [[nodiscard]] bool hasKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore) const;
+    [[nodiscard]] bool hasKeyData(const LLKeyData& data) const;
+    [[nodiscard]] bool hasKeyData(U32 index) const;
 
     // index of contained LLKeyData
-    S32 findKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore) const;
-    S32 findKeyData(const LLKeyData& data) const;
+    [[nodiscard]] S32 findKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore) const;
+    [[nodiscard]] S32 findKeyData(const LLKeyData& data) const;
 
-    LLKeyData getKeyData(U32 index) const;
+    [[nodiscard]] LLKeyData getKeyData(U32 index) const;
 
     // these methods enshure there will be no repeats
     bool addKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore);
@@ -95,7 +95,7 @@ public:
     void clear() { mData.clear(); }
     // if there any empty LLKeyData in the end of the array, remove them
     void trimEmpty();
-    size_t getDataCount();
+    [[nodiscard]] size_t getDataCount();
 
 private:
     using data_vector_t = std::vector<LLKeyData>;

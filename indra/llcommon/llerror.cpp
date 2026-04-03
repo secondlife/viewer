@@ -884,7 +884,7 @@ namespace LLError
             level_names["NONE"]     = LLError::LEVEL_NONE;
         }
 
-        std::transform(name.begin(), name.end(), name.begin(), toupper);
+        std::ranges::transform(name, name.begin(), toupper);
 
         LevelMap::const_iterator i = level_names.find(name);
         if (i == level_names.end())

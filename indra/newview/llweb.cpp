@@ -206,7 +206,7 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 
     // find the grid
     std::string current_grid = LLGridManager::getInstance()->getGridId();
-    std::transform(current_grid.begin(), current_grid.end(), current_grid.begin(), ::tolower);
+    std::ranges::transform(current_grid, current_grid.begin(), ::tolower);
     if (current_grid == "damballah")
     {
       // Staging grid has its own naming scheme.

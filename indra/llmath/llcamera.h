@@ -158,11 +158,11 @@ public:
     void setNear(F32 new_near);
     void setFar(F32 new_far);
 
-    F32 getView() const                         { return mView; }               // vertical FOV in radians
-    S32 getViewHeightInPixels() const           { return mViewHeightInPixels; }
-    F32 getAspect() const                       { return mAspect; }             // width / height
-    F32 getNear() const                         { return mNearPlane; }          // meters
-    F32 getFar() const                          { return mFarPlane; }           // meters
+    [[nodiscard]] F32 getView() const                         { return mView; }               // vertical FOV in radians
+    [[nodiscard]] S32 getViewHeightInPixels() const           { return mViewHeightInPixels; }
+    [[nodiscard]] F32 getAspect() const                       { return mAspect; }             // width / height
+    [[nodiscard]] F32 getNear() const                         { return mNearPlane; }          // meters
+    [[nodiscard]] F32 getFar() const                          { return mFarPlane; }           // meters
 
     // The values returned by the min/max view getters depend upon the aspect ratio
     // at the time they are called and therefore should not be cached.

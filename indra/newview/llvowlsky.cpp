@@ -237,7 +237,7 @@ bool LLVOWLSky::updateGeometry(LLDrawable * drawable)
             const U32 num_indices_this_seg = 1+num_stacks_this_seg*(2+2*verts_per_stack);
             llassert(num_indices_this_seg * sizeof(U16) <= max_buffer_bytes);
 
-            bool allocated = segment->allocateBuffer(num_verts_this_seg, num_indices_this_seg);
+            [[maybe_unused]] bool allocated = segment->allocateBuffer(num_verts_this_seg, num_indices_this_seg);
 #if RELEASE_SHOW_WARNS
             if( !allocated )
             {
@@ -245,12 +245,10 @@ bool LLVOWLSky::updateGeometry(LLDrawable * drawable)
                     << num_verts_this_seg << " vertices and "
                     << num_indices_this_seg << " indices" << LL_ENDL;
             }
-#else
-            (void) allocated;
 #endif
 
             // lock the buffer
-            bool success = segment->getVertexStrider(vertices)
+            [[maybe_unused]] bool success = segment->getVertexStrider(vertices)
                 && segment->getTexCoord0Strider(texCoords)
                 && segment->getIndexStrider(indices);
 
@@ -259,8 +257,6 @@ bool LLVOWLSky::updateGeometry(LLDrawable * drawable)
             {
                 LL_ERRS() << "Failed updating WindLight sky geometry." << LL_ENDL;
             }
-#else
-            (void) success;
 #endif
 
             // fill it

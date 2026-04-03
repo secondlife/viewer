@@ -1521,8 +1521,8 @@ S32 LLViewerInput::loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mo
     }
 
     // sort lists by mask (so that Shift+W is executed before W, if both are assigned, but if Shift+W is not assigned W should be executed)
-    std::sort(mKeyBindings[mode].begin(), mKeyBindings[mode].end(), compare_key_by_mask);
-    std::sort(mMouseBindings[mode].begin(), mMouseBindings[mode].end(), compare_mouse_by_mask);
+    std::ranges::sort(mKeyBindings[mode], compare_key_by_mask);
+    std::ranges::sort(mMouseBindings[mode], compare_mouse_by_mask);
 
     return binding_count;
 }

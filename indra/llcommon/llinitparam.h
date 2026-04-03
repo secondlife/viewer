@@ -1367,7 +1367,7 @@ namespace LLInitParam
             mMinCount(min_count),
             mMaxCount(max_count)
         {
-            std::copy(value.begin(), value.end(), std::back_inserter(mValues));
+            std::ranges::copy(value, std::back_inserter(mValues));
 
             if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
             {
@@ -1543,12 +1543,12 @@ namespace LLInitParam
 
             if (overwrite)
             {
-                std::copy(src_typed_param.begin(), src_typed_param.end(), std::back_inserter(dst_typed_param.mValues));
+                std::ranges::copy(src_typed_param, std::back_inserter(dst_typed_param.mValues));
             }
             else
             {
                 container_t new_values(src_typed_param.mValues);
-                std::copy(dst_typed_param.begin(), dst_typed_param.end(), std::back_inserter(new_values));
+                std::ranges::copy(dst_typed_param, std::back_inserter(new_values));
                 std::swap(dst_typed_param.mValues, new_values);
             }
 
@@ -1599,7 +1599,7 @@ namespace LLInitParam
             mMinCount(min_count),
             mMaxCount(max_count)
         {
-            std::copy(value.begin(), value.end(), back_inserter(mValues));
+            std::ranges::copy(value, back_inserter(mValues));
 
             if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
             {
@@ -1798,12 +1798,12 @@ namespace LLInitParam
 
             if (overwrite)
             {
-                std::copy(src_typed_param.begin(), src_typed_param.end(), std::back_inserter(dst_typed_param.mValues));
+                std::ranges::copy(src_typed_param, std::back_inserter(dst_typed_param.mValues));
             }
             else
             {
                 container_t new_values(src_typed_param.mValues);
-                std::copy(dst_typed_param.begin(), dst_typed_param.end(), std::back_inserter(new_values));
+                std::ranges::copy(dst_typed_param, std::back_inserter(new_values));
                 std::swap(dst_typed_param.mValues, new_values);
             }
 

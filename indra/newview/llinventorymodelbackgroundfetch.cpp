@@ -589,7 +589,7 @@ void LLInventoryModelBackgroundFetch::onAISContentCalback(
     uuid_vec_t::const_iterator folder_end = content_ids.end();
     while (folder_iter != folder_end)
     {
-        std::list<LLUUID>::const_iterator found = std::find(mExpectedFolderIds.begin(), mExpectedFolderIds.end(), *folder_iter);
+        std::list<LLUUID>::const_iterator found = std::ranges::find(mExpectedFolderIds, *folder_iter);
         if (found != mExpectedFolderIds.end())
         {
             mExpectedFolderIds.erase(found);
@@ -636,7 +636,7 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID& request_i
 {
     // Don't emplace_front on failure - there is a chance it was fired from inside bulkFetchViaAis
     incrFetchFolderCount(-1);
-    std::list<LLUUID>::const_iterator found = std::find(mExpectedFolderIds.begin(), mExpectedFolderIds.end(), request_id);
+    std::list<LLUUID>::const_iterator found = std::ranges::find(mExpectedFolderIds, request_id);
     if (found != mExpectedFolderIds.end())
     {
         mExpectedFolderIds.erase(found);
@@ -1128,7 +1128,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
                 {
                     if (LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
                     {
-                        if (std::find(all_cats.begin(), all_cats.end(), cat_id) == all_cats.end())
+                        if (std::ranges::find(all_cats, cat_id) == all_cats.end())
                         {
                             LLSD folder_sd;
                             folder_sd["folder_id"] = cat->getUUID();
@@ -1534,7 +1534,7 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
             {
                 folders.append(*iter);
                 LLUUID folder_id = iter->get("folder_id").asUUID();
-                if (std::find(mRecursiveCatUUIDs.begin(), mRecursiveCatUUIDs.end(), folder_id) != mRecursiveCatUUIDs.end())
+                if (std::ranges::find(mRecursiveCatUUIDs, folder_id) != mRecursiveCatUUIDs.end())
                 {
                     recursive_cats.emplace_back(folder_id);
                 }
@@ -1632,7 +1632,7 @@ void BGFolderHttpHandler::processFailure(const char* const reason, LLCore::HttpR
 
 bool BGFolderHttpHandler::getIsRecursive(const LLUUID& cat_id) const
 {
-    return std::find(mRecursiveCatUUIDs.begin(), mRecursiveCatUUIDs.end(), cat_id) != mRecursiveCatUUIDs.end();
+    return std::ranges::find(mRecursiveCatUUIDs, cat_id) != mRecursiveCatUUIDs.end();
 }
 
 ///----------------------------------------------------------------------------

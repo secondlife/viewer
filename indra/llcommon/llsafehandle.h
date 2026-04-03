@@ -94,7 +94,7 @@ public:
     const Type* operator->() const              { return nonNull(mPointer); }
     Type*   operator->()                        { return nonNull(mPointer); }
 
-    Type*   get() const                         { return mPointer; }
+    [[nodiscard]] Type*   get() const             { return mPointer; }
     void    clear()                             { assign(NULL); }
     // we disallow these operations as they expose our null objects to direct manipulation
     // and bypass the reference counting semantics
@@ -104,8 +104,8 @@ public:
     operator BOOL()  const                      { return mPointer != NULL; }
     operator bool()  const                      { return mPointer != NULL; }
     bool operator!() const                      { return mPointer == NULL; }
-    bool isNull() const                         { return mPointer == NULL; }
-    bool notNull() const                        { return mPointer != NULL; }
+    [[nodiscard]] bool isNull() const             { return mPointer == NULL; }
+    [[nodiscard]] bool notNull() const          { return mPointer != NULL; }
 
 
     operator Type*()       const                { return mPointer; }

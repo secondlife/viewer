@@ -209,7 +209,7 @@ protected:
     void removeScope(Registrar* scope)
     {
         // O(N) but should be near the beggining and N should be small and this is safer than storing iterators
-        scope_list_iterator_t iter = std::find(mActiveScopes.begin(), mActiveScopes.end(), scope);
+        scope_list_iterator_t iter = std::ranges::find(mActiveScopes, scope);
         if (iter != mActiveScopes.end())
         {
             mActiveScopes.erase(iter);

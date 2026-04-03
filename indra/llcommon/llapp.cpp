@@ -130,7 +130,7 @@ LLApp::~LLApp()
 {
 
     // reclaim live file memory
-    std::for_each(mLiveFiles.begin(), mLiveFiles.end(), DeletePointer());
+    std::ranges::for_each(mLiveFiles, DeletePointer());
     mLiveFiles.clear();
 
     setStopped();

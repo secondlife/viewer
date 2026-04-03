@@ -126,7 +126,7 @@ void LLGLSLShader::finishProfile(boost::json::value& statsv)
     if (! statsv.is_null())
     {
         std::vector<LLGLSLShader*> sorted(sInstances.begin(), sInstances.end());
-        std::sort(sorted.begin(), sorted.end(), LLGLSLShaderCompareTimeElapsed());
+        std::ranges::sort(sorted, LLGLSLShaderCompareTimeElapsed());
 
         auto& stats = statsv.as_object();
         auto shadersit = stats.emplace("shaders", boost::json::array_kind).first;

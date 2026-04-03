@@ -275,21 +275,21 @@ public:
         reasonable null or zero value for the type.
     */
     //@{
-        Boolean asBoolean() const;
-        Integer asInteger() const;
-        Real    asReal() const;
-        String  asString() const;
-        UUID    asUUID() const;
-        Date    asDate() const;
-        URI     asURI() const;
-        const Binary& asBinary() const;
+        [[nodiscard]] Boolean asBoolean() const;
+        [[nodiscard]] Integer asInteger() const;
+        [[nodiscard]] Real    asReal() const;
+        [[nodiscard]] String  asString() const;
+        [[nodiscard]] UUID    asUUID() const;
+        [[nodiscard]] Date    asDate() const;
+        [[nodiscard]] URI     asURI() const;
+        [[nodiscard]] const Binary& asBinary() const;
 
         // asStringRef on any non-string type will return a ref to an empty string.
-        const String& asStringRef() const;
+        [[nodiscard]] const String& asStringRef() const;
 
         // Return "<value><((type))>((scalar value or recursive calls))</((type))></value>"
         // See http://xmlrpc.com/spec.md
-        String asXMLRPCValue() const;
+        [[nodiscard]] String asXMLRPCValue() const;
 
         operator Boolean() const    { return asBoolean(); }
         operator Integer() const    { return asInteger(); }
@@ -317,9 +317,9 @@ public:
 
     /** @name Map Values */
     //@{
-        static LLSD emptyMap();
+        [[nodiscard]] static LLSD emptyMap();
 
-        bool has(const std::string_view) const;
+        [[nodiscard]] bool has(const std::string_view) const;
         LLSD get(const std::string_view) const;
         LLSD getKeys() const;               // Return an LLSD array with keys as strings
         void insert(const char* k, const LLSD& v)
@@ -364,10 +364,10 @@ public:
     /** @name Array Values */
     //@{
         // Allocate an empty array
-        static LLSD emptyArray();
+        [[nodiscard]] static LLSD emptyArray();
 
         // Allocate an array with internal storage reserved but not initialized like a std::vector
-        static LLSD emptyReservedArray(size_t size);
+        [[nodiscard]] static LLSD emptyReservedArray(size_t size);
 
         LLSD get(Integer) const;
         void set(Integer, const LLSD&);
@@ -396,7 +396,7 @@ public:
 
     /** @name Iterators */
     //@{
-        size_t size() const;
+        [[nodiscard]] size_t size() const;
 
         using llsd_map_t = std::map<String, LLSD, std::less<>>;
         using map_iterator = llsd_map_t::iterator;
@@ -437,20 +437,20 @@ public:
             TypeLLSDNumTypes = (TypeLLSDTypeEnd - TypeLLSDTypeBegin)
         };
 
-        Type type() const;
+        [[nodiscard]] Type type() const;
 
-        bool isUndefined() const    { return type() == TypeUndefined; }
-        bool isDefined() const      { return type() != TypeUndefined; }
-        bool isBoolean() const      { return type() == TypeBoolean; }
-        bool isInteger() const      { return type() == TypeInteger; }
-        bool isReal() const         { return type() == TypeReal; }
-        bool isString() const       { return type() == TypeString; }
-        bool isUUID() const         { return type() == TypeUUID; }
-        bool isDate() const         { return type() == TypeDate; }
-        bool isURI() const          { return type() == TypeURI; }
-        bool isBinary() const       { return type() == TypeBinary; }
-        bool isMap() const          { return type() == TypeMap; }
-        bool isArray() const        { return type() == TypeArray; }
+        [[nodiscard]] bool isUndefined() const    { return type() == TypeUndefined; }
+        [[nodiscard]] bool isDefined() const      { return type() != TypeUndefined; }
+        [[nodiscard]] bool isBoolean() const      { return type() == TypeBoolean; }
+        [[nodiscard]] bool isInteger() const      { return type() == TypeInteger; }
+        [[nodiscard]] bool isReal() const         { return type() == TypeReal; }
+        [[nodiscard]] bool isString() const       { return type() == TypeString; }
+        [[nodiscard]] bool isUUID() const         { return type() == TypeUUID; }
+        [[nodiscard]] bool isDate() const         { return type() == TypeDate; }
+        [[nodiscard]] bool isURI() const          { return type() == TypeURI; }
+        [[nodiscard]] bool isBinary() const       { return type() == TypeBinary; }
+        [[nodiscard]] bool isMap() const          { return type() == TypeMap; }
+        [[nodiscard]] bool isArray() const        { return type() == TypeArray; }
     //@}
 
     /** @name Automatic Cast Protection

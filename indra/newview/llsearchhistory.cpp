@@ -77,7 +77,7 @@ bool LLSearchHistory::save()
     std::string resolved_filename = getHistoryFilePath();
 
     // delete the file if it is empty or contains only empty entries
-    if (std::find_if(mSearchHistory.begin(), mSearchHistory.end(), [](const LLSearchHistoryItem& x)
+    if (std::ranges::find_if(mSearchHistory, [](const LLSearchHistoryItem& x)
         {
             return !x.search_query.empty();
         }) == mSearchHistory.end())

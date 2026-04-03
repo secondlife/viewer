@@ -74,7 +74,7 @@ class LL_COMMON_API LLFile
 {
 public:
     /// open a file with the specified access mode
-    static  LLFILE* fopen(const std::string& filename, const char* accessmode);  /* Flawfinder: ignore */
+    [[nodiscard]] static  LLFILE* fopen(const std::string& filename, const char* accessmode);  /* Flawfinder: ignore */
     ///< 'accessmode' follows the rules of the Posix fopen() mode parameter
     /// "r" open the file for reading only and positions the stream at the beginning
     /// "r+" open the file for reading and writing and positions the stream at the beginning
@@ -95,7 +95,7 @@ public:
     static  int     close(LLFILE * file);
 
     /// retrieve the content of a file into a string
-    static std::string getContents(const std::string& filename);
+    [[nodiscard]] static std::string getContents(const std::string& filename);
     ///< @returns the content of the file or an empty string on failure
 
     /// create a directory
@@ -128,7 +128,7 @@ public:
 
 
     /// copy the contents of file from 'from' to 'to' filename
-    static  bool    copy(const std::string& from, const std::string& to);
+    [[nodiscard]] static  bool    copy(const std::string& from, const std::string& to);
     ///< @returns true on success and false on failure.
 
     /// return the file stat structure for filename
@@ -148,15 +148,15 @@ public:
     ///  together with the three access bits which under Windows only the write bit is relevant.
 
     /// check if filename is an existing directory
-    static  bool    isdir(const std::string& filename);
+    [[nodiscard]] static  bool    isdir(const std::string& filename);
     ///< @returns true if the path is for an existing directory
 
     /// check if filename is an existing file
-    static  bool    isfile(const std::string& filename);
+    [[nodiscard]] static  bool    isfile(const std::string& filename);
     ///< @returns true if the path is for an existing file
 
     /// check if filename is a symlink
-    static  bool    islink(const std::string& filename);
+    [[nodiscard]] static  bool    islink(const std::string& filename);
     ///< @returns true if the path is pointing at a symlink
 
     /// return a path to the temporary directory on the system

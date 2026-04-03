@@ -251,15 +251,15 @@ public:
      * Factory accepting either plain LLSD::Map or Params block.
      * MAY RETURN DEFAULT-CONSTRUCTED LLProcessPtr if params invalid!
      */
-    static LLProcessPtr create(const LLSDOrParams& params);
+    [[nodiscard]] static LLProcessPtr create(const LLSDOrParams& params);
     virtual ~LLProcess();
 
     /// Is child process still running?
-    bool isRunning() const;
+    [[nodiscard]] bool isRunning() const;
     // static isRunning(LLProcessPtr), getStatus(LLProcessPtr),
     // getStatusString(LLProcessPtr), kill(LLProcessPtr) handle the case in
     // which the passed LLProcessPtr might be NULL (default-constructed).
-    static bool isRunning(const LLProcessPtr&);
+    [[nodiscard]] static bool isRunning(const LLProcessPtr&);
 
     /**
      * State of child process

@@ -100,7 +100,7 @@ void LLPlacesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
     // remove expand or collapse menu item depend on folder state
     std::string collapse_expand_item_to_hide(is_open ? "expand" :  "collapse");
-    std::vector<std::string>::iterator it = std::find(items.begin(),  items.end(), collapse_expand_item_to_hide);
+    auto it = std::ranges::find(items, collapse_expand_item_to_hide);
     if (it != items.end())  items.erase(it);
 
 

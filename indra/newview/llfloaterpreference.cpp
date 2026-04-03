@@ -947,7 +947,7 @@ void LLFloaterPreference::getControlNames(std::vector<std::string>& names)
                 if (control)
                 {
                     std::string control_name = control->getName();
-                    if (std::find(names.begin(), names.end(), control_name) == names.end())
+                    if (std::ranges::find(names, control_name) == names.end())
                     {
                         names.push_back(control_name);
                     }
@@ -2348,7 +2348,7 @@ void LLPanelPreference::cancel(const std::vector<std::string> settings_to_skip)
             continue;
         }
 
-        auto found = std::find(settings_to_skip.begin(), settings_to_skip.end(), control->getName());
+        auto found = std::ranges::find(settings_to_skip, control->getName());
         if (found != settings_to_skip.end())
         {
             continue;

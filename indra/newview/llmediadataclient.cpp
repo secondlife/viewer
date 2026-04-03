@@ -192,9 +192,9 @@ bool LLMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &object)
 {
     PredicateMatchRequest upred(object->getID());
 
-    if (std::find_if(mQueue.begin(), mQueue.end(), upred) != mQueue.end())
+    if (std::ranges::find_if(mQueue, upred) != mQueue.end())
         return true;
-    if (std::find_if(mUnQueuedRequests.begin(), mUnQueuedRequests.end(), upred) != mUnQueuedRequests.end())
+    if (std::ranges::find_if(mUnQueuedRequests, upred) != mUnQueuedRequests.end())
         return true;
 
     return false;
@@ -729,8 +729,8 @@ void LLObjectMediaDataClient::enqueue(Request::ptr_t request)
         // For GET requests that are not new, if a matching request is already in the round robin queue,
         // in flight, or being retried, leave it at its current position.
         PredicateMatchRequest upred(request->getID(), Request::GET);
-        request_queue_t::iterator iter = std::find_if(mRoundRobinQueue.begin(), mRoundRobinQueue.end(), upred);
-        request_set_t::iterator iter2 = std::find_if(mUnQueuedRequests.begin(), mUnQueuedRequests.end(), upred);
+        request_queue_t::iterator iter = std::ranges::find_if(mRoundRobinQueue, upred);
+        request_set_t::iterator iter2 = std::ranges::find_if(mUnQueuedRequests, upred);
 
         if( (iter != mRoundRobinQueue.end()) || (iter2 != mUnQueuedRequests.end()) )
         {
@@ -813,7 +813,7 @@ bool LLObjectMediaDataClient::isInQueue(const LLMediaDataClientObject::ptr_t &ob
     if(LLMediaDataClient::isInQueue(object))
         return true;
 
-    if (std::find_if(mRoundRobinQueue.begin(), mRoundRobinQueue.end(), PredicateMatchRequest(object->getID())) != mRoundRobinQueue.end())
+    if (std::ranges::find_if(mRoundRobinQueue, PredicateMatchRequest(object->getID())) != mRoundRobinQueue.end())
         return true;
 
     return false;
@@ -986,7 +986,7 @@ void LLObjectMediaNavigateClient::enqueue(Request::ptr_t request)
     PredicateMatchRequest upred(request);
 
     // If there's already a matching request in the queue, remove it.
-    request_queue_t::iterator iter = std::find_if(mQueue.begin(), mQueue.end(), upred);
+    request_queue_t::iterator iter = std::ranges::find_if(mQueue, upred);
     if(iter != mQueue.end())
     {
         LL_DEBUGS("LLMediaDataClient") << "removing matching queued request " << (**iter) << LL_ENDL;
@@ -994,7 +994,7 @@ void LLObjectMediaNavigateClient::enqueue(Request::ptr_t request)
     }
     else
     {
-        request_set_t::iterator set_iter = std::find_if(mUnQueuedRequests.begin(), mUnQueuedRequests.end(), upred);
+        request_set_t::iterator set_iter = std::ranges::find_if(mUnQueuedRequests, upred);
         if(set_iter != mUnQueuedRequests.end())
         {
             LL_DEBUGS("LLMediaDataClient") << "removing matching unqueued request " << (**set_iter) << LL_ENDL;

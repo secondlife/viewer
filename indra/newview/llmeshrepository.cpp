@@ -1362,7 +1362,7 @@ void LLMeshRepoThread::loadMeshLOD(const LLUUID& mesh_id, const LLVolumeParams& 
         {
             //if no header request is pending, fetch header
             auto& array = mPendingLOD[mesh_id];
-            std::fill(array.begin(), array.end(), 0);
+            std::ranges::fill(array, 0);
             array[lod]++;
 
             LLMutexLock lock(mMutex);
@@ -5312,16 +5312,16 @@ F32 LLMeshRepository::getStreamingCostLegacy(LLMeshHeader& header, F32 radius, S
 
 LLMeshCostData::LLMeshCostData()
 {
-    std::fill(mSizeByLOD.begin(), mSizeByLOD.end(), 0);
-    std::fill(mEstTrisByLOD.begin(), mEstTrisByLOD.end(), 0.f);
+    std::ranges::fill(mSizeByLOD, 0);
+    std::ranges::fill(mEstTrisByLOD, 0.f);
 }
 
 bool LLMeshCostData::init(const LLMeshHeader& header)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-    std::fill(mSizeByLOD.begin(), mSizeByLOD.end(), 0);
-    std::fill(mEstTrisByLOD.begin(), mEstTrisByLOD.end(), 0.f);
+    std::ranges::fill(mSizeByLOD, 0);
+    std::ranges::fill(mEstTrisByLOD, 0.f);
 
     S32 bytes_high = header.mLodSize[3];
     S32 bytes_med = header.mLodSize[2];

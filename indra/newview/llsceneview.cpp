@@ -166,7 +166,7 @@ void LLSceneView::draw()
     {
         if (!size[idx].empty())
         { //display graph of object sizes
-            std::sort(size[idx].begin(), size[idx].end());
+            std::ranges::sort(size[idx]);
 
             ll_remove_outliers(size[idx], 1.f);
 
@@ -233,7 +233,7 @@ void LLSceneView::draw()
     {
         if (!triangles[idx].empty())
         { //plot graph of visible/total triangles
-            std::sort(triangles[idx].begin(), triangles[idx].end());
+            std::ranges::sort(triangles[idx]);
 
             ll_remove_outliers(triangles[idx], 1.f);
 
@@ -298,7 +298,7 @@ void LLSceneView::draw()
     {
         if (!streaming_cost[idx].empty())
         { //plot graph of streaming cost
-            std::sort(streaming_cost[idx].begin(), streaming_cost[idx].end());
+            std::ranges::sort(streaming_cost[idx]);
 
             ll_remove_outliers(streaming_cost[idx], 1.f);
 
@@ -364,7 +364,7 @@ void LLSceneView::draw()
     {
         if (!physics_cost[idx].empty())
         { //plot graph of physics cost
-            std::sort(physics_cost[idx].begin(), physics_cost[idx].end());
+            std::ranges::sort(physics_cost[idx]);
 
             ll_remove_outliers(physics_cost[idx], 1.f);
 

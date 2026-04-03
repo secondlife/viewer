@@ -286,7 +286,7 @@ void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
             LLPointer<LLInventoryCallback> cb = new LLRegisterAttachmentCallback();
             for (const LLUUID& id_item: ids_to_link)
             {
-                if (std::find(mPendingAttachLinks.begin(), mPendingAttachLinks.end(), id_item) == mPendingAttachLinks.end())
+                if (std::ranges::find(mPendingAttachLinks, id_item) == mPendingAttachLinks.end())
                 {
                     LLAppearanceMgr::instance().addCOFItemLink(id_item, cb);
                     mPendingAttachLinks.insert(id_item);

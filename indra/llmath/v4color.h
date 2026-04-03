@@ -110,7 +110,7 @@ public:
     F32 lengthSquared() const; // Returns magnitude squared of LLColor4
     F32 normalize();           // deprecated -- use normalize()
 
-    bool isOpaque() const { return mV[VALPHA] == 1.f; }
+    [[nodiscard]] bool isOpaque() const { return mV[VALPHA] == 1.f; }
 
     F32  operator[](int idx) const { return mV[idx]; }
     F32& operator[](int idx) { return mV[idx]; }

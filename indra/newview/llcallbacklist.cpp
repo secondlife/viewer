@@ -62,7 +62,7 @@ void LLCallbackList::addFunction( callback_t func, void *data)
 
     // only add one callback per func/data pair
     callback_pair_t t(func, data);
-    callback_list_t::iterator iter = std::find(mCallbackList.begin(), mCallbackList.end(), t);
+    callback_list_t::iterator iter = std::ranges::find(mCallbackList, t);
     if (iter == mCallbackList.end())
     {
         mCallbackList.push_back(t);
@@ -73,7 +73,7 @@ void LLCallbackList::addFunction( callback_t func, void *data)
 BOOL LLCallbackList::containsFunction( callback_t func, void *data)
 {
     callback_pair_t t(func, data);
-    callback_list_t::iterator iter = std::find(mCallbackList.begin(), mCallbackList.end(), t);
+    callback_list_t::iterator iter = std::ranges::find(mCallbackList, t);
     if (iter != mCallbackList.end())
     {
         return TRUE;
@@ -88,7 +88,7 @@ BOOL LLCallbackList::containsFunction( callback_t func, void *data)
 BOOL LLCallbackList::deleteFunction( callback_t func, void *data)
 {
     callback_pair_t t(func, data);
-    callback_list_t::iterator iter = std::find(mCallbackList.begin(), mCallbackList.end(), t);
+    callback_list_t::iterator iter = std::ranges::find(mCallbackList, t);
     if (iter != mCallbackList.end())
     {
         mCallbackList.erase(iter);

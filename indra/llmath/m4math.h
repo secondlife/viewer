@@ -134,7 +134,7 @@ public:
 
     // various useful matrix functions
     const LLMatrix4& setIdentity();                 // Load identity matrix
-    bool isIdentity() const;
+    [[nodiscard]] bool isIdentity() const;
     const LLMatrix4& setZero();                     // Clears matrix to all zeros.
 
     const LLMatrix4& initRotation(const F32 angle, const LLVector4 &axis);  // Calculate rotation matrix for rotating angle radians about vec
@@ -188,9 +188,9 @@ public:
     F32          determinant(void) const;                       // Return determinant
     LLQuaternion quaternion(void) const;            // Returns quaternion
 
-    LLVector4 getFwdRow4() const;
-    LLVector4 getLeftRow4() const;
-    LLVector4 getUpRow4() const;
+    [[nodiscard]] LLVector4 getFwdRow4() const;
+    [[nodiscard]] LLVector4 getLeftRow4() const;
+    [[nodiscard]] LLVector4 getUpRow4() const;
 
     LLMatrix3 getMat3() const;
 

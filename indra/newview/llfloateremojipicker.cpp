@@ -421,7 +421,7 @@ void LLFloaterEmojiPicker::initialize()
 
     mSelectedGroupIndex = groupIndex == ALL_EMOJIS_GROUP_INDEX ? 0 :
         static_cast<U32>((1 + std::distance(mFilteredEmojiGroups.begin(),
-            std::find(mFilteredEmojiGroups.begin(), mFilteredEmojiGroups.end(), groupIndex))) %
+            std::ranges::find(mFilteredEmojiGroups, groupIndex))) %
         (1 + mFilteredEmojiGroups.size()));
 
     mGroupButtons[mSelectedGroupIndex]->setToggleState(true);
@@ -820,7 +820,7 @@ void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
         if (button == mGroupButtons[mSelectedGroupIndex] || button->getToggleState())
             return;
 
-        auto it = std::find(mGroupButtons.begin(), mGroupButtons.end(), button);
+        auto it = std::ranges::find(mGroupButtons, button);
         if (it == mGroupButtons.end())
             return;
 
@@ -1147,7 +1147,7 @@ std::list<llwchar>& LLFloaterEmojiPicker::getRecentlyUsed()
 void LLFloaterEmojiPicker::onEmojiUsed(llwchar emoji)
 {
     // Update sRecentlyUsed
-    auto itr = std::find(sRecentlyUsed.begin(), sRecentlyUsed.end(), emoji);
+    auto itr = std::ranges::find(sRecentlyUsed, emoji);
     if (itr == sRecentlyUsed.end())
     {
         sRecentlyUsed.push_front(emoji);
@@ -1225,7 +1225,7 @@ void LLFloaterEmojiPicker::loadState()
     for (const std::string& token : rtokens)
     {
         llwchar emoji = (llwchar)atoi(token.c_str());
-        if (std::find(sRecentlyUsed.begin(), sRecentlyUsed.end(), emoji) == sRecentlyUsed.end())
+        if (std::ranges::find(sRecentlyUsed, emoji) == sRecentlyUsed.end())
         {
             sRecentlyUsed.push_back(emoji);
             if (!--maxCountR)
@@ -1246,7 +1246,7 @@ void LLFloaterEmojiPicker::loadState()
             if (emoji)
             {
                 U32 count = atoi(pair[1].c_str());
-                auto it = std::find_if(sFrequentlyUsed.begin(), sFrequentlyUsed.end(),
+                auto it = std::ranges::find_if(sFrequentlyUsed,
                     [emoji](std::pair<llwchar, U32>& it) { return it.first == emoji; });
                 if (it != sFrequentlyUsed.end())
                 {

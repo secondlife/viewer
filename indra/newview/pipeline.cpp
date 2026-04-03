@@ -1833,7 +1833,7 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
     // Based on flags, remove the drawable from the queues that it's on.
     if (drawablep->isState(LLDrawable::ON_MOVE_LIST))
     {
-        LLDrawable::drawable_vector_t::iterator iter = std::find(mMovedList.begin(), mMovedList.end(), drawablep);
+        LLDrawable::drawable_vector_t::iterator iter = std::ranges::find(mMovedList, drawablep);
         if (iter != mMovedList.end())
         {
             mMovedList.erase(iter);
@@ -6000,11 +6000,11 @@ void LLPipeline::findReferences(LLDrawable *drawablep)
     {
         LL_INFOS() << "In mLights" << LL_ENDL;
     }
-    if (std::find(mMovedList.begin(), mMovedList.end(), drawablep) != mMovedList.end())
+    if (std::ranges::find(mMovedList, drawablep) != mMovedList.end())
     {
         LL_INFOS() << "In mMovedList" << LL_ENDL;
     }
-    if (std::find(mShiftList.begin(), mShiftList.end(), drawablep) != mShiftList.end())
+    if (std::ranges::find(mShiftList, drawablep) != mShiftList.end())
     {
         LL_INFOS() << "In mShiftList" << LL_ENDL;
     }
@@ -6013,7 +6013,7 @@ void LLPipeline::findReferences(LLDrawable *drawablep)
         LL_INFOS() << "In mRetexturedList" << LL_ENDL;
     }
 
-    if (std::find(mBuildQ1.begin(), mBuildQ1.end(), drawablep) != mBuildQ1.end())
+    if (std::ranges::find(mBuildQ1, drawablep) != mBuildQ1.end())
     {
         LL_INFOS() << "In mBuildQ1" << LL_ENDL;
     }

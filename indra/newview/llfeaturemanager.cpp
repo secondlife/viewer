@@ -536,7 +536,7 @@ bool LLFeatureManager::loadGPUClass()
 
 void LLFeatureManager::cleanupFeatureTables()
 {
-    std::for_each(mMaskList.begin(), mMaskList.end(), DeletePairedPointer());
+    std::ranges::for_each(mMaskList, DeletePairedPointer());
     mMaskList.clear();
 }
 

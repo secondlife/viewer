@@ -568,13 +568,13 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
             base_calls.push_back(calls);
         }
 
-        std::sort(base_calls.begin(), base_calls.end());
-        std::sort(base_times.begin(), base_times.end());
-        std::sort(base_execution.begin(), base_execution.end());
+        std::ranges::sort(base_calls);
+        std::ranges::sort(base_times);
+        std::ranges::sort(base_execution);
 
-        std::sort(cur_calls.begin(), cur_calls.end());
-        std::sort(cur_times.begin(), cur_times.end());
-        std::sort(cur_execution.begin(), cur_execution.end());
+        std::ranges::sort(cur_calls);
+        std::ranges::sort(cur_times);
+        std::ranges::sort(cur_execution);
 
         //remove outliers
         const U32 OUTLIER_CUTOFF = 512;

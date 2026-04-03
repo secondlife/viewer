@@ -624,7 +624,7 @@ public:
     bool setSkew(const F32 skew);
     bool setSculptID(const LLUUID& sculpt_id, U8 sculpt_type);
 
-    static bool validate(U8 prof_curve, F32 prof_begin, F32 prof_end, F32 hollow,
+    [[nodiscard]] static bool validate(U8 prof_curve, F32 prof_begin, F32 prof_end, F32 hollow,
         U8 path_curve, F32 path_begin, F32 path_end,
         F32 scx, F32 scy, F32 shx, F32 shy,
         F32 twistend, F32 twistbegin, F32 radiusoffset,
@@ -652,9 +652,9 @@ public:
     const F32&  getSkew() const         { return mPathParams.getSkew();         }
     const LLUUID& getSculptID() const   { return mSculptID;                     }
     const U8& getSculptType() const     { return mSculptType;                   }
-    bool isSculpt() const;
-    bool isMeshSculpt() const;
-    bool isConvex() const;
+    [[nodiscard]] bool isSculpt() const;
+    [[nodiscard]] bool isMeshSculpt() const;
+    [[nodiscard]] bool isConvex() const;
 
     // 'begin' and 'end' should be in range [0, 1] (they will be clamped)
     // (begin, end) = (0, 1) will not change the volume
@@ -1027,12 +1027,12 @@ public:
 
     U8 getProfileType() const                               { return mParams.getProfileParams().getCurveType(); }
     U8 getPathType() const                                  { return mParams.getPathParams().getCurveType(); }
-    S32 getNumFaces() const;
-    S32 getNumVolumeFaces() const                           { return static_cast<S32>(mVolumeFaces.size()); }
-    F32 getDetail() const                                   { return mDetail; }
-    F32 getSurfaceArea() const                              { return mSurfaceArea; }
-    const LLVolumeParams& getParams() const                 { return mParams; }
-    LLVolumeParams getCopyOfParams() const                  { return mParams; }
+    [[nodiscard]] S32 getNumFaces() const;
+    [[nodiscard]] S32 getNumVolumeFaces() const                           { return static_cast<S32>(mVolumeFaces.size()); }
+    [[nodiscard]] F32 getDetail() const                                   { return mDetail; }
+    [[nodiscard]] F32 getSurfaceArea() const                              { return mSurfaceArea; }
+    [[nodiscard]] const LLVolumeParams& getParams() const                 { return mParams; }
+    [[nodiscard]] LLVolumeParams getCopyOfParams() const                  { return mParams; }
     const LLProfile& getProfile() const                     { return *mProfilep; }
     LLPath& getPath() const                                 { return *mPathp; }
     void resizePath(S32 length);
@@ -1045,10 +1045,10 @@ public:
     void regen();
     void genTangents(S32 face);
 
-    bool isConvex() const;
-    bool isCap(S32 face);
-    bool isFlat(S32 face);
-    bool isUnique() const                                   { return mUnique; }
+    [[nodiscard]] bool isConvex() const;
+    [[nodiscard]] bool isCap(S32 face);
+    [[nodiscard]] bool isFlat(S32 face);
+    [[nodiscard]] bool isUnique() const                                   { return mUnique; }
 
     S32 getSculptLevel() const                              { return mSculptLevel; }
     void setSculptLevel(S32 level)                          { mSculptLevel = level; }
@@ -1056,7 +1056,7 @@ public:
 
     static void getLoDTriangleCounts(const LLVolumeParams& params, S32* counts);
 
-    S32 getNumTriangles(S32* vcount = nullptr) const;
+    [[nodiscard]] S32 getNumTriangles(S32* vcount = nullptr) const;
 
     void generateSilhouetteVertices(std::vector<LLVector3> &vertices,
                                     std::vector<LLVector3> &normals,
@@ -1100,7 +1100,7 @@ public:
 
     // use meshoptimizer to optimize index buffer for vertex shader cache
     //  gen_tangents - if true, generate MikkTSpace tangents if needed before optimizing index buffer
-    bool cacheOptimize(bool gen_tangents = false);
+    [[nodiscard]] bool cacheOptimize(bool gen_tangents = false);
 
 private:
     void sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type);
@@ -1112,8 +1112,8 @@ protected:
     bool generate();
     void createVolumeFaces();
 public:
-    bool unpackVolumeFaces(std::istream& is, S32 size);
-    bool unpackVolumeFaces(U8* in_data, S32 size);
+    [[nodiscard]] bool unpackVolumeFaces(std::istream& is, S32 size);
+    [[nodiscard]] bool unpackVolumeFaces(U8* in_data, S32 size);
 private:
     bool unpackVolumeFacesInternal(const LLSD& mdl);
 

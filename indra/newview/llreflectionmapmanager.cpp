@@ -300,7 +300,7 @@ void LLReflectionMapManager::update()
     // process kill list
     for (auto& probe : mKillList)
     {
-        auto const & iter = std::find(mProbes.begin(), mProbes.end(), probe);
+        auto const & iter = std::ranges::find(mProbes, probe);
         if (iter != mProbes.end())
         {
             deleteProbe((U32)(iter - mProbes.begin()));

@@ -228,7 +228,7 @@ static unsigned short get_fileattr(const std::wstring& utf16path, bool dontFollo
 // select the applicable adapter.
 
 // strerror_r() returns char*
-std::string message_from(int /*orig_errno*/, const char* /*buffer*/, size_t /*bufflen*/,
+std::string message_from([[maybe_unused]] int orig_errno, [[maybe_unused]] const char* buffer, [[maybe_unused]] size_t bufflen,
                          const char* strerror_ret)
 {
     return strerror_ret;

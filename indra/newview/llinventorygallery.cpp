@@ -455,7 +455,7 @@ void LLInventoryGallery::reArrangeRows(S32 row_diff)
 
     bool sort_by_date = (mSortOrder & LLInventoryFilter::SO_DATE);
     bool sort_folders_by_name = (mSortOrder & LLInventoryFilter::SO_FOLDERS_BY_NAME);
-    std::sort(buf_items.begin(), buf_items.end(), [sort_by_date, sort_folders_by_name](LLInventoryGalleryItem* item1, LLInventoryGalleryItem* item2)
+    std::ranges::sort(buf_items, [sort_by_date, sort_folders_by_name](LLInventoryGalleryItem* item1, LLInventoryGalleryItem* item2)
     {
         return compareGalleryItem(item1, item2, sort_by_date, sort_folders_by_name);
     });
@@ -606,7 +606,7 @@ void LLInventoryGallery::removeFromGalleryMiddle(LLInventoryGalleryItem* item)
 {
     if(item->isHidden())
     {
-        mHiddenItems.erase(std::remove(mHiddenItems.begin(), mHiddenItems.end(), item), mHiddenItems.end());
+        std::erase(mHiddenItems, item);
         // item still exists and needs to be deleted or used!!!
         return;
     }
@@ -1486,7 +1486,7 @@ void LLInventoryGallery::showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLU
 {
     if (mInventoryGalleryMenu && item_id.notNull())
     {
-        if (std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) == mSelectedItemIDs.end())
+        if (std::ranges::find(mSelectedItemIDs, item_id) == mSelectedItemIDs.end())
         {
             changeItemSelection(item_id, false);
         }
@@ -1514,7 +1514,7 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
         return;
     }
     if (mSelectedItemIDs.size() == 1
-        && std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) != mSelectedItemIDs.end())
+        && std::ranges::find(mSelectedItemIDs, item_id) != mSelectedItemIDs.end())
     {
         // Already selected
         mLastInteractedUUID = item_id;
@@ -1543,7 +1543,7 @@ void LLInventoryGallery::addItemSelection(const LLUUID& item_id, bool scroll_to_
         mItemsToSelect.push_back(item_id);
         return;
     }
-    if (std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id) != mSelectedItemIDs.end())
+    if (std::ranges::find(mSelectedItemIDs, item_id) != mSelectedItemIDs.end())
     {
         // Already selected
         mLastInteractedUUID = item_id;
@@ -1573,7 +1573,7 @@ bool LLInventoryGallery::toggleItemSelection(const LLUUID& item_id, bool scroll_
         mItemsToSelect.push_back(item_id);
         return result;
     }
-    selection_deque::iterator found = std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id);
+    selection_deque::iterator found = std::ranges::find(mSelectedItemIDs, item_id);
     if (found != mSelectedItemIDs.end())
     {
         LLInventoryGalleryItem* item = getItem(item_id);
@@ -2406,7 +2406,7 @@ void LLInventoryGallery::computeDifference(
 
     uuid_vec_t vcur;
     getCurrentCategories(vcur);
-    std::copy(mItemBuildQuery.begin(), mItemBuildQuery.end(), std::back_inserter(vcur));
+    std::ranges::copy(mItemBuildQuery, std::back_inserter(vcur));
 
     LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
 }
@@ -2494,7 +2494,7 @@ void LLInventoryGallery::deselectItem(const LLUUID& category_id)
         // signalSelectionItemID(LLUUID::null);
     }
 
-    selection_deque::iterator found = std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), category_id);
+    selection_deque::iterator found = std::ranges::find(mSelectedItemIDs, category_id);
     if (found != mSelectedItemIDs.end())
     {
         mSelectedItemIDs.erase(found);

@@ -60,7 +60,7 @@ static const unsigned ADD_LIMIT = 50;
 bool LLAvatarList::contains(const LLUUID& id)
 {
     const uuid_vec_t& ids = getIDs();
-    return std::find(ids.begin(), ids.end(), id) != ids.end();
+    return std::ranges::find(ids, id) != ids.end();
 }
 
 void LLAvatarList::toggleIcons()

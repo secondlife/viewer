@@ -83,9 +83,8 @@ const LLSD& LLRecentPeople::getData(const LLUUID& id) const
 }
 
 // virtual
-bool LLRecentPeople::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+bool LLRecentPeople::handleEvent(LLPointer<LLEvent> event, [[maybe_unused]] const LLSD& userdata)
 {
-    (void) userdata;
     add(event->getValue().asUUID());
     return true;
 }

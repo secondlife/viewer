@@ -786,7 +786,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());
+    std::ranges::sort(mFaceList, LLFace::CompareDistanceGreater());
 
     group->clearDrawMap();
 

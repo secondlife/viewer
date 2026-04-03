@@ -67,12 +67,12 @@ class LLGLManager
 public:
     LLGLManager();
 
-    bool initGL();
+    [[nodiscard]] bool initGL();
     void shutdownGL();
 
     void initWGL(); // Initializes stupid WGL extensions
 
-    std::string getRawGLString(); // For sending to simulator
+    [[nodiscard]] std::string getRawGLString(); // For sending to simulator
 
     bool mInited;
     bool mIsDisabled;
@@ -128,7 +128,7 @@ public:
 
     U32 mVRAM; // VRAM in MB
 
-    std::string getGLInfoString();
+    [[nodiscard]] std::string getGLInfoString();
     void printGLInfoString();
     void getGLInfo(LLSD& info);
 
@@ -368,7 +368,7 @@ public:
     {
         if (mInQ)
         {
-            std::list<LLGLUpdate*>::iterator iter = std::find(sGLQ.begin(), sGLQ.end(), this);
+            std::list<LLGLUpdate*>::iterator iter = std::ranges::find(sGLQ, this);
             if (iter != sGLQ.end())
             {
                 sGLQ.erase(iter);

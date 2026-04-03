@@ -110,12 +110,12 @@ public:
     static void unbind(); //unbind any bound vertex buffer
 
     //get the size of a vertex with the given typemask
-    static U32 calcVertexSize(const U32& typemask);
+    [[nodiscard]] static U32 calcVertexSize(const U32& typemask);
 
     //get the size of a buffer with the given typemask and vertex count
     //fill offsets with the offset of each vertex component array into the buffer
     // indexed by the following enum
-    static U32 calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices);
+    [[nodiscard]] static U32 calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices);
 
     // flush any pending mapped buffers
     static void flushBuffers();
@@ -185,11 +185,11 @@ public:
     LLVertexBuffer(U32 typemask);
 
     // allocate buffer
-    bool    allocateBuffer(U32 nverts, U32 nindices);
+    [[nodiscard]] bool    allocateBuffer(U32 nverts, U32 nindices);
 
     // map for data access (see also getFooStrider below)
-    U8*     mapVertexBuffer(AttributeType type, U32 index, S32 count = -1);
-    U8*     mapIndexBuffer(U32 index, S32 count = -1);
+    [[nodiscard]] U8*     mapVertexBuffer(AttributeType type, U32 index, S32 count = -1);
+    [[nodiscard]] U8*     mapIndexBuffer(U32 index, S32 count = -1);
 
     // synonym for flushBuffers
     void    unmapBuffer();
@@ -208,21 +208,21 @@ public:
     //   vb->getNormalStrider(norms);
     //   setVertsNorms(verts, norms);
     //   vb->unmapBuffer();
-    bool getVertexStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
-    bool getVertexStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
-    bool getIndexStrider(LLStrider<U16>& strider, U32 index=0, S32 count = -1);
-    bool getTexCoord0Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    bool getTexCoord1Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    bool getTexCoord2Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    bool getNormalStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
-    bool getNormalStrider(LLStrider<LLVector4a>& strider, U32 index = 0, S32 count = -1);
-    bool getTangentStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
-    bool getTangentStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
-    bool getColorStrider(LLStrider<LLColor4U>& strider, U32 index=0, S32 count = -1);
-    bool getEmissiveStrider(LLStrider<LLColor4U>& strider, U32 index=0, S32 count = -1);
-    bool getWeightStrider(LLStrider<F32>& strider, U32 index=0, S32 count = -1);
-    bool getWeight4Strider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
-    bool getClothWeightStrider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getVertexStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getVertexStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getIndexStrider(LLStrider<U16>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getTexCoord0Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getTexCoord1Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getTexCoord2Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getNormalStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getNormalStrider(LLStrider<LLVector4a>& strider, U32 index = 0, S32 count = -1);
+    [[nodiscard]] bool getTangentStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getTangentStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getColorStrider(LLStrider<LLColor4U>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getEmissiveStrider(LLStrider<LLColor4U>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getWeightStrider(LLStrider<F32>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getWeight4Strider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
+    [[nodiscard]] bool getClothWeightStrider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
 
     void setPositionData(const LLVector4a* data);
     void setNormalData(const LLVector4a* data);
@@ -247,16 +247,16 @@ public:
     void setIndexData(const U32* data, U32 offset, U32 count);
 
 
-    U32 getNumVerts() const                 { return mNumVerts; }
-    U32 getNumIndices() const               { return mNumIndices; }
+    [[nodiscard]] U32 getNumVerts() const                 { return mNumVerts; }
+    [[nodiscard]] U32 getNumIndices() const               { return mNumIndices; }
 
-    U32 getTypeMask() const                 { return mTypeMask; }
-    bool hasDataType(AttributeType type) const { return ((1 << type) & getTypeMask()); }
-    U32 getSize() const                     { return mSize; }
-    U32 getIndicesSize() const              { return mIndicesSize; }
-    U8* getMappedData() const               { return mMappedData; }
-    U8* getMappedIndices() const            { return mMappedIndexData; }
-    U32 getOffset(AttributeType type) const { return mOffsets[type]; }
+    [[nodiscard]] U32 getTypeMask() const                 { return mTypeMask; }
+    [[nodiscard]] bool hasDataType(AttributeType type) const { return ((1 << type) & getTypeMask()); }
+    [[nodiscard]] U32 getSize() const                     { return mSize; }
+    [[nodiscard]] U32 getIndicesSize() const              { return mIndicesSize; }
+    [[nodiscard]] U8* getMappedData() const               { return mMappedData; }
+    [[nodiscard]] U8* getMappedIndices() const            { return mMappedIndexData; }
+    [[nodiscard]] U32 getOffset(AttributeType type) const { return mOffsets[type]; }
 
     // these functions assume (and assert on) the current VBO being bound
     // Detailed error checking can be enabled by setting gDebugGL to true
@@ -269,7 +269,7 @@ public:
     void drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
 
     //for debugging, validate data in given range is valid
-    bool validateRange(U32 start, U32 end, U32 count, U32 offset) const;
+    [[nodiscard]] bool validateRange(U32 start, U32 end, U32 count, U32 offset) const;
 
     #if LL_PROFILER_ENABLE_RENDER_DOC
     void setLabel(const char* label);
@@ -323,7 +323,7 @@ private:
 
 public:
 
-    static U64 getBytesAllocated();
+    [[nodiscard]] static U64 getBytesAllocated();
     static const U32 sTypeSize[TYPE_MAX];
     static const U32 sGLMode[LLRender::NUM_MODES];
     static U32 sGLRenderBuffer;

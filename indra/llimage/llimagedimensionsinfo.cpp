@@ -155,9 +155,8 @@ bool LLImageDimensionsInfo::getImageDimensionsPng()
 }
 
 // Called instead of exit() if Libjpeg encounters an error.
-void on_jpeg_error(j_common_ptr cinfo)
+void on_jpeg_error([[maybe_unused]] j_common_ptr cinfo)
 {
-    (void) cinfo;
     sJpegErrorEncountered = true;
     LL_WARNS() << "Libjpeg has encountered an error!" << LL_ENDL;
 }

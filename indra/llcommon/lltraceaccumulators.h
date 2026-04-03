@@ -428,7 +428,7 @@ namespace LLTrace
             mSum += value;
         }
 
-        void addSamples(const CountAccumulator& other, EBufferAppendType /*type*/)
+        void addSamples(const CountAccumulator& other, [[maybe_unused]] EBufferAppendType type)
         {
             mSum += other.mSum;
             mNumSamples += other.mNumSamples;

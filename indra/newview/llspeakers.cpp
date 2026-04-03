@@ -453,7 +453,7 @@ void LLSpeakerMgr::update(bool resort_ok)
     if(resort_ok)  // only allow list changes when user is not interacting with it
     {
         // sort by status then time last spoken
-        std::sort(mSpeakersSorted.begin(), mSpeakersSorted.end(), LLSortRecentSpeakers());
+        std::ranges::sort(mSpeakersSorted, LLSortRecentSpeakers());
     }
 
     // for recent speakers who are not currently speaking, show "recent" color dot for most recent

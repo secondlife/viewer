@@ -183,12 +183,12 @@ public:
     ///                 stopped and count values otherwise these are
     ///                 left unchanged.
     ///
-    bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count,
+    [[nodiscard]] bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count,
                    U64 & user_cpu, U64 & sys_cpu);
 
     /// Identical to the six-arugment form except it does without the
     /// CPU time return if the caller isn't interested in it.
-    bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count);
+    [[nodiscard]] bool isExpired(time_type now, F64 & started, F64 & stopped, U64 & count);
 
 protected:
     time_type                   mHorizon;

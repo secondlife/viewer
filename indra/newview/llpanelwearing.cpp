@@ -267,7 +267,7 @@ bool LLPanelWearing::postBuild()
 }
 
 //virtual
-void LLPanelWearing::onOpen(const LLSD& /*info*/)
+void LLPanelWearing::onOpen([[maybe_unused]] const LLSD& info)
 {
     if (!mIsInitialized)
     {

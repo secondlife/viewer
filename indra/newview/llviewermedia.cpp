@@ -456,7 +456,7 @@ void LLViewerMedia::updateBrowserUserAgent()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-bool LLViewerMedia::handleSkinCurrentChanged(const LLSD& /*newvalue*/)
+bool LLViewerMedia::handleSkinCurrentChanged([[maybe_unused]] const LLSD& newvalue)
 {
     // gSavedSettings is already updated when this function is called.
     updateBrowserUserAgent();
@@ -1893,7 +1893,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 
     if(gAgent.isInitialized())
     {
-        if (std::find(sMimeTypesFailed.begin(), sMimeTypesFailed.end(), media_type) == sMimeTypesFailed.end())
+        if (std::ranges::find(sMimeTypesFailed, media_type) == sMimeTypesFailed.end())
         {
             LLSD args;
             args["MIME_TYPE"] = media_type;

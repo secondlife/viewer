@@ -352,12 +352,12 @@ public:
 
     virtual void initAttribsAndUniforms(void);
 
-    bool attachShaderFeatures(LLGLSLShader * shader);
+    [[nodiscard]] bool attachShaderFeatures(LLGLSLShader * shader);
     void dumpObjectLog(GLuint ret, bool warns = true, std::string_view filename = "");
     void dumpShaderSource(U32 shader_code_count, GLchar** shader_code_text);
-    bool    linkProgramObject(GLuint obj, bool suppress_errors = false);
-    bool    validateProgramObject(GLuint obj);
-    GLuint loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);
+    [[nodiscard]] bool    linkProgramObject(GLuint obj, bool suppress_errors = false);
+    [[nodiscard]] bool    validateProgramObject(GLuint obj);
+    [[nodiscard]] GLuint loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);
 
     // Implemented in the application to actually point to the shader directory.
     virtual std::string getShaderDirPrefix(void) = 0; // Pure Virtual
@@ -369,8 +369,8 @@ public:
     void clearShaderCache();
     void persistShaderCacheMetadata();
 
-    bool loadCachedProgramBinary(LLGLSLShader* shader);
-    bool saveCachedProgramBinary(LLGLSLShader* shader);
+    [[nodiscard]] bool loadCachedProgramBinary(LLGLSLShader* shader);
+    [[nodiscard]] bool saveCachedProgramBinary(LLGLSLShader* shader);
 
 public:
     // Map of shader names to compiled

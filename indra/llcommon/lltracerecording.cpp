@@ -808,7 +808,7 @@ F64 PeriodicRecording::getPeriodMedian( const StatType<SampleAccumulator>& stat,
     {
         return 0.0f;
     }
-    std::sort(buf.begin(), buf.end());
+    std::ranges::sort(buf);
 
     return F64((buf.size() % 2 == 0) ? (buf[buf.size() / 2 - 1] + buf[buf.size() / 2]) / 2 : buf[buf.size() / 2]);
 }

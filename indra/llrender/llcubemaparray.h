@@ -57,15 +57,15 @@ public:
     void bind(S32 stage);
     void unbind();
 
-    GLuint getGLName();
+    [[nodiscard]] GLuint getGLName();
 
     void destroyGL();
 
     // get width of cubemaps in array (they're cubes, so this is also the height)
-    U32 getWidth() const { return mWidth; }
+    [[nodiscard]] U32 getWidth() const { return mWidth; }
 
     // get number of cubemaps in the array
-    U32 getCount() const { return mCount; }
+    [[nodiscard]] U32 getCount() const { return mCount; }
 
 protected:
     friend class LLTexUnit;

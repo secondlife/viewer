@@ -120,13 +120,13 @@ public:
     // has been called, digest() simply returns mDigest value.
     void finalize();
 
-    U64 digest() const;
+    [[nodiscard]] U64 digest() const;
 
     // Fast static methods. Use them when hashing just one contiguous block of
     // data.
-    static U64 digest(const void* buffer, size_t len);
-    static U64 digest(const char* str);    // str must be NUL-terminated
-    static U64 digest(const std::string& str);
+    [[nodiscard]] static U64 digest(const void* buffer, size_t len);
+    [[nodiscard]] static U64 digest(const char* str);    // str must be NUL-terminated
+    [[nodiscard]] static U64 digest(const std::string& str);
 
 private:
     void init();
@@ -236,7 +236,7 @@ public:
     // type available in the viewer code, making it easy to manipulate. It also
     // allows to use HBXXH128 efficiently in LLUUID generate() and combine()
     // methods.
-    const LLUUID& digest() const;
+    [[nodiscard]] const LLUUID& digest() const;
 
     // Here, we avoid an LLUUID copy whenever we already got one to store the
     // result *and* we did not yet call finalize().
@@ -244,9 +244,9 @@ public:
 
     // Fast static methods. Use them when hashing just one contiguous block of
     // data.
-    static LLUUID digest(const void* buffer, size_t len);
-    static LLUUID digest(const char* str);    // str must be NUL-terminated
-    static LLUUID digest(const std::string& str);
+    [[nodiscard]] static LLUUID digest(const void* buffer, size_t len);
+    [[nodiscard]] static LLUUID digest(const char* str);    // str must be NUL-terminated
+    [[nodiscard]] static LLUUID digest(const std::string& str);
     // Same as above, but saves you from an LLUUID copy when you already got
     // one for storage use.
     static void digest(LLUUID& result, const void* buffer, size_t len);

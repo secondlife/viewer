@@ -356,9 +356,7 @@ void LLTeleportHistoryFlatItemStorage::removeItem(LLTeleportHistoryFlatItem* ite
 {
     if (item)
     {
-        flat_item_list_t::iterator item_iter = std::find(mItems.begin(),
-                                                         mItems.end(),
-                                                         item->getItemHandle());
+        flat_item_list_t::iterator item_iter = std::ranges::find(mItems, item->getItemHandle());
         if (item_iter != mItems.end())
         {
             mItems.erase(item_iter);

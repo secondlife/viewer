@@ -755,7 +755,7 @@ public:
      * @param max_bytes the maximum number of bytes to parse
      * @return Returns true if the stream appears to contain valid data
      */
-    static bool deserialize(LLSD& sd, std::istream& str, llssize max_bytes);
+    [[nodiscard]] static bool deserialize(LLSD& sd, std::istream& str, llssize max_bytes);
 
     /*
      * Notation Methods
@@ -861,8 +861,8 @@ public:
         ZR_VERSION_ERROR
     };
     // return OK or reason for failure
-    static EZipRresult unzip_llsd(LLSD& data, std::istream& is, S32 size);
-    static EZipRresult unzip_llsd(LLSD& data, const U8* in, S32 size);
+    [[nodiscard]] static EZipRresult unzip_llsd(LLSD& data, std::istream& is, S32 size);
+    [[nodiscard]] static EZipRresult unzip_llsd(LLSD& data, const U8* in, S32 size);
 };
 
 //dirty little zip functions -- yell at davep

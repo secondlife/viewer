@@ -344,8 +344,8 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 
         if (mLastFrameTimeSample >= frameTimeSampleSeconds())
         {
-            std::sort(mFrameTimes.begin(), mFrameTimes.end());
-            std::sort(mFrameTimesJitter.begin(), mFrameTimesJitter.end());
+            std::ranges::sort(mFrameTimes);
+            std::ranges::sort(mFrameTimesJitter);
 
             // Use new helpers for calculations
             F64Seconds frame_time_stddev = calcStddev(mFrameTimes);

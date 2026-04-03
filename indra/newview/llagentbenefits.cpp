@@ -107,7 +107,7 @@ bool LLAgentBenefits::init(const LLSD& benefits_sd)
             {
                 m_2k_texture_upload_cost.push_back(it->asInteger());
             }
-            std::sort(m_2k_texture_upload_cost.begin(), m_2k_texture_upload_cost.end());
+            std::ranges::sort(m_2k_texture_upload_cost);
         }
     }
 

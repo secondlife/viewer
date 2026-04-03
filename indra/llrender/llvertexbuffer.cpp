@@ -1418,7 +1418,7 @@ void LLVertexBuffer::_unmapBuffer()
             U32 start = 0;
             U32 end = 0;
 
-            std::sort(mMappedVertexRegions.begin(), mMappedVertexRegions.end(), SortMappedRegion());
+            std::ranges::sort(mMappedVertexRegions, SortMappedRegion());
 
             for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
             {
@@ -1451,7 +1451,7 @@ void LLVertexBuffer::_unmapBuffer()
             U32 start = 0;
             U32 end = 0;
 
-            std::sort(mMappedIndexRegions.begin(), mMappedIndexRegions.end(), SortMappedRegion());
+            std::ranges::sort(mMappedIndexRegions, SortMappedRegion());
 
             for (U32 i = 0; i < mMappedIndexRegions.size(); ++i)
             {

@@ -98,10 +98,10 @@ class LLMatrix3
         void getEulerAngles(F32 *roll, F32 *pitch, F32 *yaw) const; // Returns Euler angles, in radians
 
         // Axis extraction routines
-        LLVector3 getFwdRow() const;
-        LLVector3 getLeftRow() const;
-        LLVector3 getUpRow() const;
-        F32  determinant() const;           // Return determinant
+        [[nodiscard]] LLVector3 getFwdRow() const;
+        [[nodiscard]] LLVector3 getLeftRow() const;
+        [[nodiscard]] LLVector3 getUpRow() const;
+        [[nodiscard]] F32  determinant() const;           // Return determinant
 
 
         ///////////////////////////

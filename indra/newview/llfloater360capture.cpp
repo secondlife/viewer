@@ -726,8 +726,8 @@ void LLFloater360Capture::onSaveLocalBtn()
         region_name = region->getName();
 
         // escaping/encoding is a minefield - let's just remove any offending characters from the region name
-        region_name.erase(std::remove(region_name.begin(), region_name.end(), '\''), region_name.end());
-        region_name.erase(std::remove(region_name.begin(), region_name.end(), '\"'), region_name.end());
+        std::erase(region_name, '\'');
+        std::erase(region_name, '\"');
 
         // fortunately there is already an escaping function built into the SLURL generation code
         LLSLURL slurl;

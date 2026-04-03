@@ -179,28 +179,28 @@ struct CopyNewPointer
 template<typename T, typename ALLOC>
 void delete_and_clear(std::list<T*, ALLOC>& list)
 {
-    std::for_each(list.begin(), list.end(), DeletePointer());
+    std::ranges::for_each(list, DeletePointer());
     list.clear();
 }
 
 template<typename T, typename ALLOC>
 void delete_and_clear(std::vector<T*, ALLOC>& vector)
 {
-    std::for_each(vector.begin(), vector.end(), DeletePointer());
+    std::ranges::for_each(vector, DeletePointer());
     vector.clear();
 }
 
 template<typename T, typename COMPARE, typename ALLOC>
 void delete_and_clear(std::set<T*, COMPARE, ALLOC>& set)
 {
-    std::for_each(set.begin(), set.end(), DeletePointer());
+    std::ranges::for_each(set, DeletePointer());
     set.clear();
 }
 
 template<typename K, typename V, typename COMPARE, typename ALLOC>
 void delete_and_clear(std::map<K, V*, COMPARE, ALLOC>& map)
 {
-    std::for_each(map.begin(), map.end(), DeletePairedPointer());
+    std::ranges::for_each(map, DeletePairedPointer());
     map.clear();
 }
 
@@ -308,7 +308,7 @@ inline typename std::vector<T>::iterator vector_replace_with_last(std::vector<T>
 template <typename T>
 inline bool vector_replace_with_last(std::vector<T>& invec, const T& val)
 {
-    typename std::vector<T>::iterator iter = std::find(invec.begin(), invec.end(), val);
+    typename std::vector<T>::iterator iter = std::ranges::find(invec, val);
     if (iter != invec.end())
     {
         typename std::vector<T>::iterator last = invec.end(); --last;
