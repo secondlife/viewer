@@ -332,7 +332,7 @@ public:
 
         InterpolationType   mInterpolationType;
         S32                 mNumKeys;
-        typedef std::map<F32, ScaleKey> key_map_t;
+        using key_map_t = std::map<F32, ScaleKey>;
         key_map_t           mKeys;
         ScaleKey            mLoopInKey;
         ScaleKey            mLoopOutKey;
@@ -351,7 +351,7 @@ public:
 
         InterpolationType   mInterpolationType;
         S32                 mNumKeys;
-        typedef std::map<F32, RotationKey> key_map_t;
+        using key_map_t = std::map<F32, RotationKey>;
         key_map_t       mKeys;
         RotationKey     mLoopInKey;
         RotationKey     mLoopOutKey;
@@ -370,7 +370,7 @@ public:
 
         InterpolationType   mInterpolationType;
         S32                 mNumKeys;
-        typedef std::map<F32, PositionKey> key_map_t;
+        using key_map_t = std::map<F32, PositionKey>;
         key_map_t       mKeys;
         PositionKey     mLoopInKey;
         PositionKey     mLoopOutKey;
@@ -408,7 +408,7 @@ public:
         LLJoint::JointPriority  mBasePriority;
         LLHandMotion::eHandPose mHandPose;
         LLJoint::JointPriority  mMaxPriority;
-        typedef std::list<JointConstraintSharedData*> constraint_list_t;
+        using constraint_list_t = std::list<JointConstraintSharedData*>;
         constraint_list_t       mConstraints;
         LLBBoxLocal             mPelvisBBox;
         // mEmoteName is a facial motion, but it's necessary to appear here so that it's cached.
@@ -430,7 +430,7 @@ protected:
     std::vector<LLPointer<LLJointState> > mJointStates;
     LLJoint*                        mPelvisp;
     LLCharacter*                    mCharacter;
-    typedef std::list<JointConstraint*> constraint_list_t;
+    using constraint_list_t = std::list<JointConstraint*>;
     constraint_list_t               mConstraints;
     U32                             mLastSkeletonSerialNum;
     F32                             mLastUpdateTime;
@@ -445,10 +445,10 @@ class LLKeyframeDataCache
 {
 public:
     // *FIX: implement this as an actual singleton member of LLKeyframeMotion
-    LLKeyframeDataCache(){};
+    LLKeyframeDataCache() = default;
     ~LLKeyframeDataCache();
 
-    typedef std::map<LLUUID, class LLKeyframeMotion::JointMotionList*> keyframe_data_map_t;
+    using keyframe_data_map_t = std::map<LLUUID, class LLKeyframeMotion::JointMotionList*>;
     static keyframe_data_map_t sKeyframeDataMap;
 
     static void addKeyframeData(const LLUUID& id, LLKeyframeMotion::JointMotionList*);

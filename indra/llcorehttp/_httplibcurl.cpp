@@ -612,15 +612,14 @@ void HttpLibcurl::HandleCache::freeHandle(CURL * handle)
 
 struct curl_slist * append_headers_to_slist(const HttpHeaders::ptr_t &headers, struct curl_slist * slist)
 {
-    const HttpHeaders::const_iterator end(headers->end());
-    for (HttpHeaders::const_iterator it(headers->begin()); end != it; ++it)
+    for (const auto& [name, value] : *headers)
     {
         static const char sep[] = ": ";
         std::string header;
-        header.reserve((*it).first.size() + (*it).second.size() + sizeof(sep));
-        header.append((*it).first);
+        header.reserve(name.size() + value.size() + sizeof(sep));
+        header.append(name);
         header.append(sep);
-        header.append((*it).second);
+        header.append(value);
 
         slist = curl_slist_append(slist, header.c_str());
     }

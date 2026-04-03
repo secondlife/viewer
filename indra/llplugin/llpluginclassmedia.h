@@ -98,22 +98,22 @@ public:
     bool getDirty(LLRect *dirty_rect = NULL);
     void resetDirty(void);
 
-    typedef enum
+    enum EMouseEventType
     {
         MOUSE_EVENT_DOWN,
         MOUSE_EVENT_UP,
         MOUSE_EVENT_MOVE,
         MOUSE_EVENT_DOUBLE_CLICK
-    }EMouseEventType;
+    };
 
     void mouseEvent(EMouseEventType type, int button, int x, int y, MASK modifiers);
 
-    typedef enum
+    enum EKeyEventType
     {
         KEY_EVENT_DOWN,
         KEY_EVENT_UP,
         KEY_EVENT_REPEAT
-    }EKeyEventType;
+    };
 
     bool keyEvent(EKeyEventType type, int key_code, MASK modifiers, LLSD native_key_data);
 
@@ -174,7 +174,7 @@ public:
     /* virtual */ void pluginDied();
 
 
-    typedef enum
+    enum EPriority
     {
         PRIORITY_UNLOADED,  // media plugin isn't even loaded.
         PRIORITY_STOPPED,   // media is not playing, shouldn't need to update at all.
@@ -183,7 +183,7 @@ public:
         PRIORITY_LOW,       // media is in the distance, may be rendered at reduced size
         PRIORITY_NORMAL,    // normal (default) priority
         PRIORITY_HIGH       // media has user focus and/or is taking up most of the screen
-    }EPriority;
+    };
 
     static const char* priorityToString(EPriority priority);
     void setPriority(EPriority priority);

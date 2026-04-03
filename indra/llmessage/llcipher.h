@@ -36,7 +36,7 @@
 class LLCipher
 {
 public:
-    virtual ~LLCipher() {}
+    virtual ~LLCipher() = default;
 
     // encrypt src and place result into dst. returns true if
     // Returns number of bytes written into dst, or 0 on error.

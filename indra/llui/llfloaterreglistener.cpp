@@ -86,11 +86,9 @@ void LLFloaterRegListener::getBuildMap(const LLSD& event) const
     // store is the filename. For each LLSD map entry, it would be more
     // extensible to store a nested LLSD map containing a single key "file" --
     // but we don't bother, simply storing the string filename instead.
-    for (LLFloaterReg::build_map_t::const_iterator mi(LLFloaterReg::sBuildMap.begin()),
-                                                   mend(LLFloaterReg::sBuildMap.end());
-         mi != mend; ++mi)
+    for (const auto& [name, build_data] : LLFloaterReg::sBuildMap)
     {
-        reply[mi->first] = mi->second.mFile;
+        reply[name] = build_data.mFile;
     }
     // Send the reply to the LLEventPump named in event["reply"].
     sendReply(reply, event);

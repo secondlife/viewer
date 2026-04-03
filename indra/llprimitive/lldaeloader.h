@@ -42,8 +42,8 @@ class domMesh;
 class LLDAELoader : public LLModelLoader
 {
 public:
-    typedef std::map<std::string, LLImportMaterial>                         material_map;
-    typedef std::map<daeElement*, std::vector<LLPointer<LLModel> > >    dae_model_map;
+    using material_map = std::map<std::string, LLImportMaterial>;
+    using dae_model_map = std::map<daeElement*, std::vector<LLPointer<LLModel> > >;
     dae_model_map   mModelsMap;
 
     LLDAELoader(

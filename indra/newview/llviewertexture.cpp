@@ -999,8 +999,8 @@ S32 LLViewerTexture::getNumVolumes(U32 ch) const
 void LLViewerTexture::reorganizeFaceList()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    static const F32 MAX_WAIT_TIME = 20.f; // seconds
-    static const U32 MAX_EXTRA_BUFFER_SIZE = 4;
+    static constexpr F32 MAX_WAIT_TIME = 20.f; // seconds
+    static constexpr U32 MAX_EXTRA_BUFFER_SIZE = 4;
 
     if(mLastFaceListUpdateTimer.getElapsedTimeF32() < MAX_WAIT_TIME)
     {
@@ -1023,8 +1023,8 @@ void LLViewerTexture::reorganizeFaceList()
 void LLViewerTexture::reorganizeVolumeList()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    static const F32 MAX_WAIT_TIME = 20.f; // seconds
-    static const U32 MAX_EXTRA_BUFFER_SIZE = 4;
+    static constexpr F32 MAX_WAIT_TIME = 20.f; // seconds
+    static constexpr U32 MAX_EXTRA_BUFFER_SIZE = 4;
 
     for (U32 i = 0; i < LLRender::NUM_VOLUME_TEXTURE_CHANNELS; ++i)
     {
@@ -1312,7 +1312,7 @@ void LLViewerFetchedTexture::loadFromFastCache()
 
 void LLViewerFetchedTexture::setForSculpt()
 {
-    static const S32 MAX_INTERVAL = 8; //frames
+    static constexpr S32 MAX_INTERVAL = 8; //frames
 
     forceToSaveRawImage(0, F32_MAX);
 
@@ -2084,7 +2084,7 @@ bool LLViewerFetchedTexture::updateFetch()
 
         if (mIsFetching)
         {
-            static const F32 MAX_HOLD_TIME = 5.0f; //seconds to wait before canceling fecthing if decode_priority is 0.f.
+            static constexpr F32 MAX_HOLD_TIME = 5.0f; //seconds to wait before canceling fecthing if decode_priority is 0.f.
             if (decode_priority > 0.0f || mStopFetchingTimer.getElapsedTimeF32() > MAX_HOLD_TIME)
             {
                 mStopFetchingTimer.reset();
@@ -2499,8 +2499,8 @@ void LLViewerFetchedTexture::pauseLoadedCallbacks(const LLLoadedCallbackEntry::s
 bool LLViewerFetchedTexture::doLoadedCallbacks()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    static const F32 MAX_INACTIVE_TIME = 900.f ; //seconds
-    static const F32 MAX_IDLE_WAIT_TIME = 5.f ; //seconds
+    static constexpr F32 MAX_INACTIVE_TIME = 900.f ; //seconds
+    static constexpr F32 MAX_IDLE_WAIT_TIME = 5.f ; //seconds
 
     if (mNeedsCreateTexture)
     {
@@ -3061,7 +3061,7 @@ void LLViewerLODTexture::processTextureStats()
     else
     {
         //static const F64 log_2 = log(2.0);
-        static const F64 log_4 = log(4.0);
+        static constexpr F64 log_4 = log(4.0);
 
         F32 discard_level = 0.f;
 
@@ -3164,7 +3164,7 @@ bool LLViewerLODTexture::scaleDown()
 void LLViewerMediaTexture::updateClass()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    static const F32 MAX_INACTIVE_TIME = 30.f;
+    static constexpr F32 MAX_INACTIVE_TIME = 30.f;
 
     for(media_map_t::iterator iter = sMediaMap.begin(); iter != sMediaMap.end(); )
     {

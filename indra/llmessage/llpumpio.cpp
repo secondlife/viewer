@@ -54,7 +54,7 @@
 
 // constants for poll timeout. if we are threading, we want to have a
 // longer poll timeout.
-static const S32 DEFAULT_POLL_TIMEOUT = 0;
+static constexpr S32 DEFAULT_POLL_TIMEOUT = 0;
 
 // The default (and fallback) expiration time for chains
 const F32 DEFAULT_CHAIN_EXPIRY_SECS = 30.0f;
@@ -408,10 +408,7 @@ bool LLPumpIO::copyCurrentLinkInfo(links_t& links) const
     {
         return false;
     }
-    std::copy(
-        (*mCurrentChain).mChainLinks.begin(),
-        (*mCurrentChain).mChainLinks.end(),
-        std::back_insert_iterator<links_t>(links));
+    std::ranges::copy((*mCurrentChain).mChainLinks, std::back_insert_iterator<links_t>(links));
     return true;
 }
 
@@ -422,10 +419,7 @@ void LLPumpIO::pump()
 
 LLPumpIO::current_chain_t LLPumpIO::removeRunningChain(LLPumpIO::current_chain_t& run_chain)
 {
-    std::for_each(
-                (*run_chain).mDescriptors.begin(),
-                (*run_chain).mDescriptors.end(),
-                ll_delete_apr_pollset_fd_client_data());
+    std::ranges::for_each((*run_chain).mDescriptors, ll_delete_apr_pollset_fd_client_data());
     return mRunningChains.erase(run_chain);
 }
 
@@ -459,10 +453,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
         {
             PUMP_DEBUG;
             //LL_DEBUGS() << "Pushing " << mPendingChains.size() << "." << LL_ENDL;
-            std::copy(
-                mPendingChains.begin(),
-                mPendingChains.end(),
-                std::back_insert_iterator<running_chains_t>(mRunningChains));
+            std::ranges::copy(mPendingChains, std::back_insert_iterator<running_chains_t>(mRunningChains));
             mPendingChains.clear();
             PUMP_DEBUG;
         }
@@ -744,10 +735,7 @@ void LLPumpIO::callback()
     //LL_INFOS() << "LLPumpIO::callback()" << LL_ENDL;
     if(true)
     {
-        std::copy(
-            mPendingCallbacks.begin(),
-            mPendingCallbacks.end(),
-            std::back_insert_iterator<callbacks_t>(mCallbacks));
+        std::ranges::copy(mPendingCallbacks, std::back_insert_iterator<callbacks_t>(mCallbacks));
         mPendingCallbacks.clear();
     }
     if(!mCallbacks.empty())

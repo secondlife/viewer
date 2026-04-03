@@ -10937,7 +10937,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
         gGL.pushMatrix();
         gGL.loadIdentity();
 
-        static const F32 clip_plane = 0.99999f;
+        static constexpr F32 clip_plane = 0.99999f;
 
         gDebugProgram.bind();
 

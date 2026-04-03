@@ -43,8 +43,8 @@
 #include "llregionflags.h"
 #include <boost/range/adaptor/map.hpp>
 
-static const F32 SOME_BIG_NUMBER = 1000.0f;
-static const F32 SOME_BIG_NEG_NUMBER = -1000.0f;
+static constexpr F32 SOME_BIG_NUMBER = 1000.0f;
+static constexpr F32 SOME_BIG_NEG_NUMBER = -1000.0f;
 static const std::string PARCEL_OWNERSHIP_STATUS_STRING[LLParcel::OS_COUNT+1] =
 {
     "leased",
@@ -1223,12 +1223,11 @@ LLAccessEntry::map LLParcel::getExperienceKeysByType( U32 type ) const
 {
     LLAccessEntry::map access;
     LLAccessEntry entry;
-    xp_type_map_t::const_iterator it = mExperienceKeys.begin();
-    for(/**/; it != mExperienceKeys.end(); ++it)
+    for (const auto& [xp_id, xp_type] : mExperienceKeys)
     {
-        if(it->second == type)
+        if(xp_type == type)
         {
-            entry.mID = it->first;
+            entry.mID = xp_id;
             access[entry.mID] = entry;
         }
     }

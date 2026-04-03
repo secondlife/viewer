@@ -37,7 +37,7 @@ class LLKeyboardWin32 : public LLKeyboard
 {
 public:
     LLKeyboardWin32();
-    /*virtual*/ ~LLKeyboardWin32() {};
+    /*virtual*/ ~LLKeyboardWin32() = default;
 
     /*virtual*/ bool    handleKeyUp(const U16 key, MASK mask);
     /*virtual*/ bool    handleKeyDown(const U16 key, MASK mask);

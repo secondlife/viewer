@@ -51,11 +51,11 @@
 static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
 
 // Last interaction time update period.
-static const F32 LIT_UPDATE_PERIOD = 5;
+static constexpr F32 LIT_UPDATE_PERIOD = 5;
 
 // Maximum number of avatars that can be added to a list in one pass.
 // Used to limit time spent for avatar list update per frame.
-static const unsigned ADD_LIMIT = 50;
+static constexpr unsigned ADD_LIMIT = 50;
 
 bool LLAvatarList::contains(const LLUUID& id)
 {

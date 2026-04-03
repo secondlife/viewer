@@ -75,8 +75,8 @@
 #endif
 
 // Static initialization
-static const S32 PRIMARY_FLOATER = 1;
-static const S32 SECONDARY_FLOATER = 2;
+static constexpr S32 PRIMARY_FLOATER = 1;
+static constexpr S32 SECONDARY_FLOATER = 2;
 
 class LLOverlapPanel;
 static LLDefaultChildRegistry::Register<LLOverlapPanel> register_overlap_panel("overlap_panel");

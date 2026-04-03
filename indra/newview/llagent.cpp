@@ -2012,13 +2012,13 @@ void LLAgent::propagate(const F32 dt)
     {
         if (fabs(gAgentCamera.getYawKey()) > 1e-6)
         {
-            static const F32 YAW_RATE = 90.f * DEG_TO_RAD;   // radians per second
+            static constexpr F32 YAW_RATE = 90.f * DEG_TO_RAD;   // radians per second
             yaw(YAW_RATE * gAgentCamera.getYawKey() * dt);
         }
 
         if (fabs(gAgentCamera.getPitchKey()) > 1e-6)
         {
-            static const F32 PITCH_RATE = 90.f * DEG_TO_RAD; // radians per second
+            static constexpr F32 PITCH_RATE = 90.f * DEG_TO_RAD; // radians per second
             pitch(PITCH_RATE * gAgentCamera.getPitchKey() * dt);
         }
     }

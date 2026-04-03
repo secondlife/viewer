@@ -72,7 +72,7 @@ public:
     static S32                  getCurrentDefinitionVersion() { return LLWearable::sCurrentDefinitionVersion; }
 
 public:
-    typedef std::vector<LLVisualParam*> visual_param_vec_t;
+    using visual_param_vec_t = std::vector<LLVisualParam*>;
 
     virtual void    writeToAvatar(LLAvatarAppearance* avatarp);
 
@@ -111,11 +111,11 @@ public:
     // Something happened that requires the wearable to be updated (e.g. worn/unworn).
     virtual void        setUpdated() const = 0;
 
-    typedef std::map<S32, LLVisualParam *>    visual_param_index_map_t;
+    using visual_param_index_map_t = std::map<S32, LLVisualParam *>;
     visual_param_index_map_t mVisualParamIndexMap;
 
 protected:
-    typedef std::map<S32, LLLocalTextureObject*> te_map_t;
+    using te_map_t = std::map<S32, LLLocalTextureObject*>;
     void                syncImages(te_map_t &src, te_map_t &dst);
     void                destroyTextures();
     void                createVisualParams(LLAvatarAppearance *avatarp);
@@ -130,7 +130,7 @@ protected:
     LLSaleInfo          mSaleInfo;
     LLWearableType::EType       mType;
 
-    typedef std::map<S32, F32> param_map_t;
+    using param_map_t = std::map<S32, F32>;
     param_map_t mSavedVisualParamMap; // last saved version of visual params
 
     te_map_t mTEMap;                // maps TE to LocalTextureObject

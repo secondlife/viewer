@@ -249,15 +249,15 @@ bool                gDisplayCameraPos = false;
 bool                gDisplayFOV = false;
 bool                gDisplayBadge = false;
 
-static const U8 NO_FACE = 255;
+static constexpr U8 NO_FACE = 255;
 bool gQuietSnapshot = false;
 
 // Minimum value for UIScaleFactor, also defined in preferences, ui_scale_slider
-static const F32 MIN_UI_SCALE = 0.75f;
+static constexpr F32 MIN_UI_SCALE = 0.75f;
 // 4.0 in preferences, but win10 supports larger scaling and value is used more as
 // sanity check, so leaving space for larger values from DPI updates.
-static const F32 MAX_UI_SCALE = 7.0f;
-static const F32 MIN_DISPLAY_SCALE = 0.75f;
+static constexpr F32 MAX_UI_SCALE = 7.0f;
+static constexpr F32 MIN_DISPLAY_SCALE = 0.75f;
 
 static const char KEY_MOUSELOOK = 'M';
 
@@ -6068,7 +6068,7 @@ LLRect LLViewerWindow::getChatConsoleRect()
 
     console_rect.mLeft   += CONSOLE_PADDING_LEFT;
 
-    static const bool CHAT_FULL_WIDTH = gSavedSettings.getBOOL("ChatFullWidth");
+    static constexpr bool CHAT_FULL_WIDTH = gSavedSettings.getBOOL("ChatFullWidth");
 
     if (CHAT_FULL_WIDTH)
     {

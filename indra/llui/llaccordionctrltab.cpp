@@ -39,12 +39,12 @@ static const std::string DD_BUTTON_NAME = "dd_button";
 static const std::string DD_TEXTBOX_NAME = "dd_textbox";
 static const std::string DD_HEADER_NAME = "dd_header";
 
-static const S32 HEADER_HEIGHT = 23;
-static const S32 HEADER_IMAGE_LEFT_OFFSET = 5;
-static const S32 HEADER_TEXT_LEFT_OFFSET = 30;
-static const F32 AUTO_OPEN_TIME = 1.f;
-static const S32 VERTICAL_MULTIPLE = 16;
-static const S32 PARENT_BORDER_MARGIN = 5;
+static constexpr S32 HEADER_HEIGHT = 23;
+static constexpr S32 HEADER_IMAGE_LEFT_OFFSET = 5;
+static constexpr S32 HEADER_TEXT_LEFT_OFFSET = 30;
+static constexpr F32 AUTO_OPEN_TIME = 1.f;
+static constexpr S32 VERTICAL_MULTIPLE = 16;
+static constexpr S32 PARENT_BORDER_MARGIN = 5;
 
 static LLDefaultChildRegistry::Register<LLAccordionCtrlTab> t1("accordion_tab");
 

@@ -84,8 +84,8 @@ void LLScrollingPanelList::removePanel(LLScrollingPanel* panel)
 
     if (!mPanelList.empty())
     {
-        LLScrollingPanelList::panel_list_t::const_iterator iter =
-            std::find(mPanelList.begin(), mPanelList.end(), panel);
+        auto iter =
+            std::ranges::find(mPanelList, panel);
         if (iter != mPanelList.end())
         {
             removeChild(panel);

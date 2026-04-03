@@ -44,6 +44,6 @@ enum LLJointPickName
     PN_5 = 5
 };
 
-typedef std::vector<LLAvatarJointMesh*> avatar_joint_mesh_list_t;
+using avatar_joint_mesh_list_t = std::vector<LLAvatarJointMesh*>;
 
 #endif // LL_LLJOINTPICKNAME_H

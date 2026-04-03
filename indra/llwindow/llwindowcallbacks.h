@@ -32,7 +32,7 @@ class LLWindow;
 class LLWindowCallbacks
 {
 public:
-    virtual ~LLWindowCallbacks() {}
+    virtual ~LLWindowCallbacks() = default;
     virtual bool handleTranslatedKeyDown(KEY key,  MASK mask, bool repeated);
     virtual bool handleTranslatedKeyUp(KEY key,  MASK mask);
     virtual void handleScanKey(KEY key, bool key_down, bool key_up, bool key_level);

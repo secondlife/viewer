@@ -56,7 +56,7 @@ public:
     LLUUID mMeshID;
     std::vector<std::string> mJointNames;
     mutable std::vector<S32> mJointNums;
-    typedef std::vector<LLMatrix4a> matrix_list_t;
+    using matrix_list_t = std::vector<LLMatrix4a>;
     matrix_list_t mInvBindMatrix;
 
     // bones/joints position overrides
@@ -100,8 +100,8 @@ public:
 
     //convex_hull_decomposition is a vector of convex hulls
     //each convex hull is a set of points
-    typedef std::vector<std::vector<LLVector3> > convex_hull_decomposition;
-    typedef std::vector<LLVector3> hull;
+    using convex_hull_decomposition = std::vector<std::vector<LLVector3> >;
+    using hull = std::vector<LLVector3>;
 
     class PhysicsMesh
     {
@@ -109,7 +109,7 @@ public:
         std::vector<LLVector3> mPositions;
         std::vector<LLVector3> mNormals;
 
-        ~PhysicsMesh() {}
+        ~PhysicsMesh() = default;
 
         void clear()
         {
@@ -134,9 +134,9 @@ public:
     class Decomposition
     {
     public:
-        Decomposition() { }
+        Decomposition() = default;
         Decomposition(LLSD& data);
-        ~Decomposition() { }
+        ~Decomposition() = default;
         void fromLLSD(LLSD& data);
         LLSD asLLSD() const;
         bool hasHullList() const;
@@ -222,7 +222,7 @@ public:
     bool isMaterialListSubset( LLModel* ref );
     bool needToAddFaces( LLModel* ref, int& refFaceCnt, int& modelFaceCnt );
 
-    typedef std::vector<std::string> material_list;
+    using material_list = std::vector<std::string>;
 
     material_list mMaterialList;
 
@@ -285,8 +285,8 @@ public:
 
     //map of positions to skin weights --- mSkinWeights[pos].mV[0..4] == <joint_index>.<weight>
     //joint_index corresponds to mJointList
-    typedef std::vector<JointWeight> weight_list;
-    typedef std::map<LLVector3, weight_list > weight_map;
+    using weight_list = std::vector<JointWeight>;
+    using weight_map = std::map<LLVector3, weight_list >;
     weight_map mSkinWeights;
 
     //get list of weight influences closest to given position
@@ -325,8 +325,8 @@ public:
     int mSubmodelID;
 } LL_ALIGN_POSTFIX(16);
 
-typedef std::vector<LLPointer<LLModel> >    model_list;
-typedef std::queue<LLPointer<LLModel> > model_queue;
+using model_list = std::vector<LLPointer<LLModel> >;
+using model_queue = std::queue<LLPointer<LLModel> >;
 
 class LLModelMaterialBase
 {
@@ -374,7 +374,7 @@ protected:
     // ref counting.
 };
 
-typedef std::map<std::string, LLImportMaterial> material_map;
+using material_map = std::map<std::string, LLImportMaterial>;
 
 class LLModelInstanceBase
 {
@@ -406,7 +406,7 @@ public:
     };
 };
 
-typedef std::vector<LLModelInstanceBase> model_instance_list;
+using model_instance_list = std::vector<LLModelInstanceBase>;
 
 class LLModelInstance : public LLModelInstanceBase
 {
@@ -423,7 +423,7 @@ public:
 
     LLModelInstance(LLSD& data);
 
-    ~LLModelInstance() {}
+    ~LLModelInstance() = default;
 
     LLSD asLLSD();
 };

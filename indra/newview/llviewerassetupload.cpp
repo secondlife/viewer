@@ -56,7 +56,7 @@
 
 void dialog_refresh_all();
 
-static const U32 LL_ASSET_UPLOAD_TIMEOUT_SEC = 60;
+static constexpr U32 LL_ASSET_UPLOAD_TIMEOUT_SEC = 60;
 
 LLResourceUploadInfo::LLResourceUploadInfo(LLTransactionID transactId,
         LLAssetType::EType assetType, std::string name, std::string description,

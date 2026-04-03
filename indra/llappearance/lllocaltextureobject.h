@@ -71,7 +71,7 @@ private:
     // NOTE: LLLocalTextureObject should be the exclusive owner of mTexEntry and mTexLayer
     // using shared pointers here only for smart assignment & cleanup
     // do NOT create new shared pointers to these objects, or keep pointers to them around
-    typedef std::vector<LLTexLayer*> tex_layer_vec_t;
+    using tex_layer_vec_t = std::vector<LLTexLayer*>;
     tex_layer_vec_t mTexLayers;
 
     LLUUID          mID;

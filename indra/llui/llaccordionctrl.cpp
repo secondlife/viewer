@@ -28,6 +28,8 @@
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 
+#include <algorithm>
+
 #include "lluictrlfactory.h" // builds floaters from XML
 
 #include "llwindow.h"
@@ -131,7 +133,7 @@ bool LLAccordionCtrl::postBuild()
         LLAccordionCtrlTab* accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(viewp);
         if (accordion_tab == NULL)
             continue;
-        if (std::find(mAccordionTabs.begin(), mAccordionTabs.end(), accordion_tab) == mAccordionTabs.end())
+        if (std::ranges::find(mAccordionTabs, accordion_tab) == mAccordionTabs.end())
         {
             accordion_tabs.push_back(accordion_tab);
         }
@@ -857,7 +859,7 @@ void LLAccordionCtrl::sort()
         return;
     }
 
-    std::sort(mAccordionTabs.begin(), mAccordionTabs.end(), LLComparatorAdaptor(*mTabComparator));
+    std::ranges::sort(mAccordionTabs, LLComparatorAdaptor(*mTabComparator));
     arrange();
 }
 

@@ -262,8 +262,8 @@ protected:
 class LLSplashScreen
 {
 public:
-    LLSplashScreen() { };
-    virtual ~LLSplashScreen() { };
+    LLSplashScreen() = default;
+    virtual ~LLSplashScreen() = default;
 
 
     // Call to display the window.

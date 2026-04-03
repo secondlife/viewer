@@ -47,7 +47,7 @@ public:
     virtual ~LLImageDecodeThread();
 
     // meant to resemble LLQueuedThread::handle_t
-    typedef U32 handle_t;
+    using handle_t = U32;
     handle_t decodeImage(const LLPointer<LLImageFormatted>& image,
                          S32 discard, bool needs_aux,
                          const LLPointer<Responder>& responder);

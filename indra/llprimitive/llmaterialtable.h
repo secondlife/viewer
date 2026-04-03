@@ -88,7 +88,7 @@ public:
     static const F32 RESTITUTION_RUBBER;
     static const F32 RESTITUTION_MAX;
 
-    typedef std::list<LLMaterialInfo*> info_list_t;
+    using info_list_t = std::list<LLMaterialInfo*>;
     info_list_t mMaterialInfoList;
 
     std::vector<LLUUID> mCollisionSoundMatrix;

@@ -56,7 +56,7 @@
 
 //#include "llsdserialize.h"
 
-static const U32 AVATAR_PICKER_SEARCH_TIMEOUT = 180U;
+static constexpr U32 AVATAR_PICKER_SEARCH_TIMEOUT = 180U;
 
 //put it back as a member once the legacy path is out?
 static std::map<LLUUID, LLAvatarName> sAvatarNameMap;

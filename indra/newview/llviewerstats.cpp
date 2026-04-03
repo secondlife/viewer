@@ -521,7 +521,7 @@ void update_statistics()
 
     // Only update texture stats periodically so that they are less noisy
     {
-        static const F32 texture_stats_freq = 10.f;
+        static constexpr F32 texture_stats_freq = 10.f;
         static LLFrameTimer texture_stats_timer;
         if (texture_stats_timer.getElapsedTimeF32() >= texture_stats_freq)
         {
@@ -532,7 +532,7 @@ void update_statistics()
 
     if (LLFloaterReg::instanceVisible("scene_load_stats"))
     {
-        static const F32 perf_stats_freq = 1;
+        static constexpr F32 perf_stats_freq = 1;
         static LLFrameTimer perf_stats_timer;
         if (perf_stats_timer.getElapsedTimeF32() >= perf_stats_freq)
         {

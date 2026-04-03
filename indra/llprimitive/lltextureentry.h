@@ -73,13 +73,13 @@ class LLTextureEntry
 public:
     static LLTextureEntry* newTextureEntry();
 
-    typedef enum e_texgen
+    enum e_texgen
     {
         TEX_GEN_DEFAULT         = 0x00,
         TEX_GEN_PLANAR          = 0x02,
         TEX_GEN_SPHERICAL       = 0x04,
         TEX_GEN_CYLINDRICAL     = 0x06
-    } eTexGen;
+    };
 
     LLTextureEntry();
     LLTextureEntry(const LLUUID& tex_id);

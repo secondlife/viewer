@@ -61,8 +61,8 @@ class LLDragDropWin32
 class LLDragDropWin32
 {
     public:
-        LLDragDropWin32() {};
-        ~LLDragDropWin32() {};
+        LLDragDropWin32() = default;
+        ~LLDragDropWin32() = default;
 
         bool init( HWND hWnd ) { return false; };
         void reset() { };

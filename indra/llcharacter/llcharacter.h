@@ -44,10 +44,10 @@ class LLPolyMesh;
 class LLPauseRequestHandle : public LLThreadSafeRefCount
 {
 public:
-    LLPauseRequestHandle() {};
+    LLPauseRequestHandle() = default;
 };
 
-typedef LLPointer<LLPauseRequestHandle> LLAnimPauseRequest;
+using LLAnimPauseRequest = LLPointer<LLPauseRequestHandle>;
 
 //-----------------------------------------------------------------------------
 // class LLCharacter
@@ -284,7 +284,7 @@ public:
 protected:
     LLMotionController  mMotionController;
 
-    typedef std::map<std::string, void *> animation_data_map_t;
+    using animation_data_map_t = std::map<std::string, void *>;
     animation_data_map_t mAnimationData;
 
     F32                 mPreferredPelvisHeight;
@@ -295,8 +295,8 @@ protected:
 
 private:
     // visual parameter stuff
-    typedef std::map<S32, LLVisualParam *>      visual_param_index_map_t;
-    typedef std::map<char *, LLVisualParam *>   visual_param_name_map_t;
+    using visual_param_index_map_t = std::map<S32, LLVisualParam *>;
+    using visual_param_name_map_t = std::map<char *, LLVisualParam *>;
 
     visual_param_index_map_t::iterator          mCurIterator;
     visual_param_index_map_t                    mVisualParamIndexMap;

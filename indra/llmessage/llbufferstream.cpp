@@ -33,7 +33,7 @@
 #include "llthread.h"
 #include "llmutex.h"
 
-static const S32 DEFAULT_OUTPUT_SEGMENT_SIZE = 1024 * 4;
+static constexpr S32 DEFAULT_OUTPUT_SEGMENT_SIZE = 1024 * 4;
 
 /*
  * LLBufferStreamBuf

@@ -61,8 +61,8 @@ public:
 
     LLScrollingPanelList(const Params& p);
 
-    static const S32 DEFAULT_SPACING = 6;
-    static const S32 DEFAULT_PADDING = 2;
+    static constexpr S32 DEFAULT_SPACING = 6;
+    static constexpr S32 DEFAULT_PADDING = 2;
 
     using panel_list_t = std::deque<LLScrollingPanel*>;
 

@@ -139,7 +139,7 @@ class LLAccessEntry
 {
 public:
 
-    typedef std::map<LLUUID,LLAccessEntry> map;
+    using map = std::map<LLUUID,LLAccessEntry>;
 
     LLAccessEntry()
     :   mTime(0),
@@ -659,7 +659,7 @@ public:
     std::map<LLUUID,LLAccessEntry>  mTempBanList;
     std::map<LLUUID,LLAccessEntry>  mTempAccessList;
 
-    typedef std::map<LLUUID, U32> xp_type_map_t;
+    using xp_type_map_t = std::map<LLUUID, U32>;
 
     void setExperienceKeyType(const LLUUID& experience_key, U32 type);
     U32 countExperienceKeyType(U32 type);

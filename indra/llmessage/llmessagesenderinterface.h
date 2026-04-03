@@ -35,7 +35,7 @@ class LLSD;
 class LLMessageSenderInterface
 {
 public:
-    virtual ~LLMessageSenderInterface() {}
+    virtual ~LLMessageSenderInterface() = default;
     virtual S32 sendMessage(const LLHost& host, LLStoredMessagePtr message) = 0;
 
 };

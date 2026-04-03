@@ -35,10 +35,10 @@
 
 class LLJoint;
 
-typedef std::map<std::string, LLMatrix4> JointTransformMap;
-typedef std::map<std::string, LLMatrix4>::iterator JointTransformMapIt;
-typedef std::map<std::string, std::string, std::less<>> JointMap;
-typedef std::deque<std::string> JointNameSet;
+using JointTransformMap = std::map<std::string, LLMatrix4>;
+using JointTransformMapIt = std::map<std::string, LLMatrix4>::iterator;
+using JointMap = std::map<std::string, std::string, std::less<>>;
+using JointNameSet = std::deque<std::string>;
 
 const S32 SLM_SUPPORTED_VERSION = 3;
 const S32 NUM_LOD = 4;
@@ -51,34 +51,34 @@ class LLModelLoader : public LLThread
 {
 public:
 
-    typedef std::map<std::string, LLImportMaterial> material_map;
-    typedef std::vector<LLPointer<LLModel>> model_list;
-    typedef std::vector<LLModelInstance> model_instance_list;
-    typedef std::map<LLMatrix4, model_instance_list> scene;
+    using material_map = std::map<std::string, LLImportMaterial>;
+    using model_list = std::vector<LLPointer<LLModel>>;
+    using model_instance_list = std::vector<LLModelInstance>;
+    using scene = std::map<LLMatrix4, model_instance_list>;
 
     // Callback with loaded model data and loaded LoD
     //
-    typedef std::function<void (scene&, model_list&, S32, void*)> load_callback_t;
+    using load_callback_t = std::function<void (scene&, model_list&, S32, void*)>;
 
     // Function to provide joint lookup by name
     // (within preview avi skeleton, for example)
     //
-    typedef std::function<LLJoint* (const std::string&, void*)> joint_lookup_func_t;
+    using joint_lookup_func_t = std::function<LLJoint* (const std::string&, void*)>;
 
     // Func to load and associate material with all it's textures,
     // returned value is the number of textures loaded
     // intentionally non-const so func can modify material to
     // store platform-specific data
     //
-    typedef std::function<U32 (LLImportMaterial&, void*)> texture_load_func_t;
+    using texture_load_func_t = std::function<U32 (LLImportMaterial&, void*)>;
 
     // Callback to inform client of state changes
     // during loading process (errors will be reported
     // as state changes here as well)
     //
-    typedef std::function<void (U32, void*)> state_callback_t;
+    using state_callback_t = std::function<void (U32, void*)>;
 
-    typedef enum
+    enum eLoadState
     {
         STARTING = 0,
         READING_FILE,
@@ -97,7 +97,7 @@ public:
         ERROR_OUT_OF_RANGE,
         ERROR_FILE_VERSION_INVALID,
         ERROR_MODEL // this error should always be last in this list, error code is passed as ERROR_MODEL+error_code
-    } eLoadState;
+    };
 
     U32 mState;
     std::string mFilename;
@@ -116,7 +116,7 @@ public:
     // The scene is pretty much what ends up getting loaded for upload.  Basically assign things to this guy if you want something uploaded.
     scene               mScene;
 
-    typedef std::queue<LLPointer<LLModel> > model_queue;
+    using model_queue = std::queue<LLPointer<LLModel> >;
 
     //queue of models that need a physics rep
     model_queue mPhysicsQ;

@@ -300,7 +300,7 @@ void LLLayoutStack::removeChild(LLView* view)
 {
     if (LLLayoutPanel* embedded_panelp = dynamic_cast<LLLayoutPanel*>(view))
     {
-        auto it = std::find(mPanels.begin(), mPanels.end(), embedded_panelp);
+        auto it = std::ranges::find(mPanels, embedded_panelp);
         if (it != mPanels.end())
         {
             mPanels.erase(it);

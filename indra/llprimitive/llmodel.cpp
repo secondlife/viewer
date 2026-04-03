@@ -154,7 +154,7 @@ void LLModel::sortVolumeFacesByMaterialName()
             bindings[i].matName = mMaterialList[i];
         }
     }
-    std::sort(bindings.begin(), bindings.end(), MaterialSort());
+    std::ranges::sort(bindings, MaterialSort());
     std::vector< LLVolumeFace > new_faces;
 
     // remap the faces to be in the same order the mats now are...
@@ -468,14 +468,14 @@ void LLModel::normalizeVolumeFacesAndWeights()
         mSkinWeights.clear();
         mPosition.clear();
 
-        for (auto& weights : old_weights)
+        for (auto& [position, weight_list] : old_weights)
         {
-            LLVector4a pos(weights.first.mV[VX], weights.first.mV[VY], weights.first.mV[VZ]);
+            LLVector4a pos(position.mV[VX], position.mV[VY], position.mV[VZ]);
             pos.add(trans);
             pos.mul(scale);
             LLVector3 scaled_pos(pos.getF32ptr());
             mPosition.push_back(scaled_pos);
-            mSkinWeights[scaled_pos] = weights.second;
+            mSkinWeights[scaled_pos] = weight_list;
         }
 
         // mNormalizedScale is the scale at which

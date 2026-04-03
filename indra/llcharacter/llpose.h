@@ -47,9 +47,9 @@ class LLPose
 {
     friend class LLPoseBlender;
 protected:
-    typedef std::map<std::string, LLPointer<LLJointState> > joint_map;
-    typedef joint_map::iterator joint_map_iterator;
-    typedef joint_map::value_type joint_map_value_type;
+    using joint_map = std::map<std::string, LLPointer<LLJointState> >;
+    using joint_map_iterator = joint_map::iterator;
+    using joint_map_value_type = joint_map::value_type;
 
     joint_map                   mJointMap;
     F32                         mWeight;
@@ -107,8 +107,8 @@ class LLMotion;
 class LLPoseBlender
 {
 protected:
-    typedef std::list<LLJointStateBlender*> blender_list_t;
-    typedef std::map<LLJoint*,LLJointStateBlender*> blender_map_t;
+    using blender_list_t = std::list<LLJointStateBlender*>;
+    using blender_map_t = std::map<LLJoint*,LLJointStateBlender*>;
     blender_map_t mJointStateBlenderPool;
     blender_list_t mActiveBlenders;
 

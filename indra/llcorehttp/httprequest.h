@@ -94,10 +94,10 @@ private:
     void operator=(const HttpRequest &);        // Disallowed
 
 public:
-    typedef unsigned int policy_t;
+    using policy_t = unsigned int;
 
-    typedef std::shared_ptr<HttpRequest> ptr_t;
-    typedef std::weak_ptr<HttpRequest>   wptr_t;
+    using ptr_t = std::shared_ptr<HttpRequest>;
+    using wptr_t = std::weak_ptr<HttpRequest>;
 public:
     /// @name PolicyMethods
     /// @{
@@ -237,7 +237,7 @@ public:
 
     /// Prototype for policy based callbacks.  The callback methods will be executed
     /// on the worker thread so no modifications should be made to the HttpHandler object.
-    typedef std::function<HttpStatus(const std::string &, const HttpHandler::ptr_t &, void *)> policyCallback_t;
+    using policyCallback_t = std::function<HttpStatus(const std::string &, const HttpHandler::ptr_t &, void *)>;
 
     /// Set a policy option for a global or class parameter at
     /// startup time (prior to thread start).
@@ -627,7 +627,7 @@ public:
 protected:
 
 private:
-    typedef std::shared_ptr<HttpReplyQueue> HttpReplyQueuePtr_t;
+    using HttpReplyQueuePtr_t = std::shared_ptr<HttpReplyQueue>;
 
     /// @name InstanceData
     ///

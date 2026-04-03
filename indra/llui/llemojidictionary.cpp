@@ -26,6 +26,8 @@
 
 #include "linden_common.h"
 
+#include <algorithm>
+
 #include "lldir.h"
 #include "llemojidictionary.h"
 #include "llsdserialize.h"
@@ -43,7 +45,7 @@ static const std::string SKINNED_CATEGORY_FILENAME("emoji_categories.xml");
 static const std::string COMMON_GROUP_FILENAME("emoji_groups.xml");
 static const std::string GROUP_NAME_SKIP("skip");
 // https://www.compart.com/en/unicode/U+1F302
-static const S32 GROUP_OTHERS_IMAGE_INDEX = 0x1F302;
+static constexpr S32 GROUP_OTHERS_IMAGE_INDEX = 0x1F302;
 
 // ============================================================================
 // Helper functions
@@ -216,12 +218,12 @@ void LLEmojiDictionary::findByShortCode(
         }
     }
 
-    for (const auto& it : results)
+    for (const auto& [key, matches] : results)
     {
 #ifdef __cpp_lib_containers_ranges
-        result.append_range(it.second);
+        result.append_range(matches);
 #else
-        result.insert(result.end(), it.second.cbegin(), it.second.cend());
+        result.insert(result.end(), matches.cbegin(), matches.cend());
 #endif
     }
 }
@@ -402,7 +404,7 @@ void LLEmojiDictionary::loadEmojis()
             category = categories.front();
         }
 
-        if (std::find(mSkipCategories.begin(), mSkipCategories.end(), category) != mSkipCategories.end())
+        if (std::ranges::find(mSkipCategories, category) != mSkipCategories.end())
         {
             // This category is listed for skip
             continue;

@@ -71,9 +71,9 @@ class HttpService;
 class HttpOperation : public std::enable_shared_from_this<HttpOperation>
 {
 public:
-    typedef std::shared_ptr<HttpOperation> ptr_t;
-    typedef std::weak_ptr<HttpOperation> wptr_t;
-    typedef std::shared_ptr<HttpReplyQueue> HttpReplyQueuePtr_t;
+    using ptr_t = std::shared_ptr<HttpOperation>;
+    using wptr_t = std::weak_ptr<HttpOperation>;
+    using HttpReplyQueuePtr_t = std::shared_ptr<HttpReplyQueue>;
 
     /// Threading:  called by consumer thread.
     HttpOperation();
@@ -192,7 +192,7 @@ public:
     int                         mTracing;
 
 private:
-    typedef std::map<HttpHandle, wptr_t>    handleMap_t;
+    using handleMap_t = std::map<HttpHandle, wptr_t>;
 
     HttpHandle                  createHandle();
     void                        destroyHandle();

@@ -183,7 +183,7 @@ LLCircuitData::~LLCircuitData()
         std::ostringstream str;
         std::ostream_iterator<TPACKETID> append(str, " ");
         str << "MSG: -> " << mHost << "\tABORTING RELIABLE:\t";
-        std::copy(doomed.begin(), doomed.end(), append);
+        std::ranges::copy(doomed, append);
         LL_INFOS() << str.str() << LL_ENDL;
     }
 }
@@ -1128,7 +1128,7 @@ void LLCircuit::sendAcks(F32 collect_time)
                     std::ostringstream str;
                     str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
                     std::ostream_iterator<TPACKETID> append(str, " ");
-                    std::copy(cd->mAcks.begin(), cd->mAcks.end(), append);
+                    std::ranges::copy(cd->mAcks, append);
                     LL_INFOS() << str.str() << LL_ENDL;
                 }
 

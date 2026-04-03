@@ -107,7 +107,7 @@ bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
     LLVector3 origin = center;
 
     // Move origin[VZ] far enough (up or down) from the water surface
-    static const F32 MIN_DIST_TO_WATER = 0.2f;
+    static constexpr F32 MIN_DIST_TO_WATER = 0.2f;
     F32& zpos = origin.mV[VZ];
     if (zpos < water_height + MIN_DIST_TO_WATER)
     {

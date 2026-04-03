@@ -47,8 +47,8 @@ class LLMessageSystem;
 class LLInventoryObject : public LLRefCount
 {
 public:
-    typedef std::list<LLPointer<LLInventoryObject> > object_list_t;
-    typedef std::list<LLConstPointer<LLInventoryObject> > const_object_list_t;
+    using object_list_t = std::list<LLPointer<LLInventoryObject> >;
+    using const_object_list_t = std::list<LLConstPointer<LLInventoryObject> >;
 
     //--------------------------------------------------------------------
     // Initialization
@@ -127,7 +127,7 @@ protected:
 class LLInventoryItem : public LLInventoryObject
 {
 public:
-    typedef std::vector<LLPointer<LLInventoryItem> > item_array_t;
+    using item_array_t = std::vector<LLPointer<LLInventoryItem> >;
 
     //--------------------------------------------------------------------
     // Initialization
@@ -234,7 +234,7 @@ protected:
 class LLInventoryCategory : public LLInventoryObject
 {
 public:
-    typedef std::vector<LLPointer<LLInventoryCategory> > cat_array_t;
+    using cat_array_t = std::vector<LLPointer<LLInventoryCategory> >;
 
     //--------------------------------------------------------------------
     // Initialization

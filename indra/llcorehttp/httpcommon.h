@@ -205,13 +205,13 @@ namespace LLCore
 /// return from any HttpHandler notification, the handle immediately
 /// becomes invalid and may be recycled for other queued requests.
 
-typedef void * HttpHandle;
+using HttpHandle = void *;
 
 #define LLCORE_HTTP_HANDLE_INVALID      (NULL)
 
 /// For internal scheduling and metrics, we use a microsecond
 /// timebase compatible with the environment.
-typedef U64 HttpTime;
+using HttpTime = U64;
 
 /// Error codes defined by the library itself as distinct from
 /// libcurl (or any other transport provider).
@@ -292,7 +292,7 @@ enum HttpError
 
 struct HttpStatus
 {
-    typedef unsigned short type_enum_t;
+    using type_enum_t = unsigned short;
 
     HttpStatus()
     {
@@ -492,7 +492,7 @@ private:
 ///  A namespace for several free methods and low level utilities.
 namespace LLHttp
 {
-    typedef std::shared_ptr<CURL> CURL_ptr;
+    using CURL_ptr = std::shared_ptr<CURL>;
 
     void initialize();
     void cleanup();

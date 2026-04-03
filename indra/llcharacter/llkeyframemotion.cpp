@@ -2412,7 +2412,7 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
 {
     LLUUID* id = (LLUUID*)user_data;
 
-    auto char_iter = std::find_if(LLCharacter::sInstances.begin(), LLCharacter::sInstances.end(), [&](LLCharacter* c)
+    auto char_iter = std::ranges::find_if(LLCharacter::sInstances, [&](LLCharacter* c)
         {
             return c->getID() == *id;
         });

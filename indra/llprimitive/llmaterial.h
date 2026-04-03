@@ -37,20 +37,20 @@ class LLMaterial : public LLRefCount
 {
 public:
 
-    typedef enum
+    enum eDiffuseAlphaMode
     {
         DIFFUSE_ALPHA_MODE_NONE = 0,
         DIFFUSE_ALPHA_MODE_BLEND = 1,
         DIFFUSE_ALPHA_MODE_MASK = 2,
         DIFFUSE_ALPHA_MODE_EMISSIVE = 3,
         DIFFUSE_ALPHA_MODE_DEFAULT = 4,
-    } eDiffuseAlphaMode;
+    };
 
-    typedef enum
+    enum eShaderCount
     {
         SHADER_COUNT = 16,
         ALPHA_SHADER_COUNT = 4
-    } eShaderCount;
+    };
 
     static const U8         DEFAULT_SPECULAR_LIGHT_EXPONENT = ((U8)(0.2f * 255));
     static const LLColor4U  DEFAULT_SPECULAR_LIGHT_COLOR;
@@ -147,7 +147,7 @@ protected:
     U8          mAlphaMaskCutoff;
 };
 
-typedef LLPointer<LLMaterial> LLMaterialPtr;
+using LLMaterialPtr = LLPointer<LLMaterial>;
 
 #endif // LL_LLMATERIAL_H
 

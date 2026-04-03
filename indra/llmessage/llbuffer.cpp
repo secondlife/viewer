@@ -226,7 +226,7 @@ LLBufferArray::LLBufferArray() :
 
 LLBufferArray::~LLBufferArray()
 {
-    std::for_each(mBuffers.begin(), mBuffers.end(), DeletePointer());
+    std::ranges::for_each(mBuffers, DeletePointer());
     mBuffers.clear();
     delete mMutexp;
 }
@@ -772,15 +772,9 @@ bool LLBufferArray::takeContents(LLBufferArray& source)
     LLMutexLock lock(mMutexp);
     source.lock();
 
-    std::copy(
-        source.mBuffers.begin(),
-        source.mBuffers.end(),
-        std::back_insert_iterator<buffer_list_t>(mBuffers));
+    std::ranges::copy(source.mBuffers, std::back_insert_iterator<buffer_list_t>(mBuffers));
     source.mBuffers.clear();
-    std::copy(
-        source.mSegments.begin(),
-        source.mSegments.end(),
-        std::back_insert_iterator<segment_list_t>(mSegments));
+    std::ranges::copy(source.mSegments, std::back_insert_iterator<segment_list_t>(mSegments));
     source.mSegments.clear();
     source.mNextBaseChannel = 0;
     source.unlock();

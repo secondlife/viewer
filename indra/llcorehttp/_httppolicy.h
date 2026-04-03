@@ -60,7 +60,7 @@ private:
     void operator=(const HttpPolicy&) = delete;
 
 public:
-    typedef std::shared_ptr<HttpOpRequest> opReqPtr_t;
+    using opReqPtr_t = std::shared_ptr<HttpOpRequest>;
 
     /// Threading:  called by init thread.
     HttpRequest::policy_t createPolicyClass();
@@ -164,7 +164,7 @@ public:
 
 protected:
     struct ClassState;
-    typedef std::vector<ClassState *>   class_list_t;
+    using class_list_t = std::vector<ClassState *>;
 
     HttpPolicyGlobal                    mGlobalOptions;
     class_list_t                        mClasses;

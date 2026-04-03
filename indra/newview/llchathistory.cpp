@@ -865,7 +865,7 @@ public:
     }
 
 protected:
-    static const S32 PADDING = 20;
+    static constexpr S32 PADDING = 20;
 
     void showContextMenu(S32 x,S32 y)
     {

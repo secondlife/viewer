@@ -441,7 +441,7 @@ const std::string &LLDir::getUserName() const
 
 static std::string ELLPathToString(ELLPath location)
 {
-    typedef std::map<ELLPath, const char*> ELLPathMap;
+    using ELLPathMap = std::map<ELLPath, const char*>;
 #define ENT(symbol) { symbol, #symbol }
     static const ELLPathMap sMap = {
         ENT(LL_PATH_NONE),
@@ -705,7 +705,7 @@ inline void push_back(std::vector<std::string>& vector, const std::string& value
     vector.push_back(value);
 }
 
-typedef std::map<std::string, std::string> StringMap;
+using StringMap = std::map<std::string, std::string>;
 // ridiculous little helper function that should go away when we can use lambda
 inline void store_in_map(StringMap& map, const std::string& key, const std::string& value)
 {
@@ -995,7 +995,7 @@ void LLDir::setSkinFolder(const std::string &skin_folder, const std::string& lan
 
 void LLDir::addSearchSkinDir(const std::string& skindir)
 {
-    if (std::find(mSearchSkinDirs.begin(), mSearchSkinDirs.end(), skindir) == mSearchSkinDirs.end())
+    if (std::ranges::find(mSearchSkinDirs, skindir) == mSearchSkinDirs.end())
     {
         LL_DEBUGS("LLDir") << "search skin: '" << skindir << "'" << LL_ENDL;
         mSearchSkinDirs.push_back(skindir);

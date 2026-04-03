@@ -66,7 +66,7 @@ public:
 
     bool            isOnTop(LLWearable* wearable) const;
 
-    static const U32 MAX_CLOTHING_LAYERS = 60;
+    static constexpr U32 MAX_CLOTHING_LAYERS = 60;
 
     //--------------------------------------------------------------------
     // Setters
@@ -90,8 +90,8 @@ private:
     //--------------------------------------------------------------------
 protected:
     LLAvatarAppearance* mAvatarAppearance;
-    typedef std::vector<LLWearable*> wearableentry_vec_t; // all wearables of a certain type (EG all shirts)
-    typedef std::map<LLWearableType::EType, wearableentry_vec_t> wearableentry_map_t;   // wearable "categories" arranged by wearable type
+    using wearableentry_vec_t = std::vector<LLWearable*>; // all wearables of a certain type (EG all shirts)
+    using wearableentry_map_t = std::map<LLWearableType::EType, wearableentry_vec_t>;   // wearable "categories" arranged by wearable type
     wearableentry_map_t mWearableDatas;
 
 };

@@ -64,7 +64,7 @@ LLModalDialog::~LLModalDialog()
         gFocusMgr.unlockFocus();
     }
 
-    std::list<LLModalDialog*>::iterator iter = std::find(sModalStack.begin(), sModalStack.end(), this);
+    auto iter = std::ranges::find(sModalStack, this);
     if (iter != sModalStack.end())
     {
         LL_ERRS() << "Attempt to delete dialog while still in sModalStack!" << LL_ENDL;
@@ -115,7 +115,7 @@ void LLModalDialog::onOpen(const LLSD& key)
         LLUI::getInstance()->addPopup(this);
         setFocus(true);
 
-        std::list<LLModalDialog*>::iterator iter = std::find(sModalStack.begin(), sModalStack.end(), this);
+        auto iter = std::ranges::find(sModalStack, this);
         if (iter != sModalStack.end())
         {
             // if already present, we want to move it to front.
@@ -133,7 +133,7 @@ void LLModalDialog::stopModal()
 
     if (mModal)
     {
-        std::list<LLModalDialog*>::iterator iter = std::find(sModalStack.begin(), sModalStack.end(), this);
+        auto iter = std::ranges::find(sModalStack, this);
         if (iter != sModalStack.end())
         {
             sModalStack.erase(iter);

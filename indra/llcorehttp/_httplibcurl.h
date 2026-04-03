@@ -65,7 +65,7 @@ private:
     void operator=(const HttpLibcurl&) = delete;
 
 public:
-    typedef std::shared_ptr<HttpOpRequest> opReqPtr_t;
+    using opReqPtr_t = std::shared_ptr<HttpOpRequest>;
 
     /// Give cycles to libcurl to run active requests.  Completed
     /// operations (successful or failed) will be retried or handed
@@ -153,7 +153,7 @@ protected:
     void cancelRequest(const opReqPtr_t &op);
 
 protected:
-    typedef std::set<opReqPtr_t> active_set_t;
+    using active_set_t = std::set<opReqPtr_t>;
 
     /// Simple request handle cache for libcurl.
     ///
@@ -200,7 +200,7 @@ protected:
         void freeHandle(CURL * handle);
 
     protected:
-        typedef std::vector<CURL *> handle_cache_t;
+        using handle_cache_t = std::vector<CURL *>;
 
     protected:
         CURL *              mHandleTemplate;        // Template for duplicating new handles

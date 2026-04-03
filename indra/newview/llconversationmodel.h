@@ -246,7 +246,7 @@ public:
         SO_DISTANCE = 0x3,                  // Sort by distance (valid only for participants in nearby chat)
     };
     // Default sort order is by type for sessions and by date for participants
-    static const U32 SO_DEFAULT = (SO_SESSION_TYPE << 16) | (SO_DATE);
+    static constexpr U32 SO_DEFAULT = (SO_SESSION_TYPE << 16) | (SO_DATE);
 
     LLConversationFilter() { mEmpty = ""; }
     ~LLConversationFilter() = default;

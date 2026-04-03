@@ -1106,7 +1106,7 @@ private:
 
     void sortHistory()
     {
-        std::sort(mHistory.begin(), mHistory.end(), sortByTime());
+        std::ranges::sort(mHistory, sortByTime());
     }
 
     // The channel gets all persistent notifications except those that have been canceled

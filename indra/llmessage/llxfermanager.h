@@ -51,7 +51,7 @@ class LLHostStatus
     S32    mNumPending;
 
     LLHostStatus() {mNumActive = 0; mNumPending = 0;};
-    virtual ~LLHostStatus(){};
+    virtual ~LLHostStatus() = default;
 };
 
 // Class stores ack information, to be put on list so we can throttle xfer rate.

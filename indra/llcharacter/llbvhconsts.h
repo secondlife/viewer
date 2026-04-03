@@ -29,18 +29,18 @@
 
 const F32 MAX_ANIM_DURATION = 60.f;
 
-typedef enum e_constraint_type
+enum EConstraintType
     {
         CONSTRAINT_TYPE_POINT,
         CONSTRAINT_TYPE_PLANE,
         NUM_CONSTRAINT_TYPES
-    } EConstraintType;
+    };
 
-typedef enum e_constraint_target_type
+enum EConstraintTargetType
     {
         CONSTRAINT_TARGET_TYPE_BODY,
         CONSTRAINT_TARGET_TYPE_GROUND,
         NUM_CONSTRAINT_TARGET_TYPES
-    } EConstraintTargetType;
+    };
 
 #endif // LL_LLBVHCONSTS_H

@@ -96,9 +96,9 @@ void HTTPStats::dumpStats()
     out << std::endl;
     out << "Result Codes:" << std::endl << "--- -----" << std::endl;
 
-    for (std::map<S32, S32>::iterator it = mResutCodes.begin(); it != mResutCodes.end(); ++it)
+    for (const auto& [code, count] : mResutCodes)
     {
-        out << (*it).first << " " << (*it).second << std::endl;
+        out << code << " " << count << std::endl;
     }
 
     LL_WARNS("HTTPCore") << out.str() << LL_ENDL;

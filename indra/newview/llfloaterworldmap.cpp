@@ -89,7 +89,7 @@
 // width of 512 regions max visible at a time. This makes the zoom slider works in a consistent way across
 // sessions and doesn't prevent the user to pan the world if it was to grow a lot beyond that limit.
 // Currently (01/26/09), this value allows the whole grid to be visible in a 1024x1024 window.
-static const S32 MAX_VISIBLE_REGIONS = 512;
+static constexpr S32 MAX_VISIBLE_REGIONS = 512;
 
 
 const S32 HIDE_BEACON_PAD = 133;
@@ -113,7 +113,7 @@ enum EPanDirection
 };
 
 // Values in pixels per region
-static const F32 ZOOM_MAX = 128.f;
+static constexpr F32 ZOOM_MAX = 128.f;
 
 //---------------------------------------------------------------------------
 // Globals

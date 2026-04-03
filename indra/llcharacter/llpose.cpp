@@ -498,7 +498,7 @@ bool LLPoseBlender::addMotion(LLMotion* motion)
         }
 
         // add it to our list of active blenders
-        if (std::find(mActiveBlenders.begin(), mActiveBlenders.end(), joint_blender) == mActiveBlenders.end())
+        if (std::ranges::find(mActiveBlenders, joint_blender) == mActiveBlenders.end())
         {
             mActiveBlenders.push_front(joint_blender);
         }

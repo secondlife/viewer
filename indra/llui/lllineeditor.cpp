@@ -599,9 +599,9 @@ U32 LLLineEditor::getSuggestionCount() const
 
 void LLLineEditor::replaceWithSuggestion(U32 index)
 {
-    for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
+    for (const auto& [range_start, range_end] : mMisspellRanges)
     {
-        if ( (it->first <= (U32)mCursorPos) && (it->second >= (U32)mCursorPos) )
+        if ( (range_start <= (U32)mCursorPos) && (range_end >= (U32)mCursorPos) )
         {
             LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
             if (!mAllowEmoji)
@@ -615,11 +615,11 @@ void LLLineEditor::replaceWithSuggestion(U32 index)
             deselect();
 
             // Delete the misspelled word
-            mText.erase(it->first, it->second - it->first);
+            mText.erase(range_start, range_end - range_start);
 
             // Insert the suggestion in its place
-            mText.insert(it->first, suggestion);
-            setCursor(it->first + (S32)suggestion.length());
+            mText.insert(range_start, suggestion);
+            setCursor(range_start + (S32)suggestion.length());
 
             mFontBufferPreSelection.reset();
             mFontBufferSelection.reset();
@@ -659,11 +659,11 @@ bool LLLineEditor::canAddToIgnore() const
 
 std::string LLLineEditor::getMisspelledWord(U32 pos) const
 {
-    for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
+    for (const auto& [range_start, range_end] : mMisspellRanges)
     {
-        if ( (it->first <= pos) && (it->second >= pos) )
+        if ( (range_start <= pos) && (range_end >= pos) )
         {
-            return wstring_to_utf8str(mText.getWString().substr(it->first, it->second - it->first));
+            return wstring_to_utf8str(mText.getWString().substr(range_start, range_end - range_start));
         }
     }
     return LLStringUtil::null;
@@ -671,9 +671,9 @@ std::string LLLineEditor::getMisspelledWord(U32 pos) const
 
 bool LLLineEditor::isMisspelledWord(U32 pos) const
 {
-    for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
+    for (const auto& [range_start, range_end] : mMisspellRanges)
     {
-        if ( (it->first <= pos) && (it->second >= pos) )
+        if ( (range_start <= pos) && (range_end >= pos) )
         {
             return true;
         }
@@ -2057,27 +2057,27 @@ void LLLineEditor::draw()
         }
 
         // Draw squiggly lines under any (visible) misspelled words
-        for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
+        for (const auto& [range_start, range_end] : mMisspellRanges)
         {
             // Skip over words that aren't (partially) visible
-            if ( ((it->first < start) && (it->second < start)) || (it->first > end) )
+            if ( ((range_start < start) && (range_end < start)) || (range_start > end) )
             {
                 continue;
             }
 
             // Skip the current word if the user is still busy editing it
-            if ( (!mSpellCheckTimer.hasExpired()) && (it->first <= (U32)mCursorPos) && (it->second >= (U32)mCursorPos) )
+            if ( (!mSpellCheckTimer.hasExpired()) && (range_start <= (U32)mCursorPos) && (range_end >= (U32)mCursorPos) )
             {
                 continue;
             }
 
             S32 pxWidth = getRect().getWidth();
-            S32 pxStart = findPixelNearestPos(it->first - getCursor());
+            S32 pxStart = findPixelNearestPos(range_start - getCursor());
             if (pxStart > pxWidth)
             {
                 continue;
             }
-            S32 pxEnd = findPixelNearestPos(it->second - getCursor());
+            S32 pxEnd = findPixelNearestPos(range_end - getCursor());
             if (pxEnd > pxWidth)
             {
                 pxEnd = pxWidth;

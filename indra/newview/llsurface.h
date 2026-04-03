@@ -41,13 +41,13 @@ class LLAgent;
 
 static const U8 NO_EDGE    = 0x00;
 static const U8 EAST_EDGE  = 0x01;
-static const U8 NORTH_EDGE = 0x02;
+static constexpr U8 NORTH_EDGE = 0x02;
 static const U8 WEST_EDGE  = 0x04;
-static const U8 SOUTH_EDGE = 0x08;
+static constexpr U8 SOUTH_EDGE = 0x08;
 
-static const S32 ONE_MORE_THAN_NEIGHBOR = 1;
+static constexpr S32 ONE_MORE_THAN_NEIGHBOR = 1;
 static const S32 EQUAL_TO_NEIGHBOR      = 0;
-static const S32 ONE_LESS_THAN_NEIGHBOR = -1;
+static constexpr S32 ONE_LESS_THAN_NEIGHBOR = -1;
 
 const S32 ABOVE_WATERLINE_ALPHA = 32;  // The alpha of water when the land elevation is above the waterline.
 

@@ -59,7 +59,7 @@ constexpr F32 LL_JOINT_TRESHOLD_POS_OFFSET = 0.0001f; //0.1 mm
 class LLVector3OverrideMap
 {
 public:
-    LLVector3OverrideMap() {}
+    LLVector3OverrideMap() = default;
     bool findActiveOverride(LLUUID& mesh_id, LLVector3& pos) const;
     void showJointVector3Overrides(std::ostringstream& os) const;
     U32 count() const;
@@ -67,7 +67,7 @@ public:
     bool remove(const LLUUID& mesh_id);
     void clear();
 
-    typedef std::map<LLUUID,LLVector3> map_type;
+    using map_type = std::map<LLUUID,LLVector3>;
     const map_type& getMap() const { return m_map; }
 private:
     map_type m_map;
@@ -145,13 +145,13 @@ public:
     S32             mJointNum;
 
     // child joints
-    typedef std::vector<LLJoint*> joints_t;
+    using joints_t = std::vector<LLJoint*>;
     joints_t mChildren;
 
     // debug statics
     static S32      sNumTouches;
     static S32      sNumUpdates;
-    typedef std::set<std::string> debug_joint_name_t;
+    using debug_joint_name_t = std::set<std::string>;
     static debug_joint_name_t s_debugJointNames;
     static void setDebugJointNames(const debug_joint_name_t& names);
     static void setDebugJointNames(const std::string& names_string);

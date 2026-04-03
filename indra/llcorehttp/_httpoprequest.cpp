@@ -874,7 +874,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     static const char status_line[] = "HTTP/";
-    static const size_t status_line_len = sizeof(status_line) - 1;
+    static constexpr size_t status_line_len = sizeof(status_line) - 1;
     static const char con_ran_line[] = "content-range";
     static const char con_retry_line[] = "retry-after";
 

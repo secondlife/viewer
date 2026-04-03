@@ -277,8 +277,8 @@ class LLXmlDOMParser : public LLXmlParser
 {
 public:
 
-    LLXmlDOMParser() {}
-    virtual ~LLXmlDOMParser() {}
+    LLXmlDOMParser() = default;
+    virtual ~LLXmlDOMParser() = default;
 
     void tabs()
     {

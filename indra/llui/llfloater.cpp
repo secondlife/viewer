@@ -1034,8 +1034,8 @@ void LLFloater::applyPositioning(LLFloater* other, bool on_open)
             }
             else
             {
-                static const U32 CASCADING_FLOATER_HOFFSET = 0;
-                static const U32 CASCADING_FLOATER_VOFFSET = 0;
+                static constexpr U32 CASCADING_FLOATER_HOFFSET = 0;
+                static constexpr U32 CASCADING_FLOATER_VOFFSET = 0;
 
                 const LLRect& snap_rect = gFloaterView->getSnapRect();
 
@@ -2839,7 +2839,7 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
     for (child_list_const_iter_t it = child_list.begin(); it != child_list.end(); ++it)
     {
         LLView* viewp = *it;
-        child_list_const_iter_t exists = std::find(getChildList()->begin(), getChildList()->end(), viewp);
+        auto exists = std::ranges::find(*getChildList(), viewp);
         if (exists == getChildList()->end())
         {
             // this floater has already been removed

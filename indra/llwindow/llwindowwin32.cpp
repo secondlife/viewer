@@ -136,28 +136,28 @@ typedef enum MONITOR_DPI_TYPE {
 
 #endif
 
-typedef HRESULT(STDAPICALLTYPE *SetProcessDpiAwarenessType)(_In_ PROCESS_DPI_AWARENESS value);
+using SetProcessDpiAwarenessType = HRESULT(STDAPICALLTYPE*)(_In_ PROCESS_DPI_AWARENESS value);
 
-typedef HRESULT(STDAPICALLTYPE *GetProcessDpiAwarenessType)(
+using GetProcessDpiAwarenessType = HRESULT(STDAPICALLTYPE*)(
     _In_ HANDLE hprocess,
     _Out_ PROCESS_DPI_AWARENESS *value);
 
-typedef HRESULT(STDAPICALLTYPE *GetDpiForMonitorType)(
+using GetDpiForMonitorType = HRESULT(STDAPICALLTYPE*)(
     _In_ HMONITOR hmonitor,
     _In_ MONITOR_DPI_TYPE dpiType,
     _Out_ UINT *dpiX,
     _Out_ UINT *dpiY);
 
-typedef enum PREFERRED_APP_MODE
+enum PREFERRED_APP_MODE
 {
     DEFAULT,
     ALLOW_DARK,
     FORCE_DARK,
     FORCE_LIGHT,
     MAX
-} PREFERRED_APP_MODE;
+};
 
-typedef PREFERRED_APP_MODE(WINAPI* fnSetPreferredAppMode)(PREFERRED_APP_MODE mode);
+using fnSetPreferredAppMode = PREFERRED_APP_MODE(WINAPI*)(PREFERRED_APP_MODE mode);
 
 //
 // LLWindowWin32
@@ -4434,7 +4434,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 
 static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_length, S32 *offset)
 {
-    static const S32 CONTEXT_EXCESS = 30;   // This value is by experiences.
+    static constexpr S32 CONTEXT_EXCESS = 30;   // This value is by experiences.
 
     const S32 e = llmin((S32) wtext.length(), focus + focus_length + CONTEXT_EXCESS);
     S32 end = focus + focus_length;

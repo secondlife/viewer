@@ -55,7 +55,7 @@
 #include "lltexteditor.h"
 #include "lltextbox.h"
 
-static const S32 LINE_HEIGHT = 15;
+static constexpr S32 LINE_HEIGHT = 15;
 
 S32     LLView::sDepth = 0;
 bool    LLView::sDebugRects = false;
@@ -1298,7 +1298,7 @@ void LLView::dirtyRect()
 //Draw a box for debugging.
 void LLView::drawDebugRect()
 {
-    std::set<LLView*>::iterator preview_iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this); // figure out if it's a previewed element
+    auto preview_iter = std::ranges::find(sPreviewHighlightedElements, this); // figure out if it's a previewed element
 
     LLUI::pushMatrix();
     {
@@ -1762,7 +1762,7 @@ LLView* LLView::getRootView()
 
 LLView* LLView::findPrevSibling(LLView* child)
 {
-    child_list_t::iterator prev_it = std::find(mChildList.begin(), mChildList.end(), child);
+    auto prev_it = std::ranges::find(mChildList, child);
     if (prev_it != mChildList.end() && prev_it != mChildList.begin())
     {
         return *(--prev_it);
@@ -1772,7 +1772,7 @@ LLView* LLView::findPrevSibling(LLView* child)
 
 LLView* LLView::findNextSibling(LLView* child)
 {
-    child_list_t::iterator next_it = std::find(mChildList.begin(), mChildList.end(), child);
+    auto next_it = std::ranges::find(mChildList, child);
     if (next_it != mChildList.end())
     {
         next_it++;

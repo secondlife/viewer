@@ -48,14 +48,14 @@
 #include "llavatarrendernotifier.h"
 
 // when change exceeds this ration, notification is shown
-static const F32 RENDER_ALLOWED_CHANGE_PCT = 0.1;
+static constexpr F32 RENDER_ALLOWED_CHANGE_PCT = 0.1;
 // wait seconds before processing over limit updates after last complexity change
-static const U32 OVER_LIMIT_UPDATE_DELAY = 70;
+static constexpr U32 OVER_LIMIT_UPDATE_DELAY = 70;
 
-static const U32 WARN_HUD_OBJECTS_LIMIT = 1000;
-static const U32 WARN_HUD_TEXTURES_LIMIT = 200;
-static const U32 WARN_HUD_OVERSIZED_TEXTURES_LIMIT = 6;
-static const U32 WARN_HUD_TEXTURE_MEMORY_LIMIT = 32000000; // in bytes
+static constexpr U32 WARN_HUD_OBJECTS_LIMIT = 1000;
+static constexpr U32 WARN_HUD_TEXTURES_LIMIT = 200;
+static constexpr U32 WARN_HUD_OVERSIZED_TEXTURES_LIMIT = 6;
+static constexpr U32 WARN_HUD_TEXTURE_MEMORY_LIMIT = 32000000; // in bytes
 
 
 LLAvatarRenderNotifier::LLAvatarRenderNotifier() :

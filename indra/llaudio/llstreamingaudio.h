@@ -34,7 +34,7 @@
 class LLStreamingAudioInterface
 {
  public:
-    virtual ~LLStreamingAudioInterface() {}
+    virtual ~LLStreamingAudioInterface() = default;
 
     virtual void start(const std::string& url) = 0;
     virtual void stop() = 0;

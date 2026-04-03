@@ -222,7 +222,7 @@ public:
                                    EAcceptance* accept,
                                    std::string& tooltip_msg);
 
-    static const int RANK_NONE = -1;
+    static constexpr int RANK_NONE = -1;
     bool addCommand(const LLCommandId& commandId, int rank = RANK_NONE);
     int  removeCommand(const LLCommandId& commandId);       // Returns the rank the removed command was at, RANK_NONE if not found
     bool hasCommand(const LLCommandId& commandId) const;    // is this command bound to a button in this toolbar

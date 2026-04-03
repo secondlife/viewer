@@ -69,7 +69,7 @@ namespace LLTextValidate
 
         operator bool() const { return mImpl; }
 
-        static const U32 SHOW_LAST_ERROR_TIMEOUT_SEC = 30;
+        static constexpr U32 SHOW_LAST_ERROR_TIMEOUT_SEC = 30;
         void showLastErrorUsingTimeout(U32 timeout = SHOW_LAST_ERROR_TIMEOUT_SEC);
 
     private:

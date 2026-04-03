@@ -373,15 +373,15 @@ void HttpCoroHandler::buildStatusEntry(LLCore::HttpResponse *response, LLCore::H
 
     if (hdrs)
     {
-        for (LLCore::HttpHeaders::iterator it = hdrs->begin(); it != hdrs->end(); ++it)
+        for (const auto& [hdr_name, hdr_value] : *hdrs)
         {
-            if (!(*it).second.empty())
+            if (!hdr_value.empty())
             {
-                httpHeaders[(*it).first] = (*it).second;
+                httpHeaders[hdr_name] = hdr_value;
             }
             else
             {
-                httpHeaders[(*it).first] = static_cast<LLSD::Boolean>(true);
+                httpHeaders[hdr_name] = static_cast<LLSD::Boolean>(true);
             }
         }
     }

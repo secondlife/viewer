@@ -59,12 +59,12 @@ namespace llwebrtc
 class LLWebRTCLogCallback
 {
 public:
-    typedef enum {
+    enum LogLevel {
         LOG_LEVEL_VERBOSE = 0,
         LOG_LEVEL_INFO,
         LOG_LEVEL_WARNING,
         LOG_LEVEL_ERROR
-    } LogLevel;
+    };
 
     virtual void LogMessage(LogLevel level, const std::string& message) = 0;
 };
@@ -100,7 +100,7 @@ class LLWebRTCVoiceDevice
     };
 };
 
-typedef std::vector<LLWebRTCVoiceDevice> LLWebRTCVoiceDeviceList;
+using LLWebRTCVoiceDeviceList = std::vector<LLWebRTCVoiceDevice>;
 
 
 // The LLWebRTCDeviceObserver should be implemented by the viewer
@@ -132,13 +132,13 @@ class LLWebRTCDeviceInterface
         // on the APM which would require setting config on the APM.
         // We should pipe the various values through
         // later.
-        typedef enum {
+        enum ENoiseSuppressionLevel {
             NOISE_SUPPRESSION_LEVEL_NONE = 0,
             NOISE_SUPPRESSION_LEVEL_LOW,
             NOISE_SUPPRESSION_LEVEL_MODERATE,
             NOISE_SUPPRESSION_LEVEL_HIGH,
             NOISE_SUPPRESSION_LEVEL_VERY_HIGH
-        } ENoiseSuppressionLevel;
+        };
         ENoiseSuppressionLevel mNoiseSuppressionLevel { NOISE_SUPPRESSION_LEVEL_VERY_HIGH };
     };
 
@@ -210,11 +210,11 @@ class LLWebRTCSignalingObserver
 {
   public:
 
-    typedef enum e_ice_gathering_state {
+    enum EIceGatheringState {
         ICE_GATHERING_NEW,
         ICE_GATHERING_GATHERING,
         ICE_GATHERING_COMPLETE
-    } EIceGatheringState;
+    };
 
     // Called when ICE gathering states have changed.
     // This may be called at any time, as ICE gathering

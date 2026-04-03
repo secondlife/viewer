@@ -141,7 +141,7 @@ public:
      * @brief The buffer base class should have no responsibilities
      * other than an interface.
      */
-    virtual ~LLBuffer() {}
+    virtual ~LLBuffer() = default;
 
     /**
      * @brief Generate a segment for this buffer.

@@ -43,9 +43,9 @@
 const std::string CONTEXT_REMOTE_HOST("remote-host");
 const std::string CONTEXT_REMOTE_PORT("remote-port");
 
-static const S32 LL_DEFAULT_LISTEN_BACKLOG = 10;
-static const S32 LL_SEND_BUFFER_SIZE = 40000;
-static const S32 LL_RECV_BUFFER_SIZE = 40000;
+static constexpr S32 LL_DEFAULT_LISTEN_BACKLOG = 10;
+static constexpr S32 LL_SEND_BUFFER_SIZE = 40000;
+static constexpr S32 LL_RECV_BUFFER_SIZE = 40000;
 //static const U16 LL_PORT_DISCOVERY_RANGE_MIN = 13000;
 //static const U16 LL_PORT_DISCOVERY_RANGE_MAX = 13050;
 

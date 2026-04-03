@@ -87,8 +87,8 @@ static const glm::mat4 coord_system_rotationxy(
     0.f, 0.f, 0.f, 1.f
 );
 
-static const S32 VERTEX_SPLIT_SAFETY_MARGIN = 3 * 3 + 1; // 10 vertices: 3 complete triangles plus remapping overhead
-static const S32 VERTEX_LIMIT = USHRT_MAX - VERTEX_SPLIT_SAFETY_MARGIN;
+static constexpr S32 VERTEX_SPLIT_SAFETY_MARGIN = 3 * 3 + 1; // 10 vertices: 3 complete triangles plus remapping overhead
+static constexpr S32 VERTEX_LIMIT = USHRT_MAX - VERTEX_SPLIT_SAFETY_MARGIN;
 
 LLGLTFLoader::LLGLTFLoader(std::string                filename,
     S32                                               lod,

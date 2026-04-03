@@ -128,8 +128,8 @@ enum EStepType
 class LLGestureStep
 {
 public:
-    LLGestureStep() {}
-    virtual ~LLGestureStep() {}
+    LLGestureStep() = default;
+    virtual ~LLGestureStep() = default;
 
     virtual EStepType getType() = 0;
 

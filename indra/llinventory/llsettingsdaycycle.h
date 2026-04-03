@@ -35,14 +35,14 @@ class LLSettingsSky;
 
 // These are alias for LLSettingsWater::ptr_t and LLSettingsSky::ptr_t respectively.
 // Here for definitions only.
-typedef PTR_NAMESPACE::shared_ptr<LLSettingsWater> LLSettingsWaterPtr_t;
-typedef PTR_NAMESPACE::shared_ptr<LLSettingsSky> LLSettingsSkyPtr_t;
+using LLSettingsWaterPtr_t = PTR_NAMESPACE::shared_ptr<LLSettingsWater>;
+using LLSettingsSkyPtr_t = PTR_NAMESPACE::shared_ptr<LLSettingsSky>;
 
 class LLSettingsDay : public LLSettingsBase
 {
 public:
     // 32-bit as LLSD only supports that width at present
-    typedef S32Seconds Seconds;
+    using Seconds = S32Seconds;
 
     static const std::string    SETTING_KEYID;
     static const std::string    SETTING_KEYNAME;
@@ -68,16 +68,16 @@ public:
 
     static const LLUUID DEFAULT_ASSET_ID;
 
-    typedef std::map<LLSettingsBase::TrackPosition, LLSettingsBase::ptr_t>  CycleTrack_t;
-    typedef std::vector<CycleTrack_t>                                       CycleList_t;
-    typedef PTR_NAMESPACE::shared_ptr<LLSettingsDay>                        ptr_t;
-    typedef PTR_NAMESPACE::weak_ptr<LLSettingsDay>                          wptr_t;
-    typedef std::vector<LLSettingsBase::TrackPosition>                      KeyframeList_t;
-    typedef std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator>       TrackBound_t;
+    using CycleTrack_t = std::map<LLSettingsBase::TrackPosition, LLSettingsBase::ptr_t>;
+    using CycleList_t = std::vector<CycleTrack_t>;
+    using ptr_t = PTR_NAMESPACE::shared_ptr<LLSettingsDay>;
+    using wptr_t = PTR_NAMESPACE::weak_ptr<LLSettingsDay>;
+    using KeyframeList_t = std::vector<LLSettingsBase::TrackPosition>;
+    using TrackBound_t = std::pair<CycleTrack_t::iterator, CycleTrack_t::iterator>;
 
     //---------------------------------------------------------------------
     LLSettingsDay(const LLSD &data);
-    virtual ~LLSettingsDay() { };
+    virtual ~LLSettingsDay() = default;
 
     bool                        initialize(bool validate_frames = false);
 

@@ -963,7 +963,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             static LLCachedControl<std::string> loglevel(gSavedSettings, "VivoxDebugLevel");
             static LLCachedControl<std::string> log_folder(gSavedSettings, "VivoxLogDirectory");
             static LLCachedControl<std::string> shutdown_timeout(gSavedSettings, "VivoxShutdownTimeout");
-            static const U32 portrange = 100;
+            static constexpr U32 portrange = 100;
             static U32 portoffset = 0;
             U32 port = 0;
 

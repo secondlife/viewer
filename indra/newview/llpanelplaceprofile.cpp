@@ -245,10 +245,10 @@ void LLPanelPlaceProfile::setInfoType(EInfoType type)
         const S32 SEARCH_DESC_HEIGHT = 150;
 
         // Remember original geometry (once).
-        static const S32 sOrigDescVPad = getChildView("owner_label")->getRect().mBottom - mDescEditor->getRect().mTop;
-        static const S32 sOrigDescHeight = mDescEditor->getRect().getHeight();
-        static const S32 sOrigMRIconVPad = mDescEditor->getRect().mBottom - mMaturityRatingIcon->getRect().mTop;
-        static const S32 sOrigMRTextVPad = mDescEditor->getRect().mBottom - mMaturityRatingText->getRect().mTop;
+        static constexpr S32 sOrigDescVPad = getChildView("owner_label")->getRect().mBottom - mDescEditor->getRect().mTop;
+        static constexpr S32 sOrigDescHeight = mDescEditor->getRect().getHeight();
+        static constexpr S32 sOrigMRIconVPad = mDescEditor->getRect().mBottom - mMaturityRatingIcon->getRect().mTop;
+        static constexpr S32 sOrigMRTextVPad = mDescEditor->getRect().mBottom - mMaturityRatingText->getRect().mTop;
 
         // Resize the description.
         const S32 desc_height = is_info_type_agent ? sOrigDescHeight : SEARCH_DESC_HEIGHT;

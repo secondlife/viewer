@@ -860,8 +860,8 @@ public:
     virtual bool isAnimatedObject() const;
 
     // Flags for createObject
-    static const S32 CO_FLAG_CONTROL_AVATAR = 1 << 0;
-    static const S32 CO_FLAG_UI_AVATAR = 1 << 1;
+    static constexpr S32 CO_FLAG_CONTROL_AVATAR = 1 << 0;
+    static constexpr S32 CO_FLAG_UI_AVATAR = 1 << 1;
 
 protected:
     LLPointer<LLControlAvatar> mControlAvatar;

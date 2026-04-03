@@ -26,6 +26,7 @@
 
 #include "linden_common.h"
 #include "lluiusage.h"
+#include <algorithm>
 #include <boost/algorithm/string.hpp>
 
 LLUIUsage::LLUIUsage()
@@ -41,8 +42,8 @@ std::string LLUIUsage::sanitized(const std::string& s)
 {
     // Remove characters that make the ViewerStats db unhappy
     std::string result(s);
-    std::replace(result.begin(), result.end(), '.', '_');
-    std::replace(result.begin(), result.end(), ' ', '_');
+    std::ranges::replace(result, '.', '_');
+    std::ranges::replace(result, ' ', '_');
     return result;
 }
 
@@ -114,21 +115,21 @@ void LLUIUsage::logPanel(const std::string& p)
 LLSD LLUIUsage::asLLSD() const
 {
     LLSD result;
-    for (auto const& it : mCommandCounts)
+    for (const auto& [command, count] : mCommandCounts)
     {
-        result["commands"][it.first] = LLSD::Integer(it.second);
+        result["commands"][command] = LLSD::Integer(count);
     }
-    for (auto const& it : mControlCounts)
+    for (const auto& [control, count] : mControlCounts)
     {
-        setLLSDPath(result["controls"], it.first, 2, LLSD::Integer(it.second));
+        setLLSDPath(result["controls"], control, 2, LLSD::Integer(count));
     }
-    for (auto const& it : mFloaterCounts)
+    for (const auto& [floater, count] : mFloaterCounts)
     {
-        result["floaters"][it.first] = LLSD::Integer(it.second);
+        result["floaters"][floater] = LLSD::Integer(count);
     }
-    for (auto const& it : mPanelCounts)
+    for (const auto& [panel, count] : mPanelCounts)
     {
-        result["panels"][it.first] = LLSD::Integer(it.second);
+        result["panels"][panel] = LLSD::Integer(count);
     }
     return result;
 }

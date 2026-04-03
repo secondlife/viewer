@@ -3794,14 +3794,14 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
     if (mNameText)
     {
         F32 water_height = getRegion()->getWaterHeight();
-        static const F32 WATER_HEIGHT_ABOVE_DELTA = 0.25;
+        static constexpr F32 WATER_HEIGHT_ABOVE_DELTA = 0.25;
         if (name_position[VZ] < water_height + WATER_HEIGHT_ABOVE_DELTA)
         {
             F32 camera_height = LLViewerCamera::getInstance()->getOrigin()[VZ];
             if (camera_height >= water_height)
             {
                 F32 name_world_height = mNameText->getWorldHeight();
-                static const F32 WATER_HEIGHT_BELOW_DELTA = 0.5;
+                static constexpr F32 WATER_HEIGHT_BELOW_DELTA = 0.5;
                 if (name_position[VZ] + name_world_height > water_height - WATER_HEIGHT_BELOW_DELTA)
                 {
                     name_position[VZ] = water_height + WATER_HEIGHT_ABOVE_DELTA;
@@ -5775,7 +5775,7 @@ const S32 MAX_TEXTURE_UPDATE_INTERVAL = 64 ; //need to call updateTextures() at 
 const S32 MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL = S32_MAX ; //frames
 void LLVOAvatar::checkTextureLoading()
 {
-    static const F32 MAX_INVISIBLE_WAITING_TIME = 15.f ; //seconds
+    static constexpr F32 MAX_INVISIBLE_WAITING_TIME = 15.f ; //seconds
 
     bool pause = !isVisible() ;
     if(!pause)
@@ -5832,7 +5832,7 @@ void LLVOAvatar::checkTextureLoading()
             }
             else//unpause
             {
-                static const F32 START_AREA = 100.f ;
+                static constexpr F32 START_AREA = 100.f ;
 
                 tex->unpauseLoadedCallbacks(&mCallbackTextureList) ;
                 tex->addTextureStats(START_AREA); //jump start the fetching again

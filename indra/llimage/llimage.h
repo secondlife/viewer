@@ -76,7 +76,7 @@ class LLImageRaw;
 class LLColor4U;
 class LLColor3;
 
-typedef enum e_image_codec
+enum EImageCodec
 {
     IMG_CODEC_INVALID  = 0,
     IMG_CODEC_RGB  = 1,
@@ -87,7 +87,7 @@ typedef enum e_image_codec
     IMG_CODEC_DXT  = 6,
     IMG_CODEC_PNG  = 7,
     IMG_CODEC_EOF  = 8
-} EImageCodec;
+};
 
 //============================================================================
 // library initialization class

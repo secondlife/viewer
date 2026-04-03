@@ -74,7 +74,7 @@ public:
 
         ManipulatorHandle(LLVector3 pos, EManipPart id, EScaleManipulatorType type):mPosition(pos), mManipID(id), mType(type){}
     };
-    static const S32 NUM_MANIPULATORS = 14;
+    static constexpr S32 NUM_MANIPULATORS = 14;
 
     LLManipScale( LLToolComposite* composite );
     ~LLManipScale();

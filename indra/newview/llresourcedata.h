@@ -38,7 +38,7 @@ struct LLResourceData
     U32 mNextOwnerPerm;
     S32 mExpectedUploadCost;
     void *mUserData;
-    static const S8 INVALID_LOCATION = -2;
+    static constexpr S8 INVALID_LOCATION = -2;
 };
 
 #endif

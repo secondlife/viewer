@@ -2453,7 +2453,7 @@ F32 LLFace::adjustPixelArea(F32 importance, F32 pixel_area)
     {
         if(importance < LEAST_IMPORTANCE) //if the face is not important, do not load hi-res.
         {
-            static const F32 MAX_LEAST_IMPORTANCE_IMAGE_SIZE = 128.0f * 128.0f ;
+            static constexpr F32 MAX_LEAST_IMPORTANCE_IMAGE_SIZE = 128.0f * 128.0f ;
             pixel_area = llmin(pixel_area * 0.5f, MAX_LEAST_IMPORTANCE_IMAGE_SIZE) ;
         }
         else if(pixel_area > LLViewerTexture::sMinLargeImageSize) //if is large image, shrink face_area by considering the partial overlapping.

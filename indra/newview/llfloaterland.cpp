@@ -93,8 +93,8 @@ static std::string OWNER_GROUP      = "2";
 static std::string MATURITY         = "[MATURITY]";
 
 // constants used in callbacks below - syntactic sugar.
-static const bool BUY_GROUP_LAND = true;
-static const bool BUY_PERSONAL_LAND = false;
+static constexpr bool BUY_GROUP_LAND = true;
+static constexpr bool BUY_PERSONAL_LAND = false;
 LLPointer<LLParcelSelection> LLPanelLandGeneral::sSelectionForBuyPass = NULL;
 
 // Statics

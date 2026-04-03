@@ -61,7 +61,7 @@ bool LLSpellChecker::checkSpelling(const std::string& word) const
     {
         std::string word_lower(word);
         LLStringUtil::toLower(word_lower);
-        return (mIgnoreList.end() != std::find(mIgnoreList.begin(), mIgnoreList.end(), word_lower));
+        return (mIgnoreList.end() != std::ranges::find(mIgnoreList, word_lower));
     }
     return false;
 }
@@ -186,7 +186,7 @@ void LLSpellChecker::addToIgnoreList(const std::string& word)
 {
     std::string word_lower(word);
     LLStringUtil::toLower(word_lower);
-    if (mIgnoreList.end() == std::find(mIgnoreList.begin(), mIgnoreList.end(), word_lower))
+    if (mIgnoreList.end() == std::ranges::find(mIgnoreList, word_lower))
     {
         mIgnoreList.push_back(word_lower);
         addToDictFile(getDictionaryUserPath() + DICT_FILE_IGNORE, word_lower);
@@ -239,7 +239,7 @@ bool LLSpellChecker::isActiveDictionary(const std::string& dict_language) const
 {
     return
         (mDictLanguage == dict_language) ||
-        (mDictSecondary.end() != std::find(mDictSecondary.begin(), mDictSecondary.end(), dict_language));
+        (mDictSecondary.end() != std::ranges::find(mDictSecondary, dict_language));
 }
 
 void LLSpellChecker::setSecondaryDictionaries(dict_list_t dict_list)

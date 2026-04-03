@@ -81,7 +81,7 @@ private:
     bool                    mUseLocalTextureAlphaOnly; // Ignore RGB channels from the input texture.  Use alpha as a mask
     bool                    mIsVisibilityMask;
 
-    typedef std::vector< std::pair< std::string,bool > > morph_name_list_t;
+    using morph_name_list_t = std::vector< std::pair< std::string,bool > >;
     morph_name_list_t           mMorphNameList;
     param_color_info_list_t     mParamColorInfoList;
     param_alpha_info_list_t     mParamAlphaInfoList;
@@ -181,7 +181,7 @@ LLTexLayerSetInfo::LLTexLayerSetInfo() :
 
 LLTexLayerSetInfo::~LLTexLayerSetInfo( )
 {
-    std::for_each(mLayerInfoList.begin(), mLayerInfoList.end(), DeletePointer());
+    std::ranges::for_each(mLayerInfoList, DeletePointer());
     mLayerInfoList.clear();
 }
 
@@ -266,10 +266,10 @@ LLTexLayerSet::LLTexLayerSet(LLAvatarAppearance* const appearance) :
 LLTexLayerSet::~LLTexLayerSet()
 {
     deleteCaches();
-    std::for_each(mLayerList.begin(), mLayerList.end(), DeletePointer());
+    std::ranges::for_each(mLayerList, DeletePointer());
     mLayerList.clear();
 
-    std::for_each(mMaskLayerList.begin(), mMaskLayerList.end(), DeletePointer());
+    std::ranges::for_each(mMaskLayerList, DeletePointer());
     mMaskLayerList.clear();
 }
 
@@ -573,9 +573,9 @@ LLTexLayerInfo::LLTexLayerInfo() :
 
 LLTexLayerInfo::~LLTexLayerInfo( )
 {
-    std::for_each(mParamColorInfoList.begin(), mParamColorInfoList.end(), DeletePointer());
+    std::ranges::for_each(mParamColorInfoList, DeletePointer());
     mParamColorInfoList.clear();
-    std::for_each(mParamAlphaInfoList.begin(), mParamAlphaInfoList.end(), DeletePointer());
+    std::ranges::for_each(mParamAlphaInfoList, DeletePointer());
     mParamAlphaInfoList.clear();
 }
 
@@ -1479,7 +1479,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
                 else
                 { // platforms with working drivers...
                     // We just want GL_ALPHA, but that isn't supported in OGL core profile 4.
-                    static const size_t TEMP_BYTES_PER_PIXEL = 4;
+                    static constexpr size_t TEMP_BYTES_PER_PIXEL = 4;
                     U8* temp_data = (U8*)ll_aligned_malloc_32(mem_size * TEMP_BYTES_PER_PIXEL);
                     if (!temp_data)
                     {

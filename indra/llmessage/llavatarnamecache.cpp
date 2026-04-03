@@ -354,8 +354,8 @@ void LLAvatarNameCache::requestNamesViaCapability()
     // http://pdp60.lindenlab.com:8000/agents/?ids=3941037e-78ab-45f0-b421-bd6e77c1804d&ids=0012809d-7d2d-4c24-9609-af1230a37715&ids=0019aaba-24af-4f0a-aa72-6457953cf7f0
     //
     // Apache can handle URLs of 4096 chars, but let's be conservative
-    static const U32 NAME_URL_MAX = 4096;
-    static const U32 NAME_URL_SEND_THRESHOLD = 3500;
+    static constexpr U32 NAME_URL_MAX = 4096;
+    static constexpr U32 NAME_URL_SEND_THRESHOLD = 3500;
 
     std::string url;
     url.reserve(NAME_URL_MAX);
@@ -442,7 +442,7 @@ void LLAvatarNameCache::legacyNameFetch(const LLUUID& agent_id,
 
 void LLAvatarNameCache::requestNamesViaLegacy()
 {
-    static const S32 MAX_REQUESTS = 100;
+    static constexpr S32 MAX_REQUESTS = 100;
     F64 now = LLFrameTimer::getTotalSeconds();
     std::string full_name;
     ask_queue_t::const_iterator it;
@@ -498,11 +498,8 @@ void LLAvatarNameCache::exportFile(std::ostream& ostr)
     LLSD agents;
     F64 max_unrefreshed = LLFrameTimer::getTotalSeconds() - MAX_UNREFRESHED_TIME;
     LL_INFOS("AvNameCache") << "LLAvatarNameCache at exit cache has " << mCache.size() << LL_ENDL;
-    cache_t::const_iterator it = mCache.begin();
-    for ( ; it != mCache.end(); ++it)
+    for (const auto& [agent_id, av_name] : mCache)
     {
-        const LLUUID& agent_id = it->first;
-        const LLAvatarName& av_name = it->second;
         // Do not write temporary or expired entries to the stored cache
         if (av_name.isValidName(max_unrefreshed))
         {

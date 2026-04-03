@@ -35,10 +35,10 @@
 //fir CGSize
 #include <CoreGraphics/CGGeometry.h>
 
-typedef std::vector<std::pair<int, bool> > segment_t;
+using segment_t = std::vector<std::pair<int, bool> >;
 
-typedef std::vector<int> segment_lengths;
-typedef std::deque<bool> segment_standouts;
+using segment_lengths = std::vector<int>;
+using segment_standouts = std::deque<bool>;
 
 struct attributedStringInfo {
     segment_lengths seg_lengths;
@@ -46,9 +46,9 @@ struct attributedStringInfo {
 };
 
 // This will actually hold an NSCursor*, but that type is only available in objective C.
-typedef void *CursorRef;
-typedef void *NSWindowRef;
-typedef void *GLViewRef;
+using CursorRef = void*;
+using NSWindowRef = void*;
+using GLViewRef = void*;
 
 
 struct NativeKeyEventData {
@@ -68,7 +68,7 @@ struct NativeKeyEventData {
     bool        mEventRepeat = false;
 };
 
-typedef const NativeKeyEventData * NSKeyEventRef;
+using NSKeyEventRef = const NativeKeyEventData *;
 
 // These are defined in llappviewermacosx.cpp.
 bool initViewer();

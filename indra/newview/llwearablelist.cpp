@@ -177,7 +177,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
         }
           default:
         {
-              static const S32 MAX_RETRIES = 3;
+              static constexpr S32 MAX_RETRIES = 3;
               if (data->mRetries < MAX_RETRIES)
               {
               // Try again

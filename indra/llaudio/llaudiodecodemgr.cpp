@@ -47,7 +47,7 @@
 
 extern LLAudioEngine *gAudiop;
 
-static const S32 WAV_HEADER_SIZE = 44;
+static constexpr S32 WAV_HEADER_SIZE = 44;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ public:
     {
     public:
         WriteResponder(LLVorbisDecodeState* decoder) : mDecoder(decoder) {}
-        ~WriteResponder() {}
+        ~WriteResponder() = default;
         void completed(S32 bytes)
         {
             mDecoder->ioComplete(bytes);
@@ -792,7 +792,7 @@ bool LLAudioDecodeMgr::addDecodeRequest(const LLUUID &uuid)
     {
         // Just put it on the decode queue it if it's not already in the queue
         LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " has local asset file already" << LL_ENDL;
-        if (std::find(mImpl->mDecodeQueue.begin(), mImpl->mDecodeQueue.end(), uuid) == mImpl->mDecodeQueue.end())
+        if (std::ranges::find(mImpl->mDecodeQueue, uuid) == mImpl->mDecodeQueue.end())
         {
             mImpl->mDecodeQueue.emplace_back(uuid);
         }

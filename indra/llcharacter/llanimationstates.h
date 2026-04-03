@@ -203,7 +203,7 @@ class LLAnimationLibrary
 private:
     LLStringTable mAnimStringTable;
 
-    typedef std::map<LLUUID, char *> anim_map_t;
+    using anim_map_t = std::map<LLUUID, char *>;
     anim_map_t mAnimMap;
 
 public:

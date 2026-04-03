@@ -46,8 +46,8 @@
 
 extern LLColor4U MAX_WATER_COLOR;
 
-static const U32 BASE_SIZE = 128;
-static const F32 TERRAIN_DECODE_PRIORITY = 2048.f * 2048.f;
+static constexpr U32 BASE_SIZE = 128;
+static constexpr F32 TERRAIN_DECODE_PRIORITY = 2048.f * 2048.f;
 
 namespace
 {

@@ -46,7 +46,7 @@ static const std::map<std::string, U32> DefaultPoolSizes{
     // *TODO: Rider for the moment keep AIS calls serialized otherwise the COF will tend to get out of sync.
 };
 
-static const U32 DEFAULT_POOL_SIZE = 5;
+static constexpr U32 DEFAULT_POOL_SIZE = 5;
 // SL-14399: When we teleport to a brand-new simulator, the coprocedure queue
 // gets absolutely slammed with fetch requests. Make this queue effectively
 // unlimited.

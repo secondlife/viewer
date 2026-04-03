@@ -151,14 +151,13 @@ void LLExperienceCache::exportFile(std::ostream& ostr) const
 {
     LLSD experiences;
 
-    cache_t::const_iterator it = mCache.begin();
-    for (; it != mCache.end(); ++it)
+    for (const auto& [exp_id, exp_data] : mCache)
     {
-        if (!it->second.has(EXPERIENCE_ID) || it->second[EXPERIENCE_ID].asUUID().isNull() ||
-            it->second.has("DoesNotExist") || (it->second.has(PROPERTIES) && it->second[PROPERTIES].asInteger() & PROPERTY_INVALID))
+        if (!exp_data.has(EXPERIENCE_ID) || exp_data[EXPERIENCE_ID].asUUID().isNull() ||
+            exp_data.has("DoesNotExist") || (exp_data.has(PROPERTIES) && exp_data[PROPERTIES].asInteger() & PROPERTY_INVALID))
             continue;
 
-        experiences[it->first.asString()] = it->second;
+        experiences[exp_id.asString()] = exp_data;
     }
 
     LLSD data;
@@ -535,9 +534,9 @@ void LLExperienceCache::get(const LLUUID& key, LLExperienceCache::ExperienceGetF
 
     signal_ptr signal = std::make_shared<callback_signal_t>();
 
-    std::pair<signal_map_t::iterator, bool> result = mSignalMap.insert(signal_map_t::value_type(key, signal));
-    if (!result.second)
-        signal = (*result.first).second;
+    auto [iter, inserted] = mSignalMap.insert(signal_map_t::value_type(key, signal));
+    if (!inserted)
+        signal = iter->second;
     signal->connect(slot);
 }
 

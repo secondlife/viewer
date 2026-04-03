@@ -429,7 +429,7 @@ namespace LLMarketplaceImport
 //
 // Interface class
 //
-static const F32 MARKET_IMPORTER_UPDATE_FREQUENCY = 1.0f;
+static constexpr F32 MARKET_IMPORTER_UPDATE_FREQUENCY = 1.0f;
 
 //static
 void LLMarketplaceInventoryImporter::update()

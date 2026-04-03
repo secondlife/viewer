@@ -38,7 +38,7 @@ class LLPluginClassMedia;
 class LLPluginClassMediaOwner
 {
 public:
-    typedef enum
+    enum EMediaEvent
     {
         MEDIA_EVENT_CONTENT_UPDATED,        // contents/dirty rect have updated
         MEDIA_EVENT_TIME_DURATION_UPDATED,  // current time and/or duration have updated
@@ -69,9 +69,9 @@ public:
 
         MEDIA_EVENT_LINK_HOVERED            // Got a "link hovered" event from the plugin
 
-    } EMediaEvent;
+    };
 
-    typedef enum
+    enum EMediaStatus
     {
         MEDIA_NONE,         // Uninitialized -- no useful state
         MEDIA_LOADING,      // loading or navigating
@@ -81,9 +81,9 @@ public:
         MEDIA_PAUSED,       // paused (only for time-based media)
         MEDIA_DONE          // finished playing (only for time-based media)
 
-    } EMediaStatus;
+    };
 
-    virtual ~LLPluginClassMediaOwner() {};
+    virtual ~LLPluginClassMediaOwner() = default;
     virtual void handleMediaEvent([[maybe_unused]] LLPluginClassMedia* self, [[maybe_unused]] EMediaEvent event) {};
 };
 

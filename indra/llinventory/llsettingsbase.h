@@ -59,9 +59,9 @@ class LLSettingsBase :
 protected:
     LOG_CLASS(LLSettingsBase);
 public:
-    typedef F64Seconds Seconds;
-    typedef F64        BlendFactor;
-    typedef F32        TrackPosition; // 32-bit as these are stored in LLSD as such
+    using Seconds = F64Seconds;
+    using BlendFactor = F64;
+    using TrackPosition = F32;
     static const TrackPosition INVALID_TRACKPOS;
     static const std::string DEFAULT_SETTINGS_NAME;
 
@@ -91,9 +91,9 @@ public:
     };
     // Contains settings' names (map key), related shader id-key and default
     // value for revert in case we need to reset shader (no need to search each time)
-    typedef std::map<std::string, DefaultParam>  parammapping_t;
+    using parammapping_t = std::map<std::string, DefaultParam>;
 
-    typedef PTR_NAMESPACE::shared_ptr<LLSettingsBase> ptr_t;
+    using ptr_t = PTR_NAMESPACE::shared_ptr<LLSettingsBase>;
 
     virtual ~LLSettingsBase() = default;
 
@@ -288,7 +288,7 @@ public:
     public:
         static const U32 VALIDATION_PARTIAL;
 
-        typedef std::function<bool(LLSD &, U32)> verify_pr;
+        using verify_pr = std::function<bool(LLSD &, U32)>;
 
         Validator(std::string name, bool required, LLSD::Type type, verify_pr verify = verify_pr(), LLSD defval = LLSD())  :
             mName(name),
@@ -322,7 +322,7 @@ public:
         verify_pr   mVerify;
         LLSD        mDefault;
     };
-    typedef std::vector<Validator> validation_list_t;
+    using validation_list_t = std::vector<Validator>;
 
     static LLSD settingValidation(LLSD &settings, validation_list_t &validations, bool partial = false);
 
@@ -351,7 +351,7 @@ protected:
     LLSettingsBase();
     LLSettingsBase(const LLSD setting);
 
-    typedef std::set<std::string>   stringset_t;
+    using stringset_t = std::set<std::string>;
 
     // combining settings maps where it can based on mix rate
     // @settings initial value (mix==0)
@@ -415,9 +415,9 @@ class LLSettingsBlender : public PTR_NAMESPACE::enable_shared_from_this<LLSettin
 {
     LOG_CLASS(LLSettingsBlender);
 public:
-    typedef PTR_NAMESPACE::shared_ptr<LLSettingsBlender>      ptr_t;
-    typedef boost::signals2::signal<void(const ptr_t )> finish_signal_t;
-    typedef boost::signals2::connection     connection_t;
+    using ptr_t = PTR_NAMESPACE::shared_ptr<LLSettingsBlender>;
+    using finish_signal_t = boost::signals2::signal<void(const ptr_t )>;
+    using connection_t = boost::signals2::connection;
 
     LLSettingsBlender(const LLSettingsBase::ptr_t &target,
             const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting) :

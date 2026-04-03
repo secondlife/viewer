@@ -40,7 +40,7 @@
 
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
-typedef void (*LLW32MsgCallback)(const MSG &msg);
+using LLW32MsgCallback = void(*)(const MSG &msg);
 
 class LLWindowWin32 : public LLWindow
 {

@@ -61,8 +61,8 @@ class HttpReplyQueue
 {
 
 public:
-    typedef std::shared_ptr<HttpOperation>    opPtr_t;
-    typedef std::shared_ptr<HttpReplyQueue>   ptr_t;
+    using opPtr_t = std::shared_ptr<HttpOperation>;
+    using ptr_t = std::shared_ptr<HttpReplyQueue>;
 
     HttpReplyQueue();
     virtual ~HttpReplyQueue();
@@ -72,7 +72,7 @@ public:
 
 public:
 
-    typedef std::vector< opPtr_t > OpContainer;
+    using OpContainer = std::vector< opPtr_t >;
 
     /// Insert an object at the back of the reply queue.
     ///

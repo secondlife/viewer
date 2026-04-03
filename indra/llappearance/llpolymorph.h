@@ -127,14 +127,14 @@ class LLPolyMorphTargetInfo : public LLViewerVisualParamInfo
     friend class LLPolyMorphTarget;
 public:
     LLPolyMorphTargetInfo();
-    /*virtual*/ ~LLPolyMorphTargetInfo() {};
+    /*virtual*/ ~LLPolyMorphTargetInfo() = default;
 
     /*virtual*/ bool parseXml(LLXmlTreeNode* node);
 
 protected:
     std::string     mMorphName;
     bool            mIsClothingMorph;
-    typedef std::vector<LLPolyVolumeMorphInfo> volume_info_list_t;
+    using volume_info_list_t = std::vector<LLPolyVolumeMorphInfo>;
     volume_info_list_t mVolumeInfoList;
 };
 
@@ -185,7 +185,7 @@ protected:
     // number of morph masks that haven't been generated, must be 0 before this morph is applied
     S32                             mNumMorphMasksPending;
 
-    typedef std::vector<LLPolyVolumeMorph> volume_list_t;
+    using volume_list_t = std::vector<LLPolyVolumeMorph>;
     volume_list_t                   mVolumeMorphs;
 
 };

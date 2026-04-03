@@ -43,7 +43,7 @@ namespace LLCore
 
         void resetStats();
 
-        typedef LLStatsAccumulator StatsAccumulator;
+        using StatsAccumulator = LLStatsAccumulator;
 
         void    recordDataDown(size_t bytes)
         {

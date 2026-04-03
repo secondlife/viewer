@@ -36,7 +36,7 @@
 #include "llviewercontrol.h"
 #include "stringize.h"
 
-static const F32 CHAT_THROTTLE_PERIOD = 1.f;
+static constexpr F32 CHAT_THROTTLE_PERIOD = 1.f;
 
 LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener() :
     LLEventAPI("LLChatBar", "LLChatBar listener to (e.g.) sendChat, etc.")

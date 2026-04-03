@@ -49,7 +49,7 @@ public:
         clear();
     };
 
-    ~LLReliablePacketParams() { };
+    ~LLReliablePacketParams() = default;
 
     void clear()
     {

@@ -59,7 +59,7 @@ public:
 
     // Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
     // So we need to compress heights into this range.
-    static const S32 ASSET_COUNT = 4;
+    static constexpr S32 ASSET_COUNT = 4;
 
     enum class Type
     {
@@ -115,7 +115,7 @@ class LLVLComposition : public LLTerrainMaterials, public LLViewerLayer
 public:
     // Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
     // So we need to compress heights into this range.
-    static const S32 ASSET_COUNT = 4;
+    static constexpr S32 ASSET_COUNT = 4;
     static const LLUUID (&getDefaultTextures())[ASSET_COUNT];
 
     LLVLComposition(LLSurface *surfacep, const U32 width, const F32 scale);

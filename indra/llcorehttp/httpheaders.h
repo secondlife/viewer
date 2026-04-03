@@ -77,15 +77,15 @@ namespace LLCore
 class HttpHeaders
 {
 public:
-    typedef std::pair<std::string, std::string> header_t;
-    typedef std::vector<header_t> container_t;
-    typedef container_t::iterator iterator;
-    typedef container_t::const_iterator const_iterator;
-    typedef container_t::reverse_iterator reverse_iterator;
-    typedef container_t::const_reverse_iterator const_reverse_iterator;
-    typedef container_t::value_type value_type;
-    typedef container_t::size_type size_type;
-    typedef std::shared_ptr<HttpHeaders> ptr_t;
+    using header_t = std::pair<std::string, std::string>;
+    using container_t = std::vector<header_t>;
+    using iterator = container_t::iterator;
+    using const_iterator = container_t::const_iterator;
+    using reverse_iterator = container_t::reverse_iterator;
+    using const_reverse_iterator = container_t::const_reverse_iterator;
+    using value_type = container_t::value_type;
+    using size_type = container_t::size_type;
+    using ptr_t = std::shared_ptr<HttpHeaders>;
 
 public:
     /// @post In addition to the instance, caller has a refcount

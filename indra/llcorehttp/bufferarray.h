@@ -73,7 +73,7 @@ public:
 
     BufferArray();
 
-    typedef LLCoreInt::IntrusivePtr<BufferArray> ptr_t;
+    using ptr_t = LLCoreInt::IntrusivePtr<BufferArray>;
 
 protected:
     virtual ~BufferArray();                     // Use release()
@@ -84,7 +84,7 @@ private:
 
 public:
     // Internal magic number, may be used by unit tests.
-    static const size_t BLOCK_ALLOC_SIZE = 65540;
+    static constexpr size_t BLOCK_ALLOC_SIZE = 65540;
 
     /// Appends the indicated data to the BufferArray
     /// modifying current position and total size.  New
@@ -127,7 +127,7 @@ protected:
 
 protected:
     class Block;
-    typedef std::vector<Block *> container_t;
+    using container_t = std::vector<Block *>;
 
     container_t         mBlocks;
     size_t              mLen;

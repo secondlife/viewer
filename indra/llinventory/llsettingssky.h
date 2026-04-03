@@ -106,11 +106,11 @@ public:
     static const F32 DEFAULT_AUTO_ADJUST_PROBE_AMBIANCE;
     static F32 sAutoAdjustProbeAmbiance;
 
-    typedef PTR_NAMESPACE::shared_ptr<LLSettingsSky> ptr_t;
+    using ptr_t = PTR_NAMESPACE::shared_ptr<LLSettingsSky>;
 
     //---------------------------------------------------------------------
     LLSettingsSky(const LLSD &data);
-    virtual ~LLSettingsSky() { };
+    virtual ~LLSettingsSky() = default;
 
     virtual ptr_t   buildClone() = 0;
 
@@ -449,7 +449,7 @@ private:
     mutable LLColor4    mTotalAmbient;
     mutable LLColor4    mHazeColor;
 
-    typedef std::map<std::string, S32> mapNameToUniformId_t;
+    using mapNameToUniformId_t = std::map<std::string, S32>;
 
     static mapNameToUniformId_t sNameToUniformMapping;
 };

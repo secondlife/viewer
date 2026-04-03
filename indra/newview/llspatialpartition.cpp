@@ -1558,7 +1558,7 @@ void pushVertsColorCoded(LLSpatialGroup* group)
         LLColor4::green6
     };
 
-    static const U32 col_count = LL_ARRAY_SIZE(colors);
+    static constexpr U32 col_count = LL_ARRAY_SIZE(colors);
 
     U32 col = 0;
 

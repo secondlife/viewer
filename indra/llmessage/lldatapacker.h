@@ -39,7 +39,7 @@ class LLUUID;
 class LLDataPacker
 {
 public:
-    virtual ~LLDataPacker() {}
+    virtual ~LLDataPacker() = default;
 
     // Not required to override, but error to call?
     virtual void        reset();

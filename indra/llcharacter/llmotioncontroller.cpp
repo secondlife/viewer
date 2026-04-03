@@ -1062,7 +1062,7 @@ void LLMotionController::dumpMotions()
             state_string += std::string("l");
         if (mLoadedMotions.find(motion) != mLoadedMotions.end())
             state_string += std::string("L");
-        if (std::find(mActiveMotions.begin(), mActiveMotions.end(), motion)!=mActiveMotions.end())
+        if (std::ranges::find(mActiveMotions, motion)!=mActiveMotions.end())
             state_string += std::string("A");
         if (mDeprecatedMotions.find(motion) != mDeprecatedMotions.end())
             state_string += std::string("D");

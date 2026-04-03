@@ -28,7 +28,7 @@
 #define LL_LLDIR_H
 
 // these numbers are read from settings_files.xml, so we need to be explicit
-typedef enum ELLPath
+enum ELLPath
 {
     LL_PATH_NONE = 0,
     LL_PATH_USER_SETTINGS = 1,
@@ -50,7 +50,7 @@ typedef enum ELLPath
     LL_PATH_FONTS = 18,
     LL_PATH_DUMP = 19,
     LL_PATH_LAST
-} ELLPath;
+};
 
 /// Directory operations
 class LLDir
@@ -228,7 +228,7 @@ class LLDir
 
 protected:
     // Does an add() or append() call need a directory delimiter?
-    typedef std::pair<bool, unsigned short> SepOff;
+    using SepOff = std::pair<bool, unsigned short>;
     SepOff needSep(const std::string& path, const std::string& name) const;
     // build mSearchSkinDirs without adding duplicates
     void addSearchSkinDir(const std::string& skindir);

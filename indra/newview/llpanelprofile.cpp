@@ -1583,7 +1583,7 @@ void LLPanelProfileSecondLife::onAvatarNameCacheSetName(const LLUUID& agent_id, 
     {
         // if the update time is more than a year in the future, it means updates have been blocked
         // show a more general message
-        static const S32 YEAR = 60*60*24*365;
+        static constexpr S32 YEAR = 60*60*24*365;
         if (now_secs + YEAR < av_name.mNextUpdate)
         {
             LLNotificationsUtil::add("SetDisplayNameBlocked");

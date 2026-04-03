@@ -101,7 +101,7 @@ void LLDiskCache::purge()
     boost::system::error_code ec;
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    typedef std::pair<std::time_t, std::pair<uintmax_t, std::string>> file_info_t;
+    using file_info_t = std::pair<std::time_t, std::pair<uintmax_t, std::string>>;
     std::vector<file_info_t> file_info;
 
 #if LL_WINDOWS
@@ -141,7 +141,7 @@ void LLDiskCache::purge()
         }
     }
 
-    std::sort(file_info.begin(), file_info.end(), [](file_info_t& x, file_info_t& y)
+    std::ranges::sort(file_info, [](file_info_t& x, file_info_t& y)
     {
         return x.first > y.first;
     });

@@ -76,7 +76,7 @@
 #include "llviewerwindow.h"
 
 // Constants
-static const F32 PLACE_INFO_UPDATE_INTERVAL = 3.0;
+static constexpr F32 PLACE_INFO_UPDATE_INTERVAL = 3.0;
 static const std::string AGENT_INFO_TYPE            = "agent";
 static const std::string CREATE_LANDMARK_INFO_TYPE  = "create_landmark";
 static const std::string CREATE_PICK_TYPE           = "create_pick";

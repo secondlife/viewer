@@ -1075,7 +1075,7 @@ void LLShaderMgr::persistShaderCacheMetadata()
     out["shaders"] = LLSD::emptyMap();
     LLSD &shaders = out["shaders"];
 
-    static const F32 LRU_TIME = (60.f * 60.f) * 24.f * 7.f; // 14 days
+    static constexpr F32 LRU_TIME = (60.f * 60.f) * 24.f * 7.f; // 14 days
     const F32 current_time = (F32)LLTimer::getTotalSeconds();
     for (auto it = mShaderBinaryCache.begin(); it != mShaderBinaryCache.end();)
     {

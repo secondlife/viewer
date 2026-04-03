@@ -4030,7 +4030,7 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 //static
 S32 LLVOVolume::getTextureCost(const LLViewerTexture* img)
 {
-    static const U32 ARC_TEXTURE_COST = 16; // multiplier for texture resolution - performance tested
+    static constexpr U32 ARC_TEXTURE_COST = 16; // multiplier for texture resolution - performance tested
 
     S32 texture_cost = 0;
     S8 type = img->getType();
@@ -4079,22 +4079,22 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
     U32 num_triangles = 0;
 
     // per-prim costs
-    static const U32 ARC_PARTICLE_COST = 1; // determined experimentally
-    static const U32 ARC_PARTICLE_MAX = 2048; // default values
-    static const U32 ARC_LIGHT_COST = 500; // static cost for light-producing prims
-    static const U32 ARC_MEDIA_FACE_COST = 1500; // static cost per media-enabled face
+    static constexpr U32 ARC_PARTICLE_COST = 1; // determined experimentally
+    static constexpr U32 ARC_PARTICLE_MAX = 2048; // default values
+    static constexpr U32 ARC_LIGHT_COST = 500; // static cost for light-producing prims
+    static constexpr U32 ARC_MEDIA_FACE_COST = 1500; // static cost per media-enabled face
 
     // per-prim multipliers
-    static const F32 ARC_GLOW_MULT = 1.5f; // tested based on performance
-    static const F32 ARC_BUMP_MULT = 1.25f; // tested based on performance
-    static const F32 ARC_FLEXI_MULT = 5; // tested based on performance
-    static const F32 ARC_SHINY_MULT = 1.6f; // tested based on performance
-    static const F32 ARC_INVISI_COST = 1.2f; // tested based on performance
-    static const F32 ARC_WEIGHTED_MESH = 1.2f; // tested based on performance
+    static constexpr F32 ARC_GLOW_MULT = 1.5f; // tested based on performance
+    static constexpr F32 ARC_BUMP_MULT = 1.25f; // tested based on performance
+    static constexpr F32 ARC_FLEXI_MULT = 5; // tested based on performance
+    static constexpr F32 ARC_SHINY_MULT = 1.6f; // tested based on performance
+    static constexpr F32 ARC_INVISI_COST = 1.2f; // tested based on performance
+    static constexpr F32 ARC_WEIGHTED_MESH = 1.2f; // tested based on performance
 
-    static const F32 ARC_PLANAR_COST = 1.0f; // tested based on performance to have negligible impact
-    static const F32 ARC_ANIM_TEX_COST = 4.f; // tested based on performance
-    static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
+    static constexpr F32 ARC_PLANAR_COST = 1.0f; // tested based on performance to have negligible impact
+    static constexpr F32 ARC_ANIM_TEX_COST = 4.f; // tested based on performance
+    static constexpr F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
 
     F32 shame = 0;
 
@@ -5021,7 +5021,7 @@ void LLRiggedVolume::update(
     }
 
     //build matrix palette
-    static const size_t kMaxJoints = LL_MAX_JOINTS_PER_MESH_OBJECT;
+    static constexpr size_t kMaxJoints = LL_MAX_JOINTS_PER_MESH_OBJECT;
 
     LLMatrix4a mat[kMaxJoints];
     U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);

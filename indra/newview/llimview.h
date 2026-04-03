@@ -574,7 +574,7 @@ protected:
     LLTimer mLifetimeTimer;
     // notification's lifetime in seconds
     S32     mLifetime;
-    static const S32 DEFAULT_LIFETIME = 5;
+    static constexpr S32 DEFAULT_LIFETIME = 5;
     virtual bool lifetimeHasExpired();
     virtual void onLifetimeExpired();
 

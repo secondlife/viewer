@@ -73,7 +73,7 @@ class LLVisualParamInfo
     friend class LLVisualParam;
 public:
     LLVisualParamInfo();
-    virtual ~LLVisualParamInfo() {};
+    virtual ~LLVisualParamInfo() = default;
 
     virtual bool parseXml(LLXmlTreeNode *node);
 
@@ -105,7 +105,7 @@ LL_ALIGN_PREFIX(16)
 class LLVisualParam
 {
 public:
-    typedef std::function<LLVisualParam*(S32)> visual_param_mapper;
+    using visual_param_mapper = std::function<LLVisualParam*(S32)>;
 
     LLVisualParam();
     virtual ~LLVisualParam();

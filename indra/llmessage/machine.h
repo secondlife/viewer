@@ -55,7 +55,7 @@ public:
     LLMachine(EMachineType machine_type, const LLHost &host)
         : mMachineType(machine_type) {mHost = host; mControlPort = 0;}
 
-    ~LLMachine()    {}
+    ~LLMachine() = default;
 
     // get functions
     EMachineType    getMachineType()    const { return mMachineType; }

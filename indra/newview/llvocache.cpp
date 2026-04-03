@@ -477,14 +477,14 @@ void LLVOCacheEntry::updateDebugSettings()
 
     LLMemory::updateMemoryInfo() ;
     U32 allocated_mem = LLMemory::getAllocatedMemKB().value();
-    static const F32 KB_to_MB = 1.f / 1024.f;
+    static constexpr F32 KB_to_MB = 1.f / 1024.f;
     U32 clamped_memory = (U32)llclamp(allocated_mem * KB_to_MB, (F32) low_mem_bound_MB, (F32) high_mem_bound_MB);
     const F32 adjust_range = (F32)(high_mem_bound_MB - low_mem_bound_MB);
     const F32 adjust_factor = (high_mem_bound_MB - clamped_memory) / adjust_range; // [0, 1]
 
     //min radius: all objects within this radius remain loaded in memory
     static LLCachedControl<F32> min_radius(gSavedSettings,"SceneLoadMinRadius");
-    static const F32 MIN_RADIUS = 1.0f;
+    static constexpr F32 MIN_RADIUS = 1.0f;
 
     F32 draw_radius = gAgentCamera.mDrawDistance;
     if (LLViewerTexture::isSystemMemoryCritical())
@@ -505,8 +505,8 @@ void LLVOCacheEntry::updateDebugSettings()
 
     //the number of frames invisible objects stay in memory
     static LLCachedControl<U32> inv_obj_time(gSavedSettings,"NonvisibleObjectsInMemoryTime");
-    static const U32 MIN_FRAMES = 10;
-    static const U32 MAX_FRAMES = 64;
+    static constexpr U32 MIN_FRAMES = 10;
+    static constexpr U32 MAX_FRAMES = 64;
     const U32 clamped_frames = inv_obj_time ? llclamp((U32) inv_obj_time, MIN_FRAMES, MAX_FRAMES) : MAX_FRAMES; // [10, 64], with zero => 64
     sMinFrameRange = MIN_FRAMES + (U32)((clamped_frames - MIN_FRAMES) * adjust_factor);
 }
@@ -1633,7 +1633,7 @@ void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCac
     LLSD entry_llsd;
     for (U32 i = 0; i < num_entries && !in.eof(); i++)
     {
-        static const U32 max_size = 4096;
+        static constexpr U32 max_size = 4096;
         bool success = LLSDSerialize::deserialize(entry_llsd, in, max_size);
         // check bool(in) this time since eof is not a failure condition here
         if(!success || !in)

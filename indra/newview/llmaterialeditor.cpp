@@ -73,21 +73,21 @@ const std::string MATERIAL_METALLIC_DEFAULT_NAME = "Metallic Roughness";
 const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
 
 // Dirty flags
-static const U32 MATERIAL_BASE_COLOR_DIRTY = 0x1 << 0;
-static const U32 MATERIAL_BASE_COLOR_TEX_DIRTY = 0x1 << 1;
+static constexpr U32 MATERIAL_BASE_COLOR_DIRTY = 0x1 << 0;
+static constexpr U32 MATERIAL_BASE_COLOR_TEX_DIRTY = 0x1 << 1;
 
-static const U32 MATERIAL_NORMAL_TEX_DIRTY = 0x1 << 2;
+static constexpr U32 MATERIAL_NORMAL_TEX_DIRTY = 0x1 << 2;
 
-static const U32 MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY = 0x1 << 3;
-static const U32 MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY = 0x1 << 4;
-static const U32 MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY = 0x1 << 5;
+static constexpr U32 MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY = 0x1 << 3;
+static constexpr U32 MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY = 0x1 << 4;
+static constexpr U32 MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY = 0x1 << 5;
 
-static const U32 MATERIAL_EMISIVE_COLOR_DIRTY = 0x1 << 6;
-static const U32 MATERIAL_EMISIVE_TEX_DIRTY = 0x1 << 7;
+static constexpr U32 MATERIAL_EMISIVE_COLOR_DIRTY = 0x1 << 6;
+static constexpr U32 MATERIAL_EMISIVE_TEX_DIRTY = 0x1 << 7;
 
-static const U32 MATERIAL_DOUBLE_SIDED_DIRTY = 0x1 << 8;
-static const U32 MATERIAL_ALPHA_MODE_DIRTY = 0x1 << 9;
-static const U32 MATERIAL_ALPHA_CUTOFF_DIRTY = 0x1 << 10;
+static constexpr U32 MATERIAL_DOUBLE_SIDED_DIRTY = 0x1 << 8;
+static constexpr U32 MATERIAL_ALPHA_MODE_DIRTY = 0x1 << 9;
+static constexpr U32 MATERIAL_ALPHA_CUTOFF_DIRTY = 0x1 << 10;
 
 LLUUID LLMaterialEditor::mOverrideObjectId;
 S32 LLMaterialEditor::mOverrideObjectTE = -1;

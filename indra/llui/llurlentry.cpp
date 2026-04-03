@@ -105,7 +105,7 @@ std::string LLUrlEntryBase::escapeUrl(const std::string &url) const
             "0123456789"
             "-._~!$?&()*+,@:;=/%#";
 
-        std::sort(no_escape_chars.begin(), no_escape_chars.end());
+        std::ranges::sort(no_escape_chars);
         initialized = true;
     }
     return LLURI::escape(url, no_escape_chars, true);
@@ -185,7 +185,7 @@ bool LLUrlEntryBase::isLinkDisabled() const
 bool LLUrlEntryBase::isWikiLinkCorrect(const std::string &labeled_url) const
 {
     LLWString wlabel = utf8str_to_wstring(getLabelFromWikiLink(labeled_url));
-    wlabel.erase(std::remove(wlabel.begin(), wlabel.end(), L'\u200B'), wlabel.end());
+    std::erase(wlabel, L'\u200B');
 
     // Unicode URL validation, see SL-15243
     std::replace_if(wlabel.begin(),

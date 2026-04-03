@@ -37,17 +37,17 @@ namespace LLCoreInt
 // MUTEX TYPES
 
 // unique mutex type
-typedef boost::mutex HttpMutex;
+using HttpMutex = boost::mutex;
 
 // CONDITION VARIABLES
 
 // standard condition variable
-typedef boost::condition_variable HttpConditionVariable;
+using HttpConditionVariable = boost::condition_variable;
 
 // LOCKS AND FENCES
 
 // scoped unique lock
-typedef boost::unique_lock<HttpMutex> HttpScopedLock;
+using HttpScopedLock = boost::unique_lock<HttpMutex>;
 
 }
 

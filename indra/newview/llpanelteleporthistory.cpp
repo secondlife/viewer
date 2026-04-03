@@ -50,7 +50,7 @@
 
 // Maximum number of items that can be added to a list in one pass.
 // Used to limit time spent for items list update per frame.
-static const U32 ADD_LIMIT = 50;
+static constexpr U32 ADD_LIMIT = 50;
 
 static const std::string COLLAPSED_BY_USER = "collapsed_by_user";
 

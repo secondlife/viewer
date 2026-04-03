@@ -165,10 +165,8 @@ LLSD& LLSettingsDay::getSettings()
     {
         LLSD trackout(LLSD::emptyArray());
 
-        for (CycleTrack_t::const_iterator itFrame = (*itTrack).begin(); itFrame != (*itTrack).end(); ++itFrame)
+        for (const auto& [frame, data] : *itTrack)
         {
-            F32 frame = (*itFrame).first;
-            LLSettingsBase::ptr_t data = (*itFrame).second;
             size_t datahash = data->getHash();
 
             std::stringstream keyname;
@@ -182,12 +180,12 @@ LLSD& LLSettingsDay::getSettings()
     mDaySettings[SETTING_TRACKS] = tracks;
 
     LLSD frames(LLSD::emptyMap());
-    for (std::map<std::string, LLSettingsBase::ptr_t>::iterator itFrame = in_use.begin(); itFrame != in_use.end(); ++itFrame)
+    for (const auto& [frame_name, frame_data] : in_use)
     {
-        LLSD framesettings = llsd_clone((*itFrame).second->getSettings(),
+        LLSD framesettings = llsd_clone(frame_data->getSettings(),
             LLSDMap("*", true)(SETTING_NAME, false)(SETTING_ID, false)(SETTING_HASH, false));
 
-        frames[(*itFrame).first] = framesettings;
+        frames[frame_name] = framesettings;
     }
     mDaySettings[SETTING_FRAMES] = frames;
 

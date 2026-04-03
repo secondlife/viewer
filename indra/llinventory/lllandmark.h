@@ -41,9 +41,9 @@ class LLLandmark
 {
 public:
     // for calling back interested parties when a region handle comes back.
-    typedef std::function<void(const LLUUID& region_id, const U64& region_handle)> region_handle_callback_t;
+    using region_handle_callback_t = std::function<void(const LLUUID& region_id, const U64& region_handle)>;
 
-    ~LLLandmark() {}
+    ~LLLandmark() = default;
 
     // returns true if the position is known.
     bool getGlobalPos(LLVector3d& pos);
@@ -99,9 +99,9 @@ private:
     };
 
     static std::pair<LLUUID, U64> mLocalRegion;
-    typedef std::map<LLUUID, CacheInfo> region_map_t;
+    using region_map_t = std::map<LLUUID, CacheInfo>;
     static region_map_t mRegions;
-    typedef std::multimap<LLUUID, region_handle_callback_t> region_callback_map_t;
+    using region_callback_map_t = std::multimap<LLUUID, region_handle_callback_t>;
     static region_callback_map_t sRegionCallbackMap;
 };
 

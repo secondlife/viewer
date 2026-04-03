@@ -42,12 +42,12 @@ public:
 
     // WMI can return multiple GPU drivers
     // specify which one to output
-    typedef enum {
+    enum EGPUVendor {
         GPU_INTEL,
         GPU_NVIDIA,
         GPU_AMD,
         GPU_ANY
-    } EGPUVendor;
+    };
     std::string getDriverVersionWMI(EGPUVendor vendor);
 
     LLSD getDisplayInfo();

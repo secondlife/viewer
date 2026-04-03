@@ -198,7 +198,7 @@ S32 LLChicletBar::processWidthDecreased(S32 delta_width)
 
 S32 LLChicletBar::getChicletPanelShrinkHeadroom() const
 {
-    static const S32 min_width = mChicletPanel->getMinWidth();
+    static constexpr S32 min_width = mChicletPanel->getMinWidth();
     const S32 cur_width = mChicletPanel->getParent()->getRect().getWidth();
 
     S32 shrink_headroom = cur_width - min_width;

@@ -83,7 +83,7 @@ LLHTTPNode::LLHTTPNode()
 // virtual
 LLHTTPNode::~LLHTTPNode()
 {
-    std::for_each(impl.mNamedChildren.begin(), impl.mNamedChildren.end(), DeletePairedPointer());
+    std::ranges::for_each(impl.mNamedChildren, DeletePairedPointer());
     impl.mNamedChildren.clear();
 
     delete impl.mWildcardChild;
@@ -355,11 +355,9 @@ LLSD LLHTTPNode::allNodePaths() const
 {
     LLSD result;
 
-    Impl::ChildMap::const_iterator i = impl.mNamedChildren.begin();
-    Impl::ChildMap::const_iterator end = impl.mNamedChildren.end();
-    for (; i != end; ++i)
+    for (const auto& [name, child] : impl.mNamedChildren)
     {
-        append_node_paths(result, i->first, i->second);
+        append_node_paths(result, name, child);
     }
 
     if (impl.mWildcardChild)
@@ -447,7 +445,7 @@ namespace
     }
 }
 
-LLHTTPRegistrar::NodeFactory::~NodeFactory() { }
+LLHTTPRegistrar::NodeFactory::~NodeFactory() = default;
 
 void LLHTTPRegistrar::registerFactory(
     const std::string& path, NodeFactory& factory)
@@ -459,14 +457,12 @@ void LLHTTPRegistrar::buildAllServices(LLHTTPNode& root)
 {
     const FactoryMap& map = factoryMap();
 
-    FactoryMap::const_iterator i = map.begin();
-    FactoryMap::const_iterator end = map.end();
-    for (; i != end; ++i)
+    for (const auto& [path, factory] : map)
     {
         LL_DEBUGS("AppInit") << "LLHTTPRegistrar::buildAllServices adding node for path "
-            << i->first << LL_ENDL;
+            << path << LL_ENDL;
 
-        root.addNode(i->first, i->second->build());
+        root.addNode(path, factory->build());
     }
 }
 

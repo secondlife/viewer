@@ -60,7 +60,7 @@ public:
     // as a minified JSON string
     static constexpr size_t MAX_ASSET_LENGTH = 2048;
     static const std::array<std::string, 2> ACCEPTED_ASSET_VERSIONS;
-    static bool isAcceptedVersion(const std::string& version) { return std::find(ACCEPTED_ASSET_VERSIONS.cbegin(), ACCEPTED_ASSET_VERSIONS.cend(), version) != ACCEPTED_ASSET_VERSIONS.cend(); }
+    static bool isAcceptedVersion(const std::string& version) { return std::ranges::find(ACCEPTED_ASSET_VERSIONS, version) != ACCEPTED_ASSET_VERSIONS.cend(); }
 
     struct TextureTransform
     {
@@ -68,8 +68,8 @@ public:
         LLVector2 mScale = { 1.f, 1.f };
         F32 mRotation = 0.f;
 
-        static const size_t PACK_SIZE = 8;
-        static const size_t PACK_TIGHT_SIZE = 5;
+        static constexpr size_t PACK_SIZE = 8;
+        static constexpr size_t PACK_TIGHT_SIZE = 5;
         using Pack = F32[PACK_SIZE];
         using PackTight = F32[PACK_TIGHT_SIZE];
         void getPacked(Pack& packed) const;
@@ -264,7 +264,7 @@ public:
     //       volumes.
     // See also LLPanelRegionTerrainInfo::validateMaterials
     // These fields are local to viewer and are a part of local bitmap support
-    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
+    using local_tex_map_t = std::map<LLUUID, LLUUID>;
     local_tex_map_t mTrackingIdToLocalTexture;
 
     // Used to store a digest of mTrackingIdToLocalTexture when the latter is

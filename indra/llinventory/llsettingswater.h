@@ -49,11 +49,11 @@ public:
 
     static const LLUUID DEFAULT_ASSET_ID;
 
-    typedef PTR_NAMESPACE::shared_ptr<LLSettingsWater> ptr_t;
+    using ptr_t = PTR_NAMESPACE::shared_ptr<LLSettingsWater>;
 
     //---------------------------------------------------------------------
     LLSettingsWater(const LLSD &data);
-    virtual ~LLSettingsWater() { };
+    virtual ~LLSettingsWater() = default;
 
     virtual ptr_t   buildClone() = 0;
 

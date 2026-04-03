@@ -38,7 +38,7 @@
  */
 class LLDockableFloater : public LLFloater
 {
-    static const U32 UNDOCK_LEAP_HEIGHT = 12;
+    static constexpr U32 UNDOCK_LEAP_HEIGHT = 12;
 
     static void init(LLDockableFloater* thiz);
 public:

@@ -996,7 +996,7 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
         else
         {
             // Find current selected item position in mItemPairs list
-            pairs_list_t::iterator sel_it = std::find(mItemPairs.begin(), mItemPairs.end(), cur_sel_pair);
+            auto sel_it = std::ranges::find(mItemPairs, cur_sel_pair);
 
             for (;++sel_it != mItemPairs.end();)
             {
@@ -1020,7 +1020,7 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
             else
             {
                 // If item already selected and no reset request than we should deselect last selected item.
-                select = (mSelectedItemPairs.end() == std::find(mSelectedItemPairs.begin(), mSelectedItemPairs.end(), to_sel_pair));
+                select = (mSelectedItemPairs.end() == std::ranges::find(mSelectedItemPairs, to_sel_pair));
             }
             // Select/Deselect next item
             selectItemPair(select ? to_sel_pair : cur_sel_pair, select);
@@ -1080,7 +1080,7 @@ bool LLFlatListView::isSelected(item_pair_t* item_pair) const
     llassert(item_pair);
 
     pairs_const_iterator_t it_end = mSelectedItemPairs.end();
-    return std::find(mSelectedItemPairs.begin(), it_end, item_pair) != it_end;
+    return std::ranges::find(mSelectedItemPairs.begin(), it_end, item_pair) != it_end;
 }
 
 bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
@@ -1290,7 +1290,7 @@ void LLFlatListView::detachItems(std::vector<LLPanel*>& detached_items)
         {
             for (auto detached_item : detached_items)
             {
-                auto found_pos = std::find_if(mItemPairs.begin(), mItemPairs.end(), [detached_item](auto item_pair) { return item_pair->first == detached_item; });
+                auto found_pos = std::ranges::find_if(mItemPairs, [detached_item](auto item_pair) { return item_pair->first == detached_item; });
                 if (found_pos != mItemPairs.end())
                 {
                     mItemPairs.erase(found_pos);

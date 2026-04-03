@@ -79,7 +79,7 @@ LLImageJ2C::LLImageJ2C() :  LLImageFormatted(IMG_CODEC_J2C),
 }
 
 // virtual
-LLImageJ2C::~LLImageJ2C() {}
+LLImageJ2C::~LLImageJ2C() = default;
 
 // virtual
 void LLImageJ2C::resetLastError()

@@ -53,7 +53,7 @@ namespace LLCore
 class HttpOpSetGet : public HttpOperation
 {
 public:
-    typedef std::shared_ptr<HttpOpSetGet> ptr_t;
+    using ptr_t = std::shared_ptr<HttpOpSetGet>;
 
     HttpOpSetGet();
 

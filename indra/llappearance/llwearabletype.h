@@ -109,7 +109,7 @@ private:
     {
     public:
         LLWearableDictionary(LLTranslationBridge::ptr_t& trans);
-        ~LLWearableDictionary() {}
+        ~LLWearableDictionary() = default;
     };
 
     LLWearableDictionary mDictionary;

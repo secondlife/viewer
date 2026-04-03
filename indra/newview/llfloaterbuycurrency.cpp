@@ -44,7 +44,7 @@
 #include "llwindow.h"
 #include "llappviewer.h"
 
-static const S32 MINIMUM_BALANCE_AMOUNT = 0;
+static constexpr S32 MINIMUM_BALANCE_AMOUNT = 0;
 
 class LLFloaterBuyCurrencyUI
 :   public LLFloater

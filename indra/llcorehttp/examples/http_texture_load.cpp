@@ -94,8 +94,8 @@ public:
         int             mOffset;
         int             mLength;
     };
-    typedef std::set<LLCore::HttpHandle> handle_set_t;
-    typedef std::vector<Spec> asset_list_t;
+    using handle_set_t = std::set<LLCore::HttpHandle>;
+    using asset_list_t = std::vector<Spec>;
 
 public:
     bool                        mVerbose;

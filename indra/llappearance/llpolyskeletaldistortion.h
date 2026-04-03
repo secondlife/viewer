@@ -69,12 +69,12 @@ class alignas(16) LLPolySkeletalDistortionInfo : public LLViewerVisualParamInfo
 public:
 
     LLPolySkeletalDistortionInfo();
-    /*virtual*/ ~LLPolySkeletalDistortionInfo() {};
+    /*virtual*/ ~LLPolySkeletalDistortionInfo() = default;
 
     /*virtual*/ bool parseXml(LLXmlTreeNode* node);
 
 protected:
-    typedef std::vector<LLPolySkeletalBoneInfo> bone_info_list_t;
+    using bone_info_list_t = std::vector<LLPolySkeletalBoneInfo>;
     bone_info_list_t mBoneInfoList;
 };
 
@@ -112,7 +112,7 @@ protected:
     LLPolySkeletalDistortion(const LLPolySkeletalDistortion& pOther);
 
     LL_ALIGN_16(LLVector4a mDefaultVec);
-    typedef std::map<LLJoint*, LLVector3> joint_vec_map_t;
+    using joint_vec_map_t = std::map<LLJoint*, LLVector3>;
     joint_vec_map_t mJointScales;
     joint_vec_map_t mJointOffsets;
     // Backlink only; don't make this an LLPointer.

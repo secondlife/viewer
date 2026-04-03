@@ -151,13 +151,10 @@ void LLGLTFMaterial::updateLocalTexDataDigest()
     mLocalTexDataDigest = 0;
     if (!mTrackingIdToLocalTexture.empty())
     {
-        for (local_tex_map_t::const_iterator
-                it = mTrackingIdToLocalTexture.begin(),
-                end = mTrackingIdToLocalTexture.end();
-             it != end; ++it)
+        for (const auto& [tracking_id, local_tex_id] : mTrackingIdToLocalTexture)
         {
-            mLocalTexDataDigest ^= it->first.getDigest64() ^
-                                   it->second.getDigest64();
+            mLocalTexDataDigest ^= tracking_id.getDigest64() ^
+                                   local_tex_id.getDigest64();
         }
     }
 }

@@ -70,10 +70,10 @@ struct CompareAttributes
 // Defines a simple node hierarchy for reading and writing task objects
 
 class LLXMLNode;
-typedef LLPointer<LLXMLNode> LLXMLNodePtr;
-typedef std::multimap<std::string, LLXMLNodePtr > LLXMLNodeList;
-typedef std::multimap<const LLStringTableEntry *, LLXMLNodePtr > LLXMLChildList;
-typedef std::map<const LLStringTableEntry *, LLXMLNodePtr, CompareAttributes> LLXMLAttribList;
+using LLXMLNodePtr = LLPointer<LLXMLNode>;
+using LLXMLNodeList = std::multimap<std::string, LLXMLNodePtr >;
+using LLXMLChildList = std::multimap<const LLStringTableEntry *, LLXMLNodePtr >;
+using LLXMLAttribList = std::map<const LLStringTableEntry *, LLXMLNodePtr, CompareAttributes>;
 
 class LLColor4;
 class LLColor4U;
@@ -89,7 +89,7 @@ struct LLXMLChildren : public LLThreadSafeRefCount
     LLXMLNodePtr head;          // Head of the double-linked list
     LLXMLNodePtr tail;          // Tail of the double-linked list
 };
-typedef LLPointer<LLXMLChildren> LLXMLChildrenPtr;
+using LLXMLChildrenPtr = LLPointer<LLXMLChildren>;
 
 class LLXMLNode : public LLThreadSafeRefCount
 {

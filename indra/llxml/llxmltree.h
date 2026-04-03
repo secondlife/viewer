@@ -170,18 +170,18 @@ private:
     void            dump( const std::string& prefix );
 
 protected:
-    typedef std::map<LLStdStringHandle, const std::string*> attribute_map_t;
+    using attribute_map_t = std::map<LLStdStringHandle, const std::string*>;
     attribute_map_t                     mAttributes;
 
 private:
     std::string                         mName;
     std::string                         mContents;
 
-    typedef std::vector<class LLXmlTreeNode *> children_t;
+    using children_t = std::vector<class LLXmlTreeNode *>;
     children_t                          mChildren;
     children_t::iterator                mChildrenIter;
 
-    typedef std::multimap<LLStdStringHandle, LLXmlTreeNode *> child_map_t;
+    using child_map_t = std::multimap<LLStdStringHandle, LLXmlTreeNode *>;
     child_map_t                         mChildMap;      // for fast name lookups
     child_map_t::iterator               mChildMapIter;
     child_map_t::iterator               mChildMapEndIter;

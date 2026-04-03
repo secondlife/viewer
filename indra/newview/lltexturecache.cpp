@@ -782,7 +782,7 @@ size_t LLTextureCache::update(F32 max_time_ms)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     static LLFrameTimer timer ;
-    static const F32 MAX_TIME_INTERVAL = 300.f ; //seconds.
+    static constexpr F32 MAX_TIME_INTERVAL = 300.f ; //seconds.
 
     size_t res;
     res = LLWorkerThread::update(max_time_ms);
@@ -1222,7 +1222,7 @@ void LLTextureCache::readEntryFromHeaderImmediately(S32& idx, Entry& entry)
 //update an existing entry time stamp, delay writing.
 void LLTextureCache::updateEntryTimeStamp(S32 idx, Entry& entry)
 {
-    static const U32 MAX_ENTRIES_WITHOUT_TIME_STAMP = (U32)(LLTextureCache::sCacheMaxEntries * 0.75f) ;
+    static constexpr U32 MAX_ENTRIES_WITHOUT_TIME_STAMP = (U32)(LLTextureCache::sCacheMaxEntries * 0.75f) ;
 
     if(mHeaderEntriesInfo.mEntries < MAX_ENTRIES_WITHOUT_TIME_STAMP)
     {
@@ -2155,7 +2155,7 @@ void LLTextureCache::openFastCache(bool first_time)
 
 void LLTextureCache::closeFastCache(bool forced)
 {
-    static const F32 timeout = 10.f ; //seconds
+    static constexpr F32 timeout = 10.f ; //seconds
 
     if(!mFastCachep)
     {

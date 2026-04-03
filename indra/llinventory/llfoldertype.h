@@ -118,8 +118,8 @@ public:
     static LLSD getTypeNames();
 
 protected:
-    LLFolderType() {}
-    ~LLFolderType() {}
+    LLFolderType() = default;
+    ~LLFolderType() = default;
 };
 
 #endif // LL_LLFOLDERTYPE_H

@@ -279,7 +279,7 @@ void LLJoint::addChild(LLJoint* joint)
 //--------------------------------------------------------------------
 void LLJoint::removeChild(LLJoint* joint)
 {
-    joints_t::iterator iter = std::find(mChildren.begin(), mChildren.end(), joint);
+    auto iter = std::ranges::find(mChildren, joint);
     if (iter != mChildren.end())
     {
         mChildren.erase(iter);
@@ -320,7 +320,7 @@ const LLVector3& LLJoint::getPosition()
 
 bool do_debug_joint(const std::string& name)
 {
-    if (std::find(LLJoint::s_debugJointNames.begin(), LLJoint::s_debugJointNames.end(),name) != LLJoint::s_debugJointNames.end())
+    if (std::ranges::find(LLJoint::s_debugJointNames, name) != LLJoint::s_debugJointNames.end())
     {
         return true;
     }

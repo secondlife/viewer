@@ -190,7 +190,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 
 LLBVHLoader::~LLBVHLoader()
 {
-    std::for_each(mJoints.begin(),mJoints.end(),DeletePointer());
+    std::ranges::for_each(mJoints, DeletePointer());
     mJoints.clear();
 }
 
@@ -582,7 +582,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
     error_text[127] = '\0';
 
     std::string str(buffer);
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep("\r\n");
     tokenizer tokens(str, sep);
     tokenizer::iterator iter = tokens.begin();

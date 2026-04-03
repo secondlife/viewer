@@ -249,7 +249,7 @@ void LLInventoryItemsList::refresh()
     case REFRESH_LIST_APPEND:
         {
             LL_PROFILE_ZONE_NAMED("items_refresh_append");
-            static const unsigned ADD_LIMIT = 25; // Note: affects perfomance
+            static constexpr unsigned ADD_LIMIT = 25; // Note: affects perfomance
 
             unsigned int nadded = 0;
 

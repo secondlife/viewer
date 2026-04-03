@@ -60,10 +60,10 @@ bool LLDrawPoolAlpha::sShowDebugAlpha = false;
 LLVector4 LLDrawPoolAlpha::sWaterPlane;
 
 // minimum alpha before discarding a fragment
-static const F32 MINIMUM_ALPHA = 0.004f; // ~ 1/255
+static constexpr F32 MINIMUM_ALPHA = 0.004f; // ~ 1/255
 
 // minimum alpha before discarding a fragment when rendering impostors
-static const F32 MINIMUM_IMPOSTOR_ALPHA = 0.1f;
+static constexpr F32 MINIMUM_IMPOSTOR_ALPHA = 0.1f;
 
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
         LLRenderPass(type), target_shader(NULL),

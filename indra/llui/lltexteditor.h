@@ -80,7 +80,7 @@ public:
     //
     static const llwchar FIRST_EMBEDDED_CHAR = 0x100000;
     static const llwchar LAST_EMBEDDED_CHAR =  0x10ffff;
-    static const S32 MAX_EMBEDDED_ITEMS = LAST_EMBEDDED_CHAR - FIRST_EMBEDDED_CHAR + 1;
+    static constexpr S32 MAX_EMBEDDED_ITEMS = LAST_EMBEDDED_CHAR - FIRST_EMBEDDED_CHAR + 1;
 
     virtual ~LLTextEditor();
 

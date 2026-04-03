@@ -98,7 +98,7 @@ private:
 
     LLPluginInstance *mInstance;
 
-    typedef std::map<std::string, LLPluginSharedMemory*> sharedMemoryRegionsType;
+    using sharedMemoryRegionsType = std::map<std::string, LLPluginSharedMemory*>;
     sharedMemoryRegionsType mSharedMemoryRegions;
 
     LLTimer mHeartbeat;

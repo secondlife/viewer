@@ -61,7 +61,7 @@ private:
     void operator=(const HttpRequestQueue&)   = delete;
 
 public:
-    typedef std::shared_ptr<HttpOperation> opPtr_t;
+    using opPtr_t = std::shared_ptr<HttpOperation>;
 
     static void init();
     static void term();
@@ -73,7 +73,7 @@ public:
         }
 
 public:
-    typedef std::vector<opPtr_t> OpContainer;
+    using OpContainer = std::vector<opPtr_t>;
 
     /// Insert an object at the back of the request queue.
     ///

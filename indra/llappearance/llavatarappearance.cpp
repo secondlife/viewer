@@ -70,7 +70,7 @@ public:
     LLAvatarBoneInfo() : mIsJoint(false) {}
     ~LLAvatarBoneInfo()
     {
-        std::for_each(mChildren.begin(), mChildren.end(), DeletePointer());
+        std::ranges::for_each(mChildren, DeletePointer());
         mChildren.clear();
     }
     bool parseXml(LLXmlTreeNode* node);
@@ -87,7 +87,7 @@ private:
     LLVector3 mRot;
     LLVector3 mScale;
     LLVector3 mPivot;
-    typedef std::vector<LLAvatarBoneInfo*> bones_t;
+    using bones_t = std::vector<LLAvatarBoneInfo*>;
     bones_t mChildren;
 };
 
@@ -103,7 +103,7 @@ public:
         mNumBones(0), mNumCollisionVolumes(0) {}
     ~LLAvatarSkeletonInfo()
     {
-        std::for_each(mBoneInfoList.begin(), mBoneInfoList.end(), DeletePointer());
+        std::ranges::for_each(mBoneInfoList, DeletePointer());
         mBoneInfoList.clear();
     }
     bool parseXml(LLXmlTreeNode* node);
@@ -111,7 +111,7 @@ public:
     S32 getNumCollisionVolumes() const { return mNumCollisionVolumes; }
 
 private:
-    typedef std::vector<LLAvatarBoneInfo*> bone_info_list_t;
+    using bone_info_list_t = std::vector<LLAvatarBoneInfo*>;
     static void getJointMatricesAndHierarhy(
         LLAvatarBoneInfo* bone_info,
         LLJointData& data,
@@ -135,26 +135,26 @@ LLAvatarAppearance::LLAvatarXmlInfo::LLAvatarXmlInfo()
 
 LLAvatarAppearance::LLAvatarXmlInfo::~LLAvatarXmlInfo()
 {
-    std::for_each(mMeshInfoList.begin(), mMeshInfoList.end(), DeletePointer());
+    std::ranges::for_each(mMeshInfoList, DeletePointer());
     mMeshInfoList.clear();
 
-    std::for_each(mSkeletalDistortionInfoList.begin(), mSkeletalDistortionInfoList.end(), DeletePointer());
+    std::ranges::for_each(mSkeletalDistortionInfoList, DeletePointer());
     mSkeletalDistortionInfoList.clear();
 
-    std::for_each(mAttachmentInfoList.begin(), mAttachmentInfoList.end(), DeletePointer());
+    std::ranges::for_each(mAttachmentInfoList, DeletePointer());
     mAttachmentInfoList.clear();
 
     delete_and_clear(mTexSkinColorInfo);
     delete_and_clear(mTexHairColorInfo);
     delete_and_clear(mTexEyeColorInfo);
 
-    std::for_each(mLayerInfoList.begin(), mLayerInfoList.end(), DeletePointer());
+    std::ranges::for_each(mLayerInfoList, DeletePointer());
     mLayerInfoList.clear();
 
-    std::for_each(mDriverInfoList.begin(), mDriverInfoList.end(), DeletePointer());
+    std::ranges::for_each(mDriverInfoList, DeletePointer());
     mDriverInfoList.clear();
 
-    std::for_each(mMorphMaskInfoList.begin(), mMorphMaskInfoList.end(), DeletePointer());
+    std::ranges::for_each(mMorphMaskInfoList, DeletePointer());
     mMorphMaskInfoList.clear();
 }
 
@@ -292,15 +292,15 @@ LLAvatarAppearance::~LLAvatarAppearance()
     clearSkeleton();
     delete_and_clear_array(mCollisionVolumes);
 
-    std::for_each(mPolyMeshes.begin(), mPolyMeshes.end(), DeletePairedPointer());
+    std::ranges::for_each(mPolyMeshes, DeletePairedPointer());
     mPolyMeshes.clear();
 
     for (LLAvatarJoint* joint : mMeshLOD)
     {
-        std::for_each(joint->mMeshParts.begin(), joint->mMeshParts.end(), DeletePointer());
+        std::ranges::for_each(joint->mMeshParts, DeletePointer());
         joint->mMeshParts.clear();
     }
-    std::for_each(mMeshLOD.begin(), mMeshLOD.end(), DeletePointer());
+    std::ranges::for_each(mMeshLOD, DeletePointer());
     mMeshLOD.clear();
 }
 
@@ -732,7 +732,7 @@ bool LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 //-----------------------------------------------------------------------------
 void LLAvatarAppearance::clearSkeleton()
 {
-    std::for_each(mSkeleton.begin(), mSkeleton.end(), DeletePointer());
+    std::ranges::for_each(mSkeleton, DeletePointer());
     mSkeleton.clear();
 }
 

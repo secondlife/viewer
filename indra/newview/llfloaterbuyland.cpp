@@ -76,7 +76,7 @@ public:
     /*virtual*/ void onClose(bool app_quitting);
 
     // Left padding for maturity rating icon.
-    static const S32 ICON_PAD = 2;
+    static constexpr S32 ICON_PAD = 2;
 
 private:
     class SelectionObserver : public LLParcelObserver

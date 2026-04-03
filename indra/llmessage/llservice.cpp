@@ -48,8 +48,8 @@ bool LLService::registerCreator(const std::string& name, creator_t fn)
     }
 
     creators_t::value_type vt(name, fn);
-    std::pair<creators_t::iterator, bool> rv = sCreatorFunctors.insert(vt);
-    return rv.second;
+    auto [iter, inserted] = sCreatorFunctors.insert(vt);
+    return inserted;
 
     // alternately...
     //std::string name_str(name);

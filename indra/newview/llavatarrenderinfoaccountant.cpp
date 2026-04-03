@@ -59,8 +59,8 @@ static  const std::string KEY_MESSAGE = "message";
 static  const std::string KEY_ERROR = "error";
 
 static const F32 SECS_BETWEEN_REGION_SCANS   =  5.f;        // Scan the region list every 5 seconds
-static const F32 SECS_BETWEEN_REGION_REQUEST = 15.0;        // Look for new avs every 15 seconds
-static const F32 SECS_BETWEEN_REGION_REPORTS = 60.0;        // Update each region every 60 seconds
+static constexpr F32 SECS_BETWEEN_REGION_REQUEST = 15.0;        // Look for new avs every 15 seconds
+static constexpr F32 SECS_BETWEEN_REGION_REPORTS = 60.0;        // Update each region every 60 seconds
 
 
 //=========================================================================

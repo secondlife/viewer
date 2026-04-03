@@ -56,9 +56,9 @@ const F32 DEFAULT_BUTTON_DELAY = 0.5f;
 //-----------------------------------------------------------------------------
 // Private methods
 
-static const S32 VPAD = 16;
-static const S32 HPAD = 25;
-static const S32 BTN_HPAD = 8;
+static constexpr S32 VPAD = 16;
+static constexpr S32 HPAD = 25;
+static constexpr S32 BTN_HPAD = 8;
 
 LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal)
       : LLCheckBoxToastPanel(notification),

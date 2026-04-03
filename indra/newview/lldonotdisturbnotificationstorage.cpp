@@ -42,7 +42,7 @@
 #include "llsingleton.h"
 #include "lluuid.h"
 
-static const F32 DND_TIMER = 3.0;
+static constexpr F32 DND_TIMER = 3.0;
 const char * LLDoNotDisturbNotificationStorage::toastName = "IMToast";
 const char * LLDoNotDisturbNotificationStorage::offerName = "UserGiveItem";
 

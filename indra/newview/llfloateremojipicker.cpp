@@ -48,14 +48,14 @@ namespace {
 // between different lifecycles of the floater and different sissions of the viewer
 
 // Floater constants
-static const S32 ALL_EMOJIS_GROUP_INDEX = -2;
+static constexpr S32 ALL_EMOJIS_GROUP_INDEX = -2;
 // https://www.compart.com/en/unicode/U+1F50D
-static const S32 ALL_EMOJIS_IMAGE_INDEX = 0x1F50D;
-static const S32 USED_EMOJIS_GROUP_INDEX = -1;
+static constexpr S32 ALL_EMOJIS_IMAGE_INDEX = 0x1F50D;
+static constexpr S32 USED_EMOJIS_GROUP_INDEX = -1;
 // https://www.compart.com/en/unicode/U+23F2
-static const S32 USED_EMOJIS_IMAGE_INDEX = 0x23F2;
+static constexpr S32 USED_EMOJIS_IMAGE_INDEX = 0x23F2;
 // https://www.compart.com/en/unicode/U+1F6D1
-static const S32 EMPTY_LIST_IMAGE_INDEX = 0x1F6D1;
+static constexpr S32 EMPTY_LIST_IMAGE_INDEX = 0x1F6D1;
 // The following categories should follow the required alphabetic order
 static const std::string FREQUENTLY_USED_CATEGORY = "frequently used";
 

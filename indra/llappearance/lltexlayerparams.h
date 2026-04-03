@@ -112,7 +112,7 @@ public:
     static void             dumpCacheByteCount();
     static void             getCacheByteCount( S32* gl_bytes );
 
-    typedef std::list< LLTexLayerParamAlpha* > param_alpha_ptr_list_t;
+    using param_alpha_ptr_list_t = std::list< LLTexLayerParamAlpha* >;
     static param_alpha_ptr_list_t sInstances;
 } LL_ALIGN_POSTFIX(16);
 class LLTexLayerParamAlphaInfo : public LLViewerVisualParamInfo
@@ -120,7 +120,7 @@ class LLTexLayerParamAlphaInfo : public LLViewerVisualParamInfo
     friend class LLTexLayerParamAlpha;
 public:
     LLTexLayerParamAlphaInfo();
-    /*virtual*/ ~LLTexLayerParamAlphaInfo() {};
+    /*virtual*/ ~LLTexLayerParamAlphaInfo() = default;
 
     /*virtual*/ bool parseXml(LLXmlTreeNode* node);
 
@@ -190,7 +190,7 @@ class LLTexLayerParamColorInfo : public LLViewerVisualParamInfo
 
 public:
     LLTexLayerParamColorInfo();
-    virtual ~LLTexLayerParamColorInfo() {};
+    virtual ~LLTexLayerParamColorInfo() = default;
     bool parseXml( LLXmlTreeNode* node );
     LLTexLayerParamColor::EColorOperation getOperation() const { return mOperation; }
 private:
@@ -200,9 +200,9 @@ private:
     S32                 mNumColors;
 };
 
-typedef std::vector<LLTexLayerParamColor *> param_color_list_t;
-typedef std::vector<LLTexLayerParamAlpha *> param_alpha_list_t;
-typedef std::vector<LLTexLayerParamColorInfo *> param_color_info_list_t;
-typedef std::vector<LLTexLayerParamAlphaInfo *> param_alpha_info_list_t;
+using param_color_list_t = std::vector<LLTexLayerParamColor *>;
+using param_alpha_list_t = std::vector<LLTexLayerParamAlpha *>;
+using param_color_info_list_t = std::vector<LLTexLayerParamColorInfo *>;
+using param_alpha_info_list_t = std::vector<LLTexLayerParamAlphaInfo *>;
 
 #endif

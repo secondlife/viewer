@@ -30,8 +30,8 @@
 // Shared between viewer and simulator.
 
 // permission bits
-typedef U32 PermissionMask;
-typedef U32 PermissionBit;
+using PermissionMask = U32;
+using PermissionBit = U32;
 
 
 // Do you have permission to transfer ownership of the object or

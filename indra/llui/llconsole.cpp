@@ -132,8 +132,8 @@ void LLConsole::setFontSize(S32 size_index)
 void LLConsole::draw()
 {
     // Units in pixels
-    static const F32 padding_horizontal = 10;
-    static const F32 padding_vertical = 3;
+    static constexpr F32 padding_horizontal = 10;
+    static constexpr F32 padding_vertical = 3;
     LLGLSUIDefault gls_ui;
 
     // skip lines added more than mLinePersistTime ago

@@ -337,7 +337,7 @@ LLTimer gRenderStartTime;
 LLFrameTimer gForegroundTime;
 LLFrameTimer gLoggedInTime;
 LLTimer gLogoutTimer;
-static const F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
+static constexpr F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
 F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 
 S32 gPendingMetricsUploads = 0;
@@ -441,8 +441,8 @@ static std::string gWindowTitle;
 //----------------------------------------------------------------------------
 // Metrics logging control constants
 //----------------------------------------------------------------------------
-static const F32 METRICS_INTERVAL_DEFAULT = 600.0;
-static const F32 METRICS_INTERVAL_QA = 30.0;
+static constexpr F32 METRICS_INTERVAL_DEFAULT = 600.0;
+static constexpr F32 METRICS_INTERVAL_QA = 30.0;
 static F32 app_metrics_interval = METRICS_INTERVAL_DEFAULT;
 static bool app_metrics_qa_mode = false;
 
@@ -2202,7 +2202,7 @@ bool LLAppViewer::initThreads()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    static const bool enable_threads = true;
+    static constexpr bool enable_threads = true;
 
     LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
 

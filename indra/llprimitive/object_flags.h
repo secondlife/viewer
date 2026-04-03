@@ -71,7 +71,7 @@ const U32   FLAGS_TEMPORARY_ON_REZ     = (1U << 29);
 const U32   FLAGS_LOCAL                = FLAGS_ANIM_SOURCE | FLAGS_CAMERA_SOURCE;
 const U32   FLAGS_WORLD                = FLAGS_USE_PHYSICS | FLAGS_PHANTOM | FLAGS_TEMPORARY_ON_REZ;
 
-typedef enum e_havok_joint_type
+enum e_havok_joint_type
 {
     HJT_INVALID = 0,
     HJT_HINGE   = 1,
@@ -79,6 +79,6 @@ typedef enum e_havok_joint_type
 //  HJT_LPOINT  = 3,
 //  HJT_WHEEL   = 4,
     HJT_EOF     = 3
-} EHavokJointType;
+};
 
 #endif

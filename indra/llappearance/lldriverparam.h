@@ -63,14 +63,14 @@ class LLDriverParamInfo : public LLViewerVisualParamInfo
     friend class LLDriverParam;
 public:
     LLDriverParamInfo();
-    /*virtual*/ ~LLDriverParamInfo() {};
+    /*virtual*/ ~LLDriverParamInfo() = default;
 
     /*virtual*/ bool parseXml(LLXmlTreeNode* node);
 
     /*virtual*/ void toStream(std::ostream &out);
 
 protected:
-    typedef std::deque<LLDrivenEntryInfo> entry_info_list_t;
+    using entry_info_list_t = std::deque<LLDrivenEntryInfo>;
     entry_info_list_t mDrivenInfoList;
     LLDriverParam* mDriverParam; // backpointer
 };
@@ -82,7 +82,7 @@ class alignas(16) LLDriverParam : public LLViewerVisualParam
     LL_ALIGN_NEW
 private:
     // Hide the default constructor.  Force construction with LLAvatarAppearance.
-    LLDriverParam() {}
+    LLDriverParam() = default;
 public:
     LLDriverParam(LLAvatarAppearance* appearance, LLWearable* wearable = NULL);
     ~LLDriverParam();
@@ -118,7 +118,7 @@ public:
     S32                             getDrivenParamsCount() const;
     const LLViewerVisualParam* getDrivenParam(S32 index) const;
 
-    typedef std::vector<LLDrivenEntry> entry_list_t;
+    using entry_list_t = std::vector<LLDrivenEntry>;
     entry_list_t& getDrivenList() { return mDriven; }
     void                            setDrivenList(entry_list_t& driven_list) { mDriven = driven_list; }
 

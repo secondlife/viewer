@@ -277,16 +277,16 @@ void LLUIColorTable::saveUserSettings() const
 {
     Params params;
 
-    for (const auto& color_pair : mUserSetColors)
+    for (const auto& [color_name, color_value] : mUserSetColors)
     {
         // Compare user color value with the default value, skip if equal
-        string_color_map_t::const_iterator itd = mLoadedColors.find(color_pair.first);
-        if(itd != mLoadedColors.end() && itd->second == color_pair.second)
+        string_color_map_t::const_iterator itd = mLoadedColors.find(color_name);
+        if(itd != mLoadedColors.end() && itd->second == color_value)
             continue;
 
         ColorEntryParams color_entry;
-        color_entry.name = color_pair.first;
-        color_entry.color.value = color_pair.second;
+        color_entry.name = color_name;
+        color_entry.color.value = color_value;
 
         params.color_entries.add(color_entry);
     }

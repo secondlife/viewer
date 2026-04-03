@@ -274,8 +274,8 @@ public:
     {
         LLPanel::draw();
 
-        static const U32 HPADDING = 10;
-        static const U32 VPADDING = 5;
+        static constexpr U32 HPADDING = 10;
+        static constexpr U32 VPADDING = 5;
         LLVector3 focus = mGetFocus();
         LLVector3 sight = focus - mCamera.mOrigin;
         std::pair<const char*, const LLVector3&> const data[] =

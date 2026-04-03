@@ -62,7 +62,7 @@ protected:
  **/
 private:
     // Hide default constructor.
-    LLAvatarAppearance() {}
+    LLAvatarAppearance() = default;
 
 public:
     LLAvatarAppearance(LLWearableData* wearable_data);
@@ -140,10 +140,10 @@ public:
     LLVector3           mHeadOffset{}; // current head position
     LLAvatarJoint*      mRoot{ nullptr };
 
-    typedef std::map<std::string, LLJoint*, std::less<>> joint_map_t;
+    using joint_map_t = std::map<std::string, LLJoint*, std::less<>>;
     joint_map_t         mJointMap;
 
-    typedef std::map<std::string, LLVector3> joint_state_map_t;
+    using joint_state_map_t = std::map<std::string, LLVector3>;
     joint_state_map_t mLastBodySizeState;
     joint_state_map_t mCurrBodySizeState;
     void compareJointStateMaps(joint_state_map_t& last_state,
@@ -151,12 +151,12 @@ public:
     void        computeBodySize();
 
 public:
-    typedef std::vector<LLAvatarJoint*> avatar_joint_list_t;
+    using avatar_joint_list_t = std::vector<LLAvatarJoint*>;
     const avatar_joint_list_t& getSkeleton() { return mSkeleton; }
-    typedef std::map<std::string, std::string, std::less<>> joint_alias_map_t;
+    using joint_alias_map_t = std::map<std::string, std::string, std::less<>>;
     const joint_alias_map_t& getJointAliases();
-    typedef std::map<std::string, std::string> joint_parent_map_t; // matrix plus parent
-    typedef std::map<std::string, glm::mat4> joint_rest_map_t;
+    using joint_parent_map_t = std::map<std::string, std::string>; // matrix plus parent
+    using joint_rest_map_t = std::map<std::string, glm::mat4>;
     void getJointMatricesAndHierarhy(std::vector<LLJointData> &data) const;
 
 protected:
@@ -261,7 +261,7 @@ protected:
     virtual void    dirtyMesh(S32 priority) = 0; // Dirty the avatar mesh, with priority
 
 protected:
-    typedef std::multimap<std::string, LLPolyMesh*> polymesh_map_t;
+    using polymesh_map_t = std::multimap<std::string, LLPolyMesh*>;
     polymesh_map_t                                  mPolyMeshes;
     avatar_joint_list_t                             mMeshLOD;
 
@@ -331,7 +331,7 @@ protected:
 
 protected:
     class LLMaskedMorph;
-    typedef std::deque<LLMaskedMorph *>     morph_list_t;
+    using morph_list_t = std::deque<LLMaskedMorph *>;
     struct BakedTextureData
     {
         LLUUID                              mLastTextureID;
@@ -344,7 +344,7 @@ protected:
         avatar_joint_mesh_list_t            mJointMeshes;
         morph_list_t                        mMaskedMorphs;
     };
-    typedef std::vector<BakedTextureData>   bakedtexturedata_vec_t;
+    using bakedtexturedata_vec_t = std::vector<BakedTextureData>;
     bakedtexturedata_vec_t                  mBakedTextureDatas;
 
 /********************************************************************************
@@ -385,8 +385,8 @@ protected:
 
         struct LLAvatarMeshInfo
         {
-            typedef std::pair<LLViewerVisualParamInfo*,bool> morph_info_pair_t; // LLPolyMorphTargetInfo stored here
-            typedef std::vector<morph_info_pair_t> morph_info_list_t;
+            using morph_info_pair_t = std::pair<LLViewerVisualParamInfo*,bool>; // LLPolyMorphTargetInfo stored here
+            using morph_info_list_t = std::vector<morph_info_pair_t>;
 
             LLAvatarMeshInfo() : mLOD(0), mMinPixelArea(.1f) {}
             ~LLAvatarMeshInfo()
@@ -405,10 +405,10 @@ protected:
             F32         mMinPixelArea;
             morph_info_list_t mPolyMorphTargetInfoList;
         };
-        typedef std::vector<LLAvatarMeshInfo*> mesh_info_list_t;
+        using mesh_info_list_t = std::vector<LLAvatarMeshInfo*>;
         mesh_info_list_t mMeshInfoList;
 
-        typedef std::vector<LLViewerVisualParamInfo*> skeletal_distortion_info_list_t; // LLPolySkeletalDistortionInfo stored here
+        using skeletal_distortion_info_list_t = std::vector<LLViewerVisualParamInfo*>; // LLPolySkeletalDistortionInfo stored here
         skeletal_distortion_info_list_t mSkeletalDistortionInfoList;
 
         struct LLAvatarAttachmentInfo
@@ -428,17 +428,17 @@ protected:
             bool mHasPosition;
             bool mHasRotation;
         };
-        typedef std::vector<LLAvatarAttachmentInfo*> attachment_info_list_t;
+        using attachment_info_list_t = std::vector<LLAvatarAttachmentInfo*>;
         attachment_info_list_t mAttachmentInfoList;
 
         LLTexGlobalColorInfo *mTexSkinColorInfo;
         LLTexGlobalColorInfo *mTexHairColorInfo;
         LLTexGlobalColorInfo *mTexEyeColorInfo;
 
-        typedef std::vector<LLTexLayerSetInfo*> layer_info_list_t;
+        using layer_info_list_t = std::vector<LLTexLayerSetInfo*>;
         layer_info_list_t mLayerInfoList;
 
-        typedef std::vector<LLDriverParamInfo*> driver_info_list_t;
+        using driver_info_list_t = std::vector<LLDriverParamInfo*>;
         driver_info_list_t mDriverInfoList;
 
         struct LLAvatarMorphInfo
@@ -451,7 +451,7 @@ protected:
             bool mInvert;
         };
 
-        typedef std::vector<LLAvatarMorphInfo*> morph_info_list_t;
+        using morph_info_list_t = std::vector<LLAvatarMorphInfo*>;
         morph_info_list_t   mMorphMaskInfoList;
     };
 

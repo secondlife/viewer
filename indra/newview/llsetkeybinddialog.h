@@ -34,12 +34,12 @@ class LLCheckBoxCtrl;
 class LLTextBase;
 
 // Filters for LLSetKeyBindDialog
-static const U32 ALLOW_MOUSE = 1;
-static const U32 ALLOW_MASK_MOUSE = 2;
-static const U32 ALLOW_KEYS = 4; //keyboard
-static const U32 ALLOW_MASK_KEYS = 8;
-static const U32 ALLOW_MASKS = 16;
-static const U32 DEFAULT_KEY_FILTER = ALLOW_MOUSE | ALLOW_MASK_MOUSE | ALLOW_KEYS | ALLOW_MASKS | ALLOW_MASK_KEYS;
+static constexpr U32 ALLOW_MOUSE = 1;
+static constexpr U32 ALLOW_MASK_MOUSE = 2;
+static constexpr U32 ALLOW_KEYS = 4; //keyboard
+static constexpr U32 ALLOW_MASK_KEYS = 8;
+static constexpr U32 ALLOW_MASKS = 16;
+static constexpr U32 DEFAULT_KEY_FILTER = ALLOW_MOUSE | ALLOW_MASK_MOUSE | ALLOW_KEYS | ALLOW_MASKS | ALLOW_MASK_KEYS;
 
 
 class LLKeyBindResponderInterface

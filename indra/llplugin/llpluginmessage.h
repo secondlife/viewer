@@ -128,7 +128,7 @@ protected:
     void dispatchPluginMessage(const LLPluginMessage &message);
 
    /** A set of message listeners. */
-    typedef std::set<LLPluginMessageListener*> listener_set_t;
+    using listener_set_t = std::set<LLPluginMessageListener*>;
    /** The set of message listeners. */
     listener_set_t mListeners;
 };

@@ -440,7 +440,7 @@ class LLTransferSourceParamsInvItem: public LLTransferSourceParams
 {
 public:
     LLTransferSourceParamsInvItem();
-    virtual ~LLTransferSourceParamsInvItem() {}
+    virtual ~LLTransferSourceParamsInvItem() = default;
     /*virtual*/ void packParams(LLDataPacker &dp) const;
     /*virtual*/ bool unpackParams(LLDataPacker &dp);
 
@@ -472,7 +472,7 @@ class LLTransferSourceParamsEstate: public LLTransferSourceParams
 {
 public:
     LLTransferSourceParamsEstate();
-    virtual ~LLTransferSourceParamsEstate() {}
+    virtual ~LLTransferSourceParamsEstate() = default;
     /*virtual*/ void packParams(LLDataPacker &dp) const;
     /*virtual*/ bool unpackParams(LLDataPacker &dp);
 

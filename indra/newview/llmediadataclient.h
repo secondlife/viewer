@@ -389,7 +389,7 @@ protected:
     LOG_CLASS(LLObjectMediaNavigateClient);
 public:
     // NOTE: from llmediaservice.h
-    static const int ERROR_PERMISSION_DENIED_CODE = 8002;
+    static constexpr int ERROR_PERMISSION_DENIED_CODE = 8002;
 
     LLObjectMediaNavigateClient(F32 queue_timer_delay = QUEUE_TIMER_DELAY,
                                 F32 retry_timer_delay = UNAVAILABLE_RETRY_TIMER_DELAY,

@@ -865,10 +865,9 @@ void LLNotification::init(const std::string& template_name, const LLSD& form_ele
 
     // add default substitutions
     const LLStringUtil::format_map_t& default_args = LLTrans::getDefaultArgs();
-    for (LLStringUtil::format_map_t::const_iterator iter = default_args.begin();
-         iter != default_args.end(); ++iter)
+    for (const auto& [arg_name, arg_value] : default_args)
     {
-        mSubstitutions[std::string(iter->first)] = iter->second;
+        mSubstitutions[std::string(arg_name)] = arg_value;
     }
     mSubstitutions["_URL"] = getURL();
     mSubstitutions["_NAME"] = template_name;
@@ -1205,7 +1204,7 @@ size_t LLNotificationChannel::size()
 void LLNotificationChannel::forEachNotification(NotificationProcess process)
 {
     LLMutexLock lock(&mItemsMutex);
-    std::for_each(mItems.begin(), mItems.end(), process);
+    std::ranges::for_each(mItems, process);
 }
 
 std::string LLNotificationChannel::summarize()

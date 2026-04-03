@@ -42,7 +42,7 @@ class LLHandMotion :
     public LLMotion
 {
 public:
-    typedef enum e_hand_pose
+    enum eHandPose
     {
         HAND_POSE_SPREAD,
         HAND_POSE_RELAXED,
@@ -59,7 +59,7 @@ public:
         HAND_POSE_PEACE_R,
         HAND_POSE_PALM_R,
         NUM_HAND_POSES
-    } eHandPose;
+    };
 
     // Constructor
     LLHandMotion(const LLUUID &id);

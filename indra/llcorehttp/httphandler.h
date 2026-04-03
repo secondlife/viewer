@@ -58,8 +58,8 @@ class HttpResponse;
 class HttpHandler
 {
 public:
-    typedef std::shared_ptr<HttpHandler>  ptr_t;
-    typedef std::weak_ptr<HttpHandler>    wptr_t;
+    using ptr_t = std::shared_ptr<HttpHandler>;
+    using wptr_t = std::weak_ptr<HttpHandler>;
 
     virtual ~HttpHandler()
     { }

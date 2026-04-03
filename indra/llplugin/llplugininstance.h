@@ -72,14 +72,14 @@ public:
      * @param[in] message_string Null-terminated C string
     * @param[in] user_data The opaque reference that the callee supplied during setup.
     */
-    typedef void (*sendMessageFunction) (const char *message_string, void **user_data);
+    using sendMessageFunction = void(*)(const char *message_string, void **user_data);
 
     /** The signature of the plugin init function. TODO:DOC check direction (pluging loader shell to plugin?)
     *
     * @param[in] host_user_data Data from plugin loader shell.
     * @param[in] plugin_send_function Function for sending from the plugin loader shell to plugin.
     */
-    typedef int (*pluginInitFunction) (sendMessageFunction host_send_func, void *host_user_data, sendMessageFunction *plugin_send_func, void **plugin_user_data);
+    using pluginInitFunction = int(*)(sendMessageFunction host_send_func, void *host_user_data, sendMessageFunction *plugin_send_func, void **plugin_user_data);
 
    /** Name of plugin init function */
     static const char *PLUGIN_INIT_FUNCTION_NAME;

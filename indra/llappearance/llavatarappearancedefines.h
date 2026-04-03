@@ -129,10 +129,10 @@ enum EMeshIndex
 //--------------------------------------------------------------------
 // Vector Types
 //--------------------------------------------------------------------
-typedef std::vector<ETextureIndex> texture_vec_t;
-typedef std::vector<EBakedTextureIndex> bakedtexture_vec_t;
-typedef std::vector<EMeshIndex> mesh_vec_t;
-typedef std::vector<LLWearableType::EType> wearables_vec_t;
+using texture_vec_t = std::vector<ETextureIndex>;
+using bakedtexture_vec_t = std::vector<EBakedTextureIndex>;
+using mesh_vec_t = std::vector<EMeshIndex>;
+using wearables_vec_t = std::vector<LLWearableType::EType>;
 
 //------------------------------------------------------------------------
 // LLAvatarAppearanceDictionary

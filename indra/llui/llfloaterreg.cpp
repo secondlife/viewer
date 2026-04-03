@@ -318,9 +318,8 @@ bool LLFloaterReg::instanceVisible(std::string_view name, const LLSD& key)
 void LLFloaterReg::showInitialVisibleInstances()
 {
     // Iterate through alll registered instance names and show any with a save visible state
-    for (build_map_t::iterator iter = sBuildMap.begin(); iter != sBuildMap.end(); ++iter)
+    for (const auto& [name, build_data] : sBuildMap)
     {
-        const std::string& name = iter->first;
         std::string controlname = getVisibilityControlName(name);
         if (LLFloater::getControlGroup()->controlExists(controlname))
         {
@@ -337,15 +336,12 @@ void LLFloaterReg::showInitialVisibleInstances()
 void LLFloaterReg::hideVisibleInstances(const std::set<std::string>& exceptions)
 {
     // Iterate through alll active instances and hide them
-    for (instance_map_t::iterator iter = sInstanceMap.begin(); iter != sInstanceMap.end(); ++iter)
+    for (auto& [name, list] : sInstanceMap)
     {
-        const std::string& name = iter->first;
         if (exceptions.find(name) != exceptions.end())
             continue;
-        instance_list_t& list = iter->second;
-        for (instance_list_t::iterator iter = list.begin(); iter != list.end(); ++iter)
+        for (LLFloater* floater : list)
         {
-            LLFloater* floater = *iter;
             floater->pushVisible(false);
         }
     }
@@ -355,12 +351,10 @@ void LLFloaterReg::hideVisibleInstances(const std::set<std::string>& exceptions)
 void LLFloaterReg::restoreVisibleInstances()
 {
     // Iterate through all active instances and restore visibility
-    for (instance_map_t::iterator iter = sInstanceMap.begin(); iter != sInstanceMap.end(); ++iter)
+    for (auto& [name, list] : sInstanceMap)
     {
-        instance_list_t& list = iter->second;
-        for (instance_list_t::iterator iter = list.begin(); iter != list.end(); ++iter)
+        for (LLFloater* floater : list)
         {
-            LLFloater* floater = *iter;
             floater->popVisible();
         }
     }
@@ -453,9 +447,8 @@ std::string LLFloaterReg::getDockStateControlName(const std::string& name)
 void LLFloaterReg::registerControlVariables()
 {
     // Iterate through alll registered instance names and register rect and visibility control variables
-    for (build_map_t::iterator iter = sBuildMap.begin(); iter != sBuildMap.end(); ++iter)
+    for (const auto& [name, build_data] : sBuildMap)
     {
-        const std::string& name = iter->first;
         if (LLFloater::getControlGroup()->controlExists(getRectControlName(name)))
         {
             declareRectControl(name);

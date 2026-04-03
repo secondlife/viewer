@@ -219,8 +219,8 @@ protected:
     // A list of all audio sources that are known to the viewer at this time.
     // This is most likely a superset of the ones that we actually have audio
     // data for, or are playing back.
-    typedef std::map<LLUUID, LLAudioSource *> source_map;
-    typedef std::map<LLUUID, LLAudioData *> data_map;
+    using source_map = std::map<LLUUID, LLAudioSource *>;
+    using data_map = std::map<LLUUID, LLAudioData *>;
 
     source_map mAllSources;
     data_map mAllData;
@@ -343,7 +343,7 @@ protected:
     LLAudioData     *mCurrentDatap;
     LLAudioData     *mQueuedDatap;
 
-    typedef std::map<LLUUID, LLAudioData *> data_map;
+    using data_map = std::map<LLUUID, LLAudioData *>;
     data_map mPreloadMap;
 
     LLFrameTimer mAgeTimer;
@@ -445,7 +445,7 @@ protected:
 class LLAudioBuffer
 {
 public:
-    virtual ~LLAudioBuffer() {};
+    virtual ~LLAudioBuffer() = default;
     virtual bool loadWAV(const std::string& filename) = 0;
     virtual U32 getLength() = 0;
 

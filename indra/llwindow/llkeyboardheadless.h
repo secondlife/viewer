@@ -33,7 +33,7 @@ class LLKeyboardHeadless : public LLKeyboard
 {
 public:
     LLKeyboardHeadless();
-    /*virtual*/ ~LLKeyboardHeadless() {};
+    /*virtual*/ ~LLKeyboardHeadless() = default;
 
     /*virtual*/ bool    handleKeyUp(const U16 key, MASK mask);
     /*virtual*/ bool    handleKeyDown(const U16 key, MASK mask);

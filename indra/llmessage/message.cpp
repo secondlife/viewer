@@ -82,7 +82,7 @@
 // Constants
 //const char* MESSAGE_LOG_FILENAME = "message.log";
 static const F32Seconds CIRCUIT_DUMP_TIMEOUT(30.f);
-static const S32 TRUST_TIME_WINDOW = 3;
+static constexpr S32 TRUST_TIME_WINDOW = 3;
 
 // *NOTE: This needs to be moved into a seperate file so that it never gets
 // included in the viewer.  30 Sep 2002 mark
@@ -1302,7 +1302,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
         {
             str << "\tACKS:\t";
             std::ostream_iterator<TPACKETID> append(str, " ");
-            std::copy(acks.begin(), acks.end(), append);
+            std::ranges::copy(acks, append);
         }
         LL_INFOS("Messaging") << str.str() << LL_ENDL;
     }

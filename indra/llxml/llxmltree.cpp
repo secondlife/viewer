@@ -128,11 +128,8 @@ void LLXmlTreeNode::dump( const std::string& prefix )
     {
         LL_CONT << " contents = \"" << mContents << "\"";
     }
-    attribute_map_t::iterator iter;
-    for (iter=mAttributes.begin(); iter != mAttributes.end(); iter++)
+    for (const auto& [key, value] : mAttributes)
     {
-        LLStdStringHandle key = iter->first;
-        const std::string* value = iter->second;
         LL_CONT << prefix << " " << key << "=" << (value->empty() ? "NULL" : *value);
     }
     LL_CONT << LL_ENDL;

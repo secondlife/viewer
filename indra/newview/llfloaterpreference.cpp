@@ -128,16 +128,16 @@ const static std::string MOUSE_BUTTON_4_CV = "MouseButton4";
 const static std::string MOUSE_BUTTON_5_CV = "MouseButton5";
 
 /// This must equal the maximum value set for the IndirectMaxComplexity slider in panel_preferences_graphics1.xml
-static const U32 INDIRECT_MAX_ARC_OFF = 101; // all the way to the right == disabled
-static const U32 MIN_INDIRECT_ARC_LIMIT = 1; // must match minimum of IndirectMaxComplexity in panel_preferences_graphics1.xml
-static const U32 MAX_INDIRECT_ARC_LIMIT = INDIRECT_MAX_ARC_OFF-1; // one short of all the way to the right...
+static constexpr U32 INDIRECT_MAX_ARC_OFF = 101; // all the way to the right == disabled
+static constexpr U32 MIN_INDIRECT_ARC_LIMIT = 1; // must match minimum of IndirectMaxComplexity in panel_preferences_graphics1.xml
+static constexpr U32 MAX_INDIRECT_ARC_LIMIT = INDIRECT_MAX_ARC_OFF-1; // one short of all the way to the right...
 
 /// These are the effective range of values for RenderAvatarMaxComplexity
-static const F32 MIN_ARC_LIMIT =  20000.0f;
-static const F32 MAX_ARC_LIMIT = 350000.0f;
-static const F32 MIN_ARC_LOG = log(MIN_ARC_LIMIT);
-static const F32 MAX_ARC_LOG = log(MAX_ARC_LIMIT);
-static const F32 ARC_LIMIT_MAP_SCALE = (MAX_ARC_LOG - MIN_ARC_LOG) / (MAX_INDIRECT_ARC_LIMIT - MIN_INDIRECT_ARC_LIMIT);
+static constexpr F32 MIN_ARC_LIMIT =  20000.0f;
+static constexpr F32 MAX_ARC_LIMIT = 350000.0f;
+static constexpr F32 MIN_ARC_LOG = log(MIN_ARC_LIMIT);
+static constexpr F32 MAX_ARC_LOG = log(MAX_ARC_LIMIT);
+static constexpr F32 ARC_LIMIT_MAP_SCALE = (MAX_ARC_LOG - MIN_ARC_LOG) / (MAX_INDIRECT_ARC_LIMIT - MIN_INDIRECT_ARC_LIMIT);
 
 struct LabelDef : public LLInitParam::Block<LabelDef>
 {

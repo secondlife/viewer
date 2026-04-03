@@ -133,18 +133,18 @@ public:
 
 public:
     //unrolling loop types declaration
-    typedef uroll_zeroze_cx_comp<ch>                                                        uroll_zeroze_cx_comp_t;
-    typedef uroll_comp_rshftasgn_constval<ch>                                               uroll_comp_rshftasgn_constval_t;
-    typedef uroll_comp_asgn_cx_rshft_cval_all_mul_val<ch>                                   uroll_comp_asgn_cx_rshft_cval_all_mul_val_t;
-    typedef uroll_comp_plusasgn_cx_rshft_cval_all_mul_val<ch>                               uroll_comp_plusasgn_cx_rshft_cval_all_mul_val_t;
-    typedef uroll_inp_plusasgn_pix_mul_val<ch>                                              uroll_inp_plusasgn_pix_mul_val_t;
-    typedef uroll_inp_asgn_pix_mul_val<ch>                                                  uroll_inp_asgn_pix_mul_val_t;
-    typedef uroll_comp_asgn_cx_mul_apoint_plus_comp_mul_inv_apoint_allshifted_16_r<ch>      uroll_comp_asgn_cx_mul_apoint_plus_comp_mul_inv_apoint_allshifted_16_r_t;
-    typedef uroll_comp_asgn_comp_plus_pix_mul_apoint_allshifted_8_r<ch>                     uroll_comp_asgn_comp_plus_pix_mul_apoint_allshifted_8_r_t;
-    typedef uroll_comp_asgn_comp_mul_inv_apoint_plus_cx_mul_apoint_allshifted_12_r<ch>      uroll_comp_asgn_comp_mul_inv_apoint_plus_cx_mul_apoint_allshifted_12_r_t;
-    typedef uroll_uref_dptr_inc_asgn_comp_and_ff<ch>                                        uroll_uref_dptr_inc_asgn_comp_and_ff_t;
-    typedef uroll_uref_dptr_inc_asgn_sptr_apoint_plus_idx_alland_ff<ch>                     uroll_uref_dptr_inc_asgn_sptr_apoint_plus_idx_alland_ff_t;
-    typedef uroll_uref_dptr_inc_asgn_comp_rshft_cval_and_ff<ch>                             uroll_uref_dptr_inc_asgn_comp_rshft_cval_and_ff_t;
+    using uroll_zeroze_cx_comp_t                                                       = uroll_zeroze_cx_comp<ch>;
+    using uroll_comp_rshftasgn_constval_t                                              = uroll_comp_rshftasgn_constval<ch>;
+    using uroll_comp_asgn_cx_rshft_cval_all_mul_val_t                                  = uroll_comp_asgn_cx_rshft_cval_all_mul_val<ch>;
+    using uroll_comp_plusasgn_cx_rshft_cval_all_mul_val_t                              = uroll_comp_plusasgn_cx_rshft_cval_all_mul_val<ch>;
+    using uroll_inp_plusasgn_pix_mul_val_t                                             = uroll_inp_plusasgn_pix_mul_val<ch>;
+    using uroll_inp_asgn_pix_mul_val_t                                                 = uroll_inp_asgn_pix_mul_val<ch>;
+    using uroll_comp_asgn_cx_mul_apoint_plus_comp_mul_inv_apoint_allshifted_16_r_t     = uroll_comp_asgn_cx_mul_apoint_plus_comp_mul_inv_apoint_allshifted_16_r<ch>;
+    using uroll_comp_asgn_comp_plus_pix_mul_apoint_allshifted_8_r_t                    = uroll_comp_asgn_comp_plus_pix_mul_apoint_allshifted_8_r<ch>;
+    using uroll_comp_asgn_comp_mul_inv_apoint_plus_cx_mul_apoint_allshifted_12_r_t     = uroll_comp_asgn_comp_mul_inv_apoint_plus_cx_mul_apoint_allshifted_12_r<ch>;
+    using uroll_uref_dptr_inc_asgn_comp_and_ff_t                                       = uroll_uref_dptr_inc_asgn_comp_and_ff<ch>;
+    using uroll_uref_dptr_inc_asgn_sptr_apoint_plus_idx_alland_ff_t                    = uroll_uref_dptr_inc_asgn_sptr_apoint_plus_idx_alland_ff<ch>;
+    using uroll_uref_dptr_inc_asgn_comp_rshft_cval_and_ff_t                            = uroll_uref_dptr_inc_asgn_comp_rshft_cval_and_ff<ch>;
 
 public:
     scale_info(const U8 *src, U32 srcW, U32 srcH, U32 dstW, U32 dstH, U32 srcStride)
@@ -226,7 +226,7 @@ inline void bilinear_scale(
     , U8 *dst, U32 dstW, U32 dstH, U32 dstStride
     )
 {
-    typedef scale_info<ch> scale_info_t;
+    using scale_info_t = scale_info<ch>;
 
     scale_info_t info(src, srcW, srcH, dstW, dstH, srcStride);
 
@@ -676,7 +676,7 @@ void LLImageBase::deleteData()
 U8* LLImageBase::allocateData(S32 size)
 {
     //make this function thread-safe.
-    static const U32 MAX_BUFFER_SIZE = 4096 * 4096 * 16; //256 MB
+    static constexpr U32 MAX_BUFFER_SIZE = 4096 * 4096 * 16; //256 MB
     mBadBufferAllocation = false;
 
     if (size < 0)

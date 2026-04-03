@@ -39,7 +39,7 @@ class LLMaterialID;
 
 // this is a list of LLTextureEntry*'s because in practice the list's elements
 // are of some derived class: LLFooTextureEntry
-typedef std::vector<LLTextureEntry*> texture_list_t;
+using texture_list_t = std::vector<LLTextureEntry*>;
 
 class LLPrimTextureList
 {

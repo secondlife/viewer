@@ -59,7 +59,7 @@ class LLPluginProcessParent : public LLPluginMessagePipeOwner
 
     LLPluginProcessParent(LLPluginProcessParentOwner *owner);
 public:
-    typedef std::shared_ptr<LLPluginProcessParent> ptr_t;
+    using ptr_t = std::shared_ptr<LLPluginProcessParent>;
 
     ~LLPluginProcessParent();
 
@@ -131,7 +131,7 @@ public:
 
     static void shutdown();
 private:
-    typedef std::map<void *, ptr_t> mapInstances_t;
+    using mapInstances_t = std::map<void *, ptr_t>;
 
     enum EState
     {
@@ -175,7 +175,7 @@ private:
 
     LLPluginProcessParentOwner *mOwner;
 
-    typedef std::map<std::string, LLPluginSharedMemory*> sharedMemoryRegionsType;
+    using sharedMemoryRegionsType = std::map<std::string, LLPluginSharedMemory*>;
     sharedMemoryRegionsType mSharedMemoryRegions;
 
     LLSD mMessageClassVersions;

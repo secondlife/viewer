@@ -196,7 +196,7 @@ bool LLGestureList::triggerAndReviseString(const std::string &string, std::strin
     bool found_gestures = false;
     bool first_token = true;
 
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    using tokenizer = boost::tokenizer<boost::char_separator<char> >;
     boost::char_separator<char> sep(" ");
     tokenizer tokens(string, sep);
 

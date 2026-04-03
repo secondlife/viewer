@@ -26,7 +26,7 @@
 #ifndef LL_LLMAPIMAGETYPE_H
 #define LL_LLMAPIMAGETYPE_H
 
-typedef enum e_map_image_type
+enum EMapImageType
 {
     MIT_TERRAIN = 0,
     MIT_POPULAR = 1,
@@ -35,6 +35,6 @@ typedef enum e_map_image_type
     MIT_LAND_TO_BUY = 4,
     MIT_OBJECT_NEW = 5,
     MIT_EOF = 6
-} EMapImageType;
+};
 
 #endif

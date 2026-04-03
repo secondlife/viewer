@@ -310,7 +310,7 @@ public:
     virtual void clearChildren() override
     {
         // We are working with models that belong to views as LLPointers, clean the list, let poiters handle the rest
-        std::for_each(mChildren.begin(), mChildren.end(), [](LLFolderViewModelItem* c) {c->setParent(NULL); });
+        std::ranges::for_each(mChildren, [](LLFolderViewModelItem* c) {c->setParent(NULL); });
         mChildren.clear();
         dirtyDescendantsFilter();
         dirtyFilter();

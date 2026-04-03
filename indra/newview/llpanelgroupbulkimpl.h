@@ -63,7 +63,7 @@ public:
 
 
 public:
-    static const S32 MAX_GROUP_INVITES = 100;   // Max invites per request. 100 to match server cap.
+    static constexpr S32 MAX_GROUP_INVITES = 100;   // Max invites per request. 100 to match server cap.
 
 
     LLUUID              mGroupID;

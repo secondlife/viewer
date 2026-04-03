@@ -137,7 +137,7 @@ const F32 CAMERA_POSITION_THRESHOLD_SQUARED = 0.001f * 0.001f;
 // Determine how quickly residents' scripts can issue question dialogs
 // Allow bursts of up to 5 dialogs in 10 seconds. 10*2=20 seconds recovery if throttle kicks in
 static const U32 LLREQUEST_PERMISSION_THROTTLE_LIMIT    = 5;     // requests
-static const F32 LLREQUEST_PERMISSION_THROTTLE_INTERVAL = 10.0f; // seconds
+static constexpr F32 LLREQUEST_PERMISSION_THROTTLE_INTERVAL = 10.0f; // seconds
 
 extern bool gDebugClicks;
 extern bool gShiftFrame;
@@ -5349,7 +5349,7 @@ void handle_show_mean_events(void *)
 
 void mean_name_callback(const LLUUID &id, const LLAvatarName& av_name)
 {
-    static const U32 max_collision_list_size = 20;
+    static constexpr U32 max_collision_list_size = 20;
     if (gMeanCollisionList.size() > max_collision_list_size)
     {
         mean_collision_list_t::iterator iter = gMeanCollisionList.begin();
@@ -6230,7 +6230,7 @@ void send_lures(const LLSD& notification, const LLSD& response)
 
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
-    static const unsigned OFFER_RECIPIENT_LIMIT = 250;
+    static constexpr unsigned OFFER_RECIPIENT_LIMIT = 250;
     if(notification["payload"]["ids"].size() > OFFER_RECIPIENT_LIMIT)
     {
         // More than OFFER_RECIPIENT_LIMIT targets will overload the message

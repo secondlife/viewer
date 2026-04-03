@@ -56,13 +56,13 @@ namespace LLCore
 
 #if LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY
 
-typedef std::deque<HttpOpRequest::ptr_t> HttpReadyQueueBase;
+using HttpReadyQueueBase = std::deque<HttpOpRequest::ptr_t>;
 
 #else
 
-typedef std::priority_queue<HttpOpRequest::ptr_t,
+using HttpReadyQueueBase = std::priority_queue<HttpOpRequest::ptr_t,
                             std::deque<HttpOpRequest::ptr_t>,
-                            LLCore::HttpOpRequestCompare> HttpReadyQueueBase;
+                            LLCore::HttpOpRequestCompare>;
 
 #endif // LLCORE_HTTP_READY_QUEUE_IGNORES_PRIORITY
 
@@ -86,7 +86,7 @@ public:
     // Types and methods needed to make a std::deque look
     // more like a std::priority_queue, at least for our
     // purposes.
-    typedef HttpReadyQueueBase container_type;
+    using container_type = HttpReadyQueueBase;
 
     const_reference top() const
         {

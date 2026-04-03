@@ -226,10 +226,10 @@ const std::string sTesterName("TextureFetchTester");
 
 // Tuning/Parameterization Constants
 
-static const S32 HTTP_PIPE_REQUESTS_HIGH_WATER = 100;       // Maximum requests to have active in HTTP (pipelined)
-static const S32 HTTP_PIPE_REQUESTS_LOW_WATER = 50;         // Active level at which to refill
-static const S32 HTTP_NONPIPE_REQUESTS_HIGH_WATER = 40;
-static const S32 HTTP_NONPIPE_REQUESTS_LOW_WATER = 20;
+static constexpr S32 HTTP_PIPE_REQUESTS_HIGH_WATER = 100;       // Maximum requests to have active in HTTP (pipelined)
+static constexpr S32 HTTP_PIPE_REQUESTS_LOW_WATER = 50;         // Active level at which to refill
+static constexpr S32 HTTP_NONPIPE_REQUESTS_HIGH_WATER = 40;
+static constexpr S32 HTTP_NONPIPE_REQUESTS_LOW_WATER = 20;
 
 // BUG-3323/SH-4375
 // *NOTE:  This is a heuristic value.  Texture fetches have a habit of using a
@@ -237,11 +237,11 @@ static const S32 HTTP_NONPIPE_REQUESTS_LOW_WATER = 20;
 // network equipment get confused when they see this in a Range: header.  So,
 // if the request end is beyond this value, we issue an open-ended Range:
 // request (e.g. 'Range: <start>-') which seems to fix the problem.
-static const S32 HTTP_REQUESTS_RANGE_END_MAX = 20000000;
+static constexpr S32 HTTP_REQUESTS_RANGE_END_MAX = 20000000;
 
 // stop after 720 seconds, might be overkill, but cap request can keep going forever.
-static const S32 MAX_CAP_MISSING_RETRIES = 720;
-static const S32 CAP_MISSING_EXPIRATION_DELAY = 1; // seconds
+static constexpr S32 MAX_CAP_MISSING_RETRIES = 720;
+static constexpr S32 CAP_MISSING_EXPIRATION_DELAY = 1; // seconds
 
 //////////////////////////////////////////////////////////////////////////////
 namespace
@@ -3561,7 +3561,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
     // In mStatsSD, we have a copy we own of the LLSD representation
     // of the asset stats. Add some additional fields and ship it off.
 
-    static const S32 metrics_data_version = 2;
+    static constexpr S32 metrics_data_version = 2;
 
     bool initial_report = !reporting_started.load();
     mStatsSD["session_id"] = mSessionID;

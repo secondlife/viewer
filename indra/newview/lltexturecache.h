@@ -51,7 +51,7 @@ private:
 #endif
 
     // Entries
-    static const U32 sHeaderEncoderStringSize = 32;
+    static constexpr U32 sHeaderEncoderStringSize = 32;
     struct EntriesInfo
     {
         EntriesInfo() : mVersion(0.f), mAdressSize(0), mEntries(0) { memset(mEncoderVersion, 0, sHeaderEncoderStringSize); }

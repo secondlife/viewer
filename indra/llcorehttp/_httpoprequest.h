@@ -66,7 +66,7 @@ class BufferArray;
 class HttpOpRequest : public HttpOperation
 {
 public:
-    typedef std::shared_ptr<HttpOpRequest> ptr_t;
+    using ptr_t = std::shared_ptr<HttpOpRequest>;
 
     HttpOpRequest();
 

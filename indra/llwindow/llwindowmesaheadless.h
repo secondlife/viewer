@@ -109,8 +109,8 @@ private:
 class LLSplashScreenMesaHeadless : public LLSplashScreen
 {
 public:
-    LLSplashScreenMesaHeadless() {};
-    virtual ~LLSplashScreenMesaHeadless() {};
+    LLSplashScreenMesaHeadless() = default;
+    virtual ~LLSplashScreenMesaHeadless() = default;
 
     /*virtual*/ void showImpl() {};
     /*virtual*/ void updateImpl(const std::string& mesg) {};

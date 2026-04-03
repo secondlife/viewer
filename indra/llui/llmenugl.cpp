@@ -1909,7 +1909,7 @@ void LLMenuGL::removeChild( LLView* ctrl)
     // object being deleted is no longer a LLMenuItemGL so a dynamic_cast will fail
     LLMenuItemGL* itemp = static_cast<LLMenuItemGL*>(ctrl);
 
-    item_list_t::iterator found_it = std::find(mItems.begin(), mItems.end(), (itemp));
+    item_list_t::iterator found_it = std::ranges::find(mItems, itemp);
     if (found_it != mItems.end())
     {
         mItems.erase(found_it);
@@ -2876,7 +2876,7 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, bool skip_disa
     }
 
     // Current item position in the items list
-    item_list_t::iterator cur_item_iter = std::find(mItems.begin(), mItems.end(), cur_item);
+    item_list_t::iterator cur_item_iter = std::ranges::find(mItems, cur_item);
 
     item_list_t::iterator next_item_iter;
     if (cur_item_iter == mItems.end())
@@ -2889,7 +2889,7 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, bool skip_disa
         next_item_iter++;
 
         // First visible item position in the items list
-        item_list_t::iterator first_visible_item_iter = std::find(mItems.begin(), mItems.end(), mFirstVisibleItem);
+        item_list_t::iterator first_visible_item_iter = std::ranges::find(mItems, mFirstVisibleItem);
 
         if (next_item_iter == mItems.end())
         {
@@ -3420,7 +3420,7 @@ LLMenuBarGL::LLMenuBarGL( const Params& p )
 // Default destructor
 LLMenuBarGL::~LLMenuBarGL()
 {
-    std::for_each(mAccelerators.begin(), mAccelerators.end(), DeletePointer());
+    std::ranges::for_each(mAccelerators, DeletePointer());
     mAccelerators.clear();
 }
 

@@ -654,11 +654,11 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
 
     webrtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> mPeerConnectionFactory;
 
-    typedef enum {
+    enum EMicMuteState {
         MUTE_INITIAL,
         MUTE_MUTED,
         MUTE_UNMUTED,
-    } EMicMuteState;
+    };
     EMicMuteState mMute;
 
     // signaling

@@ -628,7 +628,7 @@ void LLFolderView::clearSelection()
 std::set<LLFolderViewItem*> LLFolderView::getSelectionList() const
 {
     std::set<LLFolderViewItem*> selection;
-    std::copy(mSelectedItems.begin(), mSelectedItems.end(), std::inserter(selection, selection.begin()));
+    std::ranges::copy(mSelectedItems, std::inserter(selection, selection.begin()));
     return selection;
 }
 
@@ -811,7 +811,7 @@ void LLFolderView::removeSelectedItems()
             for(size_t i = 0; i < count; ++i)
             {
                 listener = items[i]->getViewModelItem();
-                if(listener && (std::find(listeners.begin(), listeners.end(), listener) == listeners.end()))
+                if(listener && (std::ranges::find(listeners, listener) == listeners.end()))
                 {
                     listeners.push_back(listener);
                 }

@@ -567,7 +567,7 @@ static LLDispatchClassifiedClickThrough sClassifiedClickThrough;
 // LLPanelProfileClassified
 //-----------------------------------------------------------------------------
 
-static const S32 CB_ITEM_MATURE = 0;
+static constexpr S32 CB_ITEM_MATURE = 0;
 static const S32 CB_ITEM_PG    = 1;
 
 LLPanelProfileClassified::LLPanelProfileClassified()

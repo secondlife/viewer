@@ -133,10 +133,9 @@ LLKeyboardMacOSX::LLKeyboardMacOSX()
     mTranslateKeyMap[0x7e] = KEY_UP;
 
     // Build inverse map
-    std::map<U16, KEY>::iterator iter;
-    for (iter = mTranslateKeyMap.begin(); iter != mTranslateKeyMap.end(); iter++)
+    for (const auto& [native_key, ll_key] : mTranslateKeyMap)
     {
-        mInvTranslateKeyMap[iter->second] = iter->first;
+        mInvTranslateKeyMap[ll_key] = native_key;
     }
 
     // build numpad maps
@@ -154,9 +153,9 @@ LLKeyboardMacOSX::LLKeyboardMacOSX()
     mTranslateNumpadMap[0x4c] = KEY_PAD_RETURN; // keypad enter
 
     // Build inverse numpad map
-    for (iter = mTranslateNumpadMap.begin(); iter != mTranslateNumpadMap.end(); iter++)
+    for (const auto& [native_key, ll_key] : mTranslateNumpadMap)
     {
-        mInvTranslateNumpadMap[iter->second] = iter->first;
+        mInvTranslateNumpadMap[ll_key] = native_key;
     }
 }
 

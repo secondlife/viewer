@@ -1808,7 +1808,7 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item, bool deparent_mode
 {
     if (item->isSelected())
         getRoot()->clearSelection();
-    items_t::iterator it = std::find(mItems.begin(), mItems.end(), item);
+    auto it = std::ranges::find(mItems, item);
     if(it == mItems.end())
     {
         // This is an evil downcast. However, it's only doing
@@ -1816,7 +1816,7 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item, bool deparent_mode
         // item is in the container, so it's pretty safe.
         LLFolderViewFolder* f = static_cast<LLFolderViewFolder*>(item);
         folders_t::iterator ft;
-        ft = std::find(mFolders.begin(), mFolders.end(), f);
+        ft = std::ranges::find(mFolders, f);
         if (ft != mFolders.end())
         {
             mFolders.erase(ft);

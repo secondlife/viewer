@@ -354,7 +354,7 @@ protected:
     U32 mFlags;
 
 public:
-    static const U32 ANIMATED_MESH_ENABLED_FLAG = 0x1 << 0;
+    static constexpr U32 ANIMATED_MESH_ENABLED_FLAG = 0x1 << 0;
 
     LLExtendedMeshParams();
     /*virtual*/ bool pack(LLDataPacker &dp) const;
@@ -402,7 +402,7 @@ public:
 // - Vir
 struct LLTEContents
 {
-    static const U32 MAX_TES = 45;
+    static constexpr U32 MAX_TES = 45;
 
     LLUUID      image_data[MAX_TES];
     LLColor4U   colors[MAX_TES];
@@ -416,7 +416,7 @@ struct LLTEContents
     U8     glow[MAX_TES];
     LLMaterialID material_ids[MAX_TES];
 
-    static const U32 MAX_TE_BUFFER = 4096;
+    static constexpr U32 MAX_TE_BUFFER = 4096;
     U8 packed_buffer[MAX_TE_BUFFER];
 
     U32 size;

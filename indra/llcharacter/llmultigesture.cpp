@@ -48,7 +48,7 @@ LLMultiGesture::LLMultiGesture()
 
 LLMultiGesture::~LLMultiGesture()
 {
-    std::for_each(mSteps.begin(), mSteps.end(), DeletePointer());
+    std::ranges::for_each(mSteps, DeletePointer());
     mSteps.clear();
 }
 

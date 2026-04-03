@@ -300,7 +300,7 @@ private:
 
 };
 
-static const F32 SEND_STATS_PERIOD = 300.0f;
+static constexpr F32 SEND_STATS_PERIOD = 300.0f;
 
 // The following are from (older?) statistics code found in appviewer.
 void update_statistics();

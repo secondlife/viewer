@@ -34,7 +34,7 @@ class LLKeyboardSDL : public LLKeyboard
 {
 public:
     LLKeyboardSDL();
-    /*virtual*/ ~LLKeyboardSDL() {};
+    /*virtual*/ ~LLKeyboardSDL() = default;
 
     /*virtual*/ bool    handleKeyUp(const U16 key, MASK mask);
     /*virtual*/ bool    handleKeyDown(const U16 key, MASK mask);

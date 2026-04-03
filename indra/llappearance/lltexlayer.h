@@ -63,7 +63,7 @@ public:
 
     LLTexLayerInterface(LLTexLayerSet* const layer_set);
     LLTexLayerInterface(const LLTexLayerInterface &layer, LLWearable *wearable);
-    virtual ~LLTexLayerInterface() {}
+    virtual ~LLTexLayerInterface() = default;
 
     virtual bool            render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target) = 0;
     virtual void            deleteCaches() = 0;
@@ -134,7 +134,7 @@ protected:
     LLAvatarAppearance*     getAvatarAppearance()   const       { return mAvatarAppearance; }
 private:
     LLAvatarAppearance* const   mAvatarAppearance; // note: backlink only; don't make this an LLPointer.
-    typedef std::vector<LLWearable*> wearable_cache_t;
+    using wearable_cache_t = std::vector<LLWearable*>;
     mutable wearable_cache_t mWearableCache; // mutable b/c most get- require updating this cache
 };
 
@@ -172,7 +172,7 @@ public:
     static void             calculateTexLayerColor(const param_color_list_t &param_list, LLColor4 &net_color);
 protected:
     LLUUID                  getUUID() const;
-    typedef std::map<U32, U8*> alpha_cache_t;
+    using alpha_cache_t = std::map<U32, U8*>;
     alpha_cache_t           mAlphaCache;
     LLLocalTextureObject*   mLocalTextureObject;
 };
@@ -221,7 +221,7 @@ public:
     static bool                 sHasCaches;
 
 protected:
-    typedef std::vector<LLTexLayerInterface *> layer_list_t;
+    using layer_list_t = std::vector<LLTexLayerInterface *>;
     layer_list_t                mLayerList;
     layer_list_t                mMaskLayerList;
     LLPointer<LLTexLayerSetBuffer>  mComposite;
@@ -253,7 +253,7 @@ protected:
     S32                     mHeight;
     std::string             mStaticAlphaFileName;
     bool                    mClearAlpha; // Set alpha to 1 for this layerset (if there is no mStaticAlphaFileName)
-    typedef std::vector<LLTexLayerInfo*> layer_info_list_t;
+    using layer_info_list_t = std::vector<LLTexLayerInfo*>;
     layer_info_list_t       mLayerInfoList;
 };
 
@@ -302,9 +302,9 @@ protected:
     bool                loadImageRaw(const std::string& file_name, LLImageRaw* image_raw);
 private:
     LLStringTable       mImageNames;
-    typedef std::map<const char*, LLPointer<LLGLTexture> > texture_map_t;
+    using texture_map_t = std::map<const char*, LLPointer<LLGLTexture> >;
     texture_map_t       mStaticImageList;
-    typedef std::map<const char*, LLPointer<LLImageTGA> > image_tga_map_t;
+    using image_tga_map_t = std::map<const char*, LLPointer<LLImageTGA> >;
     image_tga_map_t     mStaticImageListTGA;
     S32                 mGLBytes;
     S32                 mTGABytes;

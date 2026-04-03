@@ -4220,7 +4220,7 @@ LLTextSegmentPtr LLImageTextSegment::clone(LLTextBase& target) const
     return new LLImageTextSegment(sp, mStart, target);
 }
 
-static const S32 IMAGE_HPAD = 3;
+static constexpr S32 IMAGE_HPAD = 3;
 
 // virtual
 bool LLImageTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const

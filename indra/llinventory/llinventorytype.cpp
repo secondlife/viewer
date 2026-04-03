@@ -57,7 +57,7 @@ struct InventoryEntry : public LLDictionaryEntry
     }
 
     const std::string mHumanName;
-    typedef std::vector<LLAssetType::EType> asset_vec_t;
+    using asset_vec_t = std::vector<LLAssetType::EType>;
     asset_vec_t mAssetTypes;
 };
 

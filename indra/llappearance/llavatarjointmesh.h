@@ -39,12 +39,12 @@ class LLFace;
 class LLCharacter;
 class LLTexLayerSet;
 
-typedef enum e_avatar_render_pass
+enum EAvatarRenderPass
 {
     AVATAR_RENDER_PASS_SINGLE,
     AVATAR_RENDER_PASS_CLOTHING_INNER,
     AVATAR_RENDER_PASS_CLOTHING_OUTER
-} EAvatarRenderPass;
+};
 
 class LLSkinJoint
 {

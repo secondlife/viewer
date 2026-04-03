@@ -466,7 +466,7 @@ private:
         }
         LLFriendListUpdater* mUpdater;
 
-        static const U32 CALLINGCARD_ADDED = LLInventoryObserver::ADD | LLInventoryObserver::CALLING_CARD;
+        static constexpr U32 CALLINGCARD_ADDED = LLInventoryObserver::ADD | LLInventoryObserver::CALLING_CARD;
     };
 };
 

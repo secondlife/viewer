@@ -40,7 +40,7 @@ public:
     glm::vec3 mScale;
     LLVector3 mRotation;
 
-    typedef std::vector<LLJointData> bones_t;
+    using bones_t = std::vector<LLJointData>;
     bones_t mChildren;
 
     bool mIsJoint; // if not, collision_volume

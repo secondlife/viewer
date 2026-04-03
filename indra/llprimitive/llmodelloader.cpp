@@ -556,15 +556,15 @@ void LLModelLoader::dumpDebugData()
     }
 
     file << "\nInv Bind matrices.\n";
-    for (auto& bind : inv_bind)
+    for (auto& [joint, matrix] : inv_bind)
     {
-        file << "Joint: " << bind.first << " Matrix: " << bind.second << "\n";
+        file << "Joint: " << joint << " Matrix: " << matrix << "\n";
     }
 
     file << "\nAlt Bind matrices.\n";
-    for (auto& bind : alt_bind)
+    for (auto& [joint, matrix] : alt_bind)
     {
-        file << "Joint: " << bind.first << " Matrix: " << bind.second << "\n";
+        file << "Joint: " << joint << " Matrix: " << matrix << "\n";
     }
 
     if (mDebugMode == 2)
@@ -598,10 +598,10 @@ void LLModelLoader::dumpDebugData()
             }
 
             file << "\n\nWeights for model: " << mdl->mLabel;
-            for (auto& weights : mdl->mSkinWeights)
+            for (auto& [vertex, weight_list] : mdl->mSkinWeights)
             {
-                file << "\nVertex: " << weights.first << " Weights: ";
-                for (auto& weight : weights.second)
+                file << "\nVertex: " << vertex << " Weights: ";
+                for (auto& weight : weight_list)
                 {
                     file << weight.mJointIdx << ":" << weight.mWeight << " ";
                 }

@@ -79,7 +79,7 @@ struct Key
 //------------------------------------------------------------------------
 // KeyVector
 //------------------------------------------------------------------------
-typedef  std::vector<Key> KeyVector;
+using KeyVector = std::vector<Key>;
 
 //------------------------------------------------------------------------
 // Joint
@@ -146,12 +146,12 @@ struct Constraint
 //------------------------------------------------------------------------
 // JointVector
 //------------------------------------------------------------------------
-typedef std::vector<Joint*> JointVector;
+using JointVector = std::vector<Joint*>;
 
 //------------------------------------------------------------------------
 // ConstraintVector
 //------------------------------------------------------------------------
-typedef std::vector<Constraint> ConstraintVector;
+using ConstraintVector = std::vector<Constraint>;
 
 //------------------------------------------------------------------------
 // Translation
@@ -181,7 +181,7 @@ public:
     S32         mPriorityModifier;
 };
 
-typedef enum e_load_status
+enum ELoadStatus
     {
         E_ST_OK,
         E_ST_EOF,
@@ -215,12 +215,12 @@ typedef enum e_load_status
         E_ST_NO_XLT_HAND,
         E_ST_NO_XLT_EMOTE,
         E_ST_BAD_ROOT
-    } ELoadStatus;
+    };
 
 //------------------------------------------------------------------------
 // TranslationMap
 //------------------------------------------------------------------------
-typedef std::map<std::string, Translation> TranslationMap;
+using TranslationMap = std::map<std::string, Translation>;
 
 class LLBVHLoader
 {

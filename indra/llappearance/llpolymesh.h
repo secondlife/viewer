@@ -51,7 +51,7 @@ class LLWearable;
 // An LLPolyFace can represent either a triangle or quad.
 // If the last index is -1, it's a triangle.
 //-----------------------------------------------------------------------------
-typedef std::array<S32, 3> LLPolyFace;
+using LLPolyFace = std::array<S32, 3>;
 
 //struct PrimitiveGroup;
 
@@ -93,7 +93,7 @@ private:
     std::vector<std::string> mJointNames;
 
     // morph targets
-    typedef std::set<LLPolyMorphData*> morphdata_list_t;
+    using morphdata_list_t = std::set<LLPolyMorphData*>;
     morphdata_list_t            mMorphData;
 
     std::map<S32, S32>          mSharedVerts;
@@ -148,7 +148,7 @@ class LLJointRenderData
 {
 public:
     LLJointRenderData(const LLMatrix4* world_matrix, LLSkinJoint* skin_joint) : mWorldMatrix(world_matrix), mSkinJoint(skin_joint) {}
-    ~LLJointRenderData(){}
+    ~LLJointRenderData() = default;
 
     const LLMatrix4*        mWorldMatrix;
     LLSkinJoint*            mSkinJoint;
@@ -359,7 +359,7 @@ protected:
     LLPolyMesh              *mReferenceMesh;
 
     // global mesh list
-    typedef std::map<std::string, LLPolyMeshSharedData*> LLPolyMeshSharedDataTable;
+    using LLPolyMeshSharedDataTable = std::map<std::string, LLPolyMeshSharedData*>;
     static LLPolyMeshSharedDataTable sGlobalSharedMeshList;
 
     // Backlink only; don't make this an LLPointer.

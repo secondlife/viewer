@@ -82,14 +82,14 @@ static int getport(const std::string& var)
     // We can do this with a single map lookup with map::insert(). Either it
     // returns an existing entry and 'false' (not newly inserted), or it
     // inserts the specified value and 'true'.
-    std::pair<portsmap::iterator, bool> inserted(ports.insert(portsmap::value_type(var, 0)));
-    if (inserted.second)
+    auto [iter, newly_inserted] = ports.insert(portsmap::value_type(var, 0));
+    if (newly_inserted)
     {
         // We haven't yet seen this var. Remember its value.
-        inserted.first->second = query_port(var);
+        iter->second = query_port(var);
     }
     // Return the (existing or new) iterator's value.
-    return inserted.first->second;
+    return iter->second;
 }
 
 /**

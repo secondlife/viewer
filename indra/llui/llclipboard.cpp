@@ -28,6 +28,8 @@
 
 #include "llclipboard.h"
 
+#include <algorithm>
+
 #include "llerror.h"
 #include "llmath.h"
 #include "llstring.h"
@@ -110,8 +112,7 @@ bool LLClipboard::hasContents() const
 // Returns true if the input uuid is in the list of clipboard objects
 bool LLClipboard::isOnClipboard(const LLUUID& object) const
 {
-    std::vector<LLUUID>::const_iterator iter = std::find(mObjects.begin(), mObjects.end(), object);
-    return (iter != mObjects.end());
+    return std::ranges::find(mObjects, object) != mObjects.end();
 }
 
 // Copy the input string to the LL and the system clipboard

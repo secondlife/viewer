@@ -33,12 +33,12 @@ class LLPreeditor
 {
 public:
 
-    typedef std::vector<S32> segment_lengths_t;
-    typedef std::deque<bool> standouts_t;
+    using segment_lengths_t = std::vector<S32>;
+    using standouts_t = std::deque<bool>;
 
     // We don't delete against LLPreeditor, but compilers complain without this...
 
-    virtual ~LLPreeditor() {};
+    virtual ~LLPreeditor() = default;
 
     // Discard any preedit info. on this preeditor.
 

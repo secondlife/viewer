@@ -98,8 +98,8 @@ const S32 CURRENT_VERSION = 101;
 // the gSavedSettings profiling code.  This code tracks the calls to get a saved (debug) setting.
 // When the viewer exits the results are written to the log directory to the file specified
 // by SETTINGS_PROFILE below.  Only settings with an average access rate >= 2/second are output.
-typedef std::pair<std::string, U32> settings_pair_t;
-typedef std::vector<settings_pair_t> settings_vec_t;
+using settings_pair_t = std::pair<std::string, U32>;
+using settings_vec_t = std::vector<settings_pair_t>;
 LLSD getCount;
 settings_vec_t getCount_v;
 F64 start_time = 0;
@@ -428,17 +428,17 @@ void LLControlGroup::cleanup()
             }
             sort(getCount_v.begin(), getCount_v.end(), compareRoutine);
 
-            for (settings_vec_t::iterator iter = getCount_v.begin(); iter != getCount_v.end(); ++iter)
+            for (const auto& [setting_name, access_count] : getCount_v)
             {
                 U32 access_rate = 0;
                 if (total_seconds != 0)
                 {
-                    access_rate = iter->second / total_seconds;
+                    access_rate = access_count / total_seconds;
                 }
                 if (access_rate >= 2)
                 {
                     std::ostringstream data_msg;
-                    msg = llformat("%13d        %7d       %s", iter->second, access_rate, iter->first.c_str());
+                    msg = llformat("%13d        %7d       %s", access_count, access_rate, setting_name.c_str());
                     data_msg << msg << "\n";
                     size_t data_size = data_msg.str().size();
                     if (fwrite(data_msg.str().c_str(), 1, data_size, out) != data_size)
@@ -649,15 +649,12 @@ LLSD LLControlGroup::asLLSD(bool diffs_only)
 {
     // Dump all stored values as LLSD
     LLSD result = LLSD::emptyArray();
-    for (ctrl_name_table_t::iterator iter = mNameTable.begin();
-         iter != mNameTable.end(); iter++)
+    for (const auto& [name, control] : mNameTable)
     {
-        LLControlVariable *control = iter->second;
         if (!control || control->isType(TYPE_STRING) || (diffs_only && control->isDefault()))
         {
             continue;
         }
-        const std::string& name = iter->first;
         result[name] = getLLSD(name);
     }
     return result;
@@ -961,19 +958,17 @@ U32 LLControlGroup::saveToFile(const std::string& filename, bool nondefault_only
 {
     LLSD settings;
     int num_saved = 0;
-    for (ctrl_name_table_t::iterator iter = mNameTable.begin();
-         iter != mNameTable.end(); iter++)
+    for (const auto& [name, control] : mNameTable)
     {
-        LLControlVariable* control = iter->second;
         if (!control)
         {
-            LL_WARNS("Settings") << "Tried to save invalid control: " << iter->first << LL_ENDL;
+            LL_WARNS("Settings") << "Tried to save invalid control: " << name << LL_ENDL;
         }
         else if( control->shouldSave(nondefault_only) )
         {
-            settings[iter->first]["Type"] = typeEnumToString(control->type());
-            settings[iter->first]["Comment"] = control->getComment();
-            settings[iter->first]["Value"] = control->getSaveValue();
+            settings[name]["Type"] = typeEnumToString(control->type());
+            settings[name]["Comment"] = control->getComment();
+            settings[name]["Value"] = control->getSaveValue();
             ++num_saved;
         }
     }
@@ -1156,10 +1151,9 @@ void LLControlGroup::resetToDefaults()
 
 void LLControlGroup::applyToAll(ApplyFunctor* func)
 {
-    for (ctrl_name_table_t::iterator iter = mNameTable.begin();
-         iter != mNameTable.end(); iter++)
+    for (const auto& [name, control] : mNameTable)
     {
-        func->apply(iter->first, iter->second);
+        func->apply(name, control);
     }
 }
 

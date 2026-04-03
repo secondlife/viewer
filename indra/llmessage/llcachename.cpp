@@ -272,9 +272,9 @@ LLCacheName::Impl::Impl(LLMessageSystem* msg)
 
 LLCacheName::Impl::~Impl()
 {
-    std::for_each(mCache.begin(), mCache.end(), DeletePairedPointer());
+    std::ranges::for_each(mCache, DeletePairedPointer());
     mCache.clear();
-    for_each(mReplyQueue.begin(), mReplyQueue.end(), DeletePointer());
+    std::ranges::for_each(mReplyQueue, DeletePointer());
     mReplyQueue.clear();
 }
 
@@ -366,12 +366,9 @@ bool LLCacheName::importFile(std::istream& istr)
 void LLCacheName::exportFile(std::ostream& ostr)
 {
     LLSD data;
-    Cache::iterator iter = impl.mCache.begin();
-    Cache::iterator end = impl.mCache.end();
-    for( ; iter != end; ++iter)
+    for (const auto& [id, entry] : impl.mCache)
     {
         // Only write entries for which we have valid data.
-        LLCacheNameEntry* entry = iter->second;
         if(!entry
            || (std::string::npos != entry->mFirstName.find('?'))
            || (std::string::npos != entry->mGroupName.find('?')))
@@ -380,7 +377,6 @@ void LLCacheName::exportFile(std::ostream& ostr)
         }
 
         // store it
-        LLUUID id = iter->first;
         std::string id_str = id.asString();
         // IDEVO TODO: Should we store SLIDs with last name "Resident" or not?
         if(!entry->mFirstName.empty() && !entry->mLastName.empty())
@@ -714,15 +710,12 @@ void LLCacheName::deleteEntriesOlderThan(S32 secs)
 
 void LLCacheName::dump()
 {
-    for (Cache::iterator iter = impl.mCache.begin(),
-             end = impl.mCache.end();
-         iter != end; iter++)
+    for (const auto& [id, entry] : impl.mCache)
     {
-        LLCacheNameEntry* entry = iter->second;
         if (entry->mIsGroup)
         {
             LL_INFOS()
-                << iter->first << " = (group) "
+                << id << " = (group) "
                 << entry->mGroupName
                 << " @ " << entry->mCreateTime
                 << LL_ENDL;
@@ -730,7 +723,7 @@ void LLCacheName::dump()
         else
         {
             LL_INFOS()
-                << iter->first << " = "
+                << id << " = "
                 << buildFullName(entry->mFirstName, entry->mLastName)
                 << " @ " << entry->mCreateTime
                 << LL_ENDL;
@@ -752,7 +745,7 @@ void LLCacheName::dumpStats()
 
 void LLCacheName::clear()
 {
-    std::for_each(impl.mCache.begin(), impl.mCache.end(), DeletePairedPointer());
+    std::ranges::for_each(impl.mCache, DeletePairedPointer());
     impl.mCache.clear();
 }
 

@@ -812,11 +812,11 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
     std::vector<LLVolumeFace::VertexData> new_verts;
     new_verts.resize(vert_idx.size());
 
-    for (std::map<LLVolumeFace::VertexData, U32>::iterator iter = vert_idx.begin(); iter != vert_idx.end(); ++iter)
+    for (const auto& [vert_data, idx] : vert_idx)
     {
-        new_verts[iter->second] = iter->first;
+        new_verts[idx] = vert_data;
         // VFExtents change
-        update_min_max(face.mExtents[0], face.mExtents[1], iter->first.getPosition());
+        update_min_max(face.mExtents[0], face.mExtents[1], vert_data.getPosition());
     }
 
     //build index array from map
@@ -1092,7 +1092,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
         }
     }
 
-    std::sort(mModelList.begin(), mModelList.end(), ModelSort());
+    std::ranges::sort(mModelList, ModelSort());
 
     model_list::iterator model_iter = mModelList.begin();
     while (model_iter != mModelList.end())
@@ -1643,7 +1643,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                     }
 
                     //sort by joint weight
-                    std::sort(weight_list.begin(), weight_list.end(), LLModel::CompareWeightGreater());
+                    std::ranges::sort(weight_list, LLModel::CompareWeightGreater());
 
                     std::vector<LLModel::JointWeight> wght;
 

@@ -132,8 +132,7 @@ void LLAssetInfo::setName( const std::string& name )
     if( !name.empty() )
     {
         mName.assign( name, 0, llmin((U32)name.size(), (U32)DB_INV_ITEM_NAME_STR_LEN) );
-        mName.erase( std::remove(mName.begin(), mName.end(), '|'),
-                     mName.end() );
+        std::erase(mName, '|');
     }
 }
 
@@ -145,9 +144,7 @@ void LLAssetInfo::setDescription( const std::string& desc )
     {
         mDescription.assign( desc, 0, llmin((U32)desc.size(),
                                             (U32)DB_INV_ITEM_DESC_STR_LEN) );
-        mDescription.erase( std::remove(mDescription.begin(),
-                                        mDescription.end(), '|'),
-                            mDescription.end() );
+        std::erase(mDescription, '|');
     }
 }
 
@@ -653,9 +650,7 @@ void LLAssetStorage::downloadCompleteCallback(
 
     // Inefficient since we're doing a find through a list that may have thousands of elements.
     // This is due for refactoring; we will probably change mPendingDownloads into a set.
-    request_list_t::iterator download_iter = std::find(gAssetStorage->mPendingDownloads.begin(),
-                                                       gAssetStorage->mPendingDownloads.end(),
-                                                       req);
+    auto download_iter = std::ranges::find(gAssetStorage->mPendingDownloads, req);
 
     if (download_iter != gAssetStorage->mPendingDownloads.end())
     {

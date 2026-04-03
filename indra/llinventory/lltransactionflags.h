@@ -28,7 +28,7 @@
 
 class LLUUID;
 
-typedef U8 TransactionFlags;
+using TransactionFlags = U8;
 
 // defined in common/llinventory/lltransactionflags.cpp
 extern const TransactionFlags TRANSACTION_FLAGS_NONE;

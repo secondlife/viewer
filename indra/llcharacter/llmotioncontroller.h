@@ -48,7 +48,7 @@ class LLCharacter;
 //-----------------------------------------------------------------------------
 // LLMotionRegistry
 //-----------------------------------------------------------------------------
-typedef LLMotion*(*LLMotionConstructor)(const LLUUID &id);
+using LLMotionConstructor = LLMotion*(*)(const LLUUID &id);
 
 class LLMotionRegistry
 {
@@ -72,7 +72,7 @@ public:
 
 
 protected:
-    typedef std::map<LLUUID, LLMotionConstructor> motion_map_t;
+    using motion_map_t = std::map<LLUUID, LLMotionConstructor>;
     motion_map_t mMotionTable;
 };
 
@@ -82,8 +82,8 @@ protected:
 class LLMotionController
 {
 public:
-    typedef std::list<LLMotion*> motion_list_t;
-    typedef std::set<LLMotion*> motion_set_t;
+    using motion_list_t = std::list<LLMotion*>;
+    using motion_set_t = std::set<LLMotion*>;
     bool mIsSelf;
 
 public:
@@ -207,7 +207,7 @@ protected:
 //  Once an animations is loaded, it will be initialized and put on the mLoadedMotions list.
 //  Any animation that is currently playing also sits in the mActiveMotions list.
 
-    typedef std::map<LLUUID, LLMotion*> motion_map_t;
+    using motion_map_t = std::map<LLUUID, LLMotion*>;
     motion_map_t    mAllMotions;
 
     motion_set_t        mLoadingMotions;

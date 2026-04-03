@@ -54,8 +54,8 @@ class LLWorldMipmap
 {
 public:
     // Parameters of the mipmap
-    static const S32 MAP_LEVELS = 8;        // Number of subresolution levels computed by the mapserver
-    static const S32 MAP_TILE_SIZE = 256;   // Width in pixels of the tiles computed by the mapserver
+    static constexpr S32 MAP_LEVELS = 8;        // Number of subresolution levels computed by the mapserver
+    static constexpr S32 MAP_TILE_SIZE = 256;   // Width in pixels of the tiles computed by the mapserver
 
     LLWorldMipmap();
     ~LLWorldMipmap();

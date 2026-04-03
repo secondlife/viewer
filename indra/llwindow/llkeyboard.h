@@ -41,8 +41,8 @@ enum EKeystate
     KEYSTATE_UP
 };
 
-typedef std::function<bool(EKeystate keystate)> LLKeyFunc;
-typedef std::string (LLKeyStringTranslatorFunc)(std::string_view);
+using LLKeyFunc = std::function<bool(EKeystate keystate)>;
+using LLKeyStringTranslatorFunc = std::string(std::string_view);
 
 enum EKeyboardInsertMode
 {

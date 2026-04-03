@@ -52,7 +52,7 @@ LLScrollListItem::LLScrollListItem( const Params& p )
 
 LLScrollListItem::~LLScrollListItem()
 {
-    std::for_each(mColumns.begin(), mColumns.end(), DeletePointer());
+    std::ranges::for_each(mColumns, DeletePointer());
     mColumns.clear();
 }
 

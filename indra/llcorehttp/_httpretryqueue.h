@@ -56,9 +56,9 @@ struct HttpOpRetryCompare
 };
 
 
-typedef std::priority_queue<HttpOpRequest::ptr_t,
+using HttpRetryQueueBase = std::priority_queue<HttpOpRequest::ptr_t,
                             std::deque<HttpOpRequest::ptr_t>,
-                            LLCore::HttpOpRetryCompare> HttpRetryQueueBase;
+                            LLCore::HttpOpRetryCompare>;
 
 class HttpRetryQueue : public HttpRetryQueueBase
 {

@@ -208,7 +208,7 @@ private:
     //
 
     std::list<LLPointer<LLVOWater> > mHoleWaterObjects;
-    static const S32 EDGE_WATER_OBJECTS_COUNT = 8;
+    static constexpr S32 EDGE_WATER_OBJECTS_COUNT = 8;
     std::array<LLPointer<LLVOWater>, EDGE_WATER_OBJECTS_COUNT> mEdgeWaterObjects;
 
     LLPointer<LLViewerTexture> mDefaultWaterTexturep;

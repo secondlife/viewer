@@ -48,8 +48,8 @@
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
-static const S32 VERTICAL_MULTIPLE = 16;
-static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
+static constexpr S32 VERTICAL_MULTIPLE = 16;
+static constexpr F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
 
 ///----------------------------------------------------------------------------
 /// Class LLScrollContainer

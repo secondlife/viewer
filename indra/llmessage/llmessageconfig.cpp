@@ -35,7 +35,7 @@
 #include "message.h"
 
 static const char messageConfigFileName[] = "message.xml";
-static const F32 messageConfigRefreshRate = 5.0; // seconds
+static constexpr F32 messageConfigRefreshRate = 5.0; // seconds
 
 static std::string sServerName = "";
 static std::string sConfigDir = "";
@@ -73,7 +73,7 @@ public:
     S32 mMaxQueuedEvents;
 
 private:
-    static const S32 DEFAULT_MAX_QUEUED_EVENTS = 100;
+    static constexpr S32 DEFAULT_MAX_QUEUED_EVENTS = 100;
 };
 
 std::string LLMessageConfigFile::filename()

@@ -166,7 +166,7 @@ LLViewerMediaObserver::~LLViewerMediaObserver()
 static LLViewerMedia::impl_list sViewerMediaImplList;
 static LLViewerMedia::impl_id_map sViewerMediaTextureIDMap;
 static LLTimer sMediaCreateTimer;
-static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
+static constexpr F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
 static F32 sGlobalVolume = 1.0f;
 static bool sForceUpdate = false;
 static LLUUID sOnlyAudibleTextureID = LLUUID::null;
