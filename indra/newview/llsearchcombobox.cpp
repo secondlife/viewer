@@ -30,6 +30,9 @@
 #include "llkeyboard.h"
 #include "lltrans.h"  // for LLTrans::getString()
 #include "lluictrlfactory.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLSearchComboBox> r1("search_combo_box");
 
@@ -68,17 +71,17 @@ LLSearchComboBox::LLSearchComboBox(const Params&p)
     button_params.rect(search_btn_rect) ;
     button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_TOP);
     button_params.tab_stop(false);
-    button_params.click_callback.function(boost::bind(&LLSearchComboBox::onSelectionCommit, this));
+    button_params.click_callback.function(std::bind(&LLSearchComboBox::onSelectionCommit, this));
     mSearchButton = LLUICtrlFactory::create<LLButton>(button_params);
     mTextEntry->addChild(mSearchButton);
     mTextEntry->setPassDelete(true);
 
     setButtonVisible(p.dropdown_button_visible);
-    mTextEntry->setCommitCallback(boost::bind(&LLComboBox::onTextCommit, this, _2));
-    mTextEntry->setKeystrokeCallback(boost::bind(&LLComboBox::onTextEntry, this, _1), NULL);
-    setCommitCallback(boost::bind(&LLSearchComboBox::onSelectionCommit, this));
-    setPrearrangeCallback(boost::bind(&LLSearchComboBox::onSearchPrearrange, this, _2));
-    mSearchButton->setCommitCallback(boost::bind(&LLSearchComboBox::onTextCommit, this, _2));
+    mTextEntry->setCommitCallback(std::bind(&LLComboBox::onTextCommit, this, _2));
+    mTextEntry->setKeystrokeCallback(std::bind(&LLComboBox::onTextEntry, this, _1), NULL);
+    setCommitCallback(std::bind(&LLSearchComboBox::onSelectionCommit, this));
+    setPrearrangeCallback(std::bind(&LLSearchComboBox::onSearchPrearrange, this, _2));
+    mSearchButton->setCommitCallback(std::bind(&LLSearchComboBox::onTextCommit, this, _2));
 }
 
 void LLSearchComboBox::rebuildSearchHistory(const std::string& filter)

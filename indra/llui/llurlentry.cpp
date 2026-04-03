@@ -42,6 +42,9 @@
 #include "message.h"
 #include "llexperiencecache.h"
 #include "v3dmath.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Utility functions
 std::string localize_slapp_label(const std::string& url, const std::string& full_name);
@@ -712,7 +715,7 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
     }
     else
     {
-        mAvatarNameCacheConnections.emplace(agent_id, LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2)));
+        mAvatarNameCacheConnections.emplace(agent_id, LLAvatarNameCache::get(agent_id, std::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2)));
 
         addObserver(agent_id_string, url, cb);
         return LLTrans::getString("LoadingData");
@@ -858,7 +861,7 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
     }
     else
     {
-        mAvatarNameCacheConnections.emplace(agent_id, LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2)));
+        mAvatarNameCacheConnections.emplace(agent_id, LLAvatarNameCache::get(agent_id, std::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2)));
 
         addObserver(agent_id_string, url, cb);
         return LLTrans::getString("LoadingData");
@@ -994,7 +997,7 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
     else
     {
         gCacheName->getGroup(group_id,
-            boost::bind(&LLUrlEntryGroup::onGroupNameReceived,
+            std::bind(&LLUrlEntryGroup::onGroupNameReceived,
                 this, _1, _2, _3));
         addObserver(group_id_string, url, cb);
         return LLTrans::getString("LoadingData");
@@ -1610,7 +1613,7 @@ std::string LLUrlEntryExperienceProfile::getLabel( const std::string &url, const
     }
 
     addObserver(experience_id_string, url, cb);
-    LLExperienceCache::instance().get(experience_id, boost::bind(&LLUrlEntryExperienceProfile::onExperienceDetails, this, _1));
+    LLExperienceCache::instance().get(experience_id, std::bind(&LLUrlEntryExperienceProfile::onExperienceDetails, this, _1));
     return LLTrans::getString("LoadingData");
 
 }

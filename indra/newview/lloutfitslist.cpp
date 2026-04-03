@@ -53,6 +53,9 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llwearableitemslist.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static bool is_tab_header_clicked(LLOutfitAccordionCtrlTab* tab, S32 y);
 
@@ -125,7 +128,7 @@ LLOutfitsList::LLOutfitsList()
     LLControlVariable* ctrl = gSavedSettings.getControl("InventoryFavoritesColorText");
     if (ctrl)
     {
-        mSavedSettingInvFavColor = ctrl->getSignal()->connect(boost::bind(&LLOutfitsList::handleInvFavColorChange, this));
+        mSavedSettingInvFavColor = ctrl->getSignal()->connect(std::bind(&LLOutfitsList::handleInvFavColorChange, this));
     }
 }
 
@@ -166,7 +169,7 @@ void LLOutfitsList::onOpen(const LLSD& info)
     if (!mIsInitialized)
     {
         // Start observing changes in Current Outfit category.
-        LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLOutfitsList::onCOFChanged, this));
+        LLOutfitObserver::instance().addCOFChangedCallback(std::bind(&LLOutfitsList::onCOFChanged, this));
     }
 
     LLOutfitListBase::onOpen(info);
@@ -216,7 +219,7 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
 
     // Start observing the new outfit category.
     LLWearableItemsList* list = tab->getChild<LLWearableItemsList>("wearable_items_list");
-    if (!mCategoriesObserver->addCategory(cat_id, boost::bind(&LLWearableItemsList::updateList, list, cat_id)))
+    if (!mCategoriesObserver->addCategory(cat_id, std::bind(&LLWearableItemsList::updateList, list, cat_id)))
     {
         // Remove accordion tab if category could not be added to observer.
         mAccordion->removeCollapsibleCtrl(tab);
@@ -229,21 +232,21 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
     // Map the new tab with outfit category UUID.
     mOutfitsMap.insert(LLOutfitsList::outfits_map_value_t(cat_id, tab));
 
-    tab->setRightMouseDownCallback(boost::bind(&LLOutfitListBase::outfitRightClickCallBack, this,
+    tab->setRightMouseDownCallback(std::bind(&LLOutfitListBase::outfitRightClickCallBack, this,
         _1, _2, _3, cat_id));
 
     // Setting tab focus callback to monitor currently selected outfit.
-    tab->setFocusReceivedCallback(boost::bind(&LLOutfitListBase::ChangeOutfitSelection, this, list, cat_id));
+    tab->setFocusReceivedCallback(std::bind(&LLOutfitListBase::ChangeOutfitSelection, this, list, cat_id));
 
     // Setting callback to reset items selection inside outfit on accordion collapsing and expanding (EXT-7875)
-    tab->setDropDownStateChangedCallback(boost::bind(&LLOutfitsList::resetItemSelection, this, list, cat_id));
+    tab->setDropDownStateChangedCallback(std::bind(&LLOutfitsList::resetItemSelection, this, list, cat_id));
 
     // Depending on settings, force showing list items that don't match current filter(EXT-7158)
     static LLCachedControl<bool> list_filter(gSavedSettings, "OutfitListFilterFullList");
     list->setForceShowingUnmatchedItems(list_filter(), false);
 
     // Setting list commit callback to monitor currently selected wearable item.
-    list->setCommitCallback(boost::bind(&LLOutfitsList::onListSelectionChange, this, _1));
+    list->setCommitCallback(std::bind(&LLOutfitsList::onListSelectionChange, this, _1));
 
     // Setting list refresh callback to apply filter on list change.
     list->setRefreshCompleteCallback([this, tab](LLUICtrl* ctrl, const LLSD& sd)
@@ -251,7 +254,7 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
         onRefreshComplete(ctrl, tab);
     });
 
-    list->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onWearableItemsListRightClick, this, _1, _2, _3));
+    list->setRightMouseDownCallback(std::bind(&LLOutfitsList::onWearableItemsListRightClick, this, _1, _2, _3));
 
     if (AISAPI::isAvailable() && LLInventoryModelBackgroundFetch::instance().folderFetchActive())
     {
@@ -939,14 +942,14 @@ void LLOutfitListBase::onOpen(const LLSD& info)
 
         // Start observing changes in "My Outfits" category.
         mCategoriesObserver->addCategory(outfits,
-            boost::bind(&LLOutfitListBase::observerCallback, this, outfits));
+            std::bind(&LLOutfitListBase::observerCallback, this, outfits));
 
         //const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
         // Start observing changes in Current Outfit category.
-        //mCategoriesObserver->addCategory(cof, boost::bind(&LLOutfitsList::onCOFChanged, this));
+        //mCategoriesObserver->addCategory(cof, std::bind(&LLOutfitsList::onCOFChanged, this));
 
-        LLOutfitObserver::instance().addBOFChangedCallback(boost::bind(&LLOutfitListBase::highlightBaseOutfit, this));
-        LLOutfitObserver::instance().addBOFReplacedCallback(boost::bind(&LLOutfitListBase::highlightBaseOutfit, this));
+        LLOutfitObserver::instance().addBOFChangedCallback(std::bind(&LLOutfitListBase::highlightBaseOutfit, this));
+        LLOutfitObserver::instance().addBOFReplacedCallback(std::bind(&LLOutfitListBase::highlightBaseOutfit, this));
 
         // Fetch "My Outfits" contents and refresh the list to display
         // initially fetched items. If not all items are fetched now
@@ -1191,7 +1194,7 @@ void LLOutfitListBase::highlightBaseOutfit()
 
 void LLOutfitListBase::removeSelected()
 {
-    LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), boost::bind(&LLOutfitListBase::onOutfitsRemovalConfirmation, this, _1, _2));
+    LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), std::bind(&LLOutfitListBase::onOutfitsRemovalConfirmation, this, _1, _2));
 }
 
 void LLOutfitListBase::onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response)
@@ -1278,20 +1281,20 @@ LLContextMenu* LLOutfitContextMenu::createMenu()
     LLUUID selected_id = mUUIDs.front();
 
     registrar.add("Outfit.WearReplace",
-        boost::bind(&LLAppearanceMgr::replaceCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
+        std::bind(&LLAppearanceMgr::replaceCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.WearAdd",
-        boost::bind(&LLAppearanceMgr::addCategoryToCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
+        std::bind(&LLAppearanceMgr::addCategoryToCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.TakeOff",
-        boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
-    registrar.add("Outfit.Edit", boost::bind(editOutfit));
-    registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
-    registrar.add("Outfit.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList));
-    registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitContextMenu::onThumbnail, this, selected_id));
-    registrar.add("Outfit.Favorite", boost::bind(&LLOutfitContextMenu::onFavorite, this, selected_id));
-    registrar.add("Outfit.Save", boost::bind(&LLOutfitContextMenu::onSave, this, selected_id));
+        std::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
+    registrar.add("Outfit.Edit", std::bind(editOutfit));
+    registrar.add("Outfit.Rename", std::bind(renameOutfit, selected_id));
+    registrar.add("Outfit.Delete", std::bind(&LLOutfitListBase::removeSelected, mOutfitList));
+    registrar.add("Outfit.Thumbnail", std::bind(&LLOutfitContextMenu::onThumbnail, this, selected_id));
+    registrar.add("Outfit.Favorite", std::bind(&LLOutfitContextMenu::onFavorite, this, selected_id));
+    registrar.add("Outfit.Save", std::bind(&LLOutfitContextMenu::onSave, this, selected_id));
 
-    enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitContextMenu::onEnable, this, _2));
-    enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitContextMenu::onVisible, this, _2));
+    enable_registrar.add("Outfit.OnEnable", std::bind(&LLOutfitContextMenu::onEnable, this, _2));
+    enable_registrar.add("Outfit.OnVisible", std::bind(&LLOutfitContextMenu::onVisible, this, _2));
 
     return createFromFile("menu_outfit_tab.xml");
 
@@ -1405,21 +1408,21 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add("Gear.Wear", boost::bind(&LLOutfitListGearMenuBase::onWear, this));
-    registrar.add("Gear.TakeOff", boost::bind(&LLOutfitListGearMenuBase::onTakeOff, this));
-    registrar.add("Gear.Rename", boost::bind(&LLOutfitListGearMenuBase::onRename, this));
-    registrar.add("Gear.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList));
-    registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenuBase::onCreate, this, _2));
+    registrar.add("Gear.Wear", std::bind(&LLOutfitListGearMenuBase::onWear, this));
+    registrar.add("Gear.TakeOff", std::bind(&LLOutfitListGearMenuBase::onTakeOff, this));
+    registrar.add("Gear.Rename", std::bind(&LLOutfitListGearMenuBase::onRename, this));
+    registrar.add("Gear.Delete", std::bind(&LLOutfitListBase::removeSelected, mOutfitList));
+    registrar.add("Gear.Create", std::bind(&LLOutfitListGearMenuBase::onCreate, this, _2));
 
-    registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenuBase::onAdd, this));
-    registrar.add("Gear.Save", boost::bind(&LLOutfitListGearMenuBase::onSave, this));
+    registrar.add("Gear.WearAdd", std::bind(&LLOutfitListGearMenuBase::onAdd, this));
+    registrar.add("Gear.Save", std::bind(&LLOutfitListGearMenuBase::onSave, this));
 
-    registrar.add("Gear.Thumbnail", boost::bind(&LLOutfitListGearMenuBase::onThumbnail, this));
-    registrar.add("Gear.Favorite", boost::bind(&LLOutfitListGearMenuBase::onFavorite, this));
-    registrar.add("Gear.SortByImage", boost::bind(&LLOutfitListGearMenuBase::onChangeSortOrder, this));
+    registrar.add("Gear.Thumbnail", std::bind(&LLOutfitListGearMenuBase::onThumbnail, this));
+    registrar.add("Gear.Favorite", std::bind(&LLOutfitListGearMenuBase::onFavorite, this));
+    registrar.add("Gear.SortByImage", std::bind(&LLOutfitListGearMenuBase::onChangeSortOrder, this));
 
-    enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenuBase::onEnable, this, _2));
-    enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenuBase::onVisible, this, _2));
+    enable_registrar.add("Gear.OnEnable", std::bind(&LLOutfitListGearMenuBase::onEnable, this, _2));
+    enable_registrar.add("Gear.OnVisible", std::bind(&LLOutfitListGearMenuBase::onVisible, this, _2));
 
     mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
         "menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1607,10 +1610,10 @@ LLOutfitListSortMenu::LLOutfitListSortMenu(LLOutfitListBase* parent_panel)
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add("Sort.Collapse", boost::bind(&LLOutfitListBase::onCollapseAllFolders, parent_panel));
-    registrar.add("Sort.Expand", boost::bind(&LLOutfitListBase::onExpandAllFolders, parent_panel));
-    registrar.add("Sort.OnSort", boost::bind(&LLOutfitListBase::onChangeSortOrder, parent_panel, _2));
-    enable_registrar.add("Sort.OnEnable", boost::bind(&LLOutfitListSortMenu::onEnable, this, _2));
+    registrar.add("Sort.Collapse", std::bind(&LLOutfitListBase::onCollapseAllFolders, parent_panel));
+    registrar.add("Sort.Expand", std::bind(&LLOutfitListBase::onExpandAllFolders, parent_panel));
+    registrar.add("Sort.OnSort", std::bind(&LLOutfitListBase::onChangeSortOrder, parent_panel, _2));
+    enable_registrar.add("Sort.OnEnable", std::bind(&LLOutfitListSortMenu::onEnable, this, _2));
 
     mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
         "menu_outfit_list_sort.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1683,7 +1686,7 @@ bool LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
                                     .message(getToolTip())
                                     .sticky_rect(calcScreenRect())
                                     .delay_time(LLView::getTooltipTimeout())
-                                    .create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
+                                    .create_callback(std::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
                                     .create_params(params));
         return true;
     }

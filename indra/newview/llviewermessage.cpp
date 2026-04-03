@@ -124,6 +124,9 @@
 
 #include "llexperiencecache.h"
 #include "lluiusage.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 extern void on_new_message(const LLSD& msg);
 
@@ -278,7 +281,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
             {
                 LL_DEBUGS("Friendship") << "Accepting friendship via capability" << LL_ENDL;
                 LLCoros::instance().launch("LLMessageSystem::acceptFriendshipOffer",
-                    boost::bind(accept_friendship_coro, url, notification));
+                    std::bind(accept_friendship_coro, url, notification));
             }
             else if (payload.has("session_id") && payload["session_id"].asUUID().notNull())
             {
@@ -318,7 +321,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
                 {
                     LL_DEBUGS("Friendship") << "Declining friendship via capability" << LL_ENDL;
                     LLCoros::instance().launch("LLMessageSystem::declineFriendshipOffer",
-                        boost::bind(decline_friendship_coro, url, notification, option));
+                        std::bind(decline_friendship_coro, url, notification, option));
                 }
                 else if (payload.has("session_id") && payload["session_id"].asUUID().notNull())
                 {
@@ -639,7 +642,7 @@ void send_join_group_response(LLUUID group_id, LLUUID transaction_id, bool accep
         {
             LL_DEBUGS("GroupInvite") << "Capability url: " << url << LL_ENDL;
             LLCoros::instance().launch("LLMessageSystem::acceptGroupInvitation",
-                boost::bind(response_group_invitation_coro, url, group_id, accept_invite));
+                std::bind(response_group_invitation_coro, url, group_id, accept_invite));
         }
         else
         {
@@ -1147,7 +1150,7 @@ public:
         // So defer moving the item to trash until viewer gets idle (in a moment).
         // Use removeObject() rather than removeItem() because at this level,
         // the object could be either an item or a folder.
-        LLAppViewer::instance()->addOnIdleCallback(boost::bind(&LLInventoryModel::removeObject, &gInventory, mObjectID));
+        LLAppViewer::instance()->addOnIdleCallback(std::bind(&LLInventoryModel::removeObject, &gInventory, mObjectID));
         gInventory.removeObserver(this);
         delete this;
     }
@@ -1663,11 +1666,11 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
         {
             if (mFromGroup)
             {
-                gCacheName->getGroup(mFromID, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
+                gCacheName->getGroup(mFromID, std::bind(&inventory_offer_mute_callback, _1, _2, _3));
             }
             else
             {
-                LLAvatarNameCache::get(mFromID, boost::bind(&inventory_offer_mute_avatar_callback, _1, _2));
+                LLAvatarNameCache::get(mFromID, std::bind(&inventory_offer_mute_avatar_callback, _1, _2));
             }
         }
     }
@@ -1847,11 +1850,11 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
         {
             if (mFromGroup)
             {
-                gCacheName->getGroup(mFromID, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
+                gCacheName->getGroup(mFromID, std::bind(&inventory_offer_mute_callback, _1, _2, _3));
             }
             else
             {
-                LLAvatarNameCache::get(mFromID, boost::bind(&inventory_offer_mute_avatar_callback, _1, _2));
+                LLAvatarNameCache::get(mFromID, std::bind(&inventory_offer_mute_avatar_callback, _1, _2));
             }
         }
     }
@@ -1973,9 +1976,9 @@ void LLOfferInfo::initRespondFunctionMap()
 {
     if(mRespondFunctions.empty())
     {
-        mRespondFunctions["ObjectGiveItem"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
-        mRespondFunctions["OwnObjectGiveItem"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
-        mRespondFunctions["UserGiveItem"] = boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2);
+        mRespondFunctions["ObjectGiveItem"] = std::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
+        mRespondFunctions["OwnObjectGiveItem"] = std::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
+        mRespondFunctions["UserGiveItem"] = std::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2);
     }
 }
 
@@ -2562,8 +2565,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
             LLTranslate::instance().logCharsSent(mesg.size());
             LLTranslate::translateMessage(from_lang, to_lang, mesg,
-                boost::bind(&translateSuccess, chat, args, mesg, from_lang, _1, _2),
-                boost::bind(&translateFailure, chat, args, _1, _2));
+                std::bind(&translateSuccess, chat, args, mesg, from_lang, _1, _2),
+                std::bind(&translateFailure, chat, args, _1, _2));
 
         }
         else
@@ -4761,13 +4764,13 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
     if (is_name_group)
     {
         gCacheName->getGroup(name_id,
-                        boost::bind(&money_balance_group_notify,
+                        std::bind(&money_balance_group_notify,
                                     _1, _2, _3,
                                     notification, final_args, payload));
     }
     else
     {
-        LLAvatarNameCache::get(name_id, boost::bind(&money_balance_avatar_notify, _1, _2, notification, final_args, payload));
+        LLAvatarNameCache::get(name_id, std::bind(&money_balance_avatar_notify, _1, _2, notification, final_args, payload));
     }
 }
 
@@ -5418,7 +5421,7 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
         {
             LLMeanCollisionData *mcd = new LLMeanCollisionData(gAgentID, perp, time, type, mag);
             gMeanCollisionList.push_front(mcd);
-            LLAvatarNameCache::get(perp, boost::bind(&mean_name_callback, _1, _2));
+            LLAvatarNameCache::get(perp, std::bind(&mean_name_callback, _1, _2));
         }
     }
     LLFloaterBump* bumps_floater = LLFloaterBump::getInstance();
@@ -5622,7 +5625,7 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
             if (!region)
                 return false;
 
-            LLExperienceCache::instance().setExperiencePermission(experience, std::string("Block"), boost::bind(&experiencePermissionBlock, experience, _1));
+            LLExperienceCache::instance().setExperiencePermission(experience, std::string("Block"), std::bind(&experiencePermissionBlock, experience, _1));
 
         }
 }
@@ -5813,7 +5816,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
             else if (experienceid.notNull())
             {
                 payload["experience"]=experienceid;
-                LLExperienceCache::instance().get(experienceid, boost::bind(process_script_experience_details, _1, args, payload));
+                LLExperienceCache::instance().get(experienceid, std::bind(process_script_experience_details, _1, args, payload));
                 return;
             }
 
@@ -6658,11 +6661,11 @@ void process_load_url(LLMessageSystem* msg, void**)
 
     if (owner_is_group)
     {
-        gCacheName->getGroup(owner_id, boost::bind(&callback_load_url_name, _1, _2, _3));
+        gCacheName->getGroup(owner_id, std::bind(&callback_load_url_name, _1, _2, _3));
     }
     else
     {
-        LLAvatarNameCache::get(owner_id, boost::bind(&callback_load_url_avatar_name, _1, _2));
+        LLAvatarNameCache::get(owner_id, std::bind(&callback_load_url_avatar_name, _1, _2));
     }
 }
 
@@ -6956,7 +6959,7 @@ void invalid_message_callback(LLMessageSystem* msg,
 void LLOfferInfo::forceResponse(InventoryOfferResponse response)
 {
     LLNotification::Params params("UserGiveItem");
-    params.functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2));
+    params.functor.function(std::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2));
     LLNotifications::instance().forceResponse(params, response);
 }
 

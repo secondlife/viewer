@@ -62,6 +62,9 @@
 #include "llcommandhandler.h"
 #include "lltextutil.h"
 #include "llappearancemgr.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // register panel with appropriate XML
 static LLPanelInjector<LLPanelEditWearable> t_edit_wearable("panel_edit_wearable");
@@ -642,8 +645,8 @@ LLPanelEditWearable::LLPanelEditWearable()
         , mWearablePtr(NULL)
         , mWearableItem(NULL)
 {
-        mCommitCallbackRegistrar.add("ColorSwatch.Commit", boost::bind(&LLPanelEditWearable::onColorSwatchCommit, this, _1));
-        mCommitCallbackRegistrar.add("TexturePicker.Commit", boost::bind(&LLPanelEditWearable::onTexturePickerCommit, this, _1));
+        mCommitCallbackRegistrar.add("ColorSwatch.Commit", std::bind(&LLPanelEditWearable::onColorSwatchCommit, this, _1));
+        mCommitCallbackRegistrar.add("TexturePicker.Commit", std::bind(&LLPanelEditWearable::onTexturePickerCommit, this, _1));
 }
 
 //virtual
@@ -697,7 +700,7 @@ void LLPanelEditWearable::setWearablePanelVisibilityChangeCallback(LLPanel* body
                 if (accordion_ctrl != NULL)
                 {
                         bodypart_panel->setVisibleCallback(
-                                        boost::bind(&LLPanelEditWearable::onWearablePanelVisibilityChange, this, _2, accordion_ctrl));
+                                        std::bind(&LLPanelEditWearable::onWearablePanelVisibilityChange, this, _2, accordion_ctrl));
                 }
                 else
                 {
@@ -715,13 +718,13 @@ bool LLPanelEditWearable::postBuild()
 {
         // buttons
         mBtnRevert = getChild<LLButton>("revert_button");
-        mBtnRevert->setClickedCallback(boost::bind(&LLPanelEditWearable::onRevertButtonClicked, this));
+        mBtnRevert->setClickedCallback(std::bind(&LLPanelEditWearable::onRevertButtonClicked, this));
 
         mBtnBack = getChild<LLButton>("back_btn");
         mBackBtnLabel = mBtnBack->getLabelUnselected();
         mBtnBack->setLabel(LLStringUtil::null);
 
-        mBtnBack->setClickedCallback(boost::bind(&LLPanelEditWearable::onBackButtonClicked, this));
+        mBtnBack->setClickedCallback(std::bind(&LLPanelEditWearable::onBackButtonClicked, this));
 
         mNameEditor = getChild<LLLineEditor>("description");
 
@@ -729,13 +732,13 @@ bool LLPanelEditWearable::postBuild()
         mDescTitle = getChild<LLTextBox>("description_text");
 
         mSexRadio = getChild<LLRadioGroup>("sex_radio");
-        mSexRadio->setCommitCallback(boost::bind(&LLPanelEditWearable::onCommitSexChange, this));
+        mSexRadio->setCommitCallback(std::bind(&LLPanelEditWearable::onCommitSexChange, this));
 
         mMaleIcon = getChild<LLIconCtrl>("male_icon");
         mFemaleIcon = getChild<LLIconCtrl>("female_icon");
 
         mBtnSaveAs = getChild<LLButton>("save_as_button");
-        mBtnSaveAs->setCommitCallback(boost::bind(&LLPanelEditWearable::onSaveAsButtonClicked, this));
+        mBtnSaveAs->setCommitCallback(std::bind(&LLPanelEditWearable::onSaveAsButtonClicked, this));
 
         // The following panels will be shown/hidden based on what wearable we're editing
         // body parts
@@ -816,7 +819,7 @@ bool LLPanelEditWearable::postBuild()
                         mAccordionTabs.emplace(accordion_tab, tab);
 
                         // initialize callback to ensure camera view changes appropriately.
-                        tab->setDropDownStateChangedCallback(boost::bind(&LLPanelEditWearable::onTabExpandedCollapsed,this,_2,index));
+                        tab->setDropDownStateChangedCallback(std::bind(&LLPanelEditWearable::onTabExpandedCollapsed,this,_2,index));
 
                         const std::string& scrolling_panel = subpart_entry->mParamList;
                         if (!scrolling_panel.empty())
@@ -830,8 +833,8 @@ bool LLPanelEditWearable::postBuild()
                 }
 
                 // initialize texture and color picker controls
-                for_each_picker_ctrl_entry <LLColorSwatchCtrl> (getPanel(type), type, boost::bind(init_color_swatch_ctrl, this, _1, _2));
-                for_each_picker_ctrl_entry <LLTextureCtrl>     (getPanel(type), type, boost::bind(init_texture_ctrl, this, _1, _2));
+                for_each_picker_ctrl_entry <LLColorSwatchCtrl> (getPanel(type), type, std::bind(init_color_swatch_ctrl, this, _1, _2));
+                for_each_picker_ctrl_entry <LLTextureCtrl>     (getPanel(type), type, std::bind(init_texture_ctrl, this, _1, _2));
         }
 
         // init all strings
@@ -845,7 +848,7 @@ bool LLPanelEditWearable::postBuild()
         mAvatarHeightLabelColor = LLUIColorTable::instance().getColor(color, LLColor4::green);
         color = mPanelShape->getString("height_value_label_color");
         mAvatarHeightValueLabelColor = LLUIColorTable::instance().getColor(color, LLColor4::green);
-        gSavedSettings.getControl("HeightUnits")->getSignal()->connect(boost::bind(&LLPanelEditWearable::changeHeightUnits, this, _2));
+        gSavedSettings.getControl("HeightUnits")->getSignal()->connect(std::bind(&LLPanelEditWearable::changeHeightUnits, this, _2));
         updateMetricLayout(gSavedSettings.getBOOL("HeightUnits"));
 
         return true;
@@ -925,7 +928,7 @@ void LLPanelEditWearable::onSaveAsButtonClicked()
         LLSD args;
         args["DESC"] = mNameEditor->getText();
 
-        LLNotificationsUtil::add("SaveWearableAs", args, LLSD(), boost::bind(&LLPanelEditWearable::saveAsCallback, this, _1, _2));
+        LLNotificationsUtil::add("SaveWearableAs", args, LLSD(), std::bind(&LLPanelEditWearable::saveAsCallback, this, _1, _2));
 }
 
 void LLPanelEditWearable::saveAsCallback(const LLSD& notification, const LLSD& response)
@@ -1069,14 +1072,14 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
         if (is_modifiable)
         {
                 // Update picker controls
-                for_each_picker_ctrl_entry <LLColorSwatchCtrl> (panel, type, boost::bind(update_color_swatch_ctrl, this, _1, _2));
-                for_each_picker_ctrl_entry <LLTextureCtrl>     (panel, type, boost::bind(update_texture_ctrl, this, _1, _2));
+                for_each_picker_ctrl_entry <LLColorSwatchCtrl> (panel, type, std::bind(update_color_swatch_ctrl, this, _1, _2));
+                for_each_picker_ctrl_entry <LLTextureCtrl>     (panel, type, std::bind(update_texture_ctrl, this, _1, _2));
         }
         else
         {
                 // Disable controls
-                for_each_picker_ctrl_entry <LLColorSwatchCtrl> (panel, type, boost::bind(set_enabled_color_swatch_ctrl, false, _1, _2));
-                for_each_picker_ctrl_entry <LLTextureCtrl>     (panel, type, boost::bind(set_enabled_texture_ctrl, false, _1, _2));
+                for_each_picker_ctrl_entry <LLColorSwatchCtrl> (panel, type, std::bind(set_enabled_color_swatch_ctrl, false, _1, _2));
+                for_each_picker_ctrl_entry <LLTextureCtrl>     (panel, type, std::bind(set_enabled_texture_ctrl, false, _1, _2));
         }
 }
 
@@ -1188,8 +1191,8 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, bool show, bo
         description_title = getString(wearable_entry->mDescTitle);
 
         // Update picker controls state
-        for_each_picker_ctrl_entry <LLColorSwatchCtrl> (targetPanel, type, boost::bind(set_enabled_color_swatch_ctrl, show, _1, _2));
-        for_each_picker_ctrl_entry <LLTextureCtrl>     (targetPanel, type, boost::bind(set_enabled_texture_ctrl, show, _1, _2));
+        for_each_picker_ctrl_entry <LLColorSwatchCtrl> (targetPanel, type, std::bind(set_enabled_color_swatch_ctrl, show, _1, _2));
+        for_each_picker_ctrl_entry <LLTextureCtrl>     (targetPanel, type, std::bind(set_enabled_texture_ctrl, show, _1, _2));
 
         targetPanel->setVisible(show);
         toggleTypeSpecificControls(type);
@@ -1599,7 +1602,7 @@ void LLPanelEditWearable::updateVerbs()
 void LLPanelEditWearable::configureAlphaCheckbox(LLAvatarAppearanceDefines::ETextureIndex te, const std::string& name)
 {
         LLCheckBoxCtrl* checkbox = mPanelAlpha->getChild<LLCheckBoxCtrl>(name);
-        checkbox->setCommitCallback(boost::bind(&LLPanelEditWearable::onInvisibilityCommit, this, checkbox, te));
+        checkbox->setCommitCallback(std::bind(&LLPanelEditWearable::onInvisibilityCommit, this, checkbox, te));
 
         mAlphaCheckbox2Index.push_back(std::make_pair(checkbox,te));
 }

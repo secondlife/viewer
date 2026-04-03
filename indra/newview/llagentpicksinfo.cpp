@@ -30,6 +30,7 @@
 #include "llagent.h"
 #include "llagentbenefits.h"
 #include "llavatarpropertiesprocessor.h"
+#include <functional>
 
 const S32 MAX_AVATAR_PICKS = 10;
 
@@ -103,8 +104,7 @@ void LLAgentPicksInfo::requestNumberOfPicks()
     {
         mAgentPicksObserver = new LLAgentPicksObserver();
 
-        mAgentPicksObserver->setServerRespondCallback(boost::bind(
-            &LLAgentPicksInfo::onServerRespond, this, _1));
+        mAgentPicksObserver->setServerRespondCallback([this](LLAvatarData* data) { onServerRespond(data); });
     }
 
     mAgentPicksObserver->sendAgentPicksRequest();

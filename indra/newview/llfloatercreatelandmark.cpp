@@ -44,6 +44,9 @@
 #include "llviewermessage.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 using folder_pair_t = std::pair<LLUUID, std::string>;
 
@@ -123,9 +126,9 @@ bool LLFloaterCreateLandmark::postBuild()
     mLandmarkTitleEditor = getChild<LLLineEditor>("title_editor");
     mNotesEditor = getChild<LLTextEditor>("notes_editor");
 
-    getChild<LLTextBox>("new_folder_textbox")->setURLClickedCallback(boost::bind(&LLFloaterCreateLandmark::onCreateFolderClicked, this));
-    getChild<LLButton>("ok_btn")->setClickedCallback(boost::bind(&LLFloaterCreateLandmark::onSaveClicked, this));
-    getChild<LLButton>("cancel_btn")->setClickedCallback(boost::bind(&LLFloaterCreateLandmark::onCancelClicked, this));
+    getChild<LLTextBox>("new_folder_textbox")->setURLClickedCallback(std::bind(&LLFloaterCreateLandmark::onCreateFolderClicked, this));
+    getChild<LLButton>("ok_btn")->setClickedCallback(std::bind(&LLFloaterCreateLandmark::onSaveClicked, this));
+    getChild<LLButton>("cancel_btn")->setClickedCallback(std::bind(&LLFloaterCreateLandmark::onCancelClicked, this));
 
     mLandmarkTitleEditor->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTextChanges(); });
     mNotesEditor->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTextChanges(); });
@@ -287,7 +290,7 @@ void LLFloaterCreateLandmark::onCreateFolderClicked()
             std::string folder_name = resp["message"].asString();
             if (!folder_name.empty())
             {
-                inventory_func_type func = boost::bind(&LLFloaterCreateLandmark::folderCreatedCallback, this, _1);
+                inventory_func_type func = std::bind(&LLFloaterCreateLandmark::folderCreatedCallback, this, _1);
                 gInventory.createNewCategory(mLandmarksID, LLFolderType::FT_NONE, folder_name, func);
                 gInventory.notifyObservers();
             }

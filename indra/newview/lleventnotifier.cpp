@@ -37,6 +37,9 @@
 #include "llagent.h"
 #include "llcommandhandler.h"   // secondlife:///app/... support
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLEventHandler : public LLCommandHandler
 {
@@ -134,7 +137,7 @@ void LLEventNotifier::update()
 
                 args["DATE"] = np->getEventDateStr();
                 LLNotificationsUtil::add("EventNotification", args, LLSD(),
-                    boost::bind(&LLEventNotifier::handleResponse, this, np->getEventID(), _1, _2));
+                    std::bind(&LLEventNotifier::handleResponse, this, np->getEventID(), _1, _2));
                 remove(np->getEventID());
 
             }

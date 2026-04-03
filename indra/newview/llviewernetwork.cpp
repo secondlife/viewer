@@ -33,6 +33,7 @@
 #include "llsecapi.h"
 #include "lltrans.h"
 #include "llweb.h"
+#include <functional>
 
 
 /// key used to store the grid, and the name attribute in the grid data
@@ -230,7 +231,7 @@ void LLGridManager::initialize(const std::string& grid_file)
     LLControlVariablePtr grid_control = gSavedSettings.getControl("CurrentGrid");
     if (grid_control.notNull())
     {
-        grid_control->getSignal()->connect(boost::bind(&LLGridManager::updateIsInProductionGrid, this));
+        grid_control->getSignal()->connect(std::bind(&LLGridManager::updateIsInProductionGrid, this));
     }
 
     // since above only triggers on changes, trigger the callback manually to initialize state

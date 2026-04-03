@@ -132,6 +132,7 @@
 #endif
 #define A_CPU 1
 #include "app_settings/shaders/class1/deferred/CASF.glsl" // This is also C++
+#include <functional>
 
 extern bool gSnapshot;
 bool gShiftFrame = false;
@@ -411,7 +412,7 @@ void LLPipeline::connectRefreshCachedSettingsSafe(const std::string name)
     }
     else
     {
-        cntrl_ptr->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
+        cntrl_ptr->getCommitSignal()->connect(std::bind(&LLPipeline::refreshCachedSettings));
     }
 }
 

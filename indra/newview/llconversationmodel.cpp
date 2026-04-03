@@ -36,6 +36,9 @@
 #include "llconversationmodel.h"
 #include "llimview.h" //For LLIMModel
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //
 // Conversation items : common behaviors
@@ -233,7 +236,7 @@ void LLConversationItem::fetchAvatarName(bool isParticipant /*= true*/)
         }
 
         // subscribe on avatar name cache changes for participant and session items
-        mAvatarNameCacheConnection = LLAvatarNameCache::get(item_id, boost::bind(&LLConversationItem::onAvatarNameCache, this, _2));
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(item_id, std::bind(&LLConversationItem::onAvatarNameCache, this, _2));
     }
 }
 

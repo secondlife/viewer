@@ -46,6 +46,9 @@
 #include "llviewermessage.h"
 
 #include "llstreamingaudio.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 /////////////////////////////////////////////////////////
 const U32 FMODEX_DECODE_BUFFER_SIZE = 1000; // in milliseconds
@@ -60,11 +63,11 @@ LLViewerAudio::LLViewerAudio() :
     mWasPlaying(false)
 {
     mTeleportFailedConnection = LLViewerParcelMgr::getInstance()->
-        setTeleportFailedCallback(boost::bind(&LLViewerAudio::onTeleportFailed, this));
+        setTeleportFailedCallback(std::bind(&LLViewerAudio::onTeleportFailed, this));
     mTeleportFinishedConnection = LLViewerParcelMgr::getInstance()->
-        setTeleportFinishedCallback(boost::bind(&LLViewerAudio::onTeleportFinished, this, _1, _2));
+        setTeleportFinishedCallback(std::bind(&LLViewerAudio::onTeleportFinished, this, _1, _2));
     mTeleportStartedConnection = LLViewerMessage::getInstance()->
-        setTeleportStartedCallback(boost::bind(&LLViewerAudio::onTeleportStarted, this));
+        setTeleportStartedCallback(std::bind(&LLViewerAudio::onTeleportStarted, this));
 }
 
 LLViewerAudio::~LLViewerAudio()
@@ -79,7 +82,7 @@ void LLViewerAudio::registerIdleListener()
     if (!mIdleListnerActive)
     {
         mIdleListnerActive = true;
-        doOnIdleRepeating(boost::bind(boost::bind(&LLViewerAudio::onIdleUpdate, this)));
+        doOnIdleRepeating(std::bind(std::bind(&LLViewerAudio::onIdleUpdate, this)));
     }
 }
 

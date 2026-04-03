@@ -49,6 +49,7 @@
 #include "llcheckboxctrl.h"
 
 #include "roles_constants.h" // for GP_OBJECT_MANIPULATE
+#include <functional>
 
 
 LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed)
@@ -56,12 +57,12 @@ LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed)
     mDone(false)
 {
     mID.generate();
-    mCommitCallbackRegistrar.add("BulkPermission.Ok",       boost::bind(&LLFloaterBulkPermission::onOkBtn, this));
-    mCommitCallbackRegistrar.add("BulkPermission.Apply",    boost::bind(&LLFloaterBulkPermission::onApplyBtn, this));
-    mCommitCallbackRegistrar.add("BulkPermission.Close",    boost::bind(&LLFloaterBulkPermission::onCloseBtn, this));
-    mCommitCallbackRegistrar.add("BulkPermission.CheckAll", boost::bind(&LLFloaterBulkPermission::onCheckAll, this));
-    mCommitCallbackRegistrar.add("BulkPermission.UncheckAll",   boost::bind(&LLFloaterBulkPermission::onUncheckAll, this));
-    mCommitCallbackRegistrar.add("BulkPermission.CommitCopy",   boost::bind(&LLFloaterBulkPermission::onCommitCopy, this));
+    mCommitCallbackRegistrar.add("BulkPermission.Ok",       std::bind(&LLFloaterBulkPermission::onOkBtn, this));
+    mCommitCallbackRegistrar.add("BulkPermission.Apply",    std::bind(&LLFloaterBulkPermission::onApplyBtn, this));
+    mCommitCallbackRegistrar.add("BulkPermission.Close",    std::bind(&LLFloaterBulkPermission::onCloseBtn, this));
+    mCommitCallbackRegistrar.add("BulkPermission.CheckAll", std::bind(&LLFloaterBulkPermission::onCheckAll, this));
+    mCommitCallbackRegistrar.add("BulkPermission.UncheckAll",   std::bind(&LLFloaterBulkPermission::onUncheckAll, this));
+    mCommitCallbackRegistrar.add("BulkPermission.CommitCopy",   std::bind(&LLFloaterBulkPermission::onCommitCopy, this));
 }
 
 bool LLFloaterBulkPermission::postBuild()

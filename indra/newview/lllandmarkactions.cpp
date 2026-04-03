@@ -49,6 +49,9 @@
 #include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llworldmap.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 void copy_slurl_to_clipboard_callback(const std::string& slurl);
 
@@ -355,7 +358,7 @@ void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slur
     {
         U64 new_region_handle = to_region_handle(global_pos);
 
-        LLWorldMapMessage::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseSLURL,
+        LLWorldMapMessage::url_callback_t url_cb = std::bind(&LLLandmarkActions::onRegionResponseSLURL,
                                                         cb,
                                                         global_pos,
                                                         escaped,
@@ -379,7 +382,7 @@ void LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(const LLVector3d& gl
     {
         U64 new_region_handle = to_region_handle(global_pos);
 
-        LLWorldMapMessage::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponseNameAndCoords,
+        LLWorldMapMessage::url_callback_t url_cb = std::bind(&LLLandmarkActions::onRegionResponseNameAndCoords,
                                                         cb,
                                                         global_pos,
                                                         _1);

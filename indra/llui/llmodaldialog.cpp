@@ -36,6 +36,7 @@
 #include "llwindow.h"
 #include "llkeyboard.h"
 #include "llmenugl.h"
+#include <functional>
 
 // static
 std::list<LLModalDialog*> LLModalDialog::sModalStack;
@@ -53,7 +54,7 @@ LLModalDialog::LLModalDialog( const LLSD& key, bool modal )
     setBackgroundVisible(true);
     setBackgroundOpaque(true);
     centerOnScreen(); // default position
-    mCloseSignal.connect(boost::bind(&LLModalDialog::stopModal, this));
+    mCloseSignal.connect(std::bind(&LLModalDialog::stopModal, this));
 }
 
 LLModalDialog::~LLModalDialog()

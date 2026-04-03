@@ -52,6 +52,9 @@
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const F64 COVENANT_REFRESH_TIME_SEC = 60.0f;
 
@@ -102,7 +105,7 @@ bool LLPanelPlaceProfile::postBuild()
 
     //Icon value should contain sale price of last selected parcel.
     mForSalePanel->getChild<LLIconCtrl>("icon_for_sale")->
-                setMouseDownCallback(boost::bind(&LLPanelPlaceProfile::onForSaleBannerClick, this));
+                setMouseDownCallback(std::bind(&LLPanelPlaceProfile::onForSaleBannerClick, this));
 
     mParcelRatingIcon = getChild<LLIconCtrl>("rating_icon");
     mParcelRatingText = getChild<LLTextBox>("rating_value");
@@ -517,7 +520,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
             std::string parcel_owner =
                 LLSLURL("agent", parcel->getOwnerID(), "inspect").getSLURLString();
             mParcelOwner->setText(parcel_owner);
-            mAvatarNameCacheConnection = LLAvatarNameCache::get(region->getOwner(), boost::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mRegionOwnerText));
+            mAvatarNameCacheConnection = LLAvatarNameCache::get(region->getOwner(), std::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mRegionOwnerText));
             mRegionGroupText->setText( getString("none_text"));
         }
 
@@ -530,7 +533,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
         {
             // FIXME: Using parcel group as region group.
             gCacheName->getGroup(parcel->getGroupID(),
-                            boost::bind(&LLPanelPlaceInfo::onNameCache, mRegionGroupText, _2));
+                            std::bind(&LLPanelPlaceInfo::onNameCache, mRegionGroupText, _2));
         }
     }
 
@@ -548,7 +551,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
         const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
         if(auth_buyer_id.notNull())
         {
-            mAvatarNameCacheConnection = LLAvatarNameCache::get(auth_buyer_id, boost::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mSaleToText));
+            mAvatarNameCacheConnection = LLAvatarNameCache::get(auth_buyer_id, std::bind(&LLPanelPlaceInfo::onAvatarNameCache, _1, _2, mSaleToText));
 
             // Show sales info to a specific person or a group he belongs to.
             if (auth_buyer_id != gAgent.getID() && !gAgent.isInGroup(auth_buyer_id))

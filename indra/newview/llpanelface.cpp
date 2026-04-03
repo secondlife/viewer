@@ -93,6 +93,9 @@
 #include "llsdutil.h"
 #include "llsdserialize.h"
 #include "llinventorymodel.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 using namespace std::literals;
 
@@ -532,8 +535,8 @@ LLPanelFace::LLPanelFace()
     mNeedMediaTitle(true)
 {
     USE_TEXTURE = LLTrans::getString("use_texture");
-    mCommitCallbackRegistrar.add("PanelFace.menuDoToSelected", boost::bind(&LLPanelFace::menuDoToSelected, this, _2));
-    mEnableCallbackRegistrar.add("PanelFace.menuEnable", boost::bind(&LLPanelFace::menuEnableItem, this, _2));
+    mCommitCallbackRegistrar.add("PanelFace.menuDoToSelected", std::bind(&LLPanelFace::menuDoToSelected, this, _2));
+    mEnableCallbackRegistrar.add("PanelFace.menuEnable", std::bind(&LLPanelFace::menuEnableItem, this, _2));
 }
 
 LLPanelFace::~LLPanelFace()
@@ -5046,7 +5049,7 @@ void LLPanelFace::Selection::connect()
 {
     if (!mSelectConnection.connected())
     {
-        mSelectConnection = LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLPanelFace::Selection::onSelectionChanged, this));
+        mSelectConnection = LLSelectMgr::instance().mUpdateSignal.connect(std::bind(&LLPanelFace::Selection::onSelectionChanged, this));
     }
 }
 

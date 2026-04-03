@@ -30,13 +30,16 @@
 #include "llfloaterconversationlog.h"
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLFloaterConversationLog::LLFloaterConversationLog(const LLSD& key)
 :   LLFloater(key),
     mConversationLogList(NULL)
 {
-    mCommitCallbackRegistrar.add("CallLog.Action",  boost::bind(&LLFloaterConversationLog::onCustomAction,  this, _2));
-    mEnableCallbackRegistrar.add("CallLog.Check",   boost::bind(&LLFloaterConversationLog::isActionChecked, this, _2));
+    mCommitCallbackRegistrar.add("CallLog.Action",  std::bind(&LLFloaterConversationLog::onCustomAction,  this, _2));
+    mEnableCallbackRegistrar.add("CallLog.Check",   std::bind(&LLFloaterConversationLog::isActionChecked, this, _2));
 }
 
 bool LLFloaterConversationLog::postBuild()
@@ -62,7 +65,7 @@ bool LLFloaterConversationLog::postBuild()
         mConversationsGearBtn->setMenu(conversations_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
     }
 
-    getChild<LLFilterEditor>("people_filter_input")->setCommitCallback(boost::bind(&LLFloaterConversationLog::onFilterEdit, this, _2));
+    getChild<LLFilterEditor>("people_filter_input")->setCommitCallback(std::bind(&LLFloaterConversationLog::onFilterEdit, this, _2));
 
     return LLFloater::postBuild();
 }

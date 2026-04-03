@@ -32,6 +32,7 @@
 #include "llpaneltopinfobar.h"
 #include "llsyswellwindow.h"
 #include "llfloaternotificationstabbed.h"
+#include <functional>
 
 namespace
 {
@@ -52,8 +53,8 @@ bool LLChicletBar::postBuild()
 
     showWellButton("notification_well", !LLFloaterNotificationsTabbed::getInstance()->isWindowEmpty());
 
-    LLPanelTopInfoBar::instance().setResizeCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));
-    LLPanelTopInfoBar::instance().setVisibleCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));
+    LLPanelTopInfoBar::instance().setResizeCallback(std::bind(&LLChicletBar::fitWithTopInfoBar, this));
+    LLPanelTopInfoBar::instance().setVisibleCallback(std::bind(&LLChicletBar::fitWithTopInfoBar, this));
 
     return true;
 }

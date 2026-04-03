@@ -88,6 +88,9 @@
 
 // system includes
 #include <iomanip>
+#include <functional>
+
+using namespace std::placeholders;
 
 
 //
@@ -155,39 +158,39 @@ bool LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 bool LLStatusBar::postBuild()
 {
-    gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
+    gMenuBarView->setRightMouseDownCallback(std::bind(&show_navbar_context_menu, _1, _2, _3));
 
     mTextTime = getChild<LLTextBox>("TimeText" );
 
     getChild<LLUICtrl>("buyL")->setCommitCallback(
-        boost::bind(&LLStatusBar::onClickBuyCurrency, this));
+        std::bind(&LLStatusBar::onClickBuyCurrency, this));
 
     getChild<LLUICtrl>("goShop")->setCommitCallback(
-        boost::bind(&LLStatusBar::onClickShop, this));
+        std::bind(&LLStatusBar::onClickShop, this));
 
     mBoxBalance = getChild<LLTextBox>("balance");
     mBoxBalance->setClickedCallback(&LLStatusBar::onClickRefreshBalance, this);
     mBoxBalance->setDoubleClickCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onClickToggleBalance(); });
 
     mIconPresetsCamera = getChild<LLIconCtrl>( "presets_icon_camera" );
-    mIconPresetsCamera->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterPresetsCamera, this));
+    mIconPresetsCamera->setMouseEnterCallback(std::bind(&LLStatusBar::onMouseEnterPresetsCamera, this));
 
     mIconPresetsGraphic = getChild<LLIconCtrl>( "presets_icon_graphic" );
-    mIconPresetsGraphic->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterPresets, this));
+    mIconPresetsGraphic->setMouseEnterCallback(std::bind(&LLStatusBar::onMouseEnterPresets, this));
 
     mBtnVolume = getChild<LLButton>( "volume_btn" );
     mBtnVolume->setClickedCallback( onClickVolume, this );
-    mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
+    mBtnVolume->setMouseEnterCallback(std::bind(&LLStatusBar::onMouseEnterVolume, this));
 
     mMediaToggle = getChild<LLButton>("media_toggle_btn");
     mMediaToggle->setClickedCallback( &LLStatusBar::onClickMediaToggle, this );
-    mMediaToggle->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterNearbyMedia, this));
+    mMediaToggle->setMouseEnterCallback(std::bind(&LLStatusBar::onMouseEnterNearbyMedia, this));
 
     LLHints::getInstance()->registerHintTarget("linden_balance", getChild<LLView>("balance_bg")->getHandle());
 
-    gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
-    gSavedSettings.getControl("EnableVoiceChat")->getSignal()->connect(boost::bind(&LLStatusBar::onVoiceChanged, this, _2));
-    gSavedSettings.getControl("ObscureBalanceInStatusBar")->getSignal()->connect(boost::bind(&LLStatusBar::onObscureBalanceChanged, this, _2));
+    gSavedSettings.getControl("MuteAudio")->getSignal()->connect(std::bind(&LLStatusBar::onVolumeChanged, this, _2));
+    gSavedSettings.getControl("EnableVoiceChat")->getSignal()->connect(std::bind(&LLStatusBar::onVoiceChanged, this, _2));
+    gSavedSettings.getControl("ObscureBalanceInStatusBar")->getSignal()->connect(std::bind(&LLStatusBar::onObscureBalanceChanged, this, _2));
 
     if (!gSavedSettings.getBOOL("EnableVoiceChat") && LLAppViewer::instance()->isSecondInstance())
     {
@@ -265,10 +268,10 @@ bool LLStatusBar::postBuild()
 
     bool search_panel_visible = gSavedSettings.getBOOL("MenuSearch");
     mSearchPanel->setVisible(search_panel_visible);
-    mFilterEdit->setKeystrokeCallback(boost::bind(&LLStatusBar::onUpdateFilterTerm, this));
-    mFilterEdit->setCommitCallback(boost::bind(&LLStatusBar::onUpdateFilterTerm, this));
+    mFilterEdit->setKeystrokeCallback(std::bind(&LLStatusBar::onUpdateFilterTerm, this));
+    mFilterEdit->setCommitCallback(std::bind(&LLStatusBar::onUpdateFilterTerm, this));
     collectSearchableItems();
-    gSavedSettings.getControl("MenuSearch")->getCommitSignal()->connect(boost::bind(&LLStatusBar::updateMenuSearchVisibility, this, _2));
+    gSavedSettings.getControl("MenuSearch")->getCommitSignal()->connect(std::bind(&LLStatusBar::updateMenuSearchVisibility, this, _2));
 
     if (search_panel_visible)
     {

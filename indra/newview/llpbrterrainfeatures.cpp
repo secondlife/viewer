@@ -31,6 +31,7 @@
 #include "llgltfmaterial.h"
 #include "llviewerregion.h"
 #include "llvlcomposition.h"
+#include <functional>
 
 LLPBRTerrainFeatures gPBRTerrainFeatures;
 

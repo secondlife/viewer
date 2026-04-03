@@ -39,6 +39,9 @@
 #include "llviewermenufile.h" // LLFilePickerReplyThread
 
 #include <boost/algorithm/string.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterSpellCheckerSettings
@@ -63,17 +66,17 @@ void LLFloaterSpellCheckerSettings::draw()
 
 bool LLFloaterSpellCheckerSettings::postBuild(void)
 {
-    gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
-    LLSpellChecker::setSettingsChangeCallback(boost::bind(&LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange, this));
-    getChild<LLUICtrl>("spellcheck_remove_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnRemove, this));
-    getChild<LLUICtrl>("spellcheck_import_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnImport, this));
+    gSavedSettings.getControl("SpellCheck")->getSignal()->connect(std::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
+    LLSpellChecker::setSettingsChangeCallback(std::bind(&LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange, this));
+    getChild<LLUICtrl>("spellcheck_remove_btn")->setCommitCallback(std::bind(&LLFloaterSpellCheckerSettings::onBtnRemove, this));
+    getChild<LLUICtrl>("spellcheck_import_btn")->setCommitCallback(std::bind(&LLFloaterSpellCheckerSettings::onBtnImport, this));
     getChild<LLUICtrl>("spellcheck_main_combo")->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& data)
     {
         mMainSelectionChanged = true;
         refreshDictionaries(false);
     });
-    getChild<LLUICtrl>("spellcheck_moveleft_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_active_list", "spellcheck_available_list"));
-    getChild<LLUICtrl>("spellcheck_moveright_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_available_list", "spellcheck_active_list"));
+    getChild<LLUICtrl>("spellcheck_moveleft_btn")->setCommitCallback(std::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_active_list", "spellcheck_available_list"));
+    getChild<LLUICtrl>("spellcheck_moveright_btn")->setCommitCallback(std::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_available_list", "spellcheck_active_list"));
     center();
     return true;
 }
@@ -254,16 +257,16 @@ LLFloaterSpellCheckerImport::LLFloaterSpellCheckerImport(const LLSD& key)
 
 bool LLFloaterSpellCheckerImport::postBuild()
 {
-    getChild<LLUICtrl>("dictionary_path_browse")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnBrowse, this));
-    getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnOK, this));
-    getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnCancel, this));
+    getChild<LLUICtrl>("dictionary_path_browse")->setCommitCallback(std::bind(&LLFloaterSpellCheckerImport::onBtnBrowse, this));
+    getChild<LLUICtrl>("ok_btn")->setCommitCallback(std::bind(&LLFloaterSpellCheckerImport::onBtnOK, this));
+    getChild<LLUICtrl>("cancel_btn")->setCommitCallback(std::bind(&LLFloaterSpellCheckerImport::onBtnCancel, this));
     center();
     return true;
 }
 
 void LLFloaterSpellCheckerImport::onBtnBrowse()
 {
-    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterSpellCheckerImport::importSelectedDictionary, this, _1), LLFilePicker::FFLOAD_DICTIONARY, false);
+    LLFilePickerReplyThread::startPicker(std::bind(&LLFloaterSpellCheckerImport::importSelectedDictionary, this, _1), LLFilePicker::FFLOAD_DICTIONARY, false);
 }
 
 void LLFloaterSpellCheckerImport::importSelectedDictionary(const std::vector<std::string>& filenames)

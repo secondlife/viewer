@@ -38,6 +38,7 @@
 #include "llagentbenefits.h"
 #include "llviewercontrol.h"
 #include "llviewertexturelist.h"
+#include <functional>
 
 
 
@@ -271,8 +272,8 @@ LLFloaterSimpleSnapshot::~LLFloaterSimpleSnapshot()
 bool LLFloaterSimpleSnapshot::postBuild()
 {
     childSetAction("new_snapshot_btn", ImplBase::onClickNewSnapshot, this);
-    childSetAction("save_btn", boost::bind(&LLFloaterSimpleSnapshot::onSend, this));
-    childSetAction("cancel_btn", boost::bind(&LLFloaterSimpleSnapshot::onCancel, this));
+    childSetAction("save_btn", std::bind(&LLFloaterSimpleSnapshot::onSend, this));
+    childSetAction("cancel_btn", std::bind(&LLFloaterSimpleSnapshot::onCancel, this));
 
     mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 
@@ -465,7 +466,7 @@ void LLFloaterSimpleSnapshot::uploadImageUploadFile(const std::string &temp_file
     }
 
     LLCoros::instance().launch("postAgentUserImageCoro",
-        boost::bind(post_thumbnail_image_coro, cap_url, temp_file, data, callback));
+        std::bind(post_thumbnail_image_coro, cap_url, temp_file, data, callback));
 }
 
 void LLFloaterSimpleSnapshot::update()

@@ -54,6 +54,9 @@
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatarself.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLInventoryGallery> t_inventory_gallery("inventory_gallery");
 
@@ -288,7 +291,7 @@ void LLInventoryGallery::updateRootFolder()
 
         // Start observing changes in selected category.
         mCategoriesObserver->addCategory(mFolderID,
-            boost::bind(&LLInventoryGallery::refreshList, this, mFolderID));
+            std::bind(&LLInventoryGallery::refreshList, this, mFolderID));
 
         LLViewerInventoryCategory* category = gInventory.getCategory(mFolderID);
         //If not all items are fetched now
@@ -325,7 +328,7 @@ void LLInventoryGallery::updateRootFolder()
         }
     }
 
-    LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLInventoryGallery::onCOFChanged, this));
+    LLOutfitObserver::instance().addCOFChangedCallback(std::bind(&LLInventoryGallery::onCOFChanged, this));
 
     if (!mGalleryCreated)
     {
@@ -959,7 +962,7 @@ bool LLInventoryGallery::updateAddedItem(LLUUID item_id)
     }
 
     mThumbnailsObserver->addItem(item_id,
-        boost::bind(&LLInventoryGallery::updateItemThumbnail, this, item_id));
+        std::bind(&LLInventoryGallery::updateItemThumbnail, this, item_id));
     return res;
 }
 
@@ -2056,7 +2059,7 @@ void LLInventoryGallery::deleteSelection()
     {
         LLSD payload;
         payload["has_worn"] = true;
-        LLNotificationsUtil::add("DeleteWornItems", LLSD(), payload, boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+        LLNotificationsUtil::add("DeleteWornItems", LLSD(), payload, std::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
     }
     else
     {
@@ -2068,7 +2071,7 @@ void LLInventoryGallery::deleteSelection()
 
         LLSD args;
         args["QUESTION"] = LLTrans::getString("DeleteItem");
-        LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+        LLNotificationsUtil::add("DeleteItems", args, LLSD(), std::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
     }
 }
 
@@ -3594,7 +3597,7 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
                 set_dad_inventory_item(inv_item, folder_id);
 
                 LLNotification::Params params("MoveInventoryFromObject");
-                params.functor.function(boost::bind(move_task_inventory_callback, _1, _2, move_inv));
+                params.functor.function(std::bind(move_task_inventory_callback, _1, _2, move_inv));
                 LLNotifications::instance().forceResponse(params, 0);
             }
         }
@@ -4187,7 +4190,7 @@ void dropToMyOutfits(LLInventoryCategory* inv_cat)
 
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
-    inventory_func_type func = boost::bind(&outfitFolderCreatedCallback, inv_cat->getUUID(), _1);
+    inventory_func_type func = std::bind(&outfitFolderCreatedCallback, inv_cat->getUUID(), _1);
     gInventory.createNewCategory(dest_id, LLFolderType::FT_OUTFIT, inv_cat->getName(), func, inv_cat->getThumbnailUUID());
 }
 
@@ -4195,6 +4198,6 @@ void dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID &dest_i
 {
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
-    inventory_func_type func = boost::bind(&outfitFolderCreatedCallback, inv_cat->getUUID(), _1);
+    inventory_func_type func = std::bind(&outfitFolderCreatedCallback, inv_cat->getUUID(), _1);
     gInventory.createNewCategory(dest_id, LLFolderType::FT_OUTFIT, inv_cat->getName(), func, inv_cat->getThumbnailUUID());
 }

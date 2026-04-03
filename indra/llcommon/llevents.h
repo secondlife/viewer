@@ -40,7 +40,6 @@
 #include <functional>
 
 #include <boost/signals2.hpp>
-#include <boost/bind.hpp>
 #include <optional>
 #include <boost/static_assert.hpp>
 #include "llsd.h"
@@ -137,7 +136,7 @@ struct LLStopWhenHandled
  */
 using LLStandardSignal = boost::signals2::signal<bool(const LLSD&), LLStopWhenHandled, float>;
 /// Methods that forward listeners (e.g. constructed with
-/// <tt>boost::bind()</tt>) should accept (const LLEventListener&)
+/// <tt>std::bind()</tt>) should accept (const LLEventListener&)
 using LLEventListener = LLStandardSignal::slot_type;
 /// Result of registering a listener, supports <tt>connected()</tt>,
 /// <tt>disconnect()</tt> and <tt>blocked()</tt>
@@ -169,9 +168,9 @@ public:
     /// double conversion)
     LLListenerOrPumpName(const char* pumpname);
     /// passing listener -- the "anything else" catch-all case. The type of an
-    /// object constructed by boost::bind() isn't intended to be written out.
+    /// object constructed by std::bind() isn't intended to be written out.
     /// Normally we'd just accept 'const LLEventListener&', but that would
-    /// require double implicit conversion: boost::bind() object to
+    /// require double implicit conversion: std::bind() object to
     /// LLEventListener, LLEventListener to LLListenerOrPumpName. So use a
     /// template to forward anything.
     template<typename T>
@@ -370,7 +369,7 @@ testable:
  * LLEventTrackable wraps boost::signals2::trackable, which resembles
  * boost::trackable. Derive your listener class from LLEventTrackable instead,
  * and use something like
- * <tt>LLEventPump::listen(boost::bind(&YourTrackableSubclass::method,
+ * <tt>LLEventPump::listen(std::bind(&YourTrackableSubclass::method,
  * instance, _1))</tt>. This will implicitly disconnect when the object
  * referenced by @c instance is destroyed.
  *

@@ -51,6 +51,7 @@
 #include "pipeline.h"
 
 #include <iterator>
+#include <functional>
 
 LLFloater360Capture::LLFloater360Capture(const LLSD& key)
     :   LLFloater(key)
@@ -95,10 +96,10 @@ LLFloater360Capture::~LLFloater360Capture()
 bool LLFloater360Capture::postBuild()
 {
     mCaptureBtn = getChild<LLUICtrl>("capture_button");
-    mCaptureBtn->setCommitCallback(boost::bind(&LLFloater360Capture::onCapture360ImagesBtn, this));
+    mCaptureBtn->setCommitCallback(std::bind(&LLFloater360Capture::onCapture360ImagesBtn, this));
 
     mSaveLocalBtn = getChild<LLUICtrl>("save_local_button");
-    mSaveLocalBtn->setCommitCallback(boost::bind(&LLFloater360Capture::onSaveLocalBtn, this));
+    mSaveLocalBtn->setCommitCallback(std::bind(&LLFloater360Capture::onSaveLocalBtn, this));
     mSaveLocalBtn->setEnabled(false);
 
     mWebBrowser = getChild<LLMediaCtrl>("360capture_contents");
@@ -109,7 +110,7 @@ bool LLFloater360Capture::postBuild()
     // by each having a 'value' that is returns equal to the pixel
     // size (width == height)
     mQualityRadioGroup = getChild<LLRadioGroup>("360_quality_selection");
-    mQualityRadioGroup->setCommitCallback(boost::bind(&LLFloater360Capture::onChooseQualityRadioGroup, this));
+    mQualityRadioGroup->setCommitCallback(std::bind(&LLFloater360Capture::onChooseQualityRadioGroup, this));
 
     // UX/UI called for preview mode (always the first index/option)
     // by default each time vs restoring the last value

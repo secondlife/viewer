@@ -40,6 +40,9 @@
 #include "lltextbox.h"
 #include "lltrans.h"
 #include "llsdutil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 static LLPanelInjector<LLPanelExperienceListEditor> t_panel_experience_list_editor("panel_experience_list_editor");
@@ -61,11 +64,11 @@ bool LLPanelExperienceListEditor::postBuild()
     mRemove = getChild<LLButton>("btn_remove");
     mProfile = getChild<LLButton>("btn_profile");
 
-    childSetAction("btn_add", boost::bind(&LLPanelExperienceListEditor::onAdd, this));
-    childSetAction("btn_remove", boost::bind(&LLPanelExperienceListEditor::onRemove, this));
-    childSetAction("btn_profile", boost::bind(&LLPanelExperienceListEditor::onProfile, this));
+    childSetAction("btn_add", std::bind(&LLPanelExperienceListEditor::onAdd, this));
+    childSetAction("btn_remove", std::bind(&LLPanelExperienceListEditor::onRemove, this));
+    childSetAction("btn_profile", std::bind(&LLPanelExperienceListEditor::onProfile, this));
 
-    mItems->setCommitCallback(boost::bind(&LLPanelExperienceListEditor::checkButtonsEnabled, this));
+    mItems->setCommitCallback(std::bind(&LLPanelExperienceListEditor::checkButtonsEnabled, this));
 
     checkButtonsEnabled();
     return true;
@@ -118,7 +121,7 @@ void LLPanelExperienceListEditor::onAdd()
 
     mKey.generateNewID();
 
-    LLFloaterExperiencePicker* picker=LLFloaterExperiencePicker::show(boost::bind(&LLPanelExperienceListEditor::addExperienceIds, this, _1), mKey, false, true, mFilters, mAdd);
+    LLFloaterExperiencePicker* picker=LLFloaterExperiencePicker::show(std::bind(&LLPanelExperienceListEditor::addExperienceIds, this, _1), mKey, false, true, mFilters, mAdd);
     mPicker = picker->getDerivedHandle<LLFloaterExperiencePicker>();
 }
 
@@ -191,7 +194,7 @@ void LLPanelExperienceListEditor::onItems()
         columns[0]["value"] = getString("loading");
         mItems->addElement(item);
 
-        LLExperienceCache::instance().get(experience, boost::bind(&LLPanelExperienceListEditor::experienceDetailsCallback,
+        LLExperienceCache::instance().get(experience, std::bind(&LLPanelExperienceListEditor::experienceDetailsCallback,
             getDerivedHandle<LLPanelExperienceListEditor>(), _1));
     }
 

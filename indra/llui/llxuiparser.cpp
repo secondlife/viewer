@@ -38,12 +38,14 @@
 
 #include <fstream>
 #include <boost/tokenizer.hpp>
-#include <boost/bind.hpp>
+#include <functional>
 //#include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 
 #include "lluicolor.h"
 #include "v3math.h"
+
+using namespace std::placeholders;
 using namespace BOOST_SPIRIT_CLASSIC_NS;
 
 const S32 MAX_STRING_ATTRIBUTE_SIZE = 40;
@@ -317,20 +319,20 @@ public:
 LLXSDWriter::LLXSDWriter()
 : Parser(sXSDReadFuncs, sXSDWriteFuncs, sXSDInspectFuncs)
 {
-    registerInspectFunc<bool>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:boolean", _1, _2, _3, _4));
-    registerInspectFunc<std::string>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
-    registerInspectFunc<U8>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:unsignedByte", _1, _2, _3, _4));
-    registerInspectFunc<S8>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:signedByte", _1, _2, _3, _4));
-    registerInspectFunc<U16>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:unsignedShort", _1, _2, _3, _4));
-    registerInspectFunc<S16>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:signedShort", _1, _2, _3, _4));
-    registerInspectFunc<U32>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:unsignedInt", _1, _2, _3, _4));
-    registerInspectFunc<S32>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:integer", _1, _2, _3, _4));
-    registerInspectFunc<F32>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:float", _1, _2, _3, _4));
-    registerInspectFunc<F64>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:double", _1, _2, _3, _4));
-    registerInspectFunc<LLColor4>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
-    registerInspectFunc<LLUIColor>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
-    registerInspectFunc<LLUUID>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
-    registerInspectFunc<LLSD>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
+    registerInspectFunc<bool>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:boolean", _1, _2, _3, _4));
+    registerInspectFunc<std::string>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
+    registerInspectFunc<U8>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:unsignedByte", _1, _2, _3, _4));
+    registerInspectFunc<S8>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:signedByte", _1, _2, _3, _4));
+    registerInspectFunc<U16>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:unsignedShort", _1, _2, _3, _4));
+    registerInspectFunc<S16>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:signedShort", _1, _2, _3, _4));
+    registerInspectFunc<U32>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:unsignedInt", _1, _2, _3, _4));
+    registerInspectFunc<S32>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:integer", _1, _2, _3, _4));
+    registerInspectFunc<F32>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:float", _1, _2, _3, _4));
+    registerInspectFunc<F64>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:double", _1, _2, _3, _4));
+    registerInspectFunc<LLColor4>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
+    registerInspectFunc<LLUIColor>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
+    registerInspectFunc<LLUUID>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
+    registerInspectFunc<LLSD>(std::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
 }
 
 

@@ -43,6 +43,9 @@
 #include "llfocusmgr.h"
 #include "llresmgr.h"
 #include "lluictrlfactory.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const U32 MAX_STRING_LENGTH = 255;
 
@@ -104,8 +107,8 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
     // Click callback starts within the button and ends within the button,
     // but LLSpinCtrl handles the action continuosly so subsribers needs to
     // be informed about click ending even if outside view, use 'up' instead
-    up_button_params.mouse_up_callback.function(boost::bind(&LLSpinCtrl::onUpBtn, this, _2));
-    up_button_params.mouse_held_callback.function(boost::bind(&LLSpinCtrl::onUpBtn, this, _2));
+    up_button_params.mouse_up_callback.function(std::bind(&LLSpinCtrl::onUpBtn, this, _2));
+    up_button_params.mouse_held_callback.function(std::bind(&LLSpinCtrl::onUpBtn, this, _2));
     up_button_params.commit_on_capture_lost = true;
 
     mUpBtn = LLUICtrlFactory::create<LLButton>(up_button_params);
@@ -113,8 +116,8 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 
     LLButton::Params down_button_params(p.down_button);
     down_button_params.rect = LLRect(btn_left, getRect().getHeight() - spinctrl_btn_height, btn_right, getRect().getHeight() - 2 * spinctrl_btn_height);
-    down_button_params.mouse_up_callback.function(boost::bind(&LLSpinCtrl::onDownBtn, this, _2));
-    down_button_params.mouse_held_callback.function(boost::bind(&LLSpinCtrl::onDownBtn, this, _2));
+    down_button_params.mouse_up_callback.function(std::bind(&LLSpinCtrl::onDownBtn, this, _2));
+    down_button_params.mouse_held_callback.function(std::bind(&LLSpinCtrl::onDownBtn, this, _2));
     down_button_params.commit_on_capture_lost = true;
     mDownBtn = LLUICtrlFactory::create<LLButton>(down_button_params);
     addChild(mDownBtn);
@@ -128,14 +131,14 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
         params.font(p.font);
     }
     params.max_length.bytes(MAX_STRING_LENGTH);
-    params.commit_callback.function((boost::bind(&LLSpinCtrl::onEditorCommit, this, _2)));
+    params.commit_callback.function((std::bind(&LLSpinCtrl::onEditorCommit, this, _2)));
 
     //*NOTE: allow entering of any chars for LLCalc, proper input will be evaluated on commit
 
     params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
     mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
-    mEditor->setFocusReceivedCallback( boost::bind(&LLSpinCtrl::onEditorGainFocus, _1, this ));
-    mEditor->setFocusLostCallback( boost::bind(&LLSpinCtrl::onEditorLostFocus, _1, this ));
+    mEditor->setFocusReceivedCallback( std::bind(&LLSpinCtrl::onEditorGainFocus, _1, this ));
+    mEditor->setFocusLostCallback( std::bind(&LLSpinCtrl::onEditorLostFocus, _1, this ));
     if (p.allow_digits_only)
     {
         mEditor->setPrevalidateInput(LLTextValidate::validateNonNegativeS32NoSpace);

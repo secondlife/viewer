@@ -44,6 +44,9 @@
 #include "llviewerobjectlist.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLPanelGroupInvite::impl
 {
@@ -174,7 +177,7 @@ void LLPanelGroupInvite::impl::submitInvitations()
         {
             LLSD args;
             args["MESSAGE"] = mOwnerWarning;
-            LLNotificationsUtil::add("GenericAlertYesCancel", args, LLSD(), boost::bind(&LLPanelGroupInvite::impl::inviteOwnerCallback, this, _1, _2));
+            LLNotificationsUtil::add("GenericAlertYesCancel", args, LLSD(), std::bind(&LLPanelGroupInvite::impl::inviteOwnerCallback, this, _1, _2));
             return; // we'll be called again if user confirms
         }
     }
@@ -314,7 +317,7 @@ void LLPanelGroupInvite::impl::callbackClickAdd(void* userdata)
         LLView * button = panelp->findChild<LLButton>("add_button");
         LLFloater * root_floater = gFloaterView->getParentFloater(panelp);
         LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-            boost::bind(impl::callbackAddUsers, _1, panelp->mImplementation), true, false, false, root_floater->getName(), button);
+            std::bind(impl::callbackAddUsers, _1, panelp->mImplementation), true, false, false, root_floater->getName(), button);
         if (picker)
         {
             root_floater->addDependentFloater(picker);
@@ -411,7 +414,7 @@ void LLPanelGroupInvite::impl::callbackAddUsers(const uuid_vec_t& agent_ids, voi
                     selfp->mAvatarNameCacheConnection.disconnect();
                 }
                 // *TODO : Add a callback per avatar name being fetched.
-                selfp->mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_ids[i],boost::bind(&LLPanelGroupInvite::impl::onAvatarNameCache, _1, _2, user_data));
+                selfp->mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_ids[i],std::bind(&LLPanelGroupInvite::impl::onAvatarNameCache, _1, _2, user_data));
             }
         }
     }
@@ -508,7 +511,7 @@ void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
             if (!LLAvatarNameCache::get(agent_id, &av_name))
             {
                 // actually it should happen, just in case
-                //LLAvatarNameCache::get(LLUUID(agent_id), boost::bind(&LLPanelGroupInvite::addUserCallback, this, _1, _2));
+                //LLAvatarNameCache::get(LLUUID(agent_id), std::bind(&LLPanelGroupInvite::addUserCallback, this, _1, _2));
                 // for this special case!
                 //when there is no cached name we should remove resident from agent_ids list to avoid breaking of sequence
                 // removed id will be added in callback

@@ -39,6 +39,7 @@
 #include "llradiogroup.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
+#include <functional>
 
 
 ///----------------------------------------------------------------------------
@@ -66,7 +67,7 @@ bool LLSidepanelInventorySubpanel::postBuild()
     mCancelBtn = findChild<LLButton>("cancel_btn");
     if (mCancelBtn)
     {
-        mCancelBtn->setClickedCallback(boost::bind(&LLSidepanelInventorySubpanel::onCancelButtonClicked, this));
+        mCancelBtn->setClickedCallback(std::bind(&LLSidepanelInventorySubpanel::onCancelButtonClicked, this));
     }
     return true;
 }

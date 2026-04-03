@@ -43,6 +43,9 @@
 #include "llviewermessage.h"
 #include "llfloaterimsession.h"
 #include "llavataractions.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
@@ -97,7 +100,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, bool is_opt
     p.tool_tip = text;
     p.font = font;
     p.rect.height = BTN_HEIGHT;
-    p.click_callback.function(boost::bind(&LLToastNotifyPanel::onClickButton, userdata));
+    p.click_callback.function(std::bind(&LLToastNotifyPanel::onClickButton, userdata));
     p.rect.width = BUTTON_WIDTH;
     p.auto_resize = false;
     p.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
@@ -231,7 +234,7 @@ void LLToastNotifyPanel::adjustPanelForTipNotice()
         && mNotification->getPayload()["respond_on_mousedown"] )
     {
         mInfoPanel->setMouseDownCallback(
-            boost::bind(&LLNotification::respond,
+            std::bind(&LLNotification::respond,
                         mNotification,
                         mNotification->getResponseTemplate()));
     }
@@ -325,7 +328,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     mTextBox->setContentTrusted(is_content_trusted);
     mTextBox->setValue(mNotification->getMessage());
     mTextBox->setIsFriendCallback(LLAvatarActions::isFriend);
-    mTextBox->setIsObjectBlockedCallback(boost::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
+    mTextBox->setIsObjectBlockedCallback(std::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
 
     // add buttons for a script notification
     if (mIsTip)

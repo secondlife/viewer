@@ -45,6 +45,9 @@
 #include "llviewerregion.h"
 
 #include <boost/regex.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 /**
  * Sends postcard via email.
@@ -86,8 +89,8 @@ static LLPanelInjector<LLPanelSnapshotPostcard> panel_class("llpanelsnapshotpost
 LLPanelSnapshotPostcard::LLPanelSnapshotPostcard()
 :   mHasFirstMsgFocus(false)
 {
-    mCommitCallbackRegistrar.add("Postcard.Send",       boost::bind(&LLPanelSnapshotPostcard::onSend,   this));
-    mCommitCallbackRegistrar.add("Postcard.Cancel",     boost::bind(&LLPanelSnapshotPostcard::cancel,   this));
+    mCommitCallbackRegistrar.add("Postcard.Send",       std::bind(&LLPanelSnapshotPostcard::onSend,   this));
+    mCommitCallbackRegistrar.add("Postcard.Cancel",     std::bind(&LLPanelSnapshotPostcard::cancel,   this));
 
 }
 
@@ -95,11 +98,11 @@ LLPanelSnapshotPostcard::LLPanelSnapshotPostcard()
 bool LLPanelSnapshotPostcard::postBuild()
 {
     // For the first time a user focuses to .the msg box, all text will be selected.
-    getChild<LLUICtrl>("msg_form")->setFocusChangedCallback(boost::bind(&LLPanelSnapshotPostcard::onMsgFormFocusRecieved, this));
+    getChild<LLUICtrl>("msg_form")->setFocusChangedCallback(std::bind(&LLPanelSnapshotPostcard::onMsgFormFocusRecieved, this));
 
     getChild<LLUICtrl>("to_form")->setFocus(true);
 
-    getChild<LLUICtrl>("image_quality_slider")->setCommitCallback(boost::bind(&LLPanelSnapshotPostcard::onQualitySliderCommit, this, _1));
+    getChild<LLUICtrl>("image_quality_slider")->setCommitCallback(std::bind(&LLPanelSnapshotPostcard::onQualitySliderCommit, this, _1));
 
     return LLPanelSnapshot::postBuild();
 }
@@ -239,7 +242,7 @@ void LLPanelSnapshotPostcard::onSend()
     std::string subject(getChild<LLUICtrl>("subject_form")->getValue().asString());
     if(subject.empty() || !mHasFirstMsgFocus)
     {
-        LLNotificationsUtil::add("PromptMissingSubjMsg", LLSD(), LLSD(), boost::bind(&LLPanelSnapshotPostcard::missingSubjMsgAlertCallback, this, _1, _2));
+        LLNotificationsUtil::add("PromptMissingSubjMsg", LLSD(), LLSD(), std::bind(&LLPanelSnapshotPostcard::missingSubjMsgAlertCallback, this, _1, _2));
         return;
     }
 

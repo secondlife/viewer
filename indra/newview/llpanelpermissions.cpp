@@ -69,6 +69,9 @@
 
 #include "llavatarnamecache.h"
 #include "llcachename.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 U8 string_value_to_click_action(std::string p_value);
@@ -162,7 +165,7 @@ bool LLPanelPermissions::postBuild()
     getChild<LLLineEditor>("Object Description")->setPrevalidate(LLTextValidate::validateASCIIPrintableNoPipe);
 
 
-    getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLPanelPermissions::onClickGroup,this));
+    getChild<LLUICtrl>("button set group")->setCommitCallback(std::bind(&LLPanelPermissions::onClickGroup,this));
 
     childSetCommitCallback("checkbox share with group",LLPanelPermissions::onCommitGroupShare,this);
 
@@ -421,7 +424,7 @@ void LLPanelPermissions::refresh()
             mCreatorCacheConnection.disconnect();
         }
         mLabelCreatorName->setText(LLTrans::getString("None"));
-        mCreatorCacheConnection = LLAvatarNameCache::get(mCreatorID, boost::bind(&LLPanelPermissions::updateCreatorName, this, _1, _2, style_params));
+        mCreatorCacheConnection = LLAvatarNameCache::get(mCreatorID, std::bind(&LLPanelPermissions::updateCreatorName, this, _1, _2, style_params));
     }
     getChild<LLAvatarIconCtrl>("Creator Icon")->setValue(mCreatorID);
     getChild<LLAvatarIconCtrl>("Creator Icon")->setVisible(true);
@@ -483,7 +486,7 @@ void LLPanelPermissions::refresh()
                 mOwnerCacheConnection.disconnect();
             }
             mLabelOwnerName->setText(LLTrans::getString("None"));
-            mOwnerCacheConnection = LLAvatarNameCache::get(owner_id, boost::bind(&LLPanelPermissions::updateOwnerName, this, _1, _2, style_params));
+            mOwnerCacheConnection = LLAvatarNameCache::get(owner_id, std::bind(&LLPanelPermissions::updateOwnerName, this, _1, _2, style_params));
         }
 
         getChild<LLAvatarIconCtrl>("Owner Icon")->setValue(owner_id);
@@ -1061,7 +1064,7 @@ void LLPanelPermissions::onClickGroup()
         LLFloaterGroupPicker* fg =  LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
         if (fg)
         {
-            fg->setSelectGroupCallback( boost::bind(&LLPanelPermissions::cbGroupID, this, _1) );
+            fg->setSelectGroupCallback( std::bind(&LLPanelPermissions::cbGroupID, this, _1) );
 
             if (parent_floater)
             {

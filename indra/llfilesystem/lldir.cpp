@@ -45,7 +45,7 @@
 #include "llstring.h"
 #include <boost/filesystem.hpp>
 #include "llprocess.h"
-#include <boost/bind.hpp>
+#include <functional>
 #include <algorithm>
 
 #if LL_WINDOWS
@@ -56,6 +56,7 @@ LLDir_Win32 gDirUtil;
 LLDir_Mac gDirUtil;
 #else
 #include "lldir_linux.h"
+
 LLDir_Linux gDirUtil;
 #endif
 
@@ -699,18 +700,7 @@ void LLDir::walkSearchSkinDirs(const std::string& subdir,
     }
 }
 
-// ridiculous little helper function that should go away when we can use lambda
-inline void push_back(std::vector<std::string>& vector, const std::string& value)
-{
-    vector.push_back(value);
-}
-
 using StringMap = std::map<std::string, std::string>;
-// ridiculous little helper function that should go away when we can use lambda
-inline void store_in_map(StringMap& map, const std::string& key, const std::string& value)
-{
-    map[key] = value;
-}
 
 std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
                                                      const std::string& filename,
@@ -810,7 +800,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
         // FUNCTION the subsubdir as well as the full pathname. We just want
         // the full pathname.
         walkSearchSkinDirs(subdir, subsubdirs, filename,
-                           boost::bind(push_back, boost::ref(results), _2));
+                           [&results](const std::string&, const std::string& path) { results.push_back(path); });
     }
     else                            // CURRENT_SKIN
     {
@@ -834,7 +824,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
         // walkSearchSkinDirs(), update the map entry for its subsubdir.
         StringMap path_for;
         walkSearchSkinDirs(subdir, subsubdirs, filename,
-                           boost::bind(store_in_map, boost::ref(path_for), _1, _2));
+                           [&path_for](const std::string& key, const std::string& value) { path_for[key] = value; });
         // Now that we have a path for each of the default language and the
         // current language, copy them -- in proper order -- into results.
         // Don't drive this by walking the map itself: it matters that we

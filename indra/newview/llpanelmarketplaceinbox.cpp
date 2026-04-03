@@ -36,6 +36,7 @@
 #include "llfolderview.h"
 #include "llsidepanelinventory.h"
 #include "llviewercontrol.h"
+#include <functional>
 
 
 static LLPanelInjector<LLPanelMarketplaceInbox> t_panel_marketplace_inbox("panel_marketplace_inbox");
@@ -67,7 +68,7 @@ LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 // virtual
 bool LLPanelMarketplaceInbox::postBuild()
 {
-    LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceInbox::onFocusReceived, this));
+    LLFocusableElement::setFocusReceivedCallback(std::bind(&LLPanelMarketplaceInbox::onFocusReceived, this));
 
     mFreshCountCtrl = getChild<LLUICtrl>("inbox_fresh_new_count");
     mInboxButton = getChild<LLButton>("inbox_btn");
@@ -102,7 +103,7 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
     mInventoryPanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 
     // Set selection callback for proper update of inventory status buttons
-    mInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
+    mInventoryPanel->setSelectCallback(std::bind(&LLPanelMarketplaceInbox::onSelectionChange, this));
 
     // Set up the note to display when the inbox is empty
     mInventoryPanel->getFilter().setEmptyLookupMessage("InventoryInboxNoItems");

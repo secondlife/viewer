@@ -65,6 +65,9 @@
 #include "lltextbase.h"
 #include "llstring.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Class llsidepaneltaskinfo
@@ -104,7 +107,7 @@ LLSidepanelTaskInfo::LLSidepanelTaskInfo()
     : mVisibleDebugPermissions(true) // space was allocated by default
 {
     setMouseOpaque(false);
-    mSelectionUpdateSlot = LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLSidepanelTaskInfo::refreshAll, this));
+    mSelectionUpdateSlot = LLSelectMgr::instance().mUpdateSignal.connect(std::bind(&LLSidepanelTaskInfo::refreshAll, this));
     gIdleCallbacks.addFunction(&LLSidepanelTaskInfo::onIdle, (void*)this);
 }
 
@@ -125,13 +128,13 @@ LLSidepanelTaskInfo::~LLSidepanelTaskInfo()
 bool LLSidepanelTaskInfo::postBuild()
 {
     mOpenBtn = getChild<LLButton>("open_btn");
-    mOpenBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onOpenButtonClicked, this));
+    mOpenBtn->setClickedCallback(std::bind(&LLSidepanelTaskInfo::onOpenButtonClicked, this));
     mPayBtn = getChild<LLButton>("pay_btn");
-    mPayBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onPayButtonClicked, this));
+    mPayBtn->setClickedCallback(std::bind(&LLSidepanelTaskInfo::onPayButtonClicked, this));
     mBuyBtn = getChild<LLButton>("buy_btn");
-    mBuyBtn->setClickedCallback(boost::bind(&handle_buy));
+    mBuyBtn->setClickedCallback(std::bind(&handle_buy));
     mDetailsBtn = getChild<LLButton>("details_btn");
-    mDetailsBtn->setClickedCallback(boost::bind(&LLSidepanelTaskInfo::onDetailsButtonClicked, this));
+    mDetailsBtn->setClickedCallback(std::bind(&LLSidepanelTaskInfo::onDetailsButtonClicked, this));
 
     mDeedBtn = getChild<LLButton>("button deed");
 
@@ -141,7 +144,7 @@ bool LLSidepanelTaskInfo::postBuild()
     getChild<LLLineEditor>("Object Name")->setPrevalidate(LLTextValidate::validateASCIIPrintableNoPipe);
     childSetCommitCallback("Object Description",                LLSidepanelTaskInfo::onCommitDesc,this);
     getChild<LLLineEditor>("Object Description")->setPrevalidate(LLTextValidate::validateASCIIPrintableNoPipe);
-    getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLSidepanelTaskInfo::onClickGroup,this));
+    getChild<LLUICtrl>("button set group")->setCommitCallback(std::bind(&LLSidepanelTaskInfo::onClickGroup,this));
     childSetCommitCallback("checkbox share with group",         &LLSidepanelTaskInfo::onCommitGroupShare,this);
     childSetAction("button deed",                               &LLSidepanelTaskInfo::onClickDeedToGroup,this);
     childSetCommitCallback("checkbox allow everyone move",      &LLSidepanelTaskInfo::onCommitEveryoneMove,this);
@@ -951,7 +954,7 @@ void LLSidepanelTaskInfo::onClickGroup()
         LLFloaterGroupPicker* fg = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
         if (fg)
         {
-            fg->setSelectGroupCallback( boost::bind(&LLSidepanelTaskInfo::cbGroupID, this, _1) );
+            fg->setSelectGroupCallback( std::bind(&LLSidepanelTaskInfo::cbGroupID, this, _1) );
             if (parent_floater)
             {
                 LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, fg);

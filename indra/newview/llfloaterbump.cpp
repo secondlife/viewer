@@ -42,6 +42,9 @@
 #include "llviewermessage.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterBump
@@ -51,18 +54,18 @@
 LLFloaterBump::LLFloaterBump(const LLSD& key)
 :   LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("Avatar.SendIM", boost::bind(&LLFloaterBump::startIM, this));
-    mCommitCallbackRegistrar.add("Avatar.ReportAbuse", boost::bind(&LLFloaterBump::reportAbuse, this));
-    mCommitCallbackRegistrar.add("ShowAgentProfile", boost::bind(&LLFloaterBump::showProfile, this));
-    mCommitCallbackRegistrar.add("Avatar.InviteToGroup", boost::bind(&LLFloaterBump::inviteToGroup, this));
-    mCommitCallbackRegistrar.add("Avatar.Call", boost::bind(&LLFloaterBump::startCall, this));
-    mEnableCallbackRegistrar.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
-    mCommitCallbackRegistrar.add("Avatar.AddFriend", boost::bind(&LLFloaterBump::addFriend, this));
-    mEnableCallbackRegistrar.add("Avatar.EnableAddFriend", boost::bind(&LLFloaterBump::enableAddFriend, this));
-    mCommitCallbackRegistrar.add("Avatar.Mute", boost::bind(&LLFloaterBump::muteAvatar, this));
-    mEnableCallbackRegistrar.add("Avatar.EnableMute", boost::bind(&LLFloaterBump::enableMute, this));
-    mCommitCallbackRegistrar.add("PayObject", boost::bind(&LLFloaterBump::payAvatar, this));
-    mCommitCallbackRegistrar.add("Tools.LookAtSelection", boost::bind(&LLFloaterBump::zoomInAvatar, this));
+    mCommitCallbackRegistrar.add("Avatar.SendIM", std::bind(&LLFloaterBump::startIM, this));
+    mCommitCallbackRegistrar.add("Avatar.ReportAbuse", std::bind(&LLFloaterBump::reportAbuse, this));
+    mCommitCallbackRegistrar.add("ShowAgentProfile", std::bind(&LLFloaterBump::showProfile, this));
+    mCommitCallbackRegistrar.add("Avatar.InviteToGroup", std::bind(&LLFloaterBump::inviteToGroup, this));
+    mCommitCallbackRegistrar.add("Avatar.Call", std::bind(&LLFloaterBump::startCall, this));
+    mEnableCallbackRegistrar.add("Avatar.EnableCall", std::bind(&LLAvatarActions::canCall));
+    mCommitCallbackRegistrar.add("Avatar.AddFriend", std::bind(&LLFloaterBump::addFriend, this));
+    mEnableCallbackRegistrar.add("Avatar.EnableAddFriend", std::bind(&LLFloaterBump::enableAddFriend, this));
+    mCommitCallbackRegistrar.add("Avatar.Mute", std::bind(&LLFloaterBump::muteAvatar, this));
+    mEnableCallbackRegistrar.add("Avatar.EnableMute", std::bind(&LLFloaterBump::enableMute, this));
+    mCommitCallbackRegistrar.add("PayObject", std::bind(&LLFloaterBump::payAvatar, this));
+    mCommitCallbackRegistrar.add("Tools.LookAtSelection", std::bind(&LLFloaterBump::zoomInAvatar, this));
 }
 
 
@@ -81,7 +84,7 @@ bool LLFloaterBump::postBuild()
 {
     mList = getChild<LLScrollListCtrl>("bump_list");
     mList->setAllowMultipleSelection(false);
-    mList->setRightMouseDownCallback(boost::bind(&LLFloaterBump::onScrollListRightClicked, this, _1, _2, _3));
+    mList->setRightMouseDownCallback(std::bind(&LLFloaterBump::onScrollListRightClicked, this, _1, _2, _3));
 
     LLContextMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_avatar_other.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     if (menu)

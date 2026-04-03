@@ -47,6 +47,9 @@
 #include "llviewerobjectlist.h"
 #include "llviewertexturelist.h"
 #include "llwindow.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 class LLThumbnailImagePicker : public LLFilePickerThread
@@ -128,33 +131,33 @@ bool LLFloaterChangeItemThumbnail::postBuild()
 
     LLButton *upload_local = getChild<LLButton>("upload_local");
     upload_local->setClickedCallback(onUploadLocal, (void*)this);
-    upload_local->setMouseEnterCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_UPLOAD_LOCAL));
-    upload_local->setMouseLeaveCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_UPLOAD_LOCAL));
+    upload_local->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_UPLOAD_LOCAL));
+    upload_local->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_UPLOAD_LOCAL));
 
     LLButton *upload_snapshot = getChild<LLButton>("upload_snapshot");
     upload_snapshot->setClickedCallback(onUploadSnapshot, (void*)this);
-    upload_snapshot->setMouseEnterCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_UPLOAD_SNAPSHOT));
-    upload_snapshot->setMouseLeaveCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_UPLOAD_SNAPSHOT));
+    upload_snapshot->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_UPLOAD_SNAPSHOT));
+    upload_snapshot->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_UPLOAD_SNAPSHOT));
 
     LLButton *use_texture = getChild<LLButton>("use_texture");
     use_texture->setClickedCallback(onUseTexture, (void*)this);
-    use_texture->setMouseEnterCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_USE_TEXTURE));
-    use_texture->setMouseLeaveCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_USE_TEXTURE));
+    use_texture->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_USE_TEXTURE));
+    use_texture->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_USE_TEXTURE));
 
     mCopyToClipboardBtn = getChild<LLButton>("copy_to_clipboard");
     mCopyToClipboardBtn->setClickedCallback(onCopyToClipboard, (void*)this);
-    mCopyToClipboardBtn->setMouseEnterCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_COPY_TO_CLIPBOARD));
-    mCopyToClipboardBtn->setMouseLeaveCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_COPY_TO_CLIPBOARD));
+    mCopyToClipboardBtn->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_COPY_TO_CLIPBOARD));
+    mCopyToClipboardBtn->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_COPY_TO_CLIPBOARD));
 
     mPasteFromClipboardBtn = getChild<LLButton>("paste_from_clipboard");
     mPasteFromClipboardBtn->setClickedCallback(onPasteFromClipboard, (void*)this);
-    mPasteFromClipboardBtn->setMouseEnterCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_COPY_FROM_CLIPBOARD));
-    mPasteFromClipboardBtn->setMouseLeaveCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_COPY_FROM_CLIPBOARD));
+    mPasteFromClipboardBtn->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_COPY_FROM_CLIPBOARD));
+    mPasteFromClipboardBtn->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_COPY_FROM_CLIPBOARD));
 
     mRemoveImageBtn = getChild<LLButton>("remove_image");
     mRemoveImageBtn->setClickedCallback(onRemove, (void*)this);
-    mRemoveImageBtn->setMouseEnterCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_REMOVE));
-    mRemoveImageBtn->setMouseLeaveCallback(boost::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_REMOVE));
+    mRemoveImageBtn->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_REMOVE));
+    mRemoveImageBtn->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_REMOVE));
 
     return LLFloater::postBuild();
 }
@@ -633,7 +636,7 @@ void LLFloaterChangeItemThumbnail::onRemove(void *userdata)
     LLSD payload;
     payload["item_id"] = *self->mItemList.begin();
     payload["object_id"] = self->mTaskId;
-    LLNotificationsUtil::add("DeleteThumbnail", LLSD(), payload, boost::bind(&LLFloaterChangeItemThumbnail::onRemovalConfirmation, _1, _2, self->getHandle()));
+    LLNotificationsUtil::add("DeleteThumbnail", LLSD(), payload, std::bind(&LLFloaterChangeItemThumbnail::onRemovalConfirmation, _1, _2, self->getHandle()));
 }
 
 // static

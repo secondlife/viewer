@@ -30,12 +30,15 @@
 
 #include "llcolorswatch.h"
 #include "llviewercontrol.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLFloaterInventorySettings::LLFloaterInventorySettings(const LLSD& key)
   : LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("ScriptPref.applyUIColor", boost::bind(&LLFloaterInventorySettings::applyUIColor, this, _1, _2));
-    mCommitCallbackRegistrar.add("ScriptPref.getUIColor", boost::bind(&LLFloaterInventorySettings::getUIColor, this, _1, _2));
+    mCommitCallbackRegistrar.add("ScriptPref.applyUIColor", std::bind(&LLFloaterInventorySettings::applyUIColor, this, _1, _2));
+    mCommitCallbackRegistrar.add("ScriptPref.getUIColor", std::bind(&LLFloaterInventorySettings::getUIColor, this, _1, _2));
 }
 
 LLFloaterInventorySettings::~LLFloaterInventorySettings()
@@ -43,9 +46,9 @@ LLFloaterInventorySettings::~LLFloaterInventorySettings()
 
 bool LLFloaterInventorySettings::postBuild()
 {
-    getChild<LLButton>("ok_btn")->setCommitCallback(boost::bind(&LLFloater::closeFloater, this, false));
+    getChild<LLButton>("ok_btn")->setCommitCallback(std::bind(&LLFloater::closeFloater, this, false));
 
-    getChild<LLUICtrl>("favorites_color")->setCommitCallback(boost::bind(&LLFloaterInventorySettings::updateColorSwatch, this));
+    getChild<LLUICtrl>("favorites_color")->setCommitCallback(std::bind(&LLFloaterInventorySettings::updateColorSwatch, this));
 
     bool enable_color = gSavedSettings.getBOOL("InventoryFavoritesColorText");
     getChild<LLUICtrl>("favorites_swatch")->setEnabled(enable_color);

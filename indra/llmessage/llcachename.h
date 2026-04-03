@@ -27,7 +27,7 @@
 #ifndef LL_LLCACHENAME_H
 #define LL_LLCACHENAME_H
 
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/signals2.hpp>
 
 class LLMessageSystem;

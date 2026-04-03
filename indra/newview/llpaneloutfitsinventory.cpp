@@ -44,6 +44,9 @@
 #include "lltabcontainer.h"
 #include "llviewercontrol.h"
 #include "llviewerfoldertype.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static const std::string OUTFITS_TAB_NAME = "outfitslist_tab";
 static const std::string OUTFIT_GALLERY_TAB_NAME = "outfit_gallery_tab";
@@ -66,13 +69,13 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory()
     , mSortMenuPanel(nullptr)
     , mTrashMenuPanel(nullptr)
 {
-    gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
-    gAgentWearables.addLoadingStartedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoading, this));
+    gAgentWearables.addLoadedCallback(std::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
+    gAgentWearables.addLoadingStartedCallback(std::bind(&LLPanelOutfitsInventory::onWearablesLoading, this));
 
     LLOutfitObserver& observer = LLOutfitObserver::instance();
-    observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
-    observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
-    observer.addOutfitLockChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    observer.addBOFChangedCallback(std::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    observer.addCOFChangedCallback(std::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    observer.addOutfitLockChangedCallback(std::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 }
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
@@ -102,8 +105,8 @@ bool LLPanelOutfitsInventory::postBuild()
         LLInventoryModelBackgroundFetch::instance().start(outfits_cat);
     }
 
-    getChild<LLButton>(SAVE_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::saveOutfit, this, false));
-    getChild<LLButton>(SAVE_AS_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::saveOutfit, this, true));
+    getChild<LLButton>(SAVE_BTN)->setCommitCallback(std::bind(&LLPanelOutfitsInventory::saveOutfit, this, false));
+    getChild<LLButton>(SAVE_AS_BTN)->setCommitCallback(std::bind(&LLPanelOutfitsInventory::saveOutfit, this, true));
 
     return true;
 }
@@ -240,7 +243,7 @@ void LLPanelOutfitsInventory::onSave()
     LLSD payload;
     //payload["ids"].append(*it);
 
-    LLNotificationsUtil::add("SaveOutfitAs", args, payload, boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1, _2));
+    LLNotificationsUtil::add("SaveOutfitAs", args, payload, std::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1, _2));
 }
 
 //static
@@ -262,9 +265,9 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 {
     mListCommands = getChild<LLPanel>("bottom_panel");
     mWearBtn = mListCommands->getChild<LLButton>("wear_btn");
-    mWearBtn->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
-    mMyOutfitsPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
-    mOutfitGalleryPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
+    mWearBtn->setCommitCallback(std::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
+    mMyOutfitsPanel->childSetAction("trash_btn", std::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
+    mOutfitGalleryPanel->childSetAction("trash_btn", std::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 }
 
 void LLPanelOutfitsInventory::setMenuButtons(LLMenuButton* gear_menu, LLMenuButton* sort_menu, LLButton* trash_btn, LLPanel* sort_menu_panel, LLPanel* trash_menu_panel)
@@ -278,9 +281,9 @@ void LLPanelOutfitsInventory::setMenuButtons(LLMenuButton* gear_menu, LLMenuButt
     mGearMenuConnection.disconnect();
     mSortMenuConnection.disconnect();
     mTrashMenuConnection.disconnect();
-    mGearMenuConnection = mGearMenu->setMouseDownCallback(boost::bind(&LLPanelOutfitsInventory::onGearMouseDown, this));
-    mSortMenuConnection = mSortMenu->setMouseDownCallback(boost::bind(&LLPanelOutfitsInventory::onGearMouseDown, this));
-    mTrashMenuConnection = mTrashBtn->setClickedCallback(boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
+    mGearMenuConnection = mGearMenu->setMouseDownCallback(std::bind(&LLPanelOutfitsInventory::onGearMouseDown, this));
+    mSortMenuConnection = mSortMenu->setMouseDownCallback(std::bind(&LLPanelOutfitsInventory::onGearMouseDown, this));
+    mTrashMenuConnection = mTrashBtn->setClickedCallback(std::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -332,16 +335,16 @@ void LLPanelOutfitsInventory::initTabPanels()
 {
     //TODO: Add LLOutfitGallery change callback
     mCurrentOutfitPanel = findChild<LLPanelWearing>(COF_TAB_NAME);
-    mCurrentOutfitPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    mCurrentOutfitPanel->setSelectionChangeCallback(std::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
     mMyOutfitsPanel = findChild<LLOutfitsList>(OUTFITS_TAB_NAME);
-    mMyOutfitsPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    mMyOutfitsPanel->setSelectionChangeCallback(std::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
     mOutfitGalleryPanel = findChild<LLOutfitGallery>(OUTFIT_GALLERY_TAB_NAME);
-    mOutfitGalleryPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    mOutfitGalleryPanel->setSelectionChangeCallback(std::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
     mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
-    mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));
+    mAppearanceTabs->setCommitCallback(std::bind(&LLPanelOutfitsInventory::onTabChange, this));
 }
 
 void LLPanelOutfitsInventory::onTabChange()

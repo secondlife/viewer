@@ -60,6 +60,9 @@
 #include "lllineeditor.h"
 #include "lluictrlfactory.h"
 #include "llviewerassetupload.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Class LLPreviewNotecard
@@ -89,22 +92,22 @@ bool LLPreviewNotecard::postBuild()
     mEditor->makePristine();
 
     mSaveBtn = getChild<LLButton>("Save");
-    mSaveBtn->setCommitCallback(boost::bind(&LLPreviewNotecard::saveIfNeeded, this, nullptr, true));
+    mSaveBtn->setCommitCallback(std::bind(&LLPreviewNotecard::saveIfNeeded, this, nullptr, true));
 
     mLockBtn = getChild<LLUICtrl>("lock");
     mLockBtn->setVisible(false);
 
     mDeleteBtn = getChild<LLButton>("Delete");
-    mDeleteBtn->setCommitCallback(boost::bind(&LLPreviewNotecard::deleteNotecard, this));
+    mDeleteBtn->setCommitCallback(std::bind(&LLPreviewNotecard::deleteNotecard, this));
     mDeleteBtn->setEnabled(false);
 
     mEditBtn = getChild<LLButton>("Edit");
-    mEditBtn->setCommitCallback(boost::bind(&LLPreviewNotecard::openInExternalEditor, this));
+    mEditBtn->setCommitCallback(std::bind(&LLPreviewNotecard::openInExternalEditor, this));
 
     const LLInventoryItem* item = getItem();
 
     mDescEditor = getChild<LLLineEditor>("desc");
-    mDescEditor->setCommitCallback(boost::bind(&LLPreview::onText, mDescEditor, this));
+    mDescEditor->setCommitCallback(std::bind(&LLPreview::onText, mDescEditor, this));
     if (item)
     {
         mDescEditor->setValue(item->getDescription());
@@ -177,7 +180,7 @@ bool LLPreviewNotecard::canClose()
         {
             mSaveDialogShown = true;
             // Bring up view-modal dialog: Save changes? Yes, No, Cancel
-            LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLPreviewNotecard::handleSaveChangesDialog,this, _1, _2));
+            LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), std::bind(&LLPreviewNotecard::handleSaveChangesDialog,this, _1, _2));
         }
         return false;
     }
@@ -597,7 +600,7 @@ void LLPreviewNotecard::inventoryChanged(LLViewerObject* object,
 
 void LLPreviewNotecard::deleteNotecard()
 {
-    LLNotificationsUtil::add("DeleteNotecard", LLSD(), LLSD(), boost::bind(&LLPreviewNotecard::handleConfirmDeleteDialog,this, _1, _2));
+    LLNotificationsUtil::add("DeleteNotecard", LLSD(), LLSD(), std::bind(&LLPreviewNotecard::handleConfirmDeleteDialog,this, _1, _2));
 }
 
 // static
@@ -748,7 +751,7 @@ void LLPreviewNotecard::openInExternalEditor()
     writeToFile(filename);
 
     // Start watching file changes.
-    mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLPreviewNotecard::onExternalChange, this, _1));
+    mLiveFile = new LLLiveLSLFile(filename, std::bind(&LLPreviewNotecard::onExternalChange, this, _1));
     mLiveFile->ignoreNextUpdate();
     mLiveFile->addToEventTimer();
 

@@ -62,6 +62,9 @@
 #include "llradiogroup.h"
 #include "llenvironment.h"
 #include "llweb.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const std::string FILTERS_FILENAME("filters.xml");
 
@@ -144,14 +147,14 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
       mGalleryRootUpdatedConnection()
 {
     // Menu Callbacks (non contex menus)
-    mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelMainInventory::doToSelected, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.CloseAllFolders", boost::bind(&LLPanelMainInventory::closeAllFolders, this));
-    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
-    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
-    mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&LLPanelMainInventory::doCreate, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.ShowFilters", boost::bind(&LLPanelMainInventory::toggleFindOptions, this));
-    mCommitCallbackRegistrar.add("Inventory.ResetFilters", boost::bind(&LLPanelMainInventory::resetFilters, this));
-    mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLPanelMainInventory::setSortBy, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.DoToSelected", std::bind(&LLPanelMainInventory::doToSelected, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.CloseAllFolders", std::bind(&LLPanelMainInventory::closeAllFolders, this));
+    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", std::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
+    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", std::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
+    mCommitCallbackRegistrar.add("Inventory.DoCreate", std::bind(&LLPanelMainInventory::doCreate, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.ShowFilters", std::bind(&LLPanelMainInventory::toggleFindOptions, this));
+    mCommitCallbackRegistrar.add("Inventory.ResetFilters", std::bind(&LLPanelMainInventory::resetFilters, this));
+    mCommitCallbackRegistrar.add("Inventory.SetSortBy", std::bind(&LLPanelMainInventory::setSortBy, this, _2));
 
     mEnableCallbackRegistrar.add("Inventory.EnvironmentEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasSettingsInventory(); });
     mEnableCallbackRegistrar.add("Inventory.MaterialsEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasMaterialsInventory(); });
@@ -166,7 +169,7 @@ bool LLPanelMainInventory::postBuild()
     gInventory.addObserver(this);
 
     mFilterTabs = getChild<LLTabContainer>("inventory filter tabs");
-    mFilterTabs->setCommitCallback(boost::bind(&LLPanelMainInventory::onFilterSelected, this));
+    mFilterTabs->setCommitCallback(std::bind(&LLPanelMainInventory::onFilterSelected, this));
 
     mCounterCtrl = getChild<LLUICtrl>("ItemcountText");
 
@@ -180,7 +183,7 @@ bool LLPanelMainInventory::postBuild()
         mAllItemsPanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
         mAllItemsPanel->getFilter().markDefault();
         mAllItemsPanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
-        mAllItemsPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mAllItemsPanel, _1, _2));
+        mAllItemsPanel->setSelectCallback(std::bind(&LLPanelMainInventory::onSelectionChange, this, mAllItemsPanel, _1, _2));
         mResortActivePanel = true;
     }
     mActivePanel = mAllItemsPanel;
@@ -196,7 +199,7 @@ bool LLPanelMainInventory::postBuild()
         recent_filter.setFilterObjectTypes(recent_filter.getFilterObjectTypes() & ~(0x1 << LLInventoryType::IT_CATEGORY));
         recent_filter.setEmptyLookupMessage("InventoryNoMatchingRecentItems");
         recent_filter.markDefault();
-        mRecentPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mRecentPanel, _1, _2));
+        mRecentPanel->setSelectCallback(std::bind(&LLPanelMainInventory::onSelectionChange, this, mRecentPanel, _1, _2));
     }
 
     mWornItemsPanel = getChild<LLInventoryPanel>(WORN_ITEMS);
@@ -213,7 +216,7 @@ bool LLPanelMainInventory::postBuild()
         LLInventoryFilter& worn_filter = mWornItemsPanel->getFilter();
         worn_filter.setFilterCategoryTypes(worn_filter.getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
         worn_filter.markDefault();
-        mWornItemsPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mWornItemsPanel, _1, _2));
+        mWornItemsPanel->setSelectCallback(std::bind(&LLPanelMainInventory::onSelectionChange, this, mWornItemsPanel, _1, _2));
     }
 
     mFavoritesPanel = getChild<LLInventoryPanel>(FAVORITES);
@@ -223,13 +226,13 @@ bool LLPanelMainInventory::postBuild()
         LLInventoryFilter& favorites_filter = mFavoritesPanel->getFilter();
         favorites_filter.setEmptyLookupMessage("InventoryNoMatchingFavorites");
         favorites_filter.markDefault();
-        mFavoritesPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mFavoritesPanel, _1, _2));
+        mFavoritesPanel->setSelectCallback(std::bind(&LLPanelMainInventory::onSelectionChange, this, mFavoritesPanel, _1, _2));
     }
 
     mSearchTypeCombo  = getChild<LLComboBox>("search_type");
     if(mSearchTypeCombo)
     {
-        mSearchTypeCombo->setCommitCallback(boost::bind(&LLPanelMainInventory::onSelectSearchType, this));
+        mSearchTypeCombo->setCommitCallback(std::bind(&LLPanelMainInventory::onSelectSearchType, this));
     }
     // Now load the stored settings from disk, if available.
     std::string filterSaveName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME));
@@ -273,7 +276,7 @@ bool LLPanelMainInventory::postBuild()
     mFilterEditor = getChild<LLFilterEditor>("inventory search editor");
     if (mFilterEditor)
     {
-        mFilterEditor->setCommitCallback(boost::bind(&LLPanelMainInventory::onFilterEdit, this, _2));
+        mFilterEditor->setCommitCallback(std::bind(&LLPanelMainInventory::onFilterEdit, this, _2));
     }
 
     mGearMenuButton = getChild<LLMenuButton>("options_gear_btn");
@@ -296,16 +299,16 @@ bool LLPanelMainInventory::postBuild()
     LLInventoryFilter& comb_inv_filter = mCombinationInventoryPanel->getFilter();
     comb_inv_filter.setFilterThumbnails(LLInventoryFilter::FILTER_EXCLUDE_THUMBNAILS);
     comb_inv_filter.markDefault();
-    mCombinationInventoryPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onCombinationInventorySelectionChanged, this, _1, _2));
-    mListViewRootUpdatedConnection = mCombinationInventoryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::onCombinationRootChanged, this, false));
+    mCombinationInventoryPanel->setSelectCallback(std::bind(&LLPanelMainInventory::onCombinationInventorySelectionChanged, this, _1, _2));
+    mListViewRootUpdatedConnection = mCombinationInventoryPanel->setRootChangedCallback(std::bind(&LLPanelMainInventory::onCombinationRootChanged, this, false));
 
     mCombinationGalleryPanel = getChild<LLInventoryGallery>("comb_gallery_view_inv");
     mCombinationGalleryPanel->setSortOrder(mCombinationInventoryPanel->getSortOrder());
     LLInventoryFilter& comb_gallery_filter = mCombinationGalleryPanel->getFilter();
     comb_gallery_filter.setFilterThumbnails(LLInventoryFilter::FILTER_ONLY_THUMBNAILS);
     comb_gallery_filter.markDefault();
-    mGalleryRootUpdatedConnection = mCombinationGalleryPanel->setRootChangedCallback(boost::bind(&LLPanelMainInventory::onCombinationRootChanged, this, true));
-    mCombinationGalleryPanel->setSelectionChangeCallback(boost::bind(&LLPanelMainInventory::onCombinationGallerySelectionChanged, this, _1));
+    mGalleryRootUpdatedConnection = mCombinationGalleryPanel->setRootChangedCallback(std::bind(&LLPanelMainInventory::onCombinationRootChanged, this, true));
+    mCombinationGalleryPanel->setSelectionChangeCallback(std::bind(&LLPanelMainInventory::onCombinationGallerySelectionChanged, this, _1));
 
     initListCommandsHandlers();
 
@@ -324,7 +327,7 @@ bool LLPanelMainInventory::postBuild()
     mFilterTabs->setTabVisibility(mFavoritesPanel, gSavedSettings.getBOOL("InventoryShowFavoritesTab"));
 
     // Trigger callback for focus received so we can deselect items in inbox/outbox
-    LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMainInventory::onFocusReceived, this));
+    LLFocusableElement::setFocusReceivedCallback(std::bind(&LLPanelMainInventory::onFocusReceived, this));
 
     return true;
 }
@@ -1190,8 +1193,8 @@ bool LLFloaterInventoryFinder::postBuild()
 
     mCreatorSelf = getChild<LLCheckBoxCtrl>("check_created_by_me");
     mCreatorOthers = getChild<LLCheckBoxCtrl>("check_created_by_others");
-    mCreatorSelf->setCommitCallback(boost::bind(&LLFloaterInventoryFinder::onCreatorSelfFilterCommit, this));
-    mCreatorOthers->setCommitCallback(boost::bind(&LLFloaterInventoryFinder::onCreatorOtherFilterCommit, this));
+    mCreatorSelf->setCommitCallback(std::bind(&LLFloaterInventoryFinder::onCreatorSelfFilterCommit, this));
+    mCreatorOthers->setCommitCallback(std::bind(&LLFloaterInventoryFinder::onCreatorOtherFilterCommit, this));
 
     mCheckAnimation = getChild<LLCheckBoxCtrl>("check_animation");
     mCheckCallingCard = getChild<LLCheckBoxCtrl>("check_calling_card");
@@ -1551,16 +1554,16 @@ void LLFloaterInventoryFinder::selectNoTypes()
 
 void LLPanelMainInventory::initListCommandsHandlers()
 {
-    childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddButtonClick, this));
-    mViewModeBtn->setCommitCallback(boost::bind(&LLPanelMainInventory::onViewModeClick, this));
-    mUpBtn->setCommitCallback(boost::bind(&LLPanelMainInventory::onUpFolderClicked, this));
-    mBackBtn->setCommitCallback(boost::bind(&LLPanelMainInventory::onBackFolderClicked, this));
-    mForwardBtn->setCommitCallback(boost::bind(&LLPanelMainInventory::onForwardFolderClicked, this));
+    childSetAction("add_btn", std::bind(&LLPanelMainInventory::onAddButtonClick, this));
+    mViewModeBtn->setCommitCallback(std::bind(&LLPanelMainInventory::onViewModeClick, this));
+    mUpBtn->setCommitCallback(std::bind(&LLPanelMainInventory::onUpFolderClicked, this));
+    mBackBtn->setCommitCallback(std::bind(&LLPanelMainInventory::onBackFolderClicked, this));
+    mForwardBtn->setCommitCallback(std::bind(&LLPanelMainInventory::onForwardFolderClicked, this));
 
-    mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", boost::bind(&LLPanelMainInventory::onCustomAction, this, _2));
-    mEnableCallbackRegistrar.add("Inventory.GearDefault.Check", boost::bind(&LLPanelMainInventory::isActionChecked, this, _2));
-    mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
-    mEnableCallbackRegistrar.add("Inventory.GearDefault.Visible", boost::bind(&LLPanelMainInventory::isActionVisible, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", std::bind(&LLPanelMainInventory::onCustomAction, this, _2));
+    mEnableCallbackRegistrar.add("Inventory.GearDefault.Check", std::bind(&LLPanelMainInventory::isActionChecked, this, _2));
+    mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", std::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
+    mEnableCallbackRegistrar.add("Inventory.GearDefault.Visible", std::bind(&LLPanelMainInventory::isActionVisible, this, _2));
     mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     mGearMenuButton->setMenu(mMenuGearDefault, LLMenuButton::MP_BOTTOM_LEFT, true);
     mMenuViewDefault = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_view_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1572,7 +1575,7 @@ void LLPanelMainInventory::initListCommandsHandlers()
     mVisibilityMenuButton->setMenu(mMenuVisibility, LLMenuButton::MP_BOTTOM_LEFT, true);
 
     // Update the trash button when selected item(s) get worn or taken off.
-    LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLPanelMainInventory::updateListCommands, this));
+    LLOutfitObserver::instance().addCOFChangedCallback(std::bind(&LLPanelMainInventory::updateListCommands, this));
 }
 
 void LLPanelMainInventory::updateListCommands()

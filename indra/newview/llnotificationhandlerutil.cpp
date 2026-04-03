@@ -38,6 +38,9 @@
 #include "llimview.h"
 #include "llfloaterimnearbychat.h"
 #include "llnotificationhandler.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 using namespace LLNotificationsUI;
 
@@ -145,11 +148,11 @@ void LLHandlerUtil::logToIMP2P(const LLUUID& from_id, const std::string& message
 
     if(to_file_only)
     {
-        LLAvatarNameCache::get(from_id, boost::bind(&log_name_callback, _2, "", message, LLUUID()));
+        LLAvatarNameCache::get(from_id, std::bind(&log_name_callback, _2, "", message, LLUUID()));
     }
     else
     {
-        LLAvatarNameCache::get(from_id, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, message, from_id));
+        LLAvatarNameCache::get(from_id, std::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, message, from_id));
     }
 }
 

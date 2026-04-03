@@ -344,7 +344,7 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 
     LLPointer<LLInventoryCallback> cb =
         new LLBoostFuncInventoryCallback(no_op_inventory_func,
-                                         boost::bind(notify_update_label,base_item_id));
+                                         std::bind(notify_update_label,base_item_id));
 
     LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id, cb);
 }

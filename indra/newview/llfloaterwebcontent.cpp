@@ -40,6 +40,9 @@
 #include "llwindow.h"
 
 #include "llfloaterwebcontent.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLFloaterWebContent::_Params::_Params()
 :   url("url"),
@@ -75,13 +78,13 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
     mDisplayURL(""),
     mDevelopMode(params.dev_mode) // if called from "Develop" Menu, set a flag and change things to be more useful for devs
 {
-    mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
-    mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
-    mCommitCallbackRegistrar.add( "WebContent.Reload", boost::bind( &LLFloaterWebContent::onClickReload, this ));
-    mCommitCallbackRegistrar.add( "WebContent.Stop", boost::bind( &LLFloaterWebContent::onClickStop, this ));
-    mCommitCallbackRegistrar.add( "WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this ));
-    mCommitCallbackRegistrar.add( "WebContent.PopExternal", boost::bind(&LLFloaterWebContent::onPopExternal, this));
-    mCommitCallbackRegistrar.add( "WebContent.TestURL", boost::bind(&LLFloaterWebContent::onTestURL, this, _2));
+    mCommitCallbackRegistrar.add( "WebContent.Back", std::bind( &LLFloaterWebContent::onClickBack, this ));
+    mCommitCallbackRegistrar.add( "WebContent.Forward", std::bind( &LLFloaterWebContent::onClickForward, this ));
+    mCommitCallbackRegistrar.add( "WebContent.Reload", std::bind( &LLFloaterWebContent::onClickReload, this ));
+    mCommitCallbackRegistrar.add( "WebContent.Stop", std::bind( &LLFloaterWebContent::onClickStop, this ));
+    mCommitCallbackRegistrar.add( "WebContent.EnterAddress", std::bind( &LLFloaterWebContent::onEnterAddress, this ));
+    mCommitCallbackRegistrar.add( "WebContent.PopExternal", std::bind(&LLFloaterWebContent::onPopExternal, this));
+    mCommitCallbackRegistrar.add( "WebContent.TestURL", std::bind(&LLFloaterWebContent::onTestURL, this, _2));
 }
 
 bool LLFloaterWebContent::postBuild()

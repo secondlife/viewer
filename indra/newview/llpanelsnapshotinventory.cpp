@@ -38,6 +38,9 @@
 #include "llnotificationsutil.h"
 
 #include "llagentbenefits.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 /**
  * The panel provides UI for saving snapshot as an inventory texture.
@@ -77,8 +80,8 @@ LLSnapshotModel::ESnapshotType LLPanelSnapshotInventory::getSnapshotType()
 
 LLPanelSnapshotInventory::LLPanelSnapshotInventory()
 {
-    mCommitCallbackRegistrar.add("Inventory.Save",      boost::bind(&LLPanelSnapshotInventory::onSend,      this));
-    mCommitCallbackRegistrar.add("Inventory.Cancel",    boost::bind(&LLPanelSnapshotInventory::cancel,      this));
+    mCommitCallbackRegistrar.add("Inventory.Save",      std::bind(&LLPanelSnapshotInventory::onSend,      this));
+    mCommitCallbackRegistrar.add("Inventory.Cancel",    std::bind(&LLPanelSnapshotInventory::cancel,      this));
 }
 
 // virtual
@@ -87,7 +90,7 @@ bool LLPanelSnapshotInventory::postBuild()
     getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(false);
     getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(false);
 
-    getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onResolutionCommit, this, _1));
+    getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(std::bind(&LLPanelSnapshotInventory::onResolutionCommit, this, _1));
     return LLPanelSnapshot::postBuild();
 }
 

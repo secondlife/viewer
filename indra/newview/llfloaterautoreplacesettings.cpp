@@ -64,6 +64,9 @@
 #include "llnotificationhandler.h"
 #include "llnotificationmanager.h"
 #include "llnotificationsutil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 LLFloaterAutoReplaceSettings::LLFloaterAutoReplaceSettings(const LLSD& key)
@@ -92,40 +95,40 @@ bool LLFloaterAutoReplaceSettings::postBuild(void)
 
     // global checkbox for whether or not autoreplace is active
     LLUICtrl* enabledCheckbox = getChild<LLUICtrl>("autoreplace_enable");
-    enabledCheckbox->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onAutoReplaceToggled, this));
+    enabledCheckbox->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onAutoReplaceToggled, this));
     enabledCheckbox->setValue(LLSD(mEnabled));
 
     // top row list creation and deletion
-    getChild<LLUICtrl>("autoreplace_import_list")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onImportList,this));
-    getChild<LLUICtrl>("autoreplace_export_list")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onExportList,this));
-    getChild<LLUICtrl>("autoreplace_new_list")->setCommitCallback(   boost::bind(&LLFloaterAutoReplaceSettings::onNewList,this));
-    getChild<LLUICtrl>("autoreplace_delete_list")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onDeleteList,this));
+    getChild<LLUICtrl>("autoreplace_import_list")->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onImportList,this));
+    getChild<LLUICtrl>("autoreplace_export_list")->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onExportList,this));
+    getChild<LLUICtrl>("autoreplace_new_list")->setCommitCallback(   std::bind(&LLFloaterAutoReplaceSettings::onNewList,this));
+    getChild<LLUICtrl>("autoreplace_delete_list")->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onDeleteList,this));
 
     // the list of keyword->replacement lists
     mListNames = getChild<LLScrollListCtrl>("autoreplace_list_name");
-    mListNames->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onSelectList, this));
+    mListNames->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onSelectList, this));
     mListNames->setCommitOnSelectionChange(true);
 
     // list ordering
-    getChild<LLUICtrl>("autoreplace_list_up")->setCommitCallback(  boost::bind(&LLFloaterAutoReplaceSettings::onListUp,this));
-    getChild<LLUICtrl>("autoreplace_list_down")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onListDown,this));
+    getChild<LLUICtrl>("autoreplace_list_up")->setCommitCallback(  std::bind(&LLFloaterAutoReplaceSettings::onListUp,this));
+    getChild<LLUICtrl>("autoreplace_list_down")->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onListDown,this));
 
     // keyword->replacement entry add / delete
-    getChild<LLUICtrl>("autoreplace_add_entry")->setCommitCallback(   boost::bind(&LLFloaterAutoReplaceSettings::onAddEntry,this));
-    getChild<LLUICtrl>("autoreplace_delete_entry")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onDeleteEntry,this));
+    getChild<LLUICtrl>("autoreplace_add_entry")->setCommitCallback(   std::bind(&LLFloaterAutoReplaceSettings::onAddEntry,this));
+    getChild<LLUICtrl>("autoreplace_delete_entry")->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onDeleteEntry,this));
 
     // entry edits
     mKeyword     = getChild<LLLineEditor>("autoreplace_keyword");
     mReplacement = getChild<LLLineEditor>("autoreplace_replacement");
-    getChild<LLUICtrl>("autoreplace_save_entry")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onSaveEntry, this));
+    getChild<LLUICtrl>("autoreplace_save_entry")->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onSaveEntry, this));
 
     // dialog termination ( Save Changes / Cancel )
-    getChild<LLUICtrl>("autoreplace_save_changes")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onSaveChanges, this));
-    getChild<LLUICtrl>("autoreplace_cancel")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onCancel, this));
+    getChild<LLUICtrl>("autoreplace_save_changes")->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onSaveChanges, this));
+    getChild<LLUICtrl>("autoreplace_cancel")->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onCancel, this));
 
     // the list of keyword->replacement pairs
     mReplacementsList = getChild<LLScrollListCtrl>("autoreplace_list_replacements");
-    mReplacementsList->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onSelectEntry, this));
+    mReplacementsList->setCommitCallback(std::bind(&LLFloaterAutoReplaceSettings::onSelectEntry, this));
     mReplacementsList->setCommitOnSelectionChange(true);
 
     center();
@@ -350,7 +353,7 @@ void LLFloaterAutoReplaceSettings::onDeleteEntry()
 // called when the Import List button is pressed
 void LLFloaterAutoReplaceSettings::onImportList()
 {
-    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterAutoReplaceSettings::loadListFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
+    LLFilePickerReplyThread::startPicker(std::bind(&LLFloaterAutoReplaceSettings::loadListFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
 }
 
 void LLFloaterAutoReplaceSettings::loadListFromFile(const std::vector<std::string>& filenames)
@@ -384,7 +387,7 @@ void LLFloaterAutoReplaceSettings::loadListFromFile(const std::vector<std::strin
             args["DUPNAME"] = newName;
 
             LLNotificationsUtil::add("RenameAutoReplaceList", args, newPayload,
-                                         boost::bind(&LLFloaterAutoReplaceSettings::callbackListNameConflict, this, _1, _2));
+                                         std::bind(&LLFloaterAutoReplaceSettings::callbackListNameConflict, this, _1, _2));
         }
         break;
 
@@ -413,7 +416,7 @@ void LLFloaterAutoReplaceSettings::onNewList()
     LLSD args;
 
     LLNotificationsUtil::add("AddAutoReplaceList", args, payload,
-                             boost::bind(&LLFloaterAutoReplaceSettings::callbackNewListName, this, _1, _2));
+                             std::bind(&LLFloaterAutoReplaceSettings::callbackNewListName, this, _1, _2));
 }
 
 bool LLFloaterAutoReplaceSettings::callbackNewListName(const LLSD& notification, const LLSD& response)
@@ -452,7 +455,7 @@ bool LLFloaterAutoReplaceSettings::callbackNewListName(const LLSD& notification,
                 args["DUPNAME"] = newName;
 
                 LLNotificationsUtil::add("RenameAutoReplaceList", args, newPayload,
-                                         boost::bind(&LLFloaterAutoReplaceSettings::callbackListNameConflict, this, _1, _2));
+                                         std::bind(&LLFloaterAutoReplaceSettings::callbackListNameConflict, this, _1, _2));
             }
             break;
 
@@ -558,7 +561,7 @@ void LLFloaterAutoReplaceSettings::onDeleteList()
             args["LIST_NAME"] = listName;
 
             LLNotificationsUtil::add("RemoveAutoReplaceList", args, payload,
-                boost::bind(&LLFloaterAutoReplaceSettings::callbackRemoveList, this, _1, _2));
+                std::bind(&LLFloaterAutoReplaceSettings::callbackRemoveList, this, _1, _2));
         }
         else if ( mSettings.removeReplacementList(listName) )
         {
@@ -584,7 +587,7 @@ void LLFloaterAutoReplaceSettings::onExportList()
 {
     std::string listName=mListNames->getFirstSelected()->getColumn(0)->getValue().asString();
     std::string listFileName = listName + ".xml";
-    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterAutoReplaceSettings::saveListToFile, this, _1, listName), LLFilePicker::FFSAVE_XML, listFileName);
+    LLFilePickerReplyThread::startPicker(std::bind(&LLFloaterAutoReplaceSettings::saveListToFile, this, _1, listName), LLFilePicker::FFSAVE_XML, listFileName);
 }
 
 void LLFloaterAutoReplaceSettings::saveListToFile(const std::vector<std::string>& filenames, std::string listName)

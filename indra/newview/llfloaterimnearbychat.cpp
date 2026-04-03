@@ -69,6 +69,9 @@
 #include "lltranslate.h"
 #include "llautoreplace.h"
 #include "lluiusage.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
@@ -108,9 +111,9 @@ LLFloaterIMNearbyChat::LLFloaterIMNearbyChat(const LLSD& llsd)
 
     // Required by LLFloaterIMSessionTab::mGearBtn
     // But nearby floater has no 'per agent' menu items,
-    mEnableCallbackRegistrar.add("Avatar.EnableGearItem", boost::bind(&cb_do_nothing));
-    mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", boost::bind(&cb_do_nothing));
-    mEnableCallbackRegistrar.add("Avatar.CheckGearItem", boost::bind(&cb_do_nothing));
+    mEnableCallbackRegistrar.add("Avatar.EnableGearItem", std::bind(&cb_do_nothing));
+    mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", std::bind(&cb_do_nothing));
+    mEnableCallbackRegistrar.add("Avatar.CheckGearItem", std::bind(&cb_do_nothing));
 
     mMinFloaterHeight = EXPANDED_MIN_HEIGHT;
 }
@@ -128,11 +131,11 @@ bool LLFloaterIMNearbyChat::postBuild()
     setIsSingleInstance(true);
     bool result = LLFloaterIMSessionTab::postBuild();
 
-    mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
-    mInputEditor->setCommitCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxCommit, this));
-    mInputEditor->setKeystrokeCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxKeystroke, this));
-    mInputEditor->setFocusLostCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusLost, this));
-    mInputEditor->setFocusReceivedCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusReceived, this));
+    mInputEditor->setAutoreplaceCallback(std::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
+    mInputEditor->setCommitCallback(std::bind(&LLFloaterIMNearbyChat::onChatBoxCommit, this));
+    mInputEditor->setKeystrokeCallback(std::bind(&LLFloaterIMNearbyChat::onChatBoxKeystroke, this));
+    mInputEditor->setFocusLostCallback(std::bind(&LLFloaterIMNearbyChat::onChatBoxFocusLost, this));
+    mInputEditor->setFocusReceivedCallback(std::bind(&LLFloaterIMNearbyChat::onChatBoxFocusReceived, this));
     std::string nearbyChatTitle(LLTrans::getString("NearbyChatTitle"));
     mInputEditor->setLabel(nearbyChatTitle);
 

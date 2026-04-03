@@ -41,6 +41,7 @@
 #include "pipeline.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerpartsim.h"
+#include <functional>
 
 LLSceneMonitorView* gSceneMonitorView = NULL;
 
@@ -677,7 +678,7 @@ LLSceneMonitorView::LLSceneMonitorView(const LLRect& rect)
     setCanMinimize(false);
     setCanClose(true);
 
-    sTeleportFinishConnection = LLViewerParcelMgr::getInstance()->setTeleportFinishedCallback(boost::bind(&LLSceneMonitorView::onTeleportFinished, this));
+    sTeleportFinishConnection = LLViewerParcelMgr::getInstance()->setTeleportFinishedCallback(std::bind(&LLSceneMonitorView::onTeleportFinished, this));
 }
 
 LLSceneMonitorView::~LLSceneMonitorView()

@@ -37,6 +37,9 @@
 #include "llpanelexperiences.h"
 #include "llsd.h"
 #include "llexperiencecache.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLPanelGroupExperiences> t_panel_group_experiences("panel_group_experiences");
 
@@ -73,7 +76,7 @@ void LLPanelGroupExperiences::activate()
     }
 
     LLExperienceCache::instance().getGroupExperiences(getGroupID(),
-        boost::bind(&LLPanelGroupExperiences::groupExperiencesResults, getDerivedHandle<LLPanelGroupExperiences>(), _1));
+        std::bind(&LLPanelGroupExperiences::groupExperiencesResults, getDerivedHandle<LLPanelGroupExperiences>(), _1));
 }
 
 void LLPanelGroupExperiences::setGroupID(const LLUUID& id)

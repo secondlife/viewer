@@ -31,6 +31,7 @@
 
 #include "llfloatersnapshot.h" // FIXME: create a snapshot model
 #include "llfloaterreg.h"
+#include <functional>
 
 /**
  * Provides several ways to save a snapshot.
@@ -58,10 +59,10 @@ static LLPanelInjector<LLPanelSnapshotOptions> panel_class("llpanelsnapshotoptio
 
 LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 {
-    mCommitCallbackRegistrar.add("Snapshot.SaveToProfile",      boost::bind(&LLPanelSnapshotOptions::onSaveToProfile,   this));
-    mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",        boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,     this));
-    mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",    boost::bind(&LLPanelSnapshotOptions::onSaveToInventory, this));
-    mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",     boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,  this));
+    mCommitCallbackRegistrar.add("Snapshot.SaveToProfile",      std::bind(&LLPanelSnapshotOptions::onSaveToProfile,   this));
+    mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",        std::bind(&LLPanelSnapshotOptions::onSaveToEmail,     this));
+    mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",    std::bind(&LLPanelSnapshotOptions::onSaveToInventory, this));
+    mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",     std::bind(&LLPanelSnapshotOptions::onSaveToComputer,  this));
 }
 
 // virtual

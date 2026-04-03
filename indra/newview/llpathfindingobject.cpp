@@ -37,6 +37,9 @@
 #include "llsd.h"
 #include "lluuid.h"
 #include "v3math.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 #define PATHFINDING_OBJECT_NAME_FIELD           "name"
 #define PATHFINDING_OBJECT_DESCRIPTION_FIELD    "description"
@@ -174,7 +177,7 @@ void LLPathfindingObject::fetchOwnerName()
         if (!mHasOwnerName)
         {
             disconnectAvatarNameCacheConnection();
-            mAvatarNameCacheConnection = LLAvatarNameCache::get(mOwnerUUID, boost::bind(&LLPathfindingObject::handleAvatarNameFetch, this, _1, _2));
+            mAvatarNameCacheConnection = LLAvatarNameCache::get(mOwnerUUID, std::bind(&LLPathfindingObject::handleAvatarNameFetch, this, _1, _2));
         }
     }
 }

@@ -32,7 +32,7 @@
 
 #include <sstream>
 #include <boost/tokenizer.hpp>
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "llrender.h"
 #include "llevent.h"
@@ -54,6 +54,8 @@
 #include "lllineeditor.h"
 #include "lltexteditor.h"
 #include "lltextbox.h"
+
+using namespace std::placeholders;
 
 static constexpr S32 LINE_HEIGHT = 15;
 
@@ -77,7 +79,7 @@ S32     LLView::sLastBottomXML = S32_MIN;
 std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
 
 LLView::DrilldownFunc LLView::sDrilldown =
-    boost::bind(&LLView::pointInView, _1, _2, _3, HIT_TEST_USE_BOUNDING_RECT);
+    std::bind(&LLView::pointInView, _1, _2, _3, HIT_TEST_USE_BOUNDING_RECT);
 
 //#if LL_DEBUG
 bool LLView::sIsDrawing = false;
@@ -2775,8 +2777,8 @@ void LLView::setupParamsForExport(Params& p, LLView* parent)
 LLView::tree_iterator_t LLView::beginTreeDFS()
 {
     return tree_iterator_t(this,
-                            boost::bind(boost::mem_fn(&LLView::beginChild), _1),
-                            boost::bind(boost::mem_fn(&LLView::endChild), _1));
+                            std::bind(boost::mem_fn(&LLView::beginChild), _1),
+                            std::bind(boost::mem_fn(&LLView::endChild), _1));
 }
 
 LLView::tree_iterator_t LLView::endTreeDFS()
@@ -2788,8 +2790,8 @@ LLView::tree_iterator_t LLView::endTreeDFS()
 LLView::tree_post_iterator_t LLView::beginTreeDFSPost()
 {
     return tree_post_iterator_t(this,
-                            boost::bind(boost::mem_fn(&LLView::beginChild), _1),
-                            boost::bind(boost::mem_fn(&LLView::endChild), _1));
+                            std::bind(boost::mem_fn(&LLView::beginChild), _1),
+                            std::bind(boost::mem_fn(&LLView::endChild), _1));
 }
 
 LLView::tree_post_iterator_t LLView::endTreeDFSPost()
@@ -2801,8 +2803,8 @@ LLView::tree_post_iterator_t LLView::endTreeDFSPost()
 LLView::bfs_tree_iterator_t LLView::beginTreeBFS()
 {
     return bfs_tree_iterator_t(this,
-                            boost::bind(boost::mem_fn(&LLView::beginChild), _1),
-                            boost::bind(boost::mem_fn(&LLView::endChild), _1));
+                            std::bind(boost::mem_fn(&LLView::beginChild), _1),
+                            std::bind(boost::mem_fn(&LLView::endChild), _1));
 }
 
 LLView::bfs_tree_iterator_t LLView::endTreeBFS()
@@ -2814,7 +2816,7 @@ LLView::bfs_tree_iterator_t LLView::endTreeBFS()
 
 LLView::root_to_view_iterator_t LLView::beginRootToView()
 {
-    return root_to_view_iterator_t(this, boost::bind(&LLView::getParent, _1));
+    return root_to_view_iterator_t(this, std::bind(&LLView::getParent, _1));
 }
 
 LLView::root_to_view_iterator_t LLView::endRootToView()

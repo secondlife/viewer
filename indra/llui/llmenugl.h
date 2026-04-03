@@ -38,7 +38,7 @@
 #include "lluistring.h"
 #include "llview.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 extern S32 MENU_BAR_HEIGHT;
 extern S32 MENU_BAR_WIDTH;
@@ -936,7 +936,7 @@ private:
 
 
 // *TODO: Eliminate
-// For backwards compatability only; generally just use boost::bind
+// For backwards compatability only; generally just use std::bind
 class view_listener_t : public boost::signals2::trackable
 {
 public:
@@ -946,12 +946,12 @@ public:
 
     static void addEnable(view_listener_t* listener, const std::string& name)
     {
-        LLUICtrl::EnableCallbackRegistry::currentRegistrar().add(name, boost::bind(&view_listener_t::handleEvent, listener, _2));
+        LLUICtrl::EnableCallbackRegistry::currentRegistrar().add(name, std::bind(&view_listener_t::handleEvent, listener, std::placeholders::_2));
     }
 
     static void addCommit(view_listener_t* listener, const std::string& name)
     {
-        LLUICtrl::CommitCallbackRegistry::currentRegistrar().add(name, boost::bind(&view_listener_t::handleEvent, listener, _2));
+        LLUICtrl::CommitCallbackRegistry::currentRegistrar().add(name, std::bind(&view_listener_t::handleEvent, listener, std::placeholders::_2));
     }
 
     static void addMenu(view_listener_t* listener, const std::string& name)

@@ -32,7 +32,7 @@
 
 #include <string>
 
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "llagent.h"
 #include "llbutton.h"
@@ -53,6 +53,8 @@
 #include "lluictrl.h"
 #include "v3math.h"
 #include "v4color.h"
+
+using namespace std::placeholders;
 
 #define XUI_LINKSET_USE_NONE             0
 #define XUI_LINKSET_USE_WALKABLE         1
@@ -116,19 +118,19 @@ bool LLFloaterPathfindingLinksets::postBuild()
     mBeaconColor = LLUIColorTable::getInstance()->getColor("PathfindingLinksetBeaconColor");
 
     mFilterByName = getChild<LLSearchEditor>("filter_by_name");
-    mFilterByName->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
+    mFilterByName->setCommitCallback(std::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
     mFilterByName->setCommitOnFocusLost(true);
 
     mFilterByDescription = getChild<LLSearchEditor>("filter_by_description");
-    mFilterByDescription->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
+    mFilterByDescription->setCommitCallback(std::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
     mFilterByDescription->setCommitOnFocusLost(true);
 
     mFilterByLinksetUse = findChild<LLComboBox>("filter_by_linkset_use");
     llassert(mFilterByLinksetUse != NULL);
-    mFilterByLinksetUse->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
+    mFilterByLinksetUse->setCommitCallback(std::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
 
-    childSetAction("apply_filters", boost::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
-    childSetAction("clear_filters", boost::bind(&LLFloaterPathfindingLinksets::onClearFiltersClicked, this));
+    childSetAction("apply_filters", std::bind(&LLFloaterPathfindingLinksets::onApplyAllFilters, this));
+    childSetAction("clear_filters", std::bind(&LLFloaterPathfindingLinksets::onClearFiltersClicked, this));
 
     mEditLinksetUse = findChild<LLComboBox>("edit_linkset_use");
     llassert(mEditLinksetUse != NULL);
@@ -169,7 +171,7 @@ bool LLFloaterPathfindingLinksets::postBuild()
     mEditA = findChild<LLLineEditor>("edit_a_value");
     llassert(mEditA != NULL);
     mEditA->setPrevalidate(LLTextValidate::validateNonNegativeS32);
-    mEditA->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueA));
+    mEditA->setCommitCallback(std::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueA));
 
     mLabelEditB = findChild<LLTextBase>("edit_b_label");
     llassert(mLabelEditB != NULL);
@@ -180,7 +182,7 @@ bool LLFloaterPathfindingLinksets::postBuild()
     mEditB = findChild<LLLineEditor>("edit_b_value");
     llassert(mEditB != NULL);
     mEditB->setPrevalidate(LLTextValidate::validateNonNegativeS32);
-    mEditB->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueB));
+    mEditB->setCommitCallback(std::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueB));
 
     mLabelEditC = findChild<LLTextBase>("edit_c_label");
     llassert(mLabelEditC != NULL);
@@ -191,7 +193,7 @@ bool LLFloaterPathfindingLinksets::postBuild()
     mEditC = findChild<LLLineEditor>("edit_c_value");
     llassert(mEditC != NULL);
     mEditC->setPrevalidate(LLTextValidate::validateNonNegativeS32);
-    mEditC->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueC));
+    mEditC->setCommitCallback(std::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueC));
 
     mLabelEditD = findChild<LLTextBase>("edit_d_label");
     llassert(mLabelEditD != NULL);
@@ -202,18 +204,18 @@ bool LLFloaterPathfindingLinksets::postBuild()
     mEditD = findChild<LLLineEditor>("edit_d_value");
     llassert(mEditD != NULL);
     mEditD->setPrevalidate(LLTextValidate::validateNonNegativeS32);
-    mEditD->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueD));
+    mEditD->setCommitCallback(std::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1, mPreviousValueD));
 
     mApplyEditsButton = findChild<LLButton>("apply_edit_values");
     llassert(mApplyEditsButton != NULL);
-    mApplyEditsButton->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyChangesClicked, this));
+    mApplyEditsButton->setCommitCallback(std::bind(&LLFloaterPathfindingLinksets::onApplyChangesClicked, this));
 
     return LLFloaterPathfindingObjects::postBuild();
 }
 
 void LLFloaterPathfindingLinksets::requestGetObjects()
 {
-    LLPathfindingManager::getInstance()->requestGetLinksets(getNewRequestId(), boost::bind(&LLFloaterPathfindingLinksets::handleNewObjectList, this, _1, _2, _3));
+    LLPathfindingManager::getInstance()->requestGetLinksets(getNewRequestId(), std::bind(&LLFloaterPathfindingLinksets::handleNewObjectList, this, _1, _2, _3));
 }
 
 void LLFloaterPathfindingLinksets::buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr)
@@ -310,7 +312,7 @@ LLPathfindingObjectListPtr LLFloaterPathfindingLinksets::getEmptyObjectList() co
 
 void LLFloaterPathfindingLinksets::requestSetLinksets(LLPathfindingObjectListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD)
 {
-    LLPathfindingManager::getInstance()->requestSetLinksets(getNewRequestId(), pLinksetList, pLinksetUse, pA, pB, pC, pD, boost::bind(&LLFloaterPathfindingLinksets::handleUpdateObjectList, this, _1, _2, _3));
+    LLPathfindingManager::getInstance()->requestSetLinksets(getNewRequestId(), pLinksetList, pLinksetUse, pA, pB, pC, pD, std::bind(&LLFloaterPathfindingLinksets::handleUpdateObjectList, this, _1, _2, _3));
 }
 
 void LLFloaterPathfindingLinksets::onApplyAllFilters()
@@ -638,7 +640,7 @@ void LLFloaterPathfindingLinksets::applyEdit()
             notificationName += "_MismatchOnVolume";
         }
 
-        LLNotificationsUtil::add(notificationName, substitutions, LLSD(), boost::bind(&LLFloaterPathfindingLinksets::handleApplyEdit, this, _1, _2));
+        LLNotificationsUtil::add(notificationName, substitutions, LLSD(), std::bind(&LLFloaterPathfindingLinksets::handleApplyEdit, this, _1, _2));
     }
     else
     {

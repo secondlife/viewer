@@ -44,6 +44,9 @@
 #include "llrootview.h"
 
 #include <algorithm>
+#include <functional>
+
+using namespace std::placeholders;
 
 using namespace LLNotificationsUI;
 
@@ -300,13 +303,13 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
     LLToast* toast = new LLToast(p);
     ToastElem new_toast_elem(toast->getHandle());
 
-    toast->setOnFadeCallback(boost::bind(&LLScreenChannel::onToastFade, this, _1));
-    toast->setOnToastDestroyedCallback(boost::bind(&LLScreenChannel::onToastDestroyed, this, _1));
+    toast->setOnFadeCallback(std::bind(&LLScreenChannel::onToastFade, this, _1));
+    toast->setOnToastDestroyedCallback(std::bind(&LLScreenChannel::onToastDestroyed, this, _1));
     if(mControlHovering)
     {
-        toast->setOnToastHoverCallback(boost::bind(&LLScreenChannel::onToastHover, this, _1, _2));
-        toast->setMouseEnterCallback(boost::bind(&LLScreenChannel::stopToastTimer, this, toast));
-        toast->setMouseLeaveCallback(boost::bind(&LLScreenChannel::startToastTimer, this, toast));
+        toast->setOnToastHoverCallback(std::bind(&LLScreenChannel::onToastHover, this, _1, _2));
+        toast->setMouseEnterCallback(std::bind(&LLScreenChannel::stopToastTimer, this, toast));
+        toast->setMouseLeaveCallback(std::bind(&LLScreenChannel::startToastTimer, this, toast));
     }
 
     if(show_toast)
@@ -887,7 +890,7 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
     if(!mStartUpToastPanel)
         return;
 
-    mStartUpToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onStartUpToastHide, this));
+    mStartUpToastPanel->setOnFadeCallback(std::bind(&LLScreenChannel::onStartUpToastHide, this));
 
     LLPanel* wrapper_panel = mStartUpToastPanel->getChild<LLPanel>("wrapper_panel");
     LLTextBox* text_box = mStartUpToastPanel->getChild<LLTextBox>("toast_text");

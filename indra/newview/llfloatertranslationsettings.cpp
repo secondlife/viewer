@@ -41,6 +41,9 @@
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
 #include "llradiogroup.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLFloaterTranslationSettings::LLFloaterTranslationSettings(const LLSD& key)
 :   LLFloater(key)
@@ -68,18 +71,18 @@ bool LLFloaterTranslationSettings::postBuild()
     mDeepLVerifyBtn = getChild<LLButton>("verify_deepl_api_key_btn");
     mOKBtn = getChild<LLButton>("ok_btn");
 
-    mMachineTranslationCB->setCommitCallback(boost::bind(&LLFloaterTranslationSettings::updateControlsEnabledState, this));
-    mTranslationServiceRadioGroup->setCommitCallback(boost::bind(&LLFloaterTranslationSettings::updateControlsEnabledState, this));
-    mOKBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnOK, this));
-    getChild<LLButton>("cancel_btn")->setClickedCallback(boost::bind(&LLFloater::closeFloater, this, false));
-    mAzureVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnAzureVerify, this));
-    mGoogleVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnGoogleVerify, this));
-    mDeepLVerifyBtn->setClickedCallback(boost::bind(&LLFloaterTranslationSettings::onBtnDeepLVerify, this));
+    mMachineTranslationCB->setCommitCallback(std::bind(&LLFloaterTranslationSettings::updateControlsEnabledState, this));
+    mTranslationServiceRadioGroup->setCommitCallback(std::bind(&LLFloaterTranslationSettings::updateControlsEnabledState, this));
+    mOKBtn->setClickedCallback(std::bind(&LLFloaterTranslationSettings::onBtnOK, this));
+    getChild<LLButton>("cancel_btn")->setClickedCallback(std::bind(&LLFloater::closeFloater, this, false));
+    mAzureVerifyBtn->setClickedCallback(std::bind(&LLFloaterTranslationSettings::onBtnAzureVerify, this));
+    mGoogleVerifyBtn->setClickedCallback(std::bind(&LLFloaterTranslationSettings::onBtnGoogleVerify, this));
+    mDeepLVerifyBtn->setClickedCallback(std::bind(&LLFloaterTranslationSettings::onBtnDeepLVerify, this));
 
-    mAzureAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-    mAzureAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this), NULL);
-    mAzureAPIRegionEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-    mAzureAPIRegionEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this), NULL);
+    mAzureAPIKeyEditor->setFocusReceivedCallback(std::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
+    mAzureAPIKeyEditor->setKeystrokeCallback(std::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this), NULL);
+    mAzureAPIRegionEditor->setFocusReceivedCallback(std::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
+    mAzureAPIRegionEditor->setKeystrokeCallback(std::bind(&LLFloaterTranslationSettings::onAzureKeyEdited, this), NULL);
 
     mAzureAPIEndpointEditor->setFocusLostCallback([this](LLFocusableElement*)
                                                   {
@@ -90,11 +93,11 @@ bool LLFloaterTranslationSettings::postBuild()
                                                    setAzureVerified(false, false, 0);
                                                });
 
-    mGoogleAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-    mGoogleAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onGoogleKeyEdited, this), NULL);
+    mGoogleAPIKeyEditor->setFocusReceivedCallback(std::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
+    mGoogleAPIKeyEditor->setKeystrokeCallback(std::bind(&LLFloaterTranslationSettings::onGoogleKeyEdited, this), NULL);
 
-    mDeepLAPIKeyEditor->setFocusReceivedCallback(boost::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
-    mDeepLAPIKeyEditor->setKeystrokeCallback(boost::bind(&LLFloaterTranslationSettings::onDeepLKeyEdited, this), NULL);
+    mDeepLAPIKeyEditor->setFocusReceivedCallback(std::bind(&LLFloaterTranslationSettings::onEditorFocused, this, _1));
+    mDeepLAPIKeyEditor->setKeystrokeCallback(std::bind(&LLFloaterTranslationSettings::onDeepLKeyEdited, this), NULL);
 
     mDeepLAPIDomainCombo->setFocusLostCallback([this](LLFocusableElement*)
                                                   {
@@ -329,7 +332,7 @@ void LLFloaterTranslationSettings::setVerificationStatus(int service, bool ok, b
 void LLFloaterTranslationSettings::verifyKey(int service, const LLSD& key, bool alert)
 {
     LLTranslate::verifyKey(static_cast<LLTranslate::EService>(service), key,
-        boost::bind(&LLFloaterTranslationSettings::setVerificationStatus, _1, _2, alert, _3));
+        std::bind(&LLFloaterTranslationSettings::setVerificationStatus, _1, _2, alert, _3));
 }
 
 void LLFloaterTranslationSettings::onEditorFocused(LLFocusableElement* control)

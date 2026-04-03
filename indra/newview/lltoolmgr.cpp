@@ -58,6 +58,9 @@
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "lleventapi.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 // Used when app not active to avoid processing hover.
@@ -143,12 +146,12 @@ LLToolMgr::LLToolMgr()
     mCurrentToolset( NULL )
 {
     // Not a panel, register these callbacks globally.
-    LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Active", boost::bind(&LLToolMgr::inEdit, this));
-    LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Enabled", boost::bind(&LLToolMgr::canEdit, this));
-    LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.EnabledOrActive", boost::bind(&LLToolMgr::buildEnabledOrActive, this));
-    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Build.Toggle", boost::bind(&LLToolMgr::toggleBuildMode, this, _2));
-    LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Marketplace.Enabled", boost::bind(&LLToolMgr::canAccessMarketplace, this));
-    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Marketplace.Toggle", boost::bind(&LLToolMgr::toggleMarketplace, this, _2));
+    LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Active", std::bind(&LLToolMgr::inEdit, this));
+    LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Enabled", std::bind(&LLToolMgr::canEdit, this));
+    LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.EnabledOrActive", std::bind(&LLToolMgr::buildEnabledOrActive, this));
+    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Build.Toggle", std::bind(&LLToolMgr::toggleBuildMode, this, _2));
+    LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Marketplace.Enabled", std::bind(&LLToolMgr::canAccessMarketplace, this));
+    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Marketplace.Toggle", std::bind(&LLToolMgr::toggleMarketplace, this, _2));
 
     gToolNull = new LLTool(LLStringUtil::null);  // Does nothing
     setCurrentTool(gToolNull);

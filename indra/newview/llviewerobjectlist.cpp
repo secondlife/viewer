@@ -84,6 +84,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <functional>
 
 extern F32 gMinObjectDistance;
 extern bool gAnimateTextures;
@@ -991,7 +992,7 @@ void LLViewerObjectList::fetchObjectCosts()
             if (!url.empty())
             {
                 LLCoros::instance().launch("LLViewerObjectList::fetchObjectCostsCoro",
-                    boost::bind(&LLViewerObjectList::fetchObjectCostsCoro, this, url));
+                    std::bind(&LLViewerObjectList::fetchObjectCostsCoro, this, url));
             }
             else
             {
@@ -1113,7 +1114,7 @@ void LLViewerObjectList::fetchPhysicsFlags()
             if (!url.empty())
             {
                 LLCoros::instance().launch("LLViewerObjectList::fetchPhisicsFlagsCoro",
-                    boost::bind(&LLViewerObjectList::fetchPhisicsFlagsCoro, this, url));
+                    std::bind(&LLViewerObjectList::fetchPhisicsFlagsCoro, this, url));
             }
             else
             {

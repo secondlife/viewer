@@ -67,6 +67,9 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"     // shared draw code
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
@@ -132,13 +135,13 @@ bool LLNetMap::postBuild()
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commitRegistrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enableRegistrar;
 
-    enableRegistrar.add("Minimap.Zoom.Check", boost::bind(&LLNetMap::isZoomChecked, this, _2));
-    commitRegistrar.add("Minimap.Zoom.Set", boost::bind(&LLNetMap::setZoom, this, _2));
-    commitRegistrar.add("Minimap.Tracker", boost::bind(&LLNetMap::handleStopTracking, this, _2));
-    commitRegistrar.add("Minimap.Center.Activate", boost::bind(&LLNetMap::activateCenterMap, this, _2));
-    enableRegistrar.add("Minimap.MapOrientation.Check", boost::bind(&LLNetMap::isMapOrientationChecked, this, _2));
-    commitRegistrar.add("Minimap.MapOrientation.Set", boost::bind(&LLNetMap::setMapOrientation, this, _2));
-    commitRegistrar.add("Minimap.AboutLand", boost::bind(&LLNetMap::popupShowAboutLand, this, _2));
+    enableRegistrar.add("Minimap.Zoom.Check", std::bind(&LLNetMap::isZoomChecked, this, _2));
+    commitRegistrar.add("Minimap.Zoom.Set", std::bind(&LLNetMap::setZoom, this, _2));
+    commitRegistrar.add("Minimap.Tracker", std::bind(&LLNetMap::handleStopTracking, this, _2));
+    commitRegistrar.add("Minimap.Center.Activate", std::bind(&LLNetMap::activateCenterMap, this, _2));
+    enableRegistrar.add("Minimap.MapOrientation.Check", std::bind(&LLNetMap::isMapOrientationChecked, this, _2));
+    commitRegistrar.add("Minimap.MapOrientation.Set", std::bind(&LLNetMap::setMapOrientation, this, _2));
+    commitRegistrar.add("Minimap.AboutLand", std::bind(&LLNetMap::popupShowAboutLand, this, _2));
 
     LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     mPopupMenuHandle = menu->getHandle();
@@ -872,7 +875,7 @@ bool LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)
         p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
         p.message(av_name.getCompleteName());
         p.image.name("Inspector_I");
-        p.click_callback(boost::bind(showAvatarInspector, avatar_id));
+        p.click_callback(std::bind(showAvatarInspector, avatar_id));
         p.visible_time_near(6.f);
         p.visible_time_far(3.f);
         p.delay_time(0.35f);

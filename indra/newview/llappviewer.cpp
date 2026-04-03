@@ -141,7 +141,7 @@
 #endif
 
 // Third party library includes
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/throw_exception.hpp>
@@ -270,6 +270,8 @@ using namespace LL;
 #ifdef LL_DISCORD
 #define DISCORDPP_IMPLEMENTATION
 #include <discordpp.h>
+
+using namespace std::placeholders;
 static std::shared_ptr<discordpp::Client> gDiscordClient;
 static uint64_t gDiscordTimestampsStart;
 static std::string gDiscordActivityDetails;
@@ -875,9 +877,9 @@ bool LLAppViewer::init()
     LLKeyboard::setStringTranslatorFunc( LLTrans::getKeyboardString );
 
     // Provide the text fields with callbacks for opening Urls
-    LLUrlAction::setOpenURLCallback(boost::bind(&LLWeb::loadURL, _1, LLStringUtil::null, LLStringUtil::null));
-    LLUrlAction::setOpenURLInternalCallback(boost::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null, false));
-    LLUrlAction::setOpenURLExternalCallback(boost::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
+    LLUrlAction::setOpenURLCallback(std::bind(&LLWeb::loadURL, _1, LLStringUtil::null, LLStringUtil::null));
+    LLUrlAction::setOpenURLInternalCallback(std::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null, false));
+    LLUrlAction::setOpenURLExternalCallback(std::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
     LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
 
     // Let code in llui access the viewer help floater
@@ -1249,7 +1251,7 @@ bool LLAppViewer::init()
 
     LLVoiceChannel::initClass();
     LLVoiceClient::initParamSingleton(gServicePump);
-    LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLFloaterIMContainer::onCurrentChannelChanged, _1), true);
+    LLVoiceChannel::setCurrentVoiceChannelChangedCallback(std::bind(&LLFloaterIMContainer::onCurrentChannelChanged, _1), true);
 
     joystick = LLViewerJoystick::getInstance();
     joystick->setNeedsReset(true);

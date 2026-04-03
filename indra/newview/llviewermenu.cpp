@@ -148,6 +148,9 @@
 #include "llviewershadermgr.h"
 #include "gltfscenemanager.h"
 #include "gltf/asset.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -472,7 +475,7 @@ void LLSLMMenuUpdater::checkMerchantStatus(bool force)
     gToolBarView->enableCommand(command->id(), false);
 
     // Launch an SLM test connection to get the merchant status
-    LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_SLM_menu));
+    LLMarketplaceData::instance().initializeSLM(std::bind(&set_merchant_SLM_menu));
 }
 
 void set_merchant_SLM_menu()
@@ -4796,7 +4799,7 @@ class LLViewToggleUI : public view_listener_t
         if(gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
         {
             LLNotification::Params params("ConfirmHideUI");
-            params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
+            params.functor.function(std::bind(&LLViewToggleUI::confirm, this, _1, _2));
             LLSD substitutions;
 #if LL_DARWIN
             substitutions["SHORTCUT"] = "Cmd+Shift+U";
@@ -5199,7 +5202,7 @@ private:
         // Save selected objects, so that we still know what to return after the confirmation dialog resets selection.
         get_derezzable_objects(DRD_RETURN_TO_OWNER, mError, mFirstRegion, &mReturnableObjects);
 
-        LLNotificationsUtil::add("ReturnToOwner", LLSD(), LLSD(), boost::bind(&LLObjectReturn::onReturnToOwner, this, _1, _2));
+        LLNotificationsUtil::add("ReturnToOwner", LLSD(), LLSD(), std::bind(&LLObjectReturn::onReturnToOwner, this, _1, _2));
         return true;
     }
 
@@ -6266,7 +6269,7 @@ void handle_object_return()
         // Save selected objects, so that we still know what to return after the confirmation dialog resets selection.
         get_derezzable_objects(DRD_RETURN_TO_OWNER, objectsReturnPackage->mError, objectsReturnPackage->mFirstRegion, &objectsReturnPackage->mReturnableObjects);
 
-        LLNotificationsUtil::add("ReturnToOwner", LLSD(), LLSD(), boost::bind(&return_objects, objectsReturnPackage, _1, _2));
+        LLNotificationsUtil::add("ReturnToOwner", LLSD(), LLSD(), std::bind(&return_objects, objectsReturnPackage, _1, _2));
     }
 }
 
@@ -6917,7 +6920,7 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 void handle_give_money_dialog()
 {
     LLNotification::Params params("DoNotDisturbModePay");
-    params.functor.function(boost::bind(complete_give_money, _1, _2, LLSelectMgr::getInstance()->getSelection()));
+    params.functor.function(std::bind(complete_give_money, _1, _2, LLSelectMgr::getInstance()->getSelection()));
 
     if (gAgent.isDoNotDisturb())
     {
@@ -9798,12 +9801,12 @@ void initialize_spellcheck_menu()
     LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
     LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
 
-    commit.add("SpellCheck.ReplaceWithSuggestion", boost::bind(&handle_spellcheck_replace_with_suggestion, _1, _2));
-    enable.add("SpellCheck.VisibleSuggestion", boost::bind(&visible_spellcheck_suggestion, _1, _2));
-    commit.add("SpellCheck.AddToDictionary", boost::bind(&handle_spellcheck_add_to_dictionary, _1));
-    enable.add("SpellCheck.EnableAddToDictionary", boost::bind(&enable_spellcheck_add_to_dictionary, _1));
-    commit.add("SpellCheck.AddToIgnore", boost::bind(&handle_spellcheck_add_to_ignore, _1));
-    enable.add("SpellCheck.EnableAddToIgnore", boost::bind(&enable_spellcheck_add_to_ignore, _1));
+    commit.add("SpellCheck.ReplaceWithSuggestion", std::bind(&handle_spellcheck_replace_with_suggestion, _1, _2));
+    enable.add("SpellCheck.VisibleSuggestion", std::bind(&visible_spellcheck_suggestion, _1, _2));
+    commit.add("SpellCheck.AddToDictionary", std::bind(&handle_spellcheck_add_to_dictionary, _1));
+    enable.add("SpellCheck.EnableAddToDictionary", std::bind(&enable_spellcheck_add_to_dictionary, _1));
+    commit.add("SpellCheck.AddToIgnore", std::bind(&handle_spellcheck_add_to_ignore, _1));
+    enable.add("SpellCheck.EnableAddToIgnore", std::bind(&enable_spellcheck_add_to_ignore, _1));
 }
 
 void initialize_menus()
@@ -9833,24 +9836,24 @@ void initialize_menus()
 
     // Generic enable and visible
     // Don't prepend MenuName.Foo because these can be used in any menu.
-    enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
+    enable.add("IsGodCustomerService", std::bind(&is_god_customer_service));
 
-    enable.add("displayViewerEventRecorderMenuItems",boost::bind(&LLViewerEventRecorder::displayViewerEventRecorderMenuItems,&LLViewerEventRecorder::instance()));
+    enable.add("displayViewerEventRecorderMenuItems",std::bind(&LLViewerEventRecorder::displayViewerEventRecorderMenuItems,&LLViewerEventRecorder::instance()));
 
     view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
     view_listener_t::addEnable(new LLUpdateMembershipLabel(), "Membership.UpdateLabel");
 
-    enable.add("Conversation.IsConversationLoggingAllowed", boost::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));
+    enable.add("Conversation.IsConversationLoggingAllowed", std::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));
 
     // Agent
-    commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
-    enable.add("Agent.enableFlyLand", boost::bind(&enable_fly_land));
-    commit.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
-    commit.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
-    commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
-    enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
-    enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
+    commit.add("Agent.toggleFlying", std::bind(&LLAgent::toggleFlying));
+    enable.add("Agent.enableFlyLand", std::bind(&enable_fly_land));
+    commit.add("Agent.PressMicrophone", std::bind(&LLAgent::pressMicrophone, _2));
+    commit.add("Agent.ReleaseMicrophone", std::bind(&LLAgent::releaseMicrophone, _2));
+    commit.add("Agent.ToggleMicrophone", std::bind(&LLAgent::toggleMicrophone, _2));
+    enable.add("Agent.IsMicrophoneOn", std::bind(&LLAgent::isMicrophoneOn, _2));
+    enable.add("Agent.IsActionAllowed", std::bind(&LLAgent::isActionAllowed, _2));
 
     // File menu
     init_menu_file();
@@ -9860,12 +9863,12 @@ void initialize_menus()
     view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
     view_listener_t::addMenu(new LLEnableHoverHeight(), "Edit.EnableHoverHeight");
     view_listener_t::addMenu(new LLEnableEditPhysics(), "Edit.EnableEditPhysics");
-    commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
-    commit.add("NowWearing", boost::bind(&handle_now_wearing));
-    commit.add("EditOutfit", boost::bind(&handle_edit_outfit));
-    commit.add("EditShape", boost::bind(&handle_edit_shape));
-    commit.add("HoverHeight", boost::bind(&handle_hover_height));
-    commit.add("EditPhysics", boost::bind(&handle_edit_physics));
+    commit.add("CustomizeAvatar", std::bind(&handle_customize_avatar));
+    commit.add("NowWearing", std::bind(&handle_now_wearing));
+    commit.add("EditOutfit", std::bind(&handle_edit_outfit));
+    commit.add("EditShape", std::bind(&handle_edit_shape));
+    commit.add("HoverHeight", std::bind(&handle_hover_height));
+    commit.add("EditPhysics", std::bind(&handle_edit_physics));
 
     // View menu
     view_listener_t::addMenu(new LLViewMouselook(), "View.Mouselook");
@@ -9936,26 +9939,26 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToolsSnapObjectXY(), "Tools.SnapObjectXY");
     view_listener_t::addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
     view_listener_t::addMenu(new LLToolsSelectNextPartFace(), "Tools.SelectNextPart");
-    commit.add("Tools.Link", boost::bind(&handle_link_objects));
-    commit.add("Tools.Unlink", boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
+    commit.add("Tools.Link", std::bind(&handle_link_objects));
+    commit.add("Tools.Unlink", std::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
     view_listener_t::addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
     view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
     view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");
-    commit.add("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
-    commit.add("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
-    commit.add("Tools.TakeCopy", boost::bind(&handle_take_copy));
+    commit.add("Tools.LookAtSelection", std::bind(&handle_look_at_selection, _2));
+    commit.add("Tools.BuyOrTake", std::bind(&handle_buy_or_take));
+    commit.add("Tools.TakeCopy", std::bind(&handle_take_copy));
     view_listener_t::addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
     view_listener_t::addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
 
     view_listener_t::addMenu(new LLToolsEnableToolNotPie(), "Tools.EnableToolNotPie");
     view_listener_t::addMenu(new LLToolsEnableSelectNextPart(), "Tools.EnableSelectNextPart");
-    enable.add("Tools.EnableLink", boost::bind(&LLSelectMgr::enableLinkObjects, LLSelectMgr::getInstance()));
-    enable.add("Tools.EnableUnlink", boost::bind(&LLSelectMgr::enableUnlinkObjects, LLSelectMgr::getInstance()));
+    enable.add("Tools.EnableLink", std::bind(&LLSelectMgr::enableLinkObjects, LLSelectMgr::getInstance()));
+    enable.add("Tools.EnableUnlink", std::bind(&LLSelectMgr::enableUnlinkObjects, LLSelectMgr::getInstance()));
     view_listener_t::addMenu(new LLToolsEnableBuyOrTake(), "Tools.EnableBuyOrTake");
-    enable.add("Tools.EnableTakeCopy", boost::bind(&enable_object_take_copy));
-    enable.add("Tools.EnableCopySeparate", boost::bind(&enable_take_copy_objects));
-    enable.add("Tools.VisibleBuyObject", boost::bind(&tools_visible_buy_object));
-    enable.add("Tools.VisibleTakeObject", boost::bind(&tools_visible_take_object));
+    enable.add("Tools.EnableTakeCopy", std::bind(&enable_object_take_copy));
+    enable.add("Tools.EnableCopySeparate", std::bind(&enable_take_copy_objects));
+    enable.add("Tools.VisibleBuyObject", std::bind(&tools_visible_buy_object));
+    enable.add("Tools.VisibleTakeObject", std::bind(&tools_visible_take_object));
     view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
 
     view_listener_t::addMenu(new LLToolsEnablePathfinding(), "Tools.EnablePathfinding");
@@ -9995,7 +9998,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedToggleInfoDisplay(), "Advanced.ToggleInfoDisplay");
     view_listener_t::addMenu(new LLAdvancedCheckInfoDisplay(), "Advanced.CheckInfoDisplay");
     view_listener_t::addMenu(new LLAdvancedSelectedTextureInfo(), "Advanced.SelectedTextureInfo");
-    commit.add("Advanced.SelectedMaterialInfo", boost::bind(&handle_selected_material_info));
+    commit.add("Advanced.SelectedMaterialInfo", std::bind(&handle_selected_material_info));
     view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
     view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
     // Develop > Render
@@ -10037,15 +10040,15 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedTerrainDeleteLocalPaintMap(), "Advanced.TerrainDeleteLocalPaintMap");
 
     // Advanced > UI
-    commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));   // sigh! this one opens the MEDIA browser
-    commit.add("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));   // this one opens the Web Content floater
-    commit.add("Advanced.ShowURL", boost::bind(&handle_show_url, _2));
-    commit.add("Advanced.ReportBug", boost::bind(&handle_report_bug, _2));
+    commit.add("Advanced.WebBrowserTest", std::bind(&handle_web_browser_test, _2));   // sigh! this one opens the MEDIA browser
+    commit.add("Advanced.WebContentTest", std::bind(&handle_web_content_test, _2));   // this one opens the Web Content floater
+    commit.add("Advanced.ShowURL", std::bind(&handle_show_url, _2));
+    commit.add("Advanced.ReportBug", std::bind(&handle_report_bug, _2));
     view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
     view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
     view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
-    commit.add("Advanced.DumpTimers", boost::bind(&handle_dump_timers) );
-    commit.add("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus) );
+    commit.add("Advanced.DumpTimers", std::bind(&handle_dump_timers) );
+    commit.add("Advanced.DumpFocusHolder", std::bind(&handle_dump_focus) );
     view_listener_t::addMenu(new LLAdvancedPrintSelectedObjectInfo(), "Advanced.PrintSelectedObjectInfo");
     view_listener_t::addMenu(new LLAdvancedPrintAgentInfo(), "Advanced.PrintAgentInfo");
     view_listener_t::addMenu(new LLAdvancedToggleDebugClicks(), "Advanced.ToggleDebugClicks");
@@ -10066,11 +10069,11 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedCheckDebugWindowProc(), "Advanced.CheckDebugWindowProc");
 
     // Advanced > XUI
-    commit.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
+    commit.add("Advanced.ReloadColorSettings", std::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
     view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
     view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
     view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
-    commit.add("Advanced.FlushNameCaches", boost::bind(&handle_flush_name_caches));
+    commit.add("Advanced.FlushNameCaches", std::bind(&handle_flush_name_caches));
 
     // Advanced > Character > Grab Baked Texture
     view_listener_t::addMenu(new LLAdvancedGrabBakedTexture(), "Advanced.GrabBakedTexture");
@@ -10159,11 +10162,11 @@ void initialize_menus()
     view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
 
     //Develop (clear cache immediately)
-    commit.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
+    commit.add("Develop.ClearCache", std::bind(&handle_cache_clear_immediately) );
 
     // Develop (Fonts debugging)
-    commit.add("Develop.Fonts.Dump", boost::bind(&LLFontGL::dumpFonts));
-    commit.add("Develop.Fonts.DumpTextures", boost::bind(&LLFontGL::dumpFontTextures));
+    commit.add("Develop.Fonts.Dump", std::bind(&LLFontGL::dumpFonts));
+    commit.add("Develop.Fonts.DumpTextures", std::bind(&LLFontGL::dumpFontTextures));
 
     // Admin >Object
     view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");
@@ -10185,12 +10188,12 @@ void initialize_menus()
 
     // Self context menu
     view_listener_t::addMenu(new LLSelfToggleSitStand(), "Self.ToggleSitStand");
-    enable.add("Self.EnableSitStand", boost::bind(&enable_sit_stand));
+    enable.add("Self.EnableSitStand", std::bind(&enable_sit_stand));
     view_listener_t::addMenu(new LLSelfRemoveAllAttachments(), "Self.RemoveAllAttachments");
 
     view_listener_t::addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
 
-    // we don't use boost::bind directly to delay side tray construction
+    // we don't use std::bind directly to delay side tray construction
     view_listener_t::addMenu( new LLTogglePanelPeopleTab(), "SideTray.PanelPeopleTab");
     view_listener_t::addMenu( new LLCheckPanelPeopleTab(), "SideTray.CheckPanelPeopleTab");
 
@@ -10200,15 +10203,15 @@ void initialize_menus()
     view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
     view_listener_t::addMenu(new LLAvatarAddFriend(), "Avatar.AddFriend");
     view_listener_t::addMenu(new LLAvatarAddContact(), "Avatar.AddContact");
-    commit.add("Avatar.Freeze", boost::bind(&handle_avatar_freeze, LLSD()));
+    commit.add("Avatar.Freeze", std::bind(&handle_avatar_freeze, LLSD()));
     view_listener_t::addMenu(new LLAvatarDebug(), "Avatar.Debug");
     view_listener_t::addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");
     view_listener_t::addMenu(new LLAvatarInviteToGroup(), "Avatar.InviteToGroup");
-    commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
-    commit.add("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
+    commit.add("Avatar.Eject", std::bind(&handle_avatar_eject, LLSD()));
+    commit.add("Avatar.ShowInspector", std::bind(&handle_avatar_show_inspector));
     view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
     view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
-    enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
+    enable.add("Avatar.EnableCall", std::bind(&LLAvatarActions::canCall));
     view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
     view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
     view_listener_t::addMenu(new LLAvatarTogglePicks(), "Avatar.TogglePicks");
@@ -10218,66 +10221,66 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
     view_listener_t::addMenu(new LLAvatarResetSelfSkeleton(), "Avatar.ResetSelfSkeleton");
     view_listener_t::addMenu(new LLAvatarResetSelfSkeletonAndAnimations(), "Avatar.ResetSelfSkeletonAndAnimations");
-    enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
-    enable.add("Avatar.IsPicksTabOpen", boost::bind(&picks_tab_visible));
+    enable.add("Avatar.IsMyProfileOpen", std::bind(&my_profile_visible));
+    enable.add("Avatar.IsPicksTabOpen", std::bind(&picks_tab_visible));
 
-    commit.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
+    commit.add("Avatar.OpenMarketplace", std::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
 
     view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
-    enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
+    enable.add("Avatar.EnableFreezeEject", std::bind(&enable_freeze_eject, _2));
 
     // Object pie menu
     view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
-    commit.add("Object.Touch", boost::bind(&handle_object_touch));
-    commit.add("Object.ShowOriginal", boost::bind(&handle_object_show_original));
-    commit.add("Object.SetFavorite", boost::bind(&handle_object_set_favorite, _2));
-    commit.add("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
-    commit.add("Object.Delete", boost::bind(&handle_object_delete));
+    commit.add("Object.Touch", std::bind(&handle_object_touch));
+    commit.add("Object.ShowOriginal", std::bind(&handle_object_show_original));
+    commit.add("Object.SetFavorite", std::bind(&handle_object_set_favorite, _2));
+    commit.add("Object.SitOrStand", std::bind(&handle_object_sit_or_stand));
+    commit.add("Object.Delete", std::bind(&handle_object_delete));
     view_listener_t::addMenu(new LLObjectAttachToAvatar(true), "Object.AttachToAvatar");
     view_listener_t::addMenu(new LLObjectAttachToAvatar(false), "Object.AttachAddToAvatar");
     view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
-    commit.add("Object.Duplicate", boost::bind(&LLSelectMgr::duplicate, LLSelectMgr::getInstance()));
+    commit.add("Object.Duplicate", std::bind(&LLSelectMgr::duplicate, LLSelectMgr::getInstance()));
     view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
     view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
 
-    enable.add("Object.VisibleTake", boost::bind(&visible_take_object));
-    enable.add("Object.VisibleTakeMultiple", boost::bind(&is_multiple_selection));
-    enable.add("Object.VisibleTakeSingle", boost::bind(&is_single_selection));
-    enable.add("Object.EnableTakeMultiple", boost::bind(&enable_take_objects));
-    enable.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
+    enable.add("Object.VisibleTake", std::bind(&visible_take_object));
+    enable.add("Object.VisibleTakeMultiple", std::bind(&is_multiple_selection));
+    enable.add("Object.VisibleTakeSingle", std::bind(&is_single_selection));
+    enable.add("Object.EnableTakeMultiple", std::bind(&enable_take_objects));
+    enable.add("Object.VisibleBuy", std::bind(&visible_buy_object));
 
-    commit.add("Object.Buy", boost::bind(&handle_buy));
-    commit.add("Object.Edit", boost::bind(&handle_object_edit));
-    commit.add("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
-    commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
-    commit.add("Object.Open", boost::bind(&handle_object_open));
-    commit.add("Object.Take", boost::bind(&handle_take, false));
-    commit.add("Object.TakeSeparate", boost::bind(&handle_take, true));
-    commit.add("Object.TakeSeparateCopy", boost::bind(&handle_take_separate_copy));
-    commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
-    enable.add("Object.EnableInspect", boost::bind(&enable_object_inspect));
-    enable.add("Object.EnableEditGLTFMaterial", boost::bind(&enable_object_edit_gltf_material));
-    enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
-    enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
-    enable.add("Object.EnableFavorites", boost::bind(&enable_object_favorite, _2));
-    enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
-    enable.add("Object.EnableWear", boost::bind(&object_is_wearable));
+    commit.add("Object.Buy", std::bind(&handle_buy));
+    commit.add("Object.Edit", std::bind(&handle_object_edit));
+    commit.add("Object.EditGLTFMaterial", std::bind(&handle_object_edit_gltf_material));
+    commit.add("Object.Inspect", std::bind(&handle_object_inspect));
+    commit.add("Object.Open", std::bind(&handle_object_open));
+    commit.add("Object.Take", std::bind(&handle_take, false));
+    commit.add("Object.TakeSeparate", std::bind(&handle_take, true));
+    commit.add("Object.TakeSeparateCopy", std::bind(&handle_take_separate_copy));
+    commit.add("Object.ShowInspector", std::bind(&handle_object_show_inspector));
+    enable.add("Object.EnableInspect", std::bind(&enable_object_inspect));
+    enable.add("Object.EnableEditGLTFMaterial", std::bind(&enable_object_edit_gltf_material));
+    enable.add("Object.EnableOpen", std::bind(&enable_object_open));
+    enable.add("Object.EnableTouch", std::bind(&enable_object_touch, _1));
+    enable.add("Object.EnableFavorites", std::bind(&enable_object_favorite, _2));
+    enable.add("Object.EnableDelete", std::bind(&enable_object_delete));
+    enable.add("Object.EnableWear", std::bind(&object_is_wearable));
 
-    enable.add("Object.EnableStandUp", boost::bind(&enable_object_stand_up));
-    enable.add("Object.EnableSit", boost::bind(&enable_object_sit, _1));
+    enable.add("Object.EnableStandUp", std::bind(&enable_object_stand_up));
+    enable.add("Object.EnableSit", std::bind(&enable_object_sit, _1));
 
     view_listener_t::addMenu(new LLObjectEnableReturn(), "Object.EnableReturn");
-    enable.add("Object.EnableDuplicate", boost::bind(&LLSelectMgr::canDuplicate, LLSelectMgr::getInstance()));
+    enable.add("Object.EnableDuplicate", std::bind(&LLSelectMgr::canDuplicate, LLSelectMgr::getInstance()));
     view_listener_t::addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");
 
-    enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
-    enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
-    enable.add("Object.EnableUnmute", boost::bind(&enable_object_unmute));
-    enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
-    commit.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
+    enable.add("Avatar.EnableMute", std::bind(&enable_object_mute));
+    enable.add("Object.EnableMute", std::bind(&enable_object_mute));
+    enable.add("Object.EnableUnmute", std::bind(&enable_object_unmute));
+    enable.add("Object.EnableBuy", std::bind(&enable_buy_object));
+    commit.add("Object.ZoomIn", std::bind(&handle_look_at_selection, "zoom"));
 
     // Attachment pie menu
-    enable.add("Attachment.Label", boost::bind(&onEnableAttachmentLabel, _1, _2));
+    enable.add("Attachment.Label", std::bind(&onEnableAttachmentLabel, _1, _2));
     view_listener_t::addMenu(new LLAttachmentDrop(), "Attachment.Drop");
     view_listener_t::addMenu(new LLAttachmentDetachFromPoint(), "Attachment.DetachFromPoint");
     view_listener_t::addMenu(new LLAttachmentDetach(), "Attachment.Detach");
@@ -10296,11 +10299,11 @@ void initialize_menus()
     view_listener_t::addMenu(new LLMuteParticle(), "Particle.Mute");
 
     view_listener_t::addMenu(new LLLandEnableBuyPass(), "Land.EnableBuyPass");
-    commit.add("Land.Buy", boost::bind(&handle_buy_land));
+    commit.add("Land.Buy", std::bind(&handle_buy_land));
 
     // Generic actions
-    commit.add("ReportAbuse", boost::bind(&handle_report_abuse));
-    commit.add("BuyCurrency", boost::bind(&handle_buy_currency));
+    commit.add("ReportAbuse", std::bind(&handle_report_abuse));
+    commit.add("BuyCurrency", std::bind(&handle_buy_currency));
     view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
     view_listener_t::addMenu(new LLToggleHelp(), "ToggleHelp");
     view_listener_t::addMenu(new LLToggleSpeak(), "ToggleSpeak");
@@ -10312,23 +10315,23 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToggleShaderControl(), "ToggleShaderControl");
     view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
     view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
-    commit.add("PayObject", boost::bind(&handle_give_money_dialog));
+    commit.add("PayObject", std::bind(&handle_give_money_dialog));
 
-    commit.add("Inventory.NewWindow", boost::bind(&LLPanelMainInventory::newWindow));
+    commit.add("Inventory.NewWindow", std::bind(&LLPanelMainInventory::newWindow));
 
-    enable.add("EnablePayObject", boost::bind(&enable_pay_object));
-    enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
-    enable.add("EnableEdit", boost::bind(&enable_object_edit));
-    enable.add("EnableMuteParticle", boost::bind(&enable_mute_particle));
-    commit.add("Pathfinding.Linksets.Select", boost::bind(&LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects));
-    enable.add("EnableSelectInPathfindingLinksets", boost::bind(&enable_object_select_in_pathfinding_linksets));
-    enable.add("VisibleSelectInPathfindingLinksets", boost::bind(&visible_object_select_in_pathfinding_linksets));
-    commit.add("Pathfinding.Characters.Select", boost::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
-    enable.add("EnableSelectInPathfindingCharacters", boost::bind(&enable_object_select_in_pathfinding_characters));
-    enable.add("Advanced.EnableErrorOSException", boost::bind(&enable_os_exception));
-    enable.add("EnableGLTF", boost::bind(&enable_gltf));
-    enable.add("EnableGLTFSaveAs", boost::bind(&enable_gltf_save_as));
-    enable.add("EnableGLTFUpload", boost::bind(&enable_gltf_upload));
+    enable.add("EnablePayObject", std::bind(&enable_pay_object));
+    enable.add("EnablePayAvatar", std::bind(&enable_pay_avatar));
+    enable.add("EnableEdit", std::bind(&enable_object_edit));
+    enable.add("EnableMuteParticle", std::bind(&enable_mute_particle));
+    commit.add("Pathfinding.Linksets.Select", std::bind(&LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects));
+    enable.add("EnableSelectInPathfindingLinksets", std::bind(&enable_object_select_in_pathfinding_linksets));
+    enable.add("VisibleSelectInPathfindingLinksets", std::bind(&visible_object_select_in_pathfinding_linksets));
+    commit.add("Pathfinding.Characters.Select", std::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
+    enable.add("EnableSelectInPathfindingCharacters", std::bind(&enable_object_select_in_pathfinding_characters));
+    enable.add("Advanced.EnableErrorOSException", std::bind(&enable_os_exception));
+    enable.add("EnableGLTF", std::bind(&enable_gltf));
+    enable.add("EnableGLTFSaveAs", std::bind(&enable_gltf_save_as));
+    enable.add("EnableGLTFUpload", std::bind(&enable_gltf_upload));
     enable.add("EnableTerrainLocalPaintMap", std::bind(&enable_terrain_local_paintmap));
 
     view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");

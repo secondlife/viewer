@@ -62,6 +62,9 @@
 #include "llnotificationmanager.h"
 #include "llautoreplace.h"
 #include "llcorehttputil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const F32 ME_TYPING_TIMEOUT = 4.0f;
 const F32 OTHER_TYPING_TIMEOUT = 9.0f;
@@ -91,10 +94,10 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
     setOverlapsScreenChannel(true);
 
     LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
-    mEnableCallbackRegistrar.add("Avatar.EnableGearItem", boost::bind(&LLFloaterIMSession::enableGearMenuItem, this, _2));
-    mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", boost::bind(&LLFloaterIMSession::GearDoToSelected, this, _2));
-    mEnableCallbackRegistrar.add("Avatar.CheckGearItem", boost::bind(&LLFloaterIMSession::checkGearMenuItem, this, _2));
-    mVoiceChannelChanged = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLFloaterIMSession::onVoiceChannelChanged, this, _1));
+    mEnableCallbackRegistrar.add("Avatar.EnableGearItem", std::bind(&LLFloaterIMSession::enableGearMenuItem, this, _2));
+    mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", std::bind(&LLFloaterIMSession::GearDoToSelected, this, _2));
+    mEnableCallbackRegistrar.add("Avatar.CheckGearItem", std::bind(&LLFloaterIMSession::checkGearMenuItem, this, _2));
+    mVoiceChannelChanged = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(std::bind(&LLFloaterIMSession::onVoiceChannelChanged, this, _1));
 
     setDocked(true);
 }
@@ -354,11 +357,11 @@ bool LLFloaterIMSession::postBuild()
     bool result = LLFloaterIMSessionTab::postBuild();
 
     mInputEditor->setMaxTextLength(1023);
-    mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
-    mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
-    mInputEditor->setFocusLostCallback( boost::bind(onInputEditorFocusLost, _1, this) );
-    mInputEditor->setKeystrokeCallback( boost::bind(onInputEditorKeystroke, _1, this) );
-    mInputEditor->setCommitCallback(boost::bind(onSendMsg, _1, this));
+    mInputEditor->setAutoreplaceCallback(std::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
+    mInputEditor->setFocusReceivedCallback( std::bind(onInputEditorFocusReceived, _1, this) );
+    mInputEditor->setFocusLostCallback( std::bind(onInputEditorFocusLost, _1, this) );
+    mInputEditor->setKeystrokeCallback( std::bind(onInputEditorKeystroke, _1, this) );
+    mInputEditor->setCommitCallback(std::bind(onSendMsg, _1, this));
 
     setDocked(true);
 
@@ -366,7 +369,7 @@ bool LLFloaterIMSession::postBuild()
 
     // Allow to add chat participants depending on the session type
     add_btn->setEnabled(isInviteAllowed());
-    add_btn->setClickedCallback(boost::bind(&LLFloaterIMSession::onAddButtonClicked, this));
+    add_btn->setClickedCallback(std::bind(&LLFloaterIMSession::onAddButtonClicked, this));
 
     LLVoiceClient::addObserver(this);
 
@@ -382,14 +385,14 @@ void LLFloaterIMSession::onAddButtonClicked()
 {
     LLView * button = findChild<LLView>("toolbar_panel")->findChild<LLButton>("add_btn");
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
-    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterIMSession::addSessionParticipants, this, _1), true, true, false, root_floater->getName(), button);
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(std::bind(&LLFloaterIMSession::addSessionParticipants, this, _1), true, true, false, root_floater->getName(), button);
     if (!picker)
     {
         return;
     }
 
     // Need to disable 'ok' button when selected users are already in conversation.
-    picker->setOkBtnEnableCb(boost::bind(&LLFloaterIMSession::canAddSelectedToChat, this, _1));
+    picker->setOkBtnEnableCb(std::bind(&LLFloaterIMSession::canAddSelectedToChat, this, _1));
 
     if (root_floater)
     {
@@ -457,7 +460,7 @@ void LLFloaterIMSession::addSessionParticipants(const uuid_vec_t& uuids)
         LLSD args;
 
         LLNotificationsUtil::add("ConfirmAddingChatParticipants", args, payload,
-                boost::bind(&LLFloaterIMSession::addP2PSessionParticipants, this, _1, _2, uuids));
+                std::bind(&LLFloaterIMSession::addP2PSessionParticipants, this, _1, _2, uuids));
     }
     else
     {
@@ -541,7 +544,7 @@ void LLFloaterIMSession::boundVoiceChannel()
     {
         mVoiceChannelStateChangeConnection.disconnect();
         mVoiceChannelStateChangeConnection = voice_channel->setStateChangedCallback(
-                boost::bind(&LLFloaterIMSession::onVoiceChannelStateChanged, this, _1, _2));
+                std::bind(&LLFloaterIMSession::onVoiceChannelStateChanged, this, _1, _2));
 
         //call (either p2p, group or ad-hoc) can be already in started state
         bool callIsActive = voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED;

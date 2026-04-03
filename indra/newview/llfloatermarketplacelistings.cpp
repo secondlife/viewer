@@ -47,6 +47,9 @@
 #include "lltextbox.h"
 #include "lltrans.h"
 #include "llviewerwindow.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// LLPanelMarketplaceListings
@@ -59,17 +62,17 @@ LLPanelMarketplaceListings::LLPanelMarketplaceListings()
 , mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME)
 , mFilterListingFoldersOnly(false)
 {
-    mCommitCallbackRegistrar.add("Marketplace.ViewSort.Action",  boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemClicked,  this, _2));
-    mEnableCallbackRegistrar.add("Marketplace.ViewSort.CheckItem",  boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemCheck,   this, _2));
+    mCommitCallbackRegistrar.add("Marketplace.ViewSort.Action",  std::bind(&LLPanelMarketplaceListings::onViewSortMenuItemClicked,  this, _2));
+    mEnableCallbackRegistrar.add("Marketplace.ViewSort.CheckItem",  std::bind(&LLPanelMarketplaceListings::onViewSortMenuItemCheck,   this, _2));
 }
 
 bool LLPanelMarketplaceListings::postBuild()
 {
-    childSetAction("add_btn", boost::bind(&LLPanelMarketplaceListings::onAddButtonClicked, this));
-    childSetAction("audit_btn", boost::bind(&LLPanelMarketplaceListings::onAuditButtonClicked, this));
+    childSetAction("add_btn", std::bind(&LLPanelMarketplaceListings::onAddButtonClicked, this));
+    childSetAction("audit_btn", std::bind(&LLPanelMarketplaceListings::onAuditButtonClicked, this));
 
     mFilterEditor = getChild<LLFilterEditor>("filter_editor");
-    mFilterEditor->setCommitCallback(boost::bind(&LLPanelMarketplaceListings::onFilterEdit, this, _2));
+    mFilterEditor->setCommitCallback(std::bind(&LLPanelMarketplaceListings::onFilterEdit, this, _2));
 
     mAuditBtn = getChild<LLButton>("audit_btn");
     mAuditBtn->setEnabled(false);
@@ -122,7 +125,7 @@ void LLPanelMarketplaceListings::buildAllPanels()
 
     // Set the tab panel
     LLTabContainer* tabs_panel = getChild<LLTabContainer>("marketplace_filter_tabs");
-    tabs_panel->setCommitCallback(boost::bind(&LLPanelMarketplaceListings::onTabChange, this));
+    tabs_panel->setCommitCallback(std::bind(&LLPanelMarketplaceListings::onTabChange, this));
     tabs_panel->selectTabPanel(panel_all_items);      // All panel selected by default
     mRootFolder = panel_all_items->getRootFolder();   // Keep the root of the all panel
 
@@ -139,7 +142,7 @@ LLInventoryPanel* LLPanelMarketplaceListings::buildInventoryPanel(const std::str
     // Set sort order and callbacks
     panel = getChild<LLInventoryPanel>(childname);
     panel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_FOLDERS_BY_NAME);
-    panel->setSelectCallback(boost::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
+    panel->setSelectCallback(std::bind(&LLPanelMarketplaceListings::onSelectionChange, this, panel, _1, _2));
 
     return panel;
 }
@@ -414,7 +417,7 @@ bool LLFloaterMarketplaceListings::postBuild()
 
     mPanelListings = static_cast<LLPanelMarketplaceListings*>(getChild<LLUICtrl>("panel_marketplace_listing"));
 
-    LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLFloaterMarketplaceListings::onFocusReceived, this));
+    LLFocusableElement::setFocusReceivedCallback(std::bind(&LLFloaterMarketplaceListings::onFocusReceived, this));
 
     // Observe category creation to catch marketplace listings creation (moot if already existing)
     mCategoryAddedObserver = new LLMarketplaceListingsAddedObserver(this);
@@ -462,7 +465,7 @@ bool LLFloaterMarketplaceListings::fetchContents()
         (LLMarketplaceData::instance().getSLMDataFetched() != MarketplaceFetchCodes::MARKET_FETCH_LOADING) &&
         (LLMarketplaceData::instance().getSLMDataFetched() != MarketplaceFetchCodes::MARKET_FETCH_DONE))
     {
-        LLMarketplaceData::instance().setDataFetchedSignal(boost::bind(&LLFloaterMarketplaceListings::updateView, this));
+        LLMarketplaceData::instance().setDataFetchedSignal(std::bind(&LLFloaterMarketplaceListings::updateView, this));
         LLMarketplaceData::instance().setSLMDataFetched(MarketplaceFetchCodes::MARKET_FETCH_LOADING);
         LLInventoryModelBackgroundFetch::instance().start(mRootFolderId, true);
         LLMarketplaceData::instance().getSLMListings();
@@ -563,7 +566,7 @@ void LLFloaterMarketplaceListings::setPanels()
         mCategoriesObserver = new LLInventoryCategoriesObserver();
         llassert(mCategoriesObserver);
         gInventory.addObserver(mCategoriesObserver);
-        mCategoriesObserver->addCategory(mRootFolderId, boost::bind(&LLFloaterMarketplaceListings::onChanged, this));
+        mCategoriesObserver->addCategory(mRootFolderId, std::bind(&LLFloaterMarketplaceListings::onChanged, this));
     }
 
     // Get the content of the marketplace listings folder
@@ -576,7 +579,7 @@ void LLFloaterMarketplaceListings::setPanels()
 void LLFloaterMarketplaceListings::initializeMarketPlace()
 {
     if (!mRootFolderCreating)
-        LLMarketplaceData::instance().initializeSLM(boost::bind(&LLFloaterMarketplaceListings::updateView, this));
+        LLMarketplaceData::instance().initializeSLM(std::bind(&LLFloaterMarketplaceListings::updateView, this));
 }
 
 S32 LLFloaterMarketplaceListings::getFolderCount()
@@ -797,8 +800,8 @@ LLFloaterAssociateListing::~LLFloaterAssociateListing()
 
 bool LLFloaterAssociateListing::postBuild()
 {
-    getChild<LLButton>("OK")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::apply, this, true));
-    getChild<LLButton>("Cancel")->setCommitCallback(boost::bind(&LLFloaterAssociateListing::cancel, this));
+    getChild<LLButton>("OK")->setCommitCallback(std::bind(&LLFloaterAssociateListing::apply, this, true));
+    getChild<LLButton>("Cancel")->setCommitCallback(std::bind(&LLFloaterAssociateListing::cancel, this));
     getChild<LLLineEditor>("listing_id")->setPrevalidate(&LLTextValidate::validateNonNegativeS32);
     center();
 
@@ -854,7 +857,7 @@ void LLFloaterAssociateListing::apply(bool user_confirm)
             if (listing_uuid.notNull() && user_confirm && LLMarketplaceData::instance().getActivationState(listing_uuid) && !hasUniqueVersionFolder(mUUID))
             {
                 // Look for user confirmation before unlisting
-                LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLFloaterAssociateListing::callback_apply, this, _1, _2));
+                LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), std::bind(&LLFloaterAssociateListing::callback_apply, this, _1, _2));
                 return;
             }
             // Associate the id with the user chosen folder
@@ -928,7 +931,7 @@ void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
         LLMarketplaceValidator::getInstance()->validateMarketplaceListings(
             cat_id,
             NULL,
-            boost::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2, _3),
+            std::bind(&LLFloaterMarketplaceValidation::appendMessage, this, _1, _2, _3),
             false);
     }
 

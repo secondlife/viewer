@@ -38,6 +38,7 @@
 #include "llfloaterreg.h"
 #include "llfloaterreporter.h"
 #include "llinventoryfunctions.h"
+#include <functional>
 
 
 #define BTN_PROFILE_XP "btn_profile_xp"
@@ -58,30 +59,30 @@ bool LLPanelExperienceLog::postBuild()
 {
     LLExperienceLog* log = LLExperienceLog::getInstance();
     mEventList = getChild<LLScrollListCtrl>("experience_log_list");
-    mEventList->setCommitCallback(boost::bind(&LLPanelExperienceLog::onSelectionChanged, this));
-    mEventList->setDoubleClickCallback( boost::bind(&LLPanelExperienceLog::onProfileExperience, this));
+    mEventList->setCommitCallback(std::bind(&LLPanelExperienceLog::onSelectionChanged, this));
+    mEventList->setDoubleClickCallback( std::bind(&LLPanelExperienceLog::onProfileExperience, this));
 
-    getChild<LLButton>("btn_clear")->setCommitCallback(boost::bind(&LLExperienceLog::clear, log));
-    getChild<LLButton>("btn_clear")->setCommitCallback(boost::bind(&LLPanelExperienceLog::refresh, this));
+    getChild<LLButton>("btn_clear")->setCommitCallback(std::bind(&LLExperienceLog::clear, log));
+    getChild<LLButton>("btn_clear")->setCommitCallback(std::bind(&LLPanelExperienceLog::refresh, this));
 
-    getChild<LLButton>(BTN_PROFILE_XP)->setCommitCallback(boost::bind(&LLPanelExperienceLog::onProfileExperience, this));
-    getChild<LLButton>(BTN_REPORT_XP )->setCommitCallback(boost::bind(&LLPanelExperienceLog::onReportExperience, this));
-    getChild<LLButton>("btn_notify"  )->setCommitCallback(boost::bind(&LLPanelExperienceLog::onNotify, this));
-    getChild<LLButton>("btn_next"    )->setCommitCallback(boost::bind(&LLPanelExperienceLog::onNext, this));
-    getChild<LLButton>("btn_prev"    )->setCommitCallback(boost::bind(&LLPanelExperienceLog::onPrev, this));
+    getChild<LLButton>(BTN_PROFILE_XP)->setCommitCallback(std::bind(&LLPanelExperienceLog::onProfileExperience, this));
+    getChild<LLButton>(BTN_REPORT_XP )->setCommitCallback(std::bind(&LLPanelExperienceLog::onReportExperience, this));
+    getChild<LLButton>("btn_notify"  )->setCommitCallback(std::bind(&LLPanelExperienceLog::onNotify, this));
+    getChild<LLButton>("btn_next"    )->setCommitCallback(std::bind(&LLPanelExperienceLog::onNext, this));
+    getChild<LLButton>("btn_prev"    )->setCommitCallback(std::bind(&LLPanelExperienceLog::onPrev, this));
 
     LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("notify_all");
     check->set(log->getNotifyNewEvent());
-    check->setCommitCallback(boost::bind(&LLPanelExperienceLog::notifyChanged, this));
+    check->setCommitCallback(std::bind(&LLPanelExperienceLog::notifyChanged, this));
 
 
     LLSpinCtrl* spin = getChild<LLSpinCtrl>("logsizespinner");
     spin->set((F32)log->getMaxDays());
-    spin->setCommitCallback(boost::bind(&LLPanelExperienceLog::logSizeChanged, this));
+    spin->setCommitCallback(std::bind(&LLPanelExperienceLog::logSizeChanged, this));
 
     mPageSize = log->getPageSize();
     refresh();
-    mNewEvent = LLExperienceLog::instance().addUpdateSignal(boost::bind(&LLPanelExperienceLog::refresh, this));
+    mNewEvent = LLExperienceLog::instance().addUpdateSignal(std::bind(&LLPanelExperienceLog::refresh, this));
     return true;
 }
 
@@ -175,7 +176,7 @@ void LLPanelExperienceLog::refresh()
     {
         mEventList->deleteAllItems();
         mEventList->setCommentText(getString("loading"));
-        LLExperienceCache::instance().get(waiting_id, boost::bind(&LLPanelExperienceLog::refresh, this));
+        LLExperienceCache::instance().get(waiting_id, std::bind(&LLPanelExperienceLog::refresh, this));
     }
     else
     {

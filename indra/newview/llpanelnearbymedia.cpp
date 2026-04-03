@@ -64,6 +64,9 @@
 #include "lltabcontainer.h"
 
 #include <stringize.h>
+#include <functional>
+
+using namespace std::placeholders;
 
 extern LLControlGroup gSavedSettings;
 
@@ -87,19 +90,19 @@ LLPanelNearByMedia::LLPanelNearByMedia()
     mParcelAudioAutoStart = gSavedSettings.getS32("ParcelMediaAutoPlayEnable") != 0
                             && gSavedSettings.getBOOL("MediaTentativeAutoPlay");
 
-    gSavedSettings.getControl("ParcelMediaAutoPlayEnable")->getSignal()->connect(boost::bind(&LLPanelNearByMedia::handleMediaAutoPlayChanged, this, _2));
+    gSavedSettings.getControl("ParcelMediaAutoPlayEnable")->getSignal()->connect(std::bind(&LLPanelNearByMedia::handleMediaAutoPlayChanged, this, _2));
 
-    mCommitCallbackRegistrar.add("MediaListCtrl.EnableAll",     boost::bind(&LLPanelNearByMedia::onClickEnableAll, this));
-    mCommitCallbackRegistrar.add("MediaListCtrl.DisableAll",        boost::bind(&LLPanelNearByMedia::onClickDisableAll, this));
-    mCommitCallbackRegistrar.add("MediaListCtrl.GoMediaPrefs", boost::bind(&LLPanelNearByMedia::onAdvancedButtonClick, this));
-    mCommitCallbackRegistrar.add("MediaListCtrl.MoreLess", boost::bind(&LLPanelNearByMedia::onMoreLess, this));
-    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Stop",      boost::bind(&LLPanelNearByMedia::onClickSelectedMediaStop, this));
-    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Play",      boost::bind(&LLPanelNearByMedia::onClickSelectedMediaPlay, this));
-    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Pause",     boost::bind(&LLPanelNearByMedia::onClickSelectedMediaPause, this));
-    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Mute",      boost::bind(&LLPanelNearByMedia::onClickSelectedMediaMute, this));
-    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Volume",    boost::bind(&LLPanelNearByMedia::onCommitSelectedMediaVolume, this));
-    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Zoom",      boost::bind(&LLPanelNearByMedia::onClickSelectedMediaZoom, this));
-    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Unzoom",    boost::bind(&LLPanelNearByMedia::onClickSelectedMediaUnzoom, this));
+    mCommitCallbackRegistrar.add("MediaListCtrl.EnableAll",     std::bind(&LLPanelNearByMedia::onClickEnableAll, this));
+    mCommitCallbackRegistrar.add("MediaListCtrl.DisableAll",        std::bind(&LLPanelNearByMedia::onClickDisableAll, this));
+    mCommitCallbackRegistrar.add("MediaListCtrl.GoMediaPrefs", std::bind(&LLPanelNearByMedia::onAdvancedButtonClick, this));
+    mCommitCallbackRegistrar.add("MediaListCtrl.MoreLess", std::bind(&LLPanelNearByMedia::onMoreLess, this));
+    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Stop",      std::bind(&LLPanelNearByMedia::onClickSelectedMediaStop, this));
+    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Play",      std::bind(&LLPanelNearByMedia::onClickSelectedMediaPlay, this));
+    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Pause",     std::bind(&LLPanelNearByMedia::onClickSelectedMediaPause, this));
+    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Mute",      std::bind(&LLPanelNearByMedia::onClickSelectedMediaMute, this));
+    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Volume",    std::bind(&LLPanelNearByMedia::onCommitSelectedMediaVolume, this));
+    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Zoom",      std::bind(&LLPanelNearByMedia::onClickSelectedMediaZoom, this));
+    mCommitCallbackRegistrar.add("SelectedMediaCtrl.Unzoom",    std::bind(&LLPanelNearByMedia::onClickSelectedMediaUnzoom, this));
 
     // Context menu handler.
     mCommitCallbackRegistrar.add("SelectedMediaCtrl.Action",
@@ -336,7 +339,7 @@ LLScrollListItem* LLPanelNearByMedia::addListItem(const LLUUID &id)
         if (scroll_list_check)
         {
             LLCheckBoxCtrl *check = scroll_list_check->getCheckBox();
-            check->setCommitCallback(boost::bind(&LLPanelNearByMedia::onCheckItem, this, _1, id));
+            check->setCommitCallback(std::bind(&LLPanelNearByMedia::onCheckItem, this, _1, id));
         }
     }
     return new_item;

@@ -52,6 +52,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llfloaterregioninfo.h"
+#include <functional>
 
 //LLFloaterTopObjects* LLFloaterTopObjects::sInstance = NULL;
 
@@ -76,16 +77,16 @@ LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
     mInitialized(false),
     mtotalScore(0.f)
 {
-    mCommitCallbackRegistrar.add("TopObjects.ShowBeacon",       boost::bind(&LLFloaterTopObjects::onClickShowBeacon, this));
-    mCommitCallbackRegistrar.add("TopObjects.ReturnSelected",   boost::bind(&LLFloaterTopObjects::onReturnSelected, this));
-    mCommitCallbackRegistrar.add("TopObjects.ReturnAll",        boost::bind(&LLFloaterTopObjects::onReturnAll, this));
-    mCommitCallbackRegistrar.add("TopObjects.Refresh",          boost::bind(&LLFloaterTopObjects::onRefresh, this));
-    mCommitCallbackRegistrar.add("TopObjects.GetByObjectName",  boost::bind(&LLFloaterTopObjects::onGetByObjectName, this));
-    mCommitCallbackRegistrar.add("TopObjects.GetByOwnerName",   boost::bind(&LLFloaterTopObjects::onGetByOwnerName, this));
-    mCommitCallbackRegistrar.add("TopObjects.GetByParcelName",  boost::bind(&LLFloaterTopObjects::onGetByParcelName, this));
-    mCommitCallbackRegistrar.add("TopObjects.CommitObjectsList",boost::bind(&LLFloaterTopObjects::onCommitObjectsList, this));
+    mCommitCallbackRegistrar.add("TopObjects.ShowBeacon",       std::bind(&LLFloaterTopObjects::onClickShowBeacon, this));
+    mCommitCallbackRegistrar.add("TopObjects.ReturnSelected",   std::bind(&LLFloaterTopObjects::onReturnSelected, this));
+    mCommitCallbackRegistrar.add("TopObjects.ReturnAll",        std::bind(&LLFloaterTopObjects::onReturnAll, this));
+    mCommitCallbackRegistrar.add("TopObjects.Refresh",          std::bind(&LLFloaterTopObjects::onRefresh, this));
+    mCommitCallbackRegistrar.add("TopObjects.GetByObjectName",  std::bind(&LLFloaterTopObjects::onGetByObjectName, this));
+    mCommitCallbackRegistrar.add("TopObjects.GetByOwnerName",   std::bind(&LLFloaterTopObjects::onGetByOwnerName, this));
+    mCommitCallbackRegistrar.add("TopObjects.GetByParcelName",  std::bind(&LLFloaterTopObjects::onGetByParcelName, this));
+    mCommitCallbackRegistrar.add("TopObjects.CommitObjectsList",std::bind(&LLFloaterTopObjects::onCommitObjectsList, this));
 
-    mCommitCallbackRegistrar.add("TopObjects.TeleportToSelected",        boost::bind(&LLFloaterTopObjects::teleportToSelectedObject, this));
+    mCommitCallbackRegistrar.add("TopObjects.TeleportToSelected",        std::bind(&LLFloaterTopObjects::teleportToSelectedObject, this));
 }
 
 LLFloaterTopObjects::~LLFloaterTopObjects()
@@ -99,7 +100,7 @@ bool LLFloaterTopObjects::postBuild()
     mObjectsScrollList->setFocus(true);
     mObjectsScrollList->setDoubleClickCallback(onDoubleClickObjectsList, this);
     mObjectsScrollList->setCommitOnSelectionChange(true);
-    mObjectsScrollList->setCommitCallback(boost::bind(&LLFloaterTopObjects::onSelectionChanged, this));
+    mObjectsScrollList->setCommitCallback(std::bind(&LLFloaterTopObjects::onSelectionChanged, this));
 
     setDefaultBtn("show_beacon_btn");
 

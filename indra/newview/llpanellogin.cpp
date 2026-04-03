@@ -72,6 +72,7 @@
 #endif  // LL_WINDOWS
 
 #include "llsdserialize.h"
+#include <functional>
 
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 bool LLPanelLogin::sCapslockDidNotification = false;
@@ -218,7 +219,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
     password_edit->setKeystrokeCallback(onPassKey, this);
     // STEAM-14: When user presses Enter with this field in focus, initiate login
-    password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, false));
+    password_edit->setCommitCallback(std::bind(&LLPanelLogin::onClickConnect, false));
 
     childSetAction("connect_btn", onClickConnect, this);
 
@@ -234,11 +235,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     {
         LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
         updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
-        favorites_combo->setReturnCallback(boost::bind(&LLPanelLogin::onClickConnect, false));
-        favorites_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLocationSLURL, this));
+        favorites_combo->setReturnCallback(std::bind(&LLPanelLogin::onClickConnect, false));
+        favorites_combo->setFocusLostCallback(std::bind(&LLPanelLogin::onLocationSLURL, this));
 
         LLComboBox* server_choice_combo = getChild<LLComboBox>("server_combo");
-        server_choice_combo->setCommitCallback(boost::bind(&LLPanelLogin::onSelectServer, this));
+        server_choice_combo->setCommitCallback(std::bind(&LLPanelLogin::onSelectServer, this));
 
         // Load all of the grids, sorted, and then add a bar and the current grid at the top
         server_choice_combo->removeall();
@@ -318,16 +319,16 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     loadLoginPage();
 
     LLComboBox* username_combo(getChild<LLComboBox>("username_combo"));
-    username_combo->setTextChangedCallback(boost::bind(&LLPanelLogin::onUserNameTextEnty, this));
+    username_combo->setTextChangedCallback(std::bind(&LLPanelLogin::onUserNameTextEnty, this));
     // STEAM-14: When user presses Enter with this field in focus, initiate login
-    username_combo->setCommitCallback(boost::bind(&LLPanelLogin::onUserListCommit, this));
-    username_combo->setReturnCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
+    username_combo->setCommitCallback(std::bind(&LLPanelLogin::onUserListCommit, this));
+    username_combo->setReturnCallback(std::bind(&LLPanelLogin::onClickConnect, this));
     username_combo->setKeystrokeOnEsc(true);
 
 
     LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
-    remember_name->setCommitCallback(boost::bind(&LLPanelLogin::onRememberUserCheck, this));
-    getChild<LLCheckBoxCtrl>("remember_password")->setCommitCallback(boost::bind(&LLPanelLogin::onRememberPasswordCheck, this));
+    remember_name->setCommitCallback(std::bind(&LLPanelLogin::onRememberUserCheck, this));
+    getChild<LLCheckBoxCtrl>("remember_password")->setCommitCallback(std::bind(&LLPanelLogin::onRememberPasswordCheck, this));
 
     mAlertListener = LLNotifications::instance().getChannel("Alerts")->connectChanged([this](const LLSD& notify){ return onUpdateNotification(notify); });
 }

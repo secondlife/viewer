@@ -40,6 +40,9 @@
 #include "llvoavatar.h"
 #include "llworld.h"
 #include "llcorehttputil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 extern LLControlGroup gSavedSettings;
 
@@ -76,7 +79,7 @@ void LLSpeaker::lookupName()
 {
     if (mDisplayName.empty())
     {
-        mAvatarNameCacheConnection = LLAvatarNameCache::get(mID, boost::bind(&LLSpeaker::onNameCache, this, _1, _2)); // todo: can be group???
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(mID, std::bind(&LLSpeaker::onNameCache, this, _1, _2)); // todo: can be group???
     }
 }
 
@@ -220,7 +223,7 @@ void LLSpeakersDelayActionsStorage::setActionTimer(const LLUUID& speaker_id)
         // Starting a timer to remove an participant after delay is completed
         mActionTimersMap.insert(LLSpeakerActionTimer::action_value_t(speaker_id,
             new LLSpeakerActionTimer(
-                boost::bind(&LLSpeakersDelayActionsStorage::onTimerActionCallback, this, _1),
+                std::bind(&LLSpeakersDelayActionsStorage::onTimerActionCallback, this, _1),
                 mActionDelay, speaker_id)));
     }
 }
@@ -278,7 +281,7 @@ LLSpeakerMgr::LLSpeakerMgr(LLVoiceChannel* channelp) :
     mGetListTime.reset();
     static LLUICachedControl<F32> remove_delay ("SpeakerParticipantRemoveDelay", 10.0);
 
-    mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLSpeakerMgr::removeSpeaker, this, _1), remove_delay);
+    mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(std::bind(&LLSpeakerMgr::removeSpeaker, this, _1), remove_delay);
 }
 
 LLSpeakerMgr::~LLSpeakerMgr()
@@ -835,7 +838,7 @@ void LLIMSpeakerMgr::toggleAllowTextChat(const LLUUID& speaker_id)
     data["params"]["mute_info"]["text"] = !speakerp->mModeratorMutedText;
 
     LLCoros::instance().launch("LLIMSpeakerMgr::moderationActionCoro",
-        boost::bind(&LLIMSpeakerMgr::moderationActionCoro, this, url, data));
+        std::bind(&LLIMSpeakerMgr::moderationActionCoro, this, url, data));
 }
 
 void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute)
@@ -860,7 +863,7 @@ void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmu
     data["params"]["mute_info"]["voice"] = !unmute;
 
     LLCoros::instance().launch("LLIMSpeakerMgr::moderationActionCoro",
-        boost::bind(&LLIMSpeakerMgr::moderationActionCoro, this, url, data));
+        std::bind(&LLIMSpeakerMgr::moderationActionCoro, this, url, data));
 }
 
 void LLIMSpeakerMgr::moderationActionCoro(std::string url, LLSD action)
@@ -942,7 +945,7 @@ void LLIMSpeakerMgr::moderateVoiceSession(const LLUUID& session_id, bool disallo
     data["params"]["update_info"]["moderated_mode"]["voice"] = disallow_voice;
 
     LLCoros::instance().launch("LLIMSpeakerMgr::moderationActionCoro",
-        boost::bind(&LLIMSpeakerMgr::moderationActionCoro, this, url, data));
+        std::bind(&LLIMSpeakerMgr::moderationActionCoro, this, url, data));
 }
 
 void LLIMSpeakerMgr::forceVoiceModeratedMode(bool should_be_muted)

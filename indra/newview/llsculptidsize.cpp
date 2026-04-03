@@ -29,6 +29,9 @@
 #include "llvovolume.h"
 #include "lldrawable.h"
 #include "llvoavatar.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //...........
 
@@ -77,7 +80,7 @@ void LLSculptIDSize::inc(const LLDrawable *pdrawable, int sz)
         //update size for all LLDrwable in range of sculptId
         for (pair_iter_iter_BY_SCULPT_ID_t::first_type it = itLU.first; it != itLU.second; ++it)
         {
-            mSizeInfo.get<tag_BY_SIZE>().modify_key(mSizeInfo.project<tag_BY_SIZE>(it), boost::bind(&_nothing_to_do_func, _1));
+            mSizeInfo.get<tag_BY_SIZE>().modify_key(mSizeInfo.project<tag_BY_SIZE>(it), std::bind(&_nothing_to_do_func, _1));
         }
 
         //trying insert the LLDrawable
@@ -104,7 +107,7 @@ void LLSculptIDSize::dec(const LLDrawable *pdrawable)
         it->mSharedSizeSum->mSizeSum = size;
         for (pair_iter_iter_BY_SCULPT_ID_t::first_type it = itLU.first; it != itLU.second; ++it)
         {
-            mSizeInfo.get<tag_BY_SIZE>().modify_key(mSizeInfo.project<tag_BY_SIZE>(it), boost::bind(&_nothing_to_do_func, _1));
+            mSizeInfo.get<tag_BY_SIZE>().modify_key(mSizeInfo.project<tag_BY_SIZE>(it), std::bind(&_nothing_to_do_func, _1));
         }
     }
 }
@@ -124,6 +127,6 @@ void LLSculptIDSize::resetSizeSum(const LLUUID &sculptId)
 
     for (pair_iter_iter_BY_SCULPT_ID_t::first_type it = itLU.first, itE = itLU.second; it != itE; ++it)
     {
-        mSizeInfo.get<tag_BY_SIZE>().modify_key(mSizeInfo.project<tag_BY_SIZE>(it), boost::bind(&_nothing_to_do_func, _1));
+        mSizeInfo.get<tag_BY_SIZE>().modify_key(mSizeInfo.project<tag_BY_SIZE>(it), std::bind(&_nothing_to_do_func, _1));
     }
 }

@@ -43,6 +43,9 @@
 #include "llpaneloutfitedit.h"
 #include "lltrans.h"
 #include "llvoavatarself.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLCOFWearables> t_cof_wearables("cof_wearables");
 
@@ -140,12 +143,12 @@ protected:
     {
         LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
-        registrar.add("Attachment.Touch", boost::bind(handleMultiple, handle_attachment_touch, mUUIDs));
-        registrar.add("Attachment.Edit", boost::bind(handleMultiple, handle_item_edit, mUUIDs));
-        registrar.add("Attachment.Detach", boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
+        registrar.add("Attachment.Touch", std::bind(handleMultiple, handle_attachment_touch, mUUIDs));
+        registrar.add("Attachment.Edit", std::bind(handleMultiple, handle_item_edit, mUUIDs));
+        registrar.add("Attachment.Detach", std::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
 
         LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
-        enable_registrar.add("Attachment.OnEnable", boost::bind(&CofAttachmentContextMenu::onEnable, this, _2));
+        enable_registrar.add("Attachment.OnEnable", std::bind(&CofAttachmentContextMenu::onEnable, this, _2));
 
         return createFromFile("menu_cof_attachment.xml");
     }
@@ -195,12 +198,12 @@ protected:
         LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
         LLUUID selected_id = mUUIDs.back();
 
-        registrar.add("Clothing.TakeOff", boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
-        registrar.add("Clothing.Replace", boost::bind(replaceWearable, selected_id));
-        registrar.add("Clothing.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
-        registrar.add("Clothing.Create", boost::bind(&CofClothingContextMenu::createNew, this, selected_id));
+        registrar.add("Clothing.TakeOff", std::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
+        registrar.add("Clothing.Replace", std::bind(replaceWearable, selected_id));
+        registrar.add("Clothing.Edit", std::bind(LLAgentWearables::editWearable, selected_id));
+        registrar.add("Clothing.Create", std::bind(&CofClothingContextMenu::createNew, this, selected_id));
 
-        enable_registrar.add("Clothing.OnEnable", boost::bind(&CofClothingContextMenu::onEnable, this, _2));
+        enable_registrar.add("Clothing.OnEnable", std::bind(&CofClothingContextMenu::onEnable, this, _2));
 
         LLContextMenu* menu = createFromFile("menu_cof_clothing.xml");
         llassert(menu);
@@ -251,11 +254,11 @@ protected:
         LLUUID selected_id = mUUIDs.back();
 
         LLPanelOutfitEdit* panel_oe = dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
-        registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceMenuItemClicked, panel_oe, selected_id));
-        registrar.add("BodyPart.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
-        registrar.add("BodyPart.Create", boost::bind(&CofBodyPartContextMenu::createNew, this, selected_id));
+        registrar.add("BodyPart.Replace", std::bind(&LLPanelOutfitEdit::onReplaceMenuItemClicked, panel_oe, selected_id));
+        registrar.add("BodyPart.Edit", std::bind(LLAgentWearables::editWearable, selected_id));
+        registrar.add("BodyPart.Create", std::bind(&CofBodyPartContextMenu::createNew, this, selected_id));
 
-        enable_registrar.add("BodyPart.OnEnable", boost::bind(&CofBodyPartContextMenu::onEnable, this, _2));
+        enable_registrar.add("BodyPart.OnEnable", std::bind(&CofBodyPartContextMenu::onEnable, this, _2));
 
         LLContextMenu* menu = createFromFile("menu_cof_body_part.xml");
         llassert(menu);
@@ -313,14 +316,14 @@ bool LLCOFWearables::postBuild()
     mClothing = getChild<LLFlatListView>("list_clothing");
     mBodyParts = getChild<LLFlatListView>("list_body_parts");
 
-    mClothing->setRightMouseDownCallback(boost::bind(&LLCOFWearables::onListRightClick, this, _1, _2, _3, mClothingMenu));
-    mAttachments->setRightMouseDownCallback(boost::bind(&LLCOFWearables::onListRightClick, this, _1, _2, _3, mAttachmentMenu));
-    mBodyParts->setRightMouseDownCallback(boost::bind(&LLCOFWearables::onListRightClick, this, _1, _2, _3, mBodyPartMenu));
+    mClothing->setRightMouseDownCallback(std::bind(&LLCOFWearables::onListRightClick, this, _1, _2, _3, mClothingMenu));
+    mAttachments->setRightMouseDownCallback(std::bind(&LLCOFWearables::onListRightClick, this, _1, _2, _3, mAttachmentMenu));
+    mBodyParts->setRightMouseDownCallback(std::bind(&LLCOFWearables::onListRightClick, this, _1, _2, _3, mBodyPartMenu));
 
     //selection across different list/tabs is not supported
-    mAttachments->setCommitCallback(boost::bind(&LLCOFWearables::onSelectionChange, this, mAttachments));
-    mClothing->setCommitCallback(boost::bind(&LLCOFWearables::onSelectionChange, this, mClothing));
-    mBodyParts->setCommitCallback(boost::bind(&LLCOFWearables::onSelectionChange, this, mBodyParts));
+    mAttachments->setCommitCallback(std::bind(&LLCOFWearables::onSelectionChange, this, mAttachments));
+    mClothing->setCommitCallback(std::bind(&LLCOFWearables::onSelectionChange, this, mClothing));
+    mBodyParts->setCommitCallback(std::bind(&LLCOFWearables::onSelectionChange, this, mBodyParts));
 
     mAttachments->setCommitOnSelectionChange(true);
     mClothing->setCommitOnSelectionChange(true);
@@ -331,13 +334,13 @@ bool LLCOFWearables::postBuild()
     mBodyParts->setComparator(&WEARABLE_NAME_COMPARATOR);
 
     mClothingTab = getChild<LLAccordionCtrlTab>("tab_clothing");
-    mClothingTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
+    mClothingTab->setDropDownStateChangedCallback(std::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
 
     mAttachmentsTab = getChild<LLAccordionCtrlTab>("tab_attachments");
-    mAttachmentsTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
+    mAttachmentsTab->setDropDownStateChangedCallback(std::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
 
     mBodyPartsTab = getChild<LLAccordionCtrlTab>("tab_body_parts");
-    mBodyPartsTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
+    mBodyPartsTab->setDropDownStateChangedCallback(std::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
 
     mTab2AssetType[mClothingTab] = LLAssetType::AT_CLOTHING;
     mTab2AssetType[mAttachmentsTab] = LLAssetType::AT_OBJECT;
@@ -562,10 +565,10 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 
     //setting callbacks
     //*TODO move that item panel's inner structure disclosing stuff into the panels
-    item_panel->childSetAction("btn_delete", boost::bind(mCOFCallbacks.mDeleteWearable));
-    item_panel->childSetAction("btn_move_up", boost::bind(mCOFCallbacks.mMoveWearableFurther));
-    item_panel->childSetAction("btn_move_down", boost::bind(mCOFCallbacks.mMoveWearableCloser));
-    item_panel->childSetAction("btn_edit", boost::bind(mCOFCallbacks.mEditWearable));
+    item_panel->childSetAction("btn_delete", std::bind(mCOFCallbacks.mDeleteWearable));
+    item_panel->childSetAction("btn_move_up", std::bind(mCOFCallbacks.mMoveWearableFurther));
+    item_panel->childSetAction("btn_move_down", std::bind(mCOFCallbacks.mMoveWearableCloser));
+    item_panel->childSetAction("btn_edit", std::bind(mCOFCallbacks.mEditWearable));
 
     //turning on gray separator line for the last item in the items group of the same wearable type
     item_panel->setSeparatorVisible(last);
@@ -591,8 +594,8 @@ LLPanelBodyPartsListItem* LLCOFWearables::buildBodypartListItem(LLViewerInventor
 
     //setting callbacks
     //*TODO move that item panel's inner structure disclosing stuff into the panels
-    item_panel->childSetAction("btn_delete", boost::bind(mCOFCallbacks.mDeleteWearable));
-    item_panel->childSetAction("btn_edit", boost::bind(mCOFCallbacks.mEditWearable));
+    item_panel->childSetAction("btn_delete", std::bind(mCOFCallbacks.mDeleteWearable));
+    item_panel->childSetAction("btn_edit", std::bind(mCOFCallbacks.mEditWearable));
 
     return item_panel;
 }
@@ -607,7 +610,7 @@ LLPanelDeletableWearableListItem* LLCOFWearables::buildAttachemntListItem(LLView
 
     //setting callbacks
     //*TODO move that item panel's inner structure disclosing stuff into the panels
-    item_panel->childSetAction("btn_delete", boost::bind(mCOFCallbacks.mDeleteWearable));
+    item_panel->childSetAction("btn_delete", std::bind(mCOFCallbacks.mDeleteWearable));
 
     return item_panel;
 }
@@ -653,7 +656,7 @@ void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by
         LLWearableType::EType w_type = static_cast<LLWearableType::EType>(type);
         LLPanelInventoryListItemBase* item_panel = LLPanelDummyClothingListItem::create(w_type);
         if(!item_panel) continue;
-        item_panel->childSetAction("btn_add", boost::bind(mCOFCallbacks.mAddWearable));
+        item_panel->childSetAction("btn_add", std::bind(mCOFCallbacks.mAddWearable));
         mClothing->addItem(item_panel, LLUUID::null, ADD_BOTTOM, false);
     }
 }

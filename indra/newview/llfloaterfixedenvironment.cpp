@@ -54,6 +54,9 @@
 
 #include "llsettingsvo.h"
 #include "llinventorymodel.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 extern LLControlGroup gSavedSettings;
 
@@ -314,7 +317,7 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     {
         LLSD args;
         args["DESC"] = mSettings->getName();
-        LLNotificationsUtil::add("SaveSettingAs", args, LLSD(), boost::bind(&LLFloaterFixedEnvironment::onSaveAsCommit, this, _1, _2, setting_clone));
+        LLNotificationsUtil::add("SaveSettingAs", args, LLSD(), std::bind(&LLFloaterFixedEnvironment::onSaveAsCommit, this, _1, _2, setting_clone));
     }
     else if ((ctrl_action == ACTION_APPLY_LOCAL) ||
         (ctrl_action == ACTION_APPLY_PARCEL) ||
@@ -452,7 +455,7 @@ void LLFloaterFixedEnvironmentWater::onOpen(const LLSD& key)
 
 void LLFloaterFixedEnvironmentWater::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
-    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
+    LLFilePickerReplyThread::startPicker(std::bind(&LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
 }
 
 void LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile(const std::vector<std::string>& filenames)
@@ -538,7 +541,7 @@ void LLFloaterFixedEnvironmentSky::onClose(bool app_quitting)
 
 void LLFloaterFixedEnvironmentSky::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
-    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterFixedEnvironmentSky::loadSkySettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
+    LLFilePickerReplyThread::startPicker(std::bind(&LLFloaterFixedEnvironmentSky::loadSkySettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
 }
 
 void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std::string>& filenames)

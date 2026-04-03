@@ -42,6 +42,9 @@
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
 #include "llwebprofile.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -1002,12 +1005,12 @@ bool LLFloaterSnapshot::postBuild()
     getChild<LLUICtrl>("no_post_check")->setValue(gSavedSettings.getBOOL("RenderSnapshotNoPost"));
     childSetCommitCallback("no_post_check", ImplBase::onClickNoPost, this);
 
-    getChild<LLButton>("retract_btn")->setCommitCallback(boost::bind(&LLFloaterSnapshot::onExtendFloater, this));
-    getChild<LLButton>("extend_btn")->setCommitCallback(boost::bind(&LLFloaterSnapshot::onExtendFloater, this));
+    getChild<LLButton>("retract_btn")->setCommitCallback(std::bind(&LLFloaterSnapshot::onExtendFloater, this));
+    getChild<LLButton>("extend_btn")->setCommitCallback(std::bind(&LLFloaterSnapshot::onExtendFloater, this));
 
     getChild<LLTextBox>("360_label")->setSoundFlags(LLView::MOUSE_UP);
     getChild<LLTextBox>("360_label")->setShowCursorHand(false);
-    getChild<LLTextBox>("360_label")->setClickedCallback(boost::bind(&LLFloaterSnapshot::on360Snapshot, this));
+    getChild<LLTextBox>("360_label")->setClickedCallback(std::bind(&LLFloaterSnapshot::on360Snapshot, this));
 
     // Filters
     LLComboBox* filterbox = getChild<LLComboBox>("filters_combobox");
@@ -1018,8 +1021,8 @@ bool LLFloaterSnapshot::postBuild()
     }
     childSetCommitCallback("filters_combobox", ImplBase::onClickFilter, this);
 
-    LLWebProfile::setImageUploadResultCallback(boost::bind(&Impl::onSnapshotUploadFinished, this, _1));
-    LLPostCard::setPostResultCallback(boost::bind(&Impl::onSendingPostcardFinished, this, _1));
+    LLWebProfile::setImageUploadResultCallback(std::bind(&Impl::onSnapshotUploadFinished, this, _1));
+    LLPostCard::setPostResultCallback(std::bind(&Impl::onSendingPostcardFinished, this, _1));
 
     mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 

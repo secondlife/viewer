@@ -42,6 +42,7 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "lluictrlfactory.h"
+#include <functional>
 
 LLFloaterTelehub::LLFloaterTelehub(const LLSD& key)
 :   LLFloater(key),
@@ -57,10 +58,10 @@ bool LLFloaterTelehub::postBuild()
 {
     gMessageSystem->setHandlerFunc("TelehubInfo", processTelehubInfo);
 
-    getChild<LLUICtrl>("connect_btn")->setCommitCallback(boost::bind(&LLFloaterTelehub::onClickConnect, this));
-    getChild<LLUICtrl>("disconnect_btn")->setCommitCallback(boost::bind(&LLFloaterTelehub::onClickDisconnect, this));
-    getChild<LLUICtrl>("add_spawn_point_btn")->setCommitCallback(boost::bind(&LLFloaterTelehub::onClickAddSpawnPoint, this));
-    getChild<LLUICtrl>("remove_spawn_point_btn")->setCommitCallback(boost::bind(&LLFloaterTelehub::onClickRemoveSpawnPoint, this));
+    getChild<LLUICtrl>("connect_btn")->setCommitCallback(std::bind(&LLFloaterTelehub::onClickConnect, this));
+    getChild<LLUICtrl>("disconnect_btn")->setCommitCallback(std::bind(&LLFloaterTelehub::onClickDisconnect, this));
+    getChild<LLUICtrl>("add_spawn_point_btn")->setCommitCallback(std::bind(&LLFloaterTelehub::onClickAddSpawnPoint, this));
+    getChild<LLUICtrl>("remove_spawn_point_btn")->setCommitCallback(std::bind(&LLFloaterTelehub::onClickRemoveSpawnPoint, this));
 
     LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");
     if (list)

@@ -78,6 +78,9 @@
 #include "lltransfertargetvfile.h"
 #include "llcorehttputil.h"
 #include "llpounceable.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Constants
 //const char* MESSAGE_LOG_FILENAME = "message.log";
@@ -1165,11 +1168,11 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
         UntrustedCallback_t cb = nullptr;
         if ((mSendReliable) && (mReliablePacketParams.mCallback))
         {
-            cb = boost::bind(mReliablePacketParams.mCallback, mReliablePacketParams.mCallbackData, _1);
+            cb = std::bind(mReliablePacketParams.mCallback, mReliablePacketParams.mCallbackData, _1);
         }
 
         LLCoros::instance().launch("LLMessageSystem::sendUntrustedSimulatorMessageCoro",
-            boost::bind(&LLMessageSystem::sendUntrustedSimulatorMessageCoro, this,
+            std::bind(&LLMessageSystem::sendUntrustedSimulatorMessageCoro, this,
             host.getUntrustedSimulatorCap(),
             mLLSDMessageBuilder->getMessageName(), message, cb));
 
@@ -1362,11 +1365,11 @@ S32 LLMessageSystem::sendMessage(
     UntrustedCallback_t cb = nullptr;
     if ((mSendReliable) && (mReliablePacketParams.mCallback))
     {
-        cb = boost::bind(mReliablePacketParams.mCallback, mReliablePacketParams.mCallbackData, _1);
+        cb = std::bind(mReliablePacketParams.mCallback, mReliablePacketParams.mCallbackData, _1);
     }
 
     LLCoros::instance().launch("LLMessageSystem::sendUntrustedSimulatorMessageCoro",
-            boost::bind(&LLMessageSystem::sendUntrustedSimulatorMessageCoro, this,
+            std::bind(&LLMessageSystem::sendUntrustedSimulatorMessageCoro, this,
             host.getUntrustedSimulatorCap(), name, message, cb));
     return 1;
 }

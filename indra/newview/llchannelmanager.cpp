@@ -39,13 +39,16 @@
 #include "llfloaterreg.h"
 
 #include <algorithm>
+#include <functional>
+
+using namespace std::placeholders;
 
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLChannelManager::LLChannelManager()
 {
-    LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLChannelManager::onLoginCompleted, this));
+    LLAppViewer::instance()->setOnLoginCompletedCallback(std::bind(&LLChannelManager::onLoginCompleted, this));
     mChannelList.clear();
     mStartUpChannel = NULL;
 
@@ -146,9 +149,9 @@ void LLChannelManager::onLoginCompleted()
             // init channel's position and size
             S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
             mStartUpChannel->init(channel_right_bound - NOTIFY_BOX_WIDTH, channel_right_bound);
-            mStartUpChannel->setMouseDownCallback(boost::bind(&LLFloaterNotificationsTabbed::onStartUpToastClick, LLFloaterNotificationsTabbed::getInstance(), _2, _3, _4));
+            mStartUpChannel->setMouseDownCallback(std::bind(&LLFloaterNotificationsTabbed::onStartUpToastClick, LLFloaterNotificationsTabbed::getInstance(), _2, _3, _4));
 
-            mStartUpChannel->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
+            mStartUpChannel->setCommitCallback(std::bind(&LLChannelManager::onStartUpToastClose, this));
             mStartUpChannel->createStartUpToast(away_notifications, (F32)gSavedSettings.getS32("StartUpToastLifeTime"));
         }
     }

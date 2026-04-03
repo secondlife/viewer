@@ -107,6 +107,7 @@
 #include "llgltfmateriallist.h"
 #include "llgl.h"
 #include "gltf/asset.h"
+#include <functional>
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -2924,7 +2925,7 @@ void LLViewerObject::fetchInventoryFromServer()
         if (mRegionp && !mRegionp->getCapability("RequestTaskInventory").empty())
         {
             LLCoros::instance().launch("LLViewerObject::fetchInventoryFromCapCoro()",
-                                       boost::bind(&LLViewerObject::fetchInventoryFromCapCoro, mID));
+                                       std::bind(&LLViewerObject::fetchInventoryFromCapCoro, mID));
         }
         else
         {
@@ -2955,7 +2956,7 @@ void LLViewerObject::fetchInventoryDelayed(const F64 &time_seconds)
         }
         mInvRequestState = INVENTORY_REQUEST_WAIT; // affects isInventoryPending()
         LLCoros::instance().launch("LLViewerObject::fetchInventoryDelayedCoro()",
-            boost::bind(&LLViewerObject::fetchInventoryDelayedCoro, mID, time_seconds));
+            std::bind(&LLViewerObject::fetchInventoryDelayedCoro, mID, time_seconds));
     }
 }
 

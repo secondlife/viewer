@@ -33,6 +33,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llviewerwindow.h"
+#include <functional>
 
 static S32 sSeconds;
 static U32 sShakeState;
@@ -52,7 +53,7 @@ LLFloaterRegionRestarting::~LLFloaterRegionRestarting()
 
 bool LLFloaterRegionRestarting::postBuild()
 {
-    mRegionChangedConnection = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterRegionRestarting::regionChange, this));
+    mRegionChangedConnection = gAgent.addRegionChangedCallback(std::bind(&LLFloaterRegionRestarting::regionChange, this));
 
     LLStringUtil::format_map_t args;
     std::string text;

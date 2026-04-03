@@ -67,6 +67,9 @@
 #include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
@@ -597,10 +600,10 @@ public:
 
     bool postBuild()
     {
-        setDoubleClickCallback(boost::bind(&LLChatHistoryHeader::showInspector, this));
+        setDoubleClickCallback(std::bind(&LLChatHistoryHeader::showInspector, this));
 
-        setMouseEnterCallback(boost::bind(&LLChatHistoryHeader::showInfoCtrl, this));
-        setMouseLeaveCallback(boost::bind(&LLChatHistoryHeader::hideInfoCtrl, this));
+        setMouseEnterCallback(std::bind(&LLChatHistoryHeader::showInfoCtrl, this));
+        setMouseLeaveCallback(std::bind(&LLChatHistoryHeader::hideInfoCtrl, this));
 
         mUserNameTextBox = getChild<LLTextBox>("user_name");
         mTimeBoxTextBox = getChild<LLTextBox>("time_box");
@@ -608,7 +611,7 @@ public:
         mInfoCtrl = LLUICtrlFactory::getInstance()->createFromFile<LLUICtrl>("inspector_info_ctrl.xml", this, LLPanel::child_registry_t::instance());
         if (mInfoCtrl)
         {
-            mInfoCtrl->setCommitCallback(boost::bind(&LLChatHistoryHeader::onClickInfoCtrl, mInfoCtrl));
+            mInfoCtrl->setCommitCallback(std::bind(&LLChatHistoryHeader::onClickInfoCtrl, mInfoCtrl));
             mInfoCtrl->setVisible(false);
         }
         else
@@ -888,8 +891,8 @@ protected:
         {
             LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
             LLUICtrl::EnableCallbackRegistry::ScopedRegistrar registrar_enable;
-            registrar.add("ObjectIcon.Action", boost::bind(&LLChatHistoryHeader::onObjectIconContextMenuItemClicked, this, _2));
-            registrar_enable.add("ObjectIcon.Visible", boost::bind(&LLChatHistoryHeader::onObjectIconContextMenuItemVisible, this, _2));
+            registrar.add("ObjectIcon.Action", std::bind(&LLChatHistoryHeader::onObjectIconContextMenuItemClicked, this, _2));
+            registrar_enable.add("ObjectIcon.Visible", std::bind(&LLChatHistoryHeader::onObjectIconContextMenuItemVisible, this, _2));
 
             menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_object_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
             if (menu)
@@ -916,10 +919,10 @@ protected:
         {
             LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
             LLUICtrl::EnableCallbackRegistry::ScopedRegistrar registrar_enable;
-            registrar.add("AvatarIcon.Action", boost::bind(&LLChatHistoryHeader::onAvatarIconContextMenuItemClicked, this, _2));
-            registrar_enable.add("AvatarIcon.Check", boost::bind(&LLChatHistoryHeader::onAvatarIconContextMenuItemChecked, this, _2));
-            registrar_enable.add("AvatarIcon.Enable", boost::bind(&LLChatHistoryHeader::onAvatarIconContextMenuItemEnabled, this, _2));
-            registrar_enable.add("AvatarIcon.Visible", boost::bind(&LLChatHistoryHeader::onAvatarIconContextMenuItemVisible, this, _2));
+            registrar.add("AvatarIcon.Action", std::bind(&LLChatHistoryHeader::onAvatarIconContextMenuItemClicked, this, _2));
+            registrar_enable.add("AvatarIcon.Check", std::bind(&LLChatHistoryHeader::onAvatarIconContextMenuItemChecked, this, _2));
+            registrar_enable.add("AvatarIcon.Enable", std::bind(&LLChatHistoryHeader::onAvatarIconContextMenuItemEnabled, this, _2));
+            registrar_enable.add("AvatarIcon.Visible", std::bind(&LLChatHistoryHeader::onAvatarIconContextMenuItemVisible, this, _2));
 
             menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_avatar_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
             if (menu)
@@ -1036,7 +1039,7 @@ private:
                 mAvatarNameCacheConnection.disconnect();
             }
             mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID,
-                boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
+                std::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
         }
     }
 
@@ -1118,7 +1121,7 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
     editor_params.use_color = true;
     mEditor = LLUICtrlFactory::create<LLTextEditor>(editor_params, this);
     mEditor->setIsFriendCallback(LLAvatarActions::isFriend);
-    mEditor->setIsObjectBlockedCallback(boost::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
+    mEditor->setIsObjectBlockedCallback(std::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
     mEditor->setIsObjectReachableCallback([](const LLUUID& obj_id)
         {
             LLViewerObject* object = gObjectList.findObject(obj_id);
@@ -1180,7 +1183,7 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
     text_p.follows.flags = FOLLOWS_ALL;
     text_p.name = "more_chat_text";
     mMoreChatText = LLUICtrlFactory::create<LLTextBox>(text_p, mMoreChatPanel);
-    mMoreChatText->setClickedCallback(boost::bind(&LLChatHistory::onClickMoreText, this));
+    mMoreChatText->setClickedCallback(std::bind(&LLChatHistory::onClickMoreText, this));
 
     stackp->addPanel(mMoreChatPanel, LLLayoutStack::ANIMATE);
 }

@@ -83,6 +83,9 @@
 #include "llsettingsdaycycle.h"
 
 #include <boost/regex.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 #ifdef LL_WINDOWS
     #pragma warning(disable:4355)
@@ -687,7 +690,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
     mImpl->mObjectPartition.push_back(NULL);                    //PARTITION_NONE
     mImpl->mVOCachePartition = getVOCachePartition();
 
-    setCapabilitiesReceivedCallback(boost::bind(&LLAvatarRenderInfoAccountant::scanNewRegion, _1));
+    setCapabilitiesReceivedCallback(std::bind(&LLAvatarRenderInfoAccountant::scanNewRegion, _1));
 }
 
 void LLViewerRegion::initStats()
@@ -2374,7 +2377,7 @@ void LLViewerRegion::requestSimulatorFeatures()
     {
         std::string coroname =
             LLCoros::instance().launch("LLViewerRegionImpl::requestSimulatorFeatureCoro",
-                                       boost::bind(&LLViewerRegionImpl::requestSimulatorFeatureCoro, url, getHandle()));
+                                       std::bind(&LLViewerRegionImpl::requestSimulatorFeatureCoro, url, getHandle()));
 
         // requestSimulatorFeatures can be called from other coros,
         // launch() acts like a suspend()
@@ -3318,7 +3321,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
         //to the "original" seed cap received and determine why there is problem!
         std::string coroname =
             LLCoros::instance().launch("LLEnvironmentRequest::requestBaseCapabilitiesCompleteCoro",
-            boost::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro, getHandle()));
+            std::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro, getHandle()));
 
         // setSeedCapability can be called from other coros,
         // launch() acts like a suspend()
@@ -3336,7 +3339,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 
     std::string coroname =
         LLCoros::instance().launch("LLViewerRegionImpl::requestBaseCapabilitiesCoro",
-        boost::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCoro, getHandle()));
+        std::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCoro, getHandle()));
 
     // setSeedCapability can be called from other coros,
     // launch() acts like a suspend()

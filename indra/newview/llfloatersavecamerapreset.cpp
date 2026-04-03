@@ -40,6 +40,7 @@
 #include "llradiogroup.h"
 #include "lltrans.h"
 #include "llvoavatarself.h"
+#include <functional>
 
 LLFloaterSaveCameraPreset::LLFloaterSaveCameraPreset(const LLSD &key)
     : LLModalDialog(key)
@@ -52,17 +53,17 @@ bool LLFloaterSaveCameraPreset::postBuild()
     mPresetCombo = getChild<LLComboBox>("preset_combo");
 
     mNameEditor = getChild<LLLineEditor>("preset_txt_editor");
-    mNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterSaveCameraPreset::onPresetNameEdited, this), NULL);
+    mNameEditor->setKeystrokeCallback(std::bind(&LLFloaterSaveCameraPreset::onPresetNameEdited, this), NULL);
 
     mSaveButton = getChild<LLButton>("save");
-    mSaveButton->setCommitCallback(boost::bind(&LLFloaterSaveCameraPreset::onBtnSave, this));
+    mSaveButton->setCommitCallback(std::bind(&LLFloaterSaveCameraPreset::onBtnSave, this));
 
     mSaveRadioGroup = getChild<LLRadioGroup>("radio_save_preset");
-    mSaveRadioGroup->setCommitCallback(boost::bind(&LLFloaterSaveCameraPreset::onSwitchSaveReplace, this));
+    mSaveRadioGroup->setCommitCallback(std::bind(&LLFloaterSaveCameraPreset::onSwitchSaveReplace, this));
 
-    getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterSaveCameraPreset::onBtnCancel, this));
+    getChild<LLButton>("cancel")->setCommitCallback(std::bind(&LLFloaterSaveCameraPreset::onBtnCancel, this));
 
-    LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterSaveCameraPreset::onPresetsListChange, this));
+    LLPresetsManager::instance().setPresetListChangeCallback(std::bind(&LLFloaterSaveCameraPreset::onPresetsListChange, this));
 
     return true;
 }

@@ -37,6 +37,7 @@
 #include "llviewerregion.h"
 #include "llvoicechannel.h"
 #include "llcorehttputil.h"
+#include <functional>
 
 LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
 LLVoiceChannel* LLVoiceChannel::sCurrentVoiceChannel = NULL;
@@ -483,7 +484,7 @@ void LLVoiceChannelGroup::requestChannelInfo()
         std::string url = region->getCapability("ChatSessionRequest");
 
         LLCoros::instance().launch("LLVoiceChannelGroup::voiceCallCapCoro",
-            boost::bind(&LLVoiceChannelGroup::voiceCallCapCoro, this, url));
+            std::bind(&LLVoiceChannelGroup::voiceCallCapCoro, this, url));
     }
 }
 

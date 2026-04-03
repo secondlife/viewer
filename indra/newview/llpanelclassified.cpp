@@ -45,6 +45,9 @@
 #include "llviewerregion.h"
 #include "llscrollcontainer.h"
 #include "llcorehttputil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //static
 LLPanelClassifiedInfo::panel_list_t LLPanelClassifiedInfo::sAllPanels;
@@ -113,8 +116,8 @@ LLPanelClassifiedInfo::~LLPanelClassifiedInfo()
 
 bool LLPanelClassifiedInfo::postBuild()
 {
-    childSetAction("show_on_map_btn", boost::bind(&LLPanelClassifiedInfo::onMapClick, this));
-    childSetAction("teleport_btn", boost::bind(&LLPanelClassifiedInfo::onTeleportClick, this));
+    childSetAction("show_on_map_btn", std::bind(&LLPanelClassifiedInfo::onMapClick, this));
+    childSetAction("teleport_btn", std::bind(&LLPanelClassifiedInfo::onTeleportClick, this));
 
     mScrollingPanel = getChild<LLPanel>("scroll_content_panel");
     mScrollContainer = getChild<LLScrollContainer>("profile_scroll");
@@ -196,7 +199,7 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
             LLUUID classifiedId = getClassifiedId();
             body["classified_id"] = classifiedId;
             LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, body,
-                boost::bind(&LLPanelClassifiedInfo::handleSearchStatResponse, classifiedId, _1));
+                std::bind(&LLPanelClassifiedInfo::handleSearchStatResponse, classifiedId, _1));
         }
     }
     // Update classified click stats.

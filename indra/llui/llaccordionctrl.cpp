@@ -36,7 +36,9 @@
 #include "llfocusmgr.h"
 #include "lllocalcliprect.h"
 
-#include "boost/bind.hpp"
+#include <functional>
+
+using namespace std::placeholders;
 
 static constexpr S32 BORDER_MARGIN = 2;
 static constexpr S32 PARENT_BORDER_MARGIN = 5;
@@ -117,7 +119,7 @@ bool LLAccordionCtrl::postBuild()
     sbparams.page_size(mInnerRect.getHeight());
     sbparams.step_size(VERTICAL_MULTIPLE);
     sbparams.follows.flags(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
-    sbparams.change_callback(boost::bind(&LLAccordionCtrl::onScrollPosChangeCallback, this, _1, _2));
+    sbparams.change_callback(std::bind(&LLAccordionCtrl::onScrollPosChangeCallback, this, _1, _2));
 
     mScrollbar = LLUICtrlFactory::create<LLScrollbar>(sbparams);
     LLView::addChild(mScrollbar);
@@ -332,7 +334,7 @@ void LLAccordionCtrl::addCollapsibleCtrl(LLAccordionCtrlTab* accordion_tab)
         addChild(accordion_tab);
     mAccordionTabs.push_back(accordion_tab);
 
-    accordion_tab->setDropDownStateChangedCallback( boost::bind(&LLAccordionCtrl::onCollapseCtrlCloseOpen, this, (S16)(mAccordionTabs.size() - 1)) );
+    accordion_tab->setDropDownStateChangedCallback( std::bind(&LLAccordionCtrl::onCollapseCtrlCloseOpen, this, (S16)(mAccordionTabs.size() - 1)) );
     scheduleArrange();
 }
 

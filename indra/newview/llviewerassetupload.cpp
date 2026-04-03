@@ -53,6 +53,9 @@
 #include "llkeyframemotion.h"
 #include "lldatapacker.h"
 #include "llvoavatarself.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 void dialog_refresh_all();
 
@@ -854,7 +857,7 @@ LLUUID LLViewerAssetUpload::EnqueueInventoryUpload(const std::string &url, const
 
     LLUUID queueId = LLCoprocedureManager::instance().enqueueCoprocedure("Upload",
         procName + LLAssetType::lookup(uploadInfo->getAssetType()) + ")",
-        boost::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, url, uploadInfo));
+        std::bind(&LLViewerAssetUpload::AssetInventoryUploadCoproc, _1, _2, url, uploadInfo));
 
     return queueId;
 }

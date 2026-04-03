@@ -90,6 +90,9 @@
 #include "lltoggleablemenu.h"
 #include "llmenubutton.h"
 #include "llinventoryfunctions.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const std::string HELLO_LSL =
     "default\n"
@@ -214,7 +217,7 @@ bool LLFloaterScriptSearch::postBuild()
 {
     mReplaceBox = getChild<LLLineEditor>("replace_text");
     mSearchBox = getChild<LLLineEditor>("search_text");
-    mSearchBox->setCommitCallback(boost::bind(&LLFloaterScriptSearch::onSearchBoxCommit, this));
+    mSearchBox->setCommitCallback(std::bind(&LLFloaterScriptSearch::onSearchBoxCommit, this));
     mSearchBox->setCommitOnFocusLost(false);
     childSetAction("search_btn", onBtnSearch,this);
     childSetAction("replace_btn", onBtnReplace,this);
@@ -492,19 +495,19 @@ bool LLScriptEdCore::postBuild()
 
     childSetCommitCallback("lsl errors", &LLScriptEdCore::onErrorList, this);
     mSaveBtn = getChild<LLButton>("Save_btn");
-    mSaveBtn->setCommitCallback(boost::bind(&LLScriptEdCore::doSave, this, false));
-    childSetAction("Edit_btn", boost::bind(&LLScriptEdCore::openInExternalEditor, this));
+    mSaveBtn->setCommitCallback(std::bind(&LLScriptEdCore::doSave, this, false));
+    childSetAction("Edit_btn", std::bind(&LLScriptEdCore::openInExternalEditor, this));
 
     initMenu();
 
-    mSyntaxIDConnection = LLSyntaxIdLSL::getInstance()->addSyntaxIDCallback(boost::bind(&LLScriptEdCore::processKeywords, this));
+    mSyntaxIDConnection = LLSyntaxIdLSL::getInstance()->addSyntaxIDCallback(std::bind(&LLScriptEdCore::processKeywords, this));
 
     // Intialise keyword highlighting for the current simulator's version of LSL
     LLSyntaxIdLSL::getInstance()->initialize();
     processKeywords();
 
-    mCommitCallbackRegistrar.add("FontSize.Set", boost::bind(&LLScriptEdCore::onChangeFontSize, this, _2));
-    mEnableCallbackRegistrar.add("FontSize.Check", boost::bind(&LLScriptEdCore::isFontSizeChecked, this, _2));
+    mCommitCallbackRegistrar.add("FontSize.Set", std::bind(&LLScriptEdCore::onChangeFontSize, this, _2));
+    mEnableCallbackRegistrar.add("FontSize.Check", std::bind(&LLScriptEdCore::isFontSizeChecked, this, _2));
 
     LLToggleableMenu *context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
         "menu_lsl_font_size.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -554,57 +557,57 @@ void LLScriptEdCore::initMenu()
     LLMenuItemCallGL* menuItem;
 
     menuItem = getChild<LLMenuItemCallGL>("Save");
-    menuItem->setClickCallback(boost::bind(&LLScriptEdCore::doSave, this, false));
-    menuItem->setEnableCallback(boost::bind(&LLScriptEdCore::hasChanged, this));
+    menuItem->setClickCallback(std::bind(&LLScriptEdCore::doSave, this, false));
+    menuItem->setEnableCallback(std::bind(&LLScriptEdCore::hasChanged, this));
 
     menuItem = getChild<LLMenuItemCallGL>("Revert All Changes");
-    menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnUndoChanges, this));
-    menuItem->setEnableCallback(boost::bind(&LLScriptEdCore::hasChanged, this));
+    menuItem->setClickCallback(std::bind(&LLScriptEdCore::onBtnUndoChanges, this));
+    menuItem->setEnableCallback(std::bind(&LLScriptEdCore::hasChanged, this));
 
     menuItem = getChild<LLMenuItemCallGL>("Undo");
-    menuItem->setClickCallback(boost::bind(&LLTextEditor::undo, mEditor));
-    menuItem->setEnableCallback(boost::bind(&LLTextEditor::canUndo, mEditor));
+    menuItem->setClickCallback(std::bind(&LLTextEditor::undo, mEditor));
+    menuItem->setEnableCallback(std::bind(&LLTextEditor::canUndo, mEditor));
 
     menuItem = getChild<LLMenuItemCallGL>("Redo");
-    menuItem->setClickCallback(boost::bind(&LLTextEditor::redo, mEditor));
-    menuItem->setEnableCallback(boost::bind(&LLTextEditor::canRedo, mEditor));
+    menuItem->setClickCallback(std::bind(&LLTextEditor::redo, mEditor));
+    menuItem->setEnableCallback(std::bind(&LLTextEditor::canRedo, mEditor));
 
     menuItem = getChild<LLMenuItemCallGL>("Cut");
-    menuItem->setClickCallback(boost::bind(&LLTextEditor::cut, mEditor));
-    menuItem->setEnableCallback(boost::bind(&LLTextEditor::canCut, mEditor));
+    menuItem->setClickCallback(std::bind(&LLTextEditor::cut, mEditor));
+    menuItem->setEnableCallback(std::bind(&LLTextEditor::canCut, mEditor));
 
     menuItem = getChild<LLMenuItemCallGL>("Copy");
-    menuItem->setClickCallback(boost::bind(&LLTextEditor::copy, mEditor));
-    menuItem->setEnableCallback(boost::bind(&LLTextEditor::canCopy, mEditor));
+    menuItem->setClickCallback(std::bind(&LLTextEditor::copy, mEditor));
+    menuItem->setEnableCallback(std::bind(&LLTextEditor::canCopy, mEditor));
 
     menuItem = getChild<LLMenuItemCallGL>("Paste");
-    menuItem->setClickCallback(boost::bind(&LLTextEditor::paste, mEditor));
-    menuItem->setEnableCallback(boost::bind(&LLTextEditor::canPaste, mEditor));
+    menuItem->setClickCallback(std::bind(&LLTextEditor::paste, mEditor));
+    menuItem->setEnableCallback(std::bind(&LLTextEditor::canPaste, mEditor));
 
     menuItem = getChild<LLMenuItemCallGL>("Select All");
-    menuItem->setClickCallback(boost::bind(&LLTextEditor::selectAll, mEditor));
-    menuItem->setEnableCallback(boost::bind(&LLTextEditor::canSelectAll, mEditor));
+    menuItem->setClickCallback(std::bind(&LLTextEditor::selectAll, mEditor));
+    menuItem->setEnableCallback(std::bind(&LLTextEditor::canSelectAll, mEditor));
 
     menuItem = getChild<LLMenuItemCallGL>("Deselect");
-    menuItem->setClickCallback(boost::bind(&LLTextEditor::deselect, mEditor));
-    menuItem->setEnableCallback(boost::bind(&LLTextEditor::canDeselect, mEditor));
+    menuItem->setClickCallback(std::bind(&LLTextEditor::deselect, mEditor));
+    menuItem->setEnableCallback(std::bind(&LLTextEditor::canDeselect, mEditor));
 
     menuItem = getChild<LLMenuItemCallGL>("Search / Replace...");
-    menuItem->setClickCallback(boost::bind(&LLFloaterScriptSearch::show, this));
+    menuItem->setClickCallback(std::bind(&LLFloaterScriptSearch::show, this));
 
     menuItem = getChild<LLMenuItemCallGL>("Go to line...");
-    menuItem->setClickCallback(boost::bind(&LLFloaterGotoLine::show, this));
+    menuItem->setClickCallback(std::bind(&LLFloaterGotoLine::show, this));
 
     menuItem = getChild<LLMenuItemCallGL>("Keyword Help...");
-    menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnDynamicHelp, this));
+    menuItem->setClickCallback(std::bind(&LLScriptEdCore::onBtnDynamicHelp, this));
 
     menuItem = getChild<LLMenuItemCallGL>("LoadFromFile");
-    menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnLoadFromFile, this));
-    menuItem->setEnableCallback(boost::bind(&LLScriptEdCore::enableLoadFromFileMenu, this));
+    menuItem->setClickCallback(std::bind(&LLScriptEdCore::onBtnLoadFromFile, this));
+    menuItem->setEnableCallback(std::bind(&LLScriptEdCore::enableLoadFromFileMenu, this));
 
     menuItem = getChild<LLMenuItemCallGL>("SaveToFile");
-    menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnSaveToFile, this));
-    menuItem->setEnableCallback(boost::bind(&LLScriptEdCore::enableSaveToFileMenu, this));
+    menuItem->setClickCallback(std::bind(&LLScriptEdCore::onBtnSaveToFile, this));
+    menuItem->setEnableCallback(std::bind(&LLScriptEdCore::enableSaveToFileMenu, this));
 }
 
 void LLScriptEdCore::setScriptText(const std::string& text, bool is_valid)
@@ -900,7 +903,7 @@ bool LLScriptEdCore::canClose()
         {
             mSaveDialogShown = true;
             // Bring up view-modal dialog: Save changes? Yes, No, Cancel
-            LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLScriptEdCore::handleSaveChangesDialog, this, _1, _2));
+            LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), std::bind(&LLScriptEdCore::handleSaveChangesDialog, this, _1, _2));
         }
         return false;
     }
@@ -1105,7 +1108,7 @@ void LLScriptEdCore::openInExternalEditor()
     }
 
     // Start watching file changes.
-    mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
+    mLiveFile = new LLLiveLSLFile(filename, std::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
     mLiveFile->addToEventTimer();
 
     // Open it in external editor.
@@ -1143,7 +1146,7 @@ void LLScriptEdCore::onBtnUndoChanges()
 {
     if( !mEditor->tryToRevertToPristineState() )
     {
-        LLNotificationsUtil::add("ScriptCannotUndo", LLSD(), LLSD(), boost::bind(&LLScriptEdCore::handleReloadFromServerDialog, this, _1, _2));
+        LLNotificationsUtil::add("ScriptCannotUndo", LLSD(), LLSD(), std::bind(&LLScriptEdCore::handleReloadFromServerDialog, this, _1, _2));
     }
 }
 
@@ -1253,7 +1256,7 @@ bool LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 
 void LLScriptEdCore::onBtnLoadFromFile( void* data )
 {
-    LLFilePickerReplyThread::startPicker(boost::bind(&LLScriptEdCore::loadScriptFromFile, _1, data), LLFilePicker::FFLOAD_SCRIPT, false);
+    LLFilePickerReplyThread::startPicker(std::bind(&LLScriptEdCore::loadScriptFromFile, _1, data), LLFilePicker::FFLOAD_SCRIPT, false);
 }
 
 void LLScriptEdCore::loadScriptFromFile(const std::vector<std::string>& filenames, void* data)
@@ -1294,7 +1297,7 @@ void LLScriptEdCore::onBtnSaveToFile( void* userdata )
 
     if( self->mSaveCallback )
     {
-        LLFilePickerReplyThread::startPicker(boost::bind(&LLScriptEdCore::saveScriptToFile, _1, userdata), LLFilePicker::FFSAVE_SCRIPT, self->mScriptName);
+        LLFilePickerReplyThread::startPicker(std::bind(&LLScriptEdCore::saveScriptToFile, _1, userdata), LLFilePicker::FFSAVE_SCRIPT, self->mScriptName);
     }
 }
 
@@ -1445,7 +1448,7 @@ void LLLiveLSLEditor::buildExperienceList()
     if(last.notNull())
     {
         mExperiences->setEnabled(false);
-        LLExperienceCache::instance().get(last, boost::bind(&LLLiveLSLEditor::buildExperienceList, this));
+        LLExperienceCache::instance().get(last, std::bind(&LLLiveLSLEditor::buildExperienceList, this));
     }
     else
     {
@@ -1478,7 +1481,7 @@ void LLLiveLSLEditor::requestExperiences()
         if(!lookup_url.empty())
         {
             LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t success =
-                boost::bind(&LLLiveLSLEditor::receiveExperienceIds, _1, getDerivedHandle<LLLiveLSLEditor>());
+                std::bind(&LLLiveLSLEditor::receiveExperienceIds, _1, getDerivedHandle<LLLiveLSLEditor>());
 
             LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(lookup_url, success);
         }
@@ -1975,7 +1978,7 @@ bool LLLiveLSLEditor::postBuild()
 
 
     mExperiences = getChild<LLComboBox>("Experiences...");
-    mExperiences->setCommitCallback(boost::bind(&LLLiveLSLEditor::experienceChanged, this));
+    mExperiences->setCommitCallback(std::bind(&LLLiveLSLEditor::experienceChanged, this));
 
     mExperienceEnabled = getChild<LLCheckBoxCtrl>("enable_xp");
 
@@ -2039,7 +2042,7 @@ void LLLiveLSLEditor::loadAsset()
                     url = region->getCapability("GetMetadata");
                 }
                 LLExperienceCache::instance().fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), url,
-                    boost::bind(&LLLiveLSLEditor::setAssociatedExperience, getDerivedHandle<LLLiveLSLEditor>(), _1));
+                    std::bind(&LLLiveLSLEditor::setAssociatedExperience, getDerivedHandle<LLLiveLSLEditor>(), _1));
 
                 bool isGodlike = gAgent.isGodlike();
                 bool copyManipulate = gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE);

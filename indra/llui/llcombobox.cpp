@@ -50,6 +50,9 @@
 #include "v2math.h"
 #include "lluictrlfactory.h"
 #include "lltooltip.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Globals
 S32 MAX_COMBO_WIDTH = 500;
@@ -103,7 +106,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 
     LLButton::Params button_params = (mAllowTextEntry ? p.combo_button : p.drop_down_button);
     button_params.mouse_down_callback.function(
-        boost::bind(&LLComboBox::onButtonMouseDown, this));
+        std::bind(&LLComboBox::onButtonMouseDown, this));
     button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
     button_params.rect(p.rect);
 
@@ -115,7 +118,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
     mArrowImage = button_params.image_unselected;
     if (mArrowImage.notNull())
     {
-        mImageLoadedConnection = mArrowImage->addLoadedCallback(boost::bind(&LLComboBox::imageLoaded, this));
+        mImageLoadedConnection = mArrowImage->addLoadedCallback(std::bind(&LLComboBox::imageLoaded, this));
     }
 
     mButton = LLUICtrlFactory::create<LLButton>(button_params);
@@ -131,7 +134,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 
     LLScrollListCtrl::Params params = p.combo_list;
     params.name("ComboBox");
-    params.commit_callback.function(boost::bind(&LLComboBox::onItemSelected, this, _2));
+    params.commit_callback.function(std::bind(&LLComboBox::onItemSelected, this, _2));
     params.visible(false);
     params.commit_on_keyboard_movement(false);
 
@@ -140,7 +143,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 
     // Mouse-down on button will transfer mouse focus to the list
     // Grab the mouse-up event and make sure the button state is correct
-    mList->setMouseUpCallback(boost::bind(&LLComboBox::onListMouseUp, this));
+    mList->setMouseUpCallback(std::bind(&LLComboBox::onListMouseUp, this));
 
     for (LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items.begin();
         it != p.items.end();
@@ -157,7 +160,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 
     createLineEditor(p);
 
-    mTopLostSignalConnection = setTopLostCallback(boost::bind(&LLComboBox::hideList, this));
+    mTopLostSignalConnection = setTopLostCallback(std::bind(&LLComboBox::hideList, this));
 }
 
 void LLComboBox::initFromParams(const LLComboBox::Params& p)
@@ -617,8 +620,8 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
         params.rect(text_entry_rect);
         params.default_text(LLStringUtil::null);
         params.max_length.bytes(mMaxChars);
-        params.commit_callback.function(boost::bind(&LLComboBox::onTextCommit, this, _2));
-        params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
+        params.commit_callback.function(std::bind(&LLComboBox::onTextCommit, this, _2));
+        params.keystroke_callback(std::bind(&LLComboBox::onTextEntry, this, _1));
         params.commit_on_focus_lost(false);
         params.follows.flags(FOLLOWS_ALL);
         params.label(mLabel);

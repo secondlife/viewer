@@ -38,6 +38,7 @@
 #include "llgroupactions.h"
 #include "llgroupiconctrl.h"
 #include "llinventoryicon.h"
+#include <functional>
 
 LLConversationLogListItem::LLConversationLogListItem(const LLConversation* conversation)
 :   LLPanel(),
@@ -77,8 +78,8 @@ bool LLConversationLogListItem::postBuild()
     mConversationDate = getChild<LLTextBox>("date_time");
     mConversationDate->setValue(mConversation->getTimestamp());
 
-    getChild<LLButton>("delete_btn")->setClickedCallback(boost::bind(&LLConversationLogListItem::onRemoveBtnClicked, this));
-    setDoubleClickCallback(boost::bind(&LLConversationLogListItem::onDoubleClick, this));
+    getChild<LLButton>("delete_btn")->setClickedCallback(std::bind(&LLConversationLogListItem::onRemoveBtnClicked, this));
+    setDoubleClickCallback(std::bind(&LLConversationLogListItem::onDoubleClick, this));
 
     return true;
 }

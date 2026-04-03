@@ -39,6 +39,9 @@
 #include "llfloater.h"
 #include "lltrans.h"
 #include "lluiusage.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //----------------------------------------------------------------------------
 
@@ -1094,7 +1097,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
         p.font(mFont);
         p.font_halign = mFontHalign;
         p.label(trimmed_label);
-        p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
+        p.click_callback.function(std::bind(&LLTabContainer::onTabBtn, this, _2, child));
         if (indent)
         {
             p.pad_left(indent);
@@ -1911,7 +1914,7 @@ void LLTabContainer::initButtons()
         prev_btn_params.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT);
         prev_btn_params.image_unselected.name("scrollbutton_up_out_blue.tga");
         prev_btn_params.image_selected.name("scrollbutton_up_in_blue.tga");
-        prev_btn_params.click_callback.function(boost::bind(&LLTabContainer::onPrevBtn, this, _2));
+        prev_btn_params.click_callback.function(std::bind(&LLTabContainer::onPrevBtn, this, _2));
         mPrevArrowBtn = LLUICtrlFactory::create<LLButton>(prev_btn_params);
 
         LLButton::Params next_btn_params;
@@ -1920,7 +1923,7 @@ void LLTabContainer::initButtons()
         next_btn_params.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_LEFT);
         next_btn_params.image_unselected.name("scrollbutton_down_out_blue.tga");
         next_btn_params.image_selected.name("scrollbutton_down_in_blue.tga");
-        next_btn_params.click_callback.function(boost::bind(&LLTabContainer::onNextBtn, this, _2));
+        next_btn_params.click_callback.function(std::bind(&LLTabContainer::onNextBtn, this, _2));
         mNextArrowBtn = LLUICtrlFactory::create<LLButton>(next_btn_params);
     }
     else // Horizontal
@@ -1954,7 +1957,7 @@ void LLTabContainer::initButtons()
         p.name(std::string("Jump Left Arrow"));
         p.image_unselected.name("jump_left_out.tga");
         p.image_selected.name("jump_left_in.tga");
-        p.click_callback.function(boost::bind(&LLTabContainer::onJumpFirstBtn, this, _2));
+        p.click_callback.function(std::bind(&LLTabContainer::onJumpFirstBtn, this, _2));
         p.rect(jump_left_arrow_btn_rect);
         p.follows.flags(FOLLOWS_LEFT);
 
@@ -1966,8 +1969,8 @@ void LLTabContainer::initButtons()
         p.follows.flags(FOLLOWS_LEFT);
         p.image_unselected.name("scrollbutton_left_out_blue.tga");
         p.image_selected.name("scrollbutton_left_in_blue.tga");
-        p.click_callback.function(boost::bind(&LLTabContainer::onPrevBtn, this, _2));
-        p.mouse_held_callback.function(boost::bind(&LLTabContainer::onPrevBtnHeld, this, _2));
+        p.click_callback.function(std::bind(&LLTabContainer::onPrevBtn, this, _2));
+        p.mouse_held_callback.function(std::bind(&LLTabContainer::onPrevBtnHeld, this, _2));
 
         mPrevArrowBtn = LLUICtrlFactory::create<LLButton>(p);
 
@@ -1977,7 +1980,7 @@ void LLTabContainer::initButtons()
         p.follows.flags(FOLLOWS_RIGHT);
         p.image_unselected.name("jump_right_out.tga");
         p.image_selected.name("jump_right_in.tga");
-        p.click_callback.function(boost::bind(&LLTabContainer::onJumpLastBtn, this, _2));
+        p.click_callback.function(std::bind(&LLTabContainer::onJumpLastBtn, this, _2));
 
         mJumpNextArrowBtn = LLUICtrlFactory::create<LLButton>(p);
 
@@ -1987,8 +1990,8 @@ void LLTabContainer::initButtons()
         p.follows.flags(FOLLOWS_RIGHT);
         p.image_unselected.name("scrollbutton_right_out_blue.tga");
         p.image_selected.name("scrollbutton_right_in_blue.tga");
-        p.click_callback.function(boost::bind(&LLTabContainer::onNextBtn, this, _2));
-        p.mouse_held_callback.function(boost::bind(&LLTabContainer::onNextBtnHeld, this, _2));
+        p.click_callback.function(std::bind(&LLTabContainer::onNextBtn, this, _2));
+        p.mouse_held_callback.function(std::bind(&LLTabContainer::onNextBtnHeld, this, _2));
 
         mNextArrowBtn = LLUICtrlFactory::create<LLButton>(p);
 

@@ -45,6 +45,7 @@
 #include "llstartup.h"              // login_alert_done
 #include "llcorehttputil.h"
 #include "llfloaterreg.h"
+#include <functional>
 
 LLFloaterTOS::LLFloaterTOS(const LLSD& data)
 :   LLModalDialog( data["message"].asString() ),
@@ -233,7 +234,7 @@ void LLFloaterTOS::handleMediaEvent([[maybe_unused]] LLPluginClassMedia* self, E
             LLHandle<LLFloater> handle = getHandle();
 
             LLCoros::instance().launch("LLFloaterTOS::testSiteIsAliveCoro",
-                boost::bind(&LLFloaterTOS::testSiteIsAliveCoro, handle, url));
+                std::bind(&LLFloaterTOS::testSiteIsAliveCoro, handle, url));
         }
         else if(mRealNavigateBegun)
         {

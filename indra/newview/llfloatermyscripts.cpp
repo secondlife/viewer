@@ -35,6 +35,7 @@
 #include "llscrolllistctrl.h"
 #include "lltrans.h"
 #include "llviewerregion.h"
+#include <functional>
 
 constexpr S32 SIZE_OF_ONE_KB = 1024;
 
@@ -80,7 +81,7 @@ bool LLFloaterMyScripts::requestAttachmentDetails()
     if (!url.empty())
     {
         LLCoros::instance().launch("LLFloaterMyScripts::getAttachmentLimitsCoro",
-            boost::bind(&LLFloaterMyScripts::getAttachmentLimitsCoro, this, url));
+            std::bind(&LLFloaterMyScripts::getAttachmentLimitsCoro, this, url));
         return true;
     }
     else

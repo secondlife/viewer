@@ -30,6 +30,7 @@
 #include "llnotificationsutil.h"
 #include "lluictrlfactory.h"
 #include "llweb.h"
+#include <functional>
 
 
 LLFloaterAddPaymentMethod::LLFloaterAddPaymentMethod(const LLSD& key)
@@ -44,8 +45,8 @@ LLFloaterAddPaymentMethod::~LLFloaterAddPaymentMethod()
 bool LLFloaterAddPaymentMethod::postBuild()
 {
     setCanDrag(false);
-    getChild<LLButton>("continue_btn")->setCommitCallback(boost::bind(&LLFloaterAddPaymentMethod::onContinueBtn, this));
-    getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterAddPaymentMethod::onCloseBtn, this));
+    getChild<LLButton>("continue_btn")->setCommitCallback(std::bind(&LLFloaterAddPaymentMethod::onContinueBtn, this));
+    getChild<LLButton>("close_btn")->setCommitCallback(std::bind(&LLFloaterAddPaymentMethod::onCloseBtn, this));
     return true;
 }
 

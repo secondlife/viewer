@@ -39,6 +39,7 @@
 #include "lltextbox.h"
 #include "llviewercontrol.h"
 #include "llviewermessage.h"
+#include <functional>
 
 //-----------------------------------------------------------------------------
 // Constants
@@ -85,7 +86,7 @@ bool LLPanelDirLand::postBuild()
     LLScrollListCtrl* results = getChild<LLScrollListCtrl>("results");
     if (results)
     {
-        results->setSortChangedCallback(boost::bind(&LLPanelDirLand::onClickSort, this));
+        results->setSortChangedCallback(std::bind(&LLPanelDirLand::onClickSort, this));
         results->sortByColumn(mCurrentSortColumn,mCurrentSortAscending);
     }
 

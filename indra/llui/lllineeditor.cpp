@@ -52,6 +52,9 @@
 #include "lluictrlfactory.h"
 #include "llclipboard.h"
 #include "llmenugl.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //
 // Imported globals
@@ -213,7 +216,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 
     if (mSpellCheck)
     {
-        LLSpellChecker::setSettingsChangeCallback(boost::bind(&LLLineEditor::onSpellCheckSettingsChange, this));
+        LLSpellChecker::setSettingsChangeCallback(std::bind(&LLLineEditor::onSpellCheckSettingsChange, this));
     }
     mSpellCheckTimer.reset();
 
@@ -2442,7 +2445,7 @@ void LLLineEditor::onKeystroke()
 
 void LLLineEditor::setKeystrokeCallback(callback_t callback, void* user_data)
 {
-    mKeystrokeCallback = boost::bind(callback, _1, user_data);
+    mKeystrokeCallback = std::bind(callback, _1, user_data);
 }
 
 

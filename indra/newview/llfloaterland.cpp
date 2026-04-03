@@ -84,6 +84,9 @@
 
 #include "llgroupactions.h"
 #include "llenvironment.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const F64 COVENANT_REFRESH_TIME_SEC = 60.0f;
 
@@ -320,7 +323,7 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 
 bool LLFloaterLand::postBuild()
 {
-    setVisibleCallback(boost::bind(&LLFloaterLand::onVisibilityChanged, this, _2));
+    setVisibleCallback(std::bind(&LLFloaterLand::onVisibilityChanged, this, _2));
 
     LLTabContainer* tab = getChild<LLTabContainer>("landtab");
 
@@ -467,7 +470,7 @@ bool LLPanelLandGeneral::postBuild()
     mLandType = getChild<LLTextBox>("LandTypeText");
 
     mBtnProfile = getChild<LLButton>("Profile...");
-    mBtnProfile->setClickedCallback(boost::bind(&LLPanelLandGeneral::onClickProfile, this));
+    mBtnProfile->setClickedCallback(std::bind(&LLPanelLandGeneral::onClickProfile, this));
 
 
     mTextGroupLabel = getChild<LLTextBox>("Group:");
@@ -475,7 +478,7 @@ bool LLPanelLandGeneral::postBuild()
 
 
     mBtnSetGroup = getChild<LLButton>("Set...");
-    mBtnSetGroup->setCommitCallback(boost::bind(&LLPanelLandGeneral::onClickSetGroup, this));
+    mBtnSetGroup->setCommitCallback(std::bind(&LLPanelLandGeneral::onClickSetGroup, this));
 
 
     mCheckDeedToGroup = getChild<LLCheckBoxCtrl>( "check deed");
@@ -949,7 +952,7 @@ void LLPanelLandGeneral::onClickSetGroup()
     LLFloaterGroupPicker* fg =  LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
     if (fg)
     {
-        fg->setSelectGroupCallback( boost::bind(&LLPanelLandGeneral::setGroup, this, _1 ));
+        fg->setSelectGroupCallback( std::bind(&LLPanelLandGeneral::setGroup, this, _1 ));
         if (parent_floater)
         {
             LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, fg);
@@ -1225,7 +1228,7 @@ bool LLPanelLandObjects::postBuild()
     mSelectedObjects = getChild<LLTextBox>("selected_objects_text");
     mCleanOtherObjectsTime = getChild<LLLineEditor>("clean other time");
 
-    mCleanOtherObjectsTime->setFocusLostCallback(boost::bind(onLostFocus, _1, this));
+    mCleanOtherObjectsTime->setFocusLostCallback(std::bind(onLostFocus, _1, this));
     mCleanOtherObjectsTime->setCommitCallback(onCommitClean, this);
     getChild<LLLineEditor>("clean other time")->setPrevalidate(LLTextValidate::validateNonNegativeS32);
 
@@ -1591,11 +1594,11 @@ void LLPanelLandObjects::onClickReturnOwnerList(void* userdata)
     args["N"] = llformat("%d",self->mSelectedCount);
     if (self->mSelectedIsGroup)
     {
-        LLNotificationsUtil::add("ReturnObjectsDeededToGroup", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerList, self, _1, _2));
+        LLNotificationsUtil::add("ReturnObjectsDeededToGroup", args, LLSD(), std::bind(&LLPanelLandObjects::callbackReturnOwnerList, self, _1, _2));
     }
     else
     {
-        LLNotificationsUtil::add("ReturnObjectsOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerList, self, _1, _2));
+        LLNotificationsUtil::add("ReturnObjectsOwnedByUser", args, LLSD(), std::bind(&LLPanelLandObjects::callbackReturnOwnerList, self, _1, _2));
     }
 }
 
@@ -1810,12 +1813,12 @@ void LLPanelLandObjects::onClickReturnOwnerObjects(void* userdata)
 
     if (owner_id == gAgent.getID())
     {
-        LLNotificationsUtil::add("ReturnObjectsOwnedBySelf", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
+        LLNotificationsUtil::add("ReturnObjectsOwnedBySelf", args, LLSD(), std::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
     }
     else
     {
         args["NAME"] = LLSLURL("agent", owner_id, "completename").getSLURLString();
-        LLNotificationsUtil::add("ReturnObjectsOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
+        LLNotificationsUtil::add("ReturnObjectsOwnedByUser", args, LLSD(), std::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
     }
 }
 
@@ -1836,7 +1839,7 @@ void LLPanelLandObjects::onClickReturnGroupObjects(void* userdata)
     args["N"] = llformat("%d", parcel->getGroupPrimCount());
 
     // create and show confirmation textbox
-    LLNotificationsUtil::add("ReturnObjectsDeededToGroup", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnGroupObjects, panelp, _1, _2));
+    LLNotificationsUtil::add("ReturnObjectsDeededToGroup", args, LLSD(), std::bind(&LLPanelLandObjects::callbackReturnGroupObjects, panelp, _1, _2));
 }
 
 // static
@@ -1861,7 +1864,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
         gCacheName->getGroupName(parcel->getGroupID(), group_name);
         args["NAME"] = group_name;
 
-        LLNotificationsUtil::add("ReturnObjectsNotOwnedByGroup", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
+        LLNotificationsUtil::add("ReturnObjectsNotOwnedByGroup", args, LLSD(), std::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
     }
     else
     {
@@ -1869,12 +1872,12 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 
         if (owner_id == gAgent.getID())
         {
-            LLNotificationsUtil::add("ReturnObjectsNotOwnedBySelf", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
+            LLNotificationsUtil::add("ReturnObjectsNotOwnedBySelf", args, LLSD(), std::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
         }
         else
         {
             args["NAME"] = LLSLURL("agent", owner_id, "completename").getSLURLString();
-            LLNotificationsUtil::add("ReturnObjectsNotOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
+            LLNotificationsUtil::add("ReturnObjectsNotOwnedByUser", args, LLSD(), std::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
         }
     }
 }
@@ -1976,7 +1979,7 @@ bool LLPanelLandOptions::postBuild()
     {
         mSeeAvatarsText->setShowCursorHand(false);
         mSeeAvatarsText->setSoundFlags(LLView::MOUSE_UP);
-        mSeeAvatarsText->setClickedCallback(boost::bind(&toggleSeeAvatars, this));
+        mSeeAvatarsText->setClickedCallback(std::bind(&toggleSeeAvatars, this));
     }
 
     mCheckShowDirectory = getChild<LLCheckBoxCtrl>( "ShowDirectoryCheck");
@@ -2465,13 +2468,13 @@ bool LLPanelLandAccess::postBuild()
     mBanText = getChild<LLUICtrl>("BanCheck");
 
     mBtnAddAllowed = getChild<LLButton>("add_allowed");
-    mBtnAddAllowed->setCommitCallback(boost::bind(&LLPanelLandAccess::onClickAddAccess, this));
+    mBtnAddAllowed->setCommitCallback(std::bind(&LLPanelLandAccess::onClickAddAccess, this));
     mBtnRemoveAllowed = getChild<LLButton>("remove_allowed");
-    mBtnRemoveAllowed->setCommitCallback(boost::bind(&LLPanelLandAccess::onClickRemoveAccess, this));
+    mBtnRemoveAllowed->setCommitCallback(std::bind(&LLPanelLandAccess::onClickRemoveAccess, this));
     mBtnAddBanned = getChild<LLButton>("add_banned");
-    mBtnAddBanned->setCommitCallback(boost::bind(&LLPanelLandAccess::onClickAddBanned, this));
+    mBtnAddBanned->setCommitCallback(std::bind(&LLPanelLandAccess::onClickAddBanned, this));
     mBtnRemoveBanned = getChild<LLButton>("remove_banned");
-    mBtnRemoveBanned->setCommitCallback(boost::bind(&LLPanelLandAccess::onClickRemoveBanned, this));
+    mBtnRemoveBanned->setCommitCallback(std::bind(&LLPanelLandAccess::onClickRemoveBanned, this));
 
     mListAccess = getChild<LLNameListCtrl>("AccessList");
     if (mListAccess)
@@ -2915,7 +2918,7 @@ void LLPanelLandAccess::onClickAddAccess()
 {
     LLFloater * root_floater = gFloaterView->getParentFloater(this);
     LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-        boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1), false, false, false, root_floater->getName(), mBtnAddAllowed);
+        std::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1), false, false, false, root_floater->getName(), mBtnAddAllowed);
     if (picker)
     {
         root_floater->addDependentFloater(picker);
@@ -2968,7 +2971,7 @@ void LLPanelLandAccess::onClickAddBanned()
 {
     LLFloater * root_floater = gFloaterView->getParentFloater(this);
     LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-        boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1), true, false, false, root_floater->getName(), mBtnAddBanned);
+        std::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1), true, false, false, root_floater->getName(), mBtnAddBanned);
     if (picker)
     {
         root_floater->addDependentFloater(picker);
@@ -2980,7 +2983,7 @@ void LLPanelLandAccess::callbackAvatarCBBanned(const uuid_vec_t& ids)
 {
     LLFloater * root_floater = gFloaterView->getParentFloater(this);
     LLFloaterBanDuration* duration_floater = LLFloaterBanDuration::show(
-        boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned2, this, _1, _2), ids);
+        std::bind(&LLPanelLandAccess::callbackAvatarCBBanned2, this, _1, _2), ids);
     if (duration_floater)
     {
         root_floater->addDependentFloater(duration_floater);
@@ -3239,10 +3242,10 @@ bool LLPanelLandExperiences::postBuild()
     mBlocked = setupList("panel_blocked", EXPERIENCE_KEY_TYPE_BLOCKED, AL_BLOCK_EXPERIENCE);
 
     // only non-grid-wide experiences
-    mAllowed->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_GRID));
+    mAllowed->addFilter(std::bind(LLPanelExperiencePicker::FilterWithProperty, _1, LLExperienceCache::PROPERTY_GRID));
 
     // no privileged ones
-    mBlocked->addFilter(boost::bind(LLPanelExperiencePicker::FilterWithoutProperties, _1, LLExperienceCache::PROPERTY_PRIVILEGED|LLExperienceCache::PROPERTY_GRID));
+    mBlocked->addFilter(std::bind(LLPanelExperiencePicker::FilterWithoutProperties, _1, LLExperienceCache::PROPERTY_PRIVILEGED|LLExperienceCache::PROPERTY_GRID));
 
     getChild<LLLayoutPanel>("trusted_layout_panel")->setVisible(false);
     getChild<LLTextBox>("experiences_help_text")->setVisible(false);
@@ -3259,8 +3262,8 @@ LLPanelExperienceListEditor* LLPanelLandExperiences::setupList( const char* cont
     {
         child->getChild<LLTextBox>("text_name")->setText(child->getString(control_name));
         child->setMaxExperienceIDs(PARCEL_MAX_EXPERIENCE_LIST);
-        child->setAddedCallback(boost::bind(&LLPanelLandExperiences::experienceAdded, this, _1, xp_type, access_type));
-        child->setRemovedCallback(boost::bind(&LLPanelLandExperiences::experienceRemoved, this, _1, access_type));
+        child->setAddedCallback(std::bind(&LLPanelLandExperiences::experienceAdded, this, _1, xp_type, access_type));
+        child->setRemovedCallback(std::bind(&LLPanelLandExperiences::experienceRemoved, this, _1, access_type));
     }
 
     return child;

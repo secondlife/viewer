@@ -81,6 +81,9 @@
 
 // system libraries
 #include <boost/tokenizer.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLFileEnableUpload : public view_listener_t
 {
@@ -904,7 +907,7 @@ class LLFileUploadImage : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_IMAGE, false);
+        LLFilePickerReplyThread::startPicker(std::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_IMAGE, false);
         return true;
     }
 };
@@ -951,7 +954,7 @@ class LLFileUploadSound : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_WAV, false);
+        LLFilePickerReplyThread::startPicker(std::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_WAV, false);
         return true;
     }
 };
@@ -964,7 +967,7 @@ class LLFileUploadAnim : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_ANIM, false);
+        LLFilePickerReplyThread::startPicker(std::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_ANIM, false);
         return true;
     }
 };
@@ -977,7 +980,7 @@ class LLFileUploadBulk : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true, LLUUID::null), LLFilePicker::FFLOAD_ALL, true);
+        LLFilePickerReplyThread::startPicker(std::bind(&upload_bulk, _1, _2, true, LLUUID::null), LLFilePicker::FFLOAD_ALL, true);
         return true;
     }
 };

@@ -31,6 +31,7 @@
 #include "llsidepanelappearance.h"
 #include "llsaveoutfitcombobtn.h"
 #include "llviewermenu.h"
+#include <functional>
 
 static const std::string SAVE_BTN("save_btn");
 static const std::string SAVE_FLYOUT_BTN("save_flyout_btn");
@@ -40,13 +41,13 @@ LLSaveOutfitComboBtn::LLSaveOutfitComboBtn(LLPanel* parent, bool saveAsDefaultAc
 {
     // register action mapping before creating menu
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar save_registar;
-    save_registar.add("Outfit.Save.Action", boost::bind(
+    save_registar.add("Outfit.Save.Action", std::bind(
             &LLSaveOutfitComboBtn::saveOutfit, this, false));
-    save_registar.add("Outfit.SaveAs.Action", boost::bind(
+    save_registar.add("Outfit.SaveAs.Action", std::bind(
             &LLSaveOutfitComboBtn::saveOutfit, this, true));
 
-    mParent->childSetAction(SAVE_BTN, boost::bind(&LLSaveOutfitComboBtn::saveOutfit, this, mSaveAsDefaultAction));
-    mParent->childSetAction(SAVE_FLYOUT_BTN, boost::bind(&LLSaveOutfitComboBtn::showSaveMenu, this));
+    mParent->childSetAction(SAVE_BTN, std::bind(&LLSaveOutfitComboBtn::saveOutfit, this, mSaveAsDefaultAction));
+    mParent->childSetAction(SAVE_FLYOUT_BTN, std::bind(&LLSaveOutfitComboBtn::showSaveMenu, this));
 
     mSaveMenu = LLUICtrlFactory::getInstance()->createFromFile<
             LLToggleableMenu> ("menu_save_outfit.xml", gMenuHolder,

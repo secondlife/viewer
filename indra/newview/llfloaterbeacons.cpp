@@ -31,6 +31,9 @@
 #include "lluictrlfactory.h"
 #include "llcheckboxctrl.h"
 #include "pipeline.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 LLFloaterBeacons::LLFloaterBeacons(const LLSD& seed)
@@ -49,7 +52,7 @@ LLFloaterBeacons::LLFloaterBeacons(const LLSD& seed)
     LLPipeline::setRenderHighlights(          gSavedSettings.getBOOL("renderhighlights"));
     LLPipeline::setRenderBeacons(             gSavedSettings.getBOOL("renderbeacons"));
     LLPipeline::setRenderMOAPBeacons(         gSavedSettings.getBOOL("moapbeacon"));
-    mCommitCallbackRegistrar.add("Beacons.UICheck", boost::bind(&LLFloaterBeacons::onClickUICheck, this,_1));
+    mCommitCallbackRegistrar.add("Beacons.UICheck", std::bind(&LLFloaterBeacons::onClickUICheck, this,_1));
 }
 
 bool LLFloaterBeacons::postBuild()

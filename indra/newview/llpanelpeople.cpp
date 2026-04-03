@@ -75,6 +75,9 @@
 
 #include "llagentui.h"
 #include "llslurl.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 #define FRIEND_LIST_UPDATE_TIMEOUT  0.5
 #define NEARBY_LIST_UPDATE_INTERVAL 1
@@ -520,7 +523,7 @@ public:
     LLRecentListUpdater(callback_t cb)
     :   LLAvatarListUpdater(cb, 0)
     {
-        LLRecentPeople::instance().setChangedCallback(boost::bind(&LLRecentListUpdater::update, this));
+        LLRecentPeople::instance().setChangedCallback(std::bind(&LLRecentListUpdater::update, this));
     }
 };
 
@@ -536,31 +539,31 @@ LLPanelPeople::LLPanelPeople()
         mGroupList(NULL),
         mMiniMap(NULL)
 {
-    mFriendListUpdater = new LLFriendListUpdater(boost::bind(&LLPanelPeople::updateFriendList,  this));
-    mNearbyListUpdater = new LLNearbyListUpdater(boost::bind(&LLPanelPeople::updateNearbyList,  this));
-    mRecentListUpdater = new LLRecentListUpdater(boost::bind(&LLPanelPeople::updateRecentList,  this));
-    mButtonsUpdater = new LLButtonsUpdater(boost::bind(&LLPanelPeople::updateButtons, this));
+    mFriendListUpdater = new LLFriendListUpdater(std::bind(&LLPanelPeople::updateFriendList,  this));
+    mNearbyListUpdater = new LLNearbyListUpdater(std::bind(&LLPanelPeople::updateNearbyList,  this));
+    mRecentListUpdater = new LLRecentListUpdater(std::bind(&LLPanelPeople::updateRecentList,  this));
+    mButtonsUpdater = new LLButtonsUpdater(std::bind(&LLPanelPeople::updateButtons, this));
 
-    mCommitCallbackRegistrar.add("People.AddFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
-    mCommitCallbackRegistrar.add("People.AddFriendWizard",  boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,    this));
-    mCommitCallbackRegistrar.add("People.DelFriend",        boost::bind(&LLPanelPeople::onDeleteFriendButtonClicked,    this));
-    mCommitCallbackRegistrar.add("People.Group.Minus",      boost::bind(&LLPanelPeople::onGroupMinusButtonClicked,  this));
-    mCommitCallbackRegistrar.add("People.Chat",         boost::bind(&LLPanelPeople::onChatButtonClicked,        this));
-    mCommitCallbackRegistrar.add("People.Gear",         boost::bind(&LLPanelPeople::onGearButtonClicked,        this, _1));
+    mCommitCallbackRegistrar.add("People.AddFriend", std::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
+    mCommitCallbackRegistrar.add("People.AddFriendWizard",  std::bind(&LLPanelPeople::onAddFriendWizButtonClicked,    this));
+    mCommitCallbackRegistrar.add("People.DelFriend",        std::bind(&LLPanelPeople::onDeleteFriendButtonClicked,    this));
+    mCommitCallbackRegistrar.add("People.Group.Minus",      std::bind(&LLPanelPeople::onGroupMinusButtonClicked,  this));
+    mCommitCallbackRegistrar.add("People.Chat",         std::bind(&LLPanelPeople::onChatButtonClicked,        this));
+    mCommitCallbackRegistrar.add("People.Gear",         std::bind(&LLPanelPeople::onGearButtonClicked,        this, _1));
 
-    mCommitCallbackRegistrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
-    mCommitCallbackRegistrar.add("People.Friends.ViewSort.Action",  boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemClicked,  this, _2));
-    mCommitCallbackRegistrar.add("People.Nearby.ViewSort.Action",  boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemClicked,  this, _2));
-    mCommitCallbackRegistrar.add("People.Groups.ViewSort.Action",  boost::bind(&LLPanelPeople::onGroupsViewSortMenuItemClicked,  this, _2));
-    mCommitCallbackRegistrar.add("People.Recent.ViewSort.Action",  boost::bind(&LLPanelPeople::onRecentViewSortMenuItemClicked,  this, _2));
+    mCommitCallbackRegistrar.add("People.Group.Plus.Action",  std::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
+    mCommitCallbackRegistrar.add("People.Friends.ViewSort.Action",  std::bind(&LLPanelPeople::onFriendsViewSortMenuItemClicked,  this, _2));
+    mCommitCallbackRegistrar.add("People.Nearby.ViewSort.Action",  std::bind(&LLPanelPeople::onNearbyViewSortMenuItemClicked,  this, _2));
+    mCommitCallbackRegistrar.add("People.Groups.ViewSort.Action",  std::bind(&LLPanelPeople::onGroupsViewSortMenuItemClicked,  this, _2));
+    mCommitCallbackRegistrar.add("People.Recent.ViewSort.Action",  std::bind(&LLPanelPeople::onRecentViewSortMenuItemClicked,  this, _2));
 
-    mEnableCallbackRegistrar.add("People.Friends.ViewSort.CheckItem",   boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemCheck, this, _2));
-    mEnableCallbackRegistrar.add("People.Recent.ViewSort.CheckItem",    boost::bind(&LLPanelPeople::onRecentViewSortMenuItemCheck,  this, _2));
-    mEnableCallbackRegistrar.add("People.Nearby.ViewSort.CheckItem",    boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemCheck,  this, _2));
+    mEnableCallbackRegistrar.add("People.Friends.ViewSort.CheckItem",   std::bind(&LLPanelPeople::onFriendsViewSortMenuItemCheck, this, _2));
+    mEnableCallbackRegistrar.add("People.Recent.ViewSort.CheckItem",    std::bind(&LLPanelPeople::onRecentViewSortMenuItemCheck,  this, _2));
+    mEnableCallbackRegistrar.add("People.Nearby.ViewSort.CheckItem",    std::bind(&LLPanelPeople::onNearbyViewSortMenuItemCheck,  this, _2));
 
-    mEnableCallbackRegistrar.add("People.Group.Plus.Validate",  boost::bind(&LLPanelPeople::onGroupPlusButtonValidate,  this));
+    mEnableCallbackRegistrar.add("People.Group.Plus.Validate",  std::bind(&LLPanelPeople::onGroupPlusButtonValidate,  this));
 
-    doPeriodically(boost::bind(&LLPanelPeople::updateNearbyArrivalTime, this), 2.0);
+    doPeriodically(std::bind(&LLPanelPeople::updateNearbyArrivalTime, this), 2.0);
 }
 
 LLPanelPeople::~LLPanelPeople()
@@ -614,18 +617,18 @@ bool LLPanelPeople::postBuild()
     if(LLAgentBenefitsMgr::current().getGroupMembershipLimit() < max_premium)
     {
         mGroupCountText->setText(getString("GroupCountWithInfo"));
-        mGroupCountText->setURLClickedCallback(boost::bind(&LLPanelPeople::onGroupLimitInfo, this));
+        mGroupCountText->setURLClickedCallback(std::bind(&LLPanelPeople::onGroupLimitInfo, this));
     }
 
     mTabContainer = getChild<LLTabContainer>("tabs");
-    mTabContainer->setCommitCallback(boost::bind(&LLPanelPeople::onTabSelected, this, _2));
+    mTabContainer->setCommitCallback(std::bind(&LLPanelPeople::onTabSelected, this, _2));
     mSavedFilters.resize(mTabContainer->getTabCount());
     mSavedOriginalFilters.resize(mTabContainer->getTabCount());
 
     LLPanel* friends_tab = getChild<LLPanel>(FRIENDS_TAB_NAME);
     // updater is active only if panel is visible to user.
-    friends_tab->setVisibleCallback(boost::bind(&Updater::setActive, mFriendListUpdater, _2));
-    friends_tab->setVisibleCallback(boost::bind(&LLPanelPeople::removePicker, this));
+    friends_tab->setVisibleCallback(std::bind(&Updater::setActive, mFriendListUpdater, _2));
+    friends_tab->setVisibleCallback(std::bind(&LLPanelPeople::removePicker, this));
 
     mFriendsGearBtn = friends_tab->getChild<LLButton>("gear_btn");
     mFriendsDelFriendBtn = friends_tab->getChild<LLUICtrl>("friends_del_btn");
@@ -642,7 +645,7 @@ bool LLPanelPeople::postBuild()
     mAllFriendList->setShowCompleteName(!gSavedSettings.getBOOL("FriendsListHideUsernames"));
 
     LLPanel* nearby_tab = getChild<LLPanel>(NEARBY_TAB_NAME);
-    nearby_tab->setVisibleCallback(boost::bind(&Updater::setActive, mNearbyListUpdater, _2));
+    nearby_tab->setVisibleCallback(std::bind(&Updater::setActive, mNearbyListUpdater, _2));
 
     mNearbyList = nearby_tab->getChild<LLAvatarList>("avatar_list");
     mNearbyList->setNoItemsCommentText(getString("no_one_near"));
@@ -672,10 +675,10 @@ bool LLPanelPeople::postBuild()
     mGroupList->setNoItemsMsg(getString("no_groups_msg"));
     mGroupList->setNoFilteredItemsMsg(getString("no_filtered_groups_msg"));
 
-    mNearbyFilterCommitConnection = nearby_tab->getChild<LLFilterEditor>("nearby_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
-    mFriedsFilterCommitConnection = friends_tab->getChild<LLFilterEditor>("friends_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
-    mRecentFilterCommitConnection = recent_tab->getChild<LLFilterEditor>("recent_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
-    mGroupsFilterCommitConnection = group_tab->getChild<LLFilterEditor>("groups_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+    mNearbyFilterCommitConnection = nearby_tab->getChild<LLFilterEditor>("nearby_filter_input")->setCommitCallback(std::bind(&LLPanelPeople::onFilterEdit, this, _2));
+    mFriedsFilterCommitConnection = friends_tab->getChild<LLFilterEditor>("friends_filter_input")->setCommitCallback(std::bind(&LLPanelPeople::onFilterEdit, this, _2));
+    mRecentFilterCommitConnection = recent_tab->getChild<LLFilterEditor>("recent_filter_input")->setCommitCallback(std::bind(&LLPanelPeople::onFilterEdit, this, _2));
+    mGroupsFilterCommitConnection = group_tab->getChild<LLFilterEditor>("groups_filter_input")->setCommitCallback(std::bind(&LLPanelPeople::onFilterEdit, this, _2));
 
     mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyPeopleContextMenu);
     mRecentList->setContextMenu(&LLPanelPeopleMenus::gPeopleContextMenu);
@@ -686,25 +689,25 @@ bool LLPanelPeople::postBuild()
     setSortOrder(mAllFriendList,    (ESortOrder)gSavedSettings.getU32("FriendsSortOrder"),      false);
     setSortOrder(mNearbyList,       (ESortOrder)gSavedSettings.getU32("NearbyPeopleSortOrder"), false);
 
-    mOnlineFriendList->setItemDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
-    mAllFriendList->setItemDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
-    mNearbyList->setItemDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
-    mRecentList->setItemDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
+    mOnlineFriendList->setItemDoubleClickCallback(std::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
+    mAllFriendList->setItemDoubleClickCallback(std::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
+    mNearbyList->setItemDoubleClickCallback(std::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
+    mRecentList->setItemDoubleClickCallback(std::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, _1));
 
-    mOnlineFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mOnlineFriendList));
-    mAllFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mAllFriendList));
-    mNearbyList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mNearbyList));
-    mRecentList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mRecentList));
+    mOnlineFriendList->setCommitCallback(std::bind(&LLPanelPeople::onAvatarListCommitted, this, mOnlineFriendList));
+    mAllFriendList->setCommitCallback(std::bind(&LLPanelPeople::onAvatarListCommitted, this, mAllFriendList));
+    mNearbyList->setCommitCallback(std::bind(&LLPanelPeople::onAvatarListCommitted, this, mNearbyList));
+    mRecentList->setCommitCallback(std::bind(&LLPanelPeople::onAvatarListCommitted, this, mRecentList));
 
     // Set openning IM as default on return action for avatar lists
-    mOnlineFriendList->setReturnCallback(boost::bind(&LLPanelPeople::onImButtonClicked, this));
-    mAllFriendList->setReturnCallback(boost::bind(&LLPanelPeople::onImButtonClicked, this));
-    mNearbyList->setReturnCallback(boost::bind(&LLPanelPeople::onImButtonClicked, this));
-    mRecentList->setReturnCallback(boost::bind(&LLPanelPeople::onImButtonClicked, this));
+    mOnlineFriendList->setReturnCallback(std::bind(&LLPanelPeople::onImButtonClicked, this));
+    mAllFriendList->setReturnCallback(std::bind(&LLPanelPeople::onImButtonClicked, this));
+    mNearbyList->setReturnCallback(std::bind(&LLPanelPeople::onImButtonClicked, this));
+    mRecentList->setReturnCallback(std::bind(&LLPanelPeople::onImButtonClicked, this));
 
-    mGroupList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onChatButtonClicked, this));
-    mGroupList->setCommitCallback(boost::bind(&LLPanelPeople::updateButtons, this));
-    mGroupList->setReturnCallback(boost::bind(&LLPanelPeople::onChatButtonClicked, this));
+    mGroupList->setDoubleClickCallback(std::bind(&LLPanelPeople::onChatButtonClicked, this));
+    mGroupList->setCommitCallback(std::bind(&LLPanelPeople::updateButtons, this));
+    mGroupList->setReturnCallback(std::bind(&LLPanelPeople::onChatButtonClicked, this));
 
     LLMenuButton* groups_gear_btn = getChild<LLMenuButton>("groups_gear_btn");
 
@@ -723,11 +726,11 @@ bool LLPanelPeople::postBuild()
 
     mFriendsAllTab = mFriendsAccordion->getChild<LLAccordionCtrlTab>("tab_all");
     mFriendsAllTab->setDropDownStateChangedCallback(
-        boost::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _1, _2, mAllFriendList));
+        std::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _1, _2, mAllFriendList));
 
     mFriendsOnlineTab = mFriendsAccordion->getChild<LLAccordionCtrlTab>("tab_online");
     mFriendsOnlineTab->setDropDownStateChangedCallback(
-        boost::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _1, _2, mOnlineFriendList));
+        std::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _1, _2, mOnlineFriendList));
 
     // Must go after setting commit callback and initializing all pointers to children.
     mTabContainer->selectTabByName(NEARBY_TAB_NAME);
@@ -737,8 +740,8 @@ bool LLPanelPeople::postBuild()
     // call this method in case some list is empty and buttons can be in inconsistent state
     updateButtons();
 
-    mOnlineFriendList->setRefreshCompleteCallback(boost::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
-    mAllFriendList->setRefreshCompleteCallback(boost::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
+    mOnlineFriendList->setRefreshCompleteCallback(std::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
+    mAllFriendList->setRefreshCompleteCallback(std::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
 
     return true;
 }
@@ -1179,14 +1182,14 @@ void LLPanelPeople::onAddFriendWizButtonClicked()
 
     // Show add friend wizard.
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
-    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelPeople::onAvatarPicked, _1, _2), false, true, false, root_floater->getName(), button);
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(std::bind(&LLPanelPeople::onAvatarPicked, _1, _2), false, true, false, root_floater->getName(), button);
     if (!picker)
     {
         return;
     }
 
     // Need to disable 'ok' button when friend occurs in selection
-    picker->setOkBtnEnableCb(boost::bind(&LLPanelPeople::isItemsFreeOfFriends, this, _1));
+    picker->setOkBtnEnableCb(std::bind(&LLPanelPeople::isItemsFreeOfFriends, this, _1));
 
     if (root_floater)
     {

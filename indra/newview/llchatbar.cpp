@@ -59,6 +59,9 @@
 #include "llui.h"
 #include "lluictrlfactory.h"
 #include "lluiusage.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //
 // Globals
@@ -107,7 +110,7 @@ LLChatBar::~LLChatBar()
 
 bool LLChatBar::postBuild()
 {
-    getChild<LLUICtrl>("Say")->setCommitCallback(boost::bind(&LLChatBar::onClickSay, this, _1));
+    getChild<LLUICtrl>("Say")->setCommitCallback(std::bind(&LLChatBar::onClickSay, this, _1));
 
     // * NOTE: mantipov: getChild with default parameters returns dummy widget.
     // Seems this class will be completle removed
@@ -116,8 +119,8 @@ bool LLChatBar::postBuild()
 
     mInputEditor = getChild<LLLineEditor>("Chat Editor");
     mInputEditor->setKeystrokeCallback(&onInputEditorKeystroke, this);
-    mInputEditor->setFocusLostCallback(boost::bind(&LLChatBar::onInputEditorFocusLost));
-    mInputEditor->setFocusReceivedCallback(boost::bind(&LLChatBar::onInputEditorGainFocus));
+    mInputEditor->setFocusLostCallback(std::bind(&LLChatBar::onInputEditorFocusLost));
+    mInputEditor->setFocusReceivedCallback(std::bind(&LLChatBar::onInputEditorGainFocus));
     mInputEditor->setCommitOnFocusLost( false );
     mInputEditor->setRevertOnEsc( false );
     mInputEditor->setIgnoreTab(true);
@@ -283,7 +286,7 @@ void LLChatBar::setGestureCombo(LLComboBox* combo)
     mGestureCombo = combo;
     if (mGestureCombo)
     {
-        mGestureCombo->setCommitCallback(boost::bind(&LLChatBar::onCommitGesture, this, _1));
+        mGestureCombo->setCommitCallback(std::bind(&LLChatBar::onCommitGesture, this, _1));
 
         // now register observer since we have a place to put the results
         mObserver = new LLChatBarGestureObserver(this);

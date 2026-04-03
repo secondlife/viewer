@@ -41,6 +41,9 @@
 #include "lltrans.h"
 #include "lluictrl.h"
 #include "llgroupiconctrl.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //////////////////////////////////////////////////////////////////////////////
 // LLInspectGroup
@@ -97,11 +100,11 @@ LLInspectGroup::LLInspectGroup(const LLSD& sd)
     mGroupID()          // set in onOpen()
 {
     mCommitCallbackRegistrar.add("InspectGroup.ViewProfile",
-        boost::bind(&LLInspectGroup::onClickViewProfile, this));
+        std::bind(&LLInspectGroup::onClickViewProfile, this));
     mCommitCallbackRegistrar.add("InspectGroup.Join",
-        boost::bind(&LLInspectGroup::onClickJoin, this));
+        std::bind(&LLInspectGroup::onClickJoin, this));
     mCommitCallbackRegistrar.add("InspectGroup.Leave",
-        boost::bind(&LLInspectGroup::onClickLeave, this));
+        std::bind(&LLInspectGroup::onClickLeave, this));
 
     // can't make the properties request until the widgets are constructed
     // as it might return immediately, so do it in postBuild.
@@ -173,7 +176,7 @@ void LLInspectGroup::requestUpdate()
 
     // Name lookup will be faster out of cache, use that
     gCacheName->getGroup(mGroupID,
-        boost::bind(&LLInspectGroup::nameUpdatedCallback,
+        std::bind(&LLInspectGroup::nameUpdatedCallback,
             this, _1, _2, _3));
 }
 

@@ -31,6 +31,7 @@
 
 #include "llinventoryfunctions.h"
 #include "llfloaterreg.h"
+#include <functional>
 
 LLFloaterPreviewTrash::LLFloaterPreviewTrash(const LLSD& key)
 :   LLFloater(key)
@@ -40,9 +41,9 @@ LLFloaterPreviewTrash::LLFloaterPreviewTrash(const LLSD& key)
 bool LLFloaterPreviewTrash::postBuild()
 {
     getChild<LLUICtrl>("empty_btn")->setCommitCallback(
-        boost::bind(&LLFloaterPreviewTrash::onClickEmpty, this));
+        std::bind(&LLFloaterPreviewTrash::onClickEmpty, this));
     getChild<LLUICtrl>("cancel_btn")->setCommitCallback(
-        boost::bind(&LLFloaterPreviewTrash::onClickCancel, this));
+        std::bind(&LLFloaterPreviewTrash::onClickCancel, this));
     // Always center the dialog.  User can change the size,
     // but purchases are important and should be center screen.
     // This also avoids problems where the user resizes the application window

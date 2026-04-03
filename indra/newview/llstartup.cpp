@@ -210,6 +210,9 @@
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
+#include <functional>
+
+using namespace std::placeholders;
 #endif
 
 //
@@ -1616,7 +1619,7 @@ bool idle_startup()
             LLViewerParcelAskPlay::getInstance()->loadSettings();
         }
 
-        gAgent.addRegionChangedCallback(boost::bind(&LLPerfStats::StatsRecorder::clearStats));
+        gAgent.addRegionChangedCallback(std::bind(&LLPerfStats::StatsRecorder::clearStats));
 
         // *Note: this is where gWorldMap used to be initialized.
 
@@ -2414,7 +2417,7 @@ bool idle_startup()
 
         if (!mBenefitsSuccessfullyInit)
         {
-            LLNotificationsUtil::add("FailedToGetBenefits", LLSD(), LLSD(), boost::bind(on_benefits_failed_callback, _1, _2));
+            LLNotificationsUtil::add("FailedToGetBenefits", LLSD(), LLSD(), std::bind(on_benefits_failed_callback, _1, _2));
         }
 
         // Let the map know about the inventory.
@@ -2659,7 +2662,7 @@ void show_release_notes_if_required()
                 "showrelnotes",
                 [](const LLSD& url) {
                     LLCoros::instance().launch("releaseNotesCoro",
-                    boost::bind(&validate_release_notes_coro, url.asString()));
+                    std::bind(&validate_release_notes_coro, url.asString()));
                 return false;
             });
         }
@@ -2669,7 +2672,7 @@ void show_release_notes_if_required()
             LLSD info(LLAppViewer::instance()->getViewerInfo());
             std::string url = info["VIEWER_RELEASE_NOTES_URL"].asString();
             LLCoros::instance().launch("releaseNotesCoro",
-                                       boost::bind(&release_notes_coro, url));
+                                       std::bind(&release_notes_coro, url));
         }
         release_notes_shown = true;
     }
@@ -3058,11 +3061,11 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
         // Need to fetch cof contents before we can wear.
         if (do_copy)
         {
-            callAfterCOFFetch(boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
+            callAfterCOFFetch(std::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
         }
         else
         {
-            callAfterCategoryLinksFetch(cat_id, boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
+            callAfterCategoryLinksFetch(cat_id, std::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
         }
         LL_DEBUGS() << "initial outfit category id: " << cat_id << LL_ENDL;
     }
@@ -3244,7 +3247,7 @@ void LLStartUp::initExperiences()
 {
     // Should trigger loading the cache.
     LLExperienceCache::instance().setCapabilityQuery(
-        boost::bind(&LLAgent::getRegionCapability, &gAgent, _1));
+        std::bind(&LLAgent::getRegionCapability, &gAgent, _1));
 
     LLExperienceLog::instance().initialize();
 }

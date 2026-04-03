@@ -40,19 +40,22 @@
 #include "llviewertexturelist.h"
 #include "llvoavatar.h"
 #include "pipeline.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const LLSD& key)
     : LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",            boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onRenderOptionEnable, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors,this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",   boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity,this));
+    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",            std::bind(&LLFloaterPreferenceGraphicsAdvanced::onRenderOptionEnable, this));
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", std::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors,this));
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",   std::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity,this));
 
-    mCommitCallbackRegistrar.add("Pref.Cancel", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnCancel, this, _2));
-    mCommitCallbackRegistrar.add("Pref.OK",     boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnOK, this, _2));
+    mCommitCallbackRegistrar.add("Pref.Cancel", std::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnCancel, this, _2));
+    mCommitCallbackRegistrar.add("Pref.OK",     std::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnOK, this, _2));
 
-    mImpostorsChangedSignal = gSavedSettings.getControl("RenderAvatarMaxNonImpostors")->getSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateIndirectMaxNonImpostors, this, _2));
+    mImpostorsChangedSignal = gSavedSettings.getControl("RenderAvatarMaxNonImpostors")->getSignal()->connect(std::bind(&LLFloaterPreferenceGraphicsAdvanced::updateIndirectMaxNonImpostors, this, _2));
 }
 
 LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()

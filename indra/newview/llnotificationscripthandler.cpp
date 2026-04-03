@@ -37,6 +37,9 @@
 #include "llscriptfloater.h"
 #include "llavatarname.h"
 #include "llavatarnamecache.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 using namespace LLNotificationsUI;
 
@@ -75,7 +78,7 @@ void LLScriptHandler::addToastWithNotification(const LLNotificationPtr& notifica
     p.notif_id = notification->getID();
     p.notification = notification;
     p.panel = notify_box;
-    p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
+    p.on_delete_toast = std::bind(&LLScriptHandler::onDeleteToast, this, _1);
     p.can_fade = notification->canFadeToast();
     if(gAgent.isDoNotDisturb())
     {

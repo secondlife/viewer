@@ -29,6 +29,7 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "lluictrl.h"
+#include <functional>
 
 constexpr char CHAT_MENTION_HELPER_FLOATER[] = "chat_mention_picker";
 

@@ -64,6 +64,9 @@
 #include "pipeline.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
@@ -156,27 +159,27 @@ LLFloaterBvhPreview::LLFloaterBvhPreview(const LLSD& args) :
 //-----------------------------------------------------------------------------
 void LLFloaterBvhPreview::setAnimCallbacks()
 {
-    getChild<LLUICtrl>("playback_slider")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onSliderMove, this));
+    getChild<LLUICtrl>("playback_slider")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onSliderMove, this));
 
-    getChild<LLUICtrl>("preview_base_anim")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitBaseAnim, this));
+    getChild<LLUICtrl>("preview_base_anim")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onCommitBaseAnim, this));
     getChild<LLUICtrl>("preview_base_anim")->setValue("Standing");
 
-    getChild<LLUICtrl>("priority")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitPriority, this));
-    getChild<LLUICtrl>("loop_check")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoop, this));
-    getChild<LLUICtrl>("loop_in_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopIn, this));
-    getChild<LLUICtrl>("loop_in_point")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateLoopIn, this, _1));
-    getChild<LLUICtrl>("loop_out_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopOut, this));
-    getChild<LLUICtrl>("loop_out_point")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateLoopOut, this, _1));
+    getChild<LLUICtrl>("priority")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onCommitPriority, this));
+    getChild<LLUICtrl>("loop_check")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onCommitLoop, this));
+    getChild<LLUICtrl>("loop_in_point")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onCommitLoopIn, this));
+    getChild<LLUICtrl>("loop_in_point")->setValidateBeforeCommit( std::bind(&LLFloaterBvhPreview::validateLoopIn, this, _1));
+    getChild<LLUICtrl>("loop_out_point")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onCommitLoopOut, this));
+    getChild<LLUICtrl>("loop_out_point")->setValidateBeforeCommit( std::bind(&LLFloaterBvhPreview::validateLoopOut, this, _1));
 
-    getChild<LLUICtrl>("hand_pose_combo")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitHandPose, this));
+    getChild<LLUICtrl>("hand_pose_combo")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onCommitHandPose, this));
 
-    getChild<LLUICtrl>("emote_combo")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitEmote, this));
+    getChild<LLUICtrl>("emote_combo")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onCommitEmote, this));
     getChild<LLUICtrl>("emote_combo")->setValue("[None]");
 
-    getChild<LLUICtrl>("ease_in_time")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitEaseIn, this));
-    getChild<LLUICtrl>("ease_in_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseIn, this, _1));
-    getChild<LLUICtrl>("ease_out_time")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitEaseOut, this));
-    getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
+    getChild<LLUICtrl>("ease_in_time")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onCommitEaseIn, this));
+    getChild<LLUICtrl>("ease_in_time")->setValidateBeforeCommit( std::bind(&LLFloaterBvhPreview::validateEaseIn, this, _1));
+    getChild<LLUICtrl>("ease_out_time")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onCommitEaseOut, this));
+    getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( std::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
 }
 
 std::map<std::string, std::string, std::less<>> LLFloaterBvhPreview::getJointAliases()
@@ -198,7 +201,7 @@ bool LLFloaterBvhPreview::postBuild()
         return false;
     }
 
-    getChild<LLUICtrl>("name_form")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitName, this));
+    getChild<LLUICtrl>("name_form")->setCommitCallback(std::bind(&LLFloaterBvhPreview::onCommitName, this));
 
     childSetAction("ok_btn", onBtnOK, this);
     setDefaultBtn();
@@ -210,15 +213,15 @@ bool LLFloaterBvhPreview::postBuild()
     mPreviewImageRect.set(0.f, 1.f, 1.f, 0.f);
 
     mPlayButton = getChild<LLButton>( "play_btn");
-    mPlayButton->setClickedCallback(boost::bind(&LLFloaterBvhPreview::onBtnPlay, this));
+    mPlayButton->setClickedCallback(std::bind(&LLFloaterBvhPreview::onBtnPlay, this));
     mPlayButton->setVisible(true);
 
     mPauseButton = getChild<LLButton>( "pause_btn");
-    mPauseButton->setClickedCallback(boost::bind(&LLFloaterBvhPreview::onBtnPause, this));
+    mPauseButton->setClickedCallback(std::bind(&LLFloaterBvhPreview::onBtnPause, this));
     mPauseButton->setVisible(false);
 
     mStopButton = getChild<LLButton>( "stop_btn");
-    mStopButton->setClickedCallback(boost::bind(&LLFloaterBvhPreview::onBtnStop, this));
+    mStopButton->setClickedCallback(std::bind(&LLFloaterBvhPreview::onBtnStop, this));
 
     getChildView("bad_animation_text")->setVisible(false);
 

@@ -52,6 +52,9 @@
 #include "llviewermenufile.h"
 #include "llviewertexturelist.h"
 #include "llwearableitemslist.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLOutfitGallery> t_outfit_gallery("outfit_gallery");
 
@@ -95,7 +98,7 @@ LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
     LLControlVariable* ctrl = gSavedSettings.getControl("InventoryFavoritesColorText");
     if (ctrl)
     {
-        mSavedSettingInvFavColor = ctrl->getSignal()->connect(boost::bind(&LLOutfitGallery::handleInvFavColorChange, this));
+        mSavedSettingInvFavColor = ctrl->getSignal()->connect(std::bind(&LLOutfitGallery::handleInvFavColorChange, this));
     }
 }
 
@@ -372,7 +375,7 @@ void LLOutfitGallery::onFocusReceived()
 
 void LLOutfitGallery::onRemoveOutfit(const LLUUID& outfit_cat_id)
 {
-    LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), boost::bind(onOutfitsRemovalConfirmation, _1, _2, outfit_cat_id));
+    LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), std::bind(onOutfitsRemovalConfirmation, _1, _2, outfit_cat_id));
 }
 
 void LLOutfitGallery::onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response, const LLUUID& outfit_cat_id)
@@ -833,10 +836,10 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
 
     LLOutfitGalleryItem* item = buildGalleryItem(cat->getName(), cat_id, cat->getIsFavorite());
     mOutfitMap.insert(LLOutfitGallery::outfit_map_value_t(cat_id, item));
-    item->setRightMouseDownCallback(boost::bind(&LLOutfitListBase::outfitRightClickCallBack, this,
+    item->setRightMouseDownCallback(std::bind(&LLOutfitListBase::outfitRightClickCallBack, this,
         _1, _2, _3, cat_id));
     LLWearableItemsList* list = NULL;
-    item->setFocusReceivedCallback(boost::bind(&LLOutfitListBase::ChangeOutfitSelection, this, list, cat_id));
+    item->setFocusReceivedCallback(std::bind(&LLOutfitListBase::ChangeOutfitSelection, this, list, cat_id));
     if (mGalleryCreated)
     {
         addToGallery(item);
@@ -1244,20 +1247,20 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     LLUUID selected_id = mUUIDs.front();
 
     registrar.add("Outfit.WearReplace",
-                  boost::bind(&LLAppearanceMgr::replaceCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
+                  std::bind(&LLAppearanceMgr::replaceCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.WearAdd",
-                  boost::bind(&LLAppearanceMgr::addCategoryToCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
+                  std::bind(&LLAppearanceMgr::addCategoryToCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.TakeOff",
-                  boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
-    registrar.add("Outfit.Edit", boost::bind(editOutfit));
-    registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
-    registrar.add("Outfit.Delete", boost::bind(LLOutfitGallery::onRemoveOutfit, selected_id));
-    registrar.add("Outfit.Create", boost::bind(&LLOutfitGalleryContextMenu::onCreate, this, _2));
-    registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitGalleryContextMenu::onThumbnail, this, selected_id));
-    registrar.add("Outfit.Favorite", boost::bind(&LLOutfitGalleryContextMenu::onFavorite, this, selected_id));
-    registrar.add("Outfit.Save", boost::bind(&LLOutfitGalleryContextMenu::onSave, this, selected_id));
-    enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
-    enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
+                  std::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
+    registrar.add("Outfit.Edit", std::bind(editOutfit));
+    registrar.add("Outfit.Rename", std::bind(renameOutfit, selected_id));
+    registrar.add("Outfit.Delete", std::bind(LLOutfitGallery::onRemoveOutfit, selected_id));
+    registrar.add("Outfit.Create", std::bind(&LLOutfitGalleryContextMenu::onCreate, this, _2));
+    registrar.add("Outfit.Thumbnail", std::bind(&LLOutfitGalleryContextMenu::onThumbnail, this, selected_id));
+    registrar.add("Outfit.Favorite", std::bind(&LLOutfitGalleryContextMenu::onFavorite, this, selected_id));
+    registrar.add("Outfit.Save", std::bind(&LLOutfitGalleryContextMenu::onSave, this, selected_id));
+    enable_registrar.add("Outfit.OnEnable", std::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
+    enable_registrar.add("Outfit.OnVisible", std::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
 
     return createFromFile("menu_gallery_outfit_tab.xml");
 }
@@ -1448,8 +1451,8 @@ LLOutfitGallerySortMenu::LLOutfitGallerySortMenu(LLOutfitListBase* parent_panel)
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add("Sort.OnSort", boost::bind(&LLOutfitGallerySortMenu::onSort, this, _2));
-    enable_registrar.add("Sort.OnEnable", boost::bind(&LLOutfitGallerySortMenu::onEnable, this, _2));
+    registrar.add("Sort.OnSort", std::bind(&LLOutfitGallerySortMenu::onSort, this, _2));
+    enable_registrar.add("Sort.OnEnable", std::bind(&LLOutfitGallerySortMenu::onEnable, this, _2));
 
     mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
         "menu_outfit_gallery_sort.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());

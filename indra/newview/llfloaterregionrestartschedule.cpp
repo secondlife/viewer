@@ -34,6 +34,7 @@
 #include "llcheckboxctrl.h"
 #include "lllineeditor.h"
 #include "llviewercontrol.h"
+#include <functional>
 
 
 // match with values used by capability
@@ -115,7 +116,7 @@ void LLFloaterRegionRestartSchedule::onOpen(const LLSD& key)
     if (!url.empty())
     {
         LLCoros::instance().launch("LLFloaterRegionRestartSchedule::requestRegionShcheduleCoro",
-            boost::bind(&LLFloaterRegionRestartSchedule::requestRegionShcheduleCoro, url, getHandle()));
+            std::bind(&LLFloaterRegionRestartSchedule::requestRegionShcheduleCoro, url, getHandle()));
 
         mSaveButton->setEnabled(false);
     }
@@ -188,7 +189,7 @@ void LLFloaterRegionRestartSchedule::onSaveButtonClicked()
         LLSD body;
         body["restart"] = restart; // event name, at the moment only "restart" is supported
         LLCoros::instance().launch("LLFloaterRegionRestartSchedule::setRegionShcheduleCoro",
-            boost::bind(&LLFloaterRegionRestartSchedule::setRegionShcheduleCoro, url, body, getHandle()));
+            std::bind(&LLFloaterRegionRestartSchedule::setRegionShcheduleCoro, url, body, getHandle()));
 
         mSaveButton->setEnabled(false);
     }

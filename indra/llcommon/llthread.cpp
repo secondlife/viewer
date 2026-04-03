@@ -40,6 +40,7 @@
 
 #if LL_LINUX
 #include <sched.h>
+#include <functional>
 #endif
 
 #ifdef LL_WINDOWS

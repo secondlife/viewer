@@ -40,6 +40,9 @@
 #include "llcorehttputil.h"
 #include "lleventfilter.h"
 #include "lleventcoro.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
 : LLFloater(seed)
@@ -107,9 +110,9 @@ static bool mCapSent = false;
 LLFloaterPermsDefault::LLFloaterPermsDefault(const LLSD& seed)
     : LLFloater(seed)
 {
-    mCommitCallbackRegistrar.add("PermsDefault.Copy", boost::bind(&LLFloaterPermsDefault::onCommitCopy, this, _2));
-    mCommitCallbackRegistrar.add("PermsDefault.OK", boost::bind(&LLFloaterPermsDefault::onClickOK, this));
-    mCommitCallbackRegistrar.add("PermsDefault.Cancel", boost::bind(&LLFloaterPermsDefault::onClickCancel, this));
+    mCommitCallbackRegistrar.add("PermsDefault.Copy", std::bind(&LLFloaterPermsDefault::onCommitCopy, this, _2));
+    mCommitCallbackRegistrar.add("PermsDefault.OK", std::bind(&LLFloaterPermsDefault::onClickOK, this));
+    mCommitCallbackRegistrar.add("PermsDefault.Cancel", std::bind(&LLFloaterPermsDefault::onClickCancel, this));
 }
 
 
@@ -138,7 +141,7 @@ bool LLFloaterPermsDefault::postBuild()
         gSavedSettings.setBOOL("DefaultUploadPermissionsConverted", true);
     }
 
-    mCloseSignal.connect(boost::bind(&LLFloaterPermsDefault::cancel, this));
+    mCloseSignal.connect(std::bind(&LLFloaterPermsDefault::cancel, this));
 
     refresh();
 
@@ -194,7 +197,7 @@ void LLFloaterPermsDefault::updateCap()
     if(!object_url.empty())
     {
         LLCoros::instance().launch("LLFloaterPermsDefault::updateCapCoro",
-            boost::bind(&LLFloaterPermsDefault::updateCapCoro, object_url));
+            std::bind(&LLFloaterPermsDefault::updateCapCoro, object_url));
     }
     else
     {

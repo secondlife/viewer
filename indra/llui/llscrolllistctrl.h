@@ -45,6 +45,7 @@
 #include "llscrolllistitem.h"
 #include "llscrolllistcolumn.h"
 #include "llviewborder.h"
+#include <functional>
 
 class LLScrollListCell;
 class LLTextBox;
@@ -240,7 +241,7 @@ public:
     void            setDoubleClickCallback( callback_t cb ) { mOnDoubleClickCallback = cb; }
     void            setMaximumSelectCallback( callback_t cb) { mOnMaximumSelectCallback = cb; }
     void            setSortChangedCallback( callback_t cb)  { mOnSortChangedCallback = cb; }
-    // Convenience function; *TODO: replace with setter above + boost::bind() in calling code
+    // Convenience function; *TODO: replace with setter above + std::bind() in calling code
     void            setDoubleClickCallback( std::function<void (void* userdata)> cb, void* userdata) { mOnDoubleClickCallback = std::bind(cb, userdata); }
 
     void            swapWithNext(S32 index);

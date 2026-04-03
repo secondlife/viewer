@@ -34,14 +34,17 @@
 #include "llcolorswatch.h"
 #include "llviewercontrol.h"
 #include "lltexteditor.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key)
 :   LLFloater(key),
     mSettingList(NULL)
 {
-    mCommitCallbackRegistrar.add("CommitSettings",  boost::bind(&LLFloaterSettingsDebug::onCommitSettings, this));
-    mCommitCallbackRegistrar.add("ClickDefault",    boost::bind(&LLFloaterSettingsDebug::onClickDefault, this));
+    mCommitCallbackRegistrar.add("CommitSettings",  std::bind(&LLFloaterSettingsDebug::onCommitSettings, this));
+    mCommitCallbackRegistrar.add("ClickDefault",    std::bind(&LLFloaterSettingsDebug::onClickDefault, this));
 }
 
 LLFloaterSettingsDebug::~LLFloaterSettingsDebug()
@@ -65,15 +68,15 @@ bool LLFloaterSettingsDebug::postBuild()
 
     mComment = getChild<LLTextEditor>("comment_text");
 
-    getChild<LLFilterEditor>("filter_input")->setCommitCallback(boost::bind(&LLFloaterSettingsDebug::setSearchFilter, this, _2));
+    getChild<LLFilterEditor>("filter_input")->setCommitCallback(std::bind(&LLFloaterSettingsDebug::setSearchFilter, this, _2));
 
     mSettingList = getChild<LLScrollListCtrl>("setting_list");
     mSettingList->setCommitOnSelectionChange(true);
-    mSettingList->setCommitCallback(boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this));
+    mSettingList->setCommitCallback(std::bind(&LLFloaterSettingsDebug::onSettingSelect, this));
 
     updateList();
 
-    gSavedSettings.getControl("DebugSettingsHideDefault")->getCommitSignal()->connect(boost::bind(&LLFloaterSettingsDebug::updateList, this, false));
+    gSavedSettings.getControl("DebugSettingsHideDefault")->getCommitSignal()->connect(std::bind(&LLFloaterSettingsDebug::updateList, this, false));
 
     return true;
 }

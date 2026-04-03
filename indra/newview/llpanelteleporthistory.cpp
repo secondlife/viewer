@@ -47,6 +47,9 @@
 #include "lllandmarkactions.h"
 #include "llclipboard.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Maximum number of items that can be added to a list in one pass.
 // Used to limit time spent for items list update per frame.
@@ -157,7 +160,7 @@ bool LLTeleportHistoryFlatItem::postBuild()
 
     mProfileBtn = getChild<LLButton>("profile_btn");
 
-    mProfileBtn->setClickedCallback(boost::bind(&LLTeleportHistoryFlatItem::onProfileBtnClick, this));
+    mProfileBtn->setClickedCallback(std::bind(&LLTeleportHistoryFlatItem::onProfileBtnClick, this));
 
     updateTitle();
     updateTimestamp();
@@ -411,8 +414,8 @@ LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 
 bool LLTeleportHistoryPanel::postBuild()
 {
-    mCommitCallbackRegistrar.add("TeleportHistory.GearMenu.Action", boost::bind(&LLTeleportHistoryPanel::onGearMenuAction, this, _2));
-    mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", boost::bind(&LLTeleportHistoryPanel::isActionEnabled, this, _2));
+    mCommitCallbackRegistrar.add("TeleportHistory.GearMenu.Action", std::bind(&LLTeleportHistoryPanel::onGearMenuAction, this, _2));
+    mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", std::bind(&LLTeleportHistoryPanel::isActionEnabled, this, _2));
 
     // init menus before list, since menus are passed to list
     mGearItemMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_teleport_history_item.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -422,7 +425,7 @@ bool LLTeleportHistoryPanel::postBuild()
     mTeleportHistory = LLTeleportHistoryStorage::getInstance();
     if (mTeleportHistory)
     {
-        mTeleportHistoryChangedConnection = mTeleportHistory->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryPanel::onTeleportHistoryChange, this, _1));
+        mTeleportHistoryChangedConnection = mTeleportHistory->setHistoryChangedCallback(std::bind(&LLTeleportHistoryPanel::onTeleportHistoryChange, this, _1));
     }
 
     mHistoryAccordion = getChild<LLAccordionCtrl>("history_accordion");
@@ -434,9 +437,9 @@ bool LLTeleportHistoryPanel::postBuild()
             if (dynamic_cast<LLAccordionCtrlTab*>(*iter))
             {
                 LLAccordionCtrlTab* tab = (LLAccordionCtrlTab*)*iter;
-                tab->setRightMouseDownCallback(boost::bind(&LLTeleportHistoryPanel::onAccordionTabRightClick, this, _1, _2, _3, _4));
+                tab->setRightMouseDownCallback(std::bind(&LLTeleportHistoryPanel::onAccordionTabRightClick, this, _1, _2, _3, _4));
                 tab->setDisplayChildren(false);
-                tab->setDropDownStateChangedCallback(boost::bind(&LLTeleportHistoryPanel::onAccordionExpand, this, _1, _2));
+                tab->setDropDownStateChangedCallback(std::bind(&LLTeleportHistoryPanel::onAccordionExpand, this, _1, _2));
 
                 // All accordion tabs are collapsed initially
                 setAccordionCollapsedByUser(tab, true);
@@ -447,9 +450,9 @@ bool LLTeleportHistoryPanel::postBuild()
                 if (fl)
                 {
                     fl->setCommitOnSelectionChange(true);
-                    fl->setDoubleClickCallback(boost::bind(&LLTeleportHistoryPanel::onDoubleClickItem, this));
-                    fl->setCommitCallback(boost::bind(&LLTeleportHistoryPanel::handleItemSelect, this, fl));
-                    fl->setReturnCallback(boost::bind(&LLTeleportHistoryPanel::onReturnKeyPressed, this));
+                    fl->setDoubleClickCallback(std::bind(&LLTeleportHistoryPanel::onDoubleClickItem, this));
+                    fl->setCommitCallback(std::bind(&LLTeleportHistoryPanel::handleItemSelect, this, fl));
+                    fl->setReturnCallback(std::bind(&LLTeleportHistoryPanel::onReturnKeyPressed, this));
                 }
             }
         }
@@ -546,7 +549,7 @@ void LLTeleportHistoryPanel::onTeleport()
 // virtual
 void LLTeleportHistoryPanel::onRemoveSelected()
 {
-    LLNotificationsUtil::add("ConfirmClearTeleportHistory", LLSD(), LLSD(), boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistoryDialog, this, _1, _2));
+    LLNotificationsUtil::add("ConfirmClearTeleportHistory", LLSD(), LLSD(), std::bind(&LLTeleportHistoryPanel::onClearTeleportHistoryDialog, this, _1, _2));
 }
 
 /*
@@ -565,7 +568,7 @@ void LLTeleportHistoryPanel::onCopySLURL()
 
     U64 new_region_handle = to_region_handle(global_pos);
 
-    LLWorldMapMessage::url_callback_t cb = boost::bind(
+    LLWorldMapMessage::url_callback_t cb = std::bind(
             &LLPanelPlacesTab::onRegionResponse, this,
             global_pos, _1, _2, _3, _4);
 
@@ -950,8 +953,8 @@ void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y
     // (N.B. callbacks don't take const refs as mID is local scope)
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
-    registrar.add("TeleportHistory.TabOpen",    boost::bind(&LLTeleportHistoryPanel::onAccordionTabOpen, this, tab));
-    registrar.add("TeleportHistory.TabClose",   boost::bind(&LLTeleportHistoryPanel::onAccordionTabClose, this, tab));
+    registrar.add("TeleportHistory.TabOpen",    std::bind(&LLTeleportHistoryPanel::onAccordionTabOpen, this, tab));
+    registrar.add("TeleportHistory.TabClose",   std::bind(&LLTeleportHistoryPanel::onAccordionTabClose, this, tab));
 
     // create the context menu from the XUI
     llassert(LLMenuGL::sMenuContainer != NULL);
@@ -1079,7 +1082,7 @@ void LLTeleportHistoryPanel::onGearMenuAction(const LLSD& userdata)
     {
         LLVector3d globalPos = LLTeleportHistoryStorage::getInstance()->getItems()[index].mGlobalPos;
         LLLandmarkActions::getSLURLfromPosGlobal(globalPos,
-            boost::bind(&LLTeleportHistoryPanel::gotSLURLCallback, _1));
+            std::bind(&LLTeleportHistoryPanel::gotSLURLCallback, _1));
     }
     else if ("remove" == command_name)
     {
@@ -1192,7 +1195,7 @@ void LLTeleportHistoryPanel::confirmTeleport(S32 hist_idx)
     LLSD args;
     args["HISTORY_ENTRY"] = LLTeleportHistoryStorage::getInstance()->getItems()[hist_idx].mTitle;
     LLNotificationsUtil::add("TeleportToHistoryEntry", args, LLSD(),
-        boost::bind(&LLTeleportHistoryPanel::onTeleportConfirmation, _1, _2, hist_idx));
+        std::bind(&LLTeleportHistoryPanel::onTeleportConfirmation, _1, _2, hist_idx));
 }
 
 // Called when user reacts upon teleport confirmation dialog.

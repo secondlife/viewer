@@ -46,6 +46,9 @@
 #include "lltabcontainer.h"
 #include "llviewercamera.h"
 #include "llvoavatarself.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLPanelCameraItem> r("panel_camera_item");
 
@@ -140,10 +143,10 @@ void set_view_visible(LLView* parent, const std::string& name, bool visible)
 
 bool LLPanelCameraItem::postBuild()
 {
-    setMouseEnterCallback(boost::bind(set_view_visible, this, "hovered_icon", true));
-    setMouseLeaveCallback(boost::bind(set_view_visible, this, "hovered_icon", false));
-    setMouseDownCallback(boost::bind(&LLPanelCameraItem::onAnyMouseClick, this));
-    setRightMouseDownCallback(boost::bind(&LLPanelCameraItem::onAnyMouseClick, this));
+    setMouseEnterCallback(std::bind(set_view_visible, this, "hovered_icon", true));
+    setMouseLeaveCallback(std::bind(set_view_visible, this, "hovered_icon", false));
+    setMouseDownCallback(std::bind(&LLPanelCameraItem::onAnyMouseClick, this));
+    setRightMouseDownCallback(std::bind(&LLPanelCameraItem::onAnyMouseClick, this));
     return true;
 }
 
@@ -169,11 +172,11 @@ static LLPanelInjector<LLPanelCameraZoom> t_camera_zoom_panel("camera_zoom_panel
 
 void LLPanelCameraZoom::onCreate()
 {
-    mCommitCallbackRegistrar.add("Zoom.minus", boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
-    mCommitCallbackRegistrar.add("Zoom.plus", boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
-    mCommitCallbackRegistrar.add("Slider.value_changed", boost::bind(&LLPanelCameraZoom::onSliderValueChanged, this));
-    mCommitCallbackRegistrar.add("Camera.track", boost::bind(&LLPanelCameraZoom::onCameraTrack, this));
-    mCommitCallbackRegistrar.add("Camera.rotate", boost::bind(&LLPanelCameraZoom::onCameraRotate, this));
+    mCommitCallbackRegistrar.add("Zoom.minus", std::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
+    mCommitCallbackRegistrar.add("Zoom.plus", std::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
+    mCommitCallbackRegistrar.add("Slider.value_changed", std::bind(&LLPanelCameraZoom::onSliderValueChanged, this));
+    mCommitCallbackRegistrar.add("Camera.track", std::bind(&LLPanelCameraZoom::onCameraTrack, this));
+    mCommitCallbackRegistrar.add("Camera.rotate", std::bind(&LLPanelCameraZoom::onCameraRotate, this));
 }
 
 bool LLPanelCameraZoom::postBuild()
@@ -460,9 +463,9 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
     mPrevMode(CAMERA_CTRL_MODE_PAN)
 {
     LLHints::getInstance()->registerHintTarget("view_popup", getHandle());
-    mCommitCallbackRegistrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
-    mCommitCallbackRegistrar.add("CameraPresets.Save", boost::bind(&LLFloaterCamera::onSavePreset, this));
-    mCommitCallbackRegistrar.add("CameraPresets.ShowPresetsList", boost::bind(&LLFloaterReg::showInstance, "camera_presets", LLSD(), false));
+    mCommitCallbackRegistrar.add("CameraPresets.ChangeView", std::bind(&LLFloaterCamera::onClickCameraItem, _2));
+    mCommitCallbackRegistrar.add("CameraPresets.Save", std::bind(&LLFloaterCamera::onSavePreset, this));
+    mCommitCallbackRegistrar.add("CameraPresets.ShowPresetsList", std::bind(&LLFloaterReg::showInstance, "camera_presets", LLSD(), false));
 }
 
 // virtual
@@ -481,10 +484,10 @@ bool LLFloaterCamera::postBuild()
 
     mPreciseCtrls->setShowCursorHand(false);
     mPreciseCtrls->setSoundFlags(LLView::MOUSE_UP);
-    mPreciseCtrls->setClickedCallback(boost::bind(&LLFloaterReg::showInstance, "prefs_view_advanced", LLSD(), false));
+    mPreciseCtrls->setClickedCallback(std::bind(&LLFloaterReg::showInstance, "prefs_view_advanced", LLSD(), false));
 
-    mPresetCombo->setCommitCallback(boost::bind(&LLFloaterCamera::onCustomPresetSelected, this));
-    LLPresetsManager::getInstance()->setPresetListChangeCameraCallback(boost::bind(&LLFloaterCamera::populatePresetCombo, this));
+    mPresetCombo->setCommitCallback(std::bind(&LLFloaterCamera::onCustomPresetSelected, this));
+    LLPresetsManager::getInstance()->setPresetListChangeCameraCallback(std::bind(&LLFloaterCamera::populatePresetCombo, this));
 
     update();
 

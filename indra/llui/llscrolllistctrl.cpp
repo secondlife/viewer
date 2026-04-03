@@ -59,7 +59,9 @@
 #include "llurlaction.h"
 #include "lltooltip.h"
 
-#include <boost/bind.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLScrollListCtrl> r("scroll_list");
 
@@ -249,7 +251,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
     sbparams.doc_size(getItemCount());
     sbparams.doc_pos(mScrollLines);
     sbparams.page_size( getLinesPerPage() );
-    sbparams.change_callback(boost::bind(&LLScrollListCtrl::onScrollChange, this, _1, _2));
+    sbparams.change_callback(std::bind(&LLScrollListCtrl::onScrollChange, this, _1, _2));
     sbparams.follows.flags(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
     sbparams.visible(false);
     sbparams.bg_visible(p.scroll_bar_bg_visible);
@@ -1976,14 +1978,14 @@ bool LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
             // (N.B. callbacks don't take const refs as id is local scope)
             bool is_group = (mContextMenuType == MENU_GROUP);
             LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-            registrar.add("Url.ShowProfile", boost::bind(&LLScrollListCtrl::showProfile, id, is_group));
-            registrar.add("Url.SendIM", boost::bind(&LLScrollListCtrl::sendIM, id));
-            registrar.add("Url.AddFriend", boost::bind(&LLScrollListCtrl::addFriend, id));
-            registrar.add("Url.RemoveFriend", boost::bind(&LLScrollListCtrl::removeFriend, id));
-            registrar.add("Url.ReportAbuse", boost::bind(&LLScrollListCtrl::reportAbuse, id, is_group));
-            registrar.add("Url.Execute", boost::bind(&LLScrollListCtrl::showNameDetails, id, is_group));
-            registrar.add("Url.CopyLabel", boost::bind(&LLScrollListCtrl::copyNameToClipboard, id, is_group));
-            registrar.add("Url.CopyUrl", boost::bind(&LLScrollListCtrl::copySLURLToClipboard, id, is_group));
+            registrar.add("Url.ShowProfile", std::bind(&LLScrollListCtrl::showProfile, id, is_group));
+            registrar.add("Url.SendIM", std::bind(&LLScrollListCtrl::sendIM, id));
+            registrar.add("Url.AddFriend", std::bind(&LLScrollListCtrl::addFriend, id));
+            registrar.add("Url.RemoveFriend", std::bind(&LLScrollListCtrl::removeFriend, id));
+            registrar.add("Url.ReportAbuse", std::bind(&LLScrollListCtrl::reportAbuse, id, is_group));
+            registrar.add("Url.Execute", std::bind(&LLScrollListCtrl::showNameDetails, id, is_group));
+            registrar.add("Url.CopyLabel", std::bind(&LLScrollListCtrl::copyNameToClipboard, id, is_group));
+            registrar.add("Url.CopyUrl", std::bind(&LLScrollListCtrl::copySLURLToClipboard, id, is_group));
 
             // create the context menu from the XUI file and display it
             std::string menu_name = is_group ? "menu_url_group.xml" : "menu_url_agent.xml";

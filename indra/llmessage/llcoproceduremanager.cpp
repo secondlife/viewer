@@ -37,6 +37,7 @@
 
 #include "llexception.h"
 #include "stringize.h"
+#include <functional>
 
 //=========================================================================
 // Map of pool sizes for known pools
@@ -373,7 +374,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size, s
 
         std::string pooledCoro = LLCoros::instance().launch(
             "LLCoprocedurePool("+mPoolName+")::coprocedureInvokerCoro",
-            boost::bind(&LLCoprocedurePool::coprocedureInvokerCoro, this,
+            std::bind(&LLCoprocedurePool::coprocedureInvokerCoro, this,
                         mPendingCoprocs, httpAdapter));
 
         mCoroMapping.insert(CoroAdapterMap_t::value_type(pooledCoro, httpAdapter));

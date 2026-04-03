@@ -59,6 +59,9 @@
 #include "llviewerregion.h"
 #include "llviewertexture.h"
 #include "llviewertexture.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 //*TODO: verify this limit
@@ -307,8 +310,8 @@ bool LLPanelProfileClassifieds::postBuild()
     mNewButton = getChild<LLButton>("new_btn");
     mDeleteButton = getChild<LLButton>("delete_btn");
 
-    mNewButton->setCommitCallback(boost::bind(&LLPanelProfileClassifieds::onClickNewBtn, this));
-    mDeleteButton->setCommitCallback(boost::bind(&LLPanelProfileClassifieds::onClickDelete, this));
+    mNewButton->setCommitCallback(std::bind(&LLPanelProfileClassifieds::onClickNewBtn, this));
+    mDeleteButton->setCommitCallback(std::bind(&LLPanelProfileClassifieds::onClickDelete, this));
 
     return true;
 }
@@ -338,7 +341,7 @@ void LLPanelProfileClassifieds::onClickDelete()
         payload["classified_id"] = classified_id;
         payload["tab_idx"] = mTabContainer->getCurrentPanelIndex();
         LLNotificationsUtil::add("ProfileDeleteClassified", args, payload,
-            boost::bind(&LLPanelProfileClassifieds::callbackDeleteClassified, this, _1, _2));
+            std::bind(&LLPanelProfileClassifieds::callbackDeleteClassified, this, _1, _2));
     }
 }
 
@@ -647,19 +650,19 @@ bool LLPanelProfileClassified::postBuild()
     mCancelBtnCnt = getChild<LLPanel>("cancel_btn_lp");
     mSaveBtnCnt = getChild<LLPanel>("save_btn_lp");
 
-    mSnapshotCtrl->setOnSelectCallback(boost::bind(&LLPanelProfileClassified::onTextureSelected, this));
-    mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelProfileClassified::onTexturePickerMouseEnter, this));
-    mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelProfileClassified::onTexturePickerMouseLeave, this));
+    mSnapshotCtrl->setOnSelectCallback(std::bind(&LLPanelProfileClassified::onTextureSelected, this));
+    mSnapshotCtrl->setMouseEnterCallback(std::bind(&LLPanelProfileClassified::onTexturePickerMouseEnter, this));
+    mSnapshotCtrl->setMouseLeaveCallback(std::bind(&LLPanelProfileClassified::onTexturePickerMouseLeave, this));
     mSnapshotCtrl->setAllowLocalTexture(false);
     mSnapshotCtrl->setBakeTextureEnabled(false);
     mEditIcon->setVisible(false);
 
-    mMapButton->setCommitCallback(boost::bind(&LLPanelProfileClassified::onMapClick, this));
-    mTeleportButton->setCommitCallback(boost::bind(&LLPanelProfileClassified::onTeleportClick, this));
-    mEditButton->setCommitCallback(boost::bind(&LLPanelProfileClassified::onEditClick, this));
-    mSaveButton->setCommitCallback(boost::bind(&LLPanelProfileClassified::onSaveClick, this));
-    mSetLocationButton->setCommitCallback(boost::bind(&LLPanelProfileClassified::onSetLocationClick, this));
-    mCancelButton->setCommitCallback(boost::bind(&LLPanelProfileClassified::onCancelClick, this));
+    mMapButton->setCommitCallback(std::bind(&LLPanelProfileClassified::onMapClick, this));
+    mTeleportButton->setCommitCallback(std::bind(&LLPanelProfileClassified::onTeleportClick, this));
+    mEditButton->setCommitCallback(std::bind(&LLPanelProfileClassified::onEditClick, this));
+    mSaveButton->setCommitCallback(std::bind(&LLPanelProfileClassified::onSaveClick, this));
+    mSetLocationButton->setCommitCallback(std::bind(&LLPanelProfileClassified::onSetLocationClick, this));
+    mCancelButton->setCommitCallback(std::bind(&LLPanelProfileClassified::onCancelClick, this));
 
     LLClassifiedInfo::cat_map::iterator iter;
     for (iter = LLClassifiedInfo::sCategories.begin();
@@ -669,11 +672,11 @@ bool LLPanelProfileClassified::postBuild()
         mCategoryCombo->add(LLTrans::getString(iter->second));
     }
 
-    mClassifiedNameEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onTitleChange, this), NULL);
-    mClassifiedDescEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
-    mCategoryCombo->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
-    mContentTypeCombo->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
-    mAutoRenewEdit->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
+    mClassifiedNameEdit->setKeystrokeCallback(std::bind(&LLPanelProfileClassified::onTitleChange, this), NULL);
+    mClassifiedDescEdit->setKeystrokeCallback(std::bind(&LLPanelProfileClassified::onChange, this));
+    mCategoryCombo->setCommitCallback(std::bind(&LLPanelProfileClassified::onChange, this));
+    mContentTypeCombo->setCommitCallback(std::bind(&LLPanelProfileClassified::onChange, this));
+    mAutoRenewEdit->setCommitCallback(std::bind(&LLPanelProfileClassified::onChange, this));
 
     return true;
 }
@@ -758,7 +761,7 @@ void LLPanelProfileClassified::onOpen(const LLSD& key)
                 LLUUID classifiedId = getClassifiedId();
                 body["classified_id"] = classifiedId;
                 LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, body,
-                    boost::bind(&LLPanelProfileClassified::handleSearchStatResponse, classifiedId, _1));
+                    std::bind(&LLPanelProfileClassified::handleSearchStatResponse, classifiedId, _1));
             }
         }
         // Update classified click stats.
@@ -973,7 +976,7 @@ void LLPanelProfileClassified::onSaveClick()
             mPublishFloater = LLFloaterReg::getTypedInstance<LLPublishClassifiedFloater>(
                 "publish_classified", LLSD());
 
-            mPublishFloater->setPublishClickedCallback(boost::bind
+            mPublishFloater->setPublishClickedCallback(std::bind
                 (&LLPanelProfileClassified::onPublishFloaterPublishClicked, this));
         }
 
@@ -1529,8 +1532,8 @@ bool LLPublishClassifiedFloater::postBuild()
 {
     LLFloater::postBuild();
 
-    childSetAction("publish_btn", boost::bind(&LLFloater::closeFloater, this, false));
-    childSetAction("cancel_btn", boost::bind(&LLFloater::closeFloater, this, false));
+    childSetAction("publish_btn", std::bind(&LLFloater::closeFloater, this, false));
+    childSetAction("cancel_btn", std::bind(&LLFloater::closeFloater, this, false));
 
     return true;
 }

@@ -33,6 +33,7 @@
 #include "lltrans.h"
 #include "llviewerregion.h"
 #include "llcorehttputil.h"
+#include <functional>
 
 LLProductInfoRequestManager::LLProductInfoRequestManager():
     mSkuDescriptions()
@@ -45,7 +46,7 @@ void LLProductInfoRequestManager::initSingleton()
     if (!url.empty())
     {
         LLCoros::instance().launch("LLProductInfoRequestManager::getLandDescriptionsCoro",
-            boost::bind(&LLProductInfoRequestManager::getLandDescriptionsCoro, this, url));
+            std::bind(&LLProductInfoRequestManager::getLandDescriptionsCoro, this, url));
     }
 }
 

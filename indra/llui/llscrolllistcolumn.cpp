@@ -35,6 +35,9 @@
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "lluictrlfactory.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const S32 MIN_COLUMN_WIDTH = 20;
 
@@ -54,7 +57,7 @@ LLScrollColumnHeader::LLScrollColumnHeader(const LLScrollColumnHeader::Params& p
     mColumn(p.column),
     mHasResizableElement(false)
 {
-    setClickedCallback(boost::bind(&LLScrollColumnHeader::onClick, this, _2));
+    setClickedCallback(std::bind(&LLScrollColumnHeader::onClick, this, _2));
 
     // resize handles on left and right
     const S32 RESIZE_BAR_THICKNESS = 3;

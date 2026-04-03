@@ -48,6 +48,7 @@
 #include "llagent.h"
 #include "llavatariconctrl.h"
 #include "llinventorytype.h"
+#include <functional>
 
 const S32 LLToastGroupNotifyPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT   = 7;
 
@@ -142,7 +143,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
         pAttachLink->setValue(payload["inventory_name"]);
 
         mInventoryOffer = new LLOfferInfo(payload["inventory_offer"]);
-        getChild<LLTextBox>("attachment")->setClickedCallback(boost::bind(
+        getChild<LLTextBox>("attachment")->setClickedCallback(std::bind(
                 &LLToastGroupNotifyPanel::onClickAttachment, this));
 
         LLUIImagePtr attachIconImg = LLInventoryIcon::getIcon(mInventoryOffer->mType,
@@ -152,7 +153,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
 
     //ok button
     LLButton* pOkBtn = getChild<LLButton>("btn_ok");
-    pOkBtn->setClickedCallback((boost::bind(&LLToastGroupNotifyPanel::onClickOk, this)));
+    pOkBtn->setClickedCallback((std::bind(&LLToastGroupNotifyPanel::onClickOk, this)));
     setDefaultBtn(pOkBtn);
 
     S32 maxLinesCount;

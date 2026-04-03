@@ -34,6 +34,9 @@
 #include "llconversationloglistitem.h"
 #include "llviewermenu.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLConversationLogList> r("conversation_log_list");
 
@@ -51,9 +54,9 @@ LLConversationLogList::LLConversationLogList(const Params& p)
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar check_registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add       ("Calllog.Action",  boost::bind(&LLConversationLogList::onCustomAction, this, _2));
-    check_registrar.add ("Calllog.Check",   boost::bind(&LLConversationLogList::isActionChecked,this, _2));
-    enable_registrar.add("Calllog.Enable",  boost::bind(&LLConversationLogList::isActionEnabled,this, _2));
+    registrar.add       ("Calllog.Action",  std::bind(&LLConversationLogList::onCustomAction, this, _2));
+    check_registrar.add ("Calllog.Check",   std::bind(&LLConversationLogList::isActionChecked,this, _2));
+    enable_registrar.add("Calllog.Enable",  std::bind(&LLConversationLogList::isActionEnabled,this, _2));
 
     LLToggleableMenu* context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
                                     "menu_conversation_log_gear.xml",

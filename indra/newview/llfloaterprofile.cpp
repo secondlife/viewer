@@ -32,6 +32,9 @@
 #include "llnotificationsutil.h"
 #include "llpanelavatar.h"
 #include "llpanelprofile.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static const std::string PANEL_PROFILE_VIEW = "panel_profile_view";
 
@@ -56,7 +59,7 @@ void LLFloaterProfile::onOpen(const LLSD& key)
     mPanelProfile->onOpen(key);
 
     // Update the avatar name.
-    mNameCallbackConnection = LLAvatarNameCache::get(mAvatarId, boost::bind(&LLFloaterProfile::onAvatarNameCache, this, _1, _2));
+    mNameCallbackConnection = LLAvatarNameCache::get(mAvatarId, std::bind(&LLFloaterProfile::onAvatarNameCache, this, _1, _2));
 }
 
 bool LLFloaterProfile::postBuild()
@@ -73,12 +76,12 @@ void LLFloaterProfile::onClickCloseBtn(bool app_quitting)
         if (mPanelProfile->hasUnpublishedClassifieds())
         {
             LLNotificationsUtil::add("ProfileUnpublishedClassified", LLSD(), LLSD(),
-                boost::bind(&LLFloaterProfile::onUnsavedChangesCallback, this, _1, _2, false));
+                std::bind(&LLFloaterProfile::onUnsavedChangesCallback, this, _1, _2, false));
         }
         else if (mPanelProfile->hasUnsavedChanges())
         {
             LLNotificationsUtil::add("ProfileUnsavedChanges", LLSD(), LLSD(),
-                boost::bind(&LLFloaterProfile::onUnsavedChangesCallback, this, _1, _2, true));
+                std::bind(&LLFloaterProfile::onUnsavedChangesCallback, this, _1, _2, true));
         }
         else
         {
@@ -141,7 +144,7 @@ void LLFloaterProfile::refreshName()
 {
     if (!mNameCallbackConnection.connected())
     {
-        mNameCallbackConnection = LLAvatarNameCache::get(mAvatarId, boost::bind(&LLFloaterProfile::onAvatarNameCache, this, _1, _2));
+        mNameCallbackConnection = LLAvatarNameCache::get(mAvatarId, std::bind(&LLFloaterProfile::onAvatarNameCache, this, _1, _2));
     }
 
     LLPanelProfileSecondLife *panel = findChild<LLPanelProfileSecondLife>("panel_profile_secondlife");

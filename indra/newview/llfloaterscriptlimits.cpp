@@ -65,6 +65,9 @@
 #ifdef DUMP_REPLIES_TO_LLINFOS
 #include "llsdserialize.h"
 #include "llwindow.h"
+#include <functional>
+
+using namespace std::placeholders;
 #endif
 
 // use fake LLSD responses to check the viewer side is working correctly
@@ -165,7 +168,7 @@ bool LLPanelScriptLimitsRegionMemory::getLandScriptResources()
     if (!url.empty())
     {
         LLCoros::instance().launch("LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro",
-            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro, this, url));
+            std::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro, this, url));
         return true;
     }
     else
@@ -205,14 +208,14 @@ void LLPanelScriptLimitsRegionMemory::getLandScriptResourcesCoro(std::string url
     {
         std::string urlResourceSummary = result["ScriptResourceSummary"].asString();
         LLCoros::instance().launch("LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro",
-            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro, this, urlResourceSummary));
+            std::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptSummaryCoro, this, urlResourceSummary));
     }
 
     if (result.has("ScriptResourceDetails"))
     {
         std::string urlResourceDetails = result["ScriptResourceDetails"].asString();
         LLCoros::instance().launch("LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro",
-            boost::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro, this, urlResourceDetails));
+            std::bind(&LLPanelScriptLimitsRegionMemory::getLandScriptDetailsCoro, this, urlResourceDetails));
     }
 
 
@@ -488,13 +491,13 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
                         if (is_group_owned)
                         {
                             mGroupNameCacheConnection = gCacheName->getGroup(owner_id,
-                                boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
+                                std::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
                                     this, _1, _2));
                         }
                         else
                         {
                             mAvatarNameCacheConnection = LLAvatarNameCache::get(owner_id,
-                                boost::bind(&LLPanelScriptLimitsRegionMemory::onAvatarNameCache,
+                                std::bind(&LLPanelScriptLimitsRegionMemory::onAvatarNameCache,
                                     this, _1, _2));
                         }
                     }
@@ -654,7 +657,7 @@ bool LLPanelScriptLimitsRegionMemory::postBuild()
     {
         return false;
     }
-    list->setCommitCallback(boost::bind(&LLPanelScriptLimitsRegionMemory::checkButtonsEnabled, this));
+    list->setCommitCallback(std::bind(&LLPanelScriptLimitsRegionMemory::checkButtonsEnabled, this));
     checkButtonsEnabled();
 
     //set all columns to resizable mode even if some columns will be empty

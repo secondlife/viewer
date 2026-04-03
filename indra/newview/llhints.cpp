@@ -35,6 +35,9 @@
 #include "llviewercontrol.h"
 #include "lliconctrl.h"
 #include "llsdparam.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLHintPopup : public LLPanel
 {
@@ -186,7 +189,7 @@ bool LLHintPopup::postBuild()
     LLTextBox& hint_text = getChildRef<LLTextBox>("hint_text");
     hint_text.setText(mNotification->getMessage());
 
-    getChild<LLButton>("close")->setClickedCallback(boost::bind(&LLHintPopup::onClickClose, this));
+    getChild<LLButton>("close")->setClickedCallback(std::bind(&LLHintPopup::onClickClose, this));
     getChild<LLTextBox>("hint_title")->setText(mNotification->getLabel());
 
     LLRect text_bounds = hint_text.getTextBoundingRect();
@@ -355,7 +358,7 @@ void LLHintPopup::draw()
 LLHints::LLHints()
 {
     LLControlVariablePtr control = gSavedSettings.getControl("EnableUIHints");
-    mControlConnection = control->getSignal()->connect(boost::bind(&LLHints::showHints, this, _2));
+    mControlConnection = control->getSignal()->connect(std::bind(&LLHints::showHints, this, _2));
     gViewerWindow->getHintHolder()->setVisible(control->getValue().asBoolean());
 }
 

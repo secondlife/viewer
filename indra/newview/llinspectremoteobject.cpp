@@ -35,6 +35,7 @@
 #include "llui.h"
 #include "lluictrl.h"
 #include "llurlaction.h"
+#include <functional>
 
 //////////////////////////////////////////////////////////////////////////////
 // LLInspectRemoteObject
@@ -84,11 +85,11 @@ bool LLInspectRemoteObject::postBuild(void)
 {
     // hook up the inspector's buttons
     getChild<LLUICtrl>("map_btn")->setCommitCallback(
-        boost::bind(&LLInspectRemoteObject::onClickMap, this));
+        std::bind(&LLInspectRemoteObject::onClickMap, this));
     getChild<LLUICtrl>("block_btn")->setCommitCallback(
-        boost::bind(&LLInspectRemoteObject::onClickBlock, this));
+        std::bind(&LLInspectRemoteObject::onClickBlock, this));
     getChild<LLUICtrl>("close_btn")->setCommitCallback(
-        boost::bind(&LLInspectRemoteObject::onClickClose, this));
+        std::bind(&LLInspectRemoteObject::onClickClose, this));
 
     return true;
 }

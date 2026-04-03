@@ -116,7 +116,7 @@ void LLCallbackList::callFunctions()
     }
 }
 
-// Shim class to allow arbitrary boost::bind
+// Shim class to allow arbitrary std::bind
 // expressions to be run as one-time idle callbacks.
 class OnIdleCallbackOneTime
 {

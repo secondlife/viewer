@@ -54,6 +54,9 @@
 #include "llviewerattachmenu.h"
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLInventoryFavoritesItemsPanel;
 class LLInventoryRecentItemsPanel;
@@ -103,7 +106,7 @@ protected:
 // Calls specified callback when all specified items become complete.
 //
 // Usage:
-// observer = new LLInvPanelComplObserver(boost::bind(onComplete));
+// observer = new LLInvPanelComplObserver(std::bind(onComplete));
 // inventory->addObserver(observer);
 // observer->reset(); // (optional)
 // observer->watchItem(incomplete_item1_id);
@@ -179,16 +182,16 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
     }
 
     // context menu callbacks
-    mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryPanel::doToSelected, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
-    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
-    mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&LLInventoryPanel::doCreate, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.AttachObject", boost::bind(&LLInventoryPanel::attachObject, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
-    mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
-    mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryPanel::fileUploadLocation, this, _2));
-    mEnableCallbackRegistrar.add("Inventory.FileUploadLocation.Check", boost::bind(&LLInventoryPanel::isUploadLocationSelected, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.OpenNewFolderWindow", boost::bind(&LLInventoryPanel::openSingleViewInventory, this, LLUUID()));
+    mCommitCallbackRegistrar.add("Inventory.DoToSelected", std::bind(&LLInventoryPanel::doToSelected, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", std::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
+    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", std::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
+    mCommitCallbackRegistrar.add("Inventory.DoCreate", std::bind(&LLInventoryPanel::doCreate, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.AttachObject", std::bind(&LLInventoryPanel::attachObject, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.BeginIMSession", std::bind(&LLInventoryPanel::beginIMSession, this));
+    mCommitCallbackRegistrar.add("Inventory.Share",  std::bind(&LLAvatarActions::shareWithAvatars, this));
+    mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", std::bind(&LLInventoryPanel::fileUploadLocation, this, _2));
+    mEnableCallbackRegistrar.add("Inventory.FileUploadLocation.Check", std::bind(&LLInventoryPanel::isUploadLocationSelected, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.OpenNewFolderWindow", std::bind(&LLInventoryPanel::openSingleViewInventory, this, LLUUID()));
 }
 
 LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
@@ -319,7 +322,7 @@ void LLInventoryPanel::initFolderRoot()
     mInventoryObserver = new LLInventoryPanelObserver(this);
     mInventory->addObserver(mInventoryObserver);
 
-    mCompletionObserver = new LLInvPanelComplObserver(boost::bind(&LLInventoryPanel::onItemsCompletion, this));
+    mCompletionObserver = new LLInvPanelComplObserver(std::bind(&LLInventoryPanel::onItemsCompletion, this));
     mInventory->addObserver(mCompletionObserver);
 
     if (mBuildViewsOnInit)
@@ -1498,7 +1501,7 @@ bool LLInventoryPanel::handleToolTip(S32 x, S32 y, MASK mask)
                     .message(hover_item_p->getToolTip())
                     .sticky_rect(actionable_rect)
                     .delay_time(LLView::getTooltipTimeout())
-                    .create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
+                    .create_callback(std::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
                     .create_params(params));
             return true;
         }
@@ -1872,7 +1875,7 @@ void LLInventoryPanel::purgeSelectedItems()
         }
     }
     args["COUNT"] = static_cast<S32>(count);
-    LLNotificationsUtil::add("PurgeSelectedItems", args, LLSD(), boost::bind(callbackPurgeSelectedItems, _1, _2, selected_items));
+    LLNotificationsUtil::add("PurgeSelectedItems", args, LLSD(), std::bind(callbackPurgeSelectedItems, _1, _2, selected_items));
 }
 
 // static
@@ -2591,9 +2594,9 @@ LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
     getFilter().setEmptyLookupMessage("InventorySingleFolderNoMatches");
     getFilter().setDefaultEmptyLookupMessage("InventorySingleFolderEmpty");
 
-    mCommitCallbackRegistrar.replace("Inventory.DoToSelected", boost::bind(&LLInventorySingleFolderPanel::doToSelected, this, _2));
-    mCommitCallbackRegistrar.replace("Inventory.DoCreate", boost::bind(&LLInventorySingleFolderPanel::doCreate, this, _2));
-    mCommitCallbackRegistrar.replace("Inventory.Share", boost::bind(&LLInventorySingleFolderPanel::doShare, this));
+    mCommitCallbackRegistrar.replace("Inventory.DoToSelected", std::bind(&LLInventorySingleFolderPanel::doToSelected, this, _2));
+    mCommitCallbackRegistrar.replace("Inventory.DoCreate", std::bind(&LLInventorySingleFolderPanel::doCreate, this, _2));
+    mCommitCallbackRegistrar.replace("Inventory.Share", std::bind(&LLInventorySingleFolderPanel::doShare, this));
 }
 
 LLInventorySingleFolderPanel::~LLInventorySingleFolderPanel()

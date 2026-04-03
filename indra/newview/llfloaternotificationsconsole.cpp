@@ -33,6 +33,9 @@
 #include "llscrolllistitem.h"
 #include "llpanel.h"
 #include "llcombobox.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const S32 NOTIFICATION_PANEL_HEADER_HEIGHT = 20;
 const S32 HEADER_PADDING = 38;
@@ -78,7 +81,7 @@ bool LLNotificationChannelPanel::postBuild()
     header_button->setLabel(mChannelPtr->getName());
     header_button->setClickedCallback(toggleClick, this);
 
-    mChannelPtr->connectChanged(boost::bind(&LLNotificationChannelPanel::update, this, _1));
+    mChannelPtr->connectChanged(std::bind(&LLNotificationChannelPanel::update, this, _1));
 
     LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("notifications_list");
     scroll->setDoubleClickCallback(onClickNotification, this);
@@ -151,7 +154,7 @@ bool LLNotificationChannelPanel::update(const LLSD& payload)
 LLFloaterNotificationConsole::LLFloaterNotificationConsole(const LLSD& key)
 : LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("ClickAdd",     boost::bind(&LLFloaterNotificationConsole::onClickAdd, this));
+    mCommitCallbackRegistrar.add("ClickAdd",     std::bind(&LLFloaterNotificationConsole::onClickAdd, this));
 }
 
 bool LLFloaterNotificationConsole::postBuild()

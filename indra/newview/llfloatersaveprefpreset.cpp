@@ -35,6 +35,7 @@
 #include "llnotificationsutil.h"
 #include "llpresetsmanager.h"
 #include "lltrans.h"
+#include <functional>
 
 LLFloaterSavePrefPreset::LLFloaterSavePrefPreset(const LLSD &key)
     : LLFloater(key)
@@ -50,13 +51,13 @@ bool LLFloaterSavePrefPreset::postBuild()
         preferences->addDependentFloater(this);
     }
 
-    getChild<LLComboBox>("preset_combo")->setTextEntryCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
-    getChild<LLComboBox>("preset_combo")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
-    getChild<LLButton>("save")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onBtnSave, this));
+    getChild<LLComboBox>("preset_combo")->setTextEntryCallback(std::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
+    getChild<LLComboBox>("preset_combo")->setCommitCallback(std::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
+    getChild<LLButton>("save")->setCommitCallback(std::bind(&LLFloaterSavePrefPreset::onBtnSave, this));
 
-    getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onBtnCancel, this));
+    getChild<LLButton>("cancel")->setCommitCallback(std::bind(&LLFloaterSavePrefPreset::onBtnCancel, this));
 
-    LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetsListChange, this));
+    LLPresetsManager::instance().setPresetListChangeCallback(std::bind(&LLFloaterSavePrefPreset::onPresetsListChange, this));
 
     mSaveButton = getChild<LLButton>("save");
     mPresetCombo = getChild<LLComboBox>("preset_combo");

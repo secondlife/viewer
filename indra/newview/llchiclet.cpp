@@ -37,6 +37,9 @@
 #include "llsyswellwindow.h"
 #include "llfloaternotificationstabbed.h"
 #include "llviewermenu.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
@@ -72,7 +75,7 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
     mButton = LLUICtrlFactory::create<LLButton>(button_params);
     addChild(mButton);
 
-    mFlashToLitTimer = new LLFlashTimer(boost::bind(&LLSysWellChiclet::changeLitState, this, _1));
+    mFlashToLitTimer = new LLFlashTimer(std::bind(&LLSysWellChiclet::changeLitState, this, _1));
 }
 
 LLSysWellChiclet::~LLSysWellChiclet()
@@ -212,11 +215,11 @@ void LLNotificationChiclet::createMenu()
 
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
     registrar.add("NotificationWellChicletMenu.Action",
-        boost::bind(&LLNotificationChiclet::onMenuItemClicked, this, _2));
+        std::bind(&LLNotificationChiclet::onMenuItemClicked, this, _2));
 
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
     enable_registrar.add("NotificationWellChicletMenu.EnableItem",
-        boost::bind(&LLNotificationChiclet::enableMenuItem, this, _2));
+        std::bind(&LLNotificationChiclet::enableMenuItem, this, _2));
 
     llassert(LLMenuGL::sMenuContainer != NULL);
     LLContextMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>
@@ -343,8 +346,8 @@ LLIMChiclet::~LLIMChiclet()
 bool LLIMChiclet::postBuild()
 {
     mChicletButton = getChild<LLButton>("chiclet_button");
-    mChicletButton->setCommitCallback(boost::bind(&LLIMChiclet::onMouseDown, this));
-    mChicletButton->setDoubleClickCallback(boost::bind(&LLIMChiclet::onMouseDown, this));
+    mChicletButton->setCommitCallback(std::bind(&LLIMChiclet::onMouseDown, this));
+    mChicletButton->setDoubleClickCallback(std::bind(&LLIMChiclet::onMouseDown, this));
     return true;
 }
 
@@ -507,23 +510,23 @@ void LLChicletPanel::objectChicletCallback(const LLSD& data)
 bool LLChicletPanel::postBuild()
 {
     LLPanel::postBuild();
-    LLIMModel::instance().addNewMsgCallback(boost::bind(&LLChicletPanel::onMessageCountChanged, this, _1));
-    LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(&LLChicletPanel::onMessageCountChanged, this, _1));
-    LLScriptFloaterManager::getInstance()->addNewObjectCallback(boost::bind(&LLChicletPanel::objectChicletCallback, this, _1));
-    LLScriptFloaterManager::getInstance()->addToggleObjectFloaterCallback(boost::bind(&LLChicletPanel::objectChicletCallback, this, _1));
-    LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLChicletPanel::findChiclet<LLChiclet>, this, _1));
-    mVoiceChannelChanged = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLChicletPanel::onCurrentVoiceChannelChanged, this, _1));
+    LLIMModel::instance().addNewMsgCallback(std::bind(&LLChicletPanel::onMessageCountChanged, this, _1));
+    LLIMModel::instance().addNoUnreadMsgsCallback(std::bind(&LLChicletPanel::onMessageCountChanged, this, _1));
+    LLScriptFloaterManager::getInstance()->addNewObjectCallback(std::bind(&LLChicletPanel::objectChicletCallback, this, _1));
+    LLScriptFloaterManager::getInstance()->addToggleObjectFloaterCallback(std::bind(&LLChicletPanel::objectChicletCallback, this, _1));
+    LLIMChiclet::sFindChicletsSignal.connect(std::bind(&LLChicletPanel::findChiclet<LLChiclet>, this, _1));
+    mVoiceChannelChanged = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(std::bind(&LLChicletPanel::onCurrentVoiceChannelChanged, this, _1));
 
     mLeftScrollButton=getChild<LLButton>("chicklet_left_scroll_button");
     LLTransientFloaterMgr::getInstance()->addControlView(mLeftScrollButton);
-    mLeftScrollButton->setMouseDownCallback(boost::bind(&LLChicletPanel::onLeftScrollClick,this));
-    mLeftScrollButton->setHeldDownCallback(boost::bind(&LLChicletPanel::onLeftScrollHeldDown,this));
+    mLeftScrollButton->setMouseDownCallback(std::bind(&LLChicletPanel::onLeftScrollClick,this));
+    mLeftScrollButton->setHeldDownCallback(std::bind(&LLChicletPanel::onLeftScrollHeldDown,this));
     mLeftScrollButton->setEnabled(false);
 
     mRightScrollButton=getChild<LLButton>("chicklet_right_scroll_button");
     LLTransientFloaterMgr::getInstance()->addControlView(mRightScrollButton);
-    mRightScrollButton->setMouseDownCallback(boost::bind(&LLChicletPanel::onRightScrollClick,this));
-    mRightScrollButton->setHeldDownCallback(boost::bind(&LLChicletPanel::onRightScrollHeldDown,this));
+    mRightScrollButton->setMouseDownCallback(std::bind(&LLChicletPanel::onRightScrollClick,this));
+    mRightScrollButton->setHeldDownCallback(std::bind(&LLChicletPanel::onRightScrollHeldDown,this));
     mRightScrollButton->setEnabled(false);
 
     return true;
@@ -590,8 +593,8 @@ bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 index)
             getChiclet(0)->translate(left_shift - getChiclet(0)->getRect().mLeft, 0);
         }
 
-        chiclet->setLeftButtonClickCallback(boost::bind(&LLChicletPanel::onChicletClick, this, _1, _2));
-        chiclet->setChicletSizeChangedCallback(boost::bind(&LLChicletPanel::onChicletSizeChanged, this, _1, index));
+        chiclet->setLeftButtonClickCallback(std::bind(&LLChicletPanel::onChicletClick, this, _1, _2));
+        chiclet->setChicletSizeChangedCallback(std::bind(&LLChicletPanel::onChicletSizeChanged, this, _1, index));
 
         arrange();
         LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, chiclet);
@@ -1134,7 +1137,7 @@ void LLScriptChiclet::createPopupMenu()
         return;
 
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("ScriptChiclet.Action", boost::bind(&LLScriptChiclet::onMenuItemClicked, this, _2));
+    registrar.add("ScriptChiclet.Action", std::bind(&LLScriptChiclet::onMenuItemClicked, this, _2));
 
     LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>
         ("menu_script_chiclet.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1217,7 +1220,7 @@ void LLInvOfferChiclet::createPopupMenu()
         return;
 
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("InvOfferChiclet.Action", boost::bind(&LLInvOfferChiclet::onMenuItemClicked, this, _2));
+    registrar.add("InvOfferChiclet.Action", std::bind(&LLInvOfferChiclet::onMenuItemClicked, this, _2));
 
     LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>
         ("menu_inv_offer_chiclet.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());

@@ -55,6 +55,9 @@
 #include "lllineeditor.h"
 
 #include <boost/lexical_cast.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 const S32 CLIENT_RECT_VPAD = 4;
 
@@ -301,7 +304,7 @@ void LLPreviewTexture::saveAs()
         return;
 
     std::string filename = getItem() ? LLDir::getScrubbedFileName(getItem()->getName()) : LLStringUtil::null;
-    LLFilePickerReplyThread::startPicker(boost::bind(&LLPreviewTexture::saveTextureToFile, this, _1), LLFilePicker::FFSAVE_TGAPNG, filename);
+    LLFilePickerReplyThread::startPicker(std::bind(&LLPreviewTexture::saveTextureToFile, this, _1), LLFilePicker::FFSAVE_TGAPNG, filename);
 }
 
 void LLPreviewTexture::saveTextureToFile(const std::vector<std::string>& filenames)

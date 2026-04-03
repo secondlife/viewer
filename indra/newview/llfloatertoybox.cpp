@@ -36,13 +36,16 @@
 #include "lltoolbar.h"
 #include "lltoolbarview.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLFloaterToybox::LLFloaterToybox(const LLSD& key)
     : LLFloater(key)
     , mToolBar(NULL)
 {
-    mCommitCallbackRegistrar.add("Toybox.RestoreDefaults", boost::bind(&LLFloaterToybox::onBtnRestoreDefaults, this));
-    mCommitCallbackRegistrar.add("Toybox.ClearAll", boost::bind(&LLFloaterToybox::onBtnClearAll, this));
+    mCommitCallbackRegistrar.add("Toybox.RestoreDefaults", std::bind(&LLFloaterToybox::onBtnRestoreDefaults, this));
+    mCommitCallbackRegistrar.add("Toybox.ClearAll", std::bind(&LLFloaterToybox::onBtnClearAll, this));
 }
 
 LLFloaterToybox::~LLFloaterToybox()
@@ -61,10 +64,10 @@ bool LLFloaterToybox::postBuild()
 {
     mToolBar = getChild<LLToolBar>("toybox_toolbar");
 
-    mToolBar->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
-    mToolBar->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
-    mToolBar->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4,_5));
-    mToolBar->setButtonEnterCallback(boost::bind(&LLFloaterToybox::onToolBarButtonEnter,this,_1));
+    mToolBar->setStartDragCallback(std::bind(LLToolBarView::startDragTool,_1,_2,_3));
+    mToolBar->setHandleDragCallback(std::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
+    mToolBar->setHandleDropCallback(std::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4,_5));
+    mToolBar->setButtonEnterCallback(std::bind(&LLFloaterToybox::onToolBarButtonEnter,this,_1));
 
     //
     // Sort commands by localized labels so they will appear alphabetized in all languages

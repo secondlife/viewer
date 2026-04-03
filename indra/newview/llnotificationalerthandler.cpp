@@ -37,6 +37,9 @@
 #include "llviewerwindow.h"
 
 #include "lltoastalertpanel.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 using namespace LLNotificationsUI;
 
@@ -103,7 +106,7 @@ bool LLAlertHandler::processNotification(const LLNotificationPtr& notification, 
     p.enable_hide_btn = false;
     p.can_fade = false;
     p.is_modal = mIsModal;
-    p.on_delete_toast = boost::bind(&LLAlertHandler::onDeleteToast, this, _1);
+    p.on_delete_toast = std::bind(&LLAlertHandler::onDeleteToast, this, _1);
 
     // Show alert in middle of progress view (during teleport) (EXT-1093)
     LLProgressView* progress = gViewerWindow->getProgressView();

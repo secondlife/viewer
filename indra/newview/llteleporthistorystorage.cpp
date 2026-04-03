@@ -35,6 +35,9 @@
 #include "llagent.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Max offset for two global positions to consider them as equal
 const F64 MAX_GLOBAL_POS_OFFSET = 5.0f;
@@ -71,7 +74,7 @@ LLTeleportHistoryStorage::LLTeleportHistoryStorage() :
     mItems.clear();
     LLTeleportHistory *th = LLTeleportHistory::getInstance();
     if (th)
-        th->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryStorage::onTeleportHistoryChange, this));
+        th->setHistoryChangedCallback(std::bind(&LLTeleportHistoryStorage::onTeleportHistoryChange, this));
 
     load();
 }
@@ -121,7 +124,7 @@ void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d
     LLTeleportHistoryPersistentItem item(title, global_pos, date);
 
     slurl_list_t::iterator item_iter = std::ranges::find_if(mItems,
-                                boost::bind(&LLTeleportHistoryStorage::compareByTitleAndGlobalPos, this, _1, item));
+                                std::bind(&LLTeleportHistoryStorage::compareByTitleAndGlobalPos, this, _1, item));
 
     // If there is such item already, remove it, since new item is more recent
     S32 removed_index = -1;

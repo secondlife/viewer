@@ -33,7 +33,7 @@
 #include <map>
 #include <vector>
 
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/signals2.hpp>
 
 #include "llagent.h"
@@ -64,6 +64,8 @@
 #include "v3math.h"
 #include "v4color.h"
 
+using namespace std::placeholders;
+
 #define DEFAULT_BEACON_WIDTH 6
 
 //---------------------------------------------------------------------------
@@ -79,17 +81,17 @@ void LLFloaterPathfindingObjects::onOpen(const LLSD &pKey)
 
     if (!mSelectionUpdateSlot.connected())
     {
-        mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterPathfindingObjects::onInWorldSelectionListChanged, this));
+        mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(std::bind(&LLFloaterPathfindingObjects::onInWorldSelectionListChanged, this));
     }
 
     if (!mRegionBoundaryCrossingSlot.connected())
     {
-        mRegionBoundaryCrossingSlot = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterPathfindingObjects::onRegionBoundaryCrossed, this));
+        mRegionBoundaryCrossingSlot = gAgent.addRegionChangedCallback(std::bind(&LLFloaterPathfindingObjects::onRegionBoundaryCrossed, this));
     }
 
     if (!mGodLevelChangeSlot.connected())
     {
-        mGodLevelChangeSlot = gAgent.registerGodLevelChanageListener(boost::bind(&LLFloaterPathfindingObjects::onGodLevelChange, this, _1));
+        mGodLevelChangeSlot = gAgent.registerGodLevelChanageListener(std::bind(&LLFloaterPathfindingObjects::onGodLevelChange, this, _1));
     }
 
     requestGetObjects();
@@ -203,7 +205,7 @@ bool LLFloaterPathfindingObjects::postBuild()
 
     mObjectsScrollList = findChild<LLScrollListCtrl>("objects_scroll_list");
     llassert(mObjectsScrollList != NULL);
-    mObjectsScrollList->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onScrollListSelectionChanged, this));
+    mObjectsScrollList->setCommitCallback(std::bind(&LLFloaterPathfindingObjects::onScrollListSelectionChanged, this));
     mObjectsScrollList->sortByColumnIndex(static_cast<U32>(getNameColumnIndex()), true);
 
     mMessagingStatus = findChild<LLTextBase>("messaging_status");
@@ -211,38 +213,38 @@ bool LLFloaterPathfindingObjects::postBuild()
 
     mRefreshListButton = findChild<LLButton>("refresh_objects_list");
     llassert(mRefreshListButton != NULL);
-    mRefreshListButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onRefreshObjectsClicked, this));
+    mRefreshListButton->setCommitCallback(std::bind(&LLFloaterPathfindingObjects::onRefreshObjectsClicked, this));
 
     mSelectAllButton = findChild<LLButton>("select_all_objects");
     llassert(mSelectAllButton != NULL);
-    mSelectAllButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onSelectAllObjectsClicked, this));
+    mSelectAllButton->setCommitCallback(std::bind(&LLFloaterPathfindingObjects::onSelectAllObjectsClicked, this));
 
     mSelectNoneButton = findChild<LLButton>("select_none_objects");
     llassert(mSelectNoneButton != NULL);
-    mSelectNoneButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onSelectNoneObjectsClicked, this));
+    mSelectNoneButton->setCommitCallback(std::bind(&LLFloaterPathfindingObjects::onSelectNoneObjectsClicked, this));
 
     mShowBeaconCheckBox = findChild<LLCheckBoxCtrl>("show_beacon");
     llassert(mShowBeaconCheckBox != NULL);
 
     mTakeButton = findChild<LLButton>("take_objects");
     llassert(mTakeButton != NULL);
-    mTakeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onTakeClicked, this));
+    mTakeButton->setCommitCallback(std::bind(&LLFloaterPathfindingObjects::onTakeClicked, this));
 
     mTakeCopyButton = findChild<LLButton>("take_copy_objects");
     llassert(mTakeCopyButton != NULL);
-    mTakeCopyButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onTakeCopyClicked, this));
+    mTakeCopyButton->setCommitCallback(std::bind(&LLFloaterPathfindingObjects::onTakeCopyClicked, this));
 
     mReturnButton = findChild<LLButton>("return_objects");
     llassert(mReturnButton != NULL);
-    mReturnButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onReturnClicked, this));
+    mReturnButton->setCommitCallback(std::bind(&LLFloaterPathfindingObjects::onReturnClicked, this));
 
     mDeleteButton = findChild<LLButton>("delete_objects");
     llassert(mDeleteButton != NULL);
-    mDeleteButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onDeleteClicked, this));
+    mDeleteButton->setCommitCallback(std::bind(&LLFloaterPathfindingObjects::onDeleteClicked, this));
 
     mTeleportButton = findChild<LLButton>("teleport_me_to_object");
     llassert(mTeleportButton != NULL);
-    mTeleportButton->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onTeleportClicked, this));
+    mTeleportButton->setCommitCallback(std::bind(&LLFloaterPathfindingObjects::onTeleportClicked, this));
 
     return LLFloater::postBuild();
 }
@@ -414,7 +416,7 @@ void LLFloaterPathfindingObjects::addObjectToScrollList(const LLPathfindingObjec
     if (pObjectPtr->hasOwner() && !pObjectPtr->hasOwnerName())
     {
         mMissingNameObjectsScrollListItems.insert(scroll_list_item_map::value_type(pObjectPtr->getUUID().asString(), scrollListItem));
-        pObjectPtr->registerOwnerNameListener(boost::bind(&LLFloaterPathfindingObjects::handleObjectNameResponse, this, _1));
+        pObjectPtr->registerOwnerNameListener(std::bind(&LLFloaterPathfindingObjects::handleObjectNameResponse, this, _1));
     }
 }
 
@@ -636,7 +638,7 @@ void LLFloaterPathfindingObjects::onTakeCopyClicked()
 void LLFloaterPathfindingObjects::onReturnClicked()
 {
     LLNotification::Params params("PathfindingReturnMultipleItems");
-    params.functor.function(boost::bind(&LLFloaterPathfindingObjects::handleReturnItemsResponse, this, _1, _2));
+    params.functor.function(std::bind(&LLFloaterPathfindingObjects::handleReturnItemsResponse, this, _1, _2));
 
     LLSD substitutions;
     int numItems = getNumSelectedObjects();
@@ -656,7 +658,7 @@ void LLFloaterPathfindingObjects::onReturnClicked()
 void LLFloaterPathfindingObjects::onDeleteClicked()
 {
     LLNotification::Params params("PathfindingDeleteMultipleItems");
-    params.functor.function(boost::bind(&LLFloaterPathfindingObjects::handleDeleteItemsResponse, this, _1, _2));
+    params.functor.function(std::bind(&LLFloaterPathfindingObjects::handleDeleteItemsResponse, this, _1, _2));
 
     LLSD substitutions;
     int numItems = getNumSelectedObjects();

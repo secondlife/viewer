@@ -26,7 +26,7 @@
 
 #include "_httpservice.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "_httpoperation.h"
 #include "_httprequestqueue.h"
@@ -39,6 +39,7 @@
 #include "llthread.h"
 #include "llexception.h"
 #include "llmemory.h"
+
 
 namespace
 {
@@ -211,7 +212,7 @@ void HttpService::startThread()
     mPolicy->start();
     mTransport->start(mLastPolicy + 1);
 
-    mThread = new LLCoreInt::HttpThread(boost::bind(&HttpService::threadRun, this, _1));
+    mThread = new LLCoreInt::HttpThread([this](LLCoreInt::HttpThread* thread) { threadRun(thread); });
     sState = RUNNING;
 }
 

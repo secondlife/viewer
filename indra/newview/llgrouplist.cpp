@@ -43,6 +43,9 @@
 #include "llviewercontrol.h"    // for gSavedSettings
 #include "llviewermenu.h"       // for gMenuHolder
 #include "llvoiceclient.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
 
@@ -144,8 +147,8 @@ void LLGroupList::enableForAgent(bool show_icons)
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add("People.Groups.Action",           boost::bind(&LLGroupList::onContextMenuItemClick,   this, _2));
-    enable_registrar.add("People.Groups.Enable",    boost::bind(&LLGroupList::onContextMenuItemEnable,  this, _2));
+    registrar.add("People.Groups.Action",           std::bind(&LLGroupList::onContextMenuItemClick,   this, _2));
+    enable_registrar.add("People.Groups.Enable",    std::bind(&LLGroupList::onContextMenuItemEnable,  this, _2));
 
     LLToggleableMenu* context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_people_groups.xml",
             gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -432,7 +435,7 @@ bool  LLGroupListItem::postBuild()
     mGroupNameBox = getChild<LLTextBox>("group_name");
 
     mInfoBtn = getChild<LLButton>("info_btn");
-    mInfoBtn->setClickedCallback(boost::bind(&LLGroupListItem::onInfoBtnClick, this));
+    mInfoBtn->setClickedCallback(std::bind(&LLGroupListItem::onInfoBtnClick, this));
 
     mProfileBtn = getChild<LLButton>("profile_btn");
     mProfileBtn->setClickedCallback([this](LLUICtrl *, const LLSD &) { onProfileBtnClick(); });

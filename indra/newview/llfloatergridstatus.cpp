@@ -37,6 +37,7 @@
 #include "lltoolbarview.h"
 #include "llviewercontrol.h"
 #include "llxmltree.h"
+#include <functional>
 
 std::map<std::string, std::string> LLFloaterGridStatus::sItemsMap;
 const std::string DEFAULT_GRID_STATUS_URL = "http://status.secondlifegrid.net/";
@@ -72,7 +73,7 @@ void LLFloaterGridStatus::onOpen(const LLSD& key)
 void LLFloaterGridStatus::startGridStatusTimer()
 {
     checkGridStatusRSS();
-    doPeriodically(boost::bind(&LLFloaterGridStatus::checkGridStatusRSS), gSavedSettings.getF32("GridStatusUpdateDelay"));
+    doPeriodically(std::bind(&LLFloaterGridStatus::checkGridStatusRSS), gSavedSettings.getF32("GridStatusUpdateDelay"));
 }
 
 bool LLFloaterGridStatus::checkGridStatusRSS()
@@ -80,7 +81,7 @@ bool LLFloaterGridStatus::checkGridStatusRSS()
     if(gToolBarView->hasCommand(LLCommandId("gridstatus")))
     {
         LLCoros::instance().launch("LLFloaterGridStatus::getGridStatusRSSCoro",
-                boost::bind(&LLFloaterGridStatus::getGridStatusRSSCoro));
+                std::bind(&LLFloaterGridStatus::getGridStatusRSSCoro));
     }
     return false;
 }

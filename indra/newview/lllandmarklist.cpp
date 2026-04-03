@@ -35,6 +35,7 @@
 #include "llagent.h"
 #include "llfilesystem.h"
 #include "llviewerstats.h"
+#include <functional>
 
 // Globals
 LLLandmarkList gLandmarkList;
@@ -134,7 +135,7 @@ void LLLandmarkList::processGetAssetReply(
                             gMessageSystem,
                             gAgent.getRegionHost(),
                             region_id,
-                            boost::bind(&LLLandmarkList::onRegionHandle, &gLandmarkList, uuid));
+                            std::bind(&LLLandmarkList::onRegionHandle, &gLandmarkList, uuid));
                     }
 
                     // the callback will be called when we get the region handle.

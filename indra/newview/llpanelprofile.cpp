@@ -79,6 +79,9 @@
 #include "llviewertexturelist.h"
 #include "llvoiceclient.h"
 #include "llweb.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 static LLPanelInjector<LLPanelProfileSecondLife> t_panel_profile_secondlife("panel_profile_secondlife");
@@ -529,7 +532,7 @@ void LLFloaterProfilePermissions::onOpen(const LLSD& key)
 
     mCancelBtn->setFocus(true);
 
-    mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID, boost::bind(&LLFloaterProfilePermissions::onAvatarNameCache, this, _1, _2));
+    mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID, std::bind(&LLFloaterProfilePermissions::onAvatarNameCache, this, _1, _2));
 }
 
 void LLFloaterProfilePermissions::draw()
@@ -599,7 +602,7 @@ void LLFloaterProfilePermissions::confirmModifyRights(bool grant)
     LLSD args;
     args["NAME"] = LLSLURL("agent", mAvatarID, "completename").getSLURLString();
     LLNotificationsUtil::add(grant ? "GrantModifyRights" : "RevokeModifyRights", args, LLSD(),
-        boost::bind(&LLFloaterProfilePermissions::rightsConfirmationCallback, this, _1, _2));
+        std::bind(&LLFloaterProfilePermissions::rightsConfirmationCallback, this, _1, _2));
 }
 
 void LLFloaterProfilePermissions::onCommitSeeOnlineRights()
@@ -804,7 +807,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
         fillRightsData();
     }
 
-    mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCache, this, _1, _2));
+    mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), std::bind(&LLPanelProfileSecondLife::onAvatarNameCache, this, _1, _2));
 }
 
 
@@ -856,7 +859,7 @@ void LLPanelProfileSecondLife::refreshName()
 {
     if (!mAvatarNameCacheConnection.connected())
     {
-        mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCache, this, _1, _2));
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), std::bind(&LLPanelProfileSecondLife::onAvatarNameCache, this, _1, _2));
     }
 }
 
@@ -1371,7 +1374,7 @@ void LLProfileImagePicker::notify(const std::vector<std::string>& filenames)
     }
 
     LLCoros::instance().launch("postAgentUserImageCoro",
-        boost::bind(post_profile_image_coro, cap_url, mType, temp_file, mHandle));
+        std::bind(post_profile_image_coro, cap_url, mType, temp_file, mHandle));
 
     mHandle = nullptr; // transferred to post_profile_image_coro
 }
@@ -1462,7 +1465,7 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
     }
     else if (item_name == "edit_display_name")
     {
-        mMenuNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCacheSetName, this, _1, _2));
+        mMenuNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), std::bind(&LLPanelProfileSecondLife::onAvatarNameCacheSetName, this, _1, _2));
         LLFirstUse::setDisplayName(false);
     }
     else if (item_name == "edit_partner")
@@ -1829,7 +1832,7 @@ void LLPanelProfileWeb::onOpen(const LLSD& key)
 
     resetData();
 
-    mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileWeb::onAvatarNameCache, this, _1, _2));
+    mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), std::bind(&LLPanelProfileWeb::onAvatarNameCache, this, _1, _2));
 }
 
 bool LLPanelProfileWeb::postBuild()
@@ -2348,7 +2351,7 @@ void LLPanelProfile::onOpen(const LLSD& key)
     updateData();
 
     // Some tabs only request data when opened
-    mTabContainer->setCommitCallback(boost::bind(&LLPanelProfile::onTabChange, this));
+    mTabContainer->setCommitCallback(std::bind(&LLPanelProfile::onTabChange, this));
 }
 
 void LLPanelProfile::updateData()

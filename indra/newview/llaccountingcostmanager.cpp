@@ -35,6 +35,7 @@
 #include "stringize.h"
 #include <algorithm>
 #include <iterator>
+#include <functional>
 
 //===============================================================================
 LLAccountingCostManager::LLAccountingCostManager()
@@ -183,7 +184,7 @@ void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
     {
         std::string coroname =
             LLCoros::instance().launch("LLAccountingCostManager::accountingCostCoro",
-            boost::bind(accountingCostCoro, url, selectionType, observer_handle));
+            [url, selectionType, observer_handle]() { accountingCostCoro(url, selectionType, observer_handle); });
         LL_DEBUGS() << coroname << " with  url '" << url << LL_ENDL;
 
     }

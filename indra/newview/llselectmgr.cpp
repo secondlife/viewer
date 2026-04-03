@@ -97,6 +97,9 @@
 #include "llpanelface.h"
 #include "llglheaders.h"
 #include "llinventoryobserver.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -784,7 +787,7 @@ bool LLSelectMgr::unlinkObjects()
         && unlink_object_count > mSelectedObjects->getRootObjectCount())
     {
         // total count > root count means that there are childer inside and that there are linksets that will be unlinked
-        LLNotificationsUtil::add("ConfirmUnlink", LLSD(), LLSD(), boost::bind(&LLSelectMgr::confirmUnlinkObjects, this, _1, _2));
+        LLNotificationsUtil::add("ConfirmUnlink", LLSD(), LLSD(), std::bind(&LLSelectMgr::confirmUnlinkObjects, this, _1, _2));
         return true;
     }
 
@@ -4189,7 +4192,7 @@ void LLSelectMgr::selectDelete()
     }
 
     LLNotification::Params params("ConfirmObjectDeleteLock");
-    params.functor.function(boost::bind(&LLSelectMgr::confirmDelete, _1, _2, getSelection()));
+    params.functor.function(std::bind(&LLSelectMgr::confirmDelete, _1, _2, getSelection()));
 
     if(locked_but_deleteable_object ||
        no_copy_but_deleteable_object ||

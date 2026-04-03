@@ -50,6 +50,9 @@
 #include "llfloatergroups.h"
 #include "llnotifications.h"
 #include "llfloaterreporter.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 #define XML_PANEL_EXPERIENCE_PROFILE "floater_experienceprofile.xml"
 #define TF_NAME "experience_title"
@@ -100,7 +103,7 @@ public:
         if(params.size() != 2 || params[1].asString() != "profile")
             return false;
 
-        LLExperienceCache::instance().get(params[0].asUUID(), boost::bind(&LLExperienceHandler::experienceCallback, this, _1));
+        LLExperienceCache::instance().get(params[0].asUUID(), std::bind(&LLExperienceHandler::experienceCallback, this, _1));
         return true;
     }
 
@@ -146,43 +149,43 @@ bool LLFloaterExperienceProfile::postBuild()
     if (mExperienceId.notNull())
     {
         LLExperienceCache::instance().fetch(mExperienceId, true);
-        LLExperienceCache::instance().get(mExperienceId, boost::bind(&LLFloaterExperienceProfile::experienceCallback,
+        LLExperienceCache::instance().get(mExperienceId, std::bind(&LLFloaterExperienceProfile::experienceCallback,
             getDerivedHandle<LLFloaterExperienceProfile>(), _1));
 
         LLViewerRegion* region = gAgent.getRegion();
         if (region)
         {
-            LLExperienceCache::instance().getExperienceAdmin(mExperienceId, boost::bind(
+            LLExperienceCache::instance().getExperienceAdmin(mExperienceId, std::bind(
                 &LLFloaterExperienceProfile::experienceIsAdmin, getDerivedHandle<LLFloaterExperienceProfile>(), _1));
         }
     }
 
-    childSetAction(BTN_EDIT, boost::bind(&LLFloaterExperienceProfile::onClickEdit, this));
-    childSetAction(BTN_ALLOW, boost::bind(&LLFloaterExperienceProfile::onClickPermission, this, "Allow"));
-    childSetAction(BTN_FORGET, boost::bind(&LLFloaterExperienceProfile::onClickForget, this));
-    childSetAction(BTN_BLOCK, boost::bind(&LLFloaterExperienceProfile::onClickPermission, this, "Block"));
-    childSetAction(BTN_CANCEL, boost::bind(&LLFloaterExperienceProfile::onClickCancel, this));
-    childSetAction(BTN_SAVE, boost::bind(&LLFloaterExperienceProfile::onClickSave, this));
-    childSetAction(BTN_SET_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickLocation, this));
-    childSetAction(BTN_CLEAR_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickClear, this));
-    childSetAction(BTN_SET_GROUP, boost::bind(&LLFloaterExperienceProfile::onPickGroup, this));
-    childSetAction(BTN_REPORT, boost::bind(&LLFloaterExperienceProfile::onReportExperience, this));
+    childSetAction(BTN_EDIT, std::bind(&LLFloaterExperienceProfile::onClickEdit, this));
+    childSetAction(BTN_ALLOW, std::bind(&LLFloaterExperienceProfile::onClickPermission, this, "Allow"));
+    childSetAction(BTN_FORGET, std::bind(&LLFloaterExperienceProfile::onClickForget, this));
+    childSetAction(BTN_BLOCK, std::bind(&LLFloaterExperienceProfile::onClickPermission, this, "Block"));
+    childSetAction(BTN_CANCEL, std::bind(&LLFloaterExperienceProfile::onClickCancel, this));
+    childSetAction(BTN_SAVE, std::bind(&LLFloaterExperienceProfile::onClickSave, this));
+    childSetAction(BTN_SET_LOCATION, std::bind(&LLFloaterExperienceProfile::onClickLocation, this));
+    childSetAction(BTN_CLEAR_LOCATION, std::bind(&LLFloaterExperienceProfile::onClickClear, this));
+    childSetAction(BTN_SET_GROUP, std::bind(&LLFloaterExperienceProfile::onPickGroup, this));
+    childSetAction(BTN_REPORT, std::bind(&LLFloaterExperienceProfile::onReportExperience, this));
 
-    getChild<LLTextEditor>(EDIT TF_DESC)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
-    getChild<LLUICtrl>(EDIT TF_MATURITY)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
-    getChild<LLLineEditor>(EDIT TF_MRKT)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
-    getChild<LLLineEditor>(EDIT TF_NAME)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
+    getChild<LLTextEditor>(EDIT TF_DESC)->setKeystrokeCallback(std::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
+    getChild<LLUICtrl>(EDIT TF_MATURITY)->setCommitCallback(std::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
+    getChild<LLLineEditor>(EDIT TF_MRKT)->setKeystrokeCallback(std::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
+    getChild<LLLineEditor>(EDIT TF_NAME)->setKeystrokeCallback(std::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
 
-    childSetCommitCallback(EDIT BTN_ENABLE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
-    childSetCommitCallback(EDIT BTN_PRIVATE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
+    childSetCommitCallback(EDIT BTN_ENABLE, std::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
+    childSetCommitCallback(EDIT BTN_PRIVATE, std::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
 
-    childSetCommitCallback(EDIT IMG_LOGO, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
+    childSetCommitCallback(EDIT IMG_LOGO, std::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
 
     getChild<LLTextEditor>(EDIT TF_DESC)->setCommitOnFocusLost(true);
 
 
     LLEventPumps::instance().obtain("experience_permission").listen(mExperienceId.asString()+"-profile",
-        boost::bind(&LLFloaterExperienceProfile::experiencePermission, getDerivedHandle<LLFloaterExperienceProfile>(this), _1));
+        std::bind(&LLFloaterExperienceProfile::experiencePermission, getDerivedHandle<LLFloaterExperienceProfile>(this), _1));
 
     if (mPostEdit && mExperienceId.notNull())
     {
@@ -249,7 +252,7 @@ void LLFloaterExperienceProfile::onClickPermission(const char* perm)
     LLViewerRegion* region = gAgent.getRegion();
     if (!region)
         return;
-    LLExperienceCache::instance().setExperiencePermission(mExperienceId, perm, boost::bind(
+    LLExperienceCache::instance().setExperiencePermission(mExperienceId, perm, std::bind(
         &LLFloaterExperienceProfile::experiencePermissionResults, mExperienceId, _1));
 }
 
@@ -260,7 +263,7 @@ void LLFloaterExperienceProfile::onClickForget()
     if (!region)
         return;
 
-    LLExperienceCache::instance().forgetExperiencePermission(mExperienceId, boost::bind(
+    LLExperienceCache::instance().forgetExperiencePermission(mExperienceId, std::bind(
         &LLFloaterExperienceProfile::experiencePermissionResults, mExperienceId, _1));
 }
 
@@ -408,7 +411,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
         LLViewerRegion* region = gAgent.getRegion();
         if (region)
         {
-            LLExperienceCache::instance().getExperiencePermission(mExperienceId, boost::bind(
+            LLExperienceCache::instance().getExperiencePermission(mExperienceId, std::bind(
                 &LLFloaterExperienceProfile::experiencePermissionResults, mExperienceId, _1));
         }
     }
@@ -542,7 +545,7 @@ bool LLFloaterExperienceProfile::canClose()
     else
     {
         // Bring up view-modal dialog: Save changes? Yes, No, Cancel
-        LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLFloaterExperienceProfile::handleSaveChangesDialog, this, _1, _2, CLOSE));
+        LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), std::bind(&LLFloaterExperienceProfile::handleSaveChangesDialog, this, _1, _2, CLOSE));
         return false;
     }
 }
@@ -589,7 +592,7 @@ void LLFloaterExperienceProfile::doSave( int success_action )
     if (!region)
         return;
 
-    LLExperienceCache::instance().updateExperience(mPackage, boost::bind(
+    LLExperienceCache::instance().updateExperience(mPackage, std::bind(
             &LLFloaterExperienceProfile::experienceUpdateResult,
             getDerivedHandle<LLFloaterExperienceProfile>(), _1));
 }
@@ -675,7 +678,7 @@ void LLFloaterExperienceProfile::changeToView()
     else
     {
         // Bring up view-modal dialog: Save changes? Yes, No, Cancel
-        LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLFloaterExperienceProfile::handleSaveChangesDialog, this, _1, _2, VIEW));
+        LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), std::bind(&LLFloaterExperienceProfile::handleSaveChangesDialog, this, _1, _2, VIEW));
     }
 }
 
@@ -836,7 +839,7 @@ void LLFloaterExperienceProfile::onPickGroup()
     LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
     if (widget)
     {
-        widget->setSelectGroupCallback(boost::bind(&LLFloaterExperienceProfile::setEditGroup, this, _1));
+        widget->setSelectGroupCallback(std::bind(&LLFloaterExperienceProfile::setEditGroup, this, _1));
         if (parent_floater)
         {
             LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, widget);

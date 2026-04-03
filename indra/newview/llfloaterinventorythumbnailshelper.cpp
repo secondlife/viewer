@@ -42,6 +42,9 @@
 #include "lluuid.h"
 
 #include "llfloaterinventorythumbnailshelper.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLFloaterInventoryThumbnailsHelper::LLFloaterInventoryThumbnailsHelper(const LLSD& key)
     :   LLFloater("floater_inventory_thumbnails_helper")
@@ -61,23 +64,23 @@ bool LLFloaterInventoryThumbnailsHelper::postBuild()
     mOutputLog->setMaxTextLength(0xffff * 0x10);
 
     mPasteItemsBtn = getChild<LLUICtrl>("paste_items_btn");
-    mPasteItemsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onPasteItems, this));
+    mPasteItemsBtn->setCommitCallback(std::bind(&LLFloaterInventoryThumbnailsHelper::onPasteItems, this));
     mPasteItemsBtn->setEnabled(true);
 
     mPasteTexturesBtn = getChild<LLUICtrl>("paste_textures_btn");
-    mPasteTexturesBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onPasteTextures, this));
+    mPasteTexturesBtn->setCommitCallback(std::bind(&LLFloaterInventoryThumbnailsHelper::onPasteTextures, this));
     mPasteTexturesBtn->setEnabled(true);
 
     mWriteThumbnailsBtn = getChild<LLUICtrl>("write_thumbnails_btn");
-    mWriteThumbnailsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onWriteThumbnails, this));
+    mWriteThumbnailsBtn->setCommitCallback(std::bind(&LLFloaterInventoryThumbnailsHelper::onWriteThumbnails, this));
     mWriteThumbnailsBtn->setEnabled(false);
 
     mLogMissingThumbnailsBtn = getChild<LLUICtrl>("log_missing_thumbnails_btn");
-    mLogMissingThumbnailsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onLogMissingThumbnails, this));
+    mLogMissingThumbnailsBtn->setCommitCallback(std::bind(&LLFloaterInventoryThumbnailsHelper::onLogMissingThumbnails, this));
     mLogMissingThumbnailsBtn->setEnabled(false);
 
     mClearThumbnailsBtn = getChild<LLUICtrl>("clear_thumbnails_btn");
-    mClearThumbnailsBtn->setCommitCallback(boost::bind(&LLFloaterInventoryThumbnailsHelper::onClearThumbnails, this));
+    mClearThumbnailsBtn->setCommitCallback(std::bind(&LLFloaterInventoryThumbnailsHelper::onClearThumbnails, this));
     mClearThumbnailsBtn->setEnabled(false);
 
     return true;
@@ -326,7 +329,7 @@ void LLFloaterInventoryThumbnailsHelper::updateDisplayList()
 }
 
 #if 1
-// *TODO$: LLInventoryCallback should be deprecated to conform to the new boost::bind/coroutine model.
+// *TODO$: LLInventoryCallback should be deprecated to conform to the new std::bind/coroutine model.
 // temp code in transition
 void inventoryThumbnailsHelperCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
 {
@@ -350,7 +353,7 @@ bool writeInventoryThumbnailID(LLUUID item_id, LLUUID thumbnail_asset_id)
 
         LLPointer<LLInventoryCallback> cb;
 
-        AISAPI::completion_t cr = boost::bind(&inventoryThumbnailsHelperCb, cb, _1);
+        AISAPI::completion_t cr = std::bind(&inventoryThumbnailsHelperCb, cb, _1);
         AISAPI::UpdateItem(item_id, updates, cr);
 
         return true;

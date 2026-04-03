@@ -88,6 +88,7 @@
 
 #ifndef LL_WINDOWS
 #include "netdb.h"
+#include <functional>
 #endif
 
 
@@ -3211,7 +3212,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
 
             if (observer)
             {
-                doOnIdleOneTime(boost::bind(&LLWholeModelUploadObserver::onModelUploadFailure, observer));
+                doOnIdleOneTime(std::bind(&LLWholeModelUploadObserver::onModelUploadFailure, observer));
             }
         }
         else
@@ -3236,7 +3237,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
 
                 if (observer)
                 {
-                    doOnIdleOneTime(boost::bind(&LLWholeModelUploadObserver::onModelUploadSuccess, observer));
+                    doOnIdleOneTime(std::bind(&LLWholeModelUploadObserver::onModelUploadSuccess, observer));
                 }
             }
             else
@@ -3246,7 +3247,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
 
                 if (observer)
                 {
-                    doOnIdleOneTime(boost::bind(&LLWholeModelUploadObserver::onModelUploadFailure, observer));
+                    doOnIdleOneTime(std::bind(&LLWholeModelUploadObserver::onModelUploadFailure, observer));
                 }
             }
         }

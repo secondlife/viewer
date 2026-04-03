@@ -39,6 +39,7 @@
 #include "llviewerinventory.h"
 #include "llinventorymodel.h"
 #include "llcallbacklist.h"
+#include <functional>
 
 // Constants;
 
@@ -319,7 +320,7 @@ void LLFriendCardsManager::syncFriendCardsFolders()
     const LLUUID callingCardsFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
 
     fetchAndCheckFolderDescendents(callingCardsFolderID,
-            boost::bind(&LLFriendCardsManager::ensureFriendsFolderExists, this));
+            std::bind(&LLFriendCardsManager::ensureFriendsFolderExists, this));
 }
 
 
@@ -466,7 +467,7 @@ void LLFriendCardsManager::ensureFriendsFolderExists()
     {
         mState = LOADING_FRIENDS_FOLDER;
         fetchAndCheckFolderDescendents(friends_folder_ID,
-                boost::bind(&LLFriendCardsManager::ensureFriendsAllFolderExists, this));
+                std::bind(&LLFriendCardsManager::ensureFriendsAllFolderExists, this));
     }
     else
     {
@@ -506,7 +507,7 @@ void LLFriendCardsManager::ensureFriendsAllFolderExists()
     {
         mState = LOADING_ALL_FOLDER;
         fetchAndCheckFolderDescendents(friends_all_folder_ID,
-                boost::bind(&LLFriendCardsManager::syncFriendsFolder, this));
+                std::bind(&LLFriendCardsManager::syncFriendsFolder, this));
     }
     else
     {

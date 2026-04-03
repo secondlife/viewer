@@ -50,6 +50,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "lltooltip.h"
+#include <functional>
 
 //
 // Constants
@@ -108,31 +109,31 @@ bool LLFloaterMove::postBuild()
 
     mTurnLeftButton = getChild<LLButton>("turn left btn");
     mTurnLeftButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
-    mTurnLeftButton->setHeldDownCallback(boost::bind(&LLFloaterMove::turnLeft, this));
+    mTurnLeftButton->setHeldDownCallback(std::bind(&LLFloaterMove::turnLeft, this));
     mTurnRightButton = getChild<LLButton>("turn right btn");
     mTurnRightButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
-    mTurnRightButton->setHeldDownCallback(boost::bind(&LLFloaterMove::turnRight, this));
+    mTurnRightButton->setHeldDownCallback(std::bind(&LLFloaterMove::turnRight, this));
 
     mMoveUpButton = getChild<LLButton>("move up btn");
     mMoveUpButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
-    mMoveUpButton->setHeldDownCallback(boost::bind(&LLFloaterMove::moveUp, this));
+    mMoveUpButton->setHeldDownCallback(std::bind(&LLFloaterMove::moveUp, this));
 
     mMoveDownButton = getChild<LLButton>("move down btn");
     mMoveDownButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
-    mMoveDownButton->setHeldDownCallback(boost::bind(&LLFloaterMove::moveDown, this));
+    mMoveDownButton->setHeldDownCallback(std::bind(&LLFloaterMove::moveDown, this));
 
 
     mModeActionsPanel = getChild<LLPanel>("panel_modes");
 
     LLButton* btn;
     btn = getChild<LLButton>("mode_walk_btn");
-    btn->setCommitCallback(boost::bind(&LLFloaterMove::onWalkButtonClick, this));
+    btn->setCommitCallback(std::bind(&LLFloaterMove::onWalkButtonClick, this));
 
     btn = getChild<LLButton>("mode_run_btn");
-    btn->setCommitCallback(boost::bind(&LLFloaterMove::onRunButtonClick, this));
+    btn->setCommitCallback(std::bind(&LLFloaterMove::onRunButtonClick, this));
 
     btn = getChild<LLButton>("mode_fly_btn");
-    btn->setCommitCallback(boost::bind(&LLFloaterMove::onFlyButtonClick, this));
+    btn->setCommitCallback(std::bind(&LLFloaterMove::onFlyButtonClick, this));
 
     initModeTooltips();
 
@@ -565,17 +566,17 @@ void LLPanelStandStopFlying::clearStandStopFlyingMode(EStandStopFlyingMode mode)
 bool LLPanelStandStopFlying::postBuild()
 {
     mStandButton = getChild<LLButton>("stand_btn");
-    mStandButton->setCommitCallback(boost::bind(&LLPanelStandStopFlying::onStandButtonClick, this));
-    mStandButton->setCommitCallback(boost::bind(&LLFloaterMove::enableInstance));
+    mStandButton->setCommitCallback(std::bind(&LLPanelStandStopFlying::onStandButtonClick, this));
+    mStandButton->setCommitCallback(std::bind(&LLFloaterMove::enableInstance));
     mStandButton->setVisible(false);
     LLHints::getInstance()->registerHintTarget("stand_btn", mStandButton->getHandle());
 
     mStopFlyingButton = getChild<LLButton>("stop_fly_btn");
-    //mStopFlyingButton->setCommitCallback(boost::bind(&LLFloaterMove::setFlyingMode, false));
-    mStopFlyingButton->setCommitCallback(boost::bind(&LLPanelStandStopFlying::onStopFlyingButtonClick, this));
+    //mStopFlyingButton->setCommitCallback(std::bind(&LLFloaterMove::setFlyingMode, false));
+    mStopFlyingButton->setCommitCallback(std::bind(&LLPanelStandStopFlying::onStopFlyingButtonClick, this));
     mStopFlyingButton->setVisible(false);
 
-    gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLPanelStandStopFlying::updatePosition, this));
+    gViewerWindow->setOnWorldViewRectUpdated(std::bind(&LLPanelStandStopFlying::updatePosition, this));
 
     return true;
 }

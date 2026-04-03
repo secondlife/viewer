@@ -66,6 +66,7 @@
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
+#include <functional>
 #endif
 
 extern LLMemoryInfo gSysMemory;
@@ -135,10 +136,10 @@ bool LLFloaterAbout::postBuild()
         getChild<LLViewerTextEditor>("licenses_editor", true);
 
     getChild<LLUICtrl>("copy_btn")->setCommitCallback(
-        boost::bind(&LLFloaterAbout::onClickCopyToClipboard, this));
+        std::bind(&LLFloaterAbout::onClickCopyToClipboard, this));
 
     getChild<LLUICtrl>("update_btn")->setCommitCallback(
-        boost::bind(&LLFloaterAbout::onClickUpdateCheck, this));
+        std::bind(&LLFloaterAbout::onClickUpdateCheck, this));
 
     static const LLUIColor about_color = LLUIColorTable::instance().getColor("TextFgReadOnlyColor");
 
@@ -222,7 +223,7 @@ void LLFloaterAbout::startFetchServerReleaseNotes()
     // an URL suitable for external browsers in the "Location:" HTTP header.
     std::string cap_url = region->getCapability("ServerReleaseNotes");
 
-    LLCoros::instance().launch("fetchServerReleaseNotesCoro", boost::bind(&LLFloaterAbout::fetchServerReleaseNotesCoro, cap_url));
+    LLCoros::instance().launch("fetchServerReleaseNotesCoro", std::bind(&LLFloaterAbout::fetchServerReleaseNotesCoro, cap_url));
 
 }
 

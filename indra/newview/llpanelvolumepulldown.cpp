@@ -40,6 +40,9 @@
 #include "llfloaterreg.h"
 #include "llfloaterpreference.h"
 #include "llsliderctrl.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Class LLPanelVolumePulldown
@@ -48,10 +51,10 @@
 // Default constructor
 LLPanelVolumePulldown::LLPanelVolumePulldown()
 {
-    mCommitCallbackRegistrar.add("Vol.setControlFalse", boost::bind(&LLPanelVolumePulldown::setControlFalse, this, _2));
-    mCommitCallbackRegistrar.add("Vol.SetSounds", boost::bind(&LLPanelVolumePulldown::onClickSetSounds, this));
-    mCommitCallbackRegistrar.add("Vol.updateCheckbox",  boost::bind(&LLPanelVolumePulldown::updateCheckbox, this, _1, _2));
-    mCommitCallbackRegistrar.add("Vol.GoAudioPrefs", boost::bind(&LLPanelVolumePulldown::onAdvancedButtonClick, this, _2));
+    mCommitCallbackRegistrar.add("Vol.setControlFalse", std::bind(&LLPanelVolumePulldown::setControlFalse, this, _2));
+    mCommitCallbackRegistrar.add("Vol.SetSounds", std::bind(&LLPanelVolumePulldown::onClickSetSounds, this));
+    mCommitCallbackRegistrar.add("Vol.updateCheckbox",  std::bind(&LLPanelVolumePulldown::updateCheckbox, this, _1, _2));
+    mCommitCallbackRegistrar.add("Vol.GoAudioPrefs", std::bind(&LLPanelVolumePulldown::onAdvancedButtonClick, this, _2));
     buildFromFile( "panel_volume_pulldown.xml");
 }
 

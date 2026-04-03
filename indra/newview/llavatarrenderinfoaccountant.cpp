@@ -47,6 +47,7 @@
 #include "httpheaders.h"
 #include "httpoptions.h"
 #include "llcorehttputil.h"
+#include <functional>
 
 static  const std::string KEY_AGENTS = "agents";            // map
 static  const std::string KEY_WEIGHT = "weight";            // integer
@@ -330,7 +331,7 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
         {
             std::string coroname =
                 LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro",
-                    boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro, url, regionp->getHandle()));
+                    std::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro, url, regionp->getHandle()));
         }
         catch (std::bad_alloc&)
         {
@@ -362,7 +363,7 @@ void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regi
             // First send a request to get the latest data
             std::string coroname =
                 LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro",
-                    boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro, url, regionp->getHandle()));
+                    std::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro, url, regionp->getHandle()));
         }
         catch (std::bad_alloc&)
         {

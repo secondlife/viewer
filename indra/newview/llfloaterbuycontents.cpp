@@ -51,6 +51,7 @@
 #include "llviewerregion.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
+#include <functional>
 
 LLFloaterBuyContents::LLFloaterBuyContents(const LLSD& key)
 :   LLFloater(key)
@@ -60,8 +61,8 @@ LLFloaterBuyContents::LLFloaterBuyContents(const LLSD& key)
 bool LLFloaterBuyContents::postBuild()
 {
 
-    getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickCancel, this));
-    getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickBuy, this));
+    getChild<LLUICtrl>("cancel_btn")->setCommitCallback( std::bind(&LLFloaterBuyContents::onClickCancel, this));
+    getChild<LLUICtrl>("buy_btn")->setCommitCallback( std::bind(&LLFloaterBuyContents::onClickBuy, this));
 
     getChildView("item_list")->setEnabled(false);
     getChildView("buy_btn")->setEnabled(false);

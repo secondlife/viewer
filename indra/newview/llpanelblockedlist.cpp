@@ -47,6 +47,9 @@
 #include "llinventorymodel.h"
 #include "llsidetraypanelcontainer.h"
 #include "llviewercontrol.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLPanelBlockedList> t_panel_blocked_list("panel_block_list_sidetray");
 
@@ -62,8 +65,8 @@ const std::string BLOCKED_PARAM_NAME = "blocked_to_select";
 LLPanelBlockedList::LLPanelBlockedList()
 :   LLPanel()
 {
-    mCommitCallbackRegistrar.add("Block.Action",    boost::bind(&LLPanelBlockedList::onCustomAction,  this, _2));
-    mEnableCallbackRegistrar.add("Block.Check",     boost::bind(&LLPanelBlockedList::isActionChecked, this, _2));
+    mCommitCallbackRegistrar.add("Block.Action",    std::bind(&LLPanelBlockedList::onCustomAction,  this, _2));
+    mEnableCallbackRegistrar.add("Block.Check",     std::bind(&LLPanelBlockedList::isActionChecked, this, _2));
 }
 
 void LLPanelBlockedList::removePicker()
@@ -78,7 +81,7 @@ bool LLPanelBlockedList::postBuild()
 {
     mBlockedList = getChild<LLBlockList>("blocked");
     mBlockedList->setCommitOnSelectionChange(true);
-    this->setVisibleCallback(boost::bind(&LLPanelBlockedList::removePicker, this));
+    this->setVisibleCallback(std::bind(&LLPanelBlockedList::removePicker, this));
 
     switch (gSavedSettings.getU32("BlockPeopleSortOrder"))
     {
@@ -103,9 +106,9 @@ bool LLPanelBlockedList::postBuild()
         mBlockedGearBtn->setMenu(blocked_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
     }
     mUnblockBtn = getChild<LLButton>("unblock_btn");
-    mUnblockBtn->setCommitCallback(boost::bind(&LLPanelBlockedList::unblockItem, this));
+    mUnblockBtn->setCommitCallback(std::bind(&LLPanelBlockedList::unblockItem, this));
 
-    getChild<LLFilterEditor>("blocked_filter_input")->setCommitCallback(boost::bind(&LLPanelBlockedList::onFilterEdit, this, _2));
+    getChild<LLFilterEditor>("blocked_filter_input")->setCommitCallback(std::bind(&LLPanelBlockedList::onFilterEdit, this, _2));
 
     mBlockLimitText = getChild<LLUICtrl>("block_limit");
 
@@ -211,7 +214,7 @@ void LLPanelBlockedList::blockResidentByName()
 
     LLView * button = findChild<LLButton>("plus_btn", true);
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
-    LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelBlockedList::callbackBlockPicked, this, _1, _2),
+    LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(std::bind(&LLPanelBlockedList::callbackBlockPicked, this, _1, _2),
                                                                                     allow_multiple, close_on_select, false, root_floater->getName(), button);
 
     if (root_floater)
@@ -275,8 +278,8 @@ LLFloaterGetBlockedObjectName::~LLFloaterGetBlockedObjectName()
 
 bool LLFloaterGetBlockedObjectName::postBuild()
 {
-    getChild<LLButton>("OK")->      setCommitCallback(boost::bind(&LLFloaterGetBlockedObjectName::applyBlocking, this));
-    getChild<LLButton>("Cancel")->  setCommitCallback(boost::bind(&LLFloaterGetBlockedObjectName::cancelBlocking, this));
+    getChild<LLButton>("OK")->      setCommitCallback(std::bind(&LLFloaterGetBlockedObjectName::applyBlocking, this));
+    getChild<LLButton>("Cancel")->  setCommitCallback(std::bind(&LLFloaterGetBlockedObjectName::cancelBlocking, this));
     center();
 
     return LLFloater::postBuild();

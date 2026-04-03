@@ -291,7 +291,7 @@ public:
      *   }
      *   else // Need to handle via callback after caps arrive.
      *   {
-     *       region->setCapabilitiesReceivedCallback(boost::bind(&useCapability,region,_1));
+     *       region->setCapabilitiesReceivedCallback(std::bind(&useCapability,region,_1));
      *       // you may or may not want to remove that callback
      *   }
      */

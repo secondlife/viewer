@@ -47,11 +47,13 @@
 #include "lltimer.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/circular_buffer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
 #include "llfasttimer.h"
+
+using namespace std::placeholders;
 
 using namespace llsd;
 
@@ -1179,7 +1181,7 @@ public:
         // Hooking onto the "mainloop" event pump gets us one call per frame.
         mConnection(LLEventPumps::instance()
                     .obtain("mainloop")
-                    .listen("FrameWatcher", boost::bind(&FrameWatcher::tick, this, _1))),
+                    .listen("FrameWatcher", std::bind(&FrameWatcher::tick, this, _1))),
         // Initializing mSampleStart to an invalid timestamp alerts us to skip
         // trying to compute framerate on the first call.
         mSampleStart(-1),

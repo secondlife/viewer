@@ -72,6 +72,9 @@
 #include "llhttpretrypolicy.h"
 #include "llsettingsvo.h"
 #include "llinventorylistener.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLInventoryListener sInventoryListener;
 
@@ -88,7 +91,7 @@ static const std::string INV_OWNER_ID("owner_id");
 static const std::string INV_VERSION("version");
 
 #if 1
-// *TODO$: LLInventoryCallback should be deprecated to conform to the new boost::bind/coroutine model.
+// *TODO$: LLInventoryCallback should be deprecated to conform to the new std::bind/coroutine model.
 // temp code in transition
 void doInventoryCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
 {
@@ -450,7 +453,7 @@ void LLViewerInventoryItem::updateServer(bool is_new) const
             updates["hash_id"] = getTransactionID();
         }
     }
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
+    AISAPI::completion_t cr = std::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
     AISAPI::UpdateItem(getUUID(), updates, cr);
 }
 
@@ -659,7 +662,7 @@ void LLViewerInventoryCategory::updateServer(bool is_new) const
     }
 
     LLSD new_llsd = asLLSD();
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
+    AISAPI::completion_t cr = std::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>)NULL, _1);
     AISAPI::UpdateCategory(getUUID(), new_llsd, cr);
 }
 
@@ -877,7 +880,7 @@ void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
 
 
     LLSD new_llsd = new_cat->asLLSD();
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>) NULL, _1);
+    AISAPI::completion_t cr = std::bind(&doInventoryCb, (LLPointer<LLInventoryCallback>) NULL, _1);
     AISAPI::UpdateCategory(folder_id, new_llsd, cr);
 
     setPreferredType(new_folder_type);
@@ -1152,7 +1155,7 @@ void create_inventory_item(
             0 /*don't know yet, whenever server creates it*/);
         LLSD item_sd = item->asLLSD();
         new_inventory["items"].append(item_sd);
-        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::completion_t cr = std::bind(&doInventoryCb, cb, _1);
         AISAPI::CreateInventory(
             parent_id,
             new_inventory,
@@ -1206,7 +1209,7 @@ void create_inventory_callingcard_callback(LLPointer<LLInventoryCallback> cb,
 void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=NULL*/)
 {
     LLAvatarName av_name;
-    LLAvatarNameCache::get(avatar_id, boost::bind(&create_inventory_callingcard_callback, cb, parent, _1, _2));
+    LLAvatarNameCache::get(avatar_id, std::bind(&create_inventory_callingcard_callback, cb, parent, _1, _2));
 }
 
 void create_inventory_wearable(const LLUUID& agent_id, const LLUUID& session_id,
@@ -1366,7 +1369,7 @@ void link_inventory_array(const LLUUID& category,
     }
     LLSD new_inventory = LLSD::emptyMap();
     new_inventory["links"] = links;
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+    AISAPI::completion_t cr = std::bind(&doInventoryCb, cb, _1);
     AISAPI::CreateInventory(category, new_inventory, cr);
 }
 
@@ -1418,7 +1421,7 @@ void update_inventory_item(
             updates["hash_id"] = update_item->getTransactionID();
         }
     }
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+    AISAPI::completion_t cr = std::bind(&doInventoryCb, cb, _1);
     AISAPI::UpdateItem(item_id, updates, cr);
 }
 
@@ -1430,7 +1433,7 @@ void update_inventory_item(
     const LLSD& updates,
     LLPointer<LLInventoryCallback> cb)
 {
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+    AISAPI::completion_t cr = std::bind(&doInventoryCb, cb, _1);
     AISAPI::UpdateItem(item_id, updates, cr);
 }
 
@@ -1451,7 +1454,7 @@ void update_inventory_category(
             return;
         }
 
-        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::completion_t cr = std::bind(&doInventoryCb, cb, _1);
         AISAPI::UpdateCategory(cat_id, updates, cr);
     }
 }
@@ -1496,7 +1499,7 @@ void remove_inventory_item(
         LL_DEBUGS(LOG_INV) << "item_id: [" << item_id << "] name " << obj->getName() << LL_ENDL;
         if (AISAPI::isAvailable())
         {
-            AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+            AISAPI::completion_t cr = (cb) ? std::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
             AISAPI::RemoveItem(item_id, cr);
 
             if (immediate_delete)
@@ -1559,7 +1562,7 @@ void remove_inventory_category(
             LLNotificationsUtil::add("CannotRemoveProtectedCategories");
             return;
         }
-        AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+        AISAPI::completion_t cr = std::bind(&doInventoryCb, cb, _1);
         AISAPI::RemoveCategory(cat_id, cr);
     }
     else
@@ -1633,7 +1636,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
             {
                 LL_WARNS() << "Purging not fetched folder: " << cat->getName() << LL_ENDL;
             }
-            AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
+            AISAPI::completion_t cr = (cb) ? std::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
             AISAPI::PurgeDescendents(id, cr);
         }
         else
@@ -1780,7 +1783,7 @@ void slam_inventory_folder(const LLUUID& folder_id,
     LL_DEBUGS(LOG_INV) << "using AISv3 to slam folder, id " << folder_id
                        << " new contents: " << ll_pretty_print_sd(contents) << LL_ENDL;
 
-    AISAPI::completion_t cr = boost::bind(&doInventoryCb, cb, _1);
+    AISAPI::completion_t cr = std::bind(&doInventoryCb, cb, _1);
     AISAPI::SlamFolder(folder_id, contents, cr);
 }
 

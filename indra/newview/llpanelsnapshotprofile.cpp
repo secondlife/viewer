@@ -37,6 +37,7 @@
 #include "llpanelsnapshot.h"
 #include "llsidetraypanelcontainer.h"
 #include "llwebprofile.h"
+#include <functional>
 
 /**
  * Posts a snapshot to My Profile feed.
@@ -68,8 +69,8 @@ static LLPanelInjector<LLPanelSnapshotProfile> panel_class("llpanelsnapshotprofi
 
 LLPanelSnapshotProfile::LLPanelSnapshotProfile()
 {
-    mCommitCallbackRegistrar.add("PostToProfile.Send",      boost::bind(&LLPanelSnapshotProfile::onSend,        this));
-    mCommitCallbackRegistrar.add("PostToProfile.Cancel",    boost::bind(&LLPanelSnapshotProfile::cancel,        this));
+    mCommitCallbackRegistrar.add("PostToProfile.Send",      std::bind(&LLPanelSnapshotProfile::onSend,        this));
+    mCommitCallbackRegistrar.add("PostToProfile.Cancel",    std::bind(&LLPanelSnapshotProfile::cancel,        this));
 }
 
 // virtual

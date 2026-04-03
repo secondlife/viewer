@@ -98,7 +98,7 @@ bool LLPanelGroupBulkBan::postBuild()
     return true;
 }
 
-// TODO: Refactor the shitty callback functions with void* -- just use boost::bind to call submit() instead.
+// TODO: Refactor the shitty callback functions with void* -- just use std::bind to call submit() instead.
 void LLPanelGroupBulkBan::callbackClickSubmit(void* userdata)
 {
     LLPanelGroupBulkBan* selfp = (LLPanelGroupBulkBan*)userdata;

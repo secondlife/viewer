@@ -51,6 +51,9 @@
 #include "llviewergenericmessage.h" // send_generic_message
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLPanelProfilePicks> t_panel_profile_picks("panel_profile_picks");
 static LLPanelInjector<LLPanelProfilePick> t_panel_profile_pick("panel_profile_pick");
@@ -231,8 +234,8 @@ bool LLPanelProfilePicks::postBuild()
     mNewButton = getChild<LLButton>("new_btn");
     mDeleteButton = getChild<LLButton>("delete_btn");
 
-    mNewButton->setCommitCallback(boost::bind(&LLPanelProfilePicks::onClickNewBtn, this));
-    mDeleteButton->setCommitCallback(boost::bind(&LLPanelProfilePicks::onClickDelete, this));
+    mNewButton->setCommitCallback(std::bind(&LLPanelProfilePicks::onClickNewBtn, this));
+    mDeleteButton->setCommitCallback(std::bind(&LLPanelProfilePicks::onClickDelete, this));
 
     return true;
 }
@@ -264,7 +267,7 @@ void LLPanelProfilePicks::onClickDelete()
         payload["pick_id"] = pick_id;
         payload["tab_idx"] = mTabContainer->getCurrentPanelIndex();
         LLNotificationsUtil::add("ProfileDeletePick", args, payload,
-            boost::bind(&LLPanelProfilePicks::callbackDeletePick, this, _1, _2));
+            std::bind(&LLPanelProfilePicks::callbackDeletePick, this, _1, _2));
     }
 }
 
@@ -628,23 +631,23 @@ bool LLPanelProfilePick::postBuild()
     mSetCurrentLocationButton = getChild<LLButton>("set_to_curr_location_btn");
 
     mSnapshotCtrl = getChild<LLTextureCtrl>("pick_snapshot");
-    mSnapshotCtrl->setCommitCallback(boost::bind(&LLPanelProfilePick::onSnapshotChanged, this));
+    mSnapshotCtrl->setCommitCallback(std::bind(&LLPanelProfilePick::onSnapshotChanged, this));
     mSnapshotCtrl->setAllowLocalTexture(false);
     mSnapshotCtrl->setBakeTextureEnabled(false);
 
-    childSetAction("teleport_btn", boost::bind(&LLPanelProfilePick::onClickTeleport, this));
-    childSetAction("show_on_map_btn", boost::bind(&LLPanelProfilePick::onClickMap, this));
+    childSetAction("teleport_btn", std::bind(&LLPanelProfilePick::onClickTeleport, this));
+    childSetAction("show_on_map_btn", std::bind(&LLPanelProfilePick::onClickMap, this));
 
-    mSaveButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSave, this));
-    mCreateButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSave, this));
-    mCancelButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickCancel, this));
-    mSetCurrentLocationButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSetLocation, this));
+    mSaveButton->setCommitCallback(std::bind(&LLPanelProfilePick::onClickSave, this));
+    mCreateButton->setCommitCallback(std::bind(&LLPanelProfilePick::onClickSave, this));
+    mCancelButton->setCommitCallback(std::bind(&LLPanelProfilePick::onClickCancel, this));
+    mSetCurrentLocationButton->setCommitCallback(std::bind(&LLPanelProfilePick::onClickSetLocation, this));
 
-    mPickName->setKeystrokeCallback(boost::bind(&LLPanelProfilePick::onPickChanged, this, _1), NULL);
+    mPickName->setKeystrokeCallback(std::bind(&LLPanelProfilePick::onPickChanged, this, _1), NULL);
     mPickName->setEnabled(false);
 
-    mPickDescription->setKeystrokeCallback(boost::bind(&LLPanelProfilePick::onPickChanged, this, _1));
-    mPickDescription->setFocusReceivedCallback(boost::bind(&LLPanelProfilePick::onDescriptionFocusReceived, this));
+    mPickDescription->setKeystrokeCallback(std::bind(&LLPanelProfilePick::onPickChanged, this, _1));
+    mPickDescription->setFocusReceivedCallback(std::bind(&LLPanelProfilePick::onDescriptionFocusReceived, this));
 
     getChild<LLUICtrl>("pick_location")->setEnabled(false);
 

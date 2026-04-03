@@ -51,6 +51,7 @@
 #include "lltoggleablemenu.h"
 #include "lltrans.h"
 #include "lluictrl.h"
+#include <functional>
 
 class LLViewerObject;
 
@@ -129,14 +130,14 @@ LLInspectObject::LLInspectObject(const LLSD& sd)
 {
     // can't make the properties request until the widgets are constructed
     // as it might return immediately, so do it in postBuild.
-    mCommitCallbackRegistrar.add("InspectObject.Buy",   boost::bind(&LLInspectObject::onClickBuy, this));
-    mCommitCallbackRegistrar.add("InspectObject.Pay",   boost::bind(&LLInspectObject::onClickPay, this));
-    mCommitCallbackRegistrar.add("InspectObject.TakeFreeCopy",  boost::bind(&LLInspectObject::onClickTakeFreeCopy, this));
-    mCommitCallbackRegistrar.add("InspectObject.Touch", boost::bind(&LLInspectObject::onClickTouch, this));
-    mCommitCallbackRegistrar.add("InspectObject.Sit",   boost::bind(&LLInspectObject::onClickSit, this));
-    mCommitCallbackRegistrar.add("InspectObject.Open",  boost::bind(&LLInspectObject::onClickOpen, this));
-    mCommitCallbackRegistrar.add("InspectObject.MoreInfo",  boost::bind(&LLInspectObject::onClickMoreInfo, this));
-    mCommitCallbackRegistrar.add("InspectObject.ZoomIn", boost::bind(&LLInspectObject::onClickZoomIn, this));
+    mCommitCallbackRegistrar.add("InspectObject.Buy",   std::bind(&LLInspectObject::onClickBuy, this));
+    mCommitCallbackRegistrar.add("InspectObject.Pay",   std::bind(&LLInspectObject::onClickPay, this));
+    mCommitCallbackRegistrar.add("InspectObject.TakeFreeCopy",  std::bind(&LLInspectObject::onClickTakeFreeCopy, this));
+    mCommitCallbackRegistrar.add("InspectObject.Touch", std::bind(&LLInspectObject::onClickTouch, this));
+    mCommitCallbackRegistrar.add("InspectObject.Sit",   std::bind(&LLInspectObject::onClickSit, this));
+    mCommitCallbackRegistrar.add("InspectObject.Open",  std::bind(&LLInspectObject::onClickOpen, this));
+    mCommitCallbackRegistrar.add("InspectObject.MoreInfo",  std::bind(&LLInspectObject::onClickMoreInfo, this));
+    mCommitCallbackRegistrar.add("InspectObject.ZoomIn", std::bind(&LLInspectObject::onClickZoomIn, this));
 }
 
 
@@ -162,29 +163,29 @@ bool LLInspectObject::postBuild(void)
 
     // Hide floater when name links clicked
     LLTextBox* textbox = getChild<LLTextBox>("object_creator");
-    textbox->setURLClickedCallback(boost::bind(&LLInspectObject::closeFloater, this, false) );
+    textbox->setURLClickedCallback(std::bind(&LLInspectObject::closeFloater, this, false) );
 
     // Hook up functionality
     getChild<LLUICtrl>("buy_btn")->setCommitCallback(
-        boost::bind(&LLInspectObject::onClickBuy, this));
+        std::bind(&LLInspectObject::onClickBuy, this));
     getChild<LLUICtrl>("pay_btn")->setCommitCallback(
-        boost::bind(&LLInspectObject::onClickPay, this));
+        std::bind(&LLInspectObject::onClickPay, this));
     getChild<LLUICtrl>("take_free_copy_btn")->setCommitCallback(
-        boost::bind(&LLInspectObject::onClickTakeFreeCopy, this));
+        std::bind(&LLInspectObject::onClickTakeFreeCopy, this));
     getChild<LLUICtrl>("touch_btn")->setCommitCallback(
-        boost::bind(&LLInspectObject::onClickTouch, this));
+        std::bind(&LLInspectObject::onClickTouch, this));
     getChild<LLUICtrl>("sit_btn")->setCommitCallback(
-        boost::bind(&LLInspectObject::onClickSit, this));
+        std::bind(&LLInspectObject::onClickSit, this));
     getChild<LLUICtrl>("open_btn")->setCommitCallback(
-        boost::bind(&LLInspectObject::onClickOpen, this));
+        std::bind(&LLInspectObject::onClickOpen, this));
     getChild<LLUICtrl>("more_info_btn")->setCommitCallback(
-        boost::bind(&LLInspectObject::onClickMoreInfo, this));
+        std::bind(&LLInspectObject::onClickMoreInfo, this));
 
     if (!mSelectionUpdateSlot.connected())
     {
         // Watch for updates to selection properties off the network
         mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(
-            boost::bind(&LLInspectObject::update, this));
+            std::bind(&LLInspectObject::update, this));
     }
 
     return true;

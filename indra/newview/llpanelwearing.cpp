@@ -47,6 +47,9 @@
 #include "llwearableitemslist.h"
 #include "llsdserialize.h"
 #include "llclipboard.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Context menu and Gear menu helper.
 static void edit_outfit()
@@ -65,13 +68,13 @@ public:
         LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
         LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-        registrar.add("Gear.TouchAttach", boost::bind(&LLWearingGearMenu::handleMultiple, this, handle_attachment_touch));
-        registrar.add("Gear.EditItem", boost::bind(&LLWearingGearMenu::handleMultiple, this, handle_item_edit));
-        registrar.add("Gear.EditOutfit", boost::bind(&edit_outfit));
-        registrar.add("Gear.TakeOff", boost::bind(&LLPanelWearing::onRemoveItem, mPanelWearing));
-        registrar.add("Gear.Copy", boost::bind(&LLPanelWearing::copyToClipboard, mPanelWearing));
+        registrar.add("Gear.TouchAttach", std::bind(&LLWearingGearMenu::handleMultiple, this, handle_attachment_touch));
+        registrar.add("Gear.EditItem", std::bind(&LLWearingGearMenu::handleMultiple, this, handle_item_edit));
+        registrar.add("Gear.EditOutfit", std::bind(&edit_outfit));
+        registrar.add("Gear.TakeOff", std::bind(&LLPanelWearing::onRemoveItem, mPanelWearing));
+        registrar.add("Gear.Copy", std::bind(&LLPanelWearing::copyToClipboard, mPanelWearing));
 
-        enable_registrar.add("Gear.OnEnable", boost::bind(&LLPanelWearing::isActionEnabled, mPanelWearing, _2));
+        enable_registrar.add("Gear.OnEnable", std::bind(&LLPanelWearing::isActionEnabled, mPanelWearing, _2));
 
         mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
             "menu_wearing_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -105,15 +108,15 @@ protected:
     {
         LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
-        registrar.add("Wearing.TouchAttach", boost::bind(handleMultiple, handle_attachment_touch, mUUIDs));
-        registrar.add("Wearing.EditItem", boost::bind(handleMultiple, handle_item_edit, mUUIDs));
-        registrar.add("Wearing.EditOutfit", boost::bind(&edit_outfit));
-        registrar.add("Wearing.ShowOriginal", boost::bind(show_item_original, mUUIDs.front()));
+        registrar.add("Wearing.TouchAttach", std::bind(handleMultiple, handle_attachment_touch, mUUIDs));
+        registrar.add("Wearing.EditItem", std::bind(handleMultiple, handle_item_edit, mUUIDs));
+        registrar.add("Wearing.EditOutfit", std::bind(&edit_outfit));
+        registrar.add("Wearing.ShowOriginal", std::bind(show_item_original, mUUIDs.front()));
         registrar.add("Wearing.TakeOff",
-                      boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
+                      std::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
         registrar.add("Wearing.Detach",
-                      boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
-        registrar.add("Wearing.Favorite", boost::bind(toggle_favorites, mUUIDs));
+                      std::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
+        registrar.add("Wearing.Favorite", std::bind(toggle_favorites, mUUIDs));
         LLContextMenu* menu = createFromFile("menu_wearing_tab.xml");
 
         updateMenuItemsVisibility(menu);
@@ -192,8 +195,8 @@ protected:
     {
         LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
-        registrar.add("Wearing.EditItem", boost::bind(&LLPanelWearing::onEditAttachment, mPanelWearing));
-        registrar.add("Wearing.Detach", boost::bind(&LLPanelWearing::onRemoveAttachment, mPanelWearing));
+        registrar.add("Wearing.EditItem", std::bind(&LLPanelWearing::onEditAttachment, mPanelWearing));
+        registrar.add("Wearing.Detach", std::bind(&LLPanelWearing::onRemoveAttachment, mPanelWearing));
         LLContextMenu* menu = createFromFile("menu_wearing_tab.xml");
 
         updateMenuItemsVisibility(menu);
@@ -254,14 +257,14 @@ bool LLPanelWearing::postBuild()
     mWearablesTab = getChild<LLAccordionCtrlTab>("tab_wearables");
     mWearablesTab->setIgnoreResizeNotification(true);
     mAttachmentsTab = getChild<LLAccordionCtrlTab>("tab_temp_attachments");
-    mAttachmentsTab->setDropDownStateChangedCallback(boost::bind(&LLPanelWearing::onAccordionTabStateChanged, this));
+    mAttachmentsTab->setDropDownStateChangedCallback(std::bind(&LLPanelWearing::onAccordionTabStateChanged, this));
 
     mCOFItemsList = getChild<LLWearableItemsList>("cof_items_list");
-    mCOFItemsList->setRightMouseDownCallback(boost::bind(&LLPanelWearing::onWearableItemsListRightClick, this, _1, _2, _3));
+    mCOFItemsList->setRightMouseDownCallback(std::bind(&LLPanelWearing::onWearableItemsListRightClick, this, _1, _2, _3));
 
     mTempItemsList = getChild<LLScrollListCtrl>("temp_attachments_list");
     mTempItemsList->setFgUnselectedColor(LLColor4::white);
-    mTempItemsList->setRightMouseDownCallback(boost::bind(&LLPanelWearing::onTempAttachmentsListRightClick, this, _1, _2, _3));
+    mTempItemsList->setRightMouseDownCallback(std::bind(&LLPanelWearing::onTempAttachmentsListRightClick, this, _1, _2, _3));
 
     return true;
 }
@@ -283,7 +286,7 @@ void LLPanelWearing::onOpen([[maybe_unused]] const LLSD& info)
             return;
 
         // Start observing changes in Current Outfit category.
-        LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLWearableItemsList::updateList, mCOFItemsList, cof));
+        LLOutfitObserver::instance().addCOFChangedCallback(std::bind(&LLWearableItemsList::updateList, mCOFItemsList, cof));
 
         // Fetch Current Outfit contents and refresh the list to display
         // initially fetched items. If not all items are fetched now
@@ -312,7 +315,7 @@ void LLPanelWearing::onAccordionTabStateChanged()
     if(mAttachmentsTab->isExpanded())
     {
         startUpdateTimer();
-        mAttachmentsChangedConnection = LLAppearanceMgr::instance().setAttachmentsChangedCallback(boost::bind(&LLPanelWearing::startUpdateTimer, this));
+        mAttachmentsChangedConnection = LLAppearanceMgr::instance().setAttachmentsChangedCallback(std::bind(&LLPanelWearing::startUpdateTimer, this));
     }
     else
     {
@@ -458,7 +461,7 @@ void LLPanelWearing::requestAttachmentDetails()
     if (!url.empty())
     {
         LLCoros::instance().launch("LLPanelWearing::getAttachmentLimitsCoro",
-        boost::bind(&LLPanelWearing::getAttachmentLimitsCoro, this, url));
+        std::bind(&LLPanelWearing::getAttachmentLimitsCoro, this, url));
     }
 }
 

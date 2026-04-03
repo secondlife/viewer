@@ -32,6 +32,7 @@
 #include "llwindow.h"
 #include "v4color.h"
 #include "lluicolortable.h"
+#include <functional>
 
 //---------------------------------------------------------------------------------
 LLSysWellItem::LLSysWellItem(const Params& p) : LLPanel(p),
@@ -45,7 +46,7 @@ LLSysWellItem::LLSysWellItem(const Params& p) : LLPanel(p),
 
     mTitle->setContentTrusted(false);
     mTitle->setValue(p.title);
-    mCloseBtn->setClickedCallback(boost::bind(&LLSysWellItem::onClickCloseBtn,this));
+    mCloseBtn->setClickedCallback(std::bind(&LLSysWellItem::onClickCloseBtn,this));
 
     mID = p.notification_id;
 }

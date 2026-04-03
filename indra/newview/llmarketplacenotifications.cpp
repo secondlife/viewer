@@ -34,6 +34,9 @@
 #include "llerror.h"
 
 #include <boost/signals2.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 
 namespace LLMarketplaceInventoryNotifications
@@ -72,7 +75,7 @@ namespace LLMarketplaceInventoryNotifications
         {
             no_copy_notify_active = true;
 
-            LLNotificationsUtil::add("ConfirmNoCopyToOutbox", LLSD(), LLSD(), boost::bind(&notifyNoCopyCallback, _1, _2));
+            LLNotificationsUtil::add("ConfirmNoCopyToOutbox", LLSD(), LLSD(), std::bind(&notifyNoCopyCallback, _1, _2));
         }
     }
 
@@ -81,7 +84,7 @@ namespace LLMarketplaceInventoryNotifications
         if (no_copy_cb_action == NULL)
         {
             no_copy_cb_action = new no_copy_payload_cb_signal_t;
-            no_copy_cb_action->connect(boost::bind(cb, _1));
+            no_copy_cb_action->connect(std::bind(cb, _1));
         }
 
         no_copy_payloads.push_back(payload);

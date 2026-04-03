@@ -30,6 +30,7 @@
 #include "llagent.h"
 #include "llloadingindicator.h"
 #include "lltooldraganddrop.h"
+#include <functional>
 
 //////////////////////////////////////////////////////////////////////////
 // LLProfileDropTarget
@@ -165,7 +166,7 @@ bool LLPanelProfileTab::saveAgentUserInfoCoro(std::string name, LLSD value, std:
     }
 
     LLCoros::instance().launch("putAgentUserInfoCoro",
-        boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with(name, value), callback));
+        std::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with(name, value), callback));
 
     return true;
 }

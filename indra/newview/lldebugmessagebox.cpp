@@ -36,6 +36,9 @@
 #include "lltextbox.h"
 #include "lllineeditor.h"
 #include "llfocusmgr.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Class LLDebugVarMessageBox
@@ -120,7 +123,7 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
     p.name(std::string("Animate"));
     p.label(std::string("Animate"));
     p.rect(LLRect(20, 45, 180, 25));
-    p.click_callback.function(boost::bind(&LLDebugVarMessageBox::onAnimateClicked, this, _2));
+    p.click_callback.function(std::bind(&LLDebugVarMessageBox::onAnimateClicked, this, _2));
     mAnimateButton = LLUICtrlFactory::create<LLButton>(p);
     addChild(mAnimateButton);
 
@@ -152,7 +155,7 @@ void LLDebugVarMessageBox::show(const std::string& title, F32 *var, F32 max_valu
     {
         box->mSlider1->setValue(*var);
     }
-    box->mSlider1->setCommitCallback(boost::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
+    box->mSlider1->setCommitCallback(std::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 #endif
 }
 
@@ -168,7 +171,7 @@ void LLDebugVarMessageBox::show(const std::string& title, S32 *var, S32 max_valu
     {
         box->mSlider1->setValue((F32)*var);
     }
-    box->mSlider1->setCommitCallback(boost::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
+    box->mSlider1->setCommitCallback(std::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 #endif
 }
 
@@ -180,17 +183,17 @@ void LLDebugVarMessageBox::show(const std::string& title, LLVector3 *var, LLVect
     box->mSlider1->setMaxValue(max_value.mV[VX]);
     box->mSlider1->setMinValue(-max_value.mV[VX]);
     box->mSlider1->setIncrement(increment.mV[VX]);
-    box->mSlider1->setCommitCallback(boost::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
+    box->mSlider1->setCommitCallback(std::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 
     box->mSlider2->setMaxValue(max_value.mV[VX]);
     box->mSlider2->setMinValue(-max_value.mV[VX]);
     box->mSlider2->setIncrement(increment.mV[VX]);
-    box->mSlider2->setCommitCallback(boost::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
+    box->mSlider2->setCommitCallback(std::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 
     box->mSlider3->setMaxValue(max_value.mV[VX]);
     box->mSlider3->setMinValue(-max_value.mV[VX]);
     box->mSlider3->setIncrement(increment.mV[VX]);
-    box->mSlider3->setCommitCallback(boost::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
+    box->mSlider3->setCommitCallback(std::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 #endif
 }
 

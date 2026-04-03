@@ -39,6 +39,7 @@
 #include "llbutton.h"
 #include "llfocusmgr.h"
 #include "lltextbox.h"
+#include <functional>
 
 const std::string LAG_CRITICAL_IMAGE_NAME = "lag_status_critical.tga";
 const std::string LAG_WARNING_IMAGE_NAME  = "lag_status_warning.tga";
@@ -47,7 +48,7 @@ const std::string LAG_GOOD_IMAGE_NAME     = "lag_status_good.tga";
 LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
     :   LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("LagMeter.ClickShrink",  boost::bind(&LLFloaterLagMeter::onClickShrink, this));
+    mCommitCallbackRegistrar.add("LagMeter.ClickShrink",  std::bind(&LLFloaterLagMeter::onClickShrink, this));
 }
 
 bool LLFloaterLagMeter::postBuild()

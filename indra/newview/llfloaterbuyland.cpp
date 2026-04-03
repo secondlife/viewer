@@ -62,6 +62,9 @@
 #include "llxmlrpctransaction.h"
 #include "llviewernetwork.h"
 #include "roles_constants.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // NOTE: This is duplicated in lldatamoney.cpp ...
 const F32 GROUP_LAND_BONUS_FACTOR = 1.1f;
@@ -794,7 +797,7 @@ void LLFloaterBuyLandUI::updateNames()
     else if (parcelp->getIsGroupOwned())
     {
         gCacheName->getGroup(parcelp->getGroupID(),
-            boost::bind(&LLFloaterBuyLandUI::updateGroupName, this,
+            std::bind(&LLFloaterBuyLandUI::updateGroupName, this,
                 _1, _2, _3));
     }
     else
@@ -891,13 +894,13 @@ void LLFloaterBuyLandUI::tellUserError(
 // virtual
 bool LLFloaterBuyLandUI::postBuild()
 {
-    setVisibleCallback(boost::bind(&LLFloaterBuyLandUI::onVisibilityChanged, this, _2));
+    setVisibleCallback(std::bind(&LLFloaterBuyLandUI::onVisibilityChanged, this, _2));
 
     mCurrency.prepare();
 
-    getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyLandUI::onClickBuy, this));
-    getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyLandUI::onClickCancel, this));
-    getChild<LLUICtrl>("error_web")->setCommitCallback( boost::bind(&LLFloaterBuyLandUI::onClickErrorWeb, this));
+    getChild<LLUICtrl>("buy_btn")->setCommitCallback( std::bind(&LLFloaterBuyLandUI::onClickBuy, this));
+    getChild<LLUICtrl>("cancel_btn")->setCommitCallback( std::bind(&LLFloaterBuyLandUI::onClickCancel, this));
+    getChild<LLUICtrl>("error_web")->setCommitCallback( std::bind(&LLFloaterBuyLandUI::onClickErrorWeb, this));
 
     center();
 

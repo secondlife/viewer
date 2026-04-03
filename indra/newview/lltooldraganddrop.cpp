@@ -65,6 +65,9 @@
 #include "llworld.h"
 #include "llpanelface.h"
 #include "lluiusage.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // syntactic sugar
 #define callMemberFunction(object,ptrToMember)  ((object).*(ptrToMember))
@@ -2285,7 +2288,7 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
                     }
                     else
                     {
-                        LLAvatarNameCache::get(dest_agent, boost::bind(&get_name_cb, _1, _2, inv_obj, dest, dest_agent));
+                        LLAvatarNameCache::get(dest_agent, std::bind(&get_name_cb, _1, _2, inv_obj, dest, dest_agent));
                     }
 
                     return true;
@@ -2372,7 +2375,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
     {
         if(mSource == SOURCE_LIBRARY)
         {
-            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0, false));
+            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(std::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0, false));
             copy_inventory_item(
                 gAgent.getID(),
                 item->getPermissions().getOwner(),

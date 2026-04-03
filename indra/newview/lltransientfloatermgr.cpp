@@ -32,13 +32,16 @@
 #include "llviewerwindow.h"
 #include "lldockablefloater.h"
 #include "llmenugl.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 LLTransientFloaterMgr::LLTransientFloaterMgr()
 {
     if(gViewerWindow)
     {
-        gViewerWindow->getRootView()->getChild<LLUICtrl>("popup_holder")->setMouseDownCallback(boost::bind(
+        gViewerWindow->getRootView()->getChild<LLUICtrl>("popup_holder")->setMouseDownCallback(std::bind(
             &LLTransientFloaterMgr::leftMouseClickCallback, this, _2, _3, _4));
     }
 

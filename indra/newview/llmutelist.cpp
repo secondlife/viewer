@@ -47,7 +47,7 @@
 #include "pipeline.h"
 
 #include <boost/tokenizer.hpp>
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/algorithm/string/replace.hpp>
 
 #include "lldispatcher.h"
@@ -62,6 +62,8 @@
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "lltrans.h"
+
+using namespace std::placeholders;
 
 namespace
 {
@@ -164,10 +166,10 @@ LLMuteList::LLMuteList() :
     // available.
     // When using bind(), must be explicit about default arguments such as
     // that last NULL.
-    gMessageSystem.callWhenReady(boost::bind(&LLMessageSystem::setHandlerFuncFast, _1,
+    gMessageSystem.callWhenReady(std::bind(&LLMessageSystem::setHandlerFuncFast, _1,
                                              _PREHASH_MuteListUpdate, processMuteListUpdate,
                                              static_cast<void**>(NULL)));
-    gMessageSystem.callWhenReady(boost::bind(&LLMessageSystem::setHandlerFuncFast, _1,
+    gMessageSystem.callWhenReady(std::bind(&LLMessageSystem::setHandlerFuncFast, _1,
                                              _PREHASH_UseCachedMuteList, processUseCachedMuteList,
                                              static_cast<void**>(NULL)));
 
@@ -546,7 +548,7 @@ bool LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason)
         {
             // not in cache, lookup name from cache
             LLAvatarNameCache::get(agent_id,
-                boost::bind(&notify_automute_callback, _1, _2, reason));
+                std::bind(&notify_automute_callback, _1, _2, reason));
         }
     }
 

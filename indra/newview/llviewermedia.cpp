@@ -76,8 +76,10 @@
 
 #include "llfloaterwebcontent.h"    // for handling window close requests and geometry change requests in media browser windows.
 
-#include <boost/bind.hpp>   // for SkinFolder listener
+#include <functional>   // for SkinFolder listener
 #include <boost/signals2.hpp>
+
+using namespace std::placeholders;
 
 extern bool gCubeSnapshot;
 
@@ -236,7 +238,7 @@ void LLViewerMedia::initSingleton()
 {
     gIdleCallbacks.addFunction(LLViewerMedia::onIdle, NULL);
     mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
-        setTeleportFinishedCallback(boost::bind(&LLViewerMedia::onTeleportFinished, this));
+        setTeleportFinishedCallback(std::bind(&LLViewerMedia::onTeleportFinished, this));
 
     LLControlVariable* ctrl = gSavedSettings.getControl("PluginInstancesTotal");
     if (ctrl)
@@ -1288,7 +1290,7 @@ void LLViewerMedia::setOpenIDCookie(const std::string& url)
         std::string profileUrl = getProfileURL("");
 
         LLCoros::instance().launch("LLViewerMedia::getOpenIDCookieCoro",
-            boost::bind(&LLViewerMedia::getOpenIDCookieCoro, profileUrl));
+            std::bind(&LLViewerMedia::getOpenIDCookieCoro, profileUrl));
     }
 }
 
@@ -1432,7 +1434,7 @@ void LLViewerMedia::openIDSetup(const std::string &openidUrl, const std::string 
     LL_DEBUGS("MediaAuth") << "url = \"" << openidUrl << "\", token = \"" << openidToken << "\"" << LL_ENDL;
 
     LLCoros::instance().launch("LLViewerMedia::openIDSetupCoro",
-        boost::bind(&LLViewerMedia::openIDSetupCoro, openidUrl, openidToken));
+        std::bind(&LLViewerMedia::openIDSetupCoro, openidUrl, openidToken));
 }
 
 void LLViewerMedia::openIDSetupCoro(std::string openidUrl, std::string openidToken)
@@ -2698,7 +2700,7 @@ void LLViewerMediaImpl::navigateInternal(bool should_log)
         if(scheme.empty() || "http" == scheme || "https" == scheme)
         {
             LLCoros::instance().launch("LLViewerMediaImpl::mimeDiscoveryCoro",
-                boost::bind(&LLViewerMediaImpl::mimeDiscoveryCoro, this, mMediaURL));
+                std::bind(&LLViewerMediaImpl::mimeDiscoveryCoro, this, mMediaURL));
         }
         else if("data" == scheme || "file" == scheme || "about" == scheme)
         {
@@ -3549,7 +3551,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
             auth_request_params.substitutions = args;
 
             auth_request_params.payload = LLSD().with("media_id", mTextureId);
-            auth_request_params.functor.function = boost::bind(&LLViewerMedia::authSubmitCallback, _1, _2);
+            auth_request_params.functor.function = std::bind(&LLViewerMedia::authSubmitCallback, _1, _2);
             LLNotifications::instance().add(auth_request_params);
         };
         break;

@@ -38,6 +38,7 @@
 #include "workqueue.h"
 
 #include "llapr.h"
+#include <functional>
 
 //virtual
 LLPluginProcessParentOwner::~LLPluginProcessParentOwner()
@@ -207,7 +208,7 @@ void LLPluginProcessParent::requestShutdown()
     // and finished.
     LL_DEBUGS("LLPluginProcessParent") << "listening on \"mainloop\"" << LL_ENDL;
     mPolling = LLEventPumps::instance().obtain("mainloop")
-        .listen(namestream.str(), boost::bind(&LLPluginProcessParent::pollTick, this));
+        .listen(namestream.str(), [this](const LLSD&) { return pollTick(); });
 
 }
 

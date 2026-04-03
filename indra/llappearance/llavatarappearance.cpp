@@ -39,9 +39,10 @@
 #include "llpolyskeletaldistortion.h"
 #include "lltexglobalcolor.h"
 #include "llwearabledata.h"
-#include "boost/bind.hpp"
+#include <functional>
 #include "boost/tokenizer.hpp"
 #include "v4math.h"
+
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -997,8 +998,7 @@ bool LLAvatarAppearance::loadAvatar()
         {
             addVisualParam( driver_param );
             driver_param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
-            LLVisualParam*(LLAvatarAppearance::*avatar_function)(S32)const = &LLAvatarAppearance::getVisualParam;
-            if( !driver_param->linkDrivenParams(boost::bind(avatar_function,(LLAvatarAppearance*)this,_1 ), false))
+            if( !driver_param->linkDrivenParams([this](S32 id) -> LLVisualParam* { return getVisualParam(id); }, false))
             {
                 LL_WARNS() << "could not link driven params for avatar " << getID().asString() << " param id: " << driver_param->getID() << LL_ENDL;
                 continue;

@@ -57,6 +57,9 @@
 #include "llsdserialize.h"
 #include "llviewermenu.h" // is_agent_mappable
 #include "llviewerobjectlist.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 const S32 EVENTS_PER_IDLE_LOOP_CURRENT_SESSION = 80;
@@ -75,15 +78,15 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
     mIsFirstLaunch(true),
     mConversationEventQueue()
 {
-    mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
-    mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
+    mEnableCallbackRegistrar.add("IMFloaterContainer.Check", std::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
+    mCommitCallbackRegistrar.add("IMFloaterContainer.Action", std::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
 
-    mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMContainer::checkContextMenuItem,  this, _2));
-    mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMContainer::enableContextMenuItem, this, _2));
-    mEnableCallbackRegistrar.add("Avatar.VisibleItem", boost::bind(&LLFloaterIMContainer::visibleContextMenuItem,   this, _2));
-    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelected, this, _2));
+    mEnableCallbackRegistrar.add("Avatar.CheckItem",  std::bind(&LLFloaterIMContainer::checkContextMenuItem,  this, _2));
+    mEnableCallbackRegistrar.add("Avatar.EnableItem", std::bind(&LLFloaterIMContainer::enableContextMenuItem, this, _2));
+    mEnableCallbackRegistrar.add("Avatar.VisibleItem", std::bind(&LLFloaterIMContainer::visibleContextMenuItem,   this, _2));
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", std::bind(&LLFloaterIMContainer::doToSelected, this, _2));
 
-    mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelectedGroup, this, _2));
+    mCommitCallbackRegistrar.add("Group.DoToSelected", std::bind(&LLFloaterIMContainer::doToSelectedGroup, this, _2));
 
     // Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);
@@ -199,14 +202,14 @@ bool LLFloaterIMContainer::postBuild()
     mOrigMinWidth = getMinWidth();
     mOrigMinHeight = getMinHeight();
 
-    mNewMessageConnection = LLIMModel::instance().mNewMsgSignal.connect(boost::bind(&LLFloaterIMContainer::onNewMessageReceived, this, _1));
+    mNewMessageConnection = LLIMModel::instance().mNewMsgSignal.connect(std::bind(&LLFloaterIMContainer::onNewMessageReceived, this, _1));
     // Do not call base postBuild to not connect to mCloseSignal to not close all floaters via Close button
     // mTabContainer will be initialized in LLMultiFloater::addChild()
 
     setTabContainer(getChild<LLTabContainer>("im_box_tab_container"));
     mStubPanel = getChild<LLPanel>("stub_panel");
     mStubTextBox = getChild<LLTextBox>("stub_textbox");
-    mStubTextBox->setURLClickedCallback(boost::bind(&LLFloaterIMContainer::returnFloaterToHost, this));
+    mStubTextBox->setURLClickedCallback(std::bind(&LLFloaterIMContainer::returnFloaterToHost, this));
 
     mConversationsStack = getChild<LLLayoutStack>("conversations_stack");
     mConversationsPane = getChild<LLLayoutPanel>("conversations_layout_panel");
@@ -215,10 +218,10 @@ bool LLFloaterIMContainer::postBuild()
     mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
 
     // Open IM session with selected participant on double click event
-    mConversationsListPanel->setDoubleClickCallback(boost::bind(&LLFloaterIMContainer::doToSelected, this, LLSD("im")));
+    mConversationsListPanel->setDoubleClickCallback(std::bind(&LLFloaterIMContainer::doToSelected, this, LLSD("im")));
 
     // The resize limits for LLFloaterIMContainer should be updated, based on current values of width of conversation and message panels
-    mConversationsPane->getResizeBar()->setResizeListener(boost::bind(&LLFloaterIMContainer::assignResizeLimits, this));
+    mConversationsPane->getResizeBar()->setResizeListener(std::bind(&LLFloaterIMContainer::assignResizeLimits, this));
 
     // Create the root model and view for all conversation sessions
     LLConversationItem* base_item = new LLConversationItem(getRootViewModel());
@@ -239,7 +242,7 @@ bool LLFloaterIMContainer::postBuild()
     mConversationsRoot->setEnableRegistrar(&mEnableCallbackRegistrar);
 
     // Add listener to conversation model events
-    mConversationsEventStream.listen("ConversationsRefresh", boost::bind(&LLFloaterIMContainer::onConversationModelEvent, this, _1));
+    mConversationsEventStream.listen("ConversationsRefresh", std::bind(&LLFloaterIMContainer::onConversationModelEvent, this, _1));
 
     // a scroller for folder view
     LLRect scroller_view_rect = mConversationsListPanel->getRect();
@@ -259,20 +262,20 @@ bool LLFloaterIMContainer::postBuild()
     addConversationListItem(LLUUID()); // manually add nearby chat
 
     mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
-    mExpandCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onExpandCollapseButtonClicked, this));
+    mExpandCollapseBtn->setClickedCallback(std::bind(&LLFloaterIMContainer::onExpandCollapseButtonClicked, this));
     mStubCollapseBtn = getChild<LLButton>("stub_collapse_btn");
-    mStubCollapseBtn->setClickedCallback(boost::bind(&LLFloaterIMContainer::onStubCollapseButtonClicked, this));
+    mStubCollapseBtn->setClickedCallback(std::bind(&LLFloaterIMContainer::onStubCollapseButtonClicked, this));
     mSpeakBtn = getChild<LLButton>("speak_btn");
 
-    mSpeakBtn->setMouseDownCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonPressed, this));
-    mSpeakBtn->setMouseUpCallback(boost::bind(&LLFloaterIMContainer::onSpeakButtonReleased, this));
+    mSpeakBtn->setMouseDownCallback(std::bind(&LLFloaterIMContainer::onSpeakButtonPressed, this));
+    mSpeakBtn->setMouseUpCallback(std::bind(&LLFloaterIMContainer::onSpeakButtonReleased, this));
 
-    childSetAction("add_btn", boost::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
+    childSetAction("add_btn", std::bind(&LLFloaterIMContainer::onAddButtonClicked, this));
 
     collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
     collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"), false);
-    LLAvatarNameCache::getInstance()->addUseDisplayNamesCallback(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
-    mMicroChangedSignal = LLVoiceClient::getInstance()->MicroChangedCallback(boost::bind(&LLFloaterIMContainer::updateSpeakBtnState, this));
+    LLAvatarNameCache::getInstance()->addUseDisplayNamesCallback(std::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
+    mMicroChangedSignal = LLVoiceClient::getInstance()->MicroChangedCallback(std::bind(&LLFloaterIMContainer::updateSpeakBtnState, this));
 
     if (! mMessagesPane->isCollapsed() && ! mConversationsPane->isCollapsed())
     {
@@ -301,7 +304,7 @@ bool LLFloaterIMContainer::postBuild()
     // We'll take care of view updates on idle
     gIdleCallbacks.addFunction(idle, this);
     // When display name option change, we need to reload all participant names
-    LLAvatarNameCache::getInstance()->addUseDisplayNamesCallback(boost::bind(&LLFloaterIMContainer::processParticipantsStyleUpdate, this));
+    LLAvatarNameCache::getInstance()->addUseDisplayNamesCallback(std::bind(&LLFloaterIMContainer::processParticipantsStyleUpdate, this));
 
     mParticipantRefreshTimer.setTimerExpirySec(0);
     mParticipantRefreshTimer.start();
@@ -355,7 +358,7 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
         icon_id = session_id;
 
         mSessions[session_id] = floaterp;
-        floaterp->mCloseSignal.connect(boost::bind(&LLFloaterIMContainer::onCloseFloater, this, session_id));
+        floaterp->mCloseSignal.connect(std::bind(&LLFloaterIMContainer::onCloseFloater, this, session_id));
     }
     else
     {   LLUUID avatar_id = session_id.notNull()?
@@ -367,7 +370,7 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
         icon_id = avatar_id;
 
         mSessions[session_id] = floaterp;
-        floaterp->mCloseSignal.connect(boost::bind(&LLFloaterIMContainer::onCloseFloater, this, session_id));
+        floaterp->mCloseSignal.connect(std::bind(&LLFloaterIMContainer::onCloseFloater, this, session_id));
     }
 
     LLFloaterIMSessionTab* floater = LLFloaterIMSessionTab::getConversation(session_id);
@@ -1010,7 +1013,7 @@ void LLFloaterIMContainer::onAddButtonClicked()
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
     if (button && root_floater)
     {
-        LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterIMContainer::onAvatarPicked, this, _1), true, true, true, root_floater->getName(), button);
+        LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(std::bind(&LLFloaterIMContainer::onAvatarPicked, this, _1), true, true, true, root_floater->getName(), button);
 
         if (picker)
         {

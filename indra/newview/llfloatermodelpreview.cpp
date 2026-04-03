@@ -65,6 +65,9 @@
 #include "llviewertexteditor.h"
 #include "llviewernetwork.h"
 #include "llmaterialeditor.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 //static
@@ -158,27 +161,27 @@ bool LLFloaterModelPreview::postBuild()
 
     childSetCommitCallback("cancel_btn", onCancel, this);
     childSetCommitCallback("crease_angle", onGenerateNormalsCommit, this);
-    getChild<LLCheckBoxCtrl>("gen_normals")->setCommitCallback(boost::bind(&LLFloaterModelPreview::toggleGenarateNormals, this));
+    getChild<LLCheckBoxCtrl>("gen_normals")->setCommitCallback(std::bind(&LLFloaterModelPreview::toggleGenarateNormals, this));
 
     childSetCommitCallback("lod_generate", onAutoFillCommit, this);
 
     for (S32 lod = 0; lod <= LLModel::LOD_HIGH; ++lod)
     {
         LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
-        lod_source_combo->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLoDSourceCommit, this, lod));
+        lod_source_combo->setCommitCallback(std::bind(&LLFloaterModelPreview::onLoDSourceCommit, this, lod));
         lod_source_combo->setCurrentByIndex(mLODMode[lod]);
 
-        getChild<LLButton>("lod_browse_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onBrowseLOD, this, lod));
-        getChild<LLComboBox>("lod_mode_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, false));
-        getChild<LLSpinCtrl>("lod_error_threshold_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, false));
-        getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, true));
+        getChild<LLButton>("lod_browse_" + lod_name[lod])->setCommitCallback(std::bind(&LLFloaterModelPreview::onBrowseLOD, this, lod));
+        getChild<LLComboBox>("lod_mode_" + lod_name[lod])->setCommitCallback(std::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, false));
+        getChild<LLSpinCtrl>("lod_error_threshold_" + lod_name[lod])->setCommitCallback(std::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, false));
+        getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod])->setCommitCallback(std::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, true));
     }
 
     // Upload/avatar options, they need to refresh errors/notifications
-    childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
-    childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
-    childSetCommitCallback("lock_scale_if_joint_position", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
-    childSetCommitCallback("upload_textures", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
+    childSetCommitCallback("upload_skin", std::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
+    childSetCommitCallback("upload_joints", std::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
+    childSetCommitCallback("lock_scale_if_joint_position", std::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
+    childSetCommitCallback("upload_textures", std::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
 
     childSetTextArg("status", "[STATUS]", getString("status_idle"));
 
@@ -192,14 +195,14 @@ bool LLFloaterModelPreview::postBuild()
     childSetCommitCallback("import_scale", onImportScaleCommit, this);
     childSetCommitCallback("pelvis_offset", onPelvisOffsetCommit, this);
 
-    getChild<LLLineEditor>("description_form")->setKeystrokeCallback(boost::bind(&LLFloaterModelPreview::onDescriptionKeystroke, this, _1), NULL);
+    getChild<LLLineEditor>("description_form")->setKeystrokeCallback(std::bind(&LLFloaterModelPreview::onDescriptionKeystroke, this, _1), NULL);
 
-    getChild<LLCheckBoxCtrl>("show_edges")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
-    getChild<LLCheckBoxCtrl>("show_physics")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
-    getChild<LLCheckBoxCtrl>("show_textures")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
-    getChild<LLCheckBoxCtrl>("show_skin_weight")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onShowSkinWeightChecked, this, _1));
-    getChild<LLCheckBoxCtrl>("show_joint_overrides")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
-    getChild<LLCheckBoxCtrl>("show_joint_positions")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+    getChild<LLCheckBoxCtrl>("show_edges")->setCommitCallback(std::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+    getChild<LLCheckBoxCtrl>("show_physics")->setCommitCallback(std::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+    getChild<LLCheckBoxCtrl>("show_textures")->setCommitCallback(std::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+    getChild<LLCheckBoxCtrl>("show_skin_weight")->setCommitCallback(std::bind(&LLFloaterModelPreview::onShowSkinWeightChecked, this, _1));
+    getChild<LLCheckBoxCtrl>("show_joint_overrides")->setCommitCallback(std::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
+    getChild<LLCheckBoxCtrl>("show_joint_positions")->setCommitCallback(std::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
 
     childDisable("upload_skin");
     childDisable("upload_joints");
@@ -225,25 +228,25 @@ bool LLFloaterModelPreview::postBuild()
         LLTextBox* text = getChild<LLTextBox>(lod_label_name[i]);
         if (text)
         {
-            text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
+            text->setMouseDownCallback(std::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
         }
 
         text = getChild<LLTextBox>(lod_triangles_name[i]);
         if (text)
         {
-            text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
+            text->setMouseDownCallback(std::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
         }
 
         text = getChild<LLTextBox>(lod_vertices_name[i]);
         if (text)
         {
-            text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
+            text->setMouseDownCallback(std::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
         }
 
         text = getChild<LLTextBox>(lod_status_name[i]);
         if (text)
         {
-            text->setMouseDownCallback(boost::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
+            text->setMouseDownCallback(std::bind(&LLFloaterModelPreview::setPreviewLOD, this, i));
         }
     }
     std::string current_grid = LLGridManager::getInstance()->getGridId();
@@ -271,11 +274,11 @@ bool LLFloaterModelPreview::postBuild()
 
     LLPanel *panel = mTabContainer->getPanelByName("rigging_panel");
     mAvatarTabIndex = mTabContainer->getIndexForPanel(panel);
-    panel->getChild<LLScrollListCtrl>("joints_list")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onJointListSelection, this));
+    panel->getChild<LLScrollListCtrl>("joints_list")->setCommitCallback(std::bind(&LLFloaterModelPreview::onJointListSelection, this));
 
     if (LLConvexDecomposition::getInstance() != NULL)
     {
-    mCalculateBtn->setClickedCallback(boost::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
+    mCalculateBtn->setClickedCallback(std::bind(&LLFloaterModelPreview::onClickCalculateBtn, this));
 
     toggleCalculateButton(true);
     }
@@ -345,8 +348,8 @@ void LLFloaterModelPreview::initModelPreview()
 
     mModelPreview = new LLModelPreview(tex_width, tex_height, this);
     mModelPreview->setPreviewTarget(PREVIEW_CAMERA_DISTANCE);
-    mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3));
-    mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::modelUpdated, this, _1));
+    mModelPreview->setDetailsCallback(std::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3));
+    mModelPreview->setModelUpdatedCallback(std::bind(&LLFloaterModelPreview::modelUpdated, this, _1));
 }
 
 //static
@@ -1926,7 +1929,7 @@ void LLFloaterModelPreview::onModelPhysicsFeeReceived(const LLSD& result, std::s
     mModelPhysicsFee = result;
     mModelPhysicsFee["url"] = upload_url;
 
-    doOnIdleOneTime(boost::bind(&LLFloaterModelPreview::handleModelPhysicsFeeReceived,this));
+    doOnIdleOneTime(std::bind(&LLFloaterModelPreview::handleModelPhysicsFeeReceived,this));
 }
 
 void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
@@ -1966,7 +1969,7 @@ void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(S32 status, const std:
     out << " : " << reason << ")";
     LL_WARNS() << out.str() << LL_ENDL;
     LLFloaterModelPreview::addStringToLog(out, false);
-    doOnIdleOneTime(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, true));
+    doOnIdleOneTime(std::bind(&LLFloaterModelPreview::toggleCalculateButton, this, true));
 
     if (result.has("upload_price"))
     {

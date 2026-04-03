@@ -33,14 +33,16 @@
 // library includes
 #include "llui.h"                   // getLanguage()
 #include "httpcommon.h"
+#include <functional>
 
 // static
 void LLAgentLanguage::init()
 {
-    gSavedSettings.getControl("Language")->getSignal()->connect(boost::bind(&onChange));
-    gSavedSettings.getControl("InstallLanguage")->getSignal()->connect(boost::bind(&onChange));
-    gSavedSettings.getControl("SystemLanguage")->getSignal()->connect(boost::bind(&onChange));
-    gSavedSettings.getControl("LanguageIsPublic")->getSignal()->connect(boost::bind(&onChange));
+    auto onChangeSlot = [](LLControlVariable*, const LLSD&, const LLSD&) { onChange(); };
+    gSavedSettings.getControl("Language")->getSignal()->connect(onChangeSlot);
+    gSavedSettings.getControl("InstallLanguage")->getSignal()->connect(onChangeSlot);
+    gSavedSettings.getControl("SystemLanguage")->getSignal()->connect(onChangeSlot);
+    gSavedSettings.getControl("LanguageIsPublic")->getSignal()->connect(onChangeSlot);
 }
 
 // static

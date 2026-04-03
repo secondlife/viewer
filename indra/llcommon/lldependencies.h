@@ -39,7 +39,6 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <boost/bind.hpp>
 #include "llexception.h"
 
 /*****************************************************************************
@@ -363,8 +362,8 @@ public:
         // First take a DepNodeMapEntry and extract a reference to its
         // DepNode, then from that extract a reference to its NODE.
         return generic_range<node_iterator>(
-            boost::bind<NODE&>(&DepNode::node,
-                               boost::bind<DepNode&>(&DepNodeMapEntry::second, _1)));
+            std::bind<NODE&>(&DepNode::node,
+                               std::bind<DepNode&>(&DepNodeMapEntry::second, std::placeholders::_1)));
     }
 
     /// const iterator over stored NODEs
@@ -378,8 +377,8 @@ public:
         // First take a DepNodeMapEntry and extract a reference to its
         // DepNode, then from that extract a reference to its NODE.
         return generic_range<const_node_iterator>(
-            boost::bind<const NODE&>(&DepNode::node,
-                                     boost::bind<const DepNode&>(&DepNodeMapEntry::second, _1)));
+            std::bind<const NODE&>(&DepNode::node,
+                                     std::bind<const DepNode&>(&DepNodeMapEntry::second, std::placeholders::_1)));
     }
 
     /// const iterator over stored KEYs
@@ -396,7 +395,7 @@ public:
     {
         // From a DepNodeMapEntry, extract a reference to its KEY.
         return generic_range<const_key_iterator>(
-            boost::bind<const KEY&>(&DepNodeMapEntry::first, _1));
+            std::bind<const KEY&>(&DepNodeMapEntry::first, std::placeholders::_1));
     }
 
     /**
@@ -765,7 +764,7 @@ LLDependencies<KEY, NODE>::get_after_range(const KEY_OR_ITER& key_iter) const
     return LLDependencies_dep_range_from<KEY_OR_ITER>()(
         *this,
         key_iter,
-        boost::bind<const typename DepNode::dep_set&>(&DepNode::after, _1));
+        std::bind<const typename DepNode::dep_set&>(&DepNode::after, std::placeholders::_1));
 }
 
 /// generic get_before_range() implementation
@@ -777,7 +776,7 @@ LLDependencies<KEY, NODE>::get_before_range(const KEY_OR_ITER& key_iter) const
     return LLDependencies_dep_range_from<KEY_OR_ITER>()(
         *this,
         key_iter,
-        boost::bind<const typename DepNode::dep_set&>(&DepNode::before, _1));
+        std::bind<const typename DepNode::dep_set&>(&DepNode::before, std::placeholders::_1));
 }
 
 #endif /* ! defined(LL_LLDEPENDENCIES_H) */

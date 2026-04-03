@@ -66,6 +66,9 @@
 
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llpathfindingmanager.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //============================================================================
 /*
@@ -120,7 +123,7 @@ private:
             // Start loading the landmark.
             LLLandmark* lm = gLandmarkList.getAsset(
                     item->getAssetUUID(),
-                    boost::bind(&LLLocationInputCtrl::onLandmarkLoaded, mInput, _1));
+                    std::bind(&LLLocationInputCtrl::onLandmarkLoaded, mInput, _1));
             if (lm)
             {
                 // Already loaded? Great, handle it immediately (the callback won't be called).
@@ -238,7 +241,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
     params.rect(text_entry_rect);
     params.default_text(LLStringUtil::null);
     params.max_length.bytes(p.max_chars);
-    params.keystroke_callback(boost::bind(&LLLocationInputCtrl::onTextEntry, this, _1));
+    params.keystroke_callback(std::bind(&LLLocationInputCtrl::onTextEntry, this, _1));
     params.commit_on_focus_lost(false);
     params.follows.flags(FOLLOWS_ALL);
     mTextEntry = LLUICtrlFactory::create<LLURLLineEditor>(params);
@@ -249,7 +252,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
     // "Place information" button.
     LLButton::Params info_params = p.info_button;
     mInfoBtn = LLUICtrlFactory::create<LLButton>(info_params);
-    mInfoBtn->setClickedCallback(boost::bind(&LLLocationInputCtrl::onInfoButtonClicked, this));
+    mInfoBtn->setClickedCallback(std::bind(&LLLocationInputCtrl::onInfoButtonClicked, this));
     addChild(mInfoBtn);
 
     // "Add landmark" button.
@@ -275,7 +278,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
         al_params.image_hover_unselected = p.add_landmark_image_hover;
     }
 
-    al_params.click_callback.function(boost::bind(&LLLocationInputCtrl::onAddLandmarkButtonClicked, this));
+    al_params.click_callback.function(std::bind(&LLLocationInputCtrl::onAddLandmarkButtonClicked, this));
     mAddLandmarkBtn = LLUICtrlFactory::create<LLButton>(al_params);
     enableAddLandmarkButton(true);
     addChild(mAddLandmarkBtn);
@@ -300,7 +303,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
     LLButton::Params for_sale_button = p.for_sale_button;
     for_sale_button.tool_tip = LLTrans::getString("LocationCtrlForSaleTooltip");
     for_sale_button.click_callback.function(
-        boost::bind(&LLLocationInputCtrl::onForSaleButtonClicked, this));
+        std::bind(&LLLocationInputCtrl::onForSaleButtonClicked, this));
     mForSaleBtn = LLUICtrlFactory::create<LLButton>( for_sale_button );
     addChild(mForSaleBtn);
 
@@ -311,56 +314,56 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
     voice_icon.tool_tip = LLTrans::getString("LocationCtrlVoiceTooltip");
     voice_icon.mouse_opaque = true;
     mParcelIcon[VOICE_ICON] = LLUICtrlFactory::create<LLIconCtrl>(voice_icon);
-    mParcelIcon[VOICE_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, VOICE_ICON));
+    mParcelIcon[VOICE_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, VOICE_ICON));
     addChild(mParcelIcon[VOICE_ICON]);
 
     LLIconCtrl::Params fly_icon = p.fly_icon;
     fly_icon.tool_tip = LLTrans::getString("LocationCtrlFlyTooltip");
     fly_icon.mouse_opaque = true;
     mParcelIcon[FLY_ICON] = LLUICtrlFactory::create<LLIconCtrl>(fly_icon);
-    mParcelIcon[FLY_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, FLY_ICON));
+    mParcelIcon[FLY_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, FLY_ICON));
     addChild(mParcelIcon[FLY_ICON]);
 
     LLIconCtrl::Params push_icon = p.push_icon;
     push_icon.tool_tip = LLTrans::getString("LocationCtrlPushTooltip");
     push_icon.mouse_opaque = true;
     mParcelIcon[PUSH_ICON] = LLUICtrlFactory::create<LLIconCtrl>(push_icon);
-    mParcelIcon[PUSH_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, PUSH_ICON));
+    mParcelIcon[PUSH_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, PUSH_ICON));
     addChild(mParcelIcon[PUSH_ICON]);
 
     LLIconCtrl::Params build_icon = p.build_icon;
     build_icon.tool_tip = LLTrans::getString("LocationCtrlBuildTooltip");
     build_icon.mouse_opaque = true;
     mParcelIcon[BUILD_ICON] = LLUICtrlFactory::create<LLIconCtrl>(build_icon);
-    mParcelIcon[BUILD_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, BUILD_ICON));
+    mParcelIcon[BUILD_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, BUILD_ICON));
     addChild(mParcelIcon[BUILD_ICON]);
 
     LLIconCtrl::Params scripts_icon = p.scripts_icon;
     scripts_icon.tool_tip = LLTrans::getString("LocationCtrlScriptsTooltip");
     scripts_icon.mouse_opaque = true;
     mParcelIcon[SCRIPTS_ICON] = LLUICtrlFactory::create<LLIconCtrl>(scripts_icon);
-    mParcelIcon[SCRIPTS_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, SCRIPTS_ICON));
+    mParcelIcon[SCRIPTS_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, SCRIPTS_ICON));
     addChild(mParcelIcon[SCRIPTS_ICON]);
 
     LLIconCtrl::Params damage_icon = p.damage_icon;
     damage_icon.tool_tip = LLTrans::getString("LocationCtrlDamageTooltip");
     damage_icon.mouse_opaque = true;
     mParcelIcon[DAMAGE_ICON] = LLUICtrlFactory::create<LLIconCtrl>(damage_icon);
-    mParcelIcon[DAMAGE_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, DAMAGE_ICON));
+    mParcelIcon[DAMAGE_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, DAMAGE_ICON));
     addChild(mParcelIcon[DAMAGE_ICON]);
 
     LLIconCtrl::Params pathfinding_dirty_icon = p.pathfinding_dirty_icon;
     pathfinding_dirty_icon.tool_tip = LLTrans::getString("LocationCtrlPathfindingDirtyTooltip");
     pathfinding_dirty_icon.mouse_opaque = true;
     mParcelIcon[PATHFINDING_DIRTY_ICON] = LLUICtrlFactory::create<LLIconCtrl>(pathfinding_dirty_icon);
-    mParcelIcon[PATHFINDING_DIRTY_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, PATHFINDING_DIRTY_ICON));
+    mParcelIcon[PATHFINDING_DIRTY_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, PATHFINDING_DIRTY_ICON));
     addChild(mParcelIcon[PATHFINDING_DIRTY_ICON]);
 
     LLIconCtrl::Params pathfinding_disabled_icon = p.pathfinding_disabled_icon;
     pathfinding_disabled_icon.tool_tip = LLTrans::getString("LocationCtrlPathfindingDisabledTooltip");
     pathfinding_disabled_icon.mouse_opaque = true;
     mParcelIcon[PATHFINDING_DISABLED_ICON] = LLUICtrlFactory::create<LLIconCtrl>(pathfinding_disabled_icon);
-    mParcelIcon[PATHFINDING_DISABLED_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, PATHFINDING_DISABLED_ICON));
+    mParcelIcon[PATHFINDING_DISABLED_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, PATHFINDING_DISABLED_ICON));
     addChild(mParcelIcon[PATHFINDING_DISABLED_ICON]);
 
     LLTextBox::Params damage_text = p.damage_text;
@@ -373,15 +376,15 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
     see_avatars_icon.tool_tip = LLTrans::getString("LocationCtrlSeeAVsTooltip");
     see_avatars_icon.mouse_opaque = true;
     mParcelIcon[SEE_AVATARS_ICON] = LLUICtrlFactory::create<LLIconCtrl>(see_avatars_icon);
-    mParcelIcon[SEE_AVATARS_ICON]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, SEE_AVATARS_ICON));
+    mParcelIcon[SEE_AVATARS_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, SEE_AVATARS_ICON));
     addChild(mParcelIcon[SEE_AVATARS_ICON]);
 
     // Register callbacks and load the location field context menu (NB: the order matters).
-    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Navbar.Action", boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemClicked, this, _2));
-    LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Navbar.EnableMenuItem", boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemEnabled, this, _2));
+    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Navbar.Action", std::bind(&LLLocationInputCtrl::onLocationContextMenuItemClicked, this, _2));
+    LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Navbar.EnableMenuItem", std::bind(&LLLocationInputCtrl::onLocationContextMenuItemEnabled, this, _2));
 
-    setPrearrangeCallback(boost::bind(&LLLocationInputCtrl::onLocationPrearrange, this, _2));
-    getTextEntry()->setMouseUpCallback(boost::bind(&LLLocationInputCtrl::changeLocationPresentation, this));
+    setPrearrangeCallback(std::bind(&LLLocationInputCtrl::onLocationPrearrange, this, _2));
+    getTextEntry()->setMouseUpCallback(std::bind(&LLLocationInputCtrl::changeLocationPresentation, this));
 
     // Load the location field context menu
     mLocationContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_navbar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -392,34 +395,34 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
     }
     //don't show default context menu
     getTextEntry()->setShowContextMenu(false);
-    getTextEntry()->setRightMouseDownCallback(boost::bind(&LLLocationInputCtrl::onTextEditorRightClicked, this, _2, _3, _4));
+    getTextEntry()->setRightMouseDownCallback(std::bind(&LLLocationInputCtrl::onTextEditorRightClicked, this, _2, _3, _4));
     updateWidgetlayout();
 
     // Connecting signal for updating location on "Show Coordinates" setting change.
     LLControlVariable* coordinates_control = gSavedSettings.getControl("NavBarShowCoordinates").get();
     if (coordinates_control)
     {
-        mCoordinatesControlConnection = coordinates_control->getSignal()->connect(boost::bind(&LLLocationInputCtrl::refreshLocation, this));
+        mCoordinatesControlConnection = coordinates_control->getSignal()->connect(std::bind(&LLLocationInputCtrl::refreshLocation, this));
     }
 
     // Connecting signal for updating parcel icons on "Show Parcel Properties" setting change.
     LLControlVariable* parcel_properties_control = gSavedSettings.getControl("NavBarShowParcelProperties").get();
     if (parcel_properties_control)
     {
-        mParcelPropertiesControlConnection = parcel_properties_control->getSignal()->connect(boost::bind(&LLLocationInputCtrl::refreshParcelIcons, this));
+        mParcelPropertiesControlConnection = parcel_properties_control->getSignal()->connect(std::bind(&LLLocationInputCtrl::refreshParcelIcons, this));
     }
 
     // - Make the "Add landmark" button updated when either current parcel gets changed
     //   or a landmark gets created or removed from the inventory.
     // - Update the location string on parcel change.
     mParcelMgrConnection = gAgent.addParcelChangedCallback(
-        boost::bind(&LLLocationInputCtrl::onAgentParcelChange, this));
+        std::bind(&LLLocationInputCtrl::onAgentParcelChange, this));
     // LLLocationHistory instance is being created before the location input control, so we have to update initial state of button manually.
     mButton->setEnabled(LLLocationHistory::instance().getItemCount() > 0);
     mLocationHistoryConnection = LLLocationHistory::getInstance()->setChangedCallback(
-            boost::bind(&LLLocationInputCtrl::onLocationHistoryChanged, this,_1));
+            std::bind(&LLLocationInputCtrl::onLocationHistoryChanged, this,_1));
 
-    mRegionCrossingSlot = gAgent.addRegionChangedCallback(boost::bind(&LLLocationInputCtrl::onRegionBoundaryCrossed, this));
+    mRegionCrossingSlot = gAgent.addRegionChangedCallback(std::bind(&LLLocationInputCtrl::onRegionBoundaryCrossed, this));
     createNavMeshStatusListenerForCurrentRegion();
 
     mRemoveLandmarkObserver = new LLRemoveLandmarkObserver(this);
@@ -715,7 +718,7 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 
         std::set<std::string> new_item_titles;// duplicate control
         LLTeleportHistory::slurl_list_t::iterator result = std::find_if(
-                th_items.begin(), th_items.end(), boost::bind(
+                th_items.begin(), th_items.end(), std::bind(
                         &LLLocationInputCtrl::findTeleportItemsByTitle, this,
                         _1, filter));
 
@@ -733,7 +736,7 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
                 value["tooltip"] = LLSLURL(region_name, result->mGlobalPos).getSLURLString();
                 addLocationHistoryEntry(result->getTitle(), value);
             }
-            result = std::find_if(result + 1, th_items.end(), boost::bind(
+            result = std::find_if(result + 1, th_items.end(), std::bind(
                                     &LLLocationInputCtrl::findTeleportItemsByTitle, this,
                                     _1, filter));
         }
@@ -1235,7 +1238,7 @@ void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
             if (rebakeInstance && rebakeInstance->canRebakeRegion() && (rebakeInstance->getMode() == LLMenuOptionPathfindingRebakeNavmesh::kRebakeNavMesh_Available))
             {
                 LLNotificationsUtil::add("PathfindingDirtyRebake", LLSD(), LLSD(),
-                                         boost::bind(&LLLocationInputCtrl::callbackRebakeRegion, this, _1, _2));
+                                         std::bind(&LLLocationInputCtrl::callbackRebakeRegion, this, _1, _2));
                 break;
             }
         }
@@ -1283,7 +1286,7 @@ void LLLocationInputCtrl::createNavMeshStatusListenerForCurrentRegion()
     LLViewerRegion *currentRegion = gAgent.getRegion();
     if (currentRegion != NULL)
     {
-        mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLLocationInputCtrl::onNavMeshStatusChange, this, _2));
+        mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, std::bind(&LLLocationInputCtrl::onNavMeshStatusChange, this, _2));
         LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(currentRegion, true);
     }
 }

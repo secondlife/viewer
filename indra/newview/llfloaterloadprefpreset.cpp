@@ -34,6 +34,7 @@
 #include "llfloaterreg.h"
 #include "llpresetsmanager.h"
 #include "llviewercontrol.h"
+#include <functional>
 
 LLFloaterLoadPrefPreset::LLFloaterLoadPrefPreset(const LLSD &key)
 :   LLFloater(key)
@@ -48,9 +49,9 @@ bool LLFloaterLoadPrefPreset::postBuild()
     {
         preferences->addDependentFloater(this);
     }
-    getChild<LLButton>("ok")->setCommitCallback(boost::bind(&LLFloaterLoadPrefPreset::onBtnOk, this));
-    getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterLoadPrefPreset::onBtnCancel, this));
-    LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterLoadPrefPreset::onPresetsListChange, this));
+    getChild<LLButton>("ok")->setCommitCallback(std::bind(&LLFloaterLoadPrefPreset::onBtnOk, this));
+    getChild<LLButton>("cancel")->setCommitCallback(std::bind(&LLFloaterLoadPrefPreset::onBtnCancel, this));
+    LLPresetsManager::instance().setPresetListChangeCallback(std::bind(&LLFloaterLoadPrefPreset::onPresetsListChange, this));
 
     return true;
 }

@@ -30,7 +30,7 @@
 
 #include <boost/program_options.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/tokenizer.hpp>
 
 #include "llsdserialize.h"
@@ -44,6 +44,8 @@
 #include <typeinfo>
 
 #include "llcontrol.h"
+
+using namespace std::placeholders;
 
 namespace po = boost::program_options;
 
@@ -716,7 +718,7 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
                            << " which does not exist" << LL_ENDL;
                 }
 
-                callback = boost::bind(setControlValueCB, _1, long_name, ctrl);
+                callback = std::bind(setControlValueCB, _1, long_name, ctrl);
             }
 
             this->addOptionDesc(

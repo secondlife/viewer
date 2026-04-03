@@ -36,6 +36,7 @@
 #include "llpanelexperiences.h"
 #include "llslurl.h"
 #include "lllayoutstack.h"
+#include <functional>
 
 
 
@@ -97,7 +98,7 @@ void LLPanelExperiences::setExperienceList( const LLSD& experiences )
         const LLSD& experience_details = LLExperienceCache::instance().get(public_key);
         if (experience_details.isUndefined())
         {
-            LLExperienceCache::instance().get(public_key, boost::bind(&LLPanelExperiences::sortExperiencesList, this));
+            LLExperienceCache::instance().get(public_key, std::bind(&LLPanelExperiences::sortExperiencesList, this));
         }
     }
 
@@ -214,7 +215,7 @@ LLPanelSearchExperiences* LLPanelSearchExperiences::create( const std::string& n
 
 bool LLPanelSearchExperiences::postBuild( void )
 {
-    childSetAction("search_button", boost::bind(&LLPanelSearchExperiences::doSearch, this));
+    childSetAction("search_button", std::bind(&LLPanelSearchExperiences::doSearch, this));
     return true;
 }
 

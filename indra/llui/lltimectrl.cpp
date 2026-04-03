@@ -38,6 +38,9 @@
 #include "llstring.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLTimeCtrl> time_r("time");
 
@@ -138,7 +141,7 @@ LLTimeCtrl::LLTimeCtrl(const LLTimeCtrl::Params& p)
 
     params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
     params.max_length.chars(8);
-    params.keystroke_callback(boost::bind(&LLTimeCtrl::onTextEntry, this, _1));
+    params.keystroke_callback(std::bind(&LLTimeCtrl::onTextEntry, this, _1));
     mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
     mEditor->setPrevalidateInput(LLTextValidate::validateNonNegativeS32NoSpace);
     mEditor->setPrevalidate(validateTime);
@@ -149,15 +152,15 @@ LLTimeCtrl::LLTimeCtrl(const LLTimeCtrl::Params& p)
     LLButton::Params up_button_params(p.up_button);
     up_button_params.rect = LLRect(editor_right + 1, getRect().getHeight(), editor_right + spinctrl_btn_width, getRect().getHeight() - spinctrl_btn_height);
 
-    up_button_params.click_callback.function(boost::bind(&LLTimeCtrl::onUpBtn, this));
-    up_button_params.mouse_held_callback.function(boost::bind(&LLTimeCtrl::onUpBtn, this));
+    up_button_params.click_callback.function(std::bind(&LLTimeCtrl::onUpBtn, this));
+    up_button_params.mouse_held_callback.function(std::bind(&LLTimeCtrl::onUpBtn, this));
     mUpBtn = LLUICtrlFactory::create<LLButton>(up_button_params);
     addChild(mUpBtn);
 
     LLButton::Params down_button_params(p.down_button);
     down_button_params.rect = LLRect(editor_right + 1, getRect().getHeight() - spinctrl_btn_height, editor_right + spinctrl_btn_width, getRect().getHeight() - 2 * spinctrl_btn_height);
-    down_button_params.click_callback.function(boost::bind(&LLTimeCtrl::onDownBtn, this));
-    down_button_params.mouse_held_callback.function(boost::bind(&LLTimeCtrl::onDownBtn, this));
+    down_button_params.click_callback.function(std::bind(&LLTimeCtrl::onDownBtn, this));
+    down_button_params.mouse_held_callback.function(std::bind(&LLTimeCtrl::onDownBtn, this));
     mDownBtn = LLUICtrlFactory::create<LLButton>(down_button_params);
     addChild(mDownBtn);
 

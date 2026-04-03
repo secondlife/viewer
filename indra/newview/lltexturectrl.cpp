@@ -78,6 +78,9 @@
 #include "llerror.h"
 
 #include "llavatarappearancedefines.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 //static
@@ -574,15 +577,15 @@ bool LLFloaterTexturePicker::postBuild()
     mSelectBtn = getChild<LLButton>("Select");
     mCancelBtn = getChild<LLButton>("Cancel");
 
-    mDefaultBtn->setClickedCallback(boost::bind(LLFloaterTexturePicker::onBtnSetToDefault,this));
-    mNoneBtn->setClickedCallback(boost::bind(LLFloaterTexturePicker::onBtnNone, this));
-    mBlankBtn->setClickedCallback(boost::bind(LLFloaterTexturePicker::onBtnBlank, this));
-    mPipetteBtn->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onBtnPipette, this));
-    mSelectBtn->setClickedCallback(boost::bind(LLFloaterTexturePicker::onBtnSelect, this));
-    mCancelBtn->setClickedCallback(boost::bind(LLFloaterTexturePicker::onBtnCancel, this));
+    mDefaultBtn->setClickedCallback(std::bind(LLFloaterTexturePicker::onBtnSetToDefault,this));
+    mNoneBtn->setClickedCallback(std::bind(LLFloaterTexturePicker::onBtnNone, this));
+    mBlankBtn->setClickedCallback(std::bind(LLFloaterTexturePicker::onBtnBlank, this));
+    mPipetteBtn->setCommitCallback(std::bind(&LLFloaterTexturePicker::onBtnPipette, this));
+    mSelectBtn->setClickedCallback(std::bind(LLFloaterTexturePicker::onBtnSelect, this));
+    mCancelBtn->setClickedCallback(std::bind(LLFloaterTexturePicker::onBtnCancel, this));
 
     mFilterEdit = getChild<LLFilterEditor>("inventory search editor");
-    mFilterEdit->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onFilterEdit, this, _2));
+    mFilterEdit->setCommitCallback(std::bind(&LLFloaterTexturePicker::onFilterEdit, this, _2));
 
     mInventoryPanel = getChild<LLInventoryPanel>("inventory panel");
 
@@ -635,7 +638,7 @@ bool LLFloaterTexturePicker::postBuild()
             }
         }
         // Don't call before setSelection, setSelection will mark view as dirty
-        mInventoryPanel->setSelectCallback(boost::bind(&LLFloaterTexturePicker::onSelectionChange, this, _1, _2));
+        mInventoryPanel->setSelectCallback(std::bind(&LLFloaterTexturePicker::onSelectionChange, this, _1, _2));
     }
 
     childSetAction("l_add_btn", LLFloaterTexturePicker::onBtnAdd, this);
@@ -652,7 +655,7 @@ bool LLFloaterTexturePicker::postBuild()
     childSetCommitCallback("apply_immediate_check", onApplyImmediateCheck, this);
     getChildView("apply_immediate_check")->setEnabled(mCanApplyImmediately);
 
-    getChild<LLUICtrl>("Pipette")->setCommitCallback( boost::bind(&LLFloaterTexturePicker::onBtnPipette, this));
+    getChild<LLUICtrl>("Pipette")->setCommitCallback( std::bind(&LLFloaterTexturePicker::onBtnPipette, this));
     childSetAction("Cancel", LLFloaterTexturePicker::onBtnCancel,this);
     childSetAction("Select", LLFloaterTexturePicker::onBtnSelect,this);
 
@@ -1136,15 +1139,15 @@ void LLFloaterTexturePicker::onBtnAdd(void* userdata)
 
     if (self->mInventoryPickType == PICK_TEXTURE_MATERIAL)
     {
-        LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_MATERIAL_TEXTURE, true);
+        LLFilePickerReplyThread::startPicker(std::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_MATERIAL_TEXTURE, true);
     }
     else if (self->mInventoryPickType == PICK_TEXTURE)
     {
-        LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_IMAGE, true);
+        LLFilePickerReplyThread::startPicker(std::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_IMAGE, true);
     }
     else if (self->mInventoryPickType == PICK_MATERIAL)
     {
-        LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_MATERIAL, true);
+        LLFilePickerReplyThread::startPicker(std::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_MATERIAL, true);
     }
 }
 
@@ -1973,12 +1976,12 @@ void LLTextureCtrl::showPicker(bool take_focus)
         }
         if (texture_floaterp && mOnCloseCallback)
         {
-            texture_floaterp->setOnFloaterCloseCallback(boost::bind(&LLTextureCtrl::onFloaterClose, this));
+            texture_floaterp->setOnFloaterCloseCallback(std::bind(&LLTextureCtrl::onFloaterClose, this));
         }
         if (texture_floaterp)
         {
-            texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLTextureCtrl::onFloaterCommit, this, _1, _2, _3, _4, _5));
-            texture_floaterp->setSetImageAssetIDCallback(boost::bind(&LLTextureCtrl::setImageAssetID, this, _1));
+            texture_floaterp->setOnFloaterCommitCallback(std::bind(&LLTextureCtrl::onFloaterCommit, this, _1, _2, _3, _4, _5));
+            texture_floaterp->setSetImageAssetIDCallback(std::bind(&LLTextureCtrl::setImageAssetID, this, _1));
 
             texture_floaterp->setLocalTextureEnabled(mAllowLocalTexture);
             texture_floaterp->setBakeTextureEnabled(mBakeTextureEnabled && mInventoryPickType != PICK_MATERIAL);

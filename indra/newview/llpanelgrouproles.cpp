@@ -55,6 +55,9 @@
 #include "llviewercontrol.h"
 
 #include "roles_constants.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLPanelGroupRoles> t_panel_group_roles("panel_group_roles");
 
@@ -154,7 +157,7 @@ bool LLPanelGroupRoles::postBuild()
         //subtabp->addObserver(this);
     }
     // Add click callbacks to tab switching.
-    mSubTabContainer->setValidateBeforeCommit(boost::bind(&LLPanelGroupRoles::handleSubTabSwitch, this, _1));
+    mSubTabContainer->setValidateBeforeCommit(std::bind(&LLPanelGroupRoles::handleSubTabSwitch, this, _1));
 
     // Set the current tab to whatever is currently being shown.
     mCurrentTab = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
@@ -220,7 +223,7 @@ bool LLPanelGroupRoles::handleSubTabSwitch(const LLSD& data)
         args["NEEDS_APPLY_MESSAGE"] = mesg;
         args["WANT_APPLY_MESSAGE"] = mWantApplyMesg;
         LLNotificationsUtil::add("PanelGroupApply", args, LLSD(),
-            boost::bind(&LLPanelGroupRoles::handleNotifyCallback, this, _1, _2));
+            std::bind(&LLPanelGroupRoles::handleNotifyCallback, this, _1, _2));
         mHasModal = true;
 
         // Returning false will block a close action from finishing until
@@ -269,7 +272,7 @@ bool LLPanelGroupRoles::handleNotifyCallback(const LLSD& notification, const LLS
                 mHasModal = true;
                 LLSD args;
                 args["MESSAGE"] = apply_mesg;
-                LLNotificationsUtil::add("GenericAlert", args, LLSD(), boost::bind(&LLPanelGroupRoles::onModalClose, this, _1, _2));
+                LLNotificationsUtil::add("GenericAlert", args, LLSD(), std::bind(&LLPanelGroupRoles::onModalClose, this, _1, _2));
             }
             // Skip switching tabs.
             break;
@@ -471,7 +474,7 @@ bool LLPanelGroupSubTab::postBuild()
     if (mSearchEditor) // SubTab doesn't implement this, only some of derived classes
     {
         // panel
-        mSearchCommitConnection = mSearchEditor->setCommitCallback(boost::bind(&LLPanelGroupSubTab::setSearchFilter, this, _2));
+        mSearchCommitConnection = mSearchEditor->setCommitCallback(std::bind(&LLPanelGroupSubTab::setSearchFilter, this, _2));
     }
 
     return LLPanelGroupTab::postBuild();
@@ -822,7 +825,7 @@ bool LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
     mActionDescription = root->getChild<LLTextEditor>("member_action_description");
 
     mAllowedActionsList->setCommitOnSelectionChange(true);
-    mAllowedActionsList->setCommitCallback(boost::bind(&LLPanelGroupMembersSubTab::updateActionDescription, this));
+    mAllowedActionsList->setCommitCallback(std::bind(&LLPanelGroupMembersSubTab::updateActionDescription, this));
 
     // We want to be notified whenever a member is selected.
     mMembersList->setCommitOnSelectionChange(true);
@@ -1169,7 +1172,7 @@ void LLPanelGroupMembersSubTab::confirmEjectMembers()
         LLNotificationsUtil::add("EjectGroupMemberWarning",
                                  args,
                                  payload,
-                                 boost::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
+                                 std::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
     }
     else
     {
@@ -1179,7 +1182,7 @@ void LLPanelGroupMembersSubTab::confirmEjectMembers()
         LLNotificationsUtil::add("EjectGroupMembersWarning",
                                  args,
                                  payload,
-                                 boost::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
+                                 std::bind(&LLPanelGroupMembersSubTab::handleEjectCallback, this, _1, _2));
     }
 }
 
@@ -1435,7 +1438,7 @@ bool LLPanelGroupMembersSubTab::apply(std::string& mesg)
                 LLNotificationsUtil::add("AddGroupOwnerWarning",
                                         args,
                                         LLSD(),
-                                        boost::bind(&LLPanelGroupMembersSubTab::addOwnerCB, this, _1, _2));
+                                        std::bind(&LLPanelGroupMembersSubTab::addOwnerCB, this, _1, _2));
             }
             else
             {
@@ -1809,7 +1812,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
                 }
                 mAvatarNameCacheConnections.erase(it);
             }
-            mAvatarNameCacheConnections[mMemberProgress->first] = LLAvatarNameCache::get(mMemberProgress->first, boost::bind(&LLPanelGroupMembersSubTab::onNameCache, this, gdatap->getMemberVersion(), mMemberProgress->second, _2, _1));
+            mAvatarNameCacheConnections[mMemberProgress->first] = LLAvatarNameCache::get(mMemberProgress->first, std::bind(&LLPanelGroupMembersSubTab::onNameCache, this, gdatap->getMemberVersion(), mMemberProgress->second, _2, _1));
         }
     }
 
@@ -1857,7 +1860,7 @@ void LLPanelGroupMembersSubTab::confirmBanMembers()
         LLNotificationsUtil::add("BanGroupMemberWarning",
                                  args,
                                  payload,
-                                 boost::bind(&LLPanelGroupMembersSubTab::handleBanCallback, this, _1, _2));
+                                 std::bind(&LLPanelGroupMembersSubTab::handleBanCallback, this, _1, _2));
     }
     else
     {
@@ -1867,7 +1870,7 @@ void LLPanelGroupMembersSubTab::confirmBanMembers()
         LLNotificationsUtil::add("BanGroupMembersWarning",
                                  args,
                                  payload,
-                                 boost::bind(&LLPanelGroupMembersSubTab::handleBanCallback, this, _1, _2));
+                                 std::bind(&LLPanelGroupMembersSubTab::handleBanCallback, this, _1, _2));
     }
 }
 
@@ -1995,7 +1998,7 @@ bool LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
     mMemberVisibleCheck->setCommitCallback(onMemberVisibilityChange, this);
 
     mAllowedActionsList->setCommitOnSelectionChange(true);
-    mAllowedActionsList->setCommitCallback(boost::bind(&LLPanelGroupRolesSubTab::updateActionDescription, this));
+    mAllowedActionsList->setCommitCallback(std::bind(&LLPanelGroupRolesSubTab::updateActionDescription, this));
 
     mRoleName->setCommitOnFocusLost(true);
     mRoleName->setKeystrokeCallback(onPropertiesKey, this);
@@ -2004,7 +2007,7 @@ bool LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
     mRoleTitle->setKeystrokeCallback(onPropertiesKey, this);
 
     mRoleDescription->setCommitOnFocusLost(true);
-    mRoleDescription->setKeystrokeCallback(boost::bind(&LLPanelGroupRolesSubTab::onDescriptionKeyStroke, this, _1));
+    mRoleDescription->setKeystrokeCallback(std::bind(&LLPanelGroupRolesSubTab::onDescriptionKeyStroke, this, _1));
 
     setFooterEnabled(false);
 
@@ -2253,7 +2256,7 @@ void LLPanelGroupRolesSubTab::handleRoleSelect()
         buildActionsList(mAllowedActionsList,
                          rd.mRolePowers,
                          0LL,
-                         boost::bind(&LLPanelGroupRolesSubTab::handleActionCheck, this, _1, false),
+                         std::bind(&LLPanelGroupRolesSubTab::handleActionCheck, this, _1, false),
                          true,
                          false,
                          is_owner_role);
@@ -2414,7 +2417,7 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLUICtrl* ctrl, bool force)
             {
                 warning = "AssignDangerousAbilityWarning";
             }
-            LLNotificationsUtil::add(warning, args, LLSD(), boost::bind(&LLPanelGroupRolesSubTab::addActionCB, this, _1, _2, check));
+            LLNotificationsUtil::add(warning, args, LLSD(), std::bind(&LLPanelGroupRolesSubTab::addActionCB, this, _1, _2, check));
         }
         else
         {
@@ -2480,7 +2483,7 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLUICtrl* ctrl, bool force)
         buildActionsList(   mAllowedActionsList,
             current_role_powers,
             current_role_powers,
-            boost::bind(&LLPanelGroupRolesSubTab::handleActionCheck, this, _1, false),
+            std::bind(&LLPanelGroupRolesSubTab::handleActionCheck, this, _1, false),
             true,
             false,
             false);
@@ -2818,7 +2821,7 @@ bool LLPanelGroupActionsSubTab::postBuildSubTab(LLView* root)
     if (!mActionList || !mActionDescription || !mActionRoles || !mActionMembers) return false;
 
     mActionList->setCommitOnSelectionChange(true);
-    mActionList->setCommitCallback(boost::bind(&LLPanelGroupActionsSubTab::handleActionSelect, this));
+    mActionList->setCommitCallback(std::bind(&LLPanelGroupActionsSubTab::handleActionSelect, this));
     mActionList->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
 
     update(GC_ALL);
@@ -3032,7 +3035,7 @@ bool LLPanelGroupBanListSubTab::postBuildSubTab(LLView* root)
 
     setBanCount(0);
 
-    mBanList->setOnNameListCompleteCallback(boost::bind(&LLPanelGroupBanListSubTab::onBanListCompleted, this, _1));
+    mBanList->setOnNameListCompleteCallback(std::bind(&LLPanelGroupBanListSubTab::onBanListCompleted, this, _1));
 
     populateBanList();
 

@@ -30,7 +30,7 @@
 
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/signals2.hpp>
 
 #include "llagent.h"
@@ -39,6 +39,8 @@
 #include "llpathfindingnavmesh.h"
 #include "llpathfindingnavmeshstatus.h"
 #include "llviewerregion.h"
+
+using namespace std::placeholders;
 
 LLMenuOptionPathfindingRebakeNavmesh::LLMenuOptionPathfindingRebakeNavmesh() :
     mIsInitialized(false),
@@ -77,12 +79,12 @@ void LLMenuOptionPathfindingRebakeNavmesh::initialize()
 
         if ( !mRegionCrossingSlot.connected() )
         {
-            mRegionCrossingSlot = gAgent.addRegionChangedCallback(boost::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleRegionBoundaryCrossed, this));
+            mRegionCrossingSlot = gAgent.addRegionChangedCallback(std::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleRegionBoundaryCrossed, this));
         }
 
         if (!mAgentStateSlot.connected())
         {
-            mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleAgentState, this, _1));
+            mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateListener(std::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleAgentState, this, _1));
         }
         LLPathfindingManager::getInstance()->requestGetAgentState();
     }
@@ -152,7 +154,7 @@ void LLMenuOptionPathfindingRebakeNavmesh::sendRequestRebakeNavmesh()
         }
 
         setMode(kRebakeNavMesh_RequestSent);
-        LLPathfindingManager::getInstance()->requestRebakeNavMesh(boost::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleRebakeNavMeshResponse, this, _1));
+        LLPathfindingManager::getInstance()->requestRebakeNavMesh(std::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleRebakeNavMeshResponse, this, _1));
     }
 }
 
@@ -236,7 +238,7 @@ void LLMenuOptionPathfindingRebakeNavmesh::createNavMeshStatusListenerForCurrent
     LLViewerRegion *currentRegion = gAgent.getRegion();
     if (currentRegion != NULL)
     {
-        mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, boost::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleNavMeshStatus, this, _2));
+        mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, std::bind(&LLMenuOptionPathfindingRebakeNavmesh::handleNavMeshStatus, this, _2));
         LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(currentRegion, true);
     }
 }

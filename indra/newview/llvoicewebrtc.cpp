@@ -77,6 +77,9 @@
 #include "apr_base64.h"
 
 #include "boost/json.hpp"
+#include <functional>
+
+using namespace std::placeholders;
 
 const std::string WEBRTC_VOICE_SERVER_TYPE = "webrtc";
 
@@ -309,7 +312,7 @@ void LLWebRTCVoiceClient::cleanUp()
     mNextSession.reset();
     mSession.reset();
     mNeighboringRegions.clear();
-    sessionState::for_each(boost::bind(predShutdownSession, _1));
+    sessionState::for_each(std::bind(predShutdownSession, _1));
     LL_DEBUGS("Voice") << "Exiting" << LL_ENDL;
 }
 
@@ -903,12 +906,12 @@ void LLWebRTCVoiceClient::setHidden(bool hidden)
         {
             // get out of the channel entirely
             // mute the microphone.
-            sessionState::for_each(boost::bind(predSetMuteMic, _1, true));
+            sessionState::for_each(std::bind(predSetMuteMic, _1, true));
         }
         else
         {
             // and put it back
-            sessionState::for_each(boost::bind(predSetMuteMic, _1, mMuteMic));
+            sessionState::for_each(std::bind(predSetMuteMic, _1, mMuteMic));
             updatePosition();
             sendPositionUpdate(true);
         }
@@ -1182,7 +1185,7 @@ void LLWebRTCVoiceClient::sendPositionUpdate(bool force)
         mSpatialCoordsDirty = false;
         spatial_data = boost::json::serialize(spatial);
 
-        sessionState::for_each(boost::bind(predSendData, _1, spatial_data));
+        sessionState::for_each(std::bind(predSendData, _1, spatial_data));
     }
 }
 
@@ -1197,7 +1200,7 @@ void LLWebRTCVoiceClient::updateOwnVolume()
         float rms = mWebRTCDeviceInterface->getPeerConnectionAudioLevel();
         audio_level = LEVEL_START_POINT - LEVEL_SCALE * rms;
     }
-    sessionState::for_each(boost::bind(predUpdateOwnVolume, _1, audio_level));
+    sessionState::for_each(std::bind(predUpdateOwnVolume, _1, audio_level));
 }
 
 ////////////////////////////////////
@@ -1607,7 +1610,7 @@ void LLWebRTCVoiceClient::setMuteMic(bool muted)
     // when you're hidden, your mic is always muted.
     if (!mHidden)
     {
-        sessionState::for_each(boost::bind(predSetMuteMic, _1, muted));
+        sessionState::for_each(std::bind(predSetMuteMic, _1, muted));
     }
 }
 
@@ -1628,7 +1631,7 @@ void LLWebRTCVoiceClient::setVoiceVolume(F32 volume)
         {
             mSpeakerVolume      = volume;
         }
-        sessionState::for_each(boost::bind(predSetSpeakerVolume, _1, volume));
+        sessionState::for_each(std::bind(predSetSpeakerVolume, _1, volume));
     }
 }
 
@@ -1673,7 +1676,7 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
             if (!mIsCoroutineActive)
             {
                 LLCoros::instance().launch("LLWebRTCVoiceClient::voiceConnectionCoro",
-                    boost::bind(&LLWebRTCVoiceClient::voiceConnectionCoro, LLWebRTCVoiceClient::getInstance()));
+                    std::bind(&LLWebRTCVoiceClient::voiceConnectionCoro, LLWebRTCVoiceClient::getInstance()));
             }
             else
             {
@@ -1803,7 +1806,7 @@ void LLWebRTCVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
             participant->mVolume = clamped_volume;
         }
     }
-    sessionState::for_each(boost::bind(predSetUserVolume, _1, id, clamped_volume));
+    sessionState::for_each(std::bind(predSetUserVolume, _1, id, clamped_volume));
 }
 
 // set volume level (gain level) for another user.
@@ -1825,7 +1828,7 @@ void LLWebRTCVoiceClient::onChangeDetailed(const LLMute& mute)
     if (mute.mType == LLMute::AGENT)
     {
         bool muted = ((mute.mFlags & LLMute::flagVoiceChat) == 0);
-        sessionState::for_each(boost::bind(predSetUserMute, _1, mute.mID, muted));
+        sessionState::for_each(std::bind(predSetUserMute, _1, mute.mID, muted));
     }
 }
 
@@ -1965,7 +1968,7 @@ LLWebRTCVoiceClient::sessionState::ptr_t LLWebRTCVoiceClient::sessionState::matc
 
 void LLWebRTCVoiceClient::sessionState::for_each(sessionFunc_t func)
 {
-    std::ranges::for_each(sSessions, boost::bind(for_eachPredicate, _1, func));
+    std::ranges::for_each(sSessions, std::bind(for_eachPredicate, _1, func));
 }
 
 void LLWebRTCVoiceClient::sessionState::reapEmptySessions()
@@ -2260,7 +2263,7 @@ void LLWebRTCVoiceClient::lookupName(const LLUUID &id)
     {
         mAvatarNameCacheConnection.disconnect();
     }
-    mAvatarNameCacheConnection = LLAvatarNameCache::get(id, boost::bind(&LLWebRTCVoiceClient::onAvatarNameCache, this, _1, _2));
+    mAvatarNameCacheConnection = LLAvatarNameCache::get(id, std::bind(&LLWebRTCVoiceClient::onAvatarNameCache, this, _1, _2));
 }
 
 void LLWebRTCVoiceClient::onAvatarNameCache(const LLUUID& agent_id,
@@ -2285,7 +2288,7 @@ void LLWebRTCVoiceClient::predAvatarNameResolution(const LLWebRTCVoiceClient::se
 
 void LLWebRTCVoiceClient::avatarNameResolved(const LLUUID &id, const std::string &name)
 {
-    sessionState::for_each(boost::bind(predAvatarNameResolution, _1, id, name));
+    sessionState::for_each(std::bind(predAvatarNameResolution, _1, id, name));
 }
 
 // Leftover from vivox PTSN
@@ -2389,7 +2392,7 @@ void LLVoiceWebRTCConnection::processIceUpdates()
     mOutstandingRequests++;
 
     LLCoros::getInstance()->launch("LLVoiceWebRTCConnection::processIceUpdatesCoro",
-                                   boost::bind(&LLVoiceWebRTCConnection::processIceUpdatesCoro, this->shared_from_this()));
+                                   std::bind(&LLVoiceWebRTCConnection::processIceUpdatesCoro, this->shared_from_this()));
 }
 
 // Ice candidates may be streamed in before or after the SDP offer is available (see below)
@@ -2876,7 +2879,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             setVoiceConnectionState(VOICE_STATE_CONNECTION_WAIT);
             mOutstandingRequests++;
             LLCoros::getInstance()->launch("LLVoiceWebRTCConnection::requestVoiceConnectionCoro",
-                                           boost::bind(&LLVoiceWebRTCConnection::requestVoiceConnectionCoro, this->shared_from_this()));
+                                           std::bind(&LLVoiceWebRTCConnection::requestVoiceConnectionCoro, this->shared_from_this()));
             break;
 
         case VOICE_STATE_CONNECTION_WAIT:
@@ -2985,7 +2988,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                 mOutstandingRequests++;
                 setVoiceConnectionState(VOICE_STATE_WAIT_FOR_EXIT);
                 LLCoros::instance().launch("LLVoiceWebRTCConnection::breakVoiceConnectionCoro",
-                                           boost::bind(&LLVoiceWebRTCConnection::breakVoiceConnectionCoro, this->shared_from_this()));
+                                           std::bind(&LLVoiceWebRTCConnection::breakVoiceConnectionCoro, this->shared_from_this()));
             }
             else
             {

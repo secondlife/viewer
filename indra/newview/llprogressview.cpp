@@ -52,6 +52,9 @@
 #include "llweb.h"
 #include "lluictrlfactory.h"
 #include "llpanellogin.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLProgressView* LLProgressView::sInstance = NULL;
 
@@ -72,7 +75,7 @@ LLProgressView::LLProgressView()
     mFadeFromLoginTimer(),
     mStartupComplete(false)
 {
-    mUpdateEvents.listen("self", boost::bind(&LLProgressView::handleUpdate, this, _1));
+    mUpdateEvents.listen("self", std::bind(&LLProgressView::handleUpdate, this, _1));
     mFadeToWorldTimer.stop();
     mFadeFromLoginTimer.stop();
 }
@@ -108,7 +111,7 @@ bool LLProgressView::postBuild()
     // hidden initially, until we need it
     setVisible(false);
 
-    LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLProgressView::onAlertModal, this, _1));
+    LLNotifications::instance().getChannel("AlertModal")->connectChanged(std::bind(&LLProgressView::onAlertModal, this, _1));
 
     sInstance = this;
     return true;

@@ -31,6 +31,7 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "lluictrl.h"
+#include <functional>
 
 // ============================================================================
 // Constants

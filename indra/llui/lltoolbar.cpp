@@ -34,6 +34,9 @@
 #include "lltrans.h"
 #include "llinventory.h"
 #include "lliconctrl.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // uncomment this and remove the one in llui.cpp when there is an external reference to this translation unit
 // thanks, MSVC!
@@ -145,11 +148,11 @@ void LLToolBar::createContextMenu()
         // Setup bindings specific to this instance for the context menu options
 
         LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit_reg;
-        commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onSettingEnable, this, _2));
-        commit_reg.add("Toolbars.RemoveSelectedCommand", boost::bind(&LLToolBar::onRemoveSelectedCommand, this));
+        commit_reg.add("Toolbars.EnableSetting", std::bind(&LLToolBar::onSettingEnable, this, _2));
+        commit_reg.add("Toolbars.RemoveSelectedCommand", std::bind(&LLToolBar::onRemoveSelectedCommand, this));
 
         LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_reg;
-        enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isSettingChecked, this, _2));
+        enable_reg.add("Toolbars.CheckSetting", std::bind(&LLToolBar::isSettingChecked, this, _2));
 
         // Create the context menu
         llassert(LLMenuGL::sMenuContainer != NULL);
@@ -975,8 +978,8 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
             LL_DEBUGS("UIUsage") << "button function name a -> " << commandp->executeFunctionName() << LL_ENDL;
             LLUICtrl::commit_callback_t stop_func = initCommitCallback(executeStopParam);
 
-            button->setMouseDownCallback(boost::bind(&LLToolBarButton::callIfEnabled, button, execute_func, _1, _2));
-            button->setMouseUpCallback(boost::bind(&LLToolBarButton::callIfEnabled, button, stop_func, _1, _2));
+            button->setMouseDownCallback(std::bind(&LLToolBarButton::callIfEnabled, button, execute_func, _1, _2));
+            button->setMouseUpCallback(std::bind(&LLToolBarButton::callIfEnabled, button, stop_func, _1, _2));
         }
         else
         {

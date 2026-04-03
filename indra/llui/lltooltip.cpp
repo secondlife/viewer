@@ -37,6 +37,7 @@
 #include "llui.h"           // positionViewNearMouse()
 #include "llwindow.h"
 #include "lltrans.h"
+#include <functional>
 //
 // Constants
 //
@@ -207,7 +208,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
         mInfoButton  = LLUICtrlFactory::create<LLButton>(icon_params);
         if (p.click_callback.isProvided())
         {
-            mInfoButton->setCommitCallback(boost::bind(p.click_callback()));
+            mInfoButton->setCommitCallback(std::bind(p.click_callback()));
         }
         addChild(mInfoButton);
 
@@ -231,7 +232,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
         mPlayMediaButton = LLUICtrlFactory::create<LLButton>(p_button);
         if(p.click_playmedia_callback.isProvided())
         {
-            mPlayMediaButton->setCommitCallback(boost::bind(p.click_playmedia_callback()));
+            mPlayMediaButton->setCommitCallback(std::bind(p.click_playmedia_callback()));
         }
         mPlayMediaButton->setToggleState(p.media_playing);
         addChild(mPlayMediaButton);
@@ -255,7 +256,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
         mHomePageButton = LLUICtrlFactory::create<LLButton>(p_w_button);
         if(p.click_homepage_callback.isProvided())
         {
-            mHomePageButton->setCommitCallback(boost::bind(p.click_homepage_callback()));
+            mHomePageButton->setCommitCallback(std::bind(p.click_homepage_callback()));
         }
         addChild(mHomePageButton);
 
@@ -265,7 +266,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 
     if (p.click_callback.isProvided())
     {
-        setMouseUpCallback(boost::bind(p.click_callback()));
+        setMouseUpCallback(std::bind(p.click_callback()));
     }
 }
 

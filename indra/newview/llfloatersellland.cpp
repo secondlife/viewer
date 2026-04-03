@@ -42,6 +42,9 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLAvatarName;
 
@@ -171,7 +174,7 @@ bool LLFloaterSellLandUI::postBuild()
     childSetCommitCallback("price", onChangeValue, this);
     getChild<LLLineEditor>("price")->setPrevalidate(LLTextValidate::validateNonNegativeS32);
     childSetCommitCallback("sell_objects", onChangeValue, this);
-    childSetAction("sell_to_select_agent", boost::bind( &LLFloaterSellLandUI::doSelectAgent, this));
+    childSetAction("sell_to_select_agent", std::bind( &LLFloaterSellLandUI::doSelectAgent, this));
     childSetAction("cancel_btn", doCancel, this);
     childSetAction("sell_btn", doSellLand, this);
     childSetAction("show_objects", doShowObjects, this);
@@ -240,7 +243,7 @@ void LLFloaterSellLandUI::updateParcelInfo()
         {
             mAvatarNameCacheConnection.disconnect();
         }
-        mAvatarNameCacheConnection = LLAvatarNameCache::get(mAuthorizedBuyer, boost::bind(&LLFloaterSellLandUI::onBuyerNameCache, this, _2));
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(mAuthorizedBuyer, std::bind(&LLFloaterSellLandUI::onBuyerNameCache, this, _2));
     }
 }
 
@@ -398,7 +401,7 @@ void LLFloaterSellLandUI::onChangeValue(LLUICtrl *ctrl, void *userdata)
 void LLFloaterSellLandUI::doSelectAgent()
 {
     LLView * button = findChild<LLView>("sell_to_select_agent");
-    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), false, true, false, this->getName(), button);
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(std::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), false, true, false, this->getName(), button);
     // grandparent is a floater, in order to set up dependency
     if (picker)
     {
@@ -486,7 +489,7 @@ void LLFloaterSellLandUI::doSellLand(void *userdata)
 
     LLNotification::Params params("ConfirmLandSaleChange");
     params.substitutions(args)
-        .functor.function(boost::bind(&LLFloaterSellLandUI::onConfirmSale, self, _1, _2));
+        .functor.function(std::bind(&LLFloaterSellLandUI::onConfirmSale, self, _1, _2));
 
     if (sell_to_anyone)
     {

@@ -43,6 +43,9 @@
 #include "llviewerwindow.h"
 #include "llavatarname.h"
 #include "llavatarnamecache.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -65,9 +68,9 @@ LLTeleportHistory::LLTeleportHistory():
     mTeleportHistoryStorage(NULL)
 {
     mTeleportFinishedConn = LLViewerParcelMgr::getInstance()->
-        setTeleportFinishedCallback(boost::bind(&LLTeleportHistory::updateCurrentLocation, this, _1));
+        setTeleportFinishedCallback(std::bind(&LLTeleportHistory::updateCurrentLocation, this, _1));
     mTeleportFailedConn = LLViewerParcelMgr::getInstance()->
-        setTeleportFailedCallback(boost::bind(&LLTeleportHistory::onTeleportFailed, this));
+        setTeleportFailedCallback(std::bind(&LLTeleportHistory::onTeleportFailed, this));
 }
 
 LLTeleportHistory::~LLTeleportHistory()
@@ -198,7 +201,7 @@ void LLTeleportHistory::updateCurrentLocation(const LLVector3d& new_pos)
     // setting to allow it is enabled (may be useful in other situations)
     if (gNonInteractive || gSavedSettings.getBOOL("UpdateAppWindowTitleBar"))
     {
-        LLAvatarNameCache::get(gAgent.getID(), boost::bind(&on_avatar_name_update_title, _2));
+        LLAvatarNameCache::get(gAgent.getID(), std::bind(&on_avatar_name_update_title, _2));
     }
 
     // Signal the interesting party that we've changed.

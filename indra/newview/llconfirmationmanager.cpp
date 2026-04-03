@@ -34,6 +34,9 @@
 #include "llnotificationsutil.h"
 #include "llstring.h"
 #include "llxmlnode.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLConfirmationManager::ListenerBase::~ListenerBase()
 {
@@ -77,11 +80,11 @@ void LLConfirmationManager::confirm(Type type,
     switch (type)
     {
         case TYPE_CLICK:
-            LLNotificationsUtil::add("ConfirmPurchase", args, LLSD(), boost::bind(onConfirmAlert, _1, _2, listener));
+            LLNotificationsUtil::add("ConfirmPurchase", args, LLSD(), std::bind(onConfirmAlert, _1, _2, listener));
           break;
 
         case TYPE_PASSWORD:
-            LLNotificationsUtil::add("ConfirmPurchasePassword", args, LLSD(), boost::bind(onConfirmAlertPassword, _1, _2, listener));
+            LLNotificationsUtil::add("ConfirmPurchasePassword", args, LLSD(), std::bind(onConfirmAlertPassword, _1, _2, listener));
           break;
         case TYPE_NONE:
         default:

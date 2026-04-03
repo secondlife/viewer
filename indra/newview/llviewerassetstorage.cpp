@@ -44,6 +44,9 @@
 #include "llsdutil.h"
 #include "llstartup.h"
 #include "llworld.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// LLViewerAssetRequest
@@ -512,7 +515,7 @@ void LLViewerAssetStorage::assetRequestCoro(
 
         boost::signals2::connection caps_conn =
             gAgent.getRegion()->setCapabilitiesReceivedCallback(
-                boost::bind(&LLViewerAssetStorage::capsRecvForRegion, this, _1, capsRecv.getName()));
+                std::bind(&LLViewerAssetStorage::capsRecvForRegion, this, _1, capsRecv.getName()));
 
         F32Seconds timeout_seconds(LL_ASSET_STORAGE_TIMEOUT); // from minutes to seconds, by default 5 minutes
         LLSD result = llcoro::suspendUntilEventOnWithTimeout(capsRecv, timeout_seconds, LLSDMap("timeout", LLSD::Boolean(true)));

@@ -44,6 +44,9 @@
 #include "llfloaterimcontainer.h"
 #include "llrootview.h"
 #include "lllayoutstack.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //add LLFloaterIMNearbyChatHandler to LLNotificationsUI namespace
 using namespace LLNotificationsUI;
@@ -74,13 +77,13 @@ public:
         LLControlVariable* ctrl = gSavedSettings.getControl("NearbyToastLifeTime").get();
         if (ctrl)
         {
-            ctrl->getSignal()->connect(boost::bind(&LLFloaterIMNearbyChatScreenChannel::updateToastsLifetime, this));
+            ctrl->getSignal()->connect(std::bind(&LLFloaterIMNearbyChatScreenChannel::updateToastsLifetime, this));
         }
 
         ctrl = gSavedSettings.getControl("NearbyToastFadingTime").get();
         if (ctrl)
         {
-            ctrl->getSignal()->connect(boost::bind(&LLFloaterIMNearbyChatScreenChannel::updateToastFadingTime, this));
+            ctrl->getSignal()->connect(std::bind(&LLFloaterIMNearbyChatScreenChannel::updateToastFadingTime, this));
         }
     }
 
@@ -268,10 +271,10 @@ bool    LLFloaterIMNearbyChatScreenChannel::createPoolToast()
     LLToast* toast = new LLFloaterIMNearbyChatToast(p, this);
 
 
-    toast->setOnFadeCallback(boost::bind(&LLFloaterIMNearbyChatScreenChannel::onToastFade, this, _1));
+    toast->setOnFadeCallback(std::bind(&LLFloaterIMNearbyChatScreenChannel::onToastFade, this, _1));
 
     // If the toast gets somehow prematurely destroyed, deactivate it to prevent crash (STORM-1352).
-    toast->setOnToastDestroyedCallback(boost::bind(&LLFloaterIMNearbyChatScreenChannel::onToastDestroyed, this, _1, false));
+    toast->setOnToastDestroyedCallback(std::bind(&LLFloaterIMNearbyChatScreenChannel::onToastDestroyed, this, _1, false));
 
     LL_DEBUGS("NearbyChat") << "Creating and pooling toast" << LL_ENDL;
     m_toast_pool.push_back(toast->getHandle());

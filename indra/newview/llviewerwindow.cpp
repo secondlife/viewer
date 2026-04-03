@@ -208,6 +208,9 @@
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
 #include "llwindowwin32.h" // For AltGr handling
+#include <functional>
+
+using namespace std::placeholders;
 #endif
 
 //
@@ -2147,7 +2150,7 @@ void LLViewerWindow::initBase()
         LLToolBar * toolbarp = gToolBarView->getToolbar((LLToolBarEnums::EToolBarLocation)i);
         if (toolbarp)
         {
-            toolbarp->getCenterLayoutPanel()->setReshapeCallback(boost::bind(&LLFloaterView::setToolbarRect, gFloaterView, _1, _2));
+            toolbarp->getCenterLayoutPanel()->setReshapeCallback(std::bind(&LLFloaterView::setToolbarRect, gFloaterView, _1, _2));
         }
     }
     gFloaterView->setFloaterSnapView(mFloaterSnapRegion->getHandle());
@@ -2183,7 +2186,7 @@ void LLViewerWindow::initBase()
     gToolTipView = getRootView()->getChild<LLToolTipView>("tooltip view");
 
     // Initialize do not disturb response message when logged in
-    LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLFloaterPreference::initDoNotDisturbResponse));
+    LLAppViewer::instance()->setOnLoginCompletedCallback(std::bind(&LLFloaterPreference::initDoNotDisturbResponse));
 
     // Add the progress bar view (startup view), which overrides everything
     mProgressView = getRootView()->findChild<LLProgressView>("progress_view");
@@ -4808,8 +4811,8 @@ void LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picke
         else
             pick_type = LLFilePicker::FFSAVE_ALL;
 
-        LLFilePickerReplyThread::startPicker(boost::bind(&LLViewerWindow::onDirectorySelected, this, _1, formatted_image, success_cb, failure_cb), pick_type, proposed_name,
-                                        boost::bind(&LLViewerWindow::onSelectionFailure, this, failure_cb));
+        LLFilePickerReplyThread::startPicker(std::bind(&LLViewerWindow::onDirectorySelected, this, _1, formatted_image, success_cb, failure_cb), pick_type, proposed_name,
+                                        std::bind(&LLViewerWindow::onSelectionFailure, this, failure_cb));
     }
     else
     {
@@ -4929,7 +4932,7 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
         LLNotificationsUtil::add("SnapshotSavedToComputer",
                                  args,
                                  payload.with("respond_on_mousedown", true),
-                                 boost::bind(&LLViewerWindow::onSnapshotNotificationClick, _1, _2));
+                                 std::bind(&LLViewerWindow::onSnapshotNotificationClick, _1, _2));
 
         success_cb();
     }

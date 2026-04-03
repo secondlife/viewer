@@ -39,6 +39,9 @@
 #include "llhttpsdhandler.h"
 #include "httpcommon.h"
 #include "llcorehttputil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 /**
  * Materials cap parameters
@@ -140,7 +143,7 @@ LLMaterialMgr::LLMaterialMgr():
 
     mMaterials.insert(std::pair<LLMaterialID, LLMaterialPtr>(LLMaterialID::null, LLMaterialPtr(NULL)));
     gIdleCallbacks.addFunction(&LLMaterialMgr::onIdle, NULL);
-    LLWorld::instance().setRegionRemovedCallback(boost::bind(&LLMaterialMgr::onRegionRemoved, this, _1));
+    LLWorld::instance().setRegionRemovedCallback(std::bind(&LLMaterialMgr::onRegionRemoved, this, _1));
 }
 
 LLMaterialMgr::~LLMaterialMgr()
@@ -681,7 +684,7 @@ void LLMaterialMgr::processGetQueue()
         postData[MATERIALS_CAP_ZIP_FIELD] = materialBinary;
 
         LLCore::HttpHandler::ptr_t handler = std::make_shared<LLMaterialHttpHandler>("POST",
-                boost::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id)
+                std::bind(&LLMaterialMgr::onGetResponse, this, _1, _2, region_id)
                 );
 
         LL_DEBUGS("Materials") << "POSTing to region '" << regionp->getName() << "' at '" << capURL << " for " << materialsData.size() << " materials."
@@ -717,7 +720,7 @@ void LLMaterialMgr::processGetAllQueue()
 
         const LLUUID& region_id = *itRegion;
 
-        LLCoros::instance().launch("LLMaterialMgr::processGetAllQueueCoro", boost::bind(&LLMaterialMgr::processGetAllQueueCoro,
+        LLCoros::instance().launch("LLMaterialMgr::processGetAllQueueCoro", std::bind(&LLMaterialMgr::processGetAllQueueCoro,
             this, region_id));
 
         mGetAllPending.insert(std::pair<LLUUID, F64>(region_id, LLFrameTimer::getTotalSeconds()));
@@ -739,7 +742,7 @@ void LLMaterialMgr::processGetAllQueueCoro(LLUUID regionId)
         LLEventStream capsRecv("waitForCaps", true);
 
         regionp->setCapabilitiesReceivedCallback(
-            boost::bind(&LLMaterialMgr::CapsRecvForRegion,
+            std::bind(&LLMaterialMgr::CapsRecvForRegion,
             _1, regionId, capsRecv.getName()));
 
         llcoro::suspendUntilEventOn(capsRecv);
@@ -879,7 +882,7 @@ void LLMaterialMgr::processPutQueue()
             LL_DEBUGS("Materials") << "put for " << itRequest->second.size() << " faces to region " << itRequest->first->getName() << LL_ENDL;
 
             LLCore::HttpHandler::ptr_t handler = std::make_shared<LLMaterialHttpHandler>("PUT",
-                                        boost::bind(&LLMaterialMgr::onPutResponse, this, _1, _2)
+                                        std::bind(&LLMaterialMgr::onPutResponse, this, _1, _2)
                                         );
 
             LLCore::HttpHandle handle = LLCoreHttpUtil::requestPutWithLLSD(

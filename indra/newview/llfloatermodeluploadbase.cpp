@@ -31,6 +31,7 @@
 #include "llviewerregion.h"
 #include "llnotificationsutil.h"
 #include "llcorehttputil.h"
+#include <functional>
 
 LLFloaterModelUploadBase::LLFloaterModelUploadBase(const LLSD& key)
 :LLFloater(key),
@@ -49,7 +50,7 @@ void LLFloaterModelUploadBase::requestAgentUploadPermissions()
                   << "::requestAgentUploadPermissions() requesting for upload model permissions from: "
                   << url << LL_ENDL;
         LLCoros::instance().launch("LLFloaterModelUploadBase::requestAgentUploadPermissionsCoro",
-            boost::bind(&LLFloaterModelUploadBase::requestAgentUploadPermissionsCoro, this, url, getPermObserverHandle()));
+            std::bind(&LLFloaterModelUploadBase::requestAgentUploadPermissionsCoro, this, url, getPermObserverHandle()));
     }
     else
     {

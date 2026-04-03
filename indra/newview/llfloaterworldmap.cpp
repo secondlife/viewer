@@ -80,6 +80,9 @@
 #include "message.h"
 #include "llwindow.h"           // copyTextToClipboard()
 #include <algorithm>
+#include <functional>
+
+using namespace std::placeholders;
 
 //---------------------------------------------------------------------------
 // Constants
@@ -381,19 +384,19 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
 
     mFactoryMap["objects_mapview"] = LLCallbackMap(createWorldMapView, nullptr);
 
-    mCommitCallbackRegistrar.add("WMap.Coordinates",    boost::bind(&LLFloaterWorldMap::onCoordinatesCommit, this));
-    mCommitCallbackRegistrar.add("WMap.Location",       boost::bind(&LLFloaterWorldMap::onLocationCommit, this));
-    mCommitCallbackRegistrar.add("WMap.AvatarCombo",    boost::bind(&LLFloaterWorldMap::onAvatarComboCommit, this));
-    mCommitCallbackRegistrar.add("WMap.Landmark",       boost::bind(&LLFloaterWorldMap::onLandmarkComboCommit, this));
+    mCommitCallbackRegistrar.add("WMap.Coordinates",    std::bind(&LLFloaterWorldMap::onCoordinatesCommit, this));
+    mCommitCallbackRegistrar.add("WMap.Location",       std::bind(&LLFloaterWorldMap::onLocationCommit, this));
+    mCommitCallbackRegistrar.add("WMap.AvatarCombo",    std::bind(&LLFloaterWorldMap::onAvatarComboCommit, this));
+    mCommitCallbackRegistrar.add("WMap.Landmark",       std::bind(&LLFloaterWorldMap::onLandmarkComboCommit, this));
     mCommitCallbackRegistrar.add("WMap.SearchResult", [this](LLUICtrl* ctrl, const LLSD& data) { LLFloaterWorldMap::onCommitSearchResult(false); });
-    mCommitCallbackRegistrar.add("WMap.GoHome",         boost::bind(&LLFloaterWorldMap::onGoHome, this));
-    mCommitCallbackRegistrar.add("WMap.Teleport",       boost::bind(&LLFloaterWorldMap::onClickTeleportBtn, this));
-    mCommitCallbackRegistrar.add("WMap.ShowTarget",     boost::bind(&LLFloaterWorldMap::onShowTargetBtn, this));
-    mCommitCallbackRegistrar.add("WMap.ShowAgent",      boost::bind(&LLFloaterWorldMap::onShowAgentBtn, this));
-    mCommitCallbackRegistrar.add("WMap.Clear",          boost::bind(&LLFloaterWorldMap::onClearBtn, this));
-    mCommitCallbackRegistrar.add("WMap.CopySLURL",      boost::bind(&LLFloaterWorldMap::onCopySLURL, this));
+    mCommitCallbackRegistrar.add("WMap.GoHome",         std::bind(&LLFloaterWorldMap::onGoHome, this));
+    mCommitCallbackRegistrar.add("WMap.Teleport",       std::bind(&LLFloaterWorldMap::onClickTeleportBtn, this));
+    mCommitCallbackRegistrar.add("WMap.ShowTarget",     std::bind(&LLFloaterWorldMap::onShowTargetBtn, this));
+    mCommitCallbackRegistrar.add("WMap.ShowAgent",      std::bind(&LLFloaterWorldMap::onShowAgentBtn, this));
+    mCommitCallbackRegistrar.add("WMap.Clear",          std::bind(&LLFloaterWorldMap::onClearBtn, this));
+    mCommitCallbackRegistrar.add("WMap.CopySLURL",      std::bind(&LLFloaterWorldMap::onCopySLURL, this));
 
-    gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterWorldMap::onChangeMaturity, this));
+    gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(std::bind(&LLFloaterWorldMap::onChangeMaturity, this));
 }
 
 // static
@@ -429,20 +432,20 @@ bool LLFloaterWorldMap::postBuild()
 
     mFriendCombo = getChild<LLComboBox>("friend combo");
     mFriendCombo->selectFirstItem();
-    mFriendCombo->setPrearrangeCallback(boost::bind(&LLFloaterWorldMap::onAvatarComboPrearrange, this));
-    mFriendCombo->setTextChangedCallback(boost::bind(&LLFloaterWorldMap::onComboTextEntry, this));
+    mFriendCombo->setPrearrangeCallback(std::bind(&LLFloaterWorldMap::onAvatarComboPrearrange, this));
+    mFriendCombo->setTextChangedCallback(std::bind(&LLFloaterWorldMap::onComboTextEntry, this));
 
     mLocationEditor = getChild<LLSearchEditor>("location");
-    mLocationEditor->setFocusChangedCallback(boost::bind(&LLFloaterWorldMap::onLocationFocusChanged, this, _1));
-    mLocationEditor->setTextChangedCallback(boost::bind(&LLFloaterWorldMap::onSearchTextEntry, this));
+    mLocationEditor->setFocusChangedCallback(std::bind(&LLFloaterWorldMap::onLocationFocusChanged, this, _1));
+    mLocationEditor->setTextChangedCallback(std::bind(&LLFloaterWorldMap::onSearchTextEntry, this));
 
     mSearchResults = getChild<LLScrollListCtrl>("search_results");
-    mSearchResults->setDoubleClickCallback(boost::bind(&LLFloaterWorldMap::onClickTeleportBtn, this));
+    mSearchResults->setDoubleClickCallback(std::bind(&LLFloaterWorldMap::onClickTeleportBtn, this));
 
     mLandmarkCombo = getChild<LLComboBox>("landmark combo");
     mLandmarkCombo->selectFirstItem();
-    mLandmarkCombo->setPrearrangeCallback(boost::bind(&LLFloaterWorldMap::onLandmarkComboPrearrange, this));
-    mLandmarkCombo->setTextChangedCallback(boost::bind(&LLFloaterWorldMap::onComboTextEntry, this));
+    mLandmarkCombo->setPrearrangeCallback(std::bind(&LLFloaterWorldMap::onLandmarkComboPrearrange, this));
+    mLandmarkCombo->setTextChangedCallback(std::bind(&LLFloaterWorldMap::onComboTextEntry, this));
 
     mZoomSlider = getChild<LLSliderCtrl>("zoom slider");
     F32 slider_zoom = mMapView->getZoom();
@@ -451,7 +454,7 @@ bool LLFloaterWorldMap::postBuild()
     mTrackCtrlsPanel = getChild<LLPanel>("layout_panel_4");
     mSearchButton = getChild<LLButton>("DoSearch");
 
-    getChild<LLPanel>("expand_btn_panel")->setMouseDownCallback(boost::bind(&LLFloaterWorldMap::onExpandCollapseBtn, this));
+    getChild<LLPanel>("expand_btn_panel")->setMouseDownCallback(std::bind(&LLFloaterWorldMap::onExpandCollapseBtn, this));
 
     mTrackCtrlsPanel->setDefaultBtn(nullptr);
 
@@ -501,7 +504,7 @@ void LLFloaterWorldMap::onClose(bool app_quitting)
 void LLFloaterWorldMap::onOpen(const LLSD& key)
 {
     mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
-        setTeleportFinishedCallback(boost::bind(&LLFloaterWorldMap::onTeleportFinished, this));
+        setTeleportFinishedCallback(std::bind(&LLFloaterWorldMap::onTeleportFinished, this));
 
     bool center_on_target = (key.asString() == "center");
 
@@ -1873,9 +1876,9 @@ LLPanelHideBeacon* LLPanelHideBeacon::getInstance()
 bool LLPanelHideBeacon::postBuild()
 {
     mHideButton = getChild<LLButton>("hide_beacon_btn");
-    mHideButton->setCommitCallback(boost::bind(&LLPanelHideBeacon::onHideButtonClick, this));
+    mHideButton->setCommitCallback(std::bind(&LLPanelHideBeacon::onHideButtonClick, this));
 
-    gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLPanelHideBeacon::updatePosition, this));
+    gViewerWindow->setOnWorldViewRectUpdated(std::bind(&LLPanelHideBeacon::updatePosition, this));
 
     return true;
 }

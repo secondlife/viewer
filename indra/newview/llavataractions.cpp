@@ -77,6 +77,9 @@
 #include "llavatarname.h"
 #include "llagentui.h"
 #include "lluiusage.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Flags for kick message
 const U32 KICK_FLAGS_DEFAULT    = 0x0;
@@ -131,7 +134,7 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id)
         return;
     }
 
-    LLAvatarNameCache::get(id, boost::bind(&on_avatar_name_friendship, _1, _2));
+    LLAvatarNameCache::get(id, std::bind(&on_avatar_name_friendship, _1, _2));
 }
 
 // static
@@ -219,7 +222,7 @@ void LLAvatarActions::startIM(const LLUUID& id)
     if (id.isNull() || gAgent.getID() == id)
         return;
 
-    LLAvatarNameCache::get(id, boost::bind(&on_avatar_name_cache_start_im, _1, _2));
+    LLAvatarNameCache::get(id, std::bind(&on_avatar_name_cache_start_im, _1, _2));
 }
 
 // static
@@ -251,7 +254,7 @@ void LLAvatarActions::startCall(const LLUUID& id)
     {
         return;
     }
-    LLAvatarNameCache::get(id, boost::bind(&on_avatar_name_cache_start_call, _1, _2));
+    LLAvatarNameCache::get(id, std::bind(&on_avatar_name_cache_start_call, _1, _2));
 }
 
 // static
@@ -475,7 +478,7 @@ void LLAvatarActions::showOnMap(const LLUUID& id)
     LLAvatarName av_name;
     if (!LLAvatarNameCache::get(id, &av_name))
     {
-        LLAvatarNameCache::get(id, boost::bind(&LLAvatarActions::showOnMap, id));
+        LLAvatarNameCache::get(id, std::bind(&LLAvatarActions::showOnMap, id));
         return;
     }
 
@@ -487,7 +490,7 @@ void LLAvatarActions::showOnMap(const LLUUID& id)
 void LLAvatarActions::pay(const LLUUID& id)
 {
     LLNotification::Params params("DoNotDisturbModePay");
-    params.functor.function(boost::bind(&LLAvatarActions::handlePay, _1, _2, id));
+    params.functor.function(std::bind(&LLAvatarActions::handlePay, _1, _2, id));
 
     if (gAgent.isDoNotDisturb())
     {
@@ -556,7 +559,7 @@ void LLAvatarActions::teleportRequest(const LLUUID& id)
     if (!LLAvatarNameCache::get(id, &av_name))
     {
         // unlikely ... they just picked this name from somewhere...
-        LLAvatarNameCache::get(id, boost::bind(&LLAvatarActions::teleportRequest, id));
+        LLAvatarNameCache::get(id, std::bind(&LLAvatarActions::teleportRequest, id));
         return; // reinvoke this when the name resolves
     }
     notification["NAME"] = av_name.getCompleteName();
@@ -938,7 +941,7 @@ namespace action_give_inventory
         substitutions["ITEMS"] = items;
         LLShareInfo::instance().mAvatarNames = avatar_names;
         LLShareInfo::instance().mAvatarUuids = avatar_uuids;
-        LLNotificationsUtil::add(notification, substitutions, LLSD(), boost::bind(&give_inventory_cb, _1, _2, inventory_selected_uuids));
+        LLNotificationsUtil::add(notification, substitutions, LLSD(), std::bind(&give_inventory_cb, _1, _2, inventory_selected_uuids));
     }
 
     static void give_inventory(const uuid_vec_t& avatar_uuids, const std::vector<LLAvatarName> avatar_names, LLInventoryPanel* panel = NULL)
@@ -1050,13 +1053,13 @@ void LLAvatarActions::shareWithAvatars(LLView * panel)
     LLFloater* root_floater = gFloaterView->getParentFloater(panel);
     LLInventoryPanel* inv_panel = dynamic_cast<LLInventoryPanel*>(panel);
     LLFloaterAvatarPicker* picker =
-        LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2, inv_panel), true, false, false, root_floater->getName());
+        LLFloaterAvatarPicker::show(std::bind(give_inventory, _1, _2, inv_panel), true, false, false, root_floater->getName());
     if (!picker)
     {
         return;
     }
 
-    picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable, inv_panel));
+    picker->setOkBtnEnableCb(std::bind(is_give_inventory_acceptable, inv_panel));
     picker->openFriendsTab();
 
     if (root_floater)
@@ -1072,13 +1075,13 @@ void LLAvatarActions::shareWithAvatars(const uuid_set_t inventory_selected_uuids
     using namespace action_give_inventory;
 
     LLFloaterAvatarPicker* picker =
-        LLFloaterAvatarPicker::show(boost::bind(give_inventory_ids, _1, _2, inventory_selected_uuids), true, false, false, root_floater->getName());
+        LLFloaterAvatarPicker::show(std::bind(give_inventory_ids, _1, _2, inventory_selected_uuids), true, false, false, root_floater->getName());
     if (!picker)
     {
         return;
     }
 
-    picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable_ids, inventory_selected_uuids));
+    picker->setOkBtnEnableCb(std::bind(is_give_inventory_acceptable_ids, inventory_selected_uuids));
     picker->openFriendsTab();
 
     if (root_floater)
@@ -1233,7 +1236,7 @@ void LLAvatarActions::inviteToGroup(const LLUUID& id)
         widget->center();
         widget->setPowersMask(GP_MEMBER_INVITE);
         widget->removeNoneOption();
-        widget->setSelectGroupCallback(boost::bind(callback_invite_to_group, _1, id));
+        widget->setSelectGroupCallback(std::bind(callback_invite_to_group, _1, id));
     }
 }
 

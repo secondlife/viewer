@@ -45,6 +45,9 @@
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLPanelTopInfoBar::LLParcelChangeObserver : public LLParcelObserver
 {
@@ -110,13 +113,13 @@ void LLPanelTopInfoBar::initParcelIcons()
     mParcelIcon[DAMAGE_ICON]->setToolTip(LLTrans::getString("LocationCtrlDamageTooltip"));
     mParcelIcon[SEE_AVATARS_ICON]->setToolTip(LLTrans::getString("LocationCtrlSeeAVsTooltip"));
 
-    mParcelIcon[VOICE_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, VOICE_ICON));
-    mParcelIcon[FLY_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, FLY_ICON));
-    mParcelIcon[PUSH_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, PUSH_ICON));
-    mParcelIcon[BUILD_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, BUILD_ICON));
-    mParcelIcon[SCRIPTS_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, SCRIPTS_ICON));
-    mParcelIcon[DAMAGE_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, DAMAGE_ICON));
-    mParcelIcon[SEE_AVATARS_ICON]->setMouseDownCallback(boost::bind(&LLPanelTopInfoBar::onParcelIconClick, this, SEE_AVATARS_ICON));
+    mParcelIcon[VOICE_ICON]->setMouseDownCallback(std::bind(&LLPanelTopInfoBar::onParcelIconClick, this, VOICE_ICON));
+    mParcelIcon[FLY_ICON]->setMouseDownCallback(std::bind(&LLPanelTopInfoBar::onParcelIconClick, this, FLY_ICON));
+    mParcelIcon[PUSH_ICON]->setMouseDownCallback(std::bind(&LLPanelTopInfoBar::onParcelIconClick, this, PUSH_ICON));
+    mParcelIcon[BUILD_ICON]->setMouseDownCallback(std::bind(&LLPanelTopInfoBar::onParcelIconClick, this, BUILD_ICON));
+    mParcelIcon[SCRIPTS_ICON]->setMouseDownCallback(std::bind(&LLPanelTopInfoBar::onParcelIconClick, this, SCRIPTS_ICON));
+    mParcelIcon[DAMAGE_ICON]->setMouseDownCallback(std::bind(&LLPanelTopInfoBar::onParcelIconClick, this, DAMAGE_ICON));
+    mParcelIcon[SEE_AVATARS_ICON]->setMouseDownCallback(std::bind(&LLPanelTopInfoBar::onParcelIconClick, this, SEE_AVATARS_ICON));
 
     mDamageText->setText(LLStringExplicit("100%"));
 }
@@ -133,7 +136,7 @@ bool LLPanelTopInfoBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
     if(!LLUICtrl::CommitCallbackRegistry::getValue("TopInfoBar.Action"))
     {
         LLUICtrl::CommitCallbackRegistry::currentRegistrar()
-                .add("TopInfoBar.Action", boost::bind(&LLPanelTopInfoBar::onContextMenuItemClicked, this, _2));
+                .add("TopInfoBar.Action", std::bind(&LLPanelTopInfoBar::onContextMenuItemClicked, this, _2));
     }
     show_topinfobar_context_menu(this, x, y);
     return true;
@@ -142,7 +145,7 @@ bool LLPanelTopInfoBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 bool LLPanelTopInfoBar::postBuild()
 {
     mInfoBtn = getChild<LLButton>("place_info_btn");
-    mInfoBtn->setClickedCallback(boost::bind(&LLPanelTopInfoBar::onInfoButtonClicked, this));
+    mInfoBtn->setClickedCallback(std::bind(&LLPanelTopInfoBar::onInfoButtonClicked, this));
     mInfoBtn->setToolTip(LLTrans::getString("LocationCtrlInfoBtnTooltip"));
 
     mParcelInfoText = getChild<LLTextBox>("parcel_info_text");
@@ -157,20 +160,20 @@ bool LLPanelTopInfoBar::postBuild()
     LLControlVariable* ctrl = gSavedSettings.getControl("NavBarShowParcelProperties").get();
     if (ctrl)
     {
-        mParcelPropsCtrlConnection = ctrl->getSignal()->connect(boost::bind(&LLPanelTopInfoBar::updateParcelIcons, this));
+        mParcelPropsCtrlConnection = ctrl->getSignal()->connect(std::bind(&LLPanelTopInfoBar::updateParcelIcons, this));
     }
 
     // Connecting signal for updating parcel text on "Show Coordinates" setting change.
     ctrl = gSavedSettings.getControl("NavBarShowCoordinates").get();
     if (ctrl)
     {
-        mShowCoordsCtrlConnection = ctrl->getSignal()->connect(boost::bind(&LLPanelTopInfoBar::onNavBarShowParcelPropertiesCtrlChanged, this));
+        mShowCoordsCtrlConnection = ctrl->getSignal()->connect(std::bind(&LLPanelTopInfoBar::onNavBarShowParcelPropertiesCtrlChanged, this));
     }
 
     mParcelMgrConnection = gAgent.addParcelChangedCallback(
-            boost::bind(&LLPanelTopInfoBar::onAgentParcelChange, this));
+            std::bind(&LLPanelTopInfoBar::onAgentParcelChange, this));
 
-    setVisibleCallback(boost::bind(&LLPanelTopInfoBar::onVisibilityChanged, this, _2));
+    setVisibleCallback(std::bind(&LLPanelTopInfoBar::onVisibilityChanged, this, _2));
 
     return true;
 }

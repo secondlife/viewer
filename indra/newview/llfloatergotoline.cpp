@@ -32,6 +32,7 @@
 #include "lllineeditor.h"
 #include "llscripteditor.h"
 #include "llviewerwindow.h"
+#include <functional>
 
 LLFloaterGotoLine* LLFloaterGotoLine::sInstance = NULL;
 
@@ -61,7 +62,7 @@ LLFloaterGotoLine::LLFloaterGotoLine(LLScriptEdCore* editor_core)
 bool LLFloaterGotoLine::postBuild()
 {
     mGotoBox = getChild<LLLineEditor>("goto_line");
-    mGotoBox->setCommitCallback(boost::bind(&LLFloaterGotoLine::onGotoBoxCommit, this));
+    mGotoBox->setCommitCallback(std::bind(&LLFloaterGotoLine::onGotoBoxCommit, this));
     mGotoBox->setCommitOnFocusLost(false);
         getChild<LLLineEditor>("goto_line")->setPrevalidate(LLTextValidate::validateNonNegativeS32);
         childSetAction("goto_btn", onBtnGoto,this);

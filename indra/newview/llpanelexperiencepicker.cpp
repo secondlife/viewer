@@ -43,6 +43,9 @@
 #include "llfloater.h"
 #include "llregex.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 #define BTN_FIND        "find"
 #define BTN_OK          "ok_btn"
@@ -72,29 +75,29 @@ LLPanelExperiencePicker::~LLPanelExperiencePicker()
 
 bool LLPanelExperiencePicker::postBuild()
 {
-    getChild<LLLineEditor>(TEXT_EDIT)->setKeystrokeCallback( boost::bind(&LLPanelExperiencePicker::editKeystroke, this, _1, _2),NULL);
+    getChild<LLLineEditor>(TEXT_EDIT)->setKeystrokeCallback( std::bind(&LLPanelExperiencePicker::editKeystroke, this, _1, _2),NULL);
 
-    childSetAction(BTN_FIND, boost::bind(&LLPanelExperiencePicker::onBtnFind, this));
+    childSetAction(BTN_FIND, std::bind(&LLPanelExperiencePicker::onBtnFind, this));
     getChildView(BTN_FIND)->setEnabled(true);
 
     LLScrollListCtrl* searchresults = getChild<LLScrollListCtrl>(LIST_RESULTS);
-    searchresults->setDoubleClickCallback( boost::bind(&LLPanelExperiencePicker::onBtnSelect, this));
-    searchresults->setCommitCallback(boost::bind(&LLPanelExperiencePicker::onList, this));
+    searchresults->setDoubleClickCallback( std::bind(&LLPanelExperiencePicker::onBtnSelect, this));
+    searchresults->setCommitCallback(std::bind(&LLPanelExperiencePicker::onList, this));
     getChildView(LIST_RESULTS)->setEnabled(false);
     getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("no_results"));
 
-    childSetAction(BTN_OK, boost::bind(&LLPanelExperiencePicker::onBtnSelect, this));
+    childSetAction(BTN_OK, std::bind(&LLPanelExperiencePicker::onBtnSelect, this));
     getChildView(BTN_OK)->setEnabled(false);
-    childSetAction(BTN_CANCEL, boost::bind(&LLPanelExperiencePicker::onBtnClose, this));
-    childSetAction(BTN_PROFILE, boost::bind(&LLPanelExperiencePicker::onBtnProfile, this));
+    childSetAction(BTN_CANCEL, std::bind(&LLPanelExperiencePicker::onBtnClose, this));
+    childSetAction(BTN_PROFILE, std::bind(&LLPanelExperiencePicker::onBtnProfile, this));
     getChildView(BTN_PROFILE)->setEnabled(false);
 
     getChild<LLComboBox>(TEXT_MATURITY)->setCurrentByIndex(gSavedPerAccountSettings.getU32("ExperienceSearchMaturity"));
-    getChild<LLComboBox>(TEXT_MATURITY)->setCommitCallback(boost::bind(&LLPanelExperiencePicker::onMaturity, this));
+    getChild<LLComboBox>(TEXT_MATURITY)->setCommitCallback(std::bind(&LLPanelExperiencePicker::onMaturity, this));
     getChild<LLUICtrl>(TEXT_EDIT)->setFocus(true);
 
-    childSetAction(BTN_LEFT, boost::bind(&LLPanelExperiencePicker::onPage, this, -1));
-    childSetAction(BTN_RIGHT, boost::bind(&LLPanelExperiencePicker::onPage, this, 1));
+    childSetAction(BTN_LEFT, std::bind(&LLPanelExperiencePicker::onPage, this, -1));
+    childSetAction(BTN_RIGHT, std::bind(&LLPanelExperiencePicker::onPage, this, 1));
 
     LLPanel* search_panel = getChild<LLPanel>(PANEL_SEARCH);
     if (search_panel)
@@ -145,7 +148,7 @@ void LLPanelExperiencePicker::onBtnFind()
 
                     getChildView(BTN_RIGHT)->setEnabled(false);
                     getChildView(BTN_LEFT)->setEnabled(false);
-                    LLExperienceCache::instance().get(experience_id, boost::bind(&LLPanelExperiencePicker::onBtnFind, this));
+                    LLExperienceCache::instance().get(experience_id, std::bind(&LLPanelExperiencePicker::onBtnFind, this));
                     return;
                 }
             }
@@ -171,7 +174,7 @@ void LLPanelExperiencePicker::find()
     mQueryID.generate();
 
     LLExperienceCache::instance().findExperienceByName(text, mCurrentPage,
-        boost::bind(&LLPanelExperiencePicker::findResults, getDerivedHandle<LLPanelExperiencePicker>(), mQueryID, _1));
+        std::bind(&LLPanelExperiencePicker::findResults, getDerivedHandle<LLPanelExperiencePicker>(), mQueryID, _1));
 
     getChild<LLScrollListCtrl>(LIST_RESULTS)->deleteAllItems();
     getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("searching"));
@@ -344,7 +347,7 @@ void LLPanelExperiencePicker::filterContent()
         columns[2]["column"] = "owner";
         columns[2]["value"] = columnSpace+getString("loading");
         search_results->addElement(item);
-        LLAvatarNameCache::get(experience[LLExperienceCache::AGENT_ID], boost::bind(name_callback, getDerivedHandle<LLPanelExperiencePicker>(), experience[LLExperienceCache::EXPERIENCE_ID], _1, _2));
+        LLAvatarNameCache::get(experience[LLExperienceCache::AGENT_ID], std::bind(name_callback, getDerivedHandle<LLPanelExperiencePicker>(), experience[LLExperienceCache::EXPERIENCE_ID], _1, _2));
     }
 
     if (search_results->isEmpty())
@@ -426,7 +429,7 @@ bool LLPanelExperiencePicker::FilterWithoutProperty( const LLSD& experience, S32
 void LLPanelExperiencePicker::setDefaultFilters()
 {
     mFilters.clear();
-    addFilter(boost::bind(&LLPanelExperiencePicker::FilterOverRating, this, _1));
+    addFilter(std::bind(&LLPanelExperiencePicker::FilterOverRating, this, _1));
 }
 
 bool LLPanelExperiencePicker::FilterMatching( const LLSD& experience, const LLUUID& id )

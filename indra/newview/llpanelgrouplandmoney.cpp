@@ -54,6 +54,7 @@
 #include "llstatusbar.h"
 #include "llfloaterworldmap.h"
 #include "llviewermessage.h"
+#include <functional>
 
 static LLPanelInjector<LLPanelGroupLandMoney> t_panel_group_money("panel_group_land_money");
 
@@ -707,7 +708,7 @@ bool LLPanelGroupLandMoney::postBuild()
 
     if ( mImplementationp->mGroupParcelsp )
     {
-        mImplementationp->mGroupParcelsp->setCommitCallback(boost::bind(&LLPanelGroupLandMoney::onLandSelectionChanged, this));
+        mImplementationp->mGroupParcelsp->setCommitCallback(std::bind(&LLPanelGroupLandMoney::onLandSelectionChanged, this));
         mImplementationp->mGroupParcelsp->setCommitOnSelectionChange(true);
     }
 
@@ -939,7 +940,7 @@ LLGroupMoneyTabEventHandler::LLGroupMoneyTabEventHandler(LLButton* earlier_butto
 
     if ( tab_containerp && panelp )
     {
-        tab_containerp->setCommitCallback(boost::bind(&LLGroupMoneyTabEventHandler::onClickTab, this));
+        tab_containerp->setCommitCallback(std::bind(&LLGroupMoneyTabEventHandler::onClickTab, this));
     }
 
     sInstanceIDs.insert(std::make_pair(mImplementationp->mPanelID, this));
@@ -1543,7 +1544,7 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 
     if ( mImplementationp->mGroupParcelsp )
     {
-        mImplementationp->mGroupParcelsp->setCommitCallback(boost::bind(&LLPanelGroupLandMoney::onLandSelectionChanged, this));
+        mImplementationp->mGroupParcelsp->setCommitCallback(std::bind(&LLPanelGroupLandMoney::onLandSelectionChanged, this));
         mImplementationp->mGroupParcelsp->setCommitOnSelectionChange(true);
     }
 

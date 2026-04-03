@@ -62,6 +62,9 @@
 #include "lllineeditor.h"
 #include "llfloaterwebcontent.h"
 #include "llwindowshade.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 extern bool gRestoreGL;
 
@@ -346,8 +349,8 @@ bool LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
     if (!menu)
     {
         LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registar;
-        registar.add("Open.WebInspector", boost::bind(&LLMediaCtrl::onOpenWebInspector, this));
-        registar.add("Open.ShowSource", boost::bind(&LLMediaCtrl::onShowSource, this));
+        registar.add("Open.WebInspector", std::bind(&LLMediaCtrl::onOpenWebInspector, this));
+        registar.add("Open.ShowSource", std::bind(&LLMediaCtrl::onShowSource, this));
 
         // stinson 05/05/2014 : use this as the parent of the context menu if the static menu
         // container has yet to be created
@@ -435,7 +438,7 @@ void LLMediaCtrl::onFocusLost()
 //
 bool LLMediaCtrl::postBuild ()
 {
-    setVisibleCallback(boost::bind(&LLMediaCtrl::onVisibilityChanged, this, _2));
+    setVisibleCallback(std::bind(&LLMediaCtrl::onVisibilityChanged, this, _2));
 
     return true;
 }
@@ -1084,7 +1087,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
             //LLNotification::Params notify_params;
             //notify_params.name = "PopupAttempt";
             //notify_params.payload = LLSD().with("target", target).with("url", url).with("uuid", uuid).with("media_id", mMediaTextureID);
-            //notify_params.functor.function = boost::bind(&LLMediaCtrl::onPopup, this, _1, _2);
+            //notify_params.functor.function = std::bind(&LLMediaCtrl::onPopup, this, _1, _2);
 
             //if (mTrusted)
             //{
@@ -1152,7 +1155,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
             auth_request_params.substitutions = args;
 
             auth_request_params.payload = LLSD().with("media_id", mMediaTextureID);
-            auth_request_params.functor.function = boost::bind(&LLViewerMedia::authSubmitCallback, _1, _2);
+            auth_request_params.functor.function = std::bind(&LLViewerMedia::authSubmitCallback, _1, _2);
             LLNotifications::instance().add(auth_request_params);
         };
         break;

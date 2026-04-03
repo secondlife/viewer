@@ -31,6 +31,7 @@
 
 #include "llmultifloater.h"
 #include "llresizehandle.h"
+#include <functional>
 
 //
 // LLMultiFloater
@@ -56,7 +57,7 @@ void LLMultiFloater::buildTabContainer()
     p.rect(LLRect(LLPANEL_BORDER_WIDTH, getRect().getHeight() - floater_header_size, getRect().getWidth() - LLPANEL_BORDER_WIDTH, 0));
     p.tab_position(mTabPos);
     p.follows.flags(FOLLOWS_ALL);
-    p.commit_callback.function(boost::bind(&LLMultiFloater::onTabSelected, this));
+    p.commit_callback.function(std::bind(&LLMultiFloater::onTabSelected, this));
 
     mTabContainer = LLUICtrlFactory::create<LLTabContainer>(p);
     addChild(mTabContainer);
@@ -452,7 +453,7 @@ void LLMultiFloater::setCanResize(bool can_resize)
 
 bool LLMultiFloater::postBuild()
 {
-    mCloseSignal.connect(boost::bind(&LLMultiFloater::closeAllFloaters, this));
+    mCloseSignal.connect(std::bind(&LLMultiFloater::closeAllFloaters, this));
 
     // remember any original xml minimum size
     getResizeLimits(&mOrigMinWidth, &mOrigMinHeight);

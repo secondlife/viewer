@@ -47,6 +47,9 @@
 #include "llweb.h"
 
 #include <boost/algorithm/string.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 const S32 MAX_ALLOWED_MSG_WIDTH = 400;
 const F32 DEFAULT_BUTTON_DELAY = 0.5f;
@@ -364,7 +367,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
             btn->setLabel(options[i].second);
             btn->setFont(font);
 
-            btn->setClickedCallback(boost::bind(&LLToastAlertPanel::onButtonPressed, this, _2, i));
+            btn->setClickedCallback(std::bind(&LLToastAlertPanel::onButtonPressed, this, _2, i));
 
             mButtonData[i].mButton = btn;
 

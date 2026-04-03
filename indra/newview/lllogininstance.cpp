@@ -59,6 +59,9 @@
 
 #include <boost/regex.hpp>
 #include <sstream>
+#include <functional>
+
+using namespace std::placeholders;
 
 const S32 LOGIN_MAX_RETRIES = 0; // Viewer should not autmatically retry login
 const F32 LOGIN_SRV_TIMEOUT_MIN = 10;
@@ -89,13 +92,13 @@ LLLoginInstance::LLLoginInstance() :
     mDispatcher("LLLoginInstance", "change")
 {
     mLoginModule->getEventPump().listen("lllogininstance",
-        boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
+        std::bind(&LLLoginInstance::handleLoginEvent, this, _1));
     // This internal use of LLEventDispatcher doesn't really need
     // per-function descriptions.
-    mDispatcher.add("fail.login", "", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
-    mDispatcher.add("connect",    "", boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
-    mDispatcher.add("disconnect", "", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
-    mDispatcher.add("indeterminate", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
+    mDispatcher.add("fail.login", "", std::bind(&LLLoginInstance::handleLoginFailure, this, _1));
+    mDispatcher.add("connect",    "", std::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
+    mDispatcher.add("disconnect", "", std::bind(&LLLoginInstance::handleDisconnect, this, _1));
+    mDispatcher.add("indeterminate", "", std::bind(&LLLoginInstance::handleIndeterminate, this, _1));
 }
 
 void LLLoginInstance::setPlatformInfo(const std::string platform,
@@ -355,7 +358,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         LLFloaterReg::showInstance("message_tos", data);
         LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
             .listen(TOS_LISTENER_NAME,
-                    boost::bind(&LLLoginInstance::handleTOSResponse,
+                    std::bind(&LLLoginInstance::handleTOSResponse,
                                 this, _1, "agree_to_tos"));
     }
     else if(reason_response == "critical")
@@ -380,7 +383,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         LLFloaterReg::showInstance("message_critical", data);
         LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
             .listen(TOS_LISTENER_NAME,
-                    boost::bind(&LLLoginInstance::handleTOSResponse,
+                    std::bind(&LLLoginInstance::handleTOSResponse,
                                 this, _1, "read_critical"));
     }
     else if(reason_response == "update")
@@ -428,7 +431,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
                 "RequiredUpdate",
                 args,
                 updater,
-                boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
+                std::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
         }
         else
         {
@@ -444,7 +447,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
                 "PauseForUpdate",
                 args,
                 updater,
-                boost::bind(&LLLoginInstance::syncWithUpdater, this, resp, _1, _2));
+                std::bind(&LLLoginInstance::syncWithUpdater, this, resp, _1, _2));
         }
     }
     else if(reason_response == "mfa_challenge")
@@ -475,7 +478,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         if (gViewerWindow)
             gViewerWindow->setShowProgress(false);
 
-        LLNotificationsUtil::add("LoginFailedUnknown", LLSD::emptyMap(), LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
+        LLNotificationsUtil::add("LoginFailedUnknown", LLSD::emptyMap(), LLSD::emptyMap(), std::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
     }
 }
 
@@ -569,12 +572,12 @@ void LLLoginInstance::showMFAChallange(const std::string& message)
     if (gSavedSettings.getBOOL("RememberUser"))
     {
         LLNotificationsUtil::add("PromptMFATokenWithSave", args, payload,
-                                 boost::bind(&LLLoginInstance::handleMFAChallenge, this, _1, _2));
+                                 std::bind(&LLLoginInstance::handleMFAChallenge, this, _1, _2));
     }
     else
     {
         LLNotificationsUtil::add("PromptMFAToken", args, payload,
-                                 boost::bind(&LLLoginInstance::handleMFAChallenge, this, _1, _2));
+                                 std::bind(&LLLoginInstance::handleMFAChallenge, this, _1, _2));
     }
 }
 

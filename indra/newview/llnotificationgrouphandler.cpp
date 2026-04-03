@@ -33,6 +33,9 @@
 #include "llviewerwindow.h"
 #include "llnotificationmanager.h"
 #include "llnotifications.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 using namespace LLNotificationsUI;
 
@@ -81,7 +84,7 @@ bool LLGroupHandler::processNotification(const LLNotificationPtr& notification, 
     p.notif_id = notification->getID();
     p.notification = notification;
     p.panel = notify_box;
-    p.on_delete_toast = boost::bind(&LLGroupHandler::onDeleteToast, this, _1);
+    p.on_delete_toast = std::bind(&LLGroupHandler::onDeleteToast, this, _1);
 
     LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
     if(channel)

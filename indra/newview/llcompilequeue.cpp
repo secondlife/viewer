@@ -61,6 +61,9 @@
 
 #include "llviewerassetupload.h"
 #include "llcorehttputil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 namespace
 {
@@ -331,11 +334,11 @@ void LLFloaterCompileQueue::processExperienceIdResults(LLSD result, LLUUID paren
     LLHandle<LLFloaterScriptQueue> hFloater(queue->getDerivedHandle<LLFloaterScriptQueue>());
 
     // note subtle difference here: getDerivedHandle in this case is for an LLFloaterCompileQueue
-    fnQueueAction_t fn = boost::bind(LLFloaterCompileQueue::processScript,
+    fnQueueAction_t fn = std::bind(LLFloaterCompileQueue::processScript,
         queue->getDerivedHandle<LLFloaterCompileQueue>(), _1, _2, _3);
 
 
-    LLCoros::instance().launch("ScriptQueueCompile", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
+    LLCoros::instance().launch("ScriptQueueCompile", std::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
         queue->mStartString,
         hFloater,
         queue->mObjectList,
@@ -382,7 +385,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     LLUUID experienceId;
     {
         LLExperienceCache::instance().fetchAssociatedExperience(inventory->getParentUUID(), inventory->getUUID(),
-            boost::bind(&LLFloaterCompileQueue::handleHTTPResponse, pump.getName(), _1));
+            std::bind(&LLFloaterCompileQueue::handleHTTPResponse, pump.getName(), _1));
 
         result = llcoro::suspendUntilEventOnWithTimeout(pump, QUEUE_INVENTORY_FETCH_TIMEOUT,
             LLSDMap("timeout", LLSD::Boolean(true)));
@@ -475,7 +478,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
             inventory->getName(),
             LLUUID(),
             experienceId,
-            boost::bind(&LLFloaterCompileQueue::handleHTTPResponse, pump.getName(), _4));
+            std::bind(&LLFloaterCompileQueue::handleHTTPResponse, pump.getName(), _4));
 
         LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
     }
@@ -529,10 +532,10 @@ bool LLFloaterCompileQueue::startQueue()
         if (!lookup_url.empty())
         {
             LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t success =
-                boost::bind(&LLFloaterCompileQueue::processExperienceIdResults, _1, getKey().asUUID());
+                std::bind(&LLFloaterCompileQueue::processExperienceIdResults, _1, getKey().asUUID());
 
             LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t failure =
-                boost::bind(&LLFloaterCompileQueue::processExperienceIdResults, LLSD(), getKey().asUUID());
+                std::bind(&LLFloaterCompileQueue::processExperienceIdResults, LLSD(), getKey().asUUID());
 
             LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(lookup_url,
                 success, failure);
@@ -589,10 +592,10 @@ bool LLFloaterResetQueue::startQueue()
 {
     // Bind the resetObjectScripts method into a QueueAction function and pass it
     // into the object queue processing coroutine.
-    fnQueueAction_t fn = boost::bind(LLFloaterResetQueue::resetObjectScripts,
+    fnQueueAction_t fn = std::bind(LLFloaterResetQueue::resetObjectScripts,
         getDerivedHandle<LLFloaterScriptQueue>(), _1, _2, _3);
 
-    LLCoros::instance().launch("ScriptResetQueue", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
+    LLCoros::instance().launch("ScriptResetQueue", std::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
         mStartString,
         getDerivedHandle<LLFloaterScriptQueue>(),
         mObjectList,
@@ -646,9 +649,9 @@ bool LLFloaterRunQueue::runObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater
 bool LLFloaterRunQueue::startQueue()
 {
     LLHandle<LLFloaterScriptQueue> hFloater(getDerivedHandle<LLFloaterScriptQueue>());
-    fnQueueAction_t fn = boost::bind(LLFloaterRunQueue::runObjectScripts, hFloater, _1, _2, _3);
+    fnQueueAction_t fn = std::bind(LLFloaterRunQueue::runObjectScripts, hFloater, _1, _2, _3);
 
-    LLCoros::instance().launch("ScriptRunQueue", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
+    LLCoros::instance().launch("ScriptRunQueue", std::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
         mStartString,
         hFloater,
         mObjectList,
@@ -704,8 +707,8 @@ bool LLFloaterNotRunQueue::startQueue()
 {
     LLHandle<LLFloaterScriptQueue> hFloater(getDerivedHandle<LLFloaterScriptQueue>());
 
-    fnQueueAction_t fn = boost::bind(&LLFloaterNotRunQueue::stopObjectScripts, hFloater, _1, _2, _3);
-    LLCoros::instance().launch("ScriptQueueNotRun", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
+    fnQueueAction_t fn = std::bind(&LLFloaterNotRunQueue::stopObjectScripts, hFloater, _1, _2, _3);
+    LLCoros::instance().launch("ScriptQueueNotRun", std::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
         mStartString,
         hFloater,
         mObjectList,

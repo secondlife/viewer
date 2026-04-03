@@ -45,7 +45,9 @@
 #include "llurlregistry.h"
 #include "llview.h"
 #include "llwindow.h"
-#include <boost/bind.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 const F32   CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32   CURSOR_THICKNESS = 2;
@@ -271,7 +273,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 
     if (mSpellCheck)
     {
-        LLSpellChecker::setSettingsChangeCallback(boost::bind(&LLTextBase::onSpellCheckSettingsChange, this));
+        LLSpellChecker::setSettingsChangeCallback(std::bind(&LLTextBase::onSpellCheckSettingsChange, this));
     }
     mSpellCheckTimer.reset();
 
@@ -2274,23 +2276,23 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
     // set up the callbacks for all of the potential menu items, N.B. we
     // don't use const ref strings in callbacks in case url goes out of scope
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("Url.Open", boost::bind(&LLUrlAction::openURL, url));
-    registrar.add("Url.OpenInternal", boost::bind(&LLUrlAction::openURLInternal, url));
-    registrar.add("Url.OpenExternal", boost::bind(&LLUrlAction::openURLExternal, url));
-    registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url, true));
-    registrar.add("Url.Block", boost::bind(&LLUrlAction::blockObject, url));
-    registrar.add("Url.Unblock", boost::bind(&LLUrlAction::unblockObject, url));
-    registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
-    registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
-    registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
-    registrar.add("Url.RemoveFriend", boost::bind(&LLUrlAction::removeFriend, url));
-    registrar.add("Url.ReportAbuse", boost::bind(&LLUrlAction::reportAbuse, url));
-    registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
-    registrar.add("Url.ZoomInObject", boost::bind(&LLUrlAction::zoomInObject, url));
-    registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
-    registrar.add("Url.ShowParcelOnMap", boost::bind(&LLUrlAction::showParcelOnMap, url));
-    registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
-    registrar.add("Url.CopyUrl", boost::bind(&LLUrlAction::copyURLToClipboard, url));
+    registrar.add("Url.Open", std::bind(&LLUrlAction::openURL, url));
+    registrar.add("Url.OpenInternal", std::bind(&LLUrlAction::openURLInternal, url));
+    registrar.add("Url.OpenExternal", std::bind(&LLUrlAction::openURLExternal, url));
+    registrar.add("Url.Execute", std::bind(&LLUrlAction::executeSLURL, url, true));
+    registrar.add("Url.Block", std::bind(&LLUrlAction::blockObject, url));
+    registrar.add("Url.Unblock", std::bind(&LLUrlAction::unblockObject, url));
+    registrar.add("Url.Teleport", std::bind(&LLUrlAction::teleportToLocation, url));
+    registrar.add("Url.ShowProfile", std::bind(&LLUrlAction::showProfile, url));
+    registrar.add("Url.AddFriend", std::bind(&LLUrlAction::addFriend, url));
+    registrar.add("Url.RemoveFriend", std::bind(&LLUrlAction::removeFriend, url));
+    registrar.add("Url.ReportAbuse", std::bind(&LLUrlAction::reportAbuse, url));
+    registrar.add("Url.SendIM", std::bind(&LLUrlAction::sendIM, url));
+    registrar.add("Url.ZoomInObject", std::bind(&LLUrlAction::zoomInObject, url));
+    registrar.add("Url.ShowOnMap", std::bind(&LLUrlAction::showLocationOnMap, url));
+    registrar.add("Url.ShowParcelOnMap", std::bind(&LLUrlAction::showParcelOnMap, url));
+    registrar.add("Url.CopyLabel", std::bind(&LLUrlAction::copyLabelToClipboard, url));
+    registrar.add("Url.CopyUrl", std::bind(&LLUrlAction::copyURLToClipboard, url));
 
     // create and return the context menu from the XUI file
 
@@ -2415,7 +2417,7 @@ void LLTextBase::appendTextImpl(const std::string& new_text, const LLStyle::Para
         LLUrlMatch match;
         std::string text = new_text;
         while (LLUrlRegistry::instance().findUrl(text, match,
-                boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3), isContentTrusted() || mAlwaysShowIcons, force_slurl))
+                std::bind(&LLTextBase::replaceUrl, this, _1, _2, _3), isContentTrusted() || mAlwaysShowIcons, force_slurl))
         {
             start = match.getStart();
             end = match.getEnd()+1;
@@ -3563,7 +3565,7 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
     LLUIImagePtr image = mStyle->getImage();
     if (image.notNull())
     {
-        mImageLoadedConnection = image->addLoadedCallback(boost::bind(&LLTextBase::needsReflow, &mEditor, start));
+        mImageLoadedConnection = image->addLoadedCallback(std::bind(&LLTextBase::needsReflow, &mEditor, start));
     }
 }
 

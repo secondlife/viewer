@@ -58,6 +58,9 @@
 #include "llviewermedia.h"
 #include "llviewernetwork.h"
 #include "llweb.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
@@ -160,11 +163,11 @@ bool LLSidepanelInventory::postBuild()
         mInventoryPanel = getChild<LLPanel>("sidepanel_inventory_panel");
 
         mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
-        mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
+        mPanelMainInventory->setSelectCallback(std::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
         mPanelMainInventory->setParentSidepanel(this);
         mPanelMainInventory->setInboxPanel(getChild<LLPanelMarketplaceInbox>("marketplace_inbox"));
         //LLTabContainer* tabs = mPanelMainInventory->getChild<LLTabContainer>("inventory filter tabs");
-        //tabs->setCommitCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
+        //tabs->setCommitCallback(std::bind(&LLSidepanelInventory::updateVerbs, this));
 
         /*
            EXT-4846 : "Can we suppress the "Landmarks" and "My Favorites" folder since they have their own Task Panel?"
@@ -174,7 +177,7 @@ bool LLSidepanelInventory::postBuild()
         my_inventory_panel->addHideFolderType(LLFolderType::FT_FAVORITE);
         */
 
-        //LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
+        //LLOutfitObserver::instance().addCOFChangedCallback(std::bind(&LLSidepanelInventory::updateVerbs, this));
     }
 
     // Received items inbox setup
@@ -184,7 +187,7 @@ bool LLSidepanelInventory::postBuild()
         // Set up button states and callbacks
         LLButton * inbox_button = getChild<LLButton>(INBOX_BUTTON_NAME);
 
-        inbox_button->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
+        inbox_button->setCommitCallback(std::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
 
         // For main Inventory floater: Get the previous inbox state from "InventoryInboxToggleState" setting.
         // For additional Inventory floaters: Collapsed state is default.
@@ -208,11 +211,11 @@ bool LLSidepanelInventory::postBuild()
         else
         {
             // Trigger callback for after login so we can setup to track inbox changes after initial inventory load
-            LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::updateInbox, this));
+            LLAppViewer::instance()->setOnLoginCompletedCallback(std::bind(&LLSidepanelInventory::updateInbox, this));
         }
     }
 
-    gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
+    gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(std::bind(&handleInventoryDisplayInboxChanged));
 
     LLFloater *floater = dynamic_cast<LLFloater*>(getParent());
     if (floater && floater->getKey().isUndefined() && !sLoginCompleted)
@@ -298,7 +301,7 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
         gInventory.addObserver(mCategoriesObserver);
     }
 
-    mCategoriesObserver->addCategory(inboxID, boost::bind(&LLSidepanelInventory::onInboxChanged, this, inboxID));
+    mCategoriesObserver->addCategory(inboxID, std::bind(&LLSidepanelInventory::onInboxChanged, this, inboxID));
 
     //
     // Trigger a load for the entire contents of the Inbox

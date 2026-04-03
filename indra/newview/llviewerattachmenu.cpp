@@ -39,6 +39,9 @@
 // linden libraries
 #include "llmenugl.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // static
 void LLViewerAttachMenu::populateMenus(const std::string& attach_to_menu_name, const std::string& attach_to_hud_menu_name)
@@ -121,7 +124,7 @@ void LLViewerAttachMenu::attachObjects(const uuid_vec_t& items, const std::strin
         else if(item && item->isFinished())
         {
             // must be in library. copy it to our inventory and put it on.
-            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, attachmentp, false));
+            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(std::bind(rez_attachment_cb, _1, attachmentp, false));
             copy_inventory_item(gAgent.getID(),
                                 item->getPermissions().getOwner(),
                                 item->getUUID(),

@@ -51,6 +51,9 @@
 #include "pipeline.h"
 #include "v3math.h"
 #include "v4color.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::sInstanceHandle;
 
@@ -123,7 +126,7 @@ bool LLFloaterPathfindingCharacters::postBuild()
 
     mShowPhysicsCapsuleCheckBox = findChild<LLCheckBoxCtrl>("show_physics_capsule");
     llassert(mShowPhysicsCapsuleCheckBox != NULL);
-    mShowPhysicsCapsuleCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onShowPhysicsCapsuleClicked, this));
+    mShowPhysicsCapsuleCheckBox->setCommitCallback(std::bind(&LLFloaterPathfindingCharacters::onShowPhysicsCapsuleClicked, this));
     mShowPhysicsCapsuleCheckBox->setEnabled(LLPathingLib::getInstance() != NULL);
 
     return LLFloaterPathfindingObjects::postBuild();
@@ -131,7 +134,7 @@ bool LLFloaterPathfindingCharacters::postBuild()
 
 void LLFloaterPathfindingCharacters::requestGetObjects()
 {
-    LLPathfindingManager::getInstance()->requestGetCharacters(getNewRequestId(), boost::bind(&LLFloaterPathfindingCharacters::handleNewObjectList, this, _1, _2, _3));
+    LLPathfindingManager::getInstance()->requestGetCharacters(getNewRequestId(), std::bind(&LLFloaterPathfindingCharacters::handleNewObjectList, this, _1, _2, _3));
 }
 
 void LLFloaterPathfindingCharacters::buildObjectsScrollList(const LLPathfindingObjectListPtr pObjectListPtr)

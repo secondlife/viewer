@@ -59,6 +59,7 @@
 #include "llmultifloater.h"
 #include "llsdutil.h"
 #include "lluiusage.h"
+#include <functional>
 
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
@@ -225,14 +226,14 @@ void LLFloater::initClass()
     LLControlVariable* ctrl = LLUI::getInstance()->mSettingGroups["config"]->getControl("ActiveFloaterTransparency").get();
     if (ctrl)
     {
-        ctrl->getSignal()->connect(boost::bind(&LLFloater::updateActiveFloaterTransparency));
+        ctrl->getSignal()->connect(std::bind(&LLFloater::updateActiveFloaterTransparency));
         updateActiveFloaterTransparency();
     }
 
     ctrl = LLUI::getInstance()->mSettingGroups["config"]->getControl("InactiveFloaterTransparency").get();
     if (ctrl)
     {
-        ctrl->getSignal()->connect(boost::bind(&LLFloater::updateInactiveFloaterTransparency));
+        ctrl->getSignal()->connect(std::bind(&LLFloater::updateInactiveFloaterTransparency));
         updateInactiveFloaterTransparency();
     }
 
@@ -2353,7 +2354,7 @@ void LLFloater::buildButtons(const Params& floater_params)
         // Use a glow effect when the user hovers over the button
         // These icons are really small, need glow amount increased
         p.hover_glow_amount( 0.33f );
-        p.click_callback.function(boost::bind(sButtonCallbacks[i], this));
+        p.click_callback.function(std::bind(sButtonCallbacks[i], this));
         p.tab_stop(false);
         p.follows.flags(FOLLOWS_TOP|FOLLOWS_RIGHT);
         p.tool_tip = getButtonTooltip(floater_params, (EFloaterButton)i, getIsChrome());
@@ -2884,7 +2885,7 @@ void LLFloaterView::hideAllFloaters()
         if (floaterp && floaterp->getVisible())
         {
             floaterp->setVisible(false);
-            boost::signals2::connection connection = floaterp->mCloseSignal.connect(boost::bind(&LLFloaterView::hiddenFloaterClosed, this, floaterp));
+            boost::signals2::connection connection = floaterp->mCloseSignal.connect(std::bind(&LLFloaterView::hiddenFloaterClosed, this, floaterp));
             mHiddenFloaters.push_back(std::make_pair(floaterp->getHandle(), connection));
         }
     }

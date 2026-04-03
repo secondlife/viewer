@@ -46,6 +46,9 @@
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "roles_constants.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 namespace LLPanelPeopleMenus
 {
@@ -67,27 +70,27 @@ LLContextMenu* PeopleContextMenu::createMenu()
         // Set up for one person selected menu
 
         const LLUUID& id = mUUIDs.front();
-        registrar.add("Avatar.Profile",         boost::bind(&LLAvatarActions::showProfile,              id));
-        registrar.add("Avatar.AddFriend",       boost::bind(&LLAvatarActions::requestFriendshipDialog,  id));
-        registrar.add("Avatar.RemoveFriend",    boost::bind(&LLAvatarActions::removeFriendDialog,       id));
-        registrar.add("Avatar.IM",              boost::bind(&LLAvatarActions::startIM,                  id));
-        registrar.add("Avatar.Call",            boost::bind(&LLAvatarActions::startCall,                id));
-        registrar.add("Avatar.OfferTeleport",   boost::bind(&PeopleContextMenu::offerTeleport,          this));
-        registrar.add("Avatar.ZoomIn",          boost::bind(&handle_zoom_to_object,                     id));
-        registrar.add("Avatar.ShowOnMap",       boost::bind(&LLAvatarActions::showOnMap,                id));
-        registrar.add("Avatar.Share",           boost::bind(&LLAvatarActions::share,                    id));
-        registrar.add("Avatar.Pay",             boost::bind(&LLAvatarActions::pay,                      id));
-        registrar.add("Avatar.BlockUnblock",    boost::bind(&LLAvatarActions::toggleBlock,              id));
-        registrar.add("Avatar.InviteToGroup",   boost::bind(&LLAvatarActions::inviteToGroup,            id));
-        registrar.add("Avatar.TeleportRequest", boost::bind(&PeopleContextMenu::requestTeleport,        this));
-        registrar.add("Avatar.Calllog",         boost::bind(&LLAvatarActions::viewChatHistory,          id));
-        registrar.add("Avatar.Freeze",          boost::bind(&LLAvatarActions::freezeAvatar,                 id));
-        registrar.add("Avatar.Eject",           boost::bind(&PeopleContextMenu::eject,                  this));
+        registrar.add("Avatar.Profile",         std::bind(&LLAvatarActions::showProfile,              id));
+        registrar.add("Avatar.AddFriend",       std::bind(&LLAvatarActions::requestFriendshipDialog,  id));
+        registrar.add("Avatar.RemoveFriend",    std::bind(&LLAvatarActions::removeFriendDialog,       id));
+        registrar.add("Avatar.IM",              std::bind(&LLAvatarActions::startIM,                  id));
+        registrar.add("Avatar.Call",            std::bind(&LLAvatarActions::startCall,                id));
+        registrar.add("Avatar.OfferTeleport",   std::bind(&PeopleContextMenu::offerTeleport,          this));
+        registrar.add("Avatar.ZoomIn",          std::bind(&handle_zoom_to_object,                     id));
+        registrar.add("Avatar.ShowOnMap",       std::bind(&LLAvatarActions::showOnMap,                id));
+        registrar.add("Avatar.Share",           std::bind(&LLAvatarActions::share,                    id));
+        registrar.add("Avatar.Pay",             std::bind(&LLAvatarActions::pay,                      id));
+        registrar.add("Avatar.BlockUnblock",    std::bind(&LLAvatarActions::toggleBlock,              id));
+        registrar.add("Avatar.InviteToGroup",   std::bind(&LLAvatarActions::inviteToGroup,            id));
+        registrar.add("Avatar.TeleportRequest", std::bind(&PeopleContextMenu::requestTeleport,        this));
+        registrar.add("Avatar.Calllog",         std::bind(&LLAvatarActions::viewChatHistory,          id));
+        registrar.add("Avatar.Freeze",          std::bind(&LLAvatarActions::freezeAvatar,                 id));
+        registrar.add("Avatar.Eject",           std::bind(&PeopleContextMenu::eject,                  this));
 
 
-        enable_registrar.add("Avatar.EnableItem", boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
-        enable_registrar.add("Avatar.CheckItem",  boost::bind(&PeopleContextMenu::checkContextMenuItem, this, _2));
-        enable_registrar.add("Avatar.EnableFreezeEject", boost::bind(&PeopleContextMenu::enableFreezeEject, this, _2));
+        enable_registrar.add("Avatar.EnableItem", std::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
+        enable_registrar.add("Avatar.CheckItem",  std::bind(&PeopleContextMenu::checkContextMenuItem, this, _2));
+        enable_registrar.add("Avatar.EnableFreezeEject", std::bind(&PeopleContextMenu::enableFreezeEject, this, _2));
 
         // create the context menu from the XUI
         menu = createFromFile("menu_people_nearby.xml");
@@ -97,15 +100,15 @@ LLContextMenu* PeopleContextMenu::createMenu()
     {
         // Set up for multi-selected People
 
-        // registrar.add("Avatar.AddFriend",    boost::bind(&LLAvatarActions::requestFriendshipDialog,  mUUIDs)); // *TODO: unimplemented
-        registrar.add("Avatar.IM",              boost::bind(&PeopleContextMenu::startConference,        this));
-        registrar.add("Avatar.Call",            boost::bind(&LLAvatarActions::startAdhocCall,           mUUIDs, LLUUID::null));
-        registrar.add("Avatar.OfferTeleport",   boost::bind(&PeopleContextMenu::offerTeleport,          this));
-        registrar.add("Avatar.RemoveFriend",    boost::bind(&LLAvatarActions::removeFriendsDialog,      mUUIDs));
-        // registrar.add("Avatar.Share",        boost::bind(&LLAvatarActions::startIM,                  mUUIDs)); // *TODO: unimplemented
-        // registrar.add("Avatar.Pay",          boost::bind(&LLAvatarActions::pay,                      mUUIDs)); // *TODO: unimplemented
+        // registrar.add("Avatar.AddFriend",    std::bind(&LLAvatarActions::requestFriendshipDialog,  mUUIDs)); // *TODO: unimplemented
+        registrar.add("Avatar.IM",              std::bind(&PeopleContextMenu::startConference,        this));
+        registrar.add("Avatar.Call",            std::bind(&LLAvatarActions::startAdhocCall,           mUUIDs, LLUUID::null));
+        registrar.add("Avatar.OfferTeleport",   std::bind(&PeopleContextMenu::offerTeleport,          this));
+        registrar.add("Avatar.RemoveFriend",    std::bind(&LLAvatarActions::removeFriendsDialog,      mUUIDs));
+        // registrar.add("Avatar.Share",        std::bind(&LLAvatarActions::startIM,                  mUUIDs)); // *TODO: unimplemented
+        // registrar.add("Avatar.Pay",          std::bind(&LLAvatarActions::pay,                      mUUIDs)); // *TODO: unimplemented
 
-        enable_registrar.add("Avatar.EnableItem",   boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
+        enable_registrar.add("Avatar.EnableItem",   std::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
 
         // create the context menu from the XUI
         menu = createFromFile("menu_people_nearby_multiselect.xml");
@@ -319,14 +322,14 @@ bool PeopleContextMenu::enableFreezeEject(const LLSD& userdata)
 
 void PeopleContextMenu::requestTeleport()
 {
-    // boost::bind cannot recognize overloaded method LLAvatarActions::teleportRequest(),
+    // std::bind cannot recognize overloaded method LLAvatarActions::teleportRequest(),
     // so we have to use a wrapper.
     LLAvatarActions::teleportRequest(mUUIDs.front());
 }
 
 void PeopleContextMenu::offerTeleport()
 {
-    // boost::bind cannot recognize overloaded method LLAvatarActions::offerTeleport(),
+    // std::bind cannot recognize overloaded method LLAvatarActions::offerTeleport(),
     // so we have to use a wrapper.
     LLAvatarActions::offerTeleport(mUUIDs);
 }

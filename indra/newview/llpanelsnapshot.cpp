@@ -41,6 +41,9 @@
 #include "llviewercontrol.h" // gSavedSettings
 
 #include "llagentbenefits.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 constexpr S32 MAX_TEXTURE_SIZE = 2048 ; //max upload texture size 2048 * 2048
 
@@ -65,18 +68,18 @@ bool LLPanelSnapshot::postBuild()
     S32 w = getTypedPreviewWidth();
     S32 h = getTypedPreviewHeight();
     getChild<LLUICtrl>("save_btn")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost(w, h)));
-    getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onResolutionComboCommit, this, _1));
+    getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(std::bind(&LLPanelSnapshot::onResolutionComboCommit, this, _1));
     if (!getWidthSpinnerName().empty())
     {
-        getChild<LLUICtrl>(getWidthSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onCustomResolutionCommit, this));
+        getChild<LLUICtrl>(getWidthSpinnerName())->setCommitCallback(std::bind(&LLPanelSnapshot::onCustomResolutionCommit, this));
     }
     if (!getHeightSpinnerName().empty())
     {
-        getChild<LLUICtrl>(getHeightSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onCustomResolutionCommit, this));
+        getChild<LLUICtrl>(getHeightSpinnerName())->setCommitCallback(std::bind(&LLPanelSnapshot::onCustomResolutionCommit, this));
     }
     if (!getAspectRatioCBName().empty())
     {
-        getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onKeepAspectRatioCommit, this, _1));
+        getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(std::bind(&LLPanelSnapshot::onKeepAspectRatioCommit, this, _1));
     }
     updateControls(LLSD());
 

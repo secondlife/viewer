@@ -39,6 +39,9 @@
 #include "llviewerattachmenu.h"
 #include "llviewermenu.h"
 #include "llvoavatarself.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 bool LLFindOutfitItems::operator()(LLInventoryCategory* cat,
                                    LLInventoryItem* item)
@@ -105,8 +108,8 @@ bool LLPanelWearableOutfitItem::postBuild()
         addWidgetToRightSide(mAddWearableBtn);
         addWidgetToRightSide(mRemoveWearableBtn);
 
-        mAddWearableBtn->setClickedCallback(boost::bind(&LLPanelWearableOutfitItem::onAddWearable, this));
-        mRemoveWearableBtn->setClickedCallback(boost::bind(&LLPanelWearableOutfitItem::onRemoveWearable, this));
+        mAddWearableBtn->setClickedCallback(std::bind(&LLPanelWearableOutfitItem::onAddWearable, this));
+        mRemoveWearableBtn->setClickedCallback(std::bind(&LLPanelWearableOutfitItem::onRemoveWearable, this));
 
         setWidgetsVisible(false);
         reshapeWidgets();
@@ -730,7 +733,7 @@ LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
     if (mIsStandalone)
     {
         // Use built-in context menu.
-        setRightMouseDownCallback(boost::bind(&LLWearableItemsList::onRightClick, this, _2, _3));
+        setRightMouseDownCallback(std::bind(&LLWearableItemsList::onRightClick, this, _2, _3));
     }
     mWornIndicationEnabled = p.worn_indication_enabled;
     setNoItemsCommentText(LLTrans::getString("LoadingData"));
@@ -886,7 +889,7 @@ void LLWearableItemsList::ContextMenu::show(LLView* spawning_view, LLWearableTyp
     }
 
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("Wearable.CreateNew", boost::bind(createNewWearableByType, w_type));
+    registrar.add("Wearable.CreateNew", std::bind(createNewWearableByType, w_type));
     menup = createFromFile("menu_wearable_list_item.xml");
     if (!menup)
     {
@@ -917,27 +920,27 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
     LLUUID selected_id = ids.front();   // ID of the first selected item
 
     // Register handlers common for all wearable types.
-    registrar.add("Wearable.Wear", boost::bind(wear_multiple, ids, true));
-    registrar.add("Wearable.Add", boost::bind(wear_multiple, ids, false));
-    registrar.add("Wearable.Edit", boost::bind(handle_item_edit, selected_id));
-    registrar.add("Wearable.CreateNew", boost::bind(createNewWearable, selected_id));
-    registrar.add("Wearable.ShowOriginal", boost::bind(show_item_original, selected_id));
+    registrar.add("Wearable.Wear", std::bind(wear_multiple, ids, true));
+    registrar.add("Wearable.Add", std::bind(wear_multiple, ids, false));
+    registrar.add("Wearable.Edit", std::bind(handle_item_edit, selected_id));
+    registrar.add("Wearable.CreateNew", std::bind(createNewWearable, selected_id));
+    registrar.add("Wearable.ShowOriginal", std::bind(show_item_original, selected_id));
     registrar.add("Wearable.TakeOffDetach",
 
-                  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
+                  std::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
     // Register handlers for clothing.
     registrar.add("Clothing.TakeOff",
-                  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
+                  std::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
 
     // Register handlers for body parts.
 
     // Register handlers for attachments.
     registrar.add("Attachment.Detach",
-                  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
-    registrar.add("Attachment.Favorite", boost::bind(toggle_favorites, ids));
-    registrar.add("Attachment.Touch", boost::bind(handle_attachment_touch, selected_id));
-    registrar.add("Attachment.Profile", boost::bind(show_item_profile, selected_id));
-    registrar.add("Object.Attach", boost::bind(LLViewerAttachMenu::attachObjects, ids, _2));
+                  std::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
+    registrar.add("Attachment.Favorite", std::bind(toggle_favorites, ids));
+    registrar.add("Attachment.Touch", std::bind(handle_attachment_touch, selected_id));
+    registrar.add("Attachment.Profile", std::bind(show_item_profile, selected_id));
+    registrar.add("Object.Attach", std::bind(LLViewerAttachMenu::attachObjects, ids, _2));
 
     // Create the menu.
     LLContextMenu* menu = createFromFile("menu_wearable_list_item.xml");

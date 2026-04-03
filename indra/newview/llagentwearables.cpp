@@ -51,6 +51,7 @@
 #include "llviewerwearable.h"
 #include "llwearablelist.h"
 #include "llfloaterperms.h"
+#include <functional>
 
 LLAgentWearables gAgentWearables;
 
@@ -211,7 +212,7 @@ void LLAgentWearables::initClass()
 {
     // this can not be called from constructor because its instance is global and is created too early.
     // Subscribe to "COF is Saved" signal to notify observers about this (Loading indicator for ex.).
-    LLOutfitObserver::instance().addCOFSavedCallback(boost::bind(&LLAgentWearables::notifyLoadingFinished, &gAgentWearables));
+    LLOutfitObserver::instance().addCOFSavedCallback([]() { gAgentWearables.notifyLoadingFinished(); });
 }
 
 void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
@@ -1175,7 +1176,7 @@ void LLAgentWearables::setWearableItem(LLInventoryItem* new_item, LLViewerWearab
                 // Bring up modal dialog: Save changes? Yes, No, Cancel
                 LLSD payload;
                 payload["item_id"] = new_item->getUUID();
-                LLNotificationsUtil::add("WearableSave", LLSD(), payload, boost::bind(onSetWearableDialog, _1, _2, new_wearable));
+                LLNotificationsUtil::add("WearableSave", LLSD(), payload, [new_wearable](const LLSD& notification, const LLSD& response) { return onSetWearableDialog(notification, response, new_wearable); });
                 return;
             }
         }

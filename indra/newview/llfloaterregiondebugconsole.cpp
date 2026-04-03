@@ -35,6 +35,9 @@
 #include "lltexteditor.h"
 #include "llviewerregion.h"
 #include "llcorehttputil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Two versions of the sim console API are supported.
 //
@@ -95,7 +98,7 @@ LLFloaterRegionDebugConsole::LLFloaterRegionDebugConsole(LLSD const & key)
 : LLFloater(key), mOutput(NULL)
 {
     mReplySignalConnection = sConsoleReplySignal.connect(
-        boost::bind(
+        std::bind(
             &LLFloaterRegionDebugConsole::onReplyReceived,
             this,
             _1));
@@ -110,7 +113,7 @@ bool LLFloaterRegionDebugConsole::postBuild()
 {
     LLLineEditor* input = getChild<LLLineEditor>("region_debug_console_input");
     input->setEnableLineHistory(true);
-    input->setCommitCallback(boost::bind(&LLFloaterRegionDebugConsole::onInput, this, _1, _2));
+    input->setCommitCallback(std::bind(&LLFloaterRegionDebugConsole::onInput, this, _1, _2));
     input->setFocus(true);
     input->setCommitOnFocusLost(false);
 
@@ -152,8 +155,8 @@ void LLFloaterRegionDebugConsole::onInput(LLUICtrl* ctrl, const LLSD& param)
         {
             LLSD postData = LLSD(input->getText());
             LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, postData,
-                boost::bind(&LLFloaterRegionDebugConsole::onConsoleSuccess, this, _1),
-                boost::bind(&LLFloaterRegionDebugConsole::onConsoleError, this, _1));
+                std::bind(&LLFloaterRegionDebugConsole::onConsoleSuccess, this, _1),
+                std::bind(&LLFloaterRegionDebugConsole::onConsoleError, this, _1));
         }
     }
     else
@@ -161,7 +164,7 @@ void LLFloaterRegionDebugConsole::onInput(LLUICtrl* ctrl, const LLSD& param)
         LLSD postData = LLSD(input->getText());
         LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, postData,
             NULL,
-            boost::bind(&LLFloaterRegionDebugConsole::onAsyncConsoleError, this, _1));
+            std::bind(&LLFloaterRegionDebugConsole::onAsyncConsoleError, this, _1));
 
     }
 

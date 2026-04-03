@@ -35,6 +35,7 @@
 
 #include "apr.h" // thread-related functions
 #include "_refcounted.h"
+#include <functional>
 
 namespace LLCoreInt
 {
@@ -59,7 +60,7 @@ private:
 
             // Take out additional reference for the at_exit handler
             addRef();
-            boost::this_thread::at_thread_exit(boost::bind(&HttpThread::at_exit, this));
+            boost::this_thread::at_thread_exit([this]() { at_exit(); });
 
             // run the thread function
             mThreadFunc(this);
@@ -83,7 +84,7 @@ public:
         {
             // this creates a boost thread that will call HttpThread::run on this instance
             // and pass it the threadfunc callable...
-            boost::function<void()> f = boost::bind(&HttpThread::run, this);
+            boost::function<void()> f = [this]() { run(); };
 
             mThread = new boost::thread(f);
         }

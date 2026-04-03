@@ -73,6 +73,7 @@
 #include "pipeline.h"   // setHighlightObject
 #include "lluiusage.h"
 #include "llcallingcard.h"
+#include <functional>
 
 extern bool gDebugClicks;
 
@@ -1095,7 +1096,7 @@ bool LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
             p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
             p.message(final_name);
             p.image.name("Inspector_I");
-            p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
+            p.click_callback(std::bind(showAvatarInspector, hover_object->getID()));
             p.visible_time_near(6.f);
             p.visible_time_far(3.f);
             p.delay_time(INSPECTOR_TOOLTIP_DELAY);
@@ -1206,12 +1207,12 @@ bool LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
                 p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
                 p.message(tooltip_msg);
                 p.image.name("Inspector_I");
-                p.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
+                p.click_callback(std::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
                 p.time_based_media(is_time_based_media);
                 p.web_based_media(is_web_based_media);
                 p.media_playing(is_media_playing);
-                p.click_playmedia_callback(boost::bind(playCurrentMedia, mHoverPick));
-                p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
+                p.click_playmedia_callback(std::bind(playCurrentMedia, mHoverPick));
+                p.click_homepage_callback(std::bind(VisitHomePage, mHoverPick));
                 p.visible_time_near(6.f);
                 p.visible_time_far(3.f);
                 p.delay_time(gSavedSettings.getF32("ObjectInspectorTooltipDelay"));

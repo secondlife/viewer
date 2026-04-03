@@ -71,6 +71,9 @@
 #include "llwearableitemslist.h"
 #include "llwearabletype.h"
 #include "llweb.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLPanelOutfitEdit> t_outfit_edit("panel_outfit_edit");
 
@@ -157,7 +160,7 @@ public:
     {
         LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
-        registrar.add("Wearable.Create", boost::bind(onCreate, _2));
+        registrar.add("Wearable.Create", std::bind(onCreate, _2));
 
         llassert(LLMenuGL::sMenuContainer != NULL);
         LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
@@ -226,9 +229,9 @@ public:
         LLHandle<LLView> flat_list_handle = flat_list->getHandle();
         LLHandle<LLPanel> inventory_panel_handle = inventory_panel->getHandle();
 
-        registrar.add("AddWearable.Gear.Sort", boost::bind(onSort, flat_list_handle, inventory_panel_handle, _2));
-        enable_registrar.add("AddWearable.Gear.Check", boost::bind(onCheck, flat_list_handle, inventory_panel_handle, _2));
-        enable_registrar.add("AddWearable.Gear.Visible", boost::bind(onVisible, inventory_panel_handle, _2));
+        registrar.add("AddWearable.Gear.Sort", std::bind(onSort, flat_list_handle, inventory_panel_handle, _2));
+        enable_registrar.add("AddWearable.Gear.Check", std::bind(onCheck, flat_list_handle, inventory_panel_handle, _2));
+        enable_registrar.add("AddWearable.Gear.Visible", std::bind(onVisible, inventory_panel_handle, _2));
 
         llassert(LLMenuGL::sMenuContainer != NULL);
         LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
@@ -413,13 +416,13 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 
 
     LLOutfitObserver& observer = LLOutfitObserver::instance();
-    observer.addBOFReplacedCallback(boost::bind(&LLPanelOutfitEdit::updateCurrentOutfitName, this));
-    observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitEdit::updateVerbs, this));
-    observer.addOutfitLockChangedCallback(boost::bind(&LLPanelOutfitEdit::updateVerbs, this));
-    observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitEdit::onCOFChanged, this));
+    observer.addBOFReplacedCallback(std::bind(&LLPanelOutfitEdit::updateCurrentOutfitName, this));
+    observer.addBOFChangedCallback(std::bind(&LLPanelOutfitEdit::updateVerbs, this));
+    observer.addOutfitLockChangedCallback(std::bind(&LLPanelOutfitEdit::updateVerbs, this));
+    observer.addCOFChangedCallback(std::bind(&LLPanelOutfitEdit::onCOFChanged, this));
 
-    gAgentWearables.addLoadingStartedCallback(boost::bind(&LLPanelOutfitEdit::onOutfitChanging, this, true));
-    gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitEdit::onOutfitChanging, this, false));
+    gAgentWearables.addLoadingStartedCallback(std::bind(&LLPanelOutfitEdit::onOutfitChanging, this, true));
+    gAgentWearables.addLoadedCallback(std::bind(&LLPanelOutfitEdit::onOutfitChanging, this, false));
 
     mFolderViewItemTypes.reserve(NUM_FOLDER_VIEW_ITEM_TYPES);
     for (U32 i = 0; i < NUM_FOLDER_VIEW_ITEM_TYPES; i++)
@@ -482,41 +485,41 @@ bool LLPanelOutfitEdit::postBuild()
     mListViewBtn = getChild<LLButton>("list_view_btn");
     mFilterPanel = getChild<LLView>("filter_panel");
     mFilterBtn = getChild<LLButton>("filter_button");
-    mFilterBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this));
+    mFilterBtn->setCommitCallback(std::bind(&LLPanelOutfitEdit::showWearablesFilter, this));
 
-    childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesFolderView, this), NULL);
-    childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
-    childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesListView, this), NULL);
-    childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
-    childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
-    childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
+    childSetCommitCallback("folder_view_btn", std::bind(&LLPanelOutfitEdit::showWearablesFolderView, this), NULL);
+    childSetCommitCallback("folder_view_btn", std::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
+    childSetCommitCallback("list_view_btn", std::bind(&LLPanelOutfitEdit::showWearablesListView, this), NULL);
+    childSetCommitCallback("list_view_btn", std::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
+    childSetCommitCallback("shop_btn_1", std::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
+    childSetCommitCallback("shop_btn_2", std::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 
-    setVisibleCallback(boost::bind(&LLPanelOutfitEdit::onVisibilityChanged, this, _2));
+    setVisibleCallback(std::bind(&LLPanelOutfitEdit::onVisibilityChanged, this, _2));
 
     mWearablesGearMenuBtn = getChild<LLMenuButton>("wearables_gear_menu_btn");
     mGearMenuBtn = getChild<LLMenuButton>("gear_menu_btn");
 
     mCOFWearables = findChild<LLCOFWearables>("cof_wearables_list");
-    mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::filterWearablesBySelectedItem, this));
+    mCOFWearables->setCommitCallback(std::bind(&LLPanelOutfitEdit::filterWearablesBySelectedItem, this));
 
-    mCOFWearables->getCOFCallbacks().mAddWearable = boost::bind(&LLPanelOutfitEdit::onAddWearableClicked, this);
-    mCOFWearables->getCOFCallbacks().mEditWearable = boost::bind(&LLPanelOutfitEdit::onEditWearableClicked, this);
-    mCOFWearables->getCOFCallbacks().mDeleteWearable = boost::bind(&LLPanelOutfitEdit::onRemoveFromOutfitClicked, this);
-    mCOFWearables->getCOFCallbacks().mMoveWearableCloser = boost::bind(&LLPanelOutfitEdit::moveWearable, this, true);
-    mCOFWearables->getCOFCallbacks().mMoveWearableFurther = boost::bind(&LLPanelOutfitEdit::moveWearable, this, false);
+    mCOFWearables->getCOFCallbacks().mAddWearable = std::bind(&LLPanelOutfitEdit::onAddWearableClicked, this);
+    mCOFWearables->getCOFCallbacks().mEditWearable = std::bind(&LLPanelOutfitEdit::onEditWearableClicked, this);
+    mCOFWearables->getCOFCallbacks().mDeleteWearable = std::bind(&LLPanelOutfitEdit::onRemoveFromOutfitClicked, this);
+    mCOFWearables->getCOFCallbacks().mMoveWearableCloser = std::bind(&LLPanelOutfitEdit::moveWearable, this, true);
+    mCOFWearables->getCOFCallbacks().mMoveWearableFurther = std::bind(&LLPanelOutfitEdit::moveWearable, this, false);
 
     mAddWearablesPanel = getChild<LLPanel>("add_wearables_panel");
 
     mInventoryItemsPanel = getChild<LLInventoryPanel>("folder_view");
     mInventoryItemsPanel->setFilterTypes(ALL_ITEMS_MASK);
     mInventoryItemsPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-    mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
-    mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
+    mInventoryItemsPanel->setSelectCallback(std::bind(&LLPanelOutfitEdit::updatePlusButton, this));
+    mInventoryItemsPanel->getRootFolder()->setReshapeCallback(std::bind(&LLPanelOutfitEdit::updatePlusButton, this));
 
     mCOFDragAndDropObserver = new LLCOFDragAndDropObserver(mInventoryItemsPanel->getModel());
 
     mFolderViewFilterCmbBox = getChild<LLComboBox>("folder_view_filter_combobox");
-    mFolderViewFilterCmbBox->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onFolderViewFilterCommitted, this, _1));
+    mFolderViewFilterCmbBox->setCommitCallback(std::bind(&LLPanelOutfitEdit::onFolderViewFilterCommitted, this, _1));
     mFolderViewFilterCmbBox->removeall();
     for (U32 i = 0; i < mFolderViewItemTypes.size(); ++i)
     {
@@ -525,7 +528,7 @@ bool LLPanelOutfitEdit::postBuild()
     mFolderViewFilterCmbBox->setCurrentByIndex(FVIT_ALL);
 
     mListViewFilterCmbBox = getChild<LLComboBox>("list_view_filter_combobox");
-    mListViewFilterCmbBox->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onListViewFilterCommitted, this, _1));
+    mListViewFilterCmbBox->setCommitCallback(std::bind(&LLPanelOutfitEdit::onListViewFilterCommitted, this, _1));
     mListViewFilterCmbBox->removeall();
     for (U32 i = 0; i < mListViewItemTypes.size(); ++i)
     {
@@ -534,15 +537,15 @@ bool LLPanelOutfitEdit::postBuild()
     mListViewFilterCmbBox->setCurrentByIndex(LVIT_ALL);
 
     mSearchFilter = getChild<LLFilterEditor>("look_item_filter");
-    mSearchFilter->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onSearchEdit, this, _2));
+    mSearchFilter->setCommitCallback(std::bind(&LLPanelOutfitEdit::onSearchEdit, this, _2));
 
     mShowAddWearablesBtn = getChild<LLButton>("show_add_wearables_btn");
-    mShowAddWearablesBtn->setClickedCallback(boost::bind(&LLPanelOutfitEdit::onAddMoreButtonClicked, this));
+    mShowAddWearablesBtn->setClickedCallback(std::bind(&LLPanelOutfitEdit::onAddMoreButtonClicked, this));
 
     mPlusBtn = getChild<LLButton>("plus_btn");
-    mPlusBtn->setClickedCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
+    mPlusBtn->setClickedCallback(std::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 
-    childSetAction(REVERT_BTN, boost::bind(&LLAppearanceMgr::wearBaseOutfit, LLAppearanceMgr::getInstance()));
+    childSetAction(REVERT_BTN, std::bind(&LLAppearanceMgr::wearBaseOutfit, LLAppearanceMgr::getInstance()));
 
     mNoAddWearablesButtonBar = getChild<LLUICtrl>("no_add_wearables_button_bar");
     mAddWearablesButtonBar = getChild<LLUICtrl>("add_wearables_button_bar");
@@ -562,8 +565,8 @@ bool LLPanelOutfitEdit::postBuild()
     mWearablesListViewPanel = getChild<LLPanel>("filtered_wearables_panel");
     mWearableItemsList = getChild<LLWearableItemsList>("list_view");
     mWearableItemsList->setCommitOnSelectionChange(true);
-    mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
-    mWearableItemsList->setDoubleClickCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
+    mWearableItemsList->setCommitCallback(std::bind(&LLPanelOutfitEdit::updatePlusButton, this));
+    mWearableItemsList->setDoubleClickCallback(std::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 
     mWearableItemsList->setComparator(mWearableListViewItemsComparator);
 
@@ -574,8 +577,8 @@ bool LLPanelOutfitEdit::postBuild()
     mGearMenu = LLPanelOutfitEditGearMenu::create();
     mGearMenuBtn->setMenu(mGearMenu);
 
-    getChild<LLButton>(SAVE_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitEdit::saveOutfit, this, false));
-    getChild<LLButton>(SAVE_AS_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitEdit::saveOutfit, this, true));
+    getChild<LLButton>(SAVE_BTN)->setCommitCallback(std::bind(&LLPanelOutfitEdit::saveOutfit, this, false));
+    getChild<LLButton>(SAVE_AS_BTN)->setCommitCallback(std::bind(&LLPanelOutfitEdit::saveOutfit, this, true));
 
     mLoadingIndicator = getChild<LLLoadingIndicator>("edit_outfit_loading_indicator");
     mOutfitNameStatusPanel = getChild<LLPanel>("outfit_name_and_status");
@@ -983,7 +986,7 @@ void LLPanelOutfitEdit::updatePlusButton()
     }
 
     // If any of the selected items are not wearable (due to already being worn OR being of the wrong type), disable the add button.
-    uuid_vec_t::iterator unwearable_item = std::ranges::find_if(selected_items, !boost::bind(&get_can_item_be_worn, _1));
+    uuid_vec_t::iterator unwearable_item = std::ranges::find_if(selected_items, !std::bind(&get_can_item_be_worn, _1));
     bool can_add = ( unwearable_item == selected_items.end() );
 
     mPlusBtn->setEnabled(can_add);
@@ -1371,7 +1374,7 @@ void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
         std::vector<LLSD> item_set;
         mWearableItemsList->getSelectedValues(item_set);
 
-        std::ranges::for_each(item_set, boost::bind( tmp, &uuid_list, boost::bind(&LLSD::asUUID, _1 )));
+        std::ranges::for_each(item_set, std::bind( tmp, &uuid_list, std::bind(&LLSD::asUUID, _1 )));
     }
 
 //  return selected_id;

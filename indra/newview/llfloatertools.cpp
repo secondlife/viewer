@@ -87,6 +87,9 @@
 #include "llvovolume.h"
 #include "lluictrlfactory.h"
 #include "llmeshrepository.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Globals
 LLFloaterTools *gFloaterTools = NULL;
@@ -260,7 +263,7 @@ bool    LLFloaterTools::postBuild()
         LLButton *found = getChild<LLButton>(toolNames[t]);
         if(found)
         {
-            found->setClickedCallback(boost::bind(&LLFloaterTools::setObjectType, toolData[t]));
+            found->setClickedCallback(std::bind(&LLFloaterTools::setObjectType, toolData[t]));
             mButtons.push_back( found );
         }else{
             LL_WARNS() << "Tool button not found! DOA Pending." << LL_ENDL;
@@ -386,21 +389,21 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
     mFactoryMap["Contents"] = LLCallbackMap(createPanelContents, this);//LLPanelContents
     mFactoryMap["land info panel"] = LLCallbackMap(createPanelLandInfo, this);//LLPanelLandInfo
 
-    mCommitCallbackRegistrar.add("BuildTool.setTool",           boost::bind(&LLFloaterTools::setTool,this, _2));
-    mCommitCallbackRegistrar.add("BuildTool.commitZoom",        boost::bind(&commit_slider_zoom, _1));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioFocus",  boost::bind(&commit_radio_group_focus, _1));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioMove",   boost::bind(&commit_radio_group_move,_1));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioEdit",   boost::bind(&commit_radio_group_edit,_1));
+    mCommitCallbackRegistrar.add("BuildTool.setTool",           std::bind(&LLFloaterTools::setTool,this, _2));
+    mCommitCallbackRegistrar.add("BuildTool.commitZoom",        std::bind(&commit_slider_zoom, _1));
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioFocus",  std::bind(&commit_radio_group_focus, _1));
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioMove",   std::bind(&commit_radio_group_move,_1));
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioEdit",   std::bind(&commit_radio_group_edit,_1));
 
-    mCommitCallbackRegistrar.add("BuildTool.gridMode",          boost::bind(&commit_grid_mode,_1));
-    mCommitCallbackRegistrar.add("BuildTool.selectComponent",   boost::bind(&commit_select_component, this));
-    mCommitCallbackRegistrar.add("BuildTool.gridOptions",       boost::bind(&LLFloaterTools::onClickGridOptions,this));
-    mCommitCallbackRegistrar.add("BuildTool.applyToSelection",  boost::bind(&click_apply_to_selection, this));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioLand",   boost::bind(&commit_radio_group_land,_1));
-    mCommitCallbackRegistrar.add("BuildTool.LandBrushForce",    boost::bind(&commit_slider_dozer_force,_1));
+    mCommitCallbackRegistrar.add("BuildTool.gridMode",          std::bind(&commit_grid_mode,_1));
+    mCommitCallbackRegistrar.add("BuildTool.selectComponent",   std::bind(&commit_select_component, this));
+    mCommitCallbackRegistrar.add("BuildTool.gridOptions",       std::bind(&LLFloaterTools::onClickGridOptions,this));
+    mCommitCallbackRegistrar.add("BuildTool.applyToSelection",  std::bind(&click_apply_to_selection, this));
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioLand",   std::bind(&commit_radio_group_land,_1));
+    mCommitCallbackRegistrar.add("BuildTool.LandBrushForce",    std::bind(&commit_slider_dozer_force,_1));
 
-    mCommitCallbackRegistrar.add("BuildTool.LinkObjects",       boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()));
-    mCommitCallbackRegistrar.add("BuildTool.UnlinkObjects",     boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
+    mCommitCallbackRegistrar.add("BuildTool.LinkObjects",       std::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()));
+    mCommitCallbackRegistrar.add("BuildTool.UnlinkObjects",     std::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
 
     mLandImpactsObserver = new LLLandImpactsObserver();
     LLViewerParcelMgr::getInstance()->addObserver(mLandImpactsObserver);

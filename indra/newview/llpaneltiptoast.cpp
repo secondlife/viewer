@@ -27,6 +27,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpaneltiptoast.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 bool LLPanelTipToast::postBuild()
 {
@@ -34,8 +37,8 @@ bool LLPanelTipToast::postBuild()
 
     if (mMessageText != NULL)
     {
-        mMessageText->setMouseUpCallback(boost::bind(&LLPanelTipToast::onMessageTextClick,this));
-        setMouseUpCallback(boost::bind(&LLPanelTipToast::onPanelClick, this, _2, _3, _4));
+        mMessageText->setMouseUpCallback(std::bind(&LLPanelTipToast::onMessageTextClick,this));
+        setMouseUpCallback(std::bind(&LLPanelTipToast::onPanelClick, this, _2, _3, _4));
     }
     else
     {

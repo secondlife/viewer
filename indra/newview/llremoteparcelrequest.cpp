@@ -41,6 +41,7 @@
 #include "llagent.h"
 #include "llremoteparcelrequest.h"
 #include "llcorehttputil.h"
+#include <functional>
 
 void LLRemoteParcelInfoProcessor::addObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer)
 {
@@ -187,7 +188,7 @@ bool LLRemoteParcelInfoProcessor::requestRegionParcelInfo(const std::string &url
     if (!url.empty())
     {
         LLCoros::instance().launch("LLRemoteParcelInfoProcessor::regionParcelInfoCoro",
-            boost::bind(&LLRemoteParcelInfoProcessor::regionParcelInfoCoro, this, url,
+            std::bind(&LLRemoteParcelInfoProcessor::regionParcelInfoCoro, this, url,
             regionId, regionPos, globalPos, observerHandle));
         return true;
     }

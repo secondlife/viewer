@@ -32,6 +32,9 @@
 #include "llqueryflags.h"
 #include "llviewercontrol.h"
 #include "llsearcheditor.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLPanelDirGroups> t_panel_dir_groups("panel_dir_groups");
 
@@ -46,7 +49,7 @@ bool LLPanelDirGroups::postBuild()
 {
     LLPanelDirBrowser::postBuild();
 
-    //getChild<LLLineEditor>("name")->setKeystrokeCallback(boost::bind(&LLPanelDirBrowser::onKeystrokeName, _1, _2), NULL);
+    //getChild<LLLineEditor>("name")->setKeystrokeCallback(std::bind(&LLPanelDirBrowser::onKeystrokeName, _1, _2), NULL);
 
     childSetAction("Search", &LLPanelDirBrowser::onClickSearchCore, this);
     setDefaultBtn( "Search" );

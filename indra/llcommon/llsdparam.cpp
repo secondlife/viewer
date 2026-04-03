@@ -30,6 +30,7 @@
 // Project includes
 #include "llsdparam.h"
 #include "llsdutil.h"
+#include <functional>
 
 static  LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
 static  LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;
@@ -94,7 +95,7 @@ void LLParamSDParser::readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool
     mNameStack.clear();
     setParseSilently(silent);
 
-    LLParamSDParserUtilities::readSDValues(std::bind(&LLParamSDParser::submit, this, std::ref(block), std::placeholders::_1, std::placeholders::_2), sd, mNameStack);
+    LLParamSDParserUtilities::readSDValues([this, &block](const LLSD& sd, LLInitParam::Parser::name_stack_t& name_stack) { submit(block, sd, name_stack); }, sd, mNameStack);
     //readSDValues(sd, block);
 }
 

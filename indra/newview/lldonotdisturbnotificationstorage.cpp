@@ -41,6 +41,9 @@
 #include "llsd.h"
 #include "llsingleton.h"
 #include "lluuid.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static constexpr F32 DND_TIMER = 3.0;
 const char * LLDoNotDisturbNotificationStorage::toastName = "IMToast";
@@ -88,7 +91,7 @@ void LLDoNotDisturbNotificationStorage::reset()
 void LLDoNotDisturbNotificationStorage::initialize()
 {
     reset();
-    getCommunicationChannel()->connectFailedFilter(boost::bind(&LLDoNotDisturbNotificationStorage::onChannelChanged, this, _1));
+    getCommunicationChannel()->connectFailedFilter(std::bind(&LLDoNotDisturbNotificationStorage::onChannelChanged, this, _1));
 }
 
 bool LLDoNotDisturbNotificationStorage::getDirty()

@@ -29,6 +29,7 @@
 #include "llfloaterreg.h"
 #include "llspinctrl.h"
 #include "llradiogroup.h"
+#include <functional>
 
 LLFloaterBanDuration::LLFloaterBanDuration(const LLSD& target)
     : LLFloater(target)
@@ -37,10 +38,10 @@ LLFloaterBanDuration::LLFloaterBanDuration(const LLSD& target)
 
 bool LLFloaterBanDuration::postBuild()
 {
-    childSetAction("ok_btn", boost::bind(&LLFloaterBanDuration::onClickBan, this));
-    childSetAction("cancel_btn", boost::bind(&LLFloaterBanDuration::onClickCancel, this));
+    childSetAction("ok_btn", std::bind(&LLFloaterBanDuration::onClickBan, this));
+    childSetAction("cancel_btn", std::bind(&LLFloaterBanDuration::onClickCancel, this));
 
-    getChild<LLUICtrl>("ban_duration_radio")->setCommitCallback(boost::bind(&LLFloaterBanDuration::onClickRadio, this));
+    getChild<LLUICtrl>("ban_duration_radio")->setCommitCallback(std::bind(&LLFloaterBanDuration::onClickRadio, this));
     getChild<LLRadioGroup>("ban_duration_radio")->setSelectedIndex(0);
     getChild<LLUICtrl>("ban_hours")->setEnabled(false);
 

@@ -67,6 +67,9 @@
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
@@ -1324,14 +1327,14 @@ LLPanelObjectInventory::LLPanelObjectInventory(const LLPanelObjectInventory::Par
     mShowRootFolder(p.show_root_folder)
 {
     // Setup context menu callbacks
-    mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelObjectInventory::doToSelected, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
-    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
-    mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&do_nothing));
-    mCommitCallbackRegistrar.add("Inventory.AttachObject", boost::bind(&do_nothing));
-    mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&do_nothing));
-    mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
-    mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", boost::bind(&do_nothing));
+    mCommitCallbackRegistrar.add("Inventory.DoToSelected", std::bind(&LLPanelObjectInventory::doToSelected, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", std::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
+    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", std::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
+    mCommitCallbackRegistrar.add("Inventory.DoCreate", std::bind(&do_nothing));
+    mCommitCallbackRegistrar.add("Inventory.AttachObject", std::bind(&do_nothing));
+    mCommitCallbackRegistrar.add("Inventory.BeginIMSession", std::bind(&do_nothing));
+    mCommitCallbackRegistrar.add("Inventory.Share",  std::bind(&LLAvatarActions::shareWithAvatars, this));
+    mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", std::bind(&do_nothing));
 }
 
 // Destroys the object

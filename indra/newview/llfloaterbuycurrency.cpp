@@ -43,6 +43,7 @@
 #include "llweb.h"
 #include "llwindow.h"
 #include "llappviewer.h"
+#include <functional>
 
 static constexpr S32 MINIMUM_BALANCE_AMOUNT = 0;
 
@@ -139,8 +140,8 @@ bool LLFloaterBuyCurrencyUI::postBuild()
 {
     mManager.prepare();
 
-    getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyCurrencyUI::onClickBuy, this));
-    getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyCurrencyUI::onClickCancel, this));
+    getChild<LLUICtrl>("buy_btn")->setCommitCallback( std::bind(&LLFloaterBuyCurrencyUI::onClickBuy, this));
+    getChild<LLUICtrl>("cancel_btn")->setCommitCallback( std::bind(&LLFloaterBuyCurrencyUI::onClickCancel, this));
 
     center();
 

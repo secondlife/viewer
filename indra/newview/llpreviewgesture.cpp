@@ -52,6 +52,9 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerassetupload.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 std::string NONE_LABEL;
 std::string SHIFT_LABEL;
@@ -239,7 +242,7 @@ bool LLPreviewGesture::canClose()
             mSaveDialogShown = true;
             // Bring up view-modal dialog: Save changes? Yes, No, Cancel
             LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(),
-                    boost::bind(&LLPreviewGesture::handleSaveChangesDialog, this, _1, _2) );
+                    std::bind(&LLPreviewGesture::handleSaveChangesDialog, this, _1, _2) );
         }
         return false;
     }
@@ -338,7 +341,7 @@ LLPreviewGesture::~LLPreviewGesture()
 
 bool LLPreviewGesture::postBuild()
 {
-    setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChanged, this, _2));
+    setVisibleCallback(std::bind(&LLPreviewGesture::onVisibilityChanged, this, _2));
 
     LLLineEditor* edit;
     LLComboBox* combo;
@@ -370,11 +373,11 @@ bool LLPreviewGesture::postBuild()
     mReplaceEditor = edit;
 
     combo = getChild<LLComboBox>( "modifier_combo");
-    combo->setCommitCallback(boost::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
+    combo->setCommitCallback(std::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
     mModifierCombo = combo;
 
     combo = getChild<LLComboBox>( "key_combo");
-    combo->setCommitCallback(boost::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
+    combo->setCommitCallback(std::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
     mKeyCombo = combo;
 
     list = getChild<LLScrollListCtrl>("library_list");

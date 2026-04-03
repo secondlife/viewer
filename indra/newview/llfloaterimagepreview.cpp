@@ -67,6 +67,7 @@
 #include "llviewercontrol.h"
 #include "lltrans.h"
 #include "llimagedimensionsinfo.h"
+#include <functional>
 
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
@@ -146,7 +147,7 @@ bool LLFloaterImagePreview::postBuild()
         }
     }
 
-    getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterImagePreview::onBtnOK, this));
+    getChild<LLUICtrl>("ok_btn")->setCommitCallback(std::bind(&LLFloaterImagePreview::onBtnOK, this));
 
     return true;
 }

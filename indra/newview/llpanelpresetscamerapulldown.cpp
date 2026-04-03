@@ -40,6 +40,9 @@
 #include "llsliderctrl.h"
 #include "llscrolllistctrl.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Class LLPanelPresetsCameraPulldown
@@ -48,8 +51,8 @@
 // Default constructor
 LLPanelPresetsCameraPulldown::LLPanelPresetsCameraPulldown()
 {
-    mCommitCallbackRegistrar.add("Presets.toggleCameraFloater", boost::bind(&LLPanelPresetsCameraPulldown::onViewButtonClick, this, _2));
-    mCommitCallbackRegistrar.add("PresetsCamera.RowClick", boost::bind(&LLPanelPresetsCameraPulldown::onRowClick, this, _2));
+    mCommitCallbackRegistrar.add("Presets.toggleCameraFloater", std::bind(&LLPanelPresetsCameraPulldown::onViewButtonClick, this, _2));
+    mCommitCallbackRegistrar.add("PresetsCamera.RowClick", std::bind(&LLPanelPresetsCameraPulldown::onRowClick, this, _2));
 
     buildFromFile( "panel_presets_camera_pulldown.xml");
 }
@@ -64,7 +67,7 @@ bool LLPanelPresetsCameraPulldown::postBuild()
 
         presetsMgr->startWatching(PRESETS_CAMERA);
 
-        presetsMgr->setPresetListChangeCameraCallback(boost::bind(&LLPanelPresetsCameraPulldown::populatePanel, this));
+        presetsMgr->setPresetListChangeCameraCallback(std::bind(&LLPanelPresetsCameraPulldown::populatePanel, this));
     }
 
     populatePanel();

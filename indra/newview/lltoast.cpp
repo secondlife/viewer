@@ -32,6 +32,7 @@
 #include "llfocusmgr.h"
 #include "llnotifications.h"
 #include "llviewercontrol.h"
+#include <functional>
 
 using namespace LLNotificationsUI;
 std::list<LLToast*> LLToast::sModalToastsList;
@@ -136,7 +137,7 @@ LLToast::LLToast(const LLToast::Params& p)
     if(mHideBtnEnabled)
     {
         mHideBtn = getChild<LLButton>("hide_btn");
-        mHideBtn->setClickedCallback(boost::bind(&LLToast::hide,this));
+        mHideBtn->setClickedCallback(std::bind(&LLToast::hide,this));
     }
 
     // init callbacks if present

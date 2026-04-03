@@ -36,6 +36,9 @@
 #include "llsnapshotlivepreview.h"
 #include "llviewercontrol.h" // gSavedSettings
 #include "llviewerwindow.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 /**
  * The panel provides UI for saving snapshot to a local folder.
@@ -75,15 +78,15 @@ static LLPanelInjector<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal")
 LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 {
     mLocalFormat = gSavedSettings.getS32("SnapshotFormat");
-    mCommitCallbackRegistrar.add("Local.Cancel",    boost::bind(&LLPanelSnapshotLocal::cancel,      this));
+    mCommitCallbackRegistrar.add("Local.Cancel",    std::bind(&LLPanelSnapshotLocal::cancel,      this));
 }
 
 // virtual
 bool LLPanelSnapshotLocal::postBuild()
 {
-    getChild<LLUICtrl>("image_quality_slider")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onQualitySliderCommit, this, _1));
-    getChild<LLUICtrl>("local_format_combo")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onFormatComboCommit, this, _1));
-    getChild<LLUICtrl>("save_btn")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onSaveFlyoutCommit, this, _1));
+    getChild<LLUICtrl>("image_quality_slider")->setCommitCallback(std::bind(&LLPanelSnapshotLocal::onQualitySliderCommit, this, _1));
+    getChild<LLUICtrl>("local_format_combo")->setCommitCallback(std::bind(&LLPanelSnapshotLocal::onFormatComboCommit, this, _1));
+    getChild<LLUICtrl>("save_btn")->setCommitCallback(std::bind(&LLPanelSnapshotLocal::onSaveFlyoutCommit, this, _1));
 
     return LLPanelSnapshot::postBuild();
 }
@@ -167,7 +170,7 @@ void LLPanelSnapshotLocal::onSaveFlyoutCommit(LLUICtrl* ctrl)
     LLFloaterSnapshot* floater = LLFloaterSnapshot::getInstance();
 
     floater->notify(LLSD().with("set-working", true));
-    floater->saveLocal((boost::bind(&LLPanelSnapshotLocal::onLocalSaved, this)), (boost::bind(&LLPanelSnapshotLocal::onLocalCanceled, this)));
+    floater->saveLocal((std::bind(&LLPanelSnapshotLocal::onLocalSaved, this)), (std::bind(&LLPanelSnapshotLocal::onLocalCanceled, this)));
 }
 
 void LLPanelSnapshotLocal::onLocalSaved()

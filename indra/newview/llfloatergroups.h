@@ -57,7 +57,7 @@ public:
     LLFloaterGroupPicker(const LLSD& seed);
     ~LLFloaterGroupPicker();
 
-    // Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
+    // Note: Don't return connection; use std::bind + boost::signals2::trackable to disconnect slots
     using signal_t = boost::signals2::signal<void (LLUUID id)>;
     void setSelectGroupCallback(const signal_t::slot_type& cb) { mGroupSelectSignal.connect(cb); }
     void setPowersMask(U64 powers_mask);

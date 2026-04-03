@@ -56,6 +56,7 @@
 #include "lluiusage.h"
 
 #include <boost/lexical_cast.hpp>
+#include <functional>
 
 const U32 MAX_CACHED_GROUPS = 20;
 
@@ -2081,11 +2082,11 @@ void LLGroupMgr::sendGroupBanRequest(   EBanRequestType request_type,
     {
     case REQUEST_GET:
         LLCoros::instance().launch("LLGroupMgr::getGroupBanRequestCoro",
-            boost::bind(&LLGroupMgr::getGroupBanRequestCoro, this, cap_url, group_id));
+            std::bind(&LLGroupMgr::getGroupBanRequestCoro, this, cap_url, group_id));
         break;
     case REQUEST_POST:
         LLCoros::instance().launch("LLGroupMgr::postGroupBanRequestCoro",
-            boost::bind(&LLGroupMgr::postGroupBanRequestCoro, this, cap_url, group_id,
+            std::bind(&LLGroupMgr::postGroupBanRequestCoro, this, cap_url, group_id,
             action, ban_list, update));
         break;
     case REQUEST_PUT:

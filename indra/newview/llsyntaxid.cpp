@@ -34,6 +34,9 @@
 #include "llsdserialize.h"
 #include "llviewerregion.h"
 #include "llcorehttputil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //-----------------------------------------------------------------------------
 // LLSyntaxIdLSL
@@ -53,7 +56,7 @@ LLSyntaxIdLSL::LLSyntaxIdLSL()
 ,   mInitialized(false)
 {
     loadDefaultKeywordsIntoLLSD();
-    mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLSyntaxIdLSL::handleRegionChanged, this));
+    mRegionChangedCallback = gAgent.addRegionChangedCallback(std::bind(&LLSyntaxIdLSL::handleRegionChanged, this));
     handleRegionChanged(); // Kick off an initial caps query and fetch
 }
 
@@ -96,7 +99,7 @@ bool LLSyntaxIdLSL::syntaxIdChanged()
         }
         else
         {
-            region->setCapabilitiesReceivedCallback(boost::bind(&LLSyntaxIdLSL::handleCapsReceived, this, _1));
+            region->setCapabilitiesReceivedCallback(std::bind(&LLSyntaxIdLSL::handleCapsReceived, this, _1));
             LL_DEBUGS("SyntaxLSL") << "Region has not received capabilities. Waiting for caps..." << LL_ENDL;
         }
     }
@@ -109,7 +112,7 @@ bool LLSyntaxIdLSL::syntaxIdChanged()
 void LLSyntaxIdLSL::fetchKeywordsFile(const std::string& filespec)
 {
     LLCoros::instance().launch("LLSyntaxIdLSL::fetchKeywordsFileCoro",
-        boost::bind(&LLSyntaxIdLSL::fetchKeywordsFileCoro, this, mCapabilityURL, filespec));
+        std::bind(&LLSyntaxIdLSL::fetchKeywordsFileCoro, this, mCapabilityURL, filespec));
     LL_DEBUGS("SyntaxLSL") << "LSLSyntaxId capability URL is: " << mCapabilityURL << ". Filename to use is: '" << filespec << "'." << LL_ENDL;
 }
 

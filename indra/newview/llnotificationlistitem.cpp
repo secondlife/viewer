@@ -40,6 +40,7 @@
 #include "llnotificationsutil.h"
 #include "llviewercontrol.h"
 #include <boost/regex.hpp>
+#include <functional>
 
 LLNotificationListItem::LLNotificationListItem(const Params& p) : LLPanel(p),
     mParams(p),
@@ -75,7 +76,7 @@ bool LLNotificationListItem::postBuild()
     mTitleBoxExp->setValue(mParams.title);
     mNoticeTextExp->setValue(mParams.title);
     mNoticeTextExp->setEnabled(false);
-    mNoticeTextExp->setTextExpandedCallback(boost::bind(&LLNotificationListItem::reshapeNotification, this));
+    mNoticeTextExp->setTextExpandedCallback(std::bind(&LLNotificationListItem::reshapeNotification, this));
 
     mTitleBox->setContentTrusted(false);
     mTitleBoxExp->setContentTrusted(false);
@@ -84,12 +85,12 @@ bool LLNotificationListItem::postBuild()
     mTimeBox->setValue(buildNotificationDate(mParams.time_stamp));
     mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp));
 
-    mExpandBtn->setClickedCallback(boost::bind(&LLNotificationListItem::onClickExpandBtn,this));
-    mCondenseBtn->setClickedCallback(boost::bind(&LLNotificationListItem::onClickCondenseBtn,this));
+    mExpandBtn->setClickedCallback(std::bind(&LLNotificationListItem::onClickExpandBtn,this));
+    mCondenseBtn->setClickedCallback(std::bind(&LLNotificationListItem::onClickCondenseBtn,this));
 
     //mCloseBtn and mCloseExpandedBtn share the same callback
-    mCloseBtn->setClickedCallback(boost::bind(&LLNotificationListItem::onClickCloseBtn,this));
-    mCloseBtnExp->setClickedCallback(boost::bind(&LLNotificationListItem::onClickCloseBtn,this));
+    mCloseBtn->setClickedCallback(std::bind(&LLNotificationListItem::onClickCloseBtn,this));
+    mCloseBtnExp->setClickedCallback(std::bind(&LLNotificationListItem::onClickCloseBtn,this));
 
     mCondensedViewPanel = getChild<LLPanel>("layout_panel_condensed_view");
     mExpandedViewPanel = getChild<LLPanel>("layout_panel_expanded_view");
@@ -309,9 +310,9 @@ bool LLGroupInviteNotificationListItem::postBuild()
         mNoticeTextExp->setValue(invitation_desc);
     }
 
-    mJoinBtn->setClickedCallback(boost::bind(&LLGroupInviteNotificationListItem::onClickJoinBtn,this));
-    mDeclineBtn->setClickedCallback(boost::bind(&LLGroupInviteNotificationListItem::onClickDeclineBtn,this));
-    mInfoBtn->setClickedCallback(boost::bind(&LLGroupInviteNotificationListItem::onClickInfoBtn,this));
+    mJoinBtn->setClickedCallback(std::bind(&LLGroupInviteNotificationListItem::onClickJoinBtn,this));
+    mDeclineBtn->setClickedCallback(std::bind(&LLGroupInviteNotificationListItem::onClickDeclineBtn,this));
+    mInfoBtn->setClickedCallback(std::bind(&LLGroupInviteNotificationListItem::onClickInfoBtn,this));
 
     std::string expanded_height_resize_str = getString("expanded_height_resize_for_attachment");
     mExpandedHeightResize = (S32)atoi(expanded_height_resize_str.c_str());
@@ -412,7 +413,7 @@ bool LLGroupNoticeNotificationListItem::postBuild()
         mAttachmentIconExp->setValue(icon_name);
         mAttachmentIconExp->setVisible(true);
 
-        mAttachmentTextBox->setClickedCallback(boost::bind(
+        mAttachmentTextBox->setClickedCallback(std::bind(
             &LLGroupNoticeNotificationListItem::onClickAttachment, this));
 
         std::string expanded_height_resize_str = getString("expanded_height_resize_for_attachment");

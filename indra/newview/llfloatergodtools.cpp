@@ -72,6 +72,9 @@
 
 #include "lltransfertargetfile.h"
 #include "lltransfersourcefile.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const F32 SECONDS_BETWEEN_UPDATE_REQUESTS = 5.0f;
 
@@ -431,15 +434,15 @@ const F32 PRICE_PER_METER_DEFAULT = 1.f;
 LLPanelRegionTools::LLPanelRegionTools()
 :   LLPanel()
 {
-    mCommitCallbackRegistrar.add("RegionTools.ChangeAnything",  boost::bind(&LLPanelRegionTools::onChangeAnything, this));
-    mCommitCallbackRegistrar.add("RegionTools.ChangePrelude",   boost::bind(&LLPanelRegionTools::onChangePrelude, this));
-    mCommitCallbackRegistrar.add("RegionTools.BakeTerrain",     boost::bind(&LLPanelRegionTools::onBakeTerrain, this));
-    mCommitCallbackRegistrar.add("RegionTools.RevertTerrain",   boost::bind(&LLPanelRegionTools::onRevertTerrain, this));
-    mCommitCallbackRegistrar.add("RegionTools.SwapTerrain",     boost::bind(&LLPanelRegionTools::onSwapTerrain, this));
-    mCommitCallbackRegistrar.add("RegionTools.Refresh",         boost::bind(&LLPanelRegionTools::onRefresh, this));
-    mCommitCallbackRegistrar.add("RegionTools.ApplyChanges",    boost::bind(&LLPanelRegionTools::onApplyChanges, this));
-    mCommitCallbackRegistrar.add("RegionTools.SelectRegion",    boost::bind(&LLPanelRegionTools::onSelectRegion, this));
-    mCommitCallbackRegistrar.add("RegionTools.SaveState",       boost::bind(&LLPanelRegionTools::onSaveState, this));
+    mCommitCallbackRegistrar.add("RegionTools.ChangeAnything",  std::bind(&LLPanelRegionTools::onChangeAnything, this));
+    mCommitCallbackRegistrar.add("RegionTools.ChangePrelude",   std::bind(&LLPanelRegionTools::onChangePrelude, this));
+    mCommitCallbackRegistrar.add("RegionTools.BakeTerrain",     std::bind(&LLPanelRegionTools::onBakeTerrain, this));
+    mCommitCallbackRegistrar.add("RegionTools.RevertTerrain",   std::bind(&LLPanelRegionTools::onRevertTerrain, this));
+    mCommitCallbackRegistrar.add("RegionTools.SwapTerrain",     std::bind(&LLPanelRegionTools::onSwapTerrain, this));
+    mCommitCallbackRegistrar.add("RegionTools.Refresh",         std::bind(&LLPanelRegionTools::onRefresh, this));
+    mCommitCallbackRegistrar.add("RegionTools.ApplyChanges",    std::bind(&LLPanelRegionTools::onApplyChanges, this));
+    mCommitCallbackRegistrar.add("RegionTools.SelectRegion",    std::bind(&LLPanelRegionTools::onSelectRegion, this));
+    mCommitCallbackRegistrar.add("RegionTools.SaveState",       std::bind(&LLPanelRegionTools::onSaveState, this));
 }
 
 bool LLPanelRegionTools::postBuild()
@@ -854,7 +857,7 @@ void LLPanelRegionTools::onSelectRegion()
 LLPanelGridTools::LLPanelGridTools() :
     LLPanel()
 {
-    mCommitCallbackRegistrar.add("GridTools.FlushMapVisibilityCaches",      boost::bind(&LLPanelGridTools::onClickFlushMapVisibilityCaches, this));
+    mCommitCallbackRegistrar.add("GridTools.FlushMapVisibilityCaches",      std::bind(&LLPanelGridTools::onClickFlushMapVisibilityCaches, this));
 }
 
 // Destroys the object
@@ -929,15 +932,15 @@ LLPanelObjectTools::LLPanelObjectTools()
     :   LLPanel(),
         mTargetAvatar()
 {
-    mCommitCallbackRegistrar.add("ObjectTools.ChangeAnything",      boost::bind(&LLPanelObjectTools::onChangeAnything, this));
-    mCommitCallbackRegistrar.add("ObjectTools.DeletePublicOwnedBy", boost::bind(&LLPanelObjectTools::onClickDeletePublicOwnedBy, this));
-    mCommitCallbackRegistrar.add("ObjectTools.DeleteAllScriptedOwnedBy",        boost::bind(&LLPanelObjectTools::onClickDeleteAllScriptedOwnedBy, this));
-    mCommitCallbackRegistrar.add("ObjectTools.DeleteAllOwnedBy",        boost::bind(&LLPanelObjectTools::onClickDeleteAllOwnedBy, this));
-    mCommitCallbackRegistrar.add("ObjectTools.ApplyChanges",        boost::bind(&LLPanelObjectTools::onApplyChanges, this));
-    mCommitCallbackRegistrar.add("ObjectTools.Set",     boost::bind(&LLPanelObjectTools::onClickSet, this));
-    mCommitCallbackRegistrar.add("ObjectTools.GetTopColliders",     boost::bind(&LLPanelObjectTools::onGetTopColliders, this));
-    mCommitCallbackRegistrar.add("ObjectTools.GetTopScripts",       boost::bind(&LLPanelObjectTools::onGetTopScripts, this));
-    mCommitCallbackRegistrar.add("ObjectTools.GetScriptDigest",     boost::bind(&LLPanelObjectTools::onGetScriptDigest, this));
+    mCommitCallbackRegistrar.add("ObjectTools.ChangeAnything",      std::bind(&LLPanelObjectTools::onChangeAnything, this));
+    mCommitCallbackRegistrar.add("ObjectTools.DeletePublicOwnedBy", std::bind(&LLPanelObjectTools::onClickDeletePublicOwnedBy, this));
+    mCommitCallbackRegistrar.add("ObjectTools.DeleteAllScriptedOwnedBy",        std::bind(&LLPanelObjectTools::onClickDeleteAllScriptedOwnedBy, this));
+    mCommitCallbackRegistrar.add("ObjectTools.DeleteAllOwnedBy",        std::bind(&LLPanelObjectTools::onClickDeleteAllOwnedBy, this));
+    mCommitCallbackRegistrar.add("ObjectTools.ApplyChanges",        std::bind(&LLPanelObjectTools::onApplyChanges, this));
+    mCommitCallbackRegistrar.add("ObjectTools.Set",     std::bind(&LLPanelObjectTools::onClickSet, this));
+    mCommitCallbackRegistrar.add("ObjectTools.GetTopColliders",     std::bind(&LLPanelObjectTools::onGetTopColliders, this));
+    mCommitCallbackRegistrar.add("ObjectTools.GetTopScripts",       std::bind(&LLPanelObjectTools::onGetTopScripts, this));
+    mCommitCallbackRegistrar.add("ObjectTools.GetScriptDigest",     std::bind(&LLPanelObjectTools::onGetScriptDigest, this));
 }
 
 // Destroys the object
@@ -1154,7 +1157,7 @@ void LLPanelObjectTools::onClickSet()
 {
     LLView * button = findChild<LLButton>("Set Target");
     LLFloater * root_floater = gFloaterView->getParentFloater(this);
-    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelObjectTools::callbackAvatarID, this, _1,_2), false, false, false, root_floater->getName(), button);
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(std::bind(&LLPanelObjectTools::callbackAvatarID, this, _1,_2), false, false, false, root_floater->getName(), button);
     // grandparent is a floater, which can have a dependent
     if (picker)
     {
@@ -1224,7 +1227,7 @@ const std::string AGENT_REGION = "Agent Region";
 LLPanelRequestTools::LLPanelRequestTools():
     LLPanel()
 {
-    mCommitCallbackRegistrar.add("GodTools.Request",        boost::bind(&LLPanelRequestTools::onClickRequest, this));
+    mCommitCallbackRegistrar.add("GodTools.Request",        std::bind(&LLPanelRequestTools::onClickRequest, this));
 }
 
 LLPanelRequestTools::~LLPanelRequestTools()

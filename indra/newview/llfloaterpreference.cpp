@@ -117,6 +117,9 @@
 
 #include "llsearchableui.h"
 #include "llperfstats.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 char const* const VISIBILITY_DEFAULT = "default";
@@ -312,64 +315,64 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
         registered_dialog = true;
     }
 
-    mCommitCallbackRegistrar.add("Pref.Cancel",             boost::bind(&LLFloaterPreference::onBtnCancel, this, _2));
-    mCommitCallbackRegistrar.add("Pref.OK",                 boost::bind(&LLFloaterPreference::onBtnOK, this, _2));
+    mCommitCallbackRegistrar.add("Pref.Cancel",             std::bind(&LLFloaterPreference::onBtnCancel, this, _2));
+    mCommitCallbackRegistrar.add("Pref.OK",                 std::bind(&LLFloaterPreference::onBtnOK, this, _2));
 
-    mCommitCallbackRegistrar.add("Pref.ClearCache",             boost::bind(&LLFloaterPreference::onClickClearCache, this));
-    mCommitCallbackRegistrar.add("Pref.WebClearCache",          boost::bind(&LLFloaterPreference::onClickBrowserClearCache, this));
-    mCommitCallbackRegistrar.add("Pref.SetCache",               boost::bind(&LLFloaterPreference::onClickSetCache, this));
-    mCommitCallbackRegistrar.add("Pref.ResetCache",             boost::bind(&LLFloaterPreference::onClickResetCache, this));
-    mCommitCallbackRegistrar.add("Pref.ClickSkin",              boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2));
-    mCommitCallbackRegistrar.add("Pref.SelectSkin",             boost::bind(&LLFloaterPreference::onSelectSkin, this));
-    mCommitCallbackRegistrar.add("Pref.SetSounds",              boost::bind(&LLFloaterPreference::onClickSetSounds, this));
-    mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",       boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
-    mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",      boost::bind(&LLFloaterPreference::onClickDisablePopup, this));
-    mCommitCallbackRegistrar.add("Pref.LogPath",                boost::bind(&LLFloaterPreference::onClickLogPath, this));
-    mCommitCallbackRegistrar.add("Pref.RenderExceptions",       boost::bind(&LLFloaterPreference::onClickRenderExceptions, this));
-    mCommitCallbackRegistrar.add("Pref.AutoAdjustments",         boost::bind(&LLFloaterPreference::onClickAutoAdjustments, this));
-    mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
-    mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",  boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreference::updateMaxNonImpostors, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",    boost::bind(&LLFloaterPreference::updateMaxComplexity, this));
-    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",     boost::bind(&LLFloaterPreference::onRenderOptionEnable, this));
-    mCommitCallbackRegistrar.add("Pref.WindowedMod",            boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateSliderText",       boost::bind(&LLFloaterPreference::refreshUI,this));
-    mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));
-    mCommitCallbackRegistrar.add("Pref.applyUIColor",           boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
-    mCommitCallbackRegistrar.add("Pref.getUIColor",             boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
-    mCommitCallbackRegistrar.add("Pref.MaturitySettings",       boost::bind(&LLFloaterPreference::onChangeMaturity, this));
-    mCommitCallbackRegistrar.add("Pref.BlockList",              boost::bind(&LLFloaterPreference::onClickBlockList, this));
-    mCommitCallbackRegistrar.add("Pref.Proxy",                  boost::bind(&LLFloaterPreference::onClickProxySettings, this));
-    mCommitCallbackRegistrar.add("Pref.TranslationSettings",    boost::bind(&LLFloaterPreference::onClickTranslationSettings, this));
-    mCommitCallbackRegistrar.add("Pref.AutoReplace",            boost::bind(&LLFloaterPreference::onClickAutoReplace, this));
-    mCommitCallbackRegistrar.add("Pref.PermsDefault",           boost::bind(&LLFloaterPreference::onClickPermsDefault, this));
-    mCommitCallbackRegistrar.add("Pref.RememberedUsernames",    boost::bind(&LLFloaterPreference::onClickRememberedUsernames, this));
-    mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
-    mCommitCallbackRegistrar.add("Pref.Advanced",               boost::bind(&LLFloaterPreference::onClickAdvanced, this));
+    mCommitCallbackRegistrar.add("Pref.ClearCache",             std::bind(&LLFloaterPreference::onClickClearCache, this));
+    mCommitCallbackRegistrar.add("Pref.WebClearCache",          std::bind(&LLFloaterPreference::onClickBrowserClearCache, this));
+    mCommitCallbackRegistrar.add("Pref.SetCache",               std::bind(&LLFloaterPreference::onClickSetCache, this));
+    mCommitCallbackRegistrar.add("Pref.ResetCache",             std::bind(&LLFloaterPreference::onClickResetCache, this));
+    mCommitCallbackRegistrar.add("Pref.ClickSkin",              std::bind(&LLFloaterPreference::onClickSkin, this,_1, _2));
+    mCommitCallbackRegistrar.add("Pref.SelectSkin",             std::bind(&LLFloaterPreference::onSelectSkin, this));
+    mCommitCallbackRegistrar.add("Pref.SetSounds",              std::bind(&LLFloaterPreference::onClickSetSounds, this));
+    mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",       std::bind(&LLFloaterPreference::onClickEnablePopup, this));
+    mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",      std::bind(&LLFloaterPreference::onClickDisablePopup, this));
+    mCommitCallbackRegistrar.add("Pref.LogPath",                std::bind(&LLFloaterPreference::onClickLogPath, this));
+    mCommitCallbackRegistrar.add("Pref.RenderExceptions",       std::bind(&LLFloaterPreference::onClickRenderExceptions, this));
+    mCommitCallbackRegistrar.add("Pref.AutoAdjustments",         std::bind(&LLFloaterPreference::onClickAutoAdjustments, this));
+    mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       std::bind(&LLFloaterPreference::setHardwareDefaults, this));
+    mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",  std::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", std::bind(&LLFloaterPreference::updateMaxNonImpostors, this));
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",    std::bind(&LLFloaterPreference::updateMaxComplexity, this));
+    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",     std::bind(&LLFloaterPreference::onRenderOptionEnable, this));
+    mCommitCallbackRegistrar.add("Pref.WindowedMod",            std::bind(&LLFloaterPreference::onCommitWindowedMode, this));
+    mCommitCallbackRegistrar.add("Pref.UpdateSliderText",       std::bind(&LLFloaterPreference::refreshUI,this));
+    mCommitCallbackRegistrar.add("Pref.QualityPerformance",     std::bind(&LLFloaterPreference::onChangeQuality, this, _2));
+    mCommitCallbackRegistrar.add("Pref.applyUIColor",           std::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
+    mCommitCallbackRegistrar.add("Pref.getUIColor",             std::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
+    mCommitCallbackRegistrar.add("Pref.MaturitySettings",       std::bind(&LLFloaterPreference::onChangeMaturity, this));
+    mCommitCallbackRegistrar.add("Pref.BlockList",              std::bind(&LLFloaterPreference::onClickBlockList, this));
+    mCommitCallbackRegistrar.add("Pref.Proxy",                  std::bind(&LLFloaterPreference::onClickProxySettings, this));
+    mCommitCallbackRegistrar.add("Pref.TranslationSettings",    std::bind(&LLFloaterPreference::onClickTranslationSettings, this));
+    mCommitCallbackRegistrar.add("Pref.AutoReplace",            std::bind(&LLFloaterPreference::onClickAutoReplace, this));
+    mCommitCallbackRegistrar.add("Pref.PermsDefault",           std::bind(&LLFloaterPreference::onClickPermsDefault, this));
+    mCommitCallbackRegistrar.add("Pref.RememberedUsernames",    std::bind(&LLFloaterPreference::onClickRememberedUsernames, this));
+    mCommitCallbackRegistrar.add("Pref.SpellChecker",           std::bind(&LLFloaterPreference::onClickSpellChecker, this));
+    mCommitCallbackRegistrar.add("Pref.Advanced",               std::bind(&LLFloaterPreference::onClickAdvanced, this));
 
     sSkin = gSavedSettings.getString("SkinCurrent");
 
-    mCommitCallbackRegistrar.add("Pref.ClickActionChange",      boost::bind(&LLFloaterPreference::onClickActionChange, this));
+    mCommitCallbackRegistrar.add("Pref.ClickActionChange",      std::bind(&LLFloaterPreference::onClickActionChange, this));
 
-    gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
-    gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
-    gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
+    gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(std::bind(&handleNameTagOptionChanged,  _2));
+    gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(std::bind(&handleNameTagOptionChanged,  _2));
+    gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(std::bind(&handleDisplayNamesOptionChanged,  _2));
 
-    gSavedSettings.getControl("AppearanceCameraMovement")->getCommitSignal()->connect(boost::bind(&handleAppearanceCameraMovementChanged,  _2));
-    gSavedSettings.getControl("WindLightUseAtmosShaders")->getCommitSignal()->connect(boost::bind(&LLFloaterPreference::onAtmosShaderChange, this));
+    gSavedSettings.getControl("AppearanceCameraMovement")->getCommitSignal()->connect(std::bind(&handleAppearanceCameraMovementChanged,  _2));
+    gSavedSettings.getControl("WindLightUseAtmosShaders")->getCommitSignal()->connect(std::bind(&LLFloaterPreference::onAtmosShaderChange, this));
 
     LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 
-    mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPreference::updateComplexityText, this));
-    mImpostorsChangedSignal = gSavedSettings.getControl("RenderAvatarMaxNonImpostors")->getSignal()->connect(boost::bind(&LLFloaterPreference::updateIndirectMaxNonImpostors, this, _2));
+    mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(std::bind(&LLFloaterPreference::updateComplexityText, this));
+    mImpostorsChangedSignal = gSavedSettings.getControl("RenderAvatarMaxNonImpostors")->getSignal()->connect(std::bind(&LLFloaterPreference::updateIndirectMaxNonImpostors, this, _2));
 
-    mCommitCallbackRegistrar.add("Pref.ClearLog",               boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
-    mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
-    mCommitCallbackRegistrar.add("UpdateFilter", boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
+    mCommitCallbackRegistrar.add("Pref.ClearLog",               std::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
+    mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      std::bind(&LLFloaterPreference::onDeleteTranscripts, this));
+    mCommitCallbackRegistrar.add("UpdateFilter", std::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
 #ifdef LL_DISCORD
-    gSavedSettings.getControl("EnableDiscord")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
-    gSavedSettings.getControl("ShowDiscordActivityDetails")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
-    gSavedSettings.getControl("ShowDiscordActivityState")->getCommitSignal()->connect(boost::bind(&LLAppViewer::updateDiscordActivity));
+    gSavedSettings.getControl("EnableDiscord")->getCommitSignal()->connect(std::bind(&LLAppViewer::updateDiscordActivity));
+    gSavedSettings.getControl("ShowDiscordActivityDetails")->getCommitSignal()->connect(std::bind(&LLAppViewer::updateDiscordActivity));
+    gSavedSettings.getControl("ShowDiscordActivityState")->getCommitSignal()->connect(std::bind(&LLAppViewer::updateDiscordActivity));
 #endif
 }
 
@@ -401,7 +404,7 @@ void LLFloaterPreference::saveAvatarProperties( void )
             mAllowPublish = allowPublish;
 
             LLCoros::instance().launch("requestAgentUserInfoCoro",
-                boost::bind(saveAvatarPropertiesCoro, cap_url, allowPublish));
+                std::bind(saveAvatarPropertiesCoro, cap_url, allowPublish));
         }
     }
 }
@@ -444,13 +447,13 @@ bool LLFloaterPreference::postBuild()
     mEnablePopupBtn = getChild<LLButton>("enable_this_popup");
     mDisablePopupBtn = getChild<LLButton>("disable_this_popup");
 
-    gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
+    gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(std::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
 
-    gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
+    gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(std::bind(&LLViewerChat::signalChatFontChanged));
 
-    gSavedSettings.getControl("ChatBubbleOpacity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onNameTagOpacityChange, this, _2));
+    gSavedSettings.getControl("ChatBubbleOpacity")->getSignal()->connect(std::bind(&LLFloaterPreference::onNameTagOpacityChange, this, _2));
 
-    gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeMaturity, this));
+    gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(std::bind(&LLFloaterPreference::onChangeMaturity, this));
 
     gSavedSettings.getControl("RenderAvatarComplexityMode")->getSignal()->connect(
         [this](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
@@ -458,11 +461,11 @@ bool LLFloaterPreference::postBuild()
             onChangeComplexityMode(new_val);
         });
 
-    gSavedPerAccountSettings.getControl("ModelUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeModelFolder, this));
-    gSavedPerAccountSettings.getControl("PBRUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangePBRFolder, this));
-    gSavedPerAccountSettings.getControl("TextureUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeTextureFolder, this));
-    gSavedPerAccountSettings.getControl("SoundUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeSoundFolder, this));
-    gSavedPerAccountSettings.getControl("AnimationUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeAnimationFolder, this));
+    gSavedPerAccountSettings.getControl("ModelUploadFolder")->getSignal()->connect(std::bind(&LLFloaterPreference::onChangeModelFolder, this));
+    gSavedPerAccountSettings.getControl("PBRUploadFolder")->getSignal()->connect(std::bind(&LLFloaterPreference::onChangePBRFolder, this));
+    gSavedPerAccountSettings.getControl("TextureUploadFolder")->getSignal()->connect(std::bind(&LLFloaterPreference::onChangeTextureFolder, this));
+    gSavedPerAccountSettings.getControl("SoundUploadFolder")->getSignal()->connect(std::bind(&LLFloaterPreference::onChangeSoundFolder, this));
+    gSavedPerAccountSettings.getControl("AnimationUploadFolder")->getSignal()->connect(std::bind(&LLFloaterPreference::onChangeAnimationFolder, this));
 
     LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
     if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
@@ -475,16 +478,16 @@ bool LLFloaterPreference::postBuild()
     getChild<LLUICtrl>("log_path_string")->setEnabled(false); // make it read-only but selectable
 
     mLanguageCombobox = getChild<LLComboBox>("language_combobox");
-    mLanguageCombobox->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
+    mLanguageCombobox->setCommitCallback(std::bind(&LLFloaterPreference::onLanguageChange, this));
     mTimeFormatCombobox = getChild<LLComboBox>("time_format_combobox");
-    mTimeFormatCombobox->setCommitCallback(boost::bind(&LLFloaterPreference::onTimeFormatChange, this));
+    mTimeFormatCombobox->setCommitCallback(std::bind(&LLFloaterPreference::onTimeFormatChange, this));
 
-    getChild<LLComboBox>("FriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"FriendIMOptions"));
-    getChild<LLComboBox>("NonFriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NonFriendIMOptions"));
-    getChild<LLComboBox>("ConferenceIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"ConferenceIMOptions"));
-    getChild<LLComboBox>("GroupChatOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"GroupChatOptions"));
-    getChild<LLComboBox>("NearbyChatOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NearbyChatOptions"));
-    getChild<LLComboBox>("ObjectIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"ObjectIMOptions"));
+    getChild<LLComboBox>("FriendIMOptions")->setCommitCallback(std::bind(&LLFloaterPreference::onNotificationsChange, this,"FriendIMOptions"));
+    getChild<LLComboBox>("NonFriendIMOptions")->setCommitCallback(std::bind(&LLFloaterPreference::onNotificationsChange, this,"NonFriendIMOptions"));
+    getChild<LLComboBox>("ConferenceIMOptions")->setCommitCallback(std::bind(&LLFloaterPreference::onNotificationsChange, this,"ConferenceIMOptions"));
+    getChild<LLComboBox>("GroupChatOptions")->setCommitCallback(std::bind(&LLFloaterPreference::onNotificationsChange, this,"GroupChatOptions"));
+    getChild<LLComboBox>("NearbyChatOptions")->setCommitCallback(std::bind(&LLFloaterPreference::onNotificationsChange, this,"NearbyChatOptions"));
+    getChild<LLComboBox>("ObjectIMOptions")->setCommitCallback(std::bind(&LLFloaterPreference::onNotificationsChange, this,"ObjectIMOptions"));
 
     // if floater is opened before login set default localized do not disturb message
     if (LLStartUp::getStartupState() < STATE_STARTED)
@@ -495,7 +498,7 @@ bool LLFloaterPreference::postBuild()
     // set 'enable' property for 'Clear log...' button
     changed();
 
-    LLLogChat::getInstance()->setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
+    LLLogChat::getInstance()->setSaveHistorySignal(std::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
 
     LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
     fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
@@ -506,7 +509,7 @@ bool LLFloaterPreference::postBuild()
 
     // Hook up and init for filtering
     mFilterEdit = getChild<LLSearchEditor>("search_prefs_edit");
-    mFilterEdit->setKeystrokeCallback(boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false));
+    mFilterEdit->setKeystrokeCallback(std::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false));
 
     // Load and assign label for 'default language'
     std::string user_filename = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "default_languages.xml");
@@ -723,7 +726,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
         initialized = true;
         // this connection is needed to properly set "DoNotDisturbResponseChanged" setting when user makes changes in
         // do not disturb response message.
-        gSavedPerAccountSettings.getControl("DoNotDisturbModeResponse")->getSignal()->connect(boost::bind(&LLFloaterPreference::onDoNotDisturbResponseChanged, this));
+        gSavedPerAccountSettings.getControl("DoNotDisturbModeResponse")->getSignal()->connect(std::bind(&LLFloaterPreference::onDoNotDisturbResponseChanged, this));
     }
     gAgent.sendAgentUserInfoRequest();
 
@@ -1156,7 +1159,7 @@ void LLFloaterPreference::onClickSetCache()
 
     std::string proposed_name(cur_name);
 
-    (new LLDirPickerThread(boost::bind(&LLFloaterPreference::changeCachePath, this, _1, _2), proposed_name))->getFile();
+    (new LLDirPickerThread(std::bind(&LLFloaterPreference::changeCachePath, this, _1, _2), proposed_name))->getFile();
 }
 
 void LLFloaterPreference::changeCachePath(const std::vector<std::string>& filenames, std::string proposed_name)
@@ -1463,7 +1466,7 @@ void LLFloaterPreference::onClickLogPath()
     mPriorInstantMessageLogPath.clear();
 
 
-    (new LLDirPickerThread(boost::bind(&LLFloaterPreference::changeLogPath, this, _1, _2), proposed_name))->getFile();
+    (new LLDirPickerThread(std::bind(&LLFloaterPreference::changeLogPath, this, _1, _2), proposed_name))->getFile();
 }
 
 void LLFloaterPreference::changeLogPath(const std::vector<std::string>& filenames, std::string proposed_name)
@@ -1905,7 +1908,7 @@ void LLFloaterPreference::onDeleteTranscripts()
     LLSD args;
     args["FOLDER"] = gDirUtilp->getUserName();
 
-    LLNotificationsUtil::add("PreferenceChatDeleteTranscripts", args, LLSD(), boost::bind(&LLFloaterPreference::onDeleteTranscriptsResponse, this, _1, _2));
+    LLNotificationsUtil::add("PreferenceChatDeleteTranscripts", args, LLSD(), std::bind(&LLFloaterPreference::onDeleteTranscriptsResponse, this, _1, _2));
 }
 
 void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, const LLSD& response)
@@ -2127,11 +2130,11 @@ LLPanelPreference::LLPanelPreference()
 : LLPanel(),
   mBandWidthUpdater(NULL)
 {
-    mCommitCallbackRegistrar.add("Pref.setControlFalse",    boost::bind(&LLPanelPreference::setControlFalse,this, _2));
-    mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",    boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
-    mCommitCallbackRegistrar.add("Pref.PrefDelete", boost::bind(&LLPanelPreference::deletePreset, this, _2));
-    mCommitCallbackRegistrar.add("Pref.PrefSave",   boost::bind(&LLPanelPreference::savePreset, this, _2));
-    mCommitCallbackRegistrar.add("Pref.PrefLoad",   boost::bind(&LLPanelPreference::loadPreset, this, _2));
+    mCommitCallbackRegistrar.add("Pref.setControlFalse",    std::bind(&LLPanelPreference::setControlFalse,this, _2));
+    mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",    std::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
+    mCommitCallbackRegistrar.add("Pref.PrefDelete", std::bind(&LLPanelPreference::deletePreset, this, _2));
+    mCommitCallbackRegistrar.add("Pref.PrefSave",   std::bind(&LLPanelPreference::savePreset, this, _2));
+    mCommitCallbackRegistrar.add("Pref.PrefLoad",   std::bind(&LLPanelPreference::loadPreset, this, _2));
 }
 
 //virtual
@@ -2186,15 +2189,15 @@ bool LLPanelPreference::postBuild()
     }
     if (hasChild("voice_call_friends_only_check", true))
     {
-        getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
+        getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(std::bind(&showFriendsOnlyWarning, _1, _2));
     }
     if (hasChild("allow_multiple_viewer_check", true))
     {
-        getChild<LLCheckBoxCtrl>("allow_multiple_viewer_check")->setCommitCallback(boost::bind(&showMultipleViewersWarning, _1, _2));
+        getChild<LLCheckBoxCtrl>("allow_multiple_viewer_check")->setCommitCallback(std::bind(&showMultipleViewersWarning, _1, _2));
     }
     if (hasChild("favorites_on_login_check", true))
     {
-        getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(boost::bind(&handleFavoritesOnLoginChanged, _1, _2));
+        getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(std::bind(&handleFavoritesOnLoginChanged, _1, _2));
         bool show_favorites_at_login = LLPanelLogin::getShowFavorites();
         getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setValue(show_favorites_at_login);
     }
@@ -2202,14 +2205,14 @@ bool LLPanelPreference::postBuild()
     {
         getChild<LLTextBox>("mute_chb_label")->setShowCursorHand(false);
         getChild<LLTextBox>("mute_chb_label")->setSoundFlags(LLView::MOUSE_UP);
-        getChild<LLTextBox>("mute_chb_label")->setClickedCallback(boost::bind(&toggleMuteWhenMinimized));
+        getChild<LLTextBox>("mute_chb_label")->setClickedCallback(std::bind(&toggleMuteWhenMinimized));
     }
 
     //////////////////////PanelSetup ///////////////////
     if (hasChild("max_bandwidth", true))
     {
-        mBandWidthUpdater = new LLPanelPreference::Updater(boost::bind(&handleBandwidthChanged, _1), BANDWIDTH_UPDATER_TIMEOUT);
-        gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->connect(boost::bind(&LLPanelPreference::Updater::update, mBandWidthUpdater, _2));
+        mBandWidthUpdater = new LLPanelPreference::Updater(std::bind(&handleBandwidthChanged, _1), BANDWIDTH_UPDATER_TIMEOUT);
+        gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->connect(std::bind(&LLPanelPreference::Updater::update, mBandWidthUpdater, _2));
     }
 
 #ifdef EXTERNAL_TOS
@@ -2461,7 +2464,7 @@ bool LLPanelPreferenceGraphics::postBuild()
     setPresetText();
 
     LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
-    presetsMgr->setPresetListChangeCallback(boost::bind(&LLPanelPreferenceGraphics::onPresetsListChange, this));
+    presetsMgr->setPresetListChangeCallback(std::bind(&LLPanelPreferenceGraphics::onPresetsListChange, this));
     presetsMgr->createMissingDefault(PRESETS_GRAPHIC); // a no-op after the first time, but that's ok
 
     return LLPanelPreference::postBuild();
@@ -2644,9 +2647,9 @@ bool LLPanelPreferenceControls::postBuild()
     pControlsTable = getChild<LLScrollListCtrl>("controls_list");
     pKeyModeBox = getChild<LLComboBox>("key_mode");
 
-    pControlsTable->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onListCommit, this));
-    pKeyModeBox->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onModeCommit, this));
-    getChild<LLButton>("restore_defaults")->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onRestoreDefaultsBtn, this));
+    pControlsTable->setCommitCallback(std::bind(&LLPanelPreferenceControls::onListCommit, this));
+    pKeyModeBox->setCommitCallback(std::bind(&LLPanelPreferenceControls::onModeCommit, this));
+    getChild<LLButton>("restore_defaults")->setCommitCallback(std::bind(&LLPanelPreferenceControls::onRestoreDefaultsBtn, this));
 
     return true;
 }
@@ -2996,7 +2999,7 @@ void LLPanelPreferenceControls::onModeCommit()
 
 void LLPanelPreferenceControls::onRestoreDefaultsBtn()
 {
-    LLNotificationsUtil::add("PreferenceControlsDefaults", LLSD(), LLSD(), boost::bind(&LLPanelPreferenceControls::onRestoreDefaultsResponse, this, _1, _2));
+    LLNotificationsUtil::add("PreferenceControlsDefaults", LLSD(), LLSD(), std::bind(&LLPanelPreferenceControls::onRestoreDefaultsResponse, this, _1, _2));
 }
 
 void LLPanelPreferenceControls::onRestoreDefaultsResponse(const LLSD& notification, const LLSD& response)
@@ -3231,9 +3234,9 @@ LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
     : LLFloater(key),
       mSocksSettingsDirty(false)
 {
-    mCommitCallbackRegistrar.add("Proxy.OK",                boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this));
-    mCommitCallbackRegistrar.add("Proxy.Cancel",            boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this));
-    mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
+    mCommitCallbackRegistrar.add("Proxy.OK",                std::bind(&LLFloaterPreferenceProxy::onBtnOk, this));
+    mCommitCallbackRegistrar.add("Proxy.Cancel",            std::bind(&LLFloaterPreferenceProxy::onBtnCancel, this));
+    mCommitCallbackRegistrar.add("Proxy.Change",            std::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
 }
 
 LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()

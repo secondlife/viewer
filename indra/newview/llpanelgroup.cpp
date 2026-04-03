@@ -55,6 +55,7 @@
 #include "llaccordionctrl.h"
 
 #include "lltrans.h"
+#include <functional>
 
 static LLPanelInjector<LLPanelGroup> t_panel_group("panel_group_info_sidetray");
 
@@ -166,7 +167,7 @@ bool LLPanelGroup::postBuild()
 
     mGroupNameCtrl = getChild<LLUICtrl>("group_name");
 
-    childSetCommitCallback("back",boost::bind(&LLPanelGroup::onBackBtnClick,this),NULL);
+    childSetCommitCallback("back",std::bind(&LLPanelGroup::onBackBtnClick,this),NULL);
 
     LLPanelGroupTab* panel_general = findChild<LLPanelGroupTab>("group_general_tab_panel");
     LLPanelGroupTab* panel_roles = findChild<LLPanelGroupTab>("group_roles_tab_panel");
@@ -188,14 +189,14 @@ bool LLPanelGroup::postBuild()
         button->setEnabled(true);
 
         mButtonJoin = button;
-        mButtonJoin->setCommitCallback(boost::bind(&LLPanelGroup::onBtnJoin,this));
+        mButtonJoin->setCommitCallback(std::bind(&LLPanelGroup::onBtnJoin,this));
 
         mJoinText = panel_general->getChild<LLUICtrl>("join_cost_text");
 
         mButtonActivate = panel_general->getChild<LLButton>("btn_activate");
         mButtonActivate->setVisible(false);
         mButtonActivate->setEnabled(gAgent.getGroupID() != mID);
-        mButtonActivate->setCommitCallback(boost::bind(&LLPanelGroup::onBtnActivate, this));
+        mButtonActivate->setCommitCallback(std::bind(&LLPanelGroup::onBtnActivate, this));
 
         gAgent.addListener(this, "new group");
     }

@@ -46,6 +46,9 @@
 #include "llfloaterreg.h"
 #include "lltextbox.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLFetchAvatarData;
 
@@ -182,10 +185,10 @@ LLInspectAvatar::~LLInspectAvatar()
 bool LLInspectAvatar::postBuild(void)
 {
     getChild<LLUICtrl>("mute_btn")->setCommitCallback(
-        boost::bind(&LLInspectAvatar::onClickMuteVolume, this) );
+        std::bind(&LLInspectAvatar::onClickMuteVolume, this) );
 
     getChild<LLUICtrl>("volume_slider")->setCommitCallback(
-        boost::bind(&LLInspectAvatar::onVolumeChange, this, _2));
+        std::bind(&LLInspectAvatar::onVolumeChange, this, _2));
 
     return true;
 }
@@ -255,7 +258,7 @@ void LLInspectAvatar::requestUpdate()
     {
         mAvatarNameCacheConnection.disconnect();
     }
-    mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID,boost::bind(&LLInspectAvatar::onAvatarNameCache,this, _1, _2));
+    mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID,std::bind(&LLInspectAvatar::onAvatarNameCache,this, _1, _2));
 }
 
 void LLInspectAvatar::processAvatarData(LLAvatarData* data)

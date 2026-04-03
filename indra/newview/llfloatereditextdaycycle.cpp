@@ -65,6 +65,9 @@
 
 #include "llenvironment.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 extern LLControlGroup gSavedSettings;
 
@@ -670,7 +673,7 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl)
     {
         LLSD args;
         args["DESC"] = dayclone->getName();
-        LLNotificationsUtil::add("SaveSettingAs", args, LLSD(), boost::bind(&LLFloaterEditExtDayCycle::onSaveAsCommit, this, _1, _2, dayclone));
+        LLNotificationsUtil::add("SaveSettingAs", args, LLSD(), std::bind(&LLFloaterEditExtDayCycle::onSaveAsCommit, this, _1, _2, dayclone));
     }
     else if ((ctrl_action == ACTION_APPLY_LOCAL) ||
         (ctrl_action == ACTION_APPLY_PARCEL) ||
@@ -1521,7 +1524,7 @@ bool LLFloaterEditExtDayCycle::isAddingFrameAllowed()
 
 void LLFloaterEditExtDayCycle::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
-    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterEditExtDayCycle::loadSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
+    LLFilePickerReplyThread::startPicker(std::bind(&LLFloaterEditExtDayCycle::loadSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
 }
 
 void LLFloaterEditExtDayCycle::loadSettingFromFile(const std::vector<std::string>& filenames)

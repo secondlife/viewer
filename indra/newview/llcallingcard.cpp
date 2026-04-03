@@ -50,6 +50,9 @@
 #include "llvoavatar.h"
 #include "llavataractions.h"
 #include "lluiusage.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -732,7 +735,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
             if(chat_notify)
             {
                 // Look up the name of this agent for the notification
-                LLAvatarNameCache::get(agent_id,boost::bind(&on_avatar_name_cache_notify,_1, _2, online, payload));
+                LLAvatarNameCache::get(agent_id,std::bind(&on_avatar_name_cache_notify,_1, _2, online, payload));
             }
         }
 
@@ -764,7 +767,7 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
             LLNotifications::instance().add("FriendOnlineOffline",
                                      args,
                                      payload.with("respond_on_mousedown", true),
-                                     boost::bind(&LLAvatarActions::startIM, agent_id));
+                                     std::bind(&LLAvatarActions::startIM, agent_id));
     }
     else
     {

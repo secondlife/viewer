@@ -39,6 +39,9 @@
 #include "lltabcontainer.h"
 #include "lltrans.h"
 #include "llviewerregion.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 #define SHOW_RECENT_TAB (0)
@@ -66,7 +69,7 @@ bool LLFloaterExperiences::postBuild()
     addTab("Admin_Experiences_Tab", false);
     addTab("Contrib_Experiences_Tab", false);
     LLPanelExperiences* owned = addTab("Owned_Experiences_Tab", false);
-    owned->setButtonAction("acquire", boost::bind(&LLFloaterExperiences::sendPurchaseRequest, this));
+    owned->setButtonAction("acquire", std::bind(&LLFloaterExperiences::sendPurchaseRequest, this));
     owned->enableButton(false);
 #if SHOW_RECENT_TAB
     addTab("Recent_Experiences_Tab", false);
@@ -153,7 +156,7 @@ void LLFloaterExperiences::refreshContents()
         updateInfo("GetCreatorExperiences","Contrib_Experiences_Tab");
 
         retrieveExperienceList(region->getCapability("AgentExperiences"), handle, tabMap,
-            "ExperienceAcquireFailed", boost::bind(&LLFloaterExperiences::checkPurchaseInfo, this, _1, _2));
+            "ExperienceAcquireFailed", std::bind(&LLFloaterExperiences::checkPurchaseInfo, this, _1, _2));
     }
 }
 
@@ -161,7 +164,7 @@ void LLFloaterExperiences::onOpen( const LLSD& key )
 {
     LLEventPumps::instance().obtain("experience_permission").stopListening("LLFloaterExperiences");
     LLEventPumps::instance().obtain("experience_permission").listen("LLFloaterExperiences",
-        boost::bind(&LLFloaterExperiences::updatePermissions, this, _1));
+        std::bind(&LLFloaterExperiences::updatePermissions, this, _1));
 
     LLViewerRegion* region = gAgent.getRegion();
     if(region)
@@ -171,7 +174,7 @@ void LLFloaterExperiences::onOpen( const LLSD& key )
             refreshContents();
             return;
         }
-        mCapsReceivedConnection = region->setCapabilitiesReceivedCallback(boost::bind(&LLFloaterExperiences::refreshContents, this));
+        mCapsReceivedConnection = region->setCapabilitiesReceivedCallback(std::bind(&LLFloaterExperiences::refreshContents, this));
         return;
     }
 }
@@ -306,7 +309,7 @@ void LLFloaterExperiences::sendPurchaseRequest()
         }
 
         requestNewExperience(region->getCapability("AgentExperiences"), handle, tabMap, "ExperienceAcquireFailed",
-            boost::bind(&LLFloaterExperiences::checkAndOpen, this, _1, _2));
+            std::bind(&LLFloaterExperiences::checkAndOpen, this, _1, _2));
     }
 }
 
@@ -321,7 +324,7 @@ void LLFloaterExperiences::retrieveExperienceList(const std::string &url,
     const std::string &errorNotify, Callback_t cback)
 
 {
-    invokationFn_t getFn = boost::bind(
+    invokationFn_t getFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -333,7 +336,7 @@ void LLFloaterExperiences::retrieveExperienceList(const std::string &url,
         (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _4, _5);
 
     LLCoros::instance().launch("LLFloaterExperiences::retrieveExperienceList",
-        boost::bind(&LLFloaterExperiences::retrieveExperienceListCoro,
+        std::bind(&LLFloaterExperiences::retrieveExperienceListCoro,
         url, hparent, tabMapping, errorNotify, cback, getFn));
 
 }
@@ -342,7 +345,7 @@ void LLFloaterExperiences::requestNewExperience(const std::string &url,
     const LLHandle<LLFloaterExperiences> &hparent, const NameMap_t &tabMapping,
     const std::string &errorNotify, Callback_t cback)
 {
-    invokationFn_t postFn = boost::bind(
+    invokationFn_t postFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -354,7 +357,7 @@ void LLFloaterExperiences::requestNewExperience(const std::string &url,
         (&LLCoreHttpUtil::HttpCoroutineAdapter::postAndSuspend), _1, _2, _3, LLSD(), _4, _5);
 
     LLCoros::instance().launch("LLFloaterExperiences::requestNewExperience",
-        boost::bind(&LLFloaterExperiences::retrieveExperienceListCoro,
+        std::bind(&LLFloaterExperiences::retrieveExperienceListCoro,
         url, hparent, tabMapping, errorNotify, cback, postFn));
 
 }

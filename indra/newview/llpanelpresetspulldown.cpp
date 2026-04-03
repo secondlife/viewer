@@ -40,6 +40,9 @@
 #include "llsliderctrl.h"
 #include "llscrolllistctrl.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Class LLPanelPresetsPulldown
@@ -50,9 +53,9 @@ LLPanelPresetsPulldown::LLPanelPresetsPulldown()
 {
     mHoverTimer.stop();
 
-    mCommitCallbackRegistrar.add("Presets.GoGraphicsPrefs", boost::bind(&LLPanelPresetsPulldown::onGraphicsButtonClick, this, _2));
-    mCommitCallbackRegistrar.add("Presets.GoAutofpsPrefs", boost::bind(&LLPanelPresetsPulldown::onAutofpsButtonClick, this, _2));
-    mCommitCallbackRegistrar.add("Presets.RowClick", boost::bind(&LLPanelPresetsPulldown::onRowClick, this, _2));
+    mCommitCallbackRegistrar.add("Presets.GoGraphicsPrefs", std::bind(&LLPanelPresetsPulldown::onGraphicsButtonClick, this, _2));
+    mCommitCallbackRegistrar.add("Presets.GoAutofpsPrefs", std::bind(&LLPanelPresetsPulldown::onAutofpsButtonClick, this, _2));
+    mCommitCallbackRegistrar.add("Presets.RowClick", std::bind(&LLPanelPresetsPulldown::onRowClick, this, _2));
 
     buildFromFile( "panel_presets_pulldown.xml");
 }
@@ -60,7 +63,7 @@ LLPanelPresetsPulldown::LLPanelPresetsPulldown()
 bool LLPanelPresetsPulldown::postBuild()
 {
     LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
-    presetsMgr->setPresetListChangeCallback(boost::bind(&LLPanelPresetsPulldown::populatePanel, this));
+    presetsMgr->setPresetListChangeCallback(std::bind(&LLPanelPresetsPulldown::populatePanel, this));
     // Make sure there is a default preference file
     presetsMgr->createMissingDefault(PRESETS_GRAPHIC);
 

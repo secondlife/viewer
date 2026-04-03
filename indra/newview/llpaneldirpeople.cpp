@@ -33,6 +33,9 @@
 // viewer project includes
 #include "llqueryflags.h"
 #include "llnotificationsutil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLPanelDirPeople> t_panel_dir_people("panel_dir_people");
 
@@ -46,7 +49,7 @@ bool LLPanelDirPeople::postBuild()
 {
     LLPanelDirBrowser::postBuild();
 
-    //getChild<LLLineEditor>("name")->setKeystrokeCallback(boost::bind(&LLPanelDirBrowser::onKeystrokeName, _1, _2), NULL);
+    //getChild<LLLineEditor>("name")->setKeystrokeCallback(std::bind(&LLPanelDirBrowser::onKeystrokeName, _1, _2), NULL);
 
     childSetAction("Search", &LLPanelDirBrowser::onClickSearchCore, this);
     setDefaultBtn( "Search" );

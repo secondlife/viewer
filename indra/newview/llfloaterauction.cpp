@@ -56,6 +56,9 @@
 #include "llsdutil_math.h"
 #include "lltrans.h"
 #include "llcorehttputil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -75,10 +78,10 @@ LLFloaterAuction::LLFloaterAuction(const LLSD& key)
   : LLFloater(key),
     mParcelID(-1)
 {
-    mCommitCallbackRegistrar.add("ClickSnapshot",   boost::bind(&LLFloaterAuction::onClickSnapshot, this));
-    mCommitCallbackRegistrar.add("ClickSellToAnyone",       boost::bind(&LLFloaterAuction::onClickSellToAnyone, this));
-    mCommitCallbackRegistrar.add("ClickStartAuction",       boost::bind(&LLFloaterAuction::onClickStartAuction, this));
-    mCommitCallbackRegistrar.add("ClickResetParcel",        boost::bind(&LLFloaterAuction::onClickResetParcel, this));
+    mCommitCallbackRegistrar.add("ClickSnapshot",   std::bind(&LLFloaterAuction::onClickSnapshot, this));
+    mCommitCallbackRegistrar.add("ClickSellToAnyone",       std::bind(&LLFloaterAuction::onClickSellToAnyone, this));
+    mCommitCallbackRegistrar.add("ClickStartAuction",       std::bind(&LLFloaterAuction::onClickStartAuction, this));
+    mCommitCallbackRegistrar.add("ClickResetParcel",        std::bind(&LLFloaterAuction::onClickResetParcel, this));
 }
 
 // Destroys the object
@@ -446,7 +449,7 @@ void LLFloaterAuction::onClickSellToAnyone(void* data)
 
         LLNotification::Params params("ConfirmLandSaleChange"); // Re-use existing dialog
         params.substitutions(args)
-            .functor.function(boost::bind(&LLFloaterAuction::onSellToAnyoneConfirmed, self, _1, _2));
+            .functor.function(std::bind(&LLFloaterAuction::onSellToAnyoneConfirmed, self, _1, _2));
 
         params.name("ConfirmLandSaleToAnyoneChange");
 

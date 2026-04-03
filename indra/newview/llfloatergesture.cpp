@@ -50,6 +50,9 @@
 #include "llviewerinventory.h"
 #include "llviewercontrol.h"
 #include "llfloaterperms.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 bool item_name_precedes( LLInventoryItem* a, LLInventoryItem* b )
 {
@@ -122,13 +125,13 @@ LLFloaterGesture::LLFloaterGesture(const LLSD& key)
     mObserver = new LLFloaterGestureObserver(this);
     LLGestureMgr::instance().addObserver(mObserver);
 
-    mCommitCallbackRegistrar.add("Gesture.Action.ToggleActiveState", boost::bind(&LLFloaterGesture::onActivateBtnClick, this));
-    mCommitCallbackRegistrar.add("Gesture.Action.ShowPreview", boost::bind(&LLFloaterGesture::onClickEdit, this));
-    mCommitCallbackRegistrar.add("Gesture.Action.CopyPaste", boost::bind(&LLFloaterGesture::onCopyPasteAction, this, _2));
-    mCommitCallbackRegistrar.add("Gesture.Action.SaveToCOF", boost::bind(&LLFloaterGesture::addToCurrentOutFit, this));
-    mCommitCallbackRegistrar.add("Gesture.Action.Rename", boost::bind(&LLFloaterGesture::onRenameSelected, this));
+    mCommitCallbackRegistrar.add("Gesture.Action.ToggleActiveState", std::bind(&LLFloaterGesture::onActivateBtnClick, this));
+    mCommitCallbackRegistrar.add("Gesture.Action.ShowPreview", std::bind(&LLFloaterGesture::onClickEdit, this));
+    mCommitCallbackRegistrar.add("Gesture.Action.CopyPaste", std::bind(&LLFloaterGesture::onCopyPasteAction, this, _2));
+    mCommitCallbackRegistrar.add("Gesture.Action.SaveToCOF", std::bind(&LLFloaterGesture::addToCurrentOutFit, this));
+    mCommitCallbackRegistrar.add("Gesture.Action.Rename", std::bind(&LLFloaterGesture::onRenameSelected, this));
 
-    mEnableCallbackRegistrar.add("Gesture.EnableAction", boost::bind(&LLFloaterGesture::isActionEnabled, this, _2));
+    mEnableCallbackRegistrar.add("Gesture.EnableAction", std::bind(&LLFloaterGesture::isActionEnabled, this, _2));
 }
 
 void LLFloaterGesture::done()
@@ -196,17 +199,17 @@ bool LLFloaterGesture::postBuild()
 
     setTitle(label);
     mGestureList = getChild<LLScrollListCtrl>("gesture_list");
-    mGestureList->setCommitCallback(boost::bind(&LLFloaterGesture::onCommitList, this));
-    mGestureList->setDoubleClickCallback(boost::bind(&LLFloaterGesture::onClickPlay, this));
+    mGestureList->setCommitCallback(std::bind(&LLFloaterGesture::onCommitList, this));
+    mGestureList->setDoubleClickCallback(std::bind(&LLFloaterGesture::onClickPlay, this));
 
-    getChild<LLUICtrl>("edit_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickEdit, this));
+    getChild<LLUICtrl>("edit_btn")->setCommitCallback(std::bind(&LLFloaterGesture::onClickEdit, this));
 
-    getChild<LLUICtrl>("play_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickPlay, this));
-    getChild<LLUICtrl>("stop_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickPlay, this));
-    getChild<LLButton>("activate_btn")->setClickedCallback(boost::bind(&LLFloaterGesture::onActivateBtnClick, this));
+    getChild<LLUICtrl>("play_btn")->setCommitCallback(std::bind(&LLFloaterGesture::onClickPlay, this));
+    getChild<LLUICtrl>("stop_btn")->setCommitCallback(std::bind(&LLFloaterGesture::onClickPlay, this));
+    getChild<LLButton>("activate_btn")->setClickedCallback(std::bind(&LLFloaterGesture::onActivateBtnClick, this));
 
-    getChild<LLUICtrl>("new_gesture_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickNew, this));
-    getChild<LLButton>("del_btn")->setClickedCallback(boost::bind(&LLFloaterGesture::onDeleteSelected, this));
+    getChild<LLUICtrl>("new_gesture_btn")->setCommitCallback(std::bind(&LLFloaterGesture::onClickNew, this));
+    getChild<LLButton>("del_btn")->setClickedCallback(std::bind(&LLFloaterGesture::onDeleteSelected, this));
 
     getChildView("play_btn")->setVisible( true);
     getChildView("stop_btn")->setVisible( false);
@@ -475,7 +478,7 @@ void LLFloaterGesture::onClickPlay()
         // we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboList.
         bool inform_server = true;
         bool deactivate_similar = false;
-        LLGestureMgr::instance().setGestureLoadedCallback(item_id, boost::bind(&LLFloaterGesture::playGesture, this, item_id));
+        LLGestureMgr::instance().setGestureLoadedCallback(item_id, std::bind(&LLFloaterGesture::playGesture, this, item_id));
         LLViewerInventoryItem *item = gInventory.getItem(item_id);
         llassert(item);
         if (item)
@@ -559,7 +562,7 @@ void LLFloaterGesture::onRenameSelected()
     LLSD payload;
     payload["gesture_id"] = mGestureList->getCurrentID();
 
-    LLNotificationsUtil::add("RenameGesture", args, payload, boost::bind(onGestureRename, _1, _2));
+    LLNotificationsUtil::add("RenameGesture", args, payload, std::bind(onGestureRename, _1, _2));
 
 }
 

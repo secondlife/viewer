@@ -28,6 +28,7 @@
 #include "llbutton.h"
 #include "llnotifications.h"
 #include "lltoastscriptquestion.h"
+#include <functional>
 
 const int LEFT_PAD = 10;
 const int BUTTON_HEIGHT = 27;
@@ -167,7 +168,7 @@ void LLToastScriptQuestion::createButtons()
             p.layout("topleft");
             p.font(font);
             p.rect.height(BUTTON_HEIGHT);
-            p.click_callback.function(boost::bind(&LLToastScriptQuestion::onButtonClicked, this, form_element["name"].asString()));
+            p.click_callback.function(std::bind(&LLToastScriptQuestion::onButtonClicked, this, form_element["name"].asString()));
             p.rect.left = LEFT_PAD;
             p.rect.width = font->getWidth(form_element["text"].asString());
             p.auto_resize = true;

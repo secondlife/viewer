@@ -97,6 +97,8 @@
 #include "stringize.h"
 #include "llcorehttputil.h"
 #include "lluiusage.h"
+#include <functional>
+
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -480,7 +482,7 @@ void LLAgent::init()
     mMoveTimer.start();
 
     gSavedSettings.declareBOOL("SlowMotionAnimation", false, "Declared in code", LLControlVariable::PERSIST_NO);
-    gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect(boost::bind(&handleSlowMotionAnimation, _2));
+    gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect([](LLControlVariable*, const LLSD& newval, const LLSD&) { handleSlowMotionAnimation(newval); });
 
     // *Note: this is where LLViewerCamera::getInstance() used to be constructed.
 
@@ -492,19 +494,19 @@ void LLAgent::init()
 
     *mEffectColor = LLUIColorTable::instance().getColor("EffectColor");
 
-    gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
-    gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2));
+    gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect([this](LLControlVariable*, const LLSD& newval) { return validateMaturity(newval); });
+    gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect([this](LLControlVariable*, const LLSD& newval, const LLSD&) { handleMaturity(newval); });
     mLastKnownResponseMaturity = static_cast<U8>(gSavedSettings.getU32("PreferredMaturity"));
     mLastKnownRequestMaturity = mLastKnownResponseMaturity;
     mIsDoSendMaturityPreferenceToServer = true;
 
     if (!mTeleportFinishedSlot.connected())
     {
-        mTeleportFinishedSlot = LLViewerParcelMgr::getInstance()->setTeleportFinishedCallback(boost::bind(&LLAgent::handleTeleportFinished, this));
+        mTeleportFinishedSlot = LLViewerParcelMgr::getInstance()->setTeleportFinishedCallback([this](const LLVector3d&, const bool&) { handleTeleportFinished(); });
     }
     if (!mTeleportFailedSlot.connected())
     {
-        mTeleportFailedSlot = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(boost::bind(&LLAgent::handleTeleportFailed, this));
+        mTeleportFailedSlot = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback([this]() { handleTeleportFailed(); });
     }
 
     LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
@@ -2571,7 +2573,7 @@ void LLAgent::setStartPosition( U32 location_id )
     body["HomeLocation"] = homeLocation;
 
     if (!requestPostCapability("HomeLocation", body,
-            boost::bind(&LLAgent::setStartPositionSuccess, this, _1)))
+            [this](const LLSD& result) { setStartPositionSuccess(result); }))
         LL_WARNS() << "Unable to post to HomeLocation capability." << LL_ENDL;
 }
 
@@ -2915,8 +2917,8 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
         LL_INFOS() << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity) << LL_ENDL;
 
         if (!requestPostCapability("UpdateAgentInformation", postData,
-            static_cast<httpCallback_t>(boost::bind(&LLAgent::processMaturityPreferenceFromServer, this, _1, pPreferredMaturity)),
-            static_cast<httpCallback_t>(boost::bind(&LLAgent::handlePreferredMaturityError, this))
+            static_cast<httpCallback_t>([this, pPreferredMaturity](const LLSD& result) { processMaturityPreferenceFromServer(result, pPreferredMaturity); }),
+            static_cast<httpCallback_t>([this](const LLSD&) { handlePreferredMaturityError(); })
             ))
         {
             LL_WARNS("Agent") << "Maturity request post failed." << LL_ENDL;
@@ -4135,7 +4137,7 @@ void LLAgent::handleTeleportFinished()
                                   << mRegionp->getHandle()
                                   << " id " << mRegionp->getRegionID()
                                   << LL_ENDL;
-            mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::onCapabilitiesReceivedAfterTeleport));
+            mRegionp->setCapabilitiesReceivedCallback([](const LLUUID&, LLViewerRegion*) { LLAgent::onCapabilitiesReceivedAfterTeleport(); });
         }
     }
     LLPerfStats::tunables.autoTuneTimeout = true;
@@ -4675,7 +4677,7 @@ void LLAgent::sendAgentUserInfoRequest()
     if (!cap.empty())
     {
         LLCoros::instance().launch("requestAgentUserInfoCoro",
-            boost::bind(&LLAgent::requestAgentUserInfoCoro, this, cap));
+            [this, cap]() { requestAgentUserInfoCoro(cap); });
     }
     else
     {
@@ -4735,7 +4737,7 @@ void LLAgent::sendAgentUpdateUserInfo(const std::string& directory_visibility)
     if (!cap.empty())
     {
         LLCoros::instance().launch("updateAgentUserInfoCoro",
-            boost::bind(&LLAgent::updateAgentUserInfoCoro, this, cap, directory_visibility));
+            [this, cap, directory_visibility]() { updateAgentUserInfoCoro(cap, directory_visibility); });
     }
     else
     {

@@ -67,6 +67,9 @@
 #include "llquaternion.h"
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 //
 // Globals
@@ -179,16 +182,16 @@ mHelpImpl(NULL)
     reg.add("Floater.Hide", [](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::hideInstance(param.asStringRef()); });
 
     // Button initialization callback for toggle buttons
-    reg.add("Button.SetFloaterToggle", boost::bind(&LLButton::setFloaterToggle, _1, _2));
+    reg.add("Button.SetFloaterToggle", std::bind(&LLButton::setFloaterToggle, _1, _2));
 
     // Button initialization callback for toggle buttons on dockable floaters
-    reg.add("Button.SetDockableFloaterToggle", boost::bind(&LLButton::setDockableFloaterToggle, _1, _2));
+    reg.add("Button.SetDockableFloaterToggle", std::bind(&LLButton::setDockableFloaterToggle, _1, _2));
 
     // Display the help topic for the current context
-    reg.add("Button.ShowHelp", boost::bind(&LLButton::showHelp, _1, _2));
+    reg.add("Button.ShowHelp", std::bind(&LLButton::showHelp, _1, _2));
 
     // Currently unused, but kept for reference:
-    reg.add("Button.ToggleFloater", boost::bind(&LLButton::toggleFloaterAndSetToggleState, _1, _2));
+    reg.add("Button.ToggleFloater", std::bind(&LLButton::toggleFloaterAndSetToggleState, _1, _2));
 
     // Used by menus along with Floater.Toggle to display visibility as a check-mark
     LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.Visible", [](LLUICtrl* ctrl, const LLSD& param) -> bool { return LLFloaterReg::instanceVisible(param.asStringRef(), LLSD()); });

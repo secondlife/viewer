@@ -41,6 +41,9 @@
 #include "llavatariconctrl.h"
 #include "lloutputmonitorctrl.h"
 #include "lltooldraganddrop.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
@@ -125,10 +128,10 @@ bool LLAvatarListItem::postBuild()
     mProfileBtn = getChild<LLButton>("profile_btn");
 
     mInfoBtn->setVisible(false);
-    mInfoBtn->setClickedCallback(boost::bind(&LLAvatarListItem::onInfoBtnClick, this));
+    mInfoBtn->setClickedCallback(std::bind(&LLAvatarListItem::onInfoBtnClick, this));
 
     mProfileBtn->setVisible(false);
-    mProfileBtn->setClickedCallback(boost::bind(&LLAvatarListItem::onProfileBtnClick, this));
+    mProfileBtn->setClickedCallback(std::bind(&LLAvatarListItem::onProfileBtnClick, this));
 
     if (!sStaticInitialized)
     {
@@ -164,7 +167,7 @@ void LLAvatarListItem::fetchAvatarName()
         {
             mAvatarNameCacheConnection.disconnect();
         }
-        mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), std::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
     }
 }
 

@@ -39,6 +39,9 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llviewercontrol.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Classes for AISv3 support.
@@ -124,7 +127,7 @@ void AISAPI::CreateInventory(const LLUUID& parentId, const LLSD& newInventory, c
     // (LLCoreHttpUtil::HttpCoroutineAdapter::*) - pointer to member function of HttpCoroutineAdapter
     // (LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) - signature of method
     //
-    invokationFn_t postFn = boost::bind(
+    invokationFn_t postFn = std::bind(
         // Humans ignore next line.  It is just a cast.
         static_cast<LLSD (LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -136,7 +139,7 @@ void AISAPI::CreateInventory(const LLUUID& parentId, const LLSD& newInventory, c
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::postAndSuspend), _1, _2, _3, _4, _5, _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, postFn, url, parentId, newInventory, callback, CREATEINVENTORY));
     EnqueueAISCommand("CreateInventory", proc);
 }
@@ -161,7 +164,7 @@ void AISAPI::SlamFolder(const LLUUID& folderId, const LLSD& newInventory, comple
     std::string url = cap + std::string("/category/") + folderId.asString() + "/links?tid=" + tid.asString();
 
     // see comment above in CreateInventoryCommand
-    invokationFn_t putFn = boost::bind(
+    invokationFn_t putFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -173,7 +176,7 @@ void AISAPI::SlamFolder(const LLUUID& folderId, const LLSD& newInventory, comple
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndSuspend), _1, _2, _3, _4, _5, _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, putFn, url, folderId, newInventory, callback, SLAMFOLDER));
 
     EnqueueAISCommand("SlamFolder", proc);
@@ -197,7 +200,7 @@ void AISAPI::RemoveCategory(const LLUUID &categoryId, completion_t callback)
     std::string url = cap + std::string("/category/") + categoryId.asString();
     LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 
-    invokationFn_t delFn = boost::bind(
+    invokationFn_t delFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -209,7 +212,7 @@ void AISAPI::RemoveCategory(const LLUUID &categoryId, completion_t callback)
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, _5, _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, delFn, url, categoryId, LLSD(), callback, REMOVECATEGORY));
 
     EnqueueAISCommand("RemoveCategory", proc);
@@ -234,7 +237,7 @@ void AISAPI::RemoveItem(const LLUUID &itemId, completion_t callback)
     std::string url = cap + std::string("/item/") + itemId.asString();
     LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 
-    invokationFn_t delFn = boost::bind(
+    invokationFn_t delFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -246,7 +249,7 @@ void AISAPI::RemoveItem(const LLUUID &itemId, completion_t callback)
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, _5, _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, delFn, url, itemId, LLSD(), callback, REMOVEITEM));
 
     EnqueueAISCommand("RemoveItem", proc);
@@ -281,7 +284,7 @@ void AISAPI::CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, b
 
     std::string destination = destId.asString();
 
-    invokationFn_t copyFn = boost::bind(
+    invokationFn_t copyFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const std::string, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -293,7 +296,7 @@ void AISAPI::CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, b
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::copyAndSuspend), _1, _2, _3, destination, _5, _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, copyFn, url, destId, LLSD(), callback, COPYLIBRARYCATEGORY));
 
     EnqueueAISCommand("CopyLibraryCategory", proc);
@@ -318,7 +321,7 @@ void AISAPI::PurgeDescendents(const LLUUID &categoryId, completion_t callback)
     std::string url = cap + std::string("/category/") + categoryId.asString() + "/children";
     LL_DEBUGS("Inventory") << "url: " << url << LL_ENDL;
 
-    invokationFn_t delFn = boost::bind(
+    invokationFn_t delFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -330,7 +333,7 @@ void AISAPI::PurgeDescendents(const LLUUID &categoryId, completion_t callback)
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, _5, _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, delFn, url, categoryId, LLSD(), callback, PURGEDESCENDENTS));
 
     EnqueueAISCommand("PurgeDescendents", proc);
@@ -354,7 +357,7 @@ void AISAPI::UpdateCategory(const LLUUID &categoryId, const LLSD &updates, compl
     }
     std::string url = cap + std::string("/category/") + categoryId.asString();
 
-    invokationFn_t patchFn = boost::bind(
+    invokationFn_t patchFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -366,7 +369,7 @@ void AISAPI::UpdateCategory(const LLUUID &categoryId, const LLSD &updates, compl
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::patchAndSuspend), _1, _2, _3, _4, _5, _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, patchFn, url, categoryId, updates, callback, UPDATECATEGORY));
 
     EnqueueAISCommand("UpdateCategory", proc);
@@ -390,7 +393,7 @@ void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t 
     }
     std::string url = cap + std::string("/item/") + itemId.asString();
 
-    invokationFn_t patchFn = boost::bind(
+    invokationFn_t patchFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -402,7 +405,7 @@ void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t 
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::patchAndSuspend), _1, _2, _3, _4, _5, _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, patchFn, url, itemId, updates, callback, UPDATEITEM));
 
     EnqueueAISCommand("UpdateItem", proc);
@@ -425,7 +428,7 @@ void AISAPI::FetchItem(const LLUUID &itemId, ITEM_TYPE type, completion_t callba
     }
     std::string url = cap + std::string("/item/") + itemId.asString();
 
-    invokationFn_t getFn = boost::bind(
+    invokationFn_t getFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -437,7 +440,7 @@ void AISAPI::FetchItem(const LLUUID &itemId, ITEM_TYPE type, completion_t callba
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, _5, _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, getFn, url, itemId, LLSD(), callback, FETCHITEM));
 
     EnqueueAISCommand("FetchItem", proc);
@@ -473,7 +476,7 @@ void AISAPI::FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type, bool rec
 
     url += "?depth=" + std::to_string(depth);
 
-    invokationFn_t getFn = boost::bind(
+    invokationFn_t getFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -488,7 +491,7 @@ void AISAPI::FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type, bool rec
     // get doesn't use body, can pass additional data
     LLSD body;
     body["depth"] = depth;
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, getFn, url, catId, body, callback, FETCHCATEGORYCHILDREN));
 
     EnqueueAISCommand("FetchCategoryChildren", proc);
@@ -526,7 +529,7 @@ void AISAPI::FetchCategoryChildren(const std::string &identifier, bool recursive
 
     url += "?depth=" + std::to_string(depth);
 
-    invokationFn_t getFn = boost::bind(
+    invokationFn_t getFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -541,7 +544,7 @@ void AISAPI::FetchCategoryChildren(const std::string &identifier, bool recursive
     // get doesn't use body, can pass additional data
     LLSD body;
     body["depth"] = depth;
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, getFn, url, LLUUID::null, body, callback, FETCHCATEGORYCHILDREN));
 
     EnqueueAISCommand("FetchCategoryChildren", proc);
@@ -577,7 +580,7 @@ void AISAPI::FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type, bool r
 
     url += "?depth=" + std::to_string(depth);
 
-    invokationFn_t getFn = boost::bind(
+    invokationFn_t getFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -592,7 +595,7 @@ void AISAPI::FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type, bool r
     // get doesn't use body, can pass additional data
     LLSD body;
     body["depth"] = depth;
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
         _1, getFn, url, catId, body, callback, FETCHCATEGORYCATEGORIES));
 
     EnqueueAISCommand("FetchCategoryCategories", proc);
@@ -654,7 +657,7 @@ void AISAPI::FetchCategorySubset(const LLUUID& catId,
         LL_WARNS("Inventory") << "Request url is too long, url: " << url << LL_ENDL;
     }
 
-    invokationFn_t getFn = boost::bind(
+    invokationFn_t getFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string&, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -669,7 +672,7 @@ void AISAPI::FetchCategorySubset(const LLUUID& catId,
     // get doesn't use body, can pass additional data
     LLSD body;
     body["depth"] = depth;
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
                                                          _1, getFn, url, catId, body, callback, FETCHCATEGORYSUBSET));
 
     EnqueueAISCommand("FetchCategorySubset", proc);
@@ -691,7 +694,7 @@ void AISAPI::FetchCOF(completion_t callback)
     }
     std::string url = cap + std::string("/category/current/links");
 
-    invokationFn_t getFn = boost::bind(
+    invokationFn_t getFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string&, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
         //----
@@ -707,7 +710,7 @@ void AISAPI::FetchCOF(completion_t callback)
     // Only cof folder will be full, but cof can contain an outfit
     // link with embedded outfit folder for request to parse
     body["depth"] = 0;
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro,
                                                          _1, getFn, url, LLUUID::null, body, callback, FETCHCOF));
 
     EnqueueAISCommand("FetchCOF", proc);
@@ -727,7 +730,7 @@ void AISAPI::FetchCategoryLinks(const LLUUID &catId, completion_t callback)
     }
     std::string url = cap + std::string("/category/") + catId.asString() + "/links";
 
-    invokationFn_t getFn = boost::bind(
+    invokationFn_t getFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD (LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &,
                                                                    LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
@@ -744,7 +747,7 @@ void AISAPI::FetchCategoryLinks(const LLUUID &catId, completion_t callback)
     LLSD body;
     body["depth"] = 0;
     LLCoprocedureManager::CoProcedure_t proc(
-        boost::bind(&AISAPI::InvokeAISCommandCoro, _1, getFn, url, LLUUID::null, body, callback, FETCHCATEGORYLINKS));
+        std::bind(&AISAPI::InvokeAISCommandCoro, _1, getFn, url, LLUUID::null, body, callback, FETCHCATEGORYLINKS));
 
     EnqueueAISCommand("FetchCategoryLinks", proc);
 }
@@ -764,7 +767,7 @@ void AISAPI::FetchOrphans(completion_t callback)
     }
     std::string url = cap + std::string("/orphans");
 
-    invokationFn_t getFn = boost::bind(
+    invokationFn_t getFn = std::bind(
         // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
         static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t , const std::string& , LLCore::HttpOptions::ptr_t , LLCore::HttpHeaders::ptr_t)>
         //----
@@ -776,7 +779,7 @@ void AISAPI::FetchOrphans(completion_t callback)
         // _6 -> httpHeaders
         (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend) , _1 , _2 , _3 , _5 , _6);
 
-    LLCoprocedureManager::CoProcedure_t proc(boost::bind(&AISAPI::InvokeAISCommandCoro ,
+    LLCoprocedureManager::CoProcedure_t proc(std::bind(&AISAPI::InvokeAISCommandCoro ,
                                                          _1 , getFn , url , LLUUID::null , LLSD() , callback , FETCHORPHANS));
 
     EnqueueAISCommand("FetchOrphans" , proc);

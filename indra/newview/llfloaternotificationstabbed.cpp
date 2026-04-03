@@ -36,6 +36,9 @@
 #include "llspeakers.h"
 #include "lltoastpanel.h"
 #include "lltoastnotifypanel.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //---------------------------------------------------------------------------------
 LLFloaterNotificationsTabbed::LLFloaterNotificationsTabbed(const LLSD& key) : LLTransientDockableFloater(NULL, true,  key),
@@ -71,10 +74,10 @@ bool LLFloaterNotificationsTabbed::postBuild()
     mNotificationsTabContainer = getChild<LLTabContainer>("notifications_tab_container");
 
     mDeleteAllBtn = getChild<LLButton>("delete_all_button");
-    mDeleteAllBtn->setClickedCallback(boost::bind(&LLFloaterNotificationsTabbed::onClickDeleteAllBtn,this));
+    mDeleteAllBtn->setClickedCallback(std::bind(&LLFloaterNotificationsTabbed::onClickDeleteAllBtn,this));
 
     mCollapseAllBtn = getChild<LLButton>("collapse_all_button");
-    mCollapseAllBtn->setClickedCallback(boost::bind(&LLFloaterNotificationsTabbed::onClickCollapseAllBtn,this));
+    mCollapseAllBtn->setClickedCallback(std::bind(&LLFloaterNotificationsTabbed::onClickCollapseAllBtn,this));
 
     // get a corresponding channel
     initChannel();
@@ -163,7 +166,7 @@ void LLFloaterNotificationsTabbed::initChannel()
 
     if(mChannel)
     {
-        mChannel->addOnStoreToastCallback(boost::bind(&LLFloaterNotificationsTabbed::onStoreToast, this, _1, _2));
+        mChannel->addOnStoreToastCallback(std::bind(&LLFloaterNotificationsTabbed::onStoreToast, this, _1, _2));
     }
 }
 
@@ -280,8 +283,8 @@ void LLFloaterNotificationsTabbed::addItem(LLNotificationListItem::Params p)
         mSysWellChiclet->updateWidget(isWindowEmpty());
         reshapeWindow();
         updateNotificationCounters();
-        new_item->setOnItemCloseCallback(boost::bind(&LLFloaterNotificationsTabbed::onItemClose, this, _1));
-        new_item->setOnItemClickCallback(boost::bind(&LLFloaterNotificationsTabbed::onItemClick, this, _1));
+        new_item->setOnItemCloseCallback(std::bind(&LLFloaterNotificationsTabbed::onItemClose, this, _1));
+        new_item->setOnItemClickCallback(std::bind(&LLFloaterNotificationsTabbed::onItemClick, this, _1));
     }
     else
     {

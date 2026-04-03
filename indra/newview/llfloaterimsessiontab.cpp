@@ -51,6 +51,9 @@
 #include "llnotificationsutil.h"
 #include "llpanelemojicomplete.h"
 #include "lltoolbarview.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const F32 REFRESH_INTERVAL = 1.0f;
 const std::string ICN_GROUP("group_chat_icon");
@@ -86,19 +89,19 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
     LLIMMgr::instance().addSessionObserver(this);
 
     mCommitCallbackRegistrar.add("IMSession.Menu.Action",
-            boost::bind(&LLFloaterIMSessionTab::onIMSessionMenuItemClicked,  this, _2));
+            std::bind(&LLFloaterIMSessionTab::onIMSessionMenuItemClicked,  this, _2));
     mEnableCallbackRegistrar.add("IMSession.Menu.CompactExpandedModes.CheckItem",
-            boost::bind(&LLFloaterIMSessionTab::onIMCompactExpandedMenuItemCheck, this, _2));
+            std::bind(&LLFloaterIMSessionTab::onIMCompactExpandedMenuItemCheck, this, _2));
     mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.CheckItem",
-            boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemCheck,   this, _2));
+            std::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemCheck,   this, _2));
     mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.Enable",
-            boost::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemEnable,  this, _2));
+            std::bind(&LLFloaterIMSessionTab::onIMShowModesMenuItemEnable,  this, _2));
 
     // Right click menu handling
-    mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMSessionTab::checkContextMenuItem, this, _2));
-    mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMSessionTab::enableContextMenuItem, this, _2));
-    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMSessionTab::doToSelected, this, _2));
-    mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&cb_group_do_nothing));
+    mEnableCallbackRegistrar.add("Avatar.CheckItem",  std::bind(&LLFloaterIMSessionTab::checkContextMenuItem, this, _2));
+    mEnableCallbackRegistrar.add("Avatar.EnableItem", std::bind(&LLFloaterIMSessionTab::enableContextMenuItem, this, _2));
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", std::bind(&LLFloaterIMSessionTab::doToSelected, this, _2));
+    mCommitCallbackRegistrar.add("Group.DoToSelected", std::bind(&cb_group_do_nothing));
 
     mMinFloaterHeight = getMinHeight();
 }
@@ -262,7 +265,7 @@ bool LLFloaterIMSessionTab::postBuild()
     mExpandCollapseLineBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onCollapseToLine(this); });
 
     mTearOffBtn = getChild<LLButton>("tear_off_btn");
-    mTearOffBtn->setCommitCallback(boost::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
+    mTearOffBtn->setCommitCallback(std::bind(&LLFloaterIMSessionTab::onTearOffClicked, this));
 
     mEmojiRecentPanelToggleBtn = getChild<LLButton>("emoji_recent_panel_toggle_btn");
     mEmojiRecentPanelToggleBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onEmojiRecentPanelToggleBtnClicked(); });
@@ -317,8 +320,8 @@ bool LLFloaterIMSessionTab::postBuild()
     mChatLayoutPanel = getChild<LLLayoutPanel>("chat_layout_panel");
     mInputPanels = getChild<LLLayoutStack>("input_panels");
 
-    mInputEditor->setTextExpandedCallback(boost::bind(&LLFloaterIMSessionTab::reshapeChatLayoutPanel, this));
-    mInputEditor->setMouseUpCallback(boost::bind(&LLFloaterIMSessionTab::onInputEditorClicked, this));
+    mInputEditor->setTextExpandedCallback(std::bind(&LLFloaterIMSessionTab::reshapeChatLayoutPanel, this));
+    mInputEditor->setMouseUpCallback(std::bind(&LLFloaterIMSessionTab::onInputEditorClicked, this));
     mInputEditor->setCommitOnFocusLost( false );
     mInputEditor->setPassDelete(true);
     mInputEditor->setFont(LLViewerChat::getChatFont());
@@ -377,7 +380,7 @@ bool LLFloaterIMSessionTab::postBuild()
     }
 
     // The resize limits for LLFloaterIMSessionTab should be updated, based on current values of width of conversation and message panels
-    mParticipantListPanel->getResizeBar()->setResizeListener(boost::bind(&LLFloaterIMSessionTab::assignResizeLimits, this));
+    mParticipantListPanel->getResizeBar()->setResizeListener(std::bind(&LLFloaterIMSessionTab::assignResizeLimits, this));
     mFloaterExtraWidth =
             getRect().getWidth()
             - mParticipantListAndHistoryStack->getRect().getWidth()

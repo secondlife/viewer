@@ -33,6 +33,9 @@
 #include "lltrans.h"
 
 #include "boost/lexical_cast.hpp"
+#include <functional>
+
+using namespace std::placeholders;
 
 const S32Days CONVERSATION_LIFETIME = (S32Days)30; // lifetime of LLConversation is 30 days by spec
 
@@ -227,7 +230,7 @@ void LLConversationLog::enableLogging(S32 log_mode)
         mConversations.clear();
         loadFromFile(getFileName());
         LLIMMgr::instance().addSessionObserver(this);
-        mNewMessageSignalConnection = LLIMModel::instance().addNewMsgCallback(boost::bind(&LLConversationLog::onNewMessageReceived, this, _1));
+        mNewMessageSignalConnection = LLIMModel::instance().addNewMsgCallback(std::bind(&LLConversationLog::onNewMessageReceived, this, _1));
 
         mFriendObserver = new LLConversationLogFriendObserver;
         LLAvatarTracker::instance().addObserver(mFriendObserver);
@@ -279,7 +282,7 @@ void LLConversationLog::createConversation(const LLIMModel::LLIMSession* session
             {
                 mAvatarNameCacheConnection.disconnect();
             }
-            mAvatarNameCacheConnection = LLAvatarNameCache::get(session->mOtherParticipantID, boost::bind(&LLConversationLog::onAvatarNameCache, this, _1, _2, session));
+            mAvatarNameCacheConnection = LLAvatarNameCache::get(session->mOtherParticipantID, std::bind(&LLConversationLog::onAvatarNameCache, this, _1, _2, session));
         }
 
         notifyObservers();
@@ -485,7 +488,7 @@ void LLConversationLog::initLoggingState()
     {
         LLControlVariable * keep_log_ctrlp = gSavedPerAccountSettings.getControl("KeepConversationLogTranscripts").get();
         S32 log_mode = keep_log_ctrlp->getValue();
-        keep_log_ctrlp->getSignal()->connect(boost::bind(&LLConversationLog::enableLogging, this, _2));
+        keep_log_ctrlp->getSignal()->connect(std::bind(&LLConversationLog::enableLogging, this, _2));
         if (log_mode > 0)
         {
             enableLogging(log_mode);
@@ -667,7 +670,7 @@ void LLConversationLog::onAvatarNameCache(const LLUUID& participant_id, const LL
 
 void LLConversationLog::onClearLog()
 {
-    LLNotificationsUtil::add("PreferenceChatClearLog", LLSD(), LLSD(), boost::bind(&LLConversationLog::onClearLogResponse, this, _1, _2));
+    LLNotificationsUtil::add("PreferenceChatClearLog", LLSD(), LLSD(), std::bind(&LLConversationLog::onClearLogResponse, this, _1, _2));
 }
 
 void LLConversationLog::onClearLogResponse(const LLSD& notification, const LLSD& response)

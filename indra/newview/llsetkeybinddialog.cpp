@@ -35,6 +35,9 @@
 #include "llfocusmgr.h"
 #include "llkeyconflict.h"
 #include "llviewercontrol.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLSetKeyBindDialog::Updater : public LLEventTimer
 {
@@ -301,7 +304,7 @@ bool LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
             if (!pUpdater)
             {
                 // Note: default doubleclick time is 500ms, but can stretch up to 5s
-                pUpdater = new Updater(boost::bind(&onClickTimeout, this, _1), 0.7f, mask);
+                pUpdater = new Updater(std::bind(&onClickTimeout, this, _1), 0.7f, mask);
                 result = true;
             }
         }

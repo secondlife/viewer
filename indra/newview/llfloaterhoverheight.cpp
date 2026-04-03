@@ -34,6 +34,9 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLFloaterHoverHeight::LLFloaterHoverHeight(const LLSD& key) : LLFloater(key)
 {
@@ -61,8 +64,8 @@ bool LLFloaterHoverHeight::postBuild()
     LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
     sldrCtrl->setMinValue(MIN_HOVER_Z);
     sldrCtrl->setMaxValue(MAX_HOVER_Z);
-    sldrCtrl->setSliderMouseUpCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
-    sldrCtrl->setSliderEditorCommitCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
+    sldrCtrl->setSliderMouseUpCallback(std::bind(&LLFloaterHoverHeight::onFinalCommit,this));
+    sldrCtrl->setSliderEditorCommitCallback(std::bind(&LLFloaterHoverHeight::onFinalCommit,this));
     childSetCommitCallback("HoverHeightSlider", &LLFloaterHoverHeight::onSliderMoved, NULL);
 
     // Initialize slider from pref setting.
@@ -70,7 +73,7 @@ bool LLFloaterHoverHeight::postBuild()
     // Update slider on future pref changes.
     if (gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ"))
     {
-        gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ")->getCommitSignal()->connect(boost::bind(&syncFromPreferenceSetting, this, false));
+        gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ")->getCommitSignal()->connect(std::bind(&syncFromPreferenceSetting, this, false));
     }
     else
     {
@@ -81,7 +84,7 @@ bool LLFloaterHoverHeight::postBuild()
 
     if (!mRegionChangedSlot.connected())
     {
-        mRegionChangedSlot = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterHoverHeight::onRegionChanged,this));
+        mRegionChangedSlot = gAgent.addRegionChangedCallback(std::bind(&LLFloaterHoverHeight::onRegionChanged,this));
     }
     // Set up based on initial region.
     onRegionChanged();
@@ -128,7 +131,7 @@ void LLFloaterHoverHeight::onRegionChanged()
     }
     else if (region)
     {
-        region->setSimulatorFeaturesReceivedCallback(boost::bind(&LLFloaterHoverHeight::onSimulatorFeaturesReceived,this,_1));
+        region->setSimulatorFeaturesReceivedCallback(std::bind(&LLFloaterHoverHeight::onSimulatorFeaturesReceived,this,_1));
     }
 }
 

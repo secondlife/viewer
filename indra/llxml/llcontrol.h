@@ -344,7 +344,7 @@ private:
         // Add a listener to the controls signal...
         // NOTE: All listeners connected to 0 group, for guaranty that variable handlers (gSavedSettings) call last
         mConnection = controlp->getSignal()->connect(0,
-            std::bind(&LLControlCache<T>::handleValueChange, this, std::placeholders::_2)
+            [this](const LLSD&, const LLSD& newvalue) { return handleValueChange(newvalue); }
             );
         mType = controlp->type();
     }

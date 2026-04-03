@@ -35,6 +35,9 @@
 #include "llscriptfloater.h"
 #include "llspeakers.h"
 #include "lltoastpanel.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //---------------------------------------------------------------------------------
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLTransientDockableFloater(NULL, true,  key),
@@ -232,7 +235,7 @@ LLIMWellWindow::ObjectRowPanel::ObjectRowPanel(const LLUUID& notification_id, bo
     obj_name->setValue(LLScriptFloaterManager::getObjectName(notification_id));
 
     mCloseBtn = getChild<LLButton>("hide_btn");
-    mCloseBtn->setCommitCallback(boost::bind(&LLIMWellWindow::ObjectRowPanel::onClosePanel, this));
+    mCloseBtn->setCommitCallback(std::bind(&LLIMWellWindow::ObjectRowPanel::onClosePanel, this));
 }
 
 //---------------------------------------------------------------------------------
@@ -328,7 +331,7 @@ bool LLIMWellWindow::postBuild()
     bool rv = LLSysWellWindow::postBuild();
     setTitle(getString("title_im_well_window"));
 
-    LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLIMWellWindow::findObjectChiclet, this, _1));
+    LLIMChiclet::sFindChicletsSignal.connect(std::bind(&LLIMWellWindow::findObjectChiclet, this, _1));
 
     return rv;
 }
@@ -403,7 +406,7 @@ void LLIMWellWindow::closeAll()
         //Bring up a confirmation dialog
         LLNotificationsUtil::add
             ("ConfirmCloseAll", LLSD(), LLSD(),
-             boost::bind(&LLIMWellWindow::confirmCloseAll, this, _1, _2));
+             std::bind(&LLIMWellWindow::confirmCloseAll, this, _1, _2));
     }
     else
     {

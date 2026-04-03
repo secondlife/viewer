@@ -53,6 +53,9 @@
 #include "lldraghandle.h"
 #include "message.h"
 #include "llcorehttputil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //#include "llsdserialize.h"
 
@@ -112,34 +115,34 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
     mContextConeOutAlpha(CONTEXT_CONE_OUT_ALPHA),
     mContextConeFadeTime(CONTEXT_CONE_FADE_TIME)
 {
-    mCommitCallbackRegistrar.add("Refresh.FriendList", boost::bind(&LLFloaterAvatarPicker::populateFriend, this));
+    mCommitCallbackRegistrar.add("Refresh.FriendList", std::bind(&LLFloaterAvatarPicker::populateFriend, this));
 }
 
 bool LLFloaterAvatarPicker::postBuild()
 {
-    getChild<LLLineEditor>("Edit")->setKeystrokeCallback( boost::bind(&LLFloaterAvatarPicker::editKeystroke, this, _1, _2),NULL);
+    getChild<LLLineEditor>("Edit")->setKeystrokeCallback( std::bind(&LLFloaterAvatarPicker::editKeystroke, this, _1, _2),NULL);
 
-    childSetAction("Find", boost::bind(&LLFloaterAvatarPicker::onBtnFind, this));
+    childSetAction("Find", std::bind(&LLFloaterAvatarPicker::onBtnFind, this));
     getChildView("Find")->setEnabled(false);
-    childSetAction("Refresh", boost::bind(&LLFloaterAvatarPicker::onBtnRefresh, this));
-    getChild<LLUICtrl>("near_me_range")->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onRangeAdjust, this));
+    childSetAction("Refresh", std::bind(&LLFloaterAvatarPicker::onBtnRefresh, this));
+    getChild<LLUICtrl>("near_me_range")->setCommitCallback(std::bind(&LLFloaterAvatarPicker::onRangeAdjust, this));
 
     LLScrollListCtrl* searchresults = getChild<LLScrollListCtrl>("SearchResults");
-    searchresults->setDoubleClickCallback( boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
-    searchresults->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
+    searchresults->setDoubleClickCallback( std::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+    searchresults->setCommitCallback(std::bind(&LLFloaterAvatarPicker::onList, this));
     getChildView("SearchResults")->setEnabled(false);
 
     LLScrollListCtrl* nearme = getChild<LLScrollListCtrl>("NearMe");
-    nearme->setDoubleClickCallback(boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
-    nearme->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
+    nearme->setDoubleClickCallback(std::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+    nearme->setCommitCallback(std::bind(&LLFloaterAvatarPicker::onList, this));
 
     LLScrollListCtrl* friends = getChild<LLScrollListCtrl>("Friends");
-    friends->setDoubleClickCallback(boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
-    getChild<LLUICtrl>("Friends")->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
+    friends->setDoubleClickCallback(std::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+    getChild<LLUICtrl>("Friends")->setCommitCallback(std::bind(&LLFloaterAvatarPicker::onList, this));
 
-    childSetAction("ok_btn", boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+    childSetAction("ok_btn", std::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
     getChildView("ok_btn")->setEnabled(false);
-    childSetAction("cancel_btn", boost::bind(&LLFloaterAvatarPicker::onBtnClose, this));
+    childSetAction("cancel_btn", std::bind(&LLFloaterAvatarPicker::onBtnClose, this));
 
     getChild<LLUICtrl>("Edit")->setFocus(true);
 
@@ -153,7 +156,7 @@ bool LLFloaterAvatarPicker::postBuild()
     getChild<LLScrollListCtrl>("SearchResults")->setCommentText(getString("no_results"));
 
     getChild<LLTabContainer>("ResidentChooserTabs")->setCommitCallback(
-        boost::bind(&LLFloaterAvatarPicker::onTabChanged, this));
+        std::bind(&LLFloaterAvatarPicker::onTabChanged, this));
 
     setAllowMultiple(false);
 
@@ -531,7 +534,7 @@ void LLFloaterAvatarPicker::find()
                 LL_DEBUGS("Agent") << "avatar picker " << url << LL_ENDL;
 
                 LLCoros::instance().launch("LLFloaterAvatarPicker::findCoro",
-                    boost::bind(&LLFloaterAvatarPicker::findByIdCoro, url, mQueryID, agent_id, getKey().asString()));
+                    std::bind(&LLFloaterAvatarPicker::findByIdCoro, url, mQueryID, agent_id, getKey().asString()));
             }
             else
             {
@@ -565,7 +568,7 @@ void LLFloaterAvatarPicker::find()
                 LL_DEBUGS("Agent") << "avatar picker " << url << LL_ENDL;
 
                 LLCoros::instance().launch("LLFloaterAvatarPicker::findCoro",
-                    boost::bind(&LLFloaterAvatarPicker::findByNameCoro, url, mQueryID, getKey().asString()));
+                    std::bind(&LLFloaterAvatarPicker::findByNameCoro, url, mQueryID, getKey().asString()));
             }
             else
             {

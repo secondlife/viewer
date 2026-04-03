@@ -43,6 +43,9 @@
 
 // library includes
 #include "llavatarnamecache.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 #define MENU_ITEM_VIEW_PROFILE 0
 #define MENU_ITEM_SEND_IM 1
@@ -270,7 +273,7 @@ void LLAvatarIconCtrl::fetchAvatarName()
         {
             mAvatarNameCacheConnection.disconnect();
         }
-        mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarId, boost::bind(&LLAvatarIconCtrl::onAvatarNameCache, this, _1, _2));
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarId, std::bind(&LLAvatarIconCtrl::onAvatarNameCache, this, _1, _2));
     }
 }
 

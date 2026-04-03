@@ -36,6 +36,9 @@
 #include "llscriptfloater.h"
 #include "llviewermessage.h"
 #include "llviewernetwork.h"
+#include <functional>
+
+using namespace std::placeholders;
 LLPersistentNotificationStorage::LLPersistentNotificationStorage():
       LLNotificationStorage("")
     , mLoaded(false)
@@ -159,7 +162,7 @@ void LLPersistentNotificationStorage::loadNotifications()
     }
 
     LLNotifications::instance().getChannel("Persistent")->
-            connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
+            connectChanged(std::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
     LL_INFOS("LLPersistentNotificationStorage") << "finished loading notifications" << LL_ENDL;
 }
 
@@ -174,7 +177,7 @@ void LLPersistentNotificationStorage::initialize()
 {
     reset();
     LLNotifications::instance().getChannel("Persistent")->
-        connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
+        connectChanged(std::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
 }
 
 bool LLPersistentNotificationStorage::onPersistentChannelChanged(const LLSD& payload)

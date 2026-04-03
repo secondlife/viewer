@@ -49,6 +49,9 @@
 #include "lltrans.h"
 #include "llnotificationsutil.h"
 #include "lluicolortable.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 const S32 MATURE_CONTENT = 1;
@@ -68,7 +71,7 @@ LLPanelGroupCreate::~LLPanelGroupCreate()
 
 bool LLPanelGroupCreate::postBuild()
 {
-    childSetCommitCallback("back", boost::bind(&LLPanelGroupCreate::onBackBtnClick, this), NULL);
+    childSetCommitCallback("back", std::bind(&LLPanelGroupCreate::onBackBtnClick, this), NULL);
 
     mComboMature = getChild<LLComboBox>("group_mature_check", true);
     mCtrlOpenEnrollment = getChild<LLCheckBoxCtrl>("open_enrollement", true);
@@ -78,7 +81,7 @@ bool LLPanelGroupCreate::postBuild()
     mMembershipList = getChild<LLScrollListCtrl>("membership_list", true);
 
     mCreateButton = getChild<LLButton>("btn_create", true);
-    mCreateButton->setCommitCallback(boost::bind(&LLPanelGroupCreate::onBtnCreate, this));
+    mCreateButton->setCommitCallback(std::bind(&LLPanelGroupCreate::onBtnCreate, this));
 
     mGroupNameEditor = getChild<LLLineEditor>("group_name_editor", true);
     mGroupNameEditor->setPrevalidate(LLTextValidate::validateASCIINoLeadingSpace);
@@ -210,7 +213,7 @@ void LLPanelGroupCreate::onBtnCreate()
         mComboMature->getCurrentIndex() == DECLINE_TO_STATE)
     {
         LLNotificationsUtil::add("SetGroupMature", LLSD(), LLSD(),
-            boost::bind(&LLPanelGroupCreate::confirmMatureApply, this, _1, _2));
+            std::bind(&LLPanelGroupCreate::confirmMatureApply, this, _1, _2));
     }
     else
     {

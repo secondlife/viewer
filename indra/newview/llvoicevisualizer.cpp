@@ -41,6 +41,9 @@
 #include "llvoiceclient.h"
 #include "llrender.h"
 #include "llagent.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //brent's wave image
 //29de489d-0491-fb00-7dab-f9e686d31e83
@@ -139,12 +142,12 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
         setPreferences();
 
         // Set up our listener to get updates on all prefs values we care about.
-        gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
-        gSavedSettings.getControl("LipSyncOohAahRate")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
-        gSavedSettings.getControl("LipSyncOoh")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
-        gSavedSettings.getControl("LipSyncAah")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
-        gSavedSettings.getControl("LipSyncOohPowerTransfer")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
-        gSavedSettings.getControl("LipSyncAahPowerTransfer")->getSignal()->connect(boost::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+        gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(std::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+        gSavedSettings.getControl("LipSyncOohAahRate")->getSignal()->connect(std::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+        gSavedSettings.getControl("LipSyncOoh")->getSignal()->connect(std::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+        gSavedSettings.getControl("LipSyncAah")->getSignal()->connect(std::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+        gSavedSettings.getControl("LipSyncOohPowerTransfer")->getSignal()->connect(std::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
+        gSavedSettings.getControl("LipSyncAahPowerTransfer")->getSignal()->connect(std::bind(&LLVoiceVisualizer::handleVoiceVisualizerPrefsChanged, _2));
 
         sPrefsInitialized = true;
     }

@@ -31,6 +31,7 @@
 #include "lluictrlfactory.h"
 #include "llavatariconctrl.h"
 #include "lltextbox.h"
+#include <functional>
 
 LLPanelAvatarTag::LLPanelAvatarTag(const LLUUID& key, const std::string im_time)
     : LLPanel()
@@ -38,7 +39,7 @@ LLPanelAvatarTag::LLPanelAvatarTag(const LLUUID& key, const std::string im_time)
 //  , mFadeTimer()
 {
     buildFromFile( "panel_avatar_tag.xml");
-    setLeftButtonClickCallback(boost::bind(&LLPanelAvatarTag::onClick, this));
+    setLeftButtonClickCallback(std::bind(&LLPanelAvatarTag::onClick, this));
     setAvatarId(key);
     setTime(im_time);
 }

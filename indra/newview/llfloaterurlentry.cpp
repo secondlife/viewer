@@ -39,6 +39,9 @@
 #include "llwindow.h"
 #include "llviewerwindow.h"
 #include "llcorehttputil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLFloaterURLEntry* sInstance = NULL;
 
@@ -182,7 +185,7 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
        (scheme == "http" || scheme == "https"))
     {
         LLCoros::instance().launch("LLFloaterURLEntry::getMediaTypeCoro",
-            boost::bind(&LLFloaterURLEntry::getMediaTypeCoro, media_url, self->getHandle()));
+            std::bind(&LLFloaterURLEntry::getMediaTypeCoro, media_url, self->getHandle()));
     }
     else
     {
@@ -274,7 +277,7 @@ void LLFloaterURLEntry::onBtnCancel( void* userdata )
 void LLFloaterURLEntry::onBtnClear( void* userdata )
 {
     LLNotificationsUtil::add( "ConfirmClearMediaUrlList", LLSD(), LLSD(),
-                                    boost::bind(&LLFloaterURLEntry::callback_clear_url_list, (LLFloaterURLEntry*)userdata, _1, _2) );
+                                    std::bind(&LLFloaterURLEntry::callback_clear_url_list, (LLFloaterURLEntry*)userdata, _1, _2) );
 }
 
 bool LLFloaterURLEntry::callback_clear_url_list(const LLSD& notification, const LLSD& response)

@@ -39,6 +39,9 @@
 #include "llstartup.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 LLFloaterForgetUser::LLFloaterForgetUser(const LLSD &key)
@@ -123,7 +126,7 @@ bool LLFloaterForgetUser::postBuild()
     chk_box->set(false);
     LLButton *button = getChild<LLButton>("forget");
     button->setEnabled(enable_button);
-    button->setCommitCallback(boost::bind(&LLFloaterForgetUser::onForgetClicked, this));
+    button->setCommitCallback(std::bind(&LLFloaterForgetUser::onForgetClicked, this));
 
     return true;
 }
@@ -140,7 +143,7 @@ void LLFloaterForgetUser::onForgetClicked()
     if (delete_data && mUserGridsCount[user_id] > 1)
     {
         // more than 1 grid uses this id
-        LLNotificationsUtil::add("LoginRemoveMultiGridUserData", LLSD(), LLSD(), boost::bind(&LLFloaterForgetUser::onConfirmForget, this, _1, _2));
+        LLNotificationsUtil::add("LoginRemoveMultiGridUserData", LLSD(), LLSD(), std::bind(&LLFloaterForgetUser::onConfirmForget, this, _1, _2));
         return;
     }
 
@@ -202,7 +205,7 @@ void LLFloaterForgetUser::processForgetUser()
     {
         // we can't delete data for user that is currently logged in
         // we need to pass grid because we are deleting data universal to grids, but specific grid's user
-        LLNotificationsUtil::add("LoginCantRemoveCurUsername", LLSD(), LLSD(), boost::bind(onConfirmLogout, _1, _2, user_name, grid));
+        LLNotificationsUtil::add("LoginCantRemoveCurUsername", LLSD(), LLSD(), std::bind(onConfirmLogout, _1, _2, user_name, grid));
         return;
     }
 

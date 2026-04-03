@@ -43,6 +43,9 @@
 #include "stringize.h"
 #include "llxmlrpctransaction.h"
 #include "llsecapi.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
@@ -248,7 +251,7 @@ public:
         mBoundListener =
             LLEventPumps::instance().
             obtain("mainloop").
-            listen(LLEventPump::ANONYMOUS, boost::bind(&Poller::poll, this, _1));
+            listen(LLEventPump::ANONYMOUS, std::bind(&Poller::poll, this, _1));
 
         LL_INFOS("LLXMLRPCListener") << mMethod << " request sent to " << mUri << LL_ENDL;
     }

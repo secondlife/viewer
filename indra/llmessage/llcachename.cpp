@@ -38,6 +38,9 @@
 #include "message.h"
 
 #include <boost/regex.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 // llsd serialization constants
 static const std::string AGENTS("agents");
@@ -656,7 +659,7 @@ boost::signals2::connection LLCacheName::getGroup(const LLUUID& group_id,
 
 boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, old_callback_t callback, void* user_data)
 {
-    return get(id, is_group, boost::bind(callback, _1, _2, _3, user_data));
+    return get(id, is_group, std::bind(callback, _1, _2, _3, user_data));
 }
 
 void LLCacheName::processPending()

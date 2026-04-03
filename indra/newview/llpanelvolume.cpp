@@ -83,7 +83,9 @@
 
 #include "llvoavatarself.h"
 
-#include <boost/bind.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 const F32 DEFAULT_GRAVITY_MULTIPLIER = 1.f;
 const F32 DEFAULT_DENSITY = 1000.f;
@@ -93,8 +95,8 @@ bool    LLPanelVolume::postBuild()
 {
     // Flexible Objects Parameters
     {
-        childSetCommitCallback("Animated Mesh Checkbox Ctrl", boost::bind(&LLPanelVolume::onCommitAnimatedMeshCheckbox, this, _1, _2), NULL);
-        childSetCommitCallback("Flexible1D Checkbox Ctrl", boost::bind(&LLPanelVolume::onCommitIsFlexible, this, _1, _2), NULL);
+        childSetCommitCallback("Animated Mesh Checkbox Ctrl", std::bind(&LLPanelVolume::onCommitAnimatedMeshCheckbox, this, _1, _2), NULL);
+        childSetCommitCallback("Flexible1D Checkbox Ctrl", std::bind(&LLPanelVolume::onCommitIsFlexible, this, _1, _2), NULL);
         childSetCommitCallback("FlexNumSections",onCommitFlexible,this);
         getChild<LLUICtrl>("FlexNumSections")->setValidateBeforeCommit(precommitValidate);
         childSetCommitCallback("FlexGravity",onCommitFlexible,this);
@@ -118,16 +120,16 @@ bool    LLPanelVolume::postBuild()
         childSetCommitCallback("Light Checkbox Ctrl",onCommitIsLight,this);
         LLColorSwatchCtrl*  LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
         if(LightColorSwatch){
-            LightColorSwatch->setOnCancelCallback(boost::bind(&LLPanelVolume::onLightCancelColor, this, _2));
-            LightColorSwatch->setOnSelectCallback(boost::bind(&LLPanelVolume::onLightSelectColor, this, _2));
+            LightColorSwatch->setOnCancelCallback(std::bind(&LLPanelVolume::onLightCancelColor, this, _2));
+            LightColorSwatch->setOnSelectCallback(std::bind(&LLPanelVolume::onLightSelectColor, this, _2));
             childSetCommitCallback("colorswatch",onCommitLight,this);
         }
 
         LLTextureCtrl* LightTexPicker = getChild<LLTextureCtrl>("light texture control");
         if (LightTexPicker)
         {
-            LightTexPicker->setOnCancelCallback(boost::bind(&LLPanelVolume::onLightCancelTexture, this, _2));
-            LightTexPicker->setOnSelectCallback(boost::bind(&LLPanelVolume::onLightSelectTexture, this, _2));
+            LightTexPicker->setOnCancelCallback(std::bind(&LLPanelVolume::onLightCancelTexture, this, _2));
+            LightTexPicker->setOnSelectCallback(std::bind(&LLPanelVolume::onLightSelectTexture, this, _2));
             childSetCommitCallback("light texture control", onCommitLight, this);
         }
 
@@ -160,23 +162,23 @@ bool    LLPanelVolume::postBuild()
     {
         // PhysicsShapeType combobox
         mComboPhysicsShapeType = getChild<LLComboBox>("Physics Shape Type Combo Ctrl");
-        mComboPhysicsShapeType->setCommitCallback(boost::bind(&LLPanelVolume::sendPhysicsShapeType, this, _1, mComboPhysicsShapeType));
+        mComboPhysicsShapeType->setCommitCallback(std::bind(&LLPanelVolume::sendPhysicsShapeType, this, _1, mComboPhysicsShapeType));
 
         // PhysicsGravity
         mSpinPhysicsGravity = getChild<LLSpinCtrl>("Physics Gravity");
-        mSpinPhysicsGravity->setCommitCallback(boost::bind(&LLPanelVolume::sendPhysicsGravity, this, _1, mSpinPhysicsGravity));
+        mSpinPhysicsGravity->setCommitCallback(std::bind(&LLPanelVolume::sendPhysicsGravity, this, _1, mSpinPhysicsGravity));
 
         // PhysicsFriction
         mSpinPhysicsFriction = getChild<LLSpinCtrl>("Physics Friction");
-        mSpinPhysicsFriction->setCommitCallback(boost::bind(&LLPanelVolume::sendPhysicsFriction, this, _1, mSpinPhysicsFriction));
+        mSpinPhysicsFriction->setCommitCallback(std::bind(&LLPanelVolume::sendPhysicsFriction, this, _1, mSpinPhysicsFriction));
 
         // PhysicsDensity
         mSpinPhysicsDensity = getChild<LLSpinCtrl>("Physics Density");
-        mSpinPhysicsDensity->setCommitCallback(boost::bind(&LLPanelVolume::sendPhysicsDensity, this, _1, mSpinPhysicsDensity));
+        mSpinPhysicsDensity->setCommitCallback(std::bind(&LLPanelVolume::sendPhysicsDensity, this, _1, mSpinPhysicsDensity));
 
         // PhysicsRestitution
         mSpinPhysicsRestitution = getChild<LLSpinCtrl>("Physics Restitution");
-        mSpinPhysicsRestitution->setCommitCallback(boost::bind(&LLPanelVolume::sendPhysicsRestitution, this, _1, mSpinPhysicsRestitution));
+        mSpinPhysicsRestitution->setCommitCallback(std::bind(&LLPanelVolume::sendPhysicsRestitution, this, _1, mSpinPhysicsRestitution));
     }
 
     mMenuClipboardFeatures = getChild<LLMenuButton>("clipboard_features_params_btn");
@@ -222,8 +224,8 @@ LLPanelVolume::LLPanelVolume()
 {
     setMouseOpaque(false);
 
-    mCommitCallbackRegistrar.add("PanelVolume.menuDoToSelected", boost::bind(&LLPanelVolume::menuDoToSelected, this, _2));
-    mEnableCallbackRegistrar.add("PanelVolume.menuEnable", boost::bind(&LLPanelVolume::menuEnableItem, this, _2));
+    mCommitCallbackRegistrar.add("PanelVolume.menuDoToSelected", std::bind(&LLPanelVolume::menuDoToSelected, this, _2));
+    mEnableCallbackRegistrar.add("PanelVolume.menuEnable", std::bind(&LLPanelVolume::menuEnableItem, this, _2));
 }
 
 LLPanelVolume::~LLPanelVolume()
@@ -801,7 +803,7 @@ void LLPanelVolume::sendIsReflectionProbe()
 
     if (value && value != old_value)
     { // defer to notification util as to whether or not we *really* make this object a reflection probe
-        LLNotificationsUtil::add("ReflectionProbeApplied", LLSD(), LLSD(), boost::bind(&LLPanelVolume::doSendIsReflectionProbe, this, _1, _2));
+        LLNotificationsUtil::add("ReflectionProbeApplied", LLSD(), LLSD(), std::bind(&LLPanelVolume::doSendIsReflectionProbe, this, _1, _2));
     }
     else
     {
@@ -1622,7 +1624,7 @@ void LLPanelVolume::onCommitIsFlexible(LLUICtrl *, void*)
 {
     if (mObject->flagObjectPermanent())
     {
-        LLNotificationsUtil::add("PathfindingLinksets_ChangeToFlexiblePath", LLSD(), LLSD(), boost::bind(&LLPanelVolume::handleResponseChangeToFlexible, this, _1, _2));
+        LLNotificationsUtil::add("PathfindingLinksets_ChangeToFlexiblePath", LLSD(), LLSD(), std::bind(&LLPanelVolume::handleResponseChangeToFlexible, this, _1, _2));
     }
     else
     {

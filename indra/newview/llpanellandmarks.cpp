@@ -56,6 +56,9 @@
 #include "lltoggleablemenu.h"
 #include "llviewermenu.h"
 #include "llviewerregion.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
 //static LLRegisterPanelClassWrapper<LLLandmarksPanel> t_landmarks("panel_landmarks");
@@ -205,7 +208,7 @@ void LLLandmarksPanel::onShowOnMap()
         return;
     }
 
-    doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doShowOnMap, this, _1));
+    doActionOnCurSelectedLandmark(std::bind(&LLLandmarksPanel::doShowOnMap, this, _1));
 }
 
 //virtual
@@ -421,7 +424,7 @@ void LLLandmarksPanel::initLandmarksInventoryPanel()
     mLandmarksInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
 
     // subscribe to have auto-rename functionality while creating New Folder
-    mLandmarksInventoryPanel->setSelectCallback(boost::bind(&LLInventoryPanel::onSelectionChange, mLandmarksInventoryPanel, _1, _2));
+    mLandmarksInventoryPanel->setSelectCallback(std::bind(&LLInventoryPanel::onSelectionChange, mLandmarksInventoryPanel, _1, _2));
 
     mCurrentSelectedList = mLandmarksInventoryPanel;
 }
@@ -430,7 +433,7 @@ void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list
 {
     inventory_list->getFilter().setEmptyLookupMessage("PlacesNoMatchingItems");
     inventory_list->setFilterTypes(0x1 << LLInventoryType::IT_LANDMARK);
-    inventory_list->setSelectCallback(boost::bind(&LLLandmarksPanel::updateVerbs, this));
+    inventory_list->setSelectCallback(std::bind(&LLLandmarksPanel::updateVerbs, this));
 
     inventory_list->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
     bool sorting_order = gSavedSettings.getBOOL("LandmarksSortedByDate");
@@ -458,12 +461,12 @@ void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list
 // List Commands Handlers
 void LLLandmarksPanel::initListCommandsHandlers()
 {
-    mCommitCallbackRegistrar.add("Places.LandmarksGear.Add.Action", boost::bind(&LLLandmarksPanel::onAddAction, this, _2));
-    mCommitCallbackRegistrar.add("Places.LandmarksGear.CopyPaste.Action", boost::bind(&LLLandmarksPanel::onClipboardAction, this, _2));
-    mCommitCallbackRegistrar.add("Places.LandmarksGear.Custom.Action", boost::bind(&LLLandmarksPanel::onCustomAction, this, _2));
-    mCommitCallbackRegistrar.add("Places.LandmarksGear.Folding.Action", boost::bind(&LLLandmarksPanel::onFoldingAction, this, _2));
-    mEnableCallbackRegistrar.add("Places.LandmarksGear.Check", boost::bind(&LLLandmarksPanel::isActionChecked, this, _2));
-    mEnableCallbackRegistrar.add("Places.LandmarksGear.Enable", boost::bind(&LLLandmarksPanel::isActionEnabled, this, _2));
+    mCommitCallbackRegistrar.add("Places.LandmarksGear.Add.Action", std::bind(&LLLandmarksPanel::onAddAction, this, _2));
+    mCommitCallbackRegistrar.add("Places.LandmarksGear.CopyPaste.Action", std::bind(&LLLandmarksPanel::onClipboardAction, this, _2));
+    mCommitCallbackRegistrar.add("Places.LandmarksGear.Custom.Action", std::bind(&LLLandmarksPanel::onCustomAction, this, _2));
+    mCommitCallbackRegistrar.add("Places.LandmarksGear.Folding.Action", std::bind(&LLLandmarksPanel::onFoldingAction, this, _2));
+    mEnableCallbackRegistrar.add("Places.LandmarksGear.Check", std::bind(&LLLandmarksPanel::isActionChecked, this, _2));
+    mEnableCallbackRegistrar.add("Places.LandmarksGear.Enable", std::bind(&LLLandmarksPanel::isActionEnabled, this, _2));
     mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     mGearFolderMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_folder.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     mSortingMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_sorting.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -471,14 +474,14 @@ void LLLandmarksPanel::initListCommandsHandlers()
 
     if (mGearLandmarkMenu)
     {
-        mGearLandmarkMenu->setVisibilityChangeCallback(boost::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
+        mGearLandmarkMenu->setVisibilityChangeCallback(std::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
         // show menus even if all items are disabled
         mGearLandmarkMenu->setAlwaysShowMenu(true);
     } // Else corrupted files?
 
     if (mGearFolderMenu)
     {
-        mGearFolderMenu->setVisibilityChangeCallback(boost::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
+        mGearFolderMenu->setVisibilityChangeCallback(std::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
         mGearFolderMenu->setAlwaysShowMenu(true);
     }
 
@@ -853,7 +856,7 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
         LLFolderViewModelItemInventory* cur_item = getCurSelectedViewModelItem();
         if (cur_item)
         {
-            doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doCreatePick, this, _1, cur_item->getUUID()));
+            doActionOnCurSelectedLandmark(std::bind(&LLLandmarksPanel::doCreatePick, this, _1, cur_item->getUUID()));
         }
     }
     else if ("share" == command_name && mCurrentSelectedList)

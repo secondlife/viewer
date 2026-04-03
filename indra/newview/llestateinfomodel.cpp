@@ -38,6 +38,7 @@
 #include "llviewerregion.h"
 
 #include "llcorehttputil.h"
+#include <functional>
 
 LLEstateInfoModel::LLEstateInfoModel()
 :   mID(0)
@@ -129,7 +130,7 @@ bool LLEstateInfoModel::commitEstateInfoCaps()
     }
 
     LLCoros::instance().launch("LLEstateInfoModel::commitEstateInfoCapsCoro",
-        boost::bind(&LLEstateInfoModel::commitEstateInfoCapsCoro, this, url));
+        std::bind(&LLEstateInfoModel::commitEstateInfoCapsCoro, this, url));
 
     return true;
 }

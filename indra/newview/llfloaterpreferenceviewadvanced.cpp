@@ -32,12 +32,13 @@
 #include "lluictrlfactory.h"
 #include "llspinctrl.h"
 #include "llviewercontrol.h"
+#include <functional>
 
 
 LLFloaterPreferenceViewAdvanced::LLFloaterPreferenceViewAdvanced(const LLSD& key)
 :   LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("CommitSettings",  boost::bind(&LLFloaterPreferenceViewAdvanced::onCommitSettings, this));
+    mCommitCallbackRegistrar.add("CommitSettings",  std::bind(&LLFloaterPreferenceViewAdvanced::onCommitSettings, this));
 }
 
 LLFloaterPreferenceViewAdvanced::~LLFloaterPreferenceViewAdvanced()

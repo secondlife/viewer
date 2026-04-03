@@ -35,6 +35,7 @@
 #include "llpresetsmanager.h"
 #include "llviewercontrol.h"
 #include "llfloaterreg.h"
+#include <functional>
 
 LLFloaterDeletePrefPreset::LLFloaterDeletePrefPreset(const LLSD &key)
 :   LLFloater(key)
@@ -49,9 +50,9 @@ bool LLFloaterDeletePrefPreset::postBuild()
     {
         preferences->addDependentFloater(this);
     }
-    getChild<LLButton>("delete")->setCommitCallback(boost::bind(&LLFloaterDeletePrefPreset::onBtnDelete, this));
-    getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterDeletePrefPreset::onBtnCancel, this));
-    LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterDeletePrefPreset::onPresetsListChange, this));
+    getChild<LLButton>("delete")->setCommitCallback(std::bind(&LLFloaterDeletePrefPreset::onBtnDelete, this));
+    getChild<LLButton>("cancel")->setCommitCallback(std::bind(&LLFloaterDeletePrefPreset::onBtnCancel, this));
+    LLPresetsManager::instance().setPresetListChangeCallback(std::bind(&LLFloaterDeletePrefPreset::onPresetsListChange, this));
 
     return true;
 }

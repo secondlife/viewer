@@ -53,6 +53,9 @@
 #include "lltexturectrl.h"
 #include "lltrans.h"
 #include "llviewerwindow.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLPanelGroupGeneral> t_panel_group_general("panel_group_general");
 
@@ -95,8 +98,8 @@ bool LLPanelGroupGeneral::postBuild()
     if(mEditCharter)
     {
         mEditCharter->setCommitCallback(onCommitAny, this);
-        mEditCharter->setFocusReceivedCallback(boost::bind(onFocusEdit, _1, this));
-        mEditCharter->setFocusChangedCallback(boost::bind(onFocusEdit, _1, this));
+        mEditCharter->setFocusReceivedCallback(std::bind(onFocusEdit, _1, this));
+        mEditCharter->setFocusChangedCallback(std::bind(onFocusEdit, _1, this));
         mEditCharter->setContentTrusted(false);
     }
 
@@ -329,7 +332,7 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
            mComboMature->getCurrentIndex() == DECLINE_TO_STATE)
         {
             LLNotificationsUtil::add("SetGroupMature", LLSD(), LLSD(),
-                                            boost::bind(&LLPanelGroupGeneral::confirmMatureApply, this, _1, _2));
+                                            std::bind(&LLPanelGroupGeneral::confirmMatureApply, this, _1, _2));
             return false;
         }
 

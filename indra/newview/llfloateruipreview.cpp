@@ -72,6 +72,9 @@
 
 #if LL_DARWIN
 #include <CoreFoundation/CFURL.h>
+#include <functional>
+
+using namespace std::placeholders;
 #endif
 
 // Static initialization
@@ -427,40 +430,40 @@ bool LLFloaterUIPreview::postBuild()
     LLPanel* main_panel_tmp = getChild<LLPanel>("main_panel");              // get a pointer to the main panel in order to...
     mFileList = main_panel_tmp->getChild<LLScrollListCtrl>("name_list");    // save pointer to file list
     // Double-click opens the floater, for convenience
-    mFileList->setDoubleClickCallback(boost::bind(&LLFloaterUIPreview::onClickDisplayFloater, this, PRIMARY_FLOATER));
+    mFileList->setDoubleClickCallback(std::bind(&LLFloaterUIPreview::onClickDisplayFloater, this, PRIMARY_FLOATER));
 
     setDefaultBtn("display_floater");
     // get pointers to buttons and link to callbacks
     mLanguageSelection = main_panel_tmp->getChild<LLComboBox>("language_select_combo");
-    mLanguageSelection->setCommitCallback(boost::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
+    mLanguageSelection->setCommitCallback(std::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
     mLanguageSelection_2 = main_panel_tmp->getChild<LLComboBox>("language_select_combo_2");
-    mLanguageSelection_2->setCommitCallback(boost::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
+    mLanguageSelection_2->setCommitCallback(std::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
     LLPanel* editor_panel_tmp = main_panel_tmp->getChild<LLPanel>("editor_panel");
     mDisplayFloaterBtn = main_panel_tmp->getChild<LLButton>("display_floater");
-    mDisplayFloaterBtn->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickDisplayFloater, this, PRIMARY_FLOATER));
+    mDisplayFloaterBtn->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickDisplayFloater, this, PRIMARY_FLOATER));
     mDisplayFloaterBtn_2 = main_panel_tmp->getChild<LLButton>("display_floater_2");
-    mDisplayFloaterBtn_2->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickDisplayFloater, this, SECONDARY_FLOATER));
+    mDisplayFloaterBtn_2->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickDisplayFloater, this, SECONDARY_FLOATER));
     mToggleOverlapButton = main_panel_tmp->getChild<LLButton>("toggle_overlap_panel");
-    mToggleOverlapButton->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickToggleOverlapping, this));
+    mToggleOverlapButton->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickToggleOverlapping, this));
     mCloseOtherButton = main_panel_tmp->getChild<LLButton>("close_displayed_floater");
-    mCloseOtherButton->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickCloseDisplayedFloater, this, PRIMARY_FLOATER));
+    mCloseOtherButton->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickCloseDisplayedFloater, this, PRIMARY_FLOATER));
     mCloseOtherButton_2 = main_panel_tmp->getChild<LLButton>("close_displayed_floater_2");
-    mCloseOtherButton_2->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickCloseDisplayedFloater, this, SECONDARY_FLOATER));
+    mCloseOtherButton_2->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickCloseDisplayedFloater, this, SECONDARY_FLOATER));
     mEditFloaterBtn = main_panel_tmp->getChild<LLButton>("edit_floater");
-    mEditFloaterBtn->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickEditFloater, this));
+    mEditFloaterBtn->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickEditFloater, this));
     mExecutableBrowseButton = editor_panel_tmp->getChild<LLButton>("browse_for_executable");
     LLPanel* vlt_panel_tmp = main_panel_tmp->getChild<LLPanel>("vlt_panel");
-    mExecutableBrowseButton->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickBrowseForEditor, this));
+    mExecutableBrowseButton->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickBrowseForEditor, this));
     mDiffBrowseButton = vlt_panel_tmp->getChild<LLButton>("browse_for_vlt_diffs");
-    mDiffBrowseButton->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickBrowseForDiffs, this));
+    mDiffBrowseButton->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickBrowseForDiffs, this));
     mToggleHighlightButton = vlt_panel_tmp->getChild<LLButton>("toggle_vlt_diff_highlight");
-    mToggleHighlightButton->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickToggleDiffHighlighting, this));
-    main_panel_tmp->getChild<LLButton>("save_floater")->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickSaveFloater, this, PRIMARY_FLOATER));
-    main_panel_tmp->getChild<LLButton>("save_all_floaters")->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickSaveAll, this, PRIMARY_FLOATER));
+    mToggleHighlightButton->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickToggleDiffHighlighting, this));
+    main_panel_tmp->getChild<LLButton>("save_floater")->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickSaveFloater, this, PRIMARY_FLOATER));
+    main_panel_tmp->getChild<LLButton>("save_all_floaters")->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickSaveAll, this, PRIMARY_FLOATER));
 
-    getChild<LLButton>("export_schema")->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickExportSchema, this));
+    getChild<LLButton>("export_schema")->setClickedCallback(std::bind(&LLFloaterUIPreview::onClickExportSchema, this));
     getChild<LLUICtrl>("show_rectangles")->setCommitCallback(
-        boost::bind(&LLFloaterUIPreview::onClickShowRectangles, this, _2));
+        std::bind(&LLFloaterUIPreview::onClickShowRectangles, this, _2));
 
     // get pointers to text fields
     mEditorPathTextBox = editor_panel_tmp->getChild<LLLineEditor>("executable_path_field");
@@ -1022,7 +1025,7 @@ void LLFloaterUIPreview::onClickEditFloater()
 void LLFloaterUIPreview::onClickBrowseForEditor()
 {
     // Let the user choose an executable through the file picker dialog box
-    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterUIPreview::getExecutablePath, this, _1), LLFilePicker::FFLOAD_EXE, false);
+    LLFilePickerReplyThread::startPicker(std::bind(&LLFloaterUIPreview::getExecutablePath, this, _1), LLFilePicker::FFLOAD_EXE, false);
 }
 
 void LLFloaterUIPreview::getExecutablePath(const std::vector<std::string>& filenames)
@@ -1077,7 +1080,7 @@ void LLFloaterUIPreview::getExecutablePath(const std::vector<std::string>& filen
 void LLFloaterUIPreview::onClickBrowseForDiffs()
 {
     // create load dialog box
-    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterUIPreview::getDiffsFilePath, this, _1), LLFilePicker::FFLOAD_XML, false);
+    LLFilePickerReplyThread::startPicker(std::bind(&LLFloaterUIPreview::getDiffsFilePath, this, _1), LLFilePicker::FFLOAD_XML, false);
 }
 
 void LLFloaterUIPreview::getDiffsFilePath(const std::vector<std::string>& filenames)

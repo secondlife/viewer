@@ -34,6 +34,7 @@
 #include "llstyle.h"
 #include "lluiconstants.h"
 #include "llviewertexteditor.h"
+#include <functional>
 
 const S32 LLToastScriptTextbox::DEFAULT_MESSAGE_MAX_LINE_COUNT= 14;
 
@@ -46,7 +47,7 @@ LLToastScriptTextbox::LLToastScriptTextbox(const LLNotificationPtr& notification
     mInfoText->setMaxTextLength(LLToastPanel::MAX_TEXT_LENGTH);
     mInfoText->setValue(notification->getMessage());
 
-    getChild<LLButton>("ignore_btn")->setClickedCallback(boost::bind(&LLToastScriptTextbox::onClickIgnore, this));
+    getChild<LLButton>("ignore_btn")->setClickedCallback(std::bind(&LLToastScriptTextbox::onClickIgnore, this));
 
     const LLSD& payload = notification->getPayload();
 
@@ -62,7 +63,7 @@ LLToastScriptTextbox::LLToastScriptTextbox(const LLNotificationPtr& notification
 
     //submit button
     LLButton* pSubmitBtn = getChild<LLButton>("btn_submit");
-    pSubmitBtn->setClickedCallback((boost::bind(&LLToastScriptTextbox::onClickSubmit, this)));
+    pSubmitBtn->setClickedCallback((std::bind(&LLToastScriptTextbox::onClickSubmit, this)));
     setDefaultBtn(pSubmitBtn);
 
     snapToMessageHeight();

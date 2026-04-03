@@ -47,6 +47,7 @@
 #include "llcorehttputil.h"
 
 #include "llsdutil.h"
+#include <functional>
 //
 // Helpers
 //
@@ -379,7 +380,7 @@ namespace LLMarketplaceImport
         std::string url = getInventoryImportURL();
 
         LLCoros::instance().launch("marketplaceGetCoro",
-            boost::bind(&marketplaceGetCoro, url, false));
+            std::bind(&marketplaceGetCoro, url, false));
 
         return true;
     }
@@ -398,7 +399,7 @@ namespace LLMarketplaceImport
         url += sImportId.asString();
 
         LLCoros::instance().launch("marketplaceGetCoro",
-            boost::bind(&marketplaceGetCoro, url, true));
+            std::bind(&marketplaceGetCoro, url, true));
 
         return true;
     }
@@ -419,7 +420,7 @@ namespace LLMarketplaceImport
         std::string url = getInventoryImportURL();
 
         LLCoros::instance().launch("marketplacePostCoro",
-            boost::bind(&marketplacePostCoro, url));
+            std::bind(&marketplacePostCoro, url));
 
         return true;
     }
@@ -775,7 +776,7 @@ void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& 
         mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING;
 
         LLCoros::instance().launch("getMerchantStatus",
-            boost::bind(&LLMarketplaceData::getMerchantStatusCoro, this));
+            std::bind(&LLMarketplaceData::getMerchantStatusCoro, this));
     }
 }
 
@@ -854,7 +855,7 @@ void LLMarketplaceData::getSLMListings()
     setUpdating(marketplaceFolderId, true);
 
     LLCoros::instance().launch("getSLMListings",
-        boost::bind(&LLMarketplaceData::getSLMListingsCoro, this, marketplaceFolderId));
+        std::bind(&LLMarketplaceData::getSLMListingsCoro, this, marketplaceFolderId));
 }
 
 void LLMarketplaceData::getSLMListingsCoro(LLUUID folderId)
@@ -919,7 +920,7 @@ void LLMarketplaceData::getSLMListing(S32 listingId)
     setUpdating(folderId, true);
 
     LLCoros::instance().launch("getSingleListingCoro",
-        boost::bind(&LLMarketplaceData::getSingleListingCoro, this, listingId, folderId));
+        std::bind(&LLMarketplaceData::getSingleListingCoro, this, listingId, folderId));
 }
 
 void LLMarketplaceData::getSingleListingCoro(S32 listingId, LLUUID folderId)
@@ -990,7 +991,7 @@ void LLMarketplaceData::createSLMListing(const LLUUID& folder_id, const LLUUID& 
 {
     setUpdating(folder_id, true);
     LLCoros::instance().launch("createSLMListingCoro",
-        boost::bind(&LLMarketplaceData::createSLMListingCoro, this, folder_id, version_id, count));
+        std::bind(&LLMarketplaceData::createSLMListingCoro, this, folder_id, version_id, count));
 }
 
 void LLMarketplaceData::createSLMListingCoro(LLUUID folderId, LLUUID versionId, S32 count)
@@ -1064,7 +1065,7 @@ void LLMarketplaceData::updateSLMListing(const LLUUID& folder_id, S32 listing_id
 {
     setUpdating(folder_id, true);
     LLCoros::instance().launch("updateSLMListingCoro",
-        boost::bind(&LLMarketplaceData::updateSLMListingCoro, this, folder_id, listing_id, version_id, is_listed, count));
+        std::bind(&LLMarketplaceData::updateSLMListingCoro, this, folder_id, listing_id, version_id, is_listed, count));
 }
 
 void LLMarketplaceData::updateSLMListingCoro(LLUUID folderId, S32 listingId, LLUUID versionId, bool isListed, S32 count)
@@ -1159,7 +1160,7 @@ void LLMarketplaceData::associateSLMListing(const LLUUID& folder_id, S32 listing
     setUpdating(folder_id, true);
     setUpdating(source_folder_id, true);
     LLCoros::instance().launch("associateSLMListingCoro",
-        boost::bind(&LLMarketplaceData::associateSLMListingCoro, this, folder_id, listing_id, version_id, source_folder_id));
+        std::bind(&LLMarketplaceData::associateSLMListingCoro, this, folder_id, listing_id, version_id, source_folder_id));
 }
 
 void LLMarketplaceData::associateSLMListingCoro(LLUUID folderId, S32 listingId, LLUUID versionId, LLUUID sourceFolderId)
@@ -1240,7 +1241,7 @@ void LLMarketplaceData::associateSLMListingCoro(LLUUID folderId, S32 listingId, 
 void LLMarketplaceData::deleteSLMListing(S32 listingId)
 {
     LLCoros::instance().launch("deleteSLMListingCoro",
-        boost::bind(&LLMarketplaceData::deleteSLMListingCoro, this, listingId));
+        std::bind(&LLMarketplaceData::deleteSLMListingCoro, this, listingId));
 }
 
 void LLMarketplaceData::deleteSLMListingCoro(S32 listingId)

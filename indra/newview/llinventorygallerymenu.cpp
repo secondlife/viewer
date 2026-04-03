@@ -49,6 +49,9 @@
 #include "llviewerfoldertype.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 void modify_outfit(bool append, const LLUUID& cat_id, LLInventoryModel* model)
@@ -90,10 +93,10 @@ LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryGalleryContextMenu::doToSelected, this, _2));
-    registrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::fileUploadLocation, this, _2));
-    registrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
-    registrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
+    registrar.add("Inventory.DoToSelected", std::bind(&LLInventoryGalleryContextMenu::doToSelected, this, _2));
+    registrar.add("Inventory.FileUploadLocation", std::bind(&LLInventoryGalleryContextMenu::fileUploadLocation, this, _2));
+    registrar.add("Inventory.EmptyTrash", std::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
+    registrar.add("Inventory.EmptyLostAndFound", std::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
     registrar.add("Inventory.DoCreate", [this](LLUICtrl*, const LLSD& data)
                           {
                               if (mRootFolder)
@@ -107,10 +110,10 @@ LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
                           });
 
     std::set<LLUUID> uuids(mUUIDs.begin(), mUUIDs.end());
-    registrar.add("Inventory.Share", boost::bind(&LLAvatarActions::shareWithAvatars, uuids, gFloaterView->getParentFloater(mGallery)));
+    registrar.add("Inventory.Share", std::bind(&LLAvatarActions::shareWithAvatars, uuids, gFloaterView->getParentFloater(mGallery)));
 
-    enable_registrar.add("Inventory.CanSetUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::canSetUploadLocation, this, _2));
-    enable_registrar.add("Inventory.FileUploadLocation.Check", boost::bind(&LLInventoryGalleryContextMenu::isUploadLocationSelected, this, _2));
+    enable_registrar.add("Inventory.CanSetUploadLocation", std::bind(&LLInventoryGalleryContextMenu::canSetUploadLocation, this, _2));
+    enable_registrar.add("Inventory.FileUploadLocation.Check", std::bind(&LLInventoryGalleryContextMenu::isUploadLocationSelected, this, _2));
 
     enable_registrar.add("Inventory.EnvironmentEnabled", [](LLUICtrl*, const LLSD&)
                          {
@@ -458,7 +461,7 @@ void LLInventoryGalleryContextMenu::rename(const LLUUID& item_id)
     LLSD payload;
     payload["id"] = mUUIDs.front();
 
-    LLNotificationsUtil::add("RenameItem", args, payload, boost::bind(onRename, _1, _2));
+    LLNotificationsUtil::add("RenameItem", args, payload, std::bind(onRename, _1, _2));
 }
 
 void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLSD& response)

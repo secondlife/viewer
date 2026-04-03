@@ -47,6 +47,7 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lltrans.h"
+#include <functional>
 
 LLFloaterBuy::LLFloaterBuy(const LLSD& key)
 :   LLFloater(key),
@@ -59,8 +60,8 @@ bool LLFloaterBuy::postBuild()
     getChildView("object_list")->setEnabled(false);
     getChildView("item_list")->setEnabled(false);
 
-    getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuy::onClickCancel, this));
-    getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuy::onClickBuy, this));
+    getChild<LLUICtrl>("cancel_btn")->setCommitCallback( std::bind(&LLFloaterBuy::onClickCancel, this));
+    getChild<LLUICtrl>("buy_btn")->setCommitCallback( std::bind(&LLFloaterBuy::onClickBuy, this));
 
     setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
 
@@ -191,7 +192,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 
     if (!floater->mSelectionUpdateSlot.connected())
     {
-        floater->mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterBuy::onSelectionChanged, floater));
+        floater->mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(std::bind(&LLFloaterBuy::onSelectionChanged, floater));
     }
 }
 

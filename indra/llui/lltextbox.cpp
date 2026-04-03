@@ -34,6 +34,7 @@
 #include "llwindow.h"
 #include "llurlregistry.h"
 #include "llstyle.h"
+#include <functional>
 
 static LLDefaultChildRegistry::Register<LLTextBox> r("text");
 

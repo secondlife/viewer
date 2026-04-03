@@ -63,6 +63,9 @@
 #include "lluiusage.h"
 
 #include <boost/lexical_cast.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 LLPointer<LLVOAvatarSelf> gAgentAvatarp = NULL;
 
@@ -223,7 +226,7 @@ void LLVOAvatarSelf::initInstance()
 
     //doPeriodically(output_self_av_texture_diagnostics, 30.0);
     doPeriodically(update_avatar_rez_metrics, 5.0);
-    doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
+    doPeriodically(std::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
 
     initAllJoints(); // mesh thread uses LLVOAvatarSelf as a joint source
 
@@ -251,7 +254,7 @@ void LLVOAvatarSelf::setHoverIfRegionEnabled()
         LL_INFOS("Avatar") << avString() << " region or simulator features not known, no change on hover" << LL_ENDL;
         if (getRegion())
         {
-            getRegion()->setSimulatorFeaturesReceivedCallback(boost::bind(&LLVOAvatarSelf::onSimulatorFeaturesReceived,this,_1));
+            getRegion()->setSimulatorFeaturesReceivedCallback(std::bind(&LLVOAvatarSelf::onSimulatorFeaturesReceived,this,_1));
         }
 
     }
@@ -939,7 +942,7 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
         }
         else
         {
-            regionp->setSimulatorFeaturesReceivedCallback(boost::bind(&LLVOAvatarSelf::onSimulatorFeaturesReceived,this,_1));
+            regionp->setSimulatorFeaturesReceivedCallback(std::bind(&LLVOAvatarSelf::onSimulatorFeaturesReceived,this,_1));
         }
     }
 
@@ -2375,7 +2378,7 @@ void LLVOAvatarSelf::sendViewerAppearanceChangeMetrics()
     {
 
         LLCoros::instance().launch("LLVOAvatarSelf::appearanceChangeMetricsCoro",
-            boost::bind(&LLVOAvatarSelf::appearanceChangeMetricsCoro, this, caps_url));
+            std::bind(&LLVOAvatarSelf::appearanceChangeMetricsCoro, this, caps_url));
         mTimeSinceLastRezMessage.reset();
     }
 }

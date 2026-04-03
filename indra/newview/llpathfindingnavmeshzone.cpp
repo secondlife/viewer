@@ -35,6 +35,9 @@
 #include "llpathinglib.h"
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 #define CENTER_REGION 99
 
@@ -62,13 +65,13 @@ void LLPathfindingNavMeshZone::initialize()
 {
     mNavMeshLocationPtrs.clear();
 
-    NavMeshLocationPtr centerNavMeshPtr(new NavMeshLocation(CENTER_REGION, boost::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
+    NavMeshLocationPtr centerNavMeshPtr(new NavMeshLocation(CENTER_REGION, std::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
     mNavMeshLocationPtrs.push_back(centerNavMeshPtr);
 
     U32 neighborRegionDir = gSavedSettings.getU32("PathfindingRetrieveNeighboringRegion");
     if (neighborRegionDir != CENTER_REGION)
     {
-        NavMeshLocationPtr neighborNavMeshPtr(new NavMeshLocation(neighborRegionDir, boost::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
+        NavMeshLocationPtr neighborNavMeshPtr(new NavMeshLocation(neighborRegionDir, std::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
         mNavMeshLocationPtrs.push_back(neighborNavMeshPtr);
     }
 }
@@ -311,7 +314,7 @@ void LLPathfindingNavMeshZone::NavMeshLocation::enable()
     else
     {
         mRegionUUID = region->getRegionID();
-        mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(region, boost::bind(&LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh, this, _1, _2, _3));
+        mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(region, std::bind(&LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh, this, _1, _2, _3));
     }
 }
 

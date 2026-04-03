@@ -52,6 +52,9 @@
 #include "llselectmgr.h"
 #include "lltransactiontypes.h"
 #include "lluictrlfactory.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -157,7 +160,7 @@ bool LLFloaterPay::postBuild()
     give_money_ptr info = std::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_0);
     mCallbackData.push_back(info);
 
-    childSetAction("fastpay 1", boost::bind(LLFloaterPay::onGive, info));
+    childSetAction("fastpay 1", std::bind(LLFloaterPay::onGive, info));
     getChildView("fastpay 1")->setVisible(false);
 
     mQuickPayButton[i] = getChild<LLButton>("fastpay 1");
@@ -167,7 +170,7 @@ bool LLFloaterPay::postBuild()
     info = std::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_1);
     mCallbackData.push_back(info);
 
-    childSetAction("fastpay 5", boost::bind(LLFloaterPay::onGive, info));
+    childSetAction("fastpay 5", std::bind(LLFloaterPay::onGive, info));
     getChildView("fastpay 5")->setVisible(false);
 
     mQuickPayButton[i] = getChild<LLButton>("fastpay 5");
@@ -177,7 +180,7 @@ bool LLFloaterPay::postBuild()
     info = std::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_2);
     mCallbackData.push_back(info);
 
-    childSetAction("fastpay 10", boost::bind(LLFloaterPay::onGive, info));
+    childSetAction("fastpay 10", std::bind(LLFloaterPay::onGive, info));
     getChildView("fastpay 10")->setVisible(false);
 
     mQuickPayButton[i] = getChild<LLButton>("fastpay 10");
@@ -187,7 +190,7 @@ bool LLFloaterPay::postBuild()
     info = std::make_shared<LLGiveMoneyInfo>(this, PAY_BUTTON_DEFAULT_3);
     mCallbackData.push_back(info);
 
-    childSetAction("fastpay 20", boost::bind(LLFloaterPay::onGive, info));
+    childSetAction("fastpay 20", std::bind(LLFloaterPay::onGive, info));
     getChildView("fastpay 20")->setVisible(false);
 
     mQuickPayButton[i] = getChild<LLButton>("fastpay 20");
@@ -204,7 +207,7 @@ bool LLFloaterPay::postBuild()
     info = give_money_ptr(new LLGiveMoneyInfo(this, 0));
     mCallbackData.push_back(info);
 
-    childSetAction("pay btn", boost::bind(LLFloaterPay::onGive, info));
+    childSetAction("pay btn", std::bind(LLFloaterPay::onGive, info));
     setDefaultBtn("pay btn");
     getChildView("pay btn")->setVisible(false);
     getChildView("pay btn")->setEnabled(false);
@@ -531,7 +534,7 @@ void LLFloaterPay::onGive(give_money_ptr info)
         args["TARGET"] = LLSLURL(is_group ? "group" : "agent", payee_id, "completename").getSLURLString();
         args["AMOUNT"] = amount;
 
-        LLNotificationsUtil::add("PayConfirmation", args, LLSD(), boost::bind(&LLFloaterPay::payConfirmationCallback, _1, _2, info));
+        LLNotificationsUtil::add("PayConfirmation", args, LLSD(), std::bind(&LLFloaterPay::payConfirmationCallback, _1, _2, info));
     }
     else
     {

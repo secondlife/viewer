@@ -84,6 +84,9 @@
 #include "llparcel.h"
 
 #include "llenvironment.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
@@ -1873,7 +1876,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
     }
     else if ("show_on_map" == action)
     {
-        doActionOnCurSelectedLandmark(boost::bind(&LLItemBridge::doShowOnMap, this, _1));
+        doActionOnCurSelectedLandmark(std::bind(&LLItemBridge::doShowOnMap, this, _1));
     }
     else if ("marketplace_edit_listing" == action)
     {
@@ -2217,7 +2220,7 @@ bool LLItemBridge::removeItem()
         return false;
 
     LLNotification::Params params("ConfirmItemDeleteHasLinks");
-    params.functor.function(boost::bind(&LLItemBridge::confirmRemoveItem, this, _1, _2));
+    params.functor.function(std::bind(&LLItemBridge::confirmRemoveItem, this, _1, _2));
 
     // Check if this item has any links.  If generic inventory linking is enabled,
     // we can't do this check because we may have items in a folder somewhere that is
@@ -2965,36 +2968,36 @@ bool LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
                     if (LLMarketplaceData::instance().isListed(cat_id) || LLMarketplaceData::instance().isVersionFolder(cat_id))
                     {
                         // Move the active version folder or listing folder itself outside marketplace listings will unlist the listing so ask that question specifically
-                        LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
+                        LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), std::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     }
                     else
                     {
                         // Any other case will simply modify but not unlist an active listed listing
-                        LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
+                        LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), std::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     }
                     return true;
                 }
                 if (move_is_from_marketplacelistings && LLMarketplaceData::instance().isVersionFolder(cat_id))
                 {
                     // Moving the version folder from its location will deactivate it. Ask confirmation.
-                    LLNotificationsUtil::add("ConfirmMerchantClearVersion", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
+                    LLNotificationsUtil::add("ConfirmMerchantClearVersion", LLSD(), LLSD(), std::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     return true;
                 }
                 if (move_is_into_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(mUUID))
                 {
                     // Moving something in an active listed listing will modify it. Ask confirmation.
-                    LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
+                    LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), std::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     return true;
                 }
                 if (move_is_from_marketplacelistings && LLMarketplaceData::instance().isListed(cat_id))
                 {
                     // Moving a whole listing folder will result in archival of SLM data. Ask confirmation.
-                    LLNotificationsUtil::add("ConfirmListingCutOrDelete", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
+                    LLNotificationsUtil::add("ConfirmListingCutOrDelete", LLSD(), LLSD(), std::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     return true;
                 }
                 if (move_is_into_marketplacelistings && !move_is_from_marketplacelistings)
                 {
-                    LLNotificationsUtil::add("ConfirmMerchantMoveInventory", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
+                    LLNotificationsUtil::add("ConfirmMerchantMoveInventory", LLSD(), LLSD(), std::bind(&LLFolderBridge::callback_dropCategoryIntoFolder, this, _1, _2, inv_cat));
                     return true;
                 }
             }
@@ -3229,7 +3232,7 @@ void warn_move_inventory(LLViewerObject* object, std::shared_ptr<LLMoveInv> move
         || inv_ptr->mCategoryID != move_inv->mCategoryID
         || inv_ptr->mObjectID != move_inv->mObjectID)
     {
-        notification_ptr = LLNotificationsUtil::add(dialog, LLSD(), LLSD(), boost::bind(move_task_inventory_callback, _1, _2, move_inv));
+        notification_ptr = LLNotificationsUtil::add(dialog, LLSD(), LLSD(), std::bind(move_task_inventory_callback, _1, _2, move_inv));
         inv_ptr = move_inv;
     }
     else
@@ -3348,7 +3351,7 @@ bool move_inv_category_world_to_agent(const LLUUID& object_id,
         else
         {
             LLNotification::Params params("MoveInventoryFromObject");
-            params.functor.function(boost::bind(move_task_inventory_callback, _1, _2, move_inv));
+            params.functor.function(std::bind(move_task_inventory_callback, _1, _2, move_inv));
             LLNotifications::instance().forceResponse(params, 0);
         }
     }
@@ -3637,7 +3640,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
                         LLMarketplaceData::instance().activateListing(mUUID, true);
                     }
                 },
-                boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3)
+                std::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3)
             );
         }
         return;
@@ -3664,7 +3667,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
                         LLMarketplaceData::instance().setVersionFolder(category->getParentUUID(), mUUID);
                     }
                 },
-                boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),
+                std::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),
                 false,
                 2);
         }
@@ -3716,7 +3719,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
                             LLNotificationsUtil::add("MerchantListingFailed", subs);
                         }
                     },
-                        boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),
+                        std::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),
                         true);
                 }
                 else
@@ -3724,7 +3727,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
                     LLMarketplaceData::instance().createListing(mUUID);
                 }
             },
-            boost::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),
+            std::bind(&LLFolderBridge::gatherMessage, this, _1, _2, _3),
             false);
 
         return;
@@ -3966,7 +3969,7 @@ bool LLFolderBridge::removeItem()
     args["FOLDERNAME"] = cat->getName();
 
     LLNotification::Params params("ConfirmDeleteProtectedCategory");
-    params.payload(payload).substitutions(args).functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
+    params.payload(payload).substitutions(args).functor.function(std::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
     LLNotifications::instance().forceResponse(params, 0);
     return true;
 }
@@ -3984,7 +3987,7 @@ bool LLFolderBridge::removeSystemFolder()
     args["FOLDERNAME"] = cat->getName();
 
     LLNotification::Params params("ConfirmDeleteProtectedCategory");
-    params.payload(payload).substitutions(args).functor.function(boost::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
+    params.payload(payload).substitutions(args).functor.function(std::bind(&LLFolderBridge::removeItemResponse, this, _1, _2));
     {
         LLNotifications::instance().add(params);
     }
@@ -4047,7 +4050,7 @@ void LLFolderBridge::pasteFromClipboard()
         if (cut_from_marketplacelistings || (paste_into_marketplacelistings && !LLMarketplaceData::instance().isListed(mUUID) && LLMarketplaceData::instance().isInActiveFolder(mUUID)))
         {
             // Prompt the user if pasting in a marketplace active version listing (note that pasting right under the listing folder root doesn't need a prompt)
-            LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_pasteFromClipboard, this, _1, _2));
+            LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), std::bind(&LLFolderBridge::callback_pasteFromClipboard, this, _1, _2));
         }
         else
         {
@@ -5563,7 +5566,7 @@ void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item, LLPointer<LLInve
     LLPointer <LLInventoryCallback> callback = cb_fav;
     if (cb)
     {
-        callback = new LLBoostFuncInventoryCallback(boost::bind(drop_to_favorites_cb, _1, cb, cb_fav));
+        callback = new LLBoostFuncInventoryCallback(std::bind(drop_to_favorites_cb, _1, cb, cb_fav));
     }
 
     copy_inventory_item(
@@ -5607,7 +5610,7 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLI
 
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
-    inventory_func_type func = boost::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
+    inventory_func_type func = std::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
     getInventoryModel()->createNewCategory(dest_id,
                                  LLFolderType::FT_OUTFIT,
                                  inv_cat->getName(),
@@ -5617,7 +5620,7 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLI
 
 void LLFolderBridge::dropToMyOutfitsSubfolder(LLInventoryCategory* inv_cat, const LLUUID& dest_id, LLPointer<LLInventoryCallback> cb)
 {
-    inventory_func_type func = boost::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
+    inventory_func_type func = std::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
     getInventoryModel()->createNewCategory(dest_id,
         LLFolderType::FT_OUTFIT,
         inv_cat->getName(),
@@ -5854,12 +5857,12 @@ bool LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
                                                        || LLMarketplaceData::instance().isListedAndActive(inv_item->getUUID()))) ||
                     (move_is_into_marketplacelistings && LLMarketplaceData::instance().isInActiveFolder(mUUID)))
                 {
-                    LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropItemIntoFolder, this, _1, _2, inv_item));
+                    LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), std::bind(&LLFolderBridge::callback_dropItemIntoFolder, this, _1, _2, inv_item));
                     return true;
                 }
                 if (move_is_into_marketplacelistings && !move_is_from_marketplacelistings)
                 {
-                    LLNotificationsUtil::add("ConfirmMerchantMoveInventory", LLSD(), LLSD(), boost::bind(&LLFolderBridge::callback_dropItemIntoFolder, this, _1, _2, inv_item));
+                    LLNotificationsUtil::add("ConfirmMerchantMoveInventory", LLSD(), LLSD(), std::bind(&LLFolderBridge::callback_dropItemIntoFolder, this, _1, _2, inv_item));
                     return true;
                 }
             }
@@ -6021,7 +6024,7 @@ bool LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
                 set_dad_inventory_item(inv_item, mUUID);
 
                 LLNotification::Params params("MoveInventoryFromObject");
-                params.functor.function(boost::bind(move_task_inventory_callback, _1, _2, move_inv));
+                params.functor.function(std::bind(move_task_inventory_callback, _1, _2, move_inv));
                 LLNotifications::instance().forceResponse(params, 0);
             }
         }
@@ -6931,7 +6934,7 @@ void LLGestureBridge::performAction(LLInventoryModel* model, std::string action)
             // we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboList.
             bool inform_server = true;
             bool deactivate_similar = false;
-            LLGestureMgr::instance().setGestureLoadedCallback(mUUID, boost::bind(&LLGestureBridge::playGesture, mUUID));
+            LLGestureMgr::instance().setGestureLoadedCallback(mUUID, std::bind(&LLGestureBridge::playGesture, mUUID));
             LLViewerInventoryItem* item = gInventory.getItem(mUUID);
             llassert(item);
             if (item)
@@ -7202,7 +7205,7 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
         else if(item && item->isFinished())
         {
             // must be in library. copy it to our inventory and put it on.
-            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0, true));
+            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(std::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0, true));
             copy_inventory_item(
                 gAgent.getID(),
                 item->getPermissions().getOwner(),

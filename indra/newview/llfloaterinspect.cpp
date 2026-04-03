@@ -42,6 +42,7 @@
 #include "llviewercontrol.h"
 #include "llviewerobject.h"
 #include "lluictrlfactory.h"
+#include <functional>
 
 //LLFloaterInspect* LLFloaterInspect::sInstance = NULL;
 
@@ -51,9 +52,9 @@ LLFloaterInspect::LLFloaterInspect(const LLSD& key)
     mOwnerNameCacheConnection(),
     mCreatorNameCacheConnection()
 {
-    mCommitCallbackRegistrar.add("Inspect.OwnerProfile",    boost::bind(&LLFloaterInspect::onClickOwnerProfile, this));
-    mCommitCallbackRegistrar.add("Inspect.CreatorProfile",  boost::bind(&LLFloaterInspect::onClickCreatorProfile, this));
-    mCommitCallbackRegistrar.add("Inspect.SelectObject",    boost::bind(&LLFloaterInspect::onSelectObject, this));
+    mCommitCallbackRegistrar.add("Inspect.OwnerProfile",    std::bind(&LLFloaterInspect::onClickOwnerProfile, this));
+    mCommitCallbackRegistrar.add("Inspect.CreatorProfile",  std::bind(&LLFloaterInspect::onClickCreatorProfile, this));
+    mCommitCallbackRegistrar.add("Inspect.SelectObject",    std::bind(&LLFloaterInspect::onSelectObject, this));
 }
 
 bool LLFloaterInspect::postBuild()
@@ -245,7 +246,7 @@ void LLFloaterInspect::refresh()
                 {
                     mOwnerNameCacheConnection.disconnect();
                 }
-                mOwnerNameCacheConnection = gCacheName->getGroup(idGroup, boost::bind(&LLFloaterInspect::onGetOwnerNameCallback, this));
+                mOwnerNameCacheConnection = gCacheName->getGroup(idGroup, std::bind(&LLFloaterInspect::onGetOwnerNameCallback, this));
             }
         }
         else
@@ -264,7 +265,7 @@ void LLFloaterInspect::refresh()
                 {
                     mOwnerNameCacheConnection.disconnect();
                 }
-                mOwnerNameCacheConnection = LLAvatarNameCache::get(idOwner, boost::bind(&LLFloaterInspect::onGetOwnerNameCallback, this));
+                mOwnerNameCacheConnection = LLAvatarNameCache::get(idOwner, std::bind(&LLFloaterInspect::onGetOwnerNameCallback, this));
             }
         }
 
@@ -279,7 +280,7 @@ void LLFloaterInspect::refresh()
             {
                 mCreatorNameCacheConnection.disconnect();
             }
-            mCreatorNameCacheConnection = LLAvatarNameCache::get(idCreator, boost::bind(&LLFloaterInspect::onGetCreatorNameCallback, this));
+            mCreatorNameCacheConnection = LLAvatarNameCache::get(idCreator, std::bind(&LLFloaterInspect::onGetCreatorNameCallback, this));
         }
 
         row["id"] = obj->getObject()->getID();

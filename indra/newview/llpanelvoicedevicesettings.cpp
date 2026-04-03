@@ -39,6 +39,7 @@
 
 // Library includes (after viewer)
 #include "lluictrlfactory.h"
+#include <functional>
 
 static LLPanelInjector<LLPanelVoiceDeviceSettings> t_panel_group_general("panel_voice_device_settings");
 static const std::string DEFAULT_DEVICE("Default");
@@ -74,18 +75,18 @@ bool LLPanelVoiceDeviceSettings::postBuild()
     mUnmuteBtn = getChild<LLButton>("unmute_btn");
 
     mCtrlInputDevices->setCommitCallback(
-        boost::bind(&LLPanelVoiceDeviceSettings::onCommitInputDevice, this));
+        std::bind(&LLPanelVoiceDeviceSettings::onCommitInputDevice, this));
     mCtrlOutputDevices->setCommitCallback(
-        boost::bind(&LLPanelVoiceDeviceSettings::onCommitOutputDevice, this));
+        std::bind(&LLPanelVoiceDeviceSettings::onCommitOutputDevice, this));
     mUnmuteBtn->setCommitCallback(
-        boost::bind(&LLPanelVoiceDeviceSettings::onCommitUnmute, this));
+        std::bind(&LLPanelVoiceDeviceSettings::onCommitUnmute, this));
 
     mLocalizedDeviceNames[DEFAULT_DEVICE]               = getString("default_text");
     mLocalizedDeviceNames["No Device"]                  = getString("name_no_device");
     mLocalizedDeviceNames["Default System Device"]      = getString("name_default_system_device");
 
-    mCtrlOutputDevices->setMouseDownCallback(boost::bind(&LLPanelVoiceDeviceSettings::onOutputDevicesClicked, this));
-    mCtrlInputDevices->setMouseDownCallback(boost::bind(&LLPanelVoiceDeviceSettings::onInputDevicesClicked, this));
+    mCtrlOutputDevices->setMouseDownCallback(std::bind(&LLPanelVoiceDeviceSettings::onOutputDevicesClicked, this));
+    mCtrlInputDevices->setMouseDownCallback(std::bind(&LLPanelVoiceDeviceSettings::onInputDevicesClicked, this));
 
 
     return true;

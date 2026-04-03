@@ -29,6 +29,7 @@
 #include "llnotifications.h"
 #include "llpanelonlinestatus.h"
 #include "llviewercontrol.h" // for gSavedSettings
+#include <functional>
 
 LLPanelOnlineStatus::LLPanelOnlineStatus(
         const LLNotificationPtr& notification) :
@@ -45,7 +46,7 @@ LLPanelOnlineStatus::LLPanelOnlineStatus(
     if (notification->getPayload().has("respond_on_mousedown")
             && notification->getPayload()["respond_on_mousedown"])
     {
-        setMouseDownCallback(boost::bind(&LLNotification::respond,
+        setMouseDownCallback(std::bind(&LLNotification::respond,
                 notification, notification->getResponseTemplate()));
     }
 

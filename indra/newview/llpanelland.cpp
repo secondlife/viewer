@@ -43,6 +43,7 @@
 #include "roles_constants.h"
 
 #include "lluictrlfactory.h"
+#include <functional>
 
 LLPanelLandSelectObserver* LLPanelLandInfo::sObserver = NULL;
 LLPanelLandInfo* LLPanelLandInfo::sInstance = NULL;
@@ -59,19 +60,19 @@ public:
 bool    LLPanelLandInfo::postBuild()
 {
     mButtonBuyLand = getChild<LLButton>("button buy land");
-    mButtonBuyLand->setCommitCallback(boost::bind(&LLPanelLandInfo::onClickClaim, this));
+    mButtonBuyLand->setCommitCallback(std::bind(&LLPanelLandInfo::onClickClaim, this));
 
     mButtonAbandonLand = getChild<LLButton>("button abandon land");
-    mButtonAbandonLand->setCommitCallback(boost::bind(&LLPanelLandInfo::onClickRelease, this));
+    mButtonAbandonLand->setCommitCallback(std::bind(&LLPanelLandInfo::onClickRelease, this));
 
     mButtonSubdivLand = getChild<LLButton>("button subdivide land");
-    mButtonSubdivLand->setCommitCallback(boost::bind(&LLPanelLandInfo::onClickDivide, this));
+    mButtonSubdivLand->setCommitCallback(std::bind(&LLPanelLandInfo::onClickDivide, this));
 
     mButtonJoinLand = getChild<LLButton>("button join land");
-    mButtonJoinLand->setCommitCallback(boost::bind(&LLPanelLandInfo::onClickJoin, this));
+    mButtonJoinLand->setCommitCallback(std::bind(&LLPanelLandInfo::onClickJoin, this));
 
     mButtonAboutLand = getChild<LLButton>("button about land");
-    mButtonAboutLand->setCommitCallback(boost::bind(&LLPanelLandInfo::onClickAbout, this));
+    mButtonAboutLand->setCommitCallback(std::bind(&LLPanelLandInfo::onClickAbout, this));
 
     mCheckShowOwners = getChild<LLCheckBoxCtrl>("checkbox show owners");
     mCheckShowOwners->setValue(gSavedSettings.getBOOL("ShowParcelOwners"));

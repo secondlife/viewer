@@ -39,6 +39,9 @@
 #include "llsdserialize.h"
 
 #include <boost/lexical_cast.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 
 // class LLViewerParcelAskPlay
@@ -93,7 +96,7 @@ void LLViewerParcelAskPlay::askToPlay(const LLUUID &region_id, const S32 &parcel
                 payload["url"] = url; // or we can extract it from notification["substitutions"]
                 payload["parcel_id"] = parcel_id;
                 payload["region_id"] = region_id;
-                pNotification = LLNotificationsUtil::add("ParcelPlayingMedia", args, payload, boost::bind(onAskPlayResponse, _1, _2, cb));
+                pNotification = LLNotificationsUtil::add("ParcelPlayingMedia", args, payload, std::bind(onAskPlayResponse, _1, _2, cb));
             }
             else
             {

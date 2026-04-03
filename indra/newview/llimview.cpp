@@ -74,6 +74,9 @@
 #include "llurlregistry.h"
 
 #include <array>
+#include <functional>
+
+using namespace std::placeholders;
 
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
 
@@ -174,7 +177,7 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
     args["FROM_ID"] = msg["from_id"];
     args["SESSION_ID"] = msg["session_id"];
     args["SESSION_TYPE"] = msg["session_type"];
-    LLNotificationsUtil::add("IMToast", args, args, boost::bind(&LLFloaterIMContainer::showConversation, LLFloaterIMContainer::getInstance(), msg["session_id"].asUUID()));
+    LLNotificationsUtil::add("IMToast", args, args, std::bind(&LLFloaterIMContainer::showConversation, LLFloaterIMContainer::getInstance(), msg["session_id"].asUUID()));
 }
 
 void notify_of_message(const LLSD& msg, bool is_dnd_msg)
@@ -401,7 +404,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
                 }
                 else
                 {
-                    LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+                    LLAvatarNameCache::get(participant_id, std::bind(&on_avatar_name_cache_toast, _1, _2, msg));
                 }
             }
         }
@@ -414,7 +417,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
             && participant_id.notNull()
             && !session_floater->isShown())
         {
-            LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+            LLAvatarNameCache::get(participant_id, std::bind(&on_avatar_name_cache_toast, _1, _2, msg));
         }
     }
 }
@@ -721,8 +724,8 @@ void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, 
 
 LLIMModel::LLIMModel()
 {
-    addNewMsgCallback(boost::bind(&LLFloaterIMSession::newIMCallback, _1));
-    addNewMsgCallback(boost::bind(&on_new_message, _1));
+    addNewMsgCallback(std::bind(&LLFloaterIMSession::newIMCallback, _1));
+    addNewMsgCallback(std::bind(&on_new_message, _1));
     LLCallDialogManager::instance();
 }
 
@@ -801,7 +804,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
     // history files have consistent (English) names in different locales.
     if (isAdHocSessionType() && IM_SESSION_INVITE == mType)
     {
-        mAvatarNameCacheConnection = LLAvatarNameCache::get(mOtherParticipantID,boost::bind(&LLIMModel::LLIMSession::onAdHocNameCache,this, _2));
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(mOtherParticipantID,std::bind(&LLIMModel::LLIMSession::onAdHocNameCache,this, _2));
     }
 }
 
@@ -863,7 +866,7 @@ void LLIMModel::LLIMSession::initVoiceChannel(const LLSD& voiceChannelInfo)
     }
 
     mVoiceChannelStateChangeConnection =
-        mVoiceChannel->setStateChangedCallback(boost::bind(&LLIMSession::onVoiceChannelStateChanged, this, _1, _2, _3));
+        mVoiceChannel->setStateChangedCallback(std::bind(&LLIMSession::onVoiceChannelStateChanged, this, _1, _2, _3));
 
     if (!mSpeakers)
     {
@@ -1725,10 +1728,10 @@ void LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
     {
         const std::string from_lang = ""; // leave empty to trigger autodetect
         const std::string to_lang = LLTranslate::getTranslateLanguage();
-        U64 time_n_flags = ((U64) time_stamp) | (log2file ? (1LL << 32) : 0) | (is_region_msg ? (1LL << 33) : 0);   // boost::bind has limited parameters
+        U64 time_n_flags = ((U64) time_stamp) | (log2file ? (1LL << 32) : 0) | (is_region_msg ? (1LL << 33) : 0);   // std::bind has limited parameters
         LLTranslate::translateMessage(from_lang, to_lang, utf8_text,
-            boost::bind(&translateSuccess, session_id, from, from_id, utf8_text, time_n_flags, utf8_text, from_lang, _1, _2),
-            boost::bind(&translateFailure, session_id, from, from_id, utf8_text, time_n_flags, _1, _2));
+            std::bind(&translateSuccess, session_id, from, from_id, utf8_text, time_n_flags, utf8_text, from_lang, _1, _2),
+            std::bind(&translateFailure, session_id, from, from_id, utf8_text, time_n_flags, _1, _2));
     }
     else
     {
@@ -2181,7 +2184,7 @@ bool LLIMModel::sendStartSession(
                 "ChatSessionRequest");
 
             LLCoros::instance().launch("startConferenceCoro",
-                boost::bind(&startConferenceCoro, url,
+                std::bind(&startConferenceCoro, url,
                 temp_session_id, gAgent.getID(), other_participant_id, agents));
         }
         else
@@ -2202,7 +2205,7 @@ bool LLIMModel::sendStartSession(
         if (region)
         {
             std::string url = region->getCapability("ChatSessionRequest");
-            LLCoros::instance().launch("startP2PVoiceCoro", boost::bind(&startP2PVoiceCoro, url, temp_session_id, gAgent.getID(), other_participant_id));
+            LLCoros::instance().launch("startP2PVoiceCoro", std::bind(&startP2PVoiceCoro, url, temp_session_id, gAgent.getID(), other_participant_id));
         }
         return true;
     }
@@ -2381,7 +2384,7 @@ void LLCallDialogManager::onVoiceChannelChangedInt(const LLUUID &session_id)
     // disconnect previously connected callback to avoid have invalid sSession in onVoiceChannelStateChanged()
     prev_channel_state_changed_connection.disconnect();
     prev_channel_state_changed_connection =
-        mSession->mVoiceChannel->setStateChangedCallback(boost::bind(LLCallDialogManager::onVoiceChannelStateChanged, _1, _2, _3, _4));
+        mSession->mVoiceChannel->setStateChangedCallback(std::bind(LLCallDialogManager::onVoiceChannelStateChanged, _1, _2, _3, _4));
 
     if(mCurrentSessionlName != session->mName)
     {
@@ -2883,7 +2886,7 @@ bool LLIncomingCallDialog::postBuild()
         {
             mAvatarNameCacheConnection.disconnect();
         }
-        mAvatarNameCacheConnection = LLAvatarNameCache::get(caller_id, boost::bind(&LLIncomingCallDialog::onAvatarNameCache, this, _1, _2, call_type));
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(caller_id, std::bind(&LLIncomingCallDialog::onAvatarNameCache, this, _1, _2, call_type));
     }
 
     setIcon(session_id, caller_id);
@@ -3062,7 +3065,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
                 if(!url.empty())
                 {
                     LLCoros::instance().launch("chatterBoxInvitationCoro",
-                        boost::bind(&chatterBoxInvitationCoro, url, session_id, inv_type, payload["voice_channel_info"]));
+                        std::bind(&chatterBoxInvitationCoro, url, session_id, inv_type, payload["voice_channel_info"]));
                 }
 
                 // send notification message to the corresponding chat
@@ -3137,7 +3140,7 @@ LLIMMgr::LLIMMgr()
     mPendingInvitations = LLSD::emptyMap();
     mPendingAgentListUpdates = LLSD::emptyMap();
 
-    LLIMModel::getInstance()->addNewMsgCallback(boost::bind(&LLFloaterIMSession::sRemoveTypingIndicator, _1));
+    LLIMModel::getInstance()->addNewMsgCallback(std::bind(&LLFloaterIMSession::sRemoveTypingIndicator, _1));
 
     gSavedPerAccountSettings.declareBOOL("FetchGroupChatHistory", true, "Fetch recent messages from group chat servers when a group window opens", LLControlVariable::PERSIST_ALWAYS);
 }
@@ -3255,7 +3258,7 @@ void LLIMMgr::addMessage(
                 std::string chat_url = gAgent.getRegionCapability("ChatSessionRequest");
                 if (!chat_url.empty())
                 {
-                    LLCoros::instance().launch("chatterBoxHistoryCoro", boost::bind(&chatterBoxHistoryCoro, chat_url, session_id, from, msg, timestamp));
+                    LLCoros::instance().launch("chatterBoxHistoryCoro", std::bind(&chatterBoxHistoryCoro, chat_url, session_id, from, msg, timestamp));
                 }
             }
 
@@ -3637,7 +3640,7 @@ void LLIMMgr::inviteToSession(
         if (caller_name.empty())
         {
             LLAvatarNameCache::get(caller_id,
-                boost::bind(&LLIMMgr::onInviteNameLookup, payload, _1, _2));
+                std::bind(&LLIMMgr::onInviteNameLookup, payload, _1, _2));
         }
         else
         {
@@ -4100,7 +4103,7 @@ public:
                         if (!url.empty())
                         {
                             LLCoros::instance().launch("chatterBoxHistoryCoro",
-                                boost::bind(&chatterBoxHistoryCoro, url, session_id, "", "", 0));
+                                std::bind(&chatterBoxHistoryCoro, url, session_id, "", "", 0));
                         }
                     }
                 }
@@ -4298,7 +4301,7 @@ public:
             if ( url != "" )
             {
                 LLCoros::instance().launch("chatterBoxInvitationCoro",
-                    boost::bind(&chatterBoxInvitationCoro, url,
+                    std::bind(&chatterBoxInvitationCoro, url,
                     session_id, LLIMMgr::INVITATION_TYPE_INSTANT_MESSAGE, LLSD()));
             }
         } //end if invitation has instant message

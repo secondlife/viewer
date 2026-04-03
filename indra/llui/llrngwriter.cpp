@@ -31,7 +31,9 @@
 
 #include "lluictrlfactory.h"
 
-#include "boost/bind.hpp"
+#include <functional>
+
+using namespace std::placeholders;
 
 static  LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
 static  LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;
@@ -44,20 +46,20 @@ LLRNGWriter::LLRNGWriter()
 : Parser(sReadFuncs, sWriteFuncs, sInspectFuncs)
 {
     // register various callbacks for inspecting the contents of a param block
-    registerInspectFunc<bool>(boost::bind(&LLRNGWriter::writeAttribute, this, "boolean", _1, _2, _3, _4));
-    registerInspectFunc<std::string>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-    registerInspectFunc<U8>(boost::bind(&LLRNGWriter::writeAttribute, this, "unsignedByte", _1, _2, _3, _4));
-    registerInspectFunc<S8>(boost::bind(&LLRNGWriter::writeAttribute, this, "signedByte", _1, _2, _3, _4));
-    registerInspectFunc<U16>(boost::bind(&LLRNGWriter::writeAttribute, this, "unsignedShort", _1, _2, _3, _4));
-    registerInspectFunc<S16>(boost::bind(&LLRNGWriter::writeAttribute, this, "signedShort", _1, _2, _3, _4));
-    registerInspectFunc<U32>(boost::bind(&LLRNGWriter::writeAttribute, this, "unsignedInt", _1, _2, _3, _4));
-    registerInspectFunc<S32>(boost::bind(&LLRNGWriter::writeAttribute, this, "integer", _1, _2, _3, _4));
-    registerInspectFunc<F32>(boost::bind(&LLRNGWriter::writeAttribute, this, "float", _1, _2, _3, _4));
-    registerInspectFunc<F64>(boost::bind(&LLRNGWriter::writeAttribute, this, "double", _1, _2, _3, _4));
-    registerInspectFunc<LLColor4>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-    registerInspectFunc<LLUIColor>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-    registerInspectFunc<LLUUID>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-    registerInspectFunc<LLSD>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
+    registerInspectFunc<bool>(std::bind(&LLRNGWriter::writeAttribute, this, "boolean", _1, _2, _3, _4));
+    registerInspectFunc<std::string>(std::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
+    registerInspectFunc<U8>(std::bind(&LLRNGWriter::writeAttribute, this, "unsignedByte", _1, _2, _3, _4));
+    registerInspectFunc<S8>(std::bind(&LLRNGWriter::writeAttribute, this, "signedByte", _1, _2, _3, _4));
+    registerInspectFunc<U16>(std::bind(&LLRNGWriter::writeAttribute, this, "unsignedShort", _1, _2, _3, _4));
+    registerInspectFunc<S16>(std::bind(&LLRNGWriter::writeAttribute, this, "signedShort", _1, _2, _3, _4));
+    registerInspectFunc<U32>(std::bind(&LLRNGWriter::writeAttribute, this, "unsignedInt", _1, _2, _3, _4));
+    registerInspectFunc<S32>(std::bind(&LLRNGWriter::writeAttribute, this, "integer", _1, _2, _3, _4));
+    registerInspectFunc<F32>(std::bind(&LLRNGWriter::writeAttribute, this, "float", _1, _2, _3, _4));
+    registerInspectFunc<F64>(std::bind(&LLRNGWriter::writeAttribute, this, "double", _1, _2, _3, _4));
+    registerInspectFunc<LLColor4>(std::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
+    registerInspectFunc<LLUIColor>(std::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
+    registerInspectFunc<LLUUID>(std::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
+    registerInspectFunc<LLSD>(std::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
 }
 
 void LLRNGWriter::writeRNG(const std::string& type_name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace)

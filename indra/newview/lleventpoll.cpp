@@ -39,6 +39,7 @@
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
 #include "lleventfilter.h"
+#include <functional>
 
 namespace LLEventPolling
 {
@@ -123,7 +124,7 @@ namespace Details
         {
             std::string coroname =
                 LLCoros::instance().launch("LLEventPollImpl::eventPollCoro",
-                boost::bind(&LLEventPollImpl::eventPollCoro, this->shared_from_this(), url));
+                std::bind(&LLEventPollImpl::eventPollCoro, this->shared_from_this(), url));
             LL_INFOS("LLEventPollImpl") << coroname << " with  url '" << url << LL_ENDL;
         }
     }

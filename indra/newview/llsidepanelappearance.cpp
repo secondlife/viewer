@@ -50,6 +50,9 @@
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llviewerwearable.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLSidepanelAppearance> t_appearance("sidepanel_appearance");
 
@@ -81,12 +84,12 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
     mOpened(false)
 {
     LLOutfitObserver& outfit_observer =  LLOutfitObserver::instance();
-    outfit_observer.addBOFReplacedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
-    outfit_observer.addBOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
-    outfit_observer.addCOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
+    outfit_observer.addBOFReplacedCallback(std::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
+    outfit_observer.addBOFChangedCallback(std::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
+    outfit_observer.addCOFChangedCallback(std::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
 
-    gAgentWearables.addLoadingStartedCallback(boost::bind(&LLSidepanelAppearance::setWearablesLoading, this, true));
-    gAgentWearables.addLoadedCallback(boost::bind(&LLSidepanelAppearance::setWearablesLoading, this, false));
+    gAgentWearables.addLoadingStartedCallback(std::bind(&LLSidepanelAppearance::setWearablesLoading, this, true));
+    gAgentWearables.addLoadedCallback(std::bind(&LLSidepanelAppearance::setWearablesLoading, this, false));
 }
 
 LLSidepanelAppearance::~LLSidepanelAppearance()
@@ -97,17 +100,17 @@ LLSidepanelAppearance::~LLSidepanelAppearance()
 bool LLSidepanelAppearance::postBuild()
 {
     mOpenOutfitBtn = getChild<LLButton>("openoutfit_btn");
-    mOpenOutfitBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onOpenOutfitButtonClicked, this));
+    mOpenOutfitBtn->setClickedCallback(std::bind(&LLSidepanelAppearance::onOpenOutfitButtonClicked, this));
 
     mEditAppearanceBtn = getChild<LLButton>("editappearance_btn");
-    mEditAppearanceBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditAppearanceButtonClicked, this));
+    mEditAppearanceBtn->setClickedCallback(std::bind(&LLSidepanelAppearance::onEditAppearanceButtonClicked, this));
 
-    childSetAction("edit_outfit_btn", boost::bind(&LLSidepanelAppearance::showOutfitEditPanel, this));
+    childSetAction("edit_outfit_btn", std::bind(&LLSidepanelAppearance::showOutfitEditPanel, this));
 
     mFilterEditor = getChild<LLFilterEditor>("Filter");
     if (mFilterEditor)
     {
-        mFilterEditor->setCommitCallback(boost::bind(&LLSidepanelAppearance::onFilterEdit, this, _2));
+        mFilterEditor->setCommitCallback(std::bind(&LLSidepanelAppearance::onFilterEdit, this, _2));
     }
 
     mPanelOutfitsInventory = dynamic_cast<LLPanelOutfitsInventory *>(getChild<LLPanel>("panel_outfits_inventory"));
@@ -118,7 +121,7 @@ bool LLSidepanelAppearance::postBuild()
         LLButton* back_btn = mOutfitEdit->getChild<LLButton>("back_btn");
         if (back_btn)
         {
-            back_btn->setClickedCallback(boost::bind(&LLSidepanelAppearance::showOutfitsInventoryPanel, this));
+            back_btn->setClickedCallback(std::bind(&LLSidepanelAppearance::showOutfitsInventoryPanel, this));
         }
 
     }
@@ -129,7 +132,7 @@ bool LLSidepanelAppearance::postBuild()
         LLButton* edit_wearable_back_btn = mEditWearable->getChild<LLButton>("back_btn");
         if (edit_wearable_back_btn)
         {
-            edit_wearable_back_btn->setClickedCallback(boost::bind(&LLSidepanelAppearance::showOutfitEditPanel, this));
+            edit_wearable_back_btn->setClickedCallback(std::bind(&LLSidepanelAppearance::showOutfitEditPanel, this));
         }
     }
 
@@ -142,7 +145,7 @@ bool LLSidepanelAppearance::postBuild()
     mWearableLoadingIndicator = getChild<LLLoadingIndicator>("wearables_loading_indicator");
     mEditOutfitBtn = getChild<LLButton>("edit_outfit_btn");
 
-    setVisibleCallback(boost::bind(&LLSidepanelAppearance::onVisibilityChanged,this,_2));
+    setVisibleCallback(std::bind(&LLSidepanelAppearance::onVisibilityChanged,this,_2));
 
     setWearablesLoading(gAgentWearables.isCOFChangeInProgress());
 

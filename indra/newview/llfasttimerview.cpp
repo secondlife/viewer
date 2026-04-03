@@ -54,6 +54,7 @@
 #include "lltreeiterators.h"
 #include "llmetricperformancetester.h"
 #include "llviewerstats.h"
+#include <functional>
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -131,7 +132,7 @@ bool LLFastTimerView::postBuild()
     LLButton& pause_btn = getChildRef<LLButton>("pause_btn");
     mScrollBar = getChild<LLScrollbar>("scroll_vert");
 
-    pause_btn.setCommitCallback(boost::bind(&LLFastTimerView::onPause, this));
+    pause_btn.setCommitCallback(std::bind(&LLFastTimerView::onPause, this));
     return true;
 }
 

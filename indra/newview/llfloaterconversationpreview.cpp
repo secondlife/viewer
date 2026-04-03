@@ -34,6 +34,9 @@
 #include "llspinctrl.h"
 #include "lltrans.h"
 #include "llnotificationsutil.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const std::string LL_FCP_COMPLETE_NAME("complete_name");
 const std::string LL_FCP_ACCOUNT_NAME("user_name");
@@ -121,7 +124,7 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std
     LLLoadHistoryThread* loadThread = LLLogChat::getInstance()->getLoadHistoryThread(mSessionID);
     if (loadThread)
     {
-        loadThread->removeLoadEndSignal(boost::bind(&LLFloaterConversationPreview::setPages, this, _1, _2));
+        loadThread->removeLoadEndSignal(std::bind(&LLFloaterConversationPreview::setPages, this, _1, _2));
     }
 }
 
@@ -163,7 +166,7 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
     loading[LL_IM_TEXT] = LLTrans::getString("loading_chat_logs");
     mMessages->push_back(loading);
     mPageSpinner = getChild<LLSpinCtrl>("history_page_spin");
-    mPageSpinner->setCommitCallback(boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
+    mPageSpinner->setCommitCallback(std::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
     mPageSpinner->setMinValue(1);
     mPageSpinner->set(1);
     mPageSpinner->setEnabled(false);
@@ -177,7 +180,7 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
     log_chat_inst->cleanupHistoryThreads();
 
     LLLoadHistoryThread* loadThread = new LLLoadHistoryThread(mChatHistoryFileName, messages, load_params);
-    loadThread->setLoadEndSignal(boost::bind(&LLFloaterConversationPreview::setPages, this, _1, _2));
+    loadThread->setLoadEndSignal(std::bind(&LLFloaterConversationPreview::setPages, this, _1, _2));
     loadThread->start();
     log_chat_inst->addLoadHistoryThread(mSessionID, loadThread);
 

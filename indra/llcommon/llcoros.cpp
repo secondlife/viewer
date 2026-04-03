@@ -37,7 +37,7 @@
 #include <atomic>
 #include <stdexcept>
 // external library headers
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/fiber/fiber.hpp>
 #ifndef BOOST_DISABLE_ASSERTS
 #define UNDO_BOOST_DISABLE_ASSERTS

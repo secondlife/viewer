@@ -30,7 +30,7 @@
 
 #include "lllogin.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "llcoros.h"
 #include "llevents.h"

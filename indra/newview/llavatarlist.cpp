@@ -47,6 +47,9 @@
 #include "llvoiceclient.h"
 #include "llviewercontrol.h"    // for gSavedSettings
 #include "lltooldraganddrop.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
 
@@ -155,7 +158,7 @@ LLAvatarList::LLAvatarList(const Params& p)
         mLITUpdateTimer->start();
     }
 
-    LLAvatarNameCache::getInstance()->addUseDisplayNamesCallback(boost::bind(&LLAvatarList::handleDisplayNamesOptionChanged, this));
+    LLAvatarNameCache::getInstance()->addUseDisplayNamesCallback(std::bind(&LLAvatarList::handleDisplayNamesOptionChanged, this));
 }
 
 
@@ -437,8 +440,8 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, bool is
     item->setShowPermissions(mShowPermissions);
 
 
-    item->setDoubleClickCallback(boost::bind(&LLAvatarList::onItemDoubleClicked, this, _1, _2, _3, _4));
-    item->setMouseDownCallback(boost::bind(&LLAvatarList::onItemClicked, this, _1, _2, _3, _4));
+    item->setDoubleClickCallback(std::bind(&LLAvatarList::onItemDoubleClicked, this, _1, _2, _3, _4));
+    item->setMouseDownCallback(std::bind(&LLAvatarList::onItemClicked, this, _1, _2, _3, _4));
 
     addItem(item, id, pos);
 }

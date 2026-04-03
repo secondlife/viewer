@@ -58,6 +58,9 @@
 #include "llworld.h"
 
 #include "boost/lexical_cast.hpp"
+#include <functional>
+
+using namespace std::placeholders;
 
 extern void on_new_message(const LLSD& msg);
 
@@ -573,7 +576,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             {
                 // Message to everyone from GOD, look up the fullname since
                 // server always slams name to legacy names
-                LLAvatarNameCache::get(from_id, boost::bind(god_message_name_cb, _2, chat, message));
+                LLAvatarNameCache::get(from_id, std::bind(god_message_name_cb, _2, chat, message));
             }
             else
             {
@@ -1507,7 +1510,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             args["NAME"] = name;
             LLSD payload;
             payload["from_id"] = from_id;
-            LLAvatarNameCache::get(from_id, boost::bind(&notification_display_name_callback, _1, _2, "FriendshipAccepted", args, payload));
+            LLAvatarNameCache::get(from_id, std::bind(&notification_display_name_callback, _1, _2, "FriendshipAccepted", args, payload));
         }
         break;
 
@@ -1552,7 +1555,7 @@ void LLIMProcessing::requestOfflineMessages()
         else
         {
             LLCoros::instance().launch("LLIMProcessing::requestOfflineMessagesCoro",
-                boost::bind(&LLIMProcessing::requestOfflineMessagesCoro, cap_url));
+                std::bind(&LLIMProcessing::requestOfflineMessagesCoro, cap_url));
         }
         requested = true;
     }

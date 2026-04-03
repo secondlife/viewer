@@ -66,6 +66,9 @@
 #include "lluiusage.h"
 
 #include "llavatarpropertiesprocessor.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLAppearanceListener sAppearanceListener;
 
@@ -75,7 +78,7 @@ namespace
     const F32   BAKE_RETRY_TIMEOUT = 2.0F;
 }
 
-// *TODO$: LLInventoryCallback should be deprecated to conform to the new boost::bind/coroutine model.
+// *TODO$: LLInventoryCallback should be deprecated to conform to the new std::bind/coroutine model.
 // temp code in transition
 void doAppearanceCb(LLPointer<LLInventoryCallback> cb, LLUUID id)
 {
@@ -116,7 +119,7 @@ public:
     LLOutfitUnLockTimer(F32 period) : LLEventTimer(period)
     {
         // restart timer on BOF changed event
-        LLOutfitObserver::instance().addBOFChangedCallback(boost::bind(
+        LLOutfitObserver::instance().addBOFChangedCallback(std::bind(
                 &LLOutfitUnLockTimer::reset, this));
         stop();
     }
@@ -271,7 +274,7 @@ public:
         if (ll_frand() < gSavedSettings.getF32("InventoryDebugSimulateLateOpRate"))
         {
             LL_WARNS() << "Simulating late operation by punting handling to later" << LL_ENDL;
-            doAfterInterval(boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,src_id,dst_id,timestamp),
+            doAfterInterval(std::bind(&LLCallAfterInventoryBatchMgr::onOp,this,src_id,dst_id,timestamp),
                             mRetryAfter);
             return;
         }
@@ -447,7 +450,7 @@ public:
             item->getUUID(),
             mDstCatID,
             std::string(),
-            new LLBoostFuncInventoryCallback(boost::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item_id,_1,LLTimer()))
+            new LLBoostFuncInventoryCallback(std::bind(&LLCallAfterInventoryBatchMgr::onOp,this,item_id,_1,LLTimer()))
             );
         return true;
     }
@@ -589,7 +592,7 @@ LLUpdateAppearanceAndEditWearableOnDestroy::~LLUpdateAppearanceAndEditWearableOn
     {
         LLAppearanceMgr::instance().updateAppearanceFromCOF(
             true,true,
-            boost::bind(edit_wearable_and_customize_avatar, mItemID));
+            std::bind(edit_wearable_and_customize_avatar, mItemID));
     }
 }
 
@@ -869,7 +872,7 @@ void LLWearableHoldingPattern::checkMissingWearables()
     }
     if (!pollMissingWearables())
     {
-        doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollMissingWearables,this));
+        doOnIdleRepeating(std::bind(&LLWearableHoldingPattern::pollMissingWearables,this));
     }
 }
 
@@ -950,7 +953,7 @@ bool LLWearableHoldingPattern::pollFetchCompletion()
         LL_WARNS() << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << LL_ENDL;
 
         // If we were signalled to stop then we shouldn't do anything else except poll for when it's safe to delete ourselves
-        doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollStopped, this));
+        doOnIdleRepeating(std::bind(&LLWearableHoldingPattern::pollStopped, this));
         return true;
     }
 
@@ -1034,7 +1037,7 @@ void recovered_item_cb(const LLUUID& item_id, LLWearableType::EType type, LLView
     llassert(itemp);
     if (itemp)
     {
-        LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(recovered_item_link_cb,_1,type,wearable,holder));
+        LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(std::bind(recovered_item_link_cb,_1,type,wearable,holder));
 
         link_inventory_object(LLAppearanceMgr::instance().getCOF(), itemp, cb);
     }
@@ -1056,7 +1059,7 @@ void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type
 
     // Add a new one in the lost and found folder.
     const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-    LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(recovered_item_cb,_1,type,wearable,this));
+    LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(std::bind(recovered_item_cb,_1,type,wearable,this));
 
     create_inventory_wearable(gAgent.getID(),
                           gAgent.getSessionID(),
@@ -1094,7 +1097,7 @@ bool LLWearableHoldingPattern::pollMissingWearables()
         LL_WARNS() << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << LL_ENDL;
 
         // If we were signalled to stop then we shouldn't do anything else except poll for when it's safe to delete ourselves
-        doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollStopped, this));
+        doOnIdleRepeating(std::bind(&LLWearableHoldingPattern::pollStopped, this));
         return true;
     }
 
@@ -1499,7 +1502,7 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
             LL_DEBUGS("Avatar") << "inventory item in library, will copy and wear "
                 << item_to_wear->getName() << " id " << item_id_to_wear << LL_ENDL;
             bool replace_item = needs_to_replace(item_to_wear, first_for_object, first_for_type, replace);
-            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(wear_on_avatar_cb, _1, replace_item));
+            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(std::bind(wear_on_avatar_cb, _1, replace_item));
             copy_inventory_item(gAgent.getID(), item_to_wear->getPermissions().getOwner(),
                                 item_to_wear->getUUID(), LLUUID::null, std::string(), cb);
             continue;
@@ -1654,7 +1657,7 @@ void LLAppearanceMgr::renameOutfit(const LLUUID& outfit_id)
     LLSD payload;
     payload["cat_id"] = outfit_id;
 
-    LLNotificationsUtil::add("RenameOutfit", args, payload, boost::bind(onOutfitRename, _1, _2));
+    LLNotificationsUtil::add("RenameOutfit", args, payload, std::bind(onOutfitRename, _1, _2));
 }
 
 // User typed new outfit name.
@@ -2754,7 +2757,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
     holder->resetTime(gSavedSettings.getF32("MaxWearableWaitTime"));
     if (!holder->pollFetchCompletion())
     {
-        doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollFetchCompletion,holder));
+        doOnIdleRepeating(std::bind(&LLWearableHoldingPattern::pollFetchCompletion,holder));
     }
     post_update_func();
 
@@ -2831,7 +2834,7 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
         LLPointer<LLInventoryCallback> track_cb = new LLTrackPhaseWrapper(
                                                     std::string("wear_inventory_category_callback"), copy_cb);
 
-        AISAPI::completion_t cr = boost::bind(&doAppearanceCb, track_cb, _1);
+        AISAPI::completion_t cr = std::bind(&doAppearanceCb, track_cb, _1);
         AISAPI::CopyLibraryCategory(category->getUUID(), parent_id, false, cr);
     }
     else
@@ -2850,7 +2853,7 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
         }
         else
         {
-            callAfterCategoryFetch(category->getUUID(), boost::bind(&LLAppearanceMgr::wearCategoryFinal,
+            callAfterCategoryFetch(category->getUUID(), std::bind(&LLAppearanceMgr::wearCategoryFinal,
                                                                     &LLAppearanceMgr::instance(),
                                                                     category->getUUID(), copy, append));
         }
@@ -2923,7 +2926,7 @@ void LLAppearanceMgr::wearCategoryFinal(const LLUUID& cat_id, bool copy_items, b
             // Create a CopyMgr that will copy items, manage its own destruction
             new LLCallAfterInventoryCopyMgr(
                 *items, new_cat_id, std::string("wear_inventory_category_callback"),
-                boost::bind(&LLAppearanceMgr::wearInventoryCategoryOnAvatar,
+                std::bind(&LLAppearanceMgr::wearInventoryCategoryOnAvatar,
                     LLAppearanceMgr::getInstance(),
                     gInventory.getCategory(new_cat_id),
                     append));
@@ -3448,7 +3451,7 @@ void LLAppearanceMgr::copyLibraryGestures()
         {
             LL_DEBUGS("Avatar") << self_av_string() << "initiating fetch and copy for " << folder_name << " cat_id " << cat_id << LL_ENDL;
             callAfterCategoryFetch(cat_id,
-                                   boost::bind(&LLAppearanceMgr::shallowCopyCategory,
+                                   std::bind(&LLAppearanceMgr::shallowCopyCategory,
                                                &LLAppearanceMgr::instance(),
                                                cat_id, dst_id, cb));
         }
@@ -3849,7 +3852,7 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
     if (!mOutstandingAppearanceBakeRequest && gAssetStorage->getNumPendingUploads() == 0)
     {
         mRerequestAppearanceBake = false;
-        LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this, _1);
+        LLCoprocedureManager::CoProcedure_t proc = std::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this, _1);
         LLCoprocedureManager::instance().enqueueCoprocedure("AIS", "LLAppearanceMgr::serverAppearanceUpdateCoro", proc);
     }
     else
@@ -4156,7 +4159,7 @@ void LLAppearanceMgr::onOutfitFolderCreated(const LLUUID& folder_id, bool show_p
 {
     LLPointer<LLInventoryCallback> cb =
         new LLBoostFuncInventoryCallback(no_op_inventory_func,
-                                         boost::bind(&LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered,this,folder_id,show_panel));
+                                         std::bind(&LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered,this,folder_id,show_panel));
     updateClothingOrderingInfo(LLUUID::null, cb);
 }
 
@@ -4164,7 +4167,7 @@ void LLAppearanceMgr::onOutfitFolderCreatedAndClothingOrdered(const LLUUID& fold
 {
     LLPointer<LLInventoryCallback> cb =
         new LLBoostFuncInventoryCallback(no_op_inventory_func,
-                                         boost::bind(show_created_outfit,folder_id,show_panel));
+                                         std::bind(show_created_outfit,folder_id,show_panel));
     bool copy_folder_links = false;
     slamCategoryLinks(getCOF(), folder_id, copy_folder_links, cb);
 }
@@ -4401,7 +4404,7 @@ LLAppearanceMgr::LLAppearanceMgr():
 {
     LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
     // unlock outfit on save operation completed
-    outfit_observer.addCOFSavedCallback(boost::bind(
+    outfit_observer.addCOFSavedCallback(std::bind(
             &LLAppearanceMgr::setOutfitLocked, this, false));
 
     mUnlockOutfitTimer = std::make_unique<LLOutfitUnLockTimer>((F32)gSavedSettings.getS32(

@@ -32,6 +32,9 @@
 #include "lltoggleablemenu.h"
 #include "llstring.h"
 #include "v4color.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLMenuButton> r("menu_button");
 
@@ -115,7 +118,7 @@ void LLMenuButton::setMenu(LLToggleableMenu* menu, EMenuPosition position /*MP_T
     mMenuPosition = position;
     mOwnMenu = take_ownership;
 
-    menu->setVisibilityChangeCallback(boost::bind(&LLMenuButton::onMenuVisibilityChange, this, _2));
+    menu->setVisibilityChangeCallback(std::bind(&LLMenuButton::onMenuVisibilityChange, this, _2));
 }
 
 bool LLMenuButton::handleKeyHere(KEY key, MASK mask )

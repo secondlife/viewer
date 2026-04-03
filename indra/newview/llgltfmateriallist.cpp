@@ -50,6 +50,7 @@
 #include <boost/iostreams/stream.hpp>
 
 #include <unordered_set>
+#include <functional>
 
 LLGLTFMaterialList gGLTFMaterialList;
 

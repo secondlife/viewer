@@ -40,6 +40,9 @@
 #include "llinspect.h"
 #include "lltransientfloatermgr.h"
 #include "llvoiceclient.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLAvatarName;
 
@@ -107,10 +110,10 @@ LLFloaterVoiceVolume::~LLFloaterVoiceVolume()
 bool LLFloaterVoiceVolume::postBuild(void)
 {
     getChild<LLUICtrl>("mute_btn")->setCommitCallback(
-        boost::bind(&LLFloaterVoiceVolume::onClickMuteVolume, this) );
+        std::bind(&LLFloaterVoiceVolume::onClickMuteVolume, this) );
 
     getChild<LLUICtrl>("volume_slider")->setCommitCallback(
-        boost::bind(&LLFloaterVoiceVolume::onVolumeChange, this, _2));
+        std::bind(&LLFloaterVoiceVolume::onVolumeChange, this, _2));
 
     return true;
 }
@@ -136,7 +139,7 @@ void LLFloaterVoiceVolume::onOpen(const LLSD& data)
     {
         mAvatarNameCacheConnection.disconnect();
     }
-    mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID, boost::bind(&LLFloaterVoiceVolume::onAvatarNameCache, this, _1, _2));
+    mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID, std::bind(&LLFloaterVoiceVolume::onAvatarNameCache, this, _1, _2));
 }
 
 void LLFloaterVoiceVolume::updateVolumeControls()

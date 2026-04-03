@@ -38,6 +38,7 @@
 #include "llrender.h"
 
 #include "llmath.h"
+#include <functional>
 
 // Globals
 static LLDefaultChildRegistry::Register<LLXYVector> register_xy_vector("xy_vector");
@@ -106,7 +107,7 @@ LLXYVector::LLXYVector(const LLXYVector::Params& p)
                            border_rect.mTop - p.padding,
                            border_rect.getCenterX(),
                            border_rect.getHeight() - p.edit_bar_height);
-    x_params.commit_callback.function(boost::bind(&LLXYVector::onEditChange, this));
+    x_params.commit_callback.function(std::bind(&LLXYVector::onEditChange, this));
     mXEntry = LLUICtrlFactory::create<LLLineEditor>(x_params);
     mXEntry->setPrevalidateInput(LLTextValidate::validateFloat);
     addChild(mXEntry);
@@ -124,7 +125,7 @@ LLXYVector::LLXYVector(const LLXYVector::Params& p)
                            border_rect.getHeight() - p.padding,
                            border_rect.getWidth() - p.padding,
                            border_rect.getHeight() - p.edit_bar_height);
-    y_params.commit_callback.function(boost::bind(&LLXYVector::onEditChange, this));
+    y_params.commit_callback.function(std::bind(&LLXYVector::onEditChange, this));
     mYEntry = LLUICtrlFactory::create<LLLineEditor>(y_params);
     mYEntry->setPrevalidateInput(LLTextValidate::validateFloat);
     addChild(mYEntry);

@@ -32,6 +32,9 @@
 #include "llscreenchannel.h"
 #include "llchannelmanager.h"
 #include "lltransientfloatermgr.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 using namespace LLNotificationsUI;
 
@@ -88,7 +91,7 @@ void LLInspectToast::onOpen(const LLSD& notification_id)
         LL_WARNS() << "Could not get requested toast  from screen channel." << LL_ENDL;
         return;
     }
-    mConnection = toast->setOnToastDestroyedCallback(boost::bind(&LLInspectToast::onToastDestroy, this, _1));
+    mConnection = toast->setOnToastDestroyedCallback(std::bind(&LLInspectToast::onToastDestroy, this, _1));
 
     LLPanel * panel = toast->getPanel();
     if (panel == NULL)

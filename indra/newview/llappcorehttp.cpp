@@ -40,6 +40,7 @@
 
 #include "llcorehttputil.h"
 #include "httpstats.h"
+#include <functional>
 
 // Here is where we begin to get our connection usage under control.
 // This establishes llcorehttp policy classes that, among other
@@ -211,7 +212,7 @@ void LLAppCoreHttp::init()
         }
         else
         {
-            mSSLNoVerifySignal = cntrl_ptr->getCommitSignal()->connect(boost::bind(&ssl_verification_changed));
+            mSSLNoVerifySignal = cntrl_ptr->getCommitSignal()->connect(std::bind(&ssl_verification_changed));
             LLCore::HttpOptions::setDefaultSSLVerifyPeer(!cntrl_ptr->getValue().asBoolean());
         }
     }
@@ -298,7 +299,7 @@ void LLAppCoreHttp::init()
             }
             else
             {
-                mHttpClasses[app_policy].mSettingsSignal = cntrl_ptr->getCommitSignal()->connect(boost::bind(&setting_changed));
+                mHttpClasses[app_policy].mSettingsSignal = cntrl_ptr->getCommitSignal()->connect(std::bind(&setting_changed));
             }
         }
     }

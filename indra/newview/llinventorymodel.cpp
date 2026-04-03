@@ -75,6 +75,9 @@
 
 #include <algorithm>
 #include <boost/algorithm/string/join.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 // Increment this if the inventory contents change in a non-backwards-compatible way.
 // For viewer 2, the addition of link items makes a pre-viewer-2 cache incorrect.
@@ -1100,7 +1103,7 @@ void LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 
         LL_DEBUGS(LOG_INV) << "Creating category via request: " << ll_pretty_print_sd(request) << LL_ENDL;
         LLCoros::instance().launch("LLInventoryModel::createNewCategoryCoro",
-            boost::bind(&LLInventoryModel::createNewCategoryCoro, this, url, body, callback));
+            std::bind(&LLInventoryModel::createNewCategoryCoro, this, url, body, callback));
         return;
     }
 
@@ -1621,7 +1624,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
             {
                 // Fetch the current name
                 LLAvatarNameCache::get(id,
-                    boost::bind(&LLViewerInventoryItem::onCallingCardNameLookup, new_item.get(),
+                    std::bind(&LLViewerInventoryItem::onCallingCardNameLookup, new_item.get(),
                     _1, _2));
             }
 
@@ -4137,7 +4140,7 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderT
             args["COUNT"] = item_count;
         }
         LLNotificationsUtil::add(notification, args, LLSD(),
-                                        boost::bind(&LLInventoryModel::callbackEmptyFolderType, this, _1, _2, preferred_type));
+                                        std::bind(&LLInventoryModel::callbackEmptyFolderType, this, _1, _2, preferred_type));
     }
     else
     {
@@ -4267,7 +4270,7 @@ void  LLInventoryModel::checkTrashOverflow()
         else
         {
             LLNotificationsUtil::add("TrashIsFull", LLSD(), LLSD(),
-                boost::bind(callback_preview_trash_folder, _1, _2));
+                std::bind(callback_preview_trash_folder, _1, _2));
         }
     }
 }

@@ -42,6 +42,9 @@
 #include "llsdparam.h"
 #include "lltooltip.h"
 #include "lltrans.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLNameListCtrl> r("name_list");
 
@@ -259,7 +262,7 @@ bool LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 
                     LLToolTip::Params params;
                     params.background_visible(false);
-                    params.click_callback(boost::bind(&LLNameListCtrl::showInspector, this, item_id, is_group, is_experience));
+                    params.click_callback(std::bind(&LLNameListCtrl::showInspector, this, item_id, is_group, is_experience));
                     params.delay_time(0.0f);        // spawn instantly on hover
                     params.image(icon);
                     params.message("");
@@ -364,7 +367,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
                 }
                 mGroupNameCacheConnections.erase(it);
             }
-            mGroupNameCacheConnections[id] = gCacheName->getGroup(id, boost::bind(&LLNameListCtrl::onGroupNameCache, this, _1, _2, item->getHandle()));
+            mGroupNameCacheConnections[id] = gCacheName->getGroup(id, std::bind(&LLNameListCtrl::onGroupNameCache, this, _1, _2, item->getHandle()));
         }
         break;
     case SPECIAL:
@@ -398,7 +401,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
                     }
                     mAvatarNameCacheConnections.erase(it);
                 }
-                mAvatarNameCacheConnections[id] = LLAvatarNameCache::get(id,boost::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, suffix, prefix, item->getHandle()));
+                mAvatarNameCacheConnections[id] = LLAvatarNameCache::get(id,std::bind(&LLNameListCtrl::onAvatarNameCache,this, _1, _2, suffix, prefix, item->getHandle()));
 
                 if(mPendingLookupsRemaining <= 0)
                 {

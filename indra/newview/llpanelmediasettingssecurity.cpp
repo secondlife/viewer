@@ -43,14 +43,15 @@
 #include "lltextbox.h"
 #include "llfloaterwhitelistentry.h"
 #include "llfloatermediasettings.h"
+#include <functional>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
     mParent( NULL )
 {
-    mCommitCallbackRegistrar.add("Media.whitelistAdd",      boost::bind(&LLPanelMediaSettingsSecurity::onBtnAdd, this));
-    mCommitCallbackRegistrar.add("Media.whitelistDelete",   boost::bind(&LLPanelMediaSettingsSecurity::onBtnDel, this));
+    mCommitCallbackRegistrar.add("Media.whitelistAdd",      std::bind(&LLPanelMediaSettingsSecurity::onBtnAdd, this));
+    mCommitCallbackRegistrar.add("Media.whitelistDelete",   std::bind(&LLPanelMediaSettingsSecurity::onBtnDel, this));
 
     // build dialog from XML
     buildFromFile( "panel_media_settings_security.xml");

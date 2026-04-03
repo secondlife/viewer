@@ -61,6 +61,7 @@
 // System includes
 #include <sstream>
 #include <iomanip>
+#include <functional>
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -214,7 +215,7 @@ bool LLFloaterColorPicker::postBuild()
 
     mPipetteBtn->setImages(std::string("eye_button_inactive.tga"), std::string("eye_button_active.tga"));
 
-    mPipetteBtn->setCommitCallback( boost::bind(&LLFloaterColorPicker::onClickPipette, this ));
+    mPipetteBtn->setCommitCallback( std::bind(&LLFloaterColorPicker::onClickPipette, this ));
 
     mApplyImmediateCheck = getChild<LLCheckBoxCtrl>("apply_immediate");
     mApplyImmediateCheck->set(gSavedSettings.getBOOL("ApplyColorImmediately"));

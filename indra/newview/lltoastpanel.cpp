@@ -36,6 +36,9 @@
 #include "lltoastscriptquestion.h"
 
 #include <boost/algorithm/string.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 //static
 const S32 LLToastPanel::MIN_PANEL_HEIGHT = 40; // VPAD(4)*2 + ICON_HEIGHT(32)
@@ -173,19 +176,19 @@ void LLCheckBoxToastPanel::setCheckBoxes(const S32 &h_pad, const S32 &v_pad, LLV
         {
             ignore_message = LLNotifications::instance().getGlobalString("alwayschoose");
         }
-        setCheckBox(ignore_message, ignore_label, boost::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
+        setCheckBox(ignore_message, ignore_label, std::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
     }
     else if (form->getIgnoreType() == LLNotificationForm::IGNORE_WITH_DEFAULT_RESPONSE)
     {
-        setCheckBox(LLNotifications::instance().getGlobalString("skipnexttime"), ignore_label, boost::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
+        setCheckBox(LLNotifications::instance().getGlobalString("skipnexttime"), ignore_label, std::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
     }
     if (form->getIgnoreType() == LLNotificationForm::IGNORE_WITH_DEFAULT_RESPONSE_SESSION_ONLY)
     {
-        setCheckBox(LLNotifications::instance().getGlobalString("skipnexttimesessiononly"), ignore_label, boost::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
+        setCheckBox(LLNotifications::instance().getGlobalString("skipnexttimesessiononly"), ignore_label, std::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
     }
     else if (form->getIgnoreType() == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
     {
-        setCheckBox(LLNotifications::instance().getGlobalString("alwayschoose"), ignore_label, boost::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
+        setCheckBox(LLNotifications::instance().getGlobalString("alwayschoose"), ignore_label, std::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
     }
 }
 

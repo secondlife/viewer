@@ -33,6 +33,9 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "lllineeditor.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const S32 MIN_NOTIFICATION_AREA_HEIGHT = 30;
 const S32 MAX_NOTIFICATION_AREA_HEIGHT = 100;
@@ -146,7 +149,7 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
     button_p.image_color.control="DkGray_66";
     button_p.image_unselected.name="Icon_Close_Foreground";
     button_p.image_selected.name="Icon_Close_Press";
-    button_p.click_callback.function = boost::bind(&LLWindowShade::onCloseNotification, this);
+    button_p.click_callback.function = std::bind(&LLWindowShade::onCloseNotification, this);
 
     close_panel->addChild(LLUICtrlFactory::create<LLButton>(button_p));
 
@@ -267,7 +270,7 @@ void LLWindowShade::displayLatestNotification()
         checkbox_p.rect = LLRect(cur_x, cur_y, cur_x, cur_y - WIDGET_HEIGHT);
         checkbox_p.label = formp->getIgnoreMessage();
         checkbox_p.label_text.text_color = LLColor4::black;
-        checkbox_p.commit_callback.function = boost::bind(&LLWindowShade::onClickIgnore, this, _1);
+        checkbox_p.commit_callback.function = std::bind(&LLWindowShade::onClickIgnore, this, _1);
         checkbox_p.initial_value = formp->getIgnored();
 
         LLCheckBoxCtrl* check = LLUICtrlFactory::create<LLCheckBoxCtrl>(checkbox_p);
@@ -287,7 +290,7 @@ void LLWindowShade::displayLatestNotification()
             button_p.name = form_element["name"];
             button_p.label = form_element["text"];
             button_p.rect = LLRect(cur_x, cur_y, cur_x, cur_y - WIDGET_HEIGHT);
-            button_p.click_callback.function = boost::bind(&LLWindowShade::onClickNotificationButton, this, form_element["name"].asString());
+            button_p.click_callback.function = std::bind(&LLWindowShade::onClickNotificationButton, this, form_element["name"].asString());
             button_p.auto_resize = true;
 
             LLButton* button = LLUICtrlFactory::create<LLButton>(button_p);
@@ -326,7 +329,7 @@ void LLWindowShade::displayLatestNotification()
 
             LLLineEditor::Params line_p;
             line_p.name = form_element["name"];
-            line_p.keystroke_callback = boost::bind(&LLWindowShade::onEnterNotificationText, this, _1, form_element["name"].asString());
+            line_p.keystroke_callback = std::bind(&LLWindowShade::onEnterNotificationText, this, _1, form_element["name"].asString());
             line_p.is_password = type == "password";
             line_p.rect = LLRect(cur_x, cur_y, cur_x + LINE_EDITOR_WIDTH, cur_y - WIDGET_HEIGHT);
 

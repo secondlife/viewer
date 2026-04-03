@@ -31,6 +31,7 @@
 #include "llsyntaxid.h"
 #include "lllocalcliprect.h"
 #include "llviewercontrol.h"
+#include <functional>
 
 const S32   UI_TEXTEDITOR_LINE_NUMBER_MARGIN = 32;
 
@@ -56,7 +57,7 @@ LLScriptEditor::LLScriptEditor(const Params& p)
 
 bool LLScriptEditor::postBuild()
 {
-    gSavedSettings.getControl("LSLFontSizeName")->getCommitSignal()->connect(boost::bind(&LLScriptEditor::onFontSizeChange, this));
+    gSavedSettings.getControl("LSLFontSizeName")->getCommitSignal()->connect(std::bind(&LLScriptEditor::onFontSizeChange, this));
     return LLTextEditor::postBuild();
 }
 

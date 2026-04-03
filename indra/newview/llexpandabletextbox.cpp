@@ -31,6 +31,7 @@
 #include "lltrans.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
+#include <functional>
 
 static LLDefaultChildRegistry::Register<LLExpandableTextBox> t1("expandable_text");
 
@@ -248,7 +249,7 @@ LLExpandableTextBox::LLExpandableTextBox(const Params& p)
 
     updateTextBoxRect();
 
-    mTextBox->setCommitCallback(boost::bind(&LLExpandableTextBox::onExpandClicked, this));
+    mTextBox->setCommitCallback(std::bind(&LLExpandableTextBox::onExpandClicked, this));
 }
 
 

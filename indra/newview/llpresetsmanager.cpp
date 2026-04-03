@@ -39,6 +39,7 @@
 #include "llfeaturemanager.h"
 #include "llagentcamera.h"
 #include "llfile.h"
+#include <functional>
 
 LLPresetsManager::LLPresetsManager()
 {
@@ -119,7 +120,7 @@ void LLPresetsManager::startWatching(const std::string& subdirectory)
                 }
                 else
                 {
-                    mCameraChangedSignal = cntrl_ptr->getCommitSignal()->connect(boost::bind(&settingChanged));
+                    mCameraChangedSignal = cntrl_ptr->getCommitSignal()->connect(std::bind(&settingChanged));
                 }
             }
         }

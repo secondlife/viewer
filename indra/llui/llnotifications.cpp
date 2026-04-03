@@ -45,6 +45,9 @@
 
 #include <algorithm>
 #include <boost/regex.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 
 const std::string NOTIFICATION_PERSIST_VERSION = "0.93";
@@ -1226,13 +1229,13 @@ void LLNotificationChannel::connectToChannel( const std::string& channel_name )
     if (channel_name.empty())
     {
         mListeners.push_back(LLNotifications::instance().connectChanged(
-            boost::bind(&LLNotificationChannelBase::updateItem, this, _1)));
+            std::bind(&LLNotificationChannelBase::updateItem, this, _1)));
     }
     else
     {
         mParents.push_back(channel_name);
         LLNotificationChannelPtr p = LLNotifications::instance().getChannel(channel_name);
-        mListeners.push_back(p->connectChanged(boost::bind(&LLNotificationChannelBase::updateItem, this, _1)));
+        mListeners.push_back(p->connectChanged(std::bind(&LLNotificationChannelBase::updateItem, this, _1)));
     }
 }
 
@@ -1249,7 +1252,7 @@ LLNotifications::LLNotifications()
     mIgnoreAllNotifications(false)
 {
     mListener = std::make_unique<LLNotificationsListener>(*this);
-    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", boost::bind(&LLNotifications::addFromCallback, this, _2));
+    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", std::bind(&LLNotifications::addFromCallback, this, _2));
 
     // touch the instance tracker for notification channels, so that it will still be around in our destructor
     LLInstanceTracker<LLNotificationChannel, std::string>::instanceCount();
@@ -1442,28 +1445,28 @@ void LLNotifications::createDefaultChannels()
     // now construct the various channels AFTER loading the notifications,
     // because the history channel is going to rewrite the stored notifications file
     mDefaultChannels.push_back(new LLNotificationChannel("Enabled", "",
-        !boost::bind(&LLNotifications::getIgnoreAllNotifications, this)));
+        !std::bind(&LLNotifications::getIgnoreAllNotifications, this)));
     mDefaultChannels.push_back(new LLNotificationChannel("Expiration", "Enabled",
-        boost::bind(&LLNotifications::expirationFilter, this, _1)));
+        std::bind(&LLNotifications::expirationFilter, this, _1)));
     mDefaultChannels.push_back(new LLNotificationChannel("Unexpired", "Enabled",
-        !boost::bind(&LLNotifications::expirationFilter, this, _1))); // use negated bind
+        !std::bind(&LLNotifications::expirationFilter, this, _1))); // use negated bind
     mDefaultChannels.push_back(new LLNotificationChannel("Unique", "Unexpired",
-        boost::bind(&LLNotifications::uniqueFilter, this, _1)));
+        std::bind(&LLNotifications::uniqueFilter, this, _1)));
     mDefaultChannels.push_back(new LLNotificationChannel("Ignore", "Unique",
         filterIgnoredNotifications));
     mDefaultChannels.push_back(new LLNotificationChannel("VisibilityRules", "Ignore",
-        boost::bind(&LLNotifications::isVisibleByRules, this, _1)));
+        std::bind(&LLNotifications::isVisibleByRules, this, _1)));
     mDefaultChannels.push_back(new LLNotificationChannel("Visible", "VisibilityRules",
         &LLNotificationFilters::includeEverything));
     mDefaultChannels.push_back(new LLPersistentNotificationChannel());
 
     // connect action methods to these channels
     getChannel("Enabled")->connectFailedFilter(&defaultResponse);
-    getChannel("Expiration")->connectChanged(boost::bind(&LLNotifications::expirationHandler, this, _1));
+    getChannel("Expiration")->connectChanged(std::bind(&LLNotifications::expirationHandler, this, _1));
     // uniqueHandler slot should be added as first slot of the signal due to
     // usage LLStopWhenHandled combiner in LLStandardSignal
-    getChannel("Unique")->connectAtFrontChanged(boost::bind(&LLNotifications::uniqueHandler, this, _1));
-    getChannel("Unique")->connectFailedFilter(boost::bind(&LLNotifications::failedUniquenessTest, this, _1));
+    getChannel("Unique")->connectAtFrontChanged(std::bind(&LLNotifications::uniqueHandler, this, _1));
+    getChannel("Unique")->connectFailedFilter(std::bind(&LLNotifications::failedUniquenessTest, this, _1));
     getChannel("Ignore")->connectFailedFilter(&handleIgnoredNotification);
     getChannel("VisibilityRules")->connectFailedFilter(&visibilityRuleMached);
 }
@@ -1992,7 +1995,7 @@ void LLPostponedNotification::lookupName(const LLUUID& id,
     if (is_group)
     {
         gCacheName->getGroup(id,
-            boost::bind(&LLPostponedNotification::onGroupNameCache,
+            std::bind(&LLPostponedNotification::onGroupNameCache,
                 this, _1, _2, _3));
     }
     else
@@ -2017,7 +2020,7 @@ void LLPostponedNotification::fetchAvatarName(const LLUUID& id)
             mAvatarNameCacheConnection.disconnect();
         }
 
-        mAvatarNameCacheConnection = LLAvatarNameCache::get(id, boost::bind(&LLPostponedNotification::onAvatarNameCache, this, _1, _2));
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(id, std::bind(&LLPostponedNotification::onAvatarNameCache, this, _1, _2));
     }
 }
 

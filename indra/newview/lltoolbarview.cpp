@@ -45,6 +45,9 @@
 #include "llfloaterreg.h"  // HACK for destinations guide on startup
 #include "llviewercontrol.h"  // HACK for destinations guide on startup
 #include "llinventorymodel.h" // HACK to disable starter avatars button for NUX
+#include <functional>
+
+using namespace std::placeholders;
 
 LLToolBarView* gToolBarView = NULL;
 
@@ -108,11 +111,11 @@ bool LLToolBarView::postBuild()
 
     for (int i = LLToolBarEnums::TOOLBAR_FIRST; i <= LLToolBarEnums::TOOLBAR_LAST; i++)
     {
-        mToolbars[i]->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
-        mToolbars[i]->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
-        mToolbars[i]->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4,_5));
-        mToolbars[i]->setButtonAddCallback(boost::bind(LLToolBarView::onToolBarButtonAdded,_1));
-        mToolbars[i]->setButtonRemoveCallback(boost::bind(LLToolBarView::onToolBarButtonRemoved,_1));
+        mToolbars[i]->setStartDragCallback(std::bind(LLToolBarView::startDragTool,_1,_2,_3));
+        mToolbars[i]->setHandleDragCallback(std::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
+        mToolbars[i]->setHandleDropCallback(std::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4,_5));
+        mToolbars[i]->setButtonAddCallback(std::bind(LLToolBarView::onToolBarButtonAdded,_1));
+        mToolbars[i]->setButtonRemoveCallback(std::bind(LLToolBarView::onToolBarButtonRemoved,_1));
     }
 
     return true;

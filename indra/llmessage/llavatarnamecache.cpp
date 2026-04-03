@@ -49,6 +49,9 @@
 
 #include <map>
 #include <set>
+#include <functional>
+
+using namespace std::placeholders;
 
 
 // Time-to-live for a temp cache entry.
@@ -283,7 +286,7 @@ void LLAvatarNameCache::handleAgentError(const LLUUID& agent_id)
         LL_DEBUGS("AvNameCache") << "LLAvatarNameCache get legacy for agent "
                                 << agent_id << LL_ENDL;
         gCacheName->get(agent_id, false,  // legacy compatibility
-                        boost::bind(&LLAvatarNameCache::legacyNameFetch, _1, _2, _3));
+                        std::bind(&LLAvatarNameCache::legacyNameFetch, _1, _2, _3));
     }
     else
     {
@@ -402,7 +405,7 @@ void LLAvatarNameCache::requestNamesViaCapability()
 
         std::string coroname =
             LLCoros::instance().launch("LLAvatarNameCache::requestAvatarNameCache_",
-            boost::bind(&LLAvatarNameCache::requestAvatarNameCache_, url, agent_ids));
+            std::bind(&LLAvatarNameCache::requestAvatarNameCache_, url, agent_ids));
         LL_DEBUGS("AvNameCache") << coroname << " with  url '" << url << "', agent_ids.size()=" << agent_ids.size() << LL_ENDL;
 
     }
@@ -459,7 +462,7 @@ void LLAvatarNameCache::requestNamesViaLegacy()
         LL_DEBUGS("AvNameCache") << "agent " << agent_id << LL_ENDL;
 
         gCacheName->get(agent_id, false,  // legacy compatibility
-            boost::bind(&LLAvatarNameCache::legacyNameCallback, _1, _2, _3));
+            std::bind(&LLAvatarNameCache::legacyNameCallback, _1, _2, _3));
     }
 }
 

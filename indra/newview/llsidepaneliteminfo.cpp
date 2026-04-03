@@ -54,6 +54,9 @@
 #include "llexperiencecache.h"
 #include "lltrans.h"
 #include "llviewerregion.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 const char* const DEFAULT_DESC = "(No Description)";
@@ -164,27 +167,27 @@ bool LLSidepanelItemInfo::postBuild()
     mLabelItemDesc = getChild<LLTextEditor>("LabelItemDesc");
 
     getChild<LLLineEditor>("LabelItemName")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
-    getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
-    mLabelItemDesc->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
+    getChild<LLUICtrl>("LabelItemName")->setCommitCallback(std::bind(&LLSidepanelItemInfo::onCommitName,this));
+    mLabelItemDesc->setCommitCallback(std::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
     // Thumnail edition
-    mChangeThumbnailBtn->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onEditThumbnail, this));
+    mChangeThumbnailBtn->setCommitCallback(std::bind(&LLSidepanelItemInfo::onEditThumbnail, this));
     // acquired date
     // owner permissions
     // Permissions debug text
     // group permissions
-    getChild<LLUICtrl>("CheckShareWithGroup")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this, _1));
+    getChild<LLUICtrl>("CheckShareWithGroup")->setCommitCallback(std::bind(&LLSidepanelItemInfo::onCommitPermissions, this, _1));
     // everyone permissions
-    getChild<LLUICtrl>("CheckEveryoneCopy")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this, _1));
+    getChild<LLUICtrl>("CheckEveryoneCopy")->setCommitCallback(std::bind(&LLSidepanelItemInfo::onCommitPermissions, this, _1));
     // next owner permissions
-    getChild<LLUICtrl>("CheckNextOwnerModify")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this, _1));
-    getChild<LLUICtrl>("CheckNextOwnerCopy")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this, _1));
-    getChild<LLUICtrl>("CheckNextOwnerTransfer")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this, _1));
+    getChild<LLUICtrl>("CheckNextOwnerModify")->setCommitCallback(std::bind(&LLSidepanelItemInfo::onCommitPermissions, this, _1));
+    getChild<LLUICtrl>("CheckNextOwnerCopy")->setCommitCallback(std::bind(&LLSidepanelItemInfo::onCommitPermissions, this, _1));
+    getChild<LLUICtrl>("CheckNextOwnerTransfer")->setCommitCallback(std::bind(&LLSidepanelItemInfo::onCommitPermissions, this, _1));
     // Mark for sale or not, and sale info
-    getChild<LLUICtrl>("CheckPurchase")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this, _1));
+    getChild<LLUICtrl>("CheckPurchase")->setCommitCallback(std::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this, _1));
     // Change sale type, and sale info
-    getChild<LLUICtrl>("ComboBoxSaleType")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this, _1));
+    getChild<LLUICtrl>("ComboBoxSaleType")->setCommitCallback(std::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this, _1));
     // "Price" label for edit
-    getChild<LLUICtrl>("Edit Cost")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this, _1));
+    getChild<LLUICtrl>("Edit Cost")->setCommitCallback(std::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this, _1));
     refresh();
     return true;
 }
@@ -332,7 +335,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
             url = object->getRegion()->getCapability("GetMetadata");
         }
         LLExperienceCache::instance().fetchAssociatedExperience(item->getParentUUID(), item->getUUID(), url,
-                boost::bind(&LLSidepanelItemInfo::setAssociatedExperience, getDerivedHandle<LLSidepanelItemInfo>(), _1));
+                std::bind(&LLSidepanelItemInfo::setAssociatedExperience, getDerivedHandle<LLSidepanelItemInfo>(), _1));
     }
 
     //////////////////////
@@ -390,7 +393,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
                 mCreatorCacheConnection.disconnect();
             }
             mLabelCreatorName->setText(LLTrans::getString("None"));
-            mCreatorCacheConnection = LLAvatarNameCache::get(creator_id, boost::bind(&LLSidepanelItemInfo::updateCreatorName, this, _1, _2, style_params));
+            mCreatorCacheConnection = LLAvatarNameCache::get(creator_id, std::bind(&LLSidepanelItemInfo::updateCreatorName, this, _1, _2, style_params));
         }
 
         getChildView("LabelCreatorTitle")->setEnabled(true);
@@ -447,7 +450,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
                     mOwnerCacheConnection.disconnect();
                 }
                 mLabelOwnerName->setText(LLTrans::getString("None"));
-                mOwnerCacheConnection = LLAvatarNameCache::get(owner_id, boost::bind(&LLSidepanelItemInfo::updateOwnerName, this, _1, _2, style_params));
+                mOwnerCacheConnection = LLAvatarNameCache::get(owner_id, std::bind(&LLSidepanelItemInfo::updateOwnerName, this, _1, _2, style_params));
             }
         }
         getChildView("LabelOwnerTitle")->setEnabled(true);

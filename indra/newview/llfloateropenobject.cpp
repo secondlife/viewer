@@ -48,6 +48,9 @@
 #include "llviewerobject.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 LLFloaterOpenObject::LLFloaterOpenObject(const LLSD& key)
@@ -55,8 +58,8 @@ LLFloaterOpenObject::LLFloaterOpenObject(const LLSD& key)
     mPanelInventoryObject(NULL),
     mDirty(true)
 {
-    mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",  boost::bind(&LLFloaterOpenObject::onClickMoveToInventory, this));
-    mCommitCallbackRegistrar.add("OpenObject.Cancel",           boost::bind(&LLFloaterOpenObject::onClickCancel, this));
+    mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",  std::bind(&LLFloaterOpenObject::onClickMoveToInventory, this));
+    mCommitCallbackRegistrar.add("OpenObject.Cancel",           std::bind(&LLFloaterOpenObject::onClickCancel, this));
 }
 
 LLFloaterOpenObject::~LLFloaterOpenObject()
@@ -163,7 +166,7 @@ void LLFloaterOpenObject::moveToInventory(bool wear, bool replace)
         parent_category_id = gInventory.getRootFolderID();
     }
 
-    inventory_func_type func = boost::bind(LLFloaterOpenObject::callbackCreateInventoryCategory,_1,object_id,wear,replace);
+    inventory_func_type func = std::bind(LLFloaterOpenObject::callbackCreateInventoryCategory,_1,object_id,wear,replace);
     // D567 copy thumbnail info
     gInventory.createNewCategory(
         parent_category_id,

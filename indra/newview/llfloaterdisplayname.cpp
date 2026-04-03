@@ -38,6 +38,9 @@
 #include "llavatarnamecache.h"
 
 #include "llagent.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 class LLFloaterDisplayName : public LLFloater
@@ -103,9 +106,9 @@ void LLFloaterDisplayName::onOpen(const LLSD& key)
 
 bool LLFloaterDisplayName::postBuild()
 {
-    getChild<LLUICtrl>("reset_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onReset, this));
-    getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onCancel, this));
-    getChild<LLUICtrl>("save_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onSave, this));
+    getChild<LLUICtrl>("reset_btn")->setCommitCallback(std::bind(&LLFloaterDisplayName::onReset, this));
+    getChild<LLUICtrl>("cancel_btn")->setCommitCallback(std::bind(&LLFloaterDisplayName::onCancel, this));
+    getChild<LLUICtrl>("save_btn")->setCommitCallback(std::bind(&LLFloaterDisplayName::onSave, this));
 
     center();
 
@@ -207,7 +210,7 @@ void LLFloaterDisplayName::onSave()
         && LLAvatarNameCache::getInstance()->hasNameLookupURL())
     {
         // A reset
-        LLViewerDisplayName::set("", boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
+        LLViewerDisplayName::set("", std::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
         return;
     }
 
@@ -223,7 +226,7 @@ void LLFloaterDisplayName::onSave()
 
     if (LLAvatarNameCache::getInstance()->hasNameLookupURL())
     {
-        LLViewerDisplayName::set(display_name_utf8,boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
+        LLViewerDisplayName::set(display_name_utf8,std::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
     }
     else
     {

@@ -36,6 +36,7 @@
 #include "llfloaterreg.h"
 #include "llregex.h"
 #include "lluictrl.h"
+#include <functional>
 
 // Extract from strings of the form "<width> x <height>", e.g. "640 x 480".
 bool extractWindowSizeFromString(const std::string& instr, U32 *width, U32 *height)
@@ -68,9 +69,9 @@ bool LLFloaterWindowSize::postBuild()
     center();
     initWindowSizeControls();
     getChild<LLUICtrl>("set_btn")->setCommitCallback(
-        boost::bind(&LLFloaterWindowSize::onClickSet, this));
+        std::bind(&LLFloaterWindowSize::onClickSet, this));
     getChild<LLUICtrl>("cancel_btn")->setCommitCallback(
-        boost::bind(&LLFloaterWindowSize::onClickCancel, this));
+        std::bind(&LLFloaterWindowSize::onClickCancel, this));
     setDefaultBtn("set_btn");
     return true;
 }

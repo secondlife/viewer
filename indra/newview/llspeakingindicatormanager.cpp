@@ -32,6 +32,9 @@
 
 #include "llvoicechannel.h"
 #include "llvoiceclient.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 /**
  * This class intended to control visibility of avatar speaking indicators depend on whether avatars
@@ -183,7 +186,7 @@ void SpeakingIndicatorManager::unregisterSpeakingIndicator(const LLUUID& speaker
 //////////////////////////////////////////////////////////////////////////
 SpeakingIndicatorManager::SpeakingIndicatorManager()
 {
-    mVoiceChannelChanged = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&SpeakingIndicatorManager::sOnCurrentChannelChanged, this, _1));
+    mVoiceChannelChanged = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(std::bind(&SpeakingIndicatorManager::sOnCurrentChannelChanged, this, _1));
     LLVoiceClient::addObserver(this);
 }
 

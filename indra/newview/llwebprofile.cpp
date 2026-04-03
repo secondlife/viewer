@@ -41,6 +41,7 @@
 #include "llnotificationsutil.h"
 
 #include "llcorehttputil.h"
+#include <functional>
 
 // third-party
 
@@ -68,7 +69,7 @@ LLWebProfile::status_callback_t LLWebProfile::mStatusCallback;
 void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::string& caption, bool add_location)
 {
     LLCoros::instance().launch("LLWebProfile::uploadImageCoro",
-        boost::bind(&LLWebProfile::uploadImageCoro, image, caption, add_location));
+        std::bind(&LLWebProfile::uploadImageCoro, image, caption, add_location));
 
 }
 

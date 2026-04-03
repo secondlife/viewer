@@ -29,7 +29,7 @@
 
 #include "llconversationview.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 #include "llagentdata.h"
 #include "llavataractions.h"
 #include "llconversationmodel.h"
@@ -41,6 +41,8 @@
 #include "llgroupiconctrl.h"
 #include "lluictrlfactory.h"
 #include "lltoolbarview.h"
+
+using namespace std::placeholders;
 
 //
 // Implementation of conversations list session widgets
@@ -228,7 +230,7 @@ bool LLConversationViewSession::postBuild()
     mCallIconLayoutPanel = mItemPanel->getChild<LLPanel>("call_icon_panel");
     mSessionTitle = mItemPanel->getChild<LLTextBox>("conversation_title");
 
-    mActiveVoiceChannelConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLConversationViewSession::onCurrentVoiceSessionChanged, this, _1));
+    mActiveVoiceChannelConnection = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(std::bind(&LLConversationViewSession::onCurrentVoiceSessionChanged, this, _1));
     mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
 
     LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
@@ -647,7 +649,7 @@ bool LLConversationViewParticipant::postBuild()
     mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
     mInfoBtn = getChild<LLButton>("info_btn");
-    mInfoBtn->setClickedCallback(boost::bind(&LLConversationViewParticipant::onInfoBtnClick, this));
+    mInfoBtn->setClickedCallback(std::bind(&LLConversationViewParticipant::onInfoBtnClick, this));
     mInfoBtn->setVisible(false);
 
     mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");

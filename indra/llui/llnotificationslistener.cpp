@@ -32,6 +32,9 @@
 #include "llnotificationtemplate.h"
 #include "llsd.h"
 #include "llui.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLNotificationsListener::LLNotificationsListener(LLNotifications & notifications) :
     LLEventAPI("LLNotifications",
@@ -95,7 +98,7 @@ void LLNotificationsListener::requestAdd(const LLSD& event_data) const
         mNotifications.add(event_data["name"],
                            event_data["substitutions"],
                            payload,
-                           boost::bind(&LLNotificationsListener::NotificationResponder,
+                           std::bind(&LLNotificationsListener::NotificationResponder,
                                        this,
                                        event_data["reply"].asString(),
                                        _1, _2
@@ -221,7 +224,7 @@ public:
             // Insert our processing as a "passed filter" listener. This way
             // we get to run before all the "changed" listeners, and we get to
             // swipe it (hide it from the other listeners) if desired.
-            channelptr->connectPassedFilter(boost::bind(&Forwarder::handle, this, _1));
+            channelptr->connectPassedFilter(std::bind(&Forwarder::handle, this, _1));
         }
     }
 

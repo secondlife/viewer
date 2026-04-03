@@ -51,6 +51,9 @@
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 #include "pipeline.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 #define XUI_RENDER_HEATMAP_NONE 0
 #define XUI_RENDER_HEATMAP_A 1
@@ -94,7 +97,7 @@ bool LLFloaterPathfindingConsole::postBuild()
 {
     mViewTestTabContainer = findChild<LLTabContainer>("view_test_tab_container");
     llassert(mViewTestTabContainer != NULL);
-    mViewTestTabContainer->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTabSwitch, this));
+    mViewTestTabContainer->setCommitCallback(std::bind(&LLFloaterPathfindingConsole::onTabSwitch, this));
 
     mViewTab = findChild<LLPanel>("view_panel");
     llassert(mViewTab != NULL);
@@ -104,22 +107,22 @@ bool LLFloaterPathfindingConsole::postBuild()
 
     mShowWorldCheckBox = findChild<LLCheckBoxCtrl>("show_world");
     llassert(mShowWorldCheckBox != NULL);
-    mShowWorldCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWorldSet, this));
+    mShowWorldCheckBox->setCommitCallback(std::bind(&LLFloaterPathfindingConsole::onShowWorldSet, this));
 
     mShowWorldMovablesOnlyCheckBox = findChild<LLCheckBoxCtrl>("show_world_movables_only");
     llassert(mShowWorldMovablesOnlyCheckBox != NULL);
-    mShowWorldMovablesOnlyCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWorldMovablesOnlySet, this));
+    mShowWorldMovablesOnlyCheckBox->setCommitCallback(std::bind(&LLFloaterPathfindingConsole::onShowWorldMovablesOnlySet, this));
 
     mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
     llassert(mShowNavMeshCheckBox != NULL);
-    mShowNavMeshCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowNavMeshSet, this));
+    mShowNavMeshCheckBox->setCommitCallback(std::bind(&LLFloaterPathfindingConsole::onShowNavMeshSet, this));
 
     mShowNavMeshWalkabilityLabel = findChild<LLTextBase>("show_walkability_label");
     llassert(mShowNavMeshWalkabilityLabel != NULL);
 
     mShowNavMeshWalkabilityComboBox = findChild<LLComboBox>("show_heatmap_mode");
     llassert(mShowNavMeshWalkabilityComboBox != NULL);
-    mShowNavMeshWalkabilityComboBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWalkabilitySet, this));
+    mShowNavMeshWalkabilityComboBox->setCommitCallback(std::bind(&LLFloaterPathfindingConsole::onShowWalkabilitySet, this));
 
     mShowWalkablesCheckBox = findChild<LLCheckBoxCtrl>("show_walkables");
     llassert(mShowWalkablesCheckBox != NULL);
@@ -159,7 +162,7 @@ bool LLFloaterPathfindingConsole::postBuild()
 
     mCharacterWidthSlider = findChild<LLSliderCtrl>("character_width");
     llassert(mCharacterWidthSlider != NULL);
-    mCharacterWidthSlider->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterWidthSet, this));
+    mCharacterWidthSlider->setCommitCallback(std::bind(&LLFloaterPathfindingConsole::onCharacterWidthSet, this));
 
     mCharacterWidthUnitLabel = findChild<LLTextBase>("character_width_unit_label");
     llassert(mCharacterWidthUnitLabel != NULL);
@@ -169,14 +172,14 @@ bool LLFloaterPathfindingConsole::postBuild()
 
     mCharacterTypeComboBox = findChild<LLComboBox>("path_character_type");
     llassert(mCharacterTypeComboBox != NULL);
-    mCharacterTypeComboBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
+    mCharacterTypeComboBox->setCommitCallback(std::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
 
     mPathTestingStatus = findChild<LLTextBase>("path_test_status");
     llassert(mPathTestingStatus != NULL);
 
     mClearPathButton = findChild<LLButton>("clear_path");
     llassert(mClearPathButton != NULL);
-    mClearPathButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onClearPathClicked, this));
+    mClearPathButton->setCommitCallback(std::bind(&LLFloaterPathfindingConsole::onClearPathClicked, this));
 
     mErrorColor = LLUIColorTable::instance().getColor("PathfindingErrorColor");
     mWarningColor = LLUIColorTable::instance().getColor("PathfindingWarningColor");
@@ -208,7 +211,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
     {
         if (!mNavMeshZoneSlot.connected())
         {
-            mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshZoneStatus, this, _1));
+            mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(std::bind(&LLFloaterPathfindingConsole::handleNavMeshZoneStatus, this, _1));
         }
 
         mIsNavMeshUpdating = false;
@@ -219,17 +222,17 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 
     if (!mRegionBoundarySlot.connected())
     {
-        mRegionBoundarySlot = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
+        mRegionBoundarySlot = gAgent.addRegionChangedCallback(std::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
     }
 
     if (!mTeleportFailedSlot.connected())
     {
-        mTeleportFailedSlot = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
+        mTeleportFailedSlot = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(std::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
     }
 
     if (!mPathEventSlot.connected())
     {
-        mPathEventSlot = LLPathfindingPathTool::getInstance()->registerPathEventListener(boost::bind(&LLFloaterPathfindingConsole::onPathEvent, this));
+        mPathEventSlot = LLPathfindingPathTool::getInstance()->registerPathEventListener(std::bind(&LLFloaterPathfindingConsole::onPathEvent, this));
     }
 
     setDefaultInputs();
@@ -1094,59 +1097,59 @@ void LLFloaterPathfindingConsole::registerSavedSettingsListeners()
 {
     if (!mSavedSettingRetrieveNeighborSlot.connected())
     {
-        mSavedSettingRetrieveNeighborSlot = gSavedSettings.getControl(CONTROL_NAME_RETRIEVE_NEIGHBOR)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleRetrieveNeighborChange, this, _1, _2));
+        mSavedSettingRetrieveNeighborSlot = gSavedSettings.getControl(CONTROL_NAME_RETRIEVE_NEIGHBOR)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleRetrieveNeighborChange, this, _1, _2));
     }
     if (!mSavedSettingWalkableSlot.connected())
     {
-        mSavedSettingWalkableSlot = gSavedSettings.getControl(CONTROL_NAME_WALKABLE_OBJECTS)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingWalkableSlot = gSavedSettings.getControl(CONTROL_NAME_WALKABLE_OBJECTS)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingStaticObstacleSlot.connected())
     {
-        mSavedSettingStaticObstacleSlot = gSavedSettings.getControl(CONTROL_NAME_STATIC_OBSTACLE_OBJECTS)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingStaticObstacleSlot = gSavedSettings.getControl(CONTROL_NAME_STATIC_OBSTACLE_OBJECTS)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingMaterialVolumeSlot.connected())
     {
-        mSavedSettingMaterialVolumeSlot = gSavedSettings.getControl(CONTROL_NAME_MATERIAL_VOLUMES)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingMaterialVolumeSlot = gSavedSettings.getControl(CONTROL_NAME_MATERIAL_VOLUMES)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingExclusionVolumeSlot.connected())
     {
-        mSavedSettingExclusionVolumeSlot = gSavedSettings.getControl(CONTROL_NAME_EXCLUSION_VOLUMES)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingExclusionVolumeSlot = gSavedSettings.getControl(CONTROL_NAME_EXCLUSION_VOLUMES)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingInteriorEdgeSlot.connected())
     {
-        mSavedSettingInteriorEdgeSlot = gSavedSettings.getControl(CONTROL_NAME_INTERIOR_EDGE)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingInteriorEdgeSlot = gSavedSettings.getControl(CONTROL_NAME_INTERIOR_EDGE)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingExteriorEdgeSlot.connected())
     {
-        mSavedSettingExteriorEdgeSlot = gSavedSettings.getControl(CONTROL_NAME_EXTERIOR_EDGE)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingExteriorEdgeSlot = gSavedSettings.getControl(CONTROL_NAME_EXTERIOR_EDGE)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingHeatmapMinSlot.connected())
     {
-        mSavedSettingHeatmapMinSlot = gSavedSettings.getControl(CONTROL_NAME_HEATMAP_MIN)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingHeatmapMinSlot = gSavedSettings.getControl(CONTROL_NAME_HEATMAP_MIN)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingHeatmapMaxSlot.connected())
     {
-        mSavedSettingHeatmapMaxSlot = gSavedSettings.getControl(CONTROL_NAME_HEATMAP_MAX)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingHeatmapMaxSlot = gSavedSettings.getControl(CONTROL_NAME_HEATMAP_MAX)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingNavMeshFaceSlot.connected())
     {
-        mSavedSettingNavMeshFaceSlot = gSavedSettings.getControl(CONTROL_NAME_NAVMESH_FACE)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingNavMeshFaceSlot = gSavedSettings.getControl(CONTROL_NAME_NAVMESH_FACE)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingTestPathValidEndSlot.connected())
     {
-        mSavedSettingTestPathValidEndSlot = gSavedSettings.getControl(CONTROL_NAME_TEST_PATH_VALID_END)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingTestPathValidEndSlot = gSavedSettings.getControl(CONTROL_NAME_TEST_PATH_VALID_END)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingTestPathInvalidEndSlot.connected())
     {
-        mSavedSettingTestPathInvalidEndSlot = gSavedSettings.getControl(CONTROL_NAME_TEST_PATH_INVALID_END)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingTestPathInvalidEndSlot = gSavedSettings.getControl(CONTROL_NAME_TEST_PATH_INVALID_END)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingTestPathSlot.connected())
     {
-        mSavedSettingTestPathSlot = gSavedSettings.getControl(CONTROL_NAME_TEST_PATH)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingTestPathSlot = gSavedSettings.getControl(CONTROL_NAME_TEST_PATH)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
     if (!mSavedSettingWaterSlot.connected())
     {
-        mSavedSettingWaterSlot = gSavedSettings.getControl(CONTROL_NAME_WATER)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+        mSavedSettingWaterSlot = gSavedSettings.getControl(CONTROL_NAME_WATER)->getSignal()->connect(std::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
     }
 }
 

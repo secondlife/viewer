@@ -35,6 +35,9 @@
 #include "llfocusmgr.h"
 #include "llviewerwindow.h"
 #include "llrootview.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 
 S32 BUTTON_PAD = 2; //pad between buttons on an items panel
@@ -210,7 +213,7 @@ LLSplitButton::LLSplitButton(const LLSplitButton::Params& p)
 
     arrow_params.rect(LLRect(arrow_left, rc.getHeight(), arrow_right, 0));
     arrow_params.label("");
-    arrow_params.mouse_down_callback.function(boost::bind(&LLSplitButton::onArrowBtnDown, this));
+    arrow_params.mouse_down_callback.function(std::bind(&LLSplitButton::onArrowBtnDown, this));
     mArrowBtn = LLUICtrlFactory::create<LLButton>(arrow_params);
     addChild(mArrowBtn);
 
@@ -224,8 +227,8 @@ LLSplitButton::LLSplitButton(const LLSplitButton::Params& p)
 
     //processing shown item button
     mShownItem = prepareItemButton(*it);
-    mShownItem->setHeldDownCallback(boost::bind(&LLSplitButton::onHeldDownShownButton, this));
-    mShownItem->setMouseUpCallback(boost::bind(&LLSplitButton::onItemSelected, this, _1));
+    mShownItem->setHeldDownCallback(std::bind(&LLSplitButton::onHeldDownShownButton, this));
+    mShownItem->setMouseUpCallback(std::bind(&LLSplitButton::onItemSelected, this, _1));
     mShownItem->setRect(LLRect(btn_left, rc.getHeight(), btn_right, 0));
     addChild(mShownItem);
 
@@ -235,7 +238,7 @@ LLSplitButton::LLSplitButton(const LLSplitButton::Params& p)
     {
         LLButton* hidden_button = prepareItemButton(*it);
         hidden_button->setRect(LLRect(btn_left, item_top, btn_right, item_top - rc.getHeight()));
-        hidden_button->setMouseDownCallback(boost::bind(&LLSplitButton::onItemSelected, this, _1));
+        hidden_button->setMouseDownCallback(std::bind(&LLSplitButton::onItemSelected, this, _1));
         mHidenItems.push_back(hidden_button);
         mItemsPanel->addChild(hidden_button);
 
@@ -243,7 +246,7 @@ LLSplitButton::LLSplitButton(const LLSplitButton::Params& p)
         item_top -= (rc.getHeight() + BUTTON_PAD);
     }
 
-    mTopLostSignalConnection = setTopLostCallback(boost::bind(&LLSplitButton::hideButtons, this));
+    mTopLostSignalConnection = setTopLostCallback(std::bind(&LLSplitButton::hideButtons, this));
 }
 
 LLSplitButton::~LLSplitButton()

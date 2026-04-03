@@ -40,6 +40,7 @@
 #include "llhttpnode.h"
 #include "llnotificationsutil.h"
 #include "llui.h"                   // getLanguage()
+#include <functional>
 
 namespace LLViewerDisplayName
 {
@@ -97,7 +98,7 @@ void LLViewerDisplayName::set(const std::string& display_name, const set_name_sl
     LLSD body;
     body["display_name"] = change_array;
     LLCoros::instance().launch("LLViewerDisplayName::SetDisplayNameCoro",
-            boost::bind(&LLViewerDisplayName::setDisplayNameCoro, cap_url, body));
+            std::bind(&LLViewerDisplayName::setDisplayNameCoro, cap_url, body));
 }
 
 void LLViewerDisplayName::setDisplayNameCoro(const std::string& cap_url, const LLSD& body)
@@ -153,7 +154,7 @@ public:
             LLAvatarNameCache::getInstance()->erase( agent_id );
             // Queue request for new data: nothing to do on callback though...
             // Note: no need to disconnect the callback as it never gets out of scope
-            LLAvatarNameCache::getInstance()->get(agent_id, boost::bind(&LLViewerDisplayName::doNothing));
+            LLAvatarNameCache::getInstance()->get(agent_id, std::bind(&LLViewerDisplayName::doNothing));
             // Kill name tag, as it is wrong
             LLVOAvatar::invalidateNameTag( agent_id );
         }

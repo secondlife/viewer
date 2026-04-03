@@ -57,6 +57,8 @@
 #include "llerror.h"
 #include "llsdutil.h"
 #include "llexception.h"
+#include <functional>
+
 #if LL_MSVC
 #pragma warning (disable : 4702)
 #endif
@@ -686,17 +688,13 @@ void LLEventMailDrop::discard()
 *****************************************************************************/
 LLListenerOrPumpName::LLListenerOrPumpName(const std::string& pumpname):
     // Look up the specified pumpname, and bind its post() method as our listener
-    mListener(boost::bind(&LLEventPump::post,
-                          boost::ref(LLEventPumps::instance().obtain(pumpname)),
-                          _1))
+    mListener([&pump = LLEventPumps::instance().obtain(pumpname)](const LLSD& event) { return pump.post(event); })
 {
 }
 
 LLListenerOrPumpName::LLListenerOrPumpName(const char* pumpname):
     // Look up the specified pumpname, and bind its post() method as our listener
-    mListener(boost::bind(&LLEventPump::post,
-                          boost::ref(LLEventPumps::instance().obtain(pumpname)),
-                          _1))
+    mListener([&pump = LLEventPumps::instance().obtain(pumpname)](const LLSD& event) { return pump.post(event); })
 {
 }
 

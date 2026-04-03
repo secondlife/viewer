@@ -117,7 +117,7 @@ typename LLPtrTo<NODE>::type LLNullNextFunctor(const typename LLPtrTo<NODE>::typ
  * NODE* mNext;
  * @endcode
  *
- * you can use (e.g.) <tt>boost::bind(&NODE::mNext, _1)</tt> for the purpose.
+ * you can use (e.g.) <tt>std::bind(&NODE::mNext, _1)</tt> for the purpose.
  * Alternatively, you can bind whatever accessor method is normally used to
  * advance to the next node, e.g. for:
  *
@@ -125,7 +125,7 @@ typename LLPtrTo<NODE>::type LLNullNextFunctor(const typename LLPtrTo<NODE>::typ
  * NODE* next() const;
  * @endcode
  *
- * you can use <tt>boost::bind(&NODE::next, _1)</tt>.
+ * you can use <tt>std::bind(&NODE::next, _1)</tt>.
  */
 template <class NODE>
 class LLLinkedIter: public LLBaseIter<LLLinkedIter<NODE>, NODE>

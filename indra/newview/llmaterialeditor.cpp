@@ -66,6 +66,9 @@
 
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 const std::string MATERIAL_BASE_COLOR_DEFAULT_NAME = "Base Color";
 const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
@@ -446,26 +449,26 @@ bool LLMaterialEditor::postBuild()
     }
 
     // Texture callback
-    mBaseColorTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
-    mMetallicTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
-    mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
-    mNormalTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
+    mBaseColorTextureCtrl->setCommitCallback(std::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
+    mMetallicTextureCtrl->setCommitCallback(std::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
+    mEmissiveTextureCtrl->setCommitCallback(std::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
+    mNormalTextureCtrl->setCommitCallback(std::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
 
     mNormalTextureCtrl->setBlankImageAssetID(BLANK_OBJECT_NORMAL);
 
     if (mIsOverride)
     {
         // Live editing needs a recovery mechanism on cancel
-        mBaseColorTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
-        mMetallicTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
-        mEmissiveTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
-        mNormalTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
+        mBaseColorTextureCtrl->setOnCancelCallback(std::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
+        mMetallicTextureCtrl->setOnCancelCallback(std::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
+        mEmissiveTextureCtrl->setOnCancelCallback(std::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
+        mNormalTextureCtrl->setOnCancelCallback(std::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
 
         // Save applied changes on 'OK' to our recovery mechanism.
-        mBaseColorTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
-        mMetallicTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
-        mEmissiveTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
-        mNormalTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
+        mBaseColorTextureCtrl->setOnSelectCallback(std::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
+        mMetallicTextureCtrl->setOnSelectCallback(std::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
+        mEmissiveTextureCtrl->setOnSelectCallback(std::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
+        mNormalTextureCtrl->setOnSelectCallback(std::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
     }
     else
     {
@@ -477,9 +480,9 @@ bool LLMaterialEditor::postBuild()
 
     if (!mIsOverride)
     {
-        childSetAction("save", boost::bind(&LLMaterialEditor::onClickSave, this));
-        childSetAction("save_as", boost::bind(&LLMaterialEditor::onClickSaveAs, this));
-        childSetAction("cancel", boost::bind(&LLMaterialEditor::onClickCancel, this));
+        childSetAction("save", std::bind(&LLMaterialEditor::onClickSave, this));
+        childSetAction("save_as", std::bind(&LLMaterialEditor::onClickSaveAs, this));
+        childSetAction("cancel", std::bind(&LLMaterialEditor::onClickCancel, this));
     }
 
     if (mIsOverride)
@@ -508,8 +511,8 @@ bool LLMaterialEditor::postBuild()
     mBaseColorCtrl->setCommitCallback(changes_callback, (void*)&MATERIAL_BASE_COLOR_DIRTY);
     if (mIsOverride)
     {
-        mBaseColorCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_BASE_COLOR_DIRTY));
-        mBaseColorCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_BASE_COLOR_DIRTY));
+        mBaseColorCtrl->setOnCancelCallback(std::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_BASE_COLOR_DIRTY));
+        mBaseColorCtrl->setOnSelectCallback(std::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_BASE_COLOR_DIRTY));
     }
     else
     {
@@ -528,8 +531,8 @@ bool LLMaterialEditor::postBuild()
     mEmissiveColorCtrl->setCommitCallback(changes_callback, (void*)&MATERIAL_EMISIVE_COLOR_DIRTY);
     if (mIsOverride)
     {
-        mEmissiveColorCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_EMISIVE_COLOR_DIRTY));
-        mEmissiveColorCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_EMISIVE_COLOR_DIRTY));
+        mEmissiveColorCtrl->setOnCancelCallback(std::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_EMISIVE_COLOR_DIRTY));
+        mEmissiveColorCtrl->setOnSelectCallback(std::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_EMISIVE_COLOR_DIRTY));
     }
     else
     {
@@ -1772,7 +1775,7 @@ void LLMaterialEditor::onClickSaveAs()
     LLSD args;
     args["DESC"] = mMaterialName;
 
-    LLNotificationsUtil::add("SaveMaterialAs", args, LLSD(), boost::bind(&LLMaterialEditor::onSaveAsMsgCallback, this, _1, _2));
+    LLNotificationsUtil::add("SaveMaterialAs", args, LLSD(), std::bind(&LLMaterialEditor::onSaveAsMsgCallback, this, _1, _2));
 }
 
 void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD& response)
@@ -1839,7 +1842,7 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
             LLNotificationsUtil::add("InvalidMaterialName", LLSD(), LLSD(), [this](const LLSD& notification, const LLSD& response)
                 {
                     LLNotificationsUtil::add("SaveMaterialAs", LLSD().with("DESC", mMaterialName), LLSD(),
-                        boost::bind(&LLMaterialEditor::onSaveAsMsgCallback, this, _1, _2));
+                        std::bind(&LLMaterialEditor::onSaveAsMsgCallback, this, _1, _2));
                 });
         }
     }
@@ -1849,7 +1852,7 @@ void LLMaterialEditor::onClickCancel()
 {
     if (mUnsavedChanges)
     {
-        LLNotificationsUtil::add("UsavedMaterialChanges", LLSD(), LLSD(), boost::bind(&LLMaterialEditor::onCancelMsgCallback, this, _1, _2));
+        LLNotificationsUtil::add("UsavedMaterialChanges", LLSD(), LLSD(), std::bind(&LLMaterialEditor::onCancelMsgCallback, this, _1, _2));
     }
     else
     {
@@ -2065,7 +2068,7 @@ void LLMaterialEditor::loadLive()
         // Set up for selection changes updates
         if (!me->mSelectionUpdateSlot.connected())
         {
-            me->mSelectionUpdateSlot = LLSelectMgr::instance().mUpdateSignal.connect(boost::bind(&LLMaterialEditor::onSelectionChanged, me));
+            me->mSelectionUpdateSlot = LLSelectMgr::instance().mUpdateSignal.connect(std::bind(&LLMaterialEditor::onSelectionChanged, me));
         }
 
         me->openFloater();
@@ -2407,12 +2410,12 @@ void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_materi
     {
         LLPermissions local_permissions;
         local_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
-        LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, local_permissions));
+        LLNotificationsUtil::add("SaveMaterialAs", args, payload, std::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, local_permissions));
     }
     else
     {
         llassert(object_id.isNull()); // Case for copying item from object inventory is no longer implemented
-        LLNotificationsUtil::add("SaveMaterialAs", args, payload, boost::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, permissions));
+        LLNotificationsUtil::add("SaveMaterialAs", args, payload, std::bind(&LLMaterialEditor::onSaveObjectsMaterialAsMsgCallback, _1, _2, permissions));
     }
 }
 

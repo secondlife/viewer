@@ -39,6 +39,9 @@
 #include "lluictrlfactory.h"
 #include "lluictrlfactory.h"
 #include "lldatapacker.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 extern LLAgent gAgent;
 const S32 ADVANCED_VPAD = 3;
@@ -46,7 +49,7 @@ const S32 ADVANCED_VPAD = 3;
 LLPreviewAnim::LLPreviewAnim(const LLSD& key)
     : LLPreview( key )
 {
-    mCommitCallbackRegistrar.add("PreviewAnim.Play", boost::bind(&LLPreviewAnim::play, this, _2));
+    mCommitCallbackRegistrar.add("PreviewAnim.Play", std::bind(&LLPreviewAnim::play, this, _2));
 }
 
 // virtual
@@ -54,7 +57,7 @@ bool LLPreviewAnim::postBuild()
 {
     childSetCommitCallback("desc", LLPreview::onText, this);
     getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
-    getChild<LLTextBox>("adv_trigger")->setClickedCallback(boost::bind(&LLPreviewAnim::showAdvanced, this));
+    getChild<LLTextBox>("adv_trigger")->setClickedCallback(std::bind(&LLPreviewAnim::showAdvanced, this));
     pAdvancedStatsTextBox = getChild<LLTextBox>("AdvancedStats");
 
     // Assume that advanced stats start visible (for XUI preview tool's purposes)

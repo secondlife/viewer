@@ -51,6 +51,9 @@
 #include "llviewerwindow.h"
 #include "llnotificationsutil.h"
 #include "lluriparser.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 bool on_load_url_external_response(const LLSD& notification, const LLSD& response, bool async );
 
@@ -112,7 +115,7 @@ void LLWeb::loadURLExternal(const std::string& url, bool async, const std::strin
 
     LLSD payload;
     payload["url"] = url;
-    LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, boost::bind(on_load_url_external_response, _1, _2, async));
+    LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, std::bind(on_load_url_external_response, _1, _2, async));
 }
 
 // static

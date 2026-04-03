@@ -131,7 +131,7 @@ public:
      * };
      * ...
      * std::string name = LLCoros::instance().launch(
-     *    "mycoro", boost::bind(&MyClass::myCoroutineMethod, this,
+     *    "mycoro", std::bind(&MyClass::myCoroutineMethod, this,
      *                          "somestring", LLSD(17));
      * @endcode
      *
@@ -141,7 +141,7 @@ public:
      *
      * Pass a nullary callable. It works to directly pass a nullary free
      * function (or static method); for other cases use a lambda expression,
-     * std::bind() or boost::bind(). Of course, for a non-static class method,
+     * std::bind() or std::bind(). Of course, for a non-static class method,
      * the first parameter must be the class instance. Any other parameters
      * should be passed via the enclosing expression.
      *

@@ -38,6 +38,9 @@
 #include "lltrans.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 class LLSettingsContextMenu : public LLListContextMenu
 
@@ -51,8 +54,8 @@ protected:
     {
         LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
         LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
-        registrar.add("Settings.SetRendering", boost::bind(&LLFloaterAvatarRenderSettings::onCustomAction, mFloaterSettings, _2, mUUIDs.front()));
-        enable_registrar.add("Settings.IsSelected", boost::bind(&LLFloaterAvatarRenderSettings::isActionChecked, mFloaterSettings, _2, mUUIDs.front()));
+        registrar.add("Settings.SetRendering", std::bind(&LLFloaterAvatarRenderSettings::onCustomAction, mFloaterSettings, _2, mUUIDs.front()));
+        enable_registrar.add("Settings.IsSelected", std::bind(&LLFloaterAvatarRenderSettings::isActionChecked, mFloaterSettings, _2, mUUIDs.front()));
         LLContextMenu* menu = createFromFile("menu_avatar_rendering_settings.xml");
 
         return menu;
@@ -75,7 +78,7 @@ LLFloaterAvatarRenderSettings::LLFloaterAvatarRenderSettings(const LLSD& key)
 {
     mContextMenu = new LLSettingsContextMenu(this);
     LLRenderMuteList::getInstance()->addObserver(&sAvatarRenderMuteListObserver);
-    mCommitCallbackRegistrar.add("Settings.AddNewEntry", boost::bind(&LLFloaterAvatarRenderSettings::onClickAdd, this, _2));
+    mCommitCallbackRegistrar.add("Settings.AddNewEntry", std::bind(&LLFloaterAvatarRenderSettings::onClickAdd, this, _2));
 }
 
 LLFloaterAvatarRenderSettings::~LLFloaterAvatarRenderSettings()
@@ -88,7 +91,7 @@ bool LLFloaterAvatarRenderSettings::postBuild()
 {
     LLFloater::postBuild();
     mAvatarSettingsList = getChild<LLNameListCtrl>("render_settings_list");
-    mAvatarSettingsList->setRightMouseDownCallback(boost::bind(&LLFloaterAvatarRenderSettings::onAvatarListRightClick, this, _1, _2, _3));
+    mAvatarSettingsList->setRightMouseDownCallback(std::bind(&LLFloaterAvatarRenderSettings::onAvatarListRightClick, this, _1, _2, _3));
 
     return true;
 }
@@ -226,7 +229,7 @@ void LLFloaterAvatarRenderSettings::onClickAdd(const LLSD& userdata)
 
     LLView * button = findChild<LLButton>("plus_btn", true);
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
-    LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterAvatarRenderSettings::callbackAvatarPicked, this, _1, visual_setting),
+    LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(std::bind(&LLFloaterAvatarRenderSettings::callbackAvatarPicked, this, _1, visual_setting),
                                                                     false, true, false, root_floater->getName(), button);
 
     if (root_floater)

@@ -39,6 +39,9 @@
 #include "llagent.h"
 #include "lltrans.h"
 #include "lluiusage.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
 
@@ -175,7 +178,7 @@ void LLVoiceClient::userAuthorized(const std::string& user_id, const LLUUID &age
     {
         mRegionChangedCallbackSlot.disconnect();
     }
-    mRegionChangedCallbackSlot = gAgent.addRegionChangedCallback(boost::bind(&LLVoiceClient::onRegionChanged, this));
+    mRegionChangedCallbackSlot = gAgent.addRegionChangedCallback(std::bind(&LLVoiceClient::onRegionChanged, this));
     LLWebRTCVoiceClient::getInstance()->userAuthorized(user_id, agentID);
     LLVivoxVoiceClient::getInstance()->userAuthorized(user_id, agentID);
 }
@@ -244,7 +247,7 @@ void LLVoiceClient::onRegionChanged()
             mSimulatorFeaturesReceivedSlot.disconnect();
         }
         mSimulatorFeaturesReceivedSlot =
-                region->setSimulatorFeaturesReceivedCallback(boost::bind(&simulator_features_received_callback, _1));
+                region->setSimulatorFeaturesReceivedCallback(std::bind(&simulator_features_received_callback, _1));
     }
 }
 

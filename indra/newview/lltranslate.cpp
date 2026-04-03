@@ -41,6 +41,7 @@
 #include "stringize.h"
 
 #include <boost/json.hpp>
+#include <functional>
 
 static const std::string AZURE_NOTRANSLATE_OPENING_TAG("<div translate=\"no\">");
 static const std::string AZURE_NOTRANSLATE_CLOSING_TAG("</div>");
@@ -146,7 +147,7 @@ public:
 
 void LLTranslationAPIHandler::translateMessage(LanguagePair_t fromTo, std::string msg, LLTranslate::TranslationSuccess_fn success, LLTranslate::TranslationFailure_fn failure)
 {
-    LLCoros::instance().launch("Translation", boost::bind(&LLTranslationAPIHandler::translateMessageCoro,
+    LLCoros::instance().launch("Translation", std::bind(&LLTranslationAPIHandler::translateMessageCoro,
         this, fromTo, msg, success, failure));
 
 }
@@ -490,7 +491,7 @@ std::string LLGoogleTranslationHandler::getAPIKey()
 /*virtual*/
 void LLGoogleTranslationHandler::verifyKey(const LLSD &key, LLTranslate::KeyVerificationResult_fn fnc)
 {
-    LLCoros::instance().launch("Google /Verify Key", boost::bind(&LLTranslationAPIHandler::verifyKeyCoro,
+    LLCoros::instance().launch("Google /Verify Key", std::bind(&LLTranslationAPIHandler::verifyKeyCoro,
         this, LLTranslate::SERVICE_GOOGLE, key, fnc));
 }
 
@@ -764,7 +765,7 @@ std::string LLAzureTranslationHandler::getAPILanguageCode(const std::string& lan
 /*virtual*/
 void LLAzureTranslationHandler::verifyKey(const LLSD &key, LLTranslate::KeyVerificationResult_fn fnc)
 {
-    LLCoros::instance().launch("Azure /Verify Key", boost::bind(&LLTranslationAPIHandler::verifyKeyCoro,
+    LLCoros::instance().launch("Azure /Verify Key", std::bind(&LLTranslationAPIHandler::verifyKeyCoro,
         this, LLTranslate::SERVICE_AZURE, key, fnc));
 }
 /*virtual*/
@@ -1041,7 +1042,7 @@ std::string LLDeepLTranslationHandler::getAPILanguageCode(const std::string& lan
 /*virtual*/
 void LLDeepLTranslationHandler::verifyKey(const LLSD& key, LLTranslate::KeyVerificationResult_fn fnc)
 {
-    LLCoros::instance().launch("DeepL /Verify Key", boost::bind(&LLTranslationAPIHandler::verifyKeyCoro,
+    LLCoros::instance().launch("DeepL /Verify Key", std::bind(&LLTranslationAPIHandler::verifyKeyCoro,
                                                                 this, LLTranslate::SERVICE_DEEPL, key, fnc));
 }
 /*virtual*/

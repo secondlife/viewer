@@ -68,6 +68,9 @@
 //#include "llfirstuse.h"
 
 #include "lldrawpool.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 //
 // Constants
@@ -245,10 +248,10 @@ bool    LLPanelObject::postBuild()
     if (mCtrlSculptTexture)
     {
         mCtrlSculptTexture->setDefaultImageAssetID(SCULPT_DEFAULT_TEXTURE);
-        mCtrlSculptTexture->setCommitCallback( boost::bind(&LLPanelObject::onCommitSculpt, this, _2 ));
-        mCtrlSculptTexture->setOnCancelCallback( boost::bind(&LLPanelObject::onCancelSculpt, this, _2 ));
-        mCtrlSculptTexture->setOnSelectCallback( boost::bind(&LLPanelObject::onSelectSculpt, this, _2 ));
-        mCtrlSculptTexture->setDropCallback( boost::bind(&LLPanelObject::onDropSculpt, this, _2 ));
+        mCtrlSculptTexture->setCommitCallback( std::bind(&LLPanelObject::onCommitSculpt, this, _2 ));
+        mCtrlSculptTexture->setOnCancelCallback( std::bind(&LLPanelObject::onCancelSculpt, this, _2 ));
+        mCtrlSculptTexture->setOnSelectCallback( std::bind(&LLPanelObject::onSelectSculpt, this, _2 ));
+        mCtrlSculptTexture->setDropCallback( std::bind(&LLPanelObject::onDropSculpt, this, _2 ));
         // Don't allow (no copy) or (no transfer) textures to be selected during immediate mode
         mCtrlSculptTexture->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
         mCtrlSculptTexture->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
@@ -296,8 +299,8 @@ LLPanelObject::LLPanelObject()
     mHasClipboardRot(false),
     mSizeChanged(false)
 {
-    mCommitCallbackRegistrar.add("PanelObject.menuDoToSelected", boost::bind(&LLPanelObject::menuDoToSelected, this, _2));
-    mEnableCallbackRegistrar.add("PanelObject.menuEnable", boost::bind(&LLPanelObject::menuEnableItem, this, _2));
+    mCommitCallbackRegistrar.add("PanelObject.menuDoToSelected", std::bind(&LLPanelObject::menuDoToSelected, this, _2));
+    mEnableCallbackRegistrar.add("PanelObject.menuEnable", std::bind(&LLPanelObject::menuEnableItem, this, _2));
 }
 
 

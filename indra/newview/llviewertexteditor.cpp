@@ -63,6 +63,9 @@
 #include "llviewerinventory.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLViewerTextEditor> r("text_editor");
 
@@ -260,7 +263,7 @@ public:
 
             LLToolTipMgr::instance().show(LLToolTip::Params()
                     .message(mToolTip)
-                    .create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
+                    .create_callback(std::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
                     .create_params(params));
 
             return true;
@@ -1210,7 +1213,7 @@ void LLViewerTextEditor::openEmbeddedLandmark( LLPointer<LLInventoryItem> item_p
         return;
 
     LLLandmark* landmark = gLandmarkList.getAsset(item_ptr->getAssetUUID(),
-            boost::bind(&LLEmbeddedLandmarkCopied::processForeignLandmark, _1, mObjectID, mNotecardInventoryID, item_ptr));
+            std::bind(&LLEmbeddedLandmarkCopied::processForeignLandmark, _1, mObjectID, mNotecardInventoryID, item_ptr));
     if (landmark)
     {
         LLEmbeddedLandmarkCopied::processForeignLandmark(landmark, mObjectID,
@@ -1294,7 +1297,7 @@ void LLViewerTextEditor::showCopyToInvDialog( LLInventoryItem* item, llwchar wc 
     payload["item_id"] = item_id;
     payload["item_wc"] = LLSD::Integer(wc);
     LLNotificationsUtil::add( "ConfirmItemCopy", LLSD(), payload,
-        boost::bind(&LLViewerTextEditor::onCopyToInvDialog, this, _1, _2));
+        std::bind(&LLViewerTextEditor::onCopyToInvDialog, this, _1, _2));
 }
 
 bool LLViewerTextEditor::onCopyToInvDialog(const LLSD& notification, const LLSD& response)

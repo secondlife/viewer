@@ -74,6 +74,9 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 // Constants
 static constexpr F32 PLACE_INFO_UPDATE_INTERVAL = 3.0;
@@ -253,7 +256,7 @@ LLPanelPlaces::LLPanelPlaces()
     gInventory.addObserver(mInventoryObserver);
 
     mAgentParcelChangedConnection = gAgent.addParcelChangedCallback(
-            boost::bind(&LLPanelPlaces::updateVerbs, this));
+            std::bind(&LLPanelPlaces::updateVerbs, this));
 
     //buildFromFile( "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
@@ -278,37 +281,37 @@ LLPanelPlaces::~LLPanelPlaces()
 bool LLPanelPlaces::postBuild()
 {
     mTeleportBtn = getChild<LLButton>("teleport_btn");
-    mTeleportBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onTeleportButtonClicked, this));
+    mTeleportBtn->setClickedCallback(std::bind(&LLPanelPlaces::onTeleportButtonClicked, this));
 
     mShowOnMapBtn = getChild<LLButton>("map_btn");
-    mShowOnMapBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onShowOnMapButtonClicked, this));
+    mShowOnMapBtn->setClickedCallback(std::bind(&LLPanelPlaces::onShowOnMapButtonClicked, this));
 
     mSaveBtn = getChild<LLButton>("save_btn");
-    mSaveBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onSaveButtonClicked, this));
+    mSaveBtn->setClickedCallback(std::bind(&LLPanelPlaces::onSaveButtonClicked, this));
 
     mCancelBtn = getChild<LLButton>("cancel_btn");
-    mCancelBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onCancelButtonClicked, this));
+    mCancelBtn->setClickedCallback(std::bind(&LLPanelPlaces::onCancelButtonClicked, this));
 
     mCloseBtn = getChild<LLButton>("close_btn");
-    mCloseBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
+    mCloseBtn->setClickedCallback(std::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
     mOverflowBtn = getChild<LLMenuButton>("overflow_btn");
-    mOverflowBtn->setMouseDownCallback(boost::bind(&LLPanelPlaces::onOverflowButtonClicked, this));
+    mOverflowBtn->setMouseDownCallback(std::bind(&LLPanelPlaces::onOverflowButtonClicked, this));
 
     mGearMenuButton = getChild<LLMenuButton>("options_gear_btn");
-    mGearMenuButton->setMouseDownCallback(boost::bind(&LLPanelPlaces::onGearMenuClick, this));
+    mGearMenuButton->setMouseDownCallback(std::bind(&LLPanelPlaces::onGearMenuClick, this));
 
     mSortingMenuButton = getChild<LLMenuButton>("sorting_menu_btn");
-    mSortingMenuButton->setMouseDownCallback(boost::bind(&LLPanelPlaces::onSortingMenuClick, this));
+    mSortingMenuButton->setMouseDownCallback(std::bind(&LLPanelPlaces::onSortingMenuClick, this));
 
     mAddMenuButton = getChild<LLMenuButton>("add_menu_btn");
-    mAddMenuButton->setMouseDownCallback(boost::bind(&LLPanelPlaces::onAddMenuClick, this));
+    mAddMenuButton->setMouseDownCallback(std::bind(&LLPanelPlaces::onAddMenuClick, this));
 
     mRemoveSelectedBtn = getChild<LLButton>("trash_btn");
-    mRemoveSelectedBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onRemoveButtonClicked, this));
+    mRemoveSelectedBtn->setClickedCallback(std::bind(&LLPanelPlaces::onRemoveButtonClicked, this));
 
     LLDragAndDropButton* trash_btn = (LLDragAndDropButton*)mRemoveSelectedBtn;
-    trash_btn->setDragAndDropHandler(boost::bind(&LLPanelPlaces::handleDragAndDropToTrash, this
+    trash_btn->setDragAndDropHandler(std::bind(&LLPanelPlaces::handleDragAndDropToTrash, this
         , _4 // bool drop
         , _5 // EDragAndDropType cargo_type
         , _6 // void* cargo_data
@@ -316,9 +319,9 @@ bool LLPanelPlaces::postBuild()
     ));
 
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("Places.OverflowMenu.Action",  boost::bind(&LLPanelPlaces::onOverflowMenuItemClicked, this, _2));
+    registrar.add("Places.OverflowMenu.Action",  std::bind(&LLPanelPlaces::onOverflowMenuItemClicked, this, _2));
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
-    enable_registrar.add("Places.OverflowMenu.Enable",  boost::bind(&LLPanelPlaces::onOverflowMenuItemEnable, this, _2));
+    enable_registrar.add("Places.OverflowMenu.Enable",  std::bind(&LLPanelPlaces::onOverflowMenuItemEnable, this, _2));
 
     mPlaceMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_place.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     if (mPlaceMenu)
@@ -339,7 +342,7 @@ bool LLPanelPlaces::postBuild()
     mTabContainer = getChild<LLTabContainer>("Places Tabs");
     if (mTabContainer)
     {
-        mTabContainer->setCommitCallback(boost::bind(&LLPanelPlaces::onTabSelected, this));
+        mTabContainer->setCommitCallback(std::bind(&LLPanelPlaces::onTabSelected, this));
     }
 
     mButtonsContainer = getChild<LLPanel>("button_layout_panel");
@@ -354,7 +357,7 @@ bool LLPanelPlaces::postBuild()
         //BUT a detached list item cannot be made selected and must not be clicked onto
         mFilterEditor->setCommitOnFocusLost(false);
 
-        mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2, false));
+        mFilterEditor->setCommitCallback(std::bind(&LLPanelPlaces::onFilterEdit, this, _2, false));
     }
 
     mPlaceProfile = findChild<LLPanelPlaceProfile>("panel_place_profile");
@@ -363,21 +366,21 @@ bool LLPanelPlaces::postBuild()
         return false;
 
     mPlaceProfileBackBtn = mPlaceProfile->getChild<LLButton>("back_btn");
-    mPlaceProfileBackBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
+    mPlaceProfileBackBtn->setClickedCallback(std::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
-    mLandmarkInfo->getChild<LLButton>("back_btn")->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
+    mLandmarkInfo->getChild<LLButton>("back_btn")->setClickedCallback(std::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
     LLLineEditor* title_editor = mLandmarkInfo->getChild<LLLineEditor>("title_editor");
-    title_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this), NULL);
+    title_editor->setKeystrokeCallback(std::bind(&LLPanelPlaces::onEditButtonClicked, this), NULL);
 
     LLTextEditor* notes_editor = mLandmarkInfo->getChild<LLTextEditor>("notes_editor");
-    notes_editor->setKeystrokeCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
+    notes_editor->setKeystrokeCallback(std::bind(&LLPanelPlaces::onEditButtonClicked, this));
 
     LLComboBox* folder_combo = mLandmarkInfo->getChild<LLComboBox>("folder_combo");
-    folder_combo->setCommitCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
+    folder_combo->setCommitCallback(std::bind(&LLPanelPlaces::onEditButtonClicked, this));
 
     LLButton* edit_btn = mLandmarkInfo->getChild<LLButton>("edit_btn");
-    edit_btn->setCommitCallback(boost::bind(&LLPanelPlaces::onEditButtonClicked, this));
+    edit_btn->setCommitCallback(std::bind(&LLPanelPlaces::onEditButtonClicked, this));
 
     createTabs();
     updateVerbs();
@@ -419,7 +422,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
                 dynamic_cast<LLLandmarksPanel*>(mTabContainer->getPanelByName("Landmarks"));
             if (landmarks_panel && item_id.notNull())
             {
-                LLLandmark* landmark = LLLandmarkActions::getLandmark(item_id, boost::bind(&LLLandmarksPanel::doCreatePick, landmarks_panel, _1, item_id));
+                LLLandmark* landmark = LLLandmarkActions::getLandmark(item_id, std::bind(&LLLandmarksPanel::doCreatePick, landmarks_panel, _1, item_id));
                 if (landmark)
                 {
                     landmarks_panel->doCreatePick(landmark, item_id);
@@ -596,7 +599,7 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
     mLandmarkInfo->displayItemInfo(mItem);
 
     LLLandmark* lm = gLandmarkList.getAsset(mItem->getAssetUUID(),
-                                            boost::bind(&LLPanelPlaces::onLandmarkLoaded, this, _1));
+                                            std::bind(&LLPanelPlaces::onLandmarkLoaded, this, _1));
     if (lm)
     {
         onLandmarkLoaded(lm);
@@ -941,7 +944,7 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
     }
     else if (item == "copy")
     {
-        LLLandmarkActions::getSLURLfromPosGlobal(mPosGlobal, boost::bind(&onSLURLBuilt, _1));
+        LLLandmarkActions::getSLURLfromPosGlobal(mPosGlobal, std::bind(&onSLURLBuilt, _1));
     }
     else if (item == "delete")
     {

@@ -99,7 +99,7 @@ public:
      *
      * Multiple callbacks can be set.
      *
-     * @return no connection; use boost::bind + boost::signals2::trackable to disconnect slots.
+     * @return no connection; use std::bind + boost::signals2::trackable to disconnect slots.
      */
     void setChangedCallback(const signal_t::slot_type& cb) { mChangedSignal.connect(cb); }
 

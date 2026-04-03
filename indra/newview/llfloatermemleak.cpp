@@ -35,6 +35,7 @@
 
 #include "llmath.h"
 #include "llviewerwindow.h"
+#include <functional>
 
 U32 LLFloaterMemLeak::sMemLeakingSpeed = 0 ; //bytes leaked per frame
 U32 LLFloaterMemLeak::sMaxLeakedMem = 0 ; //maximum allowed leaked memory
@@ -48,12 +49,12 @@ LLFloaterMemLeak::LLFloaterMemLeak(const LLSD& key)
     : LLFloater(key)
 {
     setTitle("Memory Leaking Simulation Floater");
-    mCommitCallbackRegistrar.add("MemLeak.ChangeLeakingSpeed",  boost::bind(&LLFloaterMemLeak::onChangeLeakingSpeed, this));
-    mCommitCallbackRegistrar.add("MemLeak.ChangeMaxMemLeaking", boost::bind(&LLFloaterMemLeak::onChangeMaxMemLeaking, this));
-    mCommitCallbackRegistrar.add("MemLeak.Start",   boost::bind(&LLFloaterMemLeak::onClickStart, this));
-    mCommitCallbackRegistrar.add("MemLeak.Stop",    boost::bind(&LLFloaterMemLeak::onClickStop, this));
-    mCommitCallbackRegistrar.add("MemLeak.Release", boost::bind(&LLFloaterMemLeak::onClickRelease, this));
-    mCommitCallbackRegistrar.add("MemLeak.Close",   boost::bind(&LLFloaterMemLeak::onClickClose, this));
+    mCommitCallbackRegistrar.add("MemLeak.ChangeLeakingSpeed",  std::bind(&LLFloaterMemLeak::onChangeLeakingSpeed, this));
+    mCommitCallbackRegistrar.add("MemLeak.ChangeMaxMemLeaking", std::bind(&LLFloaterMemLeak::onChangeMaxMemLeaking, this));
+    mCommitCallbackRegistrar.add("MemLeak.Start",   std::bind(&LLFloaterMemLeak::onClickStart, this));
+    mCommitCallbackRegistrar.add("MemLeak.Stop",    std::bind(&LLFloaterMemLeak::onClickStop, this));
+    mCommitCallbackRegistrar.add("MemLeak.Release", std::bind(&LLFloaterMemLeak::onClickRelease, this));
+    mCommitCallbackRegistrar.add("MemLeak.Close",   std::bind(&LLFloaterMemLeak::onClickClose, this));
 }
 //----------------------------------------------
 

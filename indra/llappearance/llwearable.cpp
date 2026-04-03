@@ -35,7 +35,8 @@
 #include "llvisualparam.h"
 #include "llavatarappearancedefines.h"
 #include "llwearable.h"
-#include "boost/bind.hpp"
+#include <functional>
+
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -163,13 +164,10 @@ void LLWearable::createVisualParams(LLAvatarAppearance *avatarp)
     for (visual_param_index_map_t::value_type& param_pair : mVisualParamIndexMap)
     {
         LLVisualParam* param = param_pair.second;
-        LLVisualParam*(LLWearable::*wearable_function)(S32)const = &LLWearable::getVisualParam;
-        // need this line to disambiguate between versions of LLCharacter::getVisualParam()
-        LLVisualParam*(LLAvatarAppearance::*param_function)(S32)const = &LLAvatarAppearance::getVisualParam;
         param->resetDrivenParams();
-        if(!param->linkDrivenParams(boost::bind(wearable_function,(LLWearable*)this, _1), false))
+        if(!param->linkDrivenParams([this](S32 id) -> LLVisualParam* { return getVisualParam(id); }, false))
         {
-            if( !param->linkDrivenParams(boost::bind(param_function,avatarp,_1 ), true))
+            if( !param->linkDrivenParams([avatarp](S32 id) -> LLVisualParam* { return avatarp->getVisualParam(id); }, true))
             {
                 LL_DEBUGS("Avatar") << "could not link driven params for wearable " << getName() << " id: " << param->getID() << LL_ENDL;
                 continue;

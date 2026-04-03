@@ -66,6 +66,9 @@
 #include "llagentui.h"
 
 #include <boost/regex.hpp>
+#include <functional>
+
+using namespace std::placeholders;
 
 //-- LLTeleportHistoryMenuItem -----------------------------------------------
 
@@ -278,7 +281,7 @@ LLNavigationBar::LLNavigationBar()
     buildFromFile( "panel_navigation_bar.xml");
 
     // set a listener function for LoginComplete event
-    LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLNavigationBar::handleLoginComplete, this));
+    LLAppViewer::instance()->setOnLoginCompletedCallback(std::bind(&LLNavigationBar::handleLoginComplete, this));
 }
 
 LLNavigationBar::~LLNavigationBar()
@@ -297,40 +300,40 @@ bool LLNavigationBar::postBuild()
     mCmbLocation= getChild<LLLocationInputCtrl>("location_combo");
 
     mBtnBack->setEnabled(false);
-    mBtnBack->setClickedCallback(boost::bind(&LLNavigationBar::onBackButtonClicked, this));
-    mBtnBack->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this,_1, _2));
-    mBtnBack->setClickDraggingCallback(boost::bind(&LLNavigationBar::showTeleportHistoryMenu, this,_1));
+    mBtnBack->setClickedCallback(std::bind(&LLNavigationBar::onBackButtonClicked, this));
+    mBtnBack->setHeldDownCallback(std::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this,_1, _2));
+    mBtnBack->setClickDraggingCallback(std::bind(&LLNavigationBar::showTeleportHistoryMenu, this,_1));
 
     mBtnForward->setEnabled(false);
-    mBtnForward->setClickedCallback(boost::bind(&LLNavigationBar::onForwardButtonClicked, this));
-    mBtnForward->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _1, _2));
-    mBtnForward->setClickDraggingCallback(boost::bind(&LLNavigationBar::showTeleportHistoryMenu, this,_1));
+    mBtnForward->setClickedCallback(std::bind(&LLNavigationBar::onForwardButtonClicked, this));
+    mBtnForward->setHeldDownCallback(std::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _1, _2));
+    mBtnForward->setClickDraggingCallback(std::bind(&LLNavigationBar::showTeleportHistoryMenu, this,_1));
 
-    mBtnHome->setClickedCallback(boost::bind(&LLNavigationBar::onHomeButtonClicked, this));
+    mBtnHome->setClickedCallback(std::bind(&LLNavigationBar::onHomeButtonClicked, this));
 
-    mBtnLandmarks->setClickedCallback(boost::bind(&LLNavigationBar::onLandmarksButtonClicked, this));
+    mBtnLandmarks->setClickedCallback(std::bind(&LLNavigationBar::onLandmarksButtonClicked, this));
 
-    mCmbLocation->setCommitCallback(boost::bind(&LLNavigationBar::onLocationSelection, this));
+    mCmbLocation->setCommitCallback(std::bind(&LLNavigationBar::onLocationSelection, this));
 
     mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
-        setTeleportFinishedCallback(boost::bind(&LLNavigationBar::onTeleportFinished, this, _1));
+        setTeleportFinishedCallback(std::bind(&LLNavigationBar::onTeleportFinished, this, _1));
 
     mTeleportFailedConnection = LLViewerParcelMgr::getInstance()->
-        setTeleportFailedCallback(boost::bind(&LLNavigationBar::onTeleportFailed, this));
+        setTeleportFailedCallback(std::bind(&LLNavigationBar::onTeleportFailed, this));
 
     mDefaultNbRect = getRect();
     mDefaultFpRect = getChild<LLFavoritesBarCtrl>("favorite")->getRect();
 
     // we'll be notified on teleport history changes
     LLTeleportHistory::getInstance()->setHistoryChangedCallback(
-            boost::bind(&LLNavigationBar::onTeleportHistoryChanged, this));
+            std::bind(&LLNavigationBar::onTeleportHistoryChanged, this));
 
     LLHints::getInstance()->registerHintTarget("nav_bar", getHandle());
 
     mNavigationPanel = getChild<LLLayoutPanel>("navigation_layout_panel");
     mFavoritePanel = getChild<LLLayoutPanel>("favorites_layout_panel");
-    mNavigationPanel->getResizeBar()->setResizeListener(boost::bind(&LLNavigationBar::onNavbarResized, this));
-    mFavoritePanel->getResizeBar()->setResizeListener(boost::bind(&LLNavigationBar::onNavbarResized, this));
+    mNavigationPanel->getResizeBar()->setResizeListener(std::bind(&LLNavigationBar::onNavbarResized, this));
+    mFavoritePanel->getResizeBar()->setResizeListener(std::bind(&LLNavigationBar::onNavbarResized, this));
 
     return true;
 }
@@ -520,7 +523,7 @@ void LLNavigationBar::onLocationSelection()
 
     // Resolve the region name to its global coordinates.
     // If resolution succeeds we'll teleport.
-    LLWorldMapMessage::url_callback_t cb = boost::bind(
+    LLWorldMapMessage::url_callback_t cb = std::bind(
             &LLNavigationBar::onRegionNameResponse, this,
             typed_location, region_name, local_coords, _1, _2, _3, _4);
     mSaveToLocationHistory = true;
@@ -612,7 +615,7 @@ void LLNavigationBar::rebuildTeleportHistoryMenu()
         LLTeleportHistoryMenuItem::Params item_params;
         item_params.label = item_params.name = hist_items[i].mTitle;
         item_params.item_type = type;
-        item_params.on_click.function(boost::bind(&LLNavigationBar::onTeleportHistoryMenuItemClicked, this, i));
+        item_params.on_click.function(std::bind(&LLNavigationBar::onTeleportHistoryMenuItemClicked, this, i));
         LLTeleportHistoryMenuItem* new_itemp = LLUICtrlFactory::create<LLTeleportHistoryMenuItem>(item_params);
         //new_itemp->setFont()
         mTeleportHistoryMenu->addChild(new_itemp);
@@ -666,7 +669,7 @@ void    LLNavigationBar::showTeleportHistoryMenu(LLUICtrl* btn_ctrl)
             LL_WARNS("Navgationbar")<<"mHistoryMenuConnection should be disconnected at this moment."<<LL_ENDL;
             mHistoryMenuConnection.disconnect();
         }
-        mHistoryMenuConnection = gMenuHolder->setMouseUpCallback(boost::bind(&LLNavigationBar::onNavigationButtonHeldUp, this, nav_button));
+        mHistoryMenuConnection = gMenuHolder->setMouseUpCallback(std::bind(&LLNavigationBar::onNavigationButtonHeldUp, this, nav_button));
         // pressed state will be update after mouseUp in  onBackOrForwardButtonHeldUp();
         nav_button->setForcePressedState(true);
     }

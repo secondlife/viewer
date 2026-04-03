@@ -32,7 +32,7 @@
 #include "llcallbacklist.h"
 
 #include "llmatrix4a.h"
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/exception/diagnostic_information.hpp>
 
 std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
@@ -192,7 +192,7 @@ void LLModelLoader::run()
 
     // todo: we are inside of a thread, push this into main thread worker,
     // not into doOnIdleOneTime that laks tread safety
-    doOnIdleOneTime(boost::bind(&LLModelLoader::loadModelCallback,this));
+    doOnIdleOneTime([this]() { loadModelCallback(); });
 }
 
 // static

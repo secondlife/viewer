@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaternewfeaturenotification.h"
+#include <functional>
 
 
 LLFloaterNewFeatureNotification::LLFloaterNewFeatureNotification(const LLSD& key)
@@ -41,7 +42,7 @@ LLFloaterNewFeatureNotification::~LLFloaterNewFeatureNotification()
 bool LLFloaterNewFeatureNotification::postBuild()
 {
     setCanDrag(false);
-    getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterNewFeatureNotification::onCloseBtn, this));
+    getChild<LLButton>("close_btn")->setCommitCallback(std::bind(&LLFloaterNewFeatureNotification::onCloseBtn, this));
 
     if (getKey().isString())
     {

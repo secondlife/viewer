@@ -54,6 +54,9 @@
 #include "llviewernetwork.h"
 #include "lltooldraganddrop.h"
 #include "llsdserialize.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLFavoritesBarCtrl> r("favorites_bar");
 
@@ -123,7 +126,7 @@ private:
         if(LLLandmarkActions::getLandmarkGlobalPos(mLandmarkID, g_pos))
         {
             LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(g_pos,
-                boost::bind(&LLLandmarkInfoGetter::landmarkNameCallback, static_cast<LLHandle<LLLandmarkInfoGetter> >(mHandle), _1, _2, _3, _4));
+                std::bind(&LLLandmarkInfoGetter::landmarkNameCallback, static_cast<LLHandle<LLLandmarkInfoGetter> >(mHandle), _1, _2, _3, _4));
         }
     }
 
@@ -430,18 +433,18 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 {
     // Register callback for menus with current registrar (will be parent panel's registrar)
     LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Favorites.DoToSelected",
-        boost::bind(&LLFavoritesBarCtrl::doToSelected, this, _2));
+        std::bind(&LLFavoritesBarCtrl::doToSelected, this, _2));
 
     // Add this if we need to selectively enable items
     LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Favorites.EnableSelected",
-        boost::bind(&LLFavoritesBarCtrl::enableSelected, this, _2));
+        std::bind(&LLFavoritesBarCtrl::enableSelected, this, _2));
 
     gInventory.addObserver(this);
 
     //make chevron button
     LLTextBox::Params more_button_params(p.more_button);
     mMoreTextBox = LLUICtrlFactory::create<LLTextBox> (more_button_params);
-    mMoreTextBox->setClickedCallback(boost::bind(&LLFavoritesBarCtrl::onMoreTextBoxClicked, this));
+    mMoreTextBox->setClickedCallback(std::bind(&LLFavoritesBarCtrl::onMoreTextBoxClicked, this));
     addChild(mMoreTextBox);
     LLRect rect = mMoreTextBox->getRect();
     mMoreTextBox->setRect(LLRect(rect.mLeft - rect.getWidth(), rect.mTop, rect.mRight, rect.mBottom));
@@ -484,7 +487,7 @@ bool LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
              */
             if (!mEndDragConnection.connected())
             {
-                mEndDragConnection = LLToolDragAndDrop::getInstance()->setEndDragCallback(boost::bind(&LLFavoritesBarCtrl::onEndDrag, this));
+                mEndDragConnection = LLToolDragAndDrop::getInstance()->setEndDragCallback(std::bind(&LLFavoritesBarCtrl::onEndDrag, this));
             }
 
             // Copy the item into the favorites folder (if it's not already there).
@@ -1108,11 +1111,11 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
     fav_btn->setFont(mFont);
     fav_btn->setLabel(item->getName());
     fav_btn->setToolTip(item->getName());
-    fav_btn->setCommitCallback(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
-    fav_btn->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3,_4 ));
+    fav_btn->setCommitCallback(std::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
+    fav_btn->setRightMouseDownCallback(std::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3,_4 ));
 
-    fav_btn->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
-    fav_btn->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
+    fav_btn->LLUICtrl::setMouseDownCallback(std::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
+    fav_btn->LLUICtrl::setMouseUpCallback(std::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
 
     return fav_btn;
 }
@@ -1220,13 +1223,13 @@ void LLFavoritesBarCtrl::updateOverflowMenuItems()
         LLFavoriteLandmarkMenuItem::Params item_params;
         item_params.name(item_name);
         item_params.label(item_name);
-        item_params.on_click.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
+        item_params.on_click.function(std::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
 
         LLFavoriteLandmarkMenuItem *menu_item = LLUICtrlFactory::create<LLFavoriteLandmarkMenuItem>(item_params);
         menu_item->initFavoritesBarPointer(this);
-        menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3, _4));
-        menu_item->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
-        menu_item->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
+        menu_item->setRightMouseDownCallback(std::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3, _4));
+        menu_item->LLUICtrl::setMouseDownCallback(std::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
+        menu_item->LLUICtrl::setMouseUpCallback(std::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
         menu_item->setLandmarkID(item->getUUID());
 
         fitLabelWidth(menu_item);
@@ -1278,7 +1281,7 @@ void LLFavoritesBarCtrl::addOpenLandmarksMenuItem(LLToggleableMenu* menu)
     item_params.label(translated ? label_transl: label_untrans);
     LLSD key;
     key["type"] = "open_landmark_tab";
-    item_params.on_click.function(boost::bind(&LLFloaterSidePanelContainer::showPanel, "places", key));
+    item_params.on_click.function(std::bind(&LLFloaterSidePanelContainer::showPanel, "places", key));
     LLMenuItemCallGL* menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
     fitLabelWidth(menu_item);
@@ -1508,7 +1511,7 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
         LLSD payload;
         payload["id"] = mSelectedItemID;
 
-        LLNotificationsUtil::add("RenameLandmark", args, payload, boost::bind(onRenameCommit, _1, _2));
+        LLNotificationsUtil::add("RenameLandmark", args, payload, std::bind(onRenameCommit, _1, _2));
     }
     else if (action == "move_to_landmarks")
     {
@@ -1763,7 +1766,7 @@ void LLFavoritesOrderStorage::getSLURL(const LLUUID& asset_id)
     if (slurl_iter != mSLURLs.end()) return; // SLURL for current landmark is already cached
 
     LLLandmark* lm = gLandmarkList.getAsset(asset_id,
-        boost::bind(&LLFavoritesOrderStorage::onLandmarkLoaded, this, asset_id, _1));
+        std::bind(&LLFavoritesOrderStorage::onLandmarkLoaded, this, asset_id, _1));
     if (lm)
     {
         LL_DEBUGS("FavoritesBar") << "landmark for " << asset_id << " already loaded" << LL_ENDL;
@@ -2035,7 +2038,7 @@ void LLFavoritesOrderStorage::onLandmarkLoaded(const LLUUID& asset_id, LLLandmar
         {
             LL_DEBUGS("FavoritesBar") << "requesting slurl for landmark " << asset_id << LL_ENDL;
             LLLandmarkActions::getSLURLfromPosGlobal(pos_global,
-            boost::bind(&LLFavoritesOrderStorage::storeFavoriteSLURL, this, asset_id, _1));
+            std::bind(&LLFavoritesOrderStorage::storeFavoriteSLURL, this, asset_id, _1));
         }
     }
 }

@@ -32,6 +32,9 @@
 #include "llblockedlistitem.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llviewermenu.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLBlockList> r("block_list");
 
@@ -53,10 +56,10 @@ LLBlockList::LLBlockList(const Params& p)
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add       ("Block.Action",    boost::bind(&LLBlockList::onCustomAction,   this, _2));
-    enable_registrar.add("Block.Enable",    boost::bind(&LLBlockList::isActionEnabled,  this, _2));
-    enable_registrar.add("Block.Check",     boost::bind(&LLBlockList::isMenuItemChecked, this, _2));
-    enable_registrar.add("Block.Visible",   boost::bind(&LLBlockList::isMenuItemVisible, this, _2));
+    registrar.add       ("Block.Action",    std::bind(&LLBlockList::onCustomAction,   this, _2));
+    enable_registrar.add("Block.Enable",    std::bind(&LLBlockList::isActionEnabled,  this, _2));
+    enable_registrar.add("Block.Check",     std::bind(&LLBlockList::isMenuItemChecked, this, _2));
+    enable_registrar.add("Block.Visible",   std::bind(&LLBlockList::isMenuItemVisible, this, _2));
 
     LLToggleableMenu* context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
                                     "menu_people_blocked_gear.xml",

@@ -53,6 +53,7 @@
 #include "llhelp.h"
 #include "lldockablefloater.h"
 #include "llviewereventrecorder.h"
+#include <functional>
 
 static LLDefaultChildRegistry::Register<LLButton> r("button");
 
@@ -397,19 +398,19 @@ boost::signals2::connection LLButton::setHeldDownCallback( const commit_signal_t
 // *TODO: Deprecate (for backwards compatibility only)
 boost::signals2::connection LLButton::setClickedCallback( button_callback_t cb, void* data )
 {
-    return setClickedCallback(boost::bind(cb, data));
+    return setClickedCallback(std::bind(cb, data));
 }
 boost::signals2::connection LLButton::setMouseDownCallback( button_callback_t cb, void* data )
 {
-    return setMouseDownCallback(boost::bind(cb, data));
+    return setMouseDownCallback(std::bind(cb, data));
 }
 boost::signals2::connection LLButton::setMouseUpCallback( button_callback_t cb, void* data )
 {
-    return setMouseUpCallback(boost::bind(cb, data));
+    return setMouseUpCallback(std::bind(cb, data));
 }
 boost::signals2::connection LLButton::setHeldDownCallback( button_callback_t cb, void* data )
 {
-    return setHeldDownCallback(boost::bind(cb, data));
+    return setHeldDownCallback(std::bind(cb, data));
 }
 
 bool LLButton::postBuild()
@@ -1353,7 +1354,7 @@ void LLButton::setDockableFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname)
     // Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
     button->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
     // Set the clicked callback to toggle the floater
-    button->setClickedCallback(boost::bind(&LLDockableFloater::toggleInstance, sdname));
+    button->setClickedCallback(std::bind(&LLDockableFloater::toggleInstance, sdname));
 }
 
 // static

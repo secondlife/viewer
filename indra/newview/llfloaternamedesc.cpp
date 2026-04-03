@@ -53,6 +53,7 @@
 #include "llassetstorage.h"
 #include "llinventorytype.h"
 #include "llagentbenefits.h"
+#include <functional>
 
 const S32 PREVIEW_LINE_HEIGHT = 19;
 const S32 PREVIEW_BORDER_WIDTH = 2;
@@ -106,7 +107,7 @@ bool LLFloaterNameDesc::postBuild()
 
     r.setLeftTopAndSize( PREVIEW_HPAD, y, line_width, PREVIEW_LINE_HEIGHT );
 
-    getChild<LLUICtrl>("name_form")->setCommitCallback(boost::bind(&LLFloaterNameDesc::doCommit, this));
+    getChild<LLUICtrl>("name_form")->setCommitCallback(std::bind(&LLFloaterNameDesc::doCommit, this));
     getChild<LLUICtrl>("name_form")->setValue(LLSD(asset_name));
 
     LLLineEditor *NameEditor = getChild<LLLineEditor>("name_form");
@@ -120,7 +121,7 @@ bool LLFloaterNameDesc::postBuild()
     y -= PREVIEW_LINE_HEIGHT;
 
     r.setLeftTopAndSize( PREVIEW_HPAD, y, line_width, PREVIEW_LINE_HEIGHT );
-    getChild<LLUICtrl>("description_form")->setCommitCallback(boost::bind(&LLFloaterNameDesc::doCommit, this));
+    getChild<LLUICtrl>("description_form")->setCommitCallback(std::bind(&LLFloaterNameDesc::doCommit, this));
     LLLineEditor *DescEditor = getChild<LLLineEditor>("description_form");
     if (DescEditor)
     {
@@ -131,7 +132,7 @@ bool LLFloaterNameDesc::postBuild()
     y -= llfloor(PREVIEW_LINE_HEIGHT * 1.2f);
 
     // Cancel button
-    getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnCancel, this));
+    getChild<LLUICtrl>("cancel_btn")->setCommitCallback(std::bind(&LLFloaterNameDesc::onBtnCancel, this));
 
     S32 expected_upload_cost = getExpectedUploadCost();
     getChild<LLUICtrl>("ok_btn")->setLabelArg("[AMOUNT]", llformat("%d", expected_upload_cost));
@@ -252,7 +253,7 @@ bool LLFloaterSoundPreview::postBuild()
     {
         return false;
     }
-    getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
+    getChild<LLUICtrl>("ok_btn")->setCommitCallback(std::bind(&LLFloaterNameDesc::onBtnOK, this));
     return true;
 }
 
@@ -272,7 +273,7 @@ bool LLFloaterAnimPreview::postBuild()
     {
         return false;
     }
-    getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
+    getChild<LLUICtrl>("ok_btn")->setCommitCallback(std::bind(&LLFloaterNameDesc::onBtnOK, this));
     return true;
 }
 
@@ -292,6 +293,6 @@ bool LLFloaterScriptPreview::postBuild()
     {
         return false;
     }
-    getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
+    getChild<LLUICtrl>("ok_btn")->setCommitCallback(std::bind(&LLFloaterNameDesc::onBtnOK, this));
     return true;
 }

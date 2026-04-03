@@ -43,6 +43,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llfloaterimsession.h"
+#include <functional>
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -68,9 +69,9 @@ LLScriptFloater::LLScriptFloater(const LLSD& key)
 , mScriptForm(NULL)
 , mSaveFloaterPosition(false)
 {
-    setMouseDownCallback(boost::bind(&LLScriptFloater::onMouseDown, this));
+    setMouseDownCallback(std::bind(&LLScriptFloater::onMouseDown, this));
     setOverlapsScreenChannel(true);
-    mIsDockedStateForcedCallback = boost::bind(&LLAgentCamera::cameraMouselook, &gAgentCamera);
+    mIsDockedStateForcedCallback = std::bind(&LLAgentCamera::cameraMouselook, &gAgentCamera);
 }
 
 bool LLScriptFloater::toggle(const LLUUID& notification_id)
@@ -368,7 +369,7 @@ void LLScriptFloaterManager::onAddNotification(const LLUUID& notification_id)
         LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl("ScriptDialogLimitations");
         if (cntrl_ptr.notNull())
         {
-            mDialogLimitationsSlot = cntrl_ptr->getCommitSignal()->connect(boost::bind(&clearScriptNotifications));
+            mDialogLimitationsSlot = cntrl_ptr->getCommitSignal()->connect(std::bind(&clearScriptNotifications));
         }
         else
         {

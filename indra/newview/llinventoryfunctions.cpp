@@ -93,6 +93,9 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 bool LLInventoryState::sWearNewClothing = false;
 LLUUID LLInventoryState::sWearNewClothingTransactionID;
@@ -516,11 +519,11 @@ void copy_inventory_category_content(const LLUUID& new_cat_uuid, LLInventoryMode
     LLPointer<LLInventoryCallback> cb;
     if (root_copy_id.isNull())
     {
-        cb = new LLBoostFuncInventoryCallback(boost::bind(copy_cb, new_cat_uuid, root_id));
+        cb = new LLBoostFuncInventoryCallback(std::bind(copy_cb, new_cat_uuid, root_id));
     }
     else
     {
-        cb = new LLBoostFuncInventoryCallback(boost::bind(update_folder_cb, new_cat_uuid));
+        cb = new LLBoostFuncInventoryCallback(std::bind(update_folder_cb, new_cat_uuid));
     }
 
     // Copy all the items
@@ -1593,7 +1596,7 @@ bool move_item_to_marketplacelistings(LLInventoryItem* inv_item, LLUUID dest_fol
                 if (copy)
                 {
                     // Copy the item
-                    LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(update_folder_cb, new_cat_id));
+                    LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(std::bind(update_folder_cb, new_cat_id));
                     copy_inventory_item(
                         gAgent.getID(),
                         viewer_inv_item->getPermissions().getOwner(),
@@ -2247,7 +2250,7 @@ void move_items_to_new_subfolder(const uuid_vec_t& selected_uuids, const std::st
         return;
     }
 
-    inventory_func_type func = boost::bind(&move_items_to_folder, _1, selected_uuids);
+    inventory_func_type func = std::bind(&move_items_to_folder, _1, selected_uuids);
     gInventory.createNewCategory(first_item->getParentUUID(), LLFolderType::FT_NONE, folder_name, func);
 }
 
@@ -3370,17 +3373,17 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
                 if ((("cut" == action) || ("delete" == action)) && (LLMarketplaceData::instance().isListed(viewModel->getUUID()) || LLMarketplaceData::instance().isVersionFolder(viewModel->getUUID())))
                 {
                     // Cut or delete of the active version folder or listing folder itself will unlist the listing so ask that question specifically
-                    LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+                    LLNotificationsUtil::add("ConfirmMerchantUnlist", LLSD(), LLSD(), std::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
                     return;
                 }
                 // Any other case will simply modify but not unlist a listing
-                LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+                LLNotificationsUtil::add("ConfirmMerchantActiveChange", LLSD(), LLSD(), std::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
                 return;
             }
             // Cutting or deleting a whole listing needs confirmation as SLM will be archived and inaccessible to the user
             else if (LLMarketplaceData::instance().isListed(viewModel->getUUID()) && (("cut" == action) || ("delete" == action)))
             {
-                LLNotificationsUtil::add("ConfirmListingCutOrDelete", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
+                LLNotificationsUtil::add("ConfirmListingCutOrDelete", LLSD(), LLSD(), std::bind(&LLInventoryAction::callback_doToSelected, _1, _2, model, root, action));
                 return;
             }
         }
@@ -3392,7 +3395,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         LLFolderViewModelItemInventory * viewModel = dynamic_cast<LLFolderViewModelItemInventory *>((*set_iter)->getViewModelItem());
         if (contains_nocopy_items(viewModel->getUUID()))
         {
-            LLNotificationsUtil::add("ConfirmCopyToMarketplace", LLSD(), LLSD(), boost::bind(&LLInventoryAction::callback_copySelected, _1, _2, model, root, action));
+            LLNotificationsUtil::add("ConfirmCopyToMarketplace", LLSD(), LLSD(), std::bind(&LLInventoryAction::callback_copySelected, _1, _2, model, root, action));
             return;
         }
     }
@@ -3482,11 +3485,11 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         {
             LLSD payload;
             payload["has_worn"] = true;
-            LLNotificationsUtil::add("DeleteWornItems", LLSD(), payload, boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+            LLNotificationsUtil::add("DeleteWornItems", LLSD(), payload, std::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
         }
         else if ( (!f.allDescendentsPassedFilter()) && !marketplacelistings_item && (!LLNotifications::instance().getIgnored("DeleteFilteredItems")) )
         {
-            LLNotificationsUtil::add("DeleteFilteredItems", LLSD(), LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+            LLNotificationsUtil::add("DeleteFilteredItems", LLSD(), LLSD(), std::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
         }
         else
         {
@@ -3498,7 +3501,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 
             LLSD args;
             args["QUESTION"] = LLTrans::getString(root->getSelectedCount() > 1 ? "DeleteItems" :  "DeleteItem");
-            LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
+            LLNotificationsUtil::add("DeleteItems", args, LLSD(), std::bind(&LLInventoryAction::onItemsRemovalConfirmation, _1, _2, root->getHandle()));
         }
         // Note: marketplace listings will be updated in the callback if delete confirmed
         return;
@@ -3660,7 +3663,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     }
     else if ("save_selected_as" == action)
     {
-        (new LLDirPickerThread(boost::bind(&LLInventoryAction::saveMultipleTextures, _1, selected_items, model), std::string()))->getFile();
+        (new LLDirPickerThread(std::bind(&LLInventoryAction::saveMultipleTextures, _1, selected_items, model), std::string()))->getFile();
     }
     else if ("new_folder_from_selected" == action)
     {
@@ -3855,15 +3858,15 @@ void LLInventoryAction::fileUploadLocation(const LLUUID& dest_id, const std::str
     }
     else if (action == "upload_texture")
     {
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_IMAGE, false);
+        LLFilePickerReplyThread::startPicker(std::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_IMAGE, false);
     }
     else if (action == "upload_sound")
     {
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_WAV, false);
+        LLFilePickerReplyThread::startPicker(std::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_WAV, false);
     }
     else if (action == "upload_animation")
     {
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_ANIM, false);
+        LLFilePickerReplyThread::startPicker(std::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_ANIM, false);
     }
     else if (action == "upload_model")
     {
@@ -3875,7 +3878,7 @@ void LLInventoryAction::fileUploadLocation(const LLUUID& dest_id, const std::str
     }
     else if (action == "upload_bulk")
     {
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true, dest_id), LLFilePicker::FFLOAD_ALL, true);
+        LLFilePickerReplyThread::startPicker(std::bind(&upload_bulk, _1, _2, true, dest_id), LLFilePicker::FFLOAD_ALL, true);
     }
 }
 

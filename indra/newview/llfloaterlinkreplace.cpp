@@ -36,6 +36,9 @@
 #include "llnotifications.h"
 #include "lltextbox.h"
 #include "llviewercontrol.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 LLFloaterLinkReplace::LLFloaterLinkReplace(const LLSD& key)
     : LLFloater(key),
@@ -55,16 +58,16 @@ LLFloaterLinkReplace::~LLFloaterLinkReplace()
 bool LLFloaterLinkReplace::postBuild()
 {
     mStartBtn = getChild<LLButton>("btn_start");
-    mStartBtn->setCommitCallback(boost::bind(&LLFloaterLinkReplace::onStartClicked, this));
+    mStartBtn->setCommitCallback(std::bind(&LLFloaterLinkReplace::onStartClicked, this));
 
     mRefreshBtn = getChild<LLButton>("btn_refresh");
-    mRefreshBtn->setCommitCallback(boost::bind(&LLFloaterLinkReplace::checkEnableStart, this));
+    mRefreshBtn->setCommitCallback(std::bind(&LLFloaterLinkReplace::checkEnableStart, this));
 
     mSourceEditor = getChild<LLInventoryLinkReplaceDropTarget>("source_uuid_editor");
     mTargetEditor = getChild<LLInventoryLinkReplaceDropTarget>("target_uuid_editor");
 
-    mSourceEditor->setDADCallback(boost::bind(&LLFloaterLinkReplace::onSourceItemDrop, this, _1));
-    mTargetEditor->setDADCallback(boost::bind(&LLFloaterLinkReplace::onTargetItemDrop, this, _1));
+    mSourceEditor->setDADCallback(std::bind(&LLFloaterLinkReplace::onSourceItemDrop, this, _1));
+    mTargetEditor->setDADCallback(std::bind(&LLFloaterLinkReplace::onTargetItemDrop, this, _1));
 
     mStatusText = getChild<LLTextBox>("status_text");
 
@@ -152,7 +155,7 @@ void LLFloaterLinkReplace::onStartClicked()
 
 
     LLNotification::Params params("ConfirmReplaceLink");
-    params.functor.function(boost::bind(&LLFloaterLinkReplace::onStartClickedResponse, this, _1, _2));
+    params.functor.function(std::bind(&LLFloaterLinkReplace::onStartClickedResponse, this, _1, _2));
     if (source_item && source_item->isWearableType() && source_item->getWearableType() <= LLWearableType::WT_EYES)
     {
         if(target_item && target_item->isWearableType() && source_item->getWearableType() == target_item->getWearableType())
@@ -293,7 +296,7 @@ void LLFloaterLinkReplace::linkCreatedCallback(LLHandle<LLFloaterLinkReplace> fl
         outfit_update_folder = outfit_folder_id;
     }
 
-    LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(&LLFloaterLinkReplace::itemRemovedCallback, floater_handle, outfit_update_folder));
+    LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(std::bind(&LLFloaterLinkReplace::itemRemovedCallback, floater_handle, outfit_update_folder));
     remove_inventory_object(old_item_id, cb);
 }
 
@@ -375,7 +378,7 @@ void LLFloaterLinkReplace::processBatch(LLInventoryModel::item_array_t items)
 
             LLInventoryObject::const_object_list_t obj_array;
             obj_array.push_back(LLConstPointer<LLInventoryObject>(target_item));
-            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(&LLFloaterLinkReplace::linkCreatedCallback,
+            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(std::bind(&LLFloaterLinkReplace::linkCreatedCallback,
                                                                                                             getDerivedHandle<LLFloaterLinkReplace>(),
                                                                                                             source_item->getUUID(),
                                                                                                             target_item->getUUID(),

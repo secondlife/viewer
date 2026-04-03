@@ -88,6 +88,9 @@
 
 #include "llcorehttputil.h"
 #include "llviewerassetupload.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const std::string SCREEN_PREV_FILENAME = "screen_report_last.png";
 
@@ -199,7 +202,7 @@ bool LLFloaterReporter::postBuild()
                         std::string("tool_face_active.tga") );
     childSetAction("pick_btn", onClickObjPicker, this);
 
-    childSetAction("select_abuser", boost::bind(&LLFloaterReporter::onClickSelectAbuser, this));
+    childSetAction("select_abuser", std::bind(&LLFloaterReporter::onClickSelectAbuser, this));
 
     childSetAction("send_btn", onClickSend, this);
     childSetAction("cancel_btn", onClickCancel, this);
@@ -223,7 +226,7 @@ bool LLFloaterReporter::postBuild()
                 cap_url += lang;
             }
             LLCoros::instance().launch("LLFloaterReporter::requestAbuseCategoriesCoro",
-                boost::bind(LLFloaterReporter::requestAbuseCategoriesCoro, cap_url, this->getHandle()));
+                std::bind(LLFloaterReporter::requestAbuseCategoriesCoro, cap_url, this->getHandle()));
         }
     }
 
@@ -368,7 +371,7 @@ void LLFloaterReporter::onClickSelectAbuser()
     LLView * button = findChild<LLButton>("select_abuser", true);
 
     LLFloater * root_floater = gFloaterView->getParentFloater(this);
-    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterReporter::callbackAvatarID, this, _1, _2), false, true, false, root_floater->getName(), button);
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(std::bind(&LLFloaterReporter::callbackAvatarID, this, _1, _2), false, true, false, root_floater->getName(), button);
     if (picker)
     {
         root_floater->addDependentFloater(picker);
@@ -397,7 +400,7 @@ void LLFloaterReporter::setFromAvatarID(const LLUUID& avatar_id)
     {
         mAvatarNameCacheConnection.disconnect();
     }
-    mAvatarNameCacheConnection = LLAvatarNameCache::get(avatar_id, boost::bind(&LLFloaterReporter::onAvatarNameCache, this, _1, _2));
+    mAvatarNameCacheConnection = LLAvatarNameCache::get(avatar_id, std::bind(&LLFloaterReporter::onAvatarNameCache, this, _1, _2));
 }
 
 void LLFloaterReporter::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)
@@ -865,7 +868,7 @@ void LLFloaterReporter::sendReportViaCaps(std::string url, std::string sshot_url
     }
     else
     {
-        LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t proc = boost::bind(&LLFloaterReporter::finishedARPost, _1);
+        LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t proc = std::bind(&LLFloaterReporter::finishedARPost, _1);
         LLUploadDialog::modalUploadDialog("Abuse Report");
         LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(url, report, proc, proc);
     }
@@ -955,7 +958,7 @@ void LLFloaterReporter::takeNewSnapshot()
         {
             if (start_image_png->decode(mPrevImageRaw, 0.0f))
             {
-                LLNotificationsUtil::add("LoadPreviousReportScreenshot", LLSD(), LLSD(), boost::bind(&LLFloaterReporter::onLoadScreenshotDialog,this, _1, _2));
+                LLNotificationsUtil::add("LoadPreviousReportScreenshot", LLSD(), LLSD(), std::bind(&LLFloaterReporter::onLoadScreenshotDialog,this, _1, _2));
                 return;
             }
         }

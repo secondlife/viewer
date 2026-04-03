@@ -89,6 +89,9 @@
 #include "llavatarappearancedefines.h"
 #include "llgltfmateriallist.h"
 #include "gltfscenemanager.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -2477,7 +2480,7 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
     LL_DEBUGS("MaterialTEs") << " " << pMaterialID.asString() << LL_ENDL;
     if (res)
     {
-        LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, boost::bind(&LLVOVolume::setTEMaterialParamsCallbackTE, getID(), _1, _2, _3));
+        LLMaterialMgr::instance().getTE(getRegion()->getRegionID(), pMaterialID, te, std::bind(&LLVOVolume::setTEMaterialParamsCallbackTE, getID(), _1, _2, _3));
 
         setChanged(ALL_CHANGED);
         if (!mDrawable.isNull())

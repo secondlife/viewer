@@ -36,6 +36,9 @@
 #include "lltextbox.h"
 #include "llviewertexteditor.h"
 #include "llworldmap.h"
+#include <functional>
+
+using namespace std::placeholders;
 
 static LLPanelInjector<LLPanelEventInfo> t_panel_event_info("panel_event_info");
 
@@ -67,15 +70,15 @@ bool LLPanelEventInfo::postBuild()
     mTBCover = getChild<LLTextBox>("event_cover");
 
     mTeleportBtn = getChild<LLButton>( "teleport_btn");
-    mTeleportBtn->setClickedCallback(boost::bind(&LLPanelEventInfo::onClickTeleport, this));
+    mTeleportBtn->setClickedCallback(std::bind(&LLPanelEventInfo::onClickTeleport, this));
 
     mMapBtn = getChild<LLButton>( "map_btn");
-    mMapBtn->setClickedCallback(boost::bind(&LLPanelEventInfo::onClickMap, this));
+    mMapBtn->setClickedCallback(std::bind(&LLPanelEventInfo::onClickMap, this));
 
     mNotifyBtn = getChild<LLButton>( "notify_btn");
-    mNotifyBtn->setClickedCallback(boost::bind(&LLPanelEventInfo::onClickNotify, this));
+    mNotifyBtn->setClickedCallback(std::bind(&LLPanelEventInfo::onClickNotify, this));
 
-    mEventInfoConnection = gEventNotifier.setEventInfoCallback(boost::bind(&LLPanelEventInfo::processEventInfoReply, this, _1));
+    mEventInfoConnection = gEventNotifier.setEventInfoCallback(std::bind(&LLPanelEventInfo::processEventInfoReply, this, _1));
 
     return true;
 }
