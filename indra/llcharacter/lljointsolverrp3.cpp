@@ -52,7 +52,7 @@ LLJointSolverRP3::LLJointSolverRP3()
     mJointGoal = NULL;
     mLengthAB = 1.0f;
     mLengthBC = 1.0f;
-    mPoleVector.setVec( 1.0f, 0.0f, 0.0f );
+    mPoleVector.set( 1.0f, 0.0f, 0.0f );
     mbUseBAxis = false;
     mTwist = 0.0f;
     mFirstTime = true;
@@ -80,8 +80,8 @@ void LLJointSolverRP3::setupJoints( LLJoint* jointA,
     mJointC = jointC;
     mJointGoal = jointGoal;
 
-    mLengthAB = mJointB->getPosition().magVec();
-    mLengthBC = mJointC->getPosition().magVec();
+    mLengthAB = mJointB->getPosition().length();
+    mLengthBC = mJointC->getPosition().length();
 
     mJointABaseRotation = jointA->getRotation();
     mJointBBaseRotation = jointB->getRotation();
@@ -103,7 +103,7 @@ const LLVector3& LLJointSolverRP3::getPoleVector()
 void LLJointSolverRP3::setPoleVector( const LLVector3& poleVector )
 {
     mPoleVector = poleVector;
-    mPoleVector.normVec();
+    mPoleVector.normalize();
 }
 
 
@@ -113,7 +113,7 @@ void LLJointSolverRP3::setPoleVector( const LLVector3& poleVector )
 void LLJointSolverRP3::setBAxis( const LLVector3& bAxis )
 {
     mBAxis = bAxis;
-    mBAxis.normVec();
+    mBAxis.normalize();
     mbUseBAxis = true;
 }
 
@@ -192,9 +192,9 @@ void LLJointSolverRP3::solve()
     //-------------------------------------------------------------------------
     // compute needed lengths of those vectors
     //-------------------------------------------------------------------------
-    F32 abLen = abVec.magVec();
-    F32 bcLen = bcVec.magVec();
-    F32 agLen = agVec.magVec();
+    F32 abLen = abVec.length();
+    F32 bcLen = bcVec.length();
+    F32 agLen = agVec.length();
 
     //-------------------------------------------------------------------------
     // compute component vector of (A->B) orthogonal to (A->C)
@@ -258,12 +258,12 @@ void LLJointSolverRP3::solve()
 
     // vector orthogonal to A->B and B->C
     LLVector3 abbcOrthoVec = abVec % bcVec;
-    if (abbcOrthoVec.magVecSquared() < 0.001f)
+    if (abbcOrthoVec.lengthSquared() < 0.001f)
     {
         abbcOrthoVec = poleVec % abVec;
         abacCompOrthoVec = poleVec;
     }
-    abbcOrthoVec.normVec();
+    abbcOrthoVec.normalize();
 
     F32 agLenSq = agLen * agLen;
 
@@ -325,7 +325,7 @@ void LLJointSolverRP3::solve()
         return;
     }
     LLVector3 apgNorm = poleVec % agVec;
-    apgNorm.normVec();
+    apgNorm.normalize();
 
     if (!mbUseBAxis)
     {
@@ -342,7 +342,7 @@ void LLJointSolverRP3::solve()
         {
             abcNorm = abVec % bcVec;
         }
-        abcNorm.normVec();
+        abcNorm.normalize();
     }
 
     //-------------------------------------------------------------------------
@@ -354,7 +354,7 @@ void LLJointSolverRP3::solve()
         if (abcNorm * apgNorm < 0.0f)
         {
             // we must be PI radians off ==> rotate by PI around agVec
-            pRot.setQuat(F_PI, agVec);
+            pRot.setAngleAxis(F_PI, agVec);
         }
         else
         {

@@ -1571,13 +1571,13 @@ void LLPanelObject::sendRotation(bool btn_down)
     // Note: must compare before conversion to radians
     LLVector3 delta = new_rot - mCurEulerDegrees;
 
-    if (delta.magVec() >= 0.0005f)
+    if (delta.length() >= 0.0005f)
     {
         mCurEulerDegrees = new_rot;
         new_rot *= DEG_TO_RAD;
 
         LLQuaternion rotation;
-        rotation.setQuat(new_rot.mV[VX], new_rot.mV[VY], new_rot.mV[VZ]);
+        rotation.setEulerAngles(new_rot.mV[VX], new_rot.mV[VY], new_rot.mV[VZ]);
 
         if (mRootObject != mObject)
         {
@@ -1622,7 +1622,7 @@ void LLPanelObject::sendScale(bool btn_down)
     LLVector3 newscale(mCtrlScaleX->get(), mCtrlScaleY->get(), mCtrlScaleZ->get());
 
     LLVector3 delta = newscale - mObject->getScale();
-    if (delta.magVec() >= 0.0005f || (mSizeChanged && !btn_down))
+    if (delta.length() >= 0.0005f || (mSizeChanged && !btn_down))
     {
         // scale changed by more than 1/2 millimeter
         mSizeChanged = btn_down;
@@ -1717,7 +1717,7 @@ void LLPanelObject::sendPosition(bool btn_down)
         LLVector3d old_pos_global = mObject->getPositionGlobal();
         LLVector3d delta = new_pos_global - old_pos_global;
         // moved more than 1/2 millimeter
-        if (delta.magVec() >= 0.0005f)
+        if (delta.length() >= 0.0005f)
         {
             if (mRootObject != mObject)
             {

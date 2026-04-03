@@ -666,7 +666,7 @@ void LLVOVolume::animateTextures()
 
                 LLVector3 scale(scale_s, scale_t, 1.f);
                 LLQuaternion quat;
-                quat.setQuat(rot, 0, 0, -1.f);
+                quat.setAngleAxis(rot, 0, 0, -1.f);
 
                 tex_mat.rotate(quat);
 
@@ -1535,7 +1535,7 @@ bool LLVOVolume::calcLOD()
             // MAINT-7926 Handle volumes in an animated object as a special case
             const LLVector3* box = avatar->getLastAnimExtents();
             LLVector3 diag = box[1] - box[0];
-            radius = diag.magVec() * 0.5f;
+            radius = diag.length() * 0.5f;
             LL_DEBUGS("DynamicBox") << avatar->getDebugName() << " diag " << diag << " radius " << radius << LL_ENDL;
         }
         else
@@ -1546,7 +1546,7 @@ bool LLVOVolume::calcLOD()
             // SL-937: add dynamic box handling for rigged mesh on regular avatars.
             const LLVector3* box = avatar->getLastAnimExtents();
             LLVector3 diag = box[1] - box[0];
-            radius = diag.magVec(); // preserve old BinRadius behavior - 2x off
+            radius = diag.length(); // preserve old BinRadius behavior - 2x off
             LL_DEBUGS("DynamicBox") << avatar->getDebugName() << " diag " << diag << " radius " << radius << LL_ENDL;
         }
         if (distance <= 0.f || radius <= 0.f)
@@ -2591,7 +2591,7 @@ LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
 
         LLVector3 ret(result.getF32ptr());
         ret = volumeDirectionToAgent(ret);
-        ret.normVec();
+        ret.normalize();
     }
 
     return ret;

@@ -72,7 +72,7 @@ LLVector3d LLRegionPosition::getPositionGlobal() const
     else
     {
         LLVector3d pos_global;
-        pos_global.setVec(mPositionRegion);
+        pos_global.set(mPositionRegion);
         return pos_global;
     }
 }

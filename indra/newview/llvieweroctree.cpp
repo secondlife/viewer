@@ -149,8 +149,8 @@ S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVe
     F32 d = 0.f;
     F32 t;
 
-    if ((min-origin).magVecSquared() < r &&
-        (max-origin).magVecSquared() < r)
+    if ((min-origin).lengthSquared() < r &&
+        (max-origin).lengthSquared() < r)
     {
         return 2;
     }
@@ -1066,7 +1066,7 @@ bool LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* boun
     LLVector4a r;
     r.setAdd(bounds[1], fudge);
 
-    /*if (r.magVecSquared() > 1024.0*1024.0)
+    /*if (r.lengthSquared() > 1024.0*1024.0)
     {
         return true;
     }*/

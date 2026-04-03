@@ -576,7 +576,7 @@ bool LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
             static LLStdStringHandle color_string = LLXmlTree::addAttributeString("color");
             if (child->getFastAttributeColor4U(color_string, color4u))
             {
-                mColors[ mNumColors ].setVec(color4u);
+                mColors[ mNumColors ].set(color4u);
                 mNumColors++;
             }
         }

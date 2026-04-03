@@ -400,8 +400,8 @@ static bool parse_lure_bucket(const std::string& bucket,
         }
     }
 
-    pos.setVec((F32)rx, (F32)ry, (F32)rz);
-    look_at.setVec((F32)lx, (F32)ly, (F32)lz);
+    pos.set((F32)rx, (F32)ry, (F32)rz);
+    look_at.set((F32)lx, (F32)ly, (F32)lz);
 
     region_handle = to_region_handle(gx, gy);
     return true;

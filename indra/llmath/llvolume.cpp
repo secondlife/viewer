@@ -1290,9 +1290,9 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     pt->mTexT  = t;
 
     // Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
-    twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
+    twist.setAngleAxis(lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
     // Rotate the point around the circle's center.
-    qang.setQuat   (ang,path_axis);
+    qang.setAngleAxis(ang,path_axis);
 
     LLMatrix3 rot(twist * qang);
 
@@ -1324,9 +1324,9 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
         pt->mTexT  = t;
 
         // Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
-        twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
+        twist.setAngleAxis(lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
         // Rotate the point around the circle's center.
-        qang.setQuat   (ang,path_axis);
+        qang.setAngleAxis(ang,path_axis);
         LLMatrix3 tmp(twist*qang);
         pt->mRot.loadu(tmp);
 
@@ -1350,9 +1350,9 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     pt->mTexT  = t;
 
     // Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
-    twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
+    twist.setAngleAxis(lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
     // Rotate the point around the circle's center.
-    qang.setQuat   (ang,path_axis);
+    qang.setAngleAxis(ang,path_axis);
     LLMatrix3 tmp(twist*qang);
     pt->mRot.loadu(tmp);
 
@@ -1484,7 +1484,7 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
                                      lerp(0.f ,params.getShear().mV[VY], t),
                                      t - 0.5f);
                 LLQuaternion quat;
-                quat.setQuat(lerp(F_PI * params.getTwistBegin(),F_PI * params.getTwist(),t),0,0,1);
+                quat.setAngleAxis(lerp(F_PI * params.getTwistBegin(),F_PI * params.getTwist(),t),0,0,1);
                 LLMatrix3 tmp(quat);
                 mPath[i].mRot.loadu(tmp);
                 mPath[i].mScale.set(lerp(start_scale.mV[0],end_scale.mV[0],t),
@@ -1551,7 +1551,7 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
                                 lerp(1.f, params.getScale().mV[VY], t), 0.f, 1.f);
             mPath[i].mTexT  = t;
             LLQuaternion quat;
-            quat.setQuat(F_PI * params.getTwist() * t,1,0,0);
+            quat.setAngleAxis(F_PI * params.getTwist() * t,1,0,0);
             LLMatrix3 tmp(quat);
             mPath[i].mRot.loadu(tmp);
         }
@@ -1578,7 +1578,7 @@ bool LLDynamicPath::generate(const LLPathParams& params, F32 detail, S32 split,
         // Some algorithms later assume at least TWO path points.
         resizePath(2);
         LLQuaternion quat;
-        quat.setQuat(0,0,0);
+        quat.setEulerAngles(0,0,0);
         LLMatrix3 tmp(quat);
 
         for (U32 i = 0; i < 2; i++)
@@ -1944,7 +1944,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const bool ge
     mSurfaceArea = 1.f; //only calculated for sculpts, defaults to 1 for all other prims
     mIsMeshAssetLoaded = false;
     mIsMeshAssetUnavaliable = false;
-    mLODScaleBias.setVec(1,1,1);
+    mLODScaleBias.set(1,1,1);
     mHullPoints = nullptr;
     mHullIndices = nullptr;
     mNumHullPoints = 0;
@@ -2032,7 +2032,7 @@ bool LLVolume::generate()
         split = 0;
     }
 
-    mLODScaleBias.setVec(0.5f, 0.5f, 0.5f);
+    mLODScaleBias.set(0.5f, 0.5f, 0.5f);
 
     F32 profile_detail = mDetail;
     F32 path_detail = mDetail;
@@ -2044,11 +2044,11 @@ bool LLVolume::generate()
         if (path_type == LL_PCODE_PATH_LINE && profile_type == LL_PCODE_PROFILE_CIRCLE)
         {
             //cylinders don't care about Z-Axis
-            mLODScaleBias.setVec(0.6f, 0.6f, 0.0f);
+            mLODScaleBias.set(0.6f, 0.6f, 0.0f);
         }
         else if (path_type == LL_PCODE_PATH_CIRCLE)
         {
-            mLODScaleBias.setVec(0.6f, 0.6f, 0.6f);
+            mLODScaleBias.set(0.6f, 0.6f, 0.6f);
         }
     }
 

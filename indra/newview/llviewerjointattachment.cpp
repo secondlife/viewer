@@ -389,7 +389,7 @@ void LLViewerJointAttachment::clampObjectPosition()
         {
             // *NOTE: object can drift when hitting maximum radius
             LLVector3 attachmentPos = attached_object->getPosition();
-            F32 dist = attachmentPos.normVec();
+            F32 dist = attachmentPos.normalize();
             dist = llmin(dist, MAX_ATTACHMENT_DIST);
             attachmentPos *= dist;
             attached_object->setPosition(attachmentPos);

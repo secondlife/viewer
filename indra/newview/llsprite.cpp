@@ -144,8 +144,8 @@ void LLSprite::updateFace(LLFace &face)
         F32 dot = sNormal * LLVector3(0.f, 1.f, 0.f);
         if (dot == 1.f || dot == -1.f)
         {
-            x_axis.setVec(1.f, 0.f, 0.f);
-            y_axis.setVec(0.f, 1.f, 0.f);
+            x_axis.set(1.f, 0.f, 0.f);
+            y_axis.set(0.f, 1.f, 0.f);
         }
         else
         {
@@ -288,7 +288,7 @@ void LLSprite::setColor(const LLColor4 &color)
 
 void LLSprite::setColor(const F32 r, const F32 g, const F32 b, const F32 a)
 {
-    mColor.setVec(r, g, b, a);
+    mColor.set(r, g, b, a);
 }
 
 

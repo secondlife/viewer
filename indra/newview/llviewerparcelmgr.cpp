@@ -1912,8 +1912,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
         }
         else
         {
-            parcel_mgr.mHoverWestSouth.clearVec();
-            parcel_mgr.mHoverEastNorth.clearVec();
+            parcel_mgr.mHoverWestSouth.clear();
+            parcel_mgr.mHoverEastNorth.clear();
         }
     }
     else

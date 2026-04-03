@@ -1225,7 +1225,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 
     if (iter != mSkinWeights.end())
     {
-        if ((iter->first - pos).magVec() > 0.1f)
+        if ((iter->first - pos).length() > 0.1f)
         {
             LL_ERRS() << "Couldn't find weight list." << LL_ENDL;
         }
@@ -1248,7 +1248,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
             --best;
         }
 
-        F32 min_dist = (iter->first - pos).magVec();
+        F32 min_dist = (iter->first - pos).length();
 
         bool done = false;
         while (!done)
@@ -1259,7 +1259,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
             if (iter_up != mSkinWeights.end() && ++iter_up != mSkinWeights.end())
             {
                 done = false;
-                F32 dist = (iter_up->first - pos).magVec();
+                F32 dist = (iter_up->first - pos).length();
 
                 if (dist < epsilon)
                 {
@@ -1277,7 +1277,7 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
             {
                 done = false;
 
-                F32 dist = (iter_down->first - pos).magVec();
+                F32 dist = (iter_down->first - pos).length();
 
                 if (dist < epsilon)
                 {

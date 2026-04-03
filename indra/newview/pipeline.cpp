@@ -1305,7 +1305,7 @@ void LLPipeline::createGLBuffers()
         for (U32 i = 0; i < noiseRes*noiseRes; ++i)
         {
             noise[i] = LLVector3(ll_frand()-0.5f, ll_frand()-0.5f, 0.f);
-            noise[i].normVec();
+            noise[i].normalize();
             noise[i].mV[2] = ll_frand()*scaler+1.f-scaler/2.f;
         }
 
@@ -2377,7 +2377,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)
         if (sUnderWaterRender)
         {
             //camera is below water, cull above water
-            pnorm.setVec(0, 0, 1);
+            pnorm.set(0, 0, 1);
         }
         else
         {
@@ -2386,7 +2386,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)
         }
 
         LLPlane plane;
-        plane.setVec(LLVector3(0, 0, water_height), pnorm);
+        plane.set(LLVector3(0, 0, water_height), pnorm);
 
         camera.setUserClipPlane(plane);
     }
@@ -5642,11 +5642,11 @@ void LLPipeline::setupHWLights()
         LLVector4 sun_dir(environment.getSunDirection(), 0.0f);
         LLVector4 moon_dir(environment.getMoonDirection(), 0.0f);
 
-        mSunDir.setVec(sun_dir);
-        mMoonDir.setVec(moon_dir);
+        mSunDir.set(sun_dir);
+        mMoonDir.set(moon_dir);
 
-        mSunDiffuse.setVec(psky->getSunlightColor());
-        mMoonDiffuse.setVec(psky->getMoonlightColor());
+        mSunDiffuse.set(psky->getSunlightColor());
+        mMoonDiffuse.set(psky->getMoonlightColor());
 
         F32 max_color = llmax(mSunDiffuse.mV[0], mSunDiffuse.mV[1], mSunDiffuse.mV[2]);
         if (max_color > 1.f)
@@ -5665,10 +5665,10 @@ void LLPipeline::setupHWLights()
         // prevent underlighting from having neither lightsource facing us
         if (!sun_up && !moon_up)
         {
-            mSunDiffuse.setVec(LLColor4(0.0, 0.0, 0.0, 1.0));
-            mMoonDiffuse.setVec(LLColor4(0.0, 0.0, 0.0, 1.0));
-            mSunDir.setVec(LLVector4(0.0, 1.0, 0.0, 0.0));
-            mMoonDir.setVec(LLVector4(0.0, 1.0, 0.0, 0.0));
+            mSunDiffuse.set(LLColor4(0.0, 0.0, 0.0, 1.0));
+            mMoonDiffuse.set(LLColor4(0.0, 0.0, 0.0, 1.0));
+            mSunDir.set(LLVector4(0.0, 1.0, 0.0, 0.0));
+            mMoonDir.set(LLVector4(0.0, 1.0, 0.0, 0.0));
         }
 
         LLVector4 light_dir = sun_up ? mSunDir : mMoonDir;
@@ -5748,7 +5748,7 @@ void LLPipeline::setupHWLights()
                 light_color *= fade;
             }
 
-            if (light_color.magVecSquared() < 0.001f)
+            if (light_color.lengthSquared() < 0.001f)
             {
                 continue;
             }
@@ -5914,9 +5914,9 @@ void LLPipeline::enableLightsPreview()
     LLVector3 dir1 = PreviewDirection1;
     LLVector3 dir2 = PreviewDirection2;
 
-    dir0.normVec();
-    dir1.normVec();
-    dir2.normVec();
+    dir0.normalize();
+    dir1.normalize();
+    dir2.normalize();
 
     LLVector4 light_pos(dir0, 0.0f);
 
@@ -8578,7 +8578,7 @@ void LLPipeline::renderDeferredLighting()
                     // send light color to shader in linear space
                     LLColor3 col = volume->getLightLinearColor() * light_scale;
 
-                    if (col.magVecSquared() < 0.001f)
+                    if (col.lengthSquared() < 0.001f)
                     {
                         continue;
                     }
@@ -8995,7 +8995,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
     at_axis *= quat;
 
     LLVector3 np = pos+at_axis;
-    at_axis.normVec();
+    at_axis.normalize();
 
     //get origin that has given fov for plane np, at_axis, and given scale
     F32 dist = (scale.mV[1]*0.5f)/tanf(fov*0.5f);
@@ -9284,13 +9284,13 @@ glm::mat4 look(const LLVector3 pos, const LLVector3 dir, const LLVector3 up)
     LLVector3 lftN;
 
     lftN = dir % up;
-    lftN.normVec();
+    lftN.normalize();
 
     upN = lftN % dir;
-    upN.normVec();
+    upN.normalize();
 
     dirN = dir;
-    dirN.normVec();
+    dirN.normalize();
 
     F32 ret[16];
     ret[ 0] = lftN[0];
@@ -9873,11 +9873,11 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     {
         LLVector3 p = camera.getOrigin(); // gAgent.getPositionAgent();
         p += caster_dir * RenderFarClip*2.f;
-        shadow_near_clip.setVec(p, caster_dir);
+        shadow_near_clip.set(p, caster_dir);
     }
 
     LLVector3 lightDir = -caster_dir;
-    lightDir.normVec();
+    lightDir.normalize();
 
     //create light space camera matrix
     LLVector3 at = lightDir;
@@ -9889,8 +9889,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
         up = camera.getUpAxis();
     }
 
-    up.normVec();
-    at.normVec();
+    up.normalize();
+    at.normalize();
 
     LLCamera main_camera = camera;
 
@@ -10022,7 +10022,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
             {
                 LLVector3 delta = frust[i+4]-eye;
                 delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
-                delta.normVec();
+                delta.normalize();
                 F32 dp = delta*pn;
                 frust[i] = eye + (delta*dist[j]*0.75f)/dp;
                 frust[i+4] = eye + (delta*dist[j+1]*1.25f)/dp;
@@ -10179,7 +10179,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 if (mShadowError.mV[j] > RenderShadowErrorCutoff)
                 { //just use ortho projection
                     mShadowFOV.mV[j] = -1.f;
-                    origin.clearVec();
+                    origin.clear();
                     proj[j] = glm::ortho(min.mV[0], max.mV[0],
                                         min.mV[1], max.mV[1],
                                         -max.mV[2], -min.mV[2]);
@@ -10187,7 +10187,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 else
                 {
                     //origin is where line x = 0;
-                    origin.setVec(0,bfb,0);
+                    origin.set(0,bfb,0);
 
                     F32 fovz = 1.f;
                     F32 fovx = 1.f;
@@ -10199,7 +10199,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                     {
                         LLVector3 atz = wpf[i]-origin;
                         atz.mV[0] = 0.f;
-                        atz.normVec();
+                        atz.normalize();
                         if (fovz > -atz.mV[1])
                         {
                             zp = wpf[i];
@@ -10208,7 +10208,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
                         LLVector3 atx = wpf[i]-origin;
                         atx.mV[2] = 0.f;
-                        atx.normVec();
+                        atx.normalize();
                         if (fovx > -atx.mV[1])
                         {
                             fovx = -atx.mV[1];
@@ -10238,12 +10238,12 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                         {
                             LLVector3 atz = wpf[i]-origin;
                             atz.mV[0] = 0.f;
-                            atz.normVec();
+                            atz.normalize();
                             fovz = llmin(fovz, -atz.mV[1]);
 
                             LLVector3 atx = wpf[i]-origin;
                             atx.mV[2] = 0.f;
-                            atx.normVec();
+                            atx.normalize();
                             fovx = llmin(fovx, -atx.mV[1]);
                         }
 
@@ -10268,7 +10268,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
                     if (fovx > cutoff)
                     { //just use ortho projection
-                        origin.clearVec();
+                        origin.clear();
                         mShadowError.mV[j] = -1.f;
                         proj[j] = glm::ortho(min.mV[0], max.mV[0],
                                 min.mV[1], max.mV[1],
@@ -10434,7 +10434,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
             at_axis *= quat;
 
             LLVector3 np = center + at_axis;
-            at_axis.normVec();
+            at_axis.normalize();
 
             //get origin that has given fov for plane np, at_axis, and given scale
             F32 dist = (scale.mV[1] * 0.5f) / tanf(fov * 0.5f);

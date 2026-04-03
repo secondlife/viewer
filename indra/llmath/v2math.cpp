@@ -57,8 +57,8 @@ F32 angle_between(const LLVector2& a, const LLVector2& b)
 {
     LLVector2 an = a;
     LLVector2 bn = b;
-    an.normVec();
-    bn.normVec();
+    an.normalize();
+    bn.normalize();
     F32 cosine = an * bn;
     F32 angle = (cosine >= 1.0f) ? 0.0f :
                 (cosine <= -1.0f) ? F_PI :
@@ -77,8 +77,8 @@ bool are_parallel(const LLVector2& a, const LLVector2& b, F32 epsilon)
 {
     LLVector2 an = a;
     LLVector2 bn = b;
-    an.normVec();
-    bn.normVec();
+    an.normalize();
+    bn.normalize();
     F32 dot = an * bn;
     if ((1.0f - fabs(dot)) < epsilon)
     {

@@ -228,7 +228,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(
 
         if (tc_source)
         {
-            cv.mTexCoord.setVec((F32)tc[idx[i+tc_offset]*2+0],
+            cv.mTexCoord.set((F32)tc[idx[i+tc_offset]*2+0],
                                 (F32)tc[idx[i+tc_offset]*2+1]);
         }
 
@@ -463,7 +463,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 
                 if (idx_y < tc.getCount())
                 {
-                    cv.mTexCoord.setVec((F32)tc[idx_x], (F32)tc[idx_y]);
+                    cv.mTexCoord.set((F32)tc[idx_x], (F32)tc[idx_y]);
                 }
                 else if (log_tc_msg)
                 {
@@ -771,7 +771,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
             {
                 U32 t_idx = (U32)idx[j*stride+t_offset]*2;
                 t_idx = llclamp(t_idx, (U32) 0, (U32) t->getCount());
-                vert.mTexCoord.setVec((F32)t->get(t_idx),
+                vert.mTexCoord.set((F32)t->get(t_idx),
                                 (F32)t->get(t_idx+1));
             }
             else

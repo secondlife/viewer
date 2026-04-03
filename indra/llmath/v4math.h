@@ -86,9 +86,7 @@ public:
     [[nodiscard]] inline bool isFinite() const;                                   // checks to see if all values of LLVector3 are finite
 
     inline void clear();        // Clears LLVector4 to (0, 0, 0, 1)
-    inline void clearVec();     // deprecated
-    inline void zeroVec();      // deprecated
-
+    inline void setZero();      // Sets LLVector4 to (0, 0, 0, 0)
     inline void set(F32 x, F32 y, F32 z);           // Sets LLVector4 to (x, y, z, 1)
     inline void set(F32 x, F32 y, F32 z, F32 w);    // Sets LLVector4 to (x, y, z, w)
     inline void set(const LLVector4 &vec);          // Sets LLVector4 to vec
@@ -97,19 +95,9 @@ public:
     inline void set(const glm::vec4& vec); // Sets LLVector4 to vec
     inline void set(const glm::vec3& vec, F32 w = 1.f); // Sets LLVector4 to LLVector3 vec with w defaulted to 1
 
-    inline void setVec(F32 x, F32 y, F32 z);        // deprecated
-    inline void setVec(F32 x, F32 y, F32 z, F32 w); // deprecated
-    inline void setVec(const LLVector4 &vec);       // deprecated
-    inline void setVec(const LLVector3 &vec, F32 w = 1.f); // deprecated
-    inline void setVec(const F32 *vec);             // deprecated
-
     [[nodiscard]] F32 length() const;             // Returns magnitude of LLVector4
     [[nodiscard]] F32 lengthSquared() const;      // Returns magnitude squared of LLVector4
     F32 normalize();                // Normalizes and returns the magnitude of LLVector4
-
-    F32 magVec() const;             // deprecated
-    F32 magVecSquared() const;      // deprecated
-    F32 normVec();                  // deprecated
 
     // Sets all values to absolute value of their original values
     // Returns true if data changed
@@ -248,14 +236,7 @@ inline void LLVector4::clear()
     set(0.f, 0.f, 0.f, 1.f);
 }
 
-// deprecated
-inline void LLVector4::clearVec()
-{
-    clear();
-}
-
-// deprecated
-inline void LLVector4::zeroVec()
+inline void LLVector4::setZero()
 {
     set(0.f, 0.f, 0.f, 0.f);
 }
@@ -309,36 +290,6 @@ inline void LLVector4::set(const glm::vec3& vec, F32 w)
     mV[VW] = w;
 }
 
-// deprecated
-inline void LLVector4::setVec(F32 x, F32 y, F32 z)
-{
-    set(x, y, z);
-}
-
-// deprecated
-inline void LLVector4::setVec(F32 x, F32 y, F32 z, F32 w)
-{
-    set(x, y, z, w);
-}
-
-// deprecated
-inline void LLVector4::setVec(const LLVector4& vec)
-{
-    set(vec);
-}
-
-// deprecated
-inline void LLVector4::setVec(const LLVector3& vec, F32 w)
-{
-    set(vec, w);
-}
-
-// deprecated
-inline void LLVector4::setVec(const F32* vec)
-{
-    set(vec);
-}
-
 // LLVector4 Magnitude and Normalization Functions
 
 inline F32 LLVector4::length() const
@@ -349,16 +300,6 @@ inline F32 LLVector4::length() const
 inline F32 LLVector4::lengthSquared() const
 {
     return mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ];
-}
-
-inline F32 LLVector4::magVec() const
-{
-    return length();
-}
-
-inline F32 LLVector4::magVecSquared() const
-{
-    return lengthSquared();
 }
 
 // LLVector4 Operators
@@ -505,12 +446,6 @@ inline F32 LLVector4::normalize()
         mag = 0.f;
     }
     return mag;
-}
-
-// deprecated
-inline F32 LLVector4::normVec()
-{
-    return normalize();
 }
 
 // Because apparently some parts of the viewer use this for color info.

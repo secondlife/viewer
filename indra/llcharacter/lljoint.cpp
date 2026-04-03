@@ -1018,7 +1018,7 @@ void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
         if (joint->isAnimatable())
         {
             main_axis = joint->getPosition();
-            main_axis.normVec();
+            main_axis.normalize();
             // only care about first animatable child
             break;
         }

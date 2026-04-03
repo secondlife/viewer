@@ -118,7 +118,7 @@ bool LLTargetingMotion::onUpdate(F32 time, U8* joint_mask)
     else
     {
         target = *lookAtPoint;
-        target.normVec();
+        target.normalize();
     }
 
     //LLVector3 target_plane_normal = LLVector3(1.f, 0.f, 0.f) * mPelvisJoint->getWorldRotation();
@@ -126,18 +126,18 @@ bool LLTargetingMotion::onUpdate(F32 time, U8* joint_mask)
 
     LLVector3 skyward(0.f, 0.f, 1.f);
     LLVector3 left(skyward % target);
-    left.normVec();
+    left.normalize();
     LLVector3 up(target % left);
-    up.normVec();
+    up.normalize();
     LLQuaternion target_aim_rot(target, left, up);
 
     LLQuaternion cur_torso_rot = mTorsoJoint->getWorldRotation();
 
     LLVector3 right_hand_at = LLVector3(0.f, -1.f, 0.f) * mRightHandJoint->getWorldRotation();
-    left.setVec(skyward % right_hand_at);
-    left.normVec();
-    up.setVec(right_hand_at % left);
-    up.normVec();
+    left.set(skyward % right_hand_at);
+    left.normalize();
+    up.set(right_hand_at % left);
+    up.normalize();
     LLQuaternion right_hand_rot(right_hand_at, left, up);
 
     LLQuaternion new_torso_rot = (cur_torso_rot * ~right_hand_rot) * target_aim_rot;

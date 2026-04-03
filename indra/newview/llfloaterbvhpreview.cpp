@@ -303,11 +303,11 @@ bool LLFloaterBvhPreview::postBuild()
             LLVector3 temp = pelvis_bbox.getCenter();
             // only consider XY?
             //temp.mV[VZ] = 0.f;
-            F32 pelvis_offset = temp.magVec();
+            F32 pelvis_offset = temp.length();
 
             temp = pelvis_bbox.getExtent();
             //temp.mV[VZ] = 0.f;
-            F32 pelvis_max_displacement = pelvis_offset + (temp.magVec() * 0.5f) + 1.f;
+            F32 pelvis_max_displacement = pelvis_offset + (temp.length() * 0.5f) + 1.f;
 
             F32 camera_zoom = LLViewerCamera::getInstance()->getDefaultFOV() / (2.f * atan(pelvis_max_displacement / PREVIEW_CAMERA_DISTANCE));
 

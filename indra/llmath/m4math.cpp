@@ -350,7 +350,7 @@ LLQuaternion    LLMatrix4::quaternion() const
         q[j] = (mMatrix[i][j] + mMatrix[j][i]) * s;
         q[k] = (mMatrix[i][k] + mMatrix[k][i]) * s;
 
-        quat.setQuat(q);
+        quat.set(q);
     }
     return quat;
 }

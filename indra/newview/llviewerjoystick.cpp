@@ -888,7 +888,7 @@ void LLViewerJoystick::moveObjects(bool reset)
         if (sDelta[0] || sDelta[1] || sDelta[2])
         {
             upd_type |= UPD_POSITION;
-            v.setVec(sDelta[0], sDelta[1], sDelta[2]);
+            v.set(sDelta[0], sDelta[1], sDelta[2]);
         }
 
         if (sDelta[3] || sDelta[4] || sDelta[5])
@@ -1300,7 +1300,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
         LLVector3 z = LLVector3(level.mMatrix[2]);
 
         y.mV[2] = 0.f;
-        y.normVec();
+        y.normalize();
 
         level.setRows(x,y,z);
         level.orthogonalize();

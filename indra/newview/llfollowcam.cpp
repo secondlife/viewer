@@ -292,7 +292,7 @@ void LLFollowCam::update()
 
     LLVector3 simulated_pos_agent = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
     LLVector3 vectorFromCameraToSubject = offsetSubjectPosition - simulated_pos_agent;
-    F32 distanceFromCameraToSubject = vectorFromCameraToSubject.magVec();
+    F32 distanceFromCameraToSubject = vectorFromCameraToSubject.length();
 
     LLVector3 whereFocusWantsToBe = mFocus;
     LLVector3 focus_pt_agent = gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal);
@@ -303,7 +303,7 @@ void LLFollowCam::update()
     else
     {
         LLVector3 focusOffset = offsetSubjectPosition - focus_pt_agent;
-        F32 focusOffsetDistance = focusOffset.magVec();
+        F32 focusOffsetDistance = focusOffset.length();
 
         LLVector3 focusOffsetDirection = focusOffset / focusOffsetDistance;
         whereFocusWantsToBe = focus_pt_agent +
@@ -347,7 +347,7 @@ void LLFollowCam::update()
         //---------------------------------------------------------
         // Now I determine the horizontal distance
         //---------------------------------------------------------
-        F32 horizontalDistanceFromCameraToSubject = horizontalVectorFromCameraToSubject.magVec();
+        F32 horizontalDistanceFromCameraToSubject = horizontalVectorFromCameraToSubject.length();
 
         //---------------------------------------------------------
         // Then I get the (normalized) horizontal direction...
@@ -375,7 +375,7 @@ void LLFollowCam::update()
         }
 
         LLVector3 positionOffsetFromSubject;
-        positionOffsetFromSubject.setVec
+        positionOffsetFromSubject.set
             (
                 horizontalDirectionFromCameraToSubject.mV[ VX ] * mPitchCos,
                 horizontalDirectionFromCameraToSubject.mV[ VY ] * mPitchCos,
@@ -394,7 +394,7 @@ void LLFollowCam::update()
         // Now I prepare to move the current camera position towards its ideal position...
         //--------------------------------------------------------------------------------
         LLVector3 vectorFromPositionToIdealPosition = idealCameraPosition - simulated_pos_agent;
-        F32 distanceFromPositionToIdealPosition = vectorFromPositionToIdealPosition.magVec();
+        F32 distanceFromPositionToIdealPosition = vectorFromPositionToIdealPosition.length();
 
         //put this inside of the block?
         LLVector3 normalFromPositionToIdealPosition = vectorFromPositionToIdealPosition / distanceFromPositionToIdealPosition;
@@ -452,14 +452,14 @@ bool LLFollowCam::updateBehindnessConstraint(LLVector3 focus, LLVector3& cam_pos
         // horizontalized vector from focus to camera
         //--------------------------------------------------------------
         LLVector3 horizontalVectorFromFocusToCamera;
-        horizontalVectorFromFocusToCamera.setVec(cam_position - focus);
+        horizontalVectorFromFocusToCamera.set(cam_position - focus);
         horizontalVectorFromFocusToCamera.mV[ VZ ] = 0.0f;
         F32 cameraZ = cam_position.mV[ VZ ];
 
         //--------------------------------------------------------------
         // distance of horizontalized vector
         //--------------------------------------------------------------
-        F32 horizontalDistance = horizontalVectorFromFocusToCamera.magVec();
+        F32 horizontalDistance = horizontalVectorFromFocusToCamera.length();
 
         //--------------------------------------------------------------------------------------------------
         // calculate horizontalized back vector of the subject and scale by horizontalDistance
@@ -467,7 +467,7 @@ bool LLFollowCam::updateBehindnessConstraint(LLVector3 focus, LLVector3& cam_pos
         LLVector3 horizontalSubjectBack( -1.0f, 0.0f, 0.0f );
         horizontalSubjectBack *= mSubjectRotation;
         horizontalSubjectBack.mV[ VZ ] = 0.0f;
-        horizontalSubjectBack.normVec(); // because horizontalizing might make it shorter than 1
+        horizontalSubjectBack.normalize(); // because horizontalizing might make it shorter than 1
         horizontalSubjectBack *= horizontalDistance;
 
         //--------------------------------------------------------------------------------------------------

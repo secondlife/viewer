@@ -157,7 +157,7 @@ void LLParcel::init(const LLUUID &owner_id,
     mDiscountRate       = 1.0f;
     mDrawDistance       = 512.f;
 
-    mUserLookAt.setVec(0.0f, 0.f, 0.f);
+    mUserLookAt.set(0.0f, 0.f, 0.f);
     // Default to using the parcel's landing point, if any.
     mLandingType = L_LANDING_POINT;
 
@@ -204,8 +204,8 @@ void LLParcel::init(const LLUUID &owner_id,
     mPassPrice = PARCEL_PASS_PRICE_DEFAULT;
     mPassHours = PARCEL_PASS_HOURS_DEFAULT;
 
-    mAABBMin.setVec(SOME_BIG_NUMBER, SOME_BIG_NUMBER, SOME_BIG_NUMBER);
-    mAABBMax.setVec(SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER);
+    mAABBMin.set(SOME_BIG_NUMBER, SOME_BIG_NUMBER, SOME_BIG_NUMBER);
+    mAABBMax.set(SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER);
 
     mLocalID = INVALID_PARCEL_ID;
 

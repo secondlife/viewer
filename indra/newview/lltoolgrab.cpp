@@ -409,10 +409,10 @@ void LLToolGrabBase::startGrab()
     LLVector3d grab_offsetd = root->getPositionGlobal() - objectp->getPositionGlobal();
 
     LLVector3 grab_offset;
-    grab_offset.setVec(grab_offsetd);
+    grab_offset.set(grab_offsetd);
 
     LLQuaternion rotation = root->getRotation();
-    rotation.conjQuat();
+    rotation.conjugate();
     grab_offset = grab_offset * rotation;
 
     // This planar drag starts at the grab point
@@ -594,22 +594,22 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
             //------------------------------------------------------
 
             LLVector3d x_part;
-            x_part.setVec(LLViewerCamera::getInstance()->getLeftAxis());
+            x_part.set(LLViewerCamera::getInstance()->getLeftAxis());
             x_part.mdV[VZ] = 0.0;
-            x_part.normVec();
+            x_part.normalize();
 
             LLVector3d y_part;
             if( mVerticalDragging )
             {
-                y_part.setVec(LLViewerCamera::getInstance()->getUpAxis());
-                // y_part.setVec(0.f, 0.f, 1.f);
+                y_part.set(LLViewerCamera::getInstance()->getUpAxis());
+                // y_part.set(0.f, 0.f, 1.f);
             }
             else
             {
                 // drag toward camera
                 y_part = x_part % LLVector3d::z_axis;
                 y_part.mdV[VZ] = 0.0;
-                y_part.normVec();
+                y_part.normalize();
             }
 
             mGrabHiddenOffsetFromCamera = mGrabHiddenOffsetFromCamera
@@ -821,22 +821,22 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
             //------------------------------------------------------
 
             LLVector3d x_part;
-            x_part.setVec(LLViewerCamera::getInstance()->getLeftAxis());
+            x_part.set(LLViewerCamera::getInstance()->getLeftAxis());
             x_part.mdV[VZ] = 0.0;
-            x_part.normVec();
+            x_part.normalize();
 
             LLVector3d y_part;
             if( mVerticalDragging )
             {
-                y_part.setVec(LLViewerCamera::getInstance()->getUpAxis());
-                // y_part.setVec(0.f, 0.f, 1.f);
+                y_part.set(LLViewerCamera::getInstance()->getUpAxis());
+                // y_part.set(0.f, 0.f, 1.f);
             }
             else
             {
                 // drag toward camera
                 y_part = x_part % LLVector3d::z_axis;
                 y_part.mdV[VZ] = 0.0;
-                y_part.normVec();
+                y_part.normalize();
             }
 
             mGrabHiddenOffsetFromCamera = mGrabHiddenOffsetFromCamera

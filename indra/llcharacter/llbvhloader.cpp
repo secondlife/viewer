@@ -406,7 +406,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
                 // normalize direction
                 if (!constraint.mTargetDir.isExactlyZero())
                 {
-                    constraint.mTargetDir.normVec();
+                    constraint.mTargetDir.normalize();
                 }
 
             }
@@ -466,7 +466,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
                 // normalize direction
                 if (!constraint.mTargetDir.isExactlyZero())
                 {
-                    constraint.mTargetDir.normVec();
+                    constraint.mTargetDir.normalize();
                 }
 
             }
@@ -1004,7 +1004,7 @@ void LLBVHLoader::applyTranslations()
             joint->mRelativeRotationKey = true;
         }
 
-        if ( trans.mRelativePosition.magVec() > 0.0f )
+        if ( trans.mRelativePosition.length() > 0.0f )
         {
             joint->mRelativePosition = trans.mRelativePosition;
 //          LL_INFOS() << "NOTE: Removing " <<
@@ -1433,7 +1433,7 @@ bool LLBVHLoader::serialize(LLDataPacker& dp)
             {
                 if ((frame == 0) && joint->mRelativePositionKey)
                 {
-                    relKey.setVec(key.mPos);
+                    relKey.set(key.mPos);
                 }
 
                 if (key.mIgnorePos)

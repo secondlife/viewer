@@ -213,7 +213,7 @@ LLSelectMgr::LLSelectMgr()
 {
     mTEMode = false;
     mTextureChannel = LLRender::DIFFUSE_MAP;
-    mLastCameraPos.clearVec();
+    mLastCameraPos.clear();
 
     sHighlightThickness = gSavedSettings.getF32("SelectionHighlightThickness");
     sHighlightUScale    = gSavedSettings.getF32("SelectionHighlightUScale");
@@ -321,9 +321,9 @@ void LLSelectMgr::resetObjectOverrides(LLObjectSelectionHandle selected_handle)
                     }
                 }
             }
-            node->mLastPositionLocal.setVec(0, 0, 0);
+            node->mLastPositionLocal.set(0, 0, 0);
             node->mLastRotation = LLQuaternion();
-            node->mLastScale.setVec(0, 0, 0);
+            node->mLastScale.set(0, 0, 0);
             return true;
         }
     } func(mAllowSelectAvatar, this);
@@ -1452,7 +1452,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
         const bool non_root_ok = true;
         LLViewerObject* first_object = mSelectedObjects->getFirstRootObject(non_root_ok);
 
-        mGridOrigin.clearVec();
+        mGridOrigin.clear();
         mGridRotation.loadIdentity();
 
         mSelectedObjects->mSelectType = getSelectTypeForObject( first_object );
@@ -4916,7 +4916,7 @@ void LLSelectMgr::deselectAll()
 
     removeAll();
 
-    mLastSentSelectionCenterGlobal.clearVec();
+    mLastSentSelectionCenterGlobal.clear();
 
     updatePointAt();
 }
@@ -4947,7 +4947,7 @@ void LLSelectMgr::deselectAllForStandingUp()
 
     removeAll();
 
-    mLastSentSelectionCenterGlobal.clearVec();
+    mLastSentSelectionCenterGlobal.clear();
 
     updatePointAt();
 }
@@ -4996,7 +4996,7 @@ void LLSelectMgr::deselectAllIfTooFar()
         F32 deselect_dist_sq = deselect_dist * deselect_dist;
 
         LLVector3d select_delta = gAgent.getPositionGlobal() - selectionCenter;
-        F32 select_dist_sq = (F32) select_delta.magVecSquared();
+        F32 select_dist_sq = (F32) select_delta.lengthSquared();
 
         if (select_dist_sq > deselect_dist_sq)
         {
@@ -6260,7 +6260,7 @@ void LLSelectMgr::updateSilhouettes()
 
     mHighlightedObjects->cleanupNodes();
 
-    if((cameraPos - mLastCameraPos).magVecSquared() > SILHOUETTE_UPDATE_THRESHOLD_SQUARED * currentCameraZoom * currentCameraZoom)
+    if((cameraPos - mLastCameraPos).lengthSquared() > SILHOUETTE_UPDATE_THRESHOLD_SQUARED * currentCameraZoom * currentCameraZoom)
     {
         struct f : public LLSelectedObjectFunctor
         {
@@ -6555,7 +6555,7 @@ void LLSelectMgr::renderSilhouettes(bool for_hud)
     }
 
     bool wireframe_selection = (gFloaterTools && gFloaterTools->getVisible()) || LLSelectMgr::sRenderHiddenSelections;
-    F32 fogCfx = (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal() - gAgentCamera.getCameraPositionGlobal()).magVec() / (LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec() * 4), 0.0, 1.0);
+    F32 fogCfx = (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal() - gAgentCamera.getCameraPositionGlobal()).length() / (LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().length() * 4), 0.0, 1.0);
 
     LLColor4 sParentColor = sSilhouetteParentColor;
     sParentColor.mV[VALPHA] = LLSelectMgr::sHighlightAlpha;
@@ -7269,7 +7269,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
         else
         {
             LLVector3 view_vector = LLViewerCamera::getInstance()->getOrigin() - objectp->getRenderPosition();
-            silhouette_thickness = view_vector.magVec() * LLSelectMgr::sHighlightThickness * (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV());
+            silhouette_thickness = view_vector.length() * LLSelectMgr::sHighlightThickness * (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV());
         }
         F32 animationTime = (F32)LLFrameTimer::getElapsedSeconds();
 
@@ -7471,7 +7471,7 @@ void LLSelectMgr::updateSelectionCenter()
     {
         // nothing selected, probably grabbing
         // Ignore by setting to avatar origin.
-        mSelectionCenterGlobal.clearVec();
+        mSelectionCenterGlobal.clear();
         mShowSelection = false;
         mSelectionBBox = LLBBox();
         resetAgentHUDZoom();
@@ -7542,7 +7542,7 @@ void LLSelectMgr::updateSelectionCenter()
             LLVector3d diff;
             diff = select_center_global - mLastSentSelectionCenterGlobal;
 
-            if ( diff.magVecSquared() > MOVE_SELECTION_THRESHOLD*MOVE_SELECTION_THRESHOLD )
+            if ( diff.lengthSquared() > MOVE_SELECTION_THRESHOLD*MOVE_SELECTION_THRESHOLD )
             {
                 //  Transmit updated selection center
                 mLastSentSelectionCenterGlobal = select_center_global;
@@ -7616,7 +7616,7 @@ void LLSelectMgr::updatePointAt()
             if (click_object && click_object->isSelected() && !was_hud)
             {
                 // clicked on another object in our selection group, use that as target
-                select_offset.setVec(pick.mObjectOffset);
+                select_offset.set(pick.mObjectOffset);
                 select_offset.rotVec(~click_object->getRenderRotation());
 
                 gAgentCamera.setPointAt(POINTAT_TARGET_SELECT, click_object, select_offset);
@@ -8677,7 +8677,7 @@ bool LLSelectMgr::selectionMove(const LLVector3& displ,
         // factor the distance into the displacement vector. This will get us
         // equally visible movements for both close and far away selections.
         F32 min_dist = sqrt((F32) sqrtf(min_dist_squared)) / 2;
-        displ_global.setVec(displ.mV[0] * min_dist,
+        displ_global.set(displ.mV[0] * min_dist,
                             displ.mV[1] * min_dist,
                             displ.mV[2] * min_dist);
 
@@ -8692,7 +8692,7 @@ bool LLSelectMgr::selectionMove(const LLVector3& displ,
         LLQuaternion qx(roll, LLViewerCamera::getInstance()->getAtAxis());
         LLQuaternion qy(pitch, LLViewerCamera::getInstance()->getLeftAxis());
         LLQuaternion qz(yaw, LLViewerCamera::getInstance()->getUpAxis());
-        new_rot.setQuat(qx * qy * qz);
+        new_rot.set(qx * qy * qz);
     }
 
     LLViewerObject *obj;

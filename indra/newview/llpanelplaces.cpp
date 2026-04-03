@@ -609,7 +609,7 @@ S32 LLPanelPlaces::notifyParent(const LLSD& info)
     {
         if(mPosGlobal.isExactlyZero())
         {
-            mPosGlobal.setVec(info["global_x"], info["global_y"], info["global_z"]);
+            mPosGlobal.set(info["global_x"], info["global_y"], info["global_z"]);
         }
 
         updateVerbs();

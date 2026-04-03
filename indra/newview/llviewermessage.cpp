@@ -2436,7 +2436,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
     {
         //bool visible_in_chat_bubble = false;
 
-        color.setVec(1.f,1.f,1.f,1.f);
+        color.set(1.f,1.f,1.f,1.f);
         msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, mesg);
 
         bool ircstyle = false;
@@ -3065,7 +3065,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
         // Check distance to beacon, if < 5m, remove beacon
         LLVector3d beacon_pos = LLTracker::getTrackedPositionGlobal();
         LLVector3 beacon_dir(agent_pos.mV[VX] - (F32)fmod(beacon_pos.mdV[VX], 256.0), agent_pos.mV[VY] - (F32)fmod(beacon_pos.mdV[VY], 256.0), 0);
-        if (beacon_dir.magVecSquared() < 25.f)
+        if (beacon_dir.lengthSquared() < 25.f)
         {
             LLTracker::stopTracking(false);
         }
@@ -3076,7 +3076,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
             global_agent_pos[0] += x;
             global_agent_pos[1] += y;
             look_at = (LLVector3)beacon_pos - global_agent_pos;
-            look_at.normVec();
+            look_at.normalize();
             gAgentCamera.slamLookAt(look_at);
         }
     }
@@ -3113,7 +3113,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
     if (isAgentAvatarValid())
     {
-        gAgentAvatarp->mFootPlane.clearVec();
+        gAgentAvatarp->mFootPlane.clear();
     }
 
     // send walk-vs-run status
@@ -3294,7 +3294,7 @@ void send_agent_update(bool force_send, bool send_reliable)
 
             // check translation
             constexpr F32 TRANSLATE_THRESHOLD = 0.01f;
-            if ((last_camera_pos_agent - camera_pos_agent).magVec() > TRANSLATE_THRESHOLD)
+            if ((last_camera_pos_agent - camera_pos_agent).length() > TRANSLATE_THRESHOLD)
             {
                 send_update = true;
                 break;
@@ -3304,7 +3304,7 @@ void send_agent_update(bool force_send, bool send_reliable)
             // Note: we are using the sine small angle approximation trick here
             constexpr F32 RADIANS_PER_DEGREE = F_PI / 360.f;
             constexpr F32 CAMERA_AT_THRESHOLD = 0.2f * RADIANS_PER_DEGREE;
-            if ((last_camera_at - camera_at).magVec() > CAMERA_AT_THRESHOLD)
+            if ((last_camera_at - camera_at).length() > CAMERA_AT_THRESHOLD)
             {
                 send_update = true;
                 break;

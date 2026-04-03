@@ -348,7 +348,7 @@ LLVector3d  LLWorld::clipToVisibleRegions(const LLVector3d &start_pos, const LLV
 
     LLVector3d delta_pos = end_pos - start_pos;
     LLVector3d delta_pos_abs;
-    delta_pos_abs.setVec(delta_pos);
+    delta_pos_abs.set(delta_pos);
     delta_pos_abs.abs();
 
     LLVector3 region_coord = regionp->getPosRegionFromGlobal(end_pos);
@@ -521,7 +521,7 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
     {
         // We're outside the world
         intersection = 0.5f * (point_a + point_b);
-        intersection_normal.setVec(0.0f, 0.0f, 1.0f);
+        intersection_normal.set(0.0f, 0.0f, 1.0f);
         return 0.5f;
     }
 
@@ -530,7 +530,7 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
     if (0.0f == segment_length)
     {
         intersection = point_a;
-        intersection_normal.setVec(0.0f, 0.0f, 1.0f);
+        intersection_normal.set(0.0f, 0.0f, 1.0f);
         return segment_length;
     }
 

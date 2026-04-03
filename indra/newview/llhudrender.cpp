@@ -64,7 +64,7 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
     LLViewerCamera* camera = LLViewerCamera::getInstance();
     // Do cheap plane culling
     LLVector3 dir_vec = pos_agent - camera->getOrigin();
-    dir_vec /= dir_vec.magVec();
+    dir_vec /= dir_vec.length();
 
     if (wstr.empty() || (!orthographic && dir_vec * camera->getAtAxis() <= 0.f))
     {
@@ -75,8 +75,8 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
     LLVector3 up_axis;
     if (orthographic)
     {
-        right_axis.setVec(0.f, -1.f / gViewerWindow->getWorldViewHeightScaled(), 0.f);
-        up_axis.setVec(0.f, 0.f, 1.f / gViewerWindow->getWorldViewHeightScaled());
+        right_axis.set(0.f, -1.f / gViewerWindow->getWorldViewHeightScaled(), 0.f);
+        up_axis.set(0.f, 0.f, 1.f / gViewerWindow->getWorldViewHeightScaled());
     }
     else
     {

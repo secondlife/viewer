@@ -399,7 +399,7 @@ S32 LLTextureEntry::setColor(const LLColor3 &color)
     if (mColor != color)
     {
         // This preserves alpha.
-        mColor.setVec(color);
+        mColor.set(color);
         return TEM_CHANGE_COLOR;
     }
     return TEM_CHANGE_NONE;

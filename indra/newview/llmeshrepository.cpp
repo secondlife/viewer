@@ -570,14 +570,14 @@ F32 calculate_score(LLVOVolume* object)
             {
                 const LLVector3* box = avatar->getLastAnimExtents();
                 LLVector3 diag = box[1] - box[0];
-                radius = diag.magVec() * 0.5f;
+                radius = diag.length() * 0.5f;
             }
             else
             {
                 // Volume in a rigged mesh attached to a regular avatar.
                 const LLVector3* box = avatar->getLastAnimExtents();
                 LLVector3 diag = box[1] - box[0];
-                radius = diag.magVec();
+                radius = diag.length();
 
                 if (!avatar->isSelf() && !avatar->hasFirstFullAttachmentData())
                 {
@@ -2601,7 +2601,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list_t& data
 
     mWholeModelFeeCapability = gAgent.getRegionCapability("NewFileAgentInventory");
 
-    mOrigin += gAgent.getAtAxis() * scale.magVec();
+    mOrigin += gAgent.getAtAxis() * scale.length();
 
     mMeshUploadTimeOut = gSavedSettings.getS32("MeshUploadTimeOut");
 

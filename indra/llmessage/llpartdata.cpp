@@ -79,9 +79,9 @@ bool LLPartData::unpackLegacy(LLDataPacker &dp)
     dp.unpackFixed(mMaxAge, "pdmaxage", false, 8, 8);
 
     dp.unpackColor4U(coloru, "pdstartcolor");
-    mStartColor.setVec(coloru);
+    mStartColor.set(coloru);
     dp.unpackColor4U(coloru, "pdendcolor");
-    mEndColor.setVec(coloru);
+    mEndColor.set(coloru);
     dp.unpackFixed(mStartScale.mV[0], "pdstartscalex", false, 3, 5);
     dp.unpackFixed(mStartScale.mV[1], "pdstartscaley", false, 3, 5);
     dp.unpackFixed(mEndScale.mV[0], "pdendscalex", false, 3, 5);
@@ -179,13 +179,13 @@ void LLPartData::setEndScale(const F32 xs, const F32 ys)
 
 void LLPartData::setStartColor(const LLVector3 &rgb)
 {
-    mStartColor.setVec(rgb.mV[0], rgb.mV[1], rgb.mV[2]);
+    mStartColor.set(rgb.mV[0], rgb.mV[1], rgb.mV[2]);
 }
 
 
 void LLPartData::setEndColor(const LLVector3 &rgb)
 {
-    mEndColor.setVec(rgb.mV[0], rgb.mV[1], rgb.mV[2]);
+    mEndColor.set(rgb.mV[0], rgb.mV[1], rgb.mV[2]);
 }
 
 void LLPartData::setStartAlpha(const F32 alpha)

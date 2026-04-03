@@ -593,7 +593,7 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
     sCheesyBeacon = gSavedSettings.getBOOL("CheesyBeacon");
     LLVector3d to_vec = pos_global - gAgentCamera.getCameraPositionGlobal();
 
-    F32 dist = (F32)to_vec.magVec();
+    F32 dist = (F32)to_vec.length();
     F32 color_frac = 1.f;
     if (dist > 0.99f * LLViewerCamera::getInstance()->getFar())
     {
@@ -623,7 +623,7 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
     LLTracker::drawBeacon(pos_agent, "UP", fogged_color_under, dist);
 
     std::string text;
-    text = llformat( "%.0f m", to_vec.magVec());
+    text = llformat( "%.0f m", to_vec.length());
 
     std::string str;
     str += label;
@@ -677,7 +677,7 @@ void LLTracker::stopTrackingLandmark(bool clear_ui)
     mTrackedLandmarkAssetID.setNull();
     mTrackedLandmarkItemID.setNull();
     mTrackedLandmarkName.assign("");
-    mTrackedPositionGlobal.zeroVec();
+    mTrackedPositionGlobal.setZero();
     mHasLandmarkPosition = false;
     mHasReachedLandmark = false;
     mLandmarkHasBeenVisited = true;
@@ -690,7 +690,7 @@ void LLTracker::stopTrackingLocation(bool clear_ui, bool dest_reached)
     purgeBeaconText();
     mTrackedLocationName.assign("");
     mIsTrackingLocation = false;
-    mTrackedPositionGlobal.zeroVec();
+    mTrackedPositionGlobal.setZero();
     gFloaterWorldMap->clearLocationSelection(clear_ui, dest_reached);
     mTrackingStatus = TRACKING_NOTHING;
     mTrackingLocationType = LOCATION_NOTHING;

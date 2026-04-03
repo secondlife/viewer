@@ -118,7 +118,7 @@ bool LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
 
     // Make sure the surface isn't too far away.
     LLVector3d ray_start_global = gAgentCamera.getCameraPositionGlobal();
-    F32 dist_to_surface_sq = (F32)((surface_pos_global - ray_start_global).magVecSquared());
+    F32 dist_to_surface_sq = (F32)((surface_pos_global - ray_start_global).lengthSquared());
     if( dist_to_surface_sq > (max_dist_from_camera * max_dist_from_camera) )
     {
         return false;
@@ -134,7 +134,7 @@ bool LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
 
     // Find the simulator-side ray that will be used to place the object accurately
     LLVector3d      mouse_direction;
-    mouse_direction.setVec( gViewerWindow->mouseDirectionGlobal( x, y ) );
+    mouse_direction.set( gViewerWindow->mouseDirectionGlobal( x, y ) );
 
     *region = regionp;
     *ray_start_region = regionp->getPosRegionFromGlobal( ray_start_global );
@@ -199,7 +199,7 @@ bool LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
     {
     case LL_PCODE_LEGACY_GRASS:
         //  Randomize size of grass patch
-        scale.setVec(10.f + ll_frand(20.f), 10.f + ll_frand(20.f),  1.f + ll_frand(2.f));
+        scale.set(10.f + ll_frand(20.f), 10.f + ll_frand(20.f),  1.f + ll_frand(2.f));
         state = rand() % LLVOGrass::sMaxGrassSpecies;
         break;
 
@@ -252,7 +252,7 @@ bool LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
     switch (pcode)
     {
     case LL_PCODE_SPHERE:
-        rotation.setQuat(90.f * DEG_TO_RAD, LLVector3::y_axis);
+        rotation.setAngleAxis(90.f * DEG_TO_RAD, LLVector3::y_axis);
 
         volume_params.setType( LL_PCODE_PROFILE_CIRCLE_HALF, LL_PCODE_PATH_CIRCLE );
         volume_params.setBeginAndEndS( 0.f, 1.f );
@@ -264,7 +264,7 @@ bool LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
         break;
 
     case LL_PCODE_TORUS:
-        rotation.setQuat(90.f * DEG_TO_RAD, LLVector3::y_axis);
+        rotation.setAngleAxis(90.f * DEG_TO_RAD, LLVector3::y_axis);
 
         volume_params.setType( LL_PCODE_PROFILE_CIRCLE, LL_PCODE_PATH_CIRCLE );
         volume_params.setBeginAndEndS( 0.f, 1.f );
@@ -276,7 +276,7 @@ bool LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
         break;
 
     case LLViewerObject::LL_VO_SQUARE_TORUS:
-        rotation.setQuat(90.f * DEG_TO_RAD, LLVector3::y_axis);
+        rotation.setAngleAxis(90.f * DEG_TO_RAD, LLVector3::y_axis);
 
         volume_params.setType( LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_CIRCLE );
         volume_params.setBeginAndEndS( 0.f, 1.f );
@@ -288,7 +288,7 @@ bool LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
         break;
 
     case LLViewerObject::LL_VO_TRIANGLE_TORUS:
-        rotation.setQuat(90.f * DEG_TO_RAD, LLVector3::y_axis);
+        rotation.setAngleAxis(90.f * DEG_TO_RAD, LLVector3::y_axis);
 
         volume_params.setType( LL_PCODE_PROFILE_EQUALTRI, LL_PCODE_PATH_CIRCLE );
         volume_params.setBeginAndEndS( 0.f, 1.f );

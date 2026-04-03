@@ -76,15 +76,7 @@ public:
     const LLColor4U& set(const LLColor4U& vec);   // Sets LLColor4U to vec
     const LLColor4U& set(const U8* vec);          // Sets LLColor4U to vec
 
-    const LLColor4U& setVec(U8 r, U8 g, U8 b, U8 a); // deprecated -- use set()
-    const LLColor4U& setVec(U8 r, U8 g, U8 b);       // deprecated -- use set()
-    const LLColor4U& setVec(const LLColor4U& vec);   // deprecated -- use set()
-    const LLColor4U& setVec(const U8* vec);          // deprecated -- use set()
-
     const LLColor4U& setAlpha(U8 a);
-
-    F32 magVec() const;        // deprecated -- use length()
-    F32 magVecSquared() const; // deprecated -- use lengthSquared()
 
     F32 length() const;        // Returns magnitude squared of LLColor4U
     F32 lengthSquared() const; // Returns magnitude squared of LLColor4U
@@ -220,49 +212,6 @@ inline const LLColor4U& LLColor4U::set(const U8* vec)
     return (*this);
 }
 
-// deprecated
-inline const LLColor4U& LLColor4U::setVec(const U8 x, const U8 y, const U8 z)
-{
-    mV[VRED]   = x;
-    mV[VGREEN] = y;
-    mV[VBLUE]  = z;
-
-    //  no change to alpha!
-    //  mV[VALPHA] = 255;
-
-    return (*this);
-}
-
-// deprecated
-inline const LLColor4U& LLColor4U::setVec(const U8 r, const U8 g, const U8 b, U8 a)
-{
-    mV[VRED]   = r;
-    mV[VGREEN] = g;
-    mV[VBLUE]  = b;
-    mV[VALPHA] = a;
-    return (*this);
-}
-
-// deprecated
-inline const LLColor4U& LLColor4U::setVec(const LLColor4U& vec)
-{
-    mV[VRED]   = vec.mV[VRED];
-    mV[VGREEN] = vec.mV[VGREEN];
-    mV[VBLUE]  = vec.mV[VBLUE];
-    mV[VALPHA] = vec.mV[VALPHA];
-    return (*this);
-}
-
-// deprecated
-inline const LLColor4U& LLColor4U::setVec(const U8* vec)
-{
-    mV[VRED]   = vec[VRED];
-    mV[VGREEN] = vec[VGREEN];
-    mV[VBLUE]  = vec[VBLUE];
-    mV[VALPHA] = vec[VALPHA];
-    return (*this);
-}
-
 inline const LLColor4U& LLColor4U::setAlpha(U8 a)
 {
     mV[VALPHA] = a;
@@ -277,18 +226,6 @@ inline F32 LLColor4U::length() const
 }
 
 inline F32 LLColor4U::lengthSquared() const
-{
-    return ((F32)mV[VRED]) * mV[VRED] + ((F32)mV[VGREEN]) * mV[VGREEN] + ((F32)mV[VBLUE]) * mV[VBLUE];
-}
-
-// deprecated
-inline F32 LLColor4U::magVec() const
-{
-    return sqrt(((F32)mV[VRED]) * mV[VRED] + ((F32)mV[VGREEN]) * mV[VGREEN] + ((F32)mV[VBLUE]) * mV[VBLUE]);
-}
-
-// deprecated
-inline F32 LLColor4U::magVecSquared() const
 {
     return ((F32)mV[VRED]) * mV[VRED] + ((F32)mV[VGREEN]) * mV[VGREEN] + ((F32)mV[VBLUE]) * mV[VBLUE];
 }

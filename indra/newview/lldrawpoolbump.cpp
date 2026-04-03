@@ -850,7 +850,7 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
 
             LLVector3 norm = right%down + down%left + left%up + up%right;
 
-            norm.normVec();
+            norm.normalize();
 
             norm *= 0.5f;
             norm += LLVector3(0.5f,0.5f,0.5f);

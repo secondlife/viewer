@@ -228,7 +228,7 @@ void LLDebugVarMessageBox::sliderChanged(const LLSD& data)
     case VAR_TYPE_VEC3:
     {
         LLVector3* vec_p = (LLVector3*)mVarData;
-        vec_p->setVec((F32)mSlider1->getValue().asReal(),
+        vec_p->set((F32)mSlider1->getValue().asReal(),
             (F32)mSlider2->getValue().asReal(),
             (F32)mSlider3->getValue().asReal());
         break;

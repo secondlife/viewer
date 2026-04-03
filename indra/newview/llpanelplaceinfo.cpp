@@ -100,7 +100,7 @@ void LLPanelPlaceInfo::resetLocation()
 {
     mParcelID.setNull();
     mRequestedID.setNull();
-    mPosRegion.clearVec();
+    mPosRegion.clear();
     mRegionTitle.clear();
 
     std::string loading = LLTrans::getString("LoadingData");
@@ -148,7 +148,7 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLUUID& region_id,
     if (!region)
         return;
 
-    mPosRegion.setVec((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
+    mPosRegion.set((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
                       (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
                       (F32)pos_global.mdV[VZ]);
 

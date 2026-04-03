@@ -506,7 +506,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
     // Compute unit vectors for arrow hit and a plane through that vector
     bool axis_exists = getManipAxis(object, mManipPart, axis_f);        // TODO: move this
 
-    axis_d.setVec(axis_f);
+    axis_d.set(axis_f);
 
     LLSelectMgr::getInstance()->updateSelectionCenter();
     LLVector3d current_pos_global = gAgent.getPosGlobalFromAgent(getPivotPoint());
@@ -523,7 +523,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
     {
         F32 max_drag_distance = gSavedSettings.getF32("MaxDragDistance");
 
-        if (relative_move.magVecSquared() > max_drag_distance * max_drag_distance)
+        if (relative_move.lengthSquared() > max_drag_distance * max_drag_distance)
         {
             LL_DEBUGS("UserInput") << "hover handled by LLManipTranslate (too far)" << LL_ENDL;
             gViewerWindow->setCursor(UI_CURSOR_NOLOCKED);
@@ -576,7 +576,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
             LLVector3 cursor_point_agent = gAgent.getPosAgentFromGlobal(cursor_point_global);
             LLVector3 camera_plane_projection = LLViewerCamera::getInstance()->getAtAxis();
             camera_plane_projection -= projected_vec(camera_plane_projection, mManipNormal);
-            camera_plane_projection.normVec();
+            camera_plane_projection.normalize();
             LLVector3 camera_projected_dir = camera_plane_projection;
             camera_plane_projection.rotVec(~mGridRotation);
             camera_plane_projection.scaleVec(mGridScale);
@@ -626,7 +626,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
                 break;
             }
             cursor_point_agent = (cursor_point_grid * mGridRotation) + mGridOrigin;
-            relative_move.setVec(cursor_point_agent - gAgent.getPosAgentFromGlobal(mDragSelectionStartGlobal));
+            relative_move.set(cursor_point_agent - gAgent.getPosAgentFromGlobal(mDragSelectionStartGlobal));
             mInSnapRegime = true;
         }
         else
@@ -643,10 +643,10 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
     // *FIX: does this apply anymore?
     if (!axis_exists)
     {
-        axis_magnitude = relative_move.normVec();
-        axis_d.setVec(relative_move);
-        axis_d.normVec();
-        axis_f.setVec(axis_d);
+        axis_magnitude = relative_move.normalize();
+        axis_d.set(relative_move);
+        axis_d.normalize();
+        axis_f.set(axis_d);
     }
 
     LLVector3d clamped_relative_move = axis_magnitude * axis_d; // scalar multiply
@@ -697,7 +697,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
                     {
                         // calculate local version of relative move
                         LLQuaternion objWorldRotation = object_xform_parent->getWorldRotation();
-                        objWorldRotation.transQuat();
+                        objWorldRotation.transpose();
 
                         LLVector3 old_position_local = object->getPosition();
                         LLVector3 new_position_local = selectNode->mSavedPositionLocal + (clamped_relative_move_f * objWorldRotation);
@@ -826,7 +826,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
     else
     {
         relative_camera_dir = (object_position - LLViewerCamera::getInstance()->getOrigin()) * ~grid_rotation;
-        relative_camera_dir.normVec();
+        relative_camera_dir.normalize();
 
         transform.initRotTrans(grid_rotation, LLVector4(object_position));
         transform *= modelView;
@@ -978,16 +978,16 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
     {
         ManipulatorHandle& manipulator = *it;
         {
-            manip_start_2d.setVec(manipulator.mStartPosition.mV[VX] * half_width, manipulator.mStartPosition.mV[VY] * half_height);
-            manip_end_2d.setVec(manipulator.mEndPosition.mV[VX] * half_width, manipulator.mEndPosition.mV[VY] * half_height);
+            manip_start_2d.set(manipulator.mStartPosition.mV[VX] * half_width, manipulator.mStartPosition.mV[VY] * half_height);
+            manip_end_2d.set(manipulator.mEndPosition.mV[VX] * half_width, manipulator.mEndPosition.mV[VY] * half_height);
             manip_dir = manip_end_2d - manip_start_2d;
 
             mouse_delta = mousePos - manip_start_2d;
 
-            F32 manip_length = manip_dir.normVec();
+            F32 manip_length = manip_dir.normalize();
 
             F32 mouse_pos_manip = mouse_delta * manip_dir;
-            F32 mouse_dist_manip_squared = mouse_delta.magVecSquared() - (mouse_pos_manip * mouse_pos_manip);
+            F32 mouse_dist_manip_squared = mouse_delta.lengthSquared() - (mouse_pos_manip * mouse_pos_manip);
 
             if (mouse_pos_manip > 0.f &&
                 mouse_pos_manip < manip_length &&
@@ -1125,18 +1125,18 @@ void LLManipTranslate::renderSnapGuides()
         switch (mManipPart)
         {
         case LL_X_ARROW:
-            normal.setVec(1,0,0);
-            inner_color.setVec(0,1,1,line_alpha);
+            normal.set(1,0,0);
+            inner_color.set(0,1,1,line_alpha);
             mManipPart = LL_YZ_PLANE;
             break;
         case LL_Y_ARROW:
-            normal.setVec(0,1,0);
-            inner_color.setVec(1,0,1,line_alpha);
+            normal.set(0,1,0);
+            inner_color.set(1,0,1,line_alpha);
             mManipPart = LL_XZ_PLANE;
             break;
         case LL_Z_ARROW:
-            normal.setVec(0,0,1);
-            inner_color.setVec(1,1,0,line_alpha);
+            normal.set(0,0,1);
+            inner_color.set(1,1,0,line_alpha);
             mManipPart = LL_XY_PLANE;
             break;
         default:
@@ -1155,7 +1155,7 @@ void LLManipTranslate::renderSnapGuides()
         else
         {
             at_axis_abs = saved_selection_center - LLViewerCamera::getInstance()->getOrigin();
-            at_axis_abs.normVec();
+            at_axis_abs.normalize();
 
             at_axis_abs = at_axis_abs * ~grid_rotation;
         }
@@ -1231,7 +1231,7 @@ void LLManipTranslate::renderSnapGuides()
         else
         {
             LLVector3 cam_to_selection = getPivotPoint() - LLViewerCamera::getInstance()->getOrigin();
-            F32 current_range = cam_to_selection.normVec();
+            F32 current_range = cam_to_selection.normalize();
             guide_size_meters = SNAP_GUIDE_SCREEN_SIZE * gViewerWindow->getWorldViewHeightRaw() * current_range / LLViewerCamera::getInstance()->getPixelMeterRatio();
 
             F32 fraction_of_fov = mAxisArrowLength / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
@@ -1273,8 +1273,8 @@ void LLManipTranslate::renderSnapGuides()
                 gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA] * 0.2f);
                 gGL.vertex3fv(line_end.mV);
 
-                line_start.setVec(selection_center + (mSnapOffsetAxis * -mSnapOffsetMeters) + (translate_axis * guide_size_meters * 0.5f));
-                line_end.setVec(selection_center + (mSnapOffsetAxis * -mSnapOffsetMeters) - (translate_axis * guide_size_meters * 0.5f));
+                line_start.set(selection_center + (mSnapOffsetAxis * -mSnapOffsetMeters) + (translate_axis * guide_size_meters * 0.5f));
+                line_end.set(selection_center + (mSnapOffsetAxis * -mSnapOffsetMeters) - (translate_axis * guide_size_meters * 0.5f));
                 line_mid = (line_start + line_end) * 0.5f;
 
                 gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA] * 0.2f);
@@ -1367,7 +1367,7 @@ void LLManipTranslate::renderSnapGuides()
         sub_div_offset = ll_round(fmod(dist_grid_axis - offset_nearest_grid_unit, getMinGridScale() * 32.f) / smallest_grid_unit_scale);
 
         LLVector2 screen_translate_axis(llabs(translate_axis * LLViewerCamera::getInstance()->getLeftAxis()), llabs(translate_axis * LLViewerCamera::getInstance()->getUpAxis()));
-        screen_translate_axis.normVec();
+        screen_translate_axis.normalize();
 
         S32 tick_label_spacing = ll_round(screen_translate_axis * sTickLabelSpacing);
 
@@ -1474,24 +1474,24 @@ void LLManipTranslate::renderSnapGuides()
             v = grid_center.mV[VZ];
             usc = grid_scale.mV[VY];
             vsc = grid_scale.mV[VZ];
-            inner_color.setVec(0,1,1,line_alpha);
-            normal.setVec(1,0,0);
+            inner_color.set(0,1,1,line_alpha);
+            normal.set(1,0,0);
             break;
         case LL_XZ_PLANE:
             u = grid_center.mV[VX];
             v = grid_center.mV[VZ];
             usc = grid_scale.mV[VX];
             vsc = grid_scale.mV[VZ];
-            inner_color.setVec(1,0,1,line_alpha);
-            normal.setVec(0,1,0);
+            inner_color.set(1,0,1,line_alpha);
+            normal.set(0,1,0);
             break;
         case LL_XY_PLANE:
             u = grid_center.mV[VX];
             v = grid_center.mV[VY];
             usc = grid_scale.mV[VX];
             vsc = grid_scale.mV[VY];
-            inner_color.setVec(1,1,0,line_alpha);
-            normal.setVec(0,0,1);
+            inner_color.set(1,1,0,line_alpha);
+            normal.set(0,0,1);
             break;
         default:
             break;
@@ -1753,7 +1753,7 @@ void LLManipTranslate::renderTranslationHandles()
         gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 
         LLQuaternion invRotation = grid_rotation;
-        invRotation.conjQuat();
+        invRotation.conjugate();
 
         LLVector3 relative_camera_dir;
 
@@ -1765,7 +1765,7 @@ void LLManipTranslate::renderTranslationHandles()
         {
             relative_camera_dir = (selection_center - LLViewerCamera::getInstance()->getOrigin()) * invRotation;
         }
-        relative_camera_dir.normVec();
+        relative_camera_dir.normalize();
 
         {
             gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -1803,13 +1803,13 @@ void LLManipTranslate::renderTranslationHandles()
                 gGL.scalef(mPlaneScales.mV[VX], mPlaneScales.mV[VX], mPlaneScales.mV[VX]);
                 if (mHighlightedPart == LL_YZ_PLANE)
                 {
-                    color1.setVec(0.f, 1.f, 0.f, 1.f);
-                    color2.setVec(0.f, 0.f, 1.f, 1.f);
+                    color1.set(0.f, 1.f, 0.f, 1.f);
+                    color2.set(0.f, 0.f, 1.f, 1.f);
                 }
                 else
                 {
-                    color1.setVec(0.f, 1.f, 0.f, 0.6f);
-                    color2.setVec(0.f, 0.f, 1.f, 0.6f);
+                    color1.set(0.f, 1.f, 0.f, 0.6f);
+                    color2.set(0.f, 0.f, 1.f, 0.6f);
                 }
                 gGL.begin(LLRender::TRIANGLES);
                 {
@@ -1857,13 +1857,13 @@ void LLManipTranslate::renderTranslationHandles()
                 gGL.scalef(mPlaneScales.mV[VY], mPlaneScales.mV[VY], mPlaneScales.mV[VY]);
                 if (mHighlightedPart == LL_XZ_PLANE)
                 {
-                    color1.setVec(0.f, 0.f, 1.f, 1.f);
-                    color2.setVec(1.f, 0.f, 0.f, 1.f);
+                    color1.set(0.f, 0.f, 1.f, 1.f);
+                    color2.set(1.f, 0.f, 0.f, 1.f);
                 }
                 else
                 {
-                    color1.setVec(0.f, 0.f, 1.f, 0.6f);
-                    color2.setVec(1.f, 0.f, 0.f, 0.6f);
+                    color1.set(0.f, 0.f, 1.f, 0.6f);
+                    color2.set(1.f, 0.f, 0.f, 0.6f);
                 }
 
                 gGL.begin(LLRender::TRIANGLES);
@@ -1927,13 +1927,13 @@ void LLManipTranslate::renderTranslationHandles()
                     gGL.scalef(mPlaneScales.mV[VZ], mPlaneScales.mV[VZ], mPlaneScales.mV[VZ]);
                     if (mHighlightedPart == LL_XY_PLANE)
                     {
-                        color1.setVec(1.f, 0.f, 0.f, 1.f);
-                        color2.setVec(0.f, 1.f, 0.f, 1.f);
+                        color1.set(1.f, 0.f, 0.f, 1.f);
+                        color2.set(0.f, 1.f, 0.f, 1.f);
                     }
                     else
                     {
-                        color1.setVec(0.8f, 0.f, 0.f, 0.6f);
-                        color2.setVec(0.f, 0.8f, 0.f, 0.6f);
+                        color1.set(0.8f, 0.f, 0.f, 0.6f);
+                        color2.set(0.f, 0.8f, 0.f, 0.6f);
                     }
 
                     gGL.begin(LLRender::TRIANGLES);
@@ -2026,7 +2026,7 @@ void LLManipTranslate::renderTranslationHandles()
             }
             else
             {
-                camera_axis.setVec(gAgentCamera.getCameraPositionAgent() - first_object->getPositionAgent());
+                camera_axis.set(gAgentCamera.getCameraPositionAgent() - first_object->getPositionAgent());
             }
 
             for (U32 i = 0; i < NUM_AXES*2; i++)

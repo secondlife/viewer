@@ -244,8 +244,8 @@ void LLDrawPoolTerrain::renderFullShaderTextures()
 
     LLVector4 tp0, tp1;
 
-    tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
-    tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
+    tp0.set(sDetailScale, 0.0f, 0.0f, offset_x);
+    tp1.set(0.0f, sDetailScale, 0.0f, offset_y);
 
     //
     // detail texture 0
@@ -652,8 +652,8 @@ void LLDrawPoolTerrain::renderFull4TU()
 
     LLVector4 tp0, tp1;
 
-    tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
-    tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
+    tp0.set(sDetailScale, 0.0f, 0.0f, offset_x);
+    tp1.set(0.0f, sDetailScale, 0.0f, offset_y);
 
     gGL.blendFunc(LLRender::BF_ONE_MINUS_SOURCE_ALPHA, LLRender::BF_SOURCE_ALPHA);
 
@@ -829,8 +829,8 @@ void LLDrawPoolTerrain::renderFull2TU()
 
     LLVector4 tp0, tp1;
 
-    tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
-    tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
+    tp0.set(sDetailScale, 0.0f, 0.0f, offset_x);
+    tp1.set(0.0f, sDetailScale, 0.0f, offset_y);
 
     gGL.blendFunc(LLRender::BF_ONE_MINUS_SOURCE_ALPHA, LLRender::BF_SOURCE_ALPHA);
 
@@ -991,8 +991,8 @@ void LLDrawPoolTerrain::renderSimple()
 
     LLVector3 origin_agent = mDrawFace[0]->getDrawable()->getVObj()->getRegion()->getOriginAgent();
     F32 tscale = 1.f/256.f;
-    tp0.setVec(tscale, 0.f, 0.0f, -1.f*(origin_agent.mV[0]/256.f));
-    tp1.setVec(0.f, tscale, 0.0f, -1.f*(origin_agent.mV[1]/256.f));
+    tp0.set(tscale, 0.f, 0.0f, -1.f*(origin_agent.mV[0]/256.f));
+    tp1.set(0.f, tscale, 0.0f, -1.f*(origin_agent.mV[1]/256.f));
 
     sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, std::span<const GLfloat>(tp0.mV, 4));
     sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, std::span<const GLfloat>(tp1.mV, 4));

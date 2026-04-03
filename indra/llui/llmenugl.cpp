@@ -3141,9 +3141,9 @@ bool LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
     S32 mouse_delta_x = no_mouse_data ? 0 : x - mLastMouseX;
     S32 mouse_delta_y = no_mouse_data ? 0 : y - mLastMouseY;
     LLVector2 mouse_dir((F32)mouse_delta_x, (F32)mouse_delta_y);
-    mouse_dir.normVec();
+    mouse_dir.normalize();
     LLVector2 mouse_avg_dir((F32)mMouseVelX, (F32)mMouseVelY);
-    mouse_avg_dir.normVec();
+    mouse_avg_dir.normalize();
     F32 interp = 0.5f * (llclamp(mouse_dir * mouse_avg_dir, 0.f, 1.f));
     mMouseVelX = ll_round(lerp((F32)mouse_delta_x, (F32)mMouseVelX, interp));
     mMouseVelY = ll_round(lerp((F32)mouse_delta_y, (F32)mMouseVelY, interp));

@@ -191,7 +191,7 @@ bool LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
 
 //      LL_INFOS() << "Look At: " << headLookAt + mHeadJoint->getWorldPosition() << LL_ENDL;
 
-        F32 lookatDistance = headLookAt.normVec();
+        F32 lookatDistance = headLookAt.normalize();
 
         if (lookatDistance < MIN_HEAD_LOOKAT_DISTANCE)
         {
@@ -206,14 +206,14 @@ bool LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
             //
             // Test both of these conditions with a cross product.
 
-            if (left.magVecSquared() < 0.15f)
+            if (left.lengthSquared() < 0.15f)
             {
                 LLVector3 root_at = LLVector3(1.f, 0.f, 0.f) * currentRootRotWorld;
                 root_at.mV[VZ] = 0.f;
-                root_at.normVec();
+                root_at.normalize();
 
                 headLookAt = lerp(headLookAt, root_at, 0.4f);
-                headLookAt.normVec();
+                headLookAt.normalize();
 
                 left = root_up % headLookAt;
             }
@@ -386,10 +386,10 @@ void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_s
 
         eye_look_at = *targetPos;
         has_eye_target = true;
-        F32 lookAtDistance = eye_look_at.normVec();
+        F32 lookAtDistance = eye_look_at.normalize();
 
-        left.setVec(skyward % eye_look_at);
-        up.setVec(eye_look_at % left);
+        left.set(skyward % eye_look_at);
+        up.set(eye_look_at % left);
 
         target_eye_rot = LLQuaternion(eye_look_at, left, up);
         // convert target rotation to head-local coordinates
@@ -397,12 +397,12 @@ void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_s
         // eliminate any Euler roll - we're lucky that roll is applied last.
         F32 roll, pitch, yaw;
         target_eye_rot.getEulerAngles(&roll, &pitch, &yaw);
-        target_eye_rot.setQuat(0.0f, pitch, yaw);
+        target_eye_rot.setEulerAngles(0.0f, pitch, yaw);
         // constrain target orientation to be in front of avatar's face
         target_eye_rot.constrain(EYE_ROT_LIMIT_ANGLE);
 
         // calculate vergence
-        F32 interocular_dist = (left_eye_state.getJoint()->getWorldPosition() - right_eye_state.getJoint()->getWorldPosition()).magVec();
+        F32 interocular_dist = (left_eye_state.getJoint()->getWorldPosition() - right_eye_state.getJoint()->getWorldPosition()).length();
         vergence = -atan2((interocular_dist / 2.f), lookAtDistance);
         llclamp(vergence, -F_PI_BY_TWO, 0.f);
     }
@@ -422,7 +422,7 @@ void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_s
     if (vergence > -0.05f)
     {
         //...go ahead and jitter
-        eye_jitter_rot.setQuat(0.f, mEyeJitterPitch + mEyeLookAwayPitch, mEyeJitterYaw + mEyeLookAwayYaw);
+        eye_jitter_rot.setEulerAngles(0.f, mEyeJitterPitch + mEyeLookAwayPitch, mEyeJitterYaw + mEyeLookAwayYaw);
     }
     else
     {
@@ -435,7 +435,7 @@ void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_s
 
     if (has_eye_target)
     {
-        vergence_quat.setQuat(vergence, LLVector3(0.f, 0.f, 1.f));
+        vergence_quat.setAngleAxis(vergence, LLVector3(0.f, 0.f, 1.f));
     }
     else
     {
@@ -447,7 +447,7 @@ void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_s
     left_eye_rot = vergence_quat * eye_jitter_rot * left_eye_rot;
 
     LLQuaternion right_eye_rot = target_eye_rot;
-    vergence_quat.transQuat();
+    vergence_quat.transpose();
     right_eye_rot = vergence_quat * eye_jitter_rot * right_eye_rot;
 
     left_eye_state.setRotation( left_eye_rot );

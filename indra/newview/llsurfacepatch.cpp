@@ -351,7 +351,7 @@ void LLSurfacePatch::calcNormal</*PBR=*/false>(const U32 x, const U32 y, const U
 
     LLVector3 normal = c1;
     normal %= c2;
-    normal.normVec();
+    normal.normalize();
 
     llassert(mDataNorm);
     *(mDataNorm + surface_stride * y + x) = normal;
@@ -501,7 +501,7 @@ void LLSurfacePatch::calcNormalFlat(LLVector3& normal_out, const U32 x, const U3
 
         normal = c1;
         normal %= c2;
-        normal.normVec();
+        normal.normalize();
     }
     else // index == 1
     {
@@ -510,7 +510,7 @@ void LLSurfacePatch::calcNormalFlat(LLVector3& normal_out, const U32 x, const U3
 
         normal = c1;
         normal %= c2;
-        normal.normVec();
+        normal.normalize();
     }
 
     llassert(&normal_out);
@@ -533,7 +533,7 @@ void LLSurfacePatch::updateCameraDistanceRegion(const LLVector3 &pos_region)
         {
             LLVector3 dv = pos_region;
             dv -= mCenterRegion;
-            mVisInfo.mDistance = llmax(0.f, (F32)(dv.magVec() - mRadius))/
+            mVisInfo.mDistance = llmax(0.f, (F32)(dv.length() - mRadius))/
                 llmax(LLVOSurfacePatch::sLODFactor, 0.1f);
         }
     }
@@ -599,7 +599,7 @@ void LLSurfacePatch::updateVerticalStats()
     LLVector3 diam_vec(meters_per_grid*grids_per_patch_edge,
                         meters_per_grid*grids_per_patch_edge,
                         mMaxZ - mMinZ);
-    mRadius = diam_vec.magVec() * 0.5f;
+    mRadius = diam_vec.length() * 0.5f;
 
     mSurfacep->mMaxZ = llmax(mMaxZ, mSurfacep->mMaxZ);
     mSurfacep->mMinZ = llmin(mMinZ, mSurfacep->mMinZ);
@@ -961,7 +961,7 @@ void LLSurfacePatch::setOriginGlobal(const LLVector3d &origin_global)
     mOriginGlobal = origin_global;
 
     LLVector3 origin_region;
-    origin_region.setVec(mOriginGlobal - mSurfacep->getOriginGlobal());
+    origin_region.set(mOriginGlobal - mSurfacep->getOriginGlobal());
 
     mOriginRegion = origin_region;
     mCenterRegion.mV[VX] = origin_region.mV[VX] + 0.5f*mSurfacep->getGridsPerPatchEdge()*mSurfacep->getMetersPerGrid();

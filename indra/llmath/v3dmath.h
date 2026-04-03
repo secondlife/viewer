@@ -73,22 +73,11 @@ public:
     bool        abs();                      // sets all values to absolute value of original value (first octant), returns true if changed
 
     inline const LLVector3d&    clear();        // Clears LLVector3d to (0, 0, 0, 1)
-    inline const LLVector3d&    clearVec();     // deprecated
     inline const LLVector3d&    setZero();      // Zero LLVector3d to (0, 0, 0, 0)
-    inline const LLVector3d&    zeroVec();      // deprecated
     inline const LLVector3d&    set(const F64 x, const F64 y, const F64 z); // Sets LLVector3d to (x, y, z, 1)
     inline const LLVector3d&    set(const LLVector3d &vec); // Sets LLVector3d to vec
     inline const LLVector3d&    set(const F64 *vec);        // Sets LLVector3d to vec
     inline const LLVector3d&    set(const LLVector3 &vec);
-    inline const LLVector3d&    setVec(const F64 x, const F64 y, const F64 z);  // deprecated
-    inline const LLVector3d&    setVec(const LLVector3d &vec);  // deprecated
-    inline const LLVector3d&    setVec(const F64 *vec);         // deprecated
-    inline const LLVector3d&    setVec(const LLVector3 &vec);   // deprecated
-
-    F64     magVec() const;             // deprecated
-    F64     magVecSquared() const;      // deprecated
-    inline F64      normVec();                  // deprecated
-
     [[nodiscard]] F64 length() const;         // Returns magnitude of LLVector3d
     [[nodiscard]] F64 lengthSquared() const;  // Returns magnitude squared of LLVector3d
     inline F64 normalize();     // Normalizes and returns the magnitude of LLVector3d
@@ -142,15 +131,6 @@ inline const LLVector3d &LLVector3d::set(const LLVector3 &vec)
     mdV[VZ] = vec.mV[VZ];
     return *this;
 }
-
-inline const LLVector3d &LLVector3d::setVec(const LLVector3 &vec)
-{
-    mdV[VX] = vec.mV[VX];
-    mdV[VY] = vec.mV[VY];
-    mdV[VZ] = vec.mV[VZ];
-    return *this;
-}
-
 
 inline LLVector3d::LLVector3d(void)
 {
@@ -208,23 +188,7 @@ inline const LLVector3d&    LLVector3d::clear(void)
     return (*this);
 }
 
-inline const LLVector3d&    LLVector3d::clearVec(void)
-{
-    mdV[VX] = 0.f;
-    mdV[VY] = 0.f;
-    mdV[VZ] = 0.f;
-    return (*this);
-}
-
 inline const LLVector3d&    LLVector3d::setZero(void)
-{
-    mdV[VX] = 0.f;
-    mdV[VY] = 0.f;
-    mdV[VZ] = 0.f;
-    return (*this);
-}
-
-inline const LLVector3d&    LLVector3d::zeroVec(void)
 {
     mdV[VX] = 0.f;
     mdV[VY] = 0.f;
@@ -256,56 +220,9 @@ inline const LLVector3d&    LLVector3d::set(const F64 *vec)
     return (*this);
 }
 
-inline const LLVector3d&    LLVector3d::setVec(const F64 x, const F64 y, const F64 z)
-{
-    mdV[VX] = x;
-    mdV[VY] = y;
-    mdV[VZ] = z;
-    return (*this);
-}
-
-inline const LLVector3d&    LLVector3d::setVec(const LLVector3d& vec)
-{
-    mdV[VX] = vec.mdV[VX];
-    mdV[VY] = vec.mdV[VY];
-    mdV[VZ] = vec.mdV[VZ];
-    return (*this);
-}
-
-inline const LLVector3d&    LLVector3d::setVec(const F64* vec)
-{
-    mdV[VX] = vec[VX];
-    mdV[VY] = vec[VY];
-    mdV[VZ] = vec[VZ];
-    return (*this);
-}
-
-inline F64 LLVector3d::normVec()
-{
-    F64 mag = (F32)sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]); // This explicit cast to F32 limits the precision for numerical stability.
-                                                                              // Without it, Unit test "v3dmath_h" fails at "1:angle_between" on macos.
-    F64 oomag;
-
-    if (mag > FP_MAG_THRESHOLD)
-    {
-        oomag = 1.0/mag;
-        mdV[VX] *= oomag;
-        mdV[VY] *= oomag;
-        mdV[VZ] *= oomag;
-    }
-    else
-    {
-        mdV[VX] = 0.0;
-        mdV[VY] = 0.0;
-        mdV[VZ] = 0.0;
-        mag = 0;
-    }
-    return (mag);
-}
-
 inline F64 LLVector3d::normalize()
 {
-    F64 mag = (F32)sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]); // Same as in normVec() above.
+    F64 mag = (F32)sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]); // Same as in normalize() above.
     F64 oomag;
 
     if (mag > FP_MAG_THRESHOLD)
@@ -326,16 +243,6 @@ inline F64 LLVector3d::normalize()
 }
 
 // LLVector3d Magnitude and Normalization Functions
-
-inline F64  LLVector3d::magVec() const
-{
-    return sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]);
-}
-
-inline F64  LLVector3d::magVecSquared() const
-{
-    return mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ];
-}
 
 inline F64  LLVector3d::length() const
 {

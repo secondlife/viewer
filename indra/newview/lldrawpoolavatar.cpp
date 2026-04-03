@@ -802,7 +802,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
         rot_mat *= cfr;
 
         LLVector4 wind;
-        wind.setVec(avatarp->mWindVec);
+        wind.set(avatarp->mWindVec);
         wind.mV[VW] = 0;
         wind = wind * rot_mat;
         wind.mV[VW] = avatarp->mWindVec.mV[VW];

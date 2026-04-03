@@ -444,7 +444,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
         {
             LLVector3 headOffset = position - agentHeadPosition;
             headOffset *= limit_lookat_hints_distance / dist;
-            position.setVec(agentHeadPosition + headOffset);
+            position.set(agentHeadPosition + headOffset);
         }
     }
 
@@ -475,7 +475,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
         mTargetObject = object;
         if (object)
         {
-            mTargetOffsetGlobal.setVec(position);
+            mTargetOffsetGlobal.set(position);
         }
         else
         {
@@ -494,7 +494,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
 void LLHUDEffectLookAt::clearLookAtTarget()
 {
     mTargetObject = NULL;
-    mTargetOffsetGlobal.clearVec();
+    mTargetOffsetGlobal.clear();
     mTargetType = LOOKAT_TARGET_NONE;
     if (mSourceObject.notNull())
     {
@@ -640,7 +640,7 @@ bool LLHUDEffectLookAt::calcTargetPosition()
 
     if (target_obj)
     {
-        local_offset.setVec(mTargetOffsetGlobal);
+        local_offset.set(mTargetOffsetGlobal);
     }
     else
     {
@@ -661,11 +661,11 @@ bool LLHUDEffectLookAt::calcTargetPosition()
             bool looking_at_self = source_avatar->isSelf() && target_av->isSelf();
 
             // if selecting self, stare forward
-            if (looking_at_self && mTargetOffsetGlobal.magVecSquared() < MIN_TARGET_OFFSET_SQUARED)
+            if (looking_at_self && mTargetOffsetGlobal.lengthSquared() < MIN_TARGET_OFFSET_SQUARED)
             {
                 //sets the lookat point in front of the avatar
-                mTargetOffsetGlobal.setVec(5.0, 0.0, 0.0);
-                local_offset.setVec(mTargetOffsetGlobal);
+                mTargetOffsetGlobal.set(5.0, 0.0, 0.0);
+                local_offset.set(mTargetOffsetGlobal);
             }
 
             // look the other avatar in the eye. note: what happens if target is self? -MG

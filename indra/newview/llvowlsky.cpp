@@ -355,7 +355,7 @@ void LLVOWLSky::initStars()
 
         v_p->mV[VZ] = ll_frand()/2.f;
 
-        v_p->normVec();
+        v_p->normalize();
         *v_p *= DISTANCE_TO_STARS;
         *v_i = llmin((F32)pow(ll_frand(),2.f) + 0.1f, 1.f);
         v_c->mV[VRED]   = 0.75f + ll_frand() * 0.25f ;
@@ -479,7 +479,7 @@ void LLVOWLSky::updateStarColors()
         {
             //F32 sundir_factor = 1;
             LLVector3 tostar = *v_p;
-            tostar.normVec();
+            tostar.normalize();
             //const F32 how_close_to_sun = tostar * gSky.mVOSkyp->getToSunLast();
             //if (how_close_to_sun > sunclose_max)
             //{
@@ -542,7 +542,7 @@ bool LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
     for (U32 vtx = 0; vtx < getStarsNumVerts(); ++vtx)
     {
         LLVector3 at = mStarVertices[vtx];
-        at.normVec();
+        at.normalize();
         LLVector3 left = at%LLVector3(0,0,1);
         LLVector3 up = at%left;
 

@@ -558,9 +558,9 @@ public:
 
         if (gDisplayWindInfo)
         {
-            wind_vel_text = llformat("Wind velocity %.2f m/s", gWindVec.magVec());
+            wind_vel_text = llformat("Wind velocity %.2f m/s", gWindVec.length());
             wind_vector_text = llformat("Wind vector   %.2f %.2f %.2f", gWindVec.mV[0], gWindVec.mV[1], gWindVec.mV[2]);
-            rwind_vel_text = llformat("RWind vel %.2f m/s", gRelativeWindVec.magVec());
+            rwind_vel_text = llformat("RWind vel %.2f m/s", gRelativeWindVec.length());
             rwind_vector_text = llformat("RWind vec   %.2f %.2f %.2f", gRelativeWindVec.mV[0], gRelativeWindVec.mV[1], gRelativeWindVec.mV[2]);
 
             addText(xpos, ypos, wind_vel_text);  ypos += y_inc;
@@ -1975,7 +1975,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     // the size of a window or fullscreen context may have been adjusted slightly...)
     F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor") * mWindow->getSystemUISize(), MIN_UI_SCALE, MAX_UI_SCALE);
 
-    mDisplayScale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
+    mDisplayScale.set(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
     mDisplayScale *= ui_scale_factor;
     LLUI::setScaleFactor(mDisplayScale);
     LLFontGL::sResolutionGeneration++;
@@ -3950,15 +3950,15 @@ void LLViewerWindow::updateMouseDelta()
         fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
 
         mCurrentMouseDelta.set(ll_round(fdx), ll_round(fdy));
-        mouse_vel.setVec(fdx,fdy);
+        mouse_vel.set(fdx,fdy);
     }
     else
     {
         mCurrentMouseDelta.set(dx, dy);
-        mouse_vel.setVec((F32) dx, (F32) dy);
+        mouse_vel.set((F32) dx, (F32) dy);
     }
 
-    sample(sMouseVelocityStat, mouse_vel.magVec());
+    sample(sMouseVelocityStat, mouse_vel.length());
 }
 
 void LLViewerWindow::updateKeyboardFocus()
@@ -4301,10 +4301,10 @@ LLVector3d LLViewerWindow::clickPointInWorldGlobal(S32 x, S32 y_from_bot, LLView
 
     // make mouse vector as long as object vector, so it touchs a point near
     // where the user clicked on the object
-    mouse_direction_global *= (F32) relative_object.magVec();
+    mouse_direction_global *= (F32) relative_object.length();
 
     LLVector3d new_pos;
-    new_pos.setVec(mouse_direction_global);
+    new_pos.set(mouse_direction_global);
     // transform mouse vector back to world coords
     new_pos += gAgentCamera.getCameraPositionGlobal();
 
@@ -4584,7 +4584,7 @@ LLVector3 LLViewerWindow::mouseDirectionGlobal(const S32 x, const S32 y) const
                                 - click_x * LLViewerCamera::getInstance()->getLeftAxis()
                                 + click_y * LLViewerCamera::getInstance()->getUpAxis();
 
-    mouse_vector.normVec();
+    mouse_vector.normalize();
 
     return mouse_vector;
 }
@@ -4628,7 +4628,7 @@ LLVector3 LLViewerWindow::mouseDirectionCamera(const S32 x, const S32 y) const
     // compute mouse vector
     LLVector3   mouse_vector =  LLVector3(0.f, 0.f, -1.f);
     LLQuaternion mouse_rotate;
-    mouse_rotate.setQuat(click_y, click_x, 0.f);
+    mouse_rotate.setEulerAngles(click_y, click_x, 0.f);
 
     mouse_vector = mouse_vector * mouse_rotate;
     // project to z = -1 plane;
@@ -4645,9 +4645,9 @@ bool LLViewerWindow::mousePointOnPlaneGlobal(LLVector3d& point, const S32 x, con
 {
     LLVector3d  mouse_direction_global_d;
 
-    mouse_direction_global_d.setVec(mouseDirectionGlobal(x,y));
+    mouse_direction_global_d.set(mouseDirectionGlobal(x,y));
     LLVector3d  plane_normal_global_d;
-    plane_normal_global_d.setVec(plane_normal_global);
+    plane_normal_global_d.set(plane_normal_global);
     F64 plane_mouse_dot = (plane_normal_global_d * mouse_direction_global_d);
     LLVector3d plane_origin_camera_rel = plane_point_global - gAgentCamera.getCameraPositionGlobal();
     F64 mouse_look_at_scale = (plane_normal_global_d * plane_origin_camera_rel)
@@ -4658,9 +4658,9 @@ bool LLViewerWindow::mousePointOnPlaneGlobal(LLVector3d& point, const S32 x, con
         // that is parallel to camera plane by scaling mouse direction vector
         // by distance to plane origin, modulated by deviation of mouse direction from plane origin
         LLVector3d plane_origin_dir = plane_origin_camera_rel;
-        plane_origin_dir.normVec();
+        plane_origin_dir.normalize();
 
-        mouse_look_at_scale = plane_origin_camera_rel.magVec() / (plane_origin_dir * mouse_direction_global_d);
+        mouse_look_at_scale = plane_origin_camera_rel.length() / (plane_origin_dir * mouse_direction_global_d);
     }
 
     point = gAgentCamera.getCameraPositionGlobal() + mouse_look_at_scale * mouse_direction_global_d;
@@ -4690,7 +4690,7 @@ bool LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
     for (mouse_dir_scale = FIRST_PASS_STEP; mouse_dir_scale < draw_distance; mouse_dir_scale += FIRST_PASS_STEP)
     {
         LLVector3d mouse_direction_global_d;
-        mouse_direction_global_d.setVec(mouse_direction_global * mouse_dir_scale);
+        mouse_direction_global_d.set(mouse_direction_global * mouse_dir_scale);
         probe_point_global = camera_pos_global + mouse_direction_global_d;
 
         regionp = LLWorld::getInstance()->resolveRegionGlobal(probe_point_region, probe_point_global);
@@ -4737,7 +4737,7 @@ bool LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
         for ( mouse_dir_scale -= FIRST_PASS_STEP; mouse_dir_scale <= stop_mouse_dir_scale; mouse_dir_scale += SECOND_PASS_STEP)
         {
             LLVector3d mouse_direction_global_d;
-            mouse_direction_global_d.setVec(mouse_direction_global * mouse_dir_scale);
+            mouse_direction_global_d.set(mouse_direction_global * mouse_dir_scale);
             probe_point_global = camera_pos_global + mouse_direction_global_d;
 
             regionp = LLWorld::getInstance()->resolveRegionGlobal(probe_point_region, probe_point_global);
@@ -6013,7 +6013,7 @@ void LLViewerWindow::calcDisplayScale()
 {
     F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor") * mWindow->getSystemUISize(), MIN_UI_SCALE, MAX_UI_SCALE);
     LLVector2 display_scale;
-    display_scale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
+    display_scale.set(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
     display_scale *= ui_scale_factor;
 
     // limit minimum display scale

@@ -73,10 +73,10 @@ public:
     {
         mParent  = NULL;
         mChanged = UNCHANGED;
-        mPosition.setVec(0,0,0);
+        mPosition.set(0,0,0);
         mRotation.loadIdentity();
-        mScale.   setVec(1,1,1);
-        mWorldPosition.clearVec();
+        mScale.   set(1,1,1);
+        mWorldPosition.clear();
         mWorldRotation.loadIdentity();
         mScaleChildOffset = false;
     }
@@ -142,8 +142,8 @@ public:
     void init()
     {
         mWorldMatrix.setIdentity();
-        mMin.clearVec();
-        mMax.clearVec();
+        mMin.clear();
+        mMax.clear();
 
         LLXform::init();
     }
@@ -190,7 +190,7 @@ void LLXform::setPosition(const LLVector3& pos)
         mPosition = pos;
     else
     {
-        mPosition.clearVec();
+        mPosition.clear();
         warn("Non Finite in LLXform::setPosition(LLVector3)");
     }
 }
@@ -199,10 +199,10 @@ void LLXform::setPosition(const F32 x, const F32 y, const F32 z)
 {
     setChanged(TRANSLATED);
     if (llfinite(x) && llfinite(y) && llfinite(z))
-        mPosition.setVec(x,y,z);
+        mPosition.set(x,y,z);
     else
     {
-        mPosition.clearVec();
+        mPosition.clear();
         warn("Non Finite in LLXform::setPosition(F32,F32,F32)");
     }
 }
@@ -259,7 +259,7 @@ void LLXform::setScale(const LLVector3& scale)
         mScale = scale;
     else
     {
-        mScale.setVec(1.f, 1.f, 1.f);
+        mScale.set(1.f, 1.f, 1.f);
         warn("Non Finite in LLXform::setScale");
     }
 }
@@ -267,10 +267,10 @@ void LLXform::setScale(const F32 x, const F32 y, const F32 z)
 {
     setChanged(SCALED);
     if (llfinite(x) && llfinite(y) && llfinite(z))
-        mScale.setVec(x,y,z);
+        mScale.set(x,y,z);
     else
     {
-        mScale.setVec(1.f, 1.f, 1.f);
+        mScale.set(1.f, 1.f, 1.f);
         warn("Non Finite in LLXform::setScale");
     }
 }
@@ -290,7 +290,7 @@ void LLXform::setRotation(const F32 x, const F32 y, const F32 z)
     setChanged(ROTATED);
     if (llfinite(x) && llfinite(y) && llfinite(z))
     {
-        mRotation.setQuat(x,y,z);
+        mRotation.setEulerAngles(x,y,z);
     }
     else
     {

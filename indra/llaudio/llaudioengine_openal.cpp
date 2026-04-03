@@ -315,7 +315,7 @@ void LLAudioChannelOpenAL::update3DPosition()
         alSourcei (mALSource, AL_SOURCE_RELATIVE, AL_TRUE);
     } else {
         LLVector3 float_pos;
-        float_pos.setVec(mCurrentSourcep->getPositionGlobal());
+        float_pos.set(mCurrentSourcep->getPositionGlobal());
         alSourcefv(mALSource, AL_POSITION, float_pos.mV);
         alSourcefv(mALSource, AL_VELOCITY, mCurrentSourcep->getVelocity().mV);
         alSourcei (mALSource, AL_SOURCE_RELATIVE, AL_FALSE);
@@ -469,7 +469,7 @@ void LLAudioEngine_OpenAL::updateWind(LLVector3 wind_vec, F32 camera_altitude)
         // need to convert this to the conventional orientation DS3D and OpenAL use
         // where +X = right, +Y = up, +Z = backwards
 
-        wind_vec.setVec(-wind_vec.mV[1], wind_vec.mV[2], -wind_vec.mV[0]);
+        wind_vec.set(-wind_vec.mV[1], wind_vec.mV[2], -wind_vec.mV[0]);
 
         pitch = 1.0 + mapWindVecToPitch(wind_vec);
         center_freq = 80.0 * pow(pitch,2.5*(mapWindVecToGain(wind_vec)+1.0));

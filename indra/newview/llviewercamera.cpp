@@ -140,7 +140,7 @@ bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
     setAxes(at, left, up);
 
     mVelocityDir = origin - last_position ;
-    F32 dpos = mVelocityDir.normVec() ;
+    F32 dpos = mVelocityDir.normalize() ;
     LLQuaternion rotation;
     rotation.shortestArc(last_axis, getAtAxis());
 
@@ -211,60 +211,60 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, bool ortho, bool zfli
     if (no_hacks)
     {
         obj = glm::unProject(glm::vec3(viewport[0], viewport[1], 0), model, proj, viewport);
-        frust[0].setVec(glm::value_ptr(obj));
+        frust[0].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0]+viewport[2],viewport[1],0),model,proj,viewport);
-        frust[1].setVec(glm::value_ptr(obj));
+        frust[1].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0]+viewport[2],viewport[1]+viewport[3],0),model,proj,viewport);
-        frust[2].setVec(glm::value_ptr(obj));
+        frust[2].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0],viewport[1]+viewport[3],0),model,proj,viewport);
-        frust[3].setVec(glm::value_ptr(obj));
+        frust[3].set(glm::value_ptr(obj));
 
         obj = glm::unProject(glm::vec3(viewport[0],viewport[1],1),model,proj,viewport);
-        frust[4].setVec(glm::value_ptr(obj));
+        frust[4].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0]+viewport[2],viewport[1],1),model,proj,viewport);
-        frust[5].setVec(glm::value_ptr(obj));
+        frust[5].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0]+viewport[2],viewport[1]+viewport[3],1),model,proj,viewport);
-        frust[6].setVec(glm::value_ptr(obj));
+        frust[6].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0],viewport[1]+viewport[3],1),model,proj,viewport);
-        frust[7].setVec(glm::value_ptr(obj));
+        frust[7].set(glm::value_ptr(obj));
     }
     else if (zflip)
     {
         obj = glm::unProject(glm::vec3(viewport[0],viewport[1]+viewport[3],0),model,proj,viewport);
-        frust[0].setVec(glm::value_ptr(obj));
+        frust[0].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0]+viewport[2],viewport[1]+viewport[3],0),model,proj,viewport);
-        frust[1].setVec(glm::value_ptr(obj));
+        frust[1].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0]+viewport[2],viewport[1],0),model,proj,viewport);
-        frust[2].setVec(glm::value_ptr(obj));
+        frust[2].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0],viewport[1],0),model,proj,viewport);
-        frust[3].setVec(glm::value_ptr(obj));
+        frust[3].set(glm::value_ptr(obj));
 
         obj = glm::unProject(glm::vec3(viewport[0],viewport[1]+viewport[3],1),model,proj,viewport);
-        frust[4].setVec(glm::value_ptr(obj));
+        frust[4].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0]+viewport[2],viewport[1]+viewport[3],1),model,proj,viewport);
-        frust[5].setVec(glm::value_ptr(obj));
+        frust[5].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0]+viewport[2],viewport[1],1),model,proj,viewport);
-        frust[6].setVec(glm::value_ptr(obj));
+        frust[6].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0],viewport[1],1),model,proj,viewport);
-        frust[7].setVec(glm::value_ptr(obj));
+        frust[7].set(glm::value_ptr(obj));
 
         for (U32 i = 0; i < 4; i++)
         {
             frust[i+4] = frust[i+4]-frust[i];
-            frust[i+4].normVec();
+            frust[i+4].normalize();
             frust[i+4] = frust[i] + frust[i+4]*camera.getFar();
         }
     }
     else
     {
         obj = glm::unProject(glm::vec3(viewport[0],viewport[1],0),model,proj,viewport);
-        frust[0].setVec(glm::value_ptr(obj));
+        frust[0].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0]+viewport[2],viewport[1],0),model,proj,viewport);
-        frust[1].setVec(glm::value_ptr(obj));
+        frust[1].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0]+viewport[2],viewport[1]+viewport[3],0),model,proj,viewport);
-        frust[2].setVec(glm::value_ptr(obj));
+        frust[2].set(glm::value_ptr(obj));
         obj = glm::unProject(glm::vec3(viewport[0],viewport[1]+viewport[3],0),model,proj,viewport);
-        frust[3].setVec(glm::value_ptr(obj));
+        frust[3].set(glm::value_ptr(obj));
 
         if (ortho)
         {
@@ -279,7 +279,7 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, bool ortho, bool zfli
             for (U32 i = 0; i < 4; i++)
             {
                 LLVector3 vec = frust[i] - camera.getOrigin();
-                vec.normVec();
+                vec.normalize();
                 frust[i+4] = camera.getOrigin() + vec*camera.getFar();
             }
         }
@@ -411,7 +411,7 @@ void LLViewerCamera::setPerspective(bool for_selection,
 void LLViewerCamera::projectScreenToPosAgent(const S32 screen_x, const S32 screen_y, LLVector3* pos_agent) const
 {
     glm::vec3 agent_coord = glm::unProject(glm::vec3(screen_x, screen_y, 0.f), get_current_modelview(), get_current_projection(), glm::make_vec4(gGLViewport));
-    pos_agent->setVec( (F32)agent_coord.x, (F32)agent_coord.y, (F32)agent_coord.z );
+    pos_agent->set( (F32)agent_coord.x, (F32)agent_coord.y, (F32)agent_coord.z );
 }
 
 // Uses the last GL matrices set in set_perspective to project a point from
@@ -422,7 +422,7 @@ bool LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
     bool in_front = true;
 
     LLVector3 dir_to_point = pos_agent - getOrigin();
-    dir_to_point /= dir_to_point.magVec();
+    dir_to_point /= dir_to_point.length();
 
     if (dir_to_point * getAtAxis() < 0.f)
     {
@@ -521,7 +521,7 @@ bool LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
                                                 LLCoordGL &out_point) const
 {
     LLVector3 dir_to_point = pos_agent - getOrigin();
-    dir_to_point /= dir_to_point.magVec();
+    dir_to_point /= dir_to_point.length();
 
     bool in_front = true;
     if (dir_to_point * getAtAxis() < 0.f)
@@ -672,7 +672,7 @@ void LLViewerCamera::getPixelVectors(const LLVector3 &pos_agent, LLVector3 &up, 
 
 LLVector3 LLViewerCamera::roundToPixel(const LLVector3 &pos_agent)
 {
-    F32 dist = (pos_agent - getOrigin()).magVec();
+    F32 dist = (pos_agent - getOrigin()).length();
     // Convert to screen space and back, preserving the depth.
     LLCoordGL screen_point;
     if (!projectPosAgentToScreen(pos_agent, screen_point, false))
@@ -685,7 +685,7 @@ LLVector3 LLViewerCamera::roundToPixel(const LLVector3 &pos_agent)
 
     projectScreenToPosAgent(screen_point.mX, screen_point.mY, &ray_dir);
     ray_dir -= getOrigin();
-    ray_dir.normVec();
+    ray_dir.normalize();
 
     LLVector3 pos_agent_rounded = getOrigin() + ray_dir*dist;
 

@@ -1124,7 +1124,7 @@ void LLWebRTCVoiceClient::enforceTether()
     // constrain 'tethered' to within 50m of mAvatarPosition.
     {
         LLVector3d camera_offset   = mListenerRequestedPosition - mAvatarPosition;
-        F32        camera_distance = (F32) camera_offset.magVec();
+        F32        camera_distance = (F32) camera_offset.length();
         if (camera_distance > MAX_AUDIO_DIST)
         {
             tethered = mAvatarPosition + (MAX_AUDIO_DIST / camera_distance) * camera_offset;

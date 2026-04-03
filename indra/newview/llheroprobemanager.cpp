@@ -140,7 +140,7 @@ void LLHeroProbeManager::update()
         {
             if (vo && !vo->isDead() && vo->mDrawable.notNull() && vo->isReflectionProbe() && vo->getReflectionProbeIsBox())
             {
-                float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
+                float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).length();
                 float center_distance = cameraDirection * (vo->getPositionAgent() - camera_pos);
 
                 if (distance > LLViewerCamera::instance().getFar())
@@ -185,7 +185,7 @@ void LLHeroProbeManager::update()
             LLVector3 reject  = offset - project;
             LLVector3 point   = (reject - project) + hero_pos;
 
-            mCurrentClipPlane.setVec(hero_pos, face_normal);
+            mCurrentClipPlane.set(hero_pos, face_normal);
             mMirrorPosition = hero_pos;
             mMirrorNormal   = face_normal;
 
@@ -204,7 +204,7 @@ void LLHeroProbeManager::update()
             };
 
             mProbes[0]->mOrigin = probe_pos;
-            mProbes[0]->mRadius = mNearestHero->getScale().magVec() * 0.5f;
+            mProbes[0]->mRadius = mNearestHero->getScale().length() * 0.5f;
         }
         else
         {
@@ -502,7 +502,7 @@ void LLHeroProbeManager::updateUniforms()
         if (mNearestHero->getReflectionProbeIsBox())
         {
             LLVector3 s = mNearestHero->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-            mProbes[0]->mRadius = s.magVec();
+            mProbes[0]->mRadius = s.length();
         }
         else
         {

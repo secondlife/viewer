@@ -621,7 +621,7 @@ bool LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
     static LLStdStringHandle fixed_color_string = LLXmlTree::addAttributeString("fixed_color");
     if( node->getFastAttributeColor4U( fixed_color_string, color4u ) )
     {
-        mFixedColor.setVec( color4u );
+        mFixedColor.set( color4u );
     }
 
         // <texture> optional sub-element
@@ -1211,15 +1211,15 @@ bool LLTexLayer::findNetColor(LLColor4* net_color) const
     {
         if( !getGlobalColor().empty() )
         {
-            net_color->setVec( mTexLayerSet->getAvatarAppearance()->getGlobalColor( getInfo()->mGlobalColor ) );
+            net_color->set( mTexLayerSet->getAvatarAppearance()->getGlobalColor( getInfo()->mGlobalColor ) );
         }
         else if (getInfo()->mFixedColor.mV[VALPHA])
         {
-            net_color->setVec( getInfo()->mFixedColor );
+            net_color->set( getInfo()->mFixedColor );
         }
         else
         {
-            net_color->setVec( 0.f, 0.f, 0.f, 0.f );
+            net_color->set( 0.f, 0.f, 0.f, 0.f );
         }
 
         calculateTexLayerColor(mParamColorList, *net_color);
@@ -1228,13 +1228,13 @@ bool LLTexLayer::findNetColor(LLColor4* net_color) const
 
     if( !getGlobalColor().empty() )
     {
-        net_color->setVec( mTexLayerSet->getAvatarAppearance()->getGlobalColor( getGlobalColor() ) );
+        net_color->set( mTexLayerSet->getAvatarAppearance()->getGlobalColor( getGlobalColor() ) );
         return true;
     }
 
     if( getInfo()->mFixedColor.mV[VALPHA] )
     {
-        net_color->setVec( getInfo()->mFixedColor );
+        net_color->set( getInfo()->mFixedColor );
         return true;
     }
 

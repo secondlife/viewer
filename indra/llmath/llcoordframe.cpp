@@ -118,9 +118,9 @@ LLCoordFrame::LLCoordFrame(const LLQuaternion &q) :
     mOrigin(0.f, 0.f, 0.f)
 {
     LLMatrix3 rotation_matrix(q);
-    mXAxis.setVec(rotation_matrix.mMatrix[VX]);
-    mYAxis.setVec(rotation_matrix.mMatrix[VY]);
-    mZAxis.setVec(rotation_matrix.mMatrix[VZ]);
+    mXAxis.set(rotation_matrix.mMatrix[VX]);
+    mYAxis.set(rotation_matrix.mMatrix[VY]);
+    mZAxis.set(rotation_matrix.mMatrix[VZ]);
 
     CHECK_FINITE_OBJ();
 }
@@ -129,9 +129,9 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &origin, const LLQuaternion &q) :
     mOrigin(origin)
 {
     LLMatrix3 rotation_matrix(q);
-    mXAxis.setVec(rotation_matrix.mMatrix[VX]);
-    mYAxis.setVec(rotation_matrix.mMatrix[VY]);
-    mZAxis.setVec(rotation_matrix.mMatrix[VZ]);
+    mXAxis.set(rotation_matrix.mMatrix[VX]);
+    mYAxis.set(rotation_matrix.mMatrix[VY]);
+    mZAxis.set(rotation_matrix.mMatrix[VZ]);
 
     CHECK_FINITE_OBJ();
 }
@@ -172,23 +172,23 @@ LLCoordFrame::LLCoordFrame(const F32 *origin_and_rotation) :
 
 void LLCoordFrame::reset()
 {
-    mOrigin.setVec(0.0f, 0.0f, 0.0f);
+    mOrigin.set(0.0f, 0.0f, 0.0f);
     resetAxes();
 }
 
 
 void LLCoordFrame::resetAxes()
 {
-    mXAxis.setVec(1.0f, 0.0f, 0.0f);
-    mYAxis.setVec(0.0f, 1.0f, 0.0f);
-    mZAxis.setVec(0.0f, 0.0f, 1.0f);
+    mXAxis.set(1.0f, 0.0f, 0.0f);
+    mYAxis.set(0.0f, 1.0f, 0.0f);
+    mZAxis.set(0.0f, 0.0f, 1.0f);
 }
 
 // setOrigin() member functions set mOrigin
 
 void LLCoordFrame::setOrigin(F32 x, F32 y, F32 z)
 {
-    mOrigin.setVec(x, y, z);
+    mOrigin.set(x, y, z);
 
     CHECK_FINITE(mOrigin);
 }
@@ -229,9 +229,9 @@ void LLCoordFrame::setAxes(const LLVector3 &x_axis,
 
 void LLCoordFrame::setAxes(const LLMatrix3 &rotation_matrix)
 {
-    mXAxis.setVec(rotation_matrix.mMatrix[VX]);
-    mYAxis.setVec(rotation_matrix.mMatrix[VY]);
-    mZAxis.setVec(rotation_matrix.mMatrix[VZ]);
+    mXAxis.set(rotation_matrix.mMatrix[VX]);
+    mYAxis.set(rotation_matrix.mMatrix[VY]);
+    mZAxis.set(rotation_matrix.mMatrix[VZ]);
     CHECK_FINITE_OBJ();
 }
 
@@ -481,9 +481,9 @@ LLVector4 LLCoordFrame::rotateToAbsolute(const LLVector4 &local_vector) const
 void LLCoordFrame::orthonormalize()
 // Makes sure the axes are orthogonal and normalized.
 {
-    mXAxis.normVec();                       // X is renormalized
+    mXAxis.normalize();                       // X is renormalized
     mYAxis -= mXAxis * (mXAxis * mYAxis);   // Y remains in X-Y plane
-    mYAxis.normVec();                       // Y is normalized
+    mYAxis.normalize();                       // Y is normalized
     mZAxis = mXAxis % mYAxis;               // Z = X cross Y
 }
 
@@ -620,10 +620,10 @@ void LLCoordFrame::lookDir(const LLVector3 &at, const LLVector3 &up_direction)
     {
         //tweak lookat pos so we don't get a degenerate matrix
         LLVector3 tempat(at[VX] + 0.01f, at[VY], at[VZ]);
-        tempat.normVec();
+        tempat.normalize();
         left = (up_direction % tempat);
     }
-    left.normVec();
+    left.normalize();
 
     LLVector3 up = at % left;
 
@@ -643,7 +643,7 @@ void LLCoordFrame::lookAt(const LLVector3 &origin, const LLVector3 &point_of_int
 {
     setOrigin(origin);
     LLVector3 at(point_of_interest - origin);
-    at.normVec();
+    at.normalize();
     lookDir(at, up_direction);
 }
 
@@ -653,7 +653,7 @@ void LLCoordFrame::lookAt(const LLVector3 &origin, const LLVector3 &point_of_int
 
     setOrigin(origin);
     LLVector3 at(point_of_interest - origin);
-    at.normVec();
+    at.normalize();
     lookDir(at, up_direction);
 }
 

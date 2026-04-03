@@ -44,25 +44,25 @@ public:
 
     // Constructors
     LLPlane() = default;
-    LLPlane(const LLVector3 &p0, F32 d) { setVec(p0, d); }
-    LLPlane(const LLVector3 &p0, const LLVector3 &n) { setVec(p0, n); }
-    inline void setVec(const LLVector3 &p0, F32 d) { mV.set(p0[0], p0[1], p0[2], d); }
+    LLPlane(const LLVector3 &p0, F32 d) { set(p0, d); }
+    LLPlane(const LLVector3 &p0, const LLVector3 &n) { set(p0, n); }
+    inline void set(const LLVector3 &p0, F32 d) { mV.set(p0[0], p0[1], p0[2], d); }
 
     // Set
-    inline void setVec(const LLVector3 &p0, const LLVector3 &n)
+    inline void set(const LLVector3 &p0, const LLVector3 &n)
     {
         F32 d = -(p0 * n);
-        setVec(n, d);
+        set(n, d);
     }
-    inline void setVec(const LLVector3 &p0, const LLVector3 &p1, const LLVector3 &p2)
+    inline void set(const LLVector3 &p0, const LLVector3 &p1, const LLVector3 &p2)
     {
         LLVector3 u, v, w;
         u = p1 - p0;
         v = p2 - p0;
         w = u % v;
-        w.normVec();
+        w.normalize();
         F32 d = -(w * p0);
-        setVec(w, d);
+        set(w, d);
     }
 
     inline LLPlane& operator=(const LLVector4& v2) {  mV.set(v2[0],v2[1],v2[2],v2[3]); return *this;}

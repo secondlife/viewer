@@ -186,40 +186,6 @@ const LLColor4& LLColor4::set(const LLColor3& vec, F32 a)
     return (*this);
 }
 
-// deprecated -- use set()
-const LLColor4& LLColor4::setVec(const LLColor4U& color4u)
-{
-    constexpr F32 SCALE = 1.f / 255.f;
-    mV[VRED]            = color4u.mV[VRED] * SCALE;
-    mV[VGREEN]          = color4u.mV[VGREEN] * SCALE;
-    mV[VBLUE]           = color4u.mV[VBLUE] * SCALE;
-    mV[VALPHA]          = color4u.mV[VALPHA] * SCALE;
-    return (*this);
-}
-
-// deprecated -- use set()
-const LLColor4& LLColor4::setVec(const LLColor3& vec)
-{
-    mV[VRED]   = vec.mV[VRED];
-    mV[VGREEN] = vec.mV[VGREEN];
-    mV[VBLUE]  = vec.mV[VBLUE];
-
-    //  no change to alpha!
-    //  mV[VALPHA] = 1.f;
-
-    return (*this);
-}
-
-// deprecated -- use set()
-const LLColor4& LLColor4::setVec(const LLColor3& vec, F32 a)
-{
-    mV[VRED]   = vec.mV[VRED];
-    mV[VGREEN] = vec.mV[VGREEN];
-    mV[VBLUE]  = vec.mV[VBLUE];
-    mV[VALPHA] = a;
-    return (*this);
-}
-
 void LLColor4::setValue(const LLSD& sd)
 {
     mV[VRED]   = (F32)sd[VRED].asReal();
@@ -705,7 +671,7 @@ bool LLColor4::parseColor4(const std::string& buf, LLColor4* value)
     }
     if (4 == count)
     {
-        value->setVec(v);
+        value->set(v);
         return true;
     }
 

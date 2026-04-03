@@ -140,7 +140,7 @@ bool LLKeyframeStandMotion::onActivate()
     mIKRight.setBAxis( LLVector3(-0.05f, 1.0f, 0.0f));
 
     mLastGoodPelvisRotation.loadIdentity();
-    mLastGoodPosition.clearVec();
+    mLastGoodPosition.clear();
 
     mFrameNum = 0;
 
@@ -187,7 +187,7 @@ bool LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
         mLastGoodPelvisRotation.normalize();
         mTrackAnkles = true;
     }
-    else if ((mCharacter->getCharacterPosition() - mLastGoodPosition).magVecSquared() > POSITION_THRESHOLD)
+    else if ((mCharacter->getCharacterPosition() - mLastGoodPosition).lengthSquared() > POSITION_THRESHOLD)
     {
         mLastGoodPosition = mCharacter->getCharacterPosition();
         mTrackAnkles = true;
@@ -294,28 +294,28 @@ bool LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
         LLVector3 left;
 
         up = mNormalLeft;
-        up.normVec();
+        up.normalize();
         if (mFlipFeet)
         {
             up *= -1.0f;
         }
         dir = dirLeft;
-        dir.normVec();
+        dir.normalize();
         left = up % dir;
-        left.normVec();
+        left.normalize();
         dir = left % up;
         mRotationLeft = LLQuaternion( dir, left, up );
 
         up = mNormalRight;
-        up.normVec();
+        up.normalize();
         if (mFlipFeet)
         {
             up *= -1.0f;
         }
         dir = dirRight;
-        dir.normVec();
+        dir.normalize();
         left = up % dir;
-        left.normVec();
+        left.normalize();
         dir = left % up;
         mRotationRight = LLQuaternion( dir, left, up );
     }
@@ -333,7 +333,7 @@ bool LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
     mKneeRightState->setRotation( mKneeRightJoint.getRotation() );
     mAnkleRightState->setRotation( mAnkleRightJoint.getRotation() );
 
-    //LL_INFOS() << "Stand drift amount " << (mCharacter->getCharacterPosition() - mLastGoodPosition).magVec() << LL_ENDL;
+    //LL_INFOS() << "Stand drift amount " << (mCharacter->getCharacterPosition() - mLastGoodPosition).length() << LL_ENDL;
 
 //  LL_INFOS() << "DEBUG: " << speed << " : " << mTrackAnkles << LL_ENDL;
     return true;

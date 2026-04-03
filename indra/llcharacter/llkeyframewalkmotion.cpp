@@ -187,8 +187,8 @@ bool LLWalkAdjustMotion::onActivate()
     mLastRightFootGlobalPos = mCharacter->getPosGlobalFromAgent(mRightAnkleJoint->getWorldPosition());
     mLastRightFootGlobalPos.mdV[VZ] = 0.0;
 
-    F32 leftAnkleOffset = (mLeftAnkleJoint->getWorldPosition() - mCharacter->getCharacterPosition()).magVec();
-    F32 rightAnkleOffset = (mRightAnkleJoint->getWorldPosition() - mCharacter->getCharacterPosition()).magVec();
+    F32 leftAnkleOffset = (mLeftAnkleJoint->getWorldPosition() - mCharacter->getCharacterPosition()).length();
+    F32 rightAnkleOffset = (mRightAnkleJoint->getWorldPosition() - mCharacter->getCharacterPosition()).length();
     mAnkleOffset = llmax(leftAnkleOffset, rightAnkleOffset);
 
     return true;
@@ -208,7 +208,7 @@ bool LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
     LLVector3 avatar_velocity = mCharacter->getCharacterVelocity() * mCharacter->getTimeDilation();
     avatar_velocity.mV[VZ] = 0.f;
 
-    F32 speed = llclamp(avatar_velocity.magVec(), 0.f, MAX_WALK_PLAYBACK_SPEED);
+    F32 speed = llclamp(avatar_velocity.length(), 0.f, MAX_WALK_PLAYBACK_SPEED);
 
     // grab avatar->world transforms
     LLQuaternion avatar_to_world_rot = mCharacter->getRootJoint()->getWorldRotation();
@@ -377,7 +377,7 @@ bool LLFlyAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
     LLVector3 ang_vel = mCharacter->getCharacterAngularVelocity() * mCharacter->getTimeDilation();
-    F32 speed = mCharacter->getCharacterVelocity().magVec();
+    F32 speed = mCharacter->getCharacterVelocity().length();
 
     F32 roll_factor = clamp_rescale(speed, 7.f, 15.f, 0.f, -MAX_ROLL);
     F32 target_roll = llclamp(ang_vel.mV[VZ], -4.f, 4.f) * roll_factor;

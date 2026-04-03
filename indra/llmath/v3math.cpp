@@ -207,7 +207,7 @@ const LLVector3& LLVector3::rotVec(const LLQuaternion& q)
 
 const LLVector3& LLVector3::transVec(const LLMatrix4& mat)
 {
-    setVec(
+    set(
             mV[VX] * mat.mMatrix[VX][VX] +
             mV[VY] * mat.mMatrix[VX][VY] +
             mV[VZ] * mat.mMatrix[VX][VZ] +
@@ -271,22 +271,6 @@ const LLVector3& LLVector3::set(const LLVector3d& vec)
 }
 
 const LLVector3& LLVector3::set(const LLVector4& vec)
-{
-    mV[VX] = vec.mV[VX];
-    mV[VY] = vec.mV[VY];
-    mV[VZ] = vec.mV[VZ];
-    return (*this);
-}
-
-const LLVector3& LLVector3::setVec(const LLVector3d& vec)
-{
-    mV[VX] = (F32)vec.mdV[0];
-    mV[VY] = (F32)vec.mdV[1];
-    mV[VZ] = (F32)vec.mdV[2];
-    return (*this);
-}
-
-const LLVector3& LLVector3::setVec(const LLVector4& vec)
 {
     mV[VX] = vec.mV[VX];
     mV[VY] = vec.mV[VY];
@@ -367,7 +351,7 @@ bool LLVector3::parseVector3(const std::string& buf, LLVector3* value)
     S32 count = sscanf(buf.c_str(), "%f %f %f", v.mV + VX, v.mV + VY, v.mV + VZ);
     if (3 == count)
     {
-        value->setVec(v);
+        value->set(v);
         return true;
     }
 

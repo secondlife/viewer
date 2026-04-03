@@ -177,7 +177,7 @@ void LLHUDText::renderText()
     LLVector3 width_vec = mWidth * x_pixel_vec;
     LLVector3 height_vec = mHeight * y_pixel_vec;
 
-    mRadius = (width_vec + height_vec).magVec() * 0.5f;
+    mRadius = (width_vec + height_vec).length() * 0.5f;
 
     LLVector2 screen_offset;
     screen_offset = mPositionOffset;
@@ -363,7 +363,7 @@ void LLHUDText::updateVisibility()
     // push text towards camera by radius of object, but not past camera
     LLVector3 vec_from_camera = mPositionAgent - LLViewerCamera::getInstance()->getOrigin();
     LLVector3 dir_from_camera = vec_from_camera;
-    dir_from_camera.normVec();
+    dir_from_camera.normalize();
 
     if (dir_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= 0.f)
     { //text is behind camera, don't render
@@ -380,7 +380,7 @@ void LLHUDText::updateVisibility()
         mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
     }
 
-    mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
+    mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).length();
 
     if (!mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
     {
@@ -389,7 +389,7 @@ void LLHUDText::updateVisibility()
     }
 
     LLVector3 pos_agent_center = gAgent.getPosAgentFromGlobal(mPositionGlobal) - dir_from_camera;
-    F32 last_distance_center = (pos_agent_center - LLViewerCamera::getInstance()->getOrigin()).magVec();
+    F32 last_distance_center = (pos_agent_center - LLViewerCamera::getInstance()->getOrigin()).length();
     static LLCachedControl<F32> prim_text_max_dist(gSavedSettings, "PrimTextMaxDrawDistance");
     F32 max_draw_distance = prim_text_max_dist;
 
@@ -452,7 +452,7 @@ LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
 //      LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
 //  }
 
-    screen_pos_vec.setVec((F32)screen_pos.mX, (F32)screen_pos.mY);
+    screen_pos_vec.set((F32)screen_pos.mX, (F32)screen_pos.mY);
 
     LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
     S32 bottom = world_rect.mBottom + STATUS_BAR_HEIGHT;
@@ -524,7 +524,7 @@ void LLHUDText::updateAll()
     for (text_it = sTextObjects.begin(); text_it != sTextObjects.end(); ++text_it)
     {
         LLHUDText* textp = (*text_it);
-        textp->mTargetPositionOffset.clearVec();
+        textp->mTargetPositionOffset.clear();
         textp->updateSize();
         textp->updateVisibility();
     }

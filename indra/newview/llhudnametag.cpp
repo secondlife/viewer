@@ -280,7 +280,7 @@ void LLHUDNameTag::renderText()
     LLVector3 width_vec = mWidth * x_pixel_vec;
     LLVector3 height_vec = mHeight * y_pixel_vec;
 
-    mRadius = (width_vec + height_vec).magVec() * 0.5f;
+    mRadius = (width_vec + height_vec).length() * 0.5f;
 
     LLCoordGL screen_pos;
     LLViewerCamera::getInstance()->projectPosAgentToScreen(mPositionAgent, screen_pos, false);
@@ -568,7 +568,7 @@ void LLHUDNameTag::updateVisibility()
     // push text towards camera by radius of object, but not past camera
     LLVector3 vec_from_camera = mPositionAgent - LLViewerCamera::getInstance()->getOrigin();
     LLVector3 dir_from_camera = vec_from_camera;
-    dir_from_camera.normVec();
+    dir_from_camera.normalize();
 
     if (dir_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= 0.f)
     { //text is behind camera, don't render
@@ -585,7 +585,7 @@ void LLHUDNameTag::updateVisibility()
         mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
     }
 
-    mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
+    mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).length();
 
     if (mLOD >= 3 || !mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
     {
@@ -634,7 +634,7 @@ LLVector2 LLHUDNameTag::updateScreenPos(LLVector2 &offset)
         LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
     }
 
-    screen_pos_vec.setVec((F32)screen_pos.mX, (F32)screen_pos.mY);
+    screen_pos_vec.set((F32)screen_pos.mX, (F32)screen_pos.mY);
 
     LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
     S32 bottom = world_rect.mBottom + STATUS_BAR_HEIGHT;
@@ -724,7 +724,7 @@ void LLHUDNameTag::updateAll()
     for (text_it = sTextObjects.begin(); text_it != sTextObjects.end(); ++text_it)
     {
         LLHUDNameTag* textp = (*text_it);
-        textp->mTargetPositionOffset.clearVec();
+        textp->mTargetPositionOffset.clear();
         textp->updateSize();
         textp->updateVisibility();
     }
@@ -797,8 +797,8 @@ void LLHUDNameTag::updateAll()
                     LLVector2 force = lerp(LLVector2(dst_center_x - intersect_center_x, dst_center_y - intersect_center_y),
                                         LLVector2(intersect_center_x - src_center_x, intersect_center_y - src_center_y),
                                         0.5f);
-                    force.setVec(dst_center_x - src_center_x, dst_center_y - src_center_y);
-                    force.normVec();
+                    force.set(dst_center_x - src_center_x, dst_center_y - src_center_y);
+                    force.normalize();
 
                     LLVector2 src_force = -1.f * force;
                     LLVector2 dst_force = force;
@@ -809,9 +809,9 @@ void LLHUDNameTag::updateAll()
                     F32 src_aspect_ratio = src_textp->mSoftScreenRect.getWidth() / src_textp->mSoftScreenRect.getHeight();
                     F32 dst_aspect_ratio = dst_textp->mSoftScreenRect.getWidth() / dst_textp->mSoftScreenRect.getHeight();
                     src_force.mV[VY] *= src_aspect_ratio;
-                    src_force.normVec();
+                    src_force.normalize();
                     dst_force.mV[VY] *= dst_aspect_ratio;
-                    dst_force.normVec();
+                    dst_force.normalize();
 
                     src_force.mV[VX] *= llmin(intersect_rect.getWidth() * src_mult, intersect_rect.getHeight() * SPRING_STRENGTH);
                     src_force.mV[VY] *= llmin(intersect_rect.getHeight() * src_mult, intersect_rect.getWidth() * SPRING_STRENGTH);

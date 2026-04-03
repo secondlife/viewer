@@ -73,14 +73,6 @@ public:
     const LLColor4& setToBlack(); // zero LLColor4 to (0, 0, 0, 1)
     const LLColor4& setToWhite(); // zero LLColor4 to (0, 0, 0, 1)
 
-    const LLColor4& setVec(F32 r, F32 g, F32 b, F32 a); // deprecated -- use set()
-    const LLColor4& setVec(F32 r, F32 g, F32 b);        // deprecated -- use set()
-    const LLColor4& setVec(const LLColor4& vec);        // deprecated -- use set()
-    const LLColor4& setVec(const LLColor3& vec);        // deprecated -- use set()
-    const LLColor4& setVec(const LLColor3& vec, F32 a); // deprecated -- use set()
-    const LLColor4& setVec(const F32* vec);             // deprecated -- use set()
-    const LLColor4& setVec(const LLColor4U& color4u);   // deprecated -- use set()
-
     const LLColor4& set(F32 r, F32 g, F32 b, F32 a); // Sets LLColor4 to (r, g, b, a)
     const LLColor4& set(F32 r, F32 g, F32 b);        // Sets LLColor4 to (r, g, b) (no change in a)
     const LLColor4& set(const LLColor4& vec);        // Sets LLColor4 to vec
@@ -102,13 +94,9 @@ public:
 
     const LLColor4& setAlpha(F32 a);
 
-    F32 magVec() const;        // deprecated -- use length()
-    F32 magVecSquared() const; // deprecated -- use lengthSquared()
-    F32 normVec();             // deprecated -- use normalize()
-
     F32 length() const;        // Returns magnitude of LLColor4
     F32 lengthSquared() const; // Returns magnitude squared of LLColor4
-    F32 normalize();           // deprecated -- use normalize()
+    F32 normalize();           // Normalizes and returns the magnitude of LLColor4
 
     [[nodiscard]] bool isOpaque() const { return mV[VALPHA] == 1.f; }
 
@@ -353,49 +341,6 @@ inline const LLColor4& LLColor4::set(const F64* vec)
     return (*this);
 }
 
-// deprecated
-inline const LLColor4& LLColor4::setVec(F32 x, F32 y, F32 z)
-{
-    mV[VRED]   = x;
-    mV[VGREEN] = y;
-    mV[VBLUE]  = z;
-
-    //  no change to alpha!
-    //  mV[VALPHA] = 1.f;
-
-    return (*this);
-}
-
-// deprecated
-inline const LLColor4& LLColor4::setVec(F32 x, F32 y, F32 z, F32 a)
-{
-    mV[VRED]   = x;
-    mV[VGREEN] = y;
-    mV[VBLUE]  = z;
-    mV[VALPHA] = a;
-    return (*this);
-}
-
-// deprecated
-inline const LLColor4& LLColor4::setVec(const LLColor4& vec)
-{
-    mV[VRED]   = vec.mV[VRED];
-    mV[VGREEN] = vec.mV[VGREEN];
-    mV[VBLUE]  = vec.mV[VBLUE];
-    mV[VALPHA] = vec.mV[VALPHA];
-    return (*this);
-}
-
-// deprecated
-inline const LLColor4& LLColor4::setVec(const F32* vec)
-{
-    mV[VRED]   = vec[VRED];
-    mV[VGREEN] = vec[VGREEN];
-    mV[VBLUE]  = vec[VBLUE];
-    mV[VALPHA] = vec[VALPHA];
-    return (*this);
-}
-
 inline const LLColor4& LLColor4::setAlpha(F32 a)
 {
     mV[VALPHA] = a;
@@ -415,34 +360,6 @@ inline F32 LLColor4::lengthSquared() const
 }
 
 inline F32 LLColor4::normalize()
-{
-    F32 mag = sqrt(mV[VRED] * mV[VRED] + mV[VGREEN] * mV[VGREEN] + mV[VBLUE] * mV[VBLUE]);
-    F32 oomag;
-
-    if (mag)
-    {
-        oomag = 1.f / mag;
-        mV[VRED] *= oomag;
-        mV[VGREEN] *= oomag;
-        mV[VBLUE] *= oomag;
-    }
-    return mag;
-}
-
-// deprecated
-inline F32 LLColor4::magVec() const
-{
-    return sqrt(mV[VRED] * mV[VRED] + mV[VGREEN] * mV[VGREEN] + mV[VBLUE] * mV[VBLUE]);
-}
-
-// deprecated
-inline F32 LLColor4::magVecSquared() const
-{
-    return mV[VRED] * mV[VRED] + mV[VGREEN] * mV[VGREEN] + mV[VBLUE] * mV[VBLUE];
-}
-
-// deprecated
-inline F32 LLColor4::normVec()
 {
     F32 mag = sqrt(mV[VRED] * mV[VRED] + mV[VGREEN] * mV[VGREEN] + mV[VBLUE] * mV[VBLUE]);
     F32 oomag;

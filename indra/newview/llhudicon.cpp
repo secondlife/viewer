@@ -105,7 +105,7 @@ void LLHUDIcon::render()
     LLVector3 icon_position = obj_position + (up_distance * camera->getUpAxis()) * 1.2f;
 
     LLVector3 icon_to_cam = LLViewerCamera::getInstance()->getOrigin() - icon_position;
-    icon_to_cam.normVec();
+    icon_to_cam.normalize();
 
     icon_position += icon_to_cam * mSourceObject->mDrawable->getRadius() * 1.1f;
 
@@ -217,7 +217,7 @@ bool LLHUDIcon::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
     LLVector3 icon_position = obj_position + (up_distance * camera->getUpAxis()) * 1.2f;
 
     LLVector3 icon_to_cam = LLViewerCamera::getInstance()->getOrigin() - icon_position;
-    icon_to_cam.normVec();
+    icon_to_cam.normalize();
 
     icon_position += icon_to_cam * mSourceObject->mDrawable->getRadius() * 1.1f;
 

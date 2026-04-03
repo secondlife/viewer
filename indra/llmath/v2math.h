@@ -51,11 +51,9 @@ class LLVector2
         explicit LLVector2(const LLVector3 &vec); // Initializes LLVector2 to (vec[0]. vec[1])
         explicit LLVector2(const LLSD &sd);
 
-        // Clears LLVector2 to (0, 0).  DEPRECATED - prefer zeroVec.
+        // Clears LLVector2 to (0, 0).
         void    clear();
         void    setZero();
-        void    clearVec(); // deprecated
-        void    zeroVec();  // deprecated
 
         void    set(F32 x, F32 y);          // Sets LLVector2 to (x, y)
         void    set(const LLVector2 &vec);  // Sets LLVector2 to vec
@@ -64,19 +62,11 @@ class LLVector2
         LLSD    getValue() const;
         void    setValue(const LLSD& sd);
 
-        void    setVec(F32 x, F32 y);           // deprecated
-        void    setVec(const LLVector2 &vec);   // deprecated
-        void    setVec(const F32 *vec);         // deprecated
-
         [[nodiscard]] inline bool isFinite() const; // checks to see if all values of LLVector2 are finite
 
         [[nodiscard]] F32     length() const;             // Returns magnitude of LLVector2
         [[nodiscard]] F32     lengthSquared() const;      // Returns magnitude squared of LLVector2
         F32     normalize();                    // Normalizes and returns the magnitude of LLVector2
-
-        F32     magVec() const;             // deprecated
-        F32     magVecSquared() const;      // deprecated
-        F32     normVec();                  // deprecated
 
         bool    abs();                      // sets all values to absolute value of original value (first octant), returns true if changed
 
@@ -163,18 +153,6 @@ inline void LLVector2::setZero()
     clear();
 }
 
-// deprecated
-inline void LLVector2::clearVec()
-{
-    clear();
-}
-
-// deprecated
-inline void LLVector2::zeroVec()
-{
-    clear();
-}
-
 inline void LLVector2::set(F32 x, F32 y)
 {
     mV[VX] = x;
@@ -189,25 +167,6 @@ inline void LLVector2::set(const LLVector2 &vec)
 inline void LLVector2::set(const F32 *vec)
 {
     set(vec[VX], vec[VY]);
-}
-
-
-// deprecated
-inline void LLVector2::setVec(F32 x, F32 y)
-{
-    set(x, y);
-}
-
-// deprecated
-inline void LLVector2::setVec(const LLVector2 &vec)
-{
-    set(vec);
-}
-
-// deprecated
-inline void LLVector2::setVec(const F32 *vec)
-{
-    set(vec);
 }
 
 
@@ -243,24 +202,6 @@ inline F32 LLVector2::normalize()
 inline bool LLVector2::isFinite() const
 {
     return llfinite(mV[VX]) && llfinite(mV[VY]);
-}
-
-// deprecated
-inline F32 LLVector2::magVec() const
-{
-    return length();
-}
-
-// deprecated
-inline F32 LLVector2::magVecSquared() const
-{
-    return lengthSquared();
-}
-
-// deprecated
-inline F32 LLVector2::normVec()
-{
-    return normalize();
 }
 
 inline const LLVector2& LLVector2::scaleVec(const LLVector2& vec)

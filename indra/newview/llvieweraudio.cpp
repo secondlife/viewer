@@ -346,7 +346,7 @@ void init_audio()
     LLVector3d lpos_global = gAgentCamera.getCameraPositionGlobal();
     LLVector3 lpos_global_f;
 
-    lpos_global_f.setVec(lpos_global);
+    lpos_global_f.set(lpos_global);
 
     gAudiop->setListener(lpos_global_f,
                           LLVector3::zero,  // LLViewerCamera::getInstance()->getVelocity(),    // !!! BUG need to replace this with smoothed velocity!
@@ -520,7 +520,7 @@ void audio_update_listener()
         }
         LLVector3d lpos_global = ear_position;
         LLVector3 lpos_global_f;
-        lpos_global_f.setVec(lpos_global);
+        lpos_global_f.set(lpos_global);
 
         gAudiop->setListener(lpos_global_f,
                              // LLViewerCamera::getInstance()VelocitySmoothed,

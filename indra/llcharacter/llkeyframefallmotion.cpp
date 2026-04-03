@@ -100,17 +100,17 @@ bool LLKeyframeFallMotion::onActivate()
 
     mVelocityZ = -mCharacter->getCharacterVelocity().mV[VZ];
     mCharacter->getGround( mCharacter->getCharacterPosition(), ground_pos, ground_normal);
-    ground_normal.normVec();
+    ground_normal.normalize();
 
     inverse_pelvis_rot = mCharacter->getCharacterRotation();
-    inverse_pelvis_rot.transQuat();
+    inverse_pelvis_rot.transpose();
 
     // find ground normal in pelvis space
     ground_normal = ground_normal * inverse_pelvis_rot;
 
     // calculate new foward axis
     fwd_axis = fwd_axis - (ground_normal * (ground_normal * fwd_axis));
-    fwd_axis.normVec();
+    fwd_axis.normalize();
     mRotationToGroundNormal = LLQuaternion(fwd_axis, ground_normal % fwd_axis, ground_normal);
 
     return LLKeyframeMotion::onActivate();

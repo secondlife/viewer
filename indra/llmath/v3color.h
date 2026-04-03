@@ -80,10 +80,6 @@ public:
     const LLColor3& setToBlack(); // Clears LLColor3 to (0, 0, 0)
     const LLColor3& setToWhite(); // Zero LLColor3 to (0, 0, 0)
 
-    const LLColor3& setVec(F32 x, F32 y, F32 z); // deprecated
-    const LLColor3& setVec(const LLColor3& vec); // deprecated
-    const LLColor3& setVec(const F32* vec);      // deprecated
-
     const LLColor3& set(F32 x, F32 y, F32 z); // Sets LLColor3 to (x, y, z)
     const LLColor3& set(const LLColor3& vec); // Sets LLColor3 to vec
     const LLColor3& set(const F32* vec);      // Sets LLColor3 to vec
@@ -97,10 +93,6 @@ public:
     // maye leave some data unmodified
     template<typename T>
     void write(std::vector<T>& v) const;
-
-    F32 magVec() const;        // deprecated
-    F32 magVecSquared() const; // deprecated
-    F32 normVec();             // deprecated
 
     F32 length() const;        // Returns magnitude of LLColor3
     F32 lengthSquared() const; // Returns magnitude squared of LLColor3
@@ -263,33 +255,6 @@ inline const LLColor3& LLColor3::set(const F32* vec)
     return (*this);
 }
 
-// deprecated
-inline const LLColor3& LLColor3::setVec(F32 r, F32 g, F32 b)
-{
-    mV[VRED]   = r;
-    mV[VGREEN] = g;
-    mV[VBLUE]  = b;
-    return (*this);
-}
-
-// deprecated
-inline const LLColor3& LLColor3::setVec(const LLColor3& vec)
-{
-    mV[VRED]   = vec.mV[VRED];
-    mV[VGREEN] = vec.mV[VGREEN];
-    mV[VBLUE]  = vec.mV[VBLUE];
-    return (*this);
-}
-
-// deprecated
-inline const LLColor3& LLColor3::setVec(const F32* vec)
-{
-    mV[VRED]   = vec[VRED];
-    mV[VGREEN] = vec[VGREEN];
-    mV[VBLUE]  = vec[VBLUE];
-    return (*this);
-}
-
 inline F32 LLColor3::brightness() const
 {
     return (mV[VRED] + mV[VGREEN] + mV[VBLUE]) / 3.0f;
@@ -306,34 +271,6 @@ inline F32 LLColor3::lengthSquared() const
 }
 
 inline F32 LLColor3::normalize()
-{
-    F32 mag = sqrt(mV[VRED] * mV[VRED] + mV[VGREEN] * mV[VGREEN] + mV[VBLUE] * mV[VBLUE]);
-    F32 oomag;
-
-    if (mag)
-    {
-        oomag = 1.f / mag;
-        mV[VRED] *= oomag;
-        mV[VGREEN] *= oomag;
-        mV[VBLUE] *= oomag;
-    }
-    return mag;
-}
-
-// deprecated
-inline F32 LLColor3::magVec() const
-{
-    return sqrt(mV[VRED] * mV[VRED] + mV[VGREEN] * mV[VGREEN] + mV[VBLUE] * mV[VBLUE]);
-}
-
-// deprecated
-inline F32 LLColor3::magVecSquared() const
-{
-    return mV[VRED] * mV[VRED] + mV[VGREEN] * mV[VGREEN] + mV[VBLUE] * mV[VBLUE];
-}
-
-// deprecated
-inline F32 LLColor3::normVec()
 {
     F32 mag = sqrt(mV[VRED] * mV[VRED] + mV[VGREEN] * mV[VGREEN] + mV[VBLUE] * mV[VBLUE]);
     F32 oomag;

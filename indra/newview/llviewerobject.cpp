@@ -858,7 +858,7 @@ void LLViewerObject::constructAndAddReturnable( std::vector<PotentialReturnableO
 {
 
     LLVector3 targetRegionPos;
-    targetRegionPos.setVec( pChild->getPositionGlobal() );
+    targetRegionPos.set( pChild->getPositionGlobal() );
 
     LLBBox childBBox = LLBBox( targetRegionPos, pChild->getRotationRegion(), pChild->getScale() * -0.5f,
                                 pChild->getScale() * 0.5f).getAxisAligned();
@@ -867,8 +867,8 @@ void LLViewerObject::constructAndAddReturnable( std::vector<PotentialReturnableO
     LLVector3 edgeB = targetRegionPos + childBBox.getMaxLocal();
 
     LLVector3d edgeAd, edgeBd;
-    edgeAd.setVec(edgeA);
-    edgeBd.setVec(edgeB);
+    edgeAd.set(edgeA);
+    edgeBd.set(edgeB);
 
     //Only add the box when either of the extents are in a neighboring region
     if ( pTargetRegion->pointInRegionGlobal( edgeAd ) || pTargetRegion->pointInRegionGlobal( edgeBd ) )
@@ -2207,7 +2207,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
         }
     }
 
-    new_rot.normQuat();
+    new_rot.normalize();
 
     if (sPingInterpolate && mesgsys != NULL)
     {
@@ -2257,8 +2257,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
     //static S32 counter = 0;
 
-    F32 vel_mag_sq = getVelocity().magVecSquared();
-    F32 accel_mag_sq = getAcceleration().magVecSquared();
+    F32 vel_mag_sq = getVelocity().lengthSquared();
+    F32 accel_mag_sq = getAcceleration().lengthSquared();
 
     if (  ((b_changed_status)||(test_pos_parent != new_pos_parent))
         ||(  (!isSelected())
@@ -2269,7 +2269,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
         mBestUpdatePrecision = this_update_precision;
 
         LLVector3 diff = new_pos_parent - test_pos_parent ;
-        F32 mag_sqr = diff.magVecSquared() ;
+        F32 mag_sqr = diff.lengthSquared() ;
         if(llfinite(mag_sqr))
         {
             setPositionParent(new_pos_parent);
@@ -2334,11 +2334,11 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
         LLColor4 color;
         if (update_type == OUT_TERSE_IMPROVED)
         {
-            color.setVec(0.f, 0.f, 1.f, 1.f);
+            color.set(0.f, 0.f, 1.f, 1.f);
         }
         else
         {
-            color.setVec(1.f, 0.f, 0.f, 1.f);
+            color.set(1.f, 0.f, 0.f, 1.f);
         }
         gPipeline.addDebugBlip(getPositionAgent(), color);
         LL_DEBUGS("MessageBlip") << "Update type " << (S32)update_type << " blip for local " << mLocalID << " at " << getPositionAgent() << LL_ENDL;
@@ -2348,11 +2348,11 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
     llassert(vel_mag_sq >= 0.f);
     llassert(accel_mag_sq >= 0.f);
-    llassert(getAngularVelocity().magVecSquared() >= 0.f);
+    llassert(getAngularVelocity().lengthSquared() >= 0.f);
 
     if ((MAG_CUTOFF >= vel_mag_sq) &&
         (MAG_CUTOFF >= accel_mag_sq) &&
-        (MAG_CUTOFF >= getAngularVelocity().magVecSquared()))
+        (MAG_CUTOFF >= getAngularVelocity().lengthSquared()))
     {
         mStatic = true; // This object doesn't move!
     }
@@ -3844,13 +3844,13 @@ void LLViewerObject::setScale(const LLVector3 &scale, bool damped)
     {
         //encompass completely sheared objects by taking
         //the most extreme point possible (<1,1,0.5>)
-        mDrawable->setRadius(LLVector3(1,1,0.5f).scaleVec(scale).magVec());
+        mDrawable->setRadius(LLVector3(1,1,0.5f).scaleVec(scale).length());
         updateDrawable(damped);
     }
 
     if( (LL_PCODE_VOLUME == getPCode()) && !isDead() )
     {
-        if (permYouOwner() || (scale.magVecSquared() > (7.5f * 7.5f)) )
+        if (permYouOwner() || (scale.lengthSquared() > (7.5f * 7.5f)) )
         {
             if (!mOnMap)
             {
@@ -4113,7 +4113,7 @@ F32 LLViewerObject::getBinRadius()
         return diff.getLength3().getF32();
     }
 
-    return getScale().magVec();
+    return getScale().length();
 }
 
 F32 LLViewerObject::getMaxScale() const
@@ -4764,7 +4764,7 @@ void LLViewerObject::setPositionGlobal(const LLVector3d &pos_global, bool damped
             newPos = newPos - mDrawable->mXform.getParent()->getWorldPosition();
 
             LLQuaternion invWorldRotation = mDrawable->mXform.getParent()->getWorldRotation();
-            invWorldRotation.transQuat();
+            invWorldRotation.transpose();
 
             newPos = newPos * invWorldRotation;
             LLViewerObject::setPosition(newPos);
@@ -4777,7 +4777,7 @@ void LLViewerObject::setPositionGlobal(const LLVector3d &pos_global, bool damped
             LLVector3 delta_pos = newPos - getPosition();
 
             LLQuaternion invRotation = mDrawable->getRotation();
-            invRotation.transQuat();
+            invRotation.transpose();
 
             delta_pos = delta_pos * invRotation;
 
@@ -4805,7 +4805,7 @@ void LLViewerObject::setPositionGlobal(const LLVector3d &pos_global, bool damped
         {
             // the relative position with the parent is constant, but the parent's position needs to be changed
             LLVector3d position_offset;
-            position_offset.setVec(getPosition()*getParent()->getRotation());
+            position_offset.set(getPosition()*getParent()->getRotation());
             LLVector3d new_pos_global = pos_global - position_offset;
             ((LLViewerObject *)getParent())->setPositionGlobal(new_pos_global);
         }
@@ -7133,7 +7133,7 @@ void LLViewerObject::applyAngularVelocity(F32 dt)
     //do target omega here
     mRotTime += dt;
     LLVector3 ang_vel = getAngularVelocity();
-    F32 omega = ang_vel.magVecSquared();
+    F32 omega = ang_vel.lengthSquared();
     F32 angle = 0.0f;
     LLQuaternion dQ;
     if (omega > 0.00001f)
@@ -7144,7 +7144,7 @@ void LLViewerObject::applyAngularVelocity(F32 dt)
         ang_vel *= 1.f/omega;
 
         // calculate the delta increment based on the object's angular velocity
-        dQ.setQuat(angle, ang_vel);
+        dQ.setAngleAxis(angle, ang_vel);
 
         // accumulate the angular velocity rotations to re-apply in the case of an object update
         mAngularVelocityRot *= dQ;

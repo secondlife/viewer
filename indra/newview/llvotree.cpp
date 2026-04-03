@@ -416,7 +416,7 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
     LLVector3 center = getPositionAgent();//center of tree.
     LLVector3 viewer_pos_agent = gAgentCamera.getCameraPositionAgent();
     LLVector3 lookAt = center - viewer_pos_agent;
-    F32 dist = lookAt.normVec() ;
+    F32 dist = lookAt.normalize() ;
     F32 cos_angle_to_view_dir = lookAt * LLViewerCamera::getInstance()->getXAxis() ;
     F32 radius = getScale().length()*0.5f;
     F32 range = dist - radius;
@@ -874,14 +874,14 @@ void LLVOTree::updateMesh()
     const F32 TRUNK_STIFF = 22.f;
 
     LLQuaternion rot =
-        LLQuaternion(mTrunkBend.magVec()*TRUNK_STIFF*DEG_TO_RAD, LLVector4(mTrunkBend.mV[VX], mTrunkBend.mV[VY], 0)) *
+        LLQuaternion(mTrunkBend.length()*TRUNK_STIFF*DEG_TO_RAD, LLVector4(mTrunkBend.mV[VX], mTrunkBend.mV[VY], 0)) *
         LLQuaternion(90.f*DEG_TO_RAD, LLVector4(0,0,1)) *
         getRotation();
 
     LLMatrix4 rot_mat(rot);
     rot_mat *= trans_mat;
 
-    F32 radius = getScale().magVec()*0.05f;
+    F32 radius = getScale().length()*0.05f;
     LLMatrix4 scale_mat;
     scale_mat.mMatrix[0][0] =
         scale_mat.mMatrix[1][1] =
@@ -892,7 +892,7 @@ void LLVOTree::updateMesh()
 //  const F32 THRESH_ANGLE_FOR_BILLBOARD = 15.f;
 //  const F32 BLEND_RANGE_FOR_BILLBOARD = 3.f;
 
-    F32 droop = mDroop + 25.f*(1.f - mTrunkBend.magVec());
+    F32 droop = mDroop + 25.f*(1.f - mTrunkBend.length());
 
     S32 stop_depth = 0;
     F32 alpha = 1.0;
@@ -1181,7 +1181,7 @@ bool LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& e
 
     LLQuaternion quat = getRotation();
 
-    center -= LLVector3(0,0,size.magVec() * 0.25f)*quat;
+    center -= LLVector3(0,0,size.length() * 0.25f)*quat;
 
     size.scaleVec(LLVector3(0.25f, 0.25f, 1.f));
     size.mV[0] = llmin(size.mV[0], 1.f);

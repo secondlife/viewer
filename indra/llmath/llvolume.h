@@ -374,12 +374,12 @@ public:
         mEnd = (F32)(100.f - end) * CUT_QUANTA;
         if (mEnd > 1.f)
             mEnd = 1.f;
-        mScale.setVec((F32) (200 - scx) * SCALE_QUANTA,(F32) (200 - scy) * SCALE_QUANTA);
-        mShear.setVec(U8_TO_F32(shx) * SHEAR_QUANTA,U8_TO_F32(shy) * SHEAR_QUANTA);
+        mScale.set((F32) (200 - scx) * SCALE_QUANTA,(F32) (200 - scy) * SCALE_QUANTA);
+        mShear.set(U8_TO_F32(shx) * SHEAR_QUANTA,U8_TO_F32(shy) * SHEAR_QUANTA);
         mTwistBegin = U8_TO_F32(twistbegin) * SCALE_QUANTA;
         mTwistEnd = U8_TO_F32(twistend) * SCALE_QUANTA;
         mRadiusOffset = U8_TO_F32(radiusoffset) * SCALE_QUANTA;
-        mTaper.setVec(U8_TO_F32(tx) * TAPER_QUANTA,U8_TO_F32(ty) * TAPER_QUANTA);
+        mTaper.set(U8_TO_F32(tx) * TAPER_QUANTA,U8_TO_F32(ty) * TAPER_QUANTA);
         mRevolutions = ((F32)revolutions) * REV_QUANTA + 1.0f;
         mSkew = U8_TO_F32(skew) * SCALE_QUANTA;
 
@@ -428,10 +428,10 @@ public:
     void setBegin(const F32 begin)      { mBegin     = begin;   }
     void setEnd(const F32 end)          { mEnd       = end; }
 
-    void setScale(const F32 x, const F32 y)     { mScale.setVec(x,y); }
+    void setScale(const F32 x, const F32 y)     { mScale.set(x,y); }
     void setScaleX(const F32 v)                 { mScale.mV[VX] = v; }
     void setScaleY(const F32 v)                 { mScale.mV[VY] = v; }
-    void setShear(const F32 x, const F32 y)     { mShear.setVec(x,y); }
+    void setShear(const F32 x, const F32 y)     { mShear.set(x,y); }
     void setShearX(const F32 v)                 { mShear.mV[VX] = v; }
     void setShearY(const F32 v)                 { mShear.mV[VY] = v; }
 
@@ -439,7 +439,7 @@ public:
     void setTwistEnd(const F32 twist_end)       { mTwistEnd     = twist_end;    }
     void setTwist(const F32 twist)              { setTwistEnd(twist); } // deprecated
     void setRadiusOffset(const F32 radius_offset){ mRadiusOffset    = radius_offset; }
-    void setTaper(const F32 x, const F32 y)     { mTaper.setVec(x,y);           }
+    void setTaper(const F32 x, const F32 y)     { mTaper.set(x,y);           }
     void setTaperX(const F32 v)                 { mTaper.mV[VX] = v;            }
     void setTaperY(const F32 v)                 { mTaper.mV[VY] = v;            }
     void setRevolutions(const F32 revolutions)  { mRevolutions  = revolutions;  }

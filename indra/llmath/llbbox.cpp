@@ -65,18 +65,18 @@ void LLBBox::addBBoxAgent(const LLBBox& b)
     {
         mPosAgent = b.mPosAgent;
         mRotation = b.mRotation;
-        mMinLocal.clearVec();
-        mMaxLocal.clearVec();
+        mMinLocal.clear();
+        mMaxLocal.clear();
     }
     LLVector3 vertex[8];
-    vertex[0].setVec( b.mMinLocal.mV[VX], b.mMinLocal.mV[VY], b.mMinLocal.mV[VZ] );
-    vertex[1].setVec( b.mMinLocal.mV[VX], b.mMinLocal.mV[VY], b.mMaxLocal.mV[VZ] );
-    vertex[2].setVec( b.mMinLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMinLocal.mV[VZ] );
-    vertex[3].setVec( b.mMinLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMaxLocal.mV[VZ] );
-    vertex[4].setVec( b.mMaxLocal.mV[VX], b.mMinLocal.mV[VY], b.mMinLocal.mV[VZ] );
-    vertex[5].setVec( b.mMaxLocal.mV[VX], b.mMinLocal.mV[VY], b.mMaxLocal.mV[VZ] );
-    vertex[6].setVec( b.mMaxLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMinLocal.mV[VZ] );
-    vertex[7].setVec( b.mMaxLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMaxLocal.mV[VZ] );
+    vertex[0].set( b.mMinLocal.mV[VX], b.mMinLocal.mV[VY], b.mMinLocal.mV[VZ] );
+    vertex[1].set( b.mMinLocal.mV[VX], b.mMinLocal.mV[VY], b.mMaxLocal.mV[VZ] );
+    vertex[2].set( b.mMinLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMinLocal.mV[VZ] );
+    vertex[3].set( b.mMinLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMaxLocal.mV[VZ] );
+    vertex[4].set( b.mMaxLocal.mV[VX], b.mMinLocal.mV[VY], b.mMinLocal.mV[VZ] );
+    vertex[5].set( b.mMaxLocal.mV[VX], b.mMinLocal.mV[VY], b.mMaxLocal.mV[VZ] );
+    vertex[6].set( b.mMaxLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMinLocal.mV[VZ] );
+    vertex[7].set( b.mMaxLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMaxLocal.mV[VZ] );
 
     LLMatrix4 m( b.mRotation );
     m.translate( b.mPosAgent );

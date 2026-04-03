@@ -1156,7 +1156,7 @@ void LLReflectionMapManager::updateUniforms()
                 if (vobj->getReflectionProbeIsBox())
                 {
                     LLVector3 s = vobj->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-                    refmap->mRadius = s.magVec();
+                    refmap->mRadius = s.length();
                 }
                 else
                 {

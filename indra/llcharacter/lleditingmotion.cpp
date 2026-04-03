@@ -197,10 +197,10 @@ bool LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 
     // update target position from character
     LLVector3 target = focus_pt - mParentJoint.getPosition();
-    F32 target_dist = target.normVec();
+    F32 target_dist = target.normalize();
 
     LLVector3 edit_plane_normal(1.f / F_SQRT2, 1.f / F_SQRT2, 0.f);
-    edit_plane_normal.normVec();
+    edit_plane_normal.normalize();
 
     edit_plane_normal.rotVec(mTorsoState->getJoint()->getWorldRotation());
 
@@ -210,7 +210,7 @@ bool LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
     {
         target = target + (edit_plane_normal * (dot * 2.f));
         target.mV[VZ] += clamp_rescale(dot, 0.f, -1.f, 0.f, 5.f);
-        target.normVec();
+        target.normalize();
     }
 
     target = target * target_dist;
@@ -219,7 +219,7 @@ bool LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
         // Don't error out here, set a fail-safe target vector
         LL_WARNS() << "Non finite target in editing motion with target distance of " << target_dist <<
             " and focus point " << focus_pt << LL_ENDL;
-        target.setVec(1.f, 1.f, 1.f);
+        target.set(1.f, 1.f, 1.f);
     }
 
     // SL-315

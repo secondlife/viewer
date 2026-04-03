@@ -523,13 +523,13 @@ void LLFloaterGLTFAssetEditor::onCommitTransform()
     // Note: must compare before conversion to radians, some value can go 'around' 360
     LLVector3 delta = new_rot - mLastEulerDegrees;
 
-    if (delta.magVec() >= 0.0005f)
+    if (delta.length() >= 0.0005f)
     {
         mLastEulerDegrees = new_rot;
         new_rot *= DEG_TO_RAD;
 
         LLQuaternion rotation;
-        rotation.setQuat(new_rot.mV[VX], new_rot.mV[VY], new_rot.mV[VZ]);
+        rotation.setEulerAngles(new_rot.mV[VX], new_rot.mV[VY], new_rot.mV[VZ]);
         LL::GLTF::quat q;
         q[0] = rotation.mQ[VX];
         q[1] = rotation.mQ[VY];

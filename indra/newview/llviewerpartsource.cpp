@@ -221,7 +221,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
         // Update the rotation of the particle source by the angular velocity
         // First check to see if there is still an angular velocity.
-        F32 angular_velocity_mag = mPartSysData.mAngularVelocity.magVec();
+        F32 angular_velocity_mag = mPartSysData.mAngularVelocity.length();
         if (angular_velocity_mag != 0.0f)
         {
             F32 av_angle = dt * angular_velocity_mag;
@@ -231,7 +231,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
         else
         {
             // No angular velocity.  Reset our rotation.
-            mRotation.setQuat(0, 0, 0);
+            mRotation.setEulerAngles(0, 0, 0);
         }
 
         if (LLViewerPartSim::getInstance()->aboveParticleLimit())
@@ -271,7 +271,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
         }
 
         // Distance from camera
-        F32 dist = (mPosAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
+        F32 dist = (mPosAgent - LLViewerCamera::getInstance()->getOrigin()).length();
 
         // Particle size vs distance vs maxage throttling
 
@@ -346,7 +346,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
             if (mPartSysData.mPattern & LLPartSysData::LL_PART_SRC_PATTERN_DROP)
             {
                 part->mPosAgent = mPosAgent;
-                part->mVelocity.setVec(0.f, 0.f, 0.f);
+                part->mVelocity.set(0.f, 0.f, 0.f);
             }
             else if (mPartSysData.mPattern & LLPartSysData::LL_PART_SRC_PATTERN_EXPLODE)
             {
@@ -359,11 +359,11 @@ void LLViewerPartSourceScript::update(const F32 dt)
                     part_dir_vector.mV[VX] = ll_frand(2.f) - 1.f;
                     part_dir_vector.mV[VY] = ll_frand(2.f) - 1.f;
                     part_dir_vector.mV[VZ] = ll_frand(2.f) - 1.f;
-                    mvs = part_dir_vector.magVecSquared();
+                    mvs = part_dir_vector.lengthSquared();
                 }
                 while ((mvs > 1.f) || (mvs < 0.01f));
 
-                part_dir_vector.normVec();
+                part_dir_vector.normalize();
                 part->mPosAgent += mPartSysData.mBurstRadius*part_dir_vector;
                 part->mVelocity = part_dir_vector;
                 F32 speed = mPartSysData.mBurstSpeedMin + ll_frand(mPartSysData.mBurstSpeedMax - mPartSysData.mBurstSpeedMin);
@@ -423,7 +423,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
             else
             {
                 part->mPosAgent = mPosAgent;
-                part->mVelocity.setVec(0.f, 0.f, 0.f);
+                part->mVelocity.set(0.f, 0.f, 0.f);
                 //LL_WARNS() << "Unknown source pattern " << (S32)mPartSysData.mPattern << LL_ENDL;
             }
 

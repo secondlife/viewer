@@ -137,7 +137,7 @@ bool LLVector3d::parseVector3d(const std::string& buf, LLVector3d* value)
     S32 count = sscanf(buf.c_str(), "%lf %lf %lf", v.mdV + VX, v.mdV + VY, v.mdV + VZ);
     if (3 == count)
     {
-        value->setVec(v);
+        value->set(v);
         return true;
     }
 

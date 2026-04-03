@@ -279,7 +279,7 @@ bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
         mTargetObject = object;
         if (object)
         {
-            mTargetOffsetGlobal.setVec(position);
+            mTargetOffsetGlobal.set(position);
         }
         else
         {
@@ -301,7 +301,7 @@ bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
 void LLHUDEffectPointAt::clearPointAtTarget()
 {
     mTargetObject = NULL;
-    mTargetOffsetGlobal.clearVec();
+    mTargetOffsetGlobal.clear();
     mTargetType = POINTAT_TARGET_NONE;
 }
 
@@ -411,7 +411,7 @@ bool LLHUDEffectPointAt::calcTargetPosition()
 
     if (targetObject)
     {
-        local_offset.setVec(mTargetOffsetGlobal);
+        local_offset.set(mTargetOffsetGlobal);
     }
     else
     {
@@ -466,7 +466,7 @@ bool LLHUDEffectPointAt::calcTargetPosition()
 const LLVector3d LLHUDEffectPointAt::getPointAtPosGlobal()
 {
     LLVector3d global_pos;
-    global_pos.setVec(mTargetPos);
+    global_pos.set(mTargetPos);
     if (mSourceObject.notNull())
     {
         global_pos += mSourceObject->getPositionGlobal();

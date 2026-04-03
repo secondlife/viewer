@@ -526,15 +526,15 @@ public:
     // void     setPosition(LLVector3)
 
     void        setAngularVelocity(const LLVector3& avel)   { mAngularVelocity = avel; }
-    void        setAngularVelocity(const F32 x, const F32 y, const F32 z)   { mAngularVelocity.setVec(x,y,z); }
+    void        setAngularVelocity(const F32 x, const F32 y, const F32 z)   { mAngularVelocity.set(x,y,z); }
     void        setVelocity(const LLVector3& vel)           { mVelocity = vel; }
-    void        setVelocity(const F32 x, const F32 y, const F32 z)          { mVelocity.setVec(x,y,z); }
+    void        setVelocity(const F32 x, const F32 y, const F32 z)          { mVelocity.set(x,y,z); }
     void        setVelocityX(const F32 x)                   { mVelocity.mV[VX] = x; }
     void        setVelocityY(const F32 y)                   { mVelocity.mV[VY] = y; }
     void        setVelocityZ(const F32 z)                   { mVelocity.mV[VZ] = z; }
     void        addVelocity(const LLVector3& vel)           { mVelocity += vel; }
     void        setAcceleration(const LLVector3& accel)     { mAcceleration = accel; }
-    void        setAcceleration(const F32 x, const F32 y, const F32 z)      { mAcceleration.setVec(x,y,z); }
+    void        setAcceleration(const F32 x, const F32 y, const F32 z)      { mAcceleration.set(x,y,z); }
 #endif
 
     LLPCode             getPCode() const            { return mPrimitiveCode; }
@@ -684,7 +684,7 @@ void LLPrimitive::setAngularVelocity(const F32 x, const F32 y, const F32 z)
 {
     if (llfinite(x) && llfinite(y) && llfinite(z))
     {
-        mAngularVelocity.setVec(x,y,z);
+        mAngularVelocity.set(x,y,z);
     }
     else
     {
@@ -708,7 +708,7 @@ void LLPrimitive::setVelocity(const F32 x, const F32 y, const F32 z)
 {
     if (llfinite(x) && llfinite(y) && llfinite(z))
     {
-        mVelocity.setVec(x,y,z);
+        mVelocity.set(x,y,z);
     }
     else
     {
@@ -780,7 +780,7 @@ void LLPrimitive::setAcceleration(const F32 x, const F32 y, const F32 z)
 {
     if (llfinite(x) && llfinite(y) && llfinite(z))
     {
-        mAcceleration.setVec(x,y,z);
+        mAcceleration.set(x,y,z);
     }
     else
     {

@@ -161,7 +161,7 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
         {
             dest[section+1] = dest[section];
             dest[section+1].mPosition += dest[section].mDirection * section_length;
-            dest[section+1].mVelocity.setVec( LLVector3::zero );
+            dest[section+1].mVelocity.set( LLVector3::zero );
         }
     }
     else if (source_sections > dest_sections)
@@ -264,9 +264,9 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
     mSection[0].mPosition = getAnchorPosition();
     mSection[0].mDirection = LLVector3::z_axis * getFrameRotation();
     mSection[0].mdPosition = mSection[0].mDirection;
-    mSection[0].mScale.setVec(scale.mV[VX]*bottom_scale.mV[0], scale.mV[VY]*bottom_scale.mV[1]);
-    mSection[0].mVelocity.setVec(0,0,0);
-    mSection[0].mAxisRotation.setQuat(begin_rot,0,0,1);
+    mSection[0].mScale.set(scale.mV[VX]*bottom_scale.mV[0], scale.mV[VY]*bottom_scale.mV[1]);
+    mSection[0].mVelocity.set(0,0,0);
+    mSection[0].mAxisRotation.setAngleAxis(begin_rot,0,0,1);
 
     remapSections(mSection, mInitializedRes, mSection, mSimulateRes);
     mInitializedRes = mSimulateRes;
@@ -276,7 +276,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
 
     for ( int i=1; i<= num_sections; i++)
     {
-        mSection[i].mAxisRotation.setQuat(lerp(begin_rot,end_rot,t),0,0,1);
+        mSection[i].mAxisRotation.setAngleAxis(lerp(begin_rot,end_rot,t),0,0,1);
         mSection[i].mScale = LLVector2(
             scale.mV[VX] * lerp(bottom_scale.mV[0], top_scale.mV[0], t),
             scale.mV[VY] * lerp(bottom_scale.mV[1], top_scale.mV[1], t));
@@ -563,9 +563,9 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         /*if ( mAttributes->mUsingCollisionSphere )
         {
             LLVector3 vectorToCenterOfCollisionSphere = mCollisionSpherePosition - mSection[i].mPosition;
-            if ( vectorToCenterOfCollisionSphere.magVecSquared() < mCollisionSphereRadius * mCollisionSphereRadius )
+            if ( vectorToCenterOfCollisionSphere.lengthSquared() < mCollisionSphereRadius * mCollisionSphereRadius )
             {
-                F32 distanceToCenterOfCollisionSphere = vectorToCenterOfCollisionSphere.magVec();
+                F32 distanceToCenterOfCollisionSphere = vectorToCenterOfCollisionSphere.length();
                 F32 penetration = mCollisionSphereRadius - distanceToCenterOfCollisionSphere;
 
                 LLVector3 normalToCenterOfCollisionSphere;
@@ -593,7 +593,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         // clamp length & rotation
         //------------------------------------------------------------------------------------------
         mSection[i].mDirection = mSection[i].mPosition - parentSectionPosition;
-        mSection[i].mDirection.normVec();
+        mSection[i].mDirection.normalize();
         deltaRotation.shortestArc( parentDirection, mSection[i].mDirection );
 
         F32 angle;
@@ -604,11 +604,11 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         if (angle > max_angle)
         {
             //angle = 0.5f*(angle+max_angle);
-            deltaRotation.setQuat(max_angle, axis);
+            deltaRotation.setAngleAxis(max_angle, axis);
         } else if (angle < -max_angle)
         {
             //angle = 0.5f*(angle-max_angle);
-            deltaRotation.setQuat(-max_angle, axis);
+            deltaRotation.setAngleAxis(-max_angle, axis);
         }
         LLQuaternion segment_rotation = parentSegmentRotation * deltaRotation;
         parentSegmentRotation = segment_rotation;
@@ -628,9 +628,9 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         // calculate velocity
         //------------------------------------------------------------------------------------------
         mSection[i].mVelocity = mSection[i].mPosition - lastPosition;
-        if (mSection[i].mVelocity.magVecSquared() > 1.f)
+        if (mSection[i].mVelocity.lengthSquared() > 1.f)
         {
-            mSection[i].mVelocity.normVec();
+            mSection[i].mVelocity.normalize();
         }
     }
 
@@ -705,7 +705,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 
         LLVector3 np(new_point->mPos.getF32ptr());
 
-        if (!mUpdated || (np-pos).magVec()/mVO->mDrawable->mDistanceWRTCamera > 0.001f)
+        if (!mUpdated || (np-pos).length()/mVO->mDrawable->mDistanceWRTCamera > 0.001f)
         {
             new_point->mPos.load3((newSection[i].mPosition * rel_xform).mV);
             mUpdated = false;
@@ -926,9 +926,9 @@ void LLVolumeImplFlexible::updateRelativeXform(bool force_identity)
                             LLVector4(z_axis, 0.f),
                             LLVector4(delta_pos, 1.f));
 
-    x_axis.normVec();
-    y_axis.normVec();
-    z_axis.normVec();
+    x_axis.normalize();
+    y_axis.normalize();
+    z_axis.normalize();
 
     vo->mRelativeXformInvTrans.setRows(x_axis, y_axis, z_axis);
 }

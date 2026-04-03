@@ -114,7 +114,7 @@ void LLSceneView::draw()
 
                 LLVolume* volume = object->getVolume();
 
-                F32 radius = object->getScale().magVec();
+                F32 radius = object->getScale().length();
                 size[idx].push_back(radius);
 
                 S32 visible = volume->getNumTriangles();

@@ -5349,7 +5349,7 @@ void LLVivoxVoiceClient::enforceTether(void)
     {
         F32 max_dist = 50.0f;
         LLVector3d camera_offset = mCameraRequestedPosition - mAvatarPosition;
-        F32 camera_distance = (F32)camera_offset.magVec();
+        F32 camera_distance = (F32)camera_offset.length();
         if(camera_distance > max_dist)
         {
             tethered = mAvatarPosition +

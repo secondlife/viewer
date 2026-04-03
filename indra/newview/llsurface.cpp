@@ -157,7 +157,7 @@ void LLSurface::create(const S32 grids_per_edge,
     mMetersPerGrid = width / ((F32)(mGridsPerEdge - 1));
     mMetersPerEdge = mMetersPerGrid * (mGridsPerEdge - 1);
 
-    mOriginGlobal.setVec(origin_global);
+    mOriginGlobal.set(origin_global);
 
     mPVArray.create(mGridsPerEdge, mGridsPerPatchEdge, LLWorld::getInstance()->getRegionScale());
 
@@ -176,7 +176,7 @@ void LLSurface::create(const S32 grids_per_edge,
         // Surface is flat and zero
         // Normals all point up
         mSurfaceZ[i] = 0.0f;
-        mNorm[i].setVec(0.f, 0.f, 1.f);
+        mNorm[i].set(0.f, 0.f, 1.f);
     }
 
 
@@ -845,16 +845,16 @@ LLVector3 LLSurface::resolveNormalGlobal(const LLVector3d& pos_global) const
         {  // triangle 1
             dzx = *(mSurfaceZ + k + 1 + mGridsPerEdge) - *(mSurfaceZ + k + mGridsPerEdge);
             dzy = *(mSurfaceZ + k) - *(mSurfaceZ + k + mGridsPerEdge);
-            normal.setVec(-dzx,dzy,1);
+            normal.set(-dzx,dzy,1);
         }
         else
         {   // triangle 2
             dzx = *(mSurfaceZ + k) - *(mSurfaceZ + k + 1);
             dzy = *(mSurfaceZ + k + 1 + mGridsPerEdge) - *(mSurfaceZ + k + 1);
-            normal.setVec(dzx,-dzy,1);
+            normal.set(dzx,-dzy,1);
         }
     }
-    normal.normVec();
+    normal.normalize();
     return normal;
 
 

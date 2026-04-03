@@ -120,7 +120,7 @@ void LLManip::getManipNormal(LLViewerObject* object, EManipPart manip, LLVector3
 
         LLVector3 cross = arrow_axis % LLViewerCamera::getInstance()->getAtAxis();
         normal = cross % arrow_axis;
-        normal.normVec();
+        normal.normalize();
     }
     else if (manip >= LL_YZ_PLANE && manip <= LL_XY_PLANE)
     {
@@ -142,7 +142,7 @@ void LLManip::getManipNormal(LLViewerObject* object, EManipPart manip, LLVector3
     }
     else
     {
-        normal.clearVec();
+        normal.clear();
     }
 }
 
@@ -188,9 +188,9 @@ F32 LLManip::getSubdivisionLevel(const LLVector3 &reference_point, const LLVecto
     {
         cam_to_reference = reference_point - LLViewerCamera::getInstance()->getOrigin();
     }
-    F32 current_range = cam_to_reference.normVec();
+    F32 current_range = cam_to_reference.normalize();
 
-    F32 projected_translation_axis_length = (translate_axis % cam_to_reference).magVec();
+    F32 projected_translation_axis_length = (translate_axis % cam_to_reference).length();
     F32 subdivisions = llmax(projected_translation_axis_length * grid_scale / (current_range / LLViewerCamera::getInstance()->getPixelMeterRatio() * min_pixel_spacing), 0.f);
     // figure out nearest power of 2 that subdivides grid_scale with result > min_pixel_spacing
     subdivisions = llclamp((F32)pow(2.f, llfloor(log(subdivisions) / log(2.f))), min_subdivisions, max_subdivisions);
@@ -325,7 +325,7 @@ bool LLManip::nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, co
     LLVector3 normal;
     F32 dist, denom;
     normal = (b % a) % b;   // normal to plane (P) through b and (shortest line between a and b)
-    normal.normVec();
+    normal.normalize();
     dist = b1 * normal;         // distance from origin to P
 
     denom = normal * a;
@@ -336,7 +336,7 @@ bool LLManip::nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, co
     }
 
     normal = (a % b) % a;   // normal to plane (P) through a and (shortest line between a and b)
-    normal.normVec();
+    normal.normalize();
     dist = a1 * normal;         // distance from origin to P
     denom = normal * b;
     if( (denom < -F_APPROXIMATELY_ZERO) || (F_APPROXIMATELY_ZERO < denom) )

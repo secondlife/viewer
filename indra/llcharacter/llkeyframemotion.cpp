@@ -155,7 +155,7 @@ LLVector3 LLKeyframeMotion::ScaleCurve::getValue(F32 time, F32 duration)
 
     if (mKeys.empty())
     {
-        value.clearVec();
+        value.clear();
         return value;
     }
 
@@ -316,7 +316,7 @@ LLVector3 LLKeyframeMotion::PositionCurve::getValue(F32 time, F32 duration)
 
     if (mKeys.empty())
     {
-        value.clearVec();
+        value.clear();
         return value;
     }
 
@@ -1025,10 +1025,10 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
                     norm = norm * source_jointp->getWorldRotation();
                 }
             }
-            norm.normVec();
+            norm.normalize();
             break;
         default:
-            norm.clearVec();
+            norm.clear();
             break;
         }
 
@@ -1107,7 +1107,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
                 acceleration  += (positions[joint_num + 1] - positions[joint_num]) *
                     (dist_vec(positions[joint_num + 1], positions[joint_num]) - joint_lengths[joint_num]) * JOINT_LENGTH_K;
 
-                if (acceleration.magVecSquared() < MIN_ACCELERATION_SQUARED)
+                if (acceleration.lengthSquared() < MIN_ACCELERATION_SQUARED)
                 {
                     num_joints_finished++;
                 }
@@ -1949,7 +1949,7 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
             if (!constraintp->mTargetConstraintDir.isExactlyZero())
             {
                 constraintp->mUseTargetOffset = true;
-    //          constraintp->mTargetConstraintDir *= constraintp->mSourceConstraintOffset.magVec();
+    //          constraintp->mTargetConstraintDir *= constraintp->mSourceConstraintOffset.length();
             }
 
             if (!dp.unpackF32(constraintp->mEaseInStartTime, "ease_in_start") || !llfinite(constraintp->mEaseInStartTime))

@@ -47,10 +47,10 @@ LLListener::~LLListener()
 //-----------------------------------------------------------------------
 void LLListener::init(void)
 {
-    mPosition.zeroVec();
-    mListenAt.setVec(DEFAULT_AT);
-    mListenUp.setVec(DEFAULT_UP);
-    mVelocity.zeroVec();
+    mPosition.setZero();
+    mListenAt.set(DEFAULT_AT);
+    mListenUp.set(DEFAULT_UP);
+    mVelocity.setZero();
 }
 
 //-----------------------------------------------------------------------

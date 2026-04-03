@@ -721,7 +721,7 @@ F64 LLAudioEngine::mapWindVecToGain(LLVector3 wind_vec)
 {
     F64 gain = 0.0;
 
-    gain = wind_vec.magVec();
+    gain = wind_vec.length();
 
     if (gain)
     {
@@ -743,8 +743,8 @@ F64 LLAudioEngine::mapWindVecToPitch(LLVector3 wind_vec)
 
     // Wind frame is in listener-relative coordinates
     LLVector3 norm_wind = wind_vec;
-    norm_wind.normVec();
-    listen_right.setVec(1.0,0.0,0.0);
+    norm_wind.normalize();
+    listen_right.set(1.0,0.0,0.0);
 
     // measure angle between wind vec and listener right axis (on 0,PI)
     theta = acos(norm_wind * listen_right);
@@ -766,10 +766,10 @@ F64 LLAudioEngine::mapWindVecToPan(LLVector3 wind_vec)
     F64 theta;
 
     // Wind frame is in listener-relative coordinates
-    listen_right.setVec(1.0,0.0,0.0);
+    listen_right.set(1.0,0.0,0.0);
 
     LLVector3 norm_wind = wind_vec;
-    norm_wind.normVec();
+    norm_wind.normalize();
 
     // measure angle between wind vec and listener right axis (on 0,PI)
     theta = acos(norm_wind * listen_right);
@@ -1328,14 +1328,14 @@ void LLAudioSource::updatePriority()
     {
         // Priority is based on distance
         LLVector3 dist_vec;
-        dist_vec.setVec(getPositionGlobal());
+        dist_vec.set(getPositionGlobal());
 
         if (gAudiop)
         {
             dist_vec -= gAudiop->getListenerPos();
         }
 
-        F32 dist_squared = llmax(1.f, dist_vec.magVecSquared());
+        F32 dist_squared = llmax(1.f, dist_vec.lengthSquared());
 
         mPriority = mGain / dist_squared;
     }

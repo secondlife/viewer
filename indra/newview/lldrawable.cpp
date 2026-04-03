@@ -920,7 +920,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
                 const LLVector3* av_box = volume->getAvatar()->getLastAnimExtents();
                 LLVector3 cam_pos_from_agent = LLViewerCamera::getInstance()->getOrigin();
                 LLVector3 cam_to_box_offset = point_to_box_offset(cam_pos_from_agent, av_box);
-                mDistanceWRTCamera = llmax(0.01f, ll_round(cam_to_box_offset.magVec(), 0.01f));
+                mDistanceWRTCamera = llmax(0.01f, ll_round(cam_to_box_offset.length(), 0.01f));
                 if (mVObjp)
                 {
                     mVObjp->updateLOD();
@@ -934,7 +934,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
         }
 
         pos -= camera.getOrigin();
-        mDistanceWRTCamera = ll_round(pos.magVec(), 0.01f);
+        mDistanceWRTCamera = ll_round(pos.length(), 0.01f);
         if (mVObjp)
         {
             mVObjp->updateLOD();
@@ -1411,7 +1411,7 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
 
     if (!delta.isFinite())
     {
-        delta.clearVec();
+        delta.clear();
     }
 
     ret.setOrigin(delta);

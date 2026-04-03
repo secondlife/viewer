@@ -372,10 +372,10 @@ bool LLToolPie::handleLeftClickPick()
 
                     LLBBox bbox = object->getBoundingBoxAgent() ;
                     F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
-                    F32 distance = bbox.getExtentLocal().magVec() * PADDING_FACTOR / atan(angle_of_view);
+                    F32 distance = bbox.getExtentLocal().length() * PADDING_FACTOR / atan(angle_of_view);
 
                     LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - bbox.getCenterAgent();
-                    obj_to_cam.normVec();
+                    obj_to_cam.normalize();
 
                     LLVector3d object_center_global = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
                     gAgentCamera.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance),

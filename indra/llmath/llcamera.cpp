@@ -347,7 +347,7 @@ F32 LLCamera::heightInPixels(const LLVector3 &center, F32 radius ) const
         LLVector3 vec = center - mOrigin;
 
         // Compute distance to sphere
-        F32 dist = vec.magVec();
+        F32 dist = vec.length();
 
         // Calculate angle of whole object
         F32 angle = 2.0f * (F32) atan2(radius, dist);
@@ -407,7 +407,7 @@ void LLCamera::calculateFrustumPlanes()
 LLPlane planeFromPoints(LLVector3 p1, LLVector3 p2, LLVector3 p3)
 {
     LLVector3 n = ((p2-p1)%(p3-p1));
-    n.normVec();
+    n.normalize();
 
     return LLPlane(p1, n);
 }
@@ -432,7 +432,7 @@ void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
         mAgentFrustum[i] = frust[i];
     }
 
-    mFrustumCornerDist = (frust[5] - getOrigin()).magVec();
+    mFrustumCornerDist = (frust[5] - getOrigin()).length();
 
     //frust contains the 8 points of the frustum, calculate 6 planes
 
@@ -489,7 +489,7 @@ void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift, F32 far_clip_dist
     {
         if (mPlaneMask[i] != 0xff)
         {
-            n.setVec(mAgentPlanes[i][0], mAgentPlanes[i][1], mAgentPlanes[i][2]);
+            n.set(mAgentPlanes[i][0], mAgentPlanes[i][1], mAgentPlanes[i][2]);
 
             if(i != 5)
             {
@@ -499,7 +499,7 @@ void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift, F32 far_clip_dist
             {
                 d = far_w;
             }
-            mRegionPlanes[i].setVec(n, d);
+            mRegionPlanes[i].set(n, d);
         }
     }
 }

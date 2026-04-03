@@ -1569,7 +1569,7 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
     // We need to update many object caches, I'll document this more as I dig through the code
     // cleaning things out...
 
-    if (0 == offset.magVecSquared())
+    if (0 == offset.lengthSquared())
     {
         return;
     }

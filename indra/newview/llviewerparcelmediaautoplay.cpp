@@ -119,7 +119,7 @@ bool LLViewerParcelMediaAutoPlay::tick()
                 image_size = image->getMaxVirtualSize() ;
             }
 
-            if (gAgent.getVelocity().magVec() < AUTOPLAY_SPEED) // and if the agent is stopped (slow enough)
+            if (gAgent.getVelocity().length() < AUTOPLAY_SPEED) // and if the agent is stopped (slow enough)
             {
                 if (image_size > AUTOPLAY_SIZE)    // and if the target texture is big enough on screen
                 {

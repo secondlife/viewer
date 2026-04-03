@@ -180,7 +180,7 @@ void LLReflectionMap::autoAdjustOrigin()
         if (mViewerObject->getVolume() && ((LLVOVolume*)mViewerObject.get())->getReflectionProbeIsBox())
         {
             LLVector3 s = mViewerObject->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-            mRadius = s.magVec();
+            mRadius = s.length();
         }
         else
         {
@@ -261,7 +261,7 @@ bool LLReflectionMap::getBox(LLMatrix4& box)
         {
             glm::mat4 mv(get_current_modelview());
             LLVector3 s = mViewerObject->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-            mRadius = s.magVec();
+            mRadius = s.length();
             glm::mat4 scale = glm::scale(glm::vec3(s));
             if (mViewerObject->mDrawable != nullptr)
             {

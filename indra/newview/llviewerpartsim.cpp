@@ -66,9 +66,9 @@ U32 LLViewerPart::sNextPartID = 1;
 
 F32 calc_desired_size(LLViewerCamera* camera, LLVector3 pos, LLVector2 scale)
 {
-    F32 desired_size = (pos - camera->getOrigin()).magVec();
+    F32 desired_size = (pos - camera->getOrigin()).length();
     desired_size /= 4;
-    return llclamp(desired_size, scale.magVec()*0.5f, PART_SIM_BOX_SIDE*2);
+    return llclamp(desired_size, scale.length()*0.5f, PART_SIM_BOX_SIDE*2);
 }
 
 LLViewerPart::LLViewerPart() :
@@ -366,7 +366,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         // Do color interpolation
         if (part->mFlags & LLPartData::LL_PART_INTERP_COLOR_MASK)
         {
-            part->mColor.setVec(part->mStartColor);
+            part->mColor.set(part->mStartColor);
             // note: LLColor4's v%k means multiply-alpha-only,
             //       LLColor4's v*k means multiply-rgb-only
             part->mColor *= 1.f - frac; // rgb*k
@@ -377,7 +377,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         // Do scale interpolation
         if (part->mFlags & LLPartData::LL_PART_INTERP_SCALE_MASK)
         {
-            part->mScale.setVec(part->mStartScale);
+            part->mScale.set(part->mStartScale);
             part->mScale *= 1.f - frac;
             part->mScale += frac*part->mEndScale;
         }
@@ -563,7 +563,7 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 {
     const F32 MAX_MAG = 1000000.f*1000000.f; // 1 million
     LLViewerPartGroup *return_group = NULL ;
-    if (part->mPosAgent.magVecSquared() > MAX_MAG || !part->mPosAgent.isFinite())
+    if (part->mPosAgent.lengthSquared() > MAX_MAG || !part->mPosAgent.isFinite())
     {
     }
     else

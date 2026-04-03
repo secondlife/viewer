@@ -158,11 +158,11 @@ LLSphere LLSphere::getBoundingSphere(const LLSphere& first_sphere, const LLSpher
     F32 distance = direction.length();
     if (0.f == distance)
     {
-        direction.setVec(1.f, 0.f, 0.f);
+        direction.set(1.f, 0.f, 0.f);
     }
     else
     {
-        direction.normVec();
+        direction.normalize();
     }
     // the 'edge' is measured from the first_sphere's center
     F32 max_edge = 0.f;

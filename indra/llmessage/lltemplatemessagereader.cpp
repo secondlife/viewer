@@ -356,7 +356,7 @@ void LLTemplateMessageReader::getVector3(const char *block, const char *var,
     {
         LL_WARNS() << "non-finite in getVector3Fast " << block << " "
                 << var << LL_ENDL;
-        v.zeroVec();
+        v.setZero();
     }
 }
 
@@ -369,7 +369,7 @@ void LLTemplateMessageReader::getVector4(const char *block, const char *var,
     {
         LL_WARNS() << "non-finite in getVector4Fast " << block << " "
                 << var << LL_ENDL;
-        v.zeroVec();
+        v.setZero();
     }
 }
 
@@ -382,7 +382,7 @@ void LLTemplateMessageReader::getVector3d(const char *block, const char *var,
     {
         LL_WARNS() << "non-finite in getVector3dFast " << block << " "
                 << var << LL_ENDL;
-        v.zeroVec();
+        v.setZero();
     }
 
 }

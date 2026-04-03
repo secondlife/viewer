@@ -5182,7 +5182,7 @@ void LLAppViewer::idle()
     }
     else
     {
-        gWindVec.setVec(0.0f, 0.0f, 0.0f);
+        gWindVec.set(0.0f, 0.0f, 0.0f);
     }
 
     //////////////////////////////////////
@@ -6123,7 +6123,7 @@ void LLAppViewer::updateDiscordActivity()
     S32 pos_x = S32(agent_pos_region.mV[VX] + 0.5f);
     S32 pos_y = S32(agent_pos_region.mV[VY] + 0.5f);
     S32 pos_z = S32(agent_pos_region.mV[VZ] + 0.5f);
-    F32 velocity_mag_sq = gAgent.getVelocity().magVecSquared();
+    F32 velocity_mag_sq = gAgent.getVelocity().lengthSquared();
     const F32 FLY_CUTOFF = 6.f;
     const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
     const F32 WALK_CUTOFF = 1.5f;

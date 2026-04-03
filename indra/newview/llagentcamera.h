@@ -145,7 +145,7 @@ public:
     void            setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
     bool            calcCameraMinDistance(F32 &obj_min_distance);
     F32             getCurrentCameraBuildOffset() const { return (F32)mCameraFocusOffset.length(); }
-    void            clearCameraLag() { mCameraLag.clearVec(); }
+    void            clearCameraLag() { mCameraLag.clear(); }
     const LLVector3& getCameraUpVector() const { return mCameraUpVector; }
 private:
     LLVector3       getAvatarRootPosition();

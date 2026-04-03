@@ -398,7 +398,7 @@ bool LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
             {
                 LLVector3d camera_to_focus = gAgentCamera.getCameraPositionGlobal();
                 camera_to_focus -= gAgentCamera.getFocusGlobal();
-                F32 dist = (F32) camera_to_focus.normVec();
+                F32 dist = (F32) camera_to_focus.normalize();
 
                 // Fudge factor for pan
                 F32 meters_per_pixel = 3.f * dist / gViewerWindow->getWorldViewWidthScaled();

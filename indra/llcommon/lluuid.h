@@ -67,8 +67,8 @@ public:
 
     [[nodiscard]] static LLUUID generateNewID(std::string stream = "");   //static version of above for use in initializer expressions such as constructor params, etc.
 
-    [[nodiscard]] bool    set(const char *in_string, bool emit = true);   // Convert from string, if emit is false, do not emit warnings
-    [[nodiscard]] bool    set(const std::string& in_string, bool emit = true);    // Convert from string, if emit is false, do not emit warnings
+    bool    set(const char *in_string, bool emit = true);   // Convert from string, if emit is false, do not emit warnings
+    bool    set(const std::string& in_string, bool emit = true);    // Convert from string, if emit is false, do not emit warnings
     void    setNull();                  // Faster than setting to LLUUID::null.
 
     S32     cmpTime(uuid_time_t *t1, uuid_time_t *t2);

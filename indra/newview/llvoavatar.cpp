@@ -358,7 +358,7 @@ public:
         F32 rx = TORSO_NOISE_AMOUNT * DEG_TO_RAD * noiseX / 0.42f;
         F32 ry = TORSO_NOISE_AMOUNT * DEG_TO_RAD * noiseY / 0.42f;
         LLQuaternion tQn;
-        tQn.setQuat( rx, ry, 0.0f );
+        tQn.setEulerAngles( rx, ry, 0.0f );
         mTorsoState->setRotation( tQn );
 
         return true;
@@ -3315,10 +3315,10 @@ void LLVOAvatar::idleUpdateWindEffect()
         LLVector3 velocity = getVelocity();
         F32 speed = velocity.length();
         //RN: velocity varies too much frame to frame for this to work
-        mRippleAccel.clearVec();//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLSmoothInterpolation::getInterpolant(0.02f));
+        mRippleAccel.clear();//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLSmoothInterpolation::getInterpolant(0.02f));
         mLastVel = velocity;
         LLVector4 wind;
-        wind.setVec(getRegion()->mWind.getVelocityNoisy(getPositionAgent(), 4.f) - velocity);
+        wind.set(getRegion()->mWind.getVelocityNoisy(getPositionAgent(), 4.f) - velocity);
 
         if (mInAir)
         {
@@ -5946,7 +5946,7 @@ void LLVOAvatar::resolveHeightGlobal(const LLVector3d &inPos, LLVector3d &outPos
     {
         mStepOnLand = true;
         mStepMaterial = 0;
-        mStepObjectVelocity.setVec(0.0f, 0.0f, 0.0f);
+        mStepObjectVelocity.set(0.0f, 0.0f, 0.0f);
     }
     else
     {
@@ -7026,7 +7026,7 @@ void LLVOAvatar::getGround(const LLVector3 &in_pos_agent, LLVector3 &out_pos_age
 
     if (isUIAvatar())
     {
-        outNorm.setVec(z_vec);
+        outNorm.set(z_vec);
         out_pos_agent = in_pos_agent;
         return;
     }
@@ -7155,7 +7155,7 @@ void LLVOAvatar::initAttachmentPoints(bool ignore_hud_joints)
         if (info->mHasRotation)
         {
             LLQuaternion rotation;
-            rotation.setQuat(info->mRotationEuler.mV[VX] * DEG_TO_RAD,
+            rotation.setEulerAngles(info->mRotationEuler.mV[VX] * DEG_TO_RAD,
                              info->mRotationEuler.mV[VY] * DEG_TO_RAD,
                              info->mRotationEuler.mV[VZ] * DEG_TO_RAD);
             attachment->setRotation(rotation);

@@ -1158,7 +1158,7 @@ F32 LLFloaterWorldMap::getDistanceToDestination(const LLVector3d &destination,
     // by attenuating the z-component we effectively
     // give more weight to the x-y plane
     delta.mdV[VZ] *= z_attenuation;
-    F32 distance = (F32)delta.magVec();
+    F32 distance = (F32)delta.length();
     return distance;
 }
 
@@ -1532,7 +1532,7 @@ void LLFloaterWorldMap::centerOnTarget(bool animate)
     else
     {
         // default behavior = center on agent
-        pos_global.clearVec();
+        pos_global.clear();
     }
 
     F64 map_scale = (F64)mMapView->getScale();

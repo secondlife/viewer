@@ -375,12 +375,12 @@ void LLJointStateBlender::blendJointStates(bool apply_now)
 
     if (!added_scale.isFinite())
     {
-        added_scale.clearVec();
+        added_scale.clear();
     }
 
     if (!blended_scale.isFinite())
     {
-        blended_scale.setVec(1,1,1);
+        blended_scale.set(1,1,1);
     }
 
     // apply transforms
