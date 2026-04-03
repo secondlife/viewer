@@ -68,6 +68,8 @@ public:
     void refresh();
 
     U32 getMuteListSize() { return mMuteListSize; }
+    void setLoadingItemsMsg(const std::string& msg) { mLoadingItemsMsg = msg; updateNoItemsCommentText(); }
+    void setFailedItemsMsg(const std::string& msg) { mFailedItemsMsg = msg; updateNoItemsCommentText(); }
 
 private:
 
@@ -83,6 +85,7 @@ private:
     bool isMenuItemVisible(const LLSD& userdata);
     void toggleMute(U32 flags);
     void createList();
+    void updateNoItemsCommentText();
 
     BlockListActionType getCurrentMuteListActionType();
 
@@ -100,6 +103,8 @@ private:
     LLMute::EType               mCurItemType;
     U32                         mCurItemFlags;
     std::string                 mPrevNameFilter;
+    std::string                 mLoadingItemsMsg;
+    std::string                 mFailedItemsMsg;
 
 };
 
