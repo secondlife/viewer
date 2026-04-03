@@ -30,6 +30,8 @@
 #include "stdtypes.h"
 #include "llpreprocessor.h"
 
+#include <vector>
+
 #include "llmutex.h"
 #include "lltraceaccumulators.h"
 
@@ -79,8 +81,7 @@ namespace LLTrace
         active_recording_list_t         mActiveRecordings;
 
         class BlockTimer*               mRootTimer;
-        TimeBlockTreeNode*              mTimeBlockTreeNodes;
-        size_t                          mNumTimeBlockTreeNodes;
+        std::vector<TimeBlockTreeNode>  mTimeBlockTreeNodes;
         using child_thread_recorder_list_t = std::list<class ThreadRecorder*>;
         child_thread_recorder_list_t    mChildThreadRecorders;  // list of child thread recorders associated with this master
         LLMutex                         mChildListMutex;        // protects access to child list

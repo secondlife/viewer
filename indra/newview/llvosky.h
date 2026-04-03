@@ -28,6 +28,7 @@
 #define LL_LLVOSKY_H
 
 #include <array>
+#include <vector>
 #include "stdtypes.h"
 #include "v3color.h"
 #include "v4coloru.h"
@@ -56,8 +57,8 @@ class LLSkyTex
 private:
     std::array<LLPointer<LLViewerTexture>, 2> mTexture;
     std::array<LLPointer<LLImageRaw>, 2> mImageRaw;
-    LLColor4        *mSkyData;
-    LLVector3       *mSkyDirs;          // Cache of sky direction vectors
+    std::vector<LLColor4>  mSkyData;
+    std::vector<LLVector3> mSkyDirs;    // Cache of sky direction vectors
     static S32      sCurrent;
 
 public:

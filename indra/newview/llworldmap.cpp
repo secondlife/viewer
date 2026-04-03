@@ -232,7 +232,7 @@ LLWorldMap::LLWorldMap() :
     mFirstRequest(true)
 {
     //LL_INFOS("WorldMap") << "Creating the World Map -> LLWorldMap::LLWorldMap()" << LL_ENDL;
-    mMapBlockLoaded = new bool[MAP_BLOCK_RES*MAP_BLOCK_RES];
+    mMapBlockLoaded.resize(MAP_BLOCK_RES * MAP_BLOCK_RES, false);
     clearSimFlags();
 }
 
@@ -241,7 +241,6 @@ LLWorldMap::~LLWorldMap()
 {
     //LL_INFOS("WorldMap") << "Destroying the World Map -> LLWorldMap::~LLWorldMap()" << LL_ENDL;
     reset();
-    delete[] mMapBlockLoaded;
 }
 
 

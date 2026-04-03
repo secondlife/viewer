@@ -1137,8 +1137,8 @@ bool LLGLManager::initGL()
         GLuint gl_gpus_count = wglGetGPUIDsAMD(0, 0);
         if (gl_gpus_count > 0)
         {
-            GLuint* ids = new GLuint[gl_gpus_count];
-            wglGetGPUIDsAMD(gl_gpus_count, ids);
+            std::vector<GLuint> ids(gl_gpus_count);
+            wglGetGPUIDsAMD(gl_gpus_count, ids.data());
 
             GLuint mem_mb = 0;
             for (U32 i = 0; i < gl_gpus_count; i++)
@@ -1347,7 +1347,7 @@ void LLGLManager::initExtensions()
     }
 #endif
 
-    // GL 4.6 core — feature flags initialized to true in header
+    // GL 4.6 core ï¿½ feature flags initialized to true in header
 
     // Misc
     glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);
@@ -1379,7 +1379,7 @@ void LLGLManager::initExtensions()
     wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)GLH_EXT_GET_PROC_ADDRESS("wglCreateContextAttribsARB");
 #endif
 
-    // Load entire OpenGL API through GetProcAddress (GL 4.6 minimum — all versions loaded unconditionally)
+    // Load entire OpenGL API through GetProcAddress (GL 4.6 minimum ï¿½ all versions loaded unconditionally)
 
     // GL_VERSION_1_2
     glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)GLH_EXT_GET_PROC_ADDRESS("glDrawRangeElements");

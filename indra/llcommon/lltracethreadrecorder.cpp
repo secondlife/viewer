@@ -58,9 +58,9 @@ void ThreadRecorder::init()
     timer_stack->mTimeBlock = &root_time_block;
     timer_stack->mActiveTimer = NULL;
 
-    mNumTimeBlockTreeNodes = AccumulatorBuffer<TimeBlockAccumulator>::getDefaultBuffer()->size();
+    size_t numTimeBlockTreeNodes = AccumulatorBuffer<TimeBlockAccumulator>::getDefaultBuffer()->size();
 
-    mTimeBlockTreeNodes = new TimeBlockTreeNode[mNumTimeBlockTreeNodes];
+    mTimeBlockTreeNodes.resize(numTimeBlockTreeNodes);
 
     activate(&mThreadRecordingBuffers);
 
@@ -83,7 +83,7 @@ void ThreadRecorder::init()
 
     //claim_alloc(gTraceMemStat, this);
     //claim_alloc(gTraceMemStat, mRootTimer);
-    //claim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
+    //claim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mTimeBlockTreeNodes.size());
 #endif
 }
 
@@ -103,7 +103,7 @@ ThreadRecorder::~ThreadRecorder()
 
     //disclaim_alloc(gTraceMemStat, this);
     //disclaim_alloc(gTraceMemStat, sizeof(BlockTimer));
-    //disclaim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
+    //disclaim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mTimeBlockTreeNodes.size());
 
     deactivate(&mThreadRecordingBuffers);
 
@@ -116,7 +116,6 @@ ThreadRecorder::~ThreadRecorder()
     }
 
     set_thread_recorder(NULL);
-    delete[] mTimeBlockTreeNodes;
 
     if (mParentRecorder)
     {
@@ -128,7 +127,7 @@ ThreadRecorder::~ThreadRecorder()
 TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( size_t index )
 {
 #if LL_TRACE_ENABLED
-    if (0 <= index && index < mNumTimeBlockTreeNodes)
+    if (index < mTimeBlockTreeNodes.size())
     {
         return &mTimeBlockTreeNodes[index];
     }

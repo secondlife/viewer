@@ -1545,7 +1545,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     LLVector2* buffer_tex_coords = (LLVector2*)(buffer_normals + size_vertices);
     S32 buffer_idx_size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
     U16* buffer_indices = (U16*)ll_aligned_malloc_16(buffer_idx_size);
-    S32* old_to_new_positions_map = new S32[size_vertices];
+    std::vector<S32> old_to_new_positions_map(size_vertices);
 
     S32 buf_positions_copied = 0;
     S32 buf_indices_copied = 0;
@@ -1677,7 +1677,6 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         indices_idx_shift += face.mNumVertices;
     }
 
-    delete[]old_to_new_positions_map;
     ll_aligned_free<64>(combined_positions);
     ll_aligned_free<64>(buffer_positions);
     ll_aligned_free_32(output_indices);

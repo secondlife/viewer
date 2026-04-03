@@ -1418,18 +1418,7 @@ void LLPipeline::createLUTBuffers()
     {
         U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
         U32 lightResY = gSavedSettings.getU32("RenderSpecularResY");
-        F32* ls = nullptr;
-        try
-        {
-            ls = new F32[lightResX*lightResY];
-        }
-        catch (std::bad_alloc&)
-        {
-            LLError::LLUserWarningMsg::showOutOfMemory();
-            // might be better to set the error into mFatalMessage and rethrow
-            LL_ERRS() << "Bad memory allocation in createLUTBuffers! lightResX: "
-                << lightResX << " lightResY: " << lightResY << LL_ENDL;
-        }
+        std::vector<F32> ls(lightResX * lightResY);
         F32 specExp = gSavedSettings.getF32("RenderSpecularExponent");
         // Calculate the (normalized) blinn-phong specular lookup texture. (with a few tweaks)
         for (U32 y = 0; y < lightResY; ++y)
@@ -1466,13 +1455,12 @@ void LLPipeline::createLUTBuffers()
 #endif
         LLImageGL::generateTextures(1, &mLightFunc);
         gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
-        LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, pix_format, lightResX, lightResY, GL_RED, GL_FLOAT, ls, false);
+        LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, pix_format, lightResX, lightResY, GL_RED, GL_FLOAT, ls.data(), false);
         gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
         gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-        delete [] ls;
     }
 
     mPbrBrdfLut.allocate(512, 512, GL_RG16F);

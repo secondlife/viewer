@@ -997,9 +997,9 @@ void gen_terrain_tangents(U32                    strider_vertex_count,
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    LLVector4a            *vertices = new LLVector4a[strider_vertex_count];
-    LLVector4a            *normals  = new LLVector4a[strider_vertex_count];
-    LLVector4a            *tangents = new LLVector4a[strider_vertex_count];
+    std::vector<LLVector4a> vertices(strider_vertex_count);
+    std::vector<LLVector4a> normals(strider_vertex_count);
+    std::vector<LLVector4a> tangents(strider_vertex_count);
     std::vector<LLVector2> texcoords(strider_vertex_count);
     std::vector<U16>       indices(strider_index_count);
 
@@ -1020,16 +1020,13 @@ void gen_terrain_tangents(U32                    strider_vertex_count,
         indices[i] = indicesp[i];
     }
 
-    LLCalculateTangentArray(strider_vertex_count, vertices, normals, texcoords.data(), strider_index_count / 3, indices.data(), tangents);
+    LLCalculateTangentArray(strider_vertex_count, vertices.data(), normals.data(), texcoords.data(), strider_index_count / 3, indices.data(), tangents.data());
 
     for (U32 v = 0; v < strider_vertex_count; ++v)
     {
         tangentsp[v] = tangents[v];
     }
 
-    delete[] vertices;
-    delete[] normals;
-    delete[] tangents;
 }
 
 void LLTerrainPartition::getGeometry(LLSpatialGroup* group)

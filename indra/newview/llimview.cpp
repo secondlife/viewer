@@ -2112,16 +2112,14 @@ void start_deprecated_conference_chat(
     const LLUUID& other_participant_id,
     const LLSD& agents_to_invite)
 {
-    U8* bucket;
-    U8* pos;
     size_t count;
     S32 bucket_size;
 
     // *FIX: this could suffer from endian issues
     count = agents_to_invite.size();
     bucket_size = UUID_BYTES * static_cast<S32>(count);
-    bucket = new U8[bucket_size];
-    pos = bucket;
+    std::vector<U8> bucket(bucket_size);
+    U8* pos = bucket.data();
 
     for(S32 i = 0; i < count; ++i)
     {
@@ -2138,12 +2136,10 @@ void start_deprecated_conference_chat(
 
     gMessageSystem->addBinaryDataFast(
         _PREHASH_BinaryBucket,
-        bucket,
+        bucket.data(),
         bucket_size);
 
     gAgent.sendReliableMessage();
-
-    delete[] bucket;
 }
 
 // Returns true if any messages were sent, false otherwise.

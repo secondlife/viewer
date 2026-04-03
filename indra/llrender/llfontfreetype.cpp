@@ -528,13 +528,13 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
     {
         U8 *buffer_data = fontp->mFTFace->glyph->bitmap.buffer;
         S32 buffer_row_stride = fontp->mFTFace->glyph->bitmap.pitch;
-        U8 *tmp_graydata = nullptr;
+        std::vector<U8> tmp_graydata;
 
         if (fontp->mFTFace->glyph->bitmap.pixel_mode
             == FT_PIXEL_MODE_MONO)
         {
             // need to expand 1-bit bitmap to 8-bit graymap.
-            tmp_graydata = new U8[width * height];
+            tmp_graydata.resize(width * height);
             S32 xpos, ypos;
             for (ypos = 0; ypos < height; ++ypos)
             {
@@ -552,7 +552,7 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
                 }
             }
             // use newly-built graymap.
-            buffer_data = tmp_graydata;
+            buffer_data = tmp_graydata.data();
             buffer_row_stride = width;
         }
 
@@ -563,9 +563,6 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
                                     height,
                                     buffer_data,
                                     buffer_row_stride);
-
-        if (tmp_graydata)
-            delete[] tmp_graydata;
     }
     else if (fontp->mFTFace->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_BGRA)
     {

@@ -27,6 +27,8 @@
 #ifndef LL_LLVIEWERLAYER_H
 #define LL_LLVIEWERLAYER_H
 
+#include <vector>
+
 // Viewer-side representation of a layer...
 
 class LLViewerLayer
@@ -42,7 +44,7 @@ protected:
     S32 mWidth;
     F32 mScale;
     F32 mScaleInv;
-    F32 *mDatap;
+    std::vector<F32> mDatap;
 };
 
 #endif // LL_LLVIEWERLAYER_H

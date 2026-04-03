@@ -643,8 +643,8 @@ bool LLScriptEdCore::loadScriptText(const std::string& filename)
     fseek(file, 0L, SEEK_END);
     size_t file_length = (size_t) ftell(file);
     fseek(file, 0L, SEEK_SET);
-    char* buffer = new char[file_length+1];
-    size_t nread = fread(buffer, 1, file_length, file);
+    std::vector<char> buffer(file_length + 1);
+    size_t nread = fread(buffer.data(), 1, file_length, file);
     if (nread < file_length)
     {
         LL_WARNS() << "Short read" << LL_ENDL;
@@ -652,11 +652,10 @@ bool LLScriptEdCore::loadScriptText(const std::string& filename)
     buffer[nread] = '\0';
     fclose(file);
 
-    std::string text = std::string(buffer);
+    std::string text = std::string(buffer.data());
     LLStringUtil::replaceTabsWithSpaces(text, LLTextEditor::spacesPerTab());
 
     mEditor->setText(text);
-    delete[] buffer;
 
     return true;
 }

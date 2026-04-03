@@ -377,10 +377,9 @@ static std::string get_shader_log(GLuint ret)
     if (length > 0)
     {
         //the log could be any size, so allocate appropriately
-        GLchar* log = new GLchar[length];
-        glGetShaderInfoLog(ret, length, &length, log);
-        res = std::string((char *)log);
-        delete[] log;
+        std::vector<GLchar> log(length);
+        glGetShaderInfoLog(ret, length, &length, log.data());
+        res = std::string((char *)log.data());
     }
     return res;
 }
@@ -396,10 +395,9 @@ static std::string get_program_log(GLuint ret)
     if (length > 0)
     {
         //the log could be any size, so allocate appropriately
-        GLchar* log = new GLchar[length];
-        glGetProgramInfoLog(ret, length, &length, log);
-        res = std::string((char*)log);
-        delete[] log;
+        std::vector<GLchar> log(length);
+        glGetProgramInfoLog(ret, length, &length, log.data());
+        res = std::string((char*)log.data());
     }
     return res;
 }

@@ -100,16 +100,8 @@ LLSkyTex::LLSkyTex() :
 void LLSkyTex::init(bool isShiny)
 {
     mIsShiny = isShiny;
-    try
-    {
-        mSkyData = new LLColor4[(U32)(SKYTEX_RESOLUTION * SKYTEX_RESOLUTION)];
-        mSkyDirs = new LLVector3[(U32)(SKYTEX_RESOLUTION * SKYTEX_RESOLUTION)];
-    }
-    catch (std::bad_alloc&)
-    {
-        LLError::LLUserWarningMsg::showOutOfMemory();
-        LL_ERRS() << "Failed to allocate memory for sky texture data" << LL_ENDL;
-    }
+    mSkyData.resize((U32)(SKYTEX_RESOLUTION * SKYTEX_RESOLUTION));
+    mSkyDirs.resize((U32)(SKYTEX_RESOLUTION * SKYTEX_RESOLUTION));
 
     for (S32 i = 0; i < 2; ++i)
     {
@@ -138,11 +130,6 @@ void LLSkyTex::restoreGL()
 
 LLSkyTex::~LLSkyTex()
 {
-    delete[] mSkyData;
-    mSkyData = NULL;
-
-    delete[] mSkyDirs;
-    mSkyDirs = NULL;
 }
 
 S32 LLSkyTex::getResolution()

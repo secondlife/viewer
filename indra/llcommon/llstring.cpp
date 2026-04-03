@@ -809,22 +809,17 @@ std::string ll_convert_wide_to_string(const wchar_t* in, size_t len_in, unsigned
             0);
         // We will need two more bytes for the double NULL ending
         // created in WideCharToMultiByte().
-        char* pout = new char [len_out + 2];
-        memset(pout, 0, len_out + 2);
-        if(pout)
-        {
-            WideCharToMultiByte(
-                code_page,
-                0,
-                in,
-                static_cast<int>(len_in),
-                pout,
-                len_out,
-                0,
-                0);
-            out.assign(pout);
-            delete[] pout;
-        }
+        std::vector<char> pout(len_out + 2, 0);
+        WideCharToMultiByte(
+            code_page,
+            0,
+            in,
+            static_cast<int>(len_in),
+            pout.data(),
+            len_out,
+            0,
+            0);
+        out.assign(pout.data());
     }
     return out;
 }

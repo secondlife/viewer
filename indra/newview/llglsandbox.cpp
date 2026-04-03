@@ -980,7 +980,7 @@ F32 gpu_benchmark()
     std::vector<F32> results;
 
     //build a random texture
-    U8* pixels = new U8[res*res*4];
+    std::vector<U8> pixels(res*res*4);
 
     for (U32 i = 0; i < res*res*4; ++i)
     {
@@ -999,7 +999,6 @@ F32 gpu_benchmark()
         {
             LL_WARNS("Benchmark") << "Failed to allocate render target." << LL_ENDL;
             // abandon the benchmark test
-            delete[] pixels;
             return -1.f;
         }
         dest[i].bindTarget();
@@ -1011,10 +1010,9 @@ F32 gpu_benchmark()
             // can use a dummy value mDummyTexUnit = new LLTexUnit(-1);
             LL_WARNS("Benchmark") << "Failed to bind tex unit." << LL_ENDL;
             // abandon the benchmark test
-            delete[] pixels;
             return -1.f;
         }
-        LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA, res,res,GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA, res,res,GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
         // disable mipmaps and use point filtering to cause cache misses
         gGL.getTexUnit(0)->setHasMipMaps(false);
         gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
@@ -1023,12 +1021,9 @@ F32 gpu_benchmark()
         {
             // abandon the benchmark test
             LL_WARNS("Benchmark") << "Allocation operation took longer then 30 seconds, stopping." << LL_ENDL;
-            delete[] pixels;
             return -1.f;
         }
     }
-
-    delete [] pixels;
 
     //make a dummy triangle to draw with
     LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX);

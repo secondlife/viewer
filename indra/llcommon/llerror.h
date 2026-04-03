@@ -254,7 +254,7 @@ namespace LLError
         const int               mLine;
         const std::type_info&   mClassInfo;
         const char* const       mFunction;
-        const char**            mTags;
+        std::vector<const char*> mTags;
         size_t                  mTagCount;
         const bool              mPrintOnce;
         const char*             mLevelString;

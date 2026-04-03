@@ -449,8 +449,8 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
     _CrtSetDbgFlag(0); // default, just making explicit
 
     ULONG ulEnableLFH = 2;
-    HANDLE* hHeaps = new HANDLE[MAX_HEAPS];
-    num_heaps = GetProcessHeaps(MAX_HEAPS, hHeaps);
+    std::vector<HANDLE> hHeaps(MAX_HEAPS);
+    num_heaps = GetProcessHeaps(MAX_HEAPS, hHeaps.data());
     for(S32 i = 0; i < num_heaps; i++)
     {
         bool success = HeapSetInformation(hHeaps[i], HeapCompatibilityInformation, &ulEnableLFH, sizeof(ulEnableLFH));

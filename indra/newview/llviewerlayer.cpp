@@ -35,18 +35,11 @@ LLViewerLayer::LLViewerLayer(const S32 width, const F32 scale)
     mWidth = width;
     mScale = scale;
     mScaleInv = 1.f/scale;
-    mDatap = new F32[width*width];
-
-    for (S32 i = 0; i < width*width; i++)
-    {
-        *(mDatap + i) = 0.f;
-    }
+    mDatap.resize(width * width, 0.f);
 }
 
 LLViewerLayer::~LLViewerLayer()
 {
-    delete[] mDatap;
-    mDatap = NULL;
 }
 
 F32 LLViewerLayer::getValue(const S32 x, const S32 y) const
@@ -56,7 +49,7 @@ F32 LLViewerLayer::getValue(const S32 x, const S32 y) const
 //  llassert(y >= 0);
 //  llassert(y < mWidth);
 
-    return *(mDatap + x + y*mWidth);
+    return mDatap[x + y*mWidth];
 }
 
 F32 LLViewerLayer::getValueScaled(const F32 x, const F32 y) const

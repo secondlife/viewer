@@ -102,11 +102,7 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 
     // Create storage for ownership information from simulator
     // and initialize it.
-    mOwnership = new U8[ mParcelGridsPerEdge * mParcelGridsPerEdge ];
-    for (S32 i = 0; i < mParcelGridsPerEdge * mParcelGridsPerEdge; i++)
-    {
-        mOwnership[i] = PARCEL_PUBLIC;
-    }
+    mOwnership.resize(mParcelGridsPerEdge * mParcelGridsPerEdge, PARCEL_PUBLIC);
 
     gPipeline.markGLRebuild(this);
 }
@@ -114,8 +110,6 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 
 LLViewerParcelOverlay::~LLViewerParcelOverlay()
 {
-    delete[] mOwnership;
-    mOwnership = NULL;
     mImageRaw = NULL;
 }
 

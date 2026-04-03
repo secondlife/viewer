@@ -31,6 +31,7 @@
 // One of these structures per region.
 
 #include <array>
+#include <vector>
 #include "llbbox.h"
 #include "llframetimer.h"
 #include "lluuid.h"
@@ -108,7 +109,7 @@ private:
     // Size: mParcelGridsPerEdge * mParcelGridsPerEdge
     // Each value is 0-3, PARCEL_AVAIL to PARCEL_SELF in the two low bits
     // and other flags in the upper bits.
-    U8              *mOwnership;
+    std::vector<U8>  mOwnership;
 
     // Update propery lines and overlay texture
     bool            mDirty;

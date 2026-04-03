@@ -525,8 +525,8 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
         LLUUID transaction_id;
         transaction_id.generate();
         S32 bucket_size = (sizeof(U8) + UUID_BYTES) * (static_cast<S32>(count) + 1);
-        U8* bucket = new U8[bucket_size];
-        U8* pos = bucket;
+        std::vector<U8> bucket(bucket_size);
+        U8* pos = bucket.data();
         U8 type = (U8)cat->getType();
         memcpy(pos, &type, sizeof(U8));     /* Flawfinder: ignore */
         pos += sizeof(U8);
@@ -565,10 +565,9 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
             LLUUID::null,
             gAgent.getPositionAgent(),
             NO_TIMESTAMP,
-            bucket,
+            bucket.data(),
             bucket_size);
         gAgent.sendReliableMessage();
-        delete[] bucket;
 
         // VEFFECT: giveInventoryCategory
         LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, true);

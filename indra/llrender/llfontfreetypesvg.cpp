@@ -99,13 +99,11 @@ FT_Error LLFontFreeTypeSvgRenderer::OnPresetGlypthSlot(FT_GlyphSlot glyph_slot, 
     llassert(!datap->pNSvgImage || cache);
     if (!datap->pNSvgImage)
     {
-        char* document_buffer = new char[document->svg_document_length + 1];
-        memcpy(document_buffer, document->svg_document, document->svg_document_length);
+        std::vector<char> document_buffer(document->svg_document_length + 1);
+        memcpy(document_buffer.data(), document->svg_document, document->svg_document_length);
         document_buffer[document->svg_document_length] = '\0';
 
-        datap->pNSvgImage = nsvgParse(document_buffer, "px", 0.);
-
-        delete[] document_buffer;
+        datap->pNSvgImage = nsvgParse(document_buffer.data(), "px", 0.);
     }
 
     if (!datap->pNSvgImage)

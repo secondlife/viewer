@@ -30,6 +30,7 @@
 #include "llbase64.h"
 
 #include <string>
+#include <vector>
 
 #include "apr_base64.h"
 
@@ -43,18 +44,17 @@ std::string LLBase64::encode(const U8* input, size_t input_size)
     {
         // Yes, it returns int.
         int b64_buffer_length = apr_base64_encode_len(narrow<size_t>(input_size));
-        char* b64_buffer = new char[b64_buffer_length];
+        std::vector<char> b64_buffer(b64_buffer_length);
 
         // This is faster than apr_base64_encode() if you know
         // you're not on an EBCDIC machine.  Also, the output is
         // null terminated, even though the documentation doesn't
         // specify.  See apr_base64.c for details. JC
         b64_buffer_length = apr_base64_encode_binary(
-            b64_buffer,
+            b64_buffer.data(),
             input,
             narrow<size_t>(input_size));
-        output.assign(b64_buffer);
-        delete[] b64_buffer;
+        output.assign(b64_buffer.data());
     }
     return output;
 }
@@ -62,16 +62,15 @@ std::string LLBase64::encode(const U8* input, size_t input_size)
 std::string LLBase64::decodeAsString(const std::string &input)
 {
     int b64_buffer_length = apr_base64_decode_len(input.c_str());
-    char* b64_buffer = new char[b64_buffer_length];
+    std::vector<char> b64_buffer(b64_buffer_length);
 
         // This is faster than apr_base64_encode() if you know
         // you're not on an EBCDIC machine.  Also, the output is
         // null terminated, even though the documentation doesn't
         // specify.  See apr_base64.c for details. JC
-    b64_buffer_length = apr_base64_decode(b64_buffer, input.c_str());
+    b64_buffer_length = apr_base64_decode(b64_buffer.data(), input.c_str());
     std::string res;
-    res.assign(b64_buffer);
-    delete[] b64_buffer;
+    res.assign(b64_buffer.data());
     return res;
 }
 

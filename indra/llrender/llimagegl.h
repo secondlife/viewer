@@ -30,6 +30,8 @@
 
 #include "llimage.h"
 
+#include <vector>
+
 #include "llgltypes.h"
 #include "llpointer.h"
 #include "llrefcount.h"
@@ -233,7 +235,7 @@ private:
 
     LLPointer<LLImageRaw> mSaveData; // used for destroyGL/restoreGL
     LL::WorkQueue::weak_t mMainQueue;
-    U8* mPickMask;  //downsampled bitmap approximation of alpha channel.  NULL if no alpha channel
+    std::vector<U8> mPickMask;  //downsampled bitmap approximation of alpha channel.  Empty if no alpha channel
     U16 mPickMaskWidth;
     U16 mPickMaskHeight;
     S8 mUseMipMaps;

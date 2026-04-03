@@ -429,7 +429,6 @@ void LLPostProcess::checkShaderError(GLuint shader)
 {
     GLint infologLength = 0;
     GLint charsWritten  = 0;
-    GLchar *infoLog;
 
     checkError();  // Check for OpenGL errors
 
@@ -439,16 +438,10 @@ void LLPostProcess::checkShaderError(GLuint shader)
 
     if (infologLength > 0)
     {
-        infoLog = (GLchar *)malloc(infologLength);
-        if (infoLog == NULL)
-        {
-            /// Could not allocate infolog buffer
-            return;
-        }
-       glGetProgramInfoLog(shader, infologLength, &charsWritten, infoLog);
+        std::vector<GLchar> infoLog(infologLength);
+       glGetProgramInfoLog(shader, infologLength, &charsWritten, infoLog.data());
         // shaderErrorLog << (char *) infoLog << std::endl;
-        mShaderErrorString = (char *) infoLog;
-        free(infoLog);
+        mShaderErrorString = (char *) infoLog.data();
     }
     checkError();  // Check for OpenGL errors
 }

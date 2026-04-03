@@ -636,7 +636,7 @@ namespace LLError
         mCached(false),
         mShouldLog(false),
         mPrintOnce(printOnce),
-        mTags(new const char* [tag_count]),
+        mTags(tag_count),
         mTagCount(tag_count)
     {
         switch (mLevel)
@@ -682,10 +682,7 @@ namespace LLError
         }
     }
 
-    CallSite::~CallSite()
-    {
-        delete []mTags;
-    }
+    CallSite::~CallSite() = default;
 
     void CallSite::invalidate()
     {
@@ -1375,7 +1372,7 @@ namespace LLError
         || checkLevelMap(s->mClassLevelMap, class_name, compareLevel)
         || checkLevelMap(s->mFileLevelMap, abbreviateFile(site.mFile), compareLevel)
         || (site.mTagCount > 0
-            ? checkLevelMap(s->mTagLevelMap, site.mTags, site.mTagCount, compareLevel)
+            ? checkLevelMap(s->mTagLevelMap, site.mTags.data(), site.mTagCount, compareLevel)
             : false);
 
         site.mCached = true;

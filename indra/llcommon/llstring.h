@@ -1487,7 +1487,7 @@ void LLStringUtilBase<T>::addCRLF(string_type& string)
     if( count )
     {
         size_type size = len + count;
-        T *t = new T[size];
+        std::vector<T> t(size);
         size_type j = 0;
         for( i = 0; i < len; ++i )
         {
@@ -1500,8 +1500,7 @@ void LLStringUtilBase<T>::addCRLF(string_type& string)
             ++j;
         }
 
-        string.assign(t, size);
-        delete[] t;
+        string.assign(t.data(), size);
     }
 }
 
@@ -1673,12 +1672,8 @@ void LLStringUtilBase<T>::stripNonprintable(string_type& string)
         return;
     }
     size_t src_size = string.size();
-    char* c_string = new char[src_size + 1];
-    if(c_string == NULL)
-    {
-        return;
-    }
-    copy(c_string, string.c_str(), src_size+1);
+    std::vector<char> c_string(src_size + 1);
+    copy(c_string.data(), string.c_str(), src_size+1);
     char* write_head = &c_string[0];
     for (size_type i = 0; i < src_size; i++)
     {
@@ -1691,8 +1686,7 @@ void LLStringUtilBase<T>::stripNonprintable(string_type& string)
         }
     }
     c_string[j]= '\0';
-    string = c_string;
-    delete []c_string;
+    string = c_string.data();
 }
 
 // *TODO: reimplement in terms of algorithm

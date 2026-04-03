@@ -169,7 +169,7 @@ void LLManipTranslate::restoreGL()
         return ;
     }
 
-    GLuint* d = new GLuint[rez*rez];
+    std::vector<GLuint> d(rez*rez);
 
     gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, sGridTex->getTexName(), true);
     gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
@@ -267,11 +267,10 @@ void LLManipTranslate::restoreGL()
                 }
             }
         }
-        LLImageGL::setManualImage(GL_TEXTURE_2D, mip, GL_RGBA, rez, rez, GL_RGBA, GL_UNSIGNED_BYTE, d);
+        LLImageGL::setManualImage(GL_TEXTURE_2D, mip, GL_RGBA, rez, rez, GL_RGBA, GL_UNSIGNED_BYTE, d.data());
         rez = rez >> 1;
         mip++;
     }
-    delete [] d;
 }
 
 LLManipTranslate::~LLManipTranslate()

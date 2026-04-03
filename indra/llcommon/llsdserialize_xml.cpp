@@ -30,6 +30,7 @@
 
 #include <iostream>
 #include <deque>
+#include <vector>
 
 #include "apr_base64.h"
 #include <boost/iostreams/device/array.hpp>
@@ -198,13 +199,12 @@ S32 LLSDXMLFormatter::format_impl(const LLSD& data, std::ostream& ostr,
             // *TODO: convert to use LLBase64
             ostr << pre << "<binary encoding=\"base64\">";
             int b64_buffer_length = apr_base64_encode_len(narrow<size_t>(buffer.size()));
-            char* b64_buffer = new char[b64_buffer_length];
+            std::vector<char> b64_buffer(b64_buffer_length);
             b64_buffer_length = apr_base64_encode_binary(
-                b64_buffer,
+                b64_buffer.data(),
                 &buffer[0],
                 narrow<size_t>(buffer.size()));
-            ostr.write(b64_buffer, b64_buffer_length - 1);
-            delete[] b64_buffer;
+            ostr.write(b64_buffer.data(), b64_buffer_length - 1);
             ostr << "</binary>" << post;
         }
         break;

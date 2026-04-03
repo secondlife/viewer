@@ -241,11 +241,9 @@ bool LLFloaterBvhPreview::postBuild()
         }
         else
         {
-            char*   file_buffer;
+            std::vector<char> file_buffer(file_size + 1);
 
-            file_buffer = new char[file_size + 1];
-
-            if (file_size == infile.read(file_buffer, file_size))
+            if (file_size == infile.read(file_buffer.data(), file_size))
             {
                 file_buffer[file_size] = '\0';
                 LL_INFOS() << "Loading BVH file " << mFilename << LL_ENDL;
@@ -254,7 +252,7 @@ bool LLFloaterBvhPreview::postBuild()
 
                 auto joint_alias_map = getJointAliases();
 
-                loaderp = new LLBVHLoader(file_buffer, load_status, line_number, joint_alias_map);
+                loaderp = new LLBVHLoader(file_buffer.data(), load_status, line_number, joint_alias_map);
                 std::string status = getString(STATUS[load_status]);
 
                 if(load_status == E_ST_NO_XLT_FILE)
@@ -268,7 +266,6 @@ bool LLFloaterBvhPreview::postBuild()
             }
 
             infile.close() ;
-            delete[] file_buffer;
         }
     }
 
@@ -285,14 +282,9 @@ bool LLFloaterBvhPreview::postBuild()
 
         // create data buffer for keyframe initialization
         S32 buffer_size = loaderp->getOutputSize();
-        U8* buffer = new(std::nothrow) U8[buffer_size];
-        if (!buffer)
-        {
-            LLError::LLUserWarningMsg::showOutOfMemory();
-            LL_ERRS() << "Bad memory allocation for buffer, size: " << buffer_size << LL_ENDL;
-        }
+        std::vector<U8> buffer(buffer_size);
 
-        LLDataPackerBinaryBuffer dp(buffer, buffer_size);
+        LLDataPackerBinaryBuffer dp(buffer.data(), buffer_size);
 
         // pass animation data through memory buffer
         LL_INFOS("BVH") << "Serializing loaderp" << LL_ENDL;
@@ -301,8 +293,6 @@ bool LLFloaterBvhPreview::postBuild()
         LL_INFOS("BVH") << "Deserializing motionp" << LL_ENDL;
         bool success = motionp && motionp->deserialize(dp, mMotionID, false);
         LL_INFOS("BVH") << "Done" << LL_ENDL;
-
-        delete []buffer;
 
         if (success)
         {
@@ -1002,20 +992,15 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
         LLKeyframeMotion* motionp = (LLKeyframeMotion*)floaterp->mAnimPreview->getDummyAvatar()->findMotion(floaterp->mMotionID);
 
         S32 file_size = motionp->getFileSize();
-        U8* buffer = new(std::nothrow) U8[file_size];
-        if (!buffer)
-        {
-            LLError::LLUserWarningMsg::showOutOfMemory();
-            LL_ERRS() << "Bad memory allocation for buffer, size: " << file_size << LL_ENDL;
-        }
+        std::vector<U8> buffer(file_size);
 
-        LLDataPackerBinaryBuffer dp(buffer, file_size);
+        LLDataPackerBinaryBuffer dp(buffer.data(), file_size);
         if (motionp->serialize(dp))
         {
             LLFileSystem file(motionp->getID(), LLAssetType::AT_ANIMATION, LLFileSystem::APPEND);
 
             S32 size = dp.getCurrentSize();
-            if (file.write((U8*)buffer, size))
+            if (file.write(buffer.data(), size))
             {
                 std::string name = floaterp->getChild<LLUICtrl>("name_form")->getValue().asString();
                 std::string desc = floaterp->getChild<LLUICtrl>("description_form")->getValue().asString();
@@ -1040,7 +1025,6 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
             }
         }
 
-        delete [] buffer;
         // clear out cache for motion data
         floaterp->mAnimPreview->getDummyAvatar()->removeMotion(floaterp->mMotionID);
         LLKeyframeDataCache::removeKeyframeData(floaterp->mMotionID);

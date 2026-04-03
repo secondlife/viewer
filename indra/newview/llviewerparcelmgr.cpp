@@ -1737,11 +1737,10 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
             S32 bitmap_size =   parcel_mgr.mParcelsPerEdge
                                 * parcel_mgr.mParcelsPerEdge
                                 / 8;
-            U8* bitmap = new U8[ bitmap_size ];
-            msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap, bitmap_size);
+            std::vector<U8> bitmap(bitmap_size);
+            msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap.data(), bitmap_size);
 
-            parcel_mgr.writeAgentParcelFromBitmap(bitmap);
-            delete[] bitmap;
+            parcel_mgr.writeAgentParcelFromBitmap(bitmap.data());
 
             // Let interesting parties know about agent parcel change.
             LLViewerParcelMgr* instance = LLViewerParcelMgr::getInstance();
@@ -1844,14 +1843,11 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                     bitmap_size = size;
                 }
 
-                U8* bitmap = new U8[ bitmap_size ];
-                msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap, bitmap_size);
+                std::vector<U8> bitmap(bitmap_size);
+                msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap.data(), bitmap_size);
 
                 parcel_mgr.resetSegments(parcel_mgr.mHighlightSegments);
-                parcel_mgr.writeSegmentsFromBitmap( bitmap, parcel_mgr.mHighlightSegments );
-
-                delete[] bitmap;
-                bitmap = NULL;
+                parcel_mgr.writeSegmentsFromBitmap( bitmap.data(), parcel_mgr.mHighlightSegments );
 
                 parcel_mgr.mCurrentParcelSelection->mWholeParcelSelected = true;
             }
@@ -1899,14 +1895,11 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
         S32 bitmap_size =   parcel_mgr.mParcelsPerEdge
                             * parcel_mgr.mParcelsPerEdge
                             / 8;
-        U8* bitmap = new U8[ bitmap_size ];
-        msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap, bitmap_size);
+        std::vector<U8> bitmap(bitmap_size);
+        msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap.data(), bitmap_size);
 
         parcel_mgr.resetSegments(parcel_mgr.mCollisionSegments);
-        parcel_mgr.writeSegmentsFromBitmap( bitmap, parcel_mgr.mCollisionSegments );
-
-        delete[] bitmap;
-        bitmap = NULL;
+        parcel_mgr.writeSegmentsFromBitmap( bitmap.data(), parcel_mgr.mCollisionSegments );
 
     }
     else if (sequence_id == HOVERED_PARCEL_SEQ_ID)

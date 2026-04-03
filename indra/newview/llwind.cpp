@@ -57,11 +57,7 @@ LLWind::LLWind()
 }
 
 
-LLWind::~LLWind()
-{
-    delete [] mVelX;
-    delete [] mVelY;
-}
+LLWind::~LLWind() = default;
 
 
 //////////////////////////////////////////////////////////////////////
@@ -74,15 +70,8 @@ void LLWind::init()
     LL_DEBUGS("Wind") << "initializing wind size: "<< mSize << LL_ENDL;
 
     // Initialize vector data
-    mVelX = new F32[mSize*mSize];
-    mVelY = new F32[mSize*mSize];
-
-    S32 i;
-    for (i = 0; i < mSize*mSize; i++)
-    {
-        mVelX[i] = 0.5f;
-        mVelY[i] = 0.5f;
-    }
+    mVelX.assign(mSize * mSize, 0.5f);
+    mVelY.assign(mSize * mSize, 0.5f);
 }
 
 
@@ -101,12 +90,12 @@ void LLWind::decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp)
     // X component
     decode_patch_header(bitpack, &patch_header);
     decode_patch(bitpack, buffer);
-    decompress_patch(mVelX, buffer, &patch_header);
+    decompress_patch(mVelX.data(), buffer, &patch_header);
 
     // Y component
     decode_patch_header(bitpack, &patch_header);
     decode_patch(bitpack, buffer);
-    decompress_patch(mVelY, buffer, &patch_header);
+    decompress_patch(mVelY.data(), buffer, &patch_header);
 
     S32 i, j, k;
 
@@ -115,8 +104,8 @@ void LLWind::decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp)
         for (i=1; i<mSize-1; i++)
         {
             k = i + j * mSize;
-            *(mVelX + k) = *(mVelX + k);
-            *(mVelY + k) = *(mVelY + k);
+            mVelX[k] = mVelX[k];
+            mVelY[k] = mVelY[k];
         }
     }
 
@@ -124,29 +113,29 @@ void LLWind::decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp)
     for (j=1; j<mSize-1; j++)
     {
         k = i + j * mSize;
-        *(mVelX + k) = *(mVelX + k);
-        *(mVelY + k) = *(mVelY + k);
+        mVelX[k] = mVelX[k];
+        mVelY[k] = mVelY[k];
     }
     i = 0;
     for (j=1; j<mSize-1; j++)
     {
         k = i + j * mSize;
-        *(mVelX + k) = *(mVelX + k);
-        *(mVelY + k) = *(mVelY + k);
+        mVelX[k] = mVelX[k];
+        mVelY[k] = mVelY[k];
     }
     j = mSize - 1;
     for (i=1; i<mSize-1; i++)
     {
         k = i + j * mSize;
-        *(mVelX + k) = *(mVelX + k);
-        *(mVelY + k) = *(mVelY + k);
+        mVelX[k] = mVelX[k];
+        mVelY[k] = mVelY[k];
     }
     j = 0;
     for (i=1; i<mSize-1; i++)
     {
         k = i + j * mSize;
-        *(mVelX + k) = *(mVelX + k);
-        *(mVelY + k) = *(mVelY + k);
+        mVelX[k] = mVelX[k];
+        mVelY[k] = mVelY[k];
     }
 }
 

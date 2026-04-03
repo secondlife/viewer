@@ -1063,9 +1063,9 @@ void LLPreviewGesture::saveIfNeeded()
 
     // Serialize the gesture
     S32 maxSize = gesture->getMaxSerialSize();
-    char* buffer = new char[maxSize];
+    std::vector<char> buffer(maxSize);
 
-    LLDataPackerAsciiBuffer dp(buffer, maxSize);
+    LLDataPackerAsciiBuffer dp(buffer.data(), maxSize);
 
     bool ok = gesture->serialize(dp);
 
@@ -1115,7 +1115,7 @@ void LLPreviewGesture::saveIfNeeded()
                 refresh();
                 item->setComplete(true);
 
-                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mItemUUID, LLAssetType::AT_GESTURE, buffer,
+                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mItemUUID, LLAssetType::AT_GESTURE, std::string(buffer.data(), dp.getCurrentSize()),
                     [](LLUUID itemId, LLUUID newAssetId, LLUUID, LLSD)
                     {
                         LLPreviewGesture::finishInventoryUpload(itemId, newAssetId);
@@ -1125,7 +1125,7 @@ void LLPreviewGesture::saveIfNeeded()
             }
             else if (!mObjectUUID.isNull() && !task_url.empty())
             {
-                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mObjectUUID, mItemUUID, LLAssetType::AT_GESTURE, buffer, nullptr, nullptr);
+                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mObjectUUID, mItemUUID, LLAssetType::AT_GESTURE, std::string(buffer.data(), dp.getCurrentSize()), nullptr, nullptr);
                 url = task_url;
             }
 
@@ -1147,7 +1147,7 @@ void LLPreviewGesture::saveIfNeeded()
             LLFileSystem file(assetId, LLAssetType::AT_GESTURE, LLFileSystem::APPEND);
 
             S32 size = dp.getCurrentSize();
-            file.write((U8*)buffer, size);
+            file.write((U8*)buffer.data(), size);
 
             LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
             LLSaveInfo* info = new LLSaveInfo(mItemUUID, mObjectUUID, descEditor->getText(), tid);

@@ -551,7 +551,7 @@ bool LLVLComposition::generateHeights(const F32 x, const F32 y,
 
             scaled_noisy_height = llmax(0.f, scaled_noisy_height);
             scaled_noisy_height = llmin(3.f, scaled_noisy_height);
-            *(mDatap + i + j*mWidth) = scaled_noisy_height;
+            mDatap[i + j*mWidth] = scaled_noisy_height;
         }
     }
     return true;

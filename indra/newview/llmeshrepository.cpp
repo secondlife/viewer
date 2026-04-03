@@ -3755,13 +3755,8 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
                 S32 remaining = bytes - file.tell();
                 if (remaining > 0)
                 {
-                    U8* block = new(std::nothrow) U8[remaining];
-                    if (block)
-                    {
-                        memset(block, 0, remaining);
-                        file.write(block, remaining);
-                        delete[] block;
-                    }
+                    std::vector<U8> block(remaining, 0);
+                    file.write(block.data(), remaining);
                 }
             }
         }

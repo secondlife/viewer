@@ -29,6 +29,8 @@
 #include "llcrc.h"
 #include "llerror.h"
 
+#include <vector>
+
 /* Copyright (C) 1986 Gary S. Brown.  You may use this program, or
    code or tables extracted from it, as desired without restriction.*/
 
@@ -177,10 +179,10 @@ void LLCRC::update(const std::string& filename)
 
         if (size > 0)
         {
-            U8* data = new U8[size];
+            std::vector<U8> data(size);
             size_t nread;
 
-            nread = fread(data, 1, size, fp);
+            nread = fread(data.data(), 1, size, fp);
             fclose(fp);
 
             if (nread < (size_t) size)
@@ -188,8 +190,7 @@ void LLCRC::update(const std::string& filename)
                 LL_WARNS() << "Short read on " << filename << LL_ENDL;
             }
 
-            update(data, nread);
-            delete[] data;
+            update(data.data(), nread);
         }
         else
         {

@@ -522,7 +522,6 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
     mTextureMemory = S64Bytes(0);
     mLastBindTime = 0.f;
 
-    mPickMask = NULL;
     mPickMaskWidth = 0;
     mPickMaskHeight = 0;
     mUseMipMaps = usemipmaps;
@@ -2224,11 +2223,9 @@ U32 LLImageGL::createPickMask(S32 pWidth, S32 pHeight)
 
     U32 size = pick_width * pick_height;
     size = (size + 7) / 8; // pixelcount-to-bits
-    mPickMask = new U8[size];
+    mPickMask.assign(size, 0);
     mPickMaskWidth = pick_width - 1;
     mPickMaskHeight = pick_height - 1;
-
-    memset(mPickMask, 0, sizeof(U8) * size);
 
     return size;
 }
@@ -2236,11 +2233,7 @@ U32 LLImageGL::createPickMask(S32 pWidth, S32 pHeight)
 //----------------------------------------------------------------------------
 void LLImageGL::freePickMask()
 {
-    if (mPickMask != NULL)
-    {
-        delete [] mPickMask;
-    }
-    mPickMask = NULL;
+    mPickMask.clear();
     mPickMaskWidth = mPickMaskHeight = 0;
 }
 
@@ -2315,7 +2308,7 @@ bool LLImageGL::getMask(const LLVector2 &tc)
 {
     bool res = true;
 
-    if (mPickMask)
+    if (!mPickMask.empty())
     {
         F32 u,v;
         if (LL_LIKELY(tc.isFinite()))

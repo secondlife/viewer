@@ -29,6 +29,8 @@
 
 #include "llworldmipmap.h"
 
+#include <vector>
+
 #include "v3dmath.h"
 #include "lluuid.h"
 #include "llpointer.h"
@@ -254,7 +256,7 @@ private:
     // This boolean table avoids "blocks" to be requested multiple times.
     // Issue: Not sure this scheme is foolproof though as I've seen
     // cases where a block is never retrieved and, because of this boolean being set, never re-requested
-    bool *          mMapBlockLoaded;        // Telling us if the block of regions has been requested or not
+    std::vector<bool> mMapBlockLoaded;      // Telling us if the block of regions has been requested or not
 
     // Track location data : used while there's nothing tracked yet by LLTracker
     bool            mIsTrackingLocation;    // True when we're tracking a point

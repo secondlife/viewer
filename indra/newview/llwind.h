@@ -31,6 +31,8 @@
 #include "v3math.h"
 #include "v3dmath.h"
 
+#include <vector>
+
 class LLVector3;
 class LLBitPack;
 class LLGroupHeader;
@@ -53,8 +55,8 @@ public:
     void setOriginGlobal(const LLVector3d &origin_global);
 private:
     S32 mSize;
-    F32 * mVelX;
-    F32 * mVelY;
+    std::vector<F32> mVelX;
+    std::vector<F32> mVelY;
 
     LLVector3d mOriginGlobal;
     void init();
