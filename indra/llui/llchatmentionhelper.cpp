@@ -153,7 +153,7 @@ void LLChatMentionHelper::setHostCtrl(LLUICtrl* host_ctrl)
         if (host_ctrl)
         {
             mHostHandle = host_ctrl->getHandle();
-            mHostCtrlFocusLostConn = host_ctrl->setFocusLostCallback(std::bind([&]() { hideHelper(getHostCtrl()); }));
+            mHostCtrlFocusLostConn = host_ctrl->setFocusLostCallback([this](LLFocusableElement*) { hideHelper(getHostCtrl()); });
         }
     }
 }

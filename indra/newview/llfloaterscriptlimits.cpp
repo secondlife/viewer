@@ -62,12 +62,13 @@
 // dump responder replies to LL_INFOS() for debugging
 //#define DUMP_REPLIES_TO_LLINFOS
 
-#ifdef DUMP_REPLIES_TO_LLINFOS
-#include "llsdserialize.h"
-#include "llwindow.h"
 #include <functional>
 
 using namespace std::placeholders;
+
+#ifdef DUMP_REPLIES_TO_LLINFOS
+#include "llsdserialize.h"
+#include "llwindow.h"
 #endif
 
 // use fake LLSD responses to check the viewer side is working correctly

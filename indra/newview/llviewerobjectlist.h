@@ -292,7 +292,7 @@ inline void LLViewerObjectList::addToMap(LLViewerObject *objectp)
 
 inline void LLViewerObjectList::removeFromMap(LLViewerObject *objectp)
 {
-    auto iter = std::ranges::find(mMapObjects, objectp);
+    auto iter = std::find(mMapObjects.begin(), mMapObjects.end(), objectp);
     if (iter != mMapObjects.end())
     {
         mMapObjects.erase(iter);

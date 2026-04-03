@@ -1333,7 +1333,7 @@ LLPanelObjectInventory::LLPanelObjectInventory(const LLPanelObjectInventory::Par
     mCommitCallbackRegistrar.add("Inventory.DoCreate", std::bind(&do_nothing));
     mCommitCallbackRegistrar.add("Inventory.AttachObject", std::bind(&do_nothing));
     mCommitCallbackRegistrar.add("Inventory.BeginIMSession", std::bind(&do_nothing));
-    mCommitCallbackRegistrar.add("Inventory.Share",  std::bind(&LLAvatarActions::shareWithAvatars, this));
+    mCommitCallbackRegistrar.add("Inventory.Share",  [this](LLUICtrl*, const LLSD&) { LLAvatarActions::shareWithAvatars(this); });
     mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", std::bind(&do_nothing));
 }
 

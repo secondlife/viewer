@@ -548,7 +548,7 @@ void LLChatBar::onInputEditorGainFocus()
 void LLChatBar::onClickSay( LLUICtrl* ctrl )
 {
     std::string cmd = ctrl->getValue().asString();
-    e_chat_type chat_type = CHAT_TYPE_NORMAL;
+    EChatType chat_type = CHAT_TYPE_NORMAL;
     if (cmd == "shout")
     {
         chat_type = CHAT_TYPE_SHOUT;

@@ -1491,10 +1491,10 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
     }
 
     //post condition: if object is active, it must be on the active list
-    llassert(!active || std::ranges::find(mActiveObjects, objectp) != mActiveObjects.end());
+    llassert(!active || std::find(mActiveObjects.begin(), mActiveObjects.end(), objectp) != mActiveObjects.end());
 
     //post condition: if object is not active, it must not be on the active list
-    llassert(active || std::ranges::find(mActiveObjects, objectp) == mActiveObjects.end());
+    llassert(active || std::find(mActiveObjects.begin(), mActiveObjects.end(), objectp) == mActiveObjects.end());
 }
 
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
@@ -1933,13 +1933,13 @@ void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip
     // Unknown parent, add to orpaned child list
     U64 parent_info = getIndex(parent_id, ip, port);
 
-    if (std::ranges::find(mOrphanParents, parent_info) == mOrphanParents.end())
+    if (std::find(mOrphanParents.begin(), mOrphanParents.end(), parent_info) == mOrphanParents.end())
     {
         mOrphanParents.push_back(parent_info);
     }
 
     LLViewerObjectList::OrphanInfo oi(parent_info, childp->mID);
-    if (std::ranges::find(mOrphanChildren, oi) == mOrphanChildren.end())
+    if (std::find(mOrphanChildren.begin(), mOrphanChildren.end(), oi) == mOrphanChildren.end())
     {
         mOrphanChildren.push_back(oi);
         mNumOrphans++;
@@ -1971,7 +1971,7 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
         // no known orphan parents
         return;
     }
-    if (std::ranges::find(mOrphanParents, getIndex(objectp->mLocalID, ip, port)) == mOrphanParents.end())
+    if (std::find(mOrphanParents.begin(), mOrphanParents.end(), getIndex(objectp->mLocalID, ip, port)) == mOrphanParents.end())
     {
         // did not find objectp in OrphanParent list
         return;
@@ -2036,7 +2036,7 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 
     // Remove orphan parent and children from lists now that they've been found
     {
-        auto iter = std::ranges::find(mOrphanParents, parent_info);
+        auto iter = std::find(mOrphanParents.begin(), mOrphanParents.end(), parent_info);
         if (iter != mOrphanParents.end())
         {
             mOrphanParents.erase(iter);

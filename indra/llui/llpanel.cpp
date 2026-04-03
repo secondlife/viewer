@@ -668,7 +668,7 @@ void LLPanel::childSetCommitCallback(std::string_view id, std::function<void (LL
     LLUICtrl* child = findChild<LLUICtrl>(id);
     if (child)
     {
-        child->setCommitCallback(std::bind(cb, child, data));
+        child->setCommitCallback([cb, child, data](LLUICtrl*, const LLSD&) { cb(child, data); });
     }
 }
 
@@ -765,7 +765,7 @@ void LLPanel::childSetAction(std::string_view id, std::function<void(void*)> fun
     LLButton* button = findChild<LLButton>(id);
     if (button)
     {
-        button->setClickedCallback(std::bind(function, value));
+        button->setClickedCallback([function, value](LLUICtrl*, const LLSD&) { function(value); });
     }
 }
 

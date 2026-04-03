@@ -50,9 +50,6 @@
 // Third-party library includes
 #include <algorithm>
 #include <functional>
-
-using namespace std::placeholders;
-
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -223,7 +220,7 @@ LLFolderView::LLFolderView(const Params& p)
     params.rect(rect);
     params.font(getLabelFontForStyle(LLFontGL::NORMAL));
     params.max_length.bytes(DB_INV_ITEM_NAME_STR_LEN);
-    params.commit_callback.function(std::bind(&LLFolderView::commitRename, this, _2));
+    params.commit_callback.function([this](LLUICtrl*, const LLSD& a2) { commitRename(a2); });
     params.prevalidator(&LLTextValidate::validateASCIIPrintableNoPipe);
     params.commit_on_focus_lost(true);
     params.visible(false);
@@ -1088,7 +1085,7 @@ void LLFolderView::startRenamingSelectedItem( void )
         mRenamer->setFocus( true );
         if (!mRenamerTopLostSignalConnection.connected())
         {
-            mRenamerTopLostSignalConnection = mRenamer->setTopLostCallback(std::bind(&LLFolderView::onRenamerLost, this));
+            mRenamerTopLostSignalConnection = mRenamer->setTopLostCallback([this](LLFocusableElement*) { onRenamerLost(); });
         }
         LLUI::getInstance()->addPopup(mRenamer);
     }

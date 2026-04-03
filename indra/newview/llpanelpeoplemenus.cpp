@@ -70,17 +70,17 @@ LLContextMenu* PeopleContextMenu::createMenu()
         // Set up for one person selected menu
 
         const LLUUID& id = mUUIDs.front();
-        registrar.add("Avatar.Profile",         std::bind(&LLAvatarActions::showProfile,              id));
-        registrar.add("Avatar.AddFriend",       std::bind(&LLAvatarActions::requestFriendshipDialog,  id));
-        registrar.add("Avatar.RemoveFriend",    std::bind(&LLAvatarActions::removeFriendDialog,       id));
-        registrar.add("Avatar.IM",              std::bind(&LLAvatarActions::startIM,                  id));
-        registrar.add("Avatar.Call",            std::bind(&LLAvatarActions::startCall,                id));
-        registrar.add("Avatar.OfferTeleport",   std::bind(&PeopleContextMenu::offerTeleport,          this));
-        registrar.add("Avatar.ZoomIn",          std::bind(&handle_zoom_to_object,                     id));
-        registrar.add("Avatar.ShowOnMap",       std::bind(&LLAvatarActions::showOnMap,                id));
-        registrar.add("Avatar.Share",           std::bind(&LLAvatarActions::share,                    id));
-        registrar.add("Avatar.Pay",             std::bind(&LLAvatarActions::pay,                      id));
-        registrar.add("Avatar.BlockUnblock",    std::bind(&LLAvatarActions::toggleBlock,              id));
+        registrar.add("Avatar.Profile",         [id](LLUICtrl*, const LLSD&) { LLAvatarActions::showProfile(id); });
+        registrar.add("Avatar.AddFriend",       [id](LLUICtrl*, const LLSD&) { LLAvatarActions::requestFriendshipDialog(id); });
+        registrar.add("Avatar.RemoveFriend",    [id](LLUICtrl*, const LLSD&) { LLAvatarActions::removeFriendDialog(id); });
+        registrar.add("Avatar.IM",              [id](LLUICtrl*, const LLSD&) { LLAvatarActions::startIM(id); });
+        registrar.add("Avatar.Call",            [id](LLUICtrl*, const LLSD&) { LLAvatarActions::startCall(id); });
+        registrar.add("Avatar.OfferTeleport",   [this](LLUICtrl*, const LLSD&) { offerTeleport(); });
+        registrar.add("Avatar.ZoomIn",          [id](LLUICtrl*, const LLSD&) { handle_zoom_to_object(id); });
+        registrar.add("Avatar.ShowOnMap",       [id](LLUICtrl*, const LLSD&) { LLAvatarActions::showOnMap(id); });
+        registrar.add("Avatar.Share",           [id](LLUICtrl*, const LLSD&) { LLAvatarActions::share(id); });
+        registrar.add("Avatar.Pay",             [id](LLUICtrl*, const LLSD&) { LLAvatarActions::pay(id); });
+        registrar.add("Avatar.BlockUnblock",    [id](LLUICtrl*, const LLSD&) { LLAvatarActions::toggleBlock(id); });
         registrar.add("Avatar.InviteToGroup",   std::bind(&LLAvatarActions::inviteToGroup,            id));
         registrar.add("Avatar.TeleportRequest", std::bind(&PeopleContextMenu::requestTeleport,        this));
         registrar.add("Avatar.Calllog",         std::bind(&LLAvatarActions::viewChatHistory,          id));

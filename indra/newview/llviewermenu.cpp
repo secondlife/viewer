@@ -10224,7 +10224,7 @@ void initialize_menus()
     enable.add("Avatar.IsMyProfileOpen", std::bind(&my_profile_visible));
     enable.add("Avatar.IsPicksTabOpen", std::bind(&picks_tab_visible));
 
-    commit.add("Avatar.OpenMarketplace", std::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
+    commit.add("Avatar.OpenMarketplace", [](LLUICtrl*, const LLSD&) { LLWeb::loadURLExternal(gSavedSettings.getString("MarketplaceURL")); });
 
     view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
     enable.add("Avatar.EnableFreezeEject", std::bind(&enable_freeze_eject, _2));

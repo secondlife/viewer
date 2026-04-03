@@ -116,7 +116,7 @@ public:
 
     [[nodiscard]] bool       hasGLTexture() const ;
     [[nodiscard]] LLGLuint   getTexName() const ;
-    [[nodiscard]] bool       createGLTexture() ;
+    bool       createGLTexture() ;
 
     // Create a GL Texture from an image raw
     // discard_level - mip level, 0 for highest resultion mip
@@ -126,7 +126,7 @@ public:
     // category - LLGLTexture category for this LLGLTexture
     // defer_copy - set to true to allocate GL texture but NOT initialize with imageraw data
     // tex_name - if not null, will be set to the GL name of the texture created
-    [[nodiscard]] bool       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, bool to_create = true, S32 category = LLGLTexture::OTHER, bool defer_copy = false, LLGLuint* tex_name = nullptr);
+    bool       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, bool to_create = true, S32 category = LLGLTexture::OTHER, bool defer_copy = false, LLGLuint* tex_name = nullptr);
 
     void       setFilteringOption(LLTexUnit::eTextureFilterOptions option);
     void       setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, bool swap_bytes = false);

@@ -946,12 +946,12 @@ public:
 
     static void addEnable(view_listener_t* listener, const std::string& name)
     {
-        LLUICtrl::EnableCallbackRegistry::currentRegistrar().add(name, std::bind(&view_listener_t::handleEvent, listener, std::placeholders::_2));
+        LLUICtrl::EnableCallbackRegistry::currentRegistrar().add(name, [listener](LLUICtrl*, const LLSD& param) { return listener->handleEvent(param); });
     }
 
     static void addCommit(view_listener_t* listener, const std::string& name)
     {
-        LLUICtrl::CommitCallbackRegistry::currentRegistrar().add(name, std::bind(&view_listener_t::handleEvent, listener, std::placeholders::_2));
+        LLUICtrl::CommitCallbackRegistry::currentRegistrar().add(name, [listener](LLUICtrl*, const LLSD& param) { listener->handleEvent(param); });
     }
 
     static void addMenu(view_listener_t* listener, const std::string& name)

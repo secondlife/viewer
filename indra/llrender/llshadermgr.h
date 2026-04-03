@@ -370,7 +370,7 @@ public:
     void persistShaderCacheMetadata();
 
     [[nodiscard]] bool loadCachedProgramBinary(LLGLSLShader* shader);
-    [[nodiscard]] bool saveCachedProgramBinary(LLGLSLShader* shader);
+    bool saveCachedProgramBinary(LLGLSLShader* shader);
 
 public:
     // Map of shader names to compiled

@@ -54,7 +54,7 @@ LLModalDialog::LLModalDialog( const LLSD& key, bool modal )
     setBackgroundVisible(true);
     setBackgroundOpaque(true);
     centerOnScreen(); // default position
-    mCloseSignal.connect(std::bind(&LLModalDialog::stopModal, this));
+    mCloseSignal.connect([this](LLUICtrl*, const LLSD&) { stopModal(); });
 }
 
 LLModalDialog::~LLModalDialog()

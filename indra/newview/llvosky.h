@@ -320,8 +320,8 @@ protected:
     static S32          sResolution;
     static S32          sTileResX;
     static S32          sTileResY;
-    std::array<LLSkyTex, 6> mSkyTex;
-    std::array<LLSkyTex, 6> mShinyTex;
+    LLSkyTex            mSkyTex[6];
+    LLSkyTex            mShinyTex[6];
     LLHeavenBody        mSun;
     LLHeavenBody        mMoon;
     LLVector3           mSunDefaultPosition;

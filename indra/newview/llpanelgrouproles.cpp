@@ -917,7 +917,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
         allowed_by_all &= powers;
         allowed_by_some |= powers;
     }
-    std::ranges::sort(selected_members);
+    std::sort(selected_members.begin(), selected_members.end());
 
     //////////////////////////////////
     // Build the allowed actions list.
@@ -1583,8 +1583,7 @@ U64 LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges(const LLUUID& ag
              current_role != member_data->roleEnd(); ++current_role)
         {
             bool role_in_remove_list =
-                (std::ranges::find(roles_to_be_removed,
-                           current_role->second->getID()) !=
+                (std::find(roles_to_be_removed.begin(), roles_to_be_removed.end(), current_role->second->getID()) !=
                  roles_to_be_removed.end());
 
             if ( !role_in_remove_list )

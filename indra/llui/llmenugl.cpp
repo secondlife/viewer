@@ -2321,7 +2321,7 @@ void LLMenuGL::arrange( void )
                     LLMenuScrollItem::Params item_params;
                     item_params.name(ARROW_UP);
                     item_params.arrow_type(LLMenuScrollItem::ARROW_UP);
-                    item_params.scroll_callback.function(std::bind(&LLMenuGL::scrollItems, this, SD_UP));
+                    item_params.scroll_callback.function([this](LLUICtrl*, const LLSD&) { scrollItems(SD_UP); });
 
                     mArrowUpItem = LLUICtrlFactory::create<LLMenuScrollItem>(item_params);
                     LLUICtrl::addChild(mArrowUpItem);
@@ -2332,7 +2332,7 @@ void LLMenuGL::arrange( void )
                     LLMenuScrollItem::Params item_params;
                     item_params.name(ARROW_DOWN);
                     item_params.arrow_type(LLMenuScrollItem::ARROW_DOWN);
-                    item_params.scroll_callback.function(std::bind(&LLMenuGL::scrollItems, this, SD_DOWN));
+                    item_params.scroll_callback.function([this](LLUICtrl*, const LLSD&) { scrollItems(SD_DOWN); });
 
                     mArrowDownItem = LLUICtrlFactory::create<LLMenuScrollItem>(item_params);
                     LLUICtrl::addChild(mArrowDownItem);
@@ -3966,7 +3966,7 @@ LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) :
 
     // Can't do this in postBuild() because that is only called for floaters
     // constructed from XML.
-    mCloseSignal.connect(std::bind(&LLTearOffMenu::closeTearOff, this));
+    mCloseSignal.connect([this](LLUICtrl*, const LLSD&) { closeTearOff(); });
 }
 
 LLTearOffMenu::~LLTearOffMenu()

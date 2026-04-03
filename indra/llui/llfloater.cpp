@@ -226,14 +226,14 @@ void LLFloater::initClass()
     LLControlVariable* ctrl = LLUI::getInstance()->mSettingGroups["config"]->getControl("ActiveFloaterTransparency").get();
     if (ctrl)
     {
-        ctrl->getSignal()->connect(std::bind(&LLFloater::updateActiveFloaterTransparency));
+        ctrl->getSignal()->connect([](LLControlVariable*, const LLSD&, const LLSD&) { LLFloater::updateActiveFloaterTransparency(); });
         updateActiveFloaterTransparency();
     }
 
     ctrl = LLUI::getInstance()->mSettingGroups["config"]->getControl("InactiveFloaterTransparency").get();
     if (ctrl)
     {
-        ctrl->getSignal()->connect(std::bind(&LLFloater::updateInactiveFloaterTransparency));
+        ctrl->getSignal()->connect([](LLControlVariable*, const LLSD&, const LLSD&) { LLFloater::updateInactiveFloaterTransparency(); });
         updateInactiveFloaterTransparency();
     }
 
@@ -2354,7 +2354,7 @@ void LLFloater::buildButtons(const Params& floater_params)
         // Use a glow effect when the user hovers over the button
         // These icons are really small, need glow amount increased
         p.hover_glow_amount( 0.33f );
-        p.click_callback.function(std::bind(sButtonCallbacks[i], this));
+        p.click_callback.function([cb = sButtonCallbacks[i], this](LLUICtrl*, const LLSD&) { cb(this); });
         p.tab_stop(false);
         p.follows.flags(FOLLOWS_TOP|FOLLOWS_RIGHT);
         p.tool_tip = getButtonTooltip(floater_params, (EFloaterButton)i, getIsChrome());
@@ -2885,7 +2885,7 @@ void LLFloaterView::hideAllFloaters()
         if (floaterp && floaterp->getVisible())
         {
             floaterp->setVisible(false);
-            boost::signals2::connection connection = floaterp->mCloseSignal.connect(std::bind(&LLFloaterView::hiddenFloaterClosed, this, floaterp));
+            boost::signals2::connection connection = floaterp->mCloseSignal.connect([this, floaterp](LLUICtrl*, const LLSD&) { hiddenFloaterClosed(floaterp); });
             mHiddenFloaters.push_back(std::make_pair(floaterp->getHandle(), connection));
         }
     }

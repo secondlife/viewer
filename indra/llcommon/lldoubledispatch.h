@@ -153,9 +153,9 @@ public:
         insert(t1, t2, func);
         if (symmetrical)
         {
-            // Use std::bind() to construct a param-swapping thunk. Don't
+            // Use a lambda to construct a param-swapping thunk. Don't
             // forget to reverse the parameters too.
-            insert(t2, t1, std::bind(func, std::placeholders::_2, std::placeholders::_1));
+            insert(t2, t1, [func](auto&& a1, auto&& a2) { return func(a2, a1); });
         }
     }
 
@@ -190,7 +190,7 @@ public:
         insert(Type<Type1>(), Type<Type2>(), func, insertion);
         if (symmetrical)
         {
-            insert(Type<Type2>(), Type<Type1>(), std::bind(func, std::placeholders::_2, std::placeholders::_1), insertion);
+            insert(Type<Type2>(), Type<Type1>(), [func](auto&& a1, auto&& a2) { return func(a2, a1); }, insertion);
         }
     }
 
@@ -268,8 +268,7 @@ private:
     typename DispatchTable::iterator find(const ParamBaseType& param1, const ParamBaseType& param2)
     {
         return std::ranges::find_if(mDispatch,
-                            std::bind(&EntryBase::matches, std::placeholders::_1,
-                                        std::ref(param1), std::ref(param2)));
+                            [&param1, &param2](const auto& entry) { return entry->matches(param1, param2); });
     }
 
     /// Look up the first matching entry.

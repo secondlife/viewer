@@ -900,19 +900,19 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
         }
 
         //water reflection texture (always needed as scratch space whether or not transparent water is enabled)
-        mWaterDis.allocate(resX, resY, screenFormat, true);
+        (void)mWaterDis.allocate(resX, resY, screenFormat, true);
 
         if(RenderScreenSpaceReflections)
         {
-            mSceneMap.allocate(resX, resY, screenFormat, true);
+            (void)mSceneMap.allocate(resX, resY, screenFormat, true);
         }
         else
         {
             mSceneMap.release();
         }
 
-        mPostPingMap.allocate(resX, resY, GL_RGBA);
-        mPostPongMap.allocate(resX, resY, GL_RGBA);
+        (void)mPostPingMap.allocate(resX, resY, GL_RGBA);
+        (void)mPostPongMap.allocate(resX, resY, GL_RGBA);
 
         // The water exclusion mask needs its own depth buffer so we can take care of the problem of multiple water planes.
         // Should we ever make water not just a plane, it also aids with that as well as the water planes will be rendered into the mask.
@@ -925,9 +925,9 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
 
         // used to scale down textures
         // See LLViwerTextureList::updateImagesCreateTextures and LLImageGL::scaleDown
-        mDownResMap.allocate(1024, 1024, GL_RGBA);
+        (void)mDownResMap.allocate(1024, 1024, GL_RGBA);
 
-        mBakeMap.allocate(LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH, LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT, GL_RGBA);
+        (void)mBakeMap.allocate(LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH, LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT, GL_RGBA);
     }
     //HACK make screenbuffer allocations start failing after 30 seconds
     if (gSavedSettings.getBOOL("SimulateFBOFailure"))
@@ -1287,7 +1287,7 @@ void LLPipeline::createGLBuffers()
     const U32 glow_color_fmt = glow_hdr ? GL_RGBA16F : GL_RGBA;
     for (U32 i = 0; i < 3; i++)
     {
-        mGlow[i].allocate(512, glow_res, glow_color_fmt);
+        (void)mGlow[i].allocate(512, glow_res, glow_color_fmt);
     }
 
     allocateScreenBuffer(resX, resY);
@@ -1464,7 +1464,7 @@ void LLPipeline::createLUTBuffers()
 
     }
 
-    mPbrBrdfLut.allocate(512, 512, GL_RG16F);
+    (void)mPbrBrdfLut.allocate(512, 512, GL_RG16F);
     mPbrBrdfLut.bindTarget();
 
     if (gDeferredGenBrdfLutProgram.isComplete())
@@ -1488,16 +1488,16 @@ void LLPipeline::createLUTBuffers()
     gDeferredGenBrdfLutProgram.unbind();
     mPbrBrdfLut.flush();
 
-    mExposureMap.allocate(1, 1, GL_R16F);
+    (void)mExposureMap.allocate(1, 1, GL_R16F);
     mExposureMap.bindTarget();
     glClearColor(1, 1, 1, 0);
     mExposureMap.clear();
     glClearColor(0, 0, 0, 0);
     mExposureMap.flush();
 
-    mLuminanceMap.allocate(256, 256, GL_R16F, false, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_AUTO);
+    (void)mLuminanceMap.allocate(256, 256, GL_R16F, false, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_AUTO);
 
-    mLastExposure.allocate(1, 1, GL_R16F);
+    (void)mLastExposure.allocate(1, 1, GL_R16F);
 }
 
 void LLPipeline::restoreGL()
@@ -1822,7 +1822,7 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
     // Based on flags, remove the drawable from the queues that it's on.
     if (drawablep->isState(LLDrawable::ON_MOVE_LIST))
     {
-        LLDrawable::drawable_vector_t::iterator iter = std::ranges::find(mMovedList, drawablep);
+        LLDrawable::drawable_vector_t::iterator iter = std::find(mMovedList.begin(), mMovedList.end(), drawablep);
         if (iter != mMovedList.end())
         {
             mMovedList.erase(iter);
@@ -4827,7 +4827,7 @@ void LLPipeline::renderDebug()
                     gGL.flush();
                     glPointSize(1.f);
 
-                    LLVector3* ext = mShadowExtents[i];
+                    auto& ext = mShadowExtents[i];
                     LLVector3 pos = (ext[0]+ext[1])*0.5f;
                     LLVector3 size = (ext[1]-ext[0])*0.5f;
                     drawBoxOutline(pos, size);
@@ -5989,11 +5989,11 @@ void LLPipeline::findReferences(LLDrawable *drawablep)
     {
         LL_INFOS() << "In mLights" << LL_ENDL;
     }
-    if (std::ranges::find(mMovedList, drawablep) != mMovedList.end())
+    if (std::find(mMovedList.begin(), mMovedList.end(), drawablep) != mMovedList.end())
     {
         LL_INFOS() << "In mMovedList" << LL_ENDL;
     }
-    if (std::ranges::find(mShiftList, drawablep) != mShiftList.end())
+    if (std::find(mShiftList.begin(), mShiftList.end(), drawablep) != mShiftList.end())
     {
         LL_INFOS() << "In mShiftList" << LL_ENDL;
     }
@@ -6002,7 +6002,7 @@ void LLPipeline::findReferences(LLDrawable *drawablep)
         LL_INFOS() << "In mRetexturedList" << LL_ENDL;
     }
 
-    if (std::ranges::find(mBuildQ1, drawablep) != mBuildQ1.end())
+    if (std::find(mBuildQ1.begin(), mBuildQ1.end(), drawablep) != mBuildQ1.end())
     {
         LL_INFOS() << "In mBuildQ1" << LL_ENDL;
     }
@@ -10849,7 +10849,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
         {
             if (!avatar->mImpostor.isComplete())
             {
-                avatar->mImpostor.allocate(resX, resY, GL_RGBA, true);
+                (void)avatar->mImpostor.allocate(resX, resY, GL_RGBA, true);
 
                 if (LLPipeline::sRenderDeferred)
                 {

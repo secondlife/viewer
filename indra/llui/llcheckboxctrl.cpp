@@ -141,7 +141,7 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
     LLButton::Params params = p.check_button;
     params.rect(btn_rect);
     //params.control_name(p.control_name);
-    params.click_callback.function(std::bind(&LLCheckBoxCtrl::onCommit, this));
+    params.click_callback.function([this](LLUICtrl*, const LLSD&) { onCommit(); });
     params.commit_on_return(false);
     // Checkboxes only allow boolean initial values, but buttons can
     // take any LLSD.

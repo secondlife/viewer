@@ -121,7 +121,7 @@ bool LLSidepanelAppearance::postBuild()
         LLButton* back_btn = mOutfitEdit->getChild<LLButton>("back_btn");
         if (back_btn)
         {
-            back_btn->setClickedCallback(std::bind(&LLSidepanelAppearance::showOutfitsInventoryPanel, this));
+            back_btn->setClickedCallback([this](LLUICtrl*, const LLSD&) { showOutfitsInventoryPanel(); });
         }
 
     }

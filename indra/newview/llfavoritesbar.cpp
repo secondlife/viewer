@@ -1281,7 +1281,7 @@ void LLFavoritesBarCtrl::addOpenLandmarksMenuItem(LLToggleableMenu* menu)
     item_params.label(translated ? label_transl: label_untrans);
     LLSD key;
     key["type"] = "open_landmark_tab";
-    item_params.on_click.function(std::bind(&LLFloaterSidePanelContainer::showPanel, "places", key));
+    item_params.on_click.function([key](LLUICtrl*, const LLSD&) { LLFloaterSidePanelContainer::showPanel("places", key); });
     LLMenuItemCallGL* menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
     fitLabelWidth(menu_item);
@@ -1810,7 +1810,7 @@ void LLFavoritesOrderStorage::destroyClass()
         LL_INFOS("FavoritesBar") << "moving favorites from old name '" << old_filename
                                  << "' to new name '" << new_filename << "'"
                                  << LL_ENDL;
-        LLFile::copy(old_filename,new_filename);
+        (void)LLFile::copy(old_filename,new_filename);
         LLFile::remove(old_filename);
     }
 

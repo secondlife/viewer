@@ -42,7 +42,6 @@
 #include "message.h" // for getting the port
 #include <functional>
 
-using namespace std::placeholders;
 
 
 using namespace LLCore;
@@ -696,7 +695,7 @@ HttpRequestPumper::HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request) 
     mHttpRequest(request)
 {
     mBoundListener = LLEventPumps::instance().obtain("mainloop").
-        listen(LLEventPump::ANONYMOUS, std::bind(&HttpRequestPumper::pollRequest, this, _1));
+        listen(LLEventPump::ANONYMOUS, [this](const LLSD& event) { return pollRequest(event); });
 }
 
 HttpRequestPumper::~HttpRequestPumper()
@@ -1289,16 +1288,16 @@ LLCore::HttpStatus HttpCoroutineAdapter::getStatusFromLLSD(const LLSD &httpResul
 void HttpCoroutineAdapter::callbackHttpGet(const std::string &url, LLCore::HttpRequest::policy_t policyId, completionCallback_t success, completionCallback_t failure)
 {
     LLCoros::instance().launch("HttpCoroutineAdapter::genericGetCoro",
-        std::bind(&HttpCoroutineAdapter::trivialGetCoro, url, policyId, success, failure));
+        [url, policyId, success, failure]() { trivialGetCoro(url, policyId, success, failure); });
 }
 
 /*static*/
 void HttpCoroutineAdapter::messageHttpGet(const std::string &url, const std::string &success, const std::string &failure)
 {
     completionCallback_t cbSuccess = (success.empty()) ? nullptr :
-        static_cast<completionCallback_t>(std::bind(&logMessageSuccess, "HttpCoroutineAdapter", url, success));
+        completionCallback_t([url, success](const LLSD&) { logMessageSuccess("HttpCoroutineAdapter", url, success); });
     completionCallback_t cbFailure = (failure.empty()) ? nullptr :
-        static_cast<completionCallback_t>(std::bind(&logMessageFail, "HttpCoroutineAdapter", url, failure));
+        completionCallback_t([url, failure](const LLSD&) { logMessageFail("HttpCoroutineAdapter", url, failure); });
     callbackHttpGet(url, cbSuccess, cbFailure);
 }
 
@@ -1339,16 +1338,16 @@ void HttpCoroutineAdapter::trivialGetCoro(std::string url, LLCore::HttpRequest::
 void HttpCoroutineAdapter::callbackHttpPost(const std::string &url, LLCore::HttpRequest::policy_t policyId, const LLSD &postData, completionCallback_t success, completionCallback_t failure)
 {
     LLCoros::instance().launch("HttpCoroutineAdapter::genericPostCoro",
-        std::bind(&HttpCoroutineAdapter::trivialPostCoro, url, policyId, postData, success, failure));
+        [url, policyId, postData, success, failure]() { trivialPostCoro(url, policyId, postData, success, failure); });
 }
 
 /*static*/
 void HttpCoroutineAdapter::messageHttpPost(const std::string &url, const LLSD &postData, const std::string &success, const std::string &failure)
 {
     completionCallback_t cbSuccess = (success.empty()) ? nullptr :
-        static_cast<completionCallback_t>(std::bind(&logMessageSuccess, "HttpCoroutineAdapter", url, success));
+        completionCallback_t([url, success](const LLSD&) { logMessageSuccess("HttpCoroutineAdapter", url, success); });
     completionCallback_t cbFailure = (failure.empty()) ? nullptr :
-        static_cast<completionCallback_t>(std::bind(&logMessageFail, "HttpCoroutineAdapter", url, failure));
+        completionCallback_t([url, failure](const LLSD&) { logMessageFail("HttpCoroutineAdapter", url, failure); });
 
     callbackHttpPost(url, postData, cbSuccess, cbFailure);
 }
@@ -1394,7 +1393,7 @@ void HttpCoroutineAdapter::callbackHttpDel(const std::string &url, LLCore::HttpR
                                            completionCallback_t failure)
 {
     LLCoros::instance().launch("HttpCoroutineAdapter::genericDelCoro",
-                               std::bind(&HttpCoroutineAdapter::trivialDelCoro, url, policyId, success, failure));
+                               [url, policyId, success, failure]() { trivialDelCoro(url, policyId, success, failure); });
 }
 
 /*static*/

@@ -110,7 +110,7 @@ LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
                           });
 
     std::set<LLUUID> uuids(mUUIDs.begin(), mUUIDs.end());
-    registrar.add("Inventory.Share", std::bind(&LLAvatarActions::shareWithAvatars, uuids, gFloaterView->getParentFloater(mGallery)));
+    registrar.add("Inventory.Share", [uuids, gallery = mGallery](LLUICtrl*, const LLSD&) { LLAvatarActions::shareWithAvatars(uuids, gFloaterView->getParentFloater(gallery)); });
 
     enable_registrar.add("Inventory.CanSetUploadLocation", std::bind(&LLInventoryGalleryContextMenu::canSetUploadLocation, this, _2));
     enable_registrar.add("Inventory.FileUploadLocation.Check", std::bind(&LLInventoryGalleryContextMenu::isUploadLocationSelected, this, _2));

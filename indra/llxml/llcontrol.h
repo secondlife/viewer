@@ -104,8 +104,8 @@ public:
     const std::string& getName() const { return mName; }
     const std::string& getComment() const { return mComment; }
 
-    eControlType type()     { return mType; }
-    bool isType(eControlType tp) { return tp == mType; }
+    eControlType type() const     { return mType; }
+    bool isType(eControlType tp) const { return tp == mType; }
 
     void resetToDefault(bool fire_signal = false);
 
@@ -113,8 +113,8 @@ public:
     commit_signal_t* getCommitSignal() { return &mCommitSignal; }
     validate_signal_t* getValidateSignal() { return &mValidateSignal; }
 
-    bool isDefault() { return (mValues.size() == 1); }
-    bool shouldSave(bool nondefault_only);
+    bool isDefault() const { return (mValues.size() == 1); }
+    bool shouldSave(bool nondefault_only) const;
     bool isPersisted() { return mPersist != PERSIST_NO; }
     bool isHiddenFromSettingsEditor() { return mHideFromSettingsEditor; }
     LLSD get()          const   { return getValue(); }
@@ -135,7 +135,7 @@ private:
         mCommitSignal(this, mValues.back(), pPreviousValue);
     }
     LLSD getComparableValue(const LLSD& value);
-    bool llsd_compare(const LLSD& a, const LLSD & b);
+    bool llsd_compare(const LLSD& a, const LLSD & b) const;
 };
 
 using LLControlVariablePtr = LLPointer<LLControlVariable>;
@@ -344,7 +344,7 @@ private:
         // Add a listener to the controls signal...
         // NOTE: All listeners connected to 0 group, for guaranty that variable handlers (gSavedSettings) call last
         mConnection = controlp->getSignal()->connect(0,
-            [this](const LLSD&, const LLSD& newvalue) { return handleValueChange(newvalue); }
+            [this](LLControlVariable*, const LLSD&, const LLSD& newvalue) { return handleValueChange(newvalue); }
             );
         mType = controlp->type();
     }

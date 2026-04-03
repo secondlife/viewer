@@ -241,8 +241,8 @@ public:
     void            setDoubleClickCallback( callback_t cb ) { mOnDoubleClickCallback = cb; }
     void            setMaximumSelectCallback( callback_t cb) { mOnMaximumSelectCallback = cb; }
     void            setSortChangedCallback( callback_t cb)  { mOnSortChangedCallback = cb; }
-    // Convenience function; *TODO: replace with setter above + std::bind() in calling code
-    void            setDoubleClickCallback( std::function<void (void* userdata)> cb, void* userdata) { mOnDoubleClickCallback = std::bind(cb, userdata); }
+    // Convenience function; *TODO: replace with setter above + lambda in calling code
+    void            setDoubleClickCallback( std::function<void (void* userdata)> cb, void* userdata) { mOnDoubleClickCallback = [cb, userdata]() { cb(userdata); }; }
 
     void            swapWithNext(S32 index);
     void            swapWithPrevious(S32 index);

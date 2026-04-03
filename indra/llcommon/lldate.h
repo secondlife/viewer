@@ -92,9 +92,9 @@ public:
      * @param iso8601_date An iso-8601 compatible representation of the date.
      * @return Returns true if the string was successfully parsed.
      */
-    [[nodiscard]] bool fromString(const std::string& iso8601_date);
-    [[nodiscard]] bool fromStream(std::istream&);
-    [[nodiscard]] bool fromYMDHMS(S32 year, S32 month = 1, S32 day = 0, S32 hour = 0, S32 min = 0, S32 sec = 0);
+    bool fromString(const std::string& iso8601_date);
+    bool fromStream(std::istream&);
+    bool fromYMDHMS(S32 year, S32 month = 1, S32 day = 0, S32 hour = 0, S32 min = 0, S32 sec = 0);
 
     /**
      * @brief Return the date in seconds since epoch.

@@ -80,7 +80,6 @@
 #include "llpounceable.h"
 #include <functional>
 
-using namespace std::placeholders;
 
 // Constants
 //const char* MESSAGE_LOG_FILENAME = "message.log";
@@ -1168,13 +1167,15 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
         UntrustedCallback_t cb = nullptr;
         if ((mSendReliable) && (mReliablePacketParams.mCallback))
         {
-            cb = std::bind(mReliablePacketParams.mCallback, mReliablePacketParams.mCallbackData, _1);
+            auto callback = mReliablePacketParams.mCallback;
+            auto callbackData = mReliablePacketParams.mCallbackData;
+            cb = [callback, callbackData](S32 result) { callback(callbackData, result); };
         }
 
+        auto cap = host.getUntrustedSimulatorCap();
+        auto msgName = mLLSDMessageBuilder->getMessageName();
         LLCoros::instance().launch("LLMessageSystem::sendUntrustedSimulatorMessageCoro",
-            std::bind(&LLMessageSystem::sendUntrustedSimulatorMessageCoro, this,
-            host.getUntrustedSimulatorCap(),
-            mLLSDMessageBuilder->getMessageName(), message, cb));
+            [this, cap, msgName, message, cb]() { sendUntrustedSimulatorMessageCoro(cap, msgName, message, cb); });
 
         mSendReliable = false;
         mReliablePacketParams.clear();
@@ -1365,12 +1366,15 @@ S32 LLMessageSystem::sendMessage(
     UntrustedCallback_t cb = nullptr;
     if ((mSendReliable) && (mReliablePacketParams.mCallback))
     {
-        cb = std::bind(mReliablePacketParams.mCallback, mReliablePacketParams.mCallbackData, _1);
+        auto callback = mReliablePacketParams.mCallback;
+        auto callbackData = mReliablePacketParams.mCallbackData;
+        cb = [callback, callbackData](S32 result) { callback(callbackData, result); };
     }
 
+    auto cap = host.getUntrustedSimulatorCap();
+    std::string msgName(name);
     LLCoros::instance().launch("LLMessageSystem::sendUntrustedSimulatorMessageCoro",
-            std::bind(&LLMessageSystem::sendUntrustedSimulatorMessageCoro, this,
-            host.getUntrustedSimulatorCap(), name, message, cb));
+            [this, cap, msgName, message, cb]() { sendUntrustedSimulatorMessageCoro(cap, msgName, message, cb); });
     return 1;
 }
 

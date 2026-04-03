@@ -1152,7 +1152,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
             LLImageGL* img = image->getGLTexture();
             if (img && img->getHasGLTexture())
             {
-                img->scaleDown(image->getDesiredDiscardLevel());
+                (void)img->scaleDown(image->getDesiredDiscardLevel());
             }
 
             image->mDownScalePending = false;
@@ -1226,7 +1226,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 
     // update N textures at beginning of mImageList
     U32 update_count = 0;
-    static constexpr S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinCount");       // default: 32
+    static const S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinCount");       // default: 32
 
     // NOTE:  a texture may be deleted as a side effect of some of these updates
     // Deletion rules check ref count, so be careful not to hold any LLPointer references to the textures here other than the one in entries.

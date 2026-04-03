@@ -70,11 +70,12 @@
 #include <list>
 #include <map>
 
-#if LL_DARWIN
-#include <CoreFoundation/CFURL.h>
 #include <functional>
 
 using namespace std::placeholders;
+
+#if LL_DARWIN
+#include <CoreFoundation/CFURL.h>
 #endif
 
 // Static initialization

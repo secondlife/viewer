@@ -331,7 +331,7 @@ void GLTFSceneManager::load(const std::string& filename)
         { // assign to self avatar
             obj->mGLTFAsset = asset;
             obj->markForUpdate();
-            if (std::ranges::find(mObjects, obj) == mObjects.end())
+            if (std::find(mObjects.begin(), mObjects.end(), obj) == mObjects.end())
             {
                 mObjects.push_back(obj);
             }
@@ -401,7 +401,7 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
                             if (obj->mGLTFAsset->prep())
                             {
                                 GLTFSceneManager& mgr = GLTFSceneManager::instance();
-                                if (std::ranges::find(mgr.mObjects, obj) == mgr.mObjects.end())
+                                if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
                                 {
                                     GLTFSceneManager::instance().mObjects.push_back(obj);
                                 }

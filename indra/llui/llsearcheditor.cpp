@@ -31,9 +31,6 @@
 #include "llsearcheditor.h"
 #include "llkeyboard.h"
 #include <functional>
-
-using namespace std::placeholders;
-
 LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 :   LLUICtrl(p),
     mSearchButton(NULL),
@@ -71,8 +68,8 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
     line_editor_params.text_pad_left(text_pad_left);
     line_editor_params.text_pad_right(text_pad_right);
     line_editor_params.revert_on_esc(false);
-    line_editor_params.commit_callback.function(std::bind(&LLUICtrl::onCommit, this));
-    line_editor_params.keystroke_callback(std::bind(&LLSearchEditor::handleKeystroke, this));
+    line_editor_params.commit_callback.function([this](LLUICtrl*, const LLSD&) { onCommit(); });
+    line_editor_params.keystroke_callback([this](LLLineEditor*) { handleKeystroke(); });
 
     mSearchEditor = LLUICtrlFactory::create<LLLineEditor>(line_editor_params);
     mSearchEditor->setPassDelete(true);
@@ -86,7 +83,7 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
         srch_btn_params.rect(srch_btn_rect) ;
         srch_btn_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_TOP);
         srch_btn_params.tab_stop(false);
-        srch_btn_params.click_callback.function(std::bind(&LLUICtrl::onCommit, this));
+        srch_btn_params.click_callback.function([this](LLUICtrl*, const LLSD&) { onCommit(); });
 
         mSearchButton = LLUICtrlFactory::create<LLButton>(srch_btn_params);
         mSearchEditor->addChild(mSearchButton);
@@ -100,7 +97,7 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
         clr_btn_params.rect(clear_btn_rect) ;
         clr_btn_params.follows.flags(FOLLOWS_RIGHT|FOLLOWS_TOP);
         clr_btn_params.tab_stop(false);
-        clr_btn_params.click_callback.function(std::bind(&LLSearchEditor::onClearButtonClick, this, _2));
+        clr_btn_params.click_callback.function([this](LLUICtrl*, const LLSD& a2) { onClearButtonClick(a2); });
 
         mClearButton = LLUICtrlFactory::create<LLButton>(clr_btn_params);
         mSearchEditor->addChild(mClearButton);

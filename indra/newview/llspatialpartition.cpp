@@ -3715,7 +3715,7 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
     mEnvIntensity(0.0f),
     mAlphaMaskCutoff(0.5f)
 {
-    mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
+    (void)mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
 }
 
 LLDrawInfo::~LLDrawInfo()
@@ -3731,7 +3731,7 @@ LLColor4U LLDrawInfo::getDebugColor() const
     LLColor4U color;
 
     LLCRC hash;
-    hash.update((U8*)this + sizeof(S32), sizeof(LLDrawInfo) - sizeof(S32));
+    hash.update(std::span<const U8>((U8*)this + sizeof(S32), sizeof(LLDrawInfo) - sizeof(S32)));
 
     *((U32*) color.mV) = hash.getCRC();
 
@@ -3742,7 +3742,7 @@ LLColor4U LLDrawInfo::getDebugColor() const
 
 void LLDrawInfo::validate()
 {
-    mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
+    (void)mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
 }
 
 U64 LLDrawInfo::getSkinHash()

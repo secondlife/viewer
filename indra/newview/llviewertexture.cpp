@@ -3061,7 +3061,7 @@ void LLViewerLODTexture::processTextureStats()
     else
     {
         //static const F64 log_2 = log(2.0);
-        static constexpr F64 log_4 = log(4.0);
+        static const F64 log_4 = log(4.0);
 
         F32 discard_level = 0.f;
 

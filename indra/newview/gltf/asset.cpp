@@ -1091,7 +1091,7 @@ bool Image::save(Asset& asset, const std::string& folder)
                     std::string filename = gDirUtilp->getBaseFileName(source);
                     std::string dest = folder + delim + filename;
 
-                    LLFile::copy(source, dest);
+                    (void)LLFile::copy(source, dest);
                     mUri = filename;
                 }
                 else
@@ -1112,7 +1112,7 @@ bool Image::save(Asset& asset, const std::string& folder)
             if (gDirUtilp->fileExists(filename))
             {
                 std::string dest = folder + delim + base_filename;
-                LLFile::copy(filename, dest);
+                (void)LLFile::copy(filename, dest);
                 mUri = base_filename;
             }
             else

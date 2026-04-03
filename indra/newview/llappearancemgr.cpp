@@ -2358,7 +2358,7 @@ void item_array_diff(LLInventoryModel::item_array_t& full_list,
          ++it)
     {
         LLViewerInventoryItem *item = *it;
-        if (std::ranges::find(keep_list, item) == keep_list.end())
+        if (std::find(keep_list.begin(), keep_list.end(), item) == keep_list.end())
         {
             kill_list.push_back(item);
         }

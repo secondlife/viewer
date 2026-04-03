@@ -29,9 +29,6 @@
 #include "lldockcontrol.h"
 #include "lldockablefloater.h"
 #include <functional>
-
-using namespace std::placeholders;
-
 LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
         const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_allowed_rect_callback) :
         mDockableFloater(dockableFloater),
@@ -59,7 +56,7 @@ LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
 
     if (!(get_allowed_rect_callback))
     {
-        mGetAllowedRectCallback = std::bind(&LLDockControl::getAllowedRect, this, _1);
+        mGetAllowedRectCallback = [this](LLRect& rect) { getAllowedRect(rect); };
     }
     else
     {

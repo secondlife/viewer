@@ -148,7 +148,7 @@ public:
      * @param data The data to set.
      * @return Returns true if the option was set.
      */
-    [[nodiscard]] bool setOptionData(OptionPriority level, LLSD data);
+    bool setOptionData(OptionPriority level, LLSD data);
 
     /**
      * @brief Get the option data at the specified priority.

@@ -35,9 +35,6 @@
 #include "lltextutil.h"
 #include "lluictrl.h"
 #include <functional>
-
-using namespace std::placeholders;
-
 static const std::string DD_BUTTON_NAME = "dd_button";
 static const std::string DD_TEXTBOX_NAME = "dd_textbox";
 static const std::string DD_HEADER_NAME = "dd_header";
@@ -388,11 +385,11 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
     mHeader = LLUICtrlFactory::create<LLAccordionCtrlTabHeader>(headerParams);
     addChild(mHeader, 1);
 
-    LLFocusableElement::setFocusReceivedCallback(std::bind(&LLAccordionCtrlTab::selectOnFocusReceived, this));
+    LLFocusableElement::setFocusReceivedCallback([this](LLFocusableElement*) { selectOnFocusReceived(); });
 
     if (!p.selection_enabled)
     {
-        LLFocusableElement::setFocusLostCallback(std::bind(&LLAccordionCtrlTab::deselectOnFocusLost, this));
+        LLFocusableElement::setFocusLostCallback([this](LLFocusableElement*) { deselectOnFocusLost(); });
     }
 
     reshape(100, 200,false);
@@ -722,7 +719,7 @@ bool LLAccordionCtrlTab::postBuild()
         sbparams.page_size(getRect().getHeight());
         sbparams.step_size(VERTICAL_MULTIPLE);
         sbparams.follows.flags(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
-        sbparams.change_callback(std::bind(&LLAccordionCtrlTab::onScrollPosChangeCallback, this, _1, _2));
+        sbparams.change_callback([this](S32 new_pos, LLScrollbar* scrollbar) { onScrollPosChangeCallback(new_pos, scrollbar); });
 
         mScrollbar = LLUICtrlFactory::create<LLScrollbar>(sbparams);
         LLView::addChild(mScrollbar);

@@ -32,9 +32,6 @@
 #include "lluictrlfactory.h"
 
 #include <functional>
-
-using namespace std::placeholders;
-
 static  LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
 static  LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;
 static  LLInitParam::Parser::parser_inspect_func_map_t sInspectFuncs;
@@ -46,20 +43,20 @@ LLRNGWriter::LLRNGWriter()
 : Parser(sReadFuncs, sWriteFuncs, sInspectFuncs)
 {
     // register various callbacks for inspecting the contents of a param block
-    registerInspectFunc<bool>(std::bind(&LLRNGWriter::writeAttribute, this, "boolean", _1, _2, _3, _4));
-    registerInspectFunc<std::string>(std::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-    registerInspectFunc<U8>(std::bind(&LLRNGWriter::writeAttribute, this, "unsignedByte", _1, _2, _3, _4));
-    registerInspectFunc<S8>(std::bind(&LLRNGWriter::writeAttribute, this, "signedByte", _1, _2, _3, _4));
-    registerInspectFunc<U16>(std::bind(&LLRNGWriter::writeAttribute, this, "unsignedShort", _1, _2, _3, _4));
-    registerInspectFunc<S16>(std::bind(&LLRNGWriter::writeAttribute, this, "signedShort", _1, _2, _3, _4));
-    registerInspectFunc<U32>(std::bind(&LLRNGWriter::writeAttribute, this, "unsignedInt", _1, _2, _3, _4));
-    registerInspectFunc<S32>(std::bind(&LLRNGWriter::writeAttribute, this, "integer", _1, _2, _3, _4));
-    registerInspectFunc<F32>(std::bind(&LLRNGWriter::writeAttribute, this, "float", _1, _2, _3, _4));
-    registerInspectFunc<F64>(std::bind(&LLRNGWriter::writeAttribute, this, "double", _1, _2, _3, _4));
-    registerInspectFunc<LLColor4>(std::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-    registerInspectFunc<LLUIColor>(std::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-    registerInspectFunc<LLUUID>(std::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-    registerInspectFunc<LLSD>(std::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
+    registerInspectFunc<bool>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("boolean", stack, min_count, max_count, values); });
+    registerInspectFunc<std::string>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("string", stack, min_count, max_count, values); });
+    registerInspectFunc<U8>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("unsignedByte", stack, min_count, max_count, values); });
+    registerInspectFunc<S8>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("signedByte", stack, min_count, max_count, values); });
+    registerInspectFunc<U16>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("unsignedShort", stack, min_count, max_count, values); });
+    registerInspectFunc<S16>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("signedShort", stack, min_count, max_count, values); });
+    registerInspectFunc<U32>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("unsignedInt", stack, min_count, max_count, values); });
+    registerInspectFunc<S32>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("integer", stack, min_count, max_count, values); });
+    registerInspectFunc<F32>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("float", stack, min_count, max_count, values); });
+    registerInspectFunc<F64>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("double", stack, min_count, max_count, values); });
+    registerInspectFunc<LLColor4>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("string", stack, min_count, max_count, values); });
+    registerInspectFunc<LLUIColor>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("string", stack, min_count, max_count, values); });
+    registerInspectFunc<LLUUID>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("string", stack, min_count, max_count, values); });
+    registerInspectFunc<LLSD>([this](name_stack_t& stack, S32 min_count, S32 max_count, const possible_values_t* values) { writeAttribute("string", stack, min_count, max_count, values); });
 }
 
 void LLRNGWriter::writeRNG(const std::string& type_name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace)

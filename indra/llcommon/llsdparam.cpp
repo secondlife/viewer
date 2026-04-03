@@ -331,7 +331,7 @@ namespace LLInitParam
         if (!p.writeValue<LLSD>(mValue, name_stack_range))
         {
             // otherwise read from LLSD value and serialize out to parser (which could be LLSD, XUI, etc)
-            LLParamSDParserUtilities::readSDValues(std::bind(&serializeElement, std::ref(p), std::placeholders::_1, std::placeholders::_2), mValue, name_stack_range);
+            LLParamSDParserUtilities::readSDValues([&p](const LLSD& sd, LLInitParam::Parser::name_stack_t& stack) { serializeElement(p, sd, stack); }, mValue, name_stack_range);
         }
         return true;
     }

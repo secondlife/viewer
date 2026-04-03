@@ -276,7 +276,7 @@ void LLReflectionMapManager::update()
     {
         U32 color_fmt = render_hdr ? GL_R11F_G11F_B10F : GL_RGB8;
         U32 targetRes = mProbeResolution * 4; // super sample
-        mRenderTarget.allocate(targetRes, targetRes, color_fmt, true);
+        (void)mRenderTarget.allocate(targetRes, targetRes, color_fmt, true);
     }
 
     if (mMipChain.empty())
@@ -287,7 +287,7 @@ void LLReflectionMapManager::update()
         mMipChain.resize(count);
         for (U32 i = 0; i < count; ++i)
         {
-            mMipChain[i].allocate(res, res, render_hdr ? GL_R11F_G11F_B10F : GL_RGB8);
+            (void)mMipChain[i].allocate(res, res, render_hdr ? GL_R11F_G11F_B10F : GL_RGB8);
             res /= 2;
         }
     }

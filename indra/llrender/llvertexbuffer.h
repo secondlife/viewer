@@ -186,11 +186,11 @@ public:
     LLVertexBuffer(U32 typemask);
 
     // allocate buffer
-    [[nodiscard]] bool    allocateBuffer(U32 nverts, U32 nindices);
+    bool    allocateBuffer(U32 nverts, U32 nindices);
 
     // map for data access (see also getFooStrider below)
-    [[nodiscard]] U8*     mapVertexBuffer(AttributeType type, U32 index, S32 count = -1);
-    [[nodiscard]] U8*     mapIndexBuffer(U32 index, S32 count = -1);
+    U8*     mapVertexBuffer(AttributeType type, U32 index, S32 count = -1);
+    U8*     mapIndexBuffer(U32 index, S32 count = -1);
 
     // synonym for flushBuffers
     void    unmapBuffer();
@@ -209,21 +209,21 @@ public:
     //   vb->getNormalStrider(norms);
     //   setVertsNorms(verts, norms);
     //   vb->unmapBuffer();
-    [[nodiscard]] bool getVertexStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getVertexStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getIndexStrider(LLStrider<U16>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getTexCoord0Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getTexCoord1Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getTexCoord2Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getNormalStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getNormalStrider(LLStrider<LLVector4a>& strider, U32 index = 0, S32 count = -1);
-    [[nodiscard]] bool getTangentStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getTangentStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getColorStrider(LLStrider<LLColor4U>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getEmissiveStrider(LLStrider<LLColor4U>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getWeightStrider(LLStrider<F32>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getWeight4Strider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
-    [[nodiscard]] bool getClothWeightStrider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
+    bool getVertexStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
+    bool getVertexStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
+    bool getIndexStrider(LLStrider<U16>& strider, U32 index=0, S32 count = -1);
+    bool getTexCoord0Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+    bool getTexCoord1Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+    bool getTexCoord2Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+    bool getNormalStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
+    bool getNormalStrider(LLStrider<LLVector4a>& strider, U32 index = 0, S32 count = -1);
+    bool getTangentStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
+    bool getTangentStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
+    bool getColorStrider(LLStrider<LLColor4U>& strider, U32 index=0, S32 count = -1);
+    bool getEmissiveStrider(LLStrider<LLColor4U>& strider, U32 index=0, S32 count = -1);
+    bool getWeightStrider(LLStrider<F32>& strider, U32 index=0, S32 count = -1);
+    bool getWeight4Strider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
+    bool getClothWeightStrider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
 
     void setPositionData(const LLVector4a* data);
     void setNormalData(const LLVector4a* data);

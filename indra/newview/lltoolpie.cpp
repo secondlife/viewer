@@ -1207,7 +1207,7 @@ bool LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
                 p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
                 p.message(tooltip_msg);
                 p.image.name("Inspector_I");
-                p.click_callback(std::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
+                p.click_callback([id = hover_object->getID(), face = mHoverPick.mObjectFace]() { showObjectInspector(id, face); });
                 p.time_based_media(is_time_based_media);
                 p.web_based_media(is_web_based_media);
                 p.media_playing(is_media_playing);

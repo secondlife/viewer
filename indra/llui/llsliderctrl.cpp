@@ -44,7 +44,6 @@
 #include "lluictrlfactory.h"
 #include <functional>
 
-using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLSliderCtrl> r("slider");
 
@@ -173,7 +172,7 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
             line_p.prevalidator(&LLTextValidate::validateFloat);
             mEditor = LLUICtrlFactory::create<LLLineEditor>(line_p);
 
-            mEditor->setFocusReceivedCallback( std::bind(&LLSliderCtrl::onEditorGainFocus, _1, this ));
+            mEditor->setFocusReceivedCallback( [this](LLFocusableElement* caller) { LLSliderCtrl::onEditorGainFocus(caller, this); });
             // don't do this, as selecting the entire text is single clicking in some cases
             // and double clicking in others
             //mEditor->setSelectAllonFocusReceived(true);

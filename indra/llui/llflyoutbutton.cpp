@@ -29,9 +29,6 @@
 // file includes
 #include "llflyoutbutton.h"
 #include <functional>
-
-using namespace std::placeholders;
-
 //static LLDefaultChildRegistry::Register<LLFlyoutButton> r2("flyout_button");
 
 const S32 FLYOUT_BUTTON_ARROW_WIDTH = 24;
@@ -47,7 +44,7 @@ LLFlyoutButton::LLFlyoutButton(const Params& p)
     bp.name(p.label);
     bp.label(p.label);
     bp.rect.left(0).bottom(0).width(getRect().getWidth() - FLYOUT_BUTTON_ARROW_WIDTH).height(getRect().getHeight());
-    bp.click_callback.function(std::bind(&LLFlyoutButton::onActionButtonClick, this, _2));
+    bp.click_callback.function([this](LLUICtrl*, const LLSD& a2) { onActionButtonClick(a2); });
     bp.follows.flags(FOLLOWS_ALL);
 
     mActionButton = LLUICtrlFactory::create<LLButton>(bp);

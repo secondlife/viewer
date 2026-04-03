@@ -986,7 +986,7 @@ void LLPanelOutfitEdit::updatePlusButton()
     }
 
     // If any of the selected items are not wearable (due to already being worn OR being of the wrong type), disable the add button.
-    uuid_vec_t::iterator unwearable_item = std::ranges::find_if(selected_items, !std::bind(&get_can_item_be_worn, _1));
+    uuid_vec_t::iterator unwearable_item = std::find_if(selected_items.begin(), selected_items.end(), [](const LLUUID& id) { return !get_can_item_be_worn(id); });
     bool can_add = ( unwearable_item == selected_items.end() );
 
     mPlusBtn->setEnabled(can_add);

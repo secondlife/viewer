@@ -87,9 +87,9 @@ LLVirtualTrackball::LLVirtualTrackball(const LLVirtualTrackball::Params& p)
 
     LLButton::Params btn_rt = p.btn_rotate_top;
     btn_rt.rect(LLRect(centerX - axis_offset_lt, border_rect.mTop, centerX + axis_offset_rb, border_rect.mTop - btn_size));
-    btn_rt.click_callback.function(std::bind(&LLVirtualTrackball::onRotateTopClick, this));
-    btn_rt.mouse_held_callback.function(std::bind(&LLVirtualTrackball::onRotateTopClick, this));
-    btn_rt.mouseenter_callback.function(std::bind(&LLVirtualTrackball::onRotateTopMouseEnter, this));
+    btn_rt.click_callback.function([this](LLUICtrl*, const LLSD&) { onRotateTopClick(); });
+    btn_rt.mouse_held_callback.function([this](LLUICtrl*, const LLSD&) { onRotateTopClick(); });
+    btn_rt.mouseenter_callback.function([this](LLUICtrl*, const LLSD&) { onRotateTopMouseEnter(); });
     mBtnRotateTop = LLUICtrlFactory::create<LLButton>(btn_rt);
     addChild(mBtnRotateTop);
 
@@ -104,9 +104,9 @@ LLVirtualTrackball::LLVirtualTrackball(const LLVirtualTrackball::Params& p)
 
     LLButton::Params btn_rr = p.btn_rotate_right;
     btn_rr.rect(LLRect(border_rect.mRight - btn_size, centerY + axis_offset_lt, border_rect.mRight, centerY - axis_offset_rb));
-    btn_rr.click_callback.function(std::bind(&LLVirtualTrackball::onRotateRightClick, this));
-    btn_rr.mouse_held_callback.function(std::bind(&LLVirtualTrackball::onRotateRightClick, this));
-    btn_rr.mouseenter_callback.function(std::bind(&LLVirtualTrackball::onRotateRightMouseEnter, this));
+    btn_rr.click_callback.function([this](LLUICtrl*, const LLSD&) { onRotateRightClick(); });
+    btn_rr.mouse_held_callback.function([this](LLUICtrl*, const LLSD&) { onRotateRightClick(); });
+    btn_rr.mouseenter_callback.function([this](LLUICtrl*, const LLSD&) { onRotateRightMouseEnter(); });
     mBtnRotateRight = LLUICtrlFactory::create<LLButton>(btn_rr);
     addChild(mBtnRotateRight);
 
@@ -121,9 +121,9 @@ LLVirtualTrackball::LLVirtualTrackball(const LLVirtualTrackball::Params& p)
 
     LLButton::Params btn_rb = p.btn_rotate_bottom;
     btn_rb.rect(LLRect(centerX - axis_offset_lt, border_rect.mBottom + btn_size, centerX + axis_offset_rb, border_rect.mBottom));
-    btn_rb.click_callback.function(std::bind(&LLVirtualTrackball::onRotateBottomClick, this));
-    btn_rb.mouse_held_callback.function(std::bind(&LLVirtualTrackball::onRotateBottomClick, this));
-    btn_rb.mouseenter_callback.function(std::bind(&LLVirtualTrackball::onRotateBottomMouseEnter, this));
+    btn_rb.click_callback.function([this](LLUICtrl*, const LLSD&) { onRotateBottomClick(); });
+    btn_rb.mouse_held_callback.function([this](LLUICtrl*, const LLSD&) { onRotateBottomClick(); });
+    btn_rb.mouseenter_callback.function([this](LLUICtrl*, const LLSD&) { onRotateBottomMouseEnter(); });
     mBtnRotateBottom = LLUICtrlFactory::create<LLButton>(btn_rb);
     addChild(mBtnRotateBottom);
 
@@ -138,9 +138,9 @@ LLVirtualTrackball::LLVirtualTrackball(const LLVirtualTrackball::Params& p)
 
     LLButton::Params btn_rl = p.btn_rotate_left;
     btn_rl.rect(LLRect(border_rect.mLeft, centerY + axis_offset_lt, border_rect.mLeft + btn_size, centerY - axis_offset_rb));
-    btn_rl.click_callback.function(std::bind(&LLVirtualTrackball::onRotateLeftClick, this));
-    btn_rl.mouse_held_callback.function(std::bind(&LLVirtualTrackball::onRotateLeftClick, this));
-    btn_rl.mouseenter_callback.function(std::bind(&LLVirtualTrackball::onRotateLeftMouseEnter, this));
+    btn_rl.click_callback.function([this](LLUICtrl*, const LLSD&) { onRotateLeftClick(); });
+    btn_rl.mouse_held_callback.function([this](LLUICtrl*, const LLSD&) { onRotateLeftClick(); });
+    btn_rl.mouseenter_callback.function([this](LLUICtrl*, const LLSD&) { onRotateLeftMouseEnter(); });
     mBtnRotateLeft = LLUICtrlFactory::create<LLButton>(btn_rl);
     addChild(mBtnRotateLeft);
 

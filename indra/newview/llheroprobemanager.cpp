@@ -106,7 +106,7 @@ void LLHeroProbeManager::update()
     if (!mRenderTarget.isComplete())
     {
         U32 color_fmt = render_hdr ? GL_RGBA16F : GL_RGBA8;
-        mRenderTarget.allocate(mProbeResolution, mProbeResolution, color_fmt, true);
+        (void)mRenderTarget.allocate(mProbeResolution, mProbeResolution, color_fmt, true);
     }
 
     if (mMipChain.empty())
@@ -117,7 +117,7 @@ void LLHeroProbeManager::update()
         mMipChain.resize(count);
         for (U32 i = 0; i < count; ++i)
         {
-            mMipChain[i].allocate(res, res, render_hdr ? GL_RGBA16F : GL_RGBA8);
+            (void)mMipChain[i].allocate(res, res, render_hdr ? GL_RGBA16F : GL_RGBA8);
             res /= 2;
         }
     }
@@ -640,7 +640,7 @@ bool LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
 {
     llassert(drawablep != nullptr);
 
-    if (std::ranges::find(mHeroVOList, drawablep) == mHeroVOList.end())
+    if (std::find(mHeroVOList.begin(), mHeroVOList.end(), drawablep) == mHeroVOList.end())
     {
         // Probe isn't in our list for consideration.  Add it.
         mHeroVOList.push_back(drawablep);
@@ -652,7 +652,7 @@ bool LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
 
 void LLHeroProbeManager::unregisterViewerObject(LLVOVolume* drawablep)
 {
-    std::vector<LLPointer<LLVOVolume>>::iterator found_itr = std::ranges::find(mHeroVOList, drawablep);
+    std::vector<LLPointer<LLVOVolume>>::iterator found_itr = std::find(mHeroVOList.begin(), mHeroVOList.end(), drawablep);
     if (found_itr != mHeroVOList.end())
     {
         mHeroVOList.erase(found_itr);

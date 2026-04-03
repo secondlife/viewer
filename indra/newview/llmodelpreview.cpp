@@ -3249,7 +3249,7 @@ void LLModelPreview::addEmptyFace(LLModel* pTarget)
     memset((U8*)buff->getMappedData(), 0, buff->getSize());
     memset((U8*)buff->getMappedIndices(), 0, buff->getIndicesSize());
 
-    buff->validateRange(0, buff->getNumVerts() - 1, buff->getNumIndices(), 0);
+    (void)buff->validateRange(0, buff->getNumVerts() - 1, buff->getNumIndices(), 0);
 
     LLStrider<LLVector3> pos;
     LLStrider<LLVector3> norm;

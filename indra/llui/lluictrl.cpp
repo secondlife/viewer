@@ -38,7 +38,6 @@
 #include "lluiusage.h"
 #include <functional>
 
-using namespace std::placeholders;
 
 static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 
@@ -278,7 +277,11 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
     if (cb.function.isProvided())
     {
         if (cb.parameter.isProvided())
-            return std::bind(cb.function(), _1, cb.parameter);
+        {
+            auto func = cb.function();
+            auto param = cb.parameter;
+            return commit_signal_t::slot_type([func, param](LLUICtrl* ctrl, const LLSD&) { func(ctrl, param); });
+        }
         else
             return cb.function();
     }
@@ -290,7 +293,11 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
         if (func)
         {
             if (cb.parameter.isProvided())
-                return std::bind((*func), _1, cb.parameter);
+            {
+                auto f = *func;
+                auto param = cb.parameter;
+                return commit_signal_t::slot_type([f, param](LLUICtrl* ctrl, const LLSD&) { f(ctrl, param); });
+            }
             else
                 return commit_signal_t::slot_type(*func);
         }
@@ -308,7 +315,11 @@ LLUICtrl::enable_signal_t::slot_type LLUICtrl::initEnableCallback(const EnableCa
     if (cb.function.isProvided())
     {
         if (cb.parameter.isProvided())
-            return std::bind(cb.function(), this, cb.parameter);
+        {
+            auto func = cb.function();
+            auto param = cb.parameter;
+            return enable_signal_t::slot_type([func, self = this, param](LLUICtrl*, const LLSD&) { return func(self, param); });
+        }
         else
             return cb.function();
     }
@@ -318,7 +329,11 @@ LLUICtrl::enable_signal_t::slot_type LLUICtrl::initEnableCallback(const EnableCa
         if (func)
         {
             if (cb.parameter.isProvided())
-                return std::bind((*func), this, cb.parameter);
+            {
+                auto f = *func;
+                auto param = cb.parameter;
+                return enable_signal_t::slot_type([f, self = this, param](LLUICtrl*, const LLSD&) { return f(self, param); });
+            }
             else
                 return enable_signal_t::slot_type(*func);
         }
@@ -529,7 +544,7 @@ void LLUICtrl::setControlVariable(LLControlVariable* control)
     if (control)
     {
         mControlVariable = control;
-        mControlConnection = mControlVariable->getSignal()->connect(std::bind(&controlListener, _2, getHandle(), std::string("value")));
+        mControlConnection = mControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD&, const LLSD& newval) { controlListener(newval, handle, "value"); });
         setValue(mControlVariable->getValue());
     }
 }
@@ -574,7 +589,7 @@ void LLUICtrl::setEnabledControlVariable(LLControlVariable* control)
     if (control)
     {
         mEnabledControlVariable = control;
-        mEnabledControlConnection = mEnabledControlVariable->getSignal()->connect(std::bind(&controlListener, _2, getHandle(), std::string("enabled")));
+        mEnabledControlConnection = mEnabledControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD&, const LLSD& newval) { controlListener(newval, handle, "enabled"); });
         setEnabled(mEnabledControlVariable->getValue().asBoolean());
     }
 }
@@ -589,7 +604,7 @@ void LLUICtrl::setDisabledControlVariable(LLControlVariable* control)
     if (control)
     {
         mDisabledControlVariable = control;
-        mDisabledControlConnection = mDisabledControlVariable->getSignal()->connect(std::bind(&controlListener, _2, getHandle(), std::string("disabled")));
+        mDisabledControlConnection = mDisabledControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD&, const LLSD& newval) { controlListener(newval, handle, "disabled"); });
         setEnabled(!(mDisabledControlVariable->getValue().asBoolean()));
     }
 }
@@ -604,7 +619,7 @@ void LLUICtrl::setMakeVisibleControlVariable(LLControlVariable* control)
     if (control)
     {
         mMakeVisibleControlVariable = control;
-        mMakeVisibleControlConnection = mMakeVisibleControlVariable->getSignal()->connect(std::bind(&controlListener, _2, getHandle(), std::string("visible")));
+        mMakeVisibleControlConnection = mMakeVisibleControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD&, const LLSD& newval) { controlListener(newval, handle, "visible"); });
         setVisible(mMakeVisibleControlVariable->getValue().asBoolean());
     }
 }
@@ -619,7 +634,7 @@ void LLUICtrl::setMakeInvisibleControlVariable(LLControlVariable* control)
     if (control)
     {
         mMakeInvisibleControlVariable = control;
-        mMakeInvisibleControlConnection = mMakeInvisibleControlVariable->getSignal()->connect(std::bind(&controlListener, _2, getHandle(), std::string("invisible")));
+        mMakeInvisibleControlConnection = mMakeInvisibleControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD&, const LLSD& newval) { controlListener(newval, handle, "invisible"); });
         setVisible(!(mMakeInvisibleControlVariable->getValue().asBoolean()));
     }
 }
@@ -1004,14 +1019,14 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 // *TODO: Deprecate; for backwards compatability only:
 boost::signals2::connection LLUICtrl::setCommitCallback( std::function<void (LLUICtrl*,void*)> cb, void* data)
 {
-    return setCommitCallback( std::bind(cb, std::placeholders::_1, data));
+    return setCommitCallback( [cb, data](LLUICtrl* ctrl, const LLSD&) { cb(ctrl, data); });
 }
 
 boost::signals2::connection LLUICtrl::setValidateBeforeCommit( std::function<bool (const LLSD& data)> cb )
 {
     if (!mValidateSignal) mValidateSignal = new enable_signal_t();
 
-    return mValidateSignal->connect(std::bind(cb, std::placeholders::_2));
+    return mValidateSignal->connect([cb](LLUICtrl*, const LLSD& a2) { return cb(a2); });
 }
 
 // virtual

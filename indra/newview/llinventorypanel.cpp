@@ -188,7 +188,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
     mCommitCallbackRegistrar.add("Inventory.DoCreate", std::bind(&LLInventoryPanel::doCreate, this, _2));
     mCommitCallbackRegistrar.add("Inventory.AttachObject", std::bind(&LLInventoryPanel::attachObject, this, _2));
     mCommitCallbackRegistrar.add("Inventory.BeginIMSession", std::bind(&LLInventoryPanel::beginIMSession, this));
-    mCommitCallbackRegistrar.add("Inventory.Share",  std::bind(&LLAvatarActions::shareWithAvatars, this));
+    mCommitCallbackRegistrar.add("Inventory.Share",  [this](LLUICtrl*, const LLSD&) { LLAvatarActions::shareWithAvatars(this); });
     mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", std::bind(&LLInventoryPanel::fileUploadLocation, this, _2));
     mEnableCallbackRegistrar.add("Inventory.FileUploadLocation.Check", std::bind(&LLInventoryPanel::isUploadLocationSelected, this, _2));
     mCommitCallbackRegistrar.add("Inventory.OpenNewFolderWindow", std::bind(&LLInventoryPanel::openSingleViewInventory, this, LLUUID()));
@@ -852,7 +852,7 @@ LLUUID LLInventoryPanel::getRootFolderID()
                 if (root_id.isNull())
                 {
                     LL_WARNS() << "Could not find folder of type " << preferred_type << LL_ENDL;
-                    root_id.generateNewID();
+                    (void)root_id.generateNewID();
                 }
             }
         }

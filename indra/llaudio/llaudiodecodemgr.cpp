@@ -37,6 +37,7 @@
 #include "llrefcount.h"
 #include "threadpool.h"
 #include "workqueue.h"
+#include <span>
 
 #include "llvorbisencode.h"
 
@@ -102,7 +103,7 @@ size_t cache_read(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
     LLFileSystem *file = (LLFileSystem *)datasource;
 
-    if (file->read((U8*)ptr, (S32)(size * nmemb)))  /*Flawfinder: ignore*/
+    if (file->read(std::span<U8>((U8*)ptr, size * nmemb)))  /*Flawfinder: ignore*/
     {
         S32 read = file->getLastBytesRead();
         return  read / size;    /*Flawfinder: ignore*/

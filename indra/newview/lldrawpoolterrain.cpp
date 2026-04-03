@@ -333,7 +333,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
     // Hack! Get the region that this draw pool is rendering from!
     LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
     LLVLComposition *compp = regionp->getComposition();
-    LLPointer<LLFetchedGLTFMaterial> (*fetched_materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailRenderMaterials;
+    std::array<LLPointer<LLFetchedGLTFMaterial>, LLVLComposition::ASSET_COUNT>* fetched_materials = &compp->mDetailRenderMaterials;
 
     constexpr U32 terrain_material_count = LLVLComposition::ASSET_COUNT;
 #ifdef SHOW_ASSERT

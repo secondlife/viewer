@@ -125,18 +125,18 @@ public:
 
     static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression = true);
 
-    [[nodiscard]] bool createGLTexture() ;
-    [[nodiscard]] bool createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, bool to_create = true,
+    bool createGLTexture() ;
+    bool createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, bool to_create = true,
         S32 category = sMaxCategories-1, bool defer_copy = false, LLGLuint* tex_name = nullptr);
-    [[nodiscard]] bool createGLTexture(S32 discard_level, const U8* data, bool data_hasmips = false, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
+    bool createGLTexture(S32 discard_level, const U8* data, bool data_hasmips = false, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
     void setImage(const LLImageRaw* imageraw);
     bool setImage(const U8* data_in, bool data_hasmips = false, S32 usename = 0);
     // *TODO: This function may not work if the textures is compressed (i.e.
     // RenderCompressTextures is 0). Partial image updates do not work on
     // compressed textures.
-    [[nodiscard]] bool setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, bool force_fast_update = false, LLGLuint use_name = 0);
-    [[nodiscard]] bool setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, bool force_fast_update = false, LLGLuint use_name = 0);
-    [[nodiscard]] bool setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
+    bool setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, bool force_fast_update = false, LLGLuint use_name = 0);
+    bool setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, bool force_fast_update = false, LLGLuint use_name = 0);
+    bool setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
 
     // wait for gl commands to finish on current thread and push
     // a lambda to main thread to swap mNewTexName and mTexName

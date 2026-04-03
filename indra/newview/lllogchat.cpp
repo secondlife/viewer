@@ -435,7 +435,7 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
             {   // Found it without "(group)", copy to new naming style.  We already have the mod time in stat_data
                 log_file_name = LLLogChat::makeLogFileName(file_name);
                 LL_DEBUGS("ChatHistory") << "Attempt to stat copied history file " << log_file_name << LL_ENDL;
-                LLFile::copy(LLLogChat::makeLogFileName(old_name), log_file_name);
+                (void)LLFile::copy(LLLogChat::makeLogFileName(old_name), log_file_name);
             }
         }
         if (no_stat)
@@ -1196,7 +1196,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
             if (fptr)
             {
                 fclose(fptr);
-                LLFile::copy(LLLogChat::makeLogFileName(old_name), LLLogChat::makeLogFileName(file_name));
+                (void)LLFile::copy(LLLogChat::makeLogFileName(old_name), LLLogChat::makeLogFileName(file_name));
             }
             fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "rb");
         }

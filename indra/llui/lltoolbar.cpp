@@ -35,9 +35,6 @@
 #include "llinventory.h"
 #include "lliconctrl.h"
 #include <functional>
-
-using namespace std::placeholders;
-
 // uncomment this and remove the one in llui.cpp when there is an external reference to this translation unit
 // thanks, MSVC!
 //static LLDefaultChildRegistry::Register<LLToolBar> r1("toolbar");
@@ -148,11 +145,11 @@ void LLToolBar::createContextMenu()
         // Setup bindings specific to this instance for the context menu options
 
         LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit_reg;
-        commit_reg.add("Toolbars.EnableSetting", std::bind(&LLToolBar::onSettingEnable, this, _2));
-        commit_reg.add("Toolbars.RemoveSelectedCommand", std::bind(&LLToolBar::onRemoveSelectedCommand, this));
+        commit_reg.add("Toolbars.EnableSetting", [this](LLUICtrl*, const LLSD& a2) { onSettingEnable(a2); });
+        commit_reg.add("Toolbars.RemoveSelectedCommand", [this](LLUICtrl*, const LLSD&) { onRemoveSelectedCommand(); });
 
         LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_reg;
-        enable_reg.add("Toolbars.CheckSetting", std::bind(&LLToolBar::isSettingChecked, this, _2));
+        enable_reg.add("Toolbars.CheckSetting", [this](LLUICtrl*, const LLSD& a2) -> bool { return isSettingChecked(a2); });
 
         // Create the context menu
         llassert(LLMenuGL::sMenuContainer != NULL);
@@ -978,8 +975,8 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
             LL_DEBUGS("UIUsage") << "button function name a -> " << commandp->executeFunctionName() << LL_ENDL;
             LLUICtrl::commit_callback_t stop_func = initCommitCallback(executeStopParam);
 
-            button->setMouseDownCallback(std::bind(&LLToolBarButton::callIfEnabled, button, execute_func, _1, _2));
-            button->setMouseUpCallback(std::bind(&LLToolBarButton::callIfEnabled, button, stop_func, _1, _2));
+            button->setMouseDownCallback([button, execute_func](LLUICtrl* ctrl, const LLSD& param) { button->callIfEnabled(execute_func, ctrl, param); });
+            button->setMouseUpCallback([button, stop_func](LLUICtrl* ctrl, const LLSD& param) { button->callIfEnabled(stop_func, ctrl, param); });
         }
         else
         {

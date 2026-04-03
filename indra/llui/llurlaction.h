@@ -38,7 +38,7 @@
 /// the llui level, and must be supplied via a set of callbacks.
 ///
 /// N.B. The action functions specifically do not use const ref
-/// strings so that a url parameter can be used into a std::bind()
+/// strings so that a url parameter can be captured by value in a lambda
 /// call under situations when that input string is deallocated before
 /// the callback is executed.
 ///

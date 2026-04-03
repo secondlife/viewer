@@ -105,7 +105,7 @@ settings_vec_t getCount_v;
 F64 start_time = 0;
 std::string SETTINGS_PROFILE = "settings_profile.log";
 
-bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
+bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b) const
 {
     bool result = false;
     switch (mType)
@@ -314,7 +314,7 @@ void LLControlVariable::resetToDefault(bool fire_signal)
     }
 }
 
-bool LLControlVariable::shouldSave(bool nondefault_only)
+bool LLControlVariable::shouldSave(bool nondefault_only) const
 {
     // This method is used to decide whether we should save a given
     // variable. Two of the three values of mPersist are easy.

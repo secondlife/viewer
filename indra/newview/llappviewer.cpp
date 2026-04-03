@@ -877,9 +877,9 @@ bool LLAppViewer::init()
     LLKeyboard::setStringTranslatorFunc( LLTrans::getKeyboardString );
 
     // Provide the text fields with callbacks for opening Urls
-    LLUrlAction::setOpenURLCallback(std::bind(&LLWeb::loadURL, _1, LLStringUtil::null, LLStringUtil::null));
-    LLUrlAction::setOpenURLInternalCallback(std::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null, false));
-    LLUrlAction::setOpenURLExternalCallback(std::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
+    LLUrlAction::setOpenURLCallback([](std::string url) { LLWeb::loadURL(url, LLStringUtil::null, LLStringUtil::null); });
+    LLUrlAction::setOpenURLInternalCallback([](std::string url) { LLWeb::loadURLInternal(url, LLStringUtil::null, LLStringUtil::null, false); });
+    LLUrlAction::setOpenURLExternalCallback([](std::string url) { LLWeb::loadURLExternal(url, true, LLStringUtil::null); });
     LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
 
     // Let code in llui access the viewer help floater
@@ -1251,7 +1251,7 @@ bool LLAppViewer::init()
 
     LLVoiceChannel::initClass();
     LLVoiceClient::initParamSingleton(gServicePump);
-    LLVoiceChannel::setCurrentVoiceChannelChangedCallback(std::bind(&LLFloaterIMContainer::onCurrentChannelChanged, _1), true);
+    LLVoiceChannel::setCurrentVoiceChannelChangedCallback([](const LLUUID& session_id) { LLFloaterIMContainer::onCurrentChannelChanged(session_id); }, true);
 
     joystick = LLViewerJoystick::getInstance();
     joystick->setNeedsReset(true);
@@ -4711,7 +4711,7 @@ void LLAppViewer::saveFinalSnapshot()
                 if (!gDirUtilp->fileExists(snap_home))
                 {
                     // We are at home position yet no home image exist, fix it
-                    LLFile::copy(snap_filename, snap_home);
+                    (void)LLFile::copy(snap_filename, snap_home);
                 }
             }
         }

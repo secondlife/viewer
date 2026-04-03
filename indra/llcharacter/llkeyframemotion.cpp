@@ -38,6 +38,7 @@
 #include "lldir.h"
 #include "llendianswizzle.h"
 #include "llkeyframemotion.h"
+#include <span>
 #include "llquantize.h"
 #include "m3math.h"
 #include "message.h"
@@ -585,7 +586,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
         anim_data = new(std::nothrow) U8[anim_file_size];
         if (anim_data)
         {
-            success = anim_file->read(anim_data, anim_file_size);   /*Flawfinder: ignore*/
+            success = anim_file->read(std::span<U8>(anim_data, anim_file_size));   /*Flawfinder: ignore*/
         }
         else
         {

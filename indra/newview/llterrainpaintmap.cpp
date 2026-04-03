@@ -62,7 +62,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
     // Use a scratch render target because its dimensions may exceed the standard bake target, and this is a one-off bake
     LLRenderTarget scratch_target;
     const S32 dim = llmin(tex.getWidth(), tex.getHeight());
-    scratch_target.allocate(dim, dim, GL_RGB, false, LLTexUnit::eTextureType::TT_TEXTURE,
+    (void)scratch_target.allocate(dim, dim, GL_RGB, false, LLTexUnit::eTextureType::TT_TEXTURE,
                                    LLTexUnit::eTextureMipGeneration::TMG_NONE);
     if (!scratch_target.isComplete())
     {
@@ -144,7 +144,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
         buf->allocateBuffer(region_vertices, region_indices*2); // hack double index count... TODO: find a better way to indicate 32-bit indices will be used
         buf->setBuffer();
         U32 vertex_total = 0;
-        std::vector<U32> index_array(region_indices);
+        std::vector<U16> index_array(region_indices);
         std::vector<LLVector4a> positions(region_vertices);
         std::vector<LLVector2> texcoords1(region_vertices);
         auto idx = index_array.begin();

@@ -164,13 +164,13 @@ S32 LLGroupRoleData::getMembersInRole(uuid_vec_t members,
     // Sort the members list, if needed.
     if (mMembersNeedsSort)
     {
-        std::ranges::sort(mMemberIDs);
+        std::sort(mMemberIDs.begin(), mMemberIDs.end());
         mMembersNeedsSort = false;
     }
     if (needs_sort)
     {
         // Sort the members parameter.
-        std::ranges::sort(members);
+        std::sort(members.begin(), members.end());
     }
 
     // Return the number of members in the intersection.
@@ -191,7 +191,7 @@ void LLGroupRoleData::addMember(const LLUUID& member)
 
 bool LLGroupRoleData::removeMember(const LLUUID& member)
 {
-    uuid_vec_t::iterator it = std::ranges::find(mMemberIDs, member);
+    uuid_vec_t::iterator it = std::find(mMemberIDs.begin(), mMemberIDs.end(), member);
 
     if (it != mMemberIDs.end())
     {
@@ -2231,7 +2231,7 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id, U32 page_siz
     if (!sort_column_name.empty())
     {
         static const std::vector<std::string> column_names = { "name", "donated", "online", "title" };
-        auto it = std::ranges::find(column_names, sort_column_name);
+        auto it = std::find(column_names.begin(), column_names.end(), sort_column_name);
         if (it == column_names.end())
         {
             LL_WARNS("GrpMgr") << "Invalid column name: '" << sort_column_name << "'" << LL_ENDL;

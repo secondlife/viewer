@@ -1222,7 +1222,7 @@ void LLTextureCache::readEntryFromHeaderImmediately(S32& idx, Entry& entry)
 //update an existing entry time stamp, delay writing.
 void LLTextureCache::updateEntryTimeStamp(S32 idx, Entry& entry)
 {
-    static constexpr U32 MAX_ENTRIES_WITHOUT_TIME_STAMP = (U32)(LLTextureCache::sCacheMaxEntries * 0.75f) ;
+    static const U32 MAX_ENTRIES_WITHOUT_TIME_STAMP = (U32)(LLTextureCache::sCacheMaxEntries * 0.75f) ;
 
     if(mHeaderEntriesInfo.mEntries < MAX_ENTRIES_WITHOUT_TIME_STAMP)
     {

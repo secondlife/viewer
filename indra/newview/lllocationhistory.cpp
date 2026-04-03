@@ -43,7 +43,7 @@ void LLLocationHistory::addItem(const LLLocationHistoryItem& item) {
     static LLUICachedControl<S32> max_items("LocationHistoryMaxSize", 100);
 
     // check if this item doesn't duplicate any existing one
-    location_list_t::iterator item_iter = std::ranges::find(mItems,item);
+    location_list_t::iterator item_iter = std::find(mItems.begin(), mItems.end(), item);
     if(item_iter != mItems.end()) // if it already exists, erase the old one
     {
         mItems.erase(item_iter);
@@ -67,7 +67,7 @@ void LLLocationHistory::addItem(const LLLocationHistoryItem& item) {
  */
 bool LLLocationHistory::touchItem(const LLLocationHistoryItem& item) {
     bool result = false;
-    location_list_t::iterator item_iter = std::ranges::find(mItems, item);
+    location_list_t::iterator item_iter = std::find(mItems.begin(), mItems.end(), item);
 
     // the last used item should be the first in the history
     if (item_iter != mItems.end()) {

@@ -42,9 +42,6 @@
 #include "llrender.h"
 #include "lluictrlfactory.h"
 #include <functional>
-
-using namespace std::placeholders;
-
 static LLDefaultChildRegistry::Register<LLScrollbar> register_scrollbar("scroll_bar");
 
 LLScrollbar::Params::Params()
@@ -111,8 +108,8 @@ LLScrollbar::LLScrollbar(const Params & p)
     LLButton::Params up_btn(mOrientation == VERTICAL ? p.up_button : p.left_button);
     up_btn.name(std::string("Line Up"));
     up_btn.rect(line_up_rect);
-    up_btn.click_callback.function(std::bind(&LLScrollbar::onLineUpBtnPressed, this, _2));
-    up_btn.mouse_held_callback.function(std::bind(&LLScrollbar::onLineUpBtnPressed, this, _2));
+    up_btn.click_callback.function([this](LLUICtrl*, const LLSD& a2) { onLineUpBtnPressed(a2); });
+    up_btn.mouse_held_callback.function([this](LLUICtrl*, const LLSD& a2) { onLineUpBtnPressed(a2); });
     up_btn.tab_stop(false);
     up_btn.follows.flags = (mOrientation == VERTICAL ? (FOLLOWS_RIGHT | FOLLOWS_TOP) : (FOLLOWS_LEFT | FOLLOWS_BOTTOM));
 
@@ -123,8 +120,8 @@ LLScrollbar::LLScrollbar(const Params & p)
     down_btn.name(std::string("Line Down"));
     down_btn.rect(line_down_rect);
     down_btn.follows.flags(FOLLOWS_RIGHT|FOLLOWS_BOTTOM);
-    down_btn.click_callback.function(std::bind(&LLScrollbar::onLineDownBtnPressed, this, _2));
-    down_btn.mouse_held_callback.function(std::bind(&LLScrollbar::onLineDownBtnPressed, this, _2));
+    down_btn.click_callback.function([this](LLUICtrl*, const LLSD& a2) { onLineDownBtnPressed(a2); });
+    down_btn.mouse_held_callback.function([this](LLUICtrl*, const LLSD& a2) { onLineDownBtnPressed(a2); });
     down_btn.tab_stop(false);
 
     mLineDownBtn = LLUICtrlFactory::create<LLButton>(down_btn);

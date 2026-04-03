@@ -432,7 +432,7 @@ void LLViewerParcelOverlay::uncompressLandOverlay(S32 chunk, U8* packed_overlay)
     S32 size = mParcelGridsPerEdge * mParcelGridsPerEdge;
     S32 chunk_size = size / PARCEL_OVERLAY_CHUNKS;
 
-    memcpy(mOwnership + chunk*chunk_size, packed_overlay, chunk_size);      /*Flawfinder: ignore*/
+    memcpy(mOwnership.data() + chunk*chunk_size, packed_overlay, chunk_size);      /*Flawfinder: ignore*/
 
     // Force property lines and overlay texture to update
     setDirty();
@@ -815,7 +815,7 @@ void LLViewerParcelOverlay::renderPropertyLinesOnMinimap(F32 scale_pixels_per_me
 {
     static LLCachedControl<bool> show(gSavedSettings, "MiniMapShowPropertyLines");
 
-    if (!mOwnership || !show)
+    if (mOwnership.empty() || !show)
     {
         return;
     }

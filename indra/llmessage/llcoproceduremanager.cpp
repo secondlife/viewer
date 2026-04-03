@@ -372,10 +372,10 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size, s
     {
         LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>(mPoolName + "Adapter", mHTTPPolicy);
 
+        auto pendingCoprocs = mPendingCoprocs;
         std::string pooledCoro = LLCoros::instance().launch(
             "LLCoprocedurePool("+mPoolName+")::coprocedureInvokerCoro",
-            std::bind(&LLCoprocedurePool::coprocedureInvokerCoro, this,
-                        mPendingCoprocs, httpAdapter));
+            [this, pendingCoprocs, httpAdapter]() { coprocedureInvokerCoro(pendingCoprocs, httpAdapter); });
 
         mCoroMapping.insert(CoroAdapterMap_t::value_type(pooledCoro, httpAdapter));
     }

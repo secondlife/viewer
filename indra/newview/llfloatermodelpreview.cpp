@@ -1969,7 +1969,7 @@ void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(S32 status, const std:
     out << " : " << reason << ")";
     LL_WARNS() << out.str() << LL_ENDL;
     LLFloaterModelPreview::addStringToLog(out, false);
-    doOnIdleOneTime(std::bind(&LLFloaterModelPreview::toggleCalculateButton, this, true));
+    doOnIdleOneTime([this]() { toggleCalculateButton(true); });
 
     if (result.has("upload_price"))
     {

@@ -1121,7 +1121,7 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
     editor_params.use_color = true;
     mEditor = LLUICtrlFactory::create<LLTextEditor>(editor_params, this);
     mEditor->setIsFriendCallback(LLAvatarActions::isFriend);
-    mEditor->setIsObjectBlockedCallback(std::bind(&LLMuteList::isMuted, LLMuteList::getInstance(), _1, _2, 0));
+    mEditor->setIsObjectBlockedCallback([](const LLUUID& id, const std::string& name) { return LLMuteList::getInstance()->isMuted(id, name, 0); });
     mEditor->setIsObjectReachableCallback([](const LLUUID& obj_id)
         {
             LLViewerObject* object = gObjectList.findObject(obj_id);

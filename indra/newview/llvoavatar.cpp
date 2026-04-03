@@ -7900,7 +7900,7 @@ bool LLVOAvatar::detachObject(LLViewerObject *viewer_object)
         }
     }
 
-    auto iter = std::ranges::find(mPendingAttachment, viewer_object);
+    auto iter = std::find(mPendingAttachment.begin(), mPendingAttachment.end(), viewer_object);
     if (iter != mPendingAttachment.end())
     {
         mPendingAttachment.erase(iter);
@@ -8677,7 +8677,7 @@ void LLVOAvatar::updateTooSlow()
     bool ignore_tune = false;
     if (autotune && sAVsIgnoringARTLimit.size() > 0)
     {
-        auto it = std::ranges::find(sAVsIgnoringARTLimit, mID);
+        auto it = std::find(sAVsIgnoringARTLimit.begin(), sAVsIgnoringARTLimit.end(), mID);
         if (it != sAVsIgnoringARTLimit.end())
         {
             S32 index = (S32)(it - sAVsIgnoringARTLimit.begin());
@@ -9649,7 +9649,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
     LLVisualParam* appearance_version_param = getVisualParam(11000);
     if (appearance_version_param)
     {
-        auto it = std::ranges::find(contents.mParams, appearance_version_param);
+        auto it = std::find(contents.mParams.begin(), contents.mParams.end(), appearance_version_param);
         if (it != contents.mParams.end())
         {
             S32 index = (S32)(it - contents.mParams.begin());

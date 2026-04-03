@@ -980,7 +980,7 @@ class LLFileUploadBulk : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(std::bind(&upload_bulk, _1, _2, true, LLUUID::null), LLFilePicker::FFLOAD_ALL, true);
+        LLFilePickerReplyThread::startPicker([](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter filter, LLFilePicker::ESaveFilter) { upload_bulk(filenames, filter, true, LLUUID::null); }, LLFilePicker::FFLOAD_ALL, true);
         return true;
     }
 };

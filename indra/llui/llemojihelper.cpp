@@ -99,7 +99,7 @@ void LLEmojiHelper::showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, c
     {
         LLFloater* pHelperFloater = LLFloaterReg::getInstance(DEFAULT_EMOJI_HELPER_FLOATER);
         mHelperHandle = pHelperFloater->getHandle();
-        mHelperCommitConn = pHelperFloater->setCommitCallback(std::bind([&](const LLSD& sdValue) { onCommitEmoji(utf8str_to_wstring(sdValue.asStringRef())[0]); }, std::placeholders::_2));
+        mHelperCommitConn = pHelperFloater->setCommitCallback([this](LLUICtrl*, const LLSD& sdValue) { onCommitEmoji(utf8str_to_wstring(sdValue.asStringRef())[0]); });
         mHelperCloseConn = pHelperFloater->setCloseCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCloseHelper(ctrl, param); });
     }
     setHostCtrl(hostctrl_p);
@@ -187,7 +187,7 @@ void LLEmojiHelper::setHostCtrl(LLUICtrl* hostctrl_p)
         if (hostctrl_p)
         {
             mHostHandle = hostctrl_p->getHandle();
-            mHostCtrlFocusLostConn = hostctrl_p->setFocusLostCallback(std::bind([&]() { hideHelper(getHostCtrl()); }));
+            mHostCtrlFocusLostConn = hostctrl_p->setFocusLostCallback([this](LLFocusableElement*) { hideHelper(getHostCtrl()); });
         }
     }
 }

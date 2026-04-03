@@ -39,9 +39,6 @@
 #include "lluictrlfactory.h"
 #include "llsdutil.h"
 #include <functional>
-
-using namespace std::placeholders;
-
 static LLDefaultChildRegistry::Register<LLRadioGroup> r1("radio_group");
 
 /*
@@ -101,7 +98,7 @@ void LLRadioGroup::initFromParams(const Params& p)
         {
             item_params.font = mFont; // apply radio group font by default
         }
-        item_params.commit_callback.function = std::bind(&LLRadioGroup::onClickButton, this, _1);
+        item_params.commit_callback.function = [this](LLUICtrl* ctrl, const LLSD&) { onClickButton(ctrl); };
         item_params.from_xui = p.from_xui;
         if (p.from_xui)
         {

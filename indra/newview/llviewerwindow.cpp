@@ -6071,7 +6071,7 @@ LLRect LLViewerWindow::getChatConsoleRect()
 
     console_rect.mLeft   += CONSOLE_PADDING_LEFT;
 
-    static constexpr bool CHAT_FULL_WIDTH = gSavedSettings.getBOOL("ChatFullWidth");
+    static const bool CHAT_FULL_WIDTH = gSavedSettings.getBOOL("ChatFullWidth");
 
     if (CHAT_FULL_WIDTH)
     {

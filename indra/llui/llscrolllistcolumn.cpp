@@ -36,9 +36,6 @@
 #include "llscrolllistitem.h"
 #include "lluictrlfactory.h"
 #include <functional>
-
-using namespace std::placeholders;
-
 const S32 MIN_COLUMN_WIDTH = 20;
 
 // defaults for LLScrollColumnHeader param block pulled from widgets/scroll_column_header.xml
@@ -57,7 +54,7 @@ LLScrollColumnHeader::LLScrollColumnHeader(const LLScrollColumnHeader::Params& p
     mColumn(p.column),
     mHasResizableElement(false)
 {
-    setClickedCallback(std::bind(&LLScrollColumnHeader::onClick, this, _2));
+    setClickedCallback([this](LLUICtrl*, const LLSD& a2) { onClick(a2); });
 
     // resize handles on left and right
     const S32 RESIZE_BAR_THICKNESS = 3;

@@ -78,15 +78,15 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
     mIsFirstLaunch(true),
     mConversationEventQueue()
 {
-    mEnableCallbackRegistrar.add("IMFloaterContainer.Check", std::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
-    mCommitCallbackRegistrar.add("IMFloaterContainer.Action", std::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
+    mEnableCallbackRegistrar.add("IMFloaterContainer.Check", [this](LLUICtrl*, const LLSD& param) -> bool { return isActionChecked(param); });
+    mCommitCallbackRegistrar.add("IMFloaterContainer.Action", [this](LLUICtrl*, const LLSD& param) { onCustomAction(param); });
 
-    mEnableCallbackRegistrar.add("Avatar.CheckItem",  std::bind(&LLFloaterIMContainer::checkContextMenuItem,  this, _2));
-    mEnableCallbackRegistrar.add("Avatar.EnableItem", std::bind(&LLFloaterIMContainer::enableContextMenuItem, this, _2));
-    mEnableCallbackRegistrar.add("Avatar.VisibleItem", std::bind(&LLFloaterIMContainer::visibleContextMenuItem,   this, _2));
-    mCommitCallbackRegistrar.add("Avatar.DoToSelected", std::bind(&LLFloaterIMContainer::doToSelected, this, _2));
+    mEnableCallbackRegistrar.add("Avatar.CheckItem",  [this](LLUICtrl*, const LLSD& param) -> bool { return checkContextMenuItem(param); });
+    mEnableCallbackRegistrar.add("Avatar.EnableItem", [this](LLUICtrl*, const LLSD& param) -> bool { return enableContextMenuItem(param); });
+    mEnableCallbackRegistrar.add("Avatar.VisibleItem", [this](LLUICtrl*, const LLSD& param) -> bool { return visibleContextMenuItem(param); });
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", [this](LLUICtrl*, const LLSD& param) { doToSelected(param); });
 
-    mCommitCallbackRegistrar.add("Group.DoToSelected", std::bind(&LLFloaterIMContainer::doToSelectedGroup, this, _2));
+    mCommitCallbackRegistrar.add("Group.DoToSelected", [this](LLUICtrl*, const LLSD& param) { doToSelectedGroup(param); });
 
     // Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);

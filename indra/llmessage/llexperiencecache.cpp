@@ -37,7 +37,6 @@
 #include <boost/tokenizer.hpp>
 #include <functional>
 
-using namespace std::placeholders;
 
 //=========================================================================
 namespace LLExperienceCacheImpl
@@ -368,8 +367,10 @@ void LLExperienceCache::requestExperiences()
 
         if (mRequestQueue.empty() || (ostr.tellp() > EXP_URL_SEND_THRESHOLD))
         {   // request is placed in the coprocedure pool for the ExpCache cache.  Throttling is done by the pool itself.
+            auto urlStr = ostr.str();
+            auto reqs = requests;
             LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "RequestExperiences",
-                std::bind(&LLExperienceCache::requestExperiencesCoro, _1, ostr.str(), requests) );
+                [urlStr, reqs](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID& id) { requestExperiencesCoro(adapter, urlStr, reqs); });
 
             ostr.str(std::string());
             ostr << urlBase << "?page_size=" << PAGE_SIZE1;
@@ -553,7 +554,7 @@ void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const 
     }
 
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Fetch Associated",
-        std::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId,  std::string(), fn));
+        [this, objectId, itemId, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { fetchAssociatedExperienceCoro(adapter, objectId, itemId, std::string(), fn); });
 }
 
 void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const LLUUID& itemId, std::string url, ExperienceGetFn_t fn)
@@ -565,7 +566,7 @@ void LLExperienceCache::fetchAssociatedExperience(const LLUUID& objectId, const 
     }
 
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Fetch Associated",
-        std::bind(&LLExperienceCache::fetchAssociatedExperienceCoro, this, _1, objectId, itemId, url, fn));
+        [this, objectId, itemId, url, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { fetchAssociatedExperienceCoro(adapter, objectId, itemId, url, fn); });
 }
 
 void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID objectId, LLUUID itemId, std::string url, ExperienceGetFn_t fn)
@@ -629,7 +630,7 @@ void LLExperienceCache::findExperienceByName(const std::string text, int page, E
     }
 
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Search Name",
-        std::bind(&LLExperienceCache::findExperienceByNameCoro, this, _1, text, page, fn));
+        [this, text, page, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { findExperienceByNameCoro(adapter, text, page, fn); });
 }
 
 void LLExperienceCache::findExperienceByNameCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, std::string text, int page, ExperienceGetFn_t fn)
@@ -672,7 +673,7 @@ void LLExperienceCache::getGroupExperiences(const LLUUID &groupId, ExperienceGet
     }
 
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Group Experiences",
-        std::bind(&LLExperienceCache::getGroupExperiencesCoro, this, _1, groupId, fn));
+        [this, groupId, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { getGroupExperiencesCoro(adapter, groupId, fn); });
 }
 
 void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID groupId, ExperienceGetFn_t fn)
@@ -708,13 +709,13 @@ void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAda
 void LLExperienceCache::getRegionExperiences(CapabilityQuery_t regioncaps, ExperienceGetFn_t fn)
 {
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Region Experiences",
-        std::bind(&LLExperienceCache::regionExperiencesCoro, this, _1, regioncaps, false, LLSD(), fn));
+        [this, regioncaps, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { regionExperiencesCoro(adapter, regioncaps, false, LLSD(), fn); });
 }
 
 void LLExperienceCache::setRegionExperiences(CapabilityQuery_t regioncaps, const LLSD &experiences, ExperienceGetFn_t fn)
 {
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Region Experiences",
-        std::bind(&LLExperienceCache::regionExperiencesCoro, this, _1, regioncaps, true, experiences, fn));
+        [this, regioncaps, experiences, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { regionExperiencesCoro(adapter, regioncaps, true, experiences, fn); });
 }
 
 void LLExperienceCache::regionExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter,
@@ -761,18 +762,12 @@ void LLExperienceCache::getExperiencePermission(const LLUUID &experienceId, Expe
 
     std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
 
-    permissionInvoker_fn invoker(std::bind(
-        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
-        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
-        //----
-        // _1 -> httpAdapter
-        // _2 -> httpRequest
-        // _3 -> url
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::getAndSuspend), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
-
+    permissionInvoker_fn invoker(
+        [](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& httpAdapter, LLCore::HttpRequest::ptr_t httpRequest, std::string url)
+        { return httpAdapter->getAndSuspend(httpRequest, url, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()); });
 
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
-        std::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+        [this, invoker, url, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { experiencePermissionCoro(adapter, invoker, url, fn); });
 }
 
 void LLExperienceCache::setExperiencePermission(const LLUUID &experienceId, const std::string &permission, ExperienceGetFn_t fn)
@@ -791,18 +786,12 @@ void LLExperienceCache::setExperiencePermission(const LLUUID &experienceId, cons
     permData["permission"] = permission;
     data[experienceId.asString()] = permData;
 
-    permissionInvoker_fn invoker(std::bind(
-        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
-        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, const LLSD &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
-        //----
-        // _1 -> httpAdapter
-        // _2 -> httpRequest
-        // _3 -> url
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::putAndSuspend), _1, _2, _3, data, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
-
+    permissionInvoker_fn invoker(
+        [data](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& httpAdapter, LLCore::HttpRequest::ptr_t httpRequest, std::string url)
+        { return httpAdapter->putAndSuspend(httpRequest, url, data, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()); });
 
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
-        std::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+        [this, invoker, url, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { experiencePermissionCoro(adapter, invoker, url, fn); });
 }
 
 void LLExperienceCache::forgetExperiencePermission(const LLUUID &experienceId, ExperienceGetFn_t fn)
@@ -816,18 +805,12 @@ void LLExperienceCache::forgetExperiencePermission(const LLUUID &experienceId, E
     std::string url = mCapability("ExperiencePreferences") + "?" + experienceId.asString();
 
 
-    permissionInvoker_fn invoker(std::bind(
-        // Humans ignore next line.  It is just a cast to specify which LLCoreHttpUtil::HttpCoroutineAdapter routine overload.
-        static_cast<LLSD(LLCoreHttpUtil::HttpCoroutineAdapter::*)(LLCore::HttpRequest::ptr_t, const std::string &, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t)>
-        //----
-        // _1 -> httpAdapter
-        // _2 -> httpRequest
-        // _3 -> url
-        (&LLCoreHttpUtil::HttpCoroutineAdapter::deleteAndSuspend), _1, _2, _3, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()));
-
+    permissionInvoker_fn invoker(
+        [](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& httpAdapter, LLCore::HttpRequest::ptr_t httpRequest, std::string url)
+        { return httpAdapter->deleteAndSuspend(httpRequest, url, LLCore::HttpOptions::ptr_t(), LLCore::HttpHeaders::ptr_t()); });
 
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "Preferences Set",
-        std::bind(&LLExperienceCache::experiencePermissionCoro, this, _1, invoker, url, fn));
+        [this, invoker, url, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { experiencePermissionCoro(adapter, invoker, url, fn); });
 }
 
 void LLExperienceCache::experiencePermissionCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, permissionInvoker_fn invokerfn, std::string url, ExperienceGetFn_t fn)
@@ -858,7 +841,7 @@ void LLExperienceCache::getExperienceAdmin(const LLUUID &experienceId, Experienc
     }
 
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "IsAdmin",
-        std::bind(&LLExperienceCache::getExperienceAdminCoro, this, _1, experienceId, fn));
+        [this, experienceId, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { getExperienceAdminCoro(adapter, experienceId, fn); });
 }
 
 void LLExperienceCache::getExperienceAdminCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLUUID experienceId, ExperienceGetFn_t fn)
@@ -890,7 +873,7 @@ void LLExperienceCache::updateExperience(LLSD updateData, ExperienceGetFn_t fn)
     }
 
     LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "IsAdmin",
-        std::bind(&LLExperienceCache::updateExperienceCoro, this, _1, updateData, fn));
+        [this, updateData, fn](LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t& adapter, const LLUUID&) { updateExperienceCoro(adapter, updateData, fn); });
 }
 
 void LLExperienceCache::updateExperienceCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter, LLSD updateData, ExperienceGetFn_t fn)

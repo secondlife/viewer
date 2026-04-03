@@ -596,7 +596,7 @@ void LLGLTFMaterialList::removeMaterial(const LLUUID& id)
 void LLGLTFMaterialList::flushMaterials()
 {
     // Similar variant to what textures use
-    static constexpr S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinCount");       // default: 32
+    static const S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinCount");       // default: 32
     //update MIN_UPDATE_COUNT or 5% of materials, whichever is greater
     U32 update_count = llmax((U32)MIN_UPDATE_COUNT, (U32)mList.size() / 20);
     update_count = llmin(update_count, (U32)mList.size());

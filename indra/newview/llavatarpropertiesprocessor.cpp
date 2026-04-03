@@ -59,9 +59,9 @@ void LLAvatarPropertiesProcessor::addObserver(const LLUUID& avatar_id, LLAvatarP
     // Check if that observer is already in mObservers for that avatar_id
     observer_multimap_t::iterator begin = mObservers.begin();
     observer_multimap_t::iterator end = mObservers.end();
-    observer_multimap_t::iterator it = std::find_if(begin, end, [&](const auto& [id, obs])
+    observer_multimap_t::iterator it = std::find_if(begin, end, [&](const auto& pair)
         {
-            return id == avatar_id && obs == observer;
+            return pair.first == avatar_id && pair.second == observer;
         });
 
     // IAN BUG this should update the observer's UUID if this is a dupe - sent to PE
@@ -81,9 +81,9 @@ void LLAvatarPropertiesProcessor::removeObserver(const LLUUID& avatar_id, LLAvat
     // Check if that observer is in mObservers for that avatar_id
     observer_multimap_t::iterator begin = mObservers.begin();
     observer_multimap_t::iterator end = mObservers.end();
-    observer_multimap_t::iterator it = std::find_if(begin, end, [&](const auto& [id, obs])
+    observer_multimap_t::iterator it = std::find_if(begin, end, [&](const auto& pair)
         {
-            return id == avatar_id && obs == observer;
+            return pair.first == avatar_id && pair.second == observer;
         });
 
     if (it != end)

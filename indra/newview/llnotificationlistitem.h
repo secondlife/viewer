@@ -60,7 +60,7 @@ public:
         LLDate          time_stamp;
         LLDate          received_time;
         LLSD            inventory_offer;
-        e_notification_priority notification_priority;
+        ENotificationPriority notification_priority;
         Params() = default;
     };
 
