@@ -58,7 +58,7 @@ public:
     LLToggleableMenu*   getContextMenu() const { return mContextMenu.get(); }
     LLBlockedListItem*  getBlockedItem() const;
 
-    virtual void onChange() { }
+    virtual void onChange();
     virtual void onChangeDetailed(const LLMute& );
     virtual void draw();
 

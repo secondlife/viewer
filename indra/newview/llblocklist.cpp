@@ -101,6 +101,14 @@ BlockListActionType LLBlockList::getCurrentMuteListActionType()
     return type;
 }
 
+void LLBlockList::onChange()
+{
+    // Something changed, not sure what so force a refresh.
+    mShouldAddAll = true;
+    mActionType = NONE;
+    setDirty();
+}
+
 void LLBlockList::onChangeDetailed(const LLMute &mute)
 {
     mActionType = getCurrentMuteListActionType();
