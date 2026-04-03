@@ -28,10 +28,12 @@
 #ifndef LLBASE64_H
 #define LLBASE64_H
 
+#include <span>
+
 class LL_COMMON_API LLBase64
 {
 public:
-    [[nodiscard]] static std::string encode(const U8* input, size_t input_size);
+    [[nodiscard]] static std::string encode(std::span<const U8> input);
     [[nodiscard]] static std::string decodeAsString(const std::string& input);
 };
 

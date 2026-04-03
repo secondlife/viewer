@@ -37,6 +37,7 @@
  */
 
 #include <iostream>
+#include <span>
 
 /**
  * @class LLMemoryStreamBuf
@@ -49,10 +50,10 @@
 class LL_COMMON_API LLMemoryStreamBuf : public std::streambuf
 {
 public:
-    LLMemoryStreamBuf(const U8* start, S32 length);
+    LLMemoryStreamBuf(std::span<const U8> data);
     ~LLMemoryStreamBuf();
 
-    void reset(const U8* start, S32 length);
+    void reset(std::span<const U8> data);
 
 protected:
     int underflow();
@@ -71,7 +72,7 @@ protected:
 class LL_COMMON_API LLMemoryStream : public std::istream
 {
 public:
-    LLMemoryStream(const U8* start, S32 length);
+    LLMemoryStream(std::span<const U8> data);
     ~LLMemoryStream();
 
 protected:

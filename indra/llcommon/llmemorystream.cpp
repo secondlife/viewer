@@ -29,18 +29,19 @@
 #include "linden_common.h"
 #include "llmemorystream.h"
 
-LLMemoryStreamBuf::LLMemoryStreamBuf(const U8* start, S32 length)
+LLMemoryStreamBuf::LLMemoryStreamBuf(std::span<const U8> data)
 {
-    reset(start, length);
+    reset(data);
 }
 
 LLMemoryStreamBuf::~LLMemoryStreamBuf()
 {
 }
 
-void LLMemoryStreamBuf::reset(const U8* start, S32 length)
+void LLMemoryStreamBuf::reset(std::span<const U8> data)
 {
-    setg((char*)start, (char*)start, (char*)start + length);
+    char* start = (char*)data.data();
+    setg(start, start, start + data.size());
 }
 
 int LLMemoryStreamBuf::underflow()
@@ -57,9 +58,9 @@ int LLMemoryStreamBuf::underflow()
  * @class LLMemoryStreamBuf
  */
 
-LLMemoryStream::LLMemoryStream(const U8* start, S32 length) :
+LLMemoryStream::LLMemoryStream(std::span<const U8> data) :
     std::istream(&mStreamBuf),
-    mStreamBuf(start, length)
+    mStreamBuf(data)
 {
 }
 

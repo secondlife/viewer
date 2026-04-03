@@ -239,16 +239,16 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     F32 camera_height = LLViewerCamera::getInstance()->getOrigin().mV[2];
     shader->uniform1f(LLShaderMgr::WATER_WATERHEIGHT, camera_height - water_height);
     shader->uniform1f(LLShaderMgr::WATER_TIME, phase_time);
-    shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+    shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, std::span<const GLfloat>(LLViewerCamera::getInstance()->getOrigin().mV, 3));
 
-    shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
+    shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, std::span<const GLfloat>(light_diffuse.mV, 3));
 
-    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, pwater->getWave1Dir().mV);
-    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, pwater->getWave2Dir().mV);
+    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, std::span<const GLfloat>(pwater->getWave1Dir().mV, 2));
+    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, std::span<const GLfloat>(pwater->getWave2Dir().mV, 2));
 
-    shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
+    shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, std::span<const GLfloat>(light_dir.mV, 3));
 
-    shader->uniform3fv(LLShaderMgr::WATER_NORM_SCALE, 1, pwater->getNormalScale().mV);
+    shader->uniform3fv(LLShaderMgr::WATER_NORM_SCALE, std::span<const GLfloat>(pwater->getNormalScale().mV, 3));
     shader->uniform1f(LLShaderMgr::WATER_FRESNEL_SCALE, pwater->getFresnelScale());
     shader->uniform1f(LLShaderMgr::WATER_FRESNEL_OFFSET, pwater->getFresnelOffset());
     shader->uniform1f(LLShaderMgr::WATER_BLUR_MULTIPLIER, fmaxf(0, pwater->getBlurMultiplier()) * 2);
@@ -276,9 +276,9 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     // SL-15861 This was changed from getRotatedLightNorm() as it was causing
     // lightnorm in shaders\class1\windlight\atmosphericsFuncs.glsl in have inconsistent additive lighting for 180 degrees of the FOV.
     LLVector4 rotated_light_direction = LLEnvironment::instance().getClampedLightNorm();
-    shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, 1, rotated_light_direction.mV);
+    shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, std::span<const GLfloat>(rotated_light_direction.mV, 3));
 
-    shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+    shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, std::span<const GLfloat>(LLViewerCamera::getInstance()->getOrigin().mV, 3));
 
     if (LLViewerCamera::getInstance()->cameraUnderWater())
     {

@@ -36,14 +36,13 @@
 
 
 // static
-std::string LLBase64::encode(const U8* input, size_t input_size)
+std::string LLBase64::encode(std::span<const U8> input)
 {
     std::string output;
-    if (input
-        && input_size > 0)
+    if (!input.empty())
     {
         // Yes, it returns int.
-        int b64_buffer_length = apr_base64_encode_len(narrow<size_t>(input_size));
+        int b64_buffer_length = apr_base64_encode_len(narrow<size_t>(input.size()));
         std::vector<char> b64_buffer(b64_buffer_length);
 
         // This is faster than apr_base64_encode() if you know
@@ -52,8 +51,8 @@ std::string LLBase64::encode(const U8* input, size_t input_size)
         // specify.  See apr_base64.c for details. JC
         b64_buffer_length = apr_base64_encode_binary(
             b64_buffer.data(),
-            input,
-            narrow<size_t>(input_size));
+            input.data(),
+            narrow<size_t>(input.size()));
         output.assign(b64_buffer.data());
     }
     return output;

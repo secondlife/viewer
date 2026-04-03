@@ -383,7 +383,7 @@ void fixup_shader_constants(LLGLSLShader& shader)
 {
     // Sunlight intensity of 0 no matter what
     shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, 1);
-    shader.uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, 1, LLColor3::white.mV);
+    shader.uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, std::span<const GLfloat>(LLColor3::white.mV, 3));
     shader.uniform1f(LLShaderMgr::DENSITY_MULTIPLIER, 0.0f);
 
     // Ignore sun shadow (if enabled)

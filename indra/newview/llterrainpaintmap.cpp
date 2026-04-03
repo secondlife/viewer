@@ -199,9 +199,9 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
                 }
             }
         }
-        buf->setIndexData(index_array.data(), 0, (U32)index_array.size());
-        buf->setPositionData(positions.data(), 0, (U32)positions.size());
-        buf->setTexCoord1Data(texcoords1.data(), 0, (U32)texcoords1.size());
+        buf->setIndexData(std::span<const U16>(index_array), 0);
+        buf->setPositionData(std::span<const LLVector4a>(positions), 0);
+        buf->setTexCoord1Data(std::span<const LLVector2>(texcoords1), 0);
         buf->unmapBuffer();
         buf->unbind();
     }

@@ -331,7 +331,7 @@ bool LLFloater360Capture::writeDataURL(const std::string filename, const std::st
 {
     LL_INFOS("360Capture") << "Writing data URL for " << prefix << " to " << filename << LL_ENDL;
 
-    const std::string data_url = LLBase64::encode(data, data_len);
+    const std::string data_url = LLBase64::encode(std::span<const U8>(data, data_len));
 
     llofstream file_handle(filename.c_str(), std::ios_base::app);
     if (file_handle.is_open())

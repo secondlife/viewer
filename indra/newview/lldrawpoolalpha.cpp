@@ -112,12 +112,12 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool deferredEnvironment,
     { // for HUD attachments, only the pre-water pass is executed and we never want to clip anything
         LLVector4 near_clip(0, 0, -1, 0);
         shader->uniform1f(waterSign, 1.f);
-        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, near_clip.mV);
+        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(near_clip.mV, 4));
     }
     else
     {
         shader->uniform1f(waterSign, water_sign);
-        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
     }
 
     if (LLPipeline::sImpostorRender)

@@ -126,12 +126,13 @@ void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin
 }
 
 void LLSkinningUtil::initSkinningMatrixPalette(
-    LLMatrix4a* mat,
-    S32 count,
+    std::span<LLMatrix4a> mat,
     const LLMeshSkinInfo* skin,
     LLVOAvatar *avatar)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
+    const S32 count = static_cast<S32>(mat.size());
 
     initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);
 
@@ -174,7 +175,7 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     //NOTE: pointer striders used here as a micro-optimization over vector/array lookups
     const LLMatrix4a* invBind = &(skin->mInvBindMatrix[0]);
     const LLMatrix4a* w = world;
-    LLMatrix4a* m = mat;
+    LLMatrix4a* m = mat.data();
     LLMatrix4a* end = m + count;
 
     while (m < end)
@@ -183,11 +184,11 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     }
 }
 
-void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
+void LLSkinningUtil::checkSkinWeights(std::span<LLVector4a> weights, const LLMeshSkinInfo* skin)
 {
 #if DEBUG_SKINNING
     const S32 max_joints = skin->mJointNames.size();
-    for (U32 j=0; j<num_vertices; j++)
+    for (U32 j = 0; j < weights.size(); j++)
     {
         F32 *w = weights[j].getF32ptr();
 
@@ -204,10 +205,10 @@ void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, con
 #endif
 }
 
-void LLSkinningUtil::scrubSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
+void LLSkinningUtil::scrubSkinWeights(std::span<LLVector4a> weights, const LLMeshSkinInfo* skin)
 {
     const S32 max_joints = static_cast<S32>(skin->mJointNames.size());
-    for (U32 j=0; j<num_vertices; j++)
+    for (U32 j = 0; j < weights.size(); j++)
     {
         F32 *w = weights[j].getF32ptr();
 
@@ -219,18 +220,19 @@ void LLSkinningUtil::scrubSkinWeights(LLVector4a* weights, U32 num_vertices, con
             w[k] = i + f;
         }
     }
-    checkSkinWeights(weights, num_vertices, skin);
+    checkSkinWeights(weights, skin);
 }
 
 void LLSkinningUtil::getPerVertexSkinMatrix(
     F32* weights,
-    const LLMatrix4a* mat,
+    std::span<const LLMatrix4a> mat,
     bool handle_bad_scale,
-    LLMatrix4a& final_mat,
-    U32 max_joints)
+    LLMatrix4a& final_mat)
 {
     [[maybe_unused]] bool valid_weights = true;
     final_mat.clear();
+
+    const S32 max_joints = static_cast<S32>(mat.size());
 
     S32 idx[4];
 
@@ -247,7 +249,7 @@ void LLSkinningUtil::getPerVertexSkinMatrix(
         // >= 0.0, we can use int instead of floorf; the latter
         // allegedly has a lot of overhead due to ieeefp error
         // checking which we should not need.
-        idx[k] = llclamp((S32) floorf(w), (S32)0, (S32)max_joints-1);
+        idx[k] = llclamp((S32) floorf(w), (S32)0, max_joints-1);
 
         wght[k] = w - floorf(w);
         scale += wght[k];

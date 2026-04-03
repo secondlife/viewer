@@ -1184,13 +1184,13 @@ const U8*   LLTexLayer::getAlphaData() const
 {
     LLCRC alpha_mask_crc;
     const LLUUID& uuid = getUUID();
-    alpha_mask_crc.update((U8*)(&uuid.mData), UUID_BYTES);
+    alpha_mask_crc.update(std::span<const U8>(uuid.mData, UUID_BYTES));
 
     for (const LLTexLayerParamAlpha* param : mParamAlphaList)
     {
         // MULTI-WEARABLE: verify visual parameters used here
         F32 param_weight = param->getWeight();
-        alpha_mask_crc.update((U8*)&param_weight, sizeof(F32));
+        alpha_mask_crc.update(std::span<const U8>(reinterpret_cast<const U8*>(&param_weight), sizeof(F32)));
     }
 
     U32 cache_index = alpha_mask_crc.getCRC();
@@ -1390,12 +1390,12 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
     {
         LLCRC alpha_mask_crc;
         const LLUUID& uuid = getUUID();
-        alpha_mask_crc.update((U8*)(&uuid.mData), UUID_BYTES);
+        alpha_mask_crc.update(std::span<const U8>(uuid.mData, UUID_BYTES));
 
         for (const LLTexLayerParamAlpha* param : mParamAlphaList)
         {
             F32 param_weight = param->getWeight();
-            alpha_mask_crc.update((U8*)&param_weight, sizeof(F32));
+            alpha_mask_crc.update(std::span<const U8>(reinterpret_cast<const U8*>(&param_weight), sizeof(F32)));
         }
 
         U32 cache_index = alpha_mask_crc.getCRC();

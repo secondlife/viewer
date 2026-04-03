@@ -547,33 +547,33 @@ void Primitive::upload(LLVertexBuffer* buffer)
     U32 offset = mVertexOffset;
     U32 count = getVertexCount();
 
-    mVertexBuffer->setPositionData(mPositions.data(), offset, count);
-    mVertexBuffer->setColorData(mColors.data(), offset, count);
+    mVertexBuffer->setPositionData(std::span<const LLVector4a>(mPositions.data(), count), offset);
+    mVertexBuffer->setColorData(std::span<const LLColor4U>(mColors.data(), count), offset);
 
     if (!mNormals.empty())
     {
-        mVertexBuffer->setNormalData(mNormals.data(), offset, count);
+        mVertexBuffer->setNormalData(std::span<const LLVector4a>(mNormals.data(), count), offset);
     }
     if (!mTangents.empty())
     {
-        mVertexBuffer->setTangentData(mTangents.data(), offset, count);
+        mVertexBuffer->setTangentData(std::span<const LLVector4a>(mTangents.data(), count), offset);
     }
 
     if (!mWeights.empty())
     {
-        mVertexBuffer->setWeight4Data(mWeights.data(), offset, count);
-        mVertexBuffer->setJointData(mJoints.data(), offset, count);
+        mVertexBuffer->setWeight4Data(std::span<const LLVector4a>(mWeights.data(), count), offset);
+        mVertexBuffer->setJointData(std::span<const U64>(mJoints.data(), count), offset);
     }
 
     // flip texcoord y, upload, then flip back (keep the off-spec data in vram only)
     vertical_flip(mTexCoords0);
-    mVertexBuffer->setTexCoord0Data(mTexCoords0.data(), offset, count);
+    mVertexBuffer->setTexCoord0Data(std::span<const LLVector2>(mTexCoords0.data(), count), offset);
     vertical_flip(mTexCoords0);
 
     if (!mTexCoords1.empty())
     {
         vertical_flip(mTexCoords1);
-        mVertexBuffer->setTexCoord1Data(mTexCoords1.data(), offset, count);
+        mVertexBuffer->setTexCoord1Data(std::span<const LLVector2>(mTexCoords1.data(), count), offset);
         vertical_flip(mTexCoords1);
     }
 
@@ -585,7 +585,7 @@ void Primitive::upload(LLVertexBuffer* buffer)
         {
             index_array[i] = mIndexArray[i] + mVertexOffset;
         }
-        mVertexBuffer->setIndexData(index_array.data(), mIndexOffset, getIndexCount());
+        mVertexBuffer->setIndexData(std::span<const U32>(index_array.data(), getIndexCount()), mIndexOffset);
     }
 }
 

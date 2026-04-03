@@ -36,6 +36,7 @@
 #include "llrender.h"
 #include "lltrace.h"
 #include <set>
+#include <span>
 #include <vector>
 #include <list>
 #include <glm/gtc/matrix_transform.hpp>
@@ -105,7 +106,7 @@ public:
     static void cleanupClass();
     static void setupClientArrays(U32 data_mask);
     static void drawArrays(U32 mode, const std::vector<LLVector3>& pos);
-    static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, U32 num_indices, const U16* indicesp);
+    static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, std::span<const U16> indices);
 
     static void unbind(); //unbind any bound vertex buffer
 
@@ -235,16 +236,16 @@ public:
     void setIndexData(const U16* data);
     void setIndexData(const U32* data);
 
-    void setPositionData(const LLVector4a* data, U32 offset, U32 count);
-    void setNormalData(const LLVector4a* data, U32 offset, U32 count);
-    void setTangentData(const LLVector4a* data, U32 offset, U32 count);
-    void setWeight4Data(const LLVector4a* data, U32 offset, U32 count);
-    void setJointData(const U64* data, U32 offset, U32 count);
-    void setTexCoord0Data(const LLVector2* data, U32 offset, U32 count);
-    void setTexCoord1Data(const LLVector2* data, U32 offset, U32 count);
-    void setColorData(const LLColor4U* data, U32 offset, U32 count);
-    void setIndexData(const U16* data, U32 offset, U32 count);
-    void setIndexData(const U32* data, U32 offset, U32 count);
+    void setPositionData(std::span<const LLVector4a> data, U32 offset);
+    void setNormalData(std::span<const LLVector4a> data, U32 offset);
+    void setTangentData(std::span<const LLVector4a> data, U32 offset);
+    void setWeight4Data(std::span<const LLVector4a> data, U32 offset);
+    void setJointData(std::span<const U64> data, U32 offset);
+    void setTexCoord0Data(std::span<const LLVector2> data, U32 offset);
+    void setTexCoord1Data(std::span<const LLVector2> data, U32 offset);
+    void setColorData(std::span<const LLColor4U> data, U32 offset);
+    void setIndexData(std::span<const U16> data, U32 offset);
+    void setIndexData(std::span<const U32> data, U32 offset);
 
 
     [[nodiscard]] U32 getNumVerts() const                 { return mNumVerts; }

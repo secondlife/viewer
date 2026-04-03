@@ -371,7 +371,7 @@ void LLReflectionMap::doOcclusion(const LLVector4a& eye)
 
         LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
-        shader->uniform3fv(LLShaderMgr::BOX_CENTER, 1, mOrigin.getF32ptr());
+        shader->uniform3fv(LLShaderMgr::BOX_CENTER, std::span<const GLfloat>(mOrigin.getF32ptr(), 3));
         shader->uniform3f(LLShaderMgr::BOX_SIZE, mRadius, mRadius, mRadius);
 
         gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(LLViewerCamera::getInstance(), mOrigin));

@@ -31,6 +31,7 @@
 #include "llrender.h"
 #include "llstaticstringtable.h"
 #include <boost/json.hpp>
+#include <span>
 #include <unordered_map>
 
 class LLShaderFeatures
@@ -206,31 +207,31 @@ public:
     void uniform2f(U32 index, GLfloat x, GLfloat y);
     void uniform3f(U32 index, GLfloat x, GLfloat y, GLfloat z);
     void uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
-    void uniform1iv(U32 index, U32 count, const GLint* i);
-    void uniform4iv(U32 index, U32 count, const GLint* i);
-    void uniform1fv(U32 index, U32 count, const GLfloat* v);
-    void uniform2fv(U32 index, U32 count, const GLfloat* v);
-    void uniform3fv(U32 index, U32 count, const GLfloat* v);
-    void uniform4fv(U32 index, U32 count, const GLfloat* v);
-    void uniform4uiv(U32 index, U32 count, const GLuint* v);
+    void uniform1iv(U32 index, std::span<const GLint> v);
+    void uniform4iv(U32 index, std::span<const GLint> v);
+    void uniform1fv(U32 index, std::span<const GLfloat> v);
+    void uniform2fv(U32 index, std::span<const GLfloat> v);
+    void uniform3fv(U32 index, std::span<const GLfloat> v);
+    void uniform4fv(U32 index, std::span<const GLfloat> v);
+    void uniform4uiv(U32 index, std::span<const GLuint> v);
     void uniform2i(const LLStaticHashedString& uniform, GLint i, GLint j);
-    void uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v);
-    void uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v);
-    void uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v);
-    void uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v);
+    void uniformMatrix2fv(U32 index, GLboolean transpose, std::span<const GLfloat> v);
+    void uniformMatrix3fv(U32 index, GLboolean transpose, std::span<const GLfloat> v);
+    void uniformMatrix3x4fv(U32 index, GLboolean transpose, std::span<const GLfloat> v);
+    void uniformMatrix4fv(U32 index, GLboolean transpose, std::span<const GLfloat> v);
     void uniform1i(const LLStaticHashedString& uniform, GLint i);
-    void uniform1iv(const LLStaticHashedString& uniform, U32 count, const GLint* v);
-    void uniform4iv(const LLStaticHashedString& uniform, U32 count, const GLint* v);
+    void uniform1iv(const LLStaticHashedString& uniform, std::span<const GLint> v);
+    void uniform4iv(const LLStaticHashedString& uniform, std::span<const GLint> v);
     void uniform1f(const LLStaticHashedString& uniform, GLfloat v);
     void uniform2f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y);
     void uniform3f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y, GLfloat z);
     void uniform4f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
-    void uniform1fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
-    void uniform2fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
-    void uniform3fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
-    void uniform4fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
-    void uniform4uiv(const LLStaticHashedString& uniform, U32 count, const GLuint* v);
-    void uniformMatrix4fv(const LLStaticHashedString& uniform, U32 count, GLboolean transpose, const GLfloat* v);
+    void uniform1fv(const LLStaticHashedString& uniform, std::span<const GLfloat> v);
+    void uniform2fv(const LLStaticHashedString& uniform, std::span<const GLfloat> v);
+    void uniform3fv(const LLStaticHashedString& uniform, std::span<const GLfloat> v);
+    void uniform4fv(const LLStaticHashedString& uniform, std::span<const GLfloat> v);
+    void uniform4uiv(const LLStaticHashedString& uniform, std::span<const GLuint> v);
+    void uniformMatrix4fv(const LLStaticHashedString& uniform, GLboolean transpose, std::span<const GLfloat> v);
 
     void setMinimumAlpha(F32 minimum);
 

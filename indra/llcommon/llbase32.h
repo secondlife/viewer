@@ -28,10 +28,12 @@
 #ifndef LLBASE32_H
 #define LLBASE32_H
 
+#include <span>
+
 class LL_COMMON_API LLBase32
 {
 public:
-    static std::string encode(const U8* input, size_t input_size);
+    static std::string encode(std::span<const U8> input);
 };
 
 #endif

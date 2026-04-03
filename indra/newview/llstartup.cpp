@@ -3799,7 +3799,7 @@ bool process_login_success_response()
     if (!look_at_str.empty())
     {
         size_t len = look_at_str.size();
-        LLMemoryStream mstr((U8*)look_at_str.c_str(), static_cast<S32>(len));
+        LLMemoryStream mstr(std::span<const U8>((const U8*)look_at_str.c_str(), len));
         LLSD sd = LLSDSerialize::fromNotation(mstr, len);
         gAgentStartLookAt = ll_vector3_from_sd(sd);
     }
@@ -3837,7 +3837,7 @@ bool process_login_success_response()
     if(!home_location.empty())
     {
         size_t len = home_location.size();
-        LLMemoryStream mstr((U8*)home_location.c_str(), static_cast<S32>(len));
+        LLMemoryStream mstr(std::span<const U8>((const U8*)home_location.c_str(), len));
         LLSD sd = LLSDSerialize::fromNotation(mstr, len);
         S32 region_x = sd["region_handle"][0].asInteger();
         S32 region_y = sd["region_handle"][1].asInteger();

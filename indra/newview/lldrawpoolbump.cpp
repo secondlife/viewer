@@ -222,7 +222,7 @@ void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& di
                          LLVector4(gGLModelView+12));
             LLVector3 vec = LLVector3(gShinyOrigin) * mat;
             LLVector4 vec4(vec, gShinyOrigin.mV[3]);
-            shader->uniform4fv(LLViewerShaderMgr::SHINY_ORIGIN, 1, vec4.mV);
+            shader->uniform4fv(LLViewerShaderMgr::SHINY_ORIGIN, std::span<const GLfloat>(vec4.mV, 4));
             if (shader_level > 1)
             {
                 cube_map->setMatrix(1);
@@ -330,7 +330,7 @@ void LLDrawPoolBump::beginFullbrightShiny()
 
         LLVector3 vec = LLVector3(gShinyOrigin) * mat;
         LLVector4 vec4(vec, gShinyOrigin.mV[3]);
-        shader->uniform4fv(LLViewerShaderMgr::SHINY_ORIGIN, 1, vec4.mV);
+        shader->uniform4fv(LLViewerShaderMgr::SHINY_ORIGIN, std::span<const GLfloat>(vec4.mV, 4));
 
         if (LLPipeline::sReflectionProbesEnabled)
         {

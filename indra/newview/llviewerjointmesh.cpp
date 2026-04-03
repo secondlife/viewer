@@ -181,7 +181,7 @@ void LLViewerJointMesh::uploadJointMatrices()
         stop_glerror();
         if (LLGLSLShader::sCurBoundShaderPtr)
         {
-            LLGLSLShader::sCurBoundShaderPtr->uniform4fv(LLViewerShaderMgr::AVATAR_MATRIX, 45, mat);
+            LLGLSLShader::sCurBoundShaderPtr->uniform4fv(LLViewerShaderMgr::AVATAR_MATRIX, std::span<const GLfloat>(mat, 45 * 4));
         }
         stop_glerror();
     }

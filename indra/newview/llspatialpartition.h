@@ -44,6 +44,7 @@
 #include "llfetchedgltfmaterial.h"
 
 #include <queue>
+#include <span>
 #include <unordered_map>
 
 #define SG_STATE_INHERIT_MASK (OCCLUDED)
@@ -662,7 +663,7 @@ class LLVolumeGeometryManager: public LLGeometryManager
     virtual void rebuildMesh(LLSpatialGroup* group);
     virtual void getGeometry(LLSpatialGroup* group);
     virtual void addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count);
-    U32 genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, bool distance_sort = false, bool batch_textures = false, bool rigged = false);
+    U32 genDrawInfo(LLSpatialGroup* group, U32 mask, std::span<LLFace*> faces, bool distance_sort = false, bool batch_textures = false, bool rigged = false);
     void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
 
 private:

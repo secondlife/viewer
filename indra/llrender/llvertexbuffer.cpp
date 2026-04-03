@@ -766,7 +766,7 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos)
 }
 
 //static
-void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, U32 num_indices, const U16* indicesp)
+void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, std::span<const U16> indices)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
     llassert(LLGLSLShader::sCurBoundShaderPtr != NULL);
@@ -781,18 +781,16 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
 
     if (tc != nullptr)
     {
-        for (U32 i = 0; i < num_indices; ++i)
+        for (U16 idx : indices)
         {
-            U16 idx = indicesp[i];
             gGL.texCoord2fv(tc[idx].mV);
             gGL.vertex3fv(pos[idx].getF32ptr());
         }
     }
     else
     {
-        for (U32 i = 0; i < num_indices; ++i)
+        for (U16 idx : indices)
         {
-            U16 idx = indicesp[i];
             gGL.vertex3fv(pos[idx].getF32ptr());
         }
     }
@@ -1793,52 +1791,61 @@ void LLVertexBuffer::setIndexData(const U32* data)
     flush_vbo(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U32) * getNumIndices() - 1, (U8*)data, mMappedIndexData);
 }
 
-void LLVertexBuffer::setPositionData(const LLVector4a* data, U32 offset, U32 count)
+void LLVertexBuffer::setPositionData(std::span<const LLVector4a> data, U32 offset)
 {
-    flush_vbo(GL_ARRAY_BUFFER, offset * sizeof(LLVector4a), (offset + count) * sizeof(LLVector4a) - 1, (U8*)data, mMappedData);
+    U32 count = (U32)data.size();
+    flush_vbo(GL_ARRAY_BUFFER, offset * sizeof(LLVector4a), (offset + count) * sizeof(LLVector4a) - 1, (U8*)data.data(), mMappedData);
 }
 
-void LLVertexBuffer::setNormalData(const LLVector4a* data, U32 offset, U32 count)
+void LLVertexBuffer::setNormalData(std::span<const LLVector4a> data, U32 offset)
 {
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_NORMAL] + offset * sTypeSize[TYPE_NORMAL], mOffsets[TYPE_NORMAL] + (offset + count) * sTypeSize[TYPE_NORMAL] - 1, (U8*)data, mMappedData);
+    U32 count = (U32)data.size();
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_NORMAL] + offset * sTypeSize[TYPE_NORMAL], mOffsets[TYPE_NORMAL] + (offset + count) * sTypeSize[TYPE_NORMAL] - 1, (U8*)data.data(), mMappedData);
 }
 
-void LLVertexBuffer::setTexCoord0Data(const LLVector2* data, U32 offset, U32 count)
+void LLVertexBuffer::setTexCoord0Data(std::span<const LLVector2> data, U32 offset)
 {
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD0] + offset * sTypeSize[TYPE_TEXCOORD0], mOffsets[TYPE_TEXCOORD0] + (offset + count) * sTypeSize[TYPE_TEXCOORD0] - 1, (U8*)data, mMappedData);
+    U32 count = (U32)data.size();
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD0] + offset * sTypeSize[TYPE_TEXCOORD0], mOffsets[TYPE_TEXCOORD0] + (offset + count) * sTypeSize[TYPE_TEXCOORD0] - 1, (U8*)data.data(), mMappedData);
 }
 
-void LLVertexBuffer::setTexCoord1Data(const LLVector2* data, U32 offset, U32 count)
+void LLVertexBuffer::setTexCoord1Data(std::span<const LLVector2> data, U32 offset)
 {
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD1] + offset * sTypeSize[TYPE_TEXCOORD1], mOffsets[TYPE_TEXCOORD1] + (offset + count) * sTypeSize[TYPE_TEXCOORD1] - 1, (U8*)data, mMappedData);
+    U32 count = (U32)data.size();
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD1] + offset * sTypeSize[TYPE_TEXCOORD1], mOffsets[TYPE_TEXCOORD1] + (offset + count) * sTypeSize[TYPE_TEXCOORD1] - 1, (U8*)data.data(), mMappedData);
 }
 
-void LLVertexBuffer::setColorData(const LLColor4U* data, U32 offset, U32 count)
+void LLVertexBuffer::setColorData(std::span<const LLColor4U> data, U32 offset)
 {
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_COLOR] + offset * sTypeSize[TYPE_COLOR], mOffsets[TYPE_COLOR] + (offset + count) * sTypeSize[TYPE_COLOR] - 1, (U8*)data, mMappedData);
+    U32 count = (U32)data.size();
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_COLOR] + offset * sTypeSize[TYPE_COLOR], mOffsets[TYPE_COLOR] + (offset + count) * sTypeSize[TYPE_COLOR] - 1, (U8*)data.data(), mMappedData);
 }
 
-void LLVertexBuffer::setTangentData(const LLVector4a* data, U32 offset, U32 count)
+void LLVertexBuffer::setTangentData(std::span<const LLVector4a> data, U32 offset)
 {
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TANGENT] + offset * sTypeSize[TYPE_TANGENT], mOffsets[TYPE_TANGENT] + (offset + count) * sTypeSize[TYPE_TANGENT] - 1, (U8*)data, mMappedData);
+    U32 count = (U32)data.size();
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TANGENT] + offset * sTypeSize[TYPE_TANGENT], mOffsets[TYPE_TANGENT] + (offset + count) * sTypeSize[TYPE_TANGENT] - 1, (U8*)data.data(), mMappedData);
 }
 
-void LLVertexBuffer::setWeight4Data(const LLVector4a* data, U32 offset, U32 count)
+void LLVertexBuffer::setWeight4Data(std::span<const LLVector4a> data, U32 offset)
 {
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_WEIGHT4] + offset * sTypeSize[TYPE_WEIGHT4], mOffsets[TYPE_WEIGHT4] + (offset + count) * sTypeSize[TYPE_WEIGHT4] - 1, (U8*)data, mMappedData);
+    U32 count = (U32)data.size();
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_WEIGHT4] + offset * sTypeSize[TYPE_WEIGHT4], mOffsets[TYPE_WEIGHT4] + (offset + count) * sTypeSize[TYPE_WEIGHT4] - 1, (U8*)data.data(), mMappedData);
 }
 
-void LLVertexBuffer::setJointData(const U64* data, U32 offset, U32 count)
+void LLVertexBuffer::setJointData(std::span<const U64> data, U32 offset)
 {
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_JOINT] + offset * sTypeSize[TYPE_JOINT], mOffsets[TYPE_JOINT] + (offset + count) * sTypeSize[TYPE_JOINT] - 1, (U8*)data, mMappedData);
+    U32 count = (U32)data.size();
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_JOINT] + offset * sTypeSize[TYPE_JOINT], mOffsets[TYPE_JOINT] + (offset + count) * sTypeSize[TYPE_JOINT] - 1, (U8*)data.data(), mMappedData);
 }
 
-void LLVertexBuffer::setIndexData(const U16* data, U32 offset, U32 count)
+void LLVertexBuffer::setIndexData(std::span<const U16> data, U32 offset)
 {
-    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U16), (offset + count) * sizeof(U16) - 1, (U8*)data, mMappedIndexData);
+    U32 count = (U32)data.size();
+    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U16), (offset + count) * sizeof(U16) - 1, (U8*)data.data(), mMappedIndexData);
 }
 
-void LLVertexBuffer::setIndexData(const U32* data, U32 offset, U32 count)
+void LLVertexBuffer::setIndexData(std::span<const U32> data, U32 offset)
 {
     if (mIndicesType != GL_UNSIGNED_INT)
     { // HACK -- vertex buffers are initialized as 16-bit indices, but can be switched to 32-bit indices
@@ -1846,6 +1853,7 @@ void LLVertexBuffer::setIndexData(const U32* data, U32 offset, U32 count)
         mIndicesStride = 4;
         mNumIndices /= 2;
     }
-    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data, mMappedIndexData);
+    U32 count = (U32)data.size();
+    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data.data(), mMappedIndexData);
 }
 

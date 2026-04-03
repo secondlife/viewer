@@ -7360,8 +7360,8 @@ void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
             (AF1)src->getWidth(), (AF1)src->getHeight(),  // Input size.
             (AF1)dst->getWidth(), (AF1)dst->getHeight()); // Output size.
 
-        sharpen_shader->uniform4uiv(cas_param_0, 1, const0);
-        sharpen_shader->uniform4uiv(cas_param_1, 1, const1);
+        sharpen_shader->uniform4uiv(cas_param_0, std::span<const GLuint>(const0, 4));
+        sharpen_shader->uniform4uiv(cas_param_1, std::span<const GLuint>(const1, 4));
 
         sharpen_shader->uniform2f(out_screen_res, (AF1)dst->getWidth(), (AF1)dst->getHeight());
     }
@@ -7495,7 +7495,7 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
             dest.clear(GL_COLOR_BUFFER_BIT);
 
             edge_shader.bind();
-            edge_shader.uniform4fv(sSmaaRTMetrics, 1, rt_metrics);
+            edge_shader.uniform4fv(sSmaaRTMetrics, std::span<const GLfloat>(rt_metrics, 4));
 
             S32 channel = edge_shader.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, src->getUsage());
             if (channel > -1)
@@ -7538,7 +7538,7 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
             dest.clear(GL_COLOR_BUFFER_BIT);
 
             blend_weights_shader.bind();
-            blend_weights_shader.uniform4fv(sSmaaRTMetrics, 1, rt_metrics);
+            blend_weights_shader.uniform4fv(sSmaaRTMetrics, std::span<const GLfloat>(rt_metrics, 4));
 
             S32 edge_tex_channel = blend_weights_shader.enableTexture(LLShaderMgr::SMAA_EDGE_TEX, mFXAAMap.getUsage());
             if (edge_tex_channel > -1)
@@ -7614,7 +7614,7 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
             bound_target->clear(GL_COLOR_BUFFER_BIT);
 
             blend_shader.bind();
-            blend_shader.uniform4fv(sSmaaRTMetrics, 1, rt_metrics);
+            blend_shader.uniform4fv(sSmaaRTMetrics, std::span<const GLfloat>(rt_metrics, 4));
 
             S32 diffuse_channel = blend_shader.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE);
             if(diffuse_channel > -1)
@@ -8163,7 +8163,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 
     if (sReflectionRender && !shader.getUniformLocation(LLShaderMgr::MODELVIEW_MATRIX))
     {
-        shader.uniformMatrix4fv(LLShaderMgr::MODELVIEW_MATRIX, 1, false, glm::value_ptr(mReflectionModelView));
+        shader.uniformMatrix4fv(LLShaderMgr::MODELVIEW_MATRIX, false, std::span<const GLfloat>(glm::value_ptr(mReflectionModelView), 16));
     }
 
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_NOISE);
@@ -8208,7 +8208,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
         mat[i+80] = glm::value_ptr(mSunShadowMatrix[5])[i];
     }
 
-    shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_SHADOW_MATRIX, 6, false, mat);
+    shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_SHADOW_MATRIX, false, std::span<const GLfloat>(mat, 6 * 16));
 
     stop_glerror();
 
@@ -8230,7 +8230,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
                           m[4], m[5], m[6],
                           m[8], m[9], m[10] };
 
-            shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, true, mat);
+            shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, true, std::span<const GLfloat>(mat, 9));
         }
     }
 
@@ -8242,7 +8242,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     }
     else*/
     {
-        shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_CLIP, 1, mSunClipPlanes.mV);
+        shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_CLIP, std::span<const GLfloat>(mSunClipPlanes.mV, 4));
     }
     shader.uniform1f(LLShaderMgr::DEFERRED_SUN_WASH, RenderDeferredSunWash);
     shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_NOISE, RenderShadowNoise);
@@ -8263,7 +8263,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     F32 ssao_effect_mat[] = {   matrix_diag, matrix_nondiag, matrix_nondiag,
                                 matrix_nondiag, matrix_diag, matrix_nondiag,
                                 matrix_nondiag, matrix_nondiag, matrix_diag};
-    shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_SSAO_EFFECT_MAT, 1, GL_FALSE, ssao_effect_mat);
+    shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_SSAO_EFFECT_MAT, GL_FALSE, std::span<const GLfloat>(ssao_effect_mat, 9));
 
     //F32 shadow_offset_error = 1.f + RenderShadowOffsetError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
     F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2])/3000.f;
@@ -8276,22 +8276,22 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_OFFSET, RenderSpotShadowOffset);
     shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_BIAS, RenderSpotShadowBias);
 
-    shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, mTransformedSunDir.mV);
-    shader.uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, mTransformedMoonDir.mV);
+    shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, std::span<const GLfloat>(mTransformedSunDir.mV, 3));
+    shader.uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, std::span<const GLfloat>(mTransformedMoonDir.mV, 3));
     shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES, (GLfloat)mRT->shadow[0].getWidth(), (GLfloat)mRT->shadow[0].getHeight());
     shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, (GLfloat)mSpotShadow[0].getWidth(), (GLfloat)mSpotShadow[0].getHeight());
     shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
     shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
 
-    shader.uniformMatrix4fv(LLShaderMgr::MODELVIEW_DELTA_MATRIX, 1, GL_FALSE, glm::value_ptr(gGLDeltaModelView));
-    shader.uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_DELTA_MATRIX, 1, GL_FALSE, glm::value_ptr(gGLInverseDeltaModelView));
+    shader.uniformMatrix4fv(LLShaderMgr::MODELVIEW_DELTA_MATRIX, GL_FALSE, std::span<const GLfloat>(glm::value_ptr(gGLDeltaModelView), 16));
+    shader.uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_DELTA_MATRIX, GL_FALSE, std::span<const GLfloat>(glm::value_ptr(gGLInverseDeltaModelView), 16));
 
     shader.uniform1i(LLShaderMgr::CUBE_SNAPSHOT, gCubeSnapshot ? 1 : 0);
 
     if (shader.getUniformLocation(LLShaderMgr::DEFERRED_NORM_MATRIX) >= 0)
     {
         glm::mat4 norm_mat = glm::transpose(glm::inverse(get_current_modelview()));
-        shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_NORM_MATRIX, 1, false, glm::value_ptr(norm_mat));
+        shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_NORM_MATRIX, false, std::span<const GLfloat>(glm::value_ptr(norm_mat), 16));
     }
 
     // auto adjust legacy sun color if needed
@@ -8304,8 +8304,8 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
         sun_diffuse *= auto_adjust_sun_color_scale;
     }
 
-    shader.uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, 1, sun_diffuse.mV);
-    shader.uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
+    shader.uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, std::span<const GLfloat>(sun_diffuse.mV, 3));
+    shader.uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, std::span<const GLfloat>(mMoonDiffuse.mV, 3));
 
     shader.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mReflectionMapManager.mMaxProbeLOD);
 }
@@ -8438,7 +8438,7 @@ void LLPipeline::renderDeferredLighting()
 
             gDeferredBlurLightProgram.uniform2f(sDelta, 1.f, 0.f);
             gDeferredBlurLightProgram.uniform1f(sDistFactor, dist_factor);
-            gDeferredBlurLightProgram.uniform3fv(sKern, kern_length, gauss[0].mV);
+            gDeferredBlurLightProgram.uniform3fv(sKern, std::span<const GLfloat>(gauss[0].mV, kern_length * 3));
             gDeferredBlurLightProgram.uniform1f(sKernScale, blur_size * (kern_length / 2.f - 0.5f));
 
             {
@@ -8491,9 +8491,9 @@ void LLPipeline::renderDeferredLighting()
             LLEnvironment &environment = LLEnvironment::instance();
 
             soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-            soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
+            soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(environment.getClampedLightNorm().mV, 3));
 
-            soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+            soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
 
             {
                 LLGLDepthTest depth(GL_FALSE);
@@ -8608,9 +8608,9 @@ void LLPipeline::renderDeferredLighting()
                             continue;
                         }
 
-                        gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
+                        gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, std::span<const GLfloat>(c, 3));
                         gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
-                        gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
+                        gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(col.mV, 3));
                         gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
                         gDeferredLightProgram.uniform1i(LLShaderMgr::CLASSIC_MODE, (psky->canAutoAdjust()) ? 1 : 0);
 
@@ -8670,9 +8670,9 @@ void LLPipeline::renderDeferredLighting()
                     // send light color to shader in linear space
                     LLColor3 col = volume->getLightLinearColor() * light_scale;
 
-                    gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
+                    gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, std::span<const GLfloat>(c, 3));
                     gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
-                    gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
+                    gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(col.mV, 3));
                     gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
                     gDeferredSpotLightProgram.uniform1i(LLShaderMgr::CLASSIC_MODE, (psky->canAutoAdjust()) ? 1 : 0);
 
@@ -8711,8 +8711,8 @@ void LLPipeline::renderDeferredLighting()
                         U32 idx = count - 1;
                         bindDeferredShader(gDeferredMultiLightProgram[idx]);
                         gDeferredMultiLightProgram[idx].uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
-                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat*)light);
-                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat*)col);
+                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT, std::span<const GLfloat>((GLfloat*)light, count * 4));
+                        gDeferredMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, std::span<const GLfloat>((GLfloat*)col, count * 4));
                         gDeferredMultiLightProgram[idx].uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
                         gDeferredMultiLightProgram[idx].uniform1i(LLShaderMgr::CLASSIC_MODE, (psky->canAutoAdjust()) ? 1 : 0);
                         far_z = 0.f;
@@ -8747,9 +8747,9 @@ void LLPipeline::renderDeferredLighting()
                     // send light color to shader in linear space
                     LLColor3 col = volume->getLightLinearColor() * light_scale;
 
-                    gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, glm::value_ptr(tc));
+                    gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, std::span<const GLfloat>(glm::value_ptr(tc), 3));
                     gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, light_size_final);
-                    gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
+                    gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(col.mV, 3));
                     gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, light_falloff_final);
                     gDeferredMultiSpotLightProgram.uniform1i(LLShaderMgr::CLASSIC_MODE, (psky->canAutoAdjust()) ? 1 : 0);
 
@@ -8867,9 +8867,9 @@ void LLPipeline::doAtmospherics()
 
         LLEnvironment& environment = LLEnvironment::instance();
         haze_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-        haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
+        haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(environment.getClampedLightNorm().mV, 3));
 
-        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
 
         LLGLDepthTest depth(GL_FALSE);
 
@@ -8930,7 +8930,7 @@ void LLPipeline::doWaterHaze()
         LL_PROFILE_GPU_ZONE("haze");
         bindDeferredShader(haze_shader, nullptr, &mWaterDis);
 
-        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
 
         static LLStaticHashedString above_water_str("above_water");
         haze_shader.uniform1i(above_water_str, sUnderWaterRender ? -1 : 1);
@@ -9039,11 +9039,11 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
     F32 proj_range = far_clip - near_clip;
     glm::mat4 light_proj = glm::perspective(fovy, aspect, near_clip, far_clip);
     screen_to_light = trans * light_proj * screen_to_light;
-    shader.uniformMatrix4fv(LLShaderMgr::PROJECTOR_MATRIX, 1, false, glm::value_ptr(screen_to_light));
+    shader.uniformMatrix4fv(LLShaderMgr::PROJECTOR_MATRIX, false, std::span<const GLfloat>(glm::value_ptr(screen_to_light), 16));
     shader.uniform1f(LLShaderMgr::PROJECTOR_NEAR, near_clip);
-    shader.uniform3fv(LLShaderMgr::PROJECTOR_P, 1, glm::value_ptr(p1));
-    shader.uniform3fv(LLShaderMgr::PROJECTOR_N, 1, glm::value_ptr(n));
-    shader.uniform3fv(LLShaderMgr::PROJECTOR_ORIGIN, 1, glm::value_ptr(screen_origin));
+    shader.uniform3fv(LLShaderMgr::PROJECTOR_P, std::span<const GLfloat>(glm::value_ptr(p1), 3));
+    shader.uniform3fv(LLShaderMgr::PROJECTOR_N, std::span<const GLfloat>(glm::value_ptr(n), 3));
+    shader.uniform3fv(LLShaderMgr::PROJECTOR_ORIGIN, std::span<const GLfloat>(glm::value_ptr(screen_origin), 3));
     shader.uniform1f(LLShaderMgr::PROJECTOR_RANGE, proj_range);
     shader.uniform1f(LLShaderMgr::PROJECTOR_AMBIANCE, params.mV[2]);
     S32 s_idx = -1;
@@ -9187,7 +9187,7 @@ void LLPipeline::setEnvMat(LLGLSLShader& shader)
                     m[4], m[5], m[6],
                     m[8], m[9], m[10] };
 
-    shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, true, mat);
+    shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, true, std::span<const GLfloat>(mat, 9));
 }
 
 void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)

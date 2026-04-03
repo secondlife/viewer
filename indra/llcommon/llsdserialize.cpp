@@ -232,7 +232,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, llssize max_bytes)
         }
         // Since we've already read 'inbuf' bytes into 'hdr_buf', prepend that
         // data to whatever remains in 'str'.
-        LLMemoryStreamBuf already(reinterpret_cast<const U8*>(hdr_buf), (S32)inbuf);
+        LLMemoryStreamBuf already(std::span<const U8>(reinterpret_cast<const U8*>(hdr_buf), inbuf));
         cat_streambuf prebuff(&already, str.rdbuf());
         std::istream  prepend(&prebuff);
 #if 1
@@ -242,7 +242,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, llssize max_bytes)
         // allocate a buffer that we hope is big enough for the whole thing
         std::vector<char> wholemsg((max_bytes == size_t(SIZE_UNLIMITED))? 1024 : max_bytes);
         prepend.read(wholemsg.data(), std::min(max_bytes, wholemsg.size()));
-        LLMemoryStream replay(reinterpret_cast<const U8*>(wholemsg.data()), prepend.gcount());
+        LLMemoryStream replay(std::span<const U8>(reinterpret_cast<const U8*>(wholemsg.data()), prepend.gcount()));
         auto success{ p->parse(replay, sd, prepend.gcount()) > 0 };
         {
             LL_DEBUGS() << (success? "parsed: $$" : "failed: '")

@@ -5216,7 +5216,7 @@ std::string LLVivoxVoiceClient::nameFromID(const LLUUID &uuid) const
     // Base64 encode and replace the pieces of base64 that are less compatible
     // with e-mail local-parts.
     // See RFC-4648 "Base 64 Encoding with URL and Filename Safe Alphabet"
-    result += LLBase64::encode(uuid.mData, UUID_BYTES);
+    result += LLBase64::encode(std::span<const U8>(uuid.mData, UUID_BYTES));
     LLStringUtil::replaceChar(result, '+', '-');
     LLStringUtil::replaceChar(result, '/', '_');
 
@@ -7906,13 +7906,13 @@ LLVivoxSecurity::LLVivoxSecurity()
     {
         random_value[b] = ll_rand() & 0xff;
     }
-    mConnectorHandle = LLBase64::encode(random_value, VIVOX_TOKEN_BYTES);
+    mConnectorHandle = LLBase64::encode(random_value);
 
     for (int b = 0; b < VIVOX_TOKEN_BYTES; b++)
     {
         random_value[b] = ll_rand() & 0xff;
     }
-    mAccountHandle = LLBase64::encode(random_value, VIVOX_TOKEN_BYTES);
+    mAccountHandle = LLBase64::encode(random_value);
 }
 
 LLVivoxSecurity::~LLVivoxSecurity()

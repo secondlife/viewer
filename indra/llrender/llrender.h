@@ -47,6 +47,7 @@
 
 #include <array>
 #include <list>
+#include <span>
 
 class LLVertexBuffer;
 class LLCubeMap;
@@ -456,10 +457,9 @@ public:
 
     void batchTransform(LLVector4a* verts, U32 vert_count);
 
-    void vertexBatchPreTransformed(const std::vector<LLVector4a>& verts);
-    void vertexBatchPreTransformed(const LLVector4a* verts, S32 vert_count);
-    void vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, S32 vert_count);
-    void vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, const LLColor4U*, S32 vert_count);
+    void vertexBatchPreTransformed(std::span<const LLVector4a> verts);
+    void vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const LLVector2> uvs);
+    void vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const LLVector2> uvs, std::span<const LLColor4U> colors);
 
     void setColorMask(bool writeColor, bool writeAlpha);
     void setColorMask(bool writeColorR, bool writeColorG, bool writeColorB, bool writeAlpha);

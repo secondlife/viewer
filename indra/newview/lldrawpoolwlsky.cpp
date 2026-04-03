@@ -170,7 +170,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
             rot.setRot(0.f, hdri_rotation*DEG_TO_RAD, 0.f);
 
             sky_shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, powf(2.f, hdri_exposure));
-            sky_shader->uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, GL_FALSE, (F32*) rot.mMatrix);
+            sky_shader->uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, GL_FALSE, std::span<const GLfloat>((F32*) rot.mMatrix, 9));
             sky_shader->uniform1f(hdri_split_screen, gCubeSnapshot ? 1.f : hdri_split);
         }
         else
@@ -403,7 +403,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
                 LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
 
-                sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
+                sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(color.mV, 4));
                 sun_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
                 face->renderIndexed();
@@ -451,10 +451,10 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
             F32 moon_brightness = (float)psky->getMoonBrightness();
 
             moon_shader->uniform1f(LLShaderMgr::MOON_BRIGHTNESS, moon_brightness);
-            moon_shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, 1, gSky.mVOSkyp->getMoon().getColor().mV);
-            moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
+            moon_shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, std::span<const GLfloat>(gSky.mVOSkyp->getMoon().getColor().mV, 3));
+            moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(color.mV, 4));
             //moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
-            moon_shader->uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, psky->getMoonDirection().mV); // shader: moon_dir
+            moon_shader->uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, std::span<const GLfloat>(psky->getMoonDirection().mV, 3)); // shader: moon_dir
 
             face->renderIndexed();
 

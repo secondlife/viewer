@@ -152,11 +152,11 @@ void LLCRC::update(U8 next_byte)
     mCurrent = UPDC32(next_byte, mCurrent);
 }
 
-void LLCRC::update(const U8* buffer, size_t buffer_size)
+void LLCRC::update(std::span<const U8> buffer)
 {
-    for (size_t i = 0; i < buffer_size; i++)
+    for (U8 byte : buffer)
     {
-        mCurrent = UPDC32(buffer[i], mCurrent);
+        mCurrent = UPDC32(byte, mCurrent);
     }
 }
 
@@ -190,7 +190,7 @@ void LLCRC::update(const std::string& filename)
                 LL_WARNS() << "Short read on " << filename << LL_ENDL;
             }
 
-            update(data.data(), nread);
+            update(std::span<const U8>(data.data(), nread));
         }
         else
         {
@@ -206,7 +206,7 @@ bool LLCRC::testHarness()
     const S32 TEST_BUFFER_SIZE = 16;
     const char TEST_BUFFER[TEST_BUFFER_SIZE] = "hello &#$)$&Nd0";   /* Flawfinder: ignore */
     LLCRC c1, c2;
-    c1.update((U8*)TEST_BUFFER, TEST_BUFFER_SIZE - 1);
+    c1.update(std::span<const U8>((const U8*)TEST_BUFFER, TEST_BUFFER_SIZE - 1));
     char* rh = (char*)TEST_BUFFER;
     while(*rh != '\0')
     {

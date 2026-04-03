@@ -689,7 +689,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
             if(mVerb.empty())
             {
                 read_next_line = true;
-                LLMemoryStream header((U8*)buf, len);
+                LLMemoryStream header(std::span<const U8>((const U8*)buf, len));
                 header >> mVerb;
 
                 if((HTTP_VERB_GET == mVerb)

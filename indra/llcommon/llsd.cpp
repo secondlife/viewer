@@ -418,7 +418,7 @@ namespace
 
         virtual const LLSD::Binary& asBinary() const{ return mValue; }
 
-        virtual LLSD::String asXMLRPCValue() const { return "<base64>" + LLBase64::encode(mValue.data(), mValue.size()) + "</base64>"; }
+        virtual LLSD::String asXMLRPCValue() const { return "<base64>" + LLBase64::encode(mValue) + "</base64>"; }
     };
 
 

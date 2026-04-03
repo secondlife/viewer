@@ -1428,7 +1428,7 @@ void LLGLSLShader::uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat
     }
 }
 
-void LLGLSLShader::uniform1iv(U32 index, U32 count, const GLint* v)
+void LLGLSLShader::uniform1iv(U32 index, std::span<const GLint> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1446,16 +1446,17 @@ void LLGLSLShader::uniform1iv(U32 index, U32 count, const GLint* v)
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec((F32)v[0], 0.f, 0.f, 0.f);
+            U32 count = static_cast<U32>(v.size());
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
-                glUniform1iv(mUniform[index], count, v);
+                glUniform1iv(mUniform[index], count, v.data());
                 mValue[mUniform[index]] = vec;
             }
         }
     }
 }
 
-void LLGLSLShader::uniform4iv(U32 index, U32 count, const GLint* v)
+void LLGLSLShader::uniform4iv(U32 index, std::span<const GLint> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1473,9 +1474,10 @@ void LLGLSLShader::uniform4iv(U32 index, U32 count, const GLint* v)
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+            U32 count = static_cast<U32>(v.size()) / 4;
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
-                glUniform1iv(mUniform[index], count, v);
+                glUniform4iv(mUniform[index], count, v.data());
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1483,7 +1485,7 @@ void LLGLSLShader::uniform4iv(U32 index, U32 count, const GLint* v)
 }
 
 
-void LLGLSLShader::uniform1fv(U32 index, U32 count, const GLfloat* v)
+void LLGLSLShader::uniform1fv(U32 index, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1501,16 +1503,17 @@ void LLGLSLShader::uniform1fv(U32 index, U32 count, const GLfloat* v)
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0], 0.f, 0.f, 0.f);
+            U32 count = static_cast<U32>(v.size());
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
-                glUniform1fv(mUniform[index], count, v);
+                glUniform1fv(mUniform[index], count, v.data());
                 mValue[mUniform[index]] = vec;
             }
         }
     }
 }
 
-void LLGLSLShader::uniform2fv(U32 index, U32 count, const GLfloat* v)
+void LLGLSLShader::uniform2fv(U32 index, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1528,16 +1531,17 @@ void LLGLSLShader::uniform2fv(U32 index, U32 count, const GLfloat* v)
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0], v[1], 0.f, 0.f);
+            U32 count = static_cast<U32>(v.size()) / 2;
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
-                glUniform2fv(mUniform[index], count, v);
+                glUniform2fv(mUniform[index], count, v.data());
                 mValue[mUniform[index]] = vec;
             }
         }
     }
 }
 
-void LLGLSLShader::uniform3fv(U32 index, U32 count, const GLfloat* v)
+void LLGLSLShader::uniform3fv(U32 index, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1555,16 +1559,17 @@ void LLGLSLShader::uniform3fv(U32 index, U32 count, const GLfloat* v)
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0], v[1], v[2], 0.f);
+            U32 count = static_cast<U32>(v.size()) / 3;
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
-                glUniform3fv(mUniform[index], count, v);
+                glUniform3fv(mUniform[index], count, v.data());
                 mValue[mUniform[index]] = vec;
             }
         }
     }
 }
 
-void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
+void LLGLSLShader::uniform4fv(U32 index, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1582,17 +1587,18 @@ void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0], v[1], v[2], v[3]);
+            U32 count = static_cast<U32>(v.size()) / 4;
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
                 LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-                glUniform4fv(mUniform[index], count, v);
+                glUniform4fv(mUniform[index], count, v.data());
                 mValue[mUniform[index]] = vec;
             }
         }
     }
 }
 
-void LLGLSLShader::uniform4uiv(U32 index, U32 count, const GLuint* v)
+void LLGLSLShader::uniform4uiv(U32 index, std::span<const GLuint> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1610,17 +1616,18 @@ void LLGLSLShader::uniform4uiv(U32 index, U32 count, const GLuint* v)
         {
             const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+            U32 count = static_cast<U32>(v.size()) / 4;
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
                 LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-                glUniform4uiv(mUniform[index], count, v);
+                glUniform4uiv(mUniform[index], count, v.data());
                 mValue[mUniform[index]] = vec;
             }
         }
     }
 }
 
-void LLGLSLShader::uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v)
+void LLGLSLShader::uniformMatrix2fv(U32 index, GLboolean transpose, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1636,12 +1643,12 @@ void LLGLSLShader::uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, c
 
         if (mUniform[index] >= 0) [[likely]]
         {
-            glUniformMatrix2fv(mUniform[index], count, transpose, v);
+            glUniformMatrix2fv(mUniform[index], static_cast<GLsizei>(v.size()) / 4, transpose, v.data());
         }
     }
 }
 
-void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v)
+void LLGLSLShader::uniformMatrix3fv(U32 index, GLboolean transpose, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1657,12 +1664,12 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, c
 
         if (mUniform[index] >= 0) [[likely]]
         {
-            glUniformMatrix3fv(mUniform[index], count, transpose, v);
+            glUniformMatrix3fv(mUniform[index], static_cast<GLsizei>(v.size()) / 9, transpose, v.data());
         }
     }
 }
 
-void LLGLSLShader::uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v)
+void LLGLSLShader::uniformMatrix3x4fv(U32 index, GLboolean transpose, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1678,12 +1685,12 @@ void LLGLSLShader::uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose,
 
         if (mUniform[index] >= 0) [[likely]]
         {
-            glUniformMatrix3x4fv(mUniform[index], count, transpose, v);
+            glUniformMatrix3x4fv(mUniform[index], static_cast<GLsizei>(v.size()) / 12, transpose, v.data());
         }
     }
 }
 
-void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v)
+void LLGLSLShader::uniformMatrix4fv(U32 index, GLboolean transpose, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     llassert(sCurBoundShaderPtr == this);
@@ -1699,7 +1706,7 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
 
         if (mUniform[index] >= 0) [[likely]]
         {
-            glUniformMatrix4fv(mUniform[index], count, transpose, v);
+            glUniformMatrix4fv(mUniform[index], static_cast<GLsizei>(v.size()) / 16, transpose, v.data());
         }
     }
 }
@@ -1779,7 +1786,7 @@ void LLGLSLShader::uniform1i(const LLStaticHashedString& uniform, GLint v)
     }
 }
 
-void LLGLSLShader::uniform1iv(const LLStaticHashedString& uniform, U32 count, const GLint* v)
+void LLGLSLShader::uniform1iv(const LLStaticHashedString& uniform, std::span<const GLint> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     GLint location = getUniformLocation(uniform);
@@ -1788,16 +1795,17 @@ void LLGLSLShader::uniform1iv(const LLStaticHashedString& uniform, U32 count, co
     {
         LLVector4 vec((F32)v[0], 0.f, 0.f, 0.f);
         const auto& iter = mValue.find(location);
+        U32 count = static_cast<U32>(v.size());
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-            glUniform1iv(location, count, v);
+            glUniform1iv(location, count, v.data());
             mValue[location] = vec;
         }
     }
 }
 
-void LLGLSLShader::uniform4iv(const LLStaticHashedString& uniform, U32 count, const GLint* v)
+void LLGLSLShader::uniform4iv(const LLStaticHashedString& uniform, std::span<const GLint> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     GLint location = getUniformLocation(uniform);
@@ -1806,10 +1814,11 @@ void LLGLSLShader::uniform4iv(const LLStaticHashedString& uniform, U32 count, co
     {
         LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
         const auto& iter = mValue.find(location);
+        U32 count = static_cast<U32>(v.size()) / 4;
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-            glUniform4iv(location, count, v);
+            glUniform4iv(location, count, v.data());
             mValue[location] = vec;
         }
     }
@@ -1902,7 +1911,7 @@ void LLGLSLShader::uniform4f(const LLStaticHashedString& uniform, GLfloat x, GLf
     }
 }
 
-void LLGLSLShader::uniform1fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v)
+void LLGLSLShader::uniform1fv(const LLStaticHashedString& uniform, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     GLint location = getUniformLocation(uniform);
@@ -1911,15 +1920,16 @@ void LLGLSLShader::uniform1fv(const LLStaticHashedString& uniform, U32 count, co
     {
         const auto& iter = mValue.find(location);
         LLVector4 vec(v[0], 0.f, 0.f, 0.f);
+        U32 count = static_cast<U32>(v.size());
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
-            glUniform1fv(location, count, v);
+            glUniform1fv(location, count, v.data());
             mValue[location] = vec;
         }
     }
 }
 
-void LLGLSLShader::uniform2fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v)
+void LLGLSLShader::uniform2fv(const LLStaticHashedString& uniform, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     GLint location = getUniformLocation(uniform);
@@ -1928,15 +1938,16 @@ void LLGLSLShader::uniform2fv(const LLStaticHashedString& uniform, U32 count, co
     {
         const auto& iter = mValue.find(location);
         LLVector4 vec(v[0], v[1], 0.f, 0.f);
+        U32 count = static_cast<U32>(v.size()) / 2;
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
-            glUniform2fv(location, count, v);
+            glUniform2fv(location, count, v.data());
             mValue[location] = vec;
         }
     }
 }
 
-void LLGLSLShader::uniform3fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v)
+void LLGLSLShader::uniform3fv(const LLStaticHashedString& uniform, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     GLint location = getUniformLocation(uniform);
@@ -1945,33 +1956,35 @@ void LLGLSLShader::uniform3fv(const LLStaticHashedString& uniform, U32 count, co
     {
         const auto& iter = mValue.find(location);
         LLVector4 vec(v[0], v[1], v[2], 0.f);
+        U32 count = static_cast<U32>(v.size()) / 3;
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
-            glUniform3fv(location, count, v);
+            glUniform3fv(location, count, v.data());
             mValue[location] = vec;
         }
     }
 }
 
-void LLGLSLShader::uniform4fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v)
+void LLGLSLShader::uniform4fv(const LLStaticHashedString& uniform, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     GLint location = getUniformLocation(uniform);
 
     if (location >= 0)
     {
-        LLVector4 vec(v);
+        LLVector4 vec(v.data());
         const auto& iter = mValue.find(location);
+        U32 count = static_cast<U32>(v.size()) / 4;
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-            glUniform4fv(location, count, v);
+            glUniform4fv(location, count, v.data());
             mValue[location] = vec;
         }
     }
 }
 
-void LLGLSLShader::uniform4uiv(const LLStaticHashedString& uniform, U32 count, const GLuint* v)
+void LLGLSLShader::uniform4uiv(const LLStaticHashedString& uniform, std::span<const GLuint> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     GLint location = getUniformLocation(uniform);
@@ -1980,16 +1993,17 @@ void LLGLSLShader::uniform4uiv(const LLStaticHashedString& uniform, U32 count, c
     {
         LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
         const auto& iter = mValue.find(location);
+        U32 count = static_cast<U32>(v.size()) / 4;
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-            glUniform4uiv(location, count, v);
+            glUniform4uiv(location, count, v.data());
             mValue[location] = vec;
         }
     }
 }
 
-void LLGLSLShader::uniformMatrix4fv(const LLStaticHashedString& uniform, U32 count, GLboolean transpose, const GLfloat* v)
+void LLGLSLShader::uniformMatrix4fv(const LLStaticHashedString& uniform, GLboolean transpose, std::span<const GLfloat> v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     GLint location = getUniformLocation(uniform);
@@ -1997,7 +2011,7 @@ void LLGLSLShader::uniformMatrix4fv(const LLStaticHashedString& uniform, U32 cou
     if (location >= 0)
     {
         stop_glerror();
-        glUniformMatrix4fv(location, count, transpose, v);
+        glUniformMatrix4fv(location, static_cast<GLsizei>(v.size() / 16), transpose, v.data());
         stop_glerror();
     }
 }
@@ -2041,12 +2055,12 @@ void LLShaderUniforms::apply(LLGLSLShader* shader)
 
     for (auto& uniform : mVectors)
     {
-        shader->uniform4fv(uniform.mUniform, 1, uniform.mValue.mV);
+        shader->uniform4fv(uniform.mUniform, std::span<const GLfloat>(uniform.mValue.mV, 4));
     }
 
     for (auto& uniform : mVector3s)
     {
-        shader->uniform3fv(uniform.mUniform, 1, uniform.mValue.mV);
+        shader->uniform3fv(uniform.mUniform, std::span<const GLfloat>(uniform.mValue.mV, 3));
     }
 }
 

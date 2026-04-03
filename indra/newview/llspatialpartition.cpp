@@ -1498,7 +1498,7 @@ void pushVerts(LLVolume* volume)
     for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
     {
         const LLVolumeFace& face = volume->getVolumeFace(i);
-        LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, NULL, face.mNumIndices, face.mIndices);
+        LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, NULL, std::span<const U16>(face.mIndices, face.mNumIndices));
     }
 }
 
@@ -2350,7 +2350,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
                 gGL.diffuseColor4fv(color.mV);
 
                 LLVertexBuffer::unbind();
-                LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
+                LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, std::span<const U16>(phys_volume->mHullIndices, phys_volume->mNumHullIndices));
             }
             else
             {

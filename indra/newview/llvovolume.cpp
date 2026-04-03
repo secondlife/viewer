@@ -5025,7 +5025,7 @@ void LLRiggedVolume::update(
 
     LLMatrix4a mat[kMaxJoints];
     U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);
-    LLSkinningUtil::initSkinningMatrixPalette(mat, maxJoints, skin, avatar);
+    LLSkinningUtil::initSkinningMatrixPalette(std::span<LLMatrix4a>(mat, maxJoints), skin, avatar);
     const LLMatrix4a bind_shape_matrix = skin->mBindShapeMatrix;
 
     S32 rigged_vert_count = 0;
@@ -5058,7 +5058,7 @@ void LLRiggedVolume::update(
 
         if ( weight )
         {
-            LLSkinningUtil::checkSkinWeights(weight, dst_face.mNumVertices, skin);
+            LLSkinningUtil::checkSkinWeights(std::span<LLVector4a>(weight, dst_face.mNumVertices), skin);
 
             LLVector4a* pos = dst_face.mPositions;
 
@@ -5095,7 +5095,7 @@ void LLRiggedVolume::update(
                     for (S32 j = 0; j < dst_face.mNumVertices; ++j)
                     {
                         LLMatrix4a final_mat;
-                        LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
+                        LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), std::span<const LLMatrix4a>(mat, max_joints), false, final_mat);
 
                         LLVector4a& v = vol_face.mPositions[j];
                         LLVector4a t;
@@ -6116,14 +6116,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
     bool rigged = false;
     for (int i = 0; i < 2; ++i) //two sets, static and rigged)
     {
-        geometryBytes += genDrawInfo(group, simple_mask | extra_mask, sSimpleFaces[i], simple_count[i], false, batch_textures, rigged);
-        geometryBytes += genDrawInfo(group, fullbright_mask | extra_mask, sFullbrightFaces[i], fullbright_count[i], false, batch_textures, rigged);
-        geometryBytes += genDrawInfo(group, alpha_mask | extra_mask, sAlphaFaces[i], alpha_count[i], alpha_sort, batch_textures, rigged);
-        geometryBytes += genDrawInfo(group, bump_mask | extra_mask, sBumpFaces[i], bump_count[i], false, false, rigged);
-        geometryBytes += genDrawInfo(group, norm_mask | extra_mask, sNormFaces[i], norm_count[i], false, false, rigged);
-        geometryBytes += genDrawInfo(group, spec_mask | extra_mask, sSpecFaces[i], spec_count[i], false, false, rigged);
-        geometryBytes += genDrawInfo(group, normspec_mask | extra_mask, sNormSpecFaces[i], normspec_count[i], false, false, rigged);
-        geometryBytes += genDrawInfo(group, pbr_mask | extra_mask, sPbrFaces[i], pbr_count[i], false, false, rigged);
+        geometryBytes += genDrawInfo(group, simple_mask | extra_mask, std::span<LLFace*>(sSimpleFaces[i], simple_count[i]), false, batch_textures, rigged);
+        geometryBytes += genDrawInfo(group, fullbright_mask | extra_mask, std::span<LLFace*>(sFullbrightFaces[i], fullbright_count[i]), false, batch_textures, rigged);
+        geometryBytes += genDrawInfo(group, alpha_mask | extra_mask, std::span<LLFace*>(sAlphaFaces[i], alpha_count[i]), alpha_sort, batch_textures, rigged);
+        geometryBytes += genDrawInfo(group, bump_mask | extra_mask, std::span<LLFace*>(sBumpFaces[i], bump_count[i]), false, false, rigged);
+        geometryBytes += genDrawInfo(group, norm_mask | extra_mask, std::span<LLFace*>(sNormFaces[i], norm_count[i]), false, false, rigged);
+        geometryBytes += genDrawInfo(group, spec_mask | extra_mask, std::span<LLFace*>(sSpecFaces[i], spec_count[i]), false, false, rigged);
+        geometryBytes += genDrawInfo(group, normspec_mask | extra_mask, std::span<LLFace*>(sNormSpecFaces[i], normspec_count[i]), false, false, rigged);
+        geometryBytes += genDrawInfo(group, pbr_mask | extra_mask, std::span<LLFace*>(sPbrFaces[i], pbr_count[i]), false, false, rigged);
 
         // for rigged set, add weights and disable alpha sorting (rigged items use depth buffer)
         extra_mask |= LLVertexBuffer::MAP_WEIGHT4;
@@ -6285,7 +6285,7 @@ struct CompareBatchBreakerRigged
     }
 };
 
-U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, bool distance_sort, bool batch_textures, bool rigged)
+U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::span<LLFace*> faces, bool distance_sort, bool batch_textures, bool rigged)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
@@ -6304,24 +6304,24 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
             if (!distance_sort) // <--- alpha "sort" rigged faces by maintaining original draw order
             {
                 //sort faces by things that break batches, including avatar and mesh id
-                std::sort(faces, faces + face_count, CompareBatchBreakerRigged());
+                std::sort(faces.begin(), faces.end(), CompareBatchBreakerRigged());
             }
         }
         else if (!distance_sort)
         {
             //sort faces by things that break batches, not including avatar and mesh id
-            std::sort(faces, faces + face_count, CompareBatchBreaker());
+            std::sort(faces.begin(), faces.end(), CompareBatchBreaker());
         }
         else
         {
             //sort faces by distance
-            std::sort(faces, faces+face_count, LLFace::CompareDistanceGreater());
+            std::sort(faces.begin(), faces.end(), LLFace::CompareDistanceGreater());
         }
     }
 
     bool hud_group = group->isHUDGroup() ;
-    LLFace** face_iter = faces;
-    LLFace** end_faces = faces+face_count;
+    LLFace** face_iter = faces.data();
+    LLFace** end_faces = faces.data() + faces.size();
 
     LLSpatialGroup::buffer_map_t buffer_map;
 

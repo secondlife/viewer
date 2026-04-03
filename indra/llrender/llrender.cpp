@@ -961,19 +961,19 @@ void LLRender::syncLightState()
             size[i].set(light->mSize, light->mFalloff);
         }
 
-        shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, LL_NUM_LIGHT_UNITS, position[0].mV);
-        shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, LL_NUM_LIGHT_UNITS, direction[0].mV);
-        shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, LL_NUM_LIGHT_UNITS, attenuation[0].mV);
-        shader->uniform2fv(LLShaderMgr::LIGHT_DEFERRED_ATTENUATION, LL_NUM_LIGHT_UNITS, size[0].mV);
-        shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, LL_NUM_LIGHT_UNITS, diffuse[0].mV);
-        shader->uniform3fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
+        shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, std::span<const GLfloat>(position[0].mV, LL_NUM_LIGHT_UNITS * 4));
+        shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, std::span<const GLfloat>(direction[0].mV, LL_NUM_LIGHT_UNITS * 3));
+        shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, std::span<const GLfloat>(attenuation[0].mV, LL_NUM_LIGHT_UNITS * 4));
+        shader->uniform2fv(LLShaderMgr::LIGHT_DEFERRED_ATTENUATION, std::span<const GLfloat>(size[0].mV, LL_NUM_LIGHT_UNITS * 2));
+        shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, std::span<const GLfloat>(diffuse[0].mV, LL_NUM_LIGHT_UNITS * 3));
+        shader->uniform3fv(LLShaderMgr::LIGHT_AMBIENT, std::span<const GLfloat>(mAmbientLightColor.mV, 3));
         shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_primary[0] ? 1 : 0);
 
         if (sClassicMode)
         {
-            shader->uniform3fv(LLShaderMgr::AMBIENT, 1, mAmbientLightColor.mV);
-            shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
-            shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, 1, diffuse_b[0].mV);
+            shader->uniform3fv(LLShaderMgr::AMBIENT, std::span<const GLfloat>(mAmbientLightColor.mV, 3));
+            shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, std::span<const GLfloat>(diffuse[0].mV, 3));
+            shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, std::span<const GLfloat>(diffuse_b[0].mV, 3));
         }
     }
 }
@@ -1018,7 +1018,7 @@ void LLRender::syncMatrices()
                 cached_inv_mdv = glm::inverse(mat);
             }
 
-            shader->uniformMatrix4fv(name[MM_MODELVIEW], 1, GL_FALSE, glm::value_ptr(mat));
+            shader->uniformMatrix4fv(name[MM_MODELVIEW], GL_FALSE, std::span<const GLfloat>(glm::value_ptr(mat), 16));
             shader->mMatHash[MM_MODELVIEW] = mMatHash[MM_MODELVIEW];
 
             //update normal matrix
@@ -1040,12 +1040,12 @@ void LLRender::syncMatrices()
                     norm[8], norm[9], norm[10]
                 }};
 
-                shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat.data());
+                shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, GL_FALSE, std::span<const GLfloat>(norm_mat));
             }
 
             if (shader->getUniformLocation(LLShaderMgr::INVERSE_MODELVIEW_MATRIX))
             {
-                shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(cached_inv_mdv));
+                shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, GL_FALSE, std::span<const GLfloat>(glm::value_ptr(cached_inv_mdv), 16));
             }
 
             //update MVP matrix
@@ -1063,7 +1063,7 @@ void LLRender::syncMatrices()
                     cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
                 }
 
-                shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(cached_mvp));
+                shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, GL_FALSE, std::span<const GLfloat>(glm::value_ptr(cached_mvp), 16));
             }
         }
 
@@ -1078,16 +1078,16 @@ void LLRender::syncMatrices()
             if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
             {
                 glm::mat4 inv_proj = glm::inverse(mat);
-                shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, false, glm::value_ptr(inv_proj));
+                shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, false, std::span<const GLfloat>(glm::value_ptr(inv_proj), 16));
             }
 
             // Used by some full screen effects - such as full screen lights, glow, etc.
             if (shader->getUniformLocation(LLShaderMgr::IDENTITY_MATRIX))
             {
-                shader->uniformMatrix4fv(LLShaderMgr::IDENTITY_MATRIX, 1, GL_FALSE, glm::value_ptr(glm::identity<glm::mat4>()));
+                shader->uniformMatrix4fv(LLShaderMgr::IDENTITY_MATRIX, GL_FALSE, std::span<const GLfloat>(glm::value_ptr(glm::identity<glm::mat4>()), 16));
             }
 
-            shader->uniformMatrix4fv(name[MM_PROJECTION], 1, GL_FALSE, glm::value_ptr(mat));
+            shader->uniformMatrix4fv(name[MM_PROJECTION], GL_FALSE, std::span<const GLfloat>(glm::value_ptr(mat), 16));
             shader->mMatHash[MM_PROJECTION] = mMatHash[MM_PROJECTION];
 
             if (!mvp_done)
@@ -1105,7 +1105,7 @@ void LLRender::syncMatrices()
                         cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
                     }
 
-                    shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(cached_mvp));
+                    shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, GL_FALSE, std::span<const GLfloat>(glm::value_ptr(cached_mvp), 16));
                 }
             }
         }
@@ -1114,7 +1114,7 @@ void LLRender::syncMatrices()
         {
             if (mMatHash[i] != shader->mMatHash[i])
             {
-                shader->uniformMatrix4fv(name[i], 1, GL_FALSE, glm::value_ptr(mMatrix[i][mMatIdx[i]]));
+                shader->uniformMatrix4fv(name[i], GL_FALSE, std::span<const GLfloat>(glm::value_ptr(mMatrix[i][mMatIdx[i]]), 16));
                 shader->mMatHash[i] = mMatHash[i];
             }
         }
@@ -1826,13 +1826,9 @@ void LLRender::batchTransform(LLVector4a* verts, U32 vert_count)
     }
 }
 
-void LLRender::vertexBatchPreTransformed(const std::vector<LLVector4a>& verts)
+void LLRender::vertexBatchPreTransformed(std::span<const LLVector4a> verts)
 {
-    vertexBatchPreTransformed(verts.data(), narrow(verts.size()));
-}
-
-void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, S32 vert_count)
-{
+    S32 vert_count = narrow(verts.size());
     if (mCount + vert_count > 4094) [[unlikely]]
     {
         //  LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
@@ -1852,8 +1848,9 @@ void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, S32 vert_count
         mVerticesp[mCount] = mVerticesp[mCount-1];
 }
 
-void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, S32 vert_count)
+void LLRender::vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const LLVector2> uvs)
 {
+    S32 vert_count = narrow(verts.size());
     if (mCount + vert_count > 4094) [[unlikely]]
     {
         //  LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
@@ -1876,8 +1873,9 @@ void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, const LLVector
     }
 }
 
-void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, const LLColor4U* colors, S32 vert_count)
+void LLRender::vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const LLVector2> uvs, std::span<const LLColor4U> colors)
 {
+    S32 vert_count = narrow(verts.size());
     if (mCount + vert_count > 4094) [[unlikely]]
     {
         //  LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
@@ -2015,7 +2013,7 @@ void LLRender::diffuseColor4fv(const F32* c)
 
     if (shader)
     {
-        shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, c);
+        shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(c, 4));
     }
 }
 

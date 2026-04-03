@@ -212,7 +212,7 @@ void renderBadgeBackground(F32 centerX, F32 centerY, F32 width, F32 height, cons
 
     gGL.begin(LLRender::TRIANGLE_STRIP);
     {
-        gGL.vertexBatchPreTransformed(vertices, 4);
+        gGL.vertexBatchPreTransformed(std::span<const LLVector4a>(vertices, 4));
     }
     gGL.end();
 

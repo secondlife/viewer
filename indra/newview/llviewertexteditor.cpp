@@ -1361,7 +1361,7 @@ bool LLViewerTextEditor::hasEmbeddedInventory()
 
 bool LLViewerTextEditor::importBuffer( const char* buffer, S32 length )
 {
-    LLMemoryStream str((U8*)buffer, length);
+    LLMemoryStream str(std::span<const U8>((const U8*)buffer, length));
     return importStream(str);
 }
 

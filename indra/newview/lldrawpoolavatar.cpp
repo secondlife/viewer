@@ -807,16 +807,16 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
         wind = wind * rot_mat;
         wind.mV[VW] = avatarp->mWindVec.mV[VW];
 
-        sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_WIND, 1, wind.mV);
+        sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_WIND, std::span<const GLfloat>(wind.mV, 4));
         F32 phase = -1.f * (avatarp->mRipplePhase);
 
         F32 freq = 7.f + (noise1(avatarp->mRipplePhase) * 2.f);
         LLVector4 sin_params(freq, freq, freq, phase);
-        sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_SINWAVE, 1, sin_params.mV);
+        sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_SINWAVE, std::span<const GLfloat>(sin_params.mV, 4));
 
         LLVector4 gravity(0.f, 0.f, -CLOTHING_GRAVITY_EFFECT, 0.f);
         gravity = gravity * rot_mat;
-        sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_GRAVITY, 1, gravity.mV);
+        sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_GRAVITY, std::span<const GLfloat>(gravity.mV, 4));
     }
 
     if( !single_avatar || (avatarp == single_avatar) )

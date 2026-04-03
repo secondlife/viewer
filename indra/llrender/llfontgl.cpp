@@ -323,7 +323,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
             {
                 gGL.begin(LLRender::TRIANGLES);
                 {
-                    gGL.vertexBatchPreTransformed(vertices.data(), uvs.data(), colors.data(), glyph_count * 6);
+                    gGL.vertexBatchPreTransformed(std::span<const LLVector4a>(vertices.data(), glyph_count * 6), std::span<const LLVector2>(uvs.data(), glyph_count * 6), std::span<const LLColor4U>(colors.data(), glyph_count * 6));
                 }
                 gGL.end();
                 glyph_count = 0;
@@ -361,7 +361,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         {
             gGL.begin(LLRender::TRIANGLES);
             {
-                gGL.vertexBatchPreTransformed(vertices.data(), uvs.data(), colors.data(), glyph_count * 6);
+                gGL.vertexBatchPreTransformed(std::span<const LLVector4a>(vertices.data(), glyph_count * 6), std::span<const LLVector2>(uvs.data(), glyph_count * 6), std::span<const LLColor4U>(colors.data(), glyph_count * 6));
             }
             gGL.end();
 
@@ -399,7 +399,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     gGL.begin(LLRender::TRIANGLES);
     {
-        gGL.vertexBatchPreTransformed(vertices.data(), uvs.data(), colors.data(), glyph_count * 6);
+        gGL.vertexBatchPreTransformed(std::span<const LLVector4a>(vertices.data(), glyph_count * 6), std::span<const LLVector2>(uvs.data(), glyph_count * 6), std::span<const LLColor4U>(colors.data(), glyph_count * 6));
     }
     gGL.end();
 

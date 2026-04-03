@@ -93,7 +93,7 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
     F32 base_color_packed[8];
     mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
-    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, std::span<const GLfloat>(base_color_packed, 8));
 
     if (!LLPipeline::sShadowRender)
     {
@@ -128,19 +128,19 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
         shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
         shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
-        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
+        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, std::span<const GLfloat>(mEmissiveColor.mV, 3));
 
         F32 normal_packed[8];
         mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, std::span<const GLfloat>(normal_packed, 8));
 
         F32 metallic_roughness_packed[8];
         mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, (F32*)metallic_roughness_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, std::span<const GLfloat>(metallic_roughness_packed, 8));
 
         F32 emissive_packed[8];
         mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, std::span<const GLfloat>(emissive_packed, 8));
     }
 }
 

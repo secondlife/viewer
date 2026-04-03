@@ -27,6 +27,8 @@
 #ifndef LL_LLCRC_H
 #define LL_LLCRC_H
 
+#include <span>
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class llcrc
 //
@@ -54,7 +56,7 @@ public:
 
     [[nodiscard]] U32 getCRC() const;
     void update(U8 next_byte);
-    void update(const U8* buffer, size_t buffer_size);
+    void update(std::span<const U8> buffer);
     void update(const std::string& filename);
 
 #ifdef _DEBUG
