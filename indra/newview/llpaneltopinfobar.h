@@ -27,6 +27,7 @@
 #ifndef LLPANELTOPINFOBAR_H_
 #define LLPANELTOPINFOBAR_H_
 
+#include <array>
 #include "llpanel.h"
 #include "llinitdestroyclass.h"
 
@@ -165,7 +166,7 @@ private:
     LLButton*               mInfoBtn;
     LLTextBox*              mParcelInfoText;
     LLTextBox*              mDamageText;
-    LLIconCtrl*             mParcelIcon[ICON_COUNT];
+    std::array<LLIconCtrl*, ICON_COUNT> mParcelIcon;
     LLParcelChangeObserver* mParcelChangedObserver;
 
     boost::signals2::connection mParcelPropsCtrlConnection;

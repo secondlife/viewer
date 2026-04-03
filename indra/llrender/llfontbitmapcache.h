@@ -27,6 +27,7 @@
 #ifndef LL_LLFONTBITMAPCACHE_H
 #define LL_LLFONTBITMAPCACHE_H
 
+#include <array>
 #include <vector>
 #include "lltrace.h"
 
@@ -71,13 +72,13 @@ protected:
 private:
     S32 mBitmapWidth = 0;
     S32 mBitmapHeight = 0;
-    S32 mCurrentOffsetX[static_cast<U32>(EFontGlyphType::Count)] = { 1 };
-    S32 mCurrentOffsetY[static_cast<U32>(EFontGlyphType::Count)] = { 1 };
+    std::array<S32, static_cast<U32>(EFontGlyphType::Count)> mCurrentOffsetX = { 1 };
+    std::array<S32, static_cast<U32>(EFontGlyphType::Count)> mCurrentOffsetY = { 1 };
     S32 mMaxCharWidth = 0;
     S32 mMaxCharHeight = 0;
     S32 mGeneration = 0;
-    std::vector<LLPointer<LLImageRaw>> mImageRawVec[static_cast<U32>(EFontGlyphType::Count)];
-    std::vector<LLPointer<LLImageGL>> mImageGLVec[static_cast<U32>(EFontGlyphType::Count)];
+    std::array<std::vector<LLPointer<LLImageRaw>>, static_cast<U32>(EFontGlyphType::Count)> mImageRawVec;
+    std::array<std::vector<LLPointer<LLImageGL>>, static_cast<U32>(EFontGlyphType::Count)> mImageGLVec;
 };
 
 #endif //LL_LLFONTBITMAPCACHE_H

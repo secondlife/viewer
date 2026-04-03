@@ -28,6 +28,7 @@
 #define _LL_APP_COREHTTP_H_
 
 
+#include <array>
 #include "httprequest.h"
 #include "httphandler.h"
 #include "httpresponse.h"
@@ -253,7 +254,7 @@ private:
     LLCore::HttpHandle          mStopHandle;
     F64                         mStopRequested;
     bool                        mStopped;
-    HttpClass                   mHttpClasses[AP_COUNT];
+    std::array<HttpClass, AP_COUNT> mHttpClasses;
     bool                        mPipelined;             // Global setting
     boost::signals2::connection mPipelinedSignal;       // Signal for 'HttpPipelining' setting
     boost::signals2::connection mSSLNoVerifySignal;     // Signal for 'NoVerifySSLCert' setting

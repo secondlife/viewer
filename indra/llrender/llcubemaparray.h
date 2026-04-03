@@ -28,6 +28,7 @@
 
 #include "llgl.h"
 
+#include <array>
 #include <vector>
 
 class LLVector3;
@@ -38,15 +39,15 @@ public:
     LLCubeMapArray();
     LLCubeMapArray(LLCubeMapArray& lhs, U32 width, U32 count);
 
-    static GLenum sTargets[6];
+    static std::array<GLenum, 6> sTargets;
 
     // look and up vectors for each cube face (agent space)
-    static LLVector3 sLookVecs[6];
-    static LLVector3 sUpVecs[6];
+    static std::array<LLVector3, 6> sLookVecs;
+    static std::array<LLVector3, 6> sUpVecs;
 
     // look and up vectors for each cube face (clip space)
-    static LLVector3 sClipToCubeLookVecs[6];
-    static LLVector3 sClipToCubeUpVecs[6];
+    static std::array<LLVector3, 6> sClipToCubeLookVecs;
+    static std::array<LLVector3, 6> sClipToCubeUpVecs;
 
     // allocate a cube map array
     // res - resolution of each cube face

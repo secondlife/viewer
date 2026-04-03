@@ -27,6 +27,7 @@
 #ifndef LL_LLCONVERSATIONVIEW_H
 #define LL_LLCONVERSATIONVIEW_H
 
+#include <array>
 #include "../llui/llfolderviewitem.h"
 
 #include "llavatariconctrl.h"
@@ -181,7 +182,7 @@ private:
     using EAvatarListItemChildIndex = e_avatar_item_child;
 
     static bool sStaticInitialized; // this variable is introduced to improve code readability
-    static S32 sChildrenWidths[ALIC_COUNT];
+    static std::array<S32, ALIC_COUNT> sChildrenWidths;
     static void initChildrenWidths(LLConversationViewParticipant* self);
     void updateChildren();
     LLView* getItemChildView(EAvatarListItemChildIndex child_view_index);

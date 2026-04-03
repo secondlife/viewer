@@ -286,9 +286,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     // See drawGlyph.
     // Ex: with shadows it's 6 glyps per char. 30 fits exactly 5 chars.
     static constexpr S32 GLYPH_BATCH_SIZE = 30;
-    static thread_local LLVector4a vertices[GLYPH_BATCH_SIZE * 6];
-    static thread_local LLVector2 uvs[GLYPH_BATCH_SIZE * 6];
-    static thread_local LLColor4U colors[GLYPH_BATCH_SIZE * 6];
+    static thread_local std::array<LLVector4a, GLYPH_BATCH_SIZE * 6> vertices;
+    static thread_local std::array<LLVector2, GLYPH_BATCH_SIZE * 6> uvs;
+    static thread_local std::array<LLColor4U, GLYPH_BATCH_SIZE * 6> colors;
 
     LLColor4U text_color(color);
     // Preserve the transparency to render fading emojis in fading text (e.g.
@@ -323,7 +323,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
             {
                 gGL.begin(LLRender::TRIANGLES);
                 {
-                    gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 6);
+                    gGL.vertexBatchPreTransformed(vertices.data(), uvs.data(), colors.data(), glyph_count * 6);
                 }
                 gGL.end();
                 glyph_count = 0;
@@ -361,7 +361,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         {
             gGL.begin(LLRender::TRIANGLES);
             {
-                gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 6);
+                gGL.vertexBatchPreTransformed(vertices.data(), uvs.data(), colors.data(), glyph_count * 6);
             }
             gGL.end();
 
@@ -371,7 +371,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         const LLColor4U& col =
             bitmap_entry.first == EFontGlyphType::Grayscale ? text_color
                                                             : emoji_color;
-        drawGlyph(glyph_count, vertices, uvs, colors, screen_rect, uv_rect,
+        drawGlyph(glyph_count, vertices.data(), uvs.data(), colors.data(), screen_rect, uv_rect,
                   col, style_to_add, shadow, drop_shadow_strength);
 
         chars_drawn++;
@@ -399,7 +399,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     gGL.begin(LLRender::TRIANGLES);
     {
-        gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 6);
+        gGL.vertexBatchPreTransformed(vertices.data(), uvs.data(), colors.data(), glyph_count * 6);
     }
     gGL.end();
 

@@ -29,8 +29,7 @@
 
 namespace LLPredicate
 {
-    const U32 cPredicateFlagsFromEnum[5] =
-    {
+    const std::array<U32, 5> cPredicateFlagsFromEnum = {
         0xAAAAaaaa, // 10101010101010101010101010101010
         0xCCCCcccc, // 11001100110011001100110011001100
         0xF0F0F0F0, // 11110000111100001111000011110000

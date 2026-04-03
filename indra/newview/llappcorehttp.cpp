@@ -370,7 +370,7 @@ void LLAppCoreHttp::cleanup()
         }
     }
 
-    for (int i(0); i < LL_ARRAY_SIZE(mHttpClasses); ++i)
+    for (size_t i(0); i < mHttpClasses.size(); ++i)
     {
         mHttpClasses[i].mSettingsSignal.disconnect();
     }

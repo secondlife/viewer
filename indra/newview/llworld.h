@@ -32,6 +32,7 @@
 #ifndef LL_LLWORLD_H
 #define LL_LLWORLD_H
 
+#include <array>
 #include "llpatchvertexarray.h"
 
 #include "llmath.h"
@@ -208,7 +209,7 @@ private:
 
     std::list<LLPointer<LLVOWater> > mHoleWaterObjects;
     static const S32 EDGE_WATER_OBJECTS_COUNT = 8;
-    LLPointer<LLVOWater> mEdgeWaterObjects[EDGE_WATER_OBJECTS_COUNT];
+    std::array<LLPointer<LLVOWater>, EDGE_WATER_OBJECTS_COUNT> mEdgeWaterObjects;
 
     LLPointer<LLViewerTexture> mDefaultWaterTexturep;
 };

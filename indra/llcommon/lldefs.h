@@ -28,6 +28,7 @@
 #define LL_LLDEFS_H
 
 #include "stdtypes.h"
+#include <array>
 #include <type_traits>
 
 // Often used array indices
@@ -64,8 +65,8 @@ constexpr U8    NORTHWEST_MASK  = NORTH_MASK | WEST_MASK;
 constexpr U8    SOUTHWEST_MASK  = SOUTH_MASK | WEST_MASK;
 constexpr U8    SOUTHEAST_MASK  = SOUTH_MASK | EAST_MASK;
 
-constexpr U32 gDirOpposite[8] = {2, 3, 0, 1, 6, 7, 4, 5};
-constexpr U32 gDirAdjacent[8][2] =  {
+constexpr std::array<U32, 8> gDirOpposite = {2, 3, 0, 1, 6, 7, 4, 5};
+constexpr std::array<std::array<U32, 2>, 8> gDirAdjacent = {{
                                     {4, 7},
                                     {4, 5},
                                     {5, 6},
@@ -74,10 +75,10 @@ constexpr U32 gDirAdjacent[8][2] =  {
                                     {1, 2},
                                     {2, 3},
                                     {0, 3}
-                                    };
+                                    }};
 
 // Magnitude along the x and y axis
-constexpr S32 gDirAxes[8][2] = {
+constexpr std::array<std::array<S32, 2>, 8> gDirAxes = {{
                                { 1, 0}, // east
                                { 0, 1}, // north
                                {-1, 0}, // west
@@ -86,9 +87,9 @@ constexpr S32 gDirAxes[8][2] = {
                                {-1, 1}, // nw
                                {-1,-1}, // sw
                                { 1,-1}, // se
-                               };
+                               }};
 
-constexpr S32 gDirMasks[8] = {
+constexpr std::array<S32, 8> gDirMasks = {
                             EAST_MASK,
                             NORTH_MASK,
                             WEST_MASK,

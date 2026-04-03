@@ -27,6 +27,7 @@
 #ifndef LL_LLDRAWPOOLWATER_H
 #define LL_LLDRAWPOOLWATER_H
 
+#include <array>
 #include "lldrawpool.h"
 
 
@@ -38,8 +39,8 @@ class LLGLSLShader;
 class LLDrawPoolWater final: public LLFacePool
 {
 protected:
-    LLPointer<LLViewerTexture> mWaterImagep[2];
-    LLPointer<LLViewerTexture> mWaterNormp[2];
+    std::array<LLPointer<LLViewerTexture>, 2> mWaterImagep;
+    std::array<LLPointer<LLViewerTexture>, 2> mWaterNormp;
 
     LLPointer<LLViewerTexture> mOpaqueWaterImagep;
 

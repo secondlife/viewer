@@ -27,6 +27,7 @@
 #ifndef LL_LLVIEWERINPUT_H
 #define LL_LLVIEWERINPUT_H
 
+#include <array>
 #include "llkeyboard.h" // For EKeystate
 
 const S32 MAX_KEY_BINDINGS = 128; // was 60
@@ -176,22 +177,22 @@ private:
     // TODO: at some point it is better to remake this, especially keyaboard part
     // would be much better to send to functions actual state of the button than
     // to send what we think function wants based on collection of bools (mKeyRepeated, mKeyLevel, mKeyDown)
-    std::vector<LLKeyboardBinding>  mKeyBindings[MODE_COUNT];
-    std::vector<LLMouseBinding>     mMouseBindings[MODE_COUNT];
-    bool                            mLMouseDefaultHandling[MODE_COUNT]; // Due to having special priority
+    std::array<std::vector<LLKeyboardBinding>, MODE_COUNT>  mKeyBindings;
+    std::array<std::vector<LLMouseBinding>, MODE_COUNT>    mMouseBindings;
+    std::array<bool, MODE_COUNT>    mLMouseDefaultHandling; // Due to having special priority
 
     // keybindings that do not consume event and are handled earlier, before floaters
-    std::vector<LLKeyboardBinding>  mGlobalKeyBindings[MODE_COUNT];
-    std::vector<LLMouseBinding>     mGlobalMouseBindings[MODE_COUNT];
+    std::array<std::vector<LLKeyboardBinding>, MODE_COUNT>  mGlobalKeyBindings;
+    std::array<std::vector<LLMouseBinding>, MODE_COUNT>     mGlobalMouseBindings;
 
     using key_remap_t = std::map<U32, U32>;
-    key_remap_t     mRemapKeys[MODE_COUNT];
+    std::array<key_remap_t, MODE_COUNT> mRemapKeys;
     std::set<KEY>   mKeysSkippedByUI;
-    bool            mKeyHandledByUI[KEY_COUNT];     // key processed successfully by UI
+    std::array<bool, KEY_COUNT>     mKeyHandledByUI;     // key processed successfully by UI
 
     // This is indentical to what llkeyboard does (mKeyRepeated, mKeyLevel, mKeyDown e t c),
     // just instead of remembering individually as bools,  we record state as enum
-    EMouseState     mMouseLevel[CLICK_COUNT];   // records of key state
+    std::array<EMouseState, CLICK_COUNT> mMouseLevel;   // records of key state
 };
 
 extern LLViewerInput gViewerInput;

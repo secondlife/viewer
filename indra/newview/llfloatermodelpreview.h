@@ -196,7 +196,7 @@ protected:
 
     //store which lod mode each LOD is using
     // See eLoDMode
-    S32 mLODMode[4];
+    std::array<S32, 4> mLODMode;
 
     LLMutex* mStatusLock;
 

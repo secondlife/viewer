@@ -27,6 +27,7 @@
 #ifndef LL_LLAGENT_H
 #define LL_LLAGENT_H
 
+#include <array>
 #include "indra_constants.h"
 #include "llevent.h"                // LLObservable base class
 #include "llagentdata.h"            // gAgentID, gAgentSessionID
@@ -484,8 +485,8 @@ public:
     void            forceReleaseControls();
 
 private:
-    S32             mControlsTakenCount[TOTAL_CONTROLS];
-    S32             mControlsTakenPassedOnCount[TOTAL_CONTROLS];
+    std::array<S32, TOTAL_CONTROLS> mControlsTakenCount;
+    std::array<S32, TOTAL_CONTROLS> mControlsTakenPassedOnCount;
     U32             mControlFlags;                  // Replacement for the mFooKey's
     F64             mLastJumpInputTime;             // Time of last jump input (key-down) in seconds from LLTimer::getTotalSeconds()
 

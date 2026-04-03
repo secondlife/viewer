@@ -27,6 +27,7 @@
 #ifndef LL_MESH_REPOSITORY_H
 #define LL_MESH_REPOSITORY_H
 
+#include <array>
 #include <unordered_map>
 #include <unordered_set>
 #include "llassettype.h"
@@ -79,7 +80,7 @@ class LLMeshUploadData
 {
 public:
     LLPointer<LLModel> mBaseModel;
-    LLPointer<LLModel> mModel[5];
+    std::array<LLPointer<LLModel>, 5> mModel;
     LLUUID mUUID;
     U32 mRetries;
     std::string mRSVP;
@@ -913,7 +914,7 @@ public:
     static void metricsUpdate();
 
     using mesh_load_map = std::unordered_map<LLUUID, MeshLoadData>;
-    mesh_load_map mLoadingMeshes[4];
+    std::array<mesh_load_map, 4> mLoadingMeshes;
 
     using skin_map = std::unordered_map<LLUUID, LLPointer<LLMeshSkinInfo>>;
     skin_map mSkinMap;

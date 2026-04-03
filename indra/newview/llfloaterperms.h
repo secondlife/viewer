@@ -28,6 +28,7 @@
 #ifndef LL_LLFLOATERPERMPREFS_H
 #define LL_LLFLOATERPERMPREFS_H
 
+#include <array>
 #include "llfloater.h"
 #include "lleventcoro.h"
 #include "llcoros.h"
@@ -88,11 +89,11 @@ private:
 
 
     // cached values only for implementing cancel.
-    bool mShareWithGroup[CAT_LAST];
-    bool mEveryoneCopy[CAT_LAST];
-    bool mNextOwnerCopy[CAT_LAST];
-    bool mNextOwnerModify[CAT_LAST];
-    bool mNextOwnerTransfer[CAT_LAST];
+    std::array<bool, CAT_LAST> mShareWithGroup;
+    std::array<bool, CAT_LAST> mEveryoneCopy;
+    std::array<bool, CAT_LAST> mNextOwnerCopy;
+    std::array<bool, CAT_LAST> mNextOwnerModify;
+    std::array<bool, CAT_LAST> mNextOwnerTransfer;
 };
 
 #endif

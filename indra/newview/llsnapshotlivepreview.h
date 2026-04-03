@@ -27,6 +27,7 @@
 #ifndef LL_LLSNAPSHOTLIVEPREVIEW_H
 #define LL_LLSNAPSHOTLIVEPREVIEW_H
 
+#include <array>
 #include "llsnapshotmodel.h"
 #include "llviewertexture.h"
 #include "llviewerwindow.h"
@@ -127,11 +128,11 @@ private:
     LLView*                     mViewContainer;
 
     LLColor4                    mColor;
-    LLPointer<LLViewerTexture>  mViewerImage[2]; //used to represent the scene when the frame is frozen.
-    LLRect                      mImageRect[2];
-    S32                         mWidth[2];
-    S32                         mHeight[2];
-    bool                        mImageScaled[2];
+    std::array<LLPointer<LLViewerTexture>, 2> mViewerImage; //used to represent the scene when the frame is frozen.
+    std::array<LLRect, 2>       mImageRect;
+    std::array<S32, 2>          mWidth;
+    std::array<S32, 2>          mHeight;
+    std::array<bool, 2>         mImageScaled;
     S32                         mMaxImageSize ;
 
     //thumbnail image

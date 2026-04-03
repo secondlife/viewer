@@ -28,6 +28,7 @@
 #ifndef LL_FLOATER_360CAPTURE_H
 #define LL_FLOATER_360CAPTURE_H
 
+#include <array>
 #include "llfloater.h"
 #include "llmediactrl.h"
 #include "llcharacter.h"
@@ -90,7 +91,7 @@ class LLFloater360Capture:
         int mOutputImageHeight;
         std::string mImageSaveDir;
 
-        LLPointer<LLImageRaw> mRawImages[6];
+        std::array<LLPointer<LLImageRaw>, 6> mRawImages;
 
         std::string mStartILMode;
 };

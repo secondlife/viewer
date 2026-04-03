@@ -284,7 +284,7 @@ protected:
     U32     mNumIndices = 0;    // Number of indices allocated
     U32     mIndicesType = GL_UNSIGNED_SHORT; // type of indices in index buffer
     U32     mIndicesStride = 2;     // size of each index in bytes
-    U32     mOffsets[TYPE_MAX]; // byte offsets into mMappedData of each attribute
+    std::array<U32, TYPE_MAX> mOffsets; // byte offsets into mMappedData of each attribute
 
     U8* mMappedData = nullptr;  // pointer to currently mapped data (NULL if unmapped)
     U8* mMappedIndexData = nullptr; // pointer to currently mapped indices (NULL if unmapped)
@@ -324,8 +324,8 @@ private:
 public:
 
     [[nodiscard]] static U64 getBytesAllocated();
-    static const U32 sTypeSize[TYPE_MAX];
-    static const U32 sGLMode[LLRender::NUM_MODES];
+    static const std::array<U32, TYPE_MAX> sTypeSize;
+    static const std::array<U32, LLRender::NUM_MODES> sGLMode;
     static U32 sGLRenderBuffer;
     static U32 sGLRenderIndices;
     static U32 sLastMask;

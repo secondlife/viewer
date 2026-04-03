@@ -179,8 +179,8 @@ void LLImageGL::checkTexSize(bool forced) const
     {
         {
             //check viewport
-            GLint vp[4] ;
-            glGetIntegerv(GL_VIEWPORT, vp) ;
+            std::array<GLint, 4> vp ;
+            glGetIntegerv(GL_VIEWPORT, vp.data()) ;
             llcallstacks << "viewport: " << vp[0] << " : " << vp[1] << " : " << vp[2] << " : " << vp[3] << llcallstacksendl ;
         }
 
@@ -1239,21 +1239,21 @@ void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     static constexpr U32 pool_size = 1024;
-    static thread_local U32 name_pool[pool_size]; // pool of texture names
+    static thread_local std::array<U32, pool_size> name_pool; // pool of texture names
     static thread_local U32 name_count = 0; // number of available names in the pool
 
     if (name_count == 0)
     {
         LL_PROFILE_ZONE_NAMED("iglgt - reup pool");
         // pool is emtpy, refill it
-        glGenTextures(pool_size, name_pool);
+        glGenTextures(pool_size, name_pool.data());
         name_count = pool_size;
     }
 
     if ((U32)numTextures <= name_count)
     {
         //copy teture names off the end of the pool
-        memcpy(textures, name_pool + name_count - numTextures, sizeof(U32) * numTextures);
+        memcpy(textures, name_pool.data() + name_count - numTextures, sizeof(U32) * numTextures);
         name_count -= numTextures;
     }
     else
@@ -1308,24 +1308,24 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         {
             if (pixformat == GL_ALPHA)
             { //GL_ALPHA is deprecated, convert to RGBA
-                const GLint mask[] = { GL_ZERO, GL_ZERO, GL_ZERO, GL_RED };
-                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, mask);
+                const std::array<GLint, 4> mask = { GL_ZERO, GL_ZERO, GL_ZERO, GL_RED };
+                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, mask.data());
                 pixformat = GL_RED;
                 intformat = GL_R8;
             }
 
             if (pixformat == GL_LUMINANCE)
             { //GL_LUMINANCE is deprecated, convert to GL_RGBA
-                const GLint mask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
-                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, mask);
+                const std::array<GLint, 4> mask = { GL_RED, GL_RED, GL_RED, GL_ONE };
+                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, mask.data());
                 pixformat = GL_RED;
                 intformat = GL_R8;
             }
 
             if (pixformat == GL_LUMINANCE_ALPHA)
             { //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
-                const GLint mask[] = { GL_RED, GL_RED, GL_RED, GL_GREEN };
-                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, mask);
+                const std::array<GLint, 4> mask = { GL_RED, GL_RED, GL_RED, GL_GREEN };
+                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, mask.data());
                 pixformat = GL_RG;
                 intformat = GL_RG8;
             }
@@ -2124,8 +2124,8 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
     U32 length = w * h;
     U32 alphatotal = 0;
 
-    U32 sample[16];
-    memset(sample, 0, sizeof(U32)*16);
+    std::array<U32, 16> sample{};
+
 
     // generate histogram of quantized alpha.
     // also add-in the histogram of a 2x2 box-sampled version.  The idea is

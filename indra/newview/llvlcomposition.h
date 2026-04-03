@@ -27,6 +27,7 @@
 #ifndef LL_LLVLCOMPOSITION_H
 #define LL_LLVLCOMPOSITION_H
 
+#include <array>
 #include "llfetchedgltfmaterial.h"
 #include "llimage.h"
 #include "llpointer.h"
@@ -94,13 +95,13 @@ protected:
     // strict = false -> at least one material must be loaded
     static bool materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
 
-    LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
+    std::array<LLPointer<LLViewerFetchedTexture>, ASSET_COUNT> mDetailTextures;
     // *NOTE: Unlike mDetailRenderMaterials, the textures in this are not
     // guaranteed to be set or loaded after a true return from
     // makeMaterialsReady.
-    LLPointer<LLFetchedGLTFMaterial> mDetailMaterials[ASSET_COUNT];
-    LLPointer<LLGLTFMaterial> mDetailMaterialOverrides[ASSET_COUNT];
-    LLPointer<LLFetchedGLTFMaterial> mDetailRenderMaterials[ASSET_COUNT];
+    std::array<LLPointer<LLFetchedGLTFMaterial>, ASSET_COUNT> mDetailMaterials;
+    std::array<LLPointer<LLGLTFMaterial>, ASSET_COUNT> mDetailMaterialOverrides;
+    std::array<LLPointer<LLFetchedGLTFMaterial>, ASSET_COUNT> mDetailRenderMaterials;
 
     U32 mPaintType = TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE;
     LLPointer<LLViewerTexture> mPaintMap;
@@ -153,14 +154,14 @@ protected:
     LLSurface *mSurfacep;
 
     // Final minimap raw images
-    LLPointer<LLImageRaw> mRawImages[LLTerrainMaterials::ASSET_COUNT];
+    std::array<LLPointer<LLImageRaw>, LLTerrainMaterials::ASSET_COUNT> mRawImages;
 
     // Only non-null during minimap tile generation
-    LLPointer<LLImageRaw> mRawImagesBaseColor[LLTerrainMaterials::ASSET_COUNT];
-    LLPointer<LLImageRaw> mRawImagesEmissive[LLTerrainMaterials::ASSET_COUNT];
+    std::array<LLPointer<LLImageRaw>, LLTerrainMaterials::ASSET_COUNT> mRawImagesBaseColor;
+    std::array<LLPointer<LLImageRaw>, LLTerrainMaterials::ASSET_COUNT> mRawImagesEmissive;
 
-    F32 mStartHeight[CORNER_COUNT];
-    F32 mHeightRange[CORNER_COUNT];
+    std::array<F32, CORNER_COUNT> mStartHeight;
+    std::array<F32, CORNER_COUNT> mHeightRange;
 
     F32 mTexScaleX = 16.f;
     F32 mTexScaleY = 16.f;

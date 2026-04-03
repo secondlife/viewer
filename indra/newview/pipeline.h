@@ -41,6 +41,7 @@
 #include "llreflectionmapmanager.h"
 #include "llheroprobemanager.h"
 
+#include <array>
 #include <stack>
 
 class LLViewerTexture;
@@ -700,7 +701,7 @@ public:
         LLRenderTarget          deferredLight;
 
         //sun shadow map
-        LLRenderTarget          shadow[4];
+        std::array<LLRenderTarget, 4> shadow;
     };
 
     // main full resoltuion render target
@@ -716,7 +717,7 @@ public:
     // currently used render target pack
     RenderTargetPack* mRT;
 
-    LLRenderTarget          mSpotShadow[2];
+    std::array<LLRenderTarget, 2> mSpotShadow;
 
     LLRenderTarget          mPbrBrdfLut;
     LLRenderTarget          mWaterExclusionMask;
@@ -763,21 +764,21 @@ public:
     //list of currently bound reflection maps
     std::vector<LLReflectionMap*> mReflectionMaps;
 
-    std::vector<LLVector3>  mShadowFrustPoints[4];
+    std::array<std::vector<LLVector3>, 4> mShadowFrustPoints;
     LLVector4               mShadowError;
     LLVector4               mShadowFOV;
-    LLVector3               mShadowFrustOrigin[4];
-    LLCamera                mShadowCamera[8];
-    LLVector3               mShadowExtents[4][2];
+    std::array<LLVector3, 4> mShadowFrustOrigin;
+    std::array<LLCamera, 8> mShadowCamera;
+    std::array<std::array<LLVector3, 2>, 4> mShadowExtents;
     // TODO : separate Sun Shadow and Spot Shadow matrices
-    glm::mat4               mSunShadowMatrix[6];
-    glm::mat4               mShadowModelview[6];
-    glm::mat4               mShadowProjection[6];
+    std::array<glm::mat4, 6> mSunShadowMatrix;
+    std::array<glm::mat4, 6> mShadowModelview;
+    std::array<glm::mat4, 6> mShadowProjection;
     glm::mat4               mReflectionModelView;
 
-    LLPointer<LLDrawable>   mShadowSpotLight[2];
-    F32                     mSpotLightFade[2];
-    LLPointer<LLDrawable>   mTargetShadowSpotLight[2];
+    std::array<LLPointer<LLDrawable>, 2> mShadowSpotLight;
+    std::array<F32, 2>      mSpotLightFade;
+    std::array<LLPointer<LLDrawable>, 2> mTargetShadowSpotLight;
 
     LLVector4               mSunClipPlanes;
     LLVector4               mSunOrthoClipPlanes;
@@ -789,7 +790,7 @@ public:
     static const U32 MAX_PREVIEW_WIDTH;
 
     //texture for making the glow
-    LLRenderTarget              mGlow[3];
+    std::array<LLRenderTarget, 3> mGlow;
 
     //noise map
     U32                 mNoiseMap;
@@ -860,7 +861,7 @@ protected:
 
     LLDrawable::ordered_drawable_set_t  mLights;
     light_set_t                     mNearbyLights; // lights near camera
-    LLColor4                        mHWLightColors[8];
+    std::array<LLColor4, 8>         mHWLightColors;
 
     /////////////////////////////////////////////
     //

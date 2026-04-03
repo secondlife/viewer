@@ -422,7 +422,7 @@ void LLRenderTarget::bindTarget()
     sCurFBO = mFBO;
 
     //setup multiple render targets
-    GLenum drawbuffers[] = {GL_COLOR_ATTACHMENT0,
+    std::array<GLenum, 4> drawbuffers = {GL_COLOR_ATTACHMENT0,
                             GL_COLOR_ATTACHMENT1,
                             GL_COLOR_ATTACHMENT2,
                             GL_COLOR_ATTACHMENT3};
@@ -434,7 +434,7 @@ void LLRenderTarget::bindTarget()
     }
     else
     {
-        glDrawBuffers(static_cast<GLsizei>(mTex.size()), drawbuffers);
+        glDrawBuffers(static_cast<GLsizei>(mTex.size()), drawbuffers.data());
         glReadBuffer(GL_COLOR_ATTACHMENT0);
     }
     check_framebuffer_status();

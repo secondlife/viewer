@@ -45,38 +45,38 @@
 using namespace LLImageGLMemory;
 
 // MUST match order of OpenGL face-layers
-GLenum LLCubeMapArray::sTargets[6] =
-{
+std::array<GLenum, 6> LLCubeMapArray::sTargets =
+{{
     GL_TEXTURE_CUBE_MAP_POSITIVE_X,
     GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
     GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
     GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
     GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
     GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-};
+}};
 
-LLVector3 LLCubeMapArray::sLookVecs[6] =
-{
+std::array<LLVector3, 6> LLCubeMapArray::sLookVecs =
+{{
         LLVector3(1, 0, 0),
         LLVector3(-1, 0, 0),
         LLVector3(0, 1, 0),
         LLVector3(0, -1, 0),
         LLVector3(0, 0, 1),
         LLVector3(0, 0, -1)
-};
+}};
 
-LLVector3 LLCubeMapArray::sUpVecs[6] =
-{
+std::array<LLVector3, 6> LLCubeMapArray::sUpVecs =
+{{
     LLVector3(0, -1, 0),
     LLVector3(0, -1, 0),
     LLVector3(0, 0, 1),
     LLVector3(0, 0, -1),
     LLVector3(0, -1, 0),
     LLVector3(0, -1, 0)
-};
+}};
 
-LLVector3 LLCubeMapArray::sClipToCubeLookVecs[6] =
-{
+std::array<LLVector3, 6> LLCubeMapArray::sClipToCubeLookVecs =
+{{
         LLVector3(0, 0, -1), //GOOD
         LLVector3(0, 0, 1), //GOOD
 
@@ -85,10 +85,10 @@ LLVector3 LLCubeMapArray::sClipToCubeLookVecs[6] =
 
         LLVector3(1, 0, 0),
         LLVector3(-1, 0, 0),
-};
+}};
 
-LLVector3 LLCubeMapArray::sClipToCubeUpVecs[6] =
-{
+std::array<LLVector3, 6> LLCubeMapArray::sClipToCubeUpVecs =
+{{
     LLVector3(-1, 0, 0), //GOOD
     LLVector3(1, 0, 0), //GOOD
 
@@ -97,7 +97,7 @@ LLVector3 LLCubeMapArray::sClipToCubeUpVecs[6] =
 
     LLVector3(0, 0, -1),
     LLVector3(0, 0, 1)
-};
+}};
 
 LLCubeMapArray::LLCubeMapArray()
     : mTextureStage(0)

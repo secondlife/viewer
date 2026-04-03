@@ -81,27 +81,27 @@ struct LLVBCache
 static std::unordered_map<U64, LLVBCache> sVBCache;
 static thread_local std::list<LLVertexBufferData> *sBufferDataList = nullptr;
 
-static const GLenum sGLTextureType[] =
-{
+static const std::array<GLenum, 6> sGLTextureType =
+{{
     GL_TEXTURE_2D,
     GL_TEXTURE_RECTANGLE,
     GL_TEXTURE_CUBE_MAP,
     GL_TEXTURE_CUBE_MAP_ARRAY,
     GL_TEXTURE_2D_MULTISAMPLE,
     GL_TEXTURE_3D
-};
+}};
 
-static const GLint sGLAddressMode[] =
-{
+static const std::array<GLint, 3> sGLAddressMode =
+{{
     GL_REPEAT,
     GL_MIRRORED_REPEAT,
     GL_CLAMP_TO_EDGE
-};
+}};
 
 const U32 immediate_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXCOORD0;
 
-static const GLenum sGLBlendFactor[] =
-{
+static const std::array<GLenum, 11> sGLBlendFactor =
+{{
     GL_ONE,
     GL_ZERO,
     GL_DST_COLOR,
@@ -114,7 +114,7 @@ static const GLenum sGLBlendFactor[] =
     GL_ONE_MINUS_SRC_ALPHA,
 
     GL_ZERO // 'BF_UNDEF'
-};
+}};
 
 LLTexUnit::LLTexUnit(S32 index)
     : mCurrTexType(TT_NONE),
@@ -940,13 +940,13 @@ void LLRender::syncLightState()
     {
         shader->mLightHash = mLightHash;
 
-        LLVector4 position[LL_NUM_LIGHT_UNITS];
-        LLVector3 direction[LL_NUM_LIGHT_UNITS];
-        LLVector4 attenuation[LL_NUM_LIGHT_UNITS];
-        LLVector3 diffuse[LL_NUM_LIGHT_UNITS];
-        LLVector3 diffuse_b[LL_NUM_LIGHT_UNITS];
-        bool      sun_primary[LL_NUM_LIGHT_UNITS];
-        LLVector2 size[LL_NUM_LIGHT_UNITS];
+        std::array<LLVector4, LL_NUM_LIGHT_UNITS> position;
+        std::array<LLVector3, LL_NUM_LIGHT_UNITS> direction;
+        std::array<LLVector4, LL_NUM_LIGHT_UNITS> attenuation;
+        std::array<LLVector3, LL_NUM_LIGHT_UNITS> diffuse;
+        std::array<LLVector3, LL_NUM_LIGHT_UNITS> diffuse_b;
+        std::array<bool, LL_NUM_LIGHT_UNITS>      sun_primary;
+        std::array<LLVector2, LL_NUM_LIGHT_UNITS> size;
 
         for (U32 i = 0; i < LL_NUM_LIGHT_UNITS; i++)
         {
@@ -983,15 +983,15 @@ void LLRender::syncMatrices()
     STOP_GLERROR;
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 
-    static const U32 name[] =
-    {
+    static const std::array<U32, 6> name =
+    {{
         LLShaderMgr::MODELVIEW_MATRIX,
         LLShaderMgr::PROJECTION_MATRIX,
         LLShaderMgr::TEXTURE_MATRIX0,
         LLShaderMgr::TEXTURE_MATRIX1,
         LLShaderMgr::TEXTURE_MATRIX2,
         LLShaderMgr::TEXTURE_MATRIX3,
-    };
+    }};
 
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
@@ -1033,14 +1033,14 @@ void LLRender::syncMatrices()
 
                 auto norm = glm::value_ptr(cached_normal);
 
-                F32 norm_mat[] =
-                {
+                std::array<F32, 9> norm_mat =
+                {{
                     norm[0], norm[1], norm[2],
                     norm[4], norm[5], norm[6],
                     norm[8], norm[9], norm[10]
-                };
+                }};
 
-                shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat);
+                shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat.data());
             }
 
             if (shader->getUniformLocation(LLShaderMgr::INVERSE_MODELVIEW_MATRIX))

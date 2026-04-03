@@ -30,6 +30,7 @@
 // The ownership data for land parcels.
 // One of these structures per region.
 
+#include <array>
 #include "llbbox.h"
 #include "llframetimer.h"
 #include "lluuid.h"
@@ -118,8 +119,8 @@ private:
     {
         void pushVertex(U32 lod, F32 x, F32 y, F32 z, F32 water_z);
         // LOD: 0 - detailized, 1 - simplified
-        std::vector<LLVector4a> verticesAboveWater[2];
-        std::vector<LLVector4a> verticesUnderWater[2];
+        std::array<std::vector<LLVector4a>, 2> verticesAboveWater;
+        std::array<std::vector<LLVector4a>, 2> verticesUnderWater;
         LLColor4U color;
     };
 

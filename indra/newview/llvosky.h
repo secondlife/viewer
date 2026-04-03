@@ -27,6 +27,7 @@
 #ifndef LL_LLVOSKY_H
 #define LL_LLVOSKY_H
 
+#include <array>
 #include "stdtypes.h"
 #include "v3color.h"
 #include "v4coloru.h"
@@ -53,8 +54,8 @@ class LLSkyTex
 {
     friend class LLVOSky;
 private:
-    LLPointer<LLViewerTexture> mTexture[2];
-    LLPointer<LLImageRaw> mImageRaw[2];
+    std::array<LLPointer<LLViewerTexture>, 2> mTexture;
+    std::array<LLPointer<LLImageRaw>, 2> mImageRaw;
     LLColor4        *mSkyData;
     LLVector3       *mSkyDirs;          // Cache of sky direction vectors
     static S32      sCurrent;
@@ -292,7 +293,7 @@ public:
     void forceSkyUpdate(void);
 
 public:
-    LLFace  *mFace[FACE_COUNT];
+    std::array<LLFace*, FACE_COUNT> mFace;
     LLVector3   mBumpSunDir;
 
     F32 getInterpVal() const { return mInterpVal; }
@@ -305,10 +306,10 @@ protected:
     void initSkyTextureDirs(const S32 side, const S32 tile);
     void createSkyTexture(const LLSettingsSky::ptr_t &psky, AtmosphericsVars& vars, const S32 side, const S32 tile);
 
-    LLPointer<LLViewerFetchedTexture> mSunTexturep[2];
-    LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
-    LLPointer<LLViewerFetchedTexture> mCloudNoiseTexturep[2];
-    LLPointer<LLViewerFetchedTexture> mBloomTexturep[2];
+    std::array<LLPointer<LLViewerFetchedTexture>, 2> mSunTexturep;
+    std::array<LLPointer<LLViewerFetchedTexture>, 2> mMoonTexturep;
+    std::array<LLPointer<LLViewerFetchedTexture>, 2> mCloudNoiseTexturep;
+    std::array<LLPointer<LLViewerFetchedTexture>, 2> mBloomTexturep;
     LLPointer<LLViewerFetchedTexture> mRainbowMap;
     LLPointer<LLViewerFetchedTexture> mHaloMap;
 
@@ -318,8 +319,8 @@ protected:
     static S32          sResolution;
     static S32          sTileResX;
     static S32          sTileResY;
-    LLSkyTex            mSkyTex[6];
-    LLSkyTex            mShinyTex[6];
+    std::array<LLSkyTex, 6> mSkyTex;
+    std::array<LLSkyTex, 6> mShinyTex;
     LLHeavenBody        mSun;
     LLHeavenBody        mMoon;
     LLVector3           mSunDefaultPosition;

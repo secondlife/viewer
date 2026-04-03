@@ -27,6 +27,7 @@
 #ifndef LL_LLHUDEFFECTBEAM_H
 #define LL_LLHUDEFFECTBEAM_H
 
+#include <array>
 #include "llhudeffect.h"
 
 #include "llframetimer.h"
@@ -61,8 +62,8 @@ private:
 
     F32 mKillTime;
     LLFrameTimer mTimer;
-    LLInterpLinear<LLVector3d> mInterp[NUM_POINTS];
-    LLInterpLinear<F32> mInterpFade[NUM_POINTS];
+    std::array<LLInterpLinear<LLVector3d>, NUM_POINTS> mInterp;
+    std::array<LLInterpLinear<F32>, NUM_POINTS> mInterpFade;
     LLInterpLinear<F32> mFadeInterp;
     LLVector3d  mTargetPos;
 };

@@ -29,6 +29,7 @@
 
 #include "llgl.h"
 
+#include <array>
 #include <vector>
 
 class LLVector3;
@@ -82,9 +83,9 @@ public:
 protected:
     friend class LLTexUnit;
     ~LLCubeMap();
-    LLGLenum mTargets[6];
-    LLPointer<LLImageGL> mImages[6];
-    LLPointer<LLImageRaw> mRawImages[6];
+    std::array<LLGLenum, 6> mTargets;
+    std::array<LLPointer<LLImageGL>, 6> mImages;
+    std::array<LLPointer<LLImageRaw>, 6> mRawImages;
     S32 mTextureStage;
     S32 mMatrixStage;
 };

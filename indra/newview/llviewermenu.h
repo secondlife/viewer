@@ -27,6 +27,7 @@
 #ifndef LL_LLVIEWERMENU_H
 #define LL_LLVIEWERMENU_H
 
+#include <array>
 #include "../llui/llmenugl.h"
 #include "llsafehandle.h"
 
@@ -163,8 +164,8 @@ extern LLContextMenu* gDetachHUDAttSelfMenu;
 extern LLContextMenu* gAttachPieMenu;
 extern LLContextMenu* gDetachPieMenu;
 extern LLContextMenu* gDetachAttSelfMenu;
-extern LLContextMenu* gAttachBodyPartPieMenus[9];
-extern LLContextMenu* gDetachBodyPartPieMenus[9];
+extern std::array<LLContextMenu*, 9> gAttachBodyPartPieMenus;
+extern std::array<LLContextMenu*, 9> gDetachBodyPartPieMenus;
 
 extern LLMenuItemCallGL* gMutePieMenu;
 extern LLMenuItemCallGL* gMuteObjectPieMenu;

@@ -600,7 +600,7 @@ bool LLConversationViewSession::isInActiveVoiceChannel()
 
 static LLDefaultChildRegistry::Register<LLConversationViewParticipant> r("conversation_view_participant");
 bool LLConversationViewParticipant::sStaticInitialized = false;
-S32 LLConversationViewParticipant::sChildrenWidths[LLConversationViewParticipant::ALIC_COUNT];
+std::array<S32, LLConversationViewParticipant::ALIC_COUNT> LLConversationViewParticipant::sChildrenWidths;
 
 LLConversationViewParticipant::Params::Params() :
 container(),

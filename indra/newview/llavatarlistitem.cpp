@@ -45,7 +45,7 @@
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
 S32 LLAvatarListItem::sNameRightPadding = 0;
-S32 LLAvatarListItem::sChildrenWidths[LLAvatarListItem::ALIC_COUNT];
+std::array<S32, LLAvatarListItem::ALIC_COUNT> LLAvatarListItem::sChildrenWidths;
 
 static LLWidgetNameRegistry::StaticRegistrar sRegisterAvatarListItemParams(typeid(LLAvatarListItem::Params), "avatar_list_item");
 

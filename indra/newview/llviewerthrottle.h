@@ -27,6 +27,7 @@
 #ifndef LL_LLVIEWERTHROTTLE_H
 #define LL_LLVIEWERTHROTTLE_H
 
+#include <array>
 #include <vector>
 
 #include "llstring.h"
@@ -49,7 +50,7 @@ class LLViewerThrottleGroup
 
     friend class LLViewerThrottle;
 protected:
-    F32 mThrottles[TC_EOF];
+    std::array<F32, TC_EOF> mThrottles;
     F32 mThrottleTotal;
 };
 

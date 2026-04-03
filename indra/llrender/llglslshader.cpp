@@ -71,18 +71,18 @@ LLGLSLShader    gUIProgram;
 LLGLSLShader    gSolidColorProgram;
 
 // NOTE: Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
-const std::string gShaderConstsKey[LLGLSLShader::NUM_SHADER_CONSTS] =
-{
+const std::array<std::string, LLGLSLShader::NUM_SHADER_CONSTS> gShaderConstsKey =
+{{
       "LL_SHADER_CONST_CLOUD_MOON_DEPTH"
     , "LL_SHADER_CONST_STAR_DEPTH"
-};
+}};
 
 // NOTE: Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
-const std::string gShaderConstsVal[LLGLSLShader::NUM_SHADER_CONSTS] =
-{
+const std::array<std::string, LLGLSLShader::NUM_SHADER_CONSTS> gShaderConstsVal =
+{{
       "0.99998" // SHADER_CONST_CLOUD_MOON_DEPTH // SL-14113
     , "0.99999" // SHADER_CONST_STAR_DEPTH       // SL-14113
-};
+}};
 
 
 bool shouldChange(const LLVector4& v1, const LLVector4& v2)
@@ -364,9 +364,9 @@ void LLGLSLShader::unloadInternal()
 
     if (mProgramObject)
     {
-        GLuint obj[1024];
+        std::array<GLuint, 1024> obj;
         GLsizei count = 0;
-        glGetAttachedShaders(mProgramObject, 1024, &count, obj);
+        glGetAttachedShaders(mProgramObject, 1024, &count, obj.data());
 
         for (GLsizei i = 0; i < count; i++)
         {
@@ -832,14 +832,14 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type, GLint 
         else
         {
             //is array of textures, make sequential after this texture
-            GLint channel[16]; // <=== only support up to 16 texture channels
+            std::array<GLint, 16> channel; // <=== only support up to 16 texture channels
             llassert(size <= 16);
             size = llmin(size, 16);
             for (int i = 0; i < size; ++i)
             {
                 channel[i] = mActiveTextureChannels++;
             }
-            glUniform1iv(location, size, channel);
+            glUniform1iv(location, size, channel.data());
         }
 
         return ret;
@@ -1001,15 +1001,15 @@ bool LLGLSLShader::mapUniforms()
 
     // Set up block binding, in a way supported by Apple (rather than binding = 1 in .glsl).
     // See slide 35 and more of https://docs.huihoo.com/apple/wwdc/2011/session_420__advances_in_opengl_for_mac_os_x_lion.pdf
-    const char* ubo_names[] =
-    {
+    const std::array<const char*, NUM_UNIFORM_BLOCKS> ubo_names =
+    {{
         "ReflectionProbes", // UB_REFLECTION_PROBES
         "GLTFJoints",       // UB_GLTF_JOINTS
         "GLTFNodes",        // UB_GLTF_NODES
         "GLTFMaterials",    // UB_GLTF_MATERIALS
-    };
+    }};
 
-    llassert(LL_ARRAY_SIZE(ubo_names) == NUM_UNIFORM_BLOCKS);
+    // Size is enforced by the std::array type parameter
 
     for (U32 i = 0; i < NUM_UNIFORM_BLOCKS; ++i)
     {

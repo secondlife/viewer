@@ -451,8 +451,8 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
         gGL.color4fv(color.mV);
 
         constexpr S32 NUM_VERTICES = 9 * 2 * 3; // 9 quads, 2 triangles per quad, 3 vertices per triangle
-        static thread_local LLVector2 uv[NUM_VERTICES];
-        static thread_local LLVector4a pos[NUM_VERTICES];
+        static thread_local std::array<LLVector2, NUM_VERTICES> uv;
+        static thread_local std::array<LLVector4a, NUM_VERTICES> pos;
 
         S32 index = 0;
 
@@ -693,7 +693,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
             pos[index].set(draw_center_rect.mRight, draw_outer_rect.mTop, 0.f);
             index++;
 
-            gGL.vertexBatchPreTransformed(pos, uv, NUM_VERTICES);
+            gGL.vertexBatchPreTransformed(pos.data(), uv.data(), NUM_VERTICES);
         }
         gGL.end();
     }
@@ -731,8 +731,8 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
     if (degrees == 0.f)
     {
         constexpr S32 NUM_VERTICES = 2 * 3;
-        static thread_local LLVector2 uv[NUM_VERTICES +1];
-        static thread_local LLVector4a pos[NUM_VERTICES +1];
+        static thread_local std::array<LLVector2, NUM_VERTICES + 1> uv;
+        static thread_local std::array<LLVector4a, NUM_VERTICES + 1> pos;
 
         gGL.begin(LLRender::TRIANGLES);
         {
@@ -769,7 +769,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
             pos[index].set(ui_translation.mV[VX] + scaled_width, ui_translation.mV[VY], 0.f);
             index++;
 
-            gGL.vertexBatchPreTransformed(pos, uv, NUM_VERTICES);
+            gGL.vertexBatchPreTransformed(pos.data(), uv.data(), NUM_VERTICES);
         }
         gGL.end();
     }
@@ -1801,10 +1801,10 @@ void LLRender2D::setLineWidth(F32 width)
     gGL.flush();
     // If outside the allowed range, glLineWidth fails with "invalid value".
     // On Darwin, the range is [1, 1].
-    static GLfloat range[2]{0.0};
+    static std::array<GLfloat, 2> range{0.0};
     if (range[1] == 0)
     {
-        glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, range);
+        glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, range.data());
     }
     width *= lerp(LLRender::sUIGLScaleFactor.mV[VX], LLRender::sUIGLScaleFactor.mV[VY], 0.5f);
     glLineWidth(llclamp(width, range[0], range[1]));

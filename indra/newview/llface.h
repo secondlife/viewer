@@ -27,6 +27,7 @@
 #ifndef LL_LLFACE_H
 #define LL_LLFACE_H
 
+#include <array>
 #include "llstrider.h"
 #include "llrender.h"
 #include "v2math.h"
@@ -283,11 +284,11 @@ private:
     U8          mTextureIndex;      // index of texture channel to use for pseudo-atlasing
     U32         mIndicesCount;
     U32         mIndicesIndex;      // index into mVertexBuffer's index array
-    S32         mIndexInTex[LLRender::NUM_TEXTURE_CHANNELS];
+    std::array<S32, LLRender::NUM_TEXTURE_CHANNELS> mIndexInTex;
 
     LLXformMatrix* mXform;
 
-    LLPointer<LLViewerTexture> mTexture[LLRender::NUM_TEXTURE_CHANNELS];
+    std::array<LLPointer<LLViewerTexture>, LLRender::NUM_TEXTURE_CHANNELS> mTexture;
 
     // mDrawablep is not supposed to be null, don't use LLPointer because
     // mDrawablep owns LLFace and LLPointer is a good way to either cause a

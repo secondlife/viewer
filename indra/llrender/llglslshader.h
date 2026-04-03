@@ -285,7 +285,7 @@ public:
     // Unbinds any previously bound shader by explicitly binding no shader.
     static void unbind();
 
-    U32 mMatHash[LLRender::NUM_MATRIX_MODES];
+    std::array<U32, LLRender::NUM_MATRIX_MODES> mMatHash;
     U32 mLightHash;
 
     GLuint mProgramObject;

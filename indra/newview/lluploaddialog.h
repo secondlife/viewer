@@ -27,6 +27,7 @@
 #ifndef LL_UPLOADDIALOG_H
 #define LL_UPLOADDIALOG_H
 
+#include <array>
 #include "llpanel.h"
 #include "lltextbox.h"
 
@@ -45,7 +46,7 @@ private:
     LLUploadDialog( const std::string& msg);
     virtual ~LLUploadDialog();  // No you can't kill it.  It can only kill itself.
 
-    LLTextBox* mLabelBox[16];
+    std::array<LLTextBox*, 16> mLabelBox;
 
 private:
     static LLUploadDialog*  sDialog;  // Hidden singleton instance, created and destroyed as needed.

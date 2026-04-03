@@ -27,6 +27,7 @@
 #ifndef LL_LLAVATARLISTITEM_H
 #define LL_LLAVATARLISTITEM_H
 
+#include <array>
 #include <boost/signals2.hpp>
 
 #include "llpanel.h"
@@ -239,7 +240,7 @@ private:
      *
      * @see initChildrenWidths()
      */
-    static S32 sChildrenWidths[ALIC_COUNT];
+    static std::array<S32, ALIC_COUNT> sChildrenWidths;
 
 };
 

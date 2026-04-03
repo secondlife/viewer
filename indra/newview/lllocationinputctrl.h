@@ -27,6 +27,7 @@
 #ifndef LL_LLLOCATIONINPUTCTRL_H
 #define LL_LLLOCATIONINPUTCTRL_H
 
+#include <array>
 #include "llcombobox.h"
 #include "lliconctrl.h"     // Params
 #include "lltextbox.h"      // Params
@@ -181,7 +182,7 @@ private:
     S32                     mAddLandmarkHPad;   // pad to left of landmark star
 
     LLButton*   mMaturityButton;
-    LLIconCtrl* mParcelIcon[ICON_COUNT];
+    std::array<LLIconCtrl*, ICON_COUNT> mParcelIcon;
     LLTextBox* mDamageText;
 
     LLAddLandmarkObserver*      mAddLandmarkObserver;

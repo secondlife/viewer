@@ -508,10 +508,10 @@ private:
     void resetStriders(S32 count);
 
     eMatrixMode mMatrixMode;
-    U32 mMatIdx[NUM_MATRIX_MODES];
-    U32 mMatHash[NUM_MATRIX_MODES];
+    std::array<U32, NUM_MATRIX_MODES> mMatIdx;
+    std::array<U32, NUM_MATRIX_MODES> mMatHash;
     glm::mat4 mMatrix[NUM_MATRIX_MODES][LL_MATRIX_STACK_DEPTH];
-    U32 mCurMatHash[NUM_MATRIX_MODES];
+    std::array<U32, NUM_MATRIX_MODES> mCurMatHash;
     U32 mLightHash;
     LLColor4 mAmbientLightColor;
 
@@ -519,7 +519,7 @@ private:
     U32             mCount;
     U32             mMode;
     U32             mCurrTextureUnitIndex;
-    bool                mCurrColorMask[4];
+    std::array<bool, 4> mCurrColorMask;
 
     LLPointer<LLVertexBuffer>   mBuffer;
     LLStrider<LLVector4a>       mVerticesp;

@@ -27,6 +27,7 @@
 #ifndef LL_LLWORLDMIPMAP_H
 #define LL_LLWORLDMIPMAP_H
 
+#include <array>
 #include <map>
 
 #include "llmemory.h"           // LLPointer
@@ -87,7 +88,7 @@ private:
     // The mipmap is organized by resolution level (MAP_LEVELS of them). Each resolution level is an std::map
     // using a region_handle as a key and storing a smart pointer to the image as a value.
     using sublevel_tiles_t = std::map<U64, LLPointer<LLViewerFetchedTexture> >;
-    sublevel_tiles_t mWorldObjectsMipMap[MAP_LEVELS];
+    std::array<sublevel_tiles_t, MAP_LEVELS> mWorldObjectsMipMap;
 //  sublevel_tiles_t mWorldTerrainMipMap[MAP_LEVELS];
 
     S32 mCurrentLevel;      // The level last accessed by a getObjectsTile()

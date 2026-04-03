@@ -28,12 +28,13 @@
 #define LL_LLPREDICATE_H
 
 #include "llerror.h"
+#include <array>
 
 namespace LLPredicate
 {
     template<typename ENUM> class Rule;
 
-    extern const U32 cPredicateFlagsFromEnum[5];
+    extern const std::array<U32, 5> cPredicateFlagsFromEnum;
 
     template<typename ENUM>
     class Value

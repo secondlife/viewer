@@ -27,6 +27,7 @@
 #ifndef LL_LLSCENE_MONITOR_H
 #define LL_LLSCENE_MONITOR_H
 
+#include <array>
 #include "llsingleton.h"
 #include "llmath.h"
 #include "llfloater.h"
@@ -86,7 +87,7 @@ private:
         VIEWER_QUITTING
     }                                       mDiffState;
 
-    LLRenderTarget*                         mFrames[2];
+    std::array<LLRenderTarget*, 2>          mFrames;
     LLRenderTarget*                         mDiff;
 
     GLuint                                  mQueryObject; //used for glQuery

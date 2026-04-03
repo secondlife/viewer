@@ -195,12 +195,12 @@ LLMenuGL* gDetachAvatarMenu = NULL;
 LLMenuGL* gDetachHUDAvatarMenu = NULL;
 LLContextMenu* gAttachScreenPieMenu = NULL;
 LLContextMenu* gAttachPieMenu = NULL;
-LLContextMenu* gAttachBodyPartPieMenus[9];
+std::array<LLContextMenu*, 9> gAttachBodyPartPieMenus;
 LLContextMenu* gDetachPieMenu = NULL;
 LLContextMenu* gDetachScreenPieMenu = NULL;
 LLContextMenu* gDetachAttSelfMenu = NULL;
 LLContextMenu* gDetachHUDAttSelfMenu = NULL;
-LLContextMenu* gDetachBodyPartPieMenus[9];
+std::array<LLContextMenu*, 9> gDetachBodyPartPieMenus;
 
 //
 // Local prototypes

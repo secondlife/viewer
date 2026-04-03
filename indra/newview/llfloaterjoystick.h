@@ -27,6 +27,7 @@
 #ifndef LL_LLFLOATERJOYSTICK_H
 #define LL_LLFLOATERJOYSTICK_H
 
+#include <array>
 #include "llfloater.h"
 #include "llstatview.h"
 
@@ -71,7 +72,7 @@ private:
     // Device prefs
     bool mJoystickEnabled;
     LLSD mJoystickId;
-    S32 mJoystickAxis[7];
+    std::array<S32, 7> mJoystickAxis;
     bool m3DCursor;
     bool mAutoLeveling;
     bool mZoomDirect;
@@ -80,12 +81,12 @@ private:
     bool mAvatarEnabled;
     bool mBuildEnabled;
     bool mFlycamEnabled;
-    F32 mAvatarAxisScale[6];
-    F32 mBuildAxisScale[6];
-    F32 mFlycamAxisScale[7];
-    F32 mAvatarAxisDeadZone[6];
-    F32 mBuildAxisDeadZone[6];
-    F32 mFlycamAxisDeadZone[7];
+    std::array<F32, 6> mAvatarAxisScale;
+    std::array<F32, 6> mBuildAxisScale;
+    std::array<F32, 7> mFlycamAxisScale;
+    std::array<F32, 6> mAvatarAxisDeadZone;
+    std::array<F32, 6> mBuildAxisDeadZone;
+    std::array<F32, 7> mFlycamAxisDeadZone;
     F32 mAvatarFeathering;
     F32 mBuildFeathering;
     F32 mFlycamFeathering;
@@ -99,7 +100,7 @@ private:
     LLUUID mCurrentDeviceId;
 
     // stats view
-    LLStatBar* mAxisStatsBar[6];
+    std::array<LLStatBar*, 6> mAxisStatsBar;
 };
 
 #endif

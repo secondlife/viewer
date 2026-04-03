@@ -107,9 +107,9 @@ void LLCubeMap::initGL()
 
 void LLCubeMap::initRawData(const std::vector<LLPointer<LLImageRaw> >& rawimages)
 {
-    bool flip_x[6] =    { false, true,  false, false, true,  false };
-    bool flip_y[6] =    { true,  true,  true,  false, true,  true  };
-    bool transpose[6] = { false, false, false, false, true,  true  };
+    std::array<bool, 6> flip_x =    { false, true,  false, false, true,  false };
+    std::array<bool, 6> flip_y =    { true,  true,  true,  false, true,  true  };
+    std::array<bool, 6> transpose = { false, false, false, false, true,  true  };
 
     // Yes, I know that this is inefficient! - djs 08/08/02
     for (int i = 0; i < 6; i++)

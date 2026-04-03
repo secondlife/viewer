@@ -27,6 +27,7 @@
 #ifndef LL_TOOLDRAGANDDROP_H
 #define LL_TOOLDRAGANDDROP_H
 
+#include <array>
 #include "lldictionary.h"
 #include "lltool.h"
 #include "llview.h"
@@ -305,7 +306,7 @@ private:
                          dragOrDrop3dImpl f_avatar,
                          dragOrDrop3dImpl f_object,
                          dragOrDrop3dImpl f_land);
-        dragOrDrop3dImpl mFunctions[DT_COUNT];
+        std::array<dragOrDrop3dImpl, DT_COUNT> mFunctions;
     };
     class LLDragAndDropDictionary : public LLSingleton<LLDragAndDropDictionary>,
                                     public LLDictionary<EDragAndDropType, DragAndDropEntry>

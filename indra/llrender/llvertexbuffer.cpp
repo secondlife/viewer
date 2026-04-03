@@ -264,7 +264,7 @@ static GLuint gen_buffer()
     GLuint ret = 0;
     constexpr U32 pool_size = 4096;
 
-    thread_local static GLuint sNamePool[pool_size];
+    thread_local static std::array<GLuint, pool_size> sNamePool;
     thread_local static U32 sIndex = 0;
 
     if (sIndex == 0)
@@ -274,14 +274,14 @@ static GLuint gen_buffer()
 #if !LL_DARWIN
         if (!gGLManager.mIsAMD)
         {
-            glGenBuffers(pool_size, sNamePool);
+            glGenBuffers(pool_size, sNamePool.data());
         }
         else
 #endif
         { // work around for AMD driver bug
             for (U32 i = 0; i < pool_size; ++i)
             {
-                glGenBuffers(1, sNamePool + i);
+                glGenBuffers(1, &sNamePool[i]);
             }
         }
     }
@@ -672,8 +672,8 @@ U32 LLVertexBuffer::sLastMask = 0;
 U32 LLVertexBuffer::sVertexCount = 0;
 
 //NOTE: each component must be AT LEAST 4 bytes in size to avoid a performance penalty on AMD hardware
-const U32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
-{
+const std::array<U32, LLVertexBuffer::TYPE_MAX> LLVertexBuffer::sTypeSize =
+{{
     sizeof(LLVector4), // TYPE_VERTEX,
     sizeof(LLVector4), // TYPE_NORMAL,
     sizeof(LLVector2), // TYPE_TEXCOORD0,
@@ -688,10 +688,10 @@ const U32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
     sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
     sizeof(U64),       // TYPE_JOINT,
     sizeof(LLVector4), // TYPE_TEXTURE_INDEX (actually exists as position.w), no extra data, but stride is 16 bytes
-};
+}};
 
-static const std::string vb_type_name[] =
-{
+static const std::array<std::string, 16> vb_type_name =
+{{
     "TYPE_VERTEX",
     "TYPE_NORMAL",
     "TYPE_TEXCOORD0",
@@ -708,10 +708,10 @@ static const std::string vb_type_name[] =
     "TYPE_TEXTURE_INDEX",
     "TYPE_MAX",
     "TYPE_INDEX",
-};
+}};
 
-const U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
-{
+const std::array<U32, LLRender::NUM_MODES> LLVertexBuffer::sGLMode =
+{{
     GL_TRIANGLES,
     GL_TRIANGLE_STRIP,
     GL_TRIANGLE_FAN,
@@ -719,7 +719,7 @@ const U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
     GL_LINES,
     GL_LINE_STRIP,
     GL_LINE_LOOP,
-};
+}};
 
 //static
 void LLVertexBuffer::setupClientArrays(U32 data_mask)
@@ -1150,7 +1150,7 @@ bool LLVertexBuffer::updateNumVerts(U32 nverts)
 
     bool success = true;
 
-    U32 needed_size = calcOffsets(mTypeMask, mOffsets, nverts);
+    U32 needed_size = calcOffsets(mTypeMask, mOffsets.data(), nverts);
 
     if (needed_size != mSize)
     {

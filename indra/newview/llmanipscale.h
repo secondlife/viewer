@@ -32,6 +32,7 @@
 // copyright 2001-2002, linden research inc
 
 
+#include <array>
 #include "lltool.h"
 #include "v3math.h"
 #include "v4math.h"
@@ -171,8 +172,8 @@ private:
     LLVector3       mScaleDir; //!< The direction of the scaling action.  In face-dragging this is aligned with one of the cardinal axis relative to the prim, but in corner-dragging this is along the diagonal.
     F32             mScaleSnappedValue; //!< The distance of the current position nearest the mouse location, measured along mScaleDir.  Is measured either from the center or from the far face/corner depending upon whether uniform scaling is true or false respectively.
     ESnapRegimes    mSnapRegime; //<! Which, if any, snap regime the cursor is currently residing in.
-    F32             mManipulatorScales[NUM_MANIPULATORS];
-    F32             mBoxHandleSize[NUM_MANIPULATORS];       // The size of the handles at the corners of the bounding box
+    std::array<F32, NUM_MANIPULATORS> mManipulatorScales;
+    std::array<F32, NUM_MANIPULATORS> mBoxHandleSize;       // The size of the handles at the corners of the bounding box
     S32             mFirstClickX;
     S32             mFirstClickY;
     bool            mIsFirstClick;
