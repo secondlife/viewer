@@ -735,7 +735,7 @@ LLViewerRegion::~LLViewerRegion()
     delete mParcelOverlay;
     delete mImpl->mLandp;
     delete mImpl->mEventPoll;
-    std::for_each(mImpl->mObjectPartition.begin(), mImpl->mObjectPartition.end(), DeletePointer());
+    std::ranges::for_each(mImpl->mObjectPartition, [](auto* p) { delete p; });
 
     {
         LL_RECORD_BLOCK_TIME(FTM_SAVE_REGION_CACHE);

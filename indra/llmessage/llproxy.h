@@ -33,6 +33,7 @@
 #include "llsingleton.h"
 #include "llthread.h"
 #include "llmutex.h"
+#include <atomic>
 #include <curl/curl.h>
 #include <string>
 
@@ -182,7 +183,7 @@ enum LLSocks5AuthType
  * mProxyMutex are in a labeled section below. Those methods should
  * not be called while the mutex is already locked.
  *
- * There is also a LLAtomic type flag (mHTTPProxyEnabled) that is used
+ * There is also a std::atomic<bool> flag (mHTTPProxyEnabled) that is used
  * to track whether the HTTP proxy is currently enabled. This allows
  * for faster unlocked checks to see if the proxy is enabled.  This
  * allows us to cut down on the performance hit when the proxy is
@@ -301,7 +302,7 @@ private:
 private:
     // Is the HTTP proxy enabled? Safe to read in any thread, but do not write directly.
     // Instead use enableHTTPProxy() and disableHTTPProxy() instead.
-    mutable LLAtomicBool mHTTPProxyEnabled;
+    mutable std::atomic<bool> mHTTPProxyEnabled;
 
     // Mutex to protect shared members in non-main thread calls to applyProxySettings().
     mutable LLMutex mProxyMutex;

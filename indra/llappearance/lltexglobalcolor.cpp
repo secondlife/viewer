@@ -45,7 +45,7 @@ LLTexGlobalColor::LLTexGlobalColor(LLAvatarAppearance* appearance)
 LLTexGlobalColor::~LLTexGlobalColor()
 {
     // mParamColorList are LLViewerVisualParam's and get deleted with ~LLCharacter()
-    //std::for_each(mParamColorList.begin(), mParamColorList.end(), DeletePointer());
+    //std::ranges::for_each(mParamColorList, [](auto* p) { delete p; });
 }
 
 bool LLTexGlobalColor::setInfo(LLTexGlobalColorInfo *info)
@@ -131,7 +131,7 @@ LLTexGlobalColorInfo::LLTexGlobalColorInfo()
 
 LLTexGlobalColorInfo::~LLTexGlobalColorInfo()
 {
-    for_each(mParamColorInfoList.begin(), mParamColorInfoList.end(), DeletePointer());
+    std::ranges::for_each(mParamColorInfoList, [](auto* p) { delete p; });
     mParamColorInfoList.clear();
 }
 

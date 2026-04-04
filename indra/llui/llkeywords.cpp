@@ -74,11 +74,11 @@ LLKeywords::LLKeywords()
 
 LLKeywords::~LLKeywords()
 {
-    std::ranges::for_each(mWordTokenMap, DeletePairedPointer());
+    std::ranges::for_each(mWordTokenMap, [](auto& p) { delete p.second; p.second = nullptr; });
     mWordTokenMap.clear();
-    std::ranges::for_each(mLineTokenList, DeletePointer());
+    std::ranges::for_each(mLineTokenList, [](auto* p) { delete p; });
     mLineTokenList.clear();
-    std::ranges::for_each(mDelimiterTokenList, DeletePointer());
+    std::ranges::for_each(mDelimiterTokenList, [](auto* p) { delete p; });
     mDelimiterTokenList.clear();
 }
 

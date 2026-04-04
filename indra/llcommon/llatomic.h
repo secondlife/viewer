@@ -27,42 +27,16 @@
 #ifndef LL_LLATOMIC_H
 #define LL_LLATOMIC_H
 
-#include "stdtypes.h"
+// Deprecated: prefer std::atomic<T> directly.
+// This header is kept for backward compatibility only.
 
+#include "stdtypes.h"
 #include <atomic>
 
-template <typename Type, typename AtomicType = std::atomic< Type > > class LLAtomicBase
-{
-public:
-    LLAtomicBase() = default;
-    LLAtomicBase(Type x) { mData.store(x); }
-    ~LLAtomicBase() = default;
+template <typename Type>
+using LLAtomicBase = std::atomic<Type>;
 
-    operator const Type() { return mData; }
-
-    Type    CurrentValue() const { return mData; }
-
-    Type operator =(const Type& x) { mData.store(x); return mData; }
-    void operator -=(Type x) { mData -= x; }
-    void operator +=(Type x) { mData += x; }
-    Type operator ++(int) { return mData++; }
-    Type operator --(int) { return mData--; }
-
-    Type operator ++() { return ++mData; }
-    Type operator --() { return --mData; }
-
-private:
-    AtomicType mData;
-};
-
-// Typedefs for specialized versions. Using std::atomic_(u)int32_t to get the optimzed implementation.
-#ifdef LL_WINDOWS
-using LLAtomicU32 = LLAtomicBase<U32, std::atomic_uint32_t>;
-using LLAtomicS32 = LLAtomicBase<S32, std::atomic_int32_t>;
-#else
-using LLAtomicU32 = LLAtomicBase<U32, std::atomic_uint>;
-using LLAtomicS32 = LLAtomicBase<S32, std::atomic_int>;
-#endif
-
-using LLAtomicBool = LLAtomicBase<bool, std::atomic_bool>;
+using LLAtomicU32 = std::atomic<U32>;
+using LLAtomicS32 = std::atomic<S32>;
+using LLAtomicBool = std::atomic<bool>;
 #endif // LL_LLATOMIC_H

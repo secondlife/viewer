@@ -31,11 +31,11 @@
 #include <string>
 #include <map>
 #include <set>
+#include <unordered_map>
 
-#include "llatomic.h"
+#include <atomic>
 
 #include "llthread.h"
-#include "llsimplehash.h"
 #include "workqueue.h"
 
 //============================================================================
@@ -65,7 +65,7 @@ public:
     //------------------------------------------------------------------------
 public:
 
-    class LL_COMMON_API QueuedRequest : public LLSimpleHashEntry<handle_t>
+    class LL_COMMON_API QueuedRequest
     {
         friend class LLQueuedThread;
 
@@ -75,6 +75,10 @@ public:
     public:
         QueuedRequest(handle_t handle, U32 flags = 0);
 
+        handle_t getHandle() const
+        {
+            return mHandle;
+        }
         status_t getStatus()
         {
             return mStatus;
@@ -102,7 +106,8 @@ public:
         virtual void deleteRequest(); // Only method to delete a request
 
     protected:
-        LLAtomicBase<status_t> mStatus;
+        handle_t mHandle;
+        std::atomic<status_t> mStatus;
         U32 mFlags;
     };
 
@@ -160,15 +165,14 @@ public:
 protected:
     bool mThreaded;  // if false, run on main thread and do updates during update()
     bool mStarted;  // required when mThreaded is false to call startThread() from update()
-    LLAtomicBool mIdleThread; // request queue is empty (or we are quitting) and the thread is idle
+    std::atomic<bool> mIdleThread; // request queue is empty (or we are quitting) and the thread is idle
 
     //typedef std::set<QueuedRequest*, queued_request_less> request_queue_t;
     //request_queue_t mRequestQueue;
     LL::WorkQueue mRequestQueue;
     LL::WorkQueue::weak_t mMainQueue;
 
-    enum { REQUEST_HASH_SIZE = 512 }; // must be power of 2
-    using request_hash_t = LLSimpleHash<handle_t, REQUEST_HASH_SIZE>;
+    using request_hash_t = std::unordered_map<handle_t, QueuedRequest*>;
     request_hash_t mRequestHash;
 
     handle_t mNextHandle;

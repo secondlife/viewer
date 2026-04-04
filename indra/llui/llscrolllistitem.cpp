@@ -52,7 +52,7 @@ LLScrollListItem::LLScrollListItem( const Params& p )
 
 LLScrollListItem::~LLScrollListItem()
 {
-    std::ranges::for_each(mColumns, DeletePointer());
+    std::ranges::for_each(mColumns, [](auto* p) { delete p; });
     mColumns.clear();
 }
 
@@ -88,7 +88,7 @@ void LLScrollListItem::setNumColumns(S32 columns)
     auto prev_columns = mColumns.size();
     if (columns < prev_columns)
     {
-        std::for_each(mColumns.begin()+columns, mColumns.end(), DeletePointer());
+        std::for_each(mColumns.begin()+columns, mColumns.end(), [](auto* p) { delete p; });
     }
 
     mColumns.resize(columns);

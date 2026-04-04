@@ -251,7 +251,7 @@ void LLWorldMap::reset()
     clearSimFlags();        // Clear the block info flags array
 
     // Finally, clear the region map itself
-    for_each(mSimInfoMap.begin(), mSimInfoMap.end(), DeletePairedPointer());
+    std::ranges::for_each(mSimInfoMap, [](auto& p) { delete p.second; p.second = nullptr; });
     mSimInfoMap.clear();
 }
 

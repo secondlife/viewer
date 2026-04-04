@@ -70,7 +70,7 @@ LLRoleActionSet::LLRoleActionSet()
 LLRoleActionSet::~LLRoleActionSet()
 {
     delete mActionSetData;
-    std::ranges::for_each(mActions, DeletePointer());
+    std::ranges::for_each(mActions, [](auto* p) { delete p; });
     mActions.clear();
 }
 
@@ -831,9 +831,9 @@ LLGroupMgr::~LLGroupMgr()
 
 void LLGroupMgr::clearGroups()
 {
-    std::ranges::for_each(mRoleActionSets, DeletePointer());
+    std::ranges::for_each(mRoleActionSets, [](auto* p) { delete p; });
     mRoleActionSets.clear();
-    std::ranges::for_each(mGroups, DeletePairedPointer());
+    std::ranges::for_each(mGroups, [](auto& p) { delete p.second; p.second = nullptr; });
     mGroups.clear();
     mObservers.clear();
 }

@@ -237,7 +237,7 @@ void LLVOGrass::initClass()
 
 void LLVOGrass::cleanupClass()
 {
-    for_each(sSpeciesTable.begin(), sSpeciesTable.end(), DeletePairedPointer());
+    std::ranges::for_each(sSpeciesTable, [](auto& p) { delete p.second; p.second = nullptr; });
     sSpeciesTable.clear();
 }
 

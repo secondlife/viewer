@@ -111,7 +111,7 @@ ThreadRecorder::~ThreadRecorder()
 
     if (!mActiveRecordings.empty())
     {
-        std::ranges::for_each(mActiveRecordings, DeletePointer());
+        std::ranges::for_each(mActiveRecordings, [](auto* p) { delete p; });
         mActiveRecordings.clear();
     }
 

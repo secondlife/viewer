@@ -117,7 +117,7 @@ public:
     }
     ~LLMsgData()
     {
-        for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePairedPointer());
+        std::ranges::for_each(mMemberBlocks, [](auto& p) { delete p.second; p.second = nullptr; });
         mMemberBlocks.clear();
     }
 
@@ -186,7 +186,7 @@ public:
 
     ~LLMessageBlock()
     {
-        for_each(mMemberVariables.begin(), mMemberVariables.end(), DeletePointer());
+        std::ranges::for_each(mMemberVariables, [](auto* p) { delete p; });
     }
 
     void addVariable(char *name, const EMsgVariableType type, const S32 size)
@@ -294,7 +294,7 @@ public:
 
     ~LLMessageTemplate()
     {
-        for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePointer());
+        std::ranges::for_each(mMemberBlocks, [](auto* p) { delete p; });
     }
 
     void addBlock(LLMessageBlock *blockp)

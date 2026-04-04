@@ -33,7 +33,7 @@
 #include <string>
 
 #include "llqueuedthread.h"
-#include "llatomic.h"
+
 #include "llmutex.h"
 
 #define USE_FRAME_CALLBACK_MANAGER 0
@@ -192,7 +192,7 @@ protected:
 
 private:
     LLMutex mMutex;
-    LLAtomicU32 mWorkFlags;
+    std::atomic<U32> mWorkFlags;
 };
 
 //============================================================================

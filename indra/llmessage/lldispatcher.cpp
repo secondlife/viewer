@@ -58,11 +58,8 @@ bool LLDispatcher::isHandlerPresent(const key_t& name) const
 void LLDispatcher::copyAllHandlerNames(keys_t& names) const
 {
     // copy the names onto the vector we are given
-    std::transform(
-        mHandlers.begin(),
-        mHandlers.end(),
-        std::back_insert_iterator<keys_t>(names),
-        llselect1st<dispatch_map_t::value_type>());
+    std::ranges::transform(mHandlers, std::back_insert_iterator<keys_t>(names),
+        [](const auto& p) { return p.first; });
 }
 
 bool LLDispatcher::dispatch(

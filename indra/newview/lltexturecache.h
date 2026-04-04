@@ -236,7 +236,7 @@ private:
     using size_map_t = std::map<LLUUID,S32>;
     size_map_t mTexturesSizeMap;
     S64 mTexturesSizeTotal;
-    LLAtomicBool mDoPurge;
+    std::atomic<bool> mDoPurge;
 
     using idx_entry_map_t = std::map<S32, Entry>;
     idx_entry_map_t mUpdatedEntryMap;

@@ -67,7 +67,7 @@ LLToolView::LLToolView(const std::string& name, const LLRect& rect)
 
 LLToolView::~LLToolView()
 {
-    for_each(mContainList.begin(), mContainList.end(), DeletePointer());
+    std::ranges::for_each(mContainList, [](auto* p) { delete p; });
     mContainList.clear();
 }
 

@@ -324,7 +324,7 @@ void LLMessageSystem::loadTemplateFile(const std::string& filename, bool failure
 LLMessageSystem::~LLMessageSystem()
 {
     mMessageTemplates.clear(); // don't delete templates.
-    for_each(mMessageNumbers.begin(), mMessageNumbers.end(), DeletePairedPointer());
+    std::ranges::for_each(mMessageNumbers, [](auto& p) { delete p.second; p.second = nullptr; });
     mMessageNumbers.clear();
 
     if (!mbError)

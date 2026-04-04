@@ -269,7 +269,7 @@ void LLVOTree::initClass()
 //static
 void LLVOTree::cleanupClass()
 {
-    std::ranges::for_each(sSpeciesTable, DeletePairedPointer());
+    std::ranges::for_each(sSpeciesTable, [](auto& p) { delete p.second; p.second = nullptr; });
     sSpeciesTable.clear();
 }
 

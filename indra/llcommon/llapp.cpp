@@ -42,7 +42,7 @@
 #include "llframetimer.h"
 #include "lllivefile.h"
 #include "llmemory.h"
-#include "llstl.h" // for DeletePointer()
+#include "llstl.h"
 #include "llstring.h"
 #include "lleventtimer.h"
 #include "stringize.h"
@@ -130,7 +130,7 @@ LLApp::~LLApp()
 {
 
     // reclaim live file memory
-    std::ranges::for_each(mLiveFiles, DeletePointer());
+    std::ranges::for_each(mLiveFiles, [](auto* p) { delete p; });
     mLiveFiles.clear();
 
     setStopped();

@@ -344,7 +344,7 @@ LLScrollListCtrl::~LLScrollListCtrl()
 {
     delete mSortCallback;
 
-    std::ranges::for_each(mItemList, DeletePointer());
+    std::ranges::for_each(mItemList, [](auto* p) { delete p; });
     mItemList.clear();
     clearColumns(); //clears columns and deletes headers
     delete mIsFriendSignal;
@@ -395,7 +395,7 @@ bool LLScrollListCtrl::hasSelectedItem() const
 // virtual LLScrolListInterface function (was deleteAllItems)
 void LLScrollListCtrl::clearRows()
 {
-    std::ranges::for_each(mItemList, DeletePointer());
+    std::ranges::for_each(mItemList, [](auto* p) { delete p; });
     mItemList.clear();
     //mItemCount = 0;
 
@@ -3092,7 +3092,7 @@ void LLScrollListCtrl::clearColumns()
             delete header;
         }
     }
-    std::ranges::for_each(mColumns, DeletePairedPointer());
+    std::ranges::for_each(mColumns, [](auto& p) { delete p.second; p.second = nullptr; });
     mColumns.clear();
     mSortColumns.clear();
     mTotalStaticColumnWidth = 0;

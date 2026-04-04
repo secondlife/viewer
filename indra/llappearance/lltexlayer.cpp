@@ -181,7 +181,7 @@ LLTexLayerSetInfo::LLTexLayerSetInfo() :
 
 LLTexLayerSetInfo::~LLTexLayerSetInfo( )
 {
-    std::ranges::for_each(mLayerInfoList, DeletePointer());
+    std::ranges::for_each(mLayerInfoList, [](auto* p) { delete p; });
     mLayerInfoList.clear();
 }
 
@@ -266,10 +266,10 @@ LLTexLayerSet::LLTexLayerSet(LLAvatarAppearance* const appearance) :
 LLTexLayerSet::~LLTexLayerSet()
 {
     deleteCaches();
-    std::ranges::for_each(mLayerList, DeletePointer());
+    std::ranges::for_each(mLayerList, [](auto* p) { delete p; });
     mLayerList.clear();
 
-    std::ranges::for_each(mMaskLayerList, DeletePointer());
+    std::ranges::for_each(mMaskLayerList, [](auto* p) { delete p; });
     mMaskLayerList.clear();
 }
 
@@ -573,9 +573,9 @@ LLTexLayerInfo::LLTexLayerInfo() :
 
 LLTexLayerInfo::~LLTexLayerInfo( )
 {
-    std::ranges::for_each(mParamColorInfoList, DeletePointer());
+    std::ranges::for_each(mParamColorInfoList, [](auto* p) { delete p; });
     mParamColorInfoList.clear();
-    std::ranges::for_each(mParamAlphaInfoList, DeletePointer());
+    std::ranges::for_each(mParamAlphaInfoList, [](auto* p) { delete p; });
     mParamAlphaInfoList.clear();
 }
 
@@ -959,8 +959,8 @@ LLTexLayer::~LLTexLayer()
 {
     // mParamAlphaList and mParamColorList are LLViewerVisualParam's and get
     // deleted with ~LLCharacter()
-    //std::for_each(mParamAlphaList.begin(), mParamAlphaList.end(), DeletePointer());
-    //std::for_each(mParamColorList.begin(), mParamColorList.end(), DeletePointer());
+    //std::ranges::for_each(mParamAlphaList, [](auto* p) { delete p; });
+    //std::ranges::for_each(mParamColorList, [](auto* p) { delete p; });
 
     for (alpha_cache_t::value_type& alpha_pair : mAlphaCache)
     {

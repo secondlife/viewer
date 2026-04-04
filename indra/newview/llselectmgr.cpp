@@ -7950,7 +7950,7 @@ void LLObjectSelection::removeNode(LLSelectNode *nodep)
 
 void LLObjectSelection::deleteAllNodes()
 {
-    std::ranges::for_each(mList, DeletePointer());
+    std::ranges::for_each(mList, [](auto* p) { delete p; });
     mList.clear();
     mSelectNodeMap.clear();
     mPrimaryObject = NULL;

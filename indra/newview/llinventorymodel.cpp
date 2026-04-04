@@ -2566,15 +2566,9 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 void LLInventoryModel::empty()
 {
 //  LL_INFOS(LOG_INV) << "LLInventoryModel::empty()" << LL_ENDL;
-    std::for_each(
-        mParentChildCategoryTree.begin(),
-        mParentChildCategoryTree.end(),
-        DeletePairedPointer());
+    std::ranges::for_each(mParentChildCategoryTree, [](auto& p) { delete p.second; p.second = nullptr; });
     mParentChildCategoryTree.clear();
-    std::for_each(
-        mParentChildItemTree.begin(),
-        mParentChildItemTree.end(),
-        DeletePairedPointer());
+    std::ranges::for_each(mParentChildItemTree, [](auto& p) { delete p.second; p.second = nullptr; });
     mParentChildItemTree.clear();
     mBacklinkMMap.clear(); // forget all backlink information.
     mCategoryMap.clear(); // remove all references (should delete entries)

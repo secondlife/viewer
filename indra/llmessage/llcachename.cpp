@@ -274,9 +274,9 @@ LLCacheName::Impl::Impl(LLMessageSystem* msg)
 
 LLCacheName::Impl::~Impl()
 {
-    std::ranges::for_each(mCache, DeletePairedPointer());
+    std::ranges::for_each(mCache, [](auto& p) { delete p.second; p.second = nullptr; });
     mCache.clear();
-    std::ranges::for_each(mReplyQueue, DeletePointer());
+    std::ranges::for_each(mReplyQueue, [](auto* p) { delete p; });
     mReplyQueue.clear();
 }
 
@@ -747,7 +747,7 @@ void LLCacheName::dumpStats()
 
 void LLCacheName::clear()
 {
-    std::ranges::for_each(impl.mCache, DeletePairedPointer());
+    std::ranges::for_each(impl.mCache, [](auto& p) { delete p.second; p.second = nullptr; });
     impl.mCache.clear();
 }
 

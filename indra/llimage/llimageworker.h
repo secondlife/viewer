@@ -31,6 +31,8 @@
 #include "llpointer.h"
 #include "threadpool_fwd.h"
 
+#include <atomic>
+
 class LLImageDecodeThread
 {
 public:
@@ -61,7 +63,7 @@ private:
     // LLQueuedThread - instead this is the API by which we submit work to the
     // "ImageDecode" ThreadPool.
     std::unique_ptr<LL::ThreadPool> mThreadPool;
-    LLAtomicU32 mDecodeCount;
+    std::atomic<U32> mDecodeCount;
 };
 
 #endif

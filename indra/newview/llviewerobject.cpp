@@ -372,7 +372,7 @@ LLViewerObject::~LLViewerObject()
     // Delete memory associated with extra parameters.
     mExtraParameterList.clear();
 
-    for_each(mNameValuePairs.begin(), mNameValuePairs.end(), DeletePairedPointer()) ;
+    std::ranges::for_each(mNameValuePairs, [](auto& p) { delete p.second; p.second = nullptr; });
     mNameValuePairs.clear();
 
     delete[] mData;
@@ -727,7 +727,7 @@ U32 LLViewerObject::unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id)
 void LLViewerObject::setNameValueList(const std::string& name_value_list)
 {
     // Clear out the old
-    for_each(mNameValuePairs.begin(), mNameValuePairs.end(), DeletePairedPointer()) ;
+    std::ranges::for_each(mNameValuePairs, [](auto& p) { delete p.second; p.second = nullptr; });
     mNameValuePairs.clear();
 
     // Bring in the new
@@ -2878,7 +2878,7 @@ bool LLViewerObject::isInventoryPending()
 
 void LLViewerObject::clearInventoryListeners()
 {
-    for_each(mInventoryCallbacks.begin(), mInventoryCallbacks.end(), DeletePointer());
+    std::ranges::for_each(mInventoryCallbacks, [](auto* p) { delete p; });
     mInventoryCallbacks.clear();
 }
 

@@ -100,16 +100,17 @@ void LLQueuedThread::shutdown()
         mStatus = STOPPED;
     }
 
-    QueuedRequest* req;
     S32 queued_count = 0;
     bool  has_active = false;
     lockData();
-    while ( (req = (QueuedRequest*)mRequestHash.pop_element()) )
+    for (auto it = mRequestHash.begin(); it != mRequestHash.end(); )
     {
+        QueuedRequest* req = it->second;
         if (req->getStatus() == STATUS_INPROGRESS)
         {
             has_active = true;
             req->setFlags(FLAG_ABORT | FLAG_AUTO_COMPLETE);
+            ++it;
             continue;
         }
         if (req->getStatus() == STATUS_QUEUED)
@@ -117,6 +118,7 @@ void LLQueuedThread::shutdown()
             ++queued_count;
             req->setStatus(STATUS_ABORTED); // avoid assert in deleteRequest
         }
+        it = mRequestHash.erase(it);
         req->deleteRequest();
     }
     unlockData();
@@ -254,7 +256,7 @@ bool LLQueuedThread::addRequest(QueuedRequest* req)
 
     lockData();
     req->setStatus(STATUS_QUEUED);
-    mRequestHash.insert(req);
+    mRequestHash.emplace(req->getHandle(), req);
 #if _DEBUG
 //  LL_INFOS() << llformat("LLQueuedThread::Added req [%08d]",handle) << LL_ENDL;
 #endif
@@ -278,17 +280,18 @@ bool LLQueuedThread::waitForResult(LLQueuedThread::handle_t handle, bool auto_co
     {
         update(0); // unpauses
         lockData();
-        QueuedRequest* req = (QueuedRequest*)mRequestHash.find(handle);
-        if (!req)
+        auto it = mRequestHash.find(handle);
+        if (it == mRequestHash.end())
         {
             done = true; // request does not exist
         }
-        else if (req->getStatus() == STATUS_COMPLETE)
+        else if (it->second->getStatus() == STATUS_COMPLETE)
         {
             res = true;
             if (auto_complete)
             {
-                mRequestHash.erase(handle);
+                QueuedRequest* req = it->second;
+                mRequestHash.erase(it);
                 req->deleteRequest();
 //              check();
             }
@@ -316,7 +319,8 @@ LLQueuedThread::QueuedRequest* LLQueuedThread::getRequest(handle_t handle)
         return 0;
     }
     lockData();
-    QueuedRequest* res = (QueuedRequest*)mRequestHash.find(handle);
+    auto it = mRequestHash.find(handle);
+    QueuedRequest* res = (it != mRequestHash.end()) ? it->second : nullptr;
     unlockData();
     return res;
 }
@@ -325,10 +329,10 @@ LLQueuedThread::status_t LLQueuedThread::getRequestStatus(handle_t handle)
 {
     status_t res = STATUS_EXPIRED;
     lockData();
-    QueuedRequest* req = (QueuedRequest*)mRequestHash.find(handle);
-    if (req)
+    auto it = mRequestHash.find(handle);
+    if (it != mRequestHash.end())
     {
-        res = req->getStatus();
+        res = it->second->getStatus();
     }
     unlockData();
     return res;
@@ -338,10 +342,10 @@ void LLQueuedThread::abortRequest(handle_t handle, bool autocomplete)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     lockData();
-    QueuedRequest* req = (QueuedRequest*)mRequestHash.find(handle);
-    if (req)
+    auto it = mRequestHash.find(handle);
+    if (it != mRequestHash.end())
     {
-        req->setFlags(FLAG_ABORT | (autocomplete ? FLAG_AUTO_COMPLETE : 0));
+        it->second->setFlags(FLAG_ABORT | (autocomplete ? FLAG_AUTO_COMPLETE : 0));
     }
     unlockData();
 }
@@ -350,10 +354,10 @@ void LLQueuedThread::abortRequest(handle_t handle, bool autocomplete)
 void LLQueuedThread::setFlags(handle_t handle, U32 flags)
 {
     lockData();
-    QueuedRequest* req = (QueuedRequest*)mRequestHash.find(handle);
-    if (req)
+    auto it = mRequestHash.find(handle);
+    if (it != mRequestHash.end())
     {
-        req->setFlags(flags);
+        it->second->setFlags(flags);
     }
     unlockData();
 }
@@ -363,15 +367,16 @@ bool LLQueuedThread::completeRequest(handle_t handle)
     LL_PROFILE_ZONE_SCOPED;
     bool res = false;
     lockData();
-    QueuedRequest* req = (QueuedRequest*)mRequestHash.find(handle);
-    if (req)
+    auto it = mRequestHash.find(handle);
+    if (it != mRequestHash.end())
     {
+        QueuedRequest* req = it->second;
         llassert_always(req->getStatus() != STATUS_QUEUED);
         llassert_always(req->getStatus() != STATUS_INPROGRESS);
 #if _DEBUG
 //      LL_INFOS() << llformat("LLQueuedThread::Completed req [%08d]",handle) << LL_ENDL;
 #endif
-        mRequestHash.erase(handle);
+        mRequestHash.erase(it);
         req->deleteRequest();
 //      check();
         res = true;
@@ -405,7 +410,7 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
         req->finishRequest(false);
         if (req->getFlags() & FLAG_AUTO_COMPLETE)
         {
-            mRequestHash.erase(req);
+            mRequestHash.erase(req->getHandle());
             req->deleteRequest();
 //              check();
         }
@@ -437,7 +442,7 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
                 req->finishRequest(true);
                 if (req->getFlags() & FLAG_AUTO_COMPLETE)
                 {
-                    mRequestHash.erase(req);
+                    mRequestHash.erase(req->getHandle());
                     req->deleteRequest();
                     //              check();
                 }
@@ -541,7 +546,7 @@ void LLQueuedThread::threadedUpdate()
 //============================================================================
 
 LLQueuedThread::QueuedRequest::QueuedRequest(LLQueuedThread::handle_t handle, U32 flags) :
-    LLSimpleHashEntry<LLQueuedThread::handle_t>(handle),
+    mHandle(handle),
     mStatus(STATUS_UNKNOWN),
     mFlags(flags)
 {

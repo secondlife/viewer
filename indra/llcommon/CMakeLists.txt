@@ -147,7 +147,6 @@ set(llcommon_HEADER_FILES
     lldeadmantimer.h
     lldefs.h
     lldependencies.h
-    lldepthstack.h
     lldictionary.h
     lldoubledispatch.h
     llendianswizzle.h
@@ -215,7 +214,7 @@ set(llcommon_HEADER_FILES
     llsdserialize.h
     llsdserialize_xml.h
     llsdutil.h
-    llsimplehash.h
+
     llsingleton.h
     llstacktrace.h
     llstl.h

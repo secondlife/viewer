@@ -3421,7 +3421,7 @@ LLMenuBarGL::LLMenuBarGL( const Params& p )
 // Default destructor
 LLMenuBarGL::~LLMenuBarGL()
 {
-    std::ranges::for_each(mAccelerators, DeletePointer());
+    std::ranges::for_each(mAccelerators, [](auto* p) { delete p; });
     mAccelerators.clear();
 }
 

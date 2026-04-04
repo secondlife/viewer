@@ -31,7 +31,7 @@
 #include <vector>
 
 #include "linden_common.h"
-#include "llatomic.h"
+#include <atomic>
 #include "httpcommon.h"
 #include "httprequest.h"
 #include "_httppolicyglobal.h"
@@ -217,7 +217,7 @@ protected:
     // === shared data ===
     static volatile EState              sState;
     HttpRequestQueue *                  mRequestQueue;  // Refcounted
-    LLAtomicU32                         mExitRequested;
+    std::atomic<U32>                    mExitRequested;
     LLCoreInt::HttpThread *             mThread;
 
     // === working-thread-only data ===

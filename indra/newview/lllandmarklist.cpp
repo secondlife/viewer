@@ -45,7 +45,7 @@ LLLandmarkList gLandmarkList;
 
 LLLandmarkList::~LLLandmarkList()
 {
-    std::ranges::for_each(mList, DeletePairedPointer());
+    std::ranges::for_each(mList, [](auto& p) { delete p.second; p.second = nullptr; });
     mList.clear();
 }
 

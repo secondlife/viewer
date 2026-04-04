@@ -203,7 +203,7 @@ LLManipScale::LLManipScale( LLToolComposite* composite )
 
 LLManipScale::~LLManipScale()
 {
-    for_each(mProjectedManipulators.begin(), mProjectedManipulators.end(), DeletePointer());
+    std::ranges::for_each(mProjectedManipulators, [](auto* p) { delete p; });
 }
 
 void LLManipScale::render()
@@ -506,7 +506,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
             mManipulatorVertices[numManips++] = LLVector4(ctr.mV[VX], ctr.mV[VY], min.mV[VZ], 1.f);
         }
 
-        for_each(mProjectedManipulators.begin(), mProjectedManipulators.end(), DeletePointer());
+        std::ranges::for_each(mProjectedManipulators, [](auto* p) { delete p; });
         mProjectedManipulators.clear();
 
         for (S32 i = 0; i < numManips; i++)

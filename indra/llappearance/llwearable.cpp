@@ -623,10 +623,10 @@ void LLWearable::syncImages(te_map_t &src, te_map_t &dst)
 
 void LLWearable::destroyTextures()
 {
-    std::ranges::for_each(mTEMap, DeletePairedPointer());
+    std::ranges::for_each(mTEMap, [](auto& p) { delete p.second; p.second = nullptr; });
     mTEMap.clear();
 
-    std::ranges::for_each(mSavedTEMap, DeletePairedPointer());
+    std::ranges::for_each(mSavedTEMap, [](auto& p) { delete p.second; p.second = nullptr; });
     mSavedTEMap.clear();
 }
 

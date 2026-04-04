@@ -72,7 +72,7 @@ LLWearableList::~LLWearableList()
 
 void LLWearableList::cleanup()
 {
-    for_each(mList.begin(), mList.end(), DeletePairedPointer());
+    std::ranges::for_each(mList, [](auto& p) { delete p.second; p.second = nullptr; });
     mList.clear();
 }
 

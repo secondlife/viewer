@@ -77,130 +77,31 @@ struct compare_pointer_contents
     }
 };
 
-// DeletePointer is a simple helper for deleting all pointers in a container.
-// The general form is:
-//
-//  std::for_each(cont.begin(), cont.end(), DeletePointer());
-//  somemap.clear();
-//
-// Don't forget to clear()!
-
-struct DeletePointer
-{
-    template<typename T> void operator()(T* ptr) const
-    {
-        delete ptr;
-    }
-};
-struct DeletePointerArray
-{
-    template<typename T> void operator()(T* ptr) const
-    {
-        delete[] ptr;
-    }
-};
-
-// DeletePairedPointer is a simple helper for deleting all pointers in a map.
-// The general form is:
-//
-//  std::for_each(somemap.begin(), somemap.end(), DeletePairedPointer());
-//  somemap.clear();        // Don't leave dangling pointers around
-
-struct DeletePairedPointer
-{
-    template<typename T> void operator()(T &ptr) const
-    {
-        delete ptr.second;
-        ptr.second = NULL;
-    }
-};
-struct DeletePairedPointerArray
-{
-    template<typename T> void operator()(T &ptr) const
-    {
-        delete[] ptr.second;
-        ptr.second = NULL;
-    }
-};
-
-
-// Alternate version of the above so that has a more cumbersome
-// syntax, but it can be used with compositional functors.
-// NOTE: The functor retuns a bool because msdev bombs during the
-// composition if you return void. Once we upgrade to a newer
-// compiler, the second unary_function template parameter can be set
-// to void.
-//
-// Here's a snippet showing how you use this object:
-//
-// typedef std::map<int, widget*> map_type;
-// map_type widget_map;
-// ... // add elements
-// // delete them all
-// for_each(widget_map.begin(),
-//          widget_map.end(),
-//          llcompose1(DeletePointerFunctor<widget>(),
-//                     llselect2nd<map_type::value_type>()));
-
-template<typename T>
-struct DeletePointerFunctor
-{
-    bool operator()(T* ptr) const
-    {
-        delete ptr;
-        return true;
-    }
-};
-
-// See notes about DeleteArray for why you should consider avoiding this.
-template<typename T>
-struct DeleteArrayFunctor
-{
-    bool operator()(T* ptr) const
-    {
-        delete[] ptr;
-        return true;
-    }
-};
-
-// CopyNewPointer is a simple helper which accepts a pointer, and
-// returns a new pointer built with the copy constructor. Example:
-//
-//  transform(in.begin(), in.end(), out.end(), CopyNewPointer());
-
-struct CopyNewPointer
-{
-    template<typename T> T* operator()(const T* ptr) const
-    {
-        return new T(*ptr);
-    }
-};
-
 template<typename T, typename ALLOC>
 void delete_and_clear(std::list<T*, ALLOC>& list)
 {
-    std::ranges::for_each(list, DeletePointer());
+    std::ranges::for_each(list, [](auto* p) { delete p; });
     list.clear();
 }
 
 template<typename T, typename ALLOC>
 void delete_and_clear(std::vector<T*, ALLOC>& vector)
 {
-    std::ranges::for_each(vector, DeletePointer());
+    std::ranges::for_each(vector, [](auto* p) { delete p; });
     vector.clear();
 }
 
 template<typename T, typename COMPARE, typename ALLOC>
 void delete_and_clear(std::set<T*, COMPARE, ALLOC>& set)
 {
-    std::ranges::for_each(set, DeletePointer());
+    std::ranges::for_each(set, [](auto* p) { delete p; });
     set.clear();
 }
 
 template<typename K, typename V, typename COMPARE, typename ALLOC>
 void delete_and_clear(std::map<K, V*, COMPARE, ALLOC>& map)
 {
-    std::ranges::for_each(map, DeletePairedPointer());
+    std::ranges::for_each(map, [](auto& p) { delete p.second; p.second = nullptr; });
     map.clear();
 }
 
@@ -360,157 +261,6 @@ OutputIter ll_transform_n(
 }
 
 
-
-/*
- *
- * Copyright (c) 1994
- * Hewlett-Packard Company
- *
- * Permission to use, copy, modify, distribute and sell this software
- * and its documentation for any purpose is hereby granted without fee,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.  Hewlett-Packard Company makes no
- * representations about the suitability of this software for any
- * purpose.  It is provided "as is" without express or implied warranty.
- *
- *
- * Copyright (c) 1996-1998
- * Silicon Graphics Computer Systems, Inc.
- *
- * Permission to use, copy, modify, distribute and sell this software
- * and its documentation for any purpose is hereby granted without fee,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.  Silicon Graphics makes no
- * representations about the suitability of this software for any
- * purpose.  It is provided "as is" without express or implied warranty.
- */
-
-
-// helper to deal with the fact that MSDev does not package
-// select... with the stl. Look up usage on the sgi website.
-
-template <class _Pair>
-struct _LLSelect1st
-{
-  const auto& operator()(const _Pair& __x) const {
-    return __x.first;
-  }
-};
-
-template <class _Pair>
-struct _LLSelect2nd
-{
-  const auto& operator()(const _Pair& __x) const {
-    return __x.second;
-  }
-};
-
-template <class _Pair> struct llselect1st : public _LLSelect1st<_Pair> {};
-template <class _Pair> struct llselect2nd : public _LLSelect2nd<_Pair> {};
-
-// helper to deal with the fact that MSDev does not package
-// compose... with the stl. Look up usage on the sgi website.
-
-template <class _Operation1, class _Operation2>
-class ll_unary_compose
-{
-protected:
-  _Operation1 __op1;
-  _Operation2 __op2;
-public:
-  ll_unary_compose(const _Operation1& __x, const _Operation2& __y)
-    : __op1(__x), __op2(__y) {}
-  template <typename _Op2Arg>
-  auto
-  operator()(const _Op2Arg& __x) const {
-    return __op1(__op2(__x));
-  }
-};
-
-template <class _Operation1, class _Operation2>
-inline ll_unary_compose<_Operation1,_Operation2>
-llcompose1(const _Operation1& __op1, const _Operation2& __op2)
-{
-  return ll_unary_compose<_Operation1,_Operation2>(__op1, __op2);
-}
-
-template <class _Operation1, class _Operation2, class _Operation3>
-class ll_binary_compose
-{
-protected:
-  _Operation1 _M_op1;
-  _Operation2 _M_op2;
-  _Operation3 _M_op3;
-public:
-  ll_binary_compose(const _Operation1& __x, const _Operation2& __y,
-                    const _Operation3& __z)
-    : _M_op1(__x), _M_op2(__y), _M_op3(__z) { }
-  template<typename OP2ARG>
-  auto
-  operator()(const OP2ARG& __x) const {
-    return _M_op1(_M_op2(__x), _M_op3(__x));
-  }
-};
-
-template <class _Operation1, class _Operation2, class _Operation3>
-inline ll_binary_compose<_Operation1, _Operation2, _Operation3>
-llcompose2(const _Operation1& __op1, const _Operation2& __op2,
-         const _Operation3& __op3)
-{
-  return ll_binary_compose<_Operation1,_Operation2,_Operation3>
-    (__op1, __op2, __op3);
-}
-
-// helpers to deal with the fact that MSDev does not package
-// bind... with the stl. Again, this is from sgi.
-template <class _Operation, typename _Arg1>
-class llbinder1st
-{
-protected:
-  _Operation op;
-  _Arg1 value;
-public:
-  llbinder1st(const _Operation& __x, const _Arg1& __y)
-      : op(__x), value(__y) {}
-    template <typename _Arg2>
-    auto
-    operator()(const _Arg2& __x) const {
-        return op(value, __x);
-    }
-};
-
-template <class _Operation, class _Tp>
-inline auto
-llbind1st(const _Operation& __oper, const _Tp& __x)
-{
-  return llbinder1st<_Operation, _Tp>(__oper, __x);
-}
-
-template <class _Operation, typename _Arg2>
-class llbinder2nd
-{
-protected:
-    _Operation op;
-    _Arg2 value;
-public:
-    llbinder2nd(const _Operation& __x,
-                const _Arg2& __y)
-        : op(__x), value(__y) {}
-    template <typename _Arg1>
-    auto
-    operator()(const _Arg1& __x) const {
-        return op(__x, value);
-    }
-};
-
-template <class _Operation, class _Tp>
-inline auto
-llbind2nd(const _Operation& __oper, const _Tp& __x)
-{
-  return llbinder2nd<_Operation, _Tp>(__oper, __x);
-}
 
 /**
  * Compare std::type_info* pointers a la std::less. We break this out as a

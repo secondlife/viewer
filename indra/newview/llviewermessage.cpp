@@ -5357,7 +5357,7 @@ void mean_name_callback(const LLUUID &id, const LLAvatarName& av_name)
     {
         mean_collision_list_t::iterator iter = gMeanCollisionList.begin();
         for (U32 i=0; i<max_collision_list_size; i++) iter++;
-        for_each(iter, gMeanCollisionList.end(), DeletePointer());
+        std::for_each(iter, gMeanCollisionList.end(), [](auto* p) { delete p; });
         gMeanCollisionList.erase(iter, gMeanCollisionList.end());
     }
 

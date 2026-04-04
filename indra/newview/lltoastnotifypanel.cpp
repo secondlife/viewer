@@ -138,7 +138,7 @@ LLToastNotifyPanel::~LLToastNotifyPanel()
 {
     mButtonClickConnection.disconnect();
 
-    std::ranges::for_each(mBtnCallbackData, DeletePointer());
+    std::ranges::for_each(mBtnCallbackData, [](auto* p) { delete p; });
     mBtnCallbackData.clear();
     if (mIsTip)
         {

@@ -190,7 +190,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
 
 LLBVHLoader::~LLBVHLoader()
 {
-    std::ranges::for_each(mJoints, DeletePointer());
+    std::ranges::for_each(mJoints, [](auto* p) { delete p; });
     mJoints.clear();
 }
 

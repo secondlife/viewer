@@ -203,7 +203,7 @@ LLFolderView::LLFolderView(const Params& p)
     LLRect new_rect(rect.mLeft, rect.mBottom + getRect().getHeight(), rect.mLeft + getRect().getWidth(), rect.mBottom);
     setRect( rect );
     reshape(rect.getWidth(), rect.getHeight());
-    mAutoOpenItems.setDepth(AUTO_OPEN_STACK_DEPTH);
+    // mAutoOpenItems depth limit (AUTO_OPEN_STACK_DEPTH) enforced at push site
     mAutoOpenCandidate = NULL;
     mAutoOpenTimer.stop();
     mKeyboardSelection = false;
@@ -282,7 +282,7 @@ LLFolderView::~LLFolderView( void )
     }
     mPopupMenuHandle.markDead();
 
-    mAutoOpenItems.removeAllNodes();
+    mAutoOpenItems.clear();
     clearSelection();
     mItems.clear();
     mFolders.clear();
@@ -829,25 +829,29 @@ void LLFolderView::removeSelectedItems()
 
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 {
-    if ((mAutoOpenItems.check() == item) ||
-        (mAutoOpenItems.getDepth() >= (U32)AUTO_OPEN_STACK_DEPTH) ||
+    if ((!mAutoOpenItems.empty() && mAutoOpenItems.back() == item) ||
+        (mAutoOpenItems.size() >= (size_t)AUTO_OPEN_STACK_DEPTH) ||
         item->isOpen())
     {
         return;
     }
 
     // close auto-opened folders
-    LLFolderViewFolder* close_item = mAutoOpenItems.check();
+    LLFolderViewFolder* close_item = mAutoOpenItems.empty() ? nullptr : mAutoOpenItems.back();
     while (close_item && close_item != item->getParentFolder())
     {
-        mAutoOpenItems.pop();
+        mAutoOpenItems.pop_back();
         close_item->setOpenArrangeRecursively(false);
-        close_item = mAutoOpenItems.check();
+        close_item = mAutoOpenItems.empty() ? nullptr : mAutoOpenItems.back();
     }
 
     item->requestArrange();
 
-    mAutoOpenItems.push(item);
+    if (mAutoOpenItems.size() >= (size_t)AUTO_OPEN_STACK_DEPTH)
+    {
+        mAutoOpenItems.pop_front();
+    }
+    mAutoOpenItems.push_back(item);
 
     item->setOpen(true);
     if(!item->isSingleFolderMode())
@@ -860,9 +864,10 @@ void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 
 void LLFolderView::closeAutoOpenedFolders()
 {
-    while (mAutoOpenItems.check())
+    while (!mAutoOpenItems.empty())
     {
-        LLFolderViewFolder* close_item = mAutoOpenItems.pop();
+        LLFolderViewFolder* close_item = mAutoOpenItems.back();
+        mAutoOpenItems.pop_back();
         close_item->setOpen(false);
     }
 

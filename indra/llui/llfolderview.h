@@ -39,7 +39,7 @@
 
 #include "lluictrl.h"
 #include "v4color.h"
-#include "lldepthstack.h"
+#include <deque>
 #include "lleditmenuhandler.h"
 #include "llfontgl.h"
 #include "llscrollcontainer.h"
@@ -315,7 +315,7 @@ protected:
 
     LLRect                          mScrollConstraintRect;
 
-    LLDepthStack<LLFolderViewFolder>    mAutoOpenItems;
+    std::deque<LLFolderViewFolder*>     mAutoOpenItems;
     LLFolderViewFolder*             mAutoOpenCandidate;
     LLFrameTimer                    mAutoOpenTimer;
     LLFrameTimer                    mSearchTimer;

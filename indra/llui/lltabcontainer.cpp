@@ -297,7 +297,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 
 LLTabContainer::~LLTabContainer()
 {
-    std::ranges::for_each(mTabList, DeletePointer());
+    std::ranges::for_each(mTabList, [](auto* p) { delete p; });
     mTabList.clear();
 }
 
@@ -1354,7 +1354,7 @@ void LLTabContainer::deleteAllTabs()
     }
 
     // Actually delete the tuples themselves
-    std::ranges::for_each(mTabList, DeletePointer());
+    std::ranges::for_each(mTabList, [](auto* p) { delete p; });
     mTabList.clear();
 
     // And there isn't a current tab any more

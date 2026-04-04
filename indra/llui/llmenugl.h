@@ -966,7 +966,7 @@ public:
         listener_vector_t listeners(sListeners.begin(), sListeners.end());
         sListeners.clear();
 
-        std::ranges::for_each(listeners, DeletePointer());
+        std::ranges::for_each(listeners, [](auto* p) { delete p; });
         listeners.clear();
     }
 

@@ -314,7 +314,7 @@ LLTextEditor::~LLTextEditor()
     gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit() while LLTextEditor still valid
 
     // Scrollbar is deleted by LLView
-    std::ranges::for_each(mUndoStack, DeletePointer());
+    std::ranges::for_each(mUndoStack, [](auto* p) { delete p; });
     mUndoStack.clear();
     // Mark the menu as dead or its retained in memory till shutdown.
     LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
@@ -1040,7 +1040,7 @@ S32 LLTextEditor::execute( TextCmd* cmd )
     {
         // Delete top of undo stack
         auto enditer = std::ranges::find(mUndoStack, mLastCmd);
-        std::for_each(mUndoStack.begin(), enditer, DeletePointer());
+        std::for_each(mUndoStack.begin(), enditer, [](auto* p) { delete p; });
         mUndoStack.erase(mUndoStack.begin(), enditer);
         // Push the new command is now on the top (front) of the undo stack.
         mUndoStack.push_front(cmd);
@@ -2129,7 +2129,7 @@ void LLTextEditor::blockUndo()
 {
     mBaseDocIsPristine = false;
     mLastCmd = NULL;
-    std::ranges::for_each(mUndoStack, DeletePointer());
+    std::ranges::for_each(mUndoStack, [](auto* p) { delete p; });
     mUndoStack.clear();
 }
 

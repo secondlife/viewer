@@ -80,9 +80,9 @@ LLKeyframeMotion::JointMotionList::JointMotionList()
 
 LLKeyframeMotion::JointMotionList::~JointMotionList()
 {
-    for_each(mConstraints.begin(), mConstraints.end(), DeletePointer());
+    std::ranges::for_each(mConstraints, [](auto* p) { delete p; });
     mConstraints.clear();
-    for_each(mJointMotionArray.begin(), mJointMotionArray.end(), DeletePointer());
+    std::ranges::for_each(mJointMotionArray, [](auto* p) { delete p; });
     mJointMotionArray.clear();
 }
 
@@ -449,7 +449,7 @@ LLKeyframeMotion::LLKeyframeMotion(const LLUUID &id)
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::~LLKeyframeMotion()
 {
-    for_each(mConstraints.begin(), mConstraints.end(), DeletePointer());
+    std::ranges::for_each(mConstraints, [](auto* p) { delete p; });
     mConstraints.clear();
 }
 
@@ -2565,7 +2565,7 @@ LLKeyframeDataCache::~LLKeyframeDataCache()
 //-----------------------------------------------------------------------------
 void LLKeyframeDataCache::clear()
 {
-    for_each(sKeyframeDataMap.begin(), sKeyframeDataMap.end(), DeletePairedPointer());
+    std::ranges::for_each(sKeyframeDataMap, [](auto& p) { delete p.second; p.second = nullptr; });
     sKeyframeDataMap.clear();
 }
 

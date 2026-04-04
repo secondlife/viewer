@@ -87,13 +87,13 @@ void LLXferManager::init()
 
 void LLXferManager::cleanup ()
 {
-    for_each(mOutgoingHosts.begin(), mOutgoingHosts.end(), DeletePointer());
+    std::ranges::for_each(mOutgoingHosts, [](auto* p) { delete p; });
     mOutgoingHosts.clear();
 
-    for_each(mSendList.begin(), mSendList.end(), DeletePointer());
+    std::ranges::for_each(mSendList, [](auto* p) { delete p; });
     mSendList.clear();
 
-    for_each(mReceiveList.begin(), mReceiveList.end(), DeletePointer());
+    std::ranges::for_each(mReceiveList, [](auto* p) { delete p; });
     mReceiveList.clear();
 }
 
@@ -148,7 +148,7 @@ void LLXferManager::setAckThrottleBPS(const F32 bps)
 void LLXferManager::updateHostStatus()
 {
     // Clear the outgoing host list
-    for_each(mOutgoingHosts.begin(), mOutgoingHosts.end(), DeletePointer());
+    std::ranges::for_each(mOutgoingHosts, [](auto* p) { delete p; });
     mOutgoingHosts.clear();
 
     // Loop through all outgoing xfers and re-build mOutgoingHosts

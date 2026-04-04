@@ -92,7 +92,7 @@ LLPolyMeshSharedData::LLPolyMeshSharedData()
 LLPolyMeshSharedData::~LLPolyMeshSharedData()
 {
         freeMeshData();
-        for_each(mMorphData.begin(), mMorphData.end(), DeletePointer());
+        std::ranges::for_each(mMorphData, [](auto* p) { delete p; });
         mMorphData.clear();
 }
 
@@ -856,7 +856,7 @@ LLPolyMesh *LLPolyMesh::getMesh(const std::string &name, LLPolyMesh* reference_m
 void LLPolyMesh::freeAllMeshes()
 {
         // delete each item in the global lists
-        for_each(sGlobalSharedMeshList.begin(), sGlobalSharedMeshList.end(), DeletePairedPointer());
+        std::ranges::for_each(sGlobalSharedMeshList, [](auto& p) { delete p.second; p.second = nullptr; });
         sGlobalSharedMeshList.clear();
 }
 
@@ -1019,7 +1019,7 @@ LLPolyMorphData*        LLPolyMesh::getMorphData(const std::string& morph_name)
 //      if (!mSharedData)
 //              return;
 
-//      for_each(mSharedData->mMorphData.begin(), mSharedData->mMorphData.end(), DeletePointer());
+//      std::ranges::for_each(mSharedData->mMorphData, [](auto* p) { delete p; });
 //      mSharedData->mMorphData.clear();
 // }
 

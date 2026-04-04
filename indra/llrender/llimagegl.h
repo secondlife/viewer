@@ -30,6 +30,7 @@
 
 #include "llimage.h"
 
+#include <atomic>
 #include <vector>
 
 #include "llgltypes.h"
@@ -364,7 +365,7 @@ public:
 private:
     LLWindow* mWindow;
     void* mContext = nullptr;
-    LLAtomicBool mFinished;
+    std::atomic<bool> mFinished;
 };
 
 #endif // LL_LLIMAGEGL_H

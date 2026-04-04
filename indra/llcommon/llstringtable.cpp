@@ -99,7 +99,7 @@ LLStringTable::~LLStringTable()
     }
 #else
     // Need to clean up the string hash
-    for_each(mStringHash.begin(), mStringHash.end(), DeletePairedPointer());
+    std::ranges::for_each(mStringHash, [](auto& p) { delete p.second; p.second = nullptr; });
     mStringHash.clear();
 #endif
 }

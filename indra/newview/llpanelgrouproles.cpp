@@ -1403,7 +1403,7 @@ void LLPanelGroupMembersSubTab::cancel()
 {
     if ( mChanged )
     {
-        std::ranges::for_each(mMemberRoleChangeData, DeletePairedPointer());
+        std::ranges::for_each(mMemberRoleChangeData, [](auto& p) { delete p.second; p.second = nullptr; });
         mMemberRoleChangeData.clear();
 
         mChanged = false;

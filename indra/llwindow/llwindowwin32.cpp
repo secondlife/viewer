@@ -48,6 +48,7 @@
 #include "llglslshader.h"
 #include "llthreadsafequeue.h"
 #include "stringize.h"
+#include <atomic>
 #include "llframetimer.h"
 #include "llwatchdog.h"
 
@@ -481,7 +482,7 @@ public:
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
     bool mGotGLBuffer = false;
-    LLAtomicBool mDeleteOnExit = false;
+    std::atomic<bool> mDeleteOnExit = false;
 private:
     std::unique_ptr<LLWatchdogTimeout> mWindowTimeout;
 };

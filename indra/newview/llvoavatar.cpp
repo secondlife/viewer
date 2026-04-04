@@ -845,7 +845,7 @@ LLVOAvatar::~LLVOAvatar()
 
     LL_DEBUGS("Avatar") << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << LL_ENDL;
 
-    std::ranges::for_each(mAttachmentPoints, DeletePairedPointer());
+    std::ranges::for_each(mAttachmentPoints, [](auto& p) { delete p.second; p.second = nullptr; });
     mAttachmentPoints.clear();
 
     mDead = true;

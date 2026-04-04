@@ -37,6 +37,7 @@
 #include "llrefcount.h"
 #include "threadpool.h"
 #include "workqueue.h"
+#include <atomic>
 #include <span>
 
 #include "llvorbisencode.h"
@@ -87,7 +88,7 @@ protected:
 
     bool mValid;
     bool mDone;
-    LLAtomicS32 mBytesRead;
+    std::atomic<S32> mBytesRead;
     LLUUID mUUID;
 
     std::vector<U8> mWAVBuffer;

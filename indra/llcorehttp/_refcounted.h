@@ -32,7 +32,7 @@
 
 #include "fix_macros.h"
 #include <boost/intrusive_ptr.hpp>
-#include "llatomic.h"
+#include <atomic>
 
 namespace LLCoreInt
 {
@@ -64,7 +64,7 @@ protected:
     virtual void destroySelf();
 
 private:
-    mutable LLAtomicS32         mRefCount;
+    mutable std::atomic<S32>    mRefCount;
 
 }; // end class RefCounted
 

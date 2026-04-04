@@ -83,7 +83,7 @@ LLHTTPNode::LLHTTPNode()
 // virtual
 LLHTTPNode::~LLHTTPNode()
 {
-    std::ranges::for_each(impl.mNamedChildren, DeletePairedPointer());
+    std::ranges::for_each(impl.mNamedChildren, [](auto& p) { delete p.second; p.second = nullptr; });
     impl.mNamedChildren.clear();
 
     delete impl.mWildcardChild;

@@ -96,7 +96,7 @@ LLMaterialTable::LLMaterialTable(U8 isBasic)
 
 LLMaterialTable::~LLMaterialTable()
 {
-    for_each(mMaterialInfoList.begin(), mMaterialInfoList.end(), DeletePointer());
+    std::ranges::for_each(mMaterialInfoList, [](auto* p) { delete p; });
     mMaterialInfoList.clear();
 }
 
