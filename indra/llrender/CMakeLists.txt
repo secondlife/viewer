@@ -8,6 +8,10 @@ include(FreeType)
 include(LLCommon)
 include(LLImage)
 include(LLWindow)
+include(DragDrop)
+include(UI)
+include(ViewerMiscLibs)
+include(GLM)
 
 set(llrender_SOURCE_FILES
     llcubemap.cpp
@@ -35,7 +39,7 @@ set(llrender_SOURCE_FILES
     llvertexbuffer.cpp
     llglcommonfunc.cpp
     )
-    
+
 set(llrender_HEADER_FILES
     CMakeLists.txt
 
@@ -68,6 +72,86 @@ set(llrender_HEADER_FILES
     llglcommonfunc.h
     )
 
+# Former llwindow sources (merged — GL context and window are inseparable)
+list(APPEND llrender_SOURCE_FILES
+    llcursortypes.cpp
+    llkeyboard.cpp
+    llkeyboardheadless.cpp
+    llwindowheadless.cpp
+    llwindowcallbacks.cpp
+    llwindow.cpp
+    llmousehandler.cpp
+    )
+
+list(APPEND llrender_HEADER_FILES
+    llcursortypes.h
+    llkeyboard.h
+    llkeyboardheadless.h
+    llwindowheadless.h
+    llwindowcallbacks.h
+    llwindow.h
+    llpreeditor.h
+    llmousehandler.h
+    )
+
+# Platform-specific window/keyboard sources
+if (LINUX)
+    list(APPEND llrender_SOURCE_FILES
+        llkeyboardsdl.cpp
+        llwindowsdl.cpp
+        )
+    list(APPEND llrender_HEADER_FILES
+        llkeyboardsdl.h
+        llwindowsdl.h
+        )
+endif (LINUX)
+
+if (DARWIN)
+    list(APPEND llrender_SOURCE_FILES
+        llkeyboardmacosx.cpp
+        llwindowmacosx.cpp
+        llwindowmacosx-objc.mm
+        llopenglview-objc.mm
+        )
+    list(APPEND llrender_HEADER_FILES
+        llkeyboardmacosx.h
+        llwindowmacosx.h
+        llwindowmacosx-objc.h
+        llopenglview-objc.h
+        llappdelegate-objc.h
+        )
+    set_source_files_properties(
+        llkeyboardmacosx.cpp
+        llwindowmacosx.cpp
+        PROPERTIES
+        COMPILE_FLAGS "-fpascal-strings"
+        )
+endif (DARWIN)
+
+if (WINDOWS)
+    list(APPEND llrender_SOURCE_FILES
+        llwindowwin32.cpp
+        lldxhardware.cpp
+        llkeyboardwin32.cpp
+        lldragdropwin32.cpp
+        )
+    list(APPEND llrender_HEADER_FILES
+        llwindowwin32.h
+        lldxhardware.h
+        llkeyboardwin32.h
+        lldragdropwin32.h
+        )
+endif (WINDOWS)
+
+if (SOLARIS)
+    list(APPEND llrender_SOURCE_FILES
+        llwindowsolaris.cpp
+        )
+    list(APPEND llrender_HEADER_FILES
+        llwindowsolaris.h
+        )
+endif (SOLARIS)
+
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
 if (BUILD_HEADLESS)
@@ -92,17 +176,36 @@ endif (BUILD_HEADLESS)
 add_library (llrender ${llrender_SOURCE_FILES})
 target_include_directories( llrender  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Libraries on which this library depends, needed for Linux builds
-# Sort by high-level to low-level
 target_link_libraries(llrender
         llcommon
         llimage
         llmath
         llfilesystem
         llxml
-        llwindow
         ll::freetype
+        ll::glm
+        ll::glext
+        ll::uilibraries
+        ll::SDL
         OpenGL::GL
         OpenGL::GLU
         )
 
+if (WINDOWS)
+    target_link_libraries(llrender
+        comdlg32
+        ole32
+        dxgi
+        d3d9
+        )
+endif (WINDOWS)
+
+if (DARWIN)
+    target_link_libraries(llrender ${CARBON_LIBRARY})
+endif (DARWIN)
+
+if (SDL_FOUND)
+    set_property(TARGET llrender
+        PROPERTY COMPILE_DEFINITIONS LL_SDL=1
+        )
+endif (SDL_FOUND)

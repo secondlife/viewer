@@ -260,7 +260,6 @@ target_include_directories( llui  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 # Sort by high-level to low-level
 target_link_libraries(llui
         llrender
-        llwindow
         llimage
         llinventory
         llmessage

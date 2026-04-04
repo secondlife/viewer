@@ -2031,7 +2031,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llrender
         llui
         llfilesystem
-        llwindow
         llxml
         llmath
         llcorehttp
