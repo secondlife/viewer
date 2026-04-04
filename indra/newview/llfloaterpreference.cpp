@@ -73,7 +73,7 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
-#include "llviewereventrecorder.h"
+#include "lleventrecorder.h"
 #include "llviewermessage.h"
 #include "llviewerwindow.h"
 #include "llviewerthrottle.h"

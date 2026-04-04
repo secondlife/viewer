@@ -247,7 +247,7 @@ using namespace LL;
 #include "llcleanup.h"
 
 #include "llcoproceduremanager.h"
-#include "llviewereventrecorder.h"
+#include "lleventrecorder.h"
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either
@@ -960,7 +960,7 @@ bool LLAppViewer::init()
     LL_INFOS("InitInfo") << "Cache initialization is done." << LL_ENDL ;
 
     // Initialize event recorder
-    LLViewerEventRecorder::createInstance();
+    LLEventRecorder::createInstance();
     LLWatchdog::createInstance();
 
     //
@@ -2163,7 +2163,7 @@ bool LLAppViewer::cleanup()
     LLEnvironment::deleteSingleton();
     LLSelectMgr::deleteSingleton();
     LLViewerStatsRecorder::deleteSingleton();
-    LLViewerEventRecorder::deleteSingleton();
+    LLEventRecorder::deleteSingleton();
     LLWorld::deleteSingleton();
     LLVoiceClient::deleteSingleton();
     LLUI::deleteSingleton();
@@ -2801,7 +2801,7 @@ bool LLAppViewer::initConfiguration()
 
     if (clp.hasOption("logevents"))
     {
-        LLViewerEventRecorder::instance().setEventLoggingOn();
+        LLEventRecorder::instance().setEventLoggingOn();
     }
 
     std::string CmdLineChannel(gSavedSettings.getString("CmdLineChannel"));

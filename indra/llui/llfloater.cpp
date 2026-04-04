@@ -28,7 +28,7 @@
 // mini-map floater, etc.
 
 #include "linden_common.h"
-#include "llviewereventrecorder.h"
+#include "lleventrecorder.h"
 #include "llfloater.h"
 
 #include "llfocusmgr.h"
@@ -658,7 +658,7 @@ void LLFloater::openFloater(const LLSD& key)
 {
     LL_INFOS() << "Opening floater " << getName() << " full path: " << getPathname() << LL_ENDL;
 
-    LLViewerEventRecorder::instance().logVisibilityChange( getPathname(), getName(), true,"floater"); // Last param is event subtype or empty string
+    LLEventRecorder::instance().logVisibilityChange( getPathname(), getName(), true,"floater"); // Last param is event subtype or empty string
 
     mKey = key; // in case we need to open ourselves again
 
@@ -707,7 +707,7 @@ void LLFloater::openFloater(const LLSD& key)
 void LLFloater::closeFloater(bool app_quitting)
 {
     LL_INFOS() << "Closing floater " << getName() << LL_ENDL;
-    LLViewerEventRecorder::instance().logVisibilityChange( getPathname(), getName(), false,"floater"); // Last param is event subtype or empty string
+    LLEventRecorder::instance().logVisibilityChange( getPathname(), getName(), false,"floater"); // Last param is event subtype or empty string
     if (app_quitting)
     {
         LLFloater::sQuitting = true;
@@ -1681,7 +1681,7 @@ bool LLFloater::handleMouseUp(S32 x, S32 y, MASK mask)
     LL_DEBUGS() << "LLFloater::handleMouseUp calling LLPanel (really LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << LL_ENDL;
     bool handled = LLPanel::handleMouseUp(x,y,mask); // Not implemented in LLPanel so this actually calls LLView
     if (handled) {
-        LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname());
+        LLEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname());
     }
     return handled;
 }
@@ -1709,7 +1709,7 @@ bool LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
         bringToFront( x, y );
         bool handled = LLPanel::handleMouseDown( x, y, mask );
         if (handled) {
-            LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname());
+            LLEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname());
         }
         return handled;
     }

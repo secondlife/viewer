@@ -1,5 +1,5 @@
 /**
- * @file llviewereventrecorder.h
+ * @file lleventrecorder.h
  * @brief Viewer event recording and playback support for mouse and keyboard events
  *
  * $LicenseInfo:firstyear=2013&license=viewerlgpl$
@@ -23,8 +23,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VIEWER_EVENT_RECORDER
-#define LL_VIEWER_EVENT_RECORDER
+#ifndef LL_EVENT_RECORDER
+#define LL_EVENT_RECORDER
 
 
 #include "linden_common.h"
@@ -41,11 +41,11 @@
 
 #include "llsingleton.h" // includes llerror which we need here so we can skip the include here
 
-class LLViewerEventRecorder : public LLSimpleton<LLViewerEventRecorder>
+class LLEventRecorder : public LLSimpleton<LLEventRecorder>
 {
 public:
-    LLViewerEventRecorder();
-    ~LLViewerEventRecorder();
+    LLEventRecorder();
+    ~LLEventRecorder();
 
   void updateMouseEventInfo(S32 local_x,S32 local_y, S32 global_x, S32 global_y,  std::string mName);
   void setMouseLocalCoords(S32 x,S32 y);

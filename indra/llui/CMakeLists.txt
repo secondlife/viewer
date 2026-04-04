@@ -112,7 +112,7 @@ set(llui_SOURCE_FILES
     llviewmodel.cpp
     llview.cpp
     llviewquery.cpp
-    llviewereventrecorder.cpp
+    lleventrecorder.cpp
     llvirtualtrackball.cpp
     llwindowshade.cpp
     llxuiparser.cpp
@@ -234,7 +234,7 @@ set(llui_HEADER_FILES
     llviewinject.h
     llviewmodel.h
     llview.h
-    llviewereventrecorder.h
+    lleventrecorder.h
     llviewquery.h
     llvirtualtrackball.h
     llwindowshade.h

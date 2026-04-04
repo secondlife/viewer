@@ -29,7 +29,7 @@
 
 #define LLUICTRL_CPP
 #include "lluictrl.h"
-#include "llviewereventrecorder.h"
+#include "lleventrecorder.h"
 #include "llfocusmgr.h"
 #include "llpanel.h"
 #include "lluictrlfactory.h"
@@ -374,7 +374,7 @@ bool LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
     LL_DEBUGS() << "LLUICtrl::handleMousedown - handled is returning as: " << handled << "    " << LL_ENDL;
 
     if (handled) {
-        LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-56,-56,getPathname());
+        LLEventRecorder::instance().updateMouseEventInfo(x,y,-56,-56,getPathname());
     }
     return handled;
 }
@@ -387,7 +387,7 @@ bool LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 
     bool handled  = LLView::handleMouseUp(x,y,mask);
     if (handled) {
-        LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-56,-56,getPathname());
+        LLEventRecorder::instance().updateMouseEventInfo(x,y,-56,-56,getPathname());
     }
     if (mMouseUpSignal)
     {

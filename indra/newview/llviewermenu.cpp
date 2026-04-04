@@ -41,7 +41,7 @@
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llviewereventrecorder.h"
+#include "lleventrecorder.h"
 #include "v4coloru.h"
 
 // newview includes
@@ -2362,7 +2362,7 @@ class LLAdvancedViewerEventRecorder : public view_listener_t
         if ("start playback" == command)
         {
             LL_INFOS() << "Event Playback starting" << LL_ENDL;
-            LLViewerEventRecorder::instance().playbackRecording();
+            LLEventRecorder::instance().playbackRecording();
             LL_INFOS() << "Event Playback completed" << LL_ENDL;
         }
         else if ("stop playback" == command)
@@ -2371,12 +2371,12 @@ class LLAdvancedViewerEventRecorder : public view_listener_t
         }
         else if ("start recording" == command)
         {
-            LLViewerEventRecorder::instance().setEventLoggingOn();
+            LLEventRecorder::instance().setEventLoggingOn();
             LL_INFOS() << "Event recording started" << LL_ENDL;
         }
         else if ("stop recording" == command)
         {
-            LLViewerEventRecorder::instance().setEventLoggingOff();
+            LLEventRecorder::instance().setEventLoggingOff();
             LL_INFOS() << "Event recording stopped" << LL_ENDL;
         }
 
@@ -9838,7 +9838,7 @@ void initialize_menus()
     // Don't prepend MenuName.Foo because these can be used in any menu.
     enable.add("IsGodCustomerService", std::bind(&is_god_customer_service));
 
-    enable.add("displayViewerEventRecorderMenuItems",std::bind(&LLViewerEventRecorder::displayViewerEventRecorderMenuItems,&LLViewerEventRecorder::instance()));
+    enable.add("displayViewerEventRecorderMenuItems",std::bind(&LLEventRecorder::displayViewerEventRecorderMenuItems,&LLEventRecorder::instance()));
 
     view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 

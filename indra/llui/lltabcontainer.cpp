@@ -27,7 +27,7 @@
 #include "linden_common.h"
 
 #include "lltabcontainer.h"
-#include "llviewereventrecorder.h"
+#include "lleventrecorder.h"
 #include "llfocusmgr.h"
 #include "lllocalcliprect.h"
 #include "llrect.h"
@@ -612,7 +612,7 @@ bool LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
     }
     if (handled) {
         // Note: May need to also capture local coords right here ?
-        LLViewerEventRecorder::instance().update_xui(getPathname( ));
+        LLEventRecorder::instance().update_xui(getPathname( ));
     }
 
     return handled;
@@ -723,7 +723,7 @@ bool LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
     }
     if (handled) {
         // Note: may need to capture local coords here
-        LLViewerEventRecorder::instance().update_xui(getPathname( ));
+        LLEventRecorder::instance().update_xui(getPathname( ));
     }
     return handled;
 }

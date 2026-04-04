@@ -47,7 +47,7 @@
 #include "lltooltip.h"
 #include "llsdutil.h"
 #include "llsdserialize.h"
-#include "llviewereventrecorder.h"
+#include "lleventrecorder.h"
 #include "llkeyboard.h"
 // for ui edit hack
 #include "llbutton.h"
@@ -630,7 +630,7 @@ void LLView::setVisible(bool visible)
 void LLView::onVisibilityChange ( bool new_visibility )
 {
     bool old_visibility;
-    bool log_visibility_change = LLViewerEventRecorder::instance().getLoggingStatus();
+    bool log_visibility_change = LLEventRecorder::instance().getLoggingStatus();
     for (LLView* viewp : mChildList)
     {
         if (!viewp)
@@ -645,7 +645,7 @@ void LLView::onVisibilityChange ( bool new_visibility )
         {
         if (old_visibility!=new_visibility)
         {
-            LLViewerEventRecorder::instance().logVisibilityChange( viewp->getPathname(), viewp->getName(), new_visibility,"widget");
+            LLEventRecorder::instance().logVisibilityChange( viewp->getPathname(), viewp->getName(), new_visibility,"widget");
         }
         }
 
@@ -770,7 +770,7 @@ LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDA
             LL_DEBUGS() << "LLView::childrenHandleMouseEvent calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x   << "local/global y " << local_y << " " << y << LL_ENDL;
             LL_DEBUGS() << "LLView::childrenHandleMouseEvent  getPathname for viewp result: " << viewp->getPathname() << "for this view: " << getPathname() << LL_ENDL;
 
-            LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname());
+            LLEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname());
 
             // This is NOT event recording related
             viewp->logMouseEvent();
@@ -1075,7 +1075,7 @@ bool LLView::handleUnicodeChar(llwchar uni_char, bool called_from_parent)
 
     if (handled)
     {
-        LLViewerEventRecorder::instance().logKeyUnicodeEvent(uni_char);
+        LLEventRecorder::instance().logKeyUnicodeEvent(uni_char);
     }
 
     return handled;
