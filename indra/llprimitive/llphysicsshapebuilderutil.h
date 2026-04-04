@@ -79,8 +79,6 @@ public:
 
     bool shouldForceConvex() const { return mForceConvex; }
 
-    bool hasDecomposition() const;
-
 private:
     bool mForceConvex;
 };
@@ -138,7 +136,7 @@ public:
         LLVector3   mCenter;
     };
 
-    static void determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut );
+    static void determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut, bool has_decomposition = false );
 };
 
 #endif //LL_PHYSICS_SHAPE_BUILDER_H

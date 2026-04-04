@@ -24,32 +24,12 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+#include "linden_common.h"
 
 #include "llphysicsshapebuilderutil.h"
 
-#include "llmeshrepository.h"
-
-bool LLPhysicsVolumeParams::hasDecomposition() const
- {
-    if (!isMeshSculpt())
-    {
-        return false;
-    }
-
-    LLUUID mesh_id = getSculptID();
-    if (mesh_id.isNull())
-    {
-        return false;
-    }
-
-    LLModel::Decomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
-
-    return decomp != NULL;
-}
-
 /* static */
-void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut)
+void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut, bool has_decomposition)
 {
     const LLProfileParams& profile_params = volume_params.getProfileParams();
     const LLPathParams& path_params = volume_params.getPathParams();
@@ -228,7 +208,7 @@ void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumePara
             || scale.mV[2] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
             )
         {
-            if (volume_params.hasDecomposition())
+            if (has_decomposition)
             {
                 specOut.mType = PhysicsShapeSpecification::USER_MESH;
             }

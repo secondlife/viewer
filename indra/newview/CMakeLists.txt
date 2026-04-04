@@ -532,7 +532,6 @@ set(viewer_SOURCE_FILES
     llpbrterrainfeatures.cpp
     llpersistentnotificationstorage.cpp
     llphysicsmotion.cpp
-    llphysicsshapebuilderutil.cpp
     llpipelinelistener.cpp
     llplacesinventorybridge.cpp
     llplacesinventorypanel.cpp
@@ -1199,7 +1198,6 @@ set(viewer_HEADER_FILES
     llpbrterrainfeatures.h
     llpersistentnotificationstorage.h
     llphysicsmotion.h
-    llphysicsshapebuilderutil.h
     llpipelinelistener.h
     llplacesinventorybridge.h
     llplacesinventorypanel.h

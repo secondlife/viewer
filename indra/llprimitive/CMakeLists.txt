@@ -24,6 +24,7 @@ set(llprimitive_SOURCE_FILES
     lltextureanim.cpp
     lltextureentry.cpp
     lltreeparams.cpp
+    llphysicsshapebuilderutil.cpp
     llvolumemessage.cpp
     material_codes.cpp
     )
@@ -47,6 +48,7 @@ set(llprimitive_HEADER_FILES
     lltextureentry.h
     lltreeparams.h
     lltree_common.h
+    llphysicsshapebuilderutil.h
     llvolumemessage.h
     material_codes.h
     object_flags.h

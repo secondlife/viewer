@@ -2188,8 +2188,18 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
     LLPhysicsVolumeParams physics_params(volume_params,
         physics_type == LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
 
+    bool has_decomp = false;
+    if (physics_params.isMeshSculpt())
+    {
+        LLUUID mesh_id = physics_params.getSculptID();
+        if (mesh_id.notNull())
+        {
+            has_decomp = gMeshRepo.getDecomposition(mesh_id) != nullptr;
+        }
+    }
+
     LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification physics_spec;
-    LLPhysicsShapeBuilderUtil::determinePhysicsShape(physics_params, volume->getScale(), physics_spec);
+    LLPhysicsShapeBuilderUtil::determinePhysicsShape(physics_params, volume->getScale(), physics_spec, has_decomp);
 
     U32 type = physics_spec.getType();
 
