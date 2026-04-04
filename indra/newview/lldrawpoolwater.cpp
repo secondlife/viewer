@@ -150,8 +150,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     LLVector3              light_dir       = environment.getLightDirection();
     bool                   sun_up          = environment.getIsSunUp();
     bool                   moon_up         = environment.getIsMoonUp();
-    static LLCachedControl<bool> render_water_mip_normal(gSavedSettings, "RenderWaterMipNormal", false);
-    bool                   has_normal_mips = render_water_mip_normal;
+    bool                   has_normal_mips = gSavedSettings.getBOOL("RenderWaterMipNormal");
     bool                   underwater      = LLViewerCamera::getInstance()->cameraUnderWater();
     LLColor4               fog_color       = LLColor4(pwater->getWaterFogColor(), 0.f);
     LLColor3               fog_color_linear = linearColor3(fog_color);

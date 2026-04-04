@@ -45,6 +45,7 @@
 #include "_httpinternal.h"
 
 #include "llhttpconstants.h"
+#include "llproxy.h"
 
 #include "httpstats.h"
 
@@ -579,9 +580,15 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
     // supposedly curl 7.62.0 can use TTL by default, otherwise default is 60 seconds
     check_curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, dnsCacheTimeout);
 
-    if (gpolicy.mUseLLProxy && gpolicy.mProxyCallback)
+    if (gpolicy.mUseLLProxy)
     {
-        gpolicy.mProxyCallback(mCurlHandle);
+        // Use the viewer-based thread-safe API which has a
+        // fast/safe check for proxy enable.  Would like to
+        // encapsulate this someway...
+        // Make sure proxy won't be getInstance() from here,
+        // it is not thread safe
+        LLProxy::applyProxySettings(mCurlHandle);
+
     }
     else if (gpolicy.mHttpProxy.size())
     {

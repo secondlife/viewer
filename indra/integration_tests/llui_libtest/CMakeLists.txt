@@ -10,6 +10,7 @@ include(00-Common)
 include(LLCommon)
 include(LLImage)
 include(LLImageJ2COJ)   # ugh, needed for images
+include(LLKDU)
 include(LLMath)
 include(LLMessage)
 include(LLRender)
@@ -44,6 +45,8 @@ target_link_libraries(llui_libtest
         llmessage
         llrender
         llimage
+        llkdu
+        llimagej2coj
         )
 
 if (WINDOWS)

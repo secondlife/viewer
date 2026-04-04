@@ -4,7 +4,6 @@ project(llmath)
 
 include(00-Common)
 include(LLCommon)
-include(Meshoptimizer)
 include(bugsplat)
 include(Boost)
 include(SSE2NEON)
@@ -30,7 +29,6 @@ set(llmath_SOURCE_FILES
     llvolume.cpp
     llvolumemgr.cpp
     llvolumeoctree.cpp
-    llmeshoptimizer.cpp
     llsdutil_math.cpp
     m3math.cpp
     m4math.cpp
@@ -84,7 +82,6 @@ set(llmath_HEADER_FILES
     llvolume.h
     llvolumemgr.h
     llvolumeoctree.h
-    llmeshoptimizer.h
     llsdutil_math.h
     m3math.h
     m4math.h
@@ -104,7 +101,7 @@ list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
 
 add_library (llmath ${llmath_SOURCE_FILES})
 
-target_link_libraries(llmath llcommon ll::meshoptimizer ll::sse2neon)
+target_link_libraries(llmath llcommon llmeshoptimizer ll::sse2neon)
 target_include_directories( llmath  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add tests

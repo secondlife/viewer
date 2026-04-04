@@ -30,8 +30,6 @@
 
 #include "httprequest.h"
 
-#include <functional>
-
 
 namespace LLCore
 {
@@ -74,7 +72,6 @@ public:
     std::string         mHttpProxy;
     long                mTrace;
     long                mUseLLProxy;
-    std::function<void(void*)> mProxyCallback;  // called with CURL* handle when mUseLLProxy is set
     HttpRequest::policyCallback_t   mSslCtxCallback;
 };  // end class HttpPolicyGlobal
 

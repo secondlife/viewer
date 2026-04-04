@@ -50,8 +50,7 @@ LLPanelOnlineStatus::LLPanelOnlineStatus(
                 notification, notification->getResponseTemplate()));
     }
 
-    static LLCachedControl<S32> tip_toast_message_line_count(gSavedSettings, "TipToastMessageLineCount", 10);
-    S32 max_line_count = tip_toast_message_line_count;
+    S32 max_line_count =  gSavedSettings.getS32("TipToastMessageLineCount");
     snapToMessageHeight(getChild<LLTextBox> ("message"), max_line_count);
 
 }

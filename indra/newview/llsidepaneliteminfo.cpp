@@ -490,7 +490,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     }
     else
     {
-        static LLCachedControl<bool> use_24h(gSavedSettings, "Use24HourClock", false);
+        static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
         std::string timeStr = use_24h ? getString("acquiredDate") : getString("acquiredDateAMPM");
         LLSD substitution;
         substitution["datetime"] = (S32) time_utc;
@@ -573,8 +573,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     // DEBUG PERMISSIONS //
     ///////////////////////
 
-    static LLCachedControl<bool> debug_permissions(gSavedSettings, "DebugPermissions", false);
-    if( debug_permissions )
+    if( gSavedSettings.getBOOL("DebugPermissions") )
     {
         childSetVisible("layout_debug_permissions", true);
 

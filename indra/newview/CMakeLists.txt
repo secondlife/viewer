@@ -15,6 +15,9 @@ include(CMakeCopyIfDifferent)
 include(CubemapToEquirectangularJS)
 include(DBusGlib)
 include(DragDrop)
+if (USE_DISCORD)
+  include(Discord)
+endif ()
 include(EXPAT)
 include(Hunspell)
 include(JPEGEncoderBasic)
@@ -24,6 +27,7 @@ include(LLCA)
 include(LLCommon)
 include(LLCoreHttp)
 include(LLImage)
+include(LLKDU)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
 include(LLWindow)
@@ -1628,7 +1632,14 @@ if (WINDOWS)
       target_link_libraries( ll::intel_memops ${INTEL_MEMOPS_LIBRARY} )
     endif (INTEL_MEMOPS_LIBRARY)
 
-    LIST(APPEND viewer_SOURCE_FILES windows.manifest)
+    if (ADDRESS_SIZE EQUAL 64)
+        # We deliberately omit this from the 32bit build because it declares that
+        # the viewer is compatible with Windows 10; we need that to properly detect
+        # the Windows version, but doing so causes systems with certain HD video
+        # cards to fail because Windows 10 does not support them.  Leaving this out
+        # causes those systems to run in a Windows 8 compatibility mode, which works.
+        LIST(APPEND viewer_SOURCE_FILES windows.manifest)
+    endif (ADDRESS_SIZE EQUAL 64)
 
 endif (WINDOWS)
 
@@ -1777,10 +1788,23 @@ if (WINDOWS)
       media_plugin_example
       )
 
-    list(APPEND COPY_INPUT_DEPENDENCIES
-            ${SHARED_LIB_STAGING_DIR}/vivoxsdk_x64.dll
-            ${SHARED_LIB_STAGING_DIR}/ortp_x64.dll
-            )
+    if (ADDRESS_SIZE EQUAL 64)
+       list(APPEND COPY_INPUT_DEPENDENCIES
+               ${SHARED_LIB_STAGING_DIR}/vivoxsdk_x64.dll
+               ${SHARED_LIB_STAGING_DIR}/ortp_x64.dll
+               )
+    else (ADDRESS_SIZE EQUAL 64)
+       list(APPEND COPY_INPUT_DEPENDENCIES
+               ${SHARED_LIB_STAGING_DIR}/vivoxsdk.dll
+               ${SHARED_LIB_STAGING_DIR}/ortp.dll
+               )
+    endif (ADDRESS_SIZE EQUAL 64)
+
+    if (TARGET ll::discord_sdk)
+        list(APPEND COPY_INPUT_DEPENDENCIES
+             ${SHARED_LIB_STAGING_DIR}/discord_partner_sdk.dll
+             )
+    endif ()
 
     if (TARGET ll::openal)
       list(APPEND COPY_INPUT_DEPENDENCIES
@@ -1798,6 +1822,7 @@ if (WINDOWS)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
+        "--discord=${USE_DISCORD}"
         "--openal=${USE_OPENAL}"
         "--tracy=${USE_TRACY}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -1836,7 +1861,8 @@ if (WINDOWS)
             --arch=${ARCH}
             --artwork=${ARTWORK_DIR}
             "--bugsplat=${BUGSPLAT_DB}"
-                "--openal=${USE_OPENAL}"
+            "--discord=${USE_DISCORD}"
+            "--openal=${USE_OPENAL}"
             "--tracy=${USE_TRACY}"
             --build=${CMAKE_CURRENT_BINARY_DIR}
             --buildtype=$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,${CMAKE_BUILD_TYPE}>
@@ -1900,7 +1926,8 @@ if (WINDOWS)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
-                    "--openal=${USE_OPENAL}"
+              "--discord=${USE_DISCORD}"
+              "--openal=${USE_OPENAL}"
               "--tracy=${USE_TRACY}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
@@ -2008,6 +2035,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llmath
         llcorehttp
         llcommon
+        llmeshoptimizer
         llwebrtc
         lllogin
         llprimitive
@@ -2018,6 +2046,10 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::tracy
         ll::openxr
         )
+
+if (USE_DISCORD)
+   target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
+endif ()
 
 if( TARGET ll::intel_memops )
    target_link_libraries(${VIEWER_BINARY_NAME} ll::intel_memops )
@@ -2079,6 +2111,7 @@ if (LINUX)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
+        "--discord=${USE_DISCORD}"
         "--openal=${USE_OPENAL}"
         "--tracy=${USE_TRACY}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -2107,6 +2140,7 @@ if (LINUX)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
+      "--discord=${USE_DISCORD}"
       "--openal=${USE_OPENAL}"
       "--tracy=${USE_TRACY}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -2181,6 +2215,7 @@ if (DARWIN)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
+      "--discord=${USE_DISCORD}"
       "--openal=${USE_OPENAL}"
       "--tracy=${USE_TRACY}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
@@ -2213,7 +2248,8 @@ if (DARWIN)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
-                    "--openal=${USE_OPENAL}"
+              "--discord=${USE_DISCORD}"
+              "--openal=${USE_OPENAL}"
               "--tracy=${USE_TRACY}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>

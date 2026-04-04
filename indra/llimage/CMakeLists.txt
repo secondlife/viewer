@@ -6,7 +6,7 @@ include(00-Common)
 include(LLCommon)
 include(LLImage)
 include(JPEG)
-include(OpenJPEG)
+include(LLKDU)
 include(ZLIBNG)
 include(LLAddBuildTest)
 include(bugsplat)
@@ -22,7 +22,6 @@ set(llimage_SOURCE_FILES
     llimagejpeg.cpp
     llimagepng.cpp
     llimagetga.cpp
-    llimagej2coj.cpp
     llimageworker.cpp
     llpngwrapper.cpp
     )
@@ -39,7 +38,6 @@ set(llimage_HEADER_FILES
     llimagejpeg.h
     llimagepng.h
     llimagetga.h
-    llimagej2coj.h
     llimageworker.h
     llmapimagetype.h
     llpngwrapper.h
@@ -51,13 +49,18 @@ add_library (llimage ${llimage_SOURCE_FILES})
 target_include_directories( llimage  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
+if (USE_KDU)
+    target_link_libraries(llimage llkdu)
+else (USE_KDU)
+    target_link_libraries(llimage llimagej2coj)
+endif (USE_KDU)
+
 target_link_libraries(llimage
         llfilesystem
         llmath
         llcommon
         ll::libpng
         ll::libjpeg
-        ll::openjpeg
     )
 
 # Add tests

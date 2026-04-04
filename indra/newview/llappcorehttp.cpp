@@ -39,7 +39,6 @@
 #include <curl/curl.h>
 
 #include "llcorehttputil.h"
-#include "llproxy.h"
 #include "httpstats.h"
 #include <functional>
 
@@ -191,12 +190,6 @@ void LLAppCoreHttp::init()
         LL_WARNS("Init") << "Failed to set HTTP proxy for HTTP services.  Reason:  " << status.toString()
                          << LL_ENDL;
     }
-
-    // Set the proxy callback so llcorehttp can apply proxy settings without
-    // depending on llmessage's LLProxy directly.
-    LLCore::HttpRequest::setProxyCallback([](void* handle) {
-        LLProxy::applyProxySettings(static_cast<CURL*>(handle));
-    });
 
     // Set up SSL Verification call back.
     status = LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_SSL_VERIFY_CALLBACK,

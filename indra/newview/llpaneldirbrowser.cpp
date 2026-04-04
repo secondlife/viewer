@@ -871,12 +871,10 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
         self->mResultsContents = LLSD();
     }
 
-    static LLCachedControl<bool> find_land_price(gSavedSettings, "FindLandPrice", false);
-    bool use_price = find_land_price;
+    bool use_price = gSavedSettings.getBOOL("FindLandPrice");
     S32 limit_price = self->childGetValue("priceedit").asInteger();
 
-    static LLCachedControl<bool> find_land_area(gSavedSettings, "FindLandArea", false);
-    bool use_area = find_land_area;
+    bool use_area = gSavedSettings.getBOOL("FindLandArea");
     S32 limit_area = self->childGetValue("areaedit").asInteger();
 
     S32 i;

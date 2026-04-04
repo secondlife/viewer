@@ -207,10 +207,8 @@ LLXMLRPCTransaction::Impl::Impl
         httpOpts->setDNSCacheTimeout(http_params["DNSCacheTimeout"].asInteger());
     }
 
-    static LLCachedControl<bool> no_verify_ssl_cert(gSavedSettings, "NoVerifySSLCert", false);
-    static LLCachedControl<std::string> cert_store(gSavedSettings, "CertStore", "");
-    bool vefifySSLCert = !no_verify_ssl_cert;
-    mCertStore = cert_store();
+    bool vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
+    mCertStore = gSavedSettings.getString("CertStore");
 
     httpOpts->setSSLVerifyPeer(vefifySSLCert);
     httpOpts->setSSLVerifyHost(vefifySSLCert ? 2 : 0);

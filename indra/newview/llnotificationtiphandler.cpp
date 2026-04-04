@@ -60,8 +60,7 @@ LLTipHandler::~LLTipHandler()
 //--------------------------------------------------------------------------
 void LLTipHandler::initChannel()
 {
-    static LLCachedControl<S32> notification_channel_right_margin(gSavedSettings, "NotificationChannelRightMargin", 10);
-    S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - notification_channel_right_margin;
+    S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
     mChannel.get()->init(channel_right_bound - NOTIFY_BOX_WIDTH, channel_right_bound);
 }
 
@@ -127,8 +126,7 @@ bool LLTipHandler::processNotification(const LLNotificationPtr& notification, bo
     else
     {
         // use default time
-        static LLCachedControl<S32> notification_tip_toast_life_time(gSavedSettings, "NotificationTipToastLifeTime", 5);
-        p.lifetime_secs = (F32)notification_tip_toast_life_time();
+        p.lifetime_secs = (F32)gSavedSettings.getS32("NotificationTipToastLifeTime");
     }
 
     LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());

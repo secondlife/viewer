@@ -66,12 +66,9 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
     mTexturep(texturep)
 {
     // Hack!
-    static LLCachedControl<F32> render_terrain_scale(gSavedSettings, "RenderTerrainScale", 12.f);
-    static LLCachedControl<F32> render_terrain_pbr_scale(gSavedSettings, "RenderTerrainPBRScale", 8.f);
-    static LLCachedControl<S32> render_terrain_pbr_detail(gSavedSettings, "RenderTerrainPBRDetail", 0);
-    sDetailScale = 1.f / (F32)render_terrain_scale;
-    sPBRDetailScale = 1.f / (F32)render_terrain_pbr_scale;
-    sPBRDetailMode = render_terrain_pbr_detail;
+    sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
+    sPBRDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainPBRScale");
+    sPBRDetailMode = gSavedSettings.getS32("RenderTerrainPBRDetail");
     mAlphaRampImagep = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD);
 
     //gGL.getTexUnit(0)->bind(mAlphaRampImagep.get());
@@ -148,8 +145,7 @@ void LLDrawPoolTerrain::renderDeferred(S32 pass)
     renderFullShader();
 
     // Special-case for land ownership feedback
-    static LLCachedControl<bool> show_parcel_owners(gSavedSettings, "ShowParcelOwners", false);
-    if (show_parcel_owners)
+    if (gSavedSettings.getBOOL("ShowParcelOwners"))
     {
         hilightParcelOwners();
     }

@@ -478,8 +478,7 @@ void LLViewerPartSim::checkParticleCount(U32 size)
 
 LLViewerPartSim::LLViewerPartSim()
 {
-    static LLCachedControl<S32> render_max_part_count(gSavedSettings, "RenderMaxPartCount", 4096);
-    sMaxParticleCount = llmin((S32)render_max_part_count, LL_MAX_PARTICLE_COUNT);
+    sMaxParticleCount = llmin(gSavedSettings.getS32("RenderMaxPartCount"), LL_MAX_PARTICLE_COUNT);
     static U32 id_seed = 0;
     mID = ++id_seed;
 }
@@ -493,8 +492,7 @@ void LLViewerPartSim::enable(bool enabled)
     }
     else if(enabled && sMaxParticleCount < 1)
     {
-        static LLCachedControl<S32> render_max_part_count(gSavedSettings, "RenderMaxPartCount", 4096);
-        sMaxParticleCount = llmin((S32)render_max_part_count, LL_MAX_PARTICLE_COUNT);
+        sMaxParticleCount = llmin(gSavedSettings.getS32("RenderMaxPartCount"), LL_MAX_PARTICLE_COUNT);
     }
 
     return;

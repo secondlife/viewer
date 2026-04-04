@@ -155,8 +155,7 @@ LLPointer<LLCredential> LLLoginHandler::loadSavedUserLoginInfo()
 {
   // load the saved user login info into a LLCredential.
   // perhaps this should be moved.
-    static LLCachedControl<LLSD> user_login_info(gSavedSettings, "UserLoginInfo", LLSD());
-    LLSD cmd_line_login = user_login_info();
+    LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
     if (cmd_line_login.size() == 3)
     {
 

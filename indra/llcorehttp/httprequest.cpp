@@ -124,11 +124,6 @@ HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass
     return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
 }
 
-void HttpRequest::setProxyCallback(std::function<void(void*)> callback)
-{
-    HttpService::instanceOf()->getPolicy().getGlobalOptions().mProxyCallback = std::move(callback);
-}
-
 HttpHandle HttpRequest::setPolicyOption(EPolicyOption opt, policy_t pclass,
                                         long value, HttpHandler::ptr_t handler)
 {

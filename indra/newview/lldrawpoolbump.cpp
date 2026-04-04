@@ -819,8 +819,7 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
 
     S32 src_cmp = src->getComponents();
 
-    static LLCachedControl<F32> render_normal_map_scale(gSavedSettings, "RenderNormalMapScale", 1.f);
-    F32 norm_scale = render_normal_map_scale;
+    F32 norm_scale = gSavedSettings.getF32("RenderNormalMapScale");
 
     U32 idx = 0;
     //generate normal map from pseudo-heightfield
@@ -929,8 +928,7 @@ void LLBumpImageList::onSourceUpdated(LLViewerTexture* src, EBumpEffect bump_cod
             static LLStaticHashedString sStepY("stepY");
             static LLStaticHashedString sBumpCode("bump_code");
 
-            static LLCachedControl<F32> render_normal_map_scale(gSavedSettings, "RenderNormalMapScale", 1.f);
-            gNormalMapGenProgram.uniform1f(sNormScale, render_normal_map_scale);
+            gNormalMapGenProgram.uniform1f(sNormScale, gSavedSettings.getF32("RenderNormalMapScale"));
             gNormalMapGenProgram.uniform1f(sStepX, 1.f / bump->getWidth());
             gNormalMapGenProgram.uniform1f(sStepY, 1.f / bump->getHeight());
             gNormalMapGenProgram.uniform1i(sBumpCode, bump_code);
