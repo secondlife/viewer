@@ -3699,7 +3699,7 @@ bool process_login_success_response()
         {
             // Remove quotes from string.  Login.cgi sends these to force
             // names that look like numbers into strings.
-            LLStringUtil::replaceChar(gDisplayName, '"', ' ');
+            std::ranges::replace(gDisplayName, '"', ' ');
             LLStringUtil::trim(gDisplayName);
         }
     }
@@ -3707,7 +3707,7 @@ bool process_login_success_response()
     if(response.has("first_name"))
     {
         first_name = response["first_name"].asString();
-        LLStringUtil::replaceChar(first_name, '"', ' ');
+        std::ranges::replace(first_name, '"', ' ');
         LLStringUtil::trim(first_name);
         gAgentUsername = first_name;
     }
@@ -3717,7 +3717,7 @@ bool process_login_success_response()
         std::string last_name = response["last_name"].asString();
         if (last_name != "Resident")
         {
-            LLStringUtil::replaceChar(last_name, '"', ' ');
+            std::ranges::replace(last_name, '"', ' ');
             LLStringUtil::trim(last_name);
             gAgentUsername = gAgentUsername + " " + last_name;
         }
@@ -3728,13 +3728,13 @@ bool process_login_success_response()
         if(response.has("first_name"))
         {
             gDisplayName.assign(response["first_name"].asString());
-            LLStringUtil::replaceChar(gDisplayName, '"', ' ');
+            std::ranges::replace(gDisplayName, '"', ' ');
             LLStringUtil::trim(gDisplayName);
         }
         if(response.has("last_name"))
         {
             text.assign(response["last_name"].asString());
-            LLStringUtil::replaceChar(text, '"', ' ');
+            std::ranges::replace(text, '"', ' ');
             LLStringUtil::trim(text);
             if(!gDisplayName.empty())
             {

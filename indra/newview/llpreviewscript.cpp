@@ -1163,8 +1163,8 @@ void LLScriptEdCore::onErrorList(LLUICtrl*, void* user_data)
         const LLScrollListCell* cell = item->getColumn(0);
         std::string line(cell->getValue().asString());
         line.erase(0, 1);
-        LLStringUtil::replaceChar(line, ',',' ');
-        LLStringUtil::replaceChar(line, ')',' ');
+        std::ranges::replace(line, ',', ' ');
+        std::ranges::replace(line, ')', ' ');
         sscanf(line.c_str(), "%d %d", &row, &column);
         //LL_INFOS() << "LLScriptEdCore::onErrorList() - " << row << ", "
         //<< column << LL_ENDL;

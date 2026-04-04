@@ -3818,7 +3818,7 @@ void LLVivoxVoiceClient::sessionAddedEvent(
                 }
 
                 // Some incoming names may be separated with an underscore instead of a space.  Fix this.
-                LLStringUtil::replaceChar(namePortion, '_', ' ');
+                std::ranges::replace(namePortion, '_', ' ');
 
                 // Act like we just finished resolving the name (this stores it in all the right places)
                 avatarNameResolved(session->mCallerID, namePortion);
@@ -5210,7 +5210,7 @@ std::string LLVivoxVoiceClient::nameFromID(const LLUUID &uuid) const
     if (uuid.isNull()) {
         //VIVOX, the uuid emtpy look for the mURIString and return that instead.
         //result.assign(uuid.mURIStringName);
-        LLStringUtil::replaceChar(result, '_', ' ');
+        std::ranges::replace(result, '_', ' ');
         return result;
     }
     // Prepending this apparently prevents conflicts with reserved names inside the vivox code.
@@ -5220,8 +5220,8 @@ std::string LLVivoxVoiceClient::nameFromID(const LLUUID &uuid) const
     // with e-mail local-parts.
     // See RFC-4648 "Base 64 Encoding with URL and Filename Safe Alphabet"
     result += LLBase64::encode(std::span<const U8>(uuid.mData, UUID_BYTES));
-    LLStringUtil::replaceChar(result, '+', '-');
-    LLStringUtil::replaceChar(result, '/', '_');
+    std::ranges::replace(result, '+', '-');
+    std::ranges::replace(result, '/', '_');
 
     // If you need to transform a GUID to this form on the macOS command line, this will do so:
     // echo -n x && (echo e669132a-6c43-4ee1-a78d-6c82fff59f32 |xxd -r -p |openssl base64|tr '/+' '_-')
@@ -5254,8 +5254,8 @@ bool LLVivoxVoiceClient::IDFromName(const std::string inName, LLUUID &uuid)
 
         // Reverse the transforms done by nameFromID
         std::string temp = name;
-        LLStringUtil::replaceChar(temp, '-', '+');
-        LLStringUtil::replaceChar(temp, '_', '/');
+        std::ranges::replace(temp, '-', '+');
+        std::ranges::replace(temp, '_', '/');
 
         U8 rawuuid[UUID_BYTES + 1];
         int len = apr_base64_decode_binary(rawuuid, temp.c_str() + 1);

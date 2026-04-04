@@ -314,9 +314,6 @@ public:
     static void toUpper(string_type& string);
     static void toLower(string_type& string);
 
-    // True if this is the head of s.
-    static bool isHead( const string_type& string, const T* s );
-
     /**
      * @brief Returns true if string starts with substr
      *
@@ -354,7 +351,6 @@ public:
 
     static void replaceTabsWithSpaces( string_type& string, size_type spaces_per_tab );
     static void replaceNonstandardASCII( string_type& string, T replacement );
-    static void replaceChar( string_type& string, T target, T replacement );
     static void replaceString( string_type& string, string_type target, string_type replacement );
     static string_type capitalize(const string_type& str);
     static void capitalize(string_type& str);
@@ -470,21 +466,6 @@ public:
 /**
  * Simple support functions
  */
-
-/**
- * @brief chop off the trailing characters in a string.
- *
- * This function works on bytes rather than glyphs, so this will
- * incorrectly truncate non-single byte strings.
- * Use utf8str_truncate() for utf8 strings
- * @return a copy of in string minus the trailing count bytes.
- */
-inline std::string chop_tail_copy(
-    const std::string& in,
-    std::string::size_type count)
-{
-    return std::string(in, 0, in.length() - count);
-}
 
 /**
  * @brief This translates a nybble stored as a hex value from 0-f back
@@ -1554,18 +1535,6 @@ void LLStringUtilBase<T>::removeWindowsCR(string_type& string)
 
 //static
 template<class T>
-void LLStringUtilBase<T>::replaceChar( string_type& string, T target, T replacement )
-{
-    size_type found_pos = 0;
-    while( (found_pos = string.find(target, found_pos)) != string_type::npos )
-    {
-        string[found_pos] = replacement;
-        found_pos++; // avoid infinite defeat if target == replacement
-    }
-}
-
-//static
-template<class T>
 void LLStringUtilBase<T>::replaceString( string_type& string, string_type target, string_type replacement )
 {
     size_type found_pos = 0;
@@ -1772,22 +1741,6 @@ void LLStringUtilBase<T>::copyInto(string_type& dst, const string_type& src, siz
         dst += src;
         dst += tail;
     };
-}
-
-// True if this is the head of s.
-//static
-template<class T>
-bool LLStringUtilBase<T>::isHead( const string_type& string, const T* s )
-{
-    if( string.empty() )
-    {
-        // Early exit
-        return false;
-    }
-    else
-    {
-        return (strncmp( s, string.c_str(), string.size() ) == 0);
-    }
 }
 
 // static

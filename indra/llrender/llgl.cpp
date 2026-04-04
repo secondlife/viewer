@@ -1245,7 +1245,7 @@ std::string LLGLManager::getGLInfoString()
 
 #if !LL_MESA_HEADLESS
     std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
-    LLStringUtil::replaceChar(all_exts, ' ', '\n');
+    std::ranges::replace(all_exts, ' ', '\n');
     info_str += std::string("GL_EXTENSIONS:\n") + all_exts + std::string("\n");
 #endif
 
@@ -1269,7 +1269,7 @@ void LLGLManager::printGLInfoString()
 
 #if !LL_MESA_HEADLESS
     std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
-    LLStringUtil::replaceChar(all_exts, ' ', '\n');
+    std::ranges::replace(all_exts, ' ', '\n');
     LL_DEBUGS("RenderInit") << "GL_EXTENSIONS:\n" << all_exts << LL_ENDL;
 #endif
 }

@@ -330,7 +330,7 @@ void LLInventoryObject::updateServer(bool) const
 void LLInventoryObject::correctInventoryName(std::string& name)
 {
     LLStringUtil::replaceNonstandardASCII(name, ' ');
-    LLStringUtil::replaceChar(name, '|', ' ');
+    std::ranges::replace(name, '|', ' ');
     LLStringUtil::trim(name);
     LLStringUtil::truncate(name, DB_INV_ITEM_NAME_STR_LEN);
 }
@@ -382,7 +382,7 @@ LLInventoryItem::LLInventoryItem(const LLUUID& uuid,
     mCreationDate = creation_date_utc;
 
     LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
-    LLStringUtil::replaceChar(mDescription, '|', ' ');
+    std::ranges::replace(mDescription, '|', ' ');
 
     mPermissions.initMasks(inv_type);
 }
@@ -488,7 +488,7 @@ U32 LLInventoryItem::getCRC32() const
 void LLInventoryItem::correctInventoryDescription(std::string& desc)
 {
     LLStringUtil::replaceNonstandardASCII(desc, ' ');
-    LLStringUtil::replaceChar(desc, '|', ' ');
+    std::ranges::replace(desc, '|', ' ');
 }
 
 void LLInventoryItem::setDescription(const std::string& d)
@@ -810,7 +810,7 @@ bool LLInventoryItem::importLegacyStream(std::istream& input_stream)
 
             mName.assign(valuestr);
             LLStringUtil::replaceNonstandardASCII(mName, ' ');
-            LLStringUtil::replaceChar(mName, '|', ' ');
+            std::ranges::replace(mName, '|', ' ');
         }
         else if(0 == strcmp("desc", keyword))
         {
@@ -1152,7 +1152,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
         {
             mName = i->second.asString();
             LLStringUtil::replaceNonstandardASCII(mName, ' ');
-            LLStringUtil::replaceChar(mName, '|', ' ');
+            std::ranges::replace(mName, '|', ' ');
             continue;
         }
 
@@ -1348,7 +1348,7 @@ bool LLInventoryCategory::fromLLSD(const LLSD& sd)
     {
         mName = sd[w].asString();
         LLStringUtil::replaceNonstandardASCII(mName, ' ');
-        LLStringUtil::replaceChar(mName, '|', ' ');
+        std::ranges::replace(mName, '|', ' ');
     }
     return true;
 }
@@ -1419,7 +1419,7 @@ bool LLInventoryCategory::importLegacyStream(std::istream& input_stream)
                 keyword, valuestr);
             mName.assign(valuestr);
             LLStringUtil::replaceNonstandardASCII(mName, ' ');
-            LLStringUtil::replaceChar(mName, '|', ' ');
+            std::ranges::replace(mName, '|', ' ');
         }
         else if (0 == strcmp("metadata", keyword))
         {
@@ -1577,7 +1577,7 @@ bool LLInventoryCategory::importLLSD(const std::string& label, const LLSD& value
     {
         mName = value.asString();
         LLStringUtil::replaceNonstandardASCII(mName, ' ');
-        LLStringUtil::replaceChar(mName, '|', ' ');
+        std::ranges::replace(mName, '|', ' ');
         return true;
     }
     return false;

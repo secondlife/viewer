@@ -1873,7 +1873,7 @@ void LLPanelProfileWeb::onAvatarNameCache(const LLUUID& agent_id, const LLAvatar
     }
     else
     {
-        LLStringUtil::replaceChar(username, ' ', '.');
+        std::ranges::replace(username, ' ', '.');
     }
 
     mURLWebProfile = getProfileURL(username, true);

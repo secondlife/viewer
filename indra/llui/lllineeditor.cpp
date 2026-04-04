@@ -1326,7 +1326,7 @@ void LLLineEditor::pasteHelper(bool is_primary)
             LLWString clean_string(paste);
             LLWStringUtil::replaceTabsWithSpaces(clean_string, 1);
             //clean_string = wstring_detabify(paste, 1);
-            LLWStringUtil::replaceChar(clean_string, '\n', mReplaceNewlinesWithSpaces ? ' ' : 182); // 182 == paragraph character
+            std::ranges::replace(clean_string, static_cast<llwchar>('\n'), mReplaceNewlinesWithSpaces ? static_cast<llwchar>(' ') : static_cast<llwchar>(182)); // 182 == paragraph character
 
             // Insert the string
 
@@ -2722,7 +2722,7 @@ LLWString LLLineEditor::getConvertedText() const
     LLWStringUtil::trim(text);
     if (!mReplaceNewlinesWithSpaces)
     {
-        LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
+        std::ranges::replace(text, static_cast<llwchar>(182), static_cast<llwchar>('\n')); // Convert paragraph symbols back into newlines.
     }
     return text;
 }

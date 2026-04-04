@@ -1757,7 +1757,7 @@ const LLAvatarAppearance::joint_alias_map_t& LLAvatarAppearance::getJointAliases
             // underscores. This gives a mechanism for referencing such joints
             // in daes, which don't allow spaces.
             std::string sub_space_to_underscore = bone_name;
-            LLStringUtil::replaceChar(sub_space_to_underscore, ' ', '_');
+            std::ranges::replace(sub_space_to_underscore, ' ', '_');
             if (sub_space_to_underscore != bone_name)
             {
                 mJointAliasMap[sub_space_to_underscore] = bone_name;

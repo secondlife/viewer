@@ -89,7 +89,7 @@ bool LLFloaterNameDesc::postBuild()
 
     std::string asset_name = mFilename;
     LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
-    LLStringUtil::replaceChar(asset_name, '|', '?');
+    std::ranges::replace(asset_name, '|', '?');
     LLStringUtil::stripNonprintable(asset_name);
     LLStringUtil::trim(asset_name);
 

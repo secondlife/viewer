@@ -599,8 +599,8 @@ LLWString LLControlGroup::getWString(std::string_view name)
 std::string LLControlGroup::getText(std::string_view name)
 {
     std::string utf8_string = getString(name);
-    LLStringUtil::replaceChar(utf8_string, '^', '\n');
-    LLStringUtil::replaceChar(utf8_string, '%', ' ');
+    std::ranges::replace(utf8_string, '^', '\n');
+    std::ranges::replace(utf8_string, '%', ' ');
     return (utf8_string);
 }
 

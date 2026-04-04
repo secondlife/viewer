@@ -408,7 +408,7 @@ std::string LLFloaterReg::getVisibilityControlName(const std::string& name)
 std::string LLFloaterReg::getBaseControlName(const std::string& name)
 {
     std::string res(name);
-    LLStringUtil::replaceChar( res, ' ', '_' );
+    std::ranges::replace(res, ' ', '_');
     return res;
 }
 
@@ -438,7 +438,7 @@ std::string LLFloaterReg::declareDockStateControl(const std::string& name)
 std::string LLFloaterReg::getDockStateControlName(const std::string& name)
 {
     std::string res = std::string("floater_dock_") + name;
-    LLStringUtil::replaceChar( res, ' ', '_' );
+    std::ranges::replace(res, ' ', '_');
     return res;
 }
 

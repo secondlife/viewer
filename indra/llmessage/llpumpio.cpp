@@ -290,7 +290,8 @@ static std::string events_2_string(apr_int16_t events)
     {
         ostr << "invalid,";
     }
-    return chop_tail_copy(ostr.str(), 1);
+    auto s = ostr.str();
+    return s.substr(0, s.length() - 1);
 }
 
 bool LLPumpIO::setConditional(LLIOPipe* pipe, const apr_pollfd_t* poll)

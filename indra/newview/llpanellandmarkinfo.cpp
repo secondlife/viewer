@@ -418,7 +418,7 @@ void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
         }
     }
 
-    LLStringUtil::replaceChar(desc, '\n', ' ');
+    std::ranges::replace(desc, '\n', ' ');
 
     // If no folder chosen use the "Landmarks" folder.
     LLLandmarkActions::createLandmarkHere(name, desc,

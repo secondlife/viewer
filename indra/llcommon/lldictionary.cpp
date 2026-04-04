@@ -35,8 +35,8 @@ LLDictionaryEntry::LLDictionaryEntry(const std::string &name)
 :   mName(name)
 {
     mNameCapitalized = mName;
-    LLStringUtil::replaceChar(mNameCapitalized, '-', ' ');
-    LLStringUtil::replaceChar(mNameCapitalized, '_', ' ');
+    std::ranges::replace(mNameCapitalized, '-', ' ');
+    std::ranges::replace(mNameCapitalized, '_', ' ');
     for (U32 i=0; i < mNameCapitalized.size(); i++)
     {
         if (i == 0 || mNameCapitalized[i-1] == ' ') // don't change ordering of this statement or crash

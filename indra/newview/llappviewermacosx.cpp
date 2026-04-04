@@ -206,7 +206,7 @@ CrashMetadataSingleton::CrashMetadataSingleton()
         OSInfo               = get_metadata(info, "OSInfo");
         agentFullname        = get_metadata(info, "LoginName");
         // Translate underscores back to spaces
-        LLStringUtil::replaceChar(agentFullname, '_', ' ');
+        std::ranges::replace(agentFullname, '_', ' ');
         regionName           = get_metadata(info, "CurrentRegion");
         fatalMessage         = get_metadata(info, "FatalMessage");
 

@@ -899,7 +899,7 @@ void LLDir::setLindenUserDir(const std::string &username)
         // utterly consistent with our firstname/lastname case.
         std::string userlower(username);
         LLStringUtil::toLower(userlower);
-        LLStringUtil::replaceChar(userlower, ' ', '_');
+        std::ranges::replace(userlower, ' ', '_');
         mLindenUserDir = add(getOSUserAppDir(), userlower);
     }
     else
@@ -936,7 +936,7 @@ void LLDir::setPerAccountChatLogsDir(const std::string &username)
         // utterly consistent with our firstname/lastname case.
         std::string userlower(username);
         LLStringUtil::toLower(userlower);
-        LLStringUtil::replaceChar(userlower, ' ', '_');
+        std::ranges::replace(userlower, ' ', '_');
 
         mUserName = userlower;
         updatePerAccountChatLogsDir();

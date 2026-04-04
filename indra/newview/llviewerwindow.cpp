@@ -2059,7 +2059,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     gShowOverlayTitle = gSavedSettings.getBOOL("ShowOverlayTitle");
     mOverlayTitle = gSavedSettings.getString("OverlayTitle");
     // Can't have spaces in settings.ini strings, so use underscores instead and convert them.
-    LLStringUtil::replaceChar(mOverlayTitle, '_', ' ');
+    std::ranges::replace(mOverlayTitle, '_', ' ');
 
     mDebugText = new LLDebugText(this);
 

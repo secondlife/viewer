@@ -590,7 +590,7 @@ std::string utf8str_substChar(
     const llwchar replace_char)
 {
     LLWString wstr = utf8str_to_wstring(utf8str);
-    LLWStringUtil::replaceChar(wstr, target_char, replace_char);
+    std::ranges::replace(wstr, target_char, replace_char);
     //wstr = wstring_substChar(wstr, target_char, replace_char);
     return wstring_to_utf8str(wstr);
 }

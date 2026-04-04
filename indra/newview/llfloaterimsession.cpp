@@ -256,7 +256,7 @@ void LLFloaterIMSession::sendMsgFromInputEditor()
         {
             LLWString text = mInputEditor->getConvertedText();
             LLWStringUtil::trim(text);
-            LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
+            std::ranges::replace(text, static_cast<llwchar>(182), static_cast<llwchar>('\n')); // Convert paragraph symbols back into newlines.
             if(!text.empty())
             {
                 updateUsedEmojis(text);
