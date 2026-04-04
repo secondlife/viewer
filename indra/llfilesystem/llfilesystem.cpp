@@ -33,6 +33,7 @@
 #include "llfilesystem.h"
 #include "llfasttimer.h"
 #include "lldiskcache.h"
+#include "workqueue.h"
 
 #include "boost/filesystem.hpp"
 
@@ -290,63 +291,67 @@ bool LLFileSystem::remove() const
     return true;
 }
 
-void LLFileSystem::updateFileAccessTime(const std::string& file_path)
+void LLFileSystem::updateFileAccessTime(const std::string& file_path) const
 {
-    /**
-     * Threshold in time_t units that is used to decide if the last access time
-     * time of the file is updated or not. Added as a precaution for the concern
-     * outlined in SL-14582  about frequent writes on older SSDs reducing their
-     * lifespan. I think this is the right place for the threshold value - rather
-     * than it being a pref - do comment on that Jira if you disagree...
-     *
-     * Let's start with 1 hour in time_t units and see how that unfolds
-     */
-    constexpr std::time_t time_threshold = 1 * 60 * 60;
+    // Even a metadata file operation can take significant time if disk is busy.
+    // Don't hold main thread for this, schedule on a worker.
+    LL::WorkQueue::ptr_t workqueue = LL::WorkQueue::getInstance("General");
+    if (!workqueue)
+    {
+        return;
+    }
 
-    // current time
-    const std::time_t cur_time = std::time(nullptr);
+    // General queue maintains multiple threads, so there is a chance of a race
+    // condition, when multiple threads are trying to update the same file at
+    // the same time. This is not a problem because the last write time is
+    // only used to determine which files are old and some missed or
+    // extra updates will not cause any significant issues.
+    // last_write_time operation is supposed to be atomic, so multiple
+    // writes should not result in complications.
+    workqueue->post([file_path]()
+    {
+        /**
+         * Threshold in time_t units that is used to decide if the last access time
+         * time of the file is updated or not. Added as a precaution for the concern
+         * outlined in SL-14582  about frequent writes on older SSDs reducing their
+         * lifespan. I think this is the right place for the threshold value - rather
+         * than it being a pref - do comment on that Jira if you disagree...
+         *
+         * Expected cache lifetime is normally in days range.
+         * Let's start with 1 hour in time_t units and see how that unfolds
+         */
+        constexpr std::time_t time_threshold = 1 * 60 * 60;
 
-    boost::system::error_code ec;
+        // current time
+        const std::time_t cur_time = std::time(nullptr);
+
+        boost::system::error_code ec;
 #if LL_WINDOWS
-    // file last write time
-    const std::time_t last_write_time = boost::filesystem::last_write_time(ll_convert<std::wstring>(file_path), ec);
-    if (ec.failed())
-    {
-        LL_WARNS() << "Failed to read last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
-        return;
-    }
-
-    // delta between cur time and last time the file was written
-    const std::time_t delta_time = cur_time - last_write_time;
-
-    // we only write the new value if the time in time_threshold has elapsed
-    // before the last one
-    if (delta_time > time_threshold)
-    {
-        boost::filesystem::last_write_time(ll_convert<std::wstring>(file_path), cur_time, ec);
-    }
+        const auto fs_path = ll_convert<std::wstring>(file_path);
 #else
-    // file last write time
-    const std::time_t last_write_time = boost::filesystem::last_write_time(file_path, ec);
-    if (ec.failed())
-    {
-        LL_WARNS() << "Failed to read last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
-        return;
-    }
-
-    // delta between cur time and last time the file was written
-    const std::time_t delta_time = cur_time - last_write_time;
-
-    // we only write the new value if the time in time_threshold has elapsed
-    // before the last one
-    if (delta_time > time_threshold)
-    {
-        boost::filesystem::last_write_time(file_path, cur_time, ec);
-    }
+        const auto& fs_path = file_path;
 #endif
 
-    if (ec.failed())
-    {
-        LL_WARNS() << "Failed to update last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
-    }
+        // file last write time
+        const std::time_t last_write_time = boost::filesystem::last_write_time(fs_path, ec);
+        if (ec.failed())
+        {
+            LL_WARNS() << "Failed to read last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
+            return;
+        }
+
+        // delta between cur time and last time the file was written
+        const std::time_t delta_time = cur_time - last_write_time;
+
+        // we only write the new value if the time in time_threshold has elapsed
+        // before the last one
+        if (delta_time > time_threshold)
+        {
+            boost::filesystem::last_write_time(fs_path, cur_time, ec);
+            if (ec.failed())
+            {
+                LL_WARNS() << "Failed to update last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
+            }
+        }
+    });
 }

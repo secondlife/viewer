@@ -58,7 +58,7 @@ class LLFileSystem
          * file in the cache is read (not written) so that the last time the file was
          * accessed is up to date (This is used in the mechanism for purging the cache)
          */
-        void updateFileAccessTime(const std::string& file_path);
+        void updateFileAccessTime(const std::string& file_path) const;
 
         static bool getExists(const LLUUID& file_id, const LLAssetType::EType file_type);
         static bool removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_error = 0);
