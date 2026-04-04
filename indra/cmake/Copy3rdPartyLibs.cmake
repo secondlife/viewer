@@ -6,9 +6,6 @@
 
 include(CMakeCopyIfDifferent)
 include(Linking)
-if (USE_DISCORD)
-  include(Discord)
-endif ()
 include(OPENAL)
 
 # When we copy our dependent libraries, we almost always want to copy them to
@@ -39,17 +36,10 @@ if(WINDOWS)
         set(slvoice_src_dir "${ARCH_PREBUILT_BIN_RELEASE}")
     endif()
     set(slvoice_files SLVoice.exe )
-    if (ADDRESS_SIZE EQUAL 64)
-        list(APPEND vivox_libs
-            vivoxsdk_x64.dll
-            ortp_x64.dll
-            )
-    else (ADDRESS_SIZE EQUAL 64)
-        list(APPEND vivox_libs
-            vivoxsdk.dll
-            ortp.dll
-            )
-    endif (ADDRESS_SIZE EQUAL 64)
+    list(APPEND vivox_libs
+        vivoxsdk_x64.dll
+        ortp_x64.dll
+        )
 
     #*******************************
     # Misc shared libs
@@ -62,20 +52,10 @@ if(WINDOWS)
     # Filenames are different for 32/64 bit BugSplat file and we don't
     # have any control over them so need to branch.
     if (USE_BUGSPLAT)
-      if(ADDRESS_SIZE EQUAL 32)
-        set(release_files ${release_files} BugSplat.dll)
-        set(release_files ${release_files} BugSplatRc.dll)
-        set(release_files ${release_files} BsSndRpt.exe)
-      else(ADDRESS_SIZE EQUAL 32)
         set(release_files ${release_files} BugSplat64.dll)
         set(release_files ${release_files} BugSplatRc64.dll)
         set(release_files ${release_files} BsSndRpt64.exe)
-      endif(ADDRESS_SIZE EQUAL 32)
     endif (USE_BUGSPLAT)
-
-    if (TARGET ll::discord_sdk)
-        list(APPEND release_files discord_partner_sdk.dll)
-    endif ()
 
     if (TARGET ll::openal)
         list(APPEND release_files openal32.dll alut.dll)
@@ -103,22 +83,13 @@ if(WINDOWS)
     endif (MSVC80)
 
     if (MSVC_TOOLSET_VER AND DEFINED ENV{VCTOOLSREDISTDIR})
-        if(ADDRESS_SIZE EQUAL 32)
-            set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x86\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
-        else(ADDRESS_SIZE EQUAL 32)
-            set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x64\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
-        endif(ADDRESS_SIZE EQUAL 32)
+        set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x64\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
         get_filename_component(redist_path "${redist_find_path}" ABSOLUTE)
         MESSAGE(STATUS "VC Runtime redist path: ${redist_path}")
     endif (MSVC_TOOLSET_VER AND DEFINED ENV{VCTOOLSREDISTDIR})
 
-    if(ADDRESS_SIZE EQUAL 32)
-        # this folder contains the 32bit DLLs.. (yes really!)
-        set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/SysWOW64")
-    else(ADDRESS_SIZE EQUAL 32)
-        # this folder contains the 64bit DLLs.. (yes really!)
-        set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32")
-    endif(ADDRESS_SIZE EQUAL 32)
+    # this folder contains the 64bit DLLs.. (yes really!)
+    set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32")
 
     # Having a string containing the system registry path is a start, but to
     # get CMake to actually read the registry, we must engage some other
@@ -172,10 +143,6 @@ elseif(DARWIN)
     set(release_files
         libndofdev.dylib
        )
-
-    if (TARGET ll::discord_sdk)
-      list(APPEND release_files libdiscord_partner_sdk.dylib)
-    endif ()
 
     if (TARGET ll::openal)
       list(APPEND release_files libalut.dylib libopenal.dylib)
@@ -237,11 +204,6 @@ else(WINDOWS)
     set(release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/release")
     set(release_files "")
 
-    set(debug_llkdu_src "")
-    set(debug_llkdu_dst "")
-    set(release_llkdu_src "")
-    set(release_llkdu_dst "")
-    set(relwithdebinfo_llkdu_dst "")
 endif(WINDOWS)
 
 

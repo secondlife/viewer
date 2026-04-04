@@ -15,13 +15,11 @@ include(GStreamer010Plugin)
 
 ### media_plugin_gstreamer010
 
-if(NOT ADDRESS_SIZE EQUAL 32)
-  if(WINDOWS)
-    ##add_definitions(/FIXED:NO)
-  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-    add_definitions(-fPIC)
-  endif(WINDOWS)
-endif(NOT ADDRESS_SIZE EQUAL 32)
+if(WINDOWS)
+  ##add_definitions(/FIXED:NO)
+else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+  add_definitions(-fPIC)
+endif(WINDOWS)
 
 set(media_plugin_gstreamer010_SOURCE_FILES
     media_plugin_gstreamer010.cpp

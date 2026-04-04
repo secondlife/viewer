@@ -311,8 +311,8 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
             // location URL in invitation message, see EXT-6891
             if ("OfferTeleport" == notif_name)
             {
-                mLineEditor->setMaxTextLength(gSavedSettings.getS32(
-                        "teleport_offer_invitation_max_length"));
+                static LLCachedControl<S32> teleport_offer_invitation_max_length(gSavedSettings, "teleport_offer_invitation_max_length", 254);
+                mLineEditor->setMaxTextLength(teleport_offer_invitation_max_length);
             }
             else
             {

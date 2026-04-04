@@ -5,18 +5,11 @@ SET(DEBUG_PKG_CONFIG "YES")
 # Don't change this if manually set by user.
 IF("$ENV{PKG_CONFIG_LIBDIR}" STREQUAL "")
 
-  # Guess at architecture-specific system library paths.
-  if (ADDRESS_SIZE EQUAL 32)
-    SET(PKG_CONFIG_NO_MULTI_GUESS /usr/lib32 /usr/lib)
-    SET(PKG_CONFIG_NO_MULTI_LOCAL_GUESS /usr/local/lib32 /usr/local/lib)
-    SET(PKG_CONFIG_MULTI_GUESS /usr/lib/i386-linux-gnu)
-    SET(PKG_CONFIG_MULTI_LOCAL_GUESS /usr/local/lib/i386-linux-gnu)
-  else (ADDRESS_SIZE EQUAL 32)
-    SET(PKG_CONFIG_NO_MULTI_GUESS /usr/lib64 /usr/lib)
-    SET(PKG_CONFIG_NO_MULTI_LOCAL_GUESS /usr/local/lib64 /usr/local/lib)
-    SET(PKG_CONFIG_MULTI_GUESS /usr/local/lib/x86_64-linux-gnu)
-    SET(PKG_CONFIG_MULTI_LOCAL_GUESS /usr/local/lib/x86_64-linux-gnu)
-  endif (ADDRESS_SIZE EQUAL 32)
+  # 64-bit library paths.
+  SET(PKG_CONFIG_NO_MULTI_GUESS /usr/lib64 /usr/lib)
+  SET(PKG_CONFIG_NO_MULTI_LOCAL_GUESS /usr/local/lib64 /usr/local/lib)
+  SET(PKG_CONFIG_MULTI_GUESS /usr/local/lib/x86_64-linux-gnu)
+  SET(PKG_CONFIG_MULTI_LOCAL_GUESS /usr/local/lib/x86_64-linux-gnu)
 
   # Use DPKG architecture, if available.
   IF (${DPKG_ARCH})

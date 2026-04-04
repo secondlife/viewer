@@ -70,36 +70,9 @@ if (NOT CMAKE_BUILD_TYPE)
       "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
 
-# If someone has specified an address size, use that to determine the
-# architecture.  Otherwise, let the architecture specify the address size.
-if (ADDRESS_SIZE EQUAL 32)
-  set(ARCH i686)
-elseif (ADDRESS_SIZE EQUAL 64)
-  set(ARCH x86_64)
-else (ADDRESS_SIZE EQUAL 32)
-  # Note we cannot use if(DARWIN) here, this variable is set way lower
-  if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
-    set(ADDRESS_SIZE 64)
-    set(ARCH x86_64)
-  else()
-    # Use Python's platform.machine() since uname -m isn't available everywhere.
-    # Even if you can assume cygwin uname -m, the answer depends on whether
-    # you're running 32-bit cygwin or 64-bit cygwin! But even 32-bit Python will
-    # report a 64-bit processor.
-    execute_process(COMMAND
-            "${PYTHON_EXECUTABLE}" "-c"
-            "import platform; print( platform.machine() )"
-            OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string( REGEX MATCH ".*(64)$" RE_MATCH "${ARCH}" )
-    if( RE_MATCH AND ${CMAKE_MATCH_1} STREQUAL "64" )
-      set(ADDRESS_SIZE 64)
-      set(ARCH x86_64)
-    else()
-      set(ADDRESS_SIZE 32)
-      set(ARCH i686)
-    endif()
-  endif()
-endif (ADDRESS_SIZE EQUAL 32)
+# 64-bit only — no 32-bit support.
+set(ADDRESS_SIZE 64)
+set(ARCH x86_64)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS ON BOOL FORCE)
@@ -108,14 +81,8 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LINUX ON BOOl FORCE)
 
-  if (ADDRESS_SIZE EQUAL 32)
-    set(DEB_ARCHITECTURE i386)
-    set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
-    set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib32 ${CMAKE_SYSTEM_LIBRARY_PATH})
-  else (ADDRESS_SIZE EQUAL 32)
-    set(DEB_ARCHITECTURE amd64)
-    set(FIND_LIBRARY_USE_LIB64_PATHS ON)
-  endif (ADDRESS_SIZE EQUAL 32)
+  set(DEB_ARCHITECTURE amd64)
+  set(FIND_LIBRARY_USE_LIB64_PATHS ON)
 
   execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH
       RESULT_VARIABLE DPKG_RESULT

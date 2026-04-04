@@ -255,7 +255,12 @@ public:
     static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
                                             const std::string & value, std::string * ret_value);
     static HttpStatus setStaticPolicyOption(EPolicyOption opt, policy_t pclass,
-                                            policyCallback_t value, policyCallback_t * ret_value);;
+                                            policyCallback_t value, policyCallback_t * ret_value);
+
+    /// Set a callback invoked to apply proxy settings to a CURL handle.
+    /// Called with the CURL* handle as a void* when PO_LLPROXY is enabled.
+    /// This decouples llcorehttp from the proxy implementation in llmessage.
+    static void setProxyCallback(std::function<void(void*)> callback);
 
     /// Set a parameter on a class-based policy option.  Calls
     /// made after the start of the servicing thread are

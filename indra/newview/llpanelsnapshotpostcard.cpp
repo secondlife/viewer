@@ -124,7 +124,8 @@ void LLPanelSnapshotPostcard::onOpen(const LLSD& key)
 // virtual
 void LLPanelSnapshotPostcard::updateControls(const LLSD& info)
 {
-    getChild<LLUICtrl>("image_quality_slider")->setValue(gSavedSettings.getS32("SnapshotQuality"));
+    static LLCachedControl<S32> snapshot_quality(gSavedSettings, "SnapshotQuality", 75);
+    getChild<LLUICtrl>("image_quality_slider")->setValue(snapshot_quality());
     updateImageQualityLevel();
 
     const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;

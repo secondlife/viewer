@@ -207,10 +207,4 @@
 #define GLM_FORCE_SSE2 1
 #endif
 
-#if LL_ARM64
-#define KDU_NEON_INTRINSICS 1
-#else
-#define KDU_X86_INTRINSICS 1
-#endif
-
 #endif  //  not LL_LINDEN_PREPROCESSOR_H

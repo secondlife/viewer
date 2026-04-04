@@ -369,11 +369,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     mCommitCallbackRegistrar.add("Pref.ClearLog",               std::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
     mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      std::bind(&LLFloaterPreference::onDeleteTranscripts, this));
     mCommitCallbackRegistrar.add("UpdateFilter", std::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
-#ifdef LL_DISCORD
-    gSavedSettings.getControl("EnableDiscord")->getCommitSignal()->connect(std::bind(&LLAppViewer::updateDiscordActivity));
-    gSavedSettings.getControl("ShowDiscordActivityDetails")->getCommitSignal()->connect(std::bind(&LLAppViewer::updateDiscordActivity));
-    gSavedSettings.getControl("ShowDiscordActivityState")->getCommitSignal()->connect(std::bind(&LLAppViewer::updateDiscordActivity));
-#endif
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -533,11 +528,6 @@ bool LLFloaterPreference::postBuild()
         LL_WARNS() << "Failed to load labels from " << user_filename << ". Using default." << LL_ENDL;
         mLanguageCombobox->add("System default", LLSD("default"), ADD_TOP, true);
     }
-
-#ifndef LL_DISCORD
-    LLPanel* panel = getChild<LLPanel>("privacy_preferences_discord");
-    getChild<LLTabContainer>("privacy_tab_container")->removeTabPanel(panel);
-#endif
 
     return true;
 }

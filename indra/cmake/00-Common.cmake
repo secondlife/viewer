@@ -99,12 +99,8 @@ if (WINDOWS)
           /permissive-
       )
 
-  # Nicky: x64 implies SSE2
-  if( ADDRESS_SIZE EQUAL 32 )
-    add_compile_options( /arch:SSE2 )
-  endif()
+  # x64 implies SSE2, no need for explicit /arch:SSE2
 
-  # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_compile_options(/WX)
   endif (NOT VS_DISABLE_FATAL_WARNINGS)
@@ -153,9 +149,6 @@ if (LINUX)
           -fvisibility=hidden
   )
 
-  if (ADDRESS_SIZE EQUAL 32)
-    add_compile_options(-march=pentium4)
-  endif (ADDRESS_SIZE EQUAL 32)
 
   # this stops us requiring a really recent glibc at runtime
   add_compile_options(-fno-stack-protector)

@@ -81,7 +81,6 @@ public:
 protected:
     friend class LLImageJ2CImpl;
     friend class LLImageJ2COJ;
-    friend class LLImageJ2CKDU;
     friend class LLImageCompressionTester;
     void decodeFailed();
     void updateRawDiscardLevel();

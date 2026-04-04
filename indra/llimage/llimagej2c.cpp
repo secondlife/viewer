@@ -271,9 +271,7 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     // Note: This provides an estimation for the first to last quality layer of a given discard level
     // This is however an efficient approximation, as the true discard level boundary would be
     // in general too big for fast fetching.
-    // For details about the equation used here, see https://wiki.lindenlab.com/wiki/THX1138_KDU_Improvements#Byte_Range_Study
-
-    // Estimate the number of layers. This is consistent with what's done for j2c encoding in LLImageJ2CKDU::encodeImpl().
+    // Estimate the number of layers.
     constexpr S32 precision = 8; // assumed bitrate per component channel, might change in future for HDR support
     constexpr S32 max_components = 4; // assumed the file has four components; three color and alpha
     // Use MAX_IMAGE_SIZE_DEFAULT (currently 2048) if either dimension is unknown (zero)

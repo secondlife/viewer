@@ -128,8 +128,10 @@ void LLDrawPoolTree::endShadowPass(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    glPolygonOffset(gSavedSettings.getF32("RenderDeferredSpotShadowOffset"),
-                        gSavedSettings.getF32("RenderDeferredSpotShadowBias"));
+    static LLCachedControl<F32> render_deferred_spot_shadow_offset(gSavedSettings, "RenderDeferredSpotShadowOffset", 1.f);
+    static LLCachedControl<F32> render_deferred_spot_shadow_bias(gSavedSettings, "RenderDeferredSpotShadowBias", 1.f);
+    glPolygonOffset(render_deferred_spot_shadow_offset,
+                        render_deferred_spot_shadow_bias);
     gDeferredTreeShadowProgram.unbind();
 }
 

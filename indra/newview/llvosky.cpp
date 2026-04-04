@@ -528,7 +528,8 @@ void LLVOSky::initCubeMap()
         images.push_back(mShinyTex[side].getImageRaw());
     }
 
-    if (!mCubeMap && gSavedSettings.getBOOL("RenderWater") && LLCubeMap::sUseCubeMaps)
+    static LLCachedControl<bool> render_water(gSavedSettings, "RenderWater", false);
+    if (!mCubeMap && render_water && LLCubeMap::sUseCubeMaps)
     {
         mCubeMap = new LLCubeMap(false);
     }
@@ -573,7 +574,8 @@ void LLVOSky::restoreGL()
 
     updateDirections(psky);
 
-    if (gSavedSettings.getBOOL("RenderWater") && LLCubeMap::sUseCubeMaps)
+    static LLCachedControl<bool> render_water(gSavedSettings, "RenderWater", false);
+    if (render_water && LLCubeMap::sUseCubeMaps)
     {
         initCubeMap();
     }
