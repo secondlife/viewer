@@ -44,7 +44,6 @@
 #include "lljoystickbutton.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
-#include "llviewercontrol.h"
 #include "llselectmgr.h"
 #include "lltoolbarview.h"
 #include "llviewerparcelmgr.h"

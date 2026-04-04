@@ -43,7 +43,6 @@
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
-#include "llviewercontrol.h"
 #include "llviewermenufile.h"
 #include "llviewertexture.h"
 #include "llsdutil.h"

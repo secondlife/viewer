@@ -50,7 +50,6 @@
 #include "lltexturectrl.h"
 #include "lltrans.h"
 #include "llviewchildren.h"
-#include "llviewercontrol.h"
 #include "lluictrlfactory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"

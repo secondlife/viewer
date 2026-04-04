@@ -30,7 +30,6 @@
 #include "llviewerobjectlist.h"
 #include "pipeline.h"
 #include "llanimationstates.h"
-#include "llviewercontrol.h"
 #include "llmeshrepository.h"
 #include "llviewerregion.h"
 

@@ -42,7 +42,6 @@
 #include "llglheaders.h"
 #include "llviewertexlayer.h"
 #include "llviewercamera.h"
-#include "llviewercontrol.h"
 #include "llviewertexturelist.h"
 #include "llviewerjointmesh.h"
 #include "llvoavatar.h"

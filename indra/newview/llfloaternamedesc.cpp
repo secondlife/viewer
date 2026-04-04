@@ -40,7 +40,6 @@
 #include "lldbstrings.h"
 #include "lldir.h"
 #include "llfloaterperms.h"
-#include "llviewercontrol.h"
 #include "llviewermenufile.h"   // upload_new_resource()
 #include "llstatusbar.h"    // can_afford_transaction()
 #include "llnotificationsutil.h"

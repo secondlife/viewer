@@ -29,7 +29,6 @@
 
 #include "llskinningutil.h"
 #include "llvoavatar.h"
-#include "llviewercontrol.h"
 #include "llmeshrepository.h"
 #include "llvolume.h"
 #include "llrigginginfo.h"

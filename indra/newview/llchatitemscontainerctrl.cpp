@@ -40,7 +40,6 @@
 #include "llfloaterworldmap.h"
 #include "llviewermenu.h"
 
-#include "llviewercontrol.h"
 #include "llagentdata.h"
 
 #include "llslurl.h"

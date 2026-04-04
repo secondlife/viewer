@@ -28,7 +28,6 @@
 
 #include "llvowater.h"
 
-#include "llviewercontrol.h"
 
 #include "lldrawable.h"
 #include "lldrawpoolwater.h"

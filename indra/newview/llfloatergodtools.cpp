@@ -66,7 +66,6 @@
 #include "llxfermanager.h"
 #include "llvlcomposition.h"
 #include "llsurface.h"
-#include "llviewercontrol.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
 

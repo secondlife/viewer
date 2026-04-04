@@ -48,7 +48,6 @@
 #include "llappviewer.h"
 #include "llviewertexturelist.h"
 #include "llui.h"
-#include "llviewercontrol.h"
 
 #include "llfasttimer.h"
 #include "lltreeiterators.h"

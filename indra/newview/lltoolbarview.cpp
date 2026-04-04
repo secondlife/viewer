@@ -43,7 +43,6 @@
 
 #include "llagent.h"  // HACK for destinations guide on startup
 #include "llfloaterreg.h"  // HACK for destinations guide on startup
-#include "llviewercontrol.h"  // HACK for destinations guide on startup
 #include "llinventorymodel.h" // HACK to disable starter avatars button for NUX
 #include <functional>
 

@@ -31,7 +31,6 @@
 #include "llfloaterhelpbrowser.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
-#include "llviewercontrol.h"
 #include "llappviewer.h"
 #include "lllogininstance.h"
 

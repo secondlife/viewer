@@ -29,7 +29,6 @@
 #include "lldrawpool.h"
 #include "llrender.h"
 #include "llfasttimer.h"
-#include "llviewercontrol.h"
 
 #include "lldrawable.h"
 #include "lldrawpoolalpha.h"

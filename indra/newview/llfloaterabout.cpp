@@ -40,7 +40,6 @@
 #include "llvoiceclient.h"
 #include "lluictrlfactory.h"
 #include "llviewertexteditor.h"
-#include "llviewercontrol.h"
 #include "llviewerstats.h"
 #include "llviewerregion.h"
 #include "llversioninfo.h"

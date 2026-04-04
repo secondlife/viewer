@@ -31,7 +31,6 @@
 
 // linden library includes
 #include "llmath.h"
-//#include "llviewercontrol.h"
 #include "llcriticaldamp.h"
 #include "llfontgl.h"
 #include "llgl.h"

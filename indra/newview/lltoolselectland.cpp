@@ -32,7 +32,6 @@
 #include "llparcel.h"
 
 // Viewer includes
-#include "llviewercontrol.h"
 #include "llfloatertools.h"
 #include "llselectmgr.h"
 #include "llstatusbar.h"

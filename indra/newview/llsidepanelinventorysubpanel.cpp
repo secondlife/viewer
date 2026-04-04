@@ -37,7 +37,6 @@
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llradiogroup.h"
-#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include <functional>
 

@@ -31,7 +31,6 @@
 #include "llerror.h"
 #include "llfontgl.h"
 #include "llui.h"
-#include "llviewercontrol.h"
 #include "lluuid.h"
 
 #include "llcachename.h"

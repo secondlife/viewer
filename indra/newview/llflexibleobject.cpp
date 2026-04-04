@@ -37,7 +37,6 @@
 #include "llsky.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
-#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llworld.h"

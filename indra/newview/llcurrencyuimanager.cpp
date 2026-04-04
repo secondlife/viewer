@@ -31,7 +31,6 @@
 #include "lllineeditor.h"
 #include "llresmgr.h" // for LLLocale
 #include "lltrans.h"
-#include "llviewercontrol.h"
 #include "llversioninfo.h"
 
 #include "llcurrencyuimanager.h"

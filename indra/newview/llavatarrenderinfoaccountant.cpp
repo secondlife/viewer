@@ -37,7 +37,6 @@
 // other Linden headers
 #include "llcharacter.h"
 #include "lltimer.h"
-#include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"

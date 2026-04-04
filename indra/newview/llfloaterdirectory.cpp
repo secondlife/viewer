@@ -37,7 +37,6 @@
 #include "llpaneldirclassified.h"
 #include "llpaneldirweb.h"
 #include "llscrollbar.h"
-#include "llviewercontrol.h"
 #include "llpanelavatar.h"
 #include "llpanelclassified.h"
 #include "llpanelgroup.h"

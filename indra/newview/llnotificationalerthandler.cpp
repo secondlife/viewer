@@ -33,7 +33,6 @@
 #include "llnotifications.h"
 #include "llprogressview.h"
 #include "lltoastnotifypanel.h"
-#include "llviewercontrol.h"
 #include "llviewerwindow.h"
 
 #include "lltoastalertpanel.h"

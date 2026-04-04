@@ -33,7 +33,6 @@
 #include "llconsole.h"
 #include "lltextureview.h"
 #include "llresmgr.h"
-#include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "llsceneview.h"

@@ -35,7 +35,6 @@
 // Viewer includes
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
-#include "llviewercontrol.h"
 #include "llviewertexture.h"
 #include "llvertexbuffer.h"
 #include "llviewerdisplay.h"

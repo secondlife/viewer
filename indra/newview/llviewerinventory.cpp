@@ -39,7 +39,6 @@
 #include "llviewerfoldertype.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
-#include "llviewercontrol.h"
 #include "llconsole.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"

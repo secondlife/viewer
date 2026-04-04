@@ -36,7 +36,6 @@
 #include "lltextbox.h"
 #include "lluuid.h"
 #include "llpanel.h"
-#include "llviewercontrol.h"
 
 
 // *NOTE: Do not use mParent reference in the constructor, since it is

@@ -40,7 +40,6 @@
 #include "llrendersphere.h"
 #include "llviewercamera.h"
 #include "llvoavatar.h"
-#include "llviewercontrol.h"
 
 const F32 BEAM_SPACING = 0.075f;
 

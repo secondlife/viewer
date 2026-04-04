@@ -34,7 +34,6 @@
 
 // viewer includes
 #include "llcallingcard.h"
-#include "llviewercontrol.h"
 #include "llfloaterworldmap.h"
 #include "llworldmapview.h"
 #include "lltracker.h"

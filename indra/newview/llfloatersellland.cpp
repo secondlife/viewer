@@ -37,7 +37,6 @@
 #include "llparcel.h"
 #include "llselectmgr.h"
 #include "lltexturectrl.h"
-#include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"

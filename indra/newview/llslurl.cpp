@@ -30,7 +30,6 @@
 #include "llslurl.h"
 
 #include "llpanellogin.h"
-#include "llviewercontrol.h"
 #include "llviewernetwork.h"
 
 #include "curl/curl.h"

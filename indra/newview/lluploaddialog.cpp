@@ -34,7 +34,6 @@
 #include "llbutton.h"
 #include "llkeyboard.h"
 #include "llfocusmgr.h"
-#include "llviewercontrol.h"
 #include "llrootview.h"
 
 // static

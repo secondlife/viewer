@@ -32,7 +32,6 @@
 #include "llfasttimer.h"
 #include "llmemory.h"
 
-//#include "llviewercontrol.h"
 #include "llxmltree.h"
 #include "llavatarappearance.h"
 #include "llwearable.h"
@@ -44,7 +43,6 @@
 #define HEADER_ASCII "Linden Mesh 1.0"
 #define HEADER_BINARY "Linden Binary Mesh 1.0"
 
-//extern LLControlGroup gSavedSettings;                           // read only
 
 LLPolyMorphData *clone_morph_param_duplicate(const LLPolyMorphData *src_data,
                          const std::string &name);

@@ -39,7 +39,6 @@
 
 // project include
 #include "llviewertexteditor.h"
-#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewertexturelist.h"
 

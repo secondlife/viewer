@@ -53,7 +53,6 @@
 #include "llnotificationsutil.h"
 #include "llcallbacklist.h"
 #include "llpreview.h"
-#include "llviewercontrol.h"
 #include "llvoavatarself.h"
 #include "llsdutil.h"
 #include <deque>

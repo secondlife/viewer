@@ -36,7 +36,6 @@
 
 // viewer project includes
 #include "llagent.h"
-#include "llviewercontrol.h"
 #include "llnotificationsutil.h"
 #include "llpaneldirbrowser.h"
 #include "llresmgr.h"

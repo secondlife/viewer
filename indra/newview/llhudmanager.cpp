@@ -35,7 +35,6 @@
 #include "llhudeffect.h"
 #include "pipeline.h"
 #include "llui.h"
-#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 
 // These are loaded from saved settings.

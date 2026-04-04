@@ -28,7 +28,6 @@
 
 #include "llviewerjointattachment.h"
 
-#include "llviewercontrol.h"
 #include "lldrawable.h"
 #include "llgl.h"
 #include "llhudtext.h"

@@ -43,7 +43,6 @@
 #include "llpaneldirbrowser.h"
 #include "llsearcheditor.h"
 #include "lltextbox.h"
-#include "llviewercontrol.h"
 #include <functional>
 
 using namespace std::placeholders;

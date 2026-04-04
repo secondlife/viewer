@@ -33,7 +33,6 @@
 #include "llagent.h"
 #include "llselectmgr.h"
 #include "llworld.h"
-#include "llviewercontrol.h"
 #include "llmenugl.h"
 #include "lltoolmgr.h"
 #include "llviewerobject.h"

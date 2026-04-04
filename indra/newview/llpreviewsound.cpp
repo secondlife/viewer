@@ -33,7 +33,6 @@
 #include "lllineeditor.h"
 #include "llpreviewsound.h"
 #include "llresmgr.h"
-#include "llviewercontrol.h"
 #include "llviewermessage.h"  // send_guid_sound_trigger
 #include "lluictrlfactory.h"
 

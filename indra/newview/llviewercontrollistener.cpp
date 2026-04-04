@@ -30,7 +30,6 @@
 
 #include "llviewercontrollistener.h"
 
-#include "llviewercontrol.h"
 #include "llcontrol.h"
 #include "llerror.h"
 #include "llsdutil.h"

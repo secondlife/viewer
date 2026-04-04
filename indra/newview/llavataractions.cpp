@@ -64,7 +64,6 @@
 #include "llparcel.h"
 #include "llrecentpeople.h"
 #include "lltrans.h"
-#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewermessage.h"    // for handle_lure
 #include "llviewernetwork.h" //LLGridManager

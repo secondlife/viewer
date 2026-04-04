@@ -27,7 +27,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewerpartsource.h"
 
-#include "llviewercontrol.h"
 #include "llrender.h"
 
 #include "llagent.h"

@@ -48,7 +48,6 @@
 #include "llviewergesture.h"
 #include "llviewermenu.h"
 #include "llviewerinventory.h"
-#include "llviewercontrol.h"
 #include "llfloaterperms.h"
 #include <functional>
 

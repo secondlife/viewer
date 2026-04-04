@@ -30,7 +30,6 @@
 #include "llface.h"
 #include "llviewertextureanim.h"
 
-#include "llviewercontrol.h"
 #include "llvolume.h"
 #include "m3math.h"
 #include "llmatrix4a.h"

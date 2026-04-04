@@ -30,7 +30,6 @@
 
 #include "lldrawpooltree.h"
 
-#include "llviewercontrol.h"
 #include "lldir.h"
 #include "llprimitive.h"
 #include "lltree_common.h"

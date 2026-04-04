@@ -32,7 +32,6 @@
 #include "llfloaterhowto.h"
 #include "llfloaterwebcontent.h"
 #include "llsdserialize.h"
-#include "llviewercontrol.h"
 #include "llviewergenericmessage.h"
 #include "llweb.h"
 

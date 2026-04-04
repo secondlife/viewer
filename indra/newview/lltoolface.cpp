@@ -34,7 +34,6 @@
 #include "v3math.h"
 
 // Viewer includes
-#include "llviewercontrol.h"
 #include "llselectmgr.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"

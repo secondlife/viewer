@@ -33,7 +33,6 @@
 
 // Viewer includes
 #include "llagent.h"
-#include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llviewerparcelmgr.h"
 #include "llvoavatarself.h"

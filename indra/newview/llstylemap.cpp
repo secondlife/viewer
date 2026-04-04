@@ -31,7 +31,6 @@
 #include "llstring.h"
 #include "llui.h"
 #include "llslurl.h"
-#include "llviewercontrol.h"
 #include "llagent.h"
 
 const LLStyle::Params &LLStyleMap::lookupAgent(const LLUUID &source)

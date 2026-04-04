@@ -32,7 +32,6 @@
 #include "lltexturectrl.h"
 #include "llcolorswatch.h"
 #include "llxyvector.h"
-#include "llviewercontrol.h"
 
 namespace
 {

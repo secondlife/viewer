@@ -28,7 +28,6 @@
 
 #include "llvograss.h"
 
-#include "llviewercontrol.h"
 
 #include "llagentcamera.h"
 #include "llnotificationsutil.h"
