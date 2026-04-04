@@ -31,6 +31,8 @@
 #include "lluuid.h"
 #include "llextendedstatus.h"
 
+#include <boost/signals2/connection.hpp>
+
 class LLViewerObject;
 class LLMessageSystem;
 class LLMuteListObserver;
@@ -124,8 +126,13 @@ public:
 
     static bool isLinden(const std::string& name);
 
-    bool isLoaded() const { return mLoadState == ML_LOADED; }
-    bool isFailed() const { return mLoadState == ML_FAILED; }
+    // Load state accessors.
+    bool isLoaded() const { return mLoadState == ML_LOADED; } // Loaded, but not necessarily from server.
+    bool isFailed() const { return mLoadState == ML_FAILED; } // Unable to load any mute list. Server did not reply.
+    // Loaded from server, which is the only source we consider authoritative.
+    bool isLoadedFromServer() const { return isLoaded() && (mLoadSource == MLS_SERVER || mLoadSource == MLS_SERVER_EMPTY); }
+    // Loaded, but from cache. Would be nice to upgrade to a server load from here if possible.
+    bool isLoadedDegraded() const { return isLoaded() && !isLoadedFromServer(); }
 
     // Advance the load state machine, trying cache fallback if necessary.
     // Return value indicates mute list consumption readiness.
@@ -138,6 +145,9 @@ public:
 
     // call this method on logout to save everything.
     void cache(const LLUUID& agent_id);
+
+    // Handler for region change event, used for server request retries if isLoadedDegraded() is true
+    void onRegionChanged();
 
 private:
     void clearCachedMutes();
@@ -198,6 +208,8 @@ private:
     EMuteListSource mLoadSource;
     F64 mRequestStartTime;
     bool mTriedCacheFallback;
+    bool mTriedRegionChangeRetry;
+    boost::signals2::connection mRegionChangedCallback;
 
     friend class LLDispatchEmptyMuteList;
 };
