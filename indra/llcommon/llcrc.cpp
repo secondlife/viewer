@@ -190,7 +190,7 @@ void LLCRC::update(const std::string& filename)
                 LL_WARNS() << "Short read on " << filename << LL_ENDL;
             }
 
-            update(std::span<const U8>(data.data(), nread));
+            update(std::span(data).first(nread));
         }
         else
         {

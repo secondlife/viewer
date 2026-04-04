@@ -968,7 +968,7 @@ void LLVertexBuffer::flushBuffers()
 }
 
 //static
-U32 LLVertexBuffer::calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices)
+U32 LLVertexBuffer::calcOffsets(const U32& typemask, std::span<U32> offsets, U32 num_vertices)
 {
     U32 offset = 0;
     for (U32 i=0; i<TYPE_TEXTURE_INDEX; i++)
@@ -976,7 +976,7 @@ U32 LLVertexBuffer::calcOffsets(const U32& typemask, U32* offsets, U32 num_verti
         U32 mask = 1<<i;
         if (typemask & mask)
         {
-            if (offsets && LLVertexBuffer::sTypeSize[i])
+            if (LLVertexBuffer::sTypeSize[i])
             {
                 offsets[i] = offset;
                 offset += LLVertexBuffer::sTypeSize[i]*num_vertices;
@@ -1148,7 +1148,7 @@ bool LLVertexBuffer::updateNumVerts(U32 nverts)
 
     bool success = true;
 
-    U32 needed_size = calcOffsets(mTypeMask, mOffsets.data(), nverts);
+    U32 needed_size = calcOffsets(mTypeMask, mOffsets, nverts);
 
     if (needed_size != mSize)
     {

@@ -116,7 +116,7 @@ public:
     //get the size of a buffer with the given typemask and vertex count
     //fill offsets with the offset of each vertex component array into the buffer
     // indexed by the following enum
-    [[nodiscard]] static U32 calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices);
+    [[nodiscard]] static U32 calcOffsets(const U32& typemask, std::span<U32> offsets, U32 num_vertices);
 
     // flush any pending mapped buffers
     static void flushBuffers();

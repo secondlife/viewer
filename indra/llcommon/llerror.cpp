@@ -43,6 +43,7 @@
 #else
 # include <io.h>
 #endif // !LL_WINDOWS
+#include <span>
 #include <vector>
 #include "string.h"
 
@@ -1307,17 +1308,16 @@ namespace {
     }
 
     bool checkLevelMap( const LevelMap& map,
-                        const char *const * keys,
-                        size_t count,
+                        std::span<const char* const> keys,
                         LLError::ELevel& level)
     {
         bool found_level = false;
 
         LLError::ELevel tag_level = LLError::LEVEL_NONE;
 
-        for (size_t i = 0; i < count; i++)
+        for (const char* key : keys)
         {
-            LevelMap::const_iterator it = map.find(keys[i]);
+            LevelMap::const_iterator it = map.find(key);
             if (it != map.end())
             {
                 found_level = true;
@@ -1371,8 +1371,8 @@ namespace LLError
         checkLevelMap(s->mFunctionLevelMap, function_name, compareLevel)
         || checkLevelMap(s->mClassLevelMap, class_name, compareLevel)
         || checkLevelMap(s->mFileLevelMap, abbreviateFile(site.mFile), compareLevel)
-        || (site.mTagCount > 0
-            ? checkLevelMap(s->mTagLevelMap, site.mTags.data(), site.mTagCount, compareLevel)
+        || (!site.mTags.empty()
+            ? checkLevelMap(s->mTagLevelMap, site.mTags, compareLevel)
             : false);
 
         site.mCached = true;

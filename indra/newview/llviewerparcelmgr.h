@@ -36,6 +36,7 @@
 #include <boost/signals2.hpp>
 
 #include <functional>
+#include <span>
 
 class LLUUID;
 class LLMessageSystem;
@@ -106,9 +107,9 @@ public:
 
     // Write highlight segments from a packed bitmap of the appropriate
     // parcel.
-    void writeSegmentsFromBitmap(U8* bitmap, U8* segments);
+    void writeSegmentsFromBitmap(std::span<const U8> bitmap, U8* segments);
 
-    void writeAgentParcelFromBitmap(U8* bitmap);
+    void writeAgentParcelFromBitmap(std::span<const U8> bitmap);
 
     // Select the collision parcel
     void selectCollisionParcel();

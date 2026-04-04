@@ -693,7 +693,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
             pos[index].set(draw_center_rect.mRight, draw_outer_rect.mTop, 0.f);
             index++;
 
-            gGL.vertexBatchPreTransformed(std::span<const LLVector4a>(pos.data(), NUM_VERTICES), std::span<const LLVector2>(uv.data(), NUM_VERTICES));
+            gGL.vertexBatchPreTransformed(pos, uv);
         }
         gGL.end();
     }
@@ -769,7 +769,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
             pos[index].set(ui_translation.mV[VX] + scaled_width, ui_translation.mV[VY], 0.f);
             index++;
 
-            gGL.vertexBatchPreTransformed(std::span<const LLVector4a>(pos.data(), NUM_VERTICES), std::span<const LLVector2>(uv.data(), NUM_VERTICES));
+            gGL.vertexBatchPreTransformed(std::span(pos).first(NUM_VERTICES), std::span(uv).first(NUM_VERTICES));
         }
         gGL.end();
     }

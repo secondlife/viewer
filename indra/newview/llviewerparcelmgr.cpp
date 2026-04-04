@@ -350,7 +350,7 @@ void LLViewerParcelMgr::writeHighlightSegments(F32 west, F32 south, F32 east,
 }
 
 
-void LLViewerParcelMgr::writeSegmentsFromBitmap(U8* bitmap, U8* segments)
+void LLViewerParcelMgr::writeSegmentsFromBitmap(std::span<const U8> bitmap, U8* segments)
 {
     S32 x;
     S32 y;
@@ -386,7 +386,7 @@ void LLViewerParcelMgr::writeSegmentsFromBitmap(U8* bitmap, U8* segments)
 }
 
 
-void LLViewerParcelMgr::writeAgentParcelFromBitmap(U8* bitmap)
+void LLViewerParcelMgr::writeAgentParcelFromBitmap(std::span<const U8> bitmap)
 {
     S32 x;
     S32 y;
@@ -1740,7 +1740,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
             std::vector<U8> bitmap(bitmap_size);
             msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap.data(), bitmap_size);
 
-            parcel_mgr.writeAgentParcelFromBitmap(bitmap.data());
+            parcel_mgr.writeAgentParcelFromBitmap(bitmap);
 
             // Let interesting parties know about agent parcel change.
             LLViewerParcelMgr* instance = LLViewerParcelMgr::getInstance();
@@ -1847,7 +1847,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                 msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap.data(), bitmap_size);
 
                 parcel_mgr.resetSegments(parcel_mgr.mHighlightSegments);
-                parcel_mgr.writeSegmentsFromBitmap( bitmap.data(), parcel_mgr.mHighlightSegments );
+                parcel_mgr.writeSegmentsFromBitmap( bitmap, parcel_mgr.mHighlightSegments );
 
                 parcel_mgr.mCurrentParcelSelection->mWholeParcelSelected = true;
             }
@@ -1899,7 +1899,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
         msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap.data(), bitmap_size);
 
         parcel_mgr.resetSegments(parcel_mgr.mCollisionSegments);
-        parcel_mgr.writeSegmentsFromBitmap( bitmap.data(), parcel_mgr.mCollisionSegments );
+        parcel_mgr.writeSegmentsFromBitmap( bitmap, parcel_mgr.mCollisionSegments );
 
     }
     else if (sequence_id == HOVERED_PARCEL_SEQ_ID)
