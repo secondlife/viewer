@@ -544,7 +544,7 @@ void LLUICtrl::setControlVariable(LLControlVariable* control)
     if (control)
     {
         mControlVariable = control;
-        mControlConnection = mControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD&, const LLSD& newval) { controlListener(newval, handle, "value"); });
+        mControlConnection = mControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD& newval, const LLSD&) { controlListener(newval, handle, "value"); });
         setValue(mControlVariable->getValue());
     }
 }
@@ -589,7 +589,7 @@ void LLUICtrl::setEnabledControlVariable(LLControlVariable* control)
     if (control)
     {
         mEnabledControlVariable = control;
-        mEnabledControlConnection = mEnabledControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD&, const LLSD& newval) { controlListener(newval, handle, "enabled"); });
+        mEnabledControlConnection = mEnabledControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD& newval, const LLSD&) { controlListener(newval, handle, "enabled"); });
         setEnabled(mEnabledControlVariable->getValue().asBoolean());
     }
 }
@@ -604,7 +604,7 @@ void LLUICtrl::setDisabledControlVariable(LLControlVariable* control)
     if (control)
     {
         mDisabledControlVariable = control;
-        mDisabledControlConnection = mDisabledControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD&, const LLSD& newval) { controlListener(newval, handle, "disabled"); });
+        mDisabledControlConnection = mDisabledControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD& newval, const LLSD&) { controlListener(newval, handle, "disabled"); });
         setEnabled(!(mDisabledControlVariable->getValue().asBoolean()));
     }
 }
@@ -619,7 +619,7 @@ void LLUICtrl::setMakeVisibleControlVariable(LLControlVariable* control)
     if (control)
     {
         mMakeVisibleControlVariable = control;
-        mMakeVisibleControlConnection = mMakeVisibleControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD&, const LLSD& newval) { controlListener(newval, handle, "visible"); });
+        mMakeVisibleControlConnection = mMakeVisibleControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD& newval, const LLSD&) { controlListener(newval, handle, "visible"); });
         setVisible(mMakeVisibleControlVariable->getValue().asBoolean());
     }
 }
@@ -634,7 +634,7 @@ void LLUICtrl::setMakeInvisibleControlVariable(LLControlVariable* control)
     if (control)
     {
         mMakeInvisibleControlVariable = control;
-        mMakeInvisibleControlConnection = mMakeInvisibleControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD&, const LLSD& newval) { controlListener(newval, handle, "invisible"); });
+        mMakeInvisibleControlConnection = mMakeInvisibleControlVariable->getSignal()->connect([handle = getHandle()](LLControlVariable*, const LLSD& newval, const LLSD&) { controlListener(newval, handle, "invisible"); });
         setVisible(!(mMakeInvisibleControlVariable->getValue().asBoolean()));
     }
 }
