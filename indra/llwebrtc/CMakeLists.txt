@@ -1,7 +1,7 @@
 # -*- cmake -*-
 
-# some webrtc headers require C++ 20
-set(CMAKE_CXX_STANDARD 20)
+# some webrtc headers require C++ 20 (now C++23 project-wide)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(00-Common)
