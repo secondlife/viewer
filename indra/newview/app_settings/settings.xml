@@ -13936,17 +13936,6 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
-    <key>WindLightUseAtmosShaders</key>
-    <map>
-      <key>Comment</key>
-      <string>DEPRECATED (only true supported) - Whether to enable or disable WindLight atmospheric shaders.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>FullScreen</key>
     <map>
       <key>Comment</key>

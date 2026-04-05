@@ -184,7 +184,6 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 
     if (gPipeline.isInit())
     {
-        // ALM depends onto atmospheric shaders, state might have changed
         LLPipeline::refreshCachedSettings();
     }
 

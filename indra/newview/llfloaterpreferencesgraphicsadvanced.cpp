@@ -284,24 +284,6 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
     LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
     LLSliderCtrl* cas_slider = getChild<LLSliderCtrl>("RenderSharpness");
 
-    // disabled windlight
-    if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
-    {
-        sky->setEnabled(false);
-        sky_text->setEnabled(false);
-
-        //deferred needs windlight, disable deferred
-        ctrl_shadows->setEnabled(false);
-        ctrl_shadows->setValue(0);
-        shadows_text->setEnabled(false);
-
-        ctrl_ssao->setEnabled(false);
-        ctrl_ssao->setValue(false);
-
-        ctrl_dof->setEnabled(false);
-        ctrl_dof->setValue(false);
-    }
-
     // disabled deferred
     if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"))
     {
