@@ -28,8 +28,7 @@
 // mini-map floater, etc.
 
 
-#ifndef LL_MULTI_FLOATER_H
-#define LL_MULTI_FLOATER_H
+#pragma once
 
 #include "llfloater.h"
 #include "lltabcontainer.h" // for LLTabContainer::eInsertionPoint
@@ -99,4 +98,3 @@ private:
     virtual void computeResizeLimits(S32& new_min_width, S32& new_min_height);
 };
 
-#endif  // LL_MULTI_FLOATER_H

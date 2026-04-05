@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCLIPBOARD_H
-#define LL_LLCLIPBOARD_H
+#pragma once
 
 #include "llstring.h"
 #include "lluuid.h"
@@ -88,4 +87,3 @@ private:
     int mGeneration;                    // Incremented when the clipboard changes so that interested parties can check for changes on the clipboard.
 };
 
-#endif  // LL_LLCLIPBOARD_H

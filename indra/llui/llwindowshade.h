@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOWSHADE_H
-#define LL_LLWINDOWSHADE_H
+#pragma once
 
 #include "lluictrl.h"
 #include "llnotifications.h"
@@ -82,4 +81,3 @@ private:
     LLUIColor           mTextColor;
 };
 
-#endif // LL_LLWINDOWSHADE_H

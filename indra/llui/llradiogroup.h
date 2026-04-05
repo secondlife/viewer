@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLRADIOGROUP_H
-#define LL_LLRADIOGROUP_H
+#pragma once
 
 #include "lluictrl.h"
 #include "llcheckboxctrl.h"
@@ -111,4 +110,3 @@ private:
     bool                mAllowDeselect; // user can click on an already selected option to deselect it
 };
 
-#endif

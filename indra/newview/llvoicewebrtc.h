@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LL_VOICE_WEBRTC_H
-#define LL_VOICE_WEBRTC_H
+#pragma once
 
 class LLWebRTCProtocolParser;
 
@@ -757,5 +756,4 @@ class LLVoiceWebRTCAdHocConnection : public LLVoiceWebRTCConnection
 
 #define VOICE_ELAPSED LLVoiceTimer(__FUNCTION__);
 
-#endif //LL_WebRTC_VOICE_CLIENT_H
 

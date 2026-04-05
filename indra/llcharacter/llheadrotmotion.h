@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHEADROTMOTION_H
-#define LL_LLHEADROTMOTION_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -212,5 +211,4 @@ public:
     bool                mEyesClosed;
 };
 
-#endif // LL_LLHEADROTMOTION_H
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLPANELTOPINFOBAR_H_
-#define LLPANELTOPINFOBAR_H_
+#pragma once
 
 #include <array>
 #include "llpanel.h"
@@ -176,4 +175,3 @@ private:
     resize_signal_t mResizeSignal;
 };
 
-#endif /* LLPANELTOPINFOBAR_H_ */

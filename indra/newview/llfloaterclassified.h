@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERCLASSIFIED_H
-#define LL_LLFLOATERCLASSIFIED_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -42,4 +41,3 @@ public:
     bool matchesKey(const LLSD& key) override;
 };
 
-#endif // LL_LLFLOATERCLASSIFIED_H

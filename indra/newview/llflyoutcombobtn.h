@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLYOUTCOMBOBTN_H
-#define LL_LLFLYOUTCOMBOBTN_H
+#pragma once
 
 /*TODO: Make this button generic */
 
@@ -73,4 +72,3 @@ private:
 
     LLUICtrl::commit_signal_t   mActionSignal;
 };
-#endif // LL_LLFLYOUTCOMBOBTN_H

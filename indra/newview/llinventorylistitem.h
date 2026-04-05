@@ -27,8 +27,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYLISTITEM_H
-#define LL_LLINVENTORYLISTITEM_H
+#pragma once
 
 // llcommon
 #include "llassettype.h"
@@ -239,4 +238,3 @@ private:
     bool            mNeedsRefresh;
 };
 
-#endif //LL_LLINVENTORYLISTITEM_H

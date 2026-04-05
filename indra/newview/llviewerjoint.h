@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERJOINT_H
-#define LL_LLVIEWERJOINT_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header Files
@@ -62,6 +61,5 @@ public:
     virtual void drawNormals() {}
 };
 
-#endif // LL_LLVIEWERJOINT_H
 
 

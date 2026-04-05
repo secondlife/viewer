@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLSKY_H
-#define LL_LLDRAWPOOLSKY_H
+#pragma once
 
 #include "lldrawpool.h"
 
@@ -65,4 +64,3 @@ public:
 
 };
 
-#endif // LL_LLDRAWPOOLSKY_H

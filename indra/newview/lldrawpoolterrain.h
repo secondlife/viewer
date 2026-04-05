@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLTERRAIN_H
-#define LL_LLDRAWPOOLTERRAIN_H
+#pragma once
 
 #include "lldrawpool.h"
 
@@ -87,4 +86,3 @@ private:
     void hilightParcelOwners();
 };
 
-#endif // LL_LLDRAWPOOLSIMPLE_H

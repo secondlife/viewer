@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOLUME_OCTREE_H
-#define LL_LLVOLUME_OCTREE_H
+#pragma once
 
 #include "linden_common.h"
 #include "llmemory.h"
@@ -212,4 +211,3 @@ public:
     }
 };
 
-#endif

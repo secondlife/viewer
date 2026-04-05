@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_OPREQUEST_H_
-#define _LLCORE_HTTP_OPREQUEST_H_
+#pragma once
 
 
 #include "linden_common.h"      // Modifies curl/curl.h interfaces
@@ -240,5 +239,4 @@ curl_slist * append_headers_to_slist(const HttpHeaders::ptr_t &, curl_slist * sl
 
 }   // end namespace LLCore
 
-#endif  // _LLCORE_HTTP_OPREQUEST_H_
 

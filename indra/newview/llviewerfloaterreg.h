@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERFLOATERREG_H
-#define LL_LLVIEWERFLOATERREG_H
+#pragma once
 
 class LLViewerFloaterReg
 {
@@ -34,4 +33,3 @@ public:
 };
 
 
-#endif // LL_LLVIEWERFLOATERREG_H

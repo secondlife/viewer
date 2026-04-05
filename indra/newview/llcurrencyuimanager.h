@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCURRENCYUIMANAGER_H
-#define LL_LLCURRENCYUIMANAGER_H
+#pragma once
 
 class LLPanel;
 
@@ -93,6 +92,5 @@ private:
     Impl& impl;
 };
 
-#endif
 
 

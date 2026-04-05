@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCONTAINERVIEW_H
-#define LL_LLCONTAINERVIEW_H
+#pragma once
 
 #include "stdtypes.h"
 #include "lltextbox.h"
@@ -91,4 +90,3 @@ protected:
     bool mDisplayChildren;
     LLWString mLabel;
 };
-#endif // LL_CONTAINERVIEW_

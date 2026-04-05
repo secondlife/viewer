@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLFLOATERGROUPBULKBAN_H
-#define LL_LLFLOATERGROUPBULKBAN_H
+#pragma once
 
 #include "llfloater.h"
 #include "lluuid.h"
@@ -45,4 +44,3 @@ protected:
     impl* mImpl;
 };
 
-#endif // LL_LLFLOATERGROUPBULKBAN_H

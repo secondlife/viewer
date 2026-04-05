@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERMEDIA_H
-#define LLVIEWERMEDIA_H
+#pragma once
 
 #include "llfocusmgr.h"
 #include "lleditmenuhandler.h"
@@ -519,4 +518,3 @@ private:
 
 };
 
-#endif  // LLVIEWERMEDIA_H

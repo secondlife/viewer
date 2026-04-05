@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCIPHER_H
-#define LLCIPHER_H
+#pragma once
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLCipher
@@ -53,4 +52,3 @@ public:
     virtual U32 requiredEncryptionSpace(U32 src_len) const = 0 ;
 };
 
-#endif

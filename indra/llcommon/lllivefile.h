@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLIVEFILE_H
-#define LL_LLLIVEFILE_H
+#pragma once
 
 extern const F32 DEFAULT_CONFIG_FILE_REFRESH;
 
@@ -92,4 +91,3 @@ private:
     Impl& impl;
 };
 
-#endif //LL_LLLIVEFILE_H

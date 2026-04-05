@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOLSELECTRECT_H
-#define LL_LLTOOLSELECTRECT_H
+#pragma once
 
 #include "lltool.h"
 #include "lltoolselect.h"
@@ -61,4 +60,3 @@ protected:
 };
 
 
-#endif

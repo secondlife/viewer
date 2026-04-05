@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERGOTOLINE_H
-#define LL_LLFLOATERGOTOLINE_H
+#pragma once
 
 #include "llfloater.h"
 #include "lllineeditor.h"
@@ -63,4 +62,3 @@ protected:
         void onGotoBoxCommit();
 };
 
-#endif  // LL_LLFLOATERGOTOLINE_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERASSETTYPE_H
-#define LL_LLVIEWERASSETTYPE_H
+#pragma once
 
 #include <string>
 #include "llassettype.h"
@@ -46,4 +45,3 @@ protected:
     ~LLViewerAssetType() = default;
 };
 
-#endif // LL_LLVIEWERASSETTYPE_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERMARKETPLACELISTINGS_H
-#define LL_LLFLOATERMARKETPLACELISTINGS_H
+#pragma once
 
 #include "llfloater.h"
 #include "llinventoryfilter.h"
@@ -231,4 +230,3 @@ public:
     LLMultiItemProperties(const LLSD& key);
 };
 
-#endif // LL_LLFLOATERMARKETPLACELISTINGS_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLOGININSTANCE_H
-#define LL_LLLOGININSTANCE_H
+#pragma once
 
 #include "lleventdispatcher.h"
 #include "lleventapi.h"
@@ -110,4 +109,3 @@ private:
     LLEventDispatcher mDispatcher;
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERINVENTORYSETTINGS_H
-#define LL_LLFLOATERINVENTORYSETTINGS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -47,4 +46,3 @@ private:
     void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 };
 
-#endif

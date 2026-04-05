@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWBORDER_H
-#define LL_LLVIEWBORDER_H
+#pragma once
 
 #include "llview.h"
 
@@ -105,5 +104,4 @@ private:
     bool        mHasKeyboardFocus;
 };
 
-#endif // LL_LLVIEWBORDER_H
 

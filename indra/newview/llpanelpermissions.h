@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPERMISSIONS_H
-#define LL_LLPANELPERMISSIONS_H
+#pragma once
 
 #include "llpanel.h"
 #include "llstyle.h"
@@ -101,4 +100,3 @@ private:
 };
 
 
-#endif // LL_LLPANELPERMISSIONS_H

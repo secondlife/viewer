@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLWEBRTC_IMPL_H
-#define LLWEBRTC_IMPL_H
+#pragma once
 
 #define LL_MAKEDLL
 #if defined(_WIN32) || defined(_WIN64)
@@ -682,4 +681,3 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
 #pragma warning(pop)
 #endif
 
-#endif // LLWEBRTC_IMPL_H

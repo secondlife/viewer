@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERGLTFASSETEDITOR_H
-#define LL_LLFLOATERGLTFASSETEDITOR_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -106,4 +105,3 @@ private:
     LLSpinCtrl* mCtrlRotZ = nullptr;
 };
 
-#endif

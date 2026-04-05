@@ -29,8 +29,7 @@
 // accordingly. We should probably restructure the way tools are
 // managed so that this is handled automatically.
 
-#ifndef LL_LLTOOLPIPETTE_H
-#define LL_LLTOOLPIPETTE_H
+#pragma once
 
 #include "lltool.h"
 #include "lltextureentry.h"
@@ -63,4 +62,3 @@ protected:
     std::string     mTooltipMsg;
 };
 
-#endif //LL_LLTOOLPIPETTE_H

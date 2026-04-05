@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLOUTFITGALLERYCTRL_H
-#define LL_LLOUTFITGALLERYCTRL_H
+#pragma once
 
 #include "llextendedstatus.h"
 #include "lliconctrl.h"
@@ -302,4 +301,3 @@ private:
     LLHandle<LLPanel> mPanelHandle;
 };
 
-#endif  // LL_LLOUTFITGALLERYCTRL_H

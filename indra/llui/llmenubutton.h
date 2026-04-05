@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMENUBUTTON_H
-#define LL_LLMENUBUTTON_H
+#pragma once
 
 #include "llbutton.h"
 
@@ -98,4 +97,3 @@ private:
 };
 
 
-#endif  // LL_LLMENUBUTTON_H

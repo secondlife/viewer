@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPARTDATA_H
-#define LL_LLPARTDATA_H
+#pragma once
 
 #include "lluuid.h"
 #include "v3math.h"
@@ -276,4 +275,3 @@ protected:
     S32     mNumParticles;                  // Number of particles generated
 };
 
-#endif // LL_LLPARTDATA_H

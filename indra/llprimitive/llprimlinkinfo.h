@@ -26,8 +26,7 @@
  */
 
 
-#ifndef LL_PRIM_LINK_INFO_H
-#define LL_PRIM_LINK_INFO_H
+#pragma once
 
 // system includes
 #include <iostream>
@@ -389,5 +388,4 @@ void LLPrimLinkInfo< DATA_TYPE >::computeBoundingSphere()
 }
 
 
-#endif
 

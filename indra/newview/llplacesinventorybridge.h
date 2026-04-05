@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPLACESINVENTORYBRIDGE_H
-#define LL_LLPLACESINVENTORYBRIDGE_H
+#pragma once
 
 #include "llinventorybridge.h"
 
@@ -97,4 +96,3 @@ public:
                                             U32 flags = 0x00) const;
 };
 
-#endif // LL_LLPLACESINVENTORYBRIDGE_H

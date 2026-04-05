@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MESSAGECONFIG_H
-#define LL_MESSAGECONFIG_H
+#pragma once
 
 #include <string>
 #include "llsd.h"
@@ -53,4 +52,3 @@ public:
     static bool isCapBanned(const std::string& cap_name);
     static LLSD getConfigForMessage(const std::string& msg_name);
 };
-#endif // LL_MESSAGECONFIG_H

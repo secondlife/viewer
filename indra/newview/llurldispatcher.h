@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLURLDISPATCHER_H
-#define LLURLDISPATCHER_H
+#pragma once
 class LLMediaCtrl;
 
 
@@ -56,4 +55,3 @@ public:
     static bool dispatchFromTextEditor(const std::string& slurl, bool trusted_content);
 };
 
-#endif

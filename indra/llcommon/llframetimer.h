@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFRAMETIMER_H
-#define LL_LLFRAMETIMER_H
+#pragma once
 
 /**
  * *NOTE: Because of limitations on linux which we do not really have
@@ -148,4 +147,3 @@ protected:
 // Glue code for Havok (or anything else that doesn't want the full .h files)
 extern F32  getCurrentFrameTime();
 
-#endif  // LL_LLFRAMETIMER_H

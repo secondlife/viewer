@@ -27,8 +27,7 @@
 // Description of LLVOInventoryListener class, which is an interface
 // for windows that are interested in updates to a ViewerObject's inventory.
 
-#ifndef LL_LLVOINVENTORYLISTENER_H
-#define LL_LLVOINVENTORYLISTENER_H
+#pragma once
 
 #include "llinventory.h"
 
@@ -64,5 +63,4 @@ private:
     LLViewerObject *mListenerVObject;
 };
 
-#endif
 

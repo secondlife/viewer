@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCONVERSATIONLOGLISTITEM_H_
-#define LLCONVERSATIONLOGLISTITEM_H_
+#pragma once
 
 #include "llfloaterimsession.h"
 #include "llpanel.h"
@@ -83,4 +82,3 @@ private:
     boost::signals2::connection mIMFloaterShowedConnection;
 };
 
-#endif /* LLCONVERSATIONLOGITEM_H_ */

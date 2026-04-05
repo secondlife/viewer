@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_M4MATH_H
-#define LL_M4MATH_H
+#pragma once
 
 #include "v3math.h"
 
@@ -402,5 +401,4 @@ inline const LLVector3 operator*(const LLVector3 &a, const LLMatrix4 &b)
                      b.mMatrix[VW][VZ]);
 }
 
-#endif
 

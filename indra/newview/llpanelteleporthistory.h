@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELTELEPORTHISTORY_H
-#define LL_LLPANELTELEPORTHISTORY_H
+#pragma once
 
 #include "lluictrlfactory.h"
 
@@ -115,4 +114,3 @@ private:
 
 
 
-#endif //LL_LLPANELTELEPORTHISTORY_H

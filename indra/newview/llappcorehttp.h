@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LL_APP_COREHTTP_H_
-#define _LL_APP_COREHTTP_H_
+#pragma once
 
 
 #include <array>
@@ -263,4 +262,3 @@ private:
 };
 
 
-#endif  // _LL_APP_COREHTTP_H_

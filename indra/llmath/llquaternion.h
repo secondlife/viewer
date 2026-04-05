@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLQUATERNION_H
-#define LLQUATERNION_H
+#pragma once
 
 #include <iostream>
 #include "llsd.h"
@@ -524,4 +523,3 @@ LLQuaternion::Order StringToOrder( const char *str );
 //     | 2 * (x * z + y * w)   2 * (y * z - x * w)     1 - 2 * (x^2 + y^2)  |
 //     |                                                                    |
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCOMMONUTILS_H
-#define LL_LLCOMMONUTILS_H
+#pragma once
 
 #include "lluuid.h"
 
@@ -48,6 +47,5 @@ namespace LLCommonUtils
         uuid_vec_t& vremoved);
 };
 
-#endif //LL_LLCOMMONUTILS_H
 
 // EOF

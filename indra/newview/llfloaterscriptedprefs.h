@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATERSCRIPTEDPREFS_H
-#define LL_FLOATERSCRIPTEDPREFS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -48,4 +47,3 @@ private:
     LLScriptEditor* mEditor;
 };
 
-#endif // LL_FLOATERSCRIPTEDPREFS_H

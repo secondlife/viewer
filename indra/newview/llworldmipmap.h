@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWORLDMIPMAP_H
-#define LL_LLWORLDMIPMAP_H
+#pragma once
 
 #include <array>
 #include <map>
@@ -94,4 +93,3 @@ private:
     S32 mCurrentLevel;      // The level last accessed by a getObjectsTile()
 };
 
-#endif // LL_LLWORLDMIPMAP_H

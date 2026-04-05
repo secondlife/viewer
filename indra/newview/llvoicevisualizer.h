@@ -39,8 +39,7 @@
 // The input for the voice visualizer is a continual stream of voice amplitudes.
 
 //-----------------------------------------------------------------------------
-#ifndef LL_VOICE_VISUALIZER_H
-#define LL_VOICE_VISUALIZER_H
+#pragma once
 
 #include "llhudeffect.h"
 
@@ -155,5 +154,4 @@ class LLVoiceVisualizer : public LLHUDEffect
  //   end of LLVoiceVisualizer class
 //------------------------------------------------------------------
 
-#endif //LL_VOICE_VISUALIZER_H
 

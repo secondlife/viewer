@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VIEWER_TEXLAYER_H
-#define LL_VIEWER_TEXLAYER_H
+#pragma once
 
 #include "lldynamictexture.h"
 #include "llextendedstatus.h"
@@ -129,5 +128,4 @@ private:
     LLFrameTimer            mNeedsUpdateTimer;              // Tracks time since update was requested and performed.
 };
 
-#endif  // LL_VIEWER_TEXLAYER_H
 

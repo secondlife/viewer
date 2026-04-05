@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLLIVEAPPCONFIG_H
-#define LLLIVEAPPCONFIG_H
+#pragma once
 
 #include "llapp.h"
 #include "lllivefile.h"
@@ -66,4 +65,3 @@ private:
     LLApp::OptionPriority mPriority;
 };
 
-#endif

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFOLDERVIEWMODELINVENTORY_H
-#define LL_LLFOLDERVIEWMODELINVENTORY_H
+#pragma once
 
 #include "llinventoryfilter.h"
 #include "llinventory.h"
@@ -131,4 +130,3 @@ public:
 private:
     LLUUID mTaskID;
 };
-#endif // LL_LLFOLDERVIEWMODELINVENTORY_H

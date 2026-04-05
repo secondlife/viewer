@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOAST_H
-#define LL_LLTOAST_H
+#pragma once
 
 #include "llinstancetracker.h"
 #include "llpanel.h"
@@ -253,4 +252,3 @@ private:
 };
 
 }
-#endif

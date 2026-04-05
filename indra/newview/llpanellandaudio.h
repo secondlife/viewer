@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLPANELLANDAUDIO_H
-#define LLPANELLANDAUDIO_H
+#pragma once
 
 #include "lllineeditor.h"
 #include "llpanel.h"
@@ -58,4 +57,3 @@ private:
     LLSafeHandle<LLParcelSelection>&    mParcel;
 };
 
-#endif

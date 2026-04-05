@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_LLRESMGR_H
-#define LL_LLRESMGR_H
+#pragma once
 
 #include "locale.h"
 #include "stdtypes.h"
@@ -74,4 +73,3 @@ private:
     std::string mPrevLocaleString;
 };
 
-#endif  // LL_RESMGR_

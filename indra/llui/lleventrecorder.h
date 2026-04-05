@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_EVENT_RECORDER
-#define LL_EVENT_RECORDER
+#pragma once
 
 
 #include "linden_common.h"
@@ -96,4 +95,3 @@ public:
 
   static const S32 UNDEFINED=-1;
 };
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLSPELLCHECKMENUHANDLER_H
-#define LLSPELLCHECKMENUHANDLER_H
+#pragma once
 
 class LLSpellCheckMenuHandler
 {
@@ -43,4 +42,3 @@ public:
     virtual bool    canAddToIgnore() const          { return false; }
 };
 
-#endif // LLSPELLCHECKMENUHANDLER_H

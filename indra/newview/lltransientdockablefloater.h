@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TRANSIENTDOCKABLEFLOATER_H
-#define LL_TRANSIENTDOCKABLEFLOATER_H
+#pragma once
 
 #include "llerror.h"
 #include "llfloater.h"
@@ -50,4 +49,3 @@ public:
     virtual LLTransientFloaterMgr::ETransientGroup getGroup() override { return LLTransientFloaterMgr::GLOBAL; }
 };
 
-#endif /* LL_TRANSIENTDOCKABLEFLOATER_H */

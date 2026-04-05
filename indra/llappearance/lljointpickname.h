@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_LLJOINTPICKNAME_H
-#define LL_LLJOINTPICKNAME_H
+#pragma once
 
 class LLAvatarJointMesh;
 
@@ -46,4 +45,3 @@ enum LLJointPickName
 
 using avatar_joint_mesh_list_t = std::vector<LLAvatarJointMesh*>;
 
-#endif // LL_LLJOINTPICKNAME_H

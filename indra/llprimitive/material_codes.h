@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MATERIAL_CODES_H
-#define LL_MATERIAL_CODES_H
+#pragma once
 
 class LLUUID;
 
@@ -51,4 +50,3 @@ extern const LLUUID LL_DEFAULT_PLASTIC_UUID;
 extern const LLUUID LL_DEFAULT_RUBBER_UUID;
 extern const LLUUID LL_DEFAULT_LIGHT_UUID;
 
-#endif

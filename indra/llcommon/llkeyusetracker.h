@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_KEYUSETRACKER_H
-#define LL_KEYUSETRACKER_H
+#pragma once
 
 // This is a generic cache for an arbitrary data type indexed against an
 // arbitrary key type. The cache length is determined by expiration time
@@ -212,4 +211,3 @@ public:
     }
 };
 
-#endif

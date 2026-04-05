@@ -29,8 +29,7 @@
 // The data (model) for the global map (a singleton, unique to the application instance) is
 // in LLWorldMap and is typically accessed using LLWorldMap::getInstance()
 
-#ifndef LL_LLWORLDMAPVIEW_H
-#define LL_LLWORLDMAPVIEW_H
+#pragma once
 
 #include "llpanel.h"
 #include "llworldmap.h"
@@ -218,4 +217,3 @@ private:
     F32 mMapIterpTime;
 };
 
-#endif

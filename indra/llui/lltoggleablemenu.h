@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOGGLEABLEMENU_H
-#define LL_LLTOGGLEABLEMENU_H
+#pragma once
 
 #include "llmenugl.h"
 
@@ -68,4 +67,3 @@ protected:
     commit_signal_t*    mVisibilityChangeSignal;
 };
 
-#endif // LL_LLTOGGLEABLEMENU_H

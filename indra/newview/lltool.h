@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOL_H
-#define LL_LLTOOL_H
+#pragma once
 
 #include "llkeyboard.h"
 #include "llmousehandler.h"
@@ -106,4 +105,3 @@ public:
     static const std::string sNameNull;
 };
 
-#endif

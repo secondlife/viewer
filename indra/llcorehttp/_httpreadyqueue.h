@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_READY_QUEUE_H_
-#define _LLCORE_HTTP_READY_QUEUE_H_
+#pragma once
 
 
 #include <queue>
@@ -121,4 +120,3 @@ public:
 }  // end namespace LLCore
 
 
-#endif  // _LLCORE_HTTP_READY_QUEUE_H_

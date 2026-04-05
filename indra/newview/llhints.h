@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHINTS_H
-#define LL_LLHINTS_H
+#pragma once
 
 #include "llpanel.h"
 #include "llnotifications.h"
@@ -51,4 +50,3 @@ private:
 };
 
 
-#endif

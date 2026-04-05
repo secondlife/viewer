@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVECTOR4A_H
-#define LL_LLVECTOR4A_H
+#pragma once
 
 
 class LLRotation;
@@ -389,4 +388,3 @@ inline std::ostream& operator<<(std::ostream& s, const LLVector4a& v)
     s << "(" << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << ")";
     return s;
 }
-#endif

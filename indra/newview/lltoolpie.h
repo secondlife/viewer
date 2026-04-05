@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TOOLPIE_H
-#define LL_TOOLPIE_H
+#pragma once
 
 #include "lltool.h"
 #include "lluuid.h"
@@ -139,4 +138,3 @@ private:
     LLFrameTimer mDoubleClickTimer;
 };
 
-#endif

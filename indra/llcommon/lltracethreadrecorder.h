@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRACETHREADRECORDER_H
-#define LL_LLTRACETHREADRECORDER_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llpreprocessor.h"
@@ -98,4 +97,3 @@ namespace LLTrace
     ThreadRecorder* get_master_thread_recorder();
 }
 
-#endif // LL_LLTRACETHREADRECORDER_H

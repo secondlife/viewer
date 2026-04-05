@@ -35,8 +35,7 @@
  * dynamic library, so it remains very simple.
  */
 
-#ifndef LLWEBRTC_H
-#define LLWEBRTC_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -292,4 +291,3 @@ LLSYMEXPORT LLWebRTCPeerConnectionInterface* newPeerConnection();
 LLSYMEXPORT void freePeerConnection(LLWebRTCPeerConnectionInterface *connection);
 }
 
-#endif // LLWEBRTC_H

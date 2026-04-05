@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPUMPIO_H
-#define LL_LLPUMPIO_H
+#pragma once
 
 #include <set>
 #if LL_LINUX  // needed for PATH_MAX in APR.
@@ -439,4 +438,3 @@ public:
 };
 
 
-#endif // LL_LLPUMPIO_H

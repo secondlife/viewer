@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELBLOCKEDLIST_H
-#define LL_LLPANELBLOCKEDLIST_H
+#pragma once
 
 #include "llpanel.h"
 #include "llmutelist.h"
@@ -116,4 +115,3 @@ private:
 };
 
 
-#endif // LL_LLPANELBLOCKEDLIST_H

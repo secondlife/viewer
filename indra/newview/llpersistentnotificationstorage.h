@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPERSISTENTNOTIFICATIONSTORAGE_H
-#define LL_LLPERSISTENTNOTIFICATIONSTORAGE_H
+#pragma once
 
 #include "llerror.h"
 #include "llnotificationstorage.h"
@@ -63,5 +62,4 @@ private:
     bool mLoaded;
 };
 
-#endif // LL_LLPERSISTENTNOTIFICATIONSTORAGE_H
 

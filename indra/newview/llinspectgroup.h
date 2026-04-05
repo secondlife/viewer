@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLINSPECTGROUP_H
-#define LLINSPECTGROUP_H
+#pragma once
 
 namespace LLInspectGroupUtil
 {
@@ -32,4 +31,3 @@ namespace LLInspectGroupUtil
     void registerFloater();
 }
 
-#endif

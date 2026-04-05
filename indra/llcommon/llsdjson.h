@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSDJSON_H
-#define LL_LLSDJSON_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -74,4 +73,3 @@ LLSD LlsdFromJson(const boost::json::value &val);
 /// TypeBinary    | unsupported
 boost::json::value LlsdToJson(const LLSD &val);
 
-#endif // LL_LLSDJSON_H

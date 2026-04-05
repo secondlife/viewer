@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERJOYSTICK_H
-#define LL_LLFLOATERJOYSTICK_H
+#pragma once
 
 #include <array>
 #include "llfloater.h"
@@ -103,4 +102,3 @@ private:
     std::array<LLStatBar*, 6> mAxisStatsBar;
 };
 
-#endif

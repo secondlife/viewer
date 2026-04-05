@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAGENTACCESS_H
-#define LL_LLAGENTACCESS_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -73,4 +72,3 @@ private:
     LLControlGroup& mSavedSettings;
 };
 
-#endif // LL_LLAGENTACCESS_H

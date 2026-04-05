@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLRECENTPEOPLE_H
-#define LL_LLRECENTPEOPLE_H
+#pragma once
 
 #include "llevent.h"
 #include "llsingleton.h"
@@ -119,4 +118,3 @@ private:
     id_to_time_map_t    mAvatarsArrivalTime;
 };
 
-#endif // LL_LLRECENTPEOPLE_H

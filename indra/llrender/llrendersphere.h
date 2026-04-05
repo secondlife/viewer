@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLRENDERSPHERE_H
-#define LL_LLRENDERSPHERE_H
+#pragma once
 
 #include "llmath.h"
 #include "v3math.h"
@@ -49,4 +48,3 @@ private:
 };
 
 extern LLRenderSphere gSphere;
-#endif

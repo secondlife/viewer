@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLURL_H
-#define LL_LLURL_H
+#pragma once
 
 // splits a URL into its parts, which are:
 //
@@ -91,5 +90,4 @@ public:
     static char sReturnString[LL_MAX_PATH];     /* Flawfinder: ignore */
 };
 
-#endif  // LL_LLURL_H
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TOOLCOMP_H
-#define LL_TOOLCOMP_H
+#pragma once
 
 #include "lltool.h"
 
@@ -242,4 +241,3 @@ protected:
 };
 
 
-#endif  // LL_TOOLCOMP_H

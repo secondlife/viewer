@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATEREXPERIENCES_H
-#define LL_LLFLOATEREXPERIENCES_H
+#pragma once
 
 #include "llfloater.h"
 #include "llcorehttputil.h"
@@ -74,4 +73,3 @@ private:
     boost::signals2::scoped_connection mCapsReceivedConnection;
 };
 
-#endif //LL_LLFLOATEREXPERIENCES_H

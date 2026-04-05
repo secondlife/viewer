@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SCROLLINGPANELPARAM_H
-#define LL_SCROLLINGPANELPARAM_H
+#pragma once
 
 #include "llscrollingpanelparambase.h"
 
@@ -90,4 +89,3 @@ protected:
     LLUICtrl* mMaxParamText;
 };
 
-#endif

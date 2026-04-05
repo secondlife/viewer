@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATER_NOTIFICATIONS_CONSOLE_H
-#define LL_LLFLOATER_NOTIFICATIONS_CONSOLE_H
+#pragma once
 
 #include "llfloater.h"
 #include "lllayoutstack.h"
@@ -71,5 +70,4 @@ private:
     static void onCommitResponse(LLUICtrl* ctrl, void* data) { ((LLFloaterNotification*)data)->respond(); }
     LLNotification* mNote;
 };
-#endif
 

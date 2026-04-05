@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERDEBUGSETTINGS_H
-#define LLFLOATERDEBUGSETTINGS_H
+#pragma once
 
 #include "llcontrol.h"
 #include "llfloater.h"
@@ -85,5 +84,4 @@ protected:
     std::string mOldText;
 };
 
-#endif //LLFLOATERDEBUGSETTINGS_H
 

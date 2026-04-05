@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_DOCKABLEFLOATER_H
-#define LL_DOCKABLEFLOATER_H
+#pragma once
 
 #include "llerror.h"
 #include "llfloater.h"
@@ -149,4 +148,3 @@ private:
     bool mForceDocking;
 };
 
-#endif /* LL_DOCKABLEFLOATER_H */

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_DRAWABLE_H
-#define LL_DRAWABLE_H
+#pragma once
 
 #include <vector>
 #include <map>
@@ -335,4 +334,3 @@ inline S32 LLDrawable::getNumFaces()const
     return (S32)mFaces.size();
 }
 
-#endif

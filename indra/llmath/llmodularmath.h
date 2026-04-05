@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLMODULARMATH_H
-#define LLMODULARMATH_H
+#pragma once
 
 namespace LLModularMath
 {
@@ -49,4 +48,3 @@ namespace LLModularMath
     }
 }
 
-#endif

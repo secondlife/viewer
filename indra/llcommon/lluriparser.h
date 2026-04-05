@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLURIPARSER_H
-#define LL_LLURIPARSER_H
+#pragma once
 
 #include <string>
 #include "boost/url.hpp"
@@ -82,4 +81,3 @@ private:
     bool mNormalizedTmp;
 };
 
-#endif // LL_LLURIPARSER_H

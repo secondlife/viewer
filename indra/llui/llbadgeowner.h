@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBADGEOWNER_H
-#define LL_LLBADGEOWNER_H
+#pragma once
 
 #include "llbadge.h"
 #include "llview.h"
@@ -58,4 +57,3 @@ private:
     LLHandle< LLView >  mBadgeOwnerView;
 };
 
-#endif  // LL_LLBADGEOWNER_H

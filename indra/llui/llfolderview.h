@@ -32,8 +32,7 @@
  *
  */
 
-#ifndef LL_LLFOLDERVIEW_H
-#define LL_LLFOLDERVIEW_H
+#pragma once
 
 #include "llfolderviewitem.h"   // because LLFolderView is-a LLFolderViewFolder
 
@@ -448,4 +447,3 @@ const U32 SUPPRESS_OPEN_ITEM = 0x1;
 const U32 FIRST_SELECTED_ITEM = 0x2;
 const U32 ITEM_IN_MULTI_SELECTION = 0x4;
 
-#endif // LL_LLFOLDERVIEW_H

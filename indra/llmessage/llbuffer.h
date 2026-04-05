@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBUFFER_H
-#define LL_LLBUFFER_H
+#pragma once
 
 /**
  * Declaration of classes used for minimizing calls to new[],
@@ -622,4 +621,3 @@ protected:
     LLMutex* mMutexp;
 };
 
-#endif // LL_LLBUFFER_H

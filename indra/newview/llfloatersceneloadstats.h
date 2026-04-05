@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATERSCENELOADSTATS_H
-#define LL_FLOATERSCENELOADSTATS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -40,4 +39,3 @@ public:
 
 };
 
-#endif // LL_FLOATERSCENELOADSTATS_H

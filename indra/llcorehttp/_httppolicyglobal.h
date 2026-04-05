@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_POLICY_GLOBAL_H_
-#define _LLCORE_HTTP_POLICY_GLOBAL_H_
+#pragma once
 
 
 #include "httprequest.h"
@@ -77,4 +76,3 @@ public:
 
 }  // end namespace LLCore
 
-#endif // _LLCORE_HTTP_POLICY_GLOBAL_H_

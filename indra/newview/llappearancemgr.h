@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAPPEARANCEMGR_H
-#define LL_LLAPPEARANCEMGR_H
+#pragma once
 
 #include "llsingleton.h"
 
@@ -352,4 +351,3 @@ void callAfterCategoryLinksFetch(const LLUUID &cat_id, nullary_func_t cb);
 // Wear all items in a uuid vector.
 void wear_multiple(const uuid_vec_t& ids, bool replace);
 
-#endif

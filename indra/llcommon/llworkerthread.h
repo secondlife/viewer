@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWORKERTHREAD_H
-#define LL_LLWORKERTHREAD_H
+#pragma once
 
 #include <list>
 #include <map>
@@ -198,4 +197,3 @@ private:
 //============================================================================
 
 
-#endif // LL_LLWORKERTHREAD_H

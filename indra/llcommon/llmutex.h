@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMUTEX_H
-#define LL_LLMUTEX_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llthread.h"
@@ -285,4 +284,3 @@ protected:
     std::mutex* mMutex;
 };
 
-#endif // LL_LLMUTEX_H

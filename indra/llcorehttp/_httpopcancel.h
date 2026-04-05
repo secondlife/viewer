@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_OPCANCEL_H_
-#define _LLCORE_HTTP_OPCANCEL_H_
+#pragma once
 
 
 #include "linden_common.h"      // Modifies curl/curl.h interfaces
@@ -69,5 +68,4 @@ public:
 
 }   // end namespace LLCore
 
-#endif  // _LLCORE_HTTP_OPCANCEL_H_
 

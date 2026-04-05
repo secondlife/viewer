@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCRASHLOGGERLINUX_H
-#define LLCRASHLOGGERLINUX_H
+#pragma once
 
 #include "linden_common.h"
 #include "llcrashlogger.h"
@@ -42,4 +41,3 @@ public:
     virtual bool cleanup();
 };
 
-#endif

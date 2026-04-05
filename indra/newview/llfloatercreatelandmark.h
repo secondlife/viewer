@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERCREATELANDMARK_H
-#define LL_LLFLOATERCREATELANDMARK_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -75,4 +74,3 @@ private:
     LLPointer<LLInventoryItem>      mItem;
 };
 
-#endif

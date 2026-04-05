@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELEXPERIENCES_H
-#define LL_LLPANELEXPERIENCES_H
+#pragma once
 
 #include "llaccordionctrltab.h"
 #include "llflatlistview.h"
@@ -95,4 +94,3 @@ public:
 protected:
     LLUICtrl* mName;
 };
-#endif // LL_LLPANELEXPERIENCES_H

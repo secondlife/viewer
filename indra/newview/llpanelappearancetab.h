@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELAPPEARANCETAB_H
-#define LL_LLPANELAPPEARANCETAB_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -69,4 +68,3 @@ private:
     static std::string sRecentFilterSubString;
 };
 
-#endif //LL_LLPANELAPPEARANCETAB_H

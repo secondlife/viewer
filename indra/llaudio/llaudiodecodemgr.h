@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAUDIODECODEMGR_H
-#define LL_LLAUDIODECODEMGR_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -51,4 +50,3 @@ protected:
     Impl* mImpl;
 };
 
-#endif

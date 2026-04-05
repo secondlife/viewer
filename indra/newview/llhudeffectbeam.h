@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDEFFECTBEAM_H
-#define LL_LLHUDEFFECTBEAM_H
+#pragma once
 
 #include <array>
 #include "llhudeffect.h"
@@ -68,4 +67,3 @@ private:
     LLVector3d  mTargetPos;
 };
 
-#endif // LL_LLHUDEFFECTBEAM_H

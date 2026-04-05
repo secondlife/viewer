@@ -26,8 +26,7 @@
 
 // Singleton that manages keyboard and mouse focus
 
-#ifndef LL_LLFOCUSMGR_H
-#define LL_LLFOCUSMGR_H
+#pragma once
 
 #include "llstring.h"
 #include "llframetimer.h"
@@ -155,6 +154,5 @@ private:
 
 extern LLFocusMgr gFocusMgr;
 
-#endif  // LL_LLFOCUSMGR_H
 
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOLFOCUS_H
-#define LL_LLTOOLFOCUS_H
+#pragma once
 
 #include "lltool.h"
 
@@ -79,4 +78,3 @@ extern bool gCameraBtnOrbit;
 extern bool gCameraBtnPan;
 extern bool gCameraBtnZoom;
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSCENEVIEW_H
-#define LL_LLSCENEVIEW_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -46,4 +45,3 @@ protected:
 
 extern LLSceneView* gSceneView;
 
-#endif // LL_LLSCENEVIEW_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLXMLTREE_H
-#define LL_LLXMLTREE_H
+#pragma once
 
 #include <map>
 #include <list>
@@ -231,4 +230,3 @@ protected:
     bool            mKeepContents;
 };
 
-#endif  // LL_LLXMLTREE_H

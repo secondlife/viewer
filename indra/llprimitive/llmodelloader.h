@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMODELLOADER_H
-#define LL_LLMODELLOADER_H
+#pragma once
 
 #include "llmodel.h"
 #include "llthread.h"
@@ -225,4 +224,3 @@ protected:
     static bool isAlive(LLModelLoader* loader);
 };
 
-#endif  // LL_LLMODELLOADER_H

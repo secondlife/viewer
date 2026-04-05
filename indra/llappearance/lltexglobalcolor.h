@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXGLOBALCOLOR_H
-#define LL_LLTEXGLOBALCOLOR_H
+#pragma once
 
 #include "lltexlayer.h"
 #include "lltexlayerparams.h"
@@ -82,4 +81,3 @@ private:
     LLTexGlobalColor*       mTexGlobalColor;
 };
 
-#endif

@@ -23,12 +23,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLINSPECTOBJECT_H
-#define LLINSPECTOBJECT_H
+#pragma once
 
 namespace LLInspectObjectUtil
 {
     void registerFloater();
 }
 
-#endif

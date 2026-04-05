@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_SETPRIORITY_H_
-#define _LLCORE_HTTP_SETPRIORITY_H_
+#pragma once
 
 #if 0 // DEPRECATED
 #include "httpcommon.h"
@@ -68,5 +67,4 @@ protected:
 }  // end namespace LLCore
 #endif
 
-#endif  // _LLCORE_HTTP_SETPRIORITY_H_
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSIDEPANELINVENTORYSUBPANEL_H
-#define LL_LLSIDEPANELINVENTORYSUBPANEL_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -70,4 +69,3 @@ private:
     bool mIsEditing;    // if we're in edit mode
 };
 
-#endif // LL_LLSIDEPANELINVENTORYSUBPANEL_H

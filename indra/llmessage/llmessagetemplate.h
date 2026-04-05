@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMESSAGETEMPLATE_H
-#define LL_LLMESSAGETEMPLATE_H
+#pragma once
 
 #include "message.h" // TODO: babbage: Remove...
 #include "llstl.h"
@@ -418,4 +417,3 @@ private:
     void                                    **mUserData;
 };
 
-#endif // LL_LLMESSAGETEMPLATE_H

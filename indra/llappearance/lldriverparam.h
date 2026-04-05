@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRIVERPARAM_H
-#define LL_LLDRIVERPARAM_H
+#pragma once
 
 #include "llviewervisualparam.h"
 #include "llwearabletype.h"
@@ -136,4 +135,3 @@ protected:
     LLWearable* mWearablep{ nullptr };
 };
 
-#endif  // LL_LLDRIVERPARAM_H

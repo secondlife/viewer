@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERMESSAGE_H
-#define LL_LLVIEWERMESSAGE_H
+#pragma once
 
 #include "llassettype.h"
 #include "llinstantmessage.h"
@@ -273,4 +272,3 @@ private:
 
 void process_feature_disabled_message(LLMessageSystem* msg, void**);
 
-#endif

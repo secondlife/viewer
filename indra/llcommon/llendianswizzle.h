@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLENDIANSWIZZLE_H
-#define LL_LLENDIANSWIZZLE_H
+#pragma once
 
 /* This function is intended to be used for in-place swizzling, particularly after fread() of
     binary values from a file.  Such as:
@@ -91,4 +90,3 @@
 
 #define llendianswizzleone(x) llendianswizzle(&(x), sizeof(x), 1)
 
-#endif // LL_LLENDIANSWIZZLE_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLURLLINEEDITOR_H_
-#define LLURLLINEEDITOR_H_
+#pragma once
 
 #include "linden_common.h"
 
@@ -89,4 +88,3 @@ private:
 
 };
 
-#endif /* LLURLLINEEDITOR_H_ */

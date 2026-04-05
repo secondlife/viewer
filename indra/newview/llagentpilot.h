@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAGENTPILOT_H
-#define LL_LLAGENTPILOT_H
+#pragma once
 
 #include "stdtypes.h"
 #include "lltimer.h"
@@ -119,4 +118,3 @@ private:
 
 extern LLAgentPilot gAgentPilot;
 
-#endif // LL_LLAGENTPILOT_H

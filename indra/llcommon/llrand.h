@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLRAND_H
-#define LL_LLRAND_H
+#pragma once
 
 #include <boost/random/lagged_fibonacci.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -124,4 +123,3 @@ using LLRandLagFib2281 = boost::lagged_fibonacci2281;
  * memory: about 2496 bytes
  */
 using LLRandMT19937 = boost::mt11213b;
-#endif

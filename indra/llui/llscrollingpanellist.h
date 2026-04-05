@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSCROLLINGPANELLIST_H
-#define LL_LLSCROLLINGPANELLIST_H
+#pragma once
 
 #include <vector>
 
@@ -99,4 +98,3 @@ private:
     panel_list_t        mPanelList;
 };
 
-#endif //LL_LLSCROLLINGPANELLIST_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERMYENVIRONMENT_H
-#define LL_LLFLOATERMYENVIRONMENT_H
+#pragma once
 #include <vector>
 
 #include "llfloater.h"
@@ -76,4 +75,3 @@ private:
 };
 
 
-#endif

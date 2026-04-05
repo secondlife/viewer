@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSPEAKINGINDICATORMANAGER_H
-#define LL_LLSPEAKINGINDICATORMANAGER_H
+#pragma once
 
 class SpeakingIndicatorManager;
 
@@ -85,4 +84,3 @@ namespace LLSpeakingIndicatorManager
      void updateSpeakingIndicators();
 }
 
-#endif // LL_LLSPEAKINGINDICATORMANAGER_H

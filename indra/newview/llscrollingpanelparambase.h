@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SCROLLINGPANELPARAMBASE_H
-#define LL_SCROLLINGPANELPARAMBASE_H
+#pragma once
 
 #include "llpanel.h"
 #include "llscrollingpanellist.h"
@@ -60,4 +59,3 @@ protected:
     LLWearable *mWearable;
 };
 
-#endif

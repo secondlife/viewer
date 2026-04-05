@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCOLORSWATCH_H
-#define LL_LLCOLORSWATCH_H
+#pragma once
 
 #include "lluictrl.h"
 #include "v4color.h"
@@ -119,4 +118,3 @@ protected:
     LLPointer<LLUIImage> mFallbackImage;
 };
 
-#endif  // LL_LLBUTTON_H

@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLSNAPSHOTMODEL_H
-#define LL_LLSNAPSHOTMODEL_H
+#pragma once
 
 class LLSnapshotModel
 {
@@ -53,4 +52,3 @@ public:
     };
 };
 
-#endif // LL_LLSNAPSHOTMODEL_H

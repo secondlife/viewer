@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VIEWERMEDIAFOCUS_H
-#define LL_VIEWERMEDIAFOCUS_H
+#pragma once
 
 // includes for LLViewerMediaFocus
 #include "llfocusmgr.h"
@@ -117,4 +116,3 @@ private:
 };
 
 
-#endif // LL_VIEWERMEDIAFOCUS_H

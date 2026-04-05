@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLRENDERTARGET_H
-#define LL_LLRENDERTARGET_H
+#pragma once
 
 // LLRenderTarget is unavailible on the mapserver since it uses FBOs.
 
@@ -190,5 +189,4 @@ protected:
     LLTexUnit::eTextureType mUsage;
 };
 
-#endif
 

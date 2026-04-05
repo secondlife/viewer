@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PATCH_CODE_H
-#define LL_PATCH_CODE_H
+#pragma once
 
 class LLBitPack;
 class LLGroupHeader;
@@ -43,4 +42,3 @@ void    decode_patch_group_header(LLBitPack &bitpack, LLGroupHeader *gopp);
 void    decode_patch_header(LLBitPack &bitpack, LLPatchHeader *ph);
 void    decode_patch(LLBitPack &bitpack, S32 *patches);
 
-#endif

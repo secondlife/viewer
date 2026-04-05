@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELAVATARTAG_H
-#define LL_LLPANELAVATARTAG_H
+#pragma once
 
 #include "llpanel.h"
 #include "llavatarpropertiesprocessor.h"
@@ -84,4 +83,3 @@ private:
 //  LLFrameTimer            mFadeTimer;
 };
 
-#endif

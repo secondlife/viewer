@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLURI_H
-#define LL_LLURI_H
+#pragma once
 
 #include <string>
 
@@ -190,4 +189,3 @@ private:
 // this operator required for tut
 LL_COMMON_API bool operator!=(const LLURI& first, const LLURI& second);
 
-#endif // LL_LLURI_H

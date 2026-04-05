@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSEARCHHISTORY_H
-#define LL_LLSEARCHHISTORY_H
+#pragma once
 
 #include "llsingleton.h"
 #include "llinitdestroyclass.h"
@@ -139,4 +138,3 @@ private:
 
 class LLSearchComboBox;
 
-#endif //LL_LLSEARCHHISTORY_H

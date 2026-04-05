@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLESTATEINFOMODEL_H
-#define LL_LLESTATEINFOMODEL_H
+#pragma once
 
 class LLMessageSystem;
 
@@ -126,4 +125,3 @@ inline void LLEstateInfoModel::setFlag(U64 flag, bool val)
 }
 
 
-#endif // LL_LLESTATEINFOMODEL_H

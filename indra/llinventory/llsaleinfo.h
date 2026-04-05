@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSALEINFO_H
-#define LL_LLSALEINFO_H
+#pragma once
 
 #include "llpermissionsflags.h"
 #include "llsd.h"
@@ -118,4 +117,3 @@ public:
 LLSD ll_create_sd_from_sale_info(const LLSaleInfo& sale);
 LLSaleInfo ll_sale_info_from_sd(const LLSD& sd);
 
-#endif // LL_LLSALEINFO_H

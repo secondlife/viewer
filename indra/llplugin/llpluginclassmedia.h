@@ -26,8 +26,7 @@
  * @endcond
  */
 
-#ifndef LL_LLPLUGINCLASSMEDIA_H
-#define LL_LLPLUGINCLASSMEDIA_H
+#pragma once
 
 #include "llpluginprocessparent.h"
 #include "llrect.h"
@@ -494,4 +493,3 @@ public:
 //--------------------------------------
 };
 
-#endif // LL_LLPLUGINCLASSMEDIA_H

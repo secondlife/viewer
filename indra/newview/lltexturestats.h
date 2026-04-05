@@ -24,12 +24,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTURESTATS_H
-#define LL_LLTEXTURESTATS_H
+#pragma once
 
 #include "llappviewer.h"
 
 // utility functions to capture data on texture download speeds and send to simulator periodically
 void send_texture_stats_to_sim(const LLSD &texture_stats);
 
-#endif // LL_LLTEXTURESTATS_H

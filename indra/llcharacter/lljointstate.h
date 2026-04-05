@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLJOINTSTATE_H
-#define LL_LLJOINTSTATE_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header Files
@@ -120,5 +119,4 @@ protected:
 
 };
 
-#endif // LL_LLJOINTSTATE_H
 

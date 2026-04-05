@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOSKY_H
-#define LL_LLVOSKY_H
+#pragma once
 
 #include <array>
 #include <vector>
@@ -361,4 +360,3 @@ protected:
     LLAtmospherics      m_legacyAtmospherics;
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELGROUPEXPERIENCES_H
-#define LL_LLPANELGROUPEXPERIENCES_H
+#pragma once
 
 #include "llpanelgroup.h"
 
@@ -53,4 +52,3 @@ private:
     static void groupExperiencesResults(LLHandle<LLPanelGroupExperiences>, const LLSD &);
 };
 
-#endif

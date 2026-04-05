@@ -25,8 +25,7 @@
  */
 
 
-#ifndef _LLCOREHTTP_TEST_H_
-#define _LLCOREHTTP_TEST_H_
+#pragma once
 
 #include "linden_common.h"      // Modifies curl interfaces
 
@@ -61,4 +60,3 @@ public:
 };
 
 
-#endif  // _LLCOREHTTP_TEST_H_

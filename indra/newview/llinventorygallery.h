@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYGALLERY_H
-#define LL_LLINVENTORYGALLERY_H
+#pragma once
 
 #include "llgesturemgr.h"
 #include "lllistcontextmenu.h"
@@ -423,4 +422,3 @@ private:
     LLInventoryGallery* mGallery;
 };
 
-#endif

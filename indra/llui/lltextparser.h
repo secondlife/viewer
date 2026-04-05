@@ -25,8 +25,7 @@
  *
  */
 
-#ifndef LL_LLTEXTPARSER_H
-#define LL_LLTEXTPARSER_H
+#pragma once
 
 #include "llsd.h"
 #include "llsingleton.h"
@@ -62,4 +61,3 @@ public:
     bool    mLoaded;
 };
 
-#endif

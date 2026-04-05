@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSIDEPANELAPPEARANCE_H
-#define LL_LLSIDEPANELAPPEARANCE_H
+#pragma once
 
 #include "llpanel.h"
 #include "llinventoryobserver.h"
@@ -103,4 +102,3 @@ private:
     bool mOpened;
 };
 
-#endif //LL_LLSIDEPANELAPPEARANCE_H

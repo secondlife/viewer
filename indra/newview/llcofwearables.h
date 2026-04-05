@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCOFWEARABLES_H
-#define LL_LLCOFWEARABLES_H
+#pragma once
 
 // llui
 #include "llflatlistview.h"
@@ -135,4 +134,3 @@ protected:
 };
 
 
-#endif

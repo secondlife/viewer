@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MANIP_H
-#define LL_MANIP_H
+#pragma once
 
 #include "lltool.h"
 //#include "v3math.h"
@@ -164,4 +163,3 @@ protected:
 };
 
 
-#endif

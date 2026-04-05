@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLWATEREXCLUSION_H
-#define LL_LLDRAWPOOLWATEREXCLUSION_H
+#pragma once
 
 #include "v4coloru.h"
 #include "v2math.h"
@@ -58,4 +57,3 @@ public:
     virtual S32  getNumPasses() { return 1; }
 };
 
-#endif // LL_LLDRAWPOOLWATEREXCLUSION_H

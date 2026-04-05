@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_ACCOUNTINGQUOTAMANAGER_H
-#define LL_ACCOUNTINGQUOTAMANAGER_H
+#pragma once
 //===============================================================================
 #include "llhandle.h"
 
@@ -75,4 +74,3 @@ private:
 };
 //===============================================================================
 
-#endif // LLACCOUNTINGCOSTMANAGER

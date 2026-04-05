@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPRODUCTINFOREQUEST_H
-#define LL_LLPRODUCTINFOREQUEST_H
+#pragma once
 
 #include "llmemory.h"
 #include "lleventcoro.h"
@@ -52,4 +51,3 @@ private:
     LLSD mSkuDescriptions;
 };
 
-#endif // LL_LLPRODUCTINFOREQUEST_H

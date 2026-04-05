@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PANEL_GROUP_LAND_MONEY_H
-#define LL_PANEL_GROUP_LAND_MONEY_H
+#pragma once
 
 #include "llpanelgroup.h"
 #include <map>
@@ -63,4 +62,3 @@ protected:
     impl* mImplementationp;
 };
 
-#endif // LL_PANEL_GROUP_LAND_MONEY_H

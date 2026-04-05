@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTUREENTRY_H
-#define LL_LLTEXTUREENTRY_H
+#pragma once
 
 #include "lluuid.h"
 #include "v4color.h"
@@ -258,4 +257,3 @@ protected:
 
 };
 
-#endif

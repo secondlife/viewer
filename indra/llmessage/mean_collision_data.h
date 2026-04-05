@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MEAN_COLLISIONS_DATA_H
-#define LL_MEAN_COLLISIONS_DATA_H
+#pragma once
 
 #include "lldbstrings.h"
 #include "lluuid.h"
@@ -93,4 +92,3 @@ public:
 };
 
 
-#endif

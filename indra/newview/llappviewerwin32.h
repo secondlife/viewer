@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAPPVIEWERWIN32_H
-#define LL_LLAPPVIEWERWIN32_H
+#pragma once
 
 #ifndef LL_LLAPPVIEWER_H
 #include "llappviewer.h"
@@ -68,4 +67,3 @@ private:
     bool mIsConsoleAllocated;
 };
 
-#endif // LL_LLAPPVIEWERWIN32_H

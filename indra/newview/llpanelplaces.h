@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPLACES_H
-#define LL_LLPANELPLACES_H
+#pragma once
 
 #include "lltimer.h"
 
@@ -168,4 +167,3 @@ private:
     boost::signals2::connection mAgentParcelChangedConnection;
 };
 
-#endif //LL_LLPANELPLACES_H

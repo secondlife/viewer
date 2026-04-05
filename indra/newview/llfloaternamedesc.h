@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERNAMEDESC_H
-#define LL_LLFLOATERNAMEDESC_H
+#pragma once
 
 #include "llfloater.h"
 #include "llresizehandle.h"
@@ -82,4 +81,3 @@ public:
     bool postBuild() override;
 };
 
-#endif  // LL_LLFLOATERNAMEDESC_H

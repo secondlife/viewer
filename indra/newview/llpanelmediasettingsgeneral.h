@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELMEDIAMEDIASETTINGSGENERAL_H
-#define LL_LLPANELMEDIAMEDIASETTINGSGENERAL_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -97,4 +96,3 @@ private:
     LLTextBox* mFailWhiteListText;
 };
 
-#endif  // LL_LLPANELMEDIAMEDIASETTINGSGENERAL_H

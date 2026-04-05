@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNAMETABLE_H
-#define LL_LLNAMETABLE_H
+#pragma once
 
 #include <map>
 
@@ -100,4 +99,3 @@ public:
     name_map_t      mNameMap;
 };
 
-#endif

@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSERVICE_H
-#define LL_LLSERVICE_H
+#pragma once
 
 #include <string>
 #include <map>
@@ -118,4 +117,3 @@ protected:
 };
 
 
-#endif // LL_LLSERVICE_H

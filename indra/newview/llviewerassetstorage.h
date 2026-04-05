@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERASSETSTORAGE_H
-#define LLVIEWERASSETSTORAGE_H
+#pragma once
 
 #include "llassetstorage.h"
 #include "llcorehttputil.h"
@@ -126,4 +125,3 @@ protected:
     static S32 sAssetCoroCount; // coroutine count, static since coroutines can outlive LLViewerAssetStorage
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_RESIZEBAR_H
-#define LL_RESIZEBAR_H
+#pragma once
 
 #include "llview.h"
 
@@ -83,6 +82,5 @@ private:
     LLPanel *                       mImagePanel;
 };
 
-#endif  // LL_RESIZEBAR_H
 
 

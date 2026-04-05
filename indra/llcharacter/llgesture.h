@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGESTURE_H
-#define LL_LLGESTURE_H
+#pragma once
 
 #include "llanimationstates.h"
 #include "lluuid.h"
@@ -110,4 +109,3 @@ protected:
     static const S32    SERIAL_HEADER_SIZE;
 };
 
-#endif

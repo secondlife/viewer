@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRANSFERMANAGER_H
-#define LL_LLTRANSFERMANAGER_H
+#pragma once
 
 #include <array>
 #include <map>
@@ -498,4 +497,3 @@ protected:
 
 extern LLTransferManager gTransferManager;
 
-#endif//LL_LLTRANSFERMANAGER_H

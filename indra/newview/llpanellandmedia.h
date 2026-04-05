@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLPANELLANDMEDIA_H
-#define LLPANELLANDMEDIA_H
+#pragma once
 
 #include "lllineeditor.h"
 #include "llpanel.h"
@@ -70,4 +69,3 @@ private:
     LLSafeHandle<LLParcelSelection>&    mParcel;
 };
 
-#endif

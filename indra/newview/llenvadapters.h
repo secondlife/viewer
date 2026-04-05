@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_ENVADAPTERS_H
-#define LL_ENVADAPTERS_H
+#pragma once
 
 #include "v3math.h"
 #include "v3color.h"
@@ -456,4 +455,3 @@ public:
 
 };
 
-#endif // LL_ENVIRONMENT_H

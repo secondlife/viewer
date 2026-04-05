@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYSUBTREEPANEL_H
-#define LL_LLINVENTORYSUBTREEPANEL_H
+#pragma once
 
 #include "llinventorypanel.h"
 
@@ -60,4 +59,3 @@ private:
     LLSaveFolderState*          mSavedFolderState;
 };
 
-#endif //LL_LLINVENTORYSUBTREEPANEL_H

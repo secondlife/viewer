@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PANELPROFILECLASSIFIEDS_H
-#define LL_PANELPROFILECLASSIFIEDS_H
+#pragma once
 
 #include "llavatarpropertiesprocessor.h"
 #include "llclassifiedinfo.h"
@@ -338,4 +337,3 @@ private:
     LLPublishClassifiedFloater* mPublishFloater;
 };
 
-#endif // LL_PANELPROFILECLASSIFIEDS_H

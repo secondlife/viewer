@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWEARABLEITEMSLIST_H
-#define LL_LLWEARABLEITEMSLIST_H
+#pragma once
 
 // libs
 #include "llpanel.h"
@@ -519,4 +518,3 @@ public:
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 };
 
-#endif //LL_LLWEARABLEITEMSLIST_H

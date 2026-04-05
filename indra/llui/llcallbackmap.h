@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCALLBACKMAP_H
-#define LLCALLBACKMAP_H
+#pragma once
 
 #include "llstl.h"
 
@@ -57,4 +56,3 @@ public:
     void*       mData;
 };
 
-#endif // LLCALLBACKMAP_H

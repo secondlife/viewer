@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERPARCELMGR_H
-#define LL_LLVIEWERPARCELMGR_H
+#pragma once
 
 #include "v3dmath.h"
 #include "llframetimer.h"
@@ -388,4 +387,3 @@ private:
 void sanitize_corners(const LLVector3d &corner1, const LLVector3d &corner2,
                         LLVector3d &west_south_bottom, LLVector3d &east_north_top);
 
-#endif

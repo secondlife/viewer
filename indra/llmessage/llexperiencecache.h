@@ -26,8 +26,7 @@
 
 
 
-#ifndef LL_LLEXPERIENCECACHE_H
-#define LL_LLEXPERIENCECACHE_H
+#pragma once
 
 #include "linden_common.h"
 #include "llsingleton.h"
@@ -181,4 +180,3 @@ private:
     }
 };
 
-#endif // LL_LLEXPERIENCECACHE_H

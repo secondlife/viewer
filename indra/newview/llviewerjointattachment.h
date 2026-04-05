@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERJOINTATTACHMENT_H
-#define LL_LLVIEWERJOINTATTACHMENT_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header Files
@@ -108,4 +107,3 @@ private:
     S32             mPieSlice;
 };
 
-#endif // LL_LLVIEWERJOINTATTACHMENT_H

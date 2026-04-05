@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCONVERSATIONVIEW_H
-#define LL_LLCONVERSATIONVIEW_H
+#pragma once
 
 #include <array>
 #include "../llui/llfolderviewitem.h"
@@ -190,4 +189,3 @@ private:
     boost::signals2::connection mActiveVoiceChannelConnection;
 };
 
-#endif // LL_LLCONVERSATIONVIEW_H

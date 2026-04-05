@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERMEMLEAK_H
-#define LL_LLFLOATERMEMLEAK_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -72,4 +71,3 @@ private:
     std::vector<char*> mLeakedMem ;
 };
 
-#endif // LL_LLFLOATERMEMLEAK_H

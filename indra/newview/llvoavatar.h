@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VOAVATAR_H
-#define LL_VOAVATAR_H
+#pragma once
 
 #include <map>
 #include <deque>
@@ -1333,5 +1332,4 @@ std::string get_sequential_numbered_file_name(const std::string& prefix,
 void dump_sequential_xml(const std::string outprefix, const LLSD& content);
 void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
 
-#endif // LL_VOAVATAR_H
 

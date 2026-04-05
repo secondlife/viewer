@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOWMACOSX_H
-#define LL_LLWINDOWMACOSX_H
+#pragma once
 
 #include "llwindow.h"
 #include "llwindowcallbacks.h"
@@ -260,4 +259,3 @@ S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 
 
 void load_url_external(const char* url);
 
-#endif //LL_LLWINDOWMACOSX_H

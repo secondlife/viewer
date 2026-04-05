@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORY_H
-#define LL_LLINVENTORY_H
+#pragma once
 
 #include "llfoldertype.h"
 #include "llinventorytype.h"
@@ -295,4 +294,3 @@ LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item);
 LLSD ll_create_sd_from_inventory_category(LLPointer<LLInventoryCategory> cat);
 LLPointer<LLInventoryCategory> ll_create_category_from_sd(const LLSD& sd_cat);
 
-#endif // LL_LLINVENTORY_H

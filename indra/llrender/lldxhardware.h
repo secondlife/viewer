@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDXHARDWARE_H
-#define LL_LLDXHARDWARE_H
+#pragma once
 
 #include <map>
 
@@ -55,4 +54,3 @@ public:
 
 extern LLDXHardware gDXHardware;
 
-#endif // LL_LLDXHARDWARE_H

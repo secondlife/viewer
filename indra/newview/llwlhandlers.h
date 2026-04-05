@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWLHANDLERS_H
-#define LL_LLWLHANDLERS_H
+#pragma once
 
 #include "llviewerprecompiledheaders.h"
 #include "llcoros.h"
@@ -63,4 +62,3 @@ private:
 
 
 
-#endif // LL_LLWLHANDLERS_H

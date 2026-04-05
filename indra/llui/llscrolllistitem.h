@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLSCROLLLISTITEM_H
-#define LLSCROLLLISTITEM_H
+#pragma once
 
 #include "llpointer.h"      // LLPointer<>
 #include "llsd.h"
@@ -139,4 +138,3 @@ private:
     LLRect  mRectangle;
 };
 
-#endif

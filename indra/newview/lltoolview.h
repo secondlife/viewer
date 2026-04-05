@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOLVIEW_H
-#define LL_LLTOOLVIEW_H
+#pragma once
 
 // requires stdtypes.h
 #include "llpanel.h"
@@ -81,4 +80,3 @@ private:
     S32                     mButtonCount;           // used to compute rectangles
 };
 
-#endif

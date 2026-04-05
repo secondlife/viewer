@@ -29,8 +29,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGLRENDER_H
-#define LL_LLGLRENDER_H
+#pragma once
 
 //#include "linden_common.h"
 
@@ -525,4 +524,3 @@ void set_last_projection(const glm::mat4& mat);
 
 #define LL_SHADER_LOADING_WARNS(...) LL_WARNS()
 
-#endif

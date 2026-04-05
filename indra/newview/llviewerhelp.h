@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERHELP_H
-#define LL_LLVIEWERHELP_H
+#pragma once
 
 // The Help UI lives in llfloaterhelpbrowser, llviewerhelp provides a
 // layer of abstraction that protects help-system-using code from the details of
@@ -60,4 +59,3 @@ class LLViewerHelp : public LLHelp, public LLSingleton<LLViewerHelp>
     /*virtual*/ std::string f1HelpTopic() override;
 };
 
-#endif // header guard

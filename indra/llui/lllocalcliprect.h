@@ -22,8 +22,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LLLOCALCLIPRECT_H
-#define LLLOCALCLIPRECT_H
+#pragma once
 
 #include "llgl.h"
 #include "llrect.h"     // can't forward declare, it's templated
@@ -60,4 +59,3 @@ public:
     ~LLLocalClipRect();
 };
 
-#endif

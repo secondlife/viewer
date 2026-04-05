@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAPP_H
-#define LL_LLAPP_H
+#pragma once
 
 #include <map>
 #include "llcond.h"
@@ -349,4 +348,3 @@ private:
 #endif
 };
 
-#endif // LL_LLAPP_H

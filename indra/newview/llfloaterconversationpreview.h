@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERCONVERSATIONPREVIEW_H_
-#define LLFLOATERCONVERSATIONPREVIEW_H_
+#pragma once
 
 #include "llchathistory.h"
 #include "llfloater.h"
@@ -69,4 +68,3 @@ private:
     bool            mIsGroup;
 };
 
-#endif /* LLFLOATERCONVERSATIONPREVIEW_H_ */

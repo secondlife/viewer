@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TOOLMGR_H
-#define LL_TOOLMGR_H
+#pragma once
 
 #include "llkeyboard.h"
 
@@ -128,4 +127,3 @@ extern LLToolset* gFaceEditToolset;
 
 extern LLTool*      gToolNull;
 
-#endif

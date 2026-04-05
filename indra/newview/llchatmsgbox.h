@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCHATMSGBOX_H
-#define LL_LLCHATMSGBOX_H
+#pragma once
 
 #include "lltextbox.h"
 #include "lluictrl.h"
@@ -61,5 +60,4 @@ private:
     S32                 mBlockSpacing;
 };
 
-#endif
 

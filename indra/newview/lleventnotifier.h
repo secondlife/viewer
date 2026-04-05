@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLEVENTNOTIFIER_H
-#define LL_LLEVENTNOTIFIER_H
+#pragma once
 
 #include "llframetimer.h"
 #include "v3dmath.h"
@@ -107,4 +106,3 @@ protected:
 
 extern LLEventNotifier gEventNotifier;
 
-#endif //LL_LLEVENTNOTIFIER_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCHAT_H
-#define LL_LLCHAT_H
+#pragma once
 
 #include "lluuid.h"
 #include "v3math.h"
@@ -109,4 +108,3 @@ public:
     LLUUID          mSessionID;
 };
 
-#endif

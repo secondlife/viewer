@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYMODELBACKGROUNDFETCH_H
-#define LL_LLINVENTORYMODELBACKGROUNDFETCH_H
+#pragma once
 
 #include "llsingleton.h"
 #include "lluuid.h"
@@ -141,5 +140,4 @@ private:
     std::list<LLUUID> mExpectedFolderIds; // for debug, should this track time?
 };
 
-#endif // LL_LLINVENTORYMODELBACKGROUNDFETCH_H
 

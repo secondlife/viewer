@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERTEXTURELIST_H
-#define LL_LLVIEWERTEXTURELIST_H
+#pragma once
 
 #include "lluuid.h"
 //#include "message.h"
@@ -297,4 +296,3 @@ const bool MIPMAP_FALSE = false;
 
 extern LLViewerTextureList gTextureList;
 
-#endif

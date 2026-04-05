@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_DIRGUARD_H
-#define LL_DIRGUARD_H
+#pragma once
 
 #include "linden_common.h"
 #include "llerror.h"
@@ -72,4 +71,3 @@ public:
 #endif
 
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELIMCONTROLPANEL_H
-#define LL_LLPANELIMCONTROLPANEL_H
+#pragma once
 
 #include "llpanel.h"
 #include "llcallingcard.h"
@@ -81,4 +80,3 @@ public:
 
 };
 
-#endif // LL_LLPANELIMCONTROLPANEL_H

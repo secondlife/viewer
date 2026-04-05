@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef TEST_ALLOCATOR_H
-#define TEST_ALLOCATOR_H
+#pragma once
 
 #include <cstdlib>
 #include <new>
@@ -38,5 +37,4 @@ void * operator new[](std::size_t size); //throw (std::bad_alloc);
 void operator delete(void * p) throw ();
 void operator delete[](void * p) throw ();
 
-#endif // TEST_ALLOCATOR_H
 

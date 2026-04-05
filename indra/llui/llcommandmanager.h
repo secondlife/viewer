@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCOMMANDMANAGER_H
-#define LL_LLCOMMANDMANAGER_H
+#pragma once
 
 #include "llinitparam.h"
 #include "llsingleton.h"
@@ -206,4 +205,3 @@ private:
 };
 
 
-#endif // LL_LLCOMMANDMANAGER_H

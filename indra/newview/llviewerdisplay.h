@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERDISPLAY_H
-#define LL_LLVIEWERDISPLAY_H
+#pragma once
 
 void display_startup();
 void display_cleanup();
@@ -41,4 +40,3 @@ extern bool gResizeScreenTexture;
 extern bool gResizeShadowTexture;
 extern bool gWindowResized;
 
-#endif // LL_LLVIEWERDISPLAY_H

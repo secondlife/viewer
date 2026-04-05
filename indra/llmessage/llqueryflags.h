@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLQUERYFLAGS_H
-#define LL_LLQUERYFLAGS_H
+#pragma once
 
 // Binary flags used for Find queries, shared between viewer and dataserver.
 
@@ -99,4 +98,3 @@ const U32 STATUS_SEARCH_CLASSIFIEDS_SHORTSTRING     = 0x1 << 1;
 const U32 STATUS_SEARCH_CLASSIFIEDS_FOUNDNONE       = 0x1 << 2;
 const U32 STATUS_SEARCH_CLASSIFIEDS_SEARCHDISABLED  = 0x1 << 3;
 
-#endif

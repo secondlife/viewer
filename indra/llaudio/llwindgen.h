@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef WINDGEN_H
-#define WINDGEN_H
+#pragma once
 
 #include "llcommon.h"
 #include "llrand.h"
@@ -171,4 +170,3 @@ template<> inline const F32 LLWindGen<F32>::getNextSample() { return ll_frand()-
 template<class T> inline const F32 LLWindGen<T>::getClampedSample(bool clamp, F32 sample) { return clamp ? (F32)llclamp((S32)sample,(S32)S16_MIN,(S32)S16_MAX) : sample; }
 template<> inline const F32 LLWindGen<F32>::getClampedSample(bool clamp, F32 sample) { return sample; }
 
-#endif

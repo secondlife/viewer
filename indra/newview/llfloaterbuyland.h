@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERBUYLAND_H
-#define LL_LLFLOATERBUYLAND_H
+#pragma once
 
 class LLTextBase;
 class LLFloater;
@@ -47,4 +46,3 @@ public:
     static LLFloater* buildFloater(const LLSD& key);
 };
 
-#endif

@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDATE_H
-#define LL_LLDATE_H
+#pragma once
 
 #include <iosfwd>
 #include <string>
@@ -156,4 +155,3 @@ LL_COMMON_API std::istream& operator>>(std::istream& s, LLDate& date);
 
 
 
-#endif // LL_LLDATE_H

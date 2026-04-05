@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPOPUPVIEW_H
-#define LL_LLPOPUPVIEW_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -58,4 +57,3 @@ private:
     bool handleMouseEvent(std::function<bool(LLView*, S32, S32)>, std::function<bool(LLView*)>, S32 x, S32 y, bool close_popups);
     popup_list_t mPopups;
 };
-#endif //LL_LLROOTVIEW_H

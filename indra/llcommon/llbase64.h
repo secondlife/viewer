@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLBASE64_H
-#define LLBASE64_H
+#pragma once
 
 #include <span>
 
@@ -37,4 +36,3 @@ public:
     [[nodiscard]] static std::string decodeAsString(const std::string& input);
 };
 
-#endif

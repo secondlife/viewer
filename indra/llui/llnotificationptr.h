@@ -22,8 +22,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLNOTIFICATIONPTR_H
-#define LLNOTIFICATIONPTR_H
+#pragma once
 
 // Many classes just store a single LLNotificationPtr
 // and llnotifications.h is very large, so define this ligher header.
@@ -31,4 +30,3 @@
 class LLNotification;
 using LLNotificationPtr = std::shared_ptr<LLNotification>;
 
-#endif

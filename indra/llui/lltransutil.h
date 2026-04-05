@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TRANSUTIL_H
-#define LL_TRANSUTIL_H
+#pragma once
 
 #include "lltrans.h"
 
@@ -42,4 +41,3 @@ namespace LLTransUtil
     bool parseLanguageStrings(const std::string& xml_filename);
 };
 
-#endif

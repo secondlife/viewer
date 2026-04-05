@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERPROFILE_H
-#define LL_LLFLOATERPROFILE_H
+#pragma once
 
 #include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
@@ -63,4 +62,3 @@ private:
     LLUUID mAvatarId;
 };
 
-#endif // LL_LLFLOATERPROFILE_H

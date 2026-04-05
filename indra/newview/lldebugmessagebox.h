@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_LLDEBUGMESSAGEBOX_H
-#define LL_LLDEBUGMESSAGEBOX_H
+#pragma once
 
 #include "llfloater.h"
 #include "v3math.h"
@@ -86,4 +85,3 @@ protected:
     static std::map<std::string, LLDebugVarMessageBox*> sInstances;
 };
 
-#endif // LL_LLMESSAGEBOX_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_KEYBIND_H
-#define LL_KEYBIND_H
+#pragma once
 
 #include "indra_constants.h"
 
@@ -105,4 +104,3 @@ private:
 };
 
 
-#endif // LL_KEYBIND_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATER_360CAPTURE_H
-#define LL_FLOATER_360CAPTURE_H
+#pragma once
 
 #include <array>
 #include "llfloater.h"
@@ -96,4 +95,3 @@ class LLFloater360Capture:
         std::string mStartILMode;
 };
 
-#endif  // LL_FLOATER_360CAPTURE_H

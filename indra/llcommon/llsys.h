@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SYS_H
-#define LL_SYS_H
+#pragma once
 
 //
 // The LLOSInfo, LLCPUInfo, and LLMemoryInfo classes are essentially
@@ -172,4 +171,3 @@ bool LL_COMMON_API gzip_file(const std::string& srcfile, const std::string& dstf
 extern LL_COMMON_API LLMemoryInfo gSysMemory;
 extern LL_COMMON_API LLCPUInfo gSysCPU;
 
-#endif // LL_LLSYS_H

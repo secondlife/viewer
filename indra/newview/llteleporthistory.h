@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTELEPORTHISTORY_H
-#define LL_LLTELEPORTHISTORY_H
+#pragma once
 
 #include "llsingleton.h" // for LLSingleton
 
@@ -235,4 +234,3 @@ private:
     boost::signals2::connection mTeleportFailedConn;
 };
 
-#endif

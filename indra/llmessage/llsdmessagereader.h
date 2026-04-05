@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSDMESSAGEREADER_H
-#define LL_LLSDMESSAGEREADER_H
+#pragma once
 
 #include "llmessagereader.h"
 #include "llsd.h"
@@ -105,4 +104,3 @@ private:
     LLSD mMessage;
 };
 
-#endif // LL_LLSDMESSAGEREADER_H

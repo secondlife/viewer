@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELCONTENTS_H
-#define LL_LLPANELCONTENTS_H
+#pragma once
 
 #include "llfolderview.h"
 #include "llinventory.h"
@@ -78,4 +77,3 @@ public:
     LLPanelObjectInventory* mPanelInventoryObject;
 };
 
-#endif // LL_LLPANELCONTENTS_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGLTFLoader_H
-#define LL_LLGLTFLoader_H
+#pragma once
 
 #include "tinygltf/tiny_gltf.h"
 
@@ -213,4 +212,3 @@ private:
     */
 
 };
-#endif  // LL_LLGLTFLLOADER_H

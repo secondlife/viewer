@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLNULLCIPHER_H
-#define LLNULLCIPHER_H
+#pragma once
 
 #include "llcipher.h"
 
@@ -45,4 +44,3 @@ public:
     virtual U32 requiredEncryptionSpace(U32 src_len) const;
 };
 
-#endif

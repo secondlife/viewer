@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPNGWRAPPER_H
-#define LL_LLPNGWRAPPER_H
+#pragma once
 
 #include "png.h"
 #include "llimage.h"
@@ -94,4 +93,3 @@ private:
     std::string mErrorMessage;
 };
 
-#endif

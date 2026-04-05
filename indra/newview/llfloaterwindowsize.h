@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERWINDOWSIZE_H
-#define LLFLOATERWINDOWSIZE_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -46,4 +45,3 @@ public:
     void onClickCancel();
 };
 
-#endif

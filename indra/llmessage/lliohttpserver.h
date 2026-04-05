@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIOHTTPSERVER_H
-#define LL_LLIOHTTPSERVER_H
+#pragma once
 
 #include "llchainio.h"
 #include "llhttpnode.h"
@@ -123,5 +122,4 @@ class LLHTTPNodeForPipe : public LLHTTPNodeForFactory<
 };
 
 
-#endif // LL_LLIOHTTPSERVER_H
 

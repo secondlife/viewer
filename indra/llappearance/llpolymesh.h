@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPOLYMESHINTERFACE_H
-#define LL_LLPOLYMESHINTERFACE_H
+#pragma once
 
 #include <array>
 #include <string>
@@ -366,5 +365,4 @@ protected:
     LLAvatarAppearance* mAvatarp;
 };
 
-#endif // LL_LLPOLYMESHINTERFACE_H
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERSTATS_H
-#define LL_LLVIEWERSTATS_H
+#pragma once
 
 #include "lltracerecording.h"
 #include "lltrace.h"
@@ -71,4 +70,3 @@ namespace LLCore
 
 
 }
-#endif // LL_LLVIEWERSTATS_H

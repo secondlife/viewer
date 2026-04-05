@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELVOLUMEPULLDOWN_H
-#define LL_LLPANELVOLUMEPULLDOWN_H
+#pragma once
 
 #include "linden_common.h"
 
@@ -48,4 +47,3 @@ class LLPanelVolumePulldown : public LLPanelPulldown
 };
 
 
-#endif // LL_LLPANELVOLUMEPULLDOWN_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLFSTHREAD_H
-#define LL_LLLFSTHREAD_H
+#pragma once
 
 #include <queue>
 #include <string>
@@ -137,4 +136,3 @@ public:
 //============================================================================
 
 
-#endif // LL_LLLFSTHREAD_H

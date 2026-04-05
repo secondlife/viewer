@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLRNGWRITER_H
-#define LLRNGWRITER_H
+#pragma once
 
 #include "llinitparam.h"
 #include "llxmlnode.h"
@@ -60,4 +59,3 @@ private:
     elements_map_t      mElementsWritten;
 };
 
-#endif //LLRNGWRITER_H

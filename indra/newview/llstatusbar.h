@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSTATUSBAR_H
-#define LL_LLSTATUSBAR_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -156,4 +155,3 @@ bool can_afford_transaction(S32 cost);
 
 extern LLStatusBar *gStatusBar;
 
-#endif

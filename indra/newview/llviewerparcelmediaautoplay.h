@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERPARCELMEDIAAUTOPLAY_H
-#define LLVIEWERPARCELMEDIAAUTOPLAY_H
+#pragma once
 
 #include "lleventtimer.h"
 #include "lluuid.h"
@@ -50,4 +49,3 @@ public:
 };
 
 
-#endif // LLVIEWERPARCELMEDIAAUTOPLAY_H

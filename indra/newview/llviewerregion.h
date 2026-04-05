@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERREGION_H
-#define LL_LLVIEWERREGION_H
+#pragma once
 
 // A ViewerRegion is a class that contains a bunch of objects and surfaces
 // that are in to a particular region.
@@ -712,4 +711,3 @@ inline bool LLViewerRegion::getReleaseNotesRequested() const
     return mReleaseNotesRequested;
 }
 
-#endif

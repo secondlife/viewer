@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PERLIN_H
-#define LL_PERLIN_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -43,4 +42,3 @@ private:
     static void init(void);
 };
 
-#endif // LL_PERLIN_

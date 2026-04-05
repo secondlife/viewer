@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERREGIONDEBUGCONSOLE_H
-#define LL_LLFLOATERREGIONDEBUGCONSOLE_H
+#pragma once
 
 #include <boost/signals2.hpp>
 
@@ -61,4 +60,3 @@ public:
     boost::signals2::connection mReplySignalConnection;
 };
 
-#endif // LL_LLFLOATERREGIONDEBUGCONSOLE_H

@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLMATERIALID_H
-#define LL_LLMATERIALID_H
+#pragma once
 
 #define MATERIAL_ID_SIZE 16
 
@@ -109,5 +108,4 @@ inline size_t hash_value(const LLMaterialID& id) noexcept
     return std::hash<LLMaterialID>{}(id);
 }
 
-#endif // LL_LLMATERIALID_H
 

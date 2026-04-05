@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCYLINDER_H
-#define LL_LLCYLINDER_H
+#pragma once
 
 //#include "stdtypes.h"
 //#include "llgl.h"
@@ -44,4 +43,3 @@ public:
 
 
 extern LLCone gCone;
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERCAMERA_H
-#define LL_LLVIEWERCAMERA_H
+#pragma once
 
 #include "llcamera.h"
 #include "llsingleton.h"
@@ -128,4 +127,3 @@ public:
 };
 
 
-#endif // LL_LLVIEWERCAMERA_H

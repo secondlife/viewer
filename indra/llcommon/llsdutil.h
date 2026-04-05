@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSDUTIL_H
-#define LL_LLSDUTIL_H
+#pragma once
 
 #include "apply.h"                  // LL::invoke()
 #include "function_types.h"         // LL::function_arity
@@ -762,4 +761,3 @@ auto apply(CALLABLE&& func, const LLSD& args)
 
 } // namespace LL
 
-#endif // LL_LLSDUTIL_H

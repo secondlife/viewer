@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCOREINT_THREAD_H_
-#define LLCOREINT_THREAD_H_
+#pragma once
 
 #include "linden_common.h"
 
@@ -122,6 +121,5 @@ private:
 
 } // end namespace LLCoreInt
 
-#endif // LLCOREINT_THREAD_H_
 
 

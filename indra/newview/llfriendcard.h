@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFRIENDCARD_H
-#define LL_LLFRIENDCARD_H
+#pragma once
 
 
 #include "llcallingcard.h"
@@ -163,4 +162,3 @@ private:
 
 };
 
-#endif // LL_LLFRIENDCARD_H

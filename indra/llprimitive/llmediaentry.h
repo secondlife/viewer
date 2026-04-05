@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMEDIAENTRY_H
-#define LL_LLMEDIAENTRY_H
+#pragma once
 
 #include "llsd.h"
 #include "llstring.h"
@@ -218,5 +217,4 @@ private:
     mutable LLUUID *mMediaIDp;            // temporary id assigned to media on the viewer
 };
 
-#endif
 

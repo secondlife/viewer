@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TRANS_H
-#define LL_TRANS_H
+#pragma once
 
 #include <map>
 #include <set>
@@ -131,4 +130,3 @@ private:
     static LLStringUtil::format_map_t sDefaultArgs;
 };
 
-#endif

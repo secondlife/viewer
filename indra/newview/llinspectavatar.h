@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLINSPECTAVATAR_H
-#define LLINSPECTAVATAR_H
+#pragma once
 
 namespace LLInspectAvatarUtil
 {
@@ -32,4 +31,3 @@ namespace LLInspectAvatarUtil
     void registerFloater();
 }
 
-#endif

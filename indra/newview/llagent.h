@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAGENT_H
-#define LL_LLAGENT_H
+#pragma once
 
 #include <array>
 #include "indra_constants.h"
@@ -999,4 +998,3 @@ inline bool operator==(const LLGroupData &a, const LLGroupData &b)
     return (a.mID == b.mID);
 }
 
-#endif

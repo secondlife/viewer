@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMARKETPLACENOTIFICATIONS_H
-#define LL_LLMARKETPLACENOTIFICATIONS_H
+#pragma once
 
 
 #include <llsd.h>
@@ -54,4 +53,3 @@ namespace LLMarketplaceInventoryNotifications
 };
 
 
-#endif // LL_LLMARKETPLACENOTIFICATIONS_H

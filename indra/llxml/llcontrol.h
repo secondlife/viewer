@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCONTROL_H
-#define LL_LLCONTROL_H
+#pragma once
 
 #include "llboost.h"
 #include "llstring.h"
@@ -452,4 +451,3 @@ template<> LLSD convert_from_llsd<LLSD>(const LLSD& sd, eControlType type, std::
 void test_cached_control();
 #endif // TEST_CACHED_CONTROL
 
-#endif

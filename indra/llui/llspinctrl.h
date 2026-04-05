@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSPINCTRL_H
-#define LL_LLSPINCTRL_H
+#pragma once
 
 
 #include "stdtypes.h"
@@ -120,4 +119,3 @@ private:
     bool            mAllowEdit;
 };
 
-#endif  // LL_LLSPINCTRL_H

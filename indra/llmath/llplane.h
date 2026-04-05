@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPLANE_H
-#define LL_LLPLANE_H
+#pragma once
 
 #include "v3math.h"
 #include "v4math.h"
@@ -107,4 +106,3 @@ private:
 static_assert(std::is_trivial<LLPlane>::value, "LLPlane must be a trivial type");
 
 
-#endif // LL_LLPLANE_H

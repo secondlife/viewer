@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMATERIALTABLE_H
-#define LL_LLMATERIALTABLE_H
+#pragma once
 
 #include "lluuid.h"
 #include "llstring.h"
@@ -187,5 +186,4 @@ public:
 
 };
 
-#endif
 

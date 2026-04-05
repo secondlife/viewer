@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MUTELIST_H
-#define LL_MUTELIST_H
+#pragma once
 
 #include "llstring.h"
 #include "lluuid.h"
@@ -214,4 +213,3 @@ private:
 };
 
 
-#endif //LL_MUTELIST_H

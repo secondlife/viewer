@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TRACKPICKER_H
-#define LL_TRACKPICKER_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -55,4 +54,3 @@ private:
     LLHandle<LLView> mOwnerHandle;
 };
 
-#endif  // LL_TRACKPICKER_H

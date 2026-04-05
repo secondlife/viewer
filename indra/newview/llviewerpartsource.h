@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERPARTSOURCE_H
-#define LL_LLVIEWERPARTSOURCE_H
+#pragma once
 
 #include "llrefcount.h"
 #include "llpartdata.h"
@@ -208,4 +207,3 @@ protected:
 };
 
 
-#endif // LL_LLVIEWERPARTSOURCE_H

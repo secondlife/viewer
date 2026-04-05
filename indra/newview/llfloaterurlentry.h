@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERURLENTRY_H
-#define LL_LLFLOATERURLENTRY_H
+#pragma once
 
 #include "llfloater.h"
 #include "llpanellandmedia.h"
@@ -65,4 +64,3 @@ private:
 
 };
 
-#endif  // LL_LLFLOATERURLENTRY_H

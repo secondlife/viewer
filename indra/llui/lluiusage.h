@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLUIUSAGE_H
-#define LL_LLUIUSAGE_H
+#pragma once
 
 #include <map>
 #include "llsd.h"
@@ -54,4 +53,3 @@ private:
     std::map<std::string,U32> mPanelCounts;
 };
 
-#endif // LLUIUIUSAGE.h

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDICON_H
-#define LL_LLHUDICON_H
+#pragma once
 
 #include "llpointer.h"
 
@@ -85,4 +84,3 @@ private:
     static icon_instance_t sIconInstances;
 };
 
-#endif // LL_LLHUDICON_H

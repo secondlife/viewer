@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELGROUPROLES_H
-#define LL_LLPANELGROUPROLES_H
+#pragma once
 
 #include "llpanelgroup.h"
 
@@ -378,4 +377,3 @@ protected:
 
 };
 
-#endif // LL_LLPANELGROUPROLES_H

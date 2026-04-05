@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VIEWEROCTREE_H
-#define LL_VIEWEROCTREE_H
+#pragma once
 
 #include <vector>
 #include <map>
@@ -421,4 +420,3 @@ public:
     static bool sInDebug;
 };
 
-#endif

@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LL_LLPRIQUEUEMAP_H
-#define LL_LLPRIQUEUEMAP_H
+#pragma once
 
 #include <map>
 
@@ -140,4 +139,3 @@ protected:
     F32 (*mGetPriority)(DATA_TYPE &data);
 };
 
-#endif // LL_LLPRIQUEUEMAP_H

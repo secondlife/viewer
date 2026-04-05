@@ -24,8 +24,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLSLURL_H
-#define LLSLURL_H
+#pragma once
 
 #include "llstring.h"
 
@@ -112,4 +111,3 @@ protected:
     LLVector3  mPosition;
 };
 
-#endif // LLSLURL_H

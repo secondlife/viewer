@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MESSAGE_H
-#define LL_MESSAGE_H
+#pragma once
 
 #include <array>
 #include <cstring>
@@ -1170,4 +1169,3 @@ inline S32 LLMessageSystem::sendMessage(const U32 circuit)
     return sendMessage(findHost(circuit));
 }
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMOVEVIEW_H
-#define LL_LLMOVEVIEW_H
+#pragma once
 
 // Library includes
 #include "llfloater.h"
@@ -184,4 +183,3 @@ private:
 };
 
 
-#endif

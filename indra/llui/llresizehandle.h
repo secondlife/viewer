@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_RESIZEHANDLE_H
-#define LL_RESIZEHANDLE_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llview.h"
@@ -74,6 +73,5 @@ private:
 constexpr S32 RESIZE_HANDLE_HEIGHT = 11;
 constexpr S32 RESIZE_HANDLE_WIDTH = 11;
 
-#endif  // LL_RESIZEHANDLE_H
 
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_BUFFER_ARRAY_H_
-#define _LLCORE_BUFFER_ARRAY_H_
+#pragma once
 
 
 #include <cstdlib>
@@ -137,4 +136,3 @@ protected:
 
 }  // end namespace LLCore
 
-#endif  // _LLCORE_BUFFER_ARRAY_H_

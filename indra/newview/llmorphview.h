@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMORPHVIEW_H
-#define LL_LLMORPHVIEW_H
+#pragma once
 
 #include "llview.h"
 #include "v3dmath.h"
@@ -84,4 +83,3 @@ protected:
 
 extern LLMorphView *gMorphView;
 
-#endif

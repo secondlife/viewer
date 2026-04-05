@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERJOINTMESH_H
-#define LL_LLVIEWERJOINTMESH_H
+#pragma once
 
 #include "llviewerjoint.h"
 #include "llviewertexture.h"
@@ -74,4 +73,3 @@ private:
     static void updateGeometry(LLFace* face, LLPolyMesh* mesh);
 };
 
-#endif // LL_LLVIEWERJOINTMESH_H

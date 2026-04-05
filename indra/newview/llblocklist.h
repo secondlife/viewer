@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLBLOCKLIST_H_
-#define LLBLOCKLIST_H_
+#pragma once
 
 #include "llflatlistview.h"
 #include "lllistcontextmenu.h"
@@ -156,4 +155,3 @@ protected:
     virtual bool doCompare(const LLBlockedListItem* blocked_item1, const LLBlockedListItem* blocked_item2) const;
 };
 
-#endif /* LLBLOCKLIST_H_ */

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTUREINFO_H
-#define LL_LLTEXTUREINFO_H
+#pragma once
 
 #include "lluuid.h"
 #include "lltextureinfodetails.h"
@@ -68,4 +67,3 @@ private:
 
 };
 
-#endif // LL_LLTEXTUREINFO_H

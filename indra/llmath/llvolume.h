@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOLUME_H
-#define LL_LLVOLUME_H
+#pragma once
 
 #include <iostream>
 
@@ -1160,4 +1159,3 @@ bool LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, co
 bool LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
                             F32& intersection_a, F32& intersection_b, F32& intersection_t);
 
-#endif

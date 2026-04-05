@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLPANELHOME_H
-#define LL_LLPANELHOME_H
+#pragma once
 
 #include "llpanel.h"
 #include "llsd.h"
@@ -55,4 +54,3 @@ private:
     bool         mFirstView;
 };
 
-#endif //LL_LLPANELHOME_H

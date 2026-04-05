@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSTARTUP_H
-#define LL_LLSTARTUP_H
+#pragma once
 
 #include <memory>                   // unique_ptr
 
@@ -140,4 +139,3 @@ private:
 };
 
 
-#endif // LL_LLSTARTUP_H

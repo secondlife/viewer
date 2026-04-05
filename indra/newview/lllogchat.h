@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLOGCHAT_H
-#define LL_LLLOGCHAT_H
+#pragma once
 #include "llthread.h"
 
 class LLChat;
@@ -210,4 +209,3 @@ extern const std::string LL_IM_FROM; //("from");
 extern const std::string LL_IM_FROM_ID; //("from_id");
 extern const std::string LL_TRANSCRIPT_FILE_EXTENSION; //("txt");
 
-#endif

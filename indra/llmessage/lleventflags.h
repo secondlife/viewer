@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLEVENTFLAGS_H
-#define LL_LLEVENTFLAGS_H
+#pragma once
 
 const U32 EVENT_FLAG_NONE   = 0x0000;
 
@@ -33,4 +32,3 @@ const U32 EVENT_FLAG_NONE   = 0x0000;
 const U32 EVENT_FLAG_MATURE = 0x0001;
 const U32 EVENT_FLAG_ADULT  = 0x0002;
 
-#endif

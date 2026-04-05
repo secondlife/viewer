@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLHUDNAMETAG_H
-#define LLHUDNAMETAG_H
+#pragma once
 
 #include "llpointer.h"
 
@@ -195,4 +194,3 @@ private:
     using VisibleTextObjectIterator = std::vector<LLPointer<LLHUDNameTag> >::iterator;
 };
 
-#endif

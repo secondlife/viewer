@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERDIRECTORY_H
-#define LL_LLFLOATERDIRECTORY_H
+#pragma once
 
 #include "llfloater.h"
 #include "lltabcontainer.h"
@@ -78,4 +77,3 @@ private:
 
 //extern BOOL gDisplayEventHack;
 
-#endif  // LL_LLDIRECTORYFLOATER_H

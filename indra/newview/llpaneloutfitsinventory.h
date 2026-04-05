@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELOUTFITSINVENTORY_H
-#define LL_LLPANELOUTFITSINVENTORY_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -126,4 +125,3 @@ private:
     boost::signals2::connection mTrashMenuConnection;
 };
 
-#endif //LL_LLPANELOUTFITSINVENTORY_H

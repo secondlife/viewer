@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCHATHISTORY_H_
-#define LLCHATHISTORY_H_
+#pragma once
 
 #include "lltexteditor.h"
 #include "lltextbox.h"
@@ -149,4 +148,3 @@ class LLChatHistory : public LLUICtrl
         using unread_chat_source_t = std::set<std::string>;
         unread_chat_source_t mUnreadChatSources;
 };
-#endif /* LLCHATHISTORY_H_ */

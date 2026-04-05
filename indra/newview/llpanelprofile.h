@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLPANELPROFILE_H
-#define LL_LLPANELPROFILE_H
+#pragma once
 
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
@@ -384,4 +383,3 @@ private:
     LLTabContainer*             mTabContainer;
 };
 
-#endif //LL_LLPANELPROFILE_H

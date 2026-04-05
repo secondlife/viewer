@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSKY_H
-#define LL_LLSKY_H
+#pragma once
 
 #include "llmath.h"
 #include "v3math.h"
@@ -93,4 +92,3 @@ protected:
 };
 
 extern LLSky gSky;
-#endif

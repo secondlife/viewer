@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERPARCELMEDIA_H
-#define LLVIEWERPARCELMEDIA_H
+#pragma once
 
 #include "llviewermedia.h"
 
@@ -97,4 +96,3 @@ public:
 
 };
 
-#endif

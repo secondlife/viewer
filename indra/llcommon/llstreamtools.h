@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_STREAM_TOOLS_H
-#define LL_STREAM_TOOLS_H
+#pragma once
 
 #include <deque>
 #include <iostream>
@@ -138,4 +137,3 @@ public:
     int underflow() override;
 };
 
-#endif

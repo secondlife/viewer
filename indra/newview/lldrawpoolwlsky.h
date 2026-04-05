@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_DRAWPOOLWLSKY_H
-#define LL_DRAWPOOLWLSKY_H
+#pragma once
 
 #include "lldrawpool.h"
 
@@ -73,4 +72,3 @@ private:
     void renderHeavenlyBodies();
 };
 
-#endif // LL_DRAWPOOLWLSKY_H

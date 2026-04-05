@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLURLACTION_H
-#define LL_LLURLACTION_H
+#pragma once
 
 #include <functional>
 #include <string>
@@ -110,4 +109,3 @@ private:
     static execute_url_callback_t sExecuteSLURLCallback;
 };
 
-#endif

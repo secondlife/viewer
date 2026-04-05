@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_AVATARAPPEARANCE_DEFINES_H
-#define LL_AVATARAPPEARANCE_DEFINES_H
+#pragma once
 
 #include <vector>
 #include "lljointpickname.h"
@@ -252,4 +251,3 @@ public:
 
 } // End namespace LLAvatarAppearanceDefines
 
-#endif //LL_AVATARAPPEARANCE_DEFINES_H

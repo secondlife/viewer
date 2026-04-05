@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MESSAGETEMPLATEPARSER_H
-#define LL_MESSAGETEMPLATEPARSER_H
+#pragma once
 
 #include <string>
 #include "llmessagetemplate.h"
@@ -77,4 +76,3 @@ private:
     std::list<LLMessageTemplate *> mMessages;
 };
 
-#endif

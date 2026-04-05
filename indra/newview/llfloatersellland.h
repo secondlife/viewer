@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSELLLAND_H
-#define LL_LLFLOATERSELLLAND_H
+#pragma once
 
 #include "llsafehandle.h"
 
@@ -42,4 +41,3 @@ public:
     static LLFloater* buildFloater(const LLSD& key);
 };
 
-#endif // LL_LLFLOATERSELLLAND_H

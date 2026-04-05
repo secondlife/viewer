@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLEVENTPOLL_H
-#define LL_LLEVENTPOLL_H
+#pragma once
 
 
 class LLHost;
@@ -78,4 +77,3 @@ private:
 };
 
 
-#endif // LL_LLEVENTPOLL_H

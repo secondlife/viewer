@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LLEDITMENUHANDLER_H
-#define LLEDITMENUHANDLER_H
+#pragma once
 
 // Interface used by menu system for plug-in hotkey/menu handling
 class LLEditMenuHandler
@@ -68,4 +67,3 @@ public:
 };
 
 
-#endif

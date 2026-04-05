@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLEXTERNALEDITOR_H
-#define LL_LLEXTERNALEDITOR_H
+#pragma once
 
 #include "llprocess.h"
 
@@ -101,4 +100,3 @@ private:
     LLProcess::Params       mProcessParams;
 };
 
-#endif // LL_LLEXTERNALEDITOR_H

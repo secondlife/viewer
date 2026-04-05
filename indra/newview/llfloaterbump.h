@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERBUMP_H
-#define LL_LLFLOATERBUMP_H
+#pragma once
 
 #include "llfloater.h"
 #include "llmenugl.h"
@@ -76,4 +75,3 @@ private:
 
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_UNITTYPE_H
-#define LL_UNITTYPE_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llpreprocessor.h"
@@ -855,4 +854,3 @@ LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, un
 #pragma warning(pop)
 #endif
 
-#endif //LL_UNITTYPE_H

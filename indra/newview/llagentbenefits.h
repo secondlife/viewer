@@ -23,8 +23,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_AGENTBENEFITS_H
-#define LL_AGENTBENEFITS_H
+#pragma once
 
 #include "llsingleton.h"
 #include "llsd.h"
@@ -95,4 +94,3 @@ private:
 };
 
 
-#endif

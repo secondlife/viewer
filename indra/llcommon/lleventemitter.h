@@ -25,8 +25,7 @@
  */
 
 // header guard
-#ifndef LL_EVENTEMITTER_H
-#define LL_EVENTEMITTER_H
+#pragma once
 
 // standard headers
 #include <algorithm>
@@ -99,4 +98,3 @@ class eventEmitter
         };
 };
 
-#endif // lleventemitter_h

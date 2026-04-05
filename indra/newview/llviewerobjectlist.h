@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWEROBJECTLIST_H
-#define LL_LLVIEWEROBJECTLIST_H
+#pragma once
 
 #include <algorithm>
 #include <map>
@@ -300,4 +299,3 @@ inline void LLViewerObjectList::removeFromMap(LLViewerObject *objectp)
 }
 
 
-#endif // LL_VIEWER_OBJECT_LIST_H

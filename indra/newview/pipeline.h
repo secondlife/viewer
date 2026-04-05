@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PIPELINE_H
-#define LL_PIPELINE_H
+#pragma once
 
 #include "llcamera.h"
 #include "llerror.h"
@@ -1095,4 +1094,3 @@ extern LLPipeline gPipeline;
 extern bool gDebugPipeline;
 extern const LLMatrix4* gGLLastMatrix;
 
-#endif

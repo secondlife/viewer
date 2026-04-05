@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERCONTROL_H
-#define LL_LLVIEWERCONTROL_H
+#pragma once
 
 #include <map>
 #include "llcontrol.h"
@@ -58,4 +57,3 @@ extern LLControlGroup gCrashSettings;
 // Set after settings loaded
 extern std::string gLastRunVersion;
 
-#endif // LL_LLVIEWERCONTROL_H

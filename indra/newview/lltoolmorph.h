@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOLMORPH_H
-#define LL_LLTOOLMORPH_H
+#pragma once
 
 #include "lltool.h"
 #include "m4math.h"
@@ -113,5 +112,4 @@ public:
     static bool sDirty;
 };
 
-#endif
 

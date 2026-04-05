@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSIDEPANELINVENTORY_H
-#define LL_LLSIDEPANELINVENTORY_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -116,4 +115,3 @@ private:
     LLInboxAddedObserver*           mInboxAddedObserver;
 };
 
-#endif //LL_LLSIDEPANELINVENTORY_H

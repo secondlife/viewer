@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYFRAMESTANDMOTION_H
-#define LL_LLKEYFRAMESTANDMOTION_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -114,5 +113,4 @@ public:
     S32                 mFrameNum;
 } LL_ALIGN_POSTFIX(16);
 
-#endif // LL_LLKEYFRAMESTANDMOTION_H
 

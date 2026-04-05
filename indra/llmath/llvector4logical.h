@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VECTOR4LOGICAL_H
-#define LL_VECTOR4LOGICAL_H
+#pragma once
 
 #include "llmemory.h"
 
@@ -125,4 +124,3 @@ private:
 
 static_assert(std::is_trivial<LLVector4Logical>::value, "LLVector4Logical must be a standard layout type");
 
-#endif //LL_VECTOR4ALOGICAL_H

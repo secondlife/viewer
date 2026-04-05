@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYBOARDSDL_H
-#define LL_LLKEYBOARDSDL_H
+#pragma once
 
 #include "llkeyboard.h"
 #include "SDL/SDL.h"
@@ -52,4 +51,3 @@ private:
     std::map<KEY, U16> mInvTranslateNumpadMap; // inverse of the above
 };
 
-#endif

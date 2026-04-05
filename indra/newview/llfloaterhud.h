@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERHUD_H
-#define LL_LLFLOATERHUD_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -47,4 +46,3 @@ private:
     LLMediaCtrl* mWebBrowser; ///< the actual web browser control
 };
 
-#endif // LL_LLFLOATERHUD_H

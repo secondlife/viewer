@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGROUPNOTIFY_H
-#define LL_LLGROUPNOTIFY_H
+#pragma once
 
 #include "llfontgl.h"
 #include "lltoastpanel.h"
@@ -70,4 +69,3 @@ private:
 const S32 GROUP_LAYOUT_DEFAULT = 0;
 const S32 GROUP_LAYOUT_SCRIPT_DIALOG = 1;
 
-#endif

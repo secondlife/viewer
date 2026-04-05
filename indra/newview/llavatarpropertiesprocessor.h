@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAVATARPROPERTIESPROCESSOR_H
-#define LL_LLAVATARPROPERTIESPROCESSOR_H
+#pragma once
 
 #include "lluuid.h"
 #include "llsingleton.h"
@@ -289,4 +288,3 @@ protected:
     bool mIsHideAgeSupportedByServer { false };
 };
 
-#endif  // LL_LLAVATARPROPERTIESPROCESSOR_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMULTIGESTURE_H
-#define LL_LLMULTIGESTURE_H
+#pragma once
 
 #include <set>
 #include <string>
@@ -241,4 +240,3 @@ public:
     U32 mFlags;
 };
 
-#endif

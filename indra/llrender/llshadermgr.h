@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SHADERMGR_H
-#define LL_SHADERMGR_H
+#pragma once
 
 #include "llgl.h"
 #include "llglslshader.h"
@@ -400,4 +399,3 @@ protected:
 
 }; //LLShaderMgr
 
-#endif

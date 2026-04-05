@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATER_ADDPAYMENTMETHOD_H
-#define LL_FLOATER_ADDPAYMENTMETHOD_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -49,4 +48,3 @@ private:
 
 };
 
-#endif

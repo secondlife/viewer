@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PROFILER_H
-#define LL_PROFILER_H
+#pragma once
 
 // If you use the default macros LL_PROFILE_ZONE_SCOPED and LL_PROFILE_ZONE_NAMED to profile code ...
 //
@@ -182,4 +181,3 @@
 
 #include "llprofilercategories.h"
 
-#endif // LL_PROFILER_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPLACEPROFILE_H
-#define LL_LLPANELPLACEPROFILE_H
+#pragma once
 
 #include "llpanelplaceinfo.h"
 
@@ -122,4 +121,3 @@ private:
     boost::signals2::scoped_connection mAvatarNameCacheConnection;
 };
 
-#endif // LL_LLPANELPLACEPROFILE_H

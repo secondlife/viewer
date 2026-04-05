@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELDIRCLASSIFIED_H
-#define LL_LLPANELDIRCLASSIFIED_H
+#pragma once
 
 #include "llpaneldirbrowser.h"
 
@@ -52,4 +51,3 @@ protected:
     static void onClickSearch(void *userdata);
 };
 
-#endif

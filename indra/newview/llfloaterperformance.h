@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERPERFORMANCE_H
-#define LL_LLFLOATERPERFORMANCE_H
+#pragma once
 
 #include "llfloater.h"
 #include "lllistcontextmenu.h"
@@ -110,4 +109,3 @@ private:
     boost::signals2::connection mMaxARTChangedSignal;
 };
 
-#endif // LL_LLFLOATERPERFORMANCE_H

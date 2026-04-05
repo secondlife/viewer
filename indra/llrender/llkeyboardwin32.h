@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYBOARDWIN32_H
-#define LL_LLKEYBOARDWIN32_H
+#pragma once
 
 #include "llkeyboard.h"
 
@@ -55,4 +54,3 @@ private:
     std::map<KEY, U16> mInvTranslateNumpadMap;
 };
 
-#endif

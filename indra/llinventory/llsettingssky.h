@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_SETTINGS_SKY_H
-#define LL_SETTINGS_SKY_H
+#pragma once
 
 #include "llsettingsbase.h"
 #include "v4coloru.h"
@@ -454,4 +453,3 @@ private:
     static mapNameToUniformId_t sNameToUniformMapping;
 };
 
-#endif

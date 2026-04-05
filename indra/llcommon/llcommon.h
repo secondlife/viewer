@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_COMMON_H
-#define LL_COMMON_H
+#pragma once
 
 // *TODO: remove these?
 #include "lltimer.h"
@@ -39,5 +38,4 @@ private:
     static bool sAprInitialized;
 };
 
-#endif
 

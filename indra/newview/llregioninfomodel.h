@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLREGIONINFOMODEL_H
-#define LL_LLREGIONINFOMODEL_H
+#pragma once
 
 class LLMessageSystem;
 
@@ -97,4 +96,3 @@ private:
     update_signal_t mUpdateSignal;
 };
 
-#endif // LL_LLREGIONINFOMODEL_H

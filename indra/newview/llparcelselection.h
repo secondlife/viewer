@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLPARCELSELECTION_H
-#define LLPARCELSELECTION_H
+#pragma once
 
 #include "llrefcount.h"
 #include "llsafehandle.h"
@@ -76,4 +75,3 @@ private:
 
 using LLParcelSelectionHandle = LLSafeHandle<LLParcelSelection>;
 
-#endif

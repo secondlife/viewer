@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXLAYERPARAMS_H
-#define LL_LLTEXLAYERPARAMS_H
+#pragma once
 
 #include <array>
 
@@ -205,4 +204,3 @@ using param_alpha_list_t = std::vector<LLTexLayerParamAlpha *>;
 using param_color_info_list_t = std::vector<LLTexLayerParamColorInfo *>;
 using param_alpha_info_list_t = std::vector<LLTexLayerParamAlphaInfo *>;
 
-#endif

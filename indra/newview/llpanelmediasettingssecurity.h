@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELMEDIAMEDIASETTINGSSECURITY_H
-#define LL_LLPANELMEDIAMEDIASETTINGSSECURITY_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -79,4 +78,3 @@ private:
     static void onBtnDel(void*);
 };
 
-#endif  // LL_LLPANELMEDIAMEDIASETTINGSSECURITY_H

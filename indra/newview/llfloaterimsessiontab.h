@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATERIMSESSIONTAB_H
-#define LL_FLOATERIMSESSIONTAB_H
+#pragma once
 
 #include "lllayoutstack.h"
 #include "llparticipantlist.h"
@@ -259,4 +258,3 @@ private:
 };
 
 
-#endif /* LL_FLOATERIMSESSIONTAB_H */

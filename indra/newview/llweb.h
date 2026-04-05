@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWEB_H
-#define LL_LLWEB_H
+#pragma once
 
 #include <string>
 
@@ -65,4 +64,3 @@ public:
     static bool useExternalBrowser(const std::string &url);
 };
 
-#endif

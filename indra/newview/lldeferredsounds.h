@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLDEFERREDSOUNDS_H
-#define LL_LLDEFERREDSOUNDS_H
+#pragma once
 
 #include "llsingleton.h"
 #include "llaudioengine.h"
@@ -41,5 +40,4 @@ public:
     void playdeferredSounds();
 };
 
-#endif // LL_LLDEFERREDSOUNDS_H
 

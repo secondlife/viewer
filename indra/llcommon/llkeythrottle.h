@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEY_THROTTLE_H
-#define LL_LLKEY_THROTTLE_H
+#pragma once
 
 // LLKeyThrottle keeps track of the number of action occurences with a key value
 // for a type over a given time period.  If the rate set in the constructor is
@@ -327,4 +326,3 @@ protected:
     bool    mIsRealtime;    // true to be time based (default), false for frame based
 };
 
-#endif

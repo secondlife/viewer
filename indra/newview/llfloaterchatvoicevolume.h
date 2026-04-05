@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERCHATVOICEVOLUME_H_
-#define LLFLOATERCHATVOICEVOLUME_H_
+#pragma once
 
 #include "llinspect.h"
 #include "lltransientfloatermgr.h"
@@ -41,4 +40,3 @@ public:
     /*virtual*/ LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::GLOBAL; }
 };
 
-#endif /* LLFLOATERCHATVOICEVOLUME_H_ */

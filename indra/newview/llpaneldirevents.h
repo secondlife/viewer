@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELDIREVENTS_H
-#define LL_LLPANELDIREVENTS_H
+#pragma once
 
 #include "llpaneldirbrowser.h"
 
@@ -58,4 +57,3 @@ protected:
 };
 
 
-#endif

@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPATHFINDINGOBJECTLIST_H
-#define LL_LLPATHFINDINGOBJECTLIST_H
+#pragma once
 
 #include <string>
 #include <map>
@@ -63,4 +62,3 @@ private:
     LLPathfindingObjectMap mObjectMap;
 };
 
-#endif // LL_LLPATHFINDINGOBJECTLIST_H

@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMETRICS_H
-#define LL_LLMETRICS_H
+#pragma once
 
 class LLMetricsImpl;
 class LLSD;
@@ -56,5 +55,4 @@ private:
     LLMetricsImpl* mImpl;
 };
 
-#endif
 

@@ -27,8 +27,7 @@
 // All immediate-mode gl drawing should happen here.
 
 
-#ifndef LL_RENDER2DUTILS_H
-#define LL_RENDER2DUTILS_H
+#pragma once
 
 #include "llpointer.h"      // LLPointer<>
 #include "llrect.h"
@@ -174,5 +173,4 @@ private:
 extern LLGLSLShader gSolidColorProgram;
 extern LLGLSLShader gUIProgram;
 
-#endif // LL_RENDER2DUTILS_H
 

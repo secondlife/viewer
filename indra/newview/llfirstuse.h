@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFIRSTUSE_H
-#define LL_LLFIRSTUSE_H
+#pragma once
 
 #include <vector>
 #include "llstring.h"
@@ -97,5 +96,4 @@ protected:
     static bool processNotification(const LLSD& notify);
 };
 
-#endif
 // EOF

@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LLINVENTORYFILTER_H
-#define LLINVENTORYFILTER_H
+#pragma once
 
 #include "llinventorytype.h"
 #include "llpermissionsflags.h"
@@ -398,4 +397,3 @@ private:
     bool mSingleFolderMode;
 };
 
-#endif

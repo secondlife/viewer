@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TABCONTAINER_H
-#define LL_TABCONTAINER_H
+#pragma once
 
 #include "llpanel.h"
 #include "lltextbox.h"
@@ -328,4 +327,3 @@ private:
     bool mUseTabOffset;
 };
 
-#endif  // LL_TABCONTAINER_H

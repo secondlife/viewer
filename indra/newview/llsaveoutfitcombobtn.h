@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSAVEOUTFITCOMBOBTN_H
-#define LL_LLSAVEOUTFITCOMBOBTN_H
+#pragma once
 
 class LLButton;
 
@@ -51,4 +50,3 @@ private:
     LLToggleableMenu* mSaveMenu;
 };
 
-#endif // LL_LLSAVEOUTFITCOMBOBTN_H

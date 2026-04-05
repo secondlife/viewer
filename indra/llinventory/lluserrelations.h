@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUSERRELAIONS_H
-#define LL_LLUSERRELAIONS_H
+#pragma once
 
 #include <map>
 #include "lluuid.h"
@@ -180,4 +179,3 @@ protected:
     bool mIsOnline;
 };
 
-#endif // LL_LLUSERRELAIONS_H

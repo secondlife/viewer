@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELLANDMARKS_H
-#define LL_LLPANELLANDMARKS_H
+#pragma once
 
 #include "lllandmark.h"
 
@@ -166,4 +165,3 @@ public:
     void initFavoritesInventoryPanel();
 };
 
-#endif //LL_LLPANELLANDMARKS_H

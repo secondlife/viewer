@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMESSAGEBUILDER_H
-#define LL_LLMESSAGEBUILDER_H
+#pragma once
 
 #include <string>
 
@@ -98,4 +97,3 @@ public:
     virtual void copyFromLLSD(const LLSD& data) = 0;
 };
 
-#endif //  LL_LLMESSAGEBUILDER_H

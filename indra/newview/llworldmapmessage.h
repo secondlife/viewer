@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWORLDMAPMESSAGE_H
-#define LL_LLWORLDMAPMESSAGE_H
+#pragma once
 
 #include <functional>
 
@@ -75,4 +74,3 @@ private:
     bool            mSLURLTeleport;
 };
 
-#endif // LL_LLWORLDMAPMESSAGE_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLViewerVisualParam_H
-#define LL_LLViewerVisualParam_H
+#pragma once
 
 #include "v3math.h"
 #include "llstring.h"
@@ -109,4 +108,3 @@ protected:
     LLViewerVisualParam(const LLViewerVisualParam& pOther);
 } LL_ALIGN_POSTFIX(16);
 
-#endif // LL_LLViewerVisualParam_H

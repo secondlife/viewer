@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_ROLES_CONSTANTS_H
-#define LL_ROLES_CONSTANTS_H
+#pragma once
 
 // This value includes the everyone group.
 const S32 MAX_ROLES = 10;
@@ -195,4 +194,3 @@ const U64 GP_DEFAULT_OFFICER = GP_DEFAULT_MEMBER // Superset of GP_DEFAULT_MEMBE
                                 | GP_ROLE_PROPERTIES
                                 | GP_SESSION_MODERATOR
                                 ;
-#endif

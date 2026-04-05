@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCURSORTYPES_H
-#define LL_LLCURSORTYPES_H
+#pragma once
 
 // If you add types here, add them in LLCursor::getCursorFromString
 enum ECursorType {
@@ -78,4 +77,3 @@ enum ECursorType {
 
 LL_COMMON_API ECursorType getCursorFromString(const std::string& cursor_string);
 
-#endif // LL_LLCURSORTYPES_H

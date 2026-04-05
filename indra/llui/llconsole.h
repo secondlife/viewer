@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCONSOLE_H
-#define LL_LLCONSOLE_H
+#pragma once
 
 #include "llfixedbuffer.h"
 #include "lluictrl.h"
@@ -153,4 +152,3 @@ private:
 
 extern LLConsole* gConsole;
 
-#endif

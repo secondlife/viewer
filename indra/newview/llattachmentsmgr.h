@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLATTACHMENTSMGR_H
-#define LL_LLATTACHMENTSMGR_H
+#pragma once
 
 #include "llsingleton.h"
 
@@ -133,4 +132,3 @@ private:
     std::set<LLUUID> mPendingAttachLinks;
 };
 
-#endif

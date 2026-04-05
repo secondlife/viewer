@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNOTIFICATIONSLISTENER_H
-#define LL_LLNOTIFICATIONSLISTENER_H
+#pragma once
 
 #include "lleventapi.h"
 #include "llnotificationptr.h"
@@ -65,4 +64,3 @@ private:
     LLNotifications & mNotifications;
 };
 
-#endif // LL_LLNOTIFICATIONSLISTENER_H

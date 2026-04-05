@@ -24,8 +24,7 @@
  */
 
 
-#ifndef LL_LLINVENTORYLISTENER_H
-#define LL_LLINVENTORYLISTENER_H
+#pragma once
 
 #include "lleventapi.h"
 #include "llinventoryfunctions.h"
@@ -44,5 +43,4 @@ private:
     void collectDescendantsIf(LLSD const &data);
 };
 
-#endif // LL_LLINVENTORYLISTENER_H
 

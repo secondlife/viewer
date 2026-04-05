@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELVOICEDEVICESETTINGS_H
-#define LL_LLPANELVOICEDEVICESETTINGS_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -68,4 +67,3 @@ protected:
     std::map<std::string, std::string> mLocalizedDeviceNames;
 };
 
-#endif // LL_LLPANELVOICEDEVICESETTINGS_H

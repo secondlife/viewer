@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLNOTIFICATIONS_H
-#define LL_LLNOTIFICATIONS_H
+#pragma once
 
 /**
  * This system is intended to provide a singleton mechanism for adding
@@ -1133,5 +1132,4 @@ private:
     std::vector<LLNotificationPtr> mHistory;
 };
 
-#endif//LL_LLNOTIFICATIONS_H
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCONVERSATIONMODEL_H
-#define LL_LLCONVERSATIONMODEL_H
+#pragma once
 
 #include <boost/signals2.hpp>
 
@@ -326,4 +325,3 @@ void hide_context_entries(LLMenuGL& menu,
     const menuentry_vec_t &entries_to_show,
     const menuentry_vec_t &disabled_entries);
 
-#endif // LL_LLCONVERSATIONMODEL_H

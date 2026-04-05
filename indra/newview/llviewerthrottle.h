@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERTHROTTLE_H
-#define LL_LLVIEWERTHROTTLE_H
+#pragma once
 
 #include <array>
 #include <vector>
@@ -92,4 +91,3 @@ protected:
 
 extern LLViewerThrottle gViewerThrottle;
 
-#endif // LL_LLVIEWERTHROTTLE_H

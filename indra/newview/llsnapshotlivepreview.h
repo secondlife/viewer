@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLSNAPSHOTLIVEPREVIEW_H
-#define LL_LLSNAPSHOTLIVEPREVIEW_H
+#pragma once
 
 #include <array>
 #include "llsnapshotmodel.h"
@@ -183,5 +182,4 @@ public:
     bool                        mForceUpdateSnapshot;
 };
 
-#endif // LL_LLSNAPSHOTLIVEPREVIEW_H
 

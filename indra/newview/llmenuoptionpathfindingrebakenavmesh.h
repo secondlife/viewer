@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLMENUOPTIONPATHFINDINGREBAKENAVMESH_H
-#define LL_LLMENUOPTIONPATHFINDINGREBAKENAVMESH_H
+#pragma once
 
 #include <boost/signals2.hpp>
 
@@ -82,4 +81,3 @@ private:
     LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
 };
 
-#endif // LL_LLMENUOPTIONPATHFINDINGREBAKENAVMESH_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGE_H
-#define LL_LLIMAGE_H
+#pragma once
 
 #include "llmutex.h"
 #include "llpointer.h"
@@ -397,4 +396,3 @@ public:
     static S32 sGlobalFormattedMemory;
 };
 
-#endif

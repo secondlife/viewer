@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELGROUP_H
-#define LL_LLPANELGROUP_H
+#pragma once
 
 #include "llevent.h"
 #include "llgroupmgr.h"
@@ -184,4 +183,3 @@ protected:
     bool mHasModal;
 };
 
-#endif // LL_LLPANELGROUP_H

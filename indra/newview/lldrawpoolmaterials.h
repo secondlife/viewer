@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLMATERIALS_H
-#define LL_LLDRAWPOOLMATERIALS_H
+#pragma once
 
 #include "v4coloru.h"
 #include "v2math.h"
@@ -67,4 +66,3 @@ public:
     void renderDeferred(S32 pass) override;
 };
 
-#endif //LL_LLDRAWPOOLMATERIALS_H

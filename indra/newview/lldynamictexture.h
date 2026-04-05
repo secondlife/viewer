@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDYNAMICTEXTURE_H
-#define LL_LLDYNAMICTEXTURE_H
+#pragma once
 
 #include "llcamera.h"
 #include "llgl.h"
@@ -99,4 +98,3 @@ protected:
     static S32 sNumRenders;
 };
 
-#endif

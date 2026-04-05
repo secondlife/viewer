@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLIMPROCESSING_H
-#define LL_LLIMPROCESSING_H
+#pragma once
 
 #include "llinstantmessage.h"
 
@@ -61,4 +60,3 @@ private:
 };
 
 
-#endif  // LL_LLLLIMPROCESSING_H

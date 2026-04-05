@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPATHFINDINGCHARACTERLIST_H
-#define LL_LLPATHFINDINGCHARACTERLIST_H
+#pragma once
 
 #include "llpathfindingobjectlist.h"
 
@@ -44,4 +43,3 @@ private:
     void parseCharacterListData(const LLSD& pCharacterListData);
 };
 
-#endif // LL_LLPATHFINDINGCHARACTERLIST_H

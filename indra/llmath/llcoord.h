@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCOORD_H
-#define LL_LLCOORD_H
+#pragma once
 
 template<typename> class LLCoord;
 struct LL_COORD_TYPE_GL;
@@ -109,4 +108,3 @@ struct LL_COORD_TYPE_SCREEN
     void convertFromCommon(const LLCoordCommon& from);
 };
 
-#endif

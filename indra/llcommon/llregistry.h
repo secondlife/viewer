@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLREGISTRY_H
-#define LL_LLREGISTRY_H
+#pragma once
 
 #include <list>
 
@@ -336,4 +335,3 @@ private:
 #define GLUE_TOKENS(x, y) GLUED_TOKEN(x, y)
 #define LLREGISTER_STATIC(REGISTRY, KEY, VALUE) static REGISTRY::StaticRegistrar GLUE_TOKENS(reg, __LINE__)(KEY, VALUE);
 
-#endif

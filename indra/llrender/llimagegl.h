@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_LLIMAGEGL_H
-#define LL_LLIMAGEGL_H
+#pragma once
 
 #include "llimage.h"
 
@@ -368,4 +367,3 @@ private:
     std::atomic<bool> mFinished;
 };
 
-#endif // LL_LLIMAGEGL_H

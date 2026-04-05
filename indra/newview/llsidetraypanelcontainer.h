@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLSIDETRAY_PANEL_CONTAINER_H
-#define LL_LLSIDETRAY_PANEL_CONTAINER_H
+#pragma once
 
 #include "lltabcontainer.h"
 
@@ -93,4 +92,3 @@ protected:
     std::string mDefaultPanelName;
 };
 
-#endif //LL_LLSIDETRAY_PANEL_CONTAINER_H

@@ -24,8 +24,7 @@
  *
  */
 
-#ifndef LL_CALCPARSER_H
-#define LL_CALCPARSER_H
+#pragma once
 
 #include <boost/spirit/include/classic_attribute.hpp>
 #include <boost/spirit/include/classic_core.hpp>
@@ -185,4 +184,3 @@ private:
     F32&        mResult;
 };
 
-#endif // LL_CALCPARSER_H

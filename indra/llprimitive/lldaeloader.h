@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDAELOADER_H
-#define LL_LLDAELOADER_H
+#pragma once
 
 #include "llmodelloader.h"
 
@@ -107,4 +106,3 @@ private:
     bool mPreprocessDAE;
 
 };
-#endif  // LL_LLDAELLOADER_H

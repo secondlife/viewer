@@ -24,12 +24,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAPPVIEWERMACOSX_OBJC_H
-#define LL_LLAPPVIEWERMACOSX_OBJC_H
+#pragma once
 
 #include <string>
 #include <vector>
 
 void force_ns_sxeption();
 
-#endif // LL_LLAPPVIEWERMACOSX_OBJC_H

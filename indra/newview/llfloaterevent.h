@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATEREVENT_H
-#define LL_LLFLOATEREVENT_H
+#pragma once
 
 #include "llfloater.h"
 #include "llviewermediaobserver.h"
@@ -59,4 +58,3 @@ protected:
 
 };
 
-#endif // LL_LLFLOATEREVENT_H

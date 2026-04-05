@@ -26,8 +26,7 @@
  * @endcond
  */
 
-#ifndef LL_LLPLUGINPROCESSPARENT_H
-#define LL_LLPLUGINPROCESSPARENT_H
+#pragma once
 
 #include <queue>
 
@@ -213,4 +212,3 @@ private:
     std::queue<LLPluginMessage> mIncomingQueue;
 };
 
-#endif // LL_LLPLUGINPROCESSPARENT_H

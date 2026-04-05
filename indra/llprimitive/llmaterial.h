@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMATERIAL_H
-#define LL_LLMATERIAL_H
+#pragma once
 
 #include "llmaterialid.h"
 #include "llsd.h"
@@ -149,5 +148,4 @@ protected:
 
 using LLMaterialPtr = LLPointer<LLMaterial>;
 
-#endif // LL_LLMATERIAL_H
 

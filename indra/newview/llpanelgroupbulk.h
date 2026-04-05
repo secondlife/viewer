@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPANELGROUPBULK_H
-#define LL_LLPANELGROUPBULK_H
+#pragma once
 
 #include "llpanel.h"
 #include "lluuid.h"
@@ -70,5 +69,4 @@ protected:
     bool mPendingMemberDataUpdate;
 };
 
-#endif // LL_LLPANELGROUPBULK_H
 

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LISTENER_OPENAL_H
-#define LL_LISTENER_OPENAL_H
+#pragma once
 
 #include "lllistener.h"
 
@@ -55,5 +54,4 @@ class LLListener_OpenAL  : public LLListener
     F32 mRolloffFactor;
 };
 
-#endif
 

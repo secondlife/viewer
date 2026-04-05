@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSTRIDER_H
-#define LL_LLSTRIDER_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -71,4 +70,3 @@ public:
     Object& operator[](U32 index)  { return *(Object*)(mBytep + (mSkip * index)); }
 };
 
-#endif // LL_LLSTRIDER_H

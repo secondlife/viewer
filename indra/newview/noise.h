@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_NOISE_H
-#define LL_NOISE_H
+#pragma once
 
 #include "llmath.h"
 
@@ -354,4 +353,3 @@ static void init(void)
 #undef NP
 #undef NM
 
-#endif // LL_NOISE_

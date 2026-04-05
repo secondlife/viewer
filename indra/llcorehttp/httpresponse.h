@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_RESPONSE_H_
-#define _LLCORE_HTTP_RESPONSE_H_
+#pragma once
 
 
 #include <string>
@@ -234,4 +233,3 @@ protected:
 
 }   // end namespace LLCore
 
-#endif  // _LLCORE_HTTP_RESPONSE_H_

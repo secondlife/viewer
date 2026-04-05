@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERBUYCURRENCYHTML_H
-#define LL_LLFLOATERBUYCURRENCYHTML_H
+#pragma once
 
 #include "llfloater.h"
 #include "llmediactrl.h"
@@ -56,4 +55,3 @@ class LLFloaterBuyCurrencyHTML :
         S32 mSum;
 };
 
-#endif  // LL_LLFLOATERBUYCURRENCYHTML_H

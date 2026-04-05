@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERWEBCONTENT_H
-#define LL_LLFLOATERWEBCONTENT_H
+#pragma once
 
 #include "llfloater.h"
 #include "llmediactrl.h"
@@ -118,4 +117,3 @@ protected:
     bool            mDevelopMode;
 };
 
-#endif  // LL_LLFLOATERWEBCONTENT_H

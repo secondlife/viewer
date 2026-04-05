@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_LLSTYLE_MAP_H
-#define LL_LLSTYLE_MAP_H
+#pragma once
 
 #include "llstyle.h"
 #include "lluuid.h"
@@ -49,4 +48,3 @@ private:
     style_map_t mMap;
 };
 
-#endif  // LL_LLSTYLE_MAP_H

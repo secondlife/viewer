@@ -27,8 +27,7 @@
 // A control that displays the name of the chosen item, which when clicked
 // shows a scrolling box of choices.
 
-#ifndef LL_LLCOMBOBOX_H
-#define LL_LLCOMBOBOX_H
+#pragma once
 
 #include "llbutton.h"
 #include "lluictrl.h"
@@ -288,4 +287,3 @@ private:
     S32         mLabelColumnIndex;
 };
 
-#endif

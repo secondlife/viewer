@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYACTIONS_H
-#define LL_LLINVENTORYACTIONS_H
+#pragma once
 
 #include "lluictrl.h"
 
@@ -38,4 +37,3 @@ void init_object_inventory_panel_actions(LLPanelInventory *panel, LLUICtrl::Comm
 void init_inventory_actions(LLInventoryView *floater, LLUICtrl::CommitCallbackRegistry::Registrar& registrar);
 void init_inventory_panel_actions(LLInventoryPanel *panel, LLUICtrl::CommitCallbackRegistry::Registrar& registrar);
 
-#endif // LL_LLINVENTORYACTIONS_H

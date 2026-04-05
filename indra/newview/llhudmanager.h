@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDMANAGER_H
-#define LL_LLHUDMANAGER_H
+#pragma once
 
 // Responsible for managing all HUD elements.
 
@@ -57,4 +56,3 @@ protected:
     std::vector<LLPointer<LLHUDEffect> > mHUDEffects;
 };
 
-#endif // LL_LLHUDMANAGER_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINSTANCETRACKER_H
-#define LL_LLINSTANCETRACKER_H
+#pragma once
 
 #include <map>
 #include <set>
@@ -508,4 +507,3 @@ private:
     weak_t mSelf;
 };
 
-#endif

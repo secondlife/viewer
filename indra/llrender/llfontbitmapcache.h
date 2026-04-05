@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFONTBITMAPCACHE_H
-#define LL_LLFONTBITMAPCACHE_H
+#pragma once
 
 #include <array>
 #include <vector>
@@ -81,4 +80,3 @@ private:
     std::array<std::vector<LLPointer<LLImageGL>>, static_cast<U32>(EFontGlyphType::Count)> mImageGLVec;
 };
 
-#endif //LL_LLFONTBITMAPCACHE_H

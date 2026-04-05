@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOLBAR_H
-#define LL_LLTOOLBAR_H
+#pragma once
 
 #include "llbutton.h"
 #include "llcommandmanager.h"
@@ -328,4 +327,3 @@ private:
 };
 
 
-#endif  // LL_LLTOOLBAR_H

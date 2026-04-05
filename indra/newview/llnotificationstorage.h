@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_NOTIFICATIONSTORAGE_H
-#define LL_NOTIFICATIONSTORAGE_H
+#pragma once
 
 #include <string>
 
@@ -54,4 +53,3 @@ private:
     std::string mOldFileName;
 };
 
-#endif // LL_NOTIFICATIONSTORAGE_H

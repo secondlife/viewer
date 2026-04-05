@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLOGINFLAGS_H
-#define LL_LLLOGINFLAGS_H
+#pragma once
 
 // Is this your first login to Second Life?
 const U32   LOGIN_FLAG_FIRST_LOGIN          = (1 << 0);
@@ -52,4 +51,3 @@ const U32 LOGIN_KICK_NO_AGENT = (1 << 0);
 const U32 LOGIN_KICK_SESSION_MISMATCH = (1 << 1);
 const U32 LOGIN_KICK_NO_SIMULATOR = (1 << 2);
 
-#endif

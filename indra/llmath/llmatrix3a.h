@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMATRIX3A_H
-#define LL_LLMATRIX3A_H
+#pragma once
 
 /////////////////////////////
 // LLMatrix3a, LLRotation
@@ -129,4 +128,3 @@ public:
 
 static_assert(std::is_trivial<LLRotation>::value, "LLRotation must be a trivial type");
 
-#endif

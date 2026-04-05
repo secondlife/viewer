@@ -25,8 +25,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLCOMMANDHANDLER_H
-#define LLCOMMANDHANDLER_H
+#pragma once
 
 #include "llsd.h"
 
@@ -119,4 +118,3 @@ public:
     static LLSD enumerate();
 };
 
-#endif

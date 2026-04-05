@@ -25,11 +25,9 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAGENTDATA_H
-#define LL_LLAGENTDATA_H
+#pragma once
 
 extern LLUUID gAgentID;
 extern LLUUID gAgentSessionID;
 extern std::string gAgentUsername;
 
-#endif

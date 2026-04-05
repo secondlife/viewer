@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERMEDIAOBSERVER_H
-#define LLVIEWERMEDIAOBSERVER_H
+#pragma once
 
 #include "llpluginclassmediaowner.h"
 
@@ -42,5 +41,4 @@ private:
     std::list<LLViewerMediaEventEmitter *> mEmitters;
 };
 
-#endif // LLVIEWERMEDIAOBSERVER_H
 

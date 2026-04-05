@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_CONVEX_DECOMPOSITION
-#define LL_CONVEX_DECOMPOSITION
+#pragma once
 
 typedef int bool32;
 
@@ -227,5 +226,4 @@ private:
     static bool s_isInitialized;
 };
 
-#endif //LL_CONVEX_DECOMPOSITION
 

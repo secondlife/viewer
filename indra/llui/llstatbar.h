@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSTATBAR_H
-#define LL_LLSTATBAR_H
+#pragma once
 
 #include "llview.h"
 #include "llframetimer.h"
@@ -116,4 +115,3 @@ private:
                  mAutoScaleMin;
 };
 
-#endif

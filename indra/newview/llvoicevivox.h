@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LL_VOICE_VIVOX_H
-#define LL_VOICE_VIVOX_H
+#pragma once
 
 class LLVOAvatar;
 class LLVivoxProtocolParser;
@@ -1058,5 +1057,4 @@ class LLVoiceVivoxStats : public LLSingleton<LLVoiceVivoxStats>
     LLSD read();
 };
 
-#endif //LL_VIVOX_VOICE_CLIENT_H
 

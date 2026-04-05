@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERREGIONRESTARTSCHEDULE_H
-#define LL_LLFLOATERREGIONRESTARTSCHEDULE_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -71,4 +70,3 @@ protected:
     bool mTimeAM{ true };
 };
 
-#endif  // LL_LLFLOATERREGIONRESTARTSCHEDULE_H

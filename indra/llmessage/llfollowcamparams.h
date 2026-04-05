@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FOLLOWCAM_PARAMS_H
-#define LL_FOLLOWCAM_PARAMS_H
+#pragma once
 
 
 //Ventrella Follow Cam Script Stuff
@@ -58,4 +57,3 @@ enum EFollowCamAttributes {
 
 //end Ventrella
 
-#endif //FOLLOWCAM_PARAMS_H

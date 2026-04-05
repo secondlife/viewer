@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_STATIC_STRING_TABLE_H
-#define LL_STATIC_STRING_TABLE_H
+#pragma once
 
 #include "lldefs.h"
 #include "llstl.h"
@@ -79,5 +78,4 @@ class LL_COMMON_API LLStaticStringTable
 {
 };
 
-#endif
 

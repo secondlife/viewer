@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VIEWERMEDIA_STREAMINGAUDIO_H
-#define LL_VIEWERMEDIA_STREAMINGAUDIO_H
+#pragma once
 
 
 #include "stdtypes.h" // from llcommon
@@ -60,4 +59,3 @@ private:
 };
 
 
-#endif //LL_VIEWERMEDIA_STREAMINGAUDIO_H

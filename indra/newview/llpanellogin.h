@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELLOGIN_H
-#define LL_LLPANELLOGIN_H
+#pragma once
 
 #include "llpanel.h"
 #include "llpointer.h"          // LLPointer<>
@@ -134,4 +133,3 @@ private:
     LLButton* mLoginBtn;
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMODALDIALOG_H
-#define LL_LLMODALDIALOG_H
+#pragma once
 
 #include "llfloater.h"
 #include "llframetimer.h"
@@ -80,4 +79,3 @@ private:
     static std::list<LLModalDialog*> sModalStack;  // Top of stack is currently being displayed
 };
 
-#endif  // LL_LLMODALDIALOG_H

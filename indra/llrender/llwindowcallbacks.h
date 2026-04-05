@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLWINDOWCALLBACKS_H
-#define LLWINDOWCALLBACKS_H
+#pragma once
 
 #include "llcoord.h"
 class LLWindow;
@@ -99,4 +98,3 @@ public:
 };
 
 
-#endif

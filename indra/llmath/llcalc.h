@@ -24,8 +24,7 @@
  *
  */
 
-#ifndef LL_CALC_H
-#define LL_CALC_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -97,4 +96,3 @@ private:
     static LLCalc*  sInstance;
 };
 
-#endif // LL_CALC_H

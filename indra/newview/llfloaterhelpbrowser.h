@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERHELPBROWSER_H
-#define LL_LLFLOATERHELPBROWSER_H
+#pragma once
 
 #include "llfloater.h"
 #include "llmediactrl.h"
@@ -61,5 +60,4 @@ class LLFloaterHelpBrowser :
     std::string mCurrentURL;
 };
 
-#endif  // LL_LLFLOATERHELPBROWSER_H
 

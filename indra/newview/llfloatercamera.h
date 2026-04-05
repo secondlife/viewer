@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERCAMERA_H
-#define LLFLOATERCAMERA_H
+#pragma once
 
 #include "llfloater.h"
 #include "lliconctrl.h"
@@ -175,4 +174,3 @@ protected:
     LLTextBox* mText;
 };
 
-#endif

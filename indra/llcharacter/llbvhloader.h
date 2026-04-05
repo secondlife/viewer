@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBVHLOADER_H
-#define LL_LLBVHLOADER_H
+#pragma once
 
 #include "v3math.h"
 #include "m3math.h"
@@ -337,4 +336,3 @@ protected:
     F32 mDuration;
 };
 
-#endif // LL_LLBVHLOADER_H

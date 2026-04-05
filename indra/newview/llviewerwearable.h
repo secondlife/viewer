@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VIEWER_WEARABLE_H
-#define LL_VIEWER_WEARABLE_H
+#pragma once
 
 #include "llwearable.h"
 #include "llavatarappearancedefines.h"
@@ -104,5 +103,4 @@ protected:
 };
 
 
-#endif  // LL_VIEWER_WEARABLE_H
 

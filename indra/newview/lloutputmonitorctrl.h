@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLOUTPUTMONITORCTRL_H
-#define LL_LLOUTPUTMONITORCTRL_H
+#pragma once
 
 #include "v4color.h"
 #include "../llui/llview.h"
@@ -167,4 +166,3 @@ private:
     EChannelState   mChannelState;
 };
 
-#endif

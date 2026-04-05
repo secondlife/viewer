@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_ACCORDIONCTRLTAB_H_
-#define LL_ACCORDIONCTRLTAB_H_
+#pragma once
 
 #include <string>
 #include "llrect.h"
@@ -248,4 +247,3 @@ private:
     LLUIColor mDropdownBGColor;
 };
 
-#endif

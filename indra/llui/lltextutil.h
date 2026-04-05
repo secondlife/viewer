@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTUTIL_H
-#define LL_LLTEXTUTIL_H
+#pragma once
 
 #include "llstyle.h"
 
@@ -80,4 +79,3 @@ namespace LLTextUtil
 
 }
 
-#endif // LL_LLTEXTUTIL_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGLHEADERS_H
-#define LL_LLGLHEADERS_H
+#pragma once
 
 #if LL_MESA
 //----------------------------------------------------------------------------
@@ -1060,4 +1059,3 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 #endif
 
 
-#endif // LL_LLGLHEADERS_H

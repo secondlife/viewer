@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPATCHVERTEXARRAY_H
-#define LL_LLPATCHVERTEXARRAY_H
+#pragma once
 
 // A LLPatchVertexArray is really just a structure of vertex arrays for
 // rendering a "patch" of a certain size.
@@ -66,4 +65,3 @@ public:
     // kept track of: data, offset, and length.
 };
 
-#endif

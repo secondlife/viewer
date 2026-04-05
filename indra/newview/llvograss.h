@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOGRASS_H
-#define LL_LLVOGRASS_H
+#pragma once
 
 #include "llviewerobject.h"
 #include <map>
@@ -123,4 +122,3 @@ private:
 
     static SpeciesMap sSpeciesTable;
 };
-#endif // LL_VO_GRASS_

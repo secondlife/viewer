@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPREDICATE_H
-#define LL_LLPREDICATE_H
+#pragma once
 
 #include "llerror.h"
 #include <array>
@@ -208,4 +207,3 @@ LLPredicate::Value<ENUM> ll_make_predicate(ENUM e, bool predicate_value = true)
 }
 
 
-#endif // LL_LLPREDICATE_H

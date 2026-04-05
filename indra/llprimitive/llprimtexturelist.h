@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPRIMTEXTURELIST_H
-#define LL_LLPRIMTEXTURELIST_H
+#pragma once
 
 #include <vector>
 #include "lluuid.h"
@@ -124,4 +123,3 @@ private:
     }
 };
 
-#endif

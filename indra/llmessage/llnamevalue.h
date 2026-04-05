@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNAMEVALUE_H
-#define LL_LLNAMEVALUE_H
+#pragma once
 
 // As of January 2008, I believe we only use the following name-value
 // pairs.  This is hard to prove because they are initialized from
@@ -180,4 +179,3 @@ public:
 extern LLStringTable    gNVNameTable;
 
 
-#endif

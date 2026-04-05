@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGETGA_H
-#define LL_LLIMAGETGA_H
+#pragma once
 
 #include "llimage.h"
 
@@ -107,4 +106,3 @@ private:
     static const std::array<U8, 32> s5to8bits;
 };
 
-#endif

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERINVENTORYTHUMBNAILSHELPER_H
-#define LL_LLFLOATERINVENTORYTHUMBNAILSHELPER_H
+#pragma once
 
 #include "llfloater.h"
 class LLTextEditor;
@@ -79,4 +78,3 @@ class LLFloaterInventoryThumbnailsHelper:
         };
 };
 
-#endif // LL_LLFLOATERINVENTORYTHUMBNAILSHELPER_H

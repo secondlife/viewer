@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERTOPOBJECTS_H
-#define LL_LLFLOATERTOPOBJECTS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -112,4 +111,3 @@ private:
     LLScrollListCtrl* mObjectsScrollList;
 };
 
-#endif

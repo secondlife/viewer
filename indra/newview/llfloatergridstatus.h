@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERGRIDSTATUS_H
-#define LL_LLFLOATERGRIDSTATUS_H
+#pragma once
 
 #include "llfloaterwebcontent.h"
 #include "llviewermediaobserver.h"
@@ -67,5 +66,4 @@ private:
     bool            mIsFirstUpdate;
 };
 
-#endif  // LL_LLFLOATERGRIDSTATUS_H
 

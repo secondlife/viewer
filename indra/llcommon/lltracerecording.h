@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRACERECORDING_H
-#define LL_LLTRACERECORDING_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llpreprocessor.h"
@@ -723,4 +722,3 @@ namespace LLTrace
 #pragma warning(pop)
 #endif
 
-#endif // LL_LLTRACERECORDING_H

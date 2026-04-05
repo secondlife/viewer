@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERLAYER_H
-#define LL_LLVIEWERLAYER_H
+#pragma once
 
 #include <vector>
 
@@ -47,4 +46,3 @@ protected:
     std::vector<F32> mDatap;
 };
 
-#endif // LL_LLVIEWERLAYER_H

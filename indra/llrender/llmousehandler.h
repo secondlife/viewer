@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MOUSEHANDLER_H
-#define LL_MOUSEHANDLER_H
+#pragma once
 
 #include "linden_common.h"
 #include "llrect.h"
@@ -70,4 +69,3 @@ public:
     virtual bool hasMouseCapture() = 0;
 };
 
-#endif

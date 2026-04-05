@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_V3MATH_H
-#define LL_V3MATH_H
+#pragma once
 
 #include "llerror.h"
 #include "llmath.h"
@@ -557,4 +556,3 @@ inline std::ostream& operator<<(std::ostream& s, const LLVector3 &a)
     return s;
 }
 
-#endif

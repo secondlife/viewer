@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_RAYTRACE_H
-#define LL_RAYTRACE_H
+#pragma once
 
 class LLVector3;
 class LLQuaternion;
@@ -226,4 +225,3 @@ bool linesegment_tetrahedron(const LLVector3 &point_a, const LLVector3 &point_b,
 bool linesegment_pyramid(const LLVector3 &point_a, const LLVector3 &point_b,
                          const LLVector3 &p_center, const LLVector3 &p_scale, const LLQuaternion &p_rotation,
                          LLVector3 &intersection, LLVector3 &intersection_normal);
-#endif

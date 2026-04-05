@@ -52,8 +52,7 @@
  */
 
 
-#ifndef SEARCHTEX_H
-#define SEARCHTEX_H
+#pragma once
 
 #define SEARCHTEX_WIDTH 64
 #define SEARCHTEX_HEIGHT 16
@@ -154,4 +153,3 @@ static const unsigned char searchTexBytes[] = {
     0x00, 0x00, 0x00, 0x00,
 };
 
-#endif

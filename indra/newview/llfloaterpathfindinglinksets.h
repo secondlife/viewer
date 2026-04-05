@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLFLOATERPATHFINDINGLINKSETS_H
-#define LL_LLFLOATERPATHFINDINGLINKSETS_H
+#pragma once
 
 #include <string>
 
@@ -140,4 +139,3 @@ private:
     LLSD             mPreviousValueD;
 };
 
-#endif // LL_LLFLOATERPATHFINDINGLINKSETS_H

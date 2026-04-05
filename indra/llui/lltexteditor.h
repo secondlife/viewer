@@ -26,8 +26,7 @@
 
 // Text editor widget to let users enter a a multi-line ASCII document//
 
-#ifndef LL_LLTEXTEDITOR_H
-#define LL_LLTEXTEDITOR_H
+#pragma once
 
 #include "llrect.h"
 #include "llframetimer.h"
@@ -357,4 +356,3 @@ extern template class LLTextEditor* LLView::getChild<class LLTextEditor>(
     std::string_view name, bool recurse) const;
 #endif
 
-#endif  // LL_TEXTEDITOR_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOWHEADLESS_H
-#define LL_LLWINDOWHEADLESS_H
+#pragma once
 
 #include "llwindow.h"
 
@@ -128,5 +127,4 @@ public:
 
 };
 
-#endif //LL_LLWINDOWHEADLESS_H
 

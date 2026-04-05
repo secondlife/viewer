@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCACHENAME_H
-#define LL_LLCACHENAME_H
+#pragma once
 
 #include <functional>
 #include <boost/signals2.hpp>
@@ -145,4 +144,3 @@ private:
 
 extern LLCacheName* gCacheName;
 
-#endif

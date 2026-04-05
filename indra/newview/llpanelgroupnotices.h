@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELGROUPNOTICES_H
-#define LL_LLPANELGROUPNOTICES_H
+#pragma once
 
 #include "llpanelgroup.h"
 #include "llpointer.h"
@@ -121,4 +120,3 @@ private:
     static std::map<LLUUID,LLPanelGroupNotices*>    sInstances;
 };
 
-#endif

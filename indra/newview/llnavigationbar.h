@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNAVIGATIONBAR_H
-#define LL_LLNAVIGATIONBAR_H
+#pragma once
 
 #include "llpanel.h"
 #include "llbutton.h"
@@ -160,4 +159,3 @@ private:
     bool                        mSaveToLocationHistory;
 };
 
-#endif

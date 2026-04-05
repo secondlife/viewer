@@ -28,8 +28,7 @@
  */
 
 // header guard
-#ifndef llmediaimplgstreamer_h
-#define llmediaimplgstreamer_h
+#pragma once
 
 #if LL_GSTREAMER010_ENABLED
 
@@ -50,4 +49,3 @@ gboolean llmediaimplgstreamer_bus_callback (GstBus     *bus,
 
 #endif // LL_GSTREAMER010_ENABLED
 
-#endif // llmediaimplgstreamer_h

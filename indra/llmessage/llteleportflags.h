@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTELEPORTFLAGS_H
-#define LL_LLTELEPORTFLAGS_H
+#pragma once
 
 const U32 TELEPORT_FLAGS_DEFAULT            = 0;
 const U32 TELEPORT_FLAGS_SET_HOME_TO_TARGET = 1 << 0;   // newbie leaving prelude
@@ -62,4 +61,3 @@ const U32 LURE_FLAG_NORMAL_LURE     = 1 << 0;
 const U32 LURE_FLAG_GODLIKE_LURE    = 1 << 1;
 const U32 LURE_FLAG_GODLIKE_PURSUIT = 1 << 2;
 
-#endif

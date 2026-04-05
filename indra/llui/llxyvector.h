@@ -27,8 +27,7 @@
 
 // A control that allows to set two related vector magnitudes by manipulating a single vector on a plane.
 
-#ifndef LL_LLXYVECTOR_H
-#define LL_LLXYVECTOR_H
+#pragma once
 
 #include "lluictrl.h"
 #include "llpanel.h"
@@ -118,5 +117,4 @@ private:
     F32 mLogScaleY;
 };
 
-#endif
 

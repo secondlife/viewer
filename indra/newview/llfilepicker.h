@@ -30,8 +30,7 @@
 // until you iterate to the end of the list of selected files with
 // getNextFile() or call reset().
 
-#ifndef LL_LLFILEPICKER_H
-#define LL_LLFILEPICKER_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -212,4 +211,3 @@ public:
     ~LLFilePicker();
 };
 
-#endif

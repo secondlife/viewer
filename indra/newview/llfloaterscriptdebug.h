@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSCRIPTDEBUG_H
-#define LL_LLFLOATERSCRIPTDEBUG_H
+#pragma once
 
 #include "llmultifloater.h"
 
@@ -67,4 +66,3 @@ protected:
     LLUUID mObjectID;
 };
 
-#endif // LL_LLFLOATERSCRIPTDEBUG_H

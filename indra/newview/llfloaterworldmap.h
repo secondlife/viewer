@@ -29,8 +29,7 @@
  * avatar tracking, teleportation by double-click, etc.
  */
 
-#ifndef LL_LLFLOATERWORLDMAP_H
-#define LL_LLFLOATERWORLDMAP_H
+#pragma once
 
 #include "llfloater.h"
 #include "llmapimagetype.h"
@@ -277,5 +276,4 @@ private:
 
 };
 
-#endif
 

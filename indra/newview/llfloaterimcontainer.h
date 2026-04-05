@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERIMCONTAINER_H
-#define LL_LLFLOATERIMCONTAINER_H
+#pragma once
 
 #include <map>
 #include <vector>
@@ -237,4 +236,3 @@ private:
     bool mGeneralTitleInUse = true;
 };
 
-#endif // LL_LLFLOATERIMCONTAINER_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMediaCtrl_H
-#define LL_LLMediaCtrl_H
+#pragma once
 
 #include "llviewermedia.h"
 
@@ -222,4 +221,3 @@ public:
         LLHandle<LLContextMenu> mContextMenuHandle;
 };
 
-#endif // LL_LLMediaCtrl_H

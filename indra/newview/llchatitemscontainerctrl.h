@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCHATITEMSCONTAINERCTRL_H_
-#define LL_LLCHATITEMSCONTAINERCTRL_H_
+#pragma once
 
 #include "llchat.h"
 #include "llpanel.h"
@@ -96,6 +95,5 @@ private:
 };
 
 
-#endif
 
 

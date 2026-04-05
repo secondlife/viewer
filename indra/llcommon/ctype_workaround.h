@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _CTYPE_WORKAROUND_H_
-#define _CTYPE_WORKAROUND_H_
+#pragma once
 
 /**
  * the CTYPE_WORKAROUND is needed for linux dev stations that don't
@@ -50,5 +49,4 @@ void ctype_workaround()
     __ctype_tolower = *(__ctype_tolower_loc());
 }
 
-#endif
 

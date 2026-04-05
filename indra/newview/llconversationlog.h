@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCONVERSATIONLOG_H_
-#define LLCONVERSATIONLOG_H_
+#pragma once
 
 #include "llcallingcard.h"
 #include "llfloaterimsession.h"
@@ -217,4 +216,3 @@ public:
     virtual void changed(const LLUUID& session_id, U32 mask){};
 };
 
-#endif /* LLCONVERSATIONLOG_H_ */

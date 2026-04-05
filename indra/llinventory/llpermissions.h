@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPERMISSIONS_H
-#define LL_LLPERMISSIONS_H
+#pragma once
 
 #include "llpermissionsflags.h"
 #include "llsd.h"
@@ -442,4 +441,3 @@ LLSD ll_create_sd_from_permissions(const LLPermissions& perm);
 void ll_fill_sd_from_permissions(LLSD& rv, const LLPermissions& perm);
 LLPermissions ll_permissions_from_sd(const LLSD& sd_perm);
 
-#endif

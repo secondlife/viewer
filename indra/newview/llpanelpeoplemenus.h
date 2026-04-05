@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPEOPLEMENUS_H
-#define LL_LLPANELPEOPLEMENUS_H
+#pragma once
 
 #include "lllistcontextmenu.h"
 
@@ -67,4 +66,3 @@ extern NearbyPeopleContextMenu gNearbyPeopleContextMenu;
 
 } // namespace LLPanelPeopleMenus
 
-#endif // LL_LLPANELPEOPLEMENUS_H

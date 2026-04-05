@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDEFFECTPOINTAT_H
-#define LL_LLHUDEFFECTPOINTAT_H
+#pragma once
 
 #include "llframetimer.h"
 #include "llhudeffect.h"
@@ -82,4 +81,3 @@ private:
     F32                         mLastSendTime;
 };
 
-#endif // LL_LLHUDEFFECTPOINTAT_H

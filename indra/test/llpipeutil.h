@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPIPEUTIL_H
-#define LL_LLPIPEUTIL_H
+#pragma once
 
 #include "lliopipe.h"
 
@@ -160,4 +159,3 @@ private:
 
 };
 
-#endif // LL_LLPIPEUTIL_H

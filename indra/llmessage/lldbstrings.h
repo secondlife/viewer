@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDBSTRINGS_H
-#define LL_LLDBSTRINGS_H
+#pragma once
 
 /**
  * Defines the length of strings that are stored in the database (and
@@ -211,4 +210,3 @@ const S32 DB_PICK_NAME_SIZE             = 64;
 const S32 DB_PICK_DESC_LEN              = 1023;
 const S32 DB_PICK_DESC_SIZE             = 1024;
 
-#endif  // LL_LLDBSTRINGS_H

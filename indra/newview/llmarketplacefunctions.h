@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMARKETPLACEFUNCTIONS_H
-#define LL_LLMARKETPLACEFUNCTIONS_H
+#pragma once
 
 #include "llsd.h"
 #include "llsingleton.h"
@@ -292,5 +291,4 @@ private:
 };
 
 
-#endif // LL_LLMARKETPLACEFUNCTIONS_H
 

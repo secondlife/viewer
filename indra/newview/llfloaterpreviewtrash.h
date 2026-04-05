@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERPREVIEWTRASH_H
-#define LL_LLFLOATERPREVIEWTRASH_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -46,4 +45,3 @@ protected:
     void onClickCancel();
 };
 
-#endif

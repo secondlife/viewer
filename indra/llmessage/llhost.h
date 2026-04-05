@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHOST_H
-#define LL_LLHOST_H
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -151,4 +150,3 @@ inline bool operator<(const LLHost &lhs, const LLHost &rhs)
 }
 
 
-#endif // LL_LLHOST_H

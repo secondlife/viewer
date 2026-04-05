@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATERIMSESSION_H
-#define LL_FLOATERIMSESSION_H
+#pragma once
 
 #include "llimview.h"
 #include "llfloaterimsessiontab.h"
@@ -204,4 +203,3 @@ private:
     LLUUID mImFromId;
 };
 
-#endif  // LL_FLOATERIMSESSION_H

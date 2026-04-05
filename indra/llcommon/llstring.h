@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSTRING_H
-#define LL_LLSTRING_H
+#pragma once
 
 #include <boost/call_traits.hpp>
 #include <optional>
@@ -1988,4 +1987,3 @@ void LLStringUtilBase<T>::truncate(string_type& string, size_type count)
 #undef ll_convert_forms
 #undef ll_convert_cp_forms
 
-#endif  // LL_STRING_H

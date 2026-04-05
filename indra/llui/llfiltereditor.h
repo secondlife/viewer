@@ -33,8 +33,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FILTEREDITOR_H
-#define LL_FILTEREDITOR_H
+#pragma once
 
 #include "llsearcheditor.h"
 
@@ -52,4 +51,3 @@ protected:
     void handleKeystroke() override;
 };
 
-#endif  // LL_FILTEREDITOR_H

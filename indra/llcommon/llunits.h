@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUNITTYPE_H
-#define LL_LLUNITTYPE_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llunittype.h"
@@ -126,4 +125,3 @@ LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Triangles);
 LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Kilotriangles);
 
 
-#endif // LL_LLUNITTYPE_H

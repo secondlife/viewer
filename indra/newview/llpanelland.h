@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELLAND_H
-#define LL_LLPANELLAND_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -69,4 +68,3 @@ private:
     LLTextBox* mTextAreaPrice = nullptr;
 };
 
-#endif

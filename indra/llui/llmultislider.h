@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MULTI_SLIDER_H
-#define LL_MULTI_SLIDER_H
+#pragma once
 
 #include "llf32uictrl.h"
 #include "v4color.h"
@@ -158,4 +157,3 @@ protected:
     commit_signal_t*    mMouseUpSignal;
 };
 
-#endif  // LL_MULTI_SLIDER_H

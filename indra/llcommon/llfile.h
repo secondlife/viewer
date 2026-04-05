@@ -27,8 +27,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFILE_H
-#define LL_LLFILE_H
+#pragma once
 
 /**
  * This class provides a cross platform interface to the filesystem.
@@ -332,4 +331,3 @@ using llifstream = std::ifstream;
 using llofstream = std::ofstream;
 #endif // LL_WINDOWS or ! LL_WINDOWS
 
-#endif // not LL_LLFILE_H

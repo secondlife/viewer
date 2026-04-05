@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPATHFINDINGCHARACTER_H
-#define LL_LLPATHFINDINGCHARACTER_H
+#pragma once
 
 #include <string>
 
@@ -60,4 +59,3 @@ private:
     F32  mRadius;
 };
 
-#endif // LL_LLPATHFINDINGCHARACTER_H

@@ -25,8 +25,7 @@
  * @endcond
  */
 
-#ifndef LL_LLPLUGININSTANCE_H
-#define LL_LLPLUGININSTANCE_H
+#pragma once
 
 #include "llstring.h"
 #include "llapr.h"
@@ -96,4 +95,3 @@ private:
     LLPluginInstanceMessageListener *mOwner;
 };
 
-#endif // LL_LLPLUGININSTANCE_H

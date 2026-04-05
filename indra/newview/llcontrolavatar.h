@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_CONTROLAVATAR_H
-#define LL_CONTROLAVATAR_H
+#pragma once
 
 #include "llvoavatar.h"
 #include "llvovolume.h"
@@ -121,4 +120,3 @@ public:
     object_signaled_animation_map_t& getMap() { return mMap; }
 };
 
-#endif //LL_CONTROLAVATAR_H

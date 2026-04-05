@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTHREADWATCHDOG_H
-#define LL_LLTHREADWATCHDOG_H
+#pragma once
 
 #ifndef LL_TIMER_H
     #include "lltimer.h"
@@ -115,4 +114,3 @@ private:
     func_t mCreateMarkerFnc;
 };
 
-#endif // LL_LLTHREADWATCHDOG_H

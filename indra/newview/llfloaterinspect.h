@@ -26,8 +26,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLFLOATERINSPECT_H
-#define LL_LLFLOATERINSPECT_H
+#pragma once
 
 #include "llavatarname.h"
 #include "llfloater.h"
@@ -73,4 +72,3 @@ private:
     boost::signals2::connection mCreatorNameCacheConnection;
 };
 
-#endif //LL_LLFLOATERINSPECT_H

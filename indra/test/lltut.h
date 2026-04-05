@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTUT_H
-#define LL_LLTUT_H
+#pragma once
 
 #include "is_approx_equal_fraction.h" // instead of llmath.h
 #include <cstring>
@@ -148,4 +147,3 @@ namespace tut
     }
 }
 
-#endif // LL_LLTUT_H

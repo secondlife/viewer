@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPACKETBUFFER_H
-#define LL_LLPACKETBUFFER_H
+#pragma once
 
 #include "net.h"        // for NET_BUFFER_SIZE
 #include "llhost.h"
@@ -53,6 +52,5 @@ protected:
     LLHost  mReceivingIF;           // source/dest IP and port
 };
 
-#endif
 
 

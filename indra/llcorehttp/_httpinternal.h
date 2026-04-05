@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_INTERNAL_H_
-#define _LLCORE_HTTP_INTERNAL_H_
+#pragma once
 
 
 // If you find this included in a public interface header,
@@ -168,4 +167,3 @@ constexpr int HTTP_SERVICE_LOOP_SLEEP_NORMAL_MS = 2;
 
 }  // end namespace LLCore
 
-#endif  // _LLCORE_HTTP_INTERNAL_H_

@@ -29,8 +29,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCHATENTRY_H_
-#define LLCHATENTRY_H_
+#pragma once
 
 #include "lltexteditor.h"
 
@@ -105,4 +104,3 @@ private:
     std::string                         mCurrentInput;
 };
 
-#endif /* LLCHATENTRY_H_ */

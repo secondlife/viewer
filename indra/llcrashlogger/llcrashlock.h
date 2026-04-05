@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_CRASHLOCK_H
-#define LL_CRASHLOCK_H
+#pragma once
 
 #include "llframetimer.h"
 
@@ -70,4 +69,3 @@ private:
     LLFrameTimer mTimer;
 };
 
-#endif // LL_CRASHLOCK_H

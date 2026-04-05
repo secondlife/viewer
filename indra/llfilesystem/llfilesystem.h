@@ -27,8 +27,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FILESYSTEM_H
-#define LL_FILESYSTEM_H
+#pragma once
 
 #include "lluuid.h"
 #include "llassettype.h"
@@ -82,4 +81,3 @@ class LLFileSystem
         S32     mBytesRead;
 };
 
-#endif  // LL_FILESYSTEM_H

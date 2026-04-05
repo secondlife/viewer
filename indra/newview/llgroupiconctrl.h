@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGROUPICONCTRL_H
-#define LL_LLGROUPICONCTRL_H
+#pragma once
 
 #include "lliconctrl.h"
 
@@ -91,4 +90,3 @@ protected:
     bool updateFromCache();
 };
 
-#endif  // LL_LLGROUPICONCTRL_H

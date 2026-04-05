@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLOCATIONHISTORY_H
-#define LL_LLLOCATIONHISTORY_H
+#pragma once
 
 #include "llsingleton.h" // for LLSingleton
 
@@ -137,4 +136,3 @@ private:
     history_changed_signal_t            mChangedSignal;
 };
 
-#endif

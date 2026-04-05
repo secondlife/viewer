@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELEDITWEARABLE_H
-#define LL_LLPANELEDITWEARABLE_H
+#pragma once
 
 #include "llpanel.h"
 #include "llscrollingpanellist.h"
@@ -186,4 +185,3 @@ private:
     s32_uuid_map_t mPreviousAlphaTexture;
 };
 
-#endif

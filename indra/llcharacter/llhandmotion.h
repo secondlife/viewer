@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHANDMOTION_H
-#define LL_LLHANDMOTION_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -135,5 +134,4 @@ public:
     eHandPose           mCurrentPose;
     eHandPose           mNewPose;
 };
-#endif // LL_LLHANDMOTION_H
 

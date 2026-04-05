@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_SETTINGS_VO_H
-#define LL_SETTINGS_VO_H
+#pragma once
 
 #include "llsettingsbase.h"
 #include "llsettingssky.h"
@@ -187,4 +186,3 @@ private:
 };
 
 
-#endif

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLSECAPI_H
-#define LLSECAPI_H
+#pragma once
 #include <vector>
 #include "llwin32headers.h"
 #include <openssl/x509.h>
@@ -554,4 +553,3 @@ extern LLPointer<LLSecAPIHandler> gSecAPIHandler;
 #pragma warning (pop)
 #endif // LL_WINDOWS
 
-#endif // LL_SECAPI_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSAVECAMERAPRESET_H
-#define LL_LLFLOATERSAVECAMERAPRESET_H
+#pragma once
 
 #include "llmodaldialog.h"
 
@@ -57,4 +56,3 @@ private:
     void onPresetNameEdited();
 };
 
-#endif // LL_LLFLOATERSAVECAMERAPRESET_H

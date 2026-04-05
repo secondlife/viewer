@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWIND_H
-#define LL_LLWIND_H
+#pragma once
 
 #include "llmath.h"
 #include "v3math.h"
@@ -64,4 +63,3 @@ private:
     LOG_CLASS(LLWind);
 };
 
-#endif

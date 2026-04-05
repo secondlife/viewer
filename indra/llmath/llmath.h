@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLMATH_H
-#define LLMATH_H
+#pragma once
 
 #include <cmath>
 #include <cstdlib>
@@ -539,4 +538,3 @@ inline float sRGBtoLinear(const float val)
 // Include simd math header
 #include "llsimdmath.h"
 
-#endif

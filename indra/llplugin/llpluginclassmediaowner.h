@@ -26,8 +26,7 @@
  * @endcond
  */
 
-#ifndef LL_LLPLUGINCLASSMEDIAOWNER_H
-#define LL_LLPLUGINCLASSMEDIAOWNER_H
+#pragma once
 
 #include "llpluginprocessparent.h"
 #include "llrect.h"
@@ -87,4 +86,3 @@ public:
     virtual void handleMediaEvent([[maybe_unused]] LLPluginClassMedia* self, [[maybe_unused]] EMediaEvent event) {};
 };
 
-#endif // LL_LLPLUGINCLASSMEDIAOWNER_H

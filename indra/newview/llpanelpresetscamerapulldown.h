@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPRESETSCAMERAPULLDOWN_H
-#define LL_LLPANELPRESETSCAMERAPULLDOWN_H
+#pragma once
 
 #include "linden_common.h"
 
@@ -46,4 +45,3 @@ class LLPanelPresetsCameraPulldown : public LLPanelPulldown
     LOG_CLASS(LLPanelPresetsCameraPulldown);
 };
 
-#endif // LL_LLPANELPRESETSCAMERAPULLDOWN_H

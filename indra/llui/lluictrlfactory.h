@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLUICTRLFACTORY_H
-#define LLUICTRLFACTORY_H
+#pragma once
 
 #include "llfasttimer.h"
 #include "llinitparam.h"
@@ -322,4 +321,3 @@ LLChildRegistry<DERIVED>::Register<T>::Register(const char* tag, LLWidgetCreator
     //LLChildRegistryRegistry::instance().defaultRegistrar().add(typeid(T), registry_t::instance());
 }
 
-#endif //LLUICTRLFACTORY_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWEARABLETYPE_H
-#define LL_LLWEARABLETYPE_H
+#pragma once
 
 #include "llassettype.h"
 #include "lldictionary.h"
@@ -115,4 +114,3 @@ private:
     LLWearableDictionary mDictionary;
 };
 
-#endif  // LL_LLWEARABLETYPE_H

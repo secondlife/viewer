@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATERLINKREPLACE_H
-#define LL_FLOATERLINKREPLACE_H
+#pragma once
 
 #include "llfloater.h"
 #include "lleventtimer.h"
@@ -120,4 +119,3 @@ private:
     LLInventoryModel::item_array_t  mRemainingInventoryItems;
 };
 
-#endif // LL_FLOATERLINKREPLACE_H

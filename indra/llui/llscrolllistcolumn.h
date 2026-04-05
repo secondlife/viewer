@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLSCROLLLISTCOLUMN_H
-#define LLSCROLLLISTCOLUMN_H
+#pragma once
 
 #include "llrect.h"
 #include "lluistring.h"
@@ -169,4 +168,3 @@ private:
     S32                     mWidth;
 };
 
-#endif

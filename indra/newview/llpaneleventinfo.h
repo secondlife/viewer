@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELEVENTINFO_H
-#define LL_LLPANELEVENTINFO_H
+#pragma once
 
 #include "lleventnotifier.h"
 
@@ -73,4 +72,3 @@ protected:
     boost::signals2::connection mEventInfoConnection;
 };
 
-#endif // LL_LLPANELEVENTINFO_H

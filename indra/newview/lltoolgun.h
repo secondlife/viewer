@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TOOLGUN_H
-#define LL_TOOLGUN_H
+#pragma once
 
 #include "lltool.h"
 #include "llui.h"
@@ -50,4 +49,3 @@ private:
     bool mIsSelected;
 };
 
-#endif

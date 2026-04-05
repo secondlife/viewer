@@ -23,8 +23,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LLMESHOPTIMIZER_H
-#define LLMESHOPTIMIZER_H
+#pragma once
 
 #include "linden_common.h"
 
@@ -153,4 +152,3 @@ public:
 private:
 };
 
-#endif //LLMESHOPTIMIZER_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFONTVERTEXBUFFER_H
-#define LL_LLFONTVERTEXBUFFER_H
+#pragma once
 
 #include "llfontgl.h"
 
@@ -127,4 +126,3 @@ private:
     static bool sEnableBufferCollection;
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TOOLSELECT_H
-#define LL_TOOLSELECT_H
+#pragma once
 
 #include "lltool.h"
 #include "v3math.h"
@@ -56,4 +55,3 @@ protected:
 };
 
 
-#endif  // LL_TOOLSELECTION_H

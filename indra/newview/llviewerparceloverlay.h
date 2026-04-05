@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERPARCELOVERLAY_H
-#define LL_LLVIEWERPARCELOVERLAY_H
+#pragma once
 
 // The ownership data for land parcels.
 // One of these structures per region.
@@ -136,4 +135,3 @@ private:
     static LLUIColor sAuctionColor;
 };
 
-#endif

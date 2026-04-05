@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERIMNEARBYCHAT_H
-#define LL_LLFLOATERIMNEARBYCHAT_H
+#pragma once
 
 #include "llfloaterimsessiontab.h"
 #include "llcombobox.h"
@@ -116,4 +115,3 @@ private:
     std::vector<LLChat> mMessageArchive;
 };
 
-#endif // LL_LLFLOATERIMNEARBYCHAT_H

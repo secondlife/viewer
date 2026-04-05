@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCONFIRMATIONMANAGER_H
-#define LL_LLCONFIRMATIONMANAGER_H
+#pragma once
 
 class LLConfirmationManager
 {
@@ -82,4 +81,3 @@ public:
     }
 };
 
-#endif

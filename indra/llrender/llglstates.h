@@ -25,8 +25,7 @@
  */
 
 //THIS HEADER SHOULD ONLY BE INCLUDED FROM llgl.h
-#ifndef LL_LLGLSTATES_H
-#define LL_LLGLSTATES_H
+#pragma once
 
 #include "llimagegl.h"
 
@@ -193,4 +192,3 @@ public:
 
 //----------------------------------------------------------------------------
 
-#endif

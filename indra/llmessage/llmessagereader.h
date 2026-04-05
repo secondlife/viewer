@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMESSAGEREADER_H
-#define LL_LLMESSAGEREADER_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -91,4 +90,3 @@ class LLMessageReader
     static F32 getTimeDecodesSpamThreshold();
 };
 
-#endif // LL_LLMESSAGEREADER_H

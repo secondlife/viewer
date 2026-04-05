@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLURLFLOATERDISPATCHHANDLER_H
-#define LL_LLURLFLOATERDISPATCHHANDLER_H
+#pragma once
 
 #include "lldispatcher.h"
 
@@ -45,5 +44,4 @@ private:
     static LLUrlFloaterDispatchHandler sUrlDispatchhandler;
 };
 
-#endif  // LL_LLURLFLOATERDISPATCHHANDLER_H
 

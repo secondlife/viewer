@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERBUYCURRENCY_H
-#define LL_LLFLOATERBUYCURRENCY_H
+#pragma once
 
 #include "llavatarpropertiesprocessor.h"
 #include "stdtypes.h"
@@ -67,4 +66,3 @@ public:
     static LLFetchAvatarPaymentInfo* sPropertiesRequest;
 };
 
-#endif

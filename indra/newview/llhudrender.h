@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDRENDER_H
-#define LL_LLHUDRENDER_H
+#pragma once
 
 #include "llfontgl.h"
 #include "llfontvertexbuffer.h"
@@ -56,5 +55,4 @@ void hud_render_utf8text(const std::string &str,
                          const bool orthographic);
 
 
-#endif //LL_LLHUDRENDER_H
 

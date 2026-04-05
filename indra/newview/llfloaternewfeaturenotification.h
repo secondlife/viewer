@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATER_NEW_FEATURE_NOTOFICATION_H
-#define LL_FLOATER_NEW_FEATURE_NOTOFICATION_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -46,4 +45,3 @@ private:
     void onCloseBtn();
 };
 
-#endif

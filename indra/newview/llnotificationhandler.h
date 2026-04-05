@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNOTIFICATIONHANDLER_H
-#define LL_LLNOTIFICATIONHANDLER_H
+#pragma once
 
 #include <boost/intrusive_ptr.hpp>
 
@@ -348,5 +347,4 @@ public:
 };
 
 }
-#endif
 

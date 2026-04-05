@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_V4COLOR_H
-#define LL_V4COLOR_H
+#pragma once
 
 #include "llerror.h"
 #include "llmath.h"
@@ -595,4 +594,3 @@ void LLColor4::write(std::vector<T>& v) const
     }
 }
 
-#endif

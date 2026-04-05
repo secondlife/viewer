@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWEARABLE_H
-#define LL_LLWEARABLE_H
+#pragma once
 
 #include "llavatarappearancedefines.h"
 #include "llpermissions.h"
@@ -137,4 +136,3 @@ protected:
     te_map_t mSavedTEMap;           // last saved version of TEMap
 };
 
-#endif  // LL_LLWEARABLE_H

@@ -33,8 +33,7 @@
 // The Y coordinates therefore match OpenGL window coords, not Windows(tm) window coords.
 // If Y is from the top, the variable will be called "y_from_top"
 
-#ifndef LL_LLVIEWERWINDOW_H
-#define LL_LLVIEWERWINDOW_H
+#pragma once
 
 #include "v3dmath.h"
 #include "v2math.h"
@@ -595,4 +594,3 @@ extern bool         gDisplayWindInfo;
 extern bool         gDisplayFOV;
 extern bool         gDisplayBadge;
 
-#endif

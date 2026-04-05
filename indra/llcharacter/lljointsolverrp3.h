@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLJOINTSOLVERRP3_H
-#define LL_LLJOINTSOLVERRP3_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header Files
@@ -172,5 +171,4 @@ public:
     void solve();
 };
 
-#endif // LL_LLJOINTSOLVERRP3_H
 

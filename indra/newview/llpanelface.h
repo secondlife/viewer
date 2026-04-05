@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELFACE_H
-#define LL_LLPANELFACE_H
+#pragma once
 
 #include "v4color.h"
 #include "llpanel.h"
@@ -720,5 +719,4 @@ public:
     friend struct LLPanelFaceSetTEFunctor;
 };
 
-#endif
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPRIMITIVE_H
-#define LL_LLPRIMITIVE_H
+#pragma once
 
 #include "lluuid.h"
 #include "v3math.h"
@@ -794,5 +793,4 @@ inline bool LLPrimitive::validTE(const U8 te_num) const
     return (mNumTEs && te_num < mNumTEs);
 }
 
-#endif
 

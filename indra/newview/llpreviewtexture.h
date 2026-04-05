@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPREVIEWTEXTURE_H
-#define LL_LLPREVIEWTEXTURE_H
+#pragma once
 
 #include "llpreview.h"
 #include "llbutton.h"
@@ -111,4 +110,3 @@ private:
     LLUICtrl* mDimensionsText = nullptr;
     LLUICtrl* mAspectRatioText = nullptr;
 };
-#endif  // LL_LLPREVIEWTEXTURE_H

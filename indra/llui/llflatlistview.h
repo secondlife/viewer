@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLATLISTVIEW_H
-#define LL_LLFLATLISTVIEW_H
+#pragma once
 
 #include "llpanel.h"
 #include "llscrollcontainer.h"
@@ -541,4 +540,3 @@ private:
     bool mHasMatchedItems;
 };
 
-#endif

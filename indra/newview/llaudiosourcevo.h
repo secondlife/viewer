@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAUDIOSOURCEVO_H
-#define LL_LLAUDIOSOURCEVO_H
+#pragma once
 
 #include "llaudioengine.h"
 #include "llviewerobject.h"
@@ -52,4 +51,3 @@ private:
     LLPointer<LLViewerObject>   mObjectp;
 };
 
-#endif // LL_LLAUDIOSOURCEVO_H

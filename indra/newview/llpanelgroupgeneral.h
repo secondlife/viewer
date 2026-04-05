@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELGROUPGENERAL_H
-#define LL_LLPANELGROUPGENERAL_H
+#pragma once
 
 #include "llpanelgroup.h"
 
@@ -100,4 +99,3 @@ private:
     LLComboBox      *mComboMature;
 };
 
-#endif

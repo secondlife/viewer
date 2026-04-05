@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMD5_H
-#define LL_LLMD5_H
+#pragma once
 
 // LLMD5.CC - source code for the C++/object oriented translation and
 //          modification of MD5.
@@ -123,4 +122,3 @@ private:
 LL_COMMON_API bool operator==(const LLMD5& a, const LLMD5& b);
 LL_COMMON_API bool operator!=(const LLMD5& a, const LLMD5& b);
 
-#endif // LL_LLMD5_H

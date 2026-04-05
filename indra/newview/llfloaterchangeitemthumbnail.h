@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERCHANGEITEMTHUMBNAIL_H
-#define LL_LLFLOATERCHANGEITEMTHUMBNAIL_H
+#pragma once
 
 #include "llfloater.h"
 #include "llinventoryobserver.h"
@@ -139,4 +138,3 @@ private:
     LLHandle<LLFloater> mPickerHandle;
     LLHandle<LLFloater> mSnapshotHandle;
 };
-#endif  // LL_LLFLOATERCHANGEITEMTHUMBNAIL_H

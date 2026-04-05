@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLEXPANDABLETEXTBOX_H
-#define LL_LLEXPANDABLETEXTBOX_H
+#pragma once
 
 #include "lltexteditor.h"
 #include "llscrollcontainer.h"
@@ -216,4 +215,3 @@ protected:
     LLUIColor mExpandedBGColor;
 };
 
-#endif //LL_LLEXPANDABLETEXTBOX_H

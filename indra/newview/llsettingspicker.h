@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SETTINGSPICKER_H
-#define LL_SETTINGSPICKER_H
+#pragma once
 
 #include "llinventorysettings.h"
 #include "llfloater.h"
@@ -135,4 +134,3 @@ private:
     boost::signals2::signal<void(const LLUUID& item_id)>   mChangeIDSignal;
 };
 
-#endif  // LL_LLTEXTURECTRL_H

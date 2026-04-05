@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELDIRBROWSER_H
-#define LL_LLPANELDIRBROWSER_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -164,4 +163,3 @@ const S32 SEARCH_ADULT = 4;
 
 extern std::map<LLUUID, LLPanelDirBrowser*> gDirBrowserInstances;
 
-#endif // LL_LLPANELDIRBROWSER_H

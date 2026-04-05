@@ -26,8 +26,7 @@
  * @endcond
  */
 
-#ifndef __LLMEDIAIMPLGSTREAMERTRIVIALLOGGING_H__
-#define __LLMEDIAIMPLGSTREAMERTRIVIALLOGGING_H__
+#pragma once
 
 #include <cstdio>
 
@@ -52,4 +51,3 @@ extern "C" {
 #define WARNMSG  STDERRMSG
 /////////////////////////////////////////////////////////////////////////
 
-#endif /* __LLMEDIAIMPLGSTREAMERTRIVIALLOGGING_H__ */

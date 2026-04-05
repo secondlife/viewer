@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TOOLDRAGANDDROP_H
-#define LL_TOOLDRAGANDDROP_H
+#pragma once
 
 #include <array>
 #include "lldictionary.h"
@@ -320,4 +319,3 @@ private:
 // utility functions
 void pack_permissions_slam(LLMessageSystem* msg, U32 flags, const LLPermissions& perms);
 
-#endif  // LL_TOOLDRAGANDDROP_H

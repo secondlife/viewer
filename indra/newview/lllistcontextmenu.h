@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLISTCONTEXTMENU_H
-#define LL_LLLISTCONTEXTMENU_H
+#pragma once
 
 #include "llhandle.h"
 #include "lluuid.h"
@@ -74,4 +73,3 @@ protected:
     LLHandle<LLContextMenu> mMenuHandle;
 };
 
-#endif // LL_LLLISTCONTEXTMENU_H

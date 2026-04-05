@@ -30,8 +30,7 @@
 // until you iterate to the end of the list of selected files with
 // getNextFile() or call reset().
 
-#ifndef LL_LLFILEPICKER_MAC_H
-#define LL_LLFILEPICKER_MAC_H
+#pragma once
 
 #if LL_DARWIN
 
@@ -72,4 +71,3 @@ enum {
 
 #endif
 
-#endif

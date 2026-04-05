@@ -26,8 +26,7 @@
 
 
 
-#ifndef LL_LLFLOATEREXPERIENCEPROFILE_H
-#define LL_LLFLOATEREXPERIENCEPROFILE_H
+#pragma once
 
 #include "llfloater.h"
 #include "lluuid.h"
@@ -110,4 +109,3 @@ private:
     static void experienceUpdateResult(LLHandle<LLFloaterExperienceProfile> handle, const LLSD &result);
 };
 
-#endif // LL_LLFLOATEREXPERIENCEPROFILE_H

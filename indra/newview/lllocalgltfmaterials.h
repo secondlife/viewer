@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LOCALGLTFMATERIALS_H
-#define LL_LOCALGLTFMATERIALS_H
+#pragma once
 
 #include "lleventtimer.h"
 #include "llpointer.h"
@@ -115,5 +114,4 @@ private:
     using local_list_iter = std::list<LLPointer<LLLocalGLTFMaterial> >::iterator;
 };
 
-#endif // LL_LOCALGLTFMATERIALS_H
 

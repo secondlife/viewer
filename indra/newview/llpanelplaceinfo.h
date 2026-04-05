@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPLACEINFO_H
-#define LL_LLPANELPLACEINFO_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -126,4 +125,3 @@ protected:
     LLTextBox*              mMaturityRatingText;
 };
 
-#endif // LL_LLPANELPLACEINFO_H

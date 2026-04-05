@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWEBPROFILE_H
-#define LL_LLWEBPROFILE_H
+#pragma once
 
 #include "llimage.h"
 #include "lleventcoro.h"
@@ -72,4 +71,3 @@ private:
     static status_callback_t mStatusCallback;
 };
 
-#endif // LL_LLWEBPROFILE_H

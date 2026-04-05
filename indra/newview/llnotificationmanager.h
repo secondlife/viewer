@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNOTIFICATIONMANAGER_H
-#define LL_LLNOTIFICATIONMANAGER_H
+#pragma once
 
 #include "lluictrl.h"
 #include "llnotificationhandler.h"
@@ -63,5 +62,4 @@ private:
 };
 
 }
-#endif
 

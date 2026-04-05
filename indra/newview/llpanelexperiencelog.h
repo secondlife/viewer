@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_LLPANELEXPERIENCELOG_H
-#define LL_LLPANELEXPERIENCELOG_H
+#pragma once
 
 #include "llpanel.h"
 class LLScrollListCtrl;
@@ -61,4 +60,3 @@ private:
     boost::signals2::scoped_connection mNewEvent;
 };
 
-#endif // LL_LLPANELEXPERIENCELOG_H

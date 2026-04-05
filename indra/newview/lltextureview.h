@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTUREVIEW_H
-#define LL_LLTEXTUREVIEW_H
+#pragma once
 
 #include "llcontainerview.h"
 
@@ -76,4 +75,3 @@ public:
 class LLGLTexSizeBar;
 
 extern LLTextureView *gTextureView;
-#endif // LL_TEXTURE_VIEW_H

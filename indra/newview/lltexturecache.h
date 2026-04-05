@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTURECACHE_H
-#define LL_LLTEXTURECACHE_H
+#pragma once
 
 #include "lldir.h"
 #include "llstl.h"
@@ -253,4 +252,3 @@ private:
 
 extern const S32 TEXTURE_CACHE_ENTRY_SIZE;
 
-#endif // LL_LLTEXTURECACHE_H

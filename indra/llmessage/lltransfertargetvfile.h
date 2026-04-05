@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRANSFERTARGETVFILE_H
-#define LL_LLTRANSFERTARGETVFILE_H
+#pragma once
 
 #include "lltransfermanager.h"
 #include "llassetstorage.h"
@@ -86,4 +85,3 @@ protected:
     LLUUID mTempID;
 };
 
-#endif // LL_LLTRANSFERTARGETFILE_H

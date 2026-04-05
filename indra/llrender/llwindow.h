@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOW_H
-#define LL_LLWINDOW_H
+#pragma once
 
 #include "llrect.h"
 #include "llcoord.h"
@@ -327,4 +326,3 @@ extern const S32 gURLProtocolWhitelistCount;
 extern const std::string gURLProtocolWhitelist[];
 //extern const std::string gURLProtocolWhitelistHandler[];
 
-#endif // _LL_window_h_

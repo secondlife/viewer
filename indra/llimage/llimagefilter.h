@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGEFILTER_H
-#define LL_LLIMAGEFILTER_H
+#pragma once
 
 #include "llsd.h"
 #include "llimage.h"
@@ -134,4 +133,3 @@ private:
 };
 
 
-#endif

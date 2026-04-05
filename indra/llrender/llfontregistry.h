@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFONTREGISTRY_H
-#define LL_LLFONTREGISTRY_H
+#pragma once
 
 #include "llpointer.h"
 
@@ -139,4 +138,3 @@ private:
     bool mCreateGLTextures;
 };
 
-#endif // LL_LLFONTREGISTRY_H

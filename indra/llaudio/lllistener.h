@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LISTENER_H
-#define LL_LISTENER_H
+#pragma once
 
 #include "v3math.h"
 
@@ -68,5 +67,4 @@ class LLListener
     virtual void commitDeferredChanges();
 };
 
-#endif
 

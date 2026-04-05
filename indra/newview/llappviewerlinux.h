@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAPPVIEWERLINUX_H
-#define LL_LLAPPVIEWERLINUX_H
+#pragma once
 
 extern "C" {
 # include <glib.h>
@@ -87,4 +86,3 @@ extern "C" {
 
 #endif // LL_DBUS_ENABLED
 
-#endif // LL_LLAPPVIEWERLINUX_H

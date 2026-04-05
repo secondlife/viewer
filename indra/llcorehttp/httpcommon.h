@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_COMMON_H_
-#define _LLCORE_HTTP_COMMON_H_
+#pragma once
 
 /// @package LLCore::HTTP
 ///
@@ -505,4 +504,3 @@ namespace LLHttp
 
 }  // end namespace LLCore
 
-#endif  // _LLCORE_HTTP_COMMON_H_

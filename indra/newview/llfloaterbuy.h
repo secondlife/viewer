@@ -30,8 +30,7 @@
  * of its contents and their permissions.
  */
 
-#ifndef LL_LLFLOATERBUY_H
-#define LL_LLFLOATERBUY_H
+#pragma once
 
 #include "llfloater.h"
 #include "llvoinventorylistener.h"
@@ -75,4 +74,3 @@ private:
     boost::signals2::connection mSelectionUpdateSlot;
 };
 
-#endif

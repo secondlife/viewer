@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_V4COLORU_H
-#define LL_V4COLORU_H
+#pragma once
 
 #include "llerror.h"
 #include "llmath.h"
@@ -436,4 +435,3 @@ inline void LLColor4U::fromRGBA(U32 aVal)
     mV[VALPHA] = aVal & 0xFF;
 }
 
-#endif

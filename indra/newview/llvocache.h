@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOCACHE_H
-#define LL_LLVOCACHE_H
+#pragma once
 
 #include "lluuid.h"
 #include "lldatapacker.h"
@@ -324,4 +323,3 @@ private:
     handle_entry_map_t   mHandleEntryMap;
 };
 
-#endif

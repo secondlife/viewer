@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLCOMMUNICATIONCHANNEL_H
-#define LL_LLCOMMUNICATIONCHANNEL_H
+#pragma once
 
 #include <string>
 #include <map>
@@ -62,5 +61,4 @@ private:
     history_list_t mHistory;
 };
 
-#endif // LL_LLCOMMUNICATIONCHANNEL_H
 

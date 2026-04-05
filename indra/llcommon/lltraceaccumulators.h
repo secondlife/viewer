@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRACEACCUMULATORS_H
-#define LL_LLTRACEACCUMULATORS_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llpreprocessor.h"
@@ -550,4 +549,3 @@ namespace LLTrace
     };
 }
 
-#endif // LL_LLTRACEACCUMULATORS_H

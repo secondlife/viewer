@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGL_H
-#define LL_LLGL_H
+#pragma once
 
 // This file contains various stuff for handling gl extensions and other gl related stuff.
 
@@ -472,4 +471,3 @@ extern bool gGLActive;
 #define GL_DEPTH24_STENCIL8 GL_DEPTH24_STENCIL8_EXT
 #endif
 
-#endif // LL_LLGL_H

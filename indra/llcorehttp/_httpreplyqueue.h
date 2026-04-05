@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_REPLY_QUEUE_H_
-#define _LLCORE_HTTP_REPLY_QUEUE_H_
+#pragma once
 
 
 #include "_refcounted.h"
@@ -105,4 +104,3 @@ protected:
 }  // end namespace LLCore
 
 
-#endif  // _LLCORE_HTTP_REPLY_QUEUE_H_

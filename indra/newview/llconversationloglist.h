@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCONVERSATIONLOGLIST_H_
-#define LLCONVERSATIONLOGLIST_H_
+#pragma once
 
 #include "llconversationlog.h"
 #include "llflatlistview.h"
@@ -151,4 +150,3 @@ protected:
     virtual bool doCompare(const LLConversationLogListItem* conversation1, const LLConversationLogListItem* conversation2) const;
 };
 
-#endif /* LLCONVERSATIONLOGLIST_H_ */

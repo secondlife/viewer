@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERGENERICMESSAGE_H
-#define LLVIEWERGENERICMESSAGE_H
+#pragma once
 
 class LLUUID;
 class LLDispatcher;
@@ -44,4 +43,3 @@ void process_large_generic_message(LLMessageSystem* msg, void**);
 
 extern LLDispatcher gGenericDispatcher;
 
-#endif

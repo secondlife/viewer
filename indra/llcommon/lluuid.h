@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUUID_H
-#define LL_LLUUID_H
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -201,4 +200,3 @@ inline size_t hash_value(const LLUUID& id) noexcept
     return std::hash<LLUUID>{}(id);
 }
 
-#endif // LL_LLUUID_H

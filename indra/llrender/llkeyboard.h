@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYBOARD_H
-#define LL_LLKEYBOARD_H
+#pragma once
 
 #include <array>
 #include <functional>
@@ -141,4 +140,3 @@ public:
 
 extern LLKeyboard *gKeyboard;
 
-#endif

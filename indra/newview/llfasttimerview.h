@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFASTTIMERVIEW_H
-#define LL_LLFASTTIMERVIEW_H
+#pragma once
 
 #include "llfloater.h"
 #include "llfasttimer.h"
@@ -148,4 +147,3 @@ private:
     LLScrollbar*                    mScrollBar;
 };
 
-#endif

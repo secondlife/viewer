@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPROGRESSBAR_H
-#define LL_LLPROGRESSBAR_H
+#pragma once
 
 #include "llframetimer.h"
 #include "lluictrl.h"
@@ -63,4 +62,3 @@ private:
     LLPointer<LLUIImage>    mImageFill;
 };
 
-#endif // LL_LLPROGRESSBAR_H

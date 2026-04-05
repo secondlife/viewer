@@ -33,8 +33,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SEARCHEDITOR_H
-#define LL_SEARCHEDITOR_H
+#pragma once
 
 #include "lllineeditor.h"
 #include "llbutton.h"
@@ -111,4 +110,3 @@ protected:
     bool mHighlightTextField;
 };
 
-#endif  // LL_SEARCHEDITOR_H

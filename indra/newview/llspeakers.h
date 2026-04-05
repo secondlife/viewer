@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSPEAKERS_H
-#define LL_LLSPEAKERS_H
+#pragma once
 
 #include "llevent.h"
 #include "lleventtimer.h"
@@ -356,4 +355,3 @@ protected:
     virtual void updateSpeakerList() override;
 };
 
-#endif // LL_LLSPEAKERS_H

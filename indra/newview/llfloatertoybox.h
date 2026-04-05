@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERTOYBOX_H
-#define LL_LLFLOATERTOYBOX_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -59,4 +58,3 @@ public:
     LLToolBar * mToolBar;
 };
 
-#endif // LL_LLFLOATERTOYBOX_H

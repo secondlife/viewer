@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LISTENER_DS3D_H
-#define LL_LISTENER_DS3D_H
+#pragma once
 
 #include "lllistener.h"
 
@@ -63,6 +62,5 @@ class LLListener_DS3D : public LLListener
     virtual void commitDeferredChanges();
 };
 
-#endif
 
 

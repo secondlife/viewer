@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSELECTMGR_H
-#define LL_LLSELECTMGR_H
+#pragma once
 
 #include "llcharacter.h"
 #include "lleditmenuhandler.h"
@@ -1071,4 +1070,3 @@ template <typename T> bool LLObjectSelection::isMultipleTEValue(LLSelectedTEGetF
 }
 
 
-#endif

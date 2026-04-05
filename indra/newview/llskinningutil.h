@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LLSKINNINGUTIL_H
-#define LLSKINNINGUTIL_H
+#pragma once
 
 #include "v2math.h"
 #include "v4math.h"
@@ -73,4 +72,3 @@ namespace LLSkinningUtil
     LLQuaternion getUnscaledQuaternion(const LLMatrix4& mat4);
 };
 
-#endif

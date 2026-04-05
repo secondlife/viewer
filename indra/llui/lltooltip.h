@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOLTIP_H
-#define LL_LLTOOLTIP_H
+#pragma once
 
 // Library includes
 #include "llsingleton.h"
@@ -182,4 +181,3 @@ private:
 
 extern LLToolTipView *gToolTipView;
 
-#endif

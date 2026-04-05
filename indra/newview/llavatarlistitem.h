@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAVATARLISTITEM_H
-#define LL_LLAVATARLISTITEM_H
+#pragma once
 
 #include <array>
 #include <boost/signals2.hpp>
@@ -244,4 +243,3 @@ private:
 
 };
 
-#endif //LL_LLAVATARLISTITEM_H

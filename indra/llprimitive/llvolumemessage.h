@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOLUMEMESSAGE_H
-#define LL_LLVOLUMEMESSAGE_H
+#pragma once
 
 #include "llvolume.h"
 
@@ -88,5 +87,4 @@ public:
     static bool unpackVolumeParams(LLVolumeParams* params, LLDataPacker &dp);
 };
 
-#endif // LL_LLVOLUMEMESSAGE_H
 

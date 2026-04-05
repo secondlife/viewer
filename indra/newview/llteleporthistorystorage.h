@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTELEPORTHISTORYSTORAGE_H
-#define LL_LLTELEPORTHISTORYSTORAGE_H
+#pragma once
 
 #include <vector>
 
@@ -133,4 +132,3 @@ private:
     history_signal_t        mHistoryChangedSignal;
 };
 
-#endif //LL_LLTELEPORTHISTORYSTORAGE_H

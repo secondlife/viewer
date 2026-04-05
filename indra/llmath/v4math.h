@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_V4MATH_H
-#define LL_V4MATH_H
+#pragma once
 
 #include "llerror.h"
 #include "llmath.h"
@@ -462,5 +461,4 @@ inline const LLVector4 srgbVector4(const LLVector4& a)
 }
 
 
-#endif
 

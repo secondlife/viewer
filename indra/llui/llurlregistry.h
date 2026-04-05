@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLURLREGISTRY_H
-#define LL_LLURLREGISTRY_H
+#pragma once
 
 #include "llurlentry.h"
 #include "llurlmatch.h"
@@ -106,4 +105,3 @@ private:
     LLUrlEntryBase* mUrlEntryAgentMention;
 };
 
-#endif

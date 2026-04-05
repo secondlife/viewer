@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERATTACHMENU_H
-#define LL_LLVIEWERATTACHMENU_H
+#pragma once
 
 class LLViewerAttachMenu
 {
@@ -34,4 +33,3 @@ public:
     static void attachObjects(const uuid_vec_t& items, const std::string& joint_name);
 };
 
-#endif // LL_LLVIEWERATTACHMENU_H

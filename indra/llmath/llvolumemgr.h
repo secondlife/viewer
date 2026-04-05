@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOLUMEMGR_H
-#define LL_LLVOLUMEMGR_H
+#pragma once
 
 #include <map>
 
@@ -109,4 +108,3 @@ protected:
     LLMutex* mDataMutex;
 };
 
-#endif // LL_LLVOLUMEMGR_H

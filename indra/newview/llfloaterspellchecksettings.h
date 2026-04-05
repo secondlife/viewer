@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERSPELLCHECKERSETTINGS_H
-#define LLFLOATERSPELLCHECKERSETTINGS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -67,4 +66,3 @@ protected:
     std::string mDictionaryBasename;
 };
 
-#endif  // LLFLOATERSPELLCHECKERSETTINGS_H

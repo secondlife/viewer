@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERDISPLAYNAME_H
-#define LLVIEWERDISPLAYNAME_H
+#pragma once
 
 #include <boost/signals2.hpp>
 
@@ -51,4 +50,3 @@ namespace LLViewerDisplayName
     void addNameChangedCallback(const name_changed_signal_t::slot_type& cb);
 }
 
-#endif // LLVIEWERDISPLAYNAME_H

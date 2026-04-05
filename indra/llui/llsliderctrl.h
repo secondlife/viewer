@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSLIDERCTRL_H
-#define LL_LLSLIDERCTRL_H
+#pragma once
 
 #include "lluictrl.h"
 #include "v4color.h"
@@ -171,5 +170,4 @@ private:
     commit_signal_t*    mEditorCommitSignal;
 };
 
-#endif  // LL_LLSLIDERCTRL_H
 

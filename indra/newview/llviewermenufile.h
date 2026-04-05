@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERMENUFILE_H
-#define LLVIEWERMENUFILE_H
+#pragma once
 
 #include "llfoldertype.h"
 #include "llassetstorage.h"
@@ -162,4 +161,3 @@ private:
 };
 
 
-#endif

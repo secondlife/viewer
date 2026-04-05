@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSURFACEPATCH_H
-#define LL_LLSURFACEPATCH_H
+#pragma once
 
 #include "v3math.h"
 #include "v3dmath.h"
@@ -197,4 +196,3 @@ extern template void LLSurfacePatch::updateNormals</*PBR=*/false>();
 extern template void LLSurfacePatch::updateNormals</*PBR=*/true>();
 
 
-#endif // LL_LLSURFACEPATCH_H

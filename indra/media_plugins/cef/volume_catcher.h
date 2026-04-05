@@ -26,8 +26,7 @@
  * @endcond
  */
 
-#ifndef VOLUME_CATCHER_H
-#define VOLUME_CATCHER_H
+#pragma once
 
 #include "linden_common.h"
 
@@ -51,4 +50,3 @@ class VolumeCatcher
     VolumeCatcherImpl *pimpl;
 };
 
-#endif // VOLUME_CATCHER_H

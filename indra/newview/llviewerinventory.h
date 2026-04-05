@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERINVENTORY_H
-#define LL_LLVIEWERINVENTORY_H
+#pragma once
 
 #include "llinventory.h"
 #include "llframetimer.h"
@@ -479,4 +478,3 @@ void slam_inventory_folder(const LLUUID& folder_id,
 void remove_folder_contents(const LLUUID& folder_id, bool keep_outfit_links,
                               LLPointer<LLInventoryCallback> cb);
 
-#endif // LL_LLVIEWERINVENTORY_H

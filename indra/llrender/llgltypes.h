@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLGLTYPES_H
-#define LLGLTYPES_H
+#pragma once
 
 #define MAX_GL_TEXTURE_UNITS 16
 
@@ -36,4 +35,3 @@ using LLGLfloat = F32;
 using LLGLdouble = F64;
 using LLGLboolean = U8;
 
-#endif

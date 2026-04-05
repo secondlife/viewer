@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLANDMARKACTIONS_H
-#define LL_LLLANDMARKACTIONS_H
+#pragma once
 
 #include "llinventorymodel.h"
 
@@ -129,4 +128,3 @@ private:
                                  U64 region_handle);
 };
 
-#endif //LL_LLLANDMARKACTIONS_H

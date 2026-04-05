@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLQUEUEDTHREAD_H
-#define LL_LLQUEUEDTHREAD_H
+#pragma once
 
 #include <queue>
 #include <string>
@@ -178,4 +177,3 @@ protected:
     handle_t mNextHandle;
 };
 
-#endif // LL_LLQUEUEDTHREAD_H

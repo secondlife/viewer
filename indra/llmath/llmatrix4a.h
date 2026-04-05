@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMATRIX4A_H
-#define LL_LLMATRIX4A_H
+#pragma once
 
 #include "llvector4a.h"
 #include "m4math.h"
@@ -267,4 +266,3 @@ inline std::ostream& operator<<(std::ostream& s, const LLMatrix4a& m)
 
 void matMulBoundBox(const LLMatrix4a &a, const LLVector4a *in_extents, LLVector4a *out_extents);
 
-#endif

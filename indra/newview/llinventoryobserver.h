@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYOBSERVERS_H
-#define LL_LLINVENTORYOBSERVERS_H
+#pragma once
 
 #include "lluuid.h"
 #include <string>
@@ -326,4 +325,3 @@ public:
 };
 
 
-#endif // LL_LLINVENTORYOBSERVERS_H

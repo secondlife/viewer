@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_REQUEST_H_
-#define _LLCORE_HTTP_REQUEST_H_
+#pragma once
 
 
 #include "httpcommon.h"
@@ -658,4 +657,3 @@ private:
 
 
 
-#endif  // _LLCORE_HTTP_REQUEST_H_

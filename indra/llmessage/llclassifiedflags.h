@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCLASSIFIEDFLAGS_H
-#define LL_LLCLASSIFIEDFLAGS_H
+#pragma once
 
 using ClassifiedFlags = U8;
 
@@ -59,4 +58,3 @@ bool is_cf_mature(ClassifiedFlags flags);
 bool is_cf_update_time(ClassifiedFlags flags);
 bool is_cf_auto_renew(ClassifiedFlags flags);
 
-#endif

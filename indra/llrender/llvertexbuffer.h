@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERTEXBUFFER_H
-#define LL_LLVERTEXBUFFER_H
+#pragma once
 
 #include "llgl.h"
 #include "v2math.h"
@@ -340,4 +339,3 @@ public:
 #endif
 
 
-#endif // LL_LLVERTEXBUFFER_H

@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBUFFERSTREAM_H
-#define LL_LLBUFFERSTREAM_H
+#pragma once
 
 #include <iosfwd>
 #include <iostream>
@@ -149,4 +148,3 @@ protected:
 };
 
 
-#endif // LL_LLBUFFERSTREAM_H

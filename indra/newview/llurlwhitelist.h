@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLURLWHITELIST_H
-#define LL_LLURLWHITELIST_H
+#pragma once
 
 #include <list>
 
@@ -55,4 +54,3 @@ class LLUrlWhiteList : public LLSingleton<LLUrlWhiteList>
         U32 mCurIndex;
 };
 
-#endif  // LL_LLURLWHITELIST_H

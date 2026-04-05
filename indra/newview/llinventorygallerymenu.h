@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYGALLERYMENU_H
-#define LL_LLINVENTORYGALLERYMENU_H
+#pragma once
 
 #include "lllistcontextmenu.h"
 
@@ -60,4 +59,3 @@ private:
     bool mRootFolder;
 };
 
-#endif

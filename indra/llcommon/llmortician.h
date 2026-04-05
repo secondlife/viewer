@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLMORTICIAN_H
-#define LLMORTICIAN_H
+#pragma once
 
 #include "stdtypes.h"
 #include <list>
@@ -52,5 +51,4 @@ private:
     static std::list<LLMortician*> sGraveyard;
 };
 
-#endif
 

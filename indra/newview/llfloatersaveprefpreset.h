@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSAVEPREFPRESET_H
-#define LL_LLFLOATERSAVEPREFPRESET_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -55,4 +54,3 @@ private:
     std::string mSubdirectory;
 };
 
-#endif // LL_LLFLOATERSAVEPREFPRESET_H

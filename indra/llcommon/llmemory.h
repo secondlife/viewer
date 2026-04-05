@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLMEMORY_H
-#define LLMEMORY_H
+#pragma once
 
 #include "linden_common.h"
 #include "llunits.h"
@@ -440,4 +439,3 @@ private:
 
 // LLSingleton moved to llsingleton.h
 
-#endif

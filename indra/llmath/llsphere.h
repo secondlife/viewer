@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SPHERE_H
-#define LL_SPHERE_H
+#pragma once
 
 #include "stdtypes.h"
 #include "v3math.h"
@@ -74,4 +73,3 @@ protected:
 };
 
 
-#endif

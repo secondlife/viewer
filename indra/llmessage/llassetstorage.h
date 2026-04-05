@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLASSETSTORAGE_H
-#define LL_LLASSETSTORAGE_H
+#pragma once
 #include <string>
 #include <functional>
 
@@ -430,4 +429,3 @@ public:
 
 extern LLAssetStorage *gAssetStorage;
 extern const LLUUID CATEGORIZE_LOST_AND_FOUND_ID;
-#endif

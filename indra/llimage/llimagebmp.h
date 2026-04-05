@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGEBMP_H
-#define LL_LLIMAGEBMP_H
+#pragma once
 
 #include "llimage.h"
 
@@ -61,4 +60,3 @@ protected:
     bool        mOriginAtTop;
 };
 
-#endif

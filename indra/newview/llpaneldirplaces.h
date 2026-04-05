@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELDIRPLACES_H
-#define LL_LLPANELDIRPLACES_H
+#pragma once
 
 #include "llpaneldirbrowser.h"
 
@@ -48,4 +47,3 @@ private:
     void queryCore(const std::string& name, S32 category, U32 flags);
 };
 
-#endif

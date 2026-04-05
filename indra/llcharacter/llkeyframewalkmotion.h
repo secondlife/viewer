@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYFRAMEWALKMOTION_H
-#define LL_LLKEYFRAMEWALKMOTION_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -170,5 +169,4 @@ protected:
     F32             mRoll;
 };
 
-#endif // LL_LLKeyframeWalkMotion_H
 

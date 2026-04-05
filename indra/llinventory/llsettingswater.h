@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_SETTINGS_WATER_H
-#define LL_SETTINGS_WATER_H
+#pragma once
 
 #include "llsettingsbase.h"
 
@@ -289,4 +288,3 @@ protected:
     LLVector2 mWave2Dir;
 };
 
-#endif

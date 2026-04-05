@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMOTIONCONTROLLER_H
-#define LL_LLMOTIONCONTROLLER_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -236,5 +235,4 @@ private:
 //-----------------------------------------------------------------------------
 #include "llcharacter.h"
 
-#endif // LL_LLMOTIONCONTROLLER_H
 

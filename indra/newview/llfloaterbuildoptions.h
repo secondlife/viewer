@@ -29,8 +29,7 @@
  * grid size and spacing.
  */
 
-#ifndef LL_LLFLOATERBUILDOPTIONS_H
-#define LL_LLFLOATERBUILDOPTIONS_H
+#pragma once
 
 #include "llfloater.h"
 #include "llselectmgr.h"
@@ -56,4 +55,3 @@ private:
 
     LLObjectSelectionHandle mObjectSelection;
 };
-#endif

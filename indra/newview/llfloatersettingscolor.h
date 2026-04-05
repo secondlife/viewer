@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LLFLOATERCOLORSETTINGS_H
-#define LLFLOATERCOLORSETTINGS_H
+#pragma once
 
 #include "llcontrol.h"
 #include "llfloater.h"
@@ -77,5 +76,4 @@ protected:
     std::string mSearchFilter;
 };
 
-#endif //LLFLOATERCOLORSETTINGS_H
 

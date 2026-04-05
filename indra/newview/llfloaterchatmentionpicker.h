@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERCHATMENTIONPICKER_H
-#define LLFLOATERCHATMENTIONPICKER_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -55,4 +54,3 @@ private:
     LLAvatarList* mAvatarList;
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOLBRUSH_H
-#define LL_LLTOOLBRUSH_H
+#pragma once
 
 #include "lltool.h"
 #include "v3math.h"
@@ -105,4 +104,3 @@ private:
 };
 
 
-#endif // LL_LLTOOLBRUSH_H

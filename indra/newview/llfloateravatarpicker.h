@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERAVATARPICKER_H
-#define LLFLOATERAVATARPICKER_H
+#pragma once
 
 #include "llfloater.h"
 #include "lleventcoro.h"
@@ -111,4 +110,3 @@ private:
     select_callback_t mSelectionCallback;
 };
 
-#endif

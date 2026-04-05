@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCHECKBOXCTRL_H
-#define LL_LLCHECKBOXCTRL_H
+#pragma once
 
 #include "lluictrl.h"
 #include "llbutton.h"
@@ -154,4 +153,3 @@ extern template class LLCheckBoxCtrl* LLView::getChild<class LLCheckBoxCtrl>(
     std::string_view name, bool recurse) const;
 #endif
 
-#endif  // LL_LLCHECKBOXCTRL_H

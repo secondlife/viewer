@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOWSDL_H
-#define LL_LLWINDOWSDL_H
+#pragma once
 
 // Simple Directmedia Layer (http://libsdl.org/) implementation of LLWindow class
 
@@ -229,4 +228,3 @@ public:
 
 S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 type);
 
-#endif //LL_LLWINDOWSDL_H

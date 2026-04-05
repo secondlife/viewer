@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOAVATARSELF_H
-#define LL_LLVOAVATARSELF_H
+#pragma once
 
 #include "llviewertexture.h"
 #include "llvoavatar.h"
@@ -412,4 +411,3 @@ void selfStartPhase(const std::string& phase_name);
 void selfStopPhase(const std::string& phase_name, bool err_check = true);
 void selfClearPhases();
 
-#endif // LL_VO_AVATARSELF_H

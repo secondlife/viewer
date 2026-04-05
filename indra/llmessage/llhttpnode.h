@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHTTPNODE_H
-#define LL_LLHTTPNODE_H
+#pragma once
 
 #include "llpointer.h"
 #include "llrefcount.h"
@@ -404,4 +403,3 @@ private:
 
 //@}
 
-#endif // LL_LLHTTPNODE_H

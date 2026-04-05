@@ -25,6 +25,4 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCLICKACTION_H
-#define LL_LLCLICKACTION_H
-#endif
+#pragma once

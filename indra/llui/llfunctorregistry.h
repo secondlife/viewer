@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFUNCTORREGISTRY_H
-#define LL_LLFUNCTORREGISTRY_H
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -135,5 +134,4 @@ public:
     }
 };
 
-#endif//LL_LLFUNCTORREGISTRY_H
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSTATGRAPH_H
-#define LL_LLSTATGRAPH_H
+#pragma once
 
 #include "llview.h"
 #include "llframetimer.h"
@@ -133,4 +132,3 @@ private:
     threshold_vec_t mThresholds;
 };
 
-#endif  // LL_LLSTATGRAPH_H

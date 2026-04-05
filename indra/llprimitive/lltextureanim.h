@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTUREANIM_H
-#define LL_LLTEXTUREANIM_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llsd.h"
@@ -69,4 +68,3 @@ public:
     F32 mLength;
     F32 mRate; // Rate in frames per second.
 };
-#endif

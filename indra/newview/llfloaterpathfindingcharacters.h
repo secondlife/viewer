@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLFLOATERPATHFINDINGCHARACTERS_H
-#define LL_LLFLOATERPATHFINDINGCHARACTERS_H
+#pragma once
 
 #include "llfloaterpathfindingobjects.h"
 #include "llhandle.h"
@@ -96,4 +95,3 @@ private:
     static LLHandle<LLFloaterPathfindingCharacters>  sInstanceHandle;
 };
 
-#endif // LL_LLFLOATERPATHFINDINGCHARACTERS_H

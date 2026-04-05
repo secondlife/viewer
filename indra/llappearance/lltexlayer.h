@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXLAYER_H
-#define LL_LLTEXLAYER_H
+#pragma once
 
 #include <deque>
 #include "llglslshader.h"
@@ -310,4 +309,3 @@ private:
     S32                 mTGABytes;
 };
 
-#endif  // LL_LLTEXLAYER_H

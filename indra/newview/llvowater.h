@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VOWATER_H
-#define LL_VOWATER_H
+#pragma once
 
 #include "llviewerobject.h"
 #include "llviewertexture.h"
@@ -90,4 +89,3 @@ public:
 };
 
 
-#endif // LL_VOSURFACEPATCH_H

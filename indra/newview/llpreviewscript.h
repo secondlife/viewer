@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPREVIEWSCRIPT_H
-#define LL_LLPREVIEWSCRIPT_H
+#pragma once
 
 #include "llpreview.h"
 #include "lltabcontainer.h"
@@ -357,4 +356,3 @@ private:
     std::string mObjectName;
 };
 
-#endif  // LL_LLPREVIEWSCRIPT_H

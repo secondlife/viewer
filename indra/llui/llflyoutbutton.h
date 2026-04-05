@@ -27,8 +27,7 @@
 // A control that displays the name of the chosen item, which when clicked
 // shows a scrolling box of choices.
 
-#ifndef LL_LLFLYOUTBUTTON_H
-#define LL_LLFLYOUTBUTTON_H
+#pragma once
 
 #include "llcombobox.h"
 
@@ -65,4 +64,3 @@ protected:
     bool                    mToggleState;
 };
 
-#endif // LL_LLFLYOUTBUTTON_H

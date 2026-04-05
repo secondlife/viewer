@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLURLENTRY_H
-#define LL_LLURLENTRY_H
+#pragma once
 
 #include "lluuid.h"
 #include "lluicolor.h"
@@ -608,4 +607,3 @@ private:
     LLKeyBindingToStringHandler* pHandler;
 };
 
-#endif

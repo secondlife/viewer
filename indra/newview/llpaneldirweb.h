@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELDIRWEB_H
-#define LL_LLPANELDIRWEB_H
+#pragma once
 
 #include "llpanel.h"
 #include "llmediactrl.h"
@@ -60,4 +59,3 @@ protected:
     LLMediaCtrl* mWebBrowser;
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUICONSTANTS_H
-#define LL_LLUICONSTANTS_H
+#pragma once
 
 // spacing for small font lines of text, like LLTextBoxes
 const S32 LINE = 16;
@@ -47,4 +46,3 @@ const S32 DETAILS_MAX = 30;         // one month
 const S32 TRANSACTIONS_INTERVAL = 1;// one day
 const S32 TRANSACTIONS_MAX = 30;    // one month
 
-#endif

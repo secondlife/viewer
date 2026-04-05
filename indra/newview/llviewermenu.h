@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERMENU_H
-#define LL_LLVIEWERMENU_H
+#pragma once
 
 #include <array>
 #include "../llui/llmenugl.h"
@@ -171,4 +170,3 @@ extern LLMenuItemCallGL* gMutePieMenu;
 extern LLMenuItemCallGL* gMuteObjectPieMenu;
 extern LLMenuItemCallGL* gBuyPassPieMenu;
 
-#endif

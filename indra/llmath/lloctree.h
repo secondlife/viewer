@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLOCTREE_H
-#define LL_LLOCTREE_H
+#pragma once
 
 #include "lltreenode.h"
 #include "v3math.h"
@@ -855,4 +854,3 @@ void LLOctreeTravelerDepthFirst<T, T_PTR>::traverse(const LLOctreeNode<T, T_PTR>
     node->accept(this);
 }
 
-#endif

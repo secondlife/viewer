@@ -26,8 +26,7 @@
 
 //  Common data for trees shared between simulator and viewer
 
-#ifndef LL_LLTREE_COMMON_H
-#define LL_LLTREE_COMMON_H
+#pragma once
 
 struct LLTree_gene_0
 {
@@ -58,4 +57,3 @@ struct LLTree_gene_0
     U8  scale_step;         //  How much to multiply scale size at each recursion 0-1.f to convert to float
 };
 
-#endif

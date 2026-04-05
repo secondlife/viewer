@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_EVENT_H
-#define LL_EVENT_H
+#pragma once
 
 #include "llsd.h"
 #include "llrefcount.h"
@@ -193,4 +192,3 @@ public:
 
 } // LLOldEvents
 
-#endif // LL_EVENT_H

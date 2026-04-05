@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVLMANAGER_H
-#define LL_LLVLMANAGER_H
+#pragma once
 
 // This class manages the data coming in for viewer layers from the network.
 
@@ -75,4 +74,3 @@ public:
 
 extern LLVLManager gVLManager;
 
-#endif // LL_LLVIEWERLAYERMANAGER_H

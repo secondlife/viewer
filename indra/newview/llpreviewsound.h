@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPREVIEWSOUND_H
-#define LL_LLPREVIEWSOUND_H
+#pragma once
 
 #include "llpreview.h"
 
@@ -41,4 +40,3 @@ protected:
     bool postBuild() override;
 };
 
-#endif  // LL_LLPREVIEWSOUND_H

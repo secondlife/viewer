@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_COPROCEDURE_MANAGER_H
-#define LL_COPROCEDURE_MANAGER_H
+#pragma once
 
 #include "lleventcoro.h"
 #include "llcoros.h"
@@ -95,4 +94,3 @@ public:
     static const U32 DEFAULT_QUEUE_SIZE;
 };
 
-#endif

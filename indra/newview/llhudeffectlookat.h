@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDEFFECTLOOKAT_H
-#define LL_LLHUDEFFECTLOOKAT_H
+#pragma once
 
 #include "llhudeffect.h"
 
@@ -93,4 +92,3 @@ private:
     LLAttentionSet*             mAttentions;
 };
 
-#endif // LL_LLHUDEFFECTLOOKAT_H

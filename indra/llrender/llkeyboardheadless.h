@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYBOARDHEADLESS_H
-#define LL_LLKEYBOARDHEADLESS_H
+#pragma once
 
 #include "llkeyboard.h"
 
@@ -45,4 +44,3 @@ public:
 #endif
 };
 
-#endif

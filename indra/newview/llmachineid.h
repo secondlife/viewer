@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMACHINEID_H
-#define LL_LLMACHINEID_H
+#pragma once
 
 
 class LLMachineID
@@ -49,4 +48,3 @@ private:
 
 
 
-#endif // LL_LLMACHINEID_H

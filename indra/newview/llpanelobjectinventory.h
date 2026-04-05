@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELOBJECTINVENTORY_H
-#define LL_LLPANELOBJECTINVENTORY_H
+#pragma once
 
 #include "llvoinventorylistener.h"
 #include "llpanel.h"
@@ -123,4 +122,3 @@ private:
     bool mShowRootFolder;
 };
 
-#endif // LL_LLPANELOBJECTINVENTORY_H

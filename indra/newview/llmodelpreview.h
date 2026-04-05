@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMODELPREVIEW_H
-#define LL_LLMODELPREVIEW_H
+#pragma once
 
 #include "lldynamictexture.h"
 #include "llfloatermodelpreview.h"
@@ -348,4 +347,3 @@ protected:
     LLCachedControl<bool>   mImporterDebug;
 };
 
-#endif  // LL_LLMODELPREVIEW_H

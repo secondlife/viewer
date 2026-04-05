@@ -26,8 +26,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_PHYSICS_EXTENSIONS
-#define LL_PHYSICS_EXTENSIONS
+#pragma once
 
 #include "llpreprocessor.h"
 #include "llsd.h"
@@ -54,6 +53,5 @@ private:
     static bool s_isInitialized;
 };
 
-#endif //LL_PATHING_LIBRARY
 
 

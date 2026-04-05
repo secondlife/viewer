@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_RETRYPOLICY_H
-#define LL_RETRYPOLICY_H
+#pragma once
 
 #include "lltimer.h"
 #include "llthread.h"
@@ -97,4 +96,3 @@ private:
     bool mRetryOn4xx; // Normally only retry on 5xx server errors.
 };
 
-#endif

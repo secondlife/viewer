@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYWORDS_H
-#define LL_LLKEYWORDS_H
+#pragma once
 
 
 #include "lldir.h"
@@ -202,4 +201,3 @@ protected:
     std::string getArguments(LLSD& arguments);
 };
 
-#endif  // LL_LLKEYWORDS_H

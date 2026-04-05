@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPOSE_H
-#define LL_LLPOSE_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header Files
@@ -138,5 +137,4 @@ public:
     LLPose* getBlendedPose() { return &mBlendedPose; }
 };
 
-#endif // LL_LLPOSE_H
 

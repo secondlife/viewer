@@ -20,8 +20,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLFLOATERHANDLER_H
-#define LLFLOATERHANDLER_H
+#pragma once
 
 // Support for SLURL control of floaters, such as
 //   secondlife:///app/floater/self/close
@@ -36,4 +35,3 @@ public:
     bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web);
 };
 
-#endif

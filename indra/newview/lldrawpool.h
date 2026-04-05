@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOL_H
-#define LL_LLDRAWPOOL_H
+#pragma once
 
 #include "v4coloru.h"
 #include "v2math.h"
@@ -484,4 +483,3 @@ public:
 };
 
 
-#endif //LL_LLDRAWPOOL_H

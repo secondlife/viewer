@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELLANDMARKINFO_H
-#define LL_LLPANELLANDMARKINFO_H
+#pragma once
 
 #include "llpanelplaceinfo.h"
 #include "llinventorymodel.h"
@@ -102,4 +101,3 @@ private:
     LLPointer<LLViewerInventoryItem> mItem;
     LLUUID mNewParentId;
 };
-#endif // LL_LLPANELLANDMARKINFO_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFONTGL_H
-#define LL_LLFONTGL_H
+#pragma once
 
 #include "llcoord.h"
 #include "llfontregistry.h"
@@ -247,4 +246,3 @@ private:
     static LLFontRegistry* sFontRegistry;
 };
 
-#endif

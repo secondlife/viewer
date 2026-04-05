@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLURLHISTORY_H
-#define LLURLHISTORY_H
+#pragma once
 
 #include "llstring.h"
 
@@ -52,4 +51,3 @@ private:
     static LLSD sHistorySD;
 };
 
-#endif // LLURLHISTORY_H

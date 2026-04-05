@@ -27,8 +27,7 @@
 // Stores information related to associated rigged mesh vertices
 // This lives in llmath because llvolume lives in llmath.
 
-#ifndef LL_LLRIGGINGINFO_H
-#define LL_LLRIGGINGINFO_H
+#pragma once
 
 #include "llvector4a.h"
 
@@ -79,4 +78,3 @@ private:
     bool mNeedsUpdate;
 };
 
-#endif

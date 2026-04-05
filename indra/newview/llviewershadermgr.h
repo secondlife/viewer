@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VIEWER_SHADER_MGR_H
-#define LL_VIEWER_SHADER_MGR_H
+#pragma once
 
 #include "llshadermgr.h"
 #include "llmaterial.h"
@@ -326,4 +325,3 @@ enum TerrainPaintType : U32
     TERRAIN_PAINT_TYPE_COUNT                = 2,
 };
 extern LLGLSLShader         gDeferredPBRTerrainProgram[TERRAIN_PAINT_TYPE_COUNT];
-#endif

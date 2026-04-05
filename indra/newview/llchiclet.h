@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCHICLET_H
-#define LL_LLCHICLET_H
+#pragma once
 
 #include "llavatariconctrl.h"
 #include "llbutton.h"
@@ -902,4 +901,3 @@ template<class T> T* LLChicletPanel::getChiclet(S32 index)
     return result;
 }
 
-#endif // LL_LLCHICLET_H

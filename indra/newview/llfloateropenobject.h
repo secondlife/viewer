@@ -29,8 +29,7 @@
  * click "Buy..." on an object with "Sell Contents" checked.
  */
 
-#ifndef LL_LLFLOATEROPENOBJECT_H
-#define LL_LLFLOATEROPENOBJECT_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -79,4 +78,3 @@ protected:
     bool mDirty;
 };
 
-#endif

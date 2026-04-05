@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPREVIEW_H
-#define LL_LLPREVIEW_H
+#pragma once
 
 #include "llmultifloater.h"
 #include "llresizehandle.h"
@@ -162,4 +161,3 @@ const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PRE
 const S32 PREVIEW_VPAD = 2;
 const S32 PREVIEW_HEADER_SIZE = 2*PREVIEW_LINE_HEIGHT + 2 * PREVIEW_VPAD;
 
-#endif  // LL_LLPREVIEW_H

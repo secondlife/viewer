@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERTEXTUREANIM_H
-#define LL_LLVIEWERTEXTUREANIM_H
+#pragma once
 
 #include "lltextureanim.h"
 #include "llframetimer.h"
@@ -64,4 +63,3 @@ protected:
     F64 mLastTime;
     F32 mLastFrame;
 };
-#endif

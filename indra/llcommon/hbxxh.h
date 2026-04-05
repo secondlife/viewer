@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_HBXXH_H
-#define LL_HBXXH_H
+#pragma once
 
 #include "lluuid.h"
 
@@ -274,4 +273,3 @@ inline bool operator!=(const HBXXH128& a, const HBXXH128& b)
     return a.digest() != b.digest();
 }
 
-#endif // LL_HBXXH_H

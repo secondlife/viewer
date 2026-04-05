@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERPAY_H
-#define LLFLOATERPAY_H
+#pragma once
 
 #include "llsafehandle.h"
 
@@ -52,4 +51,3 @@ namespace LLFloaterPayUtil
                      bool is_group);
 }
 
-#endif // LLFLOATERPAY_H

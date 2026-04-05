@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_BUFFER_STREAM_H_
-#define _LLCORE_BUFFER_STREAM_H_
+#pragma once
 
 
 #include <sstream>
@@ -150,4 +149,3 @@ protected:
 
 }  // end namespace LLCore
 
-#endif  // _LLCORE_BUFFER_STREAM_H_

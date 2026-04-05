@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERCOLORPICKER_H
-#define LL_LLFLOATERCOLORPICKER_H
+#pragma once
 
 #include <vector>
 
@@ -200,4 +199,3 @@ class LLFloaterColorPicker
         boost::signals2::scoped_connection  mPipetteConnection;
 };
 
-#endif // LL_LLFLOATERCOLORPICKER_H

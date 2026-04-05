@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDOBJECT_H
-#define LL_LLHUDOBJECT_H
+#pragma once
 
 /**
  * Base class and manager for in-world 2.5D non-interactive objects
@@ -121,4 +120,3 @@ private:
     static hud_object_list_t sHUDObjects;
 };
 
-#endif // LL_LLHUDOBJECT_H

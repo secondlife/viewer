@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERMODELPREVIEW_H
-#define LL_LLFLOATERMODELPREVIEW_H
+#pragma once
 
 #include "llfloaternamedesc.h"
 #include "llfloatermodeluploadbase.h"
@@ -239,4 +238,3 @@ private:
     joint_override_data_map_t mJointOverrides[LLModel::NUM_LODS];
 };
 
-#endif  // LL_LLFLOATERMODELPREVIEW_H

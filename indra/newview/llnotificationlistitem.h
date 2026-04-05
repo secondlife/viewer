@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNOTIFICATIONLISTITEM_H
-#define LL_LLNOTIFICATIONLISTITEM_H
+#pragma once
 
 #include "llpanel.h"
 #include "lllayoutstack.h"
@@ -247,6 +246,5 @@ private:
     bool mIsCaution;
 };
 
-#endif // LL_LLNOTIFICATIONLISTITEM_H
 
 

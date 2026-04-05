@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOLSELECTLAND_H
-#define LL_LLTOOLSELECTLAND_H
+#pragma once
 
 #include "lltool.h"
 #include "v3dmath.h"
@@ -73,4 +72,3 @@ protected:
 };
 
 
-#endif

@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_DEADMANTIMER_H
-#define LL_DEADMANTIMER_H
+#pragma once
 
 
 #include "linden_common.h"
@@ -207,4 +206,3 @@ protected:
 };
 
 
-#endif  // LL_DEADMANTIMER_H

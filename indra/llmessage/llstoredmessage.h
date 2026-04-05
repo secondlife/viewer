@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_STOREDMESSAGE_H
-#define LL_STOREDMESSAGE_H
+#pragma once
 
 #include "linden_common.h"
 #include "llsd.h"
@@ -48,4 +47,3 @@ private:
 using LLStoredMessagePtr = std::shared_ptr<LLStoredMessage>;
 
 
-#endif // LL_STOREDMESSAGE_H

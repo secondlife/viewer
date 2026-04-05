@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLPANELDIRGROUPS_H
-#define LLPANELDIRGROUPS_H
+#pragma once
 
 #include "llpaneldirbrowser.h"
 
@@ -42,4 +41,3 @@ public:
     static void onClickSearch(void *userdata);
 };
 
-#endif

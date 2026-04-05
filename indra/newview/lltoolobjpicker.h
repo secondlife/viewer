@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TOOLOBJPICKER_H
-#define LL_TOOLOBJPICKER_H
+#pragma once
 
 #include "lltool.h"
 #include "v3math.h"
@@ -61,4 +60,3 @@ protected:
 };
 
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTREEPARAMS_H
-#define LL_LLTREEPARAMS_H
+#pragma once
 
 #include <array>
 
@@ -200,4 +199,3 @@ public:
 
 };
 
-#endif

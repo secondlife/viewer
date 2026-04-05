@@ -40,8 +40,7 @@
  * @brief The LLAppViewer class declaration
  */
 
-#ifndef LL_LLAPPVIEWER_H
-#define LL_LLAPPVIEWER_H
+#pragma once
 
 #include "llapp.h"
 #include "llapr.h"
@@ -429,4 +428,3 @@ extern bool gDoDisconnect;
 
 extern bool gSimulateMemLeak;
 
-#endif // LL_LLAPPVIEWER_H

@@ -28,8 +28,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELMEDIAMEDIASETTINGSPERMISSIONS_H
-#define LL_LLPANELMEDIAMEDIASETTINGSPERMISSIONS_H
+#pragma once
 
 #include "llpanel.h"
 #include "lluuid.h"
@@ -70,4 +69,3 @@ private:
     LLCheckBoxCtrl* mPermsWorldControl;
 };
 
-#endif  // LL_LLPANELMEDIAMEDIASETTINGSPERMISSIONS_H

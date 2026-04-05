@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGROUPLIST_H
-#define LL_LLGROUPLIST_H
+#pragma once
 
 #include "llevent.h"
 #include "llpointer.h"
@@ -141,4 +140,3 @@ private:
 
     S32 mIconWidth;
 };
-#endif // LL_LLGROUPLIST_H

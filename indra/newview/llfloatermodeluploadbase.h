@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERMODELUPLOADBASE_H
-#define LL_LLFLOATERMODELUPLOADBASE_H
+#pragma once
 
 #include "lluploadfloaterobservers.h"
 #include "llcoros.h"
@@ -62,4 +61,3 @@ protected:
     bool mHasUploadPerm;
 };
 
-#endif /* LL_LLFLOATERMODELUPLOADBASE_H */

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAGENTLANGUAGE_H
-#define LL_LLAGENTLANGUAGE_H
+#pragma once
 
 class LLAgentLanguage
 {
@@ -37,4 +36,3 @@ class LLAgentLanguage
     static void onChange();
 };
 
-#endif // LL_LLAGENTLANGUAGE_H

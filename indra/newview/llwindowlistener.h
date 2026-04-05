@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOWLISTENER_H
-#define LL_LLWINDOWLISTENER_H
+#pragma once
 
 #include "lleventapi.h"
 #include <functional>
@@ -54,4 +53,3 @@ private:
 };
 
 
-#endif // LL_LLWINDOWLISTENER_H

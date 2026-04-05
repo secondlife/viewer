@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPATHFINDINGLINKSET_H
-#define LL_LLPATHFINDINGLINKSET_H
+#pragma once
 
 #include <string>
 
@@ -111,4 +110,3 @@ private:
     S32          mWalkabilityCoefficientD;
 };
 
-#endif // LL_LLPATHFINDINGLINKSET_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPOLYMORPH_H
-#define LL_LLPOLYMORPH_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -190,4 +189,3 @@ protected:
 
 };
 
-#endif // LL_LLPOLYMORPH_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOLBARVIEW_H
-#define LL_LLTOOLBARVIEW_H
+#pragma once
 
 #include "lluictrl.h"
 #include "lltoolbar.h"
@@ -126,4 +125,3 @@ private:
 
 extern LLToolBarView* gToolBarView;
 
-#endif  // LL_LLTOOLBARVIEW_H

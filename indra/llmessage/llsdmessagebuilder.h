@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSDMESSAGEBUILDER_H
-#define LL_LLSDMESSAGEBUILDER_H
+#pragma once
 
 #include <map>
 
@@ -123,4 +122,3 @@ private:
     bool mbSClear;
 };
 
-#endif // LL_LLSDMESSAGEBUILDER_H

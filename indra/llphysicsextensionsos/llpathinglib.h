@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PATHING_LIBRARY
-#define LL_PATHING_LIBRARY
+#pragma once
 
 #include "llpreprocessor.h"
 #include "llsd.h"
@@ -184,4 +183,3 @@ private:
     static bool s_isInitialized;
 };
 
-#endif //LL_PATHING_LIBRARY

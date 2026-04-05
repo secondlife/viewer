@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCRITICALDAMP_H
-#define LL_LLCRITICALDAMP_H
+#pragma once
 
 #include <vector>
 
@@ -69,4 +68,3 @@ protected:
 };
 
 using LLCriticalDamp = LLSmoothInterpolation;
-#endif  // LL_LLCRITICALDAMP_H

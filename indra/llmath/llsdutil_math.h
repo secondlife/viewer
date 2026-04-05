@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSDUTIL_MATH_H
-#define LL_LLSDUTIL_MATH_H
+#pragma once
 
 class LL_COMMON_API LLSD;
 
@@ -61,4 +60,3 @@ class LLColor4;
 LLSD ll_sd_from_color4(const LLColor4& c);
 LLColor4 ll_color4_from_sd(const LLSD& sd);
 
-#endif // LL_LLSDUTIL_MATH_H

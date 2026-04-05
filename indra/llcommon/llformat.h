@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFORMAT_H
-#define LL_LLFORMAT_H
+#pragma once
 
 // Use as follows:
 // LL_INFOS() << llformat("Test:%d (%.2f %.2f)", idx, x, y) << LL_ENDL;
@@ -40,4 +39,3 @@ std::string LL_COMMON_API llformat(const char *fmt, ...);
 // to enable correct converting utf8_to_wstring.
 std::string LL_COMMON_API llformat_to_utf8(const char *fmt, ...);
 
-#endif // LL_LLFORMAT_H

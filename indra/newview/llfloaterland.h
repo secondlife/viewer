@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERLAND_H
-#define LL_LLFLOATERLAND_H
+#pragma once
 
 #include <set>
 #include <vector>
@@ -432,4 +431,3 @@ private:
     LLTextBox* mTextEstateOwner;
 };
 
-#endif

@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_PROCINFO_H
-#define LL_PROCINFO_H
+#pragma once
 
 
 #include "linden_common.h"
@@ -65,4 +64,3 @@ public:
 };
 
 
-#endif  // LL_PROCINFO_H

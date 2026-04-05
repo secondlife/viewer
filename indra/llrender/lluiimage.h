@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUIIMAGE_H
-#define LL_LLUIIMAGE_H
+#pragma once
 
 #include "v4color.h"
 #include "llpointer.h"
@@ -146,4 +145,3 @@ namespace LLInitParam
 }
 
 using LLUIImagePtr = LLPointer<LLUIImage>;
-#endif

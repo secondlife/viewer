@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSNAPSHOT_H
-#define LL_LLFLOATERSNAPSHOT_H
+#pragma once
 
 #include "llagent.h"
 #include "llfloater.h"
@@ -241,4 +240,3 @@ public:
 
 extern LLSnapshotFloaterView* gSnapshotFloaterView;
 
-#endif // LL_LLFLOATERSNAPSHOT_H

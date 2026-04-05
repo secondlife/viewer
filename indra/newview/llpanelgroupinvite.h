@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELGROUPINVITE_H
-#define LL_LLPANELGROUPINVITE_H
+#pragma once
 
 #include "llpanel.h"
 #include "lluuid.h"
@@ -59,4 +58,3 @@ protected:
     void updateLists();
 };
 
-#endif

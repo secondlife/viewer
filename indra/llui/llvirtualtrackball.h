@@ -27,8 +27,7 @@
 
 // A control for positioning the sun and the moon in the celestial sphere.
 
-#ifndef LL_LLVIRTUALTRACKBALL_H
-#define LL_LLVIRTUALTRACKBALL_H
+#pragma once
 
 #include "lluictrl.h"
 #include "llpanel.h"
@@ -158,5 +157,4 @@ private:
     F32            mIncrementBtn;
 };
 
-#endif
 

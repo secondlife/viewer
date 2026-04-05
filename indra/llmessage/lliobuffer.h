@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIOBUFFER_H
-#define LL_LLIOBUFFER_H
+#pragma once
 
 #include "lliopipe.h"
 
@@ -132,4 +131,3 @@ protected:
     U8* mWriteHead;
 };
 
-#endif // LL_LLIOBUFFER_H

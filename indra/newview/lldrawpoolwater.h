@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLWATER_H
-#define LL_LLDRAWPOOLWATER_H
+#pragma once
 
 #include <array>
 #include "lldrawpool.h"
@@ -83,4 +82,3 @@ protected:
 
 void cgErrorCallback();
 
-#endif // LL_LLDRAWPOOLWATER_H

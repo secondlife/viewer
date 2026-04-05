@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFIXEDBUFFER_H
-#define LL_LLFIXEDBUFFER_H
+#pragma once
 
 #include "timer.h"
 #include <deque>
@@ -62,4 +61,3 @@ protected:
     LLCoros::Mutex mMutex ;
 };
 
-#endif //LL_FIXED_BUFFER_H

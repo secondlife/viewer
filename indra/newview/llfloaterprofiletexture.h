@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERPROFILETEXTURE_H
-#define LL_LLFLOATERPROFILETEXTURE_H
+#pragma once
 
 #include "llfloater.h"
 #include "lliconctrl.h"
@@ -104,4 +103,3 @@ private:
     LLProfileImageCtrl* mProfileIcon;
     LLButton* mCloseButton;
 };
-#endif  // LL_LLFLOATERPROFILETEXTURE_H

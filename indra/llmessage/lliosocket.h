@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIOSOCKET_H
-#define LL_LLIOSOCKET_H
+#pragma once
 
 /**
  * The socket interface provided here is a simple wraper around apr
@@ -383,4 +382,3 @@ private:
 };
 #endif
 
-#endif // LL_LLIOSOCKET_H

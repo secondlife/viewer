@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPERMISSIONSFLAGS_H
-#define LL_LLPERMISSIONSFLAGS_H
+#pragma once
 
 // Flags for various permissions bits.
 // Shared between viewer and simulator.
@@ -90,4 +89,3 @@ constexpr U8 PERM_NEXT_OWNER = 0x10;
 // no modify, no copy, no transfer (INVALID!)          = 0x7fff1fff
 
 
-#endif

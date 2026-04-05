@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEMPLATEMESSAGEREADER_H
-#define LL_LLTEMPLATEMESSAGEREADER_H
+#pragma once
 
 #include "llmessagereader.h"
 
@@ -124,4 +123,3 @@ private:
     message_template_number_map_t& mMessageNumbers;
 };
 
-#endif // LL_LLTEMPLATEMESSAGEREADER_H

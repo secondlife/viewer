@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLALPHA_H
-#define LL_LLDRAWPOOLALPHA_H
+#pragma once
 
 #include "lldrawpool.h"
 #include "llrender.h"
@@ -97,4 +96,3 @@ private:
     bool mRigged = false;
 };
 
-#endif // LL_LLDRAWPOOLALPHA_H

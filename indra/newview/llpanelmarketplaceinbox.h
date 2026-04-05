@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELMARKETPLACEINBOX_H
-#define LL_LLPANELMARKETPLACEINBOX_H
+#pragma once
 
 #include "llpanel.h"
 #include "llfolderview.h"
@@ -80,4 +79,3 @@ private:
 };
 
 
-#endif //LL_LLPANELMARKETPLACEINBOX_H

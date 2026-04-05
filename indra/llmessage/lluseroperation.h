@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUSEROPERATION_H
-#define LL_LLUSEROPERATION_H
+#pragma once
 
 #include "lluuid.h"
 #include "llframetimer.h"
@@ -94,4 +93,3 @@ private:
 
 extern LLUserOperationMgr* gUserOperationMgr;
 
-#endif // LL_LLUSEROPERATION_H

@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERCONTROLLISTENER_H
-#define LL_LLVIEWERCONTROLLISTENER_H
+#pragma once
 
 #include "lleventapi.h"
 
@@ -47,4 +46,3 @@ private:
     static void vars(LLSD const & event_data);
 };
 
-#endif // LL_LLVIEWERCONTROLLISTENER_H

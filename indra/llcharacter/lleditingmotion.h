@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLEDITINGMOTION_H
-#define LL_LLEDITINGMOTION_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -131,5 +130,4 @@ public:
     LLVector3           mLastSelectPt;
 } LL_ALIGN_POSTFIX(16);
 
-#endif // LL_LLKEYFRAMEMOTION_H
 

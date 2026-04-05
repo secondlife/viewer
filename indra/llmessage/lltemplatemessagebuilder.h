@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEMPLATEMESSAGEBUILDER_H
-#define LL_LLTEMPLATEMESSAGEBUILDER_H
+#pragma once
 
 #include <map>
 
@@ -112,4 +111,3 @@ private:
     const message_template_name_map_t& mMessageTemplates;
 };
 
-#endif // LL_LLTEMPLATEMESSAGEBUILDER_H

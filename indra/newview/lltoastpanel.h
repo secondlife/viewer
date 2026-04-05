@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOASTPANEL_H
-#define LL_LLTOASTPANEL_H
+#pragma once
 
 #include "llpanel.h"
 #include "lltextbox.h"
@@ -83,4 +82,3 @@ protected:
     LLCheckBoxCtrl* mCheck;
 };
 
-#endif /* LL_TOASTPANEL_H */

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNAMEEDITOR_H
-#define LL_LLNAMEEDITOR_H
+#pragma once
 
 #include <set>
 
@@ -76,4 +75,3 @@ private:
 
 };
 
-#endif

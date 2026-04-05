@@ -30,8 +30,7 @@
  * click "Buy..." on an object with "Sell Contents" checked.
  */
 
-#ifndef LL_LLFLOATERBUYCONTENTS_H
-#define LL_LLFLOATERBUYCONTENTS_H
+#pragma once
 
 #include "llfloater.h"
 #include "llvoinventorylistener.h"
@@ -64,4 +63,3 @@ protected:
     LLSaleInfo mSaleInfo;
 };
 
-#endif

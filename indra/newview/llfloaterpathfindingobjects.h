@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLFLOATERPATHFINDINGOBJECTS_H
-#define LL_LLFLOATERPATHFINDINGOBJECTS_H
+#pragma once
 
 #include <string>
 #include <map>
@@ -176,4 +175,3 @@ private:
     LLAgent::god_level_change_slot_t   mGodLevelChangeSlot;
 };
 
-#endif // LL_LLFLOATERPATHFINDINGOBJECTS_H

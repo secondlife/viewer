@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLOUTFITSLIST_H
-#define LL_LLOUTFITSLIST_H
+#pragma once
 
 #include "llaccordionctrl.h"
 #include "llpanel.h"
@@ -461,4 +460,3 @@ private:
     boost::signals2::connection                   mSavedSettingInvFavColor;
 };
 
-#endif //LL_LLOUTFITSLIST_H

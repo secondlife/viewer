@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMAPIMAGETYPE_H
-#define LL_LLMAPIMAGETYPE_H
+#pragma once
 
 enum EMapImageType
 {
@@ -37,4 +36,3 @@ enum EMapImageType
     MIT_EOF = 6
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPROGRESSVIEW_H
-#define LL_LLPROGRESSVIEW_H
+#pragma once
 
 #include "llpanel.h"
 #include "llmediactrl.h"
@@ -114,4 +113,3 @@ protected:
     void initStartTexture(S32 location_id, bool is_in_production);
 };
 
-#endif // LL_LLPROGRESSVIEW_H

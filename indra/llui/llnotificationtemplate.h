@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLNOTIFICATION_TEMPLATE_H
-#define LL_LLNOTIFICATION_TEMPLATE_H
+#pragma once
 
 #include "llinitparam.h"
 #include "llnotifications.h"
@@ -321,5 +320,4 @@ struct LLNotificationTemplate
     bool mFadeToast;
 };
 
-#endif //LL_LLNOTIFICATION_TEMPLATE_H
 

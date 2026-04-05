@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SIMD_MATH_H
-#define LL_SIMD_MATH_H
+#pragma once
 
 #ifndef LLMATH_H
 #error "Please include llmath.h before this file."
@@ -71,4 +70,3 @@ class LLMatrix3;
 #include "llquaternion2.inl"
 
 
-#endif //LL_SIMD_MATH_H

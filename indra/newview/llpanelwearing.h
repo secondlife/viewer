@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELWEARING_H
-#define LL_LLPANELWEARING_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -116,4 +115,3 @@ private:
     bool                            mIsInitialized;
 };
 
-#endif //LL_LLPANELWEARING_H

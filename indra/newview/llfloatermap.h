@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERMAP_H
-#define LL_LLFLOATERMAP_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -64,4 +63,3 @@ private:
     LLNetMap*       mMap;
 };
 
-#endif  // LL_LLFLOATERMAP_H

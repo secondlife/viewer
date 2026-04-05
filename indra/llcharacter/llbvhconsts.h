@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBVHCONSTS_H
-#define LL_LLBVHCONSTS_H
+#pragma once
 
 const F32 MAX_ANIM_DURATION = 60.f;
 
@@ -43,4 +42,3 @@ enum EConstraintTargetType
         NUM_CONSTRAINT_TARGET_TYPES
     };
 
-#endif // LL_LLBVHCONSTS_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCOREINT__REFCOUNTED_H_
-#define LLCOREINT__REFCOUNTED_H_
+#pragma once
 
 
 #include "linden_common.h"
@@ -150,5 +149,4 @@ inline void intrusive_ptr_release(RefCounted* p)
 } // end namespace LLCoreInt
 
 
-#endif  // LLCOREINT__REFCOUNTED_H_
 

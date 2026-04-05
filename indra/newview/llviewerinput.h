@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERINPUT_H
-#define LL_LLVIEWERINPUT_H
+#pragma once
 
 #include <array>
 #include "llkeyboard.h" // For EKeystate
@@ -197,4 +196,3 @@ private:
 
 extern LLViewerInput gViewerInput;
 
-#endif // LL_LLVIEWERINPUT_H

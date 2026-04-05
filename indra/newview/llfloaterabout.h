@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERABOUT_H
-#define LL_LLFLOATERABOUT_H
+#pragma once
 
 namespace LLFloaterAboutUtil
 {
@@ -35,4 +34,3 @@ namespace LLFloaterAboutUtil
     void checkUpdatesAndNotify();
 }
 
-#endif // LL_LLFLOATERABOUT_H

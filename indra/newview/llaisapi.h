@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAISAPI_H
-#define LL_LLAISAPI_H
+#pragma once
 
 #include "lluuid.h"
 #include <map>
@@ -164,4 +163,3 @@ private:
     AISAPI::COMMAND_TYPE mType;
 };
 
-#endif

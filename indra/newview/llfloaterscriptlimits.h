@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSCRIPTLIMITS_H
-#define LL_LLFLOATERSCRIPTLIMITS_H
+#pragma once
 
 #include <vector>
 #include "llfloater.h"
@@ -155,4 +154,3 @@ protected:
     static void onClickReturn(void* userdata);
 };
 
-#endif

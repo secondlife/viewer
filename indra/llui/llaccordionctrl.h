@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_ACCORDIONCTRL_H
-#define LL_ACCORDIONCTRL_H
+#pragma once
 
 #include "llpanel.h"
 #include "lltextbox.h"
@@ -203,4 +202,3 @@ private:
 };
 
 
-#endif // LL_LLSPLITTER_H

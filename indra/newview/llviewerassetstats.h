@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERASSETSTATUS_H
-#define LL_LLVIEWERASSETSTATUS_H
+#pragma once
 
 
 #include "linden_common.h"
@@ -279,4 +278,3 @@ void record_avatar_stats();
 
 } // namespace LLViewerAssetStatsFF
 
-#endif // LL_LLVIEWERASSETSTATUS_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERLAGMETER_H
-#define LLFLOATERLAGMETER_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -77,4 +76,3 @@ private:
     LLStringUtil::format_map_t mStringArgs;
 };
 
-#endif

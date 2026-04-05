@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYFRAMEMOTION_H
-#define LL_LLKEYFRAMEMOTION_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -461,6 +460,5 @@ public:
     static void clear();
 };
 
-#endif // LL_LLKEYFRAMEMOTION_H
 
 

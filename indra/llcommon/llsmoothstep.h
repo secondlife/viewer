@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSMOOTHSTEP_H
-#define LL_LLSMOOTHSTEP_H
+#pragma once
 
 template <class LLDATATYPE>
 inline LLDATATYPE llsmoothstep(const LLDATATYPE& edge0, const LLDATATYPE& edge1, const LLDATATYPE& value)
@@ -42,4 +41,3 @@ inline LLDATATYPE llsmoothstep(const LLDATATYPE& edge0, const LLDATATYPE& edge1,
     return scaled_value * scaled_value * (3 - 2 * scaled_value);
 }
 
-#endif // LL_LLSMOOTHSTEP_H

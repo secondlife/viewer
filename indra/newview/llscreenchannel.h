@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSCREENCHANNEL_H
-#define LL_LLSCREENCHANNEL_H
+#pragma once
 
 #include "lltoast.h"
 
@@ -311,4 +310,3 @@ private:
 };
 
 }
-#endif

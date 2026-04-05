@@ -34,8 +34,7 @@
  * updated according to local physics.
  */
 
-#ifndef LL_LLFLEXIBLEOBJECT_H
-#define LL_LLFLEXIBLEOBJECT_H
+#pragma once
 
 #include "llprimitive.h"
 #include "llvovolume.h"
@@ -153,4 +152,3 @@ public:
 };// end of class definition
 
 
-#endif // LL_LLFLEXIBLEOBJECT_H

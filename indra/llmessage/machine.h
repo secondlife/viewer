@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MACHINE_H
-#define LL_MACHINE_H
+#pragma once
 
 #include "net.h"
 #include "llhost.h"
@@ -92,4 +91,3 @@ protected:
     LLHost          mHost;
 };
 
-#endif

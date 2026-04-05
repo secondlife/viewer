@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PREEDITOR
-#define LL_PREEDITOR
+#pragma once
 
 class LLPreeditor
 {
@@ -98,4 +97,3 @@ public:
     virtual bool handleUnicodeCharHere(llwchar uni_char) = 0;
 };
 
-#endif

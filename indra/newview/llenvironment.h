@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_ENVIRONMENT_H
-#define LL_ENVIRONMENT_H
+#pragma once
 
 #include "llsingleton.h"
 #include "llmemory.h"
@@ -492,5 +491,4 @@ private:
     LLSettingsDay::CycleTrack_t::iterator mEndMarker;
 };
 
-#endif // LL_ENVIRONMENT_H
 

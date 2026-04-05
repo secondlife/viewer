@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUPLOADFLOATEROBSERVERS_H
-#define LL_LLUPLOADFLOATEROBSERVERS_H
+#pragma once
 
 #include "llfloater.h"
 #include "llhandle.h"
@@ -78,4 +77,3 @@ protected:
     LLRootHandle<LLWholeModelUploadObserver> mWholeModelUploadObserverHandle;
 };
 
-#endif /* LL_LLUPLOADFLOATEROBSERVERS_H */

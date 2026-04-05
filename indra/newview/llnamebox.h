@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNAMEBOX_H
-#define LL_LLNAMEBOX_H
+#pragma once
 
 #include <set>
 
@@ -73,4 +72,3 @@ private:
 
 };
 
-#endif

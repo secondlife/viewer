@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHEARTBEAT_H
-#define LL_LLHEARTBEAT_H
+#pragma once
 
 #include "linden_common.h"
 
@@ -65,4 +64,3 @@ private:
     LLTimer mTimeoutTimer;
 };
 
-#endif // LL_HEARTBEAT_H

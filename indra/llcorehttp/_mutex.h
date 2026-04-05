@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCOREINT_MUTEX_H_
-#define LLCOREINT_MUTEX_H_
+#pragma once
 
 
 #include <boost/thread.hpp>
@@ -51,5 +50,4 @@ using HttpScopedLock = boost::unique_lock<HttpMutex>;
 
 }
 
-#endif  // LLCOREINT_MUTEX_H
 

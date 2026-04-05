@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_EVENTTIMER_H
-#define LL_EVENTTIMER_H
+#pragma once
 
 #include "stdtypes.h"
 #include "lldate.h"
@@ -119,4 +118,3 @@ LLEventTimer* LLEventTimer::run_after(F32 interval, const CALLABLE& callable)
     return new Generic<CALLABLE>(interval, true, callable);
 }
 
-#endif //LL_EVENTTIMER_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERTELEHUB_H
-#define LL_LLFLOATERTELEHUB_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -74,4 +73,3 @@ private:
     static LLFloaterTelehub* sInstance;
 };
 
-#endif

@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLSCULPTIDSIZE_H
-#define LL_LLSCULPTIDSIZE_H
+#pragma once
 
 #include "lluuid.h"
 
@@ -131,4 +130,3 @@ private:
     std_LLUUID mMarkAsUnloaded;
 };
 
-#endif

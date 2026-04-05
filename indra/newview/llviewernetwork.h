@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERNETWORK_H
-#define LL_LLVIEWERNETWORK_H
+#pragma once
 
 // @TODO this really should be private, but is used in llslurl
 #define MAINGRID "util.agni.lindenlab.com"
@@ -234,4 +233,3 @@ class LLGridManager : public LLSingleton<LLGridManager>
 
 const S32 MAC_ADDRESS_BYTES = 6;
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_OPERATION_H_
-#define _LLCORE_HTTP_OPERATION_H_
+#pragma once
 
 
 #include "httpcommon.h"
@@ -277,5 +276,4 @@ protected:
 
 }   // end namespace LLCore
 
-#endif  // _LLCORE_HTTP_OPERATION_H_
 

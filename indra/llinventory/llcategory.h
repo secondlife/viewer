@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCATEGORY_H
-#define LL_LLCATEGORY_H
+#pragma once
 
 #include <array>
 
@@ -97,4 +96,3 @@ protected:
 };
 
 
-#endif // LL_LLCATEGORY_H

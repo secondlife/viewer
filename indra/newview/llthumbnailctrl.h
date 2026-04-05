@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTHUMBNAILCTRL_H
-#define LL_LLTHUMBNAILCTRL_H
+#pragma once
 
 #include "llui.h"
 #include "lluictrl.h"
@@ -92,4 +91,3 @@ private:
     LLPointer<LLUIImage> mFallbackImagep;
 };
 
-#endif

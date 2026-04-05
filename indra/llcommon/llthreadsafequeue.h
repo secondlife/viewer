@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTHREADSAFEQUEUE_H
-#define LL_LLTHREADSAFEQUEUE_H
+#pragma once
 
 #include "llcoros.h"
 #include LLCOROS_MUTEX_HEADER
@@ -587,4 +586,3 @@ bool LLThreadSafeQueue<ElementT, QueueT>::done()
     return mClosed && mStorage.empty();
 }
 
-#endif

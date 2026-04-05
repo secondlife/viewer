@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPOSTCARD_H
-#define LL_LLPOSTCARD_H
+#pragma once
 
 #include "llimage.h"
 #include "lluuid.h"
@@ -68,4 +67,3 @@ private:
 };
 
 
-#endif // LL_LLPOSTCARD_H

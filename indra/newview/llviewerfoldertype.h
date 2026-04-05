@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERFOLDERTYPE_H
-#define LL_LLVIEWERFOLDERTYPE_H
+#pragma once
 
 #include <string>
 #include "llfoldertype.h"
@@ -51,4 +50,3 @@ protected:
     ~LLViewerFolderType() = default;
 };
 
-#endif // LL_LLVIEWERFOLDERTYPE_H

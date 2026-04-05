@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLOpenGLView_H
-#define LLOpenGLView_H
+#pragma once
 
 #import <Cocoa/Cocoa.h>
 #import <IOKit/IOKitLib.h>
@@ -95,4 +94,3 @@
 
 @end
 
-#endif

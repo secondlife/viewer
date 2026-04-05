@@ -23,8 +23,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LLCRASHLOGGER_H
-#define LLCRASHLOGGER_H
+#pragma once
 
 #include <vector>
 
@@ -94,4 +93,3 @@ protected:
 
 };
 
-#endif //LLCRASHLOGGER_H

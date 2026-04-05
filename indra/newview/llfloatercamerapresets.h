@@ -22,8 +22,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LLFLOATERCAMERAPRESETS_H
-#define LLFLOATERCAMERAPRESETS_H
+#pragma once
 
 #include "llfloater.h"
 #include "llflatlistview.h"
@@ -73,4 +72,3 @@ private:
 
 };
 
-#endif

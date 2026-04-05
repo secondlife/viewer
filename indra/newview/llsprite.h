@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSPRITE_H
-#define LL_LLSPRITE_H
+#pragma once
 
 #include "v3math.h"
 #include "v4math.h"
@@ -100,5 +99,4 @@ private:
 
 };
 
-#endif
 

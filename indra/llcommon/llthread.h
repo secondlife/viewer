@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTHREAD_H
-#define LL_LLTHREAD_H
+#pragma once
 
 #include "llapr.h"
 #include "boost/intrusive_ptr.hpp"
@@ -159,4 +158,3 @@ public:
 extern LL_COMMON_API bool assert_main_thread();
 extern LL_COMMON_API bool on_main_thread();
 
-#endif // LL_LLTHREAD_H

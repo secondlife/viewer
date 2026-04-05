@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATEREDITEXTDAYCYCLE_H
-#define LL_LLFLOATEREDITEXTDAYCYCLE_H
+#pragma once
 
 #include "llfloater.h"
 #include "llsettingsdaycycle.h"
@@ -242,4 +241,3 @@ private:
     keymap_t mSliderKeyMap; //slider's keys vs old_frames&settings, shadows mFramesSlider
 };
 
-#endif // LL_LLFloaterEditExtDayCycle_H

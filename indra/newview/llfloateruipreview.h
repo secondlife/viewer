@@ -28,13 +28,11 @@
 // See: https://wiki.lindenlab.com/wiki/GUI_Preview_And_Localization_Tools
 // See: https://jira.lindenlab.com/browse/DEV-16869
 
-#ifndef LL_LLUIPREVIEW_H
-#define LL_LLUIPREVIEW_H
+#pragma once
 
 namespace LLFloaterUIPreviewUtil
 {
     void registerFloater();
 }
 
-#endif // LL_LLUIPREVIEW_H
 

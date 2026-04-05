@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SCRIPTFLOATER_H
-#define LL_SCRIPTFLOATER_H
+#pragma once
 
 #include "lltransientdockablefloater.h"
 #include "llnotificationptr.h"
@@ -229,4 +228,3 @@ private:
     bool mSaveFloaterPosition;
 };
 
-#endif //LL_SCRIPTFLOATER_H

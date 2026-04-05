@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMESSAGETHROTTLE_H
-#define LL_LLMESSAGETHROTTLE_H
+#pragma once
 
 #include <array>
 #include <deque>
@@ -76,6 +75,5 @@ protected:
 
 extern LLMessageThrottle gMessageThrottle;
 
-#endif
 
 

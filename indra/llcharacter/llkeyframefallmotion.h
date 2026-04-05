@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKeyframeFallMotion_H
-#define LL_LLKeyframeFallMotion_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -74,5 +73,4 @@ protected:
     LLQuaternion    mRotationToGroundNormal;
 };
 
-#endif // LL_LLKeyframeFallMotion_H
 

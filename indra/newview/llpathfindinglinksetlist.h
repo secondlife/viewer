@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPATHFINDINGLINKSETLIST_H
-#define LL_LLPATHFINDINGLINKSETLIST_H
+#pragma once
 
 #include "llpathfindinglinkset.h"
 #include "llpathfindingobjectlist.h"
@@ -55,4 +54,3 @@ private:
     void parseLinksetListData(const LLSD& pLinksetListData);
 };
 
-#endif // LL_LLPATHFINDINGLINKSETLIST_H

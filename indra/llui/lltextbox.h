@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTBOX_H
-#define LL_LLTEXTBOX_H
+#pragma once
 
 #include "lluistring.h"
 #include "lltextbase.h"
@@ -90,4 +89,3 @@ extern template class LLTextBox* LLView::getChild<class LLTextBox>(
     std::string_view name, bool recurse) const;
 #endif
 
-#endif

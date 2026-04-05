@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPARCEL_FLAGS_H
-#define LL_LLPARCEL_FLAGS_H
+#pragma once
 
 //---------------------------------------------------------------------------
 // Parcel Flags (PF) constants
@@ -131,4 +130,3 @@ const S32 PARCEL_DETAILS_AREA = 4;
 const S32 PARCEL_DETAILS_ID = 5;
 const S32 PARCEL_DETAILS_SEE_AVATARS = 6;
 
-#endif

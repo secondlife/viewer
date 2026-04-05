@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGLTFFOLDERMODEL_H
-#define LL_LLGLTFFOLDERMODEL_H
+#pragma once
 
 #include "llfolderviewmodel.h"
 #include "llgltffolderitem.h"
@@ -88,4 +87,3 @@ public:
 private:
 };
 
-#endif

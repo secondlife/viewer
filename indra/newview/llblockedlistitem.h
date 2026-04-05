@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLVIEWEROBJECTLISTITEM_H_
-#define LLVIEWEROBJECTLISTITEM_H_
+#pragma once
 
 #include "llmutelist.h"
 #include "llpanel.h"
@@ -70,4 +69,3 @@ private:
 
 };
 
-#endif /* LLVIEWEROBJECTLISTITEM_H_ */

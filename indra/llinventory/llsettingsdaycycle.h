@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_SETTINGS_DAYCYCLE_H
-#define LL_SETTINGS_DAYCYCLE_H
+#pragma once
 
 #include "llsettingsbase.h"
 
@@ -153,4 +152,3 @@ private:
     TrackBound_t                    getBoundingEntries(CycleTrack_t &track, const LLSettingsBase::TrackPosition& keyframe);
 };
 
-#endif

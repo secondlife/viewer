@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSYSWELLITEM_H
-#define LL_LLSYSWELLITEM_H
+#pragma once
 
 #include "llpanel.h"
 #include "lltextbox.h"
@@ -76,6 +75,5 @@ private:
     LLUUID      mID;
 };
 
-#endif // LL_LLSYSWELLITEM_H
 
 

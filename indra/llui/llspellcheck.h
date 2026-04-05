@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLSPELLCHECK_H
-#define LLSPELLCHECK_H
+#pragma once
 
 #include "llsingleton.h"
 #include "llui.h"
@@ -86,4 +85,3 @@ protected:
     static settings_change_signal_t sSettingsChangeSignal;
 };
 
-#endif // LLSPELLCHECK_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOVOLUME_H
-#define LL_LLVOVOLUME_H
+#pragma once
 
 #include "llviewerobject.h"
 #include "llviewertexture.h"
@@ -501,5 +500,4 @@ protected:
     friend class LLVolumeImplFlexible;
 };
 
-#endif // LL_LLVOVOLUME_H
 

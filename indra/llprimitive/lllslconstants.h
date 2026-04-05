@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLSLCONSTANTS_H
-#define LL_LLLSLCONSTANTS_H
+#pragma once
 
 // LSL: Return flags for llGetAgentInfo
 const U32 AGENT_FLYING      = 0x0001;
@@ -258,4 +257,3 @@ const S32 LSL_XP_ERROR_KEY_NOT_FOUND        = 14;
 const S32 LSL_XP_ERROR_RETRY_UPDATE         = 15;
 const S32 LSL_XP_ERROR_MATURITY_EXCEEDED    = 16;
 
-#endif

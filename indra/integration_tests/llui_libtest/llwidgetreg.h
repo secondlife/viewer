@@ -22,8 +22,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLWIDGETREG_H
-#define LLWIDGETREG_H
+#pragma once
 
 // Register all widgets with the builder registry.
 // Useful on Windows where linker discards all references to the
@@ -34,4 +33,3 @@ public:
     static void initClass(bool register_widgets);
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_INDRA_CONSTANTS_H
-#define LL_INDRA_CONSTANTS_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -380,4 +379,3 @@ constexpr U8 CLICK_ACTION_IGNORE = 9;
 constexpr U32 BEACON_SHOW_MAP  = 0x0001;
 constexpr U32 BEACON_FOCUS_MAP = 0x0002;
 
-#endif

@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLINSPECT_H
-#define LLINSPECT_H
+#pragma once
 
 #include "llfloater.h"
 #include "llframetimer.h"
@@ -60,5 +59,4 @@ protected:
     LLFrameTimer        mOpenTimer;
 };
 
-#endif
 

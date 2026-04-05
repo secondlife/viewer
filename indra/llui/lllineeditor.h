@@ -33,8 +33,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLINEEDITOR_H
-#define LL_LLLINEEDITOR_H
+#pragma once
 
 #include "v4color.h"
 #include "llframetimer.h"
@@ -474,4 +473,3 @@ extern template class LLLineEditor* LLView::getChild<class LLLineEditor>(
     std::string_view name, bool recurse) const;
 #endif
 
-#endif  // LL_LINEEDITOR_

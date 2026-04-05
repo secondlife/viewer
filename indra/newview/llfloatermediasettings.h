@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERMEDIASETTINGS_H
-#define LL_LLFLOATERMEDIASETTINGS_H
+#pragma once
 
 #include "llfloater.h"
 #include "lltabcontainer.h"
@@ -86,4 +85,3 @@ private:
     LLSD mInitialValues;
 };
 
-#endif  // LL_LLFLOATERMEDIASETTINGS_H

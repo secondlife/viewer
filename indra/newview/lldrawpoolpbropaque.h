@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLPBROPAQUE_H
-#define LL_LLDRAWPOOLPBROPAQUE_H
+#pragma once
 
 #include "lldrawpool.h"
 
@@ -43,4 +42,3 @@ public:
     void renderPostDeferred(S32 pass) override;
 };
 
-#endif // LL_LLDRAWPOOLPBROPAQUE_H

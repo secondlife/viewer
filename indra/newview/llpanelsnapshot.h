@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELSNAPSHOT_H
-#define LL_LLPANELSNAPSHOT_H
+#pragma once
 
 //#include "llfloatersnapshot.h"
 #include "llpanel.h"
@@ -76,4 +75,3 @@ protected:
     LLFloaterSnapshotBase* mSnapshotFloater;
 };
 
-#endif // LL_LLPANELSNAPSHOT_H

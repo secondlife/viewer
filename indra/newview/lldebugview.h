@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDEBUGVIEW_H
-#define LL_LLDEBUGVIEW_H
+#pragma once
 
 // requires:
 // stdtypes.h
@@ -65,4 +64,3 @@ public:
 
 extern LLDebugView* gDebugView;
 
-#endif

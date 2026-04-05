@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLREGIONHANDLE_H
-#define LL_LLREGIONHANDLE_H
+#pragma once
 
 #include "indra_constants.h"
 #include "v3math.h"
@@ -123,4 +122,3 @@ inline void grid_from_region_handle(const U64& region_handle, U32* grid_x, U32* 
     *grid_y /= REGION_WIDTH_UNITS;
 }
 
-#endif

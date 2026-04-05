@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSURFACE_H
-#define LL_LLSURFACE_H
+#pragma once
 
 #include "v3math.h"
 #include "v3dmath.h"
@@ -244,4 +243,3 @@ extern template bool LLSurface::idleUpdate</*PBR=*/true>(F32 max_update_time);
 // Notice that mGridsPerSurfaceEdge = a power of two + 1
 // This provides a buffer on the east and north edges that will allow us to
 // fill the cracks between adjacent surfaces when rendering.
-#endif

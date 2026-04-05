@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLUIFWD_H
-#define LLUIFWD_H
+#pragma once
 
 class LLButton;
 class LLCheckBoxCtrl;
@@ -55,4 +54,3 @@ class LLUICtrl;
 class LLView;
 class LLViewBorder;
 
-#endif

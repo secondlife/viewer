@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATEROBJECTWEIGHTS_H
-#define LL_LLFLOATEROBJECTWEIGHTS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -97,4 +96,3 @@ private:
     LLTextBox       *mPixelArea;
 };
 
-#endif //LL_LLFLOATEROBJECTWEIGHTS_H

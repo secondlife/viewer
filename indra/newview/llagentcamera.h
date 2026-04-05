@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAGENTCAMERA_H
-#define LL_LLAGENTCAMERA_H
+#pragma once
 
 #include "llfollowcam.h"            // Ventrella
 #include "llhudeffectlookat.h"      // EPointAtType
@@ -416,4 +415,3 @@ private:
 
 extern LLAgentCamera gAgentCamera;
 
-#endif

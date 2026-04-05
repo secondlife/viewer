@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSD_NEW_H
-#define LL_LLSD_NEW_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -575,4 +574,3 @@ namespace llsd
         to std::string, std::string or LLUUID due to non-unique conversion paths
 */
 
-#endif // LL_LLSD_NEW_H

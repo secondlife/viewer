@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDTEXT_H
-#define LL_LLHUDTEXT_H
+#pragma once
 
 #include "llpointer.h"
 
@@ -174,4 +173,3 @@ private:
     using VisibleTextObjectIterator = std::vector<LLPointer<LLHUDText> >::iterator;
 };
 
-#endif // LL_LLHUDTEXT_H

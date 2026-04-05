@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLBUMP_H
-#define LL_LLDRAWPOOLBUMP_H
+#pragma once
 
 #include "lldrawpool.h"
 #include "llstring.h"
@@ -157,4 +156,3 @@ private:
 
 extern LLBumpImageList gBumpImageList;
 
-#endif // LL_LLDRAWPOOLBUMP_H

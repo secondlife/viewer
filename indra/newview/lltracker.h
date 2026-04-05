@@ -30,8 +30,7 @@
 // to the LLTracker class.
 
 
-#ifndef LL_LLTRACKER_H
-#define LL_LLTRACKER_H
+#pragma once
 
 #include "llpointer.h"
 #include "llstring.h"
@@ -151,5 +150,4 @@ protected:
 };
 
 
-#endif
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATERFIXEDENVIRONMENT_H
-#define LL_FLOATERFIXEDENVIRONMENT_H
+#pragma once
 
 #include "llfloatereditenvironmentbase.h"
 #include "llsettingsbase.h"
@@ -135,4 +134,3 @@ protected:
 private:
 };
 
-#endif // LL_FLOATERFIXEDENVIRONMENT_H

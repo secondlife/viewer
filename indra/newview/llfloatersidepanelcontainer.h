@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSIDEPANELCONTAINER_H
-#define LL_LLFLOATERSIDEPANELCONTAINER_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -100,4 +99,3 @@ protected:
     LLPanel* mMainPanel = nullptr;
 };
 
-#endif // LL_LLFLOATERSIDEPANELCONTAINER_H

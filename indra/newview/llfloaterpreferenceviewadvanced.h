@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERPREFERENCEVIEWADVANCED_H
-#define LLFLOATERPREFERENCEVIEWADVANCED_H
+#pragma once
 
 #include "llcontrol.h"
 #include "llfloater.h"
@@ -47,5 +46,4 @@ private:
     virtual ~LLFloaterPreferenceViewAdvanced();
 };
 
-#endif //LLFLOATERPREFERENCEVIEWADVANCED_H
 

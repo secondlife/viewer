@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGEFILTERSMANAGER_H
-#define LL_LLIMAGEFILTERSMANAGER_H
+#pragma once
 
 #include "llsingleton.h"
 
@@ -51,4 +50,3 @@ private:
     std::map<std::string,std::string> mFiltersList;
 };
 
-#endif // LL_LLIMAGEFILTERSMANAGER_H

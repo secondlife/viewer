@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERHOME_H
-#define LL_LLVIEWERHOME_H
+#pragma once
 
 #include <string>
 
@@ -40,4 +39,3 @@ public:
     static std::string getAuthKey();
 };
 
-#endif

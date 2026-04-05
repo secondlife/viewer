@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_BITPACK_H
-#define LL_BITPACK_H
+#pragma once
 
 #include "llerror.h"
 
@@ -205,4 +204,3 @@ public:
     U32     mMaxSize;
 };
 
-#endif

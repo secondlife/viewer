@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMATERIALMGR_H
-#define LL_LLMATERIALMGR_H
+#pragma once
 
 #include "llmaterial.h"
 #include "llmaterialid.h"
@@ -152,5 +151,4 @@ private:
     U32 getMaxEntries(const LLViewerRegion* regionp);
 };
 
-#endif // LL_LLMATERIALMGR_H
 

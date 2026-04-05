@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LLHANDLE_H
-#define LLHANDLE_H
+#pragma once
 
 #include "llpointer.h"
 #include "llrefcount.h"
@@ -292,4 +291,3 @@ private:
     LLHandle<T> mHandle;
 };
 
-#endif

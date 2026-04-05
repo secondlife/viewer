@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERGESTURE_H
-#define LL_LLVIEWERGESTURE_H
+#pragma once
 
 #include "llanimationstates.h"
 #include "lluuid.h"
@@ -83,4 +82,3 @@ protected:
 
 extern LLViewerGestureList gGestureList;
 
-#endif

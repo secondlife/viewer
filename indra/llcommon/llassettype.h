@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLASSETTYPE_H
-#define LL_LLASSETTYPE_H
+#pragma once
 
 #include <string>
 
@@ -174,4 +173,3 @@ protected:
     ~LLAssetType() = default;
 };
 
-#endif // LL_LLASSETTYPE_H

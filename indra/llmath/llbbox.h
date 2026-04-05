@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_BBOX_H
-#define LL_BBOX_H
+#pragma once
 
 #include "v3math.h"
 #include "llquaternion.h"
@@ -102,4 +101,3 @@ static_assert(std::is_standard_layout<LLBBox>::value, "LLBBox must be a standard
 //LLBBox operator*(const LLBBox &a, const LLMatrix4 &b);
 
 
-#endif  // LL_BBOX_H

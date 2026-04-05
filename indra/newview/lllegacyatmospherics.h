@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLEGACYATMOSPHERICS_H
-#define LL_LLLEGACYATMOSPHERICS_H
+#pragma once
 
 #include "stdtypes.h"
 #include "v3color.h"
@@ -279,4 +278,3 @@ protected:
     F32                 mWorldScale;
 };
 
-#endif

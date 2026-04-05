@@ -23,12 +23,10 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LL_LLHASHEDUNIQUEID_H
-#define LL_LLHASHEDUNIQUEID_H
+#pragma once
 #include "llmd5.h"
 
 /// Get an obfuscated identifier for this system
 bool llHashedUniqueID(unsigned char id[MD5HEX_STR_SIZE]);
 ///< @returns true if the id is considered valid (if false, the id is all zeros)
 
-#endif // LL_LLHASHEDUNIQUEID_H

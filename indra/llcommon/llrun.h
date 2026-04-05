@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLRUN_H
-#define LL_LLRUN_H
+#pragma once
 
 #include <vector>
 
@@ -156,4 +155,3 @@ public:
     virtual void run(LLRunner* runner, S64 handle) = 0;
 };
 
-#endif // LL_LLRUN_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUISTRING_H
-#define LL_LLUISTRING_H
+#pragma once
 
 #include "llstring.h"
 #include <string>
@@ -114,4 +113,3 @@ private:
     mutable bool    mNeedsWResult { true };
 };
 
-#endif // LL_LLUISTRING_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERLANDHOLDINGS_H
-#define LL_LLFLOATERLANDHOLDINGS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -75,4 +74,3 @@ protected:
     bool mSortAscending;
 };
 
-#endif

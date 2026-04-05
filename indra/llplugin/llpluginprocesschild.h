@@ -26,8 +26,7 @@
  * @endcond
  */
 
-#ifndef LL_LLPLUGINPROCESSCHILD_H
-#define LL_LLPLUGINPROCESSCHILD_H
+#pragma once
 
 #include <queue>
 #include "llpluginmessage.h"
@@ -112,4 +111,3 @@ private:
 
 };
 
-#endif // LL_LLPLUGINPROCESSCHILD_H

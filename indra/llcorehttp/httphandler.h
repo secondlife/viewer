@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_HANDLER_H_
-#define _LLCORE_HTTP_HANDLER_H_
+#pragma once
 
 
 #include "httpcommon.h"
@@ -89,4 +88,3 @@ public:
 
 }   // end namespace LLCore
 
-#endif  // _LLCORE_HTTP_HANDLER_H_

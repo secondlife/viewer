@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBOOST_H
-#define LL_LLBOOST_H
+#pragma once
 
 #include <boost/tokenizer.hpp>
 
@@ -54,4 +53,3 @@ struct boost_boolean_combiner
     }
 };
 
-#endif // LL_LLBOOST_H

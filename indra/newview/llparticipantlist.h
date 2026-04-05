@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PARTICIPANTLIST_H
-#define LL_PARTICIPANTLIST_H
+#pragma once
 
 #include "llconversationmodel.h"
 #include "llevent.h"
@@ -155,4 +154,3 @@ private:
     validate_speaker_callback_t mValidateSpeakerCallback;
 };
 
-#endif // LL_PARTICIPANTLIST_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VIEWERAUDIO_H
-#define LL_VIEWERAUDIO_H
+#pragma once
 
 #include "llframetimer.h"
 #include "llsingleton.h"
@@ -89,4 +88,3 @@ private:
     void onTeleportStarted();
 };
 
-#endif //LL_VIEWER_H

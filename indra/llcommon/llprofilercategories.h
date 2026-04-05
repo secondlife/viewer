@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PROFILER_CATEGORIES_H
-#define LL_PROFILER_CATEGORIES_H
+#pragma once
 
 // A Tracy capture can quickly consume memory.  Use these defines to selectively turn on/off Tracy profiling for these categories.
 // The biggest memory usage ones are:
@@ -293,5 +292,4 @@
     #define LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
 #endif
 
-#endif // LL_PROFILER_CATEGORIES_H
 

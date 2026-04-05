@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_PATHING_LIB_H
-#define LL_PATHING_LIB_H
+#pragma once
 
 #include "llpathinglib.h"
 
@@ -74,5 +73,4 @@ public:
     virtual void cleanupResidual();
 };
 
-#endif //LL_PATHING_LIB_H
 

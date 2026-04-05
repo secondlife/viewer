@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLNOTIFICATION_VISIBILITY_RULE_H
-#define LL_LLNOTIFICATION_VISIBILITY_RULE_H
+#pragma once
 
 #include "llinitparam.h"
 //#include "llnotifications.h"
@@ -100,5 +99,4 @@ struct LLNotificationVisibilityRule
 
 };
 
-#endif //LL_LLNOTIFICATION_VISIBILITY_RULE_H
 

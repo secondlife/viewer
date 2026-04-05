@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELNEARBYMEDIA_H
-#define LL_LLPANELNEARBYMEDIA_H
+#pragma once
 
 #include "llpanelpulldown.h"
 
@@ -178,4 +177,3 @@ private:
 };
 
 
-#endif // LL_LLPANELNEARBYMEDIA_H

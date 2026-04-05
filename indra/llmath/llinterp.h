@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINTERP_H
-#define LL_LLINTERP_H
+#pragma once
 
 #if defined(LL_WINDOWS)
 // macro definitions for common math constants (e.g. M_PI) are declared under the _USE_MATH_DEFINES
@@ -421,5 +420,4 @@ void LLInterpExp<Type>::update(const F32 time)
     this->mCurTime = time;
 }
 
-#endif // LL_LLINTERP_H
 

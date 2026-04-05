@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGEJPEG_H
-#define LL_LLIMAGEJPEG_H
+#pragma once
 
 #include <csetjmp>
 
@@ -83,4 +82,3 @@ private:
 #endif
 };
 
-#endif  // LL_LLIMAGEJPEG_H

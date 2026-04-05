@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LOCALTEXTUREOBJECT_H
-#define LL_LOCALTEXTUREOBJECT_H
+#pragma once
 
 #include "llpointer.h"
 #include "llgltexture.h"
@@ -80,5 +79,4 @@ private:
     S32 mDiscard;
 };
 
- #endif // LL_LOCALTEXTUREOBJECT_H
 

@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LL_STDTYPES_H
-#define LL_STDTYPES_H
+#pragma once
 
 #include <cassert>
 #include <cfloat>
@@ -204,4 +203,3 @@ public:
     }
 };
 
-#endif

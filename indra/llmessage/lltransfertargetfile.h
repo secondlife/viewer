@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRANSFERTARGETFILE_H
-#define LL_LLTRANSFERTARGETFILE_H
+#pragma once
 
 #include "lltransfermanager.h"
 
@@ -72,4 +71,3 @@ protected:
     LLFILE *mFP;
 };
 
-#endif // LL_LLTRANSFERTARGETFILE_H

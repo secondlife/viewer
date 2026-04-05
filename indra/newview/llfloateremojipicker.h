@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATEREMOJIPICKER_H
-#define LLFLOATEREMOJIPICKER_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -119,4 +118,3 @@ private:
     U64 mRecentReturnPressedMs { 0 };
 };
 
-#endif

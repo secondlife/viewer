@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_VIEWER_ASSET_UPLOAD_H
-#define LL_VIEWER_ASSET_UPLOAD_H
+#pragma once
 
 #include "llfoldertype.h"
 #include "llassettype.h"
@@ -291,4 +290,3 @@ private:
     static void HandleUploadError(LLCore::HttpStatus status, LLSD &result, LLResourceUploadInfo::ptr_t &uploadInfo);
 };
 
-#endif // !VIEWER_ASSET_UPLOAD_H

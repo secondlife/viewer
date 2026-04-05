@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDEFFECTRESETSKELETON_H
-#define LL_LLHUDEFFECTRESETSKELETON_H
+#pragma once
 
 #include "llhudeffect.h"
 
@@ -57,4 +56,3 @@ private:
     bool                        mResetAnimations;
 };
 
-#endif // LL_LLHUDEFFECTRESETSKELETON_H

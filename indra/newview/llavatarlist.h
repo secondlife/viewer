@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAVATARLIST_H
-#define LL_LLAVATARLIST_H
+#pragma once
 
 #include "llflatlistview.h"
 #include "llavatarlistitem.h"
@@ -191,4 +190,3 @@ protected:
     virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
 };
 
-#endif // LL_LLAVATARLIST_H

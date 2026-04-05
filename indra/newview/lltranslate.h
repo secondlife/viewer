@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRANSLATE_H
-#define LL_LLTRANSLATE_H
+#pragma once
 
 #include "llbufferstream.h"
 #include "llsingleton.h"
@@ -110,4 +109,3 @@ private:
     S32 mSuccessCount;
 };
 
-#endif

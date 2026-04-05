@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PANELPRIMMEDIACONTROLS_H
-#define LL_PANELPRIMMEDIACONTROLS_H
+#pragma once
 
 #include "llpanel.h"
 #include "llviewermedia.h"
@@ -231,4 +230,3 @@ private:
     F64 mMediaPlaySliderCtrlMouseDownValue;
 };
 
-#endif // LL_PANELPRIMMEDIACONTROLS_H

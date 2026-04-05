@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLOADINGINDICATOR_H
-#define LL_LLLOADINGINDICATOR_H
+#pragma once
 
 #include "lluictrl.h"
 #include "lluiimage.h"
@@ -101,4 +100,3 @@ private:
     std::vector<LLUIImagePtr> mImages;
 };
 
-#endif // LL_LLLOADINGINDICATOR_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUICOLOR_H_
-#define LL_LLUICOLOR_H_
+#pragma once
 
 #include "v4color.h"
 
@@ -68,4 +67,3 @@ namespace LLInitParam
     };
 }
 
-#endif

@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_GL_TEXTURE_H
-#define LL_GL_TEXTURE_H
+#pragma once
 
 #include "lltexture.h"
 #include "llgl.h"
@@ -197,5 +196,4 @@ protected:
 
 };
 
-#endif // LL_GL_TEXTURE_H
 

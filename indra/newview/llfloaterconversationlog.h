@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERCONVERSATIONLOG_H_
-#define LL_LLFLOATERCONVERSATIONLOG_H_
+#pragma once
 
 #include "llfloater.h"
 
@@ -55,4 +54,3 @@ private:
 };
 
 
-#endif /* LLFLOATERCONVERSATIONLOG_H_ */

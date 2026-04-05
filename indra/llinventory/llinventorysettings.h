@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_INVENTORY_SETTINGS_H
-#define LL_INVENTORY_SETTINGS_H
+#pragma once
 
 #include "llinventorytype.h"
 #include "llinvtranslationbrdg.h"
@@ -60,4 +59,3 @@ protected:
 };
 
 
-#endif

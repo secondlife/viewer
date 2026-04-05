@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERREPORTER_H
-#define LL_LLFLOATERREPORTER_H
+#pragma once
 
 #include "llfloater.h"
 #include "lluuid.h"
@@ -150,4 +149,3 @@ private:
     LLFrameTimer    mSnapshotTimer;
 };
 
-#endif

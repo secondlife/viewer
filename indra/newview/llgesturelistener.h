@@ -27,8 +27,7 @@
  */
 
 
-#ifndef LL_LLGESTURELISTENER_H
-#define LL_LLGESTURELISTENER_H
+#pragma once
 
 #include "lleventapi.h"
 
@@ -48,5 +47,4 @@ private:
     void startOrStopGesture(LLSD const & event_data, bool start) const;
 };
 
-#endif // LL_LLGESTURELISTENER_H
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MESSAGE_PREHASH_H
-#define LL_MESSAGE_PREHASH_H
+#pragma once
 
 /**
  * Generated from message template version number 2.000
@@ -1405,4 +1404,3 @@ extern char const* const _PREHASH_ExperienceID;
 extern char const* const _PREHASH_LargeGenericMessage;
 extern char const* const _PREHASH_MetaData;
 
-#endif

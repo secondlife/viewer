@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCIRCUIT_H
-#define LL_LLCIRCUIT_H
+#pragma once
 
 #include <map>
 #include <vector>
@@ -347,4 +346,3 @@ private:
     const F32Seconds mHeartbeatInterval;
     const F32Seconds mHeartbeatTimeout;
 };
-#endif

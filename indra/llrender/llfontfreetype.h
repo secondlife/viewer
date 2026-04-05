@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFONTFREETYPE_H
-#define LL_LLFONTFREETYPE_H
+#pragma once
 
 #include "llpointer.h"
 #include "llstl.h"
@@ -193,4 +192,3 @@ private:
     mutable S32 mRenderGlyphCount;
 };
 
-#endif // LL_FONTFREETYPE_H

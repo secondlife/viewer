@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMSGVARIABLETYPE_H
-#define LL_LLMSGVARIABLETYPE_H
+#pragma once
 
 enum EMsgVariableType
 {
@@ -56,4 +55,3 @@ enum EMsgVariableType
     MVT_EOL
 };
 
-#endif // LL_LLMSGVARIABLETYPE_H

@@ -25,9 +25,8 @@
  */
 
 
-#ifndef VERTEX_CACHE_H
+#pragma once
 
-#define VERTEX_CACHE_H
 
 class VertexCache
 {
@@ -102,4 +101,3 @@ private:
 
 };
 
-#endif

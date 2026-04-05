@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPACKETACK_H
-#define LL_LLPACKETACK_H
+#pragma once
 
 #include "llhost.h"
 #include "llunits.h"
@@ -112,5 +111,4 @@ protected:
     F64Seconds mExpirationTime;
 };
 
-#endif
 

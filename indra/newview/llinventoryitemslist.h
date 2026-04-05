@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYITEMSLIST_H
-#define LL_LLINVENTORYITEMSLIST_H
+#pragma once
 
 // newview
 #include "llflatlistview.h"
@@ -138,4 +137,3 @@ private:
     static bool sListIdleRegistered;
 };
 
-#endif //LL_LLINVENTORYITEMSLIST_H

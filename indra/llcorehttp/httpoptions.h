@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_OPTIONS_H_
-#define _LLCORE_HTTP_OPTIONS_H_
+#pragma once
 
 
 #include "httpcommon.h"
@@ -213,4 +212,3 @@ protected:
 
 }  // end namespace HttpOptions
 
-#endif  // _LLCORE_HTTP_OPTIONS_H_

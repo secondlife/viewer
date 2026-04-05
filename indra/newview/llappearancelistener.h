@@ -24,8 +24,7 @@
  */
 
 
-#ifndef LL_LLAPPEARANCELISTENER_H
-#define LL_LLAPPEARANCELISTENER_H
+#pragma once
 
 #include "lleventapi.h"
 
@@ -42,5 +41,4 @@ private:
     void getOutfitItems(LLSD const &data);
 };
 
-#endif // LL_LLAPPEARANCELISTENER_H
 

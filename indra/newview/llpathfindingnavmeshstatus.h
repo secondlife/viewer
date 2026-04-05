@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPATHFINDINGNAVMESHSTATUS_H
-#define LL_LLPATHFINDINGNAVMESHSTATUS_H
+#pragma once
 
 #include <string>
 
@@ -74,4 +73,3 @@ private:
     static const std::string sStatusRepending;
 };
 
-#endif // LL_LLPATHFINDINGNAVMESHSTATUS_H

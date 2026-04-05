@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERHOWTO_H
-#define LL_LLFLOATERHOWTO_H
+#pragma once
 
 #include "llfloaterwebcontent.h"
 
@@ -54,5 +53,4 @@ private:
     bool postBuild() override;
 };
 
-#endif  // LL_LLFLOATERHOWTO_H
 

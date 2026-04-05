@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPOLYSKELETALDISTORTION_H
-#define LL_LLPOLYSKELETALDISTORTION_H
+#pragma once
 
 #include "llcommon.h"
 
@@ -119,5 +118,4 @@ protected:
     LLAvatarAppearance *mAvatar;
 } LL_ALIGN_POSTFIX(16);
 
-#endif // LL_LLPOLYSKELETALDISTORTION_H
 

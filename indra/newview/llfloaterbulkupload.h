@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERBULKUPLOAD_H
-#define LL_LLFLOATERBULKUPLOAD_H
+#pragma once
 
 #include "llmodaldialog.h"
 
@@ -64,4 +63,3 @@ private:
     S32 mUploadCount = 0;
 };
 
-#endif

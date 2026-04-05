@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERGROUPINVITE_H
-#define LL_LLFLOATERGROUPINVITE_H
+#pragma once
 
 #include "llfloater.h"
 #include "lluuid.h"
@@ -46,4 +45,3 @@ protected:
     impl* mImpl;
 };
 
-#endif

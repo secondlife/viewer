@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLREGIONPOSITION_H
-#define LL_LLREGIONPOSITION_H
+#pragma once
 
 /**
  * This class maintains a region, offset pair to store position, so when our "global"
@@ -58,4 +57,3 @@ public:
 //  LLRegionPosition operator+(const LLRegionPosition &pos) const;
 };
 
-#endif // LL_REGION_POSITION_H

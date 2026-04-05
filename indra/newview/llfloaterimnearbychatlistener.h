@@ -27,8 +27,7 @@
  */
 
 
-#ifndef LL_LLFLOATERIMNEARBYCHATLISTENER_H
-#define LL_LLFLOATERIMNEARBYCHATLISTENER_H
+#pragma once
 
 #include "lleventapi.h"
 
@@ -46,5 +45,4 @@ private:
     F64 mLastThrottleTime{0};
 };
 
-#endif // LL_LLFLOATERIMNEARBYCHATLISTENER_H
 

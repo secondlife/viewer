@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERDISPLAYNAME_H
-#define LLFLOATERDISPLAYNAME_H
+#pragma once
 
 
 namespace LLFloaterDisplayNameUtil
@@ -35,4 +34,3 @@ namespace LLFloaterDisplayNameUtil
 
 
 
-#endif

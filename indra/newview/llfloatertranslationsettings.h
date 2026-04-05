@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERTRANSLATIONSETTINGS_H
-#define LL_LLFLOATERTRANSLATIONSETTINGS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -86,4 +85,3 @@ private:
     bool mDeepLKeyVerified;
 };
 
-#endif // LL_LLFLOATERTRANSLATIONSETTINGS_H

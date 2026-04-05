@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPHYSICSMOTIONCONTROLLER_H
-#define LL_LLPHYSICSMOTIONCONTROLLER_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -114,5 +113,4 @@ private:
     motion_vec_t mMotions;
 };
 
-#endif // LL_LLPHYSICSMOTION_H
 

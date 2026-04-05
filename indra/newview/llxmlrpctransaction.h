@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLXMLRPCTRANSACTION_H
-#define LLXMLRPCTRANSACTION_H
+#pragma once
 
 #include <string>
 
@@ -82,4 +81,3 @@ private:
     Impl& impl;
 };
 
-#endif // LLXMLRPCTRANSACTION_H

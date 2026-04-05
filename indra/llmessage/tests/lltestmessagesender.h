@@ -25,8 +25,7 @@
  */
 
 /* Macro Definitions */
-#ifndef LL_LLTESTMESSAGESENDER_H
-#define LL_LLTESTMESSAGESENDER_H
+#pragma once
 
 
 #include "linden_common.h"
@@ -47,5 +46,4 @@ public:
 
 
 
-#endif //LL_LLTESTMESSAGESENDER_H
 

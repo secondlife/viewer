@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERFONTTEST_H
-#define LL_LLFLOATERFONTTEST_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -39,4 +38,3 @@ private:
     ~LLFloaterFontTest();
 };
 
-#endif

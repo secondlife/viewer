@@ -24,8 +24,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLLISTVIEW_H
-#define LLLISTVIEW_H
+#pragma once
 
 #include "llui.h"       // for LLUIColor, *TODO: use more specific header
 #include "lluictrl.h"
@@ -57,4 +56,3 @@ private:
     LLUIColor   mBgSelectedColor;
 };
 
-#endif // LLLISTVIEW_H

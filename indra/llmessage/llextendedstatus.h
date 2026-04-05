@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLEXTENDEDSTATUS_H
-#define LL_LLEXTENDEDSTATUS_H
+#pragma once
 
 enum class LLExtStat: uint32_t
 {
@@ -60,4 +59,3 @@ enum class LLExtStat: uint32_t
 };
 
 
-#endif // LL_LLEXTENDEDSTATUS_H

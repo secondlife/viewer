@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSTYLE_H
-#define LL_LLSTYLE_H
+#pragma once
 
 #include "v4color.h"
 #include "llui.h"
@@ -139,4 +138,3 @@ private:
 using LLStyleSP = LLPointer<LLStyle>;
 using LLStyleConstSP = LLPointer<const LLStyle>;
 
-#endif  // LL_LLSTYLE_H

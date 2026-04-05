@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPRESETSPULLDOWN_H
-#define LL_LLPANELPRESETSPULLDOWN_H
+#pragma once
 
 #include "linden_common.h"
 
@@ -48,4 +47,3 @@ class LLPanelPresetsPulldown : public LLPanelPulldown
     LOG_CLASS(LLPanelPresetsPulldown);
 };
 
-#endif // LL_LLPANELPRESETSPULLDOWN_H

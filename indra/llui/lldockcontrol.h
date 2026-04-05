@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_DOCKCONTROL_H
-#define LL_DOCKCONTROL_H
+#pragma once
 
 #include "llerror.h"
 #include "llview.h"
@@ -94,4 +93,3 @@ private:
     S32 mDockTongueY;
 };
 
-#endif /* LL_DOCKCONTROL_H */

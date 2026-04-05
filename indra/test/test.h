@@ -24,8 +24,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef TEST_H
-#define TEST_H
+#pragma once
 
 #include <string>
 
@@ -41,4 +40,3 @@ namespace tut
     extern std::string sSourceDir;
 }
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNETMAP_H
-#define LL_LLNETMAP_H
+#pragma once
 
 #include "llmath.h"
 #include "lluictrl.h"
@@ -167,4 +166,3 @@ private:
 };
 
 
-#endif

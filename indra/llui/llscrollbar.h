@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SCROLLBAR_H
-#define LL_SCROLLBAR_H
+#pragma once
 
 #include "stdtypes.h"
 #include "lluictrl.h"
@@ -167,4 +166,3 @@ private:
 };
 
 
-#endif  // LL_SCROLLBAR_H

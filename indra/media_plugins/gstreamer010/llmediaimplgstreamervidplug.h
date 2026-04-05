@@ -26,8 +26,7 @@
  * @endcond
  */
 
-#ifndef __GST_SLVIDEO_H__
-#define __GST_SLVIDEO_H__
+#pragma once
 
 #if LL_GSTREAMER010_ENABLED
 
@@ -102,4 +101,3 @@ G_END_DECLS
 
 #endif // LL_GSTREAMER010_ENABLED
 
-#endif /* __GST_SLVIDEO_H__ */

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEW_H
-#define LL_LLVIEW_H
+#pragma once
 
 // A view is an area in a window that can draw.  It might represent
 // the HUD or a dialog box or a button.  It can also contain sub-views
@@ -737,4 +736,3 @@ extern template class LLView* LLView::getChild<class LLView>(
     std::string_view name, bool recurse) const;
 #endif
 
-#endif //LL_LLVIEW_H

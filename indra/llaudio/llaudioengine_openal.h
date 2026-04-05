@@ -27,8 +27,7 @@
  */
 
 
-#ifndef LL_AUDIOENGINE_OPENAL_H
-#define LL_AUDIOENGINE_OPENAL_H
+#pragma once
 
 #include "llaudioengine.h"
 #include "lllistener_openal.h"
@@ -105,4 +104,3 @@ class LLAudioBufferOpenAL : public LLAudioBuffer{
         ALuint mALBuffer;
 };
 
-#endif

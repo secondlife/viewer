@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATER_DESTINATIONS_H
-#define LL_FLOATER_DESTINATIONS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -40,4 +39,3 @@ private:
     bool postBuild() override;
 };
 
-#endif

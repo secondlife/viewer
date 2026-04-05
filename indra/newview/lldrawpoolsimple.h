@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLSIMPLE_H
-#define LL_LLDRAWPOOLSIMPLE_H
+#pragma once
 
 #include "lldrawpool.h"
 
@@ -138,4 +137,3 @@ public:
     void renderPostDeferred(S32 pass) override;
 };
 
-#endif // LL_LLDRAWPOOLSIMPLE_H

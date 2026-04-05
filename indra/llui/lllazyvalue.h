@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LAZY_VALUE_H
-#define LL_LAZY_VALUE_H
+#pragma once
 
 #include <functional>
 #include <type_traits>
@@ -80,4 +79,3 @@ private:
     T               mValue;
 };
 
-#endif // LL_LAZY_VALUE_H

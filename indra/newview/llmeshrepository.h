@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MESH_REPOSITORY_H
-#define LL_MESH_REPOSITORY_H
+#pragma once
 
 #include <array>
 #include <unordered_map>
@@ -978,5 +977,4 @@ extern LLMeshRepository gMeshRepo;
 const F32 ANIMATED_OBJECT_BASE_COST = 15.0f;
 const F32 ANIMATED_OBJECT_COST_PER_KTRI = 1.5f;
 
-#endif
 

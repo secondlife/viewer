@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERAVATARTEXTURES_H
-#define LL_LLFLOATERAVATARTEXTURES_H
+#pragma once
 
 #include "llfloater.h"
 #include "lluuid.h"
@@ -54,4 +53,3 @@ private:
     LLTextureCtrl* mTextures[LLAvatarAppearanceDefines::TEX_NUM_INDICES];
 };
 
-#endif

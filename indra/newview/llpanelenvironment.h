@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELENVIRONMENT_H
-#define LL_LLPANELENVIRONMENT_H
+#pragma once
 
 #include "llaccordionctrltab.h"
 #include "llradiogroup.h"
@@ -256,4 +255,3 @@ protected:
     std::string mTrack;
     bool                    mDndEnabled;
 };
-#endif // LL_LLPANELENVIRONMENT_H

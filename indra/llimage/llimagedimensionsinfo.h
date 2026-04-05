@@ -24,8 +24,7 @@
  */
 
 
-#ifndef LL_LLIMAGEDIMENSIONSINFO_H
-#define LL_LLIMAGEDIMENSIONSINFO_H
+#pragma once
 
 #include "llapr.h"
 
@@ -142,4 +141,3 @@ protected:
     S32 mWidth;
     S32 mHeight;
 };
-#endif

@@ -28,8 +28,7 @@
  * (Also has legacy gesture editor for testing.)
  */
 
-#ifndef LL_LLFLOATERGESTURE_H
-#define LL_LLFLOATERGESTURE_H
+#pragma once
 #include <vector>
 
 #include "llfloater.h"
@@ -107,4 +106,3 @@ private:
 };
 
 
-#endif

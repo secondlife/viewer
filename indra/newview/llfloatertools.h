@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERTOOLS_H
-#define LL_LLFLOATERTOOLS_H
+#pragma once
 
 #include "llfloater.h"
 #include "llcoord.h"
@@ -202,4 +201,3 @@ public:
 
 extern LLFloaterTools *gFloaterTools;
 
-#endif

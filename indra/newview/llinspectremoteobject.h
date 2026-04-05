@@ -23,12 +23,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLINSPECTREMOTEOBJECT_H
-#define LLINSPECTREMOTEOBJECT_H
+#pragma once
 
 namespace LLInspectRemoteObjectUtil
 {
     void registerFloater();
 }
 
-#endif

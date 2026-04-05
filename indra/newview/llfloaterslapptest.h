@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSLAPPTEST_H
-#define LL_LLFLOATERSLAPPTEST_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -39,4 +38,3 @@ private:
     ~LLFloaterSLappTest();
 };
 
-#endif

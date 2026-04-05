@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATERENVIRONMENTADJUST_H
-#define LL_FLOATERENVIRONMENTADJUST_H
+#pragma once
 
 #include "llfloater.h"
 #include "llsettingsbase.h"
@@ -93,4 +92,3 @@ private:
     LLEnvironment::connection_t mEventConnection;
 };
 
-#endif // LL_FLOATERFIXEDENVIRONMENT_H

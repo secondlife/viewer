@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PRESETSMANAGER_H
-#define LL_PRESETSMANAGER_H
+#pragma once
 
 #include "llcombobox.h"
 
@@ -106,4 +105,3 @@ public:
     static bool mIgnoreChangedSignal;
 };
 
-#endif // LL_PRESETSMANAGER_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERAVATARRENDERSETTINGS_H
-#define LL_LLFLOATERAVATARRENDERSETTINGS_H
+#pragma once
 
 #include "llfloater.h"
 #include "lllistcontextmenu.h"
@@ -66,4 +65,3 @@ private:
 };
 
 
-#endif //LL_LLFLOATERAVATARRENDERSETTINGS_H

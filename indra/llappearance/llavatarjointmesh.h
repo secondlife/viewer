@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAVATARJOINTMESH_H
-#define LL_LLAVATARJOINTMESH_H
+#pragma once
 
 #include <vector>
 
@@ -139,4 +138,3 @@ private:
     void freeSkinData();
 };
 
-#endif // LL_LLAVATARJOINTMESH_H

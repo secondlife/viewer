@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLPOINTER_H
-#define LLPOINTER_H
+#pragma once
 
 #include <functional>
 #include <string_view>
@@ -303,4 +302,3 @@ namespace std
         }
     };
 }
-#endif

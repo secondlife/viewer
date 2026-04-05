@@ -52,8 +52,7 @@
  */
 
 
-#ifndef AREATEX_H
-#define AREATEX_H
+#pragma once
 
 #define AREATEX_WIDTH 160
 #define AREATEX_HEIGHT 560
@@ -15002,4 +15001,3 @@ static const unsigned char areaTexBytes[] = {
     0x00, 0x00, 0x00, 0x00
 };
 
-#endif

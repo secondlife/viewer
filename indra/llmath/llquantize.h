@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLQUANTIZE_H
-#define LL_LLQUANTIZE_H
+#pragma once
 
 const U16 U16MAX = 65535;
 LL_ALIGN_16( const F32 F_U16MAX_4A[4] ) = { 65535.f, 65535.f, 65535.f, 65535.f };
@@ -149,4 +148,3 @@ inline F32 STRING_TO_F32(U8 ival, F32 lower, F32 upper)
     return val;
 }
 
-#endif

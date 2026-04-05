@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVERSIONINFO_H
-#define LL_LLVERSIONINFO_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llsingleton.h"
@@ -119,4 +118,3 @@ private:
     std::unique_ptr<LLStoreListener<std::string>> mStore;
 };
 
-#endif

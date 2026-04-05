@@ -23,9 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSTATENUMS_H
-#define LL_LLSTATENUMS_H
+#pragma once
 
 
 
-#endif

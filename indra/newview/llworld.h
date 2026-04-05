@@ -29,8 +29,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWORLD_H
-#define LL_LLWORLD_H
+#pragma once
 
 #include <array>
 #include "llpatchvertexarray.h"
@@ -223,4 +222,3 @@ void process_region_handshake(LLMessageSystem* msg, void** user_data);
 void send_agent_pause();
 void send_agent_resume();
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMVIEW_H
-#define LL_LLIMVIEW_H
+#pragma once
 
 #include "../llui/lldockablefloater.h"
 #include "lleventtimer.h"
@@ -646,4 +645,3 @@ private:
 // Globals
 extern LLIMMgr *gIMMgr;
 
-#endif  // LL_LLIMView_H

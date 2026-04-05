@@ -22,8 +22,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLNOTIFICATIONSUTIL_H
-#define LLNOTIFICATIONSUTIL_H
+#pragma once
 
 // The vast majority of clients of the notifications system just want to add
 // a notification to the screen, so define this lightweight public interface
@@ -64,4 +63,3 @@ namespace LLNotificationsUtil
     LLNotificationPtr find(LLUUID uuid);
 }
 
-#endif

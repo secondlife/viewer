@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERHELPUTIL_H
-#define LL_LLVIEWERHELPUTIL_H
+#pragma once
 
 class LLControlGroup;
 class LLOSInfo;
@@ -38,4 +37,3 @@ class LLViewerHelpUtil
     static std::string buildHelpURL( const std::string &topic );
 };
 
-#endif // header guard

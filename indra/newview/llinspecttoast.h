@@ -23,12 +23,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINSPECTTOAST_H
-#define LL_LLINSPECTTOAST_H
+#pragma once
 
 namespace LLNotificationsUI
 {
 void registerFloater();
 }
 
-#endif

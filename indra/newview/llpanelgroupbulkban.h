@@ -23,8 +23,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLPANELGROUPBULKBAN_H
-#define LL_LLPANELGROUPBULKBAN_H
+#pragma once
 
 #include "llpanel.h"
 #include "lluuid.h"
@@ -46,4 +45,3 @@ private:
     std::string buildResidentsArgument(std::vector<LLAvatarName> avatar_names, const std::string &format);
 };
 
-#endif // LL_LLPANELGROUPBULKBAN_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLREGIONFLAGS_H
-#define LL_LLREGIONFLAGS_H
+#pragma once
 
 // Can you be hurt here? Should health be on?
 constexpr U64 REGION_FLAGS_ALLOW_DAMAGE             = (1ULL << 0);
@@ -204,4 +203,3 @@ constexpr U32 ESTATE_EXPERIENCE_BLOCKED_ADD     = 1U << 6;
 constexpr U32 ESTATE_EXPERIENCE_BLOCKED_REMOVE  = 1U << 7;
 
 constexpr S32 ESTATE_MAX_EXPERIENCE_IDS = 8;
-#endif

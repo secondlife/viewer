@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTREENODE_H
-#define LL_LLTREENODE_H
+#pragma once
 
 #include "stdtypes.h"
 #include "xform.h"
@@ -122,4 +121,3 @@ void LLTreeNode<T>::notifyRemoval(T* data)
     }
 }
 
-#endif

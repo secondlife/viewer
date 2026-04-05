@@ -29,8 +29,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TEXTURE_H
-#define LL_TEXTURE_H
+#pragma once
 
 #include "llrefcount.h"
 #include "lltrace.h"
@@ -71,5 +70,4 @@ public:
 private:
     virtual void updateBindStatsForTester();
 };
-#endif
 

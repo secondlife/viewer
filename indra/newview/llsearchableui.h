@@ -23,8 +23,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_SEARCHABLE_UI_H
-#define LL_SEARCHABLE_UI_H
+#pragma once
 
 class LLMenuItemGL;
 class LLView;
@@ -119,4 +118,3 @@ namespace ll
     }
 }
 
-#endif

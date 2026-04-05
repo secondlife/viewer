@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LLPANEL_EDIT_SKY_H
-#define LLPANEL_EDIT_SKY_H
+#pragma once
 
 #include "llpanel.h"
 #include "llsettingssky.h"
@@ -172,4 +171,3 @@ protected:
     // update the settings for our profile type
     void updateProfile();
 };
-#endif // LLPANEL_EDIT_SKY_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWEROBJECT_H
-#define LL_LLVIEWEROBJECT_H
+#pragma once
 
 #include <map>
 #include <unordered_map>
@@ -1112,4 +1111,3 @@ public:
 };
 
 
-#endif

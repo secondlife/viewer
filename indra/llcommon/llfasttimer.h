@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FASTTIMER_H
-#define LL_FASTTIMER_H
+#pragma once
 
 #include "llinstancetracker.h"
 #include "lltrace.h"
@@ -330,4 +329,3 @@ LL_FORCE_INLINE BlockTimer::~BlockTimer()
 }
 
 using LLFastTimer = LLTrace::BlockTimer;
-#endif // LL_LLFASTTIMER_H

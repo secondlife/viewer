@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLRENDERNAVPRIM_H
-#define LL_LLRENDERNAVPRIM_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -46,4 +45,3 @@ private:
 
 extern LLRenderNavPrim gRenderNav;
 
-#endif // LL_LLRENDERNAVPRIM_H

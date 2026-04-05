@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_INBOXINVENTORYPANEL_H
-#define LL_INBOXINVENTORYPANEL_H
+#pragma once
 
 
 #include "llbadgeowner.h"
@@ -141,4 +140,3 @@ private:
     std::set<LLInboxInventoryPanel*> mInboxPanels;
 };
 
-#endif //LL_INBOXINVENTORYPANEL_H

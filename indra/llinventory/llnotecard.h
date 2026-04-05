@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_NOTECARD_H
-#define LL_NOTECARD_H
+#pragma once
 
 #include "llpointer.h"
 #include "llinventory.h"
@@ -66,4 +65,3 @@ private:
     S32 mEmbeddedVersion;
 };
 
-#endif /* LL_NOTECARD_H */

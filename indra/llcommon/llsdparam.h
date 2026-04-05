@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSDPARAM_H
-#define LL_LLSDPARAM_H
+#pragma once
 
 #include "llinitparam.h"
 #include <functional>
@@ -138,5 +137,4 @@ public:
     }
 };
 
-#endif // LL_LLSDPARAM_H
 

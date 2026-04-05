@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCUBEMAP_H
-#define LL_LLCUBEMAP_H
+#pragma once
 
 #include "llgl.h"
 
@@ -90,4 +89,3 @@ protected:
     S32 mMatrixStage;
 };
 
-#endif

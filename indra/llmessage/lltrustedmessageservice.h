@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLTRUSTEDMESSAGESERVICE_H
-#define LLTRUSTEDMESSAGESERVICE_H
+#pragma once
 
 #include "linden_common.h"
 #include "llhttpnode.h"
@@ -47,4 +46,3 @@ public:
               const LLSD& input) const;
 };
 
-#endif // LLTRUSTEDMESSAGESERVICE_H

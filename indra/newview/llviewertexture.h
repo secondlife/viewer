@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERTEXTURE_H
-#define LL_LLVIEWERTEXTURE_H
+#pragma once
 
 #include <atomic>
 #include "llgltexture.h"
@@ -789,4 +788,3 @@ private:
     /*virtual*/ void compareTestSessions(llofstream* os) ;
 };
 
-#endif

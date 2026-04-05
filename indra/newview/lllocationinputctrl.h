@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLOCATIONINPUTCTRL_H
-#define LL_LLLOCATIONINPUTCTRL_H
+#pragma once
 
 #include <array>
 #include "llcombobox.h"
@@ -211,4 +210,3 @@ private:
     std::string mMaturityHelpTopic;
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGEWORKER_H
-#define LL_LLIMAGEWORKER_H
+#pragma once
 
 #include "llimage.h"
 #include "llpointer.h"
@@ -66,4 +65,3 @@ private:
     std::atomic<U32> mDecodeCount;
 };
 
-#endif

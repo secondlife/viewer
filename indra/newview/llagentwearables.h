@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAGENTWEARABLES_H
-#define LL_LLAGENTWEARABLES_H
+#pragma once
 
 // libraries
 #include "llmemory.h"
@@ -259,4 +258,3 @@ extern LLAgentWearables gAgentWearables;
 // Types
 //--------------------------------------------------------------------
 
-#endif // LL_AGENTWEARABLES_H

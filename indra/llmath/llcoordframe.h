@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_COORDFRAME_H
-#define LL_COORDFRAME_H
+#pragma once
 
 #include "v3math.h"
 #include "v4math.h"
@@ -170,5 +169,4 @@ public:
 };
 
 
-#endif
 

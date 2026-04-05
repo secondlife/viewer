@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCHARACTER_H
-#define LL_LLCHARACTER_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header Files
@@ -307,5 +306,4 @@ private:
     LLVector3 mHoverOffset;
 };
 
-#endif // LL_LLCHARACTER_H
 

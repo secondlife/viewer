@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBUTTON_H
-#define LL_LLBUTTON_H
+#pragma once
 
 #include "lluuid.h"
 #include "llbadgeowner.h"
@@ -403,4 +402,3 @@ extern template class LLButton* LLView::getChild<class LLButton>(
     std::string_view name, bool recurse) const;
 #endif
 
-#endif  // LL_LLBUTTON_H

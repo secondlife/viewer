@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_MANIPSCALE_H
-#define LL_MANIPSCALE_H
+#pragma once
 
 // llmanipscale.h
 //
@@ -179,4 +178,3 @@ private:
     bool            mIsFirstClick;
 };
 
-#endif  // LL_MANIPSCALE_H

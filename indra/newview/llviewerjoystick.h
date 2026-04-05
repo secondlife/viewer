@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERJOYSTICK_H
-#define LL_LLVIEWERJOYSTICK_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -118,4 +117,3 @@ private:
     static F32              sDelta[7];
 };
 
-#endif

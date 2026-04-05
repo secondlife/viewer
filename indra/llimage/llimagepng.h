@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGEPNG_H
-#define LL_LLIMAGEPNG_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llimage.h"
@@ -43,4 +42,3 @@ public:
     /*virtual*/ bool encode(const LLImageRaw* raw_image, F32 encode_time);
 };
 
-#endif

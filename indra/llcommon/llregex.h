@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLREGEX_H
-#define LLREGEX_H
+#pragma once
 #include <boost/regex.hpp>
 
 template <typename S, typename M, typename R>
@@ -86,4 +85,3 @@ bool ll_regex_search(const S& string, const R& regex)
         return false;
     }
 }
-#endif  // LLREGEX_H

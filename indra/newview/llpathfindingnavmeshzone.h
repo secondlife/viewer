@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPATHFINDINGNAVMESHZONE_H
-#define LL_LLPATHFINDINGNAVMESHZONE_H
+#pragma once
 
 #include <functional>
 #include <vector>
@@ -124,4 +123,3 @@ private:
     navmesh_zone_signal_t     mNavMeshZoneSignal;
 };
 
-#endif // LL_LLPATHFINDINGNAVMESHZONE_H

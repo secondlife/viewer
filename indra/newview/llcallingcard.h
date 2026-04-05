@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCALLINGCARD_H
-#define LL_LLCALLINGCARD_H
+#pragma once
 
 #include <map>
 #include <set>
@@ -269,4 +268,3 @@ public:
     std::string mFullName;
 };
 
-#endif // LL_LLCALLINGCARD_H

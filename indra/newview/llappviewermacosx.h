@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAPPVIEWERMACOSX_H
-#define LL_LLAPPVIEWERMACOSX_H
+#pragma once
 
 #ifndef LL_LLAPPVIEWER_H
 #include "llappviewer.h"
@@ -51,4 +50,3 @@ protected:
     virtual bool initParseCommandLine(LLCommandLineParser& clp);
 };
 
-#endif // LL_LLAPPVIEWERMACOSX_H

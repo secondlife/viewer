@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VORBISENCODE_H
-#define LL_VORBISENCODE_H
+#pragma once
 
 const S32 LLVORBISENC_NOERR                        = 0; // no error
 const S32 LLVORBISENC_SOURCE_OPEN_ERR              = 1; // error opening source
@@ -55,5 +54,4 @@ const size_t LLVORBIS_CLIP_REJECT_SIZE                 = LLVORBIS_CLIP_MAX_SAMPL
 S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& error_msg);
 S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname);
 
-#endif
 

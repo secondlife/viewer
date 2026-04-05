@@ -26,8 +26,7 @@
  */
 
 
-#ifndef LL_LLVIEWERPRECOMPILEDHEADERS_H
-#define LL_LLVIEWERPRECOMPILEDHEADERS_H
+#pragma once
 
 // This file MUST be the first one included by each .cpp file
 // in viewer.
@@ -133,4 +132,3 @@
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 
-#endif

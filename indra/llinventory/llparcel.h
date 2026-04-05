@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPARCEL_H
-#define LL_LLPARCEL_H
+#pragma once
 
 #include <time.h>
 #include <iostream>
@@ -677,4 +676,3 @@ LLParcel::ECategory category_string_to_category(const std::string& s);
 const std::string& category_to_string(LLParcel::ECategory category);
 
 
-#endif

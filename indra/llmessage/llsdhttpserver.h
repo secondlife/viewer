@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSDHTTPSERVER_H
-#define LL_LLSDHTTPSERVER_H
+#pragma once
 
 /**
  * This module implements and defines common services that should be included
@@ -48,4 +47,3 @@ public:
         */
 };
 
-#endif // LL_LLSDHTTPSERVER_H

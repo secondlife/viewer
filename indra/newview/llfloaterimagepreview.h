@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERIMAGEPREVIEW_H
-#define LL_LLFLOATERIMAGEPREVIEW_H
+#pragma once
 
 #include "llfloaternamedesc.h"
 #include "lldynamictexture.h"
@@ -145,4 +144,3 @@ protected:
     std::string mImageLoadError;
 };
 
-#endif  // LL_LLFLOATERIMAGEPREVIEW_H

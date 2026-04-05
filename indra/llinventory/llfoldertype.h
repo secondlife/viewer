@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFOLDERTYPE_H
-#define LL_LLFOLDERTYPE_H
+#pragma once
 
 #include <string>
 #include "llassettype.h"
@@ -122,4 +121,3 @@ protected:
     ~LLFolderType() = default;
 };
 
-#endif // LL_LLFOLDERTYPE_H

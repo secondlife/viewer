@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDEFFECT_H
-#define LL_LLHUDEFFECT_H
+#pragma once
 
 #include "llhudobject.h"
 
@@ -74,4 +73,3 @@ protected:
     bool        mOriginatedHere;
 };
 
-#endif // LL_LLHUDEFFECT_H

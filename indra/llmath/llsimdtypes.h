@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SIMD_TYPES_H
-#define LL_SIMD_TYPES_H
+#pragma once
 
 #ifndef LL_SIMD_MATH_H
 #error "Please include llmath.h before this file."
@@ -107,4 +106,3 @@ private:
 
 static_assert(std::is_trivial<LLSimdScalar>::value, "LLSimdScalar must be a standard layout type");
 
-#endif //LL_SIMD_TYPES_H

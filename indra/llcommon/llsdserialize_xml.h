@@ -24,12 +24,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSDSERIALIZE_XML_H
-#define LL_LLSDSERIALIZE_XML_H
+#pragma once
 
 #include "llsdserialize.h"
 
 // all the XML class definitions are in llsdserialze.h for now
 
-#endif // LL_LLSDSERIALIZE_XML_H
 

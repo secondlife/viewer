@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERMYSCRIPTS_H
-#define LL_LLFLOATERMYSCRIPTS_H
+#pragma once
 
 #include "llfloater.h"
 #include "llpanel.h"
@@ -59,4 +58,3 @@ protected:
     static void onClickRefresh(void* userdata);
 };
 
-#endif

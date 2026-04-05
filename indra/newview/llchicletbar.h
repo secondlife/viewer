@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLCHICLETBAR_H
-#define LL_LLCHICLETBAR_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -87,4 +86,3 @@ protected:
     LLLayoutStack*      mToolbarStack;
 };
 
-#endif // LL_LLCHICLETBAR_H

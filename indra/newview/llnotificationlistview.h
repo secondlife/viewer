@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNOTIFICATIONLISTVIEW_H
-#define LL_LLNOTIFICATIONLISTVIEW_H
+#pragma once
 
 #include "llflatlistview.h"
 #include "llnotificationlistitem.h"
@@ -46,4 +45,3 @@ public:
     virtual bool addNotification(LLNotificationListItem * item);
 };
 
-#endif

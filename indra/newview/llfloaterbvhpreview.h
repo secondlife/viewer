@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERBVHPREVIEW_H
-#define LL_LLFLOATERBVHPREVIEW_H
+#pragma once
 
 #include "llassettype.h"
 #include "llfloaternamedesc.h"
@@ -130,4 +129,3 @@ protected:
     std::map<std::string, LLUUID>   mIDList;
 };
 
-#endif  // LL_LLFLOATERBVHPREVIEW_H

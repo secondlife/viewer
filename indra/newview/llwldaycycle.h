@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_WL_DAY_CYCLE_H
-#define LL_WL_DAY_CYCLE_H
+#pragma once
 
 class LLWLDayCycle;
 
@@ -123,4 +122,3 @@ public:
 };
 
 
-#endif

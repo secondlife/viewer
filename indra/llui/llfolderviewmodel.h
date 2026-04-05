@@ -22,8 +22,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLFOLDERVIEWMODEL_H
-#define LLFOLDERVIEWMODEL_H
+#pragma once
 
 #include "llfontgl.h"   // just for StyleFlags enum
 #include "llfolderview.h"
@@ -478,4 +477,3 @@ protected:
     std::unique_ptr<FilterType>     mFilter;
 };
 
-#endif // LLFOLDERVIEWMODEL_H

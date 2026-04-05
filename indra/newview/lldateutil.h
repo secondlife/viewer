@@ -23,8 +23,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LLDATEUTIL_H
-#define LLDATEUTIL_H
+#pragma once
 
 class LLDate;
 
@@ -85,4 +84,3 @@ namespace LLDateUtil
     S32 secondsSinceEpochFromString(const std::string& format, const std::string& str);
 }
 
-#endif

@@ -31,8 +31,7 @@
  * objects and land to groups.
  */
 
-#ifndef LL_LLFLOATERGROUPS_H
-#define LL_LLFLOATERGROUPS_H
+#pragma once
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class llfloatergroups
@@ -116,4 +115,3 @@ protected:
 };
 
 
-#endif // LL_LLFLOATERGROUPS_H

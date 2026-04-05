@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELLOOKSHISTORY_H
-#define LL_LLPANELLOOKSHISTORY_H
+#pragma once
 
 #include "lluictrlfactory.h"
 #include "llscrolllistctrl.h"
@@ -64,4 +63,3 @@ private:
     std::string             mFilterSubString;
 };
 
-#endif //LL_LLPANELLOOKSHISTORY_H

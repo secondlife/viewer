@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_NET_H
-#define LL_NET_H
+#pragma once
 
 class LLTimer;
 class LLHost;
@@ -71,4 +70,3 @@ const S32   MTUU32S = MTUBITS/32;
 const   U32     PORT_DISCOVERY_RANGE_MIN        = 13000;
 const   U32     PORT_DISCOVERY_RANGE_MAX        = PORT_DISCOVERY_RANGE_MIN + 50;
 
-#endif

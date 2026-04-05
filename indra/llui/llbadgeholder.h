@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBADGEHOLDER_H
-#define LL_LLBADGEHOLDER_H
+#pragma once
 
 //
 // Classes
@@ -53,4 +52,3 @@ private:
 
 };
 
-#endif  // LL_LLBADGEHOLDER_H

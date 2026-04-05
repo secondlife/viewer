@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCHANNELMANAGER_H
-#define LL_LLCHANNELMANAGER_H
+#pragma once
 
 
 #include "llscreenchannel.h"
@@ -117,5 +116,4 @@ private:
 };
 
 }
-#endif
 

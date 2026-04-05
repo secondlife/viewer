@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLERRORCONTROL_H
-#define LL_LLERRORCONTROL_H
+#pragma once
 
 #include "llerror.h"
 #include "llpointer.h"
@@ -237,5 +236,4 @@ namespace LLError
     LL_COMMON_API int shouldLogCallCount();
 };
 
-#endif // LL_LLERRORCONTROL_H
 

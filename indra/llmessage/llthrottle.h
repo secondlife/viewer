@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTHROTTLE_H
-#define LL_LLTHROTTLE_H
+#pragma once
 
 #include "lltimer.h"
 
@@ -100,4 +99,3 @@ protected:
 
 };
 
-#endif

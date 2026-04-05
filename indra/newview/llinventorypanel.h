@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYPANEL_H
-#define LL_LLINVENTORYPANEL_H
+#pragma once
 
 #include "llassetstorage.h"
 #include "llfolderviewitem.h"
@@ -494,4 +493,3 @@ private:
     bool mDragTypes[EDragAndDropType::DAD_COUNT];
 };
 
-#endif // LL_LLINVENTORYPANEL_H

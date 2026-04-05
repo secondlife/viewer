@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLMIMETYPES_H
-#define LLMIMETYPES_H
+#pragma once
 
 #include <string>
 #include <map>
@@ -120,4 +119,3 @@ public:
 private:
 };
 
-#endif

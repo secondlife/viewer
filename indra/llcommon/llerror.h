@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLERROR_H
-#define LL_LLERROR_H
+#pragma once
 
 #include <sstream>
 #include <string>
@@ -523,4 +522,3 @@ LL_DEBUGS("SomeTag") performs the locking and map-searching ONCE, then caches
 the result in a static variable.
 */
 
-#endif // LL_LLERROR_H

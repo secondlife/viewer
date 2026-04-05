@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPICKS_H
-#define LL_LLPANELPICKS_H
+#pragma once
 
 #include "llpanel.h"
 #include "lluuid.h"
@@ -254,4 +253,3 @@ protected:
     void onDescriptionFocusReceived();
 };
 
-#endif // LL_LLPANELPICKS_H

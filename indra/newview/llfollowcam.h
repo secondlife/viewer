@@ -37,8 +37,7 @@
 // be tweaked to assume different styles of tracking objects.
 //
 //--------------------------------------------------------------------
-#ifndef LL_FOLLOWCAM_H
-#define LL_FOLLOWCAM_H
+#pragma once
 
 #include "llcoordframe.h"
 #include "indra_constants.h"
@@ -229,4 +228,3 @@ protected:
     param_stack_t mParamStack;
 };
 
-#endif //LL_FOLLOWCAM_H

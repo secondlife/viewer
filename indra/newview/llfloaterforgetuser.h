@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERFORGETUSER_H
-#define LL_LLFLOATERFORGETUSER_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -53,4 +52,3 @@ private:
     std::map<std::string, S32> mUserGridsCount;
 };
 
-#endif

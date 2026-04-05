@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANEL_H
-#define LL_LLPANEL_H
+#pragma once
 
 
 #include "llcallbackmap.h"
@@ -315,4 +314,3 @@ template<typename T>
 }
 
 
-#endif

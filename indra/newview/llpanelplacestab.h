@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPLACESTAB_H
-#define LL_LLPANELPLACESTAB_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -75,4 +74,3 @@ protected:
     static LLButton*        sRemoveBtn;
 };
 
-#endif //LL_LLPANELPLACESTAB_H

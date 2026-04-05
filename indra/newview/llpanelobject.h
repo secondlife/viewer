@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELOBJECT_H
-#define LL_LLPANELOBJECT_H
+#pragma once
 
 #include "v3math.h"
 #include "llpanel.h"
@@ -196,4 +195,3 @@ protected:
     LLPointer<LLViewerObject> mRootObject;
 };
 
-#endif

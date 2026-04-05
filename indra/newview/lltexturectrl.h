@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTURECTRL_H
-#define LL_LLTEXTURECTRL_H
+#pragma once
 
 #include "llcoord.h"
 #include "llfiltereditor.h"
@@ -467,4 +466,3 @@ private:
     static S32 sLastPickerMode;
 };
 
-#endif  // LL_LLTEXTURECTRL_H

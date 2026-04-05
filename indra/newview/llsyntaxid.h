@@ -25,8 +25,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LL_SYNTAXID_H
-#define LL_SYNTAXID_H
+#pragma once
 
 #include "llviewerprecompiledheaders.h"
 
@@ -74,4 +73,3 @@ public:
     boost::signals2::connection addSyntaxIDCallback(const syntax_id_changed_signal_t::slot_type& cb);
 };
 
-#endif // LLSYNTAXID_H

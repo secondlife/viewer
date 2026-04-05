@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTUREFETCH_H
-#define LL_LLTEXTUREFETCH_H
+#pragma once
 
 #include <vector>
 #include <map>
@@ -442,5 +441,4 @@ private:
 
     std::map<S32, F32> mStateTimersMap;
 };
-#endif // LL_LLTEXTUREFETCH_H
 

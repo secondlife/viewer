@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGEJ2COJ_H
-#define LL_LLIMAGEJ2COJ_H
+#pragma once
 
 #include "llimagej2c.h"
 
@@ -46,4 +45,3 @@ protected:
     virtual std::string getEngineInfo() const;
 };
 
-#endif

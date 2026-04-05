@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMESSAGESENDERINTERFACE_H
-#define LL_LLMESSAGESENDERINTERFACE_H
+#pragma once
 
 #include "linden_common.h"
 #include "llstoredmessage.h"
@@ -40,5 +39,4 @@ public:
 
 };
 
-#endif // LL_LLMESSAGESENDERINTERFACE_H
 

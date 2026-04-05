@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERPARCELASKPLAY_H
-#define LLVIEWERPARCELASKPLAY_H
+#pragma once
 
 #include "llnotificationptr.h"
 #include "lluuid.h"
@@ -86,4 +85,3 @@ private:
 };
 
 
-#endif // LLVIEWERPARCELASKPLAY_H

@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SCROLLLISTCTRL_H
-#define LL_SCROLLLISTCTRL_H
+#pragma once
 
 #include <vector>
 #include <deque>
@@ -562,4 +561,3 @@ private:
     friend class LLComboBox;
 }; // end class LLScrollListCtrl
 
-#endif  // LL_SCROLLLISTCTRL_H

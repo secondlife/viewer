@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLFLOATERREG_H
-#define LLFLOATERREG_H
+#pragma once
 
 /// llcommon
 #include "llrect.h"
@@ -160,4 +159,3 @@ public:
     static U32 getVisibleFloaterInstanceCount();
 };
 
-#endif

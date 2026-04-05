@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLXUIPARSER_H
-#define LLXUIPARSER_H
+#pragma once
 
 #include "llinitparam.h"
 #include "llregistry.h"
@@ -257,4 +256,3 @@ private:
 };
 
 
-#endif //LLXUIPARSER_H

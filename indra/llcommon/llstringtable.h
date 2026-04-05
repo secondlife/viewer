@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_STRING_TABLE_H
-#define LL_STRING_TABLE_H
+#pragma once
 
 #include "lldefs.h"
 #include "llformat.h"
@@ -205,4 +204,3 @@ private:
 };
 
 
-#endif

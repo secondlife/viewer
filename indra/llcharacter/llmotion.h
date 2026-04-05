@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMOTION_H
-#define LL_LLMOTION_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -263,5 +262,4 @@ public:
     // called when a motion is deactivated
     /*virtual*/ void onDeactivate() {}
 };
-#endif // LL_LLMOTION_H
 

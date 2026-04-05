@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VOICECHANNEL_H
-#define LL_VOICECHANNEL_H
+#pragma once
 
 #include "llhandle.h"
 #include "llvoiceclient.h"
@@ -211,4 +210,3 @@ private:
     LLVoiceP2PIncomingCallInterfacePtr mIncomingCallInterface;
 };
 
-#endif  // LL_VOICECHANNEL_H

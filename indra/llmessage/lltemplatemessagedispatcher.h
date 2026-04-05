@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLTEMPLATEMESSAGEDISPATCHER_H
-#define LLTEMPLATEMESSAGEDISPATCHER_H
+#pragma once
 
 #include "linden_common.h"
 #include "llsd.h"
@@ -45,4 +44,3 @@ private:
     LLTemplateMessageReader &mTemplateMessageReader;
 };
 
-#endif // LLTEMPLATEMESSAGEDISPATCHER_H

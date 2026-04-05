@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAVATARJOINT_H
-#define LL_LLAVATARJOINT_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header Files
@@ -135,6 +134,5 @@ public:
     LLVector3 getVolumePos(LLVector3 &offset);
 };
 
-#endif // LL_LLAVATARJOINT_H
 
 

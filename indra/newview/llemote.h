@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLEMOTE_H
-#define LL_LLEMOTE_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -117,6 +116,5 @@ protected:
 
 
 
-#endif // LL_LLEMOTE_H
 
 

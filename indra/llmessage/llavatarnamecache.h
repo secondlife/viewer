@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLAVATARNAMECACHE_H
-#define LLAVATARNAMECACHE_H
+#pragma once
 
 #include "llavatarname.h"   // for convenience
 #include "llsingleton.h"
@@ -189,4 +188,3 @@ private:
 // Exported here to ease unit testing.
 bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age);
 
-#endif

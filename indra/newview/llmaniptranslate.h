@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMANIPTRANSLATE_H
-#define LL_LLMANIPTRANSLATE_H
+#pragma once
 
 #include "llmanip.h"
 #include "lltimer.h"
@@ -111,4 +110,3 @@ private:
     LLVector4   mPlaneManipPositions;
 };
 
-#endif

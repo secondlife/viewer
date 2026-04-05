@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWORLDMAP_H
-#define LL_LLWORLDMAP_H
+#pragma once
 
 #include "llworldmipmap.h"
 
@@ -271,4 +270,3 @@ private:
     bool            mFirstRequest;
 };
 
-#endif

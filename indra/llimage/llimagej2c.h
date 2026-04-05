@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGEJ2C_H
-#define LL_LLIMAGEJ2C_H
+#pragma once
 
 #include "llimage.h"
 #include "llassettype.h"
@@ -168,4 +167,3 @@ class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
         F32 mRunTimeDecompression;          // Time in this run (we output every 5 sec in decompress)
     };
 
-#endif

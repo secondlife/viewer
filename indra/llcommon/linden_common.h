@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LINDEN_COMMON_H
-#define LL_LINDEN_COMMON_H
+#pragma once
 
 #include "llprofiler.h"
 
@@ -62,4 +61,3 @@
 #include "llerror.h"
 #include "llfile.h"
 
-#endif

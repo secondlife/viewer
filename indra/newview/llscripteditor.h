@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SCRIPTEDITOR_H
-#define LL_SCRIPTEDITOR_H
+#pragma once
 
 #include "lltexteditor.h"
 
@@ -73,4 +72,3 @@ private:
     bool mUseDefaultFontSize;
 };
 
-#endif // LL_SCRIPTEDITOR_H

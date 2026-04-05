@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LOCALBITMAPS_H
-#define LL_LOCALBITMAPS_H
+#pragma once
 
 #include "llavatarappearancedefines.h"
 #include "lleventtimer.h"
@@ -156,5 +155,4 @@ private:
     using local_list_citer = std::list<LLLocalBitmap*>::const_iterator;
 };
 
-#endif
 

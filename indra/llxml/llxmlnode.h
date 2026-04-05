@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLXMLNODE_H
-#define LL_LLXMLNODE_H
+#pragma once
 
 #ifndef XML_STATIC
 #define XML_STATIC
@@ -338,4 +337,3 @@ protected:
     static const char *parseFloat(const char *str, F64 *dest, U32 precision, Encoding encoding);
 };
 
-#endif // LL_LLXMLNODE

@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_SETTINGS_BASE_H
-#define LL_SETTINGS_BASE_H
+#pragma once
 
 #include <string>
 #include <map>
@@ -543,4 +542,3 @@ protected:
 };
 
 
-#endif

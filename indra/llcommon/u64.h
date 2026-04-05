@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_U64_H
-#define LL_U64_H
+#pragma once
 
 /**
  * @brief Forgivingly parse a null terminated character array.
@@ -71,4 +70,3 @@ LL_COMMON_API F64 U64_to_F64(const U64 value);
  */
 LL_COMMON_API U64 llstrtou64(const char* str, char** end, S32 base);
 
-#endif

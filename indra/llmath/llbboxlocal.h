@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_BBOXLOCAL_H
-#define LL_BBOXLOCAL_H
+#pragma once
 
 #include "v3math.h"
 
@@ -65,4 +64,3 @@ static_assert(std::is_trivially_copyable<LLBBoxLocal>::value, "LLBBoxLocal must 
 static_assert(std::is_trivially_move_assignable<LLBBoxLocal>::value, "LLBBoxLocal must be trivial move");
 static_assert(std::is_standard_layout<LLBBoxLocal>::value, "LLBBoxLocal must be a standard layout type");
 
-#endif  // LL_BBOXLOCAL_H

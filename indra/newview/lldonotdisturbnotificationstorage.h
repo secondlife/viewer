@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLDONOTDISTURBNOTIFICATIONSTORAGE_H
-#define LL_LLDONOTDISTURBNOTIFICATIONSTORAGE_H
+#pragma once
 
 #include "llerror.h"
 #include "lleventtimer.h"
@@ -76,5 +75,4 @@ private:
     std::map<std::string, std::string> nameToPayloadParameterMap;
 };
 
-#endif // LL_LLDONOTDISTURBNOTIFICATIONSTORAGE_H
 

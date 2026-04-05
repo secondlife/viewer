@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATEREDITENVIRONMENTBASE_H
-#define LL_FLOATEREDITENVIRONMENTBASE_H
+#pragma once
 
 #include "llfloater.h"
 #include "llsettingsbase.h"
@@ -146,4 +145,3 @@ private:
     on_dirty_charged_sg mOnDirtyChanged;
 };
 
-#endif // LL_FLOATERENVIRONMENTBASE_H

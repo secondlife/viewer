@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELAVATAR_H
-#define LL_LLPANELAVATAR_H
+#pragma once
 
 #include "llpanel.h"
 #include "llavatarpropertiesprocessor.h"
@@ -168,4 +167,3 @@ public:
     virtual void processProperties(void* data, EAvatarProcessorType type) override = 0;
 };
 
-#endif // LL_LLPANELAVATAR_H

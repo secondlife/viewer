@@ -23,8 +23,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LLFOLDERVIEWITEM_H
-#define LLFOLDERVIEWITEM_H
+#pragma once
 
 #include "llflashtimer.h"
 #include "llview.h"
@@ -526,4 +525,3 @@ public:
     virtual void groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu) = 0;
 };
 
-#endif  // LLFOLDERVIEWITEM_H

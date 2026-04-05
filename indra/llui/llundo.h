@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUNDO_H
-#define LL_LLUNDO_H
+#pragma once
 
 
 class LLUndoBuffer
@@ -65,4 +64,3 @@ private:
     S32         mOperationID;   // current operation id, for undoing and redoing in clusters
 };
 
-#endif //LL_LLUNDO_H

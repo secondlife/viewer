@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTHREADLOCALSTORAGE_H
-#define LL_LLTHREADLOCALSTORAGE_H
+#pragma once
 
 #include "llinstancetracker.h"
 
@@ -51,4 +50,3 @@ private:
 template<typename DERIVED_TYPE>
 thread_local DERIVED_TYPE* LLThreadLocalSingletonPointer<DERIVED_TYPE>::sInstance = NULL;
 
-#endif // LL_LLTHREADLOCALSTORAGE_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSCENE_MONITOR_H
-#define LL_LLSCENE_MONITOR_H
+#pragma once
 
 #include <array>
 #include "llsingleton.h"
@@ -126,5 +125,4 @@ protected:
 
 extern LLSceneMonitorView* gSceneMonitorView;
 
-#endif
 

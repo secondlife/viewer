@@ -23,8 +23,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_SEARCHABLE_CONTROL_H
-#define LL_SEARCHABLE_CONTROL_H
+#pragma once
 
 #include "lluicolortable.h"
 #include "lluicolor.h"
@@ -74,4 +73,3 @@ namespace ll
 }
 
 
-#endif

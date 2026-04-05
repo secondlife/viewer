@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIOUTIL_H
-#define LL_LLIOUTIL_H
+#pragma once
 
 #include "llbuffer.h"
 #include "lliopipe.h"
@@ -169,4 +168,3 @@ protected:
 };
 
 
-#endif // LL_LLIOUTIL_H

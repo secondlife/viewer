@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef __findlocale_h_
-#define __findlocale_h_
+#pragma once
 
 using FL_Lang = const char*;
 using FL_Country = const char*;
@@ -56,4 +55,3 @@ LL_COMMON_API FL_Success FL_FindLocale(FL_Locale **locale, FL_Domain domain);
 /* This should be used to free the struct written by FL_FindLocale */
 LL_COMMON_API void FL_FreeLocale(FL_Locale **locale);
 
-#endif /*__findlocale_h_*/

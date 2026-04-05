@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PHYSICS_SHAPE_BUILDER_H
-#define LL_PHYSICS_SHAPE_BUILDER_H
+#pragma once
 
 #include "indra_constants.h"
 #include "llvolume.h"
@@ -139,4 +138,3 @@ public:
     static void determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut, bool has_decomposition = false );
 };
 
-#endif //LL_PHYSICS_SHAPE_BUILDER_H

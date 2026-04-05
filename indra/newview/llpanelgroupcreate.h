@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELGROUPCREATE_H
-#define LL_LLPANELGROUPCREATE_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -70,4 +69,3 @@ private:
     LLSpinCtrl       *mSpinEnrollmentFee;
 };
 
-#endif // LL_LLPANELGROUPCREATE_H

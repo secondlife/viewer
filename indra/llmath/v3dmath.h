@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_V3DMATH_H
-#define LL_V3DMATH_H
+#pragma once
 
 #include "llerror.h"
 #include "v3math.h"
@@ -438,4 +437,3 @@ inline LLVector3d inverse_projected_vec(const LLVector3d& a, const LLVector3d& b
     return normalized_a * (b_length / dot_product);
 }
 
-#endif // LL_V3DMATH_H

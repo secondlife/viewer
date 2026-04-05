@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMANIPROTATE_H
-#define LL_LLMANIPROTATE_H
+#pragma once
 
 #include "lltool.h"
 #include "v3math.h"
@@ -113,4 +112,3 @@ private:
     LLVector4           mManipulatorScales;
 };
 
-#endif  // LL_LLMANIPROTATE_H

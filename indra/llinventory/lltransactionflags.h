@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRANSACTIONFLAGS_H
-#define LL_LLTRANSACTIONFLAGS_H
+#pragma once
 
 class LLUUID;
 
@@ -62,4 +61,3 @@ std::string build_transfer_message_to_destination(
     S32 transaction_type,
     const std::string& description);
 
-#endif // LL_LLTRANSACTIONFLAGS_H

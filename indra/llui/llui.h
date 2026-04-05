@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_LLUI_H
-#define LL_LLUI_H
+#pragma once
 
 #include "llrect.h"
 #include "llcoord.h"
@@ -461,4 +460,3 @@ namespace LLInitParam
     };
 }
 
-#endif

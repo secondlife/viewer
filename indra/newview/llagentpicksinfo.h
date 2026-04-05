@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAGENTPICKS_H
-#define LL_LLAGENTPICKS_H
+#pragma once
 
 #include "llsingleton.h"
 
@@ -89,4 +88,3 @@ private:
     S32 mNumberOfPicks;
 };
 
-#endif //LL_LLAGENTPICKS_H

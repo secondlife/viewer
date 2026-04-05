@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VOSURFACEPATCH_H
-#define LL_VOSURFACEPATCH_H
+#pragma once
 
 #include "llviewerobject.h"
 #include "llstrider.h"
@@ -130,4 +129,3 @@ protected:
                        U32 &index_offset);
 };
 
-#endif // LL_VOSURFACEPATCH_H

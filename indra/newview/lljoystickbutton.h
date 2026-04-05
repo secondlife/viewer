@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLJOYSTICKBUTTON_H
-#define LL_LLJOYSTICKBUTTON_H
+#pragma once
 
 #include "llbutton.h"
 #include "llcoord.h"
@@ -230,4 +229,3 @@ protected:
     LLVector3       mLfRtAxis;
 };
 
-#endif  // LL_LLJOYSTICKBUTTON_H

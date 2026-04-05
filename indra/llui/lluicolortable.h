@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUICOLORTABLE_H_
-#define LL_LLUICOLORTABLE_H_
+#pragma once
 
 #include <unordered_map>
 
@@ -108,4 +107,3 @@ private:
     string_color_map_t mUserSetColors;
 };
 
-#endif // LL_LLUICOLORTABLE_H

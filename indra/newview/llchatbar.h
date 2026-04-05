@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCHATBAR_H
-#define LL_LLCHATBAR_H
+#pragma once
 
 #include "llpanel.h"
 #include "llframetimer.h"
@@ -109,4 +108,3 @@ protected:
 
 extern LLChatBar *gChatBar;
 
-#endif

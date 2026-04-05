@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDEBUG_H
-#define LL_LLWINDEBUG_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llwin32headers.h"
@@ -44,4 +43,3 @@ private:
     static void writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const std::string& filename);
 };
 
-#endif // LL_LLWINDEBUG_H

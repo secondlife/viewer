@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHASH_H
-#define LL_LLHASH_H
+#pragma once
 
 #include <boost/functional/hash.hpp>
 
@@ -49,5 +48,4 @@ inline size_t llhash( const char * value )
     return seed;
 }
 
-#endif
 

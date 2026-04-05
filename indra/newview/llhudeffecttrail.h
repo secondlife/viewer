@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDEFFECTTRAIL_H
-#define LL_LLHUDEFFECTTRAIL_H
+#pragma once
 
 #include "llhudeffect.h"
 
@@ -92,4 +91,3 @@ private:
     LLInterpLinear<F32>             mFadeInterp;
 };
 
-#endif // LL_LLHUDEFFECTGLOW_H

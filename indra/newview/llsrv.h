@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSRV_H
-#define LL_LLSRV_H
+#pragma once
 
 class LLSRV
 {
@@ -33,4 +32,3 @@ public:
     static std::vector<std::string> rewriteURI(const std::string& uri);
 };
 
-#endif // LL_LLSRV_H

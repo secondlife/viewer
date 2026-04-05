@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRANSFERSOURCEASSET_H
-#define LL_LLTRANSFERSOURCEASSET_H
+#pragma once
 
 #include "lltransfermanager.h"
 #include "llassetstorage.h"
@@ -78,4 +77,3 @@ protected:
     S32 mCurPos;
 };
 
-#endif // LL_LLTRANSFERSOURCEASSET_H

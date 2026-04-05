@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDIRITERATOR_H
-#define LL_LLDIRITERATOR_H
+#pragma once
 
 #include "linden_common.h"
 
@@ -84,4 +83,3 @@ protected:
     Impl* mImpl;
 };
 
-#endif //LL_LLDIRITERATOR_H

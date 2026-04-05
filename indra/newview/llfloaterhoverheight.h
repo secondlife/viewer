@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLFLOATERHOVERHEIGHT_H
-#define LL_LLFLOATERHOVERHEIGHT_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -49,4 +48,3 @@ public:
     boost::signals2::connection mRegionChangedSlot;
 };
 
-#endif

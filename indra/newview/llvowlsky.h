@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VOWLSKY_H
-#define LL_VOWLSKY_H
+#pragma once
 
 #include "llviewerobject.h"
 
@@ -87,4 +86,3 @@ private:
     std::vector<F32>        mStarIntensities;           // Star intensities
 };
 
-#endif // LL_VOWLSKY_H

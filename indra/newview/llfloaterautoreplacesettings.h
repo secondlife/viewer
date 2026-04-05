@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERAUTOREPLACESETTINGS_H
-#define LLFLOATERAUTOREPLACESETTINGS_H
+#pragma once
 
 #include "llfloater.h"
 #include "llmediactrl.h"
@@ -117,4 +116,3 @@ private:
     void saveListToFile(const std::vector<std::string>& filenames, std::string listName);
 };
 
-#endif  // LLFLOATERAUTOREPLACESETTINGS_H

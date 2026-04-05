@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_OBJECT_FLAGS_H
-#define LL_OBJECT_FLAGS_H
+#pragma once
 
 // downstream flags from sim->viewer
 const U32   FLAGS_USE_PHYSICS          = (1U << 0);
@@ -81,4 +80,3 @@ enum e_havok_joint_type
     HJT_EOF     = 3
 };
 
-#endif

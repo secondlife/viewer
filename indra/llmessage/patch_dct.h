@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PATCH_DCT_H
-#define LL_PATCH_DCT_H
+#pragma once
 
 class LLVector3;
 
@@ -88,4 +87,3 @@ void init_patch_decompressor(S32 size);
 void decompress_patch(F32 *patch, S32 *cpatch, LLPatchHeader *ph);
 void decompress_patchv(LLVector3 *v, S32 *cpatch, LLPatchHeader *ph);
 
-#endif

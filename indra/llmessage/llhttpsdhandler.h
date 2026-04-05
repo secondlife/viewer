@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef _LLHTTPSDHANDLER_H_
-#define _LLHTTPSDHANDLER_H_
+#pragma once
 #include "httpcommon.h"
 #include "httphandler.h"
 #include "lluri.h"
@@ -52,4 +51,3 @@ protected:
 
 };
 
-#endif

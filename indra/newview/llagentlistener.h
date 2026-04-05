@@ -27,8 +27,7 @@
  */
 
 
-#ifndef LL_LLAGENTLISTENER_H
-#define LL_LLAGENTLISTENER_H
+#pragma once
 
 #include "lleventapi.h"
 
@@ -77,5 +76,4 @@ private:
     LLUUID      mFollowTarget;
 };
 
-#endif // LL_LLAGENTLISTENER_H
 

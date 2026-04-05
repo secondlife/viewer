@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWQUERY_H
-#define LL_LLVIEWQUERY_H
+#pragma once
 
 #include <list>
 
@@ -134,4 +133,3 @@ private:
 };
 
 
-#endif // LL_LLVIEWQUERY_H

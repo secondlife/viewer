@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLXORCIPHER_H
-#define LLXORCIPHER_H
+#pragma once
 
 #include "llcipher.h"
 
@@ -64,4 +63,3 @@ protected:
     U32 mPadLen;
 };
 
-#endif

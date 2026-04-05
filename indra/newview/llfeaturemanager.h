@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFEATUREMANAGER_H
-#define LL_LLFEATUREMANAGER_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -184,4 +183,3 @@ LLFeatureManager::LLFeatureManager()
 {
 }
 
-#endif // LL_LLFEATUREMANAGER_H

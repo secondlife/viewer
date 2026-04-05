@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PANELGENERICTIP_H
-#define LL_PANELGENERICTIP_H
+#pragma once
 
 #include "llpaneltiptoast.h"
 
@@ -48,4 +47,3 @@ private:
      */
     LLPanelGenericTip(const LLNotificationPtr& notification);
 };
-#endif /* LL_PANELGENERICTIP_H */

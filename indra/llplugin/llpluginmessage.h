@@ -25,8 +25,7 @@
  * @endcond
  */
 
-#ifndef LL_LLPLUGINMESSAGE_H
-#define LL_LLPLUGINMESSAGE_H
+#pragma once
 
 #include "llsd.h"
 
@@ -134,4 +133,3 @@ protected:
 };
 
 
-#endif // LL_LLPLUGINMESSAGE_H

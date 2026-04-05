@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHELP_H
-#define LL_LLHELP_H
+#pragma once
 
 class LLHelp
 {
@@ -41,4 +40,3 @@ class LLHelp
     virtual std::string f1HelpTopic() = 0;
 };
 
-#endif // headerguard

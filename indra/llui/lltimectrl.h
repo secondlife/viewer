@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLTIMECTRL_H_
-#define LLTIMECTRL_H_
+#pragma once
 
 #include "stdtypes.h"
 #include "llbutton.h"
@@ -126,4 +125,3 @@ private:
 
     bool            mAllowEdit;
 };
-#endif /* LLTIMECTRL_H_ */

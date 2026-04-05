@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERDELETEPREFPRESET_H
-#define LL_LLFLOATERDELETEPREFPRESET_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -50,4 +49,3 @@ private:
     std::string mSubdirectory;
 };
 
-#endif // LL_LLFLOATERDELETEPREFPRESET_H

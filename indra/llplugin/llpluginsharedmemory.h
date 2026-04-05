@@ -25,8 +25,7 @@
  * @endcond
  */
 
-#ifndef LL_LLPLUGINSHAREDMEMORY_H
-#define LL_LLPLUGINSHAREDMEMORY_H
+#pragma once
 
 class LLPluginSharedMemoryPlatformImpl;
 
@@ -122,4 +121,3 @@ private:
 
 
 
-#endif // LL_LLPLUGINSHAREDMEMORY_H

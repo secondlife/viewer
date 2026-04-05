@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLSAFEHANDLE_H
-#define LLSAFEHANDLE_H
+#pragma once
 
 #include "llerror.h"    // *TODO: consider eliminating this
 #include "llsingleton.h"
@@ -195,4 +194,3 @@ protected:
     Type*   mPointer;
 };
 
-#endif

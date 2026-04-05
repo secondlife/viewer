@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLICONCTRL_H
-#define LL_LLICONCTRL_H
+#pragma once
 
 #include "lluuid.h"
 #include "v4color.h"
@@ -104,4 +103,3 @@ private:
     LLPointer<LLUIImage> mImagep;
 };
 
-#endif

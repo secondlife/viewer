@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDEFS_H
-#define LL_LLDEFS_H
+#pragma once
 
 #include "stdtypes.h"
 #include <array>
@@ -231,5 +230,4 @@ inline void llswap(LLDATATYPE& lhs, LLDATATYPE& rhs)
     std::swap(lhs, rhs);
 }
 
-#endif // LL_LLDEFS_H
 

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERCHAT_H
-#define LL_LLVIEWERCHAT_H
+#pragma once
 
 #include "llchat.h"
 #include "llfontgl.h"
@@ -52,4 +51,3 @@ private:
 
 };
 
-#endif

@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_LLSETKEYBINDDIALOG_H
-#define LL_LLSETKEYBINDDIALOG_H
+#pragma once
 
 #include "llmodaldialog.h"
 
@@ -105,4 +104,3 @@ private:
 };
 
 
-#endif  // LL_LLSETKEYBINDDIALOG_H

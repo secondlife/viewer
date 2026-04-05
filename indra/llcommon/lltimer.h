@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TIMER_H
-#define LL_TIMER_H
+#pragma once
 
 #if LL_LINUX || LL_DARWIN
 #include <sys/time.h>
@@ -185,4 +184,3 @@ LL_COMMON_API void secondsToTimecodeString(F32SecondsImplicit current_time, std:
 
 U64MicrosecondsImplicit LL_COMMON_API totalTime();                  // Returns current system time in microseconds
 
-#endif

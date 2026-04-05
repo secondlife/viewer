@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERBEACONS_H
-#define LL_LLFLOATERBEACONS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -46,4 +45,3 @@ private:
     LLFloaterBeacons(const LLSD& seed);
 };
 
-#endif

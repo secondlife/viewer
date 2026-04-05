@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERIMNEARBYCHATHANDLER_H
-#define LL_LLFLOATERIMNEARBYCHATHANDLER_H
+#pragma once
 
 #include "llnotificationhandler.h"
 
@@ -51,4 +50,3 @@ protected:
 
 }
 
-#endif /* LL_LLFLOATERIMNEARBYCHATHANDLER_H */

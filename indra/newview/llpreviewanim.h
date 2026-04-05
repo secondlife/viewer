@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPREVIEWANIM_H
-#define LL_LLPREVIEWANIM_H
+#pragma once
 
 #include "llpreview.h"
 #include "llcharacter.h"
@@ -54,4 +53,3 @@ protected:
     LLTextBox* pAdvancedStatsTextBox;
 };
 
-#endif  // LL_LLPREVIEWANIM_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBOX_H
-#define LL_LLBOX_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -47,4 +46,3 @@ public:
 
 extern LLBox gBox;
 
-#endif

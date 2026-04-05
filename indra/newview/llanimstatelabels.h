@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLANIMSTATELABELS_H
-#define LL_LLANIMSTATELABELS_H
+#pragma once
 
 class LLAnimStateLabels
 {
@@ -34,4 +33,3 @@ public:
     static std::string getStateLabel( const char *animName );
 };
 
-#endif // LL_ANIMSTATELABELS_H

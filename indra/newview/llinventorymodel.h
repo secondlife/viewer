@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYMODEL_H
-#define LL_LLINVENTORYMODEL_H
+#pragma once
 
 #include <map>
 #include <set>
@@ -723,5 +722,4 @@ public:
 // a special inventory model for the agent
 extern LLInventoryModel gInventory;
 
-#endif // LL_LLINVENTORYMODEL_H
 

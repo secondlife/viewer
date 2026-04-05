@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMEDIADATACLIENT_H
-#define LL_LLMEDIADATACLIENT_H
+#pragma once
 
 #include <set>
 #include "llrefcount.h"
@@ -438,4 +437,3 @@ protected:
 };
 
 
-#endif // LL_LLMEDIADATACLIENT_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERAUCTION_H
-#define LL_LLFLOATERAUCTION_H
+#pragma once
 
 #include "llfloater.h"
 #include "lluuid.h"
@@ -83,4 +82,3 @@ private:
 };
 
 
-#endif // LL_LLFLOATERAUCTION_H

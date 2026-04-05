@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLINVENTORYTYPE_H
-#define LLINVENTORYTYPE_H
+#pragma once
 
 #include "llassettype.h"
 
@@ -156,4 +155,3 @@ private:
 bool inventory_and_asset_types_match(LLInventoryType::EType inventory_type,
                                      LLAssetType::EType asset_type);
 
-#endif

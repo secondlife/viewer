@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_LIBCURL_H_
-#define _LLCORE_HTTP_LIBCURL_H_
+#pragma once
 
 #include "linden_common.h"      // Modifies curl/curl.h interfaces
 
@@ -220,4 +219,3 @@ protected:
 
 }  // end namespace LLCore
 
-#endif // _LLCORE_HTTP_LIBCURL_H_

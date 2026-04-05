@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PARTSYSPACKET_H
-#define LL_PARTSYSPACKET_H
+#pragma once
 
 #include "lluuid.h"
 
@@ -257,5 +256,4 @@ protected:
     U32     readWindDiffusionFactor(LLPartInitData *in, U32 startByte);
 };
 
-#endif
 

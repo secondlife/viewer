@@ -25,8 +25,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLAVATARNAME_H
-#define LLAVATARNAME_H
+#pragma once
 
 #include <string>
 
@@ -136,4 +135,3 @@ private:
     static bool sUseUsernames;
 };
 
-#endif

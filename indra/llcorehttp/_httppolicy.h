@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLCORE_HTTP_POLICY_H_
-#define _LLCORE_HTTP_POLICY_H_
+#pragma once
 
 
 #include "httprequest.h"
@@ -173,4 +172,3 @@ protected:
 
 }  // end namespace LLCore
 
-#endif // _LLCORE_HTTP_POLICY_H_

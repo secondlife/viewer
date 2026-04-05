@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTABLE_H
-#define LL_LLTABLE_H
+#pragma once
 
 template<class T> class LLTable
 {
@@ -63,4 +62,3 @@ public:
     U32 w() const { return _w; }
     U32 h() const { return _h; }
 };
-#endif // LL_LLTABLE_H

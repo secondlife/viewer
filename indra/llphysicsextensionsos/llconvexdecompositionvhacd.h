@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_CONVEX_DECOMP_UTIL_VHACD_H
-#define LL_CONVEX_DECOMP_UTIL_VHACD_H
+#pragma once
 
 #include "llconvexdecomposition.h"
 #include "llsingleton.h"
@@ -348,4 +347,3 @@ private:
     LLConvexMesh mSingleHullMeshFromMeshData;
 };
 
-#endif //LL_CONVEX_DECOMP_UTIL_VHACD_H

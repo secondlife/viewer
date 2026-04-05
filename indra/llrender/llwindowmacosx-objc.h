@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOWMACOSX_OBJC_H
-#define LL_LLWINDOWMACOSX_OBJC_H
+#pragma once
 
 #include <map>
 #include <vector>
@@ -182,4 +181,3 @@ GLViewRef getGLView();
 
 unsigned int getModifiers();
 
-#endif // LL_LLWINDOWMACOSX_OBJC_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOPARTGROUP_H
-#define LL_LLVOPARTGROUP_H
+#pragma once
 
 #include "llviewerobject.h"
 #include "v3math.h"
@@ -122,4 +121,3 @@ protected:
     virtual LLVector3 getCameraPosition() const;
 };
 
-#endif // LL_LLVOPARTGROUP_H

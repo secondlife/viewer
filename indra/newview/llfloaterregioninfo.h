@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERREGIONINFO_H
-#define LL_LLFLOATERREGIONINFO_H
+#pragma once
 
 #include <vector>
 #include "llagent.h"
@@ -520,4 +519,3 @@ private:
     bool mCtrlsEnabled;
 };
 
-#endif

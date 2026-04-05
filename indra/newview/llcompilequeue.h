@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCOMPILEQUEUE_H
-#define LL_LLCOMPILEQUEUE_H
+#pragma once
 
 #include "llinventory.h"
 #include "llviewerobject.h"
@@ -197,4 +196,3 @@ protected:
     virtual bool startQueue();
 };
 
-#endif // LL_LLCOMPILEQUEUE_H

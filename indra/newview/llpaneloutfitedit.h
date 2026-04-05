@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELOUTFITEDIT_H
-#define LL_LLPANELOUTFITEDIT_H
+#pragma once
 
 #include "llpanel.h"
 
@@ -252,4 +251,3 @@ private:
 
 };
 
-#endif // LL_LLPANELOUTFITEDIT_H

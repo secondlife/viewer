@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLTOASTIMPANEL_H_
-#define LLTOASTIMPANEL_H_
+#pragma once
 
 
 #include "lltoastpanel.h"
@@ -77,6 +76,5 @@ private:
     bool                mIsGroupMsg;
 };
 
-#endif // LLTOASTIMPANEL_H_
 
 

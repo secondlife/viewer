@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_QUATERNION2_H
-#define LL_QUATERNION2_H
+#pragma once
 
 /////////////////////////////
 // LLQuaternion2
@@ -104,4 +103,3 @@ protected:
 
 static_assert(std::is_trivial<LLQuaternion2>::value, "LLQuaternion2 must be a trivial type");
 
-#endif

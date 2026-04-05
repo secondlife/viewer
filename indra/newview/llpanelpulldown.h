@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPULLDOWN_H
-#define LL_LLPANELPULLDOWN_H
+#pragma once
 
 #include "linden_common.h"
 
@@ -52,4 +51,3 @@ protected:
     LLFrameTimer mHoverTimer;
 };
 
-#endif // LL_LLPANELPULLDOWN_H

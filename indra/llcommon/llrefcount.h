@@ -23,8 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLREFCOUNT_H
-#define LLREFCOUNT_H
+#pragma once
 
 #include <boost/intrusive_ptr.hpp>
 #include <atomic>
@@ -156,4 +155,3 @@ inline void intrusive_ptr_release(LLRefCount* p)
     p->unref();
 }
 
-#endif

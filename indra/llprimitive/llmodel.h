@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMODEL_H
-#define LL_LLMODEL_H
+#pragma once
 
 #include "llpointer.h"
 #include "llvolume.h"
@@ -443,4 +442,3 @@ bool ll_is_degenerate(const LLVector4a& a, const LLVector4a& b, const LLVector4a
 bool validate_face(const LLVolumeFace& face);
 bool validate_model(const LLModel* mdl);
 
-#endif //LL_LLMODEL_H

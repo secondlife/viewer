@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCALLBACKLIST_H
-#define LL_LLCALLBACKLIST_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -74,4 +73,3 @@ void doPeriodically(bool_func_t callable, F32 seconds);
 
 extern LLCallbackList gIdleCallbacks;
 
-#endif

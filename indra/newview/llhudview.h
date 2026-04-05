@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDVIEW_H
-#define LL_LLHUDVIEW_H
+#pragma once
 
 #include "llpanel.h"
 #include "v4color.h"
@@ -47,4 +46,3 @@ protected:
 
 extern LLHUDView *gHUDView;
 
-#endif

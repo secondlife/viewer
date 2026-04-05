@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLTOASTNOTIFYPANEL_H_
-#define LLTOASTNOTIFYPANEL_H_
+#pragma once
 
 #include "llpanel.h"
 #include "llfontgl.h"
@@ -164,4 +163,3 @@ private:
     void snapToMessageHeight();
 };
 
-#endif /* LLTOASTNOTIFYPANEL_H_ */

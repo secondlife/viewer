@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LINE_H
-#define LL_LINE_H
+#pragma once
 
 #include <iostream>
 #include "stdtypes.h"
@@ -80,4 +79,3 @@ static_assert(std::is_trivially_copyable<LLLine>::value, "LLLine must be trivial
 static_assert(std::is_trivially_move_assignable<LLLine>::value, "LLLine must be trivial move");
 static_assert(std::is_standard_layout<LLLine>::value, "LLLine must be a standard layout type");
 
-#endif

@@ -25,8 +25,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_PHYSICS_EXTENSIONS_STUB_IMPL_H
-#define LL_PHYSICS_EXTENSIONS_STUB_IMPL_H
+#pragma once
 
 #include "llphysicsextensions.h"
 
@@ -42,5 +41,4 @@ class LLPhysicsExtensionsImpl : public LLPhysicsExtensions
         static bool quitSystem();
 };
 
-#endif //LL_PHYSICS_EXTENSIONS_STUB_IMPL_H
 

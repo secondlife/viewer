@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLNAMELISTCTRL_H
-#define LL_LLNAMELISTCTRL_H
+#pragma once
 
 #include <set>
 
@@ -223,4 +222,3 @@ public:
 };
 
 
-#endif

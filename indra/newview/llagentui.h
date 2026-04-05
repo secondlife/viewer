@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLAGENTUI_H
-#define LLAGENTUI_H
+#pragma once
 
 class LLSLURL;
 
@@ -56,4 +55,3 @@ public:
     static bool checkAgentDistance(const LLVector3& local_pole, F32 radius);
 };
 
-#endif //LLAGENTUI_H

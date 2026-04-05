@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLURLMATCH_H
-#define LL_LLURLMATCH_H
+#pragma once
 
 //#include "linden_common.h"
 
@@ -112,4 +111,3 @@ private:
     bool mSkipProfileIcon;
 };
 
-#endif

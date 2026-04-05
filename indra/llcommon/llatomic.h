@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLATOMIC_H
-#define LL_LLATOMIC_H
+#pragma once
 
 // Deprecated: prefer std::atomic<T> directly.
 // This header is kept for backward compatibility only.
@@ -39,4 +38,3 @@ using LLAtomicBase = std::atomic<Type>;
 using LLAtomicU32 = std::atomic<U32>;
 using LLAtomicS32 = std::atomic<S32>;
 using LLAtomicBool = std::atomic<bool>;
-#endif // LL_LLATOMIC_H

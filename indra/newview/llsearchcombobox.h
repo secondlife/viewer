@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSEARCHCOMBOBOX_H
-#define LL_LLSEARCHCOMBOBOX_H
+#pragma once
 
 #include "llcombobox.h"
 #include "llsearchhistory.h"
@@ -101,4 +100,3 @@ protected:
     LLButton* mSearchButton;
 };
 
-#endif //LL_LLSEARCHCOMBOBOX_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_UPLOADDIALOG_H
-#define LL_UPLOADDIALOG_H
+#pragma once
 
 #include <array>
 #include "llpanel.h"
@@ -52,4 +51,3 @@ private:
     static LLUploadDialog*  sDialog;  // Hidden singleton instance, created and destroyed as needed.
 };
 
-#endif  // LL_UPLOADDIALOG_H

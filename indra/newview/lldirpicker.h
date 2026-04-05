@@ -28,8 +28,7 @@
 // singleton class, so call the instance() method to get the working
 // instance.
 
-#ifndef LL_LLDIRPICKER_H
-#define LL_LLDIRPICKER_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -122,4 +121,3 @@ private:
     dir_picked_signal_t*        mFilePickedSignal;
 };
 
-#endif

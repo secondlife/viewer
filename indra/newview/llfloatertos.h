@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERTOS_H
-#define LL_LLFLOATERTOS_H
+#pragma once
 
 #include "llmodaldialog.h"
 #include "llassetstorage.h"
@@ -71,4 +70,3 @@ private:
     std::string     mReplyPumpName;
 };
 
-#endif // LL_LLFLOATERTOS_H

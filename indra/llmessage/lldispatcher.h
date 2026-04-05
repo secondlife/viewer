@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDISPATCHER_H
-#define LL_LLDISPATCHER_H
+#pragma once
 
 #include <map>
 #include <vector>
@@ -116,4 +115,3 @@ protected:
     dispatch_map_t mHandlers;
 };
 
-#endif // LL_LLDISPATCHER_H

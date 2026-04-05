@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLOGIN_H
-#define LL_LLLOGIN_H
+#pragma once
 
 class LLSD;
 class LLEventPump;
@@ -122,4 +121,3 @@ private:
     std::unique_ptr<Impl> mImpl;
 };
 
-#endif // LL_LLLOGIN_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LEGACY_OBJECT_TYPES_H
-#define LL_LEGACY_OBJECT_TYPES_H
+#pragma once
 
 const   S8      PLAYER          = 'c';
 //const S8      BASIC_SHOT      = 's';
@@ -73,5 +72,4 @@ const   S8      PRIMITIVE_VOLUME = 'v';
 //const F32     SHOT_VELOCITY           = 100.f;
 //const F32     GRENADE_BLAST_RADIUS    = 5.f;
 
-#endif
 

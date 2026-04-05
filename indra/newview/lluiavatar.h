@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_UIAVATAR_H
-#define LL_UIAVATAR_H
+#pragma once
 
 #include "llvoavatar.h"
 #include "llvovolume.h"
@@ -42,4 +41,3 @@ public:
     virtual bool isBuddy() const { return false; }
 };
 
-#endif //LL_CONTROLAVATAR_H

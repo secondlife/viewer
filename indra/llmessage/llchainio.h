@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCHAINIO_H
-#define LL_LLCHAINIO_H
+#pragma once
 
 #include "llpumpio.h"
 
@@ -132,4 +131,3 @@ protected:
     Pipe* mOriginal;
 };
 
-#endif // LL_LLCHAINIO_H

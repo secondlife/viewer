@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LLPROCESSOR_H
-#define LLPROCESSOR_H
+#pragma once
 #include "llunits.h"
 #include "llpreprocessor.h"
 
@@ -54,4 +53,3 @@ private:
     LLProcessorInfoImpl* mImpl;
 };
 
-#endif // LLPROCESSOR_H

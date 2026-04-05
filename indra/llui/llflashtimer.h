@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLASHTIMER_H
-#define LL_FLASHTIMER_H
+#pragma once
 
 #include "lleventtimer.h"
 #include <functional>
@@ -71,4 +70,3 @@ private:
     bool mUnset;
 };
 
-#endif /* LL_FLASHTIMER_H */

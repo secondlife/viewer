@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGLTFFOLDERITEM_H
-#define LL_LLGLTFFOLDERITEM_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -130,4 +129,3 @@ private:
     S32 mItemId = -1;
 };
 
-#endif

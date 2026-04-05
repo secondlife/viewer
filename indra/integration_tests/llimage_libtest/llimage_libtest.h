@@ -22,8 +22,6 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLIMAGE_LIBTEST_H
-#define LLIMAGE_LIBTEST_H
+#pragma once
 
 
-#endif

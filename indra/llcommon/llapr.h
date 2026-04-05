@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAPR_H
-#define LL_LLAPR_H
+#pragma once
 
 #if LL_LINUX
 #include <sys/param.h>  // Need PATH_MAX in APR headers...
@@ -200,4 +199,3 @@ public:
 };
 
 
-#endif // LL_LLAPR_H

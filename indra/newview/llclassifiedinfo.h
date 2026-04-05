@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCLASSIFIEDINFO_H
-#define LL_LLCLASSIFIEDINFO_H
+#pragma once
 
 #include <map>
 
@@ -45,4 +44,3 @@ public:
     static  cat_map sCategories;
 };
 
-#endif // LL_LLCLASSIFIEDINFO_H

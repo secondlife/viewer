@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAVATARICONCTRL_H
-#define LL_LLAVATARICONCTRL_H
+#pragma once
 
 #include <boost/signals2.hpp>
 
@@ -140,4 +139,3 @@ private:
     boost::signals2::connection mAvatarNameCacheConnection;
 };
 
-#endif  // LL_LLAVATARICONCTRL_H

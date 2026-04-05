@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAPPEARANCE_H
-#define LL_LLAPPEARANCE_H
+#pragma once
 
 #include "lluuid.h"
 
@@ -48,4 +47,3 @@ public:
     LLUUID  mTextures[LLAvatarAppearanceDefines::TEX_NUM_INDICES];
 };
 
-#endif  // LL_LLAPPEARANCE_H

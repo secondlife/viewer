@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTOOLFACE_H
-#define LL_LLTOOLFACE_H
+#pragma once
 
 #include "lltool.h"
 
@@ -48,4 +47,3 @@ public:
     static void pickCallback(const LLPickInfo& pick_info);
 };
 
-#endif

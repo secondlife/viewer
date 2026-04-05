@@ -24,12 +24,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOWS_H
-#define LL_LLWINDOWS_H
+#pragma once
 
 #ifdef LL_WINDOWS
 #include <windows.h> // Does not include winsock.h because WIN32_LEAN_AND_MEAN is defined
 #include <winsock2.h> // Requires windows.h
 #endif
 
-#endif

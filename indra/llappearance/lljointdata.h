@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLJOINTDATA_H
-#define LL_LLJOINTDATA_H
+#pragma once
 
 #include "v4math.h"
 
@@ -63,4 +62,3 @@ public:
     }
 };
 
-#endif //LL_LLJOINTDATA_H

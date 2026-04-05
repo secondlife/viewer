@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSIDEPANELITEMINFO_H
-#define LL_LLSIDEPANELITEMINFO_H
+#pragma once
 
 #include "llinventoryobserver.h"
 #include "llpanel.h"
@@ -124,4 +123,3 @@ protected:
     void                        onCommitChanges(LLPointer<LLViewerInventoryItem> item);
 };
 
-#endif // LL_LLSIDEPANELITEMINFO_H

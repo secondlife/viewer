@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTBASE_H
-#define LL_LLTEXTBASE_H
+#pragma once
 
 #include "v4color.h"
 #include "lleditmenuhandler.h"
@@ -796,4 +795,3 @@ protected:
     LLUIString                  mLabel; // text label that is visible when no user text provided
 };
 
-#endif

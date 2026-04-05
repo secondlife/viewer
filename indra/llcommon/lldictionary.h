@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDICTIONARY_H
-#define LL_LLDICTIONARY_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -93,4 +92,3 @@ protected:
     }
 };
 
-#endif // LL_LLDICTIONARY_H

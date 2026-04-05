@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLBASE32_H
-#define LLBASE32_H
+#pragma once
 
 #include <span>
 
@@ -36,4 +35,3 @@ public:
     static std::string encode(std::span<const U8> input);
 };
 
-#endif

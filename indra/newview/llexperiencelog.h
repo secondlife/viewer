@@ -26,8 +26,7 @@
 
 
 
-#ifndef LL_LLEXPERIENCELOG_H
-#define LL_LLEXPERIENCELOG_H
+#pragma once
 
 #include "llsingleton.h"
 
@@ -84,4 +83,3 @@ protected:
 
 
 
-#endif // LL_LLEXPERIENCELOG_H

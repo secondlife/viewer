@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELEXPERIENCELISTEDITOR_H
-#define LL_LLPANELEXPERIENCELISTEDITOR_H
+#pragma once
 
 #include "llpanel.h"
 #include "lluuid.h"
@@ -98,4 +97,3 @@ private:
 
 };
 
-#endif //LL_LLPANELEXPERIENCELISTEDITOR_H

@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTEXTVALIDATE_H
-#define LL_LLTEXTVALIDATE_H
+#pragma once
 
 #include "llstring.h"
 #include "llinitparam.h"
@@ -97,4 +96,3 @@ namespace LLTextValidate
     };
 };
 
-#endif

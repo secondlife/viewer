@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSIDEPANELTASKINFO_H
-#define LL_LLSIDEPANELTASKINFO_H
+#pragma once
 
 #include "lluuid.h"
 #include "llpanel.h"
@@ -167,4 +166,3 @@ private:
 };
 
 
-#endif // LL_LLSIDEPANELTASKINFO_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWEARABLELIST_H
-#define LL_LLWEARABLELIST_H
+#pragma once
 
 #include "llmemory.h"
 #include "llviewerwearable.h"
@@ -67,4 +66,3 @@ private:
     std::map<LLUUID, LLViewerWearable*> mList;
 };
 
-#endif  // LL_LLWEARABLELIST_H

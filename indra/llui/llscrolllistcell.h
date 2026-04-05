@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLSCROLLLISTCELL_H
-#define LLSCROLLLISTCELL_H
+#pragma once
 
 #include "llfontgl.h"       // HAlign
 #include "llfontvertexbuffer.h"       // HAlign
@@ -280,4 +279,3 @@ private:
     S32                     mPad;
 };
 
-#endif

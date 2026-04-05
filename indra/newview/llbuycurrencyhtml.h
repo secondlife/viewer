@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBUYCURRENCYHTML_H
-#define LL_LLBUYCURRENCYHTML_H
+#pragma once
 
 #include "llsingleton.h"
 
@@ -48,4 +47,3 @@ class LLBuyCurrencyHTML
         static void closeDialog();
 };
 
-#endif  // LL_LLBUYCURRENCYHTML_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFILTEREDWEARABLELIST_H
-#define LL_LLFILTEREDWEARABLELIST_H
+#pragma once
 
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
@@ -72,6 +71,5 @@ private:
     bool mListStale;
 };
 
-#endif //LL_LLFILTEREDWEARABLELIST_H
 
 // EOF

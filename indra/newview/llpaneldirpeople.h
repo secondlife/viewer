@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELDIRPEOPLE_H
-#define LL_LLPANELDIRPEOPLE_H
+#pragma once
 
 #include "llpaneldirbrowser.h"
 class LLLineEditor;
@@ -45,4 +44,3 @@ public:
     static void onKeystrokeName(LLLineEditor* line, void* data);
 };
 
-#endif

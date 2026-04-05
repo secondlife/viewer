@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLVIEWERSTATSRECORDER_H
-#define LLVIEWERSTATSRECORDER_H
+#pragma once
 
 
 // This is a diagnostic class used to record information from the viewer
@@ -170,4 +169,3 @@ private:
     void    clearStats();
 };
 
-#endif // LLVIEWERSTATSRECORDER_H

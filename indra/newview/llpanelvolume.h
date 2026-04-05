@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELVOLUME_H
-#define LL_LLPANELVOLUME_H
+#pragma once
 
 #include "v3math.h"
 #include "llpanel.h"
@@ -148,4 +147,3 @@ protected:
     LLSD            mClipboardParams;
 };
 
-#endif

@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIOPIPE_H
-#define LL_LLIOPIPE_H
+#pragma once
 
 #include <boost/intrusive_ptr.hpp>
 #include "llwin32headers.h"
@@ -264,4 +263,3 @@ inline void intrusive_ptr_release(LLIOPipe* p)
     }
 }
 
-#endif // LL_LLIOPIPE_H

@@ -25,8 +25,6 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLERRORLEGACY_H
-#define LL_LLERRORLEGACY_H
+#pragma once
 
 
-#endif // LL_LLERRORLEGACY_H

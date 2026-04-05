@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLTREE_H
-#define LL_LLDRAWPOOLTREE_H
+#pragma once
 
 #include "lldrawpool.h"
 
@@ -63,4 +62,3 @@ public:
     static S32 sDiffTex;
 };
 
-#endif // LL_LLDRAWPOOLTREE_H

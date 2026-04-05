@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PROXY_H
-#define LL_PROXY_H
+#pragma once
 
 #include "llhost.h"
 #include "lliosocket.h"
@@ -353,4 +352,3 @@ private:
     static LLProxy* sProxyInstance;
 };
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPANELPEOPLE_H
-#define LL_LLPANELPEOPLE_H
+#pragma once
 
 #include <llpanel.h>
 
@@ -172,4 +171,3 @@ private:
     boost::signals2::connection mRecentFilterCommitConnection;
 };
 
-#endif //LL_LLPANELPEOPLE_H

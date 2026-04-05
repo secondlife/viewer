@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_HTTP_CONSTANTS_H
-#define LL_HTTP_CONSTANTS_H
+#pragma once
 
 #include "stdtypes.h"
 
@@ -218,4 +217,3 @@ extern const std::string HTTP_NO_CACHE;
 extern const std::string HTTP_NO_CACHE_CONTROL;
 extern const std::string HTTP_NOSNIFF;
 
-#endif

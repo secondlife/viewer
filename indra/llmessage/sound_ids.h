@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_SOUND_IDS_H
-#define LL_SOUND_IDS_H
+#pragma once
 
 // *NOTE: Do not put the actual IDs in this file - otherwise the symbols
 // and values will be copied into every .o/.obj file and increase link time.
@@ -286,4 +285,3 @@ extern const LLUUID SND_STONE_DIRT_04;
 extern const LLUUID SND_STONE_STONE_02;
 extern const LLUUID SND_STONE_STONE_04;
 
-#endif

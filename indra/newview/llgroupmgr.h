@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGROUPMGR_H
-#define LL_LLGROUPMGR_H
+#pragma once
 
 #include "lluuid.h"
 #include "roles_constants.h"
@@ -469,4 +468,3 @@ private:
 };
 
 
-#endif

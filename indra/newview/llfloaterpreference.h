@@ -30,8 +30,7 @@
  * a login name.
  */
 
-#ifndef LL_LLFLOATERPREFERENCE_H
-#define LL_LLFLOATERPREFERENCE_H
+#pragma once
 
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
@@ -412,4 +411,3 @@ private:
 };
 
 
-#endif  // LL_LLPREFERENCEFLOATER_H

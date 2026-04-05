@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSTL_H
-#define LL_LLSTL_H
+#pragma once
 
 #include "stdtypes.h"
 #include <functional>
@@ -476,4 +475,3 @@ inline std::ostream& operator<<(std::ostream& s, std::type_index type)
     return s;
 }
 
-#endif // LL_LLSTL_H

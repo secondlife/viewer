@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSDSERIALIZE_H
-#define LL_LLSDSERIALIZE_H
+#pragma once
 
 #include <iosfwd>
 #include "llpointer.h"
@@ -873,4 +872,3 @@ LL_COMMON_API U8* unzip_llsdNavMesh( bool& valid, size_t& outsize,std::istream& 
 
 // returns a pointer to the array or past the array if the deprecated header exists
 LL_COMMON_API char* strip_deprecated_header(char* in, llssize& cur_size, llssize* header_size = nullptr);
-#endif // LL_LLSDSERIALIZE_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRANSIENTFLOATERMGR_H
-#define LL_LLTRANSIENTFLOATERMGR_H
+#pragma once
 
 #include "llui.h"
 #include "llsingleton.h"
@@ -86,4 +85,3 @@ private:
     LLFloater* mFloater;
 };
 
-#endif  // LL_LLTRANSIENTFLOATERMGR_H

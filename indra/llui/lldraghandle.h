@@ -26,8 +26,7 @@
 
 // A widget for dragging a view around the screen using the mouse.
 
-#ifndef LL_DRAGHANDLE_H
-#define LL_DRAGHANDLE_H
+#pragma once
 
 #include "llview.h"
 #include "v4color.h"
@@ -136,4 +135,3 @@ public:
 const S32 DRAG_HANDLE_HEIGHT = 16;
 const S32 DRAG_HANDLE_WIDTH = 16;
 
-#endif  // LL_DRAGHANDLE_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TOASTALERTPANEL_H
-#define LL_TOASTALERTPANEL_H
+#pragma once
 
 #include "lltoastpanel.h"
 #include "llfloater.h"
@@ -104,4 +103,3 @@ private:
 
 };
 
-#endif  // LL_TOASTALERTPANEL_H

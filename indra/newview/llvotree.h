@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVOTREE_H
-#define LL_LLVOTREE_H
+#pragma once
 
 #include "llviewerobject.h"
 #include "xform.h"
@@ -193,4 +192,3 @@ protected:
     static F32 sLODAngles[4];
 };
 
-#endif

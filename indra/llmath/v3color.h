@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_V3COLOR_H
-#define LL_V3COLOR_H
+#pragma once
 
 class LLColor4;
 class LLVector4;
@@ -441,4 +440,3 @@ void LLColor3::write(std::vector<T>& v) const
     }
 }
 
-#endif

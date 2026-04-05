@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOWWIN32_H
-#define LL_LLWINDOWWIN32_H
+#pragma once
 
 // Limit Windows API to small and manageable set.
 #include "llwin32headers.h"
@@ -294,4 +293,3 @@ extern LPWSTR gIconSmallResource;
 
 S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 type);
 
-#endif //LL_LLWINDOWWIN32_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINSTANTMESSAGE_H
-#define LL_LLINSTANTMESSAGE_H
+#pragma once
 
 #include "llhost.h"
 #include "lluuid.h"
@@ -214,5 +213,4 @@ void pack_instant_message_block(
     S32 binary_bucket_size = EMPTY_BINARY_BUCKET_SIZE);
 
 
-#endif // LL_LLINSTANTMESSAGE_H
 

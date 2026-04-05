@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRACE_H
-#define LL_LLTRACE_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llpreprocessor.h"
@@ -281,4 +280,3 @@ struct MeasureMem<std::basic_string<T>, IS_MEM_TRACKABLE, IS_BYTES>
 
 }
 
-#endif // LL_LLTRACE_H

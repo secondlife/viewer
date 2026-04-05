@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWCHILDREN_H
-#define LL_LLVIEWCHILDREN_H
+#pragma once
 
 class LLPanel;
 
@@ -62,4 +61,3 @@ private:
     LLPanel& mParent;
 };
 
-#endif

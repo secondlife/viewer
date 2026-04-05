@@ -22,8 +22,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLSINGLETON_H
-#define LLSINGLETON_H
+#pragma once
 
 #include <initializer_list>
 #include <list>
@@ -868,4 +867,3 @@ T* LLSimpleton<T>::sInstance{ nullptr };
 #pragma warning(pop)
 #endif
 
-#endif

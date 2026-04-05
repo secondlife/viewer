@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TOOLGRAB_H
-#define LL_TOOLGRAB_H
+#pragma once
 
 #include "lltool.h"
 #include "v3math.h"
@@ -156,4 +155,3 @@ extern bool gGrabBtnVertical;
 extern bool gGrabBtnSpin;
 extern LLTool* gGrabTransientTool;
 
-#endif  // LL_TOOLGRAB_H

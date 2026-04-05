@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TEXTUREMANAGERBRIDGE_H
-#define LL_TEXTUREMANAGERBRIDGE_H
+#pragma once
 
 #include "llpointer.h"
 #include "llgltexture.h"
@@ -43,5 +42,4 @@ public:
 
 extern LLTextureManagerBridge* gTextureManagerBridgep;
 
-#endif // LL_TEXTUREMANAGERBRIDGE_H
 

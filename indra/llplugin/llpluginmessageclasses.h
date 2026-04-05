@@ -26,8 +26,7 @@
  * @endcond
  */
 
-#ifndef LL_LLPLUGINMESSAGECLASSES_H
-#define LL_LLPLUGINMESSAGECLASSES_H
+#pragma once
 
 // Version strings for each plugin message class.
 // Backwards-compatible changes (i.e. changes which only add new messges) should increment the minor version (i.e. "1.0" -> "1.1").
@@ -50,4 +49,3 @@
 #define LLPLUGIN_MESSAGE_CLASS_MEDIA_TIME "media_time"
 #define LLPLUGIN_MESSAGE_CLASS_MEDIA_TIME_VERSION "1.0"
 
-#endif // LL_LLPLUGINMESSAGECLASSES_H

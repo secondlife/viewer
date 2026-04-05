@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDIR_H
-#define LL_LLDIR_H
+#pragma once
 
 // these numbers are read from settings_files.xml, so we need to be explicit
 enum ELLPath
@@ -278,4 +277,3 @@ void dir_exists_or_crash(const std::string &dir_name);
 
 extern LLDir *gDirUtilp;
 
-#endif // LL_LLDIR_H

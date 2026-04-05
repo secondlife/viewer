@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_STREAMINGAUDIO_H
-#define LL_STREAMINGAUDIO_H
+#pragma once
 
 #include "stdtypes.h" // from llcommon
 
@@ -49,4 +48,3 @@ class LLStreamingAudioInterface
     virtual void setBufferSizes(U32 streambuffertime, U32 decodebuffertime){};
 };
 
-#endif // LL_STREAMINGAUDIO_H

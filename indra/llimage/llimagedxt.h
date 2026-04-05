@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLIMAGEDXT_H
-#define LL_LLIMAGEDXT_H
+#pragma once
 
 #include "llimage.h"
 #include "llpointer.h"
@@ -138,4 +137,3 @@ private:
     S32 mHeaderSize;
 };
 
-#endif

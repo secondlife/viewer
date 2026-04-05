@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLXMLPARSER_H
-#define LL_LLXMLPARSER_H
+#pragma once
 
 #ifndef XML_STATIC
 #define XML_STATIC
@@ -130,4 +129,3 @@ protected:
     std::string     mAuxErrorString;
 };
 
-#endif  // LL_LLXMLPARSER_H

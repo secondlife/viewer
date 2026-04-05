@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGESTUREMGR_H
-#define LL_LLGESTUREMGR_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -195,4 +194,3 @@ private:
     std::shared_ptr<LLGestureListener> mListener;
 };
 
-#endif

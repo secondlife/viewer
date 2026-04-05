@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERWHITELISTENTRY_H
-#define LL_LLFLOATERWHITELISTENTRY_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -47,4 +46,3 @@ class LLFloaterWhiteListEntry :
         static void onBtnCancel(void*);
 };
 
-#endif  // LL_LLFLOATERWHITELISTENTRY_H

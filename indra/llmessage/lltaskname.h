@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTASKNAME_H
-#define LL_LLTASKNAME_H
+#pragma once
 
 // Current valid tasks
 // If you add a taskname here you will have to
@@ -57,4 +56,3 @@ enum ELLTaskName
 //  LLTASK_GHOST            = 17, // a ghost (Boo!)
     LLTASK_TREE_NEW         = 18
 };
-#endif

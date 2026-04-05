@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_LLRECT_H
-#define LL_LLRECT_H
+#pragma once
 
 #include <iostream>
 #include "llmath.h"
@@ -295,4 +294,3 @@ static_assert(std::is_trivially_copyable<LLRect>::value, "LLRect must be trivial
 static_assert(std::is_trivially_move_assignable<LLRect>::value, "LLRect must be trivial move");
 static_assert(std::is_standard_layout<LLRect>::value, "LLRect must be a standard layout type");
 
-#endif

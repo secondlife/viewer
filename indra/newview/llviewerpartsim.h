@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERPARTSIM_H
-#define LL_LLVIEWERPARTSIM_H
+#pragma once
 
 #include "llframetimer.h"
 #include "llpointer.h"
@@ -212,4 +211,3 @@ public:
     static void checkParticleCount(U32 size = 0) ;
 };
 
-#endif // LL_LLVIEWERPARTSIM_H

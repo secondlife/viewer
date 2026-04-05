@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_AUDIOENGINE_H
-#define LL_AUDIOENGINE_H
+#pragma once
 
 #include <list>
 #include <map>
@@ -483,4 +482,3 @@ struct SoundData
 
 extern LLAudioEngine* gAudiop;
 
-#endif

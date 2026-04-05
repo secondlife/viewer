@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLANDMARKLIST_H
-#define LL_LLLANDMARKLIST_H
+#pragma once
 
 #include <functional>
 #include <map>
@@ -86,4 +85,3 @@ protected:
 
 extern LLLandmarkList gLandmarkList;
 
-#endif  // LL_LLLANDMARKLIST_H

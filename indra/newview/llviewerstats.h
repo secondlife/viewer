@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERSTATS_H
-#define LL_LLVIEWERSTATS_H
+#pragma once
 
 #include "lltextureinfo.h"
 #include "lltracerecording.h"
@@ -310,4 +309,3 @@ void update_texture_time();
 extern U32Bytes gTotalTextureData;
 extern U32Bytes  gTotalObjectData;
 extern U32Bytes  gTotalTextureBytesPerBoostLevel[] ;
-#endif // LL_LLVIEWERSTATS_H

@@ -24,8 +24,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLLOGINHANDLER_H
-#define LLLOGINHANDLER_H
+#pragma once
 
 #include "llcommandhandler.h"
 #include "llsecapi.h"
@@ -54,4 +53,3 @@ private:
 
 extern LLLoginHandler gLoginHandler;
 
-#endif

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCOMMANDLINEPARSER_H
-#define LL_LLCOMMANDLINEPARSER_H
+#pragma once
 
 #include <functional>
 
@@ -158,4 +157,3 @@ public:
                    LLControlGroup* controlGroup);
 };
 
-#endif // LL_LLCOMMANDLINEPARSER_H

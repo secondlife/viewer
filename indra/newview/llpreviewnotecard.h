@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPREVIEWNOTECARD_H
-#define LL_LLPREVIEWNOTECARD_H
+#pragma once
 
 #include "llpreview.h"
 #include "llassetstorage.h"
@@ -126,4 +125,3 @@ protected:
 };
 
 
-#endif // LL_LLPREVIEWNOTECARD_H

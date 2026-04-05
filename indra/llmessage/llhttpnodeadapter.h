@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_HTTP_NODE_ADAPTER_H
-#define LL_HTTP_NODE_ADAPTER_H
+#pragma once
 
 #include "llhttpnode.h"
 
@@ -49,4 +48,3 @@ public:
     }
 };
 
-#endif // LL_HTTP_NODE_ADAPTER_H

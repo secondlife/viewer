@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLALIGNEDARRAY_H
-#define LL_LLALIGNEDARRAY_H
+#pragma once
 
 #include "llmemory.h"
 
@@ -141,5 +140,4 @@ T* LLAlignedArray<T, alignment>::append(S32 N)
     return &((*this)[sz]);
 }
 
-#endif
 

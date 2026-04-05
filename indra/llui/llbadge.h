@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBADGE_H
-#define LL_LLBADGE_H
+#pragma once
 
 #include <string>
 
@@ -177,4 +176,3 @@ private:
 extern template class LLBadge* LLView::getChild<class LLBadge>(std::string_view name, bool recurse) const;
 #endif
 
-#endif  // LL_LLBADGE_H

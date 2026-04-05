@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERGODTOOLS_H
-#define LL_LLFLOATERGODTOOLS_H
+#pragma once
 
 #include "llcoord.h"
 #include "llhost.h"
@@ -270,4 +269,3 @@ protected:
 // Flags are SWD_ flags.
 void send_sim_wide_deletes(const LLUUID& owner_id, U32 flags);
 
-#endif

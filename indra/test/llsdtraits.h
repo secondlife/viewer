@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLSDTRAITS_H
-#define LLSDTRAITS_H
+#pragma once
 
 #include "llsd.h"
 #include "llstring.h"
@@ -97,4 +96,3 @@ LLSDTraits<const LLSD::Binary&>::LLSDTraits()
     : type(LLSD::TypeBinary), getter(&LLSD::asBinary)
 { }
 
-#endif // LLSDTRAITS_H

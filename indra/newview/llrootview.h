@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLROOTVIEW_H
-#define LL_LLROOTVIEW_H
+#pragma once
 
 #include "llview.h"
 #include "lluictrlfactory.h"
@@ -45,4 +44,3 @@ public:
     :   LLView(p)
     {}
 };
-#endif //LL_LLROOTVIEW_H

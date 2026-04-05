@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLPREPROCESSOR_H
-#define LLPREPROCESSOR_H
+#pragma once
 
 // Figure out endianness of platform
 #ifdef LL_LINUX
@@ -213,4 +212,3 @@
 #define KDU_X86_INTRINSICS 1
 #endif
 
-#endif  //  not LL_LINDEN_PREPROCESSOR_H

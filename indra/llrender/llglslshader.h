@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGLSLSHADER_H
-#define LL_LLGLSLSHADER_H
+#pragma once
 
 #include "llgl.h"
 #include "llrender.h"
@@ -389,4 +388,3 @@ extern LLGLSLShader         gAlphaMaskProgram;
 #define LL_SET_SHADER_LABEL(shader, label)
 #endif
 
-#endif

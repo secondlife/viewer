@@ -25,8 +25,7 @@
  */
 
 
-#ifndef LL_LLLANDMARK_H
-#define LL_LLLANDMARK_H
+#pragma once
 
 #include <functional>
 #include <map>
@@ -105,4 +104,3 @@ private:
     static region_callback_map_t sRegionCallbackMap;
 };
 
-#endif

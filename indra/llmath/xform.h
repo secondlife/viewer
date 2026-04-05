@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_XFORM_H
-#define LL_XFORM_H
+#pragma once
 
 #include "v3math.h"
 #include "m4math.h"
@@ -312,4 +311,3 @@ void LLXform::setRotation(const F32 x, const F32 y, const F32 z, const F32 s)
     }
 }
 
-#endif

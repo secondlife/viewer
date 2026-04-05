@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVLCOMPOSITION_H
-#define LL_LLVLCOMPOSITION_H
+#pragma once
 
 #include <array>
 #include "llfetchedgltfmaterial.h"
@@ -167,4 +166,3 @@ protected:
     F32 mTexScaleY = 16.f;
 };
 
-#endif //LL_LLVLCOMPOSITION_H

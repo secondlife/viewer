@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGROUPACTIONS_H
-#define LL_LLGROUPACTIONS_H
+#pragma once
 
 #include "llsd.h"
 #include "lluuid.h"
@@ -124,4 +123,3 @@ private:
     friend class LLFetchLeaveGroupData;
 };
 
-#endif // LL_LLGROUPACTIONS_H

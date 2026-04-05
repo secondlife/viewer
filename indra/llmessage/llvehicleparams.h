@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VEHICLE_PARAMS_H
-#define LL_VEHICLE_PARAMS_H
+#pragma once
 
 /**
  * The idea is that the various parameters that control vehicle
@@ -120,4 +119,3 @@ const U32 VEHICLE_FLAG_MOUSELOOK_STEER      = 1 << 7;
 const U32 VEHICLE_FLAG_MOUSELOOK_BANK       = 1 << 8;
 const U32 VEHICLE_FLAG_CAMERA_DECOUPLED     = 1 << 9;
 
-#endif

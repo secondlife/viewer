@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDARRAY_H
-#define LL_LLDARRAY_H
+#pragma once
 
 #include "llerror.h"
 
@@ -97,4 +96,3 @@ public:
     }
 };
 
-#endif

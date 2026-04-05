@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERPERMPREFS_H
-#define LL_LLFLOATERPERMPREFS_H
+#pragma once
 
 #include <array>
 #include "llfloater.h"
@@ -96,4 +95,3 @@ private:
     std::array<bool, CAT_LAST> mNextOwnerTransfer;
 };
 
-#endif

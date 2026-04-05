@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMEMORYSTREAM_H
-#define LL_LLMEMORYSTREAM_H
+#pragma once
 
 /**
  * This is a simple but effective optimization when you want to treat
@@ -79,4 +78,3 @@ protected:
     LLMemoryStreamBuf mStreamBuf;
 };
 
-#endif // LL_LLMEMORYSTREAM_H

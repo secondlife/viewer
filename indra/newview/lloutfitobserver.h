@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_OUTFITOBSERVER_H
-#define LL_OUTFITOBSERVER_H
+#pragma once
 
 #include "llsingleton.h"
 
@@ -91,4 +90,3 @@ private:
     signal_t mOutfitLockChanged;
 };
 
-#endif /* LL_OUTFITOBSERVER_H */

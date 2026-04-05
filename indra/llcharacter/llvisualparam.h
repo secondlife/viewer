@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVisualParam_H
-#define LL_LLVisualParam_H
+#pragma once
 
 #include "v3math.h"
 #include "llstring.h"
@@ -183,4 +182,3 @@ protected:
     EParamLocation      mParamLocation;     // where does this visual param live?
 } LL_ALIGN_POSTFIX(16);
 
-#endif // LL_LLVisualParam_H

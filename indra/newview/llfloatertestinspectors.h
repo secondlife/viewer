@@ -22,8 +22,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LLFLOATERTESTINSPECTORS_H
-#define LLFLOATERTESTINSPECTORS_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -56,4 +55,3 @@ private:
     void onClickEvent();
 };
 
-#endif

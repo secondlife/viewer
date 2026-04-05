@@ -22,9 +22,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LLUI_LIBTEST_H
-#define LLUI_LIBTEST_H
+#pragma once
 
 // TODO
 
-#endif

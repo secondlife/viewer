@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCOREHTTPUTIL_H
-#define LL_LLCOREHTTPUTIL_H
+#pragma once
 
 #include <string>
 
@@ -678,4 +677,3 @@ private:
 
 } // end namespace LLCoreHttpUtil
 
-#endif // LL_LLCOREHTTPUTIL_H

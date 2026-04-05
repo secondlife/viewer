@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLRESOURCEDATA_H
-#define LLRESOURCEDATA_H
+#pragma once
 
 #include "llassetstorage.h"
 #include "llinventorytype.h"
@@ -41,4 +40,3 @@ struct LLResourceData
     static constexpr S8 INVALID_LOCATION = -2;
 };
 
-#endif

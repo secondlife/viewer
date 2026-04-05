@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLUICTRL_H
-#define LL_LLUICTRL_H
+#pragma once
 
 //#include "llboost.h"
 #include "llrect.h"
@@ -338,4 +337,3 @@ extern template class LLUICtrl* LLView::getChild<class LLUICtrl>(
     std::string_view name, bool recurse) const;
 #endif
 
-#endif  // LL_LLUICTRL_H

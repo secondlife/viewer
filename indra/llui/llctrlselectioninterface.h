@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLCTRLSELECTIONINTERFACE_H
-#define LLCTRLSELECTIONINTERFACE_H
+#pragma once
 
 #include "stdtypes.h"
 #include "llstring.h"
@@ -101,4 +100,3 @@ public:
     virtual void scrollToShowSelected() = 0;
 };
 
-#endif

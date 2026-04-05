@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDATAPACKER_H
-#define LL_LLDATAPACKER_H
+#pragma once
 
 #include <span>
 
@@ -433,5 +432,4 @@ protected:
     std::istream* mInputStream;
 };
 
-#endif // LL_LLDATAPACKER
 

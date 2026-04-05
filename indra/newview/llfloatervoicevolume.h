@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERVOICEVOLUME_H
-#define LL_LLFLOATERVOICEVOLUME_H
+#pragma once
 
 namespace LLFloaterVoiceVolumeUtil
 {
@@ -32,4 +31,3 @@ namespace LLFloaterVoiceVolumeUtil
     void registerFloater();
 }
 
-#endif // LL_LLFLOATERVOICEVOLUME_H

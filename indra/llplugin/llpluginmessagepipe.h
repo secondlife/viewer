@@ -26,8 +26,7 @@
  * @endcond
  */
 
-#ifndef LL_LLPLUGINMESSAGEPIPE_H
-#define LL_LLPLUGINMESSAGEPIPE_H
+#pragma once
 
 #include "lliosocket.h"
 #include "llthread.h"
@@ -93,4 +92,3 @@ protected:
     LLSocket::ptr_t mSocket;
 };
 
-#endif // LL_LLPLUGINMESSAGE_H

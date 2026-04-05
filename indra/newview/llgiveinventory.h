@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLGIVEINVENTORY_H
-#define LL_LLGIVEINVENTORY_H
+#pragma once
 
 class LLInventoryItem;
 class LLInventoryCategory;
@@ -94,4 +93,3 @@ private:
 
 };
 
-#endif // LL_LLGIVEINVENTORY_H

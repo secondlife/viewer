@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCRC_H
-#define LL_LLCRC_H
+#pragma once
 
 #include <span>
 
@@ -67,4 +66,3 @@ public:
 };
 
 
-#endif // LL_LLCRC_H

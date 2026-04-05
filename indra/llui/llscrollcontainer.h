@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSCROLLCONTAINER_H
-#define LL_LLSCROLLCONTAINER_H
+#pragma once
 
 #include "lluictrl.h"
 #ifndef LL_V4COLOR_H
@@ -156,4 +155,3 @@ private:
 };
 
 
-#endif // LL_LLSCROLLCONTAINER_H

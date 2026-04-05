@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPARAM_H
-#define LL_LLPARAM_H
+#pragma once
 
 #include <functional>
 #include <type_traits>
@@ -2829,4 +2828,3 @@ namespace LLInitParam
 }
 
 
-#endif // LL_LLPARAM_H

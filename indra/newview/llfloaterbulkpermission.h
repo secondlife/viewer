@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLBULKPERMISSION_H
-#define LL_LLBULKPERMISSION_H
+#pragma once
 
 #include "llinventory.h"
 #include "llviewerobject.h"
@@ -117,5 +116,4 @@ private:
     const char* mStartString;
 };
 
-#endif
 

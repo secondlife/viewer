@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERPREFERENCEGRAPHICSADVANCED_H
-#define LLFLOATERPREFERENCEGRAPHICSADVANCED_H
+#pragma once
 
 #include "llcontrol.h"
 #include "llfloater.h"
@@ -68,5 +67,4 @@ protected:
     boost::signals2::connection mNumImpostorsChangedSignal;
 };
 
-#endif //LLFLOATERPREFERENCEGRAPHICSADVANCED_H
 

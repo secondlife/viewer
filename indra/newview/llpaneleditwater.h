@@ -24,8 +24,7 @@
 * $/LicenseInfo$
 */
 
-#ifndef LLPANEL_EDIT_WATER_H
-#define LLPANEL_EDIT_WATER_H
+#pragma once
 
 #include "llpanel.h"
 #include "llsettingswater.h"
@@ -95,4 +94,3 @@ private:
 };
 
 
-#endif // LLPANEL_EDIT_WATER_H

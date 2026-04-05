@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDRAWPOOLAVATAR_H
-#define LL_LLDRAWPOOLAVATAR_H
+#pragma once
 
 #include "lldrawpool.h"
 #include "llmodel.h"
@@ -131,4 +130,3 @@ extern S32 AVATAR_VERTEX_BYTES;
 const S32 AVATAR_BUFFER_ELEMENTS = 8192; // Needs to be enough to store all avatar vertices.
 
 extern bool gAvatarEmbossBumpMap;
-#endif // LL_LLDRAWPOOLAVATAR_H

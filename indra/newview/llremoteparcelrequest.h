@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLREMOTEPARCELREQUEST_H
-#define LL_LLREMOTEPARCELREQUEST_H
+#pragma once
 
 #include "llhandle.h"
 #include "llsingleton.h"
@@ -97,4 +96,3 @@ private:
     void regionParcelInfoCoro(std::string url, LLUUID regionId, LLVector3 posRegion, LLVector3d posGlobal, LLHandle<LLRemoteParcelInfoObserver> observerHandle);
 };
 
-#endif // LL_LLREMOTEPARCELREQUEST_H

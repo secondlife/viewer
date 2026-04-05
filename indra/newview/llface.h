@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFACE_H
-#define LL_LLFACE_H
+#pragma once
 
 #include <array>
 #include "llstrider.h"
@@ -391,4 +390,3 @@ public:
     };
 };
 
-#endif // LL_LLFACE_H

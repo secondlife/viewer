@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_V3COLORUTIL_H
-#define LL_V3COLORUTIL_H
+#pragma once
 
 #include "v3color.h"
 #include "v4color.h"
@@ -99,4 +98,3 @@ inline F32 color_min(const LLColor3& col)
     return llmin(col.mV[VRED], col.mV[VGREEN], col.mV[VBLUE]);
 }
 
-#endif

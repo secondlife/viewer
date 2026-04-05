@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLAVATARACTIONS_H
-#define LL_LLAVATARACTIONS_H
+#pragma once
 
 #include "llsd.h"
 #include "lluuid.h"
@@ -272,4 +271,3 @@ private:
     static void requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message);
 };
 
-#endif // LL_LLAVATARACTIONS_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERREGIONRESTARTING_H
-#define LL_LLFLOATERREGIONRESTARTING_H
+#pragma once
 
 #include "llfloater.h"
 #include "lltextbox.h"
@@ -66,4 +65,3 @@ private:
     };
 };
 
-#endif // LL_LLFLOATERREGIONRESTARTING_H

@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYCONFLICT_H
-#define LL_LLKEYCONFLICT_H
+#pragma once
 
 #include "llkeybind.h"
 #include "llviewerinput.h"
@@ -174,4 +173,3 @@ private:
 };
 
 
-#endif  // LL_LLKEYCONFLICT_H

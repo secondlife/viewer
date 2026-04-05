@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TOOLPLACER_H
-#define LL_TOOLPLACER_H
+#pragma once
 
 #include "llpanel.h"
 #include "lltool.h"
@@ -60,4 +59,3 @@ private:
     bool addDuplicate(S32 x, S32 y);
 };
 
-#endif

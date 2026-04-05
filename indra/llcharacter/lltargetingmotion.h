@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTARGETINGMOTION_H
-#define LL_LLTARGETINGMOTION_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header files
@@ -112,5 +111,4 @@ public:
     LLJoint*            mRightHandJoint;
 };
 
-#endif // LL_LLTARGETINGMOTION_H
 

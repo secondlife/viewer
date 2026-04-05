@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_AVATAR_APPEARANCE_H
-#define LL_AVATAR_APPEARANCE_H
+#pragma once
 
 #include "llcharacter.h"
 #include "llavatarappearancedefines.h"
@@ -470,4 +469,3 @@ protected:
  *******************************************************************************/
 };
 
-#endif // LL_AVATAR_APPEARANCE_H

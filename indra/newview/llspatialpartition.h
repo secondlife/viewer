@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSPATIALPARTITION_H
-#define LL_LLSPATIALPARTITION_H
+#pragma once
 
 #define SG_MIN_DIST_RATIO 0.00001f
 
@@ -760,5 +759,4 @@ extern const F32 SG_OBJ_SIDE;
 extern const F32 SG_MAX_OBJ_RAD;
 
 
-#endif //LL_LLSPATIALPARTITION_H
 

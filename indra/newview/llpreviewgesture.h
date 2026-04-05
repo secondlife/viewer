@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPREVIEWGESTURE_H
-#define LL_LLPREVIEWGESTURE_H
+#pragma once
 
 #include "llassettype.h"
 #include "llpreview.h"
@@ -167,4 +166,3 @@ private:
     bool mDirty;
 };
 
-#endif // LL_LLPREVIEWGESTURE_H

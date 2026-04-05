@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLPLACESFOLDERVIEW_H
-#define LL_LLPLACESFOLDERVIEW_H
+#pragma once
 
 #include "llfolderview.h"
 #include "llinventorypanel.h"
@@ -70,5 +69,4 @@ private:
 
 };
 
-#endif // LL_LLPLACESFOLDERVIEW_H
 

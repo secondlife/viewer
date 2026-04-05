@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPROCESS_H
-#define LL_LLPROCESS_H
+#pragma once
 
 #include "llinitparam.h"
 #include "llsdparam.h"
@@ -572,4 +571,3 @@ private:
 /// for logging
 LL_COMMON_API std::ostream& operator<<(std::ostream&, const LLProcess::Params&);
 
-#endif // LL_LLPROCESS_H

@@ -26,8 +26,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSDAPPSERVICES_H
-#define LL_LLSDAPPSERVICES_H
+#pragma once
 
 /**
  * @class LLSDAppServices
@@ -55,4 +54,3 @@ public:
 };
 
 
-#endif // LL_LLSDAPPSERVICES_H

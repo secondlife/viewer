@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLLAYOUTSTACK_H
-#define LL_LLLAYOUTSTACK_H
+#pragma once
 
 #include "llpanel.h"
 #include "llresizebar.h"
@@ -209,4 +208,3 @@ protected:
 };
 
 
-#endif

@@ -24,8 +24,7 @@
 */
 
 
-#ifndef LL_FLOATERBANDURATION_H
-#define LL_FLOATERBANDURATION_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -48,5 +47,4 @@ private:
     select_callback_t mSelectionCallback;
 };
 
-#endif // LL_FLOATERBANDURATION_H
 

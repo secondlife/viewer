@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLJOINT_H
-#define LL_LLJOINT_H
+#pragma once
 
 //-----------------------------------------------------------------------------
 // Header Files
@@ -303,5 +302,4 @@ public:
     bool aboveJointPosThreshold(const LLVector3& pos) const;
     bool aboveJointScaleThreshold(const LLVector3& scale) const;
 } LL_ALIGN_POSTFIX(16);
-#endif // LL_LLJOINT_H
 

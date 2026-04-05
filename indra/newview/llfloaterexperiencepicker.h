@@ -24,8 +24,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#ifndef LL_LLFLOATEREXPERIENCEPICKER_H
-#define LL_LLFLOATEREXPERIENCEPICKER_H
+#pragma once
 
 #include "llfloater.h"
 
@@ -63,5 +62,4 @@ private:
     F32                 mContextConeFadeTime;
 };
 
-#endif // LL_LLFLOATEREXPERIENCEPICKER_H
 

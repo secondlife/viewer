@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFAVORITESBARCTRL_H
-#define LL_LLFAVORITESBARCTRL_H
+#pragma once
 
 #include "llbutton.h"
 #include "lluictrl.h"
@@ -294,4 +293,3 @@ LLFavoritesOrderStorage::LLFavoritesOrderStorage() :
     mRecreateFavoriteStorage(false)
 { load(); }
 
-#endif // LL_LLFAVORITESBARCTRL_H

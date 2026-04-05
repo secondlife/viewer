@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_VIEWERTEXTEDITOR_H
-#define LL_VIEWERTEXTEDITOR_H
+#pragma once
 
 #include "lltexteditor.h"
 
@@ -134,4 +133,3 @@ private:
     class TextCmdInsertEmbeddedItem;
 };
 
-#endif  // LL_VIEWERTEXTEDITOR_H

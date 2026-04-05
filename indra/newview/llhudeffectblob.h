@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLHUDEFFECTBLOB_H
-#define LL_LLHUDEFFECTBLOB_H
+#pragma once
 
 #include "llhudeffect.h"
 #include "lluiimage.h"
@@ -51,4 +50,3 @@ private:
     LLPointer<LLUIImage> mImage;
 };
 
-#endif // LL_LLHUDEFFECTBLOB_H

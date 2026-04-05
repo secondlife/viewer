@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSTATVIEW_H
-#define LL_LLSTATVIEW_H
+#pragma once
 
 #include "llstatbar.h"
 #include "llcontainerview.h"
@@ -65,4 +64,3 @@ protected:
     const std::string mSetting;
 };
 
-#endif // LL_STATVIEW_

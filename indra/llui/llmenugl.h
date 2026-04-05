@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMENUGL_H
-#define LL_LLMENUGL_H
+#pragma once
 
 #include <list>
 
@@ -976,4 +975,3 @@ private:
     static listener_map_t sListeners;
 };
 
-#endif // LL_LLMENUGL_H

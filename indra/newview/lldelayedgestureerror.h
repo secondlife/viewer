@@ -26,8 +26,7 @@
  */
 
 
-#ifndef LL_DELAYEDGESTUREERROR_H
-#define LL_DELAYEDGESTUREERROR_H
+#pragma once
 
 #include <list>
 #include "lltimer.h"
@@ -74,4 +73,3 @@ private:
 };
 
 
-#endif

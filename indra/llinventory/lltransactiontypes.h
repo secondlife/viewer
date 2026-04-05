@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLTRANSACTIONTYPES_H
-#define LL_LLTRANSACTIONTYPES_H
+#pragma once
 
 // *NOTE: The constants in this file are also in the
 // transaction_description table in the database. If you add a
@@ -121,4 +120,3 @@ const S32 TRANS_STIPEND_DAILY       = 10003;
 const S32 TRANS_STIPEND_RATING      = 10004;
 const S32 TRANS_STIPEND_DELTA       = 10005;
 
-#endif
