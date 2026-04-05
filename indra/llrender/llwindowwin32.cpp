@@ -3117,7 +3117,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             {
                 // received a URL
                 PCOPYDATASTRUCT myCDS = (PCOPYDATASTRUCT)l_param;
-                void* data = new U8[myCDS->cbData];
+                U8* data = new U8[myCDS->cbData];
                 memcpy(data, myCDS->lpData, myCDS->cbData);
                 auto myType = myCDS->dwData;
 

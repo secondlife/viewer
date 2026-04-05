@@ -74,7 +74,8 @@ class LLControlVariable : public LLRefCount
 
 public:
     using validate_signal_t = boost::signals2::signal<bool(LLControlVariable* control, const LLSD&), boost_boolean_combiner>;
-    using commit_signal_t = boost::signals2::signal<void(LLControlVariable* control, const LLSD&, const LLSD&)>;
+    // Signal args: (control, new_value, old_value) — NOTE: arg2 is NEW, arg3 is OLD
+    using commit_signal_t = boost::signals2::signal<void(LLControlVariable* control, const LLSD& new_value, const LLSD& old_value)>;
 
     enum ePersist
     {
@@ -130,9 +131,10 @@ public:
     void setComment(const std::string& comment);
 
 private:
-    void firePropertyChanged(const LLSD &pPreviousValue)
+    // Emits commit_signal_t(this, new_value, old_value)
+    void firePropertyChanged(const LLSD &old_value)
     {
-        mCommitSignal(this, mValues.back(), pPreviousValue);
+        mCommitSignal(this, mValues.back(), old_value);
     }
     LLSD getComparableValue(const LLSD& value);
     bool llsd_compare(const LLSD& a, const LLSD & b) const;

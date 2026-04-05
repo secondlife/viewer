@@ -322,7 +322,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     username_combo->setTextChangedCallback(std::bind(&LLPanelLogin::onUserNameTextEnty, this));
     // STEAM-14: When user presses Enter with this field in focus, initiate login
     username_combo->setCommitCallback(std::bind(&LLPanelLogin::onUserListCommit, this));
-    username_combo->setReturnCallback(std::bind(&LLPanelLogin::onClickConnect, this));
+    username_combo->setReturnCallback(std::bind(&LLPanelLogin::onClickConnect, true));
     username_combo->setKeystrokeOnEsc(true);
 
 

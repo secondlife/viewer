@@ -65,7 +65,7 @@ private:
     void onBtnDeepLVerify();
     void onBtnOK();
 
-    static void setVerificationStatus(int service, bool alert, bool ok, S32 status);
+    static void setVerificationStatus(int service, bool ok, bool alert, S32 status);
 
     LLCheckBoxCtrl* mMachineTranslationCB;
     LLComboBox* mLanguageCombo;

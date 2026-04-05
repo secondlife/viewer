@@ -82,7 +82,7 @@ void LLViewerAudio::registerIdleListener()
     if (!mIdleListnerActive)
     {
         mIdleListnerActive = true;
-        doOnIdleRepeating(std::bind(std::bind(&LLViewerAudio::onIdleUpdate, this)));
+        doOnIdleRepeating(std::bind(&LLViewerAudio::onIdleUpdate, this));
     }
 }
 
