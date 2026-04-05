@@ -3507,7 +3507,7 @@ bool LLViewerShaderMgr::loadShadersInterface()
         success = gGaussianProgram.createShader();
     }
 
-    if (success && gGLManager.mHasCubeMapArray)
+    if (success)
     {
         gRadianceGenProgram.mName = "Radiance Gen Shader";
         gRadianceGenProgram.mShaderFiles.clear();
@@ -3518,7 +3518,7 @@ bool LLViewerShaderMgr::loadShadersInterface()
         success = gRadianceGenProgram.createShader();
     }
 
-    if (success && gGLManager.mHasCubeMapArray)
+    if (success)
     {
         gHeroRadianceGenProgram.mName = "Hero Radiance Gen Shader";
         gHeroRadianceGenProgram.mShaderFiles.clear();
@@ -3530,7 +3530,7 @@ bool LLViewerShaderMgr::loadShadersInterface()
         success                              = gHeroRadianceGenProgram.createShader();
     }
 
-    if (success && gGLManager.mHasCubeMapArray)
+    if (success)
     {
         gIrradianceGenProgram.mName = "Irradiance Gen Shader";
         gIrradianceGenProgram.mShaderFiles.clear();
