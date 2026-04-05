@@ -7588,6 +7588,8 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
             {
                 LLViewerObject* obj = gObjectList.findObject(obj_id);
                 if (!obj) { return; }
+                LLTextureEntry* tep = obj->getTE(te);
+                if (!tep || !tep->getGLTFMaterial()) { return; }
                 obj->initRenderMaterial(te);
             });
         }
