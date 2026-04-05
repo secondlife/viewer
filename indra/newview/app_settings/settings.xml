@@ -7337,76 +7337,6 @@
     <key>Value</key>
     <real>3000.0</real>
   </map>
-  <key>RenderComplexityColorMin</key>
-    <map>
-      <key>Comment</key>
-      <string>Unused obsolete setting</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-        <real>0.5</real>
-      </array>
-    </map>
-  <key>RenderComplexityColorMid</key>
-    <map>
-      <key>Comment</key>
-      <string>Unused obsolete setting</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>0.5</real>
-      </array>
-    </map>
-  <key>RenderComplexityColorMax</key>
-    <map>
-      <key>Comment</key>
-      <string>Unused obsolete setting</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>0.5</real>
-      </array>
-    </map>
-  <key>RenderComplexityThreshold</key>
-    <map>
-      <key>Comment</key>
-      <string>Unused obsolete setting</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-  <key>RenderComplexityStaticMax</key>
-    <map>
-      <key>Comment</key>
-      <string>Unused obsolete setting</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
     <key>RenderAvatarLODFactor</key>
     <map>
       <key>Comment</key>
@@ -7417,17 +7347,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.5</real>
-    </map>
-    <key>RenderAvatarMaxVisible</key>
-    <map>
-      <key>Comment</key>
-      <string>OBSOLETE and UNUSED. See RenderAvatarMaxNonImpostors</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>RenderAvatarPhysicsLODFactor</key>
     <map>
@@ -8282,18 +8201,6 @@
     <real>1.0</real>
   </map>
 
-  <key>RenderHoverGlowEnable</key>
-  <map>
-    <key>Comment</key>
-    <string>DEPRECATED --- Show glow effect when hovering on interactive objects.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-
   <key>RenderHighlightFadeTime</key>
   <map>
     <key>Comment</key>
@@ -9130,17 +9037,6 @@
       <key>Value</key>
       <real>10.0</real>
     </map>
-    <key>RenderObjectBump</key>
-    <map>
-      <key>Comment</key>
-      <string>DEPRECATED (only TRUE supported) Show bumpmapping on primitives</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>RenderQualityPerformance</key>
     <map>
       <key>Comment</key>
@@ -9738,17 +9634,6 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderUseTriStrips</key>
-  <map>
-    <key>Comment</key>
-    <string>DEPRECATED - now always assumed to be false - Use triangle strips for rendering prims.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
     <key>RenderUseFarClip</key>
     <map>
       <key>Comment</key>
@@ -9794,17 +9679,6 @@
     <string>U32</string>
     <key>Value</key>
     <integer>12</integer>
-  </map>
-  <key>RenderAutoMuteRenderWeightLimit</key>
-  <map>
-    <key>Comment</key>
-    <string>OBSOLETE. This setting has been renamed RenderAvatarMaxNonImpostors.</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>0</integer>
   </map>
   <key>CollectFontVertexBuffers</key>
   <map>
