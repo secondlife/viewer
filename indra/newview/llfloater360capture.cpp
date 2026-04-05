@@ -182,45 +182,6 @@ void LLFloater360Capture::setSourceImageSize()
 {
     mSourceImageSize = mQualityRadioGroup->getSelectedValue().asInteger();
 
-    // If deferred rendering is off, we need to shrink the window we capture
-    // until it's smaller than the Viewer window dimensions.
-    if (!LLPipeline::sRenderDeferred)
-    {
-        LLRect window_rect = gViewerWindow->getWindowRectRaw();
-        S32 window_width = window_rect.getWidth();
-        S32 window_height = window_rect.getHeight();
-
-        // It's not possible (as I had hoped) to always render to an off screen
-        // buffer regardless of deferred rendering status so the next best
-        // option is to render to a buffer that is the size of the users app
-        // window.  Note, this was changed - before it chose the smallest
-        // power of 2 less than the window size - but since that meant a
-        // 1023 height app window would result in a 512 pixel capture, Maxim
-        // tried this and it does indeed appear to work.  Mayb need to revisit
-        // after the project viewer pass if people on low end graphics systems
-        // after having issues.
-        if (mSourceImageSize > window_width || mSourceImageSize > window_height)
-        {
-            mSourceImageSize = llmin(window_width, window_height, mSourceImageSize);
-            LL_INFOS("360Capture") << "Deferred rendering is forcing a smaller capture size: " << mSourceImageSize << LL_ENDL;
-        }
-
-        // there has to be an easier way than this to get the value
-        // from the radio group item at index 0. Why doesn't
-        // LLRadioGroup::getSelectedValue(int index) exist?
-        int index = mQualityRadioGroup->getSelectedIndex();
-        mQualityRadioGroup->setSelectedIndex(0);
-        int min_size = mQualityRadioGroup->getSelectedValue().asInteger();
-        mQualityRadioGroup->setSelectedIndex(index);
-
-        // If the maximum size we can support falls below a threshold then
-        // we should display a message in the log so we can try to debug
-        // why this is happening
-        if (mSourceImageSize < min_size)
-        {
-            LL_INFOS("360Capture") << "Small snapshot size due to deferred rendering and small app window" << LL_ENDL;
-        }
-    }
 }
 
 // This function shouldn't exist! We use the tooltip text from

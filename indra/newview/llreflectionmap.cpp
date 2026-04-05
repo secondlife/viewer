@@ -58,7 +58,6 @@ void LLReflectionMap::update(U32 resolution, U32 face, bool force_dynamic, F32 n
     mLastUpdateTime = gFrameTimeSeconds;
     llassert(mCubeArray.notNull());
     llassert(mCubeIndex != -1);
-    //llassert(LLPipeline::sRenderDeferred);
 
     // make sure we don't walk off the edge of the render target
     while (resolution > gPipeline.mRT->deferredScreen.getWidth() ||

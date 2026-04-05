@@ -5113,7 +5113,7 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
     if (!keep_window_aspect || (image_width > window_width) || (image_height > window_height))
     {
         if ((image_width <= gGLManager.mGLMaxTextureSize && image_height <= gGLManager.mGLMaxTextureSize) &&
-            (image_width > window_width || image_height > window_height) && LLPipeline::sRenderDeferred && !show_ui)
+            (image_width > window_width || image_height > window_height) && !show_ui)
         {
             U32 color_fmt = type == LLSnapshotModel::SNAPSHOT_TYPE_DEPTH ? GL_DEPTH_COMPONENT : GL_RGBA;
             if (scratch_space.allocate(image_width, image_height, color_fmt, true))
@@ -5230,13 +5230,6 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
                 const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
                 display(do_rebuild, scale_factor, subfield, true);
 
-                if (!LLPipeline::sRenderDeferred)
-                {
-                    // Required for showing the GUI in snapshots and performing bloom composite overlay
-                    // Call even if show_ui is false
-                    render_ui(scale_factor, subfield);
-                    swap();
-                }
 
                 for (U32 out_y = 0; out_y < read_height ; out_y++)
                 {
@@ -5387,8 +5380,8 @@ bool LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
 
     LLRect window_rect = getWorldViewRectRaw();
 
-    S32 original_width = LLPipeline::sRenderDeferred ? gPipeline.mRT->deferredScreen.getWidth() : gViewerWindow->getWorldViewWidthRaw();
-    S32 original_height = LLPipeline::sRenderDeferred ? gPipeline.mRT->deferredScreen.getHeight() : gViewerWindow->getWorldViewHeightRaw();
+    S32 original_width = gPipeline.mRT->deferredScreen.getWidth();
+    S32 original_height = gPipeline.mRT->deferredScreen.getHeight();
 
     LLRenderTarget scratch_space;
     U32 color_fmt = GL_RGBA;
@@ -5479,7 +5472,6 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     // NOTE: implementation derived from LLFloater360Capture::capture360Images() and simpleSnapshot
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
     LL_PROFILE_GPU_ZONE("cubeSnapshot");
-    llassert(LLPipeline::sRenderDeferred);
     llassert(!gCubeSnapshot); //assert a snapshot isn't already in progress
 
     U32 res = gPipeline.mRT->deferredScreen.getWidth();

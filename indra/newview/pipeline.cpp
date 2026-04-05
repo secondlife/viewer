@@ -138,7 +138,6 @@ extern bool gSnapshot;
 bool gShiftFrame = false;
 
 //cached settings
-bool LLPipeline::RenderDeferred;
 F32 LLPipeline::RenderDeferredSunWash;
 U32 LLPipeline::RenderFSAAType;
 U32 LLPipeline::RenderResolutionDivisor;
@@ -154,7 +153,6 @@ S32 LLPipeline::DebugBeaconLineWidth;
 F32 LLPipeline::RenderHighlightBrightness;
 LLColor4 LLPipeline::RenderHighlightColor;
 F32 LLPipeline::RenderHighlightThickness;
-bool LLPipeline::RenderSpotLightsInNondeferred;
 LLColor4 LLPipeline::PreviewAmbientColor;
 LLColor4 LLPipeline::PreviewDiffuse0;
 LLColor4 LLPipeline::PreviewSpecular0;
@@ -329,7 +327,6 @@ bool    LLPipeline::sUnderWaterRender = false;
 bool    LLPipeline::sTextureBindTest = false;
 bool    LLPipeline::sRenderAttachedLights = true;
 bool    LLPipeline::sRenderAttachedParticles = true;
-bool    LLPipeline::sRenderDeferred = false;
 bool    LLPipeline::sReflectionProbesEnabled = false;
 S32     LLPipeline::sVisibleLightCount = 0;
 bool    LLPipeline::sRenderingHUDs;
@@ -522,7 +519,6 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderUseFarClip");
     connectRefreshCachedSettingsSafe("RenderAvatarMaxNonImpostors");
     connectRefreshCachedSettingsSafe("UseOcclusion");
-    // DEPRECATED -- connectRefreshCachedSettingsSafe("RenderDeferred");
     connectRefreshCachedSettingsSafe("RenderDeferredSunWash");
     connectRefreshCachedSettingsSafe("RenderFSAAType");
     connectRefreshCachedSettingsSafe("RenderResolutionDivisor");
@@ -538,7 +534,6 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderHighlightBrightness");
     connectRefreshCachedSettingsSafe("RenderHighlightColor");
     connectRefreshCachedSettingsSafe("RenderHighlightThickness");
-    connectRefreshCachedSettingsSafe("RenderSpotLightsInNondeferred");
     connectRefreshCachedSettingsSafe("PreviewAmbientColor");
     connectRefreshCachedSettingsSafe("PreviewDiffuse0");
     connectRefreshCachedSettingsSafe("PreviewSpecular0");
@@ -1052,7 +1047,6 @@ void LLPipeline::refreshCachedSettings()
             && LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion")
             && gSavedSettings.getBOOL("UseOcclusion")) ? 2 : 0;
 
-    RenderDeferred = true; // DEPRECATED -- gSavedSettings.getBOOL("RenderDeferred");
     RenderDeferredSunWash = gSavedSettings.getF32("RenderDeferredSunWash");
     RenderFSAAType = gSavedSettings.getU32("RenderFSAAType");
     RenderResolutionDivisor = gSavedSettings.getU32("RenderResolutionDivisor");
@@ -1068,7 +1062,6 @@ void LLPipeline::refreshCachedSettings()
     RenderHighlightBrightness = gSavedSettings.getF32("RenderHighlightBrightness");
     RenderHighlightColor = gSavedSettings.getColor4("RenderHighlightColor");
     RenderHighlightThickness = gSavedSettings.getF32("RenderHighlightThickness");
-    RenderSpotLightsInNondeferred = gSavedSettings.getBOOL("RenderSpotLightsInNondeferred");
     PreviewAmbientColor = gSavedSettings.getColor4("PreviewAmbientColor");
     PreviewDiffuse0 = gSavedSettings.getColor4("PreviewDiffuse0");
     PreviewSpecular0 = gSavedSettings.getColor4("PreviewSpecular0");
@@ -5438,15 +5431,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
         const S32 MAX_LOCAL_LIGHTS = 6;
         LLVector3 cam_pos = camera.getOrigin();
 
-        F32 max_dist;
-        if (LLPipeline::sRenderDeferred)
-        {
-            max_dist = RenderFarClip;
-        }
-        else
-        {
-            max_dist = llmin(RenderFarClip, LIGHT_MAX_RADIUS * 4.f);
-        }
+        F32 max_dist = RenderFarClip;
 
         // UPDATE THE EXISTING NEARBY LIGHTS
         light_set_t cur_nearby_lights;
@@ -5547,12 +5532,6 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
                 continue;
             }
             new_nearby_lights.insert(Light(drawable, dist, 0.f));
-            if (!LLPipeline::sRenderDeferred && new_nearby_lights.size() > (U32)MAX_LOCAL_LIGHTS)
-            {
-                new_nearby_lights.erase(--new_nearby_lights.end());
-                const Light& last = *new_nearby_lights.rbegin();
-                max_dist = last.dist;
-            }
         }
 
         // INSERT ANY NEW LIGHTS
@@ -5560,41 +5539,8 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
              iter != new_nearby_lights.end(); iter++)
         {
             const Light* light = &(*iter);
-            if (LLPipeline::sRenderDeferred || mNearbyLights.size() < (U32)MAX_LOCAL_LIGHTS)
-            {
-                mNearbyLights.insert(*light);
-                ((LLDrawable*) light->drawable)->setState(LLDrawable::NEARBY_LIGHT);
-            }
-            else
-            {
-                // crazy cast so that we can overwrite the fade value
-                // even though gcc enforces sets as const
-                // (fade value doesn't affect sort so this is safe)
-                Light* farthest_light = (const_cast<Light*>(&(*(mNearbyLights.rbegin()))));
-                if (light->dist < farthest_light->dist)
-                {
-                    // mark light to fade out
-                    // visibility goes down from -0 to -LIGHT_FADE_TIME.
-                    //
-                    // This is a mess, but for now it needs to be in sync
-                    // with fade code above. Ex: code above detects distance < max,
-                    // sets fade time to positive, this code then detects closer
-                    // lights and sets fade time negative, fully compensating
-                    // for the code above
-                    if (farthest_light->fade >= LIGHT_FADE_TIME)
-                    {
-                        farthest_light->fade = -0.0001f; // was fully visible
-                    }
-                    else if (farthest_light->fade >= 0)
-                    {
-                        farthest_light->fade -= LIGHT_FADE_TIME;
-                    }
-                }
-                else
-                {
-                    break; // none of the other lights are closer
-                }
-            }
+            mNearbyLights.insert(*light);
+            ((LLDrawable*) light->drawable)->setState(LLDrawable::NEARBY_LIGHT);
         }
 
         //mark nearby lights not-removable.
@@ -5754,7 +5700,7 @@ void LLPipeline::setupHWLights()
             LLVector3 light_pos(light->getRenderPosition());
             LLVector4 light_pos_gl(light_pos, 1.0f);
 
-            F32 adjusted_radius = light->getLightRadius() * (sRenderDeferred ? 1.5f : 1.0f);
+            F32 adjusted_radius = light->getLightRadius() * 1.5f;
             if (adjusted_radius <= 0.001f)
             {
                 continue;
@@ -5773,19 +5719,10 @@ void LLPipeline::setupHWLights()
             light_state->setSize(light->getLightRadius() * 1.5f);
             light_state->setFalloff(light->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
 
-            if (sRenderDeferred)
-            {
-                light_state->setLinearAttenuation(linatten);
-                light_state->setQuadraticAttenuation(light->getLightFalloff(DEFERRED_LIGHT_FALLOFF) + 1.f); // get falloff to match for forward deferred rendering lights
-            }
-            else
-            {
-                light_state->setLinearAttenuation(linatten);
-                light_state->setQuadraticAttenuation(0.f);
-            }
+            light_state->setLinearAttenuation(linatten);
+            light_state->setQuadraticAttenuation(light->getLightFalloff(DEFERRED_LIGHT_FALLOFF) + 1.f); // get falloff to match for forward deferred rendering lights
 
-            if (light->isLightSpotlight() // directional (spot-)light
-                && (LLPipeline::sRenderDeferred || RenderSpotLightsInNondeferred)) // these are only rendered as GL spotlights if we're in deferred rendering mode *or* the setting forces them on
+            if (light->isLightSpotlight()) // directional (spot-)light
             {
                 LLQuaternion quat = light->getRenderRotation();
                 LLVector3 at_axis(0,0,-1); // this matches deferred rendering's object light direction
@@ -9756,7 +9693,7 @@ public:
 
 void LLPipeline::generateSunShadow(LLCamera& camera)
 {
-    if (!sRenderDeferred || RenderShadowDetail <= 0)
+    if (RenderShadowDetail <= 0)
     {
         return;
     }
@@ -10696,7 +10633,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
     S32 occlusion = sUseOcclusion;
     sUseOcclusion = 0;
 
-    sReflectionRender = ! sRenderDeferred;
+    sReflectionRender = false;
 
     sShadowRender = true;
     sImpostorRender = true;
@@ -10848,10 +10785,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
             {
                 (void)avatar->mImpostor.allocate(resX, resY, GL_RGBA, true);
 
-                if (LLPipeline::sRenderDeferred)
-                {
-                    addDeferredAttachments(avatar->mImpostor, true);
-                }
+                addDeferredAttachments(avatar->mImpostor, true);
 
                 gGL.getTexUnit(0)->bind(&avatar->mImpostor);
                 gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
@@ -10906,7 +10840,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
 
     if (!for_profile)
     { //create alpha mask based on depth buffer (grey out if muted)
-        if (LLPipeline::sRenderDeferred)
         {
             GLuint buff = GL_COLOR_ATTACHMENT0;
             glDrawBuffers(1, &buff);

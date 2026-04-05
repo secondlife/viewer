@@ -789,7 +789,7 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 
 void LLBumpImageList::onSourceStandardLoaded( bool success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata)
 {
-    if (success && LLPipeline::sRenderDeferred)
+    if (success)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
         LLPointer<LLImageRaw> nrm_image = new LLImageRaw(src->getWidth(), src->getHeight(), 4);
