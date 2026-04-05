@@ -1191,7 +1191,6 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 
 GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::string context)
 {
-#ifndef LL_MESA_HEADLESS
     if (LLWindowSDL::ll_try_gtk_init())
     {
         GtkWidget *win = NULL;
@@ -1263,9 +1262,6 @@ GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder, std::stri
     {
         return NULL;
     }
-#else
-    return NULL;
-#endif //LL_MESA_HEADLESS
 }
 
 static void add_common_filters_to_gtkchooser(GtkFileFilter *gfilter,

@@ -69,19 +69,3 @@ target_link_libraries(llappearance
     )
 target_include_directories( llappearance  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
-if (BUILD_HEADLESS)
-  add_library (llappearanceheadless ${llappearance_SOURCE_FILES})
-  target_include_directories( llappearanceheadless  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-
-  target_link_libraries(llappearanceheadless
-          llcharacter
-          llinventory
-          llimage
-          llfilesystem
-          llmath
-          llxml
-          llmessage
-          llcorehttp
-          llcommon
-      )
-endif (BUILD_HEADLESS)

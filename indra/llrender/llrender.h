@@ -100,51 +100,6 @@ public:
         TMG_MANUAL              // Mipmaps are manually generated for this texture.
     };
 
-    enum eTextureBlendType
-    {
-        TB_REPLACE = 0,
-        TB_ADD,
-        TB_MULT,
-        TB_MULT_X2,
-        TB_ALPHA_BLEND,
-        TB_COMBINE          // Doesn't need to be set directly, setTexture___Blend() set TB_COMBINE automatically
-    };
-
-    enum eTextureBlendOp
-    {
-        TBO_REPLACE = 0,            // Use Source 1
-        TBO_MULT,                   // Multiply: ( Source1 * Source2 )
-        TBO_MULT_X2,                // Multiply then scale by 2:  ( 2.0 * ( Source1 * Source2 ) )
-        TBO_MULT_X4,                // Multiply then scale by 4:  ( 4.0 * ( Source1 * Source2 ) )
-        TBO_ADD,                    // Add: ( Source1 + Source2 )
-        TBO_ADD_SIGNED,             // Add then subtract 0.5: ( ( Source1 + Source2 ) - 0.5 )
-        TBO_SUBTRACT,               // Subtract Source2 from Source1: ( Source1 - Source2 )
-        TBO_LERP_VERT_ALPHA,        // Interpolate based on Vertex Alpha (VA): ( Source1 * VA + Source2 * (1-VA) )
-        TBO_LERP_TEX_ALPHA,         // Interpolate based on Texture Alpha (TA): ( Source1 * TA + Source2 * (1-TA) )
-        TBO_LERP_PREV_ALPHA,        // Interpolate based on Previous Alpha (PA): ( Source1 * PA + Source2 * (1-PA) )
-        TBO_LERP_CONST_ALPHA        // Interpolate based on Const Alpha (CA): ( Source1 * CA + Source2 * (1-CA) )
-    };
-
-    enum eTextureBlendSrc
-    {
-        TBS_PREV_COLOR = 0,         // Color from the previous texture stage
-        TBS_PREV_ALPHA,
-        TBS_ONE_MINUS_PREV_COLOR,
-        TBS_ONE_MINUS_PREV_ALPHA,
-        TBS_TEX_COLOR,              // Color from the texture bound to this stage
-        TBS_TEX_ALPHA,
-        TBS_ONE_MINUS_TEX_COLOR,
-        TBS_ONE_MINUS_TEX_ALPHA,
-        TBS_VERT_COLOR,             // The vertex color currently set
-        TBS_VERT_ALPHA,
-        TBS_ONE_MINUS_VERT_COLOR,
-        TBS_ONE_MINUS_VERT_ALPHA,
-        TBS_CONST_COLOR,            // The constant color value currently set
-        TBS_CONST_ALPHA,
-        TBS_ONE_MINUS_CONST_COLOR,
-        TBS_ONE_MINUS_CONST_ALPHA
-    };
-
     enum eTextureColorSpace
     {
         TCS_LINEAR = 0,
@@ -236,8 +191,6 @@ protected:
     bool                mHasMipMaps;
 
     void debugTextureUnit(void);
-    GLint getTextureSource(eTextureBlendSrc src);
-    GLint getTextureSourceType(eTextureBlendSrc src, bool isAlpha = false);
 };
 
 class LLLightState

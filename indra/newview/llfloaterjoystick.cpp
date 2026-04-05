@@ -45,7 +45,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 
-#if LL_WINDOWS && !LL_MESA_HEADLESS
+#if LL_WINDOWS
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
 
@@ -69,7 +69,7 @@ static LLTrace::SampleStatHandle<>* sJoystickAxes[6] =
 };
 
 
-#if LL_WINDOWS && !LL_MESA_HEADLESS
+#if LL_WINDOWS
 
 BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVOID pvRef)
 {
@@ -277,7 +277,7 @@ void LLFloaterJoystick::refreshListOfDevices()
 
     void* win_calback = nullptr;
     // di8_devices_callback callback is immediate and happens in scope of getInputDevices()
-#if LL_WINDOWS && !LL_MESA_HEADLESS
+#if LL_WINDOWS
     // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
     U32 device_type = DI8DEVCLASS_GAMECTRL;
     win_calback = di8_list_devices_callback;
@@ -300,7 +300,7 @@ void LLFloaterJoystick::refreshListOfDevices()
     if (joystick->isJoystickInitialized() &&
         (!mHasDeviceList || !is_device_id_set))
     {
-#if LL_WINDOWS && !LL_MESA_HEADLESS
+#if LL_WINDOWS
         LL_WARNS() << "NDOF connected to device without using SL provided handle" << LL_ENDL;
 #endif
         std::string desc = joystick->getDescription();

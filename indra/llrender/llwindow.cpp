@@ -27,9 +27,7 @@
 #include "linden_common.h"
 #include "llwindowheadless.h"
 
-#if LL_MESA_HEADLESS
-#include "llwindowmesaheadless.h"
-#elif LL_SDL
+#if LL_SDL
 #include "llwindowsdl.h"
 #elif LL_WINDOWS
 #include "llwindowwin32.h"
@@ -72,9 +70,7 @@ S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 
     S32 result = 0;
     LL_WARNS() << "OSMessageBox: " << text << LL_ENDL;
-#if LL_MESA_HEADLESS // !!! *FIX: (?)
-    return OSBTN_OK;
-#elif LL_WINDOWS
+#if LL_WINDOWS
     result = OSMessageBoxWin32(text, caption, type);
 #elif LL_DARWIN
     result = OSMessageBoxMacOSX(text, caption, type);
@@ -341,7 +337,7 @@ bool LLSplashScreen::isVisible()
 // static
 LLSplashScreen *LLSplashScreen::create()
 {
-#if LL_MESA_HEADLESS || LL_SDL  // !!! *FIX: (?)
+#if LL_SDL  // !!! *FIX: (?)
     return 0;
 #elif LL_WINDOWS
     return new LLSplashScreenWin32;
@@ -358,7 +354,7 @@ void LLSplashScreen::show()
 {
     if (!gSplashScreenp)
     {
-#if LL_WINDOWS && !LL_MESA_HEADLESS
+#if LL_WINDOWS
         gSplashScreenp = new LLSplashScreenWin32;
 #elif LL_DARWIN
         gSplashScreenp = new LLSplashScreenMacOSX;
@@ -414,11 +410,7 @@ LLWindow* LLWindowManager::createWindow(
 
     if (use_gl)
     {
-#if LL_MESA_HEADLESS
-        new_window = new LLWindowMesaHeadless(callbacks,
-            title, name, x, y, width, height, flags,
-            fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth);
-#elif LL_SDL
+#if LL_SDL
         new_window = new LLWindowSDL(callbacks,
             title, x, y, width, height, flags,
             fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
