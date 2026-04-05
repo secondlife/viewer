@@ -24,8 +24,6 @@
 	<text name="BetterText">
 		Más calidad
 	</text>
-	<check_box initial_value="true" label="Shaders de la atmósfera" name="WindLightUseAtmosShaders"/>
-	<check_box initial_value="true" label="Modelo de iluminación avanzado" name="UseLightShaders"/>
 	<slider label="Complejidad máxima de avatar:" name="IndirectMaxComplexity" tool_tip="Controla en qué momento un avatar visualmente complejo se dibuja como un &quot;JellyDoll&quot;"/>
 	<text name="IndirectMaxComplexityText">
 		0

@@ -24,8 +24,6 @@
 	<text name="BetterText">
 		Daha iyi
 	</text>
-	<check_box initial_value="true" label="Atmosferik gölgeleyiciler" name="WindLightUseAtmosShaders"/>
-	<check_box initial_value="true" label="Gelişmiş Aydınlatma Modeli" name="UseLightShaders"/>
 	<slider label="Avatarın Maksimum Karmaşıklığı:" name="IndirectMaxComplexity" tool_tip="Görsel olarak karmaşık bir avatarın ne zaman JellyDoll olarak çizileceğini belirler"/>
 	<text name="IndirectMaxComplexityText">
 		0

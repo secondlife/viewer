@@ -98,12 +98,10 @@
 		<combo_box.item label="Tutti gli avatar e gli oggetti" name="3"/>
 		<combo_box.item label="Tutto" name="4"/>
 	</combo_box>
-	<check_box initial_value="true" label="Shader atmosfera" name="WindLightUseAtmosShaders"/>
 	<slider label="Cielo:" name="SkyMeshDetail"/>
 	<text name="SkyMeshDetailText">
 		Basso
 	</text>
-	<check_box initial_value="true" label="Modello illuminazione avanzato" name="UseLightShaders"/>
 	<check_box initial_value="true" label="Occlusione ambientale" name="UseSSAO"/>
 	<check_box initial_value="true" label="Profondità di campo" name="UseDoF"/>
 	<text name="RenderShadowDetailText">

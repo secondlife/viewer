@@ -85,12 +85,10 @@
 		<combo_box.item label="Wszystkie awatary i obiekty" name="3" />
 		<combo_box.item label="Wszystko" name="4" />
 	</combo_box>
-	<check_box label="Shadery atmosfery" name="WindLightUseAtmosShaders" />
 	<slider label="Niebo:" name="SkyMeshDetail" />
 	<text name="SkyMeshDetailText">
 		Nisko
 	</text>
-	<check_box label="Zaawansowane oświetlenie" name="UseLightShaders" />
 	<check_box label="Okluzja otoczenia" name="UseSSAO" />
 	<check_box label="Włącz głębię ostrości" name="UseDoF" />
 	<check_box label="Zaawansowana atmosfera" name="UseAdvancedAtmo" />
