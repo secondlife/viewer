@@ -138,7 +138,6 @@ extern bool gSnapshot;
 bool gShiftFrame = false;
 
 //cached settings
-bool LLPipeline::WindLightUseAtmosShaders;
 bool LLPipeline::RenderDeferred;
 F32 LLPipeline::RenderDeferredSunWash;
 U32 LLPipeline::RenderFSAAType;
@@ -523,7 +522,6 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderUseFarClip");
     connectRefreshCachedSettingsSafe("RenderAvatarMaxNonImpostors");
     connectRefreshCachedSettingsSafe("UseOcclusion");
-    // DEPRECATED -- connectRefreshCachedSettingsSafe("WindLightUseAtmosShaders");
     // DEPRECATED -- connectRefreshCachedSettingsSafe("RenderDeferred");
     connectRefreshCachedSettingsSafe("RenderDeferredSunWash");
     connectRefreshCachedSettingsSafe("RenderFSAAType");
@@ -1054,7 +1052,6 @@ void LLPipeline::refreshCachedSettings()
             && LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion")
             && gSavedSettings.getBOOL("UseOcclusion")) ? 2 : 0;
 
-    WindLightUseAtmosShaders = true; // DEPRECATED -- gSavedSettings.getBOOL("WindLightUseAtmosShaders");
     RenderDeferred = true; // DEPRECATED -- gSavedSettings.getBOOL("RenderDeferred");
     RenderDeferredSunWash = gSavedSettings.getF32("RenderDeferredSunWash");
     RenderFSAAType = gSavedSettings.getU32("RenderFSAAType");

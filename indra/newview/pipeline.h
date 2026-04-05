@@ -1007,7 +1007,6 @@ public:
     static U32              sCurRenderPoolType ;
 
     //cached settings
-    static bool WindLightUseAtmosShaders;
     static bool RenderDeferred;
     static F32 RenderDeferredSunWash;
     static U32 RenderFSAAType;

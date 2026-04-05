@@ -690,31 +690,12 @@ void LLFloaterPerformance::changeQualityLevel(const std::string& notif)
     });
 }
 
-bool is_ALM_available()
-{
-    bool bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
-    bool shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-
-    return LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-        bumpshiny &&
-        shaders;
-}
-
 void LLFloaterPerformance::onClickAdvancedLighting()
 {
-    if (!is_ALM_available())
-    {
-        changeQualityLevel("AdvancedLightingConfirm");
-    }
 }
 
 void LLFloaterPerformance::onClickShadows()
 {
-    if (!is_ALM_available() || !gSavedSettings.getBOOL("RenderDeferred"))
-    {
-        changeQualityLevel("ShadowsConfirm");
-    }
-
 }
 
 void LLFloaterPerformance::startAutotune()

@@ -359,8 +359,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(std::bind(&handleDisplayNamesOptionChanged,  _2));
 
     gSavedSettings.getControl("AppearanceCameraMovement")->getCommitSignal()->connect(std::bind(&handleAppearanceCameraMovementChanged,  _2));
-    gSavedSettings.getControl("WindLightUseAtmosShaders")->getCommitSignal()->connect(std::bind(&LLFloaterPreference::onAtmosShaderChange, this));
-
     LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 
     mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(std::bind(&LLFloaterPreference::updateComplexityText, this));
@@ -1865,22 +1863,6 @@ void LLFloaterPreference::onClickAdvanced()
 void LLFloaterPreference::onClickActionChange()
 {
     updateClickActionControls();
-}
-
-void LLFloaterPreference::onAtmosShaderChange()
-{
-    LLCheckBoxCtrl* ctrl_alm = getChild<LLCheckBoxCtrl>("UseLightShaders");
-    if(ctrl_alm)
-    {
-        //Deferred/SSAO/Shadows
-        bool bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
-        bool shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-        bool enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-                        bumpshiny &&
-                        shaders;
-
-        ctrl_alm->setEnabled(enabled);
-    }
 }
 
 void LLFloaterPreference::onClickPermsDefault()
