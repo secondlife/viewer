@@ -213,7 +213,7 @@ LLMatrix4 gGLObliqueProjectionInverse;
 
 std::list<LLGLUpdate*> LLGLUpdate::sGLQ;
 
-#if (LL_WINDOWS || LL_LINUX)  && !LL_MESA_HEADLESS
+#if LL_WINDOWS || LL_LINUX
 
 #if LL_WINDOWS
 // WGL_ARB_create_context
@@ -1012,7 +1012,7 @@ LLGLManager::LLGLManager() :
 //---------------------------------------------------------------------
 void LLGLManager::initWGL()
 {
-#if LL_WINDOWS && !LL_MESA_HEADLESS
+#if LL_WINDOWS
     if (!glh_init_extensions("WGL_ARB_pixel_format"))
     {
         LL_WARNS("RenderInit") << "No ARB pixel format extensions" << LL_ENDL;
@@ -1210,7 +1210,6 @@ void LLGLManager::getGLInfo(LLSD& info)
         info["GLInfo"]["GLVersion"] = ll_safe_string((const char *)glGetString(GL_VERSION));
     }
 
-#if !LL_MESA_HEADLESS
     std::string all_exts = ll_safe_string((const char *)gGLHExts.mSysExts);
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char> > tok(all_exts, sep);
@@ -1218,7 +1217,6 @@ void LLGLManager::getGLInfo(LLSD& info)
     {
         info["GLInfo"]["GLExtensions"].append(*i);
     }
-#endif
 }
 
 std::string LLGLManager::getGLInfoString()
@@ -1238,11 +1236,9 @@ std::string LLGLManager::getGLInfoString()
         info_str += std::string("GL_VERSION     ") + ll_safe_string((const char *)glGetString(GL_VERSION)) + std::string("\n");
     }
 
-#if !LL_MESA_HEADLESS
     std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
     std::ranges::replace(all_exts, ' ', '\n');
     info_str += std::string("GL_EXTENSIONS:\n") + all_exts + std::string("\n");
-#endif
 
     return info_str;
 }
@@ -1262,11 +1258,9 @@ void LLGLManager::printGLInfoString()
         LL_INFOS("RenderInit") << "GL_VERSION:    " << ll_safe_string((const char *)glGetString(GL_VERSION)) << LL_ENDL;
     }
 
-#if !LL_MESA_HEADLESS
     std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
     std::ranges::replace(all_exts, ' ', '\n');
     LL_DEBUGS("RenderInit") << "GL_EXTENSIONS:\n" << all_exts << LL_ENDL;
-#endif
 }
 
 std::string LLGLManager::getRawGLString()
@@ -1351,7 +1345,7 @@ void LLGLManager::initExtensions()
 
     mInited = true;
 
-#if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
+#if LL_WINDOWS || LL_LINUX
     LL_DEBUGS("RenderInit") << "GL Probe: Getting symbols" << LL_ENDL;
 
 #if LL_WINDOWS

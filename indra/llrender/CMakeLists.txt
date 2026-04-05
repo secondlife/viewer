@@ -143,25 +143,6 @@ endif (WINDOWS)
 
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
-if (BUILD_HEADLESS)
-  add_library (llrenderheadless
-    ${llrender_SOURCE_FILES}
-    )
-
-  set_property(TARGET llrenderheadless
-    PROPERTY COMPILE_DEFINITIONS LL_MESA=1 LL_MESA_HEADLESS=1
-      )
-
-  target_link_libraries(llrenderheadless
-          llcommon
-          llimage
-          llmath
-          llrender
-          llxml
-          llfilesystem
-          )
-endif (BUILD_HEADLESS)
-
 add_library (llrender ${llrender_SOURCE_FILES})
 target_include_directories( llrender  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 

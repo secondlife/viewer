@@ -72,19 +72,6 @@ if (LINUX)
        llwindowsdl.h
        )
 
-  if (BUILD_HEADLESS)
-    set(llwindowheadless_LINK_LIBRARIES
-        ${LLCOMMON_LIBRARIES}
-        ${LLIMAGE_LIBRARIES}
-        ${LLMATH_LIBRARIES}
-        ${LLRENDER_HEADLESS_LIBRARIES}
-        ${LLFILESYSTEM_LIBRARIES}
-        ${LLWINDOW_HEADLESS_LIBRARIES}
-        ${LLXML_LIBRARIES}
-        fontconfig          # For FCInit and other FC* functions.
-        )
-  endif (BUILD_HEADLESS)
-
 endif (LINUX)
 
 if (DARWIN)
@@ -133,24 +120,6 @@ if (WINDOWS)
        )
 endif (WINDOWS)
 
-if (BUILD_HEADLESS)
-  set(llwindowheadless_SOURCE_FILES
-       llwindowmesaheadless.cpp
-       llmousehandler.cpp
-       )
-  set(llwindowheadless_HEADER_FILES
-       llwindowmesaheadless.h
-       llmousehandler.h
-    )
-  add_library (llwindowheadless
-    ${llwindow_SOURCE_FILES}
-    ${llwindowheadless_SOURCE_FILES}
-    )
-  set_property(TARGET llwindowheadless
-    PROPERTY COMPILE_DEFINITIONS LL_MESA=1 LL_MESA_HEADLESS=1
-    )
-  target_link_libraries (llwindowheadless ${llwindowheadless_LINK_LIBRARIES} dl)
-endif (BUILD_HEADLESS)
 
 if (llwindow_HEADER_FILES)
   list(APPEND llwindow_SOURCE_FILES ${llwindow_HEADER_FILES})

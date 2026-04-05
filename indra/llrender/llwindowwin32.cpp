@@ -26,7 +26,7 @@
 
 #include "linden_common.h"
 
-#if LL_WINDOWS && !LL_MESA_HEADLESS
+#if LL_WINDOWS
 
 #include "llwindowwin32.h"
 

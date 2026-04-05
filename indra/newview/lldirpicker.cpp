@@ -240,8 +240,6 @@ bool LLDirPicker::getDir(std::string* filename, bool blocking)
         return false;
     }
 
-#if !LL_MESA_HEADLESS
-
     if (mFilePicker)
     {
         GtkWindow* picker = mFilePicker->buildFilePicker(false, true,
@@ -255,7 +253,6 @@ bool LLDirPicker::getDir(std::string* filename, bool blocking)
            return (!mFilePicker->getFirstFile().empty());
         }
     }
-#endif // !LL_MESA_HEADLESS
 
     return false;
 }
