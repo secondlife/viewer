@@ -20,7 +20,6 @@
 	</text>
 	<slider label="Detale postaci:" name="AvatarMeshDetail2" />
 	<slider label="Pole widzenia:" name="DrawDistance" />
-	<check_box label="Zaawansowane oświetlenie" name="UseLightShaders2" />
 	<panel label="CustomGraphics" name="CustomGraphics Panel">
 		<text name="ShadersText">
 			Cieniowanie pikseli:
@@ -28,8 +27,6 @@
 		<check_box label="Przezroczysta woda" name="TransparentWater" />
 		<check_box label="Mapping wypukłości i połysk" name="BumpShiny" />
 		<check_box label="Lokalne światła" name="LocalLights" />
-		<check_box label="Shadery atmosfery" name="WindLightUseAtmosShaders" />
-		<check_box label="Zaawansowane oświetlenie" name="UseLightShaders" />
 		<check_box label="Okluzja otoczenia" name="UseSSAO" />
 		<check_box label="Włącz głębię ostrości" name="UseDoF" />
 		<text name="shadows_label">

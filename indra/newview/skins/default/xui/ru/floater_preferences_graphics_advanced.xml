@@ -98,12 +98,10 @@
 		<combo_box.item label="Все аватары и объекты" name="3"/>
 		<combo_box.item label="Все" name="4"/>
 	</combo_box>
-	<check_box initial_value="true" label="Атмосферные шейдеры" name="WindLightUseAtmosShaders"/>
 	<slider label="Небо:" name="SkyMeshDetail"/>
 	<text name="SkyMeshDetailText">
 		Низкая
 	</text>
-	<check_box initial_value="true" label="Расширенная модель освещения" name="UseLightShaders"/>
 	<check_box initial_value="true" label="Объемный свет" name="UseSSAO"/>
 	<check_box initial_value="true" label="Глубина поля" name="UseDoF"/>
 	<text name="RenderShadowDetailText">

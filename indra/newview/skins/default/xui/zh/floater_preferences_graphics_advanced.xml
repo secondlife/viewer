@@ -98,12 +98,10 @@
 		<combo_box.item label="全部化身與物件" name="3"/>
 		<combo_box.item label="一切" name="4"/>
 	</combo_box>
-	<check_box initial_value="true" label="大氣著色" name="WindLightUseAtmosShaders"/>
 	<slider label="天空：" name="SkyMeshDetail"/>
 	<text name="SkyMeshDetailText">
 		低
 	</text>
-	<check_box initial_value="true" label="進階照明模型" name="UseLightShaders"/>
 	<check_box initial_value="true" label="環境光遮蔽" name="UseSSAO"/>
 	<check_box initial_value="true" label="景深" name="UseDoF"/>
 	<text name="RenderShadowDetailText">

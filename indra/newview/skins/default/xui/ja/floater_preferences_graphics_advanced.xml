@@ -100,12 +100,10 @@
 		<combo_box.item label="すべてのアバターとオブジェクト" name="3" value="3"/>
 		<combo_box.item label="すべて" name="4" value="4"/>
 	</combo_box>
-	<check_box label="大気（周囲）シェーダー" name="WindLightUseAtmosShaders"/>
 	<slider label="空：" name="SkyMeshDetail"/>
 	<text name="SkyMeshDetailText">
 		低
 	</text>
-	<check_box label="高度な光源モデル" name="UseLightShaders"/>
 	<check_box label="アンビエントオクルージョン" name="UseSSAO"/>
 	<check_box label="被写界深度（DoF）" name="UseDoF"/>
 	<text name="RenderShadowDetailText">

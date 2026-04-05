@@ -98,12 +98,10 @@
 		<combo_box.item label="Tüm avatarlar ve nesneler" name="3"/>
 		<combo_box.item label="Her şey" name="4"/>
 	</combo_box>
-	<check_box initial_value="true" label="Atmosferik gölgeleyiciler" name="WindLightUseAtmosShaders"/>
 	<slider label="Gökyüzü:" name="SkyMeshDetail"/>
 	<text name="SkyMeshDetailText">
 		Düşük
 	</text>
-	<check_box initial_value="true" label="Gelişmiş Aydınlatma Modeli" name="UseLightShaders"/>
 	<check_box initial_value="true" label="Ortam Emilimi" name="UseSSAO"/>
 	<check_box initial_value="true" label="Alan Derinliği" name="UseDoF"/>
 	<text name="RenderShadowDetailText">

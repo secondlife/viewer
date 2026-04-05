@@ -25,8 +25,6 @@ rápido
 	<text name="BetterText">
 		Melhor
 	</text>
-	<check_box initial_value="true" label="Tonalidades atmosféricas" name="WindLightUseAtmosShaders"/>
-	<check_box initial_value="true" label="Modelo avançado de luzes" name="UseLightShaders"/>
 	<slider label="Complexidade máxima do avatar:" name="IndirectMaxComplexity" tool_tip="Controla o ponto no qual um avatar visualmente complexo é desenhado como uma JellyDoll"/>
 	<text name="IndirectMaxComplexityText">
 		0
