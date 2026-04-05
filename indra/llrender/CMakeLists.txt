@@ -141,15 +141,6 @@ if (WINDOWS)
         )
 endif (WINDOWS)
 
-if (SOLARIS)
-    list(APPEND llrender_SOURCE_FILES
-        llwindowsolaris.cpp
-        )
-    list(APPEND llrender_HEADER_FILES
-        llwindowsolaris.h
-        )
-endif (SOLARIS)
-
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
 if (BUILD_HEADLESS)
