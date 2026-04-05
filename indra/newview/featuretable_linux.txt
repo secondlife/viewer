@@ -54,7 +54,6 @@ Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderCompressTextures		1	1
 RenderShaderLightingMaxLevel	1	3
-RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 RenderFSAASamples			1	16
@@ -80,7 +79,6 @@ RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
-RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
@@ -113,7 +111,6 @@ RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
-RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
@@ -145,7 +142,6 @@ RenderTerrainLODFactor		1	1.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
@@ -177,7 +173,6 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
@@ -209,7 +204,6 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-RenderDeferred				1	1
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
@@ -241,7 +235,6 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
@@ -273,7 +266,6 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 WLSkyDetail					1	48
@@ -305,7 +297,6 @@ RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderVolumeLODFactor		1	2.0
 WLSkyDetail					1	128
-RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 RenderFSAASamples			1	2
@@ -324,7 +315,6 @@ RenderTonemapMix			1   0.7
 list Unknown
 RenderVBOEnable				1	0
 RenderShadowDetail			1	0
-RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 
 //
@@ -369,7 +359,6 @@ RenderVBOEnable				1	1
 list NoPixelShaders
 RenderAvatarCloth			0	0
 RenderReflectionDetail		0	0
-RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 
@@ -379,7 +368,6 @@ RenderShadowDetail			0	0
 list NoVertexShaders
 RenderAvatarCloth			0	0
 RenderReflectionDetail		0	0
-RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 
@@ -400,7 +388,6 @@ RenderAvatarMaxComplexity          1	80000
 RenderMaxPartCount			1	1024
 RenderVBOEnable				1	0
 RenderReflectionDetail		0	0
-RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 
@@ -424,7 +411,6 @@ list OpenGLPre15
 RenderVBOEnable				1	0
 
 list OpenGLPre30
-RenderDeferred				0	0
 RenderMaxTextureIndex		1	1
 
 list Intel
