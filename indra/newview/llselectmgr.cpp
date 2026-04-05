@@ -6283,11 +6283,6 @@ void LLSelectMgr::updateSilhouettes()
     updateSelectionSilhouette(mSelectedObjects, num_sils_genned, changed_objects);
     if (mRectSelectedObjects.size() > 0)
     {
-        //gGLSPipelineSelection.set();
-
-        //mSilhouetteImagep->bindTexture();
-        //glAlphaFunc(GL_GREATER, sHighlightAlphaTest);
-
         std::set<LLViewerObject*> roots;
 
         // sync mHighlightedObjects with mRectSelectedObjects since the latter is rebuilt every frame and former
@@ -6476,11 +6471,6 @@ void LLSelectMgr::updateSelectionSilhouette(LLObjectSelectionHandle object_handl
 {
     if (object_handle->getNumNodes())
     {
-        //gGLSPipelineSelection.set();
-
-        //mSilhouetteImagep->bindTexture();
-        //glAlphaFunc(GL_GREATER, sHighlightAlphaTest);
-
         for (S32 pass = 0; pass < 2; pass++)
         {
             for (LLObjectSelection::iterator iter = object_handle->begin();
