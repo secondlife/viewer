@@ -5254,6 +5254,7 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
     {
         mat = (LLFetchedGLTFMaterial*) gGLTFMaterialList.getMaterial(mat_id);
         llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(gGLTFMaterialList.getMaterial(mat_id)) != nullptr);
+        if (!mat) { return; }
         if (mat->isFetching())
         { // material is not loaded yet, rebuild draw info when the object finishes loading
             mat->onMaterialComplete([id=getID()]
@@ -5669,7 +5670,6 @@ S32 LLViewerObject::initRenderMaterial(U8 te)
     LLTextureEntry* tep = getTE(te);
     if (!tep) { return 0; }
     const LLFetchedGLTFMaterial* base_material = static_cast<LLFetchedGLTFMaterial*>(tep->getGLTFMaterial());
-    llassert(base_material);
     if (!base_material) { return 0; }
     const LLGLTFMaterial* override_material = tep->getGLTFMaterialOverride();
     LLFetchedGLTFMaterial* render_material = nullptr;
@@ -7576,22 +7576,26 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
 
         if (material_changed && new_material)
         {
-            // Sometimes, the material may change out from underneath the overrides.
-            // This is usually due to the server sending a new material ID, but
-            // the overrides have not changed due to being only texture
-            // transforms. Re-apply the overrides to the render material here,
-            // if present.
-            // Also, sometimes, the material has baked textures, which requires
-            // a copy unique to this object.
-            // Currently, we do not deduplicate render materials.
-            new_material->onMaterialComplete([obj_id = getID(), te]()
+            // Build the render material immediately so that the TE is never in
+            // an inconsistent state (override exists but render material is
+            // null). If the base material is still fetching, this uses whatever
+            // partial state is available — the callback below will rebuild it
+            // once the fetch completes.
+            initRenderMaterial(te);
+
+            if (new_material->isFetching())
             {
-                LLViewerObject* obj = gObjectList.findObject(obj_id);
-                if (!obj) { return; }
-                LLTextureEntry* tep = obj->getTE(te);
-                if (!tep || !tep->getGLTFMaterial()) { return; }
-                obj->initRenderMaterial(te);
-            });
+                // Refresh the render material once the full base material is
+                // available, replacing the partial version built above.
+                new_material->onMaterialComplete([obj_id = getID(), te]()
+                {
+                    LLViewerObject* obj = gObjectList.findObject(obj_id);
+                    if (!obj) { return; }
+                    LLTextureEntry* tep = obj->getTE(te);
+                    if (!tep || !tep->getGLTFMaterial()) { return; }
+                    obj->initRenderMaterial(te);
+                });
+            }
         }
     }
 

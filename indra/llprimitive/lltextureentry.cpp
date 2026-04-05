@@ -600,7 +600,9 @@ LLGLTFMaterial* LLTextureEntry::getGLTFRenderMaterial() const
         return mGLTFRenderMaterial;
     }
 
-    llassert(getGLTFMaterialOverride() == nullptr || getGLTFMaterialOverride()->isClearedForBaseMaterial());
+    // Override may temporarily have non-base properties while the render
+    // material is being rebuilt (e.g. during async material fetch). The
+    // caller gets the base material as a safe fallback.
     return getGLTFMaterial();
 }
 
