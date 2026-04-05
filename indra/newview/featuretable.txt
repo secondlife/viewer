@@ -40,18 +40,15 @@ RenderFogRatio				1	4.0
 RenderGamma					1	0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	8192
-RenderObjectBump			1	1
 RenderLocalLightCount		1	4096
 RenderTransparentWater      1   1
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	2
-RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   3
 RenderTreeLODFactor			1	1.0
 RenderVBOEnable				1	1
-RenderVBOMappingDisable		1	1
 RenderVolumeLODFactor		1	2.0
 UseStartScreen				1	1
 UseOcclusion				1	1
@@ -64,7 +61,6 @@ RenderReflectionProbeLevel  1   3
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
-RenderUseStreamVBO			1	1
 RenderFSAAType			    1	2
 RenderFSAASamples			1	3
 RenderMaxTextureIndex		1	16
@@ -104,7 +100,6 @@ RenderMaxPartCount			1	0
 RenderTransparentWater      1   0
 RenderReflectionsEnabled    1   0
 RenderReflectionProbeDetail	1	0
-RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTerrainPBRDetail      1   -4
 RenderTerrainPBRPlanarSampleCount 1   1
@@ -147,7 +142,6 @@ RenderLocalLightCount		1	256
 RenderTransparentWater      1   0
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
-RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
 RenderTerrainPBRDetail      1   -1
 RenderTerrainPBRPlanarSampleCount 1   1
@@ -188,7 +182,6 @@ RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	512
 RenderTransparentWater      1   0
-RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   1
@@ -230,7 +223,6 @@ RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	1024
 RenderTransparentWater      1   0
-RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   1
@@ -272,7 +264,6 @@ RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	2048
 RenderTransparentWater      1   1
-RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   3
@@ -313,7 +304,6 @@ RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	4096
-RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   3
@@ -354,7 +344,6 @@ RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderLocalLightCount		1	8192
 RenderMaxPartCount			1	8192
-RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   3
@@ -406,7 +395,6 @@ RenderAvatarMaxNonImpostors 1	16
 RenderAvatarMaxComplexity          1	80000
 RenderLocalLightCount		1	0
 RenderMaxPartCount			1	1024
-RenderTerrainDetail 		1	0
 RenderTransparentWater      1   0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
