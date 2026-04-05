@@ -67,10 +67,6 @@
 #include "llpanelloginlistener.h"
 #include "stringize.h"
 
-#if LL_WINDOWS
-#pragma warning(disable: 4355)      // 'this' used in initializer list
-#endif  // LL_WINDOWS
-
 #include "llsdserialize.h"
 #include <functional>
 

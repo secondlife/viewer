@@ -286,13 +286,6 @@ LLFloater* LLFloaterBuyLand::buildFloater(const LLSD& key)
 // LLFloaterBuyLandUI
 //----------------------------------------------------------------------------
 
-#if LL_WINDOWS
-// passing 'this' during construction generates a warning. The callee
-// only uses the pointer to hold a reference to 'this' which is
-// already valid, so this call does the correct thing. Disable the
-// warning so that we can compile without generating a warning.
-#pragma warning(disable : 4355)
-#endif
 LLFloaterBuyLandUI::LLFloaterBuyLandUI(const LLSD& key)
 :   LLFloater(LLSD()),
     mParcelSelectionObserver(this),

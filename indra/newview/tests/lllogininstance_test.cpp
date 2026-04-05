@@ -44,7 +44,6 @@
 #include "lltrans.h"
 
 #if defined(LL_WINDOWS)
-#pragma warning(disable: 4355)      // using 'this' in base-class ctor initializer expr
 #pragma warning(disable: 4702)      // disable 'unreachable code' so we can safely use skip().
 #endif
 

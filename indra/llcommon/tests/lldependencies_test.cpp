@@ -37,10 +37,6 @@
 #include "../lldependencies.h"
 // other Linden headers
 
-#if LL_WINDOWS
-#pragma warning (disable : 4675) // "resolved by ADL" -- just as I want!
-#endif
-
 /*****************************************************************************
 *   Display helpers: must be defined BEFORE lltut.h!
 *****************************************************************************/

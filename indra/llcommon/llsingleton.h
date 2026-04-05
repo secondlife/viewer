@@ -39,7 +39,7 @@
 
 #ifdef LL_WINDOWS
 #pragma warning(push)
-#pragma warning(disable : 4506)   // no definition for inline function
+#pragma warning(disable : 4506) // no definition for inline function (singleton template)
 #endif
 
 class LLSingletonBase

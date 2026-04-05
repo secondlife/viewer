@@ -26,12 +26,6 @@
  * $/LicenseInfo$
  */
 
-/*==========================================================================*|
-#if LL_WINDOWS
-#pragma warning (disable : 4675) // "resolved by ADL" -- just as I want!
-#endif
-|*==========================================================================*/
-
 // STL headers
 #include <iomanip>
 

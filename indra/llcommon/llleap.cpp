@@ -32,10 +32,6 @@
 #include "llleaplistener.h"
 #include "llexception.h"
 
-#if LL_MSVC
-#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
-#endif
-
 LLLeap::LLLeap() {}
 
 class LLLeapImpl: public LLLeap

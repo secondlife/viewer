@@ -34,9 +34,6 @@
 #include "llspeakers.h"
 
 //LLParticipantList retrieves add, clear and remove events and updates view accordingly
-#if LL_MSVC
-#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
-#endif
 
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewModelInterface& root_view_model) :
     LLConversationItemSession(data_source->getSessionID(), root_view_model),

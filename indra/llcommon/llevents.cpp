@@ -29,10 +29,6 @@
 // Precompiled header
 #include "linden_common.h"
 
-#if LL_WINDOWS
-#pragma warning (disable : 4675) // "resolved by ADL" -- just as I want!
-#endif
-
 // associated header
 #include "llevents.h"
 // STL headers
@@ -342,10 +338,6 @@ LLEventPumps::~LLEventPumps()
 /*****************************************************************************
 *   LLEventPump
 *****************************************************************************/
-#if LL_WINDOWS
-#pragma warning (push)
-#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
-#endif
 const std::string LLEventPump::ANONYMOUS = std::string();
 
 
@@ -356,10 +348,6 @@ LLEventPump::LLEventPump(const std::string& name, bool tweak):
     mSignal(std::make_shared<LLStandardSignal>()),
     mEnabled(true)
 {}
-
-#if LL_WINDOWS
-#pragma warning (pop)
-#endif
 
 LLEventPump::~LLEventPump()
 {

@@ -29,10 +29,6 @@
 #if ! defined(LL_WRAPLLERRS_H)
 #define LL_WRAPLLERRS_H
 
-#if LL_WINDOWS
-#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
-#endif
-
 #include <tut/tut.hpp>
 #include "llerrorcontrol.h"
 #include "llexception.h"
