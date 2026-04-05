@@ -171,7 +171,7 @@ void APIENTRY gl_debug_callback(GLenum source,
 }
 #endif
 
-void parse_glsl_version(S32& major, S32& minor);
+
 
 void ll_init_fail_log(std::string filename)
 {
@@ -998,8 +998,6 @@ LLGLManager::LLGLManager() :
     mDriverVersionMajor(1),
     mDriverVersionMinor(0),
     mDriverVersionRelease(0),
-    mGLSLVersionMajor(0),
-    mGLSLVersionMinor(0),
     mVRAM(0),
     mGLMaxVertexRange(0),
     mGLMaxIndexRange(0)
@@ -1075,7 +1073,6 @@ bool LLGLManager::initGL()
         &mDriverVersionVendorString,
         &mGLVersionString);
 
-    parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
 
     if (LLImageGL::sCompressTextures)
     { //use texture compression
@@ -2486,53 +2483,6 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
     }
 }
 
-void parse_glsl_version(S32& major, S32& minor)
-{
-    // GL_SHADING_LANGUAGE_VERSION returns a null-terminated string with the format:
-    // <major>.<minor>[.<release>] [<vendor specific>]
-
-    const char* version = (const char*) glGetString(GL_SHADING_LANGUAGE_VERSION);
-    major = 0;
-    minor = 0;
-
-    if( !version )
-    {
-        return;
-    }
-
-    std::string ver_copy( version );
-    S32 len = (S32)strlen( version );   /* Flawfinder: ignore */
-    S32 i = 0;
-    S32 start;
-    // Find the major version
-    start = i;
-    for( ; i < len; i++ )
-    {
-        if( '.' == version[i] )
-        {
-            break;
-        }
-    }
-    std::string major_str = ver_copy.substr(start,i-start);
-    LLStringUtil::convertToS32(major_str, major);
-
-    if( '.' == version[i] )
-    {
-        i++;
-    }
-
-    // Find the minor version
-    start = i;
-    for( ; i < len; i++ )
-    {
-        if( ('.' == version[i]) || isspace(version[i]) )
-        {
-            break;
-        }
-    }
-    std::string minor_str = ver_copy.substr(start,i-start);
-    LLStringUtil::convertToS32(minor_str, minor);
-}
 
 LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glm::mat4& modelview, const glm::mat4& projection, bool apply)
 {

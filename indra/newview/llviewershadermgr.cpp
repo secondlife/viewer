@@ -590,7 +590,7 @@ void LLViewerShaderMgr::setShaders()
 
     // Shaders
     LL_INFOS("ShaderLoading") << "\n~~~~~~~~~~~~~~~~~~\n Loading Shaders:\n~~~~~~~~~~~~~~~~~~" << LL_ENDL;
-    LL_INFOS("ShaderLoading") << llformat("Using GLSL %d.%d", gGLManager.mGLSLVersionMajor, gGLManager.mGLSLVersionMinor) << LL_ENDL;
+    LL_INFOS("ShaderLoading") << "Using GLSL 4.60" << LL_ENDL;
 
     for (S32 i = 0; i < SHADER_COUNT; i++)
     {

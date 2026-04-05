@@ -114,8 +114,6 @@ public:
     S32 mDriverVersionMajor;
     S32 mDriverVersionMinor;
     S32 mDriverVersionRelease;
-    S32 mGLSLVersionMajor;
-    S32 mGLSLVersionMinor;
     std::string mDriverVersionVendorString;
     std::string mGLVersionString;
 
