@@ -31,9 +31,6 @@
 #include "LLPhysicsExtensionsStubImpl.h"
 
 
-//disable the undefined symbol optimization
-//#pragma warning (disable : 4221)
-
 //=============================================================================
 
 /*static */bool LLPhysicsExtensions::s_isInitialized = false;

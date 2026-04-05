@@ -1224,12 +1224,6 @@ void LLWindowMacOSX::setMouseClipping( bool b )
     adjustCursorDecouple();
 }
 
-#if LL_DARWIN
-// For CGSetLocalEventsSuppressionInterval there is no replacement in modern API
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 bool LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
 {
     bool result = false;
@@ -1263,10 +1257,6 @@ bool LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
 
     return result;
 }
-
-#if LL_DARWIN
-#pragma clang diagnostic pop
-#endif
 
 bool LLWindowMacOSX::getCursorPosition(LLCoordWindow *position)
 {

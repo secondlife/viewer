@@ -74,15 +74,7 @@ namespace tut
 // features, we need calls in tut.hpp template functions to dispatch to our
 // overloads declared above.
 
-// turn off warnings about unused functions from clang for tut package
-#if __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-#endif
 #include <tut/tut.hpp>
-#if __clang__
-#pragma clang diagnostic pop
-#endif
 
 // The functions BELOW this point actually consume tut.hpp functionality.
 namespace tut

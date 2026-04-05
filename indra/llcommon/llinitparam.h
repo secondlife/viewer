@@ -2020,7 +2020,6 @@ namespace LLInitParam
     protected:
         Block()
         {
-            //#pragma message("Parsing LLInitParam::Block")
             BaseBlock::init(getBlockDescriptor(), BASE_BLOCK::getBlockDescriptor(), sizeof(DERIVED_BLOCK));
         }
 
@@ -2041,7 +2040,6 @@ namespace LLInitParam
             explicit Optional(const char* name = "", const default_value_t& val = defaultValue<default_value_t>())
             :   super_t(DERIVED_BLOCK::getBlockDescriptor(), name, val, NULL, 0, 1)
             {
-                //#pragma message("Parsing LLInitParam::Block::Optional")
             }
 
             Optional& operator =(const value_t& val)

@@ -706,10 +706,8 @@ bool LLAppViewerWin32::init()
 
 #if LL_SEND_CRASH_REPORTS
 #if ! defined(LL_BUGSPLAT)
-#pragma message("Building without BugSplat")
 
 #else // LL_BUGSPLAT
-#pragma message("Building with BugSplat")
 
     if (!isSecondInstance())
     {

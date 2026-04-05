@@ -124,11 +124,6 @@
 #include "llerror.h"
 #ifndef LL_WINDOWS
 #define A_GCC 1
-#pragma GCC diagnostic ignored "-Wunused-function"
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#if LL_LINUX
-#pragma GCC diagnostic ignored "-Wrestrict"
-#endif
 #endif
 #define A_CPU 1
 #include "app_settings/shaders/class1/deferred/CASF.glsl" // This is also C++

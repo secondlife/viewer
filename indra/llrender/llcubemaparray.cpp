@@ -40,8 +40,6 @@
 
 #include "llglheaders.h"
 
-//#pragma optimize("", off)
-
 using namespace LLImageGLMemory;
 
 // MUST match order of OpenGL face-layers
