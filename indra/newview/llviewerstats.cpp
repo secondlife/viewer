@@ -728,24 +728,17 @@ void send_viewer_stats(bool include_preferences)
 
 
     S32 shader_level = 0;
-    if (LLPipeline::sRenderDeferred)
+    if (LLPipeline::RenderShadowDetail > 0)
     {
-        if (LLPipeline::RenderShadowDetail > 0)
-        {
-            shader_level = 5;
-        }
-        else if (LLPipeline::RenderDeferredSSAO)
-        {
-            shader_level = 4;
-        }
-        else
-        {
-            shader_level = 3;
-        }
+        shader_level = 5;
+    }
+    else if (LLPipeline::RenderDeferredSSAO)
+    {
+        shader_level = 4;
     }
     else
     {
-        shader_level = 2;
+        shader_level = 3;
     }
 
 

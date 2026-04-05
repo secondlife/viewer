@@ -438,10 +438,8 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     gSnapshot = for_snapshot;
 
-    if (LLPipeline::sRenderDeferred)
-    { //hack to make sky show up in deferred snapshots
-        for_snapshot = false;
-    }
+    //hack to make sky show up in deferred snapshots
+    for_snapshot = false;
 
     LLGLSDefault gls_default;
     LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE, GL_LEQUAL);
@@ -1028,13 +1026,10 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
         LLAppViewer::instance()->pingMainloopTimeout("Display:RenderFlush");
 
-        LLRenderTarget &rt = (gPipeline.sRenderDeferred ? gPipeline.mRT->deferredScreen : gPipeline.mRT->screen);
+        LLRenderTarget &rt = gPipeline.mRT->deferredScreen;
         rt.flush();
 
-        if (LLPipeline::sRenderDeferred)
-        {
-            gPipeline.renderDeferredLighting();
-        }
+        gPipeline.renderDeferredLighting();
 
         LLPipeline::sUnderWaterRender = false;
 

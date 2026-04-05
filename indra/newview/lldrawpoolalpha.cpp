@@ -160,7 +160,6 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     }
 
     // prepare shaders
-    llassert(LLPipeline::sRenderDeferred);
 
     emissive_shader = &gDeferredEmissiveProgram;
     prepare_alpha_shader(emissive_shader, false, water_sign);

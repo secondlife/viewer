@@ -681,7 +681,6 @@ public:
     static bool             sTextureBindTest;
     static bool             sRenderAttachedLights;
     static bool             sRenderAttachedParticles;
-    static bool             sRenderDeferred;
     static bool             sReflectionProbesEnabled;
     static S32              sVisibleLightCount;
     static bool             sRenderingHUDs;
@@ -1007,7 +1006,6 @@ public:
     static U32              sCurRenderPoolType ;
 
     //cached settings
-    static bool RenderDeferred;
     static F32 RenderDeferredSunWash;
     static U32 RenderFSAAType;
     static U32 RenderResolutionDivisor;
@@ -1023,7 +1021,6 @@ public:
     static F32 RenderHighlightBrightness;
     static LLColor4 RenderHighlightColor;
     static F32 RenderHighlightThickness;
-    static bool RenderSpotLightsInNondeferred;
     static LLColor4 PreviewAmbientColor;
     static LLColor4 PreviewDiffuse0;
     static LLColor4 PreviewSpecular0;
