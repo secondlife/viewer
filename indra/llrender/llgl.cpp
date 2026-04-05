@@ -998,7 +998,6 @@ LLGLManager::LLGLManager() :
     mDriverVersionMajor(1),
     mDriverVersionMinor(0),
     mDriverVersionRelease(0),
-    mGLVersion(1.0f),
     mGLSLVersionMajor(0),
     mGLSLVersionMinor(0),
     mVRAM(0),
@@ -1075,8 +1074,6 @@ bool LLGLManager::initGL()
         &mDriverVersionRelease,
         &mDriverVersionVendorString,
         &mGLVersionString);
-
-    mGLVersion = mDriverVersionMajor + mDriverVersionMinor * .1f;
 
     parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
 

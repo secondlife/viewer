@@ -709,28 +709,8 @@ void LLFeatureManager::applyBaseMasks()
     {
         maskFeatures("NonAppleGPU");
     }
-    // GL 4.6 minimum — OpenGLPre30 mask no longer needed
-    if (gGLManager.mNumTextureImageUnits <= 8)
-    {
-        maskFeatures("TexUnit8orLess");
-    }
-    if (gGLManager.mNumTextureImageUnits <= 16)
-    {
-        maskFeatures("TexUnit16orLess");
-    }
-    if (gGLManager.mVRAM > 512)
-    {
-        maskFeatures("VRAMGT512");
-    }
-    if (gGLManager.mVRAM < 2048)
-    {
-        maskFeatures("VRAMLT2GB");
-    }
-    // GL 4.6 minimum — GL3 feature mask no longer needed
-    if (gGLManager.mMaxVaryingVectors <= 16)
-    {
-        maskFeatures("VaryingVectors16orLess");
-    }
+    // GL 4.6 minimum — texture unit, VRAM, and varying vector masks removed
+    // (TexUnit8orLess, TexUnit16orLess, VRAMGT512, VRAMLT2GB, VaryingVectors16orLess)
 
     // now mask by gpu string
     // Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces

@@ -600,7 +600,7 @@ void LLViewerShaderMgr::setShaders()
 
     LLVertexBuffer::unbind();
 
-    llassert((gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10));
+    // GL 4.6 guarantees GLSL 4.60
 
 
     S32 light_class = 3;
@@ -790,10 +790,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     shaders.push_back( make_pair( "avatar/avatarSkinV.glsl",                1 ) );
     shaders.push_back( make_pair( "avatar/objectSkinV.glsl",                1 ) );
     shaders.push_back( make_pair( "deferred/textureUtilV.glsl",             1 ) );
-    if (gGLManager.mGLSLVersionMajor >= 2 || gGLManager.mGLSLVersionMinor >= 30)
-    {
-        shaders.push_back( make_pair( "objects/indexedTextureV.glsl",           1 ) );
-    }
+    shaders.push_back( make_pair( "objects/indexedTextureV.glsl",           1 ) );
     shaders.push_back( make_pair( "objects/nonindexedTextureV.glsl",        1 ) );
 
     std::map<std::string, std::string> attribs;
@@ -872,10 +869,8 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     shaders.clear();
     S32 ch = 1;
 
-    if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 30)
-    { //use indexed texture rendering for GLSL >= 1.30
-        ch = llmax(LLGLSLShader::sIndexedTextureChannels, 1);
-    }
+    // GL 4.6 guarantees GLSL 4.60 — indexed texture rendering always available
+    ch = llmax(LLGLSLShader::sIndexedTextureChannels, 1);
 
 
     std::vector<S32> index_channels;

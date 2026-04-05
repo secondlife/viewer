@@ -537,61 +537,8 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     GLuint extra_code_count = 0, shader_code_count = 0;
     BOOST_STATIC_ASSERT(LL_ARRAY_SIZE(extra_code_text) < LL_ARRAY_SIZE(shader_code_text));
 
-    S32 major_version = gGLManager.mGLSLVersionMajor;
-    S32 minor_version = gGLManager.mGLSLVersionMinor;
-
-    if (major_version == 1 && minor_version < 30)
-    {
-        llassert(false); // GL 3.1 or later required
-    }
-    else
-    {
-        if (major_version >= 4)
-        {
-            //set version to 400 or 420
-            if (minor_version >= 20)
-            {
-                shader_code_text[shader_code_count++] = strdup("#version 420\n");
-            }
-            else
-            {
-                shader_code_text[shader_code_count++] = strdup("#version 400\n");
-            }
-        }
-        else if (major_version == 3)
-        {
-            if (minor_version <= 29)
-            {
-                // OpenGL 3.2 had GLSL version 1.50.  anything after that the version numbers match.
-                // https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)#OpenGL_and_GLSL_versions
-                shader_code_text[shader_code_count++] = strdup("#version 150\n");
-            }
-            else
-            {
-                shader_code_text[shader_code_count++] = strdup("#version 330\n");
-            }
-        }
-        else
-        {
-            // OpenGL 3.2 had GLSL version 1.50.  anything after that the version numbers match.
-            if (type == GL_GEOMETRY_SHADER || minor_version >= 50)
-            {
-                //set version to 1.50
-                shader_code_text[shader_code_count++] = strdup("#version 150\n");
-                //some implementations of GLSL 1.30 require integer precision be explicitly declared
-                extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
-                extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
-            }
-            else
-            {
-                //set version to 1.40
-                shader_code_text[shader_code_count++] = strdup("#version 140\n");
-                //some implementations of GLSL 1.30 require integer precision be explicitly declared
-                extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
-                extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
-            }
-        }
-    }
+    // GL 4.6 minimum — always use GLSL 4.60
+    shader_code_text[shader_code_count++] = strdup("#version 460\n");
 
     if (type == GL_FRAGMENT_SHADER)
     {

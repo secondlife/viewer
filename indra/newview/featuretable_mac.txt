@@ -382,12 +382,6 @@ RenderDisableVintageMode           1   0
 
 
 //
-// VRAM > 512MB
-//
-list VRAMGT512
-RenderCompressTextures		1	0
-
-//
 // "Default" setups for safe, low, medium, high
 //
 list safe
@@ -402,12 +396,6 @@ RenderMirrors				0	0
 RenderDisableVintageMode           1   0
 RenderMaxTextureResolution         1   2048
 RenderReflectionProbeCount  0   0
-
-list TexUnit8orLess
-RenderDeferredSSAO			0	0
-
-list TexUnit16orLess
-RenderTerrainPBRDetail      1   -1
 
 list AMD
 UseOcclusion                    1   0
@@ -443,6 +431,3 @@ RenderReflectionsEnabled    0   0
 RenderMirrors				0	0
 RenderDisableVintageMode           1   0
 RenderReflectionProbeCount  0   0
-
-list VaryingVectors16orLess
-RenderTerrainPBRPlanarSampleCount 1   1

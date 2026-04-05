@@ -364,12 +364,6 @@ list Class5
 RenderVBOEnable				1	1
 
 //
-// VRAM > 512MB
-//
-list VRAMGT512
-RenderCompressTextures		1	0
-
-//
 // No Pixel Shaders available
 //
 list NoPixelShaders
