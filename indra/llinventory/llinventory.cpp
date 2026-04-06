@@ -1120,7 +1120,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             LLSD const &label = i->second;
             if (label.isString())
             {
-                mInventoryType = LLInventoryType::lookup(label.asStringRef().c_str());
+                mInventoryType = LLInventoryType::lookup(label.asStringRef());
             }
             else if (label.isInteger())
             {

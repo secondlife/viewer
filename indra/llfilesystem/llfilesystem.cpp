@@ -90,7 +90,7 @@ bool LLFileSystem::removeFile(const LLUUID& file_id, const LLAssetType::EType fi
 {
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    LLFile::remove(filename.c_str(), suppress_error);
+    LLFile::remove(filename, suppress_error);
 
     return true;
 }

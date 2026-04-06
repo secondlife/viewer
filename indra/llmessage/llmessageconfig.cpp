@@ -96,7 +96,7 @@ bool LLMessageConfigFile::loadFile()
 {
     LLSD data;
     {
-        llifstream file(filename().c_str());
+        llifstream file(filename());
 
         if (file.is_open())
         {

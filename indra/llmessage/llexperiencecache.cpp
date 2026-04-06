@@ -104,7 +104,7 @@ void LLExperienceCache::initSingleton()
     mCacheFileName = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "experience_cache.xml");
 
     LL_INFOS("ExperienceCache") << "Loading " << mCacheFileName << LL_ENDL;
-    llifstream cache_stream(mCacheFileName.c_str());
+    llifstream cache_stream(mCacheFileName);
 
     if (cache_stream.is_open())
     {
@@ -121,7 +121,7 @@ void LLExperienceCache::cleanup()
 {
     LL_INFOS("ExperienceCache") << "Saving " << mCacheFileName << LL_ENDL;
 
-    llofstream cache_stream(mCacheFileName.c_str());
+    llofstream cache_stream(mCacheFileName);
     if (cache_stream.is_open())
     {
         cache_stream << (*this);

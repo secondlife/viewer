@@ -48,7 +48,7 @@ bool LLEventRecorder::displayViewerEventRecorderMenuItems() {
 
 void LLEventRecorder::setEventLoggingOn() {
   if (! mLog.is_open()) {
-      mLog.open(mLogFilename.c_str(), std::ios_base::out);
+      mLog.open(mLogFilename, std::ios_base::out);
   }
   logEvents=true;
   LL_DEBUGS() << "LLEventRecorder::setEventLoggingOn event logging turned on" << LL_ENDL;

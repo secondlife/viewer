@@ -509,7 +509,7 @@ ELoadStatus LLBVHLoader::loadAliases(const char * filename)
     std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,filename);
 
     llifstream input_stream;
-    input_stream.open(fullpath.c_str(), std::ios::in | std::ios::binary);
+    input_stream.open(fullpath, std::ios::in | std::ios::binary);
 
     if(input_stream.is_open())
     {

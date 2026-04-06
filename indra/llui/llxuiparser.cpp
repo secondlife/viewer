@@ -630,7 +630,7 @@ void LLXUIXSDWriter::writeXSD(const std::string& type_name, const std::string& p
         }
     }
 
-    LLFILE* xsd_file = LLFile::fopen(file_name.c_str(), "w");
+    LLFILE* xsd_file = LLFile::fopen(file_name, "w");
     LLXMLNode::writeHeaderToFile(xsd_file);
     root_nodep->writeToFile(xsd_file);
     fclose(xsd_file);

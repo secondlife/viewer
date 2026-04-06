@@ -135,7 +135,7 @@ namespace {
         RecordToFile(const std::string& filename):
             mName(filename)
         {
-            mFile.open(filename.c_str(), std::ios_base::out | std::ios_base::app);
+            mFile.open(filename, std::ios_base::out | std::ios_base::app);
             if (!mFile)
             {
                 LL_INFOS() << "Error setting log file to " << filename << LL_ENDL;
@@ -454,7 +454,7 @@ namespace
         LLSD configuration;
 
         {
-            llifstream file(filename().c_str());
+            llifstream file(filename());
             if (!file.is_open())
             {
                 LL_WARNS() << filename() << " failed to open file; not changing configuration" << LL_ENDL;

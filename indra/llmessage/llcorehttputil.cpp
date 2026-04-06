@@ -809,7 +809,7 @@ LLSD HttpCoroutineAdapter::postFileAndSuspend(LLCore::HttpRequest::ptr_t request
     // scoping for our streams so that they go away when we no longer need them.
     {
         LLCore::BufferArrayStream outs(fileData.get());
-        llifstream ins(fileName.c_str(), std::iostream::binary | std::iostream::out);
+        llifstream ins(fileName, std::iostream::binary | std::iostream::out);
 
         if (ins.is_open())
         {

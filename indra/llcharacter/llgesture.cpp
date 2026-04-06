@@ -223,7 +223,7 @@ bool LLGestureList::triggerAndReviseString(const std::string &string, std::strin
 
                         // Don't muck with the user's capitalization if we don't have to.
                         const std::string& output = gesture->getOutputString();
-                        std::string output_lower = std::string(output.c_str());
+                        std::string output_lower = std::string(output);
                         LLStringUtil::toLower(output_lower);
                         if( cur_token_lower == output_lower )
                         {

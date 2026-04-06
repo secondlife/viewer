@@ -175,7 +175,7 @@ void APIENTRY gl_debug_callback(GLenum source,
 
 void ll_init_fail_log(std::string filename)
 {
-    gFailLog.open(filename.c_str());
+    gFailLog.open(filename);
 }
 
 void ll_fail(std::string msg)

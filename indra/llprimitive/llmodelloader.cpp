@@ -265,7 +265,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 
     S32 file_size = (S32) stat.st_size;
 
-    llifstream ifstream(filename.c_str(), std::ifstream::in | std::ifstream::binary);
+    llifstream ifstream(filename, std::ifstream::in | std::ifstream::binary);
     LLSD data;
     LLSDSerialize::fromBinary(data, ifstream, file_size);
     ifstream.close();
@@ -518,7 +518,7 @@ void LLModelLoader::dumpDebugData()
     std::string log_file = mFilename + "_importer.txt";
     LLStringUtil::toLower(log_file);
     llofstream file;
-    file.open(log_file.c_str());
+    file.open(log_file);
     if (!file)
     {
         LL_WARNS() << "dumpDebugData failed to open file " << log_file << LL_ENDL;

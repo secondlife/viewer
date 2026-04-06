@@ -1171,7 +1171,7 @@ std::string LLDAELoader::preprocessDAE(std::string filename)
 {
     // Open a DAE file for some preprocessing (like removing space characters in IDs), see MAINT-5678
     llifstream inFile;
-    inFile.open(filename.c_str(), std::ios_base::in);
+    inFile.open(filename, std::ios_base::in);
     std::stringstream strStream;
     strStream << inFile.rdbuf();
     std::string buffer = strStream.str();
@@ -1493,7 +1493,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
             JointMap :: const_iterator masterJointItEnd = mJointMap.end();
             for (;masterJointIt!=masterJointItEnd;++masterJointIt )
             {
-                std::string lookingForJoint = (*masterJointIt).first.c_str();
+                std::string lookingForJoint = (*masterJointIt).first;
 
                 if ( mJointList.find( lookingForJoint ) != mJointList.end() )
                 {
@@ -1530,7 +1530,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         const int jointCnt = static_cast<int>(model->mSkinInfo.mJointNames.size());
         for ( int i=0; i<jointCnt; ++i, ++jointIt )
         {
-            std::string lookingForJoint = (*jointIt).c_str();
+            std::string lookingForJoint = *jointIt;
             //Look for the joint xform that we extracted from the skeleton, using the jointIt as the key
             //and store it in the alternate bind matrix
             if (mJointMap.find(lookingForJoint) != mJointMap.end()

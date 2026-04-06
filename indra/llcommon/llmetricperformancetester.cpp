@@ -131,8 +131,8 @@ void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std
     }
 
     // Open baseline and current target, exit if one is inexistent
-    llifstream base_is(baseline.c_str());
-    llifstream target_is(target.c_str());
+    llifstream base_is(baseline);
+    llifstream target_is(target);
     if (!base_is.is_open() || !target_is.is_open())
     {
         LL_WARNS() << "'-analyzeperformance' error : baseline or current target file inexistent" << LL_ENDL;
@@ -150,7 +150,7 @@ void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std
     target_is.close();
 
     //output comparision
-    llofstream os(output.c_str());
+    llofstream os(output);
 
     os << "Label, Metric, Base(B), Target(T), Diff(T-B), Percentage(100*T/B)\n";
     for (auto& [name, tester_ptr] : LLMetricPerformanceTesterBasic::sTesterMap)

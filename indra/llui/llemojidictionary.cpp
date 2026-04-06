@@ -267,7 +267,7 @@ void LLEmojiDictionary::loadTranslations()
     }
 
     const std::string filename = filenames.back();
-    llifstream file(filename.c_str());
+    llifstream file(filename);
     if (!file.is_open())
     {
         LL_WARNS() << "Emoji file categories failed to open" << LL_ENDL;
@@ -304,7 +304,7 @@ void LLEmojiDictionary::loadTranslations()
 void LLEmojiDictionary::loadGroups()
 {
     const std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, COMMON_GROUP_FILENAME);
-    llifstream file(filename.c_str());
+    llifstream file(filename);
     if (!file.is_open())
     {
         LL_WARNS() << "Emoji file groups failed to open" << LL_ENDL;
@@ -364,7 +364,7 @@ void LLEmojiDictionary::loadEmojis()
     }
 
     const std::string filename = filenames.back();
-    llifstream file(filename.c_str());
+    llifstream file(filename);
     if (!file.is_open())
     {
         LL_WARNS() << "Emoji file characters failed to open" << LL_ENDL;

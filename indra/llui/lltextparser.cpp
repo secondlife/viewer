@@ -210,7 +210,7 @@ void LLTextParser::loadKeywords()
     if (!filename.empty())
     {
         llifstream file;
-        file.open(filename.c_str());
+        file.open(filename);
         if (file.is_open())
         {
             LLSDSerialize::fromXML(mHighlights, file);
@@ -230,7 +230,7 @@ bool LLTextParser::saveToDisk(LLSD highlights)
         return false;
     }
     llofstream file;
-    file.open(filename.c_str());
+    file.open(filename);
     LLSDSerialize::toPrettyXML(mHighlights, file);
     file.close();
     return true;

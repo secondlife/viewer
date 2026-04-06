@@ -125,13 +125,13 @@ void LLSpellChecker::refreshDictionaryMap()
 
     // Load dictionary information (file name, friendly name, ...)
     std::string user_filename(user_path + DICT_FILE_MAIN);
-    llifstream user_file(user_filename.c_str(), std::ios::binary);
+    llifstream user_file(user_filename, std::ios::binary);
     if ( (!user_file.is_open())
         || (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXMLDocument(mDictMap, user_file))
         || (0 == mDictMap.size()) )
     {
         std::string app_filename(app_path + DICT_FILE_MAIN);
-        llifstream app_file(app_filename.c_str(), std::ios::binary);
+        llifstream app_file(app_filename, std::ios::binary);
         if ( (!app_file.is_open())
             || (LLSDParser::PARSE_FAILURE == LLSDSerialize::fromXMLDocument(mDictMap, app_file))
             || (0 == mDictMap.size()) )
@@ -142,7 +142,7 @@ void LLSpellChecker::refreshDictionaryMap()
 
     // Load user installed dictionary information
     user_filename = user_path + DICT_FILE_USER;
-    llifstream custom_file(user_filename.c_str(), std::ios::binary);
+    llifstream custom_file(user_filename, std::ios::binary);
     if (custom_file.is_open())
     {
         LLSD custom_dict_map;
@@ -198,7 +198,7 @@ void LLSpellChecker::addToDictFile(const std::string& dict_path, const std::stri
 
     if (gDirUtilp->fileExists(dict_path))
     {
-        llifstream file_in(dict_path.c_str(), std::ios::in);
+        llifstream file_in(dict_path, std::ios::in);
         if (file_in.is_open())
         {
             std::string word; int line_num = 0;
@@ -221,7 +221,7 @@ void LLSpellChecker::addToDictFile(const std::string& dict_path, const std::stri
 
     word_list.push_back(word);
 
-    llofstream file_out(dict_path.c_str(), std::ios::out | std::ios::trunc);
+    llofstream file_out(dict_path, std::ios::out | std::ios::trunc);
     if (file_out.is_open())
     {
         file_out << word_list.size() << std::endl;
@@ -334,7 +334,7 @@ void LLSpellChecker::initHunspell(const std::string& dict_language)
 
         if (gDirUtilp->fileExists(user_path + DICT_FILE_IGNORE))
         {
-            llifstream file_in((user_path + DICT_FILE_IGNORE).c_str(), std::ios::in);
+            llifstream file_in(user_path + DICT_FILE_IGNORE, std::ios::in);
             if (file_in.is_open())
             {
                 std::string word; int idxLine = 0;
@@ -441,7 +441,7 @@ LLSD LLSpellChecker::loadUserDictionaryMap()
 {
     LLSD dict_map;
     std::string dict_filename(getDictionaryUserPath() + DICT_FILE_USER);
-    llifstream dict_file(dict_filename.c_str(), std::ios::binary);
+    llifstream dict_file(dict_filename, std::ios::binary);
     if (dict_file.is_open())
     {
         LLSDSerialize::fromXMLDocument(dict_map, dict_file);
@@ -453,7 +453,7 @@ LLSD LLSpellChecker::loadUserDictionaryMap()
 // static
 void LLSpellChecker::saveUserDictionaryMap(const LLSD& dict_map)
 {
-    llofstream dict_file((getDictionaryUserPath() + DICT_FILE_USER).c_str(), std::ios::trunc);
+    llofstream dict_file(getDictionaryUserPath() + DICT_FILE_USER, std::ios::trunc);
     if (dict_file.is_open())
     {
         LLSDSerialize::toPrettyXML(dict_map, dict_file);
