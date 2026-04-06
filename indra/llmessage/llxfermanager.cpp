@@ -1108,7 +1108,7 @@ void LLXferManager::retransmitUnackedPackets()
     // so we don't blow through bandwidth.
     //
 
-    while (mXferAckQueue.size())
+    while (!mXferAckQueue.empty())
     {
         if (mAckThrottle.checkOverflow(1000.0f*8.0f))
         {

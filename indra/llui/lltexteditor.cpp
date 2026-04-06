@@ -1979,7 +1979,7 @@ bool LLTextEditor::handleKeyHere(KEY key, MASK mask )
             LLToolTipMgr::instance().getToolTipMessage(message);
             LLWString tool_tip_text(utf8str_to_wstring(message));
 
-            if (tool_tip_text.size() > 0)
+            if (!tool_tip_text.empty())
             {
                 // Delete any selected characters (the tooltip text replaces them)
                 if(hasSelection())
@@ -2167,7 +2167,7 @@ void LLTextEditor::undo()
 
 bool LLTextEditor::canRedo() const
 {
-    return !mReadOnly && (mUndoStack.size() > 0) && (mLastCmd != mUndoStack.front());
+    return !mReadOnly && (!mUndoStack.empty()) && (mLastCmd != mUndoStack.front());
 }
 
 void LLTextEditor::redo()

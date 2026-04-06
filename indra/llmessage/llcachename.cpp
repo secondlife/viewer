@@ -567,7 +567,7 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
         auto length = close_paren - open_paren - 2;
         std::string legacy_name = complete_name.substr(open_paren+2, length);
 
-        if (legacy_name.length() > 0)
+        if (!legacy_name.empty())
         {
             std::string cap_letter = legacy_name.substr(0, 1);
             LLStringUtil::toUpper(cap_letter);
@@ -580,7 +580,7 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
                 std::string last_name = legacy_name.substr(separator+1);
                 legacy_name = legacy_name.substr(0, separator);
 
-                if (last_name.length() > 0)
+                if (!last_name.empty())
                 {
                     cap_letter = last_name.substr(0, 1);
                     LLStringUtil::toUpper(cap_letter);

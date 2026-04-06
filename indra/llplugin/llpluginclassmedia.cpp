@@ -710,7 +710,7 @@ void LLPluginClassMedia::injectOpenIDCookie()
     // can be called before we know who the user is at login
     // and there is no OpenID cookie at that point so no
     // need to try to set it (these values will all be empty)
-    if (sOIDcookieName.length() && sOIDcookieValue.length())
+    if (!sOIDcookieName.empty() && !sOIDcookieValue.empty())
     {
         setCookie(sOIDcookieUrl, sOIDcookieName,
             sOIDcookieValue, sOIDcookieHost, sOIDcookiePath, sOIDcookieHttpOnly, sOIDcookieSecure);

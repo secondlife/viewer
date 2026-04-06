@@ -590,18 +590,18 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
         LLProxy::applyProxySettings(mCurlHandle);
 
     }
-    else if (gpolicy.mHttpProxy.size())
+    else if (!gpolicy.mHttpProxy.empty())
     {
         // *TODO:  This is fine for now but get fuller socks5/
         // authentication thing going later....
         check_curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, gpolicy.mHttpProxy.c_str());
         check_curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
     }
-    if (gpolicy.mCAPath.size())
+    if (!gpolicy.mCAPath.empty())
     {
         check_curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, gpolicy.mCAPath.c_str());
     }
-    if (gpolicy.mCAFile.size())
+    if (!gpolicy.mCAFile.empty())
     {
         check_curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, gpolicy.mCAFile.c_str());
     }

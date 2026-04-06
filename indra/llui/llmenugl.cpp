@@ -2100,7 +2100,7 @@ void LLMenuGL::arrange( void )
 
     cleanupSpilloverBranch();
 
-    if( mItems.size() )
+    if( !mItems.empty() )
     {
         const LLRect menu_region_rect = LLMenuGL::sMenuContainer ? LLMenuGL::sMenuContainer->getMenuRect() : LLRect(0, S32_MAX, S32_MAX, 0);
 

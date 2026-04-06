@@ -381,7 +381,7 @@ void LLFolderView::addToSelectionList(LLFolderViewItem* item)
     {
         removeFromSelectionList(item);
     }
-    if (mSelectedItems.size())
+    if (!mSelectedItems.empty())
     {
         mSelectedItems.back()->setIsCurSelection(false);
     }
@@ -391,7 +391,7 @@ void LLFolderView::addToSelectionList(LLFolderViewItem* item)
 
 void LLFolderView::removeFromSelectionList(LLFolderViewItem* item)
 {
-    if (mSelectedItems.size())
+    if (!mSelectedItems.empty())
     {
         mSelectedItems.back()->setIsCurSelection(false);
     }
@@ -408,7 +408,7 @@ void LLFolderView::removeFromSelectionList(LLFolderViewItem* item)
             ++item_iter;
         }
     }
-    if (mSelectedItems.size())
+    if (!mSelectedItems.empty())
     {
         mSelectedItems.back()->setIsCurSelection(true);
     }
@@ -416,7 +416,7 @@ void LLFolderView::removeFromSelectionList(LLFolderViewItem* item)
 
 LLFolderViewItem* LLFolderView::getCurSelectedItem( void )
 {
-    if(mSelectedItems.size())
+    if(!mSelectedItems.empty())
     {
         LLFolderViewItem* itemp = mSelectedItems.back();
         llassert(itemp->getIsCurSelection());
@@ -667,7 +667,7 @@ void LLFolderView::draw()
     }
 
     static LLCachedControl<F32> type_ahead_timeout(*LLUI::getInstance()->mSettingGroups["config"], "TypeAheadTimeout", 1.5f);
-    if (mSearchTimer.getElapsedTimeF32() > type_ahead_timeout || !mSearchString.size())
+    if (mSearchTimer.getElapsedTimeF32() > type_ahead_timeout || mSearchString.empty())
     {
         mSearchString.clear();
     }
@@ -910,7 +910,7 @@ bool LLFolderView::autoOpenTest(LLFolderViewFolder* folder)
 
 bool LLFolderView::canCopy() const
 {
-    if (!(getVisible() && getEnabled() && (mSelectedItems.size() > 0)))
+    if (!(getVisible() && getEnabled() && (!mSelectedItems.empty())))
     {
         return false;
     }
@@ -949,7 +949,7 @@ void LLFolderView::copy()
 
 bool LLFolderView::canCut() const
 {
-    if (!(getVisible() && getEnabled() && (mSelectedItems.size() > 0)))
+    if (!(getVisible() && getEnabled() && (!mSelectedItems.empty())))
     {
         return false;
     }
@@ -970,7 +970,7 @@ void LLFolderView::cut()
 {
     // clear the inventory clipboard
     LLClipboard::instance().reset();
-    if(getVisible() && getEnabled() && (mSelectedItems.size() > 0))
+    if(getVisible() && getEnabled() && (!mSelectedItems.empty()))
     {
         // Find out which item will be selected once the selection will be cut
         LLFolderViewItem* item_to_select = getNextUnselectedItem();
@@ -1170,7 +1170,7 @@ bool LLFolderView::handleKeyHere( KEY key, MASK mask )
         break;
 
     case KEY_DOWN:
-        if((mSelectedItems.size() > 0) && mScrollContainer)
+        if((!mSelectedItems.empty()) && mScrollContainer)
         {
             LLFolderViewItem* last_selected = getCurSelectedItem();
             bool shift_select = mask & MASK_SHIFT;
@@ -1233,7 +1233,7 @@ bool LLFolderView::handleKeyHere( KEY key, MASK mask )
         break;
 
     case KEY_UP:
-        if((mSelectedItems.size() > 0) && mScrollContainer)
+        if((!mSelectedItems.empty()) && mScrollContainer)
         {
             LLFolderViewItem* last_selected = mSelectedItems.back();
             bool shift_select = mask & MASK_SHIFT;
@@ -1288,7 +1288,7 @@ bool LLFolderView::handleKeyHere( KEY key, MASK mask )
         break;
 
     case KEY_RIGHT:
-        if(mSelectedItems.size())
+        if(!mSelectedItems.empty())
         {
             LLFolderViewItem* last_selected = getCurSelectedItem();
             last_selected->setOpen( true );
@@ -1298,7 +1298,7 @@ bool LLFolderView::handleKeyHere( KEY key, MASK mask )
         break;
 
     case KEY_LEFT:
-        if(mSelectedItems.size())
+        if(!mSelectedItems.empty())
         {
             LLFolderViewItem* last_selected = getCurSelectedItem();
             if(last_selected && last_selected->isSingleFolderMode())
@@ -1637,7 +1637,7 @@ void LLFolderView::deleteAllChildren()
 
 void LLFolderView::scrollToShowSelection()
 {
-    if ( mSelectedItems.size() )
+    if ( !mSelectedItems.empty() )
     {
         mNeedsScroll = true;
     }
@@ -1861,7 +1861,7 @@ void LLFolderView::update()
         constraint_rect.setOriginAndSize(0, 0, content_rect.getWidth(), content_rect.getHeight());
     }
 
-    if (mSelectedItems.size() && mNeedsScroll)
+    if (!mSelectedItems.empty() && mNeedsScroll)
     {
         LLFolderViewItem* scroll_to_item = mSelectedItems.back();
         scrollToShowItem(scroll_to_item, constraint_rect);
@@ -1885,7 +1885,7 @@ void LLFolderView::update()
         }
     }
 
-    if (mSelectedItems.size())
+    if (!mSelectedItems.empty())
     {
         const LLFolderViewItem* item = mSelectedItems.back();
         // If the goal is to show renamer, don't callback untill
@@ -1966,7 +1966,7 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
         flags = multi_select_flag;
     }
 
-    if(mSingleFolderMode && (mSelectedItems.size() == 0))
+    if(mSingleFolderMode && (mSelectedItems.empty()))
     {
         buildContextMenu(*menu, flags);
     }

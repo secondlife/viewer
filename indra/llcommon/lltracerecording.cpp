@@ -804,7 +804,7 @@ F64 PeriodicRecording::getPeriodMedian( const StatType<SampleAccumulator>& stat,
             }
         }
     }
-    if (buf.size()==0)
+    if (buf.empty())
     {
         return 0.0f;
     }

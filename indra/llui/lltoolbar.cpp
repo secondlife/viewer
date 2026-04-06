@@ -367,7 +367,7 @@ bool LLToolBar::stopCommandInProgress(const LLCommandId& commandId)
         llassert(command);
 
         // If this command has an explicit function for execution stop
-        if (command->executeStopFunctionName().length() > 0)
+        if (!command->executeStopFunctionName().empty())
         {
             command_id_map::iterator it = mButtonMap.find(commandId.uuid());
             if (it != mButtonMap.end())
@@ -943,7 +943,7 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
         enable_callback_t isEnabledCB;
 
         const std::string& isEnabledFunction = commandp->isEnabledFunctionName();
-        if (isEnabledFunction.length() > 0)
+        if (!isEnabledFunction.empty())
         {
             LLUICtrl::EnableCallbackParam isEnabledParam;
             isEnabledParam.function_name = isEnabledFunction;
@@ -964,7 +964,7 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 
         // If we have a "stop" function then we map the command to mouse down / mouse up otherwise commit
         const std::string& executeStopFunction = commandp->executeStopFunctionName();
-        if (executeStopFunction.length() > 0)
+        if (!executeStopFunction.empty())
         {
             LLUICtrl::CommitCallbackParam executeStopParam;
             executeStopParam.function_name = executeStopFunction;
@@ -986,7 +986,7 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 
         // Set up "is running" query callback
         const std::string& isRunningFunction = commandp->isRunningFunctionName();
-        if (isRunningFunction.length() > 0)
+        if (!isRunningFunction.empty())
         {
             LLUICtrl::EnableCallbackParam isRunningParam;
             isRunningParam.function_name = isRunningFunction;
@@ -1243,7 +1243,7 @@ const std::string LLToolBarButton::getToolTip() const
     }
 
     LLToolBar* parent_toolbar = getParentByType<LLToolBar>();
-    if (parent_toolbar && parent_toolbar->mButtonTooltipSuffix.length() > 0)
+    if (parent_toolbar && !parent_toolbar->mButtonTooltipSuffix.empty())
     {
         tooltip = tooltip + "\n(" + parent_toolbar->mButtonTooltipSuffix + ")";
     }

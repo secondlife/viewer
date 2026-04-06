@@ -79,7 +79,7 @@ int LLPluginInstance::load(const std::string& plugin_dir, std::string &plugin_fi
 {
     pluginInitFunction init_function = NULL;
 
-    if ( plugin_dir.length() )
+    if ( !plugin_dir.empty() )
     {
 #if LL_WINDOWS
         // VWR-21275:

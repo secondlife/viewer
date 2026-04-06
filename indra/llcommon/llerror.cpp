@@ -79,7 +79,7 @@ namespace {
         {
             // Need UTF16 for Unicode OutputDebugString
             //
-            if (s.size())
+            if (!s.empty())
             {
                 OutputDebugString(ll_convert<std::wstring>(s).c_str());
                 OutputDebugString(TEXT("\n"));

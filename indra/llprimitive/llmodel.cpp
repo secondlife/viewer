@@ -85,7 +85,7 @@ std::string LLModel::getStatusString(U32 status)
 
     if(status < static_cast<U32>(EModelStatus::INVALID_STATUS))
     {
-        if(status_strings[status] == std::string())
+        if(status_strings[status].empty())
         {
             //LL_ERRS() << "No valid status string for this status: " << (U32)status << LL_ENDL();
         }
@@ -1750,7 +1750,7 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
     }
 
     // optional 'joint overrides'
-    if (include_joints && mAlternateBindMatrix.size() > 0)
+    if (include_joints && !mAlternateBindMatrix.empty())
     {
         for (U32 i = 0; i < mJointNames.size(); ++i)
         {

@@ -2460,7 +2460,7 @@ bool LLScrollListCtrl::handleKeyHere(KEY key,MASK mask )
                 break;
             case KEY_BACKSPACE:
                 mSearchTimer.reset();
-                if (mSearchString.size())
+                if (!mSearchString.empty())
                 {
                     mSearchString.erase(mSearchString.size() - 1, 1);
                 }
@@ -3376,7 +3376,7 @@ boost::signals2::connection LLScrollListCtrl::setIsFriendCallback(const is_frien
 
 bool LLScrollListCtrl::highlightMatchingItems(const std::string& filter_str)
 {
-    if (filter_str == "" || filter_str == " ")
+    if (filter_str.empty() || filter_str == " ")
     {
         clearHighlightedItems();
         return false;

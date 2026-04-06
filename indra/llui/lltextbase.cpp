@@ -1039,7 +1039,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
         const LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
         const LLTextSegment* segmentp = nullptr;
         segment_vec_t::iterator seg_iter;
-        if (segments && segments->size() > 0)
+        if (segments && !segments->empty())
         {
             seg_iter = segments->begin();
             segmentp = *seg_iter;
@@ -2448,7 +2448,7 @@ void LLTextBase::appendTextImpl(const std::string& new_text, const LLStyle::Para
 
             // show query part of url with gray color only for LLUrlEntryHTTP url entries
             std::string label = match.getQuery();
-            if (label.size())
+            if (!label.empty())
             {
                 link_params.color = LLColor4::grey;
                 link_params.readonly_color = LLColor4::grey;
@@ -2830,7 +2830,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, bool round,
     // binary search for line that starts before local_y
     line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), doc_y, compare_bottom());
 
-    if (!mLineInfoList.size() || line_iter == mLineInfoList.end())
+    if (mLineInfoList.empty() || line_iter == mLineInfoList.end())
     {
         return getLength(); // past the end
     }

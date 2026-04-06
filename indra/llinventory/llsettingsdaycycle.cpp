@@ -283,7 +283,7 @@ bool LLSettingsDay::initialize(bool validate_frames)
                 else
                     hassky |= true;
 
-                if (validate_frames && mDayTracks[i].size() > 0)
+                if (validate_frames && !mDayTracks[i].empty())
                 {
                     // check if we hit close to anything in the list
                     LLSettingsDay::CycleTrack_t::value_type frame = getSettingsNearKeyframe(keyframe, i, DEFAULT_FRAME_SLOP_FACTOR);

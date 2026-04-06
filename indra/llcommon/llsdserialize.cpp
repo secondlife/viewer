@@ -1624,7 +1624,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
         const std::vector<U8>& buffer = data.asBinary();
         U32 size_nbo = htonl(static_cast<u_long>(buffer.size()));
         ostr.write((const char*)(&size_nbo), sizeof(U32));
-        if(buffer.size()) ostr.write((const char*)&buffer[0], buffer.size());
+        if(!buffer.empty()) ostr.write((const char*)&buffer[0], buffer.size());
         break;
     }
 

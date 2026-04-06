@@ -268,7 +268,7 @@ void LLCrashLogger::gatherFiles()
     gatherPlatformSpecificFiles();
 
 
-    if ( has_logs && (mFileMap["CrashHostUrl"] != "") )
+    if ( has_logs && (!mFileMap["CrashHostUrl"].empty()) )
     {
         mCrashHost = mFileMap["CrashHostUrl"];
     }
@@ -470,7 +470,7 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
 
     bool sent = false;
 
-    if(mCrashHost != "")
+    if(!mCrashHost.empty())
     {
         LL_WARNS("CRASHREPORT") << "Sending crash data to server from CrashHostUrl '" << mCrashHost << "'" << LL_ENDL;
 

@@ -538,7 +538,7 @@ void LLWebRTCImpl::workerDeployDevices()
     mDeviceModule->SetStereoPlayout(true);
     mDeviceModule->InitPlayout();
 
-    if ((!mMute && mPeerConnections.size()) || mTuningMode)
+    if ((!mMute && !mPeerConnections.empty()) || mTuningMode)
     {
         mDeviceModule->ForceStartRecording();
     }

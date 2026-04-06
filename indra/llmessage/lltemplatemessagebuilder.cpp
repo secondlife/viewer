@@ -456,7 +456,7 @@ void LLTemplateMessageBuilder::addString(const char* varname, const char* s)
 
 void LLTemplateMessageBuilder::addString(const char* varname, const std::string& s)
 {
-    if (s.size())
+    if (!s.empty())
         addData( varname, (void *)s.c_str(), MVT_VARIABLE, (S32)(s.size()) + 1);
     else
         addData( varname, NULL, MVT_VARIABLE, 0);

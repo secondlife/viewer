@@ -762,7 +762,7 @@ void LLFloater::closeFloater(bool app_quitting)
         }
 
         // now close dependent floater
-        while(mDependents.size() > 0)
+        while(!mDependents.empty())
         {
             handle_set_iter_t dependent_it = mDependents.begin();
             LLFloater* floaterp = dependent_it->get();

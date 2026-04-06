@@ -643,7 +643,7 @@ bool LLKeyframeMotion::setupPose()
         mConstraints.push_front(constraintp);
     }
 
-    if (mJointMotionList->mConstraints.size())
+    if (!mJointMotionList->mConstraints.empty())
     {
         mPelvisp = mCharacter->getJoint("mPelvis");
         if (!mPelvisp)

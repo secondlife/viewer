@@ -293,7 +293,7 @@ void LLProxy::setAuthNone()
 bool LLProxy::setAuthPassword(const std::string &username, const std::string &password)
 {
     if (username.length() > SOCKSMAXUSERNAMELEN || password.length() > SOCKSMAXPASSWORDLEN ||
-            username.length() < SOCKSMINUSERNAMELEN || password.length() < SOCKSMINPASSWORDLEN)
+            username.empty() || password.empty())
     {
         LL_WARNS("Proxy") << "Invalid SOCKS 5 password or username length." << LL_ENDL;
         return false;

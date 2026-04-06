@@ -618,7 +618,7 @@ std::string mbcsstring_makeASCII(const std::string& wstr)
 
 std::string utf8str_removeCRLF(const std::string& utf8str)
 {
-    if (0 == utf8str.length())
+    if (utf8str.empty())
     {
         return {};
     }
@@ -1579,7 +1579,7 @@ S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions)
         bool found_replacement = false;
         std::string replacement;
 
-        if (tokens.size() == 0)
+        if (tokens.empty())
         {
             found_replacement = false;
         }
@@ -1657,7 +1657,7 @@ S32 LLStringUtil::format(std::string& s, const LLSD& substitutions)
         bool found_replacement = false;
         std::string replacement;
 
-        if (tokens.size() == 0)
+        if (tokens.empty())
         {
             found_replacement = false;
         }

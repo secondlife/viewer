@@ -923,7 +923,7 @@ S32 LLAccordionCtrl::calcExpandedTabHeight(S32 tab_index /* = 0 */, S32 availabl
 
 void LLAccordionCtrl::collapseAllTabs()
 {
-    if (mAccordionTabs.size() > 0)
+    if (!mAccordionTabs.empty())
     {
         for (LLAccordionCtrlTab* tab : mAccordionTabs)
         {

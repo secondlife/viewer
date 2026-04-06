@@ -456,7 +456,7 @@ void LLModelLoader::critiqueRigForUploadApplicability( const std::vector<std::st
 U32 LLModelLoader::determineRigLegacyFlags( const std::vector<std::string> &jointListFromAsset )
 {
     //No joints in asset
-    if ( jointListFromAsset.size() == 0 )
+    if ( jointListFromAsset.empty() )
     {
         return false;
     }

@@ -113,7 +113,7 @@ bool LLFlatListView::addItemPairs(pairs_list_t panel_list, bool rearrange /*= tr
         LL_WARNS_ONCE() << "No comparator specified for inserting FlatListView items." << LL_ENDL;
         return false;
     }
-    if (panel_list.size() == 0)
+    if (panel_list.empty())
     {
         return false;
     }
@@ -716,7 +716,7 @@ bool LLFlatListView::handleKeyHere(KEY key, MASK mask)
     {
         case KEY_RETURN:
         {
-            if (mSelectedItemPairs.size() && mask == MASK_NONE)
+            if (!mSelectedItemPairs.empty() && mask == MASK_NONE)
             {
                 mOnReturnSignal(this, getValue());
                 handled = true;
@@ -755,7 +755,7 @@ bool LLFlatListView::handleKeyHere(KEY key, MASK mask)
             break;
     }
 
-    if ( ( key == KEY_UP || key == KEY_DOWN ) && mSelectedItemPairs.size() )
+    if ( ( key == KEY_UP || key == KEY_DOWN ) && !mSelectedItemPairs.empty() )
     {
         ensureSelectedVisible();
         /*
@@ -866,7 +866,7 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 
 void LLFlatListView::scrollToShowFirstSelectedItem()
 {
-    if (!mSelectedItemPairs.size()) return;
+    if (mSelectedItemPairs.empty()) return;
 
     LLRect selected_rc = mSelectedItemPairs.front()->first->getRect();
 
@@ -878,7 +878,7 @@ void LLFlatListView::scrollToShowFirstSelectedItem()
 
 LLRect LLFlatListView::getLastSelectedItemRect()
 {
-    if (!mSelectedItemPairs.size())
+    if (mSelectedItemPairs.empty())
     {
         return LLRect::null;
     }
@@ -943,7 +943,7 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
     if (!mIsConsecutiveSelection)
     {
         // Leave only one item selected if list has not consecutive selection
-        if (mSelectedItemPairs.size() && !reset_selection)
+        if (!mSelectedItemPairs.empty() && !reset_selection)
         {
             item_pair_t* cur_sel_pair = mSelectedItemPairs.back();
             resetSelection();
@@ -951,7 +951,7 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
         }
     }
 
-    if ( mSelectedItemPairs.size() )
+    if ( !mSelectedItemPairs.empty() )
     {
         item_pair_t* to_sel_pair = NULL;
         item_pair_t* cur_sel_pair = NULL;

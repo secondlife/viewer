@@ -623,7 +623,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
         //----------------------------------------------------------------
         if ( strstr(line.c_str(), "}") )
         {
-            if (parent_joints.size() > 0)
+            if (!parent_joints.empty())
             {
                 parent_joints.pop_back();
             }
@@ -681,7 +681,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
         //---------------------------------------------------------------
         // we require the root joint be "hip" - DEV-26188
         //---------------------------------------------------------------
-        if (mJoints.size() == 0 )
+        if (mJoints.empty() )
         {
             //The root joint of the BVH file must be hip (mPelvis) or an alias of mPelvis.
             const char* FORCED_ROOT_NAME = "hip";

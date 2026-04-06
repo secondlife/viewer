@@ -1271,7 +1271,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         bool missingSkeletonOrScene = false;
 
         //If no skeleton, do a breadth-first search to get at specific joints
-        if ( skeletons.size() == 0 )
+        if ( skeletons.empty() )
         {
             daeElement* pScene = root->getDescendant("visual_scene");
             if ( !pScene )
@@ -2354,7 +2354,7 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 {
     // if we have a name attribute, use it
     std::string name = element->getAttribute("name");
-    if (name.length())
+    if (!name.empty())
     {
         return name;
     }
@@ -2381,12 +2381,12 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 
         // if parent has a name or ID, use it
         std::string name = parent->getAttribute("name");
-        if (!name.length())
+        if (name.empty())
         {
             name = std::string(parent->getID());
         }
 
-        if (name.length())
+        if (!name.empty())
         {
             // make sure that index won't mix up with pre-named lod extensions
             size_t ext_pos = getSuffixPosition(name);

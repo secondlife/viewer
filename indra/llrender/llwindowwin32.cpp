@@ -4318,7 +4318,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
         }
     }
 
-    if ((indexes & GCS_COMPCLAUSE) && preedit_string.length() > 0)
+    if ((indexes & GCS_COMPCLAUSE) && !preedit_string.empty())
     {
         LONG size = LLWinImm::getCompositionString(himc, GCS_COMPCLAUSE, NULL, 0);
         if (size > 0)
@@ -4389,12 +4389,12 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 
     if (needs_update)
     {
-        if (preedit_string.length() != 0 || result_string.length() != 0)
+        if (!preedit_string.empty() || !result_string.empty())
         {
             mPreeditor->resetPreedit();
         }
 
-        if (result_string.length() > 0)
+        if (!result_string.empty())
         {
             for (unsigned int i : result_string)
             {
@@ -4402,18 +4402,18 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
             }
         }
 
-        if (preedit_string.length() == 0)
+        if (preedit_string.empty())
         {
             preedit_segment_lengths.clear();
             preedit_standouts.clear();
         }
         else
         {
-            if (preedit_segment_lengths.size() == 0)
+            if (preedit_segment_lengths.empty())
             {
                 preedit_segment_lengths.assign(1, static_cast<S32>(preedit_string.length()));
             }
-            if (preedit_standouts.size() == 0)
+            if (preedit_standouts.empty())
             {
                 preedit_standouts.assign(preedit_segment_lengths.size(), false);
             }

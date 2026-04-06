@@ -331,7 +331,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, std::string_view group)
                 switch (token_type)
                 {
                     case LLKeywordToken::TT_CONSTANT:
-                        if (getAttribute("type").length() > 0)
+                        if (!getAttribute("type").empty())
                         {
                             color_group = getColorGroup(std::string(group) + "-" + getAttribute("type"));
                         }

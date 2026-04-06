@@ -357,7 +357,7 @@ bool LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height, LLRenderTarget*
     bool success = true;
     mIsVisible = true;
 
-    if (mMaskLayerList.size() > 0)
+    if (!mMaskLayerList.empty())
     {
         for (const LLTexLayerInterface* layer : mMaskLayerList)
         {
@@ -492,7 +492,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
         }
         gGL.flush();
     }
-    else if (forceClear || info->mClearAlpha || (mMaskLayerList.size() > 0))
+    else if (forceClear || info->mClearAlpha || (!mMaskLayerList.empty()))
     {
         // Set the alpha channel to one (clean up after previous blending)
         gGL.flush();
@@ -508,7 +508,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 
     // (Optional) Mask out part of the baked texture with alpha masks
     // will still have an effect even if mClearAlpha is set or the alpha component was replaced
-    if (mMaskLayerList.size() > 0)
+    if (!mMaskLayerList.empty())
     {
         gGL.setSceneBlendType(LLRender::BT_MULT_ALPHA);
         for (LLTexLayerInterface* layer : mMaskLayerList)

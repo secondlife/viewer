@@ -172,7 +172,7 @@ LLMetricPerformanceTesterBasic::LLMetricPerformanceTesterBasic(std::string name)
     mName(name),
     mCount(0)
 {
-    if (mName == std::string())
+    if (mName.empty())
     {
         LL_ERRS() << "LLMetricPerformanceTesterBasic construction invalid : Empty name passed to constructor" << LL_ENDL ;
     }

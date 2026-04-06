@@ -441,7 +441,7 @@ void LLShaderMgr::dumpObjectLog(GLuint ret, bool warns, std::string_view filenam
         fname = "unknown shader file";
     }
 
-    if (log.length() > 0)
+    if (!log.empty())
     {
         LL_SHADER_LOADING_WARNS() << "Shader loading from " << fname << LL_ENDL;
         LL_SHADER_LOADING_WARNS() << "\n" << log << LL_ENDL;

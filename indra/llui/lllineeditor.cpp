@@ -1729,7 +1729,7 @@ bool LLLineEditor::canDoDelete() const
 
 void LLLineEditor::doDelete()
 {
-    if (canDoDelete() && mText.length() > 0)
+    if (canDoDelete() && !mText.empty())
     {
         // Prepare for possible rollback
         LLLineEditorRollback rollback( this );
@@ -2146,7 +2146,7 @@ void LLLineEditor::draw()
         //draw label if no text is provided
         //but we should draw it in a different color
         //to give indication that it is not text you typed in
-        if (0 == mText.length() && (mReadOnly || mShowLabelFocused))
+        if (mText.empty() && (mReadOnly || mShowLabelFocused))
         {
             mFontBufferLabel.render(mGLFont,
                             mLabel.getWString(), 0,
@@ -2172,7 +2172,7 @@ void LLLineEditor::draw()
     else // does not have keyboard input
     {
         // draw label if no text provided
-        if (0 == mText.length())
+        if (mText.empty())
         {
             mFontBufferLabel.render(mGLFont,
                             mLabel.getWString(), 0,

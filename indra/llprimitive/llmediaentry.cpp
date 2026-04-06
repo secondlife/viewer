@@ -476,7 +476,7 @@ bool LLMediaEntry::checkUrlAgainstWhitelist(const std::string& url,
 {
     bool passes = true;
     // *NOTE: no entries?  Don't check
-    if (whitelist.size() > 0)
+    if (!whitelist.empty())
     {
         passes = false;
 

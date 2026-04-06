@@ -69,7 +69,7 @@ void append_reason(
     switch( transaction_type )
     {
     case TRANS_OBJECT_SALE:
-      ostr << " for " << (description.length() > 0 ? description : std::string("<unknown>"));
+      ostr << " for " << (!description.empty() ? description : std::string("<unknown>"));
         break;
     case TRANS_LAND_SALE:
         ostr << " for a parcel of land";

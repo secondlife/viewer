@@ -443,7 +443,7 @@ void get_keyword_and_value(std::string& keyword,
 
     // get the value
     value.clear();
-    if (keyword.size() > 0
+    if (!keyword.empty()
         && '\r' != line[line_index]
         && '\n' != line[line_index])
 

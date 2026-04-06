@@ -1220,7 +1220,7 @@ std::string LLFontGL::getFontPathLocal()
     // Backup files if we can't load from system fonts directory.
     // We could store this in an end-user writable directory to allow
     // end users to switch fonts.
-    if (LLFontGL::sAppDir.length())
+    if (!LLFontGL::sAppDir.empty())
     {
         // use specified application dir to look for fonts
         local_path = LLFontGL::sAppDir + "/fonts/";

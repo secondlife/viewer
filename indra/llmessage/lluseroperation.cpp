@@ -96,7 +96,7 @@ LLUserOperationMgr::LLUserOperationMgr()
 
 LLUserOperationMgr::~LLUserOperationMgr()
 {
-    if (mUserOperationList.size() > 0)
+    if (!mUserOperationList.empty())
     {
         LL_WARNS() << "Exiting with user operations pending." << LL_ENDL;
     }
