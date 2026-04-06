@@ -169,7 +169,7 @@ public:
     // empty
     LLUniqueFile(): mFileHandle(nullptr) {}
     // wrap (e.g.) result of LLFile::fopen()
-    LLUniqueFile(LLFILE* f): mFileHandle(f) {}
+    explicit LLUniqueFile(LLFILE* f): mFileHandle(f) {}
     // no copy
     LLUniqueFile(const LLUniqueFile&) = delete;
     // move construction

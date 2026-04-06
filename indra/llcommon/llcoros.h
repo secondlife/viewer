@@ -220,7 +220,7 @@ public:
     class OverrideConsuming
     {
     public:
-        OverrideConsuming(bool consuming):
+        explicit OverrideConsuming(bool consuming):
             mPrevConsuming(get_consuming())
         {
             set_consuming(consuming);
@@ -243,7 +243,7 @@ public:
     class TempStatus
     {
     public:
-        TempStatus(const std::string& status):
+        explicit TempStatus(const std::string& status):
             mOldStatus(getStatus())
         {
             setStatus(status);

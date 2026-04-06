@@ -230,7 +230,7 @@ private:
     class Entry: public EntryBase
     {
     public:
-        Entry(Functor func): mFunc(func) {}
+        explicit Entry(Functor func): mFunc(func) {}
         /// Is this entry appropriate for these arguments?
         virtual bool matches(const ParamBaseType& param1, const ParamBaseType& param2) const
         {

@@ -149,7 +149,7 @@ class LLRootHandle : public LLHandle<T>
 public:
     using self_t = LLRootHandle<T>;
     using base_t = LLHandle<T>;
-    LLRootHandle(T* object) { bind(object); }
+    explicit LLRootHandle(T* object) { bind(object); }
     LLRootHandle() = default;
     ~LLRootHandle() { unbind(); }
 
@@ -242,7 +242,7 @@ class LLCheckedHandle: public LLCheckedHandleBase
 {
 public:
 
-    LLCheckedHandle(LLHandle<T> handle):
+    explicit LLCheckedHandle(LLHandle<T> handle):
         mHandle(handle)
     { }
 

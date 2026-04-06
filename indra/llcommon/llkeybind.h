@@ -61,7 +61,7 @@ class LLKeyBind
 {
 public:
     LLKeyBind() = default;
-    LLKeyBind(const LLSD &key_bind);
+    explicit LLKeyBind(const LLSD &key_bind);
 
     bool operator==(const LLKeyBind& rhs);
     bool operator!=(const LLKeyBind& rhs);

@@ -66,7 +66,7 @@ class LLEventMatching: public LLEventFilter
 {
 public:
     /// Pass an LLSD map with keys and values the incoming event must match
-    LLEventMatching(const LLSD& pattern);
+    explicit LLEventMatching(const LLSD& pattern);
     /// instantiate and connect
     LLEventMatching(LLEventPump& source, const LLSD& pattern);
 
@@ -244,7 +244,7 @@ class LL_COMMON_API LLEventBatch: public LLEventFilter
 {
 public:
     // pass batch size
-    LLEventBatch(std::size_t size);
+    explicit LLEventBatch(std::size_t size);
     // construct and connect
     LLEventBatch(LLEventPump& source, std::size_t size);
 
@@ -349,7 +349,7 @@ private:
 class LLEventThrottle: public LLEventThrottleBase
 {
 public:
-    LLEventThrottle(F32 interval);
+    explicit LLEventThrottle(F32 interval);
     LLEventThrottle(LLEventPump& source, F32 interval);
 
 private:

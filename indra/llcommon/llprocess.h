@@ -543,7 +543,7 @@ public:
 
 private:
     /// constructor is private: use create() instead
-    LLProcess(const LLSDOrParams& params);
+    explicit LLProcess(const LLSDOrParams& params);
     void autokill();
     // Classic-C-style APR callback
     static void status_callback(int reason, void* data, int status);

@@ -82,7 +82,7 @@ namespace LL
         using TimePoint = ThreadSafeSchedulePrivate::TimePoint;
         using Clock = TimePoint::clock;
 
-        ThreadSafeSchedule(size_t capacity=1024):
+        explicit ThreadSafeSchedule(size_t capacity=1024):
             super(capacity)
         {}
 

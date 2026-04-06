@@ -110,7 +110,7 @@ class ClassicCallback
     using self_t = ClassicCallback<SIGNATURE, USERDATA, CALLABLE>;
 public:
     /// ClassicCallback binds any modern C++ callable.
-    ClassicCallback(CALLABLE&& callable):
+    explicit ClassicCallback(CALLABLE&& callable):
         mCallable(std::forward<CALLABLE>(callable))
     {}
 
@@ -229,7 +229,7 @@ class HeapClassicCallback: public ClassicCallback<SIGNATURE, USERDATA, CALLABLE>
     ~HeapClassicCallback() = default;
 
 public:
-    HeapClassicCallback(CALLABLE&& callable):
+    explicit HeapClassicCallback(CALLABLE&& callable):
         super(std::forward<CALLABLE>(callable))
     {}
 

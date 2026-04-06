@@ -180,7 +180,7 @@ namespace LLError
     class GenericRecorder: public Recorder
     {
     public:
-        GenericRecorder(const CALLABLE& callable):
+        explicit GenericRecorder(const CALLABLE& callable):
             mCallable(callable)
         {}
         void recordMessage(LLError::ELevel level, const std::string& message) override

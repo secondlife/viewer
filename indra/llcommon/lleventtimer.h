@@ -37,7 +37,7 @@ class LL_COMMON_API LLEventTimer : public LLInstanceTracker<LLEventTimer>
 public:
 
     LLEventTimer(F32 period);   // period is the amount of time between each call to tick() in seconds
-    LLEventTimer(const LLDate& time);
+    explicit LLEventTimer(const LLDate& time);
     virtual ~LLEventTimer();
 
     //function to be called at the supplied frequency

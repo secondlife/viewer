@@ -199,7 +199,7 @@ private:
     friend class ThreadRecorder;
     friend BlockTimer timeThisBlock(BlockTimerStatHandle&);
 
-    BlockTimer(BlockTimerStatHandle& timer);
+    explicit BlockTimer(BlockTimerStatHandle& timer);
 
     // no-copy
     BlockTimer(const BlockTimer& other);

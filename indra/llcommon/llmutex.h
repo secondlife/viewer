@@ -224,7 +224,7 @@ using LLExclusiveMutexLock = LLSharedMutexLockTemplate<false>;
 class LLMutexTrylock
 {
 public:
-    LLMutexTrylock(LLMutex* mutex);
+    explicit LLMutexTrylock(LLMutex* mutex);
     LLMutexTrylock(LLMutex* mutex, U32 aTries, U32 delay_ms = 10);
     ~LLMutexTrylock();
 
