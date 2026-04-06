@@ -128,7 +128,7 @@ void LLAssetInfo::setName( const std::string& name )
 {
     if( !name.empty() )
     {
-        mName.assign( name, 0, llmin((U32)name.size(), (U32)DB_INV_ITEM_NAME_STR_LEN) );
+        mName.assign( name, 0, llmin(static_cast<U32>(name.size()), static_cast<U32>(DB_INV_ITEM_NAME_STR_LEN)) );
         std::erase(mName, '|');
     }
 }
@@ -139,8 +139,8 @@ void LLAssetInfo::setDescription( const std::string& desc )
 {
     if( !desc.empty() )
     {
-        mDescription.assign( desc, 0, llmin((U32)desc.size(),
-                                            (U32)DB_INV_ITEM_DESC_STR_LEN) );
+        mDescription.assign( desc, 0, llmin(static_cast<U32>(desc.size()),
+                                            static_cast<U32>(DB_INV_ITEM_DESC_STR_LEN)) );
         std::erase(mDescription, '|');
     }
 }
@@ -1461,7 +1461,7 @@ void LLAssetStorage::reportMetric( const LLUUID& asset_id, const LLAssetType::ET
         stats["filename"] = filename;
         stats["agent_id"] = agent_id;
         stats["asset_size"] = asset_size;
-        stats["result"] = (S32)result;
+        stats["result"] = static_cast<S32>(result);
 
         metric_recipient->recordEventDetails( metric_name, new_message.str(), success, stats);
     }

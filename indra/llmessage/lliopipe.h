@@ -163,7 +163,7 @@ public:
      */
     inline static bool isError(EStatus status)
     {
-        return ((S32)status < 0);
+        return (static_cast<S32>(status) < 0);
     }
 
     /**
@@ -177,7 +177,7 @@ public:
      */
     inline static bool isSuccess(EStatus status)
     {
-        return ((S32)status >= 0);
+        return (static_cast<S32>(status) >= 0);
     }
 
     /**

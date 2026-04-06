@@ -90,7 +90,7 @@ std::string LLIOPipe::lookupStatusString(EStatus status)
     }
     else
     {
-        S32 error_code = ((S32)status * -1) - 1;
+        S32 error_code = (static_cast<S32>(status) * -1) - 1;
         if(error_code < STATUS_ERROR_COUNT)
         {
             return STATUS_ERROR_NAMES[error_code];

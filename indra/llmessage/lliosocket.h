@@ -80,7 +80,7 @@ public:
      */
     enum
     {
-        PORT_INVALID = (U16)-1,
+        PORT_INVALID = static_cast<U16>(-1),
         PORT_EPHEMERAL = 0,
     };
 

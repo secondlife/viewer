@@ -274,11 +274,11 @@ S32     LLThrottleGroup::getAvailable(S32 throttle_cat)
 
     if (bits_available >= lookahead_bits)
     {
-        retval = (S32) gThrottleMaximumBPS[throttle_cat];
+        retval = static_cast<S32>(gThrottleMaximumBPS[throttle_cat]);
     }
     else
     {
-        retval = (S32) bits_available;
+        retval = static_cast<S32>(bits_available);
     }
 
     return retval;

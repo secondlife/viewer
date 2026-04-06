@@ -193,7 +193,7 @@ void prescan_patch(F32 *patch, LLPatchHeader *php, F32 &zmax, F32 &zmin)
     }
 
     php->dc_offset = zmin;
-    php->range = (U16) ((zmax - zmin) + 1.f);
+    php->range = static_cast<U16>((zmax - zmin) + 1.f);
 }
 
 void dct_line(F32 *linein, F32 *lineout, S32 line)
@@ -416,7 +416,7 @@ inline void dct_column(F32 *linein, S32 *lineout, S32 column)
     total += *(tlinein += NORMAL_PATCH_SIZE);
     total += *(tlinein += NORMAL_PATCH_SIZE);
 
-    *(lineout + *(copy_matrix + column)) = (S32)(OO_SQRT2*total*oosob*(*(qt + column)));
+    *(lineout + *(copy_matrix + column)) = static_cast<S32>(OO_SQRT2*total*oosob*(*(qt + column)));
 
     for (u = 1; u < NORMAL_PATCH_SIZE; u++)
     {
@@ -445,7 +445,7 @@ inline void dct_column(F32 *linein, S32 *lineout, S32 column)
 
         sizeu = NORMAL_PATCH_SIZE*u + column;
 
-        *(lineout + *(copy_matrix + sizeu)) = (S32)(total*oosob*(*(qt+sizeu)));
+        *(lineout + *(copy_matrix + sizeu)) = static_cast<S32>(total*oosob*(*(qt+sizeu)));
     }
 #else
     S32 size = gPatchCompressGlobalData.patch_size;
@@ -524,7 +524,7 @@ inline void dct_column_large(F32 *linein, S32 *lineout, S32 column)
     total += *(tlinein += LARGE_PATCH_SIZE);
     total += *(tlinein += LARGE_PATCH_SIZE);
 
-    *(lineout + *(copy_matrix + column)) = (S32)(OO_SQRT2*total*oosob*(*(qt + column)));
+    *(lineout + *(copy_matrix + column)) = static_cast<S32>(OO_SQRT2*total*oosob*(*(qt + column)));
 
     for (u = 1; u < LARGE_PATCH_SIZE; u++)
     {
@@ -573,7 +573,7 @@ inline void dct_column_large(F32 *linein, S32 *lineout, S32 column)
 
         sizeu = LARGE_PATCH_SIZE*u + column;
 
-        *(lineout + *(copy_matrix + sizeu)) = (S32)(total*oosob*(*(qt+sizeu)));
+        *(lineout + *(copy_matrix + sizeu)) = static_cast<S32>(total*oosob*(*(qt+sizeu)));
     }
 }
 
@@ -737,7 +737,7 @@ void compress_patch(F32 *patch, S32 *cpatch, LLPatchHeader *php, S32 prequant)
     S32     range = (1<<prequant);
     F32     premult = oozrange*range;
 //  F32     sub = (F32)(1<<(prequant - 1));
-    F32     sub = (F32)(1<<(prequant - 1)) + dc*premult;
+    F32     sub = static_cast<F32>(1<<(prequant - 1)) + dc*premult;
 
     php->quant_wbits = wordsize - 2;
     php->quant_wbits |= (prequant - 2)<<4;

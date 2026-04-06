@@ -113,7 +113,7 @@ void LLNameValue::init(const char *name, const char *data, const char *type, con
     mStringType = mNVNameTable->addString(type);
     if (!strcmp(mStringType, "STRING"))
     {
-        S32 string_length = (S32)strlen(data);      /*Flawfinder: Ignore*/
+        S32 string_length = static_cast<S32>(strlen(data));      /*Flawfinder: Ignore*/
         mType = NVT_STRING;
 
         delete[] mNameValueReference.string;
@@ -139,7 +139,7 @@ void LLNameValue::init(const char *name, const char *data, const char *type, con
     else if (!strcmp(mStringType, "F32"))
     {
         mType = NVT_F32;
-        mNameValueReference.f32 = new F32((F32)atof(data));
+        mNameValueReference.f32 = new F32(static_cast<F32>(atof(data)));
     }
     else if (!strcmp(mStringType, "S32"))
     {
@@ -182,11 +182,11 @@ void LLNameValue::init(const char *name, const char *data, const char *type, con
         mType = NVT_U32;
         mNameValueReference.u32 = new U32(atoi(data));
     }
-    else if(!strcmp(mStringType, (const char*)NameValueTypeStrings[NVT_ASSET]))
+    else if(!strcmp(mStringType, NameValueTypeStrings[NVT_ASSET]))
     {
         // assets are treated like strings, except that the name has
         // meaning to an LLAssetInfo object
-        S32 string_length = (S32)strlen(data);      /*Flawfinder: Ignore*/
+        S32 string_length = static_cast<S32>(strlen(data));      /*Flawfinder: Ignore*/
         mType = NVT_ASSET;
 
         // two options here. . .  data can either look like foo or "foo"
@@ -324,7 +324,7 @@ LLNameValue::LLNameValue(const char *name, const char *type, const char *nvclass
         mType = NVT_U64;
         mNameValueReference.u64 = NULL;
     }
-    else if(!strcmp(mStringType, (const char*)NameValueTypeStrings[NVT_ASSET]))
+    else if(!strcmp(mStringType, NameValueTypeStrings[NVT_ASSET]))
     {
         mType = NVT_ASSET;
         mNameValueReference.string = NULL;
@@ -392,7 +392,7 @@ LLNameValue::LLNameValue(const char *data)
     sscanf((data + character_count), "%2047s", name);   /*Flawfinder: ignore*/
 
     // bump past it and add null terminator
-    length = (S32)strlen(name);         /* Flawfinder: ignore */
+    length = static_cast<S32>(strlen(name));         /* Flawfinder: ignore */
     name[length] = 0;
     character_count += length;
 
@@ -416,7 +416,7 @@ LLNameValue::LLNameValue(const char *data)
     sscanf((data + character_count), "%2047s", type);   /*Flawfinder: ignore*/
 
     // bump past it and add null terminator
-    length = (S32)strlen(type);     /* Flawfinder: ignore */
+    length = static_cast<S32>(strlen(type));     /* Flawfinder: ignore */
     type[length] = 0;
     character_count += length;
 
@@ -452,7 +452,7 @@ LLNameValue::LLNameValue(const char *data)
         sscanf((data + character_count), "%2047s", nvclass);    /*Flawfinder: ignore*/
 
         // bump past it and add null terminator
-        length = (S32)strlen(nvclass);      /* Flawfinder: ignore */
+        length = static_cast<S32>(strlen(nvclass));      /* Flawfinder: ignore */
         nvclass[length] = 0;
         character_count += length;
 
@@ -494,7 +494,7 @@ LLNameValue::LLNameValue(const char *data)
         sscanf((data + character_count), "%2047s", nvsendto);   /*Flawfinder: ignore*/
 
         // add null terminator
-        length = (S32)strlen(nvsendto);     /* Flawfinder: ignore */
+        length = static_cast<S32>(strlen(nvsendto));     /* Flawfinder: ignore */
         nvsendto[length] = 0;
         character_count += length;
 
@@ -726,7 +726,7 @@ LLNameValue &LLNameValue::operator=(const LLNameValue &a)
         *mNameValueReference.u64 = *a.mNameValueReference.u64;
         break;
     default:
-        LL_ERRS() << "Unknown Name value type " << (U32)a.mType << LL_ENDL;
+        LL_ERRS() << "Unknown Name value type " << static_cast<U32>(a.mType) << LL_ENDL;
         break;
     }
 
@@ -838,7 +838,7 @@ void LLNameValue::setS32(const S32 a) const
         *mNameValueReference.u32 = a;
         break;
     case NVT_F32:
-        *mNameValueReference.f32 = (F32)a;
+        *mNameValueReference.f32 = static_cast<F32>(a);
         break;
     default:
         break;
@@ -862,7 +862,7 @@ void LLNameValue::setU32(const U32 a) const
         *mNameValueReference.u32 = a;
         break;
     case NVT_F32:
-        *mNameValueReference.f32 = (F32)a;
+        *mNameValueReference.f32 = static_cast<F32>(a);
         break;
     default:
         LL_ERRS() << "NameValue: Trying to set U32 into a " << mStringType << ", unknown conversion" << LL_ENDL;

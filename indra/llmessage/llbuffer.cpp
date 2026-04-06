@@ -136,7 +136,7 @@ LLHeapBuffer::~LLHeapBuffer()
 
 S32 LLHeapBuffer::bytesLeft() const
 {
-    return (mSize - (S32)(mNextFree - mBuffer));
+    return (mSize - static_cast<S32>(mNextFree - mBuffer));
 }
 
 // virtual
@@ -361,11 +361,11 @@ LLBufferArray::segment_iterator_t LLBufferArray::splitAfter(U8* address)
         return it;
     }
     S32 channel = (*it).getChannel();
-    LLSegment segment1(channel, base, (S32)((address - base) + 1));
+    LLSegment segment1(channel, base, static_cast<S32>((address - base) + 1));
     *it = segment1;
     segment_iterator_t rv = it;
     ++it;
-    LLSegment segment2(channel, address + 1, (S32)(size - (address - base) - 1));
+    LLSegment segment2(channel, address + 1, static_cast<S32>(size - (address - base) - 1));
     mSegments.insert(it, segment2);
     return rv;
 }
@@ -414,7 +414,7 @@ LLBufferArray::segment_iterator_t LLBufferArray::constructSegmentAfter(
                     segment = LLSegment(
                         (*rv).getChannel(),
                         address,
-                        (*rv).size() - (S32)(address - (*rv).data()));
+                        (*rv).size() - static_cast<S32>(address - (*rv).data()));
                 }
                 else
                 {
@@ -523,7 +523,7 @@ S32 LLBufferArray::countAfter(S32 channel, U8* start) const
         if(++start < ((*it).data() + (*it).size()))
         {
             // it's in the same segment
-            offset = (S32)(start - (*it).data());
+            offset = static_cast<S32>(start - (*it).data());
         }
         else if(++it == end)
         {
@@ -576,7 +576,7 @@ U8* LLBufferArray::readAfter(
            && (*it).isOnChannel(channel))
         {
             // copy the data out of this segment
-            S32 bytes_in_segment = (*it).size() - (S32)(start - (*it).data());
+            S32 bytes_in_segment = (*it).size() - static_cast<S32>(start - (*it).data());
             bytes_to_copy = llmin(bytes_left, bytes_in_segment);
             memcpy(dest, start, bytes_to_copy); /*Flawfinder: ignore*/
             len += bytes_to_copy;
@@ -621,7 +621,7 @@ U8* LLBufferArray::seek(
     U8* rv = start;
     if(0 == delta)
     {
-        if((U8*)npos == start)
+        if(reinterpret_cast<U8*>(npos) == start)
         {
             // someone is looking for end of data.
             segment_list_t::const_reverse_iterator rit = mSegments.rbegin();
@@ -671,7 +671,7 @@ U8* LLBufferArray::seek(
         {
             if(delta > 0)
             {
-                S32 bytes_in_segment = (*it).size() - (S32)(start - (*it).data());
+                S32 bytes_in_segment = (*it).size() - static_cast<S32>(start - (*it).data());
                 S32 local_delta = llmin(delta, bytes_in_segment);
                 rv += local_delta;
                 delta -= local_delta;
@@ -679,7 +679,7 @@ U8* LLBufferArray::seek(
             }
             else
             {
-                S32 bytes_in_segment = (S32)(start - (*it).data());
+                S32 bytes_in_segment = static_cast<S32>(start - (*it).data());
                 S32 local_delta = llmin(llabs(delta), bytes_in_segment);
                 rv -= local_delta;
                 delta += local_delta;

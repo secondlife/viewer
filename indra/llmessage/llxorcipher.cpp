@@ -119,10 +119,10 @@ bool LLXORCipher::testHarness()
     U8 decrypted[MSG_LENGTH];
 
     LLXORCipher cipher(PAD, PAD_LEN);
-    cipher.encrypt((U8*)MESSAGE, MSG_LENGTH, encrypted, MSG_LENGTH);
+    cipher.encrypt(reinterpret_cast<const U8*>(MESSAGE), MSG_LENGTH, encrypted, MSG_LENGTH);
     cipher.decrypt(encrypted, MSG_LENGTH, decrypted, MSG_LENGTH);
 
-    if(0 != memcmp((void*)MESSAGE, decrypted, MSG_LENGTH)) return false;
+    if(0 != memcmp(static_cast<const void*>(MESSAGE), decrypted, MSG_LENGTH)) return false;
     return true;
 }
 #endif

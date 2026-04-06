@@ -802,7 +802,7 @@ bool LLAvatarNameCache::expirationFromCacheControl(LLCore::HttpHeaders *headers,
         S32 max_age = 0;
         if (max_age_from_cache_control(*cache_control, &max_age))
         {
-            *expires = now + (F64)max_age;
+            *expires = now + static_cast<F64>(max_age);
             fromCacheControl = true;
         }
     }
@@ -847,7 +847,7 @@ bool LLAvatarNameCache::expirationFromCacheControl(const LLSD& headers, F64 *exp
         S32 max_age = 0;
         if (max_age_from_cache_control(cache_control, &max_age))
         {
-            *expires = now + (F64)max_age;
+            *expires = now + static_cast<F64>(max_age);
             fromCacheControl = true;
         }
     }

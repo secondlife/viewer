@@ -148,7 +148,7 @@ struct ll_delete_apr_pollset_fd_client_data
     using pipe_conditional_t = std::pair<LLIOPipe::ptr_t, apr_pollfd_t>;
     void operator()(const pipe_conditional_t& conditional)
     {
-        S32* client_id = (S32*)conditional.second.client_data;
+        S32* client_id = static_cast<S32*>(conditional.second.client_data);
         delete client_id;
     }
 };
@@ -508,7 +508,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
         for(S32 ii = 0; ii < count; ++ii)
         {
             ll_debug_poll_fd("Signalled pipe", &poll_fd[ii]);
-            client_id = *((S32*)poll_fd[ii].client_data);
+            client_id = *(static_cast<S32*>(poll_fd[ii].client_data));
             signalled_client[client_id] = ii;
         }
         PUMP_DEBUG;
@@ -606,7 +606,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
                 for(; it != end; ++it)
                 {
                     PUMP_DEBUG;
-                    client_id = *((S32*)((*it).second.client_data));
+                    client_id = *(static_cast<S32*>((*it).second.client_data));
                     signal = signalled_client.find(client_id);
                     if (signal == not_signalled) continue;
                     static const apr_int16_t POLL_CHAIN_ERROR =
@@ -870,7 +870,7 @@ void LLPumpIO::processChain(LLChainInfo& chain)
                 chain.mData->readAfter(
                     (*it).mChannels.in(),
                     NULL,
-                    (U8*)buf.data(),
+                    reinterpret_cast<U8*>(buf.data()),
                     bytes);
                 buf[bytes] = '\0';
                 LL_INFOS() << "CHANNEL IN(" << (*it).mChannels.in() << "): "
@@ -900,7 +900,7 @@ void LLPumpIO::processChain(LLChainInfo& chain)
                 chain.mData->readAfter(
                     (*it).mChannels.out(),
                     NULL,
-                    (U8*)buf.data(),
+                    reinterpret_cast<U8*>(buf.data()),
                     bytes);
                 buf[bytes] = '\0';
                 LL_INFOS() << "CHANNEL OUT(" << (*it).mChannels.out()<< "): "
@@ -981,7 +981,7 @@ void LLPumpIO::processChain(LLChainInfo& chain)
                         chain.mData->readAfter(
                             (*it).mChannels.in(),
                             NULL,
-                            (U8*)buf.data(),
+                            reinterpret_cast<U8*>(buf.data()),
                             bytes);
                         buf[bytes] = '\0';
                         LL_INFOS() << "Input After Error: " << buf.data() << LL_ENDL;

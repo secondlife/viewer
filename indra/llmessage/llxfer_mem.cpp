@@ -112,7 +112,7 @@ S32 LLXfer_Mem::processEOF()
 
     if (mCallback)
     {
-        mCallback((void *)mBuffer,mBufferLength,mCallbackDataHandle,mCallbackResult, LLExtStat::NONE);
+        mCallback(static_cast<void*>(mBuffer),mBufferLength,mCallbackDataHandle,mCallbackResult, LLExtStat::NONE);
     }
 
     return(retval);
@@ -162,7 +162,7 @@ S32 LLXfer_Mem::startDownload()
     gMessageSystem->nextBlockFast(_PREHASH_XferID);
     gMessageSystem->addU64Fast(_PREHASH_ID, mID);
     gMessageSystem->addStringFast(_PREHASH_Filename, mRemoteFilename);
-    gMessageSystem->addU8("FilePath", (U8) mRemotePath);
+    gMessageSystem->addU8("FilePath", static_cast<U8>(mRemotePath));
     gMessageSystem->addBOOL("DeleteOnCompletion", mDeleteRemoteOnCompletion);
     gMessageSystem->addBOOL("UseBigPackets", mChunkSize == LL_XFER_LARGE_PAYLOAD);
     gMessageSystem->addUUIDFast(_PREHASH_VFileID, LLUUID::null);

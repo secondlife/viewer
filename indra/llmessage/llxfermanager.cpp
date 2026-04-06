@@ -192,9 +192,9 @@ void LLXferManager::updateHostStatus()
         LLXfer * xferp = *send_iter;
         LL_INFOS("Xfer") << "xfer to host " << xferp->mRemoteHost
             << " is " << xferp->mXferSize << " bytes"
-            << ", status " << (S32)(xferp->mStatus)
-            << ", waiting for ACK: " << (S32)(xferp->mWaitingForACK)
-            << " in frame " << (S32) LLFrameTimer::getFrameCount()
+            << ", status " << static_cast<S32>(xferp->mStatus)
+            << ", waiting for ACK: " << static_cast<S32>(xferp->mWaitingForACK)
+            << " in frame " << static_cast<S32>(LLFrameTimer::getFrameCount())
             << LL_ENDL;
     }
 
@@ -205,7 +205,7 @@ void LLXferManager::updateHostStatus()
             << " has " << (*iter)->mNumActive
             << " active, " << (*iter)->mNumPending
             << " pending"
-            << " in frame " << (S32) LLFrameTimer::getFrameCount()
+            << " in frame " << static_cast<S32>(LLFrameTimer::getFrameCount())
             << LL_ENDL;
     }
 #endif // LL_XFER_DIAGNOISTIC_LOGGING
@@ -267,7 +267,7 @@ void LLXferManager::removeXfer(LLXfer *delp, xfer_list_t & xfer_list)
             {
                 LL_DEBUGS("Xfer") << "Deleting xfer to host " << (*iter)->mRemoteHost
                     << " of " << (*iter)->mXferSize << " bytes"
-                    << ", status " << (S32)((*iter)->mStatus)
+                    << ", status " << static_cast<S32>((*iter)->mStatus)
                     << " from the " << direction << " list"
                     << LL_ENDL;
 
@@ -355,7 +355,7 @@ U64 LLXferManager::getNextID ()
     a_guid.generate();
 
 
-    return(*((U64*)(a_guid.mData)));
+    return(*reinterpret_cast<U64*>(a_guid.mData));
 }
 
 ///////////////////////////////////////////////////////////
@@ -827,7 +827,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
                 break;
 
             default:
-                LL_WARNS("Xfer") << "SECURITY: Restricted file dir enum: " << (U32)local_path << LL_ENDL;
+                LL_WARNS("Xfer") << "SECURITY: Restricted file dir enum: " << static_cast<U32>(local_path) << LL_ENDL;
                 return;
         }
 
@@ -975,7 +975,7 @@ bool LLXferManager::isHostFlooded(const LLHost & host)
     if (host_statusp)
     {
         flooded = (mHardLimitOutgoingXfersPerCircuit > 0 &&
-                    (host_statusp->mNumActive + host_statusp->mNumPending) >= (S32)(mHardLimitOutgoingXfersPerCircuit * 0.8f));
+                    (host_statusp->mNumActive + host_statusp->mNumPending) >= static_cast<S32>(mHardLimitOutgoingXfersPerCircuit * 0.8f));
     }
 
     return flooded;

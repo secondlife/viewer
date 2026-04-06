@@ -490,7 +490,7 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
         LLChangeChannel change(channels.in(), channels.out());
         std::for_each(buffer->beginSegment(), buffer->endSegment(), change);
         std::string header = ostr.str();
-        buffer->prepend(channels.out(), (U8*)header.c_str(), static_cast<S32>(header.size()));
+        buffer->prepend(channels.out(), reinterpret_cast<const U8*>(header.c_str()), static_cast<S32>(header.size()));
         PUMP_DEBUG;
         return STATUS_DONE;
     }
@@ -609,7 +609,7 @@ bool LLHTTPResponder::readHeaderLine(
     --len;
     U8* last = buffer->readAfter(channels.in(), mLastRead, dest, len);
     dest[len] = '\0';
-    U8* newline = (U8*)strchr((char*)dest, '\n');
+    U8* newline = reinterpret_cast<U8*>(strchr(reinterpret_cast<char*>(dest), '\n'));
     if(!newline)
     {
         if(len)
@@ -619,7 +619,7 @@ bool LLHTTPResponder::readHeaderLine(
         }
         return false;
     }
-    S32 offset = -((len - 1) - (S32)(newline - dest));
+    S32 offset = -((len - 1) - static_cast<S32>(newline - dest));
     ++newline;
     *newline = '\0';
     mLastRead = buffer->seek(channels.in(), last, offset);
@@ -676,14 +676,14 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 #endif
 
         PUMP_DEBUG;
-        if(readHeaderLine(channels, buffer, (U8*)buf, len))
+        if(readHeaderLine(channels, buffer, reinterpret_cast<U8*>(buf), len))
         {
             bool read_next_line = false;
             bool parse_all = true;
             if(mVerb.empty())
             {
                 read_next_line = true;
-                LLMemoryStream header(std::span<const U8>((const U8*)buf, len));
+                LLMemoryStream header(std::span<const U8>(reinterpret_cast<const U8*>(buf), len));
                 header >> mVerb;
 
                 if((HTTP_VERB_GET == mVerb)
@@ -740,7 +740,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
                     if(read_next_line)
                     {
                         len = HEADER_BUFFER_SIZE;
-                        if (!readHeaderLine(channels, buffer, (U8*)buf, len))
+                        if (!readHeaderLine(channels, buffer, reinterpret_cast<U8*>(buf), len))
                         {
                             // Failed to read the header line, probably too long.
                             // readHeaderLine already marked the channel/buffer as bad.

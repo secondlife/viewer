@@ -357,7 +357,7 @@ LLTemplateParser::LLTemplateParser(LLTemplateTokenizer & tokens):
     {
         // version number
         std::string vers_string = tokens.next();
-        mVersion = (F32)atof(vers_string.c_str());
+        mVersion = static_cast<F32>(atof(vers_string.c_str()));
 
         LL_INFOS() << "### Message template version " << mVersion << "  ###" << LL_ENDL;
     }

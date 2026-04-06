@@ -940,7 +940,7 @@ F64 LLExperienceCacheImpl::getErrorRetryDeltaTime(S32 status, LLSD headers)
             LL_WARNS("ExperienceCache")
                 << "got EXPIRES from headers, max_age " << max_age
                 << LL_ENDL;
-            return (F64)max_age;
+            return static_cast<F64>(max_age);
         }
     }
 

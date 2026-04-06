@@ -602,12 +602,12 @@ void decompress_patch(F32 *patch, S32 *cpatch, LLPatchHeader *ph)
     F32     hmin = ph->dc_offset;
     S32     stride = gopp->stride;
 
-    F32     ooq = 1.f/(F32)quantize;
+    F32     ooq = 1.f/static_cast<F32>(quantize);
     const F32     *dq = gPatchDequantizeTable;
     const S32     *decopy_matrix = gDeCopyMatrix;
 
     F32     mult = ooq*range;
-    F32     addval = mult*(F32)(1<<(prequant - 1))+hmin;
+    F32     addval = mult*static_cast<F32>(1<<(prequant - 1))+hmin;
 
     for (i = 0; i < size*size; i++)
     {
@@ -650,12 +650,12 @@ void decompress_patchv(LLVector3 *v, S32 *cpatch, LLPatchHeader *ph)
     F32     hmin = ph->dc_offset;
     S32     stride = gopp->stride;
 
-    F32     ooq = 1.f/(F32)quantize;
+    F32     ooq = 1.f/static_cast<F32>(quantize);
     const F32     *dq = gPatchDequantizeTable;
     const S32     *decopy_matrix = gDeCopyMatrix;
 
     F32     mult = ooq*range;
-    F32     addval = mult*(F32)(1<<(prequant - 1))+hmin;
+    F32     addval = mult*static_cast<F32>(1<<(prequant - 1))+hmin;
 
 //  bool    b_diag = false;
 //  bool    b_right = true;

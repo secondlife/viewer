@@ -337,7 +337,7 @@ void twoBytesFromFloat(F32 fIn, S8 &bMant, S8 &bExp)
         fIn *= 0.5f;
         bExp++;
     }
-    bMant = (S8)fIn;
+    bMant = static_cast<S8>(fIn);
 }
 
 

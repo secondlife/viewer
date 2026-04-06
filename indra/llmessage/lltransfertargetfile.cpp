@@ -88,7 +88,7 @@ LLTSCode LLTransferTargetFile::dataCallback(const S32 packet_id, U8 *in_datap, c
         return LLTSCode::LLTS_OK;
     }
 
-    S32 count = (S32)fwrite(in_datap, 1, in_size, mFP);
+    S32 count = static_cast<S32>(fwrite(in_datap, 1, in_size, mFP));
     if (count != in_size)
     {
         LL_WARNS() << "Failure in LLTransferTargetFile::dataCallback!" << LL_ENDL;

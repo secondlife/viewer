@@ -62,8 +62,8 @@ public:
 
     explicit LLHost(const U64 ip_port)
     {
-        U32 ip = (U32)(ip_port >> 32);
-        U32 port = (U32)(ip_port & (U64)0xFFFFFFFF);
+        U32 ip = static_cast<U32>(ip_port >> 32);
+        U32 port = static_cast<U32>(ip_port & static_cast<U64>(0xFFFFFFFF));
         mIP = ip;
         mPort = port;
     }

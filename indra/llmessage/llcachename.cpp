@@ -313,7 +313,7 @@ bool LLCacheName::importFile(std::istream& istr)
     }
 
     // We'll expire entries more than a week old
-    U32 now = (U32)time(NULL);
+    U32 now = static_cast<U32>(time(NULL));
     const U32 SECS_PER_DAY = 60 * 60 * 24;
     U32 delete_before_time = now - (7 * SECS_PER_DAY);
 
@@ -326,7 +326,7 @@ bool LLCacheName::importFile(std::istream& istr)
     {
         LLUUID id((*iter).first);
         LLSD agent = (*iter).second;
-        U32 ctime = (U32)agent[CTIME].asInteger();
+        U32 ctime = static_cast<U32>(agent[CTIME].asInteger());
         if(ctime < delete_before_time) continue;
 
         LLCacheNameEntry* entry = new LLCacheNameEntry();
@@ -350,7 +350,7 @@ bool LLCacheName::importFile(std::istream& istr)
     {
         LLUUID id((*iter).first);
         LLSD group = (*iter).second;
-        U32 ctime = (U32)group[CTIME].asInteger();
+        U32 ctime = static_cast<U32>(group[CTIME].asInteger());
         if(ctime < delete_before_time) continue;
 
         LLCacheNameEntry* entry = new LLCacheNameEntry();
@@ -385,12 +385,12 @@ void LLCacheName::exportFile(std::ostream& ostr)
         {
             data[AGENTS][id_str][FIRST] = entry->mFirstName;
             data[AGENTS][id_str][LAST] = entry->mLastName;
-            data[AGENTS][id_str][CTIME] = (S32)entry->mCreateTime;
+            data[AGENTS][id_str][CTIME] = static_cast<S32>(entry->mCreateTime);
         }
         else if(entry->mIsGroup && !entry->mGroupName.empty())
         {
             data[GROUPS][id_str][NAME] = entry->mGroupName;
-            data[GROUPS][id_str][CTIME] = (S32)entry->mCreateTime;
+            data[GROUPS][id_str][CTIME] = static_cast<S32>(entry->mCreateTime);
         }
     }
 
@@ -682,7 +682,7 @@ void LLCacheName::processPending()
 
 void LLCacheName::deleteEntriesOlderThan(S32 secs)
 {
-    U32 now = (U32)time(NULL);
+    U32 now = static_cast<U32>(time(NULL));
     U32 expire_time = now - secs;
     for(Cache::iterator iter = impl.mCache.begin(); iter != impl.mCache.end(); )
     {
@@ -856,7 +856,7 @@ void LLCacheName::Impl::sendRequest(
 
 bool LLCacheName::Impl::isRequestPending(const LLUUID& id)
 {
-    U32 now = (U32)time(NULL);
+    U32 now = static_cast<U32>(time(NULL));
     U32 expire_time = now - PENDING_TIMEOUT_SECS;
 
     PendingQueue::iterator iter = mPendingQueue.find(id);
@@ -944,7 +944,7 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
         mPendingQueue.erase(id);
 
         entry->mIsGroup = isGroup;
-        entry->mCreateTime = (U32)time(NULL);
+        entry->mCreateTime = static_cast<U32>(time(NULL));
         if (!isGroup)
         {
             msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);
