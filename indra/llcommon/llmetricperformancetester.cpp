@@ -230,14 +230,14 @@ void LLMetricPerformanceTesterBasic::analyzePerformance(llofstream* os, LLSD* ba
                 {
                 case LLSD::TypeInteger:
                     compareTestResults(os, mMetricString,
-                        (S32)((*base)[label][ mMetricString ].asInteger()), (S32)((*current)[label][ mMetricString ].asInteger())) ;
+                        static_cast<S32>((*base)[label][ mMetricString ].asInteger()), static_cast<S32>((*current)[label][ mMetricString ].asInteger())) ;
                     break ;
                 case LLSD::TypeReal:
                     compareTestResults(os, mMetricString,
-                        (F32)((*base)[label][ mMetricString ].asReal()), (F32)((*current)[label][ mMetricString ].asReal())) ;
+                        static_cast<F32>((*base)[label][ mMetricString ].asReal()), static_cast<F32>((*current)[label][ mMetricString ].asReal())) ;
                     break;
                 default:
-                    LL_ERRS() << "unsupported metric " << mMetricString << " LLSD type: " << (S32)(*current)[label][ mMetricString ].type() << LL_ENDL ;
+                    LL_ERRS() << "unsupported metric " << mMetricString << " LLSD type: " << static_cast<S32>((*current)[label][ mMetricString ].type()) << LL_ENDL ;
                 }
             }
         }

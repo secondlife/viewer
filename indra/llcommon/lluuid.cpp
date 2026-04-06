@@ -129,7 +129,7 @@ static U64 sJankyRandomSeed(LLUUID::getRandomSeed());
 U32 janky_fast_random_bytes()
 {
     sJankyRandomSeed = U64L(1664525) * sJankyRandomSeed + U64L(1013904223);
-    return (U32)sJankyRandomSeed;
+    return static_cast<U32>(sJankyRandomSeed);
 }
 
 /**
@@ -138,7 +138,7 @@ U32 janky_fast_random_bytes()
 U32 janky_fast_random_byes_range(U32 val)
 {
     sJankyRandomSeed = U64L(1664525) * sJankyRandomSeed + U64L(1013904223);
-    return (U32)(sJankyRandomSeed) % val;
+    return static_cast<U32>(sJankyRandomSeed) % val;
 }
 
 /**
@@ -146,8 +146,8 @@ U32 janky_fast_random_byes_range(U32 val)
  */
 U32 janky_fast_random_seeded_bytes(U32 seed, U32 val)
 {
-    seed = U64L(1664525) * (U64)(seed)+U64L(1013904223);
-    return (U32)(seed) % val;
+    seed = U64L(1664525) * static_cast<U64>(seed)+U64L(1013904223);
+    return static_cast<U32>(seed) % val;
 }
 #endif
 
@@ -156,22 +156,22 @@ void LLUUID::toString(std::string& out) const
 {
     out = llformat(
         "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-        (U8)(mData[0]),
-        (U8)(mData[1]),
-        (U8)(mData[2]),
-        (U8)(mData[3]),
-        (U8)(mData[4]),
-        (U8)(mData[5]),
-        (U8)(mData[6]),
-        (U8)(mData[7]),
-        (U8)(mData[8]),
-        (U8)(mData[9]),
-        (U8)(mData[10]),
-        (U8)(mData[11]),
-        (U8)(mData[12]),
-        (U8)(mData[13]),
-        (U8)(mData[14]),
-        (U8)(mData[15]));
+        static_cast<U8>(mData[0]),
+        static_cast<U8>(mData[1]),
+        static_cast<U8>(mData[2]),
+        static_cast<U8>(mData[3]),
+        static_cast<U8>(mData[4]),
+        static_cast<U8>(mData[5]),
+        static_cast<U8>(mData[6]),
+        static_cast<U8>(mData[7]),
+        static_cast<U8>(mData[8]),
+        static_cast<U8>(mData[9]),
+        static_cast<U8>(mData[10]),
+        static_cast<U8>(mData[11]),
+        static_cast<U8>(mData[12]),
+        static_cast<U8>(mData[13]),
+        static_cast<U8>(mData[14]),
+        static_cast<U8>(mData[15]));
 }
 
 void LLUUID::toCompressedString(std::string& out) const
@@ -253,15 +253,15 @@ bool LLUUID::set(const std::string& in_string, bool emit)
 
         if ((in_string[cur_pos] >= '0') && (in_string[cur_pos] <= '9'))
         {
-            mData[i] += (U8)(in_string[cur_pos] - '0');
+            mData[i] += static_cast<U8>(in_string[cur_pos] - '0');
         }
         else if ((in_string[cur_pos] >= 'a') && (in_string[cur_pos] <= 'f'))
         {
-            mData[i] += (U8)(10 + in_string[cur_pos] - 'a');
+            mData[i] += static_cast<U8>(10 + in_string[cur_pos] - 'a');
         }
         else if ((in_string[cur_pos] >= 'A') && (in_string[cur_pos] <= 'F'))
         {
-            mData[i] += (U8)(10 + in_string[cur_pos] - 'A');
+            mData[i] += static_cast<U8>(10 + in_string[cur_pos] - 'A');
         }
         else
         {
@@ -278,15 +278,15 @@ bool LLUUID::set(const std::string& in_string, bool emit)
 
         if ((in_string[cur_pos] >= '0') && (in_string[cur_pos] <= '9'))
         {
-            mData[i] += (U8)(in_string[cur_pos] - '0');
+            mData[i] += static_cast<U8>(in_string[cur_pos] - '0');
         }
         else if ((in_string[cur_pos] >= 'a') && (in_string[cur_pos] <= 'f'))
         {
-            mData[i] += (U8)(10 + in_string[cur_pos] - 'a');
+            mData[i] += static_cast<U8>(10 + in_string[cur_pos] - 'a');
         }
         else if ((in_string[cur_pos] >= 'A') && (in_string[cur_pos] <= 'F'))
         {
-            mData[i] += (U8)(10 + in_string[cur_pos] - 'A');
+            mData[i] += static_cast<U8>(10 + in_string[cur_pos] - 'A');
         }
         else
         {
@@ -427,7 +427,7 @@ std::istream& operator>>(std::istream& s, LLUUID& uuid)
 static void get_random_bytes(void* buf, int nbytes)
 {
     int i;
-    char* cp = (char*)buf;
+    char* cp = static_cast<char*>(buf);
 
     // *NOTE: If we are not using the janky generator ll_rand()
     // generates at least 3 good bytes of data since it is 0 to
@@ -479,8 +479,8 @@ S32 LLUUID::getNodeID(unsigned char* node_id)
         Ncb.ncb_command = NCBASTAT;
         Ncb.ncb_lana_num = lenum.lana[i];
 
-        strcpy((char*)Ncb.ncb_callname, "*              ");     /* Flawfinder: ignore */
-        Ncb.ncb_buffer = (unsigned char*)&Adapter;
+        strcpy(reinterpret_cast<char*>(Ncb.ncb_callname), "*              ");     /* Flawfinder: ignore */
+        Ncb.ncb_buffer = reinterpret_cast<unsigned char*>(&Adapter);
         Ncb.ncb_length = sizeof(Adapter);
 
         uRetCode = Netbios(&Ncb);
@@ -628,13 +628,13 @@ S32 LLUUID::getNodeID(unsigned char* node_id)
     memset(buf, 0, sizeof(buf));
     ifc.ifc_len = sizeof(buf);
     ifc.ifc_buf = buf;
-    if (ioctl(sd, SIOCGIFCONF, (char*)&ifc) < 0) {
+    if (ioctl(sd, SIOCGIFCONF, reinterpret_cast<char*>(&ifc)) < 0) {
         close(sd);
         return -1;
     }
     n = ifc.ifc_len;
     for (i = 0; i < n; i += ifreq_size(*ifr)) {
-        ifrp = (struct ifreq*)((char*)ifc.ifc_buf + i);
+        ifrp = reinterpret_cast<struct ifreq*>(reinterpret_cast<char*>(ifc.ifc_buf) + i);
         strncpy(ifr.ifr_name, ifrp->ifr_name, IFNAMSIZ);        /* Flawfinder: ignore */
 #ifdef SIOCGIFHWADDR
         if (ioctl(sd, SIOCGIFHWADDR, &ifr) < 0)
@@ -703,10 +703,10 @@ void LLUUID::getSystemTime(uuid_time_t* timestamp)
     // Offset between UUID formatted times and Unix formatted times.
     // UUID UTC base time is October 15, 1582.
     // Unix base time is January 1, 1970.
-    U64 uuid_time = ((U64)tp.tv_sec * 10000000) + (tp.tv_usec * 10) +
+    U64 uuid_time = (static_cast<U64>(tp.tv_sec) * 10000000) + (tp.tv_usec * 10) +
         U64L(0x01B21DD213814000);
-    timestamp->high = (U32)(uuid_time >> 32);
-    timestamp->low = (U32)(uuid_time & 0xFFFFFFFF);
+    timestamp->high = static_cast<U32>(uuid_time >> 32);
+    timestamp->low = static_cast<U32>(uuid_time & 0xFFFFFFFF);
 #endif
 }
 
@@ -797,9 +797,9 @@ void LLUUID::generate()
 #endif
 
 #if LL_USE_JANKY_RANDOM_NUMBER_GENERATOR
-        clock_seq = (U16)janky_fast_random_seeded_bytes(seed, 65536);
+        clock_seq = static_cast<U16>(janky_fast_random_seeded_bytes(seed, 65536));
 #else
-        clock_seq = (U16)ll_rand(65536);
+        clock_seq = static_cast<U16>(ll_rand(65536));
 #endif
     }
 
@@ -822,29 +822,29 @@ void LLUUID::generate()
     memcpy(mData + 10, node_id, 6);     /* Flawfinder: ignore */
     U32 tmp;
     tmp = timestamp.low;
-    mData[3] = (unsigned char)tmp;
+    mData[3] = static_cast<unsigned char>(tmp);
     tmp >>= 8;
-    mData[2] = (unsigned char)tmp;
+    mData[2] = static_cast<unsigned char>(tmp);
     tmp >>= 8;
-    mData[1] = (unsigned char)tmp;
+    mData[1] = static_cast<unsigned char>(tmp);
     tmp >>= 8;
-    mData[0] = (unsigned char)tmp;
+    mData[0] = static_cast<unsigned char>(tmp);
 
-    tmp = (U16)timestamp.high;
-    mData[5] = (unsigned char)tmp;
+    tmp = static_cast<U16>(timestamp.high);
+    mData[5] = static_cast<unsigned char>(tmp);
     tmp >>= 8;
-    mData[4] = (unsigned char)tmp;
+    mData[4] = static_cast<unsigned char>(tmp);
 
     tmp = (timestamp.high >> 16) | 0x1000;
-    mData[7] = (unsigned char)tmp;
+    mData[7] = static_cast<unsigned char>(tmp);
     tmp >>= 8;
-    mData[6] = (unsigned char)tmp;
+    mData[6] = static_cast<unsigned char>(tmp);
 
     tmp = our_clock_seq;
 
-    mData[9] = (unsigned char)tmp;
+    mData[9] = static_cast<unsigned char>(tmp);
     tmp >>= 8;
-    mData[8] = (unsigned char)tmp;
+    mData[8] = static_cast<unsigned char>(tmp);
 
     HBXXH128::digest(*this, (const void*)mData, 16);
 }
@@ -865,11 +865,11 @@ U32 LLUUID::getRandomSeed()
     // time from generating the same seed.
     pid_t pid = LLApp::getPid();
 
-    seed[6] = (unsigned char)(pid >> 8);
-    seed[7] = (unsigned char)(pid);
-    getSystemTime((uuid_time_t*)(&seed[8]));
+    seed[6] = static_cast<unsigned char>(pid >> 8);
+    seed[7] = static_cast<unsigned char>(pid);
+    getSystemTime(reinterpret_cast<uuid_time_t*>(&seed[8]));
 
-   U64 seed64 = HBXXH64::digest((const void*)seed, 16);
+   U64 seed64 = HBXXH64::digest(static_cast<const void*>(seed), 16);
    return U32(seed64) ^ U32(seed64 >> 32);
 }
 

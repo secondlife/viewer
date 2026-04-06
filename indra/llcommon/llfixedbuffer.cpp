@@ -70,7 +70,7 @@ void LLFixedBuffer::addWLine(const LLWString& line)
 
     mMutex.lock() ;
     mLines.push_back(line);
-    mLineLengths.push_back((S32)line.length());
+    mLineLengths.push_back(static_cast<S32>(line.length()));
     mAddTimes.push_back(mTimer.getElapsedTimeF32());
     mMutex.unlock() ;
 }
@@ -87,7 +87,7 @@ void LLFixedBuffer::setMaxLines(S32 max_lines)
 void LLFixedBuffer::removeExtraLines()
 {
     mMutex.lock() ;
-    while ((S32)mLines.size() > llmax((S32)0, (S32)(mMaxLines - 1)))
+    while (static_cast<S32>(mLines.size()) > llmax(static_cast<S32>(0), static_cast<S32>(mMaxLines - 1)))
     {
         mLines.pop_front();
         mAddTimes.pop_front();

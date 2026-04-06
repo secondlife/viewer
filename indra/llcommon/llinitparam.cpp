@@ -47,7 +47,7 @@ namespace LLInitParam
     {
         const U8* my_addr = reinterpret_cast<const U8*>(this);
         const U8* block_addr = reinterpret_cast<const U8*>(enclosing_block);
-        U32 enclosing_block_offset = 0x7FFFffff & (U32)(my_addr - block_addr);
+        U32 enclosing_block_offset = 0x7FFFffff & static_cast<U32>(my_addr - block_addr);
         mEnclosingBlockOffsetLow = enclosing_block_offset & 0x0000ffff;
         mEnclosingBlockOffsetHigh = (enclosing_block_offset & 0x007f0000) >> 16;
     }
@@ -129,7 +129,7 @@ namespace LLInitParam
         ParamDescriptorPtr param(mAllParams.back());
 
         std::string name(char_name);
-        if ((size_t)param->mParamHandle > mMaxParamOffset)
+        if (static_cast<size_t>(param->mParamHandle) > mMaxParamOffset)
         {
             LL_ERRS() << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << LL_ENDL;
         }
@@ -401,7 +401,7 @@ namespace LLInitParam
 
             // check for invalid derivation from a paramblock (i.e. without using
             // Block<T, Base_Class>
-            if ((size_t)handle > block_data.mMaxParamOffset)
+            if (static_cast<size_t>(handle) > block_data.mMaxParamOffset)
             {
                 LL_ERRS() << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << LL_ENDL;
             }

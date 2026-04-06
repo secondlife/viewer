@@ -38,7 +38,7 @@ LLMemoryStreamBuf::~LLMemoryStreamBuf() = default;
 
 void LLMemoryStreamBuf::reset(std::span<const U8> data)
 {
-    char* start = (char*)data.data();
+    char* start = reinterpret_cast<char*>(const_cast<U8*>(data.data()));
     setg(start, start, start + data.size());
 }
 

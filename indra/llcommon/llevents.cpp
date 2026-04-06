@@ -211,7 +211,7 @@ void LLEventPumps::reset(bool log_pumps)
     // decide what to do with the reset() call.
     if (log_pumps)
     {
-        LL_INFOS() << "Resetting " << (S32)mPumpMap.size() << " pumps" << LL_ENDL;
+        LL_INFOS() << "Resetting " << static_cast<S32>(mPumpMap.size()) << " pumps" << LL_ENDL;
     }
 
     for (auto& [name, pump] : mPumpMap)

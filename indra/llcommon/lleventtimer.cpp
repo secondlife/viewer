@@ -46,7 +46,7 @@ LLEventTimer::LLEventTimer(F32 period)
 LLEventTimer::LLEventTimer(const LLDate& time)
  
 {
-    mPeriod = (F32)(time.secondsSinceEpoch() - LLDate::now().secondsSinceEpoch());
+    mPeriod = static_cast<F32>(time.secondsSinceEpoch() - LLDate::now().secondsSinceEpoch());
 }
 
 

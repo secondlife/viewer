@@ -271,7 +271,7 @@ namespace LLTrace
             {
                 mSum += value;
                 F64 old_mean = mMean;
-                mMean += (value - old_mean) / (F64)mNumSamples;
+                mMean += (value - old_mean) / static_cast<F64>(mNumSamples);
                 mSumOfSquares += (value - old_mean) * (value - mMean);
 
                 if (value < mMin) { mMin = value; }

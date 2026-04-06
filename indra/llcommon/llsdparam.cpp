@@ -67,7 +67,7 @@ bool LLParamSDParser::writeU32Param(LLParamSDParser::parser_t& parser, const voi
 
     parser_t::name_stack_range_t range(name_stack.begin(), name_stack.end());
     LLSD& sd_to_write = LLParamSDParserUtilities::getSDWriteNode(*sdparser.mWriteRootSD, range);
-    sd_to_write.assign((S32)*((const U32*)val_ptr));
+    sd_to_write.assign(static_cast<S32>(*static_cast<const U32*>(val_ptr)));
 
     return true;
 }
@@ -147,7 +147,7 @@ bool LLParamSDParser::readF32(Parser& parser, void* val_ptr)
 {
     LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
 
-    *((F32*)val_ptr) = (F32)self.mCurReadSD->asReal();
+    *static_cast<F32*>(val_ptr) = static_cast<F32>(self.mCurReadSD->asReal());
     return true;
 }
 
@@ -155,7 +155,7 @@ bool LLParamSDParser::readF64(Parser& parser, void* val_ptr)
 {
     LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
 
-    *((F64*)val_ptr) = self.mCurReadSD->asReal();
+    *static_cast<F64*>(val_ptr) = self.mCurReadSD->asReal();
     return true;
 }
 
@@ -163,7 +163,7 @@ bool LLParamSDParser::readBool(Parser& parser, void* val_ptr)
 {
     LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
 
-    *((bool*)val_ptr) = self.mCurReadSD->asBoolean();
+    *static_cast<bool*>(val_ptr) = self.mCurReadSD->asBoolean();
     return true;
 }
 
@@ -171,7 +171,7 @@ bool LLParamSDParser::readString(Parser& parser, void* val_ptr)
 {
     LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
 
-    *((std::string*)val_ptr) = self.mCurReadSD->asString();
+    *static_cast<std::string*>(val_ptr) = self.mCurReadSD->asString();
     return true;
 }
 
@@ -179,7 +179,7 @@ bool LLParamSDParser::readUUID(Parser& parser, void* val_ptr)
 {
     LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
 
-    *((LLUUID*)val_ptr) = self.mCurReadSD->asUUID();
+    *static_cast<LLUUID*>(val_ptr) = self.mCurReadSD->asUUID();
     return true;
 }
 

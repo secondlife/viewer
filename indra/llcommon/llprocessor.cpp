@@ -468,11 +468,11 @@ static F64 calculate_cpu_frequency(U32 measure_msecs)
 
     // And finally the frequency is the clock difference divided by the time
     // difference.
-    F64 frequency = (F64)dif / (((F64)timedif) / freq);
+    F64 frequency = static_cast<F64>(dif) / (static_cast<F64>(timedif) / freq);
 
     // At last we just return the frequency that is also stored in the call
     // member var uqwFrequency - converted to MHz
-    return frequency  / (F64)1000000;
+    return frequency  / static_cast<F64>(1000000);
 }
 
 // Windows implementation
@@ -497,8 +497,8 @@ private:
         // in a human readable form.
         int cpu_info[4] = {-1};
         __cpuid(cpu_info, 0);
-        unsigned int ids = (unsigned int)cpu_info[0];
-        setConfig(eMaxID, (S32)ids);
+        unsigned int ids = static_cast<unsigned int>(cpu_info[0]);
+        setConfig(eMaxID, static_cast<S32>(ids));
 
         char cpu_vendor[0x20];
         memset(cpu_vendor, 0, sizeof(cpu_vendor));
@@ -572,7 +572,7 @@ private:
                     setExtension(cpu_feature_names[eSSE4_2_Features]);
                 }
 
-                unsigned int feature_info = (unsigned int) cpu_info[3];
+                unsigned int feature_info = static_cast<unsigned int>(cpu_info[3]);
                 for(unsigned int index = 0, bit = 1; index < eSSE3_Features; ++index, bit <<= 1)
                 {
                     if(feature_info & bit)
@@ -644,7 +644,7 @@ public:
         {
             frequency = getSysctlClockrate() * getSysctlInt64("hw.tbfrequency");
         }
-        setInfo(eFrequency, (F64)frequency  / (F64)1000000);
+        setInfo(eFrequency, static_cast<F64>(frequency)  / static_cast<F64>(1000000));
     }
 
     virtual ~LLProcessorInfoDarwinImpl() = default;
@@ -654,7 +654,7 @@ private:
     {
         int result = 0;
         size_t len = sizeof(int);
-        int error = sysctlbyname(name, (void*)&result, &len, nullptr, 0);
+        int error = sysctlbyname(name, static_cast<void*>(&result), &len, nullptr, 0);
         return error == -1 ? 0 : result;
     }
 
@@ -662,17 +662,17 @@ private:
     {
         uint64_t value = 0;
         size_t size = sizeof(value);
-        int result = sysctlbyname(name, (void*)&value, &size, nullptr, 0);
+        int result = sysctlbyname(name, static_cast<void*>(&value), &size, nullptr, 0);
         if ( result == 0 )
         {
             if ( size == sizeof( uint64_t ) )
                 ;
             else if ( size == sizeof( uint32_t ) )
-                value = (uint64_t)(( uint32_t *)&value);
+                value = static_cast<uint64_t>(*reinterpret_cast<uint32_t*>(&value));
             else if ( size == sizeof( uint16_t ) )
-                value =  (uint64_t)(( uint16_t *)&value);
+                value = static_cast<uint64_t>(*reinterpret_cast<uint16_t*>(&value));
             else if ( size == sizeof( uint8_t ) )
-                value =  (uint64_t)(( uint8_t *)&value);
+                value = static_cast<uint64_t>(*reinterpret_cast<uint8_t*>(&value));
             else
             {
                 LL_WARNS() << "Unknown type returned from sysctl" << LL_ENDL;
@@ -697,14 +697,14 @@ private:
         char cpu_brand_string[0x40];
         len = sizeof(cpu_brand_string);
         memset(cpu_brand_string, 0, len);
-        sysctlbyname("machdep.cpu.brand_string", (void*)cpu_brand_string, &len, NULL, 0);
+        sysctlbyname("machdep.cpu.brand_string", static_cast<void*>(cpu_brand_string), &len, NULL, 0);
         cpu_brand_string[0x3f] = 0;
         setInfo(eBrandName, cpu_brand_string);
 
         char cpu_vendor[0x20];
         len = sizeof(cpu_vendor);
         memset(cpu_vendor, 0, len);
-        sysctlbyname("machdep.cpu.vendor", (void*)cpu_vendor, &len, NULL, 0);
+        sysctlbyname("machdep.cpu.vendor", static_cast<void*>(cpu_vendor), &len, NULL, 0);
         cpu_vendor[0x1f] = 0;
         // M series CPUs don't provide this field so if empty, just fall back to Apple.
         setInfo(eVendor, (cpu_vendor[0] != '\0') ? cpu_vendor : "Apple");
@@ -742,14 +742,14 @@ private:
         // @TODO: Audit our usage of machdep.cpu.feature_bits.
 
         uint64_t ext_feature_info = getSysctlInt64("machdep.cpu.extfeature_bits");
-        S32 *ext_feature_infos = (S32*)(&ext_feature_info);
+        S32 *ext_feature_infos = reinterpret_cast<S32*>(&ext_feature_info);
         setConfig(eExtFeatureBits, ext_feature_infos[0]);
 
 
         char cpu_features[1024];
         len = sizeof(cpu_features);
         memset(cpu_features, 0, len);
-        sysctlbyname("machdep.cpu.features", (void*)cpu_features, &len, NULL, 0);
+        sysctlbyname("machdep.cpu.features", static_cast<void*>(cpu_features), &len, NULL, 0);
 
         std::string cpu_features_str(cpu_features);
         cpu_features_str = " " + cpu_features_str + " ";
@@ -847,7 +847,7 @@ private:
         if (LLStringUtil::convertToF64(cpuinfo["cpu mhz"], mhz)
             && 200.0 < mhz && mhz < 10000.0)
         {
-            setInfo(eFrequency,(F64)(mhz));
+            setInfo(eFrequency,static_cast<F64>(mhz));
         }
 
         LLPI_SET_INFO_STRING(eBrandName, "model name");

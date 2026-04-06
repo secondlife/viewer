@@ -345,7 +345,7 @@ namespace
         // std::istringstream::operator>>(int&), which would not consume the
         // ".23" portion.
 
-        return (int)asReal();
+        return static_cast<int>(asReal());
     }
 
     LLSD::Real ImplString::asReal() const

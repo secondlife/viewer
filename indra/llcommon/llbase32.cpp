@@ -83,7 +83,7 @@ size_t
 base32_encode(char *dst, size_t size, const void *data, size_t len)
 {
   size_t i = 0;
-  const U8 *p = (const U8*)data;
+  const U8 *p = static_cast<const U8*>(data);
   const char *end = &dst[size];
   char *q = dst;
 
@@ -131,7 +131,7 @@ base32_encode(char *dst, size_t size, const void *data, size_t len)
     s[7] =   x[4] & 0x1f;
 
     for (j = 0; j < k && q != end; j++)
-      *q++ = base32_alphabet[(U8) s[j]];
+      *q++ = base32_alphabet[static_cast<U8>(s[j])];
 
   } while (i < len);
 
@@ -153,7 +153,7 @@ ascii_tolower(int c)
 }
 
 
-static char base32_map[(unsigned char) -1];
+static char base32_map[static_cast<unsigned char>(-1)];
 
 size_t
 base32_decode(char *dst, size_t size, const void *data, size_t len)
@@ -169,7 +169,7 @@ base32_decode(char *dst, size_t size, const void *data, size_t len)
       const char *x;
 
       x = memchr(base32_alphabet, ascii_toupper(i), sizeof base32_alphabet);
-      base32_map[i] = x ? (x - base32_alphabet) : (unsigned char) -1;
+      base32_map[i] = x ? (x - base32_alphabet) : static_cast<unsigned char>(-1);
     }
   }
 
@@ -184,7 +184,7 @@ base32_decode(char *dst, size_t size, const void *data, size_t len)
       c = 0;
     } else {
       c = base32_map[c];
-      if ((unsigned char) -1 == c) {
+      if (static_cast<unsigned char>(-1) == c) {
         return -1;
       }
     }

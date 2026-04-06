@@ -136,7 +136,7 @@ void ll_get_stack_trace_internal(std::vector<std::string>& lines)
     void *stack[MAX_STACK_DEPTH];
 
     unsigned short frames = RtlCaptureStackBackTrace_fn( 0, MAX_STACK_DEPTH, stack, NULL );
-    SYMBOL_INFO *symbol = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + STRING_NAME_LENGTH * sizeof(char), 1);
+    SYMBOL_INFO *symbol = static_cast<SYMBOL_INFO*>(calloc(sizeof(SYMBOL_INFO) + STRING_NAME_LENGTH * sizeof(char), 1));
     symbol->MaxNameLen = STRING_NAME_LENGTH-1;
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 

@@ -214,7 +214,7 @@ std::streamsize LLGenericStreamQueue<Ch>::skip(std::streamsize n)
 {
     typename BufferList::iterator bli(mBuffer.begin()), blend(mBuffer.end());
     std::streamsize toskip(n), skipped(0);
-    while (bli != blend && (size_t)toskip >= bli->length())
+    while (bli != blend && static_cast<size_t>(toskip) >= bli->length())
     {
         std::streamsize chunk(bli->length());
         typename BufferList::iterator zap(bli++);

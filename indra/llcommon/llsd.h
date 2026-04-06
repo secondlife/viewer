@@ -520,7 +520,7 @@ struct llsd_select_float
 {
     F32 operator()(const LLSD& sd) const
     {
-        return (F32)sd.asReal();
+        return static_cast<F32>(sd.asReal());
     }
 };
 struct llsd_select_uuid

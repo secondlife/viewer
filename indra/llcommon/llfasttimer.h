@@ -93,7 +93,7 @@ public:
     // These use QueryPerformanceCounter, which is arguably fine and also works on AMD architectures.
     static U32 getCPUClockCount32()
     {
-        return (U32)(get_clock_count()>>8);
+        return static_cast<U32>(get_clock_count()>>8);
     }
 
     static U64 getCPUClockCount64()
@@ -131,7 +131,7 @@ public:
 
     static U32 getCPUClockCount32()
     {
-        return (U32)(getCPUClockCount64() >> 8);
+        return static_cast<U32>(getCPUClockCount64() >> 8);
     }
 
 #endif // (LL_LINUX) && !(defined(__i386__) || defined(__amd64__))
@@ -148,7 +148,7 @@ public:
 
     static U32 getCPUClockCount32()
     {
-        return (U32)(getCPUClockCount64() >> 8);
+        return static_cast<U32>(getCPUClockCount64() >> 8);
     }
 #endif // LL_DARWIN && LL_ARM64
 

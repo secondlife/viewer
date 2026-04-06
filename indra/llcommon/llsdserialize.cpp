@@ -269,13 +269,13 @@ F64 ll_ntohd(F64 netlonglong) { return netlonglong; }
 // operation.
 U64 ll_htonll(U64 hostlonglong)
 {
-    return ((U64)(htonl((U32)((hostlonglong >> 32) & 0xFFFFFFFF))) |
-            ((U64)(htonl((U32)(hostlonglong & 0xFFFFFFFF))) << 32));
+    return (static_cast<U64>(htonl(static_cast<U32>((hostlonglong >> 32) & 0xFFFFFFFF))) |
+            (static_cast<U64>(htonl(static_cast<U32>(hostlonglong & 0xFFFFFFFF))) << 32));
 }
 U64 ll_ntohll(U64 netlonglong)
 {
-    return ((U64)(ntohl((U32)((netlonglong >> 32) & 0xFFFFFFFF))) |
-            ((U64)(ntohl((U32)(netlonglong & 0xFFFFFFFF))) << 32));
+    return (static_cast<U64>(ntohl(static_cast<U32>((netlonglong >> 32) & 0xFFFFFFFF))) |
+            (static_cast<U64>(ntohl(static_cast<U32>(netlonglong & 0xFFFFFFFF))) << 32));
 }
 union LLEndianSwapper
 {
@@ -567,7 +567,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) c
                 data,
                 NOTATION_FALSE_SERIAL,
                 false);
-            if(PARSE_FAILURE == cnt) parse_count = (S32)cnt;
+            if(PARSE_FAILURE == cnt) parse_count = static_cast<S32>(cnt);
             else account(cnt);
         }
         else
@@ -593,7 +593,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) c
         if(isalpha(c))
         {
             auto cnt = deserialize_boolean(istr,data,NOTATION_TRUE_SERIAL,true);
-            if(PARSE_FAILURE == cnt) parse_count = (S32)cnt;
+            if(PARSE_FAILURE == cnt) parse_count = static_cast<S32>(cnt);
             else account(cnt);
         }
         else
@@ -874,7 +874,7 @@ bool LLSDNotationParser::parseBinary(std::istream& istr, LLSD& data) const
         if(len)
         {
             value.resize(len);
-            account(fullread(istr, (char*)value.data(), len));
+            account(fullread(istr, reinterpret_cast<char*>(value.data()), len));
         }
         c = get(istr); // strip off the trailing double-quote
         data = std::move(value);
@@ -1033,8 +1033,8 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) con
     case 'i':
     {
         U32 value_nbo = 0;
-        read(istr, (char*)&value_nbo, sizeof(U32));  /*Flawfinder: ignore*/
-        data = (S32)ntohl(value_nbo);
+        read(istr, reinterpret_cast<char*>(&value_nbo), sizeof(U32));  /*Flawfinder: ignore*/
+        data = static_cast<S32>(ntohl(value_nbo));
         if(istr.fail())
         {
             LL_INFOS() << "STREAM FAILURE reading binary integer." << LL_ENDL;
@@ -1045,7 +1045,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) con
     case 'r':
     {
         F64 real_nbo = 0.0;
-        read(istr, (char*)&real_nbo, sizeof(F64));   /*Flawfinder: ignore*/
+        read(istr, reinterpret_cast<char*>(&real_nbo), sizeof(F64));   /*Flawfinder: ignore*/
         data = ll_ntohd(real_nbo);
         if(istr.fail())
         {
@@ -1057,7 +1057,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) con
     case 'u':
     {
         LLUUID id;
-        read(istr, (char*)(&id.mData), UUID_BYTES);  /*Flawfinder: ignore*/
+        read(istr, reinterpret_cast<char*>(&id.mData), UUID_BYTES);  /*Flawfinder: ignore*/
         data = id;
         if(istr.fail())
         {
@@ -1130,7 +1130,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) con
     case 'd':
     {
         F64 real = 0.0;
-        read(istr, (char*)&real, sizeof(F64));   /*Flawfinder: ignore*/
+        read(istr, reinterpret_cast<char*>(&real), sizeof(F64));   /*Flawfinder: ignore*/
         data = LLDate(real);
         if(istr.fail())
         {
@@ -1145,8 +1145,8 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) con
         // We probably have a valid raw binary stream. determine
         // the size, and read it.
         U32 size_nbo = 0;
-        read(istr, (char*)&size_nbo, sizeof(U32));  /*Flawfinder: ignore*/
-        S32 size = (S32)ntohl(size_nbo);
+        read(istr, reinterpret_cast<char*>(&size_nbo), sizeof(U32));  /*Flawfinder: ignore*/
+        S32 size = static_cast<S32>(ntohl(size_nbo));
         if(mCheckLimits && (size > mMaxBytesLeft))
         {
             parse_count = PARSE_FAILURE;
@@ -1157,7 +1157,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) con
             if(size > 0)
             {
                 value.resize(size);
-                account(fullread(istr, (char*)&value[0], size));
+                account(fullread(istr, reinterpret_cast<char*>(&value[0]), size));
             }
             data = std::move(value);
         }
@@ -1186,8 +1186,8 @@ S32 LLSDBinaryParser::parseMap(std::istream& istr, LLSD& map, S32 max_depth) con
 {
     map = LLSD::emptyMap();
     U32 value_nbo = 0;
-    read(istr, (char*)&value_nbo, sizeof(U32));      /*Flawfinder: ignore*/
-    S32 size = (S32)ntohl(value_nbo);
+    read(istr, reinterpret_cast<char*>(&value_nbo), sizeof(U32));      /*Flawfinder: ignore*/
+    S32 size = static_cast<S32>(ntohl(value_nbo));
     S32 parse_count = 0;
     S32 count = 0;
     char c = get(istr);
@@ -1239,8 +1239,8 @@ S32 LLSDBinaryParser::parseMap(std::istream& istr, LLSD& map, S32 max_depth) con
 S32 LLSDBinaryParser::parseArray(std::istream& istr, LLSD& array, S32 max_depth) const
 {
     U32 value_nbo = 0;
-    read(istr, (char*)&value_nbo, sizeof(U32));      /*Flawfinder: ignore*/
-    S32 size = (S32)ntohl(value_nbo);
+    read(istr, reinterpret_cast<char*>(&value_nbo), sizeof(U32));      /*Flawfinder: ignore*/
+    S32 size = static_cast<S32>(ntohl(value_nbo));
 
     // Preallocate array to avoid incremental allocation
     array = LLSD::emptyReservedArray(size);
@@ -1279,8 +1279,8 @@ bool LLSDBinaryParser::parseString(
     std::string& value) const
 {
     U32 value_nbo = 0;
-    read(istr, (char*)&value_nbo, sizeof(U32));      /*Flawfinder: ignore*/
-    S32 size = (S32)ntohl(value_nbo);
+    read(istr, reinterpret_cast<char*>(&value_nbo), sizeof(U32));      /*Flawfinder: ignore*/
+    S32 size = static_cast<S32>(ntohl(value_nbo));
     if(mCheckLimits && (size > mMaxBytesLeft)) return false;
     if(size < 0) return false;
     if(size)
@@ -1490,7 +1490,7 @@ S32 LLSDNotationFormatter::format_impl(const LLSD& data, std::ostream& ostr,
                 for (unsigned char i : buffer)
                 {
                     // have to restate setw() before every conversion
-                    ostr << std::setw(2) << (int) i;
+                    ostr << std::setw(2) << static_cast<int>(i);
                 }
                 ostr.width(oldwidth);
                 ostr.fill(oldfill);
@@ -1502,7 +1502,7 @@ S32 LLSDNotationFormatter::format_impl(const LLSD& data, std::ostream& ostr,
             ostr << "b(" << buffer.size() << ")\"";
             if (! buffer.empty())
             {
-                ostr.write((const char*)&buffer[0], buffer.size());
+                ostr.write(reinterpret_cast<const char*>(&buffer[0]), buffer.size());
             }
         }
         ostr << "\"";
@@ -1541,7 +1541,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     {
         ostr.put('{');
         U32 size_nbo = htonl(static_cast<u_long>(data.size()));
-        ostr.write((const char*)(&size_nbo), sizeof(U32));
+        ostr.write(reinterpret_cast<const char*>(&size_nbo), sizeof(U32));
         for (const auto& [key, value] : llsd::inMap(data))
         {
             ostr.put('k');
@@ -1556,7 +1556,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     {
         ostr.put('[');
         U32 size_nbo = htonl(static_cast<u_long>(data.size()));
-        ostr.write((const char*)(&size_nbo), sizeof(U32));
+        ostr.write(reinterpret_cast<const char*>(&size_nbo), sizeof(U32));
         LLSD::array_const_iterator iter = data.beginArray();
         LLSD::array_const_iterator end = data.endArray();
         for(; iter != end; ++iter)
@@ -1580,7 +1580,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     {
         ostr.put('i');
         U32 value_nbo = htonl(data.asInteger());
-        ostr.write((const char*)(&value_nbo), sizeof(U32));
+        ostr.write(reinterpret_cast<const char*>(&value_nbo), sizeof(U32));
         break;
     }
 
@@ -1588,7 +1588,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     {
         ostr.put('r');
         F64 value_nbo = ll_htond(data.asReal());
-        ostr.write((const char*)(&value_nbo), sizeof(F64));
+        ostr.write(reinterpret_cast<const char*>(&value_nbo), sizeof(F64));
         break;
     }
 
@@ -1596,7 +1596,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     {
         ostr.put('u');
         LLUUID temp = data.asUUID();
-        ostr.write((const char*)(&(temp.mData)), UUID_BYTES);
+        ostr.write(reinterpret_cast<const char*>(&(temp.mData)), UUID_BYTES);
         break;
     }
 
@@ -1609,7 +1609,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     {
         ostr.put('d');
         F64 value = data.asReal();
-        ostr.write((const char*)(&value), sizeof(F64));
+        ostr.write(reinterpret_cast<const char*>(&value), sizeof(F64));
         break;
     }
 
@@ -1623,8 +1623,8 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
         ostr.put('b');
         const std::vector<U8>& buffer = data.asBinary();
         U32 size_nbo = htonl(static_cast<u_long>(buffer.size()));
-        ostr.write((const char*)(&size_nbo), sizeof(U32));
-        if(!buffer.empty()) ostr.write((const char*)&buffer[0], buffer.size());
+        ostr.write(reinterpret_cast<const char*>(&size_nbo), sizeof(U32));
+        if(!buffer.empty()) ostr.write(reinterpret_cast<const char*>(&buffer[0]), buffer.size());
         break;
     }
 
@@ -1641,7 +1641,7 @@ void LLSDBinaryFormatter::formatString(
     std::ostream& ostr) const
 {
     U32 size_nbo = htonl(static_cast<u_long>(string.size()));
-    ostr.write((const char*)(&size_nbo), sizeof(U32));
+    ostr.write(reinterpret_cast<const char*>(&size_nbo), sizeof(U32));
     ostr.write(string.c_str(), string.size());
 }
 
@@ -1702,7 +1702,7 @@ llssize deserialize_string_delim(
             return LLSDParser::PARSE_FAILURE;
         }
 
-        char next_char = (char)next_byte; // Now that we know it's not EOF
+        char next_char = static_cast<char>(next_byte); // Now that we know it's not EOF
 
         if(found_escape)
         {
@@ -2086,7 +2086,7 @@ void serialize_string(const std::string& value, std::ostream& str)
     U8 c;
     for(; it != end; ++it)
     {
-        c = (U8)(*it);
+        c = static_cast<U8>(*it);
         str << NOTATION_STRING_CHARACTERS[c];
     }
 }
@@ -2112,7 +2112,7 @@ llssize deserialize_boolean(
     std::string::size_type ii = 0;
     char c = istr.peek();
     while((++ii < compare.size())
-          && (tolower(c) == (int)compare[ii])
+          && (tolower(c) == static_cast<int>(compare[ii]))
           && istr.good())
     {
         istr.ignore();
@@ -2164,7 +2164,7 @@ std::string zip_llsd(LLSD& data)
     U8 out[CHUNK];
 
     strm.avail_in = narrow<size_t>(source.size());
-    strm.next_in = (U8*) source.data();
+    strm.next_in = reinterpret_cast<U8*>(source.data());
     U8* output = NULL;
 
     U32 cur_size = 0;
@@ -2189,7 +2189,7 @@ std::string zip_llsd(LLSD& data)
             }
 
             have = CHUNK-strm.avail_out;
-            U8* new_output = (U8*) realloc(output, cur_size+have);
+            U8* new_output = static_cast<U8*>(realloc(output, cur_size+have));
             if (new_output == NULL)
             {
                 LL_WARNS() << "Failed to compress LLSD block: can't reallocate memory, current size: " << cur_size << " bytes; requested " << cur_size + have << " bytes." << LL_ENDL;
@@ -2217,7 +2217,7 @@ std::string zip_llsd(LLSD& data)
 
     std::string::size_type size = cur_size;
 
-    std::string result((char*) output, size);
+    std::string result(reinterpret_cast<char*>(output), size);
     deflateEnd(&strm);
     if(output)
         free(output);
@@ -2235,7 +2235,7 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, std::istream& is,
     {
         return ZR_MEM_ERROR;
     }
-    is.read((char*) in.get(), size);
+    is.read(reinterpret_cast<char*>(in.get()), size);
 
     return unzip_llsd(data, in.get(), size);
 }
@@ -2294,7 +2294,7 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, const U8* in, S32
 
         U32 have = CHUNK-strm.avail_out;
 
-        U8* new_result = (U8*)realloc(result, cur_size + have);
+        U8* new_result = static_cast<U8*>(realloc(result, cur_size + have));
         if (new_result == NULL)
         {
             inflateEnd(&strm);
@@ -2320,7 +2320,7 @@ LLUZipHelper::EZipRresult LLUZipHelper::unzip_llsd(LLSD& data, const U8* in, S32
 
     //result now points to the decompressed LLSD block
     {
-        char* result_ptr = strip_deprecated_header((char*)result, cur_size);
+        char* result_ptr = strip_deprecated_header(reinterpret_cast<char*>(result), cur_size);
 
         boost::iostreams::stream<boost::iostreams::array_source> istrm(result_ptr, cur_size);
 
@@ -2357,7 +2357,7 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
         LL_WARNS() << "Memory allocation failure." << LL_ENDL;
         return NULL;
     }
-    is.read((char*) in, size);
+    is.read(reinterpret_cast<char*>(in), size);
 
     U8 out[CHUNK];
 
@@ -2397,7 +2397,7 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
 
         U32 have = CHUNK-strm.avail_out;
 
-        U8* new_result = (U8*) realloc(result, cur_size + have);
+        U8* new_result = static_cast<U8*>(realloc(result, cur_size + have));
         if (new_result == NULL)
         {
             LL_WARNS() << "Failed to unzip LLSD NavMesh block: can't reallocate memory, current size: " << cur_size

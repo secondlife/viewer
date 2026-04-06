@@ -173,7 +173,7 @@ public:
 private:
     U32 makehash(const std::string& s)
     {
-        S32 len = (S32)s.size();
+        S32 len = static_cast<S32>(s.size());
         const char* c = s.c_str();
         U32 hashval = 0;
         for (S32 i=0; i<len; i++)

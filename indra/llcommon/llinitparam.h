@@ -515,7 +515,7 @@ namespace LLInitParam
             parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(typeid(T));
             if (found_it != mParserReadFuncs->end())
             {
-                return found_it->second(*this, (void*)&param);
+                return found_it->second(*this, static_cast<void*>(&param));
             }
 
             return false;
@@ -526,7 +526,7 @@ namespace LLInitParam
             parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(typeid(T));
             if (found_it != mParserReadFuncs->end())
             {
-                return found_it->second(*this, (void*)&param);
+                return found_it->second(*this, static_cast<void*>(&param));
             }
             else
             {
@@ -534,8 +534,8 @@ namespace LLInitParam
                 if (found_it != mParserReadFuncs->end())
                 {
                     S32 int_value;
-                    bool parsed = found_it->second(*this, (void*)&int_value);
-                    param = (T)int_value;
+                    bool parsed = found_it->second(*this, static_cast<void*>(&int_value));
+                    param = static_cast<T>(int_value);
                     return parsed;
                 }
             }
@@ -962,7 +962,7 @@ namespace LLInitParam
 
         U32 getEnclosingBlockOffset() const
     {
-            return ((U32)mEnclosingBlockOffsetHigh << 16) | (U32)mEnclosingBlockOffsetLow;
+            return (static_cast<U32>(mEnclosingBlockOffsetHigh) << 16) | static_cast<U32>(mEnclosingBlockOffsetLow);
         }
 
     private:

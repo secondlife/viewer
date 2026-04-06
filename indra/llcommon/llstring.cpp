@@ -70,22 +70,22 @@ U8 hex_as_nybble(char hex)
 {
     if((hex >= '0') && (hex <= '9'))
     {
-        return (U8)(hex - '0');
+        return static_cast<U8>(hex - '0');
     }
     else if((hex >= 'a') && (hex <='f'))
     {
-        return (U8)(10 + hex - 'a');
+        return static_cast<U8>(10 + hex - 'a');
     }
     else if((hex >= 'A') && (hex <='F'))
     {
-        return (U8)(10 + hex - 'A');
+        return static_cast<U8>(10 + hex - 'A');
     }
     return 0; // uh - oh, not hex any more...
 }
 
 bool iswindividual(llwchar elem)
 {
-    U32 cur_char = (U32)elem;
+    U32 cur_char = static_cast<U32>(elem);
     bool result = false;
     if (0x2E80<= cur_char && cur_char <= 0x9FFF)
     {
@@ -138,11 +138,11 @@ std::string rawstr_to_utf8(const std::string& raw)
 
 std::ptrdiff_t wchar_to_utf8chars(llwchar in_char, char* outchars)
 {
-    U32 cur_char = (U32)in_char;
+    U32 cur_char = static_cast<U32>(in_char);
     char* base = outchars;
     if (cur_char < 0x80)
     {
-        *outchars++ = (U8)cur_char;
+        *outchars++ = static_cast<U8>(cur_char);
     }
     else if (cur_char < 0x800)
     {
@@ -245,7 +245,7 @@ LLWString utf16str_to_wstring(const U16* utf16str, size_t len)
     while (i < len)
     {
         llwchar cur_char;
-        i += (S32)utf16chars_to_wchar(chars16+i, &cur_char);
+        i += static_cast<S32>(utf16chars_to_wchar(chars16+i, &cur_char));
         wout += cur_char;
     }
     return wout;
@@ -281,7 +281,7 @@ S32 utf16str_wstring_length(const llutf16string &utf16str, const S32 utf16_len)
 // Length in utf16string (UTF-16) of wlen wchars beginning at woffset.
 S32 wstring_utf16_length(const LLWString &wstr, const S32 woffset, const S32 wlen)
 {
-    const S32 end = llmin((S32)wstr.length(), woffset + wlen);
+    const S32 end = llmin(static_cast<S32>(wstr.length()), woffset + wlen);
     if (end < woffset)
     {
         return 0;
@@ -360,10 +360,10 @@ S32 wchar_utf8_length(const llwchar wc)
 std::string wchar_utf8_preview(const llwchar wc)
 {
     std::ostringstream oss;
-    oss << std::hex << std::uppercase << (U32)wc;
+    oss << std::hex << std::uppercase << static_cast<U32>(wc);
 
     U8 out_bytes[8];
-    U32 size = (U32)wchar_to_utf8chars(wc, (char*)out_bytes);
+    U32 size = static_cast<U32>(wchar_to_utf8chars(wc, reinterpret_cast<char*>(out_bytes)));
 
     if (size > 1)
     {
@@ -374,7 +374,7 @@ std::string wchar_utf8_preview(const llwchar wc)
             {
                 oss << ", ";
             }
-            oss << (int)out_bytes[i];
+            oss << static_cast<int>(out_bytes[i]);
         }
         oss << "]";
     }
@@ -385,7 +385,7 @@ std::string wchar_utf8_preview(const llwchar wc)
 S32 wstring_utf8_length(const LLWString& wstr)
 {
     S32 len = 0;
-    for (S32 i = 0; i < (S32)wstr.length(); i++)
+    for (S32 i = 0; i < static_cast<S32>(wstr.length()); i++)
     {
         len += wchar_utf8_length(wstr[i]);
     }
@@ -528,7 +528,7 @@ std::string utf8str_truncate(const std::string& utf8str, const S32 max_len)
     {
         return {};
     }
-    if ((S32)utf8str.length() <= max_len)
+    if (static_cast<S32>(utf8str.length()) <= max_len)
     {
         return utf8str;
     }
@@ -537,7 +537,7 @@ std::string utf8str_truncate(const std::string& utf8str, const S32 max_len)
         S32 cur_char = max_len;
 
         // If we're ASCII, we don't need to do anything
-        if ((U8)utf8str[cur_char] > 0x7f)
+        if (static_cast<U8>(utf8str[cur_char]) > 0x7f)
         {
             // If first two bits are (10), it's the tail end of a multibyte char.  We need to shift back
             // to the first character
@@ -563,7 +563,7 @@ std::string utf8str_symbol_truncate(const std::string& utf8str, const S32 symbol
     {
         return {};
     }
-    if ((S32)utf8str.length() <= symbol_len)
+    if (static_cast<S32>(utf8str.length()) <= symbol_len)
     {
         return utf8str;
     }
@@ -606,9 +606,9 @@ std::string mbcsstring_makeASCII(const std::string& wstr)
 {
     // Replace non-ASCII chars with replace_char
     std::string out_str = wstr;
-    for (S32 i = 0; i < (S32)out_str.length(); i++)
+    for (S32 i = 0; i < static_cast<S32>(out_str.length()); i++)
     {
-        if ((U8)out_str[i] > 0x7f)
+        if (static_cast<U8>(out_str[i]) > 0x7f)
         {
             out_str[i] = LL_UNKNOWN_CHAR;
         }
@@ -626,7 +626,7 @@ std::string utf8str_removeCRLF(const std::string& utf8str)
 
     std::string out;
     out.reserve(utf8str.length());
-    const S32 len = (S32)utf8str.length();
+    const S32 len = static_cast<S32>(utf8str.length());
     for( S32 i = 0; i < len; i++ )
     {
         if( utf8str[i] != CR )
@@ -1029,7 +1029,7 @@ void LLStringOps::setupDatetimeInfo (bool daylight)
     tmpT = localtime (&nowT);
     localT = mktime (tmpT);
 
-    sLocalTimeOffset = (long) (gmtT - localT);
+    sLocalTimeOffset = static_cast<long>(gmtT - localT);
     if (tmpT->tm_isdst)
     {
         sLocalTimeOffset -= 60 * 60;    // 1 hour
@@ -1179,11 +1179,11 @@ namespace LLStringFn
         {
             // Must compare as unsigned for >=
             // Test most likely match first
-            const unsigned char c = (unsigned char)*it;
-            if (   c >= (unsigned char)0x20   // SPACE
-                || c == (unsigned char)0x09   // TAB
-                || c == (unsigned char)0x0a   // LINE_FEED
-                || c == (unsigned char)0x0d ) // CARRIAGE_RETURN
+            const unsigned char c = static_cast<unsigned char>(*it);
+            if (   c >= static_cast<unsigned char>(0x20)   // SPACE
+                || c == static_cast<unsigned char>(0x09)   // TAB
+                || c == static_cast<unsigned char>(0x0a)   // LINE_FEED
+                || c == static_cast<unsigned char>(0x0d) ) // CARRIAGE_RETURN
             {
                 output.push_back(c);
             }
@@ -1271,7 +1271,7 @@ namespace LLStringFn
         std::basic_string<char>::size_type len = string.size();
         for(std::basic_string<char>::size_type ii = 0; ii < len; ++ii)
         {
-            const unsigned char c = (unsigned char) string[ii];
+            const unsigned char c = static_cast<unsigned char>(string[ii]);
             if(c < MIN)
             {
                 string[ii] = replacement;
@@ -1466,7 +1466,7 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
     // if never fell into those two ifs above, param must be utc
     if (secFromEpoch < 0) secFromEpoch = 0;
 
-    LLDate datetime((F64)secFromEpoch);
+    LLDate datetime(static_cast<F64>(secFromEpoch));
     std::string code = LLStringOps::getDatetimeCode (token);
 
     // special case to handle timezone
@@ -1678,7 +1678,7 @@ S32 LLStringUtil::format(std::string& s, const LLSD& substitutions)
             std::string param;
             if (tokens.size() > 2) param = tokens[2];
 
-            S32 secFromEpoch = (S32) substitutions["datetime"].asInteger();
+            S32 secFromEpoch = static_cast<S32>(substitutions["datetime"].asInteger());
             found_replacement = formatDatetime (replacement, tokens[0], param, secFromEpoch);
         }
 

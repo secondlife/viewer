@@ -73,10 +73,10 @@ void LLAlignedArray<T, alignment>::push_back(const T& elem)
     {
         mCapacity++;
         mCapacity *= 2;
-        T* new_buf = (T*) ll_aligned_malloc<alignment>(mCapacity*sizeof(T));
+        T* new_buf = static_cast<T*>(ll_aligned_malloc<alignment>(mCapacity*sizeof(T)));
         if (mArray)
         {
-            ll_memcpy_nonaliased_aligned_16((char*)new_buf, (char*)mArray, sizeof(T)*mElementCount);
+            ll_memcpy_nonaliased_aligned_16(reinterpret_cast<char*>(new_buf), reinterpret_cast<char*>(mArray), sizeof(T)*mElementCount);
         }
         old_buf = mArray;
         mArray = new_buf;
@@ -94,10 +94,10 @@ void LLAlignedArray<T, alignment>::resize(U32 size)
     if (mCapacity < size)
     {
         mCapacity = size+mCapacity*2;
-        T* new_buf = mCapacity > 0 ? (T*) ll_aligned_malloc<alignment>(mCapacity*sizeof(T)) : NULL;
+        T* new_buf = mCapacity > 0 ? static_cast<T*>(ll_aligned_malloc<alignment>(mCapacity*sizeof(T))) : NULL;
         if (mArray)
         {
-            ll_memcpy_nonaliased_aligned_16((char*) new_buf, (char*) mArray, sizeof(T)*mElementCount);
+            ll_memcpy_nonaliased_aligned_16(reinterpret_cast<char*>(new_buf), reinterpret_cast<char*>(mArray), sizeof(T)*mElementCount);
             ll_aligned_free<alignment>(mArray);
         }
 
@@ -117,7 +117,7 @@ T& LLAlignedArray<T, alignment>::operator[](int idx)
 {
     if (idx < 0 || unsigned(idx) >= mElementCount)
     {
-        LL_ERRS() << "Out of bounds LLAlignedArray, requested: " << (S32)idx << " size: " << mElementCount << LL_ENDL;
+        LL_ERRS() << "Out of bounds LLAlignedArray, requested: " << static_cast<S32>(idx) << " size: " << mElementCount << LL_ENDL;
     }
     return mArray[idx];
 }
@@ -127,7 +127,7 @@ const T& LLAlignedArray<T, alignment>::operator[](int idx) const
 {
     if (idx < 0 || unsigned(idx) >= mElementCount)
     {
-        LL_ERRS() << "Out of bounds LLAlignedArray, requested: " << (S32)idx << " size: " << mElementCount << LL_ENDL;
+        LL_ERRS() << "Out of bounds LLAlignedArray, requested: " << static_cast<S32>(idx) << " size: " << mElementCount << LL_ENDL;
     }
     return mArray[idx];
 }

@@ -161,11 +161,11 @@ public:
         // unbind existing tombstone
         if (LLHandle<T>::mTombStone.notNull())
         {
-            if (LLHandle<T>::mTombStone->getTarget() == (void*)object) return;
+            if (LLHandle<T>::mTombStone->getTarget() == static_cast<void*>(object)) return;
             LLHandle<T>::mTombStone->setTarget(NULL);
         }
         // tombstone reference counted, so no paired delete
-        LLHandle<T>::mTombStone = new LLTombStone((void*)object);
+        LLHandle<T>::mTombStone = new LLTombStone(static_cast<void*>(object));
     }
 
     void unbind()

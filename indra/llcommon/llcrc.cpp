@@ -82,7 +82,7 @@
 ///----------------------------------------------------------------------------
 
 #define UPDC32(octet,crc) (crc_32_tab[((crc) \
- ^ ((U8)octet)) & 0xff] ^ ((crc) >> 8))
+ ^ (static_cast<U8>(octet))) & 0xff] ^ ((crc) >> 8))
 
 
 static U32 crc_32_tab[] = { /* CRC polynomial 0xedb88320 */
@@ -185,7 +185,7 @@ void LLCRC::update(const std::string& filename)
             nread = fread(data.data(), 1, size, fp);
             fclose(fp);
 
-            if (nread < (size_t) size)
+            if (nread < static_cast<size_t>(size))
             {
                 LL_WARNS() << "Short read on " << filename << LL_ENDL;
             }
@@ -206,8 +206,8 @@ bool LLCRC::testHarness()
     const S32 TEST_BUFFER_SIZE = 16;
     const char TEST_BUFFER[TEST_BUFFER_SIZE] = "hello &#$)$&Nd0";   /* Flawfinder: ignore */
     LLCRC c1, c2;
-    c1.update(std::span<const U8>((const U8*)TEST_BUFFER, TEST_BUFFER_SIZE - 1));
-    const char* rh = (const char*)TEST_BUFFER;
+    c1.update(std::span<const U8>(reinterpret_cast<const U8*>(TEST_BUFFER), TEST_BUFFER_SIZE - 1));
+    const char* rh = static_cast<const char*>(TEST_BUFFER);
     while(*rh != '\0')
     {
         c2.update(*rh);

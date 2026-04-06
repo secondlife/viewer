@@ -91,7 +91,7 @@ public:
 
     handle_t addWorkRequest(LLWorkerClass* workerclass, S32 param);
 
-    S32 getNumDeletes() { return (S32)mDeleteList.size(); } // debug
+    S32 getNumDeletes() { return static_cast<S32>(mDeleteList.size()); } // debug
 
 private:
     void deleteWorker(LLWorkerClass* workerclass); // schedule for deletion

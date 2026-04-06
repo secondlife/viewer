@@ -63,7 +63,7 @@ LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 #endif
 
 #ifdef ASSERT_ALIGNMENT
-#define ll_assert_aligned(ptr,alignment) ll_assert_aligned_func(uintptr_t(ptr),((U32)alignment))
+#define ll_assert_aligned(ptr,alignment) ll_assert_aligned_func(uintptr_t(ptr),(static_cast<U32>(alignment)))
 #else
 #define ll_assert_aligned(ptr,alignment)
 #endif
@@ -139,10 +139,10 @@ public:                                     \
         void* mem = malloc( size + (align - 1) + sizeof(void*) );
         if (mem)
         {
-            aligned = ((char*)mem) + sizeof(void*);
-            aligned += align - ((uintptr_t)aligned & (align - 1));
+            aligned = static_cast<char*>(mem) + sizeof(void*);
+            aligned += align - (reinterpret_cast<uintptr_t>(aligned) & (align - 1));
 
-            ((void**)aligned)[-1] = mem;
+            (reinterpret_cast<void**>(aligned))[-1] = mem;
         }
         void* ret = aligned;
     #endif
@@ -360,17 +360,17 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 
         // Prefetch the head of the 64b area now
         //
-        _mm_prefetch((char*)begin_64, _MM_HINT_NTA);
-        _mm_prefetch((char*)begin_64 + 64, _MM_HINT_NTA);
-        _mm_prefetch((char*)begin_64 + 128, _MM_HINT_NTA);
-        _mm_prefetch((char*)begin_64 + 192, _MM_HINT_NTA);
+        _mm_prefetch(reinterpret_cast<const char*>(begin_64), _MM_HINT_NTA);
+        _mm_prefetch(reinterpret_cast<const char*>(begin_64) + 64, _MM_HINT_NTA);
+        _mm_prefetch(reinterpret_cast<const char*>(begin_64) + 128, _MM_HINT_NTA);
+        _mm_prefetch(reinterpret_cast<const char*>(begin_64) + 192, _MM_HINT_NTA);
 
         // Copy 16b chunks until we're 64b aligned
         //
         while (dst < begin_64)
         {
 
-            _mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
+            _mm_store_ps(reinterpret_cast<F32*>(dst), _mm_load_ps(reinterpret_cast<const F32*>(src)));
             dst += 16;
             src += 16;
         }
@@ -382,12 +382,12 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
         //
         while (dst < end_64)
         {
-            _mm_prefetch((char*)src + 512, _MM_HINT_NTA);
-            _mm_prefetch((char*)dst + 512, _MM_HINT_NTA);
-            _mm_store_ps((F32*)dst, _mm_load_ps((F32*)src));
-            _mm_store_ps((F32*)(dst + 16), _mm_load_ps((F32*)(src + 16)));
-            _mm_store_ps((F32*)(dst + 32), _mm_load_ps((F32*)(src + 32)));
-            _mm_store_ps((F32*)(dst + 48), _mm_load_ps((F32*)(src + 48)));
+            _mm_prefetch(reinterpret_cast<const char*>(src) + 512, _MM_HINT_NTA);
+            _mm_prefetch(reinterpret_cast<const char*>(dst) + 512, _MM_HINT_NTA);
+            _mm_store_ps(reinterpret_cast<F32*>(dst), _mm_load_ps(reinterpret_cast<const F32*>(src)));
+            _mm_store_ps(reinterpret_cast<F32*>(dst + 16), _mm_load_ps(reinterpret_cast<const F32*>(src + 16)));
+            _mm_store_ps(reinterpret_cast<F32*>(dst + 32), _mm_load_ps(reinterpret_cast<const F32*>(src + 32)));
+            _mm_store_ps(reinterpret_cast<F32*>(dst + 48), _mm_load_ps(reinterpret_cast<const F32*>(src + 48)));
             dst += 64;
             src += 64;
         }

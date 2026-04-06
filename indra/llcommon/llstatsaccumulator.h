@@ -64,7 +64,7 @@ public:
 
     inline F32 getMean() const
     {
-        return (mCount == 0) ? 0.f : ((F32)mSum) / mCount;
+        return (mCount == 0) ? 0.f : (static_cast<F32>(mSum)) / mCount;
     }
 
     inline F32 getMinValue() const
@@ -102,7 +102,7 @@ public:
         LLSD data;
         data["mean"] = getMean();
         data["std_dev"] = getStdDev();
-        data["count"] = (S32)mCount;
+        data["count"] = static_cast<S32>(mCount);
         data["min"] = getMinValue();
         data["max"] = getMaxValue();
         return data;

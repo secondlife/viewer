@@ -191,7 +191,7 @@ F64 calc_clock_frequency()
 {
     __int64 freq;
     QueryPerformanceFrequency((LARGE_INTEGER *) &freq);
-    return (F64)freq;
+    return static_cast<F64>(freq);
 }
 #endif // LL_WINDOWS
 
@@ -247,7 +247,7 @@ U64MicrosecondsImplicit totalTime()
         // Unix platforms use gettimeofday so they are synced, although this probably isn't a good assumption to
         // make in the future.
 
-        get_timer_info().mTotalTimeClockCount = (U64)(time(NULL) * get_timer_info().mClockFrequency);
+        get_timer_info().mTotalTimeClockCount = static_cast<U64>(time(NULL) * get_timer_info().mClockFrequency);
 #endif
 
         // Update the last clock count
@@ -363,22 +363,22 @@ U64 getElapsedTimeAndUpdate(U64& lastClockCount)
 F64SecondsImplicit LLTimer::getElapsedTimeF64() const
 {
     U64 last = mLastClockCount;
-    return (F64)getElapsedTimeAndUpdate(last) * get_timer_info().mClockFrequencyInv;
+    return static_cast<F64>(getElapsedTimeAndUpdate(last)) * get_timer_info().mClockFrequencyInv;
 }
 
 F32SecondsImplicit LLTimer::getElapsedTimeF32() const
 {
-    return (F32)getElapsedTimeF64();
+    return static_cast<F32>(getElapsedTimeF64());
 }
 
 F64SecondsImplicit LLTimer::getElapsedTimeAndResetF64()
 {
-    return (F64)getElapsedTimeAndUpdate(mLastClockCount) * get_timer_info().mClockFrequencyInv;
+    return static_cast<F64>(getElapsedTimeAndUpdate(mLastClockCount)) * get_timer_info().mClockFrequencyInv;
 }
 
 F32SecondsImplicit LLTimer::getElapsedTimeAndResetF32()
 {
-    return (F32)getElapsedTimeAndResetF64();
+    return static_cast<F32>(getElapsedTimeAndResetF64());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -386,7 +386,7 @@ F32SecondsImplicit LLTimer::getElapsedTimeAndResetF32()
 void LLTimer::setTimerExpirySec(F32SecondsImplicit expiration)
 {
     mExpirationTicks = get_clock_count()
-        + (U64)((F32)(expiration * get_timer_info().mClockFrequency.value()));
+        + static_cast<U64>(static_cast<F32>(expiration * get_timer_info().mClockFrequency.value()));
 }
 
 F32SecondsImplicit LLTimer::getRemainingTimeF32() const
@@ -408,7 +408,7 @@ bool LLTimer::checkExpirationAndReset(F32 expiration)
     }
 
     mExpirationTicks = cur_ticks
-        + (U64)((F32)(expiration * get_timer_info().mClockFrequency));
+        + static_cast<U64>(static_cast<F32>(expiration * get_timer_info().mClockFrequency));
     return true;
 }
 
@@ -540,17 +540,17 @@ void microsecondsToTimecodeString(U64MicrosecondsImplicit current_time, std::str
     U64 frames;
     U64 subframes;
 
-    hours = current_time / (U64)3600000000ul;
-    minutes = current_time / (U64)60000000;
+    hours = current_time / static_cast<U64>(3600000000ul);
+    minutes = current_time / static_cast<U64>(60000000);
     minutes %= 60;
-    seconds = current_time / (U64)1000000;
+    seconds = current_time / static_cast<U64>(1000000);
     seconds %= 60;
-    frames = current_time / (U64)41667;
+    frames = current_time / static_cast<U64>(41667);
     frames %= 24;
-    subframes = current_time / (U64)42;
+    subframes = current_time / static_cast<U64>(42);
     subframes %= 100;
 
-    tcstring = llformat("%3.3d:%2.2d:%2.2d:%2.2d.%2.2d",(int)hours,(int)minutes,(int)seconds,(int)frames,(int)subframes);
+    tcstring = llformat("%3.3d:%2.2d:%2.2d:%2.2d.%2.2d",static_cast<int>(hours),static_cast<int>(minutes),static_cast<int>(seconds),static_cast<int>(frames),static_cast<int>(subframes));
 }
 
 void secondsToTimecodeString(F32SecondsImplicit current_time, std::string& tcstring)

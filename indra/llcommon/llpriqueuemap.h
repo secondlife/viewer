@@ -129,7 +129,7 @@ public:
 
     S32 getLength() const
     {
-        return (S32)mMap.size();
+        return static_cast<S32>(mMap.size());
     }
 
     // Hack: public for use by the transfer manager, ugh.

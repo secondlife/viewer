@@ -116,7 +116,7 @@ namespace
 
     U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS* exception_infop)
     {
-        if (LLApp::instance()->reportCrashToBugsplat((void*)exception_infop))
+        if (LLApp::instance()->reportCrashToBugsplat(static_cast<void*>(exception_infop)))
         {
             // Handled
             return EXCEPTION_CONTINUE_SEARCH;

@@ -60,7 +60,7 @@ lang_country_variant_from_envstring(const char *str,
   if (start != end) {
     int i;
     int len = end - start;
-    char *s = (char*)malloc(len + 1);
+    char *s = static_cast<char*>(malloc(len + 1));
     for (i=0; i<len; ++i) {
       s[i] = tolower(str[start + i]);
     }
@@ -82,7 +82,7 @@ lang_country_variant_from_envstring(const char *str,
   if (start != end) {
     int i;
     int len = end - start;
-    char *s = (char*)malloc(len + 1);
+    char *s = static_cast<char*>(malloc(len + 1));
     for (i=0; i<len; ++i) {
       s[i] = toupper(str[start + i]);
     }
@@ -104,7 +104,7 @@ lang_country_variant_from_envstring(const char *str,
   if (start != end) {
     int i;
     int len = end - start;
-    char *s = (char*)malloc(len + 1);
+    char *s = static_cast<char*>(malloc(len + 1));
     for (i=0; i<len; ++i) {
       s[i] = str[start + i];
     }
@@ -156,7 +156,7 @@ canonise_fl(FL_Locale *l) {
   /* en_UK -> en_GB */
   if (l->lang && 0 == strcmp(l->lang, "en")) {
     if (l->country && 0 == strcmp(l->country, "UK")) {
-      free((void*)l->country);
+      free(const_cast<char*>(l->country));
 #ifdef LL_WINDOWS
       l->country = _strdup("GB");
 #else
@@ -167,7 +167,7 @@ canonise_fl(FL_Locale *l) {
   /* ja_JA -> ja_JP */
   if (l->lang && 0 == strcmp(l->lang, "ja")) {
     if (l->country && 0 == strcmp(l->country, "JA")) {
-      free((void*)l->country);
+      free(const_cast<char*>(l->country));
 #ifdef LL_WINDOWS
       l->country = _strdup("JP");
 #else
@@ -511,13 +511,13 @@ FL_FreeLocale(FL_Locale **locale) {
     FL_Locale *l = *locale;
     if (l) {
       if (l->lang) {
-        free((void*)l->lang);
+        free(const_cast<char*>(l->lang));
       }
       if (l->country) {
-        free((void*)l->country);
+        free(const_cast<char*>(l->country));
       }
       if (l->variant) {
-        free((void*)l->variant);
+        free(const_cast<char*>(l->variant));
       }
       free(l);
       *locale = NULL;
