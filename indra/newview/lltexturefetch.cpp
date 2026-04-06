@@ -3537,9 +3537,7 @@ TFReqSendMetrics::TFReqSendMetrics(const std::string & caps_url,
     mHandler(std::make_shared<AssetReportHandler>())
 {}
 
-TFReqSendMetrics::~TFReqSendMetrics()
-{
-}
+TFReqSendMetrics::~TFReqSendMetrics() = default;
 
 /**
  * Implements the 'Send Metrics' command.  Takes over

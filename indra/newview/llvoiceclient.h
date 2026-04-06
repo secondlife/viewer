@@ -170,7 +170,7 @@ public:
 
     virtual void tuningSetMicVolume(float volume)=0;
     virtual void tuningSetSpeakerVolume(float volume)=0;
-    virtual float tuningGetEnergy(void)=0;
+    virtual float tuningGetEnergy()=0;
     //@}
 
     /////////////////////
@@ -352,7 +352,7 @@ class LLVoiceClient: public LLParamSingleton<LLVoiceClient>
     ~LLVoiceClient();
 
 public:
-    using micro_changed_signal_t = boost::signals2::signal<void(void)>;
+    using micro_changed_signal_t = boost::signals2::signal<void()>;
     micro_changed_signal_t mMicroChangedSignal;
 
     void terminate();   // Call this to clean up during shutdown
@@ -376,7 +376,7 @@ public:
 
     void tuningSetMicVolume(float volume);
     void tuningSetSpeakerVolume(float volume);
-    float tuningGetEnergy(void);
+    float tuningGetEnergy();
 
     // devices
 
@@ -437,7 +437,7 @@ public:
     void setMuteMic(bool muted);        // Use this to mute the local mic (for when the client is minimized, etc), ignoring user PTT state.
     void setUserPTTState(bool ptt);
     bool getUserPTTState();
-    void toggleUserPTTState(void);
+    void toggleUserPTTState();
     void inputUserControlState(bool down);  // interpret any sort of up-down mic-open control input according to ptt-toggle prefs
     static void setVoiceEnabled(bool enabled);
 

@@ -684,9 +684,7 @@ LLAppViewerWin32::LLAppViewerWin32(const char* cmd_line) :
 {
 }
 
-LLAppViewerWin32::~LLAppViewerWin32()
-{
-}
+LLAppViewerWin32::~LLAppViewerWin32() = default;
 
 bool LLAppViewerWin32::init()
 {

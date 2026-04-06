@@ -123,7 +123,7 @@ public:
     virtual void translateMessage(LanguagePair_t fromTo, std::string msg, LLTranslate::TranslationSuccess_fn success, LLTranslate::TranslationFailure_fn failure);
 
 
-    virtual ~LLTranslationAPIHandler() {}
+    virtual ~LLTranslationAPIHandler() = default;
 
     void verifyKeyCoro(LLTranslate::EService service, LLSD key, LLTranslate::KeyVerificationResult_fn fnc);
     void translateMessageCoro(LanguagePair_t fromTo, std::string msg, LLTranslate::TranslationSuccess_fn success, LLTranslate::TranslationFailure_fn failure);
@@ -1113,9 +1113,7 @@ LLTranslate::LLTranslate():
 {
 }
 
-LLTranslate::~LLTranslate()
-{
-}
+LLTranslate::~LLTranslate() = default;
 
 /*static*/
 void LLTranslate::translateMessage(const std::string &from_lang, const std::string &to_lang,

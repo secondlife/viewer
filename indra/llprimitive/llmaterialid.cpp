@@ -66,9 +66,7 @@ LLMaterialID::LLMaterialID(const LLUUID& lluid)
     set(lluid.mData);
 }
 
-LLMaterialID::~LLMaterialID()
-{
-}
+LLMaterialID::~LLMaterialID() = default;
 
 bool LLMaterialID::operator == (const LLMaterialID& pOtherMaterialID) const
 {

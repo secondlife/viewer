@@ -51,7 +51,7 @@ public:
 protected:
     friend class LLFloaterReg;
 
-    LLFloaterPathfindingLinksets(const LLSD& pSeed);
+    explicit LLFloaterPathfindingLinksets(const LLSD& pSeed);
     virtual ~LLFloaterPathfindingLinksets();
 
     virtual bool                       postBuild();

@@ -116,9 +116,7 @@ LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed
     mSelfHandle.bind(this);
 }
 
-LLFloaterPathfindingCharacters::~LLFloaterPathfindingCharacters()
-{
-}
+LLFloaterPathfindingCharacters::~LLFloaterPathfindingCharacters() = default;
 
 bool LLFloaterPathfindingCharacters::postBuild()
 {

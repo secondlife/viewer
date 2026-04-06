@@ -34,7 +34,7 @@ class LLTextBox;
 class LLFloaterBulkUpload : public LLModalDialog
 {
 public:
-    LLFloaterBulkUpload(const LLSD& key);
+    explicit LLFloaterBulkUpload(const LLSD& key);
     ~LLFloaterBulkUpload();
 
     bool postBuild() override;

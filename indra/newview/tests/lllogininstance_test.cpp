@@ -75,7 +75,7 @@ static bool gDisconnectCalled = false;
 
 #include "../llviewerwindow.h"
 void LLViewerWindow::setShowProgress(bool show) {}
-LLProgressView * LLViewerWindow::getProgressView(void) const { return 0; }
+LLProgressView * LLViewerWindow::getProgressView() const { return 0; }
 
 LLViewerWindow* gViewerWindow;
 
@@ -88,7 +88,7 @@ class LLLogin::Impl
 {
 };
 LLLogin::LLLogin() {}
-LLLogin::~LLLogin() {}
+LLLogin::~LLLogin() = default;
 LLEventPump& LLLogin::getEventPump() { return gTestPump; }
 void LLLogin::connect(const std::string& uri, const LLSD& credentials)
 {
@@ -134,9 +134,7 @@ LLNotificationPtr LLNotificationsUtil::add(const std::string& name, const LLSD& 
 
 //-----------------------------------------------------------------------------
 #include "../llviewernetwork.h"
-LLGridManager::~LLGridManager()
-{
-}
+LLGridManager::~LLGridManager() = default;
 
 bool LLGridManager::addGrid(LLSD& grid_data)
 {
@@ -197,7 +195,7 @@ LLControlGroup gSavedSettings("Global");
 
 LLControlGroup::LLControlGroup(const std::string& name) :
     LLInstanceTracker<LLControlGroup, std::string>(name){}
-LLControlGroup::~LLControlGroup() {}
+LLControlGroup::~LLControlGroup() = default;
 void LLControlGroup::setBOOL(std::string_view name, bool val) {}
 bool LLControlGroup::getBOOL(std::string_view name) { return false; }
 F32 LLControlGroup::getF32(std::string_view name) { return 0.0f; }
@@ -208,7 +206,7 @@ LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, bool ini
 LLControlVariable* LLControlGroup::declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return NULL; }
 
 #include "lluicolortable.h"
-void LLUIColorTable::saveUserSettings(void)const {}
+void LLUIColorTable::saveUserSettings()const {}
 
 //-----------------------------------------------------------------------------
 #include "../llversioninfo.h"
@@ -221,7 +219,7 @@ bool llHashedUniqueID(unsigned char* id)
 
 //-----------------------------------------------------------------------------
 #include "../llappviewer.h"
-void LLAppViewer::forceQuit(void) {}
+void LLAppViewer::forceQuit() {}
 bool LLAppViewer::isUpdaterMissing() { return true; }
 bool LLAppViewer::waitForUpdater() { return false; }
 LLAppViewer * LLAppViewer::sInstance = 0;
@@ -262,7 +260,7 @@ public:
     {
     }
 
-    virtual ~MockNotifications() {}
+    virtual ~MockNotifications() = default;
 
     /* virtual */ LLNotificationPtr add(
                     const std::string& name,

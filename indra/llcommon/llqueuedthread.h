@@ -125,11 +125,11 @@ public:
     LLQueuedThread& operator=(const LLQueuedThread&) = delete;
 
 private:
-    virtual bool runCondition(void);
-    virtual void run(void);
-    virtual void startThread(void);
-    virtual void endThread(void);
-    virtual void threadedUpdate(void);
+    virtual bool runCondition();
+    virtual void run();
+    virtual void startThread();
+    virtual void endThread();
+    virtual void threadedUpdate();
 
 protected:
     handle_t generateHandle();

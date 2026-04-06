@@ -52,7 +52,7 @@ class LLFloaterGesture
 {
     LOG_CLASS(LLFloaterGesture);
 public:
-    LLFloaterGesture(const LLSD& key);
+    explicit LLFloaterGesture(const LLSD& key);
     virtual ~LLFloaterGesture();
 
     virtual bool postBuild();

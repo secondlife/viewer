@@ -44,7 +44,7 @@ public:
     };
 
 public:
-    LLImageDecodeThread(bool threaded = true);
+    explicit LLImageDecodeThread(bool threaded = true);
     virtual ~LLImageDecodeThread();
 
     // meant to resemble LLQueuedThread::handle_t

@@ -42,7 +42,7 @@ public:
 
     using message_template_name_map_t = std::map<const char* , LLMessageTemplate*>;
 
-    LLTemplateMessageBuilder(const message_template_name_map_t&);
+    explicit LLTemplateMessageBuilder(const message_template_name_map_t&);
     virtual ~LLTemplateMessageBuilder();
 
     virtual void newMessage(const char* name);

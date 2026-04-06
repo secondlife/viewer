@@ -57,7 +57,7 @@ public:
     const LLVector3& getPointAtPosAgent() { return mTargetPos; }
     const LLVector3d getPointAtPosGlobal();
 protected:
-    LLHUDEffectPointAt(const U8 type);
+    explicit LLHUDEffectPointAt(const U8 type);
     ~LLHUDEffectPointAt();
 
     /*virtual*/ void render();

@@ -43,7 +43,7 @@ class LLXfer_File : public LLXfer
     bool mDeleteRemoteOnCompletion;
 
  public:
-    LLXfer_File (S32 chunk_size);
+    explicit LLXfer_File (S32 chunk_size);
     LLXfer_File (const std::string& local_filename, bool delete_local_on_completion, S32 chunk_size);
     virtual ~LLXfer_File();
 

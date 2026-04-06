@@ -125,7 +125,7 @@ class LLRender2D : public LLSimpleton<LLRender2D>
 {
     LOG_CLASS(LLRender2D);
 public:
-    LLRender2D(LLImageProviderInterface* image_provider);
+    explicit LLRender2D(LLImageProviderInterface* image_provider);
     ~LLRender2D();
 
     static void pushMatrix();

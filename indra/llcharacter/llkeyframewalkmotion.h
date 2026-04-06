@@ -45,7 +45,7 @@ class LLKeyframeWalkMotion :
     friend class LLWalkAdjustMotion;
 public:
     // Constructor
-    LLKeyframeWalkMotion(const LLUUID &id);
+    explicit LLKeyframeWalkMotion(const LLUUID &id);
 
     // Destructor
     ~LLKeyframeWalkMotion() override;
@@ -83,7 +83,7 @@ class LLWalkAdjustMotion : public LLMotion
 {
 public:
     // Constructor
-    LLWalkAdjustMotion(const LLUUID &id);
+    explicit LLWalkAdjustMotion(const LLUUID &id);
 
 public:
     //-------------------------------------------------------------------------
@@ -114,11 +114,11 @@ public:
     //-------------------------------------------------------------------------
     // Member Data
     //-------------------------------------------------------------------------
-    LLCharacter     *mCharacter;
-    LLJoint*        mLeftAnkleJoint;
-    LLJoint*        mRightAnkleJoint;
+    LLCharacter     *mCharacter = nullptr;
+    LLJoint*        mLeftAnkleJoint = nullptr;
+    LLJoint*        mRightAnkleJoint = nullptr;
     LLPointer<LLJointState> mPelvisState;
-    LLJoint*        mPelvisJoint;
+    LLJoint*        mPelvisJoint = nullptr;
     LLVector3d      mLastLeftFootGlobalPos;
     LLVector3d      mLastRightFootGlobalPos;
     F32             mLastTime;
@@ -133,7 +133,7 @@ class LLFlyAdjustMotion : public LLMotion
 {
 public:
     // Constructor
-    LLFlyAdjustMotion(const LLUUID &id);
+    explicit LLFlyAdjustMotion(const LLUUID &id);
 
 public:
     //-------------------------------------------------------------------------
@@ -164,7 +164,7 @@ protected:
     //-------------------------------------------------------------------------
     // Member Data
     //-------------------------------------------------------------------------
-    LLCharacter     *mCharacter;
+    LLCharacter     *mCharacter = nullptr;
     LLPointer<LLJointState> mPelvisState;
     F32             mRoll;
 };

@@ -44,9 +44,7 @@ LLControlGroup::LLControlGroup(const std::string& name)
 {
 }
 
-LLControlGroup::~LLControlGroup()
-{
-}
+LLControlGroup::~LLControlGroup() = default;
 
 // Implementation of just the LLControlGroup methods we requre
 LLControlVariable* LLControlGroup::declareU32(const std::string& name, U32 initial_val, const std::string& comment, LLControlVariable::ePersist persist)

@@ -43,7 +43,7 @@ class LLHeadRotMotion :
 {
 public:
     // Constructor
-    LLHeadRotMotion(const LLUUID &id);
+    explicit LLHeadRotMotion(const LLUUID &id);
 
     // Destructor
     ~LLHeadRotMotion() override;
@@ -104,12 +104,12 @@ public:
     //-------------------------------------------------------------------------
     // joint states to be animated
     //-------------------------------------------------------------------------
-    LLCharacter         *mCharacter;
+    LLCharacter         *mCharacter = nullptr;
 
-    LLJoint             *mTorsoJoint;
-    LLJoint             *mHeadJoint;
-    LLJoint             *mRootJoint;
-    LLJoint             *mPelvisJoint;
+    LLJoint             *mTorsoJoint = nullptr;
+    LLJoint             *mHeadJoint = nullptr;
+    LLJoint             *mRootJoint = nullptr;
+    LLJoint             *mPelvisJoint = nullptr;
 
     LLPointer<LLJointState> mTorsoState;
     LLPointer<LLJointState> mNeckState;
@@ -126,7 +126,7 @@ class LLEyeMotion :
 {
 public:
     // Constructor
-    LLEyeMotion(const LLUUID &id);
+    explicit LLEyeMotion(const LLUUID &id);
 
     // Destructor
     ~LLEyeMotion() override;

@@ -116,7 +116,7 @@ public:
     void initFromParams(const LLLineEditor::Params& params);
 
 protected:
-    LLLineEditor(const Params&);
+    explicit LLLineEditor(const Params&);
     friend class LLUICtrlFactory;
     friend class LLFloaterEditUI;
     void showContextMenu(S32 x, S32 y);
@@ -432,7 +432,7 @@ private:
     class LLLineEditorRollback
     {
     public:
-        LLLineEditorRollback( LLLineEditor* ed )
+        explicit LLLineEditorRollback( LLLineEditor* ed )
             :
             mCursorPos( ed->mCursorPos ),
             mScrollHPos( ed->mScrollHPos ),

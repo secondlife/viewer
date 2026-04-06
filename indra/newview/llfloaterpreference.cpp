@@ -2073,7 +2073,7 @@ public:
         mEventTimer.stop();
     }
 
-    virtual ~Updater(){}
+    virtual ~Updater() = default;
 
     void update(const LLSD& new_value)
     {
@@ -2609,9 +2609,7 @@ LLPanelPreferenceControls::LLPanelPreferenceControls()
     }
 }
 
-LLPanelPreferenceControls::~LLPanelPreferenceControls()
-{
-}
+LLPanelPreferenceControls::~LLPanelPreferenceControls() = default;
 
 bool LLPanelPreferenceControls::postBuild()
 {
@@ -3211,9 +3209,7 @@ LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
     mCommitCallbackRegistrar.add("Proxy.Change",            std::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
 }
 
-LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
-{
-}
+LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy() = default;
 
 bool LLFloaterPreferenceProxy::postBuild()
 {

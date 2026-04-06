@@ -407,7 +407,7 @@ void BlockTimer::dumpCurTimes()
         if (total_time < F32Milliseconds(0.1f)) continue;
 
         std::ostringstream out_str;
-        BlockTimerStatHandle* parent_timerp = timerp;
+        const BlockTimerStatHandle* parent_timerp = timerp;
         while(parent_timerp && parent_timerp != parent_timerp->getParent())
         {
             out_str << "\t";
@@ -427,7 +427,7 @@ void BlockTimer::writeLog(std::ostream& os)
 {
     while (!sLogQueue.empty())
     {
-        LLSD& sd = sLogQueue.front();
+        const LLSD& sd = sLogQueue.front();
         LLSDSerialize::toXML(sd, os);
         LLMutexLock lock(sLogLock);
         sLogQueue.pop();

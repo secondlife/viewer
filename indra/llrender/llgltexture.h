@@ -90,8 +90,8 @@ protected:
     LOG_CLASS(LLGLTexture);
 
 public:
-    LLGLTexture(bool usemipmaps = true);
-    LLGLTexture(const LLImageRaw* raw, bool usemipmaps) ;
+    explicit LLGLTexture(bool usemipmaps = true);
+    explicit LLGLTexture(const LLImageRaw* raw, bool usemipmaps) ;
     LLGLTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps) ;
 
     virtual void dump();    // debug info to LL_INFOS()
@@ -137,7 +137,7 @@ public:
     void       setTexName(LLGLuint); // for forcing w/ externally created textures only
     void       setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
 
-    LLTexUnit::eTextureAddressMode getAddressMode(void) const ;
+    LLTexUnit::eTextureAddressMode getAddressMode() const ;
     [[nodiscard]] S32        getMaxDiscardLevel() const;
     [[nodiscard]] S32        getDiscardLevel() const;
     [[nodiscard]] S8         getComponents() const;
@@ -145,12 +145,12 @@ public:
     [[nodiscard]] S32Bytes   getTextureMemory() const ;
     [[nodiscard]] LLGLenum   getPrimaryFormat() const;
     [[nodiscard]] bool       getIsAlphaMask() const ;
-    [[nodiscard]] LLTexUnit::eTextureType getTarget(void) const ;
+    [[nodiscard]] LLTexUnit::eTextureType getTarget() const ;
     [[nodiscard]] bool       getMask(const LLVector2 &tc);
     [[nodiscard]] F32        getTimePassedSinceLastBound();
     [[nodiscard]] bool       getMissed() const ;
     [[nodiscard]] bool       isJustBound()const ;
-    void       forceUpdateBindStats(void) const;
+    void       forceUpdateBindStats() const;
 
     [[nodiscard]] bool       isGLTextureCreated() const ;
     [[nodiscard]] LLGLTextureState getTextureState() const { return mTextureState; }

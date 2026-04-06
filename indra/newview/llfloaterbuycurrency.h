@@ -34,7 +34,7 @@ class LLFloater;
 class LLFetchAvatarPaymentInfo : public LLAvatarPropertiesObserver
 {
 public:
-    LLFetchAvatarPaymentInfo(bool has_target, const std::string& name = std::string(), S32 price = 0);
+    explicit LLFetchAvatarPaymentInfo(bool has_target, const std::string& name = std::string(), S32 price = 0);
     ~LLFetchAvatarPaymentInfo();
 
     void processProperties(void* data, EAvatarProcessorType type);

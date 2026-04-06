@@ -36,7 +36,7 @@ class LLFloaterProfile : public LLFloater
 {
     LOG_CLASS(LLFloaterProfile);
 public:
-    LLFloaterProfile(const LLSD& key);
+    explicit LLFloaterProfile(const LLSD& key);
     virtual ~LLFloaterProfile();
 
     bool postBuild() override;

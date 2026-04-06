@@ -1441,7 +1441,7 @@ class LLOctreeMarkNotCulled: public OctreeTraveler
 public:
     LLCamera* mCamera;
 
-    LLOctreeMarkNotCulled(LLCamera* camera_in) : mCamera(camera_in) { }
+    explicit LLOctreeMarkNotCulled(LLCamera* camera_in) : mCamera(camera_in) { }
 
     virtual void traverse(const OctreeNode* node)
     {

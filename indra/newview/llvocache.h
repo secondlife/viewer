@@ -101,7 +101,7 @@ protected:
     ~LLVOCacheEntry();
 public:
     LLVOCacheEntry(U32 local_id, U32 crc, LLDataPackerBinaryBuffer &dp);
-    LLVOCacheEntry(LLAPRFile* apr_file);
+    explicit LLVOCacheEntry(LLAPRFile* apr_file);
     LLVOCacheEntry();
 
     void updateEntry(U32 crc, LLDataPackerBinaryBuffer &dp);
@@ -208,7 +208,7 @@ protected:
 class LLVOCachePartition : public LLViewerOctreePartition
 {
 public:
-    LLVOCachePartition(LLViewerRegion* regionp);
+    explicit LLVOCachePartition(LLViewerRegion* regionp);
     virtual ~LLVOCachePartition();
 
     bool addEntry(LLViewerOctreeEntry* entry);

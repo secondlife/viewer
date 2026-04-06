@@ -530,7 +530,7 @@ void LLModelLoader::dumpDebugData()
 
     std::map<std::string, LLMatrix4a> inv_bind;
     std::map<std::string, LLMatrix4a> alt_bind;
-    for (LLPointer<LLModel>& mdl : mModelList)
+    for (const LLPointer<LLModel>& mdl : mModelList)
     {
 
         file << "Model name: " << mdl->mLabel << "\n";
@@ -601,7 +601,7 @@ void LLModelLoader::dumpDebugData()
             for (auto& [vertex, weight_list] : mdl->mSkinWeights)
             {
                 file << "\nVertex: " << vertex << " Weights: ";
-                for (auto& weight : weight_list)
+                for (const auto& weight : weight_list)
                 {
                     file << weight.mJointIdx << ":" << weight.mWeight << " ";
                 }
@@ -621,7 +621,7 @@ void LLModelLoader::dumpDebugData()
         file << "\nModel LLSDs\n";
         S32 model_count = 0;
         // some files contain too many models, so stop at 5.
-        for (LLPointer<LLModel>& mdl : mModelList)
+        for (const LLPointer<LLModel>& mdl : mModelList)
         {
             const LLMeshSkinInfo& skin_info = mdl->mSkinInfo;
             size_t joint_count = skin_info.mJointNames.size();

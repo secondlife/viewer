@@ -40,7 +40,7 @@ private:
 public:
     static void updateClass();
 
-    LLViewerTextureAnim(LLVOVolume* vobj);
+    explicit LLViewerTextureAnim(LLVOVolume* vobj);
     virtual ~LLViewerTextureAnim();
 
     /*virtual*/ void reset();

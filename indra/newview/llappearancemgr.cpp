@@ -98,7 +98,7 @@ std::string self_av_string()
 class BoolSetter
 {
 public:
-    BoolSetter(bool& var):
+    explicit BoolSetter(bool& var):
         mVar(var)
     {
         mVar = true;
@@ -116,7 +116,7 @@ char ORDER_NUMBER_SEPARATOR('@');
 class LLOutfitUnLockTimer: public LLEventTimer
 {
 public:
-    LLOutfitUnLockTimer(F32 period) : LLEventTimer(period)
+    explicit LLOutfitUnLockTimer(F32 period) : LLEventTimer(period)
     {
         // restart timer on BOF changed event
         LLOutfitObserver::instance().addBOFChangedCallback(std::bind(
@@ -466,7 +466,7 @@ S32 LLCallAfterInventoryCopyMgr::sInstanceCount = 0;
 class LLWearCategoryAfterCopy: public LLInventoryCallback
 {
 public:
-    LLWearCategoryAfterCopy(bool append):
+    explicit LLWearCategoryAfterCopy(bool append):
         mAppend(append)
     {}
 
@@ -485,7 +485,7 @@ private:
 class LLTrackPhaseWrapper : public LLInventoryCallback
 {
 public:
-    LLTrackPhaseWrapper(const std::string& phase_name, LLPointer<LLInventoryCallback> cb = NULL):
+    explicit LLTrackPhaseWrapper(const std::string& phase_name, LLPointer<LLInventoryCallback> cb = NULL):
         mTrackingPhase(phase_name),
         mCB(cb)
     {
@@ -3217,7 +3217,7 @@ void LLAppearanceMgr::removeAllAttachmentsFromAvatar()
 class LLUpdateOnCOFLinkRemove : public LLInventoryCallback
 {
 public:
-    LLUpdateOnCOFLinkRemove(const LLUUID& remove_item_id, LLPointer<LLInventoryCallback> cb = NULL):
+    explicit LLUpdateOnCOFLinkRemove(const LLUUID& remove_item_id, LLPointer<LLInventoryCallback> cb = NULL):
         mItemID(remove_item_id),
         mCB(cb)
     {
@@ -3646,7 +3646,7 @@ std::string build_order_string(LLWearableType::EType type, U32 i)
 struct WearablesOrderComparator
 {
     LOG_CLASS(WearablesOrderComparator);
-    WearablesOrderComparator(const LLWearableType::EType type)
+    explicit WearablesOrderComparator(const LLWearableType::EType type)
     {
         mControlSize = static_cast<U32>(build_order_string(type, 0).size());
     };

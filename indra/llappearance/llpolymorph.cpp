@@ -348,7 +348,7 @@ bool LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
     setWeight(getDefaultWeight());
 
     LLAvatarAppearance* avatarp = mMesh->getAvatar();
-    for (LLPolyVolumeMorphInfo& volume_info : getInfo()->mVolumeInfoList)
+    for (const LLPolyVolumeMorphInfo& volume_info : getInfo()->mVolumeInfoList)
     {
         for (S32 i = 0; i < avatarp->mNumCollisionVolumes; i++)
         {
@@ -656,7 +656,7 @@ void    LLPolyMorphTarget::applyMask(const U8 *maskTextureData, S32 width, S32 h
     else
     {
         // remove effect of previous mask
-        F32 *maskWeights = (mVertMask) ? mVertMask->getMorphMaskWeights() : NULL;
+        const F32 *maskWeights = (mVertMask) ? mVertMask->getMorphMaskWeights() : NULL;
 
         if (maskWeights)
         {
@@ -755,9 +755,7 @@ LLPolyVertexMask::LLPolyVertexMask(const LLPolyVertexMask& pOther)
 //-----------------------------------------------------------------------------
 // ~LLPolyVertexMask()
 //-----------------------------------------------------------------------------
-LLPolyVertexMask::~LLPolyVertexMask()
-{
-}
+LLPolyVertexMask::~LLPolyVertexMask() = default;
 
 //-----------------------------------------------------------------------------
 // generateMask()

@@ -35,9 +35,7 @@ LLFloaterMarketplace::LLFloaterMarketplace(const LLSD& key)
 {
 }
 
-LLFloaterMarketplace::~LLFloaterMarketplace()
-{
-}
+LLFloaterMarketplace::~LLFloaterMarketplace() = default;
 
 void LLFloaterMarketplace::onOpen(const LLSD& key)
 {

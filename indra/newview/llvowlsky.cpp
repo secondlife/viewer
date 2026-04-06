@@ -39,32 +39,32 @@
 constexpr U32 MIN_SKY_DETAIL = 8;
 constexpr U32 MAX_SKY_DETAIL = 180;
 
-inline U32 LLVOWLSky::getNumStacks(void)
+inline U32 LLVOWLSky::getNumStacks()
 {
     return llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, gSavedSettings.getU32("WLSkyDetail")));
 }
 
-inline U32 LLVOWLSky::getNumSlices(void)
+inline U32 LLVOWLSky::getNumSlices()
 {
     return 2 * llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, gSavedSettings.getU32("WLSkyDetail")));
 }
 
-inline U32 LLVOWLSky::getStripsNumVerts(void)
+inline U32 LLVOWLSky::getStripsNumVerts()
 {
     return (getNumStacks() - 1) * getNumSlices();
 }
 
-inline U32 LLVOWLSky::getStripsNumIndices(void)
+inline U32 LLVOWLSky::getStripsNumIndices()
 {
     return 2 * ((getNumStacks() - 2) * (getNumSlices() + 1)) + 1 ;
 }
 
-inline U32 LLVOWLSky::getStarsNumVerts(void)
+inline U32 LLVOWLSky::getStarsNumVerts()
 {
     return 1000;
 }
 
-inline U32 LLVOWLSky::getStarsNumIndices(void)
+inline U32 LLVOWLSky::getStarsNumIndices()
 {
     return 1000;
 }
@@ -80,7 +80,7 @@ void LLVOWLSky::idleUpdate(LLAgent &agent, const F64 &time)
 
 }
 
-bool LLVOWLSky::isActive(void) const
+bool LLVOWLSky::isActive() const
 {
     return false;
 }
@@ -279,7 +279,7 @@ bool LLVOWLSky::updateGeometry(LLDrawable * drawable)
     return true;
 }
 
-void LLVOWLSky::drawStars(void)
+void LLVOWLSky::drawStars()
 {
     //  render the stars as a sphere centered at viewer camera
     if (mStarsVerts.notNull())
@@ -289,7 +289,7 @@ void LLVOWLSky::drawStars(void)
     }
 }
 
-void LLVOWLSky::drawFsSky(void)
+void LLVOWLSky::drawFsSky()
 {
     if (mFsSkyVerts.isNull())
     {
@@ -304,7 +304,7 @@ void LLVOWLSky::drawFsSky(void)
     LLVertexBuffer::unbind();
 }
 
-void LLVOWLSky::drawDome(void)
+void LLVOWLSky::drawDome()
 {
     if (mStripsVerts.empty())
     {

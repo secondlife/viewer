@@ -93,9 +93,7 @@ LLHUDText::LLHUDText(const U8 type) :
     sTextObjects.insert(ptr);
 }
 
-LLHUDText::~LLHUDText()
-{
-}
+LLHUDText::~LLHUDText() = default;
 
 void LLHUDText::render()
 {

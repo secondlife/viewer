@@ -81,7 +81,7 @@ public:
     };
 
     LLTextureEntry();
-    LLTextureEntry(const LLUUID& tex_id);
+    explicit LLTextureEntry(const LLUUID& tex_id);
     LLTextureEntry(const LLTextureEntry &rhs);
 
     LLTextureEntry &operator=(const LLTextureEntry &rhs);

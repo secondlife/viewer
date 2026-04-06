@@ -94,7 +94,7 @@ class LLAvatarItemRecentComparator : public LLAvatarItemComparator
 {
 public:
     LLAvatarItemRecentComparator() {};
-    virtual ~LLAvatarItemRecentComparator() {};
+    virtual ~LLAvatarItemRecentComparator() = default;;
 
 protected:
     virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const
@@ -182,7 +182,7 @@ class LLAvatarItemRecentSpeakerComparator : public  LLAvatarItemNameComparator
 {
 public:
     LLAvatarItemRecentSpeakerComparator() {};
-    virtual ~LLAvatarItemRecentSpeakerComparator() {};
+    virtual ~LLAvatarItemRecentSpeakerComparator() = default;;
 
 protected:
     virtual bool doCompare(const LLAvatarListItem* item1, const LLAvatarListItem* item2) const
@@ -214,7 +214,7 @@ class LLAvatarItemRecentArrivalComparator : public  LLAvatarItemNameComparator
 {
 public:
     LLAvatarItemRecentArrivalComparator() {};
-    virtual ~LLAvatarItemRecentArrivalComparator() {};
+    virtual ~LLAvatarItemRecentArrivalComparator() = default;;
 
 protected:
     virtual bool doCompare(const LLAvatarListItem* item1, const LLAvatarListItem* item2) const

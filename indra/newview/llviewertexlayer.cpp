@@ -171,7 +171,7 @@ void LLViewerTexLayerSetBuffer::midRenderTexLayerSet(bool success)
     mGLTexturep->setGLTextureCreated(true);
 }
 
-bool LLViewerTexLayerSetBuffer::isInitialized(void) const
+bool LLViewerTexLayerSetBuffer::isInitialized() const
 {
     return mGLTexturep.notNull() && mGLTexturep->isGLTextureCreated();
 }
@@ -261,9 +261,7 @@ LLViewerTexLayerSet::LLViewerTexLayerSet(LLAvatarAppearance* const appearance) :
 }
 
 // virtual
-LLViewerTexLayerSet::~LLViewerTexLayerSet()
-{
-}
+LLViewerTexLayerSet::~LLViewerTexLayerSet() = default;
 
 // Returns true if at least one packet of data has been received for each of the textures that this layerset depends on.
 bool LLViewerTexLayerSet::isLocalTextureDataAvailable() const

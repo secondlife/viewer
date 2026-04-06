@@ -74,7 +74,7 @@ enum EGraphicsSettings
 class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver
 {
 public:
-    LLFloaterPreference(const LLSD& key);
+    explicit LLFloaterPreference(const LLSD& key);
     ~LLFloaterPreference();
 
     void apply();
@@ -384,7 +384,7 @@ class LLAvatarComplexityControls
 class LLFloaterPreferenceProxy : public LLFloater
 {
 public:
-    LLFloaterPreferenceProxy(const LLSD& key);
+    explicit LLFloaterPreferenceProxy(const LLSD& key);
     ~LLFloaterPreferenceProxy();
 
     /// show off our menu

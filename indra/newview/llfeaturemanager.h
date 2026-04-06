@@ -67,7 +67,7 @@ class LLFeatureList
 public:
     using feature_map_t = std::map<std::string, LLFeatureInfo>;
 
-    LLFeatureList(const std::string& name);
+    explicit LLFeatureList(const std::string& name);
     virtual ~LLFeatureList();
 
     bool isFeatureAvailable(const std::string& name);

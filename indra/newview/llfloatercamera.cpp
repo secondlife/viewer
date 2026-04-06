@@ -79,7 +79,7 @@ public:
     /* virtual */ void  draw();
 
 protected:
-    LLPanelCameraZoom(const Params& p) { onCreate(); }
+    explicit LLPanelCameraZoom(const Params& p) { onCreate(); }
 
     void    onCreate();
     void    onZoomPlusHeldDown();

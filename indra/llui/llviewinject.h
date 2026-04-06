@@ -35,7 +35,7 @@ namespace llview
          * LLUI::getInstance()->resolvePath() to obtain an LLView* given a string pathname.)
          * This sets up for operator().
          */
-        TargetEvent(LLView* view);
+        explicit TargetEvent(LLView* view);
 
         /**
          * This signature must match LLView::DrilldownFunc. When you install

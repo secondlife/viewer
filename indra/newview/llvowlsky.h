@@ -30,25 +30,25 @@
 
 class LLVOWLSky : public LLStaticViewerObject {
 private:
-    inline static U32 getNumStacks(void);
-    inline static U32 getNumSlices(void);
-    inline static U32 getStripsNumVerts(void);
-    inline static U32 getStripsNumIndices(void);
-    inline static U32 getStarsNumVerts(void);
-    inline static U32 getStarsNumIndices(void);
+    inline static U32 getNumStacks();
+    inline static U32 getNumSlices();
+    inline static U32 getStripsNumVerts();
+    inline static U32 getStripsNumIndices();
+    inline static U32 getStarsNumVerts();
+    inline static U32 getStarsNumIndices();
 
 public:
     LLVOWLSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 
     /*virtual*/ void         idleUpdate(LLAgent &agent, const F64 &time);
-    /*virtual*/ bool         isActive(void) const;
+    /*virtual*/ bool         isActive() const;
     /*virtual*/ LLDrawable * createDrawable(LLPipeline *pipeline);
     /*virtual*/ bool         updateGeometry(LLDrawable *drawable);
 
-    void drawStars(void);
-    void drawDome(void);
-    void drawFsSky(void); // fullscreen sky for advanced atmo
-    void resetVertexBuffers(void);
+    void drawStars();
+    void drawDome();
+    void drawFsSky(); // fullscreen sky for advanced atmo
+    void resetVertexBuffers();
 
     void cleanupGL();
     void restoreGL();

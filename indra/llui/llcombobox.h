@@ -96,7 +96,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLComboBox(const Params&);
+    explicit LLComboBox(const Params&);
     void    initFromParams(const Params&);
     void    prearrangeList(std::string filter = "");
 
@@ -280,7 +280,7 @@ private:
     };
 
     friend class LLUICtrlFactory;
-    LLIconsComboBox(const Params&);
+    explicit LLIconsComboBox(const Params&);
     virtual ~LLIconsComboBox() = default;
 
     S32         mIconColumnIndex;

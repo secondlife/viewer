@@ -68,8 +68,8 @@ class alignas(16) LLTexLayerParamAlpha : public LLTexLayerParam
 {
     LL_ALIGN_NEW
 public:
-    LLTexLayerParamAlpha( LLTexLayerInterface* layer );
-    LLTexLayerParamAlpha( LLAvatarAppearance* appearance );
+    explicit LLTexLayerParamAlpha( LLTexLayerInterface* layer );
+    explicit LLTexLayerParamAlpha( LLAvatarAppearance* appearance );
     ~LLTexLayerParamAlpha() override;
 
     LLViewerVisualParam* cloneParam(LLWearable* wearable = NULL) const override;
@@ -150,8 +150,8 @@ public:
         OP_COUNT = 3 // Number of operations
     };
 
-    LLTexLayerParamColor( LLTexLayerInterface* layer );
-    LLTexLayerParamColor( LLAvatarAppearance* appearance );
+    explicit LLTexLayerParamColor( LLTexLayerInterface* layer );
+    explicit LLTexLayerParamColor( LLAvatarAppearance* appearance );
 
     ~LLTexLayerParamColor() override;
 

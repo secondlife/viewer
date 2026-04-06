@@ -63,9 +63,7 @@ LLPathfindingCharacter::LLPathfindingCharacter(const LLPathfindingCharacter& pOt
 {
 }
 
-LLPathfindingCharacter::~LLPathfindingCharacter()
-{
-}
+LLPathfindingCharacter::~LLPathfindingCharacter() = default;
 
 LLPathfindingCharacter& LLPathfindingCharacter::operator =(const LLPathfindingCharacter& pOther)
 {

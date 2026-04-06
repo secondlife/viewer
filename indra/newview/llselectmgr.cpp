@@ -3813,7 +3813,7 @@ bool LLSelectMgr::selectGetRootsCopy()
 struct LLSelectGetFirstTest
 {
     LLSelectGetFirstTest() : mIdentical(true), mFirst(true) { }
-    virtual ~LLSelectGetFirstTest() { }
+    virtual ~LLSelectGetFirstTest() = default;
 
     // returns false to break out of the iteration.
     bool checkMatchingNode(LLSelectNode* node)

@@ -52,7 +52,7 @@ public:
         Optional<bool>                  draw_highlight_bg;
         Params();
     };
-    LLStyle(const Params& p = Params());
+    explicit LLStyle(const Params& p = Params());
 
     enum EUnderlineLink
     {

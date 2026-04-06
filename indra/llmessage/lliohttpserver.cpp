@@ -58,7 +58,7 @@ static void* sTimingCallbackData = NULL;
 class LLHTTPPipe : public LLIOPipe
 {
 public:
-    LLHTTPPipe(const LLHTTPNode& node)
+    explicit LLHTTPPipe(const LLHTTPNode& node)
         : mNode(node),
           mResponse(NULL),
           mState(STATE_INVOKE),
@@ -312,9 +312,7 @@ LLPointer<LLHTTPPipe::Response> LLHTTPPipe::Response::create(LLHTTPPipe* pipe)
 }
 
 // virtual
-LLHTTPPipe::Response::~Response()
-{
-}
+LLHTTPPipe::Response::~Response() = default;
 
 void LLHTTPPipe::Response::nullPipe()
 {

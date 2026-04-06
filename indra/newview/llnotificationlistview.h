@@ -38,7 +38,7 @@ class LLNotificationListView : public LLFlatListView
 public:
     struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> {};
 
-    LLNotificationListView(const Params& p);
+    explicit LLNotificationListView(const Params& p);
     ~LLNotificationListView();
     friend class LLUICtrlFactory;
 

@@ -32,7 +32,7 @@ class LLAvatarList;
 class LLFloaterChatMentionPicker : public LLFloater
 {
 public:
-    LLFloaterChatMentionPicker(const LLSD& key);
+    explicit LLFloaterChatMentionPicker(const LLSD& key);
 
     virtual bool postBuild() override;
     virtual void goneFromFront() override;

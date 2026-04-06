@@ -84,7 +84,7 @@ using give_money_ptr = std::shared_ptr<LLGiveMoneyInfo>;
 class LLFloaterPay : public LLFloater
 {
 public:
-    LLFloaterPay(const LLSD& key);
+    explicit LLFloaterPay(const LLSD& key);
     virtual ~LLFloaterPay();
     /*virtual*/ bool    postBuild();
     /*virtual*/ void onClose(bool app_quitting);

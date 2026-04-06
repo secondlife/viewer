@@ -75,7 +75,7 @@ public:
     /**
      * @brief Constructor.
      */
-    LLPumpIO(apr_pool_t* pool);
+    explicit LLPumpIO(apr_pool_t* pool);
 
     /**
      * @brief Destructor.
@@ -357,7 +357,7 @@ protected:
         bool mHasCurlRequest;
         S32 mLock;
         LLFrameTimer mTimer;
-        links_t::iterator mHead;
+        links_t::iterator mHead = {};
         links_t mChainLinks;
         LLIOPipe::buffer_ptr_t mData;
         LLSD mContext;

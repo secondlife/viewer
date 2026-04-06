@@ -167,9 +167,7 @@ LLImageDXT::LLImageDXT()
 {
 }
 
-LLImageDXT::~LLImageDXT()
-{
-}
+LLImageDXT::~LLImageDXT() = default;
 
 // virtual
 bool LLImageDXT::updateData()
@@ -391,7 +389,7 @@ bool LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_
     header->maxwidth = width;
     header->maxheight = height;
 
-    U8* prev_mipdata = 0;
+    const U8* prev_mipdata = 0;
     w = width, h = height;
     for (S32 mip=0; mip<nmips; mip++)
     {

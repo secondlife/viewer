@@ -83,9 +83,7 @@ LLCalc::LLCalc() : mLastErrorPos(0)
     mConstants["GRAVITY"] = GRAVITY;
 }
 
-LLCalc::~LLCalc()
-{
-}
+LLCalc::~LLCalc() = default;
 
 //static
 void LLCalc::cleanUp()

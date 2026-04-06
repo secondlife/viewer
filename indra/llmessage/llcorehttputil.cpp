@@ -96,7 +96,7 @@ void logMessageFail(std::string logAuth, std::string url, std::string message)
 class HttpRequestPumper
 {
 public:
-    HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request);
+    explicit HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request);
     ~HttpRequestPumper();
 
 private:
@@ -446,7 +446,7 @@ void HttpCoroHandler::writeStatusCodes(LLCore::HttpStatus status, const std::str
 class HttpCoroLLSDHandler : public HttpCoroHandler
 {
 public:
-    HttpCoroLLSDHandler(LLEventStream &reply);
+    explicit HttpCoroLLSDHandler(LLEventStream &reply);
 
 protected:
     virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) const;
@@ -554,7 +554,7 @@ LLSD HttpCoroLLSDHandler::parseBody(LLCore::HttpResponse *response, bool &succes
 class HttpCoroRawHandler : public HttpCoroHandler
 {
 public:
-    HttpCoroRawHandler(LLEventStream &reply);
+    explicit HttpCoroRawHandler(LLEventStream &reply);
 
     virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) const;
     virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success) const;
@@ -629,7 +629,7 @@ LLSD HttpCoroRawHandler::parseBody(LLCore::HttpResponse *response, bool &success
 class HttpCoroJSONHandler : public HttpCoroHandler
 {
 public:
-    HttpCoroJSONHandler(LLEventStream &reply);
+    explicit HttpCoroJSONHandler(LLEventStream &reply);
 
     virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) const;
     virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success) const;

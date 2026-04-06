@@ -221,9 +221,7 @@ LLEditWearableDictionary::LLEditWearableDictionary()
 }
 
 //virtual
-LLEditWearableDictionary::~LLEditWearableDictionary()
-{
-}
+LLEditWearableDictionary::~LLEditWearableDictionary() = default;
 
 LLEditWearableDictionary::Wearables::Wearables()
 {
@@ -650,9 +648,7 @@ LLPanelEditWearable::LLPanelEditWearable()
 }
 
 //virtual
-LLPanelEditWearable::~LLPanelEditWearable()
-{
-}
+LLPanelEditWearable::~LLPanelEditWearable() = default;
 
 bool LLPanelEditWearable::changeHeightUnits(const LLSD& new_value)
 {

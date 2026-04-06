@@ -34,7 +34,7 @@ class LLUUID;
 class LLFloaterScriptDebug : public LLMultiFloater
 {
 public:
-    LLFloaterScriptDebug(const LLSD& key);
+    explicit LLFloaterScriptDebug(const LLSD& key);
     virtual ~LLFloaterScriptDebug();
     virtual bool postBuild();
     virtual void setVisible(bool visible);
@@ -53,7 +53,7 @@ protected:
 class LLFloaterScriptDebugOutput : public LLFloater
 {
 public:
-    LLFloaterScriptDebugOutput(const LLSD& object_id);
+    explicit LLFloaterScriptDebugOutput(const LLSD& object_id);
     ~LLFloaterScriptDebugOutput();
 
     void addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color);

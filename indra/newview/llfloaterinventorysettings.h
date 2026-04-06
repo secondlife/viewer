@@ -37,7 +37,7 @@ public:
     bool postBuild() override;
 
 private:
-    LLFloaterInventorySettings(const LLSD& key);
+    explicit LLFloaterInventorySettings(const LLSD& key);
     ~LLFloaterInventorySettings();
 
     void updateColorSwatch();

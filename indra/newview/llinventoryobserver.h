@@ -99,8 +99,8 @@ protected:
 class LLInventoryFetchItemsObserver : public LLInventoryFetchObserver
 {
 public:
-    LLInventoryFetchItemsObserver(const LLUUID& item_id = LLUUID::null);
-    LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids);
+    explicit LLInventoryFetchItemsObserver(const LLUUID& item_id = LLUUID::null);
+    explicit LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids);
 
     /*virtual*/ void startFetch();
     /*virtual*/ void changed(U32 mask);
@@ -125,8 +125,8 @@ private:
 class LLInventoryFetchDescendentsObserver : public LLInventoryFetchObserver
 {
 public:
-    LLInventoryFetchDescendentsObserver(const LLUUID& cat_id = LLUUID::null);
-    LLInventoryFetchDescendentsObserver(const uuid_vec_t& cat_ids);
+    explicit LLInventoryFetchDescendentsObserver(const LLUUID& cat_id = LLUUID::null);
+    explicit LLInventoryFetchDescendentsObserver(const uuid_vec_t& cat_ids);
 
     virtual void startFetch();
     /*virtual*/ void changed(U32 mask);

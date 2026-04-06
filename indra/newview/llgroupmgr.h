@@ -228,7 +228,7 @@ class LLGroupMgrGroupData
 friend class LLGroupMgr;
 
 public:
-    LLGroupMgrGroupData(const LLUUID& id);
+    explicit LLGroupMgrGroupData(const LLUUID& id);
     ~LLGroupMgrGroupData();
 
     const LLUUID& getID() { return mID; }

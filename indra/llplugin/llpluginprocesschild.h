@@ -45,19 +45,19 @@ public:
     ~LLPluginProcessChild();
 
     void init(U32 launcher_port);
-    void idle(void);
+    void idle();
     void sleep(F64 seconds);
     void pump();
 
     // returns true if the plugin is in the steady state (processing messages)
-    bool isRunning(void);
+    bool isRunning();
 
     // returns true if the plugin is unloaded or we're in an unrecoverable error state.
-    bool isDone(void);
+    bool isDone();
 
-    void killSockets(void);
+    void killSockets();
 
-    F64 getSleepTime(void) const { return mSleepTime; };
+    F64 getSleepTime() const { return mSleepTime; };
 
     void sendMessageToPlugin(const LLPluginMessage &message);
     void sendMessageToParent(const LLPluginMessage &message);

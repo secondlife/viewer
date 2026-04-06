@@ -45,7 +45,7 @@ public:
 
 private:
 
-    LLFloaterBulkPermission(const LLSD& seed);
+    explicit LLFloaterBulkPermission(const LLSD& seed);
     virtual ~LLFloaterBulkPermission() = default;
 
     bool start(); // returns true if the queue has started, otherwise false.

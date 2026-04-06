@@ -34,7 +34,7 @@ class LLPacketBuffer
 {
 public:
     LLPacketBuffer(const LLHost &host, const char *datap, const S32 size);
-    LLPacketBuffer(S32 hSocket);    // receive a packet
+    explicit LLPacketBuffer(S32 hSocket);    // receive a packet
     ~LLPacketBuffer();
 
     S32         getSize() const                 { return mSize; }

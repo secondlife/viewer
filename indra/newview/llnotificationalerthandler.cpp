@@ -59,9 +59,7 @@ LLAlertHandler::LLAlertHandler(const std::string& name, const std::string& notif
 }
 
 //--------------------------------------------------------------------------
-LLAlertHandler::~LLAlertHandler()
-{
-}
+LLAlertHandler::~LLAlertHandler() = default;
 
 //--------------------------------------------------------------------------
 void LLAlertHandler::initChannel()

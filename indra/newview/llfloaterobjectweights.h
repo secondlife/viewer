@@ -54,7 +54,7 @@ class LLFloaterObjectWeights : public LLFloater, LLAccountingCostObserver
 public:
     LOG_CLASS(LLFloaterObjectWeights);
 
-    LLFloaterObjectWeights(const LLSD& key);
+    explicit LLFloaterObjectWeights(const LLSD& key);
     ~LLFloaterObjectWeights();
 
     bool postBuild() override;

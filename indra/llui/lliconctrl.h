@@ -58,7 +58,7 @@ public:
         Params();
     };
 protected:
-    LLIconCtrl(const Params&);
+    explicit LLIconCtrl(const Params&);
     friend class LLUICtrlFactory;
 
     void setValue(const LLSD& value, S32 priority);

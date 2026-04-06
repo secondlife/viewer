@@ -40,7 +40,7 @@ class LLKeyframeFallMotion :
 {
 public:
     // Constructor
-    LLKeyframeFallMotion(const LLUUID &id);
+    explicit LLKeyframeFallMotion(const LLUUID &id);
 
     // Destructor
     ~LLKeyframeFallMotion() override;

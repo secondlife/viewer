@@ -50,9 +50,7 @@ LLPathfindingCharacterList::LLPathfindingCharacterList(const LLSD& pCharacterLis
     parseCharacterListData(pCharacterListData);
 }
 
-LLPathfindingCharacterList::~LLPathfindingCharacterList()
-{
-}
+LLPathfindingCharacterList::~LLPathfindingCharacterList() = default;
 
 void LLPathfindingCharacterList::parseCharacterListData(const LLSD& pCharacterListData)
 {

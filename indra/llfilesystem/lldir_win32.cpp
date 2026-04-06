@@ -290,9 +290,7 @@ LLDir_Win32::LLDir_Win32()
     mLLPluginDir = add(mExecutableDir, "llplugin");
 }
 
-LLDir_Win32::~LLDir_Win32()
-{
-}
+LLDir_Win32::~LLDir_Win32() = default;
 
 // Implementation
 

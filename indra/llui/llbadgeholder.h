@@ -36,7 +36,7 @@ class LLBadgeHolder
 {
 public:
 
-    LLBadgeHolder(bool acceptsBadge)
+    explicit LLBadgeHolder(bool acceptsBadge)
         : mAcceptsBadge(acceptsBadge)
     {
     }

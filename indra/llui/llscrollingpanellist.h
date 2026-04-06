@@ -58,7 +58,7 @@ public:
         Params();
     };
 
-    LLScrollingPanelList(const Params& p);
+    explicit LLScrollingPanelList(const Params& p);
 
     static constexpr S32 DEFAULT_SPACING = 6;
     static constexpr S32 DEFAULT_PADDING = 2;

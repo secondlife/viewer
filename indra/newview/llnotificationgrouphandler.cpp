@@ -52,9 +52,7 @@ LLGroupHandler::LLGroupHandler()
 }
 
 //--------------------------------------------------------------------------
-LLGroupHandler::~LLGroupHandler()
-{
-}
+LLGroupHandler::~LLGroupHandler() = default;
 
 //--------------------------------------------------------------------------
 void LLGroupHandler::initChannel()

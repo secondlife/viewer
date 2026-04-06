@@ -50,7 +50,7 @@ public:
 
 private:
 
-    LLFloaterMemLeak(const LLSD& key);
+    explicit LLFloaterMemLeak(const LLSD& key);
     virtual ~LLFloaterMemLeak();
     void release() ;
 

@@ -86,7 +86,7 @@ LLHost get_sender()
     return LLHost(stSrcAddr.sin_addr.s_addr, ntohs(stSrcAddr.sin_port));
 }
 
-U32 get_sender_ip(void)
+U32 get_sender_ip()
 {
     return stSrcAddr.sin_addr.s_addr;
 }
@@ -101,7 +101,7 @@ LLHost get_receiving_interface()
     return LLHost(gsnReceivingIFAddr, INVALID_PORT);
 }
 
-U32 get_receiving_interface_ip(void)
+U32 get_receiving_interface_ip()
 {
     return gsnReceivingIFAddr;
 }
@@ -113,7 +113,7 @@ const char* u32_to_ip_string(U32 ip)
     // Convert the IP address into a string
     in_addr in;
     in.s_addr = ip;
-    char* result = inet_ntoa(in);
+    const char* result = inet_ntoa(in);
 
     // NULL indicates error in conversion
     if (result != NULL)
@@ -132,7 +132,7 @@ const char* u32_to_ip_string(U32 ip)
 // Returns ip_string if successful, NULL if not.  Copies into ip_string
 char *u32_to_ip_string(U32 ip, char *ip_string)
 {
-    char *result;
+    const char *result;
     in_addr in;
 
     // Convert the IP address into a string
@@ -499,7 +499,7 @@ S32 start_net(S32& socket_out, int& nPort)
 #endif
 
     //  Setup a destination address
-    char achMCAddr[MAXADDRSTR] = "127.0.0.1";   /* Flawfinder: ignore */
+    const char achMCAddr[MAXADDRSTR] = "127.0.0.1";   /* Flawfinder: ignore */
     stDstAddr.sin_family =      AF_INET;
     stDstAddr.sin_addr.s_addr = ip_string_to_u32(achMCAddr);
     stDstAddr.sin_port =        htons(nPort);

@@ -144,7 +144,7 @@ void LLPanelFace::updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*
     struct LLSelectedTEGLTFMaterialFunctor : public LLSelectedTEFunctor
     {
         LLSelectedTEGLTFMaterialFunctor(std::function<void(LLGLTFMaterial*)> func) : mFunc(func) {}
-        virtual ~LLSelectedTEGLTFMaterialFunctor() {};
+        virtual ~LLSelectedTEGLTFMaterialFunctor() = default;;
         bool apply(LLViewerObject* object, S32 face) override
         {
             LLGLTFMaterial new_override;
@@ -170,7 +170,7 @@ void LLPanelFace::updateSelectedGLTFMaterialsWithScale(std::function<void(LLGLTF
     struct LLSelectedTEGLTFMaterialFunctor : public LLSelectedTEFunctor
     {
         LLSelectedTEGLTFMaterialFunctor(std::function<void(LLGLTFMaterial*, const F32, const F32)> func) : mFunc(func) {}
-        virtual ~LLSelectedTEGLTFMaterialFunctor() {};
+        virtual ~LLSelectedTEGLTFMaterialFunctor() = default;;
         bool apply(LLViewerObject* object, S32 face) override
         {
             LLGLTFMaterial new_override;
@@ -201,7 +201,7 @@ void readSelectedGLTFMaterial(std::function<T(const LLGLTFMaterial*)> func, T& v
     struct LLSelectedTEGetGLTFMaterialFunctor : public LLSelectedTEGetFunctor<T>
     {
         LLSelectedTEGetGLTFMaterialFunctor(std::function<T(const LLGLTFMaterial*)> func) : mFunc(func) {}
-        virtual ~LLSelectedTEGetGLTFMaterialFunctor() {};
+        virtual ~LLSelectedTEGetGLTFMaterialFunctor() = default;;
         T get(LLViewerObject* object, S32 face) override
         {
             const LLTextureEntry* tep = object->getTE(face);
@@ -224,7 +224,7 @@ void getSelectedGLTFMaterialMaxRepeats(LLGLTFMaterial::TextureInfo channel, F32&
     struct LLSelectedTEGetGLTFMaterialMaxRepeatsFunctor : public LLSelectedTEGetFunctor<F32>
     {
         LLSelectedTEGetGLTFMaterialMaxRepeatsFunctor(LLGLTFMaterial::TextureInfo channel) : mChannel(channel) {}
-        virtual ~LLSelectedTEGetGLTFMaterialMaxRepeatsFunctor() {};
+        virtual ~LLSelectedTEGetGLTFMaterialMaxRepeatsFunctor() = default;;
         F32 get(LLViewerObject* object, S32 face) override
         {
             const LLTextureEntry* tep = object->getTE(face);
@@ -5519,7 +5519,7 @@ void LLPanelFace::LLSelectedTEMaterial::getCurrentDiffuseAlphaMode(U8& diffuse_a
     struct LLSelectedTEGetDiffuseAlphaMode : public LLSelectedTEGetFunctor<U8>
     {
         LLSelectedTEGetDiffuseAlphaMode() {}
-        virtual ~LLSelectedTEGetDiffuseAlphaMode() {}
+        virtual ~LLSelectedTEGetDiffuseAlphaMode() = default;
 
         U8 get(LLViewerObject* object, S32 face)
         {

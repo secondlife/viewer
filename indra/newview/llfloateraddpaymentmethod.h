@@ -37,7 +37,7 @@ public:
     void onOpen(const LLSD& key) override;
 
 private:
-    LLFloaterAddPaymentMethod(const LLSD& key);
+    explicit LLFloaterAddPaymentMethod(const LLSD& key);
 
     void centerOnScreen();
 

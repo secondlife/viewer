@@ -67,9 +67,7 @@ LLHUDObject::LLHUDObject(const U8 type) :
     mDead = false;
 }
 
-LLHUDObject::~LLHUDObject()
-{
-}
+LLHUDObject::~LLHUDObject() = default;
 
 void LLHUDObject::markDead()
 {

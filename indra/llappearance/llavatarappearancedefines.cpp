@@ -175,15 +175,13 @@ LLAvatarAppearanceDictionary::LLAvatarAppearanceDictionary()
 }
 
 //virtual
-LLAvatarAppearanceDictionary::~LLAvatarAppearanceDictionary()
-{
-}
+LLAvatarAppearanceDictionary::~LLAvatarAppearanceDictionary() = default;
 
 // Baked textures are composites of textures; for each such composited texture,
 // map it to the baked texture.
 void LLAvatarAppearanceDictionary::createAssociations()
 {
-    for (BakedTextures::value_type& baked_pair : mBakedTextures)
+    for (const BakedTextures::value_type& baked_pair : mBakedTextures)
     {
         const EBakedTextureIndex baked_index = baked_pair.first;
         const BakedEntry *dict = baked_pair.second;

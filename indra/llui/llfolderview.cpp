@@ -85,8 +85,8 @@ F32 LLFolderView::sAutoOpenTime = 1.f;
 class LLCloseAllFoldersFunctor : public LLFolderViewFunctor
 {
 public:
-    LLCloseAllFoldersFunctor(bool close) { mOpen = !close; }
-    virtual ~LLCloseAllFoldersFunctor() {}
+    explicit LLCloseAllFoldersFunctor(bool close) { mOpen = !close; }
+    virtual ~LLCloseAllFoldersFunctor() = default;
     virtual void doFolder(LLFolderViewFolder* folder);
     virtual void doItem(LLFolderViewItem* item);
 
@@ -125,7 +125,7 @@ const LLRect LLFolderViewScrollContainer::getScrolledViewRect() const
     LLRect rect = LLRect::null;
     if (mScrolledView)
     {
-        LLFolderView* folder_view = dynamic_cast<LLFolderView*>(mScrolledView);
+        const LLFolderView* folder_view = dynamic_cast<LLFolderView*>(mScrolledView);
         if (folder_view)
         {
             S32 height = folder_view->getRect().getHeight();
@@ -194,7 +194,7 @@ LLFolderView::LLFolderView(const Params& p)
     mForceArrange(false),
     mSingleFolderMode(false)
 {
-    LLPanel* panel = p.parent_panel;
+    const LLPanel* panel = p.parent_panel;
     mParentPanel = panel->getHandle();
     mViewModel->setFolderView(this);
     mRoot = this;
@@ -935,7 +935,7 @@ void LLFolderView::copy()
     auto count = mSelectedItems.size();
     if(getVisible() && getEnabled() && (count > 0))
     {
-        LLFolderViewModelItem* listener = NULL;
+        const LLFolderViewModelItem* listener = NULL;
         selected_items_t::iterator item_it;
         for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
         {
@@ -1705,7 +1705,7 @@ bool LLFolderView::getShowSelectionContext()
     {
         return true;
     }
-    LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
+    const LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
     if (menu && menu->getVisible())
     {
         return true;
@@ -1822,7 +1822,7 @@ void LLFolderView::update()
 
       //Computes visible area
             const LLRect visible_content_rect = (mScrollContainer ? mScrollContainer->getVisibleContentRect() : LLRect());
-            LLFolderViewItem* selected_item = mSelectedItems.back();
+            const LLFolderViewItem* selected_item = mSelectedItems.back();
 
       //Computes location of selected content, content outside visible area will be scrolled to using below code
             LLRect item_rect;
@@ -1896,7 +1896,7 @@ void LLFolderView::update()
 
     if (mSelectedItems.size())
     {
-        LLFolderViewItem* item = mSelectedItems.back();
+        const LLFolderViewItem* item = mSelectedItems.back();
         // If the goal is to show renamer, don't callback untill
         // item is visible or is no longer being scrolled to.
         // Otherwise renamer will be instantly closed
@@ -1997,7 +1997,7 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
 // Refresh the context menu (that is already shown).
 void LLFolderView::updateMenu()
 {
-    LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
+    const LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
     if (menu && menu->getVisible())
     {
         // When fetching folders in bulk or in parts, each callback
@@ -2025,7 +2025,7 @@ bool LLFolderView::isFolderSelected()
     selected_items_t::iterator item_iter;
     for (item_iter = mSelectedItems.begin(); item_iter != mSelectedItems.end(); ++item_iter)
     {
-        LLFolderViewFolder* folder = dynamic_cast<LLFolderViewFolder*>(*item_iter);
+        const LLFolderViewFolder* folder = dynamic_cast<LLFolderViewFolder*>(*item_iter);
         if (folder != NULL)
         {
             return true;

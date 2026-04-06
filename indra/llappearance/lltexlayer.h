@@ -99,8 +99,8 @@ protected:
 protected:
     LLTexLayerSet* const    mTexLayerSet;
     const LLTexLayerInfo*   mInfo;
-    bool                    mMorphMasksValid;
-    bool                    mHasMorph;
+    bool                    mMorphMasksValid = false;
+    bool                    mHasMorph = false;
 
     // Layers can have either mParamColorList, mGlobalColor, or mFixedColor.  They are looked for in that order.
     param_color_list_t      mParamColorList;
@@ -145,7 +145,7 @@ private:
 class LLTexLayer : public LLTexLayerInterface
 {
 public:
-    LLTexLayer(LLTexLayerSet* const layer_set);
+    explicit LLTexLayer(LLTexLayerSet* const layer_set);
     LLTexLayer(const LLTexLayer &layer, LLWearable *wearable);
     LLTexLayer(const LLTexLayerTemplate &layer_template, LLLocalTextureObject *lto, LLWearable *wearable);
     ~LLTexLayer() override;

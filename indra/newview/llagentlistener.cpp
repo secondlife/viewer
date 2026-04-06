@@ -601,7 +601,7 @@ template <>
 class LLSDParam<const LLVector3&>: public LLSDParamBase
 {
 public:
-    LLSDParam(const LLSD& value): value(LLVector3(value)) {}
+    explicit LLSDParam(const LLSD& value): value(LLVector3(value)) {}
 
     operator const LLVector3&() const { return value; }
 

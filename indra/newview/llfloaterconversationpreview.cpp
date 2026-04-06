@@ -59,9 +59,7 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
 {
 }
 
-LLFloaterConversationPreview::~LLFloaterConversationPreview()
-{
-}
+LLFloaterConversationPreview::~LLFloaterConversationPreview() = default;
 
 bool LLFloaterConversationPreview::postBuild()
 {

@@ -178,12 +178,12 @@ private:
 
     using children_t = std::vector<class LLXmlTreeNode *>;
     children_t                          mChildren;
-    children_t::iterator                mChildrenIter;
+    children_t::iterator                mChildrenIter = {};
 
     using child_map_t = std::multimap<LLStdStringHandle, LLXmlTreeNode *>;
     child_map_t                         mChildMap;      // for fast name lookups
-    child_map_t::iterator               mChildMapIter;
-    child_map_t::iterator               mChildMapEndIter;
+    child_map_t::iterator               mChildMapIter = {};
+    child_map_t::iterator               mChildMapEndIter = {};
 
     LLXmlTreeNode*                      mParent;
     LLXmlTree*                          mTree;
@@ -195,7 +195,7 @@ private:
 class LLXmlTreeParser : public LLXmlParser
 {
 public:
-    LLXmlTreeParser(LLXmlTree* tree);
+    explicit LLXmlTreeParser(LLXmlTree* tree);
     virtual ~LLXmlTreeParser();
 
     bool parseFile(const std::string &path, LLXmlTreeNode** root, bool keep_contents );

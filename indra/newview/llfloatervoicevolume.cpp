@@ -63,7 +63,7 @@ public:
     LLFloaterVoiceVolume(const LLSD& avatar_id);
     virtual ~LLFloaterVoiceVolume();
 
-    /*virtual*/ bool postBuild(void);
+    /*virtual*/ bool postBuild();
 
     // Because floater is single instance, need to re-parse data on each spawn
     // (for example, inspector about same avatar but in different position)
@@ -107,7 +107,7 @@ LLFloaterVoiceVolume::~LLFloaterVoiceVolume()
 }
 
 /*virtual*/
-bool LLFloaterVoiceVolume::postBuild(void)
+bool LLFloaterVoiceVolume::postBuild()
 {
     getChild<LLUICtrl>("mute_btn")->setCommitCallback(
         std::bind(&LLFloaterVoiceVolume::onClickMuteVolume, this) );

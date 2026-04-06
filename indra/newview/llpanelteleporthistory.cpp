@@ -147,9 +147,7 @@ LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLToggleableMenu
     buildFromFile("panel_teleport_history_item.xml");
 }
 
-LLTeleportHistoryFlatItem::~LLTeleportHistoryFlatItem()
-{
-}
+LLTeleportHistoryFlatItem::~LLTeleportHistoryFlatItem() = default;
 
 //virtual
 bool LLTeleportHistoryFlatItem::postBuild()

@@ -45,7 +45,7 @@ class LLFloaterBuy
 : public LLFloater, public LLVOInventoryListener
 {
 public:
-    LLFloaterBuy(const LLSD& key);
+    explicit LLFloaterBuy(const LLSD& key);
     ~LLFloaterBuy();
 
     bool postBuild() override;

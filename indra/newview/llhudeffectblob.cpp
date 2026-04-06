@@ -40,9 +40,7 @@ LLHUDEffectBlob::LLHUDEffectBlob(const U8 type)
     mImage = LLUI::getUIImage("Camera_Drag_Dot");
 }
 
-LLHUDEffectBlob::~LLHUDEffectBlob()
-{
-}
+LLHUDEffectBlob::~LLHUDEffectBlob() = default;
 
 void LLHUDEffectBlob::markDead()
 {

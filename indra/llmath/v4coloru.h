@@ -46,7 +46,7 @@ public:
     LLColor4U();                       // Initializes LLColor4U to (0, 0, 0, 1)
     LLColor4U(U8 r, U8 g, U8 b);       // Initializes LLColor4U to (r, g, b, 1)
     LLColor4U(U8 r, U8 g, U8 b, U8 a); // Initializes LLColor4U to (r. g, b, a)
-    LLColor4U(const U8* vec);          // Initializes LLColor4U to (vec[0]. vec[1], vec[2], 1)
+    explicit LLColor4U(const U8* vec);   // Initializes LLColor4U to (vec[0]. vec[1], vec[2], 1)
     explicit LLColor4U(const LLSD& sd) { setValue(sd); }
 
     void setValue(const LLSD& sd)
@@ -154,7 +154,7 @@ inline LLColor4U::LLColor4U(const U8* vec)
     mV[VALPHA] = vec[VALPHA];
 }
 
-inline const LLColor4U& LLColor4U::setToBlack(void)
+inline const LLColor4U& LLColor4U::setToBlack()
 {
     mV[VRED]   = 0;
     mV[VGREEN] = 0;
@@ -163,7 +163,7 @@ inline const LLColor4U& LLColor4U::setToBlack(void)
     return (*this);
 }
 
-inline const LLColor4U& LLColor4U::setToWhite(void)
+inline const LLColor4U& LLColor4U::setToWhite()
 {
     mV[VRED]   = 255;
     mV[VGREEN] = 255;

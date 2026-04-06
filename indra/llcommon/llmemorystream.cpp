@@ -34,9 +34,7 @@ LLMemoryStreamBuf::LLMemoryStreamBuf(std::span<const U8> data)
     reset(data);
 }
 
-LLMemoryStreamBuf::~LLMemoryStreamBuf()
-{
-}
+LLMemoryStreamBuf::~LLMemoryStreamBuf() = default;
 
 void LLMemoryStreamBuf::reset(std::span<const U8> data)
 {
@@ -64,8 +62,6 @@ LLMemoryStream::LLMemoryStream(std::span<const U8> data) :
 {
 }
 
-LLMemoryStream::~LLMemoryStream()
-{
-}
+LLMemoryStream::~LLMemoryStream() = default;
 
 

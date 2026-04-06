@@ -124,7 +124,7 @@ void LLScrollingPanelList::rearrange()
     if (!mPanelList.empty())
     {
         new_width = new_height = mPadding * 2;
-        for (LLScrollingPanel* childp : mPanelList)
+        for (const LLScrollingPanel* childp : mPanelList)
         {
             const LLRect& rect = childp->getRect();
             if (mIsHorizontal)

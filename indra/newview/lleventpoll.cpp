@@ -49,7 +49,7 @@ namespace Details
     class LLEventPollImpl: public std::enable_shared_from_this<LLEventPollImpl>
     {
     public:
-        LLEventPollImpl(const LLHost &sender);
+        explicit LLEventPollImpl(const LLHost &sender);
 
         void start(const std::string &url);
         void stop();

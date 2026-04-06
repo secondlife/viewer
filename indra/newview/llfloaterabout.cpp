@@ -79,7 +79,7 @@ class LLFloaterAbout
 {
     friend class LLFloaterReg;
 private:
-    LLFloaterAbout(const LLSD& key);
+    explicit LLFloaterAbout(const LLSD& key);
     virtual ~LLFloaterAbout();
 
 public:
@@ -118,9 +118,7 @@ LLFloaterAbout::LLFloaterAbout(const LLSD& key)
 }
 
 // Destroys the object
-LLFloaterAbout::~LLFloaterAbout()
-{
-}
+LLFloaterAbout::~LLFloaterAbout() = default;
 
 bool LLFloaterAbout::postBuild()
 {

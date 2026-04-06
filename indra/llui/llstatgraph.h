@@ -93,7 +93,7 @@ public:
             thresholds = _thresholds;
         }
     };
-    LLStatGraph(const Params&);
+    explicit LLStatGraph(const Params&);
 
     void setMin(const F32 min);
     void setMax(const F32 max);

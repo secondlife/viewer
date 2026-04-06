@@ -172,7 +172,7 @@ public:
         Params();
     };
 
-    LLViewerWindow(const Params& p);
+    explicit LLViewerWindow(const Params& p);
     virtual ~LLViewerWindow();
 
     void            shutdownViews();
@@ -397,7 +397,7 @@ public:
     bool            isSnapshotLocSet() const;
     void            resetSnapshotLoc() const;
 
-    using snapshot_saved_signal_t = boost::signals2::signal<void(void)>;
+    using snapshot_saved_signal_t = boost::signals2::signal<void()>;
 
     void            saveImageNumbered(LLImageFormatted *image, bool force_picker, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
     void            onDirectorySelected(const std::vector<std::string>& filenames, LLImageFormatted *image, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);

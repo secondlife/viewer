@@ -85,7 +85,7 @@ public:
     };
 
 protected:
-    LLMenuItemGL(const Params&);
+    explicit LLMenuItemGL(const Params&);
     friend class LLUICtrlFactory;
 public:
     // LLView overrides
@@ -238,7 +238,7 @@ public:
         Params();
     };
 
-    LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p = LLMenuItemSeparatorGL::Params());
+    explicit LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p = LLMenuItemSeparatorGL::Params());
 
     /*virtual*/ void draw( void );
     /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
@@ -275,7 +275,7 @@ public:
         {}
     };
 protected:
-    LLMenuItemCallGL(const Params&);
+    explicit LLMenuItemCallGL(const Params&);
     friend class LLUICtrlFactory;
     void updateEnabled( void );
     void updateVisible( void );
@@ -331,7 +331,7 @@ public:
     };
 
 protected:
-    LLMenuItemCheckGL(const Params&);
+    explicit LLMenuItemCheckGL(const Params&);
     friend class LLUICtrlFactory;
 public:
 
@@ -432,7 +432,7 @@ public:
     };
 
 protected:
-    LLMenuGL(const LLMenuGL::Params& p);
+    explicit LLMenuGL(const LLMenuGL::Params& p);
     friend class LLUICtrlFactory;
     // let branching menu items use my protected traversal methods
     friend class LLMenuItemBranchGL;
@@ -641,7 +641,7 @@ public:
     };
 
 protected:
-    LLMenuItemBranchGL(const Params&);
+    explicit LLMenuItemBranchGL(const Params&);
     friend class LLUICtrlFactory;
 public:
     virtual ~LLMenuItemBranchGL();
@@ -711,7 +711,7 @@ public:
     };
 
 protected:
-    LLContextMenu(const Params& p);
+    explicit LLContextMenu(const Params& p);
     friend class LLUICtrlFactory;
 
 public:
@@ -756,7 +756,7 @@ public:
         Mandatory<LLContextMenu*> branch;
     };
 
-    LLContextMenuBranch(const Params&);
+    explicit LLContextMenuBranch(const Params&);
 
     virtual ~LLContextMenuBranch();
 
@@ -787,7 +787,7 @@ class LLMenuBarGL : public LLMenuGL
 public:
     struct Params : public LLInitParam::Block<Params, LLMenuGL::Params>
     {};
-    LLMenuBarGL( const Params& p );
+    explicit LLMenuBarGL( const Params& p );
     virtual ~LLMenuBarGL();
 
     /*virtual*/ bool handleAcceleratorKey(KEY key, MASK mask);
@@ -833,7 +833,7 @@ class LLMenuHolderGL : public LLPanel
 public:
     struct Params : public LLInitParam::Block<Params, LLPanel::Params>
     {};
-    LLMenuHolderGL(const Params& p);
+    explicit LLMenuHolderGL(const Params& p);
     virtual ~LLMenuHolderGL() = default;
 
     virtual bool hideMenus();
@@ -878,7 +878,7 @@ public:
     static LLTearOffMenu* create(LLMenuGL* menup);
     virtual ~LLTearOffMenu();
 
-    virtual void draw(void);
+    virtual void draw();
     virtual void onFocusReceived();
     virtual void onFocusLost();
     virtual bool handleUnicodeChar(llwchar uni_char, bool called_from_parent);
@@ -888,7 +888,7 @@ public:
     void updateSize();
 
 private:
-    LLTearOffMenu(LLMenuGL* menup);
+    explicit LLTearOffMenu(LLMenuGL* menup);
 
     void closeTearOff();
 
@@ -910,10 +910,10 @@ public:
     struct Params : public LLInitParam::Block<Params, LLMenuItemGL::Params>
     {};
 
-    LLMenuItemTearOffGL( const Params& );
+    explicit LLMenuItemTearOffGL( const Params& );
 
-    virtual void onCommit(void);
-    virtual void draw(void);
+    virtual void onCommit();
+    virtual void draw();
     virtual U32 getNominalHeight() const;
 
     LLFloater* getParentFloater();

@@ -972,9 +972,7 @@ LLFloaterSnapshot::LLFloaterSnapshot(const LLSD& key)
     impl = new Impl(this);
 }
 
-LLFloaterSnapshot::~LLFloaterSnapshot()
-{
-}
+LLFloaterSnapshot::~LLFloaterSnapshot() = default;
 
 // virtual
 bool LLFloaterSnapshot::postBuild()
@@ -1414,9 +1412,7 @@ LLSnapshotFloaterView::LLSnapshotFloaterView (const Params& p) : LLFloaterView (
 {
 }
 
-LLSnapshotFloaterView::~LLSnapshotFloaterView()
-{
-}
+LLSnapshotFloaterView::~LLSnapshotFloaterView() = default;
 
 // virtual
 bool LLSnapshotFloaterView::handleKey(KEY key, MASK mask, bool called_from_parent)

@@ -2714,9 +2714,7 @@ LLGLSPipelineSkyBox::LLGLSPipelineSkyBox()
 {
 }
 
-LLGLSPipelineSkyBox::~LLGLSPipelineSkyBox()
-{
-}
+LLGLSPipelineSkyBox::~LLGLSPipelineSkyBox() = default;
 
 LLGLSPipelineDepthTestSkyBox::LLGLSPipelineDepthTestSkyBox(bool depth_test, bool depth_write)
 : LLGLSPipelineSkyBox()

@@ -45,7 +45,7 @@ class LLMeshSkinInfo : public LLRefCount
     LL_ALIGN_NEW
 public:
     LLMeshSkinInfo();
-    LLMeshSkinInfo(LLSD& data);
+    explicit LLMeshSkinInfo(LLSD& data);
     LLMeshSkinInfo(const LLUUID& mesh_id, LLSD& data);
     void fromLLSD(LLSD& data);
     LLSD asLLSD(bool include_joints, bool lock_scale_if_joint_position) const;
@@ -134,7 +134,7 @@ public:
     {
     public:
         Decomposition() = default;
-        Decomposition(LLSD& data);
+        explicit Decomposition(LLSD& data);
         ~Decomposition() = default;
         void fromLLSD(LLSD& data);
         LLSD asLLSD() const;
@@ -356,7 +356,7 @@ public:
         mDiffuseColor.set(1,1,1,1);
     }
 
-    LLImportMaterial(LLSD& data);
+    explicit LLImportMaterial(LLSD& data);
     virtual ~LLImportMaterial();
 
     LLSD asLLSD();
@@ -420,7 +420,7 @@ public:
         mLocalMeshID = -1;
     }
 
-    LLModelInstance(LLSD& data);
+    explicit LLModelInstance(LLSD& data);
 
     ~LLModelInstance() = default;
 

@@ -56,9 +56,7 @@ LLToolSelectLand::LLToolSelectLand( )
     mEastNorthTop()
 { }
 
-LLToolSelectLand::~LLToolSelectLand()
-{
-}
+LLToolSelectLand::~LLToolSelectLand() = default;
 
 
 bool LLToolSelectLand::handleMouseDown(S32 x, S32 y, MASK mask)

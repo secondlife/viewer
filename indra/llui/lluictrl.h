@@ -135,7 +135,7 @@ public:
 protected:
     friend class LLUICtrlFactory;
     static const Params& getDefaultParams();
-    LLUICtrl(const Params& p = getDefaultParams(),
+    explicit LLUICtrl(const Params& p = getDefaultParams(),
              const LLViewModelPtr& viewmodel=LLViewModelPtr(new LLViewModel));
 
     commit_signal_t::slot_type initCommitCallback(const CommitCallbackParam& cb);

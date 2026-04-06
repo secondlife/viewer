@@ -177,15 +177,15 @@ public:
     // Convenience func for simplifying comparison-heavy code by
     // intentionally stomping values [-FLT_EPS,FLT_EPS] to 0.0
     //
-    void condition(void);
+    void condition();
 
     ///////////////////////////
     //
     // Get properties of a matrix
     //
 
-    F32          determinant(void) const;                       // Return determinant
-    LLQuaternion quaternion(void) const;            // Returns quaternion
+    F32          determinant() const;                       // Return determinant
+    LLQuaternion quaternion() const;            // Returns quaternion
 
     [[nodiscard]] LLVector4 getFwdRow4() const;
     [[nodiscard]] LLVector4 getLeftRow4() const;

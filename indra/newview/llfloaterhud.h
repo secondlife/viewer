@@ -39,7 +39,7 @@ public:
 
 private:
     // Handles its own construction and destruction, so private.
-    LLFloaterHUD(const LLSD& key);
+    explicit LLFloaterHUD(const LLSD& key);
     /*virtual*/ ~LLFloaterHUD();
 
 private:

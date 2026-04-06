@@ -77,9 +77,7 @@ LLFeatureList::LLFeatureList(const std::string& name)
 {
 }
 
-LLFeatureList::~LLFeatureList()
-{
-}
+LLFeatureList::~LLFeatureList() = default;
 
 void LLFeatureList::addFeature(const std::string& name, const bool available, const F32 level)
 {

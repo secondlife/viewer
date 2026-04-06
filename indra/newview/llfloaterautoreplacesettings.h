@@ -37,7 +37,7 @@
 class LLFloaterAutoReplaceSettings : public LLFloater
 {
 public:
-    LLFloaterAutoReplaceSettings(const LLSD& key);
+    explicit LLFloaterAutoReplaceSettings(const LLSD& key);
 
     bool postBuild() override;
     void onClose(bool app_quitting) override;

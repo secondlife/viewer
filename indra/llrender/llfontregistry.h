@@ -35,7 +35,7 @@ using string_vec_t = std::vector<std::string>;
 
 struct LLFontFileInfo
 {
-    LLFontFileInfo(const std::string& file_name, const std::function<bool(llwchar)>& char_functor = nullptr)
+    explicit LLFontFileInfo(const std::string& file_name, const std::function<bool(llwchar)>& char_functor = nullptr)
         : FileName(file_name)
         , CharFunctor(char_functor)
     {
@@ -97,7 +97,7 @@ public:
     friend bool init_from_xml(LLFontRegistry*, LLPointer<class LLXMLNode>);
     // create_gl_textures - set to false for test apps with no OpenGL window,
     // such as llui_libtest
-    LLFontRegistry(bool create_gl_textures);
+    explicit LLFontRegistry(bool create_gl_textures);
     ~LLFontRegistry();
 
     // Load standard font info from XML file(s).

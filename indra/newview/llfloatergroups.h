@@ -53,7 +53,7 @@ class LLFloaterGroupPicker;
 class LLFloaterGroupPicker : public LLFloater
 {
 public:
-    LLFloaterGroupPicker(const LLSD& seed);
+    explicit LLFloaterGroupPicker(const LLSD& seed);
     ~LLFloaterGroupPicker();
 
     // Note: Don't return connection; use std::bind + boost::signals2::trackable to disconnect slots

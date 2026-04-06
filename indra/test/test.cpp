@@ -71,7 +71,7 @@ class LLReplayLog
 {
 public:
     LLReplayLog() {}
-    virtual ~LLReplayLog() {}
+    virtual ~LLReplayLog() = default;
 
     virtual void reset() {}
     virtual void replay(std::ostream&) {}

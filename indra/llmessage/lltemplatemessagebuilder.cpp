@@ -89,7 +89,7 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
             iter != msg_template->mMemberBlocks.end();
             ++iter)
         {
-            LLMessageBlock* ci = *iter;
+            const LLMessageBlock* ci = *iter;
             LLMsgBlkData* tblockp = new LLMsgBlkData(ci->mName, 0);
             mCurrentSMessageData->addBlock(tblockp);
         }
@@ -151,7 +151,7 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
         for (LLMessageBlock::message_variable_map_t::const_iterator iter = template_data->mMemberVariables.begin();
              iter != template_data->mMemberVariables.end(); iter++)
         {
-            LLMessageVariable& ci = **iter;
+            const LLMessageVariable& ci = **iter;
             mCurrentSDataBlock->addVariable(ci.getName(), ci.getType());
         }
         return;
@@ -212,7 +212,7 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
                  end = template_data->mMemberVariables.end();
              iter != end; iter++)
         {
-            LLMessageVariable& ci = **iter;
+            const LLMessageVariable& ci = **iter;
             mCurrentSDataBlock->addVariable(ci.getName(), ci.getType());
         }
         return;
@@ -242,7 +242,7 @@ bool LLTemplateMessageBuilder::removeLastBlock()
                 for (LLMessageBlock::message_variable_map_t::const_iterator iter = template_data->mMemberVariables.begin();
                      iter != template_data->mMemberVariables.end(); iter++)
                 {
-                    LLMessageVariable& ci = **iter;
+                    const LLMessageVariable& ci = **iter;
                     mCurrentSendTotal -= ci.getSize();
                 }
 
@@ -503,7 +503,7 @@ static S32 zero_code(U8 **data, U32 *data_size)
     S32 net_gain = 0;
     U8 num_zeroes = 0;
 
-    U8 *inptr = (U8 *)*data;
+    const U8 *inptr = (U8 *)*data;
     U8 *outptr = (U8 *)encodedSendBuffer;
 
 // skip the packet id field
@@ -831,7 +831,7 @@ void LLTemplateMessageBuilder::copyFromMessageData(const LLMsgData& data)
     // copy the blocks
     // counting variables used to encode multiple block info
     S32 block_count = 0;
-    char *block_name = NULL;
+    const char *block_name = NULL;
 
     // loop through msg blocks to loop through variables, totalling up size
     // data and filling the new (send) message

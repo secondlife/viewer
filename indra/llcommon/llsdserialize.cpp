@@ -945,9 +945,7 @@ LLSDBinaryParser::LLSDBinaryParser()
 }
 
 // virtual
-LLSDBinaryParser::~LLSDBinaryParser()
-{
-}
+LLSDBinaryParser::~LLSDBinaryParser() = default;
 
 // virtual
 S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) const

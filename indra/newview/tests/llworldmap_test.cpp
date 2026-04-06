@@ -63,7 +63,7 @@ struct MapBlockRequest
 static std::vector<MapBlockRequest> gMapBlockRequests;
 
 LLWorldMapMessage::LLWorldMapMessage() { }
-LLWorldMapMessage::~LLWorldMapMessage() { }
+LLWorldMapMessage::~LLWorldMapMessage() = default;
 void LLWorldMapMessage::sendItemRequest(U32 type, U64 handle) { }
 void LLWorldMapMessage::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16 max_y, bool return_nonexistent)
 {
@@ -72,7 +72,7 @@ void LLWorldMapMessage::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16
 }
 
 LLWorldMipmap::LLWorldMipmap() { }
-LLWorldMipmap::~LLWorldMipmap() { }
+LLWorldMipmap::~LLWorldMipmap() = default;
 void LLWorldMipmap::reset() { }
 void LLWorldMipmap::dropBoostLevels() { }
 void LLWorldMipmap::equalizeBoostLevels() { }
@@ -85,7 +85,7 @@ void LLUIString::setArg(const std::string& , const std::string& ) { }
 void LLUIString::assign(const std::string& ) { }
 
 LLControlGroup::LLControlGroup(const std::string& name) : LLInstanceTracker<LLControlGroup, std::string>(name) {}
-LLControlGroup::~LLControlGroup() {}
+LLControlGroup::~LLControlGroup() = default;
 bool LLControlGroup::getBOOL(std::string_view) { return true; }
 LLControlGroup gSavedSettings("test_settings");
 

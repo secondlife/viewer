@@ -133,7 +133,7 @@ static LLProcessListener sProcessListener;
 /*****************************************************************************
 *   WritePipe and ReadPipe
 *****************************************************************************/
-LLProcess::BasePipe::~BasePipe() {}
+LLProcess::BasePipe::~BasePipe() = default;
 const LLProcess::BasePipe::size_type
       // use funky syntax to call max() to avoid blighted max() macros
       LLProcess::BasePipe::npos((std::numeric_limits<LLProcess::BasePipe::size_type>::max)());

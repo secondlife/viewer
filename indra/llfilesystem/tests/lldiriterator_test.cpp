@@ -48,7 +48,7 @@ namespace tut
     a directory (VWR-25500). However, this introduced a crash looking for
     old chat logs as the glob_to_regex function in lldiriterator wasn't escaping lots of regexp characters
     */
-    void test_chop_662(void)
+    void test_chop_662()
     {
         //  Check a selection of bad group names from the crash reports
         LLDirIterator iter(".","+bad-group-name]+?\?-??.*");

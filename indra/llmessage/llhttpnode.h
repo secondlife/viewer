@@ -363,7 +363,7 @@ template < class NodeType >
 class LLHTTPRegistration
 {
 public:
-    LLHTTPRegistration(const std::string& path)
+    explicit LLHTTPRegistration(const std::string& path)
     {
         LLHTTPRegistrar::registerFactory(path, mFactory);
     }
@@ -392,7 +392,7 @@ private:
     class ThisNodeFactory : public LLHTTPRegistrar::NodeFactory
     {
     public:
-        ThisNodeFactory(LLSD params) : mParams(params) {}
+        explicit ThisNodeFactory(LLSD params) : mParams(params) {}
         virtual LLHTTPNode* build() const { return new NodeType(mParams); }
     private:
         LLSD mParams;

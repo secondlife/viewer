@@ -860,9 +860,7 @@ LLPanelGridTools::LLPanelGridTools() :
 }
 
 // Destroys the object
-LLPanelGridTools::~LLPanelGridTools()
-{
-}
+LLPanelGridTools::~LLPanelGridTools() = default;
 
 bool LLPanelGridTools::postBuild()
 {
@@ -1229,9 +1227,7 @@ LLPanelRequestTools::LLPanelRequestTools():
     mCommitCallbackRegistrar.add("GodTools.Request",        std::bind(&LLPanelRequestTools::onClickRequest, this));
 }
 
-LLPanelRequestTools::~LLPanelRequestTools()
-{
-}
+LLPanelRequestTools::~LLPanelRequestTools() = default;
 
 bool LLPanelRequestTools::postBuild()
 {

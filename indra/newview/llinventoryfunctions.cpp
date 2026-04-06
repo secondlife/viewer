@@ -2730,9 +2730,7 @@ LLMarketplaceValidator::LLMarketplaceValidator()
 {
 }
 
-LLMarketplaceValidator::~LLMarketplaceValidator()
-{
-}
+LLMarketplaceValidator::~LLMarketplaceValidator() = default;
 
 void LLMarketplaceValidator::validateMarketplaceListings(
     const LLUUID &category_id,

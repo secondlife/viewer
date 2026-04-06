@@ -849,9 +849,7 @@ LinksetsResponder::LinksetsResponder(LLPathfindingManager::request_id_t pRequest
 {
 }
 
-LinksetsResponder::~LinksetsResponder()
-{
-}
+LinksetsResponder::~LinksetsResponder() = default;
 
 void LinksetsResponder::handleObjectLinksetsResult(const LLSD &pContent)
 {

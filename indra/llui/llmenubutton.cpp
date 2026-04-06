@@ -187,7 +187,7 @@ void LLMenuButton::toggleMenu()
 
 void LLMenuButton::updateMenuOrigin()
 {
-    LLToggleableMenu* menu = getMenu();
+    const LLToggleableMenu* menu = getMenu();
     if (!menu) return;
 
     LLRect rect = getRect();

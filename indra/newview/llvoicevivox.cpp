@@ -177,9 +177,7 @@ LLVoiceVivoxStats::LLVoiceVivoxStats()
     reset();
 }
 
-LLVoiceVivoxStats::~LLVoiceVivoxStats()
-{
-}
+LLVoiceVivoxStats::~LLVoiceVivoxStats() = default;
 
 void LLVoiceVivoxStats::connectionAttemptStart()
 {
@@ -2454,7 +2452,7 @@ bool LLVivoxVoiceClient::performMicTuning()
 
 //=========================================================================
 
-void LLVivoxVoiceClient::closeSocket(void)
+void LLVivoxVoiceClient::closeSocket()
 {
     mSocket.reset();
     sConnected = false;
@@ -2950,7 +2948,7 @@ void LLVivoxVoiceClient::tuningSetSpeakerVolume(float volume)
     }
 }
 
-float LLVivoxVoiceClient::tuningGetEnergy(void)
+float LLVivoxVoiceClient::tuningGetEnergy()
 {
     return mTuningEnergy;
 }
@@ -3141,7 +3139,7 @@ void LLVivoxVoiceClient::setHidden(bool hidden)
     }
 }
 
-void LLVivoxVoiceClient::sendPositionAndVolumeUpdate(void)
+void LLVivoxVoiceClient::sendPositionAndVolumeUpdate()
 {
     std::ostringstream stream;
 
@@ -5305,7 +5303,7 @@ std::string LLVivoxVoiceClient::nameFromsipURI(const std::string &uri)
     return result;
 }
 
-bool LLVivoxVoiceClient::inSpatialChannel(void)
+bool LLVivoxVoiceClient::inSpatialChannel()
 {
     bool result = false;
 
@@ -5344,7 +5342,7 @@ std::string LLVivoxVoiceClient::getAudioSessionHandle()
 /////////////////////////////
 // Sending updates of current state
 
-void LLVivoxVoiceClient::enforceTether(void)
+void LLVivoxVoiceClient::enforceTether()
 {
     LLVector3d tethered = mCameraRequestedPosition;
 
@@ -5367,7 +5365,7 @@ void LLVivoxVoiceClient::enforceTether(void)
     }
 }
 
-void LLVivoxVoiceClient::updatePosition(void)
+void LLVivoxVoiceClient::updatePosition()
 {
 
     LLViewerRegion *region = gAgent.getRegion();
@@ -5461,7 +5459,7 @@ bool LLVivoxVoiceClient::channelFromRegion(LLViewerRegion *region, std::string &
     return result;
 }
 
-void LLVivoxVoiceClient::leaveChannel(void)
+void LLVivoxVoiceClient::leaveChannel()
 {
     if (mIsInChannel)
     {
@@ -6201,7 +6199,7 @@ void LLVivoxVoiceClient::deleteAllSessions()
 
 }
 
-void LLVivoxVoiceClient::verifySessionState(void)
+void LLVivoxVoiceClient::verifySessionState()
 {
     LL_DEBUGS("Voice") << "Sessions in handle map=" << mSessionsByHandle.size() << LL_ENDL;
     sessionState::VerifySessions();
@@ -6486,9 +6484,7 @@ LLVivoxVoiceClient::voiceFontEntry::voiceFontEntry(LLUUID& id) :
     mExpiryTimer.stop();
 }
 
-LLVivoxVoiceClient::voiceFontEntry::~voiceFontEntry()
-{
-}
+LLVivoxVoiceClient::voiceFontEntry::~voiceFontEntry() = default;
 
 void LLVivoxVoiceClient::refreshVoiceEffectLists(bool clear_lists)
 {
@@ -7918,9 +7914,7 @@ LLVivoxSecurity::LLVivoxSecurity()
     mAccountHandle = LLBase64::encode(random_value);
 }
 
-LLVivoxSecurity::~LLVivoxSecurity()
-{
-}
+LLVivoxSecurity::~LLVivoxSecurity() = default;
 
 bool LLVivoxVoiceP2PIncomingCall::answerInvite() { return LLVivoxVoiceClient::getInstance()->answerInvite(mCallInfo["session_handle"]); }
 

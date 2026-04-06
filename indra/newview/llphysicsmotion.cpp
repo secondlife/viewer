@@ -122,7 +122,7 @@ public:
 
         bool initialize();
 
-        ~LLPhysicsMotion() {}
+        ~LLPhysicsMotion() = default;
 
         bool onUpdate(F32 time);
 

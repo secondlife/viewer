@@ -148,7 +148,7 @@ LLVector4 lerp(const LLVector4 &a, const LLVector4 &b, F32 u); // Returns a vect
 
 // Constructors
 
-inline LLVector4::LLVector4(void)
+inline LLVector4::LLVector4()
 {
     clear();
 }

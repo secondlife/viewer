@@ -385,7 +385,7 @@ bool LLMessageSystem::poll(F32 seconds)
 
 bool LLMessageSystem::isTrustedSender(const LLHost& host) const
 {
-    LLCircuitData* cdp = mCircuitInfo.findCircuit(host);
+    const LLCircuitData* cdp = mCircuitInfo.findCircuit(host);
     if(NULL == cdp)
     {
         return false;
@@ -951,7 +951,7 @@ void LLMessageSystem::nextBlock(const char *blockname)
 
 bool LLMessageSystem::isSendFull(const char* blockname)
 {
-    char* stringTableName = NULL;
+    const char* stringTableName = NULL;
     if(NULL != blockname)
     {
         stringTableName = LLMessageStringTable::getInstance()->getString(blockname);
@@ -1515,7 +1515,7 @@ void LLMessageSystem::getCircuitInfo(LLSD& info) const
 // returns whether the given host is on a trusted circuit
 bool    LLMessageSystem::getCircuitTrust(const LLHost &host)
 {
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
+    const LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
     {
         return cdp->getTrusted();
@@ -1616,7 +1616,7 @@ bool LLMessageSystem::checkCircuitBlocked(const U32 circuit)
         return true;
     }
 
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
+    const LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
     {
         return cdp->isBlocked();
@@ -1638,7 +1638,7 @@ bool LLMessageSystem::checkCircuitAlive(const U32 circuit)
         return false;
     }
 
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
+    const LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
     {
         return cdp->isAlive();
@@ -1652,7 +1652,7 @@ bool LLMessageSystem::checkCircuitAlive(const U32 circuit)
 
 bool LLMessageSystem::checkCircuitAlive(const LLHost &host)
 {
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
+    const LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
     {
         return cdp->isAlive();
@@ -2334,7 +2334,7 @@ void process_deny_trusted_circuit(LLMessageSystem *msg, void **)
     LLUUID remote_id;
     msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_EndPointID, remote_id);
 
-    LLCircuitData *cdp = msg->mCircuitInfo.findCircuit(msg->getSender());
+    const LLCircuitData *cdp = msg->mCircuitInfo.findCircuit(msg->getSender());
     if (!cdp)
     {
         return;
@@ -2775,7 +2775,7 @@ S32 LLMessageSystem::zeroCodeAdjustCurrentSendTotal()
     S32 net_gain = 0;
     U8 num_zeroes = 0;
 
-    U8 *inptr = (U8 *)mSendBuffer;
+    const U8 *inptr = (U8 *)mSendBuffer;
 
 // skip the packet id field
 
@@ -2854,7 +2854,7 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
 
     S32 count = (*data_size);
 
-    U8 *inptr = (U8 *)*data;
+    const U8 *inptr = (U8 *)*data;
     U8 *outptr = (U8 *)mEncodedRecvBuffer;
 
 // skip the packet id field
@@ -3040,7 +3040,7 @@ char* LLMessageSystem::getMessageName()
 
 const LLUUID& LLMessageSystem::getSenderID() const
 {
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(mLastSender);
+    const LLCircuitData *cdp = mCircuitInfo.findCircuit(mLastSender);
     if (cdp)
     {
         return (cdp->mRemoteID);
@@ -3051,7 +3051,7 @@ const LLUUID& LLMessageSystem::getSenderID() const
 
 const LLUUID& LLMessageSystem::getSenderSessionID() const
 {
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(mLastSender);
+    const LLCircuitData *cdp = mCircuitInfo.findCircuit(mLastSender);
     if (cdp)
     {
         return (cdp->mRemoteSessionID);
@@ -3259,7 +3259,7 @@ void LLMessageSystem::sendDenyTrustedCircuit(const LLHost &host)
 
 void LLMessageSystem::reallySendDenyTrustedCircuit(const LLHost &host)
 {
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
+    const LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (!cdp)
     {
         LL_WARNS("Messaging") << "Not sending DenyTrustedCircuit to host without a circuit." << LL_ENDL;
@@ -3325,7 +3325,7 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
     setHandlerFuncFast(_PREHASH_CompletePingCheck, process_complete_ping_check, NULL);
 
     timeout.setTimerExpirySec(2.0);
-    LLCircuitData* cdp = NULL;
+    const LLCircuitData* cdp = NULL;
     while(!timeout.hasExpired())
     {
         cdp = mCircuitInfo.findCircuit(host);

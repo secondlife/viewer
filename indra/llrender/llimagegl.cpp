@@ -670,7 +670,7 @@ void LLImageGL::dump()
 }
 
 //----------------------------------------------------------------------------
-void LLImageGL::forceUpdateBindStats(void) const
+void LLImageGL::forceUpdateBindStats() const
 {
     mLastBindTime = sLastFrameTime;
 }

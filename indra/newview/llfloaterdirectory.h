@@ -57,7 +57,7 @@ class LLPanelClassifiedInfo;
 class LLFloaterDirectory : public LLFloater
 {
 public:
-    LLFloaterDirectory(const std::string& name);
+    explicit LLFloaterDirectory(const std::string& name);
     /*virtual*/ ~LLFloaterDirectory();
 
     void hideAllDetailPanels();

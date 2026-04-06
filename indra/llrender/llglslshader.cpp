@@ -340,9 +340,7 @@ LLGLSLShader::LLGLSLShader()
 
 }
 
-LLGLSLShader::~LLGLSLShader()
-{
-}
+LLGLSLShader::~LLGLSLShader() = default;
 
 void LLGLSLShader::unload()
 {
@@ -1096,7 +1094,7 @@ void LLGLSLShader::bind(bool rigged)
     }
 }
 
-void LLGLSLShader::unbind(void)
+void LLGLSLShader::unbind()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     gGL.flush();

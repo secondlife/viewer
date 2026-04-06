@@ -57,9 +57,7 @@ LLScriptHandler::LLScriptHandler()
 }
 
 //--------------------------------------------------------------------------
-LLScriptHandler::~LLScriptHandler()
-{
-}
+LLScriptHandler::~LLScriptHandler() = default;
 
 //--------------------------------------------------------------------------
 void LLScriptHandler::initChannel()

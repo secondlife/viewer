@@ -58,7 +58,7 @@ class LLStatusBar
 :   public LLPanel
 {
 public:
-    LLStatusBar(const LLRect& rect );
+    explicit LLStatusBar(const LLRect& rect );
     /*virtual*/ ~LLStatusBar();
 
     /*virtual*/ void draw();

@@ -357,14 +357,14 @@ namespace
     public:
         using ptr_t = std::shared_ptr<LLSettingsInjected<SETTINGT> >;
 
-        LLSettingsInjected(typename SETTINGT::ptr_t source) :
+        explicit LLSettingsInjected(typename SETTINGT::ptr_t source) :
             SETTINGT(),
             mSource(source),
             mLastSourceHash(0),
             mLastHash(0)
         {}
 
-        virtual ~LLSettingsInjected() {};
+        virtual ~LLSettingsInjected() = default;;
 
         typename SETTINGT::ptr_t getSource() const                    { return this->mSource; }
         void setSource(const typename SETTINGT::ptr_t &source)
@@ -736,7 +736,7 @@ namespace
         using ptr_t = std::shared_ptr<DayInjection>;
         using wptr_t = std::weak_ptr<DayInjection>;
 
-                                            DayInjection(LLEnvironment::EnvSelection_t env);
+                                            explicit DayInjection(LLEnvironment::EnvSelection_t env);
         virtual                             ~DayInjection();
 
         virtual bool                        applyTimeDelta(const LLSettingsBase::Seconds& delta) override;
@@ -795,7 +795,7 @@ namespace
                                         LLEnvironment::DayTransition(skystart, waterstart, end, time),
                                         mInjection(injection)
                                     { }
-        virtual                     ~InjectedTransition() { };
+        virtual                     ~InjectedTransition() = default;;
 
         virtual void                animate() override;
 

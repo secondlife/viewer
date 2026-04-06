@@ -86,9 +86,7 @@ LLVOPartGroup::LLVOPartGroup(const LLUUID &id, const LLPCode pcode, LLViewerRegi
 }
 
 
-LLVOPartGroup::~LLVOPartGroup()
-{
-}
+LLVOPartGroup::~LLVOPartGroup() = default;
 
 bool LLVOPartGroup::isActive() const
 {

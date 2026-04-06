@@ -109,7 +109,7 @@ protected:
 class LLFloaterImagePreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterImagePreview(const LLSD& args);
+    explicit LLFloaterImagePreview(const LLSD& args);
     virtual ~LLFloaterImagePreview();
 
     bool postBuild() override;

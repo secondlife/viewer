@@ -40,7 +40,7 @@ class LLSD;
 class LLTransTemplate
 {
 public:
-    LLTransTemplate(const std::string& name = LLStringUtil::null, const std::string& text = LLStringUtil::null) : mName(name), mText(text) {}
+    explicit LLTransTemplate(const std::string& name = LLStringUtil::null, const std::string& text = LLStringUtil::null) : mName(name), mText(text) {}
 
     std::string mName;
     std::string mText;

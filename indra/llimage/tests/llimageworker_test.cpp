@@ -54,7 +54,7 @@ mBadBufferAllocation(false),
 mAllowOverSize(false)
 {
 }
-LLImageBase::~LLImageBase() {}
+LLImageBase::~LLImageBase() = default;
 void LLImageBase::dump() { }
 void LLImageBase::sanityCheck() { }
 void LLImageBase::deleteData() { }
@@ -62,7 +62,7 @@ U8* LLImageBase::allocateData(S32 size) { return NULL; }
 U8* LLImageBase::reallocateData(S32 size) { return NULL; }
 
 LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components) { }
-LLImageRaw::~LLImageRaw() { }
+LLImageRaw::~LLImageRaw() = default;
 void LLImageRaw::deleteData() { }
 U8* LLImageRaw::allocateData(S32 size) { return NULL; }
 U8* LLImageRaw::reallocateData(S32 size) { return NULL; }

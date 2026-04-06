@@ -69,9 +69,7 @@ LLPanelExperiencePicker::LLPanelExperiencePicker()
     setDefaultFilters();
 }
 
-LLPanelExperiencePicker::~LLPanelExperiencePicker()
-{
-}
+LLPanelExperiencePicker::~LLPanelExperiencePicker() = default;
 
 bool LLPanelExperiencePicker::postBuild()
 {

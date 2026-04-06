@@ -104,9 +104,7 @@ bool LLFloaterLandHoldings::postBuild()
 
 
 // protected
-LLFloaterLandHoldings::~LLFloaterLandHoldings()
-{
-}
+LLFloaterLandHoldings::~LLFloaterLandHoldings() = default;
 
 void LLFloaterLandHoldings::onOpen(const LLSD& key)
 {

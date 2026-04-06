@@ -40,7 +40,7 @@ public:
         MAX_SIZE = 65536
     };
 
-    LLNotecard(S32 max_text = LLNotecard::MAX_SIZE);
+    explicit LLNotecard(S32 max_text = LLNotecard::MAX_SIZE);
     virtual ~LLNotecard();
 
     bool importStream(std::istream& str);

@@ -36,7 +36,7 @@ class LLPanelLandAudio
     :   public LLPanel
 {
 public:
-    LLPanelLandAudio(LLSafeHandle<LLParcelSelection>& parcelp);
+    explicit LLPanelLandAudio(LLSafeHandle<LLParcelSelection>& parcelp);
     /*virtual*/ ~LLPanelLandAudio();
     /*virtual*/ bool postBuild();
     void refresh();

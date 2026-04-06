@@ -46,7 +46,7 @@ public:
 
     ~LLResizeHandle();
 protected:
-    LLResizeHandle(const LLResizeHandle::Params&);
+    explicit LLResizeHandle(const LLResizeHandle::Params&);
     friend class LLUICtrlFactory;
 public:
     void    draw() override;

@@ -77,7 +77,7 @@ public:
         {}
     };
 protected:
-    LLSliderCtrl(const Params&);
+    explicit LLSliderCtrl(const Params&);
     friend class LLUICtrlFactory;
 public:
     virtual ~LLSliderCtrl();

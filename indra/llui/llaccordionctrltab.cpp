@@ -58,7 +58,7 @@ public:
         Params();
     };
 
-    LLAccordionCtrlTabHeader(const LLAccordionCtrlTabHeader::Params& p);
+    explicit LLAccordionCtrlTabHeader(const LLAccordionCtrlTabHeader::Params& p);
 
     virtual ~LLAccordionCtrlTabHeader();
 
@@ -146,9 +146,7 @@ LLAccordionCtrlTab::LLAccordionCtrlTabHeader::LLAccordionCtrlTabHeader(
     addChild(mHeaderTextbox);
 }
 
-LLAccordionCtrlTab::LLAccordionCtrlTabHeader::~LLAccordionCtrlTabHeader()
-{
-}
+LLAccordionCtrlTab::LLAccordionCtrlTabHeader::~LLAccordionCtrlTabHeader() = default;
 
 bool LLAccordionCtrlTab::LLAccordionCtrlTabHeader::postBuild()
 {
@@ -204,7 +202,7 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
     F32 alpha = getCurrentTransparency();
     gl_rect_2d(0, 0, width - 1, height - 1, mHeaderBGColor.get() % alpha, true);
 
-    LLAccordionCtrlTab* parent = dynamic_cast<LLAccordionCtrlTab*>(getParent());
+    const LLAccordionCtrlTab* parent = dynamic_cast<LLAccordionCtrlTab*>(getParent());
     bool collapsible = parent && parent->getCollapsible();
     bool expanded = parent && parent->getDisplayChildren();
 
@@ -395,9 +393,7 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
     reshape(100, 200,false);
 }
 
-LLAccordionCtrlTab::~LLAccordionCtrlTab()
-{
-}
+LLAccordionCtrlTab::~LLAccordionCtrlTab() = default;
 
 void LLAccordionCtrlTab::setDisplayChildren(bool display)
 {
@@ -793,7 +789,7 @@ S32 LLAccordionCtrlTab::notifyParent(const LLSD& info)
     }
     else if (info.has("scrollToShowRect"))
     {
-        LLAccordionCtrl* parent = dynamic_cast<LLAccordionCtrl*>(getParent());
+        const LLAccordionCtrl* parent = dynamic_cast<LLAccordionCtrl*>(getParent());
         if (parent && parent->getFitParent())
         {
             //  EXT-8285 ('No attachments worn' text appears at the bottom of blank 'Attachments' accordion)
@@ -1108,7 +1104,7 @@ void LLAccordionCtrlTab::draw()
 
 void LLAccordionCtrlTab::updateLayout(const LLRect& child_rect)
 {
-    LLView* child = getAccordionView();
+    const LLView* child = getAccordionView();
     if (!mContainerPanel)
         return;
 

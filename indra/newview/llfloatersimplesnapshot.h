@@ -40,7 +40,7 @@ class LLFloaterSimpleSnapshot : public LLFloaterSnapshotBase
 
 public:
 
-    LLFloaterSimpleSnapshot(const LLSD& key);
+    explicit LLFloaterSimpleSnapshot(const LLSD& key);
     ~LLFloaterSimpleSnapshot();
 
     bool postBuild();
@@ -105,7 +105,7 @@ class LLFloaterSimpleSnapshot::Impl : public LLFloaterSnapshotBase::ImplBase
 {
     LOG_CLASS(LLFloaterSimpleSnapshot::Impl);
 public:
-    Impl(LLFloaterSnapshotBase* floater)
+    explicit Impl(LLFloaterSnapshotBase* floater)
         : LLFloaterSnapshotBase::ImplBase(floater)
     {}
     ~Impl()
@@ -140,7 +140,7 @@ public:
     };
 
 protected:
-    LLSimpleSnapshotFloaterView(const Params& p);
+    explicit LLSimpleSnapshotFloaterView(const Params& p);
     friend class LLUICtrlFactory;
 
 public:

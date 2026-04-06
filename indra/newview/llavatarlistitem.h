@@ -77,7 +77,7 @@ public:
      * @param not_from_ui_factory if true instance will be build with LLUICtrlFactory::buildPanel
      * otherwise it should be registered via LLCallbackMap before creating.
      */
-    LLAvatarListItem(bool not_from_ui_factory = true);
+    explicit LLAvatarListItem(bool not_from_ui_factory = true);
     virtual ~LLAvatarListItem();
 
     virtual bool postBuild();

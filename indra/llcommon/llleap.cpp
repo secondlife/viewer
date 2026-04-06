@@ -174,7 +174,7 @@ public:
         // sending a message, possibly the child didn't flush stdout before
         // terminating, possibly it's just garbage. Log its existence but
         // discard it.
-        LLProcess::ReadPipe& childout(mChild->getReadPipe(LLProcess::STDOUT));
+        const LLProcess::ReadPipe& childout(mChild->getReadPipe(LLProcess::STDOUT));
         if (childout.size())
         {
             LLProcess::ReadPipe::size_type
@@ -185,7 +185,7 @@ public:
 
         // Handle any remaining stderr data (partial lines) the same way as we do
         // for stdout: log it.
-        LLProcess::ReadPipe& childerr(mChild->getReadPipe(LLProcess::STDERR));
+        const LLProcess::ReadPipe& childerr(mChild->getReadPipe(LLProcess::STDERR));
         if (childerr.size())
         {
             LLProcess::ReadPipe::size_type
@@ -434,7 +434,7 @@ public:
             // All the above really accomplished was to buffer the serialized
             // event in our WritePipe. Have to pump mainloop a couple times to
             // really write it out there... but time out in case we can't write.
-            LLProcess::WritePipe& childin(mChild->getWritePipe(LLProcess::STDIN));
+            const LLProcess::WritePipe& childin(mChild->getWritePipe(LLProcess::STDIN));
             LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
             LLSD nop;
             F64 until = (LLTimer::getElapsedSeconds() + 2).value();

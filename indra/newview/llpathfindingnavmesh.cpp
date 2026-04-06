@@ -53,9 +53,7 @@ LLPathfindingNavMesh::LLPathfindingNavMesh(const LLUUID &pRegionUUID)
 {
 }
 
-LLPathfindingNavMesh::~LLPathfindingNavMesh()
-{
-}
+LLPathfindingNavMesh::~LLPathfindingNavMesh() = default;
 
 LLPathfindingNavMesh::navmesh_slot_t LLPathfindingNavMesh::registerNavMeshListener(navmesh_callback_t pNavMeshCallback)
 {

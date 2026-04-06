@@ -106,9 +106,7 @@ LLTexParamGlobalColor::LLTexParamGlobalColor(const LLTexParamGlobalColor& pOther
 //-----------------------------------------------------------------------------
 // ~LLTexParamGlobalColor
 //-----------------------------------------------------------------------------
-LLTexParamGlobalColor::~LLTexParamGlobalColor()
-{
-}
+LLTexParamGlobalColor::~LLTexParamGlobalColor() = default;
 
 LLViewerVisualParam* LLTexParamGlobalColor::cloneParam(LLWearable* wearable) const
 {

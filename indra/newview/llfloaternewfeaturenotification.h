@@ -37,7 +37,7 @@ public:
     void onOpen(const LLSD& key) override;
 
 private:
-    LLFloaterNewFeatureNotification(const LLSD& key);
+    explicit LLFloaterNewFeatureNotification(const LLSD& key);
     /*virtual*/ ~LLFloaterNewFeatureNotification();
 
     void centerOnScreen();

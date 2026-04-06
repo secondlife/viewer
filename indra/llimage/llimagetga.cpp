@@ -576,7 +576,7 @@ bool LLImageTGA::decodeColorMap( LLImageRaw* raw_image, bool rle, bool flipped )
 
     if( rle )
     {
-        U8* last_dst = dst + getComponents() * (getHeight() * getWidth() - 1);
+        const U8* last_dst = dst + getComponents() * (getHeight() * getWidth() - 1);
         while( dst <= last_dst )
         {
             // Read RLE block header
@@ -807,12 +807,12 @@ bool LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, bool &alpha_opaque
     U32* dst_pixels = (U32*) dst;
 
     U8* src = getData() + mDataOffset;
-    U8* last_src = src + getDataSize();
+    const U8* last_src = src + getDataSize();
 
     U32 rgba;
     U8* rgba_byte_p = (U8*) &rgba;
 
-    U32* last_dst_pixel = dst_pixels + getHeight() * getWidth() - 1;
+    const U32* last_dst_pixel = dst_pixels + getHeight() * getWidth() - 1;
     while( dst_pixels <= last_dst_pixel )
     {
         // Read RLE block header
@@ -885,8 +885,8 @@ bool LLImageTGA::decodeTruecolorRle15( LLImageRaw* raw_image )
     U8* dst = raw_image->getData();
     U8* src = getData() + mDataOffset;
 
-    U8* last_src = src + getDataSize();
-    U8* last_dst = dst + getComponents() * (getHeight() * getWidth() - 1);
+    const U8* last_src = src + getDataSize();
+    const U8* last_dst = dst + getComponents() * (getHeight() * getWidth() - 1);
 
     while( dst <= last_dst )
     {
@@ -943,8 +943,8 @@ bool LLImageTGA::decodeTruecolorRle24( LLImageRaw* raw_image )
     U8* dst = raw_image->getData();
     U8* src = getData() + mDataOffset;
 
-    U8* last_src = src + getDataSize();
-    U8* last_dst = dst + getComponents() * (getHeight() * getWidth() - 1);
+    const U8* last_src = src + getDataSize();
+    const U8* last_dst = dst + getComponents() * (getHeight() * getWidth() - 1);
 
     while( dst <= last_dst )
     {
@@ -1003,8 +1003,8 @@ bool LLImageTGA::decodeTruecolorRle8( LLImageRaw* raw_image )
     U8* dst = raw_image->getData();
     U8* src = getData() + mDataOffset;
 
-    U8* last_src = src + getDataSize();
-    U8* last_dst = dst + getHeight() * getWidth() - 1;
+    const U8* last_src = src + getDataSize();
+    const U8* last_dst = dst + getHeight() * getWidth() - 1;
 
     while( dst <= last_dst )
     {
@@ -1093,8 +1093,8 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
     }
 
     U8* dst = raw_image->getData();
-    U8* src = getData() + mDataOffset;
-    U8* last_dst = dst + getHeight() * getWidth() - 1;
+    const U8* src = getData() + mDataOffset;
+    const U8* last_dst = dst + getHeight() * getWidth() - 1;
 
     if( domain > 0 )
     {

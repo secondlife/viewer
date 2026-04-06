@@ -68,7 +68,7 @@ std::string LLTrans::getString(std::string_view xml_desc, const LLStringUtil::fo
 
 LLControlGroup::LLControlGroup(const std::string& name)
 : LLInstanceTracker<LLControlGroup, std::string>(name) {}
-LLControlGroup::~LLControlGroup() {}
+LLControlGroup::~LLControlGroup() = default;
 LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,

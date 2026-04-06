@@ -35,9 +35,7 @@ LLFloaterNewFeatureNotification::LLFloaterNewFeatureNotification(const LLSD& key
 {
 }
 
-LLFloaterNewFeatureNotification::~LLFloaterNewFeatureNotification()
-{
-}
+LLFloaterNewFeatureNotification::~LLFloaterNewFeatureNotification() = default;
 
 bool LLFloaterNewFeatureNotification::postBuild()
 {

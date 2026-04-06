@@ -42,7 +42,7 @@ class LLViewerFetchedTexture;
 class LLDrawPoolBump : public LLRenderPass
 {
 protected :
-    LLDrawPoolBump(const U32 type):LLRenderPass(type) { mShiny = false; }
+    explicit LLDrawPoolBump(const U32 type):LLRenderPass(type) { mShiny = false; }
 public:
     static U32 sVertexMask;
     bool mShiny;
@@ -100,7 +100,7 @@ class LLStandardBumpmap
 {
 public:
     LLStandardBumpmap() : mLabel() {}
-    LLStandardBumpmap( const std::string& label ) : mLabel(label) {}
+    explicit LLStandardBumpmap( const std::string& label ) : mLabel(label) {}
 
     std::string mLabel;
     LLPointer<LLViewerFetchedTexture> mImage;

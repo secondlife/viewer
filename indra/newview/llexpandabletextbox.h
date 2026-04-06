@@ -84,7 +84,7 @@ protected:
 
     protected:
 
-        LLTextBoxEx(const Params& p);
+        explicit LLTextBoxEx(const Params& p);
         friend class LLUICtrlFactory;
 
     private:
@@ -157,7 +157,7 @@ public:
 
 protected:
 
-    LLExpandableTextBox(const Params& p);
+    explicit LLExpandableTextBox(const Params& p);
     friend class LLUICtrlFactory;
 
     /**

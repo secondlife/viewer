@@ -202,11 +202,11 @@ public:
     static void setupDayFormat(const std::string& data);
 
 
-    static long getPacificTimeOffset(void) { return sPacificTimeOffset;}
-    static long getLocalTimeOffset(void) { return sLocalTimeOffset;}
+    static long getPacificTimeOffset() { return sPacificTimeOffset;}
+    static long getLocalTimeOffset() { return sLocalTimeOffset;}
     // Is the Pacific time zone (aka server time zone)
     // currently in daylight savings time?
-    static bool getPacificDaylightTime(void) { return sPacificDaylightTime;}
+    static bool getPacificDaylightTime() { return sPacificDaylightTime;}
 
     static std::string getDatetimeCode (std::string key);
 
@@ -1645,7 +1645,7 @@ void LLStringUtilBase<T>::stripNonprintable(string_type& string)
     char* write_head = &c_string[0];
     for (size_type i = 0; i < src_size; i++)
     {
-        char* read_head = &string[i];
+        const char* read_head = &string[i];
         write_head = &c_string[j];
         if(!(*read_head < MIN))
         {

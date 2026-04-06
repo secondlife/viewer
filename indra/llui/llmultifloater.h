@@ -37,7 +37,7 @@
 class LLMultiFloater : public LLFloater
 {
 public:
-    LLMultiFloater(const LLSD& key, const Params& params = getDefaultParams());
+    explicit LLMultiFloater(const LLSD& key, const Params& params = getDefaultParams());
     virtual ~LLMultiFloater() = default;
 
     void buildTabContainer();

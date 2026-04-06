@@ -33,7 +33,7 @@
 class LLViewerLayer
 {
 public:
-    LLViewerLayer(const S32 width, const F32 scale = 1.f);
+    explicit LLViewerLayer(const S32 width, const F32 scale = 1.f);
     virtual ~LLViewerLayer();
 
     F32 getValueScaled(const F32 x, const F32 y) const;

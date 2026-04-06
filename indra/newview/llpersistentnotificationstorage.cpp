@@ -46,9 +46,7 @@ LLPersistentNotificationStorage::LLPersistentNotificationStorage():
     initialize();
 }
 
-LLPersistentNotificationStorage::~LLPersistentNotificationStorage()
-{
-}
+LLPersistentNotificationStorage::~LLPersistentNotificationStorage() = default;
 
 void LLPersistentNotificationStorage::saveNotifications()
 {

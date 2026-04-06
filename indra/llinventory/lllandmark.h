@@ -80,7 +80,7 @@ public:
 
 private:
     LLLandmark();
-    LLLandmark(const LLVector3d& pos);
+    explicit LLLandmark(const LLVector3d& pos);
 
     static void processRegionIDAndHandle(LLMessageSystem* msg, void**);
     static void expireOldEntries();

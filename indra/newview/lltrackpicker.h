@@ -35,7 +35,7 @@
 class LLFloaterTrackPicker : public LLFloater
 {
 public:
-    LLFloaterTrackPicker(LLView * owner, const LLSD &params = LLSD());
+    explicit LLFloaterTrackPicker(LLView * owner, const LLSD &params = LLSD());
     virtual ~LLFloaterTrackPicker() override;
 
     virtual bool postBuild() override;

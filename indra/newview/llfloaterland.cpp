@@ -127,7 +127,7 @@ class LLPanelLandExperiences
     :   public LLPanel
 {
 public:
-    LLPanelLandExperiences(LLSafeHandle<LLParcelSelection>& parcelp);
+    explicit LLPanelLandExperiences(LLSafeHandle<LLParcelSelection>& parcelp);
     virtual bool postBuild();
     void refresh();
 
@@ -149,7 +149,7 @@ class LLPanelLandEnvironment
     : public LLPanelEnvironmentInfo
 {
 public:
-                        LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
+                        explicit LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
 
     virtual bool        isRegion() const override { return false; }
     virtual bool        isLargeEnough() override
@@ -2495,9 +2495,7 @@ bool LLPanelLandAccess::postBuild()
 }
 
 
-LLPanelLandAccess::~LLPanelLandAccess()
-{
-}
+LLPanelLandAccess::~LLPanelLandAccess() = default;
 
 void LLPanelLandAccess::refresh()
 {
@@ -3049,9 +3047,7 @@ LLPanelLandCovenant::LLPanelLandCovenant(LLParcelSelectionHandle& parcel)
 {
 }
 
-LLPanelLandCovenant::~LLPanelLandCovenant()
-{
-}
+LLPanelLandCovenant::~LLPanelLandCovenant() = default;
 
 bool LLPanelLandCovenant::postBuild()
 {

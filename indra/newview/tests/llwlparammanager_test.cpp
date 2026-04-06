@@ -46,7 +46,7 @@
 #include "llpipeline_stub.cpp"
 #include "llviewershadermgr_stub.cpp"
 
-void assert_glerror(void) {}
+void assert_glerror() {}
 LLViewerCamera::LLViewerCamera() {}
 void LLViewerCamera::setView(F32 vertical_fov_rads) {}
 std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args) { return std::string(""); }

@@ -69,9 +69,7 @@ LLHUDEffectBeam::LLHUDEffectBeam(const U8 type) : LLHUDEffect(type)
     mFadeInterp.setEndVal(0.f);
 }
 
-LLHUDEffectBeam::~LLHUDEffectBeam()
-{
-}
+LLHUDEffectBeam::~LLHUDEffectBeam() = default;
 
 void LLHUDEffectBeam::packData(LLMessageSystem *mesgsys)
 {

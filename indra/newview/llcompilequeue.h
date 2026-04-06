@@ -125,7 +125,7 @@ public:
     bool hasExperience(const LLUUID& id)const;
 
 protected:
-    LLFloaterCompileQueue(const LLSD& key);
+    explicit LLFloaterCompileQueue(const LLSD& key);
     virtual ~LLFloaterCompileQueue();
 
     virtual bool startQueue();
@@ -152,7 +152,7 @@ class LLFloaterResetQueue : public LLFloaterScriptQueue
 {
     friend class LLFloaterReg;
 protected:
-    LLFloaterResetQueue(const LLSD& key);
+    explicit LLFloaterResetQueue(const LLSD& key);
     virtual ~LLFloaterResetQueue();
 
     static bool resetObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump);
@@ -170,7 +170,7 @@ class LLFloaterRunQueue : public LLFloaterScriptQueue
 {
     friend class LLFloaterReg;
 protected:
-    LLFloaterRunQueue(const LLSD& key);
+    explicit LLFloaterRunQueue(const LLSD& key);
     virtual ~LLFloaterRunQueue();
 
     static bool runObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump);
@@ -188,7 +188,7 @@ class LLFloaterNotRunQueue : public LLFloaterScriptQueue
 {
     friend class LLFloaterReg;
 protected:
-    LLFloaterNotRunQueue(const LLSD& key);
+    explicit LLFloaterNotRunQueue(const LLSD& key);
     virtual ~LLFloaterNotRunQueue();
 
     static bool stopObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump);

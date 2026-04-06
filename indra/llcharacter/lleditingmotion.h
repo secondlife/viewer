@@ -48,7 +48,7 @@ class LLEditingMotion :
     LL_ALIGN_NEW
 public:
     // Constructor
-    LLEditingMotion(const LLUUID &id);
+    explicit LLEditingMotion(const LLUUID &id);
 
     // Destructor
     ~LLEditingMotion() override;

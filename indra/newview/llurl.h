@@ -58,7 +58,7 @@ class LLURL
 public:
     LLURL();
     LLURL(const LLURL &url);
-    LLURL(const char * url);
+    explicit LLURL(const char * url);
 
     LLURL &operator=(const LLURL &rhs);
 

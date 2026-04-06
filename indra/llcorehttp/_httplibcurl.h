@@ -56,7 +56,7 @@ class HttpHeaders;
 class HttpLibcurl
 {
 public:
-    HttpLibcurl(HttpService * service);
+    explicit HttpLibcurl(HttpService * service);
     virtual ~HttpLibcurl();
 
 private:

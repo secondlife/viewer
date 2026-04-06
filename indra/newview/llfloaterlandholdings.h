@@ -37,7 +37,7 @@ class LLFloaterLandHoldings
 :   public LLFloater
 {
 public:
-    LLFloaterLandHoldings(const LLSD& key);
+    explicit LLFloaterLandHoldings(const LLSD& key);
     virtual ~LLFloaterLandHoldings();
 
     virtual bool postBuild();

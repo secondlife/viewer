@@ -50,7 +50,7 @@ public:
 private:
     friend class LLFloaterReg;
 
-    LLFloaterBuildOptions(const LLSD& key);
+    explicit LLFloaterBuildOptions(const LLSD& key);
     ~LLFloaterBuildOptions();
 
     LLObjectSelectionHandle mObjectSelection;

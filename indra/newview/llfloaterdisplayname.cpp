@@ -46,8 +46,8 @@ using namespace std::placeholders;
 class LLFloaterDisplayName : public LLFloater
 {
 public:
-    LLFloaterDisplayName(const LLSD& key);
-    virtual ~LLFloaterDisplayName() { }
+    explicit LLFloaterDisplayName(const LLSD& key);
+    virtual ~LLFloaterDisplayName() = default;
     /*virtual*/ bool    postBuild();
     void onSave();
     void onReset();

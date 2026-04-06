@@ -37,7 +37,7 @@ public:
     struct Params : public LLInitParam::Block<Params, LLMenuGL::Params>
     {};
 protected:
-    LLToggleableMenu(const Params&);
+    explicit LLToggleableMenu(const Params&);
     friend class LLUICtrlFactory;
 public:
     ~LLToggleableMenu();

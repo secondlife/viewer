@@ -90,9 +90,7 @@ LLFloaterObjectWeights::LLFloaterObjectWeights(const LLSD& key)
 {
 }
 
-LLFloaterObjectWeights::~LLFloaterObjectWeights()
-{
-}
+LLFloaterObjectWeights::~LLFloaterObjectWeights() = default;
 
 // virtual
 bool LLFloaterObjectWeights::postBuild()

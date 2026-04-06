@@ -45,7 +45,7 @@ public:
         NUM_LODS = 4
     };
 
-    LLVolumeLODGroup(const LLVolumeParams &params);
+    explicit LLVolumeLODGroup(const LLVolumeParams &params);
     ~LLVolumeLODGroup();
     bool cleanupRefs();
 

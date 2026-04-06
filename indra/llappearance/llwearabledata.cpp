@@ -38,9 +38,7 @@ LLWearableData::LLWearableData() :
 }
 
 // virtual
-LLWearableData::~LLWearableData()
-{
-}
+LLWearableData::~LLWearableData() = default;
 
 using namespace LLAvatarAppearanceDefines;
 

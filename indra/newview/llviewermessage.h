@@ -227,7 +227,7 @@ class LLOfferInfo : public LLNotificationResponderInterface
 {
 public:
     LLOfferInfo();
-    LLOfferInfo(const LLSD& sd);
+    explicit LLOfferInfo(const LLSD& sd);
 
     LLOfferInfo(const LLOfferInfo& info);
 

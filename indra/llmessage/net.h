@@ -47,9 +47,9 @@ bool    send_packet(int hSocket, const char *sendBuffer, int size, U32 recipient
 //void  get_sender(char * tmp);
 LLHost  get_sender();
 U32     get_sender_port();
-U32     get_sender_ip(void);
+U32     get_sender_ip();
 LLHost  get_receiving_interface();
-U32     get_receiving_interface_ip(void);
+U32     get_receiving_interface_ip();
 
 const char* u32_to_ip_string(U32 ip);                   // Returns pointer to internal string buffer, "(bad IP addr)" on failure, cannot nest calls
 char*       u32_to_ip_string(U32 ip, char *ip_string);  // NULL on failure, ip_string on success, you must allocate at least MAXADDRSTR chars

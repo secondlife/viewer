@@ -76,9 +76,7 @@ LLFontGL::LLFontGL()
 {
 }
 
-LLFontGL::~LLFontGL()
-{
-}
+LLFontGL::~LLFontGL() = default;
 
 void LLFontGL::reset()
 {

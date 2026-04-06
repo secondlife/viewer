@@ -40,7 +40,7 @@ protected:
     ~LLParcelSelection();
 
 public:
-    LLParcelSelection(LLParcel* parcel);
+    explicit LLParcelSelection(LLParcel* parcel);
     LLParcelSelection();
 
     // this can return NULL at any time, as parcel selection

@@ -61,7 +61,7 @@ class LL_COMMON_API LLThreadSafeQueueInterrupt:
     public LLThreadSafeQueueError
 {
 public:
-    LLThreadSafeQueueInterrupt(void):
+    LLThreadSafeQueueInterrupt():
         LLThreadSafeQueueError("queue operation interrupted")
     {
         ; // No op.
@@ -131,9 +131,9 @@ public:
     //
     // This call will raise an interrupt error if the queue is closed while
     // the caller is blocked.
-    ElementT pop(void);
+    ElementT pop();
     // legacy name
-    ElementT popBack(void) { return pop(); }
+    ElementT popBack() { return pop(); }
 
     // Pop an element from the head of the queue if there is one available.
     // Returns true only if an element was popped.
@@ -438,7 +438,7 @@ LLThreadSafeQueue<ElementT, QueueT>::pop_(lock_t& lock, ElementT& element)
 
 
 template<typename ElementT, typename QueueT>
-ElementT LLThreadSafeQueue<ElementT, QueueT>::pop(void)
+ElementT LLThreadSafeQueue<ElementT, QueueT>::pop()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     lock_t lock1(mLock);
@@ -547,7 +547,7 @@ LLThreadSafeQueue<ElementT, QueueT>::tryPopUntil_(
 
 
 template<typename ElementT, typename QueueT>
-size_t LLThreadSafeQueue<ElementT, QueueT>::size(void)
+size_t LLThreadSafeQueue<ElementT, QueueT>::size()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     lock_t lock(mLock);

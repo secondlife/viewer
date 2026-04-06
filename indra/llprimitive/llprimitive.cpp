@@ -1447,7 +1447,7 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
     LLColor4 color;
     for (U32 i = 0; i < tec.face_count; i++)
     {
-        LLUUID& req_id = ((LLUUID*)tec.image_data)[i];
+        const LLUUID& req_id = ((LLUUID*)tec.image_data)[i];
         retval |= setTETexture(i, req_id);
         retval |= setTEScale(i, tec.scale_s[i], tec.scale_t[i]);
         retval |= setTEOffset(i, (F32)tec.offset_s[i] / (F32)0x7FFF, (F32) tec.offset_t[i] / (F32) 0x7FFF);
@@ -1618,7 +1618,7 @@ void LLPrimitive::takeTextureList(LLPrimTextureList& other_list)
 
 void LLPrimitive::updateNumBumpmap(const U8 index, const U8 bump)
 {
-    LLTextureEntry* te = getTE(index);
+    const LLTextureEntry* te = getTE(index);
     if(!te)
     {
         return;
@@ -2003,7 +2003,7 @@ bool LLFlexibleObjectData::operator==(const LLNetworkData& data) const
     {
         return false;
     }
-    LLFlexibleObjectData *flex_data = (LLFlexibleObjectData*)&data;
+    const LLFlexibleObjectData *flex_data = (const LLFlexibleObjectData*)&data;
     return (mSimulateLOD == flex_data->mSimulateLOD &&
             mGravity == flex_data->mGravity &&
             mAirFriction == flex_data->mAirFriction &&
@@ -2371,7 +2371,7 @@ bool LLRenderMaterialParams::operator==(const LLNetworkData& data) const
         return false;
     }
 
-    for (auto& entry : mEntries)
+    for (const auto& entry : mEntries)
     {
         if (param.getMaterial(entry.te_idx) != entry.id)
         {

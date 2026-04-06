@@ -241,7 +241,7 @@ bool LLGLTexture::getBoundRecently() const
     return false ;
 }
 
-LLTexUnit::eTextureType LLGLTexture::getTarget(void) const
+LLTexUnit::eTextureType LLGLTexture::getTarget() const
 {
     llassert(mGLTexturep.notNull()) ;
     return mGLTexturep->getTarget() ;
@@ -289,7 +289,7 @@ void LLGLTexture::setTarget(const LLGLenum target, const LLTexUnit::eTextureType
     return mGLTexturep->setTarget(target, bind_target);
 }
 
-LLTexUnit::eTextureAddressMode LLGLTexture::getAddressMode(void) const
+LLTexUnit::eTextureAddressMode LLGLTexture::getAddressMode() const
 {
     llassert(mGLTexturep.notNull()) ;
 
@@ -344,7 +344,7 @@ bool LLGLTexture::isJustBound() const
     return mGLTexturep->isJustBound() ;
 }
 
-void LLGLTexture::forceUpdateBindStats(void) const
+void LLGLTexture::forceUpdateBindStats() const
 {
     llassert(mGLTexturep.notNull()) ;
 

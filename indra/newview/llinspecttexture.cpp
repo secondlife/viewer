@@ -194,9 +194,7 @@ LLTextureToolTip::LLTextureToolTip(const LLToolTip::Params& p)
     setBorderVisible(true);
 }
 
-LLTextureToolTip::~LLTextureToolTip()
-{
-}
+LLTextureToolTip::~LLTextureToolTip() = default;
 
 void LLTextureToolTip::initFromParams(const LLToolTip::Params& p)
 {

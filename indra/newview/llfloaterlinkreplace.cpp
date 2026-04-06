@@ -51,9 +51,7 @@ LLFloaterLinkReplace::LLFloaterLinkReplace(const LLSD& key)
     mEventTimer.stop();
 }
 
-LLFloaterLinkReplace::~LLFloaterLinkReplace()
-{
-}
+LLFloaterLinkReplace::~LLFloaterLinkReplace() = default;
 
 bool LLFloaterLinkReplace::postBuild()
 {

@@ -66,9 +66,7 @@ LLInventoryObserver::LLInventoryObserver()
 }
 
 // virtual
-LLInventoryObserver::~LLInventoryObserver()
-{
-}
+LLInventoryObserver::~LLInventoryObserver() = default;
 
 LLInventoryFetchObserver::LLInventoryFetchObserver(const LLUUID& id)
 {

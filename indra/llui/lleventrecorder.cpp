@@ -98,7 +98,7 @@ void LLEventRecorder::setMouseGlobalCoords(S32 x, S32 y) {
 void LLEventRecorder::updateMouseEventInfo(S32 local_x, S32 local_y, S32 global_x, S32 global_y, std::string mName) {
     if (!logEvents) return;
 
-  LLView * target_view = LLUI::getInstance()->resolvePath(LLUI::getInstance()->getRootView(), xui);
+  const LLView * target_view = LLUI::getInstance()->resolvePath(LLUI::getInstance()->getRootView(), xui);
   if (! target_view) {
     LL_DEBUGS() << "LLEventRecorder::updateMouseEventInfo - xui path on file at moment is NOT valid - so DO NOT record these local coords" << LL_ENDL;
     return;

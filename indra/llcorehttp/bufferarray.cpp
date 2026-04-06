@@ -61,7 +61,7 @@ public:
     Block& operator=(const Block&) = delete;
 
 protected:
-    Block(size_t len);
+    explicit Block(size_t len);
 
     // Allocate the block with the additional space for the
     // buffered data at the end of the object.

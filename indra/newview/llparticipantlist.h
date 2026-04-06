@@ -82,7 +82,7 @@ protected:
     class BaseSpeakerListener : public LLOldEvents::LLSimpleListener
     {
     public:
-        BaseSpeakerListener(LLParticipantList& parent) : mParent(parent) {}
+        explicit BaseSpeakerListener(LLParticipantList& parent) : mParent(parent) {}
     protected:
         LLParticipantList& mParent;
     };
@@ -90,42 +90,42 @@ protected:
     class SpeakerAddListener : public BaseSpeakerListener
     {
     public:
-        SpeakerAddListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
+        explicit SpeakerAddListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
         /*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
     };
 
     class SpeakerRemoveListener : public BaseSpeakerListener
     {
     public:
-        SpeakerRemoveListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
+        explicit SpeakerRemoveListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
         /*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
     };
 
     class SpeakerClearListener : public BaseSpeakerListener
     {
     public:
-        SpeakerClearListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
+        explicit SpeakerClearListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
         /*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
     };
 
     class SpeakerUpdateListener : public BaseSpeakerListener
     {
     public:
-        SpeakerUpdateListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
+        explicit SpeakerUpdateListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
         /*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
     };
 
     class SpeakerModeratorUpdateListener : public BaseSpeakerListener
     {
     public:
-        SpeakerModeratorUpdateListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
+        explicit SpeakerModeratorUpdateListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
         /*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
     };
 
     class SpeakerMuteListener : public BaseSpeakerListener
     {
     public:
-        SpeakerMuteListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
+        explicit SpeakerMuteListener(LLParticipantList& parent) : BaseSpeakerListener(parent) {}
 
         /*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
     };

@@ -191,9 +191,7 @@ LLAtmospherics::LLAtmospherics()
 }
 
 
-LLAtmospherics::~LLAtmospherics()
-{
-}
+LLAtmospherics::~LLAtmospherics() = default;
 
 void LLAtmospherics::init()
 {

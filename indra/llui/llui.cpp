@@ -421,7 +421,7 @@ void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
     const S32 CURSOR_HEIGHT = 16;       // Approximate "normal" cursor size
     const S32 CURSOR_WIDTH = 8;
 
-    LLView* parent = view->getParent();
+    const LLView* parent = view->getParent();
 
     S32 mouse_x;
     S32 mouse_y;

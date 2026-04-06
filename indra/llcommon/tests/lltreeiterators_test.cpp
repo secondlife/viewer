@@ -117,7 +117,7 @@ template <typename NODE>
 struct Cleanup< LLPointer<NODE> >
 {
     Cleanup(const LLPointer<NODE>& ptr) {}
-    ~Cleanup() {}
+    ~Cleanup() = default;
 };
 
 /*****************************************************************************

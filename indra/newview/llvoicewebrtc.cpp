@@ -131,9 +131,7 @@ LLVoiceWebRTCStats::LLVoiceWebRTCStats()
     reset();
 }
 
-LLVoiceWebRTCStats::~LLVoiceWebRTCStats()
-{
-}
+LLVoiceWebRTCStats::~LLVoiceWebRTCStats() = default;
 
 void LLVoiceWebRTCStats::connectionAttemptStart()
 {
@@ -245,9 +243,7 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
 
 //---------------------------------------------------
 
-LLWebRTCVoiceClient::~LLWebRTCVoiceClient()
-{
-}
+LLWebRTCVoiceClient::~LLWebRTCVoiceClient() = default;
 
 void LLWebRTCVoiceClient::cleanupSingleton()
 {
@@ -851,7 +847,7 @@ void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
     }
 }
 
-float LLWebRTCVoiceClient::tuningGetEnergy(void)
+float LLWebRTCVoiceClient::tuningGetEnergy()
 {
     if (!mWebRTCDeviceInterface)
     {
@@ -1017,7 +1013,7 @@ void LLWebRTCVoiceClient::setEarLocation(S32 loc)
     }
 }
 
-void LLWebRTCVoiceClient::updatePosition(void)
+void LLWebRTCVoiceClient::updatePosition()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
@@ -3265,9 +3261,7 @@ LLVoiceWebRTCSpatialConnection::LLVoiceWebRTCSpatialConnection(const LLUUID &reg
     mPrimary = false;  // will be set to primary after connection established
 }
 
-LLVoiceWebRTCSpatialConnection::~LLVoiceWebRTCSpatialConnection()
-{
-}
+LLVoiceWebRTCSpatialConnection::~LLVoiceWebRTCSpatialConnection() = default;
 
 void LLVoiceWebRTCSpatialConnection::setMuteMic(bool muted)
 {
@@ -3300,9 +3294,7 @@ LLVoiceWebRTCAdHocConnection::LLVoiceWebRTCAdHocConnection(const LLUUID &regionI
 {
 }
 
-LLVoiceWebRTCAdHocConnection::~LLVoiceWebRTCAdHocConnection()
-{
-}
+LLVoiceWebRTCAdHocConnection::~LLVoiceWebRTCAdHocConnection() = default;
 
 // Add-hoc connections require a different channel type
 // as they go to a different set of Secondlife WebRTC servers.

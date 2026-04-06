@@ -72,7 +72,7 @@ public:
     };
 
 protected:
-    LLMultiSlider(const Params&);
+    explicit LLMultiSlider(const Params&);
     friend class LLUICtrlFactory;
 public:
     virtual ~LLMultiSlider();

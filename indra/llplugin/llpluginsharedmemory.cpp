@@ -76,7 +76,7 @@
 
 int LLPluginSharedMemory::sSegmentNumber = 0;
 
-std::string LLPluginSharedMemory::createName(void)
+std::string LLPluginSharedMemory::createName()
 {
     std::stringstream newname;
 
@@ -151,7 +151,7 @@ LLPluginSharedMemoryPlatformImpl::~LLPluginSharedMemoryPlatformImpl()
 
 }
 
-bool LLPluginSharedMemory::map(void)
+bool LLPluginSharedMemory::map()
 {
     mMappedAddress = apr_shm_baseaddr_get(mImpl->mAprSharedMemory);
     if(mMappedAddress == NULL)
@@ -162,19 +162,19 @@ bool LLPluginSharedMemory::map(void)
     return true;
 }
 
-bool LLPluginSharedMemory::unmap(void)
+bool LLPluginSharedMemory::unmap()
 {
     // This is a no-op under apr.
     return true;
 }
 
-bool LLPluginSharedMemory::close(void)
+bool LLPluginSharedMemory::close()
 {
     // This is a no-op under apr.
     return true;
 }
 
-bool LLPluginSharedMemory::unlink(void)
+bool LLPluginSharedMemory::unlink()
 {
     // This is a no-op under apr.
     return true;
@@ -199,7 +199,7 @@ bool LLPluginSharedMemory::create(size_t size)
     return map();
 }
 
-bool LLPluginSharedMemory::destroy(void)
+bool LLPluginSharedMemory::destroy()
 {
     if(mImpl->mAprSharedMemory)
     {
@@ -230,7 +230,7 @@ bool LLPluginSharedMemory::attach(const std::string &name, size_t size)
 }
 
 
-bool LLPluginSharedMemory::detach(void)
+bool LLPluginSharedMemory::detach()
 {
     if(mImpl->mAprSharedMemory)
     {
@@ -254,11 +254,9 @@ LLPluginSharedMemoryPlatformImpl::LLPluginSharedMemoryPlatformImpl()
     mSharedMemoryFD = -1;
 }
 
-LLPluginSharedMemoryPlatformImpl::~LLPluginSharedMemoryPlatformImpl()
-{
-}
+LLPluginSharedMemoryPlatformImpl::~LLPluginSharedMemoryPlatformImpl() = default;
 
-bool LLPluginSharedMemory::map(void)
+bool LLPluginSharedMemory::map()
 {
     mMappedAddress = ::mmap(NULL, mSize, PROT_READ | PROT_WRITE, MAP_SHARED, mImpl->mSharedMemoryFD, 0);
     if(mMappedAddress == NULL)
@@ -271,7 +269,7 @@ bool LLPluginSharedMemory::map(void)
     return true;
 }
 
-bool LLPluginSharedMemory::unmap(void)
+bool LLPluginSharedMemory::unmap()
 {
     if(mMappedAddress != NULL)
     {
@@ -287,7 +285,7 @@ bool LLPluginSharedMemory::unmap(void)
     return true;
 }
 
-bool LLPluginSharedMemory::close(void)
+bool LLPluginSharedMemory::close()
 {
     if(mImpl->mSharedMemoryFD != -1)
     {
@@ -302,7 +300,7 @@ bool LLPluginSharedMemory::close(void)
     return true;
 }
 
-bool LLPluginSharedMemory::unlink(void)
+bool LLPluginSharedMemory::unlink()
 {
     if(!mName.empty())
     {
@@ -342,7 +340,7 @@ bool LLPluginSharedMemory::create(size_t size)
     return map();
 }
 
-bool LLPluginSharedMemory::destroy(void)
+bool LLPluginSharedMemory::destroy()
 {
     unmap();
     close();
@@ -368,7 +366,7 @@ bool LLPluginSharedMemory::attach(const std::string &name, size_t size)
     return map();
 }
 
-bool LLPluginSharedMemory::detach(void)
+bool LLPluginSharedMemory::detach()
 {
     unmap();
     close();
@@ -390,7 +388,7 @@ LLPluginSharedMemoryPlatformImpl::~LLPluginSharedMemoryPlatformImpl()
 
 }
 
-bool LLPluginSharedMemory::map(void)
+bool LLPluginSharedMemory::map()
 {
     mMappedAddress = MapViewOfFile(
         mImpl->mMapFile,            // handle to map object
@@ -410,7 +408,7 @@ bool LLPluginSharedMemory::map(void)
     return true;
 }
 
-bool LLPluginSharedMemory::unmap(void)
+bool LLPluginSharedMemory::unmap()
 {
     if(mMappedAddress != NULL)
     {
@@ -421,7 +419,7 @@ bool LLPluginSharedMemory::unmap(void)
     return true;
 }
 
-bool LLPluginSharedMemory::close(void)
+bool LLPluginSharedMemory::close()
 {
     if(mImpl->mMapFile != NULL)
     {
@@ -432,7 +430,7 @@ bool LLPluginSharedMemory::close(void)
     return true;
 }
 
-bool LLPluginSharedMemory::unlink(void)
+bool LLPluginSharedMemory::unlink()
 {
     // This is a no-op on Windows.
     return true;
@@ -464,7 +462,7 @@ bool LLPluginSharedMemory::create(size_t size)
     return map();
 }
 
-bool LLPluginSharedMemory::destroy(void)
+bool LLPluginSharedMemory::destroy()
 {
     unmap();
     close();
@@ -490,7 +488,7 @@ bool LLPluginSharedMemory::attach(const std::string &name, size_t size)
     return map();
 }
 
-bool LLPluginSharedMemory::detach(void)
+bool LLPluginSharedMemory::detach()
 {
     unmap();
     close();

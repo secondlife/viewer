@@ -44,7 +44,7 @@ public:
 
     static LLFloaterExperiencePicker* show( select_callback_t callback, const LLUUID& key, bool allow_multiple, bool close_on_select, filter_list filters, LLView * frustumOrigin);
 
-    LLFloaterExperiencePicker(const LLSD& key);
+    explicit LLFloaterExperiencePicker(const LLSD& key);
     virtual ~LLFloaterExperiencePicker();
 
     bool postBuild() override;

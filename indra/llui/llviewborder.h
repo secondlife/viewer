@@ -60,7 +60,7 @@ public:
         Params();
     };
 protected:
-    LLViewBorder(const Params&);
+    explicit LLViewBorder(const Params&);
     friend class LLUICtrlFactory;
 public:
     virtual void setValue(const LLSD& val) { setRect(LLRect(val)); }

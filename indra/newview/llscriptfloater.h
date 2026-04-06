@@ -155,7 +155,7 @@ public:
     /**
      * key - UUID of scripted Object
      */
-    LLScriptFloater(const LLSD& key);
+    explicit LLScriptFloater(const LLSD& key);
 
     virtual ~LLScriptFloater() = default;
 

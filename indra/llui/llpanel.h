@@ -101,7 +101,7 @@ protected:
     static const LLPanel::Params& getDefaultParams();
 
     // Panels can get constructed directly
-    LLPanel(const LLPanel::Params& params = getDefaultParams());
+    explicit LLPanel(const LLPanel::Params& params = getDefaultParams());
 
 public:
     using ctrl_list_t = std::vector<class LLUICtrl *>;
@@ -303,7 +303,7 @@ template<typename T>
 {
 public:
     // register with either the provided builder, or the generic templated builder
-    LLPanelInjector(const std::string& tag);
+    explicit LLPanelInjector(const std::string& tag);
 };
 
 

@@ -102,7 +102,7 @@ void LLDriverParamInfo::toStream(std::ostream &out)
     LLViewerVisualParamInfo::toStream(out);
     out << "driver" << "\t";
     out << mDrivenInfoList.size() << "\t";
-    for (LLDrivenEntryInfo& driven : mDrivenInfoList)
+    for (const LLDrivenEntryInfo& driven : mDrivenInfoList)
     {
         out << driven.mDrivenID << "\t";
     }
@@ -122,8 +122,8 @@ void LLDriverParamInfo::toStream(std::ostream &out)
     {
         for (LLDrivenEntryInfo& driven : mDrivenInfoList)
         {
-            LLViewerVisualParam *param =
-                (LLViewerVisualParam*)mDriverParam->getAvatarAppearance()->getVisualParam(driven.mDrivenID);
+            const LLViewerVisualParam *param =
+                (const LLViewerVisualParam*)mDriverParam->getAvatarAppearance()->getVisualParam(driven.mDrivenID);
             if (param)
             {
                 param->getInfo()->toStream(out);
@@ -183,9 +183,7 @@ LLDriverParam::LLDriverParam(const LLDriverParam& pOther)
     llassert((mWearablep == NULL) || mAvatarAppearance->isSelf());
 }
 
-LLDriverParam::~LLDriverParam()
-{
-}
+LLDriverParam::~LLDriverParam() = default;
 
 bool LLDriverParam::setInfo(LLDriverParamInfo *info)
 {
@@ -233,7 +231,7 @@ void LLDriverParam::setWeight(F32 weight)
     for(LLDrivenEntry& driven : mDriven)
     {
         LLDrivenEntry* drivenp = &driven;
-        LLDrivenEntryInfo* info = drivenp->mInfo;
+        const LLDrivenEntryInfo* info = drivenp->mInfo;
 
         F32 driven_weight = 0.f;
         F32 driven_min = drivenp->mParam->getMinWeight();
@@ -474,7 +472,7 @@ bool LLDriverParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross
 
         // check for already existing links. Do not overwrite.
         bool found = false;
-        for (auto& driven : mDriven)
+        for (const auto& driven : mDriven)
         {
             if (driven.mInfo->mDrivenID == driven_id)
             {
@@ -512,7 +510,7 @@ void LLDriverParam::updateCrossDrivenParams(LLWearableType::EType driven_type)
     bool needs_update = (getWearableType()==driven_type);
 
     // if the driver has a driven entry for the passed-in wearable type, we need to refresh the value
-    for(LLDrivenEntry& driven : mDriven)
+    for(const LLDrivenEntry& driven : mDriven)
     {
         if (driven.mParam && driven.mParam->getCrossWearable() && driven.mParam->getWearableType() == driven_type)
         {

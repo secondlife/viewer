@@ -52,7 +52,7 @@ class LLPanelLandSelectObserver : public LLParcelObserver
 {
 public:
     LLPanelLandSelectObserver() {}
-    virtual ~LLPanelLandSelectObserver() {}
+    virtual ~LLPanelLandSelectObserver() = default;
     virtual void changed() { LLPanelLandInfo::refreshAll(); }
 };
 

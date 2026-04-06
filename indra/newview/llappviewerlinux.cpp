@@ -115,9 +115,7 @@ LLAppViewerLinux::LLAppViewerLinux()
 {
 }
 
-LLAppViewerLinux::~LLAppViewerLinux()
-{
-}
+LLAppViewerLinux::~LLAppViewerLinux() = default;
 
 bool LLAppViewerLinux::init()
 {

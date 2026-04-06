@@ -92,9 +92,7 @@ LLMaterialHttpHandler::LLMaterialHttpHandler(const std::string& method, Callback
 
 }
 
-LLMaterialHttpHandler::~LLMaterialHttpHandler()
-{
-}
+LLMaterialHttpHandler::~LLMaterialHttpHandler() = default;
 
 void LLMaterialHttpHandler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
 {

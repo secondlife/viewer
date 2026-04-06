@@ -154,7 +154,7 @@ inline void idct_line(F32 *linein, F32 *lineout, S32 line)
 #ifdef _PATCH_SIZE_16_AND_32_ONLY
     F32 oosob = 2.f/16.f;
     S32 line_size = line*NORMAL_PATCH_SIZE;
-    F32 *tlinein, *tpcp;
+    const F32 *tlinein, *tpcp;
 
 
     for (n = 0; n < NORMAL_PATCH_SIZE; n++)
@@ -209,7 +209,7 @@ inline void idct_line_large_slow(F32 *linein, F32 *lineout, S32 line)
 
     F32 oosob = 2.f/32.f;
     S32 line_size = line*LARGE_PATCH_SIZE;
-    F32 *tlinein, *tpcp;
+    const F32 *tlinein, *tpcp;
 
 
     for (n = 0; n < LARGE_PATCH_SIZE; n++)
@@ -271,7 +271,7 @@ void idct_line_large(F32 *linein, F32 *lineout, S32 line)
 
     F32 oosob = 2.f/32.f;
     S32 line_size = line*LARGE_PATCH_SIZE;
-    F32 *tlinein, *tpcp;
+    const F32 *tlinein, *tpcp;
     F32 *baselinein = linein + line_size;
     F32 *baselineout = lineout + line_size;
 
@@ -594,7 +594,7 @@ void decompress_patch(F32 *patch, S32 *cpatch, LLPatchHeader *ph)
     F32     block[LARGE_PATCH_SIZE*LARGE_PATCH_SIZE], *tblock = block;
     F32     *tpatch;
 
-    LLGroupHeader   *gopp = gGOPP;
+    const LLGroupHeader   *gopp = gGOPP;
     S32     size = gopp->patch_size;
     F32     range = ph->range;
     S32     prequant = (ph->quant_wbits >> 4) + 2;
@@ -603,8 +603,8 @@ void decompress_patch(F32 *patch, S32 *cpatch, LLPatchHeader *ph)
     S32     stride = gopp->stride;
 
     F32     ooq = 1.f/(F32)quantize;
-    F32     *dq = gPatchDequantizeTable;
-    S32     *decopy_matrix = gDeCopyMatrix;
+    const F32     *dq = gPatchDequantizeTable;
+    const S32     *decopy_matrix = gDeCopyMatrix;
 
     F32     mult = ooq*range;
     F32     addval = mult*(F32)(1<<(prequant - 1))+hmin;
@@ -642,7 +642,7 @@ void decompress_patchv(LLVector3 *v, S32 *cpatch, LLPatchHeader *ph)
     F32         block[LARGE_PATCH_SIZE*LARGE_PATCH_SIZE], *tblock = block;
     LLVector3   *tvec;
 
-    LLGroupHeader   *gopp = gGOPP;
+    const LLGroupHeader   *gopp = gGOPP;
     S32     size = gopp->patch_size;
     F32     range = ph->range;
     S32     prequant = (ph->quant_wbits >> 4) + 2;
@@ -651,8 +651,8 @@ void decompress_patchv(LLVector3 *v, S32 *cpatch, LLPatchHeader *ph)
     S32     stride = gopp->stride;
 
     F32     ooq = 1.f/(F32)quantize;
-    F32     *dq = gPatchDequantizeTable;
-    S32     *decopy_matrix = gDeCopyMatrix;
+    const F32     *dq = gPatchDequantizeTable;
+    const S32     *decopy_matrix = gDeCopyMatrix;
 
     F32     mult = ooq*range;
     F32     addval = mult*(F32)(1<<(prequant - 1))+hmin;

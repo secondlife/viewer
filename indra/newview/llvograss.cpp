@@ -83,9 +83,7 @@ LLVOGrass::LLVOGrass(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regi
     mNumBlades = GRASS_MAX_BLADES;
 }
 
-LLVOGrass::~LLVOGrass()
-{
-}
+LLVOGrass::~LLVOGrass() = default;
 
 
 void LLVOGrass::updateSpecies()

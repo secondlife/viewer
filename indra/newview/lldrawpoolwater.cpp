@@ -60,9 +60,7 @@ LLDrawPoolWater::LLDrawPoolWater() : LLFacePool(POOL_WATER)
 {
 }
 
-LLDrawPoolWater::~LLDrawPoolWater()
-{
-}
+LLDrawPoolWater::~LLDrawPoolWater() = default;
 
 void LLDrawPoolWater::setTransparentTextures(const LLUUID& transparentTextureId, const LLUUID& nextTransparentTextureId)
 {

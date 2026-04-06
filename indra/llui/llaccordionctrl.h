@@ -82,7 +82,7 @@ public:
         {};
     };
 
-    LLAccordionCtrl(const Params& params);
+    explicit LLAccordionCtrl(const Params& params);
 
     LLAccordionCtrl();
     virtual ~LLAccordionCtrl();
@@ -170,7 +170,7 @@ private:
      */
     struct LLComparatorAdaptor
     {
-        LLComparatorAdaptor(const LLTabComparator& comparator) : mComparator(comparator) {};
+        explicit LLComparatorAdaptor(const LLTabComparator& comparator) : mComparator(comparator) {};
 
         bool operator()(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2)
         {

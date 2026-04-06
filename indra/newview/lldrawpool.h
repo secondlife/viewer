@@ -342,7 +342,7 @@ public:
     static inline const char* lookupPassName(U32 pass) { return ""; }
     #endif
 
-    LLRenderPass(const U32 type);
+    explicit LLRenderPass(const U32 type);
     virtual ~LLRenderPass();
     /*virtual*/ LLViewerTexture* getDebugTexture() { return NULL; }
     LLViewerTexture* getTexture() { return NULL; }
@@ -404,7 +404,7 @@ public:
     };
 
 public:
-    LLFacePool(const U32 type);
+    explicit LLFacePool(const U32 type);
     virtual ~LLFacePool();
 
     bool isDead() { return mReferences.empty(); }
@@ -446,7 +446,7 @@ public:
     class LLOverrideFaceColor
     {
     public:
-        LLOverrideFaceColor(LLDrawPool* pool)
+        explicit LLOverrideFaceColor(LLDrawPool* pool)
             : mOverride(sOverrideFaceColor), mPool(pool)
         {
             sOverrideFaceColor = true;

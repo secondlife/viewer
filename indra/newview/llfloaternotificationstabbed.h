@@ -70,7 +70,7 @@ class LLFloaterNotificationsTabbed : public LLTransientDockableFloater
 public:
     LOG_CLASS(LLFloaterNotificationsTabbed);
 
-    LLFloaterNotificationsTabbed(const LLSD& key);
+    explicit LLFloaterNotificationsTabbed(const LLSD& key);
     virtual ~LLFloaterNotificationsTabbed();
     bool postBuild();
 
@@ -126,7 +126,7 @@ private:
 
     struct NotificationTabbedChannel : public LLNotificationChannel
     {
-        NotificationTabbedChannel(LLFloaterNotificationsTabbed*);
+        explicit NotificationTabbedChannel(LLFloaterNotificationsTabbed*);
         void onDelete(LLNotificationPtr notify)
         {
             mNotificationsTabbedWindow->removeItemByID(notify->getID(), notify->getName());

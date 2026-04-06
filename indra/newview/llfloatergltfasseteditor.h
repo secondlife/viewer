@@ -46,7 +46,7 @@ class LLViewerObject;
 class LLFloaterGLTFAssetEditor : public LLFloater
 {
 public:
-    LLFloaterGLTFAssetEditor(const LLSD& key);
+    explicit LLFloaterGLTFAssetEditor(const LLSD& key);
     ~LLFloaterGLTFAssetEditor();
 
     bool postBuild() override;

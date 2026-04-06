@@ -59,7 +59,7 @@ public:
     using child_registry_t = ContainerViewRegistry;
 
 protected:
-    LLContainerView(const Params& p);
+    explicit LLContainerView(const Params& p);
     friend class LLUICtrlFactory;
 public:
     ~LLContainerView();

@@ -56,7 +56,7 @@ public:
     static const U8         DEFAULT_ENV_INTENSITY = 0;
 
     LLMaterial();
-    LLMaterial(const LLSD& material_data);
+    explicit LLMaterial(const LLSD& material_data);
 
     LLSD asLLSD() const;
     void fromLLSD(const LLSD& material_data);

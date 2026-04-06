@@ -137,12 +137,12 @@ public:
 
 #if LL_GTK
     // Lazily initialize and check the runtime GTK version for goodness.
-    static bool ll_try_gtk_init(void);
+    static bool ll_try_gtk_init();
 #endif // LL_GTK
 
 #if LL_X11
-    static Window get_SDL_XWindowID(void);
-    static Display* get_SDL_Display(void);
+    static Window get_SDL_XWindowID();
+    static Display* get_SDL_Display();
 #endif // LL_X11
 
 protected:
@@ -176,7 +176,7 @@ protected:
     bool createContext(int x, int y, int width, int height, int bits, bool fullscreen, bool disable_vsync);
     void destroyContext();
     void setupFailure(const std::string& text, const std::string& caption, U32 type);
-    void fixWindowSize(void);
+    void fixWindowSize();
     U32 SDLCheckGrabbyKeys(SDLKey keysym, bool gain);
     bool SDLReallyCaptureInput(bool capture);
 

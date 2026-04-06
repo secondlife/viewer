@@ -37,9 +37,7 @@
 #endif
 
 /** Virtual destructor. */
-LLPluginInstanceMessageListener::~LLPluginInstanceMessageListener()
-{
-}
+LLPluginInstanceMessageListener::~LLPluginInstanceMessageListener() = default;
 
 /**
  * TODO:DOC describe how it's used
@@ -154,7 +152,7 @@ void LLPluginInstance::sendMessage(const std::string &message)
  * Idle. TODO:DOC what's the purpose of this?
  *
  */
-void LLPluginInstance::idle(void)
+void LLPluginInstance::idle()
 {
 }
 

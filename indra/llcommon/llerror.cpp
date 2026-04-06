@@ -284,7 +284,7 @@ namespace {
             fprintf(stderr, "%s%s\n%s", ansi_code.c_str(), message.c_str(), s_ansi_reset.c_str() );
         }
 
-        static bool checkANSI(void)
+        static bool checkANSI()
         {
             // Check whether it's okay to use ANSI; if stderr is
             // a tty then we assume yes.  Can be turned off with

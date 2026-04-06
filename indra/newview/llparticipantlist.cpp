@@ -95,9 +95,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewMode
     }
 }
 
-LLParticipantList::~LLParticipantList()
-{
-}
+LLParticipantList::~LLParticipantList() = default;
 
 void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t cb)
 {

@@ -54,9 +54,7 @@ LLKeyframeFallMotion::LLKeyframeFallMotion(const LLUUID &id) : LLKeyframeMotion(
 // ~LLKeyframeFallMotion()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLKeyframeFallMotion::~LLKeyframeFallMotion()
-{
-}
+LLKeyframeFallMotion::~LLKeyframeFallMotion() = default;
 
 
 //-----------------------------------------------------------------------------

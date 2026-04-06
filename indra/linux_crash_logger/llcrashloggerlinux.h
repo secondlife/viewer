@@ -33,8 +33,8 @@
 class LLCrashLoggerLinux : public LLCrashLogger
 {
 public:
-    LLCrashLoggerLinux(void);
-    ~LLCrashLoggerLinux(void);
+    LLCrashLoggerLinux();
+    ~LLCrashLoggerLinux();
     virtual bool frame();
     virtual void updateApplication(const std::string& = LLStringUtil::null);
     virtual void gatherPlatformSpecificFiles();

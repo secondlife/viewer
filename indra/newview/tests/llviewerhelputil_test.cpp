@@ -48,7 +48,7 @@ static std::string gOS;
 
 LLControlGroup::LLControlGroup(const std::string& name)
     : LLInstanceTracker<LLControlGroup, std::string>(name) {}
-LLControlGroup::~LLControlGroup() {}
+LLControlGroup::~LLControlGroup() = default;
 LLControlVariable* LLControlGroup::declareString(const std::string& name,
                    const std::string& initial_val,
                    const std::string& comment,
@@ -74,7 +74,7 @@ static void substitute_string(std::string &input, const std::string &search, con
 
 #include "../llagent.h"
 LLAgent::LLAgent() : mAgentAccess(NULL) { }
-LLAgent::~LLAgent() { }
+LLAgent::~LLAgent() = default;
 bool LLAgent::isGodlike() const { return false; }
 
 LLAgent gAgent;

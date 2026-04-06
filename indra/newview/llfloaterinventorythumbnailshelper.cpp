@@ -51,9 +51,7 @@ LLFloaterInventoryThumbnailsHelper::LLFloaterInventoryThumbnailsHelper(const LLS
 {
 }
 
-LLFloaterInventoryThumbnailsHelper::~LLFloaterInventoryThumbnailsHelper()
-{
-}
+LLFloaterInventoryThumbnailsHelper::~LLFloaterInventoryThumbnailsHelper() = default;
 
 bool LLFloaterInventoryThumbnailsHelper::postBuild()
 {

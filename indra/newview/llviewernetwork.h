@@ -34,7 +34,7 @@
 class LLInvalidGridName
 {
 public:
-    LLInvalidGridName(std::string grid) : mGrid(grid)
+    explicit LLInvalidGridName(std::string grid) : mGrid(grid)
     {
     }
     std::string name() { return mGrid; }

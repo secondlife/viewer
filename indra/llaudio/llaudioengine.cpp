@@ -58,9 +58,7 @@ LLAudioEngine::LLAudioEngine()
 }
 
 
-LLAudioEngine::~LLAudioEngine()
-{
-}
+LLAudioEngine::~LLAudioEngine() = default;
 
 LLStreamingAudioInterface* LLAudioEngine::getStreamingAudioImpl()
 {
@@ -123,14 +121,14 @@ void LLAudioEngine::shutdown()
     cleanupWind();
 
     // Clean up audio sources
-    for (source_map::value_type& src_pair : mAllSources)
+    for (const source_map::value_type& src_pair : mAllSources)
     {
         delete src_pair.second;
     }
 
 
     // Clean up audio data
-    for (data_map::value_type& data_pair : mAllData)
+    for (const data_map::value_type& data_pair : mAllData)
     {
         delete data_pair.second;
     }
@@ -393,10 +391,10 @@ void LLAudioEngine::idle()
     updateChannels();
 
     // Hack!  For now, just use a global sync master;
-    LLAudioSource *sync_masterp = NULL;
+    const LLAudioSource *sync_masterp = NULL;
     LLAudioChannel *master_channelp = NULL;
     F32 max_sm_priority = -1.f;
-    for (source_map::value_type& src_pair : mAllSources)
+    for (const source_map::value_type& src_pair : mAllSources)
     {
         LLAudioSource *sourcep = src_pair.second;
         if (!sourcep->isMuted() && sourcep->isSyncMaster() && sourcep->getPriority() > max_sm_priority)
@@ -411,7 +409,7 @@ void LLAudioEngine::idle()
     {
         // Synchronize loop slaves with their masters
         // Update queued sounds (switch to next queued data if the current has finished playing)
-        for (source_map::value_type& src_pair : mAllSources)
+        for (const source_map::value_type& src_pair : mAllSources)
         {
             LLAudioSource *sourcep = src_pair.second;
 
@@ -608,7 +606,7 @@ LLAudioChannel * LLAudioEngine::getFreeChannel(const F32 priority)
     for (i = 0; i < LL_MAX_AUDIO_CHANNELS; i++)
     {
         LLAudioChannel *channelp = mChannels[i];
-        LLAudioSource *sourcep = channelp->getSource();
+        const LLAudioSource *sourcep = channelp->getSource();
         if (sourcep->getPriority() < min_priority)
         {
             min_channelp = channelp;
@@ -1007,7 +1005,7 @@ void LLAudioEngine::startNextTransfer()
     LLUUID asset_id;
     S32 i;
     LLAudioSource *asp = NULL;
-    LLAudioData *adp = NULL;
+    const LLAudioData *adp = NULL;
     data_map::iterator data_iter;
 
     // Check all channels for currently playing sounds.
@@ -1095,7 +1093,7 @@ void LLAudioEngine::startNextTransfer()
                 continue;
             }
 
-            LLAudioSource *asp;
+            const LLAudioSource *asp;
             asp = mChannels[i]->getSource();
             if (!asp)
             {
@@ -1108,9 +1106,9 @@ void LLAudioEngine::startNextTransfer()
             }
 
 
-            for (data_map::value_type& preload_pair : asp->mPreloadMap)
+            for (const data_map::value_type& preload_pair : asp->mPreloadMap)
             {
-                LLAudioData *adp = preload_pair.second;
+                const LLAudioData *adp = preload_pair.second;
                 if (!adp)
                 {
                     continue;
@@ -1130,7 +1128,7 @@ void LLAudioEngine::startNextTransfer()
     {
         max_pri = -1.f;
         source_map::iterator source_iter;
-        for (source_map::value_type& source_pair : mAllSources)
+        for (const source_map::value_type& source_pair : mAllSources)
         {
             asp = source_pair.second;
             if (!asp)
@@ -1159,9 +1157,9 @@ void LLAudioEngine::startNextTransfer()
                 continue;
             }
 
-            for (data_map::value_type& preload_pair : asp->mPreloadMap)
+            for (const data_map::value_type& preload_pair : asp->mPreloadMap)
             {
-                LLAudioData *adp = preload_pair.second;
+                const LLAudioData *adp = preload_pair.second;
                 if (!adp)
                 {
                     continue;
@@ -1343,7 +1341,7 @@ void LLAudioSource::updatePriority()
 
 bool LLAudioSource::setupChannel()
 {
-    LLAudioData *adp = getCurrentData();
+    const LLAudioData *adp = getCurrentData();
 
     if (!adp->getBuffer())
     {
@@ -1598,7 +1596,7 @@ bool LLAudioSource::hasPendingPreloads() const
     // Check to see if we've got any preloads on deck for this source
     for (const data_map::value_type& preload_pair : mPreloadMap)
     {
-        LLAudioData *adp = preload_pair.second;
+        const LLAudioData *adp = preload_pair.second;
         // note: a bad UUID will forever be !hasDecodedData()
         // but also hasDecodeFailed(), hence the check for hasDecodeFailed()
         if (!adp)

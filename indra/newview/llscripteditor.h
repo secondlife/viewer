@@ -58,7 +58,7 @@ public:
 
   protected:
     friend class LLUICtrlFactory;
-    LLScriptEditor(const Params& p);
+    explicit LLScriptEditor(const Params& p);
 
 private:
     void    drawLineNumbers();

@@ -342,9 +342,7 @@ LLAnimationLibrary::LLAnimationLibrary() :
 //-----------------------------------------------------------------------------
 // ~LLAnimationLibrary()
 //-----------------------------------------------------------------------------
-LLAnimationLibrary::~LLAnimationLibrary()
-{
-}
+LLAnimationLibrary::~LLAnimationLibrary() = default;
 
 //-----------------------------------------------------------------------------
 // Return the text name of an animation state
@@ -372,14 +370,14 @@ LLUUID LLAnimationLibrary::stringToAnimState( const std::string& name, bool allo
     std::string lower_case_name(name);
     LLStringUtil::toLower(lower_case_name);
 
-    char *true_name = mAnimStringTable.checkString(lower_case_name.c_str());
+    const char *true_name = mAnimStringTable.checkString(lower_case_name.c_str());
 
     LLUUID id;
     id.setNull();
 
     if (true_name)
     {
-        for (anim_map_t::value_type& anim_pair : mAnimMap)
+        for (const anim_map_t::value_type& anim_pair : mAnimMap)
         {
             if (anim_pair.second == true_name)
             {

@@ -51,7 +51,7 @@ public:
 protected:
     friend class LLNameListCtrl;
 
-    LLNameListItem( const LLScrollListItem::Params& p )
+    explicit LLNameListItem( const LLScrollListItem::Params& p )
     :   LLScrollListItem(p), mIsGroup(false), mIsExperience(false)
     {
     }
@@ -127,7 +127,7 @@ public:
     };
 
 protected:
-    LLNameListCtrl(const Params&);
+    explicit LLNameListCtrl(const Params&);
     virtual ~LLNameListCtrl()
     {
         for (avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.begin(); it != mAvatarNameCacheConnections.end(); ++it)

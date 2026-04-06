@@ -58,7 +58,7 @@ public:
 
     };
 
-    LLToolBarButton(const Params& p);
+    explicit LLToolBarButton(const Params& p);
     ~LLToolBarButton();
 
     bool handleMouseDown(S32 x, S32 y, MASK mask);
@@ -177,7 +177,7 @@ public:
 
     protected:
         friend class LLUICtrlFactory;
-        LLCenterLayoutPanel(const Params& params) : LLLayoutPanel(params) {};
+        explicit LLCenterLayoutPanel(const Params& params) : LLLayoutPanel(params) {};
 
     private:
         reshape_callback_t                  mReshapeCallback;
@@ -261,7 +261,7 @@ public:
 
 private:
     friend class LLUICtrlFactory;
-    LLToolBar(const Params&);
+    explicit LLToolBar(const Params&);
     ~LLToolBar();
 
     void initFromParams(const Params&);

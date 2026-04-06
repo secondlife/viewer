@@ -38,7 +38,7 @@ public:
     {};
 
 protected:
-    LLViewerTextEditor(const Params&);
+    explicit LLViewerTextEditor(const Params&);
     friend class LLUICtrlFactory;
 
 public:

@@ -121,9 +121,9 @@ bool LLFlatListView::addItemPairs(pairs_list_t panel_list, bool rearrange /*= tr
     panel_list.sort(ComparatorAdaptor(*mItemComparator));
 
     pairs_const_iterator_t new_pair_it = panel_list.begin();
-    item_pair_t* new_pair = *new_pair_it;
+    const item_pair_t* new_pair = *new_pair_it;
     pairs_iterator_t pair_it = mItemPairs.begin();
-    item_pair_t* item_pair = *pair_it;
+    const item_pair_t* item_pair = *pair_it;
 
     // sort panel_list into mItemPars
     while (new_pair_it != panel_list.end() && pair_it != mItemPairs.end())
@@ -192,7 +192,7 @@ bool LLFlatListView::insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, 
     //force uniqueness of items, easiest check but unreliable
     if (item_to_add->getParent() == mItemsPanel) return false;
 
-    item_pair_t* after_pair = getItemPair(after_item);
+    const item_pair_t* after_pair = getItemPair(after_item);
     if (!after_pair) return false;
 
     item_pair_t* new_pair = new item_pair_t(item_to_add, value);
@@ -256,7 +256,7 @@ LLPanel* LLFlatListView::getItemByValue(const LLSD& value) const
 {
     if (value.isUndefined()) return NULL;
 
-    item_pair_t* pair = getItemPair(value);
+    const item_pair_t* pair = getItemPair(value);
     if (pair) return pair->first;
     return NULL;
 }
@@ -292,7 +292,7 @@ LLSD LLFlatListView::getSelectedValue() const
 {
     if (mSelectedItemPairs.empty()) return LLSD();
 
-    item_pair_t* first_selected_pair = mSelectedItemPairs.front();
+    const item_pair_t* first_selected_pair = mSelectedItemPairs.front();
     return first_selected_pair->second;
 }
 
@@ -552,7 +552,7 @@ void LLFlatListView::rearrangeItems()
     pairs_iterator_t it = mItemPairs.begin();
     for (; it != mItemPairs.end(); ++it)
     {
-        LLPanel* item = (*it)->first;
+        const LLPanel* item = (*it)->first;
 
         // skip invisible child
         if (!item->getVisible())
@@ -625,7 +625,7 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
     if ( (mask & MASK_SHIFT) && !(mask & MASK_CONTROL)
          && mMultipleSelection && !mSelectedItemPairs.empty() )
     {
-        item_pair_t* last_selected_pair = mSelectedItemPairs.back();
+        const item_pair_t* last_selected_pair = mSelectedItemPairs.back();
 
         // If item_pair is already selected - do nothing
         if (last_selected_pair == item_pair)
@@ -1091,7 +1091,7 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
     bool selection_changed = false;
     for (pairs_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
     {
-        item_pair_t* _item_pair = *it;
+        const item_pair_t* _item_pair = *it;
         if (_item_pair == item_pair)
         {
             mItemPairs.erase(it);
@@ -1104,7 +1104,7 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
 
     for (pairs_iterator_t it = mSelectedItemPairs.begin(); it != mSelectedItemPairs.end(); ++it)
     {
-        item_pair_t* selected_item_pair = *it;
+        const item_pair_t* selected_item_pair = *it;
         if (selected_item_pair == item_pair)
         {
             it = mSelectedItemPairs.erase(it);

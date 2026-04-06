@@ -147,7 +147,7 @@ class LLFloaterSnapshot : public LLFloaterSnapshotBase
     LOG_CLASS(LLFloaterSnapshot);
 
 public:
-    LLFloaterSnapshot(const LLSD& key);
+    explicit LLFloaterSnapshot(const LLSD& key);
     /*virtual*/ ~LLFloaterSnapshot();
 
     /*virtual*/ bool postBuild();
@@ -163,7 +163,7 @@ public:
     static LLFloaterSnapshot* findInstance();
     /*virtual*/ void saveTexture();
 
-    using snapshot_saved_signal_t = boost::signals2::signal<void(void)>;
+    using snapshot_saved_signal_t = boost::signals2::signal<void()>;
     void saveLocal(const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
     static void setAgentEmail(const std::string& email);
 
@@ -181,7 +181,7 @@ class LLFloaterSnapshot::Impl : public LLFloaterSnapshotBase::ImplBase
 {
     LOG_CLASS(LLFloaterSnapshot::Impl);
 public:
-    Impl(LLFloaterSnapshotBase* floater)
+    explicit Impl(LLFloaterSnapshotBase* floater)
         : LLFloaterSnapshotBase::ImplBase(floater)
     {}
     ~Impl()
@@ -226,7 +226,7 @@ public:
     };
 
 protected:
-    LLSnapshotFloaterView (const Params& p);
+    explicit LLSnapshotFloaterView (const Params& p);
     friend class LLUICtrlFactory;
 
 public:

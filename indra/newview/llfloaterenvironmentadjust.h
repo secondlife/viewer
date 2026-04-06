@@ -44,7 +44,7 @@ class LLFloaterEnvironmentAdjust : public LLFloater
     LOG_CLASS(LLFloaterEnvironmentAdjust);
 
 public:
-                                LLFloaterEnvironmentAdjust(const LLSD &key);
+                                explicit LLFloaterEnvironmentAdjust(const LLSD &key);
     virtual                     ~LLFloaterEnvironmentAdjust();
 
 

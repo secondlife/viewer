@@ -40,7 +40,7 @@ class LLFloaterCameraPresets : public LLFloater
     void onSelectionChange();
 
 private:
-    LLFloaterCameraPresets(const LLSD& key);
+    explicit LLFloaterCameraPresets(const LLSD& key);
     ~LLFloaterCameraPresets();
 
     LLFlatListView* mPresetList;

@@ -59,7 +59,7 @@ public:
     LLQuaternion(F32 x, F32 y, F32 z, F32 w);       // Initializes Quaternion to normalize(x, y, z, w)
     LLQuaternion(F32 angle, const LLVector4 &vec);  // Initializes Quaternion to axis_angle2quat(angle, vec)
     LLQuaternion(F32 angle, const LLVector3 &vec);  // Initializes Quaternion to axis_angle2quat(angle, vec)
-    LLQuaternion(const F32 *q);                     // Initializes Quaternion to normalize(x, y, z, w)
+    explicit LLQuaternion(const F32 *q);              // Initializes Quaternion to normalize(x, y, z, w)
     LLQuaternion(const LLVector3 &x_axis,
                  const LLVector3 &y_axis,
                  const LLVector3 &z_axis);          // Initializes Quaternion from Matrix3 = [x_axis ; y_axis ; z_axis]
@@ -90,15 +90,15 @@ public:
     const LLQuaternion& setAngleAxis(F32 angle, const LLVector4 &vec);  // Sets Quaternion to axis_angle2quat(angle, vec)
     const LLQuaternion& setEulerAngles(F32 roll, F32 pitch, F32 yaw);   // Sets Quaternion to euler2quat(pitch, yaw, roll)
 
-    LLMatrix4   getMatrix4(void) const;                         // Returns the Matrix4 equivalent of Quaternion
-    LLMatrix3   getMatrix3(void) const;                         // Returns the Matrix3 equivalent of Quaternion
+    LLMatrix4   getMatrix4() const;                         // Returns the Matrix4 equivalent of Quaternion
+    LLMatrix3   getMatrix3() const;                         // Returns the Matrix3 equivalent of Quaternion
     void        getAngleAxis(F32* angle, F32* x, F32* y, F32* z) const; // returns rotation in radians about axis x,y,z
     void        getAngleAxis(F32* angle, LLVector3 &vec) const;
     void        getEulerAngles(F32 *roll, F32* pitch, F32 *yaw) const;
     void        getAzimuthAndAltitude(F32 &azimuth, F32 &altitude);
 
     F32 normalize();    // Normalizes Quaternion and returns magnitude
-    const LLQuaternion& conjugate(void);    // Conjugates Quaternion and returns result
+    const LLQuaternion& conjugate();    // Conjugates Quaternion and returns result
     // Other useful methods
     const LLQuaternion& transpose();        // transpose (same as conjugate)
     void            shortestArc(const LLVector3 &a, const LLVector3 &b);    // shortest rotation from a to b
@@ -205,7 +205,7 @@ inline bool LLQuaternion::isNotIdentity() const
 
 
 
-inline LLQuaternion::LLQuaternion(void)
+inline LLQuaternion::LLQuaternion()
 {
     mQ[VX] = 0.f;
     mQ[VY] = 0.f;

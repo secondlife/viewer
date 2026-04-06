@@ -43,9 +43,7 @@ LLCommunicationChannel::LLCommunicationChannel(const std::string& pName, const s
 {
 }
 
-LLCommunicationChannel::~LLCommunicationChannel()
-{
-}
+LLCommunicationChannel::~LLCommunicationChannel() = default;
 
 bool LLCommunicationChannel::filterByDoNotDisturbStatus(LLNotificationPtr)
 {

@@ -34,7 +34,7 @@ class LLFloaterDestinations:
 {
     friend class LLFloaterReg;
 private:
-    LLFloaterDestinations(const LLSD& key);
+    explicit LLFloaterDestinations(const LLSD& key);
     ~LLFloaterDestinations();
     bool postBuild() override;
 };

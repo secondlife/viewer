@@ -47,9 +47,7 @@ LLAudioEngine_OpenAL::LLAudioEngine_OpenAL()
 }
 
 // virtual
-LLAudioEngine_OpenAL::~LLAudioEngine_OpenAL()
-{
-}
+LLAudioEngine_OpenAL::~LLAudioEngine_OpenAL() = default;
 
 // virtual
 bool LLAudioEngine_OpenAL::init(void* userdata, const std::string &app_title)

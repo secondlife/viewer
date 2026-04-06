@@ -35,7 +35,7 @@ class LLFloaterDeletePrefPreset : public LLFloater
 {
 
 public:
-    LLFloaterDeletePrefPreset(const LLSD &key);
+    explicit LLFloaterDeletePrefPreset(const LLSD &key);
 
     bool postBuild() override;
     void onOpen(const LLSD& key) override;

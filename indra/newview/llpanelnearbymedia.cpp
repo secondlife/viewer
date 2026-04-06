@@ -119,9 +119,7 @@ LLPanelNearByMedia::LLPanelNearByMedia()
     buildFromFile( "panel_nearby_media.xml");
 }
 
-LLPanelNearByMedia::~LLPanelNearByMedia()
-{
-}
+LLPanelNearByMedia::~LLPanelNearByMedia() = default;
 
 bool LLPanelNearByMedia::postBuild()
 {

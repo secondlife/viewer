@@ -433,7 +433,7 @@ bool LLFloaterFixedEnvironmentWater::postBuild()
     return true;
 }
 
-void LLFloaterFixedEnvironmentWater::updateEditEnvironment(void)
+void LLFloaterFixedEnvironmentWater::updateEditEnvironment()
 {
     LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT,
         std::static_pointer_cast<LLSettingsWater>(mSettings));
@@ -512,7 +512,7 @@ bool LLFloaterFixedEnvironmentSky::postBuild()
     return true;
 }
 
-void LLFloaterFixedEnvironmentSky::updateEditEnvironment(void)
+void LLFloaterFixedEnvironmentSky::updateEditEnvironment()
 {
     LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT,
         std::static_pointer_cast<LLSettingsSky>(mSettings));

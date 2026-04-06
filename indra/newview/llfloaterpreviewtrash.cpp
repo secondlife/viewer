@@ -53,9 +53,7 @@ bool LLFloaterPreviewTrash::postBuild()
     return true;
 }
 
-LLFloaterPreviewTrash::~LLFloaterPreviewTrash()
-{
-}
+LLFloaterPreviewTrash::~LLFloaterPreviewTrash() = default;
 
 
 // static

@@ -39,7 +39,7 @@ class LLFloaterMyEnvironment
 {
     LOG_CLASS(LLFloaterMyEnvironment);
 public:
-                                    LLFloaterMyEnvironment(const LLSD& key);
+                                    explicit LLFloaterMyEnvironment(const LLSD& key);
     virtual                         ~LLFloaterMyEnvironment();
 
     virtual bool                    postBuild() override;

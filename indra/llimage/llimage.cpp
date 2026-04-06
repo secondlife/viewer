@@ -1023,7 +1023,7 @@ bool LLImageRaw::checkHasTransparentPixels()
         return false;
     }
 
-    U8* data = getData();
+    const U8* data = getData();
     U32 pixels = getWidth() * getHeight();
 
     // check alpha channel for all 255
@@ -1044,7 +1044,7 @@ bool LLImageRaw::optimizeAwayAlpha()
 
     if (getComponents() == 4)
     {
-        U8* data = getData();
+        const U8* data = getData();
         U32 pixels = getWidth() * getHeight();
 
         // check alpha channel for all 255
@@ -1081,7 +1081,7 @@ bool LLImageRaw::makeAlpha()
 {
     if (getComponents() == 3)
     {
-        U8* data = getData();
+        const U8* data = getData();
         U32 pixels = getWidth() * getHeight();
 
         // alpha channel doesn't exist, make a new copy of data with alpha channel
@@ -1189,7 +1189,7 @@ inline U8 LLImageRaw::fastFractionalMult( U8 a, U8 b )
 
 void LLImageRaw::composite( const LLImageRaw* src )
 {
-    LLImageRaw* dst = this;  // Just for clarity.
+    const LLImageRaw* dst = this;  // Just for clarity.
 
     LLImageDataSharedLock lockIn(src);
     LLImageDataLock lockOut(this);
@@ -1407,7 +1407,7 @@ LLPointer<LLImageRaw> LLImageRaw::duplicate()
 // Src and dst can be any size.  Src and dst can each have 3 or 4 components.
 void LLImageRaw::copy(const LLImageRaw* src)
 {
-    LLImageRaw* dst = this;  // Just for clarity.
+    const LLImageRaw* dst = this;  // Just for clarity.
 
     LLImageDataSharedLock lockIn(src);
     LLImageDataLock lockOut(this);
@@ -1942,7 +1942,7 @@ void LLImageRaw::compositeRowScaled4onto3( const U8* in, U8* out, S32 in_pixel_l
 
 void LLImageRaw::addEmissive(LLImageRaw* src)
 {
-    LLImageRaw* dst = this;  // Just for clarity.
+    const LLImageRaw* dst = this;  // Just for clarity.
 
     if (!validateSrcAndDst(__FUNCTION__, src, dst))
     {
@@ -1983,7 +1983,7 @@ void LLImageRaw::addEmissiveUnscaled(LLImageRaw* src)
         {
             const S32 src_offset = src_row_offset + (x * src->getComponents());
             const S32 dst_offset = dst_row_offset + (x * dst->getComponents());
-            U8* const src_pixel = src_data + src_offset;
+            const U8* const src_pixel = src_data + src_offset;
             U8* const dst_pixel = dst_data + dst_offset;
             dst_pixel[0] = llmin(255, dst_pixel[0] + src_pixel[0]);
             dst_pixel[1] = llmin(255, dst_pixel[1] + src_pixel[1]);

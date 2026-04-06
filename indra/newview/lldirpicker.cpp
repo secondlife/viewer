@@ -273,9 +273,7 @@ LLDirPicker::LLDirPicker()
     reset();
 }
 
-LLDirPicker::~LLDirPicker()
-{
-}
+LLDirPicker::~LLDirPicker() = default;
 
 
 void LLDirPicker::reset()

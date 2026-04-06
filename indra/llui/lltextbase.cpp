@@ -1042,8 +1042,8 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
     if (mUseEmoji)
     {
         LLStyleSP emoji_style;
-        LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
-        LLTextSegment* segmentp = nullptr;
+        const LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
+        const LLTextSegment* segmentp = nullptr;
         segment_vec_t::iterator seg_iter;
         if (segments && segments->size() > 0)
         {
@@ -4176,9 +4176,7 @@ LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLT
 {
     mFontHeight = style->getFont()->getLineHeight();
 }
-LLLineBreakTextSegment::~LLLineBreakTextSegment()
-{
-}
+LLLineBreakTextSegment::~LLLineBreakTextSegment() = default;
 
 // virtual
 LLTextSegmentPtr LLLineBreakTextSegment::clone(LLTextBase& target) const
@@ -4210,9 +4208,7 @@ LLImageTextSegment::LLImageTextSegment(LLStyleConstSP style,S32 pos,class LLText
 {
 }
 
-LLImageTextSegment::~LLImageTextSegment()
-{
-}
+LLImageTextSegment::~LLImageTextSegment() = default;
 
 // virtual
 LLTextSegmentPtr LLImageTextSegment::clone(LLTextBase& target) const

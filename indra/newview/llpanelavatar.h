@@ -55,7 +55,7 @@ public:
         }
     };
 
-    LLProfileDropTarget(const Params&);
+    explicit LLProfileDropTarget(const Params&);
     ~LLProfileDropTarget() = default;
 
     //

@@ -49,9 +49,7 @@ LLHUDEffectResetSkeleton::LLHUDEffectResetSkeleton(const U8 type) :
 //-----------------------------------------------------------------------------
 // ~LLHUDEffectResetSkeleton()
 //-----------------------------------------------------------------------------
-LLHUDEffectResetSkeleton::~LLHUDEffectResetSkeleton()
-{
-}
+LLHUDEffectResetSkeleton::~LLHUDEffectResetSkeleton() = default;
 
 //-----------------------------------------------------------------------------
 // packData()

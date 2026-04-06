@@ -40,12 +40,10 @@ LLListener::LLListener()
 }
 
 //-----------------------------------------------------------------------
-LLListener::~LLListener()
-{
-}
+LLListener::~LLListener() = default;
 
 //-----------------------------------------------------------------------
-void LLListener::init(void)
+void LLListener::init()
 {
     mPosition.setZero();
     mListenAt.set(DEFAULT_AT);
@@ -66,19 +64,19 @@ void LLListener::setPosition(LLVector3 pos)
 }
 
 //-----------------------------------------------------------------------
-LLVector3 LLListener::getPosition(void)
+LLVector3 LLListener::getPosition()
 {
     return(mPosition);
 }
 
 //-----------------------------------------------------------------------
-LLVector3 LLListener::getAt(void)
+LLVector3 LLListener::getAt()
 {
     return(mListenAt);
 }
 
 //-----------------------------------------------------------------------
-LLVector3 LLListener::getUp(void)
+LLVector3 LLListener::getUp()
 {
     return(mListenUp);
 }

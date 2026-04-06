@@ -57,7 +57,7 @@ public:
     ~LLStatView();
 
 protected:
-    LLStatView(const Params&);
+    explicit LLStatView(const Params&);
     friend class LLUICtrlFactory;
 
 protected:

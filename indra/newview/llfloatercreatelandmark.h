@@ -41,7 +41,7 @@ class LLFloaterCreateLandmark:
 
 public:
 
-    LLFloaterCreateLandmark(const LLSD& key);
+    explicit LLFloaterCreateLandmark(const LLSD& key);
     ~LLFloaterCreateLandmark();
 
     bool postBuild() override;

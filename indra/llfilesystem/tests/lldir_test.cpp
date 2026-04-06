@@ -101,7 +101,7 @@ struct LLDir_Dummy: public LLDir
         }
     }
 
-    virtual ~LLDir_Dummy() {}
+    virtual ~LLDir_Dummy() = default;
 
     virtual void initAppDirs(const std::string& app_name, const std::string& app_read_only_data_dir)
     {

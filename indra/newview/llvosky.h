@@ -147,7 +147,7 @@ protected:
     LLVector3       mO;
 
 public:
-    LLHeavenBody(const F32 rad);
+    explicit LLHeavenBody(const F32 rad);
     ~LLHeavenBody() = default;
 
     const LLQuaternion& getRotation() const;
@@ -290,7 +290,7 @@ public:
     void setSunScale(F32 sun_scale);
     void setMoonScale(F32 sun_scale);
 
-    void forceSkyUpdate(void);
+    void forceSkyUpdate();
 
 public:
     std::array<LLFace*, FACE_COUNT> mFace;

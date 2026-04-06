@@ -933,13 +933,13 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
     // or tab with a help_topic string defined
     while (ctrl)
     {
-        LLPanel *panel = dynamic_cast<LLPanel *>(ctrl);
+        const LLPanel *panel = dynamic_cast<LLPanel *>(ctrl);
 
         if (panel)
         {
 
             LLView *child;
-            LLPanel *subpanel = NULL;
+            const LLPanel *subpanel = NULL;
 
             // does the panel have a sub-panel with a help topic?
             bfs_tree_iterator_t it = beginTreeBFS();
@@ -964,7 +964,7 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
             }
 
             // does the panel have an active tab with a help topic?
-            LLPanel *tab_panel = NULL;
+            const LLPanel *tab_panel = NULL;
 
             it = beginTreeBFS();
             // skip ourselves

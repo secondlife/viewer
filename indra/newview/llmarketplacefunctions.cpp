@@ -603,7 +603,7 @@ class LLMarketplaceInventoryObserver : public LLInventoryObserver
 {
 public:
     LLMarketplaceInventoryObserver() {}
-    virtual ~LLMarketplaceInventoryObserver() {}
+    virtual ~LLMarketplaceInventoryObserver() = default;
     virtual void changed(U32 mask);
 
 private:

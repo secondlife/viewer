@@ -32,7 +32,7 @@ class LLFloaterClassified : public LLFloater
 {
     LOG_CLASS(LLFloaterClassified);
 public:
-    LLFloaterClassified(const LLSD& key);
+    explicit LLFloaterClassified(const LLSD& key);
     virtual ~LLFloaterClassified();
 
     void onOpen(const LLSD& key) override;

@@ -93,7 +93,7 @@ public:
 
 private:
 
-    LLFloaterGodTools(const LLSD& key);
+    explicit LLFloaterGodTools(const LLSD& key);
     ~LLFloaterGodTools();
 
 protected:

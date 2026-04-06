@@ -88,7 +88,7 @@ public:
     void reset() { mCurImageIdx = 0; }
 
 private:
-    LLLoadingIndicator(const Params&);
+    explicit LLLoadingIndicator(const Params&);
     void initFromParams(const Params&);
 
     friend class LLUICtrlFactory;

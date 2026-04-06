@@ -89,7 +89,7 @@ protected:
     friend class LLUICtrlFactory;
     friend class LLFolderViewModelItem;
 
-    LLFolderViewItem(const Params& p);
+    explicit LLFolderViewItem(const Params& p);
 
     LLWString                   mLabel;
     S32                         mLabelWidth;
@@ -340,7 +340,7 @@ private:
 class LLFolderViewFolder : public LLFolderViewItem
 {
 protected:
-    LLFolderViewFolder( const LLFolderViewItem::Params& );
+    explicit LLFolderViewFolder( const LLFolderViewItem::Params& );
     friend class LLUICtrlFactory;
 
     void updateLabelRotation();

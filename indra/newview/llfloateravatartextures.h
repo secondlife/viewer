@@ -36,7 +36,7 @@ class LLTextureCtrl;
 class LLFloaterAvatarTextures : public LLFloater
 {
 public:
-    LLFloaterAvatarTextures(const LLSD& id);
+    explicit LLFloaterAvatarTextures(const LLSD& id);
     virtual ~LLFloaterAvatarTextures();
 
     bool postBuild() override;

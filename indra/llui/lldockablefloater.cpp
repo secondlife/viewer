@@ -70,9 +70,7 @@ LLDockableFloater::LLDockableFloater(LLDockControl* dockControl, bool uniqueDock
     init(this);
 }
 
-LLDockableFloater::~LLDockableFloater()
-{
-}
+LLDockableFloater::~LLDockableFloater() = default;
 
 bool LLDockableFloater::postBuild()
 {

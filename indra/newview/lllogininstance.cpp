@@ -70,7 +70,7 @@ const F32 LOGIN_DNS_TIMEOUT_FACTOR = 0.9; // make DNS wait shorter then retry ti
 
 class LLLoginInstance::Disposable {
 public:
-    virtual ~Disposable() {}
+    virtual ~Disposable() = default;
 };
 
 static const char * const TOS_REPLY_PUMP = "lllogininstance_tos_callback";
@@ -110,9 +110,7 @@ void LLLoginInstance::setPlatformInfo(const std::string platform,
     mPlatformVersionName = platform_name;
 }
 
-LLLoginInstance::~LLLoginInstance()
-{
-}
+LLLoginInstance::~LLLoginInstance() = default;
 
 void LLLoginInstance::connect(LLPointer<LLCredential> credentials)
 {

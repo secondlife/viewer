@@ -166,9 +166,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
 }
 
 // virtual
-LLToastGroupNotifyPanel::~LLToastGroupNotifyPanel()
-{
-}
+LLToastGroupNotifyPanel::~LLToastGroupNotifyPanel() = default;
 
 void LLToastGroupNotifyPanel::close()
 {

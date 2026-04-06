@@ -125,7 +125,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLBadge(const Params& p);
+    explicit LLBadge(const Params& p);
 
 public:
 

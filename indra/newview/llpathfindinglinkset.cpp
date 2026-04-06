@@ -108,9 +108,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
 {
 }
 
-LLPathfindingLinkset::~LLPathfindingLinkset()
-{
-}
+LLPathfindingLinkset::~LLPathfindingLinkset() = default;
 
 LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkset& pOther)
 {

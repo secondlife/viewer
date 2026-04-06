@@ -207,7 +207,7 @@ void LLComboBox::clear()
 
 void LLComboBox::onCommit()
 {
-    if (LLScrollListItem* item = mList->getFirstSelected())
+    if (const LLScrollListItem* item = mList->getFirstSelected())
     {
         if (mAllowTextEntry && mTextEntry)
         {
@@ -362,7 +362,7 @@ bool LLComboBox::setSimple(const LLStringExplicit& name)
 // virtual
 void LLComboBox::setValue(const LLSD& value)
 {
-    if (LLScrollListItem* item = mList->getFirstSelected())
+    if (const LLScrollListItem* item = mList->getFirstSelected())
     {
         LLSD item_value = item->getValue();
         if (item_value.asString() == value.asString())
@@ -372,7 +372,7 @@ void LLComboBox::setValue(const LLSD& value)
     bool found = mList->selectByValue(value);
     if (found)
     {
-        LLScrollListItem* item = mList->getFirstSelected();
+        const LLScrollListItem* item = mList->getFirstSelected();
         if (item)
         {
             updateLabel();
@@ -404,7 +404,7 @@ const std::string LLComboBox::getSelectedItemLabel(S32 column) const
 // virtual
 LLSD LLComboBox::getValue() const
 {
-    if (LLScrollListItem* item = mList->getFirstSelected())
+    if (const LLScrollListItem* item = mList->getFirstSelected())
     {
         return item->getValue();
     }
@@ -653,7 +653,7 @@ void LLComboBox::setLeftTextPadding(S32 pad)
 
 void* LLComboBox::getCurrentUserdata()
 {
-    LLScrollListItem* item = mList->getFirstSelected();
+    const LLScrollListItem* item = mList->getFirstSelected();
     if( item )
     {
         return item->getUserdata();
@@ -672,7 +672,7 @@ void LLComboBox::showList()
 
     // Make sure that we can see the whole list
     LLRect root_view_local;
-    LLView* root_view = getRootView();
+    const LLView* root_view = getRootView();
     root_view->localRectToOtherView(root_view->getLocalRect(), &root_view_local, this);
 
     LLRect rect = mList->getRect();
@@ -1171,7 +1171,7 @@ std::string LLComboBox::_getSearchText() const
         std::vector<LLScrollListItem*>::iterator iter = data.begin();
         while (iter != data.end())
         {
-            LLScrollListCell* cell = (*iter)->getColumn(0);
+            const LLScrollListCell* cell = (*iter)->getColumn(0);
             if (cell)
             {
                 std::string whitelist_url = cell->getValue().asString();
@@ -1333,13 +1333,13 @@ void LLComboBox::addInfo(LLSD& info)
         std::vector<LLScrollListItem*> item_list = mList->getAllData();
         for (std::vector<LLScrollListItem*>::iterator iter = item_list.begin(); iter != item_list.end(); ++iter)
         {
-            if (LLScrollListItem* item = *iter)
+            if (const LLScrollListItem* item = *iter)
             {
                 LLSD item_info;
                 item_info["value"] = item->getValue();
                 if (item->getNumColumns() > 0)
                 {
-                    if (LLScrollListCell* cell = item->getColumn(0))
+                    if (const LLScrollListCell* cell = item->getColumn(0))
                     {
                         item_info["label"] = cell->getValue();
                     }

@@ -783,7 +783,7 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
     mWearableItemsList->setFilterSubString(mSearchString, true);
 }
 
-void LLPanelOutfitEdit::onPlusBtnClicked(void)
+void LLPanelOutfitEdit::onPlusBtnClicked()
 {
     uuid_vec_t selected_items;
     getSelectedItemsUUID(selected_items);
@@ -817,7 +817,7 @@ void LLPanelOutfitEdit::onVisibilityChanged(const LLSD &in_visible_chain)
     }
 }
 
-void LLPanelOutfitEdit::onAddWearableClicked(void)
+void LLPanelOutfitEdit::onAddWearableClicked()
 {
     LLPanelDummyClothingListItem* item = dynamic_cast<LLPanelDummyClothingListItem*>(mCOFWearables->getSelectedItem());
 
@@ -952,7 +952,7 @@ LLWearableType::EType LLPanelOutfitEdit::getWearableTypeByItemUUID(const LLUUID&
     return (item != NULL) ? item->getWearableType() : LLWearableType::WT_NONE;
 }
 
-void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
+void LLPanelOutfitEdit::onRemoveFromOutfitClicked()
 {
     LLUUID id_to_remove = mCOFWearables->getSelectedUUID();
     LLWearableType::EType type = getWearableTypeByItemUUID(id_to_remove);
@@ -966,7 +966,7 @@ void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
 }
 
 
-void LLPanelOutfitEdit::onEditWearableClicked(void)
+void LLPanelOutfitEdit::onEditWearableClicked()
 {
     LLUUID selected_item_id = mCOFWearables->getSelectedUUID();
     if (selected_item_id.notNull())
@@ -1034,7 +1034,7 @@ void LLPanelOutfitEdit::applyListViewFilter(EListViewItemType type)
     mListViewFilterCmbBox->onCommit();
 }
 
-void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
+void LLPanelOutfitEdit::filterWearablesBySelectedItem()
 {
     if (!mAddWearablesPanel->getVisible()) return;
 

@@ -225,7 +225,7 @@ protected:
 class LLPreviewLSL : public LLScriptEdContainer
 {
 public:
-    LLPreviewLSL(const LLSD& key );
+    explicit LLPreviewLSL(const LLSD& key );
     ~LLPreviewLSL();
 
     LLUUID getScriptID() { return mItemUUID; }
@@ -273,7 +273,7 @@ class LLLiveLSLEditor : public LLScriptEdContainer
 {
     friend class LLLiveLSLFile;
 public:
-    LLLiveLSLEditor(const LLSD& key);
+    explicit LLLiveLSLEditor(const LLSD& key);
 
 
     static void processScriptRunningReply(LLMessageSystem* msg, void**);

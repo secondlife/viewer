@@ -428,9 +428,7 @@ LLURI::LLURI(const std::string& scheme,
     mEscapedOpaque = opaque.str();
 }
 
-LLURI::~LLURI()
-{
-}
+LLURI::~LLURI() = default;
 
 // static
 LLURI LLURI::buildHTTP(const std::string& prefix,

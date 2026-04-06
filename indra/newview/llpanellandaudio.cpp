@@ -69,9 +69,7 @@ LLPanelLandAudio::LLPanelLandAudio(LLParcelSelectionHandle& parcel)
 
 
 // virtual
-LLPanelLandAudio::~LLPanelLandAudio()
-{
-}
+LLPanelLandAudio::~LLPanelLandAudio() = default;
 
 
 bool LLPanelLandAudio::postBuild()

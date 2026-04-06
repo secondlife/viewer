@@ -356,7 +356,7 @@ bool LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 // static
 void LLImageJPEG::encodeInitDestination ( j_compress_ptr cinfo )
 {
-  LLImageJPEG* self = (LLImageJPEG*) cinfo->client_data;
+  const LLImageJPEG* self = (const LLImageJPEG*) cinfo->client_data;
 
   cinfo->dest->next_output_byte = self->mOutputBuffer;
   cinfo->dest->free_in_buffer = self->mOutputBufferSize;

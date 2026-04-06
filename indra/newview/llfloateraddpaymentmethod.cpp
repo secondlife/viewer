@@ -38,9 +38,7 @@ LLFloaterAddPaymentMethod::LLFloaterAddPaymentMethod(const LLSD& key)
 {
 }
 
-LLFloaterAddPaymentMethod::~LLFloaterAddPaymentMethod()
-{
-}
+LLFloaterAddPaymentMethod::~LLFloaterAddPaymentMethod() = default;
 
 bool LLFloaterAddPaymentMethod::postBuild()
 {

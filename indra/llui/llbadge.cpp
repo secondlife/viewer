@@ -153,9 +153,7 @@ LLBadge::LLBadge(const LLBadge::Params& p)
     }
 }
 
-LLBadge::~LLBadge()
-{
-}
+LLBadge::~LLBadge() = default;
 
 bool LLBadge::addToView(LLView * view)
 {
@@ -225,7 +223,7 @@ void LLBadge::draw()
 {
     if (!mLabel.empty())
     {
-        LLView* owner_view = mOwner.get();
+        const LLView* owner_view = mOwner.get();
 
         if (owner_view && owner_view->isInVisibleChain())
         {

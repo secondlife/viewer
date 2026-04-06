@@ -55,7 +55,7 @@ class LLNearbyVoiceClientStatusObserver : public LLVoiceClientStatusObserver
 {
 public:
 
-    LLNearbyVoiceClientStatusObserver(LLConversationViewSession* conv)
+    explicit LLNearbyVoiceClientStatusObserver(LLConversationViewSession* conv)
     :   conversation(conv)
     {}
 

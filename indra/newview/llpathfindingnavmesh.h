@@ -57,7 +57,7 @@ public:
     using navmesh_signal_t = boost::signals2::signal<void (ENavMeshRequestStatus, const LLPathfindingNavMeshStatus &, const LLSD::Binary &)>;
     using navmesh_slot_t = boost::signals2::connection;
 
-    LLPathfindingNavMesh(const LLUUID &pRegionUUID);
+    explicit LLPathfindingNavMesh(const LLUUID &pRegionUUID);
     virtual ~LLPathfindingNavMesh();
 
     navmesh_slot_t registerNavMeshListener(navmesh_callback_t pNavMeshCallback);

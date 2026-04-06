@@ -113,7 +113,7 @@ extern F32 g2[B + B + 2][2];
 extern F32 g1[B + B + 2];
 extern S32 gNoiseStart;
 
-static void init(void);
+static void init();
 
 #define s_curve(t) ( t * t * (3.f - 2.f * t) )
 
@@ -307,7 +307,7 @@ static void normalize3(F32 v[3])
     v[2] = v[2] * s;
 }
 
-static void init(void)
+static void init()
 {
     // we want repeatable noise (e.g. for stable terrain texturing), so seed with known value
     srand(42);

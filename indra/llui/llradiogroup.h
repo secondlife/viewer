@@ -54,7 +54,7 @@ public:
     };
 
 protected:
-    LLRadioGroup(const Params&);
+    explicit LLRadioGroup(const Params&);
     friend class LLUICtrlFactory;
 
 public:

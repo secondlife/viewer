@@ -207,7 +207,7 @@ bool LLCRC::testHarness()
     const char TEST_BUFFER[TEST_BUFFER_SIZE] = "hello &#$)$&Nd0";   /* Flawfinder: ignore */
     LLCRC c1, c2;
     c1.update(std::span<const U8>((const U8*)TEST_BUFFER, TEST_BUFFER_SIZE - 1));
-    char* rh = (char*)TEST_BUFFER;
+    const char* rh = (const char*)TEST_BUFFER;
     while(*rh != '\0')
     {
         c2.update(*rh);

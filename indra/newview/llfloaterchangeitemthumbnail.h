@@ -41,7 +41,7 @@ class LLViewerFetchedTexture;
 class LLFloaterChangeItemThumbnail : public LLFloater, public LLInventoryObserver, public LLVOInventoryListener
 {
 public:
-    LLFloaterChangeItemThumbnail(const LLSD& key);
+    explicit LLFloaterChangeItemThumbnail(const LLSD& key);
     ~LLFloaterChangeItemThumbnail();
 
     bool postBuild() override;

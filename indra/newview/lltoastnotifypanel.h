@@ -59,7 +59,7 @@ public:
      * @deprecated if you intend to instantiate LLToastNotifyPanel - it's point to
      * implement right class for desired toast panel. @see LLGenericTipPanel as example.
      */
-    LLToastNotifyPanel(const LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null, bool show_images = true);
+    explicit LLToastNotifyPanel(const LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null, bool show_images = true);
 
     virtual void init( LLRect rect, bool show_images );
     virtual void deleteAllChildren();

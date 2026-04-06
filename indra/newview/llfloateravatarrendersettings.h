@@ -36,7 +36,7 @@ class LLFloaterAvatarRenderSettings : public LLFloater
 {
 public:
 
-    LLFloaterAvatarRenderSettings(const LLSD& key);
+    explicit LLFloaterAvatarRenderSettings(const LLSD& key);
     virtual ~LLFloaterAvatarRenderSettings();
 
     bool postBuild() override;

@@ -80,9 +80,7 @@ void LLAvatarJoint::init()
 // ~LLAvatarJoint()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLAvatarJoint::~LLAvatarJoint()
-{
-}
+LLAvatarJoint::~LLAvatarJoint() = default;
 
 
 //--------------------------------------------------------------------

@@ -46,7 +46,7 @@ public:
     // otherwise use LLUUID::null.
     static LLPreviewGesture* show(const LLUUID& item_id, const LLUUID& object_id);
 
-    LLPreviewGesture(const LLSD& key);
+    explicit LLPreviewGesture(const LLSD& key);
     virtual ~LLPreviewGesture();
 
     // LLView

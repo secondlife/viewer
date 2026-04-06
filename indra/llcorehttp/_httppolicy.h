@@ -51,7 +51,7 @@ class HttpOpRequest;
 class HttpPolicy
 {
 public:
-    HttpPolicy(HttpService *);
+    explicit HttpPolicy(HttpService *);
     virtual ~HttpPolicy();
 
 private:

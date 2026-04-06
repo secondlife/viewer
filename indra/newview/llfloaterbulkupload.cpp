@@ -54,9 +54,7 @@ LLFloaterBulkUpload::LLFloaterBulkUpload(const LLSD& key)
     }
 }
 
-LLFloaterBulkUpload::~LLFloaterBulkUpload()
-{
-}
+LLFloaterBulkUpload::~LLFloaterBulkUpload() = default;
 
 bool LLFloaterBulkUpload::postBuild()
 {

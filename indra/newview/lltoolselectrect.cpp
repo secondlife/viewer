@@ -67,7 +67,7 @@ LLToolSelectRect::LLToolSelectRect( LLToolComposite* composite )
 { }
 
 
-void dialog_refresh_all(void);
+void dialog_refresh_all();
 
 bool LLToolSelectRect::handleMouseDown(S32 x, S32 y, MASK mask)
 {

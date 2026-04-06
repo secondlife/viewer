@@ -73,9 +73,7 @@ LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 
 }
 
-LLDrawPoolAlpha::~LLDrawPoolAlpha()
-{
-}
+LLDrawPoolAlpha::~LLDrawPoolAlpha() = default;
 
 
 void LLDrawPoolAlpha::prerender()

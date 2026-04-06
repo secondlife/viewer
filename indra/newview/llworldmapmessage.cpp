@@ -48,9 +48,7 @@ LLWorldMapMessage::LLWorldMapMessage() :
 {
 }
 
-LLWorldMapMessage::~LLWorldMapMessage()
-{
-}
+LLWorldMapMessage::~LLWorldMapMessage() = default;
 
 void LLWorldMapMessage::sendItemRequest(U32 type, U64 handle)
 {

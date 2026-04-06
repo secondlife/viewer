@@ -111,7 +111,7 @@ class LLJoystickAgentTurn
 {
 public:
     struct Params : public LLJoystick::Params {};
-    LLJoystickAgentTurn(const Params& p) : LLJoystick(p) {}
+    explicit LLJoystickAgentTurn(const Params& p) : LLJoystick(p) {}
     virtual void    onHeldDown();
 };
 
@@ -122,7 +122,7 @@ class LLJoystickAgentSlide
 {
 public:
     struct Params : public LLJoystick::Params {};
-    LLJoystickAgentSlide(const Params& p) : LLJoystick(p) {}
+    explicit LLJoystickAgentSlide(const Params& p) : LLJoystick(p) {}
 
     virtual void    onHeldDown();
     virtual void    onMouseUp();
@@ -143,7 +143,7 @@ public:
         }
     };
 
-    LLJoystickCameraRotate(const LLJoystickCameraRotate::Params&);
+    explicit LLJoystickCameraRotate(const LLJoystickCameraRotate::Params&);
 
     virtual void    setToggleState( bool left, bool top, bool right, bool bottom );
 
@@ -181,7 +181,7 @@ public:
         Params();
     };
 
-    LLJoystickCameraTrack(const LLJoystickCameraTrack::Params&);
+    explicit LLJoystickCameraTrack(const LLJoystickCameraTrack::Params&);
     virtual void    onHeldDown();
     virtual void    resetJoystickCamera();
 };
@@ -197,7 +197,7 @@ public:
         Params();
     };
 
-    LLJoystickQuaternion(const LLJoystickQuaternion::Params &);
+    explicit LLJoystickQuaternion(const LLJoystickQuaternion::Params &);
 
     virtual void    setToggleState(bool left, bool top, bool right, bool bottom);
 

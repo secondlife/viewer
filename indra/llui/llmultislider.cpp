@@ -746,7 +746,7 @@ void LLMultiSlider::draw()
     }
     else
     {
-        LLMouseHandler* capture = gFocusMgr.getMouseCapture();
+        const LLMouseHandler* capture = gFocusMgr.getMouseCapture();
         if (capture == this)
         {
             // draw drag start (ghost)

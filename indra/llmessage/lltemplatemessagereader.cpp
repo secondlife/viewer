@@ -204,7 +204,7 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, const char *varname)
     char *vnamep = (char *)varname;
 
     LLMsgBlkData* msg_data = iter->second;
-    LLMsgVarData& vardata = msg_data->mMemberVarData[vnamep];
+    const LLMsgVarData& vardata = msg_data->mMemberVarData[vnamep];
 
     if (!vardata.getName())
     {   // don't crash
@@ -251,7 +251,7 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, S32 blocknum, const 
     }
 
     LLMsgBlkData* msg_data = iter->second;
-    LLMsgVarData& vardata = msg_data->mMemberVarData[vnamep];
+    const LLMsgVarData& vardata = msg_data->mMemberVarData[vnamep];
 
     if (!vardata.getName())
     {   // don't crash

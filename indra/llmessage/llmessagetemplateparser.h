@@ -32,7 +32,7 @@
 class LLTemplateTokenizer
 {
 public:
-    LLTemplateTokenizer(const std::string & contents);
+    explicit LLTemplateTokenizer(const std::string & contents);
 
     U32 line() const;
     bool atEOF() const;
@@ -66,7 +66,7 @@ public:
     static LLMessageBlock * parseBlock(LLTemplateTokenizer & tokens);
     static LLMessageVariable * parseVariable(LLTemplateTokenizer & tokens);
 
-    LLTemplateParser(LLTemplateTokenizer & tokens);
+    explicit LLTemplateParser(LLTemplateTokenizer & tokens);
     message_iterator getMessagesBegin() const;
     message_iterator getMessagesEnd() const;
     F32 getVersion() const;

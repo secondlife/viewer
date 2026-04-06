@@ -241,7 +241,7 @@ public:
         mProcessorInfo["config"] = LLSD::emptyMap();
         mProcessorInfo["extension"] = LLSD::emptyMap();
     }
-    virtual ~LLProcessorInfoImpl() {}
+    virtual ~LLProcessorInfoImpl() = default;
 
     F64 getCPUFrequency() const
     {
@@ -793,7 +793,7 @@ public:
         get_proc_cpuinfo();
     }
 
-    virtual ~LLProcessorInfoLinuxImpl() {}
+    virtual ~LLProcessorInfoLinuxImpl() = default;
 private:
 
     void get_proc_cpuinfo()

@@ -162,9 +162,7 @@ LLVirtualTrackball::LLVirtualTrackball(const LLVirtualTrackball::Params& p)
     addChild(mTouchArea);
 }
 
-LLVirtualTrackball::~LLVirtualTrackball()
-{
-}
+LLVirtualTrackball::~LLVirtualTrackball() = default;
 
 bool LLVirtualTrackball::postBuild()
 {

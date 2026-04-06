@@ -45,7 +45,7 @@ private:
     static const std::string sMainPanelName;
 
 public:
-    LLFloaterSidePanelContainer(const LLSD& key, const Params& params = getDefaultParams());
+    explicit LLFloaterSidePanelContainer(const LLSD& key, const Params& params = getDefaultParams());
     ~LLFloaterSidePanelContainer();
 
     bool postBuild() override;

@@ -45,7 +45,7 @@ class LLTargetingMotion :
 {
 public:
     // Constructor
-    LLTargetingMotion(const LLUUID &id);
+    explicit LLTargetingMotion(const LLUUID &id);
 
     // Destructor
     ~LLTargetingMotion() override;
@@ -104,11 +104,11 @@ public:
 
 public:
 
-    LLCharacter         *mCharacter;
+    LLCharacter         *mCharacter = nullptr;
     LLPointer<LLJointState> mTorsoState;
-    LLJoint*            mPelvisJoint;
-    LLJoint*            mTorsoJoint;
-    LLJoint*            mRightHandJoint;
+    LLJoint*            mPelvisJoint = nullptr;
+    LLJoint*            mTorsoJoint = nullptr;
+    LLJoint*            mRightHandJoint = nullptr;
 };
 
 

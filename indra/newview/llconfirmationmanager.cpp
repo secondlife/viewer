@@ -38,9 +38,7 @@
 
 using namespace std::placeholders;
 
-LLConfirmationManager::ListenerBase::~ListenerBase()
-{
-}
+LLConfirmationManager::ListenerBase::~ListenerBase() = default;
 
 
 static bool onConfirmAlert(const LLSD& notification, const LLSD& response, LLConfirmationManager::ListenerBase* listener)

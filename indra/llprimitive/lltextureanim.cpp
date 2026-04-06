@@ -38,9 +38,7 @@ LLTextureAnim::LLTextureAnim()
 }
 
 
-LLTextureAnim::~LLTextureAnim()
-{
-}
+LLTextureAnim::~LLTextureAnim() = default;
 
 
 void LLTextureAnim::reset()

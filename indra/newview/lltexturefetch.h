@@ -258,13 +258,13 @@ protected:
 
 private:
     // Threads:  Ttf
-    /*virtual*/ void startThread(void);
+    /*virtual*/ void startThread();
 
     // Threads:  Ttf
-    /*virtual*/ void endThread(void);
+    /*virtual*/ void endThread();
 
     // Threads:  Ttf
-    /*virtual*/ void threadedUpdate(void);
+    /*virtual*/ void threadedUpdate();
 
     // Threads:  Ttf
     void commonUpdate();

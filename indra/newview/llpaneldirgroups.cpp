@@ -57,9 +57,7 @@ bool LLPanelDirGroups::postBuild()
     return true;
 }
 
-LLPanelDirGroups::~LLPanelDirGroups()
-{
-}
+LLPanelDirGroups::~LLPanelDirGroups() = default;
 
 // virtual
 void LLPanelDirGroups::performQuery()

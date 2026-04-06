@@ -42,8 +42,8 @@ class LLConversation
 {
 public:
 
-    LLConversation(const ConversationParams& params);
-    LLConversation(const LLIMModel::LLIMSession& session);
+    explicit LLConversation(const ConversationParams& params);
+    explicit LLConversation(const LLIMModel::LLIMSession& session);
     LLConversation(const LLConversation& conversation);
 
     ~LLConversation();

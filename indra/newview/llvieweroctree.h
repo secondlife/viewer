@@ -134,7 +134,7 @@ public:
     {
         *this = rhs;
     }
-    LLViewerOctreeEntryData(LLViewerOctreeEntry::eEntryDataType_t data_type);
+    explicit LLViewerOctreeEntryData(LLViewerOctreeEntry::eEntryDataType_t data_type);
 
     LLViewerOctreeEntry::eEntryDataType_t getDataType() const {return mDataType;}
     LLViewerOctreeEntry* getEntry() {return mEntry;}
@@ -200,7 +200,7 @@ public:
     using element_iter = OctreeNode::element_iter;
     using element_list = OctreeNode::element_list;
 
-    LLViewerOctreeGroup(OctreeNode* node);
+    explicit LLViewerOctreeGroup(OctreeNode* node);
     LLViewerOctreeGroup(const LLViewerOctreeGroup& rhs)
     {
         *this = rhs;

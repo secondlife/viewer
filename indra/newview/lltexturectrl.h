@@ -142,7 +142,7 @@ public:
         {}
     };
 protected:
-    LLTextureCtrl(const Params&);
+    explicit LLTextureCtrl(const Params&);
     friend class LLUICtrlFactory;
 public:
     virtual ~LLTextureCtrl();

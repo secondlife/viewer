@@ -156,9 +156,7 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 #endif
 }
 
-LLFloaterTOS::~LLFloaterTOS()
-{
-}
+LLFloaterTOS::~LLFloaterTOS() = default;
 
 // virtual
 void LLFloaterTOS::draw()

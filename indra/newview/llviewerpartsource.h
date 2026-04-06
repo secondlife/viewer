@@ -55,7 +55,7 @@ public:
         LL_PART_SOURCE_CHAT
     };
 
-    LLViewerPartSource(const U32 type);
+    explicit LLViewerPartSource(const U32 type);
 
     virtual void update(const F32 dt); // Return false if this source is dead...
 
@@ -106,7 +106,7 @@ protected:
 class LLViewerPartSourceScript : public LLViewerPartSource
 {
 public:
-    LLViewerPartSourceScript(LLViewerObject *source_objp);
+    explicit LLViewerPartSourceScript(LLViewerObject *source_objp);
     /*virtual*/ void update(const F32 dt);
 
     /*virtual*/ void setDead();
@@ -138,7 +138,7 @@ protected:
 class LLViewerPartSourceSpiral : public LLViewerPartSource
 {
 public:
-    LLViewerPartSourceSpiral(const LLVector3 &pos);
+    explicit LLViewerPartSourceSpiral(const LLVector3 &pos);
 
     /*virtual*/ void setDead();
 
@@ -192,7 +192,7 @@ protected:
 class LLViewerPartSourceChat : public LLViewerPartSource
 {
 public:
-    LLViewerPartSourceChat(const LLVector3 &pos);
+    explicit LLViewerPartSourceChat(const LLVector3 &pos);
 
     /*virtual*/ void setDead();
 

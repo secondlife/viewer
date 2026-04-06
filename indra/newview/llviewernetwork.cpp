@@ -240,9 +240,7 @@ void LLGridManager::initialize(const std::string& grid_file)
     setGridChoice(mGrid);
 }
 
-LLGridManager::~LLGridManager()
-{
-}
+LLGridManager::~LLGridManager() = default;
 
 //
 // LLGridManager::addGrid - add a grid to the grid list, populating the needed values

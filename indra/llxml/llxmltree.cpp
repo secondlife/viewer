@@ -108,7 +108,7 @@ LLXmlTreeNode::LLXmlTreeNode( const std::string& name, LLXmlTreeNode* parent, LL
 
 LLXmlTreeNode::~LLXmlTreeNode()
 {
-    for (auto& attr : mAttributes)
+    for (const auto& attr : mAttributes)
     {
         delete attr.second;
     }
@@ -511,9 +511,7 @@ LLXmlTreeParser::LLXmlTreeParser(LLXmlTree* tree)
 {
 }
 
-LLXmlTreeParser::~LLXmlTreeParser()
-{
-}
+LLXmlTreeParser::~LLXmlTreeParser() = default;
 
 bool LLXmlTreeParser::parseFile(const std::string &path, LLXmlTreeNode** root, bool keep_contents)
 {

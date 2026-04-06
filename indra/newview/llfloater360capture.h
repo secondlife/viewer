@@ -43,7 +43,7 @@ class LLFloater360Capture:
         friend class LLFloaterReg;
 
     private:
-        LLFloater360Capture(const LLSD& key);
+        explicit LLFloater360Capture(const LLSD& key);
 
         ~LLFloater360Capture();
         bool postBuild() override;

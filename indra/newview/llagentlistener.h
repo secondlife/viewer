@@ -39,7 +39,7 @@ class LLVector3d;
 class LLAgentListener : public LLEventAPI
 {
 public:
-    LLAgentListener(LLAgent &agent);
+    explicit LLAgentListener(LLAgent &agent);
 
 private:
     void requestTeleport(LLSD const & event_data) const;

@@ -82,9 +82,7 @@ bool LLPanelMediaSettingsPermissions::postBuild()
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual
-LLPanelMediaSettingsPermissions::~LLPanelMediaSettingsPermissions()
-{
-}
+LLPanelMediaSettingsPermissions::~LLPanelMediaSettingsPermissions() = default;
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual

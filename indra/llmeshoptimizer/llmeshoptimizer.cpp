@@ -38,9 +38,7 @@ LLMeshOptimizer::LLMeshOptimizer()
     // meshopt_setAllocator(allocate, deallocate);
 }
 
-LLMeshOptimizer::~LLMeshOptimizer()
-{
-}
+LLMeshOptimizer::~LLMeshOptimizer() = default;
 
 //static
 void LLMeshOptimizer::generateShadowIndexBufferU32(U32 *destination,

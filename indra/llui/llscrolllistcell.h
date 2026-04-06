@@ -93,7 +93,7 @@ public:
 
     static LLScrollListCell* create(const Params&);
 
-    LLScrollListCell(const LLScrollListCell::Params&);
+    explicit LLScrollListCell(const LLScrollListCell::Params&);
     virtual ~LLScrollListCell() = default;
 
     virtual void            draw(const LLColor4& color, const LLColor4& highlight_color) {};      // truncate to given width, if possible
@@ -125,7 +125,7 @@ private:
 class LLScrollListSpacer : public LLScrollListCell
 {
 public:
-    LLScrollListSpacer(const LLScrollListCell::Params& p) : LLScrollListCell(p) {}
+    explicit LLScrollListSpacer(const LLScrollListCell::Params& p) : LLScrollListCell(p) {}
     /*virtual*/ ~LLScrollListSpacer() = default;
     /*virtual*/ void            draw(const LLColor4& color, const LLColor4& highlight_color) {}
 };
@@ -136,7 +136,7 @@ public:
 class LLScrollListText : public LLScrollListCell
 {
 public:
-    LLScrollListText(const LLScrollListCell::Params&);
+    explicit LLScrollListText(const LLScrollListCell::Params&);
     /*virtual*/ ~LLScrollListText();
 
     /*virtual*/ void    draw(const LLColor4& color, const LLColor4& highlight_color);
@@ -188,7 +188,7 @@ protected:
 class LLScrollListIcon : public LLScrollListCell
 {
 public:
-    LLScrollListIcon(const LLScrollListCell::Params& p);
+    explicit LLScrollListIcon(const LLScrollListCell::Params& p);
     /*virtual*/ ~LLScrollListIcon();
     /*virtual*/ void    draw(const LLColor4& color, const LLColor4& highlight_color);
     /*virtual*/ S32     getWidth() const;
@@ -209,7 +209,7 @@ private:
 class LLScrollListBar : public LLScrollListCell
 {
 public:
-    LLScrollListBar(const LLScrollListCell::Params& p);
+    explicit LLScrollListBar(const LLScrollListCell::Params& p);
     /*virtual*/ ~LLScrollListBar();
     /*virtual*/ void    draw(const LLColor4& color, const LLColor4& highlight_color);
     /*virtual*/ S32     getWidth() const;
@@ -231,7 +231,7 @@ private:
 class LLScrollListCheck : public LLScrollListCell
 {
 public:
-    LLScrollListCheck( const LLScrollListCell::Params&);
+    explicit LLScrollListCheck( const LLScrollListCell::Params&);
     /*virtual*/ ~LLScrollListCheck();
     /*virtual*/ void    draw(const LLColor4& color, const LLColor4& highlight_color);
     /*virtual*/ S32     getHeight() const           { return 0; }
@@ -251,7 +251,7 @@ private:
 class LLScrollListDate : public LLScrollListText
 {
 public:
-    LLScrollListDate( const LLScrollListCell::Params& p );
+    explicit LLScrollListDate( const LLScrollListCell::Params& p );
     virtual void    setValue(const LLSD& value);
     virtual const LLSD getValue() const;
 
@@ -266,7 +266,7 @@ private:
 class LLScrollListIconText : public LLScrollListText
 {
 public:
-    LLScrollListIconText(const LLScrollListCell::Params& p);
+    explicit LLScrollListIconText(const LLScrollListCell::Params& p);
     /*virtual*/ ~LLScrollListIconText();
     /*virtual*/ void    draw(const LLColor4& color, const LLColor4& highlight_color);
     /*virtual*/ const LLSD      getValue() const;

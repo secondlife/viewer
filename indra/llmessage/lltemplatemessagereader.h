@@ -39,7 +39,7 @@ public:
 
     using message_template_number_map_t = std::map<U32, LLMessageTemplate*>;
 
-    LLTemplateMessageReader(message_template_number_map_t&);
+    explicit LLTemplateMessageReader(message_template_number_map_t&);
     virtual ~LLTemplateMessageReader();
 
     /** All get* methods expect pointers to canonical strings. */

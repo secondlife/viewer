@@ -33,7 +33,7 @@ class LLFloaterBanDuration : public LLFloater
     using select_callback_t = std::function<void(const uuid_vec_t&, const S32 duration)>;
 
 public:
-    LLFloaterBanDuration(const LLSD& target);
+    explicit LLFloaterBanDuration(const LLSD& target);
     bool postBuild() override;
     static LLFloaterBanDuration* show(select_callback_t callback, uuid_vec_t id);
 

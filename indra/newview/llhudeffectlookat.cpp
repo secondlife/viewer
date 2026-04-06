@@ -253,9 +253,7 @@ LLHUDEffectLookAt::LLHUDEffectLookAt(const U8 type) :
 //-----------------------------------------------------------------------------
 // ~LLHUDEffectLookAt()
 //-----------------------------------------------------------------------------
-LLHUDEffectLookAt::~LLHUDEffectLookAt()
-{
-}
+LLHUDEffectLookAt::~LLHUDEffectLookAt() = default;
 
 //-----------------------------------------------------------------------------
 // packData()

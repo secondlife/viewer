@@ -35,8 +35,8 @@
 class LLFloaterGroupBulkBan::impl
 {
 public:
-    impl(const LLUUID& group_id) : mGroupID(group_id), mBulkBanPanelp(NULL) {}
-    ~impl() {}
+    explicit impl(const LLUUID& group_id) : mGroupID(group_id), mBulkBanPanelp(NULL) {}
+    ~impl() = default;
 
     static void closeFloater(void* data);
 

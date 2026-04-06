@@ -85,7 +85,7 @@ public:
 
 private:
 
-    LLFloaterCamera(const LLSD& val);
+    explicit LLFloaterCamera(const LLSD& val);
     ~LLFloaterCamera() = default;
 
     /* return instance if it exists - created by LLFloaterReg */
@@ -166,7 +166,7 @@ public:
     void onAnyMouseClick();
 protected:
     friend class LLUICtrlFactory;
-    LLPanelCameraItem(const Params&);
+    explicit LLPanelCameraItem(const Params&);
     LLIconCtrl* mIconOver;
     LLIconCtrl* mIconSelected;
     LLIconCtrl* mPicture;

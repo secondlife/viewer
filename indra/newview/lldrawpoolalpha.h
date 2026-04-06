@@ -50,7 +50,7 @@ public:
     };
     virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-    LLDrawPoolAlpha(U32 type);
+    explicit LLDrawPoolAlpha(U32 type);
     /*virtual*/ ~LLDrawPoolAlpha();
 
     /*virtual*/ S32 getNumPostDeferredPasses();

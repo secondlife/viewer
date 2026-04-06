@@ -769,7 +769,7 @@ void LLImageFilter::filterGamma(F32 gamma, const LLColor3& alpha)
 void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
 {
     // Get the histogram
-    U32* histo = getBrightnessHistogram();
+    const U32* histo = getBrightnessHistogram();
 
     // Compute cumulated histogram
     std::array<U32, 256> cumulated_histo;
@@ -839,7 +839,7 @@ void LLImageFilter::filterEqualize(S32 nb_classes, const LLColor3& alpha)
     nb_classes = llclampb(nb_classes);
 
     // Get the histogram
-    U32* histo = getBrightnessHistogram();
+    const U32* histo = getBrightnessHistogram();
 
     // Compute cumulated histogram
     std::array<U32, 256> cumulated_histo;

@@ -42,6 +42,6 @@ public:
     void onClickUICheck(LLUICtrl *ctrl);
 
 private:
-    LLFloaterBeacons(const LLSD& seed);
+    explicit LLFloaterBeacons(const LLSD& seed);
 };
 

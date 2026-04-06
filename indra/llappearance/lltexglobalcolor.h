@@ -36,7 +36,7 @@ class LLTexGlobalColorInfo;
 class LLTexGlobalColor
 {
 public:
-    LLTexGlobalColor( LLAvatarAppearance* appearance );
+    explicit LLTexGlobalColor( LLAvatarAppearance* appearance );
     ~LLTexGlobalColor();
 
     LLTexGlobalColorInfo*   getInfo() const { return mInfo; }
@@ -71,7 +71,7 @@ private:
 class LLTexParamGlobalColor : public LLTexLayerParamColor
 {
 public:
-    LLTexParamGlobalColor(LLTexGlobalColor *tex_color);
+    explicit LLTexParamGlobalColor(LLTexGlobalColor *tex_color);
     ~LLTexParamGlobalColor() override;
     LLViewerVisualParam* cloneParam(LLWearable* wearable) const override;
 protected:

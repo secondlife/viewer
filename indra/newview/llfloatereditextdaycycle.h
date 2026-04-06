@@ -74,7 +74,7 @@ public:
     using edit_commit_signal_t = boost::signals2::signal<void(LLSettingsDay::ptr_t)>;
     using connection_t = boost::signals2::connection;
 
-                                LLFloaterEditExtDayCycle(const LLSD &key);
+                                explicit LLFloaterEditExtDayCycle(const LLSD &key);
     virtual                     ~LLFloaterEditExtDayCycle();
 
     virtual bool                postBuild() override;

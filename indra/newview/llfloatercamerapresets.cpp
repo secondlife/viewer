@@ -96,9 +96,7 @@ LLCameraPresetFlatItem::LLCameraPresetFlatItem(const std::string &preset_name, b
     buildFromFile("panel_camera_preset_item.xml");
 }
 
-LLCameraPresetFlatItem::~LLCameraPresetFlatItem()
-{
-}
+LLCameraPresetFlatItem::~LLCameraPresetFlatItem() = default;
 
 bool LLCameraPresetFlatItem::postBuild()
 {

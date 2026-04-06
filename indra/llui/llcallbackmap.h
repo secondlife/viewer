@@ -50,7 +50,7 @@ public:
     }
 
     LLCallbackMap() : mCallback(nullptr), mData(nullptr) {}
-    LLCallbackMap(callback_t callback, void* data = nullptr) : mCallback(callback), mData(data) {}
+    explicit LLCallbackMap(callback_t callback, void* data = nullptr) : mCallback(callback), mData(data) {}
 
     callback_t  mCallback;
     void*       mData;

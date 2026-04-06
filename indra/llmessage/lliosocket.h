@@ -200,7 +200,7 @@ protected:
 class LLIOSocketReader : public LLIOPipe
 {
 public:
-    LLIOSocketReader(LLSocket::ptr_t socket);
+    explicit LLIOSocketReader(LLSocket::ptr_t socket);
     ~LLIOSocketReader();
 
 protected:
@@ -248,7 +248,7 @@ protected:
 class LLIOSocketWriter : public LLIOPipe
 {
 public:
-    LLIOSocketWriter(LLSocket::ptr_t socket);
+    explicit LLIOSocketWriter(LLSocket::ptr_t socket);
     ~LLIOSocketWriter();
 
 protected:

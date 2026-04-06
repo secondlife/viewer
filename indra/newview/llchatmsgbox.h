@@ -50,7 +50,7 @@ public:
     };
 
 protected:
-    LLChatMsgBox(const Params&);
+    explicit LLChatMsgBox(const Params&);
     friend class LLUICtrlFactory;
 
 public:

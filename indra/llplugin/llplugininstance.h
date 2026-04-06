@@ -64,7 +64,7 @@ public:
     // send_count is the maximum number of message to process from the send queue.  If negative, it will drain the queue completely.
     // The receive queue is always drained completely.
     // Returns the total number of messages processed from both queues.
-    void idle(void);
+    void idle();
 
     /** The signature of the function for sending a message from plugin to plugin loader shell.
     *

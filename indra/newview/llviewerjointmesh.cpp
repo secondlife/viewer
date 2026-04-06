@@ -82,9 +82,7 @@ LLViewerJointMesh::LLViewerJointMesh()
 // ~LLViewerJointMesh()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLViewerJointMesh::~LLViewerJointMesh()
-{
-}
+LLViewerJointMesh::~LLViewerJointMesh() = default;
 
 const S32 NUM_AXES = 3;
 

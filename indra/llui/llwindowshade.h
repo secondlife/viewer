@@ -62,7 +62,7 @@ private:
     LLNotificationPtr getCurrentNotification();
     friend class LLUICtrlFactory;
 
-    LLWindowShade(const Params& p);
+    explicit LLWindowShade(const Params& p);
     void initFromParams(const Params& params);
 
     void onCloseNotification();

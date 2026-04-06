@@ -37,7 +37,7 @@ namespace {
 // Failure to load an image shouldn't crash the whole viewer.
 struct PngError: public LLContinueError
 {
-    PngError(png_const_charp msg): LLContinueError(msg) {}
+    explicit PngError(png_const_charp msg): LLContinueError(msg) {}
 };
 } // anonymous namespace
 
@@ -102,7 +102,7 @@ void LLPngWrapper::readDataCallback(png_structp png_ptr, png_bytep dest, png_siz
         return;
     }
 
-    U8 *src = &dataInfo->mData[dataInfo->mOffset];
+    const U8 *src = &dataInfo->mData[dataInfo->mOffset];
     memcpy(dest, src, length);
     dataInfo->mOffset += static_cast<U32>(length);
 }

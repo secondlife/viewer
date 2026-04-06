@@ -62,9 +62,7 @@ LLToolIndividual::LLToolIndividual()
 }
 
 // Destroys the object
-LLToolIndividual::~LLToolIndividual()
-{
-}
+LLToolIndividual::~LLToolIndividual() = default;
 
 bool LLToolIndividual::handleMouseDown(S32 x, S32 y, MASK mask)
 {

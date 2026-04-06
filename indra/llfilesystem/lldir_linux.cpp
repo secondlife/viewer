@@ -40,7 +40,7 @@
 static std::string getCurrentUserHome(char* fallback)
 {
     const uid_t uid = getuid();
-    struct passwd *pw;
+    const struct passwd *pw;
 
     pw = getpwuid(uid);
     if ((pw != NULL) && (pw->pw_dir != NULL))
@@ -139,9 +139,7 @@ LLDir_Linux::LLDir_Linux()
     mTempDir = "/tmp";
 }
 
-LLDir_Linux::~LLDir_Linux()
-{
-}
+LLDir_Linux::~LLDir_Linux() = default;
 
 // Implementation
 

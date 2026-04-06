@@ -36,7 +36,7 @@ class LLXfer_Mem : public LLXfer
 {
  private:
  protected:
-    void (*mCallback)(void *, S32, void **, S32, LLExtStat);
+    void (*mCallback)(void *, S32, void **, S32, LLExtStat) = nullptr;
     std::string mRemoteFilename;
     ELLPath mRemotePath;
     bool mDeleteRemoteOnCompletion;

@@ -58,7 +58,7 @@ public:
         }
     };
 protected:
-    LLConsole(const Params&);
+    explicit LLConsole(const Params&);
     friend class LLUICtrlFactory;
 
 public:

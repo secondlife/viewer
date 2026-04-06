@@ -58,7 +58,7 @@ public:
     *
     * @return True. TODO:DOC - always returns true. Is this the intended behavior?
     */
-    bool destroy(void);
+    bool destroy();
 
    /**
     * Creates and attaches a name to a shared memory segment. TODO:DOC what's the difference between attach() and create()?
@@ -74,26 +74,26 @@ public:
     *
     * @return False on failure, true otherwise.
     */
-    bool detach(void);
+    bool detach();
 
    /**
     * Checks if shared memory is mapped to a non-null address.
     *
     * @return True if memory address is non-null, false otherwise.
     */
-    bool isMapped(void) const { return (mMappedAddress != NULL); };
+    bool isMapped() const { return (mMappedAddress != NULL); };
    /**
     * Get pointer to shared memory.
     *
     * @return Pointer to shared memory.
     */
-    void *getMappedAddress(void) const { return mMappedAddress; };
+    void *getMappedAddress() const { return mMappedAddress; };
    /**
     * Get size of shared memory.
     *
     * @return Size of shared memory in bytes. TODO:DOC are bytes the correct unit?
     */
-    size_t getSize(void) const { return mSize; };
+    size_t getSize() const { return mSize; };
    /**
     * Get name of shared memory.
     *
@@ -102,10 +102,10 @@ public:
     std::string getName() const { return mName; };
 
 private:
-    bool map(void);
-    bool unmap(void);
-    bool close(void);
-    bool unlink(void);
+    bool map();
+    bool unmap();
+    bool close();
+    bool unlink();
 
     std::string mName;
     size_t mSize;

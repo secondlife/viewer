@@ -53,7 +53,7 @@ using folder_pair_t = std::pair<LLUUID, std::string>;
 class LLLandmarksInventoryObserver : public LLInventoryObserver
 {
 public:
-    LLLandmarksInventoryObserver(LLFloaterCreateLandmark* create_landmark_floater) :
+    explicit LLLandmarksInventoryObserver(LLFloaterCreateLandmark* create_landmark_floater) :
         mFloater(create_landmark_floater)
     {}
 

@@ -253,7 +253,7 @@ public:
         static const U32                NO_ANIMATE_SKY;
         static const U32                NO_ANIMATE_WATER;
 
-                                        DayInstance(EnvSelection_t env);
+                                        explicit DayInstance(EnvSelection_t env);
         virtual                         ~DayInstance() = default;
 
         virtual ptr_t                   clone() const;

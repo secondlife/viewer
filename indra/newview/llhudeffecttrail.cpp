@@ -60,9 +60,7 @@ LLHUDEffectSpiral::LLHUDEffectSpiral(const U8 type) : LLHUDEffect(type), mbInit(
     mFadeInterp.setEndVal(1.f);
 }
 
-LLHUDEffectSpiral::~LLHUDEffectSpiral()
-{
-}
+LLHUDEffectSpiral::~LLHUDEffectSpiral() = default;
 
 void LLHUDEffectSpiral::markDead()
 {

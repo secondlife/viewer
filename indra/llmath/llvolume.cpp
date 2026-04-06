@@ -1170,9 +1170,7 @@ void LLProfileParams::copyParams(const LLProfileParams &params)
     setHollow(params.getHollow());
 }
 
-LLPath::~LLPath()
-{
-}
+LLPath::~LLPath() = default;
 
 S32 LLPath::getNumNGonPoints(const LLPathParams& params, S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 { //this is basically LLPath::genNGon stripped down to only operations that influence the number of points added
@@ -1928,9 +1926,7 @@ void LLPathParams::copyParams(const LLPathParams &params)
     setSkew(params.getSkew());
 }
 
-LLProfile::~LLProfile()
-{
-}
+LLProfile::~LLProfile() = default;
 
 S32 LLVolume::sNumMeshPoints = 0;
 

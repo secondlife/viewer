@@ -133,7 +133,7 @@ class LLRightClickInventoryFetchDescendentsObserver : public LLInventoryFetchDes
 {
 public:
     LLRightClickInventoryFetchDescendentsObserver(const uuid_vec_t& ids) : LLInventoryFetchDescendentsObserver(ids) {}
-    ~LLRightClickInventoryFetchDescendentsObserver() {}
+    ~LLRightClickInventoryFetchDescendentsObserver() = default;
     virtual void execute(bool clear_observer = false);
     virtual void done()
     {
@@ -146,7 +146,7 @@ class LLRightClickInventoryFetchObserver : public LLInventoryFetchItemsObserver
 {
 public:
     LLRightClickInventoryFetchObserver(const uuid_vec_t& ids) : LLInventoryFetchItemsObserver(ids) { };
-    ~LLRightClickInventoryFetchObserver() {}
+    ~LLRightClickInventoryFetchObserver() = default;
     void execute(bool clear_observer = false)
     {
         if (clear_observer)
@@ -3485,7 +3485,7 @@ class LLInventoryCopyAndWearObserver : public LLInventoryObserver
 public:
     LLInventoryCopyAndWearObserver(const LLUUID& cat_id, int count, bool folder_added=false, bool replace=false) :
         mCatID(cat_id), mContentsCount(count), mFolderAdded(folder_added), mReplace(replace){}
-    virtual ~LLInventoryCopyAndWearObserver() {}
+    virtual ~LLInventoryCopyAndWearObserver() = default;
     virtual void changed(U32 mask);
 
 protected:
@@ -6214,7 +6214,7 @@ void LLTextureBridge::openItem()
     }
 }
 
-bool LLTextureBridge::canSaveTexture(void)
+bool LLTextureBridge::canSaveTexture()
 {
     const LLInventoryModel* model = getInventoryModel();
     if(!model)
@@ -8202,7 +8202,7 @@ public:
         }
         LLInvFVBridgeAction::doIt();
     }
-    virtual ~LLTextureBridgeAction(){}
+    virtual ~LLTextureBridgeAction() = default;
 protected:
     LLTextureBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
 };
@@ -8220,7 +8220,7 @@ public:
         }
         LLInvFVBridgeAction::doIt();
     }
-    virtual ~LLSoundBridgeAction(){}
+    virtual ~LLSoundBridgeAction() = default;
 protected:
     LLSoundBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
 };
@@ -8246,7 +8246,7 @@ public:
         }
         LLInvFVBridgeAction::doIt();
     }
-    virtual ~LLLandmarkBridgeAction(){}
+    virtual ~LLLandmarkBridgeAction() = default;
 protected:
     LLLandmarkBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
 };
@@ -8264,7 +8264,7 @@ public:
         }
         LLInvFVBridgeAction::doIt();
     }
-    virtual ~LLCallingCardBridgeAction(){}
+    virtual ~LLCallingCardBridgeAction() = default;
 protected:
     LLCallingCardBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
 
@@ -8284,7 +8284,7 @@ public:
         }
         LLInvFVBridgeAction::doIt();
     }
-    virtual ~LLNotecardBridgeAction(){}
+    virtual ~LLNotecardBridgeAction() = default;
 protected:
     LLNotecardBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
 };
@@ -8303,7 +8303,7 @@ public:
         }
         LLInvFVBridgeAction::doIt();
     }
-    virtual ~LLGestureBridgeAction(){}
+    virtual ~LLGestureBridgeAction() = default;
 protected:
     LLGestureBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
 };
@@ -8321,7 +8321,7 @@ public:
         }
         LLInvFVBridgeAction::doIt();
     }
-    virtual ~LLAnimationBridgeAction(){}
+    virtual ~LLAnimationBridgeAction() = default;
 protected:
     LLAnimationBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
 };
@@ -8334,7 +8334,7 @@ public:
     {
         attachOrDetach();
     }
-    virtual ~LLObjectBridgeAction(){}
+    virtual ~LLObjectBridgeAction() = default;
 protected:
     LLObjectBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
     void attachOrDetach();
@@ -8366,7 +8366,7 @@ public:
         }
         LLInvFVBridgeAction::doIt();
     }
-    virtual ~LLLSLTextBridgeAction(){}
+    virtual ~LLLSLTextBridgeAction() = default;
 protected:
     LLLSLTextBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
 };
@@ -8380,7 +8380,7 @@ public:
         wearOnAvatar();
     }
 
-    virtual ~LLWearableBridgeAction(){}
+    virtual ~LLWearableBridgeAction() = default;
 protected:
     LLWearableBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
     bool isItemInTrash() const;
@@ -8453,7 +8453,7 @@ public:
         }
         LLInvFVBridgeAction::doIt();
     }
-    virtual ~LLSettingsBridgeAction(){}
+    virtual ~LLSettingsBridgeAction() = default;
 protected:
     LLSettingsBridgeAction(const LLUUID& id, LLInventoryModel* model) : LLInvFVBridgeAction(id, model) {}
 };

@@ -77,9 +77,7 @@ LLPanelEmojiComplete::LLPanelEmojiComplete(const LLPanelEmojiComplete::Params& p
     }
 }
 
-LLPanelEmojiComplete::~LLPanelEmojiComplete()
-{
-}
+LLPanelEmojiComplete::~LLPanelEmojiComplete() = default;
 
 void LLPanelEmojiComplete::draw()
 {

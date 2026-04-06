@@ -37,7 +37,7 @@
 class LLScreenClipRect
 {
 public:
-    LLScreenClipRect(const LLRect& rect, bool enabled = true);
+    explicit LLScreenClipRect(const LLRect& rect, bool enabled = true);
     virtual ~LLScreenClipRect();
 
 private:
@@ -55,7 +55,7 @@ private:
 class LLLocalClipRect : public LLScreenClipRect
 {
 public:
-    LLLocalClipRect(const LLRect& rect, bool enabled = true);
+    explicit LLLocalClipRect(const LLRect& rect, bool enabled = true);
     ~LLLocalClipRect();
 };
 

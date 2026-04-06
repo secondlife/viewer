@@ -57,9 +57,7 @@ LLEmote::LLEmote(const LLUUID &id) : LLMotion(id)
 // ~LLEmote()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLEmote::~LLEmote()
-{
-}
+LLEmote::~LLEmote() = default;
 
 //-----------------------------------------------------------------------------
 // LLEmote::onInitialize(LLCharacter *character)

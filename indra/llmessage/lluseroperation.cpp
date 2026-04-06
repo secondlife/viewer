@@ -63,9 +63,7 @@ LLUserOperation::LLUserOperation() :
 {
 }
 
-LLUserOperation::~LLUserOperation()
-{
-}
+LLUserOperation::~LLUserOperation() = default;
 
 void LLUserOperation::SetNoExpireFlag(const bool flag)
 {

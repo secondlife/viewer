@@ -99,7 +99,7 @@ public:
 
 public:
     LLMaterialTable();
-    LLMaterialTable(U8);  // cheat with an overloaded constructor to build our basic table
+    explicit LLMaterialTable(U8);  // cheat with an overloaded constructor to build our basic table
     ~LLMaterialTable();
 
     void initBasicTable();

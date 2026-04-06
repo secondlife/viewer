@@ -59,9 +59,7 @@ LLCubeMap::LLCubeMap(bool init_as_srgb)
     mTargets[5] = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
 }
 
-LLCubeMap::~LLCubeMap()
-{
-}
+LLCubeMap::~LLCubeMap() = default;
 
 void LLCubeMap::initGL()
 {
@@ -267,12 +265,12 @@ void LLCubeMap::enableTexture(S32 stage)
     }
 }
 
-void LLCubeMap::disable(void)
+void LLCubeMap::disable()
 {
     disableTexture();
 }
 
-void LLCubeMap::disableTexture(void)
+void LLCubeMap::disableTexture()
 {
     if (mTextureStage >= 0 && LLCubeMap::sUseCubeMaps)
     {

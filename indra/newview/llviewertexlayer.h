@@ -42,7 +42,7 @@ class LLViewerTexLayerSetBuffer;
 class LLViewerTexLayerSet : public LLTexLayerSet
 {
 public:
-    LLViewerTexLayerSet(LLAvatarAppearance* const appearance);
+    explicit LLViewerTexLayerSet(LLAvatarAppearance* const appearance);
     virtual ~LLViewerTexLayerSet();
 
     /*virtual*/void             requestUpdate();
@@ -78,7 +78,7 @@ public:
 
 public:
     /*virtual*/ S8          getType() const;
-    bool                    isInitialized(void) const;
+    bool                    isInitialized() const;
     static void             dumpTotalByteCount();
     const std::string       dumpTextureInfo() const;
     virtual void            restoreGLTexture();

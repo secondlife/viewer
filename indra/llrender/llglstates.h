@@ -35,7 +35,7 @@ class LLGLDepthTest
 {
     // Enabled by default
 public:
-    LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled = GL_TRUE, GLenum depth_func = GL_LEQUAL);
+    explicit LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled = GL_TRUE, GLenum depth_func = GL_LEQUAL);
 
     ~LLGLDepthTest();
 

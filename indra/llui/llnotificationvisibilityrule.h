@@ -80,7 +80,7 @@ struct LLNotificationVisibilityRule
         {}
     };
 
-    LLNotificationVisibilityRule(const Rule& p);
+    explicit LLNotificationVisibilityRule(const Rule& p);
 
     // If true, this rule makes matching notifications visible.  Otherwise, it makes them invisible.
     bool mVisible;

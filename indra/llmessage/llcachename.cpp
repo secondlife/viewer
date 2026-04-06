@@ -106,7 +106,7 @@ public:
 class ReplySender
 {
 public:
-    ReplySender(LLMessageSystem* msg);
+    explicit ReplySender(LLMessageSystem* msg);
     ~ReplySender();
 
     void send(const LLUUID& id,
@@ -212,7 +212,7 @@ public:
 
     LLFrameTimer        mProcessTimer;
 
-    Impl(LLMessageSystem* msg);
+    explicit Impl(LLMessageSystem* msg);
     ~Impl();
 
     bool getName(const LLUUID& id, std::string& first, std::string& last, cache_map_t& default_names);
@@ -407,7 +407,7 @@ bool LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::strin
         return true;
     }
 
-    LLCacheNameEntry* entry = get_ptr_in_map(mCache, id );
+    const LLCacheNameEntry* entry = get_ptr_in_map(mCache, id );
     if (entry)
     {
         first = entry->mFirstName;
@@ -798,7 +798,7 @@ void LLCacheName::Impl::processPendingReplies()
     for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
     {
         PendingReply* reply = *it;
-        LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
+        const LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
         if(!entry) continue;
 
         if (reply->mHost.isOk())

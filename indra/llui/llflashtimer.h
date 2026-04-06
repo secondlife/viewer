@@ -42,7 +42,7 @@ public:
      * @param period - how frequently callback should be called
      * @param cb - callback to be called each tick
      */
-    LLFlashTimer(callback_t cb = nullptr, S32 count = 0, F32 period = 0.0);
+    explicit LLFlashTimer(callback_t cb = nullptr, S32 count = 0, F32 period = 0.0);
     ~LLFlashTimer() = default;
 
     /*virtual*/ bool tick();

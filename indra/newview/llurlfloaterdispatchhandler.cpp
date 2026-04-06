@@ -74,9 +74,7 @@ LLUrlFloaterDispatchHandler::LLUrlFloaterDispatchHandler()
 {
 }
 
-LLUrlFloaterDispatchHandler::~LLUrlFloaterDispatchHandler()
-{
-}
+LLUrlFloaterDispatchHandler::~LLUrlFloaterDispatchHandler() = default;
 
 void LLUrlFloaterDispatchHandler::registerInDispatcher()
 {

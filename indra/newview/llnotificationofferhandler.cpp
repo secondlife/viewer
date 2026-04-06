@@ -56,9 +56,7 @@ LLOfferHandler::LLOfferHandler()
 }
 
 //--------------------------------------------------------------------------
-LLOfferHandler::~LLOfferHandler()
-{
-}
+LLOfferHandler::~LLOfferHandler() = default;
 
 //--------------------------------------------------------------------------
 void LLOfferHandler::initChannel()

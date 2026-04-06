@@ -50,7 +50,7 @@ public:
 
     };
 protected:
-    LLFlyoutButton(const Params&);
+    explicit LLFlyoutButton(const Params&);
     friend class LLUICtrlFactory;
 public:
     void draw() override;

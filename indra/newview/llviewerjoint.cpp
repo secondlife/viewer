@@ -60,9 +60,7 @@ LLViewerJoint::LLViewerJoint(const std::string &name, LLJoint *parent) :
 // ~LLViewerJoint()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLViewerJoint::~LLViewerJoint()
-{
-}
+LLViewerJoint::~LLViewerJoint() = default;
 
 //--------------------------------------------------------------------
 // render()

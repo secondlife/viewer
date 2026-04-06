@@ -184,7 +184,7 @@ class LLConversationLogFriendObserver : public LLFriendObserver
 {
 public:
     LLConversationLogFriendObserver() {}
-    virtual ~LLConversationLogFriendObserver() {}
+    virtual ~LLConversationLogFriendObserver() = default;
     virtual void changed(U32 mask);
 };
 

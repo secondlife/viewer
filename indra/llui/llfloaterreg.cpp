@@ -98,9 +98,9 @@ LLFloater* LLFloaterReg::getLastFloaterCascading()
 
     for (const auto& [floater_name, group_name] : sGroupMap)
     {
-        instance_list_t& instances = sInstanceMap[group_name];
+        const instance_list_t& instances = sInstanceMap[group_name];
 
-        for (LLFloater* inst : instances)
+        for (const LLFloater* inst : instances)
         {
             if (inst->getVisible()
                 && (inst->isPositioning(LLFloaterEnums::POSITIONING_CASCADING)
@@ -128,7 +128,7 @@ LLFloater* LLFloaterReg::findInstance(std::string_view name, const LLSD& key)
         const std::string& groupname = it->second;
         if (!groupname.empty())
         {
-            instance_list_t& list = sInstanceMap[groupname];
+            const instance_list_t& list = sInstanceMap[groupname];
             for (LLFloater* inst : list)
             {
                 if (inst->matchesKey(key))
@@ -310,7 +310,7 @@ bool LLFloaterReg::toggleInstance(std::string_view name, const LLSD& key)
 // returns true if the instance exists and is visible (doesnt matter minimized or not)
 bool LLFloaterReg::instanceVisible(std::string_view name, const LLSD& key)
 {
-    LLFloater* instance = findInstance(name, key);
+    const LLFloater* instance = findInstance(name, key);
     return LLFloater::isVisible(instance);
 }
 
@@ -596,8 +596,8 @@ U32 LLFloaterReg::getVisibleFloaterInstanceCount()
 
     for (const auto& [floater_name, group_name] : sGroupMap)
     {
-        instance_list_t& instances = sInstanceMap[group_name];
-        for (LLFloater* inst : instances)
+        const instance_list_t& instances = sInstanceMap[group_name];
+        for (const LLFloater* inst : instances)
         {
             if (inst->getVisible() && !inst->isMinimized())
             {

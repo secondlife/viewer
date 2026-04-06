@@ -70,9 +70,7 @@ bool LLPanelDirPlaces::postBuild()
     return true;
 }
 
-LLPanelDirPlaces::~LLPanelDirPlaces()
-{
-}
+LLPanelDirPlaces::~LLPanelDirPlaces() = default;
 
 // virtual
 void LLPanelDirPlaces::performQuery()

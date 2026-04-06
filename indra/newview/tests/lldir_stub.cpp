@@ -27,7 +27,7 @@
 // Use me only if you need to stub out some helper functions, not if you e.g. need sane numbers from countFilesInDir
 
 LLDir::LLDir() {}
-LLDir::~LLDir() {}
+LLDir::~LLDir() = default;
 BOOL LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask) { return true; }
 void LLDir::setChatLogsDir(const std::string &path) {}
 void LLDir::setPerAccountChatLogsDir(const std::string &) {}

@@ -54,9 +54,7 @@ LLParcelSelection::LLParcelSelection(LLParcel* parcel)  :
 {
 }
 
-LLParcelSelection::~LLParcelSelection()
-{
-}
+LLParcelSelection::~LLParcelSelection() = default;
 
 bool LLParcelSelection::getMultipleOwners() const
 {

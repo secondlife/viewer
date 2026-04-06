@@ -122,9 +122,7 @@ void LLImageDecodeThread::shutdown()
     mThreadPool->close();
 }
 
-LLImageDecodeThread::Responder::~Responder()
-{
-}
+LLImageDecodeThread::Responder::~Responder() = default;
 
 //----------------------------------------------------------------------------
 

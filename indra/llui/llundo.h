@@ -44,7 +44,7 @@ public:
         S32 mClusterID;
     };
 
-    LLUndoBuffer( LLUndoAction (*create_func()), S32 initial_count );
+    explicit LLUndoBuffer( LLUndoAction (*create_func()), S32 initial_count );
     virtual ~LLUndoBuffer();
 
     LLUndoAction *getNextAction(bool setClusterBegin = true);

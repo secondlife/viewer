@@ -71,12 +71,12 @@ class LLViewDrawContext
 public:
     F32 mAlpha;
 
-    LLViewDrawContext(F32 alpha = 1.f)
+    explicit LLViewDrawContext(F32 alpha = 1.f)
     :   mAlpha(alpha)
     {
         if (!sDrawContextStack.empty())
         {
-            LLViewDrawContext* context_top = sDrawContextStack.back();
+            const LLViewDrawContext* context_top = sDrawContextStack.back();
             // merge with top of stack
             mAlpha *= context_top->mAlpha;
         }
@@ -159,7 +159,7 @@ public:
     void initFromParams(const LLView::Params&);
 
 protected:
-    LLView(const LLView::Params&);
+    explicit LLView(const LLView::Params&);
     friend class LLUICtrlFactory;
 
 private:
@@ -502,7 +502,7 @@ public:
     // return query for iterating over focus roots in tab order
     static const LLViewQuery & getFocusRootsQuery();
 
-    static LLWindow*    getWindow(void) { return LLUI::getInstance()->mWindow; }
+    static LLWindow*    getWindow() { return LLUI::getInstance()->mWindow; }
 
     // Set up params after XML load before calling new(),
     // usually to adjust layout.
@@ -533,7 +533,7 @@ public:
     static const LLViewDrawContext& getDrawContext();
 
     // Returns useful information about this ui widget.
-    LLSD getInfo(void);
+    LLSD getInfo();
 
 protected:
     void            drawDebugRect();
@@ -638,7 +638,7 @@ public:
     class TemporaryDrilldownFunc
     {
     public:
-        TemporaryDrilldownFunc(const DrilldownFunc& func):
+        explicit TemporaryDrilldownFunc(const DrilldownFunc& func):
             mOldDrilldown(sDrilldown)
         {
             sDrilldown = func;

@@ -24,13 +24,11 @@
  * $/LicenseInfo$
  */
 
-LLWLDayCycle::LLWLDayCycle(void)
+LLWLDayCycle::LLWLDayCycle()
 {
 }
 
-LLWLDayCycle::~LLWLDayCycle(void)
-{
-}
+LLWLDayCycle::~LLWLDayCycle() = default;
 
 bool LLWLDayCycle::getKeytime(LLWLParamKey keyFrame, F32& keyTime)
 {

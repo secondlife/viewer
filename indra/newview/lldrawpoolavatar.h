@@ -67,7 +67,7 @@ enum eShadowPass
 
     virtual S32 getShaderLevel() const;
 
-    LLDrawPoolAvatar(U32 type);
+    explicit LLDrawPoolAvatar(U32 type);
 
     static LLMatrix4& getModelView();
 

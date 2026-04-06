@@ -37,7 +37,7 @@ class LLFloaterMediaSettings :
     public LLFloater
 {
 public:
-    LLFloaterMediaSettings(const LLSD& key);
+    explicit LLFloaterMediaSettings(const LLSD& key);
     ~LLFloaterMediaSettings();
 
     bool postBuild() override;

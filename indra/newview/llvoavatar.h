@@ -133,7 +133,7 @@ public:
     virtual void                idleUpdate(LLAgent &agent, const F64 &time);
     /*virtual*/ bool            updateLOD();
     bool                        updateJointLODs();
-    void                        updateLODRiggedAttachments(void);
+    void                        updateLODRiggedAttachments();
     void                        setCorrectedPixelArea(F32 area);
     /*virtual*/ bool            isActive() const; // Whether this object needs to do an idleUpdate.
     S32Bytes                    totalTextureMemForUUIDS(std::set<LLUUID>& ids);

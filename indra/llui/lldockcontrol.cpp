@@ -78,9 +78,7 @@ LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
     }
 }
 
-LLDockControl::~LLDockControl()
-{
-}
+LLDockControl::~LLDockControl() = default;
 
 void LLDockControl::setDock(LLView* dockWidget)
 {
@@ -204,7 +202,7 @@ void LLDockControl::moveDockable()
     mGetAllowedRectCallback(rootRect);
 
     bool use_tongue = false;
-    LLDockableFloater* dockable_floater =
+    const LLDockableFloater* dockable_floater =
             dynamic_cast<LLDockableFloater*> (mDockableFloater);
     if (dockable_floater != NULL)
     {
@@ -373,7 +371,7 @@ void LLDockControl::forceRecalculatePosition()
 void LLDockControl::drawToungue()
 {
     bool use_tongue = false;
-    LLDockableFloater* dockable_floater =
+    const LLDockableFloater* dockable_floater =
             dynamic_cast<LLDockableFloater*> (mDockableFloater);
     if (dockable_floater != NULL)
     {

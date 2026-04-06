@@ -43,7 +43,7 @@ public:
 
     virtual void buildSearchHistory();
 
-    virtual ~LLSearchHistoryBuilder(){}
+    virtual ~LLSearchHistoryBuilder() = default;
 
 protected:
 
@@ -146,9 +146,7 @@ void LLSearchComboBox::hideList()
         focusTextEntry();
 }
 
-LLSearchComboBox::~LLSearchComboBox()
-{
-}
+LLSearchComboBox::~LLSearchComboBox() = default;
 
 void LLSearchComboBox::onSelectionCommit()
 {

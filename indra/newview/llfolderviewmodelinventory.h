@@ -43,7 +43,7 @@ public:
     virtual void setCreationDate(time_t creation_date_utc) = 0;
     virtual PermissionMask getPermissionMask() const = 0;
     virtual LLFolderType::EType getPreferredType() const = 0;
-    virtual void showProperties(void) = 0;
+    virtual void showProperties() = 0;
     virtual bool isItemInTrash( void) const { return false; } // TODO: make   into pure virtual.
     virtual bool isItemInOutfits() const { return false; }
     virtual bool isAgentInventory() const { return false; }
@@ -82,7 +82,7 @@ public:
         {}
     };
 
-    LLInventorySort(S32 order = 0)
+    explicit LLInventorySort(S32 order = 0)
     {
         fromParams(Params().order(order));
     }
@@ -116,7 +116,7 @@ class LLFolderViewModelInventory
 public:
     using base_t = LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter>;
 
-    LLFolderViewModelInventory(const std::string& name)
+    explicit LLFolderViewModelInventory(const std::string& name)
     :   base_t(new LLInventorySort(), new LLInventoryFilter(LLInventoryFilter::Params().name(name)))
     {}
 

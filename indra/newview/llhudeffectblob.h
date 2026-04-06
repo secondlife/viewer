@@ -39,7 +39,7 @@ public:
     void setPixelSize(S32 pixels) { mPixelSize = pixels; }
 
 protected:
-    LLHUDEffectBlob(const U8 type);
+    explicit LLHUDEffectBlob(const U8 type);
     ~LLHUDEffectBlob();
 
     /*virtual*/ void render();

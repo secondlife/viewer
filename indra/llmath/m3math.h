@@ -56,7 +56,7 @@ class LLMatrix3
     public:
         F32 mMatrix[NUM_VALUES_IN_MAT3][NUM_VALUES_IN_MAT3];
 
-        LLMatrix3(void);                            // Initializes Matrix to identity matrix
+        LLMatrix3();                            // Initializes Matrix to identity matrix
         explicit LLMatrix3(const F32 *mat);                 // Initializes Matrix to values in mat
         explicit LLMatrix3(const LLQuaternion &q);          // Initializes Matrix with rotation q
 
@@ -146,7 +146,7 @@ static_assert(std::is_trivially_copyable<LLMatrix3>::value, "LLMatrix3 must be t
 static_assert(std::is_trivially_move_assignable<LLMatrix3>::value, "LLMatrix3 must be trivial move");
 static_assert(std::is_standard_layout<LLMatrix3>::value, "LLMatrix3 must be a standard layout type");
 
-inline LLMatrix3::LLMatrix3(void)
+inline LLMatrix3::LLMatrix3()
 {
     mMatrix[0][0] = 1.f;
     mMatrix[0][1] = 0.f;

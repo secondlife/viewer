@@ -1835,9 +1835,7 @@ LLSplashScreenMacOSX::LLSplashScreenMacOSX()
     mWindow = NULL;
 }
 
-LLSplashScreenMacOSX::~LLSplashScreenMacOSX()
-{
-}
+LLSplashScreenMacOSX::~LLSplashScreenMacOSX() = default;
 
 void LLSplashScreenMacOSX::showImpl()
 {

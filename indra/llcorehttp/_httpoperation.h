@@ -260,7 +260,7 @@ class HttpOpSpin : public HttpOperation
 public:
     // 0 does a hard spin in the operation
     // 1 does a soft spin continuously requeuing itself
-    HttpOpSpin(int mode);
+    explicit HttpOpSpin(int mode);
     virtual ~HttpOpSpin();
 
     HttpOpSpin(const HttpOpSpin&) = delete;

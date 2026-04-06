@@ -40,7 +40,7 @@ class LLFloaterGridStatus :
 public:
     using Params = LLSDParamAdapter<_Params>;
 
-    LLFloaterGridStatus(const Params& key);
+    explicit LLFloaterGridStatus(const Params& key);
 
     /*virtual*/ void onOpen(const LLSD& key);
     /*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);

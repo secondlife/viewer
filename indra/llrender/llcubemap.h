@@ -38,7 +38,7 @@ class LLCubeMap : public LLRefCount
 {
     bool mIssRGB;
 public:
-    LLCubeMap(bool init_as_srgb);
+    explicit LLCubeMap(bool init_as_srgb);
     void init(const std::vector<LLPointer<LLImageRaw> >& rawimages);
 
     // initialize as an undefined cubemap at the given resolution
@@ -59,10 +59,10 @@ public:
     void enable(S32 stage);
 
     void enableTexture(S32 stage);
-    S32  getStage(void) { return mTextureStage; }
+    S32  getStage() { return mTextureStage; }
 
-    void disable(void);
-    void disableTexture(void);
+    void disable();
+    void disableTexture();
     void setMatrix(S32 stage);
     void restoreMatrix();
 

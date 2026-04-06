@@ -245,7 +245,7 @@ F32 LLMatrix4::determinant() const
 }
 
 // Only works for pure orthonormal, homogeneous transform matrices.
-const LLMatrix4&    LLMatrix4::invert(void)
+const LLMatrix4&    LLMatrix4::invert()
 {
     // transpose the rotation part
     F32 temp;
@@ -277,7 +277,7 @@ const LLMatrix4&    LLMatrix4::invert(void)
 // Convenience func for simplifying comparison-heavy code by
 // intentionally stomping values in [-FLT_EPS,FLT_EPS] to 0.0f
 //
-void LLMatrix4::condition(void)
+void LLMatrix4::condition()
 {
     U32 i;
     U32 j;

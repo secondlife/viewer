@@ -100,7 +100,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLVirtualTrackball(const Params&);
+    explicit LLVirtualTrackball(const Params&);
 
 protected:
     LLTextBox*          mNLabel;

@@ -92,7 +92,7 @@ private:
 class LLFloaterMarketplaceListings : public LLFloater
 {
 public:
-    LLFloaterMarketplaceListings(const LLSD& key);
+    explicit LLFloaterMarketplaceListings(const LLSD& key);
     ~LLFloaterMarketplaceListings();
 
     void initializeMarketPlace();
@@ -157,7 +157,7 @@ public:
     static LLFloaterAssociateListing* show(const LLUUID& folder_id);
 
 private:
-    LLFloaterAssociateListing(const LLSD& key);
+    explicit LLFloaterAssociateListing(const LLSD& key);
     virtual ~LLFloaterAssociateListing();
 
     // UI Callbacks
@@ -180,7 +180,7 @@ private:
 class LLFloaterMarketplaceValidation : public LLFloater
 {
 public:
-    LLFloaterMarketplaceValidation(const LLSD& key);
+    explicit LLFloaterMarketplaceValidation(const LLSD& key);
     virtual ~LLFloaterMarketplaceValidation();
 
     virtual bool postBuild();
@@ -215,7 +215,7 @@ private:
 class LLFloaterItemProperties : public LLFloater
 {
 public:
-    LLFloaterItemProperties(const LLSD& key);
+    explicit LLFloaterItemProperties(const LLSD& key);
     virtual ~LLFloaterItemProperties();
 
     bool postBuild();
@@ -227,6 +227,6 @@ private:
 class LLMultiItemProperties : public LLMultiFloater
 {
 public:
-    LLMultiItemProperties(const LLSD& key);
+    explicit LLMultiItemProperties(const LLSD& key);
 };
 

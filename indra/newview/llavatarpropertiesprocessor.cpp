@@ -47,9 +47,7 @@ LLAvatarPropertiesProcessor::LLAvatarPropertiesProcessor()
 {
 }
 
-LLAvatarPropertiesProcessor::~LLAvatarPropertiesProcessor()
-{
-}
+LLAvatarPropertiesProcessor::~LLAvatarPropertiesProcessor() = default;
 
 void LLAvatarPropertiesProcessor::addObserver(const LLUUID& avatar_id, LLAvatarPropertiesObserver* observer)
 {

@@ -53,7 +53,7 @@ public:
         mEventTimer.start();
     }
 
-    virtual ~Updater(){}
+    virtual ~Updater() = default;
 
 protected:
     bool tick()
@@ -83,9 +83,7 @@ LLSetKeyBindDialog::LLSetKeyBindDialog(const LLSD& key)
 {
 }
 
-LLSetKeyBindDialog::~LLSetKeyBindDialog()
-{
-}
+LLSetKeyBindDialog::~LLSetKeyBindDialog() = default;
 
 //virtual
 bool LLSetKeyBindDialog::postBuild()

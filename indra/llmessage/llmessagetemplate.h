@@ -110,7 +110,7 @@ public:
 class LLMsgData
 {
 public:
-    LLMsgData(const char *name) : mTotalSize(-1)
+    explicit LLMsgData(const char *name) : mTotalSize(-1)
     {
         mName = (char *)name;
     }
@@ -142,7 +142,7 @@ public:
     {
     }
 
-    LLMessageVariable(char *name) : mType(MVT_NULL), mSize(-1)
+    explicit LLMessageVariable(char *name) : mType(MVT_NULL), mSize(-1)
     {
         mName = name;
     }
@@ -329,7 +329,7 @@ public:
         mTrust = t;
     }
 
-    EMsgTrust getTrust(void) const
+    EMsgTrust getTrust() const
     {
         return mTrust;
     }

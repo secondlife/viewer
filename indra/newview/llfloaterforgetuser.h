@@ -33,7 +33,7 @@ class LLScrollListCtrl;
 class LLFloaterForgetUser : public LLFloater
 {
 public:
-    LLFloaterForgetUser(const LLSD &key);
+    explicit LLFloaterForgetUser(const LLSD &key);
     ~LLFloaterForgetUser();
 
     bool postBuild() override;

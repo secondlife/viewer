@@ -77,9 +77,7 @@ bool LLPanelDirEvents::postBuild()
     return true;
 }
 
-LLPanelDirEvents::~LLPanelDirEvents()
-{
-}
+LLPanelDirEvents::~LLPanelDirEvents() = default;
 
 void LLPanelDirEvents::setDay(S32 day)
 {

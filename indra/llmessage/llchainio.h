@@ -116,7 +116,7 @@ template<class Pipe>
 class LLCloneIOFactory : public LLChainIOFactory
 {
 public:
-    LLCloneIOFactory(Pipe* original) :
+    explicit LLCloneIOFactory(Pipe* original) :
         mHandle(original),
         mOriginal(original) {}
 

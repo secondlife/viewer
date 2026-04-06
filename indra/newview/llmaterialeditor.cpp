@@ -402,9 +402,7 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     }
 }
 
-LLMaterialEditor::~LLMaterialEditor()
-{
-}
+LLMaterialEditor::~LLMaterialEditor() = default;
 
 void LLMaterialEditor::setObjectID(const LLUUID& object_id)
 {
@@ -2092,7 +2090,7 @@ namespace
     {
     public:
         LLAssetIDMatchesWithPerms(const LLUUID& asset_id, const std::vector<PermissionBit>& ops) : mAssetID(asset_id), mOps(ops) {}
-        virtual ~LLAssetIDMatchesWithPerms() {}
+        virtual ~LLAssetIDMatchesWithPerms() = default;
         bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
         {
             if (!item || item->getAssetUUID() != mAssetID)

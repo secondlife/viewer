@@ -70,9 +70,7 @@ LLToastScriptTextbox::LLToastScriptTextbox(const LLNotificationPtr& notification
 }
 
 // virtual
-LLToastScriptTextbox::~LLToastScriptTextbox()
-{
-}
+LLToastScriptTextbox::~LLToastScriptTextbox() = default;
 
 void LLToastScriptTextbox::close()
 {

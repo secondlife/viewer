@@ -69,7 +69,7 @@ class LLCheckBoxCtrl;
 class LLCheckBoxToastPanel : public LLToastPanel
 {
 public:
-    LLCheckBoxToastPanel(const LLNotificationPtr& p_ntf);
+    explicit LLCheckBoxToastPanel(const LLNotificationPtr& p_ntf);
     virtual ~LLCheckBoxToastPanel() = default;
 
     // set checkboxes acording to defaults from form

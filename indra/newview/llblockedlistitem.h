@@ -47,7 +47,7 @@ class LLBlockedListItem : public LLPanel
 {
 public:
 
-    LLBlockedListItem(const LLMute* item);
+    explicit LLBlockedListItem(const LLMute* item);
     virtual bool postBuild();
 
     void onMouseEnter(S32 x, S32 y, MASK mask);

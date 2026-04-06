@@ -85,9 +85,7 @@ LLHeadRotMotion::LLHeadRotMotion(const LLUUID &id) :
 // ~LLHeadRotMotion()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLHeadRotMotion::~LLHeadRotMotion()
-{
-}
+LLHeadRotMotion::~LLHeadRotMotion() = default;
 
 //-----------------------------------------------------------------------------
 // LLHeadRotMotion::onInitialize(LLCharacter *character)
@@ -183,7 +181,7 @@ bool LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
     F32 head_slerp_amt = LLSmoothInterpolation::getInterpolant(HEAD_LOOKAT_LAG_HALF_LIFE);
     F32 torso_slerp_amt = LLSmoothInterpolation::getInterpolant(TORSO_LOOKAT_LAG_HALF_LIFE);
 
-    LLVector3* targetPos = (LLVector3*)mCharacter->getAnimationData("LookAtPoint");
+    const LLVector3* targetPos = (const LLVector3*)mCharacter->getAnimationData("LookAtPoint");
 
     if (targetPos)
     {
@@ -297,9 +295,7 @@ LLEyeMotion::LLEyeMotion(const LLUUID &id) : LLMotion(id)
 // ~LLEyeMotion()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLEyeMotion::~LLEyeMotion()
-{
-}
+LLEyeMotion::~LLEyeMotion() = default;
 
 //-----------------------------------------------------------------------------
 // LLEyeMotion::onInitialize(LLCharacter *character)

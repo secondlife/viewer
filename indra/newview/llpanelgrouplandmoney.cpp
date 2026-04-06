@@ -876,9 +876,7 @@ LLGroupMoneyTabEventHandlerImpl::LLGroupMoneyTabEventHandlerImpl(LLButton* earli
     mLoadingText = loading_text;
 }
 
-LLGroupMoneyTabEventHandlerImpl::~LLGroupMoneyTabEventHandlerImpl()
-{
-}
+LLGroupMoneyTabEventHandlerImpl::~LLGroupMoneyTabEventHandlerImpl() = default;
 
 bool LLGroupMoneyTabEventHandlerImpl::getCanClickEarlier()
 {
@@ -1033,9 +1031,7 @@ LLGroupMoneyDetailsTabEventHandler::LLGroupMoneyDetailsTabEventHandler(LLButton*
 {
 }
 
-LLGroupMoneyDetailsTabEventHandler::~LLGroupMoneyDetailsTabEventHandler()
-{
-}
+LLGroupMoneyDetailsTabEventHandler::~LLGroupMoneyDetailsTabEventHandler() = default;
 
 void LLGroupMoneyDetailsTabEventHandler::requestData(LLMessageSystem* msg)
 {
@@ -1174,9 +1170,7 @@ LLGroupMoneySalesTabEventHandler::LLGroupMoneySalesTabEventHandler(LLButton* ear
 {
 }
 
-LLGroupMoneySalesTabEventHandler::~LLGroupMoneySalesTabEventHandler()
-{
-}
+LLGroupMoneySalesTabEventHandler::~LLGroupMoneySalesTabEventHandler() = default;
 
 void LLGroupMoneySalesTabEventHandler::requestData(LLMessageSystem* msg)
 {
@@ -1352,9 +1346,7 @@ LLGroupMoneyPlanningTabEventHandler::LLGroupMoneyPlanningTabEventHandler(LLTextE
 {
 }
 
-LLGroupMoneyPlanningTabEventHandler::~LLGroupMoneyPlanningTabEventHandler()
-{
-}
+LLGroupMoneyPlanningTabEventHandler::~LLGroupMoneyPlanningTabEventHandler() = default;
 
 void LLGroupMoneyPlanningTabEventHandler::requestData(LLMessageSystem* msg)
 {

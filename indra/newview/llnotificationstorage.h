@@ -37,7 +37,7 @@ class LLNotificationStorage
 {
     LOG_CLASS(LLNotificationStorage);
 public:
-    LLNotificationStorage(std::string pFileName);
+    explicit LLNotificationStorage(std::string pFileName);
     ~LLNotificationStorage();
 
 protected:

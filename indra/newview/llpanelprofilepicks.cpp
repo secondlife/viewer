@@ -151,9 +151,7 @@ LLPanelProfilePicks::LLPanelProfilePicks()
 {
 }
 
-LLPanelProfilePicks::~LLPanelProfilePicks()
-{
-}
+LLPanelProfilePicks::~LLPanelProfilePicks() = default;
 
 void LLPanelProfilePicks::onOpen(const LLSD& key)
 {

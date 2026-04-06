@@ -111,9 +111,7 @@ LLHUDNameTag::LLHUDNameTag(const U8 type)
     mRoundedRectTopImgp = LLUI::getUIImage("Rounded_Rect_Top");
 }
 
-LLHUDNameTag::~LLHUDNameTag()
-{
-}
+LLHUDNameTag::~LLHUDNameTag() = default;
 
 
 bool LLHUDNameTag::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, LLVector4a& intersection, bool debug_render)

@@ -3056,7 +3056,7 @@ void LLModelPreview::update()
 //-----------------------------------------------------------------------------
 // createPreviewAvatar
 //-----------------------------------------------------------------------------
-void LLModelPreview::createPreviewAvatar(void)
+void LLModelPreview::createPreviewAvatar()
 {
     mPreviewAvatar = (LLVOAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), LLViewerObject::CO_FLAG_UI_AVATAR);
     if (mPreviewAvatar)

@@ -82,7 +82,7 @@ void LLBadgeOwner::setDrawBadgeAtTop(bool draw_at_top)
 
 void LLBadgeOwner::addBadgeToParentHolder()
 {
-    LLView * owner_view = mBadgeOwnerView.get();
+    const LLView * owner_view = mBadgeOwnerView.get();
 
     if (mBadge && owner_view)
     {

@@ -182,7 +182,7 @@ void LLModalDialog::setVisible( bool visible )
 
 bool LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    LLView* popup_menu = LLMenuGL::sMenuContainer->getVisibleMenu();
+    const LLView* popup_menu = LLMenuGL::sMenuContainer->getVisibleMenu();
     if (popup_menu != NULL)
     {
         S32 mx, my;

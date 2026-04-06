@@ -35,7 +35,7 @@ class LLFloaterExperiences :
     public LLFloater
 {
 public:
-    LLFloaterExperiences(const LLSD& data);
+    explicit LLFloaterExperiences(const LLSD& data);
     virtual void onClose(bool app_quitting);
 
     virtual void onOpen(const LLSD& key);

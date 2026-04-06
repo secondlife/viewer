@@ -32,9 +32,7 @@ LLXform::LLXform()
     init();
 }
 
-LLXform::~LLXform()
-{
-}
+LLXform::~LLXform() = default;
 
 // Link optimization - don't inline these LL_WARNS()
 void LLXform::warn(const char* const msg)
@@ -62,9 +60,7 @@ bool LLXform::isRootEdit() const
     return (!mParent);
 }
 
-LLXformMatrix::~LLXformMatrix()
-{
-}
+LLXformMatrix::~LLXformMatrix() = default;
 
 void LLXformMatrix::update()
 {

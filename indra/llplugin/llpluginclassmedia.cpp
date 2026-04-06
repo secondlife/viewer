@@ -166,7 +166,7 @@ void LLPluginClassMedia::reset()
     mLoadedDuration = 0.0f;
 }
 
-void LLPluginClassMedia::idle(void)
+void LLPluginClassMedia::idle()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     if(mPlugin)
@@ -325,7 +325,7 @@ void LLPluginClassMedia::setSize(int width, int height)
     setSizeInternal();
 }
 
-void LLPluginClassMedia::setSizeInternal(void)
+void LLPluginClassMedia::setSizeInternal()
 {
     if((mSetMediaWidth > 0) && (mSetMediaHeight > 0))
     {
@@ -394,7 +394,7 @@ void LLPluginClassMedia::setAutoScale(bool auto_scale)
     }
 }
 
-bool LLPluginClassMedia::textureValid(void)
+bool LLPluginClassMedia::textureValid()
 {
     if(
         !mTextureParamsReceived ||
@@ -423,7 +423,7 @@ bool LLPluginClassMedia::getDirty(LLRect *dirty_rect)
     return result;
 }
 
-void LLPluginClassMedia::resetDirty(void)
+void LLPluginClassMedia::resetDirty()
 {
     mDirtyRect = LLRect::null;
 }
@@ -1416,7 +1416,7 @@ void LLPluginClassMedia::sendMessage(const LLPluginMessage &message)
 
 ////////////////////////////////////////////////////////////
 // MARK: media_browser class functions
-bool LLPluginClassMedia::pluginSupportsMediaBrowser(void)
+bool LLPluginClassMedia::pluginSupportsMediaBrowser()
 {
     std::string version = mPlugin->getMessageClassVersion(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER);
     return !version.empty();
@@ -1568,7 +1568,7 @@ void LLPluginClassMedia::hangPlugin()
 
 ////////////////////////////////////////////////////////////
 // MARK: media_time class functions
-bool LLPluginClassMedia::pluginSupportsMediaTime(void)
+bool LLPluginClassMedia::pluginSupportsMediaTime()
 {
     std::string version = mPlugin->getMessageClassVersion(LLPLUGIN_MESSAGE_CLASS_MEDIA_TIME);
     return !version.empty();

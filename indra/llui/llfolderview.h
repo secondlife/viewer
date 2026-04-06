@@ -69,7 +69,7 @@ public:
     /*virtual*/ const LLRect getScrolledViewRect() const;
 
 protected:
-    LLFolderViewScrollContainer(const LLScrollContainer::Params& p);
+    explicit LLFolderViewScrollContainer(const LLScrollContainer::Params& p);
     friend class LLUICtrlFactory;
 };
 
@@ -105,7 +105,7 @@ public:
     friend class LLFolderViewScrollContainer;
     using selected_items_t = folder_view_item_deque;
 
-    LLFolderView(const Params&);
+    explicit LLFolderView(const Params&);
     virtual ~LLFolderView( void );
 
     virtual bool canFocusChildren() const;

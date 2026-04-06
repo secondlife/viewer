@@ -139,9 +139,7 @@ LLXYVector::LLXYVector(const LLXYVector::Params& p)
     addChild(mTouchArea);
 }
 
-LLXYVector::~LLXYVector()
-{
-}
+LLXYVector::~LLXYVector() = default;
 
 bool LLXYVector::postBuild()
 {

@@ -346,7 +346,7 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
     assert((src < dst) ? ((src + bytes) <= dst) : ((dst + bytes) <= src));
     assert(bytes%16==0);
 
-    char* end = dst + bytes;
+    const char* end = dst + bytes;
 
     if (bytes > 64)
     {
@@ -356,7 +356,7 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
         void* begin_64 = LL_NEXT_ALIGNED_ADDRESS_64(dst);
 
         //at least 64 bytes before the end of the destination, switch to 16 byte copies
-        void* end_64 = end-64;
+        const void* end_64 = end-64;
 
         // Prefetch the head of the 64b area now
         //

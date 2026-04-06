@@ -32,7 +32,7 @@ template <class MIXBUFFERFORMAT_T>
 class LLWindGen
 {
 public:
-    LLWindGen(const U32 sample_rate = 44100) :
+    explicit LLWindGen(const U32 sample_rate = 44100) :
         mTargetGain(0.f),
         mTargetFreq(100.f),
         mTargetPanGainR(0.5f),

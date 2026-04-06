@@ -67,27 +67,27 @@ public:
               const std::string &plugin_filename,
               bool debug);
 
-    void idle(void);
+    void idle();
 
     // returns true if the plugin is on its way to steady state
-    bool isLoading(void);
+    bool isLoading();
 
     // returns true if the plugin is in the steady state (processing messages)
-    bool isRunning(void);
+    bool isRunning();
 
     // returns true if the process has exited or we've had a fatal error
-    bool isDone(void);
+    bool isDone();
 
     // returns true if the process is currently waiting on a blocking request
-    bool isBlocked(void) { return mBlocked; };
+    bool isBlocked() { return mBlocked; };
 
-    void killSockets(void);
+    void killSockets();
 
     // Go to the proper error state
-    void errorState(void);
+    void errorState();
 
     void setSleepTime(F64 sleep_time, bool force_send = false);
-    F64 getSleepTime(void) const { return mSleepTime; };
+    F64 getSleepTime() const { return mSleepTime; };
 
     void sendMessage(const LLPluginMessage &message);
 
@@ -113,7 +113,7 @@ public:
     // Returns the version string the plugin indicated for the message class, or an empty string if that class wasn't in the list.
     std::string getMessageClassVersion(const std::string &message_class);
 
-    std::string getPluginVersion(void);
+    std::string getPluginVersion();
 
     bool getDisableTimeout() { return mDisableTimeout; };
     void setDisableTimeout(bool disable) { mDisableTimeout = disable; };

@@ -48,7 +48,7 @@ public:
     };
 
 protected:
-    LLF32UICtrl(const Params& p);
+    explicit LLF32UICtrl(const Params& p);
 
 public:
     virtual F32     getValueF32() const;

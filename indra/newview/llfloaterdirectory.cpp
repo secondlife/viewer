@@ -53,9 +53,7 @@ LLFloaterDirectory::LLFloaterDirectory(const std::string& name)
 {
 }
 
-LLFloaterDirectory::~LLFloaterDirectory()
-{
-}
+LLFloaterDirectory::~LLFloaterDirectory() = default;
 
 bool LLFloaterDirectory::postBuild()
 {

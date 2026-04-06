@@ -47,9 +47,7 @@ LLSpellChecker::LLSpellChecker()
     refreshDictionaryMap();
 }
 
-LLSpellChecker::~LLSpellChecker()
-{
-}
+LLSpellChecker::~LLSpellChecker() = default;
 
 bool LLSpellChecker::checkSpelling(const std::string& word) const
 {

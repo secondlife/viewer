@@ -66,9 +66,7 @@ bool LLPanelDirClassified::postBuild()
     return true;
 }
 
-LLPanelDirClassified::~LLPanelDirClassified()
-{
-}
+LLPanelDirClassified::~LLPanelDirClassified() = default;
 
 void LLPanelDirClassified::performQuery()
 {

@@ -64,9 +64,7 @@ LLPluginMessage::LLPluginMessage(const std::string &message_class, const std::st
 /**
  * Destructor.
  */
-LLPluginMessage::~LLPluginMessage()
-{
-}
+LLPluginMessage::~LLPluginMessage() = default;
 
 /**
  * Reset all internal state.
@@ -177,7 +175,7 @@ void LLPluginMessage::setValuePointer(const std::string &key, void* value)
  *
  * @return Message class
  */
-std::string LLPluginMessage::getClass(void) const
+std::string LLPluginMessage::getClass() const
 {
     return mMessage["class"];
 }
@@ -187,7 +185,7 @@ std::string LLPluginMessage::getClass(void) const
  *
  * @return Message name
  */
-std::string LLPluginMessage::getName(void) const
+std::string LLPluginMessage::getName() const
 {
     return mMessage["name"];
 }
@@ -353,7 +351,7 @@ void* LLPluginMessage::getValuePointer(const std::string &key) const
  *
  * @return Message as a string.
  */
-std::string LLPluginMessage::generate(void) const
+std::string LLPluginMessage::generate() const
 {
     std::ostringstream result;
 

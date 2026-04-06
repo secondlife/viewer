@@ -557,7 +557,7 @@ protected:
 class LLCallDialog : public LLDockableFloater
 {
 public:
-    LLCallDialog(const LLSD& payload);
+    explicit LLCallDialog(const LLSD& payload);
     virtual ~LLCallDialog();
 
     virtual bool postBuild();
@@ -596,7 +596,7 @@ private:
 class LLIncomingCallDialog : public LLCallDialog
 {
 public:
-    LLIncomingCallDialog(const LLSD& payload);
+    explicit LLIncomingCallDialog(const LLSD& payload);
     ~LLIncomingCallDialog()
     {
         if (mAvatarNameCacheConnection.connected())
@@ -629,7 +629,7 @@ private:
 class LLOutgoingCallDialog : public LLCallDialog
 {
 public:
-    LLOutgoingCallDialog(const LLSD& payload);
+    explicit LLOutgoingCallDialog(const LLSD& payload);
 
     /*virtual*/ bool postBuild();
     void show(const LLSD& key);

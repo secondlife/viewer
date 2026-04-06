@@ -43,9 +43,7 @@ LLNotificationManager::LLNotificationManager()
 }
 
 //--------------------------------------------------------------------------
-LLNotificationManager::~LLNotificationManager()
-{
-}
+LLNotificationManager::~LLNotificationManager() = default;
 
 //--------------------------------------------------------------------------
 void LLNotificationManager::init()

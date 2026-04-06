@@ -53,7 +53,7 @@ class HttpOpCancel : public HttpOperation
 public:
     /// @param  handle  Handle of previously-issued request to
     ///                 be canceled.
-    HttpOpCancel(HttpHandle handle);
+    explicit HttpOpCancel(HttpHandle handle);
 
     virtual ~HttpOpCancel();                            // Use release()
 

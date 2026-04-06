@@ -236,9 +236,7 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 {
 }
 
-LLLayoutStack::~LLLayoutStack()
-{
-}
+LLLayoutStack::~LLLayoutStack() = default;
 
 // virtual
 void LLLayoutStack::draw()
@@ -311,7 +309,7 @@ void LLLayoutStack::removeChild(LLView* view)
             embedded_panelp->mResizeBar = nullptr;
         }
     }
-    else if (LLResizeBar* resize_bar = dynamic_cast<LLResizeBar*>(view))
+    else if (const LLResizeBar* resize_bar = dynamic_cast<LLResizeBar*>(view))
     {
         for (LLLayoutPanel* p : mPanels)
         {
@@ -381,8 +379,8 @@ public:
         Optional<bool> horizontal;
         Params() : horizontal("horizontal", false) {}
     };
-    LLImagePanel(const Params& p) : LLPanel(p), mHorizontal(p.horizontal) {}
-    virtual ~LLImagePanel() {}
+    explicit LLImagePanel(const Params& p) : LLPanel(p), mHorizontal(p.horizontal) {}
+    virtual ~LLImagePanel() = default;
 
     void draw()
     {
@@ -687,7 +685,7 @@ void LLLayoutStack::updateFractionalSizes()
 {
     F32 total_resizable_dim = 0.f;
 
-    for (LLLayoutPanel* panelp : mPanels)
+    for (const LLLayoutPanel* panelp : mPanels)
     {
         if (panelp->mAutoResize)
         {
@@ -716,7 +714,7 @@ void LLLayoutStack::normalizeFractionalSizes()
     S32 num_auto_resize_panels = 0;
     F32 total_fractional_size = 0.f;
 
-    for (LLLayoutPanel* panelp : mPanels)
+    for (const LLLayoutPanel* panelp : mPanels)
     {
         if (panelp->mAutoResize)
         {
@@ -849,7 +847,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
     F32 delta_auto_resize_headroom = 0.f;
     F32 old_auto_resize_headroom = 0.f;
 
-    LLLayoutPanel* other_resize_panel = NULL;
+    const LLLayoutPanel* other_resize_panel = NULL;
     LLLayoutPanel* following_panel = NULL;
 
     BOOST_REVERSE_FOREACH(LLLayoutPanel* panelp, mPanels) // Should replace this when C++20 reverse view adaptor becomes available...
@@ -1010,7 +1008,7 @@ void LLLayoutStack::reshape(S32 width, S32 height, bool called_from_parent)
 
 void LLLayoutStack::updateResizeBarLimits()
 {
-    LLLayoutPanel* previous_visible_panelp{ nullptr };
+    const LLLayoutPanel* previous_visible_panelp{ nullptr };
     BOOST_REVERSE_FOREACH(LLLayoutPanel* visible_panelp, mPanels) // Should replace this when C++20 reverse view adaptor becomes available...
     {
         if (!visible_panelp->getVisible() || visible_panelp->mCollapsed)

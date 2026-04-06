@@ -110,7 +110,7 @@ public:
 
     static bool isAlertToastShown() { return sModalToastsList.size() > 0; }
 
-    LLToast(const LLToast::Params& p);
+    explicit LLToast(const LLToast::Params& p);
     virtual ~LLToast();
     bool postBuild();
 

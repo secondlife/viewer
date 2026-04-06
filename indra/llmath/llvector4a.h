@@ -101,17 +101,17 @@ public:
         set(x,y,z,w);
     }
 
-    LLVector4a(F32 x)
+    LLVector4a(F32 x) // intentionally implicit — enables SIMD splat from scalar
     {
         splat(x);
     }
 
-    LLVector4a(const LLSimdScalar& x)
+    explicit LLVector4a(const LLSimdScalar& x)
     {
         splat(x);
     }
 
-    LLVector4a(LLQuad q)
+    LLVector4a(LLQuad q) // intentionally implicit — LLQuad is the underlying SIMD type
     {
         mQ = q;
     }

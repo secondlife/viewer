@@ -51,7 +51,7 @@ class LLFloaterBuyCurrencyUI
 :   public LLFloater
 {
 public:
-    LLFloaterBuyCurrencyUI(const LLSD& key);
+    explicit LLFloaterBuyCurrencyUI(const LLSD& key);
     virtual ~LLFloaterBuyCurrencyUI();
 
 
@@ -94,9 +94,7 @@ LLFloaterBuyCurrencyUI::LLFloaterBuyCurrencyUI(const LLSD& key)
 {
 }
 
-LLFloaterBuyCurrencyUI::~LLFloaterBuyCurrencyUI()
-{
-}
+LLFloaterBuyCurrencyUI::~LLFloaterBuyCurrencyUI() = default;
 
 
 void LLFloaterBuyCurrencyUI::noTarget()

@@ -87,7 +87,7 @@ public:
 private:
     // Does its own instance management, so clients not allowed
     // to allocate or destroy.
-    LLFloaterLand(const LLSD& seed);
+    explicit LLFloaterLand(const LLSD& seed);
     virtual ~LLFloaterLand();
 
     void onVisibilityChanged(const LLSD& visible);
@@ -138,7 +138,7 @@ class LLPanelLandGeneral
 :   public LLPanel
 {
 public:
-    LLPanelLandGeneral(LLSafeHandle<LLParcelSelection>& parcelp);
+    explicit LLPanelLandGeneral(LLSafeHandle<LLParcelSelection>& parcelp);
     virtual ~LLPanelLandGeneral();
     /*virtual*/ void refresh();
     void refreshNames();
@@ -246,7 +246,7 @@ class LLPanelLandObjects
 :   public LLPanel
 {
 public:
-    LLPanelLandObjects(LLSafeHandle<LLParcelSelection>& parcelp);
+    explicit LLPanelLandObjects(LLSafeHandle<LLParcelSelection>& parcelp);
     virtual ~LLPanelLandObjects();
     /*virtual*/ void refresh();
     virtual void draw();
@@ -317,7 +317,7 @@ class LLPanelLandOptions
 :   public LLPanel
 {
 public:
-    LLPanelLandOptions(LLSafeHandle<LLParcelSelection>& parcelp);
+    explicit LLPanelLandOptions(LLSafeHandle<LLParcelSelection>& parcelp);
     virtual ~LLPanelLandOptions();
     /*virtual*/ bool postBuild();
     /*virtual*/ void draw();
@@ -365,7 +365,7 @@ class LLPanelLandAccess
 :   public LLPanel
 {
 public:
-    LLPanelLandAccess(LLSafeHandle<LLParcelSelection>& parcelp);
+    explicit LLPanelLandAccess(LLSafeHandle<LLParcelSelection>& parcelp);
     virtual ~LLPanelLandAccess();
     void refresh();
     void refresh_ui();
@@ -412,7 +412,7 @@ class LLPanelLandCovenant
 :   public LLPanel
 {
 public:
-    LLPanelLandCovenant(LLSafeHandle<LLParcelSelection>& parcelp);
+    explicit LLPanelLandCovenant(LLSafeHandle<LLParcelSelection>& parcelp);
     virtual ~LLPanelLandCovenant();
     virtual bool postBuild();
     void refresh();

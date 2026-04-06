@@ -80,9 +80,7 @@ LLHandMotion::LLHandMotion(const LLUUID &id) : LLMotion(id)
 // ~LLHandMotion()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLHandMotion::~LLHandMotion()
-{
-}
+LLHandMotion::~LLHandMotion() = default;
 
 //-----------------------------------------------------------------------------
 // LLHandMotion::onInitialize(LLCharacter *character)
@@ -100,7 +98,7 @@ LLMotion::LLMotionInitStatus LLHandMotion::onInitialize(LLCharacter *character)
 //-----------------------------------------------------------------------------
 bool LLHandMotion::onActivate()
 {
-    LLPolyMesh *upperBodyMesh = mCharacter->getUpperBodyMesh();
+    const LLPolyMesh *upperBodyMesh = mCharacter->getUpperBodyMesh();
 
     if (upperBodyMesh)
     {

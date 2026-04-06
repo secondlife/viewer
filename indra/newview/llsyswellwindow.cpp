@@ -93,9 +93,7 @@ void LLSysWellWindow::setSysWellChiclet(LLSysWellChiclet* chiclet)
 }
 
 //---------------------------------------------------------------------------------
-LLSysWellWindow::~LLSysWellWindow()
-{
-}
+LLSysWellWindow::~LLSysWellWindow() = default;
 
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::removeItemByID(const LLUUID& id)
@@ -239,9 +237,7 @@ LLIMWellWindow::ObjectRowPanel::ObjectRowPanel(const LLUUID& notification_id, bo
 }
 
 //---------------------------------------------------------------------------------
-LLIMWellWindow::ObjectRowPanel::~ObjectRowPanel()
-{
-}
+LLIMWellWindow::ObjectRowPanel::~ObjectRowPanel() = default;
 
 //---------------------------------------------------------------------------------
 void LLIMWellWindow::ObjectRowPanel::onClosePanel()
@@ -309,9 +305,7 @@ LLIMWellWindow::LLIMWellWindow(const LLSD& key)
 {
 }
 
-LLIMWellWindow::~LLIMWellWindow()
-{
-}
+LLIMWellWindow::~LLIMWellWindow() = default;
 
 // static
 LLIMWellWindow* LLIMWellWindow::getInstance(const LLSD& key /*= LLSD()*/)

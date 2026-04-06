@@ -303,7 +303,7 @@ struct HttpStatus
         mDetails = std::make_shared<Details>(type, status);
     }
 
-    HttpStatus(int http_status)
+    explicit HttpStatus(int http_status)
     {
         mDetails = std::make_shared<Details>(http_status,
             (http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR);

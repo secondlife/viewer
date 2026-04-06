@@ -41,9 +41,7 @@ LLTransferSourceAsset::LLTransferSourceAsset(const LLUUID &request_id, const F32
 {
 }
 
-LLTransferSourceAsset::~LLTransferSourceAsset()
-{
-}
+LLTransferSourceAsset::~LLTransferSourceAsset() = default;
 
 
 void LLTransferSourceAsset::initTransfer()

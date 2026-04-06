@@ -62,7 +62,7 @@ public:
     static void setupParamsForExport(Params& p, LLView* parent);
 
 protected:
-    LLRadioCtrl(const LLRadioGroup::ItemParams& p);
+    explicit LLRadioCtrl(const LLRadioGroup::ItemParams& p);
     friend class LLUICtrlFactory;
 
     LLSD mPayload;  // stores data that this item represents in the radio group
@@ -114,9 +114,7 @@ void LLRadioGroup::initFromParams(const Params& p)
 }
 
 
-LLRadioGroup::~LLRadioGroup()
-{
-}
+LLRadioGroup::~LLRadioGroup() = default;
 
 // virtual
 bool LLRadioGroup::postBuild()
@@ -155,7 +153,7 @@ void LLRadioGroup::setIndexEnabled(S32 index, bool enabled)
         for (button_list_t::iterator iter = mRadioButtons.begin();
              iter != mRadioButtons.end(); ++iter)
         {
-            LLRadioCtrl* child = *iter;
+            const LLRadioCtrl* child = *iter;
             if (count >= index && mSelectedIndex >= 0)
             {
                 break;
@@ -306,14 +304,14 @@ bool LLRadioGroup::handleKeyHere(KEY key, MASK mask)
 void LLRadioGroup::onClickButton(LLUICtrl* ctrl)
 {
     // LL_INFOS() << "LLRadioGroup::onClickButton" << LL_ENDL;
-    LLRadioCtrl* clicked_radio = dynamic_cast<LLRadioCtrl*>(ctrl);
+    const LLRadioCtrl* clicked_radio = dynamic_cast<LLRadioCtrl*>(ctrl);
     if (!clicked_radio)
         return;
     S32 index = 0;
     for (button_list_t::iterator iter = mRadioButtons.begin();
          iter != mRadioButtons.end(); ++iter)
     {
-        LLRadioCtrl* radio = *iter;
+        const LLRadioCtrl* radio = *iter;
         if (radio == clicked_radio)
         {
             if (index == mSelectedIndex && mAllowDeselect)
@@ -493,9 +491,7 @@ bool LLRadioCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
     return LLCheckBoxCtrl::handleMouseDown(x, y, mask);
 }
 
-LLRadioCtrl::~LLRadioCtrl()
-{
-}
+LLRadioCtrl::~LLRadioCtrl() = default;
 
 void LLRadioCtrl::setValue(const LLSD& value)
 {

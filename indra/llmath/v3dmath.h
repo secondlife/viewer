@@ -131,7 +131,7 @@ inline const LLVector3d &LLVector3d::set(const LLVector3 &vec)
     return *this;
 }
 
-inline LLVector3d::LLVector3d(void)
+inline LLVector3d::LLVector3d()
 {
     mdV[VX] = 0.f;
     mdV[VY] = 0.f;
@@ -179,7 +179,7 @@ inline bool LLVector3d::isFinite() const
 
 // Clear and Assignment Functions
 
-inline const LLVector3d&    LLVector3d::clear(void)
+inline const LLVector3d&    LLVector3d::clear()
 {
     mdV[VX] = 0.f;
     mdV[VY] = 0.f;
@@ -187,7 +187,7 @@ inline const LLVector3d&    LLVector3d::clear(void)
     return (*this);
 }
 
-inline const LLVector3d&    LLVector3d::setZero(void)
+inline const LLVector3d&    LLVector3d::setZero()
 {
     mdV[VX] = 0.f;
     mdV[VY] = 0.f;

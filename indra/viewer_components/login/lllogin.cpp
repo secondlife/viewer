@@ -349,9 +349,7 @@ LLLogin::LLLogin() :
 {
 }
 
-LLLogin::~LLLogin()
-{
-}
+LLLogin::~LLLogin() = default;
 
 void LLLogin::connect(const std::string& uri, const LLSD& credentials)
 {

@@ -110,7 +110,7 @@ private:
 
     // Does its own instance management, so clients not allowed
     // to allocate or destroy.
-    LLFloaterPathfindingConsole(const LLSD& pSeed);
+    explicit LLFloaterPathfindingConsole(const LLSD& pSeed);
     virtual ~LLFloaterPathfindingConsole();
 
     void onTabSwitch();

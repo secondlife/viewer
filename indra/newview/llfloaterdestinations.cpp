@@ -39,9 +39,7 @@ LLFloaterDestinations::LLFloaterDestinations(const LLSD& key)
 {
 }
 
-LLFloaterDestinations::~LLFloaterDestinations()
-{
-}
+LLFloaterDestinations::~LLFloaterDestinations() = default;
 
 bool LLFloaterDestinations::postBuild()
 {

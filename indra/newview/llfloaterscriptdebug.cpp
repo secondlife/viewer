@@ -59,9 +59,7 @@ LLFloaterScriptDebug::LLFloaterScriptDebug(const LLSD& key)
     setAutoFocus(false);
 }
 
-LLFloaterScriptDebug::~LLFloaterScriptDebug()
-{
-}
+LLFloaterScriptDebug::~LLFloaterScriptDebug() = default;
 
 void LLFloaterScriptDebug::show(const LLUUID& object_id)
 {
@@ -193,9 +191,7 @@ bool LLFloaterScriptDebugOutput::postBuild()
     return true;
 }
 
-LLFloaterScriptDebugOutput::~LLFloaterScriptDebugOutput()
-{
-}
+LLFloaterScriptDebugOutput::~LLFloaterScriptDebugOutput() = default;
 
 void LLFloaterScriptDebugOutput::addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color)
 {

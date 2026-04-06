@@ -50,7 +50,7 @@ public:
     };
 
 protected:
-    LLFavoritesBarCtrl(const Params&);
+    explicit LLFavoritesBarCtrl(const Params&);
     friend class LLUICtrlFactory;
     friend class LLItemCopiedCallback;
 public:
@@ -261,7 +261,7 @@ private:
 
     struct IsNotInFavorites
     {
-        IsNotInFavorites(const LLInventoryModel::item_array_t& items)
+        explicit IsNotInFavorites(const LLInventoryModel::item_array_t& items)
             : mFavoriteItems(items)
         {
 

@@ -88,7 +88,7 @@ private:
 class LLSimInfo
 {
 public:
-    LLSimInfo(U64 handle);
+    explicit LLSimInfo(U64 handle);
 
     // Convert local region coordinates into world coordinates
     LLVector3d getGlobalPos(const LLVector3& local_pos) const;

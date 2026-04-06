@@ -69,7 +69,7 @@ protected:
         kMessagingNotEnabled
     };
 
-    LLFloaterPathfindingObjects(const LLSD &pSeed);
+    explicit LLFloaterPathfindingObjects(const LLSD &pSeed);
     virtual ~LLFloaterPathfindingObjects();
 
     virtual bool                       postBuild();

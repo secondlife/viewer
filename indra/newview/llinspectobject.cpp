@@ -71,7 +71,7 @@ public:
     LLInspectObject(const LLSD& object_id);
     virtual ~LLInspectObject();
 
-    /*virtual*/ bool postBuild(void);
+    /*virtual*/ bool postBuild();
 
     // Because floater is single instance, need to re-parse data on each spawn
     // (for example, inspector about same avatar but in different position)
@@ -150,7 +150,7 @@ LLInspectObject::~LLInspectObject()
 }
 
 /*virtual*/
-bool LLInspectObject::postBuild(void)
+bool LLInspectObject::postBuild()
 {
     // The XML file has sample data in it.  Clear that out so we don't
     // flicker when data arrives off network.

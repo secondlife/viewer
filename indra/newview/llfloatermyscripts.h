@@ -32,7 +32,7 @@
 class LLFloaterMyScripts : public LLFloater
 {
 public:
-    LLFloaterMyScripts(const LLSD& seed);
+    explicit LLFloaterMyScripts(const LLSD& seed);
 
     bool postBuild() override;
     void onOpen(const LLSD& key) override;

@@ -120,7 +120,7 @@
 
 struct LLProtectedDataException: public LLException
 {
-    LLProtectedDataException(const std::string& msg):
+    explicit LLProtectedDataException(const std::string& msg):
         LLException(msg)
     {
         LL_WARNS("SECAPI") << "Protected Data Error: " << msg << LL_ENDL;
@@ -185,7 +185,7 @@ public:
     class iterator
     {
     public:
-        iterator(LLPointer<iterator_impl> impl) : mImpl(impl) {}
+        explicit iterator(LLPointer<iterator_impl> impl) : mImpl(impl) {}
         iterator() : mImpl(NULL) {}
         iterator(const iterator& _iter) {mImpl = _iter.mImpl->clone(); }
         ~iterator() = default;
@@ -297,7 +297,7 @@ public:
 
     LLCredential() = default;
 
-    LLCredential(const std::string& grid)
+    explicit LLCredential(const std::string& grid)
     {
         mGrid = grid;
         mIdentifier = LLSD::emptyMap();
@@ -347,7 +347,7 @@ protected:
 class LLAllocationCertException : public LLCertException
 {
 public:
-    LLAllocationCertException(const LLSD& cert_data) : LLCertException(cert_data, "CertAllocationFailure")
+    explicit LLAllocationCertException(const LLSD& cert_data) : LLCertException(cert_data, "CertAllocationFailure")
     {
     }
     virtual ~LLAllocationCertException() = default;
@@ -357,7 +357,7 @@ protected:
 class LLInvalidCertificate : public LLCertException
 {
 public:
-    LLInvalidCertificate(const LLSD& cert_data) : LLCertException(cert_data, "CertInvalid")
+    explicit LLInvalidCertificate(const LLSD& cert_data) : LLCertException(cert_data, "CertInvalid")
     {
     }
     virtual ~LLInvalidCertificate() = default;
@@ -367,7 +367,7 @@ protected:
 class LLCertValidationTrustException : public LLCertException
 {
 public:
-    LLCertValidationTrustException(const LLSD& cert_data) : LLCertException(cert_data, "CertUntrusted")
+    explicit LLCertValidationTrustException(const LLSD& cert_data) : LLCertException(cert_data, "CertUntrusted")
     {
     }
     virtual ~LLCertValidationTrustException() = default;
@@ -405,7 +405,7 @@ protected:
 class LLCertKeyUsageValidationException : public LLCertException
 {
 public:
-    LLCertKeyUsageValidationException(const LLSD& cert_data) : LLCertException(cert_data, "CertKeyUsage")
+    explicit LLCertKeyUsageValidationException(const LLSD& cert_data) : LLCertException(cert_data, "CertKeyUsage")
     {
     }
     virtual ~LLCertKeyUsageValidationException() = default;
@@ -415,7 +415,7 @@ protected:
 class LLCertBasicConstraintsValidationException : public LLCertException
 {
 public:
-    LLCertBasicConstraintsValidationException(const LLSD& cert_data) : LLCertException(cert_data, "CertBasicConstraints")
+    explicit LLCertBasicConstraintsValidationException(const LLSD& cert_data) : LLCertException(cert_data, "CertBasicConstraints")
     {
     }
     virtual ~LLCertBasicConstraintsValidationException() = default;
@@ -425,7 +425,7 @@ protected:
 class LLCertValidationInvalidSignatureException : public LLCertException
 {
 public:
-    LLCertValidationInvalidSignatureException(const LLSD& cert_data) : LLCertException(cert_data, "CertInvalidSignature")
+    explicit LLCertValidationInvalidSignatureException(const LLSD& cert_data) : LLCertException(cert_data, "CertInvalidSignature")
     {
     }
     virtual ~LLCertValidationInvalidSignatureException() = default;

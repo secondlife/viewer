@@ -107,7 +107,7 @@ class LLFindAgentCallingCard : public LLInventoryCollectFunctor
 {
 public:
     LLFindAgentCallingCard() : mIsAgentCallingCardFound(false) {}
-    virtual ~LLFindAgentCallingCard() {}
+    virtual ~LLFindAgentCallingCard() = default;
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
     bool isAgentCallingCardFound() { return mIsAgentCallingCardFound; }
 

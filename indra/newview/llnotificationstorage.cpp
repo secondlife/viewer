@@ -81,9 +81,7 @@ LLNotificationStorage::LLNotificationStorage(std::string pFileName)
 {
 }
 
-LLNotificationStorage::~LLNotificationStorage()
-{
-}
+LLNotificationStorage::~LLNotificationStorage() = default;
 
 bool LLNotificationStorage::writeNotifications(const LLSD& pNotificationData) const
 {

@@ -206,9 +206,7 @@ LLBaseDownloadRequest::LLBaseDownloadRequest(const LLUUID &uuid, const LLAssetTy
 }
 
 // virtual
-LLBaseDownloadRequest::~LLBaseDownloadRequest()
-{
-}
+LLBaseDownloadRequest::~LLBaseDownloadRequest() = default;
 
 // virtual
 LLBaseDownloadRequest* LLBaseDownloadRequest::getCopy()
@@ -233,9 +231,7 @@ LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type
 }
 
 // virtual
-LLAssetRequest::~LLAssetRequest()
-{
-}
+LLAssetRequest::~LLAssetRequest() = default;
 
 // virtual
 LLSD LLAssetRequest::getTerseDetails() const
@@ -283,9 +279,7 @@ LLInvItemRequest::LLInvItemRequest(const LLUUID &uuid, const LLAssetType::EType 
 }
 
 // virtual
-LLInvItemRequest::~LLInvItemRequest()
-{
-}
+LLInvItemRequest::~LLInvItemRequest() = default;
 
 LLBaseDownloadRequest* LLInvItemRequest::getCopy()
 {
@@ -304,9 +298,7 @@ LLEstateAssetRequest::LLEstateAssetRequest(const LLUUID &uuid, const LLAssetType
 }
 
 // Virtual
-LLEstateAssetRequest::~LLEstateAssetRequest()
-{
-}
+LLEstateAssetRequest::~LLEstateAssetRequest() = default;
 
 LLBaseDownloadRequest* LLEstateAssetRequest::getCopy()
 {
@@ -1160,7 +1152,7 @@ LLSD LLAssetStorage::getPendingDetailsImpl(const LLAssetStorage::request_list_t*
         request_list_t::const_iterator end = requests->end();
         for ( ; it != end; ++it)
         {
-            LLAssetRequest* req = *it;
+            const LLAssetRequest* req = *it;
             if (   (LLAssetType::AT_NONE == asset_type)
                    || (req->getType() == asset_type) )
             {

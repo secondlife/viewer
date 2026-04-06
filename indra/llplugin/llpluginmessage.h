@@ -42,7 +42,7 @@ public:
     ~LLPluginMessage();
 
     // reset all internal state
-    void clear(void);
+    void clear();
 
     // Sets the message class and name
     // Also has the side-effect of clearing any key/value pairs in the message.
@@ -57,8 +57,8 @@ public:
     void setValueReal(const std::string &key, F64 value);
     void setValuePointer(const std::string &key, void *value);
 
-    std::string getClass(void) const;
-    std::string getName(void) const;
+    std::string getClass() const;
+    std::string getName() const;
 
     // Returns true if the specified key exists in this message (useful for optional parameters)
     bool hasValue(const std::string &key) const;
@@ -85,7 +85,7 @@ public:
     void* getValuePointer(const std::string &key) const;
 
     // Flatten the message into a string
-    std::string generate(void) const;
+    std::string generate() const;
 
     // Parse an incoming message into component parts
     // (this clears out all existing state before starting the parse)

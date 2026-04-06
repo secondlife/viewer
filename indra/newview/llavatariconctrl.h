@@ -104,7 +104,7 @@ public:
     };
 
 protected:
-    LLAvatarIconCtrl(const Params&);
+    explicit LLAvatarIconCtrl(const Params&);
     friend class LLUICtrlFactory;
 
 public:

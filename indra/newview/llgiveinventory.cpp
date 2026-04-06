@@ -57,7 +57,7 @@ class LLGiveable : public LLInventoryCollectFunctor
 {
 public:
     LLGiveable() : mCountLosing(0) {}
-    virtual ~LLGiveable() {}
+    virtual ~LLGiveable() = default;
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 
     S32 countNoCopy() const { return mCountLosing; }
@@ -94,7 +94,7 @@ class LLUncopyableItems : public LLInventoryCollectFunctor
 {
 public:
     LLUncopyableItems() {}
-    virtual ~LLUncopyableItems() {}
+    virtual ~LLUncopyableItems() = default;
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 };
 

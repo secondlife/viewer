@@ -139,7 +139,7 @@ public:
         };
 
         // correct for inverted params
-        RangeS32(const Params& p = Params())
+        explicit RangeS32(const Params& p = Params())
         :   mMin(p.minimum),
             mMax(p.maximum)
         {
@@ -205,18 +205,18 @@ public:
             }
         };
 
-        ClampedS32(const Params& p)
+        explicit ClampedS32(const Params& p)
         :   RangeS32(p)
         {}
 
-        ClampedS32(const RangeS32& range)
+        explicit ClampedS32(const RangeS32& range)
         :   RangeS32(range)
         {
             // set value here, after range has been sanitized
             mValue = clamp(0);
         }
 
-        ClampedS32(S32 value, const RangeS32& range = RangeS32())
+        explicit ClampedS32(S32 value, const RangeS32& range = RangeS32())
         :   RangeS32(range)
         {
             mValue = clamp(value);
@@ -242,7 +242,7 @@ public:
     //
     using add_popup_t = std::function<void(LLView*)>;
     using remove_popup_t = std::function<void(LLView*)>;
-    using clear_popups_t = std::function<void(void)>;
+    using clear_popups_t = std::function<void()>;
 
     void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );
 

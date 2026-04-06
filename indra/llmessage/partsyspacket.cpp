@@ -882,7 +882,7 @@ U32 LLPartSysCompressedPacket::readVelocityOffset(LLPartInitData *in, U32 startB
 
 U32 LLPartSysCompressedPacket::readUUID(LLPartInitData *in, U32 startByte)
 {
-    U8 * bufPtr = mData + startByte;
+    const U8 * bufPtr = mData + startByte;
 
     if(mData[startByte] == 0x01)
     {

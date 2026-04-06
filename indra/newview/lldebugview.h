@@ -50,7 +50,7 @@ public:
         }
     };
 
-    LLDebugView(const Params&);
+    explicit LLDebugView(const Params&);
     ~LLDebugView();
 
     void init();

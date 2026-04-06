@@ -54,9 +54,7 @@ LLSegment::LLSegment(S32 channel, U8* data, S32 data_len) :
 {
 }
 
-LLSegment::~LLSegment()
-{
-}
+LLSegment::~LLSegment() = default;
 
 bool LLSegment::isOnChannel(S32 channel) const
 {

@@ -68,7 +68,7 @@ protected:
 
 private:
 
-    LLFloaterOpenObject(const LLSD& key);
+    explicit LLFloaterOpenObject(const LLSD& key);
     ~LLFloaterOpenObject();
 
 protected:

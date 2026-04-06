@@ -54,7 +54,7 @@ public:
 protected:
     friend class LLFloaterReg;
 
-    LLFloaterPathfindingCharacters(const LLSD& pSeed);
+    explicit LLFloaterPathfindingCharacters(const LLSD& pSeed);
     virtual ~LLFloaterPathfindingCharacters();
 
     virtual bool                       postBuild();

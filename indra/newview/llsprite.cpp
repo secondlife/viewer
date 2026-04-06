@@ -69,9 +69,7 @@ LLSprite::LLSprite(const LLUUID &image_uuid) :
 }
 
 //////////////////////////////////////////////////////////////////////
-LLSprite::~LLSprite()
-{
-}
+LLSprite::~LLSprite() = default;
 
 void LLSprite::updateFace(LLFace &face)
 {

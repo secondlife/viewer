@@ -113,9 +113,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) : LLToastPanel(p.notif
 }
 
 //--------------------------------------------------------------------------
-LLToastIMPanel::~LLToastIMPanel()
-{
-}
+LLToastIMPanel::~LLToastIMPanel() = default;
 
 //virtual
 bool LLToastIMPanel::handleMouseUp(S32 x, S32 y, MASK mask)
