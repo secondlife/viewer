@@ -2415,7 +2415,7 @@ void LLXMLNode::setFloatValue(U32 length, const F32 *array, Encoding encoding, U
     }
     else if (encoding == Encoding::ENCODING_HEX)
     {
-        U32 *byte_array = (U32 *)array;
+        const U32 *byte_array = (const U32 *)array;
         setUnsignedValue(length, byte_array, Encoding::ENCODING_HEX);
     }
     else
@@ -2465,7 +2465,7 @@ void LLXMLNode::setDoubleValue(U32 length, const F64 *array, Encoding encoding, 
     }
     if (encoding == Encoding::ENCODING_HEX)
     {
-        U64 *byte_array = (U64 *)array;
+        const U64 *byte_array = (const U64 *)array;
         setLongValue(length, byte_array, Encoding::ENCODING_HEX);
     }
     else

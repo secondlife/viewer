@@ -932,7 +932,7 @@ LLSD LLModel::writeModel(
                 for (S32 j = 0; j < face.mNumVertices; ++j)
                 { //for each vert
 
-                    F32* pos = face.mPositions[j].getF32ptr();
+                    const F32* pos = face.mPositions[j].getF32ptr();
 
                     //position
                     for (U32 k = 0; k < 3; ++k)
@@ -940,7 +940,7 @@ LLSD LLModel::writeModel(
                         //convert to 16-bit normalized across domain
                         U16 val = (U16) (((pos[k]-min_pos.mV[k])/pos_range.mV[k])*65535);
 
-                        U8* buff = (U8*) &val;
+                        const U8* buff = (const U8*) &val;
                         //write to binary buffer
                         verts[vert_idx++] = buff[0];
                         verts[vert_idx++] = buff[1];
@@ -948,13 +948,13 @@ LLSD LLModel::writeModel(
 
                     if (face.mNormals)
                     { //normals
-                        F32* norm = face.mNormals[j].getF32ptr();
+                        const F32* norm = face.mNormals[j].getF32ptr();
 
                         for (U32 k = 0; k < 3; ++k)
                         { //for each component
                             //convert to 16-bit normalized
                             U16 val = (U16) ((norm[k]+1.f)*0.5f*65535);
-                            U8* buff = (U8*) &val;
+                            const U8* buff = (const U8*) &val;
 
                             //write to binary buffer
                             normals[norm_idx++] = buff[0];
@@ -983,14 +983,14 @@ LLSD LLModel::writeModel(
                     //texcoord
                     if (face.mTexCoords)
                     {
-                        F32* src_tc = (F32*) face.mTexCoords[j].mV;
+                        const F32* src_tc = (const F32*) face.mTexCoords[j].mV;
 
                         for (U32 k = 0; k < 2; ++k)
                         { //for each component
                             //convert to 16-bit normalized
                             U16 val = (U16) ((src_tc[k]-min_tc.mV[k])/tc_range.mV[k]*65535);
 
-                            U8* buff = (U8*) &val;
+                            const U8* buff = (const U8*) &val;
                             //write to binary buffer
                             tc[tc_idx++] = buff[0];
                             tc[tc_idx++] = buff[1];
@@ -1001,7 +1001,7 @@ LLSD LLModel::writeModel(
                 U32 idx_idx = 0;
                 for (S32 j = 0; j < face.mNumIndices; ++j)
                 {
-                    U8* buff = (U8*) &(face.mIndices[j]);
+                    const U8* buff = (const U8*) &(face.mIndices[j]);
                     indices[idx_idx++] = buff[0];
                     indices[idx_idx++] = buff[1];
                 }
@@ -1408,7 +1408,7 @@ bool LLModel::loadModel(std::istream& is)
                 {
                     for (S32 j = 0; j < face.mNumVertices; ++j)
                     {
-                        LLVector4a& w = face.mWeights[j];
+                        const LLVector4a& w = face.mWeights[j];
 
                         std::vector<JointWeight> wght;
 
@@ -1804,7 +1804,7 @@ void LLMeshSkinInfo::updateHash()
     hash.update((const void*)mJointNums.data(), sizeof(S32) * mJointNums.size());
 
     //mInvBindMatrix
-    F32* src = mInvBindMatrix[0].getF32ptr();
+    const F32* src = mInvBindMatrix[0].getF32ptr();
 
     for (size_t i = 0, count = mInvBindMatrix.size() * 16; i < count; ++i)
     {
@@ -2063,7 +2063,7 @@ LLSD LLModel::Decomposition::asLLSD() const
                         valid.insert(test);
                     }
 
-                    U8* buff = (U8*) &val;
+                    const U8* buff = (const U8*) &val;
                     //write to binary buffer
                     p[vert_idx++] = buff[0];
                     p[vert_idx++] = buff[1];
@@ -2096,7 +2096,7 @@ LLSD LLModel::Decomposition::asLLSD() const
                 //convert to 16-bit normalized across domain
                 U16 val = (U16) (((v[k]-min.mV[k])/range.mV[k])*65535);
 
-                U8* buff = (U8*) &val;
+                const U8* buff = (const U8*) &val;
                 //write to binary buffer
                 p[vert_idx++] = buff[0];
                 p[vert_idx++] = buff[1];

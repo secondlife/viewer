@@ -391,8 +391,8 @@ namespace LLInitParam
         {
             static std::vector<std::string> sValues;
 
-            value_name_map_t* map = getValueNames();
-            for (typename value_name_map_t::value_type& map_pair : *map)
+            const value_name_map_t* map = getValueNames();
+            for (const typename value_name_map_t::value_type& map_pair : *map)
             {
                 sValues.push_back(map_pair.first);
             }

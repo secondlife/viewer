@@ -251,7 +251,7 @@ public:
      */
     void check() const
     {
-        T* ptr = mHandle.get();
+        const T* ptr = mHandle.get();
         if (!ptr)
             BOOST_THROW_EXCEPTION(Stale());
     }

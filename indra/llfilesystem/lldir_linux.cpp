@@ -40,7 +40,7 @@
 static std::string getCurrentUserHome(char* fallback)
 {
     const uid_t uid = getuid();
-    struct passwd *pw;
+    const struct passwd *pw;
 
     pw = getpwuid(uid);
     if ((pw != NULL) && (pw->pw_dir != NULL))

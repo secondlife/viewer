@@ -272,7 +272,7 @@ const LLFolderView* LLFolderViewItem::getRoot() const
 // Returns true if this object is a child (or grandchild, etc.) of potential_ancestor.
 bool LLFolderViewItem::isDescendantOf( const LLFolderViewFolder* potential_ancestor )
 {
-    LLFolderViewItem* root = this;
+    const LLFolderViewItem* root = this;
     while( root->mParentFolder )
     {
         if( root->mParentFolder == potential_ancestor )
@@ -1567,7 +1567,7 @@ LLFolderViewFolder* LLFolderViewFolder::getCommonAncestor(LLFolderViewItem* item
                 it != end_it;
                 ++it)
             {
-                LLFolderViewItem* item = *it;
+                const LLFolderViewItem* item = *it;
 
                 if (item == item_a)
                 {
@@ -1585,7 +1585,7 @@ LLFolderViewFolder* LLFolderViewFolder::getCommonAncestor(LLFolderViewItem* item
                 it != end_it;
                 ++it)
             {
-                LLFolderViewItem* item = *it;
+                const LLFolderViewItem* item = *it;
 
                 if (item == item_a)
                 {

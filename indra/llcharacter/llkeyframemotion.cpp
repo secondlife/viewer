@@ -744,7 +744,7 @@ void LLKeyframeMotion::applyKeyframes(F32 time)
                                                       mJointMotionList->mDuration );
     }
 
-    LLJoint::JointPriority* pose_priority = (LLJoint::JointPriority* )mCharacter->getAnimationData("Hand Pose Priority");
+    const LLJoint::JointPriority* pose_priority = (const LLJoint::JointPriority* )mCharacter->getAnimationData("Hand Pose Priority");
     if (pose_priority)
     {
         if (mJointMotionList->mMaxPriority >= *pose_priority)
@@ -2004,7 +2004,7 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                 constraintp->mJointStateIndices[i] = -1;
                 for (U32 j = 0; j < joint_motion_list->getNumJointMotions(); j++)
                 {
-                    LLJoint* constraint_joint = getJoint(j);
+                    const LLJoint* constraint_joint = getJoint(j);
 
                     if ( !constraint_joint )
                     {
@@ -2497,7 +2497,7 @@ void LLKeyframeDataCache::dumpDiagInfo()
     LL_INFOS() << "-----------------------------------------------------" << LL_ENDL;
 
     // print each loaded mesh, and it's memory usage
-    for (keyframe_data_map_t::value_type& data_pair : sKeyframeDataMap)
+    for (const keyframe_data_map_t::value_type& data_pair : sKeyframeDataMap)
     {
         U32 joint_motion_kb;
 

@@ -915,7 +915,7 @@ LLXMLNodePtr LLXUIParser::getNode(name_stack_t& stack)
 
 bool LLXUIParser::readFlag(Parser& parser, void* val_ptr)
 {
-    LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+    const LLXUIParser& self = static_cast<LLXUIParser&>(parser);
     return self.mCurReadNode == DUMMY_NODE;
 }
 
@@ -1638,13 +1638,13 @@ void LLSimpleXUIParser::parserError(const std::string& message)
 
 bool LLSimpleXUIParser::readFlag(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     return self.mCurAttributeValueBegin == NO_VALUE_MARKER;
 }
 
 bool LLSimpleXUIParser::readBoolValue(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     if (!strcmp(self.mCurAttributeValueBegin.c_str(), "true"))
     {
         *((bool*)val_ptr) = true;
@@ -1668,55 +1668,55 @@ bool LLSimpleXUIParser::readStringValue(Parser& parser, void* val_ptr)
 
 bool LLSimpleXUIParser::readU8Value(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     return parse(self.mCurAttributeValueBegin.c_str(), uint_p[assign_a(*(U8*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readS8Value(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     return parse(self.mCurAttributeValueBegin.c_str(), int_p[assign_a(*(S8*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readU16Value(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     return parse(self.mCurAttributeValueBegin.c_str(), uint_p[assign_a(*(U16*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readS16Value(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     return parse(self.mCurAttributeValueBegin.c_str(), int_p[assign_a(*(S16*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readU32Value(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     return parse(self.mCurAttributeValueBegin.c_str(), uint_p[assign_a(*(U32*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readS32Value(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     return parse(self.mCurAttributeValueBegin.c_str(), int_p[assign_a(*(S32*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readF32Value(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     return parse(self.mCurAttributeValueBegin.c_str(), real_p[assign_a(*(F32*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readF64Value(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     return parse(self.mCurAttributeValueBegin.c_str(), real_p[assign_a(*(F64*)val_ptr)]).full;
 }
 
 bool LLSimpleXUIParser::readColor4Value(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     LLColor4 value;
 
     if (parse(self.mCurAttributeValueBegin.c_str(), real_p[assign_a(value.mV[0])] >> real_p[assign_a(value.mV[1])] >> real_p[assign_a(value.mV[2])] >> real_p[assign_a(value.mV[3])], space_p).full)
@@ -1729,7 +1729,7 @@ bool LLSimpleXUIParser::readColor4Value(Parser& parser, void* val_ptr)
 
 bool LLSimpleXUIParser::readUIColorValue(Parser& parser, void* val_ptr)
 {
-    LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
+    const LLSimpleXUIParser& self = static_cast<LLSimpleXUIParser&>(parser);
     LLColor4 value;
     LLUIColor* colorp = (LLUIColor*)val_ptr;
 

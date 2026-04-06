@@ -247,7 +247,7 @@ void HttpLibcurl::addOp(const HttpOpRequest::ptr_t &op)
 
     if (op->mTracing > HTTP_TRACE_OFF)
     {
-        HttpPolicy & policy(mService->getPolicy());
+        const HttpPolicy & policy(mService->getPolicy());
 
         LL_INFOS(LOG_CORE) << "TRACE, ToActiveQueue, Handle:  "
                             << op->getHandle()
@@ -480,7 +480,7 @@ void HttpLibcurl::policyUpdated(unsigned int policy_class)
         // it's just that pipelined-to-non-pipelined transition that
         // is fatal at the moment.
 
-        HttpPolicyClass & options(policy.getClassOptions(policy_class));
+        const HttpPolicyClass & options(policy.getClassOptions(policy_class));
         CURLM * multi_handle(mMultiHandles[policy_class]);
 
         // Enable policy if stalled

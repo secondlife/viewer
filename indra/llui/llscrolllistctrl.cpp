@@ -311,12 +311,12 @@ S32 LLScrollListCtrl::getSearchColumn()
     // search for proper search column
     if (mSearchColumn < 0)
     {
-        LLScrollListItem* itemp = getFirstData();
+        const LLScrollListItem* itemp = getFirstData();
         if (itemp)
         {
             for(S32 column = 0; column < getNumColumns(); column++)
             {
-                LLScrollListCell* cell = itemp->getColumn(column);
+                const LLScrollListCell* cell = itemp->getColumn(column);
                 if (cell && cell->isText())
                 {
                     mSearchColumn = column;
@@ -382,7 +382,7 @@ bool LLScrollListCtrl::hasSelectedItem() const
     item_list::iterator iter;
     for (iter = mItemList.begin(); iter < mItemList.end(); )
     {
-        LLScrollListItem* itemp = *iter;
+        const LLScrollListItem* itemp = *iter;
         if (itemp && itemp->getSelected())
         {
             return true;
@@ -438,7 +438,7 @@ S32 LLScrollListCtrl::getNumSelected() const
 {
     S32 numSelected = 0;
 
-    for (LLScrollListItem* item : mItemList)
+    for (const LLScrollListItem* item : mItemList)
     {
         if (item->getSelected())
         {
@@ -456,7 +456,7 @@ S32 LLScrollListCtrl::getFirstSelectedIndex() const
     // make sure sort is up to date before returning an index
     updateSort();
 
-    for (LLScrollListItem* item : mItemList)
+    for (const LLScrollListItem* item : mItemList)
     {
         if (item->getSelected())
         {
@@ -643,9 +643,9 @@ S32 LLScrollListCtrl::calcMaxContentWidth()
         {
             // update max content width for this column, by looking at all items
             column->mMaxContentWidth = column->mHeader ? LLFontGL::getFontSansSerifSmall()->getWidth(column->mLabel.getWString().c_str()) + mColumnPadding + HEADING_TEXT_PADDING : 0;
-            for (LLScrollListItem* item : mItemList)
+            for (const LLScrollListItem* item : mItemList)
             {
-                if (LLScrollListCell* cellp = item->getColumn(column->mIndex))
+                if (const LLScrollListCell* cellp = item->getColumn(column->mIndex))
                 {
                     column->mMaxContentWidth = llmax(LLFontGL::getFontSansSerifSmall()->getWidth(cellp->getValue().asString()) + mColumnPadding + COLUMN_TEXT_PADDING, column->mMaxContentWidth);
                 }
@@ -699,7 +699,7 @@ void LLScrollListCtrl::updateLineHeight()
     item_list::iterator iter;
     for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
     {
-        LLScrollListItem *itemp = *iter;
+        const LLScrollListItem *itemp = *iter;
         S32 num_cols = itemp->getNumColumns();
         S32 i = 0;
         for (const LLScrollListCell* cell = itemp->getColumn(i); i < num_cols; cell = itemp->getColumn(++i))
@@ -787,7 +787,7 @@ void LLScrollListCtrl::updateColumns(bool force_update)
         item_list::iterator iter;
         for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
         {
-            LLScrollListItem *itemp = *iter;
+            const LLScrollListItem *itemp = *iter;
             S32 num_cols = itemp->getNumColumns();
             S32 i = 0;
             for (LLScrollListCell* cell = itemp->getColumn(i); i < num_cols; cell = itemp->getColumn(++i))
@@ -1081,7 +1081,7 @@ S32 LLScrollListCtrl::getItemIndex( LLScrollListItem* target_item ) const
     item_list::const_iterator iter;
     for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
     {
-        LLScrollListItem *itemp = *iter;
+        const LLScrollListItem *itemp = *iter;
         if (target_item == itemp)
         {
             return index;
@@ -1099,7 +1099,7 @@ S32 LLScrollListCtrl::getItemIndex( const LLUUID& target_id ) const
     item_list::const_iterator iter;
     for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
     {
-        LLScrollListItem *itemp = *iter;
+        const LLScrollListItem *itemp = *iter;
         if (target_id == itemp->getUUID())
         {
             return index;
@@ -1453,12 +1453,12 @@ U32 LLScrollListCtrl::searchItems(const LLWString& substring, bool case_sensitiv
 
 std::string LLScrollListCtrl::getSelectedItemLabel(S32 column) const
 {
-    LLScrollListItem* item;
+    const LLScrollListItem* item;
 
     item = getFirstSelected();
     if (item)
     {
-        if (LLScrollListCell* cell = item->getColumn(column))
+        if (const LLScrollListCell* cell = item->getColumn(column))
         {
             return cell->getValue().asString();
         }
@@ -1548,7 +1548,7 @@ bool LLScrollListCtrl::isSelected(const LLSD& value) const
     item_list::const_iterator iter;
     for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
     {
-        LLScrollListItem* item = *iter;
+        const LLScrollListItem* item = *iter;
         if (item->getValue().asString() == value.asString())
         {
             return item->getSelected();
@@ -1559,7 +1559,7 @@ bool LLScrollListCtrl::isSelected(const LLSD& value) const
 
 LLUUID LLScrollListCtrl::getStringUUIDSelectedItem() const
 {
-    LLScrollListItem* item = getFirstSelected();
+    const LLScrollListItem* item = getFirstSelected();
 
     if (item)
     {
@@ -1571,7 +1571,7 @@ LLUUID LLScrollListCtrl::getStringUUIDSelectedItem() const
 
 LLSD LLScrollListCtrl::getSelectedValue()
 {
-    LLScrollListItem* item = getFirstSelected();
+    const LLScrollListItem* item = getFirstSelected();
 
     if (item)
     {
@@ -1762,7 +1762,7 @@ LLRect LLScrollListCtrl::getCellRect(S32 row_index, S32 column_index)
     LLRect cell_rect;
     S32 rect_left = getColumnOffsetFromIndex(column_index) + mItemListRect.mLeft;
     S32 rect_bottom = getRowOffsetFromIndex(row_index);
-    LLScrollListColumn* columnp = getColumn(column_index);
+    const LLScrollListColumn* columnp = getColumn(column_index);
     cell_rect.setOriginAndSize(rect_left, rect_bottom,
         /*rect_left + */columnp->getWidth(), mLineHeight);
     return cell_rect;
@@ -1780,7 +1780,7 @@ bool LLScrollListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
     LLScrollListItem* hit_item = hitItem(x, y);
     if (hit_item)
     {
-        LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
+        const LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
         if (!hit_cell) return false;
         if (hit_cell
             && hit_cell->isText()
@@ -1965,7 +1965,7 @@ bool LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 // virtual
 bool LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-    LLScrollListItem *item = hitItem(x, y);
+    const LLScrollListItem *item = hitItem(x, y);
     if (item)
     {
         // check to see if we have a UUID for this row
@@ -2835,7 +2835,7 @@ void LLScrollListCtrl::scrollToShowSelected()
         return;
     }
 
-    LLScrollListItem* item = mItemList[index];
+    const LLScrollListItem* item = mItemList[index];
     if (!item)
     {
         // I don't THINK this should ever happen.
@@ -3045,7 +3045,7 @@ void LLScrollListCtrl::onClickColumn(void *userdata)
     if (column->mSortingColumn != column->mName
         && parent->mColumns.find(column->mSortingColumn) != parent->mColumns.end())
     {
-        LLScrollListColumn* info_redir = parent->mColumns[column->mSortingColumn];
+        const LLScrollListColumn* info_redir = parent->mColumns[column->mSortingColumn];
         column_index = info_redir->mIndex;
     }
 
@@ -3247,7 +3247,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
         S32 column_idx = column_it->second->mIndex;
         if (new_item->getColumn(column_idx) == NULL)
         {
-            LLScrollListColumn* column_ptr = column_it->second;
+            const LLScrollListColumn* column_ptr = column_it->second;
             LLScrollListCell::Params cell_p;
             cell_p.width = column_ptr->getWidth();
 
@@ -3288,7 +3288,7 @@ void LLScrollListCtrl::setValue(const LLSD& value )
 
 LLSD LLScrollListCtrl::getValue() const
 {
-    LLScrollListItem *item = getFirstSelected();
+    const LLScrollListItem *item = getFirstSelected();
     if (!item) return LLSD();
     return item->getValue();
 }
@@ -3405,7 +3405,7 @@ bool LLScrollListCtrl::highlightMatchingItems(const std::string& filter_str)
     std::vector<LLScrollListItem*>::iterator iter = data.begin();
     while (iter != data.end())
     {
-        LLScrollListCell* cell = (*iter)->getColumn(0);
+        const LLScrollListCell* cell = (*iter)->getColumn(0);
         if (cell)
         {
             std::string value = cell->getValue().asString();

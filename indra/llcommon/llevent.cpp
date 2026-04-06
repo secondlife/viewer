@@ -270,7 +270,7 @@ void LLSimpleListener::clearDispatchers()
 bool LLSimpleListener::handleAttach(LLEventDispatcher *dispatcher)
 {
     // Add dispatcher if it doesn't already exist
-    for (LLEventDispatcher* disp : mDispatchers)
+    for (const LLEventDispatcher* disp : mDispatchers)
     {
         if (disp == dispatcher) return true;
     }

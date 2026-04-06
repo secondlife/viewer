@@ -550,8 +550,8 @@ void LLBVHLoader::dumpBVHInfo()
         {
             if (i<joint->mKeys.size()) // Check this in case file load failed.
             {
-                Key &prevkey = joint->mKeys[llmax(i-1,0)];
-                Key &key = joint->mKeys[i];
+                const Key &prevkey = joint->mKeys[llmax(i-1,0)];
+                const Key &key = joint->mKeys[i];
                 if ((i==0) ||
                     (key.mPos[0] != prevkey.mPos[0]) ||
                     (key.mPos[1] != prevkey.mPos[1]) ||
@@ -1293,7 +1293,7 @@ bool LLBVHLoader::serialize(LLDataPacker& dp)
 
     // count number of non-ignored joints
     S32 numJoints = 0;
-    for (Joint* joint : mJoints)
+    for (const Joint* joint : mJoints)
     {
         if ( ! joint->mIgnore )
             numJoints++;

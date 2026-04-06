@@ -496,8 +496,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
     HttpStatus status;
 
     // Get global and class policy options
-    HttpPolicyGlobal & gpolicy(service->getPolicy().getGlobalOptions());
-    HttpPolicyClass & cpolicy(service->getPolicy().getClassOptions(mReqPolicy));
+    const HttpPolicyGlobal & gpolicy(service->getPolicy().getGlobalOptions());
+    const HttpPolicyClass & cpolicy(service->getPolicy().getClassOptions(mReqPolicy));
 
     mCurlHandle = service->getTransport().getHandle();
     if (! mCurlHandle)
@@ -1189,7 +1189,7 @@ int parse_content_range_header(char * buffer,
 {
     static const char * const hdr_whitespace(" \t");
 
-    char * tok_state(NULL), * tok(NULL);
+    char * tok_state(NULL); const char * tok(NULL);
     bool match(true);
 
     if (! (tok = os_strtok_r(buffer, hdr_whitespace, &tok_state)))

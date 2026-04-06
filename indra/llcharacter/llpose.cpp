@@ -270,7 +270,7 @@ void LLJointStateBlender::blendJointStates(bool apply_now)
         joint_state_index < JSB_NUM_JOINT_STATES && mJointStates[joint_state_index].notNull();
         joint_state_index++)
     {
-        LLJointState* jsp = mJointStates[joint_state_index];
+        const LLJointState* jsp = mJointStates[joint_state_index];
         U32 current_usage = jsp->getUsage();
         F32 current_weight = jsp->getWeight();
 

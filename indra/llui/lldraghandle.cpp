@@ -351,7 +351,7 @@ bool LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
         mLastMouseScreenX = screen_x;
         mLastMouseScreenY = screen_y;
 
-        LLView* snap_view = getParent()->findSnapRect(new_rect, mouse_dir, SNAP_PARENT_AND_SIBLINGS, sSnapMargin);
+        const LLView* snap_view = getParent()->findSnapRect(new_rect, mouse_dir, SNAP_PARENT_AND_SIBLINGS, sSnapMargin);
 
         getParent()->setSnappedTo(snap_view);
         delta_x = new_rect.mLeft - pre_snap_x;

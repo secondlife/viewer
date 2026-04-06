@@ -451,7 +451,7 @@ void LLAvatarAppearance::compareJointStateMaps(joint_state_map_t& last_state,
     if (!last_state.empty() && (last_state != curr_state))
     {
         S32 diff_count = 0;
-        for (joint_state_map_t::value_type& pair : last_state)
+        for (const joint_state_map_t::value_type& pair : last_state)
         {
             const std::string& key = pair.first;
             if (last_state[key] != curr_state[key])
@@ -663,7 +663,7 @@ bool LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 
 
     // setup children
-    for (LLAvatarBoneInfo* child_info : info->mChildren)
+    for (const LLAvatarBoneInfo* child_info : info->mChildren)
     {
         if (!setupBone(child_info, joint, volume_num, joint_num))
         {
@@ -716,7 +716,7 @@ bool LLAvatarAppearance::buildSkeleton(const LLAvatarSkeletonInfo *info)
 
     S32 current_joint_num = 0;
     S32 current_volume_num = 0;
-    for (LLAvatarBoneInfo* bone_info : info->mBoneInfoList)
+    for (const LLAvatarBoneInfo* bone_info : info->mBoneInfoList)
     {
         if (!setupBone(bone_info, NULL, current_volume_num, current_joint_num))
         {
@@ -795,7 +795,7 @@ void LLAvatarAppearance::buildCharacter()
     //-------------------------------------------------------------------------
     // clear mesh data
     //-------------------------------------------------------------------------
-    for (LLAvatarJoint* joint : mMeshLOD)
+    for (const LLAvatarJoint* joint : mMeshLOD)
     {
         for (LLAvatarJointMesh* mesh : joint->mMeshParts)
         {
@@ -1236,7 +1236,7 @@ bool LLAvatarAppearance::loadLayersets()
             }
 
             // scan morph masks and let any affected layers know they have an associated morph
-            for (LLMaskedMorph* morph : mBakedTextureDatas[baked_index].mMaskedMorphs)
+            for (const LLMaskedMorph* morph : mBakedTextureDatas[baked_index].mMaskedMorphs)
             {
                 LLTexLayerInterface* layer = layer_set->findLayerByName(morph->mLayer);
                 if (layer)
@@ -1749,7 +1749,7 @@ const LLAvatarAppearance::joint_alias_map_t& LLAvatarAppearance::getJointAliases
             makeJointAliases(bone_info);
         }
 
-        for (LLAvatarXmlInfo::LLAvatarAttachmentInfo* info : sAvatarXmlInfo->mAttachmentInfoList)
+        for (const LLAvatarXmlInfo::LLAvatarAttachmentInfo* info : sAvatarXmlInfo->mAttachmentInfoList)
         {
             std::string bone_name = info->mName;
 

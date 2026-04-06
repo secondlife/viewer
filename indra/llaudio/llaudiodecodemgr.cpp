@@ -255,7 +255,7 @@ bool LLVorbisDecodeState::initDecode()
     if( abort_decode )
     {
         LL_WARNS("AudioEngine") << "Canceling initDecode. Bad asset: " << mUUID << LL_ENDL;
-        vorbis_comment* comment = ov_comment(&mVF,-1);
+        const vorbis_comment* comment = ov_comment(&mVF,-1);
         if (comment && comment->vendor)
         {
             LL_WARNS("AudioEngine") << "Bad asset encoded by: " << comment->vendor << LL_ENDL;

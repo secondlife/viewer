@@ -313,7 +313,7 @@ bool LLPumpIO::setConditional(LLIOPipe* pipe, const apr_pollfd_t* poll)
     it = (*mCurrentChain).mDescriptors.begin();
     while(it != (*mCurrentChain).mDescriptors.end())
     {
-        LLChainInfo::pipe_conditional_t& value = (*it);
+        const LLChainInfo::pipe_conditional_t& value = (*it);
         if(pipe_ptr == value.first)
         {
             ll_delete_apr_pollset_fd_client_data()(value);

@@ -630,7 +630,7 @@ LLCircuitData* LLCircuit::findCircuit(const LLHost& host) const
 
 bool LLCircuit::isCircuitAlive(const LLHost& host) const
 {
-    LLCircuitData *cdp = findCircuit(host);
+    const LLCircuitData *cdp = findCircuit(host);
     if(cdp)
     {
         return cdp->mbAlive;

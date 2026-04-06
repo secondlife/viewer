@@ -390,7 +390,7 @@ protected:
             LLAvatarMeshInfo() : mLOD(0), mMinPixelArea(.1f) {}
             ~LLAvatarMeshInfo()
             {
-                for (morph_info_list_t::value_type& pair : mPolyMorphTargetInfoList)
+                for (const morph_info_list_t::value_type& pair : mPolyMorphTargetInfoList)
                 {
                     delete pair.first;
                 }

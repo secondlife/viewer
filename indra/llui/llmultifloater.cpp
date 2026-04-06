@@ -291,7 +291,7 @@ void LLMultiFloater::removeFloater(LLFloater* floaterp)
     floater_data_map_t::iterator found_data_it = mFloaterDataMap.find(floaterp->getHandle());
     if (found_data_it != mFloaterDataMap.end())
     {
-        LLFloaterData& floater_data = found_data_it->second;
+        const LLFloaterData& floater_data = found_data_it->second;
         floaterp->setCanMinimize(floater_data.mCanMinimize);
         floaterp->mSaveRect = floater_data.mSaveRect;
         if (!floater_data.mCanResize)
@@ -513,7 +513,7 @@ void LLMultiFloater::computeResizeLimits(S32& new_min_width, S32& new_min_height
     // possibly increase minimum size constraint due to children's minimums.
     for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
     {
-        LLFloater* floaterp = (LLFloater*)mTabContainer->getPanelByIndex(tab_idx);
+        const LLFloater* floaterp = (LLFloater*)mTabContainer->getPanelByIndex(tab_idx);
         if (floaterp)
         {
             new_min_width = llmax(new_min_width, floaterp->getMinWidth() + LLPANEL_BORDER_WIDTH * 2);

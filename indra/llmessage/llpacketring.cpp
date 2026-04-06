@@ -195,7 +195,7 @@ S32 LLPacketRing::receiveOrDropBufferedPacket(char *datap, bool drop)
 
     S16 ring_size = (S16)(mPacketRing.size());
     S16 packet_index = (mHeadIndex + ring_size - mNumBufferedPackets) % ring_size;
-    LLPacketBuffer* packet = mPacketRing[packet_index];
+    const LLPacketBuffer* packet = mPacketRing[packet_index];
     packet_size = packet->getSize();
     mLastSender = packet->getHost();
     mLastReceivingIF = packet->getReceivingInterface();

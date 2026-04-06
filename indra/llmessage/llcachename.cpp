@@ -407,7 +407,7 @@ bool LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::strin
         return true;
     }
 
-    LLCacheNameEntry* entry = get_ptr_in_map(mCache, id );
+    const LLCacheNameEntry* entry = get_ptr_in_map(mCache, id );
     if (entry)
     {
         first = entry->mFirstName;
@@ -798,7 +798,7 @@ void LLCacheName::Impl::processPendingReplies()
     for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
     {
         PendingReply* reply = *it;
-        LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
+        const LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
         if(!entry) continue;
 
         if (reply->mHost.isOk())

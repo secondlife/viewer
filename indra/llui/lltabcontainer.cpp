@@ -331,7 +331,7 @@ LLView* LLTabContainer::getChildView(std::string_view name, bool recurse) const
     {
         for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
         {
-            LLPanel *panel = (*itor)->mTabPanel;
+            const LLPanel *panel = (*itor)->mTabPanel;
             LLView *child = panel->getChildView(name, recurse);
             if (child)
             {
@@ -359,7 +359,7 @@ LLView* LLTabContainer::findChildView(std::string_view name, bool recurse) const
     {
         for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
         {
-            LLPanel *panel = (*itor)->mTabPanel;
+            const LLPanel *panel = (*itor)->mTabPanel;
             LLView *child = panel->findChildView(name, recurse);
             if (child)
             {
@@ -1500,7 +1500,7 @@ bool LLTabContainer::selectTabPanel(LLPanel* child)
     S32 idx = 0;
     for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
     {
-        LLTabTuple* tuple = *iter;
+        const LLTabTuple* tuple = *iter;
         if( tuple->mTabPanel == child )
         {
             return selectTab( idx );
@@ -1725,8 +1725,8 @@ void LLTabContainer::reshapeTuple(LLTabTuple* tuple)
 
         if(mCustomIconCtrlUsed)
         {
-            LLCustomButtonIconCtrl* button = dynamic_cast<LLCustomButtonIconCtrl*>(tuple->mButton);
-            LLIconCtrl* icon_ctrl = button ? button->getIconCtrl() : NULL;
+            const LLCustomButtonIconCtrl* button = dynamic_cast<LLCustomButtonIconCtrl*>(tuple->mButton);
+            const LLIconCtrl* icon_ctrl = button ? button->getIconCtrl() : NULL;
             image_overlay_width = icon_ctrl ? icon_ctrl->getRect().getWidth() : 0;
         }
         else
@@ -1761,7 +1761,7 @@ const std::string LLTabContainer::getPanelTitle(S32 index)
 {
     if (index >= 0 && index < (S32)mTabList.size())
     {
-        LLButton* tab_button = mTabList[index]->mButton;
+        const LLButton* tab_button = mTabList[index]->mButton;
         return tab_button->getLabelSelected();
     }
     return LLStringUtil::null;
@@ -2151,7 +2151,7 @@ void LLTabContainer::commitHoveredButton(S32 x, S32 y)
         for (tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
         {
             LLButton* button = (*iter)->mButton;
-            LLPanel* panel = (*iter)->mTabPanel;
+            const LLPanel* panel = (*iter)->mTabPanel;
             if (button->getEnabled() && button->getVisible() && !panel->getVisible())
             {
                 S32 local_x = x - button->getRect().mLeft;

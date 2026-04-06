@@ -210,7 +210,7 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
             scaled_rect.mTop = scaled_rect.mBottom + new_height;
             resizing_view->setRect(scaled_rect);
 
-            LLView* snap_view = NULL;
+            const LLView* snap_view = NULL;
             LLView* test_view = NULL;
 
             static LLUICachedControl<S32> snap_margin ("SnapMargin", 0);

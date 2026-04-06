@@ -66,7 +66,7 @@ LLXORCipher& LLXORCipher::operator=(const LLXORCipher& cipher)
 U32 LLXORCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
 {
     if(!src || !src_len || !dst || !dst_len || !mPad) return 0;
-    U8* pad_end = mPad + mPadLen;
+    const U8* pad_end = mPad + mPadLen;
     U32 count = src_len;
     while(count--)
     {

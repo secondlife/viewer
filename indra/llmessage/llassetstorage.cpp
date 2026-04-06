@@ -1152,7 +1152,7 @@ LLSD LLAssetStorage::getPendingDetailsImpl(const LLAssetStorage::request_list_t*
         request_list_t::const_iterator end = requests->end();
         for ( ; it != end; ++it)
         {
-            LLAssetRequest* req = *it;
+            const LLAssetRequest* req = *it;
             if (   (LLAssetType::AT_NONE == asset_type)
                    || (req->getType() == asset_type) )
             {

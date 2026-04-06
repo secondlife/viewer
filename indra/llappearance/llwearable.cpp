@@ -543,7 +543,7 @@ void LLWearable::revertValues()
 
     //update saved settings so wearable is no longer dirty
     // One loop should be necessary here
-    for (param_map_t::value_type& vp_pair : mSavedVisualParamMap)
+    for (const param_map_t::value_type& vp_pair : mSavedVisualParamMap)
     {
         S32 id = vp_pair.first;
         LLVisualParam *param = getVisualParam(id);
@@ -584,7 +584,7 @@ void LLWearable::syncImages(te_map_t &src, te_map_t &dst)
             te_map_t::const_iterator iter = src.find(te);
             LLUUID image_id;
             LLGLTexture *image = NULL;
-            LLLocalTextureObject *lto = NULL;
+            const LLLocalTextureObject *lto = NULL;
             if(iter != src.end())
             {
                 // there's a Local Texture Object in the source image map. Use this to populate the values to store in the destination image map.
@@ -681,7 +681,7 @@ LLVisualParam* LLWearable::getVisualParam(S32 index) const
 void LLWearable::getVisualParams(visual_param_vec_t &list)
 {
     // add all visual params to the passed-in vector
-    for(visual_param_index_map_t::value_type& vp_pair : mVisualParamIndexMap)
+    for(const visual_param_index_map_t::value_type& vp_pair : mVisualParamIndexMap)
     {
         list.push_back(vp_pair.second);
     }

@@ -958,7 +958,7 @@ bool LLView::handleToolTip(S32 x, S32 y, MASK mask)
     }
 
     // child tooltips will override our own
-    LLView* child_handler = childrenHandleToolTip(x, y, mask);
+    const LLView* child_handler = childrenHandleToolTip(x, y, mask);
     if (child_handler)
     {
         handled = true;
@@ -1107,14 +1107,14 @@ bool LLView::hasMouseCapture()
 
 bool LLView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-    LLView* r = childrenHandleMouseUp( x, y, mask );
+    const LLView* r = childrenHandleMouseUp( x, y, mask );
 
     return (r!=NULL);
 }
 
 bool LLView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    LLView* r= childrenHandleMouseDown(x, y, mask );
+    const LLView* r= childrenHandleMouseDown(x, y, mask );
 
     return (r!=NULL);
 }
@@ -1227,7 +1227,7 @@ void LLView::drawChildren()
 {
     if (!mChildList.empty())
     {
-        LLView* rootp = LLUI::getInstance()->getRootView();
+        const LLView* rootp = LLUI::getInstance()->getRootView();
         ++sDepth;
 
         for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend();)  // ++child_iter)
@@ -1277,7 +1277,7 @@ void LLView::dirtyRect()
 {
     LLView* child = getParent();
     LLView* parent = child ? child->getParent() : NULL;
-    LLView* cur = this;
+    const LLView* cur = this;
     while (child && parent && parent->getParent())
     { //find third to top-most view
         cur = child;
@@ -1362,7 +1362,7 @@ void LLView::drawDebugRect()
             S32 lines = rect_height / LINE_HEIGHT + 1;
 
             S32 depth = 0;
-            LLView * viewp = this;
+            const LLView * viewp = this;
             while (NULL != viewp)
             {
                 viewp = viewp->getParent();
@@ -1488,7 +1488,7 @@ LLRect LLView::calcBoundingRect()
 {
     LLRect local_bounding_rect = LLRect::null;
 
-    for (LLView* childp : mChildList)
+    for (const LLView* childp : mChildList)
     {
         // ignore invisible and "top" children when calculating bounding rect
         // such as combobox popups
@@ -1599,7 +1599,7 @@ bool LLView::hasAncestor(const LLView* parentp) const
         return false;
     }
 
-    LLView* viewp = getParent();
+    const LLView* viewp = getParent();
     while(viewp)
     {
         if (viewp == parentp)
@@ -1616,7 +1616,7 @@ bool LLView::hasAncestor(const LLView* parentp) const
 
 bool LLView::childHasKeyboardFocus(std::string_view childname) const
 {
-    LLView *focus = dynamic_cast<LLView *>(gFocusMgr.getKeyboardFocus());
+    const LLView *focus = dynamic_cast<LLView *>(gFocusMgr.getKeyboardFocus());
 
     while (focus != NULL)
     {
@@ -2438,7 +2438,7 @@ static bool get_last_child_rect(LLView* parent, LLRect *rect)
         parent->getChildList()->begin();
     for (;itor != parent->getChildList()->end(); ++itor)
     {
-        LLView *last_view = (*itor);
+        const LLView *last_view = (*itor);
         if (last_view->getFromXUI())
         {
             *rect = last_view->getRect();

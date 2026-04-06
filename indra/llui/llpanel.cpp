@@ -309,7 +309,7 @@ bool LLPanel::handleKeyHere( KEY key, MASK mask )
     // If RETURN was pressed and something has focus, call onCommit()
     if (!handled && cur_focus && key == KEY_RETURN && mask == MASK_NONE)
     {
-        LLButton* focused_button = dynamic_cast<LLButton*>(cur_focus);
+        const LLButton* focused_button = dynamic_cast<LLButton*>(cur_focus);
         if (focused_button && focused_button->getCommitOnReturn())
         {
             // current focus is a return-capturing button,
@@ -648,7 +648,7 @@ void LLPanel::childSetFocus(std::string_view id, bool focus)
 
 bool LLPanel::childHasFocus(std::string_view id)
 {
-    LLUICtrl* child = findChild<LLUICtrl>(id);
+    const LLUICtrl* child = findChild<LLUICtrl>(id);
     if (child)
     {
         return child->hasFocus();
@@ -722,7 +722,7 @@ void LLPanel::childSetValue(std::string_view id, LLSD value)
 
 LLSD LLPanel::childGetValue(std::string_view id) const
 {
-    LLUICtrl* child = findChild<LLUICtrl>(id);
+    const LLUICtrl* child = findChild<LLUICtrl>(id);
     if (child)
     {
         return child->getValue();

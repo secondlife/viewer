@@ -215,7 +215,7 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 {
     const HttpTime now(totalTime());
     HttpService::ELoopSpeed result(HttpService::ELoopSpeed::REQUEST_SLEEP);
-    HttpLibcurl & transport(mService->getTransport());
+    const HttpLibcurl & transport(mService->getTransport());
 
     for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
     {

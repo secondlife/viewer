@@ -1241,7 +1241,7 @@ bool LLMenuItemBranchGL::handleKeyHere(KEY key, MASK mask)
             // switch to keyboard navigation mode
             LLMenuGL::setKeyboardMode(true);
 
-            LLMenuItemGL* itemp = branch->highlightNextItem(NULL);
+            const LLMenuItemGL* itemp = branch->highlightNextItem(NULL);
             if (itemp)
             {
                 return true;
@@ -1929,7 +1929,7 @@ bool LLMenuGL::postBuild()
 // or are we a free-standing torn-off menu (which uses jump keys too)
 bool LLMenuGL::jumpKeysActive()
 {
-    LLMenuItemGL* highlighted_item = getHighlightedItem();
+    const LLMenuItemGL* highlighted_item = getHighlightedItem();
     bool active = getVisible() && getEnabled();
 
     if (active)
@@ -1960,7 +1960,7 @@ bool LLMenuGL::isOpen()
 {
     if (getTornOff())
     {
-        LLMenuItemGL* itemp = getHighlightedItem();
+        const LLMenuItemGL* itemp = getHighlightedItem();
         // if we have an open sub-menu, then we are considered part of
         // the open menu chain even if we don't have focus
         if (itemp && itemp->isOpen())
@@ -3095,7 +3095,7 @@ bool LLMenuGL::hasAccelerator(const KEY &key, const MASK &mask) const
     item_list_t::const_iterator item_iter;
     for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
     {
-        LLMenuItemGL* itemp = *item_iter;
+        const LLMenuItemGL* itemp = *item_iter;
         if (itemp->hasAccelerator(key, mask))
         {
             return true;
@@ -3285,7 +3285,7 @@ LLMenuGL* LLMenuGL::findChildMenuByName(std::string_view name, bool recurse) con
     LLView* view = findChildView(name, recurse);
     if (view)
     {
-        LLMenuItemBranchGL* branch = dynamic_cast<LLMenuItemBranchGL*>(view);
+        const LLMenuItemBranchGL* branch = dynamic_cast<LLMenuItemBranchGL*>(view);
         if (branch)
         {
             return branch->getBranch();
@@ -3344,7 +3344,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y, S3
                 itor != menu->getChildList()->end();
                 ++itor)
         {
-            LLView *menu_item = (*itor);
+            const LLView *menu_item = (*itor);
             item_enabled = item_enabled || menu_item->getEnabled();
         }
 
@@ -3529,7 +3529,7 @@ bool LLMenuBarGL::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 void LLMenuBarGL::draw()
 {
-    LLMenuItemGL* itemp = getHighlightedItem();
+    const LLMenuItemGL* itemp = getHighlightedItem();
     // If we are in mouse-control mode and the mouse cursor is not hovering over
     // the current highlighted menu item and it isn't open, then remove the
     // highlight. This is done via a polling mechanism here, as we don't receive
@@ -3772,8 +3772,8 @@ bool LLMenuHolderGL::handleMouseDown( S32 x, S32 y, MASK mask )
     bool handled = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
     if (!handled)
     {
-        LLMenuGL* visible_menu = (LLMenuGL*)getVisibleMenu();
-        LLMenuItemGL* parent_menu = visible_menu ? visible_menu->getParentMenuItem() : NULL;
+        const LLMenuGL* visible_menu = (LLMenuGL*)getVisibleMenu();
+        const LLMenuItemGL* parent_menu = visible_menu ? visible_menu->getParentMenuItem() : NULL;
         if (parent_menu && parent_menu->getVisible())
         {
             // don't hide menu if parent was hit
@@ -4163,7 +4163,7 @@ void    LLContextMenuBranch::showSubMenu()
     auto menu = getBranch();
     if(menu)
     {
-        LLMenuItemGL* menu_item = menu->getParentMenuItem();
+        const LLMenuItemGL* menu_item = menu->getParentMenuItem();
         if (menu_item != NULL && menu_item->getVisible())
         {
             S32 center_x;
@@ -4241,7 +4241,7 @@ void LLContextMenu::show(S32 x, S32 y, LLView* spawning_view)
     S32 width = getRect().getWidth();
     S32 height = getRect().getHeight();
     const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getMenuRect();
-    LLView* parent_view = getParent();
+    const LLView* parent_view = getParent();
 
     // Open upwards if menu extends past bottom
     if (y - height < menu_region_rect.mBottom)

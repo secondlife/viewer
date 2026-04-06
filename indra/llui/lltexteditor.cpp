@@ -2714,7 +2714,7 @@ void LLTextEditor::updateLinkSegments()
             LLWString url_label = wtext.substr(segment->getStart(), segment->getEnd()-segment->getStart());
 
             segment_set_t::const_iterator next_it = mSegments.upper_bound(segment);
-            LLTextSegment *next_segment = *next_it;
+            const LLTextSegment *next_segment = *next_it;
             if (next_segment)
             {
                 LLWString next_url_label = wtext.substr(next_segment->getStart(), next_segment->getEnd()-next_segment->getStart());

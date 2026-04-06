@@ -192,7 +192,7 @@ bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
             scaled_rect.mRight = scaled_rect.mLeft + new_width;
             mResizingView->setRect(scaled_rect);
 
-            LLView* snap_view = NULL;
+            const LLView* snap_view = NULL;
 
             if (mSnappingEnabled)
             {

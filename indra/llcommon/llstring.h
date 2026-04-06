@@ -1645,7 +1645,7 @@ void LLStringUtilBase<T>::stripNonprintable(string_type& string)
     char* write_head = &c_string[0];
     for (size_type i = 0; i < src_size; i++)
     {
-        char* read_head = &string[i];
+        const char* read_head = &string[i];
         write_head = &c_string[j];
         if(!(*read_head < MIN))
         {

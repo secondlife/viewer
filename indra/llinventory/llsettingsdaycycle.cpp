@@ -713,11 +713,11 @@ LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
     }
 
     KeyframeList_t keyframes;
-    CycleTrack_t &track = mDayTracks[trackno];
+    const CycleTrack_t &track = mDayTracks[trackno];
 
     keyframes.reserve(track.size());
 
-    for (CycleTrack_t::iterator it = track.begin(); it != track.end(); ++it)
+    for (CycleTrack_t::const_iterator it = track.begin(); it != track.end(); ++it)
     {
         keyframes.push_back((*it).first);
     }

@@ -228,7 +228,7 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 
 bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 {
-    LLCommand * command = LLCommandManager::instance().getCommand(commandId);
+    const LLCommand * command = LLCommandManager::instance().getCommand(commandId);
     if (!command) return false;
 
     // Create the button and do the things that don't need ordering
@@ -812,7 +812,7 @@ void LLToolBar::draw()
         for (toolbar_button_list::iterator btn_it = mButtons.begin(); btn_it != mButtons.end(); ++btn_it)
         {
             LLToolBarButton* btn = *btn_it;
-            LLCommand* command = LLCommandManager::instance().getCommand(btn->mId);
+            const LLCommand* command = LLCommandManager::instance().getCommand(btn->mId);
 
             if (command && btn->mIsEnabledSignal)
             {
@@ -917,7 +917,7 @@ void LLToolBar::createButtons()
 
 void LLToolBarButton::callIfEnabled(LLUICtrl::commit_callback_t commit, LLUICtrl* ctrl, const LLSD& param )
 {
-    LLCommand* command = LLCommandManager::instance().getCommand(mId);
+    const LLCommand* command = LLCommandManager::instance().getCommand(mId);
 
     if (!mIsEnabledSignal || (*mIsEnabledSignal)(this, command->isEnabledParameters()))
     {
@@ -927,7 +927,7 @@ void LLToolBarButton::callIfEnabled(LLUICtrl::commit_callback_t commit, LLUICtrl
 
 LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 {
-    LLCommand* commandp = LLCommandManager::instance().getCommand(id);
+    const LLCommand* commandp = LLCommandManager::instance().getCommand(id);
     if (!commandp) return NULL;
 
     LLToolBarButton::Params button_p;
@@ -1191,7 +1191,7 @@ void LLToolBarButton::onMouseCaptureLost()
 
 void LLToolBarButton::onCommit()
 {
-    LLCommand* command = LLCommandManager::instance().getCommand(mId);
+    const LLCommand* command = LLCommandManager::instance().getCommand(mId);
 
     if (!mIsEnabledSignal || (*mIsEnabledSignal)(this, command->isEnabledParameters()))
     {

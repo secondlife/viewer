@@ -153,7 +153,7 @@ void LLRadioGroup::setIndexEnabled(S32 index, bool enabled)
         for (button_list_t::iterator iter = mRadioButtons.begin();
              iter != mRadioButtons.end(); ++iter)
         {
-            LLRadioCtrl* child = *iter;
+            const LLRadioCtrl* child = *iter;
             if (count >= index && mSelectedIndex >= 0)
             {
                 break;
@@ -304,14 +304,14 @@ bool LLRadioGroup::handleKeyHere(KEY key, MASK mask)
 void LLRadioGroup::onClickButton(LLUICtrl* ctrl)
 {
     // LL_INFOS() << "LLRadioGroup::onClickButton" << LL_ENDL;
-    LLRadioCtrl* clicked_radio = dynamic_cast<LLRadioCtrl*>(ctrl);
+    const LLRadioCtrl* clicked_radio = dynamic_cast<LLRadioCtrl*>(ctrl);
     if (!clicked_radio)
         return;
     S32 index = 0;
     for (button_list_t::iterator iter = mRadioButtons.begin();
          iter != mRadioButtons.end(); ++iter)
     {
-        LLRadioCtrl* radio = *iter;
+        const LLRadioCtrl* radio = *iter;
         if (radio == clicked_radio)
         {
             if (index == mSelectedIndex && mAllowDeselect)

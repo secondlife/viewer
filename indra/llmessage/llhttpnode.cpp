@@ -249,7 +249,7 @@ const LLHTTPNode* LLHTTPNode::traverse(
     const LLHTTPNode* node = this;
     for(; iter != end; ++iter)
     {
-        LLHTTPNode* child = node->getChild(*iter, context);
+        const LLHTTPNode* child = node->getChild(*iter, context);
         if(!child)
         {
             LL_DEBUGS() << "LLHTTPNode::traverse: Couldn't find '" << *iter << "'" << LL_ENDL;

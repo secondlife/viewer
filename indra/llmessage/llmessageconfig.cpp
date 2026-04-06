@@ -215,7 +215,7 @@ void LLMessageConfig::useConfig(const LLSD& config)
 //static
 LLMessageConfig::Flavor LLMessageConfig::getServerDefaultFlavor()
 {
-    LLMessageConfigFile& file = LLMessageConfigFile::instance();
+    const LLMessageConfigFile& file = LLMessageConfigFile::instance();
     if (file.mServerDefault == "llsd")
     {
         return Flavor::LLSD_FLAVOR;
@@ -230,14 +230,14 @@ LLMessageConfig::Flavor LLMessageConfig::getServerDefaultFlavor()
 //static
 S32 LLMessageConfig::getMaxQueuedEvents()
 {
-    LLMessageConfigFile& file = LLMessageConfigFile::instance();
+    const LLMessageConfigFile& file = LLMessageConfigFile::instance();
     return file.mMaxQueuedEvents;
 }
 
 //static
 LLMessageConfig::Flavor LLMessageConfig::getMessageFlavor(const std::string& msg_name)
 {
-    LLMessageConfigFile& file = LLMessageConfigFile::instance();
+    const LLMessageConfigFile& file = LLMessageConfigFile::instance();
     LLSD config = file.mMessages[msg_name];
     if (config["flavor"].asString() == "llsd")
     {
@@ -254,7 +254,7 @@ LLMessageConfig::Flavor LLMessageConfig::getMessageFlavor(const std::string& msg
 LLMessageConfig::SenderTrust LLMessageConfig::getSenderTrustedness(
     const std::string& msg_name)
 {
-    LLMessageConfigFile& file = LLMessageConfigFile::instance();
+    const LLMessageConfigFile& file = LLMessageConfigFile::instance();
     LLSD config = file.mMessages[msg_name];
     if (config.has("trusted-sender"))
     {
@@ -277,7 +277,7 @@ bool LLMessageConfig::isValidMessage(const std::string& msg_name)
 //static
 bool LLMessageConfig::onlySendLatest(const std::string& msg_name)
 {
-    LLMessageConfigFile& file = LLMessageConfigFile::instance();
+    const LLMessageConfigFile& file = LLMessageConfigFile::instance();
     LLSD config = file.mMessages[msg_name];
     return config["only-send-latest"].asBoolean();
 }
@@ -297,7 +297,7 @@ LLSD LLMessageConfig::getConfigForMessage(const std::string& msg_name)
         LL_ERRS() << "LLMessageConfig::isMessageTrusted(name) before"
                 << " LLMessageConfig::initClass()" << LL_ENDL;
     }
-    LLMessageConfigFile& file = LLMessageConfigFile::instance();
+    const LLMessageConfigFile& file = LLMessageConfigFile::instance();
     // LLSD for the CamelCase message name
     LLSD config = file.mMessages[msg_name];
     return config;

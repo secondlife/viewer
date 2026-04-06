@@ -256,7 +256,7 @@ const LLInitParam::BaseBlock& get_empty_param_block()
 void LLUICtrlFactory::registerWidget(std::type_index widget_type, std::type_index param_block_type, const std::string& name)
 {
     // associate parameter block type with template .xml file
-    std::string* existing_name = LLWidgetNameRegistry::instance().getValue(param_block_type);
+    const std::string* existing_name = LLWidgetNameRegistry::instance().getValue(param_block_type);
     if (existing_name != NULL)
     {
         if(*existing_name != name)

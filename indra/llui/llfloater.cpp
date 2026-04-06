@@ -1429,7 +1429,7 @@ void LLFloater::setFocus( bool b )
     if (b)
     {
         // only push focused floaters to front of stack if not in midst of ctrl-tab cycle
-        LLFloaterView * parent = dynamic_cast<LLFloaterView *>(getParent());
+        const LLFloaterView * parent = dynamic_cast<LLFloaterView *>(getParent());
         if (!getHost() && parent && !parent->getCycleMode())
         {
             if (!isFrontmost())
@@ -1563,7 +1563,7 @@ void LLFloater::moveResizeHandlesToFront()
 /*virtual*/
 bool LLFloater::isFrontmost()
 {
-    LLFloaterView* floater_view = getParentByType<LLFloaterView>();
+    const LLFloaterView* floater_view = getParentByType<LLFloaterView>();
     return getVisible()
             && (floater_view
                 && floater_view->getFrontmost() == this);
@@ -3051,7 +3051,7 @@ LLRect LLFloaterView::getSnapRect() const
 {
     LLRect snap_rect = getLocalRect();
 
-    LLView* snap_view = mSnapView.get();
+    const LLView* snap_view = mSnapView.get();
     if (snap_view)
     {
         snap_view->localRectToOtherView(snap_view->getLocalRect(), &snap_rect, this);
@@ -3202,7 +3202,7 @@ S32 LLFloaterView::getZOrder(LLFloater* child)
     S32 rv = 0;
     for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
     {
-        LLView* viewp = *child_it;
+        const LLView* viewp = *child_it;
         if(viewp == child)
         {
             break;

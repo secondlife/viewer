@@ -236,7 +236,7 @@ bool LLNotecard::exportEmbeddedItemsStream( std::ostream& out_stream )
     for (std::vector<LLPointer<LLInventoryItem> >::iterator iter = mItems.begin();
          iter != mItems.end(); ++iter)
     {
-        LLInventoryItem* item = *iter;
+        const LLInventoryItem* item = *iter;
         if (item)
         {
             out_stream << "{\n";

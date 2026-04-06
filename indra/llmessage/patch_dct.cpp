@@ -168,7 +168,7 @@ void init_patch_compressor(S32 patch_size, S32 patch_stride, S32 layer_type)
 void prescan_patch(F32 *patch, LLPatchHeader *php, F32 &zmax, F32 &zmin)
 {
     S32     i, j;
-    PCGD    *pcp = &gPatchCompressGlobalData;
+    const PCGD    *pcp = &gPatchCompressGlobalData;
     S32     stride = pcp->patch_stride;
     S32     size = pcp->patch_size;
     S32     jstride;
@@ -204,7 +204,7 @@ void dct_line(F32 *linein, F32 *lineout, S32 line)
     S32 line_size = line*NORMAL_PATCH_SIZE;
 
 #ifdef _PATCH_SIZE_16_AND_32_ONLY
-    F32 *tlinein, *tpcp;
+    const F32 *tlinein, *tpcp;
 
     tlinein = linein + line_size;
 
@@ -286,7 +286,7 @@ void dct_line_large(F32 *linein, F32 *lineout, S32 line)
     F32 *pcp = gPatchCosines;
     S32 line_size = line*LARGE_PATCH_SIZE;
 
-    F32 *tlinein, *tpcp;
+    const F32 *tlinein, *tpcp;
 
     tlinein = linein + line_size;
 
@@ -387,11 +387,11 @@ inline void dct_column(F32 *linein, S32 *lineout, S32 column)
     F32 total;
     F32 oosob = 2.f/16.f;
     F32 *pcp = gPatchCosines;
-    S32 *copy_matrix = gCopyMatrix;
-    F32 *qt = gPatchQuantizeTable;
+    const S32 *copy_matrix = gCopyMatrix;
+    const F32 *qt = gPatchQuantizeTable;
 
 #ifdef _PATCH_SIZE_16_AND_32_ONLY
-    F32 *tlinein, *tpcp;
+    const F32 *tlinein, *tpcp;
     S32 sizeu;
 
     tlinein = linein + column;
@@ -476,10 +476,10 @@ inline void dct_column_large(F32 *linein, S32 *lineout, S32 column)
     F32 total;
     F32 oosob = 2.f/32.f;
     F32 *pcp = gPatchCosines;
-    S32 *copy_matrix = gCopyMatrix;
-    F32 *qt = gPatchQuantizeTable;
+    const S32 *copy_matrix = gCopyMatrix;
+    const F32 *qt = gPatchQuantizeTable;
 
-    F32 *tlinein, *tpcp;
+    const F32 *tlinein, *tpcp;
     S32 sizeu;
 
     tlinein = linein + column;
@@ -723,11 +723,11 @@ inline void dct_patch_large(F32 *block, S32 *cpatch)
 void compress_patch(F32 *patch, S32 *cpatch, LLPatchHeader *php, S32 prequant)
 {
     S32     i, j;
-    PCGD    *pcp = &gPatchCompressGlobalData;
+    const PCGD    *pcp = &gPatchCompressGlobalData;
     S32     stride = pcp->patch_stride;
     S32     size = pcp->patch_size;
     F32     block[LARGE_PATCH_SIZE*LARGE_PATCH_SIZE], *tblock;
-    F32     *tpatch;
+    const F32     *tpatch;
 
     S32     wordsize = prequant;
     F32     oozrange = 1.f/php->range;
@@ -761,7 +761,7 @@ void compress_patch(F32 *patch, S32 *cpatch, LLPatchHeader *php, S32 prequant)
 
 void get_patch_group_header(LLGroupHeader *gopp)
 {
-    PCGD    *pcp = &gPatchCompressGlobalData;
+    const PCGD    *pcp = &gPatchCompressGlobalData;
     gopp->stride = pcp->patch_stride;
     gopp->patch_size = pcp->patch_size;
     gopp->layer_type = pcp->layer_type;

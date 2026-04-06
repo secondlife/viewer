@@ -1258,7 +1258,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 
             //Try to get at the skeletal instance controller
             domInstance_controller::domSkeleton* pSkeleton = daeSafeCast<domInstance_controller::domSkeleton>( pElement );
-            daeElement* pSkeletonRootNode = NULL;
+            const daeElement* pSkeletonRootNode = NULL;
             if (pSkeleton)
             {
                 pSkeletonRootNode = pSkeleton->getValue().getElement();
@@ -2009,7 +2009,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
     LLMatrix4 saved_transform;
     bool pushed_mat = false;
 
-    domNode* node = daeSafeCast<domNode>(element);
+    const domNode* node = daeSafeCast<domNode>(element);
     if (node)
     {
         pushed_mat = true;

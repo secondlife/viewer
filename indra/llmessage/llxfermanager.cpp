@@ -218,7 +218,7 @@ void LLXferManager::updateHostStatus()
 
 void LLXferManager::printHostStatus()
 {
-    LLHostStatus *host_statusp = NULL;
+    const LLHostStatus *host_statusp = NULL;
     if (!mOutgoingHosts.empty())
     {
         LL_INFOS("Xfer") << "Outgoing Xfers:" << LL_ENDL;
@@ -306,7 +306,7 @@ LLHostStatus * LLXferManager::findHostStatus(const LLHost &host)
 
 S32 LLXferManager::numPendingXfers(const LLHost &host)
 {
-    LLHostStatus *host_statusp = findHostStatus(host);
+    const LLHostStatus *host_statusp = findHostStatus(host);
     if (host_statusp)
     {
         return host_statusp->mNumPending;
@@ -318,7 +318,7 @@ S32 LLXferManager::numPendingXfers(const LLHost &host)
 
 S32 LLXferManager::numActiveXfers(const LLHost &host)
 {
-    LLHostStatus *host_statusp = findHostStatus(host);
+    const LLHostStatus *host_statusp = findHostStatus(host);
     if (host_statusp)
     {
         return host_statusp->mNumActive;
@@ -911,7 +911,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
     else if(xferp)
     {
         // Figure out how many transfers the host has requested
-        LLHostStatus *host_statusp = findHostStatus(xferp->mRemoteHost);
+        const LLHostStatus *host_statusp = findHostStatus(xferp->mRemoteHost);
         if (host_statusp)
         {
             if (host_statusp->mNumActive < mMaxOutgoingXfersPerCircuit)
@@ -932,7 +932,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
             else if (mHardLimitOutgoingXfersPerCircuit > 0)
             {   // Way too many requested ... it's time to stop being nice and kill the circuit
                 xferp->closeFileHandle();   // Close the file handle in any case
-                LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(xferp->mRemoteHost);
+                const LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(xferp->mRemoteHost);
                 if (cdp)
                 {
                     if (cdp->getTrusted())
@@ -980,7 +980,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 bool LLXferManager::isHostFlooded(const LLHost & host)
 {
     bool flooded = false;
-    LLHostStatus *host_statusp = findHostStatus(host);
+    const LLHostStatus *host_statusp = findHostStatus(host);
     if (host_statusp)
     {
         flooded = (mHardLimitOutgoingXfersPerCircuit > 0 &&

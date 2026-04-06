@@ -394,13 +394,13 @@ HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
     HttpStatus status;
     if (pclass == HttpRequest::GLOBAL_POLICY_ID)
     {
-        HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
+        const HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
 
         status = opts.get(opt, ret_value);
     }
     else
     {
-        HttpPolicyClass & opts(mPolicy->getClassOptions(pclass));
+        const HttpPolicyClass & opts(mPolicy->getClassOptions(pclass));
 
         status = opts.get(opt, ret_value);
     }
@@ -429,7 +429,7 @@ HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
     // Only global has string values
     if (pclass == HttpRequest::GLOBAL_POLICY_ID)
     {
-        HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
+        const HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
 
         status = opts.get(opt, ret_value);
     }
@@ -457,7 +457,7 @@ HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
     // Only global has callback values
     if (pclass == HttpRequest::GLOBAL_POLICY_ID)
     {
-        HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
+        const HttpPolicyGlobal & opts(mPolicy->getGlobalOptions());
 
         status = opts.get(opt, ret_value);
     }

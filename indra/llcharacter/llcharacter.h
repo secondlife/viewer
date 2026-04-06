@@ -236,7 +236,7 @@ public:
     }
     S32 getVisualParamID(LLVisualParam *id)
     {
-        for (visual_param_index_map_t::value_type& index_pair : mVisualParamIndexMap)
+        for (const visual_param_index_map_t::value_type& index_pair : mVisualParamIndexMap)
         {
             if (index_pair.second == id)
                 return index_pair.first;

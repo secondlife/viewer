@@ -292,7 +292,7 @@ void LLAccordionCtrl::hideScrollbar(S32 width, S32 height)
 S32 LLAccordionCtrl::calcRecuiredHeight()
 {
     S32 rec_height = 0;
-    for(LLAccordionCtrlTab* accordion_tab : mAccordionTabs)
+    for(const LLAccordionCtrlTab* accordion_tab : mAccordionTabs)
     {
         if(accordion_tab && accordion_tab->getVisible())
         {
@@ -373,7 +373,7 @@ void LLAccordionCtrl::initNoTabsWidget(const LLTextBox::Params& tb_params)
 void LLAccordionCtrl::updateNoTabsHelpTextVisibility()
 {
     bool visible_exists{ false };
-    for (auto accordion_tab : mAccordionTabs)
+    for (const auto accordion_tab : mAccordionTabs)
     {
         if (accordion_tab->getVisible())
         {
@@ -394,7 +394,7 @@ void LLAccordionCtrl::arrangeSingle()
 
     S32 collapsed_height = 0;
 
-    for (LLAccordionCtrlTab* accordion_tab : mAccordionTabs)
+    for (const LLAccordionCtrlTab* accordion_tab : mAccordionTabs)
     {
         if (!accordion_tab->getVisible()) // Skip hidden accordion tabs
             continue;
@@ -877,7 +877,7 @@ void LLAccordionCtrl::setFilterSubString(const std::string& filter_string)
 const LLAccordionCtrlTab* LLAccordionCtrl::getExpandedTab() const
 {
     const LLAccordionCtrlTab* result = nullptr;
-    for (LLAccordionCtrlTab* accordion_tab : mAccordionTabs)
+    for (const LLAccordionCtrlTab* accordion_tab : mAccordionTabs)
     {
         if (accordion_tab->isExpanded())
         {

@@ -359,7 +359,7 @@ bool LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height, LLRenderTarget*
 
     if (mMaskLayerList.size() > 0)
     {
-        for (LLTexLayerInterface* layer : mMaskLayerList)
+        for (const LLTexLayerInterface* layer : mMaskLayerList)
         {
             if (layer->isInvisibleAlphaMask())
             {
@@ -844,7 +844,7 @@ LLWearableType::EType LLTexLayerInterface::getWearableType() const
     {
         LLWearableType::EType type = LLWearableType::WT_INVALID;
 
-        for (LLTexLayerParamColor* param : mParamColorList)
+        for (const LLTexLayerParamColor* param : mParamColorList)
         {
             if (param)
             {
@@ -860,7 +860,7 @@ LLWearableType::EType LLTexLayerInterface::getWearableType() const
             }
         }
 
-        for (LLTexLayerParamAlpha* param : mParamAlphaList)
+        for (const LLTexLayerParamAlpha* param : mParamAlphaList)
         {
             if (param)
             {
@@ -960,7 +960,7 @@ LLTexLayer::~LLTexLayer()
     //std::ranges::for_each(mParamAlphaList, [](auto* p) { delete p; });
     //std::ranges::for_each(mParamColorList, [](auto* p) { delete p; });
 
-    for (alpha_cache_t::value_type& alpha_pair : mAlphaCache)
+    for (const alpha_cache_t::value_type& alpha_pair : mAlphaCache)
     {
         U8* alpha_data = alpha_pair.second;
         ll_aligned_free_32(alpha_data);
@@ -1302,7 +1302,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
     gAlphaMaskProgram.setMinimumAlpha(0.f);
     gGL.setColorMask(false, true);
 
-    LLTexLayerParamAlpha* first_param = *mParamAlphaList.begin();
+    const LLTexLayerParamAlpha* first_param = *mParamAlphaList.begin();
     // Note: if the first param is a mulitply, multiply against the current buffer's alpha
     if( !first_param || !first_param->getMultiplyBlend() )
     {
@@ -1554,7 +1554,7 @@ LLUUID LLTexLayer::getUUID() const
     LLUUID uuid;
     if( getInfo()->mLocalTexture != -1 )
     {
-            LLGLTexture* tex = mLocalTextureObject->getImage();
+            const LLGLTexture* tex = mLocalTextureObject->getImage();
             if (tex)
             {
                 uuid = mLocalTextureObject->getID();
@@ -1742,7 +1742,7 @@ bool LLTexLayerTemplate::isInvisibleAlphaMask() const
     U32 num_wearables = updateWearableCache();
     for (U32 i = 0; i < num_wearables; i++)
     {
-        LLTexLayer *layer = getLayer(i);
+        const LLTexLayer *layer = getLayer(i);
         if (layer)
         {
              if (layer->isInvisibleAlphaMask())

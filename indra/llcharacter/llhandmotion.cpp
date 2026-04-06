@@ -98,7 +98,7 @@ LLMotion::LLMotionInitStatus LLHandMotion::onInitialize(LLCharacter *character)
 //-----------------------------------------------------------------------------
 bool LLHandMotion::onActivate()
 {
-    LLPolyMesh *upperBodyMesh = mCharacter->getUpperBodyMesh();
+    const LLPolyMesh *upperBodyMesh = mCharacter->getUpperBodyMesh();
 
     if (upperBodyMesh)
     {

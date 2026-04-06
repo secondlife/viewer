@@ -76,7 +76,7 @@ public:
     {
         if (!sDrawContextStack.empty())
         {
-            LLViewDrawContext* context_top = sDrawContextStack.back();
+            const LLViewDrawContext* context_top = sDrawContextStack.back();
             // merge with top of stack
             mAlpha *= context_top->mAlpha;
         }

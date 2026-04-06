@@ -163,7 +163,7 @@ void LLUrlEntryBase::callObservers(const std::string &id,
     for (observer_it it = matching_range.first; it != matching_range.second;)
     {
         // call the callback - give it the new label
-        LLUrlEntryObserver &observer = it->second;
+        const LLUrlEntryObserver &observer = it->second;
         (*observer.signal)(it->second.url, label, icon);
         // then remove the signal - we only need to call it once
         delete observer.signal;
