@@ -66,8 +66,8 @@ public:
     LLCacheNameEntry();
 
 public:
-    bool mIsGroup;
-    U32 mCreateTime;    // unix time_t
+    bool mIsGroup{false};
+    U32 mCreateTime{0};    // unix time_t
     // IDEVO TODO collapse names to one field, which will eliminate
     // many string compares on "Resident"
     std::string mFirstName;
@@ -76,8 +76,8 @@ public:
 };
 
 LLCacheNameEntry::LLCacheNameEntry()
-    : mIsGroup(false),
-      mCreateTime(0)
+    
+      
 {
 }
 
@@ -116,13 +116,13 @@ private:
     void flush();
 
     LLMessageSystem*    mMsg;
-    bool                mPending;
-    bool                mCurrIsGroup;
+    bool                mPending{false};
+    bool                mCurrIsGroup{false};
     LLHost              mCurrHost;
 };
 
 ReplySender::ReplySender(LLMessageSystem* msg)
-    : mMsg(msg), mPending(false), mCurrIsGroup(false)
+    : mMsg(msg) 
 { }
 
 ReplySender::~ReplySender()

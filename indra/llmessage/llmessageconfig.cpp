@@ -48,8 +48,8 @@ class LLMessageConfigFile : public LLLiveFile
 {
 public:
     LLMessageConfigFile() :
-        LLLiveFile(filename(), messageConfigRefreshRate),
-        mMaxQueuedEvents(0)
+        LLLiveFile(filename(), messageConfigRefreshRate)
+        
             { }
 
     static std::string filename();
@@ -70,7 +70,7 @@ public:
 
 public:
     LLSD mCapBans;
-    S32 mMaxQueuedEvents;
+    S32 mMaxQueuedEvents{0};
 
 private:
     static constexpr S32 DEFAULT_MAX_QUEUED_EVENTS = 100;

@@ -123,12 +123,12 @@ private:
     using CoprocQueuePtr = std::shared_ptr<CoprocQueue_t>;
 
     std::string     mPoolName;
-    size_t          mPoolSize, mQueueSize, mActiveCoprocsCount, mPending;
+    size_t          mPoolSize, mQueueSize, mActiveCoprocsCount{0}, mPending{0};
     CoprocQueuePtr  mPendingCoprocs;
     LLTempBoundListener mStatusListener;
 
     using CoroAdapterMap_t = std::map<std::string, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t>;
-    LLCore::HttpRequest::policy_t mHTTPPolicy;
+    LLCore::HttpRequest::policy_t mHTTPPolicy{LLCore::HttpRequest::DEFAULT_POLICY_ID};
 
     CoroAdapterMap_t mCoroMapping;
 
@@ -321,9 +321,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size, s
     mPoolName(poolName),
     mPoolSize(size),
     mQueueSize(queue_size),
-    mActiveCoprocsCount(0),
-    mPending(0),
-    mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
+    
     mCoroMapping()
 {
     llassert_always(mQueueSize > mPoolSize); // queue should be able to fit pool

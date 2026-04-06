@@ -60,11 +60,8 @@ class LLHTTPPipe : public LLIOPipe
 public:
     explicit LLHTTPPipe(const LLHTTPNode& node)
         : mNode(node),
-          mResponse(NULL),
-          mState(STATE_INVOKE),
-          mChainLock(0),
-          mLockedPump(NULL),
-          mStatusCode(0)
+          mResponse(NULL)
+          
         { }
     virtual ~LLHTTPPipe()
     {
@@ -101,8 +98,8 @@ private:
         void nullPipe();
 
     private:
-        Response() : mPipe(NULL) {} // Must be accessed through LLPointer.
-        LLHTTPPipe* mPipe;
+        Response()  {} // Must be accessed through LLPointer.
+        LLHTTPPipe* mPipe{NULL};
     };
     friend class Response;
 
@@ -118,16 +115,16 @@ private:
         STATE_EXTENDED_RESULT,
         STATE_EXTENDED_LLSD_RESULT
     };
-    State mState;
+    State mState{STATE_INVOKE};
 
-    S32 mChainLock;
-    LLPumpIO* mLockedPump;
+    S32 mChainLock{0};
+    LLPumpIO* mLockedPump{NULL};
 
     void lockChain(LLPumpIO*);
     void unlockChain();
 
     LLSD mResult;
-    S32 mStatusCode;
+    S32 mStatusCode{0};
     std::string mStatusMessage;
     LLSD mHeaders;
 };
@@ -416,7 +413,7 @@ void LLHTTPPipe::unlockChain()
 class LLHTTPResponseHeader : public LLIOPipe
 {
 public:
-    LLHTTPResponseHeader() : mCode(0) {}
+    LLHTTPResponseHeader()  {}
     virtual ~LLHTTPResponseHeader() = default;
 
 protected:
@@ -435,7 +432,7 @@ protected:
     //@}
 
 protected:
-    S32 mCode;
+    S32 mCode{0};
 };
 
 
@@ -575,14 +572,14 @@ protected:
     };
 
     LLSD mBuildContext;
-    EState mState;
-    U8* mLastRead;
+    EState mState{STATE_NOTHING};
+    U8* mLastRead{NULL};
     std::string mVerb;
     std::string mAbsPathAndQuery;
     std::string mPath;
     std::string mQuery;
     std::string mVersion;
-    S32 mContentLength;
+    S32 mContentLength{0};
     LLSD mHeaders;
 
     // handle the urls
@@ -591,9 +588,7 @@ protected:
 
 LLHTTPResponder::LLHTTPResponder(const LLHTTPNode& tree, const LLSD& ctx) :
     mBuildContext(ctx),
-    mState(STATE_NOTHING),
-    mLastRead(NULL),
-    mContentLength(0),
+    
     mRootNode(tree)
 {
 }

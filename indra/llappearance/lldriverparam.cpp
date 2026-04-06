@@ -162,7 +162,7 @@ LLDriverParam::LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearabl
     : LLViewerVisualParam(),
     mDefaultVec(),
     mDriven(),
-    mCurrentDistortionParam( NULL ),
+    
     mAvatarAppearance(appearance),
     mWearablep(wearable)
 {

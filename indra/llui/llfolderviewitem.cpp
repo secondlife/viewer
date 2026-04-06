@@ -183,7 +183,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mIsItemCut(false),
     mCutGeneration(0),
     mLabelStyle( LLFontGL::NORMAL ),
-    pLabelFont(nullptr),
+    
     mHasVisibleChildren(false),
     mLocalIndentation(p.folder_indentation),
     mIndentation(0),
@@ -1193,8 +1193,8 @@ LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ):
     mIsFolderComplete(false), // folder might have children that are not loaded yet.
     mAreChildrenInited(false), // folder might have children that are not built yet.
     mLastArrangeGeneration( -1 ),
-    mLastCalculatedWidth(0),
-    mFavoritesDirtyFlags(0)
+    mLastCalculatedWidth(0)
+    
 {
 }
 

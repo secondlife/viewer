@@ -42,14 +42,13 @@ public:
     void setPan(F32 pan);
 
 private:
-    F32     mVolume;
-    F32     mPan;
+    F32     mVolume{1.0f};
+    F32     mPan{0.f};
     bool mSystemIsVistaOrHigher;
 };
 
 VolumeCatcherImpl::VolumeCatcherImpl()
-:   mVolume(1.0f),          // default volume is max
-    mPan(0.f)               // default pan is centered
+
 {
 }
 

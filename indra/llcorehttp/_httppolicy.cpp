@@ -57,20 +57,18 @@ struct HttpPolicy::ClassState
 {
 public:
     ClassState()
-        : mThrottleEnd(0),
-          mThrottleLeft(0L),
-          mRequestCount(0L),
-          mStallStaging(false)
+        
+          
         {}
 
     HttpReadyQueue      mReadyQueue;
     HttpRetryQueue      mRetryQueue;
 
     HttpPolicyClass     mOptions;
-    HttpTime            mThrottleEnd;
-    long                mThrottleLeft;
-    long                mRequestCount;
-    bool                mStallStaging;
+    HttpTime            mThrottleEnd{0};
+    long                mThrottleLeft{0L};
+    long                mRequestCount{0L};
+    bool                mStallStaging{false};
 };
 
 

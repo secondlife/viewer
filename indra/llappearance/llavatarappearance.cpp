@@ -68,7 +68,7 @@ class LLAvatarBoneInfo
     friend class LLAvatarAppearance;
     friend class LLAvatarSkeletonInfo;
 public:
-    LLAvatarBoneInfo() : mIsJoint(false) {}
+    LLAvatarBoneInfo()  {}
     ~LLAvatarBoneInfo()
     {
         std::ranges::for_each(mChildren, [](auto* p) { delete p; });
@@ -82,7 +82,7 @@ private:
     std::string mSupport;
     std::string mAliases;
     std::string mGroup;
-    bool mIsJoint;
+    bool mIsJoint{false};
     LLVector3 mPos;
     LLVector3 mEnd;
     LLVector3 mRot;
@@ -100,8 +100,7 @@ class LLAvatarSkeletonInfo
 {
     friend class LLAvatarAppearance;
 public:
-    LLAvatarSkeletonInfo() :
-        mNumBones(0), mNumCollisionVolumes(0) {}
+    LLAvatarSkeletonInfo()  {}
     ~LLAvatarSkeletonInfo()
     {
         std::ranges::for_each(mBoneInfoList, [](auto* p) { delete p; });
@@ -119,8 +118,8 @@ private:
         const glm::mat4& parent_mat);
 
 private:
-    S32 mNumBones;
-    S32 mNumCollisionVolumes;
+    S32 mNumBones{0};
+    S32 mNumCollisionVolumes{0};
     LLAvatarAppearance::joint_alias_map_t mJointAliasMap;
     bone_info_list_t mBoneInfoList;
 };

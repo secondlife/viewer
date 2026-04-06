@@ -69,17 +69,17 @@ public:
 private:
     std::string             mName;
 
-    bool                    mWriteAllChannels; // Don't use masking.  Just write RGBA into buffer,
-    LLTexLayerInterface::ERenderPass mRenderPass;
+    bool                    mWriteAllChannels{ false }; // Don't use masking.  Just write RGBA into buffer,
+    LLTexLayerInterface::ERenderPass mRenderPass{LLTexLayerInterface::ERenderPass::RP_COLOR};
 
     std::string             mGlobalColor;
     LLColor4                mFixedColor;
 
-    S32                     mLocalTexture;
+    S32                     mLocalTexture{ -1 };
     std::string             mStaticImageFileName;
-    bool                    mStaticImageIsMask;
-    bool                    mUseLocalTextureAlphaOnly; // Ignore RGB channels from the input texture.  Use alpha as a mask
-    bool                    mIsVisibilityMask;
+    bool                    mStaticImageIsMask{ false };
+    bool                    mUseLocalTextureAlphaOnly{false}; // Ignore RGB channels from the input texture.  Use alpha as a mask
+    bool                    mIsVisibilityMask{false};
 
     using morph_name_list_t = std::vector< std::pair< std::string,bool > >;
     morph_name_list_t           mMorphNameList;
@@ -559,13 +559,9 @@ void LLTexLayerSet::invalidateMorphMasks()
 // LLTexLayerInfo
 //-----------------------------------------------------------------------------
 LLTexLayerInfo::LLTexLayerInfo() :
-    mWriteAllChannels( false ),
-    mRenderPass(LLTexLayerInterface::ERenderPass::RP_COLOR),
-    mFixedColor( 0.f, 0.f, 0.f, 0.f ),
-    mLocalTexture( -1 ),
-    mStaticImageIsMask( false ),
-    mUseLocalTextureAlphaOnly(false),
-    mIsVisibilityMask(false)
+    
+    mFixedColor( 0.f, 0.f, 0.f, 0.f )
+    
 {
 }
 
@@ -742,9 +738,9 @@ bool LLTexLayerInfo::createVisualParams(LLAvatarAppearance *appearance)
 
 LLTexLayerInterface::LLTexLayerInterface(LLTexLayerSet* const layer_set):
     mTexLayerSet( layer_set ),
-    mMorphMasksValid( false ),
-    mInfo(NULL),
-    mHasMorph(false)
+    
+    mInfo(NULL)
+    
 {
 }
 

@@ -117,7 +117,7 @@ class LLTextEditor::TextCmdAddChar : public LLTextBase::TextCmd
 {
 public:
     TextCmdAddChar( S32 pos, bool group_with_next, llwchar wc, LLTextSegmentPtr segment)
-        : TextCmd(pos, group_with_next, segment), mWString(1, wc), mBlockExtensions(false)
+        : TextCmd(pos, group_with_next, segment), mWString(1, wc) 
     {
     }
     virtual void blockExtensions()
@@ -163,7 +163,7 @@ public:
 
 private:
     LLWString   mWString;
-    bool        mBlockExtensions;
+    bool        mBlockExtensions{false};
 
 };
 
@@ -173,7 +173,7 @@ class LLTextEditor::TextCmdOverwriteChar : public LLTextBase::TextCmd
 {
 public:
     TextCmdOverwriteChar( S32 pos, bool group_with_next, llwchar wc)
-        : TextCmd(pos, group_with_next), mChar(wc), mOldChar(0) {}
+        : TextCmd(pos, group_with_next), mChar(wc) {}
 
     virtual bool execute( LLTextBase* editor, S32* delta )
     {
@@ -195,7 +195,7 @@ public:
 
 private:
     llwchar     mChar;
-    llwchar     mOldChar;
+    llwchar     mOldChar{0};
 };
 
 ///////////////////////////////////////////////////////////////////

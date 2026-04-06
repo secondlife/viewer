@@ -76,20 +76,19 @@ public:
         mTabContainer(c),
         mTabPanel(p),
         mButton(b),
-        mOldState(false),
-        mPlaceholderText(placeholder),
-        mPadding(0),
-        mVisible(true)
+        
+        mPlaceholderText(placeholder)
+        
     {}
 
     LLTabContainer*  mTabContainer;
     LLPanel*         mTabPanel;
     LLButton*        mButton;
-    bool             mOldState;
+    bool             mOldState{false};
     LLTextBox*       mPlaceholderText;
-    S32              mPadding;
+    S32              mPadding{0};
 
-    mutable bool mVisible;
+    mutable bool mVisible{true};
 };
 
 //----------------------------------------------------------------------------
@@ -118,8 +117,7 @@ protected:
 
     explicit LLCustomButtonIconCtrl(const Params& p)
     :   LLButton(p),
-        mIcon(NULL),
-        mIconAlignment(LLFontGL::HAlign::HCENTER),
+        
         mIconCtrlPad(p.icon_ctrl_pad)
     {}
 
@@ -178,8 +176,8 @@ public:
     }
 
 private:
-    LLIconCtrl* mIcon;
-    LLFontGL::HAlign mIconAlignment;
+    LLIconCtrl* mIcon{NULL};
+    LLFontGL::HAlign mIconAlignment{LLFontGL::HAlign::HCENTER};
     S32 mIconCtrlPad;
 };
 //============================================================================

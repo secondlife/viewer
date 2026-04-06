@@ -72,7 +72,7 @@ public:
     static Block * alloc(size_t len);
 
 public:
-    size_t mUsed;
+    size_t mUsed{0};
     size_t mAlloced;
 
     // *NOTE:  Must be last member of the object.  We'll
@@ -322,7 +322,7 @@ bool BufferArray::getBlockStartEnd(int block, const char ** start, const char **
 
 
 BufferArray::Block::Block(size_t len)
-    : mUsed(0),
+    : 
       mAlloced(len)
 {
     memset(mData, 0, len);

@@ -71,8 +71,8 @@ class LLProcessListener
 {
     LOG_CLASS(LLProcessListener);
 public:
-    LLProcessListener():
-        mCount(0)
+    LLProcessListener()
+        
     {}
 
     void addPoll(const LLProcess&)
@@ -126,7 +126,7 @@ private:
     /// If this object is destroyed before mCount goes to zero, stop
     /// listening on "mainloop" anyway.
     LLTempBoundListener mConnection;
-    unsigned mCount;
+    unsigned mCount{0};
 };
 static LLProcessListener sProcessListener;
 
@@ -262,9 +262,8 @@ public:
         mIndex(index),
         // Essential to initialize our std::istream with our special streambuf!
         mStream(&mStreambuf),
-        mPump("ReadPipe", true),    // tweak name as needed to avoid collisions
-        mLimit(0),
-        mEOF(false)
+        mPump("ReadPipe", true)
+        
     {
         mConnection = LLEventPumps::instance().obtain("mainloop")
             .listen(LLEventPump::inventName("ReadPipe"),
@@ -472,8 +471,8 @@ private:
     boost::asio::streambuf mStreambuf;
     std::istream mStream;
     LLEventStream mPump;
-    size_type mLimit;
-    bool mEOF;
+    size_type mLimit{0};
+    bool mEOF{false};
 };
 
 /*****************************************************************************

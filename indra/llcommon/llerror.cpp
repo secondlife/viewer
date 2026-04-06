@@ -492,11 +492,11 @@ namespace
     public:
         virtual ~SettingsConfig();
 
-        LLError::ELevel                     mDefaultLevel;
+        LLError::ELevel                     mDefaultLevel{LLError::LEVEL_DEBUG};
 
-        bool                                mLogAlwaysFlush;
+        bool                                mLogAlwaysFlush{true};
 
-        U32                                 mEnabledLogTypesMask;
+        U32                                 mEnabledLogTypesMask{255};
 
         LevelMap                            mFunctionLevelMap;
         LevelMap                            mClassLevelMap;
@@ -505,12 +505,12 @@ namespace
         std::unordered_map<std::string, unsigned int> mUniqueLogMessages;
 
         LLError::FatalFunction              mCrashFunction;
-        LLError::TimeFunction               mTimeFunction;
+        LLError::TimeFunction               mTimeFunction{nullptr};
 
         Recorders                           mRecorders;
         LL_PROFILE_MUTEX_NAMED(LLCoros::RMutex, mRecorderMutex, "Log Recorders");
 
-        int                                 mShouldLogCallCounter;
+        int                                 mShouldLogCallCounter{0};
 
     private:
         SettingsConfig();
@@ -519,18 +519,16 @@ namespace
     using SettingsConfigPtr = LLPointer<SettingsConfig>;
     SettingsConfig::SettingsConfig()
         : LLRefCount(),
-        mDefaultLevel(LLError::LEVEL_DEBUG),
-        mLogAlwaysFlush(true),
-        mEnabledLogTypesMask(255),
+        
         mFunctionLevelMap(),
         mClassLevelMap(),
         mFileLevelMap(),
         mTagLevelMap(),
         mUniqueLogMessages(),
         mCrashFunction(nullptr),
-        mTimeFunction(nullptr),
-        mRecorders(),
-        mShouldLogCallCounter(0)
+        
+        mRecorders()
+        
     {
     }
 

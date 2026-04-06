@@ -40,9 +40,8 @@ class LLWatchdogTimerThread : public LLThread
 {
 public:
     LLWatchdogTimerThread() :
-        LLThread("Watchdog"),
-        mSleepMsecs(0),
-        mStopping(false)
+        LLThread("Watchdog")
+        
     {
     }
 
@@ -65,8 +64,8 @@ public:
     }
 
 private:
-    long mSleepMsecs;
-    bool mStopping;
+    long mSleepMsecs{0};
+    bool mStopping{false};
 };
 
 // LLWatchdogEntry

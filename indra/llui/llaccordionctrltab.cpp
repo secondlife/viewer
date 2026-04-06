@@ -106,8 +106,8 @@ private:
 
     LLUIColor mHeaderBGColor;
 
-    bool mNeedsHighlight;
-    bool mIsSelected;
+    bool mNeedsHighlight{false};
+    bool mIsSelected{false};
 
     LLFrameTimer mAutoOpenTimer;
 };
@@ -120,8 +120,8 @@ LLAccordionCtrlTab::LLAccordionCtrlTabHeader::LLAccordionCtrlTabHeader(
     const LLAccordionCtrlTabHeader::Params& p)
 : LLUICtrl(p)
 , mHeaderBGColor(p.header_bg_color())
-, mNeedsHighlight(false)
-, mIsSelected(false),
+, 
+
     mImageCollapsed(p.header_collapse_img),
     mImageCollapsedPressed(p.header_collapse_img_pressed),
     mImageExpanded(p.header_expand_img),

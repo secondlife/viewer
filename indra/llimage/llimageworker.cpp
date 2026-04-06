@@ -55,8 +55,8 @@ private:
     // output
     LLPointer<LLImageRaw> mDecodedImageRaw;
     LLPointer<LLImageRaw> mDecodedImageAux;
-    bool mDecodedRaw;
-    bool mDecodedAux;
+    bool mDecodedRaw{false};
+    bool mDecodedAux{false};
     LLPointer<LLImageDecodeThread::Responder> mResponder;
     std::string mErrorString;};
 
@@ -134,8 +134,7 @@ ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image,
     : mFormattedImage(image),
       mDiscardLevel(discard),
       mNeedsAux(needs_aux),
-      mDecodedRaw(false),
-      mDecodedAux(false),
+      
       mResponder(responder),
       mRequestId(request_id)
 {

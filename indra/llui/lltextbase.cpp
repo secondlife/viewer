@@ -3536,8 +3536,8 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 :   LLTextSegment(start, end),
     mStyle( style ),
     mToken(NULL),
-    mEditor(editor),
-    mLastGeneration(-1)
+    mEditor(editor)
+    
 {
     mFontHeight = mStyle->getFont()->getLineHeight();
     mCanEdit = !mStyle->getDrawHighlightBg();
@@ -3557,8 +3557,8 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 LLNormalTextSegment::LLNormalTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
 :   LLTextSegment(start, end),
     mToken(NULL),
-    mEditor(editor),
-    mLastGeneration(-1)
+    mEditor(editor)
+    
 {
     mStyle = new LLStyle(LLStyle::Params().visible(is_visible).color(color));
 
