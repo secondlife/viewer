@@ -47,7 +47,7 @@ LLXform* LLXform::getRoot() const
     {
         root = root->mParent;
     }
-    return (LLXform*)root;
+    return const_cast<LLXform*>(root);
 }
 
 bool LLXform::isRoot() const

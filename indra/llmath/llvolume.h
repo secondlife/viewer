@@ -271,9 +271,9 @@ public:
     const U8&   getCurveType () const           { return mCurveType; }
 
     void setCurveType(const U32 type)           { mCurveType = type;}
-    void setBegin(const F32 begin)              { mBegin = (begin >= 1.0f) ? 0.0f : ((int) (begin * 100000))/100000.0f;}
-    void setEnd(const F32 end)                  { mEnd   = (end   <= 0.0f) ? 1.0f : ((int) (end * 100000))/100000.0f;}
-    void setHollow(const F32 hollow)            { mHollow = ((int) (hollow * 100000))/100000.0f;}
+    void setBegin(const F32 begin)              { mBegin = (begin >= 1.0f) ? 0.0f : (static_cast<int>(begin * 100000))/100000.0f;}
+    void setEnd(const F32 end)                  { mEnd   = (end   <= 0.0f) ? 1.0f : (static_cast<int>(end * 100000))/100000.0f;}
+    void setHollow(const F32 hollow)            { mHollow = (static_cast<int>(hollow * 100000))/100000.0f;}
 
     friend std::ostream& operator<<(std::ostream &s, const LLProfileParams &profile_params);
 
@@ -328,7 +328,7 @@ inline bool LLProfileParams::operator<(const LLProfileParams &params) const
     }
 }
 
-#define U8_TO_F32(x) (F32)(*((S8 *)&x))
+#define U8_TO_F32(x) static_cast<F32>(*reinterpret_cast<S8*>(&x))
 
 class LLPathParams
 {
@@ -369,17 +369,17 @@ public:
     LLPathParams(U8 curve, U16 begin, U16 end, U8 scx, U8 scy, U8 shx, U8 shy, U8 twistend, U8 twistbegin, U8 radiusoffset, U8 tx, U8 ty, U8 revolutions, U8 skew)
     {
         mCurveType = curve;
-        mBegin = (F32)(begin * CUT_QUANTA);
-        mEnd = (F32)(100.f - end) * CUT_QUANTA;
+        mBegin = static_cast<F32>(begin * CUT_QUANTA);
+        mEnd = static_cast<F32>(100.f - end) * CUT_QUANTA;
         if (mEnd > 1.f)
             mEnd = 1.f;
-        mScale.set((F32) (200 - scx) * SCALE_QUANTA,(F32) (200 - scy) * SCALE_QUANTA);
+        mScale.set(static_cast<F32>(200 - scx) * SCALE_QUANTA, static_cast<F32>(200 - scy) * SCALE_QUANTA);
         mShear.set(U8_TO_F32(shx) * SHEAR_QUANTA,U8_TO_F32(shy) * SHEAR_QUANTA);
         mTwistBegin = U8_TO_F32(twistbegin) * SCALE_QUANTA;
         mTwistEnd = U8_TO_F32(twistend) * SCALE_QUANTA;
         mRadiusOffset = U8_TO_F32(radiusoffset) * SCALE_QUANTA;
         mTaper.set(U8_TO_F32(tx) * TAPER_QUANTA,U8_TO_F32(ty) * TAPER_QUANTA);
-        mRevolutions = ((F32)revolutions) * REV_QUANTA + 1.0f;
+        mRevolutions = (static_cast<F32>(revolutions)) * REV_QUANTA + 1.0f;
         mSkew = U8_TO_F32(skew) * SCALE_QUANTA;
 
         mCRC = 0;
@@ -800,7 +800,7 @@ public:
     F32 getStep() const                     { return mStep; }
     void setDirty()                         { mDirty = true; }
 
-    S32 getPathLength() const               { return (S32)mPath.size(); }
+    S32 getPathLength() const               { return static_cast<S32>(mPath.size()); }
 
     void resizePath(S32 length) { mPath.resize(length); }
 

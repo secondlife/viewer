@@ -136,7 +136,7 @@ public:
         //bounding data
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-            LLVolumeOctreeListener* node = (LLVolumeOctreeListener*)branch->getListener(0);
+            LLVolumeOctreeListener* node = static_cast<LLVolumeOctreeListener*>(branch->getListener(0));
 
         LLVector4a& min = node->mExtents[0];
         LLVector4a& max = node->mExtents[1];
@@ -166,7 +166,7 @@ public:
         }
         else if (branch->getChildCount() > 0)
         { //no data, but child nodes exist
-            LLVolumeOctreeListener* child = (LLVolumeOctreeListener*)branch->getChild(0)->getListener(0);
+            LLVolumeOctreeListener* child = static_cast<LLVolumeOctreeListener*>(branch->getChild(0)->getListener(0));
 
             //initialize min/max to extents of first child
             min = child->mExtents[0];
@@ -179,7 +179,7 @@ public:
 
         for (U32 i = 0; i < branch->getChildCount(); ++i)
         {  //stretch by child extents
-            LLVolumeOctreeListener* child = (LLVolumeOctreeListener*)branch->getChild(i)->getListener(0);
+            LLVolumeOctreeListener* child = static_cast<LLVolumeOctreeListener*>(branch->getChild(i)->getListener(0));
             min.setMin(min, child->mExtents[0]);
             max.setMax(max, child->mExtents[1]);
         }

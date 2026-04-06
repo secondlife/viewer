@@ -319,7 +319,7 @@ LLQuaternion    LLMatrix4::quaternion() const
     // check the diagonal
     if (tr > 0.f)
     {
-        s = (F32)sqrt (tr + 1.f);
+        s = static_cast<F32>(sqrt(tr + 1.f));
         quat.mQ[VS] = s / 2.f;
         s = 0.5f / s;
         quat.mQ[VX] = (mMatrix[1][2] - mMatrix[2][1]) * s;
@@ -339,7 +339,7 @@ LLQuaternion    LLMatrix4::quaternion() const
         k = nxt[j];
 
 
-        s = (F32)sqrt ((mMatrix[i][i] - (mMatrix[j][j] + mMatrix[k][k])) + 1.f);
+        s = static_cast<F32>(sqrt((mMatrix[i][i] - (mMatrix[j][j] + mMatrix[k][k])) + 1.f));
 
         q[i] = s * 0.5f;
 
@@ -844,25 +844,25 @@ LLSD LLMatrix4::getValue() const
 
 void LLMatrix4::setValue(const LLSD& data)
 {
-    mMatrix[0][0] = (F32)data[0].asReal();
-    mMatrix[0][1] = (F32)data[1].asReal();
-    mMatrix[0][2] = (F32)data[2].asReal();
-    mMatrix[0][3] = (F32)data[3].asReal();
+    mMatrix[0][0] = static_cast<F32>(data[0].asReal());
+    mMatrix[0][1] = static_cast<F32>(data[1].asReal());
+    mMatrix[0][2] = static_cast<F32>(data[2].asReal());
+    mMatrix[0][3] = static_cast<F32>(data[3].asReal());
 
-    mMatrix[1][0] = (F32)data[4].asReal();
-    mMatrix[1][1] = (F32)data[5].asReal();
-    mMatrix[1][2] = (F32)data[6].asReal();
-    mMatrix[1][3] = (F32)data[7].asReal();
+    mMatrix[1][0] = static_cast<F32>(data[4].asReal());
+    mMatrix[1][1] = static_cast<F32>(data[5].asReal());
+    mMatrix[1][2] = static_cast<F32>(data[6].asReal());
+    mMatrix[1][3] = static_cast<F32>(data[7].asReal());
 
-    mMatrix[2][0] = (F32)data[8].asReal();
-    mMatrix[2][1] = (F32)data[9].asReal();
-    mMatrix[2][2] = (F32)data[10].asReal();
-    mMatrix[2][3] = (F32)data[11].asReal();
+    mMatrix[2][0] = static_cast<F32>(data[8].asReal());
+    mMatrix[2][1] = static_cast<F32>(data[9].asReal());
+    mMatrix[2][2] = static_cast<F32>(data[10].asReal());
+    mMatrix[2][3] = static_cast<F32>(data[11].asReal());
 
-    mMatrix[3][0] = (F32)data[12].asReal();
-    mMatrix[3][1] = (F32)data[13].asReal();
-    mMatrix[3][2] = (F32)data[14].asReal();
-    mMatrix[3][3] = (F32)data[15].asReal();
+    mMatrix[3][0] = static_cast<F32>(data[12].asReal());
+    mMatrix[3][1] = static_cast<F32>(data[13].asReal());
+    mMatrix[3][2] = static_cast<F32>(data[14].asReal());
+    mMatrix[3][3] = static_cast<F32>(data[15].asReal());
 }
 
 

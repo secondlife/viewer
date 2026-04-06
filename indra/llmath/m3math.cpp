@@ -95,12 +95,12 @@ void LLMatrix3::getEulerAngles(F32 *roll, F32 *pitch, F32 *yaw) const
         cx = mMatrix[2][2] / cy;
         sx = - mMatrix[2][1] / cy;
 
-        angle_x = (F32) atan2(sx, cx);
+        angle_x = static_cast<F32>(atan2(sx, cx));
 
         cz = mMatrix[0][0] / cy;
         sz = - mMatrix[1][0] / cy;
 
-        angle_z = (F32) atan2(sz, cz);
+        angle_z = static_cast<F32>(atan2(sz, cz));
     }
     else
     {
@@ -115,9 +115,9 @@ void LLMatrix3::getEulerAngles(F32 *roll, F32 *pitch, F32 *yaw) const
         angle_z = atan2(sz, cz);
     }
 
-    *roll = (F32)angle_x;
-    *pitch = (F32)angle_y;
-    *yaw = (F32)angle_z;
+    *roll = static_cast<F32>(angle_x);
+    *pitch = static_cast<F32>(angle_y);
+    *yaw = static_cast<F32>(angle_z);
 }
 
 
@@ -250,7 +250,7 @@ LLQuaternion    LLMatrix3::quaternion() const
     // check the diagonal
     if (tr > 0.f)
     {
-        s = (F32)sqrt (tr + 1.f);
+        s = static_cast<F32>(sqrt(tr + 1.f));
         quat.mQ[VS] = s / 2.f;
         s = 0.5f / s;
         quat.mQ[VX] = (mMatrix[1][2] - mMatrix[2][1]) * s;
@@ -270,7 +270,7 @@ LLQuaternion    LLMatrix3::quaternion() const
         k = nxt[j];
 
 
-        s = (F32)sqrt ((mMatrix[i][i] - (mMatrix[j][j] + mMatrix[k][k])) + 1.f);
+        s = static_cast<F32>(sqrt((mMatrix[i][i] - (mMatrix[j][j] + mMatrix[k][k])) + 1.f));
 
         q[i] = s * 0.5f;
 
@@ -311,12 +311,12 @@ const LLMatrix3&    LLMatrix3::setRot(const F32 roll, const F32 pitch, const F32
     F32     cx, sx, cy, sy, cz, sz;
     F32     cxsy, sxsy;
 
-    cx = (F32)cos(roll); //A
-    sx = (F32)sin(roll); //B
-    cy = (F32)cos(pitch); //C
-    sy = (F32)sin(pitch); //D
-    cz = (F32)cos(yaw); //E
-    sz = (F32)sin(yaw); //F
+    cx = static_cast<F32>(cos(roll)); //A
+    sx = static_cast<F32>(sin(roll)); //B
+    cy = static_cast<F32>(cos(pitch)); //C
+    sy = static_cast<F32>(sin(pitch)); //D
+    cz = static_cast<F32>(cos(yaw)); //E
+    sz = static_cast<F32>(sin(yaw)); //F
 
     cxsy = cx * sy; //AD
     sxsy = sx * sy; //BD

@@ -75,9 +75,9 @@ void LLMatrix3a::setMul( const LLMatrix3a& lhs, const LLMatrix3a& rhs )
 
     if ( numVectors & 0x1 )
     {
-        LLVector4a xxxx = _mm_load_ss( (const F32*)src );
-        LLVector4a yyyy = _mm_load_ss( (const F32*)src + 1 );
-        LLVector4a zzzz = _mm_load_ss( (const F32*)src + 2 );
+        LLVector4a xxxx = _mm_load_ss( reinterpret_cast<const F32*>(src) );
+        LLVector4a yyyy = _mm_load_ss( reinterpret_cast<const F32*>(src) + 1 );
+        LLVector4a zzzz = _mm_load_ss( reinterpret_cast<const F32*>(src) + 2 );
         xxxx.splat<0>( xxxx );
         yyyy.splat<0>( yyyy );
         zzzz.splat<0>( zzzz );
@@ -86,7 +86,7 @@ void LLMatrix3a::setMul( const LLMatrix3a& lhs, const LLMatrix3a& rhs )
         zzzz.mul( col2 );
         xxxx.add( yyyy );
         xxxx.add( zzzz );
-        xxxx.store4a( (F32*)dst );
+        xxxx.store4a( reinterpret_cast<F32*>(dst) );
         src++;
         dst++;
     }
@@ -95,10 +95,10 @@ void LLMatrix3a::setMul( const LLMatrix3a& lhs, const LLMatrix3a& rhs )
     numVectors >>= 1;
     while ( src < maxAddr )
     {
-        _mm_prefetch( (const char*)(src + 32 ), _MM_HINT_NTA );
-        _mm_prefetch( (const char*)(dst + 32), _MM_HINT_NTA );
-        LLVector4a xxxx = _mm_load_ss( (const F32*)src );
-        LLVector4a xxxx1= _mm_load_ss( (const F32*)(src + 1) );
+        _mm_prefetch( reinterpret_cast<const char*>(src + 32 ), _MM_HINT_NTA );
+        _mm_prefetch( reinterpret_cast<const char*>(dst + 32), _MM_HINT_NTA );
+        LLVector4a xxxx = _mm_load_ss( reinterpret_cast<const F32*>(src) );
+        LLVector4a xxxx1= _mm_load_ss( reinterpret_cast<const F32*>(src + 1) );
 
         xxxx.splat<0>( xxxx );
         xxxx1.splat<0>( xxxx1 );
@@ -106,8 +106,8 @@ void LLMatrix3a::setMul( const LLMatrix3a& lhs, const LLMatrix3a& rhs )
         xxxx1.mul( col0 );
 
         {
-            LLVector4a yyyy = _mm_load_ss( (const F32*)src + 1 );
-            LLVector4a yyyy1 = _mm_load_ss( (const F32*)(src + 1) + 1);
+            LLVector4a yyyy = _mm_load_ss( reinterpret_cast<const F32*>(src) + 1 );
+            LLVector4a yyyy1 = _mm_load_ss( reinterpret_cast<const F32*>(src + 1) + 1);
             yyyy.splat<0>( yyyy );
             yyyy1.splat<0>( yyyy1 );
             yyyy.mul( col1 );
@@ -117,8 +117,8 @@ void LLMatrix3a::setMul( const LLMatrix3a& lhs, const LLMatrix3a& rhs )
         }
 
         {
-            LLVector4a zzzz = _mm_load_ss( (const F32*)(src) + 2 );
-            LLVector4a zzzz1 = _mm_load_ss( (const F32*)(++src) + 2 );
+            LLVector4a zzzz = _mm_load_ss( reinterpret_cast<const F32*>(src) + 2 );
+            LLVector4a zzzz1 = _mm_load_ss( reinterpret_cast<const F32*>(++src) + 2 );
             zzzz.splat<0>( zzzz );
             zzzz1.splat<0>( zzzz1 );
             zzzz.mul( col2 );
@@ -131,6 +131,6 @@ void LLMatrix3a::setMul( const LLMatrix3a& lhs, const LLMatrix3a& rhs )
         src++;
         dst++;
 
-        xxxx1.store4a((F32*)dst++);
+        xxxx1.store4a(reinterpret_cast<F32*>(dst++));
     }
 }

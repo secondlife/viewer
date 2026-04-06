@@ -51,18 +51,18 @@
 LLSD ll_sd_from_vector3(const LLVector3& vec)
 {
     LLSD rv;
-    rv.append((F64)vec.mV[VX]);
-    rv.append((F64)vec.mV[VY]);
-    rv.append((F64)vec.mV[VZ]);
+    rv.append(static_cast<F64>(vec.mV[VX]));
+    rv.append(static_cast<F64>(vec.mV[VY]));
+    rv.append(static_cast<F64>(vec.mV[VZ]));
     return rv;
 }
 
 LLVector3 ll_vector3_from_sd(const LLSD& sd, S32 start_index)
 {
     LLVector3 rv;
-    rv.mV[VX] = (F32)sd[start_index].asReal();
-    rv.mV[VY] = (F32)sd[++start_index].asReal();
-    rv.mV[VZ] = (F32)sd[++start_index].asReal();
+    rv.mV[VX] = static_cast<F32>(sd[start_index].asReal());
+    rv.mV[VY] = static_cast<F32>(sd[++start_index].asReal());
+    rv.mV[VZ] = static_cast<F32>(sd[++start_index].asReal());
     return rv;
 }
 
@@ -70,20 +70,20 @@ LLVector3 ll_vector3_from_sd(const LLSD& sd, S32 start_index)
 LLSD ll_sd_from_vector4(const LLVector4& vec)
 {
     LLSD rv;
-    rv.append((F64)vec.mV[VX]);
-    rv.append((F64)vec.mV[VY]);
-    rv.append((F64)vec.mV[VZ]);
-    rv.append((F64)vec.mV[VW]);
+    rv.append(static_cast<F64>(vec.mV[VX]));
+    rv.append(static_cast<F64>(vec.mV[VY]));
+    rv.append(static_cast<F64>(vec.mV[VZ]));
+    rv.append(static_cast<F64>(vec.mV[VW]));
     return rv;
 }
 
 LLVector4 ll_vector4_from_sd(const LLSD& sd, S32 start_index)
 {
     LLVector4 rv;
-    rv.mV[VX] = (F32)sd[start_index].asReal();
-    rv.mV[VY] = (F32)sd[++start_index].asReal();
-    rv.mV[VZ] = (F32)sd[++start_index].asReal();
-    rv.mV[VW] = (F32)sd[++start_index].asReal();
+    rv.mV[VX] = static_cast<F32>(sd[start_index].asReal());
+    rv.mV[VY] = static_cast<F32>(sd[++start_index].asReal());
+    rv.mV[VZ] = static_cast<F32>(sd[++start_index].asReal());
+    rv.mV[VW] = static_cast<F32>(sd[++start_index].asReal());
     return rv;
 }
 
@@ -110,16 +110,16 @@ LLVector3d ll_vector3d_from_sd(const LLSD& sd, S32 start_index)
 LLSD ll_sd_from_vector2(const LLVector2& vec)
 {
     LLSD rv;
-    rv.append((F64)vec.mV[VX]);
-    rv.append((F64)vec.mV[VY]);
+    rv.append(static_cast<F64>(vec.mV[VX]));
+    rv.append(static_cast<F64>(vec.mV[VY]));
     return rv;
 }
 
 LLVector2 ll_vector2_from_sd(const LLSD& sd)
 {
     LLVector2 rv;
-    rv.mV[VX] = (F32)sd[0].asReal();
-    rv.mV[VY] = (F32)sd[1].asReal();
+    rv.mV[VX] = static_cast<F32>(sd[0].asReal());
+    rv.mV[VY] = static_cast<F32>(sd[1].asReal());
     return rv;
 }
 
@@ -127,20 +127,20 @@ LLVector2 ll_vector2_from_sd(const LLSD& sd)
 LLSD ll_sd_from_quaternion(const LLQuaternion& quat)
 {
     LLSD rv;
-    rv.append((F64)quat.mQ[VX]);
-    rv.append((F64)quat.mQ[VY]);
-    rv.append((F64)quat.mQ[VZ]);
-    rv.append((F64)quat.mQ[VW]);
+    rv.append(static_cast<F64>(quat.mQ[VX]));
+    rv.append(static_cast<F64>(quat.mQ[VY]));
+    rv.append(static_cast<F64>(quat.mQ[VZ]));
+    rv.append(static_cast<F64>(quat.mQ[VW]));
     return rv;
 }
 
 LLQuaternion ll_quaternion_from_sd(const LLSD& sd)
 {
     LLQuaternion quat;
-    quat.mQ[VX] = (F32)sd[0].asReal();
-    quat.mQ[VY] = (F32)sd[1].asReal();
-    quat.mQ[VZ] = (F32)sd[2].asReal();
-    quat.mQ[VW] = (F32)sd[3].asReal();
+    quat.mQ[VX] = static_cast<F32>(sd[0].asReal());
+    quat.mQ[VY] = static_cast<F32>(sd[1].asReal());
+    quat.mQ[VZ] = static_cast<F32>(sd[2].asReal());
+    quat.mQ[VW] = static_cast<F32>(sd[3].asReal());
     return quat;
 }
 

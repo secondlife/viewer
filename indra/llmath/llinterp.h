@@ -415,7 +415,7 @@ void LLInterpExp<Type>::update(const F32 time)
         return;
     }
 
-    this->mCurFrac = 1.f - (F32)(exp(-2.f*target_frac));
+    this->mCurFrac = 1.f - static_cast<F32>(exp(-2.f*target_frac));
     this->mCurVal = this->mStartVal + this->mCurFrac * (this->mEndVal - this->mStartVal);
     this->mCurTime = time;
 }

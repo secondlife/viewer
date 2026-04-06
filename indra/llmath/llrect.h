@@ -115,8 +115,8 @@ public:
         // so ratios will be positive
         F32 ratio_x = 0;
         F32 ratio_y = 0;
-        if (delta_x != 0) ratio_x = ((F32)clip_x / (F32)delta_x);
-        if (delta_y != 0) ratio_y = ((F32)clip_y / (F32)delta_y);
+        if (delta_x != 0) ratio_x = (static_cast<F32>(clip_x) / static_cast<F32>(delta_x));
+        if (delta_y != 0) ratio_y = (static_cast<F32>(clip_y) / static_cast<F32>(delta_y));
         if (ratio_x > ratio_y)
         {
             // clip along x direction

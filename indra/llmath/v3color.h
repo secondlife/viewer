@@ -68,9 +68,9 @@ public:
 
     void setValue(const LLSD& sd)
     {
-        mV[VRED]   = (F32)sd[VRED].asReal();
-        mV[VGREEN] = (F32)sd[VGREEN].asReal();
-        mV[VBLUE]  = (F32)sd[VBLUE].asReal();
+        mV[VRED]   = static_cast<F32>(sd[VRED].asReal());
+        mV[VGREEN] = static_cast<F32>(sd[VGREEN].asReal());
+        mV[VBLUE]  = static_cast<F32>(sd[VBLUE].asReal());
     }
 
     void setHSL(F32 hue, F32 saturation, F32 luminance);
@@ -207,11 +207,11 @@ inline LLColor3::LLColor3(const char* color_string) // takes a string of format 
     char tempstr[7];
     strncpy(tempstr, color_string, 6); /* Flawfinder: ignore */
     tempstr[6] = '\0';
-    mV[VBLUE]  = (F32)strtol(&tempstr[4], nullptr, 16) / 255.f;
+    mV[VBLUE]  = static_cast<F32>(strtol(&tempstr[4], nullptr, 16)) / 255.f;
     tempstr[4] = '\0';
-    mV[VGREEN] = (F32)strtol(&tempstr[2], nullptr, 16) / 255.f;
+    mV[VGREEN] = static_cast<F32>(strtol(&tempstr[2], nullptr, 16)) / 255.f;
     tempstr[2] = '\0';
-    mV[VRED]   = (F32)strtol(&tempstr[0], nullptr, 16) / 255.f;
+    mV[VRED]   = static_cast<F32>(strtol(&tempstr[0], nullptr, 16)) / 255.f;
 }
 
 inline const LLColor3& LLColor3::setToBlack()
@@ -286,9 +286,9 @@ inline F32 LLColor3::normalize()
 
 inline void LLColor3::exp()
 {
-    mV[VRED]   = (F32)LL_FAST_EXP(mV[VRED]);
-    mV[VGREEN] = (F32)LL_FAST_EXP(mV[VGREEN]);
-    mV[VBLUE]  = (F32)LL_FAST_EXP(mV[VBLUE]);
+    mV[VRED]   = static_cast<F32>(LL_FAST_EXP(mV[VRED]));
+    mV[VGREEN] = static_cast<F32>(LL_FAST_EXP(mV[VGREEN]));
+    mV[VBLUE]  = static_cast<F32>(LL_FAST_EXP(mV[VBLUE]));
 }
 
 inline LLColor3 operator+(const LLColor3& a, const LLColor3& b)
@@ -423,7 +423,7 @@ const LLColor3& LLColor3::set(const std::vector<T>& v)
 {
     for (size_t i = 0; i < llmin(v.size(), 3); ++i)
     {
-        mV[i] = (F32)v[i];
+        mV[i] = static_cast<F32>(v[i]);
     }
 
     return *this;

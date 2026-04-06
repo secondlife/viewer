@@ -110,7 +110,7 @@ public:
                     const LLVector4a& size,
                     BaseType* parent,
                     U8 octant = NO_CHILD_NODES)
-    :   mParent((oct_node*)parent),
+    :   mParent(static_cast<oct_node*>(parent)),
         mOctant(octant)
     {
         llassert(size[0] >= gOctreeMinSize*0.5f);
@@ -121,7 +121,7 @@ public:
         updateMinMax();
         if ((mOctant == NO_CHILD_NODES) && mParent)
         {
-            mOctant = ((oct_node*) mParent)->getOctant(mCenter);
+            mOctant = (static_cast<oct_node*>(mParent))->getOctant(mCenter);
         }
 
         clearChildren();
@@ -147,19 +147,19 @@ public:
     }
 
     inline const BaseType* getParent()  const           { return mParent; }
-    inline void setParent(BaseType* parent)             { mParent = (oct_node*) parent; }
+    inline void setParent(BaseType* parent)             { mParent = static_cast<oct_node*>(parent); }
     inline const LLVector4a& getCenter() const          { return mCenter; }
     inline const LLVector4a& getSize() const            { return mSize; }
     inline void setCenter(const LLVector4a& center)     { mCenter = center; }
     inline void setSize(const LLVector4a& size)         { mSize = size; }
     inline oct_node* getNodeAt(T* data)                 { return getNodeAt(data->getPositionGroup(), data->getBinRadius()); }
     inline U8 getOctant() const                         { return mOctant; }
-    inline const oct_node*  getOctParent() const        { return (const oct_node*) getParent(); }
-    inline oct_node* getOctParent()                     { return (oct_node*) getParent(); }
+    inline const oct_node*  getOctParent() const        { return static_cast<const oct_node*>(getParent()); }
+    inline oct_node* getOctParent()                     { return static_cast<oct_node*>(getParent()); }
 
     U8 getOctant(const LLVector4a& pos) const           //get the octant pos is in
     {
-        return (U8) (pos.greaterThan(mCenter).getGatheredBits() & 0x7);
+        return static_cast<U8>(pos.greaterThan(mCenter).getGatheredBits() & 0x7);
     }
 
     inline bool isInside(const LLVector4a& pos, const F32& rad) const
@@ -197,7 +197,7 @@ public:
 
     inline oct_listener* getOctListener(U32 index)
     {
-        return (oct_listener*) BaseType::getListener(index);
+        return static_cast<oct_listener*>(BaseType::getListener(index));
     }
 
     inline bool contains(T* xform)
@@ -238,7 +238,7 @@ public:
     void accept(oct_traveler* visitor)              { visitor->visit(this); }
     virtual bool isLeaf() const                     { return mChildCount == 0; }
 
-    U32 getElementCount() const                     { return (U32)mData.size(); }
+    U32 getElementCount() const                     { return static_cast<U32>(mData.size()); }
     bool isEmpty() const                            { return mData.empty(); }
     element_iter getDataBegin()                     { return mData.begin(); }
     element_iter getDataEnd()                       { return mData.end(); }
@@ -301,7 +301,7 @@ public:
         }
         else if (!node->contains(rad) && node->getParent())
         { //if we got here, data does not exist in this node
-            return ((oct_node*) node->getParent())->getNodeAt(pos, rad);
+            return (static_cast<oct_node*>(node->getParent()))->getNodeAt(pos, rad);
         }
 
         return node;
@@ -452,7 +452,7 @@ public:
 
         S32 i = data->getBinIndex();
 
-        if (i >= 0 && i < (S32)getElementCount())
+        if (i >= 0 && i < static_cast<S32>(getElementCount()))
         {
             if (mData[i] == data)
             { //found it
@@ -508,7 +508,7 @@ public:
 
         for (U32 i = 0; i < getChildCount(); i++)
         {   //we don't contain data, so pass this guy down
-            oct_node* child = (oct_node*) getChild(i);
+            oct_node* child = static_cast<oct_node*>(getChild(i));
             child->removeByAddress(data);
         }
     }

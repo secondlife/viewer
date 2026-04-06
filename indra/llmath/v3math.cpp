@@ -264,9 +264,9 @@ LLVector3 LLVector3::scaledVec(const LLVector3& vec) const
 
 const LLVector3& LLVector3::set(const LLVector3d& vec)
 {
-    mV[VX] = (F32)vec.mdV[VX];
-    mV[VY] = (F32)vec.mdV[VY];
-    mV[VZ] = (F32)vec.mdV[VZ];
+    mV[VX] = static_cast<F32>(vec.mdV[VX]);
+    mV[VY] = static_cast<F32>(vec.mdV[VY]);
+    mV[VZ] = static_cast<F32>(vec.mdV[VZ]);
     return (*this);
 }
 
@@ -280,23 +280,23 @@ const LLVector3& LLVector3::set(const LLVector4& vec)
 
 LLVector3::LLVector3(const LLVector2 &vec)
 {
-    mV[VX] = (F32)vec.mV[VX];
-    mV[VY] = (F32)vec.mV[VY];
+    mV[VX] = static_cast<F32>(vec.mV[VX]);
+    mV[VY] = static_cast<F32>(vec.mV[VY]);
     mV[VZ] = 0.f;
 }
 
 LLVector3::LLVector3(const LLVector3d& vec)
 {
-    mV[VX] = (F32)vec.mdV[VX];
-    mV[VY] = (F32)vec.mdV[VY];
-    mV[VZ] = (F32)vec.mdV[VZ];
+    mV[VX] = static_cast<F32>(vec.mdV[VX]);
+    mV[VY] = static_cast<F32>(vec.mdV[VY]);
+    mV[VZ] = static_cast<F32>(vec.mdV[VZ]);
 }
 
 LLVector3::LLVector3(const LLVector4& vec)
 {
-    mV[VX] = (F32)vec.mV[VX];
-    mV[VY] = (F32)vec.mV[VY];
-    mV[VZ] = (F32)vec.mV[VZ];
+    mV[VX] = static_cast<F32>(vec.mV[VX]);
+    mV[VY] = static_cast<F32>(vec.mV[VY]);
+    mV[VZ] = static_cast<F32>(vec.mV[VZ]);
 }
 
 LLVector3::LLVector3(const LLVector4a& vec)
@@ -320,9 +320,9 @@ LLSD LLVector3::getValue() const
 
 void LLVector3::setValue(const LLSD& sd)
 {
-    mV[VX] = (F32) sd[VX].asReal();
-    mV[VY] = (F32) sd[VY].asReal();
-    mV[VZ] = (F32) sd[VZ].asReal();
+    mV[VX] = static_cast<F32>(sd[VX].asReal());
+    mV[VY] = static_cast<F32>(sd[VY].asReal());
+    mV[VZ] = static_cast<F32>(sd[VZ].asReal());
 }
 
 const LLVector3& operator*=(LLVector3& a, const LLQuaternion& rot)

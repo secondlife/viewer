@@ -108,19 +108,19 @@ constexpr bool is_approx_zero(F32 f) { return (-F_APPROXIMATELY_ZERO < f) && (f 
 // handles negative and positive zeros
 inline bool is_zero(F32 x)
 {
-    return (*(U32*)(&x) & 0x7fffffff) == 0;
+    return (*reinterpret_cast<U32*>(&x) & 0x7fffffff) == 0;
 }
 
 inline bool is_approx_equal(F32 x, F32 y)
 {
     constexpr S32 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
-    return (std::abs((S32) ((U32&)x - (U32&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
+    return (std::abs(static_cast<S32>(reinterpret_cast<U32&>(x) - reinterpret_cast<U32&>(y))) < COMPARE_MANTISSA_UP_TO_BIT);
 }
 
 inline bool is_approx_equal(F64 x, F64 y)
 {
     constexpr S64 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
-    return (std::abs((S32) ((U64&)x - (U64&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
+    return (std::abs(static_cast<S32>(reinterpret_cast<U64&>(x) - reinterpret_cast<U64&>(y))) < COMPARE_MANTISSA_UP_TO_BIT);
 }
 
 inline S32 llabs(const S32 a)
@@ -163,7 +163,7 @@ inline S32 llfloor(F32 f)
         }
         return result;
 #else
-        return (S32)floor(f);
+        return static_cast<S32>(floor(f));
 #endif
 }
 
@@ -171,7 +171,7 @@ inline S32 llfloor(F32 f)
 inline S32 llceil( F32 f )
 {
     // This could probably be optimized, but this works.
-    return (S32)ceil(f);
+    return static_cast<S32>(ceil(f));
 }
 
 
@@ -312,7 +312,7 @@ static union
 
 inline F32 llfastpow(const F32 x, const F32 y)
 {
-    return (F32)(LL_FAST_EXP(y * log(x)));
+    return static_cast<F32>(LL_FAST_EXP(y * log(x)));
 }
 
 
@@ -472,15 +472,15 @@ inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
     VEC_TYPE Q1 = data[data.size()/4];
     VEC_TYPE Q3 = data[data.size()-data.size()/4-1];
 
-    if ((F32)(Q3-Q1) < 1.f)
+    if (static_cast<F32>(Q3-Q1) < 1.f)
     {
         // not enough variation to detect outliers
         return;
     }
 
 
-    VEC_TYPE min = (VEC_TYPE) ((F32) Q1-k * (F32) (Q3-Q1));
-    VEC_TYPE max = (VEC_TYPE) ((F32) Q3+k * (F32) (Q3-Q1));
+    VEC_TYPE min = static_cast<VEC_TYPE>(static_cast<F32>(Q1)-k * static_cast<F32>(Q3-Q1));
+    VEC_TYPE max = static_cast<VEC_TYPE>(static_cast<F32>(Q3)+k * static_cast<F32>(Q3-Q1));
 
     U32 i = 0;
     while (i < data.size() && data[i] < min)

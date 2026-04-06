@@ -579,7 +579,7 @@ const LLColor4& LLColor4::set(const std::vector<T>& v)
 {
     for (size_t i = 0; i < llmin(v.size(), 4); ++i)
     {
-        mV[i] = (F32)v[i];
+        mV[i] = static_cast<F32>(v[i]);
     }
 
     return *this;

@@ -241,8 +241,8 @@ namespace tut
         /* Test buffer update and individual char update */
         const char TEST_BUFFER[] = "hello &#$)$&Nd0";
         LLCRC c1, c2;
-        c1.update((U8*)TEST_BUFFER, sizeof(TEST_BUFFER) - 1);
-        char* rh = (char*)TEST_BUFFER;
+        c1.update(reinterpret_cast<const U8*>(TEST_BUFFER), sizeof(TEST_BUFFER) - 1);
+        char* rh = const_cast<char*>(TEST_BUFFER);
         while(*rh != '\0')
         {
             c2.update(*rh);
@@ -258,21 +258,21 @@ namespace tut
         const char TEST_BUFFER1[] = "Split Buffer one $^%$%#@$";
         const char TEST_BUFFER2[] = "Split Buffer two )(8723#5dsds";
         LLCRC c1, c2;
-        c1.update((U8*)TEST_BUFFER1, sizeof(TEST_BUFFER1) - 1);
-        char* rh = (char*)TEST_BUFFER2;
+        c1.update(reinterpret_cast<const U8*>(TEST_BUFFER1), sizeof(TEST_BUFFER1) - 1);
+        char* rh = const_cast<char*>(TEST_BUFFER2;
         while(*rh != '\0')
         {
             c1.update(*rh);
             ++rh;
         }
 
-        rh = (char*)TEST_BUFFER1;
+        rh = const_cast<char*>(TEST_BUFFER1;
         while(*rh != '\0')
         {
             c2.update(*rh);
             ++rh;
         }
-        c2.update((U8*)TEST_BUFFER2, sizeof(TEST_BUFFER2) - 1);
+        c2.update(reinterpret_cast<const U8*>(TEST_BUFFER2), sizeof(TEST_BUFFER2) - 1);
 
         ensure_equals("crc update 2", c1.getCRC(), c2.getCRC());
     }

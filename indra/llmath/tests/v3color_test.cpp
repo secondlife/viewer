@@ -56,9 +56,9 @@ namespace tut
         ensure("3:LLColor3:Fail to initialize " ,(2.0f == llcolor3b.mV[0]) && (3.2f == llcolor3b.mV[1]) && (1.f == llcolor3b.mV[2]));
         const char* str = "561122";
         LLColor3 llcolor3c(str);
-        v1 = (F32)86.0f/255.0f; // 0x56 = 86
-        v2 = (F32)17.0f/255.0f; // 0x11 = 17
-        v3 = (F32)34.0f/255.f;  // 0x22 = 34
+        v1 = 86.0f/255.0f; // 0x56 = 86
+        v2 = 17.0f/255.0f; // 0x11 = 17
+        v3 = 34.0f/255.f;  // 0x22 = 34
         ensure("4:LLColor3:Fail to initialize " , is_approx_equal(v1, llcolor3c.mV[0]) && is_approx_equal(v2, llcolor3c.mV[1]) && is_approx_equal(v3, llcolor3c.mV[2]));
     }
 
@@ -93,7 +93,7 @@ namespace tut
         F32 r = 2.3436212f, g = 1231.f, b = 4.7849321232f;
         LLColor3 llcolor3(r,g,b);
         ensure("magVecSquared:Fail ", is_approx_equal(llcolor3.magVecSquared(), (r*r + g*g + b*b)));
-        ensure("magVec:Fail ", is_approx_equal(llcolor3.magVec(), (F32) sqrt(r*r + g*g + b*b)));
+        ensure("magVec:Fail ", is_approx_equal(llcolor3.magVec(), static_cast<F32>(sqrt(r*r + g*g + b*b))));
     }
 
     template<> template<>
@@ -103,7 +103,7 @@ namespace tut
         F32 val1, val2,val3;
         LLColor3 llcolor3(r,g,b);
         F32 vecMag = llcolor3.normVec();
-        F32 mag = (F32) sqrt(r*r + g*g + b*b);
+        F32 mag = static_cast<F32>(sqrt(r*r + g*g + b*b));
         F32 oomag = 1.f / mag;
         val1 = r * oomag;
         val2 = g * oomag;
@@ -286,7 +286,7 @@ namespace tut
         F32 r1 =1.f, g1 = 2.f,b1 = 1.2f, r2 = -2.3f, g2 = 1.11f, b2 = 1234.234f;
         LLColor3 llcolor3(r1,g1,b1),llcolor3a(r2,g2,b2);
         F32 val = distVec(llcolor3,llcolor3a);
-        ensure("distVec failed ", is_approx_equal((F32) sqrt((r1-r2)*(r1-r2) + (g1-g2)*(g1-g2) + (b1-b2)*(b1-b2)) ,val));
+        ensure("distVec failed ", is_approx_equal(static_cast<F32>(sqrt((r1-r2)*(r1-r2) + (g1-g2)*(g1-g2) + (b1-b2)*(b1-b2))) ,val));
 
         F32 val1 = distVec_squared(llcolor3,llcolor3a);
         ensure("distVec_squared failed ", is_approx_equal(((r1-r2)*(r1-r2) + (g1-g2)*(g1-g2) + (b1-b2)*(b1-b2)) ,val1));

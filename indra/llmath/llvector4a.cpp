@@ -43,7 +43,7 @@ extern const LLVector4a LL_V4A_EPSILON = reinterpret_cast<const LLVector4a&> ( F
 
 /*static */void LLVector4a::memcpyNonAliased16(F32* __restrict dst, const F32* __restrict src, size_t bytes)
 {
-        ll_memcpy_nonaliased_aligned_16((char*)dst, (char*)src, bytes);
+        ll_memcpy_nonaliased_aligned_16(reinterpret_cast<char*>(dst), reinterpret_cast<const char*>(src), bytes);
 }
 
 void LLVector4a::setRotated( const LLRotation& rot, const LLVector4a& vec )
