@@ -38,7 +38,7 @@ class LLFloaterEvent : public LLFloater,
 
 {
 public:
-    LLFloaterEvent(const LLSD& key);
+    explicit LLFloaterEvent(const LLSD& key);
     /*virtual*/ ~LLFloaterEvent();
 
     bool postBuild() override;

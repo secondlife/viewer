@@ -306,7 +306,7 @@ public:
 class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
 {
 public:
-    LLUpdateAppearanceOnDestroy(bool enforce_item_restrictions = true,
+    explicit LLUpdateAppearanceOnDestroy(bool enforce_item_restrictions = true,
                                 bool enforce_ordering = true,
                                 nullary_func_t post_update_func = no_op);
     virtual ~LLUpdateAppearanceOnDestroy();
@@ -322,7 +322,7 @@ private:
 class LLUpdateAppearanceAndEditWearableOnDestroy: public LLInventoryCallback
 {
 public:
-    LLUpdateAppearanceAndEditWearableOnDestroy(const LLUUID& item_id);
+    explicit LLUpdateAppearanceAndEditWearableOnDestroy(const LLUUID& item_id);
 
     /* virtual */ void fire(const LLUUID& item_id) {}
 

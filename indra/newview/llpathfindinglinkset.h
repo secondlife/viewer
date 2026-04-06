@@ -46,7 +46,7 @@ public:
         kDynamicPhantom
     };
 
-    LLPathfindingLinkset(const LLSD &pTerrainData);
+    explicit LLPathfindingLinkset(const LLSD &pTerrainData);
     LLPathfindingLinkset(const std::string &pUUID, const LLSD &pLinksetData);
     LLPathfindingLinkset(const LLPathfindingLinkset& pOther);
     virtual ~LLPathfindingLinkset();

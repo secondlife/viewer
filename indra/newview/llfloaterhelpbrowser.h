@@ -37,7 +37,7 @@ class LLFloaterHelpBrowser :
     public LLViewerMediaObserver
 {
  public:
-    LLFloaterHelpBrowser(const LLSD& key);
+    explicit LLFloaterHelpBrowser(const LLSD& key);
 
     /*virtual*/ bool postBuild();
     /*virtual*/ void onClose(bool app_quitting);

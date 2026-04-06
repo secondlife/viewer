@@ -82,12 +82,12 @@ namespace
 
 class LLCLPError : public LLException {
 public:
-    LLCLPError(const std::string& what) : LLException(what) {}
+    explicit LLCLPError(const std::string& what) : LLException(what) {}
 };
 
 class LLCLPLastOption : public LLException {
 public:
-    LLCLPLastOption(const std::string& what) : LLException(what) {}
+    explicit LLCLPLastOption(const std::string& what) : LLException(what) {}
 };
 
 class LLCLPValue : public po::value_semantic_codecvt_helper<char>

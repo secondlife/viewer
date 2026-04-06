@@ -36,7 +36,7 @@ class LLScriptEdCore;
 class LLFloaterGotoLine : public LLFloater
 {
 public:
-        LLFloaterGotoLine(LLScriptEdCore* editor_core);
+        explicit LLFloaterGotoLine(LLScriptEdCore* editor_core);
         ~LLFloaterGotoLine();
 
         bool postBuild() override;

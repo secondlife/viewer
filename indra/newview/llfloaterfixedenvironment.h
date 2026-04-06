@@ -46,7 +46,7 @@ class LLFloaterFixedEnvironment : public LLFloaterEditEnvironmentBase
 {
     LOG_CLASS(LLFloaterFixedEnvironment);
 public:
-                            LLFloaterFixedEnvironment(const LLSD &key);
+                            explicit LLFloaterFixedEnvironment(const LLSD &key);
                             ~LLFloaterFixedEnvironment();
 
     virtual bool            postBuild()                 override;
@@ -98,7 +98,7 @@ class LLFloaterFixedEnvironmentWater : public LLFloaterFixedEnvironment
     LOG_CLASS(LLFloaterFixedEnvironmentWater);
 
 public:
-    LLFloaterFixedEnvironmentWater(const LLSD &key);
+    explicit LLFloaterFixedEnvironmentWater(const LLSD &key);
 
     bool                    postBuild()                 override;
 
@@ -118,7 +118,7 @@ class LLFloaterFixedEnvironmentSky : public LLFloaterFixedEnvironment
     LOG_CLASS(LLFloaterFixedEnvironmentSky);
 
 public:
-    LLFloaterFixedEnvironmentSky(const LLSD &key);
+    explicit LLFloaterFixedEnvironmentSky(const LLSD &key);
 
     bool                    postBuild()                 override;
 

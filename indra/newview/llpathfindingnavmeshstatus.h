@@ -44,9 +44,9 @@ public:
     };
 
     LLPathfindingNavMeshStatus();
-    LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID);
+    explicit LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID);
     LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID, const LLSD &pContent);
-    LLPathfindingNavMeshStatus(const LLSD &pContent);
+    explicit LLPathfindingNavMeshStatus(const LLSD &pContent);
     LLPathfindingNavMeshStatus(const LLPathfindingNavMeshStatus &pOther);
     virtual ~LLPathfindingNavMeshStatus();
 

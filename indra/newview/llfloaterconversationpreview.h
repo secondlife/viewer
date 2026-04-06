@@ -37,7 +37,7 @@ class LLFloaterConversationPreview : public LLFloater
 {
 public:
 
-    LLFloaterConversationPreview(const LLSD& session_id);
+    explicit LLFloaterConversationPreview(const LLSD& session_id);
     virtual ~LLFloaterConversationPreview();
 
     bool postBuild() override;

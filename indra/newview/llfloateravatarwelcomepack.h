@@ -37,7 +37,7 @@ class LLFloaterAvatarWelcomePack:
     friend class LLFloaterReg;
 
     private:
-        LLFloaterAvatarWelcomePack(const LLSD& key);
+        explicit LLFloaterAvatarWelcomePack(const LLSD& key);
         ~LLFloaterAvatarWelcomePack();
         bool postBuild() override;
 

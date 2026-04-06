@@ -50,7 +50,7 @@ class LLTextEditor;
 class LLSidepanelItemInfo : public LLPanel, public LLInventoryObserver
 {
 public:
-    LLSidepanelItemInfo(const LLPanel::Params& p = getDefaultParams());
+    explicit LLSidepanelItemInfo(const LLPanel::Params& p = getDefaultParams());
     virtual ~LLSidepanelItemInfo();
 
     /*virtual*/ bool postBuild() override;

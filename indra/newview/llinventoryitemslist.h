@@ -83,7 +83,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLInventoryItemsList(const LLInventoryItemsList::Params& p);
+    explicit LLInventoryItemsList(const LLInventoryItemsList::Params& p);
 
     uuid_vec_t& getIDs() { return mIDs; }
 

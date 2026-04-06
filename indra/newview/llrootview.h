@@ -40,7 +40,7 @@ class LLRootView : public LLView
 public:
     using child_registry_t = LLRootViewRegistry;
 
-    LLRootView(const Params& p)
+    explicit LLRootView(const Params& p)
     :   LLView(p)
     {}
 };

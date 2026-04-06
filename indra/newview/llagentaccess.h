@@ -34,7 +34,7 @@ class LLControlGroup;
 class LLAgentAccess
 {
 public:
-    LLAgentAccess(LLControlGroup& savedSettings);
+    explicit LLAgentAccess(LLControlGroup& savedSettings);
 
     bool getAdminOverride() const;
     void setAdminOverride(bool b);

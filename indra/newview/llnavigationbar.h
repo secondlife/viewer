@@ -71,7 +71,7 @@ protected:
     friend class LLUICtrlFactory;
     // convert string name into direction vector
     void setDirectionFromName(const std::string& name);
-    LLPullButton(const LLPullButton::Params& params);
+    explicit LLPullButton(const LLPullButton::Params& params);
 
     commit_signal_t mClickDraggingSignal;
     LLVector2 mLastMouseDown;

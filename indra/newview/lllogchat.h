@@ -32,7 +32,7 @@ class LLChat;
 class LLActionThread : public LLThread
 {
 public:
-    LLActionThread(const std::string& name);
+    explicit LLActionThread(const std::string& name);
     ~LLActionThread();
 
     void waitFinished();
@@ -153,7 +153,7 @@ private:
 class LLChatLogFormatter
 {
 public:
-    LLChatLogFormatter(const LLSD& im) : mIM(im) {}
+    explicit LLChatLogFormatter(const LLSD& im) : mIM(im) {}
     virtual ~LLChatLogFormatter() = default;
 
     friend std::ostream& operator<<(std::ostream& str, const LLChatLogFormatter& formatter)

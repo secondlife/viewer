@@ -48,7 +48,7 @@ public:
     };
 
 
-    LLFloaterExperienceProfile(const LLSD& data);
+    explicit LLFloaterExperienceProfile(const LLSD& data);
     virtual ~LLFloaterExperienceProfile();
 
     /* virtual */ bool matchesKey(const LLSD& key);

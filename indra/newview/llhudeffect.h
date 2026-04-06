@@ -53,7 +53,7 @@ public:
 
     friend class LLHUDManager;
 protected:
-    LLHUDEffect(const U8 type);
+    explicit LLHUDEffect(const U8 type);
     ~LLHUDEffect();
 
     /*virtual*/ void render();

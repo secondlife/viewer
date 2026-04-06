@@ -64,7 +64,7 @@ private:
     void onGetOwnerNameCallback();
     void onGetCreatorNameCallback();
 
-    LLFloaterInspect(const LLSD& key);
+    explicit LLFloaterInspect(const LLSD& key);
     virtual ~LLFloaterInspect();
 
     LLSafeHandle<LLObjectSelection> mObjectSelection;

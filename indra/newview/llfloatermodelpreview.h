@@ -65,7 +65,7 @@ public:
     };
     static LLFloaterModelPreview* sInstance;
 
-    LLFloaterModelPreview(const LLSD& key);
+    explicit LLFloaterModelPreview(const LLSD& key);
     virtual ~LLFloaterModelPreview();
 
     virtual bool postBuild();

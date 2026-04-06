@@ -34,7 +34,7 @@
 class LLTextureInfo
 {
 public:
-    LLTextureInfo(bool postponeStartRecoreder = true);
+    explicit LLTextureInfo(bool postponeStartRecoreder = true);
     ~LLTextureInfo();
 
     void setLogging(bool log_info);

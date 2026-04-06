@@ -34,7 +34,7 @@ class LLPanelGroupInvite
 : public LLPanel
 {
 public:
-    LLPanelGroupInvite(const LLUUID& group_id);
+    explicit LLPanelGroupInvite(const LLUUID& group_id);
     ~LLPanelGroupInvite();
 
     void addUsers(uuid_vec_t& agent_ids);

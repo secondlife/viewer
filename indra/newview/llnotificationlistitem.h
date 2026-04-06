@@ -104,7 +104,7 @@ public:
     using ETimeType = e_time_type;
 
 protected:
-    LLNotificationListItem(const Params& p);
+    explicit LLNotificationListItem(const Params& p);
     virtual ~LLNotificationListItem();
 
     static std::string buildNotificationDate(const LLDate& time_stamp, ETimeType time_type = SLT);
@@ -146,7 +146,7 @@ public:
 
     friend class LLNotificationListItem;
 protected:
-    LLGroupNotificationListItem(const Params& p);
+    explicit LLGroupNotificationListItem(const Params& p);
 
     LLGroupIconCtrl* mGroupIcon;
     LLGroupIconCtrl* mGroupIconExp;

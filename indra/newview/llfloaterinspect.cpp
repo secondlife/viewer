@@ -115,7 +115,7 @@ void LLFloaterInspect::onClickCreatorProfile()
         struct f : public LLSelectedNodeFunctor
         {
             LLUUID obj_id;
-            f(const LLUUID& id) : obj_id(id) {}
+            explicit f(const LLUUID& id) : obj_id(id) {}
             virtual bool apply(LLSelectNode* node)
             {
                 return (obj_id == node->getObject()->getID());
@@ -140,7 +140,7 @@ void LLFloaterInspect::onClickOwnerProfile()
         struct f : public LLSelectedNodeFunctor
         {
             LLUUID obj_id;
-            f(const LLUUID& id) : obj_id(id) {}
+            explicit f(const LLUUID& id) : obj_id(id) {}
             virtual bool apply(LLSelectNode* node)
             {
                 return (obj_id == node->getObject()->getID());

@@ -223,7 +223,7 @@ class LLViewerInventoryItem;
 class LLAssetIDMatches : public LLInventoryCollectFunctor
 {
 public:
-    LLAssetIDMatches(const LLUUID& asset_id) : mAssetID(asset_id) {}
+    explicit LLAssetIDMatches(const LLUUID& asset_id) : mAssetID(asset_id) {}
     virtual ~LLAssetIDMatches() = default;
     bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 
@@ -240,7 +240,7 @@ protected:
 class LLLinkedItemIDMatches : public LLInventoryCollectFunctor
 {
 public:
-    LLLinkedItemIDMatches(const LLUUID& item_id) : mBaseItemID(item_id) {}
+    explicit LLLinkedItemIDMatches(const LLUUID& item_id) : mBaseItemID(item_id) {}
     virtual ~LLLinkedItemIDMatches() = default;
     bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 
@@ -258,7 +258,7 @@ protected:
 class LLIsFolderType : public LLInventoryCollectFunctor
 {
 public:
-    LLIsFolderType(LLFolderType::EType type) : mType(type) {}
+    explicit LLIsFolderType(LLFolderType::EType type) : mType(type) {}
     virtual ~LLIsFolderType() = default;
     virtual bool operator()(LLInventoryCategory* cat,
         LLInventoryItem* item);
@@ -276,7 +276,7 @@ protected:
 class LLIsType : public LLInventoryCollectFunctor
 {
 public:
-    LLIsType(LLAssetType::EType type) : mType(type) {}
+    explicit LLIsType(LLAssetType::EType type) : mType(type) {}
     virtual ~LLIsType() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item);
@@ -294,7 +294,7 @@ protected:
 class LLIsOneOfTypes : public LLInventoryCollectFunctor
 {
 public:
-    LLIsOneOfTypes(const std::vector<LLAssetType::EType> &types) : mTypes(types) {}
+    explicit LLIsOneOfTypes(const std::vector<LLAssetType::EType> &types) : mTypes(types) {}
     virtual ~LLIsOneOfTypes() = default;
     virtual bool operator()(LLInventoryCategory* cat,
         LLInventoryItem* item);
@@ -311,7 +311,7 @@ protected:
 class LLIsNotType : public LLInventoryCollectFunctor
 {
 public:
-    LLIsNotType(LLAssetType::EType type) : mType(type) {}
+    explicit LLIsNotType(LLAssetType::EType type) : mType(type) {}
     virtual ~LLIsNotType() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item);
@@ -330,7 +330,7 @@ protected:
 class LLIsOfAssetType : public LLInventoryCollectFunctor
 {
 public:
-    LLIsOfAssetType(LLAssetType::EType type) : mType(type) {}
+    explicit LLIsOfAssetType(LLAssetType::EType type) : mType(type) {}
     virtual ~LLIsOfAssetType() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item);
@@ -436,7 +436,7 @@ protected:
 class LLParticularBuddyCollector : public LLInventoryCollectFunctor
 {
 public:
-    LLParticularBuddyCollector(const LLUUID& id) : mBuddyID(id) {}
+    explicit LLParticularBuddyCollector(const LLUUID& id) : mBuddyID(id) {}
     virtual ~LLParticularBuddyCollector() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item);
@@ -452,7 +452,7 @@ protected:
 class LLNameCategoryCollector : public LLInventoryCollectFunctor
 {
 public:
-    LLNameCategoryCollector(const std::string& name) : mName(name) {}
+    explicit LLNameCategoryCollector(const std::string& name) : mName(name) {}
     virtual ~LLNameCategoryCollector() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item);
@@ -495,7 +495,7 @@ public:
 class LLFindByMask : public LLInventoryCollectFunctor
 {
 public:
-    LLFindByMask(U64 mask)
+    explicit LLFindByMask(U64 mask)
         : mFilterMask(mask)
     {}
 
@@ -522,7 +522,7 @@ private:
 class LLFindNonLinksByMask : public LLInventoryCollectFunctor
 {
 public:
-    LLFindNonLinksByMask(U64 mask)
+    explicit LLFindNonLinksByMask(U64 mask)
         : mFilterMask(mask)
     {}
 
@@ -567,7 +567,7 @@ public:
 class LLFindWearablesEx : public LLInventoryCollectFunctor
 {
 public:
-    LLFindWearablesEx(bool is_worn, bool include_body_parts = true);
+    explicit LLFindWearablesEx(bool is_worn, bool include_body_parts = true);
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 private:
     bool mIncludeBodyParts;
@@ -578,7 +578,7 @@ private:
 class LLFindWearablesOfType : public LLInventoryCollectFunctor
 {
 public:
-    LLFindWearablesOfType(LLWearableType::EType type) : mWearableType(type) {}
+    explicit LLFindWearablesOfType(LLWearableType::EType type) : mWearableType(type) {}
     virtual ~LLFindWearablesOfType() = default;
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
     void setType(LLWearableType::EType type);
@@ -600,7 +600,7 @@ public:
 class LLFindActualWearablesOfType : public LLFindWearablesOfType
 {
 public:
-    LLFindActualWearablesOfType(LLWearableType::EType type) : LLFindWearablesOfType(type) {}
+    explicit LLFindActualWearablesOfType(LLWearableType::EType type) : LLFindWearablesOfType(type) {}
     virtual ~LLFindActualWearablesOfType() = default;
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
     {
@@ -613,7 +613,7 @@ public:
 class LLIsTypeActual : public LLIsType
 {
 public:
-    LLIsTypeActual(LLAssetType::EType type) : LLIsType(type) {}
+    explicit LLIsTypeActual(LLAssetType::EType type) : LLIsType(type) {}
     virtual ~LLIsTypeActual() = default;
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
     {

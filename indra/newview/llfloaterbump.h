@@ -63,7 +63,7 @@ public:
 
 private:
 
-    LLFloaterBump(const LLSD& key);
+    explicit LLFloaterBump(const LLSD& key);
     virtual ~LLFloaterBump();
 
     LLScrollListCtrl* mList;

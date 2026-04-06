@@ -38,7 +38,7 @@ public:
     static void showForGroup(const LLUUID& group_id, uuid_vec_t* agent_ids = NULL);
 
 protected:
-    LLFloaterGroupBulkBan(const LLUUID& group_id = LLUUID::null);
+    explicit LLFloaterGroupBulkBan(const LLUUID& group_id = LLUUID::null);
 
     class impl;
     impl* mImpl;

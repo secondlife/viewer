@@ -34,7 +34,7 @@ class LLFloaterBuyCurrencyHTML :
     public LLViewerMediaObserver
 {
     public:
-        LLFloaterBuyCurrencyHTML( const LLSD& key );
+        explicit LLFloaterBuyCurrencyHTML( const LLSD& key );
 
         /*virtual*/ bool postBuild();
         /*virtual*/ void onClose( bool app_quitting );

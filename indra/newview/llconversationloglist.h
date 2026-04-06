@@ -54,7 +54,7 @@ public:
         Params() = default;
     };
 
-    LLConversationLogList(const Params& p);
+    explicit LLConversationLogList(const Params& p);
     virtual ~LLConversationLogList();
 
     virtual void draw();

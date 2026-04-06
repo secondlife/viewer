@@ -39,7 +39,7 @@ public:
 
     using Params = LLFloaterWebContent::Params;
 
-    LLFloaterHowTo(const Params& key);
+    explicit LLFloaterHowTo(const Params& key);
 
     void onOpen(const LLSD& key) override;
 

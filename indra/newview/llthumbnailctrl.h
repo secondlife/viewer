@@ -56,7 +56,7 @@ public:
         Params();
     };
 protected:
-    LLThumbnailCtrl(const Params&);
+    explicit LLThumbnailCtrl(const Params&);
     friend class LLUICtrlFactory;
 
 public:

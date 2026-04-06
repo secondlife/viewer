@@ -117,7 +117,7 @@ public:
     static bool isSystemMemoryCritical();
     static F32 getSystemMemoryBudgetFactor();
 
-    LLViewerTexture(bool usemipmaps = true);
+    explicit LLViewerTexture(bool usemipmaps = true);
     LLViewerTexture(const LLUUID& id, bool usemipmaps) ;
     LLViewerTexture(const LLImageRaw* raw, bool usemipmaps) ;
     LLViewerTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps) ;
@@ -557,7 +557,7 @@ protected:
     /*virtual*/ ~LLViewerMediaTexture() ;
 
 public:
-    LLViewerMediaTexture(const LLUUID& id, bool usemipmaps = true, LLImageGL* gl_image = NULL) ;
+    explicit LLViewerMediaTexture(const LLUUID& id, bool usemipmaps = true, LLImageGL* gl_image = NULL) ;
 
     /*virtual*/ S8 getType() const;
     void reinit(bool usemipmaps = true);

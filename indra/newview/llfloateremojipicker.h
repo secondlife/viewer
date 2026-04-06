@@ -42,7 +42,7 @@ public:
     using pick_callback_t = std::function<void(llwchar)>;
     using close_callback_t = std::function<void ()>;
 
-    LLFloaterEmojiPicker(const LLSD& key);
+    explicit LLFloaterEmojiPicker(const LLSD& key);
 
     virtual bool postBuild() override;
     virtual void dirtyRect() override;

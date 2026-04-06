@@ -49,7 +49,7 @@ public:
     };
 
 protected:
-    LLGroupIconCtrl(const Params&);
+    explicit LLGroupIconCtrl(const Params&);
     friend class LLUICtrlFactory;
 
 public:

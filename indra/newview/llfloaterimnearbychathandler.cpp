@@ -69,7 +69,7 @@ public:
     using toast_vec_t = std::vector<LLHandle<LLToast> >;
     using toast_list_t = std::list<LLHandle<LLToast> >;
 
-    LLFloaterIMNearbyChatScreenChannel(const Params& p)
+    explicit LLFloaterIMNearbyChatScreenChannel(const Params& p)
         : LLScreenChannelBase(p)
     {
         mStopProcessing = false;

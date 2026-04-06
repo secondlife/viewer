@@ -210,7 +210,7 @@ public:
     }
 
 protected:
-    LLFavoriteLandmarkButton(const LLButton::Params& p) : LLButton(p) {}
+    explicit LLFavoriteLandmarkButton(const LLButton::Params& p) : LLButton(p) {}
     friend class LLUICtrlFactory;
 
 private:
@@ -271,7 +271,7 @@ public:
 
 protected:
 
-    LLFavoriteLandmarkMenuItem(const LLMenuItemCallGL::Params& p) : LLMenuItemCallGL(p) {}
+    explicit LLFavoriteLandmarkMenuItem(const LLMenuItemCallGL::Params& p) : LLMenuItemCallGL(p) {}
     friend class LLUICtrlFactory;
 
 private:
@@ -329,7 +329,7 @@ public:
     }
 
 protected:
-    LLFavoriteLandmarkToggleableMenu(const LLToggleableMenu::Params& p):
+    explicit LLFavoriteLandmarkToggleableMenu(const LLToggleableMenu::Params& p):
         LLToggleableMenu(p)
     {
     }
@@ -349,7 +349,7 @@ private:
 class LLItemCopiedCallback : public LLInventoryCallback
 {
 public:
-    LLItemCopiedCallback(S32 sortField): mSortField(sortField) {}
+    explicit LLItemCopiedCallback(S32 sortField): mSortField(sortField) {}
 
     virtual void fire(const LLUUID& inv_item)
     {

@@ -59,7 +59,7 @@ const F32 MAX_LOD_FACTOR = 4.0f;
 class LLRiggedVolume : public LLVolume
 {
 public:
-    LLRiggedVolume(const LLVolumeParams& params)
+    explicit LLRiggedVolume(const LLVolumeParams& params)
         : LLVolume(params, 0.f)
     {
     }

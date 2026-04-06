@@ -69,7 +69,7 @@ protected:
 class LLFloaterBvhPreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterBvhPreview(const LLSD& args);
+    explicit LLFloaterBvhPreview(const LLSD& args);
     virtual ~LLFloaterBvhPreview();
 
     bool postBuild();

@@ -105,7 +105,7 @@ namespace
     class HandleScriptUserData
     {
     public:
-        HandleScriptUserData(const std::string &pumpname) :
+        explicit HandleScriptUserData(const std::string &pumpname) :
             mPumpname(pumpname)
         { }
 

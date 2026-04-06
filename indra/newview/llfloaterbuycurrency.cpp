@@ -51,7 +51,7 @@ class LLFloaterBuyCurrencyUI
 :   public LLFloater
 {
 public:
-    LLFloaterBuyCurrencyUI(const LLSD& key);
+    explicit LLFloaterBuyCurrencyUI(const LLSD& key);
     virtual ~LLFloaterBuyCurrencyUI();
 
 

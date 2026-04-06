@@ -339,7 +339,7 @@ bool LLPanelMarketplaceListings::onViewSortMenuItemCheck(const LLSD& userdata)
 class LLMarketplaceListingsAddedObserver : public LLInventoryCategoryAddedObserver
 {
 public:
-    LLMarketplaceListingsAddedObserver(LLFloaterMarketplaceListings * marketplace_listings_floater)
+    explicit LLMarketplaceListingsAddedObserver(LLFloaterMarketplaceListings * marketplace_listings_floater)
     : LLInventoryCategoryAddedObserver()
     , mMarketplaceListingsFloater(marketplace_listings_floater)
     {

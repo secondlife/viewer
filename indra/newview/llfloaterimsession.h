@@ -55,7 +55,7 @@ class LLFloaterIMSession
 {
     LOG_CLASS(LLFloaterIMSession);
 public:
-    LLFloaterIMSession(const LLUUID& session_id);
+    explicit LLFloaterIMSession(const LLUUID& session_id);
 
     virtual ~LLFloaterIMSession();
 

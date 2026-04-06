@@ -42,7 +42,7 @@ class LLViewerTexLayerSetBuffer;
 class LLViewerTexLayerSet : public LLTexLayerSet
 {
 public:
-    LLViewerTexLayerSet(LLAvatarAppearance* const appearance);
+    explicit LLViewerTexLayerSet(LLAvatarAppearance* const appearance);
     virtual ~LLViewerTexLayerSet();
 
     /*virtual*/void             requestUpdate();

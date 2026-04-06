@@ -38,7 +38,7 @@ class LLRadioGroup;
 class LLFloaterNameDesc : public LLFloater
 {
 public:
-    LLFloaterNameDesc(const LLSD& args);
+    explicit LLFloaterNameDesc(const LLSD& args);
     virtual ~LLFloaterNameDesc();
     bool postBuild() override;
 
@@ -63,21 +63,21 @@ protected:
 class LLFloaterSoundPreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterSoundPreview(const LLSD& filename );
+    explicit LLFloaterSoundPreview(const LLSD& filename );
     bool postBuild() override;
 };
 
 class LLFloaterAnimPreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterAnimPreview(const LLSD& filename );
+    explicit LLFloaterAnimPreview(const LLSD& filename );
     bool postBuild() override;
 };
 
 class LLFloaterScriptPreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterScriptPreview(const LLSD& filename );
+    explicit LLFloaterScriptPreview(const LLSD& filename );
     bool postBuild() override;
 };
 

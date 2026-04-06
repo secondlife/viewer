@@ -119,7 +119,7 @@ void LLCallbackList::callFunctions()
 class OnIdleCallbackOneTime
 {
 public:
-    OnIdleCallbackOneTime(nullary_func_t callable):
+    explicit OnIdleCallbackOneTime(nullary_func_t callable):
         mCallable(callable)
     {
     }
@@ -150,7 +150,7 @@ void doOnIdleOneTime(nullary_func_t callable)
 class OnIdleCallbackRepeating
 {
 public:
-    OnIdleCallbackRepeating(bool_func_t callable):
+    explicit OnIdleCallbackRepeating(bool_func_t callable):
         mCallable(callable)
     {
     }

@@ -44,7 +44,7 @@ public:
     };
 
     LLGLTFFolderItem(S32 id, const std::string &display_name, EType type, LLFolderViewModelInterface& root_view_model);
-    LLGLTFFolderItem(LLFolderViewModelInterface& root_view_model);
+    explicit LLGLTFFolderItem(LLFolderViewModelInterface& root_view_model);
     virtual ~LLGLTFFolderItem();
 
     void init();

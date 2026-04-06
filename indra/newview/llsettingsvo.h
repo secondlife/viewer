@@ -87,7 +87,7 @@ private:
 class LLSettingsVOSky : public LLSettingsSky
 {
 public:
-    LLSettingsVOSky(const LLSD &data, bool advanced = false);
+    explicit LLSettingsVOSky(const LLSD &data, bool advanced = false);
 
     static ptr_t    buildSky(LLSD settings);
 
@@ -122,7 +122,7 @@ protected:
 class LLSettingsVOWater : public LLSettingsWater
 {
 public:
-    LLSettingsVOWater(const LLSD &data);
+    explicit LLSettingsVOWater(const LLSD &data);
 
     static ptr_t    buildWater(LLSD settings);
 
@@ -158,7 +158,7 @@ public:
     // Todo: find a way to make this cnstructor private
     // It shouldn't be used outside shared_prt and LLSettingsVODay
     // outside of settings only use buildDay(settings)
-    LLSettingsVODay(const LLSD &data);
+    explicit LLSettingsVODay(const LLSD &data);
 
     static ptr_t    buildDay(LLSD settings);
 

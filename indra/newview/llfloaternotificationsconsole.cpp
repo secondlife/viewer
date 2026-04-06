@@ -43,7 +43,7 @@ const S32 HEADER_PADDING = 38;
 class LLNotificationChannelPanel : public LLLayoutPanel
 {
 public:
-    LLNotificationChannelPanel(const Params& p);
+    explicit LLNotificationChannelPanel(const Params& p);
     ~LLNotificationChannelPanel();
     bool postBuild();
 

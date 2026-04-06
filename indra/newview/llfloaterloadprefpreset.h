@@ -35,7 +35,7 @@ class LLFloaterLoadPrefPreset : public LLFloater
 {
 
 public:
-    LLFloaterLoadPrefPreset(const LLSD &key);
+    explicit LLFloaterLoadPrefPreset(const LLSD &key);
 
     bool postBuild() override;
     void onOpen(const LLSD& key) override;

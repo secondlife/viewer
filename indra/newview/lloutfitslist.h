@@ -180,7 +180,7 @@ class LLOutfitContextMenu : public LLListContextMenu
 {
 public:
 
-    LLOutfitContextMenu(LLOutfitListBase* outfit_list)
+    explicit LLOutfitContextMenu(LLOutfitListBase* outfit_list)
         : LLListContextMenu(),
         mOutfitList(outfit_list)
     {}
@@ -205,7 +205,7 @@ private:
 class LLOutfitListGearMenuBase
 {
 public:
-    LLOutfitListGearMenuBase(LLOutfitListBase* olist);
+    explicit LLOutfitListGearMenuBase(LLOutfitListBase* olist);
     virtual ~LLOutfitListGearMenuBase();
 
     void updateItemsVisibility();
@@ -239,7 +239,7 @@ private:
 class LLOutfitListSortMenu
 {
 public:
-    LLOutfitListSortMenu(LLOutfitListBase* parent_panel);
+    explicit LLOutfitListSortMenu(LLOutfitListBase* parent_panel);
 
     LLToggleableMenu* getMenu();
     void updateItemsVisibility();
@@ -256,7 +256,7 @@ private:
 class LLOutfitListGearMenu : public LLOutfitListGearMenuBase
 {
 public:
-    LLOutfitListGearMenu(LLOutfitListBase* olist);
+    explicit LLOutfitListGearMenu(LLOutfitListBase* olist);
     virtual ~LLOutfitListGearMenu();
 
 protected:
@@ -286,7 +286,7 @@ public:
     static LLUIColor sFgColor;
 
  protected:
-    LLOutfitAccordionCtrlTab(const LLOutfitAccordionCtrlTab::Params &p)
+    explicit LLOutfitAccordionCtrlTab(const LLOutfitAccordionCtrlTab::Params &p)
         : LLAccordionCtrlTab(p),
           mFolderID(p.cat_id)
     {}

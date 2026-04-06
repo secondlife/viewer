@@ -66,7 +66,7 @@ public:
     bool calcTargetPosition();
 
 protected:
-    LLHUDEffectLookAt(const U8 type);
+    explicit LLHUDEffectLookAt(const U8 type);
     ~LLHUDEffectLookAt();
 
     /*virtual*/ void update();

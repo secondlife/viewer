@@ -54,7 +54,7 @@ public:
     };
 
 protected:
-    LLNetMap (const Params & p);
+    explicit LLNetMap (const Params & p);
     friend class LLUICtrlFactory;
     friend class LLFloaterMap;
 

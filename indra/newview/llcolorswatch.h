@@ -66,7 +66,7 @@ public:
     };
 
 protected:
-    LLColorSwatchCtrl(const Params& p);
+    explicit LLColorSwatchCtrl(const Params& p);
     friend class LLUICtrlFactory;
 public:
     ~LLColorSwatchCtrl ();

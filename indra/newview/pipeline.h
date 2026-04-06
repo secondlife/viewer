@@ -889,7 +889,7 @@ protected:
         const LLPointer<LLDrawable> mItem;
         mutable F32 mFade;
 
-        HighlightItem(LLDrawable* item)
+        explicit HighlightItem(LLDrawable* item)
         : mItem(item), mFade(0)
         {
         }

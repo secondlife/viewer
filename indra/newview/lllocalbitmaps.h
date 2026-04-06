@@ -40,7 +40,7 @@ class LLGLTFMaterial;
 class LLLocalBitmap
 {
     public: /* main */
-        LLLocalBitmap(std::string filename);
+        explicit LLLocalBitmap(std::string filename);
         ~LLLocalBitmap();
 
     public: /* accessors */

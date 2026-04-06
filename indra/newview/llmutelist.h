@@ -56,7 +56,7 @@ public:
         flagAll             = 0x0000000F        // Mask of all currently defined flags
     };
 
-    LLMute(const LLUUID& id, const std::string& name = std::string(), EType type = BY_NAME, U32 flags = 0);
+    explicit LLMute(const LLUUID& id, const std::string& name = std::string(), EType type = BY_NAME, U32 flags = 0);
 
     // Returns localized type name of muted item
     std::string getDisplayType() const;

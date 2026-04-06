@@ -53,7 +53,7 @@ public:
     };
 
 
-    LLSnapshotLivePreview(const LLSnapshotLivePreview::Params& p);
+    explicit LLSnapshotLivePreview(const LLSnapshotLivePreview::Params& p);
     ~LLSnapshotLivePreview();
 
     void setContainer(LLView* container) { mViewContainer = container; }

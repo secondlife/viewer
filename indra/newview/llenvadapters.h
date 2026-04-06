@@ -356,7 +356,7 @@ private:
 class LLDensityProfileSettingsAdapter
 {
 public:
-    LLDensityProfileSettingsAdapter(const std::string& config, int layerIndex = 0)
+    explicit LLDensityProfileSettingsAdapter(const std::string& config, int layerIndex = 0)
     : mConfig(config)
     , mLayerIndex(layerIndex)
     , mLayerWidth(1.0f, LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH)
@@ -379,7 +379,7 @@ protected:
 class LLRayleighDensityProfileSettingsAdapter : public LLDensityProfileSettingsAdapter
 {
 public:
-    LLRayleighDensityProfileSettingsAdapter(int layerIndex = 0)
+    explicit LLRayleighDensityProfileSettingsAdapter(int layerIndex = 0)
     : LLDensityProfileSettingsAdapter(LLSettingsSky::SETTING_RAYLEIGH_CONFIG, layerIndex)
     {
     }
@@ -388,7 +388,7 @@ public:
 class LLMieDensityProfileSettingsAdapter : public LLDensityProfileSettingsAdapter
 {
 public:
-    LLMieDensityProfileSettingsAdapter(int layerIndex = 0)
+    explicit LLMieDensityProfileSettingsAdapter(int layerIndex = 0)
     : LLDensityProfileSettingsAdapter(LLSettingsSky::SETTING_MIE_CONFIG, layerIndex)
     , mAnisotropy(0.8f, LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR)
     {
@@ -401,7 +401,7 @@ protected:
 class LLAbsorptionDensityProfileSettingsAdapter : public LLDensityProfileSettingsAdapter
 {
 public:
-    LLAbsorptionDensityProfileSettingsAdapter(int layerIndex = 0)
+    explicit LLAbsorptionDensityProfileSettingsAdapter(int layerIndex = 0)
     : LLDensityProfileSettingsAdapter(LLSettingsSky::SETTING_ABSORPTION_CONFIG, layerIndex)
     {
     }

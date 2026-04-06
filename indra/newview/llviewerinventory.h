@@ -112,8 +112,8 @@ public:
     // Create a copy of an inventory item from a pointer to another item
     // Note: Because InventoryItems are ref counted,
     //       reference copy (a = b) is prohibited
-    LLViewerInventoryItem(const LLViewerInventoryItem* other);
-    LLViewerInventoryItem(const LLInventoryItem* other);
+    explicit LLViewerInventoryItem(const LLViewerInventoryItem* other);
+    explicit LLViewerInventoryItem(const LLInventoryItem* other);
 
     void copyViewerItem(const LLViewerInventoryItem* other);
     /*virtual*/ void copyItem(const LLInventoryItem* other);
@@ -189,11 +189,11 @@ public:
                               LLFolderType::EType preferred_type,
                               const std::string& name,
                               const LLUUID& owner_id);
-    LLViewerInventoryCategory(const LLUUID& owner_id);
+    explicit LLViewerInventoryCategory(const LLUUID& owner_id);
     // Create a copy of an inventory category from a pointer to another category
     // Note: Because InventoryCategorys are ref counted, reference copy (a = b)
     // is prohibited
-    LLViewerInventoryCategory(const LLViewerInventoryCategory* other);
+    explicit LLViewerInventoryCategory(const LLViewerInventoryCategory* other);
     void copyViewerCategory(const LLViewerInventoryCategory* other);
 
     virtual void updateParentOnServer(bool restamp_children) const;

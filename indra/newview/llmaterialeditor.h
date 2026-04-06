@@ -86,7 +86,7 @@ protected:
 
 class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
 { public:
-    LLMaterialEditor(const LLSD& key);
+    explicit LLMaterialEditor(const LLSD& key);
     ~LLMaterialEditor();
 
     bool setFromGltfModel(const tinygltf::Model& model, S32 index, bool set_textures = false);

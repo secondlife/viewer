@@ -31,7 +31,7 @@
 class LLDrawPoolGLTFPBR final : public LLRenderPass
 {
 public:
-    LLDrawPoolGLTFPBR(U32 type = LLDrawPool::POOL_GLTF_PBR);
+    explicit LLDrawPoolGLTFPBR(U32 type = LLDrawPool::POOL_GLTF_PBR);
 
     U32 mRenderType = 0;
 

@@ -48,7 +48,7 @@ class LLEmote :
 {
 public:
     // Constructor
-    LLEmote(const LLUUID &id);
+    explicit LLEmote(const LLUUID &id);
 
     // Destructor
     virtual ~LLEmote();

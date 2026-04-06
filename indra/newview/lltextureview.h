@@ -39,7 +39,7 @@ class LLTextureView : public LLContainerView
     friend class LLGLTexMemBar;
     friend class LLAvatarTexBar;
 protected:
-    LLTextureView(const Params&);
+    explicit LLTextureView(const Params&);
     friend class LLUICtrlFactory;
 public:
     ~LLTextureView();

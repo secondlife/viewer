@@ -51,7 +51,7 @@ public:
                                        const std::string& name = "",
                                        LLView * frustumOrigin = NULL);
 
-    LLFloaterAvatarPicker(const LLSD& key);
+    explicit LLFloaterAvatarPicker(const LLSD& key);
     virtual ~LLFloaterAvatarPicker();
 
     virtual bool postBuild();

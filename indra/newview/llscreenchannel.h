@@ -74,7 +74,7 @@ public:
         {}
     };
 
-    LLScreenChannelBase(const Params&);
+    explicit LLScreenChannelBase(const Params&);
 
     bool postBuild();
 
@@ -158,7 +158,7 @@ class LLScreenChannel : public LLScreenChannelBase
 {
     friend class LLChannelManager;
 public:
-    LLScreenChannel(const Params&);
+    explicit LLScreenChannel(const Params&);
     virtual ~LLScreenChannel();
 
     class Matcher

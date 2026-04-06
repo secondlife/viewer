@@ -31,7 +31,7 @@
 class LLFloaterHoverHeight: public LLFloater
 {
 public:
-    LLFloaterHoverHeight(const LLSD& key);
+    explicit LLFloaterHoverHeight(const LLSD& key);
     bool postBuild();
 
     static void onSliderMoved(LLUICtrl* ctrl, void* userData);

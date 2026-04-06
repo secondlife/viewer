@@ -36,7 +36,7 @@ class LLPanelLandMedia
 :   public LLPanel
 {
 public:
-    LLPanelLandMedia(LLSafeHandle<LLParcelSelection>& parcelp);
+    explicit LLPanelLandMedia(LLSafeHandle<LLParcelSelection>& parcelp);
     /*virtual*/ ~LLPanelLandMedia();
     /*virtual*/ bool postBuild();
     void refresh();

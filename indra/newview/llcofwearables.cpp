@@ -58,7 +58,7 @@ static const LLWearableItemNameComparator WEARABLE_NAME_COMPARATOR;
 class CofContextMenu : public LLListContextMenu
 {
 protected:
-    CofContextMenu(LLCOFWearables* cof_wearables)
+    explicit CofContextMenu(LLCOFWearables* cof_wearables)
     :   mCOFWearables(cof_wearables)
     {
         llassert(mCOFWearables);
@@ -132,7 +132,7 @@ protected:
 class CofAttachmentContextMenu : public CofContextMenu
 {
 public:
-    CofAttachmentContextMenu(LLCOFWearables* cof_wearables)
+    explicit CofAttachmentContextMenu(LLCOFWearables* cof_wearables)
     :   CofContextMenu(cof_wearables)
     {
     }
@@ -175,7 +175,7 @@ protected:
 class CofClothingContextMenu : public CofContextMenu
 {
 public:
-    CofClothingContextMenu(LLCOFWearables* cof_wearables)
+    explicit CofClothingContextMenu(LLCOFWearables* cof_wearables)
     :   CofContextMenu(cof_wearables)
     {
     }
@@ -241,7 +241,7 @@ protected:
 class CofBodyPartContextMenu : public CofContextMenu
 {
 public:
-    CofBodyPartContextMenu(LLCOFWearables* cof_wearables)
+    explicit CofBodyPartContextMenu(LLCOFWearables* cof_wearables)
     :   CofContextMenu(cof_wearables)
     {
     }

@@ -61,7 +61,7 @@ bool item_name_precedes( LLInventoryItem* a, LLInventoryItem* b )
 class LLFloaterGestureObserver : public LLGestureManagerObserver
 {
 public:
-    LLFloaterGestureObserver(LLFloaterGesture* floater) : mFloater(floater) {}
+    explicit LLFloaterGestureObserver(LLFloaterGesture* floater) : mFloater(floater) {}
     virtual ~LLFloaterGestureObserver() = default;
     virtual void changed() { mFloater->refreshAll(); }
 
@@ -98,7 +98,7 @@ private:
     LLFloaterGesture* mFloater;
 
 public:
-    GestureCopiedCallback(LLFloaterGesture* floater): mFloater(floater)
+    explicit GestureCopiedCallback(LLFloaterGesture* floater): mFloater(floater)
     {}
     void fire(const LLUUID &inv_item)
     {

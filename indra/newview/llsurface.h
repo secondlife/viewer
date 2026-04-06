@@ -58,7 +58,7 @@ class LLGroupHeader;
 class LLSurface
 {
 public:
-    LLSurface(U32 type, LLViewerRegion *regionp = nullptr);
+    explicit LLSurface(U32 type, LLViewerRegion *regionp = nullptr);
     virtual ~LLSurface();
 
     static void initClasses(); // Do class initialization for LLSurface and its child classes.

@@ -172,7 +172,7 @@ public:
         Params();
     };
 
-    LLViewerWindow(const Params& p);
+    explicit LLViewerWindow(const Params& p);
     virtual ~LLViewerWindow();
 
     void            shutdownViews();

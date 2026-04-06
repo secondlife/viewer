@@ -65,7 +65,7 @@ public:
     };
     using EAssetStatus = e_asset_status;
 public:
-    LLPreview(const LLSD& key );
+    explicit LLPreview(const LLSD& key );
     virtual ~LLPreview();
 
     /*virtual*/ bool postBuild();

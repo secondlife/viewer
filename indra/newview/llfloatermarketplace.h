@@ -40,7 +40,7 @@ public:
     bool static isMarketplaceURL(const std::string& url);
 
 private:
-    LLFloaterMarketplace(const LLSD& key);
+    explicit LLFloaterMarketplace(const LLSD& key);
     ~LLFloaterMarketplace();
     bool postBuild() override;
     void onOpen(const LLSD& key) override;

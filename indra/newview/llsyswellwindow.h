@@ -104,7 +104,7 @@ protected:
 class LLIMWellWindow : public LLSysWellWindow, LLInitClass<LLIMWellWindow>
 {
 public:
-    LLIMWellWindow(const LLSD& key);
+    explicit LLIMWellWindow(const LLSD& key);
     ~LLIMWellWindow();
 
     static LLIMWellWindow* getInstance(const LLSD& key = LLSD());
@@ -129,7 +129,7 @@ private:
     class ObjectRowPanel: public LLPanel
     {
     public:
-        ObjectRowPanel(const LLUUID& notification_id, bool new_message = false);
+        explicit ObjectRowPanel(const LLUUID& notification_id, bool new_message = false);
         virtual ~ObjectRowPanel();
         /*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
         /*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);

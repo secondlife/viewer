@@ -55,7 +55,7 @@ public:
 class LLSetKeyBindDialog : public LLModalDialog
 {
 public:
-    LLSetKeyBindDialog(const LLSD& key);
+    explicit LLSetKeyBindDialog(const LLSD& key);
     ~LLSetKeyBindDialog();
 
     /*virtual*/ bool postBuild();

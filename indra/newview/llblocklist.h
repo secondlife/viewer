@@ -50,7 +50,7 @@ public:
         Params() = default;
     };
 
-    LLBlockList(const Params& p);
+    explicit LLBlockList(const Params& p);
     virtual ~LLBlockList();
 
     virtual bool        handleRightMouseDown(S32 x, S32 y, MASK mask);

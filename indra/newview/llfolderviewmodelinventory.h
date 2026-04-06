@@ -82,7 +82,7 @@ public:
         {}
     };
 
-    LLInventorySort(S32 order = 0)
+    explicit LLInventorySort(S32 order = 0)
     {
         fromParams(Params().order(order));
     }
@@ -116,7 +116,7 @@ class LLFolderViewModelInventory
 public:
     using base_t = LLFolderViewModel<LLInventorySort,   LLFolderViewModelItemInventory, LLFolderViewModelItemInventory,   LLInventoryFilter>;
 
-    LLFolderViewModelInventory(const std::string& name)
+    explicit LLFolderViewModelInventory(const std::string& name)
     :   base_t(new LLInventorySort(), new LLInventoryFilter(LLInventoryFilter::Params().name(name)))
     {}
 

@@ -34,7 +34,7 @@ class LLPathfindingCharacterList : public LLPathfindingObjectList
 {
 public:
     LLPathfindingCharacterList();
-    LLPathfindingCharacterList(const LLSD& pCharacterListData);
+    explicit LLPathfindingCharacterList(const LLSD& pCharacterListData);
     virtual ~LLPathfindingCharacterList();
 
 protected:

@@ -79,7 +79,7 @@ class LLFloaterAbout
 {
     friend class LLFloaterReg;
 private:
-    LLFloaterAbout(const LLSD& key);
+    explicit LLFloaterAbout(const LLSD& key);
     virtual ~LLFloaterAbout();
 
 public:

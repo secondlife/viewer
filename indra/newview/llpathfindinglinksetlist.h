@@ -35,7 +35,7 @@ class LLPathfindingLinksetList : public LLPathfindingObjectList
 {
 public:
     LLPathfindingLinksetList();
-    LLPathfindingLinksetList(const LLSD& pLinksetListData);
+    explicit LLPathfindingLinksetList(const LLSD& pLinksetListData);
     virtual ~LLPathfindingLinksetList();
 
     LLSD encodeObjectFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;

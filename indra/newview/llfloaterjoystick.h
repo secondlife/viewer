@@ -57,7 +57,7 @@ protected:
 
 private:
 
-    LLFloaterJoystick(const LLSD& data);
+    explicit LLFloaterJoystick(const LLSD& data);
     virtual ~LLFloaterJoystick();
 
     void initFromSettings();

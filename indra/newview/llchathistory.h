@@ -78,7 +78,7 @@ class LLChatHistory : public LLUICtrl
 
         };
     protected:
-        LLChatHistory(const Params&);
+        explicit LLChatHistory(const Params&);
         friend class LLUICtrlFactory;
 
         /*virtual*/ void draw();

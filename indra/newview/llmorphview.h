@@ -43,7 +43,7 @@ public:
             changeDefault(follows.flags, FOLLOWS_ALL);
         }
     };
-    LLMorphView(const LLMorphView::Params&);
+    explicit LLMorphView(const LLMorphView::Params&);
 
     void        shutdown();
 

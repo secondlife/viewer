@@ -33,7 +33,7 @@ class LLViewChildren
     // encapsulates common operations into simple, one line calls
 {
 public:
-    LLViewChildren(LLPanel& parent);
+    explicit LLViewChildren(LLPanel& parent);
 
     // all views
     void show(const std::string& id, bool visible = true);

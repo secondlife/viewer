@@ -39,7 +39,7 @@ public:
     /*virtual*/ bool postBuild();
 private:
 
-    LLFloaterLagMeter(const LLSD& key);
+    explicit LLFloaterLagMeter(const LLSD& key);
     /*virtual*/ ~LLFloaterLagMeter();
     void determineClient();
     void determineNetwork();

@@ -41,7 +41,7 @@ class LLTool
 :   public LLMouseHandler, public LLThreadSafeRefCount
 {
 public:
-    LLTool( const std::string& name, LLToolComposite* composite = NULL );
+    explicit LLTool( const std::string& name, LLToolComposite* composite = NULL );
     virtual ~LLTool();
 
     // Hack to support LLFocusMgr

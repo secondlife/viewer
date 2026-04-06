@@ -77,7 +77,7 @@ class LLFloaterReporter
 :   public LLFloater
 {
 public:
-    LLFloaterReporter(const LLSD& key);
+    explicit LLFloaterReporter(const LLSD& key);
     /*virtual*/ ~LLFloaterReporter();
     /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);

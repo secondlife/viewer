@@ -497,7 +497,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLWearableItemsList(const LLWearableItemsList::Params& p);
+    explicit LLWearableItemsList(const LLWearableItemsList::Params& p);
 
     void onRightClick(S32 x, S32 y);
 

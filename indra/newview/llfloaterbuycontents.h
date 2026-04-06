@@ -45,7 +45,7 @@ class LLFloaterBuyContents
 public:
     static void show(const LLSaleInfo& sale_info);
 
-    LLFloaterBuyContents(const LLSD& key);
+    explicit LLFloaterBuyContents(const LLSD& key);
     ~LLFloaterBuyContents();
     bool postBuild() override;
 

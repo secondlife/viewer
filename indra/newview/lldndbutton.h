@@ -44,7 +44,7 @@ class LLDragAndDropButton : public LLButton
 public:
     struct Params : public LLInitParam::Block<Params, LLButton::Params> {};
 
-    LLDragAndDropButton(const Params& params);
+    explicit LLDragAndDropButton(const Params& params);
 
     using drag_drop_handler_t = std::function<bool (
         S32 /*x*/, S32 /*y*/, MASK /*mask*/, bool /*drop*/,

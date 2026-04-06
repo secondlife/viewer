@@ -38,7 +38,7 @@ class LLFloaterInventoryThumbnailsHelper:
 {
         friend class LLFloaterReg;
     private:
-        LLFloaterInventoryThumbnailsHelper(const LLSD& key);
+        explicit LLFloaterInventoryThumbnailsHelper(const LLSD& key);
         bool postBuild() override;
         ~LLFloaterInventoryThumbnailsHelper();
 

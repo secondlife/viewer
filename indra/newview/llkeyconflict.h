@@ -72,7 +72,7 @@ public:
     // Note: missed selection and edition commands (would be really nice to go through selection via MB4/5 or wheel)
 
     LLKeyConflictHandler();
-    LLKeyConflictHandler(ESourceMode mode);
+    explicit LLKeyConflictHandler(ESourceMode mode);
     ~LLKeyConflictHandler();
 
     bool canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask);

@@ -431,7 +431,7 @@ namespace LL
             );
 
             Asset() = default;
-            Asset(const Value& src);
+            explicit Asset(const Value& src);
 
             // load from given file
             // accepts .gltf and .glb files

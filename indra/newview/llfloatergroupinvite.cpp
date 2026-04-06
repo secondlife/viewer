@@ -36,7 +36,7 @@
 class LLFloaterGroupInvite::impl
 {
 public:
-    impl(const LLUUID& group_id);
+    explicit impl(const LLUUID& group_id);
     ~impl();
 
     static void closeFloater(void* data);

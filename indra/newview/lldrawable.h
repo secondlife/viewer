@@ -71,7 +71,7 @@ public:
 
     static void initClass();
 
-    LLDrawable(LLViewerObject *vobj, bool new_entry = false);
+    explicit LLDrawable(LLViewerObject *vobj, bool new_entry = false);
 
     void markDead();            // Mark this drawable as dead
     bool isDead() const         { return isState(DEAD); }

@@ -32,7 +32,7 @@ class LLFloaterChatVoiceVolume : public LLInspect, LLTransientFloater
 {
 public:
 
-    LLFloaterChatVoiceVolume(const LLSD& key);
+    explicit LLFloaterChatVoiceVolume(const LLSD& key);
     virtual ~LLFloaterChatVoiceVolume();
 
     virtual void onOpen(const LLSD& key);

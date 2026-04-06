@@ -46,7 +46,7 @@ class LLSettingsContextMenu : public LLListContextMenu
 
 {
 public:
-    LLSettingsContextMenu(LLFloaterAvatarRenderSettings* floater_settings)
+    explicit LLSettingsContextMenu(LLFloaterAvatarRenderSettings* floater_settings)
         :   mFloaterSettings(floater_settings)
     {}
 protected:

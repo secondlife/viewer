@@ -62,7 +62,7 @@ public:
 
     LLConversationItem(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
     LLConversationItem(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model);
-    LLConversationItem(LLFolderViewModelInterface& root_view_model);
+    explicit LLConversationItem(LLFolderViewModelInterface& root_view_model);
     virtual ~LLConversationItem();
 
     // Stub those things we won't really be using in this conversation context
@@ -283,7 +283,7 @@ private:
 class LLConversationSort
 {
 public:
-    LLConversationSort(U32 order = LLConversationFilter::SO_DEFAULT) : mSortOrder(order) { }
+    explicit LLConversationSort(U32 order = LLConversationFilter::SO_DEFAULT) : mSortOrder(order) { }
 
     // 16 LSB bits used for participants, 16 MSB bits for sessions
     U32 getSortOrderSessions() const { return ((mSortOrder >> 16) & 0xFFFF); }

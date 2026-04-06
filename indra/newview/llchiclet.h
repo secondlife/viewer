@@ -82,7 +82,7 @@ public:
 
 protected:
 
-    LLChicletNotificationCounterCtrl(const Params& p);
+    explicit LLChicletNotificationCounterCtrl(const Params& p);
     friend class LLUICtrlFactory;
 
 private:
@@ -111,7 +111,7 @@ public:
 
 protected:
 
-    LLChicletAvatarIconCtrl(const Params& p);
+    explicit LLChicletAvatarIconCtrl(const Params& p);
     friend class LLUICtrlFactory;
 };
 
@@ -141,7 +141,7 @@ public:
 
 protected:
 
-    LLChicletInvOfferIconCtrl(const Params& p);
+    explicit LLChicletInvOfferIconCtrl(const Params& p);
     friend class LLUICtrlFactory;
 
 private:
@@ -207,7 +207,7 @@ public:
 protected:
 
     friend class LLUICtrlFactory;
-    LLChiclet(const Params& p);
+    explicit LLChiclet(const Params& p);
 
     /**
      * Notifies subscribers about click on chiclet.
@@ -385,7 +385,7 @@ public:
 
 protected:
 
-    LLScriptChiclet(const Params&);
+    explicit LLScriptChiclet(const Params&);
     friend class LLUICtrlFactory;
 
     /**
@@ -429,7 +429,7 @@ public:
     /*virtual*/ void onMouseDown();
 
 protected:
-    LLInvOfferChiclet(const Params&);
+    explicit LLInvOfferChiclet(const Params&);
     friend class LLUICtrlFactory;
 
     /**
@@ -531,7 +531,7 @@ protected:
     class ChicletNotificationChannel : public LLNotificationChannel
     {
     public:
-        ChicletNotificationChannel(LLNotificationChiclet* chiclet)
+        explicit ChicletNotificationChannel(LLNotificationChiclet* chiclet)
             : LLNotificationChannel(LLNotificationChannel::Params().filter(filterNotification).name(chiclet->getSessionId().asString()))
             , mChiclet(chiclet)
         {
@@ -553,7 +553,7 @@ protected:
 
     boost::scoped_ptr<ChicletNotificationChannel> mNotificationChannel;
 
-    LLNotificationChiclet(const Params& p);
+    explicit LLNotificationChiclet(const Params& p);
     ~LLNotificationChiclet();
 
     /**
@@ -684,7 +684,7 @@ public:
     void setChicletToggleState(const LLUUID& session_id, bool toggle);
 
 protected:
-    LLChicletPanel(const Params&p);
+    explicit LLChicletPanel(const Params&p);
     friend class LLUICtrlFactory;
 
     /**

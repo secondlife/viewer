@@ -147,7 +147,7 @@ protected:
     LLVector3       mO;
 
 public:
-    LLHeavenBody(const F32 rad);
+    explicit LLHeavenBody(const F32 rad);
     ~LLHeavenBody() = default;
 
     const LLQuaternion& getRotation() const;

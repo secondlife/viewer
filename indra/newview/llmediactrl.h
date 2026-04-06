@@ -70,7 +70,7 @@ public:
     };
 
 protected:
-    LLMediaCtrl(const Params&);
+    explicit LLMediaCtrl(const Params&);
     friend class LLUICtrlFactory;
 
 public:

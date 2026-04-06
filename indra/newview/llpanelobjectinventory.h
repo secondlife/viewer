@@ -56,7 +56,7 @@ public:
         {}
     };
 
-    LLPanelObjectInventory(const Params&);
+    explicit LLPanelObjectInventory(const Params&);
     virtual ~LLPanelObjectInventory();
 
     virtual bool postBuild();

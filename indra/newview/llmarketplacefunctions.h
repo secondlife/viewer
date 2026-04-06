@@ -141,7 +141,7 @@ public:
     friend class LLMarketplaceData;
 
     LLMarketplaceTuple();
-    LLMarketplaceTuple(const LLUUID& folder_id);
+    explicit LLMarketplaceTuple(const LLUUID& folder_id);
     LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed = false);
 
 private:

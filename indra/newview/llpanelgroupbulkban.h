@@ -34,7 +34,7 @@ class LLAvatarName;
 class LLPanelGroupBulkBan : public LLPanelGroupBulk
 {
 public:
-    LLPanelGroupBulkBan(const LLUUID& group_id);
+    explicit LLPanelGroupBulkBan(const LLUUID& group_id);
     ~LLPanelGroupBulkBan() = default;
 
     virtual bool postBuild();

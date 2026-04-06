@@ -44,7 +44,7 @@ public:
     };
 
 
-    LLSysWellItem(const Params& p);
+    explicit LLSysWellItem(const Params& p);
     virtual ~LLSysWellItem();
 
     // title

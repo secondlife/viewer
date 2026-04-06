@@ -51,7 +51,7 @@ public:
 
 private:
 
-    LLFloaterAuction(const LLSD& key);
+    explicit LLFloaterAuction(const LLSD& key);
     ~LLFloaterAuction();
 
     void initialize();

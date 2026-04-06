@@ -100,7 +100,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLToolBarView(const Params&);
+    explicit LLToolBarView(const Params&);
 
     void initFromParams(const Params&);
 

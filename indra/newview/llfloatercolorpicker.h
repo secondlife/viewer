@@ -43,7 +43,7 @@ class LLFloaterColorPicker
     : public LLFloater
 {
     public:
-        LLFloaterColorPicker (LLColorSwatchCtrl* swatch, bool show_apply_immediate = false);
+        explicit LLFloaterColorPicker (LLColorSwatchCtrl* swatch, bool show_apply_immediate = false);
         virtual ~LLFloaterColorPicker ();
 
         // overrides

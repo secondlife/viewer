@@ -121,7 +121,7 @@ public:
     struct Params : public LLInitParam::Block<Params, LLMenuHolderGL::Params>
     {};
 
-    LLViewerMenuHolderGL(const Params& p);
+    explicit LLViewerMenuHolderGL(const Params& p);
 
     virtual bool hideMenus();
 

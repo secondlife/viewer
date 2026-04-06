@@ -452,7 +452,7 @@ public:
     public:
         const LLVolumeParams mMeshParams;
 
-        HeaderRequest(const LLVolumeParams&  mesh_params)
+        explicit HeaderRequest(const LLVolumeParams&  mesh_params)
             : RequestStats(), mMeshParams(mesh_params)
         {
         }
@@ -480,7 +480,7 @@ public:
     public:
         LLUUID mId;
 
-        UUIDBasedRequest(const LLUUID& id)
+        explicit UUIDBasedRequest(const LLUUID& id)
             : RequestStats(), mId(id)
         {
         }

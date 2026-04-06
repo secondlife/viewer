@@ -147,7 +147,7 @@ public:
     // Initialization
     //--------------------------------------------------------------------
 protected:
-    LLInventoryPanel(const Params&);
+    explicit LLInventoryPanel(const Params&);
     void initFromParams(const Params&);
 
     friend class LLUICtrlFactory;
@@ -441,7 +441,7 @@ public:
     boost::signals2::connection setRootChangedCallback(root_changed_callback_t cb);
 
 protected:
-    LLInventorySingleFolderPanel(const Params& params);
+    explicit LLInventorySingleFolderPanel(const Params& params);
     ~LLInventorySingleFolderPanel();
     void updateSingleFolderRoot();
 
@@ -473,7 +473,7 @@ public:
 
     void initFromParams(const Params& p);
 protected:
-    LLAssetFilteredInventoryPanel(const Params& p);
+    explicit LLAssetFilteredInventoryPanel(const Params& p);
     friend class LLUICtrlFactory;
 public:
     ~LLAssetFilteredInventoryPanel() = default;

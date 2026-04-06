@@ -92,7 +92,7 @@ namespace LL
             {
             public:
                 RotationChannel() = default;
-                RotationChannel(const Channel& channel) : Channel(channel) {}
+                explicit RotationChannel(const Channel& channel) : Channel(channel) {}
 
                 std::vector<quat> mRotations;
 
@@ -108,7 +108,7 @@ namespace LL
             {
             public:
                 TranslationChannel() = default;
-                TranslationChannel(const Channel& channel) : Channel(channel) {}
+                explicit TranslationChannel(const Channel& channel) : Channel(channel) {}
 
                 std::vector<vec3> mTranslations;
 
@@ -124,7 +124,7 @@ namespace LL
             {
             public:
                 ScaleChannel() = default;
-                ScaleChannel(const Channel& channel) : Channel(channel) {}
+                explicit ScaleChannel(const Channel& channel) : Channel(channel) {}
 
                 std::vector<vec3> mScales;
 

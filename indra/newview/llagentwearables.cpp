@@ -173,7 +173,7 @@ void LLAgentWearables::dump()
 
 struct LLAgentDumper
 {
-    LLAgentDumper(std::string name):
+    explicit LLAgentDumper(std::string name):
         mName(name)
     {
         LL_INFOS() << LL_ENDL;

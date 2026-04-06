@@ -239,7 +239,7 @@ public:
             changeDefault(follows.flags, FOLLOWS_ALL);
         }
     };
-    LLSettingsDropTarget(const Params&);
+    explicit LLSettingsDropTarget(const Params&);
     ~LLSettingsDropTarget() = default;
 
     virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,

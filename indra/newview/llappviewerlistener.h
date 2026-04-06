@@ -41,7 +41,7 @@ class LLAppViewerListener: public LLEventAPI
 public:
     using LLAppViewerGetter = std::function<LLAppViewer*(void)>;
     /// Bind the LLAppViewer instance to use (e.g. LLAppViewer::instance()).
-    LLAppViewerListener(const LLAppViewerGetter& getter);
+    explicit LLAppViewerListener(const LLAppViewerGetter& getter);
 
 private:
     void requestQuit(const LLSD& event);

@@ -72,7 +72,7 @@ class LLFloaterBuyLandUI
 :   public LLFloater
 {
 public:
-    LLFloaterBuyLandUI(const LLSD& key);
+    explicit LLFloaterBuyLandUI(const LLSD& key);
     virtual ~LLFloaterBuyLandUI();
 
     /*virtual*/ void onClose(bool app_quitting);
@@ -84,7 +84,7 @@ private:
     class SelectionObserver : public LLParcelObserver
     {
     public:
-        SelectionObserver(LLFloaterBuyLandUI* floater) : mFloater(floater) {}
+        explicit SelectionObserver(LLFloaterBuyLandUI* floater) : mFloater(floater) {}
         virtual void changed();
     private:
         LLFloaterBuyLandUI* mFloater;

@@ -113,7 +113,7 @@ private:
     class CallbackHolder
     {
     public:
-        CallbackHolder(void(*done_callback)(bool))
+        explicit CallbackHolder(void(*done_callback)(bool))
             : mCallback(done_callback)
         {}
         ~CallbackHolder()

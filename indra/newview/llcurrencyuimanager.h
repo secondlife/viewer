@@ -38,7 +38,7 @@ class LLCurrencyUIManager
     //  'currency_est' - the estimated cost from the web site
 {
 public:
-    LLCurrencyUIManager(LLPanel& parent);
+    explicit LLCurrencyUIManager(LLPanel& parent);
     virtual ~LLCurrencyUIManager();
 
     void setAmount(int, bool noEstimate = false);

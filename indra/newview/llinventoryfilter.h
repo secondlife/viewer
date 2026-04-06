@@ -178,7 +178,7 @@ public:
             {}
         };
 
-        FilterOps(const Params& = Params());
+        explicit FilterOps(const Params& = Params());
 
         U32             mFilterTypes,
                         mSearchVisibility;
@@ -216,7 +216,7 @@ public:
         {}
     };
 
-    LLInventoryFilter(const Params& p = Params());
+    explicit LLInventoryFilter(const Params& p = Params());
     LLInventoryFilter(const LLInventoryFilter& other) { *this = other; }
     virtual ~LLInventoryFilter() = default;
 

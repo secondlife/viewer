@@ -110,7 +110,7 @@ private:
 class LLSceneMonitorView : public LLFloater
 {
 public:
-    LLSceneMonitorView(const LLRect& rect);
+    explicit LLSceneMonitorView(const LLRect& rect);
     ~LLSceneMonitorView();
     virtual void draw();
 

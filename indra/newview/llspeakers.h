@@ -59,7 +59,7 @@ public:
     using ESpeakerStatus = e_speaker_status;
 
 
-    LLSpeaker(const LLUUID& id, const std::string& name = LLStringUtil::null, const ESpeakerType type = SPEAKER_AGENT);
+    explicit LLSpeaker(const LLUUID& id, const std::string& name = LLStringUtil::null, const ESpeakerType type = SPEAKER_AGENT);
     ~LLSpeaker() = default;
     void lookupName();
 
@@ -89,7 +89,7 @@ private:
 class LLSpeakerUpdateSpeakerEvent : public LLOldEvents::LLEvent
 {
 public:
-    LLSpeakerUpdateSpeakerEvent(LLSpeaker* source);
+    explicit LLSpeakerUpdateSpeakerEvent(LLSpeaker* source);
     /*virtual*/ LLSD getValue();
 private:
     const LLUUID& mSpeakerID;
@@ -98,7 +98,7 @@ private:
 class LLSpeakerUpdateModeratorEvent : public LLOldEvents::LLEvent
 {
 public:
-    LLSpeakerUpdateModeratorEvent(LLSpeaker* source);
+    explicit LLSpeakerUpdateModeratorEvent(LLSpeaker* source);
     /*virtual*/ LLSD getValue();
 private:
     const LLUUID& mSpeakerID;
@@ -108,14 +108,14 @@ private:
 class LLSpeakerTextModerationEvent : public LLOldEvents::LLEvent
 {
 public:
-    LLSpeakerTextModerationEvent(LLSpeaker* source);
+    explicit LLSpeakerTextModerationEvent(LLSpeaker* source);
     /*virtual*/ LLSD getValue();
 };
 
 class LLSpeakerVoiceModerationEvent : public LLOldEvents::LLEvent
 {
 public:
-    LLSpeakerVoiceModerationEvent(LLSpeaker* source);
+    explicit LLSpeakerVoiceModerationEvent(LLSpeaker* source);
     /*virtual*/ LLSD getValue();
 };
 
@@ -228,7 +228,7 @@ class LLSpeakerMgr : public LLOldEvents::LLObservable
     LOG_CLASS(LLSpeakerMgr);
 
 public:
-    LLSpeakerMgr(LLVoiceChannel* channelp);
+    explicit LLSpeakerMgr(LLVoiceChannel* channelp);
     virtual ~LLSpeakerMgr();
 
     LLPointer<LLSpeaker> findSpeaker(const LLUUID& avatar_id);
@@ -289,7 +289,7 @@ class LLIMSpeakerMgr : public LLSpeakerMgr
     LOG_CLASS(LLIMSpeakerMgr);
 
 public:
-    LLIMSpeakerMgr(LLVoiceChannel* channel);
+    explicit LLIMSpeakerMgr(LLVoiceChannel* channel);
 
     void updateSpeakers(const LLSD& update);
     void setSpeakers(const LLSD& speakers);

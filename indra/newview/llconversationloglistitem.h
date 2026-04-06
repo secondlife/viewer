@@ -44,7 +44,7 @@ class LLConversation;
 class LLConversationLogListItem : public LLPanel
 {
 public:
-    LLConversationLogListItem(const LLConversation* conversation);
+    explicit LLConversationLogListItem(const LLConversation* conversation);
     virtual ~LLConversationLogListItem();
 
     void onMouseEnter(S32 x, S32 y, MASK mask);

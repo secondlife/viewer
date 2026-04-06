@@ -45,7 +45,7 @@ public:
         {}
     };
 
-    LLInventoryLinkReplaceDropTarget(const Params& p)
+    explicit LLInventoryLinkReplaceDropTarget(const Params& p)
         : LLLineEditor(p) {}
     ~LLInventoryLinkReplaceDropTarget() = default;
 
@@ -82,7 +82,7 @@ class LLFloaterLinkReplace : public LLFloater, LLEventTimer
     LOG_CLASS(LLFloaterLinkReplace);
 
 public:
-    LLFloaterLinkReplace(const LLSD& key);
+    explicit LLFloaterLinkReplace(const LLSD& key);
     virtual ~LLFloaterLinkReplace();
 
     bool postBuild();

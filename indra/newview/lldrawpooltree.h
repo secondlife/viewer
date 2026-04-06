@@ -42,7 +42,7 @@ public:
 
     virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-    LLDrawPoolTree(LLViewerTexture *texturep);
+    explicit LLDrawPoolTree(LLViewerTexture *texturep);
 
     /*virtual*/ S32 getNumDeferredPasses() { return 1; }
     /*virtual*/ void beginDeferredPass(S32 pass);

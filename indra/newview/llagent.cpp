@@ -168,7 +168,7 @@ std::map<S32, std::string> LLTeleportRequest::sTeleportStatusName = { { kPending
 class LLTeleportRequestViaLandmark : public LLTeleportRequest
 {
 public:
-    LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId, bool log = true);
+    explicit LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId, bool log = true);
     virtual ~LLTeleportRequestViaLandmark();
 
     virtual void toOstream(std::ostream& os) const;
@@ -208,7 +208,7 @@ private:
 class LLTeleportRequestViaLocation : public LLTeleportRequest
 {
 public:
-    LLTeleportRequestViaLocation(const LLVector3d &pPosGlobal);
+    explicit LLTeleportRequestViaLocation(const LLVector3d &pPosGlobal);
     virtual ~LLTeleportRequestViaLocation();
 
     virtual void toOstream(std::ostream& os) const;
@@ -228,7 +228,7 @@ private:
 class LLTeleportRequestViaLocationLookAt : public LLTeleportRequestViaLocation
 {
 public:
-    LLTeleportRequestViaLocationLookAt(const LLVector3d &pPosGlobal);
+    explicit LLTeleportRequestViaLocationLookAt(const LLVector3d &pPosGlobal);
     virtual ~LLTeleportRequestViaLocationLookAt();
 
     virtual void toOstream(std::ostream& os) const;

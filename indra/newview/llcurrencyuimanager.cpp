@@ -54,7 +54,7 @@ const F64 CURRENCY_ESTIMATE_FREQUENCY = 2.0;
 class LLCurrencyUIManager::Impl
 {
 public:
-    Impl(LLPanel& dialog);
+    explicit Impl(LLPanel& dialog);
     virtual ~Impl();
 
     LLPanel&        mPanel;

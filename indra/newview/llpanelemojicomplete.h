@@ -54,7 +54,7 @@ public:
     };
 
 protected:
-    LLPanelEmojiComplete(const LLPanelEmojiComplete::Params&);
+    explicit LLPanelEmojiComplete(const LLPanelEmojiComplete::Params&);
 
 public:
     virtual ~LLPanelEmojiComplete();
@@ -115,7 +115,7 @@ protected:
 class LLFloaterEmojiComplete : public LLFloater
 {
 public:
-    LLFloaterEmojiComplete(const LLSD& sdKey);
+    explicit LLFloaterEmojiComplete(const LLSD& sdKey);
 
 public:
     bool handleKey(KEY key, MASK mask, bool called_from_parent) override;

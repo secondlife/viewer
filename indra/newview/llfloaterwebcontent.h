@@ -66,7 +66,7 @@ public:
 
     using Params = LLSDParamAdapter<_Params>;
 
-    LLFloaterWebContent(const Params& params);
+    explicit LLFloaterWebContent(const Params& params);
 
     void initializeURLHistory();
 

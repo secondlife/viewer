@@ -49,7 +49,7 @@ public:
     void updateResizeLimits();
 
 private:
-    LLFloaterNotificationConsole(const LLSD& key);
+    explicit LLFloaterNotificationConsole(const LLSD& key);
     void onClickAdd();
 };
 
@@ -60,7 +60,7 @@ private:
 class LLFloaterNotification : public LLFloater
 {
 public:
-    LLFloaterNotification(LLNotification* note);
+    explicit LLFloaterNotification(LLNotification* note);
 
     // LLPanel
     bool postBuild();

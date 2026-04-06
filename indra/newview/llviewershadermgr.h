@@ -95,7 +95,7 @@ public:
         {
         }
 
-        shader_iter(base_iter_t iter) : mIter(iter)
+        explicit shader_iter(base_iter_t iter) : mIter(iter)
         {
         }
 

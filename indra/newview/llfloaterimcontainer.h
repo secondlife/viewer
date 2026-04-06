@@ -52,7 +52,7 @@ class LLFloaterIMContainer
     , public LLIMSessionObserver
 {
 public:
-    LLFloaterIMContainer(const LLSD& seed, const Params& params = getDefaultParams());
+    explicit LLFloaterIMContainer(const LLSD& seed, const Params& params = getDefaultParams());
     virtual ~LLFloaterIMContainer();
 
     /*virtual*/ bool postBuild();

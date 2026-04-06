@@ -57,7 +57,7 @@ public:
         Params();
     };
 
-    LLAvatarList(const Params&);
+    explicit LLAvatarList(const Params&);
     virtual ~LLAvatarList();
 
     virtual void draw(); // from LLView

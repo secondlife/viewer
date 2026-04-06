@@ -63,7 +63,7 @@ const std::string LLFloaterEditEnvironmentBase::KEY_INVENTORY_ID("inventory_id")
 class LLFixedSettingCopiedCallback : public LLInventoryCallback
 {
 public:
-    LLFixedSettingCopiedCallback(LLHandle<LLFloater> handle) : mHandle(handle) {}
+    explicit LLFixedSettingCopiedCallback(LLHandle<LLFloater> handle) : mHandle(handle) {}
 
     virtual void fire(const LLUUID& inv_item_id)
     {

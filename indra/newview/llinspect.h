@@ -33,7 +33,7 @@
 class LLInspect : public LLFloater
 {
 public:
-    LLInspect(const LLSD& key);
+    explicit LLInspect(const LLSD& key);
     virtual ~LLInspect();
 
     /// Inspectors have a custom fade-in/fade-out animation

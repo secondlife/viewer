@@ -56,7 +56,7 @@ class LLScrollListCtrl;
 class LLWorldMapParcelInfoObserver : public LLRemoteParcelInfoObserver
 {
 public:
-    LLWorldMapParcelInfoObserver(const LLVector3d& pos_global);
+    explicit LLWorldMapParcelInfoObserver(const LLVector3d& pos_global);
     ~LLWorldMapParcelInfoObserver();
 
     void processParcelInfo(const LLParcelData& parcel_data);
@@ -71,7 +71,7 @@ protected:
 class LLFloaterWorldMap : public LLFloater
 {
 public:
-    LLFloaterWorldMap(const LLSD& key);
+    explicit LLFloaterWorldMap(const LLSD& key);
     virtual ~LLFloaterWorldMap();
 
     // Prefer this to gFloaterWorldMap

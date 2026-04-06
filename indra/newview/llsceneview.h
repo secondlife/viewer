@@ -32,7 +32,7 @@
 class LLSceneView : public LLFloater
 {
 public:
-    LLSceneView(const LLRect& rect);
+    explicit LLSceneView(const LLRect& rect);
 
     virtual void draw();
 

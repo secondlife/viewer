@@ -56,7 +56,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLConversationViewSession( const Params& p );
+    explicit LLConversationViewSession( const Params& p );
 
     /*virtual*/ bool isHighlightAllowed();
     /*virtual*/ bool isHighlightActive();
@@ -158,7 +158,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLConversationViewParticipant( const Params& p );
+    explicit LLConversationViewParticipant( const Params& p );
     void initFromParams(const Params& params);
     bool postBuild();
     /*virtual*/ void draw();

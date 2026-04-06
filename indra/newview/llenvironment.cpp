@@ -357,7 +357,7 @@ namespace
     public:
         using ptr_t = std::shared_ptr<LLSettingsInjected<SETTINGT> >;
 
-        LLSettingsInjected(typename SETTINGT::ptr_t source) :
+        explicit LLSettingsInjected(typename SETTINGT::ptr_t source) :
             SETTINGT(),
             mSource(source),
             mLastSourceHash(0),
@@ -736,7 +736,7 @@ namespace
         using ptr_t = std::shared_ptr<DayInjection>;
         using wptr_t = std::weak_ptr<DayInjection>;
 
-                                            DayInjection(LLEnvironment::EnvSelection_t env);
+                                            explicit DayInjection(LLEnvironment::EnvSelection_t env);
         virtual                             ~DayInjection();
 
         virtual bool                        applyTimeDelta(const LLSettingsBase::Seconds& delta) override;

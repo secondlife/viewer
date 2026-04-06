@@ -59,7 +59,7 @@ public:
     };
 protected:
     bool    mBorder;
-    LLOutputMonitorCtrl(const Params&);
+    explicit LLOutputMonitorCtrl(const Params&);
     friend class LLUICtrlFactory;
 
 public:

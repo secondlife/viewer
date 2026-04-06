@@ -43,7 +43,7 @@ class LLSculptIDSize
 public:
     struct SizeSum
     {
-        SizeSum(int size)
+        explicit SizeSum(int size)
             : mSizeSum(size)
         {}
         unsigned int mSizeSum;
