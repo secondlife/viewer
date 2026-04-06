@@ -98,9 +98,9 @@ LLFloater* LLFloaterReg::getLastFloaterCascading()
 
     for (const auto& [floater_name, group_name] : sGroupMap)
     {
-        const instance_list_t& instances = sInstanceMap[group_name];
+        instance_list_t& instances = sInstanceMap[group_name];
 
-        for (const LLFloater* inst : instances)
+        for (LLFloater* inst : instances)
         {
             if (inst->getVisible()
                 && (inst->isPositioning(LLFloaterEnums::POSITIONING_CASCADING)

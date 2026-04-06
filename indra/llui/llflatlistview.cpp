@@ -121,9 +121,9 @@ bool LLFlatListView::addItemPairs(pairs_list_t panel_list, bool rearrange /*= tr
     panel_list.sort(ComparatorAdaptor(*mItemComparator));
 
     pairs_const_iterator_t new_pair_it = panel_list.begin();
-    const item_pair_t* new_pair = *new_pair_it;
+    item_pair_t* new_pair = *new_pair_it;
     pairs_iterator_t pair_it = mItemPairs.begin();
-    const item_pair_t* item_pair = *pair_it;
+    item_pair_t* item_pair = *pair_it;
 
     // sort panel_list into mItemPars
     while (new_pair_it != panel_list.end() && pair_it != mItemPairs.end())

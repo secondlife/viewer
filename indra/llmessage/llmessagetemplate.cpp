@@ -120,7 +120,7 @@ std::ostream& operator<<(std::ostream& s, LLMessageBlock &msg)
     for (LLMessageBlock::message_variable_map_t::iterator iter = msg.mMemberVariables.begin();
          iter != msg.mMemberVariables.end(); iter++)
     {
-        const LLMessageVariable& ci = *(*iter);
+        LLMessageVariable& ci = *(*iter); // non-const: operator<< isn't const-correct
         s << ci;
     }
 

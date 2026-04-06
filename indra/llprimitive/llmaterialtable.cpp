@@ -105,7 +105,7 @@ void LLMaterialTable::initTableTransNames(std::map<std::string, std::string> nam
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         std::string name = infop->mName;
         infop->mName = namemap[name];
     }
@@ -375,7 +375,7 @@ bool LLMaterialTable::addShatterSound(U8 mcode, const LLUUID &uuid)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             infop->mShatterSoundID = uuid;
@@ -391,7 +391,7 @@ bool LLMaterialTable::addDensity(U8 mcode, const F32 &density)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             infop->mDensity = density;
@@ -407,7 +407,7 @@ bool LLMaterialTable::addRestitution(U8 mcode, const F32 &restitution)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             infop->mRestitution = restitution;
@@ -423,7 +423,7 @@ bool LLMaterialTable::addFriction(U8 mcode, const F32 &friction)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             infop->mFriction = friction;
@@ -439,7 +439,7 @@ bool LLMaterialTable::addDamageAndEnergy(U8 mcode, const F32 &hp_mod, const F32 
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             infop->mHPModifier = hp_mod;
@@ -457,7 +457,7 @@ LLUUID LLMaterialTable::getDefaultTextureID(const std::string& name)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (name == infop->mName)
         {
             return infop->mDefaultTextureID;
@@ -474,7 +474,7 @@ LLUUID LLMaterialTable::getDefaultTextureID(U8 mcode)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             return infop->mDefaultTextureID;
@@ -490,7 +490,7 @@ U8 LLMaterialTable::getMCode(const std::string& name)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (name == infop->mName)
         {
             return infop->mMCode;
@@ -507,7 +507,7 @@ std::string LLMaterialTable::getName(U8 mcode)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             return infop->mName;
@@ -624,7 +624,7 @@ F32 LLMaterialTable::getDensity(U8 mcode)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             return infop->mDensity;
@@ -640,7 +640,7 @@ F32 LLMaterialTable::getRestitution(U8 mcode)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             return infop->mRestitution;
@@ -656,7 +656,7 @@ F32 LLMaterialTable::getFriction(U8 mcode)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             return infop->mFriction;
@@ -672,7 +672,7 @@ F32 LLMaterialTable::getHPMod(U8 mcode)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             return infop->mHPModifier;
@@ -688,7 +688,7 @@ F32 LLMaterialTable::getDamageMod(U8 mcode)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             return infop->mDamageModifier;
@@ -704,7 +704,7 @@ F32 LLMaterialTable::getEPMod(U8 mcode)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             return infop->mEPModifier;
@@ -720,7 +720,7 @@ LLUUID LLMaterialTable::getShatterSoundUUID(U8 mcode)
     for (info_list_t::iterator iter = mMaterialInfoList.begin();
          iter != mMaterialInfoList.end(); ++iter)
     {
-        const LLMaterialInfo *infop = *iter;
+        LLMaterialInfo *infop = *iter;
         if (mcode == infop->mMCode)
         {
             return infop->mShatterSoundID;
