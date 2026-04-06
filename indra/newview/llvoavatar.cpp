@@ -5440,7 +5440,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
     {
         LLGLEnable blend(GL_BLEND);
         gGL.setSceneBlendType(LLRender::BT_ADD);
-        gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         gGL.begin(LLRender::LINES);
         gGL.color4f(1.f,1.f,1.f,1.f);
@@ -5653,7 +5653,7 @@ void LLVOAvatar::releaseOldTextures()
             if (imagep)
             {
                 current_texture_mem += imagep->getTextureMemory();
-                if (imagep->getTextureState() == LLGLTexture::NO_DELETE)
+                if (imagep->getTextureState() == LLGLTexture::LLGLTextureState::NO_DELETE)
                 {
                     // This will allow the texture to be deleted if not in use.
                     imagep->forceActive();
@@ -10088,7 +10088,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( bool success, LLViewerFetchedTexture
             LLImageGL::generateTextures(1, &gl_name );
             stop_glerror();
 
-            gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name);
+            gGL.getTexUnit(0)->bindManual(LLTexUnit::eTextureType::TT_TEXTURE, gl_name);
             stop_glerror();
 
             LLImageGL::setManualImage(
@@ -10097,7 +10097,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( bool success, LLViewerFetchedTexture
                 GL_ALPHA, GL_UNSIGNED_BYTE, aux_src->getData());
             stop_glerror();
 
-            gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+            gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
 
             /* if( id == head_baked->getID() )
                  if (self->mBakedTextureDatas[BAKED_HEAD].mTexLayerSet)

@@ -2625,9 +2625,9 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
     // possible.
     FL_Locale *locale = NULL;
     FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
-    if (success != 0)
+    if (success != FL_Success::FL_FAILED)
     {
-        if (success >= 2 && locale->lang) // confident!
+        if (success == FL_Success::FL_CONFIDENT && locale->lang)
         {
             LL_INFOS("AppInit") << "Language " << locale->lang << LL_ENDL;
             LL_INFOS("AppInit") << "Location " << locale->country << LL_ENDL;

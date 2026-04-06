@@ -408,7 +408,7 @@ void LLImageGL::destroyGL()
 {
     for (S32 stage = 0; stage < gGLManager.mNumTextureImageUnits; stage++)
     {
-        gGL.getTexUnit(stage)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(stage)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     }
 }
 
@@ -541,7 +541,7 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
     mAllowCompression = allow_compression;
 
     mTarget = GL_TEXTURE_2D;
-    mBindTarget = LLTexUnit::TT_TEXTURE;
+    mBindTarget = LLTexUnit::eTextureType::TT_TEXTURE;
     mHasMipMaps = false;
     mMipLevels = -1;
 
@@ -551,8 +551,8 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
     mMaxDiscardLevel = MAX_DISCARD_LEVEL;
 
     mTexOptionsDirty = true;
-    mAddressMode = LLTexUnit::TAM_WRAP;
-    mFilterOption = LLTexUnit::TFO_ANISOTROPIC;
+    mAddressMode = LLTexUnit::eTextureAddressMode::TAM_WRAP;
+    mFilterOption = LLTexUnit::eTextureFilterOptions::TFO_ANISOTROPIC;
 
     mFormatInternal = -1;
     mFormatPrimary = (LLGLenum) 0;
@@ -741,7 +741,7 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 
         mHasMipMaps = true;
         mTexOptionsDirty = true;
-        setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+        setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_ANISOTROPIC);
     }
     else
     {
@@ -2419,7 +2419,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
                 LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glGenerateMipmap");
                 gGL.getTexUnit(0)->bind(this);
                 glGenerateMipmap(mTarget);
-                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
             }
         }
         else
@@ -2466,7 +2466,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
             glGenerateMipmap(mTarget);
         }
 
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     }
 
     mCurrentDiscardLevel = desired_discard;

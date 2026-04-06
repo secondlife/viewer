@@ -161,7 +161,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
     LLTexture* lastSpecMap = nullptr;
     LLTexture* lastDiffuse = nullptr;
 
-    gGL.getTexUnit(diffuseChannel)->unbindFast(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(diffuseChannel)->unbindFast(LLTexUnit::eTextureType::TT_TEXTURE);
 
     if (intensity > -1)
     {
@@ -242,7 +242,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
             }
             else
             {
-                gGL.getTexUnit(diffuseChannel)->unbindFast(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(diffuseChannel)->unbindFast(LLTexUnit::eTextureType::TT_TEXTURE);
             }
         }
 

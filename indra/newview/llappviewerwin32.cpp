@@ -898,9 +898,9 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
     // Find the system language.
     FL_Locale *locale = NULL;
     FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
-    if (success != 0)
+    if (success != FL_Success::FL_FAILED)
     {
-        if (success >= 2 && locale->lang) // confident!
+        if (success == FL_Success::FL_CONFIDENT && locale->lang)
         {
             LL_INFOS("AppInit") << "Language: " << ll_safe_string(locale->lang) << LL_ENDL;
             LL_INFOS("AppInit") << "Location: " << ll_safe_string(locale->country) << LL_ENDL;

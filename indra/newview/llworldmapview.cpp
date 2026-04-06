@@ -403,12 +403,12 @@ void LLWorldMapView::draw()
     S32 level = LLWorldMipmap::scaleToLevel(mMapScale);
 
     LLLocalClipRect clip(getLocalRect());
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 
     // Draw background rectangle
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.color4fv(mBackgroundColor.mV);
     gl_rect_2d(0, height, width, 0);
 
@@ -461,7 +461,7 @@ void LLWorldMapView::draw()
             // Draw a transparent red square over down sims
             gGL.color4f(0.2f, 0.0f, 0.0f, 0.4f);
 
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
             gGL.begin(LLRender::TRIANGLES);
             {
                 gGL.vertex2f(left, top);
@@ -525,7 +525,7 @@ void LLWorldMapView::draw()
                     font->renderUTF8(text, 0,
                         (F32)llfloor(left + x), (F32)llfloor(bottom + y),
                         LLColor4::white,
-                        LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW,
+                        LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW,
                         S32_MAX, //max_chars
                         (S32)mMapScale, //max_pixels
                         NULL,
@@ -757,7 +757,7 @@ bool LLWorldMapView::drawMipmapLevel(S32 width, S32 height, S32 level, bool load
                     // Draw the tile
                     LLGLSUIDefault gls_ui;
                     gGL.getTexUnit(0)->bind(simimage.get());
-                    simimage->setAddressMode(LLTexUnit::TAM_CLAMP);
+                    simimage->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 
                     gGL.color4f(1.f, 1.0f, 1.0f, 1.0f);
 
@@ -804,7 +804,7 @@ bool LLWorldMapView::drawMipmapLevel(S32 width, S32 height, S32 level, bool load
 // Used for debug only
 void LLWorldMapView::drawTileOutline(S32 level, F32 top, F32 left, F32 bottom, F32 right)
 {
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     if (level == 1)
         gGL.color3f(1.f, 0.f, 0.f);     // red
     else if (level == 2)
@@ -963,7 +963,7 @@ void LLWorldMapView::drawFrustum()
     F32 ctr_x = ((getLocalRect().getWidth() * 0.5f + mPanX)  * LLUI::getScaleFactor().mV[VX]);
     F32 ctr_y = ((getLocalRect().getHeight() * 0.5f + mPanY) * LLUI::getScaleFactor().mV[VY]);
 
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
     // Since we don't rotate the map, we have to rotate the frustum.
     gGL.pushMatrix();
@@ -1077,8 +1077,8 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
             wlabel, 0,
             (F32)text_x,
             (F32)text_y,
-            LLColor4::white, LLFontGL::HCENTER,
-            LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
+            LLColor4::white, LLFontGL::HAlign::HCENTER,
+            LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW);
 
         if (tooltip != "")
         {
@@ -1088,8 +1088,8 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
                 tooltip, 0,
                 text_x,
                 text_y,
-                LLColor4::white, LLFontGL::HCENTER,
-                LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
+                LLColor4::white, LLFontGL::HAlign::HCENTER,
+                LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW);
         }
     }
 }
@@ -1203,7 +1203,7 @@ static void drawDot(F32 x_pixels, F32 y_pixels,
         F32 top =       y_pixels + dot_radius;
         F32 bottom =    y_pixels - dot_radius;
 
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gGL.color4fv( color.mV );
         LLUI::setLineWidth(3.0f);
         F32 point = relative_z > HEIGHT_THRESHOLD ? top : bottom; // Y pos of the point of the V
@@ -1283,10 +1283,10 @@ void LLWorldMapView::drawIconName(F32 x_pixels,
         text_x,
         text_y,
         color,
-        LLFontGL::HCENTER,
-        LLFontGL::TOP,
+        LLFontGL::HAlign::HCENTER,
+        LLFontGL::VAlign::TOP,
         LLFontGL::NORMAL,
-        LLFontGL::DROP_SHADOW);
+        LLFontGL::ShadowType::DROP_SHADOW);
 
     text_y -= LLFontGL::getFontSansSerif()->getLineHeight();
 
@@ -1295,10 +1295,10 @@ void LLWorldMapView::drawIconName(F32 x_pixels,
         text_x,
         text_y,
         color,
-        LLFontGL::HCENTER,
-        LLFontGL::TOP,
+        LLFontGL::HAlign::HCENTER,
+        LLFontGL::VAlign::TOP,
         LLFontGL::NORMAL,
-        LLFontGL::DROP_SHADOW);
+        LLFontGL::ShadowType::DROP_SHADOW);
 }
 
 

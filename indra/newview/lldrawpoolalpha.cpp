@@ -459,7 +459,7 @@ bool LLDrawPoolAlpha::TexSetup(LLDrawInfo* draw, bool use_material)
             }
             else
             {
-                gGL.getTexUnit(0)->unbindFast(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(0)->unbindFast(LLTexUnit::eTextureType::TT_TEXTURE);
             }
         }
     }

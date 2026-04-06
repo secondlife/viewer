@@ -450,7 +450,7 @@ lcid_to_fl(LCID lcid,
 
 FL_Success
 FL_FindLocale(FL_Locale **locale, FL_Domain domain) {
-  FL_Success success = FL_FAILED;
+  FL_Success success = FL_Success::FL_FAILED;
   FL_Locale *rtn = (FL_Locale*)malloc(sizeof(FL_Locale));
   rtn->lang = NULL;
   rtn->country = NULL;
@@ -461,12 +461,12 @@ FL_FindLocale(FL_Locale **locale, FL_Domain domain) {
   {
     LCID lcid = GetThreadLocale();
     if (lcid_to_fl(lcid, rtn)) {
-      success = FL_CONFIDENT;
+      success = FL_Success::FL_CONFIDENT;
     }
-    if (success == FL_FAILED) {
+    if (success == FL_Success::FL_FAILED) {
       /* assume US English on mswindows systems unless we know otherwise */
       if (accumulate_locstring("en_US.ISO_8859-1", rtn)) {
-        success = FL_DEFAULT_GUESS;
+        success = FL_Success::FL_DEFAULT_GUESS;
       }
     }
   }
@@ -485,18 +485,18 @@ FL_FindLocale(FL_Locale **locale, FL_Domain domain) {
         accumulate_env("LC_MESSAGES", rtn) ||
         accumulate_env("LANG", rtn) ||
         accumulate_env("LANGUAGE", rtn)) {
-      success = FL_CONFIDENT;
+      success = FL_Success::FL_CONFIDENT;
     }
-    if (success == FL_FAILED) {
+    if (success == FL_Success::FL_FAILED) {
       /* assume US English on unixoid systems unless we know otherwise */
       if (accumulate_locstring("en_US.ISO_8859-1", rtn)) {
-        success = FL_DEFAULT_GUESS;
+        success = FL_Success::FL_DEFAULT_GUESS;
       }
     }
   }
 #endif
 
-  if (success != FL_FAILED) {
+  if (success != FL_Success::FL_FAILED) {
     canonise_fl(rtn);
   }
 

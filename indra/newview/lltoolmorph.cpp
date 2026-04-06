@@ -303,7 +303,7 @@ void LLVisualParamHint::draw(F32 alpha)
     }
     gGL.end();
 
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 }
 
 //-----------------------------------------------------------------------------

@@ -501,7 +501,7 @@ namespace tut
         F32 y = 1.0f;
         F32 z = 3.0f;
 
-        LLQuaternion result = mayaQ(x, y, z, LLQuaternion::XYZ);
+        LLQuaternion result = mayaQ(x, y, z, LLQuaternion::Order::XYZ);
         ensure(
             "1. LLQuaternion mayaQ(F32 xRot, F32 yRot, F32 zRot, LLQuaternion::Order order) failed for XYZ",
             is_approx_equal_fraction(0.0172174f, result.mQ[0], 16) &&
@@ -509,7 +509,7 @@ namespace tut
             is_approx_equal_fraction(0.026020f, result.mQ[2], 16) &&
             is_approx_equal_fraction(0.999471f, result.mQ[3], 16));
 
-        LLQuaternion result1 = mayaQ(x, y, z, LLQuaternion::YZX);
+        LLQuaternion result1 = mayaQ(x, y, z, LLQuaternion::Order::YZX);
         ensure(
             "2. LLQuaternion mayaQ(F32 xRot, F32 yRot, F32 zRot, LLQuaternion::Order order) failed for XYZ",
             is_approx_equal_fraction(0.017217f, result1.mQ[0], 16) &&
@@ -517,7 +517,7 @@ namespace tut
             is_approx_equal_fraction(0.026324f, result1.mQ[2], 16) &&
             is_approx_equal_fraction(0.999471f, result1.mQ[3], 16));
 
-        LLQuaternion result2 = mayaQ(x, y, z, LLQuaternion::ZXY);
+        LLQuaternion result2 = mayaQ(x, y, z, LLQuaternion::Order::ZXY);
         ensure(
             "3. LLQuaternion mayaQ(F32 xRot, F32 yRot, F32 zRot, LLQuaternion::Order order) failed for ZXY",
             is_approx_equal_fraction(0.017674f, result2.mQ[0], 16) &&
@@ -525,7 +525,7 @@ namespace tut
             is_approx_equal_fraction(0.026020f, result2.mQ[2], 16) &&
             is_approx_equal_fraction(0.999471f, result2.mQ[3], 16));
 
-        LLQuaternion result3 = mayaQ(x, y, z, LLQuaternion::XZY);
+        LLQuaternion result3 = mayaQ(x, y, z, LLQuaternion::Order::XZY);
         ensure(
             "4. TLLQuaternion mayaQ(F32 xRot, F32 yRot, F32 zRot, LLQuaternion::Order order) failed for XZY",
             is_approx_equal_fraction(0.017674f, result3.mQ[0], 16) &&
@@ -533,7 +533,7 @@ namespace tut
             is_approx_equal_fraction(0.026020f, result3.mQ[2], 16) &&
             is_approx_equal_fraction(0.999463f, result3.mQ[3], 16));
 
-        LLQuaternion result4 = mayaQ(x, y, z, LLQuaternion::YXZ);
+        LLQuaternion result4 = mayaQ(x, y, z, LLQuaternion::Order::YXZ);
         ensure(
             "5. LLQuaternion mayaQ(F32 xRot, F32 yRot, F32 zRot, LLQuaternion::Order order) failed for YXZ",
             is_approx_equal_fraction(0.017217f, result4.mQ[0], 16) &&
@@ -541,7 +541,7 @@ namespace tut
             is_approx_equal_fraction(0.026324f, result4.mQ[2], 16) &&
             is_approx_equal_fraction(0.999463f, result4.mQ[3], 16));
 
-        LLQuaternion result5 = mayaQ(x, y, z, LLQuaternion::ZYX);
+        LLQuaternion result5 = mayaQ(x, y, z, LLQuaternion::Order::ZYX);
         ensure(
             "6. LLQuaternion mayaQ(F32 xRot, F32 yRot, F32 zRot, LLQuaternion::Order order) failed for ZYX",
             is_approx_equal_fraction(0.017674f, result5.mQ[0], 16) &&
@@ -574,13 +574,13 @@ namespace tut
     void llquat_test_object_t::test<19>()
     {
         //test case for const char *OrderToString( const LLQuaternion::Order order ) fn
-        const char* result = OrderToString(LLQuaternion::XYZ);
+        const char* result = OrderToString(LLQuaternion::Order::XYZ);
         ensure("1. OrderToString failed for XYZ",  (0 == strcmp("XYZ", result)));
 
-        result = OrderToString(LLQuaternion::YZX);
+        result = OrderToString(LLQuaternion::Order::YZX);
         ensure("2. OrderToString failed for YZX",  (0 == strcmp("YZX", result)));
 
-        result = OrderToString(LLQuaternion::ZXY);
+        result = OrderToString(LLQuaternion::Order::ZXY);
         ensure(
             "3. OrderToString failed for ZXY",
             (0 == strcmp("ZXY", result)) &&
@@ -589,13 +589,13 @@ namespace tut
             (0 != strcmp("ZYX", result)) &&
             (0 != strcmp("XYZ", result)));
 
-        result = OrderToString(LLQuaternion::XZY);
+        result = OrderToString(LLQuaternion::Order::XZY);
         ensure("4. OrderToString failed for XZY",  (0 == strcmp("XZY", result)));
 
-        result = OrderToString(LLQuaternion::ZYX);
+        result = OrderToString(LLQuaternion::Order::ZYX);
         ensure("5. OrderToString failed for ZYX",  (0 == strcmp("ZYX", result)));
 
-        result = OrderToString(LLQuaternion::YXZ);
+        result = OrderToString(LLQuaternion::Order::YXZ);
         ensure("6.OrderToString failed for YXZ",  (0 == strcmp("YXZ", result)));
     }
 

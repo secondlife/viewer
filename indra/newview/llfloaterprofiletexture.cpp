@@ -120,7 +120,7 @@ void LLProfileImageCtrl::setImageAssetId(const LLUUID& asset_id)
     if (mImageID.notNull())
     {
         mImage = LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-        mWasNoDelete = mImage->getTextureState() == LLGLTexture::NO_DELETE;
+        mWasNoDelete = mImage->getTextureState() == LLGLTexture::LLGLTextureState::NO_DELETE;
         mImageOldBoostLevel = mImage->getBoostLevel();
         mImage->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
         mImage->setKnownDrawSize(LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT, LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT);

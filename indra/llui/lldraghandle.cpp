@@ -105,7 +105,7 @@ void LLDragHandleTop::setTitle(const std::string& title)
         params.initial_value(trimmed_title);
         params.font(font);
         params.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
-        params.font_shadow(LLFontGL::DROP_SHADOW_SOFT);
+        params.font_shadow(LLFontGL::ShadowType::DROP_SHADOW_SOFT);
         params.use_ellipses = true;
         params.parse_urls = false; //cancel URL replacement in floater title
         mTitleBox = LLUICtrlFactory::create<LLTextBox> (params);

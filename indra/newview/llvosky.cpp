@@ -106,7 +106,7 @@ void LLSkyTex::init(bool isShiny)
     for (S32 i = 0; i < 2; ++i)
     {
         mTexture[i] = LLViewerTextureManager::getLocalTexture(false);
-        mTexture[i]->setAddressMode(LLTexUnit::TAM_CLAMP);
+        mTexture[i]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         mImageRaw[i] = new LLImageRaw((U16)SKYTEX_RESOLUTION, (U16)SKYTEX_RESOLUTION, (S8)SKYTEX_COMPONENTS);
 
         initEmpty(i);
@@ -124,7 +124,7 @@ void LLSkyTex::restoreGL()
     for (S32 i = 0; i < 2; i++)
     {
         mTexture[i] = LLViewerTextureManager::getLocalTexture(false);
-        mTexture[i]->setAddressMode(LLTexUnit::TAM_CLAMP);
+        mTexture[i]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
     }
 }
 
@@ -203,7 +203,7 @@ void LLSkyTex::createGLImage(S32 which)
 {
     mTexture[which]->setExplicitFormat(GL_RGBA8, GL_RGBA);
     mTexture[which]->createGLTexture(0, mImageRaw[which], 0, true, LLGLTexture::LOCAL);
-    mTexture[which]->setAddressMode(LLTexUnit::TAM_CLAMP);
+    mTexture[which]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 }
 
 void LLSkyTex::bindTexture(bool curr)
@@ -871,7 +871,7 @@ void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_textur
     {
         if (mSunTexturep[0])
         {
-            mSunTexturep[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
+            mSunTexturep[0]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         }
 
         LLViewerTexture* current_tex0 = mFace[FACE_SUN]->getTexture(LLRender::DIFFUSE_MAP);
@@ -893,7 +893,7 @@ void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_textur
         {
             if (mSunTexturep[1])
             {
-                mSunTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
+                mSunTexturep[1]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
             }
             mFace[FACE_SUN]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mSunTexturep[1]);
         }
@@ -913,13 +913,13 @@ void LLVOSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_tex
     {
         if (mMoonTexturep[0])
         {
-            mMoonTexturep[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
+            mMoonTexturep[0]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         }
         mFace[FACE_MOON]->setTexture(LLRender::DIFFUSE_MAP, mMoonTexturep[0]);
 
         if (mMoonTexturep[1] && can_use_wl)
         {
-            mMoonTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
+            mMoonTexturep[1]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
             mFace[FACE_MOON]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mMoonTexturep[1]);
         }
     }
@@ -934,12 +934,12 @@ void LLVOSky::setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLU
 
     if (mCloudNoiseTexturep[0])
     {
-        mCloudNoiseTexturep[0]->setAddressMode(LLTexUnit::TAM_WRAP);
+        mCloudNoiseTexturep[0]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_WRAP);
     }
 
     if (mCloudNoiseTexturep[1])
     {
-        mCloudNoiseTexturep[1]->setAddressMode(LLTexUnit::TAM_WRAP);
+        mCloudNoiseTexturep[1]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_WRAP);
     }
 }
 
@@ -955,12 +955,12 @@ void LLVOSky::setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_
 
     if (mBloomTexturep[0])
     {
-        mBloomTexturep[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
+        mBloomTexturep[0]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
     }
 
     if (mBloomTexturep[1])
     {
-        mBloomTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
+        mBloomTexturep[1]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
     }
 }
 

@@ -148,7 +148,7 @@ std::string LLScrollListItem::getContentsCSV() const
 void LLScrollListItem::draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& hover_color, const LLColor4& select_color, const LLColor4& highlight_color, S32 column_padding)
 {
     // draw background rect
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     LLRect bg_rect = rect;
     if (mSelectedIndex < 0 && getSelected())
     {

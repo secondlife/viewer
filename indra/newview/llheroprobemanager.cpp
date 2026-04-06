@@ -339,7 +339,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
         {
             gGaussianProgram.bind();
             gGaussianProgram.uniform1f(resScale, 1.f / (mProbeResolution * 2));
-            S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+            S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::eTextureType::TT_TEXTURE);
 
             // horizontal
             gGaussianProgram.uniform2f(direction, 1.f, 0.f);
@@ -362,8 +362,8 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
         S32 mips = (S32)(log2((F32)mProbeResolution) + 0.5f);
 
         gReflectionMipProgram.bind();
-        S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
-        S32 depthChannel   = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH, LLTexUnit::TT_TEXTURE);
+        S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::eTextureType::TT_TEXTURE);
+        S32 depthChannel   = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DEPTH, LLTexUnit::eTextureType::TT_TEXTURE);
 
         for (int i = 0; i < mMipChain.size(); ++i)
         {
@@ -408,7 +408,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
         gGL.matrixMode(gGL.MM_MODELVIEW);
         gGL.popMatrix();
 
-        gGL.getTexUnit(diffuseChannel)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(diffuseChannel)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gReflectionMipProgram.unbind();
     }
 }
@@ -432,7 +432,7 @@ void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
             gHeroRadianceGenProgram.bind();
             mVertexBuffer->setBuffer();
 
-            S32 channel = gHeroRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+            S32 channel = gHeroRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::eTextureType::TT_CUBE_MAP_ARRAY);
             mTexture->bind(channel);
             gHeroRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);

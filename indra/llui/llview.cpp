@@ -1304,7 +1304,7 @@ void LLView::drawDebugRect()
     LLUI::pushMatrix();
     {
         // drawing solids requires texturing be disabled
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         if (getUseBoundingRect())
         {
@@ -1374,7 +1374,7 @@ void LLView::drawDebugRect()
             std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
                                         debug_rect.getWidth(), debug_rect.getHeight());
             LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
-                    LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
+                    LLFontGL::HAlign::HCENTER, LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW);
         }
     }
     LLUI::popMatrix();
@@ -2416,7 +2416,7 @@ void LLView::parseFollowsFlags(const LLView::Params& params)
 // static
 //LLFontGL::HAlign LLView::selectFontHAlign(LLXMLNodePtr node)
 //{
-//  LLFontGL::HAlign gl_hfont_align = LLFontGL::LEFT;
+//  LLFontGL::HAlign gl_hfont_align = LLFontGL::HAlign::LEFT;
 //
 //  if (node->hasAttribute("halign"))
 //  {

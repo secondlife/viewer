@@ -409,7 +409,7 @@ void LLStatBar::draw()
     {
         // Draw the tick marks.
         LLGLSUIDefault gls_ui;
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         F32 value_scale;
         if (mCurMaxBar == mCurMinBar)
@@ -605,7 +605,7 @@ LLRect LLStatBar::getRequiredRect()
 void LLStatBar::drawLabelAndValue( F32 value, std::string &label, LLRect &bar_rect, S32 decimal_digits )
 {
     LLFontGL::getFontMonospace()->render(mLabel.getWString(), 0, 0.F, (F32)getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, 1.f),
-        LLFontGL::LEFT, LLFontGL::TOP);
+        LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
     std::string value_str   = !llisnan(value)
                             ? llformat("%10.*f %s", decimal_digits, value, label.c_str())
@@ -616,13 +616,13 @@ void LLStatBar::drawLabelAndValue( F32 value, std::string &label, LLRect &bar_re
     {
         LLFontGL::getFontMonospace()->renderUTF8(value_str, 0, bar_rect.mRight, getRect().getHeight(),
             LLColor4(1.f, 1.f, 1.f, 1.f),
-            LLFontGL::RIGHT, LLFontGL::TOP);
+            LLFontGL::HAlign::RIGHT, LLFontGL::VAlign::TOP);
     }
     else
     {
         LLFontGL::getFontMonospace()->renderUTF8(value_str, 0, bar_rect.mRight, getRect().getHeight(),
             LLColor4(1.f, 1.f, 1.f, 1.f),
-            LLFontGL::RIGHT, LLFontGL::TOP);
+            LLFontGL::HAlign::RIGHT, LLFontGL::VAlign::TOP);
     }
 }
 
@@ -688,7 +688,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
                     gl_rect_2d(bar_rect.mLeft, tick_end, bar_rect.mRight - TICK_LENGTH, tick_begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
                     LLFontGL::getFontMonospace()->render(tick_label, 0, (F32)bar_rect.mRight, (F32)tick_begin,
                         LLColor4(1.f, 1.f, 1.f, 0.5f),
-                        LLFontGL::LEFT, LLFontGL::VCENTER);
+                        LLFontGL::HAlign::LEFT, LLFontGL::VAlign::VCENTER);
                     last_label = tick_begin;
                 }
                 else
@@ -704,7 +704,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
                     S32 label_pos = tick_begin - ll_round((F32)tick_label_width * ((F32)tick_begin / (F32)bar_rect.getWidth()));
                     LLFontGL::getFontMonospace()->render(tick_label, 0, (F32)label_pos, (F32)(bar_rect.mBottom - TICK_LENGTH),
                         LLColor4(1.f, 1.f, 1.f, 0.5f),
-                        LLFontGL::LEFT, LLFontGL::TOP);
+                        LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
                     last_label = label_pos;
                 }
                 else

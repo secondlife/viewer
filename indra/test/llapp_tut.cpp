@@ -65,7 +65,7 @@ namespace tut
         defaults["template"] = "../../../scripts/messages/message_template.msg";
         defaults["configdir"] = ".";
         defaults["datadir"] = "data";
-        mApp->setOptionData(LLApp::PRIORITY_DEFAULT, defaults);
+        mApp->setOptionData(LLApp::OptionPriority::PRIORITY_DEFAULT, defaults);
 
         LLSD datadir_sd = mApp->getOption("datadir");
         ensure_equals("data type", datadir_sd.type(), LLSD::TypeString);
@@ -153,10 +153,10 @@ namespace tut
     {
         LLSD options;
         options["boolean-test"] = true;
-        mApp->setOptionData(LLApp::PRIORITY_GENERAL_CONFIGURATION, options);
+        mApp->setOptionData(LLApp::OptionPriority::PRIORITY_GENERAL_CONFIGURATION, options);
         ensure("bool set", mApp->getOption("boolean-test").asBoolean());
         options["boolean-test"] = false;
-        mApp->setOptionData(LLApp::PRIORITY_RUNTIME_OVERRIDE, options);
+        mApp->setOptionData(LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE, options);
         ensure("bool unset", !mApp->getOption("boolean-test").asBoolean());
     }
 }

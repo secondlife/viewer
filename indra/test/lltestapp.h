@@ -23,7 +23,7 @@ class LLTestApp: public LLApp
 public:
     LLTestApp()
     {
-        setStatus(APP_STATUS_RUNNING);
+        setStatus(EAppStatus::APP_STATUS_RUNNING);
     }
 
     bool init()    { return true; }

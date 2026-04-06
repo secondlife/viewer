@@ -156,8 +156,8 @@ void LLSceneMonitor::generateDitheringTexture(S32 width, S32 height)
     }
 
     mDitheringTexture = LLViewerTextureManager::getLocalTexture(image_raw.get(), false) ;
-    mDitheringTexture->setAddressMode(LLTexUnit::TAM_WRAP);
-    mDitheringTexture->setFilteringOption(LLTexUnit::TFO_POINT);
+    mDitheringTexture->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_WRAP);
+    mDitheringTexture->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_POINT);
 
     mDitherScaleS = (F32)width / mDitherMatrixWidth;
     mDitherScaleT = (F32)height / mDitherMatrixWidth;
@@ -180,8 +180,8 @@ LLRenderTarget& LLSceneMonitor::getCaptureTarget()
         mFrames[0] = new LLRenderTarget();
         (void)mFrames[0]->allocate(width, height, GL_RGB);
         gGL.getTexUnit(0)->bind(mFrames[0]);
-        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_POINT);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         cur_target = mFrames[0];
     }
@@ -190,8 +190,8 @@ LLRenderTarget& LLSceneMonitor::getCaptureTarget()
         mFrames[1] = new LLRenderTarget();
         (void)mFrames[1]->allocate(width, height, GL_RGB);
         gGL.getTexUnit(0)->bind(mFrames[1]);
-        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_POINT);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         cur_target = mFrames[1];
     }
@@ -380,17 +380,17 @@ void LLSceneMonitor::compare()
     gTwoTextureCompareProgram.uniform1f(sDitherScaleT, mDitherScaleT);
 
     gGL.getTexUnit(0)->activate();
-    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->enable(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.getTexUnit(0)->bind(mFrames[0]);
     gGL.getTexUnit(0)->activate();
 
     gGL.getTexUnit(1)->activate();
-    gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->enable(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.getTexUnit(1)->bind(mFrames[1]);
     gGL.getTexUnit(1)->activate();
 
     gGL.getTexUnit(2)->activate();
-    gGL.getTexUnit(2)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(2)->enable(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.getTexUnit(2)->bind(mDitheringTexture);
     gGL.getTexUnit(2)->activate();
 
@@ -401,11 +401,11 @@ void LLSceneMonitor::compare()
     gTwoTextureCompareProgram.unbind();
 
     gGL.getTexUnit(0)->disable();
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.getTexUnit(1)->disable();
-    gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.getTexUnit(2)->disable();
-    gGL.getTexUnit(2)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(2)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
     if (!mDebugViewerVisible)
     {
@@ -726,7 +726,7 @@ void LLSceneMonitorView::draw()
     setRect(new_rect);
 
     //draw background
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
 
     LLSceneMonitor::getInstance()->calcDiffAggregate();
@@ -737,19 +737,19 @@ void LLSceneMonitorView::draw()
 
     S32 lines = 0;
     std::string num_str = llformat("Frame difference: %.6f", LLSceneMonitor::getInstance()->getDiffResult());
-    LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
+    LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     lines++;
 
     num_str = llformat("Pixel tolerance: (R+G+B) < %.4f", LLSceneMonitor::getInstance()->getDiffTolerance());
-    LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
+    LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     lines++;
 
     num_str = llformat("Sampling time: %.3f seconds", gSavedSettings.getF32("SceneLoadingMonitorSampleTime"));
-    LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
+    LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     lines++;
 
     num_str = llformat("Scene Loading time: %.3f seconds", (F32)LLSceneMonitor::getInstance()->getRecording()->getResults().getDuration().value());
-    LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::LEFT, LLFontGL::TOP);
+    LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     lines++;
 
     LLView::draw();

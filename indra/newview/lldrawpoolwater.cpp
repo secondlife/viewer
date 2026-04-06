@@ -174,7 +174,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
         light_diffuse *= (1.5f + (6.f * ground_proj_sq));
     }
 
-    LLTexUnit::eTextureFilterOptions filter_mode = has_normal_mips ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT;
+    LLTexUnit::eTextureFilterOptions filter_mode = has_normal_mips ? LLTexUnit::eTextureFilterOptions::TFO_ANISOTROPIC : LLTexUnit::eTextureFilterOptions::TFO_POINT;
 
     LLColor4      specular(sun_up ? psky->getSunlightColor() : psky->getMoonlightColor());
     F32           phase_time = (F32) LLFrameTimer::getElapsedSeconds() * 0.5f;

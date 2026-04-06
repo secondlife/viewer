@@ -117,7 +117,7 @@ static const std::array<GLenum, 11> sGLBlendFactor =
 }};
 
 LLTexUnit::LLTexUnit(S32 index)
-    : mCurrTexType(TT_NONE),
+    : mCurrTexType(eTextureType::TT_NONE),
     mCurrTexture(0),
     mHasMipMaps(false),
     mIndex(index)
@@ -128,7 +128,7 @@ LLTexUnit::LLTexUnit(S32 index)
 //static
 U32 LLTexUnit::getInternalType(eTextureType type)
 {
-    return sGLTextureType[type];
+    return sGLTextureType[static_cast<int>(type)];
 }
 
 void LLTexUnit::refreshState(void)
@@ -140,9 +140,9 @@ void LLTexUnit::refreshState(void)
 
     glActiveTexture(GL_TEXTURE0 + mIndex);
 
-    if (mCurrTexType != TT_NONE)
+    if (mCurrTexType != eTextureType::TT_NONE)
     {
-        glBindTexture(sGLTextureType[mCurrTexType], mCurrTexture);
+        glBindTexture(sGLTextureType[static_cast<int>(mCurrTexType)], mCurrTexture);
     }
     else
     {
@@ -166,10 +166,10 @@ void LLTexUnit::enable(eTextureType type)
 {
     if (mIndex < 0) return;
 
-    if ( (mCurrTexType != type || gGL.mDirty) && (type != TT_NONE) )
+    if ( (mCurrTexType != type || gGL.mDirty) && (type != eTextureType::TT_NONE) )
     {
         activate();
-        if (mCurrTexType != TT_NONE && !gGL.mDirty)
+        if (mCurrTexType != eTextureType::TT_NONE && !gGL.mDirty)
         {
             disable(); // Force a disable of a previous texture type if it's enabled.
         }
@@ -183,10 +183,10 @@ void LLTexUnit::disable(void)
 {
     if (mIndex < 0) return;
 
-    if (mCurrTexType != TT_NONE)
+    if (mCurrTexType != eTextureType::TT_NONE)
     {
         unbind(mCurrTexType);
-        mCurrTexType = TT_NONE;
+        mCurrTexType = eTextureType::TT_NONE;
     }
 }
 
@@ -205,7 +205,7 @@ void LLTexUnit::bindFast(LLTexture* texture)
         gl_tex->forceUpdateBindStats();
         texture->bindDefaultImage(mIndex);
     }
-    glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
+    glBindTexture(sGLTextureType[static_cast<int>(gl_tex->getTarget())], mCurrTexture);
     mHasMipMaps = gl_tex->mHasMipMaps;
     if (gl_tex->mTexOptionsDirty) [[unlikely]]
     {
@@ -235,7 +235,7 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
                     activate();
                     enable(gl_tex->getTarget());
                     mCurrTexture = gl_tex->getTexName();
-                    glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
+                    glBindTexture(sGLTextureType[static_cast<int>(gl_tex->getTarget())], mCurrTexture);
                     if(gl_tex->updateBindStats())
                     {
                         texture->setActive() ;
@@ -312,7 +312,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32
         enable(texture->getTarget());
         stop_glerror();
         mCurrTexture = texname;
-        glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
+        glBindTexture(sGLTextureType[static_cast<int>(texture->getTarget())], mCurrTexture);
         stop_glerror();
         texture->updateBindStats();
         mHasMipMaps = texture->mHasMipMaps;
@@ -348,7 +348,7 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
         if (LLCubeMap::sUseCubeMaps)
         {
             activate();
-            enable(LLTexUnit::TT_CUBE_MAP);
+            enable(LLTexUnit::eTextureType::TT_CUBE_MAP);
             mCurrTexture = cubeMap->mImages[0]->getTexName();
             glBindTexture(GL_TEXTURE_CUBE_MAP, mCurrTexture);
             mHasMipMaps = cubeMap->mImages[0]->mHasMipMaps;
@@ -405,7 +405,7 @@ bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
         activate();
         enable(type);
         mCurrTexture = texture;
-        glBindTexture(sGLTextureType[type], texture);
+        glBindTexture(sGLTextureType[static_cast<int>(type)], texture);
         mHasMipMaps = hasMips;
     }
     return true;
@@ -427,13 +427,13 @@ void LLTexUnit::unbind(eTextureType type)
     {
         mCurrTexture = 0;
 
-        if (type == LLTexUnit::TT_TEXTURE)
+        if (type == LLTexUnit::eTextureType::TT_TEXTURE)
         {
-            glBindTexture(sGLTextureType[type], sWhiteTexture);
+            glBindTexture(sGLTextureType[static_cast<int>(type)], sWhiteTexture);
         }
         else
         {
-            glBindTexture(sGLTextureType[type], 0);
+            glBindTexture(sGLTextureType[static_cast<int>(type)], 0);
         }
         stop_glerror();
     }
@@ -448,13 +448,13 @@ void LLTexUnit::unbindFast(eTextureType type)
     {
         mCurrTexture = 0;
 
-        if (type == LLTexUnit::TT_TEXTURE)
+        if (type == LLTexUnit::eTextureType::TT_TEXTURE)
         {
-            glBindTexture(sGLTextureType[type], sWhiteTexture);
+            glBindTexture(sGLTextureType[static_cast<int>(type)], sWhiteTexture);
         }
         else
         {
-            glBindTexture(sGLTextureType[type], 0);
+            glBindTexture(sGLTextureType[static_cast<int>(type)], 0);
         }
     }
 }
@@ -472,17 +472,17 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 
 void LLTexUnit::setTextureAddressModeFast(eTextureAddressMode mode, eTextureType tex_type)
 {
-    glTexParameteri(sGLTextureType[tex_type], GL_TEXTURE_WRAP_S, sGLAddressMode[mode]);
-    glTexParameteri(sGLTextureType[tex_type], GL_TEXTURE_WRAP_T, sGLAddressMode[mode]);
-    if (tex_type == TT_CUBE_MAP || tex_type == TT_CUBE_MAP_ARRAY || tex_type == TT_TEXTURE_3D)
+    glTexParameteri(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_WRAP_S, sGLAddressMode[static_cast<int>(mode)]);
+    glTexParameteri(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_WRAP_T, sGLAddressMode[static_cast<int>(mode)]);
+    if (tex_type == eTextureType::TT_CUBE_MAP || tex_type == eTextureType::TT_CUBE_MAP_ARRAY || tex_type == eTextureType::TT_TEXTURE_3D)
     {
-        glTexParameteri(sGLTextureType[tex_type], GL_TEXTURE_WRAP_R, sGLAddressMode[mode]);
+        glTexParameteri(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_WRAP_R, sGLAddressMode[static_cast<int>(mode)]);
     }
 }
 
 void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option)
 {
-    if (mIndex < 0 || mCurrTexture == 0 || mCurrTexType == LLTexUnit::TT_MULTISAMPLE_TEXTURE) return;
+    if (mIndex < 0 || mCurrTexture == 0 || mCurrTexType == LLTexUnit::eTextureType::TT_MULTISAMPLE_TEXTURE) return;
 
     gGL.flush();
 
@@ -491,49 +491,49 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 
 void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option, eTextureType tex_type)
 {
-    if (option == TFO_POINT)
+    if (option == eTextureFilterOptions::TFO_POINT)
     {
-        glTexParameteri(sGLTextureType[tex_type], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
     else
     {
-        glTexParameteri(sGLTextureType[tex_type], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
-    if (option >= TFO_TRILINEAR && mHasMipMaps)
+    if (static_cast<int>(option) >= static_cast<int>(eTextureFilterOptions::TFO_TRILINEAR) && mHasMipMaps)
     {
-        glTexParameteri(sGLTextureType[tex_type], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     }
-    else if (option >= TFO_BILINEAR)
+    else if (static_cast<int>(option) >= static_cast<int>(eTextureFilterOptions::TFO_BILINEAR))
     {
         if (mHasMipMaps)
         {
-            glTexParameteri(sGLTextureType[tex_type], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+            glTexParameteri(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         }
         else
         {
-            glTexParameteri(sGLTextureType[tex_type], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         }
     }
     else
     {
         if (mHasMipMaps)
         {
-            glTexParameteri(sGLTextureType[tex_type], GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+            glTexParameteri(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
         }
         else
         {
-            glTexParameteri(sGLTextureType[tex_type], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         }
     }
 
-    if (LLImageGL::sGlobalUseAnisotropic && option == TFO_ANISOTROPIC)
+    if (LLImageGL::sGlobalUseAnisotropic && option == eTextureFilterOptions::TFO_ANISOTROPIC)
     {
-        glTexParameterf(sGLTextureType[tex_type], GL_TEXTURE_MAX_ANISOTROPY, gGLManager.mMaxAnisotropy);
+        glTexParameterf(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_MAX_ANISOTROPY, gGLManager.mMaxAnisotropy);
     }
     else
     {
-        glTexParameterf(sGLTextureType[tex_type], GL_TEXTURE_MAX_ANISOTROPY, 1.f);
+        glTexParameterf(sGLTextureType[static_cast<int>(tex_type)], GL_TEXTURE_MAX_ANISOTROPY, 1.f);
     }
 }
 
@@ -1967,20 +1967,20 @@ void LLRender::debugTexUnits(void)
     std::string active_enabled = "false";
     for (U32 i = 0; i < mTexUnits.size(); i++)
     {
-        if (getTexUnit(i)->mCurrTexType != LLTexUnit::TT_NONE)
+        if (getTexUnit(i)->mCurrTexType != LLTexUnit::eTextureType::TT_NONE)
         {
             if (i == mCurrTextureUnitIndex) active_enabled = "true";
             LL_INFOS("TextureUnit") << "TexUnit: " << i << " Enabled" << LL_ENDL;
             LL_INFOS("TextureUnit") << "Enabled As: " ;
             switch (getTexUnit(i)->mCurrTexType)
             {
-                case LLTexUnit::TT_TEXTURE:
+                case LLTexUnit::eTextureType::TT_TEXTURE:
                     LL_CONT << "Texture 2D";
                     break;
-                case LLTexUnit::TT_RECT_TEXTURE:
+                case LLTexUnit::eTextureType::TT_RECT_TEXTURE:
                     LL_CONT << "Texture Rectangle";
                     break;
-                case LLTexUnit::TT_CUBE_MAP:
+                case LLTexUnit::eTextureType::TT_CUBE_MAP:
                     LL_CONT << "Cube Map";
                     break;
                 default:

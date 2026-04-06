@@ -64,7 +64,7 @@ private:
     set_t mDepends;
 
 protected:
-    enum EInitState
+    enum class EInitState
     {
         UNINITIALIZED = 0,          // must be default-initialized state
         QUEUED,                     // construction queued, not yet executing
@@ -303,7 +303,7 @@ private:
         using mutex_t = std::recursive_mutex;
         LL_PROFILE_MUTEX_NAMED(mutex_t, mMutex, "Singleton Data"); // LockStatic looks for mMutex
 
-        EInitState      mInitState{UNINITIALIZED};
+        EInitState      mInitState{EInitState::UNINITIALIZED};
         DERIVED_TYPE*   mInstance{nullptr};
     };
     using LockStatic = llthread::LockStatic<SingletonData>;
@@ -322,7 +322,7 @@ private:
     {
         auto prev_size = LLSingleton_manage_master<DERIVED_TYPE>().get_initializing_size();
         // Any getInstance() calls after this point are from within constructor
-        lk->mInitState = CONSTRUCTING;
+        lk->mInitState = EInitState::CONSTRUCTING;
         try
         {
             lk->mInstance = new DERIVED_TYPE(std::forward<Args>(args)...);
@@ -339,20 +339,20 @@ private:
             // There isn't a separate EInitState value meaning "we attempted
             // to construct this LLSingleton subclass but could not," so use
             // DELETED. That seems slightly more appropriate than UNINITIALIZED.
-            lk->mInitState = DELETED;
+            lk->mInitState = EInitState::DELETED;
             // propagate the exception
             throw;
         }
 
         // Any getInstance() calls after this point are from within initSingleton()
-        lk->mInitState = INITIALIZING;
+        lk->mInitState = EInitState::INITIALIZING;
         try
         {
             // initialize singleton after constructing it so that it can
             // reference other singletons which in turn depend on it, thus
             // breaking cyclic dependencies
             lk->mInstance->initSingleton();
-            lk->mInitState = INITIALIZED;
+            lk->mInitState = EInitState::INITIALIZED;
 
             // pop this off stack of initializing singletons
             pop_initializing(lk->mInstance);
@@ -424,7 +424,7 @@ protected:
         // pointers in the MasterList.
         LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         lk->mInstance  = nullptr;
-        lk->mInitState = DELETED;
+        lk->mInitState = EInitState::DELETED;
 
         // Remove this instance from the master list.
         LLSingleton_manage_master<DERIVED_TYPE>().remove(this);
@@ -511,7 +511,7 @@ public:
 
             switch (lk->mInitState)
             {
-            case CONSTRUCTING:
+            case EInitState::CONSTRUCTING:
                 // here if DERIVED_TYPE's constructor (directly or indirectly)
                 // calls DERIVED_TYPE::getInstance()
                 logerrs({"Tried to access singleton ",
@@ -519,25 +519,25 @@ public:
                         " from singleton constructor!"});
                 return nullptr;
 
-            case INITIALIZING:
+            case EInitState::INITIALIZING:
                 // here if DERIVED_TYPE::initSingleton() (directly or indirectly)
                 // calls DERIVED_TYPE::getInstance(): go ahead and allow it
-            case INITIALIZED:
+            case EInitState::INITIALIZED:
                 // normal subsequent calls
                 // record the dependency, if any: check if we got here from another
                 // LLSingleton's constructor or initSingleton() method
                 capture_dependency(lk->mInstance);
                 return lk->mInstance;
 
-            case DELETED:
+            case EInitState::DELETED:
                 // called after deleteSingleton()
                 logwarns({"Trying to access deleted singleton ",
                          classname<DERIVED_TYPE>(),
                          " -- creating new instance"});
                 // fall through
                 [[fallthrough]];
-            case UNINITIALIZED:
-            case QUEUED:
+            case EInitState::UNINITIALIZED:
+            case EInitState::QUEUED:
                 // QUEUED means some secondary thread has already requested an
                 // instance, but for present purposes that's semantically
                 // identical to UNINITIALIZED: either way, we must ourselves
@@ -557,7 +557,7 @@ public:
 
             // Here we need to construct a new instance, but we're on a secondary
             // thread.
-            lk->mInitState = QUEUED;
+            lk->mInitState = EInitState::QUEUED;
         } // unlock 'lk'
 
         // Per the comment block above, dispatch to the main thread.
@@ -598,7 +598,7 @@ public:
     {
         // defend any access to sData from racing threads
         LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
-        return lk->mInitState == INITIALIZED;
+        return lk->mInitState == EInitState::INITIALIZED;
     }
 
     // Has this singleton been deleted? This can be useful during shutdown
@@ -608,7 +608,7 @@ public:
     {
         // defend any access to sData from racing threads
         LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
-        return lk->mInitState == DELETED;
+        return lk->mInitState == EInitState::DELETED;
     }
 };
 
@@ -648,7 +648,7 @@ private:
         // mInitState already set.
         LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         // For organizational purposes this function shouldn't be called twice
-        if (lk->mInitState != super::UNINITIALIZED)
+        if (lk->mInitState != super::EInitState::UNINITIALIZED)
         {
             super::logerrs({"Tried to initialize singleton ",
                            super::template classname<DERIVED_TYPE>(),
@@ -668,7 +668,7 @@ private:
             // on secondary thread, dispatch to main thread --
             // set state so we catch any other calls before the main thread
             // picks up the task
-            lk->mInitState = super::QUEUED;
+            lk->mInitState = super::EInitState::QUEUED;
             // very important to unlock here so main thread can actually process
             lk.unlock();
             super::loginfos({super::template classname<DERIVED_TYPE>(),
@@ -714,27 +714,27 @@ public:
 
         switch (lk->mInitState)
         {
-        case super::UNINITIALIZED:
-        case super::QUEUED:
+        case super::EInitState::UNINITIALIZED:
+        case super::EInitState::QUEUED:
             super::logerrs({"Uninitialized param singleton ",
                            super::template classname<DERIVED_TYPE>()});
             break;
 
-        case super::CONSTRUCTING:
+        case super::EInitState::CONSTRUCTING:
             super::logerrs({"Tried to access param singleton ",
                            super::template classname<DERIVED_TYPE>(),
                            " from singleton constructor!"});
             break;
 
-        case super::INITIALIZING:
+        case super::EInitState::INITIALIZING:
             // As with LLSingleton, explicitly permit circular calls from
             // within initSingleton()
-        case super::INITIALIZED:
+        case super::EInitState::INITIALIZED:
             // for any valid call, capture dependencies
             super::capture_dependency(lk->mInstance);
             return lk->mInstance;
 
-        case super::DELETED:
+        case super::EInitState::DELETED:
             super::logerrs({"Trying to access deleted param singleton ",
                            super::template classname<DERIVED_TYPE>()});
             break;

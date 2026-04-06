@@ -1323,7 +1323,7 @@ void LLViewerFetchedTexture::setForSculpt()
     if(isForSculptOnly() && hasGLTexture() && !getBoundRecently())
     {
         destroyGLTexture(); //sculpt image does not need gl texture.
-        mTextureState = ACTIVE;
+        mTextureState = LLGLTextureState::ACTIVE;
     }
     setMaxVirtualSizeResetInterval(MAX_INTERVAL);
 }
@@ -1335,7 +1335,7 @@ bool LLViewerFetchedTexture::isForSculptOnly() const
 
 bool LLViewerFetchedTexture::isDeleted()
 {
-    return mTextureState == DELETED;
+    return mTextureState == LLGLTextureState::DELETED;
 }
 
 bool LLViewerFetchedTexture::isFullyLoaded() const

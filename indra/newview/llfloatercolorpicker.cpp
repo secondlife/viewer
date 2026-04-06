@@ -150,7 +150,7 @@ void LLFloaterColorPicker::createUI ()
     }
     mRGBImage = LLViewerTextureManager::getLocalTexture( (LLImageRaw*)raw, false );
     gGL.getTexUnit(0)->bind(mRGBImage);
-    mRGBImage->setAddressMode(LLTexUnit::TAM_CLAMP);
+    mRGBImage->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 
     // create palette
     for ( S32 each = 0; each < numPaletteColumns * numPaletteRows; ++each )

@@ -263,14 +263,14 @@ private:
                                    bool use_mips = false, const LLRect& scale_rect = LLRect::null,
                                    const LLRect& clip_rect = LLRect::null,
                                    LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_UI,
-                                   LLUIImage::EScaleStyle = LLUIImage::SCALE_INNER);
+                                   LLUIImage::EScaleStyle = LLUIImage::EScaleStyle::SCALE_INNER);
     LLPointer<LLUIImage> loadUIImageByID(const LLUUID& id,
                                  bool use_mips = false, const LLRect& scale_rect = LLRect::null,
                                  const LLRect& clip_rect = LLRect::null,
                                  LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_UI,
-                                 LLUIImage::EScaleStyle = LLUIImage::SCALE_INNER);
+                                 LLUIImage::EScaleStyle = LLUIImage::EScaleStyle::SCALE_INNER);
 
-    LLPointer<LLUIImage> loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, bool use_mips = false, const LLRect& scale_rect = LLRect::null, const LLRect& clip_rect = LLRect::null, LLUIImage::EScaleStyle = LLUIImage::SCALE_INNER);
+    LLPointer<LLUIImage> loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, bool use_mips = false, const LLRect& scale_rect = LLRect::null, const LLRect& clip_rect = LLRect::null, LLUIImage::EScaleStyle = LLUIImage::EScaleStyle::SCALE_INNER);
 
 
     struct LLUIImageLoadData

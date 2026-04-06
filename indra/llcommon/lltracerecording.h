@@ -44,7 +44,7 @@ class LLStopWatchControlsMixinCommon
 public:
     virtual ~LLStopWatchControlsMixinCommon() = default;
 
-    enum EPlayState
+    enum class EPlayState
     {
         STOPPED,
         PAUSED,
@@ -59,9 +59,9 @@ public:
     void restart(); // moves to started state, always resetting
     void reset();   // resets
 
-    [[nodiscard]] bool isStarted() const { return mPlayState == STARTED; }
-    [[nodiscard]] bool isPaused() const  { return mPlayState == PAUSED; }
-    [[nodiscard]] bool isStopped() const { return mPlayState == STOPPED; }
+    [[nodiscard]] bool isStarted() const { return mPlayState == EPlayState::STARTED; }
+    [[nodiscard]] bool isPaused() const  { return mPlayState == EPlayState::PAUSED; }
+    [[nodiscard]] bool isStopped() const { return mPlayState == EPlayState::STOPPED; }
 
     [[nodiscard]] EPlayState getPlayState() const { return mPlayState; }
     // force play state to specific value by calling appropriate handle* methods
@@ -69,7 +69,7 @@ public:
 
 protected:
     LLStopWatchControlsMixinCommon()
-    :   mPlayState(STOPPED)
+    :   mPlayState(EPlayState::STOPPED)
     {}
 
 private:
@@ -157,7 +157,7 @@ namespace LLTrace
     :   public LLStopWatchControlsMixin<Recording>
     {
     public:
-        Recording(EPlayState state = LLStopWatchControlsMixinCommon::STOPPED);
+        Recording(EPlayState state = LLStopWatchControlsMixinCommon::EPlayState::STOPPED);
 
         Recording(const Recording& other);
         ~Recording();
@@ -314,7 +314,7 @@ namespace LLTrace
     :   public LLStopWatchControlsMixin<PeriodicRecording>
     {
     public:
-        PeriodicRecording(size_t num_periods, EPlayState state = STOPPED);
+        PeriodicRecording(size_t num_periods, EPlayState state = EPlayState::STOPPED);
         ~PeriodicRecording();
 
         void nextPeriod();

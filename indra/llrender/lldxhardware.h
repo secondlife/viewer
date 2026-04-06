@@ -41,7 +41,7 @@ public:
 
     // WMI can return multiple GPU drivers
     // specify which one to output
-    enum EGPUVendor {
+    enum class EGPUVendor {
         GPU_INTEL,
         GPU_NVIDIA,
         GPU_AMD,

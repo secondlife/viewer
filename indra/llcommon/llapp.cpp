@@ -90,7 +90,7 @@ bool LLApp::sDisableCrashlogger = false;
 
 // static
 // Keeps track of application status
-LLScalarCond<LLApp::EAppStatus> LLApp::sStatus{LLApp::APP_STATUS_STOPPED};
+LLScalarCond<LLApp::EAppStatus> LLApp::sStatus{LLApp::EAppStatus::APP_STATUS_STOPPED};
 LLAppErrorHandler LLApp::sErrorHandler = NULL;
 
 bool gDisconnected = false;
@@ -98,7 +98,7 @@ bool gDisconnected = false;
 LLApp::LLApp()
 {
     // Set our status to running
-    setStatus(APP_STATUS_RUNNING);
+    setStatus(EAppStatus::APP_STATUS_RUNNING);
 
     LLCommon::initClass();
 
@@ -107,7 +107,7 @@ LLApp::LLApp()
     // reference an invalid location with the [] operator.
     mOptions = LLSD::emptyArray();
     LLSD sd;
-    for(int i = 0; i < PRIORITY_COUNT; ++i)
+    for(int i = 0; i < static_cast<int>(OptionPriority::PRIORITY_COUNT); ++i)
     {
         mOptions.append(sd);
     }
@@ -209,7 +209,7 @@ bool LLApp::parseCommandOptions(int argc, char** argv)
 
         commands[name] = value;
     }
-    setOptionData(PRIORITY_COMMAND_LINE, commands);
+    setOptionData(OptionPriority::PRIORITY_COMMAND_LINE, commands);
     return true;
 }
 
@@ -274,7 +274,7 @@ bool LLApp::parseCommandOptions(int argc, wchar_t** wargv)
 
         commands[name] = value;
     }
-    setOptionData(PRIORITY_COMMAND_LINE, commands);
+    setOptionData(OptionPriority::PRIORITY_COMMAND_LINE, commands);
     return true;
 }
 
@@ -288,23 +288,23 @@ void LLApp::manageLiveFile(LLLiveFile* livefile)
 
 bool LLApp::setOptionData(OptionPriority level, LLSD data)
 {
-    if((level < 0)
-       || (level >= PRIORITY_COUNT)
+    if((static_cast<int>(level) < 0)
+       || (level >= OptionPriority::PRIORITY_COUNT)
        || (data.type() != LLSD::TypeMap))
     {
         return false;
     }
-    mOptions[level] = data;
+    mOptions[static_cast<int>(level)] = data;
     return true;
 }
 
 LLSD LLApp::getOptionData(OptionPriority level)
 {
-    if((level < 0) || (level >= PRIORITY_COUNT))
+    if((static_cast<int>(level) < 0) || (level >= OptionPriority::PRIORITY_COUNT))
     {
         return LLSD();
     }
-    return mOptions[level];
+    return mOptions[static_cast<int>(level)];
 }
 
 void LLApp::stepFrame()
@@ -359,10 +359,10 @@ namespace
 
 static std::map<LLApp::EAppStatus, const char*> statusDesc
 {
-    { LLApp::APP_STATUS_RUNNING,  "running" },
-    { LLApp::APP_STATUS_QUITTING, "quitting" },
-    { LLApp::APP_STATUS_STOPPED,  "stopped" },
-    { LLApp::APP_STATUS_ERROR,    "error" }
+    { LLApp::EAppStatus::APP_STATUS_RUNNING,  "running" },
+    { LLApp::EAppStatus::APP_STATUS_QUITTING, "quitting" },
+    { LLApp::EAppStatus::APP_STATUS_STOPPED,  "stopped" },
+    { LLApp::EAppStatus::APP_STATUS_ERROR,    "error" }
 };
 
 } // anonymous namespace
@@ -371,7 +371,7 @@ static std::map<LLApp::EAppStatus, const char*> statusDesc
 void LLApp::setStatus(EAppStatus status)
 {
     auto status_it = statusDesc.find(status);
-    std::string status_text = status_it != statusDesc.end() ? std::string(status_it->second) : std::to_string(status);
+    std::string status_text = status_it != statusDesc.end() ? std::string(status_it->second) : std::to_string(static_cast<int>(status));
     LL_INFOS() << "status: " << status_text << LL_ENDL;
     // notify everyone waiting on sStatus any time its value changes
     sStatus.set_all(status);
@@ -390,7 +390,7 @@ void LLApp::setStatus(EAppStatus status)
 void LLApp::setError()
 {
     // set app status to ERROR
-    setStatus(APP_STATUS_ERROR);
+    setStatus(EAppStatus::APP_STATUS_ERROR);
 }
 
 void LLApp::setDebugFileNames(const std::string &path)
@@ -410,7 +410,7 @@ void LLApp::setQuitting()
     {
         // If we're already exiting, we don't want to reset our state back to quitting.
         LL_INFOS() << "Setting app state to QUITTING" << LL_ENDL;
-        setStatus(APP_STATUS_QUITTING);
+        setStatus(EAppStatus::APP_STATUS_QUITTING);
     }
 }
 
@@ -418,35 +418,35 @@ void LLApp::setQuitting()
 // static
 void LLApp::setStopped()
 {
-    setStatus(APP_STATUS_STOPPED);
+    setStatus(EAppStatus::APP_STATUS_STOPPED);
 }
 
 
 // static
 bool LLApp::isStopped()
 {
-    return (APP_STATUS_STOPPED == sStatus.get());
+    return (EAppStatus::APP_STATUS_STOPPED == sStatus.get());
 }
 
 
 // static
 bool LLApp::isRunning()
 {
-    return (APP_STATUS_RUNNING == sStatus.get());
+    return (EAppStatus::APP_STATUS_RUNNING == sStatus.get());
 }
 
 
 // static
 bool LLApp::isError()
 {
-    return (APP_STATUS_ERROR == sStatus.get());
+    return (EAppStatus::APP_STATUS_ERROR == sStatus.get());
 }
 
 
 // static
 bool LLApp::isQuitting()
 {
-    return (APP_STATUS_QUITTING == sStatus.get());
+    return (EAppStatus::APP_STATUS_QUITTING == sStatus.get());
 }
 
 // static

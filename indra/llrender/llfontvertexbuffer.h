@@ -44,9 +44,9 @@ public:
         S32 begin_offset,
         LLRect rect,
         const LLColor4& color,
-        LLFontGL::HAlign halign = LLFontGL::LEFT, LLFontGL::VAlign valign = LLFontGL::BASELINE,
+        LLFontGL::HAlign halign = LLFontGL::HAlign::LEFT, LLFontGL::VAlign valign = LLFontGL::VAlign::BASELINE,
         U8 style = LLFontGL::NORMAL,
-        LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW,
+        LLFontGL::ShadowType shadow = LLFontGL::ShadowType::NO_SHADOW,
         S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX,
         F32* right_x = NULL,
         bool use_ellipses = false,
@@ -57,9 +57,9 @@ public:
         S32 begin_offset,
         LLRectf rect,
         const LLColor4& color,
-        LLFontGL::HAlign halign = LLFontGL::LEFT, LLFontGL::VAlign valign = LLFontGL::BASELINE,
+        LLFontGL::HAlign halign = LLFontGL::HAlign::LEFT, LLFontGL::VAlign valign = LLFontGL::VAlign::BASELINE,
         U8 style = LLFontGL::NORMAL,
-        LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW,
+        LLFontGL::ShadowType shadow = LLFontGL::ShadowType::NO_SHADOW,
         S32 max_chars = S32_MAX,
         F32* right_x = NULL,
         bool use_ellipses = false,
@@ -70,9 +70,9 @@ public:
         S32 begin_offset,
         F32 x, F32 y,
         const LLColor4& color,
-        LLFontGL::HAlign halign = LLFontGL::LEFT, LLFontGL::VAlign valign = LLFontGL::BASELINE,
+        LLFontGL::HAlign halign = LLFontGL::HAlign::LEFT, LLFontGL::VAlign valign = LLFontGL::VAlign::BASELINE,
         U8 style = LLFontGL::NORMAL,
-        LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW,
+        LLFontGL::ShadowType shadow = LLFontGL::ShadowType::NO_SHADOW,
         S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX,
         F32* right_x = NULL,
         bool use_ellipses = false,
@@ -105,10 +105,10 @@ private:
     F32 mLastX = 0.f;
     F32 mLastY = 0.f;
     LLColor4 mLastColor;
-    LLFontGL::HAlign mLastHalign = LLFontGL::LEFT;
-    LLFontGL::VAlign mLastValign = LLFontGL::BASELINE;
+    LLFontGL::HAlign mLastHalign = LLFontGL::HAlign::LEFT;
+    LLFontGL::VAlign mLastValign = LLFontGL::VAlign::BASELINE;
     U8 mLastStyle = LLFontGL::NORMAL;
-    LLFontGL::ShadowType mLastShadow = LLFontGL::NO_SHADOW;
+    LLFontGL::ShadowType mLastShadow = LLFontGL::ShadowType::NO_SHADOW;
     F32 mLastRightX = 0.f;
 
     // LLFontGL's statics

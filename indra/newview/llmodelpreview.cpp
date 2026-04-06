@@ -3592,7 +3592,7 @@ bool LLModelPreview::render()
                     buffer->setBuffer();
                     buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
 
-                    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
                     gGL.diffuseColor4fv(PREVIEW_EDGE_COL.mV);
                     if (show_edges)
                     {
@@ -3712,7 +3712,7 @@ bool LLModelPreview::render()
                             {
                                 for (size_t i = 0; i < num_models; ++i)
                                 {
-                                    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                                    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
                                     gGL.diffuseColor4fv(PREVIEW_PSYH_FILL_COL.mV);
 
                                     // Zero this variable for an obligatory buffer initialization
@@ -3895,7 +3895,7 @@ bool LLModelPreview::render()
                             model->mSkinInfo.updateHash();
                             LLRenderPass::uploadMatrixPalette(mPreviewAvatar, &model->mSkinInfo);
 
-                            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                            gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
                             if (show_textures)
                             {
@@ -3930,7 +3930,7 @@ bool LLModelPreview::render()
 
                             if (show_edges)
                             {
-                                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                                gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
                                 gGL.diffuseColor4fv(PREVIEW_EDGE_COL.mV);
                                 glLineWidth(PREVIEW_EDGE_WIDTH);
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

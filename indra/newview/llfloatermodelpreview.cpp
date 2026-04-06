@@ -574,7 +574,7 @@ void populate_list_with_overrides(LLScrollListCtrl *listp, const LLJointOverride
     LLScrollListCell::Params cell_params;
     cell_params.font = LLFontGL::getFontSansSerif();
     // Start out right justifying numeric displays
-    cell_params.font_halign = LLFontGL::HCENTER;
+    cell_params.font_halign = LLFontGL::HAlign::HCENTER;
 
     std::map<std::string, LLVector3>::const_iterator map_iter = data.mPosOverrides.begin();
     std::map<std::string, LLVector3>::const_iterator map_end = data.mPosOverrides.end();
@@ -805,7 +805,7 @@ void LLFloaterModelPreview::draw3dPreview()
     }
     gGL.end();
 
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 }
 
 //-----------------------------------------------------------------------------

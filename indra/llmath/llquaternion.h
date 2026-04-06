@@ -135,7 +135,7 @@ public:
     LLVector3   packToVector3() const;                      // Saves space by using the fact that our quaternions are normalized
     void        unpackFromVector3(const LLVector3& vec);    // Saves space by using the fact that our quaternions are normalized
 
-    enum Order {
+    enum class Order {
         XYZ = 0,
         YZX = 1,
         ZXY = 2,

@@ -1079,7 +1079,7 @@ void GLTFSceneManager::renderDebug()
     LLGLDisable cullface(GL_CULL_FACE);
     LLGLEnable blend(GL_BLEND);
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     gPipeline.disableLights();
 
     for (auto& obj : mObjects)

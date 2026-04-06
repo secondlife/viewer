@@ -149,7 +149,7 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool us
 
     mImage = new LLImageGL(resolution, resolution, components, use_mips);
     mImage->setTexName(texname);
-    mImage->setTarget(sTargets[0], LLTexUnit::TT_CUBE_MAP_ARRAY);
+    mImage->setTarget(sTargets[0], LLTexUnit::eTextureType::TT_CUBE_MAP_ARRAY);
 
     mImage->setUseMipMaps(use_mips);
     mImage->setHasMipMaps(use_mips);
@@ -179,16 +179,16 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool us
 
     alloc_tex_image(resolution, resolution, format, count * 6);
 
-    mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
+    mImage->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 
     if (use_mips)
     {
-        mImage->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+        mImage->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_ANISOTROPIC);
         //glGenerateMipmap(GL_TEXTURE_CUBE_MAP_ARRAY);  // <=== latest AMD drivers do not appreciate this method of allocating mipmaps
     }
     else
     {
-        mImage->setFilteringOption(LLTexUnit::TFO_BILINEAR);
+        mImage->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
     }
 
     unbind();
@@ -197,12 +197,12 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool us
 void LLCubeMapArray::bind(S32 stage)
 {
     mTextureStage = stage;
-    gGL.getTexUnit(stage)->bindManual(LLTexUnit::TT_CUBE_MAP_ARRAY, getGLName(), mImage->getUseMipMaps());
+    gGL.getTexUnit(stage)->bindManual(LLTexUnit::eTextureType::TT_CUBE_MAP_ARRAY, getGLName(), mImage->getUseMipMaps());
 }
 
 void LLCubeMapArray::unbind()
 {
-    gGL.getTexUnit(mTextureStage)->unbind(LLTexUnit::TT_CUBE_MAP_ARRAY);
+    gGL.getTexUnit(mTextureStage)->unbind(LLTexUnit::eTextureType::TT_CUBE_MAP_ARRAY);
     mTextureStage = -1;
 }
 

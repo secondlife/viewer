@@ -72,10 +72,10 @@ void load_exr(const std::string& filename)
         U32 texName = 0;
         LLImageGL::generateTextures(1, &texName);
 
-        gEXRImage = new LLImageGL(texName, 4, GL_TEXTURE_2D, GL_RGB16F, GL_RGB16F, GL_FLOAT, LLTexUnit::TAM_CLAMP);
+        gEXRImage = new LLImageGL(texName, 4, GL_TEXTURE_2D, GL_RGB16F, GL_RGB16F, GL_FLOAT, LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         gEXRImage->setHasMipMaps(true);
         gEXRImage->setUseMipMaps(true);
-        gEXRImage->setFilteringOption(LLTexUnit::TFO_TRILINEAR);
+        gEXRImage->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_TRILINEAR);
 
         gGL.getTexUnit(0)->bind(gEXRImage);
 
@@ -87,7 +87,7 @@ void load_exr(const std::string& filename)
 
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
     }
     else
@@ -829,7 +829,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         {
             gGaussianProgram.bind();
             gGaussianProgram.uniform1f(resScale, 1.f / (mProbeResolution * 2));
-            S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+            S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::eTextureType::TT_TEXTURE);
 
             // horizontal
             gGaussianProgram.uniform2f(direction, 1.f, 0.f);
@@ -851,7 +851,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         S32 mips = (S32)(log2((F32)mProbeResolution) + 0.5f);
 
         gReflectionMipProgram.bind();
-        S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+        S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::eTextureType::TT_TEXTURE);
 
         for (int i = 0; i < mMipChain.size(); ++i)
         {
@@ -894,7 +894,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         gGL.matrixMode(gGL.MM_MODELVIEW);
         gGL.popMatrix();
 
-        gGL.getTexUnit(diffuseChannel)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(diffuseChannel)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gReflectionMipProgram.unbind();
     }
 
@@ -909,7 +909,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             gRadianceGenProgram.bind();
             mVertexBuffer->setBuffer();
 
-            S32 channel = gRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+            S32 channel = gRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::eTextureType::TT_CUBE_MAP_ARRAY);
             mTexture->bind(channel);
             gRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
@@ -955,7 +955,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         {
             //generate irradiance map
             gIrradianceGenProgram.bind();
-            S32 channel = gIrradianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+            S32 channel = gIrradianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::eTextureType::TT_CUBE_MAP_ARRAY);
             mTexture->bind(channel);
 
             gIrradianceGenProgram.uniform1i(sSourceIdx, sourceIdx);

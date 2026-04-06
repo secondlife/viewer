@@ -131,7 +131,7 @@ public:
             sort_column("sort_column"),
             sort_direction("sort_direction"),
             sort_ascending("sort_ascending", true),
-            halign("halign", LLFontGL::LEFT)
+            halign("halign", LLFontGL::HAlign::LEFT)
         {
             // default choice to "dynamic_width"
             changeDefault(width.dynamic_width, true);

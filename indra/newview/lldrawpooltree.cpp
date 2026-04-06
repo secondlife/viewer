@@ -47,7 +47,7 @@ LLDrawPoolTree::LLDrawPoolTree(LLViewerTexture *texturep) :
     LLFacePool(POOL_TREE),
     mTexturep(texturep)
 {
-    mTexturep->setAddressMode(LLTexUnit::TAM_WRAP);
+    mTexturep->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_WRAP);
 }
 
 //============================================

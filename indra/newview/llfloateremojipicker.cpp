@@ -107,10 +107,10 @@ public:
             x,                               // x
             y,                               // y
             LLColor4::white,                 // color
-            LLFontGL::LEFT,                  // halign
-            LLFontGL::VCENTER,               // valign
+            LLFontGL::HAlign::LEFT,                  // halign
+            LLFontGL::VAlign::VCENTER,               // valign
             LLFontGL::NORMAL,                // style
-            LLFontGL::DROP_SHADOW_SOFT,      // shadow
+            LLFontGL::ShadowType::DROP_SHADOW_SOFT,      // shadow
             static_cast<S32>(mText.size())); // max_chars
     }
 
@@ -144,10 +144,10 @@ public:
             x,                          // x
             y,                          // y
             LLColor4::white,            // color
-            LLFontGL::HCENTER,          // halign
-            LLFontGL::VCENTER,          // valign
+            LLFontGL::HAlign::HCENTER,          // halign
+            LLFontGL::VAlign::VCENTER,          // valign
             LLFontGL::NORMAL,           // style
-            LLFontGL::DROP_SHADOW_SOFT, // shadow
+            LLFontGL::ShadowType::DROP_SHADOW_SOFT, // shadow
             1);                         // max_chars
     }
 
@@ -216,10 +216,10 @@ protected:
             x,                          // x
             y,                          // y
             LLColor4::white,            // color
-            LLFontGL::HCENTER,          // halign
-            LLFontGL::VCENTER,          // valign
+            LLFontGL::HAlign::HCENTER,          // halign
+            LLFontGL::VAlign::VCENTER,          // valign
             LLFontGL::NORMAL,           // style
-            LLFontGL::DROP_SHADOW_SOFT, // shadow
+            LLFontGL::ShadowType::DROP_SHADOW_SOFT, // shadow
             1,                          // max_chars
             max_pixels);                // max_pixels
     }
@@ -238,10 +238,10 @@ protected:
                 x0,                            // x
                 y,                             // y
                 color,                         // color
-                LLFontGL::LEFT,                // halign
-                LLFontGL::VCENTER,             // valign
+                LLFontGL::HAlign::LEFT,                // halign
+                LLFontGL::VAlign::VCENTER,             // valign
                 LLFontGL::NORMAL,              // style
-                LLFontGL::DROP_SHADOW_SOFT,    // shadow
+                LLFontGL::ShadowType::DROP_SHADOW_SOFT,    // shadow
                 static_cast<S32>(text.size()), // max_chars
                 (S32)x1);                      // max_pixels
             F32 dx = font->getWidthF32(text.c_str());
@@ -257,10 +257,10 @@ protected:
                 x0,                            // x
                 y,                             // y
                 LLColor4::yellow6,             // color
-                LLFontGL::LEFT,                // halign
-                LLFontGL::VCENTER,             // valign
+                LLFontGL::HAlign::LEFT,                // halign
+                LLFontGL::VAlign::VCENTER,             // valign
                 LLFontGL::NORMAL,              // style
-                LLFontGL::DROP_SHADOW_SOFT,    // shadow
+                LLFontGL::ShadowType::DROP_SHADOW_SOFT,    // shadow
                 static_cast<S32>(text.size()), // max_chars
                 (S32)x1);                      // max_pixels
             F32 dx = font->getWidthF32(text.c_str());
@@ -276,10 +276,10 @@ protected:
                 x0,                            // x
                 y,                             // y
                 color,                         // color
-                LLFontGL::LEFT,                // halign
-                LLFontGL::VCENTER,             // valign
+                LLFontGL::HAlign::LEFT,                // halign
+                LLFontGL::VAlign::VCENTER,             // valign
                 LLFontGL::NORMAL,              // style
-                LLFontGL::DROP_SHADOW_SOFT,    // shadow
+                LLFontGL::ShadowType::DROP_SHADOW_SOFT,    // shadow
                 static_cast<S32>(text.size()), // max_chars
                 (S32)x1);                      // max_pixels
         }

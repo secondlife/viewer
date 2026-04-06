@@ -84,15 +84,15 @@ void LLCubeMap::initGL()
                     mImages[i]->setExplicitFormat(GL_SRGB8_ALPHA8, GL_RGBA);
                 }
             #endif
-                mImages[i]->setTarget(mTargets[i], LLTexUnit::TT_CUBE_MAP);
+                mImages[i]->setTarget(mTargets[i], LLTexUnit::eTextureType::TT_CUBE_MAP);
                 mRawImages[i] = new LLImageRaw(RESOLUTION, RESOLUTION, 4);
                 if (!mImages[i]->createGLTexture(0, mRawImages[i], texname))
                 {
                     LL_WARNS() << "Failed to create GL texture for environment cubemap face " << i << LL_ENDL;
                 }
 
-                gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, texname);
-                mImages[i]->setAddressMode(LLTexUnit::TAM_CLAMP);
+                gGL.getTexUnit(0)->bindManual(LLTexUnit::eTextureType::TT_CUBE_MAP, texname);
+                mImages[i]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
                 stop_glerror();
             }
             gGL.getTexUnit(0)->disable();
@@ -181,9 +181,9 @@ void LLCubeMap::initReflectionMap(U32 resolution, U32 components)
 
     mImages[0] = new LLImageGL(resolution, resolution, components, true);
     mImages[0]->setTexName(texname);
-    mImages[0]->setTarget(mTargets[0], LLTexUnit::TT_CUBE_MAP);
-    gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, texname);
-    mImages[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
+    mImages[0]->setTarget(mTargets[0], LLTexUnit::eTextureType::TT_CUBE_MAP);
+    gGL.getTexUnit(0)->bindManual(LLTexUnit::eTextureType::TT_CUBE_MAP, texname);
+    mImages[0]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 }
 
 void LLCubeMap::initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& rawimages)
@@ -204,22 +204,22 @@ void LLCubeMap::initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& ra
         llassert(rawimages[i]->getComponents() == components);
 
         mImages[i] = new LLImageGL(resolution, resolution, components, true);
-        mImages[i]->setTarget(mTargets[i], LLTexUnit::TT_CUBE_MAP);
+        mImages[i]->setTarget(mTargets[i], LLTexUnit::eTextureType::TT_CUBE_MAP);
         mRawImages[i] = rawimages[i];
         if (!mImages[i]->createGLTexture(0, mRawImages[i], texname))
         {
             LL_WARNS() << "Failed to create GL texture for environment cubemap face " << i << LL_ENDL;
         }
 
-        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, texname);
-        mImages[i]->setAddressMode(LLTexUnit::TAM_CLAMP);
+        gGL.getTexUnit(0)->bindManual(LLTexUnit::eTextureType::TT_CUBE_MAP, texname);
+        mImages[i]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         stop_glerror();
 
         mImages[i]->setSubImage(mRawImages[i], 0, 0, resolution, resolution);
     }
     enableTexture(0);
     bind();
-    mImages[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+    mImages[0]->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_ANISOTROPIC);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
     gGL.getTexUnit(0)->disable();
@@ -234,7 +234,7 @@ void LLCubeMap::generateMipMaps()
     mImages[0]->setHasMipMaps(true);
     enableTexture(0);
     bind();
-    mImages[0]->setFilteringOption(LLTexUnit::TFO_BILINEAR);
+    mImages[0]->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("cmgmm - glGenerateMipmap");
         glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
@@ -263,7 +263,7 @@ void LLCubeMap::enableTexture(S32 stage)
     mTextureStage = stage;
     if (stage >= 0 && LLCubeMap::sUseCubeMaps)
     {
-        gGL.getTexUnit(stage)->enable(LLTexUnit::TT_CUBE_MAP);
+        gGL.getTexUnit(stage)->enable(LLTexUnit::eTextureType::TT_CUBE_MAP);
     }
 }
 
@@ -279,7 +279,7 @@ void LLCubeMap::disableTexture(void)
         gGL.getTexUnit(mTextureStage)->disable();
         if (mTextureStage == 0)
         {
-            gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(0)->enable(LLTexUnit::eTextureType::TT_TEXTURE);
         }
     }
 }

@@ -2680,7 +2680,7 @@ bool LLPanelPreferenceControls::addControlTableRows(const std::string &filename)
     LLScrollListCell::Params cell_params;
     // init basic cell params
     cell_params.font = LLFontGL::getFontSansSerif();
-    cell_params.font_halign = LLFontGL::LEFT;
+    cell_params.font_halign = LLFontGL::HAlign::LEFT;
     cell_params.column = "";
     cell_params.value = "";
 
@@ -2748,7 +2748,7 @@ void LLPanelPreferenceControls::addControlTableSeparator()
     column_params.value = "menu_separator";
     column_params.column = "lst_action";
     column_params.color = LLColor4(0.f, 0.f, 0.f, 0.7f);
-    column_params.font_halign = LLFontGL::HCENTER;
+    column_params.font_halign = LLFontGL::HAlign::HCENTER;
     separator_params.columns.add(column_params);
     pControlsTable->addRow(separator_params, EAddPosition::ADD_BOTTOM);
 }

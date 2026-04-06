@@ -137,7 +137,7 @@ LLAccordionCtrlTab::LLAccordionCtrlTabHeader::LLAccordionCtrlTabHeader(
     textboxParams.text_color(p.header_text_color());
     textboxParams.follows.flags(FOLLOWS_NONE);
     textboxParams.font( p.font() );
-    textboxParams.font_shadow(LLFontGL::NO_SHADOW);
+    textboxParams.font_shadow(LLFontGL::ShadowType::NO_SHADOW);
     textboxParams.use_ellipses = true;
     textboxParams.bg_visible = false;
     textboxParams.mouse_opaque = false;

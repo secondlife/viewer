@@ -2262,7 +2262,7 @@ void LLGLState::resetTextureStates()
     {
         gGL.getTexUnit(j)->activate();
         glClientActiveTexture(GL_TEXTURE0+j);
-        j == 0 ? gGL.getTexUnit(j)->enable(LLTexUnit::TT_TEXTURE) : gGL.getTexUnit(j)->disable();
+        j == 0 ? gGL.getTexUnit(j)->enable(LLTexUnit::eTextureType::TT_TEXTURE) : gGL.getTexUnit(j)->disable();
     }
 }
 

@@ -363,7 +363,7 @@ void LLSnapshotLivePreview::draw()
                 S32 y1 = 0;
                 S32 y2 = gViewerWindow->getWindowHeightScaled() + TOP_PANEL_HEIGHT;
 
-                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
                 gGL.begin(LLRender::TRIANGLES);
                 {
                     gGL.color4f(1.f, 1.f, 1.f, 0.f);
@@ -827,8 +827,8 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
         mViewerImage[mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), false);
         LLPointer<LLViewerTexture> curr_preview_image = mViewerImage[mCurImageIndex];
         gGL.getTexUnit(0)->bind(curr_preview_image);
-        curr_preview_image->setFilteringOption(getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
-        curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
+        curr_preview_image->setFilteringOption(getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE ? LLTexUnit::eTextureFilterOptions::TFO_ANISOTROPIC : LLTexUnit::eTextureFilterOptions::TFO_POINT);
+        curr_preview_image->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 
 
         if (gSavedSettings.getBOOL("UseFreezeFrame") && mAllowFullScreenPreview)

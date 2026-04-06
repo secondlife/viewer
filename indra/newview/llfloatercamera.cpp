@@ -295,16 +295,16 @@ public:
         S32 row_count = 1 + sizeof(data) / sizeof(*data);
         S32 row_height = (height - VPADDING * 2) / row_count;
         S32 top = height - VPADDING - row_height / 2;
-        mFont->renderUTF8(mTitle, 0, HPADDING, top, LLColor4::white, LLFontGL::LEFT, LLFontGL::VCENTER);
+        mFont->renderUTF8(mTitle, 0, HPADDING, top, LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::VCENTER);
         for (const auto& [label, vector] : data)
         {
             top -= row_height;
-            mFont->renderUTF8(label, 0, HPADDING, top, LLColor4::white, LLFontGL::LEFT, LLFontGL::VCENTER);
+            mFont->renderUTF8(label, 0, HPADDING, top, LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::VCENTER);
             for (S32 i = 0; i < 3; ++i)
             {
                 std::string text = llformat("%.6f", vector[i]);
                 S32 right = width / 4 * (i + 2) - HPADDING;
-                mFont->renderUTF8(text, 0, right, top, LLColor4::white, LLFontGL::RIGHT, LLFontGL::VCENTER);
+                mFont->renderUTF8(text, 0, right, top, LLColor4::white, LLFontGL::HAlign::RIGHT, LLFontGL::VAlign::VCENTER);
             }
         }
     }

@@ -335,19 +335,19 @@ void LLFloaterImagePreview::draw()
 
             if(mImagep.notNull())
             {
-                gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mImagep->getTexName());
+                gGL.getTexUnit(0)->bindManual(LLTexUnit::eTextureType::TT_TEXTURE, mImagep->getTexName());
             }
             else
             {
                 mImagep = LLViewerTextureManager::getLocalTexture(mRawImagep.get(), false) ;
 
                 gGL.getTexUnit(0)->unbind(mImagep->getTarget()) ;
-                gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mImagep->getTexName());
+                gGL.getTexUnit(0)->bindManual(LLTexUnit::eTextureType::TT_TEXTURE, mImagep->getTexName());
                 stop_glerror();
 
-                gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+                gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
 
-                gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+                gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
                 if (mAvatarPreview)
                 {
                     mAvatarPreview->setTexture(mImagep->getTexName());
@@ -374,7 +374,7 @@ void LLFloaterImagePreview::draw()
             }
             gGL.end();
 
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
             stop_glerror();
         }
@@ -411,7 +411,7 @@ void LLFloaterImagePreview::draw()
                 }
                 gGL.end();
 
-                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
             }
         }
     }

@@ -108,7 +108,7 @@ LLWorld::LLWorld() :
 
     mDefaultWaterTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), false);
     gGL.getTexUnit(0)->bind(mDefaultWaterTexturep);
-    mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
+    mDefaultWaterTexturep->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 
     LLViewerRegion::sVOCacheCullingEnabled = gSavedSettings.getBOOL("RequestFullRegionCache") && gSavedSettings.getBOOL("ObjectCacheEnabled");
 }

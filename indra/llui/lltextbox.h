@@ -55,7 +55,7 @@ public:
 
     void setText(const LLStringExplicit& text, const LLStyle::Params& input_params = LLStyle::Params()) override;
 
-    void setRightAlign() { mHAlign = LLFontGL::RIGHT; }
+    void setRightAlign() { mHAlign = LLFontGL::HAlign::RIGHT; }
     void setHAlign(LLFontGL::HAlign align) { mHAlign = align; }
     void setClickedCallback(std::function<void(void*)> cb, void* userdata = nullptr);
 

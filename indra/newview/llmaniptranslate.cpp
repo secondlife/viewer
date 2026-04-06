@@ -171,8 +171,8 @@ void LLManipTranslate::restoreGL()
 
     std::vector<GLuint> d(rez*rez);
 
-    gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, sGridTex->getTexName(), true);
-    gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
+    gGL.getTexUnit(0)->bindManual(LLTexUnit::eTextureType::TT_TEXTURE, sGridTex->getTexName(), true);
+    gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_TRILINEAR);
 
     while (rez >= 1)
     {
@@ -1087,7 +1087,7 @@ void LLManipTranslate::renderSnapGuides()
     F32 max_subdivisions = sGridMaxSubdivisionLevel;//(F32)gSavedSettings.getS32("GridSubdivision");
     F32 line_alpha = gSavedSettings.getF32("GridOpacity");
 
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     LLGLDepthTest gls_depth(GL_TRUE);
     LLGLDisable gls_cull(GL_CULL_FACE);
     LLVector3 translate_axis;
@@ -1447,10 +1447,10 @@ void LLManipTranslate::renderSnapGuides()
                 std::string help_text = LLTrans::getString("manip_hint1");
                 LLColor4 help_text_color = LLColor4::white;
                 help_text_color.mV[VALPHA] = clamp_rescale(mHelpTextTimer.getElapsedTimeF32(), sHelpTextVisibleTime, sHelpTextVisibleTime + sHelpTextFadeTime, line_alpha, 0.f);
-                hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, false);
+                hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, false);
                 help_text = LLTrans::getString("manip_hint2");
                 help_text_pos -= LLViewerCamera::getInstance()->getUpAxis() * mSnapOffsetMeters * 0.2f;
-                hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, false);
+                hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, false);
             }
         }
     }
@@ -1497,7 +1497,7 @@ void LLManipTranslate::renderSnapGuides()
             break;
         }
 
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         highlightIntersection(normal, selection_center, grid_rotation, inner_color);
 
         gGL.pushMatrix();
@@ -1537,7 +1537,7 @@ void LLManipTranslate::renderSnapGuides()
                 //LLGLDisable stencil(GL_STENCIL_TEST);
                 {
                     LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GREATER);
-                    gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, getGridTexName());
+                    gGL.getTexUnit(0)->bindManual(LLTexUnit::eTextureType::TT_TEXTURE, getGridTexName());
                     gGL.flush();
                     gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
                     renderGrid(u,v,tiles,0.9f, 0.9f, 0.9f,a*0.15f);
@@ -1547,11 +1547,11 @@ void LLManipTranslate::renderSnapGuides()
 
                 {
                     //draw black overlay
-                    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
                     renderGrid(u,v,tiles,0.0f, 0.0f, 0.0f,a*0.16f);
 
                     //draw grid top
-                    gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, getGridTexName());
+                    gGL.getTexUnit(0)->bindManual(LLTexUnit::eTextureType::TT_TEXTURE, getGridTexName());
                     renderGrid(u,v,tiles,1,1,1,a);
 
                     gGL.popMatrix();
@@ -1768,7 +1768,7 @@ void LLManipTranslate::renderTranslationHandles()
         relative_camera_dir.normalize();
 
         {
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
             LLGLDisable cull_face(GL_CULL_FACE);
 
             LLColor4 color1;
@@ -1977,7 +1977,7 @@ void LLManipTranslate::renderTranslationHandles()
             }
         }
         {
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
             // Since we draw handles with depth testing off, we need to draw them in the
             // proper depth order.
@@ -2050,7 +2050,7 @@ void LLManipTranslate::renderTranslationHandles()
 
 void LLManipTranslate::renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_size, F32 arrow_size, F32 handle_size, bool reverse_direction)
 {
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     LLGLEnable gls_blend(GL_BLEND);
 
     for (S32 pass = 1; pass <= 2; pass++)

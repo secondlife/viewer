@@ -344,12 +344,12 @@ bool LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
                     }
                     mNeedsCreateTexture = false;
                     gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
-                    mCachedProcessedTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
+                    mCachedProcessedTexture->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
                 }
 
                 gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
                 gl_rect_2d_simple_tex(width, height);
-                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
                 stop_glerror();
             }
         }
@@ -363,7 +363,7 @@ bool LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
     }
     else
     {
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gGL.color4f(0.f, 0.f, 0.f, effective_weight);
         gl_rect_2d_simple(width, height);
     }

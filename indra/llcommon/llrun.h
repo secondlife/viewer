@@ -64,7 +64,7 @@ public:
     /**
      * @brief Enumeration which specifies when to run.
      */
-    enum ERunSchedule
+    enum class ERunSchedule
     {
         // The runnable will run in N seconds
         RUN_IN,

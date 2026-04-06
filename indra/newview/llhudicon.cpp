@@ -174,7 +174,7 @@ void LLHUDIcon::render()
 void LLHUDIcon::setImage(LLViewerTexture* imagep)
 {
     mImagep = imagep;
-    mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
+    mImagep->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 }
 
 void LLHUDIcon::setScale(F32 fraction_of_fov)

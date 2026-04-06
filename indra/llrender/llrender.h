@@ -66,7 +66,7 @@ class LLTexUnit
 public:
     static U32 sWhiteTexture;
 
-    enum eTextureType
+    enum class eTextureType
     {
         TT_TEXTURE = 0,         // Standard 2D Texture
         TT_RECT_TEXTURE,        // Non power of 2 texture
@@ -77,14 +77,14 @@ public:
         TT_NONE,                // No texture type is currently enabled
     };
 
-    enum eTextureAddressMode
+    enum class eTextureAddressMode
     {
         TAM_WRAP = 0,           // Standard 2D Texture
         TAM_MIRROR,             // Non power of 2 texture
         TAM_CLAMP               // No texture type is currently enabled
     };
 
-    enum eTextureFilterOptions
+    enum class eTextureFilterOptions
     {   // Note: If mipmapping or anisotropic are not enabled or supported it should fall back gracefully
         TFO_POINT = 0,          // Equal to: min=point, mag=point, mip=none.
         TFO_BILINEAR,           // Equal to: min=linear, mag=linear, mip=point.
@@ -92,14 +92,14 @@ public:
         TFO_ANISOTROPIC         // Equal to: min=anisotropic, max=anisotropic, mip=linear.
     };
 
-    enum eTextureMipGeneration
+    enum class eTextureMipGeneration
     {
         TMG_NONE = 0,           // Mipmaps are not automatically generated for this texture.
         TMG_AUTO,               // Mipmaps are automatically generated for this texture.
         TMG_MANUAL              // Mipmaps are manually generated for this texture.
     };
 
-    enum eTextureColorSpace
+    enum class eTextureColorSpace
     {
         TCS_LINEAR = 0,
         TCS_SRGB

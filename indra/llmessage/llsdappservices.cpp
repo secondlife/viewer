@@ -54,9 +54,9 @@ public:
     {
         LLSD result;
         LLApp* app = LLApp::instance();
-        for(int ii = 0; ii < LLApp::PRIORITY_COUNT; ++ii)
+        for(int ii = 0; ii < static_cast<int>(LLApp::OptionPriority::PRIORITY_COUNT); ++ii)
         {
-            result.append(app->getOptionData((LLApp::OptionPriority)ii));
+            result.append(app->getOptionData(static_cast<LLApp::OptionPriority>(ii)));
         }
         return result;
     }
@@ -79,7 +79,7 @@ public:
     virtual LLSD simpleGet() const
     {
         return LLApp::instance()->getOptionData(
-            LLApp::PRIORITY_RUNTIME_OVERRIDE);
+            LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE);
     }
 
     virtual void post(
@@ -88,7 +88,7 @@ public:
         const LLSD& input) const
     {
         LLSD result = LLApp::instance()->getOptionData(
-            LLApp::PRIORITY_RUNTIME_OVERRIDE);
+            LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE);
         LLSD::map_const_iterator iter = input.beginMap();
         LLSD::map_const_iterator end = input.endMap();
         for(; iter != end; ++iter)
@@ -96,7 +96,7 @@ public:
             result[(*iter).first] = (*iter).second;
         }
         LLApp::instance()->setOptionData(
-            LLApp::PRIORITY_RUNTIME_OVERRIDE,
+            LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE,
             result);
         response->result(result);
     }
@@ -129,7 +129,7 @@ public:
         {
             // This is for GET and DELETE
             LLSD options = LLApp::instance()->getOptionData(
-                LLApp::PRIORITY_RUNTIME_OVERRIDE);
+                LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE);
             if(options.has(name)) return true;
             else return false;
         }
@@ -141,7 +141,7 @@ public:
     {
         std::string name = context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["option-name"];
         LLSD options = LLApp::instance()->getOptionData(
-            LLApp::PRIORITY_RUNTIME_OVERRIDE);
+            LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE);
         response->result(options[name]);
     }
 
@@ -152,10 +152,10 @@ public:
     {
         std::string name = context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["option-name"];
         LLSD options = LLApp::instance()->getOptionData(
-            LLApp::PRIORITY_RUNTIME_OVERRIDE);
+            LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE);
         options[name] = input;
         LLApp::instance()->setOptionData(
-            LLApp::PRIORITY_RUNTIME_OVERRIDE,
+            LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE,
             options);
         response->result(input);
     }
@@ -166,10 +166,10 @@ public:
     {
         std::string name = context[CONTEXT_REQUEST][CONTEXT_WILDCARD]["option-name"];
         LLSD options = LLApp::instance()->getOptionData(
-            LLApp::PRIORITY_RUNTIME_OVERRIDE);
+            LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE);
         options.erase(name);
         LLApp::instance()->setOptionData(
-            LLApp::PRIORITY_RUNTIME_OVERRIDE,
+            LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE,
             options);
         response->result(LLSD());
     }
@@ -195,19 +195,19 @@ public:
         const LLSD& context) const
     {
         response->result(LLApp::instance()->getOptionData(
-            (LLApp::OptionPriority)PRIORITY));
+            static_cast<LLApp::OptionPriority>(PRIORITY)));
     }
 };
 
-LLHTTPRegistration< LLHTTPConfigPriorityService<LLApp::PRIORITY_COMMAND_LINE> >
+LLHTTPRegistration< LLHTTPConfigPriorityService<static_cast<int>(LLApp::OptionPriority::PRIORITY_COMMAND_LINE)> >
     gHTTPRegistrationCommandLineConfig("/app/config/command-line");
 LLHTTPRegistration<
-    LLHTTPConfigPriorityService<LLApp::PRIORITY_SPECIFIC_CONFIGURATION> >
+    LLHTTPConfigPriorityService<static_cast<int>(LLApp::OptionPriority::PRIORITY_SPECIFIC_CONFIGURATION)> >
     gHTTPRegistrationSpecificConfig("/app/config/specific");
 LLHTTPRegistration<
-    LLHTTPConfigPriorityService<LLApp::PRIORITY_GENERAL_CONFIGURATION> >
+    LLHTTPConfigPriorityService<static_cast<int>(LLApp::OptionPriority::PRIORITY_GENERAL_CONFIGURATION)> >
     gHTTPRegistrationGeneralConfig("/app/config/general");
-LLHTTPRegistration< LLHTTPConfigPriorityService<LLApp::PRIORITY_DEFAULT> >
+LLHTTPRegistration< LLHTTPConfigPriorityService<static_cast<int>(LLApp::OptionPriority::PRIORITY_DEFAULT)> >
     gHTTPRegistrationDefaultConfig("/app/config/default");
 
 class LLHTTPLiveConfigService : public LLHTTPNode
@@ -228,9 +228,9 @@ public:
         LLApp* app = LLApp::instance();
         LLSD::map_const_iterator iter;
         LLSD::map_const_iterator end;
-        for(int ii = LLApp::PRIORITY_COUNT - 1; ii >= 0; --ii)
+        for(int ii = static_cast<int>(LLApp::OptionPriority::PRIORITY_COUNT) - 1; ii >= 0; --ii)
         {
-            LLSD options = app->getOptionData((LLApp::OptionPriority)ii);
+            LLSD options = app->getOptionData(static_cast<LLApp::OptionPriority>(ii));
             iter = options.beginMap();
             end = options.endMap();
             for(; iter != end; ++iter)

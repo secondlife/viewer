@@ -607,7 +607,7 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
         mButton->setRect(LLRect( getRect().getWidth() - llmax(8,arrow_width) - 2 * shadow_size,
                                 rect.mTop, rect.mRight, rect.mBottom));
         mButton->setTabStop(false);
-        mButton->setHAlign(LLFontGL::HCENTER);
+        mButton->setHAlign(LLFontGL::HAlign::HCENTER);
 
         LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
         text_entry_rect.mRight -= llmax(8,arrow_width) + 2 * BTN_DROP_SHADOW;

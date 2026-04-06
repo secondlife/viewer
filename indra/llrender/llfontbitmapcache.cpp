@@ -126,7 +126,7 @@ bool LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyp
 
             // Attach corresponding GL texture. (*TODO: is this needed?)
             gGL.getTexUnit(0)->bind(image_gl);
-            image_gl->setFilteringOption(LLTexUnit::TFO_POINT); // was setMipFilterNearest(true, true);
+            image_gl->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_POINT); // was setMipFilterNearest(true, true);
         }
         else
         {

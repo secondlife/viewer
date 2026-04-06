@@ -109,7 +109,7 @@ LLWindow::LLWindow(LLWindowCallbacks* callbacks, bool fullscreen, U32 flags)
       mIsMouseClipping(false),
       mMinWindowWidth(0),
       mMinWindowHeight(0),
-      mSwapMethod(SWAP_METHOD_UNDEFINED),
+      mSwapMethod(ESwapMethod::SWAP_METHOD_UNDEFINED),
       mHideCursorPermanent(false),
       mFlags(flags),
       mHighSurrogate(0),

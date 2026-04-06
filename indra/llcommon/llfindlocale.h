@@ -35,7 +35,7 @@ struct FL_Locale {
   FL_Variant variant;
 };
 
-enum FL_Success {
+enum class FL_Success {
   /* for some reason we failed to even guess: this should never happen */
   FL_FAILED        = 0,
   /* couldn't query locale -- returning a guess (almost always English) */

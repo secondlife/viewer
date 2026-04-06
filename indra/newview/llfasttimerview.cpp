@@ -403,7 +403,7 @@ void LLFastTimerView::draw()
     legend_panel->localRectToOtherView(legend_panel->getLocalRect(), &mLegendRect, this);
 
     // Draw the window background
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     gl_rect_2d(getLocalRect(), LLColor4(0.f, 0.f, 0.f, 0.25f));
 
     drawHelp(getRect().getHeight() - MARGIN);
@@ -516,7 +516,7 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
     gGL.ortho(-0.05f, 1.05f, -0.05f, 1.05f, -1.0f, 1.0f);
 
     //render charts
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
     buffer.bindTarget();
 
@@ -1010,7 +1010,7 @@ void LLFastTimerView::drawLineGraph()
 {
     LL_PROFILE_ZONE_SCOPED;
     //draw line graph history
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     LLLocalClipRect clip(mGraphRect);
 
     //normalize based on last frame's maximum
@@ -1158,7 +1158,7 @@ void LLFastTimerView::drawLineGraph()
             0,
             x, y,
             LLColor4::white,
-            LLFontGL::LEFT, LLFontGL::BOTTOM);
+            LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM);
     }
 
     //display y-axis range
@@ -1180,7 +1180,7 @@ void LLFastTimerView::drawLineGraph()
     S32 x = mGraphRect.mRight - font->getWidth(axis_label)-5;
     S32 y = mGraphRect.mTop - font->getLineHeight();;
 
-    font->renderUTF8(axis_label, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+    font->renderUTF8(axis_label, 0, x, y, LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 }
 
 void LLFastTimerView::drawLegend()
@@ -1288,7 +1288,7 @@ void LLFastTimerView::drawLegend()
             LLFontGL::getFontMonospace()->renderUTF8(timer_label, 0,
                 x, y,
                 color,
-                LLFontGL::LEFT, LLFontGL::TOP,
+                LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP,
                 is_child_of_hover_item ? LLFontGL::BOLD : LLFontGL::NORMAL);
 
             y -= (TEXT_HEIGHT + 2);
@@ -1344,7 +1344,7 @@ void LLFastTimerView::drawHelp( S32 y )
     y -= (texth + 2);
 
     LLFontGL::getFontMonospace()->renderUTF8(std::string("[Right-Click log selected]"),
-        0, MARGIN, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+        0, MARGIN, y, LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 }
 
 void LLFastTimerView::drawTicks()
@@ -1359,22 +1359,22 @@ void LLFastTimerView::drawTicks()
         tick_label = llformat("%.1f ms |", (F32)ms.value()*.25f);
         x = mBarRect.mLeft + barw/4 - LLFontGL::getFontMonospace()->getWidth(tick_label);
         LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, x, mBarRect.mTop, LLColor4::white,
-            LLFontGL::LEFT, LLFontGL::TOP);
+            LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
         tick_label = llformat("%.1f ms |", (F32)ms.value()*.50f);
         x = mBarRect.mLeft + barw/2 - LLFontGL::getFontMonospace()->getWidth(tick_label);
         LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, x, mBarRect.mTop, LLColor4::white,
-            LLFontGL::LEFT, LLFontGL::TOP);
+            LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
         tick_label = llformat("%.1f ms |", (F32)ms.value()*.75f);
         x = mBarRect.mLeft + (barw*3)/4 - LLFontGL::getFontMonospace()->getWidth(tick_label);
         LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, x, mBarRect.mTop, LLColor4::white,
-            LLFontGL::LEFT, LLFontGL::TOP);
+            LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
         tick_label = llformat( "%d ms |", (U32)ms.value());
         x = mBarRect.mLeft + barw - LLFontGL::getFontMonospace()->getWidth(tick_label);
         LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, x, mBarRect.mTop, LLColor4::white,
-            LLFontGL::LEFT, LLFontGL::TOP);
+            LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     }
 }
 
@@ -1512,7 +1512,7 @@ void LLFastTimerView::drawBars()
         }
 
     }
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 }
 
 F32Seconds LLFastTimerView::updateTimerBarWidths(LLTrace::BlockTimerStatHandle* time_block, TimerBarRow& row, S32 history_index, U32& bar_index)

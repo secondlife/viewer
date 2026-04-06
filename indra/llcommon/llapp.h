@@ -54,7 +54,7 @@ extern bool gDisconnected;
 class LL_COMMON_API LLApp
 {
 public:
-    enum EAppStatus
+    enum class EAppStatus
     {
         APP_STATUS_RUNNING,     // The application is currently running - the default status
         APP_STATUS_QUITTING,    // The application is currently quitting - threads should listen for this and clean up
@@ -77,7 +77,7 @@ public:
      * @brief Enumeration to specify option priorities in highest to
      * lowest order.
      */
-    enum OptionPriority
+    enum class OptionPriority
     {
         PRIORITY_RUNTIME_OVERRIDE,
         PRIORITY_COMMAND_LINE,
@@ -232,7 +232,7 @@ public:
     bool sleep(const std::chrono::duration<Rep, Period>& duration)
     {
         // wait_for_unequal() has the opposite bool return convention
-        return ! sStatus.wait_for_unequal(duration, APP_STATUS_RUNNING);
+        return ! sStatus.wait_for_unequal(duration, EAppStatus::APP_STATUS_RUNNING);
     }
 
     /** @name Error handling methods */

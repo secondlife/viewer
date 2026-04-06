@@ -131,14 +131,14 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRectf& rec
 
     switch(valign)
     {
-    case TOP:
+    case VAlign::TOP:
         y = rect.mTop;
         break;
-    case VCENTER:
+    case VAlign::VCENTER:
         y = rect.getCenterY();
         break;
-    case BASELINE:
-    case BOTTOM:
+    case VAlign::BASELINE:
+    case VAlign::BOTTOM:
         y = rect.mBottom;
         break;
     default:
@@ -164,7 +164,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         return 0;
     }
 
-    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->enable(LLTexUnit::eTextureType::TT_TEXTURE);
 
     S32 scaled_max_pixels = max_pixels == S32_MAX ? S32_MAX : llceil((F32)max_pixels * sScaleX);
 
@@ -173,14 +173,14 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     U8 style_to_add = (style | mFontDescriptor.getStyle()) & ~mFontFreetype->getStyle();
 
     F32 drop_shadow_strength = 0.f;
-    if (shadow != NO_SHADOW)
+    if (shadow != ShadowType::NO_SHADOW)
     {
         F32 luminance;
         color.calcHSL(NULL, NULL, &luminance);
         drop_shadow_strength = clamp_rescale(luminance, 0.35f, 0.6f, 0.f, 1.f);
         if (luminance < 0.35f)
         {
-            shadow = NO_SHADOW;
+            shadow = ShadowType::NO_SHADOW;
         }
     }
 
@@ -219,16 +219,16 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     // use unscaled font metrics here
     switch (valign)
     {
-    case TOP:
+    case VAlign::TOP:
         cur_y -= llceil(mFontFreetype->getAscenderHeight());
         break;
-    case BOTTOM:
+    case VAlign::BOTTOM:
         cur_y += llceil(mFontFreetype->getDescenderHeight());
         break;
-    case VCENTER:
+    case VAlign::VCENTER:
         cur_y -= llceil((llceil(mFontFreetype->getAscenderHeight()) - llceil(mFontFreetype->getDescenderHeight())) / 2.f);
         break;
-    case BASELINE:
+    case VAlign::BASELINE:
         // Baseline, do nothing.
         break;
     default:
@@ -237,12 +237,12 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     switch (halign)
     {
-    case LEFT:
+    case HAlign::LEFT:
         break;
-    case RIGHT:
+    case HAlign::RIGHT:
         cur_x -= llmin(scaled_max_pixels, ll_round(getWidthF32(wstr.c_str(), begin_offset, length) * sScaleX));
         break;
-    case HCENTER:
+    case HAlign::HCENTER:
         cur_x -= llmin(scaled_max_pixels, ll_round(getWidthF32(wstr.c_str(), begin_offset, length) * sScaleX)) / 2;
         break;
     default:
@@ -414,7 +414,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     {
         F32 descender = (F32)llfloor(mFontFreetype->getDescenderHeight());
 
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gGL.begin(LLRender::LINES);
         gGL.vertex2f(start_x, cur_y - descender);
         gGL.vertex2f(cur_x, cur_y - descender);
@@ -430,7 +430,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
                 0,
                 (cur_x - origin.mV[VX]) / sScaleX, (F32)y,
                 color,
-                LEFT, valign,
+                HAlign::LEFT, valign,
                 style_to_add,
                 shadow,
                 S32_MAX, max_pixels,
@@ -446,7 +446,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 S32 LLFontGL::render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color) const
 {
-    return render(text, begin_offset, x, y, color, LEFT, BASELINE, NORMAL, NO_SHADOW);
+    return render(text, begin_offset, x, y, color, HAlign::LEFT, VAlign::BASELINE, NORMAL, ShadowType::NO_SHADOW);
 }
 
 S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, bool use_ellipses, bool use_color) const
@@ -456,7 +456,7 @@ S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y
 
 S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color) const
 {
-    return renderUTF8(text, begin_offset, (F32)x, (F32)y, color, LEFT, BASELINE, NORMAL, NO_SHADOW);
+    return renderUTF8(text, begin_offset, (F32)x, (F32)y, color, HAlign::LEFT, VAlign::BASELINE, NORMAL, ShadowType::NO_SHADOW);
 }
 
 S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, ShadowType shadow) const
@@ -694,17 +694,17 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
     {
         switch (end_on_word_boundary)
         {
-        case ONLY_WORD_BOUNDARIES:
+        case EWordWrapStyle::ONLY_WORD_BOUNDARIES:
             i = start_of_last_word;
             break;
-        case WORD_BOUNDARY_IF_POSSIBLE:
+        case EWordWrapStyle::WORD_BOUNDARY_IF_POSSIBLE:
             if (start_of_last_word != 0)
             {
                 i = start_of_last_word;
             }
             break;
         default:
-        case ANYWHERE:
+        case EWordWrapStyle::ANYWHERE:
             // do nothing
             break;
         }
@@ -996,27 +996,27 @@ std::string LLFontGL::sizeFromFont(const LLFontGL* fontp)
 // static
 std::string LLFontGL::nameFromHAlign(LLFontGL::HAlign align)
 {
-    if (align == LEFT)          return std::string("left");
-    else if (align == RIGHT)    return std::string("right");
-    else if (align == HCENTER)  return std::string("center");
+    if (align == HAlign::LEFT)          return std::string("left");
+    else if (align == HAlign::RIGHT)    return std::string("right");
+    else if (align == HAlign::HCENTER)  return std::string("center");
     else return std::string();
 }
 
 // static
 LLFontGL::HAlign LLFontGL::hAlignFromName(const std::string& name)
 {
-    LLFontGL::HAlign gl_hfont_align = LLFontGL::LEFT;
+    LLFontGL::HAlign gl_hfont_align = LLFontGL::HAlign::LEFT;
     if (name == "left")
     {
-        gl_hfont_align = LLFontGL::LEFT;
+        gl_hfont_align = LLFontGL::HAlign::LEFT;
     }
     else if (name == "right")
     {
-        gl_hfont_align = LLFontGL::RIGHT;
+        gl_hfont_align = LLFontGL::HAlign::RIGHT;
     }
     else if (name == "center")
     {
-        gl_hfont_align = LLFontGL::HCENTER;
+        gl_hfont_align = LLFontGL::HAlign::HCENTER;
     }
     //else leave left
     return gl_hfont_align;
@@ -1025,32 +1025,32 @@ LLFontGL::HAlign LLFontGL::hAlignFromName(const std::string& name)
 // static
 std::string LLFontGL::nameFromVAlign(LLFontGL::VAlign align)
 {
-    if (align == TOP)           return std::string("top");
-    else if (align == VCENTER)  return std::string("center");
-    else if (align == BASELINE) return std::string("baseline");
-    else if (align == BOTTOM)   return std::string("bottom");
+    if (align == VAlign::TOP)           return std::string("top");
+    else if (align == VAlign::VCENTER)  return std::string("center");
+    else if (align == VAlign::BASELINE) return std::string("baseline");
+    else if (align == VAlign::BOTTOM)   return std::string("bottom");
     else return std::string();
 }
 
 // static
 LLFontGL::VAlign LLFontGL::vAlignFromName(const std::string& name)
 {
-    LLFontGL::VAlign gl_vfont_align = LLFontGL::BASELINE;
+    LLFontGL::VAlign gl_vfont_align = LLFontGL::VAlign::BASELINE;
     if (name == "top")
     {
-        gl_vfont_align = LLFontGL::TOP;
+        gl_vfont_align = LLFontGL::VAlign::TOP;
     }
     else if (name == "center")
     {
-        gl_vfont_align = LLFontGL::VCENTER;
+        gl_vfont_align = LLFontGL::VAlign::VCENTER;
     }
     else if (name == "baseline")
     {
-        gl_vfont_align = LLFontGL::BASELINE;
+        gl_vfont_align = LLFontGL::VAlign::BASELINE;
     }
     else if (name == "bottom")
     {
-        gl_vfont_align = LLFontGL::BOTTOM;
+        gl_vfont_align = LLFontGL::VAlign::BOTTOM;
     }
     //else leave baseline
     return gl_vfont_align;
@@ -1299,7 +1299,7 @@ void LLFontGL::drawGlyph(S32& glyph_count, LLVector4a* vertex_out, LLVector2* uv
             glyph_count++;
         }
     }
-    else if (shadow == DROP_SHADOW_SOFT)
+    else if (shadow == ShadowType::DROP_SHADOW_SOFT)
     {
         LLColor4U shadow_color = LLFontGL::sShadowColor;
         shadow_color.mV[VALPHA] = U8(color.mV[VALPHA] * drop_shadow_strength * DROP_SHADOW_SOFT_STRENGTH);
@@ -1332,7 +1332,7 @@ void LLFontGL::drawGlyph(S32& glyph_count, LLVector4a* vertex_out, LLVector2* uv
         renderTriangle(&vertex_out[glyph_count * 6], &uv_out[glyph_count * 6], &colors_out[glyph_count * 6], screen_rect, uv_rect, color, slant_offset);
         glyph_count++;
     }
-    else if (shadow == DROP_SHADOW)
+    else if (shadow == ShadowType::DROP_SHADOW)
     {
         LLColor4U shadow_color = LLFontGL::sShadowColor;
         shadow_color.mV[VALPHA] = U8(color.mV[VALPHA] * drop_shadow_strength);

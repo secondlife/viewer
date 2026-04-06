@@ -131,7 +131,7 @@ class LLGLSLShader
 {
 public:
     // NOTE: Keep gShaderConsts and LLGLSLShader::ShaderConsts_e in sync!
-    enum eShaderConsts
+    enum class eShaderConsts
     {
         SHADER_CONST_CLOUD_MOON_DEPTH
         , SHADER_CONST_STAR_DEPTH
@@ -139,7 +139,7 @@ public:
     };
 
     // enum primarily used to control application sky settings uniforms
-    enum eGroup
+    enum class eGroup
     {
         SG_DEFAULT = 0,  // not sky or water specific
         SG_SKY,  //
@@ -258,20 +258,20 @@ public:
     //if given texture uniform is active in the shader,
     //the corresponding channel will be active upon return
     //returns channel texture is enabled in from [0-MAX)
-    S32 enableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
-    S32 disableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
+    S32 enableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::eTextureType::TT_TEXTURE);
+    S32 disableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::eTextureType::TT_TEXTURE);
 
     // get the texture channel of the given uniform, or -1 if uniform is not used as a texture
     [[nodiscard]] S32 getTextureChannel(S32 uniform) const;
 
     // bindTexture returns the texture unit we've bound the texture to.
     // You can reuse the return value to unbind a texture when required.
-    S32 bindTexture(const std::string& uniform, LLTexture* texture, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
-    S32 bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
-    S32 bindTexture(const std::string& uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::TFO_BILINEAR);
-    S32 bindTexture(S32 uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::TFO_BILINEAR, U32 index = 0);
-    S32 unbindTexture(const std::string& uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
-    S32 unbindTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
+    S32 bindTexture(const std::string& uniform, LLTexture* texture, LLTexUnit::eTextureType mode = LLTexUnit::eTextureType::TT_TEXTURE);
+    S32 bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextureType mode = LLTexUnit::eTextureType::TT_TEXTURE);
+    S32 bindTexture(const std::string& uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
+    S32 bindTexture(S32 uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::eTextureFilterOptions::TFO_BILINEAR, U32 index = 0);
+    S32 unbindTexture(const std::string& uniform, LLTexUnit::eTextureType mode = LLTexUnit::eTextureType::TT_TEXTURE);
+    S32 unbindTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::eTextureType::TT_TEXTURE);
 
     [[nodiscard]] bool link(bool suppress_errors = false);
     void bind();
@@ -310,7 +310,7 @@ public:
     S32 mTotalUniformSize;
     S32 mActiveTextureChannels;
     S32 mShaderLevel;
-    S32 mShaderGroup; // see LLGLSLShader::eGroup
+    eGroup mShaderGroup; // see LLGLSLShader::eGroup
     bool mUniformsDirty;
     LLShaderFeatures mFeatures;
     std::vector< std::pair< std::string, GLenum > > mShaderFiles;

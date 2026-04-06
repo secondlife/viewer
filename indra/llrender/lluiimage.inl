@@ -39,7 +39,7 @@ void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color)
         false,
         mClipRegion,
         mScaleRegion,
-        mScaleStyle == SCALE_INNER);
+        mScaleStyle == EScaleStyle::SCALE_INNER);
 }
 
 void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
@@ -52,7 +52,7 @@ void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& c
         true,
         mClipRegion,
         mScaleRegion,
-        mScaleStyle == SCALE_INNER);
+        mScaleStyle == EScaleStyle::SCALE_INNER);
 }
 
 void LLUIImage::drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const

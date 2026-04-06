@@ -668,7 +668,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
         gDirectInput8 = di8_interface;
     }
 
-    mSwapMethod = SWAP_METHOD_UNDEFINED;
+    mSwapMethod = ESwapMethod::SWAP_METHOD_UNDEFINED;
 
     // No WPARAM yet.
     mLastSizeWParam = 0;
@@ -1681,19 +1681,19 @@ const   S32   max_format  = (S32)num_formats - 1;
             switch (swap_method)
             {
             case WGL_SWAP_EXCHANGE_ARB:
-                mSwapMethod = SWAP_METHOD_EXCHANGE;
+                mSwapMethod = ESwapMethod::SWAP_METHOD_EXCHANGE;
                 LL_DEBUGS("Window") << "Swap Method: Exchange" << LL_ENDL;
                 break;
             case WGL_SWAP_COPY_ARB:
-                mSwapMethod = SWAP_METHOD_COPY;
+                mSwapMethod = ESwapMethod::SWAP_METHOD_COPY;
                 LL_DEBUGS("Window") << "Swap Method: Copy" << LL_ENDL;
                 break;
             case WGL_SWAP_UNDEFINED_ARB:
-                mSwapMethod = SWAP_METHOD_UNDEFINED;
+                mSwapMethod = ESwapMethod::SWAP_METHOD_UNDEFINED;
                 LL_DEBUGS("Window") << "Swap Method: Undefined" << LL_ENDL;
                 break;
             default:
-                mSwapMethod = SWAP_METHOD_UNDEFINED;
+                mSwapMethod = ESwapMethod::SWAP_METHOD_UNDEFINED;
                 LL_DEBUGS("Window") << "Swap Method: Unknown" << LL_ENDL;
                 break;
             }

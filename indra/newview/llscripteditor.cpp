@@ -130,10 +130,10 @@ void LLScriptEditor::drawLineNumbers()
                                  UI_TEXTEDITOR_LINE_NUMBER_MARGIN - 2, // x
                                  (F32)line_bottom, // y
                                  fg_color,
-                                 LLFontGL::RIGHT, // horizontal alignment
-                                 LLFontGL::BOTTOM, // vertical alignment
+                                 LLFontGL::HAlign::RIGHT, // horizontal alignment
+                                 LLFontGL::VAlign::BOTTOM, // vertical alignment
                                  style,
-                                 LLFontGL::NO_SHADOW,
+                                 LLFontGL::ShadowType::NO_SHADOW,
                                  S32_MAX, // max chars
                                  UI_TEXTEDITOR_LINE_NUMBER_MARGIN - 2); // max pixels
                 last_line_num = line.mLineNum;
@@ -203,7 +203,7 @@ void LLScriptEditor::drawSelectionBackground()
     {
         std::vector<LLRect> selection_rects = getSelectionRects();
 
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         const LLColor4& color = mReadOnly ? mReadOnlyFgColor : mFgColor;
         F32 alpha = hasFocus() ? 0.7f : 0.3f;
         alpha *= getDrawContext().mAlpha;

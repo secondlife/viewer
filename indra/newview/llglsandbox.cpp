@@ -254,7 +254,7 @@ void LLWind::renderVectors()
 
     F32 region_width_meters = LLWorld::getInstance()->getRegionWidthInMeters();
 
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.pushMatrix();
     LLVector3 origin_agent;
     origin_agent = gAgent.getPosAgentFromGlobal(mOriginGlobal);
@@ -290,7 +290,7 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
                                    const LLVector3d &east_north_top_global)
 {
     LLGLSUIDefault gls_ui;
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     LLGLDepthTest gls_depth(GL_TRUE);
 
     LLVector3 west_south_bottom_agent = gAgent.getPosAgentFromGlobal(west_south_bottom_global);
@@ -463,7 +463,7 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
     bool has_segments = false;
 
     LLGLSUIDefault gls_ui;
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     LLGLDepthTest gls_depth(GL_TRUE);
 
     gGL.color4f(1.f, 1.f, 0.f, 0.2f);
@@ -715,7 +715,7 @@ void LLViewerObjectList::renderObjectBeacons()
     gUIProgram.bind();
 
     {
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         S32 last_line_width = -1;
         // gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
@@ -745,7 +745,7 @@ void LLViewerObjectList::renderObjectBeacons()
     }
 
     {
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         LLGLDepthTest gls_depth(GL_TRUE);
 
         S32 last_line_width = -1;
@@ -801,7 +801,7 @@ void LLSky::renderSunMoonBeacons(const LLVector3& pos_agent, const LLVector3& di
 {
     LLGLSUIDefault gls_ui;
     gUIProgram.bind();
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
     LLVector3 pos_end;
     for (S32 i = 0; i < 3; ++i)
@@ -862,7 +862,7 @@ public:
         // unbind
         if (texUnit)
         {
-                texUnit->unbind(LLTexUnit::TT_TEXTURE);
+                texUnit->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         }
         // ensure that we delete these textures regardless of how we exit
         LLImageGL::deleteTextures(static_cast<S32>(source.size()), &source[0]);
@@ -872,7 +872,7 @@ public:
     {
         if (texUnit) // should always be there with dummy (-1), but just in case
         {
-            return texUnit->bindManual(LLTexUnit::TT_TEXTURE, source[index]);
+            return texUnit->bindManual(LLTexUnit::eTextureType::TT_TEXTURE, source[index]);
         }
         return false;
     }
@@ -1015,7 +1015,7 @@ F32 gpu_benchmark()
         LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA, res,res,GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
         // disable mipmaps and use point filtering to cause cache misses
         gGL.getTexUnit(0)->setHasMipMaps(false);
-        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_POINT);
 
         if (alloc_timer.getElapsedTimeF32() > time_limit)
         {

@@ -643,7 +643,7 @@ bool LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
     joint->setPosition(info->mPos);
     joint->setDefaultPosition(info->mPos);
     joint->setRotation(mayaQ(info->mRot.mV[VX], info->mRot.mV[VY],
-                             info->mRot.mV[VZ], LLQuaternion::XYZ));
+                             info->mRot.mV[VZ], LLQuaternion::Order::XYZ));
     joint->setScale(info->mScale);
     joint->setDefaultScale(info->mScale);
     joint->setSupport(info->mSupport);

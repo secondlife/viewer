@@ -397,7 +397,7 @@ bool LLPumpIO::sleepChain(F64 seconds)
     if(!key) return false;
     LLRunner::run_handle_t handle = mRunner.addRunnable(
         LLChainSleeper::build(this, key),
-        LLRunner::RUN_IN,
+        LLRunner::ERunSchedule::RUN_IN,
         seconds);
     if(0 == handle) return false;
     return true;

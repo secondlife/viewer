@@ -171,12 +171,12 @@ void LLFloaterMyScripts::setAttachmentDetails(LLSD content)
             element["columns"][0]["column"] = "size";
             element["columns"][0]["value"] = llformat("%d", size);
             element["columns"][0]["font"] = "SANSSERIF";
-            element["columns"][0]["halign"] = LLFontGL::RIGHT;
+            element["columns"][0]["halign"] = static_cast<int>(LLFontGL::HAlign::RIGHT);
 
             element["columns"][1]["column"] = "urls";
             element["columns"][1]["value"] = llformat("%d", urls);
             element["columns"][1]["font"] = "SANSSERIF";
-            element["columns"][1]["halign"] = LLFontGL::RIGHT;
+            element["columns"][1]["halign"] = static_cast<int>(LLFontGL::HAlign::RIGHT);
 
             element["columns"][2]["column"] = "name";
             element["columns"][2]["value"] = name;

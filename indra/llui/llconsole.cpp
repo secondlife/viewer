@@ -225,10 +225,10 @@ void LLConsole::draw()
                             (*seg_it).mColor.mV[VGREEN],
                             (*seg_it).mColor.mV[VBLUE],
                             (*seg_it).mColor.mV[VALPHA]*alpha),
-                        LLFontGL::LEFT,
-                        LLFontGL::BASELINE,
+                        LLFontGL::HAlign::LEFT,
+                        LLFontGL::VAlign::BASELINE,
                         LLFontGL::NORMAL,
-                        LLFontGL::DROP_SHADOW,
+                        LLFontGL::ShadowType::DROP_SHADOW,
                         S32_MAX,
                         target_width
                         );
@@ -310,7 +310,7 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
             skip_chars = 0;
         }
 
-        U32 drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, static_cast<S32>(line_end) - paragraph_offset, LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
+        U32 drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, static_cast<S32>(line_end) - paragraph_offset, LLFontGL::EWordWrapStyle::WORD_BOUNDARY_IF_POSSIBLE);
 
         if (drawable != 0)
         {

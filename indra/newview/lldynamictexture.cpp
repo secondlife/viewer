@@ -100,7 +100,7 @@ void LLViewerDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum
         setExplicitFormat(internal_format, primary_format, type_format, swap_bytes);
     }
     createGLTexture(0, raw_image, 0, true, LLGLTexture::DYNAMIC_TEX);
-    setAddressMode((mClamp) ? LLTexUnit::TAM_CLAMP : LLTexUnit::TAM_WRAP);
+    setAddressMode((mClamp) ? LLTexUnit::eTextureAddressMode::TAM_CLAMP : LLTexUnit::eTextureAddressMode::TAM_WRAP);
     mGLTexturep->setGLTextureCreated(false);
 }
 
@@ -122,7 +122,7 @@ void LLViewerDynamicTexture::preRender(bool clear_depth)
      //use the bottom left corner
     mOrigin.set(0, 0);
 
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     // Set up camera
     LLViewerCamera* camera = LLViewerCamera::getInstance();
     mCamera.setOrigin(*camera);

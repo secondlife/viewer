@@ -3334,22 +3334,22 @@ LLSD LLAppViewer::getViewerInfo() const
 
     if (gGLManager.mIsIntel)
     {
-        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::GPU_INTEL);
+        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::EGPUVendor::GPU_INTEL);
     }
     else if (gGLManager.mIsNVIDIA)
     {
-        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::GPU_NVIDIA);
+        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::EGPUVendor::GPU_NVIDIA);
     }
     else if (gGLManager.mIsAMD)
     {
-        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::GPU_AMD);
+        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::EGPUVendor::GPU_AMD);
     }
 
     if (drvinfo.empty())
     {
         // Generic/substitute windows driver? Unknown vendor?
         LL_WARNS("DriverVersion") << "Vendor based driver search failed, searching for any driver" << LL_ENDL;
-        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::GPU_ANY);
+        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::EGPUVendor::GPU_ANY);
     }
 
     if (!drvinfo.empty())

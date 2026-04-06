@@ -64,7 +64,7 @@ Recording& Recording::operator = (const Recording& other)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     // this will allow us to seamlessly start without affecting any data we've acquired from other
-    setPlayState(PAUSED);
+    setPlayState(EPlayState::PAUSED);
 
     const_cast<Recording&>(other).update();
     EPlayState other_play_state = other.getPlayState();
@@ -921,7 +921,7 @@ void ExtendablePeriodicRecording::handleSplitTo(ExtendablePeriodicRecording& oth
 
 PeriodicRecording& get_frame_recording()
 {
-    static thread_local PeriodicRecording sRecording(200, PeriodicRecording::STARTED);
+    static thread_local PeriodicRecording sRecording(200, PeriodicRecording::EPlayState::STARTED);
     return sRecording;
 }
 
@@ -932,16 +932,16 @@ void LLStopWatchControlsMixinCommon::start()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     switch (mPlayState)
     {
-    case STOPPED:
+    case EPlayState::STOPPED:
         handleReset();
         handleStart();
-        mPlayState = STARTED;
+        mPlayState = EPlayState::STARTED;
         break;
-    case PAUSED:
+    case EPlayState::PAUSED:
         handleStart();
-        mPlayState = STARTED;
+        mPlayState = EPlayState::STARTED;
         break;
-    case STARTED:
+    case EPlayState::STARTED:
         break;
     default:
         llassert(false);
@@ -954,14 +954,14 @@ void LLStopWatchControlsMixinCommon::stop()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     switch (mPlayState)
     {
-    case STOPPED:
+    case EPlayState::STOPPED:
         break;
-    case PAUSED:
-        mPlayState = STOPPED;
+    case EPlayState::PAUSED:
+        mPlayState = EPlayState::STOPPED;
         break;
-    case STARTED:
+    case EPlayState::STARTED:
         handleStop();
-        mPlayState = STOPPED;
+        mPlayState = EPlayState::STOPPED;
         break;
     default:
         llassert(false);
@@ -974,14 +974,14 @@ void LLStopWatchControlsMixinCommon::pause()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     switch (mPlayState)
     {
-    case STOPPED:
+    case EPlayState::STOPPED:
         // stay stopped, don't go to pause
         break;
-    case PAUSED:
+    case EPlayState::PAUSED:
         break;
-    case STARTED:
+    case EPlayState::STARTED:
         handleStop();
-        mPlayState = PAUSED;
+        mPlayState = EPlayState::PAUSED;
         break;
     default:
         llassert(false);
@@ -994,14 +994,14 @@ void LLStopWatchControlsMixinCommon::unpause()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     switch (mPlayState)
     {
-    case STOPPED:
+    case EPlayState::STOPPED:
         // stay stopped, don't start
         break;
-    case PAUSED:
+    case EPlayState::PAUSED:
         handleStart();
-        mPlayState = STARTED;
+        mPlayState = EPlayState::STARTED;
         break;
-    case STARTED:
+    case EPlayState::STARTED:
         break;
     default:
         llassert(false);
@@ -1014,15 +1014,15 @@ void LLStopWatchControlsMixinCommon::resume()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     switch (mPlayState)
     {
-    case STOPPED:
+    case EPlayState::STOPPED:
         handleStart();
-        mPlayState = STARTED;
+        mPlayState = EPlayState::STARTED;
         break;
-    case PAUSED:
+    case EPlayState::PAUSED:
         handleStart();
-        mPlayState = STARTED;
+        mPlayState = EPlayState::STARTED;
         break;
-    case STARTED:
+    case EPlayState::STARTED:
         break;
     default:
         llassert(false);
@@ -1035,17 +1035,17 @@ void LLStopWatchControlsMixinCommon::restart()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     switch (mPlayState)
     {
-    case STOPPED:
+    case EPlayState::STOPPED:
         handleReset();
         handleStart();
-        mPlayState = STARTED;
+        mPlayState = EPlayState::STARTED;
         break;
-    case PAUSED:
+    case EPlayState::PAUSED:
         handleReset();
         handleStart();
-        mPlayState = STARTED;
+        mPlayState = EPlayState::STARTED;
         break;
-    case STARTED:
+    case EPlayState::STARTED:
         handleReset();
         break;
     default:
@@ -1065,13 +1065,13 @@ void LLStopWatchControlsMixinCommon::setPlayState( EPlayState state )
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     switch(state)
     {
-    case STOPPED:
+    case EPlayState::STOPPED:
         stop();
         break;
-    case PAUSED:
+    case EPlayState::PAUSED:
         pause();
         break;
-    case STARTED:
+    case EPlayState::STARTED:
         start();
         break;
     default:

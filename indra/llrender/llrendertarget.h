@@ -79,7 +79,7 @@ public:
     // color_fmt - GL color format (e.g. GL_RGB)
     // depth - if true, allocate a depth buffer
     // usage - deprecated, should always be TT_TEXTURE
-    [[nodiscard]] bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth = false, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureMipGeneration generateMipMaps = LLTexUnit::TMG_NONE);
+    [[nodiscard]] bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth = false, LLTexUnit::eTextureType usage = LLTexUnit::eTextureType::TT_TEXTURE, LLTexUnit::eTextureMipGeneration generateMipMaps = LLTexUnit::eTextureMipGeneration::TMG_NONE);
 
     //resize existing attachments to use new resolution and color format
     // CAUTION: if the GL runs out of memory attempting to resize, this render target will be undefined
@@ -148,7 +148,7 @@ public:
 
     [[nodiscard]] U32 getDepth(void) const { return mDepth; }
 
-    void bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options = LLTexUnit::TFO_BILINEAR);
+    void bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options = LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
 
     //flush rendering operations
     //must be called when rendering is complete

@@ -224,7 +224,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
         S32 alpha_ramp = shader.enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
         LLPointer<LLViewerTexture> alpha_ramp_texture = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD_2D);
         gGL.getTexUnit(alpha_ramp)->bind(alpha_ramp_texture);
-        gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+        gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 
         buf->setBuffer();
         for (U32 rj = 0; rj < patch_count; ++rj)
@@ -242,7 +242,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
 
         shader.disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
 
-        gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gGL.getTexUnit(alpha_ramp)->disable();
         gGL.getTexUnit(alpha_ramp)->activate();
 

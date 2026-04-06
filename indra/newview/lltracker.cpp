@@ -615,7 +615,7 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
     LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(pos_global);
 
     LLGLSTracker gls_tracker;
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     LLGLDisable cull_face(GL_CULL_FACE);
     LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 

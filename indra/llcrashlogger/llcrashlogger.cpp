@@ -497,7 +497,7 @@ bool LLCrashLogger::sendCrashLogs()
     LLSD locks = mKeyMaster.getProcessList();
     LLSD newlocks = LLSD::emptyArray();
 
-    LLSD opts = getOptionData(PRIORITY_COMMAND_LINE);
+    LLSD opts = getOptionData(OptionPriority::PRIORITY_COMMAND_LINE);
     LLSD rec;
 
     if ( opts.has("pid") && opts.has("dumpdir") && opts.has("procname") )

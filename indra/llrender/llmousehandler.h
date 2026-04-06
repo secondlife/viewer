@@ -40,7 +40,7 @@ public:
     LLMouseHandler() = default;
     virtual ~LLMouseHandler() = default;
 
-    enum EShowToolTip {
+    enum class EShowToolTip {
         SHOW_NEVER,
         SHOW_IF_NOT_BLOCKED,
         SHOW_ALWAYS,

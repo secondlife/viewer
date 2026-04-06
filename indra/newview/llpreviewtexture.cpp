@@ -200,7 +200,7 @@ void LLPreviewTexture::draw()
     if (!isMinimized())
     {
         LLGLSUIDefault gls_ui;
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         const LLRect& border = mClientRect;
         LLRect interior = mClientRect;
@@ -243,9 +243,9 @@ void LLPreviewTexture::draw()
                 LLFontGL::getFontSansSerif()->renderUTF8(LLTrans::getString("Receiving"), 0,
                     interior.mLeft + 4,
                     interior.mBottom + 4,
-                    LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,
+                    LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM,
                     LLFontGL::NORMAL,
-                    LLFontGL::DROP_SHADOW);
+                    LLFontGL::ShadowType::DROP_SHADOW);
 
                 F32 data_progress = mImage->getDownloadProgress() ;
 
@@ -280,9 +280,9 @@ void LLPreviewTexture::draw()
                 LLFontGL::getFontSansSerif()->renderUTF8(LLTrans::getString("FileSaved"), 0,
                     interior.mLeft + 4,
                     interior.mBottom + 4,
-                    LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,
+                    LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM,
                     LLFontGL::NORMAL,
-                    LLFontGL::DROP_SHADOW);
+                    LLFontGL::ShadowType::DROP_SHADOW);
             }
         }
     }

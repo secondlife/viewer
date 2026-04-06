@@ -125,7 +125,7 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
     LLUI::translate((F32) win_coord.x*1.0f/LLFontGL::sScaleX, (F32) win_coord.y*1.0f/(LLFontGL::sScaleY), -(((F32) win_coord.z*2.f)-1.f));
     F32 right_x;
 
-    font.render(wstr, 0, 0, 1, color, LLFontGL::LEFT, LLFontGL::BASELINE, style, shadow, static_cast<S32>(wstr.length()), 1000, &right_x, /*use_ellipses*/false, /*use_color*/true);
+    font.render(wstr, 0, 0, 1, color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE, style, shadow, static_cast<S32>(wstr.length()), 1000, &right_x, /*use_ellipses*/false, /*use_color*/true);
 
     LLUI::popMatrix();
     gGL.popMatrix();

@@ -73,7 +73,7 @@ void LLSceneView::draw()
     setRect(new_rect);
 
     // Draw the window background
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
 
 
@@ -224,7 +224,7 @@ void LLSceneView::draw()
                                             category[idx], size_domain[0], size_domain[1], total/count, size[idx][count/2], count);
 
             LLFontGL::getFontMonospace()->renderUTF8(label,
-                                            0 , size_rect.mLeft, size_rect.mTop+margin, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+                                            0 , size_rect.mLeft, size_rect.mTop+margin, LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
         }
     }
@@ -289,7 +289,7 @@ void LLSceneView::draw()
                 category[idx], total_visible_triangles[idx]/1024.f, total_triangles[idx]/1024.f, total_visible_bytes[idx]/1024.f);
 
             LLFontGL::getFontMonospace()->renderUTF8(label,
-                                            0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+                                            0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
         }
     }
@@ -355,7 +355,7 @@ void LLSceneView::draw()
                                             category[idx], streaming_domain[0], streaming_domain[1], total/count, total_streaming[idx]);
 
             LLFontGL::getFontMonospace()->renderUTF8(label,
-                                            0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+                                            0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
         }
     }
@@ -421,7 +421,7 @@ void LLSceneView::draw()
                                             category[idx], physics_domain[0], physics_domain[1], total/count, total_physics[idx]);
 
             LLFontGL::getFontMonospace()->renderUTF8(label,
-                                            0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
+                                            0 , tri_rect.mLeft, tri_rect.mTop+margin, LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
         }
     }

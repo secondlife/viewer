@@ -533,7 +533,7 @@ void LLHUDEffectLookAt::render()
 {
     if (sDebugLookAt && mSourceObject.notNull())
     {
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         //LLGLDisable gls_stencil(GL_STENCIL_TEST);
 

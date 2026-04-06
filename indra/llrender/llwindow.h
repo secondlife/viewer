@@ -48,7 +48,7 @@ public:
         S32 mWidth;
         S32 mHeight;
     };
-    enum ESwapMethod
+    enum class ESwapMethod
     {
         SWAP_METHOD_UNDEFINED,
         SWAP_METHOD_EXCHANGE,

@@ -45,7 +45,7 @@ class LLFontRegistry;
 class LLFontGL
 {
 public:
-    enum HAlign
+    enum class HAlign
     {
         // Horizontal location of x,y coord to render.
         LEFT = 0,       // Left align
@@ -53,7 +53,7 @@ public:
         HCENTER = 2,    // Center
     };
 
-    enum VAlign
+    enum class VAlign
     {
         // Vertical location of x,y coord to render.
         TOP = 3,        // Top align
@@ -71,7 +71,7 @@ public:
         UNDERLINE = 0x04
     };
 
-    enum ShadowType
+    enum class ShadowType
     {
         NO_SHADOW,
         DROP_SHADOW,
@@ -94,8 +94,8 @@ public:
     S32 render(const LLWString &text, S32 begin_offset,
                 const LLRect& rect,
                 const LLColor4 &color,
-                HAlign halign = LEFT,  VAlign valign = BASELINE,
-                U8 style = NORMAL, ShadowType shadow = NO_SHADOW,
+                HAlign halign = HAlign::LEFT,  VAlign valign = VAlign::BASELINE,
+                U8 style = NORMAL, ShadowType shadow = ShadowType::NO_SHADOW,
                 S32 max_chars = S32_MAX,
                 F32* right_x=NULL,
                 bool use_ellipses = false,
@@ -104,8 +104,8 @@ public:
     S32 render(const LLWString &text, S32 begin_offset,
                 const LLRectf& rect,
                 const LLColor4 &color,
-                HAlign halign = LEFT,  VAlign valign = BASELINE,
-                U8 style = NORMAL, ShadowType shadow = NO_SHADOW,
+                HAlign halign = HAlign::LEFT,  VAlign valign = VAlign::BASELINE,
+                U8 style = NORMAL, ShadowType shadow = ShadowType::NO_SHADOW,
                 S32 max_chars = S32_MAX,
                 F32* right_x=NULL,
                 bool use_ellipses = false,
@@ -114,8 +114,8 @@ public:
     S32 render(const LLWString &text, S32 begin_offset,
                 F32 x, F32 y,
                 const LLColor4 &color,
-                HAlign halign = LEFT,  VAlign valign = BASELINE,
-                U8 style = NORMAL, ShadowType shadow = NO_SHADOW,
+                HAlign halign = HAlign::LEFT,  VAlign valign = VAlign::BASELINE,
+                U8 style = NORMAL, ShadowType shadow = ShadowType::NO_SHADOW,
                 S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX,
                 F32* right_x=NULL,
                 bool use_ellipses = false,
@@ -126,7 +126,7 @@ public:
     // renderUTF8 does a conversion, so is slower!
     S32 renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign,  VAlign valign, U8 style, ShadowType shadow, S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX,  F32* right_x = NULL, bool use_ellipses = false, bool use_color = true) const;
     S32 renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color) const;
-    S32 renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style = NORMAL, ShadowType shadow = NO_SHADOW) const;
+    S32 renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style = NORMAL, ShadowType shadow = ShadowType::NO_SHADOW) const;
 
     // font metrics - override for LLFontFreetype that returns units of virtual pixels
     F32 getAscenderHeight() const;
@@ -146,13 +146,13 @@ public:
     // The following are called often, frequently with large buffers, so do not use a string interface
 
     // Returns the max number of complete characters from text (up to max_chars) that can be drawn in max_pixels
-    enum EWordWrapStyle
+    enum class EWordWrapStyle
     {
         ONLY_WORD_BOUNDARIES,
         WORD_BOUNDARY_IF_POSSIBLE,
         ANYWHERE
     };
-    S32 maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars = S32_MAX, EWordWrapStyle end_on_word_boundary = ANYWHERE) const;
+    S32 maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars = S32_MAX, EWordWrapStyle end_on_word_boundary = EWordWrapStyle::ANYWHERE) const;
 
     // Returns the index of the first complete characters from text that can be drawn in max_pixels
     // given that the character at start_pos should be the last character (or as close to last as possible).

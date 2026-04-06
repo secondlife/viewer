@@ -724,7 +724,7 @@ inline void draw_real(LLShaderUniforms* shader, F32 value, S32 shader_key)
 
 void LLSettingsVOSky::applyToUniforms(void* ptarget)
 {
-    LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_ANY];
+    LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[static_cast<int>(LLGLSLShader::eGroup::SG_ANY)];
 
     draw_color(shader, getAmbientColor(), LLShaderMgr::AMBIENT);
     draw_color(shader, getBlueDensity(), LLShaderMgr::BLUE_DENSITY);
@@ -753,13 +753,13 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
     bool irradiance_pass = gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass();
 
-    LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_DEFAULT];
+    LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[static_cast<int>(LLGLSLShader::eGroup::SG_DEFAULT)];
     {
         shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, light_direction);
         shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, LLViewerCamera::getInstance()->getOrigin());
     }
 
-    shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_SKY];
+    shader = &((LLShaderUniforms*)ptarget)[static_cast<int>(LLGLSLShader::eGroup::SG_SKY)];
 
     shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, light_direction);
 
@@ -787,7 +787,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
     shader->uniform3fv(LLShaderMgr::CLOUD_COLOR, LLVector3(psky->getCloudColor().mV));
 
-    shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_ANY];
+    shader = &((LLShaderUniforms*)ptarget)[static_cast<int>(LLGLSLShader::eGroup::SG_ANY)];
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mSceneLightStrength);
 
     LLColor3 ambient(getTotalAmbient());
@@ -1066,7 +1066,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
     LLEnvironment& env = LLEnvironment::instance();
 
-    auto group = LLGLSLShader::SG_ANY;
+    auto group = static_cast<int>(LLGLSLShader::eGroup::SG_ANY);
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[group];
 
     {

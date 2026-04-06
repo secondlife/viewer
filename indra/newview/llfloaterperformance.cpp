@@ -325,7 +325,7 @@ void LLFloaterPerformance::populateHUDList()
                     LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(obj->getColumn(1));
                     if (value_text)
                     {
-                        value_text->setAlignment(LLFontGL::HCENTER);
+                        value_text->setAlignment(LLFontGL::HAlign::HCENTER);
                     }
                 }
             }
@@ -416,7 +416,7 @@ void LLFloaterPerformance::populateObjectList()
                         LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(obj->getColumn(1));
                         if (value_text)
                         {
-                            value_text->setAlignment(LLFontGL::HCENTER);
+                            value_text->setAlignment(LLFontGL::HAlign::HCENTER);
                         }
                     }
                 }
@@ -478,7 +478,7 @@ void LLFloaterPerformance::populateNearbyList()
                 LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(av_item->getColumn(1));
                 if (value_text)
                 {
-                    value_text->setAlignment(LLFontGL::HCENTER);
+                    value_text->setAlignment(LLFontGL::HAlign::HCENTER);
                 }
                 LLScrollListText* name_text = dynamic_cast<LLScrollListText*>(av_item->getColumn(2));
                 if (name_text)

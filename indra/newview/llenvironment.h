@@ -241,8 +241,8 @@ public:
     void                        handleEnvironmentPush(LLSD &message);
 
     //cached uniform values from LLSD values
-    LLShaderUniforms mWaterUniforms[LLGLSLShader::SG_COUNT];
-    LLShaderUniforms mSkyUniforms[LLGLSLShader::SG_COUNT];
+    LLShaderUniforms mWaterUniforms[static_cast<size_t>(LLGLSLShader::eGroup::SG_COUNT)];
+    LLShaderUniforms mSkyUniforms[static_cast<size_t>(LLGLSLShader::eGroup::SG_COUNT)];
     // =======================================================================================
 
     class DayInstance: public std::enable_shared_from_this<DayInstance>

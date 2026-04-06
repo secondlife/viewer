@@ -949,7 +949,7 @@ bool LLViewerShaderMgr::loadShadersWater()
             gWaterProgram.addPermutation("HAS_SUN_SHADOW", "1");
         }
 
-        gWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+        gWaterProgram.mShaderGroup = LLGLSLShader::eGroup::SG_WATER;
         gWaterProgram.mShaderLevel = mShaderLevel[SHADER_WATER];
         success = gWaterProgram.createShader();
         llassert(success);
@@ -965,7 +965,7 @@ bool LLViewerShaderMgr::loadShadersWater()
         gUnderWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER));
         gUnderWaterProgram.mShaderFiles.push_back(make_pair("environment/underWaterF.glsl", GL_FRAGMENT_SHADER));
         gUnderWaterProgram.mShaderLevel = mShaderLevel[SHADER_WATER];
-        gUnderWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+        gUnderWaterProgram.mShaderGroup = LLGLSLShader::eGroup::SG_WATER;
         gUnderWaterProgram.clearPermutations();
         if (LLPipeline::sRenderTransparentWater)
         {
@@ -2153,7 +2153,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
     {
         gHazeWaterProgram.mName = "Water Haze Shader";
         gHazeWaterProgram.mShaderFiles.clear();
-        gHazeWaterProgram.mShaderGroup           = LLGLSLShader::SG_WATER;
+        gHazeWaterProgram.mShaderGroup           = LLGLSLShader::eGroup::SG_WATER;
         gHazeWaterProgram.mFeatures.hasSrgb                = true;
         gHazeWaterProgram.mFeatures.calculatesAtmospherics = true;
         gHazeWaterProgram.mFeatures.hasAtmospherics        = true;
@@ -2838,7 +2838,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gEnvironmentMapProgram.mShaderFiles.push_back(make_pair("deferred/skyV.glsl", GL_VERTEX_SHADER));
         gEnvironmentMapProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER));
         gEnvironmentMapProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gEnvironmentMapProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        gEnvironmentMapProgram.mShaderGroup = LLGLSLShader::eGroup::SG_SKY;
 
         success = gEnvironmentMapProgram.createShader();
         llassert(success);
@@ -2856,7 +2856,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyV.glsl", GL_VERTEX_SHADER));
         gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER));
         gDeferredWLSkyProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gDeferredWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        gDeferredWLSkyProgram.mShaderGroup = LLGLSLShader::eGroup::SG_SKY;
 
         add_common_permutations(&gDeferredWLSkyProgram);
 
@@ -2876,8 +2876,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsV.glsl", GL_VERTEX_SHADER));
         gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsF.glsl", GL_FRAGMENT_SHADER));
         gDeferredWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gDeferredWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-        gDeferredWLCloudProgram.addConstant( LLGLSLShader::SHADER_CONST_CLOUD_MOON_DEPTH ); // SL-14113
+        gDeferredWLCloudProgram.mShaderGroup = LLGLSLShader::eGroup::SG_SKY;
+        gDeferredWLCloudProgram.addConstant( LLGLSLShader::eShaderConsts::SHADER_CONST_CLOUD_MOON_DEPTH ); // SL-14113
 
         add_common_permutations(&gDeferredWLCloudProgram);
 
@@ -2897,7 +2897,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLSunProgram.mShaderFiles.push_back(make_pair("deferred/sunDiscV.glsl", GL_VERTEX_SHADER));
         gDeferredWLSunProgram.mShaderFiles.push_back(make_pair("deferred/sunDiscF.glsl", GL_FRAGMENT_SHADER));
         gDeferredWLSunProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gDeferredWLSunProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        gDeferredWLSunProgram.mShaderGroup = LLGLSLShader::eGroup::SG_SKY;
 
         add_common_permutations(&gDeferredWLSunProgram);
 
@@ -2918,8 +2918,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLMoonProgram.mShaderFiles.push_back(make_pair("deferred/moonV.glsl", GL_VERTEX_SHADER));
         gDeferredWLMoonProgram.mShaderFiles.push_back(make_pair("deferred/moonF.glsl", GL_FRAGMENT_SHADER));
         gDeferredWLMoonProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gDeferredWLMoonProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-        gDeferredWLMoonProgram.addConstant( LLGLSLShader::SHADER_CONST_CLOUD_MOON_DEPTH ); // SL-14113
+        gDeferredWLMoonProgram.mShaderGroup = LLGLSLShader::eGroup::SG_SKY;
+        gDeferredWLMoonProgram.addConstant( LLGLSLShader::eShaderConsts::SHADER_CONST_CLOUD_MOON_DEPTH ); // SL-14113
 
         add_common_permutations(&gDeferredWLMoonProgram);
 
@@ -2934,8 +2934,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredStarProgram.mShaderFiles.push_back(make_pair("deferred/starsV.glsl", GL_VERTEX_SHADER));
         gDeferredStarProgram.mShaderFiles.push_back(make_pair("deferred/starsF.glsl", GL_FRAGMENT_SHADER));
         gDeferredStarProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gDeferredStarProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-        gDeferredStarProgram.addConstant( LLGLSLShader::SHADER_CONST_STAR_DEPTH ); // SL-14113
+        gDeferredStarProgram.mShaderGroup = LLGLSLShader::eGroup::SG_SKY;
+        gDeferredStarProgram.addConstant( LLGLSLShader::eShaderConsts::SHADER_CONST_STAR_DEPTH ); // SL-14113
 
         add_common_permutations(&gDeferredStarProgram);
 
@@ -2950,7 +2950,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gNormalMapGenProgram.mShaderFiles.push_back(make_pair("deferred/normgenV.glsl", GL_VERTEX_SHADER));
         gNormalMapGenProgram.mShaderFiles.push_back(make_pair("deferred/normgenF.glsl", GL_FRAGMENT_SHADER));
         gNormalMapGenProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gNormalMapGenProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        gNormalMapGenProgram.mShaderGroup = LLGLSLShader::eGroup::SG_SKY;
         success = gNormalMapGenProgram.createShader();
     }
 

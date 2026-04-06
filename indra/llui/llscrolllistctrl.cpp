@@ -1227,7 +1227,7 @@ LLScrollListItem* LLScrollListCtrl::addSeparator(EAddPosition pos)
     column_params.type = "icon";
     column_params.value = "menu_separator";
     column_params.color = LLColor4(0.f, 0.f, 0.f, 0.7f);
-    column_params.font_halign = LLFontGL::HCENTER;
+    column_params.font_halign = LLFontGL::HAlign::HCENTER;
     separator_params.columns.add(column_params);
     return addRow( separator_params, pos );
 }
@@ -1703,7 +1703,7 @@ void LLScrollListCtrl::draw()
     if (mBackgroundVisible)
     {
         F32 alpha = getCurrentTransparency();
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gl_rect_2d(background, getEnabled() ? mBgWriteableColor.get() % alpha : mBgReadOnlyColor.get() % alpha );
     }
 

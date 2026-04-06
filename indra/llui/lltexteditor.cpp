@@ -1233,7 +1233,7 @@ void LLTextEditor::addChar(llwchar wc)
     {
         deleteSelection(true);
     }
-    else if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
+    else if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
     {
         removeChar(mCursorPos);
     }
@@ -1334,7 +1334,7 @@ void LLTextEditor::addLineBreakChar(bool group_together)
     {
         deleteSelection(true);
     }
-    else if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
+    else if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
     {
         removeChar(mCursorPos);
     }
@@ -2933,7 +2933,7 @@ void LLTextEditor::updatePreedit(const LLWString &preedit_string,
     }
     mPreeditPositions.back() = position;
 
-    if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
+    if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
     {
         mPreeditOverwrittenWString = getWText().substr(insert_preedit_at, mPreeditWString.length());
         removeStringNoUndo(insert_preedit_at, static_cast<S32>(mPreeditWString.length()));
@@ -3100,7 +3100,7 @@ void LLTextEditor::markAsPreedit(S32 position, S32 length)
         mPreeditPositions.clear();
         mPreeditStandouts.clear();
     }
-    if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
+    if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
     {
         mPreeditOverwrittenWString = mPreeditWString;
     }

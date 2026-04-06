@@ -240,7 +240,7 @@ void LLNetMap::draw()
     {
         LLLocalClipRect clip(getLocalRect());
         {
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
             gGL.matrixMode(LLRender::MM_MODELVIEW);
 
@@ -537,7 +537,7 @@ void LLNetMap::draw()
         const F32 arc_end = (horiz_fov / 2.0f) + F_PI_BY_TWO;
         const S32 steps = llmax(1, (S32)((horiz_fov * steps_per_radian) + 0.5f));
 
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         if( rotate_map )
         {

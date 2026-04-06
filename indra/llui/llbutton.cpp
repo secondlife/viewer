@@ -933,7 +933,7 @@ void LLButton::draw()
 
         switch(mImageOverlayAlignment)
         {
-        case LLFontGL::LEFT:
+        case LLFontGL::HAlign::LEFT:
             text_left += overlay_width + mImgOverlayLabelSpace;
             text_width -= overlay_width + mImgOverlayLabelSpace;
             mImageOverlay->draw(
@@ -943,7 +943,7 @@ void LLButton::draw()
                 overlay_height,
                 overlay_color);
             break;
-        case LLFontGL::HCENTER:
+        case LLFontGL::HAlign::HCENTER:
             mImageOverlay->draw(
                 center_x - (overlay_width / 2),
                 center_y - (overlay_height / 2),
@@ -951,7 +951,7 @@ void LLButton::draw()
                 overlay_height,
                 overlay_color);
             break;
-        case LLFontGL::RIGHT:
+        case LLFontGL::HAlign::RIGHT:
             text_right -= overlay_width + mImgOverlayLabelSpace;
             text_width -= overlay_width + mImgOverlayLabelSpace;
             mImageOverlay->draw(
@@ -976,13 +976,13 @@ void LLButton::draw()
         S32 x;
         switch( mHAlign )
         {
-        case LLFontGL::RIGHT:
+        case LLFontGL::HAlign::RIGHT:
             x = text_right;
             break;
-        case LLFontGL::HCENTER:
+        case LLFontGL::HAlign::HCENTER:
             x = text_left + (text_width / 2);
             break;
-        case LLFontGL::LEFT:
+        case LLFontGL::HAlign::LEFT:
         default:
             x = text_left;
             break;
@@ -1002,9 +1002,9 @@ void LLButton::draw()
             (F32)x,
             (F32)(getRect().getHeight() / 2 + mBottomVPad),
             label_color % alpha,
-            mHAlign, LLFontGL::VCENTER,
+            mHAlign, LLFontGL::VAlign::VCENTER,
             LLFontGL::NORMAL,
-            mDropShadowedText ? LLFontGL::DROP_SHADOW_SOFT : LLFontGL::NO_SHADOW,
+            mDropShadowedText ? LLFontGL::ShadowType::DROP_SHADOW_SOFT : LLFontGL::ShadowType::NO_SHADOW,
             S32_MAX, text_width,
             NULL, mUseEllipses, mUseFontColor);
     }
@@ -1166,11 +1166,11 @@ void LLButton::resize(const LLUIString& label)
 
             switch(mImageOverlayAlignment)
             {
-            case LLFontGL::LEFT:
-            case LLFontGL::RIGHT:
+            case LLFontGL::HAlign::LEFT:
+            case LLFontGL::HAlign::RIGHT:
                 min_width += overlay_width + mImgOverlayLabelSpace;
                 break;
-            case LLFontGL::HCENTER:
+            case LLFontGL::HAlign::HCENTER:
                 min_width = llmax(min_width, overlay_width + mLeftHPad + mRightHPad);
                 break;
             default:

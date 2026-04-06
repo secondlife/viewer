@@ -34,7 +34,7 @@
 
 LLStyle::Params::Params()
     : visible("visible", true),
-    drop_shadow("drop_shadow", LLFontGL::NO_SHADOW),
+    drop_shadow("drop_shadow", LLFontGL::ShadowType::NO_SHADOW),
     color("color", LLColor4::black),
     readonly_color("readonly_color", LLColor4::black),
     selected_color("selected_color", LLColor4::black),

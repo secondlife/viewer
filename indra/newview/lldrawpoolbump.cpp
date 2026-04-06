@@ -228,14 +228,14 @@ void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& di
                 cube_map->setMatrix(1);
                 // Make sure that texture coord generation happens for tex unit 1, as that's the one we use for
                 // the cube map in the one pass shiny shaders
-                cube_channel = shader->enableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+                cube_channel = shader->enableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::eTextureType::TT_CUBE_MAP);
                 cube_map->enableTexture(cube_channel);
                 diffuse_channel = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
             }
             else
             {
                 cube_map->setMatrix(0);
-                cube_channel = shader->enableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+                cube_channel = shader->enableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::eTextureType::TT_CUBE_MAP);
                 diffuse_channel = -1;
                 cube_map->enable(cube_channel);
             }
@@ -262,7 +262,7 @@ void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& 
     {
         if (shader_level > 1)
         {
-            shader->disableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+            shader->disableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::eTextureType::TT_CUBE_MAP);
 
             if (LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0)
             {
@@ -312,7 +312,7 @@ void LLDrawPoolBump::beginFullbrightShiny()
         // Make sure that texture coord generation happens for tex unit 1, as that's the one we use for
         // the cube map in the one pass shiny shaders
         gGL.getTexUnit(1)->disable();
-        cube_channel = shader->enableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+        cube_channel = shader->enableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::eTextureType::TT_CUBE_MAP);
         cube_map->enableTexture(cube_channel);
         diffuse_channel = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 
@@ -549,8 +549,8 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
         gDeferredBumpProgram.bind(rigged);
         diffuse_channel = LLGLSLShader::sCurBoundShaderPtr->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
         bump_channel = LLGLSLShader::sCurBoundShaderPtr->enableTexture(LLViewerShaderMgr::BUMP_MAP);
-        gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
-        gGL.getTexUnit(bump_channel)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
+        gGL.getTexUnit(bump_channel)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         U32 type = rigged ? LLRenderPass::PASS_BUMP_RIGGED : LLRenderPass::PASS_BUMP;
         LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type);
@@ -964,7 +964,7 @@ void LLBumpImageList::onSourceUpdated(LLViewerTexture* src, EBumpEffect bump_cod
         // generate mipmap
         gGL.getTexUnit(0)->bind(bump);
         glGenerateMipmap(GL_TEXTURE_2D);
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     }
 
     iter->second = bump; // derefs (and deletes) old image
@@ -1052,7 +1052,7 @@ void LLRenderPass::pushBumpBatch(LLDrawInfo& params, bool texture, bool batch_te
             }
             else
             {
-                gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
             }
         }
     }

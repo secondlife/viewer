@@ -1790,7 +1790,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
     style_params.color = LLColor4::white;
 
     mTentativeLabel->setText(LLTrans::getString("multiple_textures"), style_params);
-    mTentativeLabel->setHAlign(LLFontGL::HCENTER);
+    mTentativeLabel->setHAlign(LLFontGL::HAlign::HCENTER);
     addChild( mTentativeLabel );
 
     LLRect border_rect = getLocalRect();
@@ -2418,9 +2418,9 @@ void LLTextureCtrl::draw()
                 (interior.mLeft+3),
                 (interior.mTop-v_offset),
                 LLColor4::white,
-                LLFontGL::LEFT,
-                LLFontGL::BASELINE,
-                LLFontGL::DROP_SHADOW);
+                LLFontGL::HAlign::LEFT,
+                LLFontGL::VAlign::BASELINE,
+                LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW);
         }
 
         // Optionally show more detailed information.
@@ -2433,17 +2433,17 @@ void LLTextureCtrl::draw()
             v_offset += 12;
             tdesc = llformat("  PK  : %d%%", U32(mTexturep->getDownloadProgress()*100.0));
             font->renderUTF8(tdesc, 0, interior.mLeft+3, interior.mTop-v_offset,
-                             LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
+                             LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW);
 
             v_offset += 12;
             tdesc = llformat("  LVL: %d", mTexturep->getDiscardLevel());
             font->renderUTF8(tdesc, 0, interior.mLeft+3, interior.mTop-v_offset,
-                             LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
+                             LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW);
 
             v_offset += 12;
             tdesc = llformat("  ID  : %s...", (mImageAssetID.asString().substr(0,7)).c_str());
             font->renderUTF8(tdesc, 0, interior.mLeft+3, interior.mTop-v_offset,
-                             LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
+                             LLColor4::white, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW);
         }
     }
 

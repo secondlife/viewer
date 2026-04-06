@@ -78,7 +78,7 @@ public:
         MAX_GL_IMAGE_CATEGORY
     };
 
-    enum LLGLTextureState
+    enum class LLGLTextureState
     {
         DELETED = 0,         //removed from memory
         ACTIVE,              //just being used, can become inactive if not being used for a certain time (10 seconds).
@@ -163,7 +163,7 @@ public:
     /*virtual*/ void setActive() ;
     void forceActive() ;
     void setNoDelete() ;
-    void dontDiscard() { mDontDiscard = 1; mTextureState = NO_DELETE; }
+    void dontDiscard() { mDontDiscard = 1; mTextureState = LLGLTextureState::NO_DELETE; }
     [[nodiscard]] bool getDontDiscard() const { return mDontDiscard; }
     //-----------------
 

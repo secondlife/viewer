@@ -718,24 +718,24 @@ namespace LLInitParam
 
     void TypeValues<LLFontGL::HAlign>::declareValues()
     {
-        declare("left", LLFontGL::LEFT);
-        declare("right", LLFontGL::RIGHT);
-        declare("center", LLFontGL::HCENTER);
+        declare("left", LLFontGL::HAlign::LEFT);
+        declare("right", LLFontGL::HAlign::RIGHT);
+        declare("center", LLFontGL::HAlign::HCENTER);
     }
 
     void TypeValues<LLFontGL::VAlign>::declareValues()
     {
-        declare("top", LLFontGL::TOP);
-        declare("center", LLFontGL::VCENTER);
-        declare("baseline", LLFontGL::BASELINE);
-        declare("bottom", LLFontGL::BOTTOM);
+        declare("top", LLFontGL::VAlign::TOP);
+        declare("center", LLFontGL::VAlign::VCENTER);
+        declare("baseline", LLFontGL::VAlign::BASELINE);
+        declare("bottom", LLFontGL::VAlign::BOTTOM);
     }
 
     void TypeValues<LLFontGL::ShadowType>::declareValues()
     {
-        declare("none", LLFontGL::NO_SHADOW);
-        declare("hard", LLFontGL::DROP_SHADOW);
-        declare("soft", LLFontGL::DROP_SHADOW_SOFT);
+        declare("none", LLFontGL::ShadowType::NO_SHADOW);
+        declare("hard", LLFontGL::ShadowType::DROP_SHADOW);
+        declare("soft", LLFontGL::ShadowType::DROP_SHADOW_SOFT);
     }
 }
 

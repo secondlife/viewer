@@ -71,14 +71,14 @@ LLGLSLShader    gUIProgram;
 LLGLSLShader    gSolidColorProgram;
 
 // NOTE: Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
-const std::array<std::string, LLGLSLShader::NUM_SHADER_CONSTS> gShaderConstsKey =
+const std::array<std::string, static_cast<size_t>(LLGLSLShader::eShaderConsts::NUM_SHADER_CONSTS)> gShaderConstsKey =
 {{
       "LL_SHADER_CONST_CLOUD_MOON_DEPTH"
     , "LL_SHADER_CONST_STAR_DEPTH"
 }};
 
 // NOTE: Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
-const std::array<std::string, LLGLSLShader::NUM_SHADER_CONSTS> gShaderConstsVal =
+const std::array<std::string, static_cast<size_t>(LLGLSLShader::eShaderConsts::NUM_SHADER_CONSTS)> gShaderConstsVal =
 {{
       "0.99998" // SHADER_CONST_CLOUD_MOON_DEPTH // SL-14113
     , "0.99999" // SHADER_CONST_STAR_DEPTH       // SL-14113
@@ -330,7 +330,7 @@ LLGLSLShader::LLGLSLShader()
     mTotalUniformSize(0),
     mActiveTextureChannels(0),
     mShaderLevel(0),
-    mShaderGroup(SG_DEFAULT),
+    mShaderGroup(eGroup::SG_DEFAULT),
     mFeatures(),
     mUniformsDirty(false),
     mTimerQuery(0),
@@ -805,7 +805,7 @@ void LLGLSLShader::addPermutation(std::string name, std::string value)
 
 void LLGLSLShader::addConstant(const LLGLSLShader::eShaderConsts shader_const)
 {
-    addPermutation(gShaderConstsKey[shader_const], gShaderConstsVal[shader_const]);
+    addPermutation(gShaderConstsKey[static_cast<size_t>(shader_const)], gShaderConstsVal[static_cast<size_t>(shader_const)]);
 }
 
 void LLGLSLShader::removePermutation(std::string name)
@@ -1162,7 +1162,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, 
             gGL.getTexUnit(uniform)->bind(texture, true);
         }
         else {
-            bool has_mips = mode == LLTexUnit::TFO_TRILINEAR || mode == LLTexUnit::TFO_ANISOTROPIC;
+            bool has_mips = mode == LLTexUnit::eTextureFilterOptions::TFO_TRILINEAR || mode == LLTexUnit::eTextureFilterOptions::TFO_ANISOTROPIC;
             gGL.getTexUnit(uniform)->bindManual(texture->getUsage(), texture->getTexture(index), has_mips);
         }
 
@@ -1266,18 +1266,18 @@ S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode)
     }
 
     LLTexUnit::eTextureType curr_type = tex_unit->getCurrType();
-    if (curr_type != LLTexUnit::TT_NONE)
+    if (curr_type != LLTexUnit::eTextureType::TT_NONE)
     {
         if (gDebugGL && curr_type != mode)
         {
             if (gDebugSession)
             {
-                gFailLog << "Texture channel " << index << " texture type corrupted. Expected: " << mode << ", Found: " << curr_type << std::endl;
+                gFailLog << "Texture channel " << index << " texture type corrupted. Expected: " << static_cast<int>(mode) << ", Found: " << static_cast<int>(curr_type) << std::endl;
                 ll_fail("LLGLSLShader::disableTexture failed");
             }
             else
             {
-                LL_ERRS() << "Texture channel " << index << " texture type corrupted. Expected: " << mode << ", Found: " << curr_type << LL_ENDL;
+                LL_ERRS() << "Texture channel " << index << " texture type corrupted. Expected: " << static_cast<int>(mode) << ", Found: " << static_cast<int>(curr_type) << LL_ENDL;
             }
         }
         tex_unit->disable();

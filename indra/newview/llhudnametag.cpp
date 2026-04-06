@@ -242,7 +242,7 @@ void LLHUDNameTag::renderText()
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
-    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->enable(LLTexUnit::eTextureType::TT_TEXTURE);
 
     LLColor4 shadow_color(0.f, 0.f, 0.f, 1.f);
     F32 alpha_factor = 1.f;
@@ -328,7 +328,7 @@ void LLHUDNameTag::renderText()
             }
 
             LLColor4 label_color(0.f, 0.f, 0.f, alpha_factor);
-            hud_render_text(segment_iter->getText(), render_position, *fontp, segment_iter->mStyle, LLFontGL::NO_SHADOW, x_offset, y_offset, label_color, false);
+            hud_render_text(segment_iter->getText(), render_position, *fontp, segment_iter->mStyle, LLFontGL::ShadowType::NO_SHADOW, x_offset, y_offset, label_color, false);
         }
     }
 
@@ -355,7 +355,7 @@ void LLHUDNameTag::renderText()
             y_offset -= LINE_PADDING;
 
             U8 style = segment_iter->mStyle;
-            LLFontGL::ShadowType shadow = LLFontGL::DROP_SHADOW;
+            LLFontGL::ShadowType shadow = LLFontGL::ShadowType::DROP_SHADOW;
 
             F32 x_offset;
             if (mTextAlignment== ALIGN_TEXT_CENTER)
@@ -425,7 +425,7 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
                 // "QualityAssurance AssuresQuality1" will end up as "QualityAssurance AssuresQua..." because we are enforcing single line
                 do
                 {
-                    auto segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, static_cast<S32>(wline.length()), LLFontGL::ANYWHERE);
+                    auto segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::ANYWHERE);
                     if (segment_length + line_length < wline.length()) // since we only draw one string, line_length should be 0
                     {
                         // token does does not fit into signle line, need to draw "...".
@@ -433,7 +433,7 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
                         const LLWString dots_pad(utf8str_to_wstring(std::string("....")));
                         S32 elipses_width = (S32)font->getWidthF32(dots_pad.c_str());
                         // truncated string length
-                        segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels - elipses_width, static_cast<S32>(wline.length()), LLFontGL::ANYWHERE);
+                        segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels - elipses_width, static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::ANYWHERE);
                         const LLWString dots(utf8str_to_wstring(std::string("...")));
                         LLHUDTextSegment segment(iter->substr(line_length, segment_length) + dots, style, color, font);
                         mTextSegments.push_back(segment);
@@ -454,7 +454,7 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
                 // "QualityAssurance AssuresQuality 1" will be split into two lines "QualityAssurance" and "AssuresQuality"
                 do
                 {
-                    S32 segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, static_cast<S32>(wline.length()), LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
+                    S32 segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::WORD_BOUNDARY_IF_POSSIBLE);
                     LLHUDTextSegment segment(iter->substr(line_length, segment_length), style, color, font);
                     mTextSegments.push_back(segment);
                     line_length += segment_length;
@@ -493,7 +493,7 @@ void LLHUDNameTag::addLabel(const std::string& label_utf8, F32 max_pixels)
             do
             {
                 S32 segment_length = mFontp->maxDrawableChars(iter->substr(line_length).c_str(),
-                    max_pixels, static_cast<S32>(wstr.length()), LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
+                    max_pixels, static_cast<S32>(wstr.length()), LLFontGL::EWordWrapStyle::WORD_BOUNDARY_IF_POSSIBLE);
                 LLHUDTextSegment segment(iter->substr(line_length, segment_length), LLFontGL::NORMAL, mColor, mFontp);
                 mLabelSegments.push_back(segment);
                 line_length += segment_length;

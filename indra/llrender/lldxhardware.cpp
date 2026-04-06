@@ -158,7 +158,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
             break;               // If quantity less then 1.
         }
 
-        if (vendor != GPU_ANY)
+        if (vendor != EGPUVendor::GPU_ANY)
         {
             VARIANT vtCaptionProp;
             // Might be preferable to check "AdapterCompatibility" here instead of caption.
@@ -184,13 +184,13 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
             bool found = false;
             switch (vendor)
             {
-            case GPU_INTEL:
+            case EGPUVendor::GPU_INTEL:
                 found = caption_str.find("intel") != std::string::npos;
                 break;
-            case GPU_NVIDIA:
+            case EGPUVendor::GPU_NVIDIA:
                 found = caption_str.find("nvidia") != std::string::npos;
                 break;
-            case GPU_AMD:
+            case EGPUVendor::GPU_AMD:
                 found = caption_str.find("amd") != std::string::npos
                         || caption_str.find("ati ") != std::string::npos
                         || caption_str.find("radeon") != std::string::npos;
@@ -239,7 +239,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
         }
         else if (mDriverVersion != str)
         {
-            if (vendor == GPU_ANY)
+            if (vendor == EGPUVendor::GPU_ANY)
             {
                 // Expected from systems with gpus from different vendors
                 LL_INFOS("DriverVersion") << "Multiple video drivers detected. Version of second driver: " << str << LL_ENDL;

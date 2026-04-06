@@ -953,7 +953,7 @@ public:
         {
             const Line& line = *iter;
             LLFontGL::getFontMonospace()->renderUTF8(line.text, 0, (F32)line.x, (F32)line.y, mTextColor,
-                    LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
+                    LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW);
         }
     }
 
@@ -2738,7 +2738,7 @@ void LLViewerWindow::draw()
                         ll_round((getWindowWidthScaled()/2)-100.f),
                         ll_round((getWindowHeightScaled()-60.f)),
             LLColor4( 1.f, 1.f, 1.f, 1.f ),
-            LLFontGL::LEFT, LLFontGL::TOP);
+            LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     }
 
     // Draw all nested UI views.
@@ -2813,7 +2813,7 @@ void LLViewerWindow::draw()
                 ll_round( getWindowWidthScaled() * 0.5f),
                 getWindowHeightScaled() - DIST_FROM_TOP,
                 LLColor4(1, 1, 1, 0.4f),
-                LLFontGL::HCENTER, LLFontGL::TOP);
+                LLFontGL::HAlign::HCENTER, LLFontGL::VAlign::TOP);
         }
 
         LLUI::setScaleFactor(old_scale_factor);
@@ -4174,7 +4174,7 @@ void LLViewerWindow::renderSelections( bool for_gl_pick, bool pick_parcel_walls,
         // Render light for editing
         if (LLSelectMgr::sRenderLightRadius && LLToolMgr::getInstance()->inEdit())
         {
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
             LLGLEnable gls_blend(GL_BLEND);
             LLGLEnable gls_cull(GL_CULL_FACE);
             LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
@@ -5637,8 +5637,8 @@ void LLViewerWindow::drawMouselookInstructions()
         getWorldViewRectScaled().getCenterX(),
         getWorldViewRectScaled().mBottom + INSTRUCTIONS_PAD,
         LLColor4( 1.0f, 1.0f, 1.0f, 0.5f ),
-        LLFontGL::HCENTER, LLFontGL::TOP,
-        LLFontGL::NORMAL,LLFontGL::DROP_SHADOW);
+        LLFontGL::HAlign::HCENTER, LLFontGL::VAlign::TOP,
+        LLFontGL::NORMAL,LLFontGL::ShadowType::DROP_SHADOW);
 }
 
 void* LLViewerWindow::getPlatformWindow() const

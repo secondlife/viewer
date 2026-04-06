@@ -231,11 +231,11 @@ void LLProgressView::drawStartTexture(F32 alpha)
             gGL.scalef(1.f, view_aspect / image_aspect, 1.f);
         }
         gl_rect_2d_simple_tex( getRect().getWidth(), getRect().getHeight() );
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     }
     else
     {
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gGL.color4f(0.f, 0.f, 0.f, 1.f);
         gl_rect_2d(getRect());
     }

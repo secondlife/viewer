@@ -605,22 +605,22 @@ LLQuaternion mayaQ(F32 xRot, F32 yRot, F32 zRot, LLQuaternion::Order order)
     LLQuaternion ret;
     switch( order )
     {
-    case LLQuaternion::XYZ:
+    case LLQuaternion::Order::XYZ:
         ret = xQ * yQ * zQ;
         break;
-    case LLQuaternion::YZX:
+    case LLQuaternion::Order::YZX:
         ret = yQ * zQ * xQ;
         break;
-    case LLQuaternion::ZXY:
+    case LLQuaternion::Order::ZXY:
         ret = zQ * xQ * yQ;
         break;
-    case LLQuaternion::XZY:
+    case LLQuaternion::Order::XZY:
         ret = xQ * zQ * yQ;
         break;
-    case LLQuaternion::YXZ:
+    case LLQuaternion::Order::YXZ:
         ret = yQ * xQ * zQ;
         break;
-    case LLQuaternion::ZYX:
+    case LLQuaternion::Order::ZYX:
         ret = zQ * yQ * xQ;
         break;
     }
@@ -633,22 +633,22 @@ const char *OrderToString( const LLQuaternion::Order order )
     switch( order )
     {
     default:
-    case LLQuaternion::XYZ:
+    case LLQuaternion::Order::XYZ:
         p = "XYZ";
         break;
-    case LLQuaternion::YZX:
+    case LLQuaternion::Order::YZX:
         p = "YZX";
         break;
-    case LLQuaternion::ZXY:
+    case LLQuaternion::Order::ZXY:
         p = "ZXY";
         break;
-    case LLQuaternion::XZY:
+    case LLQuaternion::Order::XZY:
         p = "XZY";
         break;
-    case LLQuaternion::YXZ:
+    case LLQuaternion::Order::YXZ:
         p = "YXZ";
         break;
-    case LLQuaternion::ZYX:
+    case LLQuaternion::Order::ZYX:
         p = "ZYX";
         break;
     }
@@ -658,24 +658,24 @@ const char *OrderToString( const LLQuaternion::Order order )
 LLQuaternion::Order StringToOrder( const char *str )
 {
     if (strncmp(str, "XYZ", 3)==0 || strncmp(str, "xyz", 3)==0)
-        return LLQuaternion::XYZ;
+        return LLQuaternion::Order::XYZ;
 
     if (strncmp(str, "YZX", 3)==0 || strncmp(str, "yzx", 3)==0)
-        return LLQuaternion::YZX;
+        return LLQuaternion::Order::YZX;
 
     if (strncmp(str, "ZXY", 3)==0 || strncmp(str, "zxy", 3)==0)
-        return LLQuaternion::ZXY;
+        return LLQuaternion::Order::ZXY;
 
     if (strncmp(str, "XZY", 3)==0 || strncmp(str, "xzy", 3)==0)
-        return LLQuaternion::XZY;
+        return LLQuaternion::Order::XZY;
 
     if (strncmp(str, "YXZ", 3)==0 || strncmp(str, "yxz", 3)==0)
-        return LLQuaternion::YXZ;
+        return LLQuaternion::Order::YXZ;
 
     if (strncmp(str, "ZYX", 3)==0 || strncmp(str, "zyx", 3)==0)
-        return LLQuaternion::ZYX;
+        return LLQuaternion::Order::ZYX;
 
-    return LLQuaternion::XYZ;
+    return LLQuaternion::Order::XYZ;
 }
 
 void LLQuaternion::getAngleAxis(F32* angle, LLVector3 &vec) const

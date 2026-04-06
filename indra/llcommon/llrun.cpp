@@ -106,11 +106,11 @@ LLRunner::run_handle_t LLRunner::addRunnable(
     LLRunInfo info(handle, runnable, schedule, next_run, seconds);
     switch(schedule)
     {
-    case RUN_IN:
+    case ERunSchedule::RUN_IN:
         // We could optimize this a bit by sorting this on entry.
         mRunOnce.push_back(info);
         break;
-    case RUN_EVERY:
+    case ERunSchedule::RUN_EVERY:
         mRunEvery.push_back(info);
         break;
     default:

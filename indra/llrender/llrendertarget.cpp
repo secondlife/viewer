@@ -65,7 +65,7 @@ LLRenderTarget::LLRenderTarget() :
     mFBO(0),
     mDepth(0),
     mUseDepth(false),
-    mUsage(LLTexUnit::TT_TEXTURE)
+    mUsage(LLTexUnit::eTextureType::TT_TEXTURE)
 {
 }
 
@@ -105,7 +105,7 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
 bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLTexUnit::eTextureType usage, LLTexUnit::eTextureMipGeneration generateMipMaps)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-    llassert(usage == LLTexUnit::TT_TEXTURE);
+    llassert(usage == LLTexUnit::eTextureType::TT_TEXTURE);
     llassert(!isBoundInStack());
 
     resx = llmin(resx, (U32) gGLManager.mGLMaxTextureSize);
@@ -121,7 +121,7 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
 
     mGenerateMipMaps = generateMipMaps;
 
-    if (mGenerateMipMaps != LLTexUnit::TMG_NONE) {
+    if (mGenerateMipMaps != LLTexUnit::eTextureMipGeneration::TMG_NONE) {
         // Calculate the number of mip levels based upon resolution that we should have.
         mMipLevels = 1 + (U32)floor(log10((float)llmax(mResX, mResY)) / log10(2.0));
     }
@@ -246,24 +246,24 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 
     if (offset == 0)
     { //use bilinear filtering on single texture render targets that aren't multisampled
-        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
         stop_glerror();
     }
     else
     { //don't filter data attachments
-        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_POINT);
         stop_glerror();
     }
 
-    if (mUsage != LLTexUnit::TT_RECT_TEXTURE)
+    if (mUsage != LLTexUnit::eTextureType::TT_RECT_TEXTURE)
     {
-        gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_MIRROR);
+        gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::eTextureAddressMode::TAM_MIRROR);
         stop_glerror();
     }
     else
     {
         // ATI doesn't support mirrored repeat for rectangular textures.
-        gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+        gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         stop_glerror();
     }
 
@@ -301,7 +301,7 @@ bool LLRenderTarget::allocateDepth()
     stop_glerror();
     clear_glerror();
     LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
-    gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+    gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_POINT);
 
     sBytesAllocated += mResX*mResY*4;
 
@@ -491,7 +491,7 @@ U32 LLRenderTarget::getNumTextures() const
 
 void LLRenderTarget::bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options)
 {
-    gGL.getTexUnit(channel)->bindManual(mUsage, getTexture(index), filter_options == LLTexUnit::TFO_TRILINEAR || filter_options == LLTexUnit::TFO_ANISOTROPIC);
+    gGL.getTexUnit(channel)->bindManual(mUsage, getTexture(index), filter_options == LLTexUnit::eTextureFilterOptions::TFO_TRILINEAR || filter_options == LLTexUnit::eTextureFilterOptions::TFO_ANISOTROPIC);
     gGL.getTexUnit(channel)->setTextureFilteringOption(filter_options);
 }
 
@@ -503,10 +503,10 @@ void LLRenderTarget::flush()
     llassert(sCurFBO == mFBO);
     llassert(sBoundTarget == this);
 
-    if (mGenerateMipMaps == LLTexUnit::TMG_AUTO)
+    if (mGenerateMipMaps == LLTexUnit::eTextureMipGeneration::TMG_AUTO)
     {
         LL_PROFILE_GPU_ZONE("rt generate mipmaps");
-        bindTexture(0, 0, LLTexUnit::TFO_TRILINEAR);
+        bindTexture(0, 0, LLTexUnit::eTextureFilterOptions::TFO_TRILINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 

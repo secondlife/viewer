@@ -610,7 +610,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textur
             }
             else
             {
-                gGL.getTexUnit(0)->unbindFast(LLTexUnit::TT_TEXTURE);
+                gGL.getTexUnit(0)->unbindFast(LLTexUnit::eTextureType::TT_TEXTURE);
             }
         }
     }

@@ -235,8 +235,8 @@ public:
 
     void            setDisabledSelectedLabelColor( const LLUIColor& c )  { mDisabledSelectedLabelColor = c; }
 
-    void            setImageOverlay(const std::string& image_name, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
-    void            setImageOverlay(const LLUUID& image_id, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
+    void            setImageOverlay(const std::string& image_name, LLFontGL::HAlign alignment = LLFontGL::HAlign::HCENTER, const LLColor4& color = LLColor4::white);
+    void            setImageOverlay(const LLUUID& image_id, LLFontGL::HAlign alignment = LLFontGL::HAlign::HCENTER, const LLColor4& color = LLColor4::white);
     LLPointer<LLUIImage> getImageOverlay() { return mImageOverlay; }
     LLFontGL::HAlign getImageOverlayHAlign() const  { return mImageOverlayAlignment; }
 

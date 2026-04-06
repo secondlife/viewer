@@ -86,14 +86,14 @@ S32 LLFontVertexBuffer::render(
 
     switch (valign)
     {
-    case LLFontGL::TOP:
+    case LLFontGL::VAlign::TOP:
         y = rect.mTop;
         break;
-    case LLFontGL::VCENTER:
+    case LLFontGL::VAlign::VCENTER:
         y = rect.getCenterY();
         break;
-    case LLFontGL::BASELINE:
-    case LLFontGL::BOTTOM:
+    case LLFontGL::VAlign::BASELINE:
+    case LLFontGL::VAlign::BOTTOM:
         y = rect.mBottom;
         break;
     default:
@@ -217,7 +217,7 @@ void LLFontVertexBuffer::genBuffers(
 void LLFontVertexBuffer::renderBuffers()
 {
     gGL.flush(); // deliberately empty pending verts
-    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->enable(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.pushUIMatrix();
 
     gGL.loadUIIdentity();

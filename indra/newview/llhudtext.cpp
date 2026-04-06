@@ -114,7 +114,7 @@ void LLHUDText::renderText()
         return;
     }
 
-    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->enable(LLTexUnit::eTextureType::TT_TEXTURE);
 
     LLGLState gls_blend(GL_BLEND, true);
 
@@ -212,7 +212,7 @@ void LLHUDText::renderText()
             y_offset -= fontp->getLineHeight() - 1; // correction factor to match legacy font metrics
 
             U8 style = segment_iter->mStyle;
-            LLFontGL::ShadowType shadow = LLFontGL::DROP_SHADOW;
+            LLFontGL::ShadowType shadow = LLFontGL::ShadowType::DROP_SHADOW;
 
             F32 x_offset;
             if (mTextAlignment== ALIGN_TEXT_CENTER)
@@ -272,7 +272,7 @@ void LLHUDText::addLine(const std::string &text_utf8,
             do
             {
                 F32 max_pixels = HUD_TEXT_MAX_WIDTH_NO_BUBBLE;
-                S32 segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, static_cast<S32>(wline.length()), LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
+                S32 segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::WORD_BOUNDARY_IF_POSSIBLE);
                 LLHUDTextSegment segment(iter->substr(line_length, segment_length), style, color, font);
                 mTextSegments.push_back(segment);
                 line_length += segment_length;

@@ -318,7 +318,7 @@ void LLWindowShade::displayLatestNotification()
             label_p.rect = LLRect(cur_x, cur_y, cur_x + LINE_EDITOR_WIDTH, cur_y - WIDGET_HEIGHT);
             label_p.initial_value = form_element["text"];
             label_p.text_color = mTextColor;
-            label_p.font_valign = LLFontGL::VCENTER;
+            label_p.font_valign = LLFontGL::VAlign::VCENTER;
             label_p.v_pad = 5;
             LLTextBox* textbox = LLUICtrlFactory::create<LLTextBox>(label_p);
             textbox->reshapeToFitText();

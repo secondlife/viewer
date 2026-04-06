@@ -169,9 +169,9 @@ void LLThumbnailCtrl::draw()
                 (draw_rect.mLeft+3),
                 (draw_rect.mTop-v_offset),
                 LLColor4::white,
-                LLFontGL::LEFT,
-                LLFontGL::BASELINE,
-                LLFontGL::DROP_SHADOW);
+                LLFontGL::HAlign::LEFT,
+                LLFontGL::VAlign::BASELINE,
+                LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW);
         }
     }
 

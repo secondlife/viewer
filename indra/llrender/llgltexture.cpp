@@ -70,7 +70,7 @@ void LLGLTexture::init()
     mUseMipMaps = false ;
     mComponents = 0 ;
 
-    mTextureState = NO_DELETE ;
+    mTextureState = LLGLTextureState::NO_DELETE ;
     mDontDiscard = false;
     mNeedsGLTexture = false ;
 }
@@ -109,21 +109,21 @@ void LLGLTexture::setBoostLevel(S32 level)
 
 void LLGLTexture::forceActive()
 {
-    mTextureState = ACTIVE ;
+    mTextureState = LLGLTextureState::ACTIVE ;
 }
 
 void LLGLTexture::setActive()
 {
-    if(mTextureState != NO_DELETE)
+    if(mTextureState != LLGLTextureState::NO_DELETE)
     {
-        mTextureState = ACTIVE ;
+        mTextureState = LLGLTextureState::ACTIVE ;
     }
 }
 
 //set the texture to stay in memory
 void LLGLTexture::setNoDelete()
 {
-    mTextureState = NO_DELETE ;
+    mTextureState = LLGLTextureState::NO_DELETE ;
 }
 
 void LLGLTexture::generateGLTexture()
@@ -363,7 +363,7 @@ void LLGLTexture::destroyGLTexture()
     if(mGLTexturep.notNull() && mGLTexturep->getHasGLTexture())
     {
         mGLTexturep->destroyGLTexture() ;
-        mTextureState = DELETED ;
+        mTextureState = LLGLTextureState::DELETED ;
     }
 }
 

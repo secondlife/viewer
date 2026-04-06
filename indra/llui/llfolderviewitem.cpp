@@ -897,7 +897,7 @@ void LLFolderViewItem::drawHighlight(bool showContent, bool hasKeyboardFocus,
     //
     if (isHighlightAllowed())
     {
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         // Highlight for selected but not current items
         if (!isHighlightActive() && !isFlashing())
@@ -970,7 +970,7 @@ void LLFolderViewItem::drawHighlight(bool showContent, bool hasKeyboardFocus,
     //
     if (mDragAndDropTarget)
     {
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gl_rect_2d(FOCUS_LEFT,
             focus_top,
             getRect().getWidth() - 2,
@@ -994,7 +994,7 @@ void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y
     // Draw the actual label text
     //
     mLabelFontBuffer.render(font, mLabel, 0, x, y, color,
-        LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+        LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW,
         S32_MAX, getRect().getWidth() - (S32) x - mLabelPaddingRight, &right_x, /*use_ellipses*/true);
 }
 
@@ -1112,7 +1112,7 @@ void LLFolderViewItem::draw()
     if (!mLabelSuffix.empty())
     {
         mSuffixFontBuffer.render(sSuffixFont, mLabelSuffix, 0, right_x, y, isFadeItem() ? color : sSuffixColor.get(),
-            LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+            LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW,
             S32_MAX, S32_MAX, &right_x);
     }
 
@@ -1126,7 +1126,7 @@ void LLFolderViewItem::draw()
             F32 match_string_left = text_left + font->getWidthF32(combined_string.c_str(), 0, filter_offset + filter_string_length) - font->getWidthF32(combined_string.c_str(), filter_offset, filter_string_length);
             F32 yy = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
             font->render(combined_string, filter_offset, match_string_left, yy,
-                sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+                sFilterTextColor, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW,
                 filter_string_length, S32_MAX, &right_x);
         }
         else
@@ -1137,7 +1137,7 @@ void LLFolderViewItem::draw()
                 F32 match_string_left = text_left + font->getWidthF32(mLabel.c_str(), 0, filter_offset + label_filter_length) - font->getWidthF32(mLabel.c_str(), filter_offset, label_filter_length);
                 F32 yy = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
                 font->render(mLabel, filter_offset, match_string_left, yy,
-                    sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+                    sFilterTextColor, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW,
                     label_filter_length, S32_MAX, &right_x);
             }
 
@@ -1148,7 +1148,7 @@ void LLFolderViewItem::draw()
                 F32 match_string_left = text_left + font->getWidthF32(mLabel.c_str(), 0, static_cast<S32>(mLabel.size())) + sSuffixFont->getWidthF32(mLabelSuffix.c_str(), 0, suffix_offset + suffix_filter_length) - sSuffixFont->getWidthF32(mLabelSuffix.c_str(), suffix_offset, suffix_filter_length);
                 F32 yy = (F32)rect_height - sSuffixFont->getLineHeight() - (F32)mTextPad - (F32)sTopPad;
                 sSuffixFont->render(mLabelSuffix, suffix_offset, match_string_left, yy, sFilterTextColor,
-                    LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+                    LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW,
                     suffix_filter_length, S32_MAX, &right_x);
             }
         }

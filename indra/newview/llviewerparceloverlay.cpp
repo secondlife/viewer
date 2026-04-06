@@ -85,8 +85,8 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
     // Use mipmaps = false, clamped, NEAREST filter, for sharp edges
     mImageRaw = new LLImageRaw(mParcelGridsPerEdge, mParcelGridsPerEdge, OVERLAY_IMG_COMPONENTS);
     mTexture = LLViewerTextureManager::getLocalTexture(mImageRaw.get(), false);
-    mTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
-    mTexture->setFilteringOption(LLTexUnit::TFO_POINT);
+    mTexture->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
+    mTexture->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_POINT);
 
     //
     // Initialize the GL texture with empty data.
@@ -690,7 +690,7 @@ void LLViewerParcelOverlay::renderPropertyLines()
     F32 water_z = render_water ? land.getWaterHeight() + 0.01f : 0;
 
     LLGLSUIDefault gls_ui; // called from pipeline
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     LLGLDepthTest mDepthTest(GL_TRUE);
 
     // Find camera height off the ground (not from zero)
@@ -827,7 +827,7 @@ void LLViewerParcelOverlay::renderPropertyLinesOnMinimap(F32 scale_pixels_per_me
     F32       map_parcel_width = PARCEL_GRID_STEP_METERS * scale_pixels_per_meter;
     const S32 GRIDS_PER_EDGE   = mParcelGridsPerEdge;
 
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     glLineWidth(1.0f);
     gGL.color4fv(parcel_outline_color);
     for (S32 i = 0; i <= GRIDS_PER_EDGE; i++)

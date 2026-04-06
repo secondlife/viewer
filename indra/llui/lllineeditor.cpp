@@ -998,7 +998,7 @@ void LLLineEditor::addChar(const llwchar uni_char)
     {
         deleteSelection();
     }
-    else if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
+    else if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
     {
         if (!prevalidateInput(mText.getWString().substr(getCursor(), 1)))
             return;
@@ -1938,9 +1938,9 @@ void LLLineEditor::draw()
                 mText, mScrollHPos,
                 rendered_pixels_right, text_bottom,
                 text_color,
-                LLFontGL::LEFT, LLFontGL::BOTTOM,
+                LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM,
                 0,
-                LLFontGL::NO_SHADOW,
+                LLFontGL::ShadowType::NO_SHADOW,
                 select_left - mScrollHPos,
                 mTextRightEdge - ll_round(rendered_pixels_right),
                 &rendered_pixels_right);
@@ -1961,9 +1961,9 @@ void LLLineEditor::draw()
                 mText, mScrollHPos + rendered_text,
                 rendered_pixels_right, text_bottom,
                 tmp_color,
-                LLFontGL::LEFT, LLFontGL::BOTTOM,
+                LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM,
                 0,
-                LLFontGL::NO_SHADOW,
+                LLFontGL::ShadowType::NO_SHADOW,
                 select_right - mScrollHPos - rendered_text,
                 mTextRightEdge - ll_round(rendered_pixels_right),
                 &rendered_pixels_right);
@@ -1977,9 +1977,9 @@ void LLLineEditor::draw()
                 mText, mScrollHPos + rendered_text,
                 rendered_pixels_right, text_bottom,
                 text_color,
-                LLFontGL::LEFT, LLFontGL::BOTTOM,
+                LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM,
                 0,
-                LLFontGL::NO_SHADOW,
+                LLFontGL::ShadowType::NO_SHADOW,
                 S32_MAX,
                 mTextRightEdge - ll_round(rendered_pixels_right),
                 &rendered_pixels_right);
@@ -1992,9 +1992,9 @@ void LLLineEditor::draw()
             mText, mScrollHPos,
             rendered_pixels_right, text_bottom,
             text_color,
-            LLFontGL::LEFT, LLFontGL::BOTTOM,
+            LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM,
             0,
-            LLFontGL::NO_SHADOW,
+            LLFontGL::ShadowType::NO_SHADOW,
             S32_MAX,
             mTextRightEdge - ll_round(rendered_pixels_right),
             &rendered_pixels_right);
@@ -2111,7 +2111,7 @@ void LLLineEditor::draw()
                 S32 cursor_left = findPixelNearestPos();
                 cursor_left -= lineeditor_cursor_thickness / 2;
                 S32 cursor_right = cursor_left + lineeditor_cursor_thickness;
-                if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
+                if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
                 {
                     const LLWString space(utf8str_to_wstring(std::string(" ")));
                     S32 wswidth = mGLFont->getWidth(space.c_str());
@@ -2121,14 +2121,14 @@ void LLLineEditor::draw()
                 // Use same color as text for the Cursor
                 gl_rect_2d(cursor_left, cursor_top,
                     cursor_right, cursor_bottom, text_color);
-                if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
+                if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
                 {
                     LLColor4 tmp_color( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], alpha );
                     mGLFont->render(mText, getCursor(), (F32)(cursor_left + lineeditor_cursor_thickness / 2), text_bottom,
                         tmp_color,
-                        LLFontGL::LEFT, LLFontGL::BOTTOM,
+                        LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM,
                         0,
-                        LLFontGL::NO_SHADOW,
+                        LLFontGL::ShadowType::NO_SHADOW,
                         1);
                 }
 
@@ -2152,10 +2152,10 @@ void LLLineEditor::draw()
                             mLabel.getWString(), 0,
                             (F32)mTextLeftEdge, (F32)text_bottom,
                             label_color,
-                            LLFontGL::LEFT,
-                            LLFontGL::BOTTOM,
+                            LLFontGL::HAlign::LEFT,
+                            LLFontGL::VAlign::BOTTOM,
                             0,
-                            LLFontGL::NO_SHADOW,
+                            LLFontGL::ShadowType::NO_SHADOW,
                             S32_MAX,
                             mTextRightEdge - ll_round(rendered_pixels_right),
                             &rendered_pixels_right, false);
@@ -2178,10 +2178,10 @@ void LLLineEditor::draw()
                             mLabel.getWString(), 0,
                             (F32)mTextLeftEdge, (F32)text_bottom,
                             label_color,
-                            LLFontGL::LEFT,
-                            LLFontGL::BOTTOM,
+                            LLFontGL::HAlign::LEFT,
+                            LLFontGL::VAlign::BOTTOM,
                             0,
-                            LLFontGL::NO_SHADOW,
+                            LLFontGL::ShadowType::NO_SHADOW,
                             S32_MAX,
                             mTextRightEdge - ll_round(rendered_pixels_right),
                             &rendered_pixels_right);
@@ -2562,7 +2562,7 @@ void LLLineEditor::updatePreedit(const LLWString &preedit_string,
         position += preedit_segment_lengths[i];
     }
     mPreeditPositions.back() = position;
-    if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
+    if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
     {
         mPreeditOverwrittenWString.assign( LLWString( mText, insert_preedit_at, mPreeditWString.length() ) );
         mText.erase(insert_preedit_at, static_cast<S32>(mPreeditWString.length()));
@@ -2696,7 +2696,7 @@ void LLLineEditor::markAsPreedit(S32 position, S32 length)
         mPreeditPositions.clear();
         mPreeditStandouts.clear();
     }
-    if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
+    if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
     {
         mPreeditOverwrittenWString = mPreeditWString;
     }

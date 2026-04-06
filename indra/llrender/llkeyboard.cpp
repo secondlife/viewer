@@ -63,7 +63,7 @@ LLKeyboard::LLKeyboard() : mCallbacks(NULL)
         mKeyRepeated[i] = false;
     }
 
-    mInsertMode = LL_KIM_INSERT;
+    mInsertMode = EKeyboardInsertMode::LL_KIM_INSERT;
     mCurTranslatedKey = KEY_NONE;
     mCurScanKey = KEY_NONE;
 
@@ -284,13 +284,13 @@ bool LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
 
 void LLKeyboard::toggleInsertMode()
 {
-    if (LL_KIM_INSERT == mInsertMode)
+    if (EKeyboardInsertMode::LL_KIM_INSERT == mInsertMode)
     {
-        mInsertMode = LL_KIM_OVERWRITE;
+        mInsertMode = EKeyboardInsertMode::LL_KIM_OVERWRITE;
     }
     else
     {
-        mInsertMode = LL_KIM_INSERT;
+        mInsertMode = EKeyboardInsertMode::LL_KIM_INSERT;
     }
 }
 

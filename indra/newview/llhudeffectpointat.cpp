@@ -337,7 +337,7 @@ void LLHUDEffectPointAt::render()
     if (sDebugPointAt && mTargetType != POINTAT_TARGET_NONE)
     {
         //LLGLDisable gls_stencil(GL_STENCIL_TEST);
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         LLVector3 target = mTargetPos + mSourceObject->getRenderPosition();
         gGL.pushMatrix();

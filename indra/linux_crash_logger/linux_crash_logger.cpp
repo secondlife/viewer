@@ -36,8 +36,8 @@ int main(int argc, char **argv)
     app.parseCommandOptions(argc, argv);
 
     LLSD options = LLApp::instance()->getOptionData(
-                        LLApp::PRIORITY_COMMAND_LINE);
-                        //LLApp::PRIORITY_RUNTIME_OVERRIDE);
+                        LLApp::OptionPriority::PRIORITY_COMMAND_LINE);
+                        //LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE);
 
 
     if (!(options.has("pid") && options.has("dumpdir")))

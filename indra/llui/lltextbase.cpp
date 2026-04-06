@@ -529,7 +529,7 @@ void LLTextBase::drawSelectionBackground()
         std::vector<LLRect> selection_rects = getSelectionRects();
 
         // Draw the selection box (we're using a box instead of reversing the colors on the selected text).
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         const LLColor4& color = mSelectedBGColor;
         F32 alpha = hasFocus() ? 0.7f : 0.3f;
         alpha *= getDrawContext().mAlpha;
@@ -556,13 +556,13 @@ void LLTextBase::drawSelectionBackground()
                 S32 h_delta = 0;
                 switch (mVAlign)
                 {
-                case LLFontGL::TOP:
+                case LLFontGL::VAlign::TOP:
                     v_delta = mVisibleTextRect.mTop - content_display_rect.mTop - mVPad;
                     break;
-                case LLFontGL::VCENTER:
+                case LLFontGL::VAlign::VCENTER:
                     v_delta = (llmax(mVisibleTextRect.getHeight() - content_display_rect.mTop, -content_display_rect.mBottom) + (mVisibleTextRect.mBottom - content_display_rect.mBottom)) / 2;
                     break;
-                case LLFontGL::BOTTOM:
+                case LLFontGL::VAlign::BOTTOM:
                     v_delta = mVisibleTextRect.mBottom - content_display_rect.mBottom;
                     break;
                 default:
@@ -570,13 +570,13 @@ void LLTextBase::drawSelectionBackground()
                 }
                 switch (mHAlign)
                 {
-                case LLFontGL::LEFT:
+                case LLFontGL::HAlign::LEFT:
                     h_delta = mVisibleTextRect.mLeft - content_display_rect.mLeft + mHPad;
                     break;
-                case LLFontGL::HCENTER:
+                case LLFontGL::HAlign::HCENTER:
                     h_delta = (llmax(mVisibleTextRect.getWidth() - content_display_rect.mLeft, -content_display_rect.mRight) + (mVisibleTextRect.mRight - content_display_rect.mRight)) / 2;
                     break;
-                case LLFontGL::RIGHT:
+                case LLFontGL::HAlign::RIGHT:
                     h_delta = mVisibleTextRect.mRight - content_display_rect.mRight;
                     break;
                 default:
@@ -598,7 +598,7 @@ void LLTextBase::drawHighlightedBackground()
         if (highlight_rects.empty())
             return;
 
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         LLRect content_display_rect = getVisibleDocumentRect();
 
@@ -621,13 +621,13 @@ void LLTextBase::drawHighlightedBackground()
                 S32 h_delta = 0;
                 switch (mVAlign)
                 {
-                case LLFontGL::TOP:
+                case LLFontGL::VAlign::TOP:
                     v_delta = mVisibleTextRect.mTop - content_display_rect.mTop - mVPad;
                     break;
-                case LLFontGL::VCENTER:
+                case LLFontGL::VAlign::VCENTER:
                     v_delta = (llmax(mVisibleTextRect.getHeight() - content_display_rect.mTop, -content_display_rect.mBottom) + (mVisibleTextRect.mBottom - content_display_rect.mBottom)) / 2;
                     break;
-                case LLFontGL::BOTTOM:
+                case LLFontGL::VAlign::BOTTOM:
                     v_delta = mVisibleTextRect.mBottom - content_display_rect.mBottom;
                     break;
                 default:
@@ -635,13 +635,13 @@ void LLTextBase::drawHighlightedBackground()
                 }
                 switch (mHAlign)
                 {
-                case LLFontGL::LEFT:
+                case LLFontGL::HAlign::LEFT:
                     h_delta = mVisibleTextRect.mLeft - content_display_rect.mLeft + mHPad;
                     break;
-                case LLFontGL::HCENTER:
+                case LLFontGL::HAlign::HCENTER:
                     h_delta = (llmax(mVisibleTextRect.getWidth() - content_display_rect.mLeft, -content_display_rect.mRight) + (mVisibleTextRect.mRight - content_display_rect.mRight)) / 2;
                     break;
-                case LLFontGL::RIGHT:
+                case LLFontGL::HAlign::RIGHT:
                     h_delta = mVisibleTextRect.mRight - content_display_rect.mRight;
                     break;
                 default:
@@ -687,7 +687,7 @@ void LLTextBase::drawCursor()
         if( (elapsed < CURSOR_FLASH_DELAY ) || (S32(elapsed * 2) & 1) )
         {
 
-            if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
+            if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
             {
                 S32 segment_width = 0;
                 S32 segment_height = 0;
@@ -700,23 +700,23 @@ void LLTextBase::drawCursor()
                 cursor_rect.mRight = cursor_rect.mLeft + CURSOR_THICKNESS;
             }
 
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
             LLColor4 cursor_color = mCursorColor.get() % alpha;
             gGL.color4fv( cursor_color.mV );
 
             gl_rect_2d(cursor_rect);
 
-            if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection() && text[mCursorPos] != '\n')
+            if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection() && text[mCursorPos] != '\n')
             {
                 const LLFontGL* fontp;
                 const LLColor4& text_color = segmentp->getColor();
                 fontp = segmentp->getStyle()->getFont();
                 fontp->render(text, mCursorPos, cursor_rect,
                     LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], alpha),
-                    LLFontGL::LEFT, mTextVAlign,
+                    LLFontGL::HAlign::LEFT, mTextVAlign,
                     LLFontGL::NORMAL,
-                    LLFontGL::NO_SHADOW,
+                    LLFontGL::ShadowType::NO_SHADOW,
                     1);
             }
 
@@ -1776,11 +1776,11 @@ S32 LLTextBase::getLeftOffset(S32 width)
 {
     switch (mHAlign)
     {
-    case LLFontGL::LEFT:
+    case LLFontGL::HAlign::LEFT:
         return mHPad;
-    case LLFontGL::HCENTER:
+    case LLFontGL::HAlign::HCENTER:
         return mHPad + llmax(0, (mVisibleTextRect.getWidth() - width - mHPad) / 2);
-    case LLFontGL::RIGHT:
+    case LLFontGL::HAlign::RIGHT:
         {
             // Font's rendering rounds string size, if value gets rounded
             // down last symbol might not have enough space to render,
@@ -3247,16 +3247,16 @@ void LLTextBase::updateRects()
 
         switch(mVAlign)
         {
-        case LLFontGL::TOP:
+        case LLFontGL::VAlign::TOP:
             delta_pos = llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom);
             break;
-        case LLFontGL::VCENTER:
+        case LLFontGL::VAlign::VCENTER:
             delta_pos = (llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom) + (mVisibleTextRect.mBottom - mTextBoundingRect.mBottom)) / 2;
             break;
-        case LLFontGL::BOTTOM:
+        case LLFontGL::VAlign::BOTTOM:
             delta_pos = mVisibleTextRect.mBottom - mTextBoundingRect.mBottom;
             break;
-        case LLFontGL::BASELINE:
+        case LLFontGL::VAlign::BASELINE:
             // do nothing
             break;
         }
@@ -3288,12 +3288,12 @@ void LLTextBase::updateRects()
         // push doc rect to top of text widget
         switch(mVAlign)
         {
-        case LLFontGL::TOP:
+        case LLFontGL::VAlign::TOP:
             doc_rect.translate(0, mVisibleTextRect.getHeight() - doc_rect.mTop);
             break;
-        case LLFontGL::VCENTER:
+        case LLFontGL::VAlign::VCENTER:
             doc_rect.translate(0, (mVisibleTextRect.getHeight() - doc_rect.mTop) / 2);
-        case LLFontGL::BOTTOM:
+        case LLFontGL::VAlign::BOTTOM:
         default:
             break;
         }
@@ -3322,16 +3322,16 @@ void LLTextBase::updateRects()
 
         switch(mVAlign)
         {
-        case LLFontGL::TOP:
+        case LLFontGL::VAlign::TOP:
             delta_pos = llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom);
             break;
-        case LLFontGL::VCENTER:
+        case LLFontGL::VAlign::VCENTER:
             delta_pos = (llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom) + (mVisibleTextRect.mBottom - mTextBoundingRect.mBottom)) / 2;
             break;
-        case LLFontGL::BOTTOM:
+        case LLFontGL::VAlign::BOTTOM:
             delta_pos = mVisibleTextRect.mBottom - mTextBoundingRect.mBottom;
             break;
-        case LLFontGL::BASELINE:
+        case LLFontGL::VAlign::BASELINE:
             // do nothing
             break;
         }
@@ -3358,12 +3358,12 @@ void LLTextBase::updateRects()
         // push doc rect to top of text widget
         switch(mVAlign)
         {
-        case LLFontGL::TOP:
+        case LLFontGL::VAlign::TOP:
             doc_rect.translate(0, mVisibleTextRect.getHeight() - doc_rect.mTop);
             break;
-        case LLFontGL::VCENTER:
+        case LLFontGL::VAlign::VCENTER:
             doc_rect.translate(0, (mVisibleTextRect.getHeight() - doc_rect.mTop) / 2);
-        case LLFontGL::BOTTOM:
+        case LLFontGL::VAlign::BOTTOM:
         default:
             break;
         }
@@ -3640,7 +3640,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
                 text, start,
                 rect,
                 color,
-                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::HAlign::LEFT, mEditor.mTextVAlign,
                 LLFontGL::NORMAL,
                 mStyle->getShadowType(),
                 length,
@@ -3659,7 +3659,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
                 text, start,
                 rect,
                 color,
-                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::HAlign::LEFT, mEditor.mTextVAlign,
                 LLFontGL::NORMAL,
                 mStyle->getShadowType(),
                 length,
@@ -3684,9 +3684,9 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
                 text, start,
                 rect,
                 mStyle->getSelectedColor().get(),
-                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::HAlign::LEFT, mEditor.mTextVAlign,
                 LLFontGL::NORMAL,
-                LLFontGL::NO_SHADOW,
+                LLFontGL::ShadowType::NO_SHADOW,
                 length,
                 &right_x,
                 mEditor.getUseEllipses(),
@@ -3698,9 +3698,9 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
                 text, start,
                 rect,
                 mStyle->getSelectedColor().get(),
-                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::HAlign::LEFT, mEditor.mTextVAlign,
                 LLFontGL::NORMAL,
-                LLFontGL::NO_SHADOW,
+                LLFontGL::ShadowType::NO_SHADOW,
                 length,
                 &right_x,
                 mEditor.getUseEllipses(),
@@ -3721,7 +3721,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
                 text, start,
                 rect,
                 color,
-                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::HAlign::LEFT, mEditor.mTextVAlign,
                 LLFontGL::NORMAL,
                 mStyle->getShadowType(),
                 length,
@@ -3735,7 +3735,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
                 text, start,
                 rect,
                 color,
-                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::HAlign::LEFT, mEditor.mTextVAlign,
                 LLFontGL::NORMAL,
                 mStyle->getShadowType(),
                 length,
@@ -3894,8 +3894,8 @@ S32 LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
     // if no character yet displayed on this line, don't require word wrapping since
     // we can just move to the next line, otherwise insist on it so we make forward progress
     LLFontGL::EWordWrapStyle word_wrap_style = (line_offset == 0)
-        ? LLFontGL::WORD_BOUNDARY_IF_POSSIBLE
-        : LLFontGL::ONLY_WORD_BOUNDARIES;
+        ? LLFontGL::EWordWrapStyle::WORD_BOUNDARY_IF_POSSIBLE
+        : LLFontGL::EWordWrapStyle::ONLY_WORD_BOUNDARIES;
 
 
     S32 offsetLength = static_cast<S32>(text.length()) - (segment_offset + mStart);

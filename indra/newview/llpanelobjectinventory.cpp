@@ -1765,8 +1765,8 @@ void LLPanelObjectInventory::draw()
                 (S32)(getRect().getWidth() * 0.5f),
                 10,
                 LLColor4(1, 1, 1, 1),
-                LLFontGL::HCENTER,
-                LLFontGL::BOTTOM);
+                LLFontGL::HAlign::HCENTER,
+                LLFontGL::VAlign::BOTTOM);
         }
     }
 }

@@ -1238,16 +1238,16 @@ bool StackWalker::ShowCallstack(bool verbose, HANDLE hThread, const CONTEXT *con
       }
     } // we seem to have a valid PC
 
-    CallstackEntryType et = nextEntry;
+    CallstackEntryType et = CallstackEntryType::nextEntry;
     if (frameNum == 0)
-      et = firstEntry;
+      et = CallstackEntryType::firstEntry;
     bLastEntryCalled = false;
     this->OnCallstackEntry(et, csEntry);
 
     if (s.AddrReturn.Offset == 0)
     {
       bLastEntryCalled = true;
-      this->OnCallstackEntry(lastEntry, csEntry);
+      this->OnCallstackEntry(CallstackEntryType::lastEntry, csEntry);
       SetLastError(ERROR_SUCCESS);
       break;
     }
@@ -1257,7 +1257,7 @@ bool StackWalker::ShowCallstack(bool verbose, HANDLE hThread, const CONTEXT *con
     if (pSym) free( pSym );
 
   if (!bLastEntryCalled)
-      this->OnCallstackEntry(lastEntry, csEntry);
+      this->OnCallstackEntry(CallstackEntryType::lastEntry, csEntry);
 
   if (context == NULL)
     ResumeThread(hThread);
@@ -1309,7 +1309,7 @@ void StackWalker::OnLoadModule(LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD s
 void StackWalker::OnCallstackEntry(CallstackEntryType eType, CallstackEntry &entry)
 {
   CHAR buffer[STACKWALK_MAX_NAMELEN];
-  if ( (eType != lastEntry) && (entry.offset != 0) )
+  if ( (eType != CallstackEntryType::lastEntry) && (entry.offset != 0) )
   {
     if (entry.name[0] == 0)
       MyStrCpy(entry.name, STACKWALK_MAX_NAMELEN, "(function-name not available)");

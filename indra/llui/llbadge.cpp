@@ -191,7 +191,7 @@ void renderBadgeBackground(F32 centerX, F32 centerY, F32 width, F32 height, cons
     gGL.pushUIMatrix();
     gGL.loadUIIdentity();
     gGL.setSceneBlendType(LLRender::BT_REPLACE);
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
     gGL.color4ubv(color.mV);
     gGL.texCoord2i(0, 0);
@@ -359,9 +359,9 @@ void LLBadge::draw()
                                badge_center_x + mLabelOffsetHoriz,
                                badge_center_y + mLabelOffsetVert,
                                mLabelColor % alpha,
-                               LLFontGL::HCENTER, LLFontGL::VCENTER, // centered around the position
+                               LLFontGL::HAlign::HCENTER, LLFontGL::VAlign::VCENTER, // centered around the position
                                LLFontGL::NORMAL, // normal text (not bold, italics, etc.)
-                               LLFontGL::DROP_SHADOW_SOFT,
+                               LLFontGL::ShadowType::DROP_SHADOW_SOFT,
                                badge_char_length, badge_pixel_length,
                                right_position_out, do_not_use_ellipses);
         }

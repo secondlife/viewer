@@ -112,7 +112,7 @@ bool LLContainerView::handleMouseUp(S32 x, S32 y, MASK mask)
 void LLContainerView::draw()
 {
     {
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
         gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
     }
@@ -121,7 +121,7 @@ void LLContainerView::draw()
     if (mShowLabel)
     {
         LLFontGL::getFontMonospace()->render(
-            mLabel, 0, 2.f, (F32)(getRect().getHeight() - 2), LLColor4(1,1,1,1), LLFontGL::LEFT, LLFontGL::TOP);
+            mLabel, 0, 2.f, (F32)(getRect().getHeight() - 2), LLColor4(1,1,1,1), LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     }
 
     LLView::draw();

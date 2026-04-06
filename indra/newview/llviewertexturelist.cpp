@@ -154,40 +154,40 @@ void LLViewerTextureList::doPreloadImages()
     LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTextureFromFile("silhouette.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
     if (image)
     {
-        image->setAddressMode(LLTexUnit::TAM_WRAP);
+        image->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_WRAP);
         mImagePreloads.insert(image);
     }
     image = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryLines.png", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
     if (image)
     {
-        image->setAddressMode(LLTexUnit::TAM_WRAP);
+        image->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_WRAP);
         mImagePreloads.insert(image);
     }
     image = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryPassLines.png", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
     if (image)
     {
-        image->setAddressMode(LLTexUnit::TAM_WRAP);
+        image->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_WRAP);
         mImagePreloads.insert(image);
     }
     image = LLViewerTextureManager::getFetchedTextureFromFile("transparent.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
         0, 0, IMG_TRANSPARENT);
     if (image)
     {
-        image->setAddressMode(LLTexUnit::TAM_WRAP);
+        image->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_WRAP);
         mImagePreloads.insert(image);
     }
     image = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient.tga", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
         GL_ALPHA8, GL_ALPHA, IMG_ALPHA_GRAD);
     if (image)
     {
-        image->setAddressMode(LLTexUnit::TAM_CLAMP);
+        image->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         mImagePreloads.insert(image);
     }
     image = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient_2d.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
         GL_ALPHA8, GL_ALPHA, IMG_ALPHA_GRAD_2D);
     if (image)
     {
-        image->setAddressMode(LLTexUnit::TAM_CLAMP);
+        image->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
         mImagePreloads.insert(image);
     }
 }
@@ -222,7 +222,7 @@ void LLViewerTextureList::doPrefetchImages()
         imagep = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL, FTT_DEFAULT, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
         if (imagep)
         {
-            imagep->setAddressMode(LLTexUnit::TAM_WRAP);
+            imagep->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_WRAP);
             mImagePreloads.insert(imagep);
         }
     }
@@ -1655,7 +1655,7 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     if (!imagep) return NULL;
 
-    imagep->setAddressMode(LLTexUnit::TAM_CLAMP);
+    imagep->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 
     //don't compress UI images
     imagep->getGLTexture()->setAllowCompression(false);
@@ -1768,8 +1768,8 @@ namespace LLInitParam
     {
         static void declareValues()
         {
-            declare("scale_inner",  LLUIImage::SCALE_INNER);
-            declare("scale_outer",  LLUIImage::SCALE_OUTER);
+            declare("scale_inner",  LLUIImage::EScaleStyle::SCALE_INNER);
+            declare("scale_outer",  LLUIImage::EScaleStyle::SCALE_OUTER);
         }
     };
 }
@@ -1791,7 +1791,7 @@ struct UIImageDeclaration : public LLInitParam::Block<UIImageDeclaration>
         scale("scale"),
         clip("clip"),
         use_mips("use_mips", false),
-        scale_type("scale_type", LLUIImage::SCALE_INNER)
+        scale_type("scale_type", LLUIImage::EScaleStyle::SCALE_INNER)
     {}
 };
 

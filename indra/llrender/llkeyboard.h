@@ -33,7 +33,7 @@
 #include "lltimer.h"
 #include "indra_constants.h"
 
-enum EKeystate
+enum class EKeystate
 {
     KEYSTATE_DOWN,
     KEYSTATE_LEVEL,
@@ -43,7 +43,7 @@ enum EKeystate
 using LLKeyFunc = std::function<bool(EKeystate keystate)>;
 using LLKeyStringTranslatorFunc = std::string(std::string_view);
 
-enum EKeyboardInsertMode
+enum class EKeyboardInsertMode
 {
     LL_KIM_INSERT,
     LL_KIM_OVERWRITE
