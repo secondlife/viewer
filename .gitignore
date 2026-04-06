@@ -93,3 +93,4 @@ web/secondlife.com.*
 .vscode
 cppcheck_newview.txt
 cppcheck_*.txt
+build-clang-tidy/
