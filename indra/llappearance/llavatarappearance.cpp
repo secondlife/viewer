@@ -187,7 +187,7 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
         mBakedTextureDatas[i].mIsLoaded = false;
         mBakedTextureDatas[i].mIsUsed = false;
         mBakedTextureDatas[i].mMaskTexName = 0;
-        mBakedTextureDatas[i].mTextureIndex = sAvatarDictionary->bakedToLocalTextureIndex((LLAvatarAppearanceDefines::EBakedTextureIndex)i);
+        mBakedTextureDatas[i].mTextureIndex = sAvatarDictionary->bakedToLocalTextureIndex(static_cast<LLAvatarAppearanceDefines::EBakedTextureIndex>(i));
     }
 }
 
@@ -223,7 +223,7 @@ void LLAvatarAppearance::initInstance()
             mesh->setMeshID(mesh_index);
             mesh->setPickName(mesh_dict->mPickName);
             mesh->setIsTransparent(false);
-            switch((S32)mesh_index)
+            switch(static_cast<S32>(mesh_index))
             {
                 case MESH_ID_HAIR:
                     mesh->setIsTransparent(true);
@@ -254,7 +254,7 @@ void LLAvatarAppearance::initInstance()
 
         for (LLAvatarJointMesh* mesh : mMeshLOD[mesh_index]->mMeshParts)
         {
-            mBakedTextureDatas[(S32)baked_texture_index].mJointMeshes.push_back(mesh);
+            mBakedTextureDatas[static_cast<S32>(baked_texture_index)].mJointMeshes.push_back(mesh);
         }
     }
 
@@ -1035,19 +1035,19 @@ bool LLAvatarAppearance::loadSkeletonNode ()
     mRoot->addChild(mMeshLOD[MESH_ID_LOWER_BODY]);
     mRoot->addChild(mMeshLOD[MESH_ID_SKIRT]);
 
-    LLAvatarJoint *skull = (LLAvatarJoint*)mRoot->findJoint("mSkull");
+    LLAvatarJoint *skull = static_cast<LLAvatarJoint*>(mRoot->findJoint("mSkull"));
     if (skull)
     {
         skull->addChild(mMeshLOD[MESH_ID_HAIR] );
     }
 
-    LLAvatarJoint *eyeL = (LLAvatarJoint*)mRoot->findJoint("mEyeLeft");
+    LLAvatarJoint *eyeL = static_cast<LLAvatarJoint*>(mRoot->findJoint("mEyeLeft"));
     if (eyeL)
     {
         eyeL->addChild( mMeshLOD[MESH_ID_EYEBALL_LEFT] );
     }
 
-    LLAvatarJoint *eyeR = (LLAvatarJoint*)mRoot->findJoint("mEyeRight");
+    LLAvatarJoint *eyeR = static_cast<LLAvatarJoint*>(mRoot->findJoint("mEyeRight"));
     if (eyeR)
     {
         eyeR->addChild( mMeshLOD[MESH_ID_EYEBALL_RIGHT] );
@@ -1057,7 +1057,7 @@ bool LLAvatarAppearance::loadSkeletonNode ()
     {
         for (LLViewerVisualParamInfo* visual_param_info : sAvatarXmlInfo->mSkeletalDistortionInfoList)
         {
-            LLPolySkeletalDistortionInfo *info = (LLPolySkeletalDistortionInfo*)visual_param_info;
+            LLPolySkeletalDistortionInfo *info = static_cast<LLPolySkeletalDistortionInfo*>(visual_param_info);
             LLPolySkeletalDistortion *param = new LLPolySkeletalDistortion(this);
             if (!param->setInfo(info))
             {
@@ -1108,7 +1108,7 @@ bool LLAvatarAppearance::loadMeshNodes()
 
         if (found_mesh_id)
         {
-            if (lod < (S32)mMeshLOD[mesh_id]->mMeshParts.size())
+            if (lod < static_cast<S32>(mMeshLOD[mesh_id]->mMeshParts.size()))
             {
                 mesh = mMeshLOD[mesh_id]->mMeshParts[lod];
             }
@@ -1168,7 +1168,7 @@ bool LLAvatarAppearance::loadMeshNodes()
         for (const LLAvatarXmlInfo::LLAvatarMeshInfo::morph_info_pair_t& info_pair : info->mPolyMorphTargetInfoList)
         {
             LLPolyMorphTarget *param = new LLPolyMorphTarget(mesh->getMesh());
-            if (!param->setInfo((LLPolyMorphTargetInfo*)info_pair.first))
+            if (!param->setInfo(static_cast<LLPolyMorphTargetInfo*>(info_pair.first)))
             {
                 delete param;
                 return false;
@@ -1264,8 +1264,8 @@ bool LLAvatarAppearance::loadLayersets()
 //-----------------------------------------------------------------------------
 LLJoint *LLAvatarAppearance::getCharacterJoint( U32 num )
 {
-    if ((S32)num >= mSkeleton.size()
-        || (S32)num < 0)
+    if (static_cast<S32>(num) >= mSkeleton.size()
+        || static_cast<S32>(num) < 0)
     {
         return NULL;
     }

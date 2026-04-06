@@ -206,7 +206,7 @@ bool LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
         mNumIndices++;
     }
 
-    mAvgDistortion.mul(1.f/(F32)mNumIndices);
+    mAvgDistortion.mul(1.f/static_cast<F32>(mNumIndices));
     mAvgDistortion.normalize3fast();
 
     return true;
@@ -417,7 +417,7 @@ LLVector4a LLPolyMorphTarget::getVertexDistortion(S32 requested_index, LLPolyMes
 
     for(U32 index = 0; index < mMorphData->mNumIndices; index++)
     {
-        if (mMorphData->mVertexIndices[index] == (U32)requested_index)
+        if (mMorphData->mVertexIndices[index] == static_cast<U32>(requested_index))
         {
             return mMorphData->mCoords[index];
         }
@@ -790,10 +790,10 @@ void LLPolyVertexMask::generateMask(const U8 *maskTextureData, S32 width, S32 he
         {
             uvCoords = mMorphData->mMesh->getUVs(vertIndex);
         }
-        U32 s = llclamp((U32)(uvCoords.mV[VX] * (F32)(width - 1)), (U32)0, (U32)width - 1);
-        U32 t = llclamp((U32)(uvCoords.mV[VY] * (F32)(height - 1)), (U32)0, (U32)height - 1);
+        U32 s = llclamp(static_cast<U32>(uvCoords.mV[VX] * static_cast<F32>(width - 1)), static_cast<U32>(0), static_cast<U32>(width - 1));
+        U32 t = llclamp(static_cast<U32>(uvCoords.mV[VY] * static_cast<F32>(height - 1)), static_cast<U32>(0), static_cast<U32>(height - 1));
 
-        mWeights[index] = maskTextureData ? ((F32) maskTextureData[((t * width + s) * num_components) + (num_components - 1)]) / 255.f : 0.0f;
+        mWeights[index] = maskTextureData ? (static_cast<F32>(maskTextureData[((t * width + s) * num_components) + (num_components - 1)])) / 255.f : 0.0f;
 
         if (invert)
         {

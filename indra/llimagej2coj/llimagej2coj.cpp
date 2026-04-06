@@ -150,7 +150,7 @@ static OPJ_SIZE_T opj_write(void * buffer, OPJ_SIZE_T bytes, void* user_data)
         const OPJ_SIZE_T MAX_BUFFER_SIZE = 512 * 1024 * 1024; // 512 MB, increase if needed
         if (new_size > MAX_BUFFER_SIZE) return 0;
 
-        U8* new_buffer = (U8*)ll_aligned_malloc_16(new_size);
+        U8* new_buffer = static_cast<U8*>(ll_aligned_malloc_16(new_size));
         if (!new_buffer) return 0; // Allocation failed
 
         if (jpeg_codec->offset > 0)
@@ -177,7 +177,7 @@ static OPJ_OFF_T opj_skip(OPJ_OFF_T bytes, void* user_data)
     {
         // Clamp and indicate EOF or error
         jpeg_codec->offset = llclamp<OPJ_OFF_T>(new_offset, 0, static_cast<OPJ_OFF_T>(jpeg_codec->size));
-        return (OPJ_OFF_T)-1;
+        return static_cast<OPJ_OFF_T>(-1);
     }
 
     jpeg_codec->offset = new_offset;
@@ -491,7 +491,7 @@ public:
         }
         comment_text = comment_text_in ? strdup(comment_text_in) : nullptr;
 
-        parameters.cp_comment = comment_text ? comment_text : (char*)"no comment";
+        parameters.cp_comment = comment_text ? comment_text : const_cast<char*>("no comment");
         llassert(parameters.cp_comment);
     }
 
@@ -571,7 +571,7 @@ public:
         {
             // Images with either dimension less than 32 need less number of resolutions otherwise they error
             int min_dim = rawImageIn.getWidth() < rawImageIn.getHeight() ? rawImageIn.getWidth() : rawImageIn.getHeight();
-            int max_res = 1 + (int)floor(log2(min_dim));
+            int max_res = 1 + static_cast<int>(floor(log2(min_dim)));
             parameters.numresolution = max_res;
         }
 
@@ -584,7 +584,7 @@ public:
         U32 data_size_guess = tile_count * TILE_SIZE;
 
         // will be freed in opj_free_user_data_write
-        buffer = (U8*)ll_aligned_malloc_16(data_size_guess);
+        buffer = static_cast<U8*>(ll_aligned_malloc_16(data_size_guess));
         size = data_size_guess;
         offset = 0;
 
@@ -627,7 +627,7 @@ public:
         {
             // "append" (set) the data we "streamed" (memcopied) for writing to the formatted image
             // with side-effect of setting the actually encoded size  to same
-            compressedImageOut.allocateData((S32)offset);
+            compressedImageOut.allocateData(static_cast<S32>(offset));
             memcpy(compressedImageOut.getData(), buffer, offset);
             compressedImageOut.updateData(); // update width, height etc from header
         }
@@ -812,7 +812,7 @@ bool LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
     bool decoded = decoder.decode(base.getData(), max_bytes, &image_channels, base.mDiscardLevel);
 
     // set correct channel count early so failed decodes don't miss it...
-    S32 channels = (S32)image_channels - first_channel;
+    S32 channels = static_cast<S32>(image_channels) - first_channel;
     channels = llmin(channels, max_channel_count);
 
     if (!decoded)

@@ -140,16 +140,16 @@ U8 *LLGesture::deserialize(U8 *buffer, S32 max_size)
     htolememcpy(mSoundItemID.mData, tmp, MVT_LLUUID, 16);
     tmp += 16;
 
-    mTrigger.assign((char *)tmp);
+    mTrigger.assign(reinterpret_cast<char*>(tmp));
     mTriggerLower = mTrigger;
     mTriggerLower = utf8str_tolower(mTriggerLower);
     tmp += mTrigger.length() + 1;
-    mAnimation.assign((char *)tmp);
+    mAnimation.assign(reinterpret_cast<char*>(tmp));
     //RN: force animation names to lower case
     // must do this for backwards compatibility
     mAnimation = utf8str_tolower(mAnimation);
     tmp += mAnimation.length() + 1;
-    mOutputString.assign((char *)tmp);
+    mOutputString.assign(reinterpret_cast<char*>(tmp));
     tmp += mOutputString.length() + 1;
 
     if (tmp > buffer + max_size)
@@ -321,7 +321,7 @@ U8 *LLGestureList::deserialize(U8 *buffer, S32 max_size)
 
     for (S32 i = 0; i < count; i++)
     {
-        mList[i] = create_gesture(&tmp, max_size - (S32)(tmp - buffer));
+        mList[i] = create_gesture(&tmp, max_size - static_cast<S32>(tmp - buffer));
         if (tmp - buffer > max_size)
         {
             LL_WARNS() << "Deserialization read past end of buffer, bad data!!!!" << LL_ENDL;

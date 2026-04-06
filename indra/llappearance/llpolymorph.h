@@ -151,7 +151,7 @@ public:
     ~LLPolyMorphTarget();
 
     // Special: These functions are overridden by child classes
-    LLPolyMorphTargetInfo*  getInfo() const { return (LLPolyMorphTargetInfo*)mInfo; }
+    LLPolyMorphTargetInfo*  getInfo() const { return static_cast<LLPolyMorphTargetInfo*>(mInfo); }
     //   This sets mInfo and calls initialization functions
     bool                    setInfo(LLPolyMorphTargetInfo *info);
 

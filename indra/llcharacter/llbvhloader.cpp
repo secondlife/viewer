@@ -651,7 +651,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
             iter++; //     OFFSET
             iter++; // }
             S32 depth = 0;
-            for (S32 j = (S32)parent_joints.size() - 1; j >= 0; j--)
+            for (S32 j = static_cast<S32>(parent_joints.size()) - 1; j >= 0; j--)
             {
                 Joint *joint = mJoints[parent_joints[j]];
                 if (depth > joint->mChildTreeMaxDepth)
@@ -705,7 +705,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
         LL_DEBUGS("BVH") << "- index " << mJoints.size()-1 << LL_ENDL;
 
         S32 depth = 1;
-        for (S32 j = (S32)parent_joints.size() - 1; j >= 0; j--)
+        for (S32 j = static_cast<S32>(parent_joints.size()) - 1; j >= 0; j--)
         {
             Joint *pjoint = mJoints[parent_joints[j]];
             LL_DEBUGS("BVH") << "- ancestor " << pjoint->mName << LL_ENDL;
@@ -736,7 +736,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
         }
         else
         {
-            parent_joints.push_back((S32)mJoints.size() - 1);
+            parent_joints.push_back(static_cast<S32>(mJoints.size()) - 1);
         }
 
         //----------------------------------------------------------------
@@ -874,7 +874,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
     // If the user only supplies one animation frame (after the ignored reference frame 0), hold for mFrameTime.
     // If the user supples exactly one total frame, it isn't clear if that is a pose or reference frame, and the
     // behavior is not defined. In this case, retain historical undefined behavior.
-    mDuration = llmax((F32)(mNumFrames - NUMBER_OF_UNPLAYED_FRAMES), 1.0f) * mFrameTime;
+    mDuration = llmax(static_cast<F32>(mNumFrames - NUMBER_OF_UNPLAYED_FRAMES), 1.0f) * mFrameTime;
     if (!mLoop)
     {
         mLoopOutPoint = mDuration;
@@ -1106,7 +1106,7 @@ void LLBVHLoader::optimize()
             S32 numPosFramesConsidered = 2;
             S32 numRotFramesConsidered = 2;
 
-            F32 rot_threshold = ROTATION_KEYFRAME_THRESHOLD / llmax((F32)joint->mChildTreeMaxDepth * 0.33f, 1.f);
+            F32 rot_threshold = ROTATION_KEYFRAME_THRESHOLD / llmax(static_cast<F32>(joint->mChildTreeMaxDepth) * 0.33f, 1.f);
 
             double diff_max = 0;
             KeyVector::iterator ki_max = ki;
@@ -1126,7 +1126,7 @@ void LLBVHLoader::optimize()
                     LLVector3 test_pos(ki_prev->mPos);
                     LLVector3 last_good_pos(ki_last_good_pos->mPos);
                     LLVector3 current_pos(ki->mPos);
-                    LLVector3 interp_pos = lerp(current_pos, last_good_pos, 1.f / (F32)numPosFramesConsidered);
+                    LLVector3 interp_pos = lerp(current_pos, last_good_pos, 1.f / static_cast<F32>(numPosFramesConsidered));
 
                     if (dist_vec_squared(current_pos, first_frame_pos) > POSITION_MOTION_THRESHOLD_SQUARED)
                     {
@@ -1165,7 +1165,7 @@ void LLBVHLoader::optimize()
                     LLQuaternion test_rot = mayaQ( ki_prev->mRot[0], ki_prev->mRot[1], ki_prev->mRot[2], order);
                     LLQuaternion last_good_rot = mayaQ( ki_last_good_rot->mRot[0], ki_last_good_rot->mRot[1], ki_last_good_rot->mRot[2], order);
                     LLQuaternion current_rot = mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
-                    LLQuaternion interp_rot = lerp(1.f / (F32)numRotFramesConsidered, current_rot, last_good_rot);
+                    LLQuaternion interp_rot = lerp(1.f / static_cast<F32>(numRotFramesConsidered), current_rot, last_good_rot);
 
                     F32 x_delta;
                     F32 y_delta;
@@ -1367,7 +1367,7 @@ bool LLBVHLoader::serialize(LLDataPacker& dp)
                 continue;
             }
 
-            time = llmax((F32)(frame - NUMBER_OF_IGNORED_FRAMES_AT_START), 0.0f) * mFrameTime; // Time elapsed before this frame starts.
+            time = llmax(static_cast<F32>(frame - NUMBER_OF_IGNORED_FRAMES_AT_START), 0.0f) * mFrameTime; // Time elapsed before this frame starts.
 
             if (mergeParent)
             {
@@ -1440,7 +1440,7 @@ bool LLBVHLoader::serialize(LLDataPacker& dp)
                     continue;
                 }
 
-                time = llmax((F32)(frame - NUMBER_OF_IGNORED_FRAMES_AT_START), 0.0f) * mFrameTime; // Time elapsed before this frame starts.
+                time = llmax(static_cast<F32>(frame - NUMBER_OF_IGNORED_FRAMES_AT_START), 0.0f) * mFrameTime; // Time elapsed before this frame starts.
 
                 LLVector3 inPos = (LLVector3(key.mPos) - relKey) * ~first_frame_rot;// * fixup_rot;
                 LLVector3 outPos = inPos * frameRot * offsetRot;
@@ -1472,7 +1472,7 @@ bool LLBVHLoader::serialize(LLDataPacker& dp)
         }
     }
 
-    S32 num_constraints = (S32)mConstraints.size();
+    S32 num_constraints = static_cast<S32>(mConstraints.size());
     dp.packS32(num_constraints, "num_constraints");
 
     for (Constraint& constraint : mConstraints)
@@ -1482,9 +1482,9 @@ bool LLBVHLoader::serialize(LLDataPacker& dp)
 
             byte = static_cast<U8>(constraint.mConstraintType);
             dp.packU8(byte, "constraint_type");
-            dp.packBinaryDataFixed((U8*)constraint.mSourceJointName, 16, "source_volume");
+            dp.packBinaryDataFixed(reinterpret_cast<U8*>(constraint.mSourceJointName), 16, "source_volume");
             dp.packVector3(constraint.mSourceOffset, "source_offset");
-            dp.packBinaryDataFixed((U8*)constraint.mTargetJointName, 16, "target_volume");
+            dp.packBinaryDataFixed(reinterpret_cast<U8*>(constraint.mTargetJointName), 16, "target_volume");
             dp.packVector3(constraint.mTargetOffset, "target_offset");
             dp.packVector3(constraint.mTargetDir, "target_dir");
             dp.packF32(constraint.mEaseInStart, "ease_in_start");

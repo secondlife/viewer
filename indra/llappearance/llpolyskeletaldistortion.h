@@ -89,7 +89,7 @@ public:
     ~LLPolySkeletalDistortion();
 
     // Special: These functions are overridden by child classes
-    LLPolySkeletalDistortionInfo*   getInfo() const { return (LLPolySkeletalDistortionInfo*)mInfo; }
+    LLPolySkeletalDistortionInfo*   getInfo() const { return static_cast<LLPolySkeletalDistortionInfo*>(mInfo); }
     //   This sets mInfo and calls initialization functions
     bool                            setInfo(LLPolySkeletalDistortionInfo *info);
 

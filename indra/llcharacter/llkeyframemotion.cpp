@@ -506,7 +506,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
             gAssetStorage->getAssetData(mID,
                                         LLAssetType::AT_ANIMATION,
                                         onLoadComplete,
-                                        (void*)character_id,
+                                        static_cast<void*>(character_id),
                                         false);
         }
         else
@@ -744,7 +744,7 @@ void LLKeyframeMotion::applyKeyframes(F32 time)
                                                       mJointMotionList->mDuration );
     }
 
-    const LLJoint::JointPriority* pose_priority = (const LLJoint::JointPriority* )mCharacter->getAnimationData("Hand Pose Priority");
+    const LLJoint::JointPriority* pose_priority = static_cast<const LLJoint::JointPriority*>(mCharacter->getAnimationData("Hand Pose Priority"));
     if (pose_priority)
     {
         if (mJointMotionList->mMaxPriority >= *pose_priority)
@@ -1056,8 +1056,8 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
                                           mCharacter->getPixelArea(),
                                           MAX_PIXEL_AREA_CONSTRAINTS,
                                           MIN_PIXEL_AREA_CONSTRAINTS,
-                                          (F32)MAX_ITERATIONS,
-                                          (F32)MIN_ITERATIONS));
+                                          static_cast<F32>(MAX_ITERATIONS),
+                                          static_cast<F32>(MIN_ITERATIONS)));
 
     if (shared_data->mChainLength)
     {
@@ -1195,8 +1195,8 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
             constraint->mFixupDistanceRMS += dist_vec_squared(new_pos, constraint->mPositions[joint_num]) / delta_time;
             constraint->mPositions[joint_num] = new_pos;
         }
-        constraint->mFixupDistanceRMS *= 1.f / (constraint->mTotalLength * (F32)(shared_data->mChainLength - 1));
-        constraint->mFixupDistanceRMS = (F32) sqrt(constraint->mFixupDistanceRMS);
+        constraint->mFixupDistanceRMS *= 1.f / (constraint->mTotalLength * static_cast<F32>(shared_data->mChainLength - 1));
+        constraint->mFixupDistanceRMS = static_cast<F32>(sqrt(constraint->mFixupDistanceRMS));
 
         //reset old joint rots
         for (joint_num = 0; joint_num <= shared_data->mChainLength; joint_num++)
@@ -1281,11 +1281,11 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                    << " for animation " << asset() << LL_ENDL;
         return false;
     }
-    joint_motion_list->mBasePriority = (LLJoint::JointPriority) temp_priority;
+    joint_motion_list->mBasePriority = static_cast<LLJoint::JointPriority>(temp_priority);
 
     if (joint_motion_list->mBasePriority >= LLJoint::ADDITIVE_PRIORITY)
     {
-        joint_motion_list->mBasePriority = (LLJoint::JointPriority)((S32)LLJoint::ADDITIVE_PRIORITY-1);
+        joint_motion_list->mBasePriority = static_cast<LLJoint::JointPriority>(static_cast<S32>(LLJoint::ADDITIVE_PRIORITY)-1);
         joint_motion_list->mMaxPriority = joint_motion_list->mBasePriority;
     }
     else if (joint_motion_list->mBasePriority < LLJoint::USE_MOTION_PRIORITY)
@@ -1488,7 +1488,7 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
             S32 joint_num = joint->getJointNum();
             joint_name = joint->getName(); // canonical name in case this is an alias.
 //          LL_INFOS() << "  joint: " << joint_name << LL_ENDL;
-            if ((joint_num >= (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS) || (joint_num < 0))
+            if ((joint_num >= static_cast<S32>(LL_CHARACTER_MAX_ANIMATED_JOINTS)) || (joint_num < 0))
             {
                 LL_WARNS() << "Joint will be omitted from animation: joint_num " << joint_num
                            << " is outside of legal range [0-"
@@ -1532,14 +1532,14 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
             return false;
         }
 
-        joint_motion->mPriority = (LLJoint::JointPriority)joint_priority;
+        joint_motion->mPriority = static_cast<LLJoint::JointPriority>(joint_priority);
         if (joint_priority != LLJoint::USE_MOTION_PRIORITY &&
             joint_priority > joint_motion_list->mMaxPriority)
         {
-            joint_motion_list->mMaxPriority = (LLJoint::JointPriority)joint_priority;
+            joint_motion_list->mMaxPriority = static_cast<LLJoint::JointPriority>(joint_priority);
         }
 
-        joint_state->setPriority((LLJoint::JointPriority)joint_priority);
+        joint_state->setPriority(static_cast<LLJoint::JointPriority>(joint_priority));
 
         //---------------------------------------------------------------------
         // scan rotation curve header
@@ -1836,9 +1836,9 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                            << " for animation " << asset() << LL_ENDL;
                 return false;
             }
-            constraintp->mChainLength = (S32) byte;
+            constraintp->mChainLength = static_cast<S32>(byte);
 
-            if((U32)constraintp->mChainLength > joint_motion_list->getNumJointMotions())
+            if(static_cast<U32>(constraintp->mChainLength) > joint_motion_list->getNumJointMotions())
             {
                 LL_WARNS() << "invalid constraint chain length"
                            << " for animation " << asset() << LL_ENDL;
@@ -1858,7 +1858,7 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                            << " for animation " << asset() << LL_ENDL;
                 return false;
             }
-            constraintp->mConstraintType = (EConstraintType)byte;
+            constraintp->mConstraintType = static_cast<EConstraintType>(byte);
 
             const S32 BIN_DATA_LENGTH = 16;
             U8 bin_data[BIN_DATA_LENGTH+1];
@@ -1870,7 +1870,7 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
             }
 
             bin_data[BIN_DATA_LENGTH] = 0; // Ensure null termination
-            str = (char*)bin_data;
+            str = reinterpret_cast<char*>(bin_data);
             constraintp->mSourceConstraintVolume = mCharacter->getCollisionVolumeID(str);
             if (constraintp->mSourceConstraintVolume == -1)
             {
@@ -1901,7 +1901,7 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
             }
 
             bin_data[BIN_DATA_LENGTH] = 0; // Ensure null termination
-            str = (char*)bin_data;
+            str = reinterpret_cast<char*>(bin_data);
             if (str == "GROUND")
             {
                 // constrain to ground
@@ -2015,7 +2015,7 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 
                     if(constraint_joint == joint)
                     {
-                        constraintp->mJointStateIndices[i] = (S32)j;
+                        constraintp->mJointStateIndices[i] = static_cast<S32>(j);
                         break;
                     }
                 }
@@ -2137,7 +2137,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
         snprintf(source_volume, sizeof(source_volume), "%s",    /* Flawfinder: ignore */
                  mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolume)->getName().c_str());
 
-        success &= dp.packBinaryDataFixed((U8*)source_volume, 16, "source_volume");
+        success &= dp.packBinaryDataFixed(reinterpret_cast<U8*>(source_volume), 16, "source_volume");
         success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
         char target_volume[16]; /* Flawfinder: ignore */
         if (shared_constraintp->mConstraintTargetType == EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND)
@@ -2149,7 +2149,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
             snprintf(target_volume, sizeof(target_volume),"%s", /* Flawfinder: ignore */
                      mCharacter->findCollisionVolume(shared_constraintp->mTargetConstraintVolume)->getName().c_str());
         }
-        success &= dp.packBinaryDataFixed((U8*)target_volume, 16, "target_volume");
+        success &= dp.packBinaryDataFixed(reinterpret_cast<U8*>(target_volume), 16, "target_volume");
         success &= dp.packVector3(shared_constraintp->mTargetConstraintOffset, "target_offset");
         success &= dp.packVector3(shared_constraintp->mTargetConstraintDir, "target_dir");
         success &= dp.packF32(shared_constraintp->mEaseInStartTime, "ease_in_start");
@@ -2158,7 +2158,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
         success &= dp.packF32(shared_constraintp->mEaseOutStopTime, "ease_out_stop");
 
         LL_DEBUGS("BVH") << "  chain_length " << shared_constraintp->mChainLength << LL_ENDL;
-        LL_DEBUGS("BVH") << "  constraint_type " << (S32)shared_constraintp->mConstraintType << LL_ENDL;
+        LL_DEBUGS("BVH") << "  constraint_type " << static_cast<S32>(shared_constraintp->mConstraintType) << LL_ENDL;
         LL_DEBUGS("BVH") << "  source_volume " << source_volume << LL_ENDL;
         LL_DEBUGS("BVH") << "  source_offset " << shared_constraintp->mSourceConstraintOffset << LL_ENDL;
         LL_DEBUGS("BVH") << "  target_volume " << target_volume << LL_ENDL;
@@ -2268,16 +2268,16 @@ void LLKeyframeMotion::setPriority(S32 priority)
     if (mJointMotionList)
     {
         S32 priority_delta = priority - mJointMotionList->mBasePriority;
-        mJointMotionList->mBasePriority = (LLJoint::JointPriority)priority;
+        mJointMotionList->mBasePriority = static_cast<LLJoint::JointPriority>(priority);
         mJointMotionList->mMaxPriority = mJointMotionList->mBasePriority;
 
         for (U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
         {
             JointMotion* joint_motion = mJointMotionList->getJointMotion(i);
-            joint_motion->mPriority = (LLJoint::JointPriority)llclamp(
-                (S32)joint_motion->mPriority + priority_delta,
-                (S32)LLJoint::LOW_PRIORITY,
-                (S32)LLJoint::HIGHEST_PRIORITY);
+            joint_motion->mPriority = static_cast<LLJoint::JointPriority>(llclamp(
+                static_cast<S32>(joint_motion->mPriority) + priority_delta,
+                static_cast<S32>(LLJoint::LOW_PRIORITY),
+                static_cast<S32>(LLJoint::HIGHEST_PRIORITY)));
             getJointState(i)->setPriority(joint_motion->mPriority);
         }
     }
@@ -2411,7 +2411,7 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
                                       LLAssetType::EType type,
                                       void* user_data, S32 status, LLExtStat ext_status)
 {
-    LLUUID* id = (LLUUID*)user_data;
+    LLUUID* id = static_cast<LLUUID*>(user_data);
 
     auto char_iter = std::ranges::find_if(LLCharacter::sInstances, [&](LLCharacter* c)
         {
@@ -2512,7 +2512,7 @@ void LLKeyframeDataCache::dumpDiagInfo()
 
     LL_INFOS() << "-----------------------------------------------------" << LL_ENDL;
     LL_INFOS() << "Motions\tTotal Size" << LL_ENDL;
-    snprintf(buf, sizeof(buf), "%d\t\t%d bytes", (S32)sKeyframeDataMap.size(), total_size );        /* Flawfinder: ignore */
+    snprintf(buf, sizeof(buf), "%d\t\t%d bytes", static_cast<S32>(sKeyframeDataMap.size()), total_size );        /* Flawfinder: ignore */
     LL_INFOS() << buf << LL_ENDL;
     LL_INFOS() << "-----------------------------------------------------" << LL_ENDL;
 }

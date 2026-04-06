@@ -125,7 +125,7 @@ bool LLHandMotion::onUpdate(F32 time, U8* joint_mask)
     F32 timeDelta = time - mLastTime;
     mLastTime = time;
 
-    requestedHandPose = (eHandPose *)mCharacter->getAnimationData("Hand Pose");
+    requestedHandPose = static_cast<eHandPose*>(mCharacter->getAnimationData("Hand Pose"));
     // check to see if requested pose has changed
     if (!requestedHandPose)
     {

@@ -56,7 +56,7 @@ LLAvatarJoint *getBaseSkeletonAncestor(LLAvatarJoint* joint)
         LL_DEBUGS("Avatar") << "skipping non-base ancestor " << ancestor->getName() << LL_ENDL;
         ancestor = ancestor->getParent();
     }
-    return (LLAvatarJoint*) ancestor;
+    return static_cast<LLAvatarJoint*>(ancestor);
 }
 
 //-----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ LLVector3 totalSkinOffset(LLAvatarJoint *joint)
         {
             totalOffset += joint->getSkinOffset();
         }
-        joint = (LLAvatarJoint*)joint->getParent();
+        joint = static_cast<LLAvatarJoint*>(joint->getParent());
     }
     return totalOffset;
 }
@@ -315,7 +315,7 @@ void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
         for (jn = 0; jn < numJointNames; jn++)
         {
             //LL_INFOS() << "Setting up joint " << jointNames[jn] << LL_ENDL;
-            LLAvatarJoint* joint = (LLAvatarJoint*)(getRoot()->findJoint(jointNames[jn]) );
+            LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(getRoot()->findJoint(jointNames[jn]));
             mSkinJoints[jn].setupSkinJoint( joint );
         }
     }
@@ -323,7 +323,7 @@ void LLAvatarJointMesh::setMesh( LLPolyMesh *mesh )
     // setup joint array
     if (!mMesh->isLOD())
     {
-        setupJoint((LLAvatarJoint*)getRoot());
+        setupJoint(static_cast<LLAvatarJoint*>(getRoot()));
         LL_DEBUGS("Avatar") << getName() << " joint render entries: " << mMesh->mJointRenderData.size() << LL_ENDL;
     }
 
@@ -376,7 +376,7 @@ void LLAvatarJointMesh::setupJoint(LLAvatarJoint* current_joint)
     // depth-first traversal
     for (LLJoint* joint : current_joint->mChildren)
     {
-        LLAvatarJoint* child_joint = (LLAvatarJoint*)joint;
+        LLAvatarJoint* child_joint = static_cast<LLAvatarJoint*>(joint);
         setupJoint(child_joint);
     }
 }

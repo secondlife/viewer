@@ -110,7 +110,7 @@ bool LLKeyframeWalkMotion::onUpdate(F32 time, U8* joint_mask)
     F32 deltaTime = time - mRealTimeLast;
 
     void* speed_ptr = mCharacter->getAnimationData("Walk Speed");
-    F32 speed = (speed_ptr) ? *((F32 *)speed_ptr) : 1.f;
+    F32 speed = (speed_ptr) ? *(static_cast<F32*>(speed_ptr)) : 1.f;
 
     // adjust the passage of time accordingly
     F32 adjusted_time = mAdjTimeLast + (deltaTime * speed);

@@ -240,16 +240,16 @@ LLAvatarAppearanceDictionary::BakedEntry::BakedEntry(ETextureIndex tex_index,
     // Read in local textures
     for (U8 i=0; i < num_local_textures; i++)
     {
-        ETextureIndex t = (ETextureIndex)va_arg(argp,int);
+        ETextureIndex t = static_cast<ETextureIndex>(va_arg(argp,int));
         mLocalTextures.push_back(t);
     }
 
     // Read in number of wearables
-    const U32 num_wearables = (U32)va_arg(argp,int);
+    const U32 num_wearables = static_cast<U32>(va_arg(argp,int));
     // Read in wearables
     for (U8 i=0; i < num_wearables; i++)
     {
-        LLWearableType::EType t = (LLWearableType::EType)va_arg(argp,int);
+        LLWearableType::EType t = static_cast<LLWearableType::EType>(va_arg(argp,int));
         mWearables.push_back(t);
     }
     va_end(argp);
@@ -265,11 +265,11 @@ EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByRegionName(std::stri
     U8 index = 0;
     while (index < BAKED_NUM_INDICES)
     {
-        const BakedEntry *be = getBakedTexture((EBakedTextureIndex) index);
+        const BakedEntry *be = getBakedTexture(static_cast<EBakedTextureIndex>(index));
         if (be && be->mName.compare(name) == 0)
         {
             // baked texture found
-            return (EBakedTextureIndex) index;
+            return static_cast<EBakedTextureIndex>(index);
         }
         index++;
     }
@@ -282,14 +282,14 @@ EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByImageName(std::strin
     U8 index = 0;
     while (index < BAKED_NUM_INDICES)
     {
-        const BakedEntry *be = getBakedTexture((EBakedTextureIndex) index);
+        const BakedEntry *be = getBakedTexture(static_cast<EBakedTextureIndex>(index));
         if (be)
         {
             const TextureEntry *te = getTexture(be->mTextureIndex);
             if (te && te->mDefaultImageName.compare(name) == 0)
             {
                 // baked texture found
-                return (EBakedTextureIndex) index;
+                return static_cast<EBakedTextureIndex>(index);
             }
         }
         index++;
