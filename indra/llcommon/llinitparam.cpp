@@ -424,11 +424,11 @@ namespace LLInitParam
     const std::string& BaseBlock::getParamName(const BlockDescriptor& block_data, const Param* paramp) const
     {
         param_handle_t handle = getHandleFromParam(paramp);
-        for (BlockDescriptor::param_map_t::const_iterator it = block_data.mNamedParams.begin(); it != block_data.mNamedParams.end(); ++it)
+        for (const auto & mNamedParam : block_data.mNamedParams)
         {
-            if (it->second->mParamHandle == handle)
+            if (mNamedParam.second->mParamHandle == handle)
             {
-                return it->first;
+                return mNamedParam.first;
             }
         }
 

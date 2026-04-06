@@ -38,9 +38,9 @@ void matMulBoundBox(const LLMatrix4a &mat, const LLVector4a *in_extents, LLVecto
         //get 8 corners of bounding box
         LLVector4Logical mask[6];
 
-        for (U32 i = 0; i < 6; ++i)
+        for (auto & i : mask)
         {
-            mask[i].clear();
+            i.clear();
         }
 
         mask[0].setElement<2>(); //001

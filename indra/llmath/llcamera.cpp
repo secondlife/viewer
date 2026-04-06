@@ -42,9 +42,9 @@ LLCamera::LLCamera() :
     mPlaneCount(6),
     mFrustumCornerDist(0.f)
 {
-    for (U32 i = 0; i < PLANE_MASK_NUM; i++)
+    for (unsigned char & i : mPlaneMask)
     {
-        mPlaneMask[i] = PLANE_MASK_NONE;
+        i = PLANE_MASK_NONE;
     }
 
     calculateFrustumPlanes();
@@ -57,9 +57,9 @@ LLCamera::LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_p
     mPlaneCount(6),
     mFrustumCornerDist(0.f)
 {
-    for (U32 i = 0; i < PLANE_MASK_NUM; i++)
+    for (unsigned char & i : mPlaneMask)
     {
-        mPlaneMask[i] = PLANE_MASK_NONE;
+        i = PLANE_MASK_NONE;
     }
 
     mAspect = llclamp(aspect_ratio, MIN_ASPECT_RATIO, MAX_ASPECT_RATIO);

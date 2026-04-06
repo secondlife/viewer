@@ -261,10 +261,9 @@ void HttpService::shutdown()
     HttpRequestQueue::OpContainer ops;
     mRequestQueue->fetchAll(false, ops);
 
-    for (HttpRequestQueue::OpContainer::iterator it = ops.begin();
-        it != ops.end(); ++it)
+    for (auto & op : ops)
     {
-        (*it)->cancel();
+        op->cancel();
     }
     ops.clear();
 

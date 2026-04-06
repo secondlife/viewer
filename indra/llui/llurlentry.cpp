@@ -1163,11 +1163,8 @@ void LLUrlEntryParcel::processParcelInfo(const LLParcelData& parcel_data)
                 parcel_data.sim_name.c_str(), region_x, region_y, region_z);
     }
 
-    for (std::set<LLUrlEntryParcel*>::iterator iter = sParcelInfoObservers.begin();
-            iter != sParcelInfoObservers.end();
-            ++iter)
+    for (auto url_entry : sParcelInfoObservers)
     {
-        LLUrlEntryParcel* url_entry = *iter;
         if (url_entry)
         {
             url_entry->onParcelInfoReceived(parcel_data.parcel_id.asString(), label);
@@ -1766,17 +1763,15 @@ void LLUrlEntryKeybinding::initLocalizationFromFile(const std::string& filename)
         return;
     }
 
-    for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = contents.rows.begin();
-         row_it != contents.rows.end();
-         ++row_it)
+    for (const auto & row : contents.rows)
     {
-        std::string control = row_it->value.getValue().asString();
+        std::string control = row.value.getValue().asString();
         if (!control.empty() && control != "menu_separator")
         {
             mLocalizations[control] =
                 LLLocalizationData(
-                                   row_it->columns.begin()->value.getValue().asString(),
-                                   row_it->columns.begin()->tool_tip.getValue()
+                                   row.columns.begin()->value.getValue().asString(),
+                                   row.columns.begin()->tool_tip.getValue()
                 );
         }
     }

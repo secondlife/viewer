@@ -270,22 +270,22 @@ void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdap
 
         LLSD headers = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
         // build dummy entries for the failed requests
-        for (RequestQueue_t::const_iterator it = requests.begin(); it != requests.end(); ++it)
+        for (auto request : requests)
         {
-            LLSD exp = self->get(*it);
+            LLSD exp = self->get(request);
             //leave the properties alone if we already have a cache entry for this xp
             if (exp.isUndefined())
             {
                 exp[PROPERTIES] = PROPERTY_INVALID;
             }
             exp[EXPIRES] = now + LLExperienceCacheImpl::getErrorRetryDeltaTime(status, headers);
-            exp[EXPERIENCE_ID] = *it;
+            exp[EXPERIENCE_ID] = request;
             exp["key_type"] = EXPERIENCE_ID;
-            exp["uuid"] = *it;
+            exp["uuid"] = request;
             exp["error"] = (LLSD::Integer)status.getType();
             exp[QUOTA] = DEFAULT_QUOTA;
 
-            self->processExperience(*it, exp);
+            self->processExperience(request, exp);
         }
         return;
     }

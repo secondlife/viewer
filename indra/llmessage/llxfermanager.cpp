@@ -152,16 +152,14 @@ void LLXferManager::updateHostStatus()
     mOutgoingHosts.clear();
 
     // Loop through all outgoing xfers and re-build mOutgoingHosts
-    for (xfer_list_t::iterator send_iter = mSendList.begin();
-            send_iter != mSendList.end(); ++send_iter)
+    for (auto & send_iter : mSendList)
     {
         LLHostStatus *host_statusp = NULL;
-        for (status_list_t::iterator iter = mOutgoingHosts.begin();
-             iter != mOutgoingHosts.end(); ++iter)
+        for (auto & mOutgoingHost : mOutgoingHosts)
         {
-            if ((*iter)->mHost == (*send_iter)->mRemoteHost)
+            if (mOutgoingHost->mHost == send_iter->mRemoteHost)
             {   // Already have this host
-                host_statusp = *iter;
+                host_statusp = mOutgoingHost;
                 break;
             }
         }
@@ -170,17 +168,17 @@ void LLXferManager::updateHostStatus()
             host_statusp = new LLHostStatus();
             if (host_statusp)
             {
-                host_statusp->mHost = (*send_iter)->mRemoteHost;
+                host_statusp->mHost = send_iter->mRemoteHost;
                 mOutgoingHosts.push_front(host_statusp);
             }
         }
         if (host_statusp)
         {   // Do the accounting
-            if ((*send_iter)->mStatus == e_LL_XFER_PENDING)
+            if (send_iter->mStatus == e_LL_XFER_PENDING)
             {
                 host_statusp->mNumPending++;
             }
-            else if ((*send_iter)->mStatus == e_LL_XFER_IN_PROGRESS)
+            else if (send_iter->mStatus == e_LL_XFER_IN_PROGRESS)
             {
                 host_statusp->mNumActive++;
             }
@@ -223,10 +221,9 @@ void LLXferManager::printHostStatus()
     {
         LL_INFOS("Xfer") << "Outgoing Xfers:" << LL_ENDL;
 
-        for (status_list_t::iterator iter = mOutgoingHosts.begin();
-             iter != mOutgoingHosts.end(); ++iter)
+        for (auto & mOutgoingHost : mOutgoingHosts)
         {
-            host_statusp = *iter;
+            host_statusp = mOutgoingHost;
             LL_INFOS("Xfer") << "    " << host_statusp->mHost << "  active: " << host_statusp->mNumActive << "  pending: " << host_statusp->mNumPending << LL_ENDL;
         }
     }
@@ -236,13 +233,11 @@ void LLXferManager::printHostStatus()
 
 LLXfer * LLXferManager::findXferByID(U64 id, xfer_list_t & xfer_list)
 {
-    for (xfer_list_t::iterator iter = xfer_list.begin();
-         iter != xfer_list.end();
-         ++iter)
+    for (auto & iter : xfer_list)
     {
-        if ((*iter)->mID == id)
+        if (iter->mID == id)
         {
-            return(*iter);
+            return iter;
         }
     }
     return(NULL);
@@ -290,10 +285,9 @@ LLHostStatus * LLXferManager::findHostStatus(const LLHost &host)
 {
     LLHostStatus *host_statusp = NULL;
 
-    for (status_list_t::iterator iter = mOutgoingHosts.begin();
-         iter != mOutgoingHosts.end(); ++iter)
+    for (auto & mOutgoingHost : mOutgoingHosts)
     {
-        host_statusp = *iter;
+        host_statusp = mOutgoingHost;
         if (host_statusp->mHost == host)
         {
             return (host_statusp);
@@ -332,10 +326,9 @@ void LLXferManager::changeNumActiveXfers(const LLHost &host, S32 delta)
 {
     LLHostStatus *host_statusp = NULL;
 
-    for (status_list_t::iterator iter = mOutgoingHosts.begin();
-         iter != mOutgoingHosts.end(); ++iter)
+    for (auto & mOutgoingHost : mOutgoingHosts)
     {
-        host_statusp = *iter;
+        host_statusp = mOutgoingHost;
         if (host_statusp->mHost == host)
         {
             host_statusp->mNumActive += delta;
@@ -405,12 +398,11 @@ U64 LLXferManager::requestFile(const std::string& local_filename,
     LLXfer_File* file_xfer_p = NULL;
 
     // First check to see if it's already requested
-    for (xfer_list_t::iterator iter = mReceiveList.begin();
-            iter != mReceiveList.end(); ++iter)
+    for (auto & iter : mReceiveList)
     {
-        if ((*iter)->getXferTypeTag() == LLXfer::XFER_FILE)
+        if (iter->getXferTypeTag() == LLXfer::XFER_FILE)
         {
-            file_xfer_p = (LLXfer_File*)(*iter);
+            file_xfer_p = (LLXfer_File*)iter;
             if (file_xfer_p->matchesLocalFilename(local_filename)
                 && file_xfer_p->matchesRemoteFilename(remote_filename, remote_path)
                 && (remote_host == file_xfer_p->mRemoteHost)
@@ -418,7 +410,7 @@ U64 LLXferManager::requestFile(const std::string& local_filename,
                 && (user_data == file_xfer_p->mCallbackDataHandle))
             {
                 // Already have the request (already in progress)
-                return (*iter)->mID;
+                return iter->mID;
             }
         }
     }
@@ -468,12 +460,11 @@ void LLXferManager::requestVFile(const LLUUID& local_id,
 {
     LLXfer_VFile * xfer_p = NULL;
 
-    for (xfer_list_t::iterator iter = mReceiveList.begin();
-            iter != mReceiveList.end(); ++iter)
+    for (auto & iter : mReceiveList)
     {   // Find any matching existing requests
-        if ((*iter)->getXferTypeTag() == LLXfer::XFER_VFILE)
+        if (iter->getXferTypeTag() == LLXfer::XFER_VFILE)
         {
-            xfer_p = (LLXfer_VFile*) (*iter);
+            xfer_p = (LLXfer_VFile*) iter;
             if (xfer_p->matchesLocalFile(local_id, type)
                 && xfer_p->matchesRemoteFile(remote_id, type)
                 && (remote_host == xfer_p->mRemoteHost)
@@ -1192,11 +1183,9 @@ void LLXferManager::startPendingDownloads()
     std::list<LLXfer*> pending_downloads;
     S32 download_count = 0;
     S32 pending_count = 0;
-    for (xfer_list_t::iterator iter = mReceiveList.begin();
-         iter != mReceiveList.end();
-         ++iter)
+    for (auto & iter : mReceiveList)
     {
-        xferp = (*iter);
+        xferp = iter;
         if(xferp->mStatus == e_LL_XFER_PENDING)
         {   // Count and accumulate pending downloads
             ++pending_count;
@@ -1217,10 +1206,9 @@ void LLXferManager::startPendingDownloads()
     if((start_count > 0) && (pending_count > 0))
     {
         S32 result;
-        for (std::list<LLXfer*>::iterator iter = pending_downloads.begin();
-             iter != pending_downloads.end(); ++iter)
+        for (auto & pending_download : pending_downloads)
         {
-            xferp = *iter;
+            xferp = pending_download;
             if (start_count-- <= 0)
                 break;
             result = xferp->startDownload();

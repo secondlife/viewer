@@ -225,9 +225,9 @@ void LLSpellChecker::addToDictFile(const std::string& dict_path, const std::stri
     if (file_out.is_open())
     {
         file_out << word_list.size() << std::endl;
-        for (std::vector<std::string>::const_iterator itWord = word_list.begin(); itWord != word_list.end(); ++itWord)
+        for (const auto & itWord : word_list)
         {
-            file_out << *itWord << std::endl;
+            file_out << itWord << std::endl;
         }
         file_out.close();
     }
@@ -351,9 +351,9 @@ void LLSpellChecker::initHunspell(const std::string& dict_language)
             }
         }
 
-        for (dict_list_t::const_iterator it = mDictSecondary.begin(); it != mDictSecondary.end(); ++it)
+        for (const auto & it : mDictSecondary)
         {
-            const LLSD dict_entry = getDictionaryData(*it);
+            const LLSD dict_entry = getDictionaryData(it);
             if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) )
             {
                 continue;

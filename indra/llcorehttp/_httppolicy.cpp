@@ -86,9 +86,9 @@ HttpPolicy::~HttpPolicy()
 {
     shutdown();
 
-    for (class_list_t::iterator it(mClasses.begin()); it != mClasses.end(); ++it)
+    for (auto & mClasse : mClasses)
     {
-        delete (*it);
+        delete mClasse;
     }
     mClasses.clear();
 
@@ -110,9 +110,9 @@ HttpRequest::policy_t HttpPolicy::createPolicyClass()
 
 void HttpPolicy::shutdown()
 {
-    for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
+    for (auto & mClasse : mClasses)
     {
-        ClassState & state(*mClasses[policy_class]);
+        ClassState & state(*mClasse);
 
         HttpRetryQueue & retryq(state.mRetryQueue);
         while (! retryq.empty())
@@ -332,9 +332,9 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 
 bool HttpPolicy::cancel(HttpHandle handle)
 {
-    for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
+    for (auto & mClasse : mClasses)
     {
-        ClassState & state(*mClasses[policy_class]);
+        ClassState & state(*mClasse);
 
         // Scan retry queue
         HttpRetryQueue::container_type & c1(state.mRetryQueue.get_container());

@@ -269,10 +269,8 @@ void LLMotionController::setTimeStep(F32 step)
     if (step != 0.f)
     {
         // make sure timestamps conform to new quantum
-        for (motion_list_t::iterator iter = mActiveMotions.begin();
-             iter != mActiveMotions.end(); ++iter)
+        for (auto motionp : mActiveMotions)
         {
-            LLMotion* motionp = *iter;
             F32 activation_time = motionp->mActivationTimestamp;
             motionp->mActivationTimestamp = (F32)(llfloor(activation_time / step)) * step;
             bool stopped = motionp->isStopped();

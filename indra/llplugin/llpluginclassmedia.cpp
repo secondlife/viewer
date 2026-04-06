@@ -889,9 +889,9 @@ void LLPluginClassMedia::sendPickFileResponse(const std::vector<std::string> fil
     }
 
     LLSD file_list = LLSD::emptyArray();
-    for (std::vector<std::string>::const_iterator in_iter = files.begin(); in_iter != files.end(); ++in_iter)
+    for (const auto & file : files)
     {
-        file_list.append(LLSD::String(*in_iter));
+        file_list.append(LLSD::String(file));
     }
     message.setValueLLSD("file_list", file_list);
 

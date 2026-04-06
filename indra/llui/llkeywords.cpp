@@ -526,10 +526,8 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
             // Line start tokens
             {
                 bool line_done = false;
-                for (token_list_t::iterator iter = mLineTokenList.begin();
-                     iter != mLineTokenList.end(); ++iter)
+                for (auto cur_token : mLineTokenList)
                 {
-                    LLKeywordToken* cur_token = *iter;
                     if( cur_token->isHead( cur ) )
                     {
                         S32 seg_start = (S32)(cur - base);
@@ -566,10 +564,8 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
             {
                 S32 seg_start = 0;
                 LLKeywordToken* cur_delimiter = NULL;
-                for (token_list_t::iterator iter = mDelimiterTokenList.begin();
-                     iter != mDelimiterTokenList.end(); ++iter)
+                for (auto delimiter : mDelimiterTokenList)
                 {
-                    LLKeywordToken* delimiter = *iter;
                     if( delimiter->isHead( cur ) )
                     {
                         cur_delimiter = delimiter;

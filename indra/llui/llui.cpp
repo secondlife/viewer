@@ -372,10 +372,9 @@ void LLUI::glRectToScreen(const LLRect& gl, LLRect *screen)
 
 LLControlGroup& LLUI::getControlControlGroup (std::string_view controlname)
 {
-    for (settings_map_t::iterator itor = mSettingGroups.begin();
-         itor != mSettingGroups.end(); ++itor)
+    for (auto & mSettingGroup : mSettingGroups)
     {
-        LLControlGroup* control_group = itor->second;
+        LLControlGroup* control_group = mSettingGroup.second;
         if(control_group != NULL)
         {
             if (control_group->controlExists(controlname))

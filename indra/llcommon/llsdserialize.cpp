@@ -1487,10 +1487,10 @@ S32 LLSDNotationFormatter::format_impl(const LLSD& data, std::ostream& ostr,
                 ostr << std::uppercase;
                 auto oldfill(ostr.fill('0'));
                 auto oldwidth(ostr.width());
-                for (size_t i = 0; i < buffer.size(); i++)
+                for (unsigned char i : buffer)
                 {
                     // have to restate setw() before every conversion
-                    ostr << std::setw(2) << (int) buffer[i];
+                    ostr << std::setw(2) << (int) i;
                 }
                 ostr.width(oldwidth);
                 ostr.fill(oldfill);

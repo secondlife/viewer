@@ -50,6 +50,7 @@
 // Third-party library includes
 #include <algorithm>
 #include <functional>
+#include <ranges>
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -614,11 +615,9 @@ void LLFolderView::sanitizeSelection()
 
 void LLFolderView::clearSelection()
 {
-    for (selected_items_t::const_iterator item_it = mSelectedItems.begin();
-         item_it != mSelectedItems.end();
-         ++item_it)
+    for (auto mSelectedItem : mSelectedItems)
     {
-        (*item_it)->setUnselected();
+        mSelectedItem->setUnselected();
     }
 
     mSelectedItems.clear();
@@ -916,9 +915,8 @@ bool LLFolderView::canCopy() const
         return false;
     }
 
-    for (selected_items_t::const_iterator selected_it = mSelectedItems.begin(); selected_it != mSelectedItems.end(); ++selected_it)
+    for (auto item : mSelectedItems)
     {
-        const LLFolderViewItem* item = *selected_it;
         if (!item->getViewModelItem()->isItemCopyable())
         {
             return false;
@@ -956,9 +954,8 @@ bool LLFolderView::canCut() const
         return false;
     }
 
-    for (selected_items_t::const_iterator selected_it = mSelectedItems.begin(); selected_it != mSelectedItems.end(); ++selected_it)
+    for (auto item : mSelectedItems)
     {
-        const LLFolderViewItem* item = *selected_it;
         const LLFolderViewModelItem* listener = item->getViewModelItem();
 
         if (!listener || !listener->isItemRemovable())
@@ -982,9 +979,8 @@ void LLFolderView::cut()
         std::set<LLFolderViewItem*> inventory_selected = getSelectionList();
 
         // Move each item to the clipboard and out of their folder
-        for (std::set<LLFolderViewItem*>::iterator item_it = inventory_selected.begin(); item_it != inventory_selected.end(); ++item_it)
+        for (auto item_to_cut : inventory_selected)
         {
-            LLFolderViewItem* item_to_cut = *item_it;
             LLFolderViewModelItem* listener = item_to_cut->getViewModelItem();
             if (listener)
             {
@@ -1007,11 +1003,9 @@ bool LLFolderView::canPaste() const
 
     if(getVisible() && getEnabled())
     {
-        for (selected_items_t::const_iterator item_it = mSelectedItems.begin();
-             item_it != mSelectedItems.end(); ++item_it)
+        for (auto item : mSelectedItems)
         {
             // *TODO: only check folders and parent folders of items
-            const LLFolderViewItem* item = (*item_it);
             const LLFolderViewModelItem* listener = item->getViewModelItem();
             if(!listener || !listener->isClipboardPasteable())
             {
@@ -1556,11 +1550,8 @@ bool LLFolderView::addNoOptions(LLMenuGL* menu) const
     LLView *nooptions_item = NULL;
 
     const LLView::child_list_t *list = menu->getChildList();
-    for (LLView::child_list_t::const_iterator itor = list->begin();
-         itor != list->end();
-         ++itor)
+    for (auto menu_item : *list)
     {
-        LLView *menu_item = (*itor);
         if (menu_item->getVisible())
         {
             return false;
@@ -1969,11 +1960,8 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
     // Successively filter out invalid options
     U32 multi_select_flag = (mSelectedItems.size() > 1 ? ITEM_IN_MULTI_SELECTION : 0x0);
     U32 flags = multi_select_flag | FIRST_SELECTED_ITEM;
-    for (selected_items_t::iterator item_itor = mSelectedItems.begin();
-            item_itor != mSelectedItems.end();
-            ++item_itor)
+    for (auto selected_item : mSelectedItems)
     {
-        LLFolderViewItem* selected_item = (*item_itor);
         selected_item->buildContextMenu(*menu, flags);
         flags = multi_select_flag;
     }
@@ -2036,10 +2024,8 @@ bool LLFolderView::isFolderSelected()
 
 bool LLFolderView::selectFirstItem()
 {
-    for (folders_t::iterator iter = mFolders.begin();
-         iter != mFolders.end();++iter)
+    for (auto folder : mFolders)
     {
-        LLFolderViewFolder* folder = (*iter );
         if (folder->getVisible())
         {
             LLFolderViewItem* itemp = folder->getNextFromChild(0,true);
@@ -2049,10 +2035,8 @@ bool LLFolderView::selectFirstItem()
         }
 
     }
-    for(items_t::iterator iit = mItems.begin();
-        iit != mItems.end(); ++iit)
+    for(auto itemp : mItems)
     {
-        LLFolderViewItem* itemp = (*iit);
         if (itemp->getVisible())
         {
             setSelection(itemp,false,true);
@@ -2063,20 +2047,16 @@ bool LLFolderView::selectFirstItem()
 }
 bool LLFolderView::selectLastItem()
 {
-    for(items_t::reverse_iterator iit = mItems.rbegin();
-        iit != mItems.rend(); ++iit)
+    for(auto itemp : std::views::reverse(mItems))
     {
-        LLFolderViewItem* itemp = (*iit);
         if (itemp->getVisible())
         {
             setSelection(itemp,false,true);
             return true;
         }
     }
-    for (folders_t::reverse_iterator iter = mFolders.rbegin();
-         iter != mFolders.rend();++iter)
+    for (auto folder : std::views::reverse(mFolders))
     {
-        LLFolderViewFolder* folder = (*iter);
         if (folder->getVisible())
         {
             LLFolderViewItem* itemp = folder->getPreviousFromChild(0,true);

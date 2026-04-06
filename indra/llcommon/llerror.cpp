@@ -35,6 +35,7 @@
 #ifdef __GNUC__
 # include <cxxabi.h>
 #endif // __GNUC__
+#include <ranges>
 #include <sstream>
 #if !LL_WINDOWS
 # include <syslog.h>
@@ -1566,10 +1567,9 @@ namespace LLError
         if(! sBuffer.empty())
         {
             LL_INFOS() << " ************* PRINT OUT LL CALL STACKS ************* " << LL_ENDL;
-            for (StringVector::const_reverse_iterator ri(sBuffer.rbegin()), re(sBuffer.rend());
-                 ri != re; ++ri)
+            for (const auto & ri : std::views::reverse(sBuffer))
             {
-                LL_INFOS() << (*ri) << LL_ENDL;
+                LL_INFOS() << ri << LL_ENDL;
             }
             LL_INFOS() << " *************** END OF LL CALL STACKS *************** " << LL_ENDL;
         }

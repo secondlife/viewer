@@ -279,11 +279,9 @@ void LLToolTip::initFromParams(const LLToolTip::Params& p)
 
     if (p.styled_message.isProvided())
     {
-        for (LLInitParam::ParamIterator<LLToolTip::StyledText>::const_iterator text_it = p.styled_message.begin();
-            text_it != p.styled_message.end();
-            ++text_it)
+        for (const auto & text_it : p.styled_message)
         {
-            mTextBox->appendText(text_it->text(), false, text_it->style);
+            mTextBox->appendText(text_it.text(), false, text_it.style);
         }
     }
     else

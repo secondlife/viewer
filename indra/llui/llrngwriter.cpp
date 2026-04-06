@@ -130,28 +130,24 @@ void LLRNGWriter::writeAttribute(const std::string& type, const Parser::name_sta
 
     name_stack_t non_empty_names;
     std::string attribute_name;
-    for (name_stack_t::const_iterator it = stack.begin();
-        it != stack.end();
-        ++it)
+    for (const auto & it : stack)
     {
-        const std::string& name = it->first;
+        const std::string& name = it.first;
         if (!name.empty())
         {
-            non_empty_names.push_back(*it);
+            non_empty_names.push_back(it);
         }
     }
 
     if (non_empty_names.empty()) return;
 
-    for (name_stack_t::const_iterator it = non_empty_names.begin();
-        it != non_empty_names.end();
-        ++it)
+    for (const auto & non_empty_name : non_empty_names)
     {
         if (!attribute_name.empty())
         {
             attribute_name += ".";
         }
-        attribute_name += it->first;
+        attribute_name += non_empty_name.first;
     }
 
     // singular attribute, e.g. <foo bar="1"/>
@@ -273,11 +269,9 @@ void LLRNGWriter::addTypeNode(LLXMLNodePtr parent_node, const std::string& type,
     if (possible_values)
     {
         LLXMLNodePtr enum_node = parent_node->createChild("choice", false);
-        for (std::vector<std::string>::const_iterator it = possible_values->begin();
-            it != possible_values->end();
-            ++it)
+        for (const auto & possible_value : *possible_values)
         {
-            enum_node->createChild("value", false)->setStringValue(*it);
+            enum_node->createChild("value", false)->setStringValue(possible_value);
         }
     }
     else

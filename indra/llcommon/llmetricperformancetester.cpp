@@ -222,20 +222,20 @@ void LLMetricPerformanceTesterBasic::analyzePerformance(llofstream* os, LLSD* ba
         {
             *os << llformat("%s\n", label.c_str()) ;
 
-            for(U32 index = 0 ; index < mMetricStrings.size() ; index++)
+            for(const auto & mMetricString : mMetricStrings)
             {
-                switch((*current)[label][ mMetricStrings[index] ].type())
+                switch((*current)[label][ mMetricString ].type())
                 {
                 case LLSD::TypeInteger:
-                    compareTestResults(os, mMetricStrings[index],
-                        (S32)((*base)[label][ mMetricStrings[index] ].asInteger()), (S32)((*current)[label][ mMetricStrings[index] ].asInteger())) ;
+                    compareTestResults(os, mMetricString,
+                        (S32)((*base)[label][ mMetricString ].asInteger()), (S32)((*current)[label][ mMetricString ].asInteger())) ;
                     break ;
                 case LLSD::TypeReal:
-                    compareTestResults(os, mMetricStrings[index],
-                        (F32)((*base)[label][ mMetricStrings[index] ].asReal()), (F32)((*current)[label][ mMetricStrings[index] ].asReal())) ;
+                    compareTestResults(os, mMetricString,
+                        (F32)((*base)[label][ mMetricString ].asReal()), (F32)((*current)[label][ mMetricString ].asReal())) ;
                     break;
                 default:
-                    LL_ERRS() << "unsupported metric " << mMetricStrings[index] << " LLSD type: " << (S32)(*current)[label][ mMetricStrings[index] ].type() << LL_ENDL ;
+                    LL_ERRS() << "unsupported metric " << mMetricString << " LLSD type: " << (S32)(*current)[label][ mMetricString ].type() << LL_ENDL ;
                 }
             }
         }

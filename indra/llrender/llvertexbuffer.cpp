@@ -1230,9 +1230,8 @@ U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 inde
 
         bool flagged = false;
         // flag region as mapped
-        for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
+        for (auto & region : mMappedVertexRegions)
         {
-            MappedRegion& region = mMappedVertexRegions[i];
             if (expand_region(region, start, end))
             {
                 flagged = true;
@@ -1266,9 +1265,8 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 
         bool flagged = false;
         // flag region as mapped
-        for (U32 i = 0; i < mMappedIndexRegions.size(); ++i)
+        for (auto & region : mMappedIndexRegions)
         {
-            MappedRegion& region = mMappedIndexRegions[i];
             if (expand_region(region, start, end))
             {
                 flagged = true;
@@ -1418,9 +1416,8 @@ void LLVertexBuffer::_unmapBuffer()
 
             std::ranges::sort(mMappedVertexRegions, SortMappedRegion());
 
-            for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
+            for (auto region : mMappedVertexRegions)
             {
-                const MappedRegion& region = mMappedVertexRegions[i];
                 if (region.mStart == end + 1)
                 {
                     end = region.mEnd;
@@ -1451,9 +1448,8 @@ void LLVertexBuffer::_unmapBuffer()
 
             std::ranges::sort(mMappedIndexRegions, SortMappedRegion());
 
-            for (U32 i = 0; i < mMappedIndexRegions.size(); ++i)
+            for (auto region : mMappedIndexRegions)
             {
-                const MappedRegion& region = mMappedIndexRegions[i];
                 if (region.mStart == end + 1)
                 {
                     end = region.mEnd;

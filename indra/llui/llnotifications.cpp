@@ -717,11 +717,11 @@ void LLNotification::respond(const LLSD& response)
         }
     }
 
-    for (std::vector<LLNotificationPtr>::const_iterator it = mCombinedNotifications.begin(); it != mCombinedNotifications.end(); ++it)
+    for (const auto & mCombinedNotification : mCombinedNotifications)
     {
-        if ((*it))
+        if (mCombinedNotification)
         {
-            (*it)->respond(response);
+            mCombinedNotification->respond(response);
         }
     }
 
@@ -838,15 +838,13 @@ bool LLNotification::isEquivalentTo(LLNotificationPtr that) const
         const LLSD& that_payload = that->getPayload();
 
         // highlander bit sez there can only be one of these
-        for (std::vector<std::string>::const_iterator it = mTemplatep->mUniqueContext.begin(), end_it = mTemplatep->mUniqueContext.end();
-            it != end_it;
-            ++it)
+        for (const auto & it : mTemplatep->mUniqueContext)
         {
             // if templates differ in either substitution strings or payload with the given field name
             // then they are considered inequivalent
             // use of get() avoids converting the LLSD value to a map as the [] operator would
-            if (these_substitutions.get(*it).asString() != those_substitutions.get(*it).asString()
-                || this_payload.get(*it).asString() != that_payload.get(*it).asString())
+            if (these_substitutions.get(it).asString() != those_substitutions.get(it).asString()
+                || this_payload.get(it).asString() != that_payload.get(it).asString())
             {
                 return false;
             }
@@ -1000,9 +998,9 @@ LLBoundListener LLNotificationChannelBase::connectChangedImpl(const LLEventListe
     // we use a special signal called "load" in case the channel wants to care
     // only about new notifications
     LLMutexLock lock(&mItemsMutex);
-    for (LLNotificationSet::iterator it = mItems.begin(); it != mItems.end(); ++it)
+    for (const auto & mItem : mItems)
     {
-        slot(LLSD().with("sigtype", "load").with("id", (*it)->id()));
+        slot(LLSD().with("sigtype", "load").with("id", mItem->id()));
     }
     // and then connect the signal so that all future notifications will also be
     // forwarded.
@@ -1011,9 +1009,9 @@ LLBoundListener LLNotificationChannelBase::connectChangedImpl(const LLEventListe
 
 LLBoundListener LLNotificationChannelBase::connectAtFrontChangedImpl(const LLEventListener& slot)
 {
-    for (LLNotificationSet::iterator it = mItems.begin(); it != mItems.end(); ++it)
+    for (const auto & mItem : mItems)
     {
-        slot(LLSD().with("sigtype", "load").with("id", (*it)->id()));
+        slot(LLSD().with("sigtype", "load").with("id", mItem->id()));
     }
     return mChanged.connect(slot, boost::signals2::at_front);
 }
@@ -1212,9 +1210,9 @@ std::string LLNotificationChannel::summarize()
     s += mName;
     s += "'\n  ";
     LLMutexLock lock(&mItemsMutex);
-    for (LLNotificationChannel::Iterator it = mItems.begin(); it != mItems.end(); ++it)
+    for (const auto & mItem : mItems)
     {
-        s += (*it)->summarize();
+        s += mItem->summarize();
         s += "\n  ";
     }
     return s;
@@ -1512,9 +1510,9 @@ void LLNotifications::forceResponse(const LLNotification::Params& params, S32 op
 LLNotifications::TemplateNames LLNotifications::getTemplateNames() const
 {
     TemplateNames names;
-    for (TemplateMap::const_iterator it = mTemplates.begin(); it != mTemplates.end(); ++it)
+    for (const auto & mTemplate : mTemplates)
     {
-        names.push_back(it->first);
+        names.push_back(mTemplate.first);
     }
     return names;
 }
@@ -1781,22 +1779,16 @@ void LLNotifications::cancelByName(std::string_view name)
 {
     LLMutexLock lock(&mItemsMutex);
     std::vector<LLNotificationPtr> notifs_to_cancel;
-    for (LLNotificationSet::iterator it=mItems.begin(), end_it = mItems.end();
-        it != end_it;
-        ++it)
+    for (auto pNotif : mItems)
     {
-        LLNotificationPtr pNotif = *it;
         if (pNotif->getName() == name)
         {
             notifs_to_cancel.push_back(pNotif);
         }
     }
 
-    for (std::vector<LLNotificationPtr>::iterator it = notifs_to_cancel.begin(), end_it = notifs_to_cancel.end();
-        it != end_it;
-        ++it)
+    for (auto pNotif : notifs_to_cancel)
     {
-        LLNotificationPtr pNotif = *it;
         pNotif->cancel();
         updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);
     }
@@ -1806,22 +1798,16 @@ void LLNotifications::cancelByOwner(const LLUUID ownerId)
 {
     LLMutexLock lock(&mItemsMutex);
     std::vector<LLNotificationPtr> notifs_to_cancel;
-    for (LLNotificationSet::iterator it = mItems.begin(), end_it = mItems.end();
-         it != end_it;
-         ++it)
+    for (auto pNotif : mItems)
     {
-        LLNotificationPtr pNotif = *it;
         if (pNotif && pNotif->getPayload().get("owner_id").asUUID() == ownerId)
         {
             notifs_to_cancel.push_back(pNotif);
         }
     }
 
-    for (std::vector<LLNotificationPtr>::iterator it = notifs_to_cancel.begin(), end_it = notifs_to_cancel.end();
-         it != end_it;
-         ++it)
+    for (auto pNotif : notifs_to_cancel)
     {
-        LLNotificationPtr pNotif = *it;
         pNotif->cancel();
         updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);
     }

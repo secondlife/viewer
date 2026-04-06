@@ -2203,11 +2203,8 @@ LLView* LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 
     if (snap_type == SNAP_SIBLINGS || snap_type == SNAP_PARENT_AND_SIBLINGS)
     {
-        for ( child_list_const_iter_t child_it = mParentView->getChildList()->begin();
-              child_it != mParentView->getChildList()->end(); ++child_it)
+        for (auto siblingp : *mParentView->getChildList())
         {
-            LLView* siblingp = *child_it;
-
             if (!canSnapTo(siblingp)) continue;
 
             LLRect sibling_rect = siblingp->getSnapRect();

@@ -433,13 +433,11 @@ HttpStatus HttpRequest::update(long usecs)
         mReplyQueue->fetchAll(replies);
         if (! replies.empty())
         {
-            for (HttpReplyQueue::OpContainer::iterator iter(replies.begin());
-                 replies.end() != iter;
-                 ++iter)
+            for (auto & replie : replies)
             {
                 // Swap op pointer for NULL;
                 op.reset();
-                op.swap(*iter);
+                op.swap(replie);
 
                 // Process operation
                 op->visitNotifier(this);

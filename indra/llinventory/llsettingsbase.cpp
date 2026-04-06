@@ -520,7 +520,7 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
     validated.insert(validateFlags.getName());
 
     // Fields for specific settings.
-    for (validation_list_t::iterator itv = validations.begin(); itv != validations.end(); ++itv)
+    for (auto & validation : validations)
     {
 #ifdef VALIDATION_DEBUG
         LLSD oldvalue;
@@ -530,15 +530,15 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
         }
 #endif
 
-        if (!(*itv).verify(settings, flags))
+        if (!validation.verify(settings, flags))
         {
             std::stringstream errtext;
 
-            errtext << "Settings LLSD fails validation and could not be corrected for '" << (*itv).getName() << "'!\n";
+            errtext << "Settings LLSD fails validation and could not be corrected for '" << validation.getName() << "'!\n";
             errors.append( errtext.str() );
             isValid = false;
         }
-        validated.insert((*itv).getName());
+        validated.insert(validation.getName());
 
 #ifdef VALIDATION_DEBUG
         if (!oldvalue.isUndefined())
@@ -564,9 +564,9 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
         }
     }
 
-    for (stringset_t::iterator its = strip.begin(); its != strip.end(); ++its)
+    for (const auto & its : strip)
     {
-        settings.erase(*its);
+        settings.erase(its);
     }
 
     return LLSDMap("success", LLSD::Boolean(isValid))

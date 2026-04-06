@@ -2704,9 +2704,9 @@ void LLTextEditor::updateLinkSegments()
     LLWString wtext = getWText();
 
     // update any segments that contain a link
-    for (segment_set_t::iterator it = mSegments.begin(); it != mSegments.end(); ++it)
+    for (const auto & mSegment : mSegments)
     {
-        LLTextSegment *segment = *it;
+        LLTextSegment *segment = mSegment;
         if (segment && segment->getStyle() && segment->getStyle()->isLink())
         {
             LLStyleConstSP style = segment->getStyle();

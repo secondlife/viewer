@@ -834,9 +834,9 @@ void LLRender::refreshState()
 
     U32 active_unit = mCurrTextureUnitIndex;
 
-    for (U32 i = 0; i < mTexUnits.size(); i++)
+    for (auto & mTexUnit : mTexUnits)
     {
-        mTexUnits[i].refreshState();
+        mTexUnit.refreshState();
     }
 
     mTexUnits[active_unit].activate();

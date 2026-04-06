@@ -271,12 +271,12 @@ LLAvatarAppearance::~LLAvatarAppearance()
     delete_and_clear(mTexHairColor);
     delete_and_clear(mTexEyeColor);
 
-    for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
+    for (auto & mBakedTextureData : mBakedTextureDatas)
     {
-        delete_and_clear(mBakedTextureDatas[i].mTexLayerSet);
-        mBakedTextureDatas[i].mJointMeshes.clear();
+        delete_and_clear(mBakedTextureData.mTexLayerSet);
+        mBakedTextureData.mJointMeshes.clear();
 
-        for (LLMaskedMorph* masked_morph : mBakedTextureDatas[i].mMaskedMorphs)
+        for (LLMaskedMorph* masked_morph : mBakedTextureData.mMaskedMorphs)
         {
             delete masked_morph;
         }

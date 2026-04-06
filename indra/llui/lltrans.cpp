@@ -77,11 +77,9 @@ bool LLTrans::parseStrings(LLXMLNodePtr& root, const std::set<std::string>& defa
     sStringTemplates.clear();
     sDefaultArgs.clear();
 
-    for(LLInitParam::ParamIterator<StringDef>::const_iterator it = string_table.strings.begin();
-        it != string_table.strings.end();
-        ++it)
+    for(const auto & string : string_table.strings)
     {
-        LLTransTemplate xml_template(it->name, it->value);
+        LLTransTemplate xml_template(string.name, string.value);
         sStringTemplates[xml_template.mName] = xml_template;
         if (!default_strings_init)
         {
@@ -122,12 +120,10 @@ bool LLTrans::parseLanguageStrings(LLXMLNodePtr& root)
         return false;
     }
 
-    for(LLInitParam::ParamIterator<StringDef>::const_iterator it = string_table.strings.begin();
-        it != string_table.strings.end();
-        ++it)
+    for(const auto & string : string_table.strings)
     {
         // share the same map with parseStrings() so we can search the strings using the same getString() function.- angela
-        LLTransTemplate xml_template(it->name, it->value);
+        LLTransTemplate xml_template(string.name, string.value);
         sStringTemplates[xml_template.mName] = xml_template;
     }
 

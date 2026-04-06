@@ -59,9 +59,8 @@ F32 calc_tick_value(F32 min, F32 max)
     // try storing
     S32 best_decimal_digit_count = S32_MAX;
     S32 best_divisor = 10;
-    for (U32 divisor_idx = 0; divisor_idx < LL_ARRAY_SIZE(DIVISORS); divisor_idx++)
+    for (int divisor : DIVISORS)
     {
-        S32 divisor = DIVISORS[divisor_idx];
         F32 possible_tick_value = range / divisor;
         S32 num_whole_digits = llceil(logf(llabs(min + possible_tick_value)) * OO_LN10);
         for (S32 digit_count = -(num_whole_digits - 1); digit_count < 6; digit_count++)

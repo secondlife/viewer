@@ -191,10 +191,10 @@ void LLGLSLShader::dumpStats(boost::json::object& stats)
     auto& files = filesit->value().as_array();
     LL_INFOS() << "=============================================" << LL_ENDL;
     LL_INFOS() << mName << LL_ENDL;
-    for (U32 i = 0; i < mShaderFiles.size(); ++i)
+    for (auto & mShaderFile : mShaderFiles)
     {
-        LL_INFOS() << mShaderFiles[i].first << LL_ENDL;
-        files.emplace_back(mShaderFiles[i].first);
+        LL_INFOS() << mShaderFile.first << LL_ENDL;
+        files.emplace_back(mShaderFile.first);
     }
     LL_INFOS() << "=============================================" << LL_ENDL;
 

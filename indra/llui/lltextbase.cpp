@@ -537,11 +537,8 @@ void LLTextBase::drawSelectionBackground()
         LLColor4 selection_color(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], alpha);
         LLRect content_display_rect = getVisibleDocumentRect();
 
-        for (std::vector<LLRect>::iterator rect_it = selection_rects.begin();
-            rect_it != selection_rects.end();
-            ++rect_it)
+        for (auto selection_rect : selection_rects)
         {
-            LLRect selection_rect = *rect_it;
             if (mScroller)
             {
                 // If scroller is On content_display_rect has correct rect and safe to use as is
@@ -602,11 +599,10 @@ void LLTextBase::drawHighlightedBackground()
 
         LLRect content_display_rect = getVisibleDocumentRect();
 
-        for (std::vector<std::pair<LLRect, LLUIColor>>::iterator rect_it = highlight_rects.begin();
-             rect_it != highlight_rects.end(); ++rect_it)
+        for (auto & highlight_rect : highlight_rects)
         {
-            LLRect selection_rect = rect_it->first;
-            const LLColor4& color = rect_it->second;
+            LLRect selection_rect = highlight_rect.first;
+            const LLColor4& color = highlight_rect.second;
             if (mScroller)
             {
                 // If scroller is On content_display_rect has correct rect and safe to use as is
@@ -1029,11 +1025,9 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
             // potentially overwritten by segments passed in
             insertSegment(default_segment);
         }
-        for (segment_vec_t::iterator seg_iter = segments->begin();
-            seg_iter != segments->end();
-            ++seg_iter)
+        for (auto & segment : *segments)
         {
-            LLTextSegment* segmentp = *seg_iter;
+            LLTextSegment* segmentp = segment;
             insertSegment(segmentp);
         }
     }
@@ -1308,23 +1302,21 @@ bool LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
         S32 real_line = getLineNumFromDocIndex(mCursorPos, false);
         S32 line_start = -1;
         S32 line_end = -1;
-        for (line_list_t::const_iterator it = mLineInfoList.begin(), end_it = mLineInfoList.end();
-                it != end_it;
-                ++it)
+        for (const auto & it : mLineInfoList)
         {
-            if (it->mLineNum < real_line)
+            if (it.mLineNum < real_line)
             {
                 continue;
             }
-            if (it->mLineNum > real_line)
+            if (it.mLineNum > real_line)
             {
                 break;
             }
             if (line_start == -1)
             {
-                line_start = it->mDocIndexStart;
+                line_start = it.mDocIndexStart;
             }
-            line_end = it->mDocIndexEnd;
+            line_end = it.mDocIndexEnd;
             line_end = llclamp(line_end, 0, getLength());
         }
 
@@ -1656,20 +1648,20 @@ U32 LLTextBase::getSuggestionCount() const
 
 void LLTextBase::replaceWithSuggestion(U32 index)
 {
-    for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
+    for (auto mMisspellRange : mMisspellRanges)
     {
-        if ( (it->first <= (U32)mCursorPos) && (it->second >= (U32)mCursorPos) )
+        if ( (mMisspellRange.first <= (U32)mCursorPos) && (mMisspellRange.second >= (U32)mCursorPos) )
         {
             deselect();
             // Insert the suggestion in its place
             LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
-            insertStringNoUndo(it->first, utf8str_to_wstring(mSuggestionList[index]));
+            insertStringNoUndo(mMisspellRange.first, utf8str_to_wstring(mSuggestionList[index]));
 
             // Delete the misspelled word
-            removeStringNoUndo(it->first + (S32)suggestion.length(), it->second - it->first);
+            removeStringNoUndo(mMisspellRange.first + (S32)suggestion.length(), mMisspellRange.second - mMisspellRange.first);
 
 
-            setCursorPos(it->first + (S32)suggestion.length());
+            setCursorPos(mMisspellRange.first + (S32)suggestion.length());
             onSpellCheckPerformed();
 
             break;
@@ -1706,11 +1698,11 @@ bool LLTextBase::canAddToIgnore() const
 
 std::string LLTextBase::getMisspelledWord(U32 pos) const
 {
-    for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
+    for (auto mMisspellRange : mMisspellRanges)
     {
-        if ( (it->first <= pos) && (it->second >= pos) )
+        if ( (mMisspellRange.first <= pos) && (mMisspellRange.second >= pos) )
         {
-            return wstring_to_utf8str(getWText().substr(it->first, it->second - it->first));
+            return wstring_to_utf8str(getWText().substr(mMisspellRange.first, mMisspellRange.second - mMisspellRange.first));
         }
     }
     return LLStringUtil::null;
@@ -1718,9 +1710,9 @@ std::string LLTextBase::getMisspelledWord(U32 pos) const
 
 bool LLTextBase::isMisspelledWord(U32 pos) const
 {
-    for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
+    for (auto mMisspellRange : mMisspellRanges)
     {
-        if ( (it->first <= pos) && (it->second >= pos) )
+        if ( (mMisspellRange.first <= pos) && (mMisspellRange.second >= pos) )
         {
             return true;
         }
@@ -1967,11 +1959,8 @@ void LLTextBase::reflow()
         // calculate visible region for diplaying text
         updateRects();
 
-        for (segment_set_t::iterator segment_it = mSegments.begin();
-            segment_it != mSegments.end();
-            ++segment_it)
+        for (auto segmentp : mSegments)
         {
-            LLTextSegmentPtr segmentp = *segment_it;
             segmentp->updateLayout(*this);
 
         }
@@ -2656,9 +2645,8 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
         LLStyle::Params highlight_params(style_params);
 
         auto pieces = LLTextParser::instance().parsePartialLineHighlights(new_text, highlight_params.color, (LLTextParser::EHighlightPosition)highlight_part);
-        for (S32 i = 0; i < pieces.size(); i++)
+        for (const auto & piece_pair : pieces)
         {
-            const auto& piece_pair = pieces[i];
             highlight_params.color = piece_pair.second;
 
             LLWString wide_text;
@@ -3261,9 +3249,9 @@ void LLTextBase::updateRects()
             break;
         }
         // move line segments to fit new document rect
-        for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
+        for (auto & it : mLineInfoList)
         {
-            it->mRect.translate(0, delta_pos);
+            it.mRect.translate(0, delta_pos);
         }
         mTextBoundingRect.translate(0, delta_pos);
     }
@@ -3338,9 +3326,9 @@ void LLTextBase::updateRects()
         // move line segments to fit new visible rect
         if (delta_pos != 0)
         {
-            for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
+            for (auto & it : mLineInfoList)
             {
-                it->mRect.translate(0, delta_pos);
+                it.mRect.translate(0, delta_pos);
             }
             mTextBoundingRect.translate(0, delta_pos);
         }
@@ -3406,20 +3394,18 @@ LLRect LLTextBase::getVisibleDocumentRect() const
 
         // reject partially visible lines
         LLRect visible_lines_rect;
-        for (line_list_t::const_iterator it = mLineInfoList.begin(), end_it = mLineInfoList.end();
-            it != end_it;
-            ++it)
+        for (const auto & it : mLineInfoList)
         {
-            bool line_visible = mClipPartial ? visible_text_rect.contains(it->mRect) : visible_text_rect.overlaps(it->mRect);
+            bool line_visible = mClipPartial ? visible_text_rect.contains(it.mRect) : visible_text_rect.overlaps(it.mRect);
             if (line_visible)
             {
                 if (visible_lines_rect.isEmpty())
                 {
-                    visible_lines_rect = it->mRect;
+                    visible_lines_rect = it.mRect;
                 }
                 else
                 {
-                    visible_lines_rect.unionWith(it->mRect);
+                    visible_lines_rect.unionWith(it.mRect);
                 }
             }
         }

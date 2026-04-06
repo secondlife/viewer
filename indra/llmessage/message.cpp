@@ -783,9 +783,9 @@ void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
         if (!mDenyTrustedCircuitSet.empty())
         {
             LL_INFOS("Messaging") << "Sending queued DenyTrustedCircuit messages." << LL_ENDL;
-            for (host_set_t::iterator hostit = mDenyTrustedCircuitSet.begin(); hostit != mDenyTrustedCircuitSet.end(); ++hostit)
+            for (const auto & hostit : mDenyTrustedCircuitSet)
             {
-                reallySendDenyTrustedCircuit(*hostit);
+                reallySendDenyTrustedCircuit(hostit);
             }
             mDenyTrustedCircuitSet.clear();
         }
@@ -2118,11 +2118,9 @@ void LLMessageSystem::setMessageBans(
     LL_DEBUGS("AppInit") << "LLMessageSystem::setMessageBans:" << LL_ENDL;
     bool any_set = false;
 
-    for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
-             end = mMessageTemplates.end();
-         iter != end; ++iter)
+    for (auto & mMessageTemplate : mMessageTemplates)
     {
-        LLMessageTemplate* mt = iter->second;
+        LLMessageTemplate* mt = mMessageTemplate.second;
 
         std::string name(mt->mName);
         bool ban_from_trusted
@@ -2629,11 +2627,9 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
     buffer = llformat( "%35s%10s%10s%10s%10s", "Message", "Count", "Time", "Max", "Avg");
     str << buffer << std:: endl;
     F32 avg;
-    for (message_template_name_map_t::const_iterator iter = mMessageTemplates.begin(),
-             end = mMessageTemplates.end();
-         iter != end; iter++)
+    for (auto mMessageTemplate : mMessageTemplates)
     {
-        const LLMessageTemplate* mt = iter->second;
+        const LLMessageTemplate* mt = mMessageTemplate.second;
         if(mt->mTotalDecoded > 0)
         {
             avg = mt->mTotalDecodeTime / (F32)mt->mTotalDecoded;
@@ -2668,11 +2664,9 @@ void LLMessageSystem::resetReceiveCounts()
 {
     mNumMessageCounts = 0;
 
-    for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
-             end = mMessageTemplates.end();
-         iter != end; iter++)
+    for (auto & mMessageTemplate : mMessageTemplates)
     {
-        LLMessageTemplate* mt = iter->second;
+        LLMessageTemplate* mt = mMessageTemplate.second;
         mt->mDecodeTimeThisFrame = 0.f;
     }
 }
@@ -2682,11 +2676,9 @@ void LLMessageSystem::dumpReceiveCounts()
 {
     LLMessageTemplate       *mt;
 
-    for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
-             end = mMessageTemplates.end();
-         iter != end; iter++)
+    for (auto & mMessageTemplate : mMessageTemplates)
     {
-        LLMessageTemplate* mt = iter->second;
+        LLMessageTemplate* mt = mMessageTemplate.second;
         mt->mReceiveCount = 0;
         mt->mReceiveBytes = 0;
         mt->mReceiveInvalid = 0;
@@ -2710,11 +2702,9 @@ void LLMessageSystem::dumpReceiveCounts()
     if(mNumMessageCounts > 0)
     {
         LL_DEBUGS("Messaging") << "Dump: " << mNumMessageCounts << " messages processed in " << mReceiveTime << " seconds" << LL_ENDL;
-        for (message_template_name_map_t::const_iterator iter = mMessageTemplates.begin(),
-                 end = mMessageTemplates.end();
-             iter != end; iter++)
+        for (auto mMessageTemplate : mMessageTemplates)
         {
-            const LLMessageTemplate* mt = iter->second;
+            const LLMessageTemplate* mt = mMessageTemplate.second;
             if (mt->mReceiveCount > 0)
             {
                 LL_INFOS("Messaging") << "Num: " << std::setw(3) << mt->mReceiveCount << " Bytes: " << std::setw(6) << mt->mReceiveBytes
@@ -3151,9 +3141,9 @@ bool LLMessageSystem::isMatchingDigestForWindowAndUUIDs(const char* digest, cons
     window_bin[0] = now;
     window_bin[1] = now - 1;
     window_bin[2] = now + 1;
-    for(S32 i = 0; i < WINDOW_BIN_COUNT; ++i)
+    for(unsigned int i : window_bin)
     {
-        generateDigestForNumberAndUUIDs(our_digest, window_bin[i], id2, id1);
+        generateDigestForNumberAndUUIDs(our_digest, i, id2, id1);
         if(0 == strncmp(digest, our_digest, MD5HEX_STR_BYTES))
         {
             return true;
@@ -3217,9 +3207,9 @@ bool LLMessageSystem::isMatchingDigestForWindow(const char* digest, S32 const wi
     window_bin[0] = now;
     window_bin[1] = now - 1;
     window_bin[2] = now + 1;
-    for(S32 i = 0; i < WINDOW_BIN_COUNT; ++i)
+    for(unsigned int i : window_bin)
     {
-        generateDigestForNumber(our_digest, window_bin[i]);
+        generateDigestForNumber(our_digest, i);
         if(0 == strncmp(digest, our_digest, MD5HEX_STR_BYTES))
         {
             return true;

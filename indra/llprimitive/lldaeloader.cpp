@@ -246,13 +246,13 @@ LLModel::EModelStatus load_face_from_dom_triangles(
 
         if (point_iter != point_map.end())
         {
-            for (U32 j = 0; j < point_iter->second.size(); ++j)
+            for (auto & j : point_iter->second)
             {
                 // We have a matching loc
                 //
-                if ((point_iter->second)[j] == cv)
+                if (j == cv)
                 {
-                    U16 shared_index    = (point_iter->second)[j].mIndex;
+                    U16 shared_index    = j.mIndex;
 
                     // Don't share verts within the same tri, degenerate
                     //
@@ -502,12 +502,12 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 
             if (point_iter != point_map.end())
             {
-                for (U32 k = 0; k < point_iter->second.size(); ++k)
+                for (auto & k : point_iter->second)
                 {
-                    if ((point_iter->second)[k] == cv)
+                    if (k == cv)
                     {
                         found = true;
-                        U32 index = (point_iter->second)[k].mIndex;
+                        U32 index = k.mIndex;
                         if (j == 0)
                         {
                             first_index = index;
@@ -796,12 +796,12 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
     std::map<LLVolumeFace::VertexData, U32> vert_idx;
 
     U32 cur_idx = 0;
-    for (U32 i = 0; i < verts.size(); ++i)
+    for (const auto & vert : verts)
     {
-        std::map<LLVolumeFace::VertexData, U32>::iterator iter = vert_idx.find(verts[i]);
+        std::map<LLVolumeFace::VertexData, U32>::iterator iter = vert_idx.find(vert);
         if (iter == vert_idx.end())
         {
-            vert_idx[verts[i]] = cur_idx++;
+            vert_idx[vert] = cur_idx++;
         }
     }
 
@@ -1300,10 +1300,8 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         else
         {
             //Has one or more skeletons
-            for (std::vector<domInstance_controller::domSkeleton*>::iterator skel_it = skeletons.begin();
-                 skel_it != skeletons.end(); ++skel_it)
+            for (auto pSkeleton : skeletons)
             {
-                domInstance_controller::domSkeleton* pSkeleton = *skel_it;
                 //Get the root node of the skeleton
                 daeElement* pSkeletonRootNode = pSkeleton->getValue().getElement();
                 if ( pSkeletonRootNode )
@@ -1659,9 +1657,9 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                     F32 scale = 1.f/total;
                     if (scale != 1.f)
                     { //normalize weights
-                        for (U32 i = 0; i < wght.size(); ++i)
+                        for (auto & i : wght)
                         {
-                            wght[i].mWeight *= scale;
+                            i.mWeight *= scale;
                         }
                     }
 
@@ -1679,9 +1677,9 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         transformation *= mTransform;
 
         std::map<std::string, LLImportMaterial> materials;
-        for (U32 i = 0; i < model->mMaterialList.size(); ++i)
+        for (const auto & i : model->mMaterialList)
         {
-            materials[model->mMaterialList[i]] = LLImportMaterial();
+            materials[i] = LLImportMaterial();
         }
         // todo: likely a bug here, shouldn't be using suffixed label, see how it gets used in other places.
         mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
@@ -2202,7 +2200,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
 std::map<std::string, LLImportMaterial> LLDAELoader::getMaterials(LLModel* model, domInstance_geometry* instance_geo, DAE* dae)
 {
     std::map<std::string, LLImportMaterial> materials;
-    for (int i = 0; i < model->mMaterialList.size(); i++)
+    for (const auto & i : model->mMaterialList)
     {
         LLImportMaterial import_material;
 
@@ -2218,7 +2216,7 @@ std::map<std::string, LLImportMaterial> LLDAELoader::getMaterials(LLModel* model
             {
                 std::string symbol(inst_materials[j]->getSymbol());
 
-                if (symbol == model->mMaterialList[i]) // found the binding
+                if (symbol == i) // found the binding
                 {
                     instance_mat = inst_materials[j];
                     break;
@@ -2249,8 +2247,8 @@ std::map<std::string, LLImportMaterial> LLDAELoader::getMaterials(LLModel* model
             }
         }
 
-        import_material.mBinding = model->mMaterialList[i];
-        materials[model->mMaterialList[i]] = import_material;
+        import_material.mBinding = i;
+        materials[i] = import_material;
     }
 
     return materials;

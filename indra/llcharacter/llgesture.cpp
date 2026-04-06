@@ -209,9 +209,9 @@ bool LLGestureList::triggerAndReviseString(const std::string &string, std::strin
             std::string cur_token_lower = cur_token;
             LLStringUtil::toLower(cur_token_lower);
 
-            for (U32 i = 0; i < mList.size(); i++)
+            for (auto & i : mList)
             {
-                gesture = mList.at(i);
+                gesture = i;
                 if (gesture->trigger(cur_token_lower))
                 {
                     if( !gesture->getOutputString().empty() )

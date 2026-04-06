@@ -272,10 +272,10 @@ void LLAccordionCtrl::hideScrollbar(S32 width, S32 height)
     S32 panel_width = width - 2*BORDER_MARGIN;
 
     // Reshape all accordions and shift all draggers
-    for (size_t i = 0; i < mAccordionTabs.size(); ++i)
+    for (auto & mAccordionTab : mAccordionTabs)
     {
-        LLRect panel_rect = mAccordionTabs[i]->getRect();
-        ctrlSetLeftTopAndSize(mAccordionTabs[i], panel_rect.mLeft, panel_rect.mTop, panel_width, panel_rect.getHeight());
+        LLRect panel_rect = mAccordionTab->getRect();
+        ctrlSetLeftTopAndSize(mAccordionTab, panel_rect.mLeft, panel_rect.mTop, panel_width, panel_rect.getHeight());
     }
 
     mScrollbar->setDocPos(0);
@@ -749,18 +749,18 @@ S32 LLAccordionCtrl::notifyParent(const LLSD& info)
         }
         if (str_action == "select_current")
         {
-            for (size_t i = 0; i < mAccordionTabs.size(); ++i)
+            for (auto & mAccordionTab : mAccordionTabs)
             {
                 // Set selection to the currently focused tab.
-                if (mAccordionTabs[i]->hasFocus())
+                if (mAccordionTab->hasFocus())
                 {
-                    if (mAccordionTabs[i] != mSelectedTab)
+                    if (mAccordionTab != mSelectedTab)
                     {
                         if (mSelectedTab)
                         {
                             mSelectedTab->setSelected(false);
                         }
-                        mSelectedTab = mAccordionTabs[i];
+                        mSelectedTab = mAccordionTab;
                         mSelectedTab->setSelected(true);
                     }
 

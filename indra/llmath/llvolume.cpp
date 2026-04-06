@@ -603,11 +603,11 @@ LLProfile::Face* LLProfile::addHole(const LLProfileParams& params, bool flat, F3
         mProfile[i] = pt[j--];
     }
 
-    for (S32 i=0;i<(S32)mFaces.size();i++)
+    for (auto & mFace : mFaces)
     {
-        if (mFaces[i].mCap)
+        if (mFace.mCap)
         {
-            mFaces[i].mCount *= 2;
+            mFace.mCount *= 2;
         }
     }
 
@@ -2105,10 +2105,9 @@ bool LLVolume::generate()
             }
         }
 
-        for (std::vector<LLProfile::Face>::iterator iter = mProfilep->mFaces.begin();
-             iter != mProfilep->mFaces.end(); ++iter)
+        for (auto & mFace : mProfilep->mFaces)
         {
-            LLFaceID id = iter->mFaceID;
+            LLFaceID id = mFace.mFaceID;
             mFaceMask |= id;
         }
         LL_CHECK_MEMORY
@@ -2703,9 +2702,9 @@ void LLVolume::copyVolumeFaces(const LLVolume* volume)
 
 bool LLVolume::cacheOptimize(bool gen_tangents)
 {
-    for (S32 i = 0; i < mVolumeFaces.size(); ++i)
+    for (auto & mVolumeFace : mVolumeFaces)
     {
-        if (!mVolumeFaces[i].cacheOptimize(gen_tangents))
+        if (!mVolumeFace.cacheOptimize(gen_tangents))
         {
             return false;
         }
@@ -2803,10 +2802,9 @@ void LLVolume::createVolumeFaces()
             }
         }
 
-        for (face_list_t::iterator iter = mVolumeFaces.begin();
-             iter != mVolumeFaces.end(); ++iter)
+        for (auto & mVolumeFace : mVolumeFaces)
         {
-            (*iter).create(this, partial_build);
+            mVolumeFace.create(this, partial_build);
         }
     }
 }
@@ -3176,9 +3174,9 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
         }
     }
 
-    for (S32 i = 0; i < (S32)mProfilep->mFaces.size(); i++)
+    for (auto & mFace : mProfilep->mFaces)
     {
-        mFaceMask |= mProfilep->mFaces[i].mFaceID;
+        mFaceMask |= mFace.mFaceID;
     }
 
     mSculptLevel = sculpt_level;
@@ -3896,11 +3894,8 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
     // overhead in generateSilhouetteEdge.
     std::vector<S32> edge;
     //for each face
-    for (face_list_t::iterator iter = mVolumeFaces.begin();
-         iter != mVolumeFaces.end(); ++iter)
+    for (auto & face : mVolumeFaces)
     {
-        LLVolumeFace& face = *iter;
-
         if (!(face_mask & (0x1 << cur_index++)) ||
              face.mNumIndices == 0)
         {
@@ -5173,13 +5168,13 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 
         if (point_iter != point_map.end())
         { //duplicate point might exist
-            for (U32 j = 0; j < point_iter->second.size(); ++j)
+            for (auto & j : point_iter->second)
             {
-                LLVolumeFace::VertexData& tv = (point_iter->second)[j];
+                LLVolumeFace::VertexData& tv = j;
                 if (tv.compareNormal(cv, angle_cutoff))
                 {
                     found = true;
-                    new_face.pushIndex((point_iter->second)[j].mIndex);
+                    new_face.pushIndex(j.mIndex);
                     break;
                 }
             }
@@ -5268,12 +5263,12 @@ public:
     void complete()
     {
         mActive = false;
-        for (S32 i = 0; i < 3; ++i)
+        for (auto & i : mVertex)
         {
-            if (mVertex[i])
+            if (i)
             {
-                llassert(mVertex[i]->mActiveTriangles > 0);
-                mVertex[i]->mActiveTriangles--;
+                llassert(i->mActiveTriangles > 0);
+                i->mActiveTriangles--;
             }
         }
     }
@@ -5332,9 +5327,9 @@ public:
     LLVCacheFIFO()
     {
         mMisses = 0;
-        for (U32 i = 0; i < MaxSizeVertexCache; ++i)
+        for (auto & i : mCache)
         {
-            mCache[i] = NULL;
+            i = NULL;
         }
     }
 
@@ -5377,9 +5372,9 @@ public:
 
     LLVCacheLRU()
     {
-        for (U32 i = 0; i < MaxSizeVertexCache+3; ++i)
+        for (auto & i : mCache)
         {
-            mCache[i] = NULL;
+            i = NULL;
         }
 
         mBestTriangle = NULL;
@@ -5460,9 +5455,8 @@ public:
             LLVCacheVertexData* data = *data_iter++;
             if (data)
             {
-                for (std::vector<LLVCacheTriangleData*>::iterator iter = data->mTriangles.begin(), end_iter = data->mTriangles.end(); iter != end_iter; ++iter)
+                for (auto tri : data->mTriangles)
                 {
-                    LLVCacheTriangleData* tri = *iter;
                     if (tri->mActive)
                     {
                         tri->mScore = tri->mVertex[0] ? tri->mVertex[0]->mScore : 0;
@@ -5997,9 +5991,9 @@ bool LLVolumeFace::createUnCutCubeCap(LLVolume* volume, bool partial_build)
                 }
                 else
                 {
-                    for(S32 i=0;i<6;i++)
+                    for(int idx : idxs)
                     {
-                        *out++ = ((gy*(grid_size+1))+gx+idxs[i]);
+                        *out++ = ((gy*(grid_size+1))+gx+idx);
                     }
                 }
             }

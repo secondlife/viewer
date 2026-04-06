@@ -34,6 +34,7 @@
 #include "llcoros.h"
 #include <algorithm>
 #include <iostream>                 // std::cerr in dire emergency
+#include <ranges>
 #include <sstream>
 #include <stdexcept>
 
@@ -271,10 +272,8 @@ void LLSingletonBase::MasterList::LockedInitializing::log(const char* verb, cons
         LL_DEBUGS("LLSingleton") << verb << ' ' << demangle(name) << ';';
         if (mList)
         {
-            for (list_t::const_reverse_iterator ri(mList->rbegin()), rend(mList->rend());
-                 ri != rend; ++ri)
+            for (auto sb : std::views::reverse(*mList))
             {
-                LLSingletonBase* sb(*ri);
                 LL_CONT << ' ' << classname(sb);
             }
         }

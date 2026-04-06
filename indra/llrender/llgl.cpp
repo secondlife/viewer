@@ -191,9 +191,9 @@ void ll_fail(std::string msg)
 
         ll_get_stack_trace(lines);
 
-        for(size_t i = 0; i < lines.size(); ++i)
+        for(const auto & line : lines)
         {
-            gFailLog << lines[i] << std::endl;
+            gFailLog << line << std::endl;
         }
 
         gFailLog << "End of Stack Trace." << std::endl << std::endl;
@@ -2269,10 +2269,9 @@ void LLGLState::resetTextureStates()
 void LLGLState::dumpStates()
 {
     LL_INFOS("RenderState") << "GL States:" << LL_ENDL;
-    for (std::unordered_map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
-         iter != sStateMap.end(); ++iter)
+    for (auto & iter : sStateMap)
     {
-        LL_INFOS("RenderState") << llformat(" 0x%04x : %s",(S32)iter->first,iter->second?"true":"false") << LL_ENDL;
+        LL_INFOS("RenderState") << llformat(" 0x%04x : %s",(S32)iter.first,iter.second?"true":"false") << LL_ENDL;
     }
 }
 
@@ -2301,11 +2300,10 @@ void LLGLState::checkStates(GLboolean writeAlpha)
     //llassert_always(colorMask[2]);
     // llassert_always(colorMask[3] == writeAlpha);
 
-    for (std::unordered_map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
-         iter != sStateMap.end(); ++iter)
+    for (auto & iter : sStateMap)
     {
-        LLGLenum state = iter->first;
-        LLGLboolean cur_state = iter->second;
+        LLGLenum state = iter.first;
+        LLGLboolean cur_state = iter.second;
         LLGLboolean gl_state = glIsEnabled(state);
         if(cur_state != gl_state)
         {

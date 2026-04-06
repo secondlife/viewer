@@ -1248,12 +1248,11 @@ public:
         // probably cheaper (and certainly easier to reason about) than
         // attempting to optimize away some of the scans.
         mSlowest = framerate;       // pick an arbitrary entry to start
-        for (boost::circular_buffer<F32>::const_iterator si(mSamples.begin()), send(mSamples.end());
-             si != send; ++si)
+        for (float mSample : mSamples)
         {
-            if (*si < mSlowest)
+            if (mSample < mSlowest)
             {
-                mSlowest = *si;
+                mSlowest = mSample;
             }
         }
 

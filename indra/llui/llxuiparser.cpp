@@ -365,9 +365,9 @@ void LLXSDWriter::writeXSD(const std::string& type_name, LLXMLNodePtr node, cons
     // duplicate element choices
     LLXMLNodeList children;
     mElementNode->getChildren("xs:element", children, false);
-    for (LLXMLNodeList::iterator child_it = children.begin(); child_it != children.end(); ++child_it)
+    for (auto & child_it : children)
     {
-        LLXMLNodePtr child_copy = child_it->second->deepCopy();
+        LLXMLNodePtr child_copy = child_it.second->deepCopy();
         std::string child_name;
         child_copy->getAttributeString("name", child_name);
         child_copy->setAttributeString("name", type_name + "." + child_name);
@@ -383,26 +383,22 @@ void LLXSDWriter::writeAttribute(const std::string& type, const Parser::name_sta
 {
     name_stack_t non_empty_names;
     std::string attribute_name;
-    for (name_stack_t::const_iterator it = stack.begin();
-        it != stack.end();
-        ++it)
+    for (const auto & it : stack)
     {
-        const std::string& name = it->first;
+        const std::string& name = it.first;
         if (!name.empty())
         {
-            non_empty_names.push_back(*it);
+            non_empty_names.push_back(it);
         }
     }
 
-    for (name_stack_t::const_iterator it = non_empty_names.begin();
-        it != non_empty_names.end();
-        ++it)
+    for (const auto & non_empty_name : non_empty_names)
     {
         if (!attribute_name.empty())
         {
             attribute_name += ".";
         }
-        attribute_name += it->first;
+        attribute_name += non_empty_name.first;
     }
 
     // only flag non-nested attributes as mandatory, nested attributes have variant syntax
@@ -501,12 +497,10 @@ void LLXSDWriter::addAttributeToSchema(LLXMLNodePtr type_declaration_node, const
             LLXMLNodePtr restriction_node = new_enum_type_node->createChild("xs:restriction", false);
             restriction_node->createChild("base", true)->setStringValue("xs:string");
 
-            for (std::vector<std::string>::const_iterator it = possible_values->begin();
-                it != possible_values->end();
-                ++it)
+            for (const auto & possible_value : *possible_values)
             {
                 LLXMLNodePtr enum_node = restriction_node->createChild("xs:enumeration", false);
-                enum_node->createChild("value", true)->setStringValue(*it);
+                enum_node->createChild("value", true)->setStringValue(possible_value);
             }
         }
 
@@ -830,13 +824,11 @@ bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& blo
     bool any_parsed = false;
     bool silent = mCurReadDepth > 0;
 
-    for(LLXMLAttribList::const_iterator attribute_it = nodep->mAttributes.begin();
-        attribute_it != nodep->mAttributes.end();
-        ++attribute_it)
+    for(const auto & mAttribute : nodep->mAttributes)
     {
         S32 num_tokens_pushed = 0;
-        std::string attribute_name(attribute_it->first->mString);
-        mCurReadNode = attribute_it->second;
+        std::string attribute_name(mAttribute.first->mString);
+        mCurReadNode = mAttribute.second;
 
         tokenizer name_tokens(attribute_name, sep);
         // copy remaining tokens on to our running token list
@@ -1296,11 +1288,9 @@ bool LLXUIParser::writeSDValue(Parser& parser, const void* val_ptr, name_stack_t
 /*virtual*/ std::string LLXUIParser::getCurrentElementName()
 {
     std::string full_name;
-    for (name_stack_t::iterator it = mNameStack.begin();
-        it != mNameStack.end();
-        ++it)
+    for (auto & it : mNameStack)
     {
-        full_name += it->first + "."; // build up dotted names: "button.param.nestedparam."
+        full_name += it.first + "."; // build up dotted names: "button.param.nestedparam."
     }
 
     return full_name;
@@ -1614,11 +1604,9 @@ bool LLSimpleXUIParser::processText()
 /*virtual*/ std::string LLSimpleXUIParser::getCurrentElementName()
 {
     std::string full_name;
-    for (name_stack_t::iterator it = mNameStack.begin();
-        it != mNameStack.end();
-        ++it)
+    for (auto & it : mNameStack)
     {
-        full_name += it->first + "."; // build up dotted names: "button.param.nestedparam."
+        full_name += it.first + "."; // build up dotted names: "button.param.nestedparam."
     }
 
     return full_name;

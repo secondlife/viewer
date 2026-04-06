@@ -542,9 +542,8 @@ ELoadStatus LLBVHLoader::loadAliases(const char * filename)
 
 void LLBVHLoader::dumpBVHInfo()
 {
-    for (U32 j=0; j<mJoints.size(); j++)
+    for (auto joint : mJoints)
     {
-        Joint *joint = mJoints[j];
         LL_DEBUGS("BVH") << joint->mName << LL_ENDL;
         for (S32 i=0; i<mNumFrames; i++)
         {
@@ -914,9 +913,8 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
             float_token_iter++;
         }
         LL_DEBUGS("BVH") << "Got " << floats.size() << " floats " << LL_ENDL;
-        for (U32 j=0; j<mJoints.size(); j++)
+        for (auto joint : mJoints)
         {
-            Joint *joint = mJoints[j];
             joint->mKeys.push_back( Key() );
             Key &key = joint->mKeys.back();
 

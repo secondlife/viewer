@@ -29,6 +29,8 @@
 
 #include "llscrollcontainer.h"
 
+#include <ranges>
+
 #include "llrender.h"
 #include "llcontainerview.h"
 #include "lllocalcliprect.h"
@@ -548,10 +550,8 @@ void LLScrollContainer::draw()
 
         // Draw all children except mScrolledView
         // Note: scrollbars have been adjusted by above drawing code
-        for (child_list_const_reverse_iter_t child_iter = getChildList()->rbegin();
-             child_iter != getChildList()->rend(); ++child_iter)
+        for (auto viewp : std::views::reverse(*getChildList()))
         {
-            LLView *viewp = *child_iter;
             if( sDebugRects )
             {
                 sDepth++;

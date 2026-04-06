@@ -348,11 +348,9 @@ void LLWindowShade::displayLatestNotification()
 
     // move all form elements back onto form surface
     S32 delta_y = WIDGET_HEIGHT + FORM_PADDING_VERTICAL - cur_y;
-    for (child_list_const_iter_t it = form_elements.getChildList()->begin(), end_it = form_elements.getChildList()->end();
-        it != end_it;
-        ++it)
+    for (auto it : *form_elements.getChildList())
     {
-        (*it)->translate(0, delta_y);
+        it->translate(0, delta_y);
     }
 
     mNotificationsArea->setVisible(true);

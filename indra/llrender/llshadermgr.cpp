@@ -557,9 +557,9 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
     if (defines)
     {
-        for (auto iter = defines->begin(); iter != defines->end(); ++iter)
+        for (auto & iter : *defines)
         {
-            std::string define = "#define " + iter->first + " " + iter->second + "\n";
+            std::string define = "#define " + iter.first + " " + iter.second + "\n";
             extra_code_text[extra_code_count++] = (GLchar *) strdup(define.c_str());
         }
     }
@@ -1472,13 +1472,13 @@ void LLShaderMgr::initAttribsAndUniforms()
 
     std::set<std::string> dupe_check;
 
-    for (U32 i = 0; i < mReservedUniforms.size(); ++i)
+    for (const auto & mReservedUniform : mReservedUniforms)
     {
-        if (dupe_check.find(mReservedUniforms[i]) != dupe_check.end())
+        if (dupe_check.find(mReservedUniform) != dupe_check.end())
         {
-            LL_ERRS() << "Duplicate reserved uniform name found: " << mReservedUniforms[i] << LL_ENDL;
+            LL_ERRS() << "Duplicate reserved uniform name found: " << mReservedUniform << LL_ENDL;
         }
-        dupe_check.insert(mReservedUniforms[i]);
+        dupe_check.insert(mReservedUniform);
     }
 }
 

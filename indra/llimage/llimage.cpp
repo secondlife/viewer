@@ -2072,10 +2072,10 @@ EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
 {
     if (!exten.empty())
     {
-        for (int i = 0; i < (int)(NUM_FILE_EXTENSIONS); i++)
+        for (auto & file_extension : file_extensions)
         {
-            if (exten == file_extensions[i].exten)
-                return file_extensions[i].codec;
+            if (exten == file_extension.exten)
+                return file_extension.codec;
         }
     }
     return IMG_CODEC_INVALID;

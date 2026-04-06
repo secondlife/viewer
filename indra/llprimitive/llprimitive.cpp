@@ -2413,11 +2413,11 @@ void LLRenderMaterialParams::setMaterial(U8 te, const LLUUID& id)
 
 const LLUUID& LLRenderMaterialParams::getMaterial(U8 te) const
 {
-    for (int i = 0; i < mEntries.size(); ++i)
+    for (const auto & mEntrie : mEntries)
     {
-        if (mEntries[i].te_idx == te)
+        if (mEntrie.te_idx == te)
         {
-            return mEntries[i].id;
+            return mEntrie.id;
         }
     }
 

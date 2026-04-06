@@ -3159,9 +3159,8 @@ bool LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
         (mMouseVelX < 0) ||
         llabs((F32)mMouseVelY) / llabs((F32)mMouseVelX) > MAX_MOUSE_SLOPE_SUB_MENU))
     {
-        for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+        for (auto viewp : *getChildList())
         {
-            LLView* viewp = *child_it;
             S32 local_x = x - viewp->getRect().mLeft;
             S32 local_y = y - viewp->getRect().mBottom;
             if (!viewp->pointInView(local_x, local_y) && ((LLMenuItemGL*)viewp)->getHighlight())
@@ -3174,9 +3173,8 @@ bool LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
             }
         }
 
-        for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+        for (auto viewp : *getChildList())
         {
-            LLView* viewp = *child_it;
             S32 local_x = x - viewp->getRect().mLeft;
             S32 local_y = y - viewp->getRect().mBottom;
             //RN: always call handleHover to track mGotHover status
@@ -3303,9 +3301,9 @@ LLMenuGL* LLMenuGL::findChildMenuByName(std::string_view name, bool recurse) con
 
 bool LLMenuGL::clearHoverItem()
 {
-    for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+    for (auto child_it : *getChildList())
     {
-        LLMenuItemGL* itemp = (LLMenuItemGL*)*child_it;
+        LLMenuItemGL* itemp = (LLMenuItemGL*)child_it;
         if (itemp->getHighlight())
         {
             itemp->setHighlight(false);
@@ -3340,11 +3338,8 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y, S3
     {
         //Do not show menu if all menu items are disabled
         bool item_enabled = false;
-        for (LLView::child_list_t::const_iterator itor = menu->getChildList()->begin();
-                itor != menu->getChildList()->end();
-                ++itor)
+        for (auto menu_item : *menu->getChildList())
         {
-            const LLView *menu_item = (*itor);
             item_enabled = item_enabled || menu_item->getEnabled();
         }
 
@@ -3678,9 +3673,8 @@ bool LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
     if (!getHighlightedItem() || !LLMenuGL::getKeyboardMode() || llabs(mMouseVelX) > 0 || llabs(mMouseVelY) > 0)
     {
         // find current active menu
-        for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+        for (auto viewp : *getChildList())
         {
-            LLView* viewp = *child_it;
             if (((LLMenuItemGL*)viewp)->isOpen())
             {
                 active_menu = viewp;
@@ -3688,9 +3682,8 @@ bool LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
         }
 
         // check for new active menu
-        for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+        for (auto viewp : *getChildList())
         {
-            LLView* viewp = *child_it;
             S32 local_x = x - viewp->getRect().mLeft;
             S32 local_y = y - viewp->getRect().mBottom;
             if( viewp->getVisible() &&
@@ -3712,9 +3705,8 @@ bool LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
         if (handled)
         {
             // set hover false on inactive menus
-            for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+            for (auto viewp : *getChildList())
             {
-                LLView* viewp = *child_it;
                 S32 local_x = x - viewp->getRect().mLeft;
                 S32 local_y = y - viewp->getRect().mBottom;
                 if (!viewp->pointInView(local_x, local_y) && ((LLMenuItemGL*)viewp)->getHighlight())
@@ -3878,9 +3870,8 @@ void LLMenuHolderGL::reshape(S32 width, S32 height, bool called_from_parent)
 
 LLView* const LLMenuHolderGL::getVisibleMenu() const
 {
-    for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+    for (auto viewp : *getChildList())
     {
-        LLView* viewp = *child_it;
         if (viewp->getVisible() && dynamic_cast<LLMenuGL*>(viewp) != NULL)
         {
             return viewp;
@@ -3901,9 +3892,8 @@ bool LLMenuHolderGL::hideMenus()
     if (menu_visible)
     {
         // clicked off of menu, hide them all
-        for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+        for (auto viewp : *getChildList())
         {
-            LLView* viewp = *child_it;
             if (dynamic_cast<LLMenuGL*>(viewp) != NULL && viewp->getVisible())
             {
                 viewp->setVisible(false);

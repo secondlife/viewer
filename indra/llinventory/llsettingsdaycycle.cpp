@@ -161,11 +161,11 @@ LLSD& LLSettingsDay::getSettings()
 
     LLSD tracks(LLSD::emptyArray());
 
-    for (CycleList_t::const_iterator itTrack = mDayTracks.begin(); itTrack != mDayTracks.end(); ++itTrack)
+    for (const auto & mDayTrack : mDayTracks)
     {
         LLSD trackout(LLSD::emptyArray());
 
-        for (const auto& [frame, data] : *itTrack)
+        for (const auto& [frame, data] : mDayTrack)
         {
             size_t datahash = data->getHash();
 
@@ -717,9 +717,9 @@ LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
 
     keyframes.reserve(track.size());
 
-    for (CycleTrack_t::const_iterator it = track.begin(); it != track.end(); ++it)
+    for (const auto & it : track)
     {
-        keyframes.push_back((*it).first);
+        keyframes.push_back(it.first);
     }
 
     return keyframes;

@@ -281,12 +281,12 @@ void LLCrashLogger::gatherFiles()
 
     updateApplication("Encoding files...");
 
-    for(std::map<std::string, std::string>::iterator itr = mFileMap.begin(); itr != mFileMap.end(); ++itr)
+    for(auto & itr : mFileMap)
     {
-        std::string file = (*itr).second;
+        std::string file = itr.second;
         if (!file.empty())
         {
-            LL_DEBUGS("CRASHREPORT") << "trying to read " << itr->first << ": " << file << LL_ENDL;
+            LL_DEBUGS("CRASHREPORT") << "trying to read " << itr.first << ": " << file << LL_ENDL;
             llifstream f(file.c_str());
             if(f.is_open())
             {
@@ -294,7 +294,7 @@ void LLCrashLogger::gatherFiles()
                 s << f.rdbuf();
 
                 std::string crash_info = s.str();
-                if(itr->first == "SecondLifeLog")
+                if(itr.first == "SecondLifeLog")
                 {
                     if(!mCrashInfo["DebugLog"].has("StartupState"))
                     {
@@ -303,7 +303,7 @@ void LLCrashLogger::gatherFiles()
                     trimSLLog(crash_info);
                 }
 
-                mCrashInfo[(*itr).first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
+                mCrashInfo[itr.first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
             }
             else
             {
@@ -312,7 +312,7 @@ void LLCrashLogger::gatherFiles()
         }
         else
         {
-            LL_DEBUGS("CRASHREPORT") << "empty file in list for " << itr->first << LL_ENDL;
+            LL_DEBUGS("CRASHREPORT") << "empty file in list for " << itr.first << LL_ENDL;
         }
     }
 

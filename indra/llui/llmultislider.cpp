@@ -122,17 +122,15 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
         mOverlapThreshold = 0;
     }
 
-    for (LLInitParam::ParamIterator<SliderParams>::const_iterator it = p.sliders.begin();
-        it != p.sliders.end();
-        ++it)
+    for (const auto & slider : p.sliders)
     {
-        if (it->name.isProvided())
+        if (slider.name.isProvided())
         {
-            addSlider(it->value, it->name);
+            addSlider(slider.value, slider.name);
         }
         else
         {
-            addSlider(it->value);
+            addSlider(slider.value);
         }
     }
 

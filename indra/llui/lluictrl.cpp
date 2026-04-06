@@ -512,9 +512,9 @@ bool LLUICtrl::postBuild()
             }
         }
 
-        for (std::vector<LLUICtrl*>::iterator it = childrenToMoveToFront.begin(); it != childrenToMoveToFront.end(); ++it)
+        for (auto & it : childrenToMoveToFront)
         {
-            sendChildToFront(*it);
+            sendChildToFront(it);
         }
     }
 

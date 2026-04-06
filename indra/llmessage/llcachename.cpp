@@ -775,9 +775,8 @@ void LLCacheName::Impl::processPendingReplies()
 {
     // First call all the callbacks, because they might send messages.
     // Todo: needs cleanup logic, otherwise invalid ids might stay here indefinitely
-    for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
+    for(auto reply : mReplyQueue)
     {
-        PendingReply* reply = *it;
         LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
         if(!entry) continue;
 
@@ -795,9 +794,8 @@ void LLCacheName::Impl::processPendingReplies()
 
     // Forward on all replies, if needed.
     ReplySender sender(mMsg);
-    for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
+    for(auto reply : mReplyQueue)
     {
-        PendingReply* reply = *it;
         const LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
         if(!entry) continue;
 

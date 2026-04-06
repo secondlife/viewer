@@ -30,6 +30,8 @@
 #include "linden_common.h"
 #include "llapp.h"
 #include "llfolderviewitem.h"
+
+#include <ranges>
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
 #include "llcallbacklist.h"
@@ -1268,9 +1270,8 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
         // We have to verify that there's at least one child that's not filtered out
         bool found = false;
         // Try the items first
-        for (items_t::iterator iit = mItems.begin(); iit != mItems.end(); ++iit)
+        for (auto itemp : mItems)
         {
-            LLFolderViewItem* itemp = (*iit);
             found = itemp->isPotentiallyVisible();
             if (found)
                 break;
@@ -1278,9 +1279,8 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
         if (!found)
         {
             // If no item found, try the folders
-            for (folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
+            for (auto folderp : mFolders)
             {
-                LLFolderViewFolder* folderp = (*fit);
                 found = folderp->isPotentiallyVisible();
                 if (found)
                     break;
@@ -1317,9 +1317,8 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
             // Add sizes of children
             S32 parent_item_height = getRect().getHeight();
 
-            for(folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
+            for(auto folderp : mFolders)
             {
-                LLFolderViewFolder* folderp = (*fit);
                 folderp->setVisible(folderp->isPotentiallyVisible());
 
                 if (folderp->getVisible())
@@ -1335,10 +1334,8 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
                     folderp->setOrigin( 0, child_top - folderp->getRect().getHeight() );
                 }
             }
-            for(items_t::iterator iit = mItems.begin();
-                iit != mItems.end(); ++iit)
+            for(auto itemp : mItems)
             {
-                LLFolderViewItem* itemp = (*iit);
                 itemp->setVisible(itemp->isPotentiallyVisible());
 
                 if (itemp->getVisible())
@@ -1615,39 +1612,35 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
     bool selecting = start == NULL;
     if (reverse)
     {
-        for (items_t::reverse_iterator it = mItems.rbegin(), end_it = mItems.rend();
-            it != end_it;
-            ++it)
+        for (auto & mItem : std::views::reverse(mItems))
         {
-            if (*it == end)
+            if (mItem == end)
             {
                 return;
             }
-            if (selecting && (*it)->getVisible())
+            if (selecting && mItem->getVisible())
             {
-                items.push_back(*it);
+                items.push_back(mItem);
             }
 
-            if (*it == start)
+            if (mItem == start)
             {
                 selecting = true;
             }
         }
-        for (folders_t::reverse_iterator it = mFolders.rbegin(), end_it = mFolders.rend();
-            it != end_it;
-            ++it)
+        for (auto & mFolder : std::views::reverse(mFolders))
         {
-            if (*it == end)
+            if (mFolder == end)
             {
                 return;
             }
 
-            if (selecting && (*it)->getVisible())
+            if (selecting && mFolder->getVisible())
             {
-                items.push_back(*it);
+                items.push_back(mFolder);
             }
 
-            if (*it == start)
+            if (mFolder == start)
             {
                 selecting = true;
             }
@@ -1655,40 +1648,36 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
     }
     else
     {
-        for (folders_t::iterator it = mFolders.begin(), end_it = mFolders.end();
-            it != end_it;
-            ++it)
+        for (auto & mFolder : mFolders)
         {
-            if (*it == end)
+            if (mFolder == end)
             {
                 return;
             }
 
-            if (selecting && (*it)->getVisible())
+            if (selecting && mFolder->getVisible())
             {
-                items.push_back(*it);
+                items.push_back(mFolder);
             }
 
-            if (*it == start)
+            if (mFolder == start)
             {
                 selecting = true;
             }
         }
-        for (items_t::iterator it = mItems.begin(), end_it = mItems.end();
-            it != end_it;
-            ++it)
+        for (auto & mItem : mItems)
         {
-            if (*it == end)
+            if (mItem == end)
             {
                 return;
             }
 
-            if (selecting && (*it)->getVisible())
+            if (selecting && mItem->getVisible())
             {
-                items.push_back(*it);
+                items.push_back(mItem);
             }
 
-            if (*it == start)
+            if (mItem == start)
             {
                 selecting = true;
             }
@@ -1740,11 +1729,9 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 
     common_ancestor->gatherChildRangeExclusive(last_selected_item_from_cur, last_selected_item_from_new, reverse, items_to_select_forward);
 
-    for (std::vector<LLFolderViewItem*>::reverse_iterator it = items_to_select_reverse.rbegin(), end_it = items_to_select_reverse.rend();
-        it != end_it;
-        ++it)
+    for (auto & it : std::views::reverse(items_to_select_reverse))
     {
-        items_to_select_forward.push_back(*it);
+        items_to_select_forward.push_back(it);
     }
 
     LLFolderView* root = getRoot();
@@ -1754,11 +1741,8 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
     // array always go from 'will be selected' to ' will be unselected', iterate
     // in opposite direction to simplify identification of 'point of origin' in
     // case it is in the list we are working with
-    for (std::vector<LLFolderViewItem*>::reverse_iterator it = items_to_select_forward.rbegin(), end_it = items_to_select_forward.rend();
-        it != end_it;
-        ++it)
+    for (auto item : std::views::reverse(items_to_select_forward))
     {
-        LLFolderViewItem* item = *it;
         bool selected = item->isSelected();
         if (!selection_reverse && selected)
         {

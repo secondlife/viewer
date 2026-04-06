@@ -233,11 +233,8 @@ bool inventory_and_asset_types_match(LLInventoryType::EType inventory_type,
     const InventoryEntry *entry = LLInventoryDictionary::getInstance()->lookup(inventory_type);
     if (!entry) return false;
 
-    for (InventoryEntry::asset_vec_t::const_iterator iter = entry->mAssetTypes.begin();
-         iter != entry->mAssetTypes.end();
-         iter++)
+    for (auto type : entry->mAssetTypes)
     {
-        const LLAssetType::EType type = (*iter);
         if(type == asset_type)
         {
             return true;

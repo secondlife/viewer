@@ -92,9 +92,9 @@ void LLConsole::reshape(S32 width, S32 height, bool called_from_parent)
 
     LLUICtrl::reshape(new_width, new_height, called_from_parent);
 
-    for(paragraph_t::iterator paragraph_it = mParagraphs.begin(); paragraph_it != mParagraphs.end(); paragraph_it++)
+    for(auto & mParagraph : mParagraphs)
     {
-        (*paragraph_it).updateLines((F32)getRect().getWidth(), mFont, true);
+        mParagraph.updateLines((F32)getRect().getWidth(), mFont, true);
     }
 }
 
@@ -122,9 +122,9 @@ void LLConsole::setFontSize(S32 size_index)
         mFont = LLFontGL::getFontDefault();
     }
 
-    for(paragraph_t::iterator paragraph_it = mParagraphs.begin(); paragraph_it != mParagraphs.end(); paragraph_it++)
+    for(auto & mParagraph : mParagraphs)
     {
-        (*paragraph_it).updateLines((F32)getRect().getWidth(), mFont, true);
+        mParagraph.updateLines((F32)getRect().getWidth(), mFont, true);
     }
 }
 
@@ -211,12 +211,10 @@ void LLConsole::draw()
 
         if( alpha > 0.f )
         {
-            for (lines_t::iterator line_it=(*paragraph_it).mLines.begin();
-                    line_it != (*paragraph_it).mLines.end();
-                    line_it ++)
+            for (auto & mLine : (*paragraph_it).mLines)
             {
-                for (line_color_segments_t::iterator seg_it = (*line_it).mLineColorSegments.begin();
-                        seg_it != (*line_it).mLineColorSegments.end();
+                for (line_color_segments_t::iterator seg_it = mLine.mLineColorSegments.begin();
+                        seg_it != mLine.mLineColorSegments.end();
                         seg_it++)
                 {
                     mFont->render((*seg_it).mText, 0, (*seg_it).mXPosition - 8, y_pos -  y_off,
