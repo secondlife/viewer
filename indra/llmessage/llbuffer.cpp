@@ -84,11 +84,7 @@ S32 LLSegment::size() const
 
 bool LLSegment::operator==(const LLSegment& rhs) const
 {
-    if((mData != rhs.mData)||(mSize != rhs.mSize)||(mChannel != rhs.mChannel))
-    {
-        return false;
-    }
-    return true;
+    return !((mData != rhs.mData)||(mSize != rhs.mSize)||(mChannel != rhs.mChannel));
 }
 
 /**
@@ -193,12 +189,8 @@ bool LLHeapBuffer::containsSegment(const LLSegment& segment) const
 {
     // *NOTE: this check is fairly simple because heap buffers are
     // simple contiguous chunks of heap memory.
-    if((mBuffer > segment.data())
-       || ((mBuffer + mSize) < (segment.data() + segment.size())))
-    {
-        return false;
-    }
-    return true;
+    return !((mBuffer > segment.data())
+       || ((mBuffer + mSize) < (segment.data() + segment.size())));
 }
 
 void LLHeapBuffer::allocate(S32 size)

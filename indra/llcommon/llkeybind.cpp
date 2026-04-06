@@ -143,24 +143,16 @@ bool LLKeyData::operator!=(const LLKeyData& rhs) const
 
 bool LLKeyData::canHandle(const LLKeyData& data) const
 {
-    if (data.mKey == mKey
+    return data.mKey == mKey
         && data.mMouse == mMouse
-        && ((mIgnoreMasks && (data.mMask & mMask) == mMask) || data.mMask == mMask))
-    {
-        return true;
-    }
-    return false;
+        && ((mIgnoreMasks && (data.mMask & mMask) == mMask) || data.mMask == mMask);
 }
 
 bool LLKeyData::canHandle(EMouseClickType mouse, KEY key, MASK mask) const
 {
-    if (mouse == mMouse
+    return mouse == mMouse
         && key == mKey
-        && ((mIgnoreMasks && (mask & mMask) == mMask) || mask == mMask))
-    {
-        return true;
-    }
-    return false;
+        && ((mIgnoreMasks && (mask & mMask) == mMask) || mask == mMask);
 }
 
 // LLKeyBind

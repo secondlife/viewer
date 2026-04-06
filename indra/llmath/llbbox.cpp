@@ -142,16 +142,12 @@ LLVector3 LLBBox::agentToLocalBasis(const LLVector3& v) const
 
 bool LLBBox::containsPointLocal(const LLVector3& p) const
 {
-    if (  (p.mV[VX] < mMinLocal.mV[VX])
+    return !((p.mV[VX] < mMinLocal.mV[VX])
         ||(p.mV[VX] > mMaxLocal.mV[VX])
         ||(p.mV[VY] < mMinLocal.mV[VY])
         ||(p.mV[VY] > mMaxLocal.mV[VY])
         ||(p.mV[VZ] < mMinLocal.mV[VZ])
-        ||(p.mV[VZ] > mMaxLocal.mV[VZ]))
-    {
-        return false;
-    }
-    return true;
+        ||(p.mV[VZ] > mMaxLocal.mV[VZ]));
 }
 
 bool LLBBox::containsPointAgent(const LLVector3& p) const

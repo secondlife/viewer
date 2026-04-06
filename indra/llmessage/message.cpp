@@ -373,14 +373,7 @@ bool LLMessageSystem::poll(F32 seconds)
     {
         ll_apr_warn_status(status);
     }
-    if (num_socks)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return num_socks != 0;
 }
 
 bool LLMessageSystem::isTrustedSender(const LLHost& host) const
@@ -3012,9 +3005,7 @@ void LLMessageSystem::setTimingFunc(msg_timing_callback func, void* data)
 
 bool LLMessageSystem::isCircuitCodeKnown(U32 code) const
 {
-    if(mCircuitCodes.find(code) == mCircuitCodes.end())
-        return false;
-    return true;
+    return mCircuitCodes.find(code) != mCircuitCodes.end();
 }
 
 bool LLMessageSystem::isMessageFast(const char *msg)

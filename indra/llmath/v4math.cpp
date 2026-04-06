@@ -101,9 +101,7 @@ bool are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon)
     an.normalize();
     bn.normalize();
     F32 dot = an * bn;
-    if ( (1.0f - fabs(dot)) < epsilon)
-        return true;
-    return false;
+    return (1.0f - fabs(dot)) < epsilon;
 }
 
 

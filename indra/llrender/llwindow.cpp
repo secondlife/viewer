@@ -429,7 +429,7 @@ LLWindow* LLWindowManager::createWindow(
             fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth);
     }
 
-    if (false == new_window->isValid())
+    if (!new_window->isValid())
     {
         delete new_window;
         LL_WARNS() << "LLWindowManager::create() : Error creating window." << LL_ENDL;

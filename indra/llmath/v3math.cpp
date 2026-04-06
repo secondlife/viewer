@@ -386,9 +386,5 @@ bool box_valid_and_non_zero(const LLVector3* box)
     }
     LLVector3 zero_vec;
     zero_vec.clear();
-    if ((box[0] != zero_vec) || (box[1] != zero_vec))
-    {
-        return true;
-    }
-    return false;
+    return (box[0] != zero_vec) || (box[1] != zero_vec);
 }

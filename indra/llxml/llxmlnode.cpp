@@ -319,11 +319,7 @@ LLXMLNodePtr LLXMLNode::createChild(LLStringTableEntry* name, bool is_attribute)
 
 bool LLXMLNode::deleteChild(LLXMLNode *child)
 {
-    if (removeChild(child))
-    {
-        return true;
-    }
-    return false;
+    return removeChild(child);
 }
 
 void LLXMLNode::setParent(LLXMLNodePtr& new_parent)

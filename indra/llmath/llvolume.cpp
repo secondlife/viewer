@@ -101,14 +101,7 @@ bool check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLV
     LLVector3 test = (pt2-pt1)%(pt3-pt2);
 
     //answer
-    if(test * norm < 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return test * norm >= 0;
 }
 
 bool LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size)
@@ -133,9 +126,7 @@ bool LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* cent
     float f;
     f = dir[1] * diff[2] - dir[2] * diff[1];    if(fabsf(f)>size[1]*fAWdU[2] + size[2]*fAWdU[1])  return false;
     f = dir[2] * diff[0] - dir[0] * diff[2];    if(fabsf(f)>size[0]*fAWdU[2] + size[2]*fAWdU[0])  return false;
-    f = dir[0] * diff[1] - dir[1] * diff[0];    if(fabsf(f)>size[0]*fAWdU[1] + size[1]*fAWdU[0])  return false;
-
-    return true;
+    f = dir[0] * diff[1] - dir[1] * diff[0];    return fabsf(f) <= size[0]*fAWdU[1] + size[1]*fAWdU[0];
 }
 
 // Finds tangent vec based on three vertices with texture coordinates.
@@ -548,14 +539,7 @@ void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F3
     // If we're sliced, the profile is open.
     if ((end - begin)*ang_scale < 0.99f)
     {
-        if ((end - begin)*ang_scale > 0.5f)
-        {
-            mConcave = true;
-        }
-        else
-        {
-            mConcave = false;
-        }
+        mConcave = (end - begin)*ang_scale > 0.5f;
         mOpen = true;
         if (params.getHollow() <= 0)
         {
@@ -4377,11 +4361,7 @@ struct lessTriangle
 
 bool equalTriangle(const S32 *a, const S32 *b)
 {
-    if ((*a == *b) && (*(a+1) == *(b+1)) && (*(a+2) == *(b+2)))
-    {
-        return true;
-    }
-    return false;
+    return (*a == *b) && (*(a+1) == *(b+1)) && (*(a+2) == *(b+2));
 }
 
 bool LLVolumeParams::importFile(LLFILE *fp)
@@ -6247,14 +6227,7 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
                     LLVector4a d2;
                     d2.setSub(p2, pb);
 
-                    if (d1.dot3(d1) < d2.dot3(d2))
-                    {
-                        use_tri1a2 = true;
-                    }
-                    else
-                    {
-                        use_tri1a2 = false;
-                    }
+                    use_tri1a2 = d1.dot3(d1) < d2.dot3(d2);
                 }
 
                 if (use_tri1a2)
@@ -6352,14 +6325,7 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
                     LLVector4a d2;
                     d2.setSub(p2,pb);
 
-                    if (d1.dot3(d1) < d2.dot3(d2))
-                    {
-                        use_tri1a2 = true;
-                    }
-                    else
-                    {
-                        use_tri1a2 = false;
-                    }
+                    use_tri1a2 = d1.dot3(d1) < d2.dot3(d2);
                 }
 
                 // Flipped backfacing from top

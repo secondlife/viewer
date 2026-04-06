@@ -611,9 +611,7 @@ private:
     }
     CloseHandle(hSnap);
     FreeLibrary(hToolhelp);
-    if (cnt <= 0)
-      return false;
-    return true;
+    return cnt > 0;
   }  // GetModuleListTH32
 
   // **************************************** PSAPI ************************

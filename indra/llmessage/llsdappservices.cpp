@@ -130,8 +130,7 @@ public:
             // This is for GET and DELETE
             LLSD options = LLApp::instance()->getOptionData(
                 LLApp::OptionPriority::PRIORITY_RUNTIME_OVERRIDE);
-            if(options.has(name)) return true;
-            else return false;
+            return options.has(name);
         }
     }
 
@@ -260,8 +259,7 @@ public:
         LL_INFOS() << "LLHTTPLiveConfigSingleService::validate(" << name
             << ")" << LL_ENDL;
         LLSD option = LLApp::instance()->getOption(name);
-        if(option.isDefined()) return true;
-        else return false;
+        return option.isDefined();
     }
 
     virtual void get(

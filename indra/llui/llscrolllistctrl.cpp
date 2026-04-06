@@ -1869,7 +1869,7 @@ bool LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
                 }
                 else
                 {
-                    if(!(mMaxSelectable > 0 && getAllSelected().size() >= mMaxSelectable))
+                    if(mMaxSelectable <= 0 || getAllSelected().size() < mMaxSelectable)
                     {
                         selectItem(hit_item, getColumnIndexFromOffset(x), false);
                     }
@@ -2912,7 +2912,7 @@ void LLScrollListCtrl::selectAll()
 // virtual
 bool LLScrollListCtrl::canSelectAll() const
 {
-    return getCanSelect() && mAllowMultipleSelection && !(mMaxSelectable > 0 && mItemList.size() > mMaxSelectable);
+    return getCanSelect() && mAllowMultipleSelection && (mMaxSelectable <= 0 || mItemList.size() <= mMaxSelectable);
 }
 
 // virtual

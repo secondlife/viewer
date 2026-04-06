@@ -215,11 +215,7 @@ bool LLAssetType::lookupCanLink(EType asset_type)
 // Not adding this to dictionary since we probably will only have these two types
 bool LLAssetType::lookupIsLinkType(EType asset_type)
 {
-    if (asset_type == AT_LINK || asset_type == AT_LINK_FOLDER)
-    {
-        return true;
-    }
-    return false;
+    return asset_type == AT_LINK || asset_type == AT_LINK_FOLDER;
 }
 
 // static

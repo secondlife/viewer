@@ -605,11 +605,7 @@ bool LLTemplateMessageBuilder::isMessageFull(const char* blockname) const
         max = MAX_BLOCKS;
         break;
     }
-    if(mCurrentSMessageData->mMemberBlocks[bnamep]->mBlockNumber >= max)
-    {
-        return true;
-    }
-    return false;
+    return mCurrentSMessageData->mMemberBlocks[bnamep]->mBlockNumber >= max;
 }
 
 static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* template_data, LLMsgData* message_data)

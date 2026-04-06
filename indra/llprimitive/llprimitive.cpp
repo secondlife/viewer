@@ -1760,14 +1760,10 @@ bool LLLightParams::operator==(const LLNetworkData& data) const
         return false;
     }
     const LLLightParams *param = (const LLLightParams*)&data;
-    if (param->mColor != mColor ||
+    return !(param->mColor != mColor ||
         param->mRadius != mRadius ||
         param->mCutoff != mCutoff ||
-        param->mFalloff != mFalloff)
-    {
-        return false;
-    }
-    return true;
+        param->mFalloff != mFalloff);
 }
 
 void LLLightParams::copy(const LLNetworkData& data)
@@ -2117,14 +2113,8 @@ bool LLSculptParams::operator==(const LLNetworkData& data) const
     }
 
     const LLSculptParams *param = (const LLSculptParams*)&data;
-    if ( (param->mSculptTexture != mSculptTexture) ||
-         (param->mSculptType != mSculptType) )
-
-    {
-        return false;
-    }
-
-    return true;
+    return !((param->mSculptTexture != mSculptTexture) ||
+         (param->mSculptType != mSculptType));
 }
 
 void LLSculptParams::copy(const LLNetworkData& data)
@@ -2288,12 +2278,7 @@ bool LLExtendedMeshParams::operator==(const LLNetworkData& data) const
     }
 
     const LLExtendedMeshParams *param = (const LLExtendedMeshParams*)&data;
-    if ( (param->mFlags != mFlags) )
-    {
-        return false;
-    }
-
-    return true;
+    return param->mFlags == mFlags;
 }
 
 void LLExtendedMeshParams::copy(const LLNetworkData& data)

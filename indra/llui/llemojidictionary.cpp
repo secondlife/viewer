@@ -98,10 +98,7 @@ struct emoji_filter_shortcode_or_category_contains : public emoji_filter_base
                 return true;
         }
 
-        if (boost::icontains(descr.Category, mNeedle))
-            return true;
-
-        return false;
+        return boost::icontains(descr.Category, mNeedle);
     }
 };
 

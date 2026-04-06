@@ -487,10 +487,7 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
 bool LLQueuedThread::runCondition()
 {
     // mRunCondition must be locked here
-    if (mRequestQueue.size() == 0 && mIdleThread)
-        return false;
-    else
-        return true;
+    return !(mRequestQueue.size() == 0 && mIdleThread);
 }
 
 // virtual

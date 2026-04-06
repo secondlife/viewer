@@ -233,8 +233,8 @@ S32 start_net(S32& socket_out, int& nPort)
                 LL_DEBUGS("AppInit") << "trying port " << attempt_port << LL_ENDL;
                 nRet = bind(hSocket, (struct sockaddr*) &stLclAddr, sizeof(stLclAddr));
 
-                if (!(nRet == SOCKET_ERROR &&
-                    WSAGetLastError() == WSAEADDRINUSE))
+                if (nRet != SOCKET_ERROR ||
+                    WSAGetLastError() != WSAEADDRINUSE)
                 {
                     break;
                 }

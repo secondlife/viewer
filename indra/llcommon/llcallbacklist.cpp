@@ -66,14 +66,7 @@ bool LLCallbackList::containsFunction( callback_t func, void *data)
 {
     callback_pair_t t(func, data);
     callback_list_t::iterator iter = find(func,data);
-    if (iter != mCallbackList.end())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return iter != mCallbackList.end();
 }
 
 

@@ -392,20 +392,14 @@ std::string LLTimeCtrl::getAMPMString(const std::string& str)
 bool LLTimeCtrl::isHoursStringValid(const std::string& str)
 {
     U32 hours;
-    if ((!LLStringUtil::convertToU32(str, hours) || (hours <= HOURS_MAX)) && str.length() < 3)
-        return true;
-
-    return false;
+    return (!LLStringUtil::convertToU32(str, hours) || (hours <= HOURS_MAX)) && str.length() < 3;
 }
 
 // static
 bool LLTimeCtrl::isMinutesStringValid(const std::string& str)
 {
     U32 minutes;
-    if (!LLStringUtil::convertToU32(str, minutes) || ((minutes <= MINUTES_MAX) && str.length() < 3))
-        return true;
-
-    return false;
+    return !LLStringUtil::convertToU32(str, minutes) || ((minutes <= MINUTES_MAX) && str.length() < 3);
 }
 
 // static

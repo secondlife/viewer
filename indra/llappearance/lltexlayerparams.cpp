@@ -250,12 +250,7 @@ bool LLTexLayerParamAlpha::getSkip() const
     }
 
     LLWearableType::EType type = (LLWearableType::EType)getWearableType();
-    if ((type != LLWearableType::WT_INVALID) && !appearance->isWearingWearableType(type))
-    {
-        return true;
-    }
-
-    return false;
+    return (type != LLWearableType::WT_INVALID) && !appearance->isWearingWearableType(type);
 }
 
 

@@ -963,7 +963,7 @@ void LLProcess::handle_status(int reason, int status)
         LL_CONT << mDesc << ": handle_status(" << reason_str << ", " << status << ")" << LL_ENDL;
     }
 
-    if (! (reason == APR_OC_REASON_DEATH || reason == APR_OC_REASON_LOST))
+    if (reason != APR_OC_REASON_DEATH && reason != APR_OC_REASON_LOST)
     {
         // We're only interested in the call when the child terminates.
         return;

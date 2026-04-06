@@ -1807,7 +1807,7 @@ llssize deserialize_string_raw(
         }
         c = istr.get();
         ++count;
-        if(!((c == '"') || (c == '\'')))
+        if((c != '"') && (c != '\''))
         {
             return LLSDParser::PARSE_FAILURE;
         }

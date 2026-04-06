@@ -98,10 +98,7 @@ bool LLFontDescriptor::operator<(const LLFontDescriptor& b) const
     else if (mStyle > b.mStyle)
         return false;
 
-    if (mSize < b.mSize)
-        return true;
-    else
-        return false;
+    return mSize < b.mSize;
 }
 
 static const std::string s_template_string("TEMPLATE");
@@ -127,11 +124,7 @@ bool removeSubString(std::string& str, const std::string& substr)
 bool findSubString(std::string& str, const std::string& substr)
 {
     size_t pos = str.find(substr);
-    if (pos != string::npos)
-    {
-        return true;
-    }
-    return false;
+    return pos != string::npos;
 }
 
 

@@ -1145,12 +1145,7 @@ bool LLXUIParser::readVector3Value(Parser& parser, void* val_ptr)
 {
     LLXUIParser& self = static_cast<LLXUIParser&>(parser);
     LLVector3* vecp = (LLVector3*)val_ptr;
-    if(self.mCurReadNode->getFloatValue(3, vecp->mV) >= 3)
-    {
-        return true;
-    }
-
-    return false;
+    return self.mCurReadNode->getFloatValue(3, vecp->mV) >= 3;
 }
 
 bool LLXUIParser::writeVector3Value(Parser& parser, const void* val_ptr, name_stack_t& stack)
@@ -1170,12 +1165,7 @@ bool LLXUIParser::readColor4Value(Parser& parser, void* val_ptr)
 {
     LLXUIParser& self = static_cast<LLXUIParser&>(parser);
     LLColor4* colorp = (LLColor4*)val_ptr;
-    if(self.mCurReadNode->getFloatValue(4, colorp->mV) >= 3)
-    {
-        return true;
-    }
-
-    return false;
+    return self.mCurReadNode->getFloatValue(4, colorp->mV) >= 3;
 }
 
 bool LLXUIParser::writeColor4Value(Parser& parser, const void* val_ptr, name_stack_t& stack)

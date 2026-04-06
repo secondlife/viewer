@@ -1697,11 +1697,7 @@ bool LLFolderView::getShowSelectionContext()
         return true;
     }
     const LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-    if (menu && menu->getVisible())
-    {
-        return true;
-    }
-    return false;
+    return menu && menu->getVisible();
 }
 
 void LLFolderView::setShowSingleSelection(bool show)

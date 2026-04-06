@@ -364,7 +364,7 @@ void LLPluginProcessParent::idle()
             // If viewer and plugin are both shutting down, don't process further
             // input, viewer won't be able to handle it.
             if(!mPolledInput
-               && !(mState >= STATE_GOODBYE && LLApp::isExiting()))
+               && (mState < STATE_GOODBYE || !LLApp::isExiting()))
             {
                 mMessagePipe->pumpInput();
             }

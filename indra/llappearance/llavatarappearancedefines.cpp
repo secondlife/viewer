@@ -305,13 +305,8 @@ LLWearableType::EType LLAvatarAppearanceDictionary::getTEWearableType(ETextureIn
 // static
 bool LLAvatarAppearanceDictionary::isBakedImageId(const LLUUID& id)
 {
-    if ((id == IMG_USE_BAKED_EYES) || (id == IMG_USE_BAKED_HAIR) || (id == IMG_USE_BAKED_HEAD) || (id == IMG_USE_BAKED_LOWER) || (id == IMG_USE_BAKED_SKIRT) || (id == IMG_USE_BAKED_UPPER)
-        || (id == IMG_USE_BAKED_LEFTARM) || (id == IMG_USE_BAKED_LEFTLEG) || (id == IMG_USE_BAKED_AUX1) || (id == IMG_USE_BAKED_AUX2) || (id == IMG_USE_BAKED_AUX3) )
-    {
-        return true;
-    }
-
-    return false;
+    return (id == IMG_USE_BAKED_EYES) || (id == IMG_USE_BAKED_HAIR) || (id == IMG_USE_BAKED_HEAD) || (id == IMG_USE_BAKED_LOWER) || (id == IMG_USE_BAKED_SKIRT) || (id == IMG_USE_BAKED_UPPER)
+        || (id == IMG_USE_BAKED_LEFTARM) || (id == IMG_USE_BAKED_LEFTLEG) || (id == IMG_USE_BAKED_AUX1) || (id == IMG_USE_BAKED_AUX2) || (id == IMG_USE_BAKED_AUX3);
 }
 
 // static

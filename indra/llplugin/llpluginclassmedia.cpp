@@ -396,19 +396,14 @@ void LLPluginClassMedia::setAutoScale(bool auto_scale)
 
 bool LLPluginClassMedia::textureValid()
 {
-    if(
-        !mTextureParamsReceived ||
+    return !(!mTextureParamsReceived ||
         mTextureWidth <= 0 ||
         mTextureHeight <= 0 ||
         mMediaWidth <= 0 ||
         mMediaHeight <= 0 ||
         mRequestedMediaWidth != mMediaWidth ||
         mRequestedMediaHeight != mMediaHeight ||
-        getBitsData() == NULL
-    )
-        return false;
-
-    return true;
+        getBitsData() == NULL);
 }
 
 bool LLPluginClassMedia::getDirty(LLRect *dirty_rect)
