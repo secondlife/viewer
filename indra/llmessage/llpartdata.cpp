@@ -200,14 +200,10 @@ void LLPartData::setEndAlpha(const F32 alpha)
 // static
 bool LLPartData::validBlendFunc(S32 func)
 {
-    if (func >= 0
+    return func >= 0
         && func < LL_PART_BF_COUNT
         && func != UNSUPPORTED_DEST_ALPHA
-        && func != UNSUPPORTED_ONE_MINUS_DEST_ALPHA)
-    {
-        return true;
-    }
-    return false;
+        && func != UNSUPPORTED_ONE_MINUS_DEST_ALPHA;
 }
 
 LLPartSysData::LLPartSysData()
@@ -361,11 +357,7 @@ bool LLPartSysData::isNullPS(const S32 block_num)
 
     dp.unpackU32(crc, "crc");
 
-    if (crc == 0)
-    {
-        return true;
-    }
-    return false;
+    return crc == 0;
 }
 
 bool LLPartSysData::unpackBlock(const S32 block_num)

@@ -35,6 +35,7 @@
 #ifdef __GNUC__
 # include <cxxabi.h>
 #endif // __GNUC__
+#include <ranges>
 #include <sstream>
 #if !LL_WINDOWS
 # include <syslog.h>
@@ -78,7 +79,7 @@ namespace {
         {
             // Need UTF16 for Unicode OutputDebugString
             //
-            if (s.size())
+            if (!s.empty())
             {
                 OutputDebugString(ll_convert<std::wstring>(s).c_str());
                 OutputDebugString(TEXT("\n"));
@@ -134,7 +135,7 @@ namespace {
         RecordToFile(const std::string& filename):
             mName(filename)
         {
-            mFile.open(filename.c_str(), std::ios_base::out | std::ios_base::app);
+            mFile.open(filename, std::ios_base::out | std::ios_base::app);
             if (!mFile)
             {
                 LL_INFOS() << "Error setting log file to " << filename << LL_ENDL;
@@ -453,7 +454,7 @@ namespace
         LLSD configuration;
 
         {
-            llifstream file(filename().c_str());
+            llifstream file(filename());
             if (!file.is_open())
             {
                 LL_WARNS() << filename() << " failed to open file; not changing configuration" << LL_ENDL;
@@ -491,11 +492,11 @@ namespace
     public:
         virtual ~SettingsConfig();
 
-        LLError::ELevel                     mDefaultLevel;
+        LLError::ELevel                     mDefaultLevel{LLError::LEVEL_DEBUG};
 
-        bool                                mLogAlwaysFlush;
+        bool                                mLogAlwaysFlush{true};
 
-        U32                                 mEnabledLogTypesMask;
+        U32                                 mEnabledLogTypesMask{255};
 
         LevelMap                            mFunctionLevelMap;
         LevelMap                            mClassLevelMap;
@@ -504,12 +505,12 @@ namespace
         std::unordered_map<std::string, unsigned int> mUniqueLogMessages;
 
         LLError::FatalFunction              mCrashFunction;
-        LLError::TimeFunction               mTimeFunction;
+        LLError::TimeFunction               mTimeFunction{nullptr};
 
         Recorders                           mRecorders;
         LL_PROFILE_MUTEX_NAMED(LLCoros::RMutex, mRecorderMutex, "Log Recorders");
 
-        int                                 mShouldLogCallCounter;
+        int                                 mShouldLogCallCounter{0};
 
     private:
         SettingsConfig();
@@ -517,19 +518,11 @@ namespace
 
     using SettingsConfigPtr = LLPointer<SettingsConfig>;
     SettingsConfig::SettingsConfig()
-        : LLRefCount(),
-        mDefaultLevel(LLError::LEVEL_DEBUG),
-        mLogAlwaysFlush(true),
-        mEnabledLogTypesMask(255),
-        mFunctionLevelMap(),
-        mClassLevelMap(),
-        mFileLevelMap(),
-        mTagLevelMap(),
-        mUniqueLogMessages(),
-        mCrashFunction(nullptr),
-        mTimeFunction(nullptr),
-        mRecorders(),
-        mShouldLogCallCounter(0)
+        : 
+        mCrashFunction(nullptr)
+        
+        
+        
     {
     }
 
@@ -562,7 +555,7 @@ namespace
 
     Globals::Globals()
         :
-        callSites(),
+        
         mSettingsConfig(new SettingsConfig())
     {
     }
@@ -968,37 +961,37 @@ namespace LLError
     {
     }
 
-    bool Recorder::wantsTime()
+    bool Recorder::wantsTime() const
     {
         return mWantsTime;
     }
 
     // virtual
-    bool Recorder::wantsTags()
+    bool Recorder::wantsTags() const
     {
         return mWantsTags;
     }
 
     // virtual
-    bool Recorder::wantsLevel()
+    bool Recorder::wantsLevel() const
     {
         return mWantsLevel;
     }
 
     // virtual
-    bool Recorder::wantsLocation()
+    bool Recorder::wantsLocation() const
     {
         return mWantsLocation;
     }
 
     // virtual
-    bool Recorder::wantsFunctionName()
+    bool Recorder::wantsFunctionName() const
     {
         return mWantsFunctionName;
     }
 
     // virtual
-    bool Recorder::wantsMultiline()
+    bool Recorder::wantsMultiline() const
     {
         return mWantsMultiline;
     }
@@ -1566,10 +1559,9 @@ namespace LLError
         if(! sBuffer.empty())
         {
             LL_INFOS() << " ************* PRINT OUT LL CALL STACKS ************* " << LL_ENDL;
-            for (StringVector::const_reverse_iterator ri(sBuffer.rbegin()), re(sBuffer.rend());
-                 ri != re; ++ri)
+            for (const auto & ri : std::views::reverse(sBuffer))
             {
-                LL_INFOS() << (*ri) << LL_ENDL;
+                LL_INFOS() << ri << LL_ENDL;
             }
             LL_INFOS() << " *************** END OF LL CALL STACKS *************** " << LL_ENDL;
         }

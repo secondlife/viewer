@@ -109,7 +109,7 @@ public:
     apr_pool_t* getVolatileAPRPool() ;
     void        clearVolatileAPRPool() ;
 
-    [[nodiscard]] bool        isFull() ;
+    [[nodiscard]] bool        isFull() const ;
 
 private:
     S32 mNumActiveRef ; //number of active pointers pointing to the apr_pool.

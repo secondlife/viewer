@@ -205,8 +205,8 @@ class LLNotificationsListener::Forwarder: public LLEventTrackable
     LOG_CLASS(LLNotificationsListener::Forwarder);
 public:
     Forwarder(LLNotifications& llnotifications, const std::string& channel):
-        mNotifications(llnotifications),
-        mRespond(false)
+        mNotifications(llnotifications)
+        
     {
         // Connect to the specified channel on construction. Because
         // LLEventTrackable is a base, we should automatically disconnect when
@@ -232,7 +232,7 @@ private:
     LLNotifications& mNotifications;
     std::string mPumpName;
     LLSD mTypes;
-    bool mRespond;
+    bool mRespond{false};
 };
 
 void LLNotificationsListener::forward(const LLSD& params)

@@ -156,7 +156,7 @@ std::string getStartupStateFromLog(std::string& sllog)
 bool LLCrashLogger::readFromXML(LLSD& dest, const std::string& filename )
 {
     std::string db_file_name = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,filename);
-    llifstream log_file(db_file_name.c_str());
+    llifstream log_file(db_file_name);
 
     // Look for it in the given file
     if (log_file.is_open())
@@ -186,7 +186,7 @@ bool LLCrashLogger::readMinidump(std::string minidump_path)
 {
     size_t length=0;
 
-    llifstream minidump_stream(minidump_path.c_str(), std::ios_base::in | std::ios_base::binary);
+    llifstream minidump_stream(minidump_path, std::ios_base::in | std::ios_base::binary);
     if (minidump_stream.is_open())
     {
         minidump_stream.seekg(0, std::ios::end);
@@ -268,7 +268,7 @@ void LLCrashLogger::gatherFiles()
     gatherPlatformSpecificFiles();
 
 
-    if ( has_logs && (mFileMap["CrashHostUrl"] != "") )
+    if ( has_logs && (!mFileMap["CrashHostUrl"].empty()) )
     {
         mCrashHost = mFileMap["CrashHostUrl"];
     }
@@ -281,20 +281,20 @@ void LLCrashLogger::gatherFiles()
 
     updateApplication("Encoding files...");
 
-    for(std::map<std::string, std::string>::iterator itr = mFileMap.begin(); itr != mFileMap.end(); ++itr)
+    for(auto & itr : mFileMap)
     {
-        std::string file = (*itr).second;
+        std::string file = itr.second;
         if (!file.empty())
         {
-            LL_DEBUGS("CRASHREPORT") << "trying to read " << itr->first << ": " << file << LL_ENDL;
-            llifstream f(file.c_str());
+            LL_DEBUGS("CRASHREPORT") << "trying to read " << itr.first << ": " << file << LL_ENDL;
+            llifstream f(file);
             if(f.is_open())
             {
                 std::stringstream s;
                 s << f.rdbuf();
 
                 std::string crash_info = s.str();
-                if(itr->first == "SecondLifeLog")
+                if(itr.first == "SecondLifeLog")
                 {
                     if(!mCrashInfo["DebugLog"].has("StartupState"))
                     {
@@ -303,7 +303,7 @@ void LLCrashLogger::gatherFiles()
                     trimSLLog(crash_info);
                 }
 
-                mCrashInfo[(*itr).first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
+                mCrashInfo[itr.first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
             }
             else
             {
@@ -312,7 +312,7 @@ void LLCrashLogger::gatherFiles()
         }
         else
         {
-            LL_DEBUGS("CRASHREPORT") << "empty file in list for " << itr->first << LL_ENDL;
+            LL_DEBUGS("CRASHREPORT") << "empty file in list for " << itr.first << LL_ENDL;
         }
     }
 
@@ -333,7 +333,7 @@ void LLCrashLogger::gatherFiles()
     if (!has_minidump)  //Viewer was probably so hosed it couldn't write remaining data.  Try brute force.
     {
         //Look for a filename at least 30 characters long in the dump dir which contains the characters MDMP as the first 4 characters in the file.
-        typedef std::vector<std::string> vec;
+        using vec = std::vector<std::string>;
         std::string pathname = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"");
         LL_WARNS("CRASHREPORT") << "Searching for minidump in " << pathname << LL_ENDL;
         vec file_vec = gDirUtilp->getFilesInDir(pathname);
@@ -342,7 +342,7 @@ void LLCrashLogger::gatherFiles()
             if ( ( iter->length() > 30 ) && (iter->rfind(".dmp") == (iter->length()-4) ) )
             {
                 std::string fullname = pathname + *iter;
-                llifstream fdat(fullname.c_str(), std::ifstream::binary);
+                llifstream fdat(fullname, std::ifstream::binary);
                 if (fdat)
                 {
                     char buf[5];
@@ -463,20 +463,20 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
 
     updateApplication("Sending reports...");
 
-    llofstream out_file(report_file.c_str());
+    llofstream out_file(report_file);
     LLSDSerialize::toPrettyXML(post_data, out_file);
     out_file.flush();
     out_file.close();
 
     bool sent = false;
 
-    if(mCrashHost != "")
+    if(!mCrashHost.empty())
     {
         LL_WARNS("CRASHREPORT") << "Sending crash data to server from CrashHostUrl '" << mCrashHost << "'" << LL_ENDL;
 
         std::string msg = "Using override crash server... ";
-        msg = msg+mCrashHost.c_str();
-        updateApplication(msg.c_str());
+        msg = msg+mCrashHost;
+        updateApplication(msg);
 
         sent = runCrashLogPost(mCrashHost, post_data, std::string("Sending to server"), CRASH_UPLOAD_RETRIES, CRASH_UPLOAD_TIMEOUT);
     }
@@ -576,7 +576,7 @@ bool LLCrashLogger::init()
     std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log.old");
     std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log");
 
-    LLFile::rename(log_file.c_str(), old_log_file.c_str());
+    LLFile::rename(log_file, old_log_file);
 
     // Set the log file to crashreport.log
     LLError::logToFile(log_file);  //NOTE:  Until this line, LL_INFOS LL_WARNS, etc are blown to the ether.

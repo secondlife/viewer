@@ -2878,7 +2878,7 @@ bool LLAppViewer::initConfiguration()
     LLSLURL start_slurl;
     if (!starting_location.empty())
     {
-        start_slurl = starting_location;
+        start_slurl = LLSLURL(starting_location);
         LLStartUp::setStartSLURL(start_slurl);
         if(start_slurl.getType() == LLSLURL::LOCATION)
         {

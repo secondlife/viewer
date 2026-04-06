@@ -43,6 +43,7 @@
 #include <stdexcept>
 #include <limits>
 #include <algorithm>
+#include <utility>
 #include <vector>
 #include <typeinfo>
 #include <utility>
@@ -71,8 +72,8 @@ class LLProcessListener
 {
     LOG_CLASS(LLProcessListener);
 public:
-    LLProcessListener():
-        mCount(0)
+    LLProcessListener()
+        
     {}
 
     void addPoll(const LLProcess&)
@@ -126,7 +127,7 @@ private:
     /// If this object is destroyed before mCount goes to zero, stop
     /// listening on "mainloop" anyway.
     LLTempBoundListener mConnection;
-    unsigned mCount;
+    unsigned mCount{0};
 };
 static LLProcessListener sProcessListener;
 
@@ -142,8 +143,8 @@ class WritePipeImpl: public LLProcess::WritePipe
 {
     LOG_CLASS(WritePipeImpl);
 public:
-    WritePipeImpl(const std::string& desc, apr_file_t* pipe):
-        mDesc(desc),
+    WritePipeImpl(std::string  desc, apr_file_t* pipe):
+        mDesc(std::move(desc)),
         mPipe(pipe),
         // Essential to initialize our std::ostream with our special streambuf!
         mStream(&mStreambuf)
@@ -256,15 +257,14 @@ class ReadPipeImpl: public LLProcess::ReadPipe
 {
     LOG_CLASS(ReadPipeImpl);
 public:
-    ReadPipeImpl(const std::string& desc, apr_file_t* pipe, LLProcess::FILESLOT index):
-        mDesc(desc),
+    ReadPipeImpl(std::string  desc, apr_file_t* pipe, LLProcess::FILESLOT index):
+        mDesc(std::move(desc)),
         mPipe(pipe),
         mIndex(index),
         // Essential to initialize our std::istream with our special streambuf!
         mStream(&mStreambuf),
-        mPump("ReadPipe", true),    // tweak name as needed to avoid collisions
-        mLimit(0),
-        mEOF(false)
+        mPump("ReadPipe", true)
+        
     {
         mConnection = LLEventPumps::instance().obtain("mainloop")
             .listen(LLEventPump::inventName("ReadPipe"),
@@ -472,8 +472,8 @@ private:
     boost::asio::streambuf mStreambuf;
     std::istream mStream;
     LLEventStream mPump;
-    size_type mLimit;
-    bool mEOF;
+    size_type mLimit{0};
+    bool mEOF{false};
 };
 
 /*****************************************************************************
@@ -512,7 +512,7 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
                      );
         }
 
-        return LLProcessPtr();
+        return {};
     }
 }
 
@@ -868,7 +868,7 @@ LLProcess::Status LLProcess::getStatus(const LLProcessPtr& p)
     if (! p)
     {
         // default-constructed Status has mState == UNSTARTED
-        return Status();
+        return {};
     }
     return p->getStatus();
 }
@@ -964,7 +964,7 @@ void LLProcess::handle_status(int reason, int status)
         LL_CONT << mDesc << ": handle_status(" << reason_str << ", " << status << ")" << LL_ENDL;
     }
 
-    if (! (reason == APR_OC_REASON_DEATH || reason == APR_OC_REASON_LOST))
+    if (reason != APR_OC_REASON_DEATH && reason != APR_OC_REASON_LOST)
     {
         // We're only interested in the call when the child terminates.
         return;

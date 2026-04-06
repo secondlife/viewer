@@ -87,7 +87,7 @@ class LLXmlTreeNode
 
 protected:
     // Protected since nodes are only created and destroyed by friend classes and other LLXmlTreeNodes
-    LLXmlTreeNode( const std::string& name, LLXmlTreeNode* parent, LLXmlTree* tree );
+    LLXmlTreeNode( std::string  name, LLXmlTreeNode* parent, LLXmlTree* tree );
 
 public:
     virtual ~LLXmlTreeNode();

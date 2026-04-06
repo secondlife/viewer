@@ -133,9 +133,9 @@ void gSetInitDataDefaults(LLPartInitData *setMe)
 LLPartSysCompressedPacket::LLPartSysCompressedPacket()
 {
     // default constructor for mDefaults called implicitly/automatically here
-    for(int i = 0; i < MAX_PART_SYS_PACKET_SIZE; i++)
+    for(unsigned char & i : mData)
     {
-        mData[i] = '\0';
+        i = '\0';
     }
 
     mNumBytes = 0;
@@ -1144,19 +1144,19 @@ bool LLPartSysCompressedPacket::fromLLPartInitData(LLPartInitData *in, U32 &byte
         currByte = writeAlpha_range(in, currByte);
     }
 
-    mData[currByte++] = (U8)in->maxParticles;
-    mData[currByte++] = (U8)in->initialParticles;
+    mData[currByte++] = in->maxParticles;
+    mData[currByte++] = in->initialParticles;
 
 
     U32 flagFlag = 1; // flag indicating which flag bytes are non-zero
     //                   yeah, I know, the name sounds funny
-    for(U32 i = 0; i < 8; i++)
+    for(unsigned char mFlag : in->mFlags)
     {
 
 //      llprintline("Flag \"%x\" gets byte \"%x\"\n", flagFlag, in->mFlags[i]);
         if(mData[1] & flagFlag)
         {
-            mData[currByte++] = in->mFlags[i];
+            mData[currByte++] = mFlag;
 //          llprintline("and is valid...\n");
         }
         flagFlag <<= 1;
@@ -1278,7 +1278,7 @@ bool LLPartSysCompressedPacket::fromUnsignedBytes(U8 *in, U32 bytesUsed)
 }
 
 
-U32 LLPartSysCompressedPacket::bufferSize()
+U32 LLPartSysCompressedPacket::bufferSize() const
 {
     return mNumBytes;
 }

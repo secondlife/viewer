@@ -97,7 +97,7 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
     }
 
     // "en" version, the default-language version of the file.
-    std::string base_filename = search_paths.front();
+    const std::string& base_filename = search_paths.front();
     if (!base_filename.empty())
     {
         LLUICtrlFactory *factory = LLUICtrlFactory::getInstance();

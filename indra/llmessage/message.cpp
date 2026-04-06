@@ -373,14 +373,7 @@ bool LLMessageSystem::poll(F32 seconds)
     {
         ll_apr_warn_status(status);
     }
-    if (num_socks)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return num_socks != 0;
 }
 
 bool LLMessageSystem::isTrustedSender(const LLHost& host) const
@@ -783,9 +776,9 @@ void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
         if (!mDenyTrustedCircuitSet.empty())
         {
             LL_INFOS("Messaging") << "Sending queued DenyTrustedCircuit messages." << LL_ENDL;
-            for (host_set_t::iterator hostit = mDenyTrustedCircuitSet.begin(); hostit != mDenyTrustedCircuitSet.end(); ++hostit)
+            for (const auto & hostit : mDenyTrustedCircuitSet)
             {
-                reallySendDenyTrustedCircuit(*hostit);
+                reallySendDenyTrustedCircuit(hostit);
             }
             mDenyTrustedCircuitSet.clear();
         }
@@ -1502,7 +1495,7 @@ void LLMessageSystem::dumpCircuitInfo()
 }
 
 /* virtual */
-U32 LLMessageSystem::getOurCircuitCode()
+U32 LLMessageSystem::getOurCircuitCode() const
 {
     return mOurCircuitCode;
 }
@@ -1513,7 +1506,7 @@ void LLMessageSystem::getCircuitInfo(LLSD& info) const
 }
 
 // returns whether the given host is on a trusted circuit
-bool    LLMessageSystem::getCircuitTrust(const LLHost &host)
+bool    LLMessageSystem::getCircuitTrust(const LLHost &host) const
 {
     const LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
@@ -1587,7 +1580,7 @@ void LLMessageSystem::disableCircuit(const LLHost &host)
 }
 
 
-void LLMessageSystem::setCircuitAllowTimeout(const LLHost &host, bool allow)
+void LLMessageSystem::setCircuitAllowTimeout(const LLHost &host, bool allow) const
 {
     LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
@@ -1596,7 +1589,7 @@ void LLMessageSystem::setCircuitAllowTimeout(const LLHost &host, bool allow)
     }
 }
 
-void LLMessageSystem::setCircuitTimeoutCallback(const LLHost &host, void (*callback_func)(const LLHost & host, void *user_data), void *user_data)
+void LLMessageSystem::setCircuitTimeoutCallback(const LLHost &host, void (*callback_func)(const LLHost & host, void *user_data), void *user_data) const
 {
     LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
@@ -1650,7 +1643,7 @@ bool LLMessageSystem::checkCircuitAlive(const U32 circuit)
     }
 }
 
-bool LLMessageSystem::checkCircuitAlive(const LLHost &host)
+bool LLMessageSystem::checkCircuitAlive(const LLHost &host) const
 {
     const LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
@@ -1671,7 +1664,7 @@ void LLMessageSystem::setCircuitProtection(bool b_protect)
 }
 
 
-U32 LLMessageSystem::findCircuitCode(const LLHost &host)
+U32 LLMessageSystem::findCircuitCode(const LLHost &host) const
 {
     U64 ip64 = (U64) host.getAddress();
     U64 port64 = (U64) host.getPort();
@@ -1688,7 +1681,7 @@ LLHost LLMessageSystem::findHost(const U32 circuit_code)
     }
     else
     {
-        return LLHost();
+        return {};
     }
 }
 
@@ -2118,11 +2111,9 @@ void LLMessageSystem::setMessageBans(
     LL_DEBUGS("AppInit") << "LLMessageSystem::setMessageBans:" << LL_ENDL;
     bool any_set = false;
 
-    for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
-             end = mMessageTemplates.end();
-         iter != end; ++iter)
+    for (auto & mMessageTemplate : mMessageTemplates)
     {
-        LLMessageTemplate* mt = iter->second;
+        LLMessageTemplate* mt = mMessageTemplate.second;
 
         std::string name(mt->mName);
         bool ban_from_trusted
@@ -2629,11 +2620,9 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
     buffer = llformat( "%35s%10s%10s%10s%10s", "Message", "Count", "Time", "Max", "Avg");
     str << buffer << std:: endl;
     F32 avg;
-    for (message_template_name_map_t::const_iterator iter = mMessageTemplates.begin(),
-             end = mMessageTemplates.end();
-         iter != end; iter++)
+    for (auto mMessageTemplate : mMessageTemplates)
     {
-        const LLMessageTemplate* mt = iter->second;
+        const LLMessageTemplate* mt = mMessageTemplate.second;
         if(mt->mTotalDecoded > 0)
         {
             avg = mt->mTotalDecodeTime / (F32)mt->mTotalDecoded;
@@ -2668,11 +2657,9 @@ void LLMessageSystem::resetReceiveCounts()
 {
     mNumMessageCounts = 0;
 
-    for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
-             end = mMessageTemplates.end();
-         iter != end; iter++)
+    for (auto & mMessageTemplate : mMessageTemplates)
     {
-        LLMessageTemplate* mt = iter->second;
+        LLMessageTemplate* mt = mMessageTemplate.second;
         mt->mDecodeTimeThisFrame = 0.f;
     }
 }
@@ -2682,11 +2669,9 @@ void LLMessageSystem::dumpReceiveCounts()
 {
     LLMessageTemplate       *mt;
 
-    for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
-             end = mMessageTemplates.end();
-         iter != end; iter++)
+    for (auto & mMessageTemplate : mMessageTemplates)
     {
-        LLMessageTemplate* mt = iter->second;
+        LLMessageTemplate* mt = mMessageTemplate.second;
         mt->mReceiveCount = 0;
         mt->mReceiveBytes = 0;
         mt->mReceiveInvalid = 0;
@@ -2710,11 +2695,9 @@ void LLMessageSystem::dumpReceiveCounts()
     if(mNumMessageCounts > 0)
     {
         LL_DEBUGS("Messaging") << "Dump: " << mNumMessageCounts << " messages processed in " << mReceiveTime << " seconds" << LL_ENDL;
-        for (message_template_name_map_t::const_iterator iter = mMessageTemplates.begin(),
-                 end = mMessageTemplates.end();
-             iter != end; iter++)
+        for (auto mMessageTemplate : mMessageTemplates)
         {
-            const LLMessageTemplate* mt = iter->second;
+            const LLMessageTemplate* mt = mMessageTemplate.second;
             if (mt->mReceiveCount > 0)
             {
                 LL_INFOS("Messaging") << "Num: " << std::setw(3) << mt->mReceiveCount << " Bytes: " << std::setw(6) << mt->mReceiveBytes
@@ -2854,7 +2837,7 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
 
     S32 count = (*data_size);
 
-    const U8 *inptr = (U8 *)*data;
+    const U8 *inptr = (*data);
     U8 *outptr = (U8 *)mEncodedRecvBuffer;
 
 // skip the packet id field
@@ -3022,9 +3005,7 @@ void LLMessageSystem::setTimingFunc(msg_timing_callback func, void* data)
 
 bool LLMessageSystem::isCircuitCodeKnown(U32 code) const
 {
-    if(mCircuitCodes.find(code) == mCircuitCodes.end())
-        return false;
-    return true;
+    return mCircuitCodes.find(code) != mCircuitCodes.end();
 }
 
 bool LLMessageSystem::isMessageFast(const char *msg)
@@ -3151,9 +3132,9 @@ bool LLMessageSystem::isMatchingDigestForWindowAndUUIDs(const char* digest, cons
     window_bin[0] = now;
     window_bin[1] = now - 1;
     window_bin[2] = now + 1;
-    for(S32 i = 0; i < WINDOW_BIN_COUNT; ++i)
+    for(unsigned int i : window_bin)
     {
-        generateDigestForNumberAndUUIDs(our_digest, window_bin[i], id2, id1);
+        generateDigestForNumberAndUUIDs(our_digest, i, id2, id1);
         if(0 == strncmp(digest, our_digest, MD5HEX_STR_BYTES))
         {
             return true;
@@ -3217,9 +3198,9 @@ bool LLMessageSystem::isMatchingDigestForWindow(const char* digest, S32 const wi
     window_bin[0] = now;
     window_bin[1] = now - 1;
     window_bin[2] = now + 1;
-    for(S32 i = 0; i < WINDOW_BIN_COUNT; ++i)
+    for(unsigned int i : window_bin)
     {
-        generateDigestForNumber(our_digest, window_bin[i]);
+        generateDigestForNumber(our_digest, i);
         if(0 == strncmp(digest, our_digest, MD5HEX_STR_BYTES))
         {
             return true;
@@ -3397,7 +3378,7 @@ F64Seconds LLMessageSystem::getMessageTimeSeconds(const bool update)
     }
     else
     {
-        return F64Seconds(totalTime());
+        return {totalTime()};
     }
 }
 
@@ -4000,7 +3981,7 @@ LockMessageChecker::LockMessageChecker(LLMessageSystem* msgsystem):
 
 // HACK! babbage: return true if message rxed via either UDP or HTTP
 // TODO: babbage: move gServicePump in to LLMessageSystem?
-bool LLMessageSystem::checkAllMessages(LockMessageChecker& lmc, S64 frame_count, LLPumpIO* http_pump)
+bool LLMessageSystem::checkAllMessages(LockMessageChecker& lmc, S64 frame_count, LLPumpIO* http_pump) const
 {
     if(lmc.checkMessages(frame_count))
     {
@@ -4053,7 +4034,7 @@ void LLMessageSystem::sendUntrustedSimulatorMessageCoro(std::string url, std::st
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData, httpOpts);
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD& httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (callback != nullptr)

@@ -964,7 +964,7 @@ public:
     std::string getGlobalString(std::string_view key) const;
 
     void setIgnoreAllNotifications(bool ignore);
-    bool getIgnoreAllNotifications();
+    bool getIgnoreAllNotifications() const;
 
     void setIgnored(std::string_view name, bool ignored);
     bool getIgnored(std::string_view name);

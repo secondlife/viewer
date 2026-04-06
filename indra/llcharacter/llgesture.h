@@ -36,8 +36,8 @@ class LLGesture
 public:
     LLGesture();
     LLGesture(KEY key, MASK mask, const std::string &trigger,
-        const LLUUID &sound_item_id, const std::string &animation,
-        const std::string &output_string);
+        const LLUUID &sound_item_id, std::string animation,
+        std::string output_string);
 
     LLGesture(U8 **buffer, S32 max_size); // deserializes, advances buffer
     LLGesture(const LLGesture &gesture);
@@ -97,7 +97,7 @@ public:
     // non-endian-neutral serialization
     U8 *serialize(U8 *buffer) const;
     U8 *deserialize(U8 *buffer, S32 max_size);
-    S32 getMaxSerialSize();
+    S32 getMaxSerialSize() const;
 
 protected:
     // overridden by child class to use local LLGesture implementation

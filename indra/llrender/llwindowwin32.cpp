@@ -122,18 +122,18 @@ LLW32MsgCallback gAsyncMsgCallback = NULL;
 
 #ifndef DPI_ENUMS_DECLARED
 
-typedef enum PROCESS_DPI_AWARENESS {
+using PROCESS_DPI_AWARENESS = enum PROCESS_DPI_AWARENESS {
     PROCESS_DPI_UNAWARE = 0,
     PROCESS_SYSTEM_DPI_AWARE = 1,
     PROCESS_PER_MONITOR_DPI_AWARE = 2
-} PROCESS_DPI_AWARENESS;
+};
 
-typedef enum MONITOR_DPI_TYPE {
+using MONITOR_DPI_TYPE = enum MONITOR_DPI_TYPE {
     MDT_EFFECTIVE_DPI = 0,
     MDT_ANGULAR_DPI = 1,
     MDT_RAW_DPI = 2,
     MDT_DEFAULT = MDT_EFFECTIVE_DPI
-} MONITOR_DPI_TYPE;
+};
 
 #endif
 
@@ -1092,7 +1092,7 @@ bool LLWindowWin32::maximize()
     bool success = false;
     if (!mWindowHandle) return success;
 
-    mWindowThread->post([=]
+    mWindowThread->post([=, this]
         {
             WINDOWPLACEMENT placement;
             placement.length = sizeof(WINDOWPLACEMENT);
@@ -1156,7 +1156,7 @@ bool LLWindowWin32::setSizeImpl(const LLCoordScreen size)
         return false;
     }
 
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             WINDOWPLACEMENT placement;
             placement.length = sizeof(WINDOWPLACEMENT);
@@ -1769,7 +1769,7 @@ const   S32   max_format  = (S32)num_formats - 1;
 
     // *HACK: Attempt to prevent startup crashes by deferring memory accounting
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
     {
         mWindowThread->glReady();
     });
@@ -2002,7 +2002,7 @@ void LLWindowWin32::moveWindow( const LLCoordScreen& position, const LLCoordScre
     // THIS CAUSES DEV-15484 and DEV-15949
     //ShowWindow(mWindowHandle, SW_RESTORE);
     // NOW we can call MoveWindow
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             MoveWindow(mWindowHandle, position.mX, position.mY, size.mX, size.mY, TRUE);
         });
@@ -2012,7 +2012,7 @@ void LLWindowWin32::setTitle(const std::string title)
 {
     // TODO: Do we need to use the wide string version of this call
     // to support non-ascii usernames (and region names?)
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             SetWindowText(mWindowHandle, ll_convert<std::wstring>(title).c_str());
         });
@@ -2192,11 +2192,11 @@ void LLWindowWin32::initCursors()
     mCursor[ UI_CURSOR_TOOLMEDIAOPEN ]  = loadColorCursor(TEXT("TOOLMEDIAOPEN"));
 
     // Note: custom cursors that are not found make LoadCursor() return NULL.
-    for( S32 i = 0; i < UI_CURSOR_COUNT; i++ )
+    for(auto & i : mCursor)
     {
-        if( !mCursor[i] )
+        if( !i )
         {
-            mCursor[i] = LoadCursor(NULL, IDC_ARROW);
+            i = LoadCursor(NULL, IDC_ARROW);
         }
     }
 }
@@ -3500,7 +3500,7 @@ bool LLWindowWin32::getClientRectInScreenSpace( RECT* rectp )
 
 void LLWindowWin32::flashIcon(F32 seconds)
 {
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             FLASHWINFO flash_info;
 
@@ -3979,7 +3979,7 @@ void *LLWindowWin32::getPlatformWindow()
 
 void LLWindowWin32::bringToFront()
 {
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             BringWindowToTop(mWindowHandle);
         });
@@ -3988,7 +3988,7 @@ void LLWindowWin32::bringToFront()
 // set (OS) window focus back to the client
 void LLWindowWin32::focusClient()
 {
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             SetFocus(mWindowHandle);
         });
@@ -4026,7 +4026,7 @@ void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, bool b)
 
     if (sLanguageTextInputAllowed)
     {
-        mWindowThread->post([=]()
+        mWindowThread->post([=, this]()
         {
             // Allowing: Restore the previous IME status, so that the user has a feeling that the previous
             // text input continues naturally.  Be careful, however, the IME status is meaningful only during the user keeps
@@ -4042,7 +4042,7 @@ void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, bool b)
     }
     else
     {
-        mWindowThread->post([=]()
+        mWindowThread->post([=, this]()
         {
             // Disallowing: Turn off the IME so that succeeding key events bypass IME and come to us directly.
             // However, do it after saving the current IME  status.  We need to restore the status when
@@ -4097,8 +4097,8 @@ void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
         LLCoordWindow win_pos;
         convertCoords( position, &win_pos );
 
-        if ( win_pos.mX >= 0 && win_pos.mY >= 0 &&
-            (win_pos.mX != sWinIMEWindowPosition.mX) || (win_pos.mY != sWinIMEWindowPosition.mY) )
+        if ( (win_pos.mX >= 0 && win_pos.mY >= 0 &&
+            (win_pos.mX != sWinIMEWindowPosition.mX)) || (win_pos.mY != sWinIMEWindowPosition.mY) )
         {
             COMPOSITIONFORM ime_form;
             memset( &ime_form, 0, sizeof(ime_form) );
@@ -4318,7 +4318,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
         }
     }
 
-    if ((indexes & GCS_COMPCLAUSE) && preedit_string.length() > 0)
+    if ((indexes & GCS_COMPCLAUSE) && !preedit_string.empty())
     {
         LONG size = LLWinImm::getCompositionString(himc, GCS_COMPCLAUSE, NULL, 0);
         if (size > 0)
@@ -4389,31 +4389,31 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 
     if (needs_update)
     {
-        if (preedit_string.length() != 0 || result_string.length() != 0)
+        if (!preedit_string.empty() || !result_string.empty())
         {
             mPreeditor->resetPreedit();
         }
 
-        if (result_string.length() > 0)
+        if (!result_string.empty())
         {
-            for (LLWString::const_iterator i = result_string.begin(); i != result_string.end(); i++)
+            for (unsigned int i : result_string)
             {
-                mPreeditor->handleUnicodeCharHere(*i);
+                mPreeditor->handleUnicodeCharHere(i);
             }
         }
 
-        if (preedit_string.length() == 0)
+        if (preedit_string.empty())
         {
             preedit_segment_lengths.clear();
             preedit_standouts.clear();
         }
         else
         {
-            if (preedit_segment_lengths.size() == 0)
+            if (preedit_segment_lengths.empty())
             {
                 preedit_segment_lengths.assign(1, static_cast<S32>(preedit_string.length()));
             }
-            if (preedit_standouts.size() == 0)
+            if (preedit_standouts.empty())
             {
                 preedit_standouts.assign(preedit_segment_lengths.size(), false);
             }
@@ -4718,7 +4718,7 @@ std::vector<std::string> LLWindowWin32::getDisplaysResolutionList()
 std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 {
     // Fonts previously in getFontListSans() have moved to fonts.xml.
-    return std::vector<std::string>();
+    return {};
 }
 #endif // LL_WINDOWS
 
@@ -4738,8 +4738,8 @@ inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
 class LogChange
 {
 public:
-    explicit LogChange(const std::string& tag):
-        mTag(tag)
+    explicit LogChange(std::string  tag):
+        mTag(std::move(tag))
     {}
 
     template <typename... Items>
@@ -5096,7 +5096,7 @@ void LLWindowWin32::updateWindowRect()
     if (GetWindowRect(mWindowHandle, &rect) &&
         GetClientRect(mWindowHandle, &client_rect))
     {
-        post([=]
+        post([=, this]
             {
                 mRect = rect;
                 mClientRect = client_rect;
@@ -5159,7 +5159,7 @@ void LLWindowWin32::setCustomIcon()
         {
             HICON hDefaultIcon = LoadIcon(mhInstance, mIconResource);
             HICON hSmallIcon   = LoadIcon(mhInstance, mIconSmallResource);
-            mWindowThread->post([=]()
+            mWindowThread->post([=, this]()
                 {
                     SendMessage(mWindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hDefaultIcon);
                     SendMessage(mWindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)hSmallIcon);

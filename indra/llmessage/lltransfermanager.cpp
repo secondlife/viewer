@@ -350,7 +350,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
     // This is a lame cut and paste of code down below.  If we change the logic down there,
     // we HAVE to change the logic up here.
 
-    while (1)
+    while (true)
     {
         S32 packet_id = 0;
         U8 tmp_data[MAX_PACKET_DATA_SIZE];

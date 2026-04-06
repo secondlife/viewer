@@ -187,7 +187,7 @@ bool LLPrimitive::cleanupVolumeManager()
 
 //===============================================================
 LLPrimitive::LLPrimitive()
-:   mTextureList(),
+:   
     mNumTEs(0),
     mMiscFlags(0),
     mNumBumpmapTEs(0)
@@ -1370,7 +1370,7 @@ bool LLPrimitive::packTEMessage(LLDataPacker &dp) const
     return true;
 }
 
-S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec)
+S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec) const
 {
     S32 retval = 0;
     // temp buffer for material ID processing
@@ -1760,14 +1760,10 @@ bool LLLightParams::operator==(const LLNetworkData& data) const
         return false;
     }
     const LLLightParams *param = (const LLLightParams*)&data;
-    if (param->mColor != mColor ||
+    return !(param->mColor != mColor ||
         param->mRadius != mRadius ||
         param->mCutoff != mCutoff ||
-        param->mFalloff != mFalloff)
-    {
-        return false;
-    }
-    return true;
+        param->mFalloff != mFalloff);
 }
 
 void LLLightParams::copy(const LLNetworkData& data)
@@ -2117,14 +2113,8 @@ bool LLSculptParams::operator==(const LLNetworkData& data) const
     }
 
     const LLSculptParams *param = (const LLSculptParams*)&data;
-    if ( (param->mSculptTexture != mSculptTexture) ||
-         (param->mSculptType != mSculptType) )
-
-    {
-        return false;
-    }
-
-    return true;
+    return !((param->mSculptTexture != mSculptTexture) ||
+         (param->mSculptType != mSculptType));
 }
 
 void LLSculptParams::copy(const LLNetworkData& data)
@@ -2288,12 +2278,7 @@ bool LLExtendedMeshParams::operator==(const LLNetworkData& data) const
     }
 
     const LLExtendedMeshParams *param = (const LLExtendedMeshParams*)&data;
-    if ( (param->mFlags != mFlags) )
-    {
-        return false;
-    }
-
-    return true;
+    return param->mFlags == mFlags;
 }
 
 void LLExtendedMeshParams::copy(const LLNetworkData& data)
@@ -2413,11 +2398,11 @@ void LLRenderMaterialParams::setMaterial(U8 te, const LLUUID& id)
 
 const LLUUID& LLRenderMaterialParams::getMaterial(U8 te) const
 {
-    for (int i = 0; i < mEntries.size(); ++i)
+    for (const auto & mEntrie : mEntries)
     {
-        if (mEntries[i].te_idx == te)
+        if (mEntrie.te_idx == te)
         {
-            return mEntries[i].id;
+            return mEntrie.id;
         }
     }
 

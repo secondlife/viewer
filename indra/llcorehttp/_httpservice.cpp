@@ -261,10 +261,9 @@ void HttpService::shutdown()
     HttpRequestQueue::OpContainer ops;
     mRequestQueue->fetchAll(false, ops);
 
-    for (HttpRequestQueue::OpContainer::iterator it = ops.begin();
-        it != ops.end(); ++it)
+    for (auto & op : ops)
     {
-        (*it)->cancel();
+        op->cancel();
     }
     ops.clear();
 
@@ -388,7 +387,7 @@ HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
         || (pclass != HttpRequest::GLOBAL_POLICY_ID && ! sOptionDesc[opt].mIsClass))    // class setting permitted
                                                                                         // can always get, no dynamic check
     {
-        return HttpStatus(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, LLCore::HE_INVALID_ARG};
     }
 
     HttpStatus status;

@@ -102,10 +102,7 @@ namespace
 ///----------------------------------------------------------------------------
 
 LLAssetInfo::LLAssetInfo( void )
-    :   mDescription(),
-        mName(),
-        mUuid(),
-        mCreatorID(),
+    :   
         mType( LLAssetType::AT_NONE )
 { }
 
@@ -192,7 +189,7 @@ void LLAssetInfo::setFromNameValue( const LLNameValue& nv )
 LLBaseDownloadRequest::LLBaseDownloadRequest(const LLUUID &uuid, const LLAssetType::EType type)
     : mUUID(uuid),
       mType(type),
-      mDownCallback(),
+      
       mUserData(NULL),
       mHost(),
       mIsTemp(false),
@@ -221,7 +218,7 @@ LLBaseDownloadRequest* LLBaseDownloadRequest::getCopy()
 
 LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type)
     :   LLBaseDownloadRequest(uuid, type),
-        mUpCallback(),
+        
         mInfoCallback( NULL ),
         mIsLocal(false),
         mIsUserWaiting(false),
@@ -542,10 +539,8 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         bool duplicate = false;
         LL_PROFILE_ZONE_NAMED("gad - check pending downloads");
         // check to see if there's a pending download of this uuid already
-        for (request_list_t::iterator iter = mPendingDownloads.begin();
-             iter != mPendingDownloads.end(); ++iter )
+        for (auto tmp : mPendingDownloads)
         {
-            LLAssetRequest  *tmp = *iter;
             if ((type == tmp->getType()) && (uuid == tmp->getUUID()))
             {
                 if (callback == tmp->mDownCallback && user_data == tmp->mUserData)
@@ -1126,7 +1121,7 @@ S32 LLAssetStorage::getNumPendingUploads() const
     return getNumPending(ERequestType::RT_UPLOAD);
 }
 
-S32 LLAssetStorage::getNumPendingLocalUploads()
+S32 LLAssetStorage::getNumPendingLocalUploads() const
 {
     return getNumPending(ERequestType::RT_LOCALUPLOAD);
 }
@@ -1465,7 +1460,7 @@ void LLAssetStorage::reportMetric( const LLUUID& asset_id, const LLAssetType::ET
         stats["asset_type"] = asset_type;
         stats["filename"] = filename;
         stats["agent_id"] = agent_id;
-        stats["asset_size"] = (S32)asset_size;
+        stats["asset_size"] = asset_size;
         stats["result"] = (S32)result;
 
         metric_recipient->recordEventDetails( metric_name, new_message.str(), success, stats);

@@ -616,11 +616,9 @@ bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
             mCurrentRMessageData->addBlock(cur_data_block);
 
             // now read the variables
-            for (LLMessageBlock::message_variable_map_t::const_iterator iter =
-                     mbci->mMemberVariables.begin();
-                 iter != mbci->mMemberVariables.end(); iter++)
+            for (auto mMemberVariable : mbci->mMemberVariables)
             {
-                const LLMessageVariable& mvci = **iter;
+                const LLMessageVariable& mvci = *mMemberVariable;
 
                 // ok, build out the variables
                 // add variable block

@@ -42,10 +42,9 @@ class LLDragDropWin32Target:
         ////////////////////////////////////////////////////////////////////////////////
         //
         explicit LLDragDropWin32Target( HWND  hWnd ) :
-            mRefCount( 1 ),
-            mAppWindowHandle( hWnd ),
-            mAllowDrop(false),
-            mIsSlurl(false)
+            
+            mAppWindowHandle( hWnd )
+            
         {
         };
 
@@ -284,11 +283,11 @@ class LLDragDropWin32Target:
     ////////////////////////////////////////////////////////////////////////////////
     //
     private:
-        LONG mRefCount;
+        LONG mRefCount{ 1 };
         HWND mAppWindowHandle;
-        bool mAllowDrop;
+        bool mAllowDrop{false};
         std::string mDropUrl;
-        bool mIsSlurl;
+        bool mIsSlurl{false};
         friend class LLWindowWin32;
 };
 

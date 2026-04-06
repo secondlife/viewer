@@ -155,7 +155,7 @@ public:
     void            setHelpTopic(const std::string& help_topic) { mHelpTopic = help_topic; }
     std::string     getHelpTopic() const { return mHelpTopic; }
 
-    void            setCtrlsEnabled(bool b);
+    void            setCtrlsEnabled(bool b) const;
     ctrl_list_t     getCtrlList() const;
 
     LLHandle<LLPanel>   getHandle() const { return getDerivedHandle<LLPanel>(); }

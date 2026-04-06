@@ -35,6 +35,7 @@
 #include "llsdserialize.h"
 #include "message.h"
 #include <boost/tokenizer.hpp>
+#include <utility>
 
 #include "llsdutil.h"
 
@@ -79,11 +80,11 @@ const LLUUID MAGIC_ID("3c115e51-04f4-523c-9fa6-98aff1034730");
 LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
                                      const LLUUID& parent_uuid,
                                      LLAssetType::EType type,
-                                     const std::string& name)
+                                     std::string  name)
 :   mUUID(uuid),
     mParentUUID(parent_uuid),
     mType(type),
-    mName(name),
+    mName(std::move(name)),
     mCreationDate(0),
     mFavorite(false)
 {
@@ -365,14 +366,14 @@ LLInventoryItem::LLInventoryItem(const LLUUID& uuid,
                                  LLAssetType::EType type,
                                  LLInventoryType::EType inv_type,
                                  const std::string& name,
-                                 const std::string& desc,
+                                 std::string  desc,
                                  const LLSaleInfo& sale_info,
                                  U32 flags,
                                  S32 creation_date_utc) :
     LLInventoryObject(uuid, parent_uuid, type, name),
     mPermissions(permissions),
     mAssetUUID(asset_uuid),
-    mDescription(desc),
+    mDescription(std::move(desc)),
     mSaleInfo(sale_info),
     mInventoryType(inv_type),
     mFlags(flags)
@@ -386,19 +387,17 @@ LLInventoryItem::LLInventoryItem(const LLUUID& uuid,
 }
 
 LLInventoryItem::LLInventoryItem() :
-    LLInventoryObject(),
-    mPermissions(),
+    
     mAssetUUID(),
-    mDescription(),
-    mSaleInfo(),
+    
     mInventoryType(LLInventoryType::IT_NONE),
     mFlags(0)
 {
     mCreationDate = 0;
 }
 
-LLInventoryItem::LLInventoryItem(const LLInventoryItem* other) :
-    LLInventoryObject()
+LLInventoryItem::LLInventoryItem(const LLInventoryItem* other) 
+    
 {
     copyItem(other);
 }
@@ -1120,7 +1119,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             LLSD const &label = i->second;
             if (label.isString())
             {
-                mInventoryType = LLInventoryType::lookup(label.asStringRef().c_str());
+                mInventoryType = LLInventoryType::lookup(label.asStringRef());
             }
             else if (label.isInteger())
             {
@@ -1200,8 +1199,8 @@ LLInventoryCategory::LLInventoryCategory() :
     mType = LLAssetType::AT_CATEGORY;
 }
 
-LLInventoryCategory::LLInventoryCategory(const LLInventoryCategory* other) :
-    LLInventoryObject()
+LLInventoryCategory::LLInventoryCategory(const LLInventoryCategory* other) 
+    
 {
     copyCategory(other);
 }

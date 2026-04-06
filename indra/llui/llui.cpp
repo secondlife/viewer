@@ -68,6 +68,7 @@
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 #include <functional>
+#include <utility>
 //
 // Globals
 //
@@ -145,11 +146,11 @@ void make_ui_sound_deferred(const char* namep)
     }
 }
 
-LLUI::LLUI(const settings_map_t& settings,
+LLUI::LLUI(settings_map_t  settings,
                  LLImageProviderInterface* image_provider,
                  LLUIAudioCallback audio_callback,
                  LLUIAudioCallback deferred_audio_callback)
-: mSettingGroups(settings),
+: mSettingGroups(std::move(settings)),
 mAudioCallback(audio_callback),
 mDeferredAudioCallback(deferred_audio_callback),
 mWindow(NULL), // set later in startup
@@ -219,7 +220,7 @@ void LLUI::setMousePositionScreen(S32 x, S32 y)
     LLView::getWindow()->setCursorPosition(LLCoordGL(screen_x, screen_y).convert());
 }
 
-void LLUI::getMousePositionScreen(S32 *x, S32 *y)
+void LLUI::getMousePositionScreen(S32 *x, S32 *y) const
 {
     LLCoordWindow cursor_pos_window;
     getWindow()->getCursorPosition(&cursor_pos_window);
@@ -337,12 +338,12 @@ std::string LLUI::locateSkin(const std::string& filename)
     return "";
 }
 
-LLVector2 LLUI::getWindowSize()
+LLVector2 LLUI::getWindowSize() const
 {
     LLCoordWindow window_rect;
     mWindow->getSize(&window_rect);
 
-    return LLVector2(window_rect.mX / getScaleFactor().mV[VX], window_rect.mY / getScaleFactor().mV[VY]);
+    return {window_rect.mX / getScaleFactor().mV[VX], window_rect.mY / getScaleFactor().mV[VY]};
 }
 
 void LLUI::screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y)
@@ -372,10 +373,9 @@ void LLUI::glRectToScreen(const LLRect& gl, LLRect *screen)
 
 LLControlGroup& LLUI::getControlControlGroup (std::string_view controlname)
 {
-    for (settings_map_t::iterator itor = mSettingGroups.begin();
-         itor != mSettingGroups.end(); ++itor)
+    for (auto & mSettingGroup : mSettingGroups)
     {
-        LLControlGroup* control_group = itor->second;
+        LLControlGroup* control_group = mSettingGroup.second;
         if(control_group != NULL)
         {
             if (control_group->controlExists(controlname))
@@ -460,7 +460,7 @@ LLView* LLUI::resolvePath(LLView* context, const std::string& path)
     return const_cast<LLView*>(resolvePath(const_cast<const LLView*>(context), path));
 }
 
-const LLView* LLUI::resolvePath(const LLView* context, const std::string& path)
+const LLView* LLUI::resolvePath(const LLView* context, const std::string& path) const
 {
     // Create an iterator over slash-separated parts of 'path'. Dereferencing
     // this iterator returns an iterator_range over the substring. Unlike

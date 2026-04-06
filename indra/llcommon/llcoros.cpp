@@ -64,12 +64,7 @@
 // static
 bool LLCoros::on_main_coro()
 {
-    if (!LLCoros::instanceExists() || LLCoros::getName().empty())
-    {
-        return true;
-    }
-
-    return false;
+    return !LLCoros::instanceExists() || LLCoros::getName().empty();
 }
 
 // static

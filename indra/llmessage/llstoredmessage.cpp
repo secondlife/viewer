@@ -26,7 +26,9 @@
 
 #include "llstoredmessage.h"
 
-LLStoredMessage::LLStoredMessage(const std::string& name, const LLSD& message) : mMessage(message), mName(name)
+#include <utility>
+
+LLStoredMessage::LLStoredMessage(std::string  name, LLSD  message) : mMessage(std::move(message)), mName(std::move(name))
 {
 }
 

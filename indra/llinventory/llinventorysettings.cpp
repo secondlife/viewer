@@ -27,6 +27,8 @@
 
 #include "linden_common.h"
 #include "llinventorysettings.h"
+
+#include <utility>
 #include "llinventorytype.h"
 #include "llinventorydefines.h"
 #include "lldictionary.h"
@@ -38,10 +40,10 @@
 struct SettingsEntry : public LLDictionaryEntry
 {
     SettingsEntry(const std::string &name,
-        const std::string& default_new_name,
+        std::string  default_new_name,
         LLInventoryType::EIconName iconName) :
         LLDictionaryEntry(name),
-        mDefaultNewName(default_new_name),
+        mDefaultNewName(std::move(default_new_name)),
         mLabel(name),
         mIconName(iconName)
     {

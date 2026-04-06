@@ -26,6 +26,8 @@
 #include "linden_common.h"
 
 #include "lllivefile.h"
+
+#include <utility>
 #include "llframetimer.h"
 #include "lleventtimer.h"
 
@@ -35,35 +37,32 @@ const F32 DEFAULT_CONFIG_FILE_REFRESH = 5.0f;
 class LLLiveFile::Impl
 {
 public:
-    Impl(const std::string& filename, const F32 refresh_period);
+    Impl(std::string  filename, const F32 refresh_period);
     ~Impl();
 
     bool check();
     void changed();
 
-    bool mForceCheck;
+    bool mForceCheck{true};
     F32 mRefreshPeriod;
     LLFrameTimer mRefreshTimer;
 
     std::string mFilename;
-    time_t mLastModTime;
-    time_t mLastStatTime;
-    bool mLastExists;
+    time_t mLastModTime{0};
+    time_t mLastStatTime{0};
+    bool mLastExists{false};
 
-    LLEventTimer* mEventTimer;
+    LLEventTimer* mEventTimer{NULL};
 private:
     LOG_CLASS(LLLiveFile);
 };
 
-LLLiveFile::Impl::Impl(const std::string& filename, const F32 refresh_period)
+LLLiveFile::Impl::Impl(std::string  filename, const F32 refresh_period)
     :
-    mForceCheck(true),
+    
     mRefreshPeriod(refresh_period),
-    mFilename(filename),
-    mLastModTime(0),
-    mLastStatTime(0),
-    mLastExists(false),
-    mEventTimer(NULL)
+    mFilename(std::move(filename))
+    
 {
 }
 

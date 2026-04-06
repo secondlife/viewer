@@ -67,7 +67,7 @@ HttpReplyQueue::opPtr_t HttpReplyQueue::fetchOp()
         HttpScopedLock lock(mQueueMutex);
 
         if (mQueue.empty())
-            return opPtr_t();
+            return {};
 
         result = mQueue.front();
         mQueue.erase(mQueue.begin());

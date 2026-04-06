@@ -41,6 +41,7 @@
 #include "stringize.h"
 #include <iomanip>                  // std::quoted()
 #include <memory>                   // std::auto_ptr
+#include <utility>
 
 /*****************************************************************************
 *   LLSDArgsMapper
@@ -99,7 +100,7 @@ class LL_COMMON_API LLEventDispatcher::LLSDArgsMapper
 public:
     /// Accept description of function: function name, param names, param
     /// default values
-    LLSDArgsMapper(LLEventDispatcher* parent, const std::string& function,
+    LLSDArgsMapper(LLEventDispatcher* parent, std::string  function,
                    const LLSD& names, const LLSD& defaults);
 
     /// Given arguments map, return LLSD::Array of parameter values, or
@@ -133,11 +134,11 @@ private:
 };
 
 LLEventDispatcher::LLSDArgsMapper::LLSDArgsMapper(LLEventDispatcher* parent,
-                                                  const std::string& function,
+                                                  std::string  function,
                                                   const LLSD& names,
                                                   const LLSD& defaults):
     _parent(parent),
-    _function(function),
+    _function(std::move(function)),
     _names(names),
     _has_dft(names.size())
 {
@@ -347,18 +348,18 @@ LLEventDispatcher::LLEventDispatcher(const std::string& desc, const std::string&
     LLEventDispatcher(desc, key, "args")
 {}
 
-LLEventDispatcher::LLEventDispatcher(const std::string& desc, const std::string& key,
-                                     const std::string& argskey):
-    mDesc(desc),
-    mKey(key),
-    mArgskey(argskey)
+LLEventDispatcher::LLEventDispatcher(std::string  desc, std::string  key,
+                                     std::string  argskey):
+    mDesc(std::move(desc)),
+    mKey(std::move(key)),
+    mArgskey(std::move(argskey))
 {}
 
 LLEventDispatcher::~LLEventDispatcher() = default;
 
-LLEventDispatcher::DispatchEntry::DispatchEntry(LLEventDispatcher* parent, const std::string& desc):
+LLEventDispatcher::DispatchEntry::DispatchEntry(LLEventDispatcher* parent, std::string  desc):
     mParent(parent),
-    mDesc(desc)
+    mDesc(std::move(desc))
 {}
 
 /**
@@ -367,10 +368,10 @@ LLEventDispatcher::DispatchEntry::DispatchEntry(LLEventDispatcher* parent, const
 struct LLEventDispatcher::LLSDDispatchEntry: public LLEventDispatcher::DispatchEntry
 {
     LLSDDispatchEntry(LLEventDispatcher* parent, const std::string& desc,
-                      const Callable& func, const LLSD& required):
+                      Callable  func, LLSD  required):
         DispatchEntry(parent, desc),
-        mFunc(func),
-        mRequired(required)
+        mFunc(std::move(func)),
+        mRequired(std::move(required))
     {}
 
     Callable mFunc;
@@ -400,11 +401,11 @@ struct LLEventDispatcher::LLSDDispatchEntry: public LLEventDispatcher::DispatchE
  */
 struct LLEventDispatcher::ParamsDispatchEntry: public LLEventDispatcher::DispatchEntry
 {
-    ParamsDispatchEntry(LLEventDispatcher* parent, const std::string& name,
-                        const std::string& desc, const invoker_function& func):
+    ParamsDispatchEntry(LLEventDispatcher* parent, std::string  name,
+                        const std::string& desc, invoker_function  func):
         DispatchEntry(parent, desc),
-        mName(name),
-        mInvoker(func)
+        mName(std::move(name)),
+        mInvoker(std::move(func))
     {}
 
     std::string mName;
@@ -721,7 +722,7 @@ LLSD LLEventDispatcher::getMetadata(const std::string& name) const
     DispatchMap::const_iterator found = mDispatch.find(name);
     if (found == mDispatch.end())
     {
-        return LLSD();
+        return {};
     }
     LLSD meta{ found->second->getMetadata() };
     meta["name"] = name;

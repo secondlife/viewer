@@ -46,11 +46,7 @@ LLDispatcher::~LLDispatcher() = default;
 
 bool LLDispatcher::isHandlerPresent(const key_t& name) const
 {
-    if(mHandlers.find(name) != mHandlers.end())
-    {
-        return true;
-    }
-    return false;
+    return mHandlers.find(name) != mHandlers.end();
 }
 
 void LLDispatcher::copyAllHandlerNames(keys_t& names) const

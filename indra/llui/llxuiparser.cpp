@@ -365,9 +365,9 @@ void LLXSDWriter::writeXSD(const std::string& type_name, LLXMLNodePtr node, cons
     // duplicate element choices
     LLXMLNodeList children;
     mElementNode->getChildren("xs:element", children, false);
-    for (LLXMLNodeList::iterator child_it = children.begin(); child_it != children.end(); ++child_it)
+    for (auto & child_it : children)
     {
-        LLXMLNodePtr child_copy = child_it->second->deepCopy();
+        LLXMLNodePtr child_copy = child_it.second->deepCopy();
         std::string child_name;
         child_copy->getAttributeString("name", child_name);
         child_copy->setAttributeString("name", type_name + "." + child_name);
@@ -383,26 +383,22 @@ void LLXSDWriter::writeAttribute(const std::string& type, const Parser::name_sta
 {
     name_stack_t non_empty_names;
     std::string attribute_name;
-    for (name_stack_t::const_iterator it = stack.begin();
-        it != stack.end();
-        ++it)
+    for (const auto & it : stack)
     {
-        const std::string& name = it->first;
+        const std::string& name = it.first;
         if (!name.empty())
         {
-            non_empty_names.push_back(*it);
+            non_empty_names.push_back(it);
         }
     }
 
-    for (name_stack_t::const_iterator it = non_empty_names.begin();
-        it != non_empty_names.end();
-        ++it)
+    for (const auto & non_empty_name : non_empty_names)
     {
         if (!attribute_name.empty())
         {
             attribute_name += ".";
         }
-        attribute_name += it->first;
+        attribute_name += non_empty_name.first;
     }
 
     // only flag non-nested attributes as mandatory, nested attributes have variant syntax
@@ -501,12 +497,10 @@ void LLXSDWriter::addAttributeToSchema(LLXMLNodePtr type_declaration_node, const
             LLXMLNodePtr restriction_node = new_enum_type_node->createChild("xs:restriction", false);
             restriction_node->createChild("base", true)->setStringValue("xs:string");
 
-            for (std::vector<std::string>::const_iterator it = possible_values->begin();
-                it != possible_values->end();
-                ++it)
+            for (const auto & possible_value : *possible_values)
             {
                 LLXMLNodePtr enum_node = restriction_node->createChild("xs:enumeration", false);
-                enum_node->createChild("value", true)->setStringValue(*it);
+                enum_node->createChild("value", true)->setStringValue(possible_value);
             }
         }
 
@@ -636,7 +630,7 @@ void LLXUIXSDWriter::writeXSD(const std::string& type_name, const std::string& p
         }
     }
 
-    LLFILE* xsd_file = LLFile::fopen(file_name.c_str(), "w");
+    LLFILE* xsd_file = LLFile::fopen(file_name, "w");
     LLXMLNode::writeHeaderToFile(xsd_file);
     root_nodep->writeToFile(xsd_file);
     fclose(xsd_file);
@@ -721,7 +715,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
     if (!text_contents.empty())
     {
         mCurReadNode = nodep;
-        mNameStack.push_back(std::make_pair(std::string("value"), true));
+        mNameStack.emplace_back(std::string("value"), true);
         // child nodes are not necessarily valid parameters (could be a child widget)
         // so don't complain once we've recursed
         if (!block.submitValue(mNameStack, *this, true))
@@ -756,7 +750,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
         // since there is no widget named "rect"
         if (child_name.find(".") == std::string::npos)
         {
-            mNameStack.push_back(std::make_pair(child_name, true));
+            mNameStack.emplace_back(child_name, true);
             num_tokens_pushed++;
         }
         else
@@ -792,7 +786,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
             // copy remaining tokens on to our running token list
             for(tokenizer::iterator token_to_push = name_token_it; token_to_push != name_tokens.end(); ++token_to_push)
             {
-                mNameStack.push_back(std::make_pair(*token_to_push, true));
+                mNameStack.emplace_back(*token_to_push, true);
                 num_tokens_pushed++;
             }
         }
@@ -830,19 +824,17 @@ bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& blo
     bool any_parsed = false;
     bool silent = mCurReadDepth > 0;
 
-    for(LLXMLAttribList::const_iterator attribute_it = nodep->mAttributes.begin();
-        attribute_it != nodep->mAttributes.end();
-        ++attribute_it)
+    for(const auto & mAttribute : nodep->mAttributes)
     {
         S32 num_tokens_pushed = 0;
-        std::string attribute_name(attribute_it->first->mString);
-        mCurReadNode = attribute_it->second;
+        std::string attribute_name(mAttribute.first->mString);
+        mCurReadNode = mAttribute.second;
 
         tokenizer name_tokens(attribute_name, sep);
         // copy remaining tokens on to our running token list
         for(tokenizer::iterator token_to_push = name_tokens.begin(); token_to_push != name_tokens.end(); ++token_to_push)
         {
-            mNameStack.push_back(std::make_pair(*token_to_push, true));
+            mNameStack.emplace_back(*token_to_push, true);
             num_tokens_pushed++;
         }
 
@@ -1153,12 +1145,7 @@ bool LLXUIParser::readVector3Value(Parser& parser, void* val_ptr)
 {
     LLXUIParser& self = static_cast<LLXUIParser&>(parser);
     LLVector3* vecp = (LLVector3*)val_ptr;
-    if(self.mCurReadNode->getFloatValue(3, vecp->mV) >= 3)
-    {
-        return true;
-    }
-
-    return false;
+    return self.mCurReadNode->getFloatValue(3, vecp->mV) >= 3;
 }
 
 bool LLXUIParser::writeVector3Value(Parser& parser, const void* val_ptr, name_stack_t& stack)
@@ -1178,12 +1165,7 @@ bool LLXUIParser::readColor4Value(Parser& parser, void* val_ptr)
 {
     LLXUIParser& self = static_cast<LLXUIParser&>(parser);
     LLColor4* colorp = (LLColor4*)val_ptr;
-    if(self.mCurReadNode->getFloatValue(4, colorp->mV) >= 3)
-    {
-        return true;
-    }
-
-    return false;
+    return self.mCurReadNode->getFloatValue(4, colorp->mV) >= 3;
 }
 
 bool LLXUIParser::writeColor4Value(Parser& parser, const void* val_ptr, name_stack_t& stack)
@@ -1296,11 +1278,9 @@ bool LLXUIParser::writeSDValue(Parser& parser, const void* val_ptr, name_stack_t
 /*virtual*/ std::string LLXUIParser::getCurrentElementName()
 {
     std::string full_name;
-    for (name_stack_t::iterator it = mNameStack.begin();
-        it != mNameStack.end();
-        ++it)
+    for (auto & it : mNameStack)
     {
-        full_name += it->first + "."; // build up dotted names: "button.param.nestedparam."
+        full_name += it.first + "."; // build up dotted names: "button.param.nestedparam."
     }
 
     return full_name;
@@ -1347,7 +1327,7 @@ struct ScopedFile
         return file_size - cur_pos;
     }
 
-    bool isOpen() { return mFile != NULL; }
+    bool isOpen() const { return mFile != NULL; }
 
     LLFILE* mFile;
 };
@@ -1388,7 +1368,7 @@ bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBl
     XML_SetElementHandler(          mParser,    startElementHandler, endElementHandler);
     XML_SetCharacterDataHandler(    mParser,    characterDataHandler);
 
-    mOutputStack.push_back(std::make_pair(&block, 0));
+    mOutputStack.emplace_back(&block, 0);
     mNameStack.clear();
     mCurFileName = filename;
     mCurReadDepth = 0;
@@ -1471,7 +1451,7 @@ void LLSimpleXUIParser::startElement(const char *name, const char **atts)
         LLInitParam::BaseBlock* blockp = mElementCB(*this, name);
         if (blockp)
         {
-            mOutputStack.push_back(std::make_pair(blockp, 0));
+            mOutputStack.emplace_back(blockp, 0);
         }
     }
 
@@ -1514,7 +1494,7 @@ void LLSimpleXUIParser::startElement(const char *name, const char **atts)
             // copy remaining tokens on to our running token list
             for(tokenizer::iterator token_to_push = name_token_it; token_to_push != name_tokens.end(); ++token_to_push)
             {
-                mNameStack.push_back(std::make_pair(*token_to_push, true));
+                mNameStack.emplace_back(*token_to_push, true);
                 num_tokens_pushed++;
             }
             mScope.push_back(mNameStack.back().first);
@@ -1578,7 +1558,7 @@ bool LLSimpleXUIParser::readAttributes(const char **atts)
         // copy remaining tokens on to our running token list
         for(tokenizer::iterator token_to_push = name_tokens.begin(); token_to_push != name_tokens.end(); ++token_to_push)
         {
-            mNameStack.push_back(std::make_pair(*token_to_push, true));
+            mNameStack.emplace_back(*token_to_push, true);
             num_tokens_pushed++;
         }
 
@@ -1614,11 +1594,9 @@ bool LLSimpleXUIParser::processText()
 /*virtual*/ std::string LLSimpleXUIParser::getCurrentElementName()
 {
     std::string full_name;
-    for (name_stack_t::iterator it = mNameStack.begin();
-        it != mNameStack.end();
-        ++it)
+    for (auto & it : mNameStack)
     {
-        full_name += it->first + "."; // build up dotted names: "button.param.nestedparam."
+        full_name += it.first + "."; // build up dotted names: "button.param.nestedparam."
     }
 
     return full_name;

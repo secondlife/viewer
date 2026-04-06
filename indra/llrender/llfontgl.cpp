@@ -210,8 +210,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     // Not guaranteed to be set correctly
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-    cur_x = ((F32)x * sScaleX) + origin.mV[VX];
-    cur_y = ((F32)y * sScaleY) + origin.mV[VY];
+    cur_x = (x * sScaleX) + origin.mV[VX];
+    cur_y = (y * sScaleY) + origin.mV[VY];
 
     // Offset y by vertical alignment.
     // use unscaled font metrics here
@@ -426,7 +426,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         static LLWString elipses_wstr(utf8string_to_wstring(std::string("...")));
         render(elipses_wstr,
                 0,
-                (cur_x - origin.mV[VX]) / sScaleX, (F32)y,
+                (cur_x - origin.mV[VX]) / sScaleX, y,
                 color,
                 HAlign::LEFT, valign,
                 style_to_add,
@@ -997,7 +997,7 @@ std::string LLFontGL::nameFromHAlign(LLFontGL::HAlign align)
     if (align == HAlign::LEFT)          return std::string("left");
     else if (align == HAlign::RIGHT)    return std::string("right");
     else if (align == HAlign::HCENTER)  return std::string("center");
-    else return std::string();
+    else return {};
 }
 
 // static
@@ -1027,7 +1027,7 @@ std::string LLFontGL::nameFromVAlign(LLFontGL::VAlign align)
     else if (align == VAlign::VCENTER)  return std::string("center");
     else if (align == VAlign::BASELINE) return std::string("baseline");
     else if (align == VAlign::BOTTOM)   return std::string("bottom");
-    else return std::string();
+    else return {};
 }
 
 // static
@@ -1220,7 +1220,7 @@ std::string LLFontGL::getFontPathLocal()
     // Backup files if we can't load from system fonts directory.
     // We could store this in an end-user writable directory to allow
     // end users to switch fonts.
-    if (LLFontGL::sAppDir.length())
+    if (!LLFontGL::sAppDir.empty())
     {
         // use specified application dir to look for fonts
         local_path = LLFontGL::sAppDir + "/fonts/";

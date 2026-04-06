@@ -287,10 +287,7 @@ bool operator==(const LLMD5& a, const LLMD5& b)
     unsigned char b_guts[16];
     a.raw_digest(a_guts);
     b.raw_digest(b_guts);
-    if (memcmp(a_guts, b_guts, 16) == 0)
-        return true;
-    else
-        return false;
+    return memcmp(a_guts, b_guts, 16) == 0;
 }
 
 bool operator!=(const LLMD5& a, const LLMD5& b)

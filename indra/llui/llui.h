@@ -115,7 +115,7 @@ class LLUI : public LLSimpleton<LLUI>
 public:
     using settings_map_t = std::unordered_map<std::string, LLControlGroup*, ll::string_hash, std::equal_to<>>;
 
-    LLUI(const settings_map_t &settings,
+    LLUI(settings_map_t settings,
                            LLImageProviderInterface* image_provider,
                            LLUIAudioCallback audio_callback,
                            LLUIAudioCallback deferred_audio_callback);
@@ -279,14 +279,14 @@ public:
      *      tree, the first "bar" anywhere under it, and "baz"
      *      as a direct child of that
      */
-    const LLView* resolvePath(const LLView* context, const std::string& path);
+    const LLView* resolvePath(const LLView* context, const std::string& path) const;
     LLView* resolvePath(LLView* context, const std::string& path);
     static std::string locateSkin(const std::string& filename);
     void setMousePositionScreen(S32 x, S32 y);
-    void getMousePositionScreen(S32 *x, S32 *y);
+    void getMousePositionScreen(S32 *x, S32 *y) const;
     void setMousePositionLocal(const LLView* viewp, S32 x, S32 y);
     void getMousePositionLocal(const LLView* viewp, S32 *x, S32 *y);
-    LLVector2 getWindowSize();
+    LLVector2 getWindowSize() const;
     void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
     void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);
     void screenRectToGL(const LLRect& screen, LLRect *gl);

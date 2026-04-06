@@ -89,7 +89,7 @@ LLChangeChannel::LLChangeChannel(S32 is, S32 becomes) :
 {
 }
 
-void LLChangeChannel::operator()(LLSegment& segment)
+void LLChangeChannel::operator()(LLSegment& segment) const
 {
     if(segment.isOnChannel(mIs))
     {

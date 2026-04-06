@@ -175,7 +175,7 @@ void APIENTRY gl_debug_callback(GLenum source,
 
 void ll_init_fail_log(std::string filename)
 {
-    gFailLog.open(filename.c_str());
+    gFailLog.open(filename);
 }
 
 void ll_fail(std::string msg)
@@ -191,9 +191,9 @@ void ll_fail(std::string msg)
 
         ll_get_stack_trace(lines);
 
-        for(size_t i = 0; i < lines.size(); ++i)
+        for(const auto & line : lines)
         {
-            gFailLog << lines[i] << std::endl;
+            gFailLog << line << std::endl;
         }
 
         gFailLog << "End of Stack Trace." << std::endl << std::endl;
@@ -1271,7 +1271,7 @@ std::string LLGLManager::getRawGLString()
     return gl_string;
 }
 
-void LLGLManager::asLLSD(LLSD& info)
+void LLGLManager::asLLSD(LLSD& info) const
 {
     // Currently these are duplicates of fields in "system".
     info["gpu_vendor"] = mGLVendorShort;
@@ -2269,10 +2269,9 @@ void LLGLState::resetTextureStates()
 void LLGLState::dumpStates()
 {
     LL_INFOS("RenderState") << "GL States:" << LL_ENDL;
-    for (std::unordered_map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
-         iter != sStateMap.end(); ++iter)
+    for (auto & iter : sStateMap)
     {
-        LL_INFOS("RenderState") << llformat(" 0x%04x : %s",(S32)iter->first,iter->second?"true":"false") << LL_ENDL;
+        LL_INFOS("RenderState") << llformat(" 0x%04x : %s",(S32)iter.first,iter.second?"true":"false") << LL_ENDL;
     }
 }
 
@@ -2301,11 +2300,10 @@ void LLGLState::checkStates(GLboolean writeAlpha)
     //llassert_always(colorMask[2]);
     // llassert_always(colorMask[3] == writeAlpha);
 
-    for (std::unordered_map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
-         iter != sStateMap.end(); ++iter)
+    for (auto & iter : sStateMap)
     {
-        LLGLenum state = iter->first;
-        LLGLboolean cur_state = iter->second;
+        LLGLenum state = iter.first;
+        LLGLboolean cur_state = iter.second;
         LLGLboolean gl_state = glIsEnabled(state);
         if(cur_state != gl_state)
         {
@@ -2710,15 +2708,15 @@ void LLGLSyncFence::wait()
 
 LLGLSPipelineSkyBox::LLGLSPipelineSkyBox()
 : mCullFace(GL_CULL_FACE)
-, mSquashClip()
+ 
 {
 }
 
 LLGLSPipelineSkyBox::~LLGLSPipelineSkyBox() = default;
 
 LLGLSPipelineDepthTestSkyBox::LLGLSPipelineDepthTestSkyBox(bool depth_test, bool depth_write)
-: LLGLSPipelineSkyBox()
-, mDepth(depth_test ? GL_TRUE : GL_FALSE, depth_write ? GL_TRUE : GL_FALSE, GL_LEQUAL)
+: 
+ mDepth(depth_test ? GL_TRUE : GL_FALSE, depth_write ? GL_TRUE : GL_FALSE, GL_LEQUAL)
 {
 
 }

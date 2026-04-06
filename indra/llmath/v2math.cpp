@@ -80,11 +80,7 @@ bool are_parallel(const LLVector2& a, const LLVector2& b, F32 epsilon)
     an.normalize();
     bn.normalize();
     F32 dot = an * bn;
-    if ((1.0f - fabs(dot)) < epsilon)
-    {
-        return true;
-    }
-    return false;
+    return (1.0f - fabs(dot)) < epsilon;
 }
 
 
@@ -111,9 +107,9 @@ F32 dist_vec_squared2D(const LLVector2& a, const LLVector2& b)
 
 LLVector2 lerp(const LLVector2& a, const LLVector2& b, F32 u)
 {
-    return LLVector2(
+    return {
         a.mV[VX] + (b.mV[VX] - a.mV[VX]) * u,
-        a.mV[VY] + (b.mV[VY] - a.mV[VY]) * u );
+        a.mV[VY] + (b.mV[VY] - a.mV[VY]) * u };
 }
 
 LLSD LLVector2::getValue() const

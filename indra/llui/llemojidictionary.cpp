@@ -98,10 +98,7 @@ struct emoji_filter_shortcode_or_category_contains : public emoji_filter_base
                 return true;
         }
 
-        if (boost::icontains(descr.Category, mNeedle))
-            return true;
-
-        return false;
+        return boost::icontains(descr.Category, mNeedle);
     }
 };
 
@@ -266,8 +263,8 @@ void LLEmojiDictionary::loadTranslations()
         return;
     }
 
-    const std::string filename = filenames.back();
-    llifstream file(filename.c_str());
+    const std::string& filename = filenames.back();
+    llifstream file(filename);
     if (!file.is_open())
     {
         LL_WARNS() << "Emoji file categories failed to open" << LL_ENDL;
@@ -304,7 +301,7 @@ void LLEmojiDictionary::loadTranslations()
 void LLEmojiDictionary::loadGroups()
 {
     const std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, COMMON_GROUP_FILENAME);
-    llifstream file(filename.c_str());
+    llifstream file(filename);
     if (!file.is_open())
     {
         LL_WARNS() << "Emoji file groups failed to open" << LL_ENDL;
@@ -363,8 +360,8 @@ void LLEmojiDictionary::loadEmojis()
         return;
     }
 
-    const std::string filename = filenames.back();
-    llifstream file(filename.c_str());
+    const std::string& filename = filenames.back();
+    llifstream file(filename);
     if (!file.is_open())
     {
         LL_WARNS() << "Emoji file characters failed to open" << LL_ENDL;

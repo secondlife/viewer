@@ -189,14 +189,7 @@ void LLPermissions::fixFairUse()
 
 void LLPermissions::fixOwnership()
 {
-    if(mOwner.isNull() && mGroup.notNull())
-    {
-        mIsGroupOwned = true;
-    }
-    else
-    {
-        mIsGroupOwned = false;
-    }
+    mIsGroupOwned = mOwner.isNull() && mGroup.notNull();
 }
 
 // Allow accumulation of permissions. Results in the tightest
@@ -652,8 +645,7 @@ bool LLPermissions::importLegacyStream(std::istream& input_stream)
         else if (!strcmp("group_owned", keyword))
         {
             sscanf(valuestr, "%d", &mask);
-            if(mask) mIsGroupOwned = true;
-            else mIsGroupOwned = false;
+            mIsGroupOwned = mask != 0;
         }
         else
         {

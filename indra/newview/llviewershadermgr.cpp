@@ -3557,11 +3557,11 @@ void LLViewerShaderMgr::updateShaderUniforms(LLGLSLShader * shader)
 
 LLViewerShaderMgr::shader_iter LLViewerShaderMgr::beginShaders() const
 {
-    return mShaderList.begin();
+    return shader_iter(mShaderList.begin());
 }
 
 LLViewerShaderMgr::shader_iter LLViewerShaderMgr::endShaders() const
 {
-    return mShaderList.end();
+    return shader_iter(mShaderList.end());
 }
 

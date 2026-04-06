@@ -34,6 +34,7 @@
 #include "llmatrix4a.h"
 #include <functional>
 #include <boost/exception/diagnostic_information.hpp>
+#include <utility>
 
 std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
 
@@ -62,10 +63,10 @@ static void stretch_extents(const LLModel* model, const LLMatrix4a& mat, LLVecto
         size.setSub(face.mExtents[1],face.mExtents[0]);
         size.mul(0.5f);
 
-        for (U32 i = 0; i < 8; i++)
+        for (auto i : box)
         {
             LLVector4a t;
-            t.setMul(size, box[i]);
+            t.setMul(size, i);
             t.add(center);
 
             LLVector4a v;
@@ -120,14 +121,14 @@ LLModelLoader::LLModelLoader(
 : mJointList( jointTransformMap )
 , mJointsFromNode( jointsFromNodes )
 , LLThread("Model Loader")
-, mFilename(filename)
+, mFilename(std::move(filename))
 , mLod(lod)
 , mTrySLM(false)
 , mFirstTransform(true)
-, mLoadCallback(load_cb)
-, mJointLookupFunc(joint_lookup_func)
-, mTextureLoadFunc(texture_load_func)
-, mStateCallback(state_cb)
+, mLoadCallback(std::move(load_cb))
+, mJointLookupFunc(std::move(joint_lookup_func))
+, mTextureLoadFunc(std::move(texture_load_func))
+, mStateCallback(std::move(state_cb))
 , mOpaqueData(opaque_userdata)
 , mRigValidJointUpload(true)
 , mLegacyRigFlags(0)
@@ -265,7 +266,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 
     S32 file_size = (S32) stat.st_size;
 
-    llifstream ifstream(filename.c_str(), std::ifstream::in | std::ifstream::binary);
+    llifstream ifstream(filename, std::ifstream::in | std::ifstream::binary);
     LLSD data;
     LLSDSerialize::fromBinary(data, ifstream, file_size);
     ifstream.close();
@@ -323,7 +324,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
     for (U32 i = 0; i < instance.size(); ++i)
     {
         //deserialize instance list
-        instance_list.push_back(LLModelInstance(instance[i]));
+        instance_list.emplace_back(instance[i]);
 
         //match up model instance pointers
         S32 idx = instance_list[i].mLocalMeshID;
@@ -374,9 +375,8 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 
     //convert instance_list to mScene
     mFirstTransform = true;
-    for (U32 i = 0; i < instance_list.size(); ++i)
+    for (auto & cur_instance : instance_list)
     {
-        LLModelInstance& cur_instance = instance_list[i];
         mScene[cur_instance.mTransform].push_back(cur_instance);
         stretch_extents(cur_instance.mModel, cur_instance.mTransform);
     }
@@ -457,7 +457,7 @@ void LLModelLoader::critiqueRigForUploadApplicability( const std::vector<std::st
 U32 LLModelLoader::determineRigLegacyFlags( const std::vector<std::string> &jointListFromAsset )
 {
     //No joints in asset
-    if ( jointListFromAsset.size() == 0 )
+    if ( jointListFromAsset.empty() )
     {
         return false;
     }
@@ -477,15 +477,14 @@ U32 LLModelLoader::determineRigLegacyFlags( const std::vector<std::string> &join
 
     // Unknown joints in asset
     S32 unknown_joint_count = 0;
-    for (std::vector<std::string>::const_iterator it = jointListFromAsset.begin();
-         it != jointListFromAsset.end(); ++it)
+    for (const auto & it : jointListFromAsset)
     {
-        if (mJointMap.find(*it)==mJointMap.end())
+        if (mJointMap.find(it)==mJointMap.end())
         {
-            LL_WARNS() << "Rigged to unrecognized joint name " << *it << LL_ENDL;
+            LL_WARNS() << "Rigged to unrecognized joint name " << it << LL_ENDL;
             LLSD args;
             args["Message"] = "UnrecognizedJoint";
-            args["[NAME]"] = *it;
+            args["[NAME]"] = it;
             mWarningsArray.append(args);
             unknown_joint_count++;
         }
@@ -520,7 +519,7 @@ void LLModelLoader::dumpDebugData()
     std::string log_file = mFilename + "_importer.txt";
     LLStringUtil::toLower(log_file);
     llofstream file;
-    file.open(log_file.c_str());
+    file.open(log_file);
     if (!file)
     {
         LL_WARNS() << "dumpDebugData failed to open file " << log_file << LL_ENDL;
@@ -659,12 +658,12 @@ void LLModelLoader::loadTextures()
     bool is_paused = isPaused() ;
     pause() ; //pause the loader
 
-    for(scene::iterator iter = mScene.begin(); iter != mScene.end(); ++iter)
+    for(auto & iter : mScene)
     {
-        for(U32 i = 0 ; i < iter->second.size(); i++)
+        for(U32 i = 0 ; i < iter.second.size(); i++)
         {
-            for(std::map<std::string, LLImportMaterial>::iterator j = iter->second[i].mMaterial.begin();
-                j != iter->second[i].mMaterial.end(); ++j)
+            for(std::map<std::string, LLImportMaterial>::iterator j = iter.second[i].mMaterial.begin();
+                j != iter.second[i].mMaterial.end(); ++j)
             {
                 LLImportMaterial& material = j->second;
 

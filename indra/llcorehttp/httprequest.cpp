@@ -54,7 +54,7 @@ namespace LLCore
 
 
 HttpRequest::HttpRequest()
-    : mReplyQueue(),
+    : 
       mRequestQueue(NULL)
 {
     mRequestQueue = HttpRequestQueue::instanceOf();
@@ -98,7 +98,7 @@ HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass
 {
     if (HttpService::RUNNING == HttpService::instanceOf()->getState())
     {
-        return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+        return {HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC};
     }
     return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
 }
@@ -109,7 +109,7 @@ HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass
 {
     if (HttpService::RUNNING == HttpService::instanceOf()->getState())
     {
-        return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+        return {HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC};
     }
     return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
 }
@@ -118,7 +118,7 @@ HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass
 {
     if (HttpService::RUNNING == HttpService::instanceOf()->getState())
     {
-        return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+        return {HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC};
     }
 
     return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
@@ -433,13 +433,11 @@ HttpStatus HttpRequest::update(long usecs)
         mReplyQueue->fetchAll(replies);
         if (! replies.empty())
         {
-            for (HttpReplyQueue::OpContainer::iterator iter(replies.begin());
-                 replies.end() != iter;
-                 ++iter)
+            for (auto & replie : replies)
             {
                 // Swap op pointer for NULL;
                 op.reset();
-                op.swap(*iter);
+                op.swap(replie);
 
                 // Process operation
                 op->visitNotifier(this);
@@ -449,7 +447,7 @@ HttpStatus HttpRequest::update(long usecs)
         }
     }
 
-    return HttpStatus();
+    return {};
 }
 
 

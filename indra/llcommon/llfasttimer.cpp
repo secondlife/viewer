@@ -83,7 +83,7 @@ block_timer_tree_df_iterator_t begin_block_timer_tree_df(BlockTimerStatHandle& i
 
 block_timer_tree_df_iterator_t end_block_timer_tree_df()
 {
-    return block_timer_tree_df_iterator_t();
+    return {};
 }
 
 block_timer_tree_df_post_iterator_t begin_block_timer_tree_df_post(BlockTimerStatHandle& id)
@@ -95,7 +95,7 @@ block_timer_tree_df_post_iterator_t begin_block_timer_tree_df_post(BlockTimerSta
 
 block_timer_tree_df_post_iterator_t end_block_timer_tree_df_post()
 {
-    return block_timer_tree_df_post_iterator_t();
+    return {};
 }
 
 block_timer_tree_bf_iterator_t begin_block_timer_tree_bf(BlockTimerStatHandle& id)
@@ -107,7 +107,7 @@ block_timer_tree_bf_iterator_t begin_block_timer_tree_bf(BlockTimerStatHandle& i
 
 block_timer_tree_bf_iterator_t end_block_timer_tree_bf()
     {
-    return block_timer_tree_bf_iterator_t();
+    return {};
     }
 
 block_timer_tree_df_iterator_t begin_timer_tree(BlockTimerStatHandle& id)
@@ -119,7 +119,7 @@ block_timer_tree_df_iterator_t begin_timer_tree(BlockTimerStatHandle& id)
 
 block_timer_tree_df_iterator_t end_timer_tree()
     {
-    return block_timer_tree_df_iterator_t();
+    return {};
 }
 
 
@@ -321,22 +321,22 @@ void BlockTimer::processTimes()
 #endif
 }
 
-std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::beginChildren()
+std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::beginChildren() const
         {
     return getTreeNode().mChildren.begin();
         }
 
-std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::endChildren()
+std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::endChildren() const
         {
     return getTreeNode().mChildren.end();
 }
 
-std::vector<BlockTimerStatHandle*>& BlockTimerStatHandle::getChildren()
+std::vector<BlockTimerStatHandle*>& BlockTimerStatHandle::getChildren() const
 {
     return getTreeNode().mChildren;
     }
 
-bool BlockTimerStatHandle::hasChildren()
+bool BlockTimerStatHandle::hasChildren() const
 {
     return ! getTreeNode().mChildren.empty();
 }
@@ -479,7 +479,7 @@ void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
     }
 }
 
-F64Seconds BlockTimer::getElapsedTime()
+F64Seconds BlockTimer::getElapsedTime() const
 {
     U64 total_time = getCPUClockCount64() - mStartTime;
 

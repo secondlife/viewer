@@ -29,6 +29,8 @@
 #include "linden_common.h"
 
 #include "llpluginmessagepipe.h"
+
+#include <utility>
 #include "llbufferstream.h"
 
 #include "llapr.h"
@@ -96,7 +98,7 @@ LLPluginMessagePipe::LLPluginMessagePipe(LLPluginMessagePipeOwner *owner, LLSock
     mOutputMutex(),
     mOutputStartIndex(0),
     mOwner(owner),
-    mSocket(socket)
+    mSocket(std::move(socket))
 {
     mOwner->setMessagePipe(this);
 }
@@ -283,7 +285,7 @@ bool LLPluginMessagePipe::pumpInput(F64 timeout)
             // and use the timeout so we'll sleep if no data is available.
             setSocketTimeout((apr_interval_time_t)(timeout * 1000000));
 
-            while(1)
+            while(true)
             {
                 size = request_size;
 

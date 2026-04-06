@@ -43,8 +43,8 @@ public:
     [[nodiscard]] bool empty() const { return isEmpty(); };
     void reset();
     LLKeyData& operator=(const LLKeyData& rhs);
-    bool operator==(const LLKeyData& rhs);
-    bool operator!=(const LLKeyData& rhs);
+    bool operator==(const LLKeyData& rhs) const;
+    bool operator!=(const LLKeyData& rhs) const;
 
     [[nodiscard]] bool canHandle(const LLKeyData& data) const;
     [[nodiscard]] bool canHandle(EMouseClickType mouse, KEY key, MASK mask) const;

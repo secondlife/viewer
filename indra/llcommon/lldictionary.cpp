@@ -28,11 +28,13 @@
 
 #include "lldictionary.h"
 
+#include <utility>
+
 #include "llstring.h"
 
 // Define in .cpp file to prevent header include of llstring.h
-LLDictionaryEntry::LLDictionaryEntry(const std::string &name)
-:   mName(name)
+LLDictionaryEntry::LLDictionaryEntry(std::string name)
+:   mName(std::move(name))
 {
     mNameCapitalized = mName;
     std::ranges::replace(mNameCapitalized, '-', ' ');

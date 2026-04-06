@@ -939,7 +939,7 @@ void LLVertexBuffer::cleanupClass()
 //----------------------------------------------------------------------------
 
 LLVertexBuffer::LLVertexBuffer(U32 typemask)
-:   LLRefCount(),
+:   
     mTypeMask(typemask)
 {
     //zero out offsets
@@ -1230,9 +1230,8 @@ U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 inde
 
         bool flagged = false;
         // flag region as mapped
-        for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
+        for (auto & region : mMappedVertexRegions)
         {
-            MappedRegion& region = mMappedVertexRegions[i];
             if (expand_region(region, start, end))
             {
                 flagged = true;
@@ -1266,9 +1265,8 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 
         bool flagged = false;
         // flag region as mapped
-        for (U32 i = 0; i < mMappedIndexRegions.size(); ++i)
+        for (auto & region : mMappedIndexRegions)
         {
-            MappedRegion& region = mMappedIndexRegions[i];
             if (expand_region(region, start, end))
             {
                 flagged = true;
@@ -1418,22 +1416,21 @@ void LLVertexBuffer::_unmapBuffer()
 
             std::ranges::sort(mMappedVertexRegions, SortMappedRegion());
 
-            for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
+            for (auto region : mMappedVertexRegions)
             {
-                const MappedRegion& region = mMappedVertexRegions[i];
                 if (region.mStart == end + 1)
                 {
                     end = region.mEnd;
                 }
                 else
                 {
-                    flush_vbo(GL_ARRAY_BUFFER, start, end, (U8*)mMappedData + start, mMappedData);
+                    flush_vbo(GL_ARRAY_BUFFER, start, end, mMappedData + start, mMappedData);
                     start = region.mStart;
                     end = region.mEnd;
                 }
             }
 
-            flush_vbo(GL_ARRAY_BUFFER, start, end, (U8*)mMappedData + start, mMappedData);
+            flush_vbo(GL_ARRAY_BUFFER, start, end, mMappedData + start, mMappedData);
             mMappedVertexRegions.clear();
         }
 
@@ -1451,22 +1448,21 @@ void LLVertexBuffer::_unmapBuffer()
 
             std::ranges::sort(mMappedIndexRegions, SortMappedRegion());
 
-            for (U32 i = 0; i < mMappedIndexRegions.size(); ++i)
+            for (auto region : mMappedIndexRegions)
             {
-                const MappedRegion& region = mMappedIndexRegions[i];
                 if (region.mStart == end + 1)
                 {
                     end = region.mEnd;
                 }
                 else
                 {
-                    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, (U8*)mMappedIndexData + start, mMappedIndexData);
+                    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, mMappedIndexData + start, mMappedIndexData);
                     start = region.mStart;
                     end = region.mEnd;
                 }
             }
 
-            flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, (U8*)mMappedIndexData + start, mMappedIndexData);
+            flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, mMappedIndexData + start, mMappedIndexData);
             mMappedIndexRegions.clear();
         }
     }

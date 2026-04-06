@@ -63,7 +63,7 @@ LLXMLNode::LLXMLNode() :
     mLineNumber(-1),
     mParent(NULL),
     mChildren(NULL),
-    mAttributes(),
+    
     mPrev(NULL),
     mNext(NULL),
     mName(NULL),
@@ -85,7 +85,7 @@ LLXMLNode::LLXMLNode(const char* name, bool is_attribute) :
     mLineNumber(-1),
     mParent(NULL),
     mChildren(NULL),
-    mAttributes(),
+    
     mPrev(NULL),
     mNext(NULL),
     mValue(""),
@@ -107,7 +107,7 @@ LLXMLNode::LLXMLNode(LLStringTableEntry* name, bool is_attribute) :
     mLineNumber(-1),
     mParent(NULL),
     mChildren(NULL),
-    mAttributes(),
+    
     mPrev(NULL),
     mNext(NULL),
     mName(name),
@@ -130,7 +130,7 @@ LLXMLNode::LLXMLNode(const LLXMLNode& rhs) :
     mParser(NULL),
     mParent(NULL),
     mChildren(NULL),
-    mAttributes(),
+    
     mPrev(NULL),
     mNext(NULL),
     mName(rhs.mName),
@@ -145,17 +145,15 @@ LLXMLNodePtr LLXMLNode::deepCopy()
     LLXMLNodePtr newnode = LLXMLNodePtr(new LLXMLNode(*this));
     if (mChildren.notNull())
     {
-        for (LLXMLChildList::iterator iter = mChildren->map.begin();
-             iter != mChildren->map.end(); ++iter)
+        for (auto & iter : mChildren->map)
         {
-            LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
+            LLXMLNodePtr temp_ptr_for_gcc(iter.second->deepCopy());
             newnode->addChild(temp_ptr_for_gcc);
         }
     }
-    for (LLXMLAttribList::iterator iter = mAttributes.begin();
-         iter != mAttributes.end(); ++iter)
+    for (auto & mAttribute : mAttributes)
     {
-        LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
+        LLXMLNodePtr temp_ptr_for_gcc(mAttribute.second->deepCopy());
         newnode->addChild(temp_ptr_for_gcc);
     }
 
@@ -171,10 +169,9 @@ LLXMLNode::~LLXMLNode()
     // mess.
     if (mChildren.notNull())
     {
-        for (LLXMLChildList::iterator iter = mChildren->map.begin();
-             iter != mChildren->map.end(); ++iter)
+        for (auto & iter : mChildren->map)
         {
-            LLXMLNodePtr child = iter->second;
+            LLXMLNodePtr child = iter.second;
             child->mParent = NULL;
             child->mNext = NULL;
             child->mPrev = NULL;
@@ -184,10 +181,9 @@ LLXMLNode::~LLXMLNode()
         mChildren->tail = NULL;
         mChildren = NULL;
     }
-    for (LLXMLAttribList::iterator iter = mAttributes.begin();
-         iter != mAttributes.end(); ++iter)
+    for (auto & mAttribute : mAttributes)
     {
-        LLXMLNodePtr attr = iter->second;
+        LLXMLNodePtr attr = mAttribute.second;
         attr->mParent = NULL;
         attr->mNext = NULL;
         attr->mPrev = NULL;
@@ -323,11 +319,7 @@ LLXMLNodePtr LLXMLNode::createChild(LLStringTableEntry* name, bool is_attribute)
 
 bool LLXMLNode::deleteChild(LLXMLNode *child)
 {
-    if (removeChild(child))
-    {
-        return true;
-    }
-    return false;
+    return removeChild(child);
 }
 
 void LLXMLNode::setParent(LLXMLNodePtr& new_parent)
@@ -595,7 +587,7 @@ bool LLXMLNode::updateNode(
 
         LLXMLNodePtr attribNode;
 
-        node->getAttribute(attribNameEntry, attribNode, 0);
+        node->getAttribute(attribNameEntry, attribNode, false);
 
         if (attribNode)
         {
@@ -627,7 +619,7 @@ bool LLXMLNode::updateNode(
                 child->getAttributeString("value", nodeName);
             }
 
-            if ((nodeName != "") && (updateName == nodeName))
+            if ((!nodeName.empty()) && (updateName == nodeName))
             {
                 updateNode(child, updateChild);
                 last_child = child;
@@ -828,7 +820,7 @@ bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
 {
     if (paths.empty()) return false;
 
-    std::string filename = paths.front();
+    const std::string& filename = paths.front();
     if (filename.empty())
     {
         return false;
@@ -847,7 +839,7 @@ bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
     // We've already dealt with the first item, skip that one
     for (itor = paths.begin() + 1; itor != paths.end(); ++itor)
     {
-        std::string layer_filename = *itor;
+        const std::string& layer_filename = *itor;
         if(layer_filename.empty() || layer_filename == filename)
         {
             // no localized version of this file, that's ok, keep looking
@@ -918,7 +910,7 @@ void LLXMLNode::writeToOstream(std::ostream& output_stream, const std::string& i
     if (use_type_decorations)
     {
         // ID
-        if (mID != "")
+        if (!mID.empty())
         {
             output_stream << indent << " id=\"" << mID << "\"\n";
         }
@@ -1023,7 +1015,7 @@ void LLXMLNode::writeToOstream(std::ostream& output_stream, const std::string& i
     // erase last \n before attaching final > or />
     output_stream.seekp(-1, std::ios::cur);
 
-    if (mChildren.isNull() && mValue == "")
+    if (mChildren.isNull() && mValue.empty())
     {
         output_stream << " />\n";
         return;
@@ -1201,7 +1193,7 @@ void LLXMLNode::getChildren(const LLStringTableEntry* name, LLXMLNodeList &child
             }
         }
     }
-    if (children.size() == 0 && use_default_if_missing && !mDefault.isNull())
+    if (children.empty() && use_default_if_missing && !mDefault.isNull())
     {
         mDefault->getChildren(name, children, false);
     }
@@ -1212,10 +1204,9 @@ void LLXMLNode::getDescendants(const LLStringTableEntry* name, LLXMLNodeList &ch
 {
     if (mChildren.notNull())
     {
-        for (LLXMLChildList::const_iterator child_itr = mChildren->map.begin();
-             child_itr != mChildren->map.end(); ++child_itr)
+        for (const auto & child_itr : mChildren->map)
         {
-            LLXMLNodePtr child = (*child_itr).second;
+            LLXMLNodePtr child = child_itr.second;
             if (name == child->mName)
             {
                 children.insert(std::make_pair(child->mName->mString, child));
@@ -1660,7 +1651,7 @@ const char *LLXMLNode::parseFloat(const char *str, F64 *dest, U32 precision, Enc
     {
         U64 bytes_dest;
         bool is_negative;
-        str = parseInteger(str, (U64 *)&bytes_dest, &is_negative, precision, Encoding::ENCODING_HEX);
+        str = parseInteger(str, (&bytes_dest), &is_negative, precision, Encoding::ENCODING_HEX);
         // Upcast to F64
         switch (precision)
         {
@@ -2047,7 +2038,7 @@ U32 LLXMLNode::getStringValue(U32 expected_length, std::string *array)
 
     std::string::size_type n = 0;
     std::string::size_type m = 0;
-    while(1)
+    while(true)
     {
         if (num_returned_strings >= expected_length)
         {
@@ -2484,9 +2475,8 @@ void LLXMLNode::setDoubleValue(U32 length, const F64 *array, Encoding encoding, 
 std::string LLXMLNode::escapeXML(const std::string& xml)
 {
     std::string out;
-    for (std::string::size_type i = 0; i < xml.size(); ++i)
+    for (char c : xml)
     {
-        char c = xml[i];
         switch(c)
         {
         case '"':   out.append("&quot;");   break;
@@ -2542,7 +2532,7 @@ void LLXMLNode::setNodeRefValue(U32 length, const LLXMLNode **array)
     std::string new_value;
     for (U32 pos=0; pos<length; ++pos)
     {
-        if (array[pos]->mID != "")
+        if (!array[pos]->mID.empty())
         {
             new_value.append(array[pos]->mID);
         }
@@ -2954,7 +2944,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                     error_buffer.append(llformat("ERROR Node %s: Could not read boolean array, child %s.\n", mName->mString, node->mName->mString));
                     return false;
                 }
-                for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                for (U32 pos=0; pos<node->mLength; ++pos)
                 {
                     if (bool_array[pos])
                     {
@@ -2973,7 +2963,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                         error_buffer.append(llformat("ERROR Node %s: Could not read integer array, child %s.\n", mName->mString, node->mName->mString));
                         return false;
                     }
-                    for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                    for (U32 pos=0; pos<node->mLength; ++pos)
                     {
                         integer_checksum ^= integer_array[pos];
                     }
@@ -2986,7 +2976,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                         error_buffer.append(llformat("ERROR Node %s: Could not read long integer array, child %s.\n", mName->mString, node->mName->mString));
                         return false;
                     }
-                    for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                    for (U32 pos=0; pos<node->mLength; ++pos)
                     {
                         long_checksum ^= integer_array[pos];
                     }
@@ -3003,7 +2993,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                         error_buffer.append(llformat("ERROR Node %s: Could not read float array, child %s.\n", mName->mString, node->mName->mString));
                         return false;
                     }
-                    for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                    for (U32 pos=0; pos<node->mLength; ++pos)
                     {
                         U32 float_bits = ((U32 *)float_array)[pos];
                         float_checksum ^= (float_bits & 0xfffff000);
@@ -3017,7 +3007,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                         error_buffer.append(llformat("ERROR Node %s: Could not read float array, child %s.\n", mName->mString, node->mName->mString));
                         return false;
                     }
-                    for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                    for (U32 pos=0; pos<node->mLength; ++pos)
                     {
                         U64 float_bits = ((U64 *)float_array)[pos];
                         float_checksum ^= ((float_bits & 0xfffffff000000000ll) >> 32);
@@ -3035,7 +3025,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                     error_buffer.append(llformat("ERROR Node %s: Could not read uuid array, child %s.\n", mName->mString, node->mName->mString));
                     return false;
                 }
-                for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                for (U32 pos=0; pos<node->mLength; ++pos)
                 {
                     for (S32 byte=0; byte<UUID_BYTES; ++byte)
                     {
@@ -3199,14 +3189,14 @@ std::string LLXMLNode::getTextContents() const
     {
         // Case 1: node has quoted text
         S32 num_lines = 0;
-        while(1)
+        while(true)
         {
             // mContents[n] == '"'
             ++n;
             std::string::size_type t = n;
             std::string::size_type m = 0;
             // fix-up escaped characters
-            while(1)
+            while(true)
             {
                 m = contents.find_first_of("\\\"", t); // find first \ or "
                 if ((m == std::string::npos) || (contents[m] == '\"'))
@@ -3282,12 +3272,12 @@ void LLXMLNode::setLineNumber(S32 line_number)
     mLineNumber = line_number;
 }
 
-S32 LLXMLNode::getLineNumber()
+S32 LLXMLNode::getLineNumber() const
 {
     return mLineNumber;
 }
 
-bool LLXMLNode::parseXmlRpcArrayValue(LLSD& target)
+bool LLXMLNode::parseXmlRpcArrayValue(LLSD& target) const
 {
     LLXMLNode* datap = getFirstChild().get();
     if (!datap)
@@ -3320,7 +3310,7 @@ bool LLXMLNode::parseXmlRpcArrayValue(LLSD& target)
     return true;
 }
 
-bool LLXMLNode::parseXmlRpcStructValue(LLSD& target)
+bool LLXMLNode::parseXmlRpcStructValue(LLSD& target) const
 {
     std::string name;
     LLSD value;

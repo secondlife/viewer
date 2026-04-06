@@ -68,10 +68,8 @@ const F32 EYE_BLINK_TIME_DELTA = 0.005f; // time between one eye starting a blin
 // Class Constructor
 //-----------------------------------------------------------------------------
 LLHeadRotMotion::LLHeadRotMotion(const LLUUID &id) :
-    LLMotion(id),
-    mCharacter(NULL),
-    mTorsoJoint(NULL),
-    mHeadJoint(NULL)
+    LLMotion(id)
+    
 {
     mName = "head_rot";
 
@@ -366,7 +364,7 @@ bool LLEyeMotion::onActivate()
 //-----------------------------------------------------------------------------
 // LLEyeMotion::adjustEyeTarget()
 //-----------------------------------------------------------------------------
-void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state)
+void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state) const
 {
     // Compute eye rotation.
     bool has_eye_target = false;

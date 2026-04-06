@@ -38,6 +38,7 @@
 #include "llexception.h"
 #include "stringize.h"
 #include <functional>
+#include <utility>
 
 //=========================================================================
 // Map of pool sizes for known pools
@@ -102,10 +103,10 @@ private:
     {
         using ptr_t = std::shared_ptr<QueuedCoproc>;
 
-        QueuedCoproc(const std::string &name, const LLUUID &id, CoProcedure_t proc) :
-            mName(name),
+        QueuedCoproc(std::string name, const LLUUID &id, CoProcedure_t proc) :
+            mName(std::move(name)),
             mId(id),
-            mProc(proc)
+            mProc(std::move(proc))
         {}
 
         std::string mName;
@@ -123,12 +124,12 @@ private:
     using CoprocQueuePtr = std::shared_ptr<CoprocQueue_t>;
 
     std::string     mPoolName;
-    size_t          mPoolSize, mQueueSize, mActiveCoprocsCount, mPending;
+    size_t          mPoolSize, mQueueSize, mActiveCoprocsCount{0}, mPending{0};
     CoprocQueuePtr  mPendingCoprocs;
     LLTempBoundListener mStatusListener;
 
     using CoroAdapterMap_t = std::map<std::string, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t>;
-    LLCore::HttpRequest::policy_t mHTTPPolicy;
+    LLCore::HttpRequest::policy_t mHTTPPolicy{LLCore::HttpRequest::DEFAULT_POLICY_ID};
 
     CoroAdapterMap_t mCoroMapping;
 
@@ -262,9 +263,9 @@ size_t LLCoprocedureManager::countPending(const std::string &pool) const
 size_t LLCoprocedureManager::countActive() const
 {
     size_t count = 0;
-    for (poolMap_t::const_iterator it = mPoolMap.begin(); it != mPoolMap.end(); ++it)
+    for (const auto & it : mPoolMap)
     {
-        count += it->second->countActive();
+        count += it.second->countActive();
     }
     return count;
 }
@@ -320,11 +321,9 @@ void LLCoprocedureManager::close(const std::string &pool)
 LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size, size_t queue_size):
     mPoolName(poolName),
     mPoolSize(size),
-    mQueueSize(queue_size),
-    mActiveCoprocsCount(0),
-    mPending(0),
-    mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-    mCoroMapping()
+    mQueueSize(queue_size)
+    
+    
 {
     llassert_always(mQueueSize > mPoolSize); // queue should be able to fit pool
     try

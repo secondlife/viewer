@@ -114,7 +114,7 @@ public:
 #ifdef USE_PLUGIN_MEDIA
     LLPluginClassMedia* initializeMedia(const std::string& media_type);
 #endif
-    F32 getMasterGain();
+    F32 getMasterGain() const;
     void setMasterGain(F32 gain);
 
     F32 getSecondaryGain(S32 type);

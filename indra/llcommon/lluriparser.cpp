@@ -74,7 +74,7 @@ const std::string& LLUriParser::scheme() const
 
 void LLUriParser::scheme(const std::string& s)
 {
-    mTmpScheme = !s.size();
+    mTmpScheme = s.empty();
     mScheme = s;
 }
 
@@ -178,7 +178,7 @@ void LLUriParser::glue(std::string& uri) const
 
 void LLUriParser::glueFirst(std::string& uri, bool use_scheme) const
 {
-    if (use_scheme && mScheme.size())
+    if (use_scheme && !mScheme.empty())
     {
         uri = mScheme;
         uri += "://";
@@ -193,7 +193,7 @@ void LLUriParser::glueFirst(std::string& uri, bool use_scheme) const
 
 void LLUriParser::glueSecond(std::string& uri) const
 {
-    if (mPort.size())
+    if (!mPort.empty())
     {
         uri = ':';
         uri += mPort;
@@ -205,13 +205,13 @@ void LLUriParser::glueSecond(std::string& uri) const
 
     uri += mPath;
 
-    if (mQuery.size())
+    if (!mQuery.empty())
     {
         uri += '?';
         uri += mQuery;
     }
 
-    if (mFragment.size())
+    if (!mFragment.empty())
     {
         uri += '#';
         uri += mFragment;

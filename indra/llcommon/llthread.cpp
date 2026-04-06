@@ -30,6 +30,8 @@
 
 #include "llapp.h"
 #include "llthread.h"
+
+#include <utility>
 #include "llmutex.h"
 
 #include "lltimer.h"
@@ -260,9 +262,9 @@ void LLThread::sehHandle()
 }
 #endif
 
-LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
+LLThread::LLThread(std::string  name, apr_pool_t *poolp) :
     mPaused(false),
-    mName(name),
+    mName(std::move(name)),
     mThreadp(NULL),
     mStatus(STOPPED),
     mRecorder(NULL)
@@ -390,7 +392,7 @@ void LLThread::pause()
     if (!mPaused)
     {
         // this will cause the thread to stop execution as soon as checkPause() is called
-        mPaused = 1;        // Does not need to be atomic since this is only set/unset from the main thread
+        mPaused = true;        // Does not need to be atomic since this is only set/unset from the main thread
     }
 }
 
@@ -398,7 +400,7 @@ void LLThread::unpause()
 {
     if (mPaused)
     {
-        mPaused = 0;
+        mPaused = false;
     }
 
     wake(); // wake up the thread if necessary

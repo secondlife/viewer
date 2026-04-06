@@ -399,8 +399,7 @@ bool LLPumpIO::sleepChain(F64 seconds)
         LLChainSleeper::build(this, key),
         LLRunner::ERunSchedule::RUN_IN,
         seconds);
-    if(0 == handle) return false;
-    return true;
+    return 0 != handle;
 }
 
 bool LLPumpIO::copyCurrentLinkInfo(links_t& links) const
@@ -734,7 +733,6 @@ void LLPumpIO::callback()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     //LL_INFOS() << "LLPumpIO::callback()" << LL_ENDL;
-    if(true)
     {
         std::ranges::copy(mPendingCallbacks, std::back_insert_iterator<callbacks_t>(mCallbacks));
         mPendingCallbacks.clear();
@@ -1024,9 +1022,9 @@ bool LLPumpIO::isChainExpired(LLChainInfo& chain)
         return false ;
     }
 
-    for(links_t::iterator iter = chain.mChainLinks.begin(); iter != chain.mChainLinks.end(); ++iter)
+    for(auto & mChainLink : chain.mChainLinks)
     {
-        if(!(*iter).mPipe->isValid())
+        if(!mChainLink.mPipe->isValid())
         {
             return true ;
         }

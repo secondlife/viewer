@@ -158,26 +158,26 @@ LLSettingsSky::validation_list_t legacyHazeValidationList()
     static LLSettingsBase::validation_list_t legacyHazeValidation;
     if (legacyHazeValidation.empty())
     {
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_AMBIENT,             false,  LLSD::TypeArray,
+        legacyHazeValidation.emplace_back(LLSettingsSky::SETTING_AMBIENT,             false,  LLSD::TypeArray,
             [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyVectorMinMax(v, f,
                 llsd::array(0.0f, 0.0f, 0.0f, "*"),
-                llsd::array(3.0f, 3.0f, 3.0f, "*")); }));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_BLUE_DENSITY,        false,  LLSD::TypeArray,
+                llsd::array(3.0f, 3.0f, 3.0f, "*")); });
+        legacyHazeValidation.emplace_back(LLSettingsSky::SETTING_BLUE_DENSITY,        false,  LLSD::TypeArray,
             [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyVectorMinMax(v, f,
                 llsd::array(0.0f, 0.0f, 0.0f, "*"),
-                llsd::array(3.0f, 3.0f, 3.0f, "*")); }));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_BLUE_HORIZON,        false,  LLSD::TypeArray,
+                llsd::array(3.0f, 3.0f, 3.0f, "*")); });
+        legacyHazeValidation.emplace_back(LLSettingsSky::SETTING_BLUE_HORIZON,        false,  LLSD::TypeArray,
             [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyVectorMinMax(v, f,
                 llsd::array(0.0f, 0.0f, 0.0f, "*"),
-                llsd::array(3.0f, 3.0f, 3.0f, "*")); }));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_DENSITY,        false,  LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyFloatRange(v, f, llsd::array(0.0f, 5.0f)); }));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_HORIZON,        false,  LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyFloatRange(v, f, llsd::array(0.0f, 5.0f)); }));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_MULTIPLIER,  false,  LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyFloatRange(v, f, llsd::array(0.0001f, 2.0f)); }));
-        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DISTANCE_MULTIPLIER, false,  LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyFloatRange(v, f, llsd::array(0.0001f, 1000.0f)); }));
+                llsd::array(3.0f, 3.0f, 3.0f, "*")); });
+        legacyHazeValidation.emplace_back(LLSettingsSky::SETTING_HAZE_DENSITY,        false,  LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyFloatRange(v, f, llsd::array(0.0f, 5.0f)); });
+        legacyHazeValidation.emplace_back(LLSettingsSky::SETTING_HAZE_HORIZON,        false,  LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyFloatRange(v, f, llsd::array(0.0f, 5.0f)); });
+        legacyHazeValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_MULTIPLIER,  false,  LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyFloatRange(v, f, llsd::array(0.0001f, 2.0f)); });
+        legacyHazeValidation.emplace_back(LLSettingsSky::SETTING_DISTANCE_MULTIPLIER, false,  LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return LLSettingsBase::Validator::verifyFloatRange(v, f, llsd::array(0.0001f, 1000.0f)); });
     }
     return legacyHazeValidation;
 }
@@ -187,20 +187,20 @@ LLSettingsSky::validation_list_t rayleighValidationList()
     static LLSettingsBase::validation_list_t rayleighValidation;
     if (rayleighValidation.empty())
     {
-        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 32768.0f)); }));
+        rayleighValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 32768.0f)); });
 
-        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); }));
+        rayleighValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); });
 
-        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(-1.0f, 1.0f)); }));
+        rayleighValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(-1.0f, 1.0f)); });
 
-        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); }));
+        rayleighValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); });
 
-        rayleighValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); }));
+        rayleighValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); });
     }
     return rayleighValidation;
 }
@@ -210,20 +210,20 @@ LLSettingsSky::validation_list_t absorptionValidationList()
     static LLSettingsBase::validation_list_t absorptionValidation;
     if (absorptionValidation.empty())
     {
-        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 32768.0f)); }));
+        absorptionValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 32768.0f)); });
 
-        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); }));
+        absorptionValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); });
 
-        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(-1.0f, 1.0f)); }));
+        absorptionValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(-1.0f, 1.0f)); });
 
-        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); }));
+        absorptionValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); });
 
-        absorptionValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); }));
+        absorptionValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); });
     }
     return absorptionValidation;
 }
@@ -233,23 +233,23 @@ LLSettingsSky::validation_list_t mieValidationList()
     static LLSettingsBase::validation_list_t mieValidation;
     if (mieValidation.empty())
     {
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 32768.0f)); }));
+        mieValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH,      false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 32768.0f)); });
 
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); }));
+        mieValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM,   false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); });
 
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(-1.0f, 1.0f)); }));
+        mieValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR, false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(-1.0f, 1.0f)); });
 
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); }));
+        mieValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM, false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 2.0f)); });
 
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); }));
+        mieValidation.emplace_back(LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM, false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); });
 
-        mieValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR, false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); }));
+        mieValidation.emplace_back(LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR, false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return LLSettingsBase::Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); });
     }
     return mieValidation;
 }
@@ -598,7 +598,7 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         }
         else
         {
-            mCloudShadow = lerp(mCloudShadow, (F32)other->mCloudShadow, (F32)blendf);
+            mCloudShadow = lerp(mCloudShadow, other->mCloudShadow, (F32)blendf);
         }
 
         mSettingFlags |= other->mSettingFlags;
@@ -753,81 +753,81 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
 
     if (validation.empty())
     {
-        validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
-        validation.push_back(Validator(SETTING_RAINBOW_TEXTUREID,   false,  LLSD::TypeUUID));
-        validation.push_back(Validator(SETTING_HALO_TEXTUREID,      false,  LLSD::TypeUUID));
+        validation.emplace_back(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID);
+        validation.emplace_back(SETTING_RAINBOW_TEXTUREID,   false,  LLSD::TypeUUID);
+        validation.emplace_back(SETTING_HALO_TEXTUREID,      false,  LLSD::TypeUUID);
 
-        validation.push_back(Validator(SETTING_CLOUD_COLOR,         true,  LLSD::TypeArray,
-            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(0.0f, 0.0f, 0.0f, "*"), llsd::array(1.0f, 1.0f, 1.0f, "*")); }));
-        validation.push_back(Validator(SETTING_CLOUD_POS_DENSITY1,  true,  LLSD::TypeArray,
-            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(0.0f, 0.0f, 0.0f, "*"), llsd::array(1.0f, 1.0f, 3.0f, "*")); }));
-        validation.push_back(Validator(SETTING_CLOUD_POS_DENSITY2,  true,  LLSD::TypeArray,
-            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(0.0f, 0.0f, 0.0f, "*"), llsd::array(1.0f, 1.0f, 1.0f, "*")); }));
-        validation.push_back(Validator(SETTING_CLOUD_SCALE,         true,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.001f, 3.0f)); }));
-        validation.push_back(Validator(SETTING_CLOUD_SCROLL_RATE,   true,  LLSD::TypeArray,
-            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(-50.0f, -50.0f), llsd::array(50.0f, 50.0f)); }));
-        validation.push_back(Validator(SETTING_CLOUD_SHADOW,        true,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); }));
-        validation.push_back(Validator(SETTING_CLOUD_TEXTUREID,     false, LLSD::TypeUUID));
-        validation.push_back(Validator(SETTING_CLOUD_VARIANCE,      false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); }));
+        validation.emplace_back(SETTING_CLOUD_COLOR,         true,  LLSD::TypeArray,
+            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(0.0f, 0.0f, 0.0f, "*"), llsd::array(1.0f, 1.0f, 1.0f, "*")); });
+        validation.emplace_back(SETTING_CLOUD_POS_DENSITY1,  true,  LLSD::TypeArray,
+            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(0.0f, 0.0f, 0.0f, "*"), llsd::array(1.0f, 1.0f, 3.0f, "*")); });
+        validation.emplace_back(SETTING_CLOUD_POS_DENSITY2,  true,  LLSD::TypeArray,
+            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(0.0f, 0.0f, 0.0f, "*"), llsd::array(1.0f, 1.0f, 1.0f, "*")); });
+        validation.emplace_back(SETTING_CLOUD_SCALE,         true,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.001f, 3.0f)); });
+        validation.emplace_back(SETTING_CLOUD_SCROLL_RATE,   true,  LLSD::TypeArray,
+            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(-50.0f, -50.0f), llsd::array(50.0f, 50.0f)); });
+        validation.emplace_back(SETTING_CLOUD_SHADOW,        true,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); });
+        validation.emplace_back(SETTING_CLOUD_TEXTUREID,     false, LLSD::TypeUUID);
+        validation.emplace_back(SETTING_CLOUD_VARIANCE,      false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); });
 
-        validation.push_back(Validator(SETTING_DOME_OFFSET,         false, LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); }));
-        validation.push_back(Validator(SETTING_DOME_RADIUS,         false, LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(1000.0f, 2000.0f)); }));
-        validation.push_back(Validator(SETTING_GAMMA,               true,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 20.0f)); }));
-        validation.push_back(Validator(SETTING_GLOW,                true,  LLSD::TypeArray,
-            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(0.2f, "*", -10.0f, "*"), llsd::array(40.0f, "*", 10.0f, "*")); }));
+        validation.emplace_back(SETTING_DOME_OFFSET,         false, LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); });
+        validation.emplace_back(SETTING_DOME_RADIUS,         false, LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(1000.0f, 2000.0f)); });
+        validation.emplace_back(SETTING_GAMMA,               true,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 20.0f)); });
+        validation.emplace_back(SETTING_GLOW,                true,  LLSD::TypeArray,
+            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(0.2f, "*", -10.0f, "*"), llsd::array(40.0f, "*", 10.0f, "*")); });
 
-        validation.push_back(Validator(SETTING_MAX_Y,               true,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 10000.0f)); }));
-        validation.push_back(Validator(SETTING_MOON_ROTATION,       true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal));
-        validation.push_back(Validator(SETTING_MOON_SCALE,          false, LLSD::TypeReal,
-                [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.25f, 20.0f)); }, LLSD::Real(1.0)));
-        validation.push_back(Validator(SETTING_MOON_TEXTUREID,      false, LLSD::TypeUUID));
-        validation.push_back(Validator(SETTING_MOON_BRIGHTNESS,     false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); }));
+        validation.emplace_back(SETTING_MAX_Y,               true,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 10000.0f)); });
+        validation.emplace_back(SETTING_MOON_ROTATION,       true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal);
+        validation.emplace_back(SETTING_MOON_SCALE,          false, LLSD::TypeReal,
+                [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.25f, 20.0f)); }, LLSD::Real(1.0));
+        validation.emplace_back(SETTING_MOON_TEXTUREID,      false, LLSD::TypeUUID);
+        validation.emplace_back(SETTING_MOON_BRIGHTNESS,     false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); });
 
-        validation.push_back(Validator(SETTING_STAR_BRIGHTNESS,     true,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 500.0f)); }));
-        validation.push_back(Validator(SETTING_SUNLIGHT_COLOR,      true,  LLSD::TypeArray,
-            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(0.0f, 0.0f, 0.0f, "*"), llsd::array(3.0f, 3.0f, 3.0f, "*")); }));
-        validation.push_back(Validator(SETTING_SUN_ROTATION,        true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal));
-        validation.push_back(Validator(SETTING_SUN_SCALE,           false, LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.25f, 20.0f)); }, LLSD::Real(1.0)));
-        validation.push_back(Validator(SETTING_SUN_TEXTUREID, false, LLSD::TypeUUID));
+        validation.emplace_back(SETTING_STAR_BRIGHTNESS,     true,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 500.0f)); });
+        validation.emplace_back(SETTING_SUNLIGHT_COLOR,      true,  LLSD::TypeArray,
+            [](LLSD& value, U32 flags) { return Validator::verifyVectorMinMax(value, flags, llsd::array(0.0f, 0.0f, 0.0f, "*"), llsd::array(3.0f, 3.0f, 3.0f, "*")); });
+        validation.emplace_back(SETTING_SUN_ROTATION,        true,  LLSD::TypeArray, &Validator::verifyQuaternionNormal);
+        validation.emplace_back(SETTING_SUN_SCALE,           false, LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.25f, 20.0f)); }, LLSD::Real(1.0));
+        validation.emplace_back(SETTING_SUN_TEXTUREID, false, LLSD::TypeUUID);
 
-        validation.push_back(Validator(SETTING_PLANET_RADIUS,       true,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(1000.0f, 32768.0f)); }));
+        validation.emplace_back(SETTING_PLANET_RADIUS,       true,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(1000.0f, 32768.0f)); });
 
-        validation.push_back(Validator(SETTING_SKY_BOTTOM_RADIUS,   true,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(1000.0f, 32768.0f)); }));
+        validation.emplace_back(SETTING_SKY_BOTTOM_RADIUS,   true,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(1000.0f, 32768.0f)); });
 
-        validation.push_back(Validator(SETTING_SKY_TOP_RADIUS,       true,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(1000.0f, 32768.0f)); }));
+        validation.emplace_back(SETTING_SKY_TOP_RADIUS,       true,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(1000.0f, 32768.0f)); });
 
-        validation.push_back(Validator(SETTING_SUN_ARC_RADIANS,      true,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 0.1f)); }));
+        validation.emplace_back(SETTING_SUN_ARC_RADIANS,      true,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 0.1f)); });
 
-        validation.push_back(Validator(SETTING_SKY_MOISTURE_LEVEL,      false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); }));
+        validation.emplace_back(SETTING_SKY_MOISTURE_LEVEL,      false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); });
 
-        validation.push_back(Validator(SETTING_SKY_DROPLET_RADIUS,      false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(5.0f, 1000.0f)); }));
+        validation.emplace_back(SETTING_SKY_DROPLET_RADIUS,      false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(5.0f, 1000.0f)); });
 
-        validation.push_back(Validator(SETTING_SKY_ICE_LEVEL,      false,  LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); }));
+        validation.emplace_back(SETTING_SKY_ICE_LEVEL,      false,  LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, llsd::array(0.0f, 1.0f)); });
 
-        validation.push_back(Validator(SETTING_REFLECTION_PROBE_AMBIANCE, false, LLSD::TypeReal,
-            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, LLSD(llsd::array(0.0f, 10.0f))); }));
+        validation.emplace_back(SETTING_REFLECTION_PROBE_AMBIANCE, false, LLSD::TypeReal,
+            [](LLSD& value, U32 flags) { return Validator::verifyFloatRange(value, flags, LLSD(llsd::array(0.0f, 10.0f))); });
 
-        validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
-        validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
-        validation.push_back(Validator(SETTING_MIE_CONFIG, true, LLSD::TypeArray, &validateMieLayers));
-        validation.push_back(Validator(SETTING_LEGACY_HAZE, false, LLSD::TypeMap, &validateLegacyHaze));
+        validation.emplace_back(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers);
+        validation.emplace_back(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers);
+        validation.emplace_back(SETTING_MIE_CONFIG, true, LLSD::TypeArray, &validateMieLayers);
+        validation.emplace_back(SETTING_LEGACY_HAZE, false, LLSD::TypeMap, &validateLegacyHaze);
     }
     return validation;
 }
@@ -1124,7 +1124,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
     }
 
     if (!converted_something)
-        return LLSD();
+        return {};
 
     return newsettings;
 }

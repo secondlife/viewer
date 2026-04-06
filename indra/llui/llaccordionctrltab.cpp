@@ -106,8 +106,8 @@ private:
 
     LLUIColor mHeaderBGColor;
 
-    bool mNeedsHighlight;
-    bool mIsSelected;
+    bool mNeedsHighlight{false};
+    bool mIsSelected{false};
 
     LLFrameTimer mAutoOpenTimer;
 };
@@ -120,8 +120,8 @@ LLAccordionCtrlTab::LLAccordionCtrlTabHeader::LLAccordionCtrlTabHeader(
     const LLAccordionCtrlTabHeader::Params& p)
 : LLUICtrl(p)
 , mHeaderBGColor(p.header_bg_color())
-, mNeedsHighlight(false)
-, mIsSelected(false),
+, 
+
     mImageCollapsed(p.header_collapse_img),
     mImageCollapsedPressed(p.header_collapse_img_pressed),
     mImageExpanded(p.header_expand_img),
@@ -617,7 +617,7 @@ boost::signals2::connection LLAccordionCtrlTab::setFocusReceivedCallback(const f
         return mHeader->setFocusReceivedCallback(cb);
     }
 
-    return boost::signals2::connection();
+    return {};
 }
 
 boost::signals2::connection LLAccordionCtrlTab::setFocusLostCallback(const focus_signal_t::slot_type& cb)
@@ -627,7 +627,7 @@ boost::signals2::connection LLAccordionCtrlTab::setFocusLostCallback(const focus
         return mHeader->setFocusLostCallback(cb);
     }
 
-    return boost::signals2::connection();
+    return {};
 }
 
 void LLAccordionCtrlTab::setSelected(bool is_selected)
@@ -665,7 +665,7 @@ void LLAccordionCtrlTab::deselectOnFocusLost()
     }
 }
 
-S32 LLAccordionCtrlTab::getHeaderHeight()
+S32 LLAccordionCtrlTab::getHeaderHeight() const
 {
     return mHeaderVisible ? HEADER_HEIGHT : 0;
 }
@@ -1129,7 +1129,7 @@ void LLAccordionCtrlTab::ctrlSetLeftTopAndSize(LLView* panel, S32 left, S32 top,
         return;
     LLRect panel_rect = panel->getRect();
     panel_rect.setLeftTopAndSize(left, top, width, height);
-    panel->reshape( width, height, 1);
+    panel->reshape( width, height, true);
     panel->setRect(panel_rect);
 }
 

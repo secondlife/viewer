@@ -509,7 +509,7 @@ ELoadStatus LLBVHLoader::loadAliases(const char * filename)
     std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,filename);
 
     llifstream input_stream;
-    input_stream.open(fullpath.c_str(), std::ios::in | std::ios::binary);
+    input_stream.open(fullpath, std::ios::in | std::ios::binary);
 
     if(input_stream.is_open())
     {
@@ -542,9 +542,8 @@ ELoadStatus LLBVHLoader::loadAliases(const char * filename)
 
 void LLBVHLoader::dumpBVHInfo()
 {
-    for (U32 j=0; j<mJoints.size(); j++)
+    for (auto joint : mJoints)
     {
-        Joint *joint = mJoints[j];
         LL_DEBUGS("BVH") << joint->mName << LL_ENDL;
         for (S32 i=0; i<mNumFrames; i++)
         {
@@ -624,7 +623,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
         //----------------------------------------------------------------
         if ( strstr(line.c_str(), "}") )
         {
-            if (parent_joints.size() > 0)
+            if (!parent_joints.empty())
             {
                 parent_joints.pop_back();
             }
@@ -682,7 +681,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
         //---------------------------------------------------------------
         // we require the root joint be "hip" - DEV-26188
         //---------------------------------------------------------------
-        if (mJoints.size() == 0 )
+        if (mJoints.empty() )
         {
             //The root joint of the BVH file must be hip (mPelvis) or an alias of mPelvis.
             const char* FORCED_ROOT_NAME = "hip";
@@ -914,10 +913,9 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
             float_token_iter++;
         }
         LL_DEBUGS("BVH") << "Got " << floats.size() << " floats " << LL_ENDL;
-        for (U32 j=0; j<mJoints.size(); j++)
+        for (auto joint : mJoints)
         {
-            Joint *joint = mJoints[j];
-            joint->mKeys.push_back( Key() );
+            joint->mKeys.emplace_back( );
             Key &key = joint->mKeys.back();
 
             if (floats.size() < joint->mNumChannels)

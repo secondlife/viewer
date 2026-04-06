@@ -269,10 +269,8 @@ void LLMotionController::setTimeStep(F32 step)
     if (step != 0.f)
     {
         // make sure timestamps conform to new quantum
-        for (motion_list_t::iterator iter = mActiveMotions.begin();
-             iter != mActiveMotions.end(); ++iter)
+        for (auto motionp : mActiveMotions)
         {
-            LLMotion* motionp = *iter;
             F32 activation_time = motionp->mActivationTimestamp;
             motionp->mActivationTimestamp = (F32)(llfloor(activation_time / step)) * step;
             bool stopped = motionp->isStopped();
@@ -1097,7 +1095,7 @@ void LLMotionController::flushAllMotions()
         motion_list_t::iterator curiter = iter++;
         LLMotion* motionp = *curiter;
         F32 dtime = mAnimTime - motionp->mActivationTimestamp;
-        active_motions.push_back(std::make_pair(motionp->getID(),dtime));
+        active_motions.emplace_back(motionp->getID(),dtime);
         motionp->deactivate(); // don't call deactivateMotionInstance() because we are going to reactivate it
     }
     mActiveMotions.clear();

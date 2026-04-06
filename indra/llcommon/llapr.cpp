@@ -220,7 +220,7 @@ void LLVolatileAPRPool::clearVolatileAPRPool()
     llassert(mNumTotalRef <= (FULL_VOLATILE_APR_POOL << 2)) ;
 }
 
-bool LLVolatileAPRPool::isFull()
+bool LLVolatileAPRPool::isFull() const
 {
     return mNumTotalRef > FULL_VOLATILE_APR_POOL ;
 }

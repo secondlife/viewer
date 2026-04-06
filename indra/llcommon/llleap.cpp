@@ -50,7 +50,7 @@ public:
         // Try to make that more difficult by generating a UUID for the reply-
         // pump name -- so it should NOT need tweaking for uniqueness.
         mReplyPump(LLUUID::generateNewID().asString()),
-        mExpect(0),
+        
         // Instantiate a distinct LLLeapListener for this plugin. (Every
         // plugin will want its own collection of managed listeners, etc.)
         // Pass it a callback to our connect() method, so it can send events
@@ -80,7 +80,7 @@ public:
             // notice Python specially: we provide Python LLSD serialization
             // support, so there's a pretty good reason to implement plugins
             // in that language.
-            if (cparams.args.size() && (desclower == "python" || desclower == "python3" || desclower == "python.exe"))
+            if (!cparams.args.empty() && (desclower == "python" || desclower == "python3" || desclower == "python.exe"))
             {
                 mDesc = LLProcess::basename(cparams.args()[0]);
             }
@@ -464,7 +464,7 @@ private:
     LLProcessPtr mChild;
     LLTempBoundListener
         mStdinConnection, mStdoutConnection, mStderrConnection;
-    LLProcess::ReadPipe::size_type mExpect;
+    LLProcess::ReadPipe::size_type mExpect{0};
     LLError::RecorderPtr mRecorder;
     std::unique_ptr<LLLeapListener> mListener;
     bool mReadPrefix;

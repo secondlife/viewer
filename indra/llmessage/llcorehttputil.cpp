@@ -41,6 +41,7 @@
 
 #include "message.h" // for getting the port
 #include <functional>
+#include <utility>
 
 
 
@@ -96,7 +97,7 @@ void logMessageFail(std::string logAuth, std::string url, std::string message)
 class HttpRequestPumper
 {
 public:
-    explicit HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request);
+    explicit HttpRequestPumper(LLCore::HttpRequest::ptr_t request);
     ~HttpRequestPumper();
 
 private:
@@ -529,14 +530,14 @@ LLSD HttpCoroLLSDHandler::parseBody(LLCore::HttpResponse *response, bool &succes
 {
     success = true;
     if (response->getBodySize() == 0)
-        return LLSD();
+        return {};
 
     LLSD result;
 
     if (!LLCoreHttpUtil::responseToLLSD(response, true, result))
     {
         success = false;
-        return LLSD();
+        return {};
     }
 
     return result;
@@ -615,7 +616,7 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
 LLSD HttpCoroRawHandler::parseBody(LLCore::HttpResponse *response, bool &success) const
 {
     success = true;
-    return LLSD();
+    return {};
 }
 
 //========================================================================
@@ -673,7 +674,7 @@ LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &succes
     BufferArray * body(response->getBody());
     if (!body || !body->size())
     {
-        return LLSD();
+        return {};
     }
 
     LLCore::BufferArrayStream bas(body);
@@ -683,7 +684,7 @@ LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &succes
     if (ec.failed())
     {
         success = false;
-        return LLSD();
+        return {};
     }
 
     // Convert the JSON structure to LLSD
@@ -691,8 +692,8 @@ LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &succes
 }
 
 //========================================================================
-HttpRequestPumper::HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request) :
-    mHttpRequest(request)
+HttpRequestPumper::HttpRequestPumper(LLCore::HttpRequest::ptr_t request) :
+    mHttpRequest(std::move(request))
 {
     mBoundListener = LLEventPumps::instance().obtain("mainloop").
         listen(LLEventPump::ANONYMOUS, [this](const LLSD& event) { return pollRequest(event); });
@@ -730,9 +731,8 @@ HttpCoroutineAdapter::HttpCoroutineAdapter(std::string name,
     LLCore::HttpRequest::policy_t policyId) :
     mAdapterName(std::move(name)),
     mPolicyId(policyId),
-    mYieldingHandle(LLCORE_HTTP_HANDLE_INVALID),
-    mWeakRequest(),
-    mWeakHandler()
+    mYieldingHandle(LLCORE_HTTP_HANDLE_INVALID)
+    
 {
 }
 
@@ -809,7 +809,7 @@ LLSD HttpCoroutineAdapter::postFileAndSuspend(LLCore::HttpRequest::ptr_t request
     // scoping for our streams so that they go away when we no longer need them.
     {
         LLCore::BufferArrayStream outs(fileData.get());
-        llifstream ins(fileName.c_str(), std::iostream::binary | std::iostream::out);
+        llifstream ins(fileName, std::iostream::binary | std::iostream::out);
 
         if (ins.is_open())
         {
@@ -1281,7 +1281,7 @@ LLCore::HttpStatus HttpCoroutineAdapter::getStatusFromLLSD(const LLSD &httpResul
     LLCore::HttpStatus::type_enum_t type = static_cast<LLCore::HttpStatus::type_enum_t>(httpResults[HttpCoroutineAdapter::HTTP_RESULTS_TYPE].asInteger());
     short code = static_cast<short>(httpResults[HttpCoroutineAdapter::HTTP_RESULTS_STATUS].asInteger());
 
-    return LLCore::HttpStatus(type, code);
+    return {type, code};
 }
 
 /*static*/
@@ -1315,7 +1315,7 @@ void HttpCoroutineAdapter::trivialGetCoro(std::string url, LLCore::HttpRequest::
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD& httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
@@ -1366,7 +1366,7 @@ void HttpCoroutineAdapter::trivialPostCoro(std::string url, LLCore::HttpRequest:
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData, httpOpts);
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD& httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
@@ -1410,7 +1410,7 @@ void HttpCoroutineAdapter::trivialDelCoro(std::string url, LLCore::HttpRequest::
 
     LLSD result = httpAdapter->deleteAndSuspend(httpRequest, url, httpOpts);
 
-    LLSD               httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD&               httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status      = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)

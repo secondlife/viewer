@@ -38,13 +38,13 @@
 //////////////////////////////////////////////////////////////////////////////
 
 LLEventTimer::LLEventTimer(F32 period)
-: mEventTimer()
+ 
 {
     mPeriod = period;
 }
 
 LLEventTimer::LLEventTimer(const LLDate& time)
-: mEventTimer()
+ 
 {
     mPeriod = (F32)(time.secondsSinceEpoch() - LLDate::now().secondsSinceEpoch());
 }

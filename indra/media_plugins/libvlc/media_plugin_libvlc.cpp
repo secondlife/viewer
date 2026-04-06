@@ -36,7 +36,7 @@
 
 #if defined(_MSC_VER)
 #include <basetsd.h>
-typedef SSIZE_T ssize_t;
+using ssize_t = SSIZE_T;
 #endif
 
 #include "vlc/vlc.h"
@@ -299,7 +299,7 @@ void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 //
 void MediaPluginLibVLC::playMedia()
 {
-    if (mURL.length() == 0)
+    if (mURL.empty())
     {
         return;
     }

@@ -48,8 +48,8 @@ class LLMessageConfigFile : public LLLiveFile
 {
 public:
     LLMessageConfigFile() :
-        LLLiveFile(filename(), messageConfigRefreshRate),
-        mMaxQueuedEvents(0)
+        LLLiveFile(filename(), messageConfigRefreshRate)
+        
             { }
 
     static std::string filename();
@@ -70,7 +70,7 @@ public:
 
 public:
     LLSD mCapBans;
-    S32 mMaxQueuedEvents;
+    S32 mMaxQueuedEvents{0};
 
 private:
     static constexpr S32 DEFAULT_MAX_QUEUED_EVENTS = 100;
@@ -96,7 +96,7 @@ bool LLMessageConfigFile::loadFile()
 {
     LLSD data;
     {
-        llifstream file(filename().c_str());
+        llifstream file(filename());
 
         if (file.is_open())
         {
@@ -153,7 +153,7 @@ void LLMessageConfigFile::loadMessages(const LLSD& data)
 
 void LLMessageConfigFile::loadCapBans(const LLSD& data)
 {
-    LLSD bans = data["capBans"];
+    const LLSD& bans = data["capBans"];
     if (!bans.isMap())
     {
         LL_INFOS("AppInit") << "LLMessageConfigFile::loadCapBans: missing capBans section"
@@ -169,7 +169,7 @@ void LLMessageConfigFile::loadCapBans(const LLSD& data)
 
 void LLMessageConfigFile::loadMessageBans(const LLSD& data)
 {
-    LLSD bans = data["messageBans"];
+    const LLSD& bans = data["messageBans"];
     if (!bans.isMap())
     {
         LL_INFOS("AppInit") << "LLMessageConfigFile::loadMessageBans: missing messageBans section"

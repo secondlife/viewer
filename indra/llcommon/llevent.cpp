@@ -165,7 +165,7 @@ protected:
 
 LLSimpleDispatcher::~LLSimpleDispatcher()
 {
-    while (mListeners.size() > 0)
+    while (!mListeners.empty())
     {
         removeListener(mListeners.begin()->listener);
     }
@@ -216,7 +216,7 @@ bool LLSimpleDispatcher::fireEvent(LLPointer<LLEvent> event, LLSD filter)
     std::string filter_string = filter.asString();
     for (LLListenerEntry& entry : mListeners)
     {
-        if (filter_string == "" || entry.filter.asString() == filter_string)
+        if (filter_string.empty() || entry.filter.asString() == filter_string)
         {
             (entry.listener)->handleEvent(event, entry.userdata);
         }
@@ -253,7 +253,7 @@ void LLSimpleListener::clearDispatchers()
 {
     // Remove myself from all listening dispatchers
     std::vector<LLEventDispatcher *>::iterator itor;
-    while (mDispatchers.size() > 0)
+    while (!mDispatchers.empty())
     {
         itor = mDispatchers.begin();
         LLEventDispatcher *dispatcher = *itor;

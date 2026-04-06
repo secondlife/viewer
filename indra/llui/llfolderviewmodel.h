@@ -406,7 +406,7 @@ public:
     void setFolderView(LLFolderView* folder_view) override { mFolderView = folder_view;}
 
 protected:
-    bool needsSort(class LLFolderViewModelItem* item);
+    bool needsSort(class LLFolderViewModelItem* item) const;
 
     S32 mTargetSortVersion;
     LLFolderView* mFolderView;

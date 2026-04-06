@@ -50,9 +50,9 @@ LLPacketRing::LLPacketRing ()
     : mPacketRing(DEFAULT_BUFFER_RING_SIZE, nullptr)
 {
     LLHost invalid_host;
-    for (size_t i = 0; i < mPacketRing.size(); ++i)
+    for (auto & i : mPacketRing)
     {
-        mPacketRing[i] = new LLPacketBuffer(invalid_host, nullptr, 0);
+        i = new LLPacketBuffer(invalid_host, nullptr, 0);
     }
 }
 

@@ -659,7 +659,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 settings.cookies_enabled = mCookiesEnabled;
 
                 // configure proxy argument if enabled and valid
-                if (mProxyEnabled && mProxyHost.length())
+                if (mProxyEnabled && !mProxyHost.empty())
                 {
                     std::ostringstream proxy_url;
                     proxy_url << mProxyHost << ":" << mProxyPort;

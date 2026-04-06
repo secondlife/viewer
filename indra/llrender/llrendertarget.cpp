@@ -400,7 +400,7 @@ void LLRenderTarget::release()
         mFBO = 0;
     }
 
-    if (mTex.size() > 0)
+    if (!mTex.empty())
     {
         sBytesAllocated -= mResX*mResY*4;
         LLImageGL::deleteTextures(1, &mTex[0]);
@@ -447,7 +447,7 @@ void LLRenderTarget::bindTarget()
     sBoundTarget = this;
 }
 
-void LLRenderTarget::clear(U32 mask_in)
+void LLRenderTarget::clear(U32 mask_in) const
 {
     LL_PROFILE_GPU_ZONE("clear");
     llassert(mFBO);
@@ -535,7 +535,7 @@ bool LLRenderTarget::isComplete() const
     return !mTex.empty() || mDepth;
 }
 
-void LLRenderTarget::getViewport(S32* viewport)
+void LLRenderTarget::getViewport(S32* viewport) const
 {
     viewport[0] = 0;
     viewport[1] = 0;

@@ -60,7 +60,7 @@ namespace LLCore
 
 HttpLibcurl::HttpLibcurl(HttpService * service)
     : mService(service),
-      mHandleCache(),
+      
       mPolicyCount(0),
       mMultiHandles(NULL),
       mActiveHandles(NULL),
@@ -547,9 +547,9 @@ HttpLibcurl::HandleCache::~HandleCache()
         mHandleTemplate = NULL;
     }
 
-    for (handle_cache_t::iterator it(mCache.begin()); mCache.end() != it; ++it)
+    for (auto & it : mCache)
     {
-        curl_easy_cleanup(*it);
+        curl_easy_cleanup(it);
     }
     mCache.clear();
 }

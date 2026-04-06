@@ -54,8 +54,8 @@ LLMotion::LLMotion( const LLUUID &id ) :
     mDeactivateCallback(nullptr),
     mDeactivateCallbackUserData(nullptr)
 {
-    for (S32 i=0; i<3; ++i)
-        memset(&mJointSignature[i][0], 0, sizeof(U8) * LL_CHARACTER_MAX_ANIMATED_JOINTS);
+    for (auto & i : mJointSignature)
+        memset(&i[0], 0, sizeof(U8) * LL_CHARACTER_MAX_ANIMATED_JOINTS);
 }
 
 //-----------------------------------------------------------------------------

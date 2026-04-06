@@ -29,6 +29,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <utility>
 
 #include "llcontrol.h"
 
@@ -146,11 +147,11 @@ bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b) const
     return result;
 }
 
-LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
-                             LLSD initial, const std::string& comment,
+LLControlVariable::LLControlVariable(std::string  name, eControlType type,
+                             LLSD initial, std::string  comment,
                              ePersist persist, bool hidefromsettingseditor)
-    : mName(name),
-      mComment(comment),
+    : mName(std::move(name)),
+      mComment(std::move(comment)),
       mType(type),
       mPersist(persist),
       mHideFromSettingsEditor(hidefromsettingseditor)
@@ -173,7 +174,7 @@ LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
 
 LLControlVariable::~LLControlVariable() = default;
 
-LLSD LLControlVariable::getComparableValue(const LLSD& value)
+LLSD LLControlVariable::getComparableValue(const LLSD& value) const
 {
     // *FIX:MEP - The following is needed to make the LLSD::ImplString
     // work with boolean controls...
@@ -422,7 +423,7 @@ void LLControlGroup::cleanup()
 
             for (LLSD::map_const_iterator iter = getCount.beginMap(); iter != getCount.endMap(); ++iter)
             {
-                getCount_v.push_back(settings_pair_t(iter->first, iter->second.asInteger()));
+                getCount_v.emplace_back(iter->first, iter->second.asInteger());
             }
             sort(getCount_v.begin(), getCount_v.end(), compareRoutine);
 
@@ -971,7 +972,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename, bool nondefault_only
         }
     }
     llofstream file;
-    file.open(filename.c_str());
+    file.open(filename);
     if (file.is_open())
     {
         LLSDSerialize::toPrettyXML(settings, file);
@@ -992,7 +993,7 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
     LL_PROFILE_ZONE_SCOPED;
     LLSD settings;
     llifstream infile;
-    infile.open(filename.c_str());
+    infile.open(filename);
     if(!infile.is_open())
     {
         LL_WARNS("Settings") << "Cannot find file " << filename << " to load." << LL_ENDL;
@@ -1418,7 +1419,7 @@ LLQuaternion convert_from_llsd<LLQuaternion>(const LLSD& sd, eControlType type, 
     else
     {
         CONTROL_ERRS << "Invalid LLQuaternion value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
-        return LLQuaternion();
+        return {};
     }
 }
 

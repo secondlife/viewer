@@ -527,7 +527,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
                                << ELLPathToString(location)
                                << ", '" << subdir1 << "', '" << subdir2 << "', '" << in_filename
                                << "' => ''" << LL_ENDL;
-            return std::string();
+            return {};
         }
         break;
 
@@ -542,7 +542,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
             // potentially directory was not set yet
             // intentionally return a blank string to the caller
             LL_DEBUGS("LLDir") << "Conversation log directory is not yet set" << LL_ENDL;
-            return std::string();
+            return {};
         }
         break;
 
@@ -640,7 +640,7 @@ std::string LLDir::getDirName(const std::string& filepath) const
 std::string LLDir::getExtension(const std::string& filepath) const
 {
     if (filepath.empty())
-        return std::string();
+        return {};
     std::string basename = getBaseFileName(filepath, false);
     std::size_t offset = basename.find_last_of('.');
     std::string exten = (offset == std::string::npos || offset == 0) ? "" : basename.substr(offset+1);
@@ -776,7 +776,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
     if (found->second.empty())
     {
         // subdir is not localized. filename should be located directly within it.
-        subsubdirs.push_back("");
+        subsubdirs.emplace_back("");
     }
     else
     {
@@ -1089,7 +1089,7 @@ LLDir::SepOff LLDir::needSep(const std::string& path, const std::string& name) c
     return SepOff(false, 0);
 }
 
-void LLDir::openDir(const std::string& filepath)
+void LLDir::openDir(const std::string& filepath) const
 {
     if (filepath.empty())
     {

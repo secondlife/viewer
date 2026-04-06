@@ -113,7 +113,7 @@ bool checkExceptionHandler()
     if (prev_filter == nullptr)
     {
         ok = false;
-        if (nullptr == myWin32ExceptionHandler)
+        if (nullptr == &myWin32ExceptionHandler)
         {
             LL_WARNS("AppInit") << "Exception handler uninitialized." << LL_ENDL;
         }

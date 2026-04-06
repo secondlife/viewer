@@ -101,9 +101,7 @@ bool are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon)
     an.normalize();
     bn.normalize();
     F32 dot = an * bn;
-    if ( (1.0f - fabs(dot)) < epsilon)
-        return true;
-    return false;
+    return (1.0f - fabs(dot)) < epsilon;
 }
 
 
@@ -114,6 +112,6 @@ LLVector3 vec4to3(const LLVector4& vec)
 
 LLVector4 vec3to4(const LLVector3& vec)
 {
-    return LLVector4(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
+    return {vec.mV[VX], vec.mV[VY], vec.mV[VZ]};
 }
 

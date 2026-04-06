@@ -29,6 +29,8 @@
 
 #include "llscrollcontainer.h"
 
+#include <ranges>
+
 #include "llrender.h"
 #include "llcontainerview.h"
 #include "lllocalcliprect.h"
@@ -250,11 +252,7 @@ bool LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 
 bool LLScrollContainer::handleUnicodeCharHere(llwchar uni_char)
 {
-    if (mScrolledView && mScrolledView->handleUnicodeCharHere(uni_char))
-    {
-        return true;
-    }
-    return false;
+    return mScrolledView && mScrolledView->handleUnicodeCharHere(uni_char);
 }
 
 bool LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
@@ -548,10 +546,8 @@ void LLScrollContainer::draw()
 
         // Draw all children except mScrolledView
         // Note: scrollbars have been adjusted by above drawing code
-        for (child_list_const_reverse_iter_t child_iter = getChildList()->rbegin();
-             child_iter != getChildList()->rend(); ++child_iter)
+        for (auto viewp : std::views::reverse(*getChildList()))
         {
-            LLView *viewp = *child_iter;
             if( sDebugRects )
             {
                 sDepth++;

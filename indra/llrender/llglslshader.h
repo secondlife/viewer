@@ -193,9 +193,9 @@ public:
     bool readProfileQuery(bool for_runtime = false, bool force_read = false);
 
     [[nodiscard]] bool createShader();
-    [[nodiscard]] bool attachFragmentObject(std::string object);
-    [[nodiscard]] bool attachVertexObject(std::string object);
-    void attachObject(GLuint object);
+    [[nodiscard]] bool attachFragmentObject(std::string object) const;
+    [[nodiscard]] bool attachVertexObject(std::string object) const;
+    void attachObject(GLuint object) const;
     void attachObjects(GLuint* objects = NULL, S32 count = 0);
     [[nodiscard]] bool mapAttributes();
     [[nodiscard]] bool mapUniforms();
@@ -269,7 +269,7 @@ public:
     S32 bindTexture(const std::string& uniform, LLTexture* texture, LLTexUnit::eTextureType mode = LLTexUnit::eTextureType::TT_TEXTURE);
     S32 bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextureType mode = LLTexUnit::eTextureType::TT_TEXTURE);
     S32 bindTexture(const std::string& uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
-    S32 bindTexture(S32 uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::eTextureFilterOptions::TFO_BILINEAR, U32 index = 0);
+    S32 bindTexture(S32 uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::eTextureFilterOptions::TFO_BILINEAR, U32 index = 0) const;
     S32 unbindTexture(const std::string& uniform, LLTexUnit::eTextureType mode = LLTexUnit::eTextureType::TT_TEXTURE);
     S32 unbindTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::eTextureType::TT_TEXTURE);
 

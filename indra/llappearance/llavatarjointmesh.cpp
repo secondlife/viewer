@@ -356,7 +356,7 @@ void LLAvatarJointMesh::setupJoint(LLAvatarJoint* current_joint)
         // additional extended-skeleton joints lie between this joint
         // and the original parent.
         LLJoint *ancestor = getBaseSkeletonAncestor(current_joint);
-        if(jrd.size() && jrd.back()->mWorldMatrix == &ancestor->getWorldMatrix())
+        if(!jrd.empty() && jrd.back()->mWorldMatrix == &ancestor->getWorldMatrix())
         {
             // ...then just add ourselves
             LLAvatarJoint* jointp = js.mJoint;

@@ -60,7 +60,7 @@ public:
      * @param field LLSD::Map key used by LLDispatchListener to look up the
      * subclass method to invoke [default "op"].
      */
-    LLEventAPI(const std::string& name, const std::string& desc, const std::string& field="op");
+    LLEventAPI(const std::string& name, std::string  desc, const std::string& field="op");
     ~LLEventAPI() override;
 
     /// Get the string name of this LLEventAPI
@@ -104,7 +104,7 @@ public:
          * on which the caller wants a reply. If <tt>(!
          * request.has(replyKey))</tt>, no reply will be sent.
          */
-        Response(const LLSD& seed, const LLSD& request, const LLSD::String& replyKey="reply");
+        Response(LLSD  seed, LLSD  request, LLSD::String  replyKey="reply");
         ~Response();
 
         /**

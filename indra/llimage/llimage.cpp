@@ -809,13 +809,13 @@ U8* LLImageBase::allocateDataSize(S32 width, S32 height, S32 ncomponents, S32 si
 S32 LLImageRaw::sRawImageCount = 0;
 
 LLImageRaw::LLImageRaw()
-    : LLImageBase()
+     
 {
     ++sRawImageCount;
 }
 
 LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
-    : LLImageBase()
+     
 {
     //llassert( S32(width) * S32(height) * S32(components) <= MAX_IMAGE_DATA_SIZE );
     allocateDataSize(width, height, components);
@@ -823,7 +823,7 @@ LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
 }
 
 LLImageRaw::LLImageRaw(const U8* data, U16 width, U16 height, S8 components)
-    : LLImageBase()
+     
 {
     if (allocateDataSize(width, height, components))
     {
@@ -832,7 +832,7 @@ LLImageRaw::LLImageRaw(const U8* data, U16 width, U16 height, S8 components)
 }
 
 LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy)
-    : LLImageBase()
+     
 {
     if(no_copy)
     {
@@ -2072,10 +2072,10 @@ EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
 {
     if (!exten.empty())
     {
-        for (int i = 0; i < (int)(NUM_FILE_EXTENSIONS); i++)
+        for (auto & file_extension : file_extensions)
         {
-            if (exten == file_extensions[i].exten)
-                return file_extensions[i].codec;
+            if (exten == file_extension.exten)
+                return file_extension.codec;
         }
     }
     return IMG_CODEC_INVALID;
@@ -2175,7 +2175,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 S32 LLImageFormatted::sGlobalFormattedMemory = 0;
 
 LLImageFormatted::LLImageFormatted(S8 codec)
-    : LLImageBase(),
+    : 
       mCodec(codec),
       mDecoding(0),
       mDecoded(0),
@@ -2346,7 +2346,7 @@ S32 LLImageFormatted::calcDiscardLevelBytes(S32 bytes)
 {
     llassert(bytes >= 0);
     S32 discard_level = 0;
-    while (1)
+    while (true)
     {
         S32 bytes_needed = calcDataSize(discard_level); // virtual
         if (bytes_needed <= bytes)
@@ -2605,7 +2605,7 @@ void LLImageBase::generateMip(const U8* indata, U8* mipdata, S32 width, S32 heig
                 avg4_colors2(indata, indata+2, indata+2*in_width, indata+2*in_width+2, data);
                 break;
               case 1:
-                *(U8*)data = (U8)(((U32)(indata[0]) + indata[1] + indata[in_width] + indata[in_width+1])>>2);
+                *data = (U8)(((U32)(indata[0]) + indata[1] + indata[in_width] + indata[in_width+1])>>2);
                 break;
               default:
                 LL_ERRS() << "generateMmip called with bad num channels" << LL_ENDL;

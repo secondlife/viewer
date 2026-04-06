@@ -320,11 +320,7 @@ const LLVector3& LLJoint::getPosition()
 
 bool do_debug_joint(const std::string& name)
 {
-    if (std::ranges::find(LLJoint::s_debugJointNames, name) != LLJoint::s_debugJointNames.end())
-    {
-        return true;
-    }
-    return false;
+    return std::ranges::find(LLJoint::s_debugJointNames, name) != LLJoint::s_debugJointNames.end();
 }
 
 //--------------------------------------------------------------------
@@ -991,7 +987,7 @@ void LLJoint::updateWorldMatrix()
 //--------------------------------------------------------------------
 // getSkinOffset()
 //--------------------------------------------------------------------
-const LLVector3 &LLJoint::getSkinOffset()
+const LLVector3 &LLJoint::getSkinOffset() const
 {
     return mSkinOffset;
 }

@@ -18,6 +18,7 @@
 #include <functional>
 #include <map>
 #include <set>
+#include <utility>
 // std headers
 // external library headers
 // other Linden headers
@@ -54,12 +55,12 @@
     return features;
 }
 
-LLLeapListener::LLLeapListener(const ConnectFunc& connect):
+LLLeapListener::LLLeapListener(ConnectFunc  connect):
     // Each LEAP plugin has an instance of this listener. Make the command
     // pump name difficult for other such plugins to guess.
     LLEventAPI(LLUUID::generateNewID().asString(),
                "Operations relating to the LLSD Event API Plugin (LEAP) protocol"),
-    mConnect(connect)
+    mConnect(std::move(connect))
 {
     LLSD need_name(LLSDMap("name", LLSD()));
     add("newpump",
@@ -98,7 +99,7 @@ LLLeapListener::LLLeapListener(const ConnectFunc& connect):
         LLSD().with("api", LLSD()));
     add("getFeatures",
         "Return an LLSD map of feature strings (deltas from baseline LEAP protocol)",
-        static_cast<void (LLLeapListener::*)(const LLSD&) const>(&LLLeapListener::getFeatures));
+        (&LLLeapListener::getFeatures));
     add("getFeature",
         "Return the feature value with key [\"feature\"]",
         &LLLeapListener::getFeature,

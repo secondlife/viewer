@@ -150,7 +150,7 @@ void LLTexUnit::refreshState()
     }
 }
 
-void LLTexUnit::activate()
+void LLTexUnit::activate() const
 {
     if (mIndex < 0) return;
 
@@ -489,7 +489,7 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
     setTextureFilteringOptionFast(option, mCurrTexType);
 }
 
-void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option, eTextureType tex_type)
+void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option, eTextureType tex_type) const
 {
     if (option == eTextureFilterOptions::TFO_POINT)
     {
@@ -539,7 +539,7 @@ void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions o
 
 // Useful for debugging that you've manually assigned a texture operation to the correct
 // texture unit based on the currently set active texture in opengl.
-void LLTexUnit::debugTextureUnit()
+void LLTexUnit::debugTextureUnit() const
 {
     if (mIndex < 0) return;
 
@@ -834,9 +834,9 @@ void LLRender::refreshState()
 
     U32 active_unit = mCurrTextureUnitIndex;
 
-    for (U32 i = 0; i < mTexUnits.size(); i++)
+    for (auto & mTexUnit : mTexUnits)
     {
-        mTexUnits[i].refreshState();
+        mTexUnit.refreshState();
     }
 
     mTexUnits[active_unit].activate();
@@ -1404,7 +1404,7 @@ void LLRender::setAmbientLightColor(const LLColor4& color)
     }
 }
 
-bool LLRender::verifyTexUnitActive(U32 unitToVerify)
+bool LLRender::verifyTexUnitActive(U32 unitToVerify) const
 {
     if (mCurrTextureUnitIndex == unitToVerify)
     {
@@ -2046,11 +2046,11 @@ glm::vec3 mul_mat4_vec3(const glm::mat4& mat, const glm::vec3& vec)
 {
 #if 1 // SIMD path results in strange crashes. Fall back to scalar for now.
     const float w = vec[0] * mat[0][3] + vec[1] * mat[1][3] + vec[2] * mat[2][3] + mat[3][3];
-    return glm::vec3(
+    return {
        (vec[0] * mat[0][0] + vec[1] * mat[1][0] + vec[2] * mat[2][0] + mat[3][0]) / w,
        (vec[0] * mat[0][1] + vec[1] * mat[1][1] + vec[2] * mat[2][1] + mat[3][1]) / w,
        (vec[0] * mat[0][2] + vec[1] * mat[1][2] + vec[2] * mat[2][2] + mat[3][2]) / w
-    );
+    };
 #else
     LLVector4a x, y, z, s, t, p, q;
 

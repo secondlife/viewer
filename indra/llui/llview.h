@@ -539,7 +539,7 @@ protected:
     void            drawDebugRect();
     void            drawChild(LLView* childp, S32 x_offset = 0, S32 y_offset = 0, bool force_draw = false);
     void            drawChildren();
-    bool            visibleAndContains(S32 local_x, S32 local_Y);
+    bool            visibleAndContains(S32 local_x, S32 local_Y) const;
     bool            visibleEnabledAndContains(S32 local_x, S32 local_y);
     void            logMouseEvent();
 

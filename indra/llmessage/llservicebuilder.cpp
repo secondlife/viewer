@@ -34,7 +34,7 @@
 void LLServiceBuilder::loadServiceDefinitionsFromFile(
     const std::string& service_filename)
 {
-    llifstream service_file(service_filename.c_str(), std::ios::binary);
+    llifstream service_file(service_filename, std::ios::binary);
     if(service_file.is_open())
     {
         LLSD service_data;
@@ -191,7 +191,7 @@ std::string russ_format(const std::string& format_str, const LLSD& context)
             // params and straight string substitution, so it's a
             // known distance of 2 to skip the directive.
             std::string key(deepest_node + 2, deepest_node_end);
-            LLSD value = context[key];
+            const LLSD& value = context[key];
             switch(*(deepest_node + 1))
             {
             case '$':

@@ -50,7 +50,7 @@ public:
         CRASHED = -1    // An uncaught exception was thrown by the thread
     };
     using id_t = std::thread::id;
-    LLThread(const std::string& name, apr_pool_t *poolp = NULL);
+    LLThread(std::string  name, apr_pool_t *poolp = NULL);
     virtual ~LLThread(); // Warning!  You almost NEVER want to destroy a thread unless it's in the STOPPED state.
     virtual void shutdown(); // stops the thread
 

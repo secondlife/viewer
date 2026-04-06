@@ -524,11 +524,11 @@ bool LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         if (isLOD())
                         {
                                 // store largest index in case of LODs
-                                for (S32 j = 0; j < 3; j++)
+                                for (short j : face)
                                 {
-                                        if (face[j] > mNumVertices - 1)
+                                        if (j > mNumVertices - 1)
                                         {
-                                                mNumVertices = face[j] + 1;
+                                                mNumVertices = j + 1;
                                         }
                                 }
                         }

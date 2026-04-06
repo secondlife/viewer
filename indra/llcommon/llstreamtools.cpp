@@ -105,10 +105,10 @@ bool skip_to_next_word(std::istream& input_stream)
         c = input_stream.peek();
     }
     while ( input_stream.good()
-            && !(   (c >= 'a' && c <= 'z')
-                 || (c >= 'A' && c <= 'Z')
-                 || (c >= '0' && c <= '9')
-                 || '_' == c ) )
+            &&   (c < 'a' || c > 'z')
+                 && (c < 'A' || c > 'Z')
+                 && (c < '0' || c > '9')
+                 && '_' != c )
     {
         input_stream.get();
         c = input_stream.peek();
@@ -443,7 +443,7 @@ void get_keyword_and_value(std::string& keyword,
 
     // get the value
     value.clear();
-    if (keyword.size() > 0
+    if (!keyword.empty()
         && '\r' != line[line_index]
         && '\n' != line[line_index])
 

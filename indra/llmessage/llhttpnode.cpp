@@ -51,12 +51,12 @@ public:
     using ChildMap = std::map<std::string, LLHTTPNode*>;
 
     ChildMap mNamedChildren;
-    LLHTTPNode* mWildcardChild;
+    LLHTTPNode* mWildcardChild{NULL};
     std::string mWildcardName;
     std::string mWildcardKey;
-    LLHTTPNode* mParentNode;
+    LLHTTPNode* mParentNode{NULL};
 
-    Impl() : mWildcardChild(NULL), mParentNode(NULL) { }
+    Impl()  { }
 
     LLHTTPNode* findNamedChild(const std::string& name) const;
 };

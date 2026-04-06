@@ -1487,10 +1487,10 @@ S32 LLSDNotationFormatter::format_impl(const LLSD& data, std::ostream& ostr,
                 ostr << std::uppercase;
                 auto oldfill(ostr.fill('0'));
                 auto oldwidth(ostr.width());
-                for (size_t i = 0; i < buffer.size(); i++)
+                for (unsigned char i : buffer)
                 {
                     // have to restate setw() before every conversion
-                    ostr << std::setw(2) << (int) buffer[i];
+                    ostr << std::setw(2) << (int) i;
                 }
                 ostr.width(oldwidth);
                 ostr.fill(oldfill);
@@ -1624,7 +1624,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
         const std::vector<U8>& buffer = data.asBinary();
         U32 size_nbo = htonl(static_cast<u_long>(buffer.size()));
         ostr.write((const char*)(&size_nbo), sizeof(U32));
-        if(buffer.size()) ostr.write((const char*)&buffer[0], buffer.size());
+        if(!buffer.empty()) ostr.write((const char*)&buffer[0], buffer.size());
         break;
     }
 
@@ -1807,7 +1807,7 @@ llssize deserialize_string_raw(
         }
         c = istr.get();
         ++count;
-        if(!((c == '"') || (c == '\'')))
+        if((c != '"') && (c != '\''))
         {
             return LLSDParser::PARSE_FAILURE;
         }
@@ -2156,7 +2156,7 @@ std::string zip_llsd(LLSD& data)
     if (ret != Z_OK)
     {
         LL_WARNS() << "Failed to compress LLSD block." << LL_ENDL;
-        return std::string();
+        return {};
     }
 
     std::string source = std::move(llsd_strm).str();
@@ -2185,7 +2185,7 @@ std::string zip_llsd(LLSD& data)
                 if(output)
                     free(output);
                 LL_WARNS() << "Failed to compress LLSD block." << LL_ENDL;
-                return std::string();
+                return {};
             }
 
             have = CHUNK-strm.avail_out;
@@ -2198,7 +2198,7 @@ std::string zip_llsd(LLSD& data)
                 {
                     free(output);
                 }
-                return std::string();
+                return {};
             }
             output = new_output;
             memcpy(output+cur_size, out, have);
@@ -2210,7 +2210,7 @@ std::string zip_llsd(LLSD& data)
             if(output)
                 free(output);
             LL_WARNS() << "Failed to compress LLSD block." << LL_ENDL;
-            return std::string();
+            return {};
         }
     }
     while (ret == Z_OK);

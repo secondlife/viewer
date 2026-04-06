@@ -122,17 +122,15 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
         mOverlapThreshold = 0;
     }
 
-    for (LLInitParam::ParamIterator<SliderParams>::const_iterator it = p.sliders.begin();
-        it != p.sliders.end();
-        ++it)
+    for (const auto & slider : p.sliders)
     {
-        if (it->name.isProvided())
+        if (slider.name.isProvided())
         {
-            addSlider(it->value, it->name);
+            addSlider(slider.value, slider.name);
         }
         else
         {
-            addSlider(it->value);
+            addSlider(slider.value);
         }
     }
 
@@ -317,7 +315,7 @@ LLRect LLMultiSlider::getSliderThumbRect(const std::string& name) const
     auto it = mThumbRects.find(name);
     if (it != mThumbRects.end())
         return (*it).second;
-    return LLRect();
+    return {};
 }
 
 void LLMultiSlider::setSliderThumbImage(const std::string &name)
@@ -486,11 +484,11 @@ void LLMultiSlider::deleteSlider(const std::string& name)
 
 void LLMultiSlider::clear()
 {
-    while(mThumbRects.size() > 0 && mValue.size() > 0) {
+    while(!mThumbRects.empty() && mValue.size() > 0) {
         deleteCurSlider();
     }
 
-    if (mThumbRects.size() > 0 || mValue.size() > 0)
+    if (!mThumbRects.empty() || mValue.size() > 0)
     {
         LL_WARNS() << "Failed to fully clear Multi slider" << LL_ENDL;
     }

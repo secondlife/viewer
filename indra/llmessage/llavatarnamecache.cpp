@@ -223,7 +223,7 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
 void LLAvatarNameCache::handleAvNameCacheSuccess(const LLSD &data, const LLSD &httpResult)
 {
 
-    LLSD headers = httpResult["headers"];
+    const LLSD& headers = httpResult["headers"];
     // Pull expiration out of headers if available
     F64 expires = LLAvatarNameCache::nameExpirationFromHeaders(headers);
     F64 now = LLFrameTimer::getTotalSeconds();

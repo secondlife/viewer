@@ -39,6 +39,8 @@
 // For some reason, this won't work if it's not wrapped in the ifdef
 #ifdef FT_FREETYPE_H
 #include FT_FREETYPE_H
+
+#include <utility>
 #endif
 
 #include "lldir.h"
@@ -446,9 +448,9 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type
         // fonts: make a last try, using the emoji font(s), but ignoring the
         // functor to render using whatever (colorful) glyph that might be
         // available in such fonts for this character. HB
-        for (size_t j = 0, count2 = emoji_fonts_idx.size(); j < count2; ++j)
+        for (unsigned long long j : emoji_fonts_idx)
         {
-            const fallback_font_t& pair = mFallbackFonts[emoji_fonts_idx[j]];
+            const fallback_font_t& pair = mFallbackFonts[j];
             glyph_index = FT_Get_Char_Index(pair.first->mFTFace, wch);
             if (glyph_index)
             {
@@ -685,9 +687,9 @@ void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
         }
         else
         {
-            for (fallback_font_vector_t::iterator it = mFallbackFonts.begin(); it != mFallbackFonts.end(); ++it)
+            for (auto & mFallbackFont : mFallbackFonts)
             {
-                it->first->reset(vert_dpi, horz_dpi);
+                mFallbackFont.first->reset(vert_dpi, horz_dpi);
             }
         }
     }
@@ -695,11 +697,9 @@ void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 
 void LLFontFreetype::resetBitmapCache()
 {
-    for (char_glyph_info_map_t::iterator it = mCharGlyphInfoMap.begin(), end_it = mCharGlyphInfoMap.end();
-        it != end_it;
-        ++it)
+    for (auto & it : mCharGlyphInfoMap)
     {
-        delete it->second;
+        delete it.second;
     }
     mCharGlyphInfoMap.clear();
     mFontBitmapCachep->reset();
@@ -851,8 +851,8 @@ namespace ll
         class LoadedFont
         {
             public:
-            LoadedFont( std::string aName , std::string const &aAddress, std::size_t aSize )
-            : mAddress( aAddress )
+            LoadedFont( std::string aName , std::string aAddress, std::size_t aSize )
+            : mAddress(std::move( aAddress ))
             {
                 mName = aName;
                 mSize = aSize;

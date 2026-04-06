@@ -123,7 +123,7 @@ LLKeyData& LLKeyData::operator=(const LLKeyData& rhs)
     return *this;
 }
 
-bool LLKeyData::operator==(const LLKeyData& rhs)
+bool LLKeyData::operator==(const LLKeyData& rhs) const
 {
     if (mMouse != rhs.mMouse) return false;
     if (mKey != rhs.mKey) return false;
@@ -132,7 +132,7 @@ bool LLKeyData::operator==(const LLKeyData& rhs)
     return true;
 }
 
-bool LLKeyData::operator!=(const LLKeyData& rhs)
+bool LLKeyData::operator!=(const LLKeyData& rhs) const
 {
     if (mMouse != rhs.mMouse) return true;
     if (mKey != rhs.mKey) return true;
@@ -143,24 +143,16 @@ bool LLKeyData::operator!=(const LLKeyData& rhs)
 
 bool LLKeyData::canHandle(const LLKeyData& data) const
 {
-    if (data.mKey == mKey
+    return data.mKey == mKey
         && data.mMouse == mMouse
-        && ((mIgnoreMasks && (data.mMask & mMask) == mMask) || data.mMask == mMask))
-    {
-        return true;
-    }
-    return false;
+        && ((mIgnoreMasks && (data.mMask & mMask) == mMask) || data.mMask == mMask);
 }
 
 bool LLKeyData::canHandle(EMouseClickType mouse, KEY key, MASK mask) const
 {
-    if (mouse == mMouse
+    return mouse == mMouse
         && key == mKey
-        && ((mIgnoreMasks && (mask & mMask) == mMask) || mask == mMask))
-    {
-        return true;
-    }
-    return false;
+        && ((mIgnoreMasks && (mask & mMask) == mMask) || mask == mMask);
 }
 
 // LLKeyBind
@@ -174,7 +166,7 @@ LLKeyBind::LLKeyBind(const LLSD &key_bind)
             data++
             )
         {
-            mData.push_back(LLKeyData(*data));
+            mData.emplace_back(*data);
         }
     }
 }
@@ -319,14 +311,14 @@ LLKeyData LLKeyBind::getKeyData(U32 index) const
     {
         return mData[index];
     }
-    return LLKeyData();
+    return {};
 }
 
 bool LLKeyBind::addKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore)
 {
     if (!hasKeyData(mouse, key, mask, ignore))
     {
-        mData.push_back(LLKeyData(mouse, key, mask, ignore));
+        mData.emplace_back(mouse, key, mask, ignore);
         return true;
     }
     return false;

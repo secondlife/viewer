@@ -61,7 +61,7 @@ public:
 
     bool parseXml(LLXmlTreeNode* node);
     bool createVisualParams(LLAvatarAppearance *appearance);
-    bool isUserSettable() { return mLocalTexture != -1; }
+    bool isUserSettable() const { return mLocalTexture != -1; }
     S32  getLocalTexture() const { return mLocalTexture; }
     bool getOnlyAlpha() const { return mUseLocalTextureAlphaOnly; }
     std::string getName() const { return mName; }
@@ -69,17 +69,17 @@ public:
 private:
     std::string             mName;
 
-    bool                    mWriteAllChannels; // Don't use masking.  Just write RGBA into buffer,
-    LLTexLayerInterface::ERenderPass mRenderPass;
+    bool                    mWriteAllChannels{ false }; // Don't use masking.  Just write RGBA into buffer,
+    LLTexLayerInterface::ERenderPass mRenderPass{LLTexLayerInterface::ERenderPass::RP_COLOR};
 
     std::string             mGlobalColor;
     LLColor4                mFixedColor;
 
-    S32                     mLocalTexture;
+    S32                     mLocalTexture{ -1 };
     std::string             mStaticImageFileName;
-    bool                    mStaticImageIsMask;
-    bool                    mUseLocalTextureAlphaOnly; // Ignore RGB channels from the input texture.  Use alpha as a mask
-    bool                    mIsVisibilityMask;
+    bool                    mStaticImageIsMask{ false };
+    bool                    mUseLocalTextureAlphaOnly{false}; // Ignore RGB channels from the input texture.  Use alpha as a mask
+    bool                    mIsVisibilityMask{false};
 
     using morph_name_list_t = std::vector< std::pair< std::string,bool > >;
     morph_name_list_t           mMorphNameList;
@@ -357,7 +357,7 @@ bool LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height, LLRenderTarget*
     bool success = true;
     mIsVisible = true;
 
-    if (mMaskLayerList.size() > 0)
+    if (!mMaskLayerList.empty())
     {
         for (const LLTexLayerInterface* layer : mMaskLayerList)
         {
@@ -492,7 +492,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
         }
         gGL.flush();
     }
-    else if (forceClear || info->mClearAlpha || (mMaskLayerList.size() > 0))
+    else if (forceClear || info->mClearAlpha || (!mMaskLayerList.empty()))
     {
         // Set the alpha channel to one (clean up after previous blending)
         gGL.flush();
@@ -508,7 +508,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 
     // (Optional) Mask out part of the baked texture with alpha masks
     // will still have an effect even if mClearAlpha is set or the alpha component was replaced
-    if (mMaskLayerList.size() > 0)
+    if (!mMaskLayerList.empty())
     {
         gGL.setSceneBlendType(LLRender::BT_MULT_ALPHA);
         for (LLTexLayerInterface* layer : mMaskLayerList)
@@ -559,13 +559,9 @@ void LLTexLayerSet::invalidateMorphMasks()
 // LLTexLayerInfo
 //-----------------------------------------------------------------------------
 LLTexLayerInfo::LLTexLayerInfo() :
-    mWriteAllChannels( false ),
-    mRenderPass(LLTexLayerInterface::ERenderPass::RP_COLOR),
-    mFixedColor( 0.f, 0.f, 0.f, 0.f ),
-    mLocalTexture( -1 ),
-    mStaticImageIsMask( false ),
-    mUseLocalTextureAlphaOnly(false),
-    mIsVisibilityMask(false)
+    
+    mFixedColor( 0.f, 0.f, 0.f, 0.f )
+    
 {
 }
 
@@ -676,7 +672,7 @@ bool LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
             bool invert = false;
             static LLStdStringHandle invert_string = LLXmlTree::addAttributeString("invert");
             maskNode->getFastAttributeBOOL(invert_string, invert);
-            mMorphNameList.push_back(std::pair<std::string,bool>(morph_name,invert));
+            mMorphNameList.emplace_back(morph_name,invert);
         }
     }
 
@@ -742,9 +738,9 @@ bool LLTexLayerInfo::createVisualParams(LLAvatarAppearance *appearance)
 
 LLTexLayerInterface::LLTexLayerInterface(LLTexLayerSet* const layer_set):
     mTexLayerSet( layer_set ),
-    mMorphMasksValid( false ),
-    mInfo(NULL),
-    mHasMorph(false)
+    
+    mInfo(NULL)
+    
 {
 }
 
@@ -1913,7 +1909,7 @@ LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name,
             tex->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 
             mStaticImageList [ namekey ] = tex;
-            mGLBytes += (S32)tex->getWidth() * tex->getHeight() * tex->getComponents();
+            mGLBytes += tex->getWidth() * tex->getHeight() * tex->getComponents();
         }
         else
         {

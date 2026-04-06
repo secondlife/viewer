@@ -98,7 +98,7 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
     mInventoryPanel->setShape(inventory_placeholder_rect);
 
     // Set the sort order newest to oldest
-    mInventoryPanel->getFolderViewModel()->setSorter(LLInventoryFilter::SO_DATE);
+    mInventoryPanel->getFolderViewModel()->setSorter(LLInventorySort(LLInventoryFilter::SO_DATE));
     mInventoryPanel->getFilter().markDefault();
     mInventoryPanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 

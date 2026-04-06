@@ -129,10 +129,8 @@ bool LLRadioGroup::postBuild()
 void LLRadioGroup::setIndexEnabled(S32 index, bool enabled)
 {
     S32 count = 0;
-    for (button_list_t::iterator iter = mRadioButtons.begin();
-         iter != mRadioButtons.end(); ++iter)
+    for (auto child : mRadioButtons)
     {
-        LLRadioCtrl* child = *iter;
         if (count == index)
         {
             child->setEnabled(enabled);
@@ -150,10 +148,8 @@ void LLRadioGroup::setIndexEnabled(S32 index, bool enabled)
         // Set to highest enabled value < index,
         // or lowest value above index if none lower are enabled
         // or 0 if none are enabled
-        for (button_list_t::iterator iter = mRadioButtons.begin();
-             iter != mRadioButtons.end(); ++iter)
+        for (auto child : mRadioButtons)
         {
-            const LLRadioCtrl* child = *iter;
             if (count >= index && mSelectedIndex >= 0)
             {
                 break;
@@ -308,10 +304,8 @@ void LLRadioGroup::onClickButton(LLUICtrl* ctrl)
     if (!clicked_radio)
         return;
     S32 index = 0;
-    for (button_list_t::iterator iter = mRadioButtons.begin();
-         iter != mRadioButtons.end(); ++iter)
+    for (auto radio : mRadioButtons)
     {
-        const LLRadioCtrl* radio = *iter;
         if (radio == clicked_radio)
         {
             if (index == mSelectedIndex && mAllowDeselect)
@@ -339,10 +333,8 @@ void LLRadioGroup::onClickButton(LLUICtrl* ctrl)
 void LLRadioGroup::setValue( const LLSD& value )
 {
     int idx = 0;
-    for (button_list_t::const_iterator iter = mRadioButtons.begin();
-         iter != mRadioButtons.end(); ++iter)
+    for (auto radio : mRadioButtons)
     {
-        LLRadioCtrl* radio = *iter;
         if (radio->getPayload().asString() == value.asString())
         {
             setSelectedIndex(idx);
@@ -369,13 +361,12 @@ LLSD LLRadioGroup::getValue() const
 {
     int index = getSelectedIndex();
     int idx = 0;
-    for (button_list_t::const_iterator iter = mRadioButtons.begin();
-         iter != mRadioButtons.end(); ++iter)
+    for (auto mRadioButton : mRadioButtons)
     {
-        if (idx == index) return LLSD((*iter)->getPayload());
+        if (idx == index) return LLSD(mRadioButton->getPayload());
         ++idx;
     }
-    return LLSD();
+    return {};
 }
 
 // LLCtrlSelectionInterface functions
@@ -392,10 +383,9 @@ LLUUID  LLRadioGroup::getCurrentID() const
 bool    LLRadioGroup::setSelectedByValue(const LLSD& value, bool selected)
 {
     S32 idx = 0;
-    for (button_list_t::const_iterator iter = mRadioButtons.begin();
-         iter != mRadioButtons.end(); ++iter)
+    for (auto mRadioButton : mRadioButtons)
     {
-        if((*iter)->getPayload().asString() == value.asString())
+        if(mRadioButton->getPayload().asString() == value.asString())
         {
             setSelectedIndex(idx);
             return true;
@@ -414,10 +404,9 @@ LLSD    LLRadioGroup::getSelectedValue()
 bool    LLRadioGroup::isSelected(const LLSD& value) const
 {
     S32 idx = 0;
-    for (button_list_t::const_iterator iter = mRadioButtons.begin();
-         iter != mRadioButtons.end(); ++iter)
+    for (auto mRadioButton : mRadioButtons)
     {
-        if((*iter)->getPayload().asString() == value.asString())
+        if(mRadioButton->getPayload().asString() == value.asString())
         {
             if (idx == mSelectedIndex)
             {

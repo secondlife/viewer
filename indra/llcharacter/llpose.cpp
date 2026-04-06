@@ -525,10 +525,8 @@ void LLPoseBlender::blendAndApply()
 //-----------------------------------------------------------------------------
 void LLPoseBlender::blendAndCache(bool reset_cached_joints)
 {
-    for (blender_list_t::iterator iter = mActiveBlenders.begin();
-         iter != mActiveBlenders.end(); ++iter)
+    for (auto jsbp : mActiveBlenders)
     {
-        LLJointStateBlender* jsbp = *iter;
         if (reset_cached_joints)
         {
             jsbp->resetCachedJoint();
@@ -542,10 +540,8 @@ void LLPoseBlender::blendAndCache(bool reset_cached_joints)
 //-----------------------------------------------------------------------------
 void LLPoseBlender::interpolate(F32 u)
 {
-    for (blender_list_t::iterator iter = mActiveBlenders.begin();
-         iter != mActiveBlenders.end(); ++iter)
+    for (auto jsbp : mActiveBlenders)
     {
-        LLJointStateBlender* jsbp = *iter;
         jsbp->interpolate(u);
     }
 }
@@ -555,10 +551,8 @@ void LLPoseBlender::interpolate(F32 u)
 //-----------------------------------------------------------------------------
 void LLPoseBlender::clearBlenders()
 {
-    for (blender_list_t::iterator iter = mActiveBlenders.begin();
-         iter != mActiveBlenders.end(); ++iter)
+    for (auto jsbp : mActiveBlenders)
     {
-        LLJointStateBlender* jsbp = *iter;
         jsbp->clear();
     }
 

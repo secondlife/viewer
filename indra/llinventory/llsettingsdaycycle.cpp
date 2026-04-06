@@ -132,7 +132,7 @@ LLSettingsDay::LLSettingsDay(const LLSD &data) :
 }
 
 LLSettingsDay::LLSettingsDay() :
-    LLSettingsBase(),
+    
     mInitialized(false),
     mDaySettings(LLSD::emptyMap())
 {
@@ -161,11 +161,11 @@ LLSD& LLSettingsDay::getSettings()
 
     LLSD tracks(LLSD::emptyArray());
 
-    for (CycleList_t::const_iterator itTrack = mDayTracks.begin(); itTrack != mDayTracks.end(); ++itTrack)
+    for (const auto & mDayTrack : mDayTracks)
     {
         LLSD trackout(LLSD::emptyArray());
 
-        for (const auto& [frame, data] : *itTrack)
+        for (const auto& [frame, data] : mDayTrack)
         {
             size_t datahash = data->getHash();
 
@@ -283,7 +283,7 @@ bool LLSettingsDay::initialize(bool validate_frames)
                 else
                     hassky |= true;
 
-                if (validate_frames && mDayTracks[i].size() > 0)
+                if (validate_frames && !mDayTracks[i].empty())
                 {
                     // check if we hit close to anything in the list
                     LLSettingsDay::CycleTrack_t::value_type frame = getSettingsNearKeyframe(keyframe, i, DEFAULT_FRAME_SLOP_FACTOR);
@@ -609,10 +609,10 @@ LLSettingsDay::validation_list_t LLSettingsDay::validationList()
 
     if (validation.empty())
     {
-        validation.push_back(Validator(SETTING_TRACKS, true, LLSD::TypeArray,
-            &validateDayCycleTrack));
-        validation.push_back(Validator(SETTING_FRAMES, true, LLSD::TypeMap,
-            &validateDayCycleFrames));
+        validation.emplace_back(SETTING_TRACKS, true, LLSD::TypeArray,
+            &validateDayCycleTrack);
+        validation.emplace_back(SETTING_FRAMES, true, LLSD::TypeMap,
+            &validateDayCycleFrames);
     }
 
     return validation;
@@ -689,7 +689,7 @@ bool LLSettingsDay::isTrackEmpty(S32 track) const
 }
 
 //=========================================================================
-void LLSettingsDay::startDayCycle()
+void LLSettingsDay::startDayCycle() const
 {
     if (!mInitialized)
     {
@@ -709,7 +709,7 @@ LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
     if ((trackno < 0) || (trackno >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt get track (#" << trackno << ") out of range!" << LL_ENDL;
-        return KeyframeList_t();
+        return {};
     }
 
     KeyframeList_t keyframes;
@@ -717,9 +717,9 @@ LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
 
     keyframes.reserve(track.size());
 
-    for (CycleTrack_t::const_iterator it = track.begin(); it != track.end(); ++it)
+    for (const auto & it : track)
     {
-        keyframes.push_back((*it).first);
+        keyframes.push_back(it.first);
     }
 
     return keyframes;
@@ -800,7 +800,7 @@ LLSettingsSky::ptr_t LLSettingsDay::getSkyAtKeyframe(const LLSettingsBase::Track
     if ((track < 1) || (track >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt to set sky track (#" << track << ") out of range!" << LL_ENDL;
-        return LLSettingsSky::ptr_t();
+        return {};
     }
 
     return PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(getSettingsAtKeyframe(keyframe, track));
@@ -837,7 +837,7 @@ LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(const LLSettingsBase:
     if ((track < 0) || (track >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt to set sky track (#" << track << ") out of range!" << LL_ENDL;
-        return LLSettingsBase::ptr_t();
+        return {};
     }
 
     // todo: better way to identify keyframes?
@@ -847,7 +847,7 @@ LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(const LLSettingsBase:
         return iter->second;
     }
 
-    return LLSettingsBase::ptr_t();
+    return {};
 }
 
 LLSettingsDay::CycleTrack_t::value_type LLSettingsDay::getSettingsNearKeyframe(const LLSettingsBase::TrackPosition &keyframe, S32 track, F32 fudge) const

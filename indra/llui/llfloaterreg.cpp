@@ -28,6 +28,8 @@
 
 #include "llfloaterreg.h"
 
+#include <ranges>
+
 //#include "llagent.h"
 #include "llfloater.h"
 #include "llmultifloater.h"
@@ -75,10 +77,8 @@ LLFloater* LLFloaterReg::getLastFloaterInGroup(std::string_view name)
             instance_list_t& list = sInstanceMap[groupname];
             if (!list.empty())
             {
-                for (instance_list_t::reverse_iterator iter = list.rbegin(), end = list.rend(); iter != end; ++iter)
+                for (auto inst : std::views::reverse(list))
                 {
-                    LLFloater* inst = *iter;
-
                     if (inst->getVisible() && !inst->isMinimized())
                     {
                         return inst;

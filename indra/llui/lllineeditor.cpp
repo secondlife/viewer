@@ -173,7 +173,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
     mHighlightColor(p.highlight_color()),
     mPreeditBgColor(p.preedit_bg_color()),
     mGLFont(p.font),
-    mContextMenuHandle(),
+    
     mShowContextMenu(true)
 {
     llassert( mMaxLengthBytes > 0 );
@@ -346,7 +346,7 @@ void LLLineEditor::updateHistory()
         }
 
         // Restore the blank line and set mCurrentHistoryLine to point at it
-        mLineHistory.push_back( "" );
+        mLineHistory.emplace_back("" );
         mCurrentHistoryLine = mLineHistory.end() - 1;
     }
 }
@@ -378,7 +378,7 @@ void LLLineEditor::setMaxTextChars(S32 max_text_chars)
     mMaxLengthChars = max_chars;
 }
 
-void LLLineEditor::getTextPadding(S32 *left, S32 *right)
+void LLLineEditor::getTextPadding(S32 *left, S32 *right) const
 {
     *left = mTextPadLeft;
     *right = mTextPadRight;
@@ -451,7 +451,7 @@ void LLLineEditor::setText(const LLStringExplicit &new_text, bool use_size_limit
         // try to preserve insertion point, but deselect text
         deselect();
     }
-    setCursor(llmin((S32)mText.length(), getCursor()));
+    setCursor(llmin(mText.length(), getCursor()));
 
     // Set current history line to end of history.
     if (mLineHistory.empty())
@@ -892,7 +892,7 @@ bool LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
                 mScrollHPos = llclamp(mScrollHPos - increment, 0, mText.length());
             }
             else
-            if( (x > mTextRightEdge) && (mCursorPos < (S32)mText.length()) )
+            if( (x > mTextRightEdge) && (mCursorPos < mText.length()) )
             {
                 // If scrolling one pixel would make a difference...
                 S32 pixels_after_scrolling_one_char = findPixelNearestPos(1);
@@ -1729,7 +1729,7 @@ bool LLLineEditor::canDoDelete() const
 
 void LLLineEditor::doDelete()
 {
-    if (canDoDelete() && mText.length() > 0)
+    if (canDoDelete() && !mText.empty())
     {
         // Prepare for possible rollback
         LLLineEditorRollback rollback( this );
@@ -2041,7 +2041,7 @@ void LLLineEditor::draw()
                 std::string word = wstring_to_utf8str(text.substr(word_start, word_end - word_start));
                 if ( (word.length() >= 3) && (!LLSpellChecker::instance().checkSpelling(word)) )
                 {
-                    mMisspellRanges.push_back(std::pair<U32, U32>(start + word_start, start + word_end));
+                    mMisspellRanges.emplace_back(start + word_start, start + word_end);
                 }
 
                 // Find the start of the next word
@@ -2146,11 +2146,11 @@ void LLLineEditor::draw()
         //draw label if no text is provided
         //but we should draw it in a different color
         //to give indication that it is not text you typed in
-        if (0 == mText.length() && (mReadOnly || mShowLabelFocused))
+        if (mText.empty() && (mReadOnly || mShowLabelFocused))
         {
             mFontBufferLabel.render(mGLFont,
                             mLabel.getWString(), 0,
-                            (F32)mTextLeftEdge, (F32)text_bottom,
+                            (F32)mTextLeftEdge, text_bottom,
                             label_color,
                             LLFontGL::HAlign::LEFT,
                             LLFontGL::VAlign::BOTTOM,
@@ -2172,11 +2172,11 @@ void LLLineEditor::draw()
     else // does not have keyboard input
     {
         // draw label if no text provided
-        if (0 == mText.length())
+        if (mText.empty())
         {
             mFontBufferLabel.render(mGLFont,
                             mLabel.getWString(), 0,
-                            (F32)mTextLeftEdge, (F32)text_bottom,
+                            (F32)mTextLeftEdge, text_bottom,
                             label_color,
                             LLFontGL::HAlign::LEFT,
                             LLFontGL::VAlign::BOTTOM,

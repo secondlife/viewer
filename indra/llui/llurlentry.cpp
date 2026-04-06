@@ -253,7 +253,7 @@ std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) cons
 
         return unescapeUrl(label);
     }
-    return std::string();
+    return {};
 }
 
 std::string LLUrlEntryBase::urlToGreyQuery(const std::string &url) const
@@ -291,7 +291,7 @@ static std::string getStringAfterToken(const std::string str, const std::string 
 // LLUrlEntryHTTP Describes generic http: and https: Urls
 //
 LLUrlEntryHTTP::LLUrlEntryHTTP()
-    : LLUrlEntryBase()
+     
 {
     mPattern = boost::regex("https?://([^\\s/?\\.#]+\\.?)+\\.\\w+(:\\d+)?(/\\S*)?",
                             boost::regex::perl|boost::regex::icase);
@@ -352,7 +352,7 @@ std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string) const
 }
 
 LLUrlEntryInvalidSLURL::LLUrlEntryInvalidSLURL()
-    : LLUrlEntryBase()
+     
 {
     mPattern = boost::regex("(https?://(maps.secondlife.com|slurl.com)/secondlife/|secondlife://(/app/(worldmap|teleport)/)?)[^ /]+(/-?[0-9]+){1,3}(/?(\\?title|\\?img|\\?msg)=\\S*)?/?",
                                     boost::regex::perl|boost::regex::icase);
@@ -1163,11 +1163,8 @@ void LLUrlEntryParcel::processParcelInfo(const LLParcelData& parcel_data)
                 parcel_data.sim_name.c_str(), region_x, region_y, region_z);
     }
 
-    for (std::set<LLUrlEntryParcel*>::iterator iter = sParcelInfoObservers.begin();
-            iter != sParcelInfoObservers.end();
-            ++iter)
+    for (auto url_entry : sParcelInfoObservers)
     {
-        LLUrlEntryParcel* url_entry = *iter;
         if (url_entry)
         {
             url_entry->onParcelInfoReceived(parcel_data.parcel_id.asString(), label);
@@ -1186,7 +1183,7 @@ LLVector3d LLUrlEntryParcel::getParcelPos(const LLUUID& parcel_id)
     {
         return sParcelPos[parcel_id];
     }
-    return LLVector3d();
+    return {};
 }
 
 //
@@ -1540,7 +1537,7 @@ std::string LLUrlEntryIcon::getIcon(const std::string &url)
 // LLUrlEntryEmail Describes a generic mailto: Urls
 //
 LLUrlEntryEmail::LLUrlEntryEmail()
-    : LLUrlEntryBase()
+     
 {
     mPattern = boost::regex("(mailto:)?[\\w\\.\\-]+@[\\w\\.\\-]+\\.[a-z]{2,63}",
                             boost::regex::perl | boost::regex::icase);
@@ -1626,7 +1623,7 @@ void LLUrlEntryExperienceProfile::onExperienceDetails( const LLSD& experience_de
 // LLUrlEntryEmail Describes an IPv6 address
 //
 LLUrlEntryIPv6::LLUrlEntryIPv6()
-    : LLUrlEntryBase()
+     
 {
     mHostPath = "https?://\\[([a-f0-9:]+:+)+[a-f0-9]+]";
     mPattern = boost::regex(mHostPath + "(:\\d{1,5})?(/\\S*)?",
@@ -1668,8 +1665,8 @@ std::string LLUrlEntryIPv6::getUrl(const std::string &string) const
 // LLUrlEntryKeybinding Displays currently assigned key
 //
 LLUrlEntryKeybinding::LLUrlEntryKeybinding()
-    : LLUrlEntryBase()
-    , pHandler(NULL)
+    : 
+     pHandler(NULL)
 {
     mPattern = boost::regex(APP_HEADER_REGEX "/keybinding/\\w+(\\?mode=\\w+)?$",
                             boost::regex::perl | boost::regex::icase);
@@ -1716,7 +1713,7 @@ std::string LLUrlEntryKeybinding::getControlName(const std::string& url) const
     size_t pos_start = url.find(search);
     if (pos_start == std::string::npos)
     {
-        return std::string();
+        return {};
     }
     pos_start += search.size();
 
@@ -1734,7 +1731,7 @@ std::string LLUrlEntryKeybinding::getMode(const std::string& url) const
     size_t pos_start = url.find(search);
     if (pos_start == std::string::npos)
     {
-        return std::string();
+        return {};
     }
     pos_start += search.size();
     return url.substr(pos_start, url.size() - pos_start);
@@ -1766,17 +1763,15 @@ void LLUrlEntryKeybinding::initLocalizationFromFile(const std::string& filename)
         return;
     }
 
-    for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = contents.rows.begin();
-         row_it != contents.rows.end();
-         ++row_it)
+    for (const auto & row : contents.rows)
     {
-        std::string control = row_it->value.getValue().asString();
+        std::string control = row.value.getValue().asString();
         if (!control.empty() && control != "menu_separator")
         {
             mLocalizations[control] =
                 LLLocalizationData(
-                                   row_it->columns.begin()->value.getValue().asString(),
-                                   row_it->columns.begin()->tool_tip.getValue()
+                                   row.columns.begin()->value.getValue().asString(),
+                                   row.columns.begin()->tool_tip.getValue()
                 );
         }
     }

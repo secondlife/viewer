@@ -146,7 +146,7 @@ namespace LLInitParam
 
         if (param->mValidationFunc)
         {
-            mValidationList.push_back(std::make_pair(param->mParamHandle, param->mValidationFunc));
+            mValidationList.emplace_back(param->mParamHandle, param->mValidationFunc);
         }
     }
 
@@ -273,7 +273,7 @@ namespace LLInitParam
                     continue;
                 }
 
-                name_stack.push_back(std::make_pair(name, !duplicate));
+                name_stack.emplace_back(name, !duplicate);
                 const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
                 serialized |= serialize_func(*param, parser, name_stack, predicate_rule, diff_param);
                 name_stack.pop_back();
@@ -301,7 +301,7 @@ namespace LLInitParam
             ParamDescriptor::inspect_func_t inspect_func = ptr->mInspectFunc;
             if (inspect_func)
             {
-                name_stack.push_back(std::make_pair("", true));
+                name_stack.emplace_back("", true);
                 inspect_func(*param, parser, name_stack, ptr->mMinCount, ptr->mMaxCount);
                 name_stack.pop_back();
             }
@@ -325,7 +325,7 @@ namespace LLInitParam
                     }
                 }
 
-                name_stack.push_back(std::make_pair(name, !duplicate));
+                name_stack.emplace_back(name, !duplicate);
                 inspect_func(*param, parser, name_stack, descriptor->mMinCount, descriptor->mMaxCount);
                 name_stack.pop_back();
             }
@@ -424,11 +424,11 @@ namespace LLInitParam
     const std::string& BaseBlock::getParamName(const BlockDescriptor& block_data, const Param* paramp) const
     {
         param_handle_t handle = getHandleFromParam(paramp);
-        for (BlockDescriptor::param_map_t::const_iterator it = block_data.mNamedParams.begin(); it != block_data.mNamedParams.end(); ++it)
+        for (const auto & mNamedParam : block_data.mNamedParams)
         {
-            if (it->second->mParamHandle == handle)
+            if (mNamedParam.second->mParamHandle == handle)
             {
-                return it->first;
+                return mNamedParam.first;
             }
         }
 
@@ -443,7 +443,7 @@ namespace LLInitParam
         {
             if (ptr->mParamHandle == handle) return ptr;
         }
-        return ParamDescriptorPtr();
+        return {};
     }
 
     // take all provided params from other and apply to self

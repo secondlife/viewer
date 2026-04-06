@@ -104,7 +104,7 @@ void LLExperienceCache::initSingleton()
     mCacheFileName = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "experience_cache.xml");
 
     LL_INFOS("ExperienceCache") << "Loading " << mCacheFileName << LL_ENDL;
-    llifstream cache_stream(mCacheFileName.c_str());
+    llifstream cache_stream(mCacheFileName);
 
     if (cache_stream.is_open())
     {
@@ -121,7 +121,7 @@ void LLExperienceCache::cleanup()
 {
     LL_INFOS("ExperienceCache") << "Saving " << mCacheFileName << LL_ENDL;
 
-    llofstream cache_stream(mCacheFileName.c_str());
+    llofstream cache_stream(mCacheFileName);
     if (cache_stream.is_open())
     {
         cache_stream << (*this);
@@ -261,31 +261,31 @@ void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdap
 
     LLExperienceCache* self = LLExperienceCache::getInstance();
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD& httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
         F64 now = LLFrameTimer::getTotalSeconds();
 
-        LLSD headers = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+        const LLSD& headers = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
         // build dummy entries for the failed requests
-        for (RequestQueue_t::const_iterator it = requests.begin(); it != requests.end(); ++it)
+        for (auto request : requests)
         {
-            LLSD exp = self->get(*it);
+            LLSD exp = self->get(request);
             //leave the properties alone if we already have a cache entry for this xp
             if (exp.isUndefined())
             {
                 exp[PROPERTIES] = PROPERTY_INVALID;
             }
             exp[EXPIRES] = now + LLExperienceCacheImpl::getErrorRetryDeltaTime(status, headers);
-            exp[EXPERIENCE_ID] = *it;
+            exp[EXPERIENCE_ID] = request;
             exp["key_type"] = EXPERIENCE_ID;
-            exp["uuid"] = *it;
+            exp["uuid"] = request;
             exp["error"] = (LLSD::Integer)status.getType();
             exp[QUOTA] = DEFAULT_QUOTA;
 
-            self->processExperience(*it, exp);
+            self->processExperience(request, exp);
         }
         return;
     }
@@ -593,7 +593,7 @@ void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCorout
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, data);
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD& httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if ((!status) || (!result.has("experience")))
@@ -692,7 +692,7 @@ void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAda
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD& httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
@@ -916,7 +916,7 @@ F64 LLExperienceCacheImpl::getErrorRetryDeltaTime(S32 status, LLSD headers)
 {
 
     // Retry-After takes priority
-    LLSD retry_after = headers["retry-after"];
+    const LLSD& retry_after = headers["retry-after"];
     if (retry_after.isDefined())
     {
         // We only support the delta-seconds type
@@ -930,7 +930,7 @@ F64 LLExperienceCacheImpl::getErrorRetryDeltaTime(S32 status, LLSD headers)
 
     // If no Retry-After, look for Cache-Control max-age
     // Allow the header to override the default
-    LLSD cache_control_header = headers["cache-control"];
+    const LLSD& cache_control_header = headers["cache-control"];
     if (cache_control_header.isDefined())
     {
         S32 max_age = 0;

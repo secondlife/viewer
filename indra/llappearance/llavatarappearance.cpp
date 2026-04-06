@@ -40,6 +40,7 @@
 #include "lltexglobalcolor.h"
 #include "llwearabledata.h"
 #include <functional>
+#include <utility>
 #include "boost/tokenizer.hpp"
 #include "v4math.h"
 
@@ -68,7 +69,7 @@ class LLAvatarBoneInfo
     friend class LLAvatarAppearance;
     friend class LLAvatarSkeletonInfo;
 public:
-    LLAvatarBoneInfo() : mIsJoint(false) {}
+    LLAvatarBoneInfo()  {}
     ~LLAvatarBoneInfo()
     {
         std::ranges::for_each(mChildren, [](auto* p) { delete p; });
@@ -82,7 +83,7 @@ private:
     std::string mSupport;
     std::string mAliases;
     std::string mGroup;
-    bool mIsJoint;
+    bool mIsJoint{false};
     LLVector3 mPos;
     LLVector3 mEnd;
     LLVector3 mRot;
@@ -100,8 +101,7 @@ class LLAvatarSkeletonInfo
 {
     friend class LLAvatarAppearance;
 public:
-    LLAvatarSkeletonInfo() :
-        mNumBones(0), mNumCollisionVolumes(0) {}
+    LLAvatarSkeletonInfo()  {}
     ~LLAvatarSkeletonInfo()
     {
         std::ranges::for_each(mBoneInfoList, [](auto* p) { delete p; });
@@ -119,8 +119,8 @@ private:
         const glm::mat4& parent_mat);
 
 private:
-    S32 mNumBones;
-    S32 mNumCollisionVolumes;
+    S32 mNumBones{0};
+    S32 mNumCollisionVolumes{0};
     LLAvatarAppearance::joint_alias_map_t mJointAliasMap;
     bone_info_list_t mBoneInfoList;
 };
@@ -175,7 +175,7 @@ LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* LLAvatarAppearance::sAv
 
 
 LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
-    LLCharacter(),
+    
     mWearableData(wearable_data)
 {
     llassert_always(mWearableData);
@@ -271,12 +271,12 @@ LLAvatarAppearance::~LLAvatarAppearance()
     delete_and_clear(mTexHairColor);
     delete_and_clear(mTexEyeColor);
 
-    for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
+    for (auto & mBakedTextureData : mBakedTextureDatas)
     {
-        delete_and_clear(mBakedTextureDatas[i].mTexLayerSet);
-        mBakedTextureDatas[i].mJointMeshes.clear();
+        delete_and_clear(mBakedTextureData.mTexLayerSet);
+        mBakedTextureData.mJointMeshes.clear();
 
-        for (LLMaskedMorph* masked_morph : mBakedTextureDatas[i].mMaskedMorphs)
+        for (LLMaskedMorph* masked_morph : mBakedTextureData.mMaskedMorphs)
         {
             delete masked_morph;
         }
@@ -624,7 +624,7 @@ bool LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
     }
     else // collision volume
     {
-        if (volume_num >= (S32)mNumCollisionVolumes)
+        if (volume_num >= mNumCollisionVolumes)
         {
             LL_WARNS() << "Too many collision volumes" << LL_ENDL;
             return false;
@@ -1499,7 +1499,7 @@ LLColor4 LLAvatarAppearance::getGlobalColor( const std::string& color_name ) con
     else
     {
 //      return LLColor4( .5f, .5f, .5f, .5f );
-        return LLColor4( 0.f, 1.f, 1.f, 1.f ); // good debugging color
+        return { 0.f, 1.f, 1.f, 1.f }; // good debugging color
     }
 }
 
@@ -1967,7 +1967,7 @@ bool LLAvatarAppearance::LLAvatarXmlInfo::parseXmlMeshNodes(LLXmlTreeNode* root)
             static LLStdStringHandle shared_string = LLXmlTree::addAttributeString("shared");
             child->getFastAttributeBOOL(shared_string, shared);
 
-            info->mPolyMorphTargetInfoList.push_back(LLAvatarMeshInfo::morph_info_pair_t(morphinfo, shared));
+            info->mPolyMorphTargetInfoList.emplace_back(morphinfo, shared);
         }
 
         mMeshInfoList.push_back(info);
@@ -2147,7 +2147,7 @@ bool LLAvatarAppearance::LLAvatarXmlInfo::parseXmlMorphNodes(LLXmlTreeNode* root
 LLAvatarAppearance::LLMaskedMorph::LLMaskedMorph(LLVisualParam *morph_target, bool invert, std::string layer) :
             mMorphTarget(morph_target),
             mInvert(invert),
-            mLayer(layer)
+            mLayer(std::move(layer))
 {
     LLPolyMorphTarget *target = dynamic_cast<LLPolyMorphTarget*>(morph_target);
     if (target)

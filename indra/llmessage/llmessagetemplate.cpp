@@ -54,7 +54,7 @@ void LLMsgVarData::addData(const void *data, S32 size, EMsgVariableType type, S3
 void LLMsgData::addDataFast(char *blockname, char *varname, const void *data, S32 size, EMsgVariableType type, S32 data_size)
 {
     // remember that if the blocknumber is > 0 then the number is appended to the name
-    char *namep = (char *)blockname;
+    char *namep = blockname;
     LLMsgBlkData* block_data = mMemberBlocks[namep];
     if (block_data->mBlockNumber)
     {
@@ -117,10 +117,9 @@ std::ostream& operator<<(std::ostream& s, LLMessageBlock &msg)
     }
 
 
-    for (LLMessageBlock::message_variable_map_t::iterator iter = msg.mMemberVariables.begin();
-         iter != msg.mMemberVariables.end(); iter++)
+    for (auto & mMemberVariable : msg.mMemberVariables)
     {
-        LLMessageVariable& ci = *(*iter); // non-const: operator<< isn't const-correct
+        LLMessageVariable& ci = *mMemberVariable; // non-const: operator<< isn't const-correct
         s << ci;
     }
 
@@ -161,10 +160,9 @@ std::ostream& operator<<(std::ostream& s, LLMessageTemplate &msg)
         s << ")\n";
     }
 
-    for (LLMessageTemplate::message_block_map_t::iterator iter = msg.mMemberBlocks.begin();
-         iter != msg.mMemberBlocks.end(); iter++)
+    for (auto ci : msg.mMemberBlocks)
     {
-        LLMessageBlock* ci = *iter; // non-const: operator<< isn't const-correct
+        // non-const: operator<< isn't const-correct
         s << *ci;
     }
 

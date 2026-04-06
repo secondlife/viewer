@@ -31,6 +31,7 @@
 #include "llendianswizzle.h"
 #include "message.h"
 #include <boost/tokenizer.hpp>
+#include <utility>
 
 // for allocating serialization buffers - these need to be updated when members change
 const S32 LLGestureList::SERIAL_HEADER_SIZE = sizeof(S32);
@@ -39,25 +40,23 @@ const S32 LLGesture::MAX_SERIAL_SIZE = sizeof(KEY) + sizeof(MASK) + 16 + 26 + 41
 LLGesture::LLGesture()
 :   mKey(KEY_NONE),
     mMask(MASK_NONE),
-    mTrigger(),
-    mTriggerLower(),
-    mSoundItemID(),
-    mAnimation(),
-    mOutputString()
+    
+    mSoundItemID()
+    
 { }
 
 LLGesture::LLGesture(KEY key, MASK mask, const std::string &trigger,
                      const LLUUID &sound_item_id,
-                     const std::string &animation,
-                     const std::string &output_string)
+                     std::string animation,
+                     std::string output_string)
 :
     mKey(key),
     mMask(mask),
     mTrigger(trigger),
     mTriggerLower(trigger),
     mSoundItemID(sound_item_id),
-    mAnimation(animation),
-    mOutputString(output_string)
+    mAnimation(std::move(animation)),
+    mOutputString(std::move(output_string))
 {
     mTriggerLower = utf8str_tolower(mTriggerLower);
 }
@@ -191,8 +190,7 @@ void LLGestureList::deleteAll()
 // and (as a minor side effect) has multiple spaces in a row replaced by single spaces.
 bool LLGestureList::triggerAndReviseString(const std::string &string, std::string* revised_string)
 {
-    std::string tokenized = string;
-
+    
     bool found_gestures = false;
     bool first_token = true;
 
@@ -209,9 +207,9 @@ bool LLGestureList::triggerAndReviseString(const std::string &string, std::strin
             std::string cur_token_lower = cur_token;
             LLStringUtil::toLower(cur_token_lower);
 
-            for (U32 i = 0; i < mList.size(); i++)
+            for (auto & i : mList)
             {
-                gesture = mList.at(i);
+                gesture = i;
                 if (gesture->trigger(cur_token_lower))
                 {
                     if( !gesture->getOutputString().empty() )
@@ -223,7 +221,7 @@ bool LLGestureList::triggerAndReviseString(const std::string &string, std::strin
 
                         // Don't muck with the user's capitalization if we don't have to.
                         const std::string& output = gesture->getOutputString();
-                        std::string output_lower = std::string(output.c_str());
+                        std::string output_lower = std::string(output);
                         LLStringUtil::toLower(output_lower);
                         if( cur_token_lower == output_lower )
                         {
@@ -342,7 +340,7 @@ LLGesture *LLGestureList::create_gesture(U8 **buffer, S32 max_size)
     return new LLGesture(buffer, max_size);
 }
 
-S32 LLGestureList::getMaxSerialSize()
+S32 LLGestureList::getMaxSerialSize() const
 {
     return SERIAL_HEADER_SIZE + (count() * LLGesture::getMaxSerialSize());
 }

@@ -270,7 +270,7 @@ void LLCubeMap::disable()
     disableTexture();
 }
 
-void LLCubeMap::disableTexture()
+void LLCubeMap::disableTexture() const
 {
     if (mTextureStage >= 0 && LLCubeMap::sUseCubeMaps)
     {
@@ -313,7 +313,7 @@ void LLCubeMap::setMatrix(S32 stage)
     }*/
 }
 
-void LLCubeMap::restoreMatrix()
+void LLCubeMap::restoreMatrix() const
 {
     if (mMatrixStage < 0) return;
 

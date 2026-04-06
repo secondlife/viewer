@@ -326,7 +326,7 @@ public:
     void            setSearchColumn(S32 column) { mSearchColumn = column; }
     S32             getColumnIndexFromOffset(S32 x);
     S32             getColumnOffsetFromIndex(S32 index);
-    S32             getRowOffsetFromIndex(S32 index);
+    S32             getRowOffsetFromIndex(S32 index) const;
 
     void            clearSearchString() { mSearchString.clear(); }
 

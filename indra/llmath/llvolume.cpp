@@ -101,14 +101,7 @@ bool check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLV
     LLVector3 test = (pt2-pt1)%(pt3-pt2);
 
     //answer
-    if(test * norm < 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return test * norm >= 0;
 }
 
 bool LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size)
@@ -133,9 +126,7 @@ bool LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* cent
     float f;
     f = dir[1] * diff[2] - dir[2] * diff[1];    if(fabsf(f)>size[1]*fAWdU[2] + size[2]*fAWdU[1])  return false;
     f = dir[2] * diff[0] - dir[0] * diff[2];    if(fabsf(f)>size[0]*fAWdU[2] + size[2]*fAWdU[0])  return false;
-    f = dir[0] * diff[1] - dir[1] * diff[0];    if(fabsf(f)>size[0]*fAWdU[1] + size[1]*fAWdU[0])  return false;
-
-    return true;
+    f = dir[0] * diff[1] - dir[1] * diff[0];    return fabsf(f) <= size[0]*fAWdU[1] + size[1]*fAWdU[0];
 }
 
 // Finds tangent vec based on three vertices with texture coordinates.
@@ -548,14 +539,7 @@ void LLProfile::genNGon(const LLProfileParams& params, S32 sides, F32 offset, F3
     // If we're sliced, the profile is open.
     if ((end - begin)*ang_scale < 0.99f)
     {
-        if ((end - begin)*ang_scale > 0.5f)
-        {
-            mConcave = true;
-        }
-        else
-        {
-            mConcave = false;
-        }
+        mConcave = (end - begin)*ang_scale > 0.5f;
         mOpen = true;
         if (params.getHollow() <= 0)
         {
@@ -603,11 +587,11 @@ LLProfile::Face* LLProfile::addHole(const LLProfileParams& params, bool flat, F3
         mProfile[i] = pt[j--];
     }
 
-    for (S32 i=0;i<(S32)mFaces.size();i++)
+    for (auto & mFace : mFaces)
     {
-        if (mFaces[i].mCap)
+        if (mFace.mCap)
         {
-            mFaces[i].mCount *= 2;
+            mFace.mCount *= 2;
         }
     }
 
@@ -1411,7 +1395,7 @@ S32 LLPath::getNumPoints(const LLPathParams& params, F32 detail)
             // Increase the detail as the revolutions and twist increase.
             F32 twist_mag = fabs(params.getTwistBegin() - params.getTwist());
 
-            S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * params.getRevolutions());
+            S32 sides = llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * params.getRevolutions());
 
             np = sides;
         }
@@ -1498,7 +1482,7 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
             // Increase the detail as the revolutions and twist increase.
             F32 twist_mag = fabs(params.getTwistBegin() - params.getTwist());
 
-            S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * params.getRevolutions());
+            S32 sides = llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * params.getRevolutions());
 
             if (is_sculpted)
                 sides = llmax(sculpt_size, 1);
@@ -2105,10 +2089,9 @@ bool LLVolume::generate()
             }
         }
 
-        for (std::vector<LLProfile::Face>::iterator iter = mProfilep->mFaces.begin();
-             iter != mProfilep->mFaces.end(); ++iter)
+        for (auto & mFace : mProfilep->mFaces)
         {
-            LLFaceID id = iter->mFaceID;
+            LLFaceID id = mFace.mFaceID;
             mFaceMask |= id;
         }
         LL_CHECK_MEMORY
@@ -2703,9 +2686,9 @@ void LLVolume::copyVolumeFaces(const LLVolume* volume)
 
 bool LLVolume::cacheOptimize(bool gen_tangents)
 {
-    for (S32 i = 0; i < mVolumeFaces.size(); ++i)
+    for (auto & mVolumeFace : mVolumeFaces)
     {
-        if (!mVolumeFaces[i].cacheOptimize(gen_tangents))
+        if (!mVolumeFace.cacheOptimize(gen_tangents))
         {
             return false;
         }
@@ -2803,10 +2786,9 @@ void LLVolume::createVolumeFaces()
             }
         }
 
-        for (face_list_t::iterator iter = mVolumeFaces.begin();
-             iter != mVolumeFaces.end(); ++iter)
+        for (auto & mVolumeFace : mVolumeFaces)
         {
-            (*iter).create(this, partial_build);
+            mVolumeFace.create(this, partial_build);
         }
     }
 }
@@ -3176,9 +3158,9 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
         }
     }
 
-    for (S32 i = 0; i < (S32)mProfilep->mFaces.size(); i++)
+    for (auto & mFace : mProfilep->mFaces)
     {
-        mFaceMask |= mProfilep->mFaces[i].mFaceID;
+        mFaceMask |= mFace.mFaceID;
     }
 
     mSculptLevel = sculpt_level;
@@ -3896,11 +3878,8 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
     // overhead in generateSilhouetteEdge.
     std::vector<S32> edge;
     //for each face
-    for (face_list_t::iterator iter = mVolumeFaces.begin();
-         iter != mVolumeFaces.end(); ++iter)
+    for (auto & face : mVolumeFaces)
     {
-        LLVolumeFace& face = *iter;
-
         if (!(face_mask & (0x1 << cur_index++)) ||
              face.mNumIndices == 0)
         {
@@ -3936,19 +3915,19 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
                         LLVector4a t;
                         mat.affineTransform(v[v1], t);
-                        vertices.push_back(LLVector3(t[0], t[1], t[2]));
+                        vertices.emplace_back(t[0], t[1], t[2]);
 
                         norm_mat.rotate(n[v1], t);
 
                         t.normalize3fast();
-                        normals.push_back(LLVector3(t[0], t[1], t[2]));
+                        normals.emplace_back(t[0], t[1], t[2]);
 
                         mat.affineTransform(v[v2], t);
-                        vertices.push_back(LLVector3(t[0], t[1], t[2]));
+                        vertices.emplace_back(t[0], t[1], t[2]);
 
                         norm_mat.rotate(n[v2], t);
                         t.normalize3fast();
-                        normals.push_back(LLVector3(t[0], t[1], t[2]));
+                        normals.emplace_back(t[0], t[1], t[2]);
                     }
                 }
             }
@@ -4119,19 +4098,19 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
                         LLVector4a t;
                         mat.affineTransform(v[v1], t);
-                        vertices.push_back(LLVector3(t[0], t[1], t[2]));
+                        vertices.emplace_back(t[0], t[1], t[2]);
 
                         norm_mat.rotate(n[v1], t);
 
                         t.normalize3fast();
-                        normals.push_back(LLVector3(t[0], t[1], t[2]));
+                        normals.emplace_back(t[0], t[1], t[2]);
 
                         mat.affineTransform(v[v2], t);
-                        vertices.push_back(LLVector3(t[0], t[1], t[2]));
+                        vertices.emplace_back(t[0], t[1], t[2]);
 
                         norm_mat.rotate(n[v2], t);
                         t.normalize3fast();
-                        normals.push_back(LLVector3(t[0], t[1], t[2]));
+                        normals.emplace_back(t[0], t[1], t[2]);
                     }
                 }
             }
@@ -4382,11 +4361,7 @@ struct lessTriangle
 
 bool equalTriangle(const S32 *a, const S32 *b)
 {
-    if ((*a == *b) && (*(a+1) == *(b+1)) && (*(a+2) == *(b+2)))
-    {
-        return true;
-    }
-    return false;
+    return (*a == *b) && (*(a+1) == *(b+1)) && (*(a+2) == *(b+2));
 }
 
 bool LLVolumeParams::importFile(LLFILE *fp)
@@ -5037,7 +5012,7 @@ bool LLVolumeFace::create(LLVolume* volume, bool partial_build)
     return ret ;
 }
 
-void LLVolumeFace::getVertexData(U16 index, LLVolumeFace::VertexData& cv)
+void LLVolumeFace::getVertexData(U16 index, LLVolumeFace::VertexData& cv) const
 {
     cv.setPosition(mPositions[index]);
     if (mNormals)
@@ -5173,13 +5148,13 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 
         if (point_iter != point_map.end())
         { //duplicate point might exist
-            for (U32 j = 0; j < point_iter->second.size(); ++j)
+            for (auto & j : point_iter->second)
             {
-                LLVolumeFace::VertexData& tv = (point_iter->second)[j];
+                LLVolumeFace::VertexData& tv = j;
                 if (tv.compareNormal(cv, angle_cutoff))
                 {
                     found = true;
-                    new_face.pushIndex((point_iter->second)[j].mIndex);
+                    new_face.pushIndex(j.mIndex);
                     break;
                 }
             }
@@ -5268,12 +5243,12 @@ public:
     void complete()
     {
         mActive = false;
-        for (S32 i = 0; i < 3; ++i)
+        for (auto & i : mVertex)
         {
-            if (mVertex[i])
+            if (i)
             {
-                llassert(mVertex[i]->mActiveTriangles > 0);
-                mVertex[i]->mActiveTriangles--;
+                llassert(i->mActiveTriangles > 0);
+                i->mActiveTriangles--;
             }
         }
     }
@@ -5332,9 +5307,9 @@ public:
     LLVCacheFIFO()
     {
         mMisses = 0;
-        for (U32 i = 0; i < MaxSizeVertexCache; ++i)
+        for (auto & i : mCache)
         {
-            mCache[i] = NULL;
+            i = NULL;
         }
     }
 
@@ -5377,9 +5352,9 @@ public:
 
     LLVCacheLRU()
     {
-        for (U32 i = 0; i < MaxSizeVertexCache+3; ++i)
+        for (auto & i : mCache)
         {
-            mCache[i] = NULL;
+            i = NULL;
         }
 
         mBestTriangle = NULL;
@@ -5460,9 +5435,8 @@ public:
             LLVCacheVertexData* data = *data_iter++;
             if (data)
             {
-                for (std::vector<LLVCacheTriangleData*>::iterator iter = data->mTriangles.begin(), end_iter = data->mTriangles.end(); iter != end_iter; ++iter)
+                for (auto tri : data->mTriangles)
                 {
-                    LLVCacheTriangleData* tri = *iter;
                     if (tri->mActive)
                     {
                         tri->mScore = tri->mVertex[0] ? tri->mVertex[0]->mScore : 0;
@@ -5548,7 +5522,7 @@ struct MikktData
         }
     }
 
-    uint32_t GetNumFaces()
+    uint32_t GetNumFaces() const
     {
         return uint32_t(face->mNumIndices / 3);
     }
@@ -5561,19 +5535,19 @@ struct MikktData
     mikk::float3 GetPosition(const uint32_t face_num, const uint32_t vert_num)
     {
         F32* v = p[face_num * 3 + vert_num].mV;
-        return mikk::float3(v);
+        return {v};
     }
 
     mikk::float3 GetTexCoord(const uint32_t face_num, const uint32_t vert_num)
     {
         F32* uv = tc[face_num * 3 + vert_num].mV;
-        return mikk::float3(uv[0], uv[1], 1.0f);
+        return {uv[0], uv[1], 1.0f};
     }
 
     mikk::float3 GetNormal(const uint32_t face_num, const uint32_t vert_num)
     {
         F32* normal = n[face_num * 3 + vert_num].mV;
-        return mikk::float3(normal);
+        return {normal};
     }
 
     void SetTangentSpace(const uint32_t face_num, const uint32_t vert_num, mikk::float3 T, bool orientation)
@@ -5997,9 +5971,9 @@ bool LLVolumeFace::createUnCutCubeCap(LLVolume* volume, bool partial_build)
                 }
                 else
                 {
-                    for(S32 i=0;i<6;i++)
+                    for(int idx : idxs)
                     {
-                        *out++ = ((gy*(grid_size+1))+gx+idxs[i]);
+                        *out++ = ((gy*(grid_size+1))+gx+idx);
                     }
                 }
             }
@@ -6253,14 +6227,7 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
                     LLVector4a d2;
                     d2.setSub(p2, pb);
 
-                    if (d1.dot3(d1) < d2.dot3(d2))
-                    {
-                        use_tri1a2 = true;
-                    }
-                    else
-                    {
-                        use_tri1a2 = false;
-                    }
+                    use_tri1a2 = d1.dot3(d1) < d2.dot3(d2);
                 }
 
                 if (use_tri1a2)
@@ -6358,14 +6325,7 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
                     LLVector4a d2;
                     d2.setSub(p2,pb);
 
-                    if (d1.dot3(d1) < d2.dot3(d2))
-                    {
-                        use_tri1a2 = true;
-                    }
-                    else
-                    {
-                        use_tri1a2 = false;
-                    }
+                    use_tri1a2 = d1.dot3(d1) < d2.dot3(d2);
                 }
 
                 // Flipped backfacing from top

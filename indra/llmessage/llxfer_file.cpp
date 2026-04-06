@@ -285,14 +285,7 @@ S32 LLXfer_File::suck(S32 start_position)
         mBufferLength = (U32)fread(mBuffer,1,LL_MAX_XFER_FILE_BUFFER,mFp);
         mBufferStartOffset = start_position;
 
-        if (feof(mFp))
-        {
-            mBufferContainsEOF = true;
-        }
-        else
-        {
-            mBufferContainsEOF = false;
-        }
+        mBufferContainsEOF = feof(mFp) != 0;
     }
     else
     {

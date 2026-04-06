@@ -39,10 +39,10 @@ HttpResponse::HttpResponse()
       mReplyLength(0U),
       mReplyFullLength(0U),
       mBufferArray(NULL),
-      mHeaders(),
+      
       mRetries(0U),
-      m503Retries(0U),
-      mRequestUrl()
+      m503Retries(0U)
+      
 {}
 
 

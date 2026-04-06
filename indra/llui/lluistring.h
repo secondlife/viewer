@@ -58,7 +58,7 @@ public:
     // These methods all perform appropriate argument substitution
     // and modify mOrig where appropriate
     LLUIString() : mArgs(NULL), mNeedsResult(false), mNeedsWResult(false) {}
-    LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args);
+    LLUIString(std::string  instring, const LLStringUtil::format_map_t& args);
     LLUIString(const std::string& instring) : mArgs(NULL) { assign(instring); } // intentionally implicit — string wrapper
     LLUIString(const LLWString& instring) : mArgs(NULL) { assign(instring); } // intentionally implicit — string wrapper
     ~LLUIString() { delete mArgs; }

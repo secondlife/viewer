@@ -26,6 +26,7 @@
 
 #include "llwebrtc_impl.h"
 #include <algorithm>
+#include <utility>
 #include <string.h>
 
 #include "api/audio_codecs/audio_decoder_factory.h"
@@ -168,7 +169,7 @@ void LLWebRTCAudioTransport::PullRenderData(int      bits_per_sample,
     }
 }
 
-LLCustomProcessor::LLCustomProcessor(LLCustomProcessorStatePtr state) : mSampleRateHz(0), mNumChannels(0), mState(state)
+LLCustomProcessor::LLCustomProcessor(LLCustomProcessorStatePtr state) : mSampleRateHz(0), mNumChannels(0), mState(std::move(state))
 {
     memset(mSumVector, 0, sizeof(mSumVector));
 }
@@ -538,7 +539,7 @@ void LLWebRTCImpl::workerDeployDevices()
     mDeviceModule->SetStereoPlayout(true);
     mDeviceModule->InitPlayout();
 
-    if ((!mMute && mPeerConnections.size()) || mTuningMode)
+    if ((!mMute && !mPeerConnections.empty()) || mTuningMode)
     {
         mDeviceModule->ForceStartRecording();
     }
@@ -908,10 +909,10 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
         [this,options]()
         {
             webrtc::PeerConnectionInterface::RTCConfiguration config;
-            for (auto server : options.mServers)
+            for (const auto& server : options.mServers)
             {
                 webrtc::PeerConnectionInterface::IceServer ice_server;
-                for (auto url : server.mUrls)
+                for (const auto& url : server.mUrls)
                 {
                     ice_server.urls.push_back(url);
                 }

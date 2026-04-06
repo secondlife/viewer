@@ -39,7 +39,7 @@
 class LLWatchdogEntry
 {
 public:
-    explicit LLWatchdogEntry(const std::string &thread_name);
+    explicit LLWatchdogEntry(std::string thread_name);
     virtual ~LLWatchdogEntry();
 
     // isAlive is accessed by the watchdog thread.

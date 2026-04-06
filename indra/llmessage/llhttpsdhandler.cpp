@@ -53,8 +53,8 @@ void LLHttpSDHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
         LLSD resplsd;
         const bool emit_parse_errors = false;
 
-        bool parsed = !((response->getBodySize() == 0) ||
-            !LLCoreHttpUtil::responseToLLSD(response, emit_parse_errors, resplsd));
+        bool parsed = (response->getBodySize() != 0) &&
+            LLCoreHttpUtil::responseToLLSD(response, emit_parse_errors, resplsd);
 
         if (!parsed)
         {

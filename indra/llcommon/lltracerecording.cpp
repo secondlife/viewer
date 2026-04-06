@@ -356,7 +356,7 @@ F64 Recording::getSum( const StatType<EventAccumulator>& stat)
     update();
     const EventAccumulator& accumulator = mBuffers->mEvents[stat.getIndex()];
     const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
-    return (F64)(accumulator.getSum() + (active_accumulator && active_accumulator->hasValue() ? active_accumulator->getSum() : 0));
+    return (accumulator.getSum() + (active_accumulator && active_accumulator->hasValue() ? active_accumulator->getSum() : 0));
 }
 
 F64 Recording::getMin( const StatType<EventAccumulator>& stat )
@@ -455,7 +455,7 @@ void PeriodicRecording::nextPeriod()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     if (mAutoResize)
     {
-        mRecordingPeriods.push_back(Recording());
+        mRecordingPeriods.emplace_back();
     }
 
     Recording& old_recording = getCurRecording();
@@ -606,7 +606,7 @@ void PeriodicRecording::handleReset()
     if (mAutoResize)
     {
         mRecordingPeriods.clear();
-        mRecordingPeriods.push_back(Recording());
+        mRecordingPeriods.emplace_back();
     }
     else
     {
@@ -715,7 +715,7 @@ F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<EventAccumulat
     }
 
     return valid_period_count
-            ? sqrt((F64)sum_of_squares / (F64)valid_period_count)
+            ? sqrt(sum_of_squares / (F64)valid_period_count)
             : NaN;
 }
 
@@ -804,7 +804,7 @@ F64 PeriodicRecording::getPeriodMedian( const StatType<SampleAccumulator>& stat,
             }
         }
     }
-    if (buf.size()==0)
+    if (buf.empty())
     {
         return 0.0f;
     }

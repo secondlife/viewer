@@ -97,10 +97,8 @@ LLCommandManager::LLCommandManager()
 
 LLCommandManager::~LLCommandManager()
 {
-    for (CommandVector::iterator cmdIt = mCommands.begin(); cmdIt != mCommands.end(); ++cmdIt)
+    for (auto command : mCommands)
     {
-        LLCommand * command = *cmdIt;
-
         delete command;
     }
 }

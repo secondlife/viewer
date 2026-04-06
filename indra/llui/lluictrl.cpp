@@ -37,6 +37,7 @@
 #include "llaccordionctrltab.h"
 #include "lluiusage.h"
 #include <functional>
+#include <utility>
 
 
 static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
@@ -100,13 +101,13 @@ const LLUICtrl::Params& LLUICtrl::getDefaultParams()
 }
 
 
-LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
+LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, LLViewModelPtr  viewmodel)
 :   LLView(p),
     mIsChrome(false),
     mRequestsFront(p.requests_front),
     mTabStop(false),
     mTentative(false),
-    mViewModel(viewmodel),
+    mViewModel(std::move(viewmodel)),
     mControlVariable(NULL),
     mEnabledControlVariable(NULL),
     mDisabledControlVariable(NULL),
@@ -512,9 +513,9 @@ bool LLUICtrl::postBuild()
             }
         }
 
-        for (std::vector<LLUICtrl*>::iterator it = childrenToMoveToFront.begin(); it != childrenToMoveToFront.end(); ++it)
+        for (auto & it : childrenToMoveToFront)
         {
-            sendChildToFront(*it);
+            sendChildToFront(it);
         }
     }
 
@@ -807,9 +808,9 @@ bool LLUICtrl::focusFirstItem(bool prefer_text_fields, bool focus_flash)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     // try to select default tab group child
-    LLViewQuery query = getTabOrderQuery();
+    const LLViewQuery& query = getTabOrderQuery();
     child_list_t result = query(this);
-    if(result.size() > 0)
+    if(!result.empty())
     {
         LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
         if(!ctrl->hasFocus())
@@ -829,7 +830,7 @@ bool LLUICtrl::focusFirstItem(bool prefer_text_fields, bool focus_flash)
         LLViewQuery query = getTabOrderQuery();
         query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
         child_list_t result = query(this);
-        if(result.size() > 0)
+        if(!result.empty())
         {
             LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
             if(!ctrl->hasFocus())
@@ -846,7 +847,7 @@ bool LLUICtrl::focusFirstItem(bool prefer_text_fields, bool focus_flash)
     }
     // no text field found, or we don't care about text fields
     result = getTabOrderQuery().run(this);
-    if(result.size() > 0)
+    if(!result.empty())
     {
         LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
         if(!ctrl->hasFocus())

@@ -27,6 +27,8 @@
 #include "linden_common.h"
 
 #include "llxmltree.h"
+
+#include <utility>
 #include "v3color.h"
 #include "v4color.h"
 #include "v4coloru.h"
@@ -99,8 +101,8 @@ void LLXmlTree::dumpNode( LLXmlTreeNode* node, const std::string& prefix )
 //////////////////////////////////////////////////////////////
 // LLXmlTreeNode
 
-LLXmlTreeNode::LLXmlTreeNode( const std::string& name, LLXmlTreeNode* parent, LLXmlTree* tree )
-    : mName(name),
+LLXmlTreeNode::LLXmlTreeNode( std::string  name, LLXmlTreeNode* parent, LLXmlTree* tree )
+    : mName(std::move(name)),
       mParent(parent),
       mTree(tree)
 {
@@ -454,14 +456,14 @@ std::string LLXmlTreeNode::getTextContents()
         {
             // Case 2: node has quoted text
             S32 num_lines = 0;
-            while(1)
+            while(true)
             {
                 // mContents[n] == '"'
                 ++n;
                 std::string::size_type t = n;
                 std::string::size_type m = 0;
                 // fix-up escaped characters
-                while(1)
+                while(true)
                 {
                     m = mContents.find_first_of("\\\"", t); // find first \ or "
                     if ((m == std::string::npos) || (mContents[m] == '\"'))

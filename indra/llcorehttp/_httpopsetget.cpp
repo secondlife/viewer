@@ -43,7 +43,7 @@ namespace LLCore
 
 
 HttpOpSetGet::HttpOpSetGet()
-    : HttpOperation(),
+    : 
       mReqOption(HttpRequest::PO_CONNECTION_LIMIT),
       mReqClass(HttpRequest::INVALID_POLICY_ID),
       mReqDoSet(false),
@@ -72,11 +72,11 @@ HttpStatus HttpOpSetGet::setupSet(HttpRequest::EPolicyOption opt, HttpRequest::p
 
     if (! HttpService::sOptionDesc[opt].mIsLong)
     {
-        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, HE_INVALID_ARG};
     }
     if (! HttpService::sOptionDesc[opt].mIsDynamic)
     {
-        return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+        return {HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC};
     }
 
     mReqOption = opt;
@@ -94,11 +94,11 @@ HttpStatus HttpOpSetGet::setupSet(HttpRequest::EPolicyOption opt, HttpRequest::p
 
     if (HttpService::sOptionDesc[opt].mIsLong)
     {
-        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, HE_INVALID_ARG};
     }
     if (! HttpService::sOptionDesc[opt].mIsDynamic)
     {
-        return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+        return {HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC};
     }
 
     mReqOption = opt;

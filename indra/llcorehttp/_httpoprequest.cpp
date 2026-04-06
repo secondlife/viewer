@@ -127,14 +127,13 @@ namespace LLCore
 
 
 HttpOpRequest::HttpOpRequest()
-    : HttpOperation(),
+    : 
       mProcFlags(0U),
       mReqMethod(HOR_GET),
       mReqBody(NULL),
       mReqOffset(0),
       mReqLength(0),
-      mReqHeaders(),
-      mReqOptions(),
+      
       mCurlActive(false),
       mCurlHandle(NULL),
       mCurlService(NULL),
@@ -146,7 +145,7 @@ HttpOpRequest::HttpOpRequest()
       mReplyOffset(0),
       mReplyLength(0),
       mReplyFullLength(0),
-      mReplyHeaders(),
+      
       mPolicyRetries(0),
       mPolicy503Retries(0),
       mPolicyRetryAt(HttpTime(0)),
@@ -301,7 +300,7 @@ HttpStatus HttpOpRequest::cancel()
 
     addAsReply();
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -314,7 +313,7 @@ HttpStatus HttpOpRequest::setupGet(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, NULL, options, headers);
     mReqMethod = HOR_GET;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -335,7 +334,7 @@ HttpStatus HttpOpRequest::setupGetByteRange(HttpRequest::policy_t policy_id,
         mProcFlags |= PF_SCAN_RANGE_HEADER;
     }
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -349,7 +348,7 @@ HttpStatus HttpOpRequest::setupPost(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, body, options, headers);
     mReqMethod = HOR_POST;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -363,7 +362,7 @@ HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, body, options, headers);
     mReqMethod = HOR_PUT;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -376,7 +375,7 @@ HttpStatus HttpOpRequest::setupDelete(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, NULL, options, headers);
     mReqMethod = HOR_DELETE;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -390,7 +389,7 @@ HttpStatus HttpOpRequest::setupPatch(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, body, options, headers);
     mReqMethod = HOR_PATCH;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -403,7 +402,7 @@ HttpStatus HttpOpRequest::setupCopy(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, NULL, options, headers);
     mReqMethod = HOR_COPY;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -416,7 +415,7 @@ HttpStatus HttpOpRequest::setupMove(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, NULL, options, headers);
     mReqMethod = HOR_MOVE;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -505,7 +504,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
         // We're in trouble.  We'll continue but it won't go well.
         LL_WARNS(LOG_CORE) << "Failed to allocate libcurl easy handle.  Continuing."
                            << LL_ENDL;
-        return HttpStatus(HttpStatus::LLCORE, HE_BAD_ALLOC);
+        return {HttpStatus::LLCORE, HE_BAD_ALLOC};
     }
 
     check_curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -590,18 +589,18 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
         LLProxy::applyProxySettings(mCurlHandle);
 
     }
-    else if (gpolicy.mHttpProxy.size())
+    else if (!gpolicy.mHttpProxy.empty())
     {
         // *TODO:  This is fine for now but get fuller socks5/
         // authentication thing going later....
         check_curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, gpolicy.mHttpProxy.c_str());
         check_curl_easy_setopt(mCurlHandle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
     }
-    if (gpolicy.mCAPath.size())
+    if (!gpolicy.mCAPath.empty())
     {
         check_curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, gpolicy.mCAPath.c_str());
     }
-    if (gpolicy.mCAFile.size())
+    if (!gpolicy.mCAFile.empty())
     {
         check_curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, gpolicy.mCAFile.c_str());
     }
@@ -864,7 +863,7 @@ int HttpOpRequest::seekCallback(void *userdata, curl_off_t offset, int origin)
         return 2;
     }
 
-    op->mCurlBodyPos = (size_t)newPos;
+    op->mCurlBodyPos = newPos;
 
     return 0;
 }

@@ -72,7 +72,7 @@ public:
     static Block * alloc(size_t len);
 
 public:
-    size_t mUsed;
+    size_t mUsed{0};
     size_t mAlloced;
 
     // *NOTE:  Must be last member of the object.  We'll
@@ -99,12 +99,10 @@ BufferArray::BufferArray()
 
 BufferArray::~BufferArray()
 {
-    for (container_t::iterator it(mBlocks.begin());
-         it != mBlocks.end();
-         ++it)
+    for (auto & mBlock : mBlocks)
     {
-        delete *it;
-        *it = NULL;
+        delete mBlock;
+        mBlock = NULL;
     }
     mBlocks.clear();
 }
@@ -324,7 +322,7 @@ bool BufferArray::getBlockStartEnd(int block, const char ** start, const char **
 
 
 BufferArray::Block::Block(size_t len)
-    : mUsed(0),
+    : 
       mAlloced(len)
 {
     memset(mData, 0, len);

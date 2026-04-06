@@ -85,7 +85,7 @@ std::string LLModel::getStatusString(U32 status)
 
     if(status < static_cast<U32>(EModelStatus::INVALID_STATUS))
     {
-        if(status_strings[status] == std::string())
+        if(status_strings[status].empty())
         {
             //LL_ERRS() << "No valid status string for this status: " << (U32)status << LL_ENDL();
         }
@@ -94,7 +94,7 @@ std::string LLModel::getStatusString(U32 status)
 
     //LL_ERRS() << "Invalid model status: " << (U32)status << LL_ENDL();
 
-    return std::string() ;
+    return {} ;
 }
 
 
@@ -282,10 +282,8 @@ void LLModel::normalizeVolumeFaces()
         LLVector4a inv_scale(1.f);
         inv_scale.div(scale);
 
-        for (U32 i = 0; i < mVolumeFaces.size(); ++i)
+        for (auto & face : mVolumeFaces)
         {
-            LLVolumeFace& face = mVolumeFaces[i];
-
             // We shrink the extents so
             // that they fall within
             // the unit cube.
@@ -298,9 +296,9 @@ void LLModel::normalizeVolumeFaces()
 
             // For all the positions, we scale
             // the positions to fit within the unit cube.
-            LLVector4a* pos = (LLVector4a*) face.mPositions;
-            LLVector4a* norm = (LLVector4a*) face.mNormals;
-            LLVector4a* t = (LLVector4a*)face.mTangents;
+            LLVector4a* pos = face.mPositions;
+            LLVector4a* norm = face.mNormals;
+            LLVector4a* t = face.mTangents;
 
             for (S32 j = 0; j < face.mNumVertices; ++j)
             {
@@ -424,10 +422,8 @@ void LLModel::normalizeVolumeFacesAndWeights()
         LLVector4a inv_scale(1.f);
         inv_scale.div(scale);
 
-        for (U32 i = 0; i < mVolumeFaces.size(); ++i)
+        for (auto & face : mVolumeFaces)
         {
-            LLVolumeFace& face = mVolumeFaces[i];
-
             // We shrink the extents so
             // that they fall within
             // the unit cube.
@@ -440,9 +436,9 @@ void LLModel::normalizeVolumeFacesAndWeights()
 
             // For all the positions, we scale
             // the positions to fit within the unit cube.
-            LLVector4a* pos = (LLVector4a*)face.mPositions;
-            LLVector4a* norm = (LLVector4a*)face.mNormals;
-            LLVector4a* t = (LLVector4a*)face.mTangents;
+            LLVector4a* pos = face.mPositions;
+            LLVector4a* norm = face.mNormals;
+            LLVector4a* t = face.mTangents;
 
             for (S32 j = 0; j < face.mNumVertices; ++j)
             {
@@ -518,10 +514,8 @@ LLVector3 LLModel::getTransformedCenter(const LLMatrix4& mat)
         m.affineTransform(mVolumeFaces[0].mPositions[0], t);
         minv = maxv = t;
 
-        for (S32 i = 0; i < mVolumeFaces.size(); ++i)
+        for (auto & face : mVolumeFaces)
         {
-            LLVolumeFace& face = mVolumeFaces[i];
-
             for (S32 j = 0; j < face.mNumVertices; ++j)
             {
                 m.affineTransform(face.mPositions[j],t);
@@ -614,9 +608,9 @@ void LLModel::generateNormals(F32 angle_cutoff)
     // 6 - Remove redundant vertices from new faceted (now smooth) copy
 
     angle_cutoff = cosf(angle_cutoff);
-    for (U32 j = 0; j < mVolumeFaces.size(); ++j)
+    for (auto & mVolumeFace : mVolumeFaces)
     {
-        LLVolumeFace& vol_face = mVolumeFaces[j];
+        LLVolumeFace& vol_face = mVolumeFace;
 
         if (vol_face.mNumIndices > 65535)
         {
@@ -627,7 +621,7 @@ void LLModel::generateNormals(F32 angle_cutoff)
         //create faceted copy of current face with no texture coordinates (step 1)
         LLVolumeFace faceted;
 
-        LLVector4a* src_pos = (LLVector4a*) vol_face.mPositions;
+        LLVector4a* src_pos = vol_face.mPositions;
         //LLVector4a* src_norm = (LLVector4a*) vol_face.mNormals;
 
 
@@ -785,9 +779,9 @@ void LLModel::generateNormals(F32 angle_cutoff)
             if (iter != point_map.end())
             {
                 F32 best = -2.f;
-                for (U32 k = 0; k < iter->second.size(); ++k)
+                for (auto & k : iter->second)
                 {
-                    LLVector4a& n = iter->second[k].getNormal();
+                    LLVector4a& n = k.getNormal();
 
                     F32 cur = n.dot3(ref_norm).getF32();
 
@@ -803,7 +797,7 @@ void LLModel::generateNormals(F32 angle_cutoff)
         //remove redundant vertices from new face (step 6)
         new_face.optimize();
 
-        mVolumeFaces[j] = new_face;
+        mVolumeFace = new_face;
     }
 }
 
@@ -1053,15 +1047,15 @@ LLSD LLModel::writeModel(
                             weight_list& weights = model[idx]->getJointInfluences(pos);
 
                             S32 count = 0;
-                            for (weight_list::iterator iter = weights.begin(); iter != weights.end(); ++iter)
+                            for (auto & weight : weights)
                             {
                                 // Note joint index cannot exceed 255.
-                                if (iter->mJointIdx < 255 && iter->mJointIdx >= 0)
+                                if (weight.mJointIdx < 255 && weight.mJointIdx >= 0)
                                 {
-                                    U8 idx = (U8)iter->mJointIdx;
+                                    U8 idx = (U8)weight.mJointIdx;
                                     ostr.write((const char*)&idx, 1);
 
-                                    U16 influence = (U16)(iter->mWeight * 65535);
+                                    U16 influence = (U16)(weight.mWeight * 65535);
                                     ostr.write((const char*)&influence, 2);
 
                                     ++count;
@@ -1315,9 +1309,9 @@ void LLModel::updateHullCenters()
     {
         LLVector3 cur_center;
 
-        for (U32 j = 0; j < mPhysics.mHull[i].size(); ++j)
+        for (auto j : mPhysics.mHull[i])
         {
-            cur_center += mPhysics.mHull[i][j];
+            cur_center += j;
         }
         mCenterOfHullCenters += cur_center;
         cur_center *= 1.f/mPhysics.mHull[i].size();
@@ -1418,7 +1412,7 @@ bool LLModel::loadModel(std::istream& is)
                             F32 f = w[k] - idx;
                             if (f > 0.f)
                             {
-                                wght.push_back(JointWeight(idx, f));
+                                wght.emplace_back(idx, f);
                             }
                         }
 
@@ -1654,7 +1648,7 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
                 }
             }
 
-            mInvBindMatrix.push_back(LLMatrix4a(mat));
+            mInvBindMatrix.emplace_back(mat);
         }
 
         if (mJointNames.size() != mInvBindMatrix.size())
@@ -1692,7 +1686,7 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
                 }
             }
 
-            mAlternateBindMatrix.push_back(LLMatrix4a(mat));
+            mAlternateBindMatrix.emplace_back(mat);
         }
     }
 
@@ -1756,7 +1750,7 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
     }
 
     // optional 'joint overrides'
-    if (include_joints && mAlternateBindMatrix.size() > 0)
+    if (include_joints && !mAlternateBindMatrix.empty())
     {
         for (U32 i = 0; i < mJointNames.size(); ++i)
         {
@@ -1821,9 +1815,9 @@ U32 LLMeshSkinInfo::sizeBytes() const
     U32 res = sizeof(LLUUID); // mMeshID
 
     res += sizeof(std::vector<std::string>) + sizeof(std::string) * static_cast<U32>(mJointNames.size());
-    for (U32 i = 0; i < mJointNames.size(); ++i)
+    for (const auto & mJointName : mJointNames)
     {
-        res += static_cast<U32>(mJointNames[i].size()); // actual size, not capacity
+        res += static_cast<U32>(mJointName.size()); // actual size, not capacity
     }
 
     res += sizeof(std::vector<S32>) + sizeof(S32) * static_cast<U32>(mJointNums.size());
@@ -1885,10 +1879,10 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
                 //llassert(valid.find(test) == valid.end());
                 valid.insert(test);
 
-                mHull[i].push_back(LLVector3(
+                mHull[i].emplace_back(
                     (F32) p[0]/65535.f*range.mV[0]+min.mV[0],
                     (F32) p[1]/65535.f*range.mV[1]+min.mV[1],
-                    (F32) p[2]/65535.f*range.mV[2]+min.mV[2]));
+                    (F32) p[2]/65535.f*range.mV[2]+min.mV[2]);
                 p += 3;
 
 
@@ -1926,10 +1920,10 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 
         for (U32 j = 0; j < count; ++j)
         {
-            mBaseHull.push_back(LLVector3(
+            mBaseHull.emplace_back(
                 (F32) p[0]/65535.f*range.mV[0]+min.mV[0],
                 (F32) p[1]/65535.f*range.mV[1]+min.mV[1],
-                (F32) p[2]/65535.f*range.mV[2]+min.mV[2]));
+                (F32) p[2]/65535.f*range.mV[2]+min.mV[2]);
             p += 3;
         }
     }
@@ -1946,17 +1940,17 @@ U32 LLModel::Decomposition::sizeBytes() const
     U32 res = sizeof(LLUUID); // mMeshID
 
     res += sizeof(LLModel::convex_hull_decomposition) + sizeof(std::vector<LLVector3>) * static_cast<U32>(mHull.size());
-    for (U32 i = 0; i < mHull.size(); ++i)
+    for (const auto & i : mHull)
     {
-        res += static_cast<U32>(mHull[i].size()) * sizeof(LLVector3);
+        res += static_cast<U32>(i.size()) * sizeof(LLVector3);
     }
 
     res += sizeof(LLModel::hull) + sizeof(LLVector3) * static_cast<U32>(mBaseHull.size());
 
     res += sizeof(std::vector<LLModel::PhysicsMesh>) + sizeof(std::vector<LLModel::PhysicsMesh>) * static_cast<U32>(mMesh.size());
-    for (U32 i = 0; i < mMesh.size(); ++i)
+    for (const auto & i : mMesh)
     {
-        res += mMesh[i].sizeBytes();
+        res += i.sizeBytes();
     }
 
     res += sizeof(std::vector<LLModel::PhysicsMesh>) * 2;
@@ -2008,15 +2002,15 @@ LLSD LLModel::Decomposition::asLLSD() const
         total += size;
         hulls[i] = (U8) (size);
 
-        for (U32 j = 0; j < mHull[i].size(); ++j)
+        for (auto j : mHull[i])
         {
-            update_min_max(min, max, mHull[i][j]);
+            update_min_max(min, max, j);
         }
     }
 
-    for (U32 i = 0; i < mBaseHull.size(); ++i)
+    for (auto i : mBaseHull)
     {
-        update_min_max(min, max, mBaseHull[i]);
+        update_min_max(min, max, i);
     }
 
     ret["Min"] = min.getValue();
@@ -2035,16 +2029,16 @@ LLSD LLModel::Decomposition::asLLSD() const
 
         U32 vert_idx = 0;
 
-        for (U32 i = 0; i < mHull.size(); ++i)
+        for (const auto & i : mHull)
         {
             std::set<U64> valid;
 
-            llassert(!mHull[i].empty());
+            llassert(!i.empty());
 
-            for (U32 j = 0; j < mHull[i].size(); ++j)
+            for (U32 j = 0; j < i.size(); ++j)
             {
                 U64 test = 0;
-                const F32* src = mHull[i][j].mV;
+                const F32* src = i[j].mV;
 
                 for (U32 k = 0; k < 3; k++)
                 {
@@ -2087,9 +2081,9 @@ LLSD LLModel::Decomposition::asLLSD() const
         LLSD::Binary p(mBaseHull.size()*3*2);
 
         U32 vert_idx = 0;
-        for (U32 j = 0; j < mBaseHull.size(); ++j)
+        for (auto j : mBaseHull)
         {
-            const F32* v = mBaseHull[j].mV;
+            const F32* v = j.mV;
 
             for (U32 k = 0; k < 3; k++)
             {
@@ -2274,7 +2268,7 @@ bool validate_model(const LLModel* mdl)
 }
 
 LLModelInstance::LLModelInstance(LLSD& data)
-    : LLModelInstanceBase()
+     
 {
     mLocalMeshID = data["mesh_id"].asInteger();
     mLabel = data["label"].asString();
@@ -2297,9 +2291,9 @@ LLSD LLModelInstance::asLLSD()
     ret["transform"] = mTransform.getValue();
 
     U32 i = 0;
-    for (std::map<std::string, LLImportMaterial>::iterator iter = mMaterial.begin(); iter != mMaterial.end(); ++iter)
+    for (auto & iter : mMaterial)
     {
-        ret["material"][i++] = iter->second.asLLSD();
+        ret["material"][i++] = iter.second.asLLSD();
     }
 
     return ret;

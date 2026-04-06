@@ -482,7 +482,7 @@ void LLLayoutStack::updateLayout()
         LLRect resize_bar_rect(panel_rect);
         F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
         F32 panel_visible_dim = (F32)panelp->getVisibleDim();
-        S32 panel_spacing_round = (S32)(ll_round(panel_spacing));
+        S32 panel_spacing_round = ll_round(panel_spacing);
 
         if (mOrientation == HORIZONTAL)
         {
@@ -660,9 +660,9 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
     }
     // bring all resize bars to the front so that they are clickable even over the panels
     // with a bit of overlap
-    for (e_panel_list_t::iterator panel_it = mPanels.begin(); panel_it != mPanels.end(); ++panel_it)
+    for (auto & mPanel : mPanels)
     {
-        LLResizeBar* resize_barp = (*panel_it)->mResizeBar;
+        LLResizeBar* resize_barp = mPanel->mResizeBar;
         sendChildToFront(resize_barp);
     }
 }

@@ -155,7 +155,7 @@ void LLOctreeTriangleRayIntersect::visit(const LLOctreeNode<LLVolumeTriangle, LL
 
                 if (mTexCoord != NULL && mFace->mTexCoords)
                 {
-                    LLVector2* tc = (LLVector2*) mFace->mTexCoords;
+                    LLVector2* tc = mFace->mTexCoords;
                     *mTexCoord = ((1.f - a - b)  * tc[idx0] +
                         a              * tc[idx1] +
                         b              * tc[idx2]);
@@ -262,10 +262,10 @@ void LLVolumeOctreeValidate::visit(const LLOctreeNode<LLVolumeTriangle, LLVolume
         const LLVolumeTriangle* tri = *iter;
 
         //validate triangle
-        for (U32 i = 0; i < 3; i++)
+        for (auto i : tri->mV)
         {
-            if (tri->mV[i]->greaterThan(test_max).areAnySet(LLVector4Logical::MASK_XYZ) ||
-                tri->mV[i]->lessThan(test_min).areAnySet(LLVector4Logical::MASK_XYZ))
+            if (i->greaterThan(test_max).areAnySet(LLVector4Logical::MASK_XYZ) ||
+                i->lessThan(test_min).areAnySet(LLVector4Logical::MASK_XYZ))
             {
                 LL_ERRS() << "Triangle protrudes from node." << LL_ENDL;
             }

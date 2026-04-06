@@ -161,7 +161,7 @@ public:
         TextureEntry(const std::string &name, // this must match the xml name used by LLTexLayerInfo::parseXml
                      bool is_local_texture,
                      EBakedTextureIndex baked_texture_index = BAKED_NUM_INDICES,
-                     const std::string& default_image_name = "",
+                     std::string  default_image_name = "",
                      LLWearableType::EType wearable_type = LLWearableType::WT_INVALID);
         const std::string   mDefaultImageName;
         const LLWearableType::EType mWearableType;
@@ -237,8 +237,8 @@ public:
     ETextureIndex       bakedToLocalTextureIndex(EBakedTextureIndex t) const;
 
     // find a baked texture index based on its name
-    EBakedTextureIndex  findBakedByRegionName(std::string name);
-    EBakedTextureIndex  findBakedByImageName(std::string name);
+    EBakedTextureIndex  findBakedByRegionName(std::string name) const;
+    EBakedTextureIndex  findBakedByImageName(std::string name) const;
 
     // Given a texture entry, determine which wearable type owns it.
     LLWearableType::EType       getTEWearableType(ETextureIndex index) const;

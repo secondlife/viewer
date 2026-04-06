@@ -396,19 +396,14 @@ void LLPluginClassMedia::setAutoScale(bool auto_scale)
 
 bool LLPluginClassMedia::textureValid()
 {
-    if(
-        !mTextureParamsReceived ||
+    return !(!mTextureParamsReceived ||
         mTextureWidth <= 0 ||
         mTextureHeight <= 0 ||
         mMediaWidth <= 0 ||
         mMediaHeight <= 0 ||
         mRequestedMediaWidth != mMediaWidth ||
         mRequestedMediaHeight != mMediaHeight ||
-        getBitsData() == NULL
-    )
-        return false;
-
-    return true;
+        getBitsData() == NULL);
 }
 
 bool LLPluginClassMedia::getDirty(LLRect *dirty_rect)
@@ -710,7 +705,7 @@ void LLPluginClassMedia::injectOpenIDCookie()
     // can be called before we know who the user is at login
     // and there is no OpenID cookie at that point so no
     // need to try to set it (these values will all be empty)
-    if (sOIDcookieName.length() && sOIDcookieValue.length())
+    if (!sOIDcookieName.empty() && !sOIDcookieValue.empty())
     {
         setCookie(sOIDcookieUrl, sOIDcookieName,
             sOIDcookieValue, sOIDcookieHost, sOIDcookiePath, sOIDcookieHttpOnly, sOIDcookieSecure);
@@ -889,9 +884,9 @@ void LLPluginClassMedia::sendPickFileResponse(const std::vector<std::string> fil
     }
 
     LLSD file_list = LLSD::emptyArray();
-    for (std::vector<std::string>::const_iterator in_iter = files.begin(); in_iter != files.end(); ++in_iter)
+    for (const auto & file : files)
     {
-        file_list.append(LLSD::String(*in_iter));
+        file_list.append(LLSD::String(file));
     }
     message.setValueLLSD("file_list", file_list);
 
@@ -1628,7 +1623,7 @@ void LLPluginClassMedia::setVolume(float volume)
     }
 }
 
-float LLPluginClassMedia::getVolume()
+float LLPluginClassMedia::getVolume() const
 {
     return mRequestedVolume;
 }

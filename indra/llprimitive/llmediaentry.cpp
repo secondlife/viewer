@@ -158,9 +158,9 @@ void LLMediaEntry::asLLSD(LLSD& sd) const
     // "security" fields
     sd[WHITELIST_ENABLE_KEY] = mWhiteListEnable;
     sd.erase(WHITELIST_KEY);
-    for (U32 i=0; i<mWhiteList.size(); i++)
+    for (const auto & i : mWhiteList)
     {
-        sd[WHITELIST_KEY].append(mWhiteList[i]);
+        sd[WHITELIST_KEY].append(i);
     }
 
     // "permissions" fields
@@ -476,20 +476,20 @@ bool LLMediaEntry::checkUrlAgainstWhitelist(const std::string& url,
 {
     bool passes = true;
     // *NOTE: no entries?  Don't check
-    if (whitelist.size() > 0)
+    if (!whitelist.empty())
     {
         passes = false;
 
         // Case insensitive: the reason why we toUpper both this and the
         // filter
-        std::string candidate_url = url;
+        const std::string& candidate_url = url;
         // Use lluri to see if there is a path part in the candidate URL.  No path?  Assume "/"
         LLURI candidate_uri(candidate_url);
         std::vector<std::string>::const_iterator iter = whitelist.begin();
         std::vector<std::string>::const_iterator end = whitelist.end();
         for ( ; iter < end; ++iter )
         {
-            std::string filter = *iter;
+            const std::string& filter = *iter;
 
             LLURI filter_uri(filter);
             bool scheme_passes = pattern_match( candidate_uri.scheme(), filter_uri.scheme() );

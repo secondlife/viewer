@@ -41,7 +41,7 @@
 // LLTexLayerParam
 //-----------------------------------------------------------------------------
 LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer)
-    : LLViewerVisualParam(),
+    : 
     mTexLayer(layer),
     mAvatarAppearance(NULL)
 {
@@ -56,7 +56,7 @@ LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer)
 }
 
 LLTexLayerParam::LLTexLayerParam(LLAvatarAppearance *appearance)
-    : LLViewerVisualParam(),
+    : 
     mTexLayer(NULL),
     mAvatarAppearance(appearance)
 {
@@ -108,7 +108,7 @@ void LLTexLayerParamAlpha::getCacheByteCount(S32* gl_bytes)
         LLGLTexture* tex = instance->mCachedProcessedTexture;
         if (tex)
         {
-            S32 bytes = (S32)tex->getWidth() * tex->getHeight() * tex->getComponents();
+            S32 bytes = tex->getWidth() * tex->getHeight() * tex->getComponents();
 
             if (tex->hasGLTexture())
             {
@@ -121,8 +121,7 @@ void LLTexLayerParamAlpha::getCacheByteCount(S32* gl_bytes)
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer)
     : LLTexLayerParam(layer),
     mCachedProcessedTexture(NULL),
-    mStaticImageTGA(),
-    mStaticImageRaw(),
+    
     mNeedsCreateTexture(false),
     mStaticImageInvalid(false),
     mAvgDistortionVec(1.f, 1.f, 1.f),
@@ -134,8 +133,7 @@ LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer)
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLAvatarAppearance* appearance)
     : LLTexLayerParam(appearance),
     mCachedProcessedTexture(NULL),
-    mStaticImageTGA(),
-    mStaticImageRaw(),
+    
     mNeedsCreateTexture(false),
     mStaticImageInvalid(false),
     mAvgDistortionVec(1.f, 1.f, 1.f),
@@ -250,12 +248,7 @@ bool LLTexLayerParamAlpha::getSkip() const
     }
 
     LLWearableType::EType type = (LLWearableType::EType)getWearableType();
-    if ((type != LLWearableType::WT_INVALID) && !appearance->isWearingWearableType(type))
-    {
-        return true;
-    }
-
-    return false;
+    return (type != LLWearableType::WT_INVALID) && !appearance->isWearingWearableType(type);
 }
 
 
@@ -465,10 +458,10 @@ LLColor4 LLTexLayerParamColor::getNetColor() const
         F32 weight = scaled_weight - index_start;
         const LLColor4 *start = &info->mColors[ index_start ];
         const LLColor4 *end   = &info->mColors[ index_end ];
-        return LLColor4((1.f - weight) * start->mV[VRED] + weight * end->mV[VRED],
+        return {(1.f - weight) * start->mV[VRED] + weight * end->mV[VRED],
                         (1.f - weight) * start->mV[VGREEN] + weight * end->mV[VGREEN],
                         (1.f - weight) * start->mV[VBLUE] + weight * end->mV[VBLUE],
-                        (1.f - weight) * start->mV[VALPHA] + weight * end->mV[VALPHA]);
+                        (1.f - weight) * start->mV[VALPHA] + weight * end->mV[VALPHA]};
     }
 }
 

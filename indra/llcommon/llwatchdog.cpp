@@ -28,6 +28,7 @@
 #include "linden_common.h"
 
 #include <algorithm>
+#include <utility>
 
 #include "llwatchdog.h"
 #include "llmutex.h"
@@ -40,9 +41,8 @@ class LLWatchdogTimerThread : public LLThread
 {
 public:
     LLWatchdogTimerThread() :
-        LLThread("Watchdog"),
-        mSleepMsecs(0),
-        mStopping(false)
+        LLThread("Watchdog")
+        
     {
     }
 
@@ -65,13 +65,13 @@ public:
     }
 
 private:
-    long mSleepMsecs;
-    bool mStopping;
+    long mSleepMsecs{0};
+    bool mStopping{false};
 };
 
 // LLWatchdogEntry
-LLWatchdogEntry::LLWatchdogEntry(const std::string& thread_name)
-    : mThreadName(thread_name)
+LLWatchdogEntry::LLWatchdogEntry(std::string  thread_name)
+    : mThreadName(std::move(thread_name))
     , mThreadID(LLThread::currentID())
 {
 }

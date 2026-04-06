@@ -69,11 +69,8 @@ LLEventPumps::LLEventPumps():
                              { return new LLEventStream(name, tweak); } },
         { "LLEventMailDrop", [](const std::string& name, bool tweak, [[maybe_unused]] const std::string& type)
                              { return new LLEventMailDrop(name, tweak); } }
-    },
-    mTypes
-    {
-//      { "placeholder", "LLEventStream" }
     }
+    
 {}
 
 bool LLEventPumps::registerTypeFactory(const std::string& type, const TypeFactory& factory)
@@ -405,7 +402,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     {
         LL_WARNS() << "Can't connect listener" << LL_ENDL;
         // connect will fail, return dummy
-        return LLBoundListener();
+        return {};
     }
 
     LLCoros::LockType lock(mConnectionListMutex);
@@ -493,7 +490,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
                 {
                     if (cdmi->first != name)
                     {
-                        sortnames.push_back(SortNameList::value_type(cdmi->second, cdmi->first));
+                        sortnames.emplace_back(cdmi->second, cdmi->first);
                     }
                 }
                 std::ranges::sort(sortnames);
@@ -578,7 +575,7 @@ LLBoundListener LLEventPump::getListener(const std::string& name)
         return found->second;
     }
     // not found, return dummy LLBoundListener
-    return LLBoundListener();
+    return {};
 }
 
 void LLEventPump::stopListening(const std::string& name)

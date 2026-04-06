@@ -63,6 +63,7 @@
 #include "llchatmentionhelper.h"
 
 #include <queue>
+#include <utility>
 #include "llcombobox.h"
 
 //
@@ -85,8 +86,8 @@ const F32   SPELLCHECK_DELAY = 0.5f;    // delay between the last keypress and s
 class LLTextEditor::TextCmdInsert : public LLTextBase::TextCmd
 {
 public:
-    TextCmdInsert(S32 pos, bool group_with_next, const LLWString &ws, LLTextSegmentPtr segment)
-        : TextCmd(pos, group_with_next, segment), mWString(ws)
+    TextCmdInsert(S32 pos, bool group_with_next, LLWString ws, LLTextSegmentPtr segment)
+        : TextCmd(pos, group_with_next, segment), mWString(std::move(ws))
     {
     }
     virtual ~TextCmdInsert() = default;
@@ -117,7 +118,7 @@ class LLTextEditor::TextCmdAddChar : public LLTextBase::TextCmd
 {
 public:
     TextCmdAddChar( S32 pos, bool group_with_next, llwchar wc, LLTextSegmentPtr segment)
-        : TextCmd(pos, group_with_next, segment), mWString(1, wc), mBlockExtensions(false)
+        : TextCmd(pos, group_with_next, segment), mWString(1, wc) 
     {
     }
     virtual void blockExtensions()
@@ -163,7 +164,7 @@ public:
 
 private:
     LLWString   mWString;
-    bool        mBlockExtensions;
+    bool        mBlockExtensions{false};
 
 };
 
@@ -173,7 +174,7 @@ class LLTextEditor::TextCmdOverwriteChar : public LLTextBase::TextCmd
 {
 public:
     TextCmdOverwriteChar( S32 pos, bool group_with_next, llwchar wc)
-        : TextCmd(pos, group_with_next), mChar(wc), mOldChar(0) {}
+        : TextCmd(pos, group_with_next), mChar(wc) {}
 
     virtual bool execute( LLTextBase* editor, S32* delta )
     {
@@ -195,7 +196,7 @@ public:
 
 private:
     llwchar     mChar;
-    llwchar     mOldChar;
+    llwchar     mOldChar{0};
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -256,7 +257,7 @@ LLTextEditor::Params::Params()
 
 LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
     LLTextBase(p),
-    mAutoreplaceCallback(),
+    
     mBaseDocIsPristine(true),
     mPristineCmd( NULL ),
     mLastCmd( NULL ),
@@ -402,7 +403,7 @@ void LLTextEditor::selectNext(const std::string& search_text_in, bool case_insen
     mIsSelecting = true;
     mSelectedOnFocusReceived = false;
     mSelectionEnd = mCursorPos;
-    mSelectionStart = llmin((S32)getLength(), (S32)(mCursorPos + search_text.size()));
+    mSelectionStart = llmin(getLength(), (S32)(mCursorPos + search_text.size()));
 }
 
 bool LLTextEditor::replaceText(const std::string& search_text_in, const std::string& replace_text,
@@ -514,7 +515,7 @@ void LLTextEditor::getSegmentsInRange(LLTextEditor::segment_vec_t& segments_out,
 
     for (segment_set_t::const_iterator it = first_it; it != end_it; ++it)
     {
-        LLTextSegmentPtr segment = *it;
+        const LLTextSegmentPtr& segment = *it;
         if (include_partial
             ||  (segment->getStart() >= start
                 && segment->getEnd() <= end))
@@ -1096,7 +1097,7 @@ S32 LLTextEditor::remove(S32 pos, S32 length, bool group_with_next_op)
 
 S32 LLTextEditor::overwriteChar(S32 pos, llwchar wc)
 {
-    if ((S32)getLength() == pos)
+    if (getLength() == pos)
     {
         return addChar(pos, wc);
     }
@@ -1979,7 +1980,7 @@ bool LLTextEditor::handleKeyHere(KEY key, MASK mask )
             LLToolTipMgr::instance().getToolTipMessage(message);
             LLWString tool_tip_text(utf8str_to_wstring(message));
 
-            if (tool_tip_text.size() > 0)
+            if (!tool_tip_text.empty())
             {
                 // Delete any selected characters (the tooltip text replaces them)
                 if(hasSelection())
@@ -2167,7 +2168,7 @@ void LLTextEditor::undo()
 
 bool LLTextEditor::canRedo() const
 {
-    return !mReadOnly && (mUndoStack.size() > 0) && (mLastCmd != mUndoStack.front());
+    return !mReadOnly && (!mUndoStack.empty()) && (mLastCmd != mUndoStack.front());
 }
 
 void LLTextEditor::redo()
@@ -2704,9 +2705,9 @@ void LLTextEditor::updateLinkSegments()
     LLWString wtext = getWText();
 
     // update any segments that contain a link
-    for (segment_set_t::iterator it = mSegments.begin(); it != mSegments.end(); ++it)
+    for (const auto & mSegment : mSegments)
     {
-        LLTextSegment *segment = *it;
+        LLTextSegment *segment = mSegment;
         if (segment && segment->getStyle() && segment->getStyle()->isLink())
         {
             LLStyleConstSP style = segment->getStyle();

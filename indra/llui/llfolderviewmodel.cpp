@@ -29,7 +29,7 @@
 #include "llfolderviewmodel.h"
 #include "lltrans.h"
 
-bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item)
+bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item) const
 {
     return item->getSortVersion() < mTargetSortVersion;
 }

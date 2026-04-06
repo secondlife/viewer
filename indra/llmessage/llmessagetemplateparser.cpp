@@ -44,82 +44,58 @@
 // checks 'a'
 bool    b_return_alphanumeric_ok(char c)
 {
-    if (  (  (c < 'A')
+    return !((  (c < 'A')
            ||(c > 'Z'))
         &&(  (c < 'a')
            ||(c > 'z'))
         &&(  (c < '0')
-           ||(c > '9')))
-    {
-        return false;
-    }
-    return true;
+           ||(c > '9')));
 }
 
 // checks 'c'
 bool    b_return_character_ok(char c)
 {
-    if (  (  (c < 'A')
+    return !((  (c < 'A')
            ||(c > 'Z'))
         &&(  (c < 'a')
-           ||(c > 'z')))
-    {
-        return false;
-    }
-    return true;
+           ||(c > 'z')));
 }
 
 // checks 'f'
 bool    b_return_first_variable_ok(char c)
 {
-    if (  (  (c < 'A')
+    return !((  (c < 'A')
            ||(c > 'Z'))
         &&(  (c < 'a')
            ||(c > 'z'))
-        &&(c != '_'))
-    {
-        return false;
-    }
-    return true;
+        &&(c != '_'));
 }
 
 // checks 'v'
 bool    b_return_variable_ok(char c)
 {
-    if (  (  (c < 'A')
+    return !((  (c < 'A')
            ||(c > 'Z'))
         &&(  (c < 'a')
            ||(c > 'z'))
         &&(  (c < '0')
            ||(c > '9'))
-        &&(c != '_'))
-    {
-        return false;
-    }
-    return true;
+        &&(c != '_'));
 }
 
 // checks 's'
 bool    b_return_signed_integer_ok(char c)
 {
-    if (  (  (c < '0')
+    return !((  (c < '0')
            ||(c > '9'))
-        &&(c != '-'))
-    {
-        return false;
-    }
-    return true;
+        &&(c != '-'));
 }
 
 // checks 'd'
 bool    b_return_integer_ok(char c)
 {
-    if (  (c < '0')
-        ||(c > '9'))
-    {
-        return false;
-    }
-    return true;
+    return !((c < '0')
+        ||(c > '9'));
 }
 
 bool    (*gParseCheckCharacters[])(char c) =
@@ -237,7 +213,7 @@ bool    b_positive_integer_ok(const char *token)
 
 using tokenizer = boost::tokenizer< boost::char_separator<char> >;
 
-LLTemplateTokenizer::LLTemplateTokenizer(const std::string & contents) : mStarted(false), mTokens()
+LLTemplateTokenizer::LLTemplateTokenizer(const std::string & contents) : mStarted(false) 
 {
     boost::char_separator<char> newline("\r\n", "", boost::keep_empty_tokens);
     boost::char_separator<char> spaces(" \t");
@@ -373,8 +349,8 @@ void LLTemplateTokenizer::error(std::string message) const
 // Done with tokenizer, next is the parser.
 
 LLTemplateParser::LLTemplateParser(LLTemplateTokenizer & tokens):
-    mVersion(0.f),
-    mMessages()
+    mVersion(0.f)
+    
 {
     // the version number should be the first thing in the file
     if (tokens.want("version"))

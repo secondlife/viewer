@@ -205,7 +205,7 @@ public:
     bool    toLLPartInitData(LLPartInitData *out, U32 *bytesUsed);
     bool    fromUnsignedBytes(U8 *in, U32 bytesUsed);
     bool    toUnsignedBytes(U8 *out);
-    U32     bufferSize();
+    U32     bufferSize() const;
     U8      *getBytePtr();
 
 protected:

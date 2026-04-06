@@ -119,7 +119,7 @@ LLParcel::ECategory category_ui_string_to_category(const std::string& s);
 
 LLParcel::LLParcel()
 {
-    init(LLUUID::null, true, false, false, 0, 0, 0, 0, 0, 1.f, 0);
+    init(LLUUID::null, true, false, false, 0, 0, 0, 0, 0, 1.f, false);
 }
 
 
@@ -573,9 +573,9 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
         msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_AnyAVSounds, any_av_sounds);
         msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_GroupAVSounds, group_av_sounds);
     }
-    setSeeAVs((bool) see_avs);
-    setAllowAnyAVSounds((bool) any_av_sounds);
-    setAllowGroupAVSounds((bool) group_av_sounds);
+    setSeeAVs( see_avs);
+    setAllowAnyAVSounds( any_av_sounds);
+    setAllowGroupAVSounds( group_av_sounds);
 
     setHaveNewParcelLimitData(have_new_parcel_limit_data);
 

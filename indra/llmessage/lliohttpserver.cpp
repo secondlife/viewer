@@ -49,6 +49,7 @@
 #include <sstream>
 
 #include <boost/tokenizer.hpp>
+#include <utility>
 
 static const char HTTP_VERSION_STR[] = "HTTP/1.0";
 
@@ -60,11 +61,8 @@ class LLHTTPPipe : public LLIOPipe
 public:
     explicit LLHTTPPipe(const LLHTTPNode& node)
         : mNode(node),
-          mResponse(NULL),
-          mState(STATE_INVOKE),
-          mChainLock(0),
-          mLockedPump(NULL),
-          mStatusCode(0)
+          mResponse(NULL)
+          
         { }
     virtual ~LLHTTPPipe()
     {
@@ -101,8 +99,8 @@ private:
         void nullPipe();
 
     private:
-        Response() : mPipe(NULL) {} // Must be accessed through LLPointer.
-        LLHTTPPipe* mPipe;
+        Response()  {} // Must be accessed through LLPointer.
+        LLHTTPPipe* mPipe{NULL};
     };
     friend class Response;
 
@@ -118,16 +116,16 @@ private:
         STATE_EXTENDED_RESULT,
         STATE_EXTENDED_LLSD_RESULT
     };
-    State mState;
+    State mState{STATE_INVOKE};
 
-    S32 mChainLock;
-    LLPumpIO* mLockedPump;
+    S32 mChainLock{0};
+    LLPumpIO* mLockedPump{NULL};
 
     void lockChain(LLPumpIO*);
     void unlockChain();
 
     LLSD mResult;
-    S32 mStatusCode;
+    S32 mStatusCode{0};
     std::string mStatusMessage;
     LLSD mHeaders;
 };
@@ -416,7 +414,7 @@ void LLHTTPPipe::unlockChain()
 class LLHTTPResponseHeader : public LLIOPipe
 {
 public:
-    LLHTTPResponseHeader() : mCode(0) {}
+    LLHTTPResponseHeader()  {}
     virtual ~LLHTTPResponseHeader() = default;
 
 protected:
@@ -435,7 +433,7 @@ protected:
     //@}
 
 protected:
-    S32 mCode;
+    S32 mCode{0};
 };
 
 
@@ -513,7 +511,7 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 class LLHTTPResponder : public LLIOPipe
 {
 public:
-    LLHTTPResponder(const LLHTTPNode& tree, const LLSD& ctx);
+    LLHTTPResponder(const LLHTTPNode& tree, LLSD  ctx);
     ~LLHTTPResponder();
 
 protected:
@@ -575,25 +573,23 @@ protected:
     };
 
     LLSD mBuildContext;
-    EState mState;
-    U8* mLastRead;
+    EState mState{STATE_NOTHING};
+    U8* mLastRead{NULL};
     std::string mVerb;
     std::string mAbsPathAndQuery;
     std::string mPath;
     std::string mQuery;
     std::string mVersion;
-    S32 mContentLength;
+    S32 mContentLength{0};
     LLSD mHeaders;
 
     // handle the urls
     const LLHTTPNode& mRootNode;
 };
 
-LLHTTPResponder::LLHTTPResponder(const LLHTTPNode& tree, const LLSD& ctx) :
-    mBuildContext(ctx),
-    mState(STATE_NOTHING),
-    mLastRead(NULL),
-    mContentLength(0),
+LLHTTPResponder::LLHTTPResponder(const LLHTTPNode& tree, LLSD  ctx) :
+    mBuildContext(std::move(ctx)),
+    
     mRootNode(tree)
 {
 }
@@ -876,7 +872,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
             // channel information as the link before it since it
             // is part of the response.
             LLIOPipe* header = new LLHTTPResponseHeader;
-            chain.push_back(LLIOPipe::ptr_t(header));
+            chain.emplace_back(header);
 
             // We need to copy all of the pipes _after_ this so
             // that the response goes out correctly.
@@ -985,7 +981,7 @@ LLHTTPNode& LLIOHTTPServer::create(
     LLIOServerSocket* server = new LLIOServerSocket(pool, socket, factory_ptr);
 
     LLPumpIO::chain_t chain;
-    chain.push_back(LLIOPipe::ptr_t(server));
+    chain.emplace_back(server);
     pump.addChain(chain, NEVER_CHAIN_EXPIRY_SECS);
 
     return factory->getRootNode();

@@ -246,13 +246,13 @@ LLModel::EModelStatus load_face_from_dom_triangles(
 
         if (point_iter != point_map.end())
         {
-            for (U32 j = 0; j < point_iter->second.size(); ++j)
+            for (auto & j : point_iter->second)
             {
                 // We have a matching loc
                 //
-                if ((point_iter->second)[j] == cv)
+                if (j == cv)
                 {
-                    U16 shared_index    = (point_iter->second)[j].mIndex;
+                    U16 shared_index    = j.mIndex;
 
                     // Don't share verts within the same tri, degenerate
                     //
@@ -502,12 +502,12 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 
             if (point_iter != point_map.end())
             {
-                for (U32 k = 0; k < point_iter->second.size(); ++k)
+                for (auto & k : point_iter->second)
                 {
-                    if ((point_iter->second)[k] == cv)
+                    if (k == cv)
                     {
                         found = true;
-                        U32 index = (point_iter->second)[k].mIndex;
+                        U32 index = k.mIndex;
                         if (j == 0)
                         {
                             first_index = index;
@@ -796,12 +796,12 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
     std::map<LLVolumeFace::VertexData, U32> vert_idx;
 
     U32 cur_idx = 0;
-    for (U32 i = 0; i < verts.size(); ++i)
+    for (const auto & vert : verts)
     {
-        std::map<LLVolumeFace::VertexData, U32>::iterator iter = vert_idx.find(verts[i]);
+        std::map<LLVolumeFace::VertexData, U32>::iterator iter = vert_idx.find(vert);
         if (iter == vert_idx.end())
         {
-            vert_idx[verts[i]] = cur_idx++;
+            vert_idx[vert] = cur_idx++;
         }
     }
 
@@ -1082,8 +1082,8 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 
                 if (mdl && validate_model(mdl))
                 {
-                    mModelList.push_back(mdl);
-                    mModelsMap[mesh].push_back(mdl);
+                    mModelList.emplace_back(mdl);
+                    mModelsMap[mesh].emplace_back(mdl);
                 }
                 i++;
             }
@@ -1171,7 +1171,7 @@ std::string LLDAELoader::preprocessDAE(std::string filename)
 {
     // Open a DAE file for some preprocessing (like removing space characters in IDs), see MAINT-5678
     llifstream inFile;
-    inFile.open(filename.c_str(), std::ios_base::in);
+    inFile.open(filename, std::ios_base::in);
     std::stringstream strStream;
     strStream << inFile.rdbuf();
     std::string buffer = strStream.str();
@@ -1271,7 +1271,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         bool missingSkeletonOrScene = false;
 
         //If no skeleton, do a breadth-first search to get at specific joints
-        if ( skeletons.size() == 0 )
+        if ( skeletons.empty() )
         {
             daeElement* pScene = root->getDescendant("visual_scene");
             if ( !pScene )
@@ -1300,10 +1300,8 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         else
         {
             //Has one or more skeletons
-            for (std::vector<domInstance_controller::domSkeleton*>::iterator skel_it = skeletons.begin();
-                 skel_it != skeletons.end(); ++skel_it)
+            for (auto pSkeleton : skeletons)
             {
-                domInstance_controller::domSkeleton* pSkeleton = *skel_it;
                 //Get the root node of the skeleton
                 daeElement* pSkeletonRootNode = pSkeleton->getValue().getElement();
                 if ( pSkeletonRootNode )
@@ -1464,7 +1462,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                                     mat.mMatrix[i][j] = (F32)transform[k*16 + i + j*4];
                                 }
                             }
-                            model->mSkinInfo.mInvBindMatrix.push_back(LLMatrix4a(mat));
+                            model->mSkinInfo.mInvBindMatrix.emplace_back(mat);
                         }
                     }
                 }
@@ -1495,7 +1493,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
             JointMap :: const_iterator masterJointItEnd = mJointMap.end();
             for (;masterJointIt!=masterJointItEnd;++masterJointIt )
             {
-                std::string lookingForJoint = (*masterJointIt).first.c_str();
+                std::string lookingForJoint = (*masterJointIt).first;
 
                 if ( mJointList.find( lookingForJoint ) != mJointList.end() )
                 {
@@ -1532,7 +1530,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         const int jointCnt = static_cast<int>(model->mSkinInfo.mJointNames.size());
         for ( int i=0; i<jointCnt; ++i, ++jointIt )
         {
-            std::string lookingForJoint = (*jointIt).c_str();
+            const std::string& lookingForJoint = *jointIt;
             //Look for the joint xform that we extracted from the skeleton, using the jointIt as the key
             //and store it in the alternate bind matrix
             if (mJointMap.find(lookingForJoint) != mJointMap.end()
@@ -1540,7 +1538,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
             {
                 LLMatrix4 newInverse = LLMatrix4(model->mSkinInfo.mInvBindMatrix[i].getF32ptr());
                 newInverse.setTranslation( mJointList[lookingForJoint].getTranslation() );
-                model->mSkinInfo.mAlternateBindMatrix.push_back( LLMatrix4a(newInverse) );
+                model->mSkinInfo.mAlternateBindMatrix.emplace_back(newInverse );
             }
             else
             {
@@ -1637,7 +1635,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 
                         F32 weight_value = (F32)w[weight_idx];
 
-                        weight_list.push_back(LLModel::JointWeight(joint_idx, weight_value));
+                        weight_list.emplace_back(joint_idx, weight_value);
                     }
 
                     //sort by joint weight
@@ -1659,9 +1657,9 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                     F32 scale = 1.f/total;
                     if (scale != 1.f)
                     { //normalize weights
-                        for (U32 i = 0; i < wght.size(); ++i)
+                        for (auto & i : wght)
                         {
-                            wght[i].mWeight *= scale;
+                            i.mWeight *= scale;
                         }
                     }
 
@@ -1679,12 +1677,12 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         transformation *= mTransform;
 
         std::map<std::string, LLImportMaterial> materials;
-        for (U32 i = 0; i < model->mMaterialList.size(); ++i)
+        for (const auto & i : model->mMaterialList)
         {
-            materials[model->mMaterialList[i]] = LLImportMaterial();
+            materials[i] = LLImportMaterial();
         }
         // todo: likely a bug here, shouldn't be using suffixed label, see how it gets used in other places.
-        mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
+        mScene[transformation].emplace_back(model, model->mLabel, transformation, materials);
         stretch_extents(model, transformation);
     }
 }
@@ -1717,7 +1715,7 @@ void LLDAELoader::processJointToNodeMapping( domNode* pNode )
         std::string nodeName = pNode->getName();
         if ( !nodeName.empty() )
         {
-            mJointsFromNode.push_front( pNode->getName() );
+            mJointsFromNode.emplace_front(pNode->getName() );
         }
         //2. Handle the kiddo's
         processChildJoints( pNode );
@@ -1858,7 +1856,7 @@ bool LLDAELoader::verifyController( domController* pController )
 //-----------------------------------------------------------------------------
 void LLDAELoader::extractTranslation( domTranslate* pTranslate, LLMatrix4& transform )
 {
-    domFloat3 jointTrans = pTranslate->getValue();
+    const domFloat3& jointTrans = pTranslate->getValue();
     LLVector3 singleJointTranslation((F32)jointTrans[0], (F32)jointTrans[1], (F32)jointTrans[2]);
     transform.setTranslation( singleJointTranslation );
 }
@@ -2158,7 +2156,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
                             }
                         }
 
-                        mScene[transformation].push_back(LLModelInstance(model, label, transformation, materials));
+                        mScene[transformation].emplace_back(model, label, transformation, materials);
                         stretch_extents(model, transformation);
                     }
                 }
@@ -2202,7 +2200,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
 std::map<std::string, LLImportMaterial> LLDAELoader::getMaterials(LLModel* model, domInstance_geometry* instance_geo, DAE* dae)
 {
     std::map<std::string, LLImportMaterial> materials;
-    for (int i = 0; i < model->mMaterialList.size(); i++)
+    for (const auto & i : model->mMaterialList)
     {
         LLImportMaterial import_material;
 
@@ -2218,7 +2216,7 @@ std::map<std::string, LLImportMaterial> LLDAELoader::getMaterials(LLModel* model
             {
                 std::string symbol(inst_materials[j]->getSymbol());
 
-                if (symbol == model->mMaterialList[i]) // found the binding
+                if (symbol == i) // found the binding
                 {
                     instance_mat = inst_materials[j];
                     break;
@@ -2249,8 +2247,8 @@ std::map<std::string, LLImportMaterial> LLDAELoader::getMaterials(LLModel* model
             }
         }
 
-        import_material.mBinding = model->mMaterialList[i];
-        materials[model->mMaterialList[i]] = import_material;
+        import_material.mBinding = i;
+        materials[i] = import_material;
     }
 
     return materials;
@@ -2356,7 +2354,7 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 {
     // if we have a name attribute, use it
     std::string name = element->getAttribute("name");
-    if (name.length())
+    if (!name.empty())
     {
         return name;
     }
@@ -2383,12 +2381,12 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 
         // if parent has a name or ID, use it
         std::string name = parent->getAttribute("name");
-        if (!name.length())
+        if (name.empty())
         {
             name = std::string(parent->getID());
         }
 
-        if (name.length())
+        if (!name.empty())
         {
             // make sure that index won't mix up with pre-named lod extensions
             size_t ext_pos = getSuffixPosition(name);

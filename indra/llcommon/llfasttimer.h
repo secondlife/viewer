@@ -59,7 +59,7 @@ public:
     using DeclareTimer = class BlockTimerStatHandle;
     ~BlockTimer();
 
-    F64Seconds getElapsedTime();
+    F64Seconds getElapsedTime() const;
 
         //////////////////////////////////////////////////////////////////////////////
     //
@@ -241,10 +241,10 @@ public:
 
     using child_iter = std::vector<BlockTimerStatHandle*>::iterator;
     using child_const_iter = std::vector<BlockTimerStatHandle*>::const_iterator;
-    child_iter beginChildren();
-    child_iter endChildren();
-    bool hasChildren();
-    std::vector<BlockTimerStatHandle*>& getChildren();
+    child_iter beginChildren() const;
+    child_iter endChildren() const;
+    bool hasChildren() const;
+    std::vector<BlockTimerStatHandle*>& getChildren() const;
 
     StatType<TimeBlockAccumulator::CallCountFacet>& callCount()
     {

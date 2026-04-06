@@ -29,6 +29,8 @@
 //-----------------------------------------------------------------------------
 
 #include "llpolymorph.h"
+
+#include <utility>
 #include "llavatarappearance.h"
 #include "llavatarjoint.h"
 #include "llwearable.h"
@@ -44,8 +46,8 @@ const F32 NORMAL_SOFTEN_FACTOR = 0.65f;
 //-----------------------------------------------------------------------------
 // LLPolyMorphData()
 //-----------------------------------------------------------------------------
-LLPolyMorphData::LLPolyMorphData(const std::string& morph_name)
-    : mName(morph_name)
+LLPolyMorphData::LLPolyMorphData(std::string  morph_name)
+    : mName(std::move(morph_name))
 {
     mNumIndices = 0;
     mCurrentIndex = 0;
@@ -290,7 +292,7 @@ bool LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
                 static LLStdStringHandle pos_string = LLXmlTree::addAttributeString("pos");
                 child_node->getFastAttributeVector3(pos_string, pos);
 
-                mVolumeInfoList.push_back(LLPolyVolumeMorphInfo(volume_name,scale,pos));
+                mVolumeInfoList.emplace_back(volume_name,scale,pos);
             }
         }
     }
@@ -302,13 +304,13 @@ bool LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
 // LLPolyMorphTarget()
 //-----------------------------------------------------------------------------
 LLPolyMorphTarget::LLPolyMorphTarget(LLPolyMesh *poly_mesh)
-    : LLViewerVisualParam(),
+    : 
     mMorphData(NULL),
     mMesh(poly_mesh),
     mVertMask(NULL),
     mLastSex(SEX_FEMALE),
-    mNumMorphMasksPending(0),
-    mVolumeMorphs()
+    mNumMorphMasksPending(0)
+    
 {
 }
 
@@ -354,10 +356,9 @@ bool LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
         {
             if (avatarp->mCollisionVolumes[i].getName() == volume_info.mName)
             {
-                mVolumeMorphs.push_back(
-                    LLPolyVolumeMorph(&avatarp->mCollisionVolumes[i],
+                mVolumeMorphs.emplace_back(&avatarp->mCollisionVolumes[i],
                                                           volume_info.mScale,
-                                                          volume_info.mPos));
+                                                          volume_info.mPos);
                 break;
             }
         }

@@ -148,10 +148,9 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
         mCurrentSBlockName = bnamep;
 
         // add placeholders for each of the variables
-        for (LLMessageBlock::message_variable_map_t::const_iterator iter = template_data->mMemberVariables.begin();
-             iter != template_data->mMemberVariables.end(); iter++)
+        for (auto mMemberVariable : template_data->mMemberVariables)
         {
-            const LLMessageVariable& ci = **iter;
+            const LLMessageVariable& ci = *mMemberVariable;
             mCurrentSDataBlock->addVariable(ci.getName(), ci.getType());
         }
         return;
@@ -207,12 +206,9 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
         mCurrentSMessageData->mMemberBlocks[nbnamep] = mCurrentSDataBlock;
 
         // add placeholders for each of the variables
-        for (LLMessageBlock::message_variable_map_t::const_iterator
-                 iter = template_data->mMemberVariables.begin(),
-                 end = template_data->mMemberVariables.end();
-             iter != end; iter++)
+        for (auto mMemberVariable : template_data->mMemberVariables)
         {
-            const LLMessageVariable& ci = **iter;
+            const LLMessageVariable& ci = *mMemberVariable;
             mCurrentSDataBlock->addVariable(ci.getName(), ci.getType());
         }
         return;
@@ -239,10 +235,9 @@ bool LLTemplateMessageBuilder::removeLastBlock()
 
                 const LLMessageBlock* template_data = mCurrentSMessageTemplate->getBlock(mCurrentSBlockName);
 
-                for (LLMessageBlock::message_variable_map_t::const_iterator iter = template_data->mMemberVariables.begin();
-                     iter != template_data->mMemberVariables.end(); iter++)
+                for (auto mMemberVariable : template_data->mMemberVariables)
                 {
-                    const LLMessageVariable& ci = **iter;
+                    const LLMessageVariable& ci = *mMemberVariable;
                     mCurrentSendTotal -= ci.getSize();
                 }
 
@@ -461,7 +456,7 @@ void LLTemplateMessageBuilder::addString(const char* varname, const char* s)
 
 void LLTemplateMessageBuilder::addString(const char* varname, const std::string& s)
 {
-    if (s.size())
+    if (!s.empty())
         addData( varname, (void *)s.c_str(), MVT_VARIABLE, (S32)(s.size()) + 1);
     else
         addData( varname, NULL, MVT_VARIABLE, 0);
@@ -503,7 +498,7 @@ static S32 zero_code(U8 **data, U32 *data_size)
     S32 net_gain = 0;
     U8 num_zeroes = 0;
 
-    const U8 *inptr = (U8 *)*data;
+    const U8 *inptr = (*data);
     U8 *outptr = (U8 *)encodedSendBuffer;
 
 // skip the packet id field
@@ -610,11 +605,7 @@ bool LLTemplateMessageBuilder::isMessageFull(const char* blockname) const
         max = MAX_BLOCKS;
         break;
     }
-    if(mCurrentSMessageData->mMemberBlocks[bnamep]->mBlockNumber >= max)
-    {
-        return true;
-    }
-    return false;
+    return mCurrentSMessageData->mMemberBlocks[bnamep]->mBlockNumber >= max;
 }
 
 static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* template_data, LLMsgData* message_data)
@@ -813,13 +804,9 @@ U32 LLTemplateMessageBuilder::buildMessage(
 
     // fast forward through the offset and build the message
     result += offset_to_data;
-    for(LLMessageTemplate::message_block_map_t::const_iterator
-            iter = mCurrentSMessageTemplate->mMemberBlocks.begin(),
-            end = mCurrentSMessageTemplate->mMemberBlocks.end();
-         iter != end;
-        ++iter)
+    for(auto mMemberBlock : mCurrentSMessageTemplate->mMemberBlocks)
     {
-        result += buildBlock(buffer + result, buffer_size - result, *iter, mCurrentSMessageData);
+        result += buildBlock(buffer + result, buffer_size - result, mMemberBlock, mCurrentSMessageData);
     }
     mbSBuilt = true;
 

@@ -215,7 +215,7 @@ void LLXfer::sendPacket(S32 packet_num)
         return;
     }
 
-    if (((U32)(desired_read_position + fdata_size) >= (U32)mBufferLength) && (mBufferContainsEOF))
+    if (((U32)(desired_read_position + fdata_size) >= mBufferLength) && (mBufferContainsEOF))
     {
         last_packet = true;
     }

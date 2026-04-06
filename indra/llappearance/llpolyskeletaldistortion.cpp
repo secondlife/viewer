@@ -89,7 +89,7 @@ bool LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
                         {
                                 haspos = true;
                         }
-                        mBoneInfoList.push_back(LLPolySkeletalBoneInfo(name, scale, pos, haspos));
+                        mBoneInfoList.emplace_back(name, scale, pos, haspos);
                 }
                 else
                 {
@@ -104,10 +104,9 @@ bool LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 // LLPolySkeletalDistortion()
 //-----------------------------------------------------------------------------
 LLPolySkeletalDistortion::LLPolySkeletalDistortion(LLAvatarAppearance *avatarp)
-    : LLViewerVisualParam(),
+    : 
     mDefaultVec(),
-    mJointScales(),
-    mJointOffsets(),
+    
     mAvatar(avatarp)
 {
     mDefaultVec.splat(0.001f);

@@ -408,7 +408,7 @@ static void buildPathname(std::ostream& out, const LLView* view)
     out << '/';
 
     // substitute all '/' in name with appropriate code
-    std::string name = view->getName();
+    const std::string& name = view->getName();
     std::size_t found = name.find('/');
     std::size_t start = 0;
     while (found != std::string::npos)
@@ -708,7 +708,7 @@ void LLView::onMouseLeave(S32 x, S32 y, MASK mask)
     //LL_INFOS() << "Mouse left " << getName() << LL_ENDL;
 }
 
-bool LLView::visibleAndContains(S32 local_x, S32 local_y)
+bool LLView::visibleAndContains(S32 local_x, S32 local_y) const
 {
     return sDrilldown(this, local_x, local_y)
         && getVisible();
@@ -1349,7 +1349,7 @@ void LLView::drawDebugRect()
         gGL.end();
 
         // Draw the name if it's not a leaf node or not in editing or preview mode
-        if (mChildList.size()
+        if (!mChildList.empty()
             && preview_iter == sPreviewHighlightedElements.end()
             && sDebugRectsShowNames)
         {
@@ -2022,7 +2022,7 @@ class SortByTabOrder : public LLQuerySorter, public LLSingleton<SortByTabOrder>
 const LLViewQuery & LLView::getTabOrderQuery()
 {
     static LLViewQuery query;
-    if(query.getPreFilters().size() == 0) {
+    if(query.getPreFilters().empty()) {
         query.addPreFilter(LLVisibleFilter::getInstance());
         query.addPreFilter(LLEnabledFilter::getInstance());
         query.addPreFilter(LLTabStopFilter::getInstance());
@@ -2046,7 +2046,7 @@ class LLFocusRootsFilter : public LLQueryFilter, public LLSingleton<LLFocusRoots
 const LLViewQuery & LLView::getFocusRootsQuery()
 {
     static LLViewQuery query;
-    if(query.getPreFilters().size() == 0) {
+    if(query.getPreFilters().empty()) {
         query.addPreFilter(LLVisibleFilter::getInstance());
         query.addPreFilter(LLEnabledFilter::getInstance());
         query.addPreFilter(LLFocusRootsFilter::getInstance());
@@ -2203,11 +2203,8 @@ LLView* LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 
     if (snap_type == SNAP_SIBLINGS || snap_type == SNAP_PARENT_AND_SIBLINGS)
     {
-        for ( child_list_const_iter_t child_it = mParentView->getChildList()->begin();
-              child_it != mParentView->getChildList()->end(); ++child_it)
+        for (auto siblingp : *mParentView->getChildList())
         {
-            LLView* siblingp = *child_it;
-
             if (!canSnapTo(siblingp)) continue;
 
             LLRect sibling_rect = siblingp->getSnapRect();
@@ -2783,7 +2780,7 @@ LLView::tree_iterator_t LLView::beginTreeDFS()
 LLView::tree_iterator_t LLView::endTreeDFS()
 {
     // an empty iterator is an "end" iterator
-    return tree_iterator_t();
+    return {};
 }
 
 LLView::tree_post_iterator_t LLView::beginTreeDFSPost()
@@ -2796,7 +2793,7 @@ LLView::tree_post_iterator_t LLView::beginTreeDFSPost()
 LLView::tree_post_iterator_t LLView::endTreeDFSPost()
 {
     // an empty iterator is an "end" iterator
-    return tree_post_iterator_t();
+    return {};
 }
 
 LLView::bfs_tree_iterator_t LLView::beginTreeBFS()
@@ -2809,7 +2806,7 @@ LLView::bfs_tree_iterator_t LLView::beginTreeBFS()
 LLView::bfs_tree_iterator_t LLView::endTreeBFS()
 {
     // an empty iterator is an "end" iterator
-    return bfs_tree_iterator_t();
+    return {};
 }
 
 
@@ -2820,7 +2817,7 @@ LLView::root_to_view_iterator_t LLView::beginRootToView()
 
 LLView::root_to_view_iterator_t LLView::endRootToView()
 {
-    return root_to_view_iterator_t();
+    return {};
 }
 
 

@@ -66,8 +66,8 @@ public:
     LLCacheNameEntry();
 
 public:
-    bool mIsGroup;
-    U32 mCreateTime;    // unix time_t
+    bool mIsGroup{false};
+    U32 mCreateTime{0};    // unix time_t
     // IDEVO TODO collapse names to one field, which will eliminate
     // many string compares on "Resident"
     std::string mFirstName;
@@ -76,8 +76,8 @@ public:
 };
 
 LLCacheNameEntry::LLCacheNameEntry()
-    : mIsGroup(false),
-      mCreateTime(0)
+    
+      
 {
 }
 
@@ -116,13 +116,13 @@ private:
     void flush();
 
     LLMessageSystem*    mMsg;
-    bool                mPending;
-    bool                mCurrIsGroup;
+    bool                mPending{false};
+    bool                mCurrIsGroup{false};
     LLHost              mCurrHost;
 };
 
 ReplySender::ReplySender(LLMessageSystem* msg)
-    : mMsg(msg), mPending(false), mCurrIsGroup(false)
+    : mMsg(msg) 
 { }
 
 ReplySender::~ReplySender()
@@ -222,7 +222,7 @@ public:
 
     void processPendingAsks();
     void processPendingReplies();
-    void sendRequest(const char* msg_name, const AskQueue& queue);
+    void sendRequest(const char* msg_name, const AskQueue& queue) const;
     bool isRequestPending(const LLUUID& id);
 
     // Message system callbacks.
@@ -567,7 +567,7 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
         auto length = close_paren - open_paren - 2;
         std::string legacy_name = complete_name.substr(open_paren+2, length);
 
-        if (legacy_name.length() > 0)
+        if (!legacy_name.empty())
         {
             std::string cap_letter = legacy_name.substr(0, 1);
             LLStringUtil::toUpper(cap_letter);
@@ -580,7 +580,7 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
                 std::string last_name = legacy_name.substr(separator+1);
                 legacy_name = legacy_name.substr(0, separator);
 
-                if (last_name.length() > 0)
+                if (!last_name.empty())
                 {
                     cap_letter = last_name.substr(0, 1);
                     LLStringUtil::toUpper(cap_letter);
@@ -775,9 +775,8 @@ void LLCacheName::Impl::processPendingReplies()
 {
     // First call all the callbacks, because they might send messages.
     // Todo: needs cleanup logic, otherwise invalid ids might stay here indefinitely
-    for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
+    for(auto reply : mReplyQueue)
     {
-        PendingReply* reply = *it;
         LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
         if(!entry) continue;
 
@@ -795,9 +794,8 @@ void LLCacheName::Impl::processPendingReplies()
 
     // Forward on all replies, if needed.
     ReplySender sender(mMsg);
-    for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
+    for(auto reply : mReplyQueue)
     {
-        PendingReply* reply = *it;
         const LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
         if(!entry) continue;
 
@@ -824,7 +822,7 @@ void LLCacheName::Impl::processPendingReplies()
 
 void LLCacheName::Impl::sendRequest(
     const char* msg_name,
-    const AskQueue& queue)
+    const AskQueue& queue) const
 {
     if(queue.empty())
     {

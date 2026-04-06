@@ -207,7 +207,7 @@ public:
     // Load translations for tooltips for standard buttons
     static void initClass();
 
-    explicit LLFloater(const LLSD& key, const Params& params = getDefaultParams());
+    explicit LLFloater(LLSD  key, const Params& params = getDefaultParams());
 
     virtual ~LLFloater();
 
@@ -588,7 +588,7 @@ public:
     void            bringToFront( LLFloater* child, bool give_focus = true, bool restore = true );
     void            highlightFocusedFloater();
     void            unhighlightFocusedFloater();
-    void            focusFrontFloater();
+    void            focusFrontFloater() const;
     void            destroyAllChildren();
     // attempt to close all floaters
     void            closeAllChildren(bool app_quitting);

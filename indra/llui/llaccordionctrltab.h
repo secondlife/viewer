@@ -174,7 +174,7 @@ public:
 
     bool isExpanded() const { return mDisplayChildren; }
 
-    S32 getHeaderHeight();
+    S32 getHeaderHeight() const;
 
     // Min size functions
 

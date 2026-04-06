@@ -109,7 +109,7 @@ public:
     CycleTrack_t::value_type    getSettingsNearKeyframe(const LLSettingsBase::TrackPosition &keyframe, S32 track, F32 fudge) const;
 
         //---------------------------------------------------------------------
-    void                        startDayCycle();
+    void                        startDayCycle() const;
 
     virtual LLSettingsSkyPtr_t  getDefaultSky() const = 0;
     virtual LLSettingsWaterPtr_t getDefaultWater() const = 0;

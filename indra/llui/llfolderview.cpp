@@ -50,6 +50,7 @@
 // Third-party library includes
 #include <algorithm>
 #include <functional>
+#include <ranges>
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -163,7 +164,7 @@ LLFolderView::Params::Params()
 LLFolderView::LLFolderView(const Params& p)
 :   LLFolderViewFolder(p),
     mScrollContainer( NULL ),
-    mPopupMenuHandle(),
+    
     mMenuFileName(p.options_menu),
     mAllowMultiSelect(p.allow_multiselect),
     mAllowDrag(p.allow_drag),
@@ -380,7 +381,7 @@ void LLFolderView::addToSelectionList(LLFolderViewItem* item)
     {
         removeFromSelectionList(item);
     }
-    if (mSelectedItems.size())
+    if (!mSelectedItems.empty())
     {
         mSelectedItems.back()->setIsCurSelection(false);
     }
@@ -390,7 +391,7 @@ void LLFolderView::addToSelectionList(LLFolderViewItem* item)
 
 void LLFolderView::removeFromSelectionList(LLFolderViewItem* item)
 {
-    if (mSelectedItems.size())
+    if (!mSelectedItems.empty())
     {
         mSelectedItems.back()->setIsCurSelection(false);
     }
@@ -407,7 +408,7 @@ void LLFolderView::removeFromSelectionList(LLFolderViewItem* item)
             ++item_iter;
         }
     }
-    if (mSelectedItems.size())
+    if (!mSelectedItems.empty())
     {
         mSelectedItems.back()->setIsCurSelection(true);
     }
@@ -415,7 +416,7 @@ void LLFolderView::removeFromSelectionList(LLFolderViewItem* item)
 
 LLFolderViewItem* LLFolderView::getCurSelectedItem( void )
 {
-    if(mSelectedItems.size())
+    if(!mSelectedItems.empty())
     {
         LLFolderViewItem* itemp = mSelectedItems.back();
         llassert(itemp->getIsCurSelection());
@@ -614,11 +615,9 @@ void LLFolderView::sanitizeSelection()
 
 void LLFolderView::clearSelection()
 {
-    for (selected_items_t::const_iterator item_it = mSelectedItems.begin();
-         item_it != mSelectedItems.end();
-         ++item_it)
+    for (auto mSelectedItem : mSelectedItems)
     {
-        (*item_it)->setUnselected();
+        mSelectedItem->setUnselected();
     }
 
     mSelectedItems.clear();
@@ -668,7 +667,7 @@ void LLFolderView::draw()
     }
 
     static LLCachedControl<F32> type_ahead_timeout(*LLUI::getInstance()->mSettingGroups["config"], "TypeAheadTimeout", 1.5f);
-    if (mSearchTimer.getElapsedTimeF32() > type_ahead_timeout || !mSearchString.size())
+    if (mSearchTimer.getElapsedTimeF32() > type_ahead_timeout || mSearchString.empty())
     {
         mSearchString.clear();
     }
@@ -911,14 +910,13 @@ bool LLFolderView::autoOpenTest(LLFolderViewFolder* folder)
 
 bool LLFolderView::canCopy() const
 {
-    if (!(getVisible() && getEnabled() && (mSelectedItems.size() > 0)))
+    if (!(getVisible() && getEnabled() && (!mSelectedItems.empty())))
     {
         return false;
     }
 
-    for (selected_items_t::const_iterator selected_it = mSelectedItems.begin(); selected_it != mSelectedItems.end(); ++selected_it)
+    for (auto item : mSelectedItems)
     {
-        const LLFolderViewItem* item = *selected_it;
         if (!item->getViewModelItem()->isItemCopyable())
         {
             return false;
@@ -951,14 +949,13 @@ void LLFolderView::copy()
 
 bool LLFolderView::canCut() const
 {
-    if (!(getVisible() && getEnabled() && (mSelectedItems.size() > 0)))
+    if (!(getVisible() && getEnabled() && (!mSelectedItems.empty())))
     {
         return false;
     }
 
-    for (selected_items_t::const_iterator selected_it = mSelectedItems.begin(); selected_it != mSelectedItems.end(); ++selected_it)
+    for (auto item : mSelectedItems)
     {
-        const LLFolderViewItem* item = *selected_it;
         const LLFolderViewModelItem* listener = item->getViewModelItem();
 
         if (!listener || !listener->isItemRemovable())
@@ -973,7 +970,7 @@ void LLFolderView::cut()
 {
     // clear the inventory clipboard
     LLClipboard::instance().reset();
-    if(getVisible() && getEnabled() && (mSelectedItems.size() > 0))
+    if(getVisible() && getEnabled() && (!mSelectedItems.empty()))
     {
         // Find out which item will be selected once the selection will be cut
         LLFolderViewItem* item_to_select = getNextUnselectedItem();
@@ -982,9 +979,8 @@ void LLFolderView::cut()
         std::set<LLFolderViewItem*> inventory_selected = getSelectionList();
 
         // Move each item to the clipboard and out of their folder
-        for (std::set<LLFolderViewItem*>::iterator item_it = inventory_selected.begin(); item_it != inventory_selected.end(); ++item_it)
+        for (auto item_to_cut : inventory_selected)
         {
-            LLFolderViewItem* item_to_cut = *item_it;
             LLFolderViewModelItem* listener = item_to_cut->getViewModelItem();
             if (listener)
             {
@@ -1007,11 +1003,9 @@ bool LLFolderView::canPaste() const
 
     if(getVisible() && getEnabled())
     {
-        for (selected_items_t::const_iterator item_it = mSelectedItems.begin();
-             item_it != mSelectedItems.end(); ++item_it)
+        for (auto item : mSelectedItems)
         {
             // *TODO: only check folders and parent folders of items
-            const LLFolderViewItem* item = (*item_it);
             const LLFolderViewModelItem* listener = item->getViewModelItem();
             if(!listener || !listener->isClipboardPasteable())
             {
@@ -1176,7 +1170,7 @@ bool LLFolderView::handleKeyHere( KEY key, MASK mask )
         break;
 
     case KEY_DOWN:
-        if((mSelectedItems.size() > 0) && mScrollContainer)
+        if((!mSelectedItems.empty()) && mScrollContainer)
         {
             LLFolderViewItem* last_selected = getCurSelectedItem();
             bool shift_select = mask & MASK_SHIFT;
@@ -1239,7 +1233,7 @@ bool LLFolderView::handleKeyHere( KEY key, MASK mask )
         break;
 
     case KEY_UP:
-        if((mSelectedItems.size() > 0) && mScrollContainer)
+        if((!mSelectedItems.empty()) && mScrollContainer)
         {
             LLFolderViewItem* last_selected = mSelectedItems.back();
             bool shift_select = mask & MASK_SHIFT;
@@ -1294,7 +1288,7 @@ bool LLFolderView::handleKeyHere( KEY key, MASK mask )
         break;
 
     case KEY_RIGHT:
-        if(mSelectedItems.size())
+        if(!mSelectedItems.empty())
         {
             LLFolderViewItem* last_selected = getCurSelectedItem();
             last_selected->setOpen( true );
@@ -1304,7 +1298,7 @@ bool LLFolderView::handleKeyHere( KEY key, MASK mask )
         break;
 
     case KEY_LEFT:
-        if(mSelectedItems.size())
+        if(!mSelectedItems.empty())
         {
             LLFolderViewItem* last_selected = getCurSelectedItem();
             if(last_selected && last_selected->isSingleFolderMode())
@@ -1556,11 +1550,8 @@ bool LLFolderView::addNoOptions(LLMenuGL* menu) const
     LLView *nooptions_item = NULL;
 
     const LLView::child_list_t *list = menu->getChildList();
-    for (LLView::child_list_t::const_iterator itor = list->begin();
-         itor != list->end();
-         ++itor)
+    for (auto menu_item : *list)
     {
-        LLView *menu_item = (*itor);
         if (menu_item->getVisible())
         {
             return false;
@@ -1646,7 +1637,7 @@ void LLFolderView::deleteAllChildren()
 
 void LLFolderView::scrollToShowSelection()
 {
-    if ( mSelectedItems.size() )
+    if ( !mSelectedItems.empty() )
     {
         mNeedsScroll = true;
     }
@@ -1706,11 +1697,7 @@ bool LLFolderView::getShowSelectionContext()
         return true;
     }
     const LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-    if (menu && menu->getVisible())
-    {
-        return true;
-    }
-    return false;
+    return menu && menu->getVisible();
 }
 
 void LLFolderView::setShowSingleSelection(bool show)
@@ -1870,7 +1857,7 @@ void LLFolderView::update()
         constraint_rect.setOriginAndSize(0, 0, content_rect.getWidth(), content_rect.getHeight());
     }
 
-    if (mSelectedItems.size() && mNeedsScroll)
+    if (!mSelectedItems.empty() && mNeedsScroll)
     {
         LLFolderViewItem* scroll_to_item = mSelectedItems.back();
         scrollToShowItem(scroll_to_item, constraint_rect);
@@ -1885,7 +1872,7 @@ void LLFolderView::update()
             bool needs_arrange = needsArrange() || getRoot()->needsArrange();
             if (mParentFolder)
             {
-                needs_arrange |= (bool)mParentFolder->needsArrange();
+                needs_arrange |= mParentFolder->needsArrange();
             }
             if (!needs_arrange || !is_visible)
             {
@@ -1894,7 +1881,7 @@ void LLFolderView::update()
         }
     }
 
-    if (mSelectedItems.size())
+    if (!mSelectedItems.empty())
     {
         const LLFolderViewItem* item = mSelectedItems.back();
         // If the goal is to show renamer, don't callback untill
@@ -1969,16 +1956,13 @@ void LLFolderView::updateMenuOptions(LLMenuGL* menu)
     // Successively filter out invalid options
     U32 multi_select_flag = (mSelectedItems.size() > 1 ? ITEM_IN_MULTI_SELECTION : 0x0);
     U32 flags = multi_select_flag | FIRST_SELECTED_ITEM;
-    for (selected_items_t::iterator item_itor = mSelectedItems.begin();
-            item_itor != mSelectedItems.end();
-            ++item_itor)
+    for (auto selected_item : mSelectedItems)
     {
-        LLFolderViewItem* selected_item = (*item_itor);
         selected_item->buildContextMenu(*menu, flags);
         flags = multi_select_flag;
     }
 
-    if(mSingleFolderMode && (mSelectedItems.size() == 0))
+    if(mSingleFolderMode && (mSelectedItems.empty()))
     {
         buildContextMenu(*menu, flags);
     }
@@ -2036,10 +2020,8 @@ bool LLFolderView::isFolderSelected()
 
 bool LLFolderView::selectFirstItem()
 {
-    for (folders_t::iterator iter = mFolders.begin();
-         iter != mFolders.end();++iter)
+    for (auto folder : mFolders)
     {
-        LLFolderViewFolder* folder = (*iter );
         if (folder->getVisible())
         {
             LLFolderViewItem* itemp = folder->getNextFromChild(0,true);
@@ -2049,10 +2031,8 @@ bool LLFolderView::selectFirstItem()
         }
 
     }
-    for(items_t::iterator iit = mItems.begin();
-        iit != mItems.end(); ++iit)
+    for(auto itemp : mItems)
     {
-        LLFolderViewItem* itemp = (*iit);
         if (itemp->getVisible())
         {
             setSelection(itemp,false,true);
@@ -2063,20 +2043,16 @@ bool LLFolderView::selectFirstItem()
 }
 bool LLFolderView::selectLastItem()
 {
-    for(items_t::reverse_iterator iit = mItems.rbegin();
-        iit != mItems.rend(); ++iit)
+    for(auto itemp : std::views::reverse(mItems))
     {
-        LLFolderViewItem* itemp = (*iit);
         if (itemp->getVisible())
         {
             setSelection(itemp,false,true);
             return true;
         }
     }
-    for (folders_t::reverse_iterator iter = mFolders.rbegin();
-         iter != mFolders.rend();++iter)
+    for (auto folder : std::views::reverse(mFolders))
     {
-        LLFolderViewFolder* folder = (*iter);
         if (folder->getVisible())
         {
             LLFolderViewItem* itemp = folder->getPreviousFromChild(0,true);

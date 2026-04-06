@@ -403,7 +403,7 @@ void LLPngWrapper::releaseResources()
 }
 
 // Get final image size after compression
-U32 LLPngWrapper::getFinalSize()
+U32 LLPngWrapper::getFinalSize() const
 {
     return mFinalSize;
 }

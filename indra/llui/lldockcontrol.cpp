@@ -29,10 +29,11 @@
 #include "lldockcontrol.h"
 #include "lldockablefloater.h"
 #include <functional>
+#include <utility>
 LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
-        const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_allowed_rect_callback) :
+        LLUIImagePtr  dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_allowed_rect_callback) :
         mDockableFloater(dockableFloater),
-        mDockTongue(dockTongue),
+        mDockTongue(std::move(dockTongue)),
         mDockTongueX(0),
         mDockTongueY(0)
 {

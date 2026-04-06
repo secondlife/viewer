@@ -147,12 +147,12 @@ namespace LLError
 
         virtual bool enabled() { return true; }
 
-        bool wantsTime();
-        bool wantsTags();
-        bool wantsLevel();
-        bool wantsLocation();
-        bool wantsFunctionName();
-        bool wantsMultiline();
+        bool wantsTime() const;
+        bool wantsTags() const;
+        bool wantsLevel() const;
+        bool wantsLocation() const;
+        bool wantsFunctionName() const;
+        bool wantsMultiline() const;
 
         void showTime(bool show);
         void showTags(bool show);

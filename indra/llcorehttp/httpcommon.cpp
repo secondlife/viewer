@@ -360,7 +360,7 @@ CURL_ptr createEasyHandle()
 
     CURL* handle = curl_easy_duphandle(getCurlTemplateHandle());
 
-    return CURL_ptr(handle, &deallocateEasyCurl);
+    return {handle, &deallocateEasyCurl};
 }
 
 std::string getCURLVersion()

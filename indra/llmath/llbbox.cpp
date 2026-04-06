@@ -83,9 +83,9 @@ void LLBBox::addBBoxAgent(const LLBBox& b)
     m.translate( -mPosAgent );
     m.rotate( ~mRotation );
 
-    for( S32 i=0; i<8; i++ )
+    for(auto i : vertex)
     {
-        addPointLocal( vertex[i] * m );
+        addPointLocal( i * m );
     }
 }
 
@@ -142,16 +142,12 @@ LLVector3 LLBBox::agentToLocalBasis(const LLVector3& v) const
 
 bool LLBBox::containsPointLocal(const LLVector3& p) const
 {
-    if (  (p.mV[VX] < mMinLocal.mV[VX])
+    return !((p.mV[VX] < mMinLocal.mV[VX])
         ||(p.mV[VX] > mMaxLocal.mV[VX])
         ||(p.mV[VY] < mMinLocal.mV[VY])
         ||(p.mV[VY] > mMaxLocal.mV[VY])
         ||(p.mV[VZ] < mMinLocal.mV[VZ])
-        ||(p.mV[VZ] > mMaxLocal.mV[VZ]))
-    {
-        return false;
-    }
-    return true;
+        ||(p.mV[VZ] > mMaxLocal.mV[VZ]));
 }
 
 bool LLBBox::containsPointAgent(const LLVector3& p) const

@@ -41,7 +41,7 @@ LLStatView::LLStatView(const LLStatView::Params& p)
     mSetting(p.setting)
 {
     bool isopen = getDisplayChildren();
-    if (mSetting.length() > 0)
+    if (!mSetting.empty())
     {
         isopen = LLUI::getInstance()->mSettingGroups["config"]->getBOOL(mSetting);
     }
@@ -51,7 +51,7 @@ LLStatView::LLStatView(const LLStatView::Params& p)
 LLStatView::~LLStatView()
 {
     // Children all cleaned up by default view destructor.
-    if (mSetting.length() > 0)
+    if (!mSetting.empty())
     {
         bool isopen = getDisplayChildren();
         LLUI::getInstance()->mSettingGroups["config"]->setBOOL(mSetting, isopen);

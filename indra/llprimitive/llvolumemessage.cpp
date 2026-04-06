@@ -311,7 +311,7 @@ bool LLVolumeMessage::packPathParams(
     dp.packU8(*(U8 *)&taper_y, "TaperY");
 
     U8 revolutions = (U8) ll_round( (params->getRevolutions() - 1.0f) / REV_QUANTA);
-    dp.packU8(*(U8 *)&revolutions, "Revolutions");
+    dp.packU8(*(&revolutions), "Revolutions");
 
     S8 skew = (S8) ll_round(params->getSkew() / SCALE_QUANTA);
     dp.packU8(*(U8 *)&skew, "Skew");

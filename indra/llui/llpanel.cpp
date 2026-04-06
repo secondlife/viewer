@@ -165,21 +165,19 @@ void LLPanel::removeBorder()
 void LLPanel::clearCtrls()
 {
     LLPanel::ctrl_list_t ctrls = getCtrlList();
-    for (LLPanel::ctrl_list_t::iterator ctrl_it = ctrls.begin(); ctrl_it != ctrls.end(); ++ctrl_it)
+    for (auto ctrl : ctrls)
     {
-        LLUICtrl* ctrl = *ctrl_it;
         ctrl->setFocus( false );
         ctrl->setEnabled( false );
         ctrl->clear();
     }
 }
 
-void LLPanel::setCtrlsEnabled( bool b )
+void LLPanel::setCtrlsEnabled( bool b ) const
 {
     LLPanel::ctrl_list_t ctrls = getCtrlList();
-    for (LLPanel::ctrl_list_t::iterator ctrl_it = ctrls.begin(); ctrl_it != ctrls.end(); ++ctrl_it)
+    for (auto ctrl : ctrls)
     {
-        LLUICtrl* ctrl = *ctrl_it;
         ctrl->setEnabled( b );
     }
 }
@@ -187,9 +185,8 @@ void LLPanel::setCtrlsEnabled( bool b )
 LLPanel::ctrl_list_t LLPanel::getCtrlList() const
 {
     ctrl_list_t controls;
-    for(child_list_t::const_iterator it = getChildList()->begin(), end_it = getChildList()->end(); it != end_it; ++it)
+    for(auto viewp : *getChildList())
     {
-        LLView* viewp = *it;
         if(viewp->isCtrl())
         {
             controls.push_back(static_cast<LLUICtrl*>(viewp));
@@ -438,11 +435,9 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
         setVisibleCallback(initCommitCallback(p.visible_callback));
     }
 
-    for (LLInitParam::ParamIterator<LocalizedString>::const_iterator it = p.strings.begin();
-        it != p.strings.end();
-        ++it)
+    for (const auto & string : p.strings)
     {
-        mUIStrings[it->name] = it->value;
+        mUIStrings[string.name] = string.value;
     }
 
     setLabel(p.label());
@@ -728,7 +723,7 @@ LLSD LLPanel::childGetValue(std::string_view id) const
         return child->getValue();
     }
     // Not found => return undefined
-    return LLSD();
+    return {};
 }
 
 bool LLPanel::childSetTextArg(std::string_view id, const std::string& key, const LLStringExplicit& text)

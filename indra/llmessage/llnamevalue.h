@@ -125,14 +125,14 @@ public:
 
     ~LLNameValue();
 
-    char            *getString();
+    char            *getString() const;
     const char      *getAsset() const;
-    F32             *getF32();
-    S32             *getS32();
-    void            getVec3(LLVector3 &vec);
-    LLVector3       *getVec3();
-    U32             *getU32();
-    U64             *getU64();
+    F32             *getF32() const;
+    S32             *getS32() const;
+    void            getVec3(LLVector3 &vec) const;
+    LLVector3       *getVec3() const;
+    U32             *getU32() const;
+    U64             *getU64() const;
 
     const char      *getType() const        { return mStringType; }
     const char      *getClass() const       { return mStringClass; }
@@ -152,10 +152,10 @@ public:
     LLNameValue     &operator=(const LLNameValue &a);
     void            setString(const char *a);
     void            setAsset(const char *a);
-    void            setF32(const F32 a);
-    void            setS32(const S32 a);
-    void            setVec3(const LLVector3 &a);
-    void            setU32(const U32 a);
+    void            setF32(const F32 a) const;
+    void            setS32(const S32 a) const;
+    void            setVec3(const LLVector3 &a) const;
+    void            setU32(const U32 a) const;
 
     friend std::ostream&        operator<<(std::ostream& s, const LLNameValue &a);
 

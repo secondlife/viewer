@@ -254,7 +254,7 @@ bool LLKeyboard::handleTranslatedKeyDown(KEY translated_key, U32 translated_mask
     }
 
     mKeyDown[translated_key] = true;
-    mCurTranslatedKey = (KEY)translated_key;
+    mCurTranslatedKey = translated_key;
     handled = mCallbacks->handleTranslatedKeyDown(translated_key, translated_mask, repeated);
     return handled;
 }
@@ -490,7 +490,7 @@ std::string LLKeyboard::stringFromAccelerator(MASK accel_mask, EMouseClickType c
 //static
 bool LLKeyboard::maskFromString(const std::string& str, MASK *mask)
 {
-    std::string instring(str);
+    const std::string& instring(str);
     if (instring == "NONE")
     {
         *mask = MASK_NONE;

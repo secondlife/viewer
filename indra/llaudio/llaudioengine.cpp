@@ -203,7 +203,7 @@ std::string LLAudioEngine::getInternetStreamURL()
     if (mStreamingAudioImpl)
         return mStreamingAudioImpl->getURL();
 
-    return std::string();
+    return {};
 }
 
 
@@ -684,7 +684,7 @@ void LLAudioEngine::setMasterGain(const F32 gain)
     }
 }
 
-F32 LLAudioEngine::getMasterGain()
+F32 LLAudioEngine::getMasterGain() const
 {
     return mMasterGain;
 }
@@ -972,14 +972,7 @@ bool LLAudioEngine::hasDecodedFile(const LLUUID &uuid)
     wav_path = gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_str);
     wav_path += ".dsf";
 
-    if (gDirUtilp->fileExists(wav_path))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return gDirUtilp->fileExists(wav_path);
 }
 
 

@@ -107,7 +107,7 @@ private:
             LL_ERRS("LLLogin") << "Received unrecognized event (" << mismatch << ") on "
                                << pumpName << "pump: " << response
                                << LL_ENDL;
-            return LLSD();
+            return {};
         }
 
         return response;

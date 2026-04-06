@@ -74,7 +74,7 @@ inline F64 ll_internal_random<F64>()
     // occasionally give an obviously incorrect random number -- like
     // 5^15 or something. Sooooo, clamp it as described above.
     F64 rv{ gRandomGenerator() };
-    if(!((rv >= 0.0) && (rv < 1.0))) return fmod(rv, 1.0);
+    if((rv < 0.0) || (rv >= 1.0)) return fmod(rv, 1.0);
     return rv;
 }
 
@@ -86,7 +86,7 @@ inline F32 ll_internal_random<F32>()
     // than expanding to F64 for fmod() and then truncating back to F32. Prior
     // to this change, we were getting sporadic ll_frand() == 1.0 results.
     F32 rv{ narrow<F64>(gRandomGenerator()) };
-    if(!((rv >= 0.0f) && (rv < 1.0f))) return fmodf(rv, 1.0f);
+    if((rv < 0.0f) || (rv >= 1.0f)) return fmodf(rv, 1.0f);
     return rv;
 }
 

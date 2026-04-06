@@ -167,7 +167,7 @@ std::string LLIconCtrl::getImageName() const
     if (getValue().isString())
         return getValue().asString();
     else
-        return std::string();
+        return {};
 }
 
 

@@ -373,7 +373,7 @@ LLNameValue::LLNameValue(const char *data)
     S32 length = 0;
 
     // go to first non-whitespace character
-    while (1)
+    while (true)
     {
         if (  (*(data + character_count) == ' ')
             ||(*(data + character_count) == '\n')
@@ -397,7 +397,7 @@ LLNameValue::LLNameValue(const char *data)
     character_count += length;
 
     // go to the next non-whitespace character
-    while (1)
+    while (true)
     {
         if (  (*(data + character_count) == ' ')
             ||(*(data + character_count) == '\n')
@@ -421,7 +421,7 @@ LLNameValue::LLNameValue(const char *data)
     character_count += length;
 
     // go to the next non-whitespace character
-    while (1)
+    while (true)
     {
         if (  (*(data + character_count) == ' ')
             ||(*(data + character_count) == '\n')
@@ -457,7 +457,7 @@ LLNameValue::LLNameValue(const char *data)
         character_count += length;
 
         // go to the next non-whitespace character
-        while (1)
+        while (true)
         {
             if (  (*(data + character_count) == ' ')
                 ||(*(data + character_count) == '\n')
@@ -499,7 +499,7 @@ LLNameValue::LLNameValue(const char *data)
         character_count += length;
 
         // seek to next non-whitespace characer
-        while (1)
+        while (true)
         {
             if (  (*(data + character_count) == ' ')
                 ||(*(data + character_count) == '\n')
@@ -572,7 +572,7 @@ LLNameValue::~LLNameValue()
     mNameValueReference.string = NULL;
 }
 
-char    *LLNameValue::getString()
+char    *LLNameValue::getString() const
 {
     if (mType == NVT_STRING)
     {
@@ -598,7 +598,7 @@ const char *LLNameValue::getAsset() const
     }
 }
 
-F32     *LLNameValue::getF32()
+F32     *LLNameValue::getF32() const
 {
     if (mType == NVT_F32)
     {
@@ -611,7 +611,7 @@ F32     *LLNameValue::getF32()
     }
 }
 
-S32     *LLNameValue::getS32()
+S32     *LLNameValue::getS32() const
 {
     if (mType == NVT_S32)
     {
@@ -624,7 +624,7 @@ S32     *LLNameValue::getS32()
     }
 }
 
-U32     *LLNameValue::getU32()
+U32     *LLNameValue::getU32() const
 {
     if (mType == NVT_U32)
     {
@@ -637,7 +637,7 @@ U32     *LLNameValue::getU32()
     }
 }
 
-U64     *LLNameValue::getU64()
+U64     *LLNameValue::getU64() const
 {
     if (mType == NVT_U64)
     {
@@ -650,7 +650,7 @@ U64     *LLNameValue::getU64()
     }
 }
 
-void    LLNameValue::getVec3(LLVector3 &vec)
+void    LLNameValue::getVec3(LLVector3 &vec) const
 {
     if (mType == NVT_VEC3)
     {
@@ -662,7 +662,7 @@ void    LLNameValue::getVec3(LLVector3 &vec)
     }
 }
 
-LLVector3   *LLNameValue::getVec3()
+LLVector3   *LLNameValue::getVec3() const
 {
     if (mType == NVT_VEC3)
     {
@@ -806,7 +806,7 @@ void LLNameValue::setAsset(const char *a)
 }
 
 
-void LLNameValue::setF32(const F32 a)
+void LLNameValue::setF32(const F32 a) const
 {
     if (mClass == ENameValueClass::NVC_READ_ONLY)
         return;
@@ -824,7 +824,7 @@ void LLNameValue::setF32(const F32 a)
 }
 
 
-void LLNameValue::setS32(const S32 a)
+void LLNameValue::setS32(const S32 a) const
 {
     if (mClass == ENameValueClass::NVC_READ_ONLY)
         return;
@@ -848,7 +848,7 @@ void LLNameValue::setS32(const S32 a)
 }
 
 
-void LLNameValue::setU32(const U32 a)
+void LLNameValue::setU32(const U32 a) const
 {
     if (mClass == ENameValueClass::NVC_READ_ONLY)
         return;
@@ -872,7 +872,7 @@ void LLNameValue::setU32(const U32 a)
 }
 
 
-void LLNameValue::setVec3(const LLVector3 &a)
+void LLNameValue::setVec3(const LLVector3 &a) const
 {
     if (mClass == ENameValueClass::NVC_READ_ONLY)
         return;

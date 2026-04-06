@@ -155,7 +155,7 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
     }
 
     // Send a reply only if caller asked for a reply.
-    LLSD replyPump(event["reply"]);
+    const LLSD& replyPump(event["reply"]);
     if (replyPump.isString())       // isUndefined() if absent
     {
         LLEventPumps::instance().obtain(replyPump).post(reply);

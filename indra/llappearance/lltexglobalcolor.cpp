@@ -73,7 +73,7 @@ LLColor4 LLTexGlobalColor::getColor() const
 {
     // Sum of color params
     if (mParamGlobalColorList.empty())
-        return LLColor4(1.f, 1.f, 1.f, 1.f);
+        return {1.f, 1.f, 1.f, 1.f};
 
     LLColor4 net_color(0.f, 0.f, 0.f, 0.f);
     LLTexLayer::calculateTexLayerColor(mParamGlobalColorList, net_color);

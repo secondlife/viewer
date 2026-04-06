@@ -45,11 +45,11 @@ public:
 private:
     boost::regex            mFilterExp;
     fs::directory_iterator  mIter;
-    bool                    mIsValid;
+    bool                    mIsValid{false};
 };
 
 LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
-    : mIsValid(false)
+     
 {
 #ifdef LL_WINDOWS // or BOOST_WINDOWS_API
     fs::path dir_path(ll_convert<std::wstring>(dirname));

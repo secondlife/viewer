@@ -83,7 +83,7 @@ public:
     [[nodiscard]] static S32 dataFormatComponents(S32 dataformat);
 
     bool updateBindStats() const ;
-    F32 getTimePassedSinceLastBound();
+    F32 getTimePassedSinceLastBound() const;
     void forceUpdateBindStats() const;
 
     // needs to be called every frame
@@ -231,7 +231,7 @@ public:
 private:
     U32 createPickMask(S32 pWidth, S32 pHeight);
     void freePickMask();
-    bool isCompressed();
+    bool isCompressed() const;
 
     LLPointer<LLImageRaw> mSaveData; // used for destroyGL/restoreGL
     LL::WorkQueue::weak_t mMainQueue;

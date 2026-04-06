@@ -566,11 +566,11 @@ const LLMatrix3& operator*=(LLMatrix3 &a, const LLMatrix3 &b)
 
 const LLMatrix3& operator*=(LLMatrix3 &a, F32 scalar )
 {
-    for( U32 i = 0; i < NUM_VALUES_IN_MAT3; ++i )
+    for(auto & i : a.mMatrix)
     {
         for( U32 j = 0; j < NUM_VALUES_IN_MAT3; ++j )
         {
-            a.mMatrix[i][j] *= scalar;
+            i[j] *= scalar;
         }
     }
 

@@ -32,6 +32,8 @@
 #include "llsdutil.h"
 #include "lltreeiterators.h"
 #include "llmetricperformancetester.h"
+
+#include <utility>
 #include "llfasttimer.h"
 
 //----------------------------------------------------------------------------------------------
@@ -131,8 +133,8 @@ void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std
     }
 
     // Open baseline and current target, exit if one is inexistent
-    llifstream base_is(baseline.c_str());
-    llifstream target_is(target.c_str());
+    llifstream base_is(baseline);
+    llifstream target_is(target);
     if (!base_is.is_open() || !target_is.is_open())
     {
         LL_WARNS() << "'-analyzeperformance' error : baseline or current target file inexistent" << LL_ENDL;
@@ -150,7 +152,7 @@ void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std
     target_is.close();
 
     //output comparision
-    llofstream os(output.c_str());
+    llofstream os(output);
 
     os << "Label, Metric, Base(B), Target(T), Diff(T-B), Percentage(100*T/B)\n";
     for (auto& [name, tester_ptr] : LLMetricPerformanceTesterBasic::sTesterMap)
@@ -169,10 +171,10 @@ void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std
 //----------------------------------------------------------------------------------------------
 
 LLMetricPerformanceTesterBasic::LLMetricPerformanceTesterBasic(std::string name) :
-    mName(name),
+    mName(std::move(name)),
     mCount(0)
 {
-    if (mName == std::string())
+    if (mName.empty())
     {
         LL_ERRS() << "LLMetricPerformanceTesterBasic construction invalid : Empty name passed to constructor" << LL_ENDL ;
     }
@@ -222,20 +224,20 @@ void LLMetricPerformanceTesterBasic::analyzePerformance(llofstream* os, LLSD* ba
         {
             *os << llformat("%s\n", label.c_str()) ;
 
-            for(U32 index = 0 ; index < mMetricStrings.size() ; index++)
+            for(const auto & mMetricString : mMetricStrings)
             {
-                switch((*current)[label][ mMetricStrings[index] ].type())
+                switch((*current)[label][ mMetricString ].type())
                 {
                 case LLSD::TypeInteger:
-                    compareTestResults(os, mMetricStrings[index],
-                        (S32)((*base)[label][ mMetricStrings[index] ].asInteger()), (S32)((*current)[label][ mMetricStrings[index] ].asInteger())) ;
+                    compareTestResults(os, mMetricString,
+                        (S32)((*base)[label][ mMetricString ].asInteger()), (S32)((*current)[label][ mMetricString ].asInteger())) ;
                     break ;
                 case LLSD::TypeReal:
-                    compareTestResults(os, mMetricStrings[index],
-                        (F32)((*base)[label][ mMetricStrings[index] ].asReal()), (F32)((*current)[label][ mMetricStrings[index] ].asReal())) ;
+                    compareTestResults(os, mMetricString,
+                        (F32)((*base)[label][ mMetricString ].asReal()), (F32)((*current)[label][ mMetricString ].asReal())) ;
                     break;
                 default:
-                    LL_ERRS() << "unsupported metric " << mMetricStrings[index] << " LLSD type: " << (S32)(*current)[label][ mMetricStrings[index] ].type() << LL_ENDL ;
+                    LL_ERRS() << "unsupported metric " << mMetricString << " LLSD type: " << (S32)(*current)[label][ mMetricString ].type() << LL_ENDL ;
                 }
             }
         }

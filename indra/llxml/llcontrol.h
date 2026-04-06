@@ -95,8 +95,8 @@ private:
     validate_signal_t mValidateSignal;
 
 public:
-    LLControlVariable(const std::string& name, eControlType type,
-                      LLSD initial, const std::string& comment,
+    LLControlVariable(std::string  name, eControlType type,
+                      LLSD initial, std::string  comment,
                       ePersist persist = ePersist::PERSIST_NONDFT, bool hidefromsettingseditor = false);
 
     virtual ~LLControlVariable();
@@ -135,7 +135,7 @@ private:
     {
         mCommitSignal(this, mValues.back(), old_value);
     }
-    LLSD getComparableValue(const LLSD& value);
+    LLSD getComparableValue(const LLSD& value) const;
     bool llsd_compare(const LLSD& a, const LLSD & b) const;
 };
 

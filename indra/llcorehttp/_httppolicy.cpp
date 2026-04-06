@@ -57,20 +57,18 @@ struct HttpPolicy::ClassState
 {
 public:
     ClassState()
-        : mThrottleEnd(0),
-          mThrottleLeft(0L),
-          mRequestCount(0L),
-          mStallStaging(false)
+        
+          
         {}
 
     HttpReadyQueue      mReadyQueue;
     HttpRetryQueue      mRetryQueue;
 
     HttpPolicyClass     mOptions;
-    HttpTime            mThrottleEnd;
-    long                mThrottleLeft;
-    long                mRequestCount;
-    bool                mStallStaging;
+    HttpTime            mThrottleEnd{0};
+    long                mThrottleLeft{0L};
+    long                mRequestCount{0L};
+    bool                mStallStaging{false};
 };
 
 
@@ -86,9 +84,9 @@ HttpPolicy::~HttpPolicy()
 {
     shutdown();
 
-    for (class_list_t::iterator it(mClasses.begin()); it != mClasses.end(); ++it)
+    for (auto & mClasse : mClasses)
     {
-        delete (*it);
+        delete mClasse;
     }
     mClasses.clear();
 
@@ -110,9 +108,9 @@ HttpRequest::policy_t HttpPolicy::createPolicyClass()
 
 void HttpPolicy::shutdown()
 {
-    for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
+    for (auto & mClasse : mClasses)
     {
-        ClassState & state(*mClasses[policy_class]);
+        ClassState & state(*mClasse);
 
         HttpRetryQueue & retryq(state.mRetryQueue);
         while (! retryq.empty())
@@ -332,9 +330,9 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 
 bool HttpPolicy::cancel(HttpHandle handle)
 {
-    for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
+    for (auto & mClasse : mClasses)
     {
-        ClassState & state(*mClasses[policy_class]);
+        ClassState & state(*mClasse);
 
         // Scan retry queue
         HttpRetryQueue::container_type & c1(state.mRetryQueue.get_container());
@@ -344,7 +342,7 @@ bool HttpPolicy::cancel(HttpHandle handle)
 
             if ((*cur)->getHandle() == handle)
             {
-                HttpOpRequest::ptr_t op(*cur);
+                const HttpOpRequest::ptr_t& op(*cur);
                 c1.erase(cur);                                  // All iterators are now invalidated
                 op->cancel();
                 return true;
@@ -359,7 +357,7 @@ bool HttpPolicy::cancel(HttpHandle handle)
 
             if ((*cur)->getHandle() == handle)
             {
-                HttpOpRequest::ptr_t op(*cur);
+                const HttpOpRequest::ptr_t& op(*cur);
                 c2.erase(cur);                                  // All iterators are now invalidated
                 op->cancel();
                 return true;

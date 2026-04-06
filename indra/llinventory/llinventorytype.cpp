@@ -27,6 +27,8 @@
 #include "linden_common.h"
 
 #include "llinventorytype.h"
+
+#include <utility>
 #include "lldictionary.h"
 #include "llmemory.h"
 #include "llsingleton.h"
@@ -39,11 +41,11 @@ static const std::string empty_string;
 struct InventoryEntry : public LLDictionaryEntry
 {
     InventoryEntry(const std::string &name, // unlike asset type names, not limited to 8 characters; need not match asset type names
-                   const std::string &human_name, // for decoding to human readable form; put any and as many printable characters you want in each one.
+                   std::string human_name, // for decoding to human readable form; put any and as many printable characters you want in each one.
                    int num_asset_types = 0, ...)
         :
         LLDictionaryEntry(name),
-        mHumanName(human_name)
+        mHumanName(std::move(human_name))
     {
         va_list argp;
         va_start(argp, num_asset_types);
@@ -233,11 +235,8 @@ bool inventory_and_asset_types_match(LLInventoryType::EType inventory_type,
     const InventoryEntry *entry = LLInventoryDictionary::getInstance()->lookup(inventory_type);
     if (!entry) return false;
 
-    for (InventoryEntry::asset_vec_t::const_iterator iter = entry->mAssetTypes.begin();
-         iter != entry->mAssetTypes.end();
-         iter++)
+    for (auto type : entry->mAssetTypes)
     {
-        const LLAssetType::EType type = (*iter);
         if(type == asset_type)
         {
             return true;

@@ -106,7 +106,7 @@ bool LLClipboard::pasteFromClipboard(std::vector<LLUUID>& inv_objects) const
 // Returns true if the LL Clipboard has pasteable items in it
 bool LLClipboard::hasContents() const
 {
-    return (mObjects.size() > 0);
+    return (!mObjects.empty());
 }
 
 // Returns true if the input uuid is in the list of clipboard objects

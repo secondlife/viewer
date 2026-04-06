@@ -54,7 +54,7 @@ LLImageFilter::LLImageFilter(const std::string& file_path) :
     mStencilMax(1.0)
 {
     // Load filter description from file
-    llifstream filter_xml(file_path.c_str());
+    llifstream filter_xml(file_path);
     if (filter_xml.is_open())
     {
         // Load and parse the file
@@ -222,26 +222,26 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
         else if (filter_name == "blur")
         {
             LLMatrix3 kernel;
-            for (S32 i = 0; i < NUM_VALUES_IN_MAT3; i++)
+            for (auto & i : kernel.mMatrix)
                 for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
-                    kernel.mMatrix[i][j] = 1.0;
+                    i[j] = 1.0;
             convolve(kernel,true,false);
         }
         else if (filter_name == "sharpen")
         {
             LLMatrix3 kernel;
-            for (S32 k = 0; k < NUM_VALUES_IN_MAT3; k++)
+            for (auto & k : kernel.mMatrix)
                 for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
-                    kernel.mMatrix[k][j] = -1.0;
+                    k[j] = -1.0;
             kernel.mMatrix[1][1] = 9.0;
             convolve(kernel,false,false);
         }
         else if (filter_name == "gradient")
         {
             LLMatrix3 kernel;
-            for (S32 k = 0; k < NUM_VALUES_IN_MAT3; k++)
+            for (auto & k : kernel.mMatrix)
                 for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
-                    kernel.mMatrix[k][j] = -1.0;
+                    k[j] = -1.0;
             kernel.mMatrix[1][1] = 8.0;
             convolve(kernel,false,true);
         }
@@ -251,18 +251,18 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
             S32 index = 1;
             bool normalize = (mFilterData[i][index++].asReal() > 0.0);
             bool abs_value = (mFilterData[i][index++].asReal() > 0.0);
-            for (S32 k = 0; k < NUM_VALUES_IN_MAT3; k++)
+            for (auto & k : kernel.mMatrix)
                 for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
-                    kernel.mMatrix[k][j] = (F32)mFilterData[i][index++].asReal();
+                    k[j] = (F32)mFilterData[i][index++].asReal();
             convolve(kernel,normalize,abs_value);
         }
         else if (filter_name == "colortransform")
         {
             LLMatrix3 transform;
             S32 index = 1;
-            for (S32 k = 0; k < NUM_VALUES_IN_MAT3; k++)
+            for (auto & k : transform.mMatrix)
                 for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
-                    transform.mMatrix[k][j] = (F32)mFilterData[i][index++].asReal();
+                    k[j] = (F32)mFilterData[i][index++].asReal();
             transform.transpose();
             colorTransform(transform);
         }
@@ -362,14 +362,14 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
     // Compute normalization factors
     F32 kernel_min = 0.0;
     F32 kernel_max = 0.0;
-    for (S32 i = 0; i < NUM_VALUES_IN_MAT3; i++)
+    for (auto i : kernel.mMatrix)
     {
         for (S32 j = 0; j < NUM_VALUES_IN_MAT3; j++)
         {
-            if (kernel.mMatrix[i][j] >= 0.0)
-                kernel_max += kernel.mMatrix[i][j];
+            if (i[j] >= 0.0)
+                kernel_max += i[j];
             else
-                kernel_min += kernel.mMatrix[i][j];
+                kernel_min += i[j];
         }
     }
     if (abs_value)
@@ -507,7 +507,7 @@ void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const 
     std::array<U8, 256> gamma;
     for (S32 i = 0; i < 256; i++)
     {
-        F32 gamma_i = llclampf((float)(powf((float)(i)/255.0f,1.0f/4.0f)));
+        F32 gamma_i = llclampf(powf((float)(i)/255.0f,1.0f/4.0f));
         gamma[i] = (U8)(255.0 * gamma_i);
     }
 
@@ -756,7 +756,7 @@ void LLImageFilter::filterGamma(F32 gamma, const LLColor3& alpha)
 
     for (S32 i = 0; i < 256; i++)
     {
-        F32 gamma_i = llclampf((float)(powf((float)(i)/255.0f,1.0f/gamma)));
+        F32 gamma_i = llclampf(powf((float)(i)/255.0f,1.0f/gamma));
         // Blend in with alpha values
         gamma_red_lut[i]   = (U8)((1.0f - alpha.mV[0]) * (float)(i) + alpha.mV[0] * 255.0f * gamma_i);
         gamma_green_lut[i] = (U8)((1.0f - alpha.mV[1]) * (float)(i) + alpha.mV[1] * 255.0f * gamma_i);

@@ -142,14 +142,12 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
     // Grab the mouse-up event and make sure the button state is correct
     mList->setMouseUpCallback([this](LLUICtrl*, S32, S32, MASK) { onListMouseUp(); });
 
-    for (LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items.begin();
-        it != p.items.end();
-        ++it)
+    for (const auto & item : p.items)
     {
-        LLScrollListItem::Params item_params = *it;
-        if (it->label.isProvided())
+        LLScrollListItem::Params item_params = item;
+        if (item.label.isProvided())
         {
-            item_params.columns.add().value(it->label());
+            item_params.columns.add().value(item.label());
         }
 
         mList->addRow(item_params);
@@ -414,7 +412,7 @@ LLSD LLComboBox::getValue() const
         return mTextEntry->getValue();
     }
 
-    return LLSD();
+    return {};
 }
 
 void LLComboBox::setLabel(const LLStringExplicit& name)
@@ -1331,9 +1329,9 @@ void LLComboBox::addInfo(LLSD& info)
     {
         LLSD items_array;
         std::vector<LLScrollListItem*> item_list = mList->getAllData();
-        for (std::vector<LLScrollListItem*>::iterator iter = item_list.begin(); iter != item_list.end(); ++iter)
+        for (auto item : item_list)
         {
-            if (const LLScrollListItem* item = *iter)
+            if (item)
             {
                 LLSD item_info;
                 item_info["value"] = item->getValue();

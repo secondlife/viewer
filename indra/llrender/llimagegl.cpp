@@ -695,7 +695,7 @@ bool LLImageGL::updateBindStats() const
     return false ;
 }
 
-F32 LLImageGL::getTimePassedSinceLastBound()
+F32 LLImageGL::getTimePassedSinceLastBound() const
 {
     return sLastFrameTime - mLastBindTime ;
 }
@@ -1770,7 +1770,7 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
     {
         LL_WARNS() << "texture size is smaller than it should be." << LL_ENDL ;
         LL_WARNS() << "width: " << width << " glwidth: " << glwidth << " mWidth: " << mWidth <<
-            " mCurrentDiscardLevel: " << (S32)mCurrentDiscardLevel << " discard_level: " << (S32)discard_level << LL_ENDL ;
+            " mCurrentDiscardLevel: " << (S32)mCurrentDiscardLevel << " discard_level: " << discard_level << LL_ENDL ;
         return false ;
     }
 
@@ -2237,7 +2237,7 @@ void LLImageGL::freePickMask()
     mPickMaskWidth = mPickMaskHeight = 0;
 }
 
-bool LLImageGL::isCompressed()
+bool LLImageGL::isCompressed() const
 {
     llassert(mFormatPrimary != 0);
     // *NOTE: Not all compressed formats are included here.
