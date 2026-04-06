@@ -36,7 +36,7 @@
 
 #if defined(_MSC_VER)
 #include <basetsd.h>
-typedef SSIZE_T ssize_t;
+using ssize_t = SSIZE_T;
 #endif
 
 #include "vlc/vlc.h"

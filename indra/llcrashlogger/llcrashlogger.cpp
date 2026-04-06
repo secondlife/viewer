@@ -333,7 +333,7 @@ void LLCrashLogger::gatherFiles()
     if (!has_minidump)  //Viewer was probably so hosed it couldn't write remaining data.  Try brute force.
     {
         //Look for a filename at least 30 characters long in the dump dir which contains the characters MDMP as the first 4 characters in the file.
-        typedef std::vector<std::string> vec;
+        using vec = std::vector<std::string>;
         std::string pathname = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"");
         LL_WARNS("CRASHREPORT") << "Searching for minidump in " << pathname << LL_ENDL;
         vec file_vec = gDirUtilp->getFilesInDir(pathname);

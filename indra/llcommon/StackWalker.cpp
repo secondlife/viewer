@@ -469,50 +469,50 @@ struct IMAGEHLP_MODULE64_V2 {
 
 
   // SymCleanup()
-  typedef BOOL (__stdcall *tSC)( IN HANDLE hProcess );
+  using tSC = BOOL (__stdcall *)( IN HANDLE hProcess );
   tSC pSC;
 
   // SymFunctionTableAccess64()
-  typedef PVOID (__stdcall *tSFTA)( HANDLE hProcess, DWORD64 AddrBase );
+  using tSFTA = PVOID (__stdcall *)( HANDLE hProcess, DWORD64 AddrBase );
   tSFTA pSFTA;
 
   // SymGetLineFromAddr64()
-  typedef BOOL (__stdcall *tSGLFA)( IN HANDLE hProcess, IN DWORD64 dwAddr,
+  using tSGLFA = BOOL (__stdcall *)( IN HANDLE hProcess, IN DWORD64 dwAddr,
     OUT PDWORD pdwDisplacement, OUT PIMAGEHLP_LINE64 Line );
   tSGLFA pSGLFA;
 
   // SymGetModuleBase64()
-  typedef DWORD64 (__stdcall *tSGMB)( IN HANDLE hProcess, IN DWORD64 dwAddr );
+  using tSGMB = DWORD64 (__stdcall *)( IN HANDLE hProcess, IN DWORD64 dwAddr );
   tSGMB pSGMB;
 
   // SymGetModuleInfo64()
-  typedef BOOL (__stdcall *tSGMI)( IN HANDLE hProcess, IN DWORD64 dwAddr, OUT IMAGEHLP_MODULE64_V3 *ModuleInfo );
+  using tSGMI = BOOL (__stdcall *)( IN HANDLE hProcess, IN DWORD64 dwAddr, OUT IMAGEHLP_MODULE64_V3 *ModuleInfo );
   tSGMI pSGMI;
 
   // SymGetOptions()
-  typedef DWORD (__stdcall *tSGO)( VOID );
+  using tSGO = DWORD (__stdcall *)( VOID );
   tSGO pSGO;
 
   // SymGetSymFromAddr64()
-  typedef BOOL (__stdcall *tSGSFA)( IN HANDLE hProcess, IN DWORD64 dwAddr,
+  using tSGSFA = BOOL (__stdcall *)( IN HANDLE hProcess, IN DWORD64 dwAddr,
     OUT PDWORD64 pdwDisplacement, OUT PIMAGEHLP_SYMBOL64 Symbol );
   tSGSFA pSGSFA;
 
   // SymInitialize()
-  typedef BOOL (__stdcall *tSI)( IN HANDLE hProcess, IN PSTR UserSearchPath, IN BOOL fInvadeProcess );
+  using tSI = BOOL (__stdcall *)( IN HANDLE hProcess, IN PSTR UserSearchPath, IN BOOL fInvadeProcess );
   tSI pSI;
 
   // SymLoadModule64()
-  typedef DWORD64 (__stdcall *tSLM)( IN HANDLE hProcess, IN HANDLE hFile,
+  using tSLM = DWORD64 (__stdcall *)( IN HANDLE hProcess, IN HANDLE hFile,
     IN PSTR ImageName, IN PSTR ModuleName, IN DWORD64 BaseOfDll, IN DWORD SizeOfDll );
   tSLM pSLM;
 
   // SymSetOptions()
-  typedef DWORD (__stdcall *tSSO)( IN DWORD SymOptions );
+  using tSSO = DWORD (__stdcall *)( IN DWORD SymOptions );
   tSSO pSSO;
 
   // StackWalk64()
-  typedef BOOL (__stdcall *tSW)(
+  using tSW = BOOL (__stdcall *)(
     DWORD MachineType,
     HANDLE hProcess,
     HANDLE hThread,
@@ -525,11 +525,11 @@ struct IMAGEHLP_MODULE64_V2 {
   tSW pSW;
 
   // UnDecorateSymbolName()
-  typedef DWORD (__stdcall WINAPI *tUDSN)( PCSTR DecoratedName, PSTR UnDecoratedName,
+  using tUDSN = DWORD (__stdcall WINAPI *)( PCSTR DecoratedName, PSTR UnDecoratedName,
     DWORD UndecoratedLength, DWORD Flags );
   tUDSN pUDSN;
 
-  typedef BOOL (__stdcall WINAPI *tSGSP)(HANDLE hProcess, PSTR SearchPath, DWORD SearchPathLength);
+  using tSGSP = BOOL (__stdcall WINAPI *)(HANDLE hProcess, PSTR SearchPath, DWORD SearchPathLength);
   tSGSP pSGSP;
 
 
@@ -538,7 +538,7 @@ private:
   #define MAX_MODULE_NAME32 255
   #define TH32CS_SNAPMODULE   0x00000008
   #pragma pack( push, 8 )
-  typedef struct tagMODULEENTRY32
+  using MODULEENTRY32 = struct tagMODULEENTRY32
   {
       DWORD   dwSize;
       DWORD   th32ModuleID;       // This module
@@ -550,19 +550,19 @@ private:
       HMODULE hModule;            // The hModule of this module in th32ProcessID's context
       char    szModule[MAX_MODULE_NAME32 + 1];
       char    szExePath[MAX_PATH];
-  } MODULEENTRY32;
-  typedef MODULEENTRY32 *  PMODULEENTRY32;
-  typedef MODULEENTRY32 *  LPMODULEENTRY32;
+  };
+  using PMODULEENTRY32 = MODULEENTRY32 *;
+  using LPMODULEENTRY32 = MODULEENTRY32 *;
   #pragma pack( pop )
 
   bool GetModuleListTH32(HANDLE hProcess, DWORD pid)
   {
     // CreateToolhelp32Snapshot()
-    typedef HANDLE (__stdcall *tCT32S)(DWORD dwFlags, DWORD th32ProcessID);
+    using tCT32S = HANDLE (__stdcall *)(DWORD dwFlags, DWORD th32ProcessID);
     // Module32First()
-    typedef BOOL (__stdcall *tM32F)(HANDLE hSnapshot, LPMODULEENTRY32 lpme);
+    using tM32F = BOOL (__stdcall *)(HANDLE hSnapshot, LPMODULEENTRY32 lpme);
     // Module32Next()
-    typedef BOOL (__stdcall *tM32N)(HANDLE hSnapshot, LPMODULEENTRY32 lpme);
+    using tM32N = BOOL (__stdcall *)(HANDLE hSnapshot, LPMODULEENTRY32 lpme);
 
     // try both dlls...
     const TCHAR *dllname[] = { _T("kernel32.dll"), _T("tlhelp32.dll") };
@@ -615,22 +615,23 @@ private:
   }  // GetModuleListTH32
 
   // **************************************** PSAPI ************************
-  typedef struct _MODULEINFO {
+  using MODULEINFO = struct _MODULEINFO {
       LPVOID lpBaseOfDll;
       DWORD SizeOfImage;
       LPVOID EntryPoint;
-  } MODULEINFO, *LPMODULEINFO;
+  };
+using LPMODULEINFO = MODULEINFO*;
 
   bool GetModuleListPSAPI(HANDLE hProcess)
   {
     // EnumProcessModules()
-    typedef BOOL (__stdcall *tEPM)(HANDLE hProcess, HMODULE *lphModule, DWORD cb, LPDWORD lpcbNeeded );
+    using tEPM = BOOL (__stdcall *)(HANDLE hProcess, HMODULE *lphModule, DWORD cb, LPDWORD lpcbNeeded );
     // GetModuleFileNameEx()
-    typedef DWORD (__stdcall *tGMFNE)(HANDLE hProcess, HMODULE hModule, LPSTR lpFilename, DWORD nSize );
+    using tGMFNE = DWORD (__stdcall *)(HANDLE hProcess, HMODULE hModule, LPSTR lpFilename, DWORD nSize );
     // GetModuleBaseName()
-    typedef DWORD (__stdcall *tGMBN)(HANDLE hProcess, HMODULE hModule, LPSTR lpFilename, DWORD nSize );
+    using tGMBN = DWORD (__stdcall *)(HANDLE hProcess, HMODULE hModule, LPSTR lpFilename, DWORD nSize );
     // GetModuleInformation()
-    typedef BOOL (__stdcall *tGMI)(HANDLE hProcess, HMODULE hModule, LPMODULEINFO pmi, DWORD nSize );
+    using tGMI = BOOL (__stdcall *)(HANDLE hProcess, HMODULE hModule, LPMODULEINFO pmi, DWORD nSize );
 
     HINSTANCE hPsapi;
     tEPM pEPM;
