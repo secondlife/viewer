@@ -106,7 +106,7 @@ bool checkExceptionHandler()
 
     if (prev_filter != myWin32ExceptionHandler)
     {
-        LL_WARNS("AppInit") << "Our exception handler (" << (void *)myWin32ExceptionHandler << ") replaced with " << prev_filter << "!" << LL_ENDL;
+        LL_WARNS("AppInit") << "Our exception handler (" << reinterpret_cast<void*>(myWin32ExceptionHandler) << ") replaced with " << prev_filter << "!" << LL_ENDL;
         ok = false;
     }
 
@@ -119,7 +119,7 @@ bool checkExceptionHandler()
         }
         else
         {
-            LL_WARNS("AppInit") << "Our exception handler (" << (void *)myWin32ExceptionHandler << ") replaced with NULL!" << LL_ENDL;
+            LL_WARNS("AppInit") << "Our exception handler (" << reinterpret_cast<void*>(myWin32ExceptionHandler) << ") replaced with NULL!" << LL_ENDL;
         }
     }
 

@@ -795,7 +795,7 @@ void LLPluginProcessParent::setMessagePipe(LLPluginMessagePipe *message_pipe)
         mPollFD.reqevents = APR_POLLIN|APR_POLLERR|APR_POLLHUP;
         mPollFD.rtnevents = 0;
         mPollFD.desc.s = mSocket->getSocket();
-        mPollFD.client_data = (void*)this;
+        mPollFD.client_data = reinterpret_cast<void*>(this);
 
         // pollset needs an update
         update_pollset = true;
@@ -940,7 +940,7 @@ void LLPluginProcessParent::poll(F64 timeout)
         apr_status_t status;
         apr_int32_t count;
         const apr_pollfd_t *descriptors;
-        status = apr_pollset_poll(sPollSet, (apr_interval_time_t)(timeout * 1000000), &count, &descriptors);
+        status = apr_pollset_poll(sPollSet, static_cast<apr_interval_time_t>(timeout * 1000000), &count, &descriptors);
         if(status == APR_SUCCESS)
         {
             // One or more of the descriptors signalled.  Call them.
@@ -1182,7 +1182,7 @@ std::string LLPluginProcessParent::addSharedMemory(size_t size)
 
         LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "shm_add");
         message.setValue("name", name);
-        message.setValueS32("size", (S32)size);
+        message.setValueS32("size", static_cast<S32>(size));
         sendMessage(message);
     }
     else

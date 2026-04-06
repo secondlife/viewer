@@ -146,7 +146,7 @@ bool LLFileSystem::read(std::span<U8> buffer)
         }
         else
         {
-            mBytesRead = (S32)file.gcount();
+            mBytesRead = static_cast<S32>(file.gcount());
         }
 
         file.close();
@@ -185,7 +185,7 @@ bool LLFileSystem::write(std::span<const U8> data)
         {
             ofs.write(reinterpret_cast<const char*>(data.data()), data.size());
 
-            mPosition = (S32)ofs.tellp();
+            mPosition = static_cast<S32>(ofs.tellp());
 
             success = true;
         }

@@ -46,12 +46,12 @@ namespace LLCore
 
         void    recordDataDown(size_t bytes)
         {
-            mDataDown.push((F32)bytes);
+            mDataDown.push(static_cast<F32>(bytes));
         }
 
         void    recordDataUp(size_t bytes)
         {
-            mDataUp.push((F32)bytes);
+            mDataUp.push(static_cast<F32>(bytes));
         }
 
         void    recordHTTPRequest() { ++mRequests; }

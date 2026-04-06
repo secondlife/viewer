@@ -304,7 +304,7 @@ unsigned char* LLPluginClassMedia::getBitsData()
     unsigned char *result = NULL;
     if((mPlugin != NULL) && !mTextureSharedMemoryName.empty())
     {
-        result = (unsigned char*)mPlugin->getSharedMemoryAddress(mTextureSharedMemoryName);
+        result = reinterpret_cast<unsigned char*>(mPlugin->getSharedMemoryAddress(mTextureSharedMemoryName));
     }
     return result;
 }
@@ -1120,7 +1120,7 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
             // Calculate a percentage based on the loaded duration and total duration.
             if(mDuration != 0.0f)   // Don't divide by zero.
             {
-                mProgressPercent = (int)((mLoadedDuration * 100.0f)/mDuration);
+                mProgressPercent = static_cast<int>((mLoadedDuration * 100.0f)/mDuration);
             }
 
             if(time_duration_updated)

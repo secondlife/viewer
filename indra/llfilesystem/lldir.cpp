@@ -60,7 +60,7 @@ LLDir_Mac gDirUtil;
 LLDir_Linux gDirUtil;
 #endif
 
-LLDir *gDirUtilp = (LLDir *)&gDirUtil;
+LLDir *gDirUtilp = static_cast<LLDir*>(&gDirUtil);
 
 /// Values for findSkinnedFilenames(subdir) parameter
 const char
@@ -199,7 +199,7 @@ U32 LLDir::deleteDirAndContents(const std::string& dir_name)
        {
           if (!boost::filesystem::is_empty(dir_path))
           {   // Directory has content
-             num_deleted = (U32)boost::filesystem::remove_all(dir_path);
+             num_deleted = static_cast<U32>(boost::filesystem::remove_all(dir_path));
           }
           else
           {   // Directory is empty
@@ -1081,7 +1081,7 @@ LLDir::SepOff LLDir::needSep(const std::string& path, const std::string& name) c
     {
         // But if BOTH path and name bring a separator, we need not add one.
         // Moreover, we should actually skip the leading separator of 'name'.
-        return SepOff(false, (unsigned short)seplen);
+        return SepOff(false, static_cast<unsigned short>(seplen));
     }
     // Here we know that either path_ends_sep or name_starts_sep is true --
     // but not both. So don't add a separator, and don't skip any characters:

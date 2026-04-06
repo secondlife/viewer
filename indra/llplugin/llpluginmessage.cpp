@@ -281,7 +281,7 @@ U32 LLPluginMessage::getValueU32(const std::string &key) const
     {
         std::string value = mMessage["params"][key].asString();
 
-        result = (U32)strtoul(value.c_str(), NULL, 16);
+        result = static_cast<U32>(strtoul(value.c_str(), NULL, 16));
     }
 
     return result;
@@ -340,7 +340,7 @@ void* LLPluginMessage::getValuePointer(const std::string &key) const
     {
         std::string value = mMessage["params"][key].asString();
 
-        result = (void*)llstrtou64(value.c_str(), NULL, 16);
+        result = reinterpret_cast<void*>(llstrtou64(value.c_str(), NULL, 16));
     }
 
     return result;
@@ -376,7 +376,7 @@ int LLPluginMessage::parse(const std::string &message)
 
     S32 parse_result = LLSDSerialize::fromXML(mMessage, input);
 
-    return (int)parse_result;
+    return static_cast<int>(parse_result);
 }
 
 
