@@ -190,11 +190,11 @@ void LLBlockList::addNewItem(const LLMute* mute)
     }
     if (item->getUUID().notNull())
     {
-        addItem(item, item->getUUID(), ADD_BOTTOM);
+        addItem(item, item->getUUID(), EAddPosition::ADD_BOTTOM);
     }
     else
     {
-        addItem(item, item->getName(), ADD_BOTTOM);
+        addItem(item, item->getName(), EAddPosition::ADD_BOTTOM);
     }
 }
 

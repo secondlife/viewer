@@ -59,8 +59,8 @@ namespace tut
         LLNameValue nValue;
         ensure("mName should have been NULL", nValue.mName == NULL);
         ensure("getTypeEnum failed",nValue.getTypeEnum() == NVT_NULL);
-        ensure("getClassEnum failed",nValue.getClassEnum() == NVC_NULL);
-        ensure("getSendtoEnum failed",nValue.getSendtoEnum() == NVS_NULL);
+        ensure("getClassEnum failed",nValue.getClassEnum() == ENameValueClass::NVC_NULL);
+        ensure("getSendtoEnum failed",nValue.getSendtoEnum() == ENameValueSendto::NVS_NULL);
 
         LLNameValue nValue1(" SecondLife ASSET RW SIM 232324343");
 
@@ -75,61 +75,61 @@ namespace tut
         LLNameValue nValue(" SecondLife ASSET RW S 232324343");
         ensure("mName not set correctly", (0 == strcmp(nValue.mName,"SecondLife")));
         ensure("getTypeEnum failed", nValue.getTypeEnum() == NVT_ASSET);
-        ensure("getClassEnum failed", nValue.getClassEnum() == NVC_READ_WRITE);
-        ensure("getSendtoEnum failed", nValue.getSendtoEnum() == NVS_SIM);
+        ensure("getClassEnum failed", nValue.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("getSendtoEnum failed", nValue.getSendtoEnum() == ENameValueSendto::NVS_SIM);
         ensure("getString failed", (0==strcmp(nValue.getAsset(),"232324343")));
         ensure("sendToData or sendToViewer failed", !nValue.sendToData() && !nValue.sendToViewer());
 
         LLNameValue nValue1("\n\r SecondLife_1 STRING READ_WRITE SIM 232324343");
         ensure("1. mName not set correctly", (0 == strcmp(nValue1.mName,"SecondLife_1")));
         ensure("1. getTypeEnum failed", nValue1.getTypeEnum() == NVT_STRING);
-        ensure("1. getClassEnum failed", nValue1.getClassEnum() == NVC_READ_WRITE);
-        ensure("1. getSendtoEnum failed", nValue1.getSendtoEnum() == NVS_SIM);
+        ensure("1. getClassEnum failed", nValue1.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("1. getSendtoEnum failed", nValue1.getSendtoEnum() == ENameValueSendto::NVS_SIM);
         ensure("1. getString failed", (0==strcmp(nValue1.getString(),"232324343")));
         ensure("1. sendToData or sendToViewer failed", !nValue1.sendToData() && !nValue1.sendToViewer());
 
         LLNameValue nValue2("SecondLife", "23.5", "F32", "R", "DS");
         ensure("2. getTypeEnum failed", nValue2.getTypeEnum() == NVT_F32);
-        ensure("2. getClassEnum failed", nValue2.getClassEnum() == NVC_READ_ONLY);
-        ensure("2. getSendtoEnum failed", nValue2.getSendtoEnum() == NVS_DATA_SIM);
+        ensure("2. getClassEnum failed", nValue2.getClassEnum() == ENameValueClass::NVC_READ_ONLY);
+        ensure("2. getSendtoEnum failed", nValue2.getSendtoEnum() == ENameValueSendto::NVS_DATA_SIM);
         ensure("2. getF32 failed", *nValue2.getF32() == 23.5f);
         ensure("2. sendToData or sendToViewer failed", nValue2.sendToData() && !nValue2.sendToViewer());
 
         LLNameValue nValue3("SecondLife", "-43456787", "S32", "READ_ONLY", "SIM_SPACE");
         ensure("3. getTypeEnum failed", nValue3.getTypeEnum() == NVT_S32);
-        ensure("3. getClassEnum failed", nValue3.getClassEnum() == NVC_READ_ONLY);
-        ensure("3. getSendtoEnum failed", nValue3.getSendtoEnum() == NVS_DATA_SIM);
+        ensure("3. getClassEnum failed", nValue3.getClassEnum() == ENameValueClass::NVC_READ_ONLY);
+        ensure("3. getSendtoEnum failed", nValue3.getSendtoEnum() == ENameValueSendto::NVS_DATA_SIM);
         ensure("3. getS32 failed", *nValue3.getS32() == -43456787);
         ensure("sendToData or sendToViewer failed", nValue3.sendToData() && !nValue3.sendToViewer());
 
         LLNameValue nValue4("SecondLife", "<1.0, 2.0, 3.0>", "VEC3", "RW", "SV");
         LLVector3 llvec4(1.0, 2.0, 3.0);
         ensure("4. getTypeEnum failed", nValue4.getTypeEnum() == NVT_VEC3);
-        ensure("4. getClassEnum failed", nValue4.getClassEnum() == NVC_READ_WRITE);
-        ensure("4. getSendtoEnum failed", nValue4.getSendtoEnum() == NVS_SIM_VIEWER);
+        ensure("4. getClassEnum failed", nValue4.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("4. getSendtoEnum failed", nValue4.getSendtoEnum() == ENameValueSendto::NVS_SIM_VIEWER);
         ensure("4. getVec3 failed", *nValue4.getVec3() == llvec4);
         ensure("4. sendToData or sendToViewer failed", !nValue4.sendToData() && nValue4.sendToViewer());
 
         LLNameValue nValue5("SecondLife", "-1.0, 2.4, 3", "VEC3", "RW", "SIM_VIEWER");
         LLVector3 llvec5(-1.0f, 2.4f, 3);
         ensure("5. getTypeEnum failed", nValue5.getTypeEnum() == NVT_VEC3);
-        ensure("5. getClassEnum failed", nValue5.getClassEnum() == NVC_READ_WRITE);
-        ensure("5. getSendtoEnum failed", nValue5.getSendtoEnum() == NVS_SIM_VIEWER);
+        ensure("5. getClassEnum failed", nValue5.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("5. getSendtoEnum failed", nValue5.getSendtoEnum() == ENameValueSendto::NVS_SIM_VIEWER);
         ensure("5. getVec3 failed", *nValue5.getVec3() == llvec5);
         ensure("5. sendToData or sendToViewer failed", !nValue5.sendToData() && nValue5.sendToViewer());
 
         LLNameValue nValue6("SecondLife", "89764323", "U32", "RW", "DSV");
         ensure("6. getTypeEnum failed", nValue6.getTypeEnum() == NVT_U32);
-        ensure("6. getClassEnum failed", nValue6.getClassEnum() == NVC_READ_WRITE);
-        ensure("6. getSendtoEnum failed", nValue6.getSendtoEnum() == NVS_DATA_SIM_VIEWER);
+        ensure("6. getClassEnum failed", nValue6.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("6. getSendtoEnum failed", nValue6.getSendtoEnum() == ENameValueSendto::NVS_DATA_SIM_VIEWER);
         ensure("6. getU32 failed", *nValue6.getU32() == 89764323);
         ensure("6. sendToData or sendToViewer failed", nValue6.sendToData() && nValue6.sendToViewer());
 
         LLNameValue nValue7("SecondLife", "89764323323232", "U64", "RW", "SIM_SPACE_VIEWER");
         U64 u64_7 = U64L(89764323323232);
         ensure("7. getTypeEnum failed", nValue7.getTypeEnum() == NVT_U64);
-        ensure("7. getClassEnum failed", nValue7.getClassEnum() == NVC_READ_WRITE);
-        ensure("7. getSendtoEnum failed", nValue7.getSendtoEnum() == NVS_DATA_SIM_VIEWER);
+        ensure("7. getClassEnum failed", nValue7.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("7. getSendtoEnum failed", nValue7.getSendtoEnum() == ENameValueSendto::NVS_DATA_SIM_VIEWER);
         ensure("7. getU32 failed", *nValue7.getU64() == u64_7);
         ensure("7. sendToData or sendToViewer failed", nValue7.sendToData() && nValue7.sendToViewer());
     }
@@ -142,54 +142,54 @@ namespace tut
         LLNameValue nValue("SecondLife", "232324343", "ASSET", "READ_WRITE");
         ensure("mName not set correctly", (0 == strcmp(nValue.mName,"SecondLife")));
         ensure("getTypeEnum failed", nValue.getTypeEnum() == NVT_ASSET);
-        ensure("getClassEnum failed", nValue.getClassEnum() == NVC_READ_WRITE);
-        ensure("getSendtoEnum failed", nValue.getSendtoEnum() == NVS_SIM);
+        ensure("getClassEnum failed", nValue.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("getSendtoEnum failed", nValue.getSendtoEnum() == ENameValueSendto::NVS_SIM);
         ensure("getString failed", (0==strcmp(nValue.getAsset(),"232324343")));
 
         LLNameValue nValue1("SecondLife", "232324343", "STRING", "READ_WRITE");
         ensure("1. mName not set correctly", (0 == strcmp(nValue1.mName,"SecondLife")));
         ensure("1. getTypeEnum failed", nValue1.getTypeEnum() == NVT_STRING);
-        ensure("1. getClassEnum failed", nValue1.getClassEnum() == NVC_READ_WRITE);
-        ensure("1. getSendtoEnum failed", nValue1.getSendtoEnum() == NVS_SIM);
+        ensure("1. getClassEnum failed", nValue1.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("1. getSendtoEnum failed", nValue1.getSendtoEnum() == ENameValueSendto::NVS_SIM);
         ensure("1. getString failed", (0==strcmp(nValue1.getString(),"232324343")));
 
         LLNameValue nValue2("SecondLife", "23.5", "F32", "R");
         ensure("2. getTypeEnum failed", nValue2.getTypeEnum() == NVT_F32);
-        ensure("2. getClassEnum failed", nValue2.getClassEnum() == NVC_READ_ONLY);
-        ensure("2. getSendtoEnum failed", nValue2.getSendtoEnum() == NVS_SIM);
+        ensure("2. getClassEnum failed", nValue2.getClassEnum() == ENameValueClass::NVC_READ_ONLY);
+        ensure("2. getSendtoEnum failed", nValue2.getSendtoEnum() == ENameValueSendto::NVS_SIM);
         ensure("2. getF32 failed", *nValue2.getF32() == 23.5f);
 
         LLNameValue nValue3("SecondLife", "-43456787", "S32", "READ_ONLY");
         ensure("3. getTypeEnum failed", nValue3.getTypeEnum() == NVT_S32);
-        ensure("3. getClassEnum failed", nValue3.getClassEnum() == NVC_READ_ONLY);
-        ensure("3. getSendtoEnum failed", nValue3.getSendtoEnum() == NVS_SIM);
+        ensure("3. getClassEnum failed", nValue3.getClassEnum() == ENameValueClass::NVC_READ_ONLY);
+        ensure("3. getSendtoEnum failed", nValue3.getSendtoEnum() == ENameValueSendto::NVS_SIM);
         ensure("3. getS32 failed", *nValue3.getS32() == -43456787);
 
         LLNameValue nValue4("SecondLife", "<1.0, 2.0, 3.0>", "VEC3", "RW");
         LLVector3 llvec4(1.0, 2.0, 3.0);
         ensure("4. getTypeEnum failed", nValue4.getTypeEnum() == NVT_VEC3);
-        ensure("4. getClassEnum failed", nValue4.getClassEnum() == NVC_READ_WRITE);
-        ensure("4. getSendtoEnum failed", nValue4.getSendtoEnum() == NVS_SIM);
+        ensure("4. getClassEnum failed", nValue4.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("4. getSendtoEnum failed", nValue4.getSendtoEnum() == ENameValueSendto::NVS_SIM);
         ensure("4. getVec3 failed", *nValue4.getVec3() == llvec4);
 
         LLNameValue nValue5("SecondLife", "-1.0, 2.4, 3", "VEC3", "RW");
         LLVector3 llvec5(-1.0f, 2.4f, 3);
         ensure("5. getTypeEnum failed", nValue5.getTypeEnum() == NVT_VEC3);
-        ensure("5. getClassEnum failed", nValue5.getClassEnum() == NVC_READ_WRITE);
-        ensure("5. getSendtoEnum failed", nValue5.getSendtoEnum() == NVS_SIM);
+        ensure("5. getClassEnum failed", nValue5.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("5. getSendtoEnum failed", nValue5.getSendtoEnum() == ENameValueSendto::NVS_SIM);
         ensure("5. getVec3 failed", *nValue5.getVec3() == llvec5);
 
         LLNameValue nValue6("SecondLife", "89764323", "U32", "RW");
         ensure("6. getTypeEnum failed", nValue6.getTypeEnum() == NVT_U32);
-        ensure("6. getClassEnum failed", nValue6.getClassEnum() == NVC_READ_WRITE);
-        ensure("6. getSendtoEnum failed", nValue6.getSendtoEnum() == NVS_SIM);
+        ensure("6. getClassEnum failed", nValue6.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("6. getSendtoEnum failed", nValue6.getSendtoEnum() == ENameValueSendto::NVS_SIM);
         ensure("6. getU32 failed", *nValue6.getU32() == 89764323);
 
         LLNameValue nValue7("SecondLife", "89764323323232", "U64", "RW");
         U64 u64_7 = U64L(89764323323232);
         ensure("7. getTypeEnum failed", nValue7.getTypeEnum() == NVT_U64);
-        ensure("7. getClassEnum failed", nValue7.getClassEnum() == NVC_READ_WRITE);
-        ensure("7. getSendtoEnum failed", nValue7.getSendtoEnum() == NVS_SIM);
+        ensure("7. getClassEnum failed", nValue7.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("7. getSendtoEnum failed", nValue7.getSendtoEnum() == ENameValueSendto::NVS_SIM);
         ensure("7. getU32 failed", *nValue7.getU64() == u64_7);
     }
 
@@ -201,39 +201,39 @@ namespace tut
         LLNameValue nValue("SecondLife",  "STRING", "READ_WRITE");
         ensure("mName not set correctly", (0 == strcmp(nValue.mName,"SecondLife")));
         ensure("getTypeEnum failed", nValue.getTypeEnum() == NVT_STRING);
-        ensure("getClassEnum failed", nValue.getClassEnum() == NVC_READ_WRITE);
-        ensure("getSendtoEnum failed", nValue.getSendtoEnum() == NVS_SIM);
+        ensure("getClassEnum failed", nValue.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("getSendtoEnum failed", nValue.getSendtoEnum() == ENameValueSendto::NVS_SIM);
 
         LLNameValue nValue1("SecondLife",  "ASSET", "READ_WRITE");
         ensure("1. mName not set correctly", (0 == strcmp(nValue1.mName,"SecondLife")));
         ensure("1. getTypeEnum for RW failed", nValue1.getTypeEnum() == NVT_ASSET);
-        ensure("1. getClassEnum for RW failed", nValue1.getClassEnum() == NVC_READ_WRITE);
-        ensure("1. getSendtoEnum for RW failed", nValue1.getSendtoEnum() == NVS_SIM);
+        ensure("1. getClassEnum for RW failed", nValue1.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("1. getSendtoEnum for RW failed", nValue1.getSendtoEnum() == ENameValueSendto::NVS_SIM);
 
         LLNameValue nValue2("SecondLife", "F32", "READ_ONLY");
         ensure("2. getTypeEnum failed", nValue2.getTypeEnum() == NVT_F32);
-        ensure("2. getClassEnum failed", nValue2.getClassEnum() == NVC_READ_ONLY);
-        ensure("2. getSendtoEnum failed", nValue2.getSendtoEnum() == NVS_SIM);
+        ensure("2. getClassEnum failed", nValue2.getClassEnum() == ENameValueClass::NVC_READ_ONLY);
+        ensure("2. getSendtoEnum failed", nValue2.getSendtoEnum() == ENameValueSendto::NVS_SIM);
 
         LLNameValue nValue3("SecondLife", "S32", "READ_ONLY");
         ensure("3. getTypeEnum failed", nValue3.getTypeEnum() == NVT_S32);
-        ensure("3. getClassEnum failed", nValue3.getClassEnum() == NVC_READ_ONLY);
-        ensure("3. getSendtoEnum failed", nValue3.getSendtoEnum() == NVS_SIM);
+        ensure("3. getClassEnum failed", nValue3.getClassEnum() == ENameValueClass::NVC_READ_ONLY);
+        ensure("3. getSendtoEnum failed", nValue3.getSendtoEnum() == ENameValueSendto::NVS_SIM);
 
         LLNameValue nValue4("SecondLife", "VEC3", "READ_WRITE");
         ensure("4. getTypeEnum failed", nValue4.getTypeEnum() == NVT_VEC3);
-        ensure("4. getClassEnum failed", nValue4.getClassEnum() == NVC_READ_WRITE);
-        ensure("4. getSendtoEnum failed", nValue4.getSendtoEnum() == NVS_SIM);
+        ensure("4. getClassEnum failed", nValue4.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("4. getSendtoEnum failed", nValue4.getSendtoEnum() == ENameValueSendto::NVS_SIM);
 
         LLNameValue nValue6("SecondLife", "U32", "READ_WRITE");
         ensure("6. getTypeEnum failed", nValue6.getTypeEnum() == NVT_U32);
-        ensure("6. getClassEnum failed", nValue6.getClassEnum() == NVC_READ_WRITE);
-        ensure("6. getSendtoEnum failed", nValue6.getSendtoEnum() == NVS_SIM);
+        ensure("6. getClassEnum failed", nValue6.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("6. getSendtoEnum failed", nValue6.getSendtoEnum() == ENameValueSendto::NVS_SIM);
 
         LLNameValue nValue7("SecondLife", "U64", "READ_WRITE");
         ensure("7. getTypeEnum failed", nValue7.getTypeEnum() == NVT_U64);
-        ensure("7. getClassEnum failed", nValue7.getClassEnum() == NVC_READ_WRITE);
-        ensure("7. getSendtoEnum failed", nValue7.getSendtoEnum() == NVS_SIM);
+        ensure("7. getClassEnum failed", nValue7.getClassEnum() == ENameValueClass::NVC_READ_WRITE);
+        ensure("7. getSendtoEnum failed", nValue7.getSendtoEnum() == ENameValueSendto::NVS_SIM);
     }
 
     template<> template<>

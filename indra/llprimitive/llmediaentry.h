@@ -35,7 +35,7 @@
 class LLMediaEntry
 {
 public:
-    enum MediaControls {
+    enum class MediaControls {
         STANDARD = 0,
         MINI
     };

@@ -364,15 +364,15 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
         LLMotion::LLMotionInitStatus stat = motion->onInitialize(mCharacter);
         switch(stat)
         {
-        case LLMotion::STATUS_FAILURE:
+        case LLMotion::LLMotionInitStatus::STATUS_FAILURE:
             LL_INFOS() << "Motion " << id << " init failed." << LL_ENDL;
             sRegistry.markBad(id);
             delete motion;
             return NULL;
-        case LLMotion::STATUS_HOLD:
+        case LLMotion::LLMotionInitStatus::STATUS_HOLD:
             mLoadingMotions.insert(motion);
             break;
-        case LLMotion::STATUS_SUCCESS:
+        case LLMotion::LLMotionInitStatus::STATUS_SUCCESS:
             // add motion to our list
             mLoadedMotions.insert(motion);
             break;
@@ -471,7 +471,7 @@ bool LLMotionController::stopMotionInstance(LLMotion* motion, bool stop_immediat
 //-----------------------------------------------------------------------------
 void LLMotionController::updateRegularMotions()
 {
-    updateMotionsByType(LLMotion::NORMAL_BLEND);
+    updateMotionsByType(LLMotion::LLMotionBlendType::NORMAL_BLEND);
 }
 
 //-----------------------------------------------------------------------------
@@ -479,7 +479,7 @@ void LLMotionController::updateRegularMotions()
 //-----------------------------------------------------------------------------
 void LLMotionController::updateAdditiveMotions()
 {
-    updateMotionsByType(LLMotion::ADDITIVE_BLEND);
+    updateMotionsByType(LLMotion::LLMotionBlendType::ADDITIVE_BLEND);
 }
 
 //-----------------------------------------------------------------------------
@@ -774,7 +774,7 @@ void LLMotionController::updateLoadingMotions()
             continue; // maybe shouldn't happen but i've seen it -MG
         }
         LLMotion::LLMotionInitStatus status = motionp->onInitialize(mCharacter);
-        if (status == LLMotion::STATUS_SUCCESS)
+        if (status == LLMotion::LLMotionInitStatus::STATUS_SUCCESS)
         {
             mLoadingMotions.erase(curiter);
             // add motion to our loaded motion list
@@ -785,7 +785,7 @@ void LLMotionController::updateLoadingMotions()
                 activateMotionInstance(motionp, mAnimTime);
             }
         }
-        else if (status == LLMotion::STATUS_FAILURE)
+        else if (status == LLMotion::LLMotionInitStatus::STATUS_FAILURE)
         {
             LL_INFOS() << "Motion " << motionp->getID() << " init failed." << LL_ENDL;
             sRegistry.markBad(motionp->getID());

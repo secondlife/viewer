@@ -34,8 +34,8 @@ class LLSD;
 class LLMessageConfig
 {
 public:
-    enum Flavor { NO_FLAVOR=0, LLSD_FLAVOR=1, TEMPLATE_FLAVOR=2 };
-    enum SenderTrust { NOT_SET=0, UNTRUSTED=1, TRUSTED=2 };
+    enum class Flavor { NO_FLAVOR=0, LLSD_FLAVOR=1, TEMPLATE_FLAVOR=2 };
+    enum class SenderTrust { NOT_SET=0, UNTRUSTED=1, TRUSTED=2 };
 
     static void initClass(const std::string& server_name,
                           const std::string& config_dir);

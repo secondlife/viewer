@@ -145,7 +145,7 @@ void HttpLibcurl::start(int policy_count)
 HttpService::ELoopSpeed HttpLibcurl::processTransport()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
-    HttpService::ELoopSpeed ret(HttpService::REQUEST_SLEEP);
+    HttpService::ELoopSpeed ret(HttpService::ELoopSpeed::REQUEST_SLEEP);
 
     // Give libcurl some cycles to do I/O & callbacks
     for (unsigned int policy_class(0); policy_class < mPolicyCount; ++policy_class)
@@ -190,7 +190,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 
                     completeRequest(mMultiHandles[policy_class], handle, result);
                     handle = NULL;                  // No longer valid on return
-                    ret = HttpService::NORMAL;      // If anything completes, we may have a free slot.
+                    ret = HttpService::ELoopSpeed::NORMAL;      // If anything completes, we may have a free slot.
                                                     // Turning around quickly reduces connection gap by 7-10mS.
                 }
                 else if (CURLMSG_NONE == msg->msg)
@@ -211,7 +211,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 
     if (! mActiveOps.empty())
     {
-        ret = HttpService::NORMAL;
+        ret = HttpService::ELoopSpeed::NORMAL;
     }
     return ret;
 }

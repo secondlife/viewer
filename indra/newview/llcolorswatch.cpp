@@ -197,7 +197,7 @@ bool LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 void LLColorSwatchCtrl::draw()
 {
     // If we're in a focused floater, don't apply the floater's alpha to the color swatch (STORM-676).
-    F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+    F32 alpha = getTransparencyType() == ETypeTransparency::TT_ACTIVE ? 1.0f : getCurrentTransparency();
 
     mBorder->setKeyboardFocusHighlight(hasFocus());
     // Draw border

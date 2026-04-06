@@ -418,7 +418,7 @@ bool LLMessageSystem::isTrustedMessage(const std::string& name) const
     message_template_name_map_t::const_iterator iter =
         findTemplate(mMessageTemplates, name);
     if(iter == mMessageTemplates.end()) {return false;}
-    return iter->second->getTrust() == MT_TRUST;
+    return iter->second->getTrust() == EMsgTrust::MT_TRUST;
 }
 
 bool LLMessageSystem::isUntrustedMessage(const std::string& name) const
@@ -426,7 +426,7 @@ bool LLMessageSystem::isUntrustedMessage(const std::string& name) const
     message_template_name_map_t::const_iterator iter =
         findTemplate(mMessageTemplates, name);
     if(iter == mMessageTemplates.end()) {return false;}
-    return iter->second->getTrust() == MT_NOTRUST;
+    return iter->second->getTrust() == EMsgTrust::MT_NOTRUST;
 }
 
 LLCircuitData* LLMessageSystem::findCircuit(const LLHost& host,
@@ -1190,7 +1190,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
     cdp->nextPacketOutID();
 
     // Packet ID size is always 4
-    *((S32*)&mSendBuffer[PHL_PACKET_ID]) = htonl(cdp->getPacketOutID());
+    *((S32*)&mSendBuffer[static_cast<S32>(EPacketHeaderLayout::PHL_PACKET_ID)]) = htonl(cdp->getPacketOutID());
 
     // Compress the message, which will usually reduce its size.
     U8 * buf_ptr = (U8 *)mSendBuffer;
@@ -2181,7 +2181,7 @@ S32 LLMessageSystem::sendError(
     bool pack_data = true;
     static const std::string ERROR_MESSAGE_NAME("Error");
     if (LLMessageConfig::getMessageFlavor(ERROR_MESSAGE_NAME) ==
-        LLMessageConfig::TEMPLATE_FLAVOR)
+        LLMessageConfig::Flavor::TEMPLATE_FLAVOR)
     {
         S32 msg_size = static_cast<S32>(temp.size()) + mMessageBuilder->getMessageSize();
         if(msg_size >= ETHERNET_MTU_BYTES)
@@ -3422,18 +3422,18 @@ void LLMessageSystem::newMessageFast(const char *name)
     LLMessageConfig::Flavor server_flavor =
         LLMessageConfig::getServerDefaultFlavor();
 
-    if(message_flavor == LLMessageConfig::TEMPLATE_FLAVOR)
+    if(message_flavor == LLMessageConfig::Flavor::TEMPLATE_FLAVOR)
     {
         mMessageBuilder = mTemplateMessageBuilder;
     }
-    else if (message_flavor == LLMessageConfig::LLSD_FLAVOR)
+    else if (message_flavor == LLMessageConfig::Flavor::LLSD_FLAVOR)
     {
         mMessageBuilder = mLLSDMessageBuilder;
     }
     // NO_FLAVOR
     else
     {
-        if (server_flavor == LLMessageConfig::LLSD_FLAVOR)
+        if (server_flavor == LLMessageConfig::Flavor::LLSD_FLAVOR)
         {
             mMessageBuilder = mLLSDMessageBuilder;
         }

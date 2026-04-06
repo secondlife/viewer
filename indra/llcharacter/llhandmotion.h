@@ -41,7 +41,7 @@ class LLHandMotion :
     public LLMotion
 {
 public:
-    enum eHandPose
+    enum class eHandPose
     {
         HAND_POSE_SPREAD,
         HAND_POSE_RELAXED,
@@ -98,7 +98,7 @@ public:
     // motions must report their priority
     virtual LLJoint::JointPriority getPriority() { return LLJoint::MEDIUM_PRIORITY; }
 
-    virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
+    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::NORMAL_BLEND; }
 
     // run-time (post constructor) initialization,
     // called after parameters have been set

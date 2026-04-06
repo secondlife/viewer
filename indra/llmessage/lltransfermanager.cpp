@@ -52,7 +52,7 @@ LLTransferManager::LLTransferManager() :
     mValid(false)
 {
     S32 i;
-    for (i = 0; i < LLTTT_NUM_TYPES; i++)
+    for (i = 0; i < static_cast<S32>(LLTransferTargetType::LLTTT_NUM_TYPES); i++)
     {
         mTransferBitsIn[i] = 0;
         mTransferBitsOut[i] = 0;
@@ -306,7 +306,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
         return;
     }
 
-    if (status != LLTS_OK)
+    if (status != LLTSCode::LLTS_OK)
     {
         LL_WARNS() << transfer_id << ": Non-ok status, cleaning up" << LL_ENDL;
         ttp->completionCallback(status);
@@ -385,14 +385,14 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
         }
 
         LLTSCode ret_code = ttp->dataCallback(packet_id, tmp_data, size);
-        if (ret_code == LLTS_OK)
+        if (ret_code == LLTSCode::LLTS_OK)
         {
             ttp->setLastPacketID(packet_id);
         }
 
-        if (status != LLTS_OK)
+        if (status != LLTSCode::LLTS_OK)
         {
-            if (status != LLTS_DONE)
+            if (status != LLTSCode::LLTS_DONE)
             {
                 LL_WARNS() << "LLTransferManager::processTransferInfo Error in playback!" << LL_ENDL;
             }
@@ -509,14 +509,14 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
     while (!done)
     {
         LLTSCode ret_code = ttp->dataCallback(packet_id, tmp_data, size);
-        if (ret_code == LLTS_OK)
+        if (ret_code == LLTSCode::LLTS_OK)
         {
             ttp->setLastPacketID(packet_id);
         }
 
-        if (status != LLTS_OK)
+        if (status != LLTSCode::LLTS_OK)
         {
-            if (status != LLTS_DONE)
+            if (status != LLTSCode::LLTS_DONE)
             {
                 LL_WARNS() << "LLTransferManager::processTransferPacket Error in transfer!" << LL_ENDL;
             }
@@ -794,13 +794,13 @@ void LLTransferSourceChannel::updateTransfers()
         bool delete_data = false;
         S32 packet_id = 0;
         S32 sent_bytes = 0;
-        LLTSCode status = LLTS_OK;
+        LLTSCode status = LLTSCode::LLTS_OK;
 
         // Get the packetID for the next packet that we're transferring.
         packet_id = tsp->getNextPacketID();
         status = tsp->dataCallback(packet_id, DEFAULT_PACKET_SIZE, &datap, data_size, delete_data);
 
-        if (status == LLTS_SKIP)
+        if (status == LLTSCode::LLTS_SKIP)
         {
             // We don't have any data, but we're not done, just go on.
             // This will presumably be used for streaming or async transfers that
@@ -817,9 +817,9 @@ void LLTransferSourceChannel::updateTransfers()
         gMessageSystem->newMessage("TransferPacket");
         gMessageSystem->nextBlock("TransferData");
         gMessageSystem->addUUID("TransferID", tsp->getID());
-        gMessageSystem->addS32("ChannelType", getChannelType());
+        gMessageSystem->addS32("ChannelType", static_cast<S32>(getChannelType()));
         gMessageSystem->addS32("Packet", packet_id);    // HACK!  Need to put in a REAL packet id
-        gMessageSystem->addS32("Status", status);
+        gMessageSystem->addS32("Status", static_cast<S32>(status));
         gMessageSystem->addBinaryData("Data", datap, data_size);
         sent_bytes = gMessageSystem->getCurrentSendTotal();
         gMessageSystem->sendReliable(getHost(), LL_DEFAULT_RELIABLE_RETRIES, true, F32Seconds(0.f),
@@ -851,13 +851,13 @@ void LLTransferSourceChannel::updateTransfers()
 
         switch (status)
         {
-        case LLTS_OK:
+        case LLTSCode::LLTS_OK:
             // We're OK, don't need to do anything.  Keep sending data.
             break;
-        case LLTS_ERROR:
+        case LLTSCode::LLTS_ERROR:
             LL_WARNS() << "Error in transfer dataCallback!" << LL_ENDL;
             // fall through
-        case LLTS_DONE:
+        case LLTSCode::LLTS_DONE:
             // We need to clean up this transfer source.
             //LL_INFOS() << "LLTransferSourceChannel::updateTransfers() " << tsp->getID() << " done" << LL_ENDL;
             tsp->completionCallback(status);
@@ -983,8 +983,8 @@ void LLTransferTargetChannel::sendTransferRequest(LLTransferTarget *targetp,
     gMessageSystem->newMessage("TransferRequest");
     gMessageSystem->nextBlock("TransferInfo");
     gMessageSystem->addUUID("TransferID", targetp->getID());
-    gMessageSystem->addS32("SourceType", params.getType());
-    gMessageSystem->addS32("ChannelType", getChannelType());
+    gMessageSystem->addS32("SourceType", static_cast<S32>(params.getType()));
+    gMessageSystem->addS32("ChannelType", static_cast<S32>(getChannelType()));
     gMessageSystem->addF32("Priority", priority);
 
     U8 tmp[MAX_PARAMS_SIZE];
@@ -1073,9 +1073,9 @@ void LLTransferSource::sendTransferStatus(LLTSCode status)
     gMessageSystem->newMessage("TransferInfo");
     gMessageSystem->nextBlock("TransferInfo");
     gMessageSystem->addUUID("TransferID", getID());
-    gMessageSystem->addS32("TargetType", LLTTT_UNKNOWN);
-    gMessageSystem->addS32("ChannelType", mChannelp->getChannelType());
-    gMessageSystem->addS32("Status", status);
+    gMessageSystem->addS32("TargetType", static_cast<S32>(LLTransferTargetType::LLTTT_UNKNOWN));
+    gMessageSystem->addS32("ChannelType", static_cast<S32>(mChannelp->getChannelType()));
+    gMessageSystem->addS32("Status", static_cast<S32>(status));
     gMessageSystem->addS32("Size", mSize);
     U8 tmp[MAX_PARAMS_SIZE];
     LLDataPackerBinaryBuffer dp(tmp, MAX_PARAMS_SIZE);
@@ -1085,7 +1085,7 @@ void LLTransferSource::sendTransferStatus(LLTSCode status)
     gMessageSystem->sendReliable(mChannelp->getHost());
 
     // Abort if there was as asset system issue.
-    if (status != LLTS_OK)
+    if (status != LLTSCode::LLTS_OK)
     {
         completionCallback(status);
         mChannelp->deleteTransfer(this);
@@ -1103,10 +1103,10 @@ void LLTransferSource::abortTransfer()
     gMessageSystem->newMessage("TransferAbort");
     gMessageSystem->nextBlock("TransferInfo");
     gMessageSystem->addUUID("TransferID", getID());
-    gMessageSystem->addS32("ChannelType", mChannelp->getChannelType());
+    gMessageSystem->addS32("ChannelType", static_cast<S32>(mChannelp->getChannelType()));
     gMessageSystem->sendReliable(mChannelp->getHost());
 
-    completionCallback(LLTS_ABORT);
+    completionCallback(LLTSCode::LLTS_ABORT);
 }
 
 
@@ -1117,7 +1117,7 @@ void LLTransferSource::registerSourceType(const LLTransferSourceType stype, LLTr
     {
         // Disallow changing what class handles a source type
         // Unclear when you would want to do this, and whether it would work.
-        LL_ERRS() << "Reregistering source type " << stype << LL_ENDL;
+        LL_ERRS() << "Reregistering source type " << static_cast<S32>(stype) << LL_ENDL;
     }
     else
     {
@@ -1136,16 +1136,16 @@ LLTransferSource *LLTransferSource::createSource(const LLTransferSourceType styp
     // lead to easy exploitation of a server process.
     // I have removed all uses of it from the codebase. Phoenix.
     //
-    //case LLTST_FILE:
+    //case LLTransferSourceType::LLTST_FILE:
     //  return new LLTransferSourceFile(id, priority);
-    case LLTST_ASSET:
+    case LLTransferSourceType::LLTST_ASSET:
         return new LLTransferSourceAsset(id, priority);
     default:
         {
             if (!sSourceCreateMap.count(stype))
             {
                 // Use the callback to create the source type if it's not there.
-                LL_WARNS() << "Unknown transfer source type: " << stype << LL_ENDL;
+                LL_WARNS() << "Unknown transfer source type: " << static_cast<S32>(stype) << LL_ENDL;
                 return NULL;
             }
             return (sSourceCreateMap[stype])(id, priority);
@@ -1224,10 +1224,10 @@ void LLTransferTarget::abortTransfer()
     gMessageSystem->newMessage("TransferAbort");
     gMessageSystem->nextBlock("TransferInfo");
     gMessageSystem->addUUID("TransferID", getID());
-    gMessageSystem->addS32("ChannelType", mChannelp->getChannelType());
+    gMessageSystem->addS32("ChannelType", static_cast<S32>(mChannelp->getChannelType()));
     gMessageSystem->sendReliable(mChannelp->getHost());
 
-    completionCallback(LLTS_ABORT);
+    completionCallback(LLTSCode::LLTS_ABORT);
 }
 
 bool LLTransferTarget::addDelayedPacket(
@@ -1272,18 +1272,18 @@ LLTransferTarget* LLTransferTarget::createTarget(
 {
     switch (type)
     {
-    case LLTTT_FILE:
+    case LLTransferTargetType::LLTTT_FILE:
         return new LLTransferTargetFile(id, source_type);
-    case LLTTT_VFILE:
+    case LLTransferTargetType::LLTTT_VFILE:
         return new LLTransferTargetVFile(id, source_type);
     default:
-        LL_WARNS() << "Unknown transfer target type: " << type << LL_ENDL;
+        LL_WARNS() << "Unknown transfer target type: " << static_cast<S32>(type) << LL_ENDL;
         return NULL;
     }
 }
 
 
-LLTransferSourceParamsInvItem::LLTransferSourceParamsInvItem() : LLTransferSourceParams(LLTST_SIM_INV_ITEM), mAssetType(LLAssetType::AT_NONE)
+LLTransferSourceParamsInvItem::LLTransferSourceParamsInvItem() : LLTransferSourceParams(LLTransferSourceType::LLTST_SIM_INV_ITEM), mAssetType(LLAssetType::AT_NONE)
 {
 }
 
@@ -1341,7 +1341,7 @@ bool LLTransferSourceParamsInvItem::unpackParams(LLDataPacker &dp)
 }
 
 LLTransferSourceParamsEstate::LLTransferSourceParamsEstate() :
-    LLTransferSourceParams(LLTST_SIM_ESTATE),
+    LLTransferSourceParams(LLTransferSourceType::LLTST_SIM_ESTATE),
     mEstateAssetType(ET_NONE),
     mAssetType(LLAssetType::AT_NONE)
 {

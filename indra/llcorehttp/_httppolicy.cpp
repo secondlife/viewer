@@ -214,7 +214,7 @@ void HttpPolicy::retryOp(const HttpOpRequest::ptr_t &op)
 HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 {
     const HttpTime now(totalTime());
-    HttpService::ELoopSpeed result(HttpService::REQUEST_SLEEP);
+    HttpService::ELoopSpeed result(HttpService::ELoopSpeed::REQUEST_SLEEP);
     HttpLibcurl & transport(mService->getTransport());
 
     for (int policy_class(0); policy_class < mClasses.size(); ++policy_class)
@@ -229,7 +229,7 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
             // and get back to servicing queues.  Do this test before
             // the retryq/readyq test or you'll get stalls until you
             // click a setting or an asset request comes in.
-            result = HttpService::NORMAL;
+            result = HttpService::ELoopSpeed::NORMAL;
             continue;
         }
         if (retryq.empty() && readyq.empty())
@@ -243,7 +243,7 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
         if (throttle_current && state.mThrottleLeft <= 0)
         {
             // Throttled condition, don't serve this class but don't sleep hard.
-            result = HttpService::NORMAL;
+            result = HttpService::ELoopSpeed::NORMAL;
             continue;
         }
 
@@ -323,7 +323,7 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
         if (! readyq.empty() || ! retryq.empty())
         {
             // If anything is ready, continue looping...
-            result = HttpService::NORMAL;
+            result = HttpService::ELoopSpeed::NORMAL;
         }
     } // end foreach policy_class
 

@@ -481,7 +481,7 @@ void LLAgent::init()
 {
     mMoveTimer.start();
 
-    gSavedSettings.declareBOOL("SlowMotionAnimation", false, "Declared in code", LLControlVariable::PERSIST_NO);
+    gSavedSettings.declareBOOL("SlowMotionAnimation", false, "Declared in code", LLControlVariable::ePersist::PERSIST_NO);
     gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect([](LLControlVariable*, const LLSD& newval, const LLSD&) { handleSlowMotionAnimation(newval); });
 
     // *Note: this is where LLViewerCamera::getInstance() used to be constructed.
@@ -2151,7 +2151,7 @@ void LLAgent::startTyping()
         sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
     }
     (LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
-            sendChatFromViewer("", CHAT_TYPE_START, false);
+            sendChatFromViewer("", EChatType::CHAT_TYPE_START, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -2164,7 +2164,7 @@ void LLAgent::stopTyping()
         clearRenderState(AGENT_STATE_TYPING);
         sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
         (LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
-                sendChatFromViewer("", CHAT_TYPE_STOP, false);
+                sendChatFromViewer("", EChatType::CHAT_TYPE_STOP, false);
     }
 }
 
@@ -4202,8 +4202,8 @@ void LLAgent::addTPNearbyChatSeparator()
         chat.mFromName = location_name;
         chat.mMuted = false;
         chat.mFromID = LLUUID::null;
-        chat.mSourceType = CHAT_SOURCE_TELEPORT;
-        chat.mChatStyle = CHAT_STYLE_TELEPORT_SEP;
+        chat.mSourceType = EChatSourceType::CHAT_SOURCE_TELEPORT;
+        chat.mChatStyle = EChatStyle::CHAT_STYLE_TELEPORT_SEP;
         chat.mText = "";
 
         LLSD args;

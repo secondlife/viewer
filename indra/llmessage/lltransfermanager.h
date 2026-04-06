@@ -45,7 +45,7 @@
 //
 
 
-enum LLTransferChannelType
+enum class LLTransferChannelType
 {
     LLTCT_UNKNOWN = 0,
     LLTCT_MISC,
@@ -54,7 +54,7 @@ enum LLTransferChannelType
 };
 
 
-enum LLTransferSourceType
+enum class LLTransferSourceType
 {
     LLTST_UNKNOWN = 0,
     LLTST_FILE,
@@ -65,7 +65,7 @@ enum LLTransferSourceType
 };
 
 
-enum LLTransferTargetType
+enum class LLTransferTargetType
 {
     LLTTT_UNKNOWN = 0,
     LLTTT_FILE,
@@ -75,7 +75,7 @@ enum LLTransferTargetType
 
 
 // Errors are negative, expected values are positive.
-enum LLTSCode
+enum class LLTSCode
 {
     LLTS_OK = 0,
     LLTS_DONE = 1,
@@ -131,12 +131,12 @@ public:
 
     static void reliablePacketCallback(void **, S32 result);
 
-    S32 getTransferBitsIn(const LLTransferChannelType tctype) const     { return mTransferBitsIn[tctype]; }
-    S32 getTransferBitsOut(const LLTransferChannelType tctype) const    { return mTransferBitsOut[tctype]; }
-    void resetTransferBitsIn(const LLTransferChannelType tctype)        { mTransferBitsIn[tctype] = 0; }
-    void resetTransferBitsOut(const LLTransferChannelType tctype)       { mTransferBitsOut[tctype] = 0; }
-    void addTransferBitsIn(const LLTransferChannelType tctype, const S32 bits)  { mTransferBitsIn[tctype] += bits; }
-    void addTransferBitsOut(const LLTransferChannelType tctype, const S32 bits) { mTransferBitsOut[tctype] += bits; }
+    S32 getTransferBitsIn(const LLTransferChannelType tctype) const     { return mTransferBitsIn[static_cast<size_t>(tctype)]; }
+    S32 getTransferBitsOut(const LLTransferChannelType tctype) const    { return mTransferBitsOut[static_cast<size_t>(tctype)]; }
+    void resetTransferBitsIn(const LLTransferChannelType tctype)        { mTransferBitsIn[static_cast<size_t>(tctype)] = 0; }
+    void resetTransferBitsOut(const LLTransferChannelType tctype)       { mTransferBitsOut[static_cast<size_t>(tctype)] = 0; }
+    void addTransferBitsIn(const LLTransferChannelType tctype, const S32 bits)  { mTransferBitsIn[static_cast<size_t>(tctype)] += bits; }
+    void addTransferBitsOut(const LLTransferChannelType tctype, const S32 bits) { mTransferBitsOut[static_cast<size_t>(tctype)] += bits; }
 protected:
     LLTransferConnection        *getTransferConnection(const LLHost &host);
     bool                        removeTransferConnection(const LLHost &host);
@@ -148,8 +148,8 @@ protected:
     bool    mValid;
     LLHost  mHost;
 
-    std::array<S32, LLTTT_NUM_TYPES>     mTransferBitsIn;
-    std::array<S32, LLTTT_NUM_TYPES>     mTransferBitsOut;
+    std::array<S32, static_cast<size_t>(LLTransferTargetType::LLTTT_NUM_TYPES)>     mTransferBitsIn;
+    std::array<S32, static_cast<size_t>(LLTransferTargetType::LLTTT_NUM_TYPES)>     mTransferBitsOut;
 
     // We keep a map between each host and LLTransferConnection.
     host_tc_map mTransferConnections;

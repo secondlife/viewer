@@ -134,7 +134,7 @@ public:
      * Adds and item and LLSD value associated with it to the list at specified position
      * @return true if the item was added, false otherwise
      */
-    virtual bool addItem(LLPanel * item, const LLSD& value = LLUUID::null, EAddPosition pos = ADD_BOTTOM, bool rearrange = true);
+    virtual bool addItem(LLPanel * item, const LLSD& value = LLUUID::null, EAddPosition pos = EAddPosition::ADD_BOTTOM, bool rearrange = true);
 
     /**
      * Insert item_to_add along with associated value to the list right after the after_item.

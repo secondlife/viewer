@@ -365,7 +365,7 @@ protected:
     bool        mAreChildrenInited; // indicates that no children were initialized
 
 public:
-    enum ERecurseType
+    enum class ERecurseType
     {
         RECURSE_NO,
         RECURSE_UP,
@@ -455,7 +455,7 @@ public:
     // method was written because the list iterators destroy the state
     // of other iterations, thus, we can't arrange while iterating
     // through the children (such as when setting which is selected.
-    virtual void setOpenArrangeRecursively(bool openitem, ERecurseType recurse = RECURSE_NO);
+    virtual void setOpenArrangeRecursively(bool openitem, ERecurseType recurse = ERecurseType::RECURSE_NO);
 
     // Get the current state of the folder.
     virtual bool isOpen() const { return mIsOpen; }

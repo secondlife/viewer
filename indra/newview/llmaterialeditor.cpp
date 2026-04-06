@@ -3138,7 +3138,7 @@ public:
             }
             else if ((reverted_flags & MATERIAL_ALPHA_MODE_DIRTY) && revert_mat.notNull())
             {
-                material->setAlphaMode(revert_mat->mAlphaMode, false);
+                material->setAlphaMode(static_cast<S32>(revert_mat->mAlphaMode), false);
             }
 
             if (changed_flags & MATERIAL_ALPHA_CUTOFF_DIRTY)

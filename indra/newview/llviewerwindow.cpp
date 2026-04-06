@@ -282,7 +282,7 @@ public:
             //{
             //  LLChat chat;
             //  chat.mText = message;
-            //  chat.mSourceType = CHAT_SOURCE_SYSTEM;
+            //  chat.mSourceType = EChatSourceType::CHAT_SOURCE_SYSTEM;
 
             //  chat_floater->addChat(chat, false, false);
             //}

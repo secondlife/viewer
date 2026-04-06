@@ -657,7 +657,7 @@ void LLPanelDirBrowser::processDirEventsReply(LLMessageSystem* msg, void**)
         row["columns"][3]["value"] = llformat("%u", unix_time);
         row["columns"][3]["font"] = "SansSerifSmall";
 
-        list->addElement(row, ADD_TOP /*ADD_SORTED*/);
+        list->addElement(row, EAddPosition::ADD_TOP /*ADD_SORTED*/);
 
         std::string id_str = llformat("%u", event_id);
         self->mResultsContents[id_str] = content;

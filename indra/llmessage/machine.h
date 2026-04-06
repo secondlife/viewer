@@ -29,7 +29,7 @@
 #include "net.h"
 #include "llhost.h"
 
-enum EMachineType
+enum class EMachineType
 {
     MT_NULL,
     MT_SIMULATOR,
@@ -46,7 +46,7 @@ class LLMachine
 {
 public:
     LLMachine()
-        : mMachineType(MT_NULL), mControlPort(0) {}
+        : mMachineType(EMachineType::MT_NULL), mControlPort(0) {}
 
     LLMachine(EMachineType machine_type, U32 ip, S32 port)
         : mMachineType(machine_type), mControlPort(0), mHost(ip,port) {}

@@ -305,7 +305,7 @@ void LLFloaterInspect::refresh()
         row["columns"][3]["column"] = "creation_date";
         row["columns"][3]["type"] = "text";
         row["columns"][3]["value"] = timeStr;
-        mObjectList->addElement(row, ADD_TOP);
+        mObjectList->addElement(row, EAddPosition::ADD_TOP);
     }
     if(selected_index > -1 && mObjectList->getItemIndex(selected_uuid) == selected_index)
     {

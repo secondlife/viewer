@@ -25,7 +25,7 @@
 
 #pragma once
 
-enum EMapImageType
+enum class EMapImageType
 {
     MIT_TERRAIN = 0,
     MIT_POPULAR = 1,

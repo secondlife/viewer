@@ -132,14 +132,14 @@ bool LLPanelNearByMedia::postBuild()
     p.rect = LLRect(0, RESIZE_BAR_THICKNESS, getRect().getWidth(), 0);
     p.name = "resizebar_bottom";
     p.min_size = getRect().getHeight();
-    p.side = LLResizeBar::BOTTOM;
+    p.side = LLResizeBar::Side::BOTTOM;
     p.resizing_view = this;
     addChild( LLUICtrlFactory::create<LLResizeBar>(p) );
 
     p.rect = LLRect( 0, getRect().getHeight(), RESIZE_BAR_THICKNESS, 0);
     p.name = "resizebar_left";
     p.min_size = getRect().getWidth();
-    p.side = LLResizeBar::LEFT;
+    p.side = LLResizeBar::Side::LEFT;
     addChild( LLUICtrlFactory::create<LLResizeBar>(p) );
 
     LLResizeHandle::Params resize_handle_p;
@@ -147,7 +147,7 @@ bool LLPanelNearByMedia::postBuild()
     resize_handle_p.mouse_opaque(false);
     resize_handle_p.min_width(getRect().getWidth());
     resize_handle_p.min_height(getRect().getHeight());
-    resize_handle_p.corner(LLResizeHandle::LEFT_BOTTOM);
+    resize_handle_p.corner(LLResizeHandle::ECorner::LEFT_BOTTOM);
     addChild(LLUICtrlFactory::create<LLResizeHandle>(resize_handle_p));
 
     mNearbyMediaPanel = getChild<LLUICtrl>("nearby_media_panel");

@@ -76,7 +76,7 @@ bool LLTexLayerParam::setInfo(LLViewerVisualParamInfo *info, bool add_to_appeara
     if (add_to_appearance)
     {
         mAvatarAppearance->addVisualParam( this);
-        this->setParamLocation(mAvatarAppearance->isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
+        this->setParamLocation(mAvatarAppearance->isSelf() ? EParamLocation::LOC_AV_SELF : EParamLocation::LOC_AV_OTHER);
     }
 
     return true;
@@ -536,7 +536,7 @@ void LLTexLayerParamColor::animate(F32 delta)
 // LLTexLayerParamColorInfo
 //-----------------------------------------------------------------------------
 LLTexLayerParamColorInfo::LLTexLayerParamColorInfo() :
-    mOperation(LLTexLayerParamColor::OP_ADD),
+    mOperation(LLTexLayerParamColor::EColorOperation::OP_ADD),
     mNumColors(0)
 {
 }
@@ -559,9 +559,9 @@ bool LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
     if (param_color_node->getFastAttributeString(operation_string, op_string))
     {
         LLStringUtil::toLower(op_string);
-        if      (op_string == "add")        mOperation = LLTexLayerParamColor::OP_ADD;
-        else if (op_string == "multiply")   mOperation = LLTexLayerParamColor::OP_MULTIPLY;
-        else if (op_string == "blend")      mOperation = LLTexLayerParamColor::OP_BLEND;
+        if      (op_string == "add")        mOperation = LLTexLayerParamColor::EColorOperation::OP_ADD;
+        else if (op_string == "multiply")   mOperation = LLTexLayerParamColor::EColorOperation::OP_MULTIPLY;
+        else if (op_string == "blend")      mOperation = LLTexLayerParamColor::EColorOperation::OP_BLEND;
     }
 
     mNumColors = 0;
@@ -587,7 +587,7 @@ bool LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
         return false;
     }
 
-    if ((mOperation == LLTexLayerParamColor::OP_BLEND) && (mNumColors != 1))
+    if ((mOperation == LLTexLayerParamColor::EColorOperation::OP_BLEND) && (mNumColors != 1))
     {
         LL_WARNS() << "<param_color> with operation\"blend\" must have exactly one <value>" << LL_ENDL;
         return false;

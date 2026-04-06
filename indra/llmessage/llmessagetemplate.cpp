@@ -94,13 +94,13 @@ std::ostream& operator<<(std::ostream& s, LLMessageBlock &msg)
     s << "\t" << msg.mName << " (";
     switch (msg.mType)
     {
-    case MBT_SINGLE:
+    case EMsgBlockType::MBT_SINGLE:
         s << "Fixed";
         break;
-    case MBT_MULTIPLE:
+    case EMsgBlockType::MBT_MULTIPLE:
         s << "Multiple - " << msg.mNumber << " copies";
         break;
-    case MBT_VARIABLE:
+    case EMsgBlockType::MBT_VARIABLE:
         s << "Variable";
         break;
     default:
@@ -133,16 +133,16 @@ std::ostream& operator<<(std::ostream& s, LLMessageTemplate &msg)
 {
     switch (msg.mFrequency)
     {
-    case MFT_HIGH:
+    case EMsgFrequency::MFT_HIGH:
         s << "========================================\n" << "Message #" << msg.mMessageNumber << "\n" << msg.mName << " (";
         s << "High";
         break;
-    case MFT_MEDIUM:
+    case EMsgFrequency::MFT_MEDIUM:
         s << "========================================\n" << "Message #";
         s << (msg.mMessageNumber & 0xFF) << "\n" << msg.mName << " (";
         s << "Medium";
         break;
-    case MFT_LOW:
+    case EMsgFrequency::MFT_LOW:
         s << "========================================\n" << "Message #";
         s << (msg.mMessageNumber & 0xFFFF) << "\n" << msg.mName << " (";
         s << "Low";
@@ -179,10 +179,10 @@ void LLMessageTemplate::banUdp()
         "UDPDeprecated",
         "UDPBlackListed"
     };
-    if (mDeprecation != MD_DEPRECATED)
+    if (mDeprecation != EMsgDeprecation::MD_DEPRECATED)
     {
-        LL_INFOS() << "Setting " << mName << " to UDPBlackListed was " << deprecation[mDeprecation] << LL_ENDL;
-        mDeprecation = MD_UDPBLACKLISTED;
+        LL_INFOS() << "Setting " << mName << " to UDPBlackListed was " << deprecation[static_cast<int>(mDeprecation)] << LL_ENDL;
+        mDeprecation = EMsgDeprecation::MD_UDPBLACKLISTED;
     }
     else
     {

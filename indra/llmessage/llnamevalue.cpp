@@ -60,14 +60,14 @@ char NameValueTypeStrings[NVT_EOF][NAME_VALUE_TYPE_STRING_LENGTH] = /*Flawfinder
     "U64"
 };
 
-char NameValueClassStrings[NVC_EOF][NAME_VALUE_CLASS_STRING_LENGTH] = /*Flawfinder: Ignore*/
+char NameValueClassStrings[static_cast<size_t>(ENameValueClass::NVC_EOF)][NAME_VALUE_CLASS_STRING_LENGTH] = /*Flawfinder: Ignore*/
 {
     "NULL",
     "R",            // read only
     "RW"            // read write
 };
 
-char NameValueSendtoStrings[NVS_EOF][NAME_VALUE_SENDTO_STRING_LENGTH] = /*Flawfinder: Ignore*/
+char NameValueSendtoStrings[static_cast<size_t>(ENameValueSendto::NVS_EOF)][NAME_VALUE_SENDTO_STRING_LENGTH] = /*Flawfinder: Ignore*/
 {
     "NULL",
     "S",    // "Sim", formerly SIM
@@ -96,11 +96,11 @@ void LLNameValue::baseInit()
     mType = NVT_NULL;
     mStringType = NameValueTypeStrings[NVT_NULL];
 
-    mClass = NVC_NULL;
-    mStringClass = NameValueClassStrings[NVC_NULL];
+    mClass = ENameValueClass::NVC_NULL;
+    mStringClass = NameValueClassStrings[static_cast<size_t>(ENameValueClass::NVC_NULL)];
 
-    mSendto = NVS_NULL;
-    mStringSendto = NameValueSendtoStrings[NVS_NULL];
+    mSendto = ENameValueSendto::NVS_NULL;
+    mStringSendto = NameValueSendtoStrings[static_cast<size_t>(ENameValueSendto::NVS_NULL)];
 }
 
 void LLNameValue::init(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto)
@@ -218,19 +218,19 @@ void LLNameValue::init(const char *name, const char *data, const char *type, con
     if (!strcmp(nvclass, "R") ||
         !strcmp(nvclass, "READ_ONLY"))          // legacy
     {
-        mClass = NVC_READ_ONLY;
+        mClass = ENameValueClass::NVC_READ_ONLY;
         mStringClass = mNVNameTable->addString("R");
     }
     else if (!strcmp(nvclass, "RW") ||
             !strcmp(nvclass, "READ_WRITE")) // legacy
     {
-        mClass = NVC_READ_WRITE;
+        mClass = ENameValueClass::NVC_READ_WRITE;
         mStringClass = mNVNameTable->addString("RW");
     }
     else
     {
         // assume it's bad
-        mClass = NVC_NULL;
+        mClass = ENameValueClass::NVC_NULL;
         mStringClass = mNVNameTable->addString(nvclass);
     }
 
@@ -238,32 +238,32 @@ void LLNameValue::init(const char *name, const char *data, const char *type, con
     if (!strcmp(nvsendto, "S") ||
         !strcmp(nvsendto, "SIM"))           // legacy
     {
-        mSendto = NVS_SIM;
+        mSendto = ENameValueSendto::NVS_SIM;
         mStringSendto = mNVNameTable->addString("S");
     }
     else if (!strcmp(nvsendto, "DS") ||
         !strcmp(nvsendto, "SIM_SPACE")) // legacy
     {
-        mSendto = NVS_DATA_SIM;
+        mSendto = ENameValueSendto::NVS_DATA_SIM;
         mStringSendto = mNVNameTable->addString("DS");
     }
     else if (!strcmp(nvsendto, "SV") ||
             !strcmp(nvsendto, "SIM_VIEWER"))    // legacy
     {
-        mSendto = NVS_SIM_VIEWER;
+        mSendto = ENameValueSendto::NVS_SIM_VIEWER;
         mStringSendto = mNVNameTable->addString("SV");
     }
     else if (!strcmp(nvsendto, "DSV") ||
             !strcmp(nvsendto, "SIM_SPACE_VIEWER"))  // legacy
     {
-        mSendto = NVS_DATA_SIM_VIEWER;
+        mSendto = ENameValueSendto::NVS_DATA_SIM_VIEWER;
         mStringSendto = mNVNameTable->addString("DSV");
     }
     else
     {
         LL_WARNS() << "LLNameValue::init() - unknown sendto field "
                 << nvsendto << " for NV " << mName << LL_ENDL;
-        mSendto = NVS_NULL;
+        mSendto = ENameValueSendto::NVS_NULL;
         mStringSendto = mNVNameTable->addString("S");
     }
 
@@ -339,20 +339,20 @@ LLNameValue::LLNameValue(const char *name, const char *type, const char *nvclass
     mStringClass = mNVNameTable->addString(nvclass);
     if (!strcmp(mStringClass, "READ_ONLY"))
     {
-        mClass = NVC_READ_ONLY;
+        mClass = ENameValueClass::NVC_READ_ONLY;
     }
     else if (!strcmp(mStringClass, "READ_WRITE"))
     {
-        mClass = NVC_READ_WRITE;
+        mClass = ENameValueClass::NVC_READ_WRITE;
     }
     else
     {
-        mClass = NVC_NULL;
+        mClass = ENameValueClass::NVC_NULL;
     }
 
     // Initialize the sendto variable
     mStringSendto = mNVNameTable->addString("SIM");
-    mSendto = NVS_SIM;
+    mSendto = ENameValueSendto::NVS_SIM;
 }
 
 
@@ -437,7 +437,7 @@ LLNameValue::LLNameValue(const char *data)
     }
 
     // do we have a type argument?
-    for (i = NVC_READ_ONLY; i < NVC_EOF; i++)
+    for (i = static_cast<S32>(ENameValueClass::NVC_READ_ONLY); i < static_cast<S32>(ENameValueClass::NVC_EOF); i++)
     {
         if (!strncmp(NameValueClassStrings[i], data + character_count, strlen(NameValueClassStrings[i])))       /* Flawfinder: ignore */
         {
@@ -445,7 +445,7 @@ LLNameValue::LLNameValue(const char *data)
         }
     }
 
-    if (i != NVC_EOF)
+    if (i != static_cast<S32>(ENameValueClass::NVC_EOF))
     {
         // yes we do!
         // read in the class
@@ -480,7 +480,7 @@ LLNameValue::LLNameValue(const char *data)
     }
 
     // Do we have a sendto argument?
-    for (i = NVS_SIM; i < NVS_EOF; i++)
+    for (i = static_cast<S32>(ENameValueSendto::NVS_SIM); i < static_cast<S32>(ENameValueSendto::NVS_EOF); i++)
     {
         if (!strncmp(NameValueSendtoStrings[i], data + character_count, strlen(NameValueSendtoStrings[i])))     /* Flawfinder: ignore */
         {
@@ -488,7 +488,7 @@ LLNameValue::LLNameValue(const char *data)
         }
     }
 
-    if (i != NVS_EOF)
+    if (i != static_cast<S32>(ENameValueSendto::NVS_EOF))
     {
         // found a sendto argument
         sscanf((data + character_count), "%2047s", nvsendto);   /*Flawfinder: ignore*/
@@ -678,13 +678,13 @@ LLVector3   *LLNameValue::getVec3()
 
 bool LLNameValue::sendToData() const
 {
-    return (mSendto == NVS_DATA_SIM || mSendto == NVS_DATA_SIM_VIEWER);
+    return (mSendto == ENameValueSendto::NVS_DATA_SIM || mSendto == ENameValueSendto::NVS_DATA_SIM_VIEWER);
 }
 
 
 bool LLNameValue::sendToViewer() const
 {
-    return (mSendto == NVS_SIM_VIEWER || mSendto == NVS_DATA_SIM_VIEWER);
+    return (mSendto == ENameValueSendto::NVS_SIM_VIEWER || mSendto == ENameValueSendto::NVS_DATA_SIM_VIEWER);
 }
 
 
@@ -694,7 +694,7 @@ LLNameValue &LLNameValue::operator=(const LLNameValue &a)
     {
         return *this;
     }
-    if (mClass == NVC_READ_ONLY)
+    if (mClass == ENameValueClass::NVC_READ_ONLY)
         return *this;
 
     switch(a.mType)
@@ -735,7 +735,7 @@ LLNameValue &LLNameValue::operator=(const LLNameValue &a)
 
 void LLNameValue::setString(const char *a)
 {
-    if (mClass == NVC_READ_ONLY)
+    if (mClass == ENameValueClass::NVC_READ_ONLY)
         return;
 
     switch(mType)
@@ -773,7 +773,7 @@ void LLNameValue::setString(const char *a)
 
 void LLNameValue::setAsset(const char *a)
 {
-    if (mClass == NVC_READ_ONLY)
+    if (mClass == ENameValueClass::NVC_READ_ONLY)
         return;
 
     switch(mType)
@@ -808,7 +808,7 @@ void LLNameValue::setAsset(const char *a)
 
 void LLNameValue::setF32(const F32 a)
 {
-    if (mClass == NVC_READ_ONLY)
+    if (mClass == ENameValueClass::NVC_READ_ONLY)
         return;
 
     switch(mType)
@@ -826,7 +826,7 @@ void LLNameValue::setF32(const F32 a)
 
 void LLNameValue::setS32(const S32 a)
 {
-    if (mClass == NVC_READ_ONLY)
+    if (mClass == ENameValueClass::NVC_READ_ONLY)
         return;
 
     switch(mType)
@@ -850,7 +850,7 @@ void LLNameValue::setS32(const S32 a)
 
 void LLNameValue::setU32(const U32 a)
 {
-    if (mClass == NVC_READ_ONLY)
+    if (mClass == ENameValueClass::NVC_READ_ONLY)
         return;
 
     switch(mType)
@@ -874,7 +874,7 @@ void LLNameValue::setU32(const U32 a)
 
 void LLNameValue::setVec3(const LLVector3 &a)
 {
-    if (mClass == NVC_READ_ONLY)
+    if (mClass == ENameValueClass::NVC_READ_ONLY)
         return;
 
     switch(mType)

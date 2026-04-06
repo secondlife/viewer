@@ -101,7 +101,7 @@ public:
     // threadRun's loop.  Ordered so that std::min on values
     // produces the most conservative result of multiple
     // requests.
-    enum ELoopSpeed
+    enum class ELoopSpeed
     {
         NORMAL,                 ///< continuous polling of request, ready, active queues
         REQUEST_SLEEP           ///< can sleep indefinitely waiting for request queue write

@@ -93,7 +93,7 @@ public:
      * where new data processed from the previous link in the chain
      * will be written.
      */
-    enum EHead
+    enum class EHead
     {
         READ,
         WRITE

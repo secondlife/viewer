@@ -243,10 +243,10 @@ const LLUIImagePtr& LLDockableFloater::getDockTongue(LLDockControl::DocAt dock_s
 {
     switch(dock_side)
     {
-    case LLDockControl::LEFT:
+    case LLDockControl::DocAt::LEFT:
         mDockTongue = LLUI::getUIImage("Flyout_Left");
         break;
-    case LLDockControl::RIGHT:
+    case LLDockControl::DocAt::RIGHT:
         mDockTongue = LLUI::getUIImage("Flyout_Right");
         break;
     default:

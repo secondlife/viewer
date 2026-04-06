@@ -160,7 +160,7 @@ void LLSearchComboBox::onSelectionCommit()
     if(!search_query.empty())
     {
         remove(search_query);
-        add(search_query, ADD_TOP);
+        add(search_query, EAddPosition::ADD_TOP);
     }
 
     mTextEntry->setText(search_query);

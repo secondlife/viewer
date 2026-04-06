@@ -1523,7 +1523,7 @@ bool LLPanelRegionTerrainInfo::validateMaterials()
             LLNotificationsUtil::add("InvalidTerrainMaterialDoubleSided", args);
             valid = false;
         }
-        if (material->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_OPAQUE && material->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_MASK)
+        if (material->mAlphaMode != LLGLTFMaterial::AlphaMode::ALPHA_MODE_OPAQUE && material->mAlphaMode != LLGLTFMaterial::AlphaMode::ALPHA_MODE_MASK)
         {
             LLSD args;
             args["MATERIAL_NUM"] = i + 1;

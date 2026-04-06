@@ -100,7 +100,7 @@ void LLThumbnailCtrl::draw()
     }
 
     // If we're in a focused floater, don't apply the floater's alpha to the texture.
-    const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+    const F32 alpha = getTransparencyType() == ETypeTransparency::TT_ACTIVE ? 1.0f : getCurrentTransparency();
     if( mTexturep )
     {
         if( mTexturep->getComponents() == 4 )

@@ -35,7 +35,7 @@
 LLTransferTargetFile::LLTransferTargetFile(
     const LLUUID& uuid,
     LLTransferSourceType src_type) :
-    LLTransferTarget(LLTTT_FILE, uuid, src_type),
+    LLTransferTarget(LLTransferTargetType::LLTTT_FILE, uuid, src_type),
     mFP(NULL)
 {
 }
@@ -80,21 +80,21 @@ LLTSCode LLTransferTargetFile::dataCallback(const S32 packet_id, U8 *in_datap, c
         if (!mFP)
         {
             LL_WARNS() << "Failure opening " << mParams.mFilename << " for write by LLTransferTargetFile" << LL_ENDL;
-            return LLTS_ERROR;
+            return LLTSCode::LLTS_ERROR;
         }
     }
     if (!in_size)
     {
-        return LLTS_OK;
+        return LLTSCode::LLTS_OK;
     }
 
     S32 count = (S32)fwrite(in_datap, 1, in_size, mFP);
     if (count != in_size)
     {
         LL_WARNS() << "Failure in LLTransferTargetFile::dataCallback!" << LL_ENDL;
-        return LLTS_ERROR;
+        return LLTSCode::LLTS_ERROR;
     }
-    return LLTS_OK;
+    return LLTSCode::LLTS_OK;
 }
 
 void LLTransferTargetFile::completionCallback(const LLTSCode status)
@@ -108,10 +108,10 @@ void LLTransferTargetFile::completionCallback(const LLTSCode status)
     // Still need to gracefully handle error conditions.
     switch (status)
     {
-    case LLTS_DONE:
+    case LLTSCode::LLTS_DONE:
         break;
-    case LLTS_ABORT:
-    case LLTS_ERROR:
+    case LLTSCode::LLTS_ABORT:
+    case LLTSCode::LLTS_ERROR:
         // We're aborting this transfer, we don't want to keep this file.
         LL_WARNS() << "Aborting file transfer for " << mParams.mFilename << LL_ENDL;
         if (mFP)

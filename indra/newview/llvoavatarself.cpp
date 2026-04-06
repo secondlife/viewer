@@ -2105,7 +2105,7 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
                                        << " discard: " << image->getDiscardLevel()
                                        << " desired: " << image->getDesiredDiscardLevel()
                                        << " vsize: " << image->getMaxVirtualSize()
-                                       << " ts: " << image->getTextureState()
+                                       << " ts: " << static_cast<S32>(image->getTextureState())
                                        << " bl: " << image->getBoostLevel()
                                        << " fl: " << image->isFullyLoaded() // this is not an accessor for mFullyLoaded - see comment there.
                                        << " cl: " << (image->isFullyLoaded() && image->getDiscardLevel()==0) // "completely loaded"

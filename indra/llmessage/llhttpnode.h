@@ -237,13 +237,13 @@ public:
     const LLHTTPNode* findNode(const std::string& name) const;
 
 
-    enum EHTTPNodeContentType
+    enum class EHTTPNodeContentType
     {
         CONTENT_TYPE_LLSD,
         CONTENT_TYPE_TEXT
     };
 
-    virtual EHTTPNodeContentType getContentType() const { return CONTENT_TYPE_LLSD; }
+    virtual EHTTPNodeContentType getContentType() const { return EHTTPNodeContentType::CONTENT_TYPE_LLSD; }
     //@}
 
     /* @name Description system

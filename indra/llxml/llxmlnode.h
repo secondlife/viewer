@@ -93,7 +93,7 @@ using LLXMLChildrenPtr = LLPointer<LLXMLChildren>;
 class LLXMLNode : public LLThreadSafeRefCount
 {
 public:
-    enum ValueType
+    enum class ValueType
     {
         TYPE_CONTAINER,     // A node which contains nodes
         TYPE_UNKNOWN,       // A node loaded from file without a specified type
@@ -105,7 +105,7 @@ public:
         TYPE_NODEREF,       // the ID of another node in the hierarchy to reference
     };
 
-    enum Encoding
+    enum class Encoding
     {
         ENCODING_DEFAULT = 0,
         ENCODING_DECIMAL,
@@ -171,12 +171,12 @@ public:
 
     // Getters
     U32 getBoolValue(U32 expected_length, bool *array);
-    U32 getByteValue(U32 expected_length, U8 *array, Encoding encoding = ENCODING_DEFAULT);
-    U32 getIntValue(U32 expected_length, S32 *array, Encoding encoding = ENCODING_DEFAULT);
-    U32 getUnsignedValue(U32 expected_length, U32 *array, Encoding encoding = ENCODING_DEFAULT);
-    U32 getLongValue(U32 expected_length, U64 *array, Encoding encoding = ENCODING_DEFAULT);
-    U32 getFloatValue(U32 expected_length, F32 *array, Encoding encoding = ENCODING_DEFAULT);
-    U32 getDoubleValue(U32 expected_length, F64 *array, Encoding encoding = ENCODING_DEFAULT);
+    U32 getByteValue(U32 expected_length, U8 *array, Encoding encoding = Encoding::ENCODING_DEFAULT);
+    U32 getIntValue(U32 expected_length, S32 *array, Encoding encoding = Encoding::ENCODING_DEFAULT);
+    U32 getUnsignedValue(U32 expected_length, U32 *array, Encoding encoding = Encoding::ENCODING_DEFAULT);
+    U32 getLongValue(U32 expected_length, U64 *array, Encoding encoding = Encoding::ENCODING_DEFAULT);
+    U32 getFloatValue(U32 expected_length, F32 *array, Encoding encoding = Encoding::ENCODING_DEFAULT);
+    U32 getDoubleValue(U32 expected_length, F64 *array, Encoding encoding = Encoding::ENCODING_DEFAULT);
     U32 getStringValue(U32 expected_length, std::string *array);
     U32 getUUIDValue(U32 expected_length, LLUUID *array);
     U32 getNodeRefValue(U32 expected_length, LLXMLNode **array);
@@ -239,23 +239,23 @@ public:
     bool setAttributeString(const char* attr, const std::string& value);
 
     void setBoolValue(const bool value) { setBoolValue(1, &value); }
-    void setByteValue(const U8 value, Encoding encoding = ENCODING_DEFAULT) { setByteValue(1, &value, encoding); }
-    void setIntValue(const S32 value, Encoding encoding = ENCODING_DEFAULT) { setIntValue(1, &value, encoding); }
-    void setUnsignedValue(const U32 value, Encoding encoding = ENCODING_DEFAULT) { setUnsignedValue(1, &value, encoding); }
-    void setLongValue(const U64 value, Encoding encoding = ENCODING_DEFAULT) { setLongValue(1, &value, encoding); }
-    void setFloatValue(const F32 value, Encoding encoding = ENCODING_DEFAULT, U32 precision = 0) { setFloatValue(1, &value, encoding); }
-    void setDoubleValue(const F64 value, Encoding encoding = ENCODING_DEFAULT, U32 precision = 0) { setDoubleValue(1, &value, encoding); }
+    void setByteValue(const U8 value, Encoding encoding = Encoding::ENCODING_DEFAULT) { setByteValue(1, &value, encoding); }
+    void setIntValue(const S32 value, Encoding encoding = Encoding::ENCODING_DEFAULT) { setIntValue(1, &value, encoding); }
+    void setUnsignedValue(const U32 value, Encoding encoding = Encoding::ENCODING_DEFAULT) { setUnsignedValue(1, &value, encoding); }
+    void setLongValue(const U64 value, Encoding encoding = Encoding::ENCODING_DEFAULT) { setLongValue(1, &value, encoding); }
+    void setFloatValue(const F32 value, Encoding encoding = Encoding::ENCODING_DEFAULT, U32 precision = 0) { setFloatValue(1, &value, encoding); }
+    void setDoubleValue(const F64 value, Encoding encoding = Encoding::ENCODING_DEFAULT, U32 precision = 0) { setDoubleValue(1, &value, encoding); }
     void setStringValue(const std::string& value) { setStringValue(1, &value); }
     void setUUIDValue(const LLUUID value) { setUUIDValue(1, &value); }
     void setNodeRefValue(const LLXMLNode *value) { setNodeRefValue(1, &value); }
 
     void setBoolValue(U32 length, const bool *array);
-    void setByteValue(U32 length, const U8 *array, Encoding encoding = ENCODING_DEFAULT);
-    void setIntValue(U32 length, const S32 *array, Encoding encoding = ENCODING_DEFAULT);
-    void setUnsignedValue(U32 length, const U32* array, Encoding encoding = ENCODING_DEFAULT);
-    void setLongValue(U32 length, const U64 *array, Encoding encoding = ENCODING_DEFAULT);
-    void setFloatValue(U32 length, const F32 *array, Encoding encoding = ENCODING_DEFAULT, U32 precision = 0);
-    void setDoubleValue(U32 length, const F64 *array, Encoding encoding = ENCODING_DEFAULT, U32 precision = 0);
+    void setByteValue(U32 length, const U8 *array, Encoding encoding = Encoding::ENCODING_DEFAULT);
+    void setIntValue(U32 length, const S32 *array, Encoding encoding = Encoding::ENCODING_DEFAULT);
+    void setUnsignedValue(U32 length, const U32* array, Encoding encoding = Encoding::ENCODING_DEFAULT);
+    void setLongValue(U32 length, const U64 *array, Encoding encoding = Encoding::ENCODING_DEFAULT);
+    void setFloatValue(U32 length, const F32 *array, Encoding encoding = Encoding::ENCODING_DEFAULT, U32 precision = 0);
+    void setDoubleValue(U32 length, const F64 *array, Encoding encoding = Encoding::ENCODING_DEFAULT, U32 precision = 0);
     void setStringValue(U32 length, const std::string *array);
     void setUUIDValue(U32 length, const LLUUID *array);
     void setNodeRefValue(U32 length, const LLXMLNode **array);

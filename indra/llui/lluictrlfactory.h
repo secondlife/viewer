@@ -191,7 +191,7 @@ fail:
     static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = NULL);
 
     static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root,
-                                  LLDir::ESkinConstraint constraint=LLDir::CURRENT_SKIN);
+                                  LLDir::ESkinConstraint constraint=LLDir::ESkinConstraint::CURRENT_SKIN);
 
 private:
     //NOTE: both friend declarations are necessary to keep both gcc and msvc happy

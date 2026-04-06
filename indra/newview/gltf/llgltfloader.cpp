@@ -436,7 +436,7 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
         const LL::GLTF::Mesh& mesh = mGLTFAsset.mMeshes[node.mMesh];
 
         if (populateModelFromMesh(pModel, base_name, mesh, node, mats) &&
-            (LLModel::NO_ERRORS == pModel->getStatus()) &&
+            (LLModel::EModelStatus::NO_ERRORS == pModel->getStatus()) &&
             validate_model(pModel))
         {
             // Build the scene transform.
@@ -506,7 +506,7 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
         }
         else
         {
-            setLoadState(ERROR_MODEL + pModel->getStatus());
+            setLoadState(static_cast<eLoadState>(static_cast<int>(ERROR_MODEL) + static_cast<int>(pModel->getStatus())));
             delete pModel;
             return;
         }
@@ -1582,7 +1582,7 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
     }
 
     glm::mat4 support_rest(1.f);
-    if (viewer_data.mSupport == LLJointData::SUPPORT_BASE)
+    if (viewer_data.mSupport == LLJointData::SupportCategory::SUPPORT_BASE)
     {
         support_rest = rest;
     }

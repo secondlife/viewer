@@ -289,7 +289,7 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 
     LLThread::registerThreadID();
 
-    ELoopSpeed loop(REQUEST_SLEEP);
+    ELoopSpeed loop(ELoopSpeed::REQUEST_SLEEP);
     while (! mExitRequested)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
@@ -306,7 +306,7 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
             loop = (std::min)(loop, new_loop);
 
             // Determine whether to spin, sleep briefly or sleep for next request
-            if (REQUEST_SLEEP != loop)
+            if (ELoopSpeed::REQUEST_SLEEP != loop)
             {
                 ms_sleep(HTTP_SERVICE_LOOP_SLEEP_NORMAL_MS);
             }
@@ -340,7 +340,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     HttpRequestQueue::OpContainer ops;
-    const bool wait_for_req(REQUEST_SLEEP == loop);
+    const bool wait_for_req(ELoopSpeed::REQUEST_SLEEP == loop);
 
     mRequestQueue->fetchAll(wait_for_req, ops);
     while (! ops.empty())
@@ -372,7 +372,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
     }
 
     // Queue emptied, allow polling loop to sleep
-    return REQUEST_SLEEP;
+    return ELoopSpeed::REQUEST_SLEEP;
 }
 
 

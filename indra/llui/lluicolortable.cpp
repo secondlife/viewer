@@ -259,10 +259,10 @@ bool LLUIColorTable::loadFromSettings()
 {
     bool result = false;
 
-    // pass constraint=LLDir::ALL_SKINS because we want colors.xml from every
+    // pass constraint=LLDir::ESkinConstraint::ALL_SKINS because we want colors.xml from every
     // skin dir
     for (const std::string& colors_path :
-                  gDirUtilp->findSkinnedFilenames(LLDir::SKINBASE, "colors.xml", LLDir::ALL_SKINS))
+                  gDirUtilp->findSkinnedFilenames(LLDir::SKINBASE, "colors.xml", LLDir::ESkinConstraint::ALL_SKINS))
     {
         result |= loadFromFilename(colors_path, mLoadedColors);
     }

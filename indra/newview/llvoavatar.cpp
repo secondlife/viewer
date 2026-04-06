@@ -313,7 +313,7 @@ public:
     // motions must report their priority
     virtual LLJoint::JointPriority getPriority() { return LLJoint::HIGH_PRIORITY; }
 
-    virtual LLMotionBlendType getBlendType() { return ADDITIVE_BLEND; }
+    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::ADDITIVE_BLEND; }
 
     // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
     virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_BODY_NOISE; }
@@ -325,13 +325,13 @@ public:
     {
         if( !mTorsoState->setJoint( character->getJoint("mTorso") ))
         {
-            return STATUS_FAILURE;
+            return LLMotionInitStatus::STATUS_FAILURE;
         }
 
         mTorsoState->setUsage(LLJointState::ROT);
 
         addJointState( mTorsoState );
-        return STATUS_SUCCESS;
+        return LLMotionInitStatus::STATUS_SUCCESS;
     }
 
     // called when a motion is activated
@@ -421,7 +421,7 @@ public:
     // motions must report their priority
     virtual LLJoint::JointPriority getPriority() { return LLJoint::MEDIUM_PRIORITY; }
 
-    virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
+    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::NORMAL_BLEND; }
 
     // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
     virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_BREATHE; }
@@ -447,11 +447,11 @@ public:
 
         if ( success )
         {
-            return STATUS_SUCCESS;
+            return LLMotionInitStatus::STATUS_SUCCESS;
         }
         else
         {
-            return STATUS_FAILURE;
+            return LLMotionInitStatus::STATUS_FAILURE;
         }
     }
 
@@ -534,7 +534,7 @@ public:
     // motions must report their priority
     virtual LLJoint::JointPriority getPriority() { return LLJoint::LOW_PRIORITY; }
 
-    virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
+    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::NORMAL_BLEND; }
 
     // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
     virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_PELVIS_FIX; }
@@ -548,13 +548,13 @@ public:
 
         if (!mPelvisState->setJoint( character->getJoint("mPelvis")))
         {
-            return STATUS_FAILURE;
+            return LLMotionInitStatus::STATUS_FAILURE;
         }
 
         mPelvisState->setUsage(LLJointState::POS);
 
         addJointState( mPelvisState );
-        return STATUS_SUCCESS;
+        return LLMotionInitStatus::STATUS_SUCCESS;
     }
 
     // called when a motion is activated
@@ -3647,10 +3647,10 @@ void LLVOAvatar::idleUpdateNameTagText(bool new_name)
             LLFontGL::StyleFlags style;
             switch(chat_iter->mChatType)
             {
-            case CHAT_TYPE_WHISPER:
+            case EChatType::CHAT_TYPE_WHISPER:
                 style = LLFontGL::ITALIC;
                 break;
-            case CHAT_TYPE_SHOUT:
+            case EChatType::CHAT_TYPE_SHOUT:
                 style = LLFontGL::BOLD;
                 break;
             default:
@@ -4284,7 +4284,7 @@ void LLVOAvatar::updateFootstepSounds()
             if (LLViewerParcelMgr::getInstance()->canHearSound(foot_pos_global)
                 && !LLMuteList::getInstance()->isMuted(getID(), LLMute::flagObjectSounds))
             {
-                gAudiop->triggerSound(step_sound_id, getID(), STEP_VOLUME, LLAudioEngine::AUDIO_TYPE_AMBIENT, foot_pos_global);
+                gAudiop->triggerSound(step_sound_id, getID(), STEP_VOLUME, static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_AMBIENT), foot_pos_global);
             }
         }
     }
@@ -6113,13 +6113,13 @@ bool LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, bool 
                     // to support both spatialized and non-spatialized instances of the same sound
                     //if (isSelf())
                     //{
-                    //  gAudiop->triggerSound(LLUUID(gSavedSettings.getString("UISndTyping")), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+                    //  gAudiop->triggerSound(LLUUID(gSavedSettings.getString("UISndTyping")), 1.0f, static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_UI));
                     //}
                     //else
                     {
                         static LLCachedControl<std::string> ui_snd_string(gSavedSettings, "UISndTyping");
                         LLUUID sound_id = LLUUID(ui_snd_string);
-                        gAudiop->triggerSound(sound_id, getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_SFX, char_pos_global);
+                        gAudiop->triggerSound(sound_id, getID(), 1.0f, static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_SFX), char_pos_global);
                     }
                 }
             }
@@ -9506,8 +9506,8 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
     LLVisualParam* param = getFirstVisualParam();
     for (S32 i = 0; i < params_for_dump.size(); i++)
     {
-        while( param && ((param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) &&
-                         (param->getGroup() != VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE)) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+        while( param && ((param->getGroup() != EVisualParamGroup::VISUAL_PARAM_GROUP_TWEAKABLE) &&
+                         (param->getGroup() != EVisualParamGroup::VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE)) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
         {
             param = getNextVisualParam();
         }
@@ -9611,8 +9611,8 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
         {
             for( S32 i = 0; i < num_blocks; i++ )
             {
-                while( param && ((param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) &&
-                                 (param->getGroup() != VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE)) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+                while( param && ((param->getGroup() != EVisualParamGroup::VISUAL_PARAM_GROUP_TWEAKABLE) &&
+                                 (param->getGroup() != EVisualParamGroup::VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE)) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
                 {
                     param = getNextVisualParam();
                 }
@@ -9633,8 +9633,8 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
             }
         }
 
-        const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE) +
-                                             getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+        const S32 expected_tweakable_count = getVisualParamCountInGroup(EVisualParamGroup::VISUAL_PARAM_GROUP_TWEAKABLE) +
+                                             getVisualParamCountInGroup(EVisualParamGroup::VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
         if (num_blocks != expected_tweakable_count)
         {
             LL_DEBUGS("Avatar") << "Number of params in AvatarAppearance msg (" << num_blocks << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << LL_ENDL;
@@ -9874,8 +9874,8 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
                 }
             }
         }
-        const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE) +
-                                             getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+        const S32 expected_tweakable_count = getVisualParamCountInGroup(EVisualParamGroup::VISUAL_PARAM_GROUP_TWEAKABLE) +
+                                             getVisualParamCountInGroup(EVisualParamGroup::VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
         if (num_params != expected_tweakable_count)
         {
             LL_DEBUGS("Avatar") << "Number of params in AvatarAppearance msg (" << num_params << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << LL_ENDL;

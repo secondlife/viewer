@@ -66,7 +66,7 @@ class LLAudioEngine
     friend class LLAudioChannelOpenAL; // bleh. channel needs some listener methods.
 
 public:
-    enum LLAudioType
+    enum class LLAudioType
     {
         AUDIO_TYPE_NONE    = 0,
         AUDIO_TYPE_SFX     = 1,
@@ -132,7 +132,7 @@ public:
     // Methods actually related to setting up and removing sounds
     // Owner ID is the owner of the object making the request
     void triggerSound(const LLUUID &sound_id, const LLUUID& owner_id, const F32 gain,
-                      const S32 type = LLAudioEngine::AUDIO_TYPE_NONE,
+                      const S32 type = static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_NONE),
                       const LLVector3d &pos_global = LLVector3d::zero);
     void triggerSound(SoundData& soundData);
 
@@ -232,7 +232,7 @@ protected:
 
     F32 mMasterGain;
     F32 mInternalGain;          // Actual gain set; either mMasterGain or 0 when mMuted is true.
-    std::array<F32, AUDIO_TYPE_COUNT> mSecondaryGain;
+    std::array<F32, static_cast<size_t>(LLAudioType::AUDIO_TYPE_COUNT)> mSecondaryGain;
 
     F32 mNextWindUpdate;
 
@@ -256,7 +256,7 @@ class LLAudioSource
 public:
     // owner_id is the id of the agent responsible for making this sound
     // play, for example, the owner of the object currently playing it
-    LLAudioSource(const LLUUID &id, const LLUUID& owner_id, const F32 gain, const S32 type = LLAudioEngine::AUDIO_TYPE_NONE);
+    LLAudioSource(const LLUUID &id, const LLUUID& owner_id, const F32 gain, const S32 type = static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_NONE));
     virtual ~LLAudioSource();
 
     virtual void update();                      // Update this audio source
@@ -468,7 +468,7 @@ struct SoundData
     SoundData(const LLUUID &audio_uuid,
         const LLUUID& owner_id,
         const F32 gain,
-        const S32 type = LLAudioEngine::AUDIO_TYPE_NONE,
+        const S32 type = static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_NONE),
         const LLVector3d &pos_global = LLVector3d::zero) :
         audio_uuid(audio_uuid),
         owner_id(owner_id),

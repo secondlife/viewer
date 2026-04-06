@@ -410,7 +410,7 @@ void LLPanelGroupNotices::onClickSendMessage(void* data)
     row["columns"][4]["column"] = "sort";
     row["columns"][4]["value"] = llformat( "%u", timestamp);
 
-    self->mNoticesList->addElement(row, ADD_BOTTOM);
+    self->mNoticesList->addElement(row, EAddPosition::ADD_BOTTOM);
     self->mKnownNoticeIds.insert(id);
 
     self->mCreateMessage->clear();
@@ -567,7 +567,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
         row["columns"][4]["column"] = "sort";
         row["columns"][4]["value"] = llformat( "%u", timestamp);
 
-        mNoticesList->addElement(row, ADD_BOTTOM);
+        mNoticesList->addElement(row, EAddPosition::ADD_BOTTOM);
         mKnownNoticeIds.insert(id);
     }
 

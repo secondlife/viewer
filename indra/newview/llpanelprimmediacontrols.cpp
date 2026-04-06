@@ -331,7 +331,7 @@ void LLPanelPrimMediaControls::updateShape()
             // Don't show the media controls if we do not have permissions
             enabled = dynamic_cast<LLVOVolume*>(objectp)->hasMediaPermission(media_data, LLVOVolume::MEDIA_PERM_CONTROL);
             hasPermsControl = dynamic_cast<LLVOVolume*>(objectp)->hasMediaPermission(media_data, LLVOVolume::MEDIA_PERM_CONTROL);
-            mini_controls = (LLMediaEntry::MINI == media_data->getControls());
+            mini_controls = (LLMediaEntry::MediaControls::MINI == media_data->getControls());
         }
         const bool is_hud = objectp->isHUDAttachment();
 

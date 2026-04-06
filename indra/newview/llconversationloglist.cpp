@@ -188,7 +188,7 @@ void LLConversationLogList::addNewItem(const LLConversation* conversation)
     {
         item->highlightNameDate(mNameFilter);
     }
-    addItem(item, conversation->getSessionID(), ADD_TOP);
+    addItem(item, conversation->getSessionID(), EAddPosition::ADD_TOP);
 }
 
 void LLConversationLogList::refresh()

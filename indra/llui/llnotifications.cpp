@@ -223,7 +223,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
         }
         else if (mIgnore > IGNORE_NO)
         {
-            ui_inst->mSettingGroups["ignores"]->declareBOOL(name, show_notification, "Show notification with this name", LLControlVariable::PERSIST_NONDFT);
+            ui_inst->mSettingGroups["ignores"]->declareBOOL(name, show_notification, "Show notification with this name", LLControlVariable::ePersist::PERSIST_NONDFT);
             mIgnoreSetting = ui_inst->mSettingGroups["ignores"]->getControl(name);
         }
     }
@@ -1582,11 +1582,11 @@ bool LLNotifications::loadTemplates()
     LL_PROFILE_ZONE_SCOPED;
 
     LL_INFOS("Notifications") << "Reading notifications template" << LL_ENDL;
-    // Passing findSkinnedFilenames(constraint=LLDir::ALL_SKINS) makes it
+    // Passing findSkinnedFilenames(constraint=LLDir::ESkinConstraint::ALL_SKINS) makes it
     // output all relevant pathnames instead of just the ones from the most
     // specific skin.
     std::vector<std::string> search_paths =
-        gDirUtilp->findSkinnedFilenames(LLDir::XUI, "notifications.xml", LLDir::ALL_SKINS);
+        gDirUtilp->findSkinnedFilenames(LLDir::XUI, "notifications.xml", LLDir::ESkinConstraint::ALL_SKINS);
     if (search_paths.empty())
     {
         LLError::LLUserWarningMsg::show(LLTrans::getString("MBMissingFile"), LLError::LLUserWarningMsg::ERROR_MISSING_FILES);

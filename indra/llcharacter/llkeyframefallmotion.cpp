@@ -70,7 +70,7 @@ LLMotion::LLMotionInitStatus LLKeyframeFallMotion::onInitialize(LLCharacter *cha
     // load keyframe data, setup pose and joint states
     LLMotion::LLMotionInitStatus result = LLKeyframeMotion::onInitialize(character);
 
-    if (result != LLMotion::STATUS_SUCCESS)
+    if (result != LLMotion::LLMotionInitStatus::STATUS_SUCCESS)
     {
         return result;
     }

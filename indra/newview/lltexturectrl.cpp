@@ -769,7 +769,7 @@ void LLFloaterTexturePicker::draw()
         interior.stretch( -1 );
 
         // If the floater is focused, don't apply its alpha to the texture (STORM-677).
-        const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+        const F32 alpha = getTransparencyType() == ETypeTransparency::TT_ACTIVE ? 1.0f : getCurrentTransparency();
         LLViewerTexture* preview;
         if (mGLTFMaterial)
         {
@@ -2374,7 +2374,7 @@ void LLTextureCtrl::draw()
     interior.stretch( -1 );
 
     // If we're in a focused floater, don't apply the floater's alpha to the texture (STORM-677).
-    const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+    const F32 alpha = getTransparencyType() == ETypeTransparency::TT_ACTIVE ? 1.0f : getCurrentTransparency();
     if( preview )
     {
         if( preview->getComponents() == 4 )

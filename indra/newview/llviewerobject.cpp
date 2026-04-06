@@ -4262,7 +4262,7 @@ void LLViewerObject::addNVPair(const std::string& data)
     if (iter != mNameValuePairs.end())
     {
         LLNameValue* foundnv = iter->second;
-        if (foundnv->mClass != NVC_READ_ONLY)
+        if (foundnv->mClass != ENameValueClass::NVC_READ_ONLY)
         {
             delete foundnv;
             mNameValuePairs.erase(iter);

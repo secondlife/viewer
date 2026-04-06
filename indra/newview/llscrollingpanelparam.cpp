@@ -150,7 +150,7 @@ void LLScrollingPanelParam::draw()
 
     // If we're in a focused floater, don't apply the floater's alpha to visual param hint,
     // making its behavior similar to texture controls'.
-    F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+    F32 alpha = getTransparencyType() == ETypeTransparency::TT_ACTIVE ? 1.0f : getCurrentTransparency();
 
     // Draw the hints over the "less" and "more" buttons.
     gGL.pushUIMatrix();

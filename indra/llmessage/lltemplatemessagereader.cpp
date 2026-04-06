@@ -213,9 +213,9 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, const char *varname)
         return LL_VARIABLE_NOT_IN_BLOCK;
     }
 
-    if (mCurrentRMessageTemplate->mMemberBlocks[bnamep]->mType != MBT_SINGLE)
+    if (mCurrentRMessageTemplate->mMemberBlocks[bnamep]->mType != EMsgBlockType::MBT_SINGLE)
     {   // This is a serious error - crash
-        LL_ERRS() << "Block " << bnamep << " isn't type MBT_SINGLE,"
+        LL_ERRS() << "Block " << bnamep << " isn't type EMsgBlockType::MBT_SINGLE,"
             " use getSize with blocknum argument!" << LL_ENDL;
         return LL_MESSAGE_ERROR;
     }
@@ -542,8 +542,8 @@ bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 
     // The offset tells us how may bytes to skip after the end of the
     // message name.
-    U8 offset = buffer[PHL_OFFSET];
-    S32 decode_pos = LL_PACKET_ID_SIZE + (S32)(mCurrentRMessageTemplate->mFrequency) + offset;
+    U8 offset = buffer[static_cast<S32>(EPacketHeaderLayout::PHL_OFFSET)];
+    S32 decode_pos = LL_PACKET_ID_SIZE + static_cast<S32>(mCurrentRMessageTemplate->mFrequency) + offset;
 
     // create base working data set
     mCurrentRMessageData = new LLMsgData(mCurrentRMessageTemplate->mName);
@@ -560,17 +560,17 @@ bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 
         // how many of this block?
 
-        if (mbci->mType == MBT_SINGLE)
+        if (mbci->mType == EMsgBlockType::MBT_SINGLE)
         {
             // just one
             repeat_number = 1;
         }
-        else if (mbci->mType == MBT_MULTIPLE)
+        else if (mbci->mType == EMsgBlockType::MBT_MULTIPLE)
         {
             // a known number
             repeat_number = mbci->mNumber;
         }
-        else if (mbci->mType == MBT_VARIABLE)
+        else if (mbci->mType == EMsgBlockType::MBT_VARIABLE)
         {
             // need to read the number from the message
             // repeat number is a single byte
@@ -806,7 +806,7 @@ const char* LLTemplateMessageReader::getMessageName() const
 //virtual
 bool LLTemplateMessageReader::isTrusted() const
 {
-    return mCurrentRMessageTemplate->getTrust() == MT_TRUST;
+    return mCurrentRMessageTemplate->getTrust() == EMsgTrust::MT_TRUST;
 }
 
 bool LLTemplateMessageReader::isBanned(bool trustedSource) const

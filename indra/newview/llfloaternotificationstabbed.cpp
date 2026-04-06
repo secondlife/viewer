@@ -184,7 +184,7 @@ void LLFloaterNotificationsTabbed::setVisible(bool visible)
         {
             setDockControl(new LLDockControl(
                 LLChicletBar::getInstance()->getChild<LLView>(getAnchorViewName()), this,
-                getDockTongue(), LLDockControl::BOTTOM));
+                getDockTongue(), LLDockControl::DocAt::BOTTOM));
         }
     }
 

@@ -170,8 +170,8 @@ public:
     // LLCtrlListInterface functions
     virtual S32  getItemCount() const;
     // Adds a single column descriptor: ["name" : string, "label" : string, "width" : integer, "relwidth" : integer ]
-    virtual void addColumn(const LLScrollListColumn::Params& column, EAddPosition pos = ADD_BOTTOM);
-    virtual void addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM);
+    virtual void addColumn(const LLScrollListColumn::Params& column, EAddPosition pos = EAddPosition::ADD_BOTTOM);
+    virtual void addColumn(const LLSD& column, EAddPosition pos = EAddPosition::ADD_BOTTOM);
     virtual void clearColumns();
     virtual void setColumnLabel(const std::string& column, const std::string& label);
     virtual bool    preProcessChildNode(LLXMLNodePtr child);
@@ -182,9 +182,9 @@ public:
     // Adds a single element, from an array of:
     // "columns" => [ "column" => column name, "value" => value, "type" => type, "font" => font, "font-style" => style ], "id" => uuid
     // Creates missing columns automatically.
-    virtual LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
-    virtual LLScrollListItem* addRow(LLScrollListItem *new_item, const LLScrollListItem::Params& value, EAddPosition pos = ADD_BOTTOM);
-    virtual LLScrollListItem* addRow(const LLScrollListItem::Params& value, EAddPosition pos = ADD_BOTTOM);
+    virtual LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = EAddPosition::ADD_BOTTOM, void* userdata = NULL);
+    virtual LLScrollListItem* addRow(LLScrollListItem *new_item, const LLScrollListItem::Params& value, EAddPosition pos = EAddPosition::ADD_BOTTOM);
+    virtual LLScrollListItem* addRow(const LLScrollListItem::Params& value, EAddPosition pos = EAddPosition::ADD_BOTTOM);
     // Simple add element. Takes a single array of:
     // [ "value" => value, "font" => font, "font-style" => style ]
     virtual void clearRows(); // clears all elements
@@ -257,7 +257,7 @@ public:
 
     // "Simple" interface: use this when you're creating a list that contains only unique strings, only
     // one of which can be selected at a time.
-    virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
+    virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = EAddPosition::ADD_BOTTOM, const LLSD& id = LLSD());
 
     bool            selectItemByLabel(const std::string& item, bool case_sensitive = true, S32 column = 0);       // false if item not found
     bool            selectItemByPrefix(const std::string& target, bool case_sensitive = true, S32 column = -1);
@@ -278,7 +278,7 @@ public:
     // DEPRECATED: Use LLSD versions of setCommentText() and getSelectedValue().
     // "StringUUID" interface: use this when you're creating a list that contains non-unique strings each of which
     // has an associated, unique UUID, and only one of which can be selected at a time.
-    LLScrollListItem*   addStringUUIDItem(const std::string& item_text, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, bool enabled = true);
+    LLScrollListItem*   addStringUUIDItem(const std::string& item_text, const LLUUID& id, EAddPosition pos = EAddPosition::ADD_BOTTOM, bool enabled = true);
     LLUUID              getStringUUIDSelectedItem() const;
 
     LLScrollListItem*   getFirstSelected() const;
@@ -446,7 +446,7 @@ protected:
     // to the caller to delete the item)
     //
     // returns false if item faile to be added to list, does NOT delete 'item'
-    bool            addItem( LLScrollListItem* item, EAddPosition pos = ADD_BOTTOM, bool requires_column = true );
+    bool            addItem( LLScrollListItem* item, EAddPosition pos = EAddPosition::ADD_BOTTOM, bool requires_column = true );
 
     using item_list = std::deque<LLScrollListItem *>;
     item_list&      getItemList() { return mItemList; }

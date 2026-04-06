@@ -530,11 +530,11 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
         roughness_factors[i] = material->mRoughnessFactor;
         emissive_colors[i] = material->mEmissiveColor;
         // glTF 2.0 Specification 3.9.4. Alpha Coverage
-        // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
+        // mAlphaCutoff is only valid for LLGLTFMaterial::AlphaMode::ALPHA_MODE_MASK
         // Use 0 here due to GLTF terrain blending (LLGLTFMaterial::bind uses
         // -1 for easier debugging)
         F32 min_alpha = -0.0f;
-        if (material->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+        if (material->mAlphaMode == LLGLTFMaterial::AlphaMode::ALPHA_MODE_MASK)
         {
             // dividing the alpha cutoff by transparency here allows the shader to compare against
             // the alpha value of the texture without needing the transparency value

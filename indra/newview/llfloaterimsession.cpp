@@ -599,9 +599,9 @@ LLFloaterIMSession* LLFloaterIMSession::show(const LLUUID& session_id)
     // Do not add again existing floaters
     if (!exist)
     {
-        //      LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
-        // TODO: mantipov: use LLTabContainer::RIGHT_OF_CURRENT if it exists
-        LLTabContainer::eInsertionPoint i_pt = LLTabContainer::END;
+        //      LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::eInsertionPoint::RIGHT_OF_CURRENT : LLTabContainer::eInsertionPoint::END;
+        // TODO: mantipov: use LLTabContainer::eInsertionPoint::RIGHT_OF_CURRENT if it exists
+        LLTabContainer::eInsertionPoint i_pt = LLTabContainer::eInsertionPoint::END;
         if (floater_container)
         {
             floater_container->addFloater(floater, true, i_pt);
@@ -852,10 +852,10 @@ void LLFloaterIMSession::updateMessages()
             chat.mSessionID = mSessionID;
             chat.mFromName = from;
             chat.mTimeStr = time;
-            chat.mChatStyle = is_history ? CHAT_STYLE_HISTORY : chat.mChatStyle;
+            chat.mChatStyle = is_history ? EChatStyle::CHAT_STYLE_HISTORY : chat.mChatStyle;
             if (is_region_msg)
             {
-                chat.mSourceType = CHAT_SOURCE_REGION;
+                chat.mSourceType = EChatSourceType::CHAT_SOURCE_REGION;
             }
 
             // process offer notification

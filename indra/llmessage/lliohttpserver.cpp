@@ -173,11 +173,11 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
         else if(verb == HTTP_VERB_PUT)
         {
             LLSD input;
-            if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
+            if (mNode.getContentType() == LLHTTPNode::EHTTPNodeContentType::CONTENT_TYPE_LLSD)
             {
                 LLSDSerialize::fromXML(input, istr);
             }
-            else if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_TEXT)
+            else if (mNode.getContentType() == LLHTTPNode::EHTTPNodeContentType::CONTENT_TYPE_TEXT)
             {
                 std::ostringstream strstrm;
                 strstrm << istr.rdbuf();
@@ -188,11 +188,11 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
         else if(verb == HTTP_VERB_POST)
         {
             LLSD input;
-            if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_LLSD)
+            if (mNode.getContentType() == LLHTTPNode::EHTTPNodeContentType::CONTENT_TYPE_LLSD)
             {
                 LLSDSerialize::fromXML(input, istr);
             }
-            else if (mNode.getContentType() == LLHTTPNode::CONTENT_TYPE_TEXT)
+            else if (mNode.getContentType() == LLHTTPNode::EHTTPNodeContentType::CONTENT_TYPE_TEXT)
             {
                 std::ostringstream strstrm;
                 strstrm << istr.rdbuf();

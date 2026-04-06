@@ -94,7 +94,7 @@ LLMotion::LLMotionInitStatus LLKeyframeStandMotion::onInitialize(LLCharacter *ch
 
     // load keyframe data, setup pose and joint states
     LLMotion::LLMotionInitStatus status = LLKeyframeMotion::onInitialize(character);
-    if ( status == STATUS_FAILURE )
+    if ( status == LLMotionInitStatus::STATUS_FAILURE )
     {
         return status;
     }
@@ -120,10 +120,10 @@ LLMotion::LLMotionInitStatus LLKeyframeStandMotion::onInitialize(LLCharacter *ch
             !mAnkleRightState )
     {
         LL_INFOS() << getName() << ": Can't find necessary joint states" << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
-    return STATUS_SUCCESS;
+    return LLMotionInitStatus::STATUS_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------

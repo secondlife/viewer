@@ -28,14 +28,14 @@
 
 const F32 MAX_ANIM_DURATION = 60.f;
 
-enum EConstraintType
+enum class EConstraintType
     {
         CONSTRAINT_TYPE_POINT,
         CONSTRAINT_TYPE_PLANE,
         NUM_CONSTRAINT_TYPES
     };
 
-enum EConstraintTargetType
+enum class EConstraintTargetType
     {
         CONSTRAINT_TARGET_TYPE_BODY,
         CONSTRAINT_TARGET_TYPE_GROUND,

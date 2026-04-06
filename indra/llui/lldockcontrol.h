@@ -38,7 +38,7 @@
 class LLDockControl
 {
 public:
-    enum DocAt
+    enum class DocAt
     {
         TOP,
         LEFT,

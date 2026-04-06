@@ -78,7 +78,7 @@ LLMotion::LLMotionInitStatus LLTargetingMotion::onInitialize(LLCharacter *charac
         !mRightHandJoint)
     {
         LL_WARNS() << "Invalid skeleton for targeting motion!" << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mTorsoState->setJoint( mTorsoJoint );
@@ -87,7 +87,7 @@ LLMotion::LLMotionInitStatus LLTargetingMotion::onInitialize(LLCharacter *charac
     mTorsoState->setUsage(LLJointState::ROT);
     addJointState( mTorsoState );
 
-    return STATUS_SUCCESS;
+    return LLMotionInitStatus::STATUS_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------

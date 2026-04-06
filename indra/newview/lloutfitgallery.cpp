@@ -1058,7 +1058,7 @@ void LLOutfitGalleryItem::draw()
         mTexturep->addTextureStats(stats);
 
         // If the floater is focused, don't apply its alpha to the texture (STORM-677).
-        const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+        const F32 alpha = getTransparencyType() == ETypeTransparency::TT_ACTIVE ? 1.0f : getCurrentTransparency();
         gl_draw_scaled_image(interior.mLeft - 1, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
     }
 
@@ -1070,7 +1070,7 @@ void LLOutfitGalleryItem::draw()
         const S32 image_size = 14;
         static LLPointer<LLUIImage> fav_img = LLRender2D::getInstance()->getUIImage("Inv_Favorite_Star_Full");
 
-        const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+        const F32 alpha = getTransparencyType() == ETypeTransparency::TT_ACTIVE ? 1.0f : getCurrentTransparency();
         gl_draw_scaled_image(
             border.getWidth() - image_size - HPAD, image_size + VPAD + mOutfitNameText->getRect().getHeight(),
             image_size, image_size, fav_img->getImage(), UI_VERTEX_COLOR % alpha);

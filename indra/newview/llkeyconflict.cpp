@@ -429,7 +429,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                 // Note: this is currently not in use, might be better for load mechanics to ask for and retain control group
                 // otherwise settings loaded from other control groups will end in gSavedSettings
                 LL_INFOS() << "Creating new keybinding " << iter->first << LL_ENDL;
-                gSavedSettings.declareLLSD(iter->first, key.mKeyBind.asLLSD(), "comment", LLControlVariable::PERSIST_ALWAYS);
+                gSavedSettings.declareLLSD(iter->first, key.mKeyBind.asLLSD(), "comment", LLControlVariable::ePersist::PERSIST_ALWAYS);
             }
         }
     }

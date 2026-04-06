@@ -122,7 +122,7 @@ public:
         Params();
     };
 
-    enum ETypeTransparency
+    enum class ETypeTransparency
     {
         TT_DEFAULT,
         TT_ACTIVE,      // focused floater

@@ -34,7 +34,7 @@ class LLTransferTargetParamsFile : public LLTransferTargetParams
 {
 public:
     LLTransferTargetParamsFile()
-        : LLTransferTargetParams(LLTTT_FILE),
+        : LLTransferTargetParams(LLTransferTargetType::LLTTT_FILE),
 
         mCompleteCallback(nullptr),
         mUserData(nullptr)

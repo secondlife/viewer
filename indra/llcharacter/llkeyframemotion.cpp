@@ -73,7 +73,7 @@ LLKeyframeMotion::JointMotionList::JointMotionList()
       mEaseInDuration(0.f),
       mEaseOutDuration(0.f),
       mBasePriority(LLJoint::LOW_PRIORITY),
-      mHandPose(LLHandMotion::HAND_POSE_SPREAD),
+      mHandPose(LLHandMotion::eHandPose::HAND_POSE_SPREAD),
       mMaxPriority(LLJoint::LOW_PRIORITY)
 {
 }
@@ -515,13 +515,13 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
                 << " for character " << mCharacter->getID() << LL_ENDL;
         }
 
-        return STATUS_HOLD;
+        return LLMotionInitStatus::STATUS_HOLD;
     case ASSET_FETCHED:
-        return STATUS_HOLD;
+        return LLMotionInitStatus::STATUS_HOLD;
     case ASSET_FETCH_FAILED:
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     case ASSET_LOADED:
-        return STATUS_SUCCESS;
+        return LLMotionInitStatus::STATUS_SUCCESS;
     default:
         // we don't know what state the asset is in yet, so keep going
         // check keyframe cache first then file cache then asset request
@@ -558,7 +558,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
         }
         mAssetStatus = ASSET_LOADED;
         setupPose();
-        return STATUS_SUCCESS;
+        return LLMotionInitStatus::STATUS_SUCCESS;
     }
 
     //-------------------------------------------------------------------------
@@ -578,7 +578,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
         // request asset over network on next call to load
         mAssetStatus = ASSET_NEEDS_FETCH;
 
-        return STATUS_HOLD;
+        return LLMotionInitStatus::STATUS_HOLD;
     }
     else
     {
@@ -600,7 +600,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
     {
         LL_WARNS() << "Can't open animation file " << mID << LL_ENDL;
         mAssetStatus = ASSET_FETCH_FAILED;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     LL_DEBUGS() << "Loading keyframe data for: " << getName() << ":" << getID() << " (" << anim_file_size << " bytes)" << LL_ENDL;
@@ -611,13 +611,13 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
     {
         LL_WARNS() << "Failed to decode asset for animation " << getName() << ":" << getID() << LL_ENDL;
         mAssetStatus = ASSET_FETCH_FAILED;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     delete []anim_data;
 
     mAssetStatus = ASSET_LOADED;
-    return STATUS_SUCCESS;
+    return LLMotionInitStatus::STATUS_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -875,7 +875,7 @@ void LLKeyframeMotion::activateConstraint(JointConstraint* constraint)
     S32 joint_num;
 
     // grab ground position if we need to
-    if (shared_data->mConstraintTargetType == CONSTRAINT_TARGET_TYPE_GROUND)
+    if (shared_data->mConstraintTargetType == EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND)
     {
         LLVector3 source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset);
         LLVector3 ground_pos_agent;
@@ -906,7 +906,7 @@ void LLKeyframeMotion::deactivateConstraint(JointConstraint *constraintp)
         constraintp->mSourceVolume->mUpdateXform = false;
     }
 
-    if (constraintp->mSharedData->mConstraintTargetType != CONSTRAINT_TARGET_TYPE_GROUND)
+    if (constraintp->mSharedData->mConstraintTargetType != EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND)
     {
         if (constraintp->mTargetVolume)
         {
@@ -986,11 +986,11 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 
     switch(shared_data->mConstraintTargetType)
     {
-    case CONSTRAINT_TARGET_TYPE_GROUND:
+    case EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND:
         target_pos = mCharacter->getPosAgentFromGlobal(constraint->mGroundPos);
 //      LL_INFOS() << "Target Pos " << constraint->mGroundPos << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
         break;
-    case CONSTRAINT_TARGET_TYPE_BODY:
+    case EConstraintTargetType::CONSTRAINT_TARGET_TYPE_BODY:
         target_pos = mCharacter->getVolumePos(shared_data->mTargetConstraintVolume, shared_data->mTargetConstraintOffset);
         break;
     default:
@@ -1001,14 +1001,14 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
     LLJoint *source_jointp = NULL;
     LLJoint *target_jointp = NULL;
 
-    if (shared_data->mConstraintType == CONSTRAINT_TYPE_PLANE)
+    if (shared_data->mConstraintType == EConstraintType::CONSTRAINT_TYPE_PLANE)
     {
         switch(shared_data->mConstraintTargetType)
         {
-        case CONSTRAINT_TARGET_TYPE_GROUND:
+        case EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND:
             norm = constraint->mGroundNorm;
             break;
-        case CONSTRAINT_TARGET_TYPE_BODY:
+        case EConstraintTargetType::CONSTRAINT_TARGET_TYPE_BODY:
             target_jointp = mCharacter->findCollisionVolume(shared_data->mTargetConstraintVolume);
             if (target_jointp)
             {
@@ -1415,14 +1415,14 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
         return false;
     }
 
-    if (word > LLHandMotion::NUM_HAND_POSES)
+    if (word > static_cast<U32>(LLHandMotion::eHandPose::NUM_HAND_POSES))
     {
         LL_WARNS() << "invalid LLHandMotion::eHandPose index: " << word
                    << " for animation " << asset() << LL_ENDL;
         return false;
     }
 
-    joint_motion_list->mHandPose = (LLHandMotion::eHandPose)word;
+    joint_motion_list->mHandPose = static_cast<LLHandMotion::eHandPose>(word);
 
     //-------------------------------------------------------------------------
     // get number of joint motions
@@ -1852,7 +1852,7 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                 return false;
             }
 
-            if( byte >= NUM_CONSTRAINT_TYPES )
+            if( byte >= static_cast<U8>(EConstraintType::NUM_CONSTRAINT_TYPES) )
             {
                 LL_WARNS() << "invalid constraint type"
                            << " for animation " << asset() << LL_ENDL;
@@ -1905,11 +1905,11 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
             if (str == "GROUND")
             {
                 // constrain to ground
-                constraintp->mConstraintTargetType = CONSTRAINT_TARGET_TYPE_GROUND;
+                constraintp->mConstraintTargetType = EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND;
             }
             else
             {
-                constraintp->mConstraintTargetType = CONSTRAINT_TARGET_TYPE_BODY;
+                constraintp->mConstraintTargetType = EConstraintTargetType::CONSTRAINT_TARGET_TYPE_BODY;
                 constraintp->mTargetConstraintVolume = mCharacter->getCollisionVolumeID(str);
                 if (constraintp->mTargetConstraintVolume == -1)
                 {
@@ -2060,7 +2060,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
     success &= dp.packS32(mJointMotionList->mLoop, "loop");
     success &= dp.packF32(mJointMotionList->mEaseInDuration, "ease_in_duration");
     success &= dp.packF32(mJointMotionList->mEaseOutDuration, "ease_out_duration");
-    success &= dp.packU32(mJointMotionList->mHandPose, "hand_pose");
+    success &= dp.packU32(static_cast<U32>(mJointMotionList->mHandPose), "hand_pose");
     success &= dp.packU32(mJointMotionList->getNumJointMotions(), "num_joints");
 
     LL_DEBUGS("BVH") << "version " << KEYFRAME_MOTION_VERSION << LL_ENDL;
@@ -2073,7 +2073,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
     LL_DEBUGS("BVH") << "loop " << mJointMotionList->mLoop << LL_ENDL;
     LL_DEBUGS("BVH") << "ease_in_duration " << mJointMotionList->mEaseInDuration << LL_ENDL;
     LL_DEBUGS("BVH") << "ease_out_duration " << mJointMotionList->mEaseOutDuration << LL_ENDL;
-    LL_DEBUGS("BVH") << "hand_pose " << mJointMotionList->mHandPose << LL_ENDL;
+    LL_DEBUGS("BVH") << "hand_pose " << static_cast<U32>(mJointMotionList->mHandPose) << LL_ENDL;
     LL_DEBUGS("BVH") << "num_joints " << mJointMotionList->getNumJointMotions() << LL_ENDL;
 
     for (U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
@@ -2132,7 +2132,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
     for (JointConstraintSharedData* shared_constraintp : mJointMotionList->mConstraints)
     {
         success &= dp.packU8(shared_constraintp->mChainLength, "chain_length");
-        success &= dp.packU8(shared_constraintp->mConstraintType, "constraint_type");
+        success &= dp.packU8(static_cast<U8>(shared_constraintp->mConstraintType), "constraint_type");
         char source_volume[16]; /* Flawfinder: ignore */
         snprintf(source_volume, sizeof(source_volume), "%s",    /* Flawfinder: ignore */
                  mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolume)->getName().c_str());
@@ -2140,7 +2140,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
         success &= dp.packBinaryDataFixed((U8*)source_volume, 16, "source_volume");
         success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
         char target_volume[16]; /* Flawfinder: ignore */
-        if (shared_constraintp->mConstraintTargetType == CONSTRAINT_TARGET_TYPE_GROUND)
+        if (shared_constraintp->mConstraintTargetType == EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND)
         {
             snprintf(target_volume,sizeof(target_volume), "%s", "GROUND");  /* Flawfinder: ignore */
         }

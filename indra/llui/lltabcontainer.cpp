@@ -59,9 +59,9 @@ const F32 SCROLL_DELAY_TIME = 0.5f;
 
 void LLTabContainer::TabPositions::declareValues()
 {
-    declare("top", LLTabContainer::TOP);
-    declare("bottom", LLTabContainer::BOTTOM);
-    declare("left", LLTabContainer::LEFT);
+    declare("top", LLTabContainer::TabPosition::TOP);
+    declare("bottom", LLTabContainer::TabPosition::BOTTOM);
+    declare("left", LLTabContainer::TabPosition::LEFT);
 }
 
 //----------------------------------------------------------------------------
@@ -247,7 +247,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
     mLabelPadLeft(p.label_pad_left),
     mPrevArrowBtn(NULL),
     mNextArrowBtn(NULL),
-    mIsVertical( p.tab_position == LEFT ),
+    mIsVertical( p.tab_position() == TabPosition::LEFT ),
     mHideScrollArrows(p.hide_scroll_arrows),
     // Horizontal Specific
     mJumpPrevArrowBtn(NULL),
@@ -815,7 +815,7 @@ bool LLTabContainer::handleKeyHere(KEY key, MASK mask)
                 handled = true;
                 break;
               case KEY_RIGHT:
-                if (getTabPosition() == LEFT && getCurrentPanel())
+                if (getTabPosition() == TabPosition::LEFT && getCurrentPanel())
                 {
                     getCurrentPanel()->setFocus(true);
                 }
@@ -830,14 +830,14 @@ bool LLTabContainer::handleKeyHere(KEY key, MASK mask)
             switch(key)
             {
               case KEY_UP:
-                if (getTabPosition() == BOTTOM && getCurrentPanel())
+                if (getTabPosition() == TabPosition::BOTTOM && getCurrentPanel())
                 {
                     getCurrentPanel()->setFocus(true);
                 }
                 handled = true;
                 break;
               case KEY_DOWN:
-                if (getTabPosition() == TOP && getCurrentPanel())
+                if (getTabPosition() == TabPosition::TOP && getCurrentPanel())
                 {
                     getCurrentPanel()->setFocus(true);
                 }
@@ -935,19 +935,19 @@ void LLTabContainer::update_images(LLTabTuple* tuple, TabParams params, LLTabCon
 {
     if (tuple && tuple->mButton)
     {
-        if (pos == LLTabContainer::TOP)
+        if (pos == LLTabContainer::TabPosition::TOP)
         {
             tuple->mButton->setImageUnselected(static_cast<LLUIImage*>(params.tab_top_image_unselected));
             tuple->mButton->setImageSelected(static_cast<LLUIImage*>(params.tab_top_image_selected));
             tuple->mButton->setImageFlash(static_cast<LLUIImage*>(params.tab_top_image_flash));
         }
-        else if (pos == LLTabContainer::BOTTOM)
+        else if (pos == LLTabContainer::TabPosition::BOTTOM)
         {
             tuple->mButton->setImageUnselected(static_cast<LLUIImage*>(params.tab_bottom_image_unselected));
             tuple->mButton->setImageSelected(static_cast<LLUIImage*>(params.tab_bottom_image_selected));
             tuple->mButton->setImageFlash(static_cast<LLUIImage*>(params.tab_bottom_image_flash));
         }
-        else if (pos == LLTabContainer::LEFT)
+        else if (pos == LLTabContainer::TabPosition::LEFT)
         {
             tuple->mButton->setImageUnselected(static_cast<LLUIImage*>(params.tab_left_image_unselected));
             tuple->mButton->setImageSelected(static_cast<LLUIImage*>(params.tab_left_image_selected));
@@ -996,7 +996,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
     S32 tab_panel_bottom;
     if (!getTabsHidden())
     {
-        if( getTabPosition() == LLTabContainer::TOP )
+        if( getTabPosition() == LLTabContainer::TabPosition::TOP )
         {
             S32 tab_height = mIsVertical ? BTN_HEIGHT : mTabHeight;
             tab_panel_top = getRect().getHeight() - getTopBorderHeight() - (tab_height - tabcntr_button_panel_overlap);
@@ -1051,7 +1051,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
                                    mMinTabWidth,
                                    BTN_HEIGHT);
     }
-    else if( getTabPosition() == LLTabContainer::TOP )
+    else if( getTabPosition() == LLTabContainer::TabPosition::TOP )
     {
         btn_rect.setLeftTopAndSize( 0, getRect().getHeight() - getTopBorderHeight() + tab_fudge, button_width, mTabHeight);
         tab_img = mMiddleTabParams.tab_top_image_unselected;
@@ -1118,7 +1118,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
             p.visible(false);
             p.image_unselected(tab_img);
             p.image_selected(tab_selected_img);
-            p.follows.flags = p.follows.flags() | (getTabPosition() == TOP ? FOLLOWS_TOP : FOLLOWS_BOTTOM);
+            p.follows.flags = p.follows.flags() | (getTabPosition() == TabPosition::TOP ? FOLLOWS_TOP : FOLLOWS_BOTTOM);
             // Try to squeeze in a bit more text
             p.pad_left( mLabelPadLeft );
             p.pad_right(2);
@@ -1929,7 +1929,7 @@ void LLTabContainer::initButtons()
         S32 arrow_fudge = 1;        //  match new art better
 
         // Left and right scroll arrows (for when there are too many tabs to show all at once).
-        S32 btn_top = (getTabPosition() == TOP ) ? getRect().getHeight() - getTopBorderHeight() : tabcntr_arrow_btn_size + 1;
+        S32 btn_top = (getTabPosition() == TabPosition::TOP ) ? getRect().getHeight() - getTopBorderHeight() : tabcntr_arrow_btn_size + 1;
 
         LLRect left_arrow_btn_rect;
         left_arrow_btn_rect.setLeftTopAndSize( LLPANEL_BORDER_WIDTH+1+tabcntr_arrow_btn_size, btn_top + arrow_fudge, tabcntr_arrow_btn_size, mTabHeight );
@@ -1992,7 +1992,7 @@ void LLTabContainer::initButtons()
 
         mNextArrowBtn = LLUICtrlFactory::create<LLButton>(p);
 
-        if( getTabPosition() == TOP )
+        if( getTabPosition() == TabPosition::TOP )
         {
             mNextArrowBtn->setFollowsTop();
             mPrevArrowBtn->setFollowsTop();
@@ -2057,11 +2057,11 @@ void LLTabContainer::insertTuple(LLTabTuple * tuple, eInsertionPoint insertion_p
 {
     switch(insertion_point)
     {
-    case START:
+    case eInsertionPoint::START:
         // insert the new tab in the front of the list
         mTabList.insert(mTabList.begin() + mLockedTabCount, tuple);
         break;
-    case LEFT_OF_CURRENT:
+    case eInsertionPoint::LEFT_OF_CURRENT:
         // insert the new tab before the current tab (but not before mLockedTabCount)
         {
         tuple_list_t::iterator current_iter = mTabList.begin() + llmax(mLockedTabCount, mCurrentTabIdx);
@@ -2069,14 +2069,14 @@ void LLTabContainer::insertTuple(LLTabTuple * tuple, eInsertionPoint insertion_p
         }
         break;
 
-    case RIGHT_OF_CURRENT:
+    case eInsertionPoint::RIGHT_OF_CURRENT:
         // insert the new tab after the current tab (but not before mLockedTabCount)
         {
         tuple_list_t::iterator current_iter = mTabList.begin() + llmax(mLockedTabCount, mCurrentTabIdx + 1);
         mTabList.insert(current_iter, tuple);
         }
         break;
-    case END:
+    case eInsertionPoint::END:
     default:
         mTabList.push_back( tuple );
     }

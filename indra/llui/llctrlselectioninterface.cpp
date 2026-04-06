@@ -50,7 +50,7 @@ LLCtrlListInterface::~LLCtrlListInterface()
 
 LLScrollListItem* LLCtrlListInterface::addSimpleElement(const std::string& value)
 {
-    return addSimpleElement(value, ADD_BOTTOM, LLSD());
+    return addSimpleElement(value, EAddPosition::ADD_BOTTOM, LLSD());
 }
 
 LLScrollListItem* LLCtrlListInterface::addSimpleElement(const std::string& value, EAddPosition pos)

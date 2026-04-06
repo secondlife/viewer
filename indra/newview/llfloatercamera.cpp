@@ -471,7 +471,7 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 // virtual
 bool LLFloaterCamera::postBuild()
 {
-    updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
+    updateTransparency(ETypeTransparency::TT_ACTIVE); // force using active floater transparency (STORM-730)
 
     mControls = getChild<LLPanel>("controls");
     mAgentCameraInfo = getChild<LLPanel>("agent_camera_info");

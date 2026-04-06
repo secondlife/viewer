@@ -411,7 +411,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 
             }
 
-            constraint.mConstraintType = CONSTRAINT_TYPE_POINT;
+            constraint.mConstraintType = EConstraintType::CONSTRAINT_TYPE_POINT;
             mConstraints.push_back(constraint);
             continue;
         }
@@ -471,7 +471,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 
             }
 
-            constraint.mConstraintType = CONSTRAINT_TYPE_PLANE;
+            constraint.mConstraintType = EConstraintType::CONSTRAINT_TYPE_PLANE;
             mConstraints.push_back(constraint);
             continue;
         }
@@ -1482,7 +1482,7 @@ bool LLBVHLoader::serialize(LLDataPacker& dp)
             U8 byte = constraint.mChainLength;
             dp.packU8(byte, "chain_length");
 
-            byte = constraint.mConstraintType;
+            byte = static_cast<U8>(constraint.mConstraintType);
             dp.packU8(byte, "constraint_type");
             dp.packBinaryDataFixed((U8*)constraint.mSourceJointName, 16, "source_volume");
             dp.packVector3(constraint.mSourceOffset, "source_offset");

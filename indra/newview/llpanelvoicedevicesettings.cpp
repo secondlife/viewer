@@ -244,7 +244,7 @@ void LLPanelVoiceDeviceSettings::refresh()
             auto it = mLocalizedDeviceNames.find(mInputDevice);
             if (it != mLocalizedDeviceNames.end())
             {
-                mCtrlInputDevices->add(getLocalizedDeviceName(mInputDevice), mInputDevice, ADD_BOTTOM);
+                mCtrlInputDevices->add(getLocalizedDeviceName(mInputDevice), mInputDevice, EAddPosition::ADD_BOTTOM);
             }
             else
             {
@@ -256,7 +256,7 @@ void LLPanelVoiceDeviceSettings::refresh()
                 // But show a readable placeholder.
                 // Combo is disabled so it's safe to show
                 // a placeholder.
-                mCtrlInputDevices->add(getString("device_not_loaded"), mInputDevice, ADD_BOTTOM);
+                mCtrlInputDevices->add(getString("device_not_loaded"), mInputDevice, EAddPosition::ADD_BOTTOM);
             }
             mCtrlInputDevices->setValue(mInputDevice);
         }
@@ -266,12 +266,12 @@ void LLPanelVoiceDeviceSettings::refresh()
             auto it = mLocalizedDeviceNames.find(mOutputDevice);
             if (it != mLocalizedDeviceNames.end())
             {
-                mCtrlOutputDevices->add(getLocalizedDeviceName(mOutputDevice), mOutputDevice, ADD_BOTTOM);
+                mCtrlOutputDevices->add(getLocalizedDeviceName(mOutputDevice), mOutputDevice, EAddPosition::ADD_BOTTOM);
             }
             else
             {
                 // Don't change the device, only the label
-                mCtrlOutputDevices->add(getString("device_not_loaded"), mOutputDevice, ADD_BOTTOM);
+                mCtrlOutputDevices->add(getString("device_not_loaded"), mOutputDevice, EAddPosition::ADD_BOTTOM);
             }
             mCtrlOutputDevices->setValue(mOutputDevice);
         }
@@ -286,10 +286,10 @@ void LLPanelVoiceDeviceSettings::refresh()
             if (devices.size() > 0) // if zero, we've not received our devices yet
             {
                 mCtrlInputDevices->removeall();
-                mCtrlInputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
+                mCtrlInputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, EAddPosition::ADD_BOTTOM);
                 for (auto& device : devices)
                 {
-                    mCtrlInputDevices->add(getLocalizedDeviceName(device.display_name), device.full_name, ADD_BOTTOM);
+                    mCtrlInputDevices->add(getLocalizedDeviceName(device.display_name), device.full_name, EAddPosition::ADD_BOTTOM);
                 }
 
                 // Fix invalid input audio device preference.
@@ -308,11 +308,11 @@ void LLPanelVoiceDeviceSettings::refresh()
             if (devices.size() > 0)  // if zero, we've not received our devices yet
             {
                 mCtrlOutputDevices->removeall();
-                mCtrlOutputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
+                mCtrlOutputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, EAddPosition::ADD_BOTTOM);
 
                 for (auto& device : devices)
                 {
-                    mCtrlOutputDevices->add(getLocalizedDeviceName(device.display_name), device.full_name, ADD_BOTTOM);
+                    mCtrlOutputDevices->add(getLocalizedDeviceName(device.display_name), device.full_name, EAddPosition::ADD_BOTTOM);
                 }
 
                 // Fix invalid output audio device preference.

@@ -34,7 +34,7 @@ class LLColor4U;
 class LLColor3;
 class LLMatrix3;
 
-enum EStencilBlendMode
+enum class EStencilBlendMode
 {
     STENCIL_BLEND_MODE_BLEND = 0,
     STENCIL_BLEND_MODE_ADD   = 1,
@@ -42,7 +42,7 @@ enum EStencilBlendMode
     STENCIL_BLEND_MODE_FADE  = 3
 };
 
-enum EStencilShape
+enum class EStencilShape
 {
     STENCIL_SHAPE_UNIFORM    = 0,
     STENCIL_SHAPE_GRADIENT   = 1,
@@ -50,7 +50,7 @@ enum EStencilShape
     STENCIL_SHAPE_SCAN_LINES = 3
 };
 
-enum EScreenMode
+enum class EScreenMode
 {
     SCREEN_MODE_2DSINE   = 0,
     SCREEN_MODE_LINE     = 1

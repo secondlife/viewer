@@ -384,9 +384,9 @@ void LLAssetStorage::_cleanupRequests(bool all, S32 error)
 
     request_list_t timed_out;
     S32 rt;
-    for (rt = 0; rt < RT_COUNT; rt++)
+    for (rt = 0; rt < static_cast<S32>(ERequestType::RT_COUNT); rt++)
     {
-        request_list_t* requests = getRequestList((ERequestType)rt);
+        request_list_t* requests = getRequestList(static_cast<ERequestType>(rt));
         for (request_list_t::iterator iter = requests->begin();
              iter != requests->end(); )
         {
@@ -396,10 +396,10 @@ void LLAssetStorage::_cleanupRequests(bool all, S32 error)
             // otherwise just check for timed out requests
             // EXCEPT for upload timeouts
             if (all
-                || ((RT_DOWNLOAD == rt)
+                || ((static_cast<S32>(ERequestType::RT_DOWNLOAD) == rt)
                     && LL_ASSET_STORAGE_TIMEOUT < (mt_secs - tmp->mTime)))
             {
-                LL_WARNS("AssetStorage") << "Asset " << getRequestName((ERequestType)rt) << " request "
+                LL_WARNS("AssetStorage") << "Asset " << getRequestName(static_cast<ERequestType>(rt)) << " request "
                                          << (all ? "aborted" : "timed out") << " for "
                                          << tmp->getUUID() << "."
                                          << LLAssetType::lookup(tmp->getType()) << LL_ENDL;
@@ -770,7 +770,7 @@ void LLAssetStorage::getEstateAsset(
             tpvf.setCallback(downloadEstateAssetCompleteCallback, req);
 
             LL_DEBUGS("AssetStorage") << "Starting transfer for " << asset_id << LL_ENDL;
-            LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(source_host, LLTCT_ASSET);
+            LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(source_host, LLTransferChannelType::LLTCT_ASSET);
             ttcp->requestTransfer(spe, tpvf, 100.f + (is_priority ? 1.f : 0.f));
         }
         else
@@ -913,7 +913,7 @@ void LLAssetStorage::getInvItemAsset(
             LL_DEBUGS("AssetStorage") << "Starting transfer for inventory asset "
                                       << item_id << " owned by " << owner_id << "," << task_id
                                       << LL_ENDL;
-            LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(source_host, LLTCT_ASSET);
+            LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(source_host, LLTransferChannelType::LLTCT_ASSET);
             ttcp->requestTransfer(spi, tpvf, 100.f + (is_priority ? 1.f : 0.f));
         }
         else
@@ -1068,14 +1068,14 @@ LLAssetStorage::request_list_t* LLAssetStorage::getRequestList(LLAssetStorage::E
 {
     switch (rt)
     {
-        case RT_DOWNLOAD:
+        case ERequestType::RT_DOWNLOAD:
             return &mPendingDownloads;
-        case RT_UPLOAD:
+        case ERequestType::RT_UPLOAD:
             return &mPendingUploads;
-        case RT_LOCALUPLOAD:
+        case ERequestType::RT_LOCALUPLOAD:
             return &mPendingLocalUploads;
         default:
-            LL_WARNS("AssetStorage") << "Unable to find request list for request type '" << rt << "'" << LL_ENDL;
+            LL_WARNS("AssetStorage") << "Unable to find request list for request type '" << static_cast<S32>(rt) << "'" << LL_ENDL;
             return NULL;
     }
 }
@@ -1084,14 +1084,14 @@ const LLAssetStorage::request_list_t* LLAssetStorage::getRequestList(LLAssetStor
 {
     switch (rt)
     {
-        case RT_DOWNLOAD:
+        case ERequestType::RT_DOWNLOAD:
             return &mPendingDownloads;
-        case RT_UPLOAD:
+        case ERequestType::RT_UPLOAD:
             return &mPendingUploads;
-        case RT_LOCALUPLOAD:
+        case ERequestType::RT_LOCALUPLOAD:
             return &mPendingLocalUploads;
         default:
-            LL_WARNS("AssetStorage") << "Unable to find request list for request type '" << rt << "'" << LL_ENDL;
+            LL_WARNS("AssetStorage") << "Unable to find request list for request type '" << static_cast<S32>(rt) << "'" << LL_ENDL;
             return NULL;
     }
 }
@@ -1101,14 +1101,14 @@ std::string LLAssetStorage::getRequestName(LLAssetStorage::ERequestType rt)
 {
     switch (rt)
     {
-        case RT_DOWNLOAD:
+        case ERequestType::RT_DOWNLOAD:
             return "download";
-        case RT_UPLOAD:
+        case ERequestType::RT_UPLOAD:
             return "upload";
-        case RT_LOCALUPLOAD:
+        case ERequestType::RT_LOCALUPLOAD:
             return "localupload";
         default:
-            LL_WARNS("AssetStorage") << "Unable to find request name for request type '" << rt << "'" << LL_ENDL;
+            LL_WARNS("AssetStorage") << "Unable to find request name for request type '" << static_cast<S32>(rt) << "'" << LL_ENDL;
             return "";
     }
 }
@@ -1126,17 +1126,17 @@ S32 LLAssetStorage::getNumPending(LLAssetStorage::ERequestType rt) const
 
 S32 LLAssetStorage::getNumPendingDownloads() const
 {
-    return getNumPending(RT_DOWNLOAD);
+    return getNumPending(ERequestType::RT_DOWNLOAD);
 }
 
 S32 LLAssetStorage::getNumPendingUploads() const
 {
-    return getNumPending(RT_UPLOAD);
+    return getNumPending(ERequestType::RT_UPLOAD);
 }
 
 S32 LLAssetStorage::getNumPendingLocalUploads()
 {
-    return getNumPending(RT_LOCALUPLOAD);
+    return getNumPending(ERequestType::RT_LOCALUPLOAD);
 }
 
 LLSD LLAssetStorage::getPendingDetails(LLAssetStorage::ERequestType rt,

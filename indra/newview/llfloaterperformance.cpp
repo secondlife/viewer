@@ -162,7 +162,7 @@ bool LLFloaterPerformance::postBuild()
     mTextFPSLabel = getChild<LLTextBox>("fps_lbl");
     mTextFPSValue = getChild<LLTextBox>("fps_value");
 
-    gSavedPerAccountSettings.declareBOOL("HadEnabledAutoFPS", false, "User had enabled AutoFPS at least once", LLControlVariable::PERSIST_ALWAYS);
+    gSavedPerAccountSettings.declareBOOL("HadEnabledAutoFPS", false, "User had enabled AutoFPS at least once", LLControlVariable::ePersist::PERSIST_ALWAYS);
 
     return true;
 }

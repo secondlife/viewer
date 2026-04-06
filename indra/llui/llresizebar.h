@@ -31,7 +31,7 @@
 class LLResizeBar : public LLView
 {
 public:
-    enum Side { LEFT, TOP, RIGHT, BOTTOM };
+    enum class Side { LEFT, TOP, RIGHT, BOTTOM };
 
     struct Params : public LLInitParam::Block<Params, LLView::Params>
     {

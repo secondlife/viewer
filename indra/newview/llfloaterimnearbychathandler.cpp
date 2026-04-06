@@ -334,7 +334,7 @@ void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
 
     int chat_type = chat["chat_type"].asInteger();
 
-    if (chat_type == CHAT_TYPE_DEBUG_MSG)
+    if (chat_type == static_cast<int>(EChatType::CHAT_TYPE_DEBUG_MSG))
     {
         if (!gSavedSettings.getBOOL("ShowScriptErrors"))
             return;
@@ -509,7 +509,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
     // Pass sender info so that it can be rendered properly (STORM-1021).
     chat["sender_slurl"] = LLViewerChat::getSenderSLURL(chat_msg, args);
 
-    if (chat_msg.mChatType == CHAT_TYPE_DIRECT &&
+    if (chat_msg.mChatType == EChatType::CHAT_TYPE_DIRECT &&
         chat_msg.mText.length() > 0 &&
         chat_msg.mText[0] == '@')
     {
@@ -521,7 +521,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
     // don't show toast and add message to chat history on receive debug message
     // with disabled setting showing script errors or enabled setting to show script
     // errors in separate window.
-    if (chat_msg.mChatType == CHAT_TYPE_DEBUG_MSG)
+    if (chat_msg.mChatType == EChatType::CHAT_TYPE_DEBUG_MSG)
     {
         if (LLFloater::isQuitRequested())
             return;
@@ -551,7 +551,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 
     nearby_chat->addMessage(chat_msg, true, args);
 
-    if (chat_msg.mSourceType == CHAT_SOURCE_AGENT
+    if (chat_msg.mSourceType == EChatSourceType::CHAT_SOURCE_AGENT
         && chat_msg.mFromID.notNull()
         && chat_msg.mFromID != gAgentID)
     {
@@ -567,7 +567,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 
     LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 
-    if((  ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
+    if((  ( chat_msg.mSourceType == EChatSourceType::CHAT_SOURCE_AGENT
             && gSavedSettings.getBOOL("UseChatBubbles") )
         || mChannel.isDead()
         || !mChannel.get()->getShowToasts() )
@@ -586,9 +586,9 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
     ..may clean up after some time...
 
     //only messages from AGENTS
-    if(CHAT_SOURCE_OBJECT == chat_msg.mSourceType)
+    if(EChatSourceType::CHAT_SOURCE_OBJECT == chat_msg.mSourceType)
     {
-        if(chat_msg.mChatType == CHAT_TYPE_DEBUG_MSG)
+        if(chat_msg.mChatType == EChatType::CHAT_TYPE_DEBUG_MSG)
             return;//ok for now we don't skip messeges from object, so skip only debug messages
     }
     */
@@ -599,7 +599,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
     {
         // Handle IRC styled messages.
         std::string toast_msg;
-        if (chat_msg.mChatStyle == CHAT_STYLE_IRC)
+        if (chat_msg.mChatStyle == EChatStyle::CHAT_STYLE_IRC)
         {
             if (!chat_msg.mFromName.empty())
             {
@@ -645,7 +645,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
         }
 
         std::string user_preferences;
-        if (chat_msg.mSourceType == CHAT_SOURCE_OBJECT)
+        if (chat_msg.mSourceType == EChatSourceType::CHAT_SOURCE_OBJECT)
         {
             user_preferences = gSavedSettings.getString("NotificationObjectIMOptions");
         }

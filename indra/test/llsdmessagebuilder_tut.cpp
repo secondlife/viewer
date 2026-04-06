@@ -82,12 +82,12 @@ namespace tut
         }
 
 
-        static LLMessageBlock* defaultTemplateBlock(const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = MBT_VARIABLE)
+        static LLMessageBlock* defaultTemplateBlock(const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = EMsgBlockType::MBT_VARIABLE)
         {
             return createTemplateBlock(_PREHASH_Test0, type, size, block);
         }
 
-        static LLMessageBlock* createTemplateBlock(const char* name, const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = MBT_VARIABLE)
+        static LLMessageBlock* createTemplateBlock(const char* name, const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = EMsgBlockType::MBT_VARIABLE)
         {
             LLMessageBlock* result = new LLMessageBlock(name, block);
             if(type != MVT_NULL)
@@ -108,7 +108,7 @@ namespace tut
 
         static LLMessageTemplate defaultTemplate()
         {
-            return LLMessageTemplate(_PREHASH_TestMessage, 1, MFT_HIGH);
+            return LLMessageTemplate(_PREHASH_TestMessage, 1, EMsgFrequency::MFT_HIGH);
         }
     };
 

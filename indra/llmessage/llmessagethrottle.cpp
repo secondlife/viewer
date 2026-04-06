@@ -38,7 +38,7 @@ bool eq_message_throttle_entry(LLMessageThrottleEntry a, LLMessageThrottleEntry 
 const U64 SEC_TO_USEC = 1000000;
 
 // How long (in microseconds) each type of message stays in its throttle list.
-const U64 MAX_MESSAGE_AGE[MTC_EOF] =
+const U64 MAX_MESSAGE_AGE[static_cast<size_t>(EMessageThrottleCats::MTC_EOF)] =
 {
     10 * SEC_TO_USEC,   // MTC_VIEWER_ALERT
     10 * SEC_TO_USEC    // MTC_AGENT_ALERT
@@ -56,7 +56,7 @@ void LLMessageThrottle::pruneEntries()
 {
     // Go through each message category, and prune entries older than max age.
     S32 cat;
-    for (cat = 0; cat < MTC_EOF; cat++)
+    for (cat = 0; cat < static_cast<S32>(EMessageThrottleCats::MTC_EOF); cat++)
     {
         message_list_t* message_list = &(mMessageList[cat]);
 
@@ -97,7 +97,7 @@ void LLMessageThrottle::pruneEntries()
 
 bool LLMessageThrottle::addViewerAlert(const LLUUID& to, const std::string& mesg)
 {
-    message_list_t* message_list = &(mMessageList[MTC_VIEWER_ALERT]);
+    message_list_t* message_list = &(mMessageList[static_cast<size_t>(EMessageThrottleCats::MTC_VIEWER_ALERT)]);
 
     // Concatenate from,to,mesg into one string.
     std::ostringstream full_mesg;
@@ -125,7 +125,7 @@ bool LLMessageThrottle::addViewerAlert(const LLUUID& to, const std::string& mesg
 
 bool LLMessageThrottle::addAgentAlert(const LLUUID& agent, const LLUUID& task, const std::string& mesg)
 {
-    message_list_t* message_list = &(mMessageList[MTC_AGENT_ALERT]);
+    message_list_t* message_list = &(mMessageList[static_cast<size_t>(EMessageThrottleCats::MTC_AGENT_ALERT)]);
 
     // Concatenate from,to,mesg into one string.
     std::ostringstream full_mesg;

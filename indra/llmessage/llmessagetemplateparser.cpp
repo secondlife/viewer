@@ -393,7 +393,7 @@ LLTemplateParser::LLTemplateParser(LLTemplateTokenizer & tokens):
 
     while(LLMessageTemplate * templatep = parseMessage(tokens))
     {
-        if (templatep->getDeprecation() != MD_DEPRECATED)
+        if (templatep->getDeprecation() != EMsgDeprecation::MD_DEPRECATED)
         {
             mMessages.push_back(templatep);
         }
@@ -445,19 +445,19 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
     }
 
     // ok, now get Frequency ("High", "Medium", or "Low")
-    EMsgFrequency frequency = MFT_LOW;
+    EMsgFrequency frequency = EMsgFrequency::MFT_LOW;
     std::string freq_string = tokens.next();
     if (freq_string == "High")
     {
-        frequency = MFT_HIGH;
+        frequency = EMsgFrequency::MFT_HIGH;
     }
     else if (freq_string == "Medium")
     {
-        frequency = MFT_MEDIUM;
+        frequency = EMsgFrequency::MFT_MEDIUM;
     }
     else if (freq_string == "Low" || freq_string == "Fixed")
     {
-        frequency = MFT_LOW;
+        frequency = EMsgFrequency::MFT_LOW;
     }
     else
     {
@@ -468,16 +468,16 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
     U32 message_number = strtoul(tokens.next().c_str(),NULL,0);
 
     switch (frequency) {
-    case MFT_HIGH:
+    case EMsgFrequency::MFT_HIGH:
         break;
-    case MFT_MEDIUM:
+    case EMsgFrequency::MFT_MEDIUM:
         message_number = (255 << 8) | message_number;
         break;
-    case MFT_LOW:
+    case EMsgFrequency::MFT_LOW:
         message_number = (255 << 24) | (255 << 16) | message_number;
         break;
     default:
-        LL_ERRS() << "Unknown frequency enum: " << frequency << LL_ENDL;
+        LL_ERRS() << "Unknown frequency enum: " << static_cast<S32>(frequency) << LL_ENDL;
     }
 
     templatep = new LLMessageTemplate(
@@ -489,11 +489,11 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
     std::string trust = tokens.next();
     if (trust == "Trusted")
     {
-        templatep->setTrust(MT_TRUST);
+        templatep->setTrust(EMsgTrust::MT_TRUST);
     }
     else if (trust == "NotTrusted")
     {
-        templatep->setTrust(MT_NOTRUST);
+        templatep->setTrust(EMsgTrust::MT_NOTRUST);
     }
     else
     {
@@ -504,11 +504,11 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
     std::string encoding = tokens.next();
     if(encoding == "Unencoded")
     {
-        templatep->setEncoding(ME_UNENCODED);
+        templatep->setEncoding(EMsgEncoding::ME_UNENCODED);
     }
     else if(encoding == "Zerocoded")
     {
-        templatep->setEncoding(ME_ZEROCODED);
+        templatep->setEncoding(EMsgEncoding::ME_ZEROCODED);
     }
     else
     {
@@ -518,20 +518,20 @@ LLMessageTemplate * LLTemplateParser::parseMessage(LLTemplateTokenizer & tokens)
     // get deprecation
     if(tokens.want("Deprecated"))
     {
-        templatep->setDeprecation(MD_DEPRECATED);
+        templatep->setDeprecation(EMsgDeprecation::MD_DEPRECATED);
     }
     else if (tokens.want("UDPDeprecated"))
     {
-        templatep->setDeprecation(MD_UDPDEPRECATED);
+        templatep->setDeprecation(EMsgDeprecation::MD_UDPDEPRECATED);
     }
     else if (tokens.want("UDPBlackListed"))
     {
-        templatep->setDeprecation(MD_UDPBLACKLISTED);
+        templatep->setDeprecation(EMsgDeprecation::MD_UDPBLACKLISTED);
     }
     else if (tokens.want("NotDeprecated"))
     {
         // this is the default value, but it can't hurt to set it twice
-        templatep->setDeprecation(MD_NOTDEPRECATED);
+        templatep->setDeprecation(EMsgDeprecation::MD_NOTDEPRECATED);
     }
     else {
         // It's probably a brace, let's just start block processing
@@ -576,7 +576,7 @@ LLMessageBlock * LLTemplateParser::parseBlock(LLTemplateTokenizer & tokens)
     if (block_type == "Single")
     {
         // ok, we can create a block
-        blockp = new LLMessageBlock(block_name.c_str(), MBT_SINGLE);
+        blockp = new LLMessageBlock(block_name.c_str(), EMsgBlockType::MBT_SINGLE);
     }
     else if (block_type == "Multiple")
     {
@@ -592,13 +592,13 @@ LLMessageBlock * LLTemplateParser::parseBlock(LLTemplateTokenizer & tokens)
 
         // ok, we can create a block
         blockp = new LLMessageBlock(block_name.c_str(),
-                                    MBT_MULTIPLE,
+                                    EMsgBlockType::MBT_MULTIPLE,
                                     atoi(repeats.c_str()));
     }
     else if (block_type == "Variable")
     {
         // ok, we can create a block
-        blockp = new LLMessageBlock(block_name.c_str(), MBT_VARIABLE);
+        blockp = new LLMessageBlock(block_name.c_str(), EMsgBlockType::MBT_VARIABLE);
     }
     else
     {

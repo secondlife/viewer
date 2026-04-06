@@ -1810,10 +1810,10 @@ bool LLUIImageList::initFromFile()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     // Look for textures.xml in all the right places. Pass
-    // constraint=LLDir::ALL_SKINS because we want to overlay textures.xml
+    // constraint=LLDir::ESkinConstraint::ALL_SKINS because we want to overlay textures.xml
     // from all the skins directories.
     std::vector<std::string> textures_paths =
-        gDirUtilp->findSkinnedFilenames(LLDir::TEXTURES, "textures.xml", LLDir::ALL_SKINS);
+        gDirUtilp->findSkinnedFilenames(LLDir::TEXTURES, "textures.xml", LLDir::ESkinConstraint::ALL_SKINS);
     std::vector<std::string>::const_iterator pi(textures_paths.begin()), pend(textures_paths.end());
     if (pi == pend)
     {

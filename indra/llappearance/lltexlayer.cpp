@@ -392,7 +392,7 @@ bool LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height, LLRenderTarget*
         // composite color layers
         for(LLTexLayerInterface* layer : mLayerList)
         {
-            if (layer->getRenderPass() == LLTexLayer::RP_COLOR)
+            if (layer->getRenderPass() == LLTexLayerInterface::ERenderPass::RP_COLOR)
             {
                 gGL.flush();
                 success &= layer->render(x, y, width, height, bound_target);
@@ -562,7 +562,7 @@ void LLTexLayerSet::invalidateMorphMasks()
 //-----------------------------------------------------------------------------
 LLTexLayerInfo::LLTexLayerInfo() :
     mWriteAllChannels( false ),
-    mRenderPass(LLTexLayer::RP_COLOR),
+    mRenderPass(LLTexLayerInterface::ERenderPass::RP_COLOR),
     mFixedColor( 0.f, 0.f, 0.f, 0.f ),
     mLocalTexture( -1 ),
     mStaticImageIsMask( false ),
@@ -599,7 +599,7 @@ bool LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
     {
         if( render_pass_name == "bump" )
         {
-            mRenderPass = LLTexLayer::RP_BUMP;
+            mRenderPass = LLTexLayerInterface::ERenderPass::RP_BUMP;
         }
     }
 
@@ -994,13 +994,13 @@ void LLTexLayer::calculateTexLayerColor(const param_color_list_t &param_list, LL
         const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)param->getInfo();
         switch(info->getOperation())
         {
-            case LLTexLayerParamColor::OP_ADD:
+            case LLTexLayerParamColor::EColorOperation::OP_ADD:
                 net_color += param_net;
                 break;
-            case LLTexLayerParamColor::OP_MULTIPLY:
+            case LLTexLayerParamColor::EColorOperation::OP_MULTIPLY:
                 net_color = net_color * param_net;
                 break;
-            case LLTexLayerParamColor::OP_BLEND:
+            case LLTexLayerParamColor::EColorOperation::OP_BLEND:
                 net_color = lerp(net_color, param_net, param->getWeight());
                 break;
             default:

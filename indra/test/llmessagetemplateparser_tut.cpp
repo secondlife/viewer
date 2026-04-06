@@ -184,7 +184,7 @@ namespace tut
 
         ensure("blockA block parsed", block != 0);
         ensure_equals("name of block", std::string(block->mName), std::string("BlockA"));
-        ensure_equals("type of block is Single", block->mType, MBT_SINGLE);
+        ensure_equals("type of block is Single", block->mType, EMsgBlockType::MBT_SINGLE);
         ensure_equals("total size of block", block->mTotalSize, 4);
         ensure_equals("number of block defaults to 1", block->mNumber, 1);
         ensure_equals("variable type of VarX is F32",
@@ -199,7 +199,7 @@ namespace tut
 
         ensure("stuff block parsed", block != 0);
         ensure_equals("name of block", std::string(block->mName), std::string("Stuff"));
-        ensure_equals("type of block is Multiple", block->mType, MBT_VARIABLE);
+        ensure_equals("type of block is Multiple", block->mType, EMsgBlockType::MBT_VARIABLE);
         ensure_equals("total size of block", block->mTotalSize, 16);
         ensure_equals("number of block defaults to 1", block->mNumber, 1);
         ensure_equals("variable type of Id is LLUUID",
@@ -214,7 +214,7 @@ namespace tut
 
         ensure("stuff2 block parsed", block != 0);
         ensure_equals("name of block", std::string(block->mName), std::string("Stuff2"));
-        ensure_equals("type of block is Multiple", block->mType, MBT_MULTIPLE);
+        ensure_equals("type of block is Multiple", block->mType, EMsgBlockType::MBT_MULTIPLE);
         ensure_equals("total size of block", block->mTotalSize, 24);
         ensure_equals("number of blocks", block->mNumber, 45);
         ensure_equals("variable type of Shid is Vector3d",
@@ -249,11 +249,11 @@ namespace tut
 
         ensure("simple message parsed", message != 0);
         ensure_equals("name of message", std::string(message->mName), std::string("TestMessage"));
-        ensure_equals("frequency is Low", message->mFrequency, MFT_LOW);
-        ensure_equals("trust is untrusted", message->mTrust, MT_NOTRUST);
+        ensure_equals("frequency is Low", message->mFrequency, EMsgFrequency::MFT_LOW);
+        ensure_equals("trust is untrusted", message->mTrust, EMsgTrust::MT_NOTRUST);
         ensure_equals("message number", message->mMessageNumber, (U32)((255 << 24) | (255 << 16) | 1));
-        ensure_equals("message encoding is zerocoded", message->mEncoding, ME_ZEROCODED);
-        ensure_equals("message deprecation is notdeprecated", message->mDeprecation, MD_NOTDEPRECATED);
+        ensure_equals("message encoding is zerocoded", message->mEncoding, EMsgEncoding::ME_ZEROCODED);
+        ensure_equals("message deprecation is notdeprecated", message->mDeprecation, EMsgDeprecation::MD_NOTDEPRECATED);
 
         LLMessageBlock * block = message->getBlock(prehash("NonexistantBlock"));
         ensure("Nonexistant block does not exist", block == 0);
@@ -278,11 +278,11 @@ namespace tut
 
         ensure("deprecated message parsed", message != 0);
         ensure_equals("name of message", std::string(message->mName), std::string("TestMessageDeprecated"));
-        ensure_equals("frequency is High", message->mFrequency, MFT_HIGH);
-        ensure_equals("trust is trusted", message->mTrust, MT_TRUST);
+        ensure_equals("frequency is High", message->mFrequency, EMsgFrequency::MFT_HIGH);
+        ensure_equals("trust is trusted", message->mTrust, EMsgTrust::MT_TRUST);
         ensure_equals("message number", message->mMessageNumber, (U32)34);
-        ensure_equals("message encoding is unencoded", message->mEncoding, ME_UNENCODED);
-        ensure_equals("message deprecation is deprecated", message->mDeprecation, MD_DEPRECATED);
+        ensure_equals("message encoding is unencoded", message->mEncoding, EMsgEncoding::ME_UNENCODED);
+        ensure_equals("message deprecation is deprecated", message->mDeprecation, EMsgDeprecation::MD_DEPRECATED);
 
         delete message;
     }
@@ -323,13 +323,13 @@ namespace tut
 
         ensure("RezMultipleAttachmentsFromInv message parsed", message != 0);
         ensure_equals("name of message", message->mName, prehash("RezMultipleAttachmentsFromInv"));
-        ensure_equals("frequency is low", message->mFrequency, MFT_LOW);
-        ensure_equals("trust is not trusted", message->mTrust, MT_NOTRUST);
+        ensure_equals("frequency is low", message->mFrequency, EMsgFrequency::MFT_LOW);
+        ensure_equals("trust is not trusted", message->mTrust, EMsgTrust::MT_NOTRUST);
         ensure_equals("message number", message->mMessageNumber, (U32)((255 << 24) | (255 << 16) | 452));
-        ensure_equals("message encoding is zerocoded", message->mEncoding, ME_ZEROCODED);
+        ensure_equals("message encoding is zerocoded", message->mEncoding, EMsgEncoding::ME_ZEROCODED);
 
         ensure_block_attributes(
-            "RMAFI", message, "AgentData", MBT_SINGLE, 1, 16+16);
+            "RMAFI", message, "AgentData", EMsgBlockType::MBT_SINGLE, 1, 16+16);
         LLMessageBlock * block = message->getBlock(prehash("AgentData"));
         ensure_variable_attributes("RMAFI",
                                    block, "AgentID", MVT_LLUUID, 16);
@@ -337,7 +337,7 @@ namespace tut
                                    block, "SessionID", MVT_LLUUID, 16);
 
         ensure_block_attributes(
-            "RMAFI", message, "HeaderData", MBT_SINGLE, 1, 16+1+1);
+            "RMAFI", message, "HeaderData", EMsgBlockType::MBT_SINGLE, 1, 16+1+1);
         block = message->getBlock(prehash("HeaderData"));
         ensure_variable_attributes(
             "RMAFI", block, "CompoundMsgID", MVT_LLUUID, 16);
@@ -348,7 +348,7 @@ namespace tut
 
 
         ensure_block_attributes(
-            "RMAFI", message, "ObjectData", MBT_VARIABLE, 1, -1);
+            "RMAFI", message, "ObjectData", EMsgBlockType::MBT_VARIABLE, 1, -1);
         block = message->getBlock(prehash("ObjectData"));
         ensure_variable_attributes("RMAFI", block, "ItemID", MVT_LLUUID, 16);
         ensure_variable_attributes("RMAFI", block, "OwnerID", MVT_LLUUID, 16);

@@ -110,7 +110,7 @@ namespace tut
 
         material.setAlphaCutoff(test_fraction);
         // Because this is the default value, it should append to the extras field to mark it as an override
-        material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_OPAQUE, true);
+        material.setAlphaMode(static_cast<S32>(LLGLTFMaterial::AlphaMode::ALPHA_MODE_OPAQUE), true);
         // Because this is the default value, it should append to the extras field to mark it as an override
         material.setDoubleSided(false, true);
 
@@ -163,7 +163,7 @@ namespace tut
     void llgltfmaterial_object_t::test<3>()
     {
         const bool doubleSideds[] { false, true };
-        const LLGLTFMaterial::AlphaMode alphaModes[] { LLGLTFMaterial::ALPHA_MODE_OPAQUE, LLGLTFMaterial::ALPHA_MODE_BLEND, LLGLTFMaterial::ALPHA_MODE_MASK };
+        const LLGLTFMaterial::AlphaMode alphaModes[] { LLGLTFMaterial::AlphaMode::ALPHA_MODE_OPAQUE, LLGLTFMaterial::AlphaMode::ALPHA_MODE_BLEND, LLGLTFMaterial::AlphaMode::ALPHA_MODE_MASK };
         const bool forOverrides[] { false, true };
 
         for (bool doubleSided : doubleSideds)
@@ -183,10 +183,10 @@ namespace tut
             for (bool forOverride : forOverrides)
             {
                 LLGLTFMaterial material;
-                material.setAlphaMode(alphaMode, forOverride);
-                const bool overrideBit = (alphaMode == LLGLTFMaterial::ALPHA_MODE_OPAQUE) && forOverride;
-                ensure_equals("LLGLTFMaterial: alpha mode = " + std::to_string(alphaMode) + " override bit when forOverride = " + std::to_string(forOverride), material.mOverrideAlphaMode, overrideBit);
-                ensure_gltf_material_serialize("alpha mode = " + std::to_string(alphaMode), material);
+                material.setAlphaMode(static_cast<S32>(alphaMode), forOverride);
+                const bool overrideBit = (alphaMode == LLGLTFMaterial::AlphaMode::ALPHA_MODE_OPAQUE) && forOverride;
+                ensure_equals("LLGLTFMaterial: alpha mode = " + std::to_string(static_cast<S32>(alphaMode)) + " override bit when forOverride = " + std::to_string(forOverride), material.mOverrideAlphaMode, overrideBit);
+                ensure_gltf_material_serialize("alpha mode = " + std::to_string(static_cast<S32>(alphaMode)), material);
             }
         }
     }
@@ -282,7 +282,7 @@ namespace tut
     {
         {
             LLGLTFMaterial override_material;
-            override_material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_BLEND, true);
+            override_material.setAlphaMode(static_cast<S32>(LLGLTFMaterial::AlphaMode::ALPHA_MODE_BLEND), true);
             override_material.setDoubleSided(true, true);
 
             LLGLTFMaterial render_material;
@@ -293,11 +293,11 @@ namespace tut
         }
         {
             LLGLTFMaterial override_material;
-            override_material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_OPAQUE, true);
+            override_material.setAlphaMode(static_cast<S32>(LLGLTFMaterial::AlphaMode::ALPHA_MODE_OPAQUE), true);
             override_material.setDoubleSided(false, true);
 
             LLGLTFMaterial render_material;
-            override_material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_BLEND, false);
+            override_material.setAlphaMode(static_cast<S32>(LLGLTFMaterial::AlphaMode::ALPHA_MODE_BLEND), false);
             override_material.setDoubleSided(true, false);
 
             render_material.applyOverride(override_material);
@@ -346,12 +346,12 @@ namespace tut
     template<> template<>
     void llgltfmaterial_object_t::test<11>()
     {
-        const S32 non_default_alpha_modes[] = { LLGLTFMaterial::ALPHA_MODE_BLEND, LLGLTFMaterial::ALPHA_MODE_MASK };
+        const S32 non_default_alpha_modes[] = { static_cast<S32>(LLGLTFMaterial::AlphaMode::ALPHA_MODE_BLEND), static_cast<S32>(LLGLTFMaterial::AlphaMode::ALPHA_MODE_MASK) };
         for (S32 non_default_alpha_mode : non_default_alpha_modes)
         {
             LLGLTFMaterial material;
             // Set default alpha mode
-            material.setAlphaMode(LLGLTFMaterial::ALPHA_MODE_OPAQUE, true);
+            material.setAlphaMode(static_cast<S32>(LLGLTFMaterial::AlphaMode::ALPHA_MODE_OPAQUE), true);
             ensure_equals("LLGLTFMaterial: alpha mode override flag set", material.mOverrideAlphaMode, true);
             // Set non-default alpha mode
             material.setAlphaMode(non_default_alpha_mode, true);
@@ -418,7 +418,7 @@ namespace tut
         LLGLTFMaterial source_mat = create_test_material();
         source_mat.mTrackingIdToLocalTexture[LLUUID::generateNewID()] = LLUUID::generateNewID();
         source_mat.mLocalTexDataDigest = 1;
-        source_mat.mAlphaMode = LLGLTFMaterial::ALPHA_MODE_MASK;
+        source_mat.mAlphaMode = LLGLTFMaterial::AlphaMode::ALPHA_MODE_MASK;
         source_mat.mDoubleSided = true;
 
         LLGLTFMaterial hash_mat;

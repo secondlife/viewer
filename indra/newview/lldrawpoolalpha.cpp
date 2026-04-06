@@ -662,7 +662,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                 LLGLDisable cull_face(gltf_mat && gltf_mat->mDoubleSided ? GL_CULL_FACE : 0);
 
-                if (gltf_mat && gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                if (gltf_mat && gltf_mat->mAlphaMode == LLGLTFMaterial::AlphaMode::ALPHA_MODE_BLEND)
                 {
                     target_shader = pbr_shader;
                     if (params.mAvatar != nullptr)

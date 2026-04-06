@@ -64,7 +64,7 @@ LLFetchedGLTFMaterial& LLFetchedGLTFMaterial::operator=(const LLFetchedGLTFMater
 void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 {
     // glTF 2.0 Specification 3.9.4. Alpha Coverage
-    // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
+    // mAlphaCutoff is only valid for LLGLTFMaterial::AlphaMode::ALPHA_MODE_MASK
     F32 min_alpha = -1.0;
 
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
@@ -73,9 +73,9 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
     LLViewerTexture* baseColorTex = media_tex ? media_tex : mBaseColorTexture;
     LLViewerTexture* emissiveTex = media_tex ? media_tex : mEmissiveTexture;
 
-    if (!LLPipeline::sShadowRender || (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK))
+    if (!LLPipeline::sShadowRender || (mAlphaMode == LLGLTFMaterial::AlphaMode::ALPHA_MODE_MASK))
     {
-        if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+        if (mAlphaMode == LLGLTFMaterial::AlphaMode::ALPHA_MODE_MASK)
         {
             min_alpha = mAlphaCutoff;
         }

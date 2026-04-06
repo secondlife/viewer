@@ -38,7 +38,7 @@ LLNotificationListView::~LLNotificationListView()
 
 bool LLNotificationListView::addNotification(LLNotificationListItem * item)
 {
-    return LLFlatListView::addItem(item, item->getID(), ADD_TOP);
+    return LLFlatListView::addItem(item, item->getID(), EAddPosition::ADD_TOP);
 }
 
 //EOF

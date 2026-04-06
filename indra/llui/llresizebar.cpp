@@ -64,22 +64,22 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
     // set up some generically good follow code.
     switch( mSide )
     {
-    case LEFT:
+    case Side::LEFT:
         setFollowsLeft();
         setFollowsTop();
         setFollowsBottom();
         break;
-    case TOP:
+    case Side::TOP:
         setFollowsTop();
         setFollowsLeft();
         setFollowsRight();
         break;
-    case RIGHT:
+    case Side::RIGHT:
         setFollowsRight();
         setFollowsTop();
         setFollowsBottom();
         break;
-    case BOTTOM:
+    case Side::BOTTOM:
         setFollowsBottom();
         setFollowsLeft();
         setFollowsRight();
@@ -160,23 +160,23 @@ bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 
             switch( mSide )
             {
-            case LEFT:
+            case Side::LEFT:
                 new_width = llclamp(orig_rect.getWidth() - delta_x, mMinSize, mMaxSize);
                 delta_x = orig_rect.getWidth() - new_width;
                 scaled_rect.translate(delta_x, 0);
                 break;
 
-            case TOP:
+            case Side::TOP:
                 new_height = llclamp(orig_rect.getHeight() + delta_y, mMinSize, mMaxSize);
                 delta_y = new_height - orig_rect.getHeight();
                 break;
 
-            case RIGHT:
+            case Side::RIGHT:
                 new_width = llclamp(orig_rect.getWidth() + delta_x, mMinSize, mMaxSize);
                 delta_x = new_width - orig_rect.getWidth();
                 break;
 
-            case BOTTOM:
+            case Side::BOTTOM:
                 new_height = llclamp(orig_rect.getHeight() - delta_y, mMinSize, mMaxSize);
                 delta_y = orig_rect.getHeight() - new_height;
                 scaled_rect.translate(0, delta_y);
@@ -199,16 +199,16 @@ bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
                 static LLUICachedControl<S32> snap_margin ("SnapMargin", 0);
                 switch( mSide )
                 {
-                case LEFT:
+                case Side::LEFT:
                     snap_view = mResizingView->findSnapEdge(scaled_rect.mLeft, mouse_dir, SNAP_LEFT, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                     break;
-                case TOP:
+                case Side::TOP:
                     snap_view = mResizingView->findSnapEdge(scaled_rect.mTop, mouse_dir, SNAP_TOP, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                     break;
-                case RIGHT:
+                case Side::RIGHT:
                     snap_view = mResizingView->findSnapEdge(scaled_rect.mRight, mouse_dir, SNAP_RIGHT, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                     break;
-                case BOTTOM:
+                case Side::BOTTOM:
                     snap_view = mResizingView->findSnapEdge(scaled_rect.mBottom, mouse_dir, SNAP_BOTTOM, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                     break;
                 }
@@ -227,7 +227,7 @@ bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 
             switch(mSide)
             {
-            case LEFT:
+            case Side::LEFT:
             {
                 S32 actual_delta_x = new_rect.mLeft - orig_rect.mLeft;
                 if (actual_delta_x != delta_x)
@@ -242,7 +242,7 @@ bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 
                 break;
             }
-            case RIGHT:
+            case Side::RIGHT:
             {
                 S32 actual_delta_x = new_rect.mRight - orig_rect.mRight;
                 if (actual_delta_x != delta_x)
@@ -256,7 +256,7 @@ bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
                 mDragLastScreenX += new_rect.mRight - orig_rect.mRight;
                 break;
             }
-            case TOP:
+            case Side::TOP:
             {
                 S32 actual_delta_y = new_rect.mTop - orig_rect.mTop;
                 if (actual_delta_y != delta_y)
@@ -270,7 +270,7 @@ bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
                 mDragLastScreenY += new_rect.mTop - orig_rect.mTop;
                 break;
             }
-            case BOTTOM:
+            case Side::BOTTOM:
             {
                 S32 actual_delta_y = new_rect.mBottom - orig_rect.mBottom;
                 if (actual_delta_y != delta_y)
@@ -300,13 +300,13 @@ bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
     {
         switch( mSide )
         {
-        case LEFT:
-        case RIGHT:
+        case Side::LEFT:
+        case Side::RIGHT:
             getWindow()->setCursor(UI_CURSOR_SIZEWE);
             break;
 
-        case TOP:
-        case BOTTOM:
+        case Side::TOP:
+        case Side::BOTTOM:
             getWindow()->setCursor(UI_CURSOR_SIZENS);
             break;
         }
@@ -329,19 +329,19 @@ bool LLResizeBar::handleDoubleClick(S32 x, S32 y, MASK mask)
     {
         switch( mSide )
         {
-        case LEFT:
+        case Side::LEFT:
             mResizingView->findSnapEdge(scaled_rect.mLeft, LLCoordGL(0, 0), SNAP_LEFT, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
             scaled_rect.mLeft = scaled_rect.mRight - llclamp(scaled_rect.getWidth(), mMinSize, mMaxSize);
             break;
-        case TOP:
+        case Side::TOP:
             mResizingView->findSnapEdge(scaled_rect.mTop, LLCoordGL(0, 0), SNAP_TOP, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
             scaled_rect.mTop = scaled_rect.mBottom + llclamp(scaled_rect.getHeight(), mMinSize, mMaxSize);
             break;
-        case RIGHT:
+        case Side::RIGHT:
             mResizingView->findSnapEdge(scaled_rect.mRight, LLCoordGL(0, 0), SNAP_RIGHT, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
             scaled_rect.mRight = scaled_rect.mLeft + llclamp(scaled_rect.getWidth(), mMinSize, mMaxSize);
             break;
-        case BOTTOM:
+        case Side::BOTTOM:
             mResizingView->findSnapEdge(scaled_rect.mBottom, LLCoordGL(0, 0), SNAP_BOTTOM, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
             scaled_rect.mBottom = scaled_rect.mTop - llclamp(scaled_rect.getHeight(), mMinSize, mMaxSize);
             break;

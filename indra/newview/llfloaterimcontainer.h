@@ -68,7 +68,7 @@ public:
 
     /*virtual*/ void addFloater(LLFloater* floaterp,
                                 bool select_added_floater,
-                                LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
+                                LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::eInsertionPoint::END);
     void returnFloaterToHost();
     void showConversation(const LLUUID& session_id);
     void selectConversation(const LLUUID& session_id);

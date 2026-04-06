@@ -38,7 +38,7 @@ class LLFace;
 class LLCharacter;
 class LLTexLayerSet;
 
-enum EAvatarRenderPass
+enum class EAvatarRenderPass
 {
     AVATAR_RENDER_PASS_SINGLE,
     AVATAR_RENDER_PASS_CLOTHING_INNER,

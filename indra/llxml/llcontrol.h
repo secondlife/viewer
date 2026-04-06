@@ -76,7 +76,7 @@ public:
     // Signal args: (control, new_value, old_value) — NOTE: arg2 is NEW, arg3 is OLD
     using commit_signal_t = boost::signals2::signal<void(LLControlVariable* control, const LLSD& new_value, const LLSD& old_value)>;
 
-    enum ePersist
+    enum class ePersist
     {
         PERSIST_NO,                 // don't save this var
         PERSIST_NONDFT,             // save this var if differs from default
@@ -97,7 +97,7 @@ private:
 public:
     LLControlVariable(const std::string& name, eControlType type,
                       LLSD initial, const std::string& comment,
-                      ePersist persist = PERSIST_NONDFT, bool hidefromsettingseditor = false);
+                      ePersist persist = ePersist::PERSIST_NONDFT, bool hidefromsettingseditor = false);
 
     virtual ~LLControlVariable();
 
@@ -115,7 +115,7 @@ public:
 
     bool isDefault() const { return (mValues.size() == 1); }
     bool shouldSave(bool nondefault_only) const;
-    bool isPersisted() { return mPersist != PERSIST_NO; }
+    bool isPersisted() { return mPersist != ePersist::PERSIST_NO; }
     bool isHiddenFromSettingsEditor() { return mHideFromSettingsEditor; }
     LLSD get()          const   { return getValue(); }
     LLSD getValue()     const   { return mValues.back(); }
@@ -191,18 +191,18 @@ public:
     void applyToAll(ApplyFunctor* func);
 
     LLControlVariable* declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, bool hidefromsettingseditor = false);
-    LLControlVariable* declareU32(const std::string& name, U32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareS32(const std::string& name, S32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareF32(const std::string& name, F32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareBOOL(const std::string& name, bool initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareVec3(const std::string& name, const LLVector3 &initial_val,const std::string& comment,  LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareQuat(const std::string& name, const LLQuaternion &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
-    LLControlVariable* declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+    LLControlVariable* declareU32(const std::string& name, U32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareS32(const std::string& name, S32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareF32(const std::string& name, F32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareBOOL(const std::string& name, bool initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareVec3(const std::string& name, const LLVector3 &initial_val,const std::string& comment,  LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareQuat(const std::string& name, const LLQuaternion &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
 
     std::string getString(std::string_view name);
     std::string getText(std::string_view name);
@@ -359,7 +359,7 @@ private:
         init_value = convert_to_llsd(default_value);
         if(type < TYPE_COUNT)
         {
-            group.declareControl(name, type, init_value, comment, LLControlVariable::PERSIST_NO);
+            group.declareControl(name, type, init_value, comment, LLControlVariable::ePersist::PERSIST_NO);
             return true;
         }
         return false;

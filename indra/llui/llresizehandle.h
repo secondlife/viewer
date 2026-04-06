@@ -34,7 +34,7 @@
 class LLResizeHandle : public LLView
 {
 public:
-    enum ECorner { LEFT_TOP, LEFT_BOTTOM, RIGHT_TOP, RIGHT_BOTTOM };
+    enum class ECorner { LEFT_TOP, LEFT_BOTTOM, RIGHT_TOP, RIGHT_BOTTOM };
 
     struct Params : public LLInitParam::Block<Params, LLView::Params>
     {

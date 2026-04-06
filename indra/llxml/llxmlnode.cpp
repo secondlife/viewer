@@ -58,8 +58,8 @@ LLXMLNode::LLXMLNode() :
     mVersionMinor(0),
     mLength(0),
     mPrecision(64),
-    mType(TYPE_CONTAINER),
-    mEncoding(ENCODING_DEFAULT),
+    mType(ValueType::TYPE_CONTAINER),
+    mEncoding(Encoding::ENCODING_DEFAULT),
     mLineNumber(-1),
     mParent(NULL),
     mChildren(NULL),
@@ -80,8 +80,8 @@ LLXMLNode::LLXMLNode(const char* name, bool is_attribute) :
     mVersionMinor(0),
     mLength(0),
     mPrecision(64),
-    mType(TYPE_CONTAINER),
-    mEncoding(ENCODING_DEFAULT),
+    mType(ValueType::TYPE_CONTAINER),
+    mEncoding(Encoding::ENCODING_DEFAULT),
     mLineNumber(-1),
     mParent(NULL),
     mChildren(NULL),
@@ -102,8 +102,8 @@ LLXMLNode::LLXMLNode(LLStringTableEntry* name, bool is_attribute) :
     mVersionMinor(0),
     mLength(0),
     mPrecision(64),
-    mType(TYPE_CONTAINER),
-    mEncoding(ENCODING_DEFAULT),
+    mType(ValueType::TYPE_CONTAINER),
+    mEncoding(Encoding::ENCODING_DEFAULT),
     mLineNumber(-1),
     mParent(NULL),
     mChildren(NULL),
@@ -443,38 +443,38 @@ void XMLCALL StartXMLNode(void *userData,
         {
             if ("boolean" == attr_value)
             {
-                new_node->mType = LLXMLNode::TYPE_BOOLEAN;
+                new_node->mType = LLXMLNode::ValueType::TYPE_BOOLEAN;
             }
             else if ("integer" == attr_value)
             {
-                new_node->mType = LLXMLNode::TYPE_INTEGER;
+                new_node->mType = LLXMLNode::ValueType::TYPE_INTEGER;
             }
             else if ("float" == attr_value)
             {
-                new_node->mType = LLXMLNode::TYPE_FLOAT;
+                new_node->mType = LLXMLNode::ValueType::TYPE_FLOAT;
             }
             else if ("string" == attr_value)
             {
-                new_node->mType = LLXMLNode::TYPE_STRING;
+                new_node->mType = LLXMLNode::ValueType::TYPE_STRING;
             }
             else if ("uuid" == attr_value)
             {
-                new_node->mType = LLXMLNode::TYPE_UUID;
+                new_node->mType = LLXMLNode::ValueType::TYPE_UUID;
             }
             else if ("noderef" == attr_value)
             {
-                new_node->mType = LLXMLNode::TYPE_NODEREF;
+                new_node->mType = LLXMLNode::ValueType::TYPE_NODEREF;
             }
         }
         else if ('e' == attr_name[0] && "encoding" == attr_name)
         {
             if ("decimal" == attr_value)
             {
-                new_node->mEncoding = LLXMLNode::ENCODING_DECIMAL;
+                new_node->mEncoding = LLXMLNode::Encoding::ENCODING_DECIMAL;
             }
             else if ("hex" == attr_value)
             {
-                new_node->mEncoding = LLXMLNode::ENCODING_HEX;
+                new_node->mEncoding = LLXMLNode::Encoding::ENCODING_HEX;
             }
             /*else if (attr_value == "base32")
             {
@@ -928,22 +928,22 @@ void LLXMLNode::writeToOstream(std::ostream& output_stream, const std::string& i
         {
             switch (mType)
             {
-            case TYPE_BOOLEAN:
+            case ValueType::TYPE_BOOLEAN:
                 output_stream << indent << " type=\"boolean\"\n";
                 break;
-            case TYPE_INTEGER:
+            case ValueType::TYPE_INTEGER:
                 output_stream << indent << " type=\"integer\"\n";
                 break;
-            case TYPE_FLOAT:
+            case ValueType::TYPE_FLOAT:
                 output_stream << indent << " type=\"float\"\n";
                 break;
-            case TYPE_STRING:
+            case ValueType::TYPE_STRING:
                 output_stream << indent << " type=\"string\"\n";
                 break;
-            case TYPE_UUID:
+            case ValueType::TYPE_UUID:
                 output_stream << indent << " type=\"uuid\"\n";
                 break;
-            case TYPE_NODEREF:
+            case ValueType::TYPE_NODEREF:
                 output_stream << indent << " type=\"noderef\"\n";
                 break;
             default:
@@ -957,10 +957,10 @@ void LLXMLNode::writeToOstream(std::ostream& output_stream, const std::string& i
         {
             switch (mEncoding)
             {
-            case ENCODING_DECIMAL:
+            case Encoding::ENCODING_DECIMAL:
                 output_stream << indent << " encoding=\"decimal\"\n";
                 break;
-            case ENCODING_HEX:
+            case Encoding::ENCODING_HEX:
                 output_stream << indent << " encoding=\"hex\"\n";
                 break;
             /*case ENCODING_BASE32:
@@ -973,7 +973,7 @@ void LLXMLNode::writeToOstream(std::ostream& output_stream, const std::string& i
         }
 
         // Precision
-        if (!has_default_precision && (mType == TYPE_INTEGER || mType == TYPE_FLOAT))
+        if (!has_default_precision && (mType == ValueType::TYPE_INTEGER || mType == ValueType::TYPE_FLOAT))
         {
             output_stream << indent << " precision=\"" << mPrecision << "\"\n";
         }
@@ -1426,7 +1426,7 @@ const char *LLXMLNode::parseInteger(const char *str, U64 *dest, bool *is_negativ
 
     if (str[0] == 0) return NULL;
 
-    if (encoding == ENCODING_DECIMAL || encoding == ENCODING_DEFAULT)
+    if (encoding == Encoding::ENCODING_DECIMAL || encoding == Encoding::ENCODING_DEFAULT)
     {
         if (str[0] == '+')
         {
@@ -1457,7 +1457,7 @@ const char *LLXMLNode::parseInteger(const char *str, U64 *dest, bool *is_negativ
         *dest = ret;
         return str;
     }
-    if (encoding == ENCODING_HEX)
+    if (encoding == Encoding::ENCODING_HEX)
     {
         U64 ret = 0;
         str = skipWhitespace(str);
@@ -1520,7 +1520,7 @@ const char *LLXMLNode::parseFloat(const char *str, F64 *dest, U32 precision, Enc
 
     if (str[0] == 0) return NULL;
 
-    if (encoding == ENCODING_DECIMAL || encoding == ENCODING_DEFAULT)
+    if (encoding == Encoding::ENCODING_DECIMAL || encoding == Encoding::ENCODING_DEFAULT)
     {
         str = skipWhitespace(str);
 
@@ -1636,7 +1636,7 @@ const char *LLXMLNode::parseFloat(const char *str, F64 *dest, U32 precision, Enc
             ++str;
             U64 exp;
             bool is_negative;
-            str = parseInteger(str, &exp, &is_negative, 64, ENCODING_DECIMAL);
+            str = parseInteger(str, &exp, &is_negative, 64, Encoding::ENCODING_DECIMAL);
             if (str == NULL)
             {
                 exp = 1;
@@ -1656,11 +1656,11 @@ const char *LLXMLNode::parseFloat(const char *str, F64 *dest, U32 precision, Enc
             return str;
         }
     }
-    if (encoding == ENCODING_HEX)
+    if (encoding == Encoding::ENCODING_HEX)
     {
         U64 bytes_dest;
         bool is_negative;
-        str = parseInteger(str, (U64 *)&bytes_dest, &is_negative, precision, ENCODING_HEX);
+        str = parseInteger(str, (U64 *)&bytes_dest, &is_negative, precision, Encoding::ENCODING_HEX);
         // Upcast to F64
         switch (precision)
         {
@@ -1687,7 +1687,7 @@ U32 LLXMLNode::getBoolValue(U32 expected_length, bool *array)
     llassert(array);
 
     // Check type - accept booleans or strings
-    if (mType != TYPE_BOOLEAN && mType != TYPE_STRING && mType != TYPE_UNKNOWN)
+    if (mType != ValueType::TYPE_BOOLEAN && mType != ValueType::TYPE_STRING && mType != ValueType::TYPE_UNKNOWN)
     {
         return 0;
     }
@@ -1728,8 +1728,8 @@ U32 LLXMLNode::getByteValue(U32 expected_length, U8 *array, Encoding encoding)
     llassert(array);
 
     // Check type - accept bytes or integers (below 256 only)
-    if (mType != TYPE_INTEGER
-        && mType != TYPE_UNKNOWN)
+    if (mType != ValueType::TYPE_INTEGER
+        && mType != ValueType::TYPE_UNKNOWN)
     {
         return 0;
     }
@@ -1741,7 +1741,7 @@ U32 LLXMLNode::getByteValue(U32 expected_length, U8 *array, Encoding encoding)
         return 0;
     }
 
-    if (encoding == ENCODING_DEFAULT)
+    if (encoding == Encoding::ENCODING_DEFAULT)
     {
         encoding = mEncoding;
     }
@@ -1781,7 +1781,7 @@ U32 LLXMLNode::getIntValue(U32 expected_length, S32 *array, Encoding encoding)
     llassert(array);
 
     // Check type - accept bytes or integers
-    if (mType != TYPE_INTEGER && mType != TYPE_UNKNOWN)
+    if (mType != ValueType::TYPE_INTEGER && mType != ValueType::TYPE_UNKNOWN)
     {
         return 0;
     }
@@ -1793,7 +1793,7 @@ U32 LLXMLNode::getIntValue(U32 expected_length, S32 *array, Encoding encoding)
         return 0;
     }
 
-    if (encoding == ENCODING_DEFAULT)
+    if (encoding == Encoding::ENCODING_DEFAULT)
     {
         encoding = mEncoding;
     }
@@ -1834,7 +1834,7 @@ U32 LLXMLNode::getUnsignedValue(U32 expected_length, U32 *array, Encoding encodi
     llassert(array);
 
     // Check type - accept bytes or integers
-    if (mType != TYPE_INTEGER && mType != TYPE_UNKNOWN)
+    if (mType != ValueType::TYPE_INTEGER && mType != ValueType::TYPE_UNKNOWN)
     {
         return 0;
     }
@@ -1846,7 +1846,7 @@ U32 LLXMLNode::getUnsignedValue(U32 expected_length, U32 *array, Encoding encodi
         return 0;
     }
 
-    if (encoding == ENCODING_DEFAULT)
+    if (encoding == Encoding::ENCODING_DEFAULT)
     {
         encoding = mEncoding;
     }
@@ -1889,7 +1889,7 @@ U32 LLXMLNode::getLongValue(U32 expected_length, U64 *array, Encoding encoding)
     llassert(array);
 
     // Check type - accept bytes or integers
-    if (mType != TYPE_INTEGER && mType != TYPE_UNKNOWN)
+    if (mType != ValueType::TYPE_INTEGER && mType != ValueType::TYPE_UNKNOWN)
     {
         return 0;
     }
@@ -1900,7 +1900,7 @@ U32 LLXMLNode::getLongValue(U32 expected_length, U64 *array, Encoding encoding)
         return 0;
     }
 
-    if (encoding == ENCODING_DEFAULT)
+    if (encoding == Encoding::ENCODING_DEFAULT)
     {
         encoding = mEncoding;
     }
@@ -1943,7 +1943,7 @@ U32 LLXMLNode::getFloatValue(U32 expected_length, F32 *array, Encoding encoding)
     llassert(array);
 
     // Check type - accept only floats or doubles
-    if (mType != TYPE_FLOAT && mType != TYPE_UNKNOWN)
+    if (mType != ValueType::TYPE_FLOAT && mType != ValueType::TYPE_UNKNOWN)
     {
         return 0;
     }
@@ -1954,7 +1954,7 @@ U32 LLXMLNode::getFloatValue(U32 expected_length, F32 *array, Encoding encoding)
         return 0;
     }
 
-    if (encoding == ENCODING_DEFAULT)
+    if (encoding == Encoding::ENCODING_DEFAULT)
     {
         encoding = mEncoding;
     }
@@ -1988,7 +1988,7 @@ U32 LLXMLNode::getDoubleValue(U32 expected_length, F64 *array, Encoding encoding
     llassert(array);
 
     // Check type - accept only floats or doubles
-    if (mType != TYPE_FLOAT && mType != TYPE_UNKNOWN)
+    if (mType != ValueType::TYPE_FLOAT && mType != ValueType::TYPE_UNKNOWN)
     {
         return 0;
     }
@@ -1999,7 +1999,7 @@ U32 LLXMLNode::getDoubleValue(U32 expected_length, F64 *array, Encoding encoding
         return 0;
     }
 
-    if (encoding == ENCODING_DEFAULT)
+    if (encoding == Encoding::ENCODING_DEFAULT)
     {
         encoding = mEncoding;
     }
@@ -2082,7 +2082,7 @@ U32 LLXMLNode::getUUIDValue(U32 expected_length, LLUUID *array)
     llassert(array);
 
     // Check type
-    if (mType != TYPE_UUID && mType != TYPE_UNKNOWN)
+    if (mType != ValueType::TYPE_UUID && mType != ValueType::TYPE_UNKNOWN)
     {
         return 0;
     }
@@ -2126,7 +2126,7 @@ U32 LLXMLNode::getNodeRefValue(U32 expected_length, LLXMLNode **array)
     llassert(array);
 
     // Check type
-    if (mType != TYPE_NODEREF && mType != TYPE_UNKNOWN)
+    if (mType != ValueType::TYPE_NODEREF && mType != ValueType::TYPE_UNKNOWN)
     {
         return 0;
     }
@@ -2185,9 +2185,9 @@ void LLXMLNode::setBoolValue(U32 length, const bool *array)
     }
 
     mValue = new_value;
-    mEncoding = ENCODING_DEFAULT;
+    mEncoding = Encoding::ENCODING_DEFAULT;
     mLength = length;
-    mType = TYPE_BOOLEAN;
+    mType = ValueType::TYPE_BOOLEAN;
 }
 
 void LLXMLNode::setByteValue(U32 length, const U8* const array, Encoding encoding)
@@ -2195,7 +2195,7 @@ void LLXMLNode::setByteValue(U32 length, const U8* const array, Encoding encodin
     if (length == 0) return;
 
     std::string new_value;
-    if (encoding == ENCODING_DEFAULT || encoding == ENCODING_DECIMAL)
+    if (encoding == Encoding::ENCODING_DEFAULT || encoding == Encoding::ENCODING_DECIMAL)
     {
         for (U32 pos=0; pos<length; ++pos)
         {
@@ -2209,7 +2209,7 @@ void LLXMLNode::setByteValue(U32 length, const U8* const array, Encoding encodin
             }
         }
     }
-    if (encoding == ENCODING_HEX)
+    if (encoding == Encoding::ENCODING_HEX)
     {
         for (U32 pos=0; pos<length; ++pos)
         {
@@ -2228,7 +2228,7 @@ void LLXMLNode::setByteValue(U32 length, const U8* const array, Encoding encodin
     mValue = new_value;
     mEncoding = encoding;
     mLength = length;
-    mType = TYPE_INTEGER;
+    mType = ValueType::TYPE_INTEGER;
     mPrecision = 8;
 }
 
@@ -2238,7 +2238,7 @@ void LLXMLNode::setIntValue(U32 length, const S32 *array, Encoding encoding)
     if (length == 0) return;
 
     std::string new_value;
-    if (encoding == ENCODING_DEFAULT || encoding == ENCODING_DECIMAL)
+    if (encoding == Encoding::ENCODING_DEFAULT || encoding == Encoding::ENCODING_DECIMAL)
     {
         for (U32 pos=0; pos<length; ++pos)
         {
@@ -2253,7 +2253,7 @@ void LLXMLNode::setIntValue(U32 length, const S32 *array, Encoding encoding)
         }
         mValue = new_value;
     }
-    else if (encoding == ENCODING_HEX)
+    else if (encoding == Encoding::ENCODING_HEX)
     {
         for (U32 pos=0; pos<length; ++pos)
         {
@@ -2276,7 +2276,7 @@ void LLXMLNode::setIntValue(U32 length, const S32 *array, Encoding encoding)
 
     mEncoding = encoding;
     mLength = length;
-    mType = TYPE_INTEGER;
+    mType = ValueType::TYPE_INTEGER;
     mPrecision = 32;
 }
 
@@ -2285,7 +2285,7 @@ void LLXMLNode::setUnsignedValue(U32 length, const U32* array, Encoding encoding
     if (length == 0) return;
 
     std::string new_value;
-    if (encoding == ENCODING_DEFAULT || encoding == ENCODING_DECIMAL)
+    if (encoding == Encoding::ENCODING_DEFAULT || encoding == Encoding::ENCODING_DECIMAL)
     {
         for (U32 pos=0; pos<length; ++pos)
         {
@@ -2299,7 +2299,7 @@ void LLXMLNode::setUnsignedValue(U32 length, const U32* array, Encoding encoding
             }
         }
     }
-    if (encoding == ENCODING_HEX)
+    if (encoding == Encoding::ENCODING_HEX)
     {
         for (U32 pos=0; pos<length; ++pos)
         {
@@ -2319,7 +2319,7 @@ void LLXMLNode::setUnsignedValue(U32 length, const U32* array, Encoding encoding
     mValue = new_value;
     mEncoding = encoding;
     mLength = length;
-    mType = TYPE_INTEGER;
+    mType = ValueType::TYPE_INTEGER;
     mPrecision = 32;
 }
 
@@ -2334,7 +2334,7 @@ void LLXMLNode::setLongValue(U32 length, const U64* array, Encoding encoding)
     if (length == 0) return;
 
     std::string new_value;
-    if (encoding == ENCODING_DEFAULT || encoding == ENCODING_DECIMAL)
+    if (encoding == Encoding::ENCODING_DEFAULT || encoding == Encoding::ENCODING_DECIMAL)
     {
         for (U32 pos=0; pos<length; ++pos)
         {
@@ -2349,7 +2349,7 @@ void LLXMLNode::setLongValue(U32 length, const U64* array, Encoding encoding)
         }
         mValue = new_value;
     }
-    if (encoding == ENCODING_HEX)
+    if (encoding == Encoding::ENCODING_HEX)
     {
         for (U32 pos=0; pos<length; ++pos)
         {
@@ -2374,7 +2374,7 @@ void LLXMLNode::setLongValue(U32 length, const U64* array, Encoding encoding)
 
     mEncoding = encoding;
     mLength = length;
-    mType = TYPE_INTEGER;
+    mType = ValueType::TYPE_INTEGER;
     mPrecision = 64;
 }
 
@@ -2383,7 +2383,7 @@ void LLXMLNode::setFloatValue(U32 length, const F32 *array, Encoding encoding, U
     if (length == 0) return;
 
     std::string new_value;
-    if (encoding == ENCODING_DEFAULT || encoding == ENCODING_DECIMAL)
+    if (encoding == Encoding::ENCODING_DEFAULT || encoding == Encoding::ENCODING_DECIMAL)
     {
         std::string format_string;
         if (precision > 0)
@@ -2413,10 +2413,10 @@ void LLXMLNode::setFloatValue(U32 length, const F32 *array, Encoding encoding, U
         }
         mValue = new_value;
     }
-    else if (encoding == ENCODING_HEX)
+    else if (encoding == Encoding::ENCODING_HEX)
     {
         U32 *byte_array = (U32 *)array;
-        setUnsignedValue(length, byte_array, ENCODING_HEX);
+        setUnsignedValue(length, byte_array, Encoding::ENCODING_HEX);
     }
     else
     {
@@ -2425,7 +2425,7 @@ void LLXMLNode::setFloatValue(U32 length, const F32 *array, Encoding encoding, U
 
     mEncoding = encoding;
     mLength = length;
-    mType = TYPE_FLOAT;
+    mType = ValueType::TYPE_FLOAT;
     mPrecision = 32;
 }
 
@@ -2434,7 +2434,7 @@ void LLXMLNode::setDoubleValue(U32 length, const F64 *array, Encoding encoding, 
     if (length == 0) return;
 
     std::string new_value;
-    if (encoding == ENCODING_DEFAULT || encoding == ENCODING_DECIMAL)
+    if (encoding == Encoding::ENCODING_DEFAULT || encoding == Encoding::ENCODING_DECIMAL)
     {
         std::string format_string;
         if (precision > 0)
@@ -2463,10 +2463,10 @@ void LLXMLNode::setDoubleValue(U32 length, const F64 *array, Encoding encoding, 
         }
         mValue = new_value;
     }
-    if (encoding == ENCODING_HEX)
+    if (encoding == Encoding::ENCODING_HEX)
     {
         U64 *byte_array = (U64 *)array;
-        setLongValue(length, byte_array, ENCODING_HEX);
+        setLongValue(length, byte_array, Encoding::ENCODING_HEX);
     }
     else
     {
@@ -2476,7 +2476,7 @@ void LLXMLNode::setDoubleValue(U32 length, const F64 *array, Encoding encoding, 
 
     mEncoding = encoding;
     mLength = length;
-    mType = TYPE_FLOAT;
+    mType = ValueType::TYPE_FLOAT;
     mPrecision = 64;
 }
 
@@ -2513,9 +2513,9 @@ void LLXMLNode::setStringValue(U32 length, const std::string *strings)
     }
 
     mValue = new_value;
-    mEncoding = ENCODING_DEFAULT;
+    mEncoding = Encoding::ENCODING_DEFAULT;
     mLength = length;
-    mType = TYPE_STRING;
+    mType = ValueType::TYPE_STRING;
 }
 
 void LLXMLNode::setUUIDValue(U32 length, const LLUUID *array)
@@ -2530,9 +2530,9 @@ void LLXMLNode::setUUIDValue(U32 length, const LLUUID *array)
     }
 
     mValue = new_value;
-    mEncoding = ENCODING_DEFAULT;
+    mEncoding = Encoding::ENCODING_DEFAULT;
     mLength = length;
-    mType = TYPE_UUID;
+    mType = ValueType::TYPE_UUID;
 }
 
 void LLXMLNode::setNodeRefValue(U32 length, const LLXMLNode **array)
@@ -2554,16 +2554,16 @@ void LLXMLNode::setNodeRefValue(U32 length, const LLXMLNode **array)
     }
 
     mValue = new_value;
-    mEncoding = ENCODING_DEFAULT;
+    mEncoding = Encoding::ENCODING_DEFAULT;
     mLength = length;
-    mType = TYPE_NODEREF;
+    mType = ValueType::TYPE_NODEREF;
 }
 
 void LLXMLNode::setValue(const std::string& value)
 {
-    if (TYPE_CONTAINER == mType)
+    if (ValueType::TYPE_CONTAINER == mType)
     {
-        mType = TYPE_UNKNOWN;
+        mType = ValueType::TYPE_UNKNOWN;
     }
     mValue = value;
 }
@@ -2776,13 +2776,13 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
         U32 array_size = get_rand(28)+1;
 
         // Random Encoding
-        Encoding new_encoding = get_rand(2)?ENCODING_DECIMAL:ENCODING_HEX;
+        Encoding new_encoding = get_rand(2)?Encoding::ENCODING_DECIMAL:Encoding::ENCODING_HEX;
 
         // Random Type
         int type = get_rand(8);
         switch (type)
         {
-        case 0: // TYPE_CONTAINER
+        case 0: // ValueType::TYPE_CONTAINER
             new_child->createUnitTest(max_num_children/2);
             break;
         case 1: // TYPE_BOOLEAN
@@ -2875,7 +2875,7 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
                 new_child->setUUIDValue(array_size, random_uuid_values.data());
             }
             break;
-        case 7: // TYPE_NODEREF
+        case 7: // ValueType::TYPE_NODEREF
             {
                 std::array<LLXMLNode*, 30> random_node_array;
                 LLXMLNode *root = getRoot();
@@ -2895,12 +2895,12 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
         }
     }
 
-    createChild("integer_checksum", true)->setUnsignedValue(1, &integer_checksum, LLXMLNode::ENCODING_HEX);
-    createChild("long_checksum", true)->setLongValue(1, &long_checksum, LLXMLNode::ENCODING_HEX);
-    createChild("bool_true_count", true)->setUnsignedValue(1, &bool_true_count, LLXMLNode::ENCODING_HEX);
+    createChild("integer_checksum", true)->setUnsignedValue(1, &integer_checksum, LLXMLNode::Encoding::ENCODING_HEX);
+    createChild("long_checksum", true)->setLongValue(1, &long_checksum, LLXMLNode::Encoding::ENCODING_HEX);
+    createChild("bool_true_count", true)->setUnsignedValue(1, &bool_true_count, LLXMLNode::Encoding::ENCODING_HEX);
     createChild("uuid_checksum", true)->setUUIDValue(1, &uuid_checksum);
-    createChild("noderef_checksum", true)->setUnsignedValue(1, &noderef_checksum, LLXMLNode::ENCODING_HEX);
-    createChild("float_checksum", true)->setUnsignedValue(1, &float_checksum, LLXMLNode::ENCODING_HEX);
+    createChild("noderef_checksum", true)->setUnsignedValue(1, &noderef_checksum, LLXMLNode::Encoding::ENCODING_HEX);
+    createChild("float_checksum", true)->setUnsignedValue(1, &float_checksum, LLXMLNode::Encoding::ENCODING_HEX);
 }
 
 bool LLXMLNode::performUnitTest(std::string &error_buffer)
@@ -2927,7 +2927,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
         {
             continue;
         }
-        if (node->mType == TYPE_CONTAINER)
+        if (node->mType == ValueType::TYPE_CONTAINER)
         {
             if (!node->performUnitTest(error_buffer))
             {
@@ -2943,10 +2943,10 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
         }
         switch (node->mType)
         {
-        case TYPE_CONTAINER:
-        case TYPE_UNKNOWN:
+        case ValueType::TYPE_CONTAINER:
+        case ValueType::TYPE_UNKNOWN:
             break;
-        case TYPE_BOOLEAN:
+        case ValueType::TYPE_BOOLEAN:
             {
                 std::array<bool, 30> bool_array;
                 if (node->getBoolValue(node->mLength, bool_array.data()) < node->mLength)
@@ -2963,7 +2963,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                 }
             }
             break;
-        case TYPE_INTEGER:
+        case ValueType::TYPE_INTEGER:
             {
                 if (node->mPrecision == 32)
                 {
@@ -2993,7 +2993,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                 }
             }
             break;
-        case TYPE_FLOAT:
+        case ValueType::TYPE_FLOAT:
             {
                 if (node->mPrecision == 32)
                 {
@@ -3025,9 +3025,9 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                 }
             }
             break;
-        case TYPE_STRING:
+        case ValueType::TYPE_STRING:
             break;
-        case TYPE_UUID:
+        case ValueType::TYPE_UUID:
             {
                 std::array<LLUUID, 30> uuid_array;
                 if (node->getUUIDValue(node->mLength, uuid_array.data()) < node->mLength)
@@ -3044,7 +3044,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                 }
             }
             break;
-        case TYPE_NODEREF:
+        case ValueType::TYPE_NODEREF:
             {
                 std::array<LLXMLNode*, 30> node_array;
                 if (node->getNodeRefValue(node->mLength, node_array.data()) < node->mLength)
@@ -3072,7 +3072,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
     {
         U32 node_integer_checksum = 0;
         if (!getAttribute("integer_checksum", checksum_node, false) ||
-            checksum_node->getUnsignedValue(1, &node_integer_checksum, ENCODING_HEX) != 1)
+            checksum_node->getUnsignedValue(1, &node_integer_checksum, Encoding::ENCODING_HEX) != 1)
         {
             error_buffer.append(llformat("ERROR Node %s: Integer checksum missing.\n", mName->mString));
             return false;
@@ -3087,7 +3087,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
     {
         U64 node_long_checksum = 0;
         if (!getAttribute("long_checksum", checksum_node, false) ||
-            checksum_node->getLongValue(1, &node_long_checksum, ENCODING_HEX) != 1)
+            checksum_node->getLongValue(1, &node_long_checksum, Encoding::ENCODING_HEX) != 1)
         {
             error_buffer.append(llformat("ERROR Node %s: Long Integer checksum missing.\n", mName->mString));
             return false;
@@ -3104,7 +3104,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
     {
         U32 node_bool_true_count = 0;
         if (!getAttribute("bool_true_count", checksum_node, false) ||
-            checksum_node->getUnsignedValue(1, &node_bool_true_count, ENCODING_HEX) != 1)
+            checksum_node->getUnsignedValue(1, &node_bool_true_count, Encoding::ENCODING_HEX) != 1)
         {
             error_buffer.append(llformat("ERROR Node %s: Boolean checksum missing.\n", mName->mString));
             return false;
@@ -3134,7 +3134,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
     {
         U32 node_noderef_checksum = 0;
         if (!getAttribute("noderef_checksum", checksum_node, false) ||
-            checksum_node->getUnsignedValue(1, &node_noderef_checksum, ENCODING_HEX) != 1)
+            checksum_node->getUnsignedValue(1, &node_noderef_checksum, Encoding::ENCODING_HEX) != 1)
         {
             error_buffer.append(llformat("ERROR Node %s: Node Ref checksum missing.\n", mName->mString));
             return false;
@@ -3149,7 +3149,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
     {
         U32 node_float_checksum = 0;
         if (!getAttribute("float_checksum", checksum_node, false) ||
-            checksum_node->getUnsignedValue(1, &node_float_checksum, ENCODING_HEX) != 1)
+            checksum_node->getUnsignedValue(1, &node_float_checksum, Encoding::ENCODING_HEX) != 1)
         {
             error_buffer.append(llformat("ERROR Node %s: Float checksum missing.\n", mName->mString));
             return false;

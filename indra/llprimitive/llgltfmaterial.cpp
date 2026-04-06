@@ -76,7 +76,7 @@ LLGLTFMaterial::LLGLTFMaterial()
     }
 #if 0
     mLocalTexDataDigest = 0;
-    mAlphaMode = ALPHA_MODE_OPAQUE;    // This is 0
+    mAlphaMode = AlphaMode::ALPHA_MODE_OPAQUE;    // This is 0
     mOverrideDoubleSided = mOverrideAlphaMode = false;
 #endif
 }
@@ -483,14 +483,14 @@ void LLGLTFMaterial::setRoughnessFactor(F32 roughness, bool for_override)
 
 void LLGLTFMaterial::setAlphaMode(const std::string& mode, bool for_override)
 {
-    S32 m = getDefaultAlphaMode();
+    S32 m = static_cast<S32>(getDefaultAlphaMode());
     if (mode == "MASK")
     {
-        m = ALPHA_MODE_MASK;
+        m = static_cast<S32>(AlphaMode::ALPHA_MODE_MASK);
     }
     else if (mode == "BLEND")
     {
-        m = ALPHA_MODE_BLEND;
+        m = static_cast<S32>(AlphaMode::ALPHA_MODE_BLEND);
     }
 
     setAlphaMode(m, for_override);
@@ -500,15 +500,15 @@ const char* LLGLTFMaterial::getAlphaMode() const
 {
     switch (mAlphaMode)
     {
-    case ALPHA_MODE_MASK: return "MASK";
-    case ALPHA_MODE_BLEND: return "BLEND";
+    case AlphaMode::ALPHA_MODE_MASK: return "MASK";
+    case AlphaMode::ALPHA_MODE_BLEND: return "BLEND";
     default: return "OPAQUE";
     }
 }
 
 void LLGLTFMaterial::setAlphaMode(S32 mode, bool for_override)
 {
-    mAlphaMode = (AlphaMode) llclamp(mode, (S32) ALPHA_MODE_OPAQUE, (S32) ALPHA_MODE_MASK);
+    mAlphaMode = static_cast<AlphaMode>(llclamp(mode, static_cast<S32>(AlphaMode::ALPHA_MODE_OPAQUE), static_cast<S32>(AlphaMode::ALPHA_MODE_MASK)));
     mOverrideAlphaMode = for_override && mAlphaMode == getDefaultAlphaMode();
 }
 
@@ -545,9 +545,9 @@ F32 LLGLTFMaterial::getDefaultAlphaCutoff()
     return sDefault.mAlphaCutoff;
 }
 
-S32 LLGLTFMaterial::getDefaultAlphaMode()
+LLGLTFMaterial::AlphaMode LLGLTFMaterial::getDefaultAlphaMode()
 {
-    return (S32) sDefault.mAlphaMode;
+    return sDefault.mAlphaMode;
 }
 
 F32 LLGLTFMaterial::getDefaultMetallicFactor()
@@ -717,7 +717,7 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
 
     if (override_mat.mAlphaMode != getDefaultAlphaMode() || override_mat.mOverrideAlphaMode)
     {
-        data["am"] = override_mat.mAlphaMode;
+        data["am"] = static_cast<S32>(override_mat.mAlphaMode);
     }
 
     if (override_mat.mAlphaCutoff != getDefaultAlphaCutoff())
@@ -809,7 +809,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& am = data["am"];
     if (am.isInteger())
     {
-        mAlphaMode = (AlphaMode) am.asInteger();
+        mAlphaMode = static_cast<AlphaMode>(am.asInteger());
         mOverrideAlphaMode = true;
     }
 

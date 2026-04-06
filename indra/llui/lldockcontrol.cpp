@@ -170,10 +170,10 @@ bool LLDockControl::isDockVisible() const
 
             switch (mDockAt)
             {
-            case LEFT: // to keep compiler happy
+            case DocAt::LEFT: // to keep compiler happy
                 break;
-            case BOTTOM:
-            case TOP:
+            case DocAt::BOTTOM:
+            case DocAt::TOP:
             {
                 // check is dock inside parent rect
                 // assume that parent for all dockable floaters
@@ -217,7 +217,7 @@ void LLDockControl::moveDockable()
     LLRect dockParentRect;
     switch (mDockAt)
     {
-    case LEFT:
+    case DocAt::LEFT:
 
         x = dockRect.mLeft - dockableRect.getWidth();
         y = dockRect.getCenterY() + dockableRect.getHeight() / 2;
@@ -232,7 +232,7 @@ void LLDockControl::moveDockable()
 
         break;
 
-    case RIGHT:
+    case DocAt::RIGHT:
 
         x = dockRect.mRight;
         y = dockRect.getCenterY() + dockableRect.getHeight() / 2;
@@ -247,7 +247,7 @@ void LLDockControl::moveDockable()
 
         break;
 
-    case TOP:
+    case DocAt::TOP:
         x = dockRect.getCenterX() - dockableRect.getWidth() / 2;
         y = dockRect.mTop + dockableRect.getHeight();
         // unique docking used with dock tongue, so add tongue height to the Y coordinate
@@ -289,7 +289,7 @@ void LLDockControl::moveDockable()
         mDockTongueY = dockRect.mTop;
 
         break;
-    case BOTTOM:
+    case DocAt::BOTTOM:
         x = dockRect.getCenterX() - dockableRect.getWidth() / 2;
         y = dockRect.mBottom;
         // unique docking used with dock tongue, so add tongue height to the Y coordinate

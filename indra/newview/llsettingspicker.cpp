@@ -323,19 +323,19 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
 
     if (mTrackMode == TRACK_WATER)
     {
-        track_selection->add(getString(STR_TRACK_WATER), LLSD::Integer(LLSettingsDay::TRACK_WATER), ADD_TOP, true);
+        track_selection->add(getString(STR_TRACK_WATER), LLSD::Integer(LLSettingsDay::TRACK_WATER), EAddPosition::ADD_TOP, true);
     }
     else if (mTrackMode == TRACK_SKY)
     {
         // track 1 always present
-        track_selection->add(getString(STR_TRACK_GROUND), LLSD::Integer(LLSettingsDay::TRACK_GROUND_LEVEL), ADD_TOP, true);
+        track_selection->add(getString(STR_TRACK_GROUND), LLSD::Integer(LLSettingsDay::TRACK_GROUND_LEVEL), EAddPosition::ADD_TOP, true);
         LLUIString formatted_label = getString(STR_TRACK_SKY);
         for (U32 i = 2; i < LLSettingsDay::TRACK_MAX; i++)
         {
             if (!pday->isTrackEmpty(i))
             {
                 formatted_label.setArg("[NUM]", llformat("%d", i));
-                track_selection->add(formatted_label.getString(), LLSD::Integer(i), ADD_TOP, true);
+                track_selection->add(formatted_label.getString(), LLSD::Integer(i), EAddPosition::ADD_TOP, true);
             }
         }
     }

@@ -48,7 +48,7 @@ protected:
         LLFloaterIMNearbyChatToastPanel()
         :
     mIsDirty(false),
-    mSourceType(CHAT_SOURCE_OBJECT)
+    mSourceType(EChatSourceType::CHAT_SOURCE_OBJECT)
     {};
 public:
     ~LLFloaterIMNearbyChatToastPanel() = default;

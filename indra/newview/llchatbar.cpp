@@ -149,13 +149,13 @@ bool LLChatBar::handleKeyHere( KEY key, MASK mask )
         if (mask == MASK_CONTROL)
         {
             // shout
-            sendChat(CHAT_TYPE_SHOUT);
+            sendChat(EChatType::CHAT_TYPE_SHOUT);
             handled = true;
         }
         else if (mask == MASK_NONE)
         {
             // say
-            sendChat( CHAT_TYPE_NORMAL );
+            sendChat( EChatType::CHAT_TYPE_NORMAL );
             handled = true;
         }
     }
@@ -226,8 +226,8 @@ void LLChatBar::refreshGestures()
 
         mGestureCombo->sortByName();
         // Insert label after sorting, at top, with separator below it
-        mGestureCombo->addSeparator(ADD_TOP);
-        mGestureCombo->addSimpleElement(getString("gesture_label"), ADD_TOP);
+        mGestureCombo->addSeparator(EAddPosition::ADD_TOP);
+        mGestureCombo->addSimpleElement(getString("gesture_label"), EAddPosition::ADD_TOP);
 
         if (!cur_gesture.empty())
         {
@@ -548,14 +548,14 @@ void LLChatBar::onInputEditorGainFocus()
 void LLChatBar::onClickSay( LLUICtrl* ctrl )
 {
     std::string cmd = ctrl->getValue().asString();
-    EChatType chat_type = CHAT_TYPE_NORMAL;
+    EChatType chat_type = EChatType::CHAT_TYPE_NORMAL;
     if (cmd == "shout")
     {
-        chat_type = CHAT_TYPE_SHOUT;
+        chat_type = EChatType::CHAT_TYPE_SHOUT;
     }
     else if (cmd == "whisper")
     {
-        chat_type = CHAT_TYPE_WHISPER;
+        chat_type = EChatType::CHAT_TYPE_WHISPER;
     }
     sendChat(chat_type);
 }
@@ -590,17 +590,17 @@ void LLChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type, bool 
     // Don't animate for chats people can't hear (chat to scripts)
     if (animate && (channel == 0))
     {
-        if (type == CHAT_TYPE_WHISPER)
+        if (type == EChatType::CHAT_TYPE_WHISPER)
         {
             LL_DEBUGS() << "You whisper " << utf8_text << LL_ENDL;
             gAgent.sendAnimationRequest(ANIM_AGENT_WHISPER, ANIM_REQUEST_START);
         }
-        else if (type == CHAT_TYPE_NORMAL)
+        else if (type == EChatType::CHAT_TYPE_NORMAL)
         {
             LL_DEBUGS() << "You say " << utf8_text << LL_ENDL;
             gAgent.sendAnimationRequest(ANIM_AGENT_TALK, ANIM_REQUEST_START);
         }
-        else if (type == CHAT_TYPE_SHOUT)
+        else if (type == EChatType::CHAT_TYPE_SHOUT)
         {
             LL_DEBUGS() << "You shout " << utf8_text << LL_ENDL;
             gAgent.sendAnimationRequest(ANIM_AGENT_SHOUT, ANIM_REQUEST_START);
@@ -613,7 +613,7 @@ void LLChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type, bool 
     }
     else
     {
-        if (type != CHAT_TYPE_START && type != CHAT_TYPE_STOP)
+        if (type != EChatType::CHAT_TYPE_START && type != EChatType::CHAT_TYPE_STOP)
         {
             LL_DEBUGS() << "Channel chat: " << utf8_text << LL_ENDL;
         }
@@ -644,7 +644,7 @@ void LLChatBar::onCommitGesture(LLUICtrl* ctrl)
         if (!revised_text.empty())
         {
             // Don't play nodding animation
-            sendChatFromViewer(revised_text, CHAT_TYPE_NORMAL, false);
+            sendChatFromViewer(revised_text, EChatType::CHAT_TYPE_NORMAL, false);
         }
     }
     mGestureLabelTimer.start();

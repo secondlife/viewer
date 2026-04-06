@@ -37,7 +37,7 @@ class LLConsole : public LLFixedBuffer, public LLUICtrl, public LLInstanceTracke
 {
 public:
 
-    enum EFontSize
+    enum class EFontSize
     {
         MONOSPACE = -1,
         SMALL = 0,

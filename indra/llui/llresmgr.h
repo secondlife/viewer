@@ -32,7 +32,7 @@
 #include "llstring.h"
 #include "llsingleton.h"
 
-enum LLLOCALE_ID
+enum class LLLOCALE_ID
 {
     LLLOCALE_USA,
     LLLOCALE_UK,

@@ -218,13 +218,13 @@ LLMessageConfig::Flavor LLMessageConfig::getServerDefaultFlavor()
     LLMessageConfigFile& file = LLMessageConfigFile::instance();
     if (file.mServerDefault == "llsd")
     {
-        return LLSD_FLAVOR;
+        return Flavor::LLSD_FLAVOR;
     }
     if (file.mServerDefault == "template")
     {
-        return TEMPLATE_FLAVOR;
+        return Flavor::TEMPLATE_FLAVOR;
     }
-    return NO_FLAVOR;
+    return Flavor::NO_FLAVOR;
 }
 
 //static
@@ -241,13 +241,13 @@ LLMessageConfig::Flavor LLMessageConfig::getMessageFlavor(const std::string& msg
     LLSD config = file.mMessages[msg_name];
     if (config["flavor"].asString() == "llsd")
     {
-        return LLSD_FLAVOR;
+        return Flavor::LLSD_FLAVOR;
     }
     if (config["flavor"].asString() == "template")
     {
-        return TEMPLATE_FLAVOR;
+        return Flavor::TEMPLATE_FLAVOR;
     }
-    return NO_FLAVOR;
+    return Flavor::NO_FLAVOR;
 }
 
 //static
@@ -258,9 +258,9 @@ LLMessageConfig::SenderTrust LLMessageConfig::getSenderTrustedness(
     LLSD config = file.mMessages[msg_name];
     if (config.has("trusted-sender"))
     {
-        return config["trusted-sender"].asBoolean() ? TRUSTED : UNTRUSTED;
+        return config["trusted-sender"].asBoolean() ? SenderTrust::TRUSTED : SenderTrust::UNTRUSTED;
     }
-    return NOT_SET;
+    return SenderTrust::NOT_SET;
 }
 
 //static

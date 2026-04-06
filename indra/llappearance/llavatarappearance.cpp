@@ -997,7 +997,7 @@ bool LLAvatarAppearance::loadAvatar()
         if (driver_param->setInfo(info))
         {
             addVisualParam( driver_param );
-            driver_param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
+            driver_param->setParamLocation(isSelf() ? EParamLocation::LOC_AV_SELF : EParamLocation::LOC_AV_OTHER);
             if( !driver_param->linkDrivenParams([this](S32 id) -> LLVisualParam* { return getVisualParam(id); }, false))
             {
                 LL_WARNS() << "could not link driven params for avatar " << getID().asString() << " param id: " << driver_param->getID() << LL_ENDL;
@@ -1067,7 +1067,7 @@ bool LLAvatarAppearance::loadSkeletonNode ()
             else
             {
                 addVisualParam(param);
-                param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
+                param->setParamLocation(isSelf() ? EParamLocation::LOC_AV_SELF : EParamLocation::LOC_AV_OTHER);
             }
         }
     }
@@ -1178,12 +1178,12 @@ bool LLAvatarAppearance::loadMeshNodes()
                 if (info_pair.second)
                 {
                     addSharedVisualParam(param);
-                    param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
+                    param->setParamLocation(isSelf() ? EParamLocation::LOC_AV_SELF : EParamLocation::LOC_AV_OTHER);
                 }
                 else
                 {
                     addVisualParam(param);
-                    param->setParamLocation(isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
+                    param->setParamLocation(isSelf() ? EParamLocation::LOC_AV_SELF : EParamLocation::LOC_AV_OTHER);
                 }
             }
         }

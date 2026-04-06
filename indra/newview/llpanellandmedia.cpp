@@ -206,7 +206,7 @@ void LLPanelLandMedia::populateMIMECombo()
         }
     }
 
-    mMediaTypeCombo->add( default_label, default_mime_type, ADD_BOTTOM );
+    mMediaTypeCombo->add( default_label, default_mime_type, EAddPosition::ADD_BOTTOM );
 }
 
 void LLPanelLandMedia::setMediaType(const std::string& mime_type)

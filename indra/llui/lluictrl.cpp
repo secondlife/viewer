@@ -121,7 +121,7 @@ LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
     mRightMouseDownSignal(NULL),
     mRightMouseUpSignal(NULL),
     mDoubleClickSignal(NULL),
-    mTransparencyType(TT_DEFAULT)
+    mTransparencyType(ETypeTransparency::TT_DEFAULT)
 {
 }
 
@@ -1051,19 +1051,19 @@ F32 LLUICtrl::getCurrentTransparency()
 
     switch(mTransparencyType)
     {
-    case TT_DEFAULT:
+    case ETypeTransparency::TT_DEFAULT:
         alpha = getDrawContext().mAlpha;
         break;
 
-    case TT_ACTIVE:
+    case ETypeTransparency::TT_ACTIVE:
         alpha = sActiveControlTransparency;
         break;
 
-    case TT_INACTIVE:
+    case ETypeTransparency::TT_INACTIVE:
         alpha = sInactiveControlTransparency;
         break;
 
-    case TT_FADING:
+    case ETypeTransparency::TT_FADING:
         alpha = sInactiveControlTransparency / 2;
         break;
     }

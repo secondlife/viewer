@@ -79,7 +79,7 @@ const char* LLMediaEntry::PERMS_CONTROL_KEY     = MEDIA_PERMS_CONTROL_KEY_STR;
 // Constructor(s)
 LLMediaEntry::LLMediaEntry() :
     mAltImageEnable(false),
-    mControls(STANDARD),
+    mControls(MediaControls::STANDARD),
     mCurrentURL(""),
     mHomeURL(""),
     mAutoLoop(false),
@@ -144,7 +144,7 @@ void LLMediaEntry::asLLSD(LLSD& sd) const
 {
     // "general" fields
     sd[ALT_IMAGE_ENABLE_KEY] = mAltImageEnable;
-    sd[CONTROLS_KEY] = (LLSD::Integer)mControls;
+    sd[CONTROLS_KEY] = static_cast<LLSD::Integer>(mControls);
     sd[CURRENT_URL_KEY] = mCurrentURL;
     sd[HOME_URL_KEY] = mHomeURL;
     sd[AUTO_LOOP_KEY] = mAutoLoop;
@@ -203,7 +203,7 @@ bool LLMediaEntry::fromLLSDInternal(const LLSD& sd, bool overwrite)
     }
     if ( overwrite || sd.has(CONTROLS_KEY) )
     {
-        status |= setControls( (MediaControls)(LLSD::Integer)sd[CONTROLS_KEY] );
+        status |= setControls( static_cast<MediaControls>(static_cast<LLSD::Integer>(sd[CONTROLS_KEY])) );
     }
     if ( overwrite || sd.has(CURRENT_URL_KEY) )
     {
@@ -525,8 +525,8 @@ U32 LLMediaEntry::setStringFieldWithLimit( std::string &field, const std::string
 
 U32 LLMediaEntry::setControls(LLMediaEntry::MediaControls controls)
 {
-    if (controls == STANDARD ||
-        controls == MINI)
+    if (controls == MediaControls::STANDARD ||
+        controls == MediaControls::MINI)
     {
         mControls = controls;
         return LSL_STATUS_OK;

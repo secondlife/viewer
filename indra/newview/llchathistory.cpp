@@ -119,7 +119,7 @@ public:
         mPopupMenuHandleAvatar(),
         mPopupMenuHandleObject(),
         mAvatarID(),
-        mSourceType(CHAT_SOURCE_UNKNOWN),
+        mSourceType(EChatSourceType::CHAT_SOURCE_UNKNOWN),
         mFrom(),
         mSessionID(),
         mCreationTime(time_corrected()),
@@ -653,13 +653,13 @@ public:
 
     void showInspector()
     {
-        if (mAvatarID.isNull() && CHAT_SOURCE_SYSTEM != mSourceType && CHAT_SOURCE_REGION != mSourceType) return;
+        if (mAvatarID.isNull() && EChatSourceType::CHAT_SOURCE_SYSTEM != mSourceType && EChatSourceType::CHAT_SOURCE_REGION != mSourceType) return;
 
-        if (mSourceType == CHAT_SOURCE_OBJECT)
+        if (mSourceType == EChatSourceType::CHAT_SOURCE_OBJECT)
         {
             LLFloaterReg::showInstance("inspect_remote_object", mObjectData);
         }
-        else if (mSourceType == CHAT_SOURCE_AGENT)
+        else if (mSourceType == EChatSourceType::CHAT_SOURCE_AGENT)
         {
             LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mAvatarID));
         }
@@ -694,7 +694,7 @@ public:
         //*TODO overly defensive thing, source type should be maintained out there
         if((chat.mFromID.isNull() && chat.mFromName.empty()) || (chat.mFromName == SYSTEM_FROM && chat.mFromID.isNull()))
         {
-            mSourceType = CHAT_SOURCE_SYSTEM;
+            mSourceType = EChatSourceType::CHAT_SOURCE_SYSTEM;
         }
 
         mUserNameFont = style_params.font();
@@ -707,8 +707,8 @@ public:
         user_name->setReadOnlyColor(style_params.readonly_color());
         user_name->setColor(style_params.color());
 
-        if (mSourceType == CHAT_SOURCE_TELEPORT
-            && chat.mChatStyle == CHAT_STYLE_TELEPORT_SEP)
+        if (mSourceType == EChatSourceType::CHAT_SOURCE_TELEPORT
+            && chat.mChatStyle == EChatStyle::CHAT_STYLE_TELEPORT_SEP)
         {
             mFrom = chat.mFromName;
             mNeedsTimeBox = false;
@@ -719,7 +719,7 @@ public:
             mTimeBoxTextBox->setVisible(false);
         }
         else if (chat.mFromName.empty()
-                 || mSourceType == CHAT_SOURCE_SYSTEM)
+                 || mSourceType == EChatSourceType::CHAT_SOURCE_SYSTEM)
         {
             mFrom = LLTrans::getString("SECOND_LIFE");
             if(!chat.mFromName.empty() && (mFrom != chat.mFromName))
@@ -729,9 +729,9 @@ public:
             user_name->setValue(mFrom);
             updateMinUserNameWidth();
         }
-        else if (mSourceType == CHAT_SOURCE_AGENT
+        else if (mSourceType == EChatSourceType::CHAT_SOURCE_AGENT
                  && !mAvatarID.isNull()
-                 && chat.mChatStyle != CHAT_STYLE_HISTORY)
+                 && chat.mChatStyle != EChatStyle::CHAT_STYLE_HISTORY)
         {
             // ...from a normal user, lookup the name and fill in later.
             // *NOTE: Do not do this for chat history logs, otherwise the viewer
@@ -742,8 +742,8 @@ public:
             user_name->setValue( LLSD() );
             fetchAvatarName();
         }
-        else if (chat.mChatStyle == CHAT_STYLE_HISTORY ||
-                 mSourceType == CHAT_SOURCE_AGENT)
+        else if (chat.mChatStyle == EChatStyle::CHAT_STYLE_HISTORY ||
+                 mSourceType == EChatSourceType::CHAT_SOURCE_AGENT)
         {
             //if it's an avatar name with a username add formatting
             auto username_start = chat.mFromName.rfind(" (");
@@ -789,31 +789,31 @@ public:
         // Set up the icon.
         LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
-        if(mSourceType != CHAT_SOURCE_AGENT ||  mAvatarID.isNull())
+        if(mSourceType != EChatSourceType::CHAT_SOURCE_AGENT ||  mAvatarID.isNull())
             icon->setDrawTooltip(false);
 
         switch (mSourceType)
         {
-            case CHAT_SOURCE_AGENT:
+            case EChatSourceType::CHAT_SOURCE_AGENT:
                 icon->setValue(chat.mFromID);
                 break;
-            case CHAT_SOURCE_OBJECT:
+            case EChatSourceType::CHAT_SOURCE_OBJECT:
                 icon->setValue(LLSD("OBJECT_Icon"));
                 break;
-            case CHAT_SOURCE_SYSTEM:
-            case CHAT_SOURCE_REGION:
+            case EChatSourceType::CHAT_SOURCE_SYSTEM:
+            case EChatSourceType::CHAT_SOURCE_REGION:
                 icon->setValue(LLSD("SL_Logo"));
                 break;
-            case CHAT_SOURCE_TELEPORT:
+            case EChatSourceType::CHAT_SOURCE_TELEPORT:
                 icon->setValue(LLSD("Command_Destinations_Icon"));
                 break;
-            case CHAT_SOURCE_UNKNOWN:
+            case EChatSourceType::CHAT_SOURCE_UNKNOWN:
                 icon->setValue(LLSD("Unknown_Icon"));
         }
 
         // In case the message came from an object, save the object info
         // to be able properly show its profile.
-        if ( chat.mSourceType == CHAT_SOURCE_OBJECT)
+        if ( chat.mSourceType == EChatSourceType::CHAT_SOURCE_OBJECT)
         {
             std::string slurl = args["slurl"].asString();
             if (slurl.empty() && LLWorld::instanceExists())
@@ -872,11 +872,11 @@ protected:
 
     void showContextMenu(S32 x,S32 y)
     {
-        if(mSourceType == CHAT_SOURCE_SYSTEM)
+        if(mSourceType == EChatSourceType::CHAT_SOURCE_SYSTEM)
             showSystemContextMenu(x,y);
-        if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_AGENT)
+        if(mAvatarID.notNull() && mSourceType == EChatSourceType::CHAT_SOURCE_AGENT)
             showAvatarContextMenu(x,y);
-        if(mAvatarID.notNull() && mSourceType == CHAT_SOURCE_OBJECT)
+        if(mAvatarID.notNull() && mSourceType == EChatSourceType::CHAT_SOURCE_OBJECT)
             showObjectContextMenu(x,y);
     }
 
@@ -991,7 +991,7 @@ protected:
 
     void showInfoCtrl()
     {
-        const bool isVisible = !mAvatarID.isNull() && !mFrom.empty() && CHAT_SOURCE_SYSTEM != mSourceType && CHAT_SOURCE_REGION != mSourceType;
+        const bool isVisible = !mAvatarID.isNull() && !mFrom.empty() && EChatSourceType::CHAT_SOURCE_SYSTEM != mSourceType && EChatSourceType::CHAT_SOURCE_REGION != mSourceType;
         if (isVisible)
         {
             const LLRect sticky_rect = mUserNameTextBox->getRect();
@@ -1294,8 +1294,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     std::string delimiter = ": ";
     std::string shout = LLTrans::getString("shout");
     std::string whisper = LLTrans::getString("whisper");
-    if (chat.mChatType == CHAT_TYPE_SHOUT ||
-        chat.mChatType == CHAT_TYPE_WHISPER ||
+    if (chat.mChatType == EChatType::CHAT_TYPE_SHOUT ||
+        chat.mChatType == EChatType::CHAT_TYPE_WHISPER ||
         chat.mText.starts_with(shout) ||
         chat.mText.starts_with(whisper))
     {
@@ -1303,23 +1303,23 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     }
 
     // Don't add any delimiter after name in irc styled messages
-    if (irc_me || chat.mChatStyle == CHAT_STYLE_IRC)
+    if (irc_me || chat.mChatStyle == EChatStyle::CHAT_STYLE_IRC)
     {
         delimiter = LLStringUtil::null;
         body_message_params.font.style = "ITALIC";
     }
 
-    if (chat.mChatType == CHAT_TYPE_WHISPER)
+    if (chat.mChatType == EChatType::CHAT_TYPE_WHISPER)
     {
         body_message_params.font.style = "ITALIC";
     }
-    else if (chat.mChatType == CHAT_TYPE_SHOUT)
+    else if (chat.mChatType == EChatType::CHAT_TYPE_SHOUT)
     {
         body_message_params.font.style = "BOLD";
     }
 
-    bool message_from_log = chat.mChatStyle == CHAT_STYLE_HISTORY;
-    bool teleport_separator = chat.mSourceType == CHAT_SOURCE_TELEPORT;
+    bool message_from_log = chat.mChatStyle == EChatStyle::CHAT_STYLE_HISTORY;
+    bool teleport_separator = chat.mSourceType == EChatSourceType::CHAT_SOURCE_TELEPORT;
     // We graying out chat history by graying out messages that contains full date in a time string
     if (message_from_log)
     {
@@ -1335,7 +1335,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     // compact mode: show a timestamp and name
     if (use_plain_text_chat_history)
     {
-        square_brackets = chat.mSourceType == CHAT_SOURCE_SYSTEM;
+        square_brackets = chat.mSourceType == EChatSourceType::CHAT_SOURCE_SYSTEM;
 
         LLStyle::Params timestamp_style(body_message_params);
 
@@ -1363,7 +1363,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         if (args["show_names_for_p2p_conv"].asBoolean() && utf8str_trim(chat.mFromName).size())
         {
             // Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
-            if (chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
+            if (chat.mSourceType == EChatSourceType::CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
             {
                 // for object IMs, create a secondlife:///app/objectim SLapp
                 std::string url = LLViewerChat::getSenderSLURL(chat, args);
@@ -1380,7 +1380,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
                 mEditor->appendText(chat.mFromName + delimiter, prependNewLineState, link_params);
                 prependNewLineState = false;
             }
-            else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log && chat.mSourceType != CHAT_SOURCE_REGION)
+            else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log && chat.mSourceType != EChatSourceType::CHAT_SOURCE_REGION)
             {
                 LLStyle::Params link_params(body_message_params);
                 link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));

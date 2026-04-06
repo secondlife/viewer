@@ -37,13 +37,13 @@ class LLTabTuple;
 class LLTabContainer : public LLPanel
 {
 public:
-    enum TabPosition
+    enum class TabPosition
     {
         TOP,
         BOTTOM,
         LEFT
     };
-    enum eInsertionPoint
+    enum class eInsertionPoint
     {
         START,
         END,
@@ -171,7 +171,7 @@ public:
             select_tab("select_tab"),
             is_placeholder("is_placeholder"),
             indent("indent"),
-            insert_at("insert_at", END)
+            insert_at("insert_at", eInsertionPoint::END)
         {}
     };
 

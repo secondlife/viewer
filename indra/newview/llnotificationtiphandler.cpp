@@ -81,7 +81,7 @@ bool LLTipHandler::processNotification(const LLNotificationPtr& notification, bo
         // archive message in nearby chat
     if (notification->canLogToChat())
     {
-        LLHandlerUtil::logToNearbyChat(notification, CHAT_SOURCE_SYSTEM);
+        LLHandlerUtil::logToNearbyChat(notification, EChatSourceType::CHAT_SOURCE_SYSTEM);
     }
 
     std::string session_name = notification->getPayload()["SESSION_NAME"];

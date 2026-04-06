@@ -743,7 +743,7 @@ void LLTeleportHistoryPanel::refresh()
                                               items[mCurrentItem],
                                               mCurrentItem,
                                               filter_string);
-            if ( !curr_flat_view->addItem(item, LLUUID::null, ADD_BOTTOM, false) )
+            if ( !curr_flat_view->addItem(item, LLUUID::null, EAddPosition::ADD_BOTTOM, false) )
                 LL_ERRS() << "Couldn't add flat item to teleport history." << LL_ENDL;
             if (mLastSelectedItemIndex == mCurrentItem)
                 curr_flat_view->selectItem(item, true);
@@ -813,7 +813,7 @@ void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
                                       static_cast<S32>(history_items.size()), // index will be decremented inside loop below
                                       sFilterSubString);
 
-    fv->addItem(item, LLUUID::null, ADD_TOP);
+    fv->addItem(item, LLUUID::null, EAddPosition::ADD_TOP);
 
     // Index of each item, from last to removed item should be decremented
     // to point to the right item in LLTeleportHistoryStorage

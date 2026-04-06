@@ -108,7 +108,7 @@ public:
     virtual F32 getEaseInDuration() { return 0.f; }
     virtual F32 getEaseOutDuration() { return 0.f; }
     virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_WALK_ADJUST; }
-    virtual LLMotionBlendType getBlendType() { return ADDITIVE_BLEND; }
+    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::ADDITIVE_BLEND; }
 
 public:
     //-------------------------------------------------------------------------
@@ -158,7 +158,7 @@ public:
     virtual F32 getEaseInDuration() { return 0.f; }
     virtual F32 getEaseOutDuration() { return 0.f; }
     virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_FLY_ADJUST; }
-    virtual LLMotionBlendType getBlendType() { return ADDITIVE_BLEND; }
+    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::ADDITIVE_BLEND; }
 
 protected:
     //-------------------------------------------------------------------------

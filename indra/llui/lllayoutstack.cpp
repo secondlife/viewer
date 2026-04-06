@@ -592,7 +592,7 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
             resize_params.name("resize");
             resize_params.resizing_view(lp);
             resize_params.min_size(lp->getRelevantMinDim());
-            resize_params.side((mOrientation == HORIZONTAL) ? LLResizeBar::RIGHT : LLResizeBar::BOTTOM);
+            resize_params.side((mOrientation == HORIZONTAL) ? LLResizeBar::Side::RIGHT : LLResizeBar::Side::BOTTOM);
             resize_params.snapping_enabled(false);
             LLResizeBar* resize_bar = LLUICtrlFactory::create<LLResizeBar>(resize_params);
             lp->mResizeBar = resize_bar;
@@ -634,10 +634,10 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
                 setBorderVisible(true);
 
                 LLImagePanel::Params image_panel;
-                mDragHandleImage = LLUI::getUIImage(LLResizeBar::RIGHT == mSide ? "Vertical Drag Handle" : "Horizontal Drag Handle");
+                mDragHandleImage = LLUI::getUIImage(LLResizeBar::Side::RIGHT == mSide ? "Vertical Drag Handle" : "Horizontal Drag Handle");
                 image_panel.bg_alpha_image = mDragHandleImage;
                 image_panel.background_visible = true;
-                image_panel.horizontal = (LLResizeBar::BOTTOM == mSide);
+                image_panel.horizontal = (LLResizeBar::Side::BOTTOM == mSide);
                 mImagePanel = LLUICtrlFactory::create<LLImagePanel>(image_panel);
                 setImagePanel(mImagePanel);
             }*/

@@ -497,9 +497,9 @@ void LLPreviewGesture::addModifiers()
 {
     LLComboBox* combo = mModifierCombo;
 
-    combo->add( NONE_LABEL,  ADD_BOTTOM );
-    combo->add( SHIFT_LABEL, ADD_BOTTOM );
-    combo->add( CTRL_LABEL,  ADD_BOTTOM );
+    combo->add( NONE_LABEL,  EAddPosition::ADD_BOTTOM );
+    combo->add( SHIFT_LABEL, EAddPosition::ADD_BOTTOM );
+    combo->add( CTRL_LABEL,  EAddPosition::ADD_BOTTOM );
     combo->setCurrentByIndex(0);
 }
 
@@ -510,7 +510,7 @@ void LLPreviewGesture::addKeys()
     combo->add( NONE_LABEL );
     for (KEY key = KEY_F2; key <= KEY_F12; key++)
     {
-        combo->add( LLKeyboard::stringFromKey(key), ADD_BOTTOM );
+        combo->add( LLKeyboard::stringFromKey(key), EAddPosition::ADD_BOTTOM );
     }
     combo->setCurrentByIndex(0);
 }
@@ -567,7 +567,7 @@ void LLPreviewGesture::addAnimations()
     {
         LLInventoryItem* item = *it;
 
-        combo->add(item->getName(), item->getAssetUUID(), ADD_BOTTOM);
+        combo->add(item->getName(), item->getAssetUUID(), EAddPosition::ADD_BOTTOM);
     }
 
     combo->setCurrentByID(old_value);
@@ -612,7 +612,7 @@ void LLPreviewGesture::addSounds()
     {
         LLInventoryItem* item = *it;
 
-        combo->add(item->getName(), item->getAssetUUID(), ADD_BOTTOM);
+        combo->add(item->getName(), item->getAssetUUID(), EAddPosition::ADD_BOTTOM);
     }
 }
 

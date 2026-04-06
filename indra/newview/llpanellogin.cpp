@@ -256,7 +256,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
         LL_DEBUGS("AppInit") << "adding current " << current_grid << LL_ENDL;
         server_choice_combo->add(LLGridManager::getInstance()->getGridLabel(),
             current_grid,
-            ADD_TOP);
+            EAddPosition::ADD_TOP);
         server_choice_combo->selectFirstItem();
     }
 
@@ -1230,7 +1230,7 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
             if (cr_iter->second.notNull()) // basic safety in case of future changes
             {
                 // cr_iter->first == user_id , to be able to be find it in case we select it
-                user_combo->add(LLPanelLogin::getUserName(cr_iter->second), cr_iter->first, ADD_BOTTOM, true);
+                user_combo->add(LLPanelLogin::getUserName(cr_iter->second), cr_iter->first, EAddPosition::ADD_BOTTOM, true);
             }
             cr_iter++;
         }

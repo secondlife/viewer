@@ -40,7 +40,7 @@
 LLMultiFloater::LLMultiFloater(const LLSD& key, const LLFloater::Params& params)
     : LLFloater(key),
       mTabContainer(NULL),
-      mTabPos(LLTabContainer::TOP),
+      mTabPos(LLTabContainer::TabPosition::TOP),
       mAutoResize(true),
       mOrigMinWidth(params.min_width),
       mOrigMinHeight(params.min_height)
@@ -441,7 +441,7 @@ void LLMultiFloater::setCanResize(bool can_resize)
 {
     LLFloater::setCanResize(can_resize);
     if (!mTabContainer) return;
-    if (isResizable() && mTabContainer->getTabPosition() == LLTabContainer::BOTTOM)
+    if (isResizable() && mTabContainer->getTabPosition() == LLTabContainer::TabPosition::BOTTOM)
     {
         mTabContainer->setRightTabBtnOffset(RESIZE_HANDLE_WIDTH);
     }

@@ -2349,18 +2349,18 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
     msg->getUUID("ChatData", "OwnerID", owner_id);
 
     msg->getU8Fast(_PREHASH_ChatData, _PREHASH_SourceType, source_temp);
-    chat.mSourceType = (EChatSourceType)source_temp;
+    chat.mSourceType = static_cast<EChatSourceType>(source_temp);
 
     msg->getU8("ChatData", "ChatType", type_temp);
-    chat.mChatType = (EChatType)type_temp;
+    chat.mChatType = static_cast<EChatType>(type_temp);
 
     msg->getU8Fast(_PREHASH_ChatData, _PREHASH_Audible, audible_temp);
-    chat.mAudible = (EChatAudible)audible_temp;
+    chat.mAudible = static_cast<EChatAudible>(audible_temp);
 
     chat.mTime = LLFrameTimer::getElapsedSeconds();
 
     // IDEVO Correct for new-style "Resident" names
-    if (chat.mSourceType == CHAT_SOURCE_AGENT)
+    if (chat.mSourceType == EChatSourceType::CHAT_SOURCE_AGENT)
     {
         // I don't know if it's OK to change this here, if
         // anything downstream does lookups by name, for instance
@@ -2395,23 +2395,23 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         from_name,
         LLMute::flagTextChat)
         || LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagTextChat);
-    is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
+    is_linden = chat.mSourceType != EChatSourceType::CHAT_SOURCE_OBJECT &&
         LLMuteList::isLinden(from_name);
 
-    if (is_muted && (chat.mSourceType == CHAT_SOURCE_OBJECT))
+    if (is_muted && (chat.mSourceType == EChatSourceType::CHAT_SOURCE_OBJECT))
     {
         return;
     }
 
-    bool is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
+    bool is_audible = (EChatAudible::CHAT_AUDIBLE_FULLY == chat.mAudible);
     chatter = gObjectList.findObject(from_id);
     if (chatter)
     {
         chat.mPosAgent = chatter->getPositionAgent();
 
         // Make swirly things only for talking objects. (not script debug messages, though)
-        if (chat.mSourceType == CHAT_SOURCE_OBJECT
-            && chat.mChatType != CHAT_TYPE_DEBUG_MSG
+        if (chat.mSourceType == EChatSourceType::CHAT_SOURCE_OBJECT
+            && chat.mChatType != EChatType::CHAT_TYPE_DEBUG_MSG
             && gSavedSettings.getBOOL("EffectScriptChatParticles") )
         {
             LLPointer<LLViewerPartSourceChat> psc = new LLViewerPartSourceChat(chatter->getPositionAgent());
@@ -2427,8 +2427,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         if (is_audible
             && (is_linden || (!is_muted && !is_do_not_disturb)))
         {
-            if (chat.mChatType != CHAT_TYPE_START
-                && chat.mChatType != CHAT_TYPE_STOP)
+            if (chat.mChatType != EChatType::CHAT_TYPE_START
+                && chat.mChatType != EChatType::CHAT_TYPE_STOP)
             {
                 gAgent.heardChat(chat.mFromID);
             }
@@ -2453,7 +2453,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         chat.mText = mesg;
 
         // Look for the start of typing so we can put "..." in the bubbles.
-        if (CHAT_TYPE_START == chat.mChatType)
+        if (EChatType::CHAT_TYPE_START == chat.mChatType)
         {
             LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, true);
 
@@ -2464,7 +2464,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             }
             return;
         }
-        else if (CHAT_TYPE_STOP == chat.mChatType)
+        else if (EChatType::CHAT_TYPE_STOP == chat.mChatType)
         {
             LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, false);
 
@@ -2479,8 +2479,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         // Look for IRC-style emotes
         if (ircstyle)
         {
-            // set CHAT_STYLE_IRC to avoid adding Avatar Name as author of message. See EXT-656
-            chat.mChatStyle = CHAT_STYLE_IRC;
+            // set EChatStyle::CHAT_STYLE_IRC to avoid adding Avatar Name as author of message. See EXT-656
+            chat.mChatStyle = EChatStyle::CHAT_STYLE_IRC;
 
             // Do nothing, ircstyle is fixed above for chat bubbles
         }
@@ -2489,23 +2489,23 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             chat.mText = "";
             switch(chat.mChatType)
             {
-            case CHAT_TYPE_WHISPER:
+            case EChatType::CHAT_TYPE_WHISPER:
                 chat.mText = LLTrans::getString("whisper") + " ";
                 break;
-            case CHAT_TYPE_DEBUG_MSG:
-            case CHAT_TYPE_OWNER:
-            case CHAT_TYPE_NORMAL:
-            case CHAT_TYPE_DIRECT:
+            case EChatType::CHAT_TYPE_DEBUG_MSG:
+            case EChatType::CHAT_TYPE_OWNER:
+            case EChatType::CHAT_TYPE_NORMAL:
+            case EChatType::CHAT_TYPE_DIRECT:
                 break;
-            case CHAT_TYPE_SHOUT:
+            case EChatType::CHAT_TYPE_SHOUT:
                 chat.mText = LLTrans::getString("shout") + " ";
                 break;
-            case CHAT_TYPE_START:
-            case CHAT_TYPE_STOP:
+            case EChatType::CHAT_TYPE_START:
+            case EChatType::CHAT_TYPE_STOP:
                 LL_WARNS("Messaging") << "Got chat type start/stop in main chat processing." << LL_ENDL;
                 break;
             default:
-                LL_WARNS("Messaging") << "Unknown type " << chat.mChatType << " in chat!" << LL_ENDL;
+                LL_WARNS("Messaging") << "Unknown type " << static_cast<S32>(chat.mChatType) << " in chat!" << LL_ENDL;
                 break;
             }
 
@@ -2554,9 +2554,9 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         chat.mOwnerID = owner_id;
 
         LLTranslate::instance().logCharsSeen(mesg.size());
-        if (gSavedSettings.getBOOL("TranslateChat") && chat.mSourceType != CHAT_SOURCE_SYSTEM)
+        if (gSavedSettings.getBOOL("TranslateChat") && chat.mSourceType != EChatSourceType::CHAT_SOURCE_SYSTEM)
         {
-            if (chat.mChatStyle == CHAT_STYLE_IRC)
+            if (chat.mChatStyle == EChatStyle::CHAT_STYLE_IRC)
             {
                 mesg = mesg.substr(4, std::string::npos);
             }
@@ -2575,7 +2575,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         }
 
         // don't call notification for debug messages from not owned objects
-        if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
+        if (chat.mChatType == EChatType::CHAT_TYPE_DEBUG_MSG)
         {
             if (gAgentID != chat.mOwnerID)
             {
@@ -2588,7 +2588,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             LLSD msg_notify = LLSD(LLSD::emptyMap());
             msg_notify["session_id"] = LLUUID();
             msg_notify["from_id"] = chat.mFromID;
-            msg_notify["source_type"] = chat.mSourceType;
+            msg_notify["source_type"] = static_cast<S32>(chat.mSourceType);
             // used to check if there is agent mention in the message
             msg_notify["message"] = mesg;
             on_new_message(msg_notify);
@@ -3796,7 +3796,7 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
         return;
     }
 
-    gAudiop->triggerSound(sound_id, owner_id, gain, LLAudioEngine::AUDIO_TYPE_SFX, pos_global);
+    gAudiop->triggerSound(sound_id, owner_id, gain, static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_SFX), pos_global);
 }
 
 void process_preload_sound(LLMessageSystem *msg, void **user_data)

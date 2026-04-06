@@ -38,7 +38,7 @@
 LLResMgr::LLResMgr()
 {
     // Set default
-    setLocale( LLLOCALE_USA );
+    setLocale( LLLOCALE_ID::LLLOCALE_USA );
 }
 
 

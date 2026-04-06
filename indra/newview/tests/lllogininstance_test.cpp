@@ -345,13 +345,13 @@ namespace tut
             gTOSReplyPump = 0; // clear the callback.
 
 
-            gSavedSettings.declareBOOL("NoInventoryLibrary", false, "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareBOOL("ConnectAsGod", false, "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareBOOL("UseDebugMenus", false, "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareString("ClientSettingsFile", "test_settings.xml", "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareString("NextLoginLocation", "", "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareBOOL("LoginLastLocation", false, "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareBOOL("CmdLineSkipUpdater", true, "", LLControlVariable::PERSIST_NO);
+            gSavedSettings.declareBOOL("NoInventoryLibrary", false, "", LLControlVariable::ePersist::PERSIST_NO);
+            gSavedSettings.declareBOOL("ConnectAsGod", false, "", LLControlVariable::ePersist::PERSIST_NO);
+            gSavedSettings.declareBOOL("UseDebugMenus", false, "", LLControlVariable::ePersist::PERSIST_NO);
+            gSavedSettings.declareString("ClientSettingsFile", "test_settings.xml", "", LLControlVariable::ePersist::PERSIST_NO);
+            gSavedSettings.declareString("NextLoginLocation", "", "", LLControlVariable::ePersist::PERSIST_NO);
+            gSavedSettings.declareBOOL("LoginLastLocation", false, "", LLControlVariable::ePersist::PERSIST_NO);
+            gSavedSettings.declareBOOL("CmdLineSkipUpdater", true, "", LLControlVariable::ePersist::PERSIST_NO);
 
             LLSD authenticator = LLSD::emptyMap();
             LLSD identifier = LLSD::emptyMap();

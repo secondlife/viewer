@@ -178,15 +178,15 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
 
         int chat_type = notification["chat_type"].asInteger();
 
-        if(notification["chat_style"].asInteger()== CHAT_STYLE_IRC)
+        if(notification["chat_style"].asInteger()== static_cast<S32>(EChatStyle::CHAT_STYLE_IRC))
         {
             style_params.font.style = "ITALIC";
         }
-        else if( chat_type == CHAT_TYPE_SHOUT)
+        else if( chat_type == static_cast<S32>(EChatType::CHAT_TYPE_SHOUT))
         {
             style_params.font.style = "BOLD";
         }
-        else if( chat_type == CHAT_TYPE_WHISPER)
+        else if( chat_type == static_cast<S32>(EChatType::CHAT_TYPE_WHISPER))
         {
             style_params.font.style = "ITALIC";
         }
@@ -205,7 +205,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
     mFromName = fromName;
 
     int sType = notification["source"].asInteger();
-    mSourceType = (EChatSourceType)sType;
+    mSourceType = static_cast<EChatSourceType>(sType);
 
     std::string color_name = notification["text_color"].asString();
 
@@ -229,7 +229,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 
     mMsgText->setText(std::string(""));
 
-    if ( notification["chat_style"].asInteger() != CHAT_STYLE_IRC )
+    if ( notification["chat_style"].asInteger() != static_cast<S32>(EChatStyle::CHAT_STYLE_IRC) )
     {
         std::string str_sender;
 
@@ -238,7 +238,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
         str_sender+=" ";
 
         //append sender name
-        if (mSourceType == CHAT_SOURCE_AGENT || mSourceType == CHAT_SOURCE_OBJECT)
+        if (mSourceType == EChatSourceType::CHAT_SOURCE_AGENT || mSourceType == EChatSourceType::CHAT_SOURCE_OBJECT)
         {
             LLStyle::Params style_params_name;
             style_params_name.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
@@ -296,15 +296,15 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 
         int chat_type = notification["chat_type"].asInteger();
 
-        if(notification["chat_style"].asInteger()== CHAT_STYLE_IRC)
+        if(notification["chat_style"].asInteger()== static_cast<S32>(EChatStyle::CHAT_STYLE_IRC))
         {
             style_params.font.style = "ITALIC";
         }
-        else if( chat_type == CHAT_TYPE_SHOUT)
+        else if( chat_type == static_cast<S32>(EChatType::CHAT_TYPE_SHOUT))
         {
             style_params.font.style = "BOLD";
         }
-        else if( chat_type == CHAT_TYPE_WHISPER)
+        else if( chat_type == static_cast<S32>(EChatType::CHAT_TYPE_WHISPER))
         {
             style_params.font.style = "ITALIC";
         }
@@ -337,7 +337,7 @@ void LLFloaterIMNearbyChatToastPanel::onMouseLeave          (S32 x, S32 y, MASK 
 }
 void LLFloaterIMNearbyChatToastPanel::onMouseEnter              (S32 x, S32 y, MASK mask)
 {
-    if(mSourceType != CHAT_SOURCE_AGENT)
+    if(mSourceType != EChatSourceType::CHAT_SOURCE_AGENT)
         return;
 }
 
@@ -351,7 +351,7 @@ bool    LLFloaterIMNearbyChatToastPanel::handleMouseUp  (S32 x, S32 y, MASK mask
     /*
     fix for request  EXT-4780
     leaving this commented since I don't remember why ew block those messages...
-    if(mSourceType != CHAT_SOURCE_AGENT)
+    if(mSourceType != EChatSourceType::CHAT_SOURCE_AGENT)
         return LLPanel::handleMouseUp(x,y,mask);
     */
 
@@ -396,7 +396,7 @@ bool    LLFloaterIMNearbyChatToastPanel::handleRightMouseDown(S32 x, S32 y, MASK
     S32 local_y = y - avatar_icon->getRect().mBottom;
 
     //eat message for avatar icon if msg was from object
-    if(avatar_icon->pointInView(local_x, local_y) && mSourceType != CHAT_SOURCE_AGENT)
+    if(avatar_icon->pointInView(local_x, local_y) && mSourceType != EChatSourceType::CHAT_SOURCE_AGENT)
         return true;
     return LLPanel::handleRightMouseDown(x,y,mask);
 }
@@ -409,12 +409,12 @@ void LLFloaterIMNearbyChatToastPanel::draw()
         LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon", false);
         if(icon)
         {
-            icon->setDrawTooltip(mSourceType == CHAT_SOURCE_AGENT);
-            if(mSourceType == CHAT_SOURCE_OBJECT)
+            icon->setDrawTooltip(mSourceType == EChatSourceType::CHAT_SOURCE_AGENT);
+            if(mSourceType == EChatSourceType::CHAT_SOURCE_OBJECT)
                 icon->setValue(LLSD("OBJECT_Icon"));
-            else if(mSourceType == CHAT_SOURCE_SYSTEM)
+            else if(mSourceType == EChatSourceType::CHAT_SOURCE_SYSTEM)
                 icon->setValue(LLSD("SL_Logo"));
-            else if(mSourceType == CHAT_SOURCE_AGENT)
+            else if(mSourceType == EChatSourceType::CHAT_SOURCE_AGENT)
                 icon->setValue(mFromID);
             else if(!mFromID.isNull())
                 icon->setValue(mFromID);

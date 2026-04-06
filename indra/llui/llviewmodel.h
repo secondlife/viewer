@@ -140,10 +140,10 @@ public:
     LLListViewModel() = default;
     LLListViewModel(const LLSD& values);
 
-    virtual void addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM);
+    virtual void addColumn(const LLSD& column, EAddPosition pos = EAddPosition::ADD_BOTTOM);
     virtual void clearColumns();
     virtual void setColumnLabel(const std::string& column, const std::string& label);
-    virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM,
+    virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = EAddPosition::ADD_BOTTOM,
                                          void* userdata = NULL);
     virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos,
                                                const LLSD& id);

@@ -556,17 +556,17 @@ void LLToast::updateTransparency()
         // Notification toasts (including IM/chat toasts) change their transparency on hover.
         if (isHovered())
         {
-            transparency_type = TT_ACTIVE;
+            transparency_type = ETypeTransparency::TT_ACTIVE;
         }
         else
         {
-            transparency_type = mIsFading ? TT_FADING : TT_INACTIVE;
+            transparency_type = mIsFading ? ETypeTransparency::TT_FADING : ETypeTransparency::TT_INACTIVE;
         }
     }
     else
     {
         // Transparency of alert toasts depends on focus.
-        transparency_type = hasFocus() ? TT_ACTIVE : TT_INACTIVE;
+        transparency_type = hasFocus() ? ETypeTransparency::TT_ACTIVE : ETypeTransparency::TT_INACTIVE;
     }
 
     LLFloater::updateTransparency(transparency_type);

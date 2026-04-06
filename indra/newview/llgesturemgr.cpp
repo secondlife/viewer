@@ -1063,7 +1063,7 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
             const bool animate = false;
 
             (LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
-                    sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+                    sendChatFromViewer(chat_text, EChatType::CHAT_TYPE_NORMAL, animate);
 
             gesture->mCurrentStep++;
             break;

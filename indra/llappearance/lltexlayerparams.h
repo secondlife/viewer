@@ -142,7 +142,7 @@ class alignas(16) LLTexLayerParamColor : public LLTexLayerParam
 {
     LL_ALIGN_NEW
 public:
-    enum EColorOperation
+    enum class EColorOperation
     {
         OP_ADD = 0,
         OP_MULTIPLY = 1,

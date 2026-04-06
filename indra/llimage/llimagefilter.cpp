@@ -47,8 +47,8 @@ LLImageFilter::LLImageFilter(const std::string& file_path) :
     mHistoGreen(NULL),
     mHistoBlue(NULL),
     mHistoBrightness(NULL),
-    mStencilBlendMode(STENCIL_BLEND_MODE_BLEND),
-    mStencilShape(STENCIL_SHAPE_UNIFORM),
+    mStencilBlendMode(EStencilBlendMode::STENCIL_BLEND_MODE_BLEND),
+    mStencilShape(EStencilShape::STENCIL_SHAPE_UNIFORM),
     mStencilGamma(1.0),
     mStencilMin(0.0),
     mStencilMax(1.0)
@@ -106,41 +106,41 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
         {
             // Get the shape of the stencil, that is how the procedural alpha is computed geometrically
             std::string filter_shape = mFilterData[i][1].asString();
-            EStencilShape shape = STENCIL_SHAPE_UNIFORM;
+            EStencilShape shape = EStencilShape::STENCIL_SHAPE_UNIFORM;
             if (filter_shape == "uniform")
             {
-                shape = STENCIL_SHAPE_UNIFORM;
+                shape = EStencilShape::STENCIL_SHAPE_UNIFORM;
             }
             else if (filter_shape == "gradient")
             {
-                shape = STENCIL_SHAPE_GRADIENT;
+                shape = EStencilShape::STENCIL_SHAPE_GRADIENT;
             }
             else if (filter_shape == "vignette")
             {
-                shape = STENCIL_SHAPE_VIGNETTE;
+                shape = EStencilShape::STENCIL_SHAPE_VIGNETTE;
             }
             else if (filter_shape == "scanlines")
             {
-                shape = STENCIL_SHAPE_SCAN_LINES;
+                shape = EStencilShape::STENCIL_SHAPE_SCAN_LINES;
             }
             // Get the blend mode of the stencil, that is how the effect is blended in the background through the stencil
             std::string filter_mode  = mFilterData[i][2].asString();
-            EStencilBlendMode mode = STENCIL_BLEND_MODE_BLEND;
+            EStencilBlendMode mode = EStencilBlendMode::STENCIL_BLEND_MODE_BLEND;
             if (filter_mode == "blend")
             {
-                mode = STENCIL_BLEND_MODE_BLEND;
+                mode = EStencilBlendMode::STENCIL_BLEND_MODE_BLEND;
             }
             else if (filter_mode == "add")
             {
-                mode = STENCIL_BLEND_MODE_ADD;
+                mode = EStencilBlendMode::STENCIL_BLEND_MODE_ADD;
             }
             else if (filter_mode == "add_back")
             {
-                mode = STENCIL_BLEND_MODE_ABACK;
+                mode = EStencilBlendMode::STENCIL_BLEND_MODE_ABACK;
             }
             else if (filter_mode == "fade")
             {
-                mode = STENCIL_BLEND_MODE_FADE;
+                mode = EStencilBlendMode::STENCIL_BLEND_MODE_FADE;
             }
             // Get the float params: mandatory min, max then the optional parameters (4 max)
             F32 min = (F32)(mFilterData[i][3].asReal());
@@ -208,14 +208,14 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
         else if (filter_name == "screen")
         {
             std::string screen_name = mFilterData[i][1].asString();
-            EScreenMode mode = SCREEN_MODE_2DSINE;
+            EScreenMode mode = EScreenMode::SCREEN_MODE_2DSINE;
             if (screen_name == "2Dsine")
             {
-                mode = SCREEN_MODE_2DSINE;
+                mode = EScreenMode::SCREEN_MODE_2DSINE;
             }
             else if (screen_name == "line")
             {
-                mode = SCREEN_MODE_LINE;
+                mode = EScreenMode::SCREEN_MODE_LINE;
             }
             filterScreen(mode,(F32)(mFilterData[i][2].asReal()),(F32)(mFilterData[i][3].asReal()));
         }
@@ -282,25 +282,25 @@ void LLImageFilter::blendStencil(F32 alpha, U8* pixel, U8 red, U8 green, U8 blue
     F32 inv_alpha = 1.0f - alpha;
     switch (mStencilBlendMode)
     {
-        case STENCIL_BLEND_MODE_BLEND:
+        case EStencilBlendMode::STENCIL_BLEND_MODE_BLEND:
             // Classic blend of incoming color with the background image
             pixel[VRED]   = (U8)(inv_alpha * pixel[VRED]   + alpha * red);
             pixel[VGREEN] = (U8)(inv_alpha * pixel[VGREEN] + alpha * green);
             pixel[VBLUE]  = (U8)(inv_alpha * pixel[VBLUE]  + alpha * blue);
             break;
-        case STENCIL_BLEND_MODE_ADD:
+        case EStencilBlendMode::STENCIL_BLEND_MODE_ADD:
             // Add incoming color to the background image
             pixel[VRED]   = (U8)llclampb(pixel[VRED]   + alpha * red);
             pixel[VGREEN] = (U8)llclampb(pixel[VGREEN] + alpha * green);
             pixel[VBLUE]  = (U8)llclampb(pixel[VBLUE]  + alpha * blue);
             break;
-        case STENCIL_BLEND_MODE_ABACK:
+        case EStencilBlendMode::STENCIL_BLEND_MODE_ABACK:
             // Add back background image to the incoming color
             pixel[VRED]   = (U8)llclampb(inv_alpha * pixel[VRED]   + red);
             pixel[VGREEN] = (U8)llclampb(inv_alpha * pixel[VGREEN] + green);
             pixel[VBLUE]  = (U8)llclampb(inv_alpha * pixel[VBLUE]  + blue);
             break;
-        case STENCIL_BLEND_MODE_FADE:
+        case EStencilBlendMode::STENCIL_BLEND_MODE_FADE:
             // Fade incoming color to black
             pixel[VRED]   = (U8)(alpha * red);
             pixel[VGREEN] = (U8)(alpha * green);
@@ -522,12 +522,12 @@ void LLImageFilter::filterScreen(EScreenMode mode, const F32 wave_length, const 
             F32 dj = 0.0;
             switch (mode)
             {
-                case SCREEN_MODE_2DSINE:
+                case EScreenMode::SCREEN_MODE_2DSINE:
                     di =  cos*i + sin*j;
                     dj = -sin*i + cos*j;
                     value = (sinf(2*F_PI*di/wave_length_pixels)*sinf(2*F_PI*dj/wave_length_pixels)+1.0f)*255.0f/2.0f;
                     break;
-                case SCREEN_MODE_LINE:
+                case EScreenMode::SCREEN_MODE_LINE:
                     dj = sin*i - cos*j;
                     value = (sinf(2*F_PI*dj/wave_length_pixels)+1.0f)*255.0f/2.0f;
                     break;
@@ -574,20 +574,20 @@ void LLImageFilter::setStencil(EStencilShape shape, EStencilBlendMode mode, F32 
 F32 LLImageFilter::getStencilAlpha(S32 i, S32 j)
 {
     F32 alpha = 1.0;    // That init actually takes care of the STENCIL_SHAPE_UNIFORM case...
-    if (mStencilShape == STENCIL_SHAPE_VIGNETTE)
+    if (mStencilShape == EStencilShape::STENCIL_SHAPE_VIGNETTE)
     {
         // alpha is a modified gaussian value, with a center and fading in a circular pattern toward the edges
         // The gamma parameter controls the intensity of the drop down from alpha 1.0 (center) to 0.0
         F32 d_center_square = (F32)((i - mStencilCenterX)*(i - mStencilCenterX) + (j - mStencilCenterY)*(j - mStencilCenterY));
         alpha = powf(F_E, -(powf((d_center_square/(mStencilWidth*mStencilWidth)),mStencilGamma)/2.0f));
     }
-    else if (mStencilShape == STENCIL_SHAPE_SCAN_LINES)
+    else if (mStencilShape == EStencilShape::STENCIL_SHAPE_SCAN_LINES)
     {
         // alpha varies according to a squared sine function.
         F32 d = mStencilSine*i - mStencilCosine*j;
         alpha = (sinf(2*F_PI*d/mStencilWavelength) > 0.0f ? 1.0f : 0.0f);
     }
-    else if (mStencilShape == STENCIL_SHAPE_GRADIENT)
+    else if (mStencilShape == EStencilShape::STENCIL_SHAPE_GRADIENT)
     {
         alpha = (((F32)(i) - mStencilStartX)*mStencilGradX + ((F32)(j) - mStencilStartY)*mStencilGradY) / mStencilGradN;
         alpha = llclampf(alpha);

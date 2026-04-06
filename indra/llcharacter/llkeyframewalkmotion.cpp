@@ -162,13 +162,13 @@ LLMotion::LLMotionInitStatus LLWalkAdjustMotion::onInitialize(LLCharacter *chara
     if ( !mPelvisJoint )
     {
         LL_WARNS() << getName() << ": Can't get pelvis joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mPelvisState->setUsage(LLJointState::POS);
     addJointState( mPelvisState );
 
-    return STATUS_SUCCESS;
+    return LLMotionInitStatus::STATUS_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -350,13 +350,13 @@ LLMotion::LLMotionInitStatus LLFlyAdjustMotion::onInitialize(LLCharacter *charac
     if ( !pelvisJoint )
     {
         LL_WARNS() << getName() << ": Can't get pelvis joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mPelvisState->setUsage(LLJointState::POS | LLJointState::ROT);
     addJointState( mPelvisState );
 
-    return STATUS_SUCCESS;
+    return LLMotionInitStatus::STATUS_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------

@@ -62,7 +62,7 @@ enum ENameValueType
     NVT_EOF
 };
 
-enum ENameValueClass
+enum class ENameValueClass
 {
     NVC_NULL,
     NVC_READ_ONLY,
@@ -70,7 +70,7 @@ enum ENameValueClass
     NVC_EOF
 };
 
-enum ENameValueSendto
+enum class ENameValueSendto
 {
     NVS_NULL,
     NVS_SIM,
@@ -97,8 +97,8 @@ const U32 NAME_VALUE_DATA_SIZE =
 
 
 extern char NameValueTypeStrings[NVT_EOF][NAME_VALUE_TYPE_STRING_LENGTH];           /* Flawfinder: Ignore */
-extern char NameValueClassStrings[NVC_EOF][NAME_VALUE_CLASS_STRING_LENGTH];     /* Flawfinder: Ignore */
-extern char NameValueSendtoStrings[NVS_EOF][NAME_VALUE_SENDTO_STRING_LENGTH];       /* Flawfinder: Ignore */
+extern char NameValueClassStrings[static_cast<size_t>(ENameValueClass::NVC_EOF)][NAME_VALUE_CLASS_STRING_LENGTH];     /* Flawfinder: Ignore */
+extern char NameValueSendtoStrings[static_cast<size_t>(ENameValueSendto::NVS_EOF)][NAME_VALUE_SENDTO_STRING_LENGTH];       /* Flawfinder: Ignore */
 
 union UNameValueReference
 {

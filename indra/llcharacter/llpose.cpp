@@ -490,11 +490,11 @@ bool LLPoseBlender::addMotion(LLMotion* motion)
 
         if (jsp->getPriority() == LLJoint::USE_MOTION_PRIORITY)
         {
-            joint_blender->addJointState(jsp, motion->getPriority(), motion->getBlendType() == LLMotion::ADDITIVE_BLEND);
+            joint_blender->addJointState(jsp, motion->getPriority(), motion->getBlendType() == LLMotion::LLMotionBlendType::ADDITIVE_BLEND);
         }
         else
         {
-            joint_blender->addJointState(jsp, jsp->getPriority(), motion->getBlendType() == LLMotion::ADDITIVE_BLEND);
+            joint_blender->addJointState(jsp, jsp->getPriority(), motion->getBlendType() == LLMotion::LLMotionBlendType::ADDITIVE_BLEND);
         }
 
         // add it to our list of active blenders

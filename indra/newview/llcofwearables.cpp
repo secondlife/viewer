@@ -511,14 +511,14 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
         if (item_type == LLAssetType::AT_OBJECT || item_type == LLAssetType::AT_GESTURE)
         {
             item_panel = buildAttachemntListItem(item);
-            mAttachments->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
+            mAttachments->addItem(item_panel, item->getUUID(), EAddPosition::ADD_BOTTOM, false);
         }
         else if (item_type == LLAssetType::AT_BODYPART)
         {
             item_panel = buildBodypartListItem(item);
             if (!item_panel) continue;
 
-            mBodyParts->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
+            mBodyParts->addItem(item_panel, item->getUUID(), EAddPosition::ADD_BOTTOM, false);
         }
     }
 
@@ -634,7 +634,7 @@ void LLCOFWearables::populateClothingList(LLAppearanceMgr::wearables_by_type_t& 
             LLPanelClothingListItem* item_panel = buildClothingListItem(item, i == size, i == 1);
             if (!item_panel) continue;
 
-            mClothing->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
+            mClothing->addItem(item_panel, item->getUUID(), EAddPosition::ADD_BOTTOM, false);
         }
     }
 
@@ -657,7 +657,7 @@ void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by
         LLPanelInventoryListItemBase* item_panel = LLPanelDummyClothingListItem::create(w_type);
         if(!item_panel) continue;
         item_panel->childSetAction("btn_add", std::bind(mCOFCallbacks.mAddWearable));
-        mClothing->addItem(item_panel, LLUUID::null, ADD_BOTTOM, false);
+        mClothing->addItem(item_panel, LLUUID::null, EAddPosition::ADD_BOTTOM, false);
     }
 }
 

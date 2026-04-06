@@ -67,7 +67,7 @@ LLEmote::~LLEmote()
 LLMotion::LLMotionInitStatus LLEmote::onInitialize(LLCharacter *character)
 {
     mCharacter = character;
-    return STATUS_SUCCESS;
+    return LLMotionInitStatus::STATUS_SUCCESS;
 }
 
 

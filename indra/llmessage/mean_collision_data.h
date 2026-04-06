@@ -33,7 +33,7 @@
 const F32 MEAN_COLLISION_TIMEOUT = 5.f;
 const S32 MAX_MEAN_COLLISIONS = 5;
 
-enum EMeanCollisionType
+enum class EMeanCollisionType
 {
     MEAN_INVALID,
     MEAN_BUMP,
@@ -62,19 +62,19 @@ public:
     {
         switch(a.mType)
         {
-        case MEAN_BUMP:
+        case EMeanCollisionType::MEAN_BUMP:
             s << "Mean Collision: " << a.mPerp << " bumped " << a.mVictim << " with a velocity of " << a.mMag << " at " << ctime(&a.mTime);
             break;
-        case MEAN_LLPUSHOBJECT:
+        case EMeanCollisionType::MEAN_LLPUSHOBJECT:
             s << "Mean Collision: " << a.mPerp << " llPushObject-ed " << a.mVictim << " with a total force of " << a.mMag  << " at "<<  ctime(&a.mTime);
             break;
-        case MEAN_SELECTED_OBJECT_COLLIDE:
+        case EMeanCollisionType::MEAN_SELECTED_OBJECT_COLLIDE:
             s << "Mean Collision: " << a.mPerp << " dragged an object into " << a.mVictim << " with a velocity of " << a.mMag  << " at "<<  ctime(&a.mTime);
             break;
-        case MEAN_SCRIPTED_OBJECT_COLLIDE:
+        case EMeanCollisionType::MEAN_SCRIPTED_OBJECT_COLLIDE:
             s << "Mean Collision: " << a.mPerp << " smacked " << a.mVictim << " with a scripted object with velocity of " << a.mMag  << " at "<<  ctime(&a.mTime);
             break;
-        case MEAN_PHYSICAL_OBJECT_COLLIDE:
+        case EMeanCollisionType::MEAN_PHYSICAL_OBJECT_COLLIDE:
             s << "Mean Collision: " << a.mPerp << " smacked " << a.mVictim << " with a physical object with velocity of " << a.mMag  << " at "<<  ctime(&a.mTime);
             break;
         default:

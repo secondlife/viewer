@@ -40,7 +40,7 @@ LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 LLMessageConfig::SenderTrust
 LLMessageConfig::getSenderTrustedness(const std::string& msg_name)
 {
-    return LLMessageConfig::NOT_SET;
+    return LLMessageConfig::SenderTrust::NOT_SET;
 }
 
 void LLMessageSystem::receivedMessageFromTrustedSender()

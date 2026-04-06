@@ -90,8 +90,8 @@ struct LLChatTypeTrigger {
 };
 
 static LLChatTypeTrigger sChatTypeTriggers[] = {
-    { "/whisper"    , CHAT_TYPE_WHISPER},
-    { "/shout"  , CHAT_TYPE_SHOUT}
+    { "/whisper"    , EChatType::CHAT_TYPE_WHISPER},
+    { "/shout"  , EChatType::CHAT_TYPE_SHOUT}
 };
 
 bool cb_do_nothing()
@@ -144,7 +144,7 @@ bool LLFloaterIMNearbyChat::postBuild()
     setTitle(nearbyChatTitle);
 
     // obsolete, but may be needed for backward compatibility?
-    gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", LLControlVariable::PERSIST_NONDFT);
+    gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", LLControlVariable::ePersist::PERSIST_NONDFT);
 
     if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
     {
@@ -191,9 +191,9 @@ void LLFloaterIMNearbyChat::refresh()
     // *HACK: Update transparency type depending on whether our children have focus.
     // This is needed because this floater is chrome and thus cannot accept focus, so
     // the transparency type setting code from LLFloater::setFocus() isn't reached.
-    if (getTransparencyType() != TT_DEFAULT)
+    if (getTransparencyType() != ETypeTransparency::TT_DEFAULT)
     {
-        setTransparencyType(hasFocus() ? TT_ACTIVE : TT_INACTIVE);
+        setTransparencyType(hasFocus() ? ETypeTransparency::TT_ACTIVE : ETypeTransparency::TT_INACTIVE);
     }
 }
 
@@ -246,17 +246,17 @@ void LLFloaterIMNearbyChat::loadHistory()
         chat.mFromID = from_id;
         chat.mText = msg[LL_IM_TEXT].asString();
         chat.mTimeStr = msg[LL_IM_TIME].asString();
-        chat.mChatStyle = CHAT_STYLE_HISTORY;
+        chat.mChatStyle = EChatStyle::CHAT_STYLE_HISTORY;
 
-        chat.mSourceType = CHAT_SOURCE_AGENT;
+        chat.mSourceType = EChatSourceType::CHAT_SOURCE_AGENT;
         if (from_id.isNull() && SYSTEM_FROM == from)
         {
-            chat.mSourceType = CHAT_SOURCE_SYSTEM;
+            chat.mSourceType = EChatSourceType::CHAT_SOURCE_SYSTEM;
 
         }
         else if (from_id.isNull())
         {
-            chat.mSourceType = isWordsName(from) ? CHAT_SOURCE_UNKNOWN : CHAT_SOURCE_OBJECT;
+            chat.mSourceType = isWordsName(from) ? EChatSourceType::CHAT_SOURCE_UNKNOWN : EChatSourceType::CHAT_SOURCE_OBJECT;
         }
 
         addMessage(chat, true, do_not_log);
@@ -406,13 +406,13 @@ bool LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
     if( KEY_RETURN == key && mask == MASK_CONTROL)
     {
         // shout
-        sendChat(CHAT_TYPE_SHOUT);
+        sendChat(EChatType::CHAT_TYPE_SHOUT);
         handled = true;
     }
     else if (KEY_RETURN == key && mask == MASK_SHIFT)
     {
         // whisper
-        sendChat(CHAT_TYPE_WHISPER);
+        sendChat(EChatType::CHAT_TYPE_WHISPER);
         handled = true;
     }
 
@@ -574,7 +574,7 @@ EChatType LLFloaterIMNearbyChat::processChatTypeTriggers(EChatType type, std::st
 
                 str = str.substr(trigger_length, length);
 
-                if (CHAT_TYPE_NORMAL == type)
+                if (EChatType::CHAT_TYPE_NORMAL == type)
                     return sChatTypeTriggers[n].type;
                 else
                     break;
@@ -658,7 +658,7 @@ void LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLS
     {
         std::string from_name = chat.mFromName;
 
-        if (chat.mSourceType == CHAT_SOURCE_AGENT)
+        if (chat.mSourceType == EChatSourceType::CHAT_SOURCE_AGENT)
         {
             // if the chat is coming from an agent, log the complete name
             LLAvatarName av_name;
@@ -677,7 +677,7 @@ void LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLS
 
 void LLFloaterIMNearbyChat::onChatBoxCommit()
 {
-    sendChat(CHAT_TYPE_NORMAL);
+    sendChat(EChatType::CHAT_TYPE_NORMAL);
 
     gAgent.stopTyping();
 }
@@ -724,17 +724,17 @@ void LLFloaterIMNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType
     // Don't animate for chats people can't hear (chat to scripts)
     if (animate && (channel == 0))
     {
-        if (type == CHAT_TYPE_WHISPER)
+        if (type == EChatType::CHAT_TYPE_WHISPER)
         {
             LL_DEBUGS() << "You whisper " << utf8_text << LL_ENDL;
             gAgent.sendAnimationRequest(ANIM_AGENT_WHISPER, ANIM_REQUEST_START);
         }
-        else if (type == CHAT_TYPE_NORMAL)
+        else if (type == EChatType::CHAT_TYPE_NORMAL)
         {
             LL_DEBUGS() << "You say " << utf8_text << LL_ENDL;
             gAgent.sendAnimationRequest(ANIM_AGENT_TALK, ANIM_REQUEST_START);
         }
-        else if (type == CHAT_TYPE_SHOUT)
+        else if (type == EChatType::CHAT_TYPE_SHOUT)
         {
             LL_DEBUGS() << "You shout " << utf8_text << LL_ENDL;
             gAgent.sendAnimationRequest(ANIM_AGENT_SHOUT, ANIM_REQUEST_START);
@@ -747,7 +747,7 @@ void LLFloaterIMNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType
     }
     else
     {
-        if (type != CHAT_TYPE_START && type != CHAT_TYPE_STOP)
+        if (type != EChatType::CHAT_TYPE_START && type != EChatType::CHAT_TYPE_STOP)
         {
             LL_DEBUGS() << "Channel chat: " << utf8_text << LL_ENDL;
         }
@@ -868,8 +868,8 @@ LLWString LLFloaterIMNearbyChat::stripChannelNumber(const LLWString &mesg, S32* 
 
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel)
 {
-    LL_DEBUGS("UIUsage") << "Nearby chat, text " << utf8_out_text << " type " << type << " channel " << channel << LL_ENDL;
-    if (type != CHAT_TYPE_START && type != CHAT_TYPE_STOP) // prune back some redundant logging
+    LL_DEBUGS("UIUsage") << "Nearby chat, text " << utf8_out_text << " type " << static_cast<S32>(type) << " channel " << channel << LL_ENDL;
+    if (type != EChatType::CHAT_TYPE_START && type != EChatType::CHAT_TYPE_STOP) // prune back some redundant logging
     {
         LLUIUsage::instance().logCommand("Chat.SendNearby"); // pseuo-command
     }
@@ -884,7 +884,7 @@ void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32
         msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
         msg->nextBlockFast(_PREHASH_ChatData);
         msg->addStringFast(_PREHASH_Message, utf8_out_text);
-        msg->addU8Fast(_PREHASH_Type, type);
+        msg->addU8Fast(_PREHASH_Type, static_cast<U8>(type));
         msg->addS32("Channel", channel);
 
     }
@@ -933,7 +933,7 @@ public:
                 retval = true;
         // Send unescaped message, see EXT-6353.
         std::string unescaped_mesg (LLURI::unescape(tokens[1].asString()));
-        send_chat_from_viewer(unescaped_mesg, CHAT_TYPE_NORMAL, channel);
+        send_chat_from_viewer(unescaped_mesg, EChatType::CHAT_TYPE_NORMAL, channel);
             }
             else
             {

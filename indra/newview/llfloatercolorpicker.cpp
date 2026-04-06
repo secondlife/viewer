@@ -484,7 +484,7 @@ void LLFloaterColorPicker::onMouseCaptureLost()
 F32 LLFloaterColorPicker::getSwatchTransparency()
 {
     // If the floater is focused, don't apply its alpha to the color swatch (STORM-676).
-    return getTransparencyType() == TT_ACTIVE ? 1.f : LLFloater::getCurrentTransparency();
+    return getTransparencyType() == ETypeTransparency::TT_ACTIVE ? 1.f : LLFloater::getCurrentTransparency();
 }
 
 bool LLFloaterColorPicker::isColorChanged()

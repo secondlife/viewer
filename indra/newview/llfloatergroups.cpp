@@ -387,7 +387,7 @@ void init_group_list(LLScrollListCtrl* group_list, const LLUUID& highlight_id, U
         element["columns"][0]["font"]["name"] = "SANSSERIF";
         element["columns"][0]["font"]["style"] = style;
 
-        group_list->addElement(element, ADD_TOP);
+        group_list->addElement(element, EAddPosition::ADD_TOP);
     }
 
     group_list->selectByValue(highlight_id);

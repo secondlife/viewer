@@ -199,7 +199,7 @@ public:
     using LLStoreAssetCallback = ::LLStoreAssetCallback;
     using LLGetAssetCallback = ::LLGetAssetCallback;
 
-    enum ERequestType
+    enum class ERequestType
     {
         RT_INVALID = -1,
         RT_DOWNLOAD = 0,

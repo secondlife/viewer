@@ -39,7 +39,7 @@ void LLTransferTargetVFile::updateQueue(bool shutdown)
 
 
 LLTransferTargetParamsVFile::LLTransferTargetParamsVFile() :
-    LLTransferTargetParams(LLTTT_VFILE),
+    LLTransferTargetParams(LLTransferTargetType::LLTTT_VFILE),
     mAssetType(LLAssetType::AT_NONE),
     mCompleteCallback(nullptr),
     mRequestDatap(nullptr),
@@ -93,7 +93,7 @@ bool LLTransferTargetParamsVFile::unpackParams(LLDataPacker& dp)
 LLTransferTargetVFile::LLTransferTargetVFile(
     const LLUUID& uuid,
     LLTransferSourceType src_type) :
-    LLTransferTarget(LLTTT_VFILE, uuid, src_type),
+    LLTransferTarget(LLTransferTargetType::LLTTT_VFILE, uuid, src_type),
     mNeedsCreate(true)
 {
     mTempID.generate();
@@ -114,7 +114,7 @@ LLTransferTargetVFile::~LLTransferTargetVFile()
 // virtual
 bool LLTransferTargetVFile::unpackParams(LLDataPacker& dp)
 {
-    if(LLTST_SIM_INV_ITEM == mSourceType)
+    if(LLTransferSourceType::LLTST_SIM_INV_ITEM == mSourceType)
     {
         return mParams.unpackParams(dp);
     }
@@ -146,15 +146,15 @@ LLTSCode LLTransferTargetVFile::dataCallback(const S32 packet_id, U8 *in_datap, 
 
     if (!in_size)
     {
-        return LLTS_OK;
+        return LLTSCode::LLTS_OK;
     }
 
     if (!vf.write(std::span{in_datap, static_cast<size_t>(in_size)}))
     {
         LL_WARNS() << "Failure in LLTransferTargetVFile::dataCallback!" << LL_ENDL;
-        return LLTS_ERROR;
+        return LLTSCode::LLTS_ERROR;
     }
-    return LLTS_OK;
+    return LLTSCode::LLTS_OK;
 }
 
 
@@ -172,7 +172,7 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
     S32 err_code = 0;
     switch (status)
     {
-      case LLTS_DONE:
+      case LLTSCode::LLTS_DONE:
         if (!mNeedsCreate)
         {
             LLFileSystem file(mTempID, mParams.getAssetType(), LLFileSystem::WRITE);
@@ -187,9 +187,9 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
              << LLAssetType::lookup(mParams.getAssetType())
              << " with temp id " << mTempID << LL_ENDL;
         break;
-      case LLTS_ERROR:
-      case LLTS_ABORT:
-      case LLTS_UNKNOWN_SOURCE:
+      case LLTSCode::LLTS_ERROR:
+      case LLTSCode::LLTS_ABORT:
+      case LLTSCode::LLTS_UNKNOWN_SOURCE:
       default:
       {
           // We're aborting this transfer, we don't want to keep this file.
@@ -202,17 +202,17 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 
     switch (status)
     {
-    case LLTS_DONE:
+    case LLTSCode::LLTS_DONE:
         err_code = LL_ERR_NOERR;
         break;
-    case LLTS_UNKNOWN_SOURCE:
+    case LLTSCode::LLTS_UNKNOWN_SOURCE:
         err_code = LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE;
         break;
-    case LLTS_INSUFFICIENT_PERMISSIONS:
+    case LLTSCode::LLTS_INSUFFICIENT_PERMISSIONS:
         err_code = LL_ERR_INSUFFICIENT_PERMISSIONS;
         break;
-    case LLTS_ERROR:
-    case LLTS_ABORT:
+    case LLTSCode::LLTS_ERROR:
+    case LLTSCode::LLTS_ABORT:
     default:
         err_code = LL_ERR_ASSET_REQUEST_FAILED;
         break;

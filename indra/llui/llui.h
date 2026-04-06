@@ -94,7 +94,7 @@ enum EAcceptance
     ACCEPT_YES_MULTI        // Accepted. OK to drag and drop multiple items here.
 };
 
-enum EAddPosition
+enum class EAddPosition
 {
     ADD_TOP,
     ADD_BOTTOM,

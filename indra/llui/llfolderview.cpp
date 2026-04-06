@@ -304,7 +304,7 @@ void LLFolderView::addFolder( LLFolderViewFolder* folder)
 void LLFolderView::closeAllFolders()
 {
     // Close all the folders
-    setOpenArrangeRecursively(false, LLFolderViewFolder::RECURSE_DOWN);
+    setOpenArrangeRecursively(false, LLFolderViewFolder::ERecurseType::RECURSE_DOWN);
     arrangeAll();
 }
 

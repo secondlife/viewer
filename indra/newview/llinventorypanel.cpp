@@ -1040,7 +1040,7 @@ void LLInventoryPanel::initializeViews(F64 max_time)
         LLFolderViewFolder* my_inv_folder =   getFolderByID(gInventory.getRootFolderID());
         if (my_inv_folder)
         {
-            my_inv_folder->setOpenArrangeRecursively(false, LLFolderViewFolder::RECURSE_DOWN);
+            my_inv_folder->setOpenArrangeRecursively(false, LLFolderViewFolder::ERecurseType::RECURSE_DOWN);
         }
     }
 }
@@ -1583,7 +1583,7 @@ bool LLInventoryPanel::addBadge(LLBadge * badge)
 
 void LLInventoryPanel::openAllFolders()
 {
-    mFolderRoot.get()->setOpenArrangeRecursively(true, LLFolderViewFolder::RECURSE_DOWN);
+    mFolderRoot.get()->setOpenArrangeRecursively(true, LLFolderViewFolder::ERecurseType::RECURSE_DOWN);
     mFolderRoot.get()->arrangeAll();
 }
 

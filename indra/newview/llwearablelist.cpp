@@ -140,7 +140,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
             wearable = new LLViewerWearable(uuid);
             LLWearable::EImportResult result = wearable->importStream(
                                                 ifs, avatarp );
-            if (LLWearable::SUCCESS != result)
+            if (LLWearable::EImportResult::SUCCESS != result)
             {
                 if (wearable->getType() == LLWearableType::WT_COUNT)
                 {

@@ -259,7 +259,7 @@ void LLFloaterAutoReplaceSettings::updateReplacementsList()
             row["columns"][1]["column"] = "replacement";
             row["columns"][1]["value"]  = entry->second;
 
-            mReplacementsList->addElement(row, ADD_BOTTOM);
+            mReplacementsList->addElement(row, EAddPosition::ADD_BOTTOM);
         }
 
         mReplacementsList->deselectAllItems(false /* don't call commit */);

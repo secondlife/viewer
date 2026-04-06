@@ -1097,7 +1097,7 @@ void LLFloaterWorldMap::buildAvatarIDList()
     LLAvatarTracker::instance().applyFunctor(collector);
     for (const auto& [buddy_id, buddy_name] : collector.mMappable)
     {
-        mFriendCombo->addSimpleElement(buddy_name, ADD_BOTTOM, buddy_id);
+        mFriendCombo->addSimpleElement(buddy_name, EAddPosition::ADD_BOTTOM, buddy_id);
     }
 
     mFriendCombo->setCurrentByID(LLAvatarTracker::instance().getAvatarID());
@@ -1144,7 +1144,7 @@ void LLFloaterWorldMap::buildLandmarkIDLists()
     {
         LLInventoryItem* item = items.at(i);
 
-        mLandmarkCombo->addSimpleElement(item->getName(), ADD_BOTTOM, item->getUUID());
+        mLandmarkCombo->addSimpleElement(item->getName(), EAddPosition::ADD_BOTTOM, item->getUUID());
 
         mLandmarkAssetIDList.push_back( item->getAssetUUID() );
         mLandmarkItemIDList.push_back( item->getUUID() );

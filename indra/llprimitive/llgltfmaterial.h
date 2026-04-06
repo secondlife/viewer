@@ -79,7 +79,7 @@ public:
         bool operator!=(const TextureTransform& other) const { return !(*this == other); }
     };
 
-    enum AlphaMode
+    enum class AlphaMode
     {
         ALPHA_MODE_OPAQUE = 0,
         ALPHA_MODE_BLEND,
@@ -144,7 +144,7 @@ public:
 
     // Default value accessors
     static F32 getDefaultAlphaCutoff();
-    static S32 getDefaultAlphaMode();
+    static AlphaMode getDefaultAlphaMode();
     static F32 getDefaultMetallicFactor();
     static F32 getDefaultRoughnessFactor();
     static LLColor4 getDefaultBaseColor();

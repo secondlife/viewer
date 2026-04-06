@@ -1093,7 +1093,7 @@ void LLFloaterSnapshotBase::draw()
 
             gGL.matrixMode(LLRender::MM_MODELVIEW);
             // Apply floater transparency to the texture unless the floater is focused.
-            F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+            F32 alpha = getTransparencyType() == ETypeTransparency::TT_ACTIVE ? 1.0f : getCurrentTransparency();
             LLColor4 color = working ? LLColor4::grey4 : LLColor4::white;
             gl_draw_scaled_image(offset_x, offset_y,
                     thumbnail_w, thumbnail_h,

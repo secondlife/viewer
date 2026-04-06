@@ -58,8 +58,8 @@ static LLDefaultChildRegistry::Register<LLComboBox> register_combo_box("combo_bo
 
 void LLComboBox::PreferredPositionValues::declareValues()
 {
-    declare("above", ABOVE);
-    declare("below", BELOW);
+    declare("above", EPreferredPosition::ABOVE);
+    declare("below", EPreferredPosition::BELOW);
 }
 
 LLComboBox::ItemParams::ItemParams()
@@ -73,7 +73,7 @@ LLComboBox::Params::Params()
     allow_new_values("allow_new_values", false),
     show_text_as_tentative("show_text_as_tentative", true),
     max_chars("max_chars", 20),
-    list_position("list_position", BELOW),
+    list_position("list_position", EPreferredPosition::BELOW),
     items("item"),
     combo_button("combo_button"),
     combo_list("combo_list"),
@@ -682,7 +682,7 @@ void LLComboBox::showList()
     // make sure we have up to date content width metrics
     S32 list_width = llclamp(mList->calcMaxContentWidth(), min_width, max_width);
 
-    if (mListPosition == BELOW)
+    if (mListPosition == EPreferredPosition::BELOW)
     {
         if (rect.getHeight() <= -root_view_local.mBottom)
         {

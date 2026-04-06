@@ -98,7 +98,7 @@ void LLAudioEngine::setDefaults()
 
     mStreamingAudioImpl = NULL;
 
-    for (U32 i = 0; i < LLAudioEngine::AUDIO_TYPE_COUNT; i++)
+    for (U32 i = 0; i < static_cast<U32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_COUNT); i++)
         mSecondaryGain[i] = 1.0f;
 }
 
@@ -693,7 +693,7 @@ F32 LLAudioEngine::getMasterGain()
 
 void LLAudioEngine::setSecondaryGain(S32 type, F32 gain)
 {
-    llassert(type < LLAudioEngine::AUDIO_TYPE_COUNT);
+    llassert(type < static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_COUNT));
 
     mSecondaryGain[type] = gain;
 }

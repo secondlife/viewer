@@ -5891,7 +5891,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
                     bool force_simple = (facep->getPixelArea() < FORCE_SIMPLE_RENDER_AREA);
                     U32 type = gPipeline.getPoolTypeFromTE(te, tex);
-                    if (is_pbr && gltf_mat && gltf_mat->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_BLEND)
+                    if (is_pbr && gltf_mat && gltf_mat->mAlphaMode != LLGLTFMaterial::AlphaMode::ALPHA_MODE_BLEND)
                     {
                         type = LLDrawPool::POOL_GLTF_PBR;
                     }
@@ -5986,7 +5986,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                                     // discard it here if the alpha is 0 (fully transparent) to achieve parity with blinn-phong materials in
                                     // function.
                                     bool should_render = true;
-                                    if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                                    if (gltf_mat->mAlphaMode == LLGLTFMaterial::AlphaMode::ALPHA_MODE_BLEND)
                                     {
                                         if (gltf_mat->mBaseColor.mV[3] == 0.0f && !LLDrawPoolAlpha::sShowDebugAlpha)
                                         {
@@ -6620,12 +6620,12 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::s
 
                 if (gltf_mat)
                 { // all other parameters ignored if gltf material is present
-                    if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                    if (gltf_mat->mAlphaMode == LLGLTFMaterial::AlphaMode::ALPHA_MODE_BLEND)
                     {
                         registerFace(group, facep, LLRenderPass::PASS_ALPHA);
                         is_alpha = true;
                     }
-                    else if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+                    else if (gltf_mat->mAlphaMode == LLGLTFMaterial::AlphaMode::ALPHA_MODE_MASK)
                     {
                         registerFace(group, facep, LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK);
                     }

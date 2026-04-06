@@ -95,56 +95,56 @@ LLHeadRotMotion::~LLHeadRotMotion()
 LLMotion::LLMotionInitStatus LLHeadRotMotion::onInitialize(LLCharacter *character)
 {
     if (!character)
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     mCharacter = character;
 
     mPelvisJoint = character->getJoint("mPelvis");
     if ( ! mPelvisJoint )
     {
         LL_INFOS() << getName() << ": Can't get pelvis joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mRootJoint = character->getJoint("mRoot");
     if ( ! mRootJoint )
     {
         LL_INFOS() << getName() << ": Can't get root joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mTorsoJoint = character->getJoint("mTorso");
     if ( ! mTorsoJoint )
     {
         LL_INFOS() << getName() << ": Can't get torso joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mHeadJoint = character->getJoint("mHead");
     if ( ! mHeadJoint )
     {
         LL_INFOS() << getName() << ": Can't get head joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mTorsoState->setJoint( character->getJoint("mTorso") );
     if ( ! mTorsoState->getJoint() )
     {
         LL_INFOS() << getName() << ": Can't get torso joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mNeckState->setJoint( character->getJoint("mNeck") );
     if ( ! mNeckState->getJoint() )
     {
         LL_INFOS() << getName() << ": Can't get neck joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mHeadState->setJoint( character->getJoint("mHead") );
     if ( ! mHeadState->getJoint() )
     {
         LL_INFOS() << getName() << ": Can't get head joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mTorsoState->setUsage(LLJointState::ROT);
@@ -157,7 +157,7 @@ LLMotion::LLMotionInitStatus LLHeadRotMotion::onInitialize(LLCharacter *characte
 
     mLastHeadRot.loadIdentity();
 
-    return STATUS_SUCCESS;
+    return LLMotionInitStatus::STATUS_SUCCESS;
 }
 
 
@@ -312,35 +312,35 @@ LLMotion::LLMotionInitStatus LLEyeMotion::onInitialize(LLCharacter *character)
     if ( ! mHeadJoint )
     {
         LL_INFOS() << getName() << ": Can't get head joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mLeftEyeState->setJoint( character->getJoint("mEyeLeft") );
     if ( ! mLeftEyeState->getJoint() )
     {
         LL_INFOS() << getName() << ": Can't get left eyeball joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mAltLeftEyeState->setJoint( character->getJoint("mFaceEyeAltLeft") );
     if ( ! mAltLeftEyeState->getJoint() )
     {
         LL_INFOS() << getName() << ": Can't get alt left eyeball joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mRightEyeState->setJoint( character->getJoint("mEyeRight") );
     if ( ! mRightEyeState->getJoint() )
     {
         LL_INFOS() << getName() << ": Can't get right eyeball joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mAltRightEyeState->setJoint( character->getJoint("mFaceEyeAltRight") );
     if ( ! mAltRightEyeState->getJoint() )
     {
         LL_INFOS() << getName() << ": Can't get alt right eyeball joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mLeftEyeState->setUsage(LLJointState::ROT);
@@ -355,7 +355,7 @@ LLMotion::LLMotionInitStatus LLEyeMotion::onInitialize(LLCharacter *character)
     addJointState( mRightEyeState );
     addJointState( mAltRightEyeState );
 
-    return STATUS_SUCCESS;
+    return LLMotionInitStatus::STATUS_SUCCESS;
 }
 
 

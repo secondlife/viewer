@@ -169,7 +169,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(
         LLSD args;
         args["Message"] = "ParsingErrorBadElement";
         log_msg.append(args);
-        return LLModel::BAD_ELEMENT;
+        return LLModel::EModelStatus::BAD_ELEMENT;
     }
 
     if (!pos_source || !pos_source->getFloat_array())
@@ -178,7 +178,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(
         LLSD args;
         args["Message"] = "ParsingErrorPositionInvalidModel";
         log_msg.append(args);
-        return LLModel::BAD_ELEMENT;
+        return LLModel::EModelStatus::BAD_ELEMENT;
     }
 
     domPRef p = tri->getP();
@@ -193,7 +193,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(
     {
         if(v.getCount() == 0)
         {
-            return LLModel::BAD_ELEMENT;
+            return LLModel::EModelStatus::BAD_ELEMENT;
         }
         // VFExtents change
         face.mExtents[0].set((F32)v[0], (F32)v[1], (F32)v[2]);
@@ -213,7 +213,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(
         // Looks like these offsets should fit inside idx_stride
         // Might be good idea to also check idx.getCount()%idx_stride != 0
         LL_WARNS() << "Invalid idx_stride " << idx_stride << ", pos_offset " << pos_offset <<  ", tc_offset " << tc_offset << " or norm_offset " << norm_offset << LL_ENDL;
-        return LLModel::BAD_ELEMENT;
+        return LLModel::EModelStatus::BAD_ELEMENT;
     }
 
     for (U32 i = 0; i < idx.getCount(); i += idx_stride)
@@ -277,7 +277,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(
             if (verts.size() >= 65535)
             {
                 //llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << LL_ENDL;
-                return LLModel::VERTEX_NUMBER_OVERFLOW ;
+                return LLModel::EModelStatus::VERTEX_NUMBER_OVERFLOW ;
             }
             U16 index = (U16) (verts.size()-1);
             indices.push_back(index);
@@ -360,7 +360,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(
         }
     }
 
-    return LLModel::NO_ERRORS ;
+    return LLModel::EModelStatus::NO_ERRORS ;
 }
 
 LLModel::EModelStatus load_face_from_dom_polylist(
@@ -374,7 +374,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 
     if (idx.getCount() == 0)
     {
-        return LLModel::NO_ERRORS ;
+        return LLModel::EModelStatus::NO_ERRORS ;
     }
 
     const domInputLocalOffset_Array& inputs = poly->getInput_array();
@@ -398,7 +398,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
         LLSD args;
         args["Message"] = "ParsingErrorBadElement";
         log_msg.append(args);
-        return LLModel::BAD_ELEMENT;
+        return LLModel::EModelStatus::BAD_ELEMENT;
     }
 
     LLVolumeFace face;
@@ -452,7 +452,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
                     LLSD args;
                     args["Message"] = "PositionNaN";
                     log_msg.append(args);
-                    return LLModel::BAD_ELEMENT;
+                    return LLModel::EModelStatus::BAD_ELEMENT;
                 }
             }
 
@@ -488,7 +488,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
                     args["Message"] = "NormalsNaN";
                     log_msg.append(args);
 
-                    return LLModel::BAD_ELEMENT;
+                    return LLModel::EModelStatus::BAD_ELEMENT;
                 }
             }
 
@@ -540,7 +540,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
                 if (verts.size() >= 65535)
                 {
                     //llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << LL_ENDL;
-                    return LLModel::VERTEX_NUMBER_OVERFLOW ;
+                    return LLModel::EModelStatus::VERTEX_NUMBER_OVERFLOW ;
                 }
                 U16 index = (U16) (verts.size()-1);
 
@@ -641,7 +641,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
         }
     }
 
-    return LLModel::NO_ERRORS ;
+    return LLModel::EModelStatus::NO_ERRORS ;
 }
 
 LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolygonsRef& poly)
@@ -674,7 +674,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
             domVertices* vertices = (domVertices*) elem.cast();
             if (!vertices)
             {
-                return LLModel::BAD_ELEMENT;
+                return LLModel::EModelStatus::BAD_ELEMENT;
             }
             domInputLocal_Array& v_inp = vertices->getInput_array();
 
@@ -687,7 +687,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
                     domSource* src = (domSource*) elem.cast();
                     if (!src)
                     {
-                        return LLModel::BAD_ELEMENT;
+                        return LLModel::EModelStatus::BAD_ELEMENT;
                     }
                     v = &(src->getFloat_array()->getValue());
                 }
@@ -702,7 +702,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
             domSource* src = (domSource*) elem.cast();
             if (!src)
             {
-                return LLModel::BAD_ELEMENT;
+                return LLModel::EModelStatus::BAD_ELEMENT;
             }
             n = &(src->getFloat_array()->getValue());
         }
@@ -714,7 +714,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
             domSource* src = (domSource*) elem.cast();
             if (!src)
             {
-                return LLModel::BAD_ELEMENT;
+                return LLModel::EModelStatus::BAD_ELEMENT;
             }
             t = &(src->getFloat_array()->getValue());
         }
@@ -786,7 +786,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 
     if (verts.empty())
     {
-        return LLModel::NO_ERRORS;
+        return LLModel::EModelStatus::NO_ERRORS;
     }
     // VFExtents change
     face.mExtents[0] = verts[0].getPosition();
@@ -867,7 +867,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
         }
     }
 
-    return LLModel::NO_ERRORS ;
+    return LLModel::EModelStatus::NO_ERRORS ;
 }
 
 //-----------------------------------------------------------------------------
@@ -1076,9 +1076,9 @@ bool LLDAELoader::OpenFile(const std::string& filename)
             while (i != models.end())
             {
                 LLModel* mdl = *i;
-                if(mdl->getStatus() != LLModel::NO_ERRORS)
+                if(mdl->getStatus() != LLModel::EModelStatus::NO_ERRORS)
                 {
-                    setLoadState(ERROR_MODEL + mdl->getStatus()) ;
+                    setLoadState(ERROR_MODEL + static_cast<U32>(mdl->getStatus())) ;
                     return false; //abort
                 }
 
@@ -2455,7 +2455,7 @@ LLColor4 LLDAELoader::getDaeColor(daeElement* element)
 
 bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh, LLSD& log_msg)
 {
-    LLModel::EModelStatus status = LLModel::NO_ERRORS;
+    LLModel::EModelStatus status = LLModel::EModelStatus::NO_ERRORS;
     domTriangles_Array& tris = mesh->getTriangles_array();
 
     for (U32 i = 0; i < tris.getCount(); ++i)
@@ -2464,7 +2464,7 @@ bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh, LLSD&
 
         status = load_face_from_dom_triangles(pModel->getVolumeFaces(), pModel->getMaterialList(), tri, log_msg);
         pModel->mStatus = status;
-        if(status != LLModel::NO_ERRORS)
+        if(status != LLModel::EModelStatus::NO_ERRORS)
         {
             pModel->ClearFacesAndMaterials();
             return false;
@@ -2477,7 +2477,7 @@ bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh, LLSD&
         domPolylistRef& poly = polys.get(i);
         status = load_face_from_dom_polylist(pModel->getVolumeFaces(), pModel->getMaterialList(), poly, log_msg);
 
-        if(status != LLModel::NO_ERRORS)
+        if(status != LLModel::EModelStatus::NO_ERRORS)
         {
             pModel->ClearFacesAndMaterials();
             return false;
@@ -2492,14 +2492,14 @@ bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh, LLSD&
 
         status = load_face_from_dom_polygons(pModel->getVolumeFaces(), pModel->getMaterialList(), poly);
 
-        if(status != LLModel::NO_ERRORS)
+        if(status != LLModel::EModelStatus::NO_ERRORS)
         {
             pModel->ClearFacesAndMaterials();
             return false;
         }
     }
 
-    return (status == LLModel::NO_ERRORS);
+    return (status == LLModel::EModelStatus::NO_ERRORS);
 }
 
 //static diff version supports creating multiple models when material counts spill

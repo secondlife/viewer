@@ -43,7 +43,7 @@ public:
     bones_t mChildren;
 
     bool mIsJoint; // if not, collision_volume
-    enum SupportCategory
+    enum class SupportCategory
     {
         SUPPORT_BASE,
         SUPPORT_EXTENDED
@@ -53,11 +53,11 @@ public:
     {
         if (support == "extended")
         {
-            mSupport = SUPPORT_EXTENDED;
+            mSupport = SupportCategory::SUPPORT_EXTENDED;
         }
         else
         {
-            mSupport = SUPPORT_BASE;
+            mSupport = SupportCategory::SUPPORT_BASE;
         }
     }
 };

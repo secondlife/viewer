@@ -45,13 +45,13 @@ class LLMotion
     friend class LLMotionController;
 
 public:
-    enum LLMotionBlendType
+    enum class LLMotionBlendType
     {
         NORMAL_BLEND,
         ADDITIVE_BLEND
     };
 
-    enum LLMotionInitStatus
+    enum class LLMotionInitStatus
     {
         STATUS_FAILURE,
         STATUS_SUCCESS,
@@ -203,10 +203,10 @@ public:
     F32 getEaseInDuration() { return 0.0f; }
     F32 getEaseOutDuration() { return 0.0f; }
     LLJoint::JointPriority getPriority() { return LLJoint::HIGH_PRIORITY; }
-    LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
+    LLMotionBlendType getBlendType() { return LLMotionBlendType::NORMAL_BLEND; }
     F32 getMinPixelArea() { return 0.f; }
 
-    LLMotionInitStatus onInitialize(LLCharacter*) { LL_INFOS() << "LLTestMotion::onInitialize()" << LL_ENDL; return STATUS_SUCCESS; }
+    LLMotionInitStatus onInitialize(LLCharacter*) { LL_INFOS() << "LLTestMotion::onInitialize()" << LL_ENDL; return LLMotionInitStatus::STATUS_SUCCESS; }
     bool onActivate() { LL_INFOS() << "LLTestMotion::onActivate()" << LL_ENDL; return true; }
     bool onUpdate(F32 time, U8* joint_mask) { LL_INFOS() << "LLTestMotion::onUpdate(" << time << ")" << LL_ENDL; return true; }
     void onDeactivate() { LL_INFOS() << "LLTestMotion::onDeactivate()" << LL_ENDL; }
@@ -239,7 +239,7 @@ public:
     /*virtual*/ LLJoint::JointPriority getPriority() { return LLJoint::HIGH_PRIORITY; }
 
     // motions must report their blend type
-    /*virtual*/ LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
+    /*virtual*/ LLMotionBlendType getBlendType() { return LLMotionBlendType::NORMAL_BLEND; }
 
     // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
     /*virtual*/ F32 getMinPixelArea() { return 0.f; }
@@ -247,7 +247,7 @@ public:
     // run-time (post constructor) initialization,
     // called after parameters have been set
     // must return true to indicate success and be available for activation
-    /*virtual*/ LLMotionInitStatus onInitialize(LLCharacter *character) { return STATUS_SUCCESS; }
+    /*virtual*/ LLMotionInitStatus onInitialize(LLCharacter *character) { return LLMotionInitStatus::STATUS_SUCCESS; }
 
     // called when a motion is activated
     // must return true to indicate success, or else

@@ -102,8 +102,8 @@ LLWearable::EImportResult LLViewerWearable::importStream( std::istream& input_st
     LLOverrideBakedTextureUpdate stop_bakes(false);
 
     LLWearable::EImportResult result = LLWearable::importStream(input_stream, avatarp);
-    if (LLWearable::FAILURE == result) return result;
-    if (LLWearable::BAD_HEADER == result)
+    if (LLWearable::EImportResult::FAILURE == result) return result;
+    if (LLWearable::EImportResult::BAD_HEADER == result)
     {
         // Shouldn't really log the asset id for security reasons, but
         // we need it in this case.

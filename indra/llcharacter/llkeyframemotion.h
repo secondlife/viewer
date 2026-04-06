@@ -125,7 +125,7 @@ public:
         return 0;
     }
 
-    virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
+    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::NORMAL_BLEND; }
 
     // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
     virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_KEYFRAME; }
@@ -182,7 +182,7 @@ public:
     }
 
     LLHandMotion::eHandPose getHandPose() {
-        return (mJointMotionList) ? mJointMotionList->mHandPose : LLHandMotion::HAND_POSE_RELAXED;
+        return (mJointMotionList) ? mJointMotionList->mHandPose : LLHandMotion::eHandPose::HAND_POSE_RELAXED;
     }
 
     void setPriority(S32 priority);
@@ -213,8 +213,8 @@ protected:
             mEaseOutStartTime(0.f),
             mEaseOutStopTime(0.f),
             mUseTargetOffset(false),
-            mConstraintType(CONSTRAINT_TYPE_POINT),
-            mConstraintTargetType(CONSTRAINT_TARGET_TYPE_BODY),
+            mConstraintType(EConstraintType::CONSTRAINT_TYPE_POINT),
+            mConstraintTargetType(EConstraintTargetType::CONSTRAINT_TARGET_TYPE_BODY),
             mSourceConstraintVolume(0),
             mTargetConstraintVolume(0),
             mJointStateIndices()

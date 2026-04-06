@@ -485,7 +485,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 
             for ( ; citer != end; ++citer)
             {
-                mComboActiveTitle->add(citer->mTitle,citer->mRoleID, (citer->mSelected ? ADD_TOP : ADD_BOTTOM));
+                mComboActiveTitle->add(citer->mTitle,citer->mRoleID, (citer->mSelected ? EAddPosition::ADD_TOP : EAddPosition::ADD_BOTTOM));
                 if (citer->mSelected)
                 {
                     mComboActiveTitle->setCurrentByID(citer->mRoleID);

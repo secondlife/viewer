@@ -42,7 +42,7 @@ enum ESex
     SEX_BOTH =      0x03  // values chosen to allow use as a bit field.
 };
 
-enum EVisualParamGroup
+enum class EVisualParamGroup
 {
     VISUAL_PARAM_GROUP_TWEAKABLE,
     VISUAL_PARAM_GROUP_ANIMATABLE,
@@ -51,7 +51,7 @@ enum EVisualParamGroup
     NUM_VISUAL_PARAM_GROUPS
 };
 
-enum EParamLocation
+enum class EParamLocation
 {
     LOC_UNKNOWN,
     LOC_AV_SELF,
@@ -152,7 +152,7 @@ public:
     F32                     getLastWeight() const   { return mLastWeight; }
     void                    setLastWeight(F32 val) { mLastWeight = val; }
     bool                    isAnimating() const { return mIsAnimating; }
-    bool                    isTweakable() const { return (getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)  || (getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT); }
+    bool                    isTweakable() const { return (getGroup() == EVisualParamGroup::VISUAL_PARAM_GROUP_TWEAKABLE)  || (getGroup() == EVisualParamGroup::VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT); }
 
     LLVisualParam*          getNextParam()      { return mNext; }
     void                    setNextParam( LLVisualParam *next );

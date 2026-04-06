@@ -1236,7 +1236,7 @@ void LLFloaterModelPreview::initDecompControls()
                         for(float value = min; value <= max; value += delta)
                         {
                             std::string label = llformat("%.1f", value);
-                            combo_box->add(label, value, ADD_BOTTOM, true);
+                            combo_box->add(label, value, EAddPosition::ADD_BOTTOM, true);
                         }
                     }
                     combo_box->setValue(is_smooth_cb ? 0: param[i].mDefault.mFloat);
@@ -1263,7 +1263,7 @@ void LLFloaterModelPreview::initDecompControls()
                     for(int k = param[i].mDetails.mRange.mLow.mIntOrEnumValue; k<=param[i].mDetails.mRange.mHigh.mIntOrEnumValue; k+=param[i].mDetails.mRange.mDelta.mIntOrEnumValue)
                     {
                         std::string name = llformat("%.1d", k);
-                        combo_box->add(name, k, ADD_BOTTOM, true);
+                        combo_box->add(name, k, EAddPosition::ADD_BOTTOM, true);
                     }
                     combo_box->setValue(param[i].mDefault.mIntOrEnumValue);
                     combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
@@ -1320,12 +1320,12 @@ void LLFloaterModelPreview::createSmoothComboBox(LLComboBox* combo_box, float mi
     float delta = (max - min) / SMOOTH_VALUES_NUMBER;
     int ilabel = 0;
 
-    combo_box->add("0 (none)", ADD_BOTTOM, true);
+    combo_box->add("0 (none)", EAddPosition::ADD_BOTTOM, true);
 
     for(float value = min + delta; value < max; value += delta)
     {
         std::string label = (++ilabel == SMOOTH_VALUES_NUMBER) ? "10 (max)" : llformat("%.1d", ilabel);
-        combo_box->add(label, value, ADD_BOTTOM, true);
+        combo_box->add(label, value, EAddPosition::ADD_BOTTOM, true);
     }
 }
 
@@ -1614,7 +1614,7 @@ void LLFloaterModelPreview::updateAvatarTab(bool highlight_overrides)
 
             item_params.columns.add(cell_params);
 
-            joints_list->addRow(item_params, ADD_BOTTOM);
+            joints_list->addRow(item_params, EAddPosition::ADD_BOTTOM);
             joint_iter++;
         }
         joints_list->selectFirstItem();

@@ -2568,7 +2568,7 @@ void LLPanelLandAccess::refresh()
                     }
                     prefix.append(" " + parent_floater->getString("Remaining") + ") ");
                 }
-                mListAccess->addNameItem(entry.mID, ADD_DEFAULT, true, "", prefix);
+                mListAccess->addNameItem(entry.mID, EAddPosition::ADD_DEFAULT, true, "", prefix);
             }
             mListAccess->sortByName(true);
         }

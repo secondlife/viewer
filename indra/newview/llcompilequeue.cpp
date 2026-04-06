@@ -146,7 +146,7 @@ public:
         {
             std::string message = std::string("Compiling \"") + getScriptName() + std::string("\"...");
 
-            queue->getChild<LLScrollListCtrl>("queue output")->addSimpleElement(message, ADD_BOTTOM);
+            queue->getChild<LLScrollListCtrl>("queue output")->addSimpleElement(message, EAddPosition::ADD_BOTTOM);
         }
 
         return LLSDMap("success", LLSD::Boolean(true));
@@ -227,7 +227,7 @@ bool LLFloaterScriptQueue::start()
     args["[COUNT]"] = llformat ("%d", mObjectList.size());
     buffer = getString ("Starting", args);
 
-    getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
+    getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, EAddPosition::ADD_BOTTOM);
 
     return startQueue();
 }
@@ -236,12 +236,12 @@ void LLFloaterScriptQueue::addProcessingMessage(const std::string &message, cons
 {
     std::string buffer(LLTrans::getString(message, args));
 
-    getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
+    getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, EAddPosition::ADD_BOTTOM);
 }
 
 void LLFloaterScriptQueue::addStringMessage(const std::string &message)
 {
-    getChild<LLScrollListCtrl>("queue output")->addSimpleElement(message, ADD_BOTTOM);
+    getChild<LLScrollListCtrl>("queue output")->addSimpleElement(message, EAddPosition::ADD_BOTTOM);
 }
 
 

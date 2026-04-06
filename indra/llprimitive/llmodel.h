@@ -89,7 +89,7 @@ public:
         NUM_LODS
     };
 
-    enum EModelStatus
+    enum class EModelStatus
     {
         NO_ERRORS = 0,
         VERTEX_NUMBER_OVERFLOW, //vertex number is >= 65535.

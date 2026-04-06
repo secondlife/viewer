@@ -57,8 +57,8 @@ void LLTrustedMessageService::post(LLHTTPNode::ResponsePtr response,
     // service, but this can happen in development, so check and warn
     LLMessageConfig::SenderTrust trust =
         LLMessageConfig::getSenderTrustedness(name);
-    if ((trust == LLMessageConfig::TRUSTED ||
-         (trust == LLMessageConfig::NOT_SET &&
+    if ((trust == LLMessageConfig::SenderTrust::TRUSTED ||
+         (trust == LLMessageConfig::SenderTrust::NOT_SET &&
           gMessageSystem->isTrustedMessage(name)))
          && !gMessageSystem->isTrustedSender(LLHost(sender)))
     {

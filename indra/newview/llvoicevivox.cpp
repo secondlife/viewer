@@ -4475,7 +4475,7 @@ void LLVivoxVoiceClient::messageEvent(
             {
                 chat.mFromID = session->mCallerID;
                 chat.mFromName = session->mName;
-                chat.mSourceType = CHAT_SOURCE_AGENT;
+                chat.mSourceType = EChatSourceType::CHAT_SOURCE_AGENT;
 
                 if(is_do_not_disturb && !is_linden)
                 {

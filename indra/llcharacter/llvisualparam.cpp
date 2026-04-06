@@ -37,7 +37,7 @@
 LLVisualParamInfo::LLVisualParamInfo()
     :
     mID( -1 ),
-    mGroup( VISUAL_PARAM_GROUP_TWEAKABLE ),
+    mGroup( EVisualParamGroup::VISUAL_PARAM_GROUP_TWEAKABLE ),
     mMinWeight( 0.f ),
     mMaxWeight( 1.f ),
     mDefaultWeight( 0.f ),
@@ -59,9 +59,9 @@ bool LLVisualParamInfo::parseXml(LLXmlTreeNode *node)
     static LLStdStringHandle group_string = LLXmlTree::addAttributeString("group");
     if( node->getFastAttributeU32( group_string, group ) )
     {
-        if( group < NUM_VISUAL_PARAM_GROUPS )
+        if( group < static_cast<U32>(EVisualParamGroup::NUM_VISUAL_PARAM_GROUPS) )
         {
-            mGroup = (EVisualParamGroup)group;
+            mGroup = static_cast<EVisualParamGroup>(group);
         }
     }
 
@@ -149,7 +149,7 @@ void LLVisualParamInfo::toStream(std::ostream &out)
     out <<  mDisplayName << "\t";
     out <<  mMinName << "\t";
     out <<  mMaxName << "\t";
-    out <<  mGroup << "\t";
+    out <<  static_cast<int>(mGroup) << "\t";
     out <<  mMinWeight << "\t";
     out <<  mMaxWeight << "\t";
     out <<  mDefaultWeight << "\t";
@@ -168,7 +168,7 @@ LLVisualParam::LLVisualParam()
     mIsDummy(false),
     mID( -1 ),
     mInfo( 0 ),
-    mParamLocation(LOC_UNKNOWN)
+    mParamLocation(EParamLocation::LOC_UNKNOWN)
 {
 }
 
@@ -350,17 +350,17 @@ const std::string param_location_name(const EParamLocation& loc)
 {
     switch (loc)
     {
-        case LOC_UNKNOWN: return "unknown";
-        case LOC_AV_SELF: return "self";
-        case LOC_AV_OTHER: return "other";
-        case LOC_WEARABLE: return "wearable";
+        case EParamLocation::LOC_UNKNOWN: return "unknown";
+        case EParamLocation::LOC_AV_SELF: return "self";
+        case EParamLocation::LOC_AV_OTHER: return "other";
+        case EParamLocation::LOC_WEARABLE: return "wearable";
         default: return "error";
     }
 }
 
 void LLVisualParam::setParamLocation(EParamLocation loc)
 {
-    if (mParamLocation == LOC_UNKNOWN || loc == LOC_UNKNOWN)
+    if (mParamLocation == EParamLocation::LOC_UNKNOWN || loc == EParamLocation::LOC_UNKNOWN)
     {
         mParamLocation = loc;
     }
@@ -370,7 +370,7 @@ void LLVisualParam::setParamLocation(EParamLocation loc)
     }
     else
     {
-        LL_DEBUGS() << "param location is already " << mParamLocation << ", not slamming to " << loc << LL_ENDL;
+        LL_DEBUGS() << "param location is already " << static_cast<int>(mParamLocation) << ", not slamming to " << static_cast<int>(loc) << LL_ENDL;
     }
 }
 

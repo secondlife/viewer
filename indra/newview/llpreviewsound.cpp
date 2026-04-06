@@ -94,6 +94,6 @@ void LLPreviewSound::auditionSound( void *userdata )
 
     if(item && gAudiop)
     {
-        gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), SOUND_GAIN, LLAudioEngine::AUDIO_TYPE_SFX);
+        gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), SOUND_GAIN, static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_SFX));
     }
 }

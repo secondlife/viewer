@@ -75,7 +75,7 @@ public:
 
     virtual void    writeToAvatar(LLAvatarAppearance* avatarp);
 
-    enum EImportResult
+    enum class EImportResult
     {
         FAILURE = 0,
         SUCCESS,

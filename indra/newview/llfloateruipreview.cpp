@@ -517,8 +517,8 @@ bool LLFloaterUIPreview::postBuild()
     }
     if(found_en_us)
     {
-        mLanguageSelection->add(std::string("en"),ADD_TOP);                                                         // make en first item if we found it
-        mLanguageSelection_2->add(std::string("en"),ADD_TOP);
+        mLanguageSelection->add(std::string("en"),EAddPosition::ADD_TOP);                                                         // make en first item if we found it
+        mLanguageSelection_2->add(std::string("en"),EAddPosition::ADD_TOP);
     }
     else
     {

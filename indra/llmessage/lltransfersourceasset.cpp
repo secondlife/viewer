@@ -35,7 +35,7 @@
 #include "llfilesystem.h"
 
 LLTransferSourceAsset::LLTransferSourceAsset(const LLUUID &request_id, const F32 priority) :
-    LLTransferSource(LLTST_ASSET, request_id, priority),
+    LLTransferSource(LLTransferSourceType::LLTST_ASSET, request_id, priority),
     mGotResponse(false),
     mCurPos(0)
 {
@@ -70,7 +70,7 @@ void LLTransferSourceAsset::initTransfer()
                 << mParams.getAssetID() << ":"
                 << LLAssetType::lookupHumanReadable(mParams.getAssetType())
                 << LL_ENDL;
-            sendTransferStatus(LLTS_ERROR);
+            sendTransferStatus(LLTSCode::LLTS_ERROR);
         }
     }
     else
@@ -78,7 +78,7 @@ void LLTransferSourceAsset::initTransfer()
         LL_WARNS() << "Attempted to request asset " << mParams.getAssetID()
             << ":" << LLAssetType::lookupHumanReadable(mParams.getAssetType())
             << " without an asset system!" << LL_ENDL;
-        sendTransferStatus(LLTS_ERROR);
+        sendTransferStatus(LLTSCode::LLTS_ERROR);
     }
 }
 
@@ -96,7 +96,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
     //LL_INFOS() << "LLTransferSourceAsset::dataCallback" << LL_ENDL;
     if (!mGotResponse)
     {
-        return LLTS_SKIP;
+        return LLTSCode::LLTS_SKIP;
     }
 
     LLFileSystem vf(mParams.getAssetID(), mParams.getAssetType(), LLFileSystem::READ);
@@ -104,7 +104,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
     if (!vf.getSize())
     {
         // Something bad happened with the asset request!
-        return LLTS_ERROR;
+        return LLTSCode::LLTS_ERROR;
     }
 
     if (packet_id != mLastPacketID + 1)
@@ -117,7 +117,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
     {
         LL_WARNS() << "LLTransferSourceAsset Can't seek to " << mCurPos << " length " << vf.getSize() << LL_ENDL;
         LL_WARNS() << "While sending " << mParams.getAssetID() << LL_ENDL;
-        return LLTS_ERROR;
+        return LLTSCode::LLTS_ERROR;
     }
 
     delete_returned = true;
@@ -130,7 +130,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
         *data_handle = NULL;
         returned_bytes = 0;
         delete_returned = false;
-        return LLTS_ERROR;
+        return LLTSCode::LLTS_ERROR;
     }
 
     returned_bytes = vf.getLastBytesRead();
@@ -146,10 +146,10 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
             returned_bytes = 0;
             delete_returned = false;
         }
-        return LLTS_DONE;
+        return LLTSCode::LLTS_DONE;
     }
 
-    return LLTS_OK;
+    return LLTSCode::LLTS_OK;
 }
 
 void LLTransferSourceAsset::completionCallback(const LLTSCode status)
@@ -200,7 +200,7 @@ void LLTransferSourceAsset::responderCallback(const LLUUID& uuid, LLAssetType::E
         // Everything's OK.
         LLFileSystem vf(uuid, type, LLFileSystem::READ);
         tsap->mSize = vf.getSize();
-        status = LLTS_OK;
+        status = LLTSCode::LLTS_OK;
     }
     else
     {
@@ -208,10 +208,10 @@ void LLTransferSourceAsset::responderCallback(const LLUUID& uuid, LLAssetType::E
         switch (result)
         {
         case LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE:
-            status = LLTS_UNKNOWN_SOURCE;
+            status = LLTSCode::LLTS_UNKNOWN_SOURCE;
             break;
         default:
-            status = LLTS_ERROR;
+            status = LLTSCode::LLTS_ERROR;
         }
     }
 
@@ -221,7 +221,7 @@ void LLTransferSourceAsset::responderCallback(const LLUUID& uuid, LLAssetType::E
 
 
 LLTransferSourceParamsAsset::LLTransferSourceParamsAsset()
-    : LLTransferSourceParams(LLTST_ASSET),
+    : LLTransferSourceParams(LLTransferSourceType::LLTST_ASSET),
 
       mAssetType(LLAssetType::AT_NONE)
 {

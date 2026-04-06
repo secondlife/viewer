@@ -863,7 +863,7 @@ void LLScriptEdCore::addHelpItemToHistory(const std::string& help_string)
     // separate history items from full item list
     if (mLiveHelpHistorySize == 0)
     {
-        history_combo->addSeparator(ADD_TOP);
+        history_combo->addSeparator(EAddPosition::ADD_TOP);
     }
     // delete all history items over history limit
     while(mLiveHelpHistorySize > MAX_HISTORY_COUNT - 1)
@@ -886,7 +886,7 @@ void LLScriptEdCore::addHelpItemToHistory(const std::string& help_string)
             mLiveHelpHistorySize--;
         }
     }
-    history_combo->add(help_string, LLSD(help_string), ADD_TOP);
+    history_combo->add(help_string, LLSD(help_string), EAddPosition::ADD_TOP);
     history_combo->selectFirstItem();
     mLiveHelpHistorySize++;
 }
@@ -1401,11 +1401,11 @@ void LLLiveLSLEditor::buildExperienceList()
     for(LLSD::array_const_iterator it = mExperienceIds.beginArray(); it != mExperienceIds.endArray(); ++it)
     {
         LLUUID id = it->asUUID();
-        EAddPosition position = ADD_BOTTOM;
+        EAddPosition position = EAddPosition::ADD_BOTTOM;
         if(id == associated)
         {
             foundAssociated = true;
-            position = ADD_TOP;
+            position = EAddPosition::ADD_TOP;
         }
 
         const LLSD& experience = LLExperienceCache::instance().get(id);
@@ -1435,11 +1435,11 @@ void LLLiveLSLEditor::buildExperienceList()
             {
                 experience_name_string = LLTrans::getString("ExperienceNameUntitled");
             }
-            item=mExperiences->add(experience_name_string, associated, ADD_TOP);
+            item=mExperiences->add(experience_name_string, associated, EAddPosition::ADD_TOP);
         }
         else
         {
-            item=mExperiences->add(getString("loading"), associated, ADD_TOP);
+            item=mExperiences->add(getString("loading"), associated, EAddPosition::ADD_TOP);
             last = associated;
         }
         item->setEnabled(false);

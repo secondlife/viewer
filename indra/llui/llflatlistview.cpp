@@ -66,7 +66,7 @@ const LLRect& LLFlatListView::getItemsRect() const
     return mItemsPanel->getRect();
 }
 
-bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*/, EAddPosition pos /*= ADD_BOTTOM*/,bool rearrange /*= true*/)
+bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*/, EAddPosition pos /*= EAddPosition::ADD_BOTTOM*/,bool rearrange /*= true*/)
 {
     if (!item) return false;
     if (value.isUndefined()) return false; // item stays an orphan?!!!
@@ -77,12 +77,12 @@ bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*
     item_pair_t* new_pair = new item_pair_t(item, value);
     switch (pos)
     {
-    case ADD_TOP:
+    case EAddPosition::ADD_TOP:
         mItemPairs.push_front(new_pair);
         //in LLView::draw() children are iterated in backorder
         mItemsPanel->addChildInBack(item);
         break;
-    case ADD_BOTTOM:
+    case EAddPosition::ADD_BOTTOM:
         mItemPairs.push_back(new_pair);
         mItemsPanel->addChild(item);
         break;

@@ -117,7 +117,7 @@ class LLDir
     // these methods search the various skin paths for the specified file in the following order:
     // getUserSkinDir(), getUserDefaultSkinDir(), getSkinDir(), getDefaultSkinDir()
     /// param value for findSkinnedFilenames(), explained below
-    enum ESkinConstraint { CURRENT_SKIN, ALL_SKINS };
+    enum class ESkinConstraint { CURRENT_SKIN, ALL_SKINS };
     /**
      * Given a filename within skin, return an ordered sequence of paths to
      * search. Nonexistent files will be filtered out -- which means that the
@@ -147,7 +147,7 @@ class LLDir
      */
     std::vector<std::string> findSkinnedFilenames(const std::string& subdir,
                                                   const std::string& filename,
-                                                  ESkinConstraint constraint=CURRENT_SKIN) const;
+                                                  ESkinConstraint constraint=ESkinConstraint::CURRENT_SKIN) const;
     /// Values for findSkinnedFilenames(subdir) parameter
     static const char *XUI, *TEXTURES, *SKINBASE;
     /**
@@ -159,7 +159,7 @@ class LLDir
      */
     std::string findSkinnedFilenameBaseLang(const std::string &subdir,
                                             const std::string &filename,
-                                            ESkinConstraint constraint=CURRENT_SKIN) const;
+                                            ESkinConstraint constraint=ESkinConstraint::CURRENT_SKIN) const;
     /**
      * Return the "most localized" pathname from findSkinnedFilenames(), or
      * the empty string if no such file exists. Parameters are identical to
@@ -169,7 +169,7 @@ class LLDir
      */
     std::string findSkinnedFilename(const std::string &subdir,
                                     const std::string &filename,
-                                    ESkinConstraint constraint=CURRENT_SKIN) const;
+                                    ESkinConstraint constraint=ESkinConstraint::CURRENT_SKIN) const;
 
     // random filename in common temporary directory
     std::string getTempFilename() const;

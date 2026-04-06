@@ -1201,7 +1201,7 @@ void LLViewerTextEditor::openEmbeddedSound( LLInventoryItem* item, llwchar wc )
     const F32 SOUND_GAIN = 1.0f;
     if(gAudiop)
     {
-        gAudiop->triggerSound(item->getAssetUUID(), gAgentID, SOUND_GAIN, LLAudioEngine::AUDIO_TYPE_UI, lpos_global);
+        gAudiop->triggerSound(item->getAssetUUID(), gAgentID, SOUND_GAIN, static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_UI), lpos_global);
     }
     showCopyToInvDialog( item, wc );
 }

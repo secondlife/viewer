@@ -90,7 +90,7 @@ LLFloaterMove::~LLFloaterMove()
 // virtual
 bool LLFloaterMove::postBuild()
 {
-    updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
+    updateTransparency(ETypeTransparency::TT_ACTIVE); // force using active floater transparency (STORM-730)
 
     // Code that implements floater buttons toggling when user moves via keyboard is located in LLAgent::propagate()
 

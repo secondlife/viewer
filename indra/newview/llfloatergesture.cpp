@@ -397,7 +397,7 @@ void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gestur
 
     LL_DEBUGS("Gesture") << "Added gesture [" << item_name << "]" << LL_ENDL;
 
-    LLScrollListItem* sl_item = list->addElement(element, ADD_BOTTOM);
+    LLScrollListItem* sl_item = list->addElement(element, EAddPosition::ADD_BOTTOM);
     if(sl_item)
     {
         if (LLGestureMgr::getInstance()->isGestureActive(item_id))

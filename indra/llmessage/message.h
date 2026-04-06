@@ -131,7 +131,7 @@ const U8 LL_ACK_FLAG = 0x10;
 
 // 1 byte flags, 4 bytes sequence, 1 byte offset + 1 byte message name (high)
 const S32 LL_MINIMUM_VALID_PACKET_SIZE = LL_PACKET_ID_SIZE + 1;
-enum EPacketHeaderLayout
+enum class EPacketHeaderLayout
 {
     PHL_FLAGS = 0,
     PHL_PACKET_ID = 1,

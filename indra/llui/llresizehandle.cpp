@@ -57,16 +57,16 @@ LLResizeHandle::LLResizeHandle(const LLResizeHandle::Params& p)
     mMinHeight( p.min_height ),
     mCorner( p.corner )
 {
-    if( RIGHT_BOTTOM == mCorner)
+    if( ECorner::RIGHT_BOTTOM == mCorner)
     {
         mImage = LLUI::getUIImage("Resize_Corner");
     }
     switch( p.corner )
     {
-        case LEFT_TOP:      setFollows( FOLLOWS_LEFT | FOLLOWS_TOP );       break;
-        case LEFT_BOTTOM:   setFollows( FOLLOWS_LEFT | FOLLOWS_BOTTOM );    break;
-        case RIGHT_TOP:     setFollows( FOLLOWS_RIGHT | FOLLOWS_TOP );      break;
-        case RIGHT_BOTTOM:  setFollows( FOLLOWS_RIGHT | FOLLOWS_BOTTOM );   break;
+        case ECorner::LEFT_TOP:      setFollows( FOLLOWS_LEFT | FOLLOWS_TOP );       break;
+        case ECorner::LEFT_BOTTOM:   setFollows( FOLLOWS_LEFT | FOLLOWS_BOTTOM );    break;
+        case ECorner::RIGHT_TOP:     setFollows( FOLLOWS_RIGHT | FOLLOWS_TOP );      break;
+        case ECorner::RIGHT_BOTTOM:  setFollows( FOLLOWS_RIGHT | FOLLOWS_BOTTOM );   break;
     }
 }
 
@@ -158,19 +158,19 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
             S32 y_multiple = 1;
             switch( mCorner )
             {
-            case LEFT_TOP:
+            case ECorner::LEFT_TOP:
                 x_multiple = -1;
                 y_multiple =  1;
                 break;
-            case LEFT_BOTTOM:
+            case ECorner::LEFT_BOTTOM:
                 x_multiple = -1;
                 y_multiple = -1;
                 break;
-            case RIGHT_TOP:
+            case ECorner::RIGHT_TOP:
                 x_multiple =  1;
                 y_multiple =  1;
                 break;
-            case RIGHT_BOTTOM:
+            case ECorner::RIGHT_BOTTOM:
                 x_multiple =  1;
                 y_multiple = -1;
                 break;
@@ -192,15 +192,15 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
 
             switch( mCorner )
             {
-            case LEFT_TOP:
+            case ECorner::LEFT_TOP:
                 scaled_rect.translate(delta_x, 0);
                 break;
-            case LEFT_BOTTOM:
+            case ECorner::LEFT_BOTTOM:
                 scaled_rect.translate(delta_x, delta_y);
                 break;
-            case RIGHT_TOP:
+            case ECorner::RIGHT_TOP:
                 break;
-            case RIGHT_BOTTOM:
+            case ECorner::RIGHT_BOTTOM:
                 scaled_rect.translate(0, delta_y);
                 break;
             }
@@ -217,7 +217,7 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
             // now do snapping
             switch(mCorner)
             {
-            case LEFT_TOP:
+            case ECorner::LEFT_TOP:
                 snap_view = resizing_view->findSnapEdge(scaled_rect.mLeft, mouse_dir, SNAP_LEFT, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                 test_view = resizing_view->findSnapEdge(scaled_rect.mTop, mouse_dir, SNAP_TOP, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                 if (!snap_view)
@@ -225,7 +225,7 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
                     snap_view = test_view;
                 }
                 break;
-            case LEFT_BOTTOM:
+            case ECorner::LEFT_BOTTOM:
                 snap_view = resizing_view->findSnapEdge(scaled_rect.mLeft, mouse_dir, SNAP_LEFT, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                 test_view = resizing_view->findSnapEdge(scaled_rect.mBottom, mouse_dir, SNAP_BOTTOM, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                 if (!snap_view)
@@ -233,7 +233,7 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
                     snap_view = test_view;
                 }
                 break;
-            case RIGHT_TOP:
+            case ECorner::RIGHT_TOP:
                 snap_view = resizing_view->findSnapEdge(scaled_rect.mRight, mouse_dir, SNAP_RIGHT, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                 test_view = resizing_view->findSnapEdge(scaled_rect.mTop, mouse_dir, SNAP_TOP, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                 if (!snap_view)
@@ -241,7 +241,7 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
                     snap_view = test_view;
                 }
                 break;
-            case RIGHT_BOTTOM:
+            case ECorner::RIGHT_BOTTOM:
                 snap_view = resizing_view->findSnapEdge(scaled_rect.mRight, mouse_dir, SNAP_RIGHT, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                 test_view = resizing_view->findSnapEdge(scaled_rect.mBottom, mouse_dir, SNAP_BOTTOM, SNAP_PARENT_AND_SIBLINGS, snap_margin);
                 if (!snap_view)
@@ -266,7 +266,7 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
             S32 actual_delta_y = 0;
             switch(mCorner)
             {
-            case LEFT_TOP:
+            case ECorner::LEFT_TOP:
                 actual_delta_x = new_rect.mLeft - orig_rect.mLeft;
                 actual_delta_y = new_rect.mTop - orig_rect.mTop;
                 if (actual_delta_x != delta_x
@@ -280,7 +280,7 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
                 mDragLastScreenX += actual_delta_x;
                 mDragLastScreenY += actual_delta_y;
                 break;
-            case LEFT_BOTTOM:
+            case ECorner::LEFT_BOTTOM:
                 actual_delta_x = new_rect.mLeft - orig_rect.mLeft;
                 actual_delta_y = new_rect.mBottom - orig_rect.mBottom;
                 if (actual_delta_x != delta_x
@@ -294,7 +294,7 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
                 mDragLastScreenX += actual_delta_x;
                 mDragLastScreenY += actual_delta_y;
                 break;
-            case RIGHT_TOP:
+            case ECorner::RIGHT_TOP:
                 actual_delta_x = new_rect.mRight - orig_rect.mRight;
                 actual_delta_y = new_rect.mTop - orig_rect.mTop;
                 if (actual_delta_x != delta_x
@@ -308,7 +308,7 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
                 mDragLastScreenX += actual_delta_x;
                 mDragLastScreenY += actual_delta_y;
                 break;
-            case RIGHT_BOTTOM:
+            case ECorner::RIGHT_BOTTOM:
                 actual_delta_x = new_rect.mRight - orig_rect.mRight;
                 actual_delta_y = new_rect.mBottom - orig_rect.mBottom;
                 if (actual_delta_x != delta_x
@@ -341,12 +341,12 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
     {
         switch( mCorner )
         {
-        case RIGHT_BOTTOM:
-        case LEFT_TOP:
+        case ECorner::RIGHT_BOTTOM:
+        case ECorner::LEFT_TOP:
             getWindow()->setCursor(UI_CURSOR_SIZENWSE);
             break;
-        case LEFT_BOTTOM:
-        case RIGHT_TOP:
+        case ECorner::LEFT_BOTTOM:
+        case ECorner::RIGHT_TOP:
             getWindow()->setCursor(UI_CURSOR_SIZENESW);
             break;
         }
@@ -359,7 +359,7 @@ bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
 // assumes GL state is set for 2D
 void LLResizeHandle::draw()
 {
-    if( mImage.notNull() && getVisible() && (RIGHT_BOTTOM == mCorner) )
+    if( mImage.notNull() && getVisible() && (ECorner::RIGHT_BOTTOM == mCorner) )
     {
         mImage->draw(0, 0);
     }
@@ -375,10 +375,10 @@ bool LLResizeHandle::pointInHandle( S32 x, S32 y )
 
         switch( mCorner )
         {
-        case LEFT_TOP:      return (x <= RESIZE_BORDER_WIDTH) || (y >= TOP_BORDER);
-        case LEFT_BOTTOM:   return (x <= RESIZE_BORDER_WIDTH) || (y <= RESIZE_BORDER_WIDTH);
-        case RIGHT_TOP:     return (x >= RIGHT_BORDER) || (y >= TOP_BORDER);
-        case RIGHT_BOTTOM:  return true;
+        case ECorner::LEFT_TOP:      return (x <= RESIZE_BORDER_WIDTH) || (y >= TOP_BORDER);
+        case ECorner::LEFT_BOTTOM:   return (x <= RESIZE_BORDER_WIDTH) || (y <= RESIZE_BORDER_WIDTH);
+        case ECorner::RIGHT_TOP:     return (x >= RIGHT_BORDER) || (y >= TOP_BORDER);
+        case ECorner::RIGHT_BOTTOM:  return true;
         }
     }
     return false;

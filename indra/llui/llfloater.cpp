@@ -402,28 +402,28 @@ void LLFloater::addResizeCtrls()
     p.name("resizebar_left");
     p.resizing_view(this);
     p.min_size(mMinWidth);
-    p.side(LLResizeBar::LEFT);
-    mResizeBar[LLResizeBar::LEFT] = LLUICtrlFactory::create<LLResizeBar>(p);
-    addChild( mResizeBar[LLResizeBar::LEFT] );
+    p.side(LLResizeBar::Side::LEFT);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::LEFT)] = LLUICtrlFactory::create<LLResizeBar>(p);
+    addChild( mResizeBar[static_cast<size_t>(LLResizeBar::Side::LEFT)] );
 
     p.name("resizebar_top");
     p.min_size(mMinHeight);
-    p.side(LLResizeBar::TOP);
+    p.side(LLResizeBar::Side::TOP);
 
-    mResizeBar[LLResizeBar::TOP] = LLUICtrlFactory::create<LLResizeBar>(p);
-    addChild( mResizeBar[LLResizeBar::TOP] );
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::TOP)] = LLUICtrlFactory::create<LLResizeBar>(p);
+    addChild( mResizeBar[static_cast<size_t>(LLResizeBar::Side::TOP)] );
 
     p.name("resizebar_right");
     p.min_size(mMinWidth);
-    p.side(LLResizeBar::RIGHT);
-    mResizeBar[LLResizeBar::RIGHT] = LLUICtrlFactory::create<LLResizeBar>(p);
-    addChild( mResizeBar[LLResizeBar::RIGHT] );
+    p.side(LLResizeBar::Side::RIGHT);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::RIGHT)] = LLUICtrlFactory::create<LLResizeBar>(p);
+    addChild( mResizeBar[static_cast<size_t>(LLResizeBar::Side::RIGHT)] );
 
     p.name("resizebar_bottom");
     p.min_size(mMinHeight);
-    p.side(LLResizeBar::BOTTOM);
-    mResizeBar[LLResizeBar::BOTTOM] = LLUICtrlFactory::create<LLResizeBar>(p);
-    addChild( mResizeBar[LLResizeBar::BOTTOM] );
+    p.side(LLResizeBar::Side::BOTTOM);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::BOTTOM)] = LLUICtrlFactory::create<LLResizeBar>(p);
+    addChild( mResizeBar[static_cast<size_t>(LLResizeBar::Side::BOTTOM)] );
 
     // Resize handles (corners)
     LLResizeHandle::Params handle_p;
@@ -432,19 +432,19 @@ void LLFloater::addResizeCtrls()
     handle_p.mouse_opaque(false);
     handle_p.min_width(mMinWidth);
     handle_p.min_height(mMinHeight);
-    handle_p.corner(LLResizeHandle::RIGHT_BOTTOM);
+    handle_p.corner(LLResizeHandle::ECorner::RIGHT_BOTTOM);
     mResizeHandle[0] = LLUICtrlFactory::create<LLResizeHandle>(handle_p);
     addChild(mResizeHandle[0]);
 
-    handle_p.corner(LLResizeHandle::RIGHT_TOP);
+    handle_p.corner(LLResizeHandle::ECorner::RIGHT_TOP);
     mResizeHandle[1] = LLUICtrlFactory::create<LLResizeHandle>(handle_p);
     addChild(mResizeHandle[1]);
 
-    handle_p.corner(LLResizeHandle::LEFT_BOTTOM);
+    handle_p.corner(LLResizeHandle::ECorner::LEFT_BOTTOM);
     mResizeHandle[2] = LLUICtrlFactory::create<LLResizeHandle>(handle_p);
     addChild(mResizeHandle[2]);
 
-    handle_p.corner(LLResizeHandle::LEFT_TOP);
+    handle_p.corner(LLResizeHandle::ECorner::LEFT_TOP);
     mResizeHandle[3] = LLUICtrlFactory::create<LLResizeHandle>(handle_p);
     addChild(mResizeHandle[3]);
 
@@ -458,16 +458,16 @@ void LLFloater::layoutResizeCtrls()
     // Resize bars (sides)
     const S32 RESIZE_BAR_THICKNESS = 3;
     rect = LLRect( 0, getRect().getHeight(), RESIZE_BAR_THICKNESS, 0);
-    mResizeBar[LLResizeBar::LEFT]->setRect(rect);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::LEFT)]->setRect(rect);
 
     rect = LLRect( 0, getRect().getHeight(), getRect().getWidth(), getRect().getHeight() - RESIZE_BAR_THICKNESS);
-    mResizeBar[LLResizeBar::TOP]->setRect(rect);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::TOP)]->setRect(rect);
 
     rect = LLRect(getRect().getWidth() - RESIZE_BAR_THICKNESS, getRect().getHeight(), getRect().getWidth(), 0);
-    mResizeBar[LLResizeBar::RIGHT]->setRect(rect);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::RIGHT)]->setRect(rect);
 
     rect = LLRect(0, RESIZE_BAR_THICKNESS, getRect().getWidth(), 0);
-    mResizeBar[LLResizeBar::BOTTOM]->setRect(rect);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::BOTTOM)]->setRect(rect);
 
     // Resize handles (corners)
     rect = LLRect( getRect().getWidth() - RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT, getRect().getWidth(), 0);
@@ -485,17 +485,17 @@ void LLFloater::layoutResizeCtrls()
 
 void LLFloater::enableResizeCtrls(bool enable, bool width, bool height)
 {
-    mResizeBar[LLResizeBar::LEFT]->setVisible(enable && width);
-    mResizeBar[LLResizeBar::LEFT]->setEnabled(enable && width);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::LEFT)]->setVisible(enable && width);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::LEFT)]->setEnabled(enable && width);
 
-    mResizeBar[LLResizeBar::TOP]->setVisible(enable && height);
-    mResizeBar[LLResizeBar::TOP]->setEnabled(enable && height);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::TOP)]->setVisible(enable && height);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::TOP)]->setEnabled(enable && height);
 
-    mResizeBar[LLResizeBar::RIGHT]->setVisible(enable && width);
-    mResizeBar[LLResizeBar::RIGHT]->setEnabled(enable && width);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::RIGHT)]->setVisible(enable && width);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::RIGHT)]->setEnabled(enable && width);
 
-    mResizeBar[LLResizeBar::BOTTOM]->setVisible(enable && height);
-    mResizeBar[LLResizeBar::BOTTOM]->setEnabled(enable && height);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::BOTTOM)]->setVisible(enable && height);
+    mResizeBar[static_cast<size_t>(LLResizeBar::Side::BOTTOM)]->setEnabled(enable && height);
 
     for (S32 i = 0; i < 4; ++i)
     {
@@ -871,7 +871,7 @@ void LLFloater::setResizeLimits( S32 min_width, S32 min_height )
     {
         if( mResizeBar[i] )
         {
-            if (i == LLResizeBar::LEFT || i == LLResizeBar::RIGHT)
+            if (i == static_cast<S32>(LLResizeBar::Side::LEFT) || i == static_cast<S32>(LLResizeBar::Side::RIGHT))
             {
                 mResizeBar[i]->setResizeLimits( min_width, S32_MAX );
             }
@@ -1447,7 +1447,7 @@ void LLFloater::setFocus( bool b )
             last_focus->setFocus(true);
         }
     }
-    updateTransparency(b ? TT_ACTIVE : TT_INACTIVE);
+    updateTransparency(b ? ETypeTransparency::TT_ACTIVE : ETypeTransparency::TT_INACTIVE);
 }
 
 // virtual
@@ -1805,7 +1805,7 @@ void LLFloater::setFrontmost(bool take_focus, bool restore)
         }
 
         // Make sure to set the appropriate transparency type (STORM-732).
-        updateTransparency(hasFocus() || getIsChrome() ? TT_ACTIVE : TT_INACTIVE);
+        updateTransparency(hasFocus() || getIsChrome() ? ETypeTransparency::TT_ACTIVE : ETypeTransparency::TT_INACTIVE);
     }
 }
 

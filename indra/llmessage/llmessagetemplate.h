@@ -166,7 +166,7 @@ protected:
 };
 
 
-enum EMsgBlockType
+enum class EMsgBlockType
 {
     MBT_NULL,
     MBT_SINGLE,
@@ -234,7 +234,7 @@ public:
 };
 
 
-enum EMsgFrequency
+enum class EMsgFrequency
 {
     MFT_NULL    = 0,  // value is size of message number in bytes
     MFT_HIGH    = 1,
@@ -242,19 +242,19 @@ enum EMsgFrequency
     MFT_LOW     = 4
 };
 
-enum EMsgTrust
+enum class EMsgTrust
 {
     MT_TRUST,
     MT_NOTRUST
 };
 
-enum EMsgEncoding
+enum class EMsgEncoding
 {
     ME_UNENCODED,
     ME_ZEROCODED
 };
 
-enum EMsgDeprecation
+enum class EMsgDeprecation
 {
     MD_NOTDEPRECATED,
     MD_UDPDEPRECATED,
@@ -271,9 +271,9 @@ public:
         //mMemberBlocks(),
         mName(NULL),
         mFrequency(freq),
-        mTrust(MT_NOTRUST),
-        mEncoding(ME_ZEROCODED),
-        mDeprecation(MD_NOTDEPRECATED),
+        mTrust(EMsgTrust::MT_NOTRUST),
+        mEncoding(EMsgEncoding::ME_ZEROCODED),
+        mDeprecation(EMsgDeprecation::MD_NOTDEPRECATED),
         mMessageNumber(message_number),
         mTotalSize(0),
         mReceiveCount(0),
@@ -307,8 +307,8 @@ public:
         *member_blockp = blockp;
         if (  (mTotalSize != -1)
             &&(blockp->mTotalSize != -1)
-            &&(  (blockp->mType == MBT_SINGLE)
-               ||(blockp->mType == MBT_MULTIPLE)))
+            &&(  (blockp->mType == EMsgBlockType::MBT_SINGLE)
+               ||(blockp->mType == EMsgBlockType::MBT_MULTIPLE)))
         {
             mTotalSize += blockp->mNumber*blockp->mTotalSize;
         }
@@ -372,7 +372,7 @@ public:
 
     bool isUdpBanned() const
     {
-        return mDeprecation == MD_UDPBLACKLISTED;
+        return mDeprecation == EMsgDeprecation::MD_UDPBLACKLISTED;
     }
 
     void banUdp();

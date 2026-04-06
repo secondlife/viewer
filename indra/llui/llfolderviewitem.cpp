@@ -2150,20 +2150,20 @@ void LLFolderViewFolder::setOpenArrangeRecursively(bool openitem, ERecurseType r
         getViewModelItem()->closeItem();
     }
 
-    if (recurse == RECURSE_DOWN || recurse == RECURSE_UP_DOWN)
+    if (recurse == ERecurseType::RECURSE_DOWN || recurse == ERecurseType::RECURSE_UP_DOWN)
     {
         for (folders_t::iterator iter = mFolders.begin();
             iter != mFolders.end();)
         {
             folders_t::iterator fit = iter++;
-            (*fit)->setOpenArrangeRecursively(openitem, RECURSE_DOWN);      /* Flawfinder: ignore */
+            (*fit)->setOpenArrangeRecursively(openitem, ERecurseType::RECURSE_DOWN);      /* Flawfinder: ignore */
         }
     }
     if (mParentFolder
-        &&  (recurse == RECURSE_UP
-            || recurse == RECURSE_UP_DOWN))
+        &&  (recurse == ERecurseType::RECURSE_UP
+            || recurse == ERecurseType::RECURSE_UP_DOWN))
     {
-        mParentFolder->setOpenArrangeRecursively(openitem, RECURSE_UP);
+        mParentFolder->setOpenArrangeRecursively(openitem, ERecurseType::RECURSE_UP);
     }
 
     if (was_open != isOpen())

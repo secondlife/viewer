@@ -79,7 +79,7 @@ public:
     // motions must report their priority
     virtual LLJoint::JointPriority getPriority() { return TARGETING_PRIORITY; }
 
-    virtual LLMotionBlendType getBlendType() { return ADDITIVE_BLEND; }
+    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::ADDITIVE_BLEND; }
 
     // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
     virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_TARGETING; }

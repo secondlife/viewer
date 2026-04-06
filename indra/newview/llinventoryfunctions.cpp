@@ -3211,7 +3211,7 @@ void LLOpenFilteredFolders::doItem(LLFolderViewItem *item)
 {
     if (item->passedFilter())
     {
-        item->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::RECURSE_UP);
+        item->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::ERecurseType::RECURSE_UP);
     }
 }
 
@@ -3219,12 +3219,12 @@ void LLOpenFilteredFolders::doFolder(LLFolderViewFolder* folder)
 {
     if (folder->LLFolderViewItem::passedFilter() && folder->getParentFolder())
     {
-        folder->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::RECURSE_UP);
+        folder->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::ERecurseType::RECURSE_UP);
     }
     // if this folder didn't pass the filter, and none of its descendants did
     else if (!folder->getViewModelItem()->passedFilter() && !folder->getViewModelItem()->descendantsPassedFilter())
     {
-        folder->setOpenArrangeRecursively(false, LLFolderViewFolder::RECURSE_NO);
+        folder->setOpenArrangeRecursively(false, LLFolderViewFolder::ERecurseType::RECURSE_NO);
     }
 }
 
@@ -3235,7 +3235,7 @@ void LLSelectFirstFilteredItem::doItem(LLFolderViewItem *item)
         item->getRoot()->setSelection(item, false, false);
         if (item->getParentFolder())
         {
-            item->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::RECURSE_UP);
+            item->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::ERecurseType::RECURSE_UP);
         }
         mItemSelected = true;
     }
@@ -3247,7 +3247,7 @@ void LLSelectFirstFilteredItem::doFolder(LLFolderViewFolder* folder)
     if (!mFolderSelected && !mItemSelected && folder->LLFolderViewItem::passedFilter() && folder->getParentFolder())
     {
         folder->getRoot()->setSelection(folder, false, false);
-        folder->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::RECURSE_UP);
+        folder->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::ERecurseType::RECURSE_UP);
         mFolderSelected = true;
     }
 }
@@ -3256,7 +3256,7 @@ void LLOpenFoldersWithSelection::doItem(LLFolderViewItem *item)
 {
     if (item->getParentFolder() && item->isSelected())
     {
-        item->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::RECURSE_UP);
+        item->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::ERecurseType::RECURSE_UP);
     }
 }
 
@@ -3264,7 +3264,7 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 {
     if (folder->getParentFolder() && folder->isSelected())
     {
-        folder->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::RECURSE_UP);
+        folder->getParentFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::ERecurseType::RECURSE_UP);
     }
 }
 

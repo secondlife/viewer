@@ -102,7 +102,7 @@ void LLFloaterWindowSize::initWindowSizeControls()
     LLUIString resolution_label = getString("resolution_format");
     resolution_label.setArg("[RES_X]", llformat("%d", width));
     resolution_label.setArg("[RES_Y]", llformat("%d", height));
-    ctrl_window_size->add(resolution_label, ADD_TOP);
+    ctrl_window_size->add(resolution_label, EAddPosition::ADD_TOP);
     ctrl_window_size->setCurrentByIndex(0);
 }
 

@@ -203,7 +203,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
     bool is_session_focused = session_floater->isTornOff() && session_floater->hasFocus();
     bool contains_mention = LLUrlRegistry::getInstance()->containsAgentMention(msg["message"].asString());
     static LLCachedControl<bool> play_snd_mention_pref(gSavedSettings, "PlaySoundChatMention", false);
-    bool play_snd_mention = contains_mention && play_snd_mention_pref && (msg["source_type"].asInteger() != CHAT_SOURCE_OBJECT);
+    bool play_snd_mention = contains_mention && play_snd_mention_pref && (msg["source_type"].asInteger() != static_cast<S32>(EChatSourceType::CHAT_SOURCE_OBJECT));
     if (!LLFloater::isVisible(im_box) || im_box->isMinimized())
     {
         conversations_floater_status = CLOSED;
@@ -226,7 +226,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
     //  determine user prefs for this session
     if (session_id.isNull())
     {
-        if (msg["source_type"].asInteger() == CHAT_SOURCE_OBJECT)
+        if (msg["source_type"].asInteger() == static_cast<S32>(EChatSourceType::CHAT_SOURCE_OBJECT))
         {
             user_preferences = gSavedSettings.getString("NotificationObjectIMOptions");
             if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundObjectIM")))
@@ -2525,16 +2525,16 @@ LLDockControl::DocAt LLCallDialog::getDockControlPos(const std::string& toolbarB
     LLCommandId command_id(toolbarButtonName);
     S32 toolbar_loc = gToolBarView->hasCommand(command_id);
 
-    LLDockControl::DocAt doc_at = LLDockControl::TOP;
+    LLDockControl::DocAt doc_at = LLDockControl::DocAt::TOP;
 
     switch (toolbar_loc)
     {
         case LLToolBarEnums::TOOLBAR_LEFT:
-            doc_at = LLDockControl::RIGHT;
+            doc_at = LLDockControl::DocAt::RIGHT;
             break;
 
         case LLToolBarEnums::TOOLBAR_RIGHT:
-            doc_at = LLDockControl::LEFT;
+            doc_at = LLDockControl::DocAt::LEFT;
             break;
     }
 
@@ -3142,7 +3142,7 @@ LLIMMgr::LLIMMgr()
 
     LLIMModel::getInstance()->addNewMsgCallback(std::bind(&LLFloaterIMSession::sRemoveTypingIndicator, _1));
 
-    gSavedPerAccountSettings.declareBOOL("FetchGroupChatHistory", true, "Fetch recent messages from group chat servers when a group window opens", LLControlVariable::PERSIST_ALWAYS);
+    gSavedPerAccountSettings.declareBOOL("FetchGroupChatHistory", true, "Fetch recent messages from group chat servers when a group window opens", LLControlVariable::ePersist::PERSIST_ALWAYS);
 }
 
 // Add a message to a session.
@@ -3304,7 +3304,7 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
         message.setArgs(args);
 
         LLChat chat(message);
-        chat.mSourceType = CHAT_SOURCE_SYSTEM;
+        chat.mSourceType = EChatSourceType::CHAT_SOURCE_SYSTEM;
 
         LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
         if (nearby_chat)

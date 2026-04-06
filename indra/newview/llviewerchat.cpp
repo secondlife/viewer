@@ -52,10 +52,10 @@ void LLViewerChat::getChatColor(const LLChat& chat, LLUIColor& r_color, F32& r_c
     {
         switch(chat.mSourceType)
         {
-            case CHAT_SOURCE_SYSTEM:
+            case EChatSourceType::CHAT_SOURCE_SYSTEM:
                 r_color = LLUIColorTable::instance().getColor("SystemChatColor");
                 break;
-            case CHAT_SOURCE_AGENT:
+            case EChatSourceType::CHAT_SOURCE_AGENT:
                 if (chat.mFromID.isNull() || SYSTEM_FROM == chat.mFromName)
                 {
                     r_color = LLUIColorTable::instance().getColor("SystemChatColor");
@@ -72,16 +72,16 @@ void LLViewerChat::getChatColor(const LLChat& chat, LLUIColor& r_color, F32& r_c
                     }
                 }
                 break;
-            case CHAT_SOURCE_OBJECT:
-                if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
+            case EChatSourceType::CHAT_SOURCE_OBJECT:
+                if (chat.mChatType == EChatType::CHAT_TYPE_DEBUG_MSG)
                 {
                     r_color = LLUIColorTable::instance().getColor("ScriptErrorColor");
                 }
-                else if ( chat.mChatType == CHAT_TYPE_OWNER )
+                else if ( chat.mChatType == EChatType::CHAT_TYPE_OWNER )
                 {
                     r_color = LLUIColorTable::instance().getColor("llOwnerSayChatColor");
                 }
-                else if ( chat.mChatType == CHAT_TYPE_DIRECT )
+                else if ( chat.mChatType == EChatType::CHAT_TYPE_DIRECT )
                 {
                     r_color = LLUIColorTable::instance().getColor("DirectChatColor");
                 }
@@ -124,11 +124,11 @@ void LLViewerChat::getChatColor(const LLChat& chat, std::string& r_color_name, F
     {
         switch(chat.mSourceType)
         {
-            case CHAT_SOURCE_SYSTEM:
+            case EChatSourceType::CHAT_SOURCE_SYSTEM:
                 r_color_name = "SystemChatColor";
                 break;
 
-            case CHAT_SOURCE_AGENT:
+            case EChatSourceType::CHAT_SOURCE_AGENT:
                 if (chat.mFromID.isNull())
                 {
                     r_color_name = "SystemChatColor";
@@ -146,16 +146,16 @@ void LLViewerChat::getChatColor(const LLChat& chat, std::string& r_color_name, F
                 }
                 break;
 
-            case CHAT_SOURCE_OBJECT:
-                if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
+            case EChatSourceType::CHAT_SOURCE_OBJECT:
+                if (chat.mChatType == EChatType::CHAT_TYPE_DEBUG_MSG)
                 {
                     r_color_name = "ScriptErrorColor";
                 }
-                else if ( chat.mChatType == CHAT_TYPE_OWNER )
+                else if ( chat.mChatType == EChatType::CHAT_TYPE_OWNER )
                 {
                     r_color_name = "llOwnerSayChatColor";
                 }
-                else if ( chat.mChatType == CHAT_TYPE_DIRECT )
+                else if ( chat.mChatType == EChatType::CHAT_TYPE_DIRECT )
                 {
                     r_color_name = "DirectChatColor";
                 }
@@ -230,7 +230,7 @@ void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
         tmpmsg.replace(match.getStart(), match.getEnd() - match.getStart() + 1, match.getLabel());
     }
 
-    if(chat.mChatStyle == CHAT_STYLE_IRC)
+    if(chat.mChatStyle == EChatStyle::CHAT_STYLE_IRC)
     {
         formated_msg = chat.mFromName + tmpmsg.substr(3);
     }
@@ -246,14 +246,14 @@ std::string LLViewerChat::getSenderSLURL(const LLChat& chat, const LLSD& args)
 {
     switch (chat.mSourceType)
     {
-    case CHAT_SOURCE_AGENT:
+    case EChatSourceType::CHAT_SOURCE_AGENT:
         return LLSLURL("agent", chat.mFromID, "about").getSLURLString();
 
-    case CHAT_SOURCE_OBJECT:
+    case EChatSourceType::CHAT_SOURCE_OBJECT:
         return getObjectImSLURL(chat, args);
 
     default:
-        LL_WARNS() << "Getting SLURL for an unsupported sender type: " << chat.mSourceType << LL_ENDL;
+        LL_WARNS() << "Getting SLURL for an unsupported sender type: " << static_cast<S32>(chat.mSourceType) << LL_ENDL;
     }
 
     return LLStringUtil::null;

@@ -466,7 +466,7 @@ static void ui_audio_callback(const LLUUID& uuid)
 {
     if (gAudiop)
     {
-        SoundData soundData(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+        SoundData soundData(uuid, gAgent.getID(), 1.0f, static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_UI));
         gAudiop->triggerSound(soundData);
     }
 }
@@ -476,7 +476,7 @@ static void deferred_ui_audio_callback(const LLUUID& uuid)
 {
     if (gAudiop)
     {
-        SoundData soundData(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
+        SoundData soundData(uuid, gAgent.getID(), 1.0f, static_cast<S32>(LLAudioEngine::LLAudioType::AUDIO_TYPE_UI));
         LLDeferredSounds::instance().deferSound(soundData);
     }
 }
@@ -1197,7 +1197,7 @@ bool LLAppViewer::init()
     // what I wanted
     LLCoprocedureManager::getInstance()->setPropertyMethods(
         std::bind(&LLControlGroup::getU32, std::ref(gSavedSettings), std::placeholders::_1),
-        std::bind(&LLControlGroup::declareU32, std::ref(gSavedSettings), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, LLControlVariable::PERSIST_ALWAYS));
+        std::bind(&LLControlGroup::declareU32, std::ref(gSavedSettings), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, LLControlVariable::ePersist::PERSIST_ALWAYS));
 
     // TODO: consider moving proxy initialization here or LLCopocedureManager after proxy initialization, may be implement
     // some other protection to make sure we don't use network before initializng proxy

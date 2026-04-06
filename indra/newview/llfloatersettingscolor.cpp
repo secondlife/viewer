@@ -197,7 +197,7 @@ void LLFloaterSettingsColor::updateList(bool skip_selection)
             row["columns"][1]["column"] = "color";
             row["columns"][1]["value"] = name;
 
-            LLScrollListItem* item = mSettingList->addElement(row, ADD_BOTTOM, nullptr);
+            LLScrollListItem* item = mSettingList->addElement(row, EAddPosition::ADD_BOTTOM, nullptr);
             if (!mSearchFilter.empty() && (last_selected == name) && !skip_selection)
             {
                 std::string lower_name(name);
@@ -223,7 +223,7 @@ void LLFloaterSettingsColor::updateList(bool skip_selection)
             row["columns"][1]["column"] = "color";
             row["columns"][1]["value"] = name;
 
-            LLScrollListItem* item = mSettingList->addElement(row, ADD_BOTTOM, nullptr);
+            LLScrollListItem* item = mSettingList->addElement(row, EAddPosition::ADD_BOTTOM, nullptr);
             if (!mSearchFilter.empty() && (last_selected == name) && !skip_selection)
             {
                 std::string lower_name(name);

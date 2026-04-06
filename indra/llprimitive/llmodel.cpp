@@ -57,7 +57,7 @@ LLModel::LLModel(const LLVolumeParams& params, F32 detail)
       mNormalizedScale(1,1,1),
       mNormalizedTranslation(0, 0, 0),
       mPelvisOffset( 0.0f ),
-      mStatus(NO_ERRORS),
+      mStatus(EModelStatus::NO_ERRORS),
       mSubmodelID(0)
 {
     mDecompID = -1;
@@ -81,9 +81,9 @@ LLModel::~LLModel()
 //static
 std::string LLModel::getStatusString(U32 status)
 {
-    const static std::string status_strings[(S32)INVALID_STATUS] = {"status_no_error", "status_vertex_number_overflow","bad_element"};
+    const static std::string status_strings[static_cast<S32>(EModelStatus::INVALID_STATUS)] = {"status_no_error", "status_vertex_number_overflow","bad_element"};
 
-    if(status < INVALID_STATUS)
+    if(status < static_cast<U32>(EModelStatus::INVALID_STATUS))
     {
         if(status_strings[status] == std::string())
         {

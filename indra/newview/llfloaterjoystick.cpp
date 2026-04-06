@@ -257,13 +257,13 @@ void LLFloaterJoystick::refresh()
 bool LLFloaterJoystick::addDeviceCallback(std::string &name, LLSD& value, void* userdata)
 {
     LLFloaterJoystick * floater = (LLFloaterJoystick*)userdata;
-    floater->mJoysticksCombo->add(name, value, ADD_BOTTOM, 1);
+    floater->mJoysticksCombo->add(name, value, EAddPosition::ADD_BOTTOM, 1);
     return false; // keep searching
 }
 
 void LLFloaterJoystick::addDevice(std::string &name, LLSD& value)
 {
-    mJoysticksCombo->add(name, value, ADD_BOTTOM, 1);
+    mJoysticksCombo->add(name, value, EAddPosition::ADD_BOTTOM, 1);
 }
 
 void LLFloaterJoystick::refreshListOfDevices()

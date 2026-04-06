@@ -147,24 +147,24 @@ void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
     std::string action;
     switch(mcd->mType)
     {
-    case MEAN_BUMP:
+    case EMeanCollisionType::MEAN_BUMP:
         action = "bump";
         break;
-    case MEAN_LLPUSHOBJECT:
+    case EMeanCollisionType::MEAN_LLPUSHOBJECT:
         action = "llpushobject";
         break;
-    case MEAN_SELECTED_OBJECT_COLLIDE:
+    case EMeanCollisionType::MEAN_SELECTED_OBJECT_COLLIDE:
         action = "selected_object_collide";
         break;
-    case MEAN_SCRIPTED_OBJECT_COLLIDE:
+    case EMeanCollisionType::MEAN_SCRIPTED_OBJECT_COLLIDE:
         action = "scripted_object_collide";
         break;
-    case MEAN_PHYSICAL_OBJECT_COLLIDE:
+    case EMeanCollisionType::MEAN_PHYSICAL_OBJECT_COLLIDE:
         action = "physical_object_collide";
         break;
     default:
         LL_INFOS() << "LLFloaterBump::add unknown mean collision type "
-            << mcd->mType << LL_ENDL;
+            << static_cast<S32>(mcd->mType) << LL_ENDL;
         return;
     }
 

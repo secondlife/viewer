@@ -62,7 +62,7 @@ LLScrollColumnHeader::LLScrollColumnHeader(const LLScrollColumnHeader::Params& p
     resize_bar_p.resizing_view(this);
     resize_bar_p.rect(LLRect(getRect().getWidth() - RESIZE_BAR_THICKNESS, getRect().getHeight(), getRect().getWidth(), 0));
     resize_bar_p.min_size(MIN_COLUMN_WIDTH);
-    resize_bar_p.side(LLResizeBar::RIGHT);
+    resize_bar_p.side(LLResizeBar::Side::RIGHT);
     resize_bar_p.enabled(false);
     mResizeBar = LLUICtrlFactory::create<LLResizeBar>(resize_bar_p);
     addChild(mResizeBar);

@@ -295,7 +295,7 @@ void LLPanelGroupInvite::impl::addRoleNames(LLGroupMgrGroupData* gdatap)
             {
                 mRoleNames->add(rd.mRoleName,
                                 role_id,
-                                ADD_BOTTOM);
+                                EAddPosition::ADD_BOTTOM);
             }
         }
     }
@@ -557,7 +557,7 @@ void LLPanelGroupInvite::update()
         mStoreSelected = mImplementation->mRoleNames->getCurrentID();
         mImplementation->mRoleNames->clear();
         mImplementation->mRoleNames->removeall();
-        mImplementation->mRoleNames->add(mImplementation->mLoadingText, LLUUID::null, ADD_BOTTOM);
+        mImplementation->mRoleNames->add(mImplementation->mLoadingText, LLUUID::null, EAddPosition::ADD_BOTTOM);
         mImplementation->mRoleNames->setCurrentByID(LLUUID::null);
     }
 

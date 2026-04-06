@@ -31,7 +31,7 @@
 #include "v3math.h"
 
 // enumerations used by the chat system
-enum EChatSourceType
+enum class EChatSourceType
 {
     CHAT_SOURCE_SYSTEM = 0,
     CHAT_SOURCE_AGENT = 1,
@@ -41,7 +41,7 @@ enum EChatSourceType
     CHAT_SOURCE_REGION = 5,
 };
 
-enum EChatType
+enum class EChatType
 {
     CHAT_TYPE_WHISPER = 0,
     CHAT_TYPE_NORMAL = 1,
@@ -54,14 +54,14 @@ enum EChatType
     CHAT_TYPE_DIRECT = 9        // From llRegionSayTo()
 };
 
-enum EChatAudible
+enum class EChatAudible
 {
     CHAT_AUDIBLE_NOT = -1,
     CHAT_AUDIBLE_BARELY = 0,
     CHAT_AUDIBLE_FULLY = 1
 };
 
-enum EChatStyle
+enum class EChatStyle
 {
     CHAT_STYLE_NORMAL,
     CHAT_STYLE_IRC,
@@ -79,15 +79,15 @@ public:
         mFromID(),
         mNotifId(),
         mOwnerID(),
-        mSourceType(CHAT_SOURCE_AGENT),
-        mChatType(CHAT_TYPE_NORMAL),
-        mAudible(CHAT_AUDIBLE_FULLY),
+        mSourceType(EChatSourceType::CHAT_SOURCE_AGENT),
+        mChatType(EChatType::CHAT_TYPE_NORMAL),
+        mAudible(EChatAudible::CHAT_AUDIBLE_FULLY),
         mMuted(false),
         mTime(0.0),
         mTimeStr(),
         mPosAgent(),
         mURL(),
-        mChatStyle(CHAT_STYLE_NORMAL),
+        mChatStyle(EChatStyle::CHAT_STYLE_NORMAL),
         mSessionID()
     { }
 

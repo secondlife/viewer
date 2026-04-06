@@ -74,17 +74,17 @@ void LLFloaterIMNearbyChatListener::sendChat(LLSD const& chat_data)
         }
     }
 
-    EChatType type_o_chat = CHAT_TYPE_NORMAL;
+    EChatType type_o_chat = EChatType::CHAT_TYPE_NORMAL;
     if (chat_data.has("type"))
     {
         std::string type_string = chat_data["type"].asString();
         if (type_string == "whisper")
         {
-            type_o_chat = CHAT_TYPE_WHISPER;
+            type_o_chat = EChatType::CHAT_TYPE_WHISPER;
         }
         else if (type_string == "shout")
         {
-            type_o_chat = CHAT_TYPE_SHOUT;
+            type_o_chat = EChatType::CHAT_TYPE_SHOUT;
         }
     }
 

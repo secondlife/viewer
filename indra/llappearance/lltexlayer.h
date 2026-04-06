@@ -53,7 +53,7 @@ class LLViewerVisualParam;
 class LLTexLayerInterface
 {
 public:
-    enum ERenderPass
+    enum class ERenderPass
     {
         RP_COLOR,
         RP_BUMP,

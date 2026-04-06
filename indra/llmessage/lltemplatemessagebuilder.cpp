@@ -79,7 +79,7 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
         // add at one of each block
         const LLMessageTemplate* msg_template = mMessageTemplates.find(name)->second;
 
-        if (msg_template->getDeprecation() != MD_NOTDEPRECATED)
+        if (msg_template->getDeprecation() != EMsgDeprecation::MD_NOTDEPRECATED)
         {
             LL_WARNS() << "Sending deprecated message " << namep << LL_ENDL;
         }
@@ -161,24 +161,24 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
         // already have this block. . .
         // are we supposed to have a new one?
 
-        // if the block is type MBT_SINGLE this is bad!
-        if (template_data->mType == MBT_SINGLE)
+        // if the block is type EMsgBlockType::MBT_SINGLE this is bad!
+        if (template_data->mType == EMsgBlockType::MBT_SINGLE)
         {
             LL_ERRS() << "LLTemplateMessageBuilder::nextBlock called multiple times"
-                << " for " << bnamep << " but is type MBT_SINGLE" << LL_ENDL;
+                << " for " << bnamep << " but is type EMsgBlockType::MBT_SINGLE" << LL_ENDL;
             return;
         }
 
 
-        // if the block is type MBT_MULTIPLE then we need a known number,
+        // if the block is type EMsgBlockType::MBT_MULTIPLE then we need a known number,
         // make sure that we're not exceeding it
-        if (  (template_data->mType == MBT_MULTIPLE)
+        if (  (template_data->mType == EMsgBlockType::MBT_MULTIPLE)
             &&(mCurrentSDataBlock->mBlockNumber == template_data->mNumber))
         {
             LL_ERRS() << "LLTemplateMessageBuilder::nextBlock called "
                 << mCurrentSDataBlock->mBlockNumber << " times for " << bnamep
                 << " exceeding " << template_data->mNumber
-                << " specified in type MBT_MULTIPLE." << LL_ENDL;
+                << " specified in type EMsgBlockType::MBT_MULTIPLE." << LL_ENDL;
             return;
         }
 
@@ -191,7 +191,7 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 
         if (block_data->mBlockNumber > MAX_BLOCKS)
         {
-            LL_ERRS() << "Trying to pack too many blocks into MBT_VARIABLE type "
+            LL_ERRS() << "Trying to pack too many blocks into EMsgBlockType::MBT_VARIABLE type "
                    << "(limited to " << MAX_BLOCKS << ")" << LL_ENDL;
         }
 
@@ -576,7 +576,7 @@ static S32 zero_code(U8 **data, U32 *data_size)
 
 void LLTemplateMessageBuilder::compressMessage(U8*& buf_ptr, U32& buffer_length)
 {
-    if(ME_ZEROCODED == mCurrentSMessageTemplate->getEncoding())
+    if(EMsgEncoding::ME_ZEROCODED == mCurrentSMessageTemplate->getEncoding())
     {
         zero_code(&buf_ptr, &buffer_length);
     }
@@ -599,13 +599,13 @@ bool LLTemplateMessageBuilder::isMessageFull(const char* blockname) const
 
     switch(template_data->mType)
     {
-    case MBT_SINGLE:
+    case EMsgBlockType::MBT_SINGLE:
         max = 1;
         break;
-    case MBT_MULTIPLE:
+    case EMsgBlockType::MBT_MULTIPLE:
         max = template_data->mNumber;
         break;
-    case MBT_VARIABLE:
+    case EMsgBlockType::MBT_VARIABLE:
     default:
         max = MAX_BLOCKS;
         break;
@@ -624,10 +624,10 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
     const LLMsgBlkData* mbci = block_iter->second;
 
     // ok, if this is the first block of a repeating pack, set
-    // block_count and, if it's type MBT_VARIABLE encode a byte
+    // block_count and, if it's type EMsgBlockType::MBT_VARIABLE encode a byte
     // for how many there are
     S32 block_count = mbci->mBlockNumber;
-    if (template_data->mType == MBT_VARIABLE)
+    if (template_data->mType == EMsgBlockType::MBT_VARIABLE)
     {
         // remember that mBlockNumber is a S32
         U8 temp_block_number = (U8)mbci->mBlockNumber;
@@ -645,13 +645,13 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
                     << "sendBuffersize." << LL_ENDL;
         }
     }
-    else if (template_data->mType == MBT_MULTIPLE)
+    else if (template_data->mType == EMsgBlockType::MBT_MULTIPLE)
     {
         if (block_count != template_data->mNumber)
         {
             // nope!  need to fill it in all the way!
             LL_ERRS() << "Block " << mbci->mName
-                << " is type MBT_MULTIPLE but only has data for "
+                << " is type EMsgBlockType::MBT_MULTIPLE but only has data for "
                 << block_count << " out of its "
                 << template_data->mNumber << " blocks" << LL_ENDL;
         }
@@ -764,11 +764,11 @@ U32 LLTemplateMessageBuilder::buildMessage(
 
     // leave room for flags, packet sequence #, and data offset
     // information.
-    buffer[PHL_OFFSET] = offset_to_data;
+    buffer[static_cast<S32>(EPacketHeaderLayout::PHL_OFFSET)] = offset_to_data;
     U32 result = LL_PACKET_ID_SIZE;
 
     // encode message number and adjust total_offset
-    if (mCurrentSMessageTemplate->mFrequency == MFT_HIGH)
+    if (mCurrentSMessageTemplate->mFrequency == EMsgFrequency::MFT_HIGH)
     {
 // old, endian-dependant way
 //      memcpy(&buffer[result], &mCurrentMessageTemplate->mMessageNumber, sizeof(U8));
@@ -777,7 +777,7 @@ U32 LLTemplateMessageBuilder::buildMessage(
         buffer[result] = (U8)mCurrentSMessageTemplate->mMessageNumber;
         result += sizeof(U8);
     }
-    else if (mCurrentSMessageTemplate->mFrequency == MFT_MEDIUM)
+    else if (mCurrentSMessageTemplate->mFrequency == EMsgFrequency::MFT_MEDIUM)
     {
         U8 temp = 255;
         memcpy(&buffer[result], &temp, sizeof(U8));  /*Flawfinder: ignore*/
@@ -788,7 +788,7 @@ U32 LLTemplateMessageBuilder::buildMessage(
         memcpy(&buffer[result], &temp, sizeof(U8));  /*Flawfinder: ignore*/
         result += sizeof(U8);
     }
-    else if (mCurrentSMessageTemplate->mFrequency == MFT_LOW)
+    else if (mCurrentSMessageTemplate->mFrequency == EMsgFrequency::MFT_LOW)
     {
         U8 temp = 255;
         U16  message_num;

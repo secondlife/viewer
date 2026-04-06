@@ -511,7 +511,7 @@ void LLFloaterSettingsDebug::updateList(bool skip_selection)
                 row["columns"][1]["column"] = "setting";
                 row["columns"][1]["value"] = name;
 
-                LLScrollListItem* item = setting_list->addElement(row, ADD_BOTTOM, (void*)control);
+                LLScrollListItem* item = setting_list->addElement(row, EAddPosition::ADD_BOTTOM, (void*)control);
                 if (!floater->mSearchFilter.empty() && (selected_setting == name) && !skip_selection)
                 {
                     std::string lower_name(name);

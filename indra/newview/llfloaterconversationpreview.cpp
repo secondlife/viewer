@@ -241,17 +241,17 @@ void LLFloaterConversationPreview::showHistory()
         chat.mSessionID = mSessionID;
         chat.mFromName = from;
         chat.mTimeStr = time;
-        chat.mChatStyle = CHAT_STYLE_HISTORY;
+        chat.mChatStyle = EChatStyle::CHAT_STYLE_HISTORY;
         chat.mText = message;
 
         if (from_id.isNull() && SYSTEM_FROM == from)
         {
-            chat.mSourceType = CHAT_SOURCE_SYSTEM;
+            chat.mSourceType = EChatSourceType::CHAT_SOURCE_SYSTEM;
 
         }
         else if (from_id.isNull())
         {
-            chat.mSourceType = LLFloaterIMNearbyChat::isWordsName(from) ? CHAT_SOURCE_UNKNOWN : CHAT_SOURCE_OBJECT;
+            chat.mSourceType = LLFloaterIMNearbyChat::isWordsName(from) ? EChatSourceType::CHAT_SOURCE_UNKNOWN : EChatSourceType::CHAT_SOURCE_OBJECT;
         }
 
         LLSD chat_args;

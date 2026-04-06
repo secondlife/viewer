@@ -40,7 +40,7 @@
 const LLQuaternion EDIT_MOTION_WRIST_ROTATION(F_PI_BY_TWO * 0.7f, LLVector3(1.0f, 0.0f, 0.0f));
 const F32 TARGET_LAG_HALF_LIFE  = 0.1f;     // half-life of IK targeting
 
-S32 LLEditingMotion::sHandPose = LLHandMotion::HAND_POSE_RELAXED_R;
+S32 LLEditingMotion::sHandPose = static_cast<S32>(LLHandMotion::eHandPose::HAND_POSE_RELAXED_R);
 S32 LLEditingMotion::sHandPosePriority = 3;
 
 //-----------------------------------------------------------------------------
@@ -88,7 +88,7 @@ LLMotion::LLMotionInitStatus LLEditingMotion::onInitialize(LLCharacter *characte
         !mCharacter->getJoint("mWristLeft"))
     {
         LL_WARNS() << "Invalid skeleton for editing motion!" << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     // get the shoulder, elbow, wrist joints from the character
@@ -101,7 +101,7 @@ LLMotion::LLMotionInitStatus LLEditingMotion::onInitialize(LLCharacter *characte
     if ( ! mParentState->getJoint() )
     {
         LL_INFOS() << getName() << ": Can't get parent joint." << LL_ENDL;
-        return STATUS_FAILURE;
+        return LLMotionInitStatus::STATUS_FAILURE;
     }
 
     mWristOffset = LLVector3(0.0f, 0.2f, 0.0f);
@@ -135,7 +135,7 @@ LLMotion::LLMotionInitStatus LLEditingMotion::onInitialize(LLCharacter *characte
     mIKSolver.setBAxis( LLVector3( -0.682683f, 0.0f, -0.730714f ) );
     mIKSolver.setupJoints( &mShoulderJoint, &mElbowJoint, &mWristJoint, &mTarget );
 
-    return STATUS_SUCCESS;
+    return LLMotionInitStatus::STATUS_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------

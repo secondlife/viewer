@@ -578,13 +578,13 @@ bool LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, bool r
     {
         switch( pos )
         {
-        case ADD_TOP:
+        case EAddPosition::ADD_TOP:
             mItemList.push_front(item);
             setNeedsSort();
             break;
 
-        case ADD_DEFAULT:
-        case ADD_BOTTOM:
+        case EAddPosition::ADD_DEFAULT:
+        case EAddPosition::ADD_BOTTOM:
             mItemList.push_back(item);
             setNeedsSort();
             break;

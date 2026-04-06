@@ -283,7 +283,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 if (!motion->initialize())
                 {
                         llassert_always(false);
-                        return STATUS_FAILURE;
+                        return LLMotionInitStatus::STATUS_FAILURE;
                 }
                 addMotion(motion);
         }
@@ -306,7 +306,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 if (!motion->initialize())
                 {
                         llassert_always(false);
-                        return STATUS_FAILURE;
+                        return LLMotionInitStatus::STATUS_FAILURE;
                 }
                 addMotion(motion);
         }
@@ -329,7 +329,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 if (!motion->initialize())
                 {
                         llassert_always(false);
-                        return STATUS_FAILURE;
+                        return LLMotionInitStatus::STATUS_FAILURE;
                 }
                 addMotion(motion);
         }
@@ -351,7 +351,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 if (!motion->initialize())
                 {
                         llassert_always(false);
-                        return STATUS_FAILURE;
+                        return LLMotionInitStatus::STATUS_FAILURE;
                 }
                 addMotion(motion);
         }
@@ -374,7 +374,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 if (!motion->initialize())
                 {
                         llassert_always(false);
-                        return STATUS_FAILURE;
+                        return LLMotionInitStatus::STATUS_FAILURE;
                 }
                 addMotion(motion);
         }
@@ -397,12 +397,12 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                 if (!motion->initialize())
                 {
                         llassert_always(false);
-                        return STATUS_FAILURE;
+                        return LLMotionInitStatus::STATUS_FAILURE;
                 }
                 addMotion(motion);
         }
 
-        return STATUS_SUCCESS;
+        return LLMotionInitStatus::STATUS_SUCCESS;
 }
 
 void LLPhysicsMotionController::addMotion(LLPhysicsMotion *motion)
@@ -669,8 +669,8 @@ bool LLPhysicsMotion::onUpdate(F32 time)
         {
             // If this is one of our "hidden" driver params, then make sure it's
             // the default value.
-            if ((driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) &&
-                (driver_param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT))
+            if ((driver_param->getGroup() != EVisualParamGroup::VISUAL_PARAM_GROUP_TWEAKABLE) &&
+                (driver_param->getGroup() != EVisualParamGroup::VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT))
             {
                 mCharacter->setVisualParamWeight(driver_param, 0);
             }

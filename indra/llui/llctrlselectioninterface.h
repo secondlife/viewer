@@ -76,11 +76,11 @@ class LLCtrlListInterface : public LLCtrlSelectionInterface
 public:
     virtual ~LLCtrlListInterface();
 
-    virtual void addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM) = 0;
+    virtual void addColumn(const LLSD& column, EAddPosition pos = EAddPosition::ADD_BOTTOM) = 0;
     virtual void clearColumns() = 0;
     virtual void setColumnLabel(const std::string& column, const std::string& label) = 0;
     // TomY TODO: Document this
-    virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL) = 0;
+    virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = EAddPosition::ADD_BOTTOM, void* userdata = NULL) = 0;
 
     LLScrollListItem* addSimpleElement(const std::string& value); // defaults to bottom
     LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos); // defaults to no LLSD() id

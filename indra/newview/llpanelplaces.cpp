@@ -591,7 +591,7 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
             {
                 std::string cat_fullname = LLPanelLandmarkInfo::getFullFolderName(cat);
                 LLComboBox* folderList = mLandmarkInfo->getChild<LLComboBox>("folder_combo");
-                folderList->add(cat_fullname, cat->getUUID(), ADD_TOP);
+                folderList->add(cat_fullname, cat->getUUID(), EAddPosition::ADD_TOP);
             }
         }
     }
@@ -1178,7 +1178,7 @@ void LLPanelPlaces::createTabs()
             LLTabContainer::TabPanelParams().
             panel(favorites_panel).
             label(getString("favorites_tab_title")).
-            insert_at(LLTabContainer::END));
+            insert_at(LLTabContainer::eInsertionPoint::END));
     }
 
     LLLandmarksPanel* landmarks_panel = new LLLandmarksPanel();
@@ -1188,7 +1188,7 @@ void LLPanelPlaces::createTabs()
             LLTabContainer::TabPanelParams().
             panel(landmarks_panel).
             label(getString("landmarks_tab_title")).
-            insert_at(LLTabContainer::END));
+            insert_at(LLTabContainer::eInsertionPoint::END));
     }
 
     LLTeleportHistoryPanel* teleport_history_panel = new LLTeleportHistoryPanel();
@@ -1198,7 +1198,7 @@ void LLPanelPlaces::createTabs()
             LLTabContainer::TabPanelParams().
             panel(teleport_history_panel).
             label(getString("teleport_history_tab_title")).
-            insert_at(LLTabContainer::END));
+            insert_at(LLTabContainer::eInsertionPoint::END));
     }
 
     mTabContainer->selectFirstTab();

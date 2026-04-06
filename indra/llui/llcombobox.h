@@ -47,7 +47,7 @@ class LLComboBox
 , public ll::ui::SearchableControl
 {
 public:
-    enum EPreferredPosition
+    enum class EPreferredPosition
     {
         ABOVE,
         BELOW
@@ -134,11 +134,11 @@ public:
     void            setTextEntry(const LLStringExplicit& text);
     void            setKeystrokeOnEsc(bool enable);
 
-    LLScrollListItem*   add(const std::string& name, EAddPosition pos = ADD_BOTTOM, bool enabled = true);   // add item "name" to menu
-    LLScrollListItem*   add(const std::string& name, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, bool enabled = true);
-    LLScrollListItem*   add(const std::string& name, void* userdata, EAddPosition pos = ADD_BOTTOM, bool enabled = true);
-    LLScrollListItem*   add(const std::string& name, LLSD value, EAddPosition pos = ADD_BOTTOM, bool enabled = true);
-    LLScrollListItem*   addSeparator(EAddPosition pos = ADD_BOTTOM);
+    LLScrollListItem*   add(const std::string& name, EAddPosition pos = EAddPosition::ADD_BOTTOM, bool enabled = true);   // add item "name" to menu
+    LLScrollListItem*   add(const std::string& name, const LLUUID& id, EAddPosition pos = EAddPosition::ADD_BOTTOM, bool enabled = true);
+    LLScrollListItem*   add(const std::string& name, void* userdata, EAddPosition pos = EAddPosition::ADD_BOTTOM, bool enabled = true);
+    LLScrollListItem*   add(const std::string& name, LLSD value, EAddPosition pos = EAddPosition::ADD_BOTTOM, bool enabled = true);
+    LLScrollListItem*   addSeparator(EAddPosition pos = EAddPosition::ADD_BOTTOM);
     bool            remove( S32 index );    // remove item by index, return true if found and removed
     void            removeall() { clearRows(); }
     bool            itemExists(const std::string& name);
@@ -179,11 +179,11 @@ public:
     // See llscrolllistctrl.h
     virtual S32     getItemCount() const;
     // Overwrites the default column (See LLScrollListCtrl for format)
-    virtual void    addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM);
+    virtual void    addColumn(const LLSD& column, EAddPosition pos = EAddPosition::ADD_BOTTOM);
     virtual void    clearColumns();
     virtual void    setColumnLabel(const std::string& column, const std::string& label);
-    virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
-    virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
+    virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = EAddPosition::ADD_BOTTOM, void* userdata = NULL);
+    virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = EAddPosition::ADD_BOTTOM, const LLSD& id = LLSD());
     virtual void    clearRows();
     virtual void    sortByColumn(const std::string& name, bool ascending);
 

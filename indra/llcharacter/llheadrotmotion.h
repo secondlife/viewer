@@ -80,7 +80,7 @@ public:
     // motions must report their priority
     virtual LLJoint::JointPriority getPriority() { return LLJoint::MEDIUM_PRIORITY; }
 
-    virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
+    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::NORMAL_BLEND; }
 
     // run-time (post constructor) initialization,
     // called after parameters have been set
@@ -163,7 +163,7 @@ public:
     // motions must report their priority
     virtual LLJoint::JointPriority getPriority() { return LLJoint::MEDIUM_PRIORITY; }
 
-    virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
+    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::NORMAL_BLEND; }
 
     // run-time (post constructor) initialization,
     // called after parameters have been set

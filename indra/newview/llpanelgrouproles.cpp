@@ -606,7 +606,7 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
         row["columns"][1]["font"]["name"] = "SANSSERIF_SMALL";
 
 
-        LLScrollListItem* title_row = ctrl->addElement(row, ADD_BOTTOM, action_set->mActionSetData);
+        LLScrollListItem* title_row = ctrl->addElement(row, EAddPosition::ADD_BOTTOM, action_set->mActionSetData);
 
         LLScrollListText* name_textp = dynamic_cast<LLScrollListText*>(title_row->getColumn(2)); //?? I have no idea fix getColumn(1) return column spacer...
         if (name_textp)
@@ -716,7 +716,7 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
                 }
             }
 
-            LLScrollListItem* item = ctrl->addElement(row, ADD_BOTTOM, (*ra_it));
+            LLScrollListItem* item = ctrl->addElement(row, EAddPosition::ADD_BOTTOM, (*ra_it));
 
             if (-1 != check_box_index)
             {
@@ -2153,7 +2153,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
                     // If this is the everyone role, then EVERYONE is in it.
                     S32 members_in_role = role_id.isNull() ? static_cast<S32>(gdatap->mMembers.size()) : role_data_ptr->getTotalMembersInRole();
                     LLSD row = createRoleItem(role_id, rd.mRoleName, rd.mRoleTitle, members_in_role);
-                    item = mRolesList->addElement(row, (role_id.isNull()) ? ADD_TOP : ADD_BOTTOM, this);
+                    item = mRolesList->addElement(row, (role_id.isNull()) ? EAddPosition::ADD_TOP : EAddPosition::ADD_BOTTOM, this);
                     if (had_selection && (role_id == last_selected))
                     {
                         item->setSelected(true);
@@ -2614,7 +2614,7 @@ void LLPanelGroupRolesSubTab::handleCreateRole()
     row["id"] = new_role_id;
     row["columns"][0]["column"] = "name";
     row["columns"][0]["value"] = rd.mRoleName;
-    mRolesList->addElement(row, ADD_BOTTOM, this);
+    mRolesList->addElement(row, EAddPosition::ADD_BOTTOM, this);
     mRolesList->selectByID(new_role_id);
 
     // put focus on name field and select its contents
@@ -2665,7 +2665,7 @@ void LLPanelGroupRolesSubTab::handleCopyRole()
     row["id"] = new_role_id;
     row["columns"][0]["column"] = "name";
     row["columns"][0]["value"] = rd.mRoleName;
-    mRolesList->addElement(row, ADD_BOTTOM, this);
+    mRolesList->addElement(row, EAddPosition::ADD_BOTTOM, this);
     mRolesList->selectByID(new_role_id);
 
     // put focus on name field and select its contents
@@ -2745,7 +2745,7 @@ void LLPanelGroupRolesSubTab::saveRoleChanges(bool select_saved_role)
         mRolesList->deleteSingleItem(mRolesList->getItemIndex(mSelectedRole));
 
         LLSD row = createRoleItem(mSelectedRole,rd.mRoleName,rd.mRoleTitle,role_members_count);
-        LLScrollListItem* item = mRolesList->addElement(row, ADD_BOTTOM, this);
+        LLScrollListItem* item = mRolesList->addElement(row, EAddPosition::ADD_BOTTOM, this);
         item->setSelected(select_saved_role);
 
         mHasRoleChange = false;

@@ -51,9 +51,9 @@ public:
 
     virtual void setCanResize(bool can_resize);
     virtual void growToFit(S32 content_width, S32 content_height);
-    virtual void addFloater(LLFloater* floaterp, bool select_added_floater, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
+    virtual void addFloater(LLFloater* floaterp, bool select_added_floater, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::eInsertionPoint::END);
 
-    virtual void showFloater(LLFloater* floaterp, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
+    virtual void showFloater(LLFloater* floaterp, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::eInsertionPoint::END);
     virtual void removeFloater(LLFloater* floaterp);
 
     virtual void tabOpen(LLFloater* opened_floater, bool from_click);

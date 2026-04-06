@@ -90,7 +90,7 @@ namespace tut
         LLMessageConfig::useConfig(config);
         ensure_equals("Ensure server default is not template",
                       LLMessageConfig::getServerDefaultFlavor(),
-                      LLMessageConfig::TEMPLATE_FLAVOR);
+                      LLMessageConfig::Flavor::TEMPLATE_FLAVOR);
     }
 
     template<> template<>
@@ -104,10 +104,10 @@ namespace tut
         LLMessageConfig::useConfig(config);
         ensure_equals("Ensure msg template flavor",
                       LLMessageConfig::getMessageFlavor("msg1"),
-                      LLMessageConfig::TEMPLATE_FLAVOR);
+                      LLMessageConfig::Flavor::TEMPLATE_FLAVOR);
         ensure_equals("Ensure msg llsd flavor",
                       LLMessageConfig::getMessageFlavor("msg2"),
-                      LLMessageConfig::LLSD_FLAVOR);
+                      LLMessageConfig::Flavor::LLSD_FLAVOR);
     }
 
     template<> template<>
@@ -120,13 +120,13 @@ namespace tut
         LLMessageConfig::useConfig(config);
         ensure_equals("Ensure missing message gives no flavor",
                       LLMessageConfig::getMessageFlavor("Test"),
-                      LLMessageConfig::NO_FLAVOR);
+                      LLMessageConfig::Flavor::NO_FLAVOR);
         ensure_equals("Ensure missing flavor is NO_FLAVOR even with sender trustedness set",
                       LLMessageConfig::getMessageFlavor("msg1"),
-                      LLMessageConfig::NO_FLAVOR);
+                      LLMessageConfig::Flavor::NO_FLAVOR);
         ensure_equals("Ensure server default is llsd",
                       LLMessageConfig::getServerDefaultFlavor(),
-                      LLMessageConfig::LLSD_FLAVOR);
+                      LLMessageConfig::Flavor::LLSD_FLAVOR);
     }
 
     template<> template<>
@@ -142,13 +142,13 @@ namespace tut
         LLMessageConfig::useConfig(config);
         ensure_equals("Ensure untrusted is untrusted",
                       LLMessageConfig::getSenderTrustedness("msg1"),
-                      LLMessageConfig::UNTRUSTED);
+                      LLMessageConfig::SenderTrust::UNTRUSTED);
         ensure_equals("Ensure trusted is trusted",
                       LLMessageConfig::getSenderTrustedness("msg2"),
-                      LLMessageConfig::TRUSTED);
+                      LLMessageConfig::SenderTrust::TRUSTED);
         ensure_equals("Ensure missing trustedness is NOT_SET",
                       LLMessageConfig::getSenderTrustedness("msg3"),
-                      LLMessageConfig::NOT_SET);
+                      LLMessageConfig::SenderTrust::NOT_SET);
     }
 
     template<> template<>
@@ -161,10 +161,10 @@ namespace tut
         LLMessageConfig::useConfig(config);
         ensure_equals("Ensure msg1 exists, has llsd flavor",
                       LLMessageConfig::getMessageFlavor("msg1"),
-                      LLMessageConfig::LLSD_FLAVOR);
+                      LLMessageConfig::Flavor::LLSD_FLAVOR);
         ensure_equals("Ensure missing trusted is not set",
                       LLMessageConfig::getSenderTrustedness("msg1"),
-                      LLMessageConfig::NOT_SET);
+                      LLMessageConfig::SenderTrust::NOT_SET);
     }
 
     template<> template<>
@@ -195,7 +195,7 @@ namespace tut
         LLFrameTimer::updateFrameTime();
         ensure_equals("Ensure reload after 6 seconds",
                       LLMessageConfig::getServerDefaultFlavor(),
-                      LLMessageConfig::LLSD_FLAVOR);
+                      LLMessageConfig::Flavor::LLSD_FLAVOR);
     }
 
     template<> template<>

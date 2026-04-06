@@ -342,7 +342,7 @@ static void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::s
     LLNotificationsUtil::add("GodMessage", args);
 
     // Treat like a system message and put in chat history.
-    chat.mSourceType = CHAT_SOURCE_SYSTEM;
+    chat.mSourceType = EChatSourceType::CHAT_SOURCE_SYSTEM;
     chat.mText = message;
 
     LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
@@ -462,7 +462,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
     bool is_owned_by_me = false;
     bool is_friend = LLAvatarTracker::instance().getBuddyInfo(from_id) != NULL;
     bool accept_im_from_only_friend = gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly");
-    bool is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
+    bool is_linden = chat.mSourceType != EChatSourceType::CHAT_SOURCE_OBJECT &&
         LLMuteList::isLinden(name);
 
     /***
@@ -490,9 +490,9 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
     chat.mMuted = is_muted;
     chat.mFromID = from_id;
     chat.mFromName = name;
-    chat.mSourceType = (from_id.isNull() || (name == std::string(SYSTEM_FROM))) ? CHAT_SOURCE_SYSTEM : CHAT_SOURCE_AGENT;
+    chat.mSourceType = (from_id.isNull() || (name == std::string(SYSTEM_FROM))) ? EChatSourceType::CHAT_SOURCE_SYSTEM : EChatSourceType::CHAT_SOURCE_AGENT;
 
-    if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
+    if (chat.mSourceType == EChatSourceType::CHAT_SOURCE_SYSTEM)
     { // Translate server message if required (MAINT-6109)
         translate_if_needed(message);
     }
@@ -1032,17 +1032,17 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 chat.mFromID = from_id ^ gAgent.getSessionID();
             }
 
-            chat.mSourceType = CHAT_SOURCE_OBJECT;
+            chat.mSourceType = EChatSourceType::CHAT_SOURCE_OBJECT;
 
-            // To conclude that the source type of message is CHAT_SOURCE_SYSTEM it's not
+            // To conclude that the source type of message is EChatSourceType::CHAT_SOURCE_SYSTEM it's not
             // enough to check only from name (i.e. fromName = "Second Life"). For example
-            // source type of messages from objects called "Second Life" should not be CHAT_SOURCE_SYSTEM.
+            // source type of messages from objects called "Second Life" should not be EChatSourceType::CHAT_SOURCE_SYSTEM.
             bool chat_from_system = (SYSTEM_FROM == name) && region_id.isNull() && position.isNull();
             if (chat_from_system)
             {
                 // System's UUID is NULL (fixes EXT-4766)
                 chat.mFromID = LLUUID::null;
-                chat.mSourceType = CHAT_SOURCE_SYSTEM;
+                chat.mSourceType = EChatSourceType::CHAT_SOURCE_SYSTEM;
             }
 
             // IDEVO Some messages have embedded resident names
@@ -1073,7 +1073,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 std::string prefix = message.substr(0, 4);
                 if (prefix == "/me " || prefix == "/me'")
                 {
-                    chat.mChatStyle = CHAT_STYLE_IRC;
+                    chat.mChatStyle = EChatStyle::CHAT_STYLE_IRC;
                 }
 
                 LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
@@ -1082,7 +1082,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     LLSD msg_notify;
                     msg_notify["session_id"] = LLUUID();
                     msg_notify["from_id"] = chat.mFromID;
-                    msg_notify["source_type"] = chat.mSourceType;
+                    msg_notify["source_type"] = static_cast<S32>(chat.mSourceType);
                     on_new_message(msg_notify);
                 }
             }

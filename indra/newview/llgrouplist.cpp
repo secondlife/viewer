@@ -238,7 +238,7 @@ void LLGroupList::refresh()
             const LLGroupData& group_data = gAgent.mGroups.at(i);
             if (have_filter && !findInsensitive(group_data.mName, mNameFilter))
                 continue;
-            addNewItem(id, group_data.mName, group_data.mInsigniaID, ADD_BOTTOM, group_data.mListInProfile);
+            addNewItem(id, group_data.mName, group_data.mInsigniaID, EAddPosition::ADD_BOTTOM, group_data.mListInProfile);
         }
 
         // Sort the list.
@@ -249,7 +249,7 @@ void LLGroupList::refresh()
         if (!have_filter && count > 0 && mShowNone)
         {
             std::string loc_none = LLTrans::getString("GroupsNone");
-            addNewItem(LLUUID::null, loc_none, LLUUID::null, ADD_TOP);
+            addNewItem(LLUUID::null, loc_none, LLUUID::null, EAddPosition::ADD_TOP);
         }
 
         selectItemByUUID(highlight_id);
@@ -260,7 +260,7 @@ void LLGroupList::refresh()
 
         for (group_map_t::iterator it = mGroups.begin(); it != mGroups.end(); ++it)
         {
-            addNewItem(it->second, it->first, LLUUID::null, ADD_BOTTOM);
+            addNewItem(it->second, it->first, LLUUID::null, EAddPosition::ADD_BOTTOM);
         }
 
         // Sort the list.

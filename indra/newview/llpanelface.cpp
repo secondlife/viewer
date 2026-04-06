@@ -2432,7 +2432,7 @@ void LLPanelFace::updateMediaSettings()
     const LLMediaEntry default_media_data;
 
     // controls
-    U8 value_u8 = default_media_data.getControls();
+    U8 value_u8 = static_cast<U8>(default_media_data.getControls());
     struct functor_getter_controls : public LLSelectedTEGetFunctor< U8 >
     {
         functor_getter_controls(const LLMediaEntry &entry) : mMediaEntry(entry) {}
@@ -2442,8 +2442,8 @@ void LLPanelFace::updateMediaSettings()
             if (object)
                 if (object->getTE(face))
                     if (object->getTE(face)->getMediaData())
-                        return object->getTE(face)->getMediaData()->getControls();
-            return mMediaEntry.getControls();
+                        return static_cast<U8>(object->getTE(face)->getMediaData()->getControls());
+            return static_cast<U8>(mMediaEntry.getControls());
         };
 
         const LLMediaEntry &mMediaEntry;

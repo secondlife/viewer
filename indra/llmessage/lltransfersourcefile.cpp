@@ -34,7 +34,7 @@
 #include "lldir.h"
 
 LLTransferSourceFile::LLTransferSourceFile(const LLUUID &request_id, const F32 priority) :
-    LLTransferSource(LLTST_FILE, request_id, priority),
+    LLTransferSource(LLTransferSourceType::LLTST_FILE, request_id, priority),
     mFP(NULL)
 {
 }
@@ -58,14 +58,14 @@ void LLTransferSourceFile::initTransfer()
     {
         LL_WARNS() << "Attempting to transfer file " << filename << " with path delimiter, aborting!" << LL_ENDL;
 
-        sendTransferStatus(LLTS_ERROR);
+        sendTransferStatus(LLTSCode::LLTS_ERROR);
         return;
     }
     // Look for the file.
     mFP = LLFile::fopen(mParams.getFilename(), "rb");       /* Flawfinder: ignore */
     if (!mFP)
     {
-        sendTransferStatus(LLTS_ERROR);
+        sendTransferStatus(LLTSCode::LLTS_ERROR);
         return;
     }
 
@@ -74,7 +74,7 @@ void LLTransferSourceFile::initTransfer()
     mSize = ftell(mFP);
     fseek(mFP,0,SEEK_SET);
 
-    sendTransferStatus(LLTS_OK);
+    sendTransferStatus(LLTSCode::LLTS_OK);
 }
 
 F32 LLTransferSourceFile::updatePriority()
@@ -93,7 +93,7 @@ LLTSCode LLTransferSourceFile::dataCallback(const S32 packet_id,
     if (!mFP)
     {
         LL_ERRS() << "Data callback without file set!" << LL_ENDL;
-        return LLTS_ERROR;
+        return LLTSCode::LLTS_ERROR;
     }
 
     if (packet_id != mLastPacketID + 1)
@@ -112,10 +112,10 @@ LLTSCode LLTransferSourceFile::dataCallback(const S32 packet_id,
         *data_handle = NULL;
         returned_bytes = 0;
         delete_returned = false;
-        return LLTS_DONE;
+        return LLTSCode::LLTS_DONE;
     }
 
-    return LLTS_OK;
+    return LLTSCode::LLTS_OK;
 }
 
 void LLTransferSourceFile::completionCallback(const LLTSCode status)
@@ -149,7 +149,7 @@ bool LLTransferSourceFile::unpackParams(LLDataPacker &dp)
 
 
 LLTransferSourceParamsFile::LLTransferSourceParamsFile() :
-    LLTransferSourceParams(LLTST_FILE),
+    LLTransferSourceParams(LLTransferSourceType::LLTST_FILE),
     mDeleteOnCompletion(false)
 {
 }

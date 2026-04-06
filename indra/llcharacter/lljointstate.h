@@ -38,7 +38,7 @@
 class LLJointState : public LLRefCount
 {
 public:
-    enum BlendPhase
+    enum class BlendPhase
     {
         INACTIVE,
         EASE_IN,
