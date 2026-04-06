@@ -136,13 +136,13 @@ void LLTextureAnim::unpackTAMessage(LLMessageSystem *mesgsys, const S32 block_nu
     mFace = data[1];
     if (mMode & LLTextureAnim::SMOOTH)
     {
-        mSizeX = llmax((U8)0, data[2]);
-        mSizeY = llmax((U8)0, data[3]);
+        mSizeX = llmax(static_cast<U8>(0, data[2]));
+        mSizeY = llmax(static_cast<U8>(0, data[3]));
     }
     else
     {
-        mSizeX = llmax((U8)1, data[2]);
-        mSizeY = llmax((U8)1, data[3]);
+        mSizeX = llmax(static_cast<U8>(1, data[2]));
+        mSizeY = llmax(static_cast<U8>(1, data[3]));
     }
     htolememcpy(&mStart, data + 4, MVT_F32, sizeof(F32));
     htolememcpy(&mLength, data + 8, MVT_F32, sizeof(F32));
@@ -192,43 +192,43 @@ bool LLTextureAnim::fromLLSD(LLSD& sd)
     w = "mode";
     if (sd.has(w))
     {
-        mMode = (U8)sd[w].asInteger();
+        mMode = static_cast<U8>(sd[w].asInteger());
     } else goto fail;
 
     w = "face";
     if (sd.has(w))
     {
-        mFace = (S8)sd[w].asInteger();
+        mFace = static_cast<S8>(sd[w].asInteger());
     } else goto fail;
 
     w = "sizeX";
     if (sd.has(w))
     {
-        mSizeX = (U8)sd[w].asInteger();
+        mSizeX = static_cast<U8>(sd[w].asInteger());
     } else goto fail;
 
     w = "sizeY";
     if (sd.has(w))
     {
-        mSizeY = (U8)sd[w].asInteger();
+        mSizeY = static_cast<U8>(sd[w].asInteger());
     } else goto fail;
 
     w = "start";
     if (sd.has(w))
     {
-        mStart = (F32)sd[w].asReal();
+        mStart = static_cast<F32>(sd[w].asReal());
     } else goto fail;
 
     w = "length";
     if (sd.has(w))
     {
-        mLength = (F32)sd[w].asReal();
+        mLength = static_cast<F32>(sd[w].asReal());
     } else goto fail;
 
     w = "rate";
     if (sd.has(w))
     {
-        mRate = (F32)sd[w].asReal();
+        mRate = static_cast<F32>(sd[w].asReal());
     } else goto fail;
 
     return true;

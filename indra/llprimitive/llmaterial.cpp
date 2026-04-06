@@ -68,10 +68,10 @@ template<typename T> T getMaterialField(const LLSD& data, const std::string& fie
 {
     if ( (data.has(field)) && (field_type == data[field].type()) )
     {
-        return (T)data[field];
+        return static_cast<T>(data[field]);
     }
     LL_ERRS() << "Missing or mistyped field '" << field << "' in material definition" << LL_ENDL;
-    return (T)LLSD();
+    return static_cast<T>(LLSD());
 }
 
 // GCC didn't like the generic form above for some reason
@@ -399,10 +399,10 @@ void LLMaterial::fromLLSD(const LLSD& material_data)
     mSpecularRepeatY  = F32(specularRepeatYInt) / MATERIALS_MULTIPLIER;
 
     mSpecularLightColor.setValue(getMaterialField<LLSD>(material_data, MATERIALS_CAP_SPECULAR_COLOR_FIELD, LLSD::TypeArray));
-    mSpecularLightExponent = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_EXP_FIELD,       LLSD::TypeInteger);
-    mEnvironmentIntensity  = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_ENV_INTENSITY_FIELD,      LLSD::TypeInteger);
-    mDiffuseAlphaMode      = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD, LLSD::TypeInteger);
-    mAlphaMaskCutoff       = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD,  LLSD::TypeInteger);
+    mSpecularLightExponent = static_cast<U8>(getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_SPECULAR_EXP_FIELD,       LLSD::TypeInteger));
+    mEnvironmentIntensity  = static_cast<U8>(getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_ENV_INTENSITY_FIELD,      LLSD::TypeInteger));
+    mDiffuseAlphaMode      = static_cast<U8>(getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD, LLSD::TypeInteger));
+    mAlphaMaskCutoff       = static_cast<U8>(getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD,  LLSD::TypeInteger));
 }
 
 bool LLMaterial::isNull() const

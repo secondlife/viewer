@@ -264,7 +264,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
         return false;
     }
 
-    S32 file_size = (S32) stat.st_size;
+    S32 file_size = static_cast<S32>(stat.st_size);
 
     llifstream ifstream(filename, std::ifstream::in | std::ifstream::binary);
     LLSD data;
@@ -289,7 +289,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
         for (U32 i = 0; i < mesh.size(); ++i)
         {
             std::stringstream str(mesh[i].asString());
-            LLPointer<LLModel> loaded_model = new LLModel(volume_params, (F32) lod);
+            LLPointer<LLModel> loaded_model = new LLModel(volume_params, static_cast<F32>( lod));
             if (loaded_model->loadModel(str))
             {
                 loaded_model->mLocalID = i;
@@ -535,7 +535,7 @@ void LLModelLoader::dumpDebugData()
         file << "Model name: " << mdl->mLabel << "\n";
         const LLMeshSkinInfo& skin_info = mdl->mSkinInfo;
         file << "Shape Bind matrix: " << skin_info.mBindShapeMatrix << "\n";
-        file << "Skin Weights count: " << (S32)mdl->mSkinWeights.size() << "\n";
+        file << "Skin Weights count: " << static_cast<S32>(mdl->mSkinWeights.size()) << "\n";
 
         // some objects might have individual bind matrices,
         // but for now it isn't accounted for

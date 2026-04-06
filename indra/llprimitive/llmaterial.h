@@ -51,7 +51,7 @@ public:
         ALPHA_SHADER_COUNT = 4
     };
 
-    static const U8         DEFAULT_SPECULAR_LIGHT_EXPONENT = ((U8)(0.2f * 255));
+    static const U8         DEFAULT_SPECULAR_LIGHT_EXPONENT = (static_cast<U8>(0.2f * 255));
     static const LLColor4U  DEFAULT_SPECULAR_LIGHT_COLOR;
     static const U8         DEFAULT_ENV_INTENSITY = 0;
 

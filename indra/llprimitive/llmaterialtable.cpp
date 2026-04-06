@@ -503,7 +503,7 @@ LLUUID LLMaterialTable::getCollisionSoundUUID(U8 mcode, U8 mcode2)
     mcode &= LL_MCODE_MASK;
     mcode2 &= LL_MCODE_MASK;
 
-    //LL_INFOS() << "code 1: " << ((U32) mcode) << " code 2:" << ((U32) mcode2) << LL_ENDL;
+    //LL_INFOS() << "code 1: " << (static_cast<U32>( mcode) << " code 2:" << (static_cast<U32>( mcode2) << LL_ENDL));
     if (!mCollisionSoundMatrix.empty() && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
     {
         return(mCollisionSoundMatrix[mcode * LL_MCODE_END + mcode2]);

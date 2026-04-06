@@ -87,12 +87,12 @@ std::string LLModel::getStatusString(U32 status)
     {
         if(status_strings[status].empty())
         {
-            //LL_ERRS() << "No valid status string for this status: " << (U32)status << LL_ENDL();
+            //LL_ERRS() << "No valid status string for this status: " << static_cast<U32>(status << LL_ENDL());
         }
         return status_strings[status] ;
     }
 
-    //LL_ERRS() << "Invalid model status: " << (U32)status << LL_ENDL();
+    //LL_ERRS() << "Invalid model status: " << static_cast<U32>(status << LL_ENDL());
 
     return {} ;
 }
@@ -176,7 +176,7 @@ void LLModel::trimVolumeFacesToSize(U32 new_count, LLVolume::face_list_t* remain
 {
     llassert(new_count <= LL_SCULPT_MESH_MAX_FACES);
 
-    if (new_count > 0 && ((U32)getNumVolumeFaces() > new_count))
+    if (new_count > 0 && (static_cast<U32>(getNumVolumeFaces()) > new_count))
     {
         // Copy out remaining volume faces for alternative handling, if provided
         //
@@ -569,7 +569,7 @@ void LLModel::setVolumeFaceData(
     if (tc.get())
     {
         U32 tex_size = (num_verts*2*sizeof(F32)+0xF)&~0xF;
-        LLVector4a::memcpyNonAliased16((F32*) face.mTexCoords, (F32*) tc.get(), tex_size);
+        LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(face.mTexCoords), reinterpret_cast<F32*>(tc.get()), tex_size);
     }
     else
     {
@@ -578,7 +578,7 @@ void LLModel::setVolumeFaceData(
     }
 
     U32 size = (num_indices*2+0xF)&~0xF;
-    LLVector4a::memcpyNonAliased16((F32*) face.mIndices, (F32*) ind.get(), size);
+    LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(face.mIndices), reinterpret_cast<F32*>(ind.get()), size);
 }
 
 void LLModel::addFace(const LLVolumeFace& face)
@@ -905,7 +905,7 @@ LLSD LLModel::writeModel(
                 //U32 tan_idx = 0;
                 U32 tc_idx = 0;
 
-                LLVector2* ftc = (LLVector2*) face.mTexCoords;
+                LLVector2* ftc = reinterpret_cast<LLVector2*>(face.mTexCoords);
                 LLVector2 min_tc;
                 LLVector2 max_tc;
 
@@ -932,9 +932,9 @@ LLSD LLModel::writeModel(
                     for (U32 k = 0; k < 3; ++k)
                     { //for each component
                         //convert to 16-bit normalized across domain
-                        U16 val = (U16) (((pos[k]-min_pos.mV[k])/pos_range.mV[k])*65535);
+                        U16 val = static_cast<U16>(((pos[k]-min_pos.mV[k])/pos_range.mV[k])*65535);
 
-                        const U8* buff = (const U8*) &val;
+                        const U8* buff = reinterpret_cast<const U8*>(&val);
                         //write to binary buffer
                         verts[vert_idx++] = buff[0];
                         verts[vert_idx++] = buff[1];
@@ -947,8 +947,8 @@ LLSD LLModel::writeModel(
                         for (U32 k = 0; k < 3; ++k)
                         { //for each component
                             //convert to 16-bit normalized
-                            U16 val = (U16) ((norm[k]+1.f)*0.5f*65535);
-                            const U8* buff = (const U8*) &val;
+                            U16 val = static_cast<U16>((norm[k]+1.f)*0.5f*65535);
+                            const U8* buff = reinterpret_cast<const U8*>(&val);
 
                             //write to binary buffer
                             normals[norm_idx++] = buff[0];
@@ -964,8 +964,8 @@ LLSD LLModel::writeModel(
                         for (U32 k = 0; k < 4; ++k)
                         { //for each component
                             //convert to 16-bit normalized
-                            U16 val = (U16)((tangent[k] + 1.f) * 0.5f * 65535);
-                            U8* buff = (U8*)&val;
+                            U16 val = static_cast<U16>((tangent[k] + 1.f) * 0.5f * 65535);
+                            U8* buff = reinterpret_cast<U8*>(&val);
 
                             //write to binary buffer
                             tangents[tan_idx++] = buff[0];
@@ -977,14 +977,14 @@ LLSD LLModel::writeModel(
                     //texcoord
                     if (face.mTexCoords)
                     {
-                        const F32* src_tc = (const F32*) face.mTexCoords[j].mV;
+                        const F32* src_tc = reinterpret_cast<const F32*>(face.mTexCoords[j].mV);
 
                         for (U32 k = 0; k < 2; ++k)
                         { //for each component
                             //convert to 16-bit normalized
-                            U16 val = (U16) ((src_tc[k]-min_tc.mV[k])/tc_range.mV[k]*65535);
+                            U16 val = static_cast<U16>((src_tc[k]-min_tc.mV[k])/tc_range.mV[k]*65535);
 
-                            const U8* buff = (const U8*) &val;
+                            const U8* buff = reinterpret_cast<const U8*>(&val);
                             //write to binary buffer
                             tc[tc_idx++] = buff[0];
                             tc[tc_idx++] = buff[1];
@@ -995,7 +995,7 @@ LLSD LLModel::writeModel(
                 U32 idx_idx = 0;
                 for (S32 j = 0; j < face.mNumIndices; ++j)
                 {
-                    const U8* buff = (const U8*) &(face.mIndices[j]);
+                    const U8* buff = reinterpret_cast<const U8*>(&(face.mIndices[j]));
                     indices[idx_idx++] = buff[0];
                     indices[idx_idx++] = buff[1];
                 }
@@ -1052,11 +1052,11 @@ LLSD LLModel::writeModel(
                                 // Note joint index cannot exceed 255.
                                 if (weight.mJointIdx < 255 && weight.mJointIdx >= 0)
                                 {
-                                    U8 idx = (U8)weight.mJointIdx;
-                                    ostr.write((const char*)&idx, 1);
+                                    U8 idx = static_cast<U8>(weight.mJointIdx);
+                                    ostr.write(reinterpret_cast<const char*>(&idx), 1);
 
-                                    U16 influence = (U16)(weight.mWeight * 65535);
-                                    ostr.write((const char*)&influence, 2);
+                                    U16 influence = static_cast<U16>(weight.mWeight * 65535);
+                                    ostr.write(reinterpret_cast<const char*>(&influence), 2);
 
                                     ++count;
                                 }
@@ -1064,13 +1064,13 @@ LLSD LLModel::writeModel(
                             U8 end_list = 0xFF;
                             if (count < 4)
                             {
-                                ostr.write((const char*)&end_list, 1);
+                                ostr.write(reinterpret_cast<const char*>(&end_list), 1);
                             }
                         }
 
                         //copy ostr to binary buffer
                         std::string data = ostr.str();
-                        const U8* buff = (U8*)data.data();
+                        const U8* buff = reinterpret_cast<const U8*>(data.data());
                         U32 bytes = static_cast<U32>(data.size());
 
                         LLSD::Binary w(bytes);
@@ -1121,8 +1121,8 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, EWriteModelMode 
         U32 size = static_cast<U32>(skin.size());
         if (size > 0)
         {
-            header["skin"]["offset"] = (LLSD::Integer) cur_offset;
-            header["skin"]["size"] = (LLSD::Integer) size;
+            header["skin"]["offset"] = static_cast<LLSD::Integer>(cur_offset);
+            header["skin"]["size"] = static_cast<LLSD::Integer>(size);
             cur_offset += size;
         }
     }
@@ -1136,15 +1136,15 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, EWriteModelMode 
         U32 size = static_cast<U32>(decomposition.size());
         if (size > 0)
         {
-            header["physics_convex"]["offset"] = (LLSD::Integer) cur_offset;
-            header["physics_convex"]["size"] = (LLSD::Integer) size;
+            header["physics_convex"]["offset"] = static_cast<LLSD::Integer>(cur_offset);
+            header["physics_convex"]["size"] = static_cast<LLSD::Integer>(size);
             cur_offset += size;
         }
     }
 
         if (mdl.has("submodel_id"))
         { //write out submodel id
-        header["submodel_id"] = (LLSD::Integer)mdl["submodel_id"];
+        header["submodel_id"] = static_cast<LLSD::Integer>(mdl["submodel_id"]);
         }
 
     std::array<std::string, MODEL_NAMES_LENGTH> out;
@@ -1157,8 +1157,8 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, EWriteModelMode 
 
             U32 size = static_cast<U32>(out[i].size());
 
-            header[model_names[i]]["offset"] = (LLSD::Integer) cur_offset;
-            header[model_names[i]]["size"] = (LLSD::Integer) size;
+            header[model_names[i]]["offset"] = static_cast<LLSD::Integer>(cur_offset);
+            header[model_names[i]]["size"] = static_cast<LLSD::Integer>(size);
             cur_offset += size;
         }
     }
@@ -1173,19 +1173,19 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, EWriteModelMode 
 
         if (!skin.empty())
         { //write skin block
-            ostr.write((const char*) skin.data(), header["skin"]["size"].asInteger());
+            ostr.write(reinterpret_cast<const char*>(skin.data()), header["skin"]["size"].asInteger());
         }
 
         if (!decomposition.empty())
         { //write decomposition block
-            ostr.write((const char*) decomposition.data(), header["physics_convex"]["size"].asInteger());
+            ostr.write(reinterpret_cast<const char*>(decomposition.data()), header["physics_convex"]["size"].asInteger());
         }
 
         for (S32 i = 0; i < MODEL_NAMES_LENGTH; i++)
         {
             if (!out[i].empty())
             {
-                ostr.write((const char*) out[i].data(), header[model_names[i]]["size"].asInteger());
+                ostr.write(reinterpret_cast<const char*>(out[i].data()), header[model_names[i]]["size"].asInteger());
             }
         }
     }
@@ -1361,7 +1361,7 @@ bool LLModel::loadModel(std::istream& is)
 
     const S32 MODEL_LODS = 5;
 
-    S32 lod = llclamp((S32) mDetail, 0, MODEL_LODS);
+    S32 lod = llclamp(static_cast<S32>(mDetail), 0, MODEL_LODS);
 
     if (header[lod_name[lod]]["offset"].asInteger() == -1 ||
         header[lod_name[lod]]["size"].asInteger() == 0 )
@@ -1408,7 +1408,7 @@ bool LLModel::loadModel(std::istream& is)
 
                         for (S32 k = 0; k < 4; ++k)
                         {
-                            S32 idx = (S32) w[k];
+                            S32 idx = static_cast<S32>(w[k]);
                             F32 f = w[k] - idx;
                             if (f > 0.f)
                             {
@@ -1644,7 +1644,7 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
             {
                 for (U32 k = 0; k < 4; k++)
                 {
-                    mat.mMatrix[j][k] = (F32)skin["inverse_bind_matrix"][i][j*4+k].asReal();
+                    mat.mMatrix[j][k] = static_cast<F32>(skin["inverse_bind_matrix"][i][j*4+k].asReal());
                 }
             }
 
@@ -1667,7 +1667,7 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
         {
             for (U32 k = 0; k < 4; k++)
             {
-                mat.mMatrix[j][k] = (F32)skin["bind_shape_matrix"][j*4+k].asReal();
+                mat.mMatrix[j][k] = static_cast<F32>(skin["bind_shape_matrix"][j*4+k].asReal());
             }
         }
         mBindShapeMatrix.loadu(mat);
@@ -1682,7 +1682,7 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
             {
                 for (U32 k = 0; k < 4; k++)
                 {
-                    mat.mMatrix[j][k] = (F32)skin["alt_inverse_bind_matrix"][i][j*4+k].asReal();
+                    mat.mMatrix[j][k] = static_cast<F32>(skin["alt_inverse_bind_matrix"][i][j*4+k].asReal());
                 }
             }
 
@@ -1692,7 +1692,7 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
 
     if (skin.has("pelvis_offset"))
     {
-        mPelvisOffset = (F32)skin["pelvis_offset"].asReal();
+        mPelvisOffset = static_cast<F32>(skin["pelvis_offset"].asReal());
     }
 
     if (skin.has("lock_scale_if_joint_position"))
@@ -1795,7 +1795,7 @@ void LLMeshSkinInfo::updateHash()
     }
 
     //mJointNums
-    hash.update((const void*)mJointNums.data(), sizeof(S32) * mJointNums.size());
+    hash.update(static_cast<const void*>(mJointNums.data()), sizeof(S32) * mJointNums.size());
 
     //mInvBindMatrix
     const F32* src = mInvBindMatrix[0].getF32ptr();
@@ -1803,7 +1803,7 @@ void LLMeshSkinInfo::updateHash()
     for (size_t i = 0, count = mInvBindMatrix.size() * 16; i < count; ++i)
     {
         S32 t = ll_round(src[i] * 10000.f);
-        hash.update((const void*)&t, sizeof(S32));
+        hash.update(static_cast<const void*>(&t), sizeof(S32));
     }
     //hash.update((const void*)mInvBindMatrix.data(), sizeof(LLMatrix4a) * mInvBindMatrix.size());
 
@@ -1842,7 +1842,7 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
         const LLSD::Binary& hulls = decomp["HullList"].asBinary();
         const LLSD::Binary& position = decomp["Positions"].asBinary();
 
-        U16* p = (U16*) &position[0];
+        U16* p = reinterpret_cast<U16*>(const_cast<U8*>(&position[0]));
 
         mHull.resize(hulls.size());
 
@@ -1874,15 +1874,15 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 
             for (U32 j = 0; j < count; ++j)
             {
-                U64 test = (U64) p[0] | ((U64) p[1] << 16) | ((U64) p[2] << 32);
+                U64 test = static_cast<U64>(p[0]) | (static_cast<U64>(p[1]) << 16) | (static_cast<U64>(p[2]) << 32);
                 //point must be unique
                 //llassert(valid.find(test) == valid.end());
                 valid.insert(test);
 
                 mHull[i].emplace_back(
-                    (F32) p[0]/65535.f*range.mV[0]+min.mV[0],
-                    (F32) p[1]/65535.f*range.mV[1]+min.mV[1],
-                    (F32) p[2]/65535.f*range.mV[2]+min.mV[2]);
+                    static_cast<F32>(p[0]/65535.f*range.mV[0]+min.mV[0]),
+                    static_cast<F32>(p[1]/65535.f*range.mV[1]+min.mV[1]),
+                    static_cast<F32>(p[2]/65535.f*range.mV[2]+min.mV[2]));
                 p += 3;
 
 
@@ -1897,7 +1897,7 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
     {
         const LLSD::Binary& position = decomp["BoundingVerts"].asBinary();
 
-        U16* p = (U16*) &position[0];
+        U16* p = reinterpret_cast<U16*>(const_cast<U8*>(&position[0]));
 
         LLVector3 min;
         LLVector3 max;
@@ -1916,14 +1916,14 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 
         range = max-min;
 
-        U16 count = (U16)(position.size()/6);
+        U16 count = static_cast<U16>((position.size()/6));
 
         for (U32 j = 0; j < count; ++j)
         {
             mBaseHull.emplace_back(
-                (F32) p[0]/65535.f*range.mV[0]+min.mV[0],
-                (F32) p[1]/65535.f*range.mV[1]+min.mV[1],
-                (F32) p[2]/65535.f*range.mV[2]+min.mV[2]);
+                static_cast<F32>(p[0]/65535.f*range.mV[0]+min.mV[0]),
+                static_cast<F32>(p[1]/65535.f*range.mV[1]+min.mV[1]),
+                static_cast<F32>(p[2]/65535.f*range.mV[2]+min.mV[2]));
             p += 3;
         }
     }
@@ -2000,7 +2000,7 @@ LLSD LLModel::Decomposition::asLLSD() const
     {
         U32 size = static_cast<U32>(mHull[i].size());
         total += size;
-        hulls[i] = (U8) (size);
+        hulls[i] = static_cast<U8>(size);
 
         for (auto j : mHull[i])
         {
@@ -2043,21 +2043,21 @@ LLSD LLModel::Decomposition::asLLSD() const
                 for (U32 k = 0; k < 3; k++)
                 {
                     //convert to 16-bit normalized across domain
-                    U16 val = (U16) (((src[k]-min.mV[k])/range.mV[k])*65535);
+                    U16 val = static_cast<U16>( (((src[k]-min.mV[k])/range.mV[k])*65535));
 
                     if(valid.size() < 3)
                     {
                         switch (k)
                         {
-                            case 0: test = test | (U64) val; break;
-                            case 1: test = test | ((U64) val << 16); break;
-                            case 2: test = test | ((U64) val << 32); break;
+                            case 0: test = test | static_cast<U64>(val); break;
+                            case 1: test = test | (static_cast<U64>(val) << 16); break;
+                            case 2: test = test | (static_cast<U64>(val) << 32); break;
                         };
 
                         valid.insert(test);
                     }
 
-                    const U8* buff = (const U8*) &val;
+                    const U8* buff = reinterpret_cast<const U8*>(&val);
                     //write to binary buffer
                     p[vert_idx++] = buff[0];
                     p[vert_idx++] = buff[1];
@@ -2088,9 +2088,9 @@ LLSD LLModel::Decomposition::asLLSD() const
             for (U32 k = 0; k < 3; k++)
             {
                 //convert to 16-bit normalized across domain
-                U16 val = (U16) (((v[k]-min.mV[k])/range.mV[k])*65535);
+                U16 val = static_cast<U16>(((v[k]-min.mV[k])/range.mV[k])*65535);
 
-                const U8* buff = (const U8*) &val;
+                const U8* buff = reinterpret_cast<const U8*>(&val);
                 //write to binary buffer
                 p[vert_idx++] = buff[0];
                 p[vert_idx++] = buff[1];

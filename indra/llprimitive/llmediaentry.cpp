@@ -236,11 +236,11 @@ bool LLMediaEntry::fromLLSDInternal(const LLSD& sd, bool overwrite)
     }
     if ( overwrite || sd.has(WIDTH_PIXELS_KEY) )
     {
-        status |= setWidthPixels( (LLSD::Integer)sd[WIDTH_PIXELS_KEY] );
+        status |= setWidthPixels( static_cast<LLSD::Integer>(sd[WIDTH_PIXELS_KEY]) );
     }
     if ( overwrite || sd.has(HEIGHT_PIXELS_KEY) )
     {
-        status |= setHeightPixels( (LLSD::Integer)sd[HEIGHT_PIXELS_KEY] );
+        status |= setHeightPixels( static_cast<LLSD::Integer>(sd[HEIGHT_PIXELS_KEY]) );
     }
 
     // "security" fields
@@ -256,11 +256,11 @@ bool LLMediaEntry::fromLLSDInternal(const LLSD& sd, bool overwrite)
     // "permissions" fields
     if ( overwrite || sd.has(PERMS_INTERACT_KEY) )
     {
-        status |= setPermsInteract( 0xff & (LLSD::Integer)sd[PERMS_INTERACT_KEY] );
+        status |= setPermsInteract( 0xff & static_cast<LLSD::Integer>(sd[PERMS_INTERACT_KEY]) );
     }
     if ( overwrite || sd.has(PERMS_CONTROL_KEY) )
     {
-        status |= setPermsControl( 0xff & (LLSD::Integer)sd[PERMS_CONTROL_KEY] );
+        status |= setPermsControl( 0xff & static_cast<LLSD::Integer>(sd[PERMS_CONTROL_KEY]) );
     }
 
     return LSL_STATUS_OK == status;

@@ -256,18 +256,18 @@ bool LLTextureEntry::fromLLSD(const LLSD& sd)
     x = "scalet";
     if (sd.has(w) && sd.has(x))
     {
-        setScale( (F32)sd[w].asReal(), (F32)sd[x].asReal() );
+        setScale( static_cast<F32>(sd[w].asReal()), static_cast<F32>(sd[x].asReal()) );
     } else goto fail;
     w = "offsets";
     x = "offsett";
     if (sd.has(w) && sd.has(x))
     {
-        setOffset( (F32)sd[w].asReal(), (F32)sd[x].asReal() );
+        setOffset( static_cast<F32>(sd[w].asReal()), static_cast<F32>(sd[x].asReal()) );
     } else goto fail;
     w = "imagerot";
     if (sd.has(w))
     {
-        setRotation( (F32)sd[w].asReal() );
+        setRotation( static_cast<F32>(sd[w].asReal()) );
     } else goto fail;
     w = "bump";
     if (sd.has(w))
@@ -298,7 +298,7 @@ bool LLTextureEntry::fromLLSD(const LLSD& sd)
     w = "glow";
     if (sd.has(w))
     {
-        setGlow((F32)sd[w].asReal() );
+        setGlow(static_cast<F32>(sd[w].asReal()) );
     }
 
     w = "gltf_override";
@@ -754,7 +754,7 @@ std::string LLTextureEntry::touchMediaVersionString(const std::string &in_versio
     U32 current_version = getVersionFromMediaVersionString(in_version) + 1;
     const size_t MAX_VERSION_LEN = 10; // 2^32 fits in 10 decimal digits
     char buf[MAX_VERSION_LEN+1];
-    snprintf(buf, (int)MAX_VERSION_LEN+1, "%0*u", (int)MAX_VERSION_LEN, current_version);  // added int cast to fix warning/breakage on mac.
+    snprintf(buf, static_cast<int>(MAX_VERSION_LEN)+1, "%0*u", static_cast<int>(MAX_VERSION_LEN), current_version);  // added int cast to fix warning/breakage on mac.
     return MEDIA_VERSION_STRING_PREFIX + buf + "/" + agent_id.asString();
 }
 
