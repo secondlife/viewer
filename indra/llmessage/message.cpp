@@ -1502,7 +1502,7 @@ void LLMessageSystem::dumpCircuitInfo()
 }
 
 /* virtual */
-U32 LLMessageSystem::getOurCircuitCode()
+U32 LLMessageSystem::getOurCircuitCode() const
 {
     return mOurCircuitCode;
 }
@@ -1513,7 +1513,7 @@ void LLMessageSystem::getCircuitInfo(LLSD& info) const
 }
 
 // returns whether the given host is on a trusted circuit
-bool    LLMessageSystem::getCircuitTrust(const LLHost &host)
+bool    LLMessageSystem::getCircuitTrust(const LLHost &host) const
 {
     const LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
@@ -1587,7 +1587,7 @@ void LLMessageSystem::disableCircuit(const LLHost &host)
 }
 
 
-void LLMessageSystem::setCircuitAllowTimeout(const LLHost &host, bool allow)
+void LLMessageSystem::setCircuitAllowTimeout(const LLHost &host, bool allow) const
 {
     LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
@@ -1596,7 +1596,7 @@ void LLMessageSystem::setCircuitAllowTimeout(const LLHost &host, bool allow)
     }
 }
 
-void LLMessageSystem::setCircuitTimeoutCallback(const LLHost &host, void (*callback_func)(const LLHost & host, void *user_data), void *user_data)
+void LLMessageSystem::setCircuitTimeoutCallback(const LLHost &host, void (*callback_func)(const LLHost & host, void *user_data), void *user_data) const
 {
     LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
@@ -1650,7 +1650,7 @@ bool LLMessageSystem::checkCircuitAlive(const U32 circuit)
     }
 }
 
-bool LLMessageSystem::checkCircuitAlive(const LLHost &host)
+bool LLMessageSystem::checkCircuitAlive(const LLHost &host) const
 {
     const LLCircuitData *cdp = mCircuitInfo.findCircuit(host);
     if (cdp)
@@ -1671,7 +1671,7 @@ void LLMessageSystem::setCircuitProtection(bool b_protect)
 }
 
 
-U32 LLMessageSystem::findCircuitCode(const LLHost &host)
+U32 LLMessageSystem::findCircuitCode(const LLHost &host) const
 {
     U64 ip64 = (U64) host.getAddress();
     U64 port64 = (U64) host.getPort();
@@ -3990,7 +3990,7 @@ LockMessageChecker::LockMessageChecker(LLMessageSystem* msgsystem):
 
 // HACK! babbage: return true if message rxed via either UDP or HTTP
 // TODO: babbage: move gServicePump in to LLMessageSystem?
-bool LLMessageSystem::checkAllMessages(LockMessageChecker& lmc, S64 frame_count, LLPumpIO* http_pump)
+bool LLMessageSystem::checkAllMessages(LockMessageChecker& lmc, S64 frame_count, LLPumpIO* http_pump) const
 {
     if(lmc.checkMessages(frame_count))
     {

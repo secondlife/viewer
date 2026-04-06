@@ -135,7 +135,7 @@ private:
     {
         mCommitSignal(this, mValues.back(), old_value);
     }
-    LLSD getComparableValue(const LLSD& value);
+    LLSD getComparableValue(const LLSD& value) const;
     bool llsd_compare(const LLSD& a, const LLSD & b) const;
 };
 

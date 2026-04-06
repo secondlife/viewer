@@ -3276,12 +3276,12 @@ void LLXMLNode::setLineNumber(S32 line_number)
     mLineNumber = line_number;
 }
 
-S32 LLXMLNode::getLineNumber()
+S32 LLXMLNode::getLineNumber() const
 {
     return mLineNumber;
 }
 
-bool LLXMLNode::parseXmlRpcArrayValue(LLSD& target)
+bool LLXMLNode::parseXmlRpcArrayValue(LLSD& target) const
 {
     LLXMLNode* datap = getFirstChild().get();
     if (!datap)
@@ -3314,7 +3314,7 @@ bool LLXMLNode::parseXmlRpcArrayValue(LLSD& target)
     return true;
 }
 
-bool LLXMLNode::parseXmlRpcStructValue(LLSD& target)
+bool LLXMLNode::parseXmlRpcStructValue(LLSD& target) const
 {
     std::string name;
     LLSD value;

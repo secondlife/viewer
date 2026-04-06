@@ -122,7 +122,7 @@ public:
     void printGLInfoString();
     void getGLInfo(LLSD& info);
 
-    void asLLSD(LLSD& info);
+    void asLLSD(LLSD& info) const;
 
     // In ALL CAPS
     std::string mGLVendor;

@@ -195,7 +195,7 @@ LLVector3 LLKeyframeMotion::ScaleCurve::getValue(F32 time, F32 duration)
 //-----------------------------------------------------------------------------
 // interp()
 //-----------------------------------------------------------------------------
-LLVector3 LLKeyframeMotion::ScaleCurve::interp(F32 u, ScaleKey& before, ScaleKey& after)
+LLVector3 LLKeyframeMotion::ScaleCurve::interp(F32 u, ScaleKey& before, ScaleKey& after) const
 {
     switch (mInterpolationType)
     {
@@ -275,7 +275,7 @@ LLQuaternion LLKeyframeMotion::RotationCurve::getValue(F32 time, F32 duration)
 //-----------------------------------------------------------------------------
 // interp()
 //-----------------------------------------------------------------------------
-LLQuaternion LLKeyframeMotion::RotationCurve::interp(F32 u, RotationKey& before, RotationKey& after)
+LLQuaternion LLKeyframeMotion::RotationCurve::interp(F32 u, RotationKey& before, RotationKey& after) const
 {
     switch (mInterpolationType)
     {
@@ -359,7 +359,7 @@ LLVector3 LLKeyframeMotion::PositionCurve::getValue(F32 time, F32 duration)
 //-----------------------------------------------------------------------------
 // interp()
 //-----------------------------------------------------------------------------
-LLVector3 LLKeyframeMotion::PositionCurve::interp(F32 u, PositionKey& before, PositionKey& after)
+LLVector3 LLKeyframeMotion::PositionCurve::interp(F32 u, PositionKey& before, PositionKey& after) const
 {
     switch (mInterpolationType)
     {
@@ -2176,7 +2176,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
 //-----------------------------------------------------------------------------
 // getFileSize()
 //-----------------------------------------------------------------------------
-U32 LLKeyframeMotion::getFileSize()
+U32 LLKeyframeMotion::getFileSize() const
 {
     // serialize into a dummy buffer to calculate required size
     LLDataPackerBinaryBuffer dp;

@@ -97,7 +97,7 @@ public:
     // non-endian-neutral serialization
     U8 *serialize(U8 *buffer) const;
     U8 *deserialize(U8 *buffer, S32 max_size);
-    S32 getMaxSerialSize();
+    S32 getMaxSerialSize() const;
 
 protected:
     // overridden by child class to use local LLGesture implementation

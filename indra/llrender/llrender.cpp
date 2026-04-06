@@ -150,7 +150,7 @@ void LLTexUnit::refreshState()
     }
 }
 
-void LLTexUnit::activate()
+void LLTexUnit::activate() const
 {
     if (mIndex < 0) return;
 
@@ -489,7 +489,7 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
     setTextureFilteringOptionFast(option, mCurrTexType);
 }
 
-void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option, eTextureType tex_type)
+void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option, eTextureType tex_type) const
 {
     if (option == eTextureFilterOptions::TFO_POINT)
     {
@@ -539,7 +539,7 @@ void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions o
 
 // Useful for debugging that you've manually assigned a texture operation to the correct
 // texture unit based on the currently set active texture in opengl.
-void LLTexUnit::debugTextureUnit()
+void LLTexUnit::debugTextureUnit() const
 {
     if (mIndex < 0) return;
 
@@ -1404,7 +1404,7 @@ void LLRender::setAmbientLightColor(const LLColor4& color)
     }
 }
 
-bool LLRender::verifyTexUnitActive(U32 unitToVerify)
+bool LLRender::verifyTexUnitActive(U32 unitToVerify) const
 {
     if (mCurrTextureUnitIndex == unitToVerify)
     {

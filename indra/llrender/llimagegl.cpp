@@ -695,7 +695,7 @@ bool LLImageGL::updateBindStats() const
     return false ;
 }
 
-F32 LLImageGL::getTimePassedSinceLastBound()
+F32 LLImageGL::getTimePassedSinceLastBound() const
 {
     return sLastFrameTime - mLastBindTime ;
 }
@@ -2237,7 +2237,7 @@ void LLImageGL::freePickMask()
     mPickMaskWidth = mPickMaskHeight = 0;
 }
 
-bool LLImageGL::isCompressed()
+bool LLImageGL::isCompressed() const
 {
     llassert(mFormatPrimary != 0);
     // *NOTE: Not all compressed formats are included here.

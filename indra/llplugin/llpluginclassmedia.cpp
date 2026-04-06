@@ -1628,7 +1628,7 @@ void LLPluginClassMedia::setVolume(float volume)
     }
 }
 
-float LLPluginClassMedia::getVolume()
+float LLPluginClassMedia::getVolume() const
 {
     return mRequestedVolume;
 }

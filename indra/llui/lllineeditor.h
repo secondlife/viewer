@@ -265,7 +265,7 @@ public:
     void            setMaxTextLength(S32 max_text_length);
     void            setMaxTextChars(S32 max_text_chars);
     // Manipulate left and right padding for text
-    void getTextPadding(S32 *left, S32 *right);
+    void getTextPadding(S32 *left, S32 *right) const;
     void setTextPadding(S32 left, S32 right);
 
     // Prevalidation controls which keystrokes can affect the editor

@@ -969,37 +969,37 @@ namespace LLError
     {
     }
 
-    bool Recorder::wantsTime()
+    bool Recorder::wantsTime() const
     {
         return mWantsTime;
     }
 
     // virtual
-    bool Recorder::wantsTags()
+    bool Recorder::wantsTags() const
     {
         return mWantsTags;
     }
 
     // virtual
-    bool Recorder::wantsLevel()
+    bool Recorder::wantsLevel() const
     {
         return mWantsLevel;
     }
 
     // virtual
-    bool Recorder::wantsLocation()
+    bool Recorder::wantsLocation() const
     {
         return mWantsLocation;
     }
 
     // virtual
-    bool Recorder::wantsFunctionName()
+    bool Recorder::wantsFunctionName() const
     {
         return mWantsFunctionName;
     }
 
     // virtual
-    bool Recorder::wantsMultiline()
+    bool Recorder::wantsMultiline() const
     {
         return mWantsMultiline;
     }

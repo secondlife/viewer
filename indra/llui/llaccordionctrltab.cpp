@@ -665,7 +665,7 @@ void LLAccordionCtrlTab::deselectOnFocusLost()
     }
 }
 
-S32 LLAccordionCtrlTab::getHeaderHeight()
+S32 LLAccordionCtrlTab::getHeaderHeight() const
 {
     return mHeaderVisible ? HEADER_HEIGHT : 0;
 }

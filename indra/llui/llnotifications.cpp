@@ -1857,7 +1857,7 @@ void LLNotifications::setIgnoreAllNotifications(bool setting)
 {
     mIgnoreAllNotifications = setting;
 }
-bool LLNotifications::getIgnoreAllNotifications()
+bool LLNotifications::getIgnoreAllNotifications() const
 {
     return mIgnoreAllNotifications;
 }

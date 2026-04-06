@@ -115,7 +115,7 @@ public:
     [[nodiscard]] S32 getIndex() const { return mIndex; }
 
     // Sets this tex unit to be the currently active one
-    void activate();
+    void activate() const;
 
     // Enables this texture unit for the given texture type
     // (automatically disables any previously enabled texture type)
@@ -171,7 +171,7 @@ public:
     // make sure you want to permanently change the filtering for the bound texture.
     void setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option);
     // MUST already be active and bound
-    void setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option, eTextureType tex_type);
+    void setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions option, eTextureType tex_type) const;
 
     [[nodiscard]] static U32 getInternalType(eTextureType type);
 
@@ -189,7 +189,7 @@ protected:
     eTextureType        mCurrTexType;
     bool                mHasMipMaps;
 
-    void debugTextureUnit();
+    void debugTextureUnit() const;
 };
 
 class LLLightState
@@ -430,7 +430,7 @@ public:
 
     [[nodiscard]] U32 getCurrentTexUnitIndex() const { return mCurrTextureUnitIndex; }
 
-    bool verifyTexUnitActive(U32 unitToVerify);
+    bool verifyTexUnitActive(U32 unitToVerify) const;
 
     void debugTexUnits();
 

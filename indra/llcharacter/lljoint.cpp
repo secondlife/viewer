@@ -991,7 +991,7 @@ void LLJoint::updateWorldMatrix()
 //--------------------------------------------------------------------
 // getSkinOffset()
 //--------------------------------------------------------------------
-const LLVector3 &LLJoint::getSkinOffset()
+const LLVector3 &LLJoint::getSkinOffset() const
 {
     return mSkinOffset;
 }

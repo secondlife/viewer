@@ -1271,7 +1271,7 @@ std::string LLGLManager::getRawGLString()
     return gl_string;
 }
 
-void LLGLManager::asLLSD(LLSD& info)
+void LLGLManager::asLLSD(LLSD& info) const
 {
     // Currently these are duplicates of fields in "system".
     info["gpu_vendor"] = mGLVendorShort;

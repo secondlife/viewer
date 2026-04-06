@@ -272,7 +272,7 @@ public:
     void updateWorldMatrix();
 
     // get/set skin offset
-    const LLVector3 &getSkinOffset();
+    const LLVector3 &getSkinOffset() const;
     void setSkinOffset( const LLVector3 &offset);
 
     LLXformMatrix   *getXform() { return &mXform; }

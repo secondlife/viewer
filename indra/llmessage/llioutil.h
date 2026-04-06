@@ -160,7 +160,7 @@ public:
     /**
      * @brief Do the work of changing the channel
      */
-    void operator()(LLSegment& segment);
+    void operator()(LLSegment& segment) const;
 
 protected:
     S32 mIs;

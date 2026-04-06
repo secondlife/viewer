@@ -1370,7 +1370,7 @@ bool LLPrimitive::packTEMessage(LLDataPacker &dp) const
     return true;
 }
 
-S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec)
+S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec) const
 {
     S32 retval = 0;
     // temp buffer for material ID processing

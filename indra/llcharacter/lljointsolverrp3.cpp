@@ -118,7 +118,7 @@ void LLJointSolverRP3::setBAxis( const LLVector3& bAxis )
 //-----------------------------------------------------------------------------
 // getTwist()
 //-----------------------------------------------------------------------------
-F32 LLJointSolverRP3::getTwist()
+F32 LLJointSolverRP3::getTwist() const
 {
     return mTwist;
 }

@@ -95,7 +95,7 @@ public:
     void        getAngleAxis(F32* angle, F32* x, F32* y, F32* z) const; // returns rotation in radians about axis x,y,z
     void        getAngleAxis(F32* angle, LLVector3 &vec) const;
     void        getEulerAngles(F32 *roll, F32* pitch, F32 *yaw) const;
-    void        getAzimuthAndAltitude(F32 &azimuth, F32 &altitude);
+    void        getAzimuthAndAltitude(F32 &azimuth, F32 &altitude) const;
 
     F32 normalize();    // Normalizes Quaternion and returns magnitude
     const LLQuaternion& conjugate();    // Conjugates Quaternion and returns result

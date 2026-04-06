@@ -1337,7 +1337,7 @@ struct ScopedFile
         return file_size - cur_pos;
     }
 
-    bool isOpen() { return mFile != NULL; }
+    bool isOpen() const { return mFile != NULL; }
 
     LLFILE* mFile;
 };

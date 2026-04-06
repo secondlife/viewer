@@ -2753,7 +2753,7 @@ void LLFloaterView::unhighlightFocusedFloater()
     }
 }
 
-void LLFloaterView::focusFrontFloater()
+void LLFloaterView::focusFrontFloater() const
 {
     LLFloater* floaterp = getFrontmost();
     if (floaterp)

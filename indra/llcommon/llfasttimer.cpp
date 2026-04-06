@@ -321,22 +321,22 @@ void BlockTimer::processTimes()
 #endif
 }
 
-std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::beginChildren()
+std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::beginChildren() const
         {
     return getTreeNode().mChildren.begin();
         }
 
-std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::endChildren()
+std::vector<BlockTimerStatHandle*>::iterator BlockTimerStatHandle::endChildren() const
         {
     return getTreeNode().mChildren.end();
 }
 
-std::vector<BlockTimerStatHandle*>& BlockTimerStatHandle::getChildren()
+std::vector<BlockTimerStatHandle*>& BlockTimerStatHandle::getChildren() const
 {
     return getTreeNode().mChildren;
     }
 
-bool BlockTimerStatHandle::hasChildren()
+bool BlockTimerStatHandle::hasChildren() const
 {
     return ! getTreeNode().mChildren.empty();
 }
@@ -479,7 +479,7 @@ void TimeBlockAccumulator::reset( const TimeBlockAccumulator* other )
     }
 }
 
-F64Seconds BlockTimer::getElapsedTime()
+F64Seconds BlockTimer::getElapsedTime() const
 {
     U64 total_time = getCPUClockCount64() - mStartTime;
 

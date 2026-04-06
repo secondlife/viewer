@@ -2249,7 +2249,7 @@ S32 LLScrollListCtrl::getColumnOffsetFromIndex(S32 index)
     return mItemListRect.mRight;
 }
 
-S32 LLScrollListCtrl::getRowOffsetFromIndex(S32 index)
+S32 LLScrollListCtrl::getRowOffsetFromIndex(S32 index) const
 {
     S32 row_bottom = (mItemListRect.mTop - ((index - mScrollLines + 1) * mLineHeight) );
     return row_bottom;
@@ -2683,7 +2683,7 @@ struct SameSortColumn
     explicit SameSortColumn(S32 column) : mColumn(column) {}
     S32 mColumn;
 
-    bool operator()(std::pair<S32, bool> sort_column) { return sort_column.first == mColumn; }
+    bool operator()(std::pair<S32, bool> sort_column) const { return sort_column.first == mColumn; }
 };
 
 bool LLScrollListCtrl::setSort(S32 column_idx, bool ascending)

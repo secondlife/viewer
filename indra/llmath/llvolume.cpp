@@ -5032,7 +5032,7 @@ bool LLVolumeFace::create(LLVolume* volume, bool partial_build)
     return ret ;
 }
 
-void LLVolumeFace::getVertexData(U16 index, LLVolumeFace::VertexData& cv)
+void LLVolumeFace::getVertexData(U16 index, LLVolumeFace::VertexData& cv) const
 {
     cv.setPosition(mPositions[index]);
     if (mNormals)
@@ -5542,7 +5542,7 @@ struct MikktData
         }
     }
 
-    uint32_t GetNumFaces()
+    uint32_t GetNumFaces() const
     {
         return uint32_t(face->mNumIndices / 3);
     }

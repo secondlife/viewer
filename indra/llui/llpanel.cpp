@@ -173,7 +173,7 @@ void LLPanel::clearCtrls()
     }
 }
 
-void LLPanel::setCtrlsEnabled( bool b )
+void LLPanel::setCtrlsEnabled( bool b ) const
 {
     LLPanel::ctrl_list_t ctrls = getCtrlList();
     for (auto ctrl : ctrls)

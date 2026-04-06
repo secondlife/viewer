@@ -187,8 +187,8 @@ public:
     virtual S32 arrange( S32* width, S32* height );
     virtual S32 getItemHeight() const;
     virtual S32 getLabelXPos();
-    S32 getIconPad();
-    S32 getTextPad();
+    S32 getIconPad() const;
+    S32 getTextPad() const;
 
     // If 'selection' is 'this' then note that otherwise ignore.
     // Returns true if this item ends up being selected.

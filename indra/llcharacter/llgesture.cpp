@@ -342,7 +342,7 @@ LLGesture *LLGestureList::create_gesture(U8 **buffer, S32 max_size)
     return new LLGesture(buffer, max_size);
 }
 
-S32 LLGestureList::getMaxSerialSize()
+S32 LLGestureList::getMaxSerialSize() const
 {
     return SERIAL_HEADER_SIZE + (count() * LLGesture::getMaxSerialSize());
 }

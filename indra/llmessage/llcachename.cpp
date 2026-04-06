@@ -222,7 +222,7 @@ public:
 
     void processPendingAsks();
     void processPendingReplies();
-    void sendRequest(const char* msg_name, const AskQueue& queue);
+    void sendRequest(const char* msg_name, const AskQueue& queue) const;
     bool isRequestPending(const LLUUID& id);
 
     // Message system callbacks.
@@ -822,7 +822,7 @@ void LLCacheName::Impl::processPendingReplies()
 
 void LLCacheName::Impl::sendRequest(
     const char* msg_name,
-    const AskQueue& queue)
+    const AskQueue& queue) const
 {
     if(queue.empty())
     {

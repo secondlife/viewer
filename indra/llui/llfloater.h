@@ -588,7 +588,7 @@ public:
     void            bringToFront( LLFloater* child, bool give_focus = true, bool restore = true );
     void            highlightFocusedFloater();
     void            unhighlightFocusedFloater();
-    void            focusFrontFloater();
+    void            focusFrontFloater() const;
     void            destroyAllChildren();
     // attempt to close all floaters
     void            closeAllChildren(bool app_quitting);

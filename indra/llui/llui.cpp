@@ -219,7 +219,7 @@ void LLUI::setMousePositionScreen(S32 x, S32 y)
     LLView::getWindow()->setCursorPosition(LLCoordGL(screen_x, screen_y).convert());
 }
 
-void LLUI::getMousePositionScreen(S32 *x, S32 *y)
+void LLUI::getMousePositionScreen(S32 *x, S32 *y) const
 {
     LLCoordWindow cursor_pos_window;
     getWindow()->getCursorPosition(&cursor_pos_window);
@@ -337,7 +337,7 @@ std::string LLUI::locateSkin(const std::string& filename)
     return "";
 }
 
-LLVector2 LLUI::getWindowSize()
+LLVector2 LLUI::getWindowSize() const
 {
     LLCoordWindow window_rect;
     mWindow->getSize(&window_rect);
@@ -459,7 +459,7 @@ LLView* LLUI::resolvePath(LLView* context, const std::string& path)
     return const_cast<LLView*>(resolvePath(const_cast<const LLView*>(context), path));
 }
 
-const LLView* LLUI::resolvePath(const LLView* context, const std::string& path)
+const LLView* LLUI::resolvePath(const LLView* context, const std::string& path) const
 {
     // Create an iterator over slash-separated parts of 'path'. Dereferencing
     // this iterator returns an iterator_range over the substring. Unlike

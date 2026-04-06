@@ -1278,7 +1278,7 @@ bool LLPartSysCompressedPacket::fromUnsignedBytes(U8 *in, U32 bytesUsed)
 }
 
 
-U32 LLPartSysCompressedPacket::bufferSize()
+U32 LLPartSysCompressedPacket::bufferSize() const
 {
     return mNumBytes;
 }

@@ -887,7 +887,7 @@ public:
 
     void swapData(LLVolumeFace& rhs);
 
-    void getVertexData(U16 indx, LLVolumeFace::VertexData& cv);
+    void getVertexData(U16 indx, LLVolumeFace::VertexData& cv) const;
 
     class VertexMapData : public LLVolumeFace::VertexData
     {

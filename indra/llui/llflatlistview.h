@@ -505,7 +505,7 @@ public:
     /**
      * Returns true if last call of filterItems() found at least one matching item
      */
-    bool hasMatchedItems();
+    bool hasMatchedItems() const;
 
 protected:
     explicit LLFlatListViewEx(const Params& p);

@@ -689,7 +689,7 @@ bool LLSettingsDay::isTrackEmpty(S32 track) const
 }
 
 //=========================================================================
-void LLSettingsDay::startDayCycle()
+void LLSettingsDay::startDayCycle() const
 {
     if (!mInitialized)
     {

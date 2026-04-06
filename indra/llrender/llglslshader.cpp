@@ -571,7 +571,7 @@ void dumpAttachObject(const char* func_name, GLuint program_object, const std::s
 }
 #endif // DEBUG_SHADER_INCLUDES
 
-bool LLGLSLShader::attachVertexObject(std::string object_path)
+bool LLGLSLShader::attachVertexObject(std::string object_path) const
 {
     if (LLShaderMgr::instance()->mVertexShaderObjects.count(object_path) > 0)
     {
@@ -590,7 +590,7 @@ bool LLGLSLShader::attachVertexObject(std::string object_path)
     }
 }
 
-bool LLGLSLShader::attachFragmentObject(std::string object_path)
+bool LLGLSLShader::attachFragmentObject(std::string object_path) const
 {
     if(mUsingBinaryProgram)
         return true;
@@ -612,7 +612,7 @@ bool LLGLSLShader::attachFragmentObject(std::string object_path)
     }
 }
 
-void LLGLSLShader::attachObject(GLuint object)
+void LLGLSLShader::attachObject(GLuint object) const
 {
     if(mUsingBinaryProgram)
         return;
@@ -1141,7 +1141,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextu
     return uniform;
 }
 
-S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, LLTexUnit::eTextureFilterOptions mode, U32 index)
+S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, LLTexUnit::eTextureFilterOptions mode, U32 index) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 

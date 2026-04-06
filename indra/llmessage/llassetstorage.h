@@ -306,7 +306,7 @@ public:
 
     S32 getNumPendingDownloads() const;
     S32 getNumPendingUploads() const;
-    S32 getNumPendingLocalUploads();
+    S32 getNumPendingLocalUploads() const;
     S32 getNumPending(ERequestType rt) const;
 
     LLSD getPendingDetails(ERequestType rt,

@@ -495,12 +495,12 @@ S32 LLFolderViewItem::getLabelXPos()
     return getIndentation() + mArrowSize + mTextPad + mIconWidth + mIconPad;
 }
 
-S32 LLFolderViewItem::getIconPad()
+S32 LLFolderViewItem::getIconPad() const
 {
     return mIconPad;
 }
 
-S32 LLFolderViewItem::getTextPad()
+S32 LLFolderViewItem::getTextPad() const
 {
     return mTextPad;
 }

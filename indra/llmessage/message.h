@@ -659,7 +659,7 @@ public:
     void    showCircuitInfo();
     void getCircuitInfo(LLSD& info) const;
 
-    U32 getOurCircuitCode();
+    U32 getOurCircuitCode() const;
 
     void    enableCircuit(const LLHost &host, bool trusted);
     void    disableCircuit(const LLHost &host);
@@ -714,16 +714,16 @@ public:
 
     // returns whether the given host is on a trusted circuit
     // Note:DaveH/Babbage some trusted messages can be received without a circuit
-    bool    getCircuitTrust(const LLHost &host);
+    bool    getCircuitTrust(const LLHost &host) const;
 
-    void    setCircuitAllowTimeout(const LLHost &host, bool allow);
-    void    setCircuitTimeoutCallback(const LLHost &host, void (*callback_func)(const LLHost &host, void *user_data), void *user_data);
+    void    setCircuitAllowTimeout(const LLHost &host, bool allow) const;
+    void    setCircuitTimeoutCallback(const LLHost &host, void (*callback_func)(const LLHost &host, void *user_data), void *user_data) const;
 
     bool    checkCircuitBlocked(const U32 circuit);
     bool    checkCircuitAlive(const U32 circuit);
-    bool    checkCircuitAlive(const LLHost &host);
+    bool    checkCircuitAlive(const LLHost &host) const;
     void    setCircuitProtection(bool b_protect);
-    U32     findCircuitCode(const LLHost &host);
+    U32     findCircuitCode(const LLHost &host) const;
     LLHost  findHost(const U32 circuit_code);
     void    sanityCheck();
 
@@ -816,7 +816,7 @@ public:
         const LLSD& data);
 
     // Check UDP messages and pump http_pump to receive HTTP messages.
-    bool checkAllMessages(LockMessageChecker&, S64 frame_count, LLPumpIO* http_pump);
+    bool checkAllMessages(LockMessageChecker&, S64 frame_count, LLPumpIO* http_pump) const;
 
     // Moved to allow access from LLTemplateMessageDispatcher
     void clearReceiveState();

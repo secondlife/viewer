@@ -45,7 +45,7 @@ public:
     bool isValidPng(U8* src);
     bool readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInfo *infop = NULL);
     bool writePng(const LLImageRaw* rawImage, U8* dst, size_t destSize);
-    U32  getFinalSize();
+    U32  getFinalSize() const;
     const std::string& getErrorMessage();
 
 protected:

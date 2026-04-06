@@ -378,7 +378,7 @@ void LLLineEditor::setMaxTextChars(S32 max_text_chars)
     mMaxLengthChars = max_chars;
 }
 
-void LLLineEditor::getTextPadding(S32 *left, S32 *right)
+void LLLineEditor::getTextPadding(S32 *left, S32 *right) const
 {
     *left = mTextPadLeft;
     *right = mTextPadRight;

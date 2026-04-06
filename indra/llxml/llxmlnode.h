@@ -226,7 +226,7 @@ public:
     bool getAttribute(const char* name, LLXMLNodePtr& node, bool use_default_if_missing = true);
     bool getAttribute(const LLStringTableEntry* name, LLXMLNodePtr& node, bool use_default_if_missing = true);
 
-    S32 getLineNumber();
+    S32 getLineNumber() const;
 
     // The following skip over attributes
     LLXMLNodePtr getFirstChild() const;
@@ -295,8 +295,8 @@ protected:
     bool isFullyDefault();
 
     std::string getXMLRPCTextContents() const;
-    bool parseXmlRpcArrayValue(LLSD& target);
-    bool parseXmlRpcStructValue(LLSD& target);
+    bool parseXmlRpcArrayValue(LLSD& target) const;
+    bool parseXmlRpcStructValue(LLSD& target) const;
 
 public:
     std::string mID;                // The ID attribute of this node

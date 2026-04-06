@@ -173,7 +173,7 @@ LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
 
 LLControlVariable::~LLControlVariable() = default;
 
-LLSD LLControlVariable::getComparableValue(const LLSD& value)
+LLSD LLControlVariable::getComparableValue(const LLSD& value) const
 {
     // *FIX:MEP - The following is needed to make the LLSD::ImplString
     // work with boolean controls...

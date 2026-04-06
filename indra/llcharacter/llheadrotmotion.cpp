@@ -366,7 +366,7 @@ bool LLEyeMotion::onActivate()
 //-----------------------------------------------------------------------------
 // LLEyeMotion::adjustEyeTarget()
 //-----------------------------------------------------------------------------
-void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state)
+void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state) const
 {
     // Compute eye rotation.
     bool has_eye_target = false;

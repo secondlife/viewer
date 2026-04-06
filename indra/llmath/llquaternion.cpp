@@ -713,7 +713,7 @@ const LLQuaternion& LLQuaternion::setFromAzimuthAndAltitude(F32 azimuthRadians, 
     return *this;
 }
 
-void LLQuaternion::getAzimuthAndAltitude(F32 &azimuthRadians, F32 &altitudeRadians)
+void LLQuaternion::getAzimuthAndAltitude(F32 &azimuthRadians, F32 &altitudeRadians) const
 {
     F32 rick_roll;
     F32 pitch;

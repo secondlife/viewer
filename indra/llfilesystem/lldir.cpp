@@ -1089,7 +1089,7 @@ LLDir::SepOff LLDir::needSep(const std::string& path, const std::string& name) c
     return SepOff(false, 0);
 }
 
-void LLDir::openDir(const std::string& filepath)
+void LLDir::openDir(const std::string& filepath) const
 {
     if (filepath.empty())
     {

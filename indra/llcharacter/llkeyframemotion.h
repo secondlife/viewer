@@ -155,7 +155,7 @@ public:
                                void* user_data, S32 status, LLExtStat ext_status);
 
 public:
-    U32     getFileSize();
+    U32     getFileSize() const;
     bool    serialize(LLDataPacker& dp) const;
     bool    deserialize(LLDataPacker& dp, const LLUUID& asset_id, bool allow_invalid_joints = true);
     bool    isLoaded() { return mJointMotionList != NULL; }
@@ -327,7 +327,7 @@ public:
         ScaleCurve();
         ~ScaleCurve();
         LLVector3 getValue(F32 time, F32 duration);
-        LLVector3 interp(F32 u, ScaleKey& before, ScaleKey& after);
+        LLVector3 interp(F32 u, ScaleKey& before, ScaleKey& after) const;
 
         InterpolationType   mInterpolationType;
         S32                 mNumKeys;
@@ -346,7 +346,7 @@ public:
         RotationCurve();
         ~RotationCurve();
         LLQuaternion getValue(F32 time, F32 duration);
-        LLQuaternion interp(F32 u, RotationKey& before, RotationKey& after);
+        LLQuaternion interp(F32 u, RotationKey& before, RotationKey& after) const;
 
         InterpolationType   mInterpolationType;
         S32                 mNumKeys;
@@ -365,7 +365,7 @@ public:
         PositionCurve();
         ~PositionCurve();
         LLVector3 getValue(F32 time, F32 duration);
-        LLVector3 interp(F32 u, PositionKey& before, PositionKey& after);
+        LLVector3 interp(F32 u, PositionKey& before, PositionKey& after) const;
 
         InterpolationType   mInterpolationType;
         S32                 mNumKeys;

@@ -684,7 +684,7 @@ void LLAudioEngine::setMasterGain(const F32 gain)
     }
 }
 
-F32 LLAudioEngine::getMasterGain()
+F32 LLAudioEngine::getMasterGain() const
 {
     return mMasterGain;
 }

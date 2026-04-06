@@ -708,7 +708,7 @@ void LLView::onMouseLeave(S32 x, S32 y, MASK mask)
     //LL_INFOS() << "Mouse left " << getName() << LL_ENDL;
 }
 
-bool LLView::visibleAndContains(S32 local_x, S32 local_y)
+bool LLView::visibleAndContains(S32 local_x, S32 local_y) const
 {
     return sDrilldown(this, local_x, local_y)
         && getVisible();

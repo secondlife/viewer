@@ -130,10 +130,10 @@ public:
     //clear render targer, clears depth buffer if present,
     //uses scissor rect if in copy-to-texture mode
     // asserts that this target is currently bound
-    void clear(U32 mask = 0xFFFFFFFF);
+    void clear(U32 mask = 0xFFFFFFFF) const;
 
     //get applied viewport
-    void getViewport(S32* viewport);
+    void getViewport(S32* viewport) const;
 
     //get X resolution
     [[nodiscard]] U32 getWidth() const { return mResX; }

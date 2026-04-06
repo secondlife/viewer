@@ -62,9 +62,9 @@ public:
     S32  getStage() { return mTextureStage; }
 
     void disable();
-    void disableTexture();
+    void disableTexture() const;
     void setMatrix(S32 stage);
-    void restoreMatrix();
+    void restoreMatrix() const;
 
     U32 getResolution() { return mImages[0].notNull() ? mImages[0]->getWidth(0) : 0; }
 

@@ -1124,7 +1124,7 @@ S32 LLAssetStorage::getNumPendingUploads() const
     return getNumPending(ERequestType::RT_UPLOAD);
 }
 
-S32 LLAssetStorage::getNumPendingLocalUploads()
+S32 LLAssetStorage::getNumPendingLocalUploads() const
 {
     return getNumPending(ERequestType::RT_LOCALUPLOAD);
 }

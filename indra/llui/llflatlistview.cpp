@@ -1413,7 +1413,7 @@ bool LLFlatListViewEx::filterItems(bool re_sort, bool notify_parent)
     return false;
 }
 
-bool LLFlatListViewEx::hasMatchedItems()
+bool LLFlatListViewEx::hasMatchedItems() const
 {
     return mHasMatchedItems;
 }
