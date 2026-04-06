@@ -25,6 +25,7 @@
  */
 
 #pragma once
+#define LL_SIMD_MATH_H  // sentinel for llsimdtypes.h include-order check
 
 #ifndef LLMATH_H
 #error "Please include llmath.h before this file."

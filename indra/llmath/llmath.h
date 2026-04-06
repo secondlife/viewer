@@ -25,6 +25,7 @@
  */
 
 #pragma once
+#define LLMATH_H  // sentinel for llsimdmath.h / llsimdtypes.h include-order checks
 
 #include <cmath>
 #include <cstdlib>
