@@ -56,12 +56,12 @@ LLSD getLLSD(const LLSD& input, const char* block, const char* var, S32 blocknum
     if(NULL == block)
     {
         LL_ERRS() << "NULL block name" << LL_ENDL;
-        return LLSD();
+        return {};
     }
     if(NULL == var)
     {
         LL_ERRS() << "NULL var name" << LL_ENDL;
-        return LLSD();
+        return {};
     }
     if(! input[block].isArray())
     {
@@ -69,7 +69,7 @@ LLSD getLLSD(const LLSD& input, const char* block, const char* var, S32 blocknum
         // backwards/forwards compatibility - handlers must cope with default
         // values.
         LL_WARNS() << "block " << block << " not found" << LL_ENDL;
-        return LLSD();
+        return {};
     }
 
     LLSD result = input[block][blocknum][var];

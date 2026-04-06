@@ -562,7 +562,7 @@ LLRect LLToolTipMgr::getToolTipRect()
     {
         return mToolTip->getRect();
     }
-    return LLRect();
+    return {};
 }
 
 

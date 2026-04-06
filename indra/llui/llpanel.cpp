@@ -723,7 +723,7 @@ LLSD LLPanel::childGetValue(std::string_view id) const
         return child->getValue();
     }
     // Not found => return undefined
-    return LLSD();
+    return {};
 }
 
 bool LLPanel::childSetTextArg(std::string_view id, const std::string& key, const LLStringExplicit& text)

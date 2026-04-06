@@ -315,7 +315,7 @@ LLRect LLMultiSlider::getSliderThumbRect(const std::string& name) const
     auto it = mThumbRects.find(name);
     if (it != mThumbRects.end())
         return (*it).second;
-    return LLRect();
+    return {};
 }
 
 void LLMultiSlider::setSliderThumbImage(const std::string &name)

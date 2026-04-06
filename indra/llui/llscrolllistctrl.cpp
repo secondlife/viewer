@@ -563,7 +563,7 @@ LLRect LLScrollListCtrl::getRequiredRect()
                 + heading_size;
     S32 width = getRect().getWidth();
 
-    return LLRect(0, height, width, 0);
+    return {0, height, width, 0};
 }
 
 
@@ -1572,7 +1572,7 @@ LLSD LLScrollListCtrl::getSelectedValue()
     }
     else
     {
-        return LLSD();
+        return {};
     }
 }
 
@@ -3277,7 +3277,7 @@ void LLScrollListCtrl::setValue(const LLSD& value )
 LLSD LLScrollListCtrl::getValue() const
 {
     const LLScrollListItem *item = getFirstSelected();
-    if (!item) return LLSD();
+    if (!item) return {};
     return item->getValue();
 }
 

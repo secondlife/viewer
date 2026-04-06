@@ -997,7 +997,7 @@ std::string LLFontGL::nameFromHAlign(LLFontGL::HAlign align)
     if (align == HAlign::LEFT)          return std::string("left");
     else if (align == HAlign::RIGHT)    return std::string("right");
     else if (align == HAlign::HCENTER)  return std::string("center");
-    else return std::string();
+    else return {};
 }
 
 // static
@@ -1027,7 +1027,7 @@ std::string LLFontGL::nameFromVAlign(LLFontGL::VAlign align)
     else if (align == VAlign::VCENTER)  return std::string("center");
     else if (align == VAlign::BASELINE) return std::string("baseline");
     else if (align == VAlign::BOTTOM)   return std::string("bottom");
-    else return std::string();
+    else return {};
 }
 
 // static

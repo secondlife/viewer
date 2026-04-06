@@ -416,7 +416,7 @@ LLVector4       operator*(const LLVector4 &a, const LLQuaternion &rot)
     F32 ny = - rw * rot.mQ[VY] +  ry * rot.mQ[VW] - rz * rot.mQ[VX] + rx * rot.mQ[VZ];
     F32 nz = - rw * rot.mQ[VZ] +  rz * rot.mQ[VW] - rx * rot.mQ[VY] + ry * rot.mQ[VX];
 
-    return LLVector4(nx, ny, nz, a.mV[VW]);
+    return {nx, ny, nz, a.mV[VW]};
 }
 
 LLVector3       operator*(const LLVector3 &a, const LLQuaternion &rot)

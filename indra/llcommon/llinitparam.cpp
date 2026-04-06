@@ -443,7 +443,7 @@ namespace LLInitParam
         {
             if (ptr->mParamHandle == handle) return ptr;
         }
-        return ParamDescriptorPtr();
+        return {};
     }
 
     // take all provided params from other and apply to self

@@ -383,7 +383,7 @@ LLNotificationPtr LLWindowShade::getCurrentNotification()
 {
     if (mNotifications.empty())
     {
-        return LLNotificationPtr();
+        return {};
     }
     return mNotifications.back();
 }

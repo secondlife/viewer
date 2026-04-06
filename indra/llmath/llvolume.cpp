@@ -5555,19 +5555,19 @@ struct MikktData
     mikk::float3 GetPosition(const uint32_t face_num, const uint32_t vert_num)
     {
         F32* v = p[face_num * 3 + vert_num].mV;
-        return mikk::float3(v);
+        return {v};
     }
 
     mikk::float3 GetTexCoord(const uint32_t face_num, const uint32_t vert_num)
     {
         F32* uv = tc[face_num * 3 + vert_num].mV;
-        return mikk::float3(uv[0], uv[1], 1.0f);
+        return {uv[0], uv[1], 1.0f};
     }
 
     mikk::float3 GetNormal(const uint32_t face_num, const uint32_t vert_num)
     {
         F32* normal = n[face_num * 3 + vert_num].mV;
-        return mikk::float3(normal);
+        return {normal};
     }
 
     void SetTangentSpace(const uint32_t face_num, const uint32_t vert_num, mikk::float3 T, bool orientation)

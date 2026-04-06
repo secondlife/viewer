@@ -512,7 +512,7 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
                      );
         }
 
-        return LLProcessPtr();
+        return {};
     }
 }
 
@@ -868,7 +868,7 @@ LLProcess::Status LLProcess::getStatus(const LLProcessPtr& p)
     if (! p)
     {
         // default-constructed Status has mState == UNSTARTED
-        return Status();
+        return {};
     }
     return p->getStatus();
 }

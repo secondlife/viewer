@@ -387,7 +387,7 @@ HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
         || (pclass != HttpRequest::GLOBAL_POLICY_ID && ! sOptionDesc[opt].mIsClass))    // class setting permitted
                                                                                         // can always get, no dynamic check
     {
-        return HttpStatus(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, LLCore::HE_INVALID_ARG};
     }
 
     HttpStatus status;

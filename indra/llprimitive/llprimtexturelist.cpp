@@ -384,7 +384,7 @@ LLMaterialPtr LLPrimTextureList::getMaterialParams(const U8 index)
         return mEntryList[index]->getMaterialParams();
     }
 
-    return LLMaterialPtr();
+    return {};
 }
 
 S32 LLPrimTextureList::size() const

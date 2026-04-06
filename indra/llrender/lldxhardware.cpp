@@ -78,7 +78,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
     if (FAILED(hres))
     {
         LL_DEBUGS("AppInit") << "Failed to initialize COM library. Error code = 0x" << hres << LL_ENDL;
-        return std::string();                  // Program has failed.
+        return {};                  // Program has failed.
     }
 
     IWbemServices *pSvc = NULL;
@@ -102,7 +102,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
         LL_WARNS("AppInit") << "Could not connect. Error code = 0x" << hres << LL_ENDL;
         pLoc->Release();
         CoUninitialize();
-        return std::string();                // Program has failed.
+        return {};                // Program has failed.
     }
 
     LL_DEBUGS("AppInit") << "Connected to ROOT\\CIMV2 WMI namespace" << LL_ENDL;
@@ -125,7 +125,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
-        return std::string();               // Program has failed.
+        return {};               // Program has failed.
     }
     IEnumWbemClassObject* pEnumerator = NULL;
 
@@ -144,7 +144,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
-        return std::string();               // Program has failed.
+        return {};               // Program has failed.
     }
 
     while (pEnumerator)
@@ -170,7 +170,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
                 pSvc->Release();
                 pLoc->Release();
                 CoUninitialize();
-                return std::string();               // Program has failed.
+                return {};               // Program has failed.
             }
 
             // use characters in the returned driver version
@@ -222,7 +222,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
             pSvc->Release();
             pLoc->Release();
             CoUninitialize();
-            return std::string();               // Program has failed.
+            return {};               // Program has failed.
         }
 
         // use characters in the returned driver version

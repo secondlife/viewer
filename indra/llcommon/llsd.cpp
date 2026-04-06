@@ -149,10 +149,10 @@ public:
     virtual Boolean asBoolean() const           { return false; }
     virtual Integer asInteger() const           { return 0; }
     virtual Real    asReal() const              { return 0.0; }
-    virtual String  asString() const            { return std::string(); }
-    virtual UUID    asUUID() const              { return LLUUID(); }
-    virtual Date    asDate() const              { return LLDate(); }
-    virtual URI     asURI() const               { return LLURI(); }
+    virtual String  asString() const            { return {}; }
+    virtual UUID    asUUID() const              { return {}; }
+    virtual Date    asDate() const              { return {}; }
+    virtual URI     asURI() const               { return {}; }
     virtual const Binary&   asBinary() const    { static const std::vector<U8> empty; return empty; }
 
     virtual const String& asStringRef() const { static const std::string empty; return empty; }
@@ -160,13 +160,13 @@ public:
     virtual String asXMLRPCValue() const { return "<nil/>"; }
 
     virtual bool has(std::string_view) const      { return false; }
-    virtual LLSD get(std::string_view) const      { return LLSD(); }
+    virtual LLSD get(std::string_view) const      { return {}; }
     virtual LLSD getKeys() const                { return LLSD::emptyArray(); }
     virtual void erase(const String&)           { }
     virtual const LLSD& ref(std::string_view) const{ return undef(); }
 
     virtual size_t size() const                 { return 0; }
-    virtual LLSD get(size_t) const              { return LLSD(); }
+    virtual LLSD get(size_t) const              { return {}; }
     virtual void erase(size_t)                  { }
     virtual const LLSD& ref(size_t) const       { return undef(); }
 

@@ -94,7 +94,7 @@ std::string LLModel::getStatusString(U32 status)
 
     //LL_ERRS() << "Invalid model status: " << (U32)status << LL_ENDL();
 
-    return std::string() ;
+    return {} ;
 }
 
 

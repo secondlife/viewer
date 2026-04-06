@@ -721,7 +721,7 @@ LLSD LLEventDispatcher::getMetadata(const std::string& name) const
     DispatchMap::const_iterator found = mDispatch.find(name);
     if (found == mDispatch.end())
     {
-        return LLSD();
+        return {};
     }
     LLSD meta{ found->second->getMetadata() };
     meta["name"] = name;

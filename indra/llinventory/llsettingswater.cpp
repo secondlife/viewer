@@ -228,7 +228,7 @@ LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
     }
 
     if (!converted_something)
-        return LLSD();
+        return {};
     return newsettings;
 }
 

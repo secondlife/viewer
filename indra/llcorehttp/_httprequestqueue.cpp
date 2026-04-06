@@ -77,7 +77,7 @@ HttpStatus HttpRequestQueue::addOp(const HttpRequestQueue::opPtr_t &op)
         if (mQueueStopped)
         {
             // Return op and error to caller
-            return HttpStatus(HttpStatus::LLCORE, HE_SHUTTING_DOWN);
+            return {HttpStatus::LLCORE, HE_SHUTTING_DOWN};
         }
         wake = mQueue.empty();
         mQueue.push_back(op);
@@ -86,7 +86,7 @@ HttpStatus HttpRequestQueue::addOp(const HttpRequestQueue::opPtr_t &op)
     {
         mQueueCV.notify_all();
     }
-    return HttpStatus();
+    return {};
 }
 
 
@@ -100,7 +100,7 @@ HttpRequestQueue::opPtr_t HttpRequestQueue::fetchOp(bool wait)
         while (mQueue.empty())
         {
             if (! wait || mQueueStopped)
-                return HttpOperation::ptr_t();
+                return {};
             mQueueCV.wait(lock);
         }
 

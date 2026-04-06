@@ -342,7 +342,7 @@ LLVector2 LLUI::getWindowSize() const
     LLCoordWindow window_rect;
     mWindow->getSize(&window_rect);
 
-    return LLVector2(window_rect.mX / getScaleFactor().mV[VX], window_rect.mY / getScaleFactor().mV[VY]);
+    return {window_rect.mX / getScaleFactor().mV[VX], window_rect.mY / getScaleFactor().mV[VY]};
 }
 
 void LLUI::screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y)

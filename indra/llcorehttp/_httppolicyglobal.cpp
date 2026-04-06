@@ -76,10 +76,10 @@ HttpStatus HttpPolicyGlobal::set(HttpRequest::EPolicyOption opt, long value)
         break;
 
     default:
-        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, HE_INVALID_ARG};
     }
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -103,10 +103,10 @@ HttpStatus HttpPolicyGlobal::set(HttpRequest::EPolicyOption opt, const std::stri
         break;
 
     default:
-        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, HE_INVALID_ARG};
     }
 
-    return HttpStatus();
+    return {};
 }
 
 HttpStatus HttpPolicyGlobal::set(HttpRequest::EPolicyOption opt, HttpRequest::policyCallback_t value)
@@ -118,10 +118,10 @@ HttpStatus HttpPolicyGlobal::set(HttpRequest::EPolicyOption opt, HttpRequest::po
         break;
 
     default:
-        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, HE_INVALID_ARG};
     }
 
-    return HttpStatus();
+    return {};
 }
 
 HttpStatus HttpPolicyGlobal::get(HttpRequest::EPolicyOption opt, long * value) const
@@ -141,10 +141,10 @@ HttpStatus HttpPolicyGlobal::get(HttpRequest::EPolicyOption opt, long * value) c
         break;
 
     default:
-        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, HE_INVALID_ARG};
     }
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -165,10 +165,10 @@ HttpStatus HttpPolicyGlobal::get(HttpRequest::EPolicyOption opt, std::string * v
         break;
 
     default:
-        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, HE_INVALID_ARG};
     }
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -181,10 +181,10 @@ HttpStatus HttpPolicyGlobal::get(HttpRequest::EPolicyOption opt, HttpRequest::po
         break;
 
     default:
-        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, HE_INVALID_ARG};
     }
 
-    return HttpStatus();
+    return {};
 }
 
 }  // end namespace LLCore

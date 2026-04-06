@@ -494,7 +494,7 @@ std::string LLMaterialTable::getName(U8 mcode)
         }
     }
 
-    return std::string();
+    return {};
 }
 
 

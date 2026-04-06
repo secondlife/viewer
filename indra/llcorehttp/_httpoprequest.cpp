@@ -301,7 +301,7 @@ HttpStatus HttpOpRequest::cancel()
 
     addAsReply();
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -314,7 +314,7 @@ HttpStatus HttpOpRequest::setupGet(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, NULL, options, headers);
     mReqMethod = HOR_GET;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -335,7 +335,7 @@ HttpStatus HttpOpRequest::setupGetByteRange(HttpRequest::policy_t policy_id,
         mProcFlags |= PF_SCAN_RANGE_HEADER;
     }
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -349,7 +349,7 @@ HttpStatus HttpOpRequest::setupPost(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, body, options, headers);
     mReqMethod = HOR_POST;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -363,7 +363,7 @@ HttpStatus HttpOpRequest::setupPut(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, body, options, headers);
     mReqMethod = HOR_PUT;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -376,7 +376,7 @@ HttpStatus HttpOpRequest::setupDelete(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, NULL, options, headers);
     mReqMethod = HOR_DELETE;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -390,7 +390,7 @@ HttpStatus HttpOpRequest::setupPatch(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, body, options, headers);
     mReqMethod = HOR_PATCH;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -403,7 +403,7 @@ HttpStatus HttpOpRequest::setupCopy(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, NULL, options, headers);
     mReqMethod = HOR_COPY;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -416,7 +416,7 @@ HttpStatus HttpOpRequest::setupMove(HttpRequest::policy_t policy_id,
     setupCommon(policy_id, url, NULL, options, headers);
     mReqMethod = HOR_MOVE;
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -505,7 +505,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
         // We're in trouble.  We'll continue but it won't go well.
         LL_WARNS(LOG_CORE) << "Failed to allocate libcurl easy handle.  Continuing."
                            << LL_ENDL;
-        return HttpStatus(HttpStatus::LLCORE, HE_BAD_ALLOC);
+        return {HttpStatus::LLCORE, HE_BAD_ALLOC};
     }
 
     check_curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);

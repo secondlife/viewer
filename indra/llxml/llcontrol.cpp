@@ -1418,7 +1418,7 @@ LLQuaternion convert_from_llsd<LLQuaternion>(const LLSD& sd, eControlType type, 
     else
     {
         CONTROL_ERRS << "Invalid LLQuaternion value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
-        return LLQuaternion();
+        return {};
     }
 }
 

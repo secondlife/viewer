@@ -4718,7 +4718,7 @@ std::vector<std::string> LLWindowWin32::getDisplaysResolutionList()
 std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 {
     // Fonts previously in getFontListSans() have moved to fonts.xml.
-    return std::vector<std::string>();
+    return {};
 }
 #endif // LL_WINDOWS
 

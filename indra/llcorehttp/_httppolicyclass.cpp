@@ -87,10 +87,10 @@ HttpStatus HttpPolicyClass::set(HttpRequest::EPolicyOption opt, long value)
         break;
 
     default:
-        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, HE_INVALID_ARG};
     }
 
-    return HttpStatus();
+    return {};
 }
 
 
@@ -115,10 +115,10 @@ HttpStatus HttpPolicyClass::get(HttpRequest::EPolicyOption opt, long * value) co
         break;
 
     default:
-        return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
+        return {HttpStatus::LLCORE, HE_INVALID_ARG};
     }
 
-    return HttpStatus();
+    return {};
 }
 
 

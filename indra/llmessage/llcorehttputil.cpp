@@ -529,14 +529,14 @@ LLSD HttpCoroLLSDHandler::parseBody(LLCore::HttpResponse *response, bool &succes
 {
     success = true;
     if (response->getBodySize() == 0)
-        return LLSD();
+        return {};
 
     LLSD result;
 
     if (!LLCoreHttpUtil::responseToLLSD(response, true, result))
     {
         success = false;
-        return LLSD();
+        return {};
     }
 
     return result;
@@ -615,7 +615,7 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
 LLSD HttpCoroRawHandler::parseBody(LLCore::HttpResponse *response, bool &success) const
 {
     success = true;
-    return LLSD();
+    return {};
 }
 
 //========================================================================
@@ -673,7 +673,7 @@ LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &succes
     BufferArray * body(response->getBody());
     if (!body || !body->size())
     {
-        return LLSD();
+        return {};
     }
 
     LLCore::BufferArrayStream bas(body);
@@ -683,7 +683,7 @@ LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &succes
     if (ec.failed())
     {
         success = false;
-        return LLSD();
+        return {};
     }
 
     // Convert the JSON structure to LLSD
@@ -1281,7 +1281,7 @@ LLCore::HttpStatus HttpCoroutineAdapter::getStatusFromLLSD(const LLSD &httpResul
     LLCore::HttpStatus::type_enum_t type = static_cast<LLCore::HttpStatus::type_enum_t>(httpResults[HttpCoroutineAdapter::HTTP_RESULTS_TYPE].asInteger());
     short code = static_cast<short>(httpResults[HttpCoroutineAdapter::HTTP_RESULTS_STATUS].asInteger());
 
-    return LLCore::HttpStatus(type, code);
+    return {type, code};
 }
 
 /*static*/

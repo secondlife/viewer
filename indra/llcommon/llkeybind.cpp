@@ -319,7 +319,7 @@ LLKeyData LLKeyBind::getKeyData(U32 index) const
     {
         return mData[index];
     }
-    return LLKeyData();
+    return {};
 }
 
 bool LLKeyBind::addKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore)

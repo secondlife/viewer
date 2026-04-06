@@ -203,7 +203,7 @@ std::string LLAudioEngine::getInternetStreamURL()
     if (mStreamingAudioImpl)
         return mStreamingAudioImpl->getURL();
 
-    return std::string();
+    return {};
 }
 
 

@@ -412,7 +412,7 @@ LLSD LLComboBox::getValue() const
         return mTextEntry->getValue();
     }
 
-    return LLSD();
+    return {};
 }
 
 void LLComboBox::setLabel(const LLStringExplicit& name)

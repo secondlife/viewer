@@ -709,7 +709,7 @@ LLSettingsDay::KeyframeList_t LLSettingsDay::getTrackKeyframes(S32 trackno)
     if ((trackno < 0) || (trackno >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt get track (#" << trackno << ") out of range!" << LL_ENDL;
-        return KeyframeList_t();
+        return {};
     }
 
     KeyframeList_t keyframes;
@@ -800,7 +800,7 @@ LLSettingsSky::ptr_t LLSettingsDay::getSkyAtKeyframe(const LLSettingsBase::Track
     if ((track < 1) || (track >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt to set sky track (#" << track << ") out of range!" << LL_ENDL;
-        return LLSettingsSky::ptr_t();
+        return {};
     }
 
     return PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(getSettingsAtKeyframe(keyframe, track));
@@ -837,7 +837,7 @@ LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(const LLSettingsBase:
     if ((track < 0) || (track >= TRACK_MAX))
     {
         LL_WARNS("DAYCYCLE") << "Attempt to set sky track (#" << track << ") out of range!" << LL_ENDL;
-        return LLSettingsBase::ptr_t();
+        return {};
     }
 
     // todo: better way to identify keyframes?
@@ -847,7 +847,7 @@ LLSettingsBase::ptr_t LLSettingsDay::getSettingsAtKeyframe(const LLSettingsBase:
         return iter->second;
     }
 
-    return LLSettingsBase::ptr_t();
+    return {};
 }
 
 LLSettingsDay::CycleTrack_t::value_type LLSettingsDay::getSettingsNearKeyframe(const LLSettingsBase::TrackPosition &keyframe, S32 track, F32 fudge) const

@@ -1124,7 +1124,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
     }
 
     if (!converted_something)
-        return LLSD();
+        return {};
 
     return newsettings;
 }

@@ -617,7 +617,7 @@ boost::signals2::connection LLAccordionCtrlTab::setFocusReceivedCallback(const f
         return mHeader->setFocusReceivedCallback(cb);
     }
 
-    return boost::signals2::connection();
+    return {};
 }
 
 boost::signals2::connection LLAccordionCtrlTab::setFocusLostCallback(const focus_signal_t::slot_type& cb)
@@ -627,7 +627,7 @@ boost::signals2::connection LLAccordionCtrlTab::setFocusLostCallback(const focus
         return mHeader->setFocusLostCallback(cb);
     }
 
-    return boost::signals2::connection();
+    return {};
 }
 
 void LLAccordionCtrlTab::setSelected(bool is_selected)

@@ -2780,7 +2780,7 @@ LLView::tree_iterator_t LLView::beginTreeDFS()
 LLView::tree_iterator_t LLView::endTreeDFS()
 {
     // an empty iterator is an "end" iterator
-    return tree_iterator_t();
+    return {};
 }
 
 LLView::tree_post_iterator_t LLView::beginTreeDFSPost()
@@ -2793,7 +2793,7 @@ LLView::tree_post_iterator_t LLView::beginTreeDFSPost()
 LLView::tree_post_iterator_t LLView::endTreeDFSPost()
 {
     // an empty iterator is an "end" iterator
-    return tree_post_iterator_t();
+    return {};
 }
 
 LLView::bfs_tree_iterator_t LLView::beginTreeBFS()
@@ -2806,7 +2806,7 @@ LLView::bfs_tree_iterator_t LLView::beginTreeBFS()
 LLView::bfs_tree_iterator_t LLView::endTreeBFS()
 {
     // an empty iterator is an "end" iterator
-    return bfs_tree_iterator_t();
+    return {};
 }
 
 
@@ -2817,7 +2817,7 @@ LLView::root_to_view_iterator_t LLView::beginRootToView()
 
 LLView::root_to_view_iterator_t LLView::endRootToView()
 {
-    return root_to_view_iterator_t();
+    return {};
 }
 
 

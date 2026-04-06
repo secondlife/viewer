@@ -273,7 +273,7 @@ LLSD LLNotificationForm::getElement(std::string_view element_name)
     {
         if ((*it)["name"].asString() == element_name) return (*it);
     }
-    return LLSD();
+    return {};
 }
 
 
@@ -907,7 +907,7 @@ std::string LLNotification::getMessage() const
     // to do the substitution at call time rather than attempting to
     // cache it in the notification
     if (!mTemplatep)
-        return std::string();
+        return {};
 
     std::string message = mTemplatep->mMessage;
     LLStringUtil::format(message, mSubstitutions);
@@ -917,7 +917,7 @@ std::string LLNotification::getMessage() const
 std::string LLNotification::getFooter() const
 {
     if (!mTemplatep)
-        return std::string();
+        return {};
 
     std::string footer = mTemplatep->mFooter;
     LLStringUtil::format(footer, mSubstitutions);
@@ -934,7 +934,7 @@ std::string LLNotification::getLabel() const
 std::string LLNotification::getURL() const
 {
     if (!mTemplatep)
-        return std::string();
+        return {};
     std::string url = mTemplatep->mURL;
     LLStringUtil::format(url, mSubstitutions);
     return (mTemplatep ? url : "");
@@ -1413,7 +1413,7 @@ bool LLNotifications::failedUniquenessTest(const LLSD& payload)
 
 LLNotificationChannelPtr LLNotifications::getChannel(const std::string& channelName)
 {
-    return LLNotificationChannelPtr(LLNotificationChannel::getInstance(channelName).get());
+    return {LLNotificationChannel::getInstance(channelName).get()};
 }
 
 

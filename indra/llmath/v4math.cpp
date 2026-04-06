@@ -114,6 +114,6 @@ LLVector3 vec4to3(const LLVector4& vec)
 
 LLVector4 vec3to4(const LLVector3& vec)
 {
-    return LLVector4(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
+    return {vec.mV[VX], vec.mV[VY], vec.mV[VZ]};
 }
 

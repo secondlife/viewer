@@ -289,17 +289,17 @@ void LLMatrix4::condition()
 
 LLVector4 LLMatrix4::getFwdRow4() const
 {
-    return LLVector4(mMatrix[VX][VX], mMatrix[VX][VY], mMatrix[VX][VZ], mMatrix[VX][VW]);
+    return {mMatrix[VX][VX], mMatrix[VX][VY], mMatrix[VX][VZ], mMatrix[VX][VW]};
 }
 
 LLVector4 LLMatrix4::getLeftRow4() const
 {
-    return LLVector4(mMatrix[VY][VX], mMatrix[VY][VY], mMatrix[VY][VZ], mMatrix[VY][VW]);
+    return {mMatrix[VY][VX], mMatrix[VY][VY], mMatrix[VY][VZ], mMatrix[VY][VW]};
 }
 
 LLVector4 LLMatrix4::getUpRow4() const
 {
-    return LLVector4(mMatrix[VZ][VX], mMatrix[VZ][VY], mMatrix[VZ][VZ], mMatrix[VZ][VW]);
+    return {mMatrix[VZ][VX], mMatrix[VZ][VY], mMatrix[VZ][VZ], mMatrix[VZ][VW]};
 }
 
 // SJB: This code is correct for a logicly stored (non-transposed) matrix;
@@ -667,7 +667,7 @@ const LLMatrix4&    LLMatrix4::initMatrix(const LLMatrix3 &mat, const LLVector4 
 LLVector4 operator*(const LLVector4 &a, const LLMatrix4 &b)
 {
     // Operate "to the left" on row-vector a
-    return LLVector4(a.mV[VX] * b.mMatrix[VX][VX] +
+    return {a.mV[VX] * b.mMatrix[VX][VX] +
                      a.mV[VY] * b.mMatrix[VY][VX] +
                      a.mV[VZ] * b.mMatrix[VZ][VX] +
                      a.mV[VW] * b.mMatrix[VW][VX],
@@ -685,7 +685,7 @@ LLVector4 operator*(const LLVector4 &a, const LLMatrix4 &b)
                      a.mV[VX] * b.mMatrix[VX][VW] +
                      a.mV[VY] * b.mMatrix[VY][VW] +
                      a.mV[VZ] * b.mMatrix[VZ][VW] +
-                     a.mV[VW] * b.mMatrix[VW][VW]);
+                     a.mV[VW] * b.mMatrix[VW][VW]};
 }
 
 LLVector4 rotate_vector(const LLVector4 &a, const LLMatrix4 &b)

@@ -315,7 +315,7 @@ void LLDate::secondsSinceEpoch(F64 seconds)
 /* static */ LLDate LLDate::now()
 {
     // time() returns seconds, we want fractions of a second, which LLTimer provides --RN
-    return LLDate(LLTimer::getTotalSeconds());
+    return {LLTimer::getTotalSeconds()};
 }
 
 bool LLDate::operator<(const LLDate& rhs) const

@@ -174,14 +174,14 @@ LLUIColor LLUIColorTable::getColor(std::string_view name, const LLColor4& defaul
 
     if(iter != mUserSetColors.end())
     {
-        return LLUIColor(&iter->second);
+        return {&iter->second};
     }
 
     iter = mLoadedColors.find(name);
 
     if(iter != mLoadedColors.end())
     {
-        return LLUIColor(&iter->second);
+        return {&iter->second};
     }
 
     return  LLUIColor(default_color);

@@ -527,7 +527,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
                                << ELLPathToString(location)
                                << ", '" << subdir1 << "', '" << subdir2 << "', '" << in_filename
                                << "' => ''" << LL_ENDL;
-            return std::string();
+            return {};
         }
         break;
 
@@ -542,7 +542,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
             // potentially directory was not set yet
             // intentionally return a blank string to the caller
             LL_DEBUGS("LLDir") << "Conversation log directory is not yet set" << LL_ENDL;
-            return std::string();
+            return {};
         }
         break;
 
@@ -640,7 +640,7 @@ std::string LLDir::getDirName(const std::string& filepath) const
 std::string LLDir::getExtension(const std::string& filepath) const
 {
     if (filepath.empty())
-        return std::string();
+        return {};
     std::string basename = getBaseFileName(filepath, false);
     std::size_t offset = basename.find_last_of('.');
     std::string exten = (offset == std::string::npos || offset == 0) ? "" : basename.substr(offset+1);

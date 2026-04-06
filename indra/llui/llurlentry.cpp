@@ -253,7 +253,7 @@ std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) cons
 
         return unescapeUrl(label);
     }
-    return std::string();
+    return {};
 }
 
 std::string LLUrlEntryBase::urlToGreyQuery(const std::string &url) const
@@ -1183,7 +1183,7 @@ LLVector3d LLUrlEntryParcel::getParcelPos(const LLUUID& parcel_id)
     {
         return sParcelPos[parcel_id];
     }
-    return LLVector3d();
+    return {};
 }
 
 //
@@ -1713,7 +1713,7 @@ std::string LLUrlEntryKeybinding::getControlName(const std::string& url) const
     size_t pos_start = url.find(search);
     if (pos_start == std::string::npos)
     {
-        return std::string();
+        return {};
     }
     pos_start += search.size();
 
@@ -1731,7 +1731,7 @@ std::string LLUrlEntryKeybinding::getMode(const std::string& url) const
     size_t pos_start = url.find(search);
     if (pos_start == std::string::npos)
     {
-        return std::string();
+        return {};
     }
     pos_start += search.size();
     return url.substr(pos_start, url.size() - pos_start);

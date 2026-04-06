@@ -179,7 +179,7 @@ HttpOperation::ptr_t HttpOperation::findByHandle(HttpHandle handle)
     wptr_t weak;
 
     if (!handle)
-        return ptr_t();
+        return {};
 
     {
         LLCoreInt::HttpScopedLock lock(mOpMutex);
@@ -188,7 +188,7 @@ HttpOperation::ptr_t HttpOperation::findByHandle(HttpHandle handle)
         if (it == mHandleMap.end())
         {
             LL_WARNS("LLCore::HTTP") << "Could not find operation for handle " << handle << LL_ENDL;
-            return ptr_t();
+            return {};
         }
 
         weak = (*it).second;
@@ -197,7 +197,7 @@ HttpOperation::ptr_t HttpOperation::findByHandle(HttpHandle handle)
     if (!weak.expired())
         return weak.lock();
 
-    return ptr_t();
+    return {};
 }
 
 

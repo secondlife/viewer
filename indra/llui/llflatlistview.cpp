@@ -291,7 +291,7 @@ bool LLFlatListView::selectItemByUUID(const LLUUID& uuid, bool select /* = true*
 
 LLSD LLFlatListView::getSelectedValue() const
 {
-    if (mSelectedItemPairs.empty()) return LLSD();
+    if (mSelectedItemPairs.empty()) return {};
 
     const item_pair_t* first_selected_pair = mSelectedItemPairs.front();
     return first_selected_pair->second;

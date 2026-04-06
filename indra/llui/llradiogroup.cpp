@@ -366,7 +366,7 @@ LLSD LLRadioGroup::getValue() const
         if (idx == index) return LLSD(mRadioButton->getPayload());
         ++idx;
     }
-    return LLSD();
+    return {};
 }
 
 // LLCtrlSelectionInterface functions

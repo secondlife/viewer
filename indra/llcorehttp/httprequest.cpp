@@ -98,7 +98,7 @@ HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass
 {
     if (HttpService::RUNNING == HttpService::instanceOf()->getState())
     {
-        return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+        return {HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC};
     }
     return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
 }
@@ -109,7 +109,7 @@ HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass
 {
     if (HttpService::RUNNING == HttpService::instanceOf()->getState())
     {
-        return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+        return {HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC};
     }
     return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
 }
@@ -118,7 +118,7 @@ HttpStatus HttpRequest::setStaticPolicyOption(EPolicyOption opt, policy_t pclass
 {
     if (HttpService::RUNNING == HttpService::instanceOf()->getState())
     {
-        return HttpStatus(HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC);
+        return {HttpStatus::LLCORE, HE_OPT_NOT_DYNAMIC};
     }
 
     return HttpService::instanceOf()->setPolicyOption(opt, pclass, value, ret_value);
@@ -447,7 +447,7 @@ HttpStatus HttpRequest::update(long usecs)
         }
     }
 
-    return HttpStatus();
+    return {};
 }
 
 

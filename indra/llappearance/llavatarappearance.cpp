@@ -1499,7 +1499,7 @@ LLColor4 LLAvatarAppearance::getGlobalColor( const std::string& color_name ) con
     else
     {
 //      return LLColor4( .5f, .5f, .5f, .5f );
-        return LLColor4( 0.f, 1.f, 1.f, 1.f ); // good debugging color
+        return { 0.f, 1.f, 1.f, 1.f }; // good debugging color
     }
 }
 

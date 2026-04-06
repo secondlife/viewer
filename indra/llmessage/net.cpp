@@ -83,7 +83,7 @@ const int   RECEIVE_BUFFER_SIZE = 800000;
 
 LLHost get_sender()
 {
-    return LLHost(stSrcAddr.sin_addr.s_addr, ntohs(stSrcAddr.sin_port));
+    return {stSrcAddr.sin_addr.s_addr, ntohs(stSrcAddr.sin_port)};
 }
 
 U32 get_sender_ip()
@@ -98,7 +98,7 @@ U32 get_sender_port()
 
 LLHost get_receiving_interface()
 {
-    return LLHost(gsnReceivingIFAddr, INVALID_PORT);
+    return {gsnReceivingIFAddr, INVALID_PORT};
 }
 
 U32 get_receiving_interface_ip()

@@ -2241,7 +2241,7 @@ LLTextSegmentPtr LLTextBase::getSegmentAtLocalPos( S32 x, S32 y, bool hit_past_e
     }
     else
     {
-        return LLTextSegmentPtr();
+        return {};
     }
 }
 
@@ -2916,7 +2916,7 @@ LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
 {
     if (mLineInfoList.empty())
     {
-        return LLRect();
+        return {};
     }
 
     // clamp pos to valid values

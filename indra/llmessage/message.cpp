@@ -1688,7 +1688,7 @@ LLHost LLMessageSystem::findHost(const U32 circuit_code)
     }
     else
     {
-        return LLHost();
+        return {};
     }
 }
 
@@ -3387,7 +3387,7 @@ F64Seconds LLMessageSystem::getMessageTimeSeconds(const bool update)
     }
     else
     {
-        return F64Seconds(totalTime());
+        return {totalTime()};
     }
 }
 

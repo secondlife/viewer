@@ -82,7 +82,7 @@ std::string LLHost::getHostName() const
     if (INVALID_HOST_IP_ADDRESS == mIP)
     {
         LL_WARNS() << "LLHost::getHostName() : Invalid IP address" << LL_ENDL;
-        return std::string();
+        return {};
     }
     he = gethostbyaddr((char *)&mIP, sizeof(mIP), AF_INET);
     if (!he)
@@ -94,7 +94,7 @@ std::string LLHost::getHostName() const
         LL_WARNS() << "LLHost::getHostName() : Couldn't find host name for address " << mIP << ", Error: "
             << h_errno << LL_ENDL;
 #endif
-        return std::string();
+        return {};
     }
     else
     {
