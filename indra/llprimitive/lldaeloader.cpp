@@ -1082,8 +1082,8 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 
                 if (mdl && validate_model(mdl))
                 {
-                    mModelList.push_back(mdl);
-                    mModelsMap[mesh].push_back(mdl);
+                    mModelList.emplace_back(mdl);
+                    mModelsMap[mesh].emplace_back(mdl);
                 }
                 i++;
             }
@@ -1462,7 +1462,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                                     mat.mMatrix[i][j] = (F32)transform[k*16 + i + j*4];
                                 }
                             }
-                            model->mSkinInfo.mInvBindMatrix.push_back(LLMatrix4a(mat));
+                            model->mSkinInfo.mInvBindMatrix.emplace_back(mat);
                         }
                     }
                 }
@@ -1538,7 +1538,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
             {
                 LLMatrix4 newInverse = LLMatrix4(model->mSkinInfo.mInvBindMatrix[i].getF32ptr());
                 newInverse.setTranslation( mJointList[lookingForJoint].getTranslation() );
-                model->mSkinInfo.mAlternateBindMatrix.push_back( LLMatrix4a(newInverse) );
+                model->mSkinInfo.mAlternateBindMatrix.emplace_back(newInverse );
             }
             else
             {
@@ -1635,7 +1635,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 
                         F32 weight_value = (F32)w[weight_idx];
 
-                        weight_list.push_back(LLModel::JointWeight(joint_idx, weight_value));
+                        weight_list.emplace_back(joint_idx, weight_value);
                     }
 
                     //sort by joint weight
@@ -1682,7 +1682,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
             materials[i] = LLImportMaterial();
         }
         // todo: likely a bug here, shouldn't be using suffixed label, see how it gets used in other places.
-        mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
+        mScene[transformation].emplace_back(model, model->mLabel, transformation, materials);
         stretch_extents(model, transformation);
     }
 }
@@ -1715,7 +1715,7 @@ void LLDAELoader::processJointToNodeMapping( domNode* pNode )
         std::string nodeName = pNode->getName();
         if ( !nodeName.empty() )
         {
-            mJointsFromNode.push_front( pNode->getName() );
+            mJointsFromNode.emplace_front(pNode->getName() );
         }
         //2. Handle the kiddo's
         processChildJoints( pNode );
@@ -2156,7 +2156,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
                             }
                         }
 
-                        mScene[transformation].push_back(LLModelInstance(model, label, transformation, materials));
+                        mScene[transformation].emplace_back(model, label, transformation, materials);
                         stretch_extents(model, transformation);
                     }
                 }

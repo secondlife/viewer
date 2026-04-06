@@ -3915,19 +3915,19 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
                         LLVector4a t;
                         mat.affineTransform(v[v1], t);
-                        vertices.push_back(LLVector3(t[0], t[1], t[2]));
+                        vertices.emplace_back(t[0], t[1], t[2]);
 
                         norm_mat.rotate(n[v1], t);
 
                         t.normalize3fast();
-                        normals.push_back(LLVector3(t[0], t[1], t[2]));
+                        normals.emplace_back(t[0], t[1], t[2]);
 
                         mat.affineTransform(v[v2], t);
-                        vertices.push_back(LLVector3(t[0], t[1], t[2]));
+                        vertices.emplace_back(t[0], t[1], t[2]);
 
                         norm_mat.rotate(n[v2], t);
                         t.normalize3fast();
-                        normals.push_back(LLVector3(t[0], t[1], t[2]));
+                        normals.emplace_back(t[0], t[1], t[2]);
                     }
                 }
             }
@@ -4098,19 +4098,19 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
                         LLVector4a t;
                         mat.affineTransform(v[v1], t);
-                        vertices.push_back(LLVector3(t[0], t[1], t[2]));
+                        vertices.emplace_back(t[0], t[1], t[2]);
 
                         norm_mat.rotate(n[v1], t);
 
                         t.normalize3fast();
-                        normals.push_back(LLVector3(t[0], t[1], t[2]));
+                        normals.emplace_back(t[0], t[1], t[2]);
 
                         mat.affineTransform(v[v2], t);
-                        vertices.push_back(LLVector3(t[0], t[1], t[2]));
+                        vertices.emplace_back(t[0], t[1], t[2]);
 
                         norm_mat.rotate(n[v2], t);
                         t.normalize3fast();
-                        normals.push_back(LLVector3(t[0], t[1], t[2]));
+                        normals.emplace_back(t[0], t[1], t[2]);
                     }
                 }
             }

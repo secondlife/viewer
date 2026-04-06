@@ -53,7 +53,7 @@ LLStatGraph::LLStatGraph(const Params& p)
 
     for(const auto & it : p.thresholds.threshold)
     {
-        mThresholds.push_back(Threshold(it.value(), it.color));
+        mThresholds.emplace_back(it.value(), it.color);
     }
 }
 

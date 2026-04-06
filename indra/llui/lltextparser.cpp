@@ -107,7 +107,7 @@ LLTextParser::parser_out_vec_t LLTextParser::parsePartialLineHighlights(const st
                     {
                         if (start_vec.empty())
                         {
-                            start_vec.push_back(std::make_pair(text.substr(0, end), LLColor4(mHighlights[i]["color"])));
+                            start_vec.emplace_back(text.substr(0, end), LLColor4(mHighlights[i]["color"]));
                         }
                         else
                         {
@@ -130,7 +130,7 @@ LLTextParser::parser_out_vec_t LLTextParser::parsePartialLineHighlights(const st
                         {
                             if (middle_vec.empty())
                             {
-                                middle_vec.push_back(std::make_pair(text.substr(start, end), LLColor4(mHighlights[i]["color"])));
+                                middle_vec.emplace_back(text.substr(start, end), LLColor4(mHighlights[i]["color"]));
                             }
                             else
                             {
@@ -145,7 +145,7 @@ LLTextParser::parser_out_vec_t LLTextParser::parsePartialLineHighlights(const st
                         {
                             if (end_vec.empty())
                             {
-                                end_vec.push_back(std::make_pair(text.substr(start, end), LLColor4(mHighlights[i]["color"])));
+                                end_vec.emplace_back(text.substr(start, end), LLColor4(mHighlights[i]["color"]));
                             }
                             else
                             {
@@ -166,7 +166,7 @@ LLTextParser::parser_out_vec_t LLTextParser::parsePartialLineHighlights(const st
     }
 
     //No patterns found.  Just send back what was passed in.
-    ret_vec.push_back(std::make_pair(text, color));
+    ret_vec.emplace_back(text, color);
     return ret_vec;
 }
 

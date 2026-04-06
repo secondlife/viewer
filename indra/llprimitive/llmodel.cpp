@@ -1412,7 +1412,7 @@ bool LLModel::loadModel(std::istream& is)
                             F32 f = w[k] - idx;
                             if (f > 0.f)
                             {
-                                wght.push_back(JointWeight(idx, f));
+                                wght.emplace_back(idx, f);
                             }
                         }
 
@@ -1648,7 +1648,7 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
                 }
             }
 
-            mInvBindMatrix.push_back(LLMatrix4a(mat));
+            mInvBindMatrix.emplace_back(mat);
         }
 
         if (mJointNames.size() != mInvBindMatrix.size())
@@ -1686,7 +1686,7 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
                 }
             }
 
-            mAlternateBindMatrix.push_back(LLMatrix4a(mat));
+            mAlternateBindMatrix.emplace_back(mat);
         }
     }
 
@@ -1879,10 +1879,10 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
                 //llassert(valid.find(test) == valid.end());
                 valid.insert(test);
 
-                mHull[i].push_back(LLVector3(
+                mHull[i].emplace_back(
                     (F32) p[0]/65535.f*range.mV[0]+min.mV[0],
                     (F32) p[1]/65535.f*range.mV[1]+min.mV[1],
-                    (F32) p[2]/65535.f*range.mV[2]+min.mV[2]));
+                    (F32) p[2]/65535.f*range.mV[2]+min.mV[2]);
                 p += 3;
 
 
@@ -1920,10 +1920,10 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 
         for (U32 j = 0; j < count; ++j)
         {
-            mBaseHull.push_back(LLVector3(
+            mBaseHull.emplace_back(
                 (F32) p[0]/65535.f*range.mV[0]+min.mV[0],
                 (F32) p[1]/65535.f*range.mV[1]+min.mV[1],
-                (F32) p[2]/65535.f*range.mV[2]+min.mV[2]));
+                (F32) p[2]/65535.f*range.mV[2]+min.mV[2]);
             p += 3;
         }
     }

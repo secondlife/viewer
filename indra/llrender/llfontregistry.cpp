@@ -177,13 +177,13 @@ LLFontDescriptor LLFontDescriptor::normalize() const
 void LLFontDescriptor::addFontFile(const std::string& file_name, const std::string& char_functor)
 {
     char_functor_map_t::const_iterator it = mCharFunctors.find(char_functor);
-    mFontFiles.push_back(LLFontFileInfo(file_name, (mCharFunctors.end() != it) ? it->second : nullptr));
+    mFontFiles.emplace_back(file_name, (mCharFunctors.end() != it) ? it->second : nullptr);
 }
 
 void LLFontDescriptor::addFontCollectionFile(const std::string& file_name, const std::string& char_functor)
 {
     char_functor_map_t::const_iterator it = mCharFunctors.find(char_functor);
-    mFontCollectionFiles.push_back(LLFontFileInfo(file_name, (mCharFunctors.end() != it) ? it->second : nullptr));
+    mFontCollectionFiles.emplace_back(file_name, (mCharFunctors.end() != it) ? it->second : nullptr);
 }
 
 LLFontRegistry::LLFontRegistry(bool create_gl_textures)

@@ -323,7 +323,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
     for (U32 i = 0; i < instance.size(); ++i)
     {
         //deserialize instance list
-        instance_list.push_back(LLModelInstance(instance[i]));
+        instance_list.emplace_back(instance[i]);
 
         //match up model instance pointers
         S32 idx = instance_list[i].mLocalMeshID;

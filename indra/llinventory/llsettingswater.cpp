@@ -319,37 +319,37 @@ LLSettingsWater::validation_list_t LLSettingsWater::validationList()
 
     if (validation.empty())
     {
-        validation.push_back(Validator(SETTING_BLUR_MULTIPLIER, true, LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(-0.5f, 0.5f)); }));
-        validation.push_back(Validator(SETTING_FOG_COLOR, true, LLSD::TypeArray,
+        validation.emplace_back(SETTING_BLUR_MULTIPLIER, true, LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(-0.5f, 0.5f)); });
+        validation.emplace_back(SETTING_FOG_COLOR, true, LLSD::TypeArray,
             [](LLSD& v, U32 f) { return Validator::verifyVectorMinMax(v, f,
                 llsd::array(0.0f, 0.0f, 0.0f, 1.0f),
-                llsd::array(1.0f, 1.0f, 1.0f, 1.0f)); }));
-        validation.push_back(Validator(SETTING_FOG_DENSITY, true, LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.001f, 100.0f)); }));
-        validation.push_back(Validator(SETTING_FOG_MOD, true, LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.0f, 20.0f)); }));
-        validation.push_back(Validator(SETTING_FRESNEL_OFFSET, true, LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.0f, 1.0f)); }));
-        validation.push_back(Validator(SETTING_FRESNEL_SCALE, true, LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.0f, 1.0f)); }));
-        validation.push_back(Validator(SETTING_NORMAL_MAP, true, LLSD::TypeUUID));
-        validation.push_back(Validator(SETTING_NORMAL_SCALE, true, LLSD::TypeArray,
+                llsd::array(1.0f, 1.0f, 1.0f, 1.0f)); });
+        validation.emplace_back(SETTING_FOG_DENSITY, true, LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.001f, 100.0f)); });
+        validation.emplace_back(SETTING_FOG_MOD, true, LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.0f, 20.0f)); });
+        validation.emplace_back(SETTING_FRESNEL_OFFSET, true, LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.0f, 1.0f)); });
+        validation.emplace_back(SETTING_FRESNEL_SCALE, true, LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.0f, 1.0f)); });
+        validation.emplace_back(SETTING_NORMAL_MAP, true, LLSD::TypeUUID);
+        validation.emplace_back(SETTING_NORMAL_SCALE, true, LLSD::TypeArray,
             [](LLSD& v, U32 f) { return Validator::verifyVectorMinMax(v, f,
                 llsd::array(0.0f, 0.0f, 0.0f),
-                llsd::array(10.0f, 10.0f, 10.0f)); }));
-        validation.push_back(Validator(SETTING_SCALE_ABOVE, true, LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.0f, 3.0f)); }));
-        validation.push_back(Validator(SETTING_SCALE_BELOW, true, LLSD::TypeReal,
-            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.0f, 3.0f)); }));
-        validation.push_back(Validator(SETTING_WAVE1_DIR, true, LLSD::TypeArray,
+                llsd::array(10.0f, 10.0f, 10.0f)); });
+        validation.emplace_back(SETTING_SCALE_ABOVE, true, LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.0f, 3.0f)); });
+        validation.emplace_back(SETTING_SCALE_BELOW, true, LLSD::TypeReal,
+            [](LLSD& v, U32 f) { return Validator::verifyFloatRange(v, f, llsd::array(0.0f, 3.0f)); });
+        validation.emplace_back(SETTING_WAVE1_DIR, true, LLSD::TypeArray,
             [](LLSD& v, U32 f) { return Validator::verifyVectorMinMax(v, f,
                 llsd::array(-20.0f, -20.0f),
-                llsd::array(20.0f, 20.0f)); }));
-        validation.push_back(Validator(SETTING_WAVE2_DIR, true, LLSD::TypeArray,
+                llsd::array(20.0f, 20.0f)); });
+        validation.emplace_back(SETTING_WAVE2_DIR, true, LLSD::TypeArray,
             [](LLSD& v, U32 f) { return Validator::verifyVectorMinMax(v, f,
                 llsd::array(-20.0f, -20.0f),
-                llsd::array(20.0f, 20.0f)); }));
+                llsd::array(20.0f, 20.0f)); });
     }
 
     return validation;

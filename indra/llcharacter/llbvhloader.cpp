@@ -915,7 +915,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
         LL_DEBUGS("BVH") << "Got " << floats.size() << " floats " << LL_ENDL;
         for (auto joint : mJoints)
         {
-            joint->mKeys.push_back( Key() );
+            joint->mKeys.emplace_back( );
             Key &key = joint->mKeys.back();
 
             if (floats.size() < joint->mNumChannels)

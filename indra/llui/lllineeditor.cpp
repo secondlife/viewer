@@ -346,7 +346,7 @@ void LLLineEditor::updateHistory()
         }
 
         // Restore the blank line and set mCurrentHistoryLine to point at it
-        mLineHistory.push_back( "" );
+        mLineHistory.emplace_back("" );
         mCurrentHistoryLine = mLineHistory.end() - 1;
     }
 }
@@ -2041,7 +2041,7 @@ void LLLineEditor::draw()
                 std::string word = wstring_to_utf8str(text.substr(word_start, word_end - word_start));
                 if ( (word.length() >= 3) && (!LLSpellChecker::instance().checkSpelling(word)) )
                 {
-                    mMisspellRanges.push_back(std::pair<U32, U32>(start + word_start, start + word_end));
+                    mMisspellRanges.emplace_back(start + word_start, start + word_end);
                 }
 
                 // Find the start of the next word

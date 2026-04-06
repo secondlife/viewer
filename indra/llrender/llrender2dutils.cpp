@@ -1774,7 +1774,7 @@ void LLRender2D::translate(F32 x, F32 y, F32 z)
 void LLRender2D::pushMatrix()
 {
     gGL.pushUIMatrix();
-    LLFontGL::sOriginStack.push_back(std::make_pair(LLFontGL::sCurOrigin, LLFontGL::sCurDepth));
+    LLFontGL::sOriginStack.emplace_back(LLFontGL::sCurOrigin, LLFontGL::sCurDepth);
 }
 
 // static

@@ -324,9 +324,9 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
                 && current_color != mParagraphColorSegments.end() )
             {
                 LLWString color_text = mParagraphText.substr( paragraph_offset + drawn, current_color_length );
-                line.mLineColorSegments.push_back( LineColorSegment( color_text,            //Append segment to line.
+                line.mLineColorSegments.emplace_back( color_text,            //Append segment to line.
                                                 (*current_color).mColor,
-                                                x_position ) );
+                                                x_position );
 
                 x_position += font->getWidth( color_text.c_str() ); //Set up next screen position.
 
@@ -345,9 +345,9 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
             {
                     LLWString color_text = mParagraphText.substr( paragraph_offset + drawn, left_to_draw );
 
-                    line.mLineColorSegments.push_back( LineColorSegment( color_text,        //Append segment to line.
+                    line.mLineColorSegments.emplace_back( color_text,        //Append segment to line.
                                                     (*current_color).mColor,
-                                                    x_position ) );
+                                                    x_position );
 
                     current_color_length -= left_to_draw;
             }
@@ -382,12 +382,11 @@ void LLConsole::update()
 
         while (!mLines.empty())
         {
-            mParagraphs.push_back(
-                Paragraph(  mLines.front(),
+            mParagraphs.emplace_back(  mLines.front(),
                             LLColor4::white,
                             mTimer.getElapsedTimeF32(),
                             mFont,
-                            (F32)getRect().getWidth()));
+                            (F32)getRect().getWidth());
             mLines.pop_front();
         }
     }

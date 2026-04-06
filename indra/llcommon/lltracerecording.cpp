@@ -455,7 +455,7 @@ void PeriodicRecording::nextPeriod()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     if (mAutoResize)
     {
-        mRecordingPeriods.push_back(Recording());
+        mRecordingPeriods.emplace_back();
     }
 
     Recording& old_recording = getCurRecording();
@@ -606,7 +606,7 @@ void PeriodicRecording::handleReset()
     if (mAutoResize)
     {
         mRecordingPeriods.clear();
-        mRecordingPeriods.push_back(Recording());
+        mRecordingPeriods.emplace_back();
     }
     else
     {

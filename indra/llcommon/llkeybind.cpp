@@ -166,7 +166,7 @@ LLKeyBind::LLKeyBind(const LLSD &key_bind)
             data++
             )
         {
-            mData.push_back(LLKeyData(*data));
+            mData.emplace_back(*data);
         }
     }
 }
@@ -318,7 +318,7 @@ bool LLKeyBind::addKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignor
 {
     if (!hasKeyData(mouse, key, mask, ignore))
     {
-        mData.push_back(LLKeyData(mouse, key, mask, ignore));
+        mData.emplace_back(mouse, key, mask, ignore);
         return true;
     }
     return false;

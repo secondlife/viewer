@@ -2873,7 +2873,7 @@ void LLFloaterView::hideAllFloaters()
         {
             floaterp->setVisible(false);
             boost::signals2::connection connection = floaterp->mCloseSignal.connect([this, floaterp](LLUICtrl*, const LLSD&) { hiddenFloaterClosed(floaterp); });
-            mHiddenFloaters.push_back(std::make_pair(floaterp->getHandle(), connection));
+            mHiddenFloaters.emplace_back(floaterp->getHandle(), connection);
         }
     }
 }

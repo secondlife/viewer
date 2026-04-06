@@ -493,7 +493,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
                 {
                     if (cdmi->first != name)
                     {
-                        sortnames.push_back(SortNameList::value_type(cdmi->second, cdmi->first));
+                        sortnames.emplace_back(cdmi->second, cdmi->first);
                     }
                 }
                 std::ranges::sort(sortnames);

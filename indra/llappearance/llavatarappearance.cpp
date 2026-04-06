@@ -1966,7 +1966,7 @@ bool LLAvatarAppearance::LLAvatarXmlInfo::parseXmlMeshNodes(LLXmlTreeNode* root)
             static LLStdStringHandle shared_string = LLXmlTree::addAttributeString("shared");
             child->getFastAttributeBOOL(shared_string, shared);
 
-            info->mPolyMorphTargetInfoList.push_back(LLAvatarMeshInfo::morph_info_pair_t(morphinfo, shared));
+            info->mPolyMorphTargetInfoList.emplace_back(morphinfo, shared);
         }
 
         mMeshInfoList.push_back(info);

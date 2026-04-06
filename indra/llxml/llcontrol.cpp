@@ -422,7 +422,7 @@ void LLControlGroup::cleanup()
 
             for (LLSD::map_const_iterator iter = getCount.beginMap(); iter != getCount.endMap(); ++iter)
             {
-                getCount_v.push_back(settings_pair_t(iter->first, iter->second.asInteger()));
+                getCount_v.emplace_back(iter->first, iter->second.asInteger());
             }
             sort(getCount_v.begin(), getCount_v.end(), compareRoutine);
 

@@ -871,7 +871,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
             // channel information as the link before it since it
             // is part of the response.
             LLIOPipe* header = new LLHTTPResponseHeader;
-            chain.push_back(LLIOPipe::ptr_t(header));
+            chain.emplace_back(header);
 
             // We need to copy all of the pipes _after_ this so
             // that the response goes out correctly.
@@ -980,7 +980,7 @@ LLHTTPNode& LLIOHTTPServer::create(
     LLIOServerSocket* server = new LLIOServerSocket(pool, socket, factory_ptr);
 
     LLPumpIO::chain_t chain;
-    chain.push_back(LLIOPipe::ptr_t(server));
+    chain.emplace_back(server);
     pump.addChain(chain, NEVER_CHAIN_EXPIRY_SECS);
 
     return factory->getRootNode();

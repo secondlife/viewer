@@ -512,7 +512,7 @@ std::vector<std::pair<LLRect, LLUIColor>> LLTextBase::getHighlightedBgRects()
                     selection_rect.mBottom = line_iter->mRect.mBottom;
                     selection_rect.mTop = line_iter->mRect.mTop;
 
-                    highlight_rects.push_back(std::pair(selection_rect, segmentp->getStyle()->getHighlightBgColor()));
+                    highlight_rects.emplace_back(selection_rect, segmentp->getStyle()->getHighlightBgColor());
                 }
                 left_precise += segment_width;
             }
@@ -836,7 +836,7 @@ void LLTextBase::drawText()
                         // Don't process words shorter than 3 characters
                         if ( (word.length() >= 3) && (!LLSpellChecker::instance().checkSpelling(word)) )
                         {
-                            mMisspellRanges.push_back(std::pair<U32, U32>(word_start, word_end));
+                            mMisspellRanges.emplace_back(word_start, word_end);
                         }
                     }
 
@@ -1908,11 +1908,11 @@ void LLTextBase::reflow()
             if (last_segment_char_on_line < segment->getEnd())
             {
                 // add line info and keep going
-                mLineInfoList.push_back(line_info(
+                mLineInfoList.emplace_back(
                                             line_start_index,
                                             last_segment_char_on_line,
                                             line_rect,
-                                            line_count));
+                                            line_count);
 
                 line_start_index = segment->getStart() + seg_offset;
                 cur_top -= ll_round((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
@@ -1922,11 +1922,11 @@ void LLTextBase::reflow()
             // ...just consumed last segment..
             else if (++segment_set_t::iterator(seg_iter) == mSegments.end())
             {
-                mLineInfoList.push_back(line_info(
+                mLineInfoList.emplace_back(
                                             line_start_index,
                                             last_segment_char_on_line,
                                             line_rect,
-                                            line_count));
+                                            line_count);
                 cur_top -= ll_round((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
                 break;
             }
@@ -1936,11 +1936,11 @@ void LLTextBase::reflow()
                 // subtract pixels used and increment segment
                 if (force_newline)
                 {
-                    mLineInfoList.push_back(line_info(
+                    mLineInfoList.emplace_back(
                                                 line_start_index,
                                                 last_segment_char_on_line,
                                                 line_rect,
-                                                line_count));
+                                                line_count);
                     line_start_index = segment->getStart() + seg_offset;
                     cur_top -= ll_round((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
                     line_height = 0;
@@ -2584,7 +2584,7 @@ void LLTextBase::copyContents(const LLTextBase* source)
     mLineInfoList.clear();
     for (const line_info& li : mLineInfoList)
     {
-        mLineInfoList.push_back(line_info(li));
+        mLineInfoList.emplace_back(li);
     }
 
     getViewModel()->setDisplay(source->getViewModel()->getDisplay());

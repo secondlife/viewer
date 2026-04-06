@@ -256,7 +256,7 @@ void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd, LLI
             it != sd.endMap();
             ++it)
         {
-            stack.push_back(make_pair(it->first, true));
+            stack.emplace_back(it->first, true);
             readSDValues(cb, it->second, stack);
             stack.pop_back();
         }
@@ -267,7 +267,7 @@ void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd, LLI
             it != sd.endArray();
             ++it)
         {
-            stack.push_back(make_pair(std::string(), true));
+            stack.emplace_back(std::string(), true);
             readSDValues(cb, *it, stack);
             stack.pop_back();
         }

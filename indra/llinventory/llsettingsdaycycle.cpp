@@ -609,10 +609,10 @@ LLSettingsDay::validation_list_t LLSettingsDay::validationList()
 
     if (validation.empty())
     {
-        validation.push_back(Validator(SETTING_TRACKS, true, LLSD::TypeArray,
-            &validateDayCycleTrack));
-        validation.push_back(Validator(SETTING_FRAMES, true, LLSD::TypeMap,
-            &validateDayCycleFrames));
+        validation.emplace_back(SETTING_TRACKS, true, LLSD::TypeArray,
+            &validateDayCycleTrack);
+        validation.emplace_back(SETTING_FRAMES, true, LLSD::TypeMap,
+            &validateDayCycleFrames);
     }
 
     return validation;

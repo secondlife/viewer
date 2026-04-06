@@ -776,7 +776,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
     if (found->second.empty())
     {
         // subdir is not localized. filename should be located directly within it.
-        subsubdirs.push_back("");
+        subsubdirs.emplace_back("");
     }
     else
     {

@@ -715,7 +715,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
     if (!text_contents.empty())
     {
         mCurReadNode = nodep;
-        mNameStack.push_back(std::make_pair(std::string("value"), true));
+        mNameStack.emplace_back(std::string("value"), true);
         // child nodes are not necessarily valid parameters (could be a child widget)
         // so don't complain once we've recursed
         if (!block.submitValue(mNameStack, *this, true))
@@ -750,7 +750,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
         // since there is no widget named "rect"
         if (child_name.find(".") == std::string::npos)
         {
-            mNameStack.push_back(std::make_pair(child_name, true));
+            mNameStack.emplace_back(child_name, true);
             num_tokens_pushed++;
         }
         else
@@ -786,7 +786,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block)
             // copy remaining tokens on to our running token list
             for(tokenizer::iterator token_to_push = name_token_it; token_to_push != name_tokens.end(); ++token_to_push)
             {
-                mNameStack.push_back(std::make_pair(*token_to_push, true));
+                mNameStack.emplace_back(*token_to_push, true);
                 num_tokens_pushed++;
             }
         }
@@ -834,7 +834,7 @@ bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& blo
         // copy remaining tokens on to our running token list
         for(tokenizer::iterator token_to_push = name_tokens.begin(); token_to_push != name_tokens.end(); ++token_to_push)
         {
-            mNameStack.push_back(std::make_pair(*token_to_push, true));
+            mNameStack.emplace_back(*token_to_push, true);
             num_tokens_pushed++;
         }
 
@@ -1368,7 +1368,7 @@ bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBl
     XML_SetElementHandler(          mParser,    startElementHandler, endElementHandler);
     XML_SetCharacterDataHandler(    mParser,    characterDataHandler);
 
-    mOutputStack.push_back(std::make_pair(&block, 0));
+    mOutputStack.emplace_back(&block, 0);
     mNameStack.clear();
     mCurFileName = filename;
     mCurReadDepth = 0;
@@ -1451,7 +1451,7 @@ void LLSimpleXUIParser::startElement(const char *name, const char **atts)
         LLInitParam::BaseBlock* blockp = mElementCB(*this, name);
         if (blockp)
         {
-            mOutputStack.push_back(std::make_pair(blockp, 0));
+            mOutputStack.emplace_back(blockp, 0);
         }
     }
 
@@ -1494,7 +1494,7 @@ void LLSimpleXUIParser::startElement(const char *name, const char **atts)
             // copy remaining tokens on to our running token list
             for(tokenizer::iterator token_to_push = name_token_it; token_to_push != name_tokens.end(); ++token_to_push)
             {
-                mNameStack.push_back(std::make_pair(*token_to_push, true));
+                mNameStack.emplace_back(*token_to_push, true);
                 num_tokens_pushed++;
             }
             mScope.push_back(mNameStack.back().first);
@@ -1558,7 +1558,7 @@ bool LLSimpleXUIParser::readAttributes(const char **atts)
         // copy remaining tokens on to our running token list
         for(tokenizer::iterator token_to_push = name_tokens.begin(); token_to_push != name_tokens.end(); ++token_to_push)
         {
-            mNameStack.push_back(std::make_pair(*token_to_push, true));
+            mNameStack.emplace_back(*token_to_push, true);
             num_tokens_pushed++;
         }
 
