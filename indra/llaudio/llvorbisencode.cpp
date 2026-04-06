@@ -62,13 +62,13 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
     infile.read(wav_header, 44);
     physical_file_size = infile.seek(APR_END,0);
 
-    if (strncmp((char *)&(wav_header[0]),"RIFF",4))
+    if (strncmp(reinterpret_cast<char *>(&(wav_header[0])),"RIFF",4))
     {
         error_msg = "SoundFileNotRIFF";
         return(LLVORBISENC_WAV_FORMAT_ERR);
     }
 
-    if (strncmp((char *)&(wav_header[8]),"WAVE",4))
+    if (strncmp(reinterpret_cast<char *>(&(wav_header[8])),"WAVE",4))
     {
         error_msg = "SoundFileNotRIFF";
         return(LLVORBISENC_WAV_FORMAT_ERR);
@@ -83,9 +83,9 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
         infile.seek(APR_SET,file_pos);
         infile.read(wav_header, 44);
 
-        chunk_length = ((U32) wav_header[7] << 24)
-            + ((U32) wav_header[6] << 16)
-            + ((U32) wav_header[5] << 8)
+        chunk_length = (static_cast<U32>(wav_header[7]) << 24)
+            + (static_cast<U32>(wav_header[6]) << 16)
+            + (static_cast<U32>(wav_header[5]) << 8)
             + wav_header[4];
 
         if (chunk_length > physical_file_size - file_pos - 4)
@@ -97,24 +97,24 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
 
 //      LL_INFOS() << "chunk found: '" << wav_header[0] << wav_header[1] << wav_header[2] << wav_header[3] << "'" << LL_ENDL;
 
-        if (!(strncmp((char *)&(wav_header[0]),"fmt ",4)))
+        if (!(strncmp(reinterpret_cast<char *>(&(wav_header[0])),"fmt ",4)))
         {
             if ((wav_header[8] == 0x01) && (wav_header[9] == 0x00))
             {
                 uncompressed_pcm = true;
             }
-            num_channels = ((U16) wav_header[11] << 8) + wav_header[10];
-            sample_rate = ((U32) wav_header[15] << 24)
-                + ((U32) wav_header[14] << 16)
-                + ((U32) wav_header[13] << 8)
+            num_channels = (static_cast<U16>(wav_header[11]) << 8) + wav_header[10];
+            sample_rate = (static_cast<U32>(wav_header[15]) << 24)
+                + (static_cast<U32>(wav_header[14]) << 16)
+                + (static_cast<U32>(wav_header[13]) << 8)
                 + wav_header[12];
-            bits_per_sample = ((U16) wav_header[23] << 8) + wav_header[22];
-            bytes_per_sec = ((U32) wav_header[19] << 24)
-                + ((U32) wav_header[18] << 16)
-                + ((U32) wav_header[17] << 8)
+            bits_per_sample = (static_cast<U16>(wav_header[23]) << 8) + wav_header[22];
+            bytes_per_sec = (static_cast<U32>(wav_header[19]) << 24)
+                + (static_cast<U32>(wav_header[18]) << 16)
+                + (static_cast<U32>(wav_header[17]) << 8)
                 + wav_header[16];
         }
-        else if (!(strncmp((char *)&(wav_header[0]),"data",4)))
+        else if (!(strncmp(reinterpret_cast<char *>(&(wav_header[0])),"data",4)))
         {
             raw_data_length = chunk_length;
         }
@@ -155,7 +155,7 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
         return(LLVORBISENC_CLIP_TOO_LONG);
     }
 
-    F32 clip_length = (F32)raw_data_length/(F32)bytes_per_sec;
+    F32 clip_length = static_cast<F32>(raw_data_length)/static_cast<F32>(bytes_per_sec);
 
     if (clip_length > LLVORBIS_CLIP_MAX_TIME)
     {
@@ -228,23 +228,23 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
          infile.seek(APR_SET,file_pos);
          infile.read(wav_header, 44);
 
-         chunk_length = ((U32) wav_header[7] << 24)
-             + ((U32) wav_header[6] << 16)
-             + ((U32) wav_header[5] << 8)
+         chunk_length = (static_cast<U32>(wav_header[7]) << 24)
+             + (static_cast<U32>(wav_header[6]) << 16)
+             + (static_cast<U32>(wav_header[5]) << 8)
              + wav_header[4];
 
 //       LL_INFOS() << "chunk found: '" << wav_header[0] << wav_header[1] << wav_header[2] << wav_header[3] << "'" << LL_ENDL;
 
-         if (!(strncmp((char *)&(wav_header[0]),"fmt ",4)))
+         if (!(strncmp(reinterpret_cast<char *>(&(wav_header[0])),"fmt ",4)))
          {
-             num_channels = ((U16) wav_header[11] << 8) + wav_header[10];
-             sample_rate = ((U32) wav_header[15] << 24)
-                 + ((U32) wav_header[14] << 16)
-                 + ((U32) wav_header[13] << 8)
+             num_channels = (static_cast<U16>(wav_header[11]) << 8) + wav_header[10];
+             sample_rate = (static_cast<U32>(wav_header[15]) << 24)
+                 + (static_cast<U32>(wav_header[14]) << 16)
+                 + (static_cast<U32>(wav_header[13]) << 8)
                  + wav_header[12];
-             bits_per_sample = ((U16) wav_header[23] << 8) + wav_header[22];
+             bits_per_sample = (static_cast<U16>(wav_header[23]) << 8) + wav_header[22];
          }
-         else if (!(strncmp((char *)&(wav_header[0]),"data",4)))
+         else if (!(strncmp(reinterpret_cast<char *>(&(wav_header[0])),"data",4)))
          {
              infile.seek(APR_SET,file_pos+8);
              // leave the file pointer at the beginning of the data chunk data
@@ -330,7 +330,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
      {
          long bytes_per_sample = bits_per_sample/8;
 
-         long bytes=(long)infile.read(readbuffer,llclamp((S32)(READ_BUFFER*num_channels*bytes_per_sample),0,data_left)); /* stereo hardwired here */
+         long bytes=static_cast<long>(infile.read(readbuffer,llclamp(static_cast<S32>(READ_BUFFER*num_channels*bytes_per_sample),0,data_left))); /* stereo hardwired here */
 
          if (bytes==0)
          {
@@ -365,13 +365,13 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
                      /* uninterleave samples */
                      for(i=0; i<samples ;i++)
                      {
-                         temp =  ((signed char *)readbuffer)[i*4+1];    /*Flawfinder: ignore*/
-                         temp += ((signed char *)readbuffer)[i*4+3];    /*Flawfinder: ignore*/
+                         temp =  (reinterpret_cast<signed char *>(readbuffer))[i*4+1];    /*Flawfinder: ignore*/
+                         temp += (reinterpret_cast<signed char *>(readbuffer))[i*4+3];    /*Flawfinder: ignore*/
                          temp <<= 8;
                          temp += readbuffer[i*4];
                          temp += readbuffer[i*4+2];
 
-                         buffer[0][i] = ((float)temp) / 65536.f;
+                         buffer[0][i] = (static_cast<float>(temp)) / 65536.f;
                      }
                  }
                  else // presume it's 1 byte per which is unsigned (F#@%ing wav "standard")
@@ -382,7 +382,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
                          temp  = readbuffer[i*2+0];
                          temp += readbuffer[i*2+1];
                          temp -= 256;
-                         buffer[0][i] = ((float)temp) / 256.f;
+                         buffer[0][i] = (static_cast<float>(temp)) / 256.f;
                      }
                  }
              }
@@ -392,10 +392,10 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
                  {
                      for(i=0; i < samples ;i++)
                      {
-                         temp = ((signed char*)readbuffer)[i*2+1];
+                         temp = (reinterpret_cast<signed char*>(readbuffer))[i*2+1];
                          temp <<= 8;
                          temp += readbuffer[i*2];
-                         buffer[0][i] = ((float)temp) / 32768.f;
+                         buffer[0][i] = (static_cast<float>(temp)) / 32768.f;
                      }
                  }
                  else // presume it's 1 byte per which is unsigned (F#@%ing wav "standard")
@@ -404,7 +404,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
                      {
                          temp = readbuffer[i];
                          temp -= 128;
-                         buffer[0][i] = ((float)temp) / 128.f;
+                         buffer[0][i] = (static_cast<float>(temp)) / 128.f;
                      }
                  }
              }

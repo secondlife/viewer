@@ -49,7 +49,7 @@ public:
         mCurrentPanGainR(0.5f),
         mLastSample(0.f)
     {
-        mSamplePeriod = (F32)mSubSamples / (F32)mInputSamplingRate;
+        mSamplePeriod = static_cast<F32>(mSubSamples) / static_cast<F32>(mInputSamplingRate);
         mB2 = expf(-F_TWO_PI * mFilterBandWidth * mSamplePeriod);
     }
 
@@ -122,14 +122,14 @@ public:
             next_sample *= mCurrentGain;
 
             // delta is used to interpolate between synthesized samples
-            F32 delta = (next_sample - mLastSample) / (F32)mSubSamples;
+            F32 delta = (next_sample - mLastSample) / static_cast<F32>(mSubSamples);
 
             // Fill the audio buffer, clipping if necessary
             for (U8 i=mSubSamples; i && numsamples; --i, --numsamples)
             {
                 mLastSample = mLastSample + delta;
-                MIXBUFFERFORMAT_T   sample_right = (MIXBUFFERFORMAT_T)getClampedSample(clip, mLastSample * mCurrentPanGainR);
-                MIXBUFFERFORMAT_T   sample_left = (MIXBUFFERFORMAT_T)getClampedSample(clip, mLastSample - (F32)sample_right);
+                MIXBUFFERFORMAT_T   sample_right = static_cast<MIXBUFFERFORMAT_T>(getClampedSample(clip, mLastSample * mCurrentPanGainR));
+                MIXBUFFERFORMAT_T   sample_left = static_cast<MIXBUFFERFORMAT_T>(getClampedSample(clip, mLastSample - static_cast<F32>(sample_right)));
 
                 *cursamplep = sample_left;
                     ++cursamplep;
@@ -165,8 +165,8 @@ private:
     F32 mLastSample;
 };
 
-template<class T> inline const F32 LLWindGen<T>::getNextSample() { return (F32)rand() * (1.0f / (F32)(RAND_MAX / (U16_MAX / 8))) + (F32)(S16_MIN / 8); }
+template<class T> inline const F32 LLWindGen<T>::getNextSample() { return static_cast<F32>(rand()) * (1.0f / static_cast<F32>(RAND_MAX / (U16_MAX / 8))) + static_cast<F32>(S16_MIN / 8); }
 template<> inline const F32 LLWindGen<F32>::getNextSample() { return ll_frand()-.5f; }
-template<class T> inline const F32 LLWindGen<T>::getClampedSample(bool clamp, F32 sample) { return clamp ? (F32)llclamp((S32)sample,(S32)S16_MIN,(S32)S16_MAX) : sample; }
+template<class T> inline const F32 LLWindGen<T>::getClampedSample(bool clamp, F32 sample) { return clamp ? static_cast<F32>(llclamp(static_cast<S32>(sample),static_cast<S32>(S16_MIN),static_cast<S32>(S16_MAX))) : sample; }
 template<> inline const F32 LLWindGen<F32>::getClampedSample(bool clamp, F32 sample) { return sample; }
 
