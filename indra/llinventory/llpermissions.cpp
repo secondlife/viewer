@@ -501,12 +501,12 @@ LLSD LLPermissions::packMessage() const
     result["owner-id"]      = mOwner;
     result["group-id"]      = mGroup;
 
-    result["base-mask"]     =   (S32)mMaskBase;
-    result["owner-mask"]    =   (S32)mMaskOwner;
-    result["group-mask"]    =   (S32)mMaskGroup;
-    result["everyone-mask"] =   (S32)mMaskEveryone;
-    result["next-owner-mask"]=  (S32)mMaskNextOwner;
-    result["group-owned"]   = (bool)mIsGroupOwned;
+    result["base-mask"]     =   static_cast<S32>(mMaskBase);
+    result["owner-mask"]    =   static_cast<S32>(mMaskOwner);
+    result["group-mask"]    =   static_cast<S32>(mMaskGroup);
+    result["everyone-mask"] =   static_cast<S32>(mMaskEveryone);
+    result["next-owner-mask"]=  static_cast<S32>(mMaskNextOwner);
+    result["group-owned"]   = static_cast<bool>(mIsGroupOwned);
     return result;
 }
 
@@ -533,11 +533,11 @@ void LLPermissions::unpackMessage(LLSD perms)
     mOwner  =   perms["owner-id"];
     mGroup  =   perms["group-id"];
 
-    mMaskBase   =   (U32)perms["base-mask"].asInteger();
-    mMaskOwner  =   (U32)perms["owner-mask"].asInteger();
-    mMaskGroup  =   (U32)perms["group-mask"].asInteger();
-    mMaskEveryone   =   (U32)perms["everyone-mask"].asInteger();
-    mMaskNextOwner  =   (U32)perms["next-owner-mask"].asInteger();
+    mMaskBase   =   static_cast<U32>(perms["base-mask"].asInteger());
+    mMaskOwner  =   static_cast<U32>(perms["owner-mask"].asInteger());
+    mMaskGroup  =   static_cast<U32>(perms["group-mask"].asInteger());
+    mMaskEveryone   =   static_cast<U32>(perms["everyone-mask"].asInteger());
+    mMaskNextOwner  =   static_cast<U32>(perms["next-owner-mask"].asInteger());
     mIsGroupOwned   =   perms["group-owned"].asBoolean();
 }
 
@@ -836,7 +836,7 @@ LLAggregatePermissions::EValue LLAggregatePermissions::getValue(PermissionBit bi
     EValue rv = AP_EMPTY;
     if(idx != PI_END)
     {
-        rv = (LLAggregatePermissions::EValue)(mBits[idx]);
+        rv = static_cast<LLAggregatePermissions::EValue>(mBits[idx]);
     }
     return rv;
 }
@@ -880,7 +880,7 @@ void LLAggregatePermissions::aggregate(const LLAggregatePermissions& ag)
 {
     for(S32 idx = PI_COPY; idx != PI_END; ++idx)
     {
-        aggregateIndex((EPermIndex)idx, ag.mBits[idx]);
+        aggregateIndex(static_cast<EPermIndex>(idx), ag.mBits[idx]);
     }
 }
 
@@ -902,7 +902,7 @@ void LLAggregatePermissions::aggregateBit(EPermIndex idx, bool allowed)
         mBits[idx] = allowed ? AP_ALL : AP_SOME;
         break;
     default:
-        LL_WARNS() << "Bad aggregateBit " << (S32)idx << " "
+        LL_WARNS() << "Bad aggregateBit " << static_cast<S32>(idx) << " "
                 << (allowed ? "true" : "false") << LL_ENDL;
         break;
     }
@@ -947,8 +947,8 @@ void LLAggregatePermissions::aggregateIndex(EPermIndex idx, U8 bits)
         }
         break;
     default:
-        LL_WARNS() << "Bad aggregate index " << (S32)idx << " "
-                <<  (S32)bits << LL_ENDL;
+        LL_WARNS() << "Bad aggregate index " << static_cast<S32>(idx) << " "
+                <<  static_cast<S32>(bits) << LL_ENDL;
         break;
     }
 }
@@ -1078,11 +1078,11 @@ void ll_fill_sd_from_permissions(LLSD& rv, const LLPermissions& perm)
     rv[PERM_LAST_OWNER_ID_LABEL] = perm.getLastOwner();
     rv[PERM_GROUP_ID_LABEL] = perm.getGroup();
     rv[PERM_IS_OWNER_GROUP_LABEL] = perm.isGroupOwned();
-    rv[PERM_BASE_MASK_LABEL] = (LLSD::Integer)perm.getMaskBase();
-    rv[PERM_OWNER_MASK_LABEL] = (LLSD::Integer)perm.getMaskOwner();
-    rv[PERM_GROUP_MASK_LABEL] = (LLSD::Integer)perm.getMaskGroup();
-    rv[PERM_EVERYONE_MASK_LABEL] = (LLSD::Integer)perm.getMaskEveryone();
-    rv[PERM_NEXT_OWNER_MASK_LABEL] = (LLSD::Integer)perm.getMaskNextOwner();
+    rv[PERM_BASE_MASK_LABEL] = static_cast<LLSD::Integer>(perm.getMaskBase());
+    rv[PERM_OWNER_MASK_LABEL] = static_cast<LLSD::Integer>(perm.getMaskOwner());
+    rv[PERM_GROUP_MASK_LABEL] = static_cast<LLSD::Integer>(perm.getMaskGroup());
+    rv[PERM_EVERYONE_MASK_LABEL] = static_cast<LLSD::Integer>(perm.getMaskEveryone());
+    rv[PERM_NEXT_OWNER_MASK_LABEL] = static_cast<LLSD::Integer>(perm.getMaskNextOwner());
 }
 
 LLPermissions ll_permissions_from_sd(const LLSD& sd_perm)

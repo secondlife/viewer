@@ -73,7 +73,7 @@ bool LLSaleInfo::isForSale() const
 
 U32 LLSaleInfo::getCRC32() const
 {
-    U32 rv = (U32)mSalePrice;
+    U32 rv = static_cast<U32>(mSalePrice);
     rv += (mSaleType * 0x07073096);
     return rv;
 }
@@ -116,7 +116,7 @@ bool LLSaleInfo::fromLLSD(const LLSD& sd, bool& has_perm_mask, U32& perm_mask)
     }
     else if(sd["sale_type"].isInteger())
     {
-        S8 type = (U8)sd["sale_type"].asInteger();
+        S8 type = static_cast<U8>(sd["sale_type"].asInteger());
         mSaleType = static_cast<LLSaleInfo::EForSale>(type);
     }
 
@@ -198,7 +198,7 @@ LLSD LLSaleInfo::packMessage() const
 
     U8 sale_type = static_cast<U8>(mSaleType);
     result["sale-type"]     = sale_type;
-    result["sale-price"]    = (S32)mSalePrice;
+    result["sale-price"]    = static_cast<S32>(mSalePrice);
     //result[_PREHASH_NextOwnerMask] = mNextOwnerPermMask;
     return result;
 }
@@ -213,10 +213,10 @@ void LLSaleInfo::packMessage(LLMessageSystem* msg) const
 
 void LLSaleInfo::unpackMessage(LLSD sales)
 {
-    U8 sale_type = (U8)sales["sale-type"].asInteger();
+    U8 sale_type = static_cast<U8>(sales["sale-type"].asInteger());
     mSaleType = static_cast<EForSale>(sale_type);
 
-    mSalePrice = (S32)sales["sale-price"].asInteger();
+    mSalePrice = static_cast<S32>(sales["sale-price"].asInteger());
     mSalePrice = llclamp(mSalePrice, 0, S32_MAX);
     //msg->getU32Fast(block, _PREHASH_NextOwnerMask, mNextOwnerPermMask);
 }
@@ -249,7 +249,7 @@ LLSaleInfo::EForSale LLSaleInfo::lookup(const char* name)
         if(0 == strcmp(name, FOR_SALE_NAMES[i]))
         {
             // match
-            return (EForSale)i;
+            return static_cast<EForSale>(i);
         }
     }
     return FS_NOT;
@@ -321,6 +321,6 @@ LLSaleInfo ll_sale_info_from_sd(const LLSD& sd)
 {
     LLSaleInfo rv;
     rv.setSaleType(LLSaleInfo::lookup(sd[ST_TYPE_LABEL].asString().c_str()));
-    rv.setSalePrice(llclamp((S32)sd[ST_PRICE_LABEL], 0, S32_MAX));
+    rv.setSalePrice(llclamp(static_cast<S32>(sd[ST_PRICE_LABEL]), 0, S32_MAX));
     return rv;
 }

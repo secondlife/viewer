@@ -210,7 +210,7 @@ void LLParcel::init(const LLUUID &owner_id,
     mLocalID = INVALID_PARCEL_ID;
 
     //mSimWidePrimCorrection = 0;
-    setMaxPrimCapacity((S32)(sim_object_limit * area / (F32)(REGION_WIDTH_METERS * REGION_WIDTH_METERS)));
+    setMaxPrimCapacity(static_cast<S32>(sim_object_limit * area / static_cast<F32>(REGION_WIDTH_METERS * REGION_WIDTH_METERS)));
     setSimWideMaxPrimCapacity(0);
     setSimWidePrimCount(0);
     setOwnerPrimCount(0);
@@ -425,7 +425,7 @@ bool LLParcel::allowTerraformBy(const LLUUID &agent_id) const
 void LLParcel::setArea(S32 area, S32 sim_object_limit)
 {
     mArea = area;
-    setMaxPrimCapacity((S32)(sim_object_limit * area / (F32)(REGION_WIDTH_METERS * REGION_WIDTH_METERS)));
+    setMaxPrimCapacity(static_cast<S32>(sim_object_limit * area / static_cast<F32>(REGION_WIDTH_METERS * REGION_WIDTH_METERS)));
 }
 
 void LLParcel::setDiscountRate(F32 rate)
@@ -498,12 +498,12 @@ void LLParcel::packMessage(LLMessageSystem* msg)
     msg->addUUIDFast( _PREHASH_GroupID,  getGroupID() );
     msg->addS32Fast( _PREHASH_PassPrice, mPassPrice );
     msg->addF32Fast( _PREHASH_PassHours, mPassHours );
-    msg->addU8Fast(  _PREHASH_Category,  (U8)mCategory);
+    msg->addU8Fast(  _PREHASH_Category,  static_cast<U8>(mCategory));
     msg->addUUIDFast( _PREHASH_AuthBuyerID, mAuthBuyerID);
     msg->addUUIDFast( _PREHASH_SnapshotID, mSnapshotID);
     msg->addVector3Fast(_PREHASH_UserLocation, mUserLocation);
     msg->addVector3Fast(_PREHASH_UserLookAt, mUserLookAt);
-    msg->addU8Fast(  _PREHASH_LandingType, (U8)mLandingType);
+    msg->addU8Fast(  _PREHASH_LandingType, static_cast<U8>(mLandingType));
 }
 
 // Assumes we are in a block "ParcelData"
@@ -533,16 +533,16 @@ void LLParcel::packMessage(LLSD& msg)
     msg["group_id"] = getGroupID();
     msg["pass_price"] = mPassPrice;
     msg["pass_hours"] = mPassHours;
-    msg["category"] = (U8)mCategory;
+    msg["category"] = static_cast<U8>(mCategory);
     msg["auth_buyer_id"] = mAuthBuyerID;
     msg["snapshot_id"] = mSnapshotID;
     msg["user_location"] = ll_sd_from_vector3(mUserLocation);
     msg["user_look_at"] = ll_sd_from_vector3(mUserLookAt);
-    msg["landing_type"] = (U8)mLandingType;
-    msg["see_avs"] = (LLSD::Boolean) getSeeAVs();
-    msg["group_av_sounds"] = (LLSD::Boolean) getAllowGroupAVSounds();
-    msg["any_av_sounds"] = (LLSD::Boolean) getAllowAnyAVSounds();
-    msg["obscure_moap"] = (LLSD::Boolean) getObscureMOAP();
+    msg["landing_type"] = static_cast<U8>(mLandingType);
+    msg["see_avs"] = static_cast<LLSD::Boolean>(getSeeAVs());
+    msg["group_av_sounds"] = static_cast<LLSD::Boolean>(getAllowGroupAVSounds());
+    msg["any_av_sounds"] = static_cast<LLSD::Boolean>(getAllowAnyAVSounds());
+    msg["obscure_moap"] = static_cast<LLSD::Boolean>(getObscureMOAP());
 }
 
 
@@ -588,14 +588,14 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
     msg->getF32Fast( _PREHASH_ParcelData,_PREHASH_PassHours, mPassHours );
     U8 category;
     msg->getU8Fast(  _PREHASH_ParcelData,_PREHASH_Category, category);
-    mCategory = (ECategory)category;
+    mCategory = static_cast<ECategory>(category);
     msg->getUUIDFast( _PREHASH_ParcelData,_PREHASH_AuthBuyerID, mAuthBuyerID);
     msg->getUUIDFast( _PREHASH_ParcelData,_PREHASH_SnapshotID, mSnapshotID);
     msg->getVector3Fast(_PREHASH_ParcelData,_PREHASH_UserLocation, mUserLocation);
     msg->getVector3Fast(_PREHASH_ParcelData,_PREHASH_UserLookAt, mUserLookAt);
     U8 landing_type;
     msg->getU8Fast(  _PREHASH_ParcelData,_PREHASH_LandingType, landing_type);
-    mLandingType = (ELandingType)landing_type;
+    mLandingType = static_cast<ELandingType>(landing_type);
 
     // New Media Data
     // Note: the message has been converted to TCP
@@ -748,12 +748,12 @@ bool LLParcel::operator==(const LLParcel &rhs) const
 // Calculate rent
 S32 LLParcel::getTotalRent() const
 {
-    return (S32)floor(0.5f + (F32)mArea * (F32)mRentPricePerMeter * (1.0f - mDiscountRate));
+    return static_cast<S32>(floor(0.5f + static_cast<F32>(mArea) * static_cast<F32>(mRentPricePerMeter) * (1.0f - mDiscountRate)));
 }
 
 F32 LLParcel::getAdjustedRentPerMeter() const
 {
-    return ((F32)mRentPricePerMeter * (1.0f - mDiscountRate));
+    return (static_cast<F32>(mRentPricePerMeter) * (1.0f - mDiscountRate));
 }
 
 LLVector3 LLParcel::getCenterpoint() const
@@ -789,7 +789,7 @@ void LLParcel::extendAABB(const LLVector3& box_min, const LLVector3& box_max)
 
 bool LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
 {
-    if (mAccessList.size() >= (U32) PARCEL_MAX_ACCESS_LIST)
+    if (mAccessList.size() >= static_cast<U32>(PARCEL_MAX_ACCESS_LIST))
     {
         return false;
     }
@@ -830,7 +830,7 @@ bool LLParcel::addToAccessList(const LLUUID& agent_id, S32 time)
 
 bool LLParcel::addToBanList(const LLUUID& agent_id, S32 time)
 {
-    if (mBanList.size() >= (U32) PARCEL_MAX_ACCESS_LIST)
+    if (mBanList.size() >= static_cast<U32>(PARCEL_MAX_ACCESS_LIST))
     {
         // Not using ban list, so not a rational thing to do
         return false;
@@ -1139,7 +1139,7 @@ LLParcel::EOwnershipStatus ownership_string_to_status(const std::string& s)
     {
         if(s == PARCEL_OWNERSHIP_STATUS_STRING[i])
         {
-            return (LLParcel::EOwnershipStatus)i;
+            return static_cast<LLParcel::EOwnershipStatus>(i);
         }
     }
     return LLParcel::OS_NONE;
@@ -1187,7 +1187,7 @@ const std::string& category_to_ui_string(LLParcel::ECategory category)
     else
     {
         // C_ANY = -1 , but the "Any" string is at the end of the list
-        index = ((S32) LLParcel::C_COUNT);
+        index = (static_cast<S32>(LLParcel::C_COUNT));
     }
     return PARCEL_CATEGORY_UI_STRING[index];
 }
@@ -1198,7 +1198,7 @@ LLParcel::ECategory category_string_to_category(const std::string& s)
     {
         if(s == PARCEL_CATEGORY_STRING[i])
         {
-            return (LLParcel::ECategory)i;
+            return static_cast<LLParcel::ECategory>(i);
         }
     }
     LL_WARNS() << "Parcel category outside of possibilities " << s << LL_ENDL;
@@ -1211,7 +1211,7 @@ LLParcel::ECategory category_ui_string_to_category(const std::string& s)
     {
         if(s == PARCEL_CATEGORY_UI_STRING[i])
         {
-            return (LLParcel::ECategory)i;
+            return static_cast<LLParcel::ECategory>(i);
         }
     }
     // "Any" is a valid category for searches, and
@@ -1267,8 +1267,8 @@ void LLParcel::setExperienceKeyType( const LLUUID& experience_key, U32 type )
 
 U32 LLParcel::countExperienceKeyType( U32 type )
 {
-    return (U32)std::count_if(
+    return static_cast<U32>(std::count_if(
         boost::begin(mExperienceKeys | boost::adaptors::map_values),
         boost::end(mExperienceKeys | boost::adaptors::map_values),
-        [type](U32 key){ return (key == type); });
+        [type](U32 key){ return (key == type); }));
 }

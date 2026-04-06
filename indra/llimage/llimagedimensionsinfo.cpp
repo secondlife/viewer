@@ -86,7 +86,7 @@ bool LLImageDimensionsInfo::getImageDimensionsBmp()
 
     // Read BMP signature.
     U8 signature[2];
-    mInfile.read((void*)signature, sizeof(signature)/sizeof(signature[0]));
+    mInfile.read(static_cast<void*>(signature), sizeof(signature)/sizeof(signature[0]));
 
     // Make sure this is actually a BMP file.
     // We only support Windows bitmaps (BM), according to LLImageBMP::updateData().
@@ -138,7 +138,7 @@ bool LLImageDimensionsInfo::getImageDimensionsPng()
     // Read PNG signature.
     constexpr U8 png_magic[PNG_MAGIC_SIZE] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
     U8 signature[PNG_MAGIC_SIZE];
-    mInfile.read((void*)signature, PNG_MAGIC_SIZE);
+    mInfile.read(static_cast<void*>(signature), PNG_MAGIC_SIZE);
 
     // Make sure it's a PNG file.
     if (memcmp(signature, png_magic, PNG_MAGIC_SIZE) != 0)

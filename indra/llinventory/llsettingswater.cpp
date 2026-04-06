@@ -122,15 +122,15 @@ void LLSettingsWater::loadValuesFromLLSD()
 
     LLSD& settings = getSettings();
 
-    mBlurMultiplier = (F32)settings[SETTING_BLUR_MULTIPLIER].asReal();
+    mBlurMultiplier = static_cast<F32>(settings[SETTING_BLUR_MULTIPLIER].asReal());
     mWaterFogColor = LLColor3(settings[SETTING_FOG_COLOR]);
-    mWaterFogDensity = (F32)settings[SETTING_FOG_DENSITY].asReal();
-    mFogMod = (F32)settings[SETTING_FOG_MOD].asReal();
-    mFresnelOffset = (F32)settings[SETTING_FRESNEL_OFFSET].asReal();
-    mFresnelScale = (F32)settings[SETTING_FRESNEL_SCALE].asReal();
+    mWaterFogDensity = static_cast<F32>(settings[SETTING_FOG_DENSITY].asReal());
+    mFogMod = static_cast<F32>(settings[SETTING_FOG_MOD].asReal());
+    mFresnelOffset = static_cast<F32>(settings[SETTING_FRESNEL_OFFSET].asReal());
+    mFresnelScale = static_cast<F32>(settings[SETTING_FRESNEL_SCALE].asReal());
     mNormalScale = LLVector3(settings[SETTING_NORMAL_SCALE]);
-    mScaleAbove = (F32)settings[SETTING_SCALE_ABOVE].asReal();
-    mScaleBelow = (F32)settings[SETTING_SCALE_BELOW].asReal();
+    mScaleAbove = static_cast<F32>(settings[SETTING_SCALE_ABOVE].asReal());
+    mScaleBelow = static_cast<F32>(settings[SETTING_SCALE_BELOW].asReal());
     mWave1Dir = LLVector2(settings[SETTING_WAVE1_DIR]);
     mWave2Dir = LLVector2(settings[SETTING_WAVE2_DIR]);
 
@@ -240,17 +240,17 @@ void LLSettingsWater::blend(LLSettingsBase::ptr_t &end, F64 blendf)
     {
         mSettingFlags |= other->mSettingFlags;
 
-        mBlurMultiplier = lerp(mBlurMultiplier, other->mBlurMultiplier, (F32)blendf);
-        lerpColor(mWaterFogColor, other->mWaterFogColor, (F32)blendf);
-        mWaterFogDensity = lerp(mWaterFogDensity, other->mWaterFogDensity, (F32)blendf);
-        mFogMod = lerp(mFogMod, other->mFogMod, (F32)blendf);
-        mFresnelOffset = lerp(mFresnelOffset, other->mFresnelOffset, (F32)blendf);
-        mFresnelScale = lerp(mFresnelScale, other->mFresnelScale, (F32)blendf);
-        lerpVector3(mNormalScale, other->mNormalScale, (F32)blendf);
-        mScaleAbove = lerp(mScaleAbove, other->mScaleAbove, (F32)blendf);
-        mScaleBelow = lerp(mScaleBelow, other->mScaleBelow, (F32)blendf);
-        lerpVector2(mWave1Dir, other->mWave1Dir, (F32)blendf);
-        lerpVector2(mWave2Dir, other->mWave2Dir, (F32)blendf);
+        mBlurMultiplier = lerp(mBlurMultiplier, other->mBlurMultiplier, static_cast<F32>(blendf));
+        lerpColor(mWaterFogColor, other->mWaterFogColor, static_cast<F32>(blendf));
+        mWaterFogDensity = lerp(mWaterFogDensity, other->mWaterFogDensity, static_cast<F32>(blendf));
+        mFogMod = lerp(mFogMod, other->mFogMod, static_cast<F32>(blendf));
+        mFresnelOffset = lerp(mFresnelOffset, other->mFresnelOffset, static_cast<F32>(blendf));
+        mFresnelScale = lerp(mFresnelScale, other->mFresnelScale, static_cast<F32>(blendf));
+        lerpVector3(mNormalScale, other->mNormalScale, static_cast<F32>(blendf));
+        mScaleAbove = lerp(mScaleAbove, other->mScaleAbove, static_cast<F32>(blendf));
+        mScaleBelow = lerp(mScaleBelow, other->mScaleBelow, static_cast<F32>(blendf));
+        lerpVector2(mWave1Dir, other->mWave1Dir, static_cast<F32>(blendf));
+        lerpVector2(mWave2Dir, other->mWave2Dir, static_cast<F32>(blendf));
 
         setDirtyFlag(true);
         setReplaced();
@@ -391,7 +391,7 @@ F32 LLSettingsWater::getModifiedWaterFogDensity(bool underwater) const
         // 2) Force density to be an arbitrary non-negative (i.e. 1) when underwater and modifier is not an integer (1 was aribtrarily chosen as it gives at least some notion of fog in the transition)
         // This is more restrictive, effectively forcing a density under certain conditions, but allowing the range of #1 and avoiding blackness in other cases
         // at the cost of overriding the fog density.
-        if(fog_density < 0.0f && underwater_fog_mod != (F32)llround(underwater_fog_mod) )
+        if(fog_density < 0.0f && underwater_fog_mod != static_cast<F32>(llround(underwater_fog_mod)) )
         {
             fog_density = 1.0f;
         }

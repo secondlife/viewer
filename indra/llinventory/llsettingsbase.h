@@ -502,7 +502,7 @@ public:
     LLSettingsBlenderTimeDelta(const LLSettingsBase::ptr_t &target,
         const LLSettingsBase::ptr_t &initsetting, const LLSettingsBase::ptr_t &endsetting, const LLSettingsBase::Seconds& blend_span) :
         LLSettingsBlender(target, initsetting, endsetting),
-        mBlendSpan((F32)blend_span.value()),
+        mBlendSpan(static_cast<F32>(blend_span.value())),
         mLastUpdate(0.0f),
         mTimeSpent(0.0f),
         mBlendFMinDelta(MIN_BLEND_DELTA),

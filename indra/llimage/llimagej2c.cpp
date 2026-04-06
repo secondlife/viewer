@@ -206,7 +206,7 @@ bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
         LLImage::setLastError(mLastError);
     }
 
-    LLImageCompressionTester* tester = (LLImageCompressionTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+    LLImageCompressionTester* tester = static_cast<LLImageCompressionTester*>(LLMetricPerformanceTesterBasic::getTester(sTesterName));
     if (tester)
     {
         // Decompression stat gathering
@@ -241,7 +241,7 @@ bool LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, 
         LLImage::setLastError(mLastError);
     }
 
-    LLImageCompressionTester* tester = (LLImageCompressionTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+    LLImageCompressionTester* tester = static_cast<LLImageCompressionTester*>(LLMetricPerformanceTesterBasic::getTester(sTesterName));
     if (tester)
     {
         // Compression stat gathering
@@ -281,14 +281,14 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     S32 height = (h > 0) ? h : 2048;
     S32 max_dimension = llmax(width, height); // Find largest dimension
     S32 block_area = MAX_BLOCK_SIZE * MAX_BLOCK_SIZE; // Calculated initial block area from established max block size (currently 64)
-    S32 max_layers = (S32)llmax(llround(log2f((float)max_dimension) - log2f((float)MAX_BLOCK_SIZE)), 4); // Find number of powers of two between extents and block size to a minimum of 4
+    S32 max_layers = static_cast<S32>(llmax(llround(log2f(static_cast<float>(max_dimension)) - log2f(static_cast<float>(MAX_BLOCK_SIZE))), 4)); // Find number of powers of two between extents and block size to a minimum of 4
     block_area *= llmax(max_layers, 1); // Adjust initial block area by max number of layers
-    S32 totalbytes = (S32) (MIN_LAYER_SIZE * max_components * precision); // Start estimation with a minimum reasonable size
+    S32 totalbytes = static_cast<S32>(MIN_LAYER_SIZE * max_components * precision); // Start estimation with a minimum reasonable size
     S32 block_layers = 0;
     while (block_layers <= max_layers) // Walk the layers
     {
         if (block_layers <= (5 - discard_level))  // Walk backwards from discard 5 to required discard layer.
-            totalbytes += (S32) (block_area * max_components * precision * rate); // Add each block layer reduced by assumed compression rate
+            totalbytes += static_cast<S32>(block_area * max_components * precision * rate); // Add each block layer reduced by assumed compression rate
         block_layers++; // Move to next layer
         block_area *= 4; // Increase block area by power of four
     }
@@ -381,7 +381,7 @@ bool LLImageJ2C::loadAndValidate(const std::string &filename)
     }
     else
     {
-        U8 *data = (U8*)ll_aligned_malloc_16(file_size);
+        U8 *data = static_cast<U8*>(ll_aligned_malloc_16(file_size));
         if (!data)
         {
             infile.close();
@@ -394,7 +394,7 @@ bool LLImageJ2C::loadAndValidate(const std::string &filename)
             apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read
             infile.close();
 
-            if (s != APR_SUCCESS || (S32)bytes_read != file_size)
+            if (s != APR_SUCCESS || static_cast<S32>(bytes_read) != file_size)
             {
                 ll_aligned_free_16(data);
                 setLastError("Unable to read entire file");
@@ -505,10 +505,10 @@ void LLImageCompressionTester::outputTestRecord(LLSD *sd)
     F32 decompressionRate = 0.0f;
     F32 compressionRate   = 0.0f;
 
-    F32 totalkBInDecompression  = (F32)(mTotalBytesInDecompression)  / 1000.f;
-    F32 totalkBOutDecompression = (F32)(mTotalBytesOutDecompression) / 1000.f;
-    F32 totalkBInCompression    = (F32)(mTotalBytesInCompression)    / 1000.f;
-    F32 totalkBOutCompression   = (F32)(mTotalBytesOutCompression)   / 1000.f;
+    F32 totalkBInDecompression  = static_cast<F32>(mTotalBytesInDecompression)  / 1000.f;
+    F32 totalkBOutDecompression = static_cast<F32>(mTotalBytesOutDecompression) / 1000.f;
+    F32 totalkBInCompression    = static_cast<F32>(mTotalBytesInCompression)    / 1000.f;
+    F32 totalkBOutCompression   = static_cast<F32>(mTotalBytesOutCompression)   / 1000.f;
 
     if (!is_approx_zero(mTotalTimeDecompression))
     {

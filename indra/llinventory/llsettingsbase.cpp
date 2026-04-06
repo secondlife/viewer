@@ -97,7 +97,7 @@ void LLSettingsBase::loadValuesFromLLSD()
     mSettingName = getValue(SETTING_NAME).asString();
     if (mSettings.has(SETTING_FLAGS))
     {
-        mSettingFlags = (U32)mSettings[SETTING_FLAGS].asInteger();
+        mSettingFlags = static_cast<U32>(mSettings[SETTING_FLAGS].asInteger());
     }
     else
     {
@@ -272,9 +272,9 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, c
     // Flags
     if (settings.has(SETTING_FLAGS))
     {
-        U32 flags = (U32)settings[SETTING_FLAGS].asInteger();
+        U32 flags = static_cast<U32>(settings[SETTING_FLAGS].asInteger());
         if (other.has(SETTING_FLAGS))
-            flags |= (U32)other[SETTING_FLAGS].asInteger();
+            flags |= static_cast<U32>(other[SETTING_FLAGS].asInteger());
 
         newSettings[SETTING_FLAGS] = LLSD::Integer(flags);
     }
@@ -339,11 +339,11 @@ LLSD LLSettingsBase::interpolateSDValue(const std::string& key_name, const LLSD 
     {
         case LLSD::TypeInteger:
             // lerp between the two values rounding the result to the nearest integer.
-            new_value = LLSD::Integer(llroundf(lerp((F32)value.asReal(), (F32)other_value.asReal(), (F32)mix)));
+            new_value = LLSD::Integer(llroundf(lerp(static_cast<F32>(value.asReal()), static_cast<F32>(other_value.asReal()), static_cast<F32>(mix))));
             break;
         case LLSD::TypeReal:
             // lerp between the two values.
-            new_value = LLSD::Real(lerp((F32)value.asReal(), (F32)other_value.asReal(), (F32)mix));
+            new_value = LLSD::Real(lerp(static_cast<F32>(value.asReal()), static_cast<F32>(other_value.asReal()), static_cast<F32>(mix)));
             break;
         case LLSD::TypeMap:
             // deep copy.
@@ -358,7 +358,7 @@ LLSD LLSettingsBase::interpolateSDValue(const std::string& key_name, const LLSD 
             {
                 LLQuaternion a(value);
                 LLQuaternion b(other_value);
-                LLQuaternion q = slerp((F32)mix, a, b);
+                LLQuaternion q = slerp(static_cast<F32>(mix), a, b);
                 new_array = q.getValue();
             }
             else
@@ -756,7 +756,7 @@ void LLSettingsBlender::update(const LLSettingsBase::BlendFactor& blendf)
 
 F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_in)
 {
-    LLSettingsBase::TrackPosition blendf = (F32)blendf_in;
+    LLSettingsBase::TrackPosition blendf = static_cast<F32>(blendf_in);
     llassert(!isnan(blendf));
     if (blendf >= 1.0)
     {
@@ -793,7 +793,7 @@ const LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::MIN_BLEND_DELTA(FL
 LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::calculateBlend(const LLSettingsBase::TrackPosition& spanpos, const LLSettingsBase::TrackPosition& spanlen) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
-    return LLSettingsBase::BlendFactor(fmod((F64)spanpos, (F64)spanlen) / (F64)spanlen);
+    return LLSettingsBase::BlendFactor(fmod(static_cast<F64>(spanpos), static_cast<F64>(spanlen)) / static_cast<F64>(spanlen));
 }
 
 bool LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& timedelta)
@@ -807,7 +807,7 @@ bool LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& t
         return false;
     }
 
-    LLSettingsBase::BlendFactor blendf = calculateBlend((F32)mTimeSpent.value(), mBlendSpan);
+    LLSettingsBase::BlendFactor blendf = calculateBlend(static_cast<F32>(mTimeSpent.value()), mBlendSpan);
 
     if (fabs(mLastBlendF - blendf) < mBlendFMinDelta)
     {

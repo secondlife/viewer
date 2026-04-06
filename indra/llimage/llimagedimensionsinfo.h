@@ -95,10 +95,10 @@ protected:
     {
         char p[4];
         mInfile.read(&p[0],4);
-        S32 temp =  (((S32)p[3])       & 0x000000FF) |
-                    (((S32)p[2] << 8 ) & 0x0000FF00) |
-                    (((S32)p[1] << 16) & 0x00FF0000) |
-                    (((S32)p[0] << 24) & 0xFF000000);
+        S32 temp =  ((static_cast<S32>(p[3]))       & 0x000000FF) |
+                    ((static_cast<S32>(p[2]) << 8 ) & 0x0000FF00) |
+                    ((static_cast<S32>(p[1]) << 16) & 0x00FF0000) |
+                    ((static_cast<S32>(p[0]) << 24) & 0xFF000000);
 
         return temp;
     }
@@ -106,10 +106,10 @@ protected:
     {
         char p[4];
         mInfile.read(&p[0],4);
-        S32 temp =  (((S32)p[0])       & 0x000000FF) |
-                    (((S32)p[1] << 8 ) & 0x0000FF00) |
-                    (((S32)p[2] << 16) & 0x00FF0000) |
-                    (((S32)p[3] << 24) & 0xFF000000);
+        S32 temp =  ((static_cast<S32>(p[0]))       & 0x000000FF) |
+                    ((static_cast<S32>(p[1]) << 8 ) & 0x0000FF00) |
+                    ((static_cast<S32>(p[2]) << 16) & 0x00FF0000) |
+                    ((static_cast<S32>(p[3]) << 24) & 0xFF000000);
 
         return temp;
     }
