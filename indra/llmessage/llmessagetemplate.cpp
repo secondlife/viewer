@@ -164,7 +164,7 @@ std::ostream& operator<<(std::ostream& s, LLMessageTemplate &msg)
     for (LLMessageTemplate::message_block_map_t::iterator iter = msg.mMemberBlocks.begin();
          iter != msg.mMemberBlocks.end(); iter++)
     {
-        const LLMessageBlock* ci = *iter;
+        LLMessageBlock* ci = *iter; // non-const: operator<< isn't const-correct
         s << *ci;
     }
 
