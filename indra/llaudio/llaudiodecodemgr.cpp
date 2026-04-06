@@ -61,7 +61,7 @@ public:
     class WriteResponder : public LLLFSThread::Responder
     {
     public:
-        WriteResponder(LLVorbisDecodeState* decoder) : mDecoder(decoder) {}
+        explicit WriteResponder(LLVorbisDecodeState* decoder) : mDecoder(decoder) {}
         ~WriteResponder() = default;
         void completed(S32 bytes)
         {

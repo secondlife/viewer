@@ -235,7 +235,7 @@ struct LLNotificationTemplate
         {}
     };
 
-    LLNotificationTemplate(const Params& p);
+    explicit LLNotificationTemplate(const Params& p);
     // the name of the notification -- the key used to identify it
     // Ideally, the key should follow variable naming rules
     // (no spaces or punctuation).

@@ -77,7 +77,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLMenuButton(const Params&);
+    explicit LLMenuButton(const Params&);
     ~LLMenuButton();
 
     void toggleMenu();

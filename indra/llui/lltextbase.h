@@ -276,7 +276,7 @@ class LLLineBreakTextSegment : public LLTextSegment
 public:
 
     LLLineBreakTextSegment(LLStyleConstSP style,S32 pos);
-    LLLineBreakTextSegment(S32 pos);
+    explicit LLLineBreakTextSegment(S32 pos);
     ~LLLineBreakTextSegment();
     /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
     /*virtual*/ bool        getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
@@ -620,7 +620,7 @@ protected:
     using e_underline = LLStyle::EUnderlineLink;
 
     // member functions
-    LLTextBase(const Params &p);
+    explicit LLTextBase(const Params &p);
     virtual ~LLTextBase();
     void                            initFromParams(const Params& p);
     virtual void                    beforeValueChange();

@@ -1349,7 +1349,7 @@ class LLMenuItemBranchDownGL : public LLMenuItemBranchGL
 protected:
 
 public:
-    LLMenuItemBranchDownGL( const Params& );
+    explicit LLMenuItemBranchDownGL( const Params& );
 
     // returns the normal width of this control in pixels - this is
     // used for calculating the widest item, as well as for horizontal
@@ -1684,7 +1684,7 @@ public:
     };
 
 protected:
-    LLMenuScrollItem(const Params&);
+    explicit LLMenuScrollItem(const Params&);
     friend class LLUICtrlFactory;
 
 public:

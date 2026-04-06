@@ -71,7 +71,7 @@ class LLViewDrawContext
 public:
     F32 mAlpha;
 
-    LLViewDrawContext(F32 alpha = 1.f)
+    explicit LLViewDrawContext(F32 alpha = 1.f)
     :   mAlpha(alpha)
     {
         if (!sDrawContextStack.empty())
@@ -159,7 +159,7 @@ public:
     void initFromParams(const LLView::Params&);
 
 protected:
-    LLView(const LLView::Params&);
+    explicit LLView(const LLView::Params&);
     friend class LLUICtrlFactory;
 
 private:
@@ -638,7 +638,7 @@ public:
     class TemporaryDrilldownFunc
     {
     public:
-        TemporaryDrilldownFunc(const DrilldownFunc& func):
+        explicit TemporaryDrilldownFunc(const DrilldownFunc& func):
             mOldDrilldown(sDrilldown)
         {
             sDrilldown = func;

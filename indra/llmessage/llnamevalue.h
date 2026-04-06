@@ -118,7 +118,7 @@ public:
     void init(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto );
 
     LLNameValue();
-    LLNameValue(const char *data);
+    explicit LLNameValue(const char *data);
     LLNameValue(const char *name, const char *type, const char *nvclass );
     LLNameValue(const char *name, const char *data, const char *type, const char *nvclass );
     LLNameValue(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto );

@@ -2688,7 +2688,7 @@ void LLScrollListCtrl::commitIfChanged()
 
 struct SameSortColumn
 {
-    SameSortColumn(S32 column) : mColumn(column) {}
+    explicit SameSortColumn(S32 column) : mColumn(column) {}
     S32 mColumn;
 
     bool operator()(std::pair<S32, bool> sort_column) { return sort_column.first == mColumn; }

@@ -182,7 +182,7 @@ protected:
     bool    updateNumIndices(U32 nindices);
 
 public:
-    LLVertexBuffer(U32 typemask);
+    explicit LLVertexBuffer(U32 typemask);
 
     // allocate buffer
     bool    allocateBuffer(U32 nverts, U32 nindices);

@@ -58,7 +58,7 @@ class LLHostStatus
 class LLXferAckInfo
 {
 public:
-    LLXferAckInfo(U32 dummy = 0)
+    explicit LLXferAckInfo(U32 dummy = 0)
     {
         mID = 0;
         mPacketNum = -1;

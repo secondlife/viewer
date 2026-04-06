@@ -237,7 +237,7 @@ protected:
 class LLFolderViewModelItemCommon : public LLFolderViewModelItem
 {
 public:
-    LLFolderViewModelItemCommon(LLFolderViewModelInterface& root_view_model)
+    explicit LLFolderViewModelItemCommon(LLFolderViewModelInterface& root_view_model)
     :   mSortVersion(-1),
         mPassedFilter(true),
         mPassedFolderFilter(true),
@@ -444,7 +444,7 @@ public:
 
     struct ViewModelCompare
     {
-        ViewModelCompare(const SortType& sorter)
+        explicit ViewModelCompare(const SortType& sorter)
         :   mSorter(sorter)
         {}
 

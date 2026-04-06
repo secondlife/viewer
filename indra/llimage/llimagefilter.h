@@ -63,7 +63,7 @@ enum class EScreenMode
 class LLImageFilter
 {
 public:
-    LLImageFilter(const std::string& file_path);
+    explicit LLImageFilter(const std::string& file_path);
     ~LLImageFilter();
 
     void executeFilter(LLPointer<LLImageRaw> raw_image);

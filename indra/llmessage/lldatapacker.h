@@ -347,7 +347,7 @@ inline bool LLDataPackerAsciiBuffer::verifyLength(const S32 data_size, const cha
 class LLDataPackerAsciiFile : public LLDataPacker
 {
 public:
-    LLDataPackerAsciiFile(LLFILE *fp, const S32 indent = 2)
+    explicit LLDataPackerAsciiFile(LLFILE *fp, const S32 indent = 2)
     :   LLDataPacker(),
         mIndent(indent),
         mFP(fp),
@@ -356,7 +356,7 @@ public:
     {
     }
 
-    LLDataPackerAsciiFile(std::ostream& output_stream, const S32 indent = 2)
+    explicit LLDataPackerAsciiFile(std::ostream& output_stream, const S32 indent = 2)
     :   LLDataPacker(),
         mIndent(indent),
         mFP(NULL),
@@ -366,7 +366,7 @@ public:
         mWriteEnabled = true;
     }
 
-    LLDataPackerAsciiFile(std::istream& input_stream, const S32 indent = 2)
+    explicit LLDataPackerAsciiFile(std::istream& input_stream, const S32 indent = 2)
     :   LLDataPacker(),
         mIndent(indent),
         mFP(NULL),

@@ -104,7 +104,7 @@ class LLDragHandleTop
 : public LLDragHandle
 {
 protected:
-    LLDragHandleTop(const Params& p) : LLDragHandle(p) {}
+    explicit LLDragHandleTop(const Params& p) : LLDragHandle(p) {}
     friend class LLUICtrlFactory;
 public:
     virtual void    setTitle( const std::string& title );
@@ -122,7 +122,7 @@ class LLDragHandleLeft
 : public LLDragHandle
 {
 protected:
-    LLDragHandleLeft(const Params& p) : LLDragHandle(p) {}
+    explicit LLDragHandleLeft(const Params& p) : LLDragHandle(p) {}
     friend class LLUICtrlFactory;
 public:
     virtual void    setTitle( const std::string& title );

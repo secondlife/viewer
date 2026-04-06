@@ -92,7 +92,7 @@ public:
     static void updateClass();
 
 protected:
-    LLLayoutStack(const Params&);
+    explicit LLLayoutStack(const Params&);
     friend class LLUICtrlFactory;
     friend class LLLayoutPanel;
 
@@ -190,7 +190,7 @@ public:
     void setIgnoreReshape(bool ignore) { mIgnoreReshape = ignore; }
 
 protected:
-    LLLayoutPanel(const Params& p);
+    explicit LLLayoutPanel(const Params& p);
 
     const bool  mAutoResize;
     const bool  mUserResize;

@@ -43,7 +43,7 @@ class LLKeyframeStandMotion :
     LL_ALIGN_NEW
 public:
     // Constructor
-    LLKeyframeStandMotion(const LLUUID &id);
+    explicit LLKeyframeStandMotion(const LLUUID &id);
 
     // Destructor
     ~LLKeyframeStandMotion() override;

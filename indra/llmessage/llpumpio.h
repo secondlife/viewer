@@ -75,7 +75,7 @@ public:
     /**
      * @brief Constructor.
      */
-    LLPumpIO(apr_pool_t* pool);
+    explicit LLPumpIO(apr_pool_t* pool);
 
     /**
      * @brief Destructor.

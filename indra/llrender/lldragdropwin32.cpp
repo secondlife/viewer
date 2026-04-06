@@ -41,7 +41,7 @@ class LLDragDropWin32Target:
     public:
         ////////////////////////////////////////////////////////////////////////////////
         //
-        LLDragDropWin32Target( HWND  hWnd ) :
+        explicit LLDragDropWin32Target( HWND  hWnd ) :
             mRefCount( 1 ),
             mAppWindowHandle( hWnd ),
             mAllowDrop(false),

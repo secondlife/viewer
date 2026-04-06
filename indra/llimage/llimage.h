@@ -184,7 +184,7 @@ public:
     class DataLock : public LLSharedMutexLockTemplate<SHARED>
     {
     public:
-        DataLock(const LLImageBase* image)
+        explicit DataLock(const LLImageBase* image)
         : LLSharedMutexLockTemplate<SHARED>(image ? &image->mDataMutex : nullptr)
         {
         }

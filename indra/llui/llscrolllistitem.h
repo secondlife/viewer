@@ -123,7 +123,7 @@ public:
                       S32 column_padding);
 
 protected:
-    LLScrollListItem( const Params& );
+    explicit LLScrollListItem( const Params& );
 
 private:
     bool    mSelected;

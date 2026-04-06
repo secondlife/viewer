@@ -104,7 +104,7 @@ struct LLCoordFloater : LLCoord<LL_COORD_FLOATER>
 
     LLCoordFloater() = default;
     LLCoordFloater(F32 x, F32 y, LLFloater& floater);
-    LLCoordFloater(const LLCoordCommon& other, LLFloater& floater);
+    explicit LLCoordFloater(const LLCoordCommon& other, LLFloater& floater);
 
     LLCoordFloater& operator=(const LLCoordCommon& other)
     {
@@ -207,7 +207,7 @@ public:
     // Load translations for tooltips for standard buttons
     static void initClass();
 
-    LLFloater(const LLSD& key, const Params& params = getDefaultParams());
+    explicit LLFloater(const LLSD& key, const Params& params = getDefaultParams());
 
     virtual ~LLFloater();
 
@@ -561,7 +561,7 @@ public:
     struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>{};
 
 protected:
-    LLFloaterView (const Params& p);
+    explicit LLFloaterView (const Params& p);
     friend class LLUICtrlFactory;
 
 public:

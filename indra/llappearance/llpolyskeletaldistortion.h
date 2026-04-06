@@ -85,7 +85,7 @@ class alignas(16) LLPolySkeletalDistortion : public LLViewerVisualParam
 {
     LL_ALIGN_NEW
 public:
-    LLPolySkeletalDistortion(LLAvatarAppearance *avatarp);
+    explicit LLPolySkeletalDistortion(LLAvatarAppearance *avatarp);
     ~LLPolySkeletalDistortion();
 
     // Special: These functions are overridden by child classes

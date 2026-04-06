@@ -85,7 +85,7 @@ F32 LLFolderView::sAutoOpenTime = 1.f;
 class LLCloseAllFoldersFunctor : public LLFolderViewFunctor
 {
 public:
-    LLCloseAllFoldersFunctor(bool close) { mOpen = !close; }
+    explicit LLCloseAllFoldersFunctor(bool close) { mOpen = !close; }
     virtual ~LLCloseAllFoldersFunctor() {}
     virtual void doFolder(LLFolderViewFolder* folder);
     virtual void doItem(LLFolderViewItem* item);

@@ -147,7 +147,7 @@ public:
     // Create a copy of an inventory item from a pointer to another item
     // Note: Because InventoryItems are ref counted, reference copy (a = b)
     // is prohibited
-    LLInventoryItem(const LLInventoryItem* other);
+    explicit LLInventoryItem(const LLInventoryItem* other);
     virtual void copyItem(const LLInventoryItem* other); // LLRefCount requires custom copy
     void generateUUID() { mUUID.generate(); }
 protected:
@@ -243,7 +243,7 @@ public:
                         LLFolderType::EType preferred_type,
                         const std::string& name);
     LLInventoryCategory();
-    LLInventoryCategory(const LLInventoryCategory* other);
+    explicit LLInventoryCategory(const LLInventoryCategory* other);
     void copyCategory(const LLInventoryCategory* other); // LLRefCount requires custom copy
 protected:
     virtual ~LLInventoryCategory();

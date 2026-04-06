@@ -63,7 +63,7 @@ private:
 class LLLocale
 {
 public:
-    LLLocale(const std::string& locale_string);
+    explicit LLLocale(const std::string& locale_string);
     virtual ~LLLocale();
 
     static const std::string USER_LOCALE;

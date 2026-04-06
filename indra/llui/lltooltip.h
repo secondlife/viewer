@@ -42,7 +42,7 @@ public:
     {
         Params();
     };
-    LLToolTipView(const LLToolTipView::Params&);
+    explicit LLToolTipView(const LLToolTipView::Params&);
     bool handleHover(S32 x, S32 y, MASK mask) override;
     bool handleMouseDown(S32 x, S32 y, MASK mask) override;
     bool handleMiddleMouseDown(S32 x, S32 y, MASK mask) override;
@@ -106,7 +106,7 @@ public:
     F32 getVisibleTime() const;
     bool hasClickCallback() const;
 
-    LLToolTip(const Params& p);
+    explicit LLToolTip(const Params& p);
     virtual void initFromParams(const LLToolTip::Params& params);
 
     void getToolTipMessage(std::string & message) const;

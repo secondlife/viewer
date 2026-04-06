@@ -55,7 +55,7 @@ public:
         Params();
     };
 protected:
-    LLSpinCtrl(const Params&);
+    explicit LLSpinCtrl(const Params&);
     friend class LLUICtrlFactory;
 public:
     virtual ~LLSpinCtrl() = default;// Children all cleaned up by default view destructor.

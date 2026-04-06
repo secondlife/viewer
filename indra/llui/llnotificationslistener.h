@@ -39,7 +39,7 @@ class LLSD;
 class LLNotificationsListener : public LLEventAPI
 {
 public:
-    LLNotificationsListener(LLNotifications & notifications);
+    explicit LLNotificationsListener(LLNotifications & notifications);
     ~LLNotificationsListener();
 
 private:

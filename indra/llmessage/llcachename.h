@@ -50,7 +50,7 @@ using old_callback_t = void(*)(const LLUUID&, const std::string&, bool, void*);
 class LLCacheName
 {
 public:
-    LLCacheName(LLMessageSystem* msg);
+    explicit LLCacheName(LLMessageSystem* msg);
     LLCacheName(LLMessageSystem* msg, const LLHost& upstream_host);
     ~LLCacheName();
 

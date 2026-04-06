@@ -59,7 +59,7 @@ public:
     LLQuaternion(F32 x, F32 y, F32 z, F32 w);       // Initializes Quaternion to normalize(x, y, z, w)
     LLQuaternion(F32 angle, const LLVector4 &vec);  // Initializes Quaternion to axis_angle2quat(angle, vec)
     LLQuaternion(F32 angle, const LLVector3 &vec);  // Initializes Quaternion to axis_angle2quat(angle, vec)
-    LLQuaternion(const F32 *q);                     // Initializes Quaternion to normalize(x, y, z, w)
+    explicit LLQuaternion(const F32 *q);              // Initializes Quaternion to normalize(x, y, z, w)
     LLQuaternion(const LLVector3 &x_axis,
                  const LLVector3 &y_axis,
                  const LLVector3 &z_axis);          // Initializes Quaternion from Matrix3 = [x_axis ; y_axis ; z_axis]

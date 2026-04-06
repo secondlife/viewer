@@ -61,7 +61,7 @@ public:
     };
 
     // Constructor
-    LLHandMotion(const LLUUID &id);
+    explicit LLHandMotion(const LLUUID &id);
 
     // Destructor
     ~LLHandMotion() override;

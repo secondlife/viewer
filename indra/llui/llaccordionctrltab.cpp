@@ -58,7 +58,7 @@ public:
         Params();
     };
 
-    LLAccordionCtrlTabHeader(const LLAccordionCtrlTabHeader::Params& p);
+    explicit LLAccordionCtrlTabHeader(const LLAccordionCtrlTabHeader::Params& p);
 
     virtual ~LLAccordionCtrlTabHeader();
 

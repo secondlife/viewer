@@ -200,7 +200,7 @@ public:
     using name_stack_t = LLInitParam::Parser::name_stack_t;
     using element_start_callback_t = LLInitParam::BaseBlock*(*)(LLSimpleXUIParser&, const char* block_name);
 
-    LLSimpleXUIParser(element_start_callback_t element_cb = NULL);
+    explicit LLSimpleXUIParser(element_start_callback_t element_cb = NULL);
     virtual ~LLSimpleXUIParser();
 
     /*virtual*/ std::string getCurrentElementName();

@@ -103,9 +103,9 @@ public:
     static bool create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, bool usemipmaps = true);
 
 public:
-    LLImageGL(bool usemipmaps = true, bool allow_compression = true);
+    explicit LLImageGL(bool usemipmaps = true, bool allow_compression = true);
     LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps = true, bool allow_compression = true);
-    LLImageGL(const LLImageRaw* imageraw, bool usemipmaps = true, bool allow_compression = true);
+    explicit LLImageGL(const LLImageRaw* imageraw, bool usemipmaps = true, bool allow_compression = true);
 
     // For wrapping textures created via GL elsewhere with our API only. Use with caution.
     LLImageGL(LLGLuint mTexName, U32 components, LLGLenum target, LLGLint  formatInternal, LLGLenum formatPrimary, LLGLenum formatType, LLTexUnit::eTextureAddressMode addressMode);
@@ -350,7 +350,7 @@ public:
     // follows gSavedSettings "RenderGLMultiThreadedMedia"
     static bool sEnabledMedia;
 
-    LLImageGLThread(LLWindow* window);
+    explicit LLImageGLThread(LLWindow* window);
 
     // post a function to be executed on the LLImageGL background thread
     template <typename CALLABLE>

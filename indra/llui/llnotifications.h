@@ -243,7 +243,7 @@ public:
 
     LLNotificationForm();
     LLNotificationForm(const LLNotificationForm&);
-    LLNotificationForm(const LLSD& sd);
+    explicit LLNotificationForm(const LLSD& sd);
     LLNotificationForm(const std::string& name, const Params& p);
 
     LLSD asLLSD() const;
@@ -359,7 +359,7 @@ public:
             responder = NULL;
         }
 
-        Params(const std::string& _name)
+        explicit Params(const std::string& _name)
         :   name("name"),
             priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
             time_stamp("time"),
@@ -425,7 +425,7 @@ private:
     void cancel();
 
 public:
-    LLNotification(const LLSDParamAdapter<Params>& p);
+    explicit LLNotification(const LLSDParamAdapter<Params>& p);
 
     // Non-copyable
     LLNotification(const LLNotification&) = delete;
@@ -741,7 +741,7 @@ class LLNotificationChannelBase :
 {
     LOG_CLASS(LLNotificationChannelBase);
 public:
-    LLNotificationChannelBase(LLNotificationFilter filter)
+    explicit LLNotificationChannelBase(LLNotificationFilter filter)
     : mFilter(filter)
     , mItems()
     , mItemsMutex()
@@ -838,7 +838,7 @@ public:
         Multiple<std::string>               sources;
     };
 
-    LLNotificationChannel(const Params& p = Params());
+    explicit LLNotificationChannel(const Params& p = Params());
     LLNotificationChannel(const std::string& name, const std::string& parent, LLNotificationFilter filter);
 
     virtual ~LLNotificationChannel();

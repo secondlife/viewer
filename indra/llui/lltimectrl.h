@@ -72,7 +72,7 @@ public:
     static bool parseAMPM(const std::string& str);
 
 protected:
-    LLTimeCtrl(const Params&);
+    explicit LLTimeCtrl(const Params&);
     friend class LLUICtrlFactory;
 
 private:

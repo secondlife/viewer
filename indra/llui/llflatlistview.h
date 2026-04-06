@@ -75,7 +75,7 @@ public:
     class ItemReverseComparator : public ItemComparator
     {
     public:
-        ItemReverseComparator(const ItemComparator& comparator) : mComparator(comparator) {};
+        explicit ItemReverseComparator(const ItemComparator& comparator) : mComparator(comparator) {};
         virtual ~ItemReverseComparator() = default;
 
         virtual bool compare(const LLPanel* item1, const LLPanel* item2) const
@@ -314,7 +314,7 @@ protected:
     /** An adapter for a ItemComparator */
     struct ComparatorAdaptor
     {
-        ComparatorAdaptor(const ItemComparator& comparator) : mComparator(comparator) {};
+        explicit ComparatorAdaptor(const ItemComparator& comparator) : mComparator(comparator) {};
 
         bool operator()(const item_pair_t* item_pair1, const item_pair_t* item_pair2)
         {
@@ -326,7 +326,7 @@ protected:
 
 
     friend class LLUICtrlFactory;
-    LLFlatListView(const LLFlatListView::Params& p);
+    explicit LLFlatListView(const LLFlatListView::Params& p);
 
     /** Manage selection on mouse events */
     void onItemMouseClick(item_pair_t* item_pair, MASK mask);
@@ -508,7 +508,7 @@ public:
     bool hasMatchedItems();
 
 protected:
-    LLFlatListViewEx(const Params& p);
+    explicit LLFlatListViewEx(const Params& p);
 
     /**
      * Applies a message for empty list depend on passed argument.

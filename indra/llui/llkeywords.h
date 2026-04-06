@@ -139,7 +139,7 @@ public:
         // copy constructor
         WStringMapIndex(const WStringMapIndex& other);
         // constructor from a string (copies the string's data into the new object)
-        WStringMapIndex(const LLWString& str);
+        WStringMapIndex(const LLWString& str); // intentionally implicit — used as map key
         // constructor from pointer and length
         // NOTE: does NOT copy data, caller must ensure that the lifetime of the pointer exceeds that of the new object!
         WStringMapIndex(const llwchar *start, size_t length);

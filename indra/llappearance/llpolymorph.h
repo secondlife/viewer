@@ -44,7 +44,7 @@ class alignas(16) LLPolyMorphData
 {
     LL_ALIGN_NEW
 public:
-    LLPolyMorphData(const std::string& morph_name);
+    explicit LLPolyMorphData(const std::string& morph_name);
     ~LLPolyMorphData();
     LLPolyMorphData(const LLPolyMorphData &rhs);
 
@@ -79,7 +79,7 @@ private:
 class LLPolyVertexMask
 {
 public:
-    LLPolyVertexMask(LLPolyMorphData* morph_data);
+    explicit LLPolyVertexMask(LLPolyMorphData* morph_data);
     LLPolyVertexMask(const LLPolyVertexMask& pOther);
     ~LLPolyVertexMask();
 
@@ -147,7 +147,7 @@ class alignas(16) LLPolyMorphTarget : public LLViewerVisualParam
 {
     LL_ALIGN_NEW
 public:
-    LLPolyMorphTarget(LLPolyMesh *poly_mesh);
+    explicit LLPolyMorphTarget(LLPolyMesh *poly_mesh);
     ~LLPolyMorphTarget();
 
     // Special: These functions are overridden by child classes

@@ -41,7 +41,7 @@ class LLDataPacker;
 class FileCloser
 {
 public:
-    FileCloser( apr_file_t *file )
+    explicit FileCloser( apr_file_t *file )
     {
         mFile = file;
     }
@@ -85,7 +85,7 @@ using KeyVector = std::vector<Key>;
 //------------------------------------------------------------------------
 struct Joint
 {
-    Joint(const char *name)
+    explicit Joint(const char *name)
     {
         mName = name;
         mIgnore = false;

@@ -1473,7 +1473,7 @@ template<>
 LLColor3 convert_from_llsd<LLColor3>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
     if (type == TYPE_COL3)
-        return sd;
+        return LLColor3(sd);
     else
     {
         CONTROL_ERRS << "Invalid LLColor3 value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;

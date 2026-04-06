@@ -69,7 +69,7 @@ public:
         , mPriority(LLJoint::USE_MOTION_PRIORITY)
     {}
 
-    LLJointState(LLJoint* joint)
+    explicit LLJointState(LLJoint* joint)
         : mUsage(0)
         , mJoint(joint)
         , mWeight(0.f)

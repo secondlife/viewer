@@ -86,7 +86,7 @@ class BufferArrayStreamBuf : public std::streambuf
 public:
     /// Constructor increments the reference count on the
     /// BufferArray argument and calls release() on destruction.
-    BufferArrayStreamBuf(BufferArray * array);
+    explicit BufferArrayStreamBuf(BufferArray * array);
     virtual ~BufferArrayStreamBuf();
 
 private:
@@ -135,7 +135,7 @@ class BufferArrayStream : public std::iostream
 public:
     /// Constructor increments the reference count on the
     /// BufferArray argument and calls release() on destruction.
-    BufferArrayStream(BufferArray * ba);
+    explicit BufferArrayStream(BufferArray * ba);
     ~BufferArrayStream();
 
 protected:

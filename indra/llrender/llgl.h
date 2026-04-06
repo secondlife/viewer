@@ -240,7 +240,7 @@ protected:
 
 public:
     enum { CURRENT_STATE = -2, DISABLED_STATE = 0, ENABLED_STATE = 1 };
-    LLGLState(LLGLenum state, S32 enabled = CURRENT_STATE);
+    explicit LLGLState(LLGLenum state, S32 enabled = CURRENT_STATE);
     ~LLGLState();
     void setEnabled(S32 enabled);
     void enable() { setEnabled(ENABLED_STATE); }
@@ -255,13 +255,13 @@ protected:
 class LLGLEnableBlending : public LLGLState
 {
 public:
-    LLGLEnableBlending(bool enable);
+    explicit LLGLEnableBlending(bool enable);
 };
 
 class LLGLEnableAlphaReject : public LLGLState
 {
 public:
-    LLGLEnableAlphaReject(bool enable);
+    explicit LLGLEnableAlphaReject(bool enable);
 };
 
 // Enable with functor
@@ -282,14 +282,14 @@ public:
 class LLGLEnable : public LLGLState
 {
 public:
-    LLGLEnable(LLGLenum state) : LLGLState(state, ENABLED_STATE) {}
+    explicit LLGLEnable(LLGLenum state) : LLGLState(state, ENABLED_STATE) {}
 };
 
 /// TODO: Being deprecated.
 class LLGLDisable : public LLGLState
 {
 public:
-    LLGLDisable(LLGLenum state) : LLGLState(state, DISABLED_STATE) {}
+    explicit LLGLDisable(LLGLenum state) : LLGLState(state, DISABLED_STATE) {}
 };
 
 /*
@@ -332,7 +332,7 @@ class LLGLSquashToFarClip
 {
 public:
     LLGLSquashToFarClip();
-    LLGLSquashToFarClip(const glm::mat4& projection, U32 layer = 0);
+    explicit LLGLSquashToFarClip(const glm::mat4& projection, U32 layer = 0);
 
     void setProjectionMatrix(glm::mat4 projection, U32 layer);
 

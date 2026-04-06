@@ -47,7 +47,7 @@ public:
     };
 
 protected:
-    LLResizeBar(const LLResizeBar::Params& p);
+    explicit LLResizeBar(const LLResizeBar::Params& p);
     friend class LLUICtrlFactory;
 
 public:

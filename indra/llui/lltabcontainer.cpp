@@ -115,7 +115,7 @@ public:
 protected:
     friend class LLUICtrlFactory;
 
-    LLCustomButtonIconCtrl(const Params& p)
+    explicit LLCustomButtonIconCtrl(const Params& p)
     :   LLButton(p),
         mIcon(NULL),
         mIconAlignment(LLFontGL::HAlign::HCENTER),
@@ -187,7 +187,7 @@ struct LLPlaceHolderPanel : public LLPanel
 {
     // create dummy param block to register with "placeholder" nane
     struct Params : public LLPanel::Params{};
-    LLPlaceHolderPanel(const Params& p) : LLPanel(p)
+    explicit LLPlaceHolderPanel(const Params& p) : LLPanel(p)
     {}
 };
 static LLDefaultChildRegistry::Register<LLPlaceHolderPanel> r1("placeholder");

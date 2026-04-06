@@ -80,7 +80,7 @@ public:
     virtual ~LLCheckBoxCtrl();
 
 protected:
-    LLCheckBoxCtrl(const Params&);
+    explicit LLCheckBoxCtrl(const Params&);
     friend class LLUICtrlFactory;
 
 public:

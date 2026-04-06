@@ -55,7 +55,7 @@ public:
         Params();
     };
 protected:
-    LLSlider(const Params&);
+    explicit LLSlider(const Params&);
     friend class LLUICtrlFactory;
 public:
     virtual ~LLSlider();

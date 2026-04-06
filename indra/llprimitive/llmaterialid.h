@@ -35,11 +35,11 @@ class LLMaterialID
 {
 public:
     LLMaterialID();
-    LLMaterialID(const LLSD& pMaterialID);
-    LLMaterialID(const LLSD::Binary& pMaterialID);
-    LLMaterialID(const void* pMemory);
+    explicit LLMaterialID(const LLSD& pMaterialID);
+    explicit LLMaterialID(const LLSD::Binary& pMaterialID);
+    explicit LLMaterialID(const void* pMemory);
     LLMaterialID(const LLMaterialID& pOtherMaterialID);
-    LLMaterialID(const LLUUID& lluid);
+    explicit LLMaterialID(const LLUUID& lluid);
     ~LLMaterialID();
 
     bool          operator == (const LLMaterialID& pOtherMaterialID) const;

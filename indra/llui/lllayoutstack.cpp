@@ -381,7 +381,7 @@ public:
         Optional<bool> horizontal;
         Params() : horizontal("horizontal", false) {}
     };
-    LLImagePanel(const Params& p) : LLPanel(p), mHorizontal(p.horizontal) {}
+    explicit LLImagePanel(const Params& p) : LLPanel(p), mHorizontal(p.horizontal) {}
     virtual ~LLImagePanel() {}
 
     void draw()

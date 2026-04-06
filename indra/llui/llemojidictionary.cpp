@@ -75,7 +75,7 @@ std::list<std::string> llsd_array_to_list(const LLSD& sd, std::function<void(std
 
 struct emoji_filter_base
 {
-    emoji_filter_base(const std::string& needle)
+    explicit emoji_filter_base(const std::string& needle)
     {
         // Search without the colon (if present) so the user can type ':food' and see all emojis in the 'Food' category
         mNeedle = (boost::starts_with(needle, ":")) ? needle.substr(1) : needle;
@@ -88,7 +88,7 @@ protected:
 
 struct emoji_filter_shortcode_or_category_contains : public emoji_filter_base
 {
-    emoji_filter_shortcode_or_category_contains(const std::string& needle) : emoji_filter_base(needle) {}
+    explicit emoji_filter_shortcode_or_category_contains(const std::string& needle) : emoji_filter_base(needle) {}
 
     bool operator()(const LLEmojiDescriptor& descr) const
     {

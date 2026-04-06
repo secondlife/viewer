@@ -361,7 +361,7 @@ protected:
 class LLAudioData
 {
   public:
-    LLAudioData(const LLUUID &uuid);
+    explicit LLAudioData(const LLUUID &uuid);
     bool load();
 
     LLUUID         getID() const { return mID; }

@@ -51,11 +51,11 @@ public:
 public:
     LLColor3();                                  // Initializes LLColor3 to (0, 0, 0)
     LLColor3(F32 r, F32 g, F32 b);               // Initializes LLColor3 to (r, g, b)
-    LLColor3(const F32* vec);                    // Initializes LLColor3 to (vec[0]. vec[1], vec[2])
-    LLColor3(const char* color_string);          // html format color ie "#FFDDEE"
+    explicit LLColor3(const F32* vec);             // Initializes LLColor3 to (vec[0]. vec[1], vec[2])
+    explicit LLColor3(const char* color_string);   // html format color ie "#FFDDEE"
     explicit LLColor3(const LLColor4& color4);   // "explicit" to avoid automatic conversion
     explicit LLColor3(const LLVector4& vector4); // "explicit" to avoid automatic conversion
-    LLColor3(const LLSD& sd);
+    explicit LLColor3(const LLSD& sd);
 
     LLSD getValue() const
     {

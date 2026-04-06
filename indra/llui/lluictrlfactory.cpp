@@ -59,7 +59,7 @@ public:
         }
     };
 
-    LLUICtrlLocate(const Params& p) : LLUICtrl(p) {}
+    explicit LLUICtrlLocate(const Params& p) : LLUICtrl(p) {}
     virtual void draw() { }
 
 };

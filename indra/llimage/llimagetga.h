@@ -39,7 +39,7 @@ protected:
 
 public:
     LLImageTGA();
-    LLImageTGA(const std::string& file_name);
+    explicit LLImageTGA(const std::string& file_name);
 
     std::string getExtension() override { return std::string("tga"); }
     bool updateData() override;

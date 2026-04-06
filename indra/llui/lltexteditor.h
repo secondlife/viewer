@@ -71,7 +71,7 @@ public:
 
     void initFromParams(const Params&);
 protected:
-    LLTextEditor(const Params&);
+    explicit LLTextEditor(const Params&);
     friend class LLUICtrlFactory;
 public:
     //

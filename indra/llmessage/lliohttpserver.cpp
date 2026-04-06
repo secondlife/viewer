@@ -58,7 +58,7 @@ static void* sTimingCallbackData = NULL;
 class LLHTTPPipe : public LLIOPipe
 {
 public:
-    LLHTTPPipe(const LLHTTPNode& node)
+    explicit LLHTTPPipe(const LLHTTPNode& node)
         : mNode(node),
           mResponse(NULL),
           mState(STATE_INVOKE),

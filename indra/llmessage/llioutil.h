@@ -72,7 +72,7 @@ protected:
 class LLIOSleep : public LLIOPipe
 {
 public:
-    LLIOSleep(F64 sleep_seconds) : mSeconds(sleep_seconds) {}
+    explicit LLIOSleep(F64 sleep_seconds) : mSeconds(sleep_seconds) {}
     virtual ~LLIOSleep() = default;
 
 protected:

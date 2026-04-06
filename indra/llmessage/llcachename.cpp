@@ -106,7 +106,7 @@ public:
 class ReplySender
 {
 public:
-    ReplySender(LLMessageSystem* msg);
+    explicit ReplySender(LLMessageSystem* msg);
     ~ReplySender();
 
     void send(const LLUUID& id,
@@ -212,7 +212,7 @@ public:
 
     LLFrameTimer        mProcessTimer;
 
-    Impl(LLMessageSystem* msg);
+    explicit Impl(LLMessageSystem* msg);
     ~Impl();
 
     bool getName(const LLUUID& id, std::string& first, std::string& last, cache_map_t& default_names);

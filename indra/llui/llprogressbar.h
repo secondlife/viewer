@@ -44,7 +44,7 @@ public:
 
         Params();
     };
-    LLProgressBar(const Params&);
+    explicit LLProgressBar(const Params&);
     virtual ~LLProgressBar();
 
     void setValue(const LLSD& value) override;

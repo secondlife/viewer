@@ -182,10 +182,10 @@ public:
     // its own classes, we can also remove all the joint_num
     // constructors from LLJoint, LLViewerJoint, LLAvatarJoint, and
     // createAvatarJoint.
-    LLJoint(S32 joint_num);
+    explicit LLJoint(S32 joint_num);
 
     // *TODO: Only used for LLVOAvatarSelf::mScreenp.  *DOES NOT INITIALIZE mResetAfterRestoreOldXform*
-    LLJoint( const std::string &name, LLJoint *parent=NULL );
+    explicit LLJoint( const std::string &name, LLJoint *parent=NULL );
     virtual ~LLJoint();
 
 private:

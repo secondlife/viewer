@@ -45,7 +45,7 @@ public:
 
         Params();
     };
-    LLScrollColumnHeader(const Params&);
+    explicit LLScrollColumnHeader(const Params&);
     ~LLScrollColumnHeader();
 
     /*virtual*/ void draw();
@@ -143,7 +143,7 @@ public:
     static const Params& getDefaultParams();
 
     //NOTE: this is default constructible so we can store it in a map.
-    LLScrollListColumn(const Params& p = getDefaultParams(), LLScrollListCtrl* = NULL);
+    explicit LLScrollListColumn(const Params& p = getDefaultParams(), LLScrollListCtrl* = NULL);
 
     void setWidth(S32 width);
     S32 getWidth() const { return mWidth; }

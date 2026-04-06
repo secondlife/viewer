@@ -43,7 +43,7 @@ class LLHeadRotMotion :
 {
 public:
     // Constructor
-    LLHeadRotMotion(const LLUUID &id);
+    explicit LLHeadRotMotion(const LLUUID &id);
 
     // Destructor
     ~LLHeadRotMotion() override;
@@ -126,7 +126,7 @@ class LLEyeMotion :
 {
 public:
     // Constructor
-    LLEyeMotion(const LLUUID &id);
+    explicit LLEyeMotion(const LLUUID &id);
 
     // Destructor
     ~LLEyeMotion() override;

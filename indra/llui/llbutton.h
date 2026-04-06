@@ -146,7 +146,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLButton(const Params&);
+    explicit LLButton(const Params&);
 
 public:
 

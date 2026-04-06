@@ -113,7 +113,7 @@ public:
 
     //------------------------------------------------------------------------
 public:
-    LLLFSThread(bool threaded = true);
+    explicit LLLFSThread(bool threaded = true);
     ~LLLFSThread();
 
     // Return a Request handle

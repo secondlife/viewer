@@ -41,7 +41,7 @@ public:
     {};
 
 protected:
-    LLTextBox(const Params&);
+    explicit LLTextBox(const Params&);
     friend class LLUICtrlFactory;
 
 public:

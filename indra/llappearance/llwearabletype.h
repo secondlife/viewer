@@ -107,7 +107,7 @@ private:
     class LLWearableDictionary : public LLDictionary<LLWearableType::EType, WearableEntry>
     {
     public:
-        LLWearableDictionary(LLTranslationBridge::ptr_t& trans);
+        explicit LLWearableDictionary(LLTranslationBridge::ptr_t& trans);
         ~LLWearableDictionary() = default;
     };
 

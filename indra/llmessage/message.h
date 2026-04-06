@@ -925,7 +925,7 @@ extern LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 class LockMessageChecker: public LockMessageReader
 {
 public:
-    LockMessageChecker(LLMessageSystem* msgsystem);
+    explicit LockMessageChecker(LLMessageSystem* msgsystem);
 
     // For convenience, provide forwarding wrappers so you can call (e.g.)
     // checkAllMessages() on your LockMessageChecker instance instead of

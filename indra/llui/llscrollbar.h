@@ -72,7 +72,7 @@ public:
     };
 
 protected:
-    LLScrollbar (const Params & p);
+    explicit LLScrollbar (const Params & p);
     friend class LLUICtrlFactory;
 
 public:

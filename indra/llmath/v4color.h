@@ -47,7 +47,7 @@ public:
     LLColor4();                                 // Initializes LLColor4 to (0, 0, 0, 1)
     LLColor4(F32 r, F32 g, F32 b);              // Initializes LLColor4 to (r, g, b, 1)
     LLColor4(F32 r, F32 g, F32 b, F32 a);       // Initializes LLColor4 to (r. g, b, a)
-    LLColor4(const LLColor3& vec, F32 a = 1.f); // Initializes LLColor4 to (vec, a)
+    LLColor4(const LLColor3& vec, F32 a = 1.f); // intentionally implicit — common color widening
     explicit LLColor4(const LLSD& sd);
     explicit LLColor4(const F32* vec);           // Initializes LLColor4 to (vec[0]. vec[1], vec[2], 1)
     explicit LLColor4(U32 clr);                  // Initializes LLColor4 to (r=clr>>24, etc))

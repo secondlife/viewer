@@ -38,7 +38,7 @@ class LLCubeMap : public LLRefCount
 {
     bool mIssRGB;
 public:
-    LLCubeMap(bool init_as_srgb);
+    explicit LLCubeMap(bool init_as_srgb);
     void init(const std::vector<LLPointer<LLImageRaw> >& rawimages);
 
     // initialize as an undefined cubemap at the given resolution

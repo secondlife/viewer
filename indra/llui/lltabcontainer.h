@@ -126,7 +126,7 @@ public:
     };
 
 protected:
-    LLTabContainer(const Params&);
+    explicit LLTabContainer(const Params&);
     friend class LLUICtrlFactory;
 
 public:

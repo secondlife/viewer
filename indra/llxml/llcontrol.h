@@ -177,7 +177,7 @@ public:
     static eControlType typeStringToEnum(const std::string& typestr);
     static std::string typeEnumToString(eControlType typeenum);
 
-    LLControlGroup(const std::string& name);
+    explicit LLControlGroup(const std::string& name);
     ~LLControlGroup();
     void cleanup();
 

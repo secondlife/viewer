@@ -90,8 +90,8 @@ protected:
     LOG_CLASS(LLGLTexture);
 
 public:
-    LLGLTexture(bool usemipmaps = true);
-    LLGLTexture(const LLImageRaw* raw, bool usemipmaps) ;
+    explicit LLGLTexture(bool usemipmaps = true);
+    explicit LLGLTexture(const LLImageRaw* raw, bool usemipmaps) ;
     LLGLTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps) ;
 
     virtual void dump();    // debug info to LL_INFOS()

@@ -37,7 +37,7 @@ class LLBadgeOwner
 {
 public:
 
-    LLBadgeOwner(LLHandle< LLView > viewHandle);
+    explicit LLBadgeOwner(LLHandle< LLView > viewHandle);
 
     void initBadgeParams(const LLBadge::Params& p);
     void addBadgeToParentHolder();

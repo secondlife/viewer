@@ -46,7 +46,7 @@ protected:
     ~LLImageJPEG() override;
 
 public:
-    LLImageJPEG(S32 quality = 75);
+    explicit LLImageJPEG(S32 quality = 75);
 
     std::string getExtension() override { return std::string("jpg"); }
     bool updateData() override;

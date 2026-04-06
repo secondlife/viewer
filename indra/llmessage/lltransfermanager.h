@@ -162,7 +162,7 @@ protected:
 class LLTransferConnection
 {
 public:
-    LLTransferConnection(const LLHost &host);
+    explicit LLTransferConnection(const LLHost &host);
     virtual ~LLTransferConnection();
 
     void updateTransfers();
@@ -342,7 +342,7 @@ protected:
 class LLTransferTargetParams
 {
 public:
-    LLTransferTargetParams(const LLTransferTargetType type) : mType(type) {}
+    explicit LLTransferTargetParams(const LLTransferTargetType type) : mType(type) {}
     LLTransferTargetType getType() const        { return mType; }
 protected:
     LLTransferTargetType mType;

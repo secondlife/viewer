@@ -1974,7 +1974,7 @@ bool LLView::localRectToOtherView( const LLRect& local, LLRect* other, const LLV
 class CompareByTabOrder
 {
 public:
-    CompareByTabOrder(const LLView::child_tab_order_t& order, S32 default_tab_group = 0)
+    explicit CompareByTabOrder(const LLView::child_tab_order_t& order, S32 default_tab_group = 0)
         :   mTabOrder(order),
         mDefaultTabGroup(default_tab_group)
     {}

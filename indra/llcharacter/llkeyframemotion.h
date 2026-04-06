@@ -62,7 +62,7 @@ class LLKeyframeMotion :
     friend class LLKeyframeDataCache;
 public:
     // Constructor
-    LLKeyframeMotion(const LLUUID &id);
+    explicit LLKeyframeMotion(const LLUUID &id);
 
     // Destructor
     ~LLKeyframeMotion() override;
@@ -243,7 +243,7 @@ protected:
     class JointConstraint
     {
     public:
-        JointConstraint(JointConstraintSharedData* shared_data);
+        explicit JointConstraint(JointConstraintSharedData* shared_data);
         ~JointConstraint();
 
         JointConstraintSharedData*  mSharedData;

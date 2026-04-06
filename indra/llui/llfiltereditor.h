@@ -45,7 +45,7 @@ public:
     virtual ~LLFilterEditor() = default;
 
 protected:
-    LLFilterEditor(const Params&);
+    explicit LLFilterEditor(const Params&);
     friend class LLUICtrlFactory;
 
     void handleKeystroke() override;

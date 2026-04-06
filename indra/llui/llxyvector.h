@@ -79,7 +79,7 @@ public:
 
 protected:
     friend class LLUICtrlFactory;
-    LLXYVector(const Params&);
+    explicit LLXYVector(const Params&);
     void onEditChange();
 
 protected:

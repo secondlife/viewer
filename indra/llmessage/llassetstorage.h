@@ -82,7 +82,7 @@ public:
     LLAssetInfo( void );
     LLAssetInfo( const LLUUID& object_id, const LLUUID& creator_id,
                  LLAssetType::EType type, const char* name, const char* desc );
-    LLAssetInfo( const LLNameValue& nv );
+    explicit LLAssetInfo( const LLNameValue& nv );
 
     const std::string& getName( void ) const { return mName; }
     const std::string& getDescription( void ) const { return mDescription; }

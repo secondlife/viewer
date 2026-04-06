@@ -45,7 +45,7 @@ class LLTargetingMotion :
 {
 public:
     // Constructor
-    LLTargetingMotion(const LLUUID &id);
+    explicit LLTargetingMotion(const LLUUID &id);
 
     // Destructor
     ~LLTargetingMotion() override;

@@ -57,7 +57,7 @@ public:
 
         Params();
     };
-    LLStatBar(const Params&);
+    explicit LLStatBar(const Params&);
 
     virtual void draw();
     virtual bool handleMouseDown(S32 x, S32 y, MASK mask);

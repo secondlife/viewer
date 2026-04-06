@@ -293,7 +293,7 @@ public:
 
     void setNameSpace(const std::string& ns) {targetNamespace = ns; xmlns = ns;}
 
-    Schema(const std::string& ns = LLStringUtil::null)
+    explicit Schema(const std::string& ns = LLStringUtil::null)
     :   attributeFormDefault("attributeFormDefault"),
         elementFormDefault("elementFormDefault"),
         xs("xmlns:xs"),

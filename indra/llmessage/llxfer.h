@@ -83,7 +83,7 @@ class LLXfer
  private:
  protected:
  public:
-    LLXfer (S32 chunk_size);
+    explicit LLXfer (S32 chunk_size);
     virtual ~LLXfer();
 
     void init(S32 chunk_size);

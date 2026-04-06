@@ -67,7 +67,7 @@ class LLViewModel
 public:
     LLViewModel();
     /// Instantiate an LLViewModel with an existing data value
-    LLViewModel(const LLSD& value);
+    explicit LLViewModel(const LLSD& value);
 
     /// Update the stored value
     virtual void setValue(const LLSD& value);
@@ -95,7 +95,7 @@ class LLTextViewModel: public LLViewModel
 public:
     LLTextViewModel();
     /// Instantiate an LLViewModel with an existing data value
-    LLTextViewModel(const LLSD& value);
+    explicit LLTextViewModel(const LLSD& value);
 
     // LLViewModel functions
     virtual void setValue(const LLSD& value);
@@ -138,7 +138,7 @@ class LLListViewModel: public LLViewModel
 {
 public:
     LLListViewModel() = default;
-    LLListViewModel(const LLSD& values);
+    explicit LLListViewModel(const LLSD& values);
 
     virtual void addColumn(const LLSD& column, EAddPosition pos = EAddPosition::ADD_BOTTOM);
     virtual void clearColumns();

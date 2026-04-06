@@ -105,7 +105,7 @@ public:
         TCS_SRGB
     };
 
-    LLTexUnit(S32 index = -1);
+    explicit LLTexUnit(S32 index = -1);
 
     // Refreshes renderer state of the texture unit to the cached values
     // Needed when the render context has changed and invalidated the current state
@@ -195,7 +195,7 @@ protected:
 class LLLightState
 {
 public:
-    LLLightState(S32 index = -1);
+    explicit LLLightState(S32 index = -1);
 
     void enable();
     void disable();

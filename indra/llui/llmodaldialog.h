@@ -38,7 +38,7 @@ class LLModalDialog;
 class LLModalDialog : public LLFloater
 {
 public:
-    LLModalDialog( const LLSD& key, bool modal = true );
+    explicit LLModalDialog( const LLSD& key, bool modal = true );
     virtual     ~LLModalDialog();
 
     /*virtual*/ bool    postBuild();

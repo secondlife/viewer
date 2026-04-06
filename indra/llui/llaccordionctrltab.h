@@ -145,7 +145,7 @@ public:
     void restoreOpenCloseState();
 
 protected:
-    LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&);
+    explicit LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&);
     friend class LLUICtrlFactory;
 
 // Overrides

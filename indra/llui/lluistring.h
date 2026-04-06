@@ -59,8 +59,8 @@ public:
     // and modify mOrig where appropriate
     LLUIString() : mArgs(NULL), mNeedsResult(false), mNeedsWResult(false) {}
     LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args);
-    LLUIString(const std::string& instring) : mArgs(NULL) { assign(instring); }
-    LLUIString(const LLWString& instring) : mArgs(NULL) { assign(instring); }
+    LLUIString(const std::string& instring) : mArgs(NULL) { assign(instring); } // intentionally implicit — string wrapper
+    LLUIString(const LLWString& instring) : mArgs(NULL) { assign(instring); } // intentionally implicit — string wrapper
     ~LLUIString() { delete mArgs; }
 
     void assign(const std::string& instring);

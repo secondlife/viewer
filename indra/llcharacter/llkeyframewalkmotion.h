@@ -45,7 +45,7 @@ class LLKeyframeWalkMotion :
     friend class LLWalkAdjustMotion;
 public:
     // Constructor
-    LLKeyframeWalkMotion(const LLUUID &id);
+    explicit LLKeyframeWalkMotion(const LLUUID &id);
 
     // Destructor
     ~LLKeyframeWalkMotion() override;
@@ -83,7 +83,7 @@ class LLWalkAdjustMotion : public LLMotion
 {
 public:
     // Constructor
-    LLWalkAdjustMotion(const LLUUID &id);
+    explicit LLWalkAdjustMotion(const LLUUID &id);
 
 public:
     //-------------------------------------------------------------------------
@@ -133,7 +133,7 @@ class LLFlyAdjustMotion : public LLMotion
 {
 public:
     // Constructor
-    LLFlyAdjustMotion(const LLUUID &id);
+    explicit LLFlyAdjustMotion(const LLUUID &id);
 
 public:
     //-------------------------------------------------------------------------

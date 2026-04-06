@@ -69,7 +69,7 @@ public:
     void setCommitOnFocusLost(bool b)   { if (mSearchEditor) mSearchEditor->setCommitOnFocusLost(b); }
 
 protected:
-    LLSearchEditor(const Params&);
+    explicit LLSearchEditor(const Params&);
     friend class LLUICtrlFactory;
 
 public:

@@ -195,7 +195,7 @@ private:
 class LLXmlTreeParser : public LLXmlParser
 {
 public:
-    LLXmlTreeParser(LLXmlTree* tree);
+    explicit LLXmlTreeParser(LLXmlTree* tree);
     virtual ~LLXmlTreeParser();
 
     bool parseFile(const std::string &path, LLXmlTreeNode** root, bool keep_contents );

@@ -62,7 +62,7 @@ public:
     static void setupParamsForExport(Params& p, LLView* parent);
 
 protected:
-    LLRadioCtrl(const LLRadioGroup::ItemParams& p);
+    explicit LLRadioCtrl(const LLRadioGroup::ItemParams& p);
     friend class LLUICtrlFactory;
 
     LLSD mPayload;  // stores data that this item represents in the radio group

@@ -4740,7 +4740,7 @@ inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
 class LogChange
 {
 public:
-    LogChange(const std::string& tag):
+    explicit LogChange(const std::string& tag):
         mTag(tag)
     {}
 

@@ -50,7 +50,7 @@ public:
     {
     public:
         // register with either the provided builder, or the generic templated builder
-        Register(const char* tag, LLWidgetCreatorFunc func = NULL);
+        explicit Register(const char* tag, LLWidgetCreatorFunc func = NULL);
     };
 
 protected:

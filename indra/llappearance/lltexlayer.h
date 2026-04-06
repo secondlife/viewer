@@ -145,7 +145,7 @@ private:
 class LLTexLayer : public LLTexLayerInterface
 {
 public:
-    LLTexLayer(LLTexLayerSet* const layer_set);
+    explicit LLTexLayer(LLTexLayerSet* const layer_set);
     LLTexLayer(const LLTexLayer &layer, LLWearable *wearable);
     LLTexLayer(const LLTexLayerTemplate &layer_template, LLLocalTextureObject *lto, LLWearable *wearable);
     ~LLTexLayer() override;

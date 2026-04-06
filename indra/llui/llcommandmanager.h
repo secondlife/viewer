@@ -49,17 +49,17 @@ public:
         {}
     };
 
-    LLCommandId(const std::string& name)
+    explicit LLCommandId(const std::string& name)
     {
         mUUID = LLUUID::generateNewID(name);
     }
 
-    LLCommandId(const Params& p)
+    LLCommandId(const Params& p) // intentionally implicit — InitParam integration
     {
         mUUID = LLUUID::generateNewID(p.name);
     }
 
-    LLCommandId(const LLUUID& uuid)
+    explicit LLCommandId(const LLUUID& uuid)
     :   mUUID(uuid)
     {}
 
@@ -115,7 +115,7 @@ public:
         Params();
     };
 
-    LLCommand(const LLCommand::Params& p);
+    explicit LLCommand(const LLCommand::Params& p);
 
     const bool availableInToybox() const { return mAvailableInToybox; }
     const std::string& icon() const { return mIcon; }

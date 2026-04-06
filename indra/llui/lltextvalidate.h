@@ -59,9 +59,9 @@ namespace LLTextValidate
     {
     public:
         Validator() : mImpl(nullptr) {}
-        Validator(ValidatorImpl& impl) : mImpl(&impl) {}
+        Validator(ValidatorImpl& impl) : mImpl(&impl) {} // intentionally implicit — InitParam integration
         Validator(const Validator& validator) : mImpl(validator.mImpl) {}
-        Validator(const Validator* validator) : mImpl(validator->mImpl) {}
+        Validator(const Validator* validator) : mImpl(validator->mImpl) {} // intentionally implicit — InitParam integration
 
         bool validate(const std::string& str) const { return !mImpl || mImpl->validate(str); }
         bool validate(const LLWString& str) const { return !mImpl || mImpl->validate(str); }

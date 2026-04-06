@@ -195,7 +195,7 @@ protected:
 class LLTestMotion : public LLMotion
 {
 public:
-    LLTestMotion(const LLUUID &id) : LLMotion(id){}
+    explicit LLTestMotion(const LLUUID &id) : LLMotion(id){}
     ~LLTestMotion() = default;
     static LLMotion *create(const LLUUID& id) { return new LLTestMotion(id); }
     bool getLoop() override { return false; }
@@ -219,7 +219,7 @@ public:
 class LLNullMotion : public LLMotion
 {
 public:
-    LLNullMotion(const LLUUID &id) : LLMotion(id) {}
+    explicit LLNullMotion(const LLUUID &id) : LLMotion(id) {}
     ~LLNullMotion() = default;
     static LLMotion *create(const LLUUID &id) { return new LLNullMotion(id); }
 

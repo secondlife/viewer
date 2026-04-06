@@ -155,7 +155,7 @@ public:
 protected:
     friend class LLUICtrlFactory;
 
-    LLScrollListCtrl(const Params&);
+    explicit LLScrollListCtrl(const Params&);
 
 public:
     virtual ~LLScrollListCtrl();

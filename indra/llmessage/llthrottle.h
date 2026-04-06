@@ -38,7 +38,7 @@ class LLDataPacker;
 class LLThrottle
 {
 public:
-    LLThrottle(const F32 throttle = 1.f);
+    explicit LLThrottle(const F32 throttle = 1.f);
     ~LLThrottle() = default;
 
     void setRate(const F32 rate);
