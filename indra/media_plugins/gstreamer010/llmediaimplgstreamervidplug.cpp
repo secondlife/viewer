@@ -402,9 +402,9 @@ gst_slvideo_class_init (GstSLVideoClass * klass)
     GstElementClass *gstelement_class;
     GstBaseSinkClass *gstbasesink_class;
 
-    gobject_class = (GObjectClass *) klass;
-    gstelement_class = (GstElementClass *) klass;
-    gstbasesink_class = (GstBaseSinkClass *) klass;
+    gobject_class = reinterpret_cast<GObjectClass *>(klass);
+    gstelement_class = reinterpret_cast<GstElementClass *>(klass);
+    gstbasesink_class = reinterpret_cast<GstBaseSinkClass *>(klass);
 
     gobject_class->finalize = gst_slvideo_finalize;
     gobject_class->set_property = gst_slvideo_set_property;

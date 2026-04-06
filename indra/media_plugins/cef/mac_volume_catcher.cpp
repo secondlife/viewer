@@ -116,18 +116,18 @@ VolumeCatcherImpl::VolumeCatcherImpl()
 static ComponentResult volume_catcher_component_entry(ComponentParameters *cp, Handle componentStorage)
 {
     ComponentResult result = badComponentSelector;
-    VolumeCatcherStorage *storage = (VolumeCatcherStorage*)componentStorage;
+    VolumeCatcherStorage *storage = reinterpret_cast<VolumeCatcherStorage*>(componentStorage);
 
     switch(cp->what)
     {
         case kComponentOpenSelect:
 //          std::cerr << "kComponentOpenSelect" << std::endl;
-            result = CallComponentFunctionWithStorageProcInfo((Handle)storage, cp, (ProcPtr)volume_catcher_component_open, uppCallComponentOpenProcInfo);
+            result = CallComponentFunctionWithStorageProcInfo(reinterpret_cast<Handle>(storage), cp, reinterpret_cast<ProcPtr>(volume_catcher_component_open), uppCallComponentOpenProcInfo);
         break;
 
         case kComponentCloseSelect:
 //          std::cerr << "kComponentCloseSelect" << std::endl;
-            result = CallComponentFunctionWithStorageProcInfo((Handle)storage, cp, (ProcPtr)volume_catcher_component_close, uppCallComponentCloseProcInfo);
+            result = CallComponentFunctionWithStorageProcInfo(reinterpret_cast<Handle>(storage), cp, reinterpret_cast<ProcPtr>(volume_catcher_component_close), uppCallComponentCloseProcInfo);
             // CallComponentFunctionWithStorageProcInfo
         break;
 
@@ -162,7 +162,7 @@ static ComponentResult volume_catcher_component_open(VolumeCatcherStorage *stora
     else
     {
         // Success -- set up this component's storage
-        SetComponentInstanceStorage(self, (Handle)storage);
+        SetComponentInstanceStorage(self, reinterpret_cast<Handle>(storage));
 
         // add this instance to the global list
         impl->mComponentInstances.push_back(storage);

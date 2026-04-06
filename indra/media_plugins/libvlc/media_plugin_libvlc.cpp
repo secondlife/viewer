@@ -229,7 +229,7 @@ void MediaPluginLibVLC::setDurationDirty()
 //
 void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 {
-    MediaPluginLibVLC* parent = (MediaPluginLibVLC*)ptr;
+    MediaPluginLibVLC* parent = static_cast<MediaPluginLibVLC*>(ptr);
     if (parent == 0)
     {
         return;
@@ -412,7 +412,7 @@ void MediaPluginLibVLC::setVolumeVLC()
 {
     if (mLibVLCMediaPlayer)
     {
-        int vlc_vol = (int)(mCurVolume * 100);
+        int vlc_vol = static_cast<int>(mCurVolume * 100);
 
         int result = libvlc_audio_set_volume(mLibVLCMediaPlayer, vlc_vol);
         if (result == 0)
@@ -437,8 +437,8 @@ void MediaPluginLibVLC::setVolumeVLC()
         // by both CEF and VLC. That's for later. The code there boils down to this so for
                 // now, as we approach a release, the less risky option is to do it directly vs
                 // calls to volume catcher code.
-        DWORD left_channel = (DWORD)(mCurVolume * 65535.0f);
-        DWORD right_channel = (DWORD)(mCurVolume * 65535.0f);
+        DWORD left_channel = static_cast<DWORD>(mCurVolume * 65535.0f);
+        DWORD right_channel = static_cast<DWORD>(mCurVolume * 65535.0f);
         DWORD hw_volume = left_channel << 16 | right_channel;
         waveOutSetVolume(NULL, hw_volume);
 #endif
@@ -510,7 +510,7 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
             {
                 SharedSegmentInfo info;
                 info.mAddress = message_in.getValuePointer("address");
-                info.mSize = (size_t)message_in.getValueS32("size");
+                info.mSize = static_cast<size_t>(message_in.getValueS32("size"));
                 std::string name = message_in.getValue("name");
 
                 mSharedSegments.insert(SharedSegmentMap::value_type(name, info));
@@ -577,7 +577,7 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
                     SharedSegmentMap::iterator iter = mSharedSegments.find(name);
                     if (iter != mSharedSegments.end())
                     {
-                        mPixels = (unsigned char*)iter->second.mAddress;
+                        mPixels = static_cast<unsigned char*>(iter->second.mAddress);
                         mWidth = width;
                         mHeight = height;
                         mTextureWidth = texture_width;
@@ -598,7 +598,7 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
                             }
                             else
                             {
-                                mCurTime = (F64)time / 1000.0;
+                                mCurTime = static_cast<F64>(time) / 1000.0;
                             }
                         }
                     };
@@ -663,7 +663,7 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
                         }
                         else
                         {
-                            mCurTime = (F64)time / 1000.0;
+                            mCurTime = static_cast<F64>(time) / 1000.0;
                         }
 
                         if (!libvlc_media_player_is_playing(mLibVLCMediaPlayer))
@@ -708,7 +708,7 @@ int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func,
 {
     MediaPluginLibVLC* self = new MediaPluginLibVLC(host_send_func, host_user_data);
     *plugin_send_func = MediaPluginLibVLC::staticReceiveMessage;
-    *plugin_user_data = (void*)self;
+    *plugin_user_data = static_cast<void*>(self);
 
     return 0;
 }

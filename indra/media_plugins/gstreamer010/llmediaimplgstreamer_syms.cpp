@@ -75,7 +75,7 @@ bool grab_gst_syms(std::string gst_dso_name,
     apr_status_t rv;
     apr_dso_handle_t *sSymGSTDSOHandle = NULL;
 
-#define LL_GST_SYM(REQ, GSTSYM, RTN, ...) do{rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll##GSTSYM, sSymGSTDSOHandle, #GSTSYM); if (rv != APR_SUCCESS) {INFOMSG("Failed to grab symbol: %s", #GSTSYM); if (REQ) sym_error = true;} else DEBUGMSG("grabbed symbol: %s from %p", #GSTSYM, (void*)ll##GSTSYM);}while(0)
+#define LL_GST_SYM(REQ, GSTSYM, RTN, ...) do{rv = apr_dso_sym(reinterpret_cast<apr_dso_handle_sym_t*>(&ll##GSTSYM), sSymGSTDSOHandle, #GSTSYM); if (rv != APR_SUCCESS) {INFOMSG("Failed to grab symbol: %s", #GSTSYM); if (REQ) sym_error = true;} else DEBUGMSG("grabbed symbol: %s from %p", #GSTSYM, reinterpret_cast<void*>(ll##GSTSYM));}while(0)
 
     //attempt to load the shared libraries
     apr_pool_create(&sSymGSTDSOMemoryPool, NULL);
