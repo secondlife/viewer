@@ -864,7 +864,7 @@ int HttpOpRequest::seekCallback(void *userdata, curl_off_t offset, int origin)
         return 2;
     }
 
-    op->mCurlBodyPos = (size_t)newPos;
+    op->mCurlBodyPos = newPos;
 
     return 0;
 }

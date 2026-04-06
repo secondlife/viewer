@@ -498,7 +498,7 @@ static S32 zero_code(U8 **data, U32 *data_size)
     S32 net_gain = 0;
     U8 num_zeroes = 0;
 
-    const U8 *inptr = (U8 *)*data;
+    const U8 *inptr = (*data);
     U8 *outptr = (U8 *)encodedSendBuffer;
 
 // skip the packet id field

@@ -623,7 +623,7 @@ bool LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
     }
     else // collision volume
     {
-        if (volume_num >= (S32)mNumCollisionVolumes)
+        if (volume_num >= mNumCollisionVolumes)
         {
             LL_WARNS() << "Too many collision volumes" << LL_ENDL;
             return false;

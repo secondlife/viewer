@@ -1424,13 +1424,13 @@ void LLVertexBuffer::_unmapBuffer()
                 }
                 else
                 {
-                    flush_vbo(GL_ARRAY_BUFFER, start, end, (U8*)mMappedData + start, mMappedData);
+                    flush_vbo(GL_ARRAY_BUFFER, start, end, mMappedData + start, mMappedData);
                     start = region.mStart;
                     end = region.mEnd;
                 }
             }
 
-            flush_vbo(GL_ARRAY_BUFFER, start, end, (U8*)mMappedData + start, mMappedData);
+            flush_vbo(GL_ARRAY_BUFFER, start, end, mMappedData + start, mMappedData);
             mMappedVertexRegions.clear();
         }
 
@@ -1456,13 +1456,13 @@ void LLVertexBuffer::_unmapBuffer()
                 }
                 else
                 {
-                    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, (U8*)mMappedIndexData + start, mMappedIndexData);
+                    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, mMappedIndexData + start, mMappedIndexData);
                     start = region.mStart;
                     end = region.mEnd;
                 }
             }
 
-            flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, (U8*)mMappedIndexData + start, mMappedIndexData);
+            flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, mMappedIndexData + start, mMappedIndexData);
             mMappedIndexRegions.clear();
         }
     }

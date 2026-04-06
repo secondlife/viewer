@@ -356,7 +356,7 @@ F64 Recording::getSum( const StatType<EventAccumulator>& stat)
     update();
     const EventAccumulator& accumulator = mBuffers->mEvents[stat.getIndex()];
     const EventAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mEvents[stat.getIndex()] : NULL;
-    return (F64)(accumulator.getSum() + (active_accumulator && active_accumulator->hasValue() ? active_accumulator->getSum() : 0));
+    return (accumulator.getSum() + (active_accumulator && active_accumulator->hasValue() ? active_accumulator->getSum() : 0));
 }
 
 F64 Recording::getMin( const StatType<EventAccumulator>& stat )
@@ -715,7 +715,7 @@ F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<EventAccumulat
     }
 
     return valid_period_count
-            ? sqrt((F64)sum_of_squares / (F64)valid_period_count)
+            ? sqrt(sum_of_squares / (F64)valid_period_count)
             : NaN;
 }
 

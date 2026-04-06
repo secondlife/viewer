@@ -598,7 +598,7 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         }
         else
         {
-            mCloudShadow = lerp(mCloudShadow, (F32)other->mCloudShadow, (F32)blendf);
+            mCloudShadow = lerp(mCloudShadow, other->mCloudShadow, (F32)blendf);
         }
 
         mSettingFlags |= other->mSettingFlags;

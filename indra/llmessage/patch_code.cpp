@@ -48,8 +48,8 @@ void    code_patch_group_header(LLBitPack &bitpack, LLGroupHeader *gopp)
 #else
     bitpack.bitPack((U8 *)&gopp->stride, 16);
 #endif
-    bitpack.bitPack((U8 *)&gopp->patch_size, 8);
-    bitpack.bitPack((U8 *)&gopp->layer_type, 8);
+    bitpack.bitPack((&gopp->patch_size), 8);
+    bitpack.bitPack((&gopp->layer_type), 8);
 
     gPatchSize = gopp->patch_size;
 }
@@ -92,7 +92,7 @@ void    code_patch_header(LLBitPack &bitpack, LLPatchHeader *ph, S32 *patch)
 
     ph->quant_wbits |= (wbits - 2);
 
-    bitpack.bitPack((U8 *)&ph->quant_wbits, 8);
+    bitpack.bitPack((&ph->quant_wbits), 8);
 #ifdef LL_BIG_ENDIAN
     U8 *offset = (U8 *)&ph->dc_offset;
     bitpack.bitPack(&(offset[3]), 8);

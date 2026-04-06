@@ -1101,7 +1101,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 {
-    S32 text_length = (S32)getLength();
+    S32 text_length = getLength();
     if (pos >= text_length || pos < 0)
     {
         return 0; // nothing to remove
@@ -1179,7 +1179,7 @@ S32 LLTextBase::overwriteCharNoUndo(S32 pos, llwchar wc)
         beforeValueChange();
     }
 
-    if (pos > (S32)getLength())
+    if (pos > getLength())
     {
         return 0;
     }
@@ -3166,7 +3166,7 @@ bool LLTextBase::setCursorPos(S32 cursor_pos, bool keep_cursor_offset)
         new_cursor_pos = getEditableIndex(new_cursor_pos, new_cursor_pos >= mCursorPos);
     }
 
-    mCursorPos = llclamp(new_cursor_pos, 0, (S32)getLength());
+    mCursorPos = llclamp(new_cursor_pos, 0, getLength());
     needsScroll();
     if (!keep_cursor_offset)
         updateCursorXPos();

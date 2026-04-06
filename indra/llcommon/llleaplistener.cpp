@@ -98,7 +98,7 @@ LLLeapListener::LLLeapListener(const ConnectFunc& connect):
         LLSD().with("api", LLSD()));
     add("getFeatures",
         "Return an LLSD map of feature strings (deltas from baseline LEAP protocol)",
-        static_cast<void (LLLeapListener::*)(const LLSD&) const>(&LLLeapListener::getFeatures));
+        (&LLLeapListener::getFeatures));
     add("getFeature",
         "Return the feature value with key [\"feature\"]",
         &LLLeapListener::getFeature,

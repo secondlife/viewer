@@ -402,7 +402,7 @@ void LLTextEditor::selectNext(const std::string& search_text_in, bool case_insen
     mIsSelecting = true;
     mSelectedOnFocusReceived = false;
     mSelectionEnd = mCursorPos;
-    mSelectionStart = llmin((S32)getLength(), (S32)(mCursorPos + search_text.size()));
+    mSelectionStart = llmin(getLength(), (S32)(mCursorPos + search_text.size()));
 }
 
 bool LLTextEditor::replaceText(const std::string& search_text_in, const std::string& replace_text,
@@ -1096,7 +1096,7 @@ S32 LLTextEditor::remove(S32 pos, S32 length, bool group_with_next_op)
 
 S32 LLTextEditor::overwriteChar(S32 pos, llwchar wc)
 {
-    if ((S32)getLength() == pos)
+    if (getLength() == pos)
     {
         return addChar(pos, wc);
     }

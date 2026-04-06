@@ -155,7 +155,7 @@ void LLOctreeTriangleRayIntersect::visit(const LLOctreeNode<LLVolumeTriangle, LL
 
                 if (mTexCoord != NULL && mFace->mTexCoords)
                 {
-                    LLVector2* tc = (LLVector2*) mFace->mTexCoords;
+                    LLVector2* tc = mFace->mTexCoords;
                     *mTexCoord = ((1.f - a - b)  * tc[idx0] +
                         a              * tc[idx1] +
                         b              * tc[idx2]);

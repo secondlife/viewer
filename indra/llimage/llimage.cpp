@@ -2605,7 +2605,7 @@ void LLImageBase::generateMip(const U8* indata, U8* mipdata, S32 width, S32 heig
                 avg4_colors2(indata, indata+2, indata+2*in_width, indata+2*in_width+2, data);
                 break;
               case 1:
-                *(U8*)data = (U8)(((U32)(indata[0]) + indata[1] + indata[in_width] + indata[in_width+1])>>2);
+                *data = (U8)(((U32)(indata[0]) + indata[1] + indata[in_width] + indata[in_width+1])>>2);
                 break;
               default:
                 LL_ERRS() << "generateMmip called with bad num channels" << LL_ENDL;

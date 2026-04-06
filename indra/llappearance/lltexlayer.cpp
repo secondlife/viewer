@@ -1909,7 +1909,7 @@ LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name,
             tex->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
 
             mStaticImageList [ namekey ] = tex;
-            mGLBytes += (S32)tex->getWidth() * tex->getHeight() * tex->getComponents();
+            mGLBytes += tex->getWidth() * tex->getHeight() * tex->getComponents();
         }
         else
         {

@@ -371,7 +371,7 @@ void LLGLTexture::setTexelsPerImage()
 {
     U32 fullwidth = llmin(mFullWidth,U32(MAX_IMAGE_SIZE_DEFAULT));
     U32 fullheight = llmin(mFullHeight,U32(MAX_IMAGE_SIZE_DEFAULT));
-    mTexelsPerImage = (U32)fullwidth * fullheight;
+    mTexelsPerImage = fullwidth * fullheight;
 }
 
 static LLUUID sStubUUID;

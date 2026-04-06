@@ -197,7 +197,7 @@ LLSD LLSaleInfo::packMessage() const
     LLSD result;
 
     U8 sale_type = static_cast<U8>(mSaleType);
-    result["sale-type"]     = (U8)sale_type;
+    result["sale-type"]     = sale_type;
     result["sale-price"]    = (S32)mSalePrice;
     //result[_PREHASH_NextOwnerMask] = mNextOwnerPermMask;
     return result;

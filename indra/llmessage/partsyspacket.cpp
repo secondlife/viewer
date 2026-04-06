@@ -1144,8 +1144,8 @@ bool LLPartSysCompressedPacket::fromLLPartInitData(LLPartInitData *in, U32 &byte
         currByte = writeAlpha_range(in, currByte);
     }
 
-    mData[currByte++] = (U8)in->maxParticles;
-    mData[currByte++] = (U8)in->initialParticles;
+    mData[currByte++] = in->maxParticles;
+    mData[currByte++] = in->initialParticles;
 
 
     U32 flagFlag = 1; // flag indicating which flag bytes are non-zero

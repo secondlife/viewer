@@ -210,8 +210,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     // Not guaranteed to be set correctly
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-    cur_x = ((F32)x * sScaleX) + origin.mV[VX];
-    cur_y = ((F32)y * sScaleY) + origin.mV[VY];
+    cur_x = (x * sScaleX) + origin.mV[VX];
+    cur_y = (y * sScaleY) + origin.mV[VY];
 
     // Offset y by vertical alignment.
     // use unscaled font metrics here
@@ -426,7 +426,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         static LLWString elipses_wstr(utf8string_to_wstring(std::string("...")));
         render(elipses_wstr,
                 0,
-                (cur_x - origin.mV[VX]) / sScaleX, (F32)y,
+                (cur_x - origin.mV[VX]) / sScaleX, y,
                 color,
                 HAlign::LEFT, valign,
                 style_to_add,

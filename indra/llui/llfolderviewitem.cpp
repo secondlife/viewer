@@ -1066,7 +1066,7 @@ void LLFolderViewItem::draw()
         }
         else
         {
-            S32 label_filter_length = llmin((S32)mLabel.size() - filter_offset, (S32)filter_string_length);
+            S32 label_filter_length = llmin((S32)mLabel.size() - filter_offset, filter_string_length);
             if(label_filter_length > 0)
             {
                 S32 left = (S32)(ll_round(text_left) + font->getWidthF32(mLabel.c_str(), 0, llmin(filter_offset, (S32)mLabel.size()))) - 2;
@@ -1133,7 +1133,7 @@ void LLFolderViewItem::draw()
         }
         else
         {
-            S32 label_filter_length = llmin((S32)mLabel.size() - filter_offset, (S32)filter_string_length);
+            S32 label_filter_length = llmin((S32)mLabel.size() - filter_offset, filter_string_length);
             if(label_filter_length > 0)
             {
                 F32 match_string_left = text_left + font->getWidthF32(mLabel.c_str(), 0, filter_offset + label_filter_length) - font->getWidthF32(mLabel.c_str(), filter_offset, label_filter_length);

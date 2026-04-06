@@ -296,9 +296,9 @@ void LLModel::normalizeVolumeFaces()
 
             // For all the positions, we scale
             // the positions to fit within the unit cube.
-            LLVector4a* pos = (LLVector4a*) face.mPositions;
-            LLVector4a* norm = (LLVector4a*) face.mNormals;
-            LLVector4a* t = (LLVector4a*)face.mTangents;
+            LLVector4a* pos = face.mPositions;
+            LLVector4a* norm = face.mNormals;
+            LLVector4a* t = face.mTangents;
 
             for (S32 j = 0; j < face.mNumVertices; ++j)
             {
@@ -436,9 +436,9 @@ void LLModel::normalizeVolumeFacesAndWeights()
 
             // For all the positions, we scale
             // the positions to fit within the unit cube.
-            LLVector4a* pos = (LLVector4a*)face.mPositions;
-            LLVector4a* norm = (LLVector4a*)face.mNormals;
-            LLVector4a* t = (LLVector4a*)face.mTangents;
+            LLVector4a* pos = face.mPositions;
+            LLVector4a* norm = face.mNormals;
+            LLVector4a* t = face.mTangents;
 
             for (S32 j = 0; j < face.mNumVertices; ++j)
             {
@@ -621,7 +621,7 @@ void LLModel::generateNormals(F32 angle_cutoff)
         //create faceted copy of current face with no texture coordinates (step 1)
         LLVolumeFace faceted;
 
-        LLVector4a* src_pos = (LLVector4a*) vol_face.mPositions;
+        LLVector4a* src_pos = vol_face.mPositions;
         //LLVector4a* src_norm = (LLVector4a*) vol_face.mNormals;
 
 

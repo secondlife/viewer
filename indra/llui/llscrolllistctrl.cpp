@@ -668,7 +668,7 @@ bool LLScrollListCtrl::updateColumnWidths()
         S32 new_width = 0;
         if (column->mRelWidth >= 0)
         {
-            new_width = (S32)ll_round(column->mRelWidth*mItemListRect.getWidth());
+            new_width = ll_round(column->mRelWidth*mItemListRect.getWidth());
         }
         else if (column->mDynamicWidth)
         {
@@ -2513,9 +2513,9 @@ bool LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char)
     }
 
     // type ahead search is case insensitive
-    uni_char = LLStringOps::toLower((llwchar)uni_char);
+    uni_char = LLStringOps::toLower(uni_char);
 
-    if (selectItemByPrefix(wstring_to_utf8str(mSearchString + (llwchar)uni_char), false))
+    if (selectItemByPrefix(wstring_to_utf8str(mSearchString + uni_char), false))
     {
         // update search string only on successful match
         mNeedsScroll = true;
@@ -2529,7 +2529,7 @@ bool LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char)
         }
     }
     // handle iterating over same starting character
-    else if (isRepeatedChars(mSearchString + (llwchar)uni_char) && !mItemList.empty())
+    else if (isRepeatedChars(mSearchString + uni_char) && !mItemList.empty())
     {
         // start from last selected item, in case we previously had a successful match against
         // duplicated characters ('AA' matches 'Aaron')
@@ -2962,7 +2962,7 @@ void LLScrollListCtrl::addColumn(const LLScrollListColumn::Params& column_params
             }
             if (new_column->mRelWidth >= 0)
             {
-                new_column->setWidth((S32)ll_round(new_column->mRelWidth*mItemListRect.getWidth()));
+                new_column->setWidth(ll_round(new_column->mRelWidth*mItemListRect.getWidth()));
             }
             else if(new_column->mDynamicWidth)
             {

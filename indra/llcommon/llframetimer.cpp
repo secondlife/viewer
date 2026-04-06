@@ -146,5 +146,5 @@ F32  LLFrameTimer::getCurrentFrameTime()
 // Glue code to avoid full class .h file #includes
 F32  getCurrentFrameTime()
 {
-    return (F32)(LLFrameTimer::getCurrentFrameTime());
+    return LLFrameTimer::getCurrentFrameTime();
 }

@@ -496,7 +496,7 @@ void LLXferManager::requestVFile(const LLUUID& local_id,
         #endif  // LL_XFER_DIAGNOISTIC_LOGGING
 
         addToList(xfer_p, mReceiveList, is_priority);
-        ((LLXfer_VFile *)xfer_p)->initializeRequest(getNextID(),
+        (xfer_p)->initializeRequest(getNextID(),
             local_id,
             remote_id,
             type,

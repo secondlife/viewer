@@ -46,12 +46,12 @@ LLKeyboardWin32::LLKeyboardWin32()
     KEY cur_char;
     for (cur_char = 'A'; cur_char <= 'Z'; cur_char++)
     {
-        mTranslateKeyMap[cur_char] = (KEY)cur_char;
+        mTranslateKeyMap[cur_char] = cur_char;
     }
 
     for (cur_char = '0'; cur_char <= '9'; cur_char++)
     {
-        mTranslateKeyMap[cur_char] = (KEY)cur_char;
+        mTranslateKeyMap[cur_char] = cur_char;
     }
     // numpad number keys
     for (cur_char = 0x60; cur_char <= 0x69; cur_char++)

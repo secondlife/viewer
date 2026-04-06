@@ -2837,7 +2837,7 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
 
     S32 count = (*data_size);
 
-    const U8 *inptr = (U8 *)*data;
+    const U8 *inptr = (*data);
     U8 *outptr = (U8 *)mEncodedRecvBuffer;
 
 // skip the packet id field

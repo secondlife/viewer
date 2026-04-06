@@ -451,7 +451,7 @@ void LLLineEditor::setText(const LLStringExplicit &new_text, bool use_size_limit
         // try to preserve insertion point, but deselect text
         deselect();
     }
-    setCursor(llmin((S32)mText.length(), getCursor()));
+    setCursor(llmin(mText.length(), getCursor()));
 
     // Set current history line to end of history.
     if (mLineHistory.empty())
@@ -892,7 +892,7 @@ bool LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
                 mScrollHPos = llclamp(mScrollHPos - increment, 0, mText.length());
             }
             else
-            if( (x > mTextRightEdge) && (mCursorPos < (S32)mText.length()) )
+            if( (x > mTextRightEdge) && (mCursorPos < mText.length()) )
             {
                 // If scrolling one pixel would make a difference...
                 S32 pixels_after_scrolling_one_char = findPixelNearestPos(1);
@@ -2150,7 +2150,7 @@ void LLLineEditor::draw()
         {
             mFontBufferLabel.render(mGLFont,
                             mLabel.getWString(), 0,
-                            (F32)mTextLeftEdge, (F32)text_bottom,
+                            (F32)mTextLeftEdge, text_bottom,
                             label_color,
                             LLFontGL::HAlign::LEFT,
                             LLFontGL::VAlign::BOTTOM,
@@ -2176,7 +2176,7 @@ void LLLineEditor::draw()
         {
             mFontBufferLabel.render(mGLFont,
                             mLabel.getWString(), 0,
-                            (F32)mTextLeftEdge, (F32)text_bottom,
+                            (F32)mTextLeftEdge, text_bottom,
                             label_color,
                             LLFontGL::HAlign::LEFT,
                             LLFontGL::VAlign::BOTTOM,

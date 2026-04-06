@@ -1872,7 +1872,7 @@ void LLFolderView::update()
             bool needs_arrange = needsArrange() || getRoot()->needsArrange();
             if (mParentFolder)
             {
-                needs_arrange |= (bool)mParentFolder->needsArrange();
+                needs_arrange |= mParentFolder->needsArrange();
             }
             if (!needs_arrange || !is_visible)
             {

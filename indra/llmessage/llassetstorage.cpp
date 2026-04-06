@@ -1463,7 +1463,7 @@ void LLAssetStorage::reportMetric( const LLUUID& asset_id, const LLAssetType::ET
         stats["asset_type"] = asset_type;
         stats["filename"] = filename;
         stats["agent_id"] = agent_id;
-        stats["asset_size"] = (S32)asset_size;
+        stats["asset_size"] = asset_size;
         stats["result"] = (S32)result;
 
         metric_recipient->recordEventDetails( metric_name, new_message.str(), success, stats);

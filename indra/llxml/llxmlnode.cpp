@@ -1651,7 +1651,7 @@ const char *LLXMLNode::parseFloat(const char *str, F64 *dest, U32 precision, Enc
     {
         U64 bytes_dest;
         bool is_negative;
-        str = parseInteger(str, (U64 *)&bytes_dest, &is_negative, precision, Encoding::ENCODING_HEX);
+        str = parseInteger(str, (&bytes_dest), &is_negative, precision, Encoding::ENCODING_HEX);
         // Upcast to F64
         switch (precision)
         {
@@ -2944,7 +2944,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                     error_buffer.append(llformat("ERROR Node %s: Could not read boolean array, child %s.\n", mName->mString, node->mName->mString));
                     return false;
                 }
-                for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                for (U32 pos=0; pos<node->mLength; ++pos)
                 {
                     if (bool_array[pos])
                     {
@@ -2963,7 +2963,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                         error_buffer.append(llformat("ERROR Node %s: Could not read integer array, child %s.\n", mName->mString, node->mName->mString));
                         return false;
                     }
-                    for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                    for (U32 pos=0; pos<node->mLength; ++pos)
                     {
                         integer_checksum ^= integer_array[pos];
                     }
@@ -2976,7 +2976,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                         error_buffer.append(llformat("ERROR Node %s: Could not read long integer array, child %s.\n", mName->mString, node->mName->mString));
                         return false;
                     }
-                    for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                    for (U32 pos=0; pos<node->mLength; ++pos)
                     {
                         long_checksum ^= integer_array[pos];
                     }
@@ -2993,7 +2993,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                         error_buffer.append(llformat("ERROR Node %s: Could not read float array, child %s.\n", mName->mString, node->mName->mString));
                         return false;
                     }
-                    for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                    for (U32 pos=0; pos<node->mLength; ++pos)
                     {
                         U32 float_bits = ((U32 *)float_array)[pos];
                         float_checksum ^= (float_bits & 0xfffff000);
@@ -3007,7 +3007,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                         error_buffer.append(llformat("ERROR Node %s: Could not read float array, child %s.\n", mName->mString, node->mName->mString));
                         return false;
                     }
-                    for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                    for (U32 pos=0; pos<node->mLength; ++pos)
                     {
                         U64 float_bits = ((U64 *)float_array)[pos];
                         float_checksum ^= ((float_bits & 0xfffffff000000000ll) >> 32);
@@ -3025,7 +3025,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                     error_buffer.append(llformat("ERROR Node %s: Could not read uuid array, child %s.\n", mName->mString, node->mName->mString));
                     return false;
                 }
-                for (U32 pos=0; pos<(U32)node->mLength; ++pos)
+                for (U32 pos=0; pos<node->mLength; ++pos)
                 {
                     for (S32 byte=0; byte<UUID_BYTES; ++byte)
                     {

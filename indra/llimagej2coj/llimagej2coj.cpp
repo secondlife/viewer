@@ -343,7 +343,7 @@ public:
         opj_decoder_set_strict_mode(decoder, OPJ_FALSE);
 
         /* Read the main header of the codestream and if necessary the JP2 boxes*/
-        if (!opj_read_header((opj_stream_t*)stream, decoder, &image))
+        if (!opj_read_header(stream, decoder, &image))
         {
             return false;
         }

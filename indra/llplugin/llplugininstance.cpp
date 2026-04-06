@@ -127,7 +127,7 @@ int LLPluginInstance::load(const std::string& plugin_dir, std::string &plugin_fi
         }
     }
 
-    return (int)result;
+    return result;
 }
 
 /**

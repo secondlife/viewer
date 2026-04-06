@@ -482,7 +482,7 @@ void LLLayoutStack::updateLayout()
         LLRect resize_bar_rect(panel_rect);
         F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
         F32 panel_visible_dim = (F32)panelp->getVisibleDim();
-        S32 panel_spacing_round = (S32)(ll_round(panel_spacing));
+        S32 panel_spacing_round = ll_round(panel_spacing);
 
         if (mOrientation == HORIZONTAL)
         {
