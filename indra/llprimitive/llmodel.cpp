@@ -2268,7 +2268,7 @@ bool validate_model(const LLModel* mdl)
 }
 
 LLModelInstance::LLModelInstance(LLSD& data)
-    : LLModelInstanceBase()
+     
 {
     mLocalMeshID = data["mesh_id"].asInteger();
     mLabel = data["label"].asString();

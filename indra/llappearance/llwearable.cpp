@@ -48,15 +48,9 @@ static std::string terse_F32_to_string(F32 f);
 
 LLWearable::LLWearable()
     : mDefinitionVersion(-1),
-    mName(),
-    mDescription(),
-    mPermissions(),
-    mSaleInfo(),
-    mType(LLWearableType::WT_NONE),
-    mSavedVisualParamMap(),
-    mVisualParamIndexMap(),
-    mTEMap(),
-    mSavedTEMap()
+    
+    mType(LLWearableType::WT_NONE)
+    
 {
 }
 

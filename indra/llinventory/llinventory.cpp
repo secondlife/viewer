@@ -386,19 +386,17 @@ LLInventoryItem::LLInventoryItem(const LLUUID& uuid,
 }
 
 LLInventoryItem::LLInventoryItem() :
-    LLInventoryObject(),
-    mPermissions(),
+    
     mAssetUUID(),
-    mDescription(),
-    mSaleInfo(),
+    
     mInventoryType(LLInventoryType::IT_NONE),
     mFlags(0)
 {
     mCreationDate = 0;
 }
 
-LLInventoryItem::LLInventoryItem(const LLInventoryItem* other) :
-    LLInventoryObject()
+LLInventoryItem::LLInventoryItem(const LLInventoryItem* other) 
+    
 {
     copyItem(other);
 }
@@ -1200,8 +1198,8 @@ LLInventoryCategory::LLInventoryCategory() :
     mType = LLAssetType::AT_CATEGORY;
 }
 
-LLInventoryCategory::LLInventoryCategory(const LLInventoryCategory* other) :
-    LLInventoryObject()
+LLInventoryCategory::LLInventoryCategory(const LLInventoryCategory* other) 
+    
 {
     copyCategory(other);
 }

@@ -174,7 +174,7 @@ LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* LLAvatarAppearance::sAv
 
 
 LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
-    LLCharacter(),
+    
     mWearableData(wearable_data)
 {
     llassert_always(mWearableData);

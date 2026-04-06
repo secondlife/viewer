@@ -107,7 +107,7 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
     mPadBottom(p.pad_bottom),
     mPadBetween(p.pad_between),
     mMinGirth(p.min_girth),
-    mPopupMenuHandle(),
+    
     mRightMouseTargetButton(nullptr),
     mStartDragItemCallback(nullptr),
     mHandleDragItemCallback(nullptr),

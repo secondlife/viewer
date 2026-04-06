@@ -730,9 +730,8 @@ HttpCoroutineAdapter::HttpCoroutineAdapter(std::string name,
     LLCore::HttpRequest::policy_t policyId) :
     mAdapterName(std::move(name)),
     mPolicyId(policyId),
-    mYieldingHandle(LLCORE_HTTP_HANDLE_INVALID),
-    mWeakRequest(),
-    mWeakHandler()
+    mYieldingHandle(LLCORE_HTTP_HANDLE_INVALID)
+    
 {
 }
 

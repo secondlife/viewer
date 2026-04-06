@@ -190,7 +190,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
     mMaxTextByteLength( p.max_text_length ),
     mFont(p.font),
     mFontShadow(p.font_shadow),
-    mPopupMenuHandle(),
+    
     mReadOnly(p.read_only),
     mSkipTripleClick(false),
     mSkipLinkUnderline(p.skip_link_underline),

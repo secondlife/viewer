@@ -54,7 +54,7 @@ namespace LLCore
 
 
 HttpRequest::HttpRequest()
-    : mReplyQueue(),
+    : 
       mRequestQueue(NULL)
 {
     mRequestQueue = HttpRequestQueue::instanceOf();

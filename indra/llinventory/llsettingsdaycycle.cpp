@@ -132,7 +132,7 @@ LLSettingsDay::LLSettingsDay(const LLSD &data) :
 }
 
 LLSettingsDay::LLSettingsDay() :
-    LLSettingsBase(),
+    
     mInitialized(false),
     mDaySettings(LLSD::emptyMap())
 {

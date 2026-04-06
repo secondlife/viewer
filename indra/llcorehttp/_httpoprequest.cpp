@@ -127,14 +127,13 @@ namespace LLCore
 
 
 HttpOpRequest::HttpOpRequest()
-    : HttpOperation(),
+    : 
       mProcFlags(0U),
       mReqMethod(HOR_GET),
       mReqBody(NULL),
       mReqOffset(0),
       mReqLength(0),
-      mReqHeaders(),
-      mReqOptions(),
+      
       mCurlActive(false),
       mCurlHandle(NULL),
       mCurlService(NULL),
@@ -146,7 +145,7 @@ HttpOpRequest::HttpOpRequest()
       mReplyOffset(0),
       mReplyLength(0),
       mReplyFullLength(0),
-      mReplyHeaders(),
+      
       mPolicyRetries(0),
       mPolicy503Retries(0),
       mPolicyRetryAt(HttpTime(0)),

@@ -518,16 +518,10 @@ namespace
 
     using SettingsConfigPtr = LLPointer<SettingsConfig>;
     SettingsConfig::SettingsConfig()
-        : LLRefCount(),
+        : 
+        mCrashFunction(nullptr)
         
-        mFunctionLevelMap(),
-        mClassLevelMap(),
-        mFileLevelMap(),
-        mTagLevelMap(),
-        mUniqueLogMessages(),
-        mCrashFunction(nullptr),
         
-        mRecorders()
         
     {
     }
@@ -561,7 +555,7 @@ namespace
 
     Globals::Globals()
         :
-        callSites(),
+        
         mSettingsConfig(new SettingsConfig())
     {
     }

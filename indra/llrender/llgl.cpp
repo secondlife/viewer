@@ -2708,15 +2708,15 @@ void LLGLSyncFence::wait()
 
 LLGLSPipelineSkyBox::LLGLSPipelineSkyBox()
 : mCullFace(GL_CULL_FACE)
-, mSquashClip()
+ 
 {
 }
 
 LLGLSPipelineSkyBox::~LLGLSPipelineSkyBox() = default;
 
 LLGLSPipelineDepthTestSkyBox::LLGLSPipelineDepthTestSkyBox(bool depth_test, bool depth_write)
-: LLGLSPipelineSkyBox()
-, mDepth(depth_test ? GL_TRUE : GL_FALSE, depth_write ? GL_TRUE : GL_FALSE, GL_LEQUAL)
+: 
+ mDepth(depth_test ? GL_TRUE : GL_FALSE, depth_write ? GL_TRUE : GL_FALSE, GL_LEQUAL)
 {
 
 }

@@ -325,8 +325,8 @@ void LLSharedMutex::unlockExclusive()
 //
 // LLCondition
 //
-LLCondition::LLCondition() :
-    LLMutex()
+LLCondition::LLCondition() 
+    
 {
 }
 

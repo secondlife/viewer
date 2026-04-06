@@ -43,7 +43,7 @@ namespace LLCore
 
 
 HttpOpSetGet::HttpOpSetGet()
-    : HttpOperation(),
+    : 
       mReqOption(HttpRequest::PO_CONNECTION_LIMIT),
       mReqClass(HttpRequest::INVALID_POLICY_ID),
       mReqDoSet(false),

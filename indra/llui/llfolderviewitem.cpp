@@ -142,8 +142,7 @@ void LLFolderViewItem::cleanupClass()
 
 // NOTE: Optimize this, we call it a *lot* when opening a large inventory
 LLFolderViewItem::Params::Params()
-:   root(),
-    listener(),
+:   
     favorite_image("favorite_image"),
     favorite_content_image("favorite_content_image"),
     folder_arrow_image("folder_arrow_image"),
@@ -151,7 +150,7 @@ LLFolderViewItem::Params::Params()
     selection_image("selection_image"),
     item_height("item_height"),
     item_top_pad("item_top_pad"),
-    creation_date(),
+    
     marketplace_item("marketplace_item", false),
     allow_drop("allow_drop", true),
     font_color("font_color"),

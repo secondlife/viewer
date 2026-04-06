@@ -320,9 +320,9 @@ void LLCoprocedureManager::close(const std::string &pool)
 LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size, size_t queue_size):
     mPoolName(poolName),
     mPoolSize(size),
-    mQueueSize(queue_size),
+    mQueueSize(queue_size)
     
-    mCoroMapping()
+    
 {
     llassert_always(mQueueSize > mPoolSize); // queue should be able to fit pool
     try

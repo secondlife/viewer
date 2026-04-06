@@ -32,7 +32,7 @@
 // ---------------- Constructors and destructors ----------------
 
 LLCamera::LLCamera() :
-    LLCoordFrame(),
+    
     mView(DEFAULT_FIELD_OF_VIEW),
     mAspect(DEFAULT_ASPECT_RATIO),
     mViewHeightInPixels( -1 ),          // invalid height
@@ -51,7 +51,7 @@ LLCamera::LLCamera() :
 }
 
 LLCamera::LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_pixels, F32 near_plane, F32 far_plane) :
-    LLCoordFrame(),
+    
     mViewHeightInPixels(view_height_in_pixels),
     mFixedDistance(-1.f),
     mPlaneCount(6),

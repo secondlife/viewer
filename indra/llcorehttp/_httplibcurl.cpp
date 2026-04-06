@@ -60,7 +60,7 @@ namespace LLCore
 
 HttpLibcurl::HttpLibcurl(HttpService * service)
     : mService(service),
-      mHandleCache(),
+      
       mPolicyCount(0),
       mMultiHandles(NULL),
       mActiveHandles(NULL),

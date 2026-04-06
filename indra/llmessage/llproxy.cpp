@@ -54,9 +54,8 @@ LLProxy::LLProxy():
         mTCPProxy(),
         mHTTPProxy(),
         mProxyType(LLPROXY_SOCKS),
-        mAuthMethodSelected(METHOD_NOAUTH),
-        mSocksUsername(),
-        mSocksPassword()
+        mAuthMethodSelected(METHOD_NOAUTH)
+        
 {}
 
 LLProxy::~LLProxy()

@@ -173,7 +173,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
     mHighlightColor(p.highlight_color()),
     mPreeditBgColor(p.preedit_bg_color()),
     mGLFont(p.font),
-    mContextMenuHandle(),
+    
     mShowContextMenu(true)
 {
     llassert( mMaxLengthBytes > 0 );

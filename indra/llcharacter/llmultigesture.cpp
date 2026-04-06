@@ -229,9 +229,9 @@ void LLMultiGesture::dump()
 // LLGestureStepAnimation
 //---------------------------------------------------------------------------
 LLGestureStepAnimation::LLGestureStepAnimation()
-:   LLGestureStep(),
+:   
     mAnimName("None"),
-    mAnimAssetID(),
+    
     mFlags(0x0)
 { }
 
@@ -314,9 +314,9 @@ void LLGestureStepAnimation::dump()
 // LLGestureStepSound
 //---------------------------------------------------------------------------
 LLGestureStepSound::LLGestureStepSound()
-:   LLGestureStep(),
+:   
     mSoundName("None"),
-    mSoundAssetID(),
+    
     mFlags(0x0)
 { }
 
@@ -377,8 +377,7 @@ void LLGestureStepSound::dump()
 // LLGestureStepChat
 //---------------------------------------------------------------------------
 LLGestureStepChat::LLGestureStepChat()
-:   LLGestureStep(),
-    mChatText(),
+:   
     mFlags(0x0)
 { }
 
@@ -432,7 +431,7 @@ void LLGestureStepChat::dump()
 // LLGestureStepWait
 //---------------------------------------------------------------------------
 LLGestureStepWait::LLGestureStepWait()
-:   LLGestureStep(),
+:   
     mWaitSeconds(0.f),
     mFlags(0x0)
 { }

@@ -102,10 +102,7 @@ namespace
 ///----------------------------------------------------------------------------
 
 LLAssetInfo::LLAssetInfo( void )
-    :   mDescription(),
-        mName(),
-        mUuid(),
-        mCreatorID(),
+    :   
         mType( LLAssetType::AT_NONE )
 { }
 
@@ -192,7 +189,7 @@ void LLAssetInfo::setFromNameValue( const LLNameValue& nv )
 LLBaseDownloadRequest::LLBaseDownloadRequest(const LLUUID &uuid, const LLAssetType::EType type)
     : mUUID(uuid),
       mType(type),
-      mDownCallback(),
+      
       mUserData(NULL),
       mHost(),
       mIsTemp(false),
@@ -221,7 +218,7 @@ LLBaseDownloadRequest* LLBaseDownloadRequest::getCopy()
 
 LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type)
     :   LLBaseDownloadRequest(uuid, type),
-        mUpCallback(),
+        
         mInfoCallback( NULL ),
         mIsLocal(false),
         mIsUserWaiting(false),

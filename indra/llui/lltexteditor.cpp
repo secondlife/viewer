@@ -256,7 +256,7 @@ LLTextEditor::Params::Params()
 
 LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
     LLTextBase(p),
-    mAutoreplaceCallback(),
+    
     mBaseDocIsPristine(true),
     mPristineCmd( NULL ),
     mLastCmd( NULL ),

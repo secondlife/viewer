@@ -143,7 +143,7 @@ const std::string& LLTextViewModel::getStringValue() const
 ////////////////////////////////////////////////////////////////////////////
 
 LLListViewModel::LLListViewModel(const LLSD& values)
-  : LLViewModel()
+   
 {
 }
 

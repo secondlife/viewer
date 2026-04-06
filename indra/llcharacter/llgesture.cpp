@@ -39,11 +39,9 @@ const S32 LLGesture::MAX_SERIAL_SIZE = sizeof(KEY) + sizeof(MASK) + 16 + 26 + 41
 LLGesture::LLGesture()
 :   mKey(KEY_NONE),
     mMask(MASK_NONE),
-    mTrigger(),
-    mTriggerLower(),
-    mSoundItemID(),
-    mAnimation(),
-    mOutputString()
+    
+    mSoundItemID()
+    
 { }
 
 LLGesture::LLGesture(KEY key, MASK mask, const std::string &trigger,

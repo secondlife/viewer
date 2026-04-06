@@ -213,7 +213,7 @@ bool    b_positive_integer_ok(const char *token)
 
 using tokenizer = boost::tokenizer< boost::char_separator<char> >;
 
-LLTemplateTokenizer::LLTemplateTokenizer(const std::string & contents) : mStarted(false), mTokens()
+LLTemplateTokenizer::LLTemplateTokenizer(const std::string & contents) : mStarted(false) 
 {
     boost::char_separator<char> newline("\r\n", "", boost::keep_empty_tokens);
     boost::char_separator<char> spaces(" \t");
@@ -349,8 +349,8 @@ void LLTemplateTokenizer::error(std::string message) const
 // Done with tokenizer, next is the parser.
 
 LLTemplateParser::LLTemplateParser(LLTemplateTokenizer & tokens):
-    mVersion(0.f),
-    mMessages()
+    mVersion(0.f)
+    
 {
     // the version number should be the first thing in the file
     if (tokens.want("version"))

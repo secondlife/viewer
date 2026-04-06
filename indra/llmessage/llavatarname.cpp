@@ -53,10 +53,7 @@ bool LLAvatarName::sUseUsernames = true;
 const F64 MIN_ENTRY_LIFETIME = 60.0;
 
 LLAvatarName::LLAvatarName()
-:   mUsername(),
-    mDisplayName(),
-    mLegacyFirstName(),
-    mLegacyLastName(),
+:   
     mIsDisplayNameDefault(false),
     mIsTemporaryName(false),
     mExpires(F64_MAX),

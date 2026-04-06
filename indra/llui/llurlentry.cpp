@@ -291,7 +291,7 @@ static std::string getStringAfterToken(const std::string str, const std::string 
 // LLUrlEntryHTTP Describes generic http: and https: Urls
 //
 LLUrlEntryHTTP::LLUrlEntryHTTP()
-    : LLUrlEntryBase()
+     
 {
     mPattern = boost::regex("https?://([^\\s/?\\.#]+\\.?)+\\.\\w+(:\\d+)?(/\\S*)?",
                             boost::regex::perl|boost::regex::icase);
@@ -352,7 +352,7 @@ std::string LLUrlEntryHTTPLabel::getUrl(const std::string &string) const
 }
 
 LLUrlEntryInvalidSLURL::LLUrlEntryInvalidSLURL()
-    : LLUrlEntryBase()
+     
 {
     mPattern = boost::regex("(https?://(maps.secondlife.com|slurl.com)/secondlife/|secondlife://(/app/(worldmap|teleport)/)?)[^ /]+(/-?[0-9]+){1,3}(/?(\\?title|\\?img|\\?msg)=\\S*)?/?",
                                     boost::regex::perl|boost::regex::icase);
@@ -1537,7 +1537,7 @@ std::string LLUrlEntryIcon::getIcon(const std::string &url)
 // LLUrlEntryEmail Describes a generic mailto: Urls
 //
 LLUrlEntryEmail::LLUrlEntryEmail()
-    : LLUrlEntryBase()
+     
 {
     mPattern = boost::regex("(mailto:)?[\\w\\.\\-]+@[\\w\\.\\-]+\\.[a-z]{2,63}",
                             boost::regex::perl | boost::regex::icase);
@@ -1623,7 +1623,7 @@ void LLUrlEntryExperienceProfile::onExperienceDetails( const LLSD& experience_de
 // LLUrlEntryEmail Describes an IPv6 address
 //
 LLUrlEntryIPv6::LLUrlEntryIPv6()
-    : LLUrlEntryBase()
+     
 {
     mHostPath = "https?://\\[([a-f0-9:]+:+)+[a-f0-9]+]";
     mPattern = boost::regex(mHostPath + "(:\\d{1,5})?(/\\S*)?",
@@ -1665,8 +1665,8 @@ std::string LLUrlEntryIPv6::getUrl(const std::string &string) const
 // LLUrlEntryKeybinding Displays currently assigned key
 //
 LLUrlEntryKeybinding::LLUrlEntryKeybinding()
-    : LLUrlEntryBase()
-    , pHandler(NULL)
+    : 
+     pHandler(NULL)
 {
     mPattern = boost::regex(APP_HEADER_REGEX "/keybinding/\\w+(\\?mode=\\w+)?$",
                             boost::regex::perl | boost::regex::icase);

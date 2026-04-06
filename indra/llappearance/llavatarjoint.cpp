@@ -46,8 +46,8 @@ bool                    LLAvatarJoint::sDisableLOD = false;
 // LLAvatarJoint()
 // Class Constructors
 //-----------------------------------------------------------------------------
-LLAvatarJoint::LLAvatarJoint() :
-    LLJoint()
+LLAvatarJoint::LLAvatarJoint() 
+    
 {
     init();
 }

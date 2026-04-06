@@ -40,7 +40,7 @@ LLUserOperationMgr* gUserOperationMgr = NULL;
 
 LLUserOperation::LLUserOperation(const LLUUID& agent_id)
 :   mAgentID(agent_id),
-    mTimer(),
+    
     mNoExpire(false)
 {
     mTransactionID.generate();
@@ -50,7 +50,7 @@ LLUserOperation::LLUserOperation(const LLUUID& agent_id,
                                  const LLUUID& transaction_id) :
     mAgentID(agent_id),
     mTransactionID(transaction_id),
-    mTimer(),
+    
     mNoExpire(false)
 {
 }
@@ -58,7 +58,7 @@ LLUserOperation::LLUserOperation(const LLUUID& agent_id,
 // protected constructor which is used by base classes that determine
 // transaction, agent, et. after construction.
 LLUserOperation::LLUserOperation() :
-    mTimer(),
+    
     mNoExpire(false)
 {
 }

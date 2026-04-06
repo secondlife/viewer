@@ -58,9 +58,7 @@ HttpOperation::handleMap_t  HttpOperation::mHandleMap;
 LLCoreInt::HttpMutex        HttpOperation::mOpMutex;
 
 HttpOperation::HttpOperation():
-    std::enable_shared_from_this<HttpOperation>(),
-    mReplyQueue(),
-    mUserHandler(),
+    
     mReqPolicy(HttpRequest::DEFAULT_POLICY_ID),
     mTracing(HTTP_TRACE_OFF),
     mMyHandle(LLCORE_HTTP_HANDLE_INVALID)
@@ -224,7 +222,7 @@ void HttpOperation::addAsReply()
 
 
 HttpOpStop::HttpOpStop()
-    : HttpOperation()
+     
 {}
 
 
@@ -248,7 +246,7 @@ void HttpOpStop::stageFromRequest(HttpService * service)
 
 
 HttpOpNull::HttpOpNull()
-    : HttpOperation()
+     
 {}
 
 
@@ -274,7 +272,7 @@ void HttpOpNull::stageFromRequest(HttpService * service)
 
 
 HttpOpSpin::HttpOpSpin(int mode)
-    : HttpOperation(),
+    : 
       mMode(mode)
 {}
 

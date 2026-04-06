@@ -121,7 +121,7 @@ void LLViewerVisualParamInfo::toStream(std::ostream &out)
 // LLViewerVisualParam()
 //-----------------------------------------------------------------------------
 LLViewerVisualParam::LLViewerVisualParam()
-    : LLVisualParam()
+     
 {
 }
 

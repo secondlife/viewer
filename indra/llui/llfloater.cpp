@@ -244,7 +244,7 @@ void LLFloater::initClass()
 static LLWidgetNameRegistry::StaticRegistrar sRegisterFloaterParams(typeid(LLFloater::Params), "floater");
 
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
-:   LLPanel(),  // intentionally do not pass params here, see initFromParams
+:     // intentionally do not pass params here, see initFromParams
     mDragHandle(NULL),
     mTitle(p.title),
     mShortTitle(p.short_title),

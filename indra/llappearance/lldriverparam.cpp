@@ -159,9 +159,9 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 //-----------------------------------------------------------------------------
 
 LLDriverParam::LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearable /* = NULL */)
-    : LLViewerVisualParam(),
+    : 
     mDefaultVec(),
-    mDriven(),
+    
     
     mAvatarAppearance(appearance),
     mWearablep(wearable)

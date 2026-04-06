@@ -43,7 +43,7 @@ namespace LLCore
 
 
 HttpOpCancel::HttpOpCancel(HttpHandle handle)
-    : HttpOperation(),
+    : 
       mHandle(handle)
 {}
 

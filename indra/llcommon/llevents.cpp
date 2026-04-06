@@ -69,11 +69,8 @@ LLEventPumps::LLEventPumps():
                              { return new LLEventStream(name, tweak); } },
         { "LLEventMailDrop", [](const std::string& name, bool tweak, [[maybe_unused]] const std::string& type)
                              { return new LLEventMailDrop(name, tweak); } }
-    },
-    mTypes
-    {
-//      { "placeholder", "LLEventStream" }
     }
+    
 {}
 
 bool LLEventPumps::registerTypeFactory(const std::string& type, const TypeFactory& factory)

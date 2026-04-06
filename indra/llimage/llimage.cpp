@@ -809,13 +809,13 @@ U8* LLImageBase::allocateDataSize(S32 width, S32 height, S32 ncomponents, S32 si
 S32 LLImageRaw::sRawImageCount = 0;
 
 LLImageRaw::LLImageRaw()
-    : LLImageBase()
+     
 {
     ++sRawImageCount;
 }
 
 LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
-    : LLImageBase()
+     
 {
     //llassert( S32(width) * S32(height) * S32(components) <= MAX_IMAGE_DATA_SIZE );
     allocateDataSize(width, height, components);
@@ -823,7 +823,7 @@ LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
 }
 
 LLImageRaw::LLImageRaw(const U8* data, U16 width, U16 height, S8 components)
-    : LLImageBase()
+     
 {
     if (allocateDataSize(width, height, components))
     {
@@ -832,7 +832,7 @@ LLImageRaw::LLImageRaw(const U8* data, U16 width, U16 height, S8 components)
 }
 
 LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy)
-    : LLImageBase()
+     
 {
     if(no_copy)
     {
@@ -2175,7 +2175,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
 S32 LLImageFormatted::sGlobalFormattedMemory = 0;
 
 LLImageFormatted::LLImageFormatted(S8 codec)
-    : LLImageBase(),
+    : 
       mCodec(codec),
       mDecoding(0),
       mDecoded(0),

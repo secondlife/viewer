@@ -41,7 +41,7 @@
 // LLTexLayerParam
 //-----------------------------------------------------------------------------
 LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer)
-    : LLViewerVisualParam(),
+    : 
     mTexLayer(layer),
     mAvatarAppearance(NULL)
 {
@@ -56,7 +56,7 @@ LLTexLayerParam::LLTexLayerParam(LLTexLayerInterface *layer)
 }
 
 LLTexLayerParam::LLTexLayerParam(LLAvatarAppearance *appearance)
-    : LLViewerVisualParam(),
+    : 
     mTexLayer(NULL),
     mAvatarAppearance(appearance)
 {
@@ -121,8 +121,7 @@ void LLTexLayerParamAlpha::getCacheByteCount(S32* gl_bytes)
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer)
     : LLTexLayerParam(layer),
     mCachedProcessedTexture(NULL),
-    mStaticImageTGA(),
-    mStaticImageRaw(),
+    
     mNeedsCreateTexture(false),
     mStaticImageInvalid(false),
     mAvgDistortionVec(1.f, 1.f, 1.f),
@@ -134,8 +133,7 @@ LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer)
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLAvatarAppearance* appearance)
     : LLTexLayerParam(appearance),
     mCachedProcessedTexture(NULL),
-    mStaticImageTGA(),
-    mStaticImageRaw(),
+    
     mNeedsCreateTexture(false),
     mStaticImageInvalid(false),
     mAvgDistortionVec(1.f, 1.f, 1.f),

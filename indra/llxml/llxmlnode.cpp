@@ -63,7 +63,7 @@ LLXMLNode::LLXMLNode() :
     mLineNumber(-1),
     mParent(NULL),
     mChildren(NULL),
-    mAttributes(),
+    
     mPrev(NULL),
     mNext(NULL),
     mName(NULL),
@@ -85,7 +85,7 @@ LLXMLNode::LLXMLNode(const char* name, bool is_attribute) :
     mLineNumber(-1),
     mParent(NULL),
     mChildren(NULL),
-    mAttributes(),
+    
     mPrev(NULL),
     mNext(NULL),
     mValue(""),
@@ -107,7 +107,7 @@ LLXMLNode::LLXMLNode(LLStringTableEntry* name, bool is_attribute) :
     mLineNumber(-1),
     mParent(NULL),
     mChildren(NULL),
-    mAttributes(),
+    
     mPrev(NULL),
     mNext(NULL),
     mName(name),
@@ -130,7 +130,7 @@ LLXMLNode::LLXMLNode(const LLXMLNode& rhs) :
     mParser(NULL),
     mParent(NULL),
     mChildren(NULL),
-    mAttributes(),
+    
     mPrev(NULL),
     mNext(NULL),
     mName(rhs.mName),

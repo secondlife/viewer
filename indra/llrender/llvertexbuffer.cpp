@@ -939,7 +939,7 @@ void LLVertexBuffer::cleanupClass()
 //----------------------------------------------------------------------------
 
 LLVertexBuffer::LLVertexBuffer(U32 typemask)
-:   LLRefCount(),
+:   
     mTypeMask(typemask)
 {
     //zero out offsets

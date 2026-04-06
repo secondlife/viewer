@@ -302,13 +302,13 @@ bool LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
 // LLPolyMorphTarget()
 //-----------------------------------------------------------------------------
 LLPolyMorphTarget::LLPolyMorphTarget(LLPolyMesh *poly_mesh)
-    : LLViewerVisualParam(),
+    : 
     mMorphData(NULL),
     mMesh(poly_mesh),
     mVertMask(NULL),
     mLastSex(SEX_FEMALE),
-    mNumMorphMasksPending(0),
-    mVolumeMorphs()
+    mNumMorphMasksPending(0)
+    
 {
 }
 

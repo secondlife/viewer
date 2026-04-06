@@ -65,7 +65,7 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
     }
 }
 
-LLAccordionCtrl::LLAccordionCtrl() : LLPanel()
+LLAccordionCtrl::LLAccordionCtrl()  
 {
     initNoTabsWidget(LLTextBox::Params());
 

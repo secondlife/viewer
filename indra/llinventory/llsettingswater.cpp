@@ -76,7 +76,7 @@ LLSettingsWater::LLSettingsWater(const LLSD &data) :
 }
 
 LLSettingsWater::LLSettingsWater() :
-    LLSettingsBase(),
+    
     mNextNormalMapID(),
     mNextTransparentTextureID()
 {

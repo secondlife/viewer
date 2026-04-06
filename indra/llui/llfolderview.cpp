@@ -164,7 +164,7 @@ LLFolderView::Params::Params()
 LLFolderView::LLFolderView(const Params& p)
 :   LLFolderViewFolder(p),
     mScrollContainer( NULL ),
-    mPopupMenuHandle(),
+    
     mMenuFileName(p.options_menu),
     mAllowMultiSelect(p.allow_multiselect),
     mAllowDrag(p.allow_drag),
