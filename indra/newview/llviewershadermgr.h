@@ -117,7 +117,7 @@ public:
 
         shader_iter operator++ (int)
         {
-            return mIter++;
+            return shader_iter(mIter++);
         }
 
     private:

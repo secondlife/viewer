@@ -275,7 +275,7 @@ private:
 
         if (inventory_panel->getVisible())
         {
-            inventory_panel->getFolderViewModel()->setSorter(sort_order);
+            inventory_panel->getFolderViewModel()->setSorter(LLInventorySort(sort_order));
         }
         else
         {

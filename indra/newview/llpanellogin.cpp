@@ -1326,7 +1326,7 @@ void LLPanelLogin::onLocationSLURL()
     std::string location = location_combo->getValue().asString();
     LL_DEBUGS("AppInit")<<location<<LL_ENDL;
 
-    LLStartUp::setStartSLURL(location); // calls onUpdateStartSLURL, above
+    LLStartUp::setStartSLURL(LLSLURL(location)); // calls onUpdateStartSLURL, above
 }
 
 // static

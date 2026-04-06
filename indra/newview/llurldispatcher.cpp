@@ -198,7 +198,10 @@ bool LLURLDispatcherImpl::dispatchRegion(const LLSLURL& slurl, const std::string
 
     // Request a region handle by name
     LLWorldMapMessage::getInstance()->sendNamedRegionRequest(slurl.getRegion(),
-                                      LLURLDispatcherImpl::regionNameCallback,
+                                      [](U64 handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)
+                                      {
+                                          LLURLDispatcherImpl::regionNameCallback(handle, LLSLURL(url), snapshot_id, teleport);
+                                      },
                                       slurl.getSLURLString(),
                                       LLUI::getInstance()->mSettingGroups["config"]->getBOOL("SLURLTeleportDirectly")); // don't teleport
     return true;
@@ -364,7 +367,10 @@ public:
     {
 
         LLWorldMapMessage::getInstance()->sendNamedRegionRequest(region_name,
-            LLURLDispatcherImpl::regionHandleCallback,
+            [](U64 handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)
+            {
+                LLURLDispatcherImpl::regionHandleCallback(handle, LLSLURL(url), snapshot_id, teleport);
+            },
             callback_url,
             true);  // teleport
     }

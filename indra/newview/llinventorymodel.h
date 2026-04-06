@@ -531,7 +531,7 @@ public:
     struct LLInitializedS32
     {
         LLInitializedS32() : mValue(0) {}
-        explicit LLInitializedS32(S32 value) : mValue(value) {}
+        LLInitializedS32(S32 value) : mValue(value) {} // NOLINT: intentional implicit conversion
         S32 mValue;
         LLInitializedS32& operator++() { ++mValue; return *this; }
         LLInitializedS32& operator--() { --mValue; return *this; }

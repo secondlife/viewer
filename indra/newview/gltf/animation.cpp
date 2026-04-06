@@ -376,15 +376,15 @@ const Animation& Animation::operator=(const Value& src)
         {
             if (channel.mTarget.mPath == "rotation")
             {
-                mRotationChannels.push_back(channel);
+                mRotationChannels.push_back(RotationChannel(channel));
             }
             else if (channel.mTarget.mPath == "translation")
             {
-                mTranslationChannels.push_back(channel);
+                mTranslationChannels.push_back(TranslationChannel(channel));
             }
             else if (channel.mTarget.mPath == "scale")
             {
-                mScaleChannels.push_back(channel);
+                mScaleChannels.push_back(ScaleChannel(channel));
             }
         }
     }
