@@ -1017,7 +1017,7 @@ void LLGLManager::initWGL()
 
     if (ExtensionExists("WGL_ARB_create_context",gGLHExts.mSysExts))
     {
-        GLH_EXT_NAME(wglCreateContextAttribsARB) = (PFNWGLCREATECONTEXTATTRIBSARBPROC)GLH_EXT_GET_PROC_ADDRESS("wglCreateContextAttribsARB");
+        GLH_EXT_NAME(wglCreateContextAttribsARB) = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(GLH_EXT_GET_PROC_ADDRESS("wglCreateContextAttribsARB"));
     }
     else
     {
@@ -1029,14 +1029,14 @@ void LLGLManager::initWGL()
     mHasAMDAssociations = ExtensionExists("WGL_AMD_gpu_association", gGLHExts.mSysExts);
     if (mHasAMDAssociations)
     {
-        GLH_EXT_NAME(wglGetGPUIDsAMD) = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
-        GLH_EXT_NAME(wglGetGPUInfoAMD) = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
+        GLH_EXT_NAME(wglGetGPUIDsAMD) = reinterpret_cast<PFNWGLGETGPUIDSAMDPROC>(GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD"));
+        GLH_EXT_NAME(wglGetGPUInfoAMD) = reinterpret_cast<PFNWGLGETGPUINFOAMDPROC>(GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD"));
     }
     mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
 
     if (ExtensionExists("WGL_EXT_swap_control", gGLHExts.mSysExts))
     {
-        GLH_EXT_NAME(wglSwapIntervalEXT) = (PFNWGLSWAPINTERVALEXTPROC)GLH_EXT_GET_PROC_ADDRESS("wglSwapIntervalEXT");
+        GLH_EXT_NAME(wglSwapIntervalEXT) = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(GLH_EXT_GET_PROC_ADDRESS("wglSwapIntervalEXT"));
     }
 
     if( !glh_init_extensions("WGL_ARB_pbuffer") )
@@ -1061,10 +1061,10 @@ bool LLGLManager::initGL()
 
     // Extract video card strings and convert to upper case to
     // work around driver-to-driver variation in capitalization.
-    mGLVendor = ll_safe_string((const char *)glGetString(GL_VENDOR));
+    mGLVendor = ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_VENDOR)));
     LLStringUtil::toUpper(mGLVendor);
 
-    mGLRenderer = ll_safe_string((const char *)glGetString(GL_RENDERER));
+    mGLRenderer = ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
     LLStringUtil::toUpper(mGLRenderer);
 
     parse_gl_version( &mDriverVersionMajor,
@@ -1199,12 +1199,12 @@ void LLGLManager::getGLInfo(LLSD& info)
     }
     else
     {
-        info["GLInfo"]["GLVendor"] = ll_safe_string((const char *)glGetString(GL_VENDOR));
-        info["GLInfo"]["GLRenderer"] = ll_safe_string((const char *)glGetString(GL_RENDERER));
-        info["GLInfo"]["GLVersion"] = ll_safe_string((const char *)glGetString(GL_VERSION));
+        info["GLInfo"]["GLVendor"] = ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_VENDOR)));
+        info["GLInfo"]["GLRenderer"] = ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_RENDERER)));
+        info["GLInfo"]["GLVersion"] = ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_VERSION)));
     }
 
-    std::string all_exts = ll_safe_string((const char *)gGLHExts.mSysExts);
+    std::string all_exts = ll_safe_string(reinterpret_cast<const char *>(gGLHExts.mSysExts));
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char> > tok(all_exts, sep);
     for(boost::tokenizer<boost::char_separator<char> >::iterator i = tok.begin(); i != tok.end(); ++i)
@@ -1225,12 +1225,12 @@ std::string LLGLManager::getGLInfoString()
     }
     else
     {
-        info_str += std::string("GL_VENDOR      ") + ll_safe_string((const char *)glGetString(GL_VENDOR)) + std::string("\n");
-        info_str += std::string("GL_RENDERER    ") + ll_safe_string((const char *)glGetString(GL_RENDERER)) + std::string("\n");
-        info_str += std::string("GL_VERSION     ") + ll_safe_string((const char *)glGetString(GL_VERSION)) + std::string("\n");
+        info_str += std::string("GL_VENDOR      ") + ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_VENDOR))) + std::string("\n");
+        info_str += std::string("GL_RENDERER    ") + ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_RENDERER))) + std::string("\n");
+        info_str += std::string("GL_VERSION     ") + ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_VERSION))) + std::string("\n");
     }
 
-    std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
+    std::string all_exts= ll_safe_string(reinterpret_cast<const char *>(gGLHExts.mSysExts));
     std::ranges::replace(all_exts, ' ', '\n');
     info_str += std::string("GL_EXTENSIONS:\n") + all_exts + std::string("\n");
 
@@ -1247,12 +1247,12 @@ void LLGLManager::printGLInfoString()
     }
     else
     {
-        LL_INFOS("RenderInit") << "GL_VENDOR:     " << ll_safe_string((const char *)glGetString(GL_VENDOR)) << LL_ENDL;
-        LL_INFOS("RenderInit") << "GL_RENDERER:   " << ll_safe_string((const char *)glGetString(GL_RENDERER)) << LL_ENDL;
-        LL_INFOS("RenderInit") << "GL_VERSION:    " << ll_safe_string((const char *)glGetString(GL_VERSION)) << LL_ENDL;
+        LL_INFOS("RenderInit") << "GL_VENDOR:     " << ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_VENDOR))) << LL_ENDL;
+        LL_INFOS("RenderInit") << "GL_RENDERER:   " << ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_RENDERER))) << LL_ENDL;
+        LL_INFOS("RenderInit") << "GL_VERSION:    " << ll_safe_string(reinterpret_cast<const char *>(glGetString(GL_VERSION))) << LL_ENDL;
     }
 
-    std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
+    std::string all_exts= ll_safe_string(reinterpret_cast<const char *>(gGLHExts.mSysExts));
     std::ranges::replace(all_exts, ' ', '\n');
     LL_DEBUGS("RenderInit") << "GL_EXTENSIONS:\n" << all_exts << LL_ENDL;
 }
@@ -1266,7 +1266,7 @@ std::string LLGLManager::getRawGLString()
     }
     else
     {
-        gl_string = ll_safe_string((char*)glGetString(GL_VENDOR)) + " " + ll_safe_string((char*)glGetString(GL_RENDERER));
+        gl_string = ll_safe_string(reinterpret_cast<const char*>(glGetString(GL_VENDOR))) + " " + ll_safe_string(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
     }
     return gl_string;
 }
@@ -2271,7 +2271,7 @@ void LLGLState::dumpStates()
     LL_INFOS("RenderState") << "GL States:" << LL_ENDL;
     for (auto & iter : sStateMap)
     {
-        LL_INFOS("RenderState") << llformat(" 0x%04x : %s",(S32)iter.first,iter.second?"true":"false") << LL_ENDL;
+        LL_INFOS("RenderState") << llformat(" 0x%04x : %s",static_cast<S32>(iter.first),iter.second?"true":"false") << LL_ENDL;
     }
 }
 
@@ -2404,7 +2404,7 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
     // GL_VERSION returns a null-terminated string with the format:
     // <major>.<minor>[.<release>] [<vendor specific>]
 
-    const char* version = (const char*) glGetString(GL_VERSION);
+    const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
     *major = 0;
     *minor = 0;
     *release = 0;
@@ -2418,7 +2418,7 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
     version_string->assign(version);
 
     std::string ver_copy( version );
-    S32 len = (S32)strlen( version );   /* Flawfinder: ignore */
+    S32 len = static_cast<S32>(strlen( version ));   /* Flawfinder: ignore */
     S32 i = 0;
     S32 start;
     // Find the major version

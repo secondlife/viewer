@@ -377,7 +377,7 @@ static std::string get_shader_log(GLuint ret)
         //the log could be any size, so allocate appropriately
         std::vector<GLchar> log(length);
         glGetShaderInfoLog(ret, length, &length, log.data());
-        res = std::string((char *)log.data());
+        res = std::string(reinterpret_cast<char *>(log.data()));
     }
     return res;
 }
@@ -395,7 +395,7 @@ static std::string get_program_log(GLuint ret)
         //the log could be any size, so allocate appropriately
         std::vector<GLchar> log(length);
         glGetProgramInfoLog(ret, length, &length, log.data());
-        res = std::string((char*)log.data());
+        res = std::string(reinterpret_cast<char*>(log.data()));
     }
     return res;
 }
@@ -560,7 +560,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         for (auto & iter : *defines)
         {
             std::string define = "#define " + iter.first + " " + iter.second + "\n";
-            extra_code_text[extra_code_count++] = (GLchar *) strdup(define.c_str());
+            extra_code_text[extra_code_count++] = reinterpret_cast<GLchar *>(strdup(define.c_str()));
         }
     }
 
@@ -678,15 +678,15 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     bool touched = false;
 #endif
 
-    while(NULL != fgets((char *)buff, 1024, file)
+    while(NULL != fgets(reinterpret_cast<char *>(buff), 1024, file)
           && shader_code_count < (LL_ARRAY_SIZE(shader_code_text) - LL_ARRAY_SIZE(extra_code_text)))
     {
         file_lines_count++;
 
-        bool extra_block_area_found = NULL != strstr((const char*)buff, "[EXTRA_CODE_HERE]");
+        bool extra_block_area_found = NULL != strstr(reinterpret_cast<const char*>(buff), "[EXTRA_CODE_HERE]");
 
 #if TOUCH_SHADERS
-        if (NULL != strstr((const char*)buff, marker))
+        if (NULL != strstr(reinterpret_cast<const char*>(buff), marker))
         {
             touched = true;
         }
@@ -720,7 +720,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
         else
         {
-            shader_code_text[shader_code_count] = (GLchar *)strdup((char *)buff);
+            shader_code_text[shader_code_count] = reinterpret_cast<GLchar *>(strdup(reinterpret_cast<char *>(buff)));
 
             if(flag_write_to_out_of_extra_block_area & flags)
             {
@@ -967,7 +967,7 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
                     ProgramBinaryData binary_info = {
                         .mBinaryLength = shader_data["binary_size"].asInteger(),
                         .mBinaryFormat = static_cast<GLenum>(shader_data["binary_format"].asInteger()),
-                        .mLastUsedTime = (F32)shader_data["last_used"].asReal()
+                        .mLastUsedTime = static_cast<F32>(shader_data["last_used"].asReal())
                     };
                     mShaderBinaryCache.insert_or_assign(LLUUID(shader_id), binary_info);
                 }
@@ -1016,7 +1016,7 @@ void LLShaderMgr::persistShaderCacheMetadata()
     LLSD &shaders = out["shaders"];
 
     static constexpr F32 LRU_TIME = (60.f * 60.f) * 24.f * 7.f; // 14 days
-    const F32 current_time = (F32)LLTimer::getTotalSeconds();
+    const F32 current_time = static_cast<F32>(LLTimer::getTotalSeconds());
     for (auto it = mShaderBinaryCache.begin(); it != mShaderBinaryCache.end();)
     {
         const ProgramBinaryData& shader_metadata = it->second;
@@ -1080,7 +1080,7 @@ bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
                     glGetProgramiv(shader->mProgramObject, GL_LINK_STATUS, &success);
                     if (error == GL_NO_ERROR && success == GL_TRUE)
                     {
-                        binary_iter->second.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
+                        binary_iter->second.mLastUsedTime = static_cast<F32>(LLTimer::getTotalSeconds());
                         LL_INFOS() << "Loaded cached binary for shader: " << shader->mName << LL_ENDL;
                         return true;
                     }
@@ -1118,7 +1118,7 @@ bool LLShaderMgr::saveCachedProgramBinary(LLGLSLShader* shader)
                 fwrite(program_binary.data(), sizeof(U8), program_binary.size(), outfile);
                 outfile.close();
 
-                binary_info.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
+                binary_info.mLastUsedTime = static_cast<F32>(LLTimer::getTotalSeconds());
 
                 mShaderBinaryCache.insert_or_assign(shader->mShaderHash, binary_info);
                 return true;

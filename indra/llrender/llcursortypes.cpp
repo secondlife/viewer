@@ -83,7 +83,7 @@ ECursorType getCursorFromString(const std::string& cursor_string)
 
     if (iter != cursor_string_table.end())
     {
-        return (ECursorType)iter->second;
+        return static_cast<ECursorType>(iter->second);
     }
 
     return UI_CURSOR_ARROW;

@@ -110,9 +110,9 @@ class LLDragDropWin32Target:
                 if( S_OK == pDataObject->GetData( &fmtetc, &stgmed ) )
                 {
                     PVOID data = GlobalLock( stgmed.hGlobal );
-                    mDropUrl = std::string( (char*)data );
+                    mDropUrl = std::string( reinterpret_cast<char*>(data) );
                     // XXX MAJOR MAJOR HACK!
-                    LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA );
+                    LLWindowWin32 *window_imp = reinterpret_cast<LLWindowWin32 *>(GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA ));
                     if (NULL != window_imp)
                     {
                         LLCoordGL gl_coord( 0, 0 );
@@ -167,7 +167,7 @@ class LLDragDropWin32Target:
             if ( mAllowDrop )
             {
                 // XXX MAJOR MAJOR HACK!
-                LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA );
+                LLWindowWin32 *window_imp = reinterpret_cast<LLWindowWin32 *>(GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA ));
                 if (NULL != window_imp)
                 {
                     LLCoordGL gl_coord( 0, 0 );
@@ -214,7 +214,7 @@ class LLDragDropWin32Target:
         HRESULT __stdcall DragLeave( void )
         {
             // XXX MAJOR MAJOR HACK!
-            LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA );
+            LLWindowWin32 *window_imp = reinterpret_cast<LLWindowWin32 *>(GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA ));
             if (NULL != window_imp)
             {
                 LLCoordGL gl_coord( 0, 0 );
@@ -231,7 +231,7 @@ class LLDragDropWin32Target:
             if ( mAllowDrop )
             {
                 // window impl stored in Window data (neat!)
-                LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA );
+                LLWindowWin32 *window_imp = reinterpret_cast<LLWindowWin32 *>(GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA ));
                 if ( NULL != window_imp )
                 {
                     POINT pt_client;

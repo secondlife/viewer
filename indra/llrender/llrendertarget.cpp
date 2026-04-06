@@ -108,8 +108,8 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
     llassert(usage == LLTexUnit::eTextureType::TT_TEXTURE);
     llassert(!isBoundInStack());
 
-    resx = llmin(resx, (U32) gGLManager.mGLMaxTextureSize);
-    resy = llmin(resy, (U32) gGLManager.mGLMaxTextureSize);
+    resx = llmin(resx, static_cast<U32>(gGLManager.mGLMaxTextureSize));
+    resy = llmin(resy, static_cast<U32>(gGLManager.mGLMaxTextureSize));
 
     release();
 
@@ -123,7 +123,7 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
 
     if (mGenerateMipMaps != LLTexUnit::eTextureMipGeneration::TMG_NONE) {
         // Calculate the number of mip levels based upon resolution that we should have.
-        mMipLevels = 1 + (U32)floor(log10((float)llmax(mResX, mResY)) / log10(2.0));
+        mMipLevels = 1 + static_cast<U32>(floor(log10(static_cast<float>(llmax(mResX, mResY))) / log10(2.0)));
     }
 
     if (depth)

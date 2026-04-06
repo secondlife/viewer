@@ -203,20 +203,20 @@ void LLGLSLShader::dumpStats(boost::json::object& stats)
     F32 ms = mTimeElapsed / mega;
     F32 seconds = ms / 1000.f;
 
-    F32 pct_tris = (F32)mTrianglesDrawn / (F32)sTotalTrianglesDrawn * 100.f;
-    F32 tris_sec = (F32)(mTrianglesDrawn / mega);
+    F32 pct_tris = static_cast<F32>(mTrianglesDrawn) / static_cast<F32>(sTotalTrianglesDrawn) * 100.f;
+    F32 tris_sec = static_cast<F32>(mTrianglesDrawn / mega);
     tris_sec /= seconds;
 
-    F32 pct_samples = (F32)((F64)mSamplesDrawn / (F64)sTotalSamplesDrawn) * 100.f;
-    F32 samples_sec = (F32)(mSamplesDrawn / giga);
+    F32 pct_samples = static_cast<F32>(static_cast<F64>(mSamplesDrawn) / static_cast<F64>(sTotalSamplesDrawn)) * 100.f;
+    F32 samples_sec = static_cast<F32>(mSamplesDrawn / giga);
     samples_sec /= seconds;
 
-    F32 pct_binds = (F32)mBinds / (F32)sTotalBinds * 100.f;
+    F32 pct_binds = static_cast<F32>(mBinds) / static_cast<F32>(sTotalBinds) * 100.f;
 
     LL_INFOS() << "Triangles Drawn: " << mTrianglesDrawn << " " << llformat("(%.2f pct of total, %.3f million/sec)", pct_tris, tris_sec) << LL_ENDL;
     LL_INFOS() << "Binds: " << mBinds << " " << llformat("(%.2f pct of total)", pct_binds) << LL_ENDL;
     LL_INFOS() << "SamplesDrawn: " << mSamplesDrawn << " " << llformat("(%.2f pct of total, %.3f billion/sec)", pct_samples, samples_sec) << LL_ENDL;
-    LL_INFOS() << "Time Elapsed: " << mTimeElapsed << " " << llformat("(%.2f pct of total, %.5f ms)\n", (F32)((F64)mTimeElapsed / (F64)sTotalTimeElapsed) * 100.f, ms) << LL_ENDL;
+    LL_INFOS() << "Time Elapsed: " << mTimeElapsed << " " << llformat("(%.2f pct of total, %.5f ms)\n", static_cast<F32>(static_cast<F64>(mTimeElapsed) / static_cast<F64>(sTotalTimeElapsed)) * 100.f, ms) << LL_ENDL;
     stats.emplace("time", seconds);
     stats.emplace("binds", mBinds);
     stats.emplace("samples", mSamplesDrawn);
@@ -309,7 +309,7 @@ bool LLGLSLShader::readProfileQuery(bool for_runtime, bool force_read)
             sTotalSamplesDrawn += samples_passed;
             mSamplesDrawn += samples_passed;
 
-            U32 tri_count = (U32)primitives_generated / 3;
+            U32 tri_count = static_cast<U32>(primitives_generated) / 3;
 
             mTrianglesDrawn += tri_count;
             sTotalTrianglesDrawn += tri_count;
@@ -713,7 +713,7 @@ void LLGLSLShader::mapUniform(GLint index)
     name[0] = 0;
 
 
-    glGetActiveUniform(mProgramObject, index, 1024, &length, &size, &type, (GLchar*)name);
+    glGetActiveUniform(mProgramObject, index, 1024, &length, &size, &type, reinterpret_cast<GLchar*>(name));
     if (size > 0)
     {
         switch (type)
@@ -773,7 +773,7 @@ void LLGLSLShader::mapUniform(GLint index)
         LL_DEBUGS("ShaderUniform") << "Uniform " << name << " is at location " << location << LL_ENDL;
 
         //find the index of this uniform
-        for (S32 i = 0; i < (S32)LLShaderMgr::instance()->mReservedUniforms.size(); i++)
+        for (S32 i = 0; i < static_cast<S32>(LLShaderMgr::instance()->mReservedUniforms.size()); i++)
         {
             if ((mUniform[i] == -1)
                 && (LLShaderMgr::instance()->mReservedUniforms[i] == name))
@@ -912,7 +912,7 @@ bool LLGLSLShader::mapUniforms()
         {
             name[0] = '\0';
 
-            glGetActiveUniform(mProgramObject, i, 1024, &length, &size, &type, (GLchar*)name);
+            glGetActiveUniform(mProgramObject, i, 1024, &length, &size, &type, reinterpret_cast<GLchar*>(name));
 
             if (-1 == diffuseMap && std::string(name) == "diffuseMap")
             {
@@ -1124,9 +1124,9 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextu
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    if (uniform < 0 || uniform >= (S32)mTexture.size()) [[unlikely]]
+    if (uniform < 0 || uniform >= static_cast<S32>(mTexture.size())) [[unlikely]]
     {
-        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << uniform << LL_ENDL;
         llassert(false);
         return -1;
     }
@@ -1145,9 +1145,9 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, 
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    if (uniform < 0 || uniform >= (S32)mTexture.size()) [[unlikely]]
+    if (uniform < 0 || uniform >= static_cast<S32>(mTexture.size())) [[unlikely]]
     {
-        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << uniform << LL_ENDL;
         llassert(false);
         return -1;
     }
@@ -1194,9 +1194,9 @@ S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    if (uniform < 0 || uniform >= (S32)mTexture.size()) [[unlikely]]
+    if (uniform < 0 || uniform >= static_cast<S32>(mTexture.size())) [[unlikely]]
     {
-        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << uniform << LL_ENDL;
         llassert(false);
         return -1;
     }
@@ -1220,9 +1220,9 @@ S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    if (uniform < 0 || uniform >= (S32)mTexture.size()) [[unlikely]]
+    if (uniform < 0 || uniform >= static_cast<S32>(mTexture.size())) [[unlikely]]
     {
-        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << uniform << LL_ENDL;
         llassert(false);
         return -1;
     }
@@ -1241,9 +1241,9 @@ S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    if (uniform < 0 || uniform >= (S32)mTexture.size()) [[unlikely]]
+    if (uniform < 0 || uniform >= static_cast<S32>(mTexture.size())) [[unlikely]]
     {
-        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << uniform << LL_ENDL;
         llassert(false);
         return -1;
     }
@@ -1292,7 +1292,7 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1303,7 +1303,7 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
             if (iter == mValue.end() || iter->second.mV[0] != x)
             {
                 glUniform1i(mUniform[index], x);
-                mValue[mUniform[index]] = LLVector4((F32)x, 0.f, 0.f, 0.f);
+                mValue[mUniform[index]] = LLVector4(static_cast<F32>(x), 0.f, 0.f, 0.f);
             }
         }
     }
@@ -1318,7 +1318,7 @@ void LLGLSLShader::uniform1f(U32 index, GLfloat x)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1354,7 +1354,7 @@ void LLGLSLShader::uniform2f(U32 index, GLfloat x, GLfloat y)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1381,7 +1381,7 @@ void LLGLSLShader::uniform3f(U32 index, GLfloat x, GLfloat y, GLfloat z)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1408,7 +1408,7 @@ void LLGLSLShader::uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1435,7 +1435,7 @@ void LLGLSLShader::uniform1iv(U32 index, std::span<const GLint> v)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1443,7 +1443,7 @@ void LLGLSLShader::uniform1iv(U32 index, std::span<const GLint> v)
         if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
-            LLVector4 vec((F32)v[0], 0.f, 0.f, 0.f);
+            LLVector4 vec(static_cast<F32>(v[0]), 0.f, 0.f, 0.f);
             U32 count = static_cast<U32>(v.size());
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
@@ -1463,7 +1463,7 @@ void LLGLSLShader::uniform4iv(U32 index, std::span<const GLint> v)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1471,7 +1471,7 @@ void LLGLSLShader::uniform4iv(U32 index, std::span<const GLint> v)
         if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
-            LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+            LLVector4 vec(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]), static_cast<F32>(v[3]));
             U32 count = static_cast<U32>(v.size()) / 4;
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
@@ -1492,7 +1492,7 @@ void LLGLSLShader::uniform1fv(U32 index, std::span<const GLfloat> v)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1520,7 +1520,7 @@ void LLGLSLShader::uniform2fv(U32 index, std::span<const GLfloat> v)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1548,7 +1548,7 @@ void LLGLSLShader::uniform3fv(U32 index, std::span<const GLfloat> v)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1576,7 +1576,7 @@ void LLGLSLShader::uniform4fv(U32 index, std::span<const GLfloat> v)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1605,7 +1605,7 @@ void LLGLSLShader::uniform4uiv(U32 index, std::span<const GLuint> v)
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1613,7 +1613,7 @@ void LLGLSLShader::uniform4uiv(U32 index, std::span<const GLuint> v)
         if (mUniform[index] >= 0) [[likely]]
         {
             const auto& iter = mValue.find(mUniform[index]);
-            LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+            LLVector4 vec(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]), static_cast<F32>(v[3]));
             U32 count = static_cast<U32>(v.size()) / 4;
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
@@ -1634,7 +1634,7 @@ void LLGLSLShader::uniformMatrix2fv(U32 index, GLboolean transpose, std::span<co
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1655,7 +1655,7 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, GLboolean transpose, std::span<co
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1676,7 +1676,7 @@ void LLGLSLShader::uniformMatrix3x4fv(U32 index, GLboolean transpose, std::span<
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1697,7 +1697,7 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, GLboolean transpose, std::span<co
     {
         if (mUniform.size() <= index) [[unlikely]]
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << static_cast<S32>(mUniform.size()) << " index: " << index << LL_ENDL;
             llassert(false);
             return;
         }
@@ -1744,7 +1744,7 @@ GLint LLGLSLShader::getUniformLocation(U32 index)
     {
         if (index >= mUniform.size())
         {
-            LL_WARNS_ONCE("Shader") << "Uniform index " << index << " out of bounds " << (S32)mUniform.size() << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index " << index << " out of bounds " << static_cast<S32>(mUniform.size()) << LL_ENDL;
             return ret;
         }
         return mUniform[index];
@@ -1775,7 +1775,7 @@ void LLGLSLShader::uniform1i(const LLStaticHashedString& uniform, GLint v)
     if (location >= 0)
     {
         const auto& iter = mValue.find(location);
-        LLVector4 vec((F32)v, 0.f, 0.f, 0.f);
+        LLVector4 vec(static_cast<F32>(v), 0.f, 0.f, 0.f);
         if (iter == mValue.end() || shouldChange(iter->second, vec))
         {
             glUniform1i(location, v);
@@ -1791,7 +1791,7 @@ void LLGLSLShader::uniform1iv(const LLStaticHashedString& uniform, std::span<con
 
     if (location >= 0)
     {
-        LLVector4 vec((F32)v[0], 0.f, 0.f, 0.f);
+        LLVector4 vec(static_cast<F32>(v[0]), 0.f, 0.f, 0.f);
         const auto& iter = mValue.find(location);
         U32 count = static_cast<U32>(v.size());
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
@@ -1810,7 +1810,7 @@ void LLGLSLShader::uniform4iv(const LLStaticHashedString& uniform, std::span<con
 
     if (location >= 0)
     {
-        LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+        LLVector4 vec(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]), static_cast<F32>(v[3]));
         const auto& iter = mValue.find(location);
         U32 count = static_cast<U32>(v.size()) / 4;
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
@@ -1830,7 +1830,7 @@ void LLGLSLShader::uniform2i(const LLStaticHashedString& uniform, GLint i, GLint
     if (location >= 0)
     {
         const auto& iter = mValue.find(location);
-        LLVector4 vec((F32)i, (F32)j, 0.f, 0.f);
+        LLVector4 vec(static_cast<F32>(i), static_cast<F32>(j), 0.f, 0.f);
         if (iter == mValue.end() || shouldChange(iter->second, vec))
         {
             glUniform2i(location, i, j);
@@ -1989,7 +1989,7 @@ void LLGLSLShader::uniform4uiv(const LLStaticHashedString& uniform, std::span<co
 
     if (location >= 0)
     {
-        LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+        LLVector4 vec(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]), static_cast<F32>(v[3]));
         const auto& iter = mValue.find(location);
         U32 count = static_cast<U32>(v.size()) / 4;
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)

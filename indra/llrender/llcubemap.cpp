@@ -304,7 +304,7 @@ void LLCubeMap::setMatrix(S32 stage)
 
     gGL.matrixMode(LLRender::MM_TEXTURE);
     gGL.pushMatrix();
-    gGL.loadMatrix((F32 *)trans.mMatrix);
+    gGL.loadMatrix(reinterpret_cast<F32 *>(trans.mMatrix));
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 
     /*if (stage > 0)

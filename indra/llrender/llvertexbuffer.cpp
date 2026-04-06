@@ -310,7 +310,7 @@ static void delete_buffers(S32 count, GLuint* buffers)
 
         if (!sFreeList[idx].empty())
         {
-            glDeleteBuffers((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
+            glDeleteBuffers(static_cast<GLsizei>(sFreeList[idx].size()), sFreeList[idx].data());
             sFreeList[idx].resize(0);
         }
     }
@@ -423,7 +423,7 @@ public:
 
         //(245/276)/385 MB (distributed/allocated)/reserved in VBO Pool. Overhead: 57 percent. Hit rate: 69 percent
         //(187/209)/397 MB (distributed/allocated)/reserved in VBO Pool. Overhead: 112 percent. Hit rate: 76 percent
-        U32 block_size = llmax(nhpo2(size) / 8, (U32) 16);
+        U32 block_size = llmax(nhpo2(size) / 8, static_cast<U32>(16));
         size += block_size - (size % block_size);
     }
 
@@ -849,14 +849,14 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
     gGL.syncMatrices();
     STOP_GLERROR;
     glDrawRangeElements(sGLMode[mode], start, end, count, mIndicesType,
-        (GLvoid*) (indices_offset * (size_t) mIndicesStride));
+        reinterpret_cast<GLvoid*>(indices_offset * static_cast<size_t>(mIndicesStride)));
     STOP_GLERROR;
 }
 
 void LLVertexBuffer::drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
 {
     glDrawRangeElements(sGLMode[mode], start, end, count, mIndicesType,
-        (GLvoid*)(indices_offset * (size_t)mIndicesStride));
+        reinterpret_cast<GLvoid*>(indices_offset * static_cast<size_t>(mIndicesStride)));
 }
 
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
@@ -1640,50 +1640,50 @@ void LLVertexBuffer::setupVertexBuffer()
     if (data_mask & MAP_NORMAL)
     {
         AttributeType loc = TYPE_NORMAL;
-        void* ptr = (void*)(base + mOffsets[TYPE_NORMAL]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_NORMAL]);
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL], ptr);
     }
     if (data_mask & MAP_TEXCOORD3)
     {
         AttributeType loc = TYPE_TEXCOORD3;
-        void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD3]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_TEXCOORD3]);
         glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD3], ptr);
     }
     if (data_mask & MAP_TEXCOORD2)
     {
         AttributeType loc = TYPE_TEXCOORD2;
-        void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD2]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_TEXCOORD2]);
         glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD2], ptr);
     }
     if (data_mask & MAP_TEXCOORD1)
     {
         AttributeType loc = TYPE_TEXCOORD1;
-        void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD1]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_TEXCOORD1]);
         glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], ptr);
     }
     if (data_mask & MAP_TANGENT)
     {
         AttributeType loc = TYPE_TANGENT;
-        void* ptr = (void*)(base + mOffsets[TYPE_TANGENT]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_TANGENT]);
         glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TANGENT], ptr);
     }
     if (data_mask & MAP_TEXCOORD0)
     {
         AttributeType loc = TYPE_TEXCOORD0;
-        void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD0]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_TEXCOORD0]);
         glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], ptr);
     }
     if (data_mask & MAP_COLOR)
     {
         AttributeType loc = TYPE_COLOR;
         //bind emissive instead of color pointer if emissive is present
-        void* ptr = (data_mask & MAP_EMISSIVE) ? (void*)(base + mOffsets[TYPE_EMISSIVE]) : (void*)(base + mOffsets[TYPE_COLOR]);
+        void* ptr = (data_mask & MAP_EMISSIVE) ? reinterpret_cast<void*>(base + mOffsets[TYPE_EMISSIVE]) : reinterpret_cast<void*>(base + mOffsets[TYPE_COLOR]);
         glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_COLOR], ptr);
     }
     if (data_mask & MAP_EMISSIVE)
     {
         AttributeType loc = TYPE_EMISSIVE;
-        void* ptr = (void*)(base + mOffsets[TYPE_EMISSIVE]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_EMISSIVE]);
         glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], ptr);
 
         if (!(data_mask & MAP_COLOR))
@@ -1695,37 +1695,37 @@ void LLVertexBuffer::setupVertexBuffer()
     if (data_mask & MAP_WEIGHT)
     {
         AttributeType loc = TYPE_WEIGHT;
-        void* ptr = (void*)(base + mOffsets[TYPE_WEIGHT]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_WEIGHT]);
         glVertexAttribPointer(loc, 1, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], ptr);
     }
     if (data_mask & MAP_WEIGHT4)
     {
         AttributeType loc = TYPE_WEIGHT4;
-        void* ptr = (void*)(base + mOffsets[TYPE_WEIGHT4]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_WEIGHT4]);
         glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], ptr);
     }
     if (data_mask & MAP_JOINT)
     {
         AttributeType loc = TYPE_JOINT;
-        void* ptr = (void*)(base + mOffsets[TYPE_JOINT]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_JOINT]);
         glVertexAttribIPointer(loc, 4, GL_UNSIGNED_SHORT, LLVertexBuffer::sTypeSize[TYPE_JOINT], ptr);
     }
     if (data_mask & MAP_CLOTHWEIGHT)
     {
         AttributeType loc = TYPE_CLOTHWEIGHT;
-        void* ptr = (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_CLOTHWEIGHT]);
         glVertexAttribPointer(loc, 4, GL_FLOAT, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], ptr);
     }
     if (data_mask & MAP_TEXTURE_INDEX)
     {
         AttributeType loc = TYPE_TEXTURE_INDEX;
-        void* ptr = (void*)(base + mOffsets[TYPE_VERTEX] + 12);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_VERTEX] + 12);
         glVertexAttribIPointer(loc, 1, GL_UNSIGNED_INT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
     }
     if (data_mask & MAP_VERTEX)
     {
         AttributeType loc = TYPE_VERTEX;
-        void* ptr = (void*)(base + mOffsets[TYPE_VERTEX]);
+        void* ptr = reinterpret_cast<void*>(base + mOffsets[TYPE_VERTEX]);
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
     }
     STOP_GLERROR;
@@ -1773,7 +1773,7 @@ void LLVertexBuffer::setJointData(const U64* data)
 
 void LLVertexBuffer::setIndexData(const U16* data)
 {
-    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U16) * getNumIndices() - 1, (U8*) data, mMappedIndexData);
+    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U16) * getNumIndices() - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data)), mMappedIndexData);
 }
 
 void LLVertexBuffer::setIndexData(const U32* data)
@@ -1784,61 +1784,61 @@ void LLVertexBuffer::setIndexData(const U32* data)
         mIndicesStride = 4;
         mNumIndices /= 2;
     }
-    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U32) * getNumIndices() - 1, (U8*)data, mMappedIndexData);
+    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U32) * getNumIndices() - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data)), mMappedIndexData);
 }
 
 void LLVertexBuffer::setPositionData(std::span<const LLVector4a> data, U32 offset)
 {
-    U32 count = (U32)data.size();
-    flush_vbo(GL_ARRAY_BUFFER, offset * sizeof(LLVector4a), (offset + count) * sizeof(LLVector4a) - 1, (U8*)data.data(), mMappedData);
+    U32 count = static_cast<U32>(data.size());
+    flush_vbo(GL_ARRAY_BUFFER, offset * sizeof(LLVector4a), (offset + count) * sizeof(LLVector4a) - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);
 }
 
 void LLVertexBuffer::setNormalData(std::span<const LLVector4a> data, U32 offset)
 {
-    U32 count = (U32)data.size();
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_NORMAL] + offset * sTypeSize[TYPE_NORMAL], mOffsets[TYPE_NORMAL] + (offset + count) * sTypeSize[TYPE_NORMAL] - 1, (U8*)data.data(), mMappedData);
+    U32 count = static_cast<U32>(data.size());
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_NORMAL] + offset * sTypeSize[TYPE_NORMAL], mOffsets[TYPE_NORMAL] + (offset + count) * sTypeSize[TYPE_NORMAL] - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);
 }
 
 void LLVertexBuffer::setTexCoord0Data(std::span<const LLVector2> data, U32 offset)
 {
-    U32 count = (U32)data.size();
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD0] + offset * sTypeSize[TYPE_TEXCOORD0], mOffsets[TYPE_TEXCOORD0] + (offset + count) * sTypeSize[TYPE_TEXCOORD0] - 1, (U8*)data.data(), mMappedData);
+    U32 count = static_cast<U32>(data.size());
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD0] + offset * sTypeSize[TYPE_TEXCOORD0], mOffsets[TYPE_TEXCOORD0] + (offset + count) * sTypeSize[TYPE_TEXCOORD0] - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);
 }
 
 void LLVertexBuffer::setTexCoord1Data(std::span<const LLVector2> data, U32 offset)
 {
-    U32 count = (U32)data.size();
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD1] + offset * sTypeSize[TYPE_TEXCOORD1], mOffsets[TYPE_TEXCOORD1] + (offset + count) * sTypeSize[TYPE_TEXCOORD1] - 1, (U8*)data.data(), mMappedData);
+    U32 count = static_cast<U32>(data.size());
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD1] + offset * sTypeSize[TYPE_TEXCOORD1], mOffsets[TYPE_TEXCOORD1] + (offset + count) * sTypeSize[TYPE_TEXCOORD1] - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);
 }
 
 void LLVertexBuffer::setColorData(std::span<const LLColor4U> data, U32 offset)
 {
-    U32 count = (U32)data.size();
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_COLOR] + offset * sTypeSize[TYPE_COLOR], mOffsets[TYPE_COLOR] + (offset + count) * sTypeSize[TYPE_COLOR] - 1, (U8*)data.data(), mMappedData);
+    U32 count = static_cast<U32>(data.size());
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_COLOR] + offset * sTypeSize[TYPE_COLOR], mOffsets[TYPE_COLOR] + (offset + count) * sTypeSize[TYPE_COLOR] - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);
 }
 
 void LLVertexBuffer::setTangentData(std::span<const LLVector4a> data, U32 offset)
 {
-    U32 count = (U32)data.size();
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TANGENT] + offset * sTypeSize[TYPE_TANGENT], mOffsets[TYPE_TANGENT] + (offset + count) * sTypeSize[TYPE_TANGENT] - 1, (U8*)data.data(), mMappedData);
+    U32 count = static_cast<U32>(data.size());
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TANGENT] + offset * sTypeSize[TYPE_TANGENT], mOffsets[TYPE_TANGENT] + (offset + count) * sTypeSize[TYPE_TANGENT] - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);
 }
 
 void LLVertexBuffer::setWeight4Data(std::span<const LLVector4a> data, U32 offset)
 {
-    U32 count = (U32)data.size();
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_WEIGHT4] + offset * sTypeSize[TYPE_WEIGHT4], mOffsets[TYPE_WEIGHT4] + (offset + count) * sTypeSize[TYPE_WEIGHT4] - 1, (U8*)data.data(), mMappedData);
+    U32 count = static_cast<U32>(data.size());
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_WEIGHT4] + offset * sTypeSize[TYPE_WEIGHT4], mOffsets[TYPE_WEIGHT4] + (offset + count) * sTypeSize[TYPE_WEIGHT4] - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);
 }
 
 void LLVertexBuffer::setJointData(std::span<const U64> data, U32 offset)
 {
-    U32 count = (U32)data.size();
-    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_JOINT] + offset * sTypeSize[TYPE_JOINT], mOffsets[TYPE_JOINT] + (offset + count) * sTypeSize[TYPE_JOINT] - 1, (U8*)data.data(), mMappedData);
+    U32 count = static_cast<U32>(data.size());
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_JOINT] + offset * sTypeSize[TYPE_JOINT], mOffsets[TYPE_JOINT] + (offset + count) * sTypeSize[TYPE_JOINT] - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);
 }
 
 void LLVertexBuffer::setIndexData(std::span<const U16> data, U32 offset)
 {
-    U32 count = (U32)data.size();
-    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U16), (offset + count) * sizeof(U16) - 1, (U8*)data.data(), mMappedIndexData);
+    U32 count = static_cast<U32>(data.size());
+    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U16), (offset + count) * sizeof(U16) - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedIndexData);
 }
 
 void LLVertexBuffer::setIndexData(std::span<const U32> data, U32 offset)
@@ -1849,7 +1849,7 @@ void LLVertexBuffer::setIndexData(std::span<const U32> data, U32 offset)
         mIndicesStride = 4;
         mNumIndices /= 2;
     }
-    U32 count = (U32)data.size();
-    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data.data(), mMappedIndexData);
+    U32 count = static_cast<U32>(data.size());
+    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedIndexData);
 }
 

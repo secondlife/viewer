@@ -122,7 +122,7 @@ LLTexUnit::LLTexUnit(S32 index)
     mHasMipMaps(false),
     mIndex(index)
 {
-    llassert_always(index < (S32)LL_NUM_TEXTURE_LAYERS);
+    llassert_always(index < static_cast<S32>(LL_NUM_TEXTURE_LAYERS));
 }
 
 //static
@@ -154,7 +154,7 @@ void LLTexUnit::activate() const
 {
     if (mIndex < 0) return;
 
-    if ((S32)gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
+    if (static_cast<S32>(gGL.mCurrTextureUnitIndex) != mIndex || gGL.mDirty)
     {
         gGL.flush();
         glActiveTexture(GL_TEXTURE0 + mIndex);
@@ -770,7 +770,7 @@ bool LLRender::init(bool needs_vertex_buffer)
     if (gDebugGL)
     { //setup debug output callback
         //glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
-        glDebugMessageCallback((GLDEBUGPROC) gl_debug_callback, NULL);
+        glDebugMessageCallback(reinterpret_cast<GLDEBUGPROC>(gl_debug_callback), NULL);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     }
 #endif
@@ -1126,7 +1126,7 @@ void LLRender::loadMatrix(const GLfloat* m)
 {
     flush();
     {
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::make_mat4((GLfloat*) m);
+        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::make_mat4(reinterpret_cast<const GLfloat*>(m));
         mMatHash[mMatrixMode]++;
     }
 }
@@ -1567,15 +1567,15 @@ LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hash");
 
-        hash.update((U8*)mVerticesp.get(), count * sizeof(LLVector4a));
+        hash.update(reinterpret_cast<U8*>(mVerticesp.get()), count * sizeof(LLVector4a));
         if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
         {
-            hash.update((U8*)mTexcoordsp.get(), count * sizeof(LLVector2));
+            hash.update(reinterpret_cast<U8*>(mTexcoordsp.get()), count * sizeof(LLVector2));
         }
 
         if (attribute_mask & LLVertexBuffer::MAP_COLOR)
         {
-            hash.update((U8*)mColorsp.get(), count * sizeof(LLColor4U));
+            hash.update(reinterpret_cast<U8*>(mColorsp.get()), count * sizeof(LLColor4U));
         }
 
         hash.finalize();
@@ -1822,7 +1822,7 @@ void LLRender::vertexBatchPreTransformed(std::span<const LLVector4a> verts, std:
 
 void LLRender::vertex2i(const GLint& x, const GLint& y)
 {
-    vertex3f((GLfloat) x, (GLfloat) y, 0);
+    vertex3f(static_cast<GLfloat>(x), static_cast<GLfloat>(y), 0);
 }
 
 void LLRender::vertex2f(const GLfloat& x, const GLfloat& y)
@@ -1847,7 +1847,7 @@ void LLRender::texCoord2f(const GLfloat& x, const GLfloat& y)
 
 void LLRender::texCoord2i(const GLint& x, const GLint& y)
 {
-    texCoord2f((GLfloat) x, (GLfloat) y);
+    texCoord2f(static_cast<GLfloat>(x), static_cast<GLfloat>(y));
 }
 
 void LLRender::texCoord2fv(const GLfloat* tc)
@@ -1873,10 +1873,10 @@ void LLRender::color4ubv(const GLubyte* c)
 
 void LLRender::color4f(const GLfloat& r, const GLfloat& g, const GLfloat& b, const GLfloat& a)
 {
-    color4ub((GLubyte) (llclamp(r, 0.f, 1.f)*255),
-        (GLubyte) (llclamp(g, 0.f, 1.f)*255),
-        (GLubyte) (llclamp(b, 0.f, 1.f)*255),
-        (GLubyte) (llclamp(a, 0.f, 1.f)*255));
+    color4ub(static_cast<GLubyte>(llclamp(r, 0.f, 1.f)*255),
+        static_cast<GLubyte>(llclamp(g, 0.f, 1.f)*255),
+        static_cast<GLubyte>(llclamp(b, 0.f, 1.f)*255),
+        static_cast<GLubyte>(llclamp(a, 0.f, 1.f)*255));
 }
 
 void LLRender::color4fv(const GLfloat* c)

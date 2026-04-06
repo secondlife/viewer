@@ -447,7 +447,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
     if (video_info->current_h > 0)
     {
-        mOriginalAspectRatio = (float)video_info->current_w / (float)video_info->current_h;
+        mOriginalAspectRatio = static_cast<float>(video_info->current_w) / static_cast<float>(video_info->current_h);
         LL_INFOS() << "Original aspect ratio was " << video_info->current_w << ":" << video_info->current_h << "=" << mOriginalAspectRatio << LL_ENDL;
     }
 
@@ -523,7 +523,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
                 for(i=0; i < resolutionCount; i++)
                 {
-                    F32 aspect = (F32)resolutionList[i].mWidth / (F32)resolutionList[i].mHeight;
+                    F32 aspect = static_cast<F32>(resolutionList[i].mWidth) / static_cast<F32>(resolutionList[i].mHeight);
 
                     LL_INFOS() << "createContext: width " << resolutionList[i].mWidth << " height " << resolutionList[i].mHeight << " aspect " << aspect << LL_ENDL;
 
@@ -1081,7 +1081,7 @@ F32 LLWindowSDL::getNativeAspectRatio()
     LLWindowResolution* resolutions = getSupportedResolutions(num_resolutions);
 
 
-    return ((F32)resolutions[num_resolutions - 1].mWidth / (F32)resolutions[num_resolutions - 1].mHeight);
+    return (static_cast<F32>(resolutions[num_resolutions - 1].mWidth) / static_cast<F32>(resolutions[num_resolutions - 1].mHeight));
     //rn: AC
 #endif
 
@@ -1118,7 +1118,7 @@ F32 LLWindowSDL::getPixelAspectRatio()
         LLCoordScreen screen_size;
         if (getSize(&screen_size))
         {
-            pixel_aspect = getNativeAspectRatio() * (F32)screen_size.mY / (F32)screen_size.mX;
+            pixel_aspect = getNativeAspectRatio() * static_cast<F32>(screen_size.mY) / static_cast<F32>(screen_size.mX);
         }
     }
 
@@ -1872,8 +1872,8 @@ void LLWindowSDL::gatherInput()
         LL_INFOS() << "Handling a resize event: " << event.resize.w <<
             "x" << event.resize.h << LL_ENDL;
 
-        S32 width = llmax(event.resize.w, (S32)mMinWindowWidth);
-        S32 height = llmax(event.resize.h, (S32)mMinWindowHeight);
+        S32 width = llmax(event.resize.w, static_cast<S32>(mMinWindowWidth));
+        S32 height = llmax(event.resize.h, static_cast<S32>(mMinWindowHeight));
 
         // *FIX: I'm not sure this is necessary!
         mWindow = SDL_SetVideoMode(width, height, 32, mSDLFlags);
@@ -2375,9 +2375,9 @@ LLSD LLWindowSDL::getNativeKeyData()
     // *todo: test ALTs - I don't have a case for testing these.  Do you?
     // *todo: NUM? - I don't care enough right now (and it's not a GDK modifier).
 
-        result["scan_code"] = (S32)mKeyScanCode;
-        result["virtual_key"] = (S32)mKeyVirtualKey;
-    result["modifiers"] = (S32)modifiers;
+        result["scan_code"] = static_cast<S32>(mKeyScanCode);
+        result["virtual_key"] = static_cast<S32>(mKeyVirtualKey);
+    result["modifiers"] = static_cast<S32>(modifiers);
 
         return result;
 }
@@ -2472,7 +2472,7 @@ bool LLWindowSDL::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 //  compiler confusion regarding close(int fd) vs. LLWindow::close()
 void exec_cmd(const std::string& cmd, const std::string& arg)
 {
-    char* const argv[] = {(char*)cmd.c_str(), (char*)arg.c_str(), NULL};
+    char* const argv[] = {const_cast<char*>(cmd.c_str()), const_cast<char*>(arg.c_str()), NULL};
     fflush(NULL);
     pid_t pid = fork();
     if (pid == 0)
@@ -2671,7 +2671,7 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
                                 &filename)
                 && filename)
             {
-                rtns.push_back(std::string((const char*)filename));
+                rtns.push_back(std::string(reinterpret_cast<const char*>(filename)));
                 if (rtns.size() >= max_font_count_cutoff)
                     break; // hit limit
             }
