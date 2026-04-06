@@ -996,7 +996,7 @@ void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y
     //
     mLabelFontBuffer.render(font, mLabel, 0, x, y, color,
         LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW,
-        S32_MAX, getRect().getWidth() - (S32) x - mLabelPaddingRight, &right_x, /*use_ellipses*/true);
+        S32_MAX, getRect().getWidth() - static_cast<S32>(x) - mLabelPaddingRight, &right_x, /*use_ellipses*/true);
 }
 
 void LLFolderViewItem::draw()
@@ -1044,10 +1044,10 @@ void LLFolderViewItem::draw()
         return;
     }
 
-    S32 filter_string_length = mViewModelItem->hasFilterStringMatch() ? (S32)mViewModelItem->getFilterStringSize() : 0;
+    S32 filter_string_length = mViewModelItem->hasFilterStringMatch() ? static_cast<S32>(mViewModelItem->getFilterStringSize()) : 0;
     F32 right_x  = 0;
-    F32 y = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
-    F32 text_left = (F32)getLabelXPos();
+    F32 y = static_cast<F32>(rect_height) - line_height - static_cast<F32>(mTextPad) - static_cast<F32>(sTopPad);
+    F32 text_left = static_cast<F32>(getLabelXPos());
     LLWString combined_string = mLabel + mLabelSuffix;
 
     S32 filter_offset = static_cast<S32>(mViewModelItem->getFilterStringOffset());
@@ -1065,20 +1065,20 @@ void LLFolderViewItem::draw()
         }
         else
         {
-            S32 label_filter_length = llmin((S32)mLabel.size() - filter_offset, filter_string_length);
+            S32 label_filter_length = llmin(static_cast<S32>(mLabel.size()) - filter_offset, filter_string_length);
             if(label_filter_length > 0)
             {
-                S32 left = (S32)(ll_round(text_left) + font->getWidthF32(mLabel.c_str(), 0, llmin(filter_offset, (S32)mLabel.size()))) - 2;
-                S32 right = left + (S32)font->getWidthF32(mLabel.c_str(), filter_offset, label_filter_length) + 2;
+                S32 left = static_cast<S32>(ll_round(text_left) + font->getWidthF32(mLabel.c_str(), 0, llmin(filter_offset, static_cast<S32>(mLabel.size())))) - 2;
+                S32 right = left + static_cast<S32>(font->getWidthF32(mLabel.c_str(), filter_offset, label_filter_length)) + 2;
                 LLRect box_rect(left, top, right, bottom);
                 sSelectionImg->draw(box_rect, sFilterBGColor);
             }
             S32 suffix_filter_length = label_filter_length > 0 ? filter_string_length - label_filter_length : filter_string_length;
             if(suffix_filter_length > 0)
             {
-                S32 suffix_offset = llmax(0, filter_offset - (S32)mLabel.size());
-                S32 left = (S32)(ll_round(text_left) + font->getWidthF32(mLabel.c_str(), 0, static_cast<S32>(mLabel.size())) + sSuffixFont->getWidthF32(mLabelSuffix.c_str(), 0, suffix_offset)) - 2;
-                S32 right = left + (S32)sSuffixFont->getWidthF32(mLabelSuffix.c_str(), suffix_offset, suffix_filter_length) + 2;
+                S32 suffix_offset = llmax(0, filter_offset - static_cast<S32>(mLabel.size()));
+                S32 left = static_cast<S32>(ll_round(text_left) + font->getWidthF32(mLabel.c_str(), 0, static_cast<S32>(mLabel.size())) + sSuffixFont->getWidthF32(mLabelSuffix.c_str(), 0, suffix_offset)) - 2;
+                S32 right = left + static_cast<S32>(sSuffixFont->getWidthF32(mLabelSuffix.c_str(), suffix_offset, suffix_filter_length)) + 2;
                 LLRect box_rect(left, top, right, bottom);
                 sSelectionImg->draw(box_rect, sFilterBGColor);
             }
@@ -1125,18 +1125,18 @@ void LLFolderViewItem::draw()
         if(mLabelSuffix.empty() || (font == sSuffixFont))
         {
             F32 match_string_left = text_left + font->getWidthF32(combined_string.c_str(), 0, filter_offset + filter_string_length) - font->getWidthF32(combined_string.c_str(), filter_offset, filter_string_length);
-            F32 yy = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
+            F32 yy = static_cast<F32>(rect_height) - line_height - static_cast<F32>(mTextPad) - static_cast<F32>(sTopPad);
             font->render(combined_string, filter_offset, match_string_left, yy,
                 sFilterTextColor, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW,
                 filter_string_length, S32_MAX, &right_x);
         }
         else
         {
-            S32 label_filter_length = llmin((S32)mLabel.size() - filter_offset, filter_string_length);
+            S32 label_filter_length = llmin(static_cast<S32>(mLabel.size()) - filter_offset, filter_string_length);
             if(label_filter_length > 0)
             {
                 F32 match_string_left = text_left + font->getWidthF32(mLabel.c_str(), 0, filter_offset + label_filter_length) - font->getWidthF32(mLabel.c_str(), filter_offset, label_filter_length);
-                F32 yy = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
+                F32 yy = static_cast<F32>(rect_height) - line_height - static_cast<F32>(mTextPad) - static_cast<F32>(sTopPad);
                 font->render(mLabel, filter_offset, match_string_left, yy,
                     sFilterTextColor, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW,
                     label_filter_length, S32_MAX, &right_x);
@@ -1145,9 +1145,9 @@ void LLFolderViewItem::draw()
             S32 suffix_filter_length = label_filter_length > 0 ? filter_string_length - label_filter_length : filter_string_length;
             if(suffix_filter_length > 0)
             {
-                S32 suffix_offset = llmax(0, filter_offset - (S32)mLabel.size());
+                S32 suffix_offset = llmax(0, filter_offset - static_cast<S32>(mLabel.size()));
                 F32 match_string_left = text_left + font->getWidthF32(mLabel.c_str(), 0, static_cast<S32>(mLabel.size())) + sSuffixFont->getWidthF32(mLabelSuffix.c_str(), 0, suffix_offset + suffix_filter_length) - sSuffixFont->getWidthF32(mLabelSuffix.c_str(), suffix_offset, suffix_filter_length);
-                F32 yy = (F32)rect_height - sSuffixFont->getLineHeight() - (F32)mTextPad - (F32)sTopPad;
+                F32 yy = static_cast<F32>(rect_height) - sSuffixFont->getLineHeight() - static_cast<F32>(mTextPad) - static_cast<F32>(sTopPad);
                 sSuffixFont->render(mLabelSuffix, suffix_offset, match_string_left, yy, sFilterTextColor,
                     LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW,
                     suffix_filter_length, S32_MAX, &right_x);
@@ -1299,11 +1299,11 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
     LLFolderViewItem::arrange( width, height );
 
     // clamp existing animated height so as to never get smaller than a single item
-    mCurHeight = llmax((F32)*height, mCurHeight);
+    mCurHeight = llmax(static_cast<F32>(*height), mCurHeight);
 
     // initialize running height value as height of single item in case we have no children
-    F32 running_height = (F32)*height;
-    F32 target_height = (F32)*height;
+    F32 running_height = static_cast<F32>(*height);
+    F32 target_height = static_cast<F32>(*height);
 
     // are my children visible?
     if (needsArrange())
@@ -1328,7 +1328,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 
                     target_height += folderp->arrange( &child_width, &child_height );
 
-                    running_height += (F32)child_height;
+                    running_height += static_cast<F32>(child_height);
                     *width = llmax(*width, child_width);
                     folderp->setOrigin( 0, child_top - folderp->getRect().getHeight() );
                 }
@@ -1347,7 +1347,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
                     // don't change width, as this item is as wide as its parent folder by construction
                     itemp->reshape( itemp->getRect().getWidth(), child_height);
 
-                    running_height += (F32)child_height;
+                    running_height += static_cast<F32>(child_height);
                     *width = llmax(*width, child_width);
                     itemp->setOrigin( 0, child_top - itemp->getRect().getHeight() );
                 }

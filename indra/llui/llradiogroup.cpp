@@ -169,7 +169,7 @@ void LLRadioGroup::setIndexEnabled(S32 index, bool enabled)
 
 bool LLRadioGroup::setSelectedIndex(S32 index, bool from_event)
 {
-    if ((S32)mRadioButtons.size() <= index )
+    if (static_cast<S32>(mRadioButtons.size()) <= index )
     {
         return false;
     }
@@ -348,7 +348,7 @@ void LLRadioGroup::setValue( const LLSD& value )
         // string not found, try integer
         if (value.isInteger())
         {
-            setSelectedIndex((S32) value.asInteger(), true);
+            setSelectedIndex(static_cast<S32>(value.asInteger()), true);
         }
         else
         {

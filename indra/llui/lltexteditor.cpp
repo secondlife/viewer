@@ -130,7 +130,7 @@ public:
         // cannot extend text with custom segments
         if (!mSegments.empty()) return false;
 
-        return !mBlockExtensions && (pos == getPosition() + (S32)mWString.length());
+        return !mBlockExtensions && (pos == getPosition() + static_cast<S32>(mWString.length()));
     }
     virtual bool execute( LLTextBase* editor, S32* delta )
     {
@@ -403,7 +403,7 @@ void LLTextEditor::selectNext(const std::string& search_text_in, bool case_insen
     mIsSelecting = true;
     mSelectedOnFocusReceived = false;
     mSelectionEnd = mCursorPos;
-    mSelectionStart = llmin(getLength(), (S32)(mCursorPos + search_text.size()));
+    mSelectionStart = llmin(getLength(), static_cast<S32>(mCursorPos + search_text.size()));
 }
 
 bool LLTextEditor::replaceText(const std::string& search_text_in, const std::string& replace_text,
@@ -993,14 +993,14 @@ bool LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
             }
             startSelection();
 
-            while ((mCursorPos < (S32)text.length()) && LLWStringUtil::isPartOfWord( text[mCursorPos] ) )
+            while ((mCursorPos < static_cast<S32>(text.length())) && LLWStringUtil::isPartOfWord( text[mCursorPos] ) )
             {
                 if (!setCursorPos(mCursorPos + 1)) break;
             }
 
             mSelectionEnd = mCursorPos;
         }
-        else if ((mCursorPos < (S32)text.length()) && !iswspace( text[mCursorPos]) )
+        else if ((mCursorPos < static_cast<S32>(text.length())) && !iswspace( text[mCursorPos]) )
         {
             // Select the character the cursor is over
             startSelection();
@@ -1204,7 +1204,7 @@ S32 LLTextEditor::addChar(S32 pos, llwchar wc)
             LLWString test_string(getViewModel()->getDisplay());
 
             // modify text contents as if this addChar succeeded
-            llassert(pos <= (S32)test_string.size());
+            llassert(pos <= static_cast<S32>(test_string.size()));
             test_string.insert(pos, 1, wc);
             if (!mPrevalidator.validate(test_string))
             {
@@ -2417,17 +2417,17 @@ void LLTextEditor::drawPreeditMarker()
                 if (mPreeditStandouts[i])
                 {
                     gl_rect_2d(preedit_left + preedit_standout_gap,
-                               text_rect.mBottom + (S32)mFont->getDescenderHeight() - 1,
+                               text_rect.mBottom + static_cast<S32>(mFont->getDescenderHeight()) - 1,
                                preedit_right - preedit_standout_gap - 1,
-                               text_rect.mBottom + (S32)mFont->getDescenderHeight() - 1 - preedit_standout_thickness,
+                               text_rect.mBottom + static_cast<S32>(mFont->getDescenderHeight()) - 1 - preedit_standout_thickness,
                                (mCursorColor.get() * preedit_standout_brightness + mWriteableBgColor.get() * (1 - preedit_standout_brightness)).setAlpha(1.0f));
                 }
                 else
                 {
                     gl_rect_2d(preedit_left + preedit_marker_gap,
-                               text_rect.mBottom + (S32)mFont->getDescenderHeight() - 1,
+                               text_rect.mBottom + static_cast<S32>(mFont->getDescenderHeight()) - 1,
                                preedit_right - preedit_marker_gap - 1,
-                               text_rect.mBottom + (S32)mFont->getDescenderHeight() - 1 - preedit_marker_thickness,
+                               text_rect.mBottom + static_cast<S32>(mFont->getDescenderHeight()) - 1 - preedit_marker_thickness,
                                (mCursorColor.get() * preedit_marker_brightness + mWriteableBgColor.get() * (1 - preedit_marker_brightness)).setAlpha(1.0f));
                 }
             }
@@ -2810,7 +2810,7 @@ bool LLTextEditor::importBuffer(const char* buffer, S32 length )
     std::vector<char> text(text_len + 1);
     instream.get(text.data(), text_len + 1, '\0');
     text[text_len] = '\0';
-    if( text_len != (S32)strlen(text.data()) )/* Flawfinder: ignore */
+    if( text_len != static_cast<S32>(strlen(text.data())) )/* Flawfinder: ignore */
     {
         LL_WARNS() << llformat("Invalid text length: %d != %d ",strlen(text.data()),text_len) << LL_ENDL;/* Flawfinder: ignore */
         success = false;
@@ -3113,7 +3113,7 @@ void LLTextEditor::markAsPreedit(S32 position, S32 length)
 
 S32 LLTextEditor::getPreeditFontSize() const
 {
-    return ll_round((F32)mFont->getLineHeight() * LLUI::getScaleFactor().mV[VY]);
+    return ll_round(static_cast<F32>(mFont->getLineHeight()) * LLUI::getScaleFactor().mV[VY]);
 }
 
 bool LLTextEditor::isDirty() const
@@ -3175,7 +3175,7 @@ LLWString LLTextEditor::getConvertedText() const
             std::string slurl = segment->getStyle()->getLinkHREF();
 
             text.replace(segment->getStart() + diff, seg_length, utf8str_to_wstring(slurl));
-            diff += (S32)slurl.size() - seg_length;
+            diff += static_cast<S32>(slurl.size()) - seg_length;
         }
     }
     return text;

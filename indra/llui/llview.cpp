@@ -902,7 +902,7 @@ F32 LLView::getTooltipTimeout()
     static LLCachedControl<F32> tooltip_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipDelay", 0.7f);
     // allow "scrubbing" over ui by showing next tooltip immediately
     // if previous one was still visible
-    return (F32)(LLToolTipMgr::instance().toolTipVisible()
+    return static_cast<F32>(LLToolTipMgr::instance().toolTipVisible()
     ? tooltip_fast_delay
     : tooltip_delay);
 }
@@ -1247,7 +1247,7 @@ void LLView::drawChildren()
                 {
                     LLUI::pushMatrix();
                     {
-                        LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom);
+                        LLUI::translate(static_cast<F32>(viewp->getRect().mLeft), static_cast<F32>(viewp->getRect().mBottom));
                         // flag the fact we are in draw here, in case overridden draw() method attempts to remove this widget
                         viewp->mInDraw = true;
                         viewp->draw();
@@ -1308,7 +1308,7 @@ void LLView::drawDebugRect()
 
         if (getUseBoundingRect())
         {
-            LLUI::translate((F32)mBoundingRect.mLeft - (F32)mRect.mLeft, (F32)mBoundingRect.mBottom - (F32)mRect.mBottom);
+            LLUI::translate(static_cast<F32>(mBoundingRect.mLeft) - static_cast<F32>(mRect.mLeft), static_cast<F32>(mBoundingRect.mBottom) - static_cast<F32>(mRect.mBottom));
         }
 
         LLRect debug_rect = getUseBoundingRect() ? mBoundingRect : mRect;
@@ -1373,7 +1373,7 @@ void LLView::drawDebugRect()
 
             std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
                                         debug_rect.getWidth(), debug_rect.getHeight());
-            LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
+            LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, static_cast<F32>(x), static_cast<F32>(y), border_color,
                     LLFontGL::HAlign::HCENTER, LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW);
         }
     }
@@ -1392,7 +1392,7 @@ void LLView::drawChild(LLView* childp, S32 x_offset, S32 y_offset, bool force_dr
             gGL.matrixMode(LLRender::MM_MODELVIEW);
             LLUI::pushMatrix();
             {
-                LLUI::translate((F32)childp->getRect().mLeft + x_offset, (F32)childp->getRect().mBottom + y_offset);
+                LLUI::translate(static_cast<F32>(childp->getRect().mLeft) + x_offset, static_cast<F32>(childp->getRect().mBottom) + y_offset);
                 childp->draw();
             }
             LLUI::popMatrix();

@@ -230,7 +230,7 @@ public:
     bool getShowSingleSelection() const { return mShowSingleSelection; }
     F32  getSelectionFadeElapsedTime() const { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
     bool getUseEllipses() const { return mUseEllipses; }
-    S32 getSelectedCount() const { return (S32)mSelectedItems.size(); }
+    S32 getSelectedCount() const { return static_cast<S32>(mSelectedItems.size()); }
 
     void update(); // needs to be called periodically (e.g. once per frame)
 

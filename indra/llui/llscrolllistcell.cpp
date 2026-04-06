@@ -226,7 +226,7 @@ void LLScrollListBar::setValue(const LLSD& value)
 {
     if (value.has("ratio"))
     {
-        mRatio = (F32)value["ratio"].asReal();
+        mRatio = static_cast<F32>(value["ratio"].asReal());
     }
     if (value.has("bottom"))
     {
@@ -256,7 +256,7 @@ S32 LLScrollListBar::getWidth() const
 void LLScrollListBar::draw(const LLColor4& color, const LLColor4& highlight_color)
 {
     S32 bar_width = getWidth() - mLeftPad - mRightPad;
-    S32 left = (S32)(bar_width - bar_width * mRatio);
+    S32 left = static_cast<S32>(bar_width - bar_width * mRatio);
     left = llclamp(left, mLeftPad, getWidth() - mRightPad - 1);
 
     gl_rect_2d(left, mBottom, getWidth() - mRightPad, mBottom - 1, mColor);
@@ -458,10 +458,10 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
         start_x = 1.f;
         break;
     case LLFontGL::HAlign::RIGHT:
-        start_x = (F32)getWidth();
+        start_x = static_cast<F32>(getWidth());
         break;
     case LLFontGL::HAlign::HCENTER:
-        start_x = (F32)getWidth() * 0.5f;
+        start_x = static_cast<F32>(getWidth()) * 0.5f;
         break;
     }
     mFontBuffer.render(mFont,
@@ -678,13 +678,13 @@ void LLScrollListIconText::draw(const LLColor4& color, const LLColor4& highlight
         start_icon_x = 1;
         break;
     case LLFontGL::HAlign::RIGHT:
-        start_text_x = (F32)getWidth();
+        start_text_x = static_cast<F32>(getWidth());
         start_icon_x = getWidth() - mFont->getWidth(mText.getWString().c_str()) - icon_space;
         break;
     case LLFontGL::HAlign::HCENTER:
-        F32 center = (F32)getWidth()* 0.5f;
-        start_text_x = center + ((F32)icon_space * 0.5f);
-        start_icon_x = (S32)(center - (((F32)icon_space + mFont->getWidth(mText.getWString().c_str())) * 0.5f));
+        F32 center = static_cast<F32>(getWidth()) * 0.5f;
+        start_text_x = center + (static_cast<F32>(icon_space) * 0.5f);
+        start_icon_x = static_cast<S32>(center - ((static_cast<F32>(icon_space) + mFont->getWidth(mText.getWString().c_str())) * 0.5f));
         break;
     }
     mFontBuffer.render(

@@ -84,7 +84,7 @@ void LLUIString::setArg(const std::string& key, const std::string& replacement)
 
 void LLUIString::truncate(S32 maxchars)
 {
-    if (getUpdatedWResult().size() > (size_t)maxchars)
+    if (getUpdatedWResult().size() > static_cast<size_t>(maxchars))
     {
         LLWStringUtil::truncate(getUpdatedWResult(), maxchars);
         mResult = wstring_to_utf8str(getUpdatedWResult());

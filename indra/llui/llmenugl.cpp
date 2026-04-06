@@ -323,7 +323,7 @@ void LLMenuItemGL::appendAcceleratorString( std::string& st ) const
 
 void LLMenuItemGL::setJumpKey(KEY key)
 {
-    mJumpKey = LLStringOps::toUpper((char)key);
+    mJumpKey = LLStringOps::toUpper(static_cast<char>(key));
 }
 
 
@@ -522,19 +522,19 @@ void LLMenuItemGL::draw( void )
     {
         if( !mDrawBoolLabel.empty() )
         {
-            mFont->render( mDrawBoolLabel.getWString(), 0, (F32)LEFT_PAD_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f), color,
+            mFont->render( mDrawBoolLabel.getWString(), 0, static_cast<F32>(LEFT_PAD_PIXELS), (static_cast<F32>(MENU_ITEM_PADDING) / 2.f), color,
                            LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, S32_MAX, NULL, false );
         }
-        mFont->render( mLabel.getWString(), 0, (F32)LEFT_PLAIN_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f), color,
+        mFont->render( mLabel.getWString(), 0, static_cast<F32>(LEFT_PLAIN_PIXELS), (static_cast<F32>(MENU_ITEM_PADDING) / 2.f), color,
                        LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, S32_MAX, NULL, false );
         if( !mDrawAccelLabel.empty() )
         {
-            mFont->render( mDrawAccelLabel.getWString(), 0, (F32)getRect().mRight - (F32)RIGHT_PLAIN_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f), color,
+            mFont->render( mDrawAccelLabel.getWString(), 0, static_cast<F32>(getRect().mRight) - static_cast<F32>(RIGHT_PLAIN_PIXELS), (static_cast<F32>(MENU_ITEM_PADDING) / 2.f), color,
                            LLFontGL::HAlign::RIGHT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, S32_MAX, NULL, false );
         }
         if( !mDrawBranchLabel.empty() )
         {
-            mFont->render( mDrawBranchLabel.getWString(), 0, (F32)getRect().mRight - (F32)RIGHT_PAD_PIXELS, ((F32)MENU_ITEM_PADDING / 2.f), color,
+            mFont->render( mDrawBranchLabel.getWString(), 0, static_cast<F32>(getRect().mRight) - static_cast<F32>(RIGHT_PAD_PIXELS), (static_cast<F32>(MENU_ITEM_PADDING) / 2.f), color,
                            LLFontGL::HAlign::RIGHT, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, S32_MAX, NULL, false );
         }
     }
@@ -1639,7 +1639,7 @@ void LLMenuItemBranchDownGL::draw( void )
     {
         color = mDisabledColor.get();
     }
-    getFont()->render( mLabel.getWString(), 0, (F32)getRect().getWidth() / 2.f, (F32)LABEL_BOTTOM_PAD_PIXELS, color,
+    getFont()->render( mLabel.getWString(), 0, static_cast<F32>(getRect().getWidth()) / 2.f, static_cast<F32>(LABEL_BOTTOM_PAD_PIXELS), color,
                    LLFontGL::HAlign::HCENTER, LLFontGL::VAlign::BOTTOM, LLFontGL::NORMAL);
 
 
@@ -1651,7 +1651,7 @@ void LLMenuItemBranchDownGL::draw( void )
         std::string::size_type offset = upper_case_label.find(getJumpKey());
         if (offset != std::string::npos)
         {
-            S32 x_offset = ll_round((F32)getRect().getWidth() / 2.f - getFont()->getWidthF32(mLabel.getWString().c_str(), 0, S32_MAX) / 2.f);
+            S32 x_offset = ll_round(static_cast<F32>(getRect().getWidth()) / 2.f - getFont()->getWidthF32(mLabel.getWString().c_str(), 0, S32_MAX) / 2.f);
             S32 x_begin = x_offset + getFont()->getWidth(mLabel.getWString().c_str(), 0, static_cast<S32>(offset));
             S32 x_end = x_offset + getFont()->getWidth(mLabel.getWString().c_str(), 0, static_cast<S32>(offset) + 1);
             gl_line_2d(x_begin, LABEL_BOTTOM_PAD_PIXELS, x_end, LABEL_BOTTOM_PAD_PIXELS);
@@ -2296,11 +2296,11 @@ void LLMenuGL::arrange( void )
             }
         }
 
-        S32 cur_height = (S32)llmin(max_height, height);
+        S32 cur_height = static_cast<S32>(llmin(max_height, height));
 
         if (mScrollable &&
             (height_before_first_visible_item > MENU_ITEM_PADDING ||
-                height_before_first_visible_item + visible_items_height < (S32)height))
+                height_before_first_visible_item + visible_items_height < static_cast<S32>(height)))
         {
             // Reserving 2 extra slots for arrow items
             cur_height = visible_items_height + spillover_item_height * 2;
@@ -2314,7 +2314,7 @@ void LLMenuGL::arrange( void )
         {
             // No space for all items, creating arrow items
             if (height_before_first_visible_item > MENU_ITEM_PADDING ||
-                height_before_first_visible_item + visible_items_height < (S32)height)
+                height_before_first_visible_item + visible_items_height < static_cast<S32>(height))
             {
                 if (NULL == mArrowUpItem)
                 {
@@ -2345,7 +2345,7 @@ void LLMenuGL::arrange( void )
                 mArrowUpItem->reshape(width, mArrowUpItem->getNominalHeight());
                 mArrowDownItem->setRect(rect.setLeftTopAndSize( 0, mArrowDownItem->getNominalHeight(), width, mArrowDownItem->getNominalHeight()));
                 mArrowDownItem->setVisible(true);
-                mArrowDownItem->setEnabled(height_before_first_visible_item + visible_items_height < (S32)height);
+                mArrowDownItem->setEnabled(height_before_first_visible_item + visible_items_height < static_cast<S32>(height));
                 mArrowDownItem->reshape(width, mArrowDownItem->getNominalHeight());
 
                 cur_height -= mArrowUpItem->getNominalHeight();
@@ -2559,7 +2559,7 @@ void LLMenuGL::createJumpKeys()
             if (shared_words.find(*token_iter) == shared_words.end())
             {
                 S32 i;
-                for(i = 0; i < (S32)uppercase_word.size(); i++)
+                for(i = 0; i < static_cast<S32>(uppercase_word.size()); i++)
                 {
                     char jump_key = uppercase_word[i];
 
@@ -2821,7 +2821,7 @@ U32 LLMenuGL::getItemCount()
 
 LLMenuItemGL* LLMenuGL::getItem(S32 number)
 {
-    if (number >= 0 && number < (S32)mItems.size())
+    if (number >= 0 && number < static_cast<S32>(mItems.size()))
     {
         item_list_t::iterator item_iter;
         for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
@@ -2906,7 +2906,7 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, bool skip_disa
         // If current item is the last visible, the menu is scrolled one item down
         // and the next item is highlighted.
         else if (mScrollable &&
-                 (U32)std::abs(std::distance(first_visible_item_iter, next_item_iter)) >= mMaxScrollableItems)
+                 static_cast<U32>(std::abs(std::distance(first_visible_item_iter, next_item_iter))) >= mMaxScrollableItems)
         {
             // Call highlightNextItem() recursively only if the menu was successfully scrolled down.
             // If scroll timer hasn't expired yet the menu won't be scrolled and calling
@@ -3141,13 +3141,13 @@ bool LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
     bool no_mouse_data = mLastMouseX == 0 && mLastMouseY == 0;
     S32 mouse_delta_x = no_mouse_data ? 0 : x - mLastMouseX;
     S32 mouse_delta_y = no_mouse_data ? 0 : y - mLastMouseY;
-    LLVector2 mouse_dir((F32)mouse_delta_x, (F32)mouse_delta_y);
+    LLVector2 mouse_dir(static_cast<F32>(mouse_delta_x), static_cast<F32>(mouse_delta_y));
     mouse_dir.normalize();
-    LLVector2 mouse_avg_dir((F32)mMouseVelX, (F32)mMouseVelY);
+    LLVector2 mouse_avg_dir(static_cast<F32>(mMouseVelX), static_cast<F32>(mMouseVelY));
     mouse_avg_dir.normalize();
     F32 interp = 0.5f * (llclamp(mouse_dir * mouse_avg_dir, 0.f, 1.f));
-    mMouseVelX = ll_round(lerp((F32)mouse_delta_x, (F32)mMouseVelX, interp));
-    mMouseVelY = ll_round(lerp((F32)mouse_delta_y, (F32)mMouseVelY, interp));
+    mMouseVelX = ll_round(lerp(static_cast<F32>(mouse_delta_x), static_cast<F32>(mMouseVelX), interp));
+    mMouseVelY = ll_round(lerp(static_cast<F32>(mouse_delta_y), static_cast<F32>(mMouseVelY), interp));
     mLastMouseX = x;
     mLastMouseY = y;
 
@@ -3157,7 +3157,7 @@ bool LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
         (!mHasSelection ||
         //(mouse_delta_x == 0 && mouse_delta_y == 0) ||
         (mMouseVelX < 0) ||
-        llabs((F32)mMouseVelY) / llabs((F32)mMouseVelX) > MAX_MOUSE_SLOPE_SUB_MENU))
+        llabs(static_cast<F32>(mMouseVelY)) / llabs(static_cast<F32>(mMouseVelX)) > MAX_MOUSE_SLOPE_SUB_MENU))
     {
         for (auto viewp : *getChildList())
         {
@@ -3751,7 +3751,7 @@ void LLMenuHolderGL::draw()
 
         LLUI::pushMatrix();
         {
-            LLUI::translate((F32)item_rect.mLeft, (F32)item_rect.mBottom);
+            LLUI::translate(static_cast<F32>(item_rect.mLeft), static_cast<F32>(item_rect.mBottom));
             selecteditem->getMenu()->drawBackground(selecteditem, interpolant);
             selecteditem->draw();
         }
@@ -3968,7 +3968,7 @@ void LLTearOffMenu::draw()
     if (getRect().getHeight() != mTargetHeight)
     {
         // animate towards target height
-        reshape(getRect().getWidth(), llceil(lerp((F32)getRect().getHeight(), (F32)mTargetHeight, LLSmoothInterpolation::getInterpolant(0.05f))));
+        reshape(getRect().getWidth(), llceil(lerp(static_cast<F32>(getRect().getHeight()), static_cast<F32>(mTargetHeight), LLSmoothInterpolation::getInterpolant(0.05f))));
     }
     mMenu->needsArrange();
     LLFloater::draw();

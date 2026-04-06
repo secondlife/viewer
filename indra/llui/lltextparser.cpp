@@ -54,7 +54,7 @@ S32 LLTextParser::findPattern(const std::string &text, LLSD highlight)
     std::string pattern=std::string(highlight["pattern"]);
     std::string ltext=text;
 
-    if (!(bool)highlight["case_sensitive"])
+    if (!static_cast<bool>(highlight["case_sensitive"]))
     {
         ltext   = utf8str_tolower(text);
         pattern= utf8str_tolower(pattern);
@@ -62,7 +62,7 @@ S32 LLTextParser::findPattern(const std::string &text, LLSD highlight)
 
     size_t found=std::string::npos;
 
-    switch ((S32)highlight["condition"])
+    switch (static_cast<S32>(highlight["condition"]))
     {
         case CONTAINS:
             found = ltext.find(pattern);
@@ -88,10 +88,10 @@ LLTextParser::parser_out_vec_t LLTextParser::parsePartialLineHighlights(const st
     //evil recursive string atomizer.
     parser_out_vec_t ret_vec, start_vec, middle_vec, end_vec;
 
-    for (S32 i=index, size = (S32)mHighlights.size();i< size;i++)
+    for (S32 i=index, size = static_cast<S32>(mHighlights.size());i< size;i++)
     {
         S32 condition = mHighlights[i]["condition"];
-        if ((S32)mHighlights[i]["highlight"]==PART && condition!=MATCHES)
+        if (static_cast<S32>(mHighlights[i]["highlight"])==PART && condition!=MATCHES)
         {
             if ( (condition==STARTS_WITH && part==START) ||
                  (condition==ENDS_WITH   && part==END)   ||
@@ -176,7 +176,7 @@ bool LLTextParser::parseFullLineHighlights(const std::string &text, LLColor4 *co
 
     for (S32 i=0;i<mHighlights.size();i++)
     {
-        if ((S32)mHighlights[i]["highlight"]==ALL || (S32)mHighlights[i]["condition"]==MATCHES)
+        if (static_cast<S32>(mHighlights[i]["highlight"])==ALL || static_cast<S32>(mHighlights[i]["condition"])==MATCHES)
         {
             if (findPattern(text,mHighlights[i]) >= 0 )
             {

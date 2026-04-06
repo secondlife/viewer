@@ -94,8 +94,8 @@ public:
     void            resetCurSlider();
     void            setCurSliderValue(F32 val, bool from_event = false) { setSliderValue(mMultiSlider->getCurSlider(), val, from_event); }
 
-    virtual void    setMinValue(const LLSD& min_value)  { setMinValue((F32)min_value.asReal()); }
-    virtual void    setMaxValue(const LLSD& max_value)  { setMaxValue((F32)max_value.asReal());  }
+    virtual void    setMinValue(const LLSD& min_value)  { setMinValue(static_cast<F32>(min_value.asReal())); }
+    virtual void    setMaxValue(const LLSD& max_value)  { setMaxValue(static_cast<F32>(max_value.asReal()));  }
 
     bool            isMouseHeldDown();
 

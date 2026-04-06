@@ -121,7 +121,7 @@ void LLContainerView::draw()
     if (mShowLabel)
     {
         LLFontGL::getFontMonospace()->render(
-            mLabel, 0, 2.f, (F32)(getRect().getHeight() - 2), LLColor4(1,1,1,1), LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
+            mLabel, 0, 2.f, static_cast<F32>(getRect().getHeight() - 2), LLColor4(1,1,1,1), LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     }
 
     LLView::draw();

@@ -37,7 +37,7 @@
 
 LLF32UICtrl::LLF32UICtrl(const Params& p)
 :   LLUICtrl(p),
-    mInitialValue((F32)p.initial_value().asReal()),
+    mInitialValue(static_cast<F32>(p.initial_value().asReal())),
     mMinValue(p.min_value),
     mMaxValue(p.max_value),
     mIncrement(p.increment)
@@ -47,5 +47,5 @@ LLF32UICtrl::LLF32UICtrl(const Params& p)
 
 F32 LLF32UICtrl::getValueF32() const
 {
-    return (F32)mViewModel->getValue().asReal();
+    return static_cast<F32>(mViewModel->getValue().asReal());
 }

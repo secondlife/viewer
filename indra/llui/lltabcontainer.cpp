@@ -303,7 +303,7 @@ LLTabContainer::~LLTabContainer()
 //virtual
 void LLTabContainer::setValue(const LLSD& value)
 {
-    selectTab((S32) value.asInteger());
+    selectTab(static_cast<S32>(value.asInteger()));
 }
 
 //virtual
@@ -430,7 +430,7 @@ void LLTabContainer::draw()
         }
     }
 
-    setScrollPosPixels((S32)lerp((F32)getScrollPosPixels(), (F32)target_pixel_scroll, LLSmoothInterpolation::getInterpolant(0.08f)));
+    setScrollPosPixels(static_cast<S32>(lerp(static_cast<F32>(getScrollPosPixels()), static_cast<F32>(target_pixel_scroll), LLSmoothInterpolation::getInterpolant(0.08f))));
 
     bool has_scroll_arrows = !mHideScrollArrows && !getTabsHidden() && ((mMaxScrollPos > 0) || (mScrollPosPixels > 0));
     if (!mIsVertical)
@@ -521,12 +521,12 @@ void LLTabContainer::draw()
         {
             // Redraw the arrows so that they appears on top.
             gGL.pushUIMatrix();
-            gGL.translateUI((F32)mPrevArrowBtn->getRect().mLeft, (F32)mPrevArrowBtn->getRect().mBottom, 0.f);
+            gGL.translateUI(static_cast<F32>(mPrevArrowBtn->getRect().mLeft), static_cast<F32>(mPrevArrowBtn->getRect().mBottom), 0.f);
             mPrevArrowBtn->draw();
             gGL.popUIMatrix();
 
             gGL.pushUIMatrix();
-            gGL.translateUI((F32)mNextArrowBtn->getRect().mLeft, (F32)mNextArrowBtn->getRect().mBottom, 0.f);
+            gGL.translateUI(static_cast<F32>(mNextArrowBtn->getRect().mLeft), static_cast<F32>(mNextArrowBtn->getRect().mBottom), 0.f);
             mNextArrowBtn->draw();
             gGL.popUIMatrix();
         }
@@ -1288,7 +1288,7 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
     // make sure we don't have more locked tabs than we have tabs
     mLockedTabCount = llmin(getTabCount(), mLockedTabCount);
 
-    if (mCurrentTabIdx >= (S32)mTabList.size())
+    if (mCurrentTabIdx >= static_cast<S32>(mTabList.size()))
     {
         mCurrentTabIdx = static_cast<S32>(mTabList.size()) - 1;
     }
@@ -1319,7 +1319,7 @@ void LLTabContainer::unlockTabs()
 
 void LLTabContainer::enableTabButton(S32 which, bool enable)
 {
-    if (which >= 0 && which < (S32)mTabList.size())
+    if (which >= 0 && which < static_cast<S32>(mTabList.size()))
     {
         mTabList[which]->mButton->setEnabled(enable);
     }
@@ -1353,7 +1353,7 @@ void LLTabContainer::deleteAllTabs()
 
 LLPanel* LLTabContainer::getCurrentPanel()
 {
-    if (mCurrentTabIdx >= 0 && mCurrentTabIdx < (S32) mTabList.size())
+    if (mCurrentTabIdx >= 0 && mCurrentTabIdx < static_cast<S32>(mTabList.size()))
     {
         return mTabList[mCurrentTabIdx]->mTabPanel;
     }
@@ -1372,7 +1372,7 @@ S32 LLTabContainer::getTabCount() const
 
 LLPanel* LLTabContainer::getPanelByIndex(S32 index) const
 {
-    if (index >= 0 && index < (S32)mTabList.size())
+    if (index >= 0 && index < static_cast<S32>(mTabList.size()))
     {
         return mTabList[index]->mTabPanel;
     }
@@ -1381,7 +1381,7 @@ LLPanel* LLTabContainer::getPanelByIndex(S32 index) const
 
 S32 LLTabContainer::getIndexForPanel(LLPanel* panel) const
 {
-    for (S32 index = 0; index < (S32)mTabList.size(); index++)
+    for (S32 index = 0; index < static_cast<S32>(mTabList.size()); index++)
     {
         if (mTabList[index]->mTabPanel == panel)
         {
@@ -1393,7 +1393,7 @@ S32 LLTabContainer::getIndexForPanel(LLPanel* panel) const
 
 S32 LLTabContainer::getPanelIndexByTitle(std::string_view title) const
 {
-    for (S32 index = 0 ; index < (S32)mTabList.size(); index++)
+    for (S32 index = 0 ; index < static_cast<S32>(mTabList.size()); index++)
     {
         if (title == mTabList[index]->mButton->getLabelSelected())
         {
@@ -1450,11 +1450,11 @@ void LLTabContainer::selectNextTab()
         tab_has_focus = true;
     }
     S32 idx = mCurrentTabIdx+1;
-    if (idx >= (S32)mTabList.size())
+    if (idx >= static_cast<S32>(mTabList.size()))
         idx = 0;
     while (!selectTab(idx) && idx != mCurrentTabIdx)
     {
-        idx = (idx + 1 ) % (S32)mTabList.size();
+        idx = (idx + 1 ) % static_cast<S32>(mTabList.size());
     }
 
     if (tab_has_focus)
@@ -1747,7 +1747,7 @@ void LLTabContainer::setTitle(const std::string& title)
 
 const std::string LLTabContainer::getPanelTitle(S32 index)
 {
-    if (index >= 0 && index < (S32)mTabList.size())
+    if (index >= 0 && index < static_cast<S32>(mTabList.size()))
     {
         const LLButton* tab_button = mTabList[index]->mButton;
         return tab_button->getLabelSelected();
@@ -2084,7 +2084,7 @@ void LLTabContainer::updateMaxScrollPos()
             static LLUICachedControl<S32> tabcntrv_arrow_btn_size ("UITabCntrvArrowBtnSize", 0);
             S32 available_height_with_arrows = getRect().getHeight() - 2*(tabcntrv_arrow_btn_size + 3*tabcntrv_pad) - mNextArrowBtn->getRect().mBottom;
             S32 additional_needed = tab_total_height - available_height_with_arrows;
-            setMaxScrollPos((S32) ceil(additional_needed / float(BTN_HEIGHT + tabcntrv_pad) ) );
+            setMaxScrollPos(static_cast<S32>(ceil(additional_needed / float(BTN_HEIGHT + tabcntrv_pad) )) );
             no_scroll = false;
         }
     }
@@ -2175,7 +2175,7 @@ void LLTabContainer::setTabVisibility( LLPanel const *aPanel, bool aVisible )
         LLTabTuple const *pTT = *itr;
         if( pTT->mVisible )
         {
-            this->selectTab((S32)(itr - mTabList.begin()));
+            this->selectTab(static_cast<S32>(itr - mTabList.begin()));
             foundTab = true;
             break;
         }

@@ -46,7 +46,7 @@ public:
     static void* buildPanel(void* data)
     {
         T* panel = new T();
-        return (void*)panel;
+        return static_cast<void*>(panel);
     }
 
     LLCallbackMap() : mCallback(nullptr), mData(nullptr) {}

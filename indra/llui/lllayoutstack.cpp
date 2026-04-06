@@ -101,7 +101,7 @@ F32 LLLayoutPanel::getVisibleAmount() const
 
 S32 LLLayoutPanel::getLayoutDim() const
 {
-    return ll_round((F32)((mOrientation == LLLayoutStack::HORIZONTAL)
+    return ll_round(static_cast<F32>((mOrientation == LLLayoutStack::HORIZONTAL)
                     ? getRect().getWidth()
                     : getRect().getHeight()));
 }
@@ -127,16 +127,16 @@ void LLLayoutPanel::setTargetDim(S32 value)
 
 S32 LLLayoutPanel::getVisibleDim() const
 {
-    F32 min_dim = (F32)getRelevantMinDim();
+    F32 min_dim = static_cast<F32>(getRelevantMinDim());
     return ll_round(mVisibleAmt
                     * (min_dim
-                        + (((F32)mTargetDim - min_dim) * (1.f - mCollapseAmt))));
+                        + ((static_cast<F32>(mTargetDim) - min_dim) * (1.f - mCollapseAmt))));
 }
 
 void LLLayoutPanel::setOrientation( LLView::EOrientation orientation )
 {
     mOrientation = orientation;
-    S32 layout_dim = ll_round((F32)((mOrientation == LLLayoutStack::HORIZONTAL)
+    S32 layout_dim = ll_round(static_cast<F32>((mOrientation == LLLayoutStack::HORIZONTAL)
         ? getRect().getWidth()
         : getRect().getHeight()));
 
@@ -415,7 +415,7 @@ void LLLayoutStack::updateLayout()
         {
             panelp->mTargetDim = panelp->getRelevantMinDim();
         }
-        space_to_distribute -= panelp->getVisibleDim() + ll_round((F32)mPanelSpacing * panelp->getVisibleAmount());
+        space_to_distribute -= panelp->getVisibleDim() + ll_round(static_cast<F32>(mPanelSpacing) * panelp->getVisibleAmount());
         total_visible_fraction += panelp->mFractionalSize * panelp->getAutoResizeFactor();
     }
 
@@ -435,7 +435,7 @@ void LLLayoutStack::updateLayout()
             if (panelp->mAutoResize)
             {
                 F32 fraction_to_distribute = (panelp->mFractionalSize * panelp->getAutoResizeFactor()) / (total_visible_fraction);
-                S32 delta = ll_round((F32)space_to_distribute * fraction_to_distribute);
+                S32 delta = ll_round(static_cast<F32>(space_to_distribute) * fraction_to_distribute);
                 panelp->mTargetDim += delta;
                 remaining_space -= delta;
             }
@@ -457,11 +457,11 @@ void LLLayoutStack::updateLayout()
         }
     }
 
-    F32 cur_pos = (mOrientation == HORIZONTAL) ? 0.f : (F32)getRect().getHeight();
+    F32 cur_pos = (mOrientation == HORIZONTAL) ? 0.f : static_cast<F32>(getRect().getHeight());
 
     for (LLLayoutPanel* panelp : mPanels)
     {
-        F32 panel_dim = (F32)llmax(panelp->getExpandedMinDim(), panelp->mTargetDim);
+        F32 panel_dim = static_cast<F32>(llmax(panelp->getExpandedMinDim(), panelp->mTargetDim));
 
         LLRect panel_rect;
         if (mOrientation == HORIZONTAL)
@@ -480,8 +480,8 @@ void LLLayoutStack::updateLayout()
         }
 
         LLRect resize_bar_rect(panel_rect);
-        F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
-        F32 panel_visible_dim = (F32)panelp->getVisibleDim();
+        F32 panel_spacing = static_cast<F32>(mPanelSpacing) * panelp->getVisibleAmount();
+        F32 panel_visible_dim = static_cast<F32>(panelp->getVisibleDim());
         S32 panel_spacing_round = ll_round(panel_spacing);
 
         if (mOrientation == HORIZONTAL)
@@ -689,7 +689,7 @@ void LLLayoutStack::updateFractionalSizes()
     {
         if (panelp->mAutoResize)
         {
-            total_resizable_dim += llmax(MIN_FRACTIONAL_SIZE, (F32)(panelp->getLayoutDim() - panelp->getRelevantMinDim()));
+            total_resizable_dim += llmax(MIN_FRACTIONAL_SIZE, static_cast<F32>(panelp->getLayoutDim() - panelp->getRelevantMinDim()));
         }
     }
 
@@ -697,7 +697,7 @@ void LLLayoutStack::updateFractionalSizes()
     {
         if (panelp->mAutoResize)
         {
-            F32 panel_resizable_dim = llmax(MIN_FRACTIONAL_SIZE, (F32)(panelp->getLayoutDim() - panelp->getRelevantMinDim()));
+            F32 panel_resizable_dim = llmax(MIN_FRACTIONAL_SIZE, static_cast<F32>(panelp->getLayoutDim() - panelp->getRelevantMinDim()));
             panelp->mFractionalSize = panel_resizable_dim > 0.f
                 ? llclamp(panel_resizable_dim / total_resizable_dim, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE)
                 : MIN_FRACTIONAL_SIZE;
@@ -729,7 +729,7 @@ void LLLayoutStack::normalizeFractionalSizes()
         {
             if (panelp->mAutoResize)
             {
-                panelp->mFractionalSize = MAX_FRACTIONAL_SIZE / (F32)num_auto_resize_panels;
+                panelp->mFractionalSize = MAX_FRACTIONAL_SIZE / static_cast<F32>(num_auto_resize_panels);
             }
         }
     }
@@ -854,7 +854,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
     {
         if (panelp->mAutoResize)
         {
-            old_auto_resize_headroom += (F32)(panelp->mTargetDim - panelp->getRelevantMinDim());
+            old_auto_resize_headroom += static_cast<F32>(panelp->mTargetDim - panelp->getRelevantMinDim());
             if (panelp->getVisible() && !panelp->mCollapsed)
             {
                 total_visible_fraction += panelp->mFractionalSize;
@@ -941,7 +941,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
             {   // freeze new size as fraction
                 F32 new_fractional_size = (new_auto_resize_headroom == 0.f)
                     ? MAX_FRACTIONAL_SIZE
-                    : llclamp(total_visible_fraction * (F32)(new_dim - panelp->getRelevantMinDim()) / new_auto_resize_headroom, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE);
+                    : llclamp(total_visible_fraction * static_cast<F32>(new_dim - panelp->getRelevantMinDim()) / new_auto_resize_headroom, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE);
                 fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
                 fraction_remaining -= panelp->mFractionalSize;
                 panelp->mFractionalSize = new_fractional_size;
@@ -969,7 +969,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
                         new_auto_resize_headroom = 1.f;
                     }
 
-                    F32 new_fractional_size = llclamp(total_visible_fraction * (F32)(panelp->mTargetDim - panelp->getRelevantMinDim() + delta_auto_resize_headroom)
+                    F32 new_fractional_size = llclamp(total_visible_fraction * static_cast<F32>(panelp->mTargetDim - panelp->getRelevantMinDim() + delta_auto_resize_headroom)
                                                         / new_auto_resize_headroom,
                                                     MIN_FRACTIONAL_SIZE,
                                                     MAX_FRACTIONAL_SIZE);

@@ -172,7 +172,7 @@ F32 LLTimeCtrl::getTime24() const
 
 U32 LLTimeCtrl::getHours24() const
 {
-    return (U32) getTime24();
+    return static_cast<U32>(getTime24());
 }
 
 U32 LLTimeCtrl::getMinutes() const
@@ -349,11 +349,11 @@ LLTimeCtrl::EEditingPart LLTimeCtrl::getEditingPart()
     {
         return HOURS;
     }
-    else if (cur_pos > colon_index && cur_pos <= (S32)(time_str.length() - AMPM_LEN))
+    else if (cur_pos > colon_index && cur_pos <= static_cast<S32>(time_str.length() - AMPM_LEN))
     {
         return MINUTES;
     }
-    else if (cur_pos > (S32)(time_str.length() - AMPM_LEN))
+    else if (cur_pos > static_cast<S32>(time_str.length() - AMPM_LEN))
     {
         return DAYPART;
     }
@@ -431,7 +431,7 @@ U32 LLTimeCtrl::parseMinutes(const std::string& str)
 {
     U32 minutes;
     // not sure of this fix - clang doesnt like compare minutes U32 to >= MINUTES_MIN (0) but MINUTES_MIN can change
-    if (LLStringUtil::convertToU32(str, minutes) && ((S32)minutes >= MINUTES_MIN) && ((S32)minutes <= MINUTES_MAX))
+    if (LLStringUtil::convertToU32(str, minutes) && (static_cast<S32>(minutes) >= MINUTES_MIN) && (static_cast<S32>(minutes) <= MINUTES_MAX))
     {
         return minutes;
     }

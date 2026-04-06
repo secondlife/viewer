@@ -56,8 +56,8 @@ public:
     virtual void    setValue(const LLSD& value ) { mViewModel->setValue(value); }
     virtual LLSD    getValue() const        { return LLSD(getValueF32()); }
 
-    virtual void    setMinValue(const LLSD& min_value)  { setMinValue((F32)min_value.asReal()); }
-    virtual void    setMaxValue(const LLSD& max_value)  { setMaxValue((F32)max_value.asReal()); }
+    virtual void    setMinValue(const LLSD& min_value)  { setMinValue(static_cast<F32>(min_value.asReal())); }
+    virtual void    setMaxValue(const LLSD& max_value)  { setMaxValue(static_cast<F32>(max_value.asReal())); }
 
     virtual F32     getInitialValue() const { return mInitialValue; }
     virtual F32     getMinValue() const     { return mMinValue; }

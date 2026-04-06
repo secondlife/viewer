@@ -85,7 +85,7 @@ public:
     /*virtual*/ F32 getValueF32() const { return mSlider->getValueF32(); }
     void            setValue(F32 v, bool from_event = false);
 
-    /*virtual*/ void    setValue(const LLSD& value) { setValue((F32)value.asReal(), true); }
+    /*virtual*/ void    setValue(const LLSD& value) { setValue(static_cast<F32>(value.asReal()), true); }
     /*virtual*/ LLSD    getValue() const            { return LLSD(getValueF32()); }
     /*virtual*/ bool    setLabelArg( const std::string& key, const LLStringExplicit& text );
 
@@ -96,8 +96,8 @@ public:
     /*virtual*/ void    setEnabled( bool b );
     /*virtual*/ void    clear();
 
-    /*virtual*/ void    setMinValue(const LLSD& min_value)  { setMinValue((F32)min_value.asReal()); }
-    /*virtual*/ void    setMaxValue(const LLSD& max_value)  { setMaxValue((F32)max_value.asReal()); }
+    /*virtual*/ void    setMinValue(const LLSD& min_value)  { setMinValue(static_cast<F32>(min_value.asReal())); }
+    /*virtual*/ void    setMaxValue(const LLSD& max_value)  { setMaxValue(static_cast<F32>(max_value.asReal())); }
     /*virtual*/ void    setMinValue(F32 min_value)  { mSlider->setMinValue(min_value); updateText(); }
     /*virtual*/ void    setMaxValue(F32 max_value)  { mSlider->setMaxValue(max_value); updateText(); }
     /*virtual*/ void    setIncrement(F32 increment) { mSlider->setIncrement(increment);}

@@ -93,7 +93,7 @@ public:
     // LLUICtrl interface
     virtual void        setValue(const LLSD& value );
     virtual LLSD        getValue() const;
-            bool        get() const { return (bool)getValue().asBoolean(); }
+            bool        get() const { return static_cast<bool>(getValue().asBoolean()); }
             void        set(bool value) { setValue(value); }
 
     virtual void        setTentative(bool b);

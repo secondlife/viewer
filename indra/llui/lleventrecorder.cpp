@@ -259,7 +259,7 @@ void LLEventRecorder::logKeyUnicodeEvent(llwchar uni_char) {
 
   event.insert("event",LLSD("keyDown"));
 
-  LL_DEBUGS()  << "[VITA] unicode key: " << (int)uni_char   << LL_ENDL;
+  LL_DEBUGS()  << "[VITA] unicode key: " << static_cast<int>(uni_char)   << LL_ENDL;
   LL_DEBUGS()  << "[VITA] dumpxml " << LLSDXMLStreamer(event) << "\n" << LL_ENDL;
 
 

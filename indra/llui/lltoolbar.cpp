@@ -831,7 +831,7 @@ void LLToolBar::draw()
     // rect may have shifted during layout
     LLUI::popMatrix();
     LLUI::pushMatrix();
-    LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
+    LLUI::translate(static_cast<F32>(getRect().mLeft), static_cast<F32>(getRect().mBottom));
 
     // Position the caret
     if (!mCaretIcon)

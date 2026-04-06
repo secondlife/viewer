@@ -427,7 +427,7 @@ void LLLineEditor::setText(const LLStringExplicit &new_text, bool use_size_limit
         // Cut emoji symbols if exist
         utf8str_remove_emojis(truncated_utf8);
     }
-    if (use_size_limit && truncated_utf8.size() > (U32)mMaxLengthBytes)
+    if (use_size_limit && truncated_utf8.size() > static_cast<U32>(mMaxLengthBytes))
     {
         truncated_utf8 = utf8str_truncate(new_text, mMaxLengthBytes);
     }
@@ -492,11 +492,11 @@ void LLLineEditor::setCursor( S32 pos )
     if( pixels_after_scroll > mTextRightEdge )
     {
         S32 width_chars_to_left = mGLFont->getWidth(mText.getWString().c_str(), 0, mScrollHPos);
-        S32 last_visible_char = mGLFont->maxDrawableChars(mText.getWString().c_str(), llmax(0.f, (F32)(mTextRightEdge - mTextLeftEdge + width_chars_to_left)));
+        S32 last_visible_char = mGLFont->maxDrawableChars(mText.getWString().c_str(), llmax(0.f, static_cast<F32>(mTextRightEdge - mTextLeftEdge + width_chars_to_left)));
         // character immediately to left of cursor should be last one visible (SCROLL_INCREMENT_ADD will scroll in more characters)
         // or first character if cursor is at beginning
         S32 new_last_visible_char = llmax(0, getCursor() - 1);
-        S32 min_scroll = mGLFont->firstDrawableChar(mText.getWString().c_str(), (F32)(mTextRightEdge - mTextLeftEdge), mText.length(), new_last_visible_char);
+        S32 min_scroll = mGLFont->firstDrawableChar(mText.getWString().c_str(), static_cast<F32>(mTextRightEdge - mTextLeftEdge), mText.length(), new_last_visible_char);
         if (old_cursor_pos == last_visible_char)
         {
             mScrollHPos = llmin(mText.length(), llmax(min_scroll, mScrollHPos + SCROLL_INCREMENT_ADD));
@@ -601,7 +601,7 @@ void LLLineEditor::replaceWithSuggestion(U32 index)
 {
     for (const auto& [range_start, range_end] : mMisspellRanges)
     {
-        if ( (range_start <= (U32)mCursorPos) && (range_end >= (U32)mCursorPos) )
+        if ( (range_start <= static_cast<U32>(mCursorPos)) && (range_end >= static_cast<U32>(mCursorPos)) )
         {
             LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
             if (!mAllowEmoji)
@@ -619,7 +619,7 @@ void LLLineEditor::replaceWithSuggestion(U32 index)
 
             // Insert the suggestion in its place
             mText.insert(range_start, suggestion);
-            setCursor(range_start + (S32)suggestion.length());
+            setCursor(range_start + static_cast<S32>(suggestion.length()));
 
             mFontBufferPreSelection.reset();
             mFontBufferSelection.reset();
@@ -717,7 +717,7 @@ bool LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
             }
             startSelection();
 
-            while ((mCursorPos < (S32)wtext.length()) && LLWStringUtil::isPartOfWord( wtext[mCursorPos] ) )
+            while ((mCursorPos < static_cast<S32>(wtext.length())) && LLWStringUtil::isPartOfWord( wtext[mCursorPos] ) )
             {   // Find the end of the word
                 mCursorPos++;
             }
@@ -1333,7 +1333,7 @@ void LLLineEditor::pasteHelper(bool is_primary)
             // Check to see that the size isn't going to be larger than the max number of bytes
             U32 available_bytes = mMaxLengthBytes - wstring_utf8_length(mText);
 
-            if ( available_bytes < (U32) wstring_utf8_length(clean_string) )
+            if ( available_bytes < static_cast<U32>(wstring_utf8_length(clean_string)) )
             {   // Doesn't all fit
                 llwchar current_symbol = clean_string[0];
                 U32 wchars_that_fit = 0;
@@ -1367,7 +1367,7 @@ void LLLineEditor::pasteHelper(bool is_primary)
             }
 
             mText.insert(getCursor(), clean_string);
-            setCursor( getCursor() + (S32)clean_string.length() );
+            setCursor( getCursor() + static_cast<S32>(clean_string.length()) );
             deselect();
 
             mFontBufferPreSelection.reset();
@@ -1912,8 +1912,8 @@ void LLLineEditor::draw()
     }
 
     S32 rendered_text = 0;
-    F32 rendered_pixels_right = (F32)mTextLeftEdge;
-    F32 text_bottom = (F32)background.mBottom + (F32)lineeditor_v_pad;
+    F32 rendered_pixels_right = static_cast<F32>(mTextLeftEdge);
+    F32 text_bottom = static_cast<F32>(background.mBottom) + static_cast<F32>(lineeditor_v_pad);
 
     if( (gFocusMgr.getKeyboardFocus() == this) && hasSelection() )
     {
@@ -1946,7 +1946,7 @@ void LLLineEditor::draw()
                 &rendered_pixels_right);
         }
 
-        if( (rendered_pixels_right < (F32)mTextRightEdge) && (rendered_text < text_len) )
+        if( (rendered_pixels_right < static_cast<F32>(mTextRightEdge)) && (rendered_text < text_len) )
         {
             LLColor4 color = mHighlightColor;
             color.setAlpha(alpha);
@@ -1969,7 +1969,7 @@ void LLLineEditor::draw()
                 &rendered_pixels_right);
         }
 
-        if( (rendered_pixels_right < (F32)mTextRightEdge) && (rendered_text < text_len) )
+        if( (rendered_pixels_right < static_cast<F32>(mTextRightEdge)) && (rendered_text < text_len) )
         {
             // unselected, right side
             rendered_text += mFontBufferPostSelection.render(
@@ -2066,7 +2066,7 @@ void LLLineEditor::draw()
             }
 
             // Skip the current word if the user is still busy editing it
-            if ( (!mSpellCheckTimer.hasExpired()) && (range_start <= (U32)mCursorPos) && (range_end >= (U32)mCursorPos) )
+            if ( (!mSpellCheckTimer.hasExpired()) && (range_start <= static_cast<U32>(mCursorPos)) && (range_end >= static_cast<U32>(mCursorPos)) )
             {
                 continue;
             }
@@ -2083,7 +2083,7 @@ void LLLineEditor::draw()
                 pxEnd = pxWidth;
             }
 
-            S32 pxBottom = (S32)(text_bottom + mGLFont->getDescenderHeight());
+            S32 pxBottom = static_cast<S32>(text_bottom + mGLFont->getDescenderHeight());
 
             gGL.color4ub(255, 0, 0, 200);
             while (pxStart + 1 < pxEnd)
@@ -2124,7 +2124,7 @@ void LLLineEditor::draw()
                 if (EKeyboardInsertMode::LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection())
                 {
                     LLColor4 tmp_color( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], alpha );
-                    mGLFont->render(mText, getCursor(), (F32)(cursor_left + lineeditor_cursor_thickness / 2), text_bottom,
+                    mGLFont->render(mText, getCursor(), static_cast<F32>(cursor_left + lineeditor_cursor_thickness / 2), text_bottom,
                         tmp_color,
                         LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BOTTOM,
                         0,
@@ -2137,8 +2137,8 @@ void LLLineEditor::draw()
                 LLRect screen_pos = calcScreenRect();
                 LLCoordGL ime_pos( screen_pos.mLeft + pixels_after_scroll, screen_pos.mTop - lineeditor_v_pad );
 
-                ime_pos.mX = (S32) (ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
-                ime_pos.mY = (S32) (ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
+                ime_pos.mX = static_cast<S32>(ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
+                ime_pos.mY = static_cast<S32>(ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
                 getWindow()->setLanguageTextInput( ime_pos );
             }
         }
@@ -2150,7 +2150,7 @@ void LLLineEditor::draw()
         {
             mFontBufferLabel.render(mGLFont,
                             mLabel.getWString(), 0,
-                            (F32)mTextLeftEdge, text_bottom,
+                            static_cast<F32>(mTextLeftEdge), text_bottom,
                             label_color,
                             LLFontGL::HAlign::LEFT,
                             LLFontGL::VAlign::BOTTOM,
@@ -2176,7 +2176,7 @@ void LLLineEditor::draw()
         {
             mFontBufferLabel.render(mGLFont,
                             mLabel.getWString(), 0,
-                            (F32)mTextLeftEdge, text_bottom,
+                            static_cast<F32>(mTextLeftEdge), text_bottom,
                             label_color,
                             LLFontGL::HAlign::LEFT,
                             LLFontGL::VAlign::BOTTOM,
@@ -2221,8 +2221,8 @@ S32 LLLineEditor::calcCursorPos(S32 mouse_x)
     S32 cur_pos = mScrollHPos +
             mGLFont->charFromPixelOffset(
                 wtext, mScrollHPos,
-                (F32)(mouse_x - mTextLeftEdge),
-                (F32)(mTextRightEdge - mTextLeftEdge + 1)); // min-max range is inclusive
+                static_cast<F32>(mouse_x - mTextLeftEdge),
+                static_cast<F32>(mTextRightEdge - mTextLeftEdge + 1)); // min-max range is inclusive
 
     return cur_pos;
 }

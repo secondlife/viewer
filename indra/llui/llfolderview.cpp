@@ -702,7 +702,7 @@ void LLFolderView::draw()
 
             LLUI::popMatrix();
             LLUI::pushMatrix();
-            LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
+            LLUI::translate(static_cast<F32>(getRect().mLeft), static_cast<F32>(getRect().mBottom));
         }
     }
 
@@ -829,7 +829,7 @@ void LLFolderView::removeSelectedItems()
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 {
     if ((!mAutoOpenItems.empty() && mAutoOpenItems.back() == item) ||
-        (mAutoOpenItems.size() >= (size_t)AUTO_OPEN_STACK_DEPTH) ||
+        (mAutoOpenItems.size() >= static_cast<size_t>(AUTO_OPEN_STACK_DEPTH)) ||
         item->isOpen())
     {
         return;
@@ -846,7 +846,7 @@ void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 
     item->requestArrange();
 
-    if (mAutoOpenItems.size() >= (size_t)AUTO_OPEN_STACK_DEPTH)
+    if (mAutoOpenItems.size() >= static_cast<size_t>(AUTO_OPEN_STACK_DEPTH))
     {
         mAutoOpenItems.pop_front();
     }
@@ -1928,7 +1928,7 @@ void LLFolderView::updateRenamerPosition()
         screenPointToLocal( x, y, &x, &y );
         mRenamer->setOrigin( x, y );
 
-        LLRect scroller_rect(0, 0, (S32)LLUI::getInstance()->getWindowSize().mV[VX], 0);
+        LLRect scroller_rect(0, 0, static_cast<S32>(LLUI::getInstance()->getWindowSize().mV[VX]), 0);
         if (mScrollContainer)
         {
             scroller_rect = mScrollContainer->getContentWindowRect();

@@ -214,8 +214,8 @@ void LLUI::setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t& rem
 
 void LLUI::setMousePositionScreen(S32 x, S32 y)
 {
-    S32 screen_x = ll_round((F32)x * getScaleFactor().mV[VX]);
-    S32 screen_y = ll_round((F32)y * getScaleFactor().mV[VY]);
+    S32 screen_x = ll_round(static_cast<F32>(x) * getScaleFactor().mV[VX]);
+    S32 screen_y = ll_round(static_cast<F32>(y) * getScaleFactor().mV[VY]);
 
     LLView::getWindow()->setCursorPosition(LLCoordGL(screen_x, screen_y).convert());
 }
@@ -225,8 +225,8 @@ void LLUI::getMousePositionScreen(S32 *x, S32 *y) const
     LLCoordWindow cursor_pos_window;
     getWindow()->getCursorPosition(&cursor_pos_window);
     LLCoordGL cursor_pos_gl(cursor_pos_window.convert());
-    *x = ll_round((F32)cursor_pos_gl.mX / getScaleFactor().mV[VX]);
-    *y = ll_round((F32)cursor_pos_gl.mY / getScaleFactor().mV[VY]);
+    *x = ll_round(static_cast<F32>(cursor_pos_gl.mX) / getScaleFactor().mV[VX]);
+    *y = ll_round(static_cast<F32>(cursor_pos_gl.mY) / getScaleFactor().mV[VY]);
 }
 
 void LLUI::setMousePositionLocal(const LLView* viewp, S32 x, S32 y)
@@ -348,14 +348,14 @@ LLVector2 LLUI::getWindowSize() const
 
 void LLUI::screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y)
 {
-    *gl_x = ll_round((F32)screen_x * getScaleFactor().mV[VX]);
-    *gl_y = ll_round((F32)screen_y * getScaleFactor().mV[VY]);
+    *gl_x = ll_round(static_cast<F32>(screen_x) * getScaleFactor().mV[VX]);
+    *gl_y = ll_round(static_cast<F32>(screen_y) * getScaleFactor().mV[VY]);
 }
 
 void LLUI::glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y)
 {
-    *screen_x = ll_round((F32)gl_x / getScaleFactor().mV[VX]);
-    *screen_y = ll_round((F32)gl_y / getScaleFactor().mV[VY]);
+    *screen_x = ll_round(static_cast<F32>(gl_x) / getScaleFactor().mV[VX]);
+    *screen_y = ll_round(static_cast<F32>(gl_y) / getScaleFactor().mV[VY]);
 }
 
 void LLUI::screenRectToGL(const LLRect& screen, LLRect *gl)
