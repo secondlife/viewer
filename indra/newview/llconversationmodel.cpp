@@ -137,7 +137,7 @@ void LLConversationItem::previewItem( void )
 {
 }
 
-void LLConversationItem::showProperties(void)
+void LLConversationItem::showProperties()
 {
 }
 

@@ -50,7 +50,7 @@ public:
     // undoes everything init() didm called by the media manager when destroying a source
     void reset();
 
-    void idle(void);
+    void idle();
 
     // All of these may return 0 or an actual valid value.
     // Callers need to check the return for 0, and not use the values in that case.
@@ -92,10 +92,10 @@ public:
     // This will initially be false, and will also be false for some time after setSize while the resize is processed.
     // Note that if this returns true, it is safe to use all the get() functions above without checking for invalid return values
     // until you call idle() again.
-    bool textureValid(void);
+    bool textureValid();
 
     bool getDirty(LLRect *dirty_rect = NULL);
-    void resetDirty(void);
+    void resetDirty();
 
     enum EMouseEventType
     {
@@ -154,13 +154,13 @@ public:
     void executeJavaScript(const std::string &code);
 
     // "Loading" means uninitialized or any state prior to fully running (processing commands)
-    bool isPluginLoading(void) { return mPlugin?mPlugin->isLoading():false; };
+    bool isPluginLoading() { return mPlugin?mPlugin->isLoading():false; };
 
     // "Running" means the steady state -- i.e. processing messages
-    bool isPluginRunning(void) { return mPlugin?mPlugin->isRunning():false; };
+    bool isPluginRunning() { return mPlugin?mPlugin->isRunning():false; };
 
     // "Exited" means any regular or error state after "Running" (plugin may have crashed or exited normally)
-    bool isPluginExited(void) { return mPlugin?mPlugin->isDone():false; };
+    bool isPluginExited() { return mPlugin?mPlugin->isDone():false; };
 
     std::string getPluginVersion() { return mPlugin?mPlugin->getPluginVersion():std::string(""); };
 
@@ -233,7 +233,7 @@ public:
 
     ///////////////////////////////////
     // media browser class functions
-    bool pluginSupportsMediaBrowser(void);
+    bool pluginSupportsMediaBrowser();
 
     void focus(bool focused);
     void set_page_zoom_factor( F64 factor );
@@ -329,7 +329,7 @@ public:
 
     ///////////////////////////////////
     // media time class functions
-    bool pluginSupportsMediaTime(void);
+    bool pluginSupportsMediaTime();
     void stop();
     void start(float rate = 0.0f);
     void pause();
@@ -338,10 +338,10 @@ public:
     void setVolume(float volume);
     float getVolume();
 
-    F64 getCurrentTime(void) const { return mCurrentTime; };
-    F64 getDuration(void) const { return mDuration; };
-    F64 getCurrentPlayRate(void) { return mCurrentRate; };
-    F64 getLoadedDuration(void) const { return mLoadedDuration; };
+    F64 getCurrentTime() const { return mCurrentTime; };
+    F64 getDuration() const { return mDuration; };
+    F64 getCurrentPlayRate() { return mCurrentRate; };
+    F64 getLoadedDuration() const { return mLoadedDuration; };
 
     // Initialize the URL history of the plugin by sending
     // "init_history" message
@@ -359,7 +359,7 @@ protected:
     void sendMessage(const LLPluginMessage &message);  // Send message internally, either queueing or sending directly.
     std::queue<LLPluginMessage> mSendQueue;     // Used to queue messages while the plugin initializes.
 
-    void setSizeInternal(void);
+    void setSizeInternal();
 
     bool        mTextureParamsReceived;     // the mRequestedTexture* fields are only valid when this is true
     S32         mRequestedTextureDepth;

@@ -57,7 +57,7 @@ static LLGLSLShader* moon_shader  = NULL;
 
 static float sStarTime;
 
-LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
+LLDrawPoolWLSky::LLDrawPoolWLSky() :
     LLDrawPool(POOL_WL_SKY)
 {
 }

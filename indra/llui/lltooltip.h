@@ -66,7 +66,7 @@ public:
 
     struct Params : public LLInitParam::Block<Params, LLPanel::Params>
     {
-        using click_callback_t = std::function<void(void)>;
+        using click_callback_t = std::function<void()>;
         using create_callback_t = std::function<LLToolTip*(LLToolTip::Params)>;
 
         Optional<std::string>       message;

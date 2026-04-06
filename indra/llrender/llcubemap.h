@@ -59,10 +59,10 @@ public:
     void enable(S32 stage);
 
     void enableTexture(S32 stage);
-    S32  getStage(void) { return mTextureStage; }
+    S32  getStage() { return mTextureStage; }
 
-    void disable(void);
-    void disableTexture(void);
+    void disable();
+    void disableTexture();
     void setMatrix(S32 stage);
     void restoreMatrix();
 

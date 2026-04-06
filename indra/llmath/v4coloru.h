@@ -154,7 +154,7 @@ inline LLColor4U::LLColor4U(const U8* vec)
     mV[VALPHA] = vec[VALPHA];
 }
 
-inline const LLColor4U& LLColor4U::setToBlack(void)
+inline const LLColor4U& LLColor4U::setToBlack()
 {
     mV[VRED]   = 0;
     mV[VGREEN] = 0;
@@ -163,7 +163,7 @@ inline const LLColor4U& LLColor4U::setToBlack(void)
     return (*this);
 }
 
-inline const LLColor4U& LLColor4U::setToWhite(void)
+inline const LLColor4U& LLColor4U::setToWhite()
 {
     mV[VRED]   = 255;
     mV[VGREEN] = 255;

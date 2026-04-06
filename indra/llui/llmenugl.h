@@ -878,7 +878,7 @@ public:
     static LLTearOffMenu* create(LLMenuGL* menup);
     virtual ~LLTearOffMenu();
 
-    virtual void draw(void);
+    virtual void draw();
     virtual void onFocusReceived();
     virtual void onFocusLost();
     virtual bool handleUnicodeChar(llwchar uni_char, bool called_from_parent);
@@ -912,8 +912,8 @@ public:
 
     explicit LLMenuItemTearOffGL( const Params& );
 
-    virtual void onCommit(void);
-    virtual void draw(void);
+    virtual void onCommit();
+    virtual void draw();
     virtual U32 getNominalHeight() const;
 
     LLFloater* getParentFloater();

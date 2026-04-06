@@ -500,7 +500,7 @@ void LLViewerShaderMgr::releaseInstance()
     }
 }
 
-void LLViewerShaderMgr::initAttribsAndUniforms(void)
+void LLViewerShaderMgr::initAttribsAndUniforms()
 {
     if (mReservedAttribs.empty())
     {
@@ -3545,7 +3545,7 @@ bool LLViewerShaderMgr::loadShadersInterface()
 }
 
 
-std::string LLViewerShaderMgr::getShaderDirPrefix(void)
+std::string LLViewerShaderMgr::getShaderDirPrefix()
 {
     return gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "shaders", "class");
 }

@@ -52,11 +52,11 @@ public:
 
 protected:
     // returns false if writeMessageRaw() would drop the message
-    bool canSendMessage(void);
+    bool canSendMessage();
     // call this to send a message over the pipe
     bool writeMessageRaw(const std::string &message);
     // call this to close the pipe
-    void killMessagePipe(void);
+    void killMessagePipe();
 
     LLPluginMessagePipe *mMessagePipe;
     apr_status_t mSocketError;
@@ -70,14 +70,14 @@ public:
     virtual ~LLPluginMessagePipe();
 
     bool addMessage(const std::string &message);
-    void clearOwner(void);
+    void clearOwner();
 
     bool pump(F64 timeout = 0.0f);
     bool pumpOutput();
     bool pumpInput(F64 timeout = 0.0f);
 
 protected:
-    void processInput(void);
+    void processInput();
 
     // used internally by pump()
     void setSocketTimeout(apr_interval_time_t timeout_usec);

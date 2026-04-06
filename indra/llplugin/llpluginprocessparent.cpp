@@ -63,7 +63,7 @@ public:
     }
 protected:
     // Inherited from LLThread
-    /*virtual*/ void run(void)
+    /*virtual*/ void run()
     {
         while(!isQuitting() && LLPluginProcessParent::getUseReadThread())
         {
@@ -76,7 +76,7 @@ protected:
     }
 
     // Inherited from LLThread
-    /*virtual*/ bool runCondition(void)
+    /*virtual*/ bool runCondition()
     {
         return(LLPluginProcessParent::canPollThreadRun());
     }
@@ -253,7 +253,7 @@ bool LLPluginProcessParent::wantsPolling() const
 }
 
 
-void LLPluginProcessParent::killSockets(void)
+void LLPluginProcessParent::killSockets()
 {
     {
         LLMutexLock lock(&mIncomingQueueMutex);
@@ -264,7 +264,7 @@ void LLPluginProcessParent::killSockets(void)
     mSocket.reset();
 }
 
-void LLPluginProcessParent::errorState(void)
+void LLPluginProcessParent::errorState()
 {
     if(mState < STATE_RUNNING)
         setState(STATE_LAUNCH_FAILURE);
@@ -329,7 +329,7 @@ bool LLPluginProcessParent::accept()
     return result;
 }
 
-void LLPluginProcessParent::idle(void)
+void LLPluginProcessParent::idle()
 {
     bool idle_again;
 
@@ -702,7 +702,7 @@ void LLPluginProcessParent::idle(void)
     } while (idle_again);
 }
 
-bool LLPluginProcessParent::isLoading(void)
+bool LLPluginProcessParent::isLoading()
 {
     bool result = false;
 
@@ -712,7 +712,7 @@ bool LLPluginProcessParent::isLoading(void)
     return result;
 }
 
-bool LLPluginProcessParent::isRunning(void)
+bool LLPluginProcessParent::isRunning()
 {
     bool result = false;
 
@@ -722,7 +722,7 @@ bool LLPluginProcessParent::isRunning(void)
     return result;
 }
 
-bool LLPluginProcessParent::isDone(void)
+bool LLPluginProcessParent::isDone()
 {
     bool result = false;
 
@@ -1249,7 +1249,7 @@ std::string LLPluginProcessParent::getMessageClassVersion(const std::string &mes
     return result;
 }
 
-std::string LLPluginProcessParent::getPluginVersion(void)
+std::string LLPluginProcessParent::getPluginVersion()
 {
     return mPluginVersionString;
 }

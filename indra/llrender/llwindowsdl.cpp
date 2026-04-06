@@ -81,7 +81,7 @@ static bool ATIbug = false;
 static LLWindowSDL *gWindowImplementation = NULL;
 
 
-void maybe_lock_display(void)
+void maybe_lock_display()
 {
     if (gWindowImplementation && gWindowImplementation->Lock_Display) {
         gWindowImplementation->Lock_Display();
@@ -89,7 +89,7 @@ void maybe_lock_display(void)
 }
 
 
-void maybe_unlock_display(void)
+void maybe_unlock_display()
 {
     if (gWindowImplementation && gWindowImplementation->Unlock_Display) {
         gWindowImplementation->Unlock_Display();
@@ -100,7 +100,7 @@ void maybe_unlock_display(void)
 #if LL_GTK
 // Lazily initialize and check the runtime GTK version for goodness.
 // static
-bool LLWindowSDL::ll_try_gtk_init(void)
+bool LLWindowSDL::ll_try_gtk_init()
 {
     static bool done_gtk_diag = false;
     static bool gtk_is_good = false;
@@ -163,7 +163,7 @@ bool LLWindowSDL::ll_try_gtk_init(void)
 
 #if LL_X11
 // static
-Window LLWindowSDL::get_SDL_XWindowID(void)
+Window LLWindowSDL::get_SDL_XWindowID()
 {
     if (gWindowImplementation) {
         return gWindowImplementation->mSDL_XWindowID;
@@ -172,7 +172,7 @@ Window LLWindowSDL::get_SDL_XWindowID(void)
 }
 
 //static
-Display* LLWindowSDL::get_SDL_Display(void)
+Display* LLWindowSDL::get_SDL_Display()
 {
     if (gWindowImplementation) {
         return gWindowImplementation->mSDL_Display;

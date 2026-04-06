@@ -61,7 +61,7 @@ void LLPluginMessagePipeOwner::setMessagePipe(LLPluginMessagePipe *read_pipe)
     mMessagePipe = read_pipe;
 }
 
-bool LLPluginMessagePipeOwner::canSendMessage(void)
+bool LLPluginMessagePipeOwner::canSendMessage()
 {
     return (mMessagePipe != NULL);
 }
@@ -82,7 +82,7 @@ bool LLPluginMessagePipeOwner::writeMessageRaw(const std::string &message)
     return result;
 }
 
-void LLPluginMessagePipeOwner::killMessagePipe(void)
+void LLPluginMessagePipeOwner::killMessagePipe()
 {
     if(mMessagePipe != NULL)
     {
@@ -127,7 +127,7 @@ bool LLPluginMessagePipe::addMessage(const std::string &message)
     return true;
 }
 
-void LLPluginMessagePipe::clearOwner(void)
+void LLPluginMessagePipe::clearOwner()
 {
     // The owner is done with this pipe.  The next call to process_impl should send any remaining data and exit.
     mOwner = NULL;
@@ -368,7 +368,7 @@ bool LLPluginMessagePipe::pumpInput(F64 timeout)
     return result;
 }
 
-void LLPluginMessagePipe::processInput(void)
+void LLPluginMessagePipe::processInput()
 {
     // Look for input delimiter(s) in the input buffer.
     size_t delim;

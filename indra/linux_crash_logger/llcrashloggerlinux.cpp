@@ -66,7 +66,7 @@ static void response_callback (GtkDialog *dialog,
 }
 #endif // LL_GTK
 
-static BOOL do_ask_dialog(void)
+static BOOL do_ask_dialog()
 {
 #if LL_GTK
     gtk_disable_setlocale();
@@ -102,11 +102,11 @@ static BOOL do_ask_dialog(void)
 #endif // LL_GTK
 }
 
-LLCrashLoggerLinux::LLCrashLoggerLinux(void)
+LLCrashLoggerLinux::LLCrashLoggerLinux()
 {
 }
 
-LLCrashLoggerLinux::~LLCrashLoggerLinux(void)
+LLCrashLoggerLinux::~LLCrashLoggerLinux()
 {
 }
 

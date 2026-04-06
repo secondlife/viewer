@@ -6214,7 +6214,7 @@ void LLTextureBridge::openItem()
     }
 }
 
-bool LLTextureBridge::canSaveTexture(void)
+bool LLTextureBridge::canSaveTexture()
 {
     const LLInventoryModel* model = getInventoryModel();
     if(!model)

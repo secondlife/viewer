@@ -2871,7 +2871,7 @@ const LLViewDrawContext& LLViewDrawContext::getCurrentContext()
     return *sDrawContextStack.back();
 }
 
-LLSD LLView::getInfo(void)
+LLSD LLView::getInfo()
 {
     LLSD info;
     addInfo(info);

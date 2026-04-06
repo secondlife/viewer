@@ -329,7 +329,7 @@ public:
         mTrust = t;
     }
 
-    EMsgTrust getTrust(void) const
+    EMsgTrust getTrust() const
     {
         return mTrust;
     }

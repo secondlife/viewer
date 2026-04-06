@@ -171,7 +171,7 @@ void LLViewerTexLayerSetBuffer::midRenderTexLayerSet(bool success)
     mGLTexturep->setGLTextureCreated(true);
 }
 
-bool LLViewerTexLayerSetBuffer::isInitialized(void) const
+bool LLViewerTexLayerSetBuffer::isInitialized() const
 {
     return mGLTexturep.notNull() && mGLTexturep->isGLTextureCreated();
 }

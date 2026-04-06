@@ -61,7 +61,7 @@ public:
         kCharacterTypeD
     };
 
-    using path_event_callback_t = std::function<void(void)>;
+    using path_event_callback_t = std::function<void()>;
     using path_event_signal_t = boost::signals2::signal<void (void)>;
     using path_event_slot_t = boost::signals2::connection;
 

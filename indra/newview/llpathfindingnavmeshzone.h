@@ -80,7 +80,7 @@ public:
 protected:
 
 private:
-    using navmesh_location_callback_t = std::function<void(void)>;
+    using navmesh_location_callback_t = std::function<void()>;
     class NavMeshLocation
     {
     public:

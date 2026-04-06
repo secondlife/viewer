@@ -43,7 +43,7 @@ public:
     virtual void setCreationDate(time_t creation_date_utc) = 0;
     virtual PermissionMask getPermissionMask() const = 0;
     virtual LLFolderType::EType getPreferredType() const = 0;
-    virtual void showProperties(void) = 0;
+    virtual void showProperties() = 0;
     virtual bool isItemInTrash( void) const { return false; } // TODO: make   into pure virtual.
     virtual bool isItemInOutfits() const { return false; }
     virtual bool isAgentInventory() const { return false; }

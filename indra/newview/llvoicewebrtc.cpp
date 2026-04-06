@@ -851,7 +851,7 @@ void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
     }
 }
 
-float LLWebRTCVoiceClient::tuningGetEnergy(void)
+float LLWebRTCVoiceClient::tuningGetEnergy()
 {
     if (!mWebRTCDeviceInterface)
     {
@@ -1017,7 +1017,7 @@ void LLWebRTCVoiceClient::setEarLocation(S32 loc)
     }
 }
 
-void LLWebRTCVoiceClient::updatePosition(void)
+void LLWebRTCVoiceClient::updatePosition()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 

@@ -50,7 +50,7 @@ class LLNotificationManager : public LLSingleton<LLNotificationManager>
 public:
     //TODO: make private
     // this method initialize handlers' map for different types of notifications
-    void init(void);
+    void init();
     //TODO: combine processing and storage (*)
 
     // this method reacts on chat notifications and calls an appropriate handler

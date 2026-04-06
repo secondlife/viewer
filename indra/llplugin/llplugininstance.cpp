@@ -154,7 +154,7 @@ void LLPluginInstance::sendMessage(const std::string &message)
  * Idle. TODO:DOC what's the purpose of this?
  *
  */
-void LLPluginInstance::idle(void)
+void LLPluginInstance::idle()
 {
 }
 

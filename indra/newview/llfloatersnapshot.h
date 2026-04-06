@@ -163,7 +163,7 @@ public:
     static LLFloaterSnapshot* findInstance();
     /*virtual*/ void saveTexture();
 
-    using snapshot_saved_signal_t = boost::signals2::signal<void(void)>;
+    using snapshot_saved_signal_t = boost::signals2::signal<void()>;
     void saveLocal(const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
     static void setAgentEmail(const std::string& email);
 

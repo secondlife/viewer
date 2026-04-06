@@ -24,11 +24,11 @@
  * $/LicenseInfo$
  */
 
-LLWLDayCycle::LLWLDayCycle(void)
+LLWLDayCycle::LLWLDayCycle()
 {
 }
 
-LLWLDayCycle::~LLWLDayCycle(void)
+LLWLDayCycle::~LLWLDayCycle()
 {
 }
 

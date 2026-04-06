@@ -126,7 +126,7 @@ public:
     // virtual methods
     virtual void updateParentOnServer(bool restamp) const;
     virtual void updateServer(bool is_new) const;
-    void fetchFromServer(void) const;
+    void fetchFromServer() const;
 
     virtual void packMessage(LLMessageSystem* msg) const;
     virtual bool unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);

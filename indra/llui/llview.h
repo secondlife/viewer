@@ -502,7 +502,7 @@ public:
     // return query for iterating over focus roots in tab order
     static const LLViewQuery & getFocusRootsQuery();
 
-    static LLWindow*    getWindow(void) { return LLUI::getInstance()->mWindow; }
+    static LLWindow*    getWindow() { return LLUI::getInstance()->mWindow; }
 
     // Set up params after XML load before calling new(),
     // usually to adjust layout.
@@ -533,7 +533,7 @@ public:
     static const LLViewDrawContext& getDrawContext();
 
     // Returns useful information about this ui widget.
-    LLSD getInfo(void);
+    LLSD getInfo();
 
 protected:
     void            drawDebugRect();

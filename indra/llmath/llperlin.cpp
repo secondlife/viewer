@@ -70,7 +70,7 @@ static void fast_setup(F32 vec, U8 &b0, U8 &b1, F32 &r0, F32 &r1)
 }
 
 
-void LLPerlinNoise::init(void)
+void LLPerlinNoise::init()
 {
     int i, j, k;
 

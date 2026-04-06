@@ -40,7 +40,7 @@ struct PCGD
 
 PCGD    gPatchCompressGlobalData;
 
-void reset_patch_compressor(void)
+void reset_patch_compressor()
 {
     PCGD *pcp = &gPatchCompressGlobalData;
 

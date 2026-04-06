@@ -40,7 +40,7 @@ LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
 
 // sensor test doubles
 bool gClearRecvWasCalled = false;
-void LLMessageSystem::clearReceiveState(void)
+void LLMessageSystem::clearReceiveState()
 {
     gClearRecvWasCalled = true;
 }

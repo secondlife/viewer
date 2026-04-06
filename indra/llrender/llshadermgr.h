@@ -349,7 +349,7 @@ public:
     // singleton pattern implementation
     static LLShaderMgr * instance();
 
-    virtual void initAttribsAndUniforms(void);
+    virtual void initAttribsAndUniforms();
 
     [[nodiscard]] bool attachShaderFeatures(LLGLSLShader * shader);
     void dumpObjectLog(GLuint ret, bool warns = true, std::string_view filename = "");
@@ -359,7 +359,7 @@ public:
     [[nodiscard]] GLuint loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);
 
     // Implemented in the application to actually point to the shader directory.
-    virtual std::string getShaderDirPrefix(void) = 0; // Pure Virtual
+    virtual std::string getShaderDirPrefix() = 0; // Pure Virtual
 
     // Implemented in the application to actually update out of date uniforms for a particular shader
     virtual void updateShaderUniforms(LLGLSLShader * shader) = 0; // Pure Virtual

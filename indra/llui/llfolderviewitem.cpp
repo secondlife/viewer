@@ -538,12 +538,12 @@ bool LLFolderViewItem::changeSelection(LLFolderViewItem* selection, bool selecte
     return false;
 }
 
-void LLFolderViewItem::deselectItem(void)
+void LLFolderViewItem::deselectItem()
 {
     mIsSelected = false;
 }
 
-void LLFolderViewItem::selectItem(void)
+void LLFolderViewItem::selectItem()
 {
     if (!mIsSelected)
     {

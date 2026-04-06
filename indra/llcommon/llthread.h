@@ -78,7 +78,7 @@ public:
     void checkPause();
 
     // this kicks off the apr thread
-    void start(void);
+    void start();
 
     LLVolatileAPRPool* getLocalAPRFilePool() { return mLocalAPRFilePoolp ; }
 
@@ -119,10 +119,10 @@ protected:
     void setQuitting();
 
     // virtual function overridden by subclass -- this will be called when the thread runs
-    virtual void run(void) = 0;
+    virtual void run() = 0;
 
     // virtual predicate function -- returns true if the thread should wake up, false if it should sleep.
-    virtual bool runCondition(void);
+    virtual bool runCondition();
 
     // Lock/Unlock Run Condition -- use around modification of any variable used in runCondition()
     void lockData();
@@ -131,7 +131,7 @@ protected:
     // This is the predicate that decides whether the thread should sleep.
     // It should only be called with mDataLock locked, since the virtual runCondition() function may need to access
     // data structures that are thread-unsafe.
-    bool shouldSleep(void) { return (mStatus == RUNNING) && (isPaused() || (!runCondition())); }
+    bool shouldSleep() { return (mStatus == RUNNING) && (isPaused() || (!runCondition())); }
 
     // To avoid spurious signals (and the associated context switches) when the condition may or may not have changed, you can do the following:
     // mDataLock->lock();

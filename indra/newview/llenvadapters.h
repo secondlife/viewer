@@ -66,7 +66,7 @@ public:
         return mColor;
     }
 
-    inline LLColor3 getColor3(void) const
+    inline LLColor3 getColor3() const
     {
         return vec4to3(mColor);
     }

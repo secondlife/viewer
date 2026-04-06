@@ -131,7 +131,7 @@ U32 LLTexUnit::getInternalType(eTextureType type)
     return sGLTextureType[static_cast<int>(type)];
 }
 
-void LLTexUnit::refreshState(void)
+void LLTexUnit::refreshState()
 {
     // We set dirty to true so that the tex unit knows to ignore caching
     // and we reset the cached tex unit state
@@ -150,7 +150,7 @@ void LLTexUnit::refreshState(void)
     }
 }
 
-void LLTexUnit::activate(void)
+void LLTexUnit::activate()
 {
     if (mIndex < 0) return;
 
@@ -179,7 +179,7 @@ void LLTexUnit::enable(eTextureType type)
     }
 }
 
-void LLTexUnit::disable(void)
+void LLTexUnit::disable()
 {
     if (mIndex < 0) return;
 
@@ -539,7 +539,7 @@ void LLTexUnit::setTextureFilteringOptionFast(LLTexUnit::eTextureFilterOptions o
 
 // Useful for debugging that you've manually assigned a texture operation to the correct
 // texture unit based on the currently set active texture in opengl.
-void LLTexUnit::debugTextureUnit(void)
+void LLTexUnit::debugTextureUnit()
 {
     if (mIndex < 0) return;
 
@@ -828,7 +828,7 @@ void LLRender::shutdown()
     resetVertexBuffer();
 }
 
-void LLRender::refreshState(void)
+void LLRender::refreshState()
 {
     mDirty = true;
 
@@ -1961,7 +1961,7 @@ void LLRender::diffuseColor4ub(U8 r, U8 g, U8 b, U8 a)
 }
 
 
-void LLRender::debugTexUnits(void)
+void LLRender::debugTexUnits()
 {
     LL_INFOS("TextureUnit") << "Active TexUnit: " << mCurrTextureUnitIndex << LL_ENDL;
     std::string active_enabled = "false";

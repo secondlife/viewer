@@ -64,9 +64,9 @@ public:
     LLFontGL::StyleFlags getLabelStyle() const override { return LLFontGL::NORMAL; }
     std::string getLabelSuffix() const override { return std::string(); }
 
-    void openItem(void) override {}
-    void closeItem(void) override {}
-    void selectItem(void) override {}
+    void openItem() override {}
+    void closeItem() override {}
+    void selectItem() override {}
 
     void navigateToFolder(bool new_window = false, bool change_mode = false) override {}
 
@@ -75,7 +75,7 @@ public:
     bool isItemRenameable() const override { return false; }
     bool renameItem(const std::string& new_name) override { return false; }
 
-    bool isItemMovable(void) const override { return false; } // Can be moved to another folder
+    bool isItemMovable() const override { return false; } // Can be moved to another folder
     void move(LLFolderViewModelItem* parent_listener) override {}
 
     bool isItemRemovable(bool check_worn = true) const override { return false; }

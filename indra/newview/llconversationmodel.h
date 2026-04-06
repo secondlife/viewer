@@ -111,8 +111,8 @@ public:
     virtual void openItem( void );
     virtual void closeItem( void );
     virtual void previewItem( void );
-    virtual void selectItem(void) { }
-    virtual void showProperties(void);
+    virtual void selectItem() { }
+    virtual void showProperties();
     virtual void navigateToFolder(bool new_window = false, bool change_mode = false) {}
 
     // Methods used in sorting (see LLConversationSort::operator())

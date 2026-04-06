@@ -39,6 +39,6 @@ public:
     static F32 clouds3(F32 x, F32 y, F32 z, F32 freq);
 private:
     static bool sInitialized;
-    static void init(void);
+    static void init();
 };
 

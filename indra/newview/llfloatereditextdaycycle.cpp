@@ -1343,7 +1343,7 @@ LLFloaterEditExtDayCycle::connection_t LLFloaterEditExtDayCycle::setEditCommitSi
     return mCommitSignal.connect(cb);
 }
 
-void LLFloaterEditExtDayCycle::updateEditEnvironment(void)
+void LLFloaterEditExtDayCycle::updateEditEnvironment()
 {
     if (!mEditDay)
         return;

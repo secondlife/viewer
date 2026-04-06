@@ -145,7 +145,7 @@ public:
     void onListViewFilterCommitted(LLUICtrl* ctrl);
     void onSearchEdit(const std::string& string);
     void updatePlusButton();
-    void onPlusBtnClicked(void);
+    void onPlusBtnClicked();
 
     void onVisibilityChanged(const LLSD &in_visible_chain);
 
@@ -158,11 +158,11 @@ public:
      * 1 COF item selected - shows the list view and filters wearables there by a wearable type of the selected item
      * More than 1 COF item selected - shows the list view and filters it by a type of the selected item (attachment or clothing)
      */
-    void filterWearablesBySelectedItem(void);
+    void filterWearablesBySelectedItem();
 
-    void onRemoveFromOutfitClicked(void);
-    void onEditWearableClicked(void);
-    void onAddWearableClicked(void);
+    void onRemoveFromOutfitClicked();
+    void onEditWearableClicked();
+    void onAddWearableClicked();
     void onReplaceMenuItemClicked(LLUUID selected_item_id);
     void onShopButtonClicked();
 

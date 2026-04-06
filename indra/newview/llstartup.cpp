@@ -342,7 +342,7 @@ void do_startup_frame()
     display_startup();
 }
 
-void pump_idle_startup_network(void)
+void pump_idle_startup_network()
 {
     // while there are message to process:
     //     process one then call display_startup()

@@ -242,7 +242,7 @@ public:
     //
     using add_popup_t = std::function<void(LLView*)>;
     using remove_popup_t = std::function<void(LLView*)>;
-    using clear_popups_t = std::function<void(void)>;
+    using clear_popups_t = std::function<void()>;
 
     void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );
 

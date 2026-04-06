@@ -115,7 +115,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex, public LLH
     LOG_CLASS(LLModelPreview);
 
     using details_signal_t = boost::signals2::signal<void(F32 x, F32 y, F32 z)>;
-    using model_loaded_signal_t = boost::signals2::signal<void(void)>;
+    using model_loaded_signal_t = boost::signals2::signal<void()>;
     using model_updated_signal_t = boost::signals2::signal<void(bool)>;
 
 public:
@@ -175,17 +175,17 @@ public:
     void onLODMeshOptimizerParamCommit(S32 lod, bool enforce_tri_limit, S32 mode);
     void addEmptyFace(LLModel* pTarget);
 
-    const bool getModelPivot(void) const { return mHasPivot; }
+    const bool getModelPivot() const { return mHasPivot; }
     void setHasPivot(bool val) { mHasPivot = val; }
     void setModelPivot(const LLVector3& pivot) { mModelPivot = pivot; }
 
     //Is a rig valid so that it can be used as a criteria for allowing for uploading of joint positions
     //Accessors for joint position upload friendly rigs
-    const bool isRigValidForJointPositionUpload(void) const { return mRigValidJointUpload; }
+    const bool isRigValidForJointPositionUpload() const { return mRigValidJointUpload; }
     void setRigValidForJointPositionUpload(bool rigValid) { mRigValidJointUpload = rigValid; }
 
     //Accessors for the legacy rigs
-    const bool isLegacyRigValid(void) const { return mLegacyRigFlags == 0; }
+    const bool isLegacyRigValid() const { return mLegacyRigFlags == 0; }
     U32 getLegacyRigFlags() const { return mLegacyRigFlags; }
     void setLegacyRigFlags(U32 rigFlags) { mLegacyRigFlags = rigFlags; }
 
@@ -220,9 +220,9 @@ private:
     //Utility function for controller vertex compare
     bool verifyCount(int expected, int result);
     //Creates the dummy avatar for the preview window
-    void        createPreviewAvatar(void);
+    void        createPreviewAvatar();
     //Accessor for the dummy avatar
-    LLVOAvatar* getPreviewAvatar(void) { return mPreviewAvatar; }
+    LLVOAvatar* getPreviewAvatar() { return mPreviewAvatar; }
     // Count amount of original models, excluding sub-models
     static U32 countRootModels(LLModelLoader::model_list models);
     LLVector3   mGroundPlane[4];

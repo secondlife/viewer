@@ -234,7 +234,7 @@ const LLQuaternion& LLQuaternion::set(const LLMatrix4 &mat)
 //      INVERSE matrix, or the CORRECT matrix form an INVERSE quaternion.
 //      Because we use similar logic in LLMatrix3::quaternion(),
 //      we are internally consistant so everything works OK :)
-LLMatrix3   LLQuaternion::getMatrix3(void) const
+LLMatrix3   LLQuaternion::getMatrix3() const
 {
     LLMatrix3   mat;
     F32     xx, xy, xz, xw, yy, yz, yw, zz, zw;
@@ -266,7 +266,7 @@ LLMatrix3   LLQuaternion::getMatrix3(void) const
     return mat;
 }
 
-LLMatrix4   LLQuaternion::getMatrix4(void) const
+LLMatrix4   LLQuaternion::getMatrix4() const
 {
     LLMatrix4   mat;
     F32     xx, xy, xz, xw, yy, yz, yw, zz, zw;

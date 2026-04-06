@@ -371,7 +371,7 @@ void LLVoiceClient::tuningSetSpeakerVolume(float volume)
     LLWebRTCVoiceClient::getInstance()->tuningSetSpeakerVolume(volume);
 }
 
-float LLVoiceClient::tuningGetEnergy(void)
+float LLVoiceClient::tuningGetEnergy()
 {
     return LLWebRTCVoiceClient::getInstance()->tuningGetEnergy();
 }
@@ -728,7 +728,7 @@ void LLVoiceClient::inputUserControlState(bool down)
     }
 }
 
-void LLVoiceClient::toggleUserPTTState(void)
+void LLVoiceClient::toggleUserPTTState()
 {
     setUserPTTState(!getUserPTTState());
 }

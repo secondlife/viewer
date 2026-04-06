@@ -267,12 +267,12 @@ void LLCubeMap::enableTexture(S32 stage)
     }
 }
 
-void LLCubeMap::disable(void)
+void LLCubeMap::disable()
 {
     disableTexture();
 }
 
-void LLCubeMap::disableTexture(void)
+void LLCubeMap::disableTexture()
 {
     if (mTextureStage >= 0 && LLCubeMap::sUseCubeMaps)
     {

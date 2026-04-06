@@ -65,7 +65,7 @@ private:
     void onGetCreatorNameCallback();
 
     LLFloaterInspect(const LLSD& key);
-    virtual ~LLFloaterInspect(void);
+    virtual ~LLFloaterInspect();
 
     LLSafeHandle<LLObjectSelection> mObjectSelection;
     boost::signals2::connection mOwnerNameCacheConnection;

@@ -456,7 +456,7 @@ void LLViewerInventoryItem::updateServer(bool is_new) const
     AISAPI::UpdateItem(getUUID(), updates, cr);
 }
 
-void LLViewerInventoryItem::fetchFromServer(void) const
+void LLViewerInventoryItem::fetchFromServer() const
 {
     if(!mIsComplete)
     {

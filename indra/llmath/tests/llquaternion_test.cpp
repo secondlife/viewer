@@ -45,7 +45,7 @@ namespace tut
     using llquat_test_object_t = llquat_test_t::object;
     tut::llquat_test_t tut_llquat_test("LLQuaternion");
 
-    //test case for LLQuaternion::LLQuaternion(void) fn.
+    //test case for LLQuaternion::LLQuaternion() fn.
     template<> template<>
     void llquat_test_object_t::test<1>()
     {

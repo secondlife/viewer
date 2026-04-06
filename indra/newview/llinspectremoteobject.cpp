@@ -52,7 +52,7 @@ public:
     LLInspectRemoteObject(const LLSD& object_id);
     virtual ~LLInspectRemoteObject() {};
 
-    /*virtual*/ bool postBuild(void);
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& avatar_id);
 
     void onClickMap();
@@ -81,7 +81,7 @@ LLInspectRemoteObject::LLInspectRemoteObject(const LLSD& sd) :
 }
 
 /*virtual*/
-bool LLInspectRemoteObject::postBuild(void)
+bool LLInspectRemoteObject::postBuild()
 {
     // hook up the inspector's buttons
     getChild<LLUICtrl>("map_btn")->setCommitCallback(

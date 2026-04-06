@@ -64,7 +64,7 @@ LLPluginProcessChild::~LLPluginProcessChild()
     }
 }
 
-void LLPluginProcessChild::killSockets(void)
+void LLPluginProcessChild::killSockets()
 {
     killMessagePipe();
     mSocket.reset();
@@ -76,7 +76,7 @@ void LLPluginProcessChild::init(U32 launcher_port)
     setState(STATE_INITIALIZED);
 }
 
-void LLPluginProcessChild::idle(void)
+void LLPluginProcessChild::idle()
 {
     bool idle_again;
     do
@@ -274,7 +274,7 @@ void LLPluginProcessChild::sleep(F64 seconds)
     }
 }
 
-void LLPluginProcessChild::pump(void)
+void LLPluginProcessChild::pump()
 {
     deliverQueuedMessages();
     if (mMessagePipe)
@@ -288,7 +288,7 @@ void LLPluginProcessChild::pump(void)
 }
 
 
-bool LLPluginProcessChild::isRunning(void)
+bool LLPluginProcessChild::isRunning()
 {
     bool result = false;
 
@@ -298,7 +298,7 @@ bool LLPluginProcessChild::isRunning(void)
     return result;
 }
 
-bool LLPluginProcessChild::isDone(void)
+bool LLPluginProcessChild::isDone()
 {
     bool result = false;
 

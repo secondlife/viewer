@@ -40,7 +40,7 @@ class LLSnapshotLivePreview : public LLView
 {
     LOG_CLASS(LLSnapshotLivePreview);
 public:
-    using snapshot_saved_signal_t = boost::signals2::signal<void(void)>;
+    using snapshot_saved_signal_t = boost::signals2::signal<void()>;
 
     static void saveLocal(LLPointer<LLImageFormatted> image, const snapshot_saved_signal_t::slot_type& success_cb = snapshot_saved_signal_t(), const snapshot_saved_signal_t::slot_type& failure_cb = snapshot_saved_signal_t());
     struct Params : public LLInitParam::Block<Params, LLView::Params>

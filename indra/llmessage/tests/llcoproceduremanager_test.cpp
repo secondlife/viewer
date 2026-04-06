@@ -108,7 +108,7 @@ namespace tut
     void coproceduremanager_object_t::test<2>()
     {
         const size_t capacity = 2;
-        boost::fibers::buffered_channel<std::function<void(void)>> chan(capacity);
+        boost::fibers::buffered_channel<std::function<void()>> chan(capacity);
 
         boost::fibers::fiber worker([&chan]() {
             chan.value_pop()();
@@ -124,7 +124,7 @@ namespace tut
     template<> template<>
     void coproceduremanager_object_t::test<3>()
     {
-        boost::fibers::unbuffered_channel<std::function<void(void)>> chan;
+        boost::fibers::unbuffered_channel<std::function<void()>> chan;
 
         boost::fibers::fiber worker([&chan]() {
             chan.value_pop()();
@@ -140,10 +140,10 @@ namespace tut
     template<> template<>
     void coproceduremanager_object_t::test<4>()
     {
-        boost::fibers::buffered_channel<std::function<void(void)>> chan(4);
+        boost::fibers::buffered_channel<std::function<void()>> chan(4);
 
         boost::fibers::fiber worker([&chan]() {
-            std::function<void(void)> f;
+            std::function<void()> f;
 
             // using namespace std::chrono_literals;
             // const auto timeout = 5s;

@@ -109,20 +109,20 @@ public:
 
     // Refreshes renderer state of the texture unit to the cached values
     // Needed when the render context has changed and invalidated the current state
-    void refreshState(void);
+    void refreshState();
 
     // returns the index of this texture unit
-    [[nodiscard]] S32 getIndex(void) const { return mIndex; }
+    [[nodiscard]] S32 getIndex() const { return mIndex; }
 
     // Sets this tex unit to be the currently active one
-    void activate(void);
+    void activate();
 
     // Enables this texture unit for the given texture type
     // (automatically disables any previously enabled texture type)
     void enable(eTextureType type);
 
     // Disables the current texture unit
-    void disable(void);
+    void disable();
 
     // Binds the LLImageGL to this texture unit
     // (automatically enables the unit for the LLImageGL's texture type)
@@ -175,9 +175,9 @@ public:
 
     [[nodiscard]] static U32 getInternalType(eTextureType type);
 
-    [[nodiscard]] U32 getCurrTexture(void) { return mCurrTexture; }
+    [[nodiscard]] U32 getCurrTexture() { return mCurrTexture; }
 
-    [[nodiscard]] eTextureType getCurrType(void) { return mCurrTexType; }
+    [[nodiscard]] eTextureType getCurrType() { return mCurrTexType; }
 
     void setHasMipMaps(bool hasMips) { mHasMipMaps = hasMips; }
 
@@ -189,7 +189,7 @@ protected:
     eTextureType        mCurrTexType;
     bool                mHasMipMaps;
 
-    void debugTextureUnit(void);
+    void debugTextureUnit();
 };
 
 class LLLightState
@@ -339,7 +339,7 @@ public:
 
     // Refreshes renderer state to the cached values
     // Needed when the render context has changed and invalidated the current state
-    void refreshState(void);
+    void refreshState();
 
     void translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z);
     void scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z);
@@ -428,11 +428,11 @@ public:
 
     [[nodiscard]] LLTexUnit* getTexUnit(U32 index);
 
-    [[nodiscard]] U32 getCurrentTexUnitIndex(void) const { return mCurrTextureUnitIndex; }
+    [[nodiscard]] U32 getCurrentTexUnitIndex() const { return mCurrTextureUnitIndex; }
 
     bool verifyTexUnitActive(U32 unitToVerify);
 
-    void debugTexUnits(void);
+    void debugTexUnits();
 
     void clearErrors();
 

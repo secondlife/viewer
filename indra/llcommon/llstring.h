@@ -202,11 +202,11 @@ public:
     static void setupDayFormat(const std::string& data);
 
 
-    static long getPacificTimeOffset(void) { return sPacificTimeOffset;}
-    static long getLocalTimeOffset(void) { return sLocalTimeOffset;}
+    static long getPacificTimeOffset() { return sPacificTimeOffset;}
+    static long getLocalTimeOffset() { return sLocalTimeOffset;}
     // Is the Pacific time zone (aka server time zone)
     // currently in daylight savings time?
-    static bool getPacificDaylightTime(void) { return sPacificDaylightTime;}
+    static bool getPacificDaylightTime() { return sPacificDaylightTime;}
 
     static std::string getDatetimeCode (std::string key);
 

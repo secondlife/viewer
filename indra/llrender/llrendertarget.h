@@ -141,12 +141,12 @@ public:
     //get Y resolution
     [[nodiscard]] U32 getHeight() const { return mResY; }
 
-    [[nodiscard]] LLTexUnit::eTextureType getUsage(void) const { return mUsage; }
+    [[nodiscard]] LLTexUnit::eTextureType getUsage() const { return mUsage; }
 
     [[nodiscard]] U32 getTexture(U32 attachment = 0) const;
     [[nodiscard]] U32 getNumTextures() const;
 
-    [[nodiscard]] U32 getDepth(void) const { return mDepth; }
+    [[nodiscard]] U32 getDepth() const { return mDepth; }
 
     void bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options = LLTexUnit::eTextureFilterOptions::TFO_BILINEAR);
 

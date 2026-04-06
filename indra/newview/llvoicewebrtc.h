@@ -105,7 +105,7 @@ public:
 
     void tuningSetMicVolume(float volume) override;
     void tuningSetSpeakerVolume(float volume) override;
-    float tuningGetEnergy(void) override;
+    float tuningGetEnergy() override;
     //@}
 
     /////////////////////
@@ -211,7 +211,7 @@ public:
     void OnConnectionFailure(const std::string &channelID,
         const LLUUID &regionID,
         LLVoiceClientStatusObserver::EStatusType status_type = LLVoiceClientStatusObserver::ERROR_UNKNOWN);
-    void updatePosition(void); // update the internal position state
+    void updatePosition(); // update the internal position state
     void sendPositionUpdate(bool force); // send the position to the voice server.
     void updateOwnVolume();
 

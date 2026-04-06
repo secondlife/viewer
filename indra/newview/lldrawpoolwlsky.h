@@ -39,7 +39,7 @@ public:
         LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXCOORD0;
     static constexpr U32 ADV_ATMO_SKY_VERTEX_DATA_MASK = LLVertexBuffer::MAP_VERTEX
                                                    | LLVertexBuffer::MAP_TEXCOORD0;
-    LLDrawPoolWLSky(void);
+    LLDrawPoolWLSky();
     /*virtual*/ ~LLDrawPoolWLSky();
 
     /*virtual*/ bool isDead() { return false; }

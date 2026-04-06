@@ -86,7 +86,7 @@ LLHost get_sender()
     return LLHost(stSrcAddr.sin_addr.s_addr, ntohs(stSrcAddr.sin_port));
 }
 
-U32 get_sender_ip(void)
+U32 get_sender_ip()
 {
     return stSrcAddr.sin_addr.s_addr;
 }
@@ -101,7 +101,7 @@ LLHost get_receiving_interface()
     return LLHost(gsnReceivingIFAddr, INVALID_PORT);
 }
 
-U32 get_receiving_interface_ip(void)
+U32 get_receiving_interface_ip()
 {
     return gsnReceivingIFAddr;
 }

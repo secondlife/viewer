@@ -185,7 +185,7 @@ public:
     const bool isRigValidForJointPositionUpload( void ) const { return mRigValidJointUpload; }
     void setRigValidForJointPositionUpload( bool rigValid ) { mRigValidJointUpload = rigValid; }
 
-    const bool isLegacyRigValid(void) const { return mLegacyRigFlags == 0; }
+    const bool isLegacyRigValid() const { return mLegacyRigFlags == 0; }
     U32 getLegacyRigFlags() const { return mLegacyRigFlags; }
     void setLegacyRigFlags( U32 rigFlags ) { mLegacyRigFlags = rigFlags; }
 

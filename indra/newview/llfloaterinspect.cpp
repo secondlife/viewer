@@ -69,7 +69,7 @@ bool LLFloaterInspect::postBuild()
     return true;
 }
 
-LLFloaterInspect::~LLFloaterInspect(void)
+LLFloaterInspect::~LLFloaterInspect()
 {
     if (mOwnerNameCacheConnection.connected())
     {

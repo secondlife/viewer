@@ -40,7 +40,7 @@ void LLAllocator::pushMemType(S32 i)
     memTypeStack.push(i);
 }
 
-S32 LLAllocator::popMemType(void)
+S32 LLAllocator::popMemType()
 {
     S32 ret = memTypeStack.top();
     memTypeStack.pop();

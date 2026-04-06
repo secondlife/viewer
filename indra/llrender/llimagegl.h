@@ -84,7 +84,7 @@ public:
 
     bool updateBindStats() const ;
     F32 getTimePassedSinceLastBound();
-    void forceUpdateBindStats(void) const;
+    void forceUpdateBindStats() const;
 
     // needs to be called every frame
     static void updateStats(F32 current_time);
@@ -179,8 +179,8 @@ public:
 
     void setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
 
-    [[nodiscard]] LLTexUnit::eTextureType getTarget(void) const { return mBindTarget; }
-    [[nodiscard]] bool isGLTextureCreated(void) const { return mGLTextureCreated ; }
+    [[nodiscard]] LLTexUnit::eTextureType getTarget() const { return mBindTarget; }
+    [[nodiscard]] bool isGLTextureCreated() const { return mGLTextureCreated ; }
     void setGLTextureCreated (bool initialized) { mGLTextureCreated = initialized; }
 
     [[nodiscard]] bool getUseMipMaps() const { return mUseMipMaps; }
@@ -195,13 +195,13 @@ public:
     //  (such as wrapping, mirrored wrapping, and clamp)
     // Note: this actually gets set the next time the texture is bound.
     void setAddressMode(LLTexUnit::eTextureAddressMode mode);
-    LLTexUnit::eTextureAddressMode getAddressMode(void) const { return mAddressMode; }
+    LLTexUnit::eTextureAddressMode getAddressMode() const { return mAddressMode; }
 
     // Sets the filtering options used to sample the texture
     //  (such as point sampling, bilinear interpolation, mipmapping, and anisotropic filtering)
     // Note: this actually gets set the next time the texture is bound.
     void setFilteringOption(LLTexUnit::eTextureFilterOptions option);
-    LLTexUnit::eTextureFilterOptions getFilteringOption(void) const { return mFilterOption; }
+    LLTexUnit::eTextureFilterOptions getFilteringOption() const { return mFilterOption; }
 
     LLGLenum getTexTarget()const { return mTarget; }
 

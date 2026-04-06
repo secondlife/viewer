@@ -99,7 +99,7 @@ public:
 
     void tuningSetMicVolume(float volume) override;
     void tuningSetSpeakerVolume(float volume) override;
-    float tuningGetEnergy(void) override;
+    float tuningGetEnergy() override;
 
     //@}
 
@@ -157,7 +157,7 @@ public:
 
     void processChannels(bool process) override;
 
-    void leaveChannel(void);
+    void leaveChannel();
 
     bool isCurrentChannel(const LLSD &channelInfo) override;
     bool compareChannels(const LLSD &channelInfo1, const LLSD &channelInfo2) override;
@@ -421,7 +421,7 @@ protected:
 
     void connectorCreate();
     void connectorShutdown();
-    void closeSocket(void);
+    void closeSocket();
 
 //  void requestVoiceAccountProvision(S32 retries = 3);
     void setLoginInfo(
@@ -493,7 +493,7 @@ protected:
 
     /////////////////////////////
     // Sending updates of current state
-    void updatePosition(void);
+    void updatePosition();
     void setCameraPosition(const LLVector3d &position, const LLVector3 &velocity, const LLMatrix3 &rot);
     void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
     bool channelFromRegion(LLViewerRegion *region, std::string &name);
@@ -530,9 +530,9 @@ protected:
     void setSessionHandle(const sessionStatePtr_t &session, const std::string &handle);
     void setSessionURI(const sessionStatePtr_t &session, const std::string &uri);
     void deleteSession(const sessionStatePtr_t &session);
-    void deleteAllSessions(void);
+    void deleteAllSessions();
 
-    void verifySessionState(void);
+    void verifySessionState();
 
     void joinedAudioSession(const sessionStatePtr_t &session);
     void leftAudioSession(const sessionStatePtr_t &session);
@@ -733,11 +733,11 @@ private:
     // Returns the name portion of the SIP URI if the string looks vaguely like a SIP URI, or an empty string if not.
     std::string nameFromsipURI(const std::string &uri);
 
-    bool inSpatialChannel(void);
+    bool inSpatialChannel();
     LLSD getAudioSessionChannelInfo();
     std::string getAudioSessionHandle();
 
-    void sendPositionAndVolumeUpdate(void);
+    void sendPositionAndVolumeUpdate();
 
     void sendCaptureAndRenderDevices();
     void buildSetCaptureDevice(std::ostringstream &stream);
@@ -745,7 +745,7 @@ private:
 
     void sendFriendsListUpdates();
 
-    void enforceTether(void);
+    void enforceTether();
 
     bool        mSpatialCoordsDirty;
 

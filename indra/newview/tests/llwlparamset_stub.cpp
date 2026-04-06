@@ -24,7 +24,7 @@
  * $/LicenseInfo$
  */
 
-LLWLParamSet::LLWLParamSet(void)
+LLWLParamSet::LLWLParamSet()
 {
 }
 

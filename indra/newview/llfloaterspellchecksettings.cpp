@@ -64,7 +64,7 @@ void LLFloaterSpellCheckerSettings::draw()
     getChild<LLUICtrl>("spellcheck_remove_btn")->setEnabled(enable_remove);
 }
 
-bool LLFloaterSpellCheckerSettings::postBuild(void)
+bool LLFloaterSpellCheckerSettings::postBuild()
 {
     gSavedSettings.getControl("SpellCheck")->getSignal()->connect(std::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
     LLSpellChecker::setSettingsChangeCallback(std::bind(&LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange, this));

@@ -24,6 +24,6 @@
  * $/LicenseInfo$
  */
 
-LLWLAnimator::LLWLAnimator(void) {}
+LLWLAnimator::LLWLAnimator() {}
 void LLWLAnimator::update(LLWLParamSet& set) {}
 void LLWLAnimator::setTrack(std::map<F32, LLWLParamKey>& track, F32 dayRate, F64 dayTime, bool run) {}

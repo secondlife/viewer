@@ -157,7 +157,7 @@ public:
 
     virtual void openItem( void ) = 0;
     virtual void closeItem( void ) = 0;
-    virtual void selectItem(void) = 0;
+    virtual void selectItem() = 0;
 
     virtual void navigateToFolder(bool new_window = false, bool change_mode = false) = 0;
 
@@ -171,7 +171,7 @@ public:
     virtual void move( LLFolderViewModelItem* parent_listener ) = 0;
 
     virtual bool isItemRemovable( bool check_worn = true) const = 0;     // Can be destroyed
-    virtual bool isItemInTrash(void) const = 0;
+    virtual bool isItemInTrash() const = 0;
     virtual bool removeItem() = 0;
     virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch) = 0;
 
