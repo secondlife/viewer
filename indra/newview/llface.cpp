@@ -516,11 +516,11 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
         gGL.pushMatrix();
         if (mDrawablep->isActive())
         {
-            gGL.multMatrix((GLfloat*)mDrawablep->getRenderMatrix().mMatrix);
+            gGL.multMatrix(reinterpret_cast<const GLfloat*>(mDrawablep->getRenderMatrix().mMatrix));
         }
         else
         {
-            gGL.multMatrix((GLfloat*)mDrawablep->getRegion()->mRenderMatrix.mMatrix);
+            gGL.multMatrix(reinterpret_cast<const GLfloat*>(mDrawablep->getRegion()->mRenderMatrix.mMatrix));
         }
 
         gGL.diffuseColor4fv(color.mV);
@@ -629,7 +629,7 @@ void LLFace::printDebugInfo() const
     }
     if (getTexture())
     {
-        LL_INFOS() << "Texture: " << getTexture() << " Comps: " << (U32)getTexture()->getComponents() << LL_ENDL;
+        LL_INFOS() << "Texture: " << getTexture() << " Comps: " << static_cast<U32>(getTexture()->getComponents()) << LL_ENDL;
     }
     else
     {
@@ -995,8 +995,8 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
     LLVector2 orig_st_offset(map_offsS, map_offsT);
 
     *res_st_offset = orig_st_offset + (LLVector2)centers_dist;
-    res_st_offset->mV[VX] -= (S32)res_st_offset->mV[VX];
-    res_st_offset->mV[VY] -= (S32)res_st_offset->mV[VY];
+    res_st_offset->mV[VX] -= static_cast<S32>(res_st_offset->mV[VX]);
+    res_st_offset->mV[VY] -= static_cast<S32>(res_st_offset->mV[VY]);
 
     st_scale /= this_proj_scale;
     *res_st_scale = (LLVector2)st_scale;
@@ -1073,8 +1073,8 @@ bool LLFace::calcAlignedPlanarGLTF(
     LLVector2 orig_st_offset(map_offsS, map_offsT);
 
     LLVector2 tex_res_st_offset = orig_st_offset + (LLVector2)centers_dist;
-    tex_res_st_offset.mV[VX] -= (S32)tex_res_st_offset.mV[VX];
-    tex_res_st_offset.mV[VY] -= (S32)tex_res_st_offset.mV[VY];
+    tex_res_st_offset.mV[VX] -= static_cast<S32>(tex_res_st_offset.mV[VX]);
+    tex_res_st_offset.mV[VY] -= static_cast<S32>(tex_res_st_offset.mV[VY]);
 
     st_scale /= this_proj_scale;
 
@@ -1191,8 +1191,8 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
     bool rigged = isState(RIGGED);
 
     const LLVolumeFace &vf = volume.getVolumeFace(face_index);
-    S32 num_vertices = (S32)vf.mNumVertices;
-    S32 num_indices = (S32) vf.mNumIndices;
+    S32 num_vertices = static_cast<S32>(vf.mNumVertices);
+    S32 num_indices = static_cast<S32>(vf.mNumIndices);
 
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCTREE))
     {
@@ -1217,7 +1217,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             return false;
         }
 
-        if (num_vertices + (U32)mGeomIndex > mVertexBuffer->getNumVerts()) [[unlikely]]
+        if (num_vertices + static_cast<U32>(mGeomIndex) > mVertexBuffer->getNumVerts()) [[unlikely]]
         {
             if (gDebugGL)
             {
@@ -1559,7 +1559,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                         S32 max_size = llmax( mTexture[LLRender::DIFFUSE_MAP]->getWidth(), mTexture[LLRender::DIFFUSE_MAP]->getHeight() );
                         max_size <<= cur_discard;
                         const F32 ARTIFICIAL_OFFSET = 2.f;
-                        offset_multiple = ARTIFICIAL_OFFSET / (F32)max_size;
+                        offset_multiple = ARTIFICIAL_OFFSET / static_cast<F32>(max_size);
                     }
                     else
                     {
@@ -1597,7 +1597,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
             bool tex_anim = false;
 
-            LLVOVolume* vobj = (LLVOVolume*)mVObjp.get();
+            LLVOVolume* vobj = static_cast<LLVOVolume*>(mVObjp.get());
             tex_mode = vobj->mTexAnimMode;
 
             if (vobj->mTextureAnimp)
@@ -1655,7 +1655,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                         {
                             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("ggv - texgen 1");
                             S32 tc_size = (num_vertices*2*sizeof(F32)+0xF) & ~0xF;
-                            LLVector4a::memcpyNonAliased16((F32*) tex_coords0.get(), (F32*) vf.mTexCoords, tc_size);
+                            LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(tex_coords0.get()), reinterpret_cast<F32*>(vf.mTexCoords), tc_size);
                         }
                         else
                         {
@@ -2036,8 +2036,8 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - weight");
             mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount);
-            F32* weights = (F32*) wght.get();
-            LLVector4a::memcpyNonAliased16(weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
+            F32* weights = reinterpret_cast<F32*>(wght.get());
+            LLVector4a::memcpyNonAliased16(weights, reinterpret_cast<F32*>(vf.mWeights), num_vertices*4*sizeof(F32));
         }
 
         if (rebuild_color && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_COLOR) )
@@ -2076,7 +2076,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             U8 glow = 0;
             if (tep)
             {
-                glow = (U8)llclamp((S32)(tep->getGlow() * 255), 0, 255);
+                glow = static_cast<U8>(llclamp(static_cast<S32>(tep->getGlow() * 255), 0, 255));
             }
 
             LLVector4a src;
@@ -2240,7 +2240,7 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 
                 if (rigInfo.needsUpdate())
                 {
-                    LLVOVolume* vo_volume = (LLVOVolume*)mVObjp.get();
+                    LLVOVolume* vo_volume = static_cast<LLVOVolume*>(mVObjp.get());
                     const LLMeshSkinInfo* skin = vo_volume->getSkinInfo();
                     if (skin)
                     {
@@ -2320,7 +2320,7 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
     lookAt.normalize3fast() ;
 
     //get area of circle around node
-    F32 app_angle = atanf((F32) sqrt(size_squared) / dist);
+    F32 app_angle = atanf(static_cast<F32>(sqrt(size_squared)) / dist);
     radius = app_angle*LLDrawable::sCurPixelAngle;
     mPixelArea = radius*radius * 3.14159f;
 
@@ -2371,7 +2371,7 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 //the projection of the face partially overlaps with the screen
 F32 LLFace::adjustPartialOverlapPixelArea(F32 cos_angle_to_view_dir, F32 radius )
 {
-    F32 screen_radius = (F32)llmax(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw()) ;
+    F32 screen_radius = static_cast<F32>(llmax(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw())) ;
     F32 center_angle = acosf(cos_angle_to_view_dir) ;
     F32 d = center_angle * LLDrawable::sCurPixelAngle ;
 
@@ -2453,7 +2453,7 @@ F32 LLFace::adjustPixelArea(F32 importance, F32 pixel_area)
         {
             if(importance < LEAST_IMPORTANCE_FOR_LARGE_IMAGE)//if the face is not important, do not load hi-res.
             {
-                pixel_area = (F32)LLViewerTexture::sMinLargeImageSize ;
+                pixel_area = static_cast<F32>(LLViewerTexture::sMinLargeImageSize) ;
             }
         }
     }
@@ -2471,13 +2471,13 @@ bool LLFace::verify(const U32* indices_array) const
     }
 
     // First, check whether the face data fits within the pool's range.
-    if ((U32)(mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
+    if (static_cast<U32>(mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
     {
         ok = false;
         LL_INFOS() << "Face references invalid vertices!" << LL_ENDL;
     }
 
-    S32 indices_count = (S32)getIndicesCount();
+    S32 indices_count = static_cast<S32>(getIndicesCount());
 
     if (!indices_count)
     {

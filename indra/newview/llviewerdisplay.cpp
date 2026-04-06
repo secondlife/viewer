@@ -1383,8 +1383,8 @@ LLRect get_whole_screen_region()
     if (zoom_factor > 1.f)
     {
         S32 num_horizontal_tiles = llceil(zoom_factor);
-        S32 tile_width = ll_round((F32)gViewerWindow->getWorldViewWidthScaled() / zoom_factor);
-        S32 tile_height = ll_round((F32)gViewerWindow->getWorldViewHeightScaled() / zoom_factor);
+        S32 tile_width = ll_round(static_cast<F32>(gViewerWindow->getWorldViewWidthScaled()) / zoom_factor);
+        S32 tile_height = ll_round(static_cast<F32>(gViewerWindow->getWorldViewHeightScaled()) / zoom_factor);
         int tile_y = sub_region / num_horizontal_tiles;
         int tile_x = sub_region - (tile_y * num_horizontal_tiles);
 
@@ -1406,13 +1406,13 @@ bool get_hud_matrices(const LLRect& screen_region, glm::mat4 &proj, glm::mat4&mo
 
         F32 aspect_ratio = LLViewerCamera::getInstance()->getAspect();
 
-        F32 scale_x = (F32)gViewerWindow->getWorldViewWidthScaled() / (F32)screen_region.getWidth();
-        F32 scale_y = (F32)gViewerWindow->getWorldViewHeightScaled() / (F32)screen_region.getHeight();
+        F32 scale_x = static_cast<F32>(gViewerWindow->getWorldViewWidthScaled()) / static_cast<F32>(screen_region.getWidth());
+        F32 scale_y = static_cast<F32>(gViewerWindow->getWorldViewHeightScaled()) / static_cast<F32>(screen_region.getHeight());
 
         glm::mat4 mat = glm::identity<glm::mat4>();
         mat = glm::translate(mat,
-            glm::vec3(clamp_rescale((F32)(screen_region.getCenterX() - screen_region.mLeft), 0.f, (F32)gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
-                clamp_rescale((F32)(screen_region.getCenterY() - screen_region.mBottom), 0.f, (F32)gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
+            glm::vec3(clamp_rescale(static_cast<F32>(screen_region.getCenterX() - screen_region.mLeft), 0.f, static_cast<F32>(gViewerWindow->getWorldViewWidthScaled()), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
+                clamp_rescale(static_cast<F32>(screen_region.getCenterY() - screen_region.mBottom), 0.f, static_cast<F32>(gViewerWindow->getWorldViewHeightScaled()), 0.5f * scale_y, -0.5f * scale_y),
                 0.f));
         mat = glm::scale(mat, glm::vec3(scale_x, scale_y, 1.f));
         proj *= mat;
@@ -1700,8 +1700,8 @@ void render_ui_2d()
         int pos_y = sub_region / llceil(zoom_factor);
         int pos_x = sub_region - (pos_y*llceil(zoom_factor));
         // offset for this tile
-        LLFontGL::sCurOrigin.mX -= ll_round((F32)gViewerWindow->getWindowWidthScaled() * (F32)pos_x / zoom_factor);
-        LLFontGL::sCurOrigin.mY -= ll_round((F32)gViewerWindow->getWindowHeightScaled() * (F32)pos_y / zoom_factor);
+        LLFontGL::sCurOrigin.mX -= ll_round(static_cast<F32>(gViewerWindow->getWindowWidthScaled()) * static_cast<F32>(pos_x) / zoom_factor);
+        LLFontGL::sCurOrigin.mY -= ll_round(static_cast<F32>(gViewerWindow->getWindowHeightScaled()) * static_cast<F32>(pos_y) / zoom_factor);
     }
 
     stop_glerror();
@@ -1714,7 +1714,7 @@ void render_ui_2d()
         S32 half_width = (gViewerWindow->getWorldViewWidthScaled() / 2);
         S32 half_height = (gViewerWindow->getWorldViewHeightScaled() / 2);
         gGL.scalef(LLUI::getScaleFactor().mV[VX], LLUI::getScaleFactor().mV[VY], 1.f);
-        gGL.translatef((F32)half_width, (F32)half_height, 0.f);
+        gGL.translatef(static_cast<F32>(half_width), static_cast<F32>(half_height), 0.f);
         F32 zoom = gAgentCamera.mHUDCurZoom;
         gGL.scalef(zoom,zoom,1.f);
         gGL.color4fv(LLColor4::white.mV);
@@ -1778,9 +1778,9 @@ void render_ui_2d()
         gGL.begin(LLRender::TRIANGLE_STRIP);
         gGL.color4f(1.f,1.f,1.f,1.f);
         gGL.texCoord2f(0.f, 0.f);                 gGL.vertex2i(0, 0);
-        gGL.texCoord2f((F32)width, 0.f);          gGL.vertex2i(width, 0);
-        gGL.texCoord2f(0.f, (F32)height);         gGL.vertex2i(0, height);
-        gGL.texCoord2f((F32)width, (F32)height);  gGL.vertex2i(width, height);
+        gGL.texCoord2f(static_cast<F32>(width), 0.f);          gGL.vertex2i(width, 0);
+        gGL.texCoord2f(0.f, static_cast<F32>(height));         gGL.vertex2i(0, height);
+        gGL.texCoord2f(static_cast<F32>(width), static_cast<F32>(height));  gGL.vertex2i(width, height);
         gGL.end();
     }
     else
@@ -1820,17 +1820,17 @@ void render_disconnected_background()
         }
 
         U8 *rawp = raw->getData();
-        S32 npixels = (S32)image_png->getWidth()*(S32)image_png->getHeight();
+        S32 npixels = static_cast<S32>(image_png->getWidth()) * static_cast<S32>(image_png->getHeight());
         for (S32 i = 0; i < npixels; i++)
         {
             S32 sum = 0;
             sum = *rawp + *(rawp+1) + *(rawp+2);
             sum /= 3;
-            *rawp = ((S32)sum*6 + *rawp)/7;
+            *rawp = (static_cast<S32>(sum)*6 + *rawp)/7;
             rawp++;
-            *rawp = ((S32)sum*6 + *rawp)/7;
+            *rawp = (static_cast<S32>(sum)*6 + *rawp)/7;
             rawp++;
-            *rawp = ((S32)sum*6 + *rawp)/7;
+            *rawp = (static_cast<S32>(sum)*6 + *rawp)/7;
             rawp++;
         }
 

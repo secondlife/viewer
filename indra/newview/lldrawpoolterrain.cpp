@@ -239,8 +239,8 @@ void LLDrawPoolTerrain::renderFullShaderTextures()
     LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
     LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-    F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
-    F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+    F32 offset_x = static_cast<F32>(fmod(region_origin_global.mdV[VX], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
+    F32 offset_y = static_cast<F32>(fmod(region_origin_global.mdV[VY], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
 
     LLVector4 tp0, tp1;
 
@@ -647,8 +647,8 @@ void LLDrawPoolTerrain::renderFull4TU()
     LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
     LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-    F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
-    F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+    F32 offset_x = static_cast<F32>(fmod(region_origin_global.mdV[VX], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
+    F32 offset_y = static_cast<F32>(fmod(region_origin_global.mdV[VY], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
 
     LLVector4 tp0, tp1;
 
@@ -824,8 +824,8 @@ void LLDrawPoolTerrain::renderFull2TU()
     LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
     LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-    F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
-    F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+    F32 offset_x = static_cast<F32>(fmod(region_origin_global.mdV[VX], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
+    F32 offset_y = static_cast<F32>(fmod(region_origin_global.mdV[VY], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
 
     LLVector4 tp0, tp1;
 
@@ -1023,7 +1023,7 @@ void LLDrawPoolTerrain::renderOwnership()
     LLFace                  *facep              = mDrawFace[0];
     LLDrawable              *drawablep          = facep->getDrawable();
     const LLViewerObject    *objectp                = drawablep->getVObj();
-    const LLVOSurfacePatch  *vo_surface_patchp  = (LLVOSurfacePatch *)objectp;
+    const LLVOSurfacePatch  *vo_surface_patchp  = static_cast<const LLVOSurfacePatch*>(objectp);
     LLSurfacePatch          *surface_patchp     = vo_surface_patchp->getPatch();
     LLSurface               *surfacep           = surface_patchp->getSurface();
     LLViewerRegion          *regionp            = surfacep->getRegion();

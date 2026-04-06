@@ -97,7 +97,7 @@ S32 LLViewerTextureAnim::animateTextures(F32 &off_s, F32 &off_t,
     }
     else
     {
-        num_frames = llmax(1.f, (F32)(mSizeX * mSizeY));
+        num_frames = llmax(1.f, static_cast<F32>(mSizeX * mSizeY));
     }
 
     if (mMode & PING_PONG)
@@ -126,7 +126,7 @@ S32 LLViewerTextureAnim::animateTextures(F32 &off_s, F32 &off_t,
     F32 frame_counter;
     if (mMode & SMOOTH)
     {
-        frame_counter = mTimer.getElapsedTimeAndResetF32() * mRate + (F32)mLastTime;
+        frame_counter = mTimer.getElapsedTimeAndResetF32() * mRate + static_cast<F32>(mLastTime);
     }
     else
     {
@@ -145,7 +145,7 @@ S32 LLViewerTextureAnim::animateTextures(F32 &off_s, F32 &off_t,
 
     if (!(mMode & SMOOTH))
     {
-        frame_counter = (F32)llfloor(frame_counter + 0.01f);
+        frame_counter = static_cast<F32>(llfloor(frame_counter + 0.01f));
         // account for 0.01, we shouldn't step over full length
         frame_counter = llmin(full_length - 1.f, frame_counter);
     }
@@ -181,7 +181,7 @@ S32 LLViewerTextureAnim::animateTextures(F32 &off_s, F32 &off_t,
 
     if (!(mMode & SMOOTH))
     {
-        frame_counter = (F32)ll_round(frame_counter);
+        frame_counter = static_cast<F32>(ll_round(frame_counter));
     }
 
     //
@@ -218,7 +218,7 @@ S32 LLViewerTextureAnim::animateTextures(F32 &off_s, F32 &off_t,
                 mScaleS = scale_s = 1.f/mSizeX;
                 mScaleT = scale_t = 1.f/mSizeY;
                 x_frame = fmodf(frame_counter, mSizeX);
-                y_frame = (S32)(frame_counter / mSizeX);
+                y_frame = static_cast<S32>(frame_counter / mSizeX);
                 x_pos = x_frame * scale_s;
                 y_pos = y_frame * scale_t;
                 mOffS = off_s = (-0.5f + 0.5f*scale_s)+ x_pos;

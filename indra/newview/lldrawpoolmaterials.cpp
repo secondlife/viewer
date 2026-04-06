@@ -265,7 +265,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
             gGL.getTexUnit(0)->activate();
             gGL.matrixMode(LLRender::MM_TEXTURE);
 
-            gGL.loadMatrix((GLfloat*)params.mTextureMatrix->mMatrix);
+            gGL.loadMatrix(reinterpret_cast<const GLfloat*>(params.mTextureMatrix->mMatrix));
             gPipeline.mTextureMatrixOps++;
 
             tex_setup = true;

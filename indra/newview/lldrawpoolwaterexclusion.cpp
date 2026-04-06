@@ -53,7 +53,7 @@ void LLDrawPoolWaterExclusion::render(S32 pass)
     LLGLDepthTest depth(GL_TRUE);
     gDrawColorProgram.uniform4f(LLShaderMgr::DIFFUSE_COLOR, 1, 1, 1, 1);
 
-    LLDrawPoolWater* pwaterpool = (LLDrawPoolWater*)gPipeline.getPool(LLDrawPool::POOL_WATER);
+    LLDrawPoolWater* pwaterpool = static_cast<LLDrawPoolWater*>(gPipeline.getPool(LLDrawPool::POOL_WATER));
     if (pwaterpool)
     {
         // Just treat our water planes as double sided for the purposes of generating the exclusion mask.

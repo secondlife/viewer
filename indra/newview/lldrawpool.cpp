@@ -303,7 +303,7 @@ void LLFacePool::removeFaceReference(LLFace *facep)
 {
     if (facep->getReferenceIndex() != -1)
     {
-        if (facep->getReferenceIndex() != (S32)mReferences.size())
+        if (facep->getReferenceIndex() != static_cast<S32>(mReferences.size()))
         {
             LLFace *back = mReferences.back();
             mReferences[facep->getReferenceIndex()] = back;
@@ -563,7 +563,7 @@ void LLRenderPass::applyModelMatrix(const LLMatrix4* model_matrix)
         gGL.loadMatrix(gGLModelView);
         if (model_matrix)
         {
-            gGL.multMatrix((GLfloat*) model_matrix->mMatrix);
+            gGL.multMatrix(reinterpret_cast<const GLfloat*>(model_matrix->mMatrix));
         }
         gPipeline.mMatrixOpCount++;
     }
@@ -604,7 +604,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textur
                     tex_setup = true;
                     gGL.getTexUnit(0)->activate();
                     gGL.matrixMode(LLRender::MM_TEXTURE);
-                    gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
+                    gGL.loadMatrix(reinterpret_cast<const GLfloat*>(params.mTextureMatrix->mMatrix));
                     gPipeline.mTextureMatrixOps++;
                 }
             }
@@ -668,7 +668,7 @@ bool LLRenderPass::uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinI
 
     LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
         false,
-        std::span<const GLfloat>((GLfloat*)&(mpc.mGLMp[0]), count * 12));
+        std::span<const GLfloat>(reinterpret_cast<const GLfloat*>(&(mpc.mGLMp[0])), count * 12));
 
     return true;
 }
@@ -703,7 +703,7 @@ bool LLRenderPass::uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinI
     {
         LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
             false,
-            std::span<const GLfloat>((GLfloat*)&(mpc.mGLMp[0]), count * 12));
+            std::span<const GLfloat>(reinterpret_cast<const GLfloat*>(&(mpc.mGLMp[0])), count * 12));
     }
 
     return !skipLastSkin;
@@ -740,7 +740,7 @@ bool LLRenderPass::uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinI
     {
         LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
             false,
-            std::span<const GLfloat>((GLfloat*)&(mpc.mGLMp[0]), count * 12));
+            std::span<const GLfloat>(reinterpret_cast<const GLfloat*>(&(mpc.mGLMp[0])), count * 12));
     }
 
     return !skipLastSkin;
@@ -752,7 +752,7 @@ void setup_texture_matrix(LLDrawInfo& params)
     { //special case implementation of texture animation here because of special handling of textures for PBR batches
         gGL.getTexUnit(0)->activate();
         gGL.matrixMode(LLRender::MM_TEXTURE);
-        gGL.loadMatrix((GLfloat*)params.mTextureMatrix->mMatrix);
+        gGL.loadMatrix(reinterpret_cast<const GLfloat*>(params.mTextureMatrix->mMatrix));
         gPipeline.mTextureMatrixOps++;
     }
 }

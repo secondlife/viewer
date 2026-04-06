@@ -129,7 +129,7 @@ S32 LLDrawPoolAvatar::getShaderLevel() const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
-    return (S32) LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
+    return static_cast<S32>(LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR));
 }
 
 void LLDrawPoolAvatar::prerender()
@@ -361,7 +361,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
     {
         return;
     }
-    LLVOAvatar *avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
+    LLVOAvatar *avatarp = static_cast<LLVOAvatar*>(facep->getDrawable()->getVObj().get());
 
     if (avatarp->isDead() || avatarp->isUIAvatar() || avatarp->mDrawable.isNull())
     {
@@ -695,7 +695,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
         {
             return;
         }
-        avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
+        avatarp = static_cast<LLVOAvatar*>(facep->getDrawable()->getVObj().get());
     }
 
     if (avatarp->isDead() || avatarp->mDrawable.isNull()) [[unlikely]]
@@ -714,9 +714,9 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
             gGL.color4f(1.0f, 1.0f, 1.0f, 0.7f);
 
             gGL.pushMatrix();
-            gGL.translatef((F32)(pos.mV[VX]),
-                           (F32)(pos.mV[VY]),
-                            (F32)(pos.mV[VZ]));
+            gGL.translatef(static_cast<F32>(pos.mV[VX]),
+                           static_cast<F32>(pos.mV[VY]),
+                           static_cast<F32>(pos.mV[VZ]));
              gGL.scalef(0.15f, 0.15f, 0.3f);
 
              gSphere.renderGGL();

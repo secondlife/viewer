@@ -136,7 +136,7 @@ void LLStandardBumpmap::addstandard()
         return;
     }
 
-    while( !feof(file) && (LLStandardBumpmap::sStandardBumpmapCount < (U32)TEM_BUMPMAP_COUNT) )
+    while( !feof(file) && (LLStandardBumpmap::sStandardBumpmapCount < static_cast<U32>(TEM_BUMPMAP_COUNT)) )
     {
         // *NOTE: This buffer size is hard coded into scanf() below.
         char label[2048] = "";  /* Flawfinder: ignore */
@@ -841,12 +841,12 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
                 lY += resY;
             }
 
-            F32 cH = (F32) src_data[(j*resX+i)*src_cmp+src_cmp-1];
+            F32 cH = static_cast<F32>(src_data[(j*resX+i)*src_cmp+src_cmp-1]);
 
-            LLVector3 right = LLVector3(norm_scale, 0, (F32) src_data[(j*resX+rX)*src_cmp+src_cmp-1]-cH);
-            LLVector3 left = LLVector3(-norm_scale, 0, (F32) src_data[(j*resX+lX)*src_cmp+src_cmp-1]-cH);
-            LLVector3 up = LLVector3(0, -norm_scale, (F32) src_data[(lY*resX+i)*src_cmp+src_cmp-1]-cH);
-            LLVector3 down = LLVector3(0, norm_scale, (F32) src_data[(rY*resX+i)*src_cmp+src_cmp-1]-cH);
+            LLVector3 right = LLVector3(norm_scale, 0, static_cast<F32>(src_data[(j*resX+rX)*src_cmp+src_cmp-1])-cH);
+            LLVector3 left = LLVector3(-norm_scale, 0, static_cast<F32>(src_data[(j*resX+lX)*src_cmp+src_cmp-1])-cH);
+            LLVector3 up = LLVector3(0, -norm_scale, static_cast<F32>(src_data[(lY*resX+i)*src_cmp+src_cmp-1])-cH);
+            LLVector3 down = LLVector3(0, norm_scale, static_cast<F32>(src_data[(rY*resX+i)*src_cmp+src_cmp-1])-cH);
 
             LLVector3 norm = right%down + down%left + left%up + up%right;
 
@@ -856,9 +856,9 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
             norm += LLVector3(0.5f,0.5f,0.5f);
 
             idx = (j*resX+i)*4;
-            nrm_data[idx+0]= (U8) (norm.mV[0]*255);
-            nrm_data[idx+1]= (U8) (norm.mV[1]*255);
-            nrm_data[idx+2]= (U8) (norm.mV[2]*255);
+            nrm_data[idx+0]= static_cast<U8>(norm.mV[0]*255);
+            nrm_data[idx+1]= static_cast<U8>(norm.mV[1]*255);
+            nrm_data[idx+2]= static_cast<U8>(norm.mV[2]*255);
             nrm_data[idx+3]= src_data[(j*resX+i)*src_cmp+src_cmp-1];
         }
     }
@@ -1034,11 +1034,11 @@ void LLRenderPass::pushBumpBatch(LLDrawInfo& params, bool texture, bool batch_te
             {
                 gGL.getTexUnit(0)->activate();
                 gGL.matrixMode(LLRender::MM_TEXTURE);
-                gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
+                gGL.loadMatrix(reinterpret_cast<const GLfloat*>(params.mTextureMatrix->mMatrix));
                 gPipeline.mTextureMatrixOps++;
             }
 
-            gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
+            gGL.loadMatrix(reinterpret_cast<const GLfloat*>(params.mTextureMatrix->mMatrix));
             gPipeline.mTextureMatrixOps++;
 
             tex_setup = true;
