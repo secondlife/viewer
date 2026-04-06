@@ -52,7 +52,7 @@ protected:
 
     joint_map                   mJointMap;
     F32                         mWeight;
-    joint_map_iterator          mListIter;
+    joint_map_iterator          mListIter = {};
 public:
     // Iterate through jointStates
     LLJointState* getFirstJointState();

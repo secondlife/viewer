@@ -114,11 +114,11 @@ public:
     //-------------------------------------------------------------------------
     // Member Data
     //-------------------------------------------------------------------------
-    LLCharacter     *mCharacter;
-    LLJoint*        mLeftAnkleJoint;
-    LLJoint*        mRightAnkleJoint;
+    LLCharacter     *mCharacter = nullptr;
+    LLJoint*        mLeftAnkleJoint = nullptr;
+    LLJoint*        mRightAnkleJoint = nullptr;
     LLPointer<LLJointState> mPelvisState;
-    LLJoint*        mPelvisJoint;
+    LLJoint*        mPelvisJoint = nullptr;
     LLVector3d      mLastLeftFootGlobalPos;
     LLVector3d      mLastRightFootGlobalPos;
     F32             mLastTime;
@@ -164,7 +164,7 @@ protected:
     //-------------------------------------------------------------------------
     // Member Data
     //-------------------------------------------------------------------------
-    LLCharacter     *mCharacter;
+    LLCharacter     *mCharacter = nullptr;
     LLPointer<LLJointState> mPelvisState;
     F32             mRoll;
 };

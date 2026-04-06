@@ -99,8 +99,8 @@ protected:
 protected:
     LLTexLayerSet* const    mTexLayerSet;
     const LLTexLayerInfo*   mInfo;
-    bool                    mMorphMasksValid;
-    bool                    mHasMorph;
+    bool                    mMorphMasksValid = false;
+    bool                    mHasMorph = false;
 
     // Layers can have either mParamColorList, mGlobalColor, or mFixedColor.  They are looked for in that order.
     param_color_list_t      mParamColorList;

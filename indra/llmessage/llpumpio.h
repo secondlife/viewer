@@ -357,7 +357,7 @@ protected:
         bool mHasCurlRequest;
         S32 mLock;
         LLFrameTimer mTimer;
-        links_t::iterator mHead;
+        links_t::iterator mHead = {};
         links_t mChainLinks;
         LLIOPipe::buffer_ptr_t mData;
         LLSD mContext;

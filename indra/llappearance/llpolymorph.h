@@ -66,7 +66,7 @@ public:
     F32                 mTotalDistortion;   // vertex distortion summed over entire morph
     F32                 mMaxDistortion;     // maximum single vertex distortion in a given morph
     LLVector4a          mAvgDistortion;     // average vertex distortion, to infer directionality of the morph
-    LLPolyMeshSharedData*   mMesh;
+    LLPolyMeshSharedData*   mMesh = nullptr;
 
 private:
     void freeData();

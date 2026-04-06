@@ -216,7 +216,7 @@ public:
     size_t              mReplyFullLength;
     HttpHeaders::ptr_t  mReplyHeaders;
     std::string         mReplyConType;
-    int                 mReplyRetryAfter;
+    int                 mReplyRetryAfter = 0;
 
     // Policy data
     int                 mPolicyRetries;

@@ -104,11 +104,11 @@ public:
 
 public:
 
-    LLCharacter         *mCharacter;
+    LLCharacter         *mCharacter = nullptr;
     LLPointer<LLJointState> mTorsoState;
-    LLJoint*            mPelvisJoint;
-    LLJoint*            mTorsoJoint;
-    LLJoint*            mRightHandJoint;
+    LLJoint*            mPelvisJoint = nullptr;
+    LLJoint*            mTorsoJoint = nullptr;
+    LLJoint*            mRightHandJoint = nullptr;
 };
 
 
