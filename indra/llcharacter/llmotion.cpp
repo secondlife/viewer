@@ -62,9 +62,7 @@ LLMotion::LLMotion( const LLUUID &id ) :
 // ~LLMotion()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLMotion::~LLMotion()
-{
-}
+LLMotion::~LLMotion() = default;
 
 //-----------------------------------------------------------------------------
 // fadeOut()

@@ -97,7 +97,7 @@ public:
                       const LLUUID& uuid,
                       const std::string& name,
                       U32 flags=0);
-    virtual ~LLTaskInvFVBridge() {}
+    virtual ~LLTaskInvFVBridge() = default;
 
     virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
     virtual std::string getLabelSuffix() const { return LLStringUtil::null; }

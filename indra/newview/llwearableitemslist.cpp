@@ -289,9 +289,7 @@ LLPanelClothingListItem::LLPanelClothingListItem(LLViewerInventoryItem* item, co
     setSeparatorVisible(false);
 }
 
-LLPanelClothingListItem::~LLPanelClothingListItem()
-{
-}
+LLPanelClothingListItem::~LLPanelClothingListItem() = default;
 
 bool LLPanelClothingListItem::postBuild()
 {
@@ -366,9 +364,7 @@ LLPanelBodyPartsListItem::LLPanelBodyPartsListItem(LLViewerInventoryItem* item, 
     setSeparatorVisible(true);
 }
 
-LLPanelBodyPartsListItem::~LLPanelBodyPartsListItem()
-{
-}
+LLPanelBodyPartsListItem::~LLPanelBodyPartsListItem() = default;
 
 bool LLPanelBodyPartsListItem::postBuild()
 {

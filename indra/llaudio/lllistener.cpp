@@ -40,9 +40,7 @@ LLListener::LLListener()
 }
 
 //-----------------------------------------------------------------------
-LLListener::~LLListener()
-{
-}
+LLListener::~LLListener() = default;
 
 //-----------------------------------------------------------------------
 void LLListener::init()

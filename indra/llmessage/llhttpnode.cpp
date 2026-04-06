@@ -390,9 +390,7 @@ const LLHTTPNode* LLHTTPNode::findNode(const std::string& name) const
     return impl.findNamedChild(name);
 }
 
-LLHTTPNode::Response::~Response()
-{
-}
+LLHTTPNode::Response::~Response() = default;
 
 void LLHTTPNode::Response::statusUnknownError(S32 code)
 {
@@ -471,9 +469,7 @@ LLPointer<LLSimpleResponse> LLSimpleResponse::create()
     return new LLSimpleResponse();
 }
 
-LLSimpleResponse::~LLSimpleResponse()
-{
-}
+LLSimpleResponse::~LLSimpleResponse() = default;
 
 void LLSimpleResponse::result(const LLSD& result)
 {

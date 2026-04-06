@@ -231,9 +231,7 @@ LLPanelProfileClassifieds::LLPanelProfileClassifieds()
 {
 }
 
-LLPanelProfileClassifieds::~LLPanelProfileClassifieds()
-{
-}
+LLPanelProfileClassifieds::~LLPanelProfileClassifieds() = default;
 
 void LLPanelProfileClassifieds::onOpen(const LLSD& key)
 {
@@ -1524,9 +1522,7 @@ LLPublishClassifiedFloater::LLPublishClassifiedFloater(const LLSD& key)
 {
 }
 
-LLPublishClassifiedFloater::~LLPublishClassifiedFloater()
-{
-}
+LLPublishClassifiedFloater::~LLPublishClassifiedFloater() = default;
 
 bool LLPublishClassifiedFloater::postBuild()
 {

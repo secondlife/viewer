@@ -79,9 +79,7 @@ LLFloaterSearch::LLFloaterSearch(const LLSD& key)
     mCollectionType.insert("people");
 }
 
-LLFloaterSearch::~LLFloaterSearch()
-{
-}
+LLFloaterSearch::~LLFloaterSearch() = default;
 
 void LLFloaterSearch::onOpen(const LLSD& tokens)
 {

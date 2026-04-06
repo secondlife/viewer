@@ -41,9 +41,7 @@ LLImagePNG::LLImagePNG()
 {
 }
 
-LLImagePNG::~LLImagePNG()
-{
-}
+LLImagePNG::~LLImagePNG() = default;
 
 // Virtual
 // Parse PNG image information and set the appropriate

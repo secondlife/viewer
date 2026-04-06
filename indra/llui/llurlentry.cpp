@@ -51,9 +51,7 @@ LLUrlEntryBase::LLUrlEntryBase()
 {
 }
 
-LLUrlEntryBase::~LLUrlEntryBase()
-{
-}
+LLUrlEntryBase::~LLUrlEntryBase() = default;
 
 std::string LLUrlEntryBase::getUrl(const std::string &string) const
 {

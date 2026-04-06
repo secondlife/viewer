@@ -2591,9 +2591,7 @@ LLKeyframeMotion::JointConstraint::JointConstraint(JointConstraintSharedData* sh
 //-----------------------------------------------------------------------------
 // ~JointConstraint()
 //-----------------------------------------------------------------------------
-LLKeyframeMotion::JointConstraint::~JointConstraint()
-{
-}
+LLKeyframeMotion::JointConstraint::~JointConstraint() = default;
 
 // End
 

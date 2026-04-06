@@ -265,9 +265,7 @@ LLFloaterSimpleSnapshot::LLFloaterSimpleSnapshot(const LLSD& key)
     impl = new Impl(this);
 }
 
-LLFloaterSimpleSnapshot::~LLFloaterSimpleSnapshot()
-{
-}
+LLFloaterSimpleSnapshot::~LLFloaterSimpleSnapshot() = default;
 
 bool LLFloaterSimpleSnapshot::postBuild()
 {
@@ -518,6 +516,4 @@ LLSimpleSnapshotFloaterView::LLSimpleSnapshotFloaterView(const Params& p) : LLFl
 {
 }
 
-LLSimpleSnapshotFloaterView::~LLSimpleSnapshotFloaterView()
-{
-}
+LLSimpleSnapshotFloaterView::~LLSimpleSnapshotFloaterView() = default;

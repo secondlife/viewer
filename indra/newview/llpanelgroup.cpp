@@ -69,9 +69,7 @@ LLPanelGroupTab::LLPanelGroupTab()
     mGroupID = LLUUID::null;
 }
 
-LLPanelGroupTab::~LLPanelGroupTab()
-{
-}
+LLPanelGroupTab::~LLPanelGroupTab() = default;
 
 bool LLPanelGroupTab::isVisibleByAgent(LLAgent* agentp)
 {

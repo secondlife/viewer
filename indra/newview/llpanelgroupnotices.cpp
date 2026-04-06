@@ -87,7 +87,7 @@ public:
         }
     };
     LLGroupDropTarget(const Params&);
-    ~LLGroupDropTarget() {};
+    ~LLGroupDropTarget() = default;;
 
     //
     // LLView functionality

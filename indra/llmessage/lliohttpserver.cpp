@@ -312,9 +312,7 @@ LLPointer<LLHTTPPipe::Response> LLHTTPPipe::Response::create(LLHTTPPipe* pipe)
 }
 
 // virtual
-LLHTTPPipe::Response::~Response()
-{
-}
+LLHTTPPipe::Response::~Response() = default;
 
 void LLHTTPPipe::Response::nullPipe()
 {

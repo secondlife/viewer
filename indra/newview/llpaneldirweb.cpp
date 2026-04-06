@@ -71,9 +71,7 @@ void LLPanelDirWeb::draw()
     LLPanel::draw();
 }
 
-LLPanelDirWeb::~LLPanelDirWeb()
-{
-}
+LLPanelDirWeb::~LLPanelDirWeb() = default;
 
 // When we show any browser-based view, we want to hide all
 // the right-side XUI detail panels.

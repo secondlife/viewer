@@ -177,9 +177,7 @@ LLVoiceVivoxStats::LLVoiceVivoxStats()
     reset();
 }
 
-LLVoiceVivoxStats::~LLVoiceVivoxStats()
-{
-}
+LLVoiceVivoxStats::~LLVoiceVivoxStats() = default;
 
 void LLVoiceVivoxStats::connectionAttemptStart()
 {
@@ -6486,9 +6484,7 @@ LLVivoxVoiceClient::voiceFontEntry::voiceFontEntry(LLUUID& id) :
     mExpiryTimer.stop();
 }
 
-LLVivoxVoiceClient::voiceFontEntry::~voiceFontEntry()
-{
-}
+LLVivoxVoiceClient::voiceFontEntry::~voiceFontEntry() = default;
 
 void LLVivoxVoiceClient::refreshVoiceEffectLists(bool clear_lists)
 {
@@ -7918,9 +7914,7 @@ LLVivoxSecurity::LLVivoxSecurity()
     mAccountHandle = LLBase64::encode(random_value);
 }
 
-LLVivoxSecurity::~LLVivoxSecurity()
-{
-}
+LLVivoxSecurity::~LLVivoxSecurity() = default;
 
 bool LLVivoxVoiceP2PIncomingCall::answerInvite() { return LLVivoxVoiceClient::getInstance()->answerInvite(mCallInfo["session_handle"]); }
 

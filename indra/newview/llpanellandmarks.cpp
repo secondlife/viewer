@@ -82,7 +82,7 @@ public:
     :   mCollapsedFolders(0),
         mExpandedFolders(0)
     {}
-    virtual ~LLCheckFolderState() {}
+    virtual ~LLCheckFolderState() = default;
     virtual void doFolder(LLFolderViewFolder* folder);
     virtual void doItem(LLFolderViewItem* item) {}
     S32 getCollapsedFolders() { return mCollapsedFolders; }
@@ -121,7 +121,7 @@ public:
     :   mFolderID(folder_id)
     ,   mIsFolderOpen(false)
     {}
-    virtual ~LLOpenFolderByID() {}
+    virtual ~LLOpenFolderByID() = default;
     /*virtual*/ void doFolder(LLFolderViewFolder* folder);
     /*virtual*/ void doItem(LLFolderViewItem* item) {}
 
@@ -174,9 +174,7 @@ LLLandmarksPanel::LLLandmarksPanel(bool is_landmark_panel)
     }
 }
 
-LLLandmarksPanel::~LLLandmarksPanel()
-{
-}
+LLLandmarksPanel::~LLLandmarksPanel() = default;
 
 bool LLLandmarksPanel::postBuild()
 {

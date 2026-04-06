@@ -178,7 +178,7 @@ struct LLFilteredCollector : public LLInventoryCollectFunctor
     };
 
     LLFilteredCollector(LLSD const &data);
-    virtual ~LLFilteredCollector() {}
+    virtual ~LLFilteredCollector() = default;
     virtual bool operator()(LLInventoryCategory *cat, LLInventoryItem *item) override;
     virtual bool exceedsLimit() override
     {

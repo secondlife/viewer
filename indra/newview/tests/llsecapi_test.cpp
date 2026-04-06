@@ -38,7 +38,7 @@
 
 LLControlGroup::LLControlGroup(const std::string& name)
 : LLInstanceTracker<LLControlGroup, std::string>(name) {}
-LLControlGroup::~LLControlGroup() {}
+LLControlGroup::~LLControlGroup() = default;
 LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,
@@ -54,7 +54,7 @@ LLControlGroup gSavedSettings("test");
 
 LLSecAPIBasicHandler::LLSecAPIBasicHandler() {}
 void LLSecAPIBasicHandler::init() {}
-LLSecAPIBasicHandler::~LLSecAPIBasicHandler() {}
+LLSecAPIBasicHandler::~LLSecAPIBasicHandler() = default;
 LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(const std::string& pem_cert) { return NULL; }
 LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(X509* openssl_cert) { return NULL; }
 LLPointer<LLCertificateChain> LLSecAPIBasicHandler::getCertificateChain(X509_STORE_CTX* chain) { return NULL; }

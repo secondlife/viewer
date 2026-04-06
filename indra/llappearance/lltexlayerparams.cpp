@@ -437,9 +437,7 @@ LLTexLayerParamColor::LLTexLayerParamColor(const LLTexLayerParamColor& pOther)
 {
 }
 
-LLTexLayerParamColor::~LLTexLayerParamColor()
-{
-}
+LLTexLayerParamColor::~LLTexLayerParamColor() = default;
 
 LLViewerVisualParam* LLTexLayerParamColor::cloneParam(LLWearable* wearable) const
 {

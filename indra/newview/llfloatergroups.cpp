@@ -64,9 +64,7 @@ LLFloaterGroupPicker::LLFloaterGroupPicker(const LLSD& seed)
 //  LLUICtrlFactory::getInstance()->buildFloater(this, "floater_choose_group.xml");
 }
 
-LLFloaterGroupPicker::~LLFloaterGroupPicker()
-{
-}
+LLFloaterGroupPicker::~LLFloaterGroupPicker() = default;
 
 void LLFloaterGroupPicker::setPowersMask(U64 powers_mask)
 {

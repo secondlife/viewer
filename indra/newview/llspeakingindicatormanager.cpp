@@ -190,9 +190,7 @@ SpeakingIndicatorManager::SpeakingIndicatorManager()
     LLVoiceClient::addObserver(this);
 }
 
-SpeakingIndicatorManager::~SpeakingIndicatorManager()
-{
-}
+SpeakingIndicatorManager::~SpeakingIndicatorManager() = default;
 
 void SpeakingIndicatorManager::cleanupSingleton()
 {

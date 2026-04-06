@@ -1019,9 +1019,7 @@ LLLocalBitmapTimer::LLLocalBitmapTimer() : LLEventTimer(LL_LOCAL_TIMER_HEARTBEAT
 {
 }
 
-LLLocalBitmapTimer::~LLLocalBitmapTimer()
-{
-}
+LLLocalBitmapTimer::~LLLocalBitmapTimer() = default;
 
 void LLLocalBitmapTimer::startTimer()
 {

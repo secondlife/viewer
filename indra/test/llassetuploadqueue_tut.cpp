@@ -41,9 +41,7 @@ LLAssetUploadResponder::LLAssetUploadResponder(const LLSD& post_data, const std:
 {
 }
 
-LLAssetUploadResponder::~LLAssetUploadResponder()
-{
-}
+LLAssetUploadResponder::~LLAssetUploadResponder() = default;
 
 void LLAssetUploadResponder::httpFailure()
 {

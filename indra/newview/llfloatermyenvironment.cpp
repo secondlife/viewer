@@ -94,9 +94,7 @@ LLFloaterMyEnvironment::LLFloaterMyEnvironment(const LLSD& key) :
 
 }
 
-LLFloaterMyEnvironment::~LLFloaterMyEnvironment()
-{
-}
+LLFloaterMyEnvironment::~LLFloaterMyEnvironment() = default;
 
 
 bool LLFloaterMyEnvironment::postBuild()

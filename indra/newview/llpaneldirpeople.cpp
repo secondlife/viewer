@@ -57,9 +57,7 @@ bool LLPanelDirPeople::postBuild()
     return true;
 }
 
-LLPanelDirPeople::~LLPanelDirPeople()
-{
-}
+LLPanelDirPeople::~LLPanelDirPeople() = default;
 
 // virtual
 void LLPanelDirPeople::performQuery()

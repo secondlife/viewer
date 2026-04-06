@@ -85,9 +85,7 @@ LLHeadRotMotion::LLHeadRotMotion(const LLUUID &id) :
 // ~LLHeadRotMotion()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLHeadRotMotion::~LLHeadRotMotion()
-{
-}
+LLHeadRotMotion::~LLHeadRotMotion() = default;
 
 //-----------------------------------------------------------------------------
 // LLHeadRotMotion::onInitialize(LLCharacter *character)
@@ -297,9 +295,7 @@ LLEyeMotion::LLEyeMotion(const LLUUID &id) : LLMotion(id)
 // ~LLEyeMotion()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLEyeMotion::~LLEyeMotion()
-{
-}
+LLEyeMotion::~LLEyeMotion() = default;
 
 //-----------------------------------------------------------------------------
 // LLEyeMotion::onInitialize(LLCharacter *character)

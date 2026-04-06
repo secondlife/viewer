@@ -117,7 +117,7 @@ class LLDispatchEstateUpdateInfo : public LLDispatchHandler
 {
 public:
     LLDispatchEstateUpdateInfo() {}
-    virtual ~LLDispatchEstateUpdateInfo() {}
+    virtual ~LLDispatchEstateUpdateInfo() = default;
     virtual bool operator()(
         const LLDispatcher* dispatcher,
         const std::string& key,
@@ -129,7 +129,7 @@ class LLDispatchSetEstateAccess : public LLDispatchHandler
 {
 public:
     LLDispatchSetEstateAccess() {}
-    virtual ~LLDispatchSetEstateAccess() {}
+    virtual ~LLDispatchSetEstateAccess() = default;
     virtual bool operator()(
         const LLDispatcher* dispatcher,
         const std::string& key,

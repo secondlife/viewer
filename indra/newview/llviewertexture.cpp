@@ -133,9 +133,7 @@ LLLoadedCallbackEntry::LLLoadedCallbackEntry(loaded_callback_func cb,
     }
 }
 
-LLLoadedCallbackEntry::~LLLoadedCallbackEntry()
-{
-}
+LLLoadedCallbackEntry::~LLLoadedCallbackEntry() = default;
 
 void LLLoadedCallbackEntry::removeTexture(LLViewerFetchedTexture* tex)
 {
@@ -4066,9 +4064,7 @@ LLTexturePipelineTester::LLTextureTestSession::LLTextureTestSession()
 {
     reset();
 }
-LLTexturePipelineTester::LLTextureTestSession::~LLTextureTestSession()
-{
-}
+LLTexturePipelineTester::LLTextureTestSession::~LLTextureTestSession() = default;
 void LLTexturePipelineTester::LLTextureTestSession::reset()
 {
     mTotalGrayTime = 0.0f;

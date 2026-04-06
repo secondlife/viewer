@@ -42,9 +42,7 @@ LLDispatcher::LLDispatcher()
 {
 }
 
-LLDispatcher::~LLDispatcher()
-{
-}
+LLDispatcher::~LLDispatcher() = default;
 
 bool LLDispatcher::isHandlerPresent(const key_t& name) const
 {

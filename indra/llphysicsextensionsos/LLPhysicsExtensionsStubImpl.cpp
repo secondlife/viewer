@@ -35,9 +35,7 @@ LLPhysicsExtensionsImpl::LLPhysicsExtensionsImpl()
 {
 }
 
-LLPhysicsExtensionsImpl::~LLPhysicsExtensionsImpl()
-{
-}
+LLPhysicsExtensionsImpl::~LLPhysicsExtensionsImpl() = default;
 
 bool LLPhysicsExtensionsImpl::initSystem()
 {

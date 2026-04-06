@@ -109,9 +109,7 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 {
 }
 
-LLFloaterPathfindingLinksets::~LLFloaterPathfindingLinksets()
-{
-}
+LLFloaterPathfindingLinksets::~LLFloaterPathfindingLinksets() = default;
 
 bool LLFloaterPathfindingLinksets::postBuild()
 {

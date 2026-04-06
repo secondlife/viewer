@@ -146,9 +146,7 @@ LLLFSThread::Request::Request(LLLFSThread* thread,
     }
 }
 
-LLLFSThread::Request::~Request()
-{
-}
+LLLFSThread::Request::~Request() = default;
 
 // virtual, called from own thread
 void LLLFSThread::Request::finishRequest(bool completed)
@@ -237,8 +235,6 @@ bool LLLFSThread::Request::processRequest()
 
 //============================================================================
 
-LLLFSThread::Responder::~Responder()
-{
-}
+LLLFSThread::Responder::~Responder() = default;
 
 //============================================================================

@@ -641,9 +641,7 @@ void LLBasicCertificateStore::load_from_file(const std::string& filename)
 }
 
 
-LLBasicCertificateStore::~LLBasicCertificateStore()
-{
-}
+LLBasicCertificateStore::~LLBasicCertificateStore() = default;
 
 
 // persist the store

@@ -25,9 +25,7 @@
  */
 #include "lltestmessagesender.h"
 
-LLTestMessageSender::~LLTestMessageSender()
-{
-}
+LLTestMessageSender::~LLTestMessageSender() = default;
 
 
 S32 LLTestMessageSender::sendMessage(const LLHost& host, LLStoredMessagePtr message)

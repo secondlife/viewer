@@ -146,9 +146,7 @@ LLAccordionCtrlTab::LLAccordionCtrlTabHeader::LLAccordionCtrlTabHeader(
     addChild(mHeaderTextbox);
 }
 
-LLAccordionCtrlTab::LLAccordionCtrlTabHeader::~LLAccordionCtrlTabHeader()
-{
-}
+LLAccordionCtrlTab::LLAccordionCtrlTabHeader::~LLAccordionCtrlTabHeader() = default;
 
 bool LLAccordionCtrlTab::LLAccordionCtrlTabHeader::postBuild()
 {
@@ -395,9 +393,7 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
     reshape(100, 200,false);
 }
 
-LLAccordionCtrlTab::~LLAccordionCtrlTab()
-{
-}
+LLAccordionCtrlTab::~LLAccordionCtrlTab() = default;
 
 void LLAccordionCtrlTab::setDisplayChildren(bool display)
 {

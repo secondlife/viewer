@@ -694,9 +694,7 @@ LLIODataSocket::LLIODataSocket(
     ll_apr_warn_status(apr_socket_opt_set(mSocket, APR_SO_RCVBUF, LL_RECV_BUFFER_SIZE));
 }
 
-LLIODataSocket::~LLIODataSocket()
-{
-}
+LLIODataSocket::~LLIODataSocket() = default;
 
 
 #endif

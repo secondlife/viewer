@@ -797,6 +797,4 @@ const LLSD& LLAutoReplaceSettings::asLLSD()
     return mLists;
 }
 
-LLAutoReplaceSettings::~LLAutoReplaceSettings()
-{
-}
+LLAutoReplaceSettings::~LLAutoReplaceSettings() = default;

@@ -94,9 +94,7 @@ LLFloaterBuyCurrencyUI::LLFloaterBuyCurrencyUI(const LLSD& key)
 {
 }
 
-LLFloaterBuyCurrencyUI::~LLFloaterBuyCurrencyUI()
-{
-}
+LLFloaterBuyCurrencyUI::~LLFloaterBuyCurrencyUI() = default;
 
 
 void LLFloaterBuyCurrencyUI::noTarget()

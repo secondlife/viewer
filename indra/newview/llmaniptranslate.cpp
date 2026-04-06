@@ -273,9 +273,7 @@ void LLManipTranslate::restoreGL()
     }
 }
 
-LLManipTranslate::~LLManipTranslate()
-{
-}
+LLManipTranslate::~LLManipTranslate() = default;
 
 void LLManipTranslate::handleSelect()
 {

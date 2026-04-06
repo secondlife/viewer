@@ -1376,9 +1376,7 @@ LLSimpleXUIParser::LLSimpleXUIParser(LLSimpleXUIParser::element_start_callback_t
     }
 }
 
-LLSimpleXUIParser::~LLSimpleXUIParser()
-{
-}
+LLSimpleXUIParser::~LLSimpleXUIParser() = default;
 
 
 bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBlock& block, bool silent)

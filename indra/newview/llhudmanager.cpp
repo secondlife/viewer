@@ -49,9 +49,7 @@ LLHUDManager::LLHUDManager()
     //LLHUDManager::sChildColor =LLUIColorTable::instance().getColor("FocusSecondaryColor");
 }
 
-LLHUDManager::~LLHUDManager()
-{
-}
+LLHUDManager::~LLHUDManager() = default;
 
 static LLTrace::BlockTimerStatHandle FTM_UPDATE_HUD_EFFECTS("Update Hud Effects");
 

@@ -133,9 +133,7 @@ LLCubeMapArray::LLCubeMapArray(LLCubeMapArray& lhs, U32 width, U32 count) : mTex
     }
 }
 
-LLCubeMapArray::~LLCubeMapArray()
-{
-}
+LLCubeMapArray::~LLCubeMapArray() = default;
 
 void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool use_mips, bool hdr)
 {

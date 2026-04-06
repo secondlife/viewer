@@ -48,9 +48,7 @@ LLMessageThrottle::LLMessageThrottle()
 {
 }
 
-LLMessageThrottle::~LLMessageThrottle()
-{
-}
+LLMessageThrottle::~LLMessageThrottle() = default;
 
 void LLMessageThrottle::pruneEntries()
 {

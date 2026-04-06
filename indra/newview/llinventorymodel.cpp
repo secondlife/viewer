@@ -107,7 +107,7 @@ class LLCanCache : public LLInventoryCollectFunctor
 {
 public:
     LLCanCache(LLInventoryModel* model) : mModel(model) {}
-    virtual ~LLCanCache() {}
+    virtual ~LLCanCache() = default;
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 protected:
     LLInventoryModel* mModel;
@@ -1257,7 +1257,7 @@ bool LLInventoryModel::hasMatchingDirectDescendent(const LLUUID& cat_id,
 class LLAlwaysCollect : public LLInventoryCollectFunctor
 {
 public:
-    virtual ~LLAlwaysCollect() {}
+    virtual ~LLAlwaysCollect() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item)
     {

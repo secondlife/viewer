@@ -35,9 +35,7 @@ LLListener_OpenAL::LLListener_OpenAL()
     init();
 }
 
-LLListener_OpenAL::~LLListener_OpenAL()
-{
-}
+LLListener_OpenAL::~LLListener_OpenAL() = default;
 
 void LLListener_OpenAL::translate(LLVector3 offset)
 {

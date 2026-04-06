@@ -907,9 +907,7 @@ LLImagePreviewSculpted::LLImagePreviewSculpted(S32 width, S32 height) : LLViewer
 }
 
 
-LLImagePreviewSculpted::~LLImagePreviewSculpted()
-{
-}
+LLImagePreviewSculpted::~LLImagePreviewSculpted() = default;
 
 //virtual
 S8 LLImagePreviewSculpted::getType() const

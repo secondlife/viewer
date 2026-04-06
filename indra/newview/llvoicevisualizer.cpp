@@ -562,9 +562,7 @@ VoiceGesticulationLevel LLVoiceVisualizer::getCurrentGesticulationLevel()
 //------------------------------------
 // Destructor
 //------------------------------------
-LLVoiceVisualizer::~LLVoiceVisualizer()
-{
-}//----------------------------------------------
+LLVoiceVisualizer::~LLVoiceVisualizer() = default;//----------------------------------------------
 
 
 //---------------------------------------------------

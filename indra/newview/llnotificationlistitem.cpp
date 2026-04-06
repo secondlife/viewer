@@ -106,9 +106,7 @@ bool LLNotificationListItem::postBuild()
     return rv;
 }
 
-LLNotificationListItem::~LLNotificationListItem()
-{
-}
+LLNotificationListItem::~LLNotificationListItem() = default;
 
 //static
 std::string LLNotificationListItem::buildNotificationDate(const LLDate& time_stamp, ETimeType time_type)

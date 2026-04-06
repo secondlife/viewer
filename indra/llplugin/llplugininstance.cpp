@@ -37,9 +37,7 @@
 #endif
 
 /** Virtual destructor. */
-LLPluginInstanceMessageListener::~LLPluginInstanceMessageListener()
-{
-}
+LLPluginInstanceMessageListener::~LLPluginInstanceMessageListener() = default;
 
 /**
  * TODO:DOC describe how it's used

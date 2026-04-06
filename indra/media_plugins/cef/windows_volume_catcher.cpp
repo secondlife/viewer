@@ -53,9 +53,7 @@ VolumeCatcherImpl::VolumeCatcherImpl()
 {
 }
 
-VolumeCatcherImpl::~VolumeCatcherImpl()
-{
-}
+VolumeCatcherImpl::~VolumeCatcherImpl() = default;
 
 void VolumeCatcherImpl::setVolume(F32 volume)
 {

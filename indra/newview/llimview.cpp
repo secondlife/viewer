@@ -2353,9 +2353,7 @@ mOldState(LLVoiceChannel::STATE_READY)
 {
 }
 
-LLCallDialogManager::~LLCallDialogManager()
-{
-}
+LLCallDialogManager::~LLCallDialogManager() = default;
 
 void LLCallDialogManager::initSingleton()
 {

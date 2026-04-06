@@ -49,9 +49,7 @@ LLHUDView::LLHUDView(const LLRect& r)
     setShape(r, true);
 }
 
-LLHUDView::~LLHUDView()
-{
-}
+LLHUDView::~LLHUDView() = default;
 
 // virtual
 void LLHUDView::draw()

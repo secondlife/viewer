@@ -97,9 +97,7 @@ LLFastTimerView::LLFastTimerView(const LLSD& key)
     mTimerBarRows.resize(NUM_FRAMES_HISTORY);
 }
 
-LLFastTimerView::~LLFastTimerView()
-{
-}
+LLFastTimerView::~LLFastTimerView() = default;
 
 void LLFastTimerView::onPause()
 {

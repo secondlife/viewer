@@ -107,9 +107,7 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
     mIsValid = true;
 }
 
-LLDirIterator::Impl::~Impl()
-{
-}
+LLDirIterator::Impl::~Impl() = default;
 
 bool LLDirIterator::Impl::next(std::string &fname)
 {

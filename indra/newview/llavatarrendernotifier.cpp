@@ -293,9 +293,7 @@ mHUDsCount(0)
 {
 }
 
-LLHUDRenderNotifier::~LLHUDRenderNotifier()
-{
-}
+LLHUDRenderNotifier::~LLHUDRenderNotifier() = default;
 
 void LLHUDRenderNotifier::updateNotificationHUD(hud_complexity_list_t complexity)
 {

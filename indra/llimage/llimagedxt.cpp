@@ -167,9 +167,7 @@ LLImageDXT::LLImageDXT()
 {
 }
 
-LLImageDXT::~LLImageDXT()
-{
-}
+LLImageDXT::~LLImageDXT() = default;
 
 // virtual
 bool LLImageDXT::updateData()

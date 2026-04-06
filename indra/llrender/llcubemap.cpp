@@ -59,9 +59,7 @@ LLCubeMap::LLCubeMap(bool init_as_srgb)
     mTargets[5] = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
 }
 
-LLCubeMap::~LLCubeMap()
-{
-}
+LLCubeMap::~LLCubeMap() = default;
 
 void LLCubeMap::initGL()
 {

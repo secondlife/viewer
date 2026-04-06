@@ -653,9 +653,7 @@ LLVector3   LLFollowCam::getUpVector()
 //------------------------------------
 // Destructor
 //------------------------------------
-LLFollowCam::~LLFollowCam()
-{
-}
+LLFollowCam::~LLFollowCam() = default;
 
 
 //-------------------------------------------------------

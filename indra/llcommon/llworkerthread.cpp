@@ -166,9 +166,7 @@ LLWorkerThread::WorkRequest::WorkRequest(handle_t handle, LLWorkerClass* workerc
 {
 }
 
-LLWorkerThread::WorkRequest::~WorkRequest()
-{
-}
+LLWorkerThread::WorkRequest::~WorkRequest() = default;
 
 // virtual (required for access by LLWorkerThread)
 void LLWorkerThread::WorkRequest::deleteRequest()

@@ -44,9 +44,7 @@ LLWindowHeadless::LLWindowHeadless(LLWindowCallbacks* callbacks, const std::stri
 }
 
 
-LLWindowHeadless::~LLWindowHeadless()
-{
-}
+LLWindowHeadless::~LLWindowHeadless() = default;
 
 void LLWindowHeadless::swapBuffers()
 {

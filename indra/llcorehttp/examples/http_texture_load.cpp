@@ -429,9 +429,7 @@ WorkingSet::WorkingSet()
 }
 
 
-WorkingSet::~WorkingSet()
-{
-}
+WorkingSet::~WorkingSet() = default;
 
 namespace
 {

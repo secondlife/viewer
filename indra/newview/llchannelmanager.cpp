@@ -66,9 +66,7 @@ LLChannelManager::LLChannelManager()
 }
 
 //--------------------------------------------------------------------------
-LLChannelManager::~LLChannelManager()
-{
-}
+LLChannelManager::~LLChannelManager() = default;
 
 //--------------------------------------------------------------------------
 void LLChannelManager::cleanupSingleton()

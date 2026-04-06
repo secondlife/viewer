@@ -1098,9 +1098,7 @@ LLDeleteHistoryThread::LLDeleteHistoryThread(std::list<LLSD>* messages, LLLoadHi
     mLoadThread(loadThread)
 {
 }
-LLDeleteHistoryThread::~LLDeleteHistoryThread()
-{
-}
+LLDeleteHistoryThread::~LLDeleteHistoryThread() = default;
 void LLDeleteHistoryThread::run()
 {
     if (mLoadThread != NULL)
@@ -1123,9 +1121,7 @@ LLActionThread::LLActionThread(const std::string& name)
 {
 }
 
-LLActionThread::~LLActionThread()
-{
-}
+LLActionThread::~LLActionThread() = default;
 
 void LLActionThread::waitFinished()
 {
@@ -1159,9 +1155,7 @@ LLLoadHistoryThread::LLLoadHistoryThread(const std::string& file_name, std::list
 {
 }
 
-LLLoadHistoryThread::~LLLoadHistoryThread()
-{
-}
+LLLoadHistoryThread::~LLLoadHistoryThread() = default;
 
 void LLLoadHistoryThread::run()
 {

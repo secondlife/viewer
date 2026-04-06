@@ -86,9 +86,7 @@ LLPanelGroupGeneral::LLPanelGroupGeneral()
 
 }
 
-LLPanelGroupGeneral::~LLPanelGroupGeneral()
-{
-}
+LLPanelGroupGeneral::~LLPanelGroupGeneral() = default;
 
 bool LLPanelGroupGeneral::postBuild()
 {

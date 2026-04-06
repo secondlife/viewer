@@ -48,9 +48,7 @@ LLFloaterToybox::LLFloaterToybox(const LLSD& key)
     mCommitCallbackRegistrar.add("Toybox.ClearAll", std::bind(&LLFloaterToybox::onBtnClearAll, this));
 }
 
-LLFloaterToybox::~LLFloaterToybox()
-{
-}
+LLFloaterToybox::~LLFloaterToybox() = default;
 
 bool compare_localized_command_labels(LLCommand * cmd1, LLCommand * cmd2)
 {

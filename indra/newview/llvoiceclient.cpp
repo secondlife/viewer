@@ -160,9 +160,7 @@ LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
 //---------------------------------------------------
 // Basic setup/shutdown
 
-LLVoiceClient::~LLVoiceClient()
-{
-}
+LLVoiceClient::~LLVoiceClient() = default;
 
 void LLVoiceClient::init(LLPumpIO *pump)
 {
@@ -997,9 +995,7 @@ LLSpeakerVolumeStorage::LLSpeakerVolumeStorage()
     load();
 }
 
-LLSpeakerVolumeStorage::~LLSpeakerVolumeStorage()
-{
-}
+LLSpeakerVolumeStorage::~LLSpeakerVolumeStorage() = default;
 
 //virtual
 void LLSpeakerVolumeStorage::cleanupSingleton()

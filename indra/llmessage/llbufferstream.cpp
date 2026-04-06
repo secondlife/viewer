@@ -339,6 +339,4 @@ LLBufferStream::LLBufferStream(
 {
 }
 
-LLBufferStream::~LLBufferStream()
-{
-}
+LLBufferStream::~LLBufferStream() = default;

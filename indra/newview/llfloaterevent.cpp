@@ -66,9 +66,7 @@ LLFloaterEvent::LLFloaterEvent(const LLSD& key)
 }
 
 
-LLFloaterEvent::~LLFloaterEvent()
-{
-}
+LLFloaterEvent::~LLFloaterEvent() = default;
 
 
 bool LLFloaterEvent::postBuild()

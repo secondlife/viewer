@@ -34,9 +34,7 @@ LLService::LLService()
 {
 }
 
-LLService::~LLService()
-{
-}
+LLService::~LLService() = default;
 
 // static
 bool LLService::registerCreator(const std::string& name, creator_t fn)

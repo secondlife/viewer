@@ -44,9 +44,7 @@ LLImageFiltersManager::LLImageFiltersManager()
 {
 }
 
-LLImageFiltersManager::~LLImageFiltersManager()
-{
-}
+LLImageFiltersManager::~LLImageFiltersManager() = default;
 
 // virtual
 void LLImageFiltersManager::initSingleton()

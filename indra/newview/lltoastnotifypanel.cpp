@@ -483,9 +483,7 @@ LLIMToastNotifyPanel::LLIMToastNotifyPanel(LLNotificationPtr& pNotification, con
     compactButtons();
 }
 
-LLIMToastNotifyPanel::~LLIMToastNotifyPanel()
-{
-}
+LLIMToastNotifyPanel::~LLIMToastNotifyPanel() = default;
 
 void LLIMToastNotifyPanel::reshape(S32 width, S32 height, bool called_from_parent /* = true */)
 {

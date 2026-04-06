@@ -86,7 +86,7 @@ class LLCloseAllFoldersFunctor : public LLFolderViewFunctor
 {
 public:
     explicit LLCloseAllFoldersFunctor(bool close) { mOpen = !close; }
-    virtual ~LLCloseAllFoldersFunctor() {}
+    virtual ~LLCloseAllFoldersFunctor() = default;
     virtual void doFolder(LLFolderViewFolder* folder);
     virtual void doItem(LLFolderViewItem* item);
 

@@ -89,9 +89,7 @@ LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
     mCommitCallbackRegistrar.add("TopObjects.TeleportToSelected",        std::bind(&LLFloaterTopObjects::teleportToSelectedObject, this));
 }
 
-LLFloaterTopObjects::~LLFloaterTopObjects()
-{
-}
+LLFloaterTopObjects::~LLFloaterTopObjects() = default;
 
 // virtual
 bool LLFloaterTopObjects::postBuild()

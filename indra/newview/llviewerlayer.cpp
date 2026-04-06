@@ -38,9 +38,7 @@ LLViewerLayer::LLViewerLayer(const S32 width, const F32 scale)
     mDatap.resize(width * width, 0.f);
 }
 
-LLViewerLayer::~LLViewerLayer()
-{
-}
+LLViewerLayer::~LLViewerLayer() = default;
 
 F32 LLViewerLayer::getValue(const S32 x, const S32 y) const
 {

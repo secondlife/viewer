@@ -26,9 +26,7 @@
 #include "lltexture.h"
 
 //virtual
-LLTexture::~LLTexture()
-{
-}
+LLTexture::~LLTexture() = default;
 
 S8   LLTexture::getType() const { llassert(false); return 0; }
 void LLTexture::setKnownDrawSize(S32 width, S32 height) { llassert(false); }

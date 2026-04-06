@@ -906,9 +906,7 @@ LLDAELoader::LLDAELoader(
 {
 }
 
-LLDAELoader::~LLDAELoader()
-{
-}
+LLDAELoader::~LLDAELoader() = default;
 
 struct ModelSort
 {

@@ -49,9 +49,7 @@ LLShaderMgr::LLShaderMgr()
 {
 }
 
-LLShaderMgr::~LLShaderMgr()
-{
-}
+LLShaderMgr::~LLShaderMgr() = default;
 
 // static
 LLShaderMgr * LLShaderMgr::instance()

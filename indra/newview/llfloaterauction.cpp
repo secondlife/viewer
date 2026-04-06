@@ -85,9 +85,7 @@ LLFloaterAuction::LLFloaterAuction(const LLSD& key)
 }
 
 // Destroys the object
-LLFloaterAuction::~LLFloaterAuction()
-{
-}
+LLFloaterAuction::~LLFloaterAuction() = default;
 
 bool LLFloaterAuction::postBuild()
 {

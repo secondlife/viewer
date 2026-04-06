@@ -35,9 +35,7 @@ LLNotecard::LLNotecard(S32 max_text)
 {
 }
 
-LLNotecard::~LLNotecard()
-{
-}
+LLNotecard::~LLNotecard() = default;
 
 bool LLNotecard::importEmbeddedItemsStream(std::istream& str)
 {

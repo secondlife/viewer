@@ -73,12 +73,12 @@ private:
 
 LLMaterialID::LLMaterialID() {}
 LLMaterialID::LLMaterialID(LLMaterialID const &m) = default;
-LLMaterialID::~LLMaterialID() {}
+LLMaterialID::~LLMaterialID() = default;
 void LLMaterialID::set(void const*) { }
 U8 const * LLMaterialID::get() const { return mID; }
 
 LLPrimTextureList::LLPrimTextureList() { }
-LLPrimTextureList::~LLPrimTextureList() { }
+LLPrimTextureList::~LLPrimTextureList() = default;
 S32 LLPrimTextureList::setBumpMap(const U8 index, const U8 bump) { return TEM_CHANGE_NONE; }
 S32 LLPrimTextureList::setOffsetS(const U8 index, const F32 s) { return TEM_CHANGE_NONE; }
 S32 LLPrimTextureList::setOffsetT(const U8 index, const F32 t) { return TEM_CHANGE_NONE; }

@@ -281,9 +281,7 @@ void LLViewerTextureList::doPrefetchImages()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-LLViewerTextureList::~LLViewerTextureList()
-{
-}
+LLViewerTextureList::~LLViewerTextureList() = default;
 
 void LLViewerTextureList::shutdown()
 {

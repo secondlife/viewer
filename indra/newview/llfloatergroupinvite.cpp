@@ -59,9 +59,7 @@ LLFloaterGroupInvite::impl::impl(const LLUUID& group_id) :
 {
 }
 
-LLFloaterGroupInvite::impl::~impl()
-{
-}
+LLFloaterGroupInvite::impl::~impl() = default;
 
 //static
 void LLFloaterGroupInvite::impl::closeFloater(void* data)

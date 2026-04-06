@@ -153,9 +153,7 @@ LLBadge::LLBadge(const LLBadge::Params& p)
     }
 }
 
-LLBadge::~LLBadge()
-{
-}
+LLBadge::~LLBadge() = default;
 
 bool LLBadge::addToView(LLView * view)
 {

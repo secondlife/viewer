@@ -128,9 +128,7 @@ void LLSkyTex::restoreGL()
     }
 }
 
-LLSkyTex::~LLSkyTex()
-{
-}
+LLSkyTex::~LLSkyTex() = default;
 
 S32 LLSkyTex::getResolution()
 {

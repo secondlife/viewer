@@ -55,9 +55,7 @@ LLPathfindingPathTool::LLPathfindingPathTool()
     setCharacterType(mCharacterType);
 }
 
-LLPathfindingPathTool::~LLPathfindingPathTool()
-{
-}
+LLPathfindingPathTool::~LLPathfindingPathTool() = default;
 
 bool LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 {

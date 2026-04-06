@@ -132,7 +132,7 @@ public:
 public:
     //Ctor
     LLPathingLib() {}
-    virtual ~LLPathingLib() {}
+    virtual ~LLPathingLib() = default;
 
     /// @returns false if this is the stub
     static bool isFunctional();

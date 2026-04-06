@@ -53,9 +53,7 @@ LLTipHandler::LLTipHandler()
 }
 
 //--------------------------------------------------------------------------
-LLTipHandler::~LLTipHandler()
-{
-}
+LLTipHandler::~LLTipHandler() = default;
 
 //--------------------------------------------------------------------------
 void LLTipHandler::initChannel()

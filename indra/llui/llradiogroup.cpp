@@ -114,9 +114,7 @@ void LLRadioGroup::initFromParams(const Params& p)
 }
 
 
-LLRadioGroup::~LLRadioGroup()
-{
-}
+LLRadioGroup::~LLRadioGroup() = default;
 
 // virtual
 bool LLRadioGroup::postBuild()
@@ -493,9 +491,7 @@ bool LLRadioCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
     return LLCheckBoxCtrl::handleMouseDown(x, y, mask);
 }
 
-LLRadioCtrl::~LLRadioCtrl()
-{
-}
+LLRadioCtrl::~LLRadioCtrl() = default;
 
 void LLRadioCtrl::setValue(const LLSD& value)
 {

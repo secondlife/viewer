@@ -50,7 +50,7 @@ class LLInspectRemoteObject : public LLInspect
 
 public:
     LLInspectRemoteObject(const LLSD& object_id);
-    virtual ~LLInspectRemoteObject() {};
+    virtual ~LLInspectRemoteObject() = default;;
 
     /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& avatar_id);

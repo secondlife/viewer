@@ -70,9 +70,7 @@ LLPanelProfileTab::LLPanelProfileTab()
 {
 }
 
-LLPanelProfileTab::~LLPanelProfileTab()
-{
-}
+LLPanelProfileTab::~LLPanelProfileTab() = default;
 
 void LLPanelProfileTab::setAvatarId(const LLUUID& avatar_id)
 {

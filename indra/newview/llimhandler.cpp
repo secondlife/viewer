@@ -47,9 +47,7 @@ LLIMHandler::LLIMHandler()
 }
 
 //--------------------------------------------------------------------------
-LLIMHandler::~LLIMHandler()
-{
-}
+LLIMHandler::~LLIMHandler() = default;
 
 //--------------------------------------------------------------------------
 void LLIMHandler::initChannel()

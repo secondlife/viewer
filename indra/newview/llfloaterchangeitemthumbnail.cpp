@@ -84,9 +84,7 @@ LLThumbnailImagePicker::LLThumbnailImagePicker(const LLUUID &item_id,
 {
 }
 
-LLThumbnailImagePicker::~LLThumbnailImagePicker()
-{
-}
+LLThumbnailImagePicker::~LLThumbnailImagePicker() = default;
 
 void LLThumbnailImagePicker::notify(const std::vector<std::string>& filenames)
 {
@@ -369,7 +367,7 @@ class LLIsOutfitTextureType : public LLInventoryCollectFunctor
 {
 public:
     LLIsOutfitTextureType() {}
-    virtual ~LLIsOutfitTextureType() {}
+    virtual ~LLIsOutfitTextureType() = default;
     virtual bool operator()(LLInventoryCategory* cat,
         LLInventoryItem* item);
 };

@@ -58,9 +58,7 @@ LLAttachmentsMgr::LLAttachmentsMgr():
 {
 }
 
-LLAttachmentsMgr::~LLAttachmentsMgr()
-{
-}
+LLAttachmentsMgr::~LLAttachmentsMgr() = default;
 
 void LLAttachmentsMgr::addAttachmentRequest(const LLUUID& item_id,
                                             const U8 attachment_pt,

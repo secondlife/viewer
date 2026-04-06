@@ -511,9 +511,7 @@ LLXmlTreeParser::LLXmlTreeParser(LLXmlTree* tree)
 {
 }
 
-LLXmlTreeParser::~LLXmlTreeParser()
-{
-}
+LLXmlTreeParser::~LLXmlTreeParser() = default;
 
 bool LLXmlTreeParser::parseFile(const std::string &path, LLXmlTreeNode** root, bool keep_contents)
 {

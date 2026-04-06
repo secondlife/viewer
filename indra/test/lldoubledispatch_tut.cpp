@@ -50,7 +50,7 @@ class GameObject
 {
 public:
     GameObject(const std::string& name): mName(name) {}
-    virtual ~GameObject() {}
+    virtual ~GameObject() = default;
     virtual std::string stringize() { return std::string(typeid(*this).name()) + " " + mName; }
 
 protected:

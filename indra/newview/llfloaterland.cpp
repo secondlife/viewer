@@ -2495,9 +2495,7 @@ bool LLPanelLandAccess::postBuild()
 }
 
 
-LLPanelLandAccess::~LLPanelLandAccess()
-{
-}
+LLPanelLandAccess::~LLPanelLandAccess() = default;
 
 void LLPanelLandAccess::refresh()
 {
@@ -3049,9 +3047,7 @@ LLPanelLandCovenant::LLPanelLandCovenant(LLParcelSelectionHandle& parcel)
 {
 }
 
-LLPanelLandCovenant::~LLPanelLandCovenant()
-{
-}
+LLPanelLandCovenant::~LLPanelLandCovenant() = default;
 
 bool LLPanelLandCovenant::postBuild()
 {

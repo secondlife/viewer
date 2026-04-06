@@ -63,9 +63,7 @@ LLWearableType::LLWearableType(LLTranslationBridge::ptr_t &trans)
 {
 }
 
-LLWearableType::~LLWearableType()
-{
-}
+LLWearableType::~LLWearableType() = default;
 
 void LLWearableType::initSingleton()
 {

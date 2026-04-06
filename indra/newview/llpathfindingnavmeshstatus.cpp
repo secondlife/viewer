@@ -96,9 +96,7 @@ LLPathfindingNavMeshStatus::LLPathfindingNavMeshStatus(const LLPathfindingNavMes
 {
 }
 
-LLPathfindingNavMeshStatus::~LLPathfindingNavMeshStatus()
-{
-}
+LLPathfindingNavMeshStatus::~LLPathfindingNavMeshStatus() = default;
 
 LLPathfindingNavMeshStatus &LLPathfindingNavMeshStatus::operator =(const LLPathfindingNavMeshStatus &pOther)
 {

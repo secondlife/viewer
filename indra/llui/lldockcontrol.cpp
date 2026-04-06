@@ -78,9 +78,7 @@ LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
     }
 }
 
-LLDockControl::~LLDockControl()
-{
-}
+LLDockControl::~LLDockControl() = default;
 
 void LLDockControl::setDock(LLView* dockWidget)
 {

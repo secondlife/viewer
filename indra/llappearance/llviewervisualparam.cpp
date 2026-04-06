@@ -50,9 +50,7 @@ LLViewerVisualParamInfo::LLViewerVisualParamInfo()
 {
 }
 
-LLViewerVisualParamInfo::~LLViewerVisualParamInfo()
-{
-}
+LLViewerVisualParamInfo::~LLViewerVisualParamInfo() = default;
 
 //-----------------------------------------------------------------------------
 // parseXml()
@@ -138,9 +136,7 @@ LLViewerVisualParam::LLViewerVisualParam(const LLViewerVisualParam& pOther)
 //-----------------------------------------------------------------------------
 // ~LLViewerVisualParam()
 //-----------------------------------------------------------------------------
-LLViewerVisualParam::~LLViewerVisualParam()
-{
-}
+LLViewerVisualParam::~LLViewerVisualParam() = default;
 
 //-----------------------------------------------------------------------------
 // setInfo()

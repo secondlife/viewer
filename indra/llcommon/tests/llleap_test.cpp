@@ -319,7 +319,7 @@ namespace tut
             mPump.listen(name, boost::bind(&ListenerBase::call, this, _1));
         }
 
-        virtual ~ListenerBase() {}  // pacify MSVC
+        virtual ~ListenerBase() = default;  // pacify MSVC
 
         virtual bool call(const LLSD& request)
         {

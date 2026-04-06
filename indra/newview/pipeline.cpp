@@ -603,9 +603,7 @@ void LLPipeline::init()
     }
 }
 
-LLPipeline::~LLPipeline()
-{
-}
+LLPipeline::~LLPipeline() = default;
 
 void LLPipeline::cleanup()
 {

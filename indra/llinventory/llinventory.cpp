@@ -97,9 +97,7 @@ LLInventoryObject::LLInventoryObject()
 {
 }
 
-LLInventoryObject::~LLInventoryObject()
-{
-}
+LLInventoryObject::~LLInventoryObject() = default;
 
 void LLInventoryObject::copyObject(const LLInventoryObject* other)
 {
@@ -405,9 +403,7 @@ LLInventoryItem::LLInventoryItem(const LLInventoryItem* other) :
     copyItem(other);
 }
 
-LLInventoryItem::~LLInventoryItem()
-{
-}
+LLInventoryItem::~LLInventoryItem() = default;
 
 // virtual
 void LLInventoryItem::copyItem(const LLInventoryItem* other)
@@ -1210,9 +1206,7 @@ LLInventoryCategory::LLInventoryCategory(const LLInventoryCategory* other) :
     copyCategory(other);
 }
 
-LLInventoryCategory::~LLInventoryCategory()
-{
-}
+LLInventoryCategory::~LLInventoryCategory() = default;
 
 // virtual
 void LLInventoryCategory::copyCategory(const LLInventoryCategory* other)

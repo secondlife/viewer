@@ -50,9 +50,7 @@ LLToastPanel::LLToastPanel(const LLNotificationPtr& notification)
     mNotification = notification;
 }
 
-LLToastPanel::~LLToastPanel()
-{
-}
+LLToastPanel::~LLToastPanel() = default;
 
 //virtual
 std::string LLToastPanel::getTitle()

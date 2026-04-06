@@ -288,9 +288,7 @@ LLLocalGLTFMaterialTimer::LLLocalGLTFMaterialTimer() : LLEventTimer(LL_LOCAL_TIM
 {
 }
 
-LLLocalGLTFMaterialTimer::~LLLocalGLTFMaterialTimer()
-{
-}
+LLLocalGLTFMaterialTimer::~LLLocalGLTFMaterialTimer() = default;
 
 void LLLocalGLTFMaterialTimer::startTimer()
 {

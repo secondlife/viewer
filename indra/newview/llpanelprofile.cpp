@@ -1958,9 +1958,7 @@ LLPanelProfileFirstLife::LLPanelProfileFirstLife()
 {
 }
 
-LLPanelProfileFirstLife::~LLPanelProfileFirstLife()
-{
-}
+LLPanelProfileFirstLife::~LLPanelProfileFirstLife() = default;
 
 bool LLPanelProfileFirstLife::postBuild()
 {
@@ -2203,9 +2201,7 @@ LLPanelProfileNotes::LLPanelProfileNotes()
 
 }
 
-LLPanelProfileNotes::~LLPanelProfileNotes()
-{
-}
+LLPanelProfileNotes::~LLPanelProfileNotes() = default;
 
 void LLPanelProfileNotes::commitUnsavedChanges()
 {
@@ -2301,9 +2297,7 @@ LLPanelProfile::LLPanelProfile()
 {
 }
 
-LLPanelProfile::~LLPanelProfile()
-{
-}
+LLPanelProfile::~LLPanelProfile() = default;
 
 bool LLPanelProfile::postBuild()
 {

@@ -7705,7 +7705,7 @@ public:
     LLWornItemFetchedObserver(const LLUUID& worn_item_id) :
         LLInventoryFetchItemsObserver(worn_item_id)
     {}
-    virtual ~LLWornItemFetchedObserver() {}
+    virtual ~LLWornItemFetchedObserver() = default;
 
 protected:
     virtual void done()
@@ -8462,7 +8462,7 @@ class LLHasAsset : public LLInventoryCollectFunctor
 {
 public:
     LLHasAsset(const LLUUID& id) : mAssetID(id), mHasAsset(false) {}
-    virtual ~LLHasAsset() {}
+    virtual ~LLHasAsset() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item);
     bool hasAsset() const { return mHasAsset; }

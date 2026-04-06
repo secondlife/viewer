@@ -2810,9 +2810,7 @@ LLInventoryGalleryItem::LLInventoryGalleryItem(const Params& p)
     buildFromFile("panel_inventory_gallery_item.xml");
 }
 
-LLInventoryGalleryItem::~LLInventoryGalleryItem()
-{
-}
+LLInventoryGalleryItem::~LLInventoryGalleryItem() = default;
 
 bool LLInventoryGalleryItem::postBuild()
 {

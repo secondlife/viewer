@@ -342,9 +342,7 @@ LLAnimationLibrary::LLAnimationLibrary() :
 //-----------------------------------------------------------------------------
 // ~LLAnimationLibrary()
 //-----------------------------------------------------------------------------
-LLAnimationLibrary::~LLAnimationLibrary()
-{
-}
+LLAnimationLibrary::~LLAnimationLibrary() = default;
 
 //-----------------------------------------------------------------------------
 // Return the text name of an animation state

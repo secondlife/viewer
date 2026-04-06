@@ -93,9 +93,7 @@ LLGroupMemberData::LLGroupMemberData(const LLUUID& id,
 {
 }
 
-LLGroupMemberData::~LLGroupMemberData()
-{
-}
+LLGroupMemberData::~LLGroupMemberData() = default;
 
 void LLGroupMemberData::addRole(const LLUUID& role, LLGroupRoleData* rd)
 {
@@ -147,9 +145,7 @@ LLGroupRoleData::LLGroupRoleData(const LLUUID& role_id,
 
 }
 
-LLGroupRoleData::~LLGroupRoleData()
-{
-}
+LLGroupRoleData::~LLGroupRoleData() = default;
 
 S32 LLGroupRoleData::getMembersInRole(uuid_vec_t members,
                                       bool needs_sort)

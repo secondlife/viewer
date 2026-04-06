@@ -260,7 +260,7 @@ class LLAgentFriendObserver : public LLFriendObserver
 {
 public:
     LLAgentFriendObserver() {}
-    virtual ~LLAgentFriendObserver() {}
+    virtual ~LLAgentFriendObserver() = default;
     virtual void changed(U32 mask);
 };
 
@@ -4956,9 +4956,7 @@ LLTeleportRequest::LLTeleportRequest()
 {
 }
 
-LLTeleportRequest::~LLTeleportRequest()
-{
-}
+LLTeleportRequest::~LLTeleportRequest() = default;
 
 bool LLTeleportRequest::canRestartTeleport()
 {

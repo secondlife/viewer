@@ -74,9 +74,7 @@ LLPanelLandMedia::LLPanelLandMedia(LLParcelSelectionHandle& parcel)
 
 
 // virtual
-LLPanelLandMedia::~LLPanelLandMedia()
-{
-}
+LLPanelLandMedia::~LLPanelLandMedia() = default;
 
 bool LLPanelLandMedia::postBuild()
 {

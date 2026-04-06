@@ -118,9 +118,7 @@ LLFloaterAbout::LLFloaterAbout(const LLSD& key)
 }
 
 // Destroys the object
-LLFloaterAbout::~LLFloaterAbout()
-{
-}
+LLFloaterAbout::~LLFloaterAbout() = default;
 
 bool LLFloaterAbout::postBuild()
 {

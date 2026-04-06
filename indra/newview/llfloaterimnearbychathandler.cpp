@@ -472,9 +472,7 @@ LLFloaterIMNearbyChatHandler::LLFloaterIMNearbyChatHandler()
     mChannel = channel->getHandle();
 }
 
-LLFloaterIMNearbyChatHandler::~LLFloaterIMNearbyChatHandler()
-{
-}
+LLFloaterIMNearbyChatHandler::~LLFloaterIMNearbyChatHandler() = default;
 
 
 void LLFloaterIMNearbyChatHandler::initChannel()

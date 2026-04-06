@@ -27,10 +27,10 @@
 #include "../llviewershadermgr.h"
 
 LLShaderMgr::LLShaderMgr() {}
-LLShaderMgr::~LLShaderMgr() {}
+LLShaderMgr::~LLShaderMgr() = default;
 
 LLViewerShaderMgr::LLViewerShaderMgr() {}
-LLViewerShaderMgr::~LLViewerShaderMgr() {}
+LLViewerShaderMgr::~LLViewerShaderMgr() = default;
 
 LLViewerShaderMgr* stub_instance = NULL;
 

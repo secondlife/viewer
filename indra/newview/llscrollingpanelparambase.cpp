@@ -63,9 +63,7 @@ LLScrollingPanelParamBase::LLScrollingPanelParamBase( const LLPanel::Params& pan
     setBorderVisible( false );
 }
 
-LLScrollingPanelParamBase::~LLScrollingPanelParamBase()
-{
-}
+LLScrollingPanelParamBase::~LLScrollingPanelParamBase() = default;
 
 void LLScrollingPanelParamBase::updatePanel(bool allow_modify)
 {

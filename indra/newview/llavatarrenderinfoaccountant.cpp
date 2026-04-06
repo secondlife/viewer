@@ -68,9 +68,7 @@ LLAvatarRenderInfoAccountant::LLAvatarRenderInfoAccountant()
 {
 }
 
-LLAvatarRenderInfoAccountant::~LLAvatarRenderInfoAccountant()
-{
-}
+LLAvatarRenderInfoAccountant::~LLAvatarRenderInfoAccountant() = default;
 
 
 void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 regionHandle)

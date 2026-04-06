@@ -38,7 +38,7 @@ class MediaPluginBase
 public:
     MediaPluginBase(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data);
    /** Media plugin destructor. */
-    virtual ~MediaPluginBase() {}
+    virtual ~MediaPluginBase() = default;
 
    /** Handle received message from plugin loader shell. */
     virtual void receiveMessage(const char *message_string) = 0;

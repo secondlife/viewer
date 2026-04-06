@@ -1978,7 +1978,7 @@ public:
         :   mTabOrder(order),
         mDefaultTabGroup(default_tab_group)
     {}
-    virtual ~CompareByTabOrder() {}
+    virtual ~CompareByTabOrder() = default;
 
     // This method compares two LLViews by the tab order specified in the comparator object.  The
     // code for this is a little convoluted because each argument can have four states:

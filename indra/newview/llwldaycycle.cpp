@@ -39,9 +39,7 @@ LLWLDayCycle::LLWLDayCycle() : mDayRate(120)
 {
 }
 
-LLWLDayCycle::~LLWLDayCycle()
-{
-}
+LLWLDayCycle::~LLWLDayCycle() = default;
 
 void LLWLDayCycle::loadDayCycle(const LLSD& day_data, LLWLParamKey::EScope scope)
 {

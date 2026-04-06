@@ -38,9 +38,7 @@ LLInspect::LLInspect(const LLSD& key)
 {
 }
 
-LLInspect::~LLInspect()
-{
-}
+LLInspect::~LLInspect() = default;
 
 // virtual
 void LLInspect::draw()

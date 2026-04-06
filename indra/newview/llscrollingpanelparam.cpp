@@ -91,9 +91,7 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
     setBorderVisible( false );
 }
 
-LLScrollingPanelParam::~LLScrollingPanelParam()
-{
-}
+LLScrollingPanelParam::~LLScrollingPanelParam() = default;
 void LLScrollingPanelParam::updatePanel(bool allow_modify)
 {
     if (!mWearable)

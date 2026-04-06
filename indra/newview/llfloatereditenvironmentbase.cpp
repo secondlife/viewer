@@ -95,9 +95,7 @@ LLFloaterEditEnvironmentBase::LLFloaterEditEnvironmentBase(const LLSD &key) :
 {
 }
 
-LLFloaterEditEnvironmentBase::~LLFloaterEditEnvironmentBase()
-{
-}
+LLFloaterEditEnvironmentBase::~LLFloaterEditEnvironmentBase() = default;
 
 void LLFloaterEditEnvironmentBase::onFocusReceived()
 {

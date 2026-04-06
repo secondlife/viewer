@@ -80,9 +80,7 @@ LLHandMotion::LLHandMotion(const LLUUID &id) : LLMotion(id)
 // ~LLHandMotion()
 // Class Destructor
 //-----------------------------------------------------------------------------
-LLHandMotion::~LLHandMotion()
-{
-}
+LLHandMotion::~LLHandMotion() = default;
 
 //-----------------------------------------------------------------------------
 // LLHandMotion::onInitialize(LLCharacter *character)

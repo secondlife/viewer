@@ -77,9 +77,7 @@ LLSky::LLSky()
 }
 
 
-LLSky::~LLSky()
-{
-}
+LLSky::~LLSky() = default;
 
 void LLSky::cleanup()
 {

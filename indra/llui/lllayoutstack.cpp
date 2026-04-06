@@ -236,9 +236,7 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 {
 }
 
-LLLayoutStack::~LLLayoutStack()
-{
-}
+LLLayoutStack::~LLLayoutStack() = default;
 
 // virtual
 void LLLayoutStack::draw()
@@ -382,7 +380,7 @@ public:
         Params() : horizontal("horizontal", false) {}
     };
     explicit LLImagePanel(const Params& p) : LLPanel(p), mHorizontal(p.horizontal) {}
-    virtual ~LLImagePanel() {}
+    virtual ~LLImagePanel() = default;
 
     void draw()
     {

@@ -62,9 +62,7 @@ LLDrawPoolWLSky::LLDrawPoolWLSky() :
 {
 }
 
-LLDrawPoolWLSky::~LLDrawPoolWLSky()
-{
-}
+LLDrawPoolWLSky::~LLDrawPoolWLSky() = default;
 
 LLViewerTexture *LLDrawPoolWLSky::getDebugTexture()
 {

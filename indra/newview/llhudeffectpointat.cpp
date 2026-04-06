@@ -90,9 +90,7 @@ LLHUDEffectPointAt::LLHUDEffectPointAt(const U8 type) :
 //-----------------------------------------------------------------------------
 // ~LLHUDEffectPointAt()
 //-----------------------------------------------------------------------------
-LLHUDEffectPointAt::~LLHUDEffectPointAt()
-{
-}
+LLHUDEffectPointAt::~LLHUDEffectPointAt() = default;
 
 //-----------------------------------------------------------------------------
 // packData()

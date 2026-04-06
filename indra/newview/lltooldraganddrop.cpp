@@ -76,7 +76,7 @@ class LLNoPreferredType : public LLInventoryCollectFunctor
 {
 public:
     LLNoPreferredType() {}
-    virtual ~LLNoPreferredType() {}
+    virtual ~LLNoPreferredType() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item)
     {
@@ -92,7 +92,7 @@ class LLNoPreferredTypeOrItem : public LLInventoryCollectFunctor
 {
 public:
     LLNoPreferredTypeOrItem() {}
-    virtual ~LLNoPreferredTypeOrItem() {}
+    virtual ~LLNoPreferredTypeOrItem() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item)
     {
@@ -110,7 +110,7 @@ class LLDroppableItem : public LLInventoryCollectFunctor
 public:
     LLDroppableItem(bool is_transfer) :
         mCountLosing(0), mIsTransfer(is_transfer) {}
-    virtual ~LLDroppableItem() {}
+    virtual ~LLDroppableItem() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item);
     S32 countNoCopy() const { return mCountLosing; }
@@ -147,7 +147,7 @@ class LLDropCopyableItems : public LLInventoryCollectFunctor
 {
 public:
     LLDropCopyableItems() {}
-    virtual ~LLDropCopyableItems() {}
+    virtual ~LLDropCopyableItems() = default;
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 };
 
@@ -180,7 +180,7 @@ public:
                             const uuid_vec_t& item_ids) :
         LLInventoryFetchComboObserver(folder_ids, item_ids)
     {}
-    ~LLCategoryFireAndForget() {}
+    ~LLCategoryFireAndForget() = default;
     virtual void done()
     {
         /* no-op: it's fire n forget right? */
@@ -198,7 +198,7 @@ public:
         mObjectID(obj_id),
         mSource(src)
     {}
-    ~LLCategoryDropObserver() {}
+    ~LLCategoryDropObserver() = default;
     virtual void done();
 
 protected:

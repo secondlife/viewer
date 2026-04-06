@@ -79,9 +79,7 @@ LLDoNotDisturbNotificationStorage::LLDoNotDisturbNotificationStorage()
     initialize();
 }
 
-LLDoNotDisturbNotificationStorage::~LLDoNotDisturbNotificationStorage()
-{
-}
+LLDoNotDisturbNotificationStorage::~LLDoNotDisturbNotificationStorage() = default;
 
 void LLDoNotDisturbNotificationStorage::reset()
 {

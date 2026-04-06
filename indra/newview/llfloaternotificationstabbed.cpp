@@ -118,9 +118,7 @@ void LLFloaterNotificationsTabbed::setSysWellChiclet(LLSysWellChiclet* chiclet)
 }
 
 //---------------------------------------------------------------------------------
-LLFloaterNotificationsTabbed::~LLFloaterNotificationsTabbed()
-{
-}
+LLFloaterNotificationsTabbed::~LLFloaterNotificationsTabbed() = default;
 
 //---------------------------------------------------------------------------------
 void LLFloaterNotificationsTabbed::removeItemByID(const LLUUID& id, std::string type)

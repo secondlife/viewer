@@ -79,9 +79,7 @@ LLTeleportHistoryStorage::LLTeleportHistoryStorage() :
     load();
 }
 
-LLTeleportHistoryStorage::~LLTeleportHistoryStorage()
-{
-}
+LLTeleportHistoryStorage::~LLTeleportHistoryStorage() = default;
 
 void LLTeleportHistoryStorage::onTeleportHistoryChange()
 {

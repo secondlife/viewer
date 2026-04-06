@@ -193,9 +193,7 @@ LLFloaterScriptQueue::LLFloaterScriptQueue(const LLSD& key) :
 }
 
 // Destroys the object
-LLFloaterScriptQueue::~LLFloaterScriptQueue()
-{
-}
+LLFloaterScriptQueue::~LLFloaterScriptQueue() = default;
 
 bool LLFloaterScriptQueue::postBuild()
 {
@@ -261,9 +259,7 @@ LLFloaterCompileQueue::LLFloaterCompileQueue(const LLSD& key)
 
 }
 
-LLFloaterCompileQueue::~LLFloaterCompileQueue()
-{
-}
+LLFloaterCompileQueue::~LLFloaterCompileQueue() = default;
 
 void LLFloaterCompileQueue::experienceIdsReceived( const LLSD& content )
 {
@@ -557,9 +553,7 @@ LLFloaterResetQueue::LLFloaterResetQueue(const LLSD& key)
     setStartString(LLTrans::getString("ResetQueueStart"));
 }
 
-LLFloaterResetQueue::~LLFloaterResetQueue()
-{
-}
+LLFloaterResetQueue::~LLFloaterResetQueue() = default;
 
 /// This is a utility function to be bound and called from objectScriptProcessingQueueCoro.
 /// Do not call directly. It may throw a LLCheckedHandle<>::Stale exception.
@@ -614,9 +608,7 @@ LLFloaterRunQueue::LLFloaterRunQueue(const LLSD& key)
     setStartString(LLTrans::getString("RunQueueStart"));
 }
 
-LLFloaterRunQueue::~LLFloaterRunQueue()
-{
-}
+LLFloaterRunQueue::~LLFloaterRunQueue() = default;
 
 /// This is a utility function to be bound and called from objectScriptProcessingQueueCoro.
 /// Do not call directly. It may throw a LLCheckedHandle<>::Stale exception.
@@ -671,9 +663,7 @@ LLFloaterNotRunQueue::LLFloaterNotRunQueue(const LLSD& key)
     setStartString(LLTrans::getString("NotRunQueueStart"));
 }
 
-LLFloaterNotRunQueue::~LLFloaterNotRunQueue()
-{
-}
+LLFloaterNotRunQueue::~LLFloaterNotRunQueue() = default;
 
 /// This is a utility function to be bound and called from objectScriptProcessingQueueCoro.
 /// Do not call directly. It may throw a LLCheckedHandle<>::Stale exception.

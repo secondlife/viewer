@@ -506,9 +506,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
     mSelfHandle.bind(this);
 }
 
-LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
-{
-}
+LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole() = default;
 
 void LLFloaterPathfindingConsole::onTabSwitch()
 {

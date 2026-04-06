@@ -53,9 +53,7 @@ LLFloaterTrackPicker::LLFloaterTrackPicker(LLView * owner, const LLSD &params) :
     buildFromFile(FLOATER_DEFINITION_XML);
 }
 
-LLFloaterTrackPicker::~LLFloaterTrackPicker()
-{
-}
+LLFloaterTrackPicker::~LLFloaterTrackPicker() = default;
 
 bool LLFloaterTrackPicker::postBuild()
 {

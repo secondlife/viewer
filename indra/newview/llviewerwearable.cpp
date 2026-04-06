@@ -89,9 +89,7 @@ LLViewerWearable::LLViewerWearable(const LLAssetID& asset_id) :
 }
 
 // virtual
-LLViewerWearable::~LLViewerWearable()
-{
-}
+LLViewerWearable::~LLViewerWearable() = default;
 
 // virtual
 LLWearable::EImportResult LLViewerWearable::importStream( std::istream& input_stream, LLAvatarAppearance* avatarp )

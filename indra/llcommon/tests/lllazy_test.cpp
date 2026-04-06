@@ -51,7 +51,7 @@ namespace bll = boost::lambda;
 class YuckyFoo
 {
 public:
-    virtual ~YuckyFoo() {}
+    virtual ~YuckyFoo() = default;
     virtual std::string whoami() const { return "YuckyFoo"; }
 };
 
@@ -62,7 +62,7 @@ public:
     YuckyBar(const std::string& which):
         mWhich(which)
     {}
-    virtual ~YuckyBar() {}
+    virtual ~YuckyBar() = default;
 
     virtual std::string identity() const { return std::string("YuckyBar(") + mWhich + ")"; }
 
@@ -85,7 +85,7 @@ public:
         // mYuckyBar("RealYuckyBar")
         LLLazyBase<YuckyBar>(bll::bind(bll::new_ptr<YuckyBar>(), "RealYuckyBar"))
     {}
-    virtual ~NeedsTesting() {}
+    virtual ~NeedsTesting() = default;
 
     virtual std::string describe() const
     {

@@ -62,9 +62,7 @@ LLChainIOFactory::LLChainIOFactory()
 }
 
 // virtual
-LLChainIOFactory::~LLChainIOFactory()
-{
-}
+LLChainIOFactory::~LLChainIOFactory() = default;
 
 #if 0
 bool LLChainIOFactory::build(LLIOPipe* in, LLIOPipe* out) const

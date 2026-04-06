@@ -902,9 +902,7 @@ bool LLFloaterMarketplaceValidation::postBuild()
     return true;
 }
 
-LLFloaterMarketplaceValidation::~LLFloaterMarketplaceValidation()
-{
-}
+LLFloaterMarketplaceValidation::~LLFloaterMarketplaceValidation() = default;
 
 // virtual
 void LLFloaterMarketplaceValidation::draw()
@@ -1030,9 +1028,7 @@ LLFloaterItemProperties::LLFloaterItemProperties(const LLSD& key)
 {
 }
 
-LLFloaterItemProperties::~LLFloaterItemProperties()
-{
-}
+LLFloaterItemProperties::~LLFloaterItemProperties() = default;
 
 bool LLFloaterItemProperties::postBuild()
 {

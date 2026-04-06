@@ -52,9 +52,7 @@ LLSysWellItem::LLSysWellItem(const Params& p) : LLPanel(p),
 }
 
 //---------------------------------------------------------------------------------
-LLSysWellItem::~LLSysWellItem()
-{
-}
+LLSysWellItem::~LLSysWellItem() = default;
 
 //---------------------------------------------------------------------------------
 void LLSysWellItem::setTitle( std::string title )

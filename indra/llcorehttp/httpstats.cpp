@@ -35,9 +35,7 @@ HTTPStats::HTTPStats()
 }
 
 
-HTTPStats::~HTTPStats()
-{
-}
+HTTPStats::~HTTPStats() = default;
 
 void HTTPStats::resetStats()
 {

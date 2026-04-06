@@ -128,9 +128,7 @@ LLPolySkeletalDistortion::LLPolySkeletalDistortion(const LLPolySkeletalDistortio
 //-----------------------------------------------------------------------------
 // ~LLPolySkeletalDistortion()
 //-----------------------------------------------------------------------------
-LLPolySkeletalDistortion::~LLPolySkeletalDistortion()
-{
-}
+LLPolySkeletalDistortion::~LLPolySkeletalDistortion() = default;
 
 bool LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 {

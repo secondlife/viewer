@@ -683,9 +683,7 @@ LLViewerPartSourceBeam::LLViewerPartSourceBeam() :
 {
 }
 
-LLViewerPartSourceBeam::~LLViewerPartSourceBeam()
-{
-}
+LLViewerPartSourceBeam::~LLViewerPartSourceBeam() = default;
 
 void LLViewerPartSourceBeam::setDead()
 {

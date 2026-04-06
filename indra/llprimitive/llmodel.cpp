@@ -2306,9 +2306,7 @@ LLSD LLModelInstance::asLLSD()
 }
 
 
-LLImportMaterial::~LLImportMaterial()
-{
-}
+LLImportMaterial::~LLImportMaterial() = default;
 
 LLImportMaterial::LLImportMaterial(LLSD& data)
 {

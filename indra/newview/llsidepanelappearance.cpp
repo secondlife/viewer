@@ -64,7 +64,7 @@ public:
         LLInventoryFetchItemsObserver(ids),
         mPanel(panel)
     {}
-    ~LLCurrentlyWornFetchObserver() {}
+    ~LLCurrentlyWornFetchObserver() = default;
     virtual void done()
     {
         mPanel->inventoryFetched();
@@ -92,9 +92,7 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
     gAgentWearables.addLoadedCallback(std::bind(&LLSidepanelAppearance::setWearablesLoading, this, false));
 }
 
-LLSidepanelAppearance::~LLSidepanelAppearance()
-{
-}
+LLSidepanelAppearance::~LLSidepanelAppearance() = default;
 
 // virtual
 bool LLSidepanelAppearance::postBuild()

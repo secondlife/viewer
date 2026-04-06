@@ -68,6 +68,4 @@ LLGLTFNode::LLGLTFNode(const LLGLTFNode::Params& p)
 {
 }
 
-LLGLTFNode::~LLGLTFNode()
-{
-}
+LLGLTFNode::~LLGLTFNode() = default;

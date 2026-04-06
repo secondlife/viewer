@@ -42,9 +42,7 @@ LLUriParser::LLUriParser(const std::string& u) : mTmpScheme(false), mNormalizedT
     mRes = parse();
 }
 
-LLUriParser::~LLUriParser()
-{
-}
+LLUriParser::~LLUriParser() = default;
 
 bool LLUriParser::parse()
 {

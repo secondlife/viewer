@@ -49,9 +49,7 @@ LLPanelGroupExperiences::LLPanelGroupExperiences()
 {
 }
 
-LLPanelGroupExperiences::~LLPanelGroupExperiences()
-{
-}
+LLPanelGroupExperiences::~LLPanelGroupExperiences() = default;
 
 bool LLPanelGroupExperiences::postBuild()
 {

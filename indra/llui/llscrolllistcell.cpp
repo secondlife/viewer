@@ -103,9 +103,7 @@ LLScrollListIcon::LLScrollListIcon(const LLScrollListCell::Params& p)
     mAlignment(p.font_halign)
 {}
 
-LLScrollListIcon::~LLScrollListIcon()
-{
-}
+LLScrollListIcon::~LLScrollListIcon() = default;
 
 /*virtual*/
 S32     LLScrollListIcon::getHeight() const
@@ -210,9 +208,7 @@ LLScrollListBar::LLScrollListBar(const LLScrollListCell::Params& p)
     mRightPad(1)
 {}
 
-LLScrollListBar::~LLScrollListBar()
-{
-}
+LLScrollListBar::~LLScrollListBar() = default;
 
 /*virtual*/
 S32 LLScrollListBar::getHeight() const
@@ -588,9 +584,7 @@ LLScrollListIconText::LLScrollListIconText(const LLScrollListCell::Params& p)
     mTextWidth = getWidth() - mPad /*padding*/ - mFont->getLineHeight();
 }
 
-LLScrollListIconText::~LLScrollListIconText()
-{
-}
+LLScrollListIconText::~LLScrollListIconText() = default;
 
 const LLSD LLScrollListIconText::getValue() const
 {

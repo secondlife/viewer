@@ -171,9 +171,7 @@ LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
 
 
 
-LLControlVariable::~LLControlVariable()
-{
-}
+LLControlVariable::~LLControlVariable() = default;
 
 LLSD LLControlVariable::getComparableValue(const LLSD& value)
 {

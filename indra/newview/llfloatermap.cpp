@@ -71,9 +71,7 @@ LLFloaterMap::LLFloaterMap(const LLSD& key)
 {
 }
 
-LLFloaterMap::~LLFloaterMap()
-{
-}
+LLFloaterMap::~LLFloaterMap() = default;
 
 bool LLFloaterMap::postBuild()
 {

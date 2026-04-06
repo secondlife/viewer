@@ -36,6 +36,4 @@ LLFloaterFontTest::LLFloaterFontTest(const LLSD& key)
 {
 }
 
-LLFloaterFontTest::~LLFloaterFontTest()
-{
-}
+LLFloaterFontTest::~LLFloaterFontTest() = default;

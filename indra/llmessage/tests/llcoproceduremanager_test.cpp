@@ -56,17 +56,13 @@ void LLCoreHttpUtil::HttpCoroutineAdapter::cancelSuspendedOperation()
 {
 }
 
-LLCoreHttpUtil::HttpCoroutineAdapter::~HttpCoroutineAdapter()
-{
-}
+LLCoreHttpUtil::HttpCoroutineAdapter::~HttpCoroutineAdapter() = default;
 
 LLCore::HttpRequest::HttpRequest()
 {
 }
 
-LLCore::HttpRequest::~HttpRequest()
-{
-}
+LLCore::HttpRequest::~HttpRequest() = default;
 
 namespace tut
 {

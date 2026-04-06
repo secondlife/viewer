@@ -73,7 +73,7 @@ std::string gFirstName;
 std::string gLastName;
 LLControlGroup::LLControlGroup(const std::string& name)
 : LLInstanceTracker<LLControlGroup, std::string>(name) {}
-LLControlGroup::~LLControlGroup() {}
+LLControlGroup::~LLControlGroup() = default;
 LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,

@@ -283,9 +283,7 @@ LLAppViewerMacOSX::LLAppViewerMacOSX()
 {
 }
 
-LLAppViewerMacOSX::~LLAppViewerMacOSX()
-{
-}
+LLAppViewerMacOSX::~LLAppViewerMacOSX() = default;
 
 bool LLAppViewerMacOSX::init()
 {

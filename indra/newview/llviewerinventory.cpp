@@ -381,9 +381,7 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLInventoryItem *other) :
 }
 
 
-LLViewerInventoryItem::~LLViewerInventoryItem()
-{
-}
+LLViewerInventoryItem::~LLViewerInventoryItem() = default;
 
 void LLViewerInventoryItem::copyViewerItem(const LLViewerInventoryItem* other)
 {
@@ -612,9 +610,7 @@ LLViewerInventoryCategory::LLViewerInventoryCategory(const LLViewerInventoryCate
     mFetching = FETCH_NONE;
 }
 
-LLViewerInventoryCategory::~LLViewerInventoryCategory()
-{
-}
+LLViewerInventoryCategory::~LLViewerInventoryCategory() = default;
 
 void LLViewerInventoryCategory::copyViewerCategory(const LLViewerInventoryCategory* other)
 {
@@ -2274,7 +2270,7 @@ class LLRegenerateLinkCollector : public LLInventoryCollectFunctor
 {
 public:
     LLRegenerateLinkCollector(const LLViewerInventoryItem *target_item) : mTargetItem(target_item) {}
-    virtual ~LLRegenerateLinkCollector() {}
+    virtual ~LLRegenerateLinkCollector() = default;
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item)
     {

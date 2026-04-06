@@ -60,9 +60,7 @@ LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
 
 }
 
-LLPanelVoiceDeviceSettings::~LLPanelVoiceDeviceSettings()
-{
-}
+LLPanelVoiceDeviceSettings::~LLPanelVoiceDeviceSettings() = default;
 
 bool LLPanelVoiceDeviceSettings::postBuild()
 {

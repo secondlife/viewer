@@ -47,7 +47,7 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const s
                                                                          LLGLint, LLGLenum, const LLUUID& ) { return NULL; }
 
 LLControlGroup::LLControlGroup(const std::string& name) : LLInstanceTracker<LLControlGroup, std::string>(name) { }
-LLControlGroup::~LLControlGroup() { }
+LLControlGroup::~LLControlGroup() = default;
 std::string LLControlGroup::getString(std::string_view) { return std::string("test_url"); }
 LLControlGroup gSavedSettings("test_settings");
 

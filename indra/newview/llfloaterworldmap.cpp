@@ -279,7 +279,7 @@ class LLMapInventoryObserver : public LLInventoryObserver
 {
 public:
     LLMapInventoryObserver() {}
-    virtual ~LLMapInventoryObserver() {}
+    virtual ~LLMapInventoryObserver() = default;
     virtual void changed(U32 mask);
 };
 
@@ -297,7 +297,7 @@ class LLMapFriendObserver : public LLFriendObserver
 {
 public:
     LLMapFriendObserver() {}
-    virtual ~LLMapFriendObserver() {}
+    virtual ~LLMapFriendObserver() = default;
     virtual void changed(U32 mask);
 };
 

@@ -4176,9 +4176,7 @@ LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLT
 {
     mFontHeight = style->getFont()->getLineHeight();
 }
-LLLineBreakTextSegment::~LLLineBreakTextSegment()
-{
-}
+LLLineBreakTextSegment::~LLLineBreakTextSegment() = default;
 
 // virtual
 LLTextSegmentPtr LLLineBreakTextSegment::clone(LLTextBase& target) const
@@ -4210,9 +4208,7 @@ LLImageTextSegment::LLImageTextSegment(LLStyleConstSP style,S32 pos,class LLText
 {
 }
 
-LLImageTextSegment::~LLImageTextSegment()
-{
-}
+LLImageTextSegment::~LLImageTextSegment() = default;
 
 // virtual
 LLTextSegmentPtr LLImageTextSegment::clone(LLTextBase& target) const

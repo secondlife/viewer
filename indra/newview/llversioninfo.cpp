@@ -72,9 +72,7 @@ void LLVersionInfo::initSingleton()
     version = stringize(getShortVersion(), ".", getBuild());
 }
 
-LLVersionInfo::~LLVersionInfo()
-{
-}
+LLVersionInfo::~LLVersionInfo() = default;
 
 S32 LLVersionInfo::getMajor() const
 {

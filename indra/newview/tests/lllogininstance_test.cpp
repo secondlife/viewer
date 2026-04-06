@@ -88,7 +88,7 @@ class LLLogin::Impl
 {
 };
 LLLogin::LLLogin() {}
-LLLogin::~LLLogin() {}
+LLLogin::~LLLogin() = default;
 LLEventPump& LLLogin::getEventPump() { return gTestPump; }
 void LLLogin::connect(const std::string& uri, const LLSD& credentials)
 {
@@ -134,9 +134,7 @@ LLNotificationPtr LLNotificationsUtil::add(const std::string& name, const LLSD& 
 
 //-----------------------------------------------------------------------------
 #include "../llviewernetwork.h"
-LLGridManager::~LLGridManager()
-{
-}
+LLGridManager::~LLGridManager() = default;
 
 bool LLGridManager::addGrid(LLSD& grid_data)
 {
@@ -197,7 +195,7 @@ LLControlGroup gSavedSettings("Global");
 
 LLControlGroup::LLControlGroup(const std::string& name) :
     LLInstanceTracker<LLControlGroup, std::string>(name){}
-LLControlGroup::~LLControlGroup() {}
+LLControlGroup::~LLControlGroup() = default;
 void LLControlGroup::setBOOL(std::string_view name, bool val) {}
 bool LLControlGroup::getBOOL(std::string_view name) { return false; }
 F32 LLControlGroup::getF32(std::string_view name) { return 0.0f; }
@@ -262,7 +260,7 @@ public:
     {
     }
 
-    virtual ~MockNotifications() {}
+    virtual ~MockNotifications() = default;
 
     /* virtual */ LLNotificationPtr add(
                     const std::string& name,

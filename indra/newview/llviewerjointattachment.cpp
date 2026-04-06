@@ -63,9 +63,7 @@ LLViewerJointAttachment::LLViewerJointAttachment() :
 //-----------------------------------------------------------------------------
 // ~LLViewerJointAttachment()
 //-----------------------------------------------------------------------------
-LLViewerJointAttachment::~LLViewerJointAttachment()
-{
-}
+LLViewerJointAttachment::~LLViewerJointAttachment() = default;
 
 //-----------------------------------------------------------------------------
 // isTransparent()

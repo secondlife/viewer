@@ -89,9 +89,7 @@ LLDir::LLDir()
 {
 }
 
-LLDir::~LLDir()
-{
-}
+LLDir::~LLDir() = default;
 
 std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
 {

@@ -180,9 +180,7 @@ LLMetricPerformanceTesterBasic::LLMetricPerformanceTesterBasic(std::string name)
     mValidInstance = LLMetricPerformanceTesterBasic::addTester(this) ;
 }
 
-LLMetricPerformanceTesterBasic::~LLMetricPerformanceTesterBasic()
-{
-}
+LLMetricPerformanceTesterBasic::~LLMetricPerformanceTesterBasic() = default;
 
 void LLMetricPerformanceTesterBasic::preOutputTestResults(LLSD* sd)
 {
@@ -322,7 +320,5 @@ void LLMetricPerformanceTesterWithSession::analyzePerformance(llofstream* os, LL
 // LLTestSession
 //----------------------------------------------------------------------------------------------
 
-LLMetricPerformanceTesterWithSession::LLTestSession::~LLTestSession()
-{
-}
+LLMetricPerformanceTesterWithSession::LLTestSession::~LLTestSession() = default;
 

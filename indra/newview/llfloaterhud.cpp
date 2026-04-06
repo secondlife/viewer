@@ -79,6 +79,4 @@ bool LLFloaterHUD::postBuild()
 }
 
 // Destructor
-LLFloaterHUD::~LLFloaterHUD()
-{
-}
+LLFloaterHUD::~LLFloaterHUD() = default;

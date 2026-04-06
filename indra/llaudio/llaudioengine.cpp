@@ -58,9 +58,7 @@ LLAudioEngine::LLAudioEngine()
 }
 
 
-LLAudioEngine::~LLAudioEngine()
-{
-}
+LLAudioEngine::~LLAudioEngine() = default;
 
 LLStreamingAudioInterface* LLAudioEngine::getStreamingAudioImpl()
 {

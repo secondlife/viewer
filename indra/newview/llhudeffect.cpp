@@ -47,9 +47,7 @@ LLHUDEffect::LLHUDEffect(const U8 type)
     mDead = false;
 }
 
-LLHUDEffect::~LLHUDEffect()
-{
-}
+LLHUDEffect::~LLHUDEffect() = default;
 
 
 void LLHUDEffect::packData(LLMessageSystem *mesgsys)

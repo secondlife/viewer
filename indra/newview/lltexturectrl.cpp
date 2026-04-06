@@ -198,9 +198,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
     setCanMinimize(false);
 }
 
-LLFloaterTexturePicker::~LLFloaterTexturePicker()
-{
-}
+LLFloaterTexturePicker::~LLFloaterTexturePicker() = default;
 
 void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selection /*=true*/)
 {

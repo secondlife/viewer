@@ -41,9 +41,7 @@ LLUIAvatar::LLUIAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* re
 }
 
 // virtual
-LLUIAvatar::~LLUIAvatar()
-{
-}
+LLUIAvatar::~LLUIAvatar() = default;
 
 // virtual
 void LLUIAvatar::initInstance()

@@ -28,9 +28,7 @@ LLWLDayCycle::LLWLDayCycle()
 {
 }
 
-LLWLDayCycle::~LLWLDayCycle()
-{
-}
+LLWLDayCycle::~LLWLDayCycle() = default;
 
 bool LLWLDayCycle::getKeytime(LLWLParamKey keyFrame, F32& keyTime)
 {

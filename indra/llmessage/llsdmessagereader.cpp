@@ -46,9 +46,7 @@ LLSDMessageReader::LLSDMessageReader() :
 }
 
 //virtual
-LLSDMessageReader::~LLSDMessageReader()
-{
-}
+LLSDMessageReader::~LLSDMessageReader() = default;
 
 
 LLSD getLLSD(const LLSD& input, const char* block, const char* var, S32 blocknum)

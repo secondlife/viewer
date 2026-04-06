@@ -755,9 +755,7 @@ LLPolyVertexMask::LLPolyVertexMask(const LLPolyVertexMask& pOther)
 //-----------------------------------------------------------------------------
 // ~LLPolyVertexMask()
 //-----------------------------------------------------------------------------
-LLPolyVertexMask::~LLPolyVertexMask()
-{
-}
+LLPolyVertexMask::~LLPolyVertexMask() = default;
 
 //-----------------------------------------------------------------------------
 // generateMask()

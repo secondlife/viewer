@@ -340,9 +340,7 @@ LLGLSLShader::LLGLSLShader()
 
 }
 
-LLGLSLShader::~LLGLSLShader()
-{
-}
+LLGLSLShader::~LLGLSLShader() = default;
 
 void LLGLSLShader::unload()
 {

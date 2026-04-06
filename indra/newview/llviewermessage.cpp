@@ -983,7 +983,7 @@ public:
         }
     }
 
-    virtual ~LLViewerInventoryMoveObserver() {}
+    virtual ~LLViewerInventoryMoveObserver() = default;
     virtual void changed(U32 mask);
 
 private:
@@ -2744,9 +2744,7 @@ LLPostTeleportNotifiers::LLPostTeleportNotifiers() : LLEventTimer( 2.0 )
 {
 };
 
-LLPostTeleportNotifiers::~LLPostTeleportNotifiers()
-{
-}
+LLPostTeleportNotifiers::~LLPostTeleportNotifiers() = default;
 
 bool LLPostTeleportNotifiers::tick()
 {

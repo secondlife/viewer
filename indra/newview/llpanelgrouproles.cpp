@@ -126,9 +126,7 @@ LLPanelGroupRoles::LLPanelGroupRoles()
 {
 }
 
-LLPanelGroupRoles::~LLPanelGroupRoles()
-{
-}
+LLPanelGroupRoles::~LLPanelGroupRoles() = default;
 
 bool LLPanelGroupRoles::postBuild()
 {
@@ -1949,9 +1947,7 @@ LLPanelGroupRolesSubTab::LLPanelGroupRolesSubTab()
 {
 }
 
-LLPanelGroupRolesSubTab::~LLPanelGroupRolesSubTab()
-{
-}
+LLPanelGroupRolesSubTab::~LLPanelGroupRolesSubTab() = default;
 
 bool LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 {
@@ -2795,9 +2791,7 @@ LLPanelGroupActionsSubTab::LLPanelGroupActionsSubTab()
 {
 }
 
-LLPanelGroupActionsSubTab::~LLPanelGroupActionsSubTab()
-{
-}
+LLPanelGroupActionsSubTab::~LLPanelGroupActionsSubTab() = default;
 
 bool LLPanelGroupActionsSubTab::postBuildSubTab(LLView* root)
 {

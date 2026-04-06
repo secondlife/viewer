@@ -153,9 +153,7 @@ LLDir_Mac::LLDir_Mac()
     }
 }
 
-LLDir_Mac::~LLDir_Mac()
-{
-}
+LLDir_Mac::~LLDir_Mac() = default;
 
 // Implementation
 

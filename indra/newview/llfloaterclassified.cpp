@@ -33,9 +33,7 @@ LLFloaterClassified::LLFloaterClassified(const LLSD& key)
 {
 }
 
-LLFloaterClassified::~LLFloaterClassified()
-{
-}
+LLFloaterClassified::~LLFloaterClassified() = default;
 
 void LLFloaterClassified::onOpen(const LLSD& key)
 {

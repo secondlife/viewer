@@ -54,9 +54,7 @@ LLAgentPilot::LLAgentPilot() :
 {
 }
 
-LLAgentPilot::~LLAgentPilot()
-{
-}
+LLAgentPilot::~LLAgentPilot() = default;
 
 void LLAgentPilot::load()
 {

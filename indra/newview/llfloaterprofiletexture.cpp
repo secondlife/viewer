@@ -191,9 +191,7 @@ LLFloaterProfileTexture::LLFloaterProfileTexture(LLView* owner)
     buildFromFile("floater_profile_texture.xml");
 }
 
-LLFloaterProfileTexture::~LLFloaterProfileTexture()
-{
-}
+LLFloaterProfileTexture::~LLFloaterProfileTexture() = default;
 
 // virtual
 bool LLFloaterProfileTexture::postBuild()

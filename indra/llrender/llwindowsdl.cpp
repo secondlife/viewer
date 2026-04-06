@@ -2217,9 +2217,7 @@ LLSplashScreenSDL::LLSplashScreenSDL()
 {
 }
 
-LLSplashScreenSDL::~LLSplashScreenSDL()
-{
-}
+LLSplashScreenSDL::~LLSplashScreenSDL() = default;
 
 void LLSplashScreenSDL::showImpl()
 {

@@ -3969,9 +3969,7 @@ LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) :
     mCloseSignal.connect([this](LLUICtrl*, const LLSD&) { closeTearOff(); });
 }
 
-LLTearOffMenu::~LLTearOffMenu()
-{
-}
+LLTearOffMenu::~LLTearOffMenu() = default;
 
 void LLTearOffMenu::draw()
 {

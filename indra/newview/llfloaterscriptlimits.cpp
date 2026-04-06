@@ -110,9 +110,7 @@ bool LLFloaterScriptLimits::postBuild()
     return true;
 }
 
-LLFloaterScriptLimits::~LLFloaterScriptLimits()
-{
-}
+LLFloaterScriptLimits::~LLFloaterScriptLimits() = default;
 
 // public
 void LLFloaterScriptLimits::refresh()

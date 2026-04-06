@@ -52,9 +52,7 @@ LLPathfindingNavMeshZone::LLPathfindingNavMeshZone()
 {
 }
 
-LLPathfindingNavMeshZone::~LLPathfindingNavMeshZone()
-{
-}
+LLPathfindingNavMeshZone::~LLPathfindingNavMeshZone() = default;
 
 LLPathfindingNavMeshZone::navmesh_zone_slot_t LLPathfindingNavMeshZone::registerNavMeshZoneListener(navmesh_zone_callback_t pNavMeshZoneCallback)
 {
@@ -298,9 +296,7 @@ LLPathfindingNavMeshZone::NavMeshLocation::NavMeshLocation(S32 pDirection, navme
 {
 }
 
-LLPathfindingNavMeshZone::NavMeshLocation::~NavMeshLocation()
-{
-}
+LLPathfindingNavMeshZone::NavMeshLocation::~NavMeshLocation() = default;
 
 void LLPathfindingNavMeshZone::NavMeshLocation::enable()
 {

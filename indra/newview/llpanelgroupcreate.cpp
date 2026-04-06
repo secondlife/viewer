@@ -65,9 +65,7 @@ LLPanelGroupCreate::LLPanelGroupCreate()
 {
 }
 
-LLPanelGroupCreate::~LLPanelGroupCreate()
-{
-}
+LLPanelGroupCreate::~LLPanelGroupCreate() = default;
 
 bool LLPanelGroupCreate::postBuild()
 {

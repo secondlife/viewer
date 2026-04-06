@@ -39,9 +39,7 @@ LLAgentBenefits::LLAgentBenefits():
 {
 }
 
-LLAgentBenefits::~LLAgentBenefits()
-{
-}
+LLAgentBenefits::~LLAgentBenefits() = default;
 
 // This could be extended to a template scheme or otherwise modified
 // to support other types, if and when needed. Currently all fields
@@ -242,9 +240,7 @@ LLAgentBenefitsMgr::LLAgentBenefitsMgr()
 {
 }
 
-LLAgentBenefitsMgr::~LLAgentBenefitsMgr()
-{
-}
+LLAgentBenefitsMgr::~LLAgentBenefitsMgr() = default;
 
 // static
 const LLAgentBenefits& LLAgentBenefitsMgr::current()

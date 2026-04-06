@@ -3755,9 +3755,7 @@ LLSplashScreenWin32::LLSplashScreenWin32()
 {
 }
 
-LLSplashScreenWin32::~LLSplashScreenWin32()
-{
-}
+LLSplashScreenWin32::~LLSplashScreenWin32() = default;
 
 void LLSplashScreenWin32::showImpl()
 {

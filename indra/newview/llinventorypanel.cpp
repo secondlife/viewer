@@ -91,7 +91,7 @@ class LLInventoryPanelObserver : public LLInventoryObserver
 {
 public:
     LLInventoryPanelObserver(LLInventoryPanel* ip) : mIP(ip) {}
-    virtual ~LLInventoryPanelObserver() {}
+    virtual ~LLInventoryPanelObserver() = default;
     virtual void changed(U32 mask)
     {
         mIP->modelChanged(mask);
@@ -2599,9 +2599,7 @@ LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
     mCommitCallbackRegistrar.replace("Inventory.Share", std::bind(&LLInventorySingleFolderPanel::doShare, this));
 }
 
-LLInventorySingleFolderPanel::~LLInventorySingleFolderPanel()
-{
-}
+LLInventorySingleFolderPanel::~LLInventorySingleFolderPanel() = default;
 
 void LLInventorySingleFolderPanel::initFromParams(const Params& p)
 {

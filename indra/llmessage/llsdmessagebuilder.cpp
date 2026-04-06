@@ -50,9 +50,7 @@ LLSDMessageBuilder::LLSDMessageBuilder() :
 }
 
 //virtual
-LLSDMessageBuilder::~LLSDMessageBuilder()
-{
-}
+LLSDMessageBuilder::~LLSDMessageBuilder() = default;
 
 
 // virtual

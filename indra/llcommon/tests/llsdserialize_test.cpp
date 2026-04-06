@@ -1875,7 +1875,7 @@ namespace tut
     struct TestPythonCompatible
     {
         TestPythonCompatible() {}
-        ~TestPythonCompatible() {}
+        ~TestPythonCompatible() = default;
     };
 
     typedef tut::test_group<TestPythonCompatible> TestPythonCompatibleGroup;

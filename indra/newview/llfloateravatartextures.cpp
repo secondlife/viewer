@@ -47,9 +47,7 @@ LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLSD& id)
 {
 }
 
-LLFloaterAvatarTextures::~LLFloaterAvatarTextures()
-{
-}
+LLFloaterAvatarTextures::~LLFloaterAvatarTextures() = default;
 
 bool LLFloaterAvatarTextures::postBuild()
 {

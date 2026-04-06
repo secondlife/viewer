@@ -97,9 +97,7 @@ LLTexLayerSetBuffer::LLTexLayerSetBuffer(LLTexLayerSet* const owner) :
 {
 }
 
-LLTexLayerSetBuffer::~LLTexLayerSetBuffer()
-{
-}
+LLTexLayerSetBuffer::~LLTexLayerSetBuffer() = default;
 
 void LLTexLayerSetBuffer::pushProjection() const
 {
@@ -1599,9 +1597,7 @@ LLTexLayerTemplate::LLTexLayerTemplate(const LLTexLayerTemplate &layer) :
 {
 }
 
-LLTexLayerTemplate::~LLTexLayerTemplate()
-{
-}
+LLTexLayerTemplate::~LLTexLayerTemplate() = default;
 
 //-----------------------------------------------------------------------------
 // setInfo

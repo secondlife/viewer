@@ -254,9 +254,7 @@ LLPluginSharedMemoryPlatformImpl::LLPluginSharedMemoryPlatformImpl()
     mSharedMemoryFD = -1;
 }
 
-LLPluginSharedMemoryPlatformImpl::~LLPluginSharedMemoryPlatformImpl()
-{
-}
+LLPluginSharedMemoryPlatformImpl::~LLPluginSharedMemoryPlatformImpl() = default;
 
 bool LLPluginSharedMemory::map()
 {

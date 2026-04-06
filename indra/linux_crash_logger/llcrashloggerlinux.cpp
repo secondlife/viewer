@@ -106,9 +106,7 @@ LLCrashLoggerLinux::LLCrashLoggerLinux()
 {
 }
 
-LLCrashLoggerLinux::~LLCrashLoggerLinux()
-{
-}
+LLCrashLoggerLinux::~LLCrashLoggerLinux() = default;
 
 void LLCrashLoggerLinux::gatherPlatformSpecificFiles()
 {

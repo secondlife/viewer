@@ -139,9 +139,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
     mControlFadeTime = gSavedSettings.getF32("MediaControlFadeTime");
 }
 
-LLPanelPrimMediaControls::~LLPanelPrimMediaControls()
-{
-}
+LLPanelPrimMediaControls::~LLPanelPrimMediaControls() = default;
 
 bool LLPanelPrimMediaControls::postBuild()
 {

@@ -64,9 +64,7 @@ LLPluginMessage::LLPluginMessage(const std::string &message_class, const std::st
 /**
  * Destructor.
  */
-LLPluginMessage::~LLPluginMessage()
-{
-}
+LLPluginMessage::~LLPluginMessage() = default;
 
 /**
  * Reset all internal state.

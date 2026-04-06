@@ -45,9 +45,7 @@ LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
 {
 }
 
-LLUIImage::~LLUIImage()
-{
-}
+LLUIImage::~LLUIImage() = default;
 
 //virtual
 S32 LLUIImage::getWidth() const

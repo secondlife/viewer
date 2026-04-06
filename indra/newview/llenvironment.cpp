@@ -364,7 +364,7 @@ namespace
             mLastHash(0)
         {}
 
-        virtual ~LLSettingsInjected() {};
+        virtual ~LLSettingsInjected() = default;;
 
         typename SETTINGT::ptr_t getSource() const                    { return this->mSource; }
         void setSource(const typename SETTINGT::ptr_t &source)
@@ -795,7 +795,7 @@ namespace
                                         LLEnvironment::DayTransition(skystart, waterstart, end, time),
                                         mInjection(injection)
                                     { }
-        virtual                     ~InjectedTransition() { };
+        virtual                     ~InjectedTransition() = default;;
 
         virtual void                animate() override;
 

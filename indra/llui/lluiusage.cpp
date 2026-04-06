@@ -33,9 +33,7 @@ LLUIUsage::LLUIUsage()
 {
 }
 
-LLUIUsage::~LLUIUsage()
-{
-}
+LLUIUsage::~LLUIUsage() = default;
 
 // static
 std::string LLUIUsage::sanitized(const std::string& s)

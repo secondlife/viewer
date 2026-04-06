@@ -456,9 +456,7 @@ void LLImageJ2C::updateRawDiscardLevel()
     mRawDiscardLevel = mMaxBytes ? calcDiscardLevelBytes(mMaxBytes) : mDiscardLevel;
 }
 
-LLImageJ2CImpl::~LLImageJ2CImpl()
-{
-}
+LLImageJ2CImpl::~LLImageJ2CImpl() = default;
 
 //----------------------------------------------------------------------------------------------
 // Start of LLImageCompressionTester
