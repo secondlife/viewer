@@ -444,7 +444,7 @@ namespace {
 std::ostream& operator<<(std::ostream& out, const LLSingletonBase::string_params& args)
 {
     // However many args there are in args, stream each of them to 'out'.
-    for (auto arg : args)
+    for (const auto& arg : args)
     {
         out << arg;
     }

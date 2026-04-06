@@ -1779,7 +1779,7 @@ void LLNotifications::cancelByName(std::string_view name)
 {
     LLMutexLock lock(&mItemsMutex);
     std::vector<LLNotificationPtr> notifs_to_cancel;
-    for (auto pNotif : mItems)
+    for (const auto& pNotif : mItems)
     {
         if (pNotif->getName() == name)
         {
@@ -1787,7 +1787,7 @@ void LLNotifications::cancelByName(std::string_view name)
         }
     }
 
-    for (auto pNotif : notifs_to_cancel)
+    for (const auto& pNotif : notifs_to_cancel)
     {
         pNotif->cancel();
         updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);
@@ -1798,7 +1798,7 @@ void LLNotifications::cancelByOwner(const LLUUID ownerId)
 {
     LLMutexLock lock(&mItemsMutex);
     std::vector<LLNotificationPtr> notifs_to_cancel;
-    for (auto pNotif : mItems)
+    for (const auto& pNotif : mItems)
     {
         if (pNotif && pNotif->getPayload().get("owner_id").asUUID() == ownerId)
         {
@@ -1806,7 +1806,7 @@ void LLNotifications::cancelByOwner(const LLUUID ownerId)
         }
     }
 
-    for (auto pNotif : notifs_to_cancel)
+    for (const auto& pNotif : notifs_to_cancel)
     {
         pNotif->cancel();
         updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);

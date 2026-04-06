@@ -908,10 +908,10 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
         [this,options]()
         {
             webrtc::PeerConnectionInterface::RTCConfiguration config;
-            for (auto server : options.mServers)
+            for (const auto& server : options.mServers)
             {
                 webrtc::PeerConnectionInterface::IceServer ice_server;
-                for (auto url : server.mUrls)
+                for (const auto& url : server.mUrls)
                 {
                     ice_server.urls.push_back(url);
                 }
