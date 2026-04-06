@@ -92,3 +92,4 @@ web/secondlife.com.*
 .env
 .vscode
 cppcheck_newview.txt
+cppcheck_*.txt
