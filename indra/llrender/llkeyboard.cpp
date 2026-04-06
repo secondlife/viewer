@@ -490,7 +490,7 @@ std::string LLKeyboard::stringFromAccelerator(MASK accel_mask, EMouseClickType c
 //static
 bool LLKeyboard::maskFromString(const std::string& str, MASK *mask)
 {
-    std::string instring(str);
+    const std::string& instring(str);
     if (instring == "NONE")
     {
         *mask = MASK_NONE;

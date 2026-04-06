@@ -2553,7 +2553,7 @@ void LLMenuGL::createJumpKeys()
         bool found_key = false;
         for( token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
         {
-            std::string uppercase_word = *token_iter;
+            const std::string& uppercase_word = *token_iter;
 
             // this word is not shared with other menu entries...
             if (shared_words.find(*token_iter) == shared_words.end())

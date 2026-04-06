@@ -261,14 +261,14 @@ void LLExperienceCache::requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdap
 
     LLExperienceCache* self = LLExperienceCache::getInstance();
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD& httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
         F64 now = LLFrameTimer::getTotalSeconds();
 
-        LLSD headers = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+        const LLSD& headers = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
         // build dummy entries for the failed requests
         for (auto request : requests)
         {
@@ -593,7 +593,7 @@ void LLExperienceCache::fetchAssociatedExperienceCoro(LLCoreHttpUtil::HttpCorout
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, data);
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD& httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if ((!status) || (!result.has("experience")))
@@ -692,7 +692,7 @@ void LLExperienceCache::getGroupExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAda
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD& httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
@@ -916,7 +916,7 @@ F64 LLExperienceCacheImpl::getErrorRetryDeltaTime(S32 status, LLSD headers)
 {
 
     // Retry-After takes priority
-    LLSD retry_after = headers["retry-after"];
+    const LLSD& retry_after = headers["retry-after"];
     if (retry_after.isDefined())
     {
         // We only support the delta-seconds type
@@ -930,7 +930,7 @@ F64 LLExperienceCacheImpl::getErrorRetryDeltaTime(S32 status, LLSD headers)
 
     // If no Retry-After, look for Cache-Control max-age
     // Allow the header to override the default
-    LLSD cache_control_header = headers["cache-control"];
+    const LLSD& cache_control_header = headers["cache-control"];
     if (cache_control_header.isDefined())
     {
         S32 max_age = 0;

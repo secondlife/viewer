@@ -482,14 +482,14 @@ bool LLMediaEntry::checkUrlAgainstWhitelist(const std::string& url,
 
         // Case insensitive: the reason why we toUpper both this and the
         // filter
-        std::string candidate_url = url;
+        const std::string& candidate_url = url;
         // Use lluri to see if there is a path part in the candidate URL.  No path?  Assume "/"
         LLURI candidate_uri(candidate_url);
         std::vector<std::string>::const_iterator iter = whitelist.begin();
         std::vector<std::string>::const_iterator end = whitelist.end();
         for ( ; iter < end; ++iter )
         {
-            std::string filter = *iter;
+            const std::string& filter = *iter;
 
             LLURI filter_uri(filter);
             bool scheme_passes = pattern_match( candidate_uri.scheme(), filter_uri.scheme() );

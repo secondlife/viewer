@@ -262,7 +262,7 @@ void LLTimeCtrl::onFocusLost()
 
 void LLTimeCtrl::onTextEntry(LLLineEditor* line_editor)
 {
-    std::string time_str = line_editor->getText();
+    const std::string& time_str = line_editor->getText();
     U32 h12 = parseHours(getHoursString(time_str));
     U32 m = parseMinutes(getMinutesString(time_str));
     bool pm = parseAMPM(getAMPMString(time_str));

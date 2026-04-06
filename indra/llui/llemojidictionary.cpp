@@ -263,7 +263,7 @@ void LLEmojiDictionary::loadTranslations()
         return;
     }
 
-    const std::string filename = filenames.back();
+    const std::string& filename = filenames.back();
     llifstream file(filename);
     if (!file.is_open())
     {
@@ -360,7 +360,7 @@ void LLEmojiDictionary::loadEmojis()
         return;
     }
 
-    const std::string filename = filenames.back();
+    const std::string& filename = filenames.back();
     llifstream file(filename);
     if (!file.is_open())
     {

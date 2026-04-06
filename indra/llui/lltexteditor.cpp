@@ -514,7 +514,7 @@ void LLTextEditor::getSegmentsInRange(LLTextEditor::segment_vec_t& segments_out,
 
     for (segment_set_t::const_iterator it = first_it; it != end_it; ++it)
     {
-        LLTextSegmentPtr segment = *it;
+        const LLTextSegmentPtr& segment = *it;
         if (include_partial
             ||  (segment->getStart() >= start
                 && segment->getEnd() <= end))

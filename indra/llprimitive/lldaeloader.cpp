@@ -1530,7 +1530,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         const int jointCnt = static_cast<int>(model->mSkinInfo.mJointNames.size());
         for ( int i=0; i<jointCnt; ++i, ++jointIt )
         {
-            std::string lookingForJoint = *jointIt;
+            const std::string& lookingForJoint = *jointIt;
             //Look for the joint xform that we extracted from the skeleton, using the jointIt as the key
             //and store it in the alternate bind matrix
             if (mJointMap.find(lookingForJoint) != mJointMap.end()
@@ -1856,7 +1856,7 @@ bool LLDAELoader::verifyController( domController* pController )
 //-----------------------------------------------------------------------------
 void LLDAELoader::extractTranslation( domTranslate* pTranslate, LLMatrix4& transform )
 {
-    domFloat3 jointTrans = pTranslate->getValue();
+    const domFloat3& jointTrans = pTranslate->getValue();
     LLVector3 singleJointTranslation((F32)jointTrans[0], (F32)jointTrans[1], (F32)jointTrans[2]);
     transform.setTranslation( singleJointTranslation );
 }

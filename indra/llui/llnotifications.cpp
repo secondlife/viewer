@@ -1591,7 +1591,7 @@ bool LLNotifications::loadTemplates()
         LL_ERRS() << "Problem finding notifications.xml" << LL_ENDL;
     }
 
-    std::string base_filename = search_paths.front();
+    const std::string& base_filename = search_paths.front();
     LLXMLNodePtr root;
     bool success  = LLXMLNode::getLayeredXMLNode(root, search_paths);
 

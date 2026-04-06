@@ -408,7 +408,7 @@ static void buildPathname(std::ostream& out, const LLView* view)
     out << '/';
 
     // substitute all '/' in name with appropriate code
-    std::string name = view->getName();
+    const std::string& name = view->getName();
     std::size_t found = name.find('/');
     std::size_t start = 0;
     while (found != std::string::npos)

@@ -50,7 +50,7 @@ LLTransferSourceFile::~LLTransferSourceFile()
 void LLTransferSourceFile::initTransfer()
 {
     std::string filename = mParams.getFilename();
-    std::string delimiter = gDirUtilp->getDirDelimiter();
+    const std::string& delimiter = gDirUtilp->getDirDelimiter();
 
     if((filename == ".")
        || (filename == "..")

@@ -4034,7 +4034,7 @@ void LLMessageSystem::sendUntrustedSimulatorMessageCoro(std::string url, std::st
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData, httpOpts);
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    const LLSD& httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (callback != nullptr)

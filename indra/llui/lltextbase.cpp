@@ -410,7 +410,7 @@ std::vector<LLRect> LLTextBase::getSelectionRects()
 
             for (; segment_iter != mSegments.end(); ++segment_iter, segment_offset = 0)
             {
-                LLTextSegmentPtr segmentp = *segment_iter;
+                const LLTextSegmentPtr& segmentp = *segment_iter;
 
                 S32 segment_line_start = segmentp->getStart() + segment_offset;
                 S32 segment_line_end = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd);
@@ -489,7 +489,7 @@ std::vector<std::pair<LLRect, LLUIColor>> LLTextBase::getHighlightedBgRects()
 
             for (; segment_iter != mSegments.end(); ++segment_iter, segment_offset = 0)
             {
-                LLTextSegmentPtr segmentp = *segment_iter;
+                const LLTextSegmentPtr& segmentp = *segment_iter;
 
                 S32 segment_line_start = segmentp->getStart() + segment_offset;
                 S32 segment_line_end = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd);
@@ -2249,7 +2249,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 {
     // work out the XUI menu file to use for this url
     LLUrlMatch match;
-    std::string url = in_url;
+    const std::string& url = in_url;
     if (! LLUrlRegistry::instance().findUrl(url, match))
     {
         return;
@@ -2844,7 +2844,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, bool round,
         line_seg_iter != mSegments.end();
         ++line_seg_iter, line_seg_offset = 0)
     {
-        const LLTextSegmentPtr segmentp = *line_seg_iter;
+        const LLTextSegmentPtr& segmentp = *line_seg_iter;
 
         S32 segment_line_start = segmentp->getStart() + line_seg_offset;
         S32 segment_line_length = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd) - segment_line_start;

@@ -807,7 +807,7 @@ bool LLUICtrl::focusFirstItem(bool prefer_text_fields, bool focus_flash)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     // try to select default tab group child
-    LLViewQuery query = getTabOrderQuery();
+    const LLViewQuery& query = getTabOrderQuery();
     child_list_t result = query(this);
     if(!result.empty())
     {

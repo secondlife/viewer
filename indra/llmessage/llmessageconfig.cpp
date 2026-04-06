@@ -153,7 +153,7 @@ void LLMessageConfigFile::loadMessages(const LLSD& data)
 
 void LLMessageConfigFile::loadCapBans(const LLSD& data)
 {
-    LLSD bans = data["capBans"];
+    const LLSD& bans = data["capBans"];
     if (!bans.isMap())
     {
         LL_INFOS("AppInit") << "LLMessageConfigFile::loadCapBans: missing capBans section"
@@ -169,7 +169,7 @@ void LLMessageConfigFile::loadCapBans(const LLSD& data)
 
 void LLMessageConfigFile::loadMessageBans(const LLSD& data)
 {
-    LLSD bans = data["messageBans"];
+    const LLSD& bans = data["messageBans"];
     if (!bans.isMap())
     {
         LL_INFOS("AppInit") << "LLMessageConfigFile::loadMessageBans: missing messageBans section"

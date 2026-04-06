@@ -820,7 +820,7 @@ bool LLBufferArray::eraseSegment(const segment_iterator_t& erase_iter)
     // Find out which buffer contains the segment, and if it is found,
     // ask it to reclaim the memory.
     bool rv = false;
-    LLSegment segment(*erase_iter);
+    const LLSegment& segment(*erase_iter);
     buffer_iterator_t iter = mBuffers.begin();
     buffer_iterator_t end = mBuffers.end();
     for(; iter != end; ++iter)

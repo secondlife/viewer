@@ -820,7 +820,7 @@ bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
 {
     if (paths.empty()) return false;
 
-    std::string filename = paths.front();
+    const std::string& filename = paths.front();
     if (filename.empty())
     {
         return false;
@@ -839,7 +839,7 @@ bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
     // We've already dealt with the first item, skip that one
     for (itor = paths.begin() + 1; itor != paths.end(); ++itor)
     {
-        std::string layer_filename = *itor;
+        const std::string& layer_filename = *itor;
         if(layer_filename.empty() || layer_filename == filename)
         {
             // no localized version of this file, that's ok, keep looking
