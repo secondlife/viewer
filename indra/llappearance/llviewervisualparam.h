@@ -40,11 +40,11 @@ class LLViewerVisualParamInfo : public LLVisualParamInfo
     friend class LLViewerVisualParam;
 public:
     LLViewerVisualParamInfo();
-    /*virtual*/ ~LLViewerVisualParamInfo();
+    ~LLViewerVisualParamInfo() override;
 
-    /*virtual*/ bool parseXml(LLXmlTreeNode* node);
+    bool parseXml(LLXmlTreeNode* node) override;
 
-    /*virtual*/ void toStream(std::ostream &out);
+    void toStream(std::ostream &out) override;
 
 protected:
     S32         mWearableType;

@@ -225,7 +225,6 @@ LLAvatarJointCollisionVolume::LLAvatarJointCollisionVolume()
     mUpdateXform = false;
 }
 
-/*virtual*/
 U32 LLAvatarJointCollisionVolume::render( F32 pixelArea, bool first_pass, bool is_dummy )
 {
     LL_ERRS() << "Cannot call render() on LLAvatarJointCollisionVolume" << LL_ENDL;

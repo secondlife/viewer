@@ -81,12 +81,12 @@ public:
     const LLVolumeOctreeListener& operator=(const LLVolumeOctreeListener& rhs) = delete;
 
      //LISTENER FUNCTIONS
-    virtual void handleChildAddition(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* parent, LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* child);
-    virtual void handleStateChange(const LLTreeNode<LLVolumeTriangle>* node) { }
-    virtual void handleChildRemoval(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* parent, const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* child) { }
-    virtual void handleInsertion(const LLTreeNode<LLVolumeTriangle>* node, LLVolumeTriangle* tri) { }
-    virtual void handleRemoval(const LLTreeNode<LLVolumeTriangle>* node, LLVolumeTriangle* tri) { }
-    virtual void handleDestruction(const LLTreeNode<LLVolumeTriangle>* node) { }
+    void handleChildAddition(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* parent, LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* child) override;
+    void handleStateChange(const LLTreeNode<LLVolumeTriangle>* node) override { }
+    void handleChildRemoval(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* parent, const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* child) override { }
+    void handleInsertion(const LLTreeNode<LLVolumeTriangle>* node, LLVolumeTriangle* tri) override { }
+    void handleRemoval(const LLTreeNode<LLVolumeTriangle>* node, LLVolumeTriangle* tri) override { }
+    void handleDestruction(const LLTreeNode<LLVolumeTriangle>* node) override { }
 
 
 public:
@@ -114,14 +114,14 @@ public:
                                    F32* closest_t,
                                    LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent);
 
-    void traverse(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* node);
+    void traverse(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* node) override;
 
-    virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* node);
+    void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* node) override;
 };
 
 class LLVolumeOctreeValidate : public LLOctreeTraveler<LLVolumeTriangle, LLVolumeTriangle*>
 {
-    virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch);
+    void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch) override;
 };
 
 class LLVolumeOctreeRebound : public LLOctreeTravelerDepthFirst<LLVolumeTriangle, LLVolumeTriangle*>
@@ -131,7 +131,7 @@ public:
     {
     }
 
-    virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch)
+    void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch) override
     { //this is a depth first traversal, so it's safe to assum all children have complete
         //bounding data
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;

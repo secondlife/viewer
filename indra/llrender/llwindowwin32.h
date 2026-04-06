@@ -142,13 +142,13 @@ protected:
         const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
         bool fullscreen, bool clearBg, bool enable_vsync, bool use_gl,
         bool ignore_pixel_depth, U32 fsaa_samples, U32 max_cores, F32 max_gl_version);
-    ~LLWindowWin32();
+    ~LLWindowWin32() override;
 
     void    initCursors();
     HCURSOR loadColorCursor(LPCTSTR name);
     bool    isValid();
     void    moveWindow(const LLCoordScreen& position,const LLCoordScreen& size);
-    virtual LLSD    getNativeKeyData();
+    LLSD    getNativeKeyData() override;
 
     // Changes display resolution. Returns true if successful
     bool    setDisplayResolution(S32 width, S32 height, S32 refresh);
@@ -270,11 +270,11 @@ class LLSplashScreenWin32 : public LLSplashScreen
 {
 public:
     LLSplashScreenWin32();
-    virtual ~LLSplashScreenWin32();
+    ~LLSplashScreenWin32() override;
 
-    /*virtual*/ void showImpl();
-    /*virtual*/ void updateImpl(const std::string& mesg);
-    /*virtual*/ void hideImpl();
+    void showImpl() override;
+    void updateImpl(const std::string& mesg) override;
+    void hideImpl() override;
 
 #if LL_WINDOWS
     static LRESULT CALLBACK windowProc(HWND h_wnd, UINT u_msg,

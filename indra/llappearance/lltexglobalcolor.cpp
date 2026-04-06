@@ -110,7 +110,7 @@ LLTexParamGlobalColor::~LLTexParamGlobalColor()
 {
 }
 
-/*virtual*/ LLViewerVisualParam* LLTexParamGlobalColor::cloneParam(LLWearable* wearable) const
+LLViewerVisualParam* LLTexParamGlobalColor::cloneParam(LLWearable* wearable) const
 {
     return new LLTexParamGlobalColor(*this);
 }

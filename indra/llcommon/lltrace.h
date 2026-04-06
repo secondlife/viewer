@@ -129,7 +129,7 @@ public:
     :   stat_t(name, description)
     {}
 
-    /*virtual*/ const char* getUnitLabel() const { return LLGetUnitLabel<T>::getUnitLabel(); }
+    const char* getUnitLabel() const override { return LLGetUnitLabel<T>::getUnitLabel(); }
 
 };
 
@@ -155,7 +155,7 @@ public:
     :   stat_t(name, description)
     {}
 
-    /*virtual*/ const char* getUnitLabel() const { return LLGetUnitLabel<T>::getUnitLabel(); }
+    const char* getUnitLabel() const override { return LLGetUnitLabel<T>::getUnitLabel(); }
 };
 
 template<typename T, typename VALUE_T>
@@ -180,7 +180,7 @@ public:
     :   stat_t(name, description)
     {}
 
-    /*virtual*/ const char* getUnitLabel() const { return LLGetUnitLabel<T>::getUnitLabel(); }
+    const char* getUnitLabel() const override { return LLGetUnitLabel<T>::getUnitLabel(); }
 };
 
 template<typename T, typename VALUE_T>

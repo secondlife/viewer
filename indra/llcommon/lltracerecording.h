@@ -295,10 +295,10 @@ namespace LLTrace
         friend class ThreadRecorder;
 
         // implementation for LLStopWatchControlsMixin
-        /*virtual*/ void handleStart();
-        /*virtual*/ void handleStop();
-        /*virtual*/ void handleReset();
-        /*virtual*/ void handleSplitTo(Recording& other);
+        void handleStart() override;
+        void handleStop() override;
+        void handleReset() override;
+        void handleSplitTo(Recording& other) override;
 
         // returns data for current thread
         class ThreadRecorder* getThreadRecorder();
@@ -626,10 +626,10 @@ namespace LLTrace
 
     private:
         // implementation for LLStopWatchControlsMixin
-        /*virtual*/ void handleStart();
-        /*virtual*/ void handleStop();
-        /*virtual*/ void handleReset();
-        /*virtual*/ void handleSplitTo(PeriodicRecording& other);
+        void handleStart() override;
+        void handleStop() override;
+        void handleReset() override;
+        void handleSplitTo(PeriodicRecording& other) override;
 
         // helper methods for wraparound ring-buffer arithmetic
         inline
@@ -683,10 +683,10 @@ namespace LLTrace
 
     private:
         // implementation for LLStopWatchControlsMixin
-        /*virtual*/ void handleStart();
-        /*virtual*/ void handleStop();
-        /*virtual*/ void handleReset();
-        /*virtual*/ void handleSplitTo(ExtendableRecording& other);
+        void handleStart() override;
+        void handleStop() override;
+        void handleReset() override;
+        void handleSplitTo(ExtendableRecording& other) override;
 
     private:
         Recording mAcceptedRecording;
@@ -707,10 +707,10 @@ namespace LLTrace
 
     private:
         // implementation for LLStopWatchControlsMixin
-        /*virtual*/ void handleStart();
-        /*virtual*/ void handleStop();
-        /*virtual*/ void handleReset();
-        /*virtual*/ void handleSplitTo(ExtendablePeriodicRecording& other);
+        void handleStart() override;
+        void handleStop() override;
+        void handleReset() override;
+        void handleSplitTo(ExtendablePeriodicRecording& other) override;
 
     private:
         PeriodicRecording mAcceptedRecording;

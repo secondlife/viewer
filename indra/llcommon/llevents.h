@@ -622,10 +622,10 @@ class LL_COMMON_API LLEventStream: public LLEventPump
 {
 public:
     LLEventStream(const std::string& name, bool tweak=false): LLEventPump(name, tweak) {}
-    virtual ~LLEventStream() = default;
+    ~LLEventStream() override = default;
 
     /// Post an event to all listeners
-    virtual bool post(const LLSD& event);
+    bool post(const LLSD& event) override;
 };
 
 /*****************************************************************************
@@ -653,18 +653,18 @@ class LL_COMMON_API LLEventMailDrop : public LLEventStream
 {
 public:
     LLEventMailDrop(const std::string& name, bool tweak = false) : LLEventStream(name, tweak) {}
-    virtual ~LLEventMailDrop() = default;
+    ~LLEventMailDrop() override = default;
 
     /// Post an event to all listeners
-    virtual bool post(const LLSD& event) override;
+    bool post(const LLSD& event) override;
 
     /// Remove any history stored in the mail drop.
     void discard();
 
 protected:
-    virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
-                                        const NameList& after,
-                                        const NameList& before) override;
+    LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
+                                const NameList& after,
+                                const NameList& before) override;
 
 private:
     using EventList = std::list<LLSD>;

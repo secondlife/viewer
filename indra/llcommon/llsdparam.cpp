@@ -108,7 +108,7 @@ void LLParamSDParser::writeSDImpl(LLSD& sd, const LLInitParam::BaseBlock& block,
     block.serializeBlock(*this, name_stack, rules, diff_block);
 }
 
-/*virtual*/ std::string LLParamSDParser::getCurrentElementName()
+std::string LLParamSDParser::getCurrentElementName()
 {
     std::string full_name = "sd";
     for (name_stack_t::value_type& stack_pair : mNameStack)

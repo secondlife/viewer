@@ -52,7 +52,7 @@ public:
     class WorkRequest : public LLQueuedThread::QueuedRequest
     {
     protected:
-        virtual ~WorkRequest(); // use deleteRequest()
+        ~WorkRequest() override; // use deleteRequest()
 
     public:
         WorkRequest(handle_t handle, LLWorkerClass* workerclass, S32 param);
@@ -66,9 +66,9 @@ public:
             return mWorkerClass;
         }
 
-        /*virtual*/ bool processRequest();
-        /*virtual*/ void finishRequest(bool completed);
-        /*virtual*/ void deleteRequest();
+        bool processRequest() override;
+        void finishRequest(bool completed) override;
+        void deleteRequest() override;
 
     private:
         LLWorkerClass* mWorkerClass;
@@ -85,9 +85,9 @@ private:
 
 public:
     LLWorkerThread(const std::string& name, bool threaded = true, bool should_pause = false);
-    ~LLWorkerThread();
+    ~LLWorkerThread() override;
 
-    /*virtual*/ size_t update(F32 max_time_ms);
+    size_t update(F32 max_time_ms) override;
 
     handle_t addWorkRequest(LLWorkerClass* workerclass, S32 param);
 

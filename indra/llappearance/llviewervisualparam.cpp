@@ -110,7 +110,7 @@ bool LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
     return true;
 }
 
-/*virtual*/ void LLViewerVisualParamInfo::toStream(std::ostream &out)
+void LLViewerVisualParamInfo::toStream(std::ostream &out)
 {
     LLVisualParamInfo::toStream(out);
 

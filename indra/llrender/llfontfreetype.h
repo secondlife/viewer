@@ -95,7 +95,7 @@ class LLFontFreetype : public LLRefCount
 {
 public:
     LLFontFreetype();
-    ~LLFontFreetype();
+    ~LLFontFreetype() override;
 
     // is_fallback should be true for fallback fonts that aren't used
     // to render directly (Unicode backup, primarily)

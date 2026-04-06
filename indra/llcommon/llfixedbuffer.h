@@ -39,7 +39,7 @@ class LL_COMMON_API LLFixedBuffer : public LLLineBuffer
 {
 public:
     LLFixedBuffer(const U32 max_lines = 20);
-    ~LLFixedBuffer();
+    ~LLFixedBuffer() override;
 
     LLTimer mTimer;
     U32     mMaxLines;
@@ -47,9 +47,9 @@ public:
     std::deque<F32>         mAddTimes;
     std::deque<S32>         mLineLengths;
 
-    /*virtual*/ void clear(); // Clear the buffer, and reset it.
+    void clear() override; // Clear the buffer, and reset it.
 
-    /*virtual*/ void addLine(const std::string& utf8line);
+    void addLine(const std::string& utf8line) override;
 
     void setMaxLines(S32 max_lines);
 

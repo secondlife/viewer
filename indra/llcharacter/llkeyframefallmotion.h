@@ -43,7 +43,7 @@ public:
     LLKeyframeFallMotion(const LLUUID &id);
 
     // Destructor
-    virtual ~LLKeyframeFallMotion();
+    ~LLKeyframeFallMotion() override;
 
 public:
     //-------------------------------------------------------------------------
@@ -58,10 +58,10 @@ public:
     //-------------------------------------------------------------------------
     // animation callbacks to be implemented by subclasses
     //-------------------------------------------------------------------------
-    virtual LLMotionInitStatus onInitialize(LLCharacter *character);
-    virtual bool onActivate();
-    virtual F32 getEaseInDuration();
-    virtual bool onUpdate(F32 activeTime, U8* joint_mask);
+    LLMotionInitStatus onInitialize(LLCharacter *character) override;
+    bool onActivate() override;
+    F32 getEaseInDuration() override;
+    bool onUpdate(F32 activeTime, U8* joint_mask) override;
 
 protected:
     //-------------------------------------------------------------------------

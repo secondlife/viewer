@@ -56,10 +56,10 @@ public:
         F32 refresh_period,
         LLApp::OptionPriority priority);
 
-    ~LLLiveAppConfig(); ///< Destructor
+    ~LLLiveAppConfig() override; ///< Destructor
 
 protected:
-    /*virtual*/ bool loadFile();
+    bool loadFile() override;
 
 private:
     LLApp::OptionPriority mPriority;

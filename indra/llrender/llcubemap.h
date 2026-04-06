@@ -81,7 +81,7 @@ public:
 
 protected:
     friend class LLTexUnit;
-    ~LLCubeMap();
+    ~LLCubeMap() override;
     std::array<LLGLenum, 6> mTargets;
     std::array<LLPointer<LLImageGL>, 6> mImages;
     std::array<LLPointer<LLImageRaw>, 6> mRawImages;

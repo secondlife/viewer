@@ -91,29 +91,29 @@ public:
     {}
 
     /*----- implementation of LLEventThrottleBase timing functionality -----*/
-    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) /*override*/
+    void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) override
     {
         mAlarmRemaining = interval;
         mAlarmAction = action;
     }
 
-    virtual bool alarmRunning() const /*override*/
+    bool alarmRunning() const override
     {
         // decrementing to exactly 0 should mean the alarm fires
         return mAlarmRemaining > 0.f;
     }
 
-    virtual void alarmCancel() /*override*/
+    void alarmCancel() override
     {
         mAlarmRemaining = -1.f;
     }
 
-    virtual void timerSet(F32 interval) /*override*/
+    void timerSet(F32 interval) override
     {
         mTimerRemaining = interval;
     }
 
-    virtual F32  timerGetRemaining() const /*override*/
+    F32  timerGetRemaining() const override
     {
         // LLTimer.getRemainingTimeF32() never returns negative; 0.0 means expired
         return (mTimerRemaining > 0.0f)? mTimerRemaining : 0.0f;

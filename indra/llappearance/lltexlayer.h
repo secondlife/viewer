@@ -119,14 +119,14 @@ class LLTexLayerTemplate : public LLTexLayerInterface
 public:
     LLTexLayerTemplate(LLTexLayerSet* const layer_set, LLAvatarAppearance* const appearance);
     LLTexLayerTemplate(const LLTexLayerTemplate &layer);
-    /*virtual*/ ~LLTexLayerTemplate();
-    /*virtual*/ bool        render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target);
-    /*virtual*/ bool        setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // This sets mInfo and calls initialization functions
-    /*virtual*/ bool        blendAlphaTexture(S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
-    /*virtual*/ void        gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
-    /*virtual*/ void        setHasMorph(bool newval);
-    /*virtual*/ void        deleteCaches();
-    /*virtual*/ bool        isInvisibleAlphaMask() const;
+    ~LLTexLayerTemplate() override;
+    bool        render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target) override;
+    bool        setInfo(const LLTexLayerInfo *info, LLWearable* wearable) override; // This sets mInfo and calls initialization functions
+    bool        blendAlphaTexture(S32 x, S32 y, S32 width, S32 height) override; // Multiplies a single alpha texture against the frame buffer
+    void        gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target) override;
+    void        setHasMorph(bool newval) override;
+    void        deleteCaches() override;
+    bool        isInvisibleAlphaMask() const override;
 protected:
     U32                     updateWearableCache() const;
     LLTexLayer*             getLayer(U32 i) const;
@@ -148,25 +148,25 @@ public:
     LLTexLayer(LLTexLayerSet* const layer_set);
     LLTexLayer(const LLTexLayer &layer, LLWearable *wearable);
     LLTexLayer(const LLTexLayerTemplate &layer_template, LLLocalTextureObject *lto, LLWearable *wearable);
-    /*virtual*/ ~LLTexLayer();
+    ~LLTexLayer() override;
 
-    /*virtual*/ bool        setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // This sets mInfo and calls initialization functions
-    /*virtual*/ bool        render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target);
+    bool        setInfo(const LLTexLayerInfo *info, LLWearable* wearable) override; // This sets mInfo and calls initialization functions
+    bool        render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target) override;
 
-    /*virtual*/ void        deleteCaches();
+    void        deleteCaches() override;
     const U8*               getAlphaData() const;
 
     bool                    findNetColor(LLColor4* color) const;
-    /*virtual*/ bool        blendAlphaTexture(S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
-    /*virtual*/ void        gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
+    bool        blendAlphaTexture(S32 x, S32 y, S32 width, S32 height) override; // Multiplies a single alpha texture against the frame buffer
+    void        gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target) override;
     void                    renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, LLRenderTarget* bound_target, bool force_render);
     void                    addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
-    /*virtual*/ bool        isInvisibleAlphaMask() const;
+    bool        isInvisibleAlphaMask() const override;
 
     void                    setLTO(LLLocalTextureObject *lto)   { mLocalTextureObject = lto; }
     LLLocalTextureObject*   getLTO()                            { return mLocalTextureObject; }
 
-    /*virtual*/ void        asLLSD(LLSD& sd) const;
+    void        asLLSD(LLSD& sd) const override;
 
     static void             calculateTexLayerColor(const param_color_list_t &param_list, LLColor4 &net_color);
 protected:

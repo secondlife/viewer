@@ -163,7 +163,7 @@ LLTexLayerParamAlpha::~LLTexLayerParamAlpha()
     sInstances.remove(this);
 }
 
-/*virtual*/ LLViewerVisualParam* LLTexLayerParamAlpha::cloneParam(LLWearable* wearable) const
+LLViewerVisualParam* LLTexLayerParamAlpha::cloneParam(LLWearable* wearable) const
 {
     return new LLTexLayerParamAlpha(*this);
 }
@@ -441,7 +441,7 @@ LLTexLayerParamColor::~LLTexLayerParamColor()
 {
 }
 
-/*virtual*/ LLViewerVisualParam* LLTexLayerParamColor::cloneParam(LLWearable* wearable) const
+LLViewerVisualParam* LLTexLayerParamColor::cloneParam(LLWearable* wearable) const
 {
     return new LLTexLayerParamColor(*this);
 }

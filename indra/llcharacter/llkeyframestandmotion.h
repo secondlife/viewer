@@ -46,7 +46,7 @@ public:
     LLKeyframeStandMotion(const LLUUID &id);
 
     // Destructor
-    virtual ~LLKeyframeStandMotion();
+    ~LLKeyframeStandMotion() override;
 
 public:
     //-------------------------------------------------------------------------
@@ -61,10 +61,10 @@ public:
     //-------------------------------------------------------------------------
     // animation callbacks to be implemented by subclasses
     //-------------------------------------------------------------------------
-    virtual LLMotionInitStatus onInitialize(LLCharacter *character);
-    virtual bool onActivate();
-    void    onDeactivate();
-    virtual bool onUpdate(F32 time, U8* joint_mask);
+    LLMotionInitStatus onInitialize(LLCharacter *character) override;
+    bool onActivate() override;
+    void    onDeactivate() override;
+    bool onUpdate(F32 time, U8* joint_mask) override;
 
 public:
     //-------------------------------------------------------------------------

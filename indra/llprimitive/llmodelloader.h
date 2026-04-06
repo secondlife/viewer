@@ -146,12 +146,12 @@ public:
         U32                                 maxJointsPerMesh,
         U32                                 modelLimit,
         U32                                 debugMode);
-    virtual ~LLModelLoader();
+    ~LLModelLoader() override;
 
     virtual void setNoNormalize() { mNoNormalize = true; }
     virtual void setNoOptimize() { mNoOptimize = true; }
 
-    virtual void run();
+    void run() override;
 
     static bool getSLMFilename(const std::string& model_filename, std::string& slm_filename);
 

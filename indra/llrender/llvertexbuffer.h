@@ -168,7 +168,7 @@ public:
 protected:
     friend class LLRender;
 
-    ~LLVertexBuffer(); // use unref()
+    ~LLVertexBuffer() override; // use unref()
 
     void setupVertexBuffer();
 

@@ -33,13 +33,13 @@ class LLKeyboardSDL : public LLKeyboard
 {
 public:
     LLKeyboardSDL();
-    /*virtual*/ ~LLKeyboardSDL() = default;
+    ~LLKeyboardSDL() override = default;
 
-    /*virtual*/ bool    handleKeyUp(const U16 key, MASK mask);
-    /*virtual*/ bool    handleKeyDown(const U16 key, MASK mask);
-    /*virtual*/ void    resetMaskKeys();
-    /*virtual*/ MASK    currentMask(bool for_mouse_event);
-    /*virtual*/ void    scanKeyboard();
+    bool    handleKeyUp(const U16 key, MASK mask) override;
+    bool    handleKeyDown(const U16 key, MASK mask) override;
+    void    resetMaskKeys() override;
+    MASK    currentMask(bool for_mouse_event) override;
+    void    scanKeyboard() override;
 
 protected:
     MASK    updateModifiers(const U32 mask);

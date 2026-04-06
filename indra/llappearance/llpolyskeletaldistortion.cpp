@@ -176,7 +176,7 @@ bool LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
     return true;
 }
 
-/*virtual*/ LLViewerVisualParam* LLPolySkeletalDistortion::cloneParam(LLWearable* wearable) const
+LLViewerVisualParam* LLPolySkeletalDistortion::cloneParam(LLWearable* wearable) const
 {
     return new LLPolySkeletalDistortion(*this);
 }

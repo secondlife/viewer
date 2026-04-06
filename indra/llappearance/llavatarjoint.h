@@ -124,10 +124,10 @@ class LLAvatarJointCollisionVolume : public LLAvatarJoint
 {
 public:
     LLAvatarJointCollisionVolume();
-    virtual ~LLAvatarJointCollisionVolume() = default;
+    ~LLAvatarJointCollisionVolume() override = default;
 
-    /*virtual*/ bool inheritScale() { return true; }
-    /*virtual*/ U32 render( F32 pixelArea, bool first_pass = true, bool is_dummy = false );
+    bool inheritScale() override { return true; }
+    U32 render( F32 pixelArea, bool first_pass = true, bool is_dummy = false ) override;
 
     void renderCollision();
 

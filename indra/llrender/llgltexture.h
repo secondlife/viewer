@@ -86,7 +86,7 @@ public:
     };
 
 protected:
-    virtual ~LLGLTexture();
+    ~LLGLTexture() override;
     LOG_CLASS(LLGLTexture);
 
 public:
@@ -110,8 +110,8 @@ public:
     //---------------------------------------------------------------------------------------------
     //functions to access LLImageGL
     //---------------------------------------------------------------------------------------------
-    /*virtual*/S32         getWidth(S32 discard_level = -1) const;
-    /*virtual*/S32         getHeight(S32 discard_level = -1) const;
+    S32         getWidth(S32 discard_level = -1) const override;
+    S32         getHeight(S32 discard_level = -1) const override;
 
     [[nodiscard]] bool       hasGLTexture() const ;
     [[nodiscard]] LLGLuint   getTexName() const ;
@@ -160,7 +160,7 @@ public:
     //---------------------------------------------------------------------------------------------
 
     //-----------------
-    /*virtual*/ void setActive() ;
+    void setActive() override;
     void forceActive() ;
     void setNoDelete() ;
     void dontDiscard() { mDontDiscard = 1; mTextureState = LLGLTextureState::NO_DELETE; }
@@ -175,7 +175,7 @@ protected:
     void setTexelsPerImage();
 
 public:
-    /*virtual*/ LLImageGL* getGLTexture() const ;
+    LLImageGL* getGLTexture() const override;
 
 protected:
     S32 mBoostLevel;                // enum describing priority level

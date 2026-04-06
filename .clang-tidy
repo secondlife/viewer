@@ -1,0 +1,75 @@
+# clang-tidy configuration for Second Life viewer
+# Targeting C++23, GL 4.6, modernization-focused
+
+Checks: >
+  -*,
+  modernize-use-auto,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-using,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  modernize-use-emplace,
+  modernize-use-nodiscard,
+  modernize-use-std-format,
+  modernize-use-std-print,
+  modernize-loop-convert,
+  modernize-return-braced-init-list,
+  modernize-make-shared,
+  modernize-make-unique,
+  modernize-redundant-void-arg,
+  modernize-concat-nested-namespaces,
+  modernize-deprecated-headers,
+  modernize-use-bool-literals,
+  modernize-use-default-member-init,
+  readability-make-member-function-const,
+  readability-redundant-string-cstr,
+  readability-redundant-string-init,
+  readability-redundant-casting,
+  readability-container-size-empty,
+  readability-simplify-boolean-expr,
+  readability-use-std-min-max,
+  performance-unnecessary-copy-initialization,
+  performance-unnecessary-value-param,
+  performance-for-range-copy,
+  performance-move-const-arg,
+  performance-inefficient-string-concatenation,
+  performance-inefficient-vector-operation,
+  bugprone-use-after-move,
+  bugprone-dangling-handle,
+  bugprone-string-integer-assignment,
+  bugprone-suspicious-string-compare,
+  bugprone-unused-return-value,
+  bugprone-sizeof-expression,
+  bugprone-integer-division,
+  bugprone-narrowing-conversions,
+  cppcoreguidelines-slicing,
+  cppcoreguidelines-pro-type-static-cast-downcast,
+
+WarningsAsErrors: ''
+
+CheckOptions:
+  # modernize-use-auto: only for iterators and casts, not everywhere
+  - key: modernize-use-auto.MinTypeNameLength
+    value: 5
+  - key: modernize-use-auto.RemoveStars
+    value: false
+
+  # modernize-loop-convert: conservative — only convert when safe
+  - key: modernize-loop-convert.MaxCopySize
+    value: 16
+  - key: modernize-loop-convert.MinConfidence
+    value: reasonable
+
+  # performance: string concatenation threshold
+  - key: performance-inefficient-string-concatenation.StrictMode
+    value: false
+
+  # Don't suggest nodiscard on every single function
+  - key: modernize-use-nodiscard.ReplacementString
+    value: '[[nodiscard]]'
+
+HeaderFilterRegex: 'indra/.*\.h$'
+
+# Skip third-party code
+ExcludeHeaderFilterRegex: 'build-vc170-64/packages/.*|indra/llwebrtc/.*'

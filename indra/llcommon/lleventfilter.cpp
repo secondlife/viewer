@@ -445,7 +445,7 @@ LLEventLogProxy::LLEventLogProxy(LLEventPump& source, const std::string& name, b
 {
 }
 
-bool LLEventLogProxy::post(const LLSD& event) /* override */
+bool LLEventLogProxy::post(const LLSD& event)
 {
     auto counter = mCounter++;
     auto eventplus = event;

@@ -41,8 +41,8 @@ public:
                  U32 request_id);
     virtual ~ImageRequest();
 
-    /*virtual*/ bool processRequest();
-    /*virtual*/ void finishRequest(bool completed);
+    bool processRequest();
+    void finishRequest(bool completed);
 
 private:
     // LLPointers stored in ImageRequest MUST be LLPointer instances rather

@@ -820,8 +820,8 @@ class LLDynamicPath : public LLPath
 {
 public:
     LLDynamicPath() : LLPath() { }
-    /*virtual*/ bool generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0,
-                              bool is_sculpted = false, S32 sculpt_size = 0);
+    bool generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0,
+                  bool is_sculpted = false, S32 sculpt_size = 0) override;
 };
 
 // Yet another "face" class - caches volume-specific, but not instance-specific data for faces)

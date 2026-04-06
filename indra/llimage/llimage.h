@@ -198,7 +198,7 @@ using LLImageDataSharedLock = LLImageBase::DataLock<true>;
 class LLImageRaw : public LLImageBase
 {
 protected:
-    /*virtual*/ ~LLImageRaw();
+    ~LLImageRaw() override;
 
 public:
     LLImageRaw();
@@ -208,9 +208,9 @@ public:
     // Construct using createFromFile (used by tools)
     //LLImageRaw(const std::string& filename, bool j2c_lowest_mip_only = false);
 
-    /*virtual*/ void deleteData();
-    /*virtual*/ U8* allocateData(S32 size = -1);
-    /*virtual*/ U8* reallocateData(S32 size);
+    void deleteData() override;
+    U8* allocateData(S32 size = -1) override;
+    U8* reallocateData(S32 size) override;
 
     // use in conjunction with "no_copy" constructor to release data pointer before deleting
     // so that deletion of this LLImageRaw will not free the memory at the "data" parameter
@@ -330,18 +330,18 @@ public:
     static S8 getCodecFromMimeType(std::string_view mimetype);
 
 protected:
-    /*virtual*/ ~LLImageFormatted();
+    ~LLImageFormatted() override;
 
 public:
     LLImageFormatted(S8 codec);
 
     // LLImageBase
-    /*virtual*/ void deleteData();
-    /*virtual*/ U8* allocateData(S32 size = -1);
-    /*virtual*/ U8* reallocateData(S32 size);
+    void deleteData() override;
+    U8* allocateData(S32 size = -1) override;
+    U8* reallocateData(S32 size) override;
 
-    /*virtual*/ void dump();
-    /*virtual*/ void sanityCheck();
+    void dump() override;
+    void sanityCheck() override;
 
     // New methods
     // subclasses must return a prefered file extension (lowercase without a leading dot)

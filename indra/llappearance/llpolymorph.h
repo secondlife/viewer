@@ -126,9 +126,9 @@ class LLPolyMorphTargetInfo : public LLViewerVisualParamInfo
     friend class LLPolyMorphTarget;
 public:
     LLPolyMorphTargetInfo();
-    /*virtual*/ ~LLPolyMorphTargetInfo() = default;
+    ~LLPolyMorphTargetInfo() override = default;
 
-    /*virtual*/ bool parseXml(LLXmlTreeNode* node);
+    bool parseXml(LLXmlTreeNode* node) override;
 
 protected:
     std::string     mMorphName;
@@ -155,19 +155,19 @@ public:
     //   This sets mInfo and calls initialization functions
     bool                    setInfo(LLPolyMorphTargetInfo *info);
 
-    /*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
+    LLViewerVisualParam* cloneParam(LLWearable* wearable) const override;
 
     // LLVisualParam Virtual functions
     ///*virtual*/ bool              parseData(LLXmlTreeNode* node);
-    /*virtual*/ void                apply( ESex sex );
+    void                apply( ESex sex ) override;
 
     // LLViewerVisualParam Virtual functions
-    /*virtual*/ F32                 getTotalDistortion();
-    /*virtual*/ const LLVector4a&   getAvgDistortion();
-    /*virtual*/ F32                 getMaxDistortion();
-    /*virtual*/ LLVector4a          getVertexDistortion(S32 index, LLPolyMesh *poly_mesh);
-    /*virtual*/ const LLVector4a*   getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
-    /*virtual*/ const LLVector4a*   getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
+    F32                 getTotalDistortion() override;
+    const LLVector4a&   getAvgDistortion() override;
+    F32                 getMaxDistortion() override;
+    LLVector4a          getVertexDistortion(S32 index, LLPolyMesh *poly_mesh) override;
+    const LLVector4a*   getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh) override;
+    const LLVector4a*   getNextDistortion(U32 *index, LLPolyMesh **poly_mesh) override;
 
     void    applyMask(const U8 *maskData, S32 width, S32 height, S32 num_components, bool invert);
     void    addPendingMorphMask() { mNumMorphMasksPending++; }

@@ -153,7 +153,7 @@ public:
     };
 
     LLModel(const LLVolumeParams& params, F32 detail);
-    ~LLModel();
+    ~LLModel() override;
 
     bool loadModel(std::istream& is);
     bool loadSkinInfo(LLSD& header, std::istream& is);

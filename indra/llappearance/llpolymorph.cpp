@@ -384,7 +384,7 @@ bool LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
     return true;
 }
 
-/*virtual*/ LLViewerVisualParam* LLPolyMorphTarget::cloneParam(LLWearable* wearable) const
+LLViewerVisualParam* LLPolyMorphTarget::cloneParam(LLWearable* wearable) const
 {
     return new LLPolyMorphTarget(*this);
 }

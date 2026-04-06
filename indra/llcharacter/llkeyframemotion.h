@@ -65,7 +65,7 @@ public:
     LLKeyframeMotion(const LLUUID &id);
 
     // Destructor
-    virtual ~LLKeyframeMotion();
+    ~LLKeyframeMotion() override;
 
 private:
     // private helper functions to wrap some asserts
@@ -87,36 +87,36 @@ public:
     //-------------------------------------------------------------------------
 
     // motions must specify whether or not they loop
-    virtual bool getLoop() {
+    bool getLoop() override {
         if (mJointMotionList) return mJointMotionList->mLoop;
         else return false;
     }
 
     // motions must report their total duration
-    virtual F32 getDuration() {
+    F32 getDuration() override {
         if (mJointMotionList) return mJointMotionList->mDuration;
         else return 0.f;
     }
 
     // motions must report their "ease in" duration
-    virtual F32 getEaseInDuration() {
+    F32 getEaseInDuration() override {
         if (mJointMotionList) return mJointMotionList->mEaseInDuration;
         else return 0.f;
     }
 
     // motions must report their "ease out" duration.
-    virtual F32 getEaseOutDuration() {
+    F32 getEaseOutDuration() override {
         if (mJointMotionList) return mJointMotionList->mEaseOutDuration;
         else return 0.f;
     }
 
     // motions must report their priority
-    virtual LLJoint::JointPriority getPriority() {
+    LLJoint::JointPriority getPriority() override {
         if (mJointMotionList) return mJointMotionList->mBasePriority;
         else return LLJoint::LOW_PRIORITY;
     }
 
-    virtual S32 getNumJointMotions()
+    S32 getNumJointMotions() override
     {
         if (mJointMotionList)
         {
@@ -125,30 +125,30 @@ public:
         return 0;
     }
 
-    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::NORMAL_BLEND; }
+    LLMotionBlendType getBlendType() override { return LLMotionBlendType::NORMAL_BLEND; }
 
     // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
-    virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_KEYFRAME; }
+    F32 getMinPixelArea() override { return MIN_REQUIRED_PIXEL_AREA_KEYFRAME; }
 
     // run-time (post constructor) initialization,
     // called after parameters have been set
     // must return true to indicate success and be available for activation
-    virtual LLMotionInitStatus onInitialize(LLCharacter *character);
+    LLMotionInitStatus onInitialize(LLCharacter *character) override;
 
     // called when a motion is activated
     // must return true to indicate success, or else
     // it will be deactivated
-    virtual bool onActivate();
+    bool onActivate() override;
 
     // called per time step
     // must return true while it is active, and
     // must return false when the motion is completed.
-    virtual bool onUpdate(F32 time, U8* joint_mask);
+    bool onUpdate(F32 time, U8* joint_mask) override;
 
     // called when a motion is deactivated
-    virtual void onDeactivate();
+    void onDeactivate() override;
 
-    virtual void setStopTime(F32 time);
+    void setStopTime(F32 time) override;
 
     static void onLoadComplete(const LLUUID& asset_uuid,
                                LLAssetType::EType type,

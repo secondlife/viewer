@@ -824,7 +824,7 @@ bool LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
     return true;
 }
 
-/*virtual*/ void LLTexLayerInterface::requestUpdate()
+void LLTexLayerInterface::requestUpdate()
 {
     mTexLayerSet->requestUpdate();
 }
@@ -1011,7 +1011,7 @@ void LLTexLayer::calculateTexLayerColor(const param_color_list_t &param_list, LL
     net_color.clamp();
 }
 
-/*virtual*/ void LLTexLayer::deleteCaches()
+void LLTexLayer::deleteCaches()
 {
     // Only need to delete caches for alpha params. Color params don't hold extra memory
     for (LLTexLayerParamAlpha* param : mParamAlphaList)
@@ -1284,7 +1284,7 @@ bool LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
     return success;
 }
 
-/*virtual*/ void LLTexLayer::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target)
+void LLTexLayer::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target)
 {
     addAlphaMask(data, originX, originY, width, height, bound_target);
 }
@@ -1538,7 +1538,7 @@ void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32
     }
 }
 
-/*virtual*/ bool LLTexLayer::isInvisibleAlphaMask() const
+bool LLTexLayer::isInvisibleAlphaMask() const
 {
     if (mLocalTextureObject)
     {
@@ -1607,7 +1607,7 @@ LLTexLayerTemplate::~LLTexLayerTemplate()
 // setInfo
 //-----------------------------------------------------------------------------
 
-/*virtual*/ bool LLTexLayerTemplate::setInfo(const LLTexLayerInfo* info, LLWearable* wearable  )
+bool LLTexLayerTemplate::setInfo(const LLTexLayerInfo* info, LLWearable* wearable  )
 {
     return LLTexLayerInterface::setInfo(info, wearable);
 }
@@ -1656,7 +1656,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
     return layer;
 }
 
-/*virtual*/ bool LLTexLayerTemplate::render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target)
+bool LLTexLayerTemplate::render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target)
 {
     if(!mInfo)
     {
@@ -1688,7 +1688,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
     return success;
 }
 
-/*virtual*/ bool LLTexLayerTemplate::blendAlphaTexture( S32 x, S32 y, S32 width, S32 height) // Multiplies a single alpha texture against the frame buffer
+bool LLTexLayerTemplate::blendAlphaTexture( S32 x, S32 y, S32 width, S32 height) // Multiplies a single alpha texture against the frame buffer
 {
     bool success = true;
     U32 num_wearables = updateWearableCache();
@@ -1703,7 +1703,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
     return success;
 }
 
-/*virtual*/ void LLTexLayerTemplate::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target)
+void LLTexLayerTemplate::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target)
 {
     U32 num_wearables = updateWearableCache();
     U32 i = num_wearables - 1; // For rendering morph masks, we only want to use the top wearable
@@ -1714,7 +1714,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
     }
 }
 
-/*virtual*/ void LLTexLayerTemplate::setHasMorph(bool newval)
+void LLTexLayerTemplate::setHasMorph(bool newval)
 {
     mHasMorph = newval;
     U32 num_wearables = updateWearableCache();
@@ -1728,7 +1728,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
     }
 }
 
-/*virtual*/ void LLTexLayerTemplate::deleteCaches()
+void LLTexLayerTemplate::deleteCaches()
 {
     U32 num_wearables = updateWearableCache();
     for (U32 i = 0; i < num_wearables; i++)
@@ -1741,7 +1741,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
     }
 }
 
-/*virtual*/ bool LLTexLayerTemplate::isInvisibleAlphaMask() const
+bool LLTexLayerTemplate::isInvisibleAlphaMask() const
 {
     U32 num_wearables = updateWearableCache();
     for (U32 i = 0; i < num_wearables; i++)

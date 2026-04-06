@@ -173,14 +173,14 @@ public:
      * @param[in] name - Unique string identifying this tester instance.
      */
     LLMetricPerformanceTesterWithSession(std::string name);
-    virtual ~LLMetricPerformanceTesterWithSession();
+    ~LLMetricPerformanceTesterWithSession() override;
 
     /**
      * @brief Compare the test results.
      * This will be loading the base and current sessions and compare them using the virtual
      * abstract methods loadTestSession() and compareTestSessions()
      */
-    virtual void analyzePerformance(llofstream* os, LLSD* base, LLSD* current) ;
+    void analyzePerformance(llofstream* os, LLSD* base, LLSD* current) override;
 
 protected:
     /**

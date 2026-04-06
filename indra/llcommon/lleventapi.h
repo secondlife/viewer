@@ -61,7 +61,7 @@ public:
      * subclass method to invoke [default "op"].
      */
     LLEventAPI(const std::string& name, const std::string& desc, const std::string& field="op");
-    virtual ~LLEventAPI();
+    ~LLEventAPI() override;
 
     /// Get the string name of this LLEventAPI
     std::string getName() const { return ibase::getKey(); }

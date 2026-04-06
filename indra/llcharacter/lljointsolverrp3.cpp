@@ -62,7 +62,7 @@ LLJointSolverRP3::LLJointSolverRP3()
 //-----------------------------------------------------------------------------
 // Destructor
 //-----------------------------------------------------------------------------
-/*virtual*/ LLJointSolverRP3::~LLJointSolverRP3()
+LLJointSolverRP3::~LLJointSolverRP3()
 {
 }
 

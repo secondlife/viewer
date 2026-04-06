@@ -79,7 +79,7 @@ template <class T, typename T_PTR>
 class LLOctreeTravelerDepthFirst : public LLOctreeTraveler<T, T_PTR>
 {
 public:
-    virtual void traverse(const LLOctreeNode<T, T_PTR>* node) override;
+    void traverse(const LLOctreeNode<T, T_PTR>* node) override;
 };
 
 template <class T, typename T_PTR>

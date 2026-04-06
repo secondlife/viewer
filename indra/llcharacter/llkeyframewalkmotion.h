@@ -48,7 +48,7 @@ public:
     LLKeyframeWalkMotion(const LLUUID &id);
 
     // Destructor
-    virtual ~LLKeyframeWalkMotion();
+    ~LLKeyframeWalkMotion() override;
 
 public:
     //-------------------------------------------------------------------------
@@ -63,10 +63,10 @@ public:
     //-------------------------------------------------------------------------
     // animation callbacks to be implemented by subclasses
     //-------------------------------------------------------------------------
-    virtual LLMotionInitStatus onInitialize(LLCharacter *character);
-    virtual bool onActivate();
-    virtual void onDeactivate();
-    virtual bool onUpdate(F32 time, U8* joint_mask);
+    LLMotionInitStatus onInitialize(LLCharacter *character) override;
+    bool onActivate() override;
+    void onDeactivate() override;
+    bool onUpdate(F32 time, U8* joint_mask) override;
 
 public:
     //-------------------------------------------------------------------------
@@ -98,17 +98,17 @@ public:
     //-------------------------------------------------------------------------
     // animation callbacks to be implemented by subclasses
     //-------------------------------------------------------------------------
-    virtual LLMotionInitStatus onInitialize(LLCharacter *character);
-    virtual bool onActivate();
-    virtual void onDeactivate();
-    virtual bool onUpdate(F32 time, U8* joint_mask);
-    virtual LLJoint::JointPriority getPriority(){return LLJoint::HIGH_PRIORITY;}
-    virtual bool getLoop() { return true; }
-    virtual F32 getDuration() { return 0.f; }
-    virtual F32 getEaseInDuration() { return 0.f; }
-    virtual F32 getEaseOutDuration() { return 0.f; }
-    virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_WALK_ADJUST; }
-    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::ADDITIVE_BLEND; }
+    LLMotionInitStatus onInitialize(LLCharacter *character) override;
+    bool onActivate() override;
+    void onDeactivate() override;
+    bool onUpdate(F32 time, U8* joint_mask) override;
+    LLJoint::JointPriority getPriority() override {return LLJoint::HIGH_PRIORITY;}
+    bool getLoop() override { return true; }
+    F32 getDuration() override { return 0.f; }
+    F32 getEaseInDuration() override { return 0.f; }
+    F32 getEaseOutDuration() override { return 0.f; }
+    F32 getMinPixelArea() override { return MIN_REQUIRED_PIXEL_AREA_WALK_ADJUST; }
+    LLMotionBlendType getBlendType() override { return LLMotionBlendType::ADDITIVE_BLEND; }
 
 public:
     //-------------------------------------------------------------------------
@@ -148,17 +148,17 @@ public:
     //-------------------------------------------------------------------------
     // animation callbacks to be implemented by subclasses
     //-------------------------------------------------------------------------
-    virtual LLMotionInitStatus onInitialize(LLCharacter *character);
-    virtual bool onActivate();
-    virtual void onDeactivate() {};
-    virtual bool onUpdate(F32 time, U8* joint_mask);
-    virtual LLJoint::JointPriority getPriority(){return LLJoint::HIGHER_PRIORITY;}
-    virtual bool getLoop() { return true; }
-    virtual F32 getDuration() { return 0.f; }
-    virtual F32 getEaseInDuration() { return 0.f; }
-    virtual F32 getEaseOutDuration() { return 0.f; }
-    virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_FLY_ADJUST; }
-    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::ADDITIVE_BLEND; }
+    LLMotionInitStatus onInitialize(LLCharacter *character) override;
+    bool onActivate() override;
+    void onDeactivate() override {};
+    bool onUpdate(F32 time, U8* joint_mask) override;
+    LLJoint::JointPriority getPriority() override {return LLJoint::HIGHER_PRIORITY;}
+    bool getLoop() override { return true; }
+    F32 getDuration() override { return 0.f; }
+    F32 getEaseInDuration() override { return 0.f; }
+    F32 getEaseOutDuration() override { return 0.f; }
+    F32 getMinPixelArea() override { return MIN_REQUIRED_PIXEL_AREA_FLY_ADJUST; }
+    LLMotionBlendType getBlendType() override { return LLMotionBlendType::ADDITIVE_BLEND; }
 
 protected:
     //-------------------------------------------------------------------------

@@ -68,9 +68,9 @@ class alignas(16) LLPolySkeletalDistortionInfo : public LLViewerVisualParamInfo
 public:
 
     LLPolySkeletalDistortionInfo();
-    /*virtual*/ ~LLPolySkeletalDistortionInfo() = default;
+    ~LLPolySkeletalDistortionInfo() override = default;
 
-    /*virtual*/ bool parseXml(LLXmlTreeNode* node);
+    bool parseXml(LLXmlTreeNode* node) override;
 
 protected:
     using bone_info_list_t = std::vector<LLPolySkeletalBoneInfo>;
@@ -93,19 +93,19 @@ public:
     //   This sets mInfo and calls initialization functions
     bool                            setInfo(LLPolySkeletalDistortionInfo *info);
 
-    /*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
+    LLViewerVisualParam* cloneParam(LLWearable* wearable) const override;
 
     // LLVisualParam Virtual functions
     ///*virtual*/ bool              parseData(LLXmlTreeNode* node);
-    /*virtual*/ void                apply( ESex sex );
+    void                apply( ESex sex ) override;
 
     // LLViewerVisualParam Virtual functions
-    /*virtual*/ F32                 getTotalDistortion() { return 0.1f; }
-    /*virtual*/ const LLVector4a&   getAvgDistortion()  { return mDefaultVec; }
-    /*virtual*/ F32                 getMaxDistortion() { return 0.1f; }
-    /*virtual*/ LLVector4a          getVertexDistortion(S32 index, LLPolyMesh *poly_mesh){return LLVector4a(0.001f, 0.001f, 0.001f);}
-    /*virtual*/ const LLVector4a*   getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh){index = 0; poly_mesh = NULL; return &mDefaultVec;};
-    /*virtual*/ const LLVector4a*   getNextDistortion(U32 *index, LLPolyMesh **poly_mesh){index = 0; poly_mesh = NULL; return NULL;};
+    F32                 getTotalDistortion() override { return 0.1f; }
+    const LLVector4a&   getAvgDistortion() override  { return mDefaultVec; }
+    F32                 getMaxDistortion() override { return 0.1f; }
+    LLVector4a          getVertexDistortion(S32 index, LLPolyMesh *poly_mesh) override {return LLVector4a(0.001f, 0.001f, 0.001f);}
+    const LLVector4a*   getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh) override {index = 0; poly_mesh = NULL; return &mDefaultVec;};
+    const LLVector4a*   getNextDistortion(U32 *index, LLPolyMesh **poly_mesh) override {index = 0; poly_mesh = NULL; return NULL;};
 
 protected:
     LLPolySkeletalDistortion(const LLPolySkeletalDistortion& pOther);

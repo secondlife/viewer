@@ -51,7 +51,7 @@ public:
     LLEditingMotion(const LLUUID &id);
 
     // Destructor
-    virtual ~LLEditingMotion();
+    ~LLEditingMotion() override;
 
 public:
     //-------------------------------------------------------------------------
@@ -68,42 +68,42 @@ public:
     //-------------------------------------------------------------------------
 
     // motions must specify whether or not they loop
-    virtual bool getLoop() { return true; }
+    bool getLoop() override { return true; }
 
     // motions must report their total duration
-    virtual F32 getDuration() { return 0.0; }
+    F32 getDuration() override { return 0.0; }
 
     // motions must report their "ease in" duration
-    virtual F32 getEaseInDuration() { return EDITING_EASEIN_DURATION; }
+    F32 getEaseInDuration() override { return EDITING_EASEIN_DURATION; }
 
     // motions must report their "ease out" duration.
-    virtual F32 getEaseOutDuration() { return EDITING_EASEOUT_DURATION; }
+    F32 getEaseOutDuration() override { return EDITING_EASEOUT_DURATION; }
 
     // motions must report their priority
-    virtual LLJoint::JointPriority getPriority() { return EDITING_PRIORITY; }
+    LLJoint::JointPriority getPriority() override { return EDITING_PRIORITY; }
 
-    virtual LLMotionBlendType getBlendType() { return LLMotionBlendType::NORMAL_BLEND; }
+    LLMotionBlendType getBlendType() override { return LLMotionBlendType::NORMAL_BLEND; }
 
     // called to determine when a motion should be activated/deactivated based on avatar pixel coverage
-    virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_EDITING; }
+    F32 getMinPixelArea() override { return MIN_REQUIRED_PIXEL_AREA_EDITING; }
 
     // run-time (post constructor) initialization,
     // called after parameters have been set
     // must return true to indicate success and be available for activation
-    virtual LLMotionInitStatus onInitialize(LLCharacter *character);
+    LLMotionInitStatus onInitialize(LLCharacter *character) override;
 
     // called when a motion is activated
     // must return true to indicate success, or else
     // it will be deactivated
-    virtual bool onActivate();
+    bool onActivate() override;
 
     // called per time step
     // must return true while it is active, and
     // must return false when the motion is completed.
-    virtual bool onUpdate(F32 time, U8* joint_mask);
+    bool onUpdate(F32 time, U8* joint_mask) override;
 
     // called when a motion is deactivated
-    virtual void onDeactivate();
+    void onDeactivate() override;
 
 public:
     //-------------------------------------------------------------------------

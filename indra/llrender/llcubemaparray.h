@@ -70,7 +70,7 @@ public:
 
 protected:
     friend class LLTexUnit;
-    ~LLCubeMapArray();
+    ~LLCubeMapArray() override;
     LLPointer<LLImageGL> mImage;
     U32 mWidth = 0;
     U32 mCount = 0;

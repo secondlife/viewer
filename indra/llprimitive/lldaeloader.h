@@ -60,9 +60,9 @@ public:
         U32                                              modelLimit,
         U32                                              debugMode,
         bool                                             preprocess);
-    virtual ~LLDAELoader() ;
+    ~LLDAELoader() override;
 
-    virtual bool OpenFile(const std::string& filename);
+    bool OpenFile(const std::string& filename) override;
 
 protected:
 

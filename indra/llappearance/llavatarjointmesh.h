@@ -89,7 +89,7 @@ public:
     LLAvatarJointMesh();
 
     // Destructor
-    virtual ~LLAvatarJointMesh();
+    ~LLAvatarJointMesh() override;
 
     // Gets the shape color
     void getColor( F32 *red, F32 *green, F32 *blue, F32 *alpha );

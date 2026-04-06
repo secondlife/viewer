@@ -201,7 +201,7 @@ bool LLDriverParam::setInfo(LLDriverParamInfo *info)
     return true;
 }
 
-/*virtual*/ LLViewerVisualParam* LLDriverParam::cloneParam(LLWearable* wearable) const
+LLViewerVisualParam* LLDriverParam::cloneParam(LLWearable* wearable) const
 {
     llassert(wearable);
     return new LLDriverParam(*this);
@@ -465,7 +465,6 @@ void LLDriverParam::stopAnimating()
     }
 }
 
-/*virtual*/
 bool LLDriverParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross_params)
 {
     bool success = true;

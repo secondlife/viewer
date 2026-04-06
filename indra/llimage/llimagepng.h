@@ -31,14 +31,14 @@
 class LLImagePNG : public LLImageFormatted
 {
 protected:
-    ~LLImagePNG();
+    ~LLImagePNG() override;
 
 public:
     LLImagePNG();
 
-    /*virtual*/ std::string getExtension() { return std::string("png"); }
-    /*virtual*/ bool updateData();
-    /*virtual*/ bool decode(LLImageRaw* raw_image, F32 decode_time);
-    /*virtual*/ bool encode(const LLImageRaw* raw_image, F32 encode_time);
+    std::string getExtension() override { return std::string("png"); }
+    bool updateData() override;
+    bool decode(LLImageRaw* raw_image, F32 decode_time) override;
+    bool encode(const LLImageRaw* raw_image, F32 encode_time) override;
 };
 

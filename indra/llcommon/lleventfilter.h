@@ -71,7 +71,7 @@ public:
     LLEventMatching(LLEventPump& source, const LLSD& pattern);
 
     /// Only pass through events matching the pattern
-    virtual bool post(const LLSD& event);
+    bool post(const LLSD& event) override;
 
 private:
     LLSD mPattern;
@@ -176,7 +176,7 @@ public:
     void eventAfter(F32 seconds, const LLSD& event);
 
     /// Pass event through, canceling the countdown timer
-    virtual bool post(const LLSD& event);
+    bool post(const LLSD& event) override;
 
     /// Cancel timer without event
     void cancel();
@@ -228,8 +228,8 @@ public:
     static LLEventTimer* post_after(F32 interval, const std::string& pump, const LLSD& data);
 
 protected:
-    virtual void setCountdown(F32 seconds);
-    virtual bool countdownElapsed() const;
+    void setCountdown(F32 seconds) override;
+    bool countdownElapsed() const override;
 
 private:
     LLTimer mTimer;
@@ -252,7 +252,7 @@ public:
     void flush();
 
     // accumulate an event and flush() when big enough
-    virtual bool post(const LLSD& event);
+    bool post(const LLSD& event) override;
 
     // query or reset batch size
     std::size_t getSize() const { return mBatchSize; }
@@ -312,7 +312,7 @@ public:
     LLSD pending() const;
 
     // register an event, may be either passed through or deferred
-    virtual bool post(const LLSD& event);
+    bool post(const LLSD& event) override;
 
     // query or reset interval
     F32 getInterval() const { return mInterval; }
@@ -353,11 +353,11 @@ public:
     LLEventThrottle(LLEventPump& source, F32 interval);
 
 private:
-    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) /*override*/;
-    virtual bool alarmRunning() const /*override*/;
-    virtual void alarmCancel() /*override*/;
-    virtual void timerSet(F32 interval) /*override*/;
-    virtual F32  timerGetRemaining() const /*override*/;
+    void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) override;
+    bool alarmRunning() const override;
+    void alarmCancel() override;
+    void timerSet(F32 interval) override;
+    F32  timerGetRemaining() const override;
 
     // use this to arrange a deferred flush() call
     LLEventTimeout mAlarm;
@@ -383,7 +383,7 @@ public:
     LLEventBatchThrottle(LLEventPump& source, F32 interval, std::size_t size = 0);
 
     // append a new event to current batch
-    virtual bool post(const LLSD& event);
+    bool post(const LLSD& event) override;
 
     // query or reset batch size
     std::size_t getSize() const { return mBatchSize; }
@@ -427,7 +427,7 @@ public:
 
     // Calling post() with an LLSD event extracts the element indicated by
     // path, then stores it to mTarget.
-    virtual bool post(const LLSD& event)
+    bool post(const LLSD& event) override
     {
         LL_PROFILE_ZONE_SCOPED;
 
@@ -525,7 +525,7 @@ public:
                                 const NameList& after, const NameList& before);
 
     /// Post an event to all listeners
-    virtual bool post(const LLSD& event) /* override */;
+    bool post(const LLSD& event) override;
 
 private:
     /// This method intercepts each call to any target listener. We pass it

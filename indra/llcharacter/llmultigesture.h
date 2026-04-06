@@ -151,17 +151,17 @@ class LLGestureStepAnimation : public LLGestureStep
 {
 public:
     LLGestureStepAnimation();
-    virtual ~LLGestureStepAnimation();
+    ~LLGestureStepAnimation() override;
 
-    virtual EStepType getType() { return STEP_ANIMATION; }
+    EStepType getType() override { return STEP_ANIMATION; }
 
-    virtual std::vector<std::string> getLabel() const;
+    std::vector<std::string> getLabel() const override;
 
-    virtual S32 getMaxSerialSize() const;
-    virtual bool serialize(LLDataPacker& dp) const;
-    virtual bool deserialize(LLDataPacker& dp);
+    S32 getMaxSerialSize() const override;
+    bool serialize(LLDataPacker& dp) const override;
+    bool deserialize(LLDataPacker& dp) override;
 
-    virtual void dump();
+    void dump() override;
 
 public:
     std::string mAnimName;
@@ -174,17 +174,17 @@ class LLGestureStepSound : public LLGestureStep
 {
 public:
     LLGestureStepSound();
-    virtual ~LLGestureStepSound();
+    ~LLGestureStepSound() override;
 
-    virtual EStepType getType() { return STEP_SOUND; }
+    EStepType getType() override { return STEP_SOUND; }
 
-    virtual std::vector<std::string> getLabel() const;
+    std::vector<std::string> getLabel() const override;
 
-    virtual S32 getMaxSerialSize() const;
-    virtual bool serialize(LLDataPacker& dp) const;
-    virtual bool deserialize(LLDataPacker& dp);
+    S32 getMaxSerialSize() const override;
+    bool serialize(LLDataPacker& dp) const override;
+    bool deserialize(LLDataPacker& dp) override;
 
-    virtual void dump();
+    void dump() override;
 
 public:
     std::string mSoundName;
@@ -197,17 +197,17 @@ class LLGestureStepChat : public LLGestureStep
 {
 public:
     LLGestureStepChat();
-    virtual ~LLGestureStepChat();
+    ~LLGestureStepChat() override;
 
-    virtual EStepType getType() { return STEP_CHAT; }
+    EStepType getType() override { return STEP_CHAT; }
 
-    virtual std::vector<std::string> getLabel() const;
+    std::vector<std::string> getLabel() const override;
 
-    virtual S32 getMaxSerialSize() const;
-    virtual bool serialize(LLDataPacker& dp) const;
-    virtual bool deserialize(LLDataPacker& dp);
+    S32 getMaxSerialSize() const override;
+    bool serialize(LLDataPacker& dp) const override;
+    bool deserialize(LLDataPacker& dp) override;
 
-    virtual void dump();
+    void dump() override;
 
 public:
     std::string mChatText;
@@ -223,17 +223,17 @@ class LLGestureStepWait : public LLGestureStep
 {
 public:
     LLGestureStepWait();
-    virtual ~LLGestureStepWait();
+    ~LLGestureStepWait() override;
 
-    virtual EStepType getType() { return STEP_WAIT; }
+    EStepType getType() override { return STEP_WAIT; }
 
-    virtual std::vector<std::string> getLabel() const;
+    std::vector<std::string> getLabel() const override;
 
-    virtual S32 getMaxSerialSize() const;
-    virtual bool serialize(LLDataPacker& dp) const;
-    virtual bool deserialize(LLDataPacker& dp);
+    S32 getMaxSerialSize() const override;
+    bool serialize(LLDataPacker& dp) const override;
+    bool deserialize(LLDataPacker& dp) override;
 
-    virtual void dump();
+    void dump() override;
 
 public:
     F32 mWaitSeconds;

@@ -1290,7 +1290,7 @@ namespace LLInitParam
         }
 
         // propagate changed status up to enclosing block
-        /*virtual*/ void paramChanged(const Param& changed_param, bool user_provided)
+        void paramChanged(const Param& changed_param, bool user_provided)
         {
             param_value_t::paramChanged(changed_param, user_provided);
 
@@ -1873,7 +1873,7 @@ namespace LLInitParam
         }
 
         // clear out old choice when param has changed
-        /*virtual*/ void paramChanged(const Param& changed_param, bool user_provided)
+        void paramChanged(const Param& changed_param, bool user_provided) override
         {
             param_handle_t changed_param_handle = base_block_t::getHandleFromParam(&changed_param);
             // if we have a new choice...
@@ -2758,7 +2758,7 @@ namespace LLInitParam
         }
 
         // propagate change status up to enclosing block
-        /*virtual*/ void paramChanged(const Param& changed_param, bool user_provided)
+        void paramChanged(const Param& changed_param, bool user_provided) override
         {
             BaseBlock::paramChanged(changed_param, user_provided);
             if (user_provided)

@@ -103,9 +103,9 @@ class LL_COMMON_API LLVolatileAPRPool : public LLAPRPool
 {
 public:
     LLVolatileAPRPool(bool is_local = true, apr_pool_t *parent = NULL, apr_size_t size = 0, bool releasePoolFlag = true);
-    virtual ~LLVolatileAPRPool();
+    ~LLVolatileAPRPool() override;
 
-    /*virtual*/ apr_pool_t* getAPRPool() ; //define this virtual function to avoid any mistakenly calling LLAPRPool::getAPRPool().
+    apr_pool_t* getAPRPool() override; //define this virtual function to avoid any mistakenly calling LLAPRPool::getAPRPool().
     apr_pool_t* getVolatileAPRPool() ;
     void        clearVolatileAPRPool() ;
 

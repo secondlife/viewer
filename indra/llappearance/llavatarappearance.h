@@ -90,14 +90,14 @@ public:
     // LLCharacter interface and related
     //--------------------------------------------------------------------
 public:
-    /*virtual*/ LLJoint*        getCharacterJoint(U32 num);
+    LLJoint*        getCharacterJoint(U32 num) override;
 
-    /*virtual*/ const char*     getAnimationPrefix() { return "avatar"; }
-    /*virtual*/ LLVector3       getVolumePos(S32 joint_index, LLVector3& volume_offset);
-    /*virtual*/ LLJoint*        findCollisionVolume(S32 volume_id);
-    /*virtual*/ S32             getCollisionVolumeID(std::string &name);
-    /*virtual*/ LLPolyMesh*     getHeadMesh();
-    /*virtual*/ LLPolyMesh*     getUpperBodyMesh();
+    const char*     getAnimationPrefix() override { return "avatar"; }
+    LLVector3       getVolumePos(S32 joint_index, LLVector3& volume_offset) override;
+    LLJoint*        findCollisionVolume(S32 volume_id) override;
+    S32             getCollisionVolumeID(std::string &name) override;
+    LLPolyMesh*     getHeadMesh() override;
+    LLPolyMesh*     getUpperBodyMesh() override;
 
 /**                    Inherited
  **                                                                            **
@@ -134,7 +134,7 @@ protected:
 
 public:
     F32                 getPelvisToFoot() const { return mPelvisToFoot; }
-    /*virtual*/ LLJoint*    getRootJoint() { return mRoot; }
+    LLJoint*    getRootJoint() override { return mRoot; }
 
     LLVector3           mHeadOffset{}; // current head position
     LLAvatarJoint*      mRoot{ nullptr };

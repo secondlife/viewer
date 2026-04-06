@@ -39,24 +39,24 @@ class LLImageCompressionTester ;
 class LLImageJ2C : public LLImageFormatted
 {
 protected:
-    virtual ~LLImageJ2C();
+    ~LLImageJ2C() override;
 
 public:
     LLImageJ2C();
 
     // Base class overrides
-    /*virtual*/ std::string getExtension() { return std::string("j2c"); }
-    /*virtual*/ bool updateData();
-    /*virtual*/ bool decode(LLImageRaw *raw_imagep, F32 decode_time);
-    /*virtual*/ bool decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count);
-    /*virtual*/ bool encode(const LLImageRaw *raw_imagep, F32 encode_time);
-    /*virtual*/ S32 calcHeaderSize();
-    /*virtual*/ S32 calcDataSize(S32 discard_level = 0);
-    /*virtual*/ S32 calcDiscardLevelBytes(S32 bytes);
-    /*virtual*/ S8  getRawDiscardLevel();
+    std::string getExtension() override { return std::string("j2c"); }
+    bool updateData() override;
+    bool decode(LLImageRaw *raw_imagep, F32 decode_time) override;
+    bool decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count) override;
+    bool encode(const LLImageRaw *raw_imagep, F32 encode_time) override;
+    S32 calcHeaderSize() override;
+    S32 calcDataSize(S32 discard_level = 0) override;
+    S32 calcDiscardLevelBytes(S32 bytes) override;
+    S8  getRawDiscardLevel() override;
     // Override these so that we don't try to set a global variable from a DLL
-    /*virtual*/ void resetLastError();
-    /*virtual*/ void setLastError(const std::string& message, const std::string& filename = std::string());
+    void resetLastError() override;
+    void setLastError(const std::string& message, const std::string& filename = std::string()) override;
 
     bool initDecode(LLImageRaw &raw_image, int discard_level, int* region);
     bool initEncode(LLImageRaw &raw_image, int blocks_size, int precincts_size, int levels);
@@ -146,7 +146,7 @@ class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
         void updateCompressionStats(const S32 bytesIn, const S32 bytesOut) ;
 
     protected:
-        /*virtual*/ void outputTestRecord(LLSD* sd);
+        void outputTestRecord(LLSD* sd) override;
 
     private:
         //

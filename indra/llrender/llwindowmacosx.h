@@ -156,7 +156,7 @@ protected:
         bool fullscreen, bool clearBg, bool enable_vsync, bool use_gl,
         bool ignore_pixel_depth,
         U32 fsaa_samples);
-        ~LLWindowMacOSX();
+        ~LLWindowMacOSX() override;
 
     void    initCursors();
     bool    isValid() override;
@@ -245,11 +245,11 @@ class LLSplashScreenMacOSX : public LLSplashScreen
 {
 public:
     LLSplashScreenMacOSX();
-    virtual ~LLSplashScreenMacOSX();
+    ~LLSplashScreenMacOSX() override;
 
-    void showImpl();
-    void updateImpl(const std::string& mesg);
-    void hideImpl();
+    void showImpl() override;
+    void updateImpl(const std::string& mesg) override;
+    void hideImpl() override;
 
 private:
     WindowRef   mWindow;
