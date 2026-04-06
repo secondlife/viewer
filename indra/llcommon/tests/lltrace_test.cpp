@@ -33,7 +33,7 @@
 #include "../test/lltut.h"
 
 #ifdef LL_WINDOWS
-#pragma warning(disable : 4244) // possible loss of data on conversions
+#pragma warning(disable : 4244) // unavoidable narrowing in template unit conversion arithmetic
 #endif
 
 namespace LLUnits
