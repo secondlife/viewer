@@ -49,6 +49,7 @@
 #include <sstream>
 
 #include <boost/tokenizer.hpp>
+#include <utility>
 
 static const char HTTP_VERSION_STR[] = "HTTP/1.0";
 
@@ -510,7 +511,7 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 class LLHTTPResponder : public LLIOPipe
 {
 public:
-    LLHTTPResponder(const LLHTTPNode& tree, const LLSD& ctx);
+    LLHTTPResponder(const LLHTTPNode& tree, LLSD  ctx);
     ~LLHTTPResponder();
 
 protected:
@@ -586,8 +587,8 @@ protected:
     const LLHTTPNode& mRootNode;
 };
 
-LLHTTPResponder::LLHTTPResponder(const LLHTTPNode& tree, const LLSD& ctx) :
-    mBuildContext(ctx),
+LLHTTPResponder::LLHTTPResponder(const LLHTTPNode& tree, LLSD  ctx) :
+    mBuildContext(std::move(ctx)),
     
     mRootNode(tree)
 {

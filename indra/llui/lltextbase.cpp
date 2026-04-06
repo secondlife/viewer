@@ -46,6 +46,7 @@
 #include "llview.h"
 #include "llwindow.h"
 #include <functional>
+#include <utility>
 
 
 const F32   CURSOR_FLASH_DELAY = 1.0f;  // in seconds
@@ -3534,7 +3535,7 @@ bool LLTextSegment::hasMouseCapture() { return false; }
 
 LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor )
 :   LLTextSegment(start, end),
-    mStyle( style ),
+    mStyle(std::move( style )),
     mToken(NULL),
     mEditor(editor)
     
@@ -4023,7 +4024,7 @@ bool LLEmojiTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
 
 LLOnHoverChangeableTextSegment::LLOnHoverChangeableTextSegment( LLStyleConstSP style, LLStyleConstSP normal_style, S32 start, S32 end, LLTextBase& editor ):
       LLNormalTextSegment(normal_style, start, end, editor),
-      mHoveredStyle(style),
+      mHoveredStyle(std::move(style)),
       mNormalStyle(normal_style){}
 
 // virtual
@@ -4189,7 +4190,7 @@ F32 LLLineBreakTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 se
 
 LLImageTextSegment::LLImageTextSegment(LLStyleConstSP style,S32 pos,class LLTextBase& editor)
 :   LLTextSegment(pos,pos+1),
-    mStyle( style ),
+    mStyle(std::move( style )),
     mEditor(editor)
 {
 }

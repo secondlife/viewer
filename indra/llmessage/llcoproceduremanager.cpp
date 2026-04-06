@@ -38,6 +38,7 @@
 #include "llexception.h"
 #include "stringize.h"
 #include <functional>
+#include <utility>
 
 //=========================================================================
 // Map of pool sizes for known pools
@@ -102,10 +103,10 @@ private:
     {
         using ptr_t = std::shared_ptr<QueuedCoproc>;
 
-        QueuedCoproc(const std::string &name, const LLUUID &id, CoProcedure_t proc) :
-            mName(name),
+        QueuedCoproc(std::string name, const LLUUID &id, CoProcedure_t proc) :
+            mName(std::move(name)),
             mId(id),
-            mProc(proc)
+            mProc(std::move(proc))
         {}
 
         std::string mName;

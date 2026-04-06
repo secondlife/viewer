@@ -29,6 +29,8 @@
 
 #include "llconsole.h"
 
+#include <utility>
+
 // linden library includes
 #include "llmath.h"
 #include "llcriticaldamp.h"
@@ -359,7 +361,7 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
 
 //Pass in the string and the default color for this block of text.
 LLConsole::Paragraph::Paragraph (LLWString str, const LLColor4 &color, F32 add_time, const LLFontGL* font, F32 screen_width)
-:   mParagraphText(str), mAddTime(add_time), mMaxWidth(-1)
+:   mParagraphText(std::move(str)), mAddTime(add_time), mMaxWidth(-1)
 {
     makeParagraphColorSegments(color);
     updateLines( screen_width, font );

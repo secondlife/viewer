@@ -57,7 +57,7 @@ public:
     LLInventoryObject(const LLUUID& uuid,
                       const LLUUID& parent_uuid,
                       LLAssetType::EType type,
-                      const std::string& name);
+                      std::string  name);
     void copyObject(const LLInventoryObject* other); // LLRefCount requires custom copy
 protected:
     virtual ~LLInventoryObject();
@@ -139,7 +139,7 @@ public:
                     LLAssetType::EType type,
                     LLInventoryType::EType inv_type,
                     const std::string& name,
-                    const std::string& desc,
+                    std::string  desc,
                     const LLSaleInfo& sale_info,
                     U32 flags,
                     S32 creation_date_utc);

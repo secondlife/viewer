@@ -43,6 +43,7 @@
 #include <stdexcept>
 #include <limits>
 #include <algorithm>
+#include <utility>
 #include <vector>
 #include <typeinfo>
 #include <utility>
@@ -142,8 +143,8 @@ class WritePipeImpl: public LLProcess::WritePipe
 {
     LOG_CLASS(WritePipeImpl);
 public:
-    WritePipeImpl(const std::string& desc, apr_file_t* pipe):
-        mDesc(desc),
+    WritePipeImpl(std::string  desc, apr_file_t* pipe):
+        mDesc(std::move(desc)),
         mPipe(pipe),
         // Essential to initialize our std::ostream with our special streambuf!
         mStream(&mStreambuf)
@@ -256,8 +257,8 @@ class ReadPipeImpl: public LLProcess::ReadPipe
 {
     LOG_CLASS(ReadPipeImpl);
 public:
-    ReadPipeImpl(const std::string& desc, apr_file_t* pipe, LLProcess::FILESLOT index):
-        mDesc(desc),
+    ReadPipeImpl(std::string  desc, apr_file_t* pipe, LLProcess::FILESLOT index):
+        mDesc(std::move(desc)),
         mPipe(pipe),
         mIndex(index),
         // Essential to initialize our std::istream with our special streambuf!

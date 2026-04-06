@@ -32,6 +32,8 @@
 #include "llsdutil.h"
 #include "lltreeiterators.h"
 #include "llmetricperformancetester.h"
+
+#include <utility>
 #include "llfasttimer.h"
 
 //----------------------------------------------------------------------------------------------
@@ -169,7 +171,7 @@ void LLMetricPerformanceTesterBasic::doAnalysisMetrics(std::string baseline, std
 //----------------------------------------------------------------------------------------------
 
 LLMetricPerformanceTesterBasic::LLMetricPerformanceTesterBasic(std::string name) :
-    mName(name),
+    mName(std::move(name)),
     mCount(0)
 {
     if (mName.empty())

@@ -70,8 +70,8 @@ public:
      * to invoke, and the LLSD key used by try_call(const LLSD&) and
      * operator()(const LLSD&) to extract arguments LLSD.
      */
-    LLEventDispatcher(const std::string& desc, const std::string& key,
-                      const std::string& argskey);
+    LLEventDispatcher(std::string  desc, std::string  key,
+                      std::string  argskey);
     virtual ~LLEventDispatcher();
 
     /// @name Register functions accepting(const LLSD&)
@@ -456,7 +456,7 @@ public:
 private:
     struct DispatchEntry
     {
-        DispatchEntry(LLEventDispatcher* parent, const std::string& desc);
+        DispatchEntry(LLEventDispatcher* parent, std::string  desc);
         virtual ~DispatchEntry() = default;// suppress MSVC warning, sigh
 
         // store a plain dumb back-pointer because the parent

@@ -32,9 +32,11 @@
 // Project includes
 #include "lluiimage.h"
 
-LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
-:   mName(name),
-    mImage(image),
+#include <utility>
+
+LLUIImage::LLUIImage(std::string  name, LLPointer<LLTexture> image)
+:   mName(std::move(name)),
+    mImage(std::move(image)),
     mScaleRegion(0.f, 1.f, 1.f, 0.f),
     mClipRegion(0.f, 1.f, 1.f, 0.f),
     mImageLoaded(NULL),

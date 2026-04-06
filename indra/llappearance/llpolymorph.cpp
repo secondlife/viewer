@@ -29,6 +29,8 @@
 //-----------------------------------------------------------------------------
 
 #include "llpolymorph.h"
+
+#include <utility>
 #include "llavatarappearance.h"
 #include "llavatarjoint.h"
 #include "llwearable.h"
@@ -44,8 +46,8 @@ const F32 NORMAL_SOFTEN_FACTOR = 0.65f;
 //-----------------------------------------------------------------------------
 // LLPolyMorphData()
 //-----------------------------------------------------------------------------
-LLPolyMorphData::LLPolyMorphData(const std::string& morph_name)
-    : mName(morph_name)
+LLPolyMorphData::LLPolyMorphData(std::string  morph_name)
+    : mName(std::move(morph_name))
 {
     mNumIndices = 0;
     mCurrentIndex = 0;

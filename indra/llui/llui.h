@@ -115,7 +115,7 @@ class LLUI : public LLSimpleton<LLUI>
 public:
     using settings_map_t = std::unordered_map<std::string, LLControlGroup*, ll::string_hash, std::equal_to<>>;
 
-    LLUI(const settings_map_t &settings,
+    LLUI(settings_map_t settings,
                            LLImageProviderInterface* image_provider,
                            LLUIAudioCallback audio_callback,
                            LLUIAudioCallback deferred_audio_callback);

@@ -29,6 +29,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <utility>
 
 #include "llcontrol.h"
 
@@ -146,11 +147,11 @@ bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b) const
     return result;
 }
 
-LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
-                             LLSD initial, const std::string& comment,
+LLControlVariable::LLControlVariable(std::string  name, eControlType type,
+                             LLSD initial, std::string  comment,
                              ePersist persist, bool hidefromsettingseditor)
-    : mName(name),
-      mComment(comment),
+    : mName(std::move(name)),
+      mComment(std::move(comment)),
       mType(type),
       mPersist(persist),
       mHideFromSettingsEditor(hidefromsettingseditor)

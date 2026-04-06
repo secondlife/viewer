@@ -31,7 +31,7 @@ public:
      * our constructor accept such a function.
      */
     using ConnectFunc = std::function<LLBoundListener(LLEventPump&, const std::string& listener)>;
-    explicit LLLeapListener(const ConnectFunc& connect);
+    explicit LLLeapListener(ConnectFunc  connect);
     ~LLLeapListener();
 
     static LLSD getFeatures();

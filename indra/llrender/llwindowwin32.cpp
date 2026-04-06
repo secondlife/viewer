@@ -4738,8 +4738,8 @@ inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
 class LogChange
 {
 public:
-    explicit LogChange(const std::string& tag):
-        mTag(tag)
+    explicit LogChange(std::string  tag):
+        mTag(std::move(tag))
     {}
 
     template <typename... Items>

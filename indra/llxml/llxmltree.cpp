@@ -27,6 +27,8 @@
 #include "linden_common.h"
 
 #include "llxmltree.h"
+
+#include <utility>
 #include "v3color.h"
 #include "v4color.h"
 #include "v4coloru.h"
@@ -99,8 +101,8 @@ void LLXmlTree::dumpNode( LLXmlTreeNode* node, const std::string& prefix )
 //////////////////////////////////////////////////////////////
 // LLXmlTreeNode
 
-LLXmlTreeNode::LLXmlTreeNode( const std::string& name, LLXmlTreeNode* parent, LLXmlTree* tree )
-    : mName(name),
+LLXmlTreeNode::LLXmlTreeNode( std::string  name, LLXmlTreeNode* parent, LLXmlTree* tree )
+    : mName(std::move(name)),
       mParent(parent),
       mTree(tree)
 {

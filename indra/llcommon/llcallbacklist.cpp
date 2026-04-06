@@ -25,6 +25,8 @@
  */
 
 #include "llcallbacklist.h"
+
+#include <utility>
 #include "lleventtimer.h"
 #include "llerrorlegacy.h"
 
@@ -113,7 +115,7 @@ class OnIdleCallbackOneTime
 {
 public:
     OnIdleCallbackOneTime(nullary_func_t callable):
-        mCallable(callable)
+        mCallable(std::move(callable))
     {
     }
     static void onIdle(void *data)
@@ -144,7 +146,7 @@ class OnIdleCallbackRepeating
 {
 public:
     OnIdleCallbackRepeating(bool_func_t callable):
-        mCallable(callable)
+        mCallable(std::move(callable))
     {
     }
     // Will keep getting called until the callable returns true.
@@ -177,7 +179,7 @@ class NullaryFuncEventTimer: public LLEventTimer
 public:
     NullaryFuncEventTimer(nullary_func_t callable, F32 seconds):
         LLEventTimer(seconds),
-        mCallable(callable)
+        mCallable(std::move(callable))
     {
     }
 
@@ -202,7 +204,7 @@ class BoolFuncEventTimer: public LLEventTimer
 public:
     BoolFuncEventTimer(bool_func_t callable, F32 seconds):
         LLEventTimer(seconds),
-        mCallable(callable)
+        mCallable(std::move(callable))
     {
     }
 private:

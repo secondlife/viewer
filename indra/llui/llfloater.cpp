@@ -61,6 +61,7 @@
 #include "lluiusage.h"
 #include <functional>
 #include <ranges>
+#include <utility>
 
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
@@ -243,14 +244,14 @@ void LLFloater::initClass()
 // defaults for floater param block pulled from widgets/floater.xml
 static LLWidgetNameRegistry::StaticRegistrar sRegisterFloaterParams(typeid(LLFloater::Params), "floater");
 
-LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
+LLFloater::LLFloater(LLSD  key, const LLFloater::Params& p)
 :     // intentionally do not pass params here, see initFromParams
     mDragHandle(NULL),
     mTitle(p.title),
     mShortTitle(p.short_title),
     mSingleInstance(p.single_instance),
     mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance), // reuse single-instance floaters by default
-    mKey(key),
+    mKey(std::move(key)),
     mCanTearOff(p.can_tear_off),
     mCanMinimize(p.can_minimize),
     mCanClose(p.can_close),

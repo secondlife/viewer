@@ -34,6 +34,7 @@
 #include "llmatrix4a.h"
 #include <functional>
 #include <boost/exception/diagnostic_information.hpp>
+#include <utility>
 
 std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
 
@@ -120,14 +121,14 @@ LLModelLoader::LLModelLoader(
 : mJointList( jointTransformMap )
 , mJointsFromNode( jointsFromNodes )
 , LLThread("Model Loader")
-, mFilename(filename)
+, mFilename(std::move(filename))
 , mLod(lod)
 , mTrySLM(false)
 , mFirstTransform(true)
-, mLoadCallback(load_cb)
-, mJointLookupFunc(joint_lookup_func)
-, mTextureLoadFunc(texture_load_func)
-, mStateCallback(state_cb)
+, mLoadCallback(std::move(load_cb))
+, mJointLookupFunc(std::move(joint_lookup_func))
+, mTextureLoadFunc(std::move(texture_load_func))
+, mStateCallback(std::move(state_cb))
 , mOpaqueData(opaque_userdata)
 , mRigValidJointUpload(true)
 , mLegacyRigFlags(0)

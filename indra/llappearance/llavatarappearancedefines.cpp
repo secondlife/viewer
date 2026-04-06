@@ -26,6 +26,8 @@
 
 #include "linden_common.h"
 #include "llavatarappearancedefines.h"
+
+#include <utility>
 #include "indra_constants.h"
 
 const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH = 2048;
@@ -200,14 +202,14 @@ void LLAvatarAppearanceDictionary::createAssociations()
 LLAvatarAppearanceDictionary::TextureEntry::TextureEntry(const std::string &name,
                                                  bool is_local_texture,
                                                  EBakedTextureIndex baked_texture_index,
-                                                 const std::string &default_image_name,
+                                                 std::string default_image_name,
                                                  LLWearableType::EType wearable_type) :
     LLDictionaryEntry(name),
     mIsLocalTexture(is_local_texture),
     mIsBakedTexture(!is_local_texture),
     mIsUsedByBakedTexture(baked_texture_index != BAKED_NUM_INDICES),
     mBakedTextureIndex(baked_texture_index),
-    mDefaultImageName(default_image_name),
+    mDefaultImageName(std::move(default_image_name)),
     mWearableType(wearable_type)
 {
 }

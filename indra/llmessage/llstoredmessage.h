@@ -36,7 +36,7 @@ class LLMessageSystem;
 class LLStoredMessage
 {
 public:
-    LLStoredMessage(const std::string& name, const LLSD& message);
+    LLStoredMessage(std::string  name, LLSD  message);
 private:
     friend class LLMessageSystem;
 

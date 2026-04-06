@@ -26,6 +26,7 @@
 
 #include "llwebrtc_impl.h"
 #include <algorithm>
+#include <utility>
 #include <string.h>
 
 #include "api/audio_codecs/audio_decoder_factory.h"
@@ -168,7 +169,7 @@ void LLWebRTCAudioTransport::PullRenderData(int      bits_per_sample,
     }
 }
 
-LLCustomProcessor::LLCustomProcessor(LLCustomProcessorStatePtr state) : mSampleRateHz(0), mNumChannels(0), mState(state)
+LLCustomProcessor::LLCustomProcessor(LLCustomProcessorStatePtr state) : mSampleRateHz(0), mNumChannels(0), mState(std::move(state))
 {
     memset(mSumVector, 0, sizeof(mSumVector));
 }

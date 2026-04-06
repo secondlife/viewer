@@ -24,12 +24,14 @@
  * $/LicenseInfo$
  */
 #include "llflashtimer.h"
+
+#include <utility>
 #include "lleventtimer.h"
 #include "llui.h"
 
 LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 :   LLEventTimer(period),
-    mCallback(cb),
+    mCallback(std::move(cb)),
     mCurrentTickCount(0),
     mIsFlashingInProgress(false),
     mIsCurrentlyHighlighted(false),

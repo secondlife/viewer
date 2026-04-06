@@ -40,6 +40,7 @@
 
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
+#include <utility>
 
 // Defend against a caller forcibly passing a negative number into an unsigned
 // size_t index param
@@ -429,7 +430,7 @@ namespace
         DataMap mData;
 
     protected:
-        ImplMap(const DataMap& data) : mData(data) { }
+        ImplMap(DataMap  data) : mData(std::move(data)) { }
 
     public:
         ImplMap() { }
@@ -632,7 +633,7 @@ namespace
         DataVector mData;
 
     protected:
-        ImplArray(const DataVector& data) : mData(data) { }
+        ImplArray(DataVector  data) : mData(std::move(data)) { }
 
     public:
         ImplArray() = default;

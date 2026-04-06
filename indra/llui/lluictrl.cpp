@@ -37,6 +37,7 @@
 #include "llaccordionctrltab.h"
 #include "lluiusage.h"
 #include <functional>
+#include <utility>
 
 
 static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
@@ -100,13 +101,13 @@ const LLUICtrl::Params& LLUICtrl::getDefaultParams()
 }
 
 
-LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
+LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, LLViewModelPtr  viewmodel)
 :   LLView(p),
     mIsChrome(false),
     mRequestsFront(p.requests_front),
     mTabStop(false),
     mTentative(false),
-    mViewModel(viewmodel),
+    mViewModel(std::move(viewmodel)),
     mControlVariable(NULL),
     mEnabledControlVariable(NULL),
     mDisabledControlVariable(NULL),

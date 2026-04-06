@@ -68,6 +68,7 @@
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 #include <functional>
+#include <utility>
 //
 // Globals
 //
@@ -145,11 +146,11 @@ void make_ui_sound_deferred(const char* namep)
     }
 }
 
-LLUI::LLUI(const settings_map_t& settings,
+LLUI::LLUI(settings_map_t  settings,
                  LLImageProviderInterface* image_provider,
                  LLUIAudioCallback audio_callback,
                  LLUIAudioCallback deferred_audio_callback)
-: mSettingGroups(settings),
+: mSettingGroups(std::move(settings)),
 mAudioCallback(audio_callback),
 mDeferredAudioCallback(deferred_audio_callback),
 mWindow(NULL), // set later in startup

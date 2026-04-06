@@ -161,7 +161,7 @@ public:
         TextureEntry(const std::string &name, // this must match the xml name used by LLTexLayerInfo::parseXml
                      bool is_local_texture,
                      EBakedTextureIndex baked_texture_index = BAKED_NUM_INDICES,
-                     const std::string& default_image_name = "",
+                     std::string  default_image_name = "",
                      LLWearableType::EType wearable_type = LLWearableType::WT_INVALID);
         const std::string   mDefaultImageName;
         const LLWearableType::EType mWearableType;

@@ -44,7 +44,7 @@ class alignas(16) LLPolyMorphData
 {
     LL_ALIGN_NEW
 public:
-    explicit LLPolyMorphData(const std::string& morph_name);
+    explicit LLPolyMorphData(std::string  morph_name);
     ~LLPolyMorphData();
     LLPolyMorphData(const LLPolyMorphData &rhs);
 

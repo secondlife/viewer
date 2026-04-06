@@ -40,6 +40,7 @@
 #include "lltexglobalcolor.h"
 #include "llwearabledata.h"
 #include <functional>
+#include <utility>
 #include "boost/tokenizer.hpp"
 #include "v4math.h"
 
@@ -2146,7 +2147,7 @@ bool LLAvatarAppearance::LLAvatarXmlInfo::parseXmlMorphNodes(LLXmlTreeNode* root
 LLAvatarAppearance::LLMaskedMorph::LLMaskedMorph(LLVisualParam *morph_target, bool invert, std::string layer) :
             mMorphTarget(morph_target),
             mInvert(invert),
-            mLayer(layer)
+            mLayer(std::move(layer))
 {
     LLPolyMorphTarget *target = dynamic_cast<LLPolyMorphTarget*>(morph_target);
     if (target)

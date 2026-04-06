@@ -41,6 +41,7 @@
 
 #include "message.h" // for getting the port
 #include <functional>
+#include <utility>
 
 
 
@@ -96,7 +97,7 @@ void logMessageFail(std::string logAuth, std::string url, std::string message)
 class HttpRequestPumper
 {
 public:
-    explicit HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request);
+    explicit HttpRequestPumper(LLCore::HttpRequest::ptr_t request);
     ~HttpRequestPumper();
 
 private:
@@ -691,8 +692,8 @@ LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &succes
 }
 
 //========================================================================
-HttpRequestPumper::HttpRequestPumper(const LLCore::HttpRequest::ptr_t &request) :
-    mHttpRequest(request)
+HttpRequestPumper::HttpRequestPumper(LLCore::HttpRequest::ptr_t request) :
+    mHttpRequest(std::move(request))
 {
     mBoundListener = LLEventPumps::instance().obtain("mainloop").
         listen(LLEventPump::ANONYMOUS, [this](const LLSD& event) { return pollRequest(event); });

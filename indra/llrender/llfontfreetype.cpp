@@ -39,6 +39,8 @@
 // For some reason, this won't work if it's not wrapped in the ifdef
 #ifdef FT_FREETYPE_H
 #include FT_FREETYPE_H
+
+#include <utility>
 #endif
 
 #include "lldir.h"
@@ -849,8 +851,8 @@ namespace ll
         class LoadedFont
         {
             public:
-            LoadedFont( std::string aName , std::string const &aAddress, std::size_t aSize )
-            : mAddress( aAddress )
+            LoadedFont( std::string aName , std::string aAddress, std::size_t aSize )
+            : mAddress(std::move( aAddress ))
             {
                 mName = aName;
                 mSize = aSize;

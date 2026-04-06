@@ -34,6 +34,7 @@
 // std headers
 // external library headers
 #include <functional>
+#include <utility>
 // other Linden headers
 #include "llerror.h"                // LL_ERRS
 #include "llsdutil.h"               // llsd_matches()
@@ -53,15 +54,15 @@ LLEventFilter::LLEventFilter(LLEventPump& source, const std::string& name, bool 
 /*****************************************************************************
 *   LLEventMatching
 *****************************************************************************/
-LLEventMatching::LLEventMatching(const LLSD& pattern):
+LLEventMatching::LLEventMatching(LLSD  pattern):
     LLEventFilter("matching"),
-    mPattern(pattern)
+    mPattern(std::move(pattern))
 {
 }
 
-LLEventMatching::LLEventMatching(LLEventPump& source, const LLSD& pattern):
+LLEventMatching::LLEventMatching(LLEventPump& source, LLSD  pattern):
     LLEventFilter(source, "matching"),
-    mPattern(pattern)
+    mPattern(std::move(pattern))
 {
 }
 
@@ -100,7 +101,7 @@ void LLEventTimeoutBase::actionAfter(F32 seconds, const Action& action)
 class ErrorAfter
 {
 public:
-    ErrorAfter(const std::string& message): mMessage(message) {}
+    ErrorAfter(std::string  message): mMessage(std::move(message)) {}
 
     void operator()()
     {
@@ -119,9 +120,9 @@ void LLEventTimeoutBase::errorAfter(F32 seconds, const std::string& message)
 class EventAfter
 {
 public:
-    EventAfter(LLEventPump& pump, const LLSD& event):
+    EventAfter(LLEventPump& pump, LLSD  event):
         mPump(pump),
-        mEvent(event)
+        mEvent(std::move(event))
     {}
 
     void operator()()

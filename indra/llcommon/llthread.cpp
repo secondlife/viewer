@@ -30,6 +30,8 @@
 
 #include "llapp.h"
 #include "llthread.h"
+
+#include <utility>
 #include "llmutex.h"
 
 #include "lltimer.h"
@@ -260,9 +262,9 @@ void LLThread::sehHandle()
 }
 #endif
 
-LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
+LLThread::LLThread(std::string  name, apr_pool_t *poolp) :
     mPaused(false),
-    mName(name),
+    mName(std::move(name)),
     mThreadp(NULL),
     mStatus(STOPPED),
     mRecorder(NULL)
