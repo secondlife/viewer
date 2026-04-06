@@ -50,7 +50,7 @@ public:
         mBufferSize = 0;
     }
 
-    U32 bitPack(U8 *total_data, U32 total_dsize)
+    U32 bitPack(const U8 *total_data, U32 total_dsize)
     {
         U32 dsize;
         U8 data;

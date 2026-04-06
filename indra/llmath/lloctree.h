@@ -147,6 +147,7 @@ public:
     }
 
     inline const BaseType* getParent()  const           { return mParent; }
+    inline BaseType* getParent()                        { return mParent; }
     inline void setParent(BaseType* parent)             { mParent = static_cast<oct_node*>(parent); }
     inline const LLVector4a& getCenter() const          { return mCenter; }
     inline const LLVector4a& getSize() const            { return mSize; }

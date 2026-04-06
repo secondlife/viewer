@@ -2387,7 +2387,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
             LLVector4a* tc_out = reinterpret_cast<LLVector4a*>(face.mTexCoords);
 
             {
-                U16* v = reinterpret_cast<U16*>(&(pos[0]));
+                const U16* v = reinterpret_cast<const U16*>(&(pos[0]));
                 for (U32 j = 0; j < num_verts; ++j)
                 {
                     pos_out->set(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]));
@@ -2403,7 +2403,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
             {
                 if (!norm.empty())
                 {
-                    U16* n = reinterpret_cast<U16*>(&(norm[0]));
+                    const U16* n = reinterpret_cast<const U16*>(&(norm[0]));
                     for (U32 j = 0; j < num_verts; ++j)
                     {
                         norm_out->set(static_cast<F32>(n[0]), static_cast<F32>(n[1]), static_cast<F32>(n[2]));
@@ -2427,7 +2427,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
             {
                 if (!tc.empty())
                 {
-                    U16* t = reinterpret_cast<U16*>(&(tc[0]));
+                    const U16* t = reinterpret_cast<const U16*>(&(tc[0]));
                     for (U32 j = 0; j < num_verts; j+=2)
                     {
                         if (j < num_verts-1)

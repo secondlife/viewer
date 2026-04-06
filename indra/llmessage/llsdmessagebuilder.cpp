@@ -286,61 +286,61 @@ void LLSDMessageBuilder::copyFromMessageData(const LLMsgData& data)
                 }
 
             case MVT_U8:
-                addU8(varname, *reinterpret_cast<U8*>(mvci.getData()));
+                addU8(varname, *reinterpret_cast<const U8*>(mvci.getData()));
                 break;
 
             case MVT_U16:
-                addU16(varname, *reinterpret_cast<U16*>(mvci.getData()));
+                addU16(varname, *reinterpret_cast<const U16*>(mvci.getData()));
                 break;
 
             case MVT_U32:
-                addU32(varname, *reinterpret_cast<U32*>(mvci.getData()));
+                addU32(varname, *reinterpret_cast<const U32*>(mvci.getData()));
                 break;
 
             case MVT_U64:
-                addU64(varname, *reinterpret_cast<U64*>(mvci.getData()));
+                addU64(varname, *reinterpret_cast<const U64*>(mvci.getData()));
                 break;
 
             case MVT_S8:
-                addS8(varname, *reinterpret_cast<S8*>(mvci.getData()));
+                addS8(varname, *reinterpret_cast<const S8*>(mvci.getData()));
                 break;
 
             case MVT_S16:
-                addS16(varname, *reinterpret_cast<S16*>(mvci.getData()));
+                addS16(varname, *reinterpret_cast<const S16*>(mvci.getData()));
                 break;
 
             case MVT_S32:
-                addS32(varname, *reinterpret_cast<S32*>(mvci.getData()));
+                addS32(varname, *reinterpret_cast<const S32*>(mvci.getData()));
                 break;
 
             // S64 not supported in LLSD so we just truncate it
             case MVT_S64:
-                addS32(varname, static_cast<S32>(*reinterpret_cast<S64*>(mvci.getData())));
+                addS32(varname, static_cast<S32>(*reinterpret_cast<const S64*>(mvci.getData())));
                 break;
 
             case MVT_F32:
-                addF32(varname, *reinterpret_cast<F32*>(mvci.getData()));
+                addF32(varname, *reinterpret_cast<const F32*>(mvci.getData()));
                 break;
 
             case MVT_F64:
-                addF64(varname, *reinterpret_cast<F64*>(mvci.getData()));
+                addF64(varname, *reinterpret_cast<const F64*>(mvci.getData()));
                 break;
 
             case MVT_LLVector3:
-                addVector3(varname, *reinterpret_cast<LLVector3*>(mvci.getData()));
+                addVector3(varname, *reinterpret_cast<const LLVector3*>(mvci.getData()));
                 break;
 
             case MVT_LLVector3d:
-                addVector3d(varname, *reinterpret_cast<LLVector3d*>(mvci.getData()));
+                addVector3d(varname, *reinterpret_cast<const LLVector3d*>(mvci.getData()));
                 break;
 
             case MVT_LLVector4:
-                addVector4(varname, *reinterpret_cast<LLVector4*>(mvci.getData()));
+                addVector4(varname, *reinterpret_cast<const LLVector4*>(mvci.getData()));
                 break;
 
             case MVT_LLQuaternion:
                 {
-                    LLVector3 v = *reinterpret_cast<LLVector3*>(mvci.getData());
+                    LLVector3 v = *reinterpret_cast<const LLVector3*>(mvci.getData());
                     LLQuaternion q;
                     q.unpackFromVector3(v);
                     addQuat(varname, q);
@@ -348,19 +348,19 @@ void LLSDMessageBuilder::copyFromMessageData(const LLMsgData& data)
                 }
 
             case MVT_LLUUID:
-                addUUID(varname, *reinterpret_cast<LLUUID*>(mvci.getData()));
+                addUUID(varname, *reinterpret_cast<const LLUUID*>(mvci.getData()));
                 break;
 
             case MVT_BOOL:
-                addBOOL(varname, *reinterpret_cast<bool*>(mvci.getData()));
+                addBOOL(varname, *reinterpret_cast<const bool*>(mvci.getData()));
                 break;
 
             case MVT_IP_ADDR:
-                addIPAddr(varname, *reinterpret_cast<U32*>(mvci.getData()));
+                addIPAddr(varname, *reinterpret_cast<const U32*>(mvci.getData()));
                 break;
 
             case MVT_IP_PORT:
-                addIPPort(varname, *reinterpret_cast<U16*>(mvci.getData()));
+                addIPPort(varname, *reinterpret_cast<const U16*>(mvci.getData()));
                 break;
 
             case MVT_U16Vec3:
