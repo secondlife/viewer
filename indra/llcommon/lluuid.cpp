@@ -731,7 +731,7 @@ void LLUUID::getCurrentTime(uuid_time_t* timestamp)
 
     uuid_time_t time_now = { 0,0 };
 
-    while (1) {
+    while (true) {
         getSystemTime(&time_now);
 
         // if clock reading changed since last UUID generated

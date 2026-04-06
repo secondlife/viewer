@@ -373,7 +373,7 @@ LLNameValue::LLNameValue(const char *data)
     S32 length = 0;
 
     // go to first non-whitespace character
-    while (1)
+    while (true)
     {
         if (  (*(data + character_count) == ' ')
             ||(*(data + character_count) == '\n')
@@ -397,7 +397,7 @@ LLNameValue::LLNameValue(const char *data)
     character_count += length;
 
     // go to the next non-whitespace character
-    while (1)
+    while (true)
     {
         if (  (*(data + character_count) == ' ')
             ||(*(data + character_count) == '\n')
@@ -421,7 +421,7 @@ LLNameValue::LLNameValue(const char *data)
     character_count += length;
 
     // go to the next non-whitespace character
-    while (1)
+    while (true)
     {
         if (  (*(data + character_count) == ' ')
             ||(*(data + character_count) == '\n')
@@ -457,7 +457,7 @@ LLNameValue::LLNameValue(const char *data)
         character_count += length;
 
         // go to the next non-whitespace character
-        while (1)
+        while (true)
         {
             if (  (*(data + character_count) == ' ')
                 ||(*(data + character_count) == '\n')
@@ -499,7 +499,7 @@ LLNameValue::LLNameValue(const char *data)
         character_count += length;
 
         // seek to next non-whitespace characer
-        while (1)
+        while (true)
         {
             if (  (*(data + character_count) == ' ')
                 ||(*(data + character_count) == '\n')

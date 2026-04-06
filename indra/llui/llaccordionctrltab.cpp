@@ -1129,7 +1129,7 @@ void LLAccordionCtrlTab::ctrlSetLeftTopAndSize(LLView* panel, S32 left, S32 top,
         return;
     LLRect panel_rect = panel->getRect();
     panel_rect.setLeftTopAndSize(left, top, width, height);
-    panel->reshape( width, height, 1);
+    panel->reshape( width, height, true);
     panel->setRect(panel_rect);
 }
 

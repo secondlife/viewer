@@ -283,7 +283,7 @@ bool LLPluginMessagePipe::pumpInput(F64 timeout)
             // and use the timeout so we'll sleep if no data is available.
             setSocketTimeout((apr_interval_time_t)(timeout * 1000000));
 
-            while(1)
+            while(true)
             {
                 size = request_size;
 

@@ -40,7 +40,7 @@ static F32 g3[B + B + 2][3];
 static F32 g2[B + B + 2][2];
 static F32 g1[B + B + 2];
 
-bool LLPerlinNoise::sInitialized = 0;
+bool LLPerlinNoise::sInitialized = false;
 
 static void normalize2(F32 v[2])
 {

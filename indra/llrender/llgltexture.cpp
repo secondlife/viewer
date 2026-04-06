@@ -252,7 +252,7 @@ bool LLGLTexture::setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     llassert(mGLTexturep.notNull()) ;
 
-    return mGLTexturep->setSubImage(imageraw, x_pos, y_pos, width, height, 0, use_name) ;
+    return mGLTexturep->setSubImage(imageraw, x_pos, y_pos, width, height, false, use_name) ;
 }
 
 bool LLGLTexture::setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name)
@@ -260,7 +260,7 @@ bool LLGLTexture::setSubImage(const U8* datap, S32 data_width, S32 data_height, 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     llassert(mGLTexturep.notNull()) ;
 
-    return mGLTexturep->setSubImage(datap, data_width, data_height, x_pos, y_pos, width, height, 0, use_name) ;
+    return mGLTexturep->setSubImage(datap, data_width, data_height, x_pos, y_pos, width, height, false, use_name) ;
 }
 
 void LLGLTexture::setGLTextureCreated (bool initialized)

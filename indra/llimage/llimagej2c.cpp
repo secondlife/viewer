@@ -331,7 +331,7 @@ S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
     {
         return MAX_DISCARD_LEVEL;
     }
-    while (1)
+    while (true)
     {
         S32 bytes_needed = calcDataSize(discard_level);
         // Use TextureReverseByteRange percent (see settings.xml) of the optimal size to qualify as correct rendering for the given discard level

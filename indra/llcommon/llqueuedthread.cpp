@@ -208,7 +208,7 @@ size_t LLQueuedThread::getPending()
 // MAIN thread
 void LLQueuedThread::waitOnPending()
 {
-    while(1)
+    while(true)
     {
         update(0);
 

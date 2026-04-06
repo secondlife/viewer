@@ -119,7 +119,7 @@ LLParcel::ECategory category_ui_string_to_category(const std::string& s);
 
 LLParcel::LLParcel()
 {
-    init(LLUUID::null, true, false, false, 0, 0, 0, 0, 0, 1.f, 0);
+    init(LLUUID::null, true, false, false, 0, 0, 0, 0, 0, 1.f, false);
 }
 
 

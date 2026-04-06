@@ -2346,7 +2346,7 @@ S32 LLImageFormatted::calcDiscardLevelBytes(S32 bytes)
 {
     llassert(bytes >= 0);
     S32 discard_level = 0;
-    while (1)
+    while (true)
     {
         S32 bytes_needed = calcDataSize(discard_level); // virtual
         if (bytes_needed <= bytes)

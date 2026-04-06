@@ -587,7 +587,7 @@ bool LLXMLNode::updateNode(
 
         LLXMLNodePtr attribNode;
 
-        node->getAttribute(attribNameEntry, attribNode, 0);
+        node->getAttribute(attribNameEntry, attribNode, false);
 
         if (attribNode)
         {
@@ -2038,7 +2038,7 @@ U32 LLXMLNode::getStringValue(U32 expected_length, std::string *array)
 
     std::string::size_type n = 0;
     std::string::size_type m = 0;
-    while(1)
+    while(true)
     {
         if (num_returned_strings >= expected_length)
         {
@@ -3189,14 +3189,14 @@ std::string LLXMLNode::getTextContents() const
     {
         // Case 1: node has quoted text
         S32 num_lines = 0;
-        while(1)
+        while(true)
         {
             // mContents[n] == '"'
             ++n;
             std::string::size_type t = n;
             std::string::size_type m = 0;
             // fix-up escaped characters
-            while(1)
+            while(true)
             {
                 m = contents.find_first_of("\\\"", t); // find first \ or "
                 if ((m == std::string::npos) || (contents[m] == '\"'))
