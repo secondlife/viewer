@@ -1,6 +1,11 @@
 /**
  * @file v2math.cpp
- * @brief LLVector2 class implementation.
+ * @brief Implementation of free function helpers for glm::vec2.
+ *
+ * This file used to define the LLVector2 class. After the LLVector2 →
+ * glm::vec2 migration completed, the LLVector2 class was deleted entirely
+ * and the file was repurposed to hold a small set of free function
+ * helpers that operate on glm::vec2. See v2math.h for the rationale.
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -27,96 +32,10 @@
 #include "linden_common.h"
 
 #include "v2math.h"
-#include "v3math.h"
-#include "v4math.h"
-#include "m4math.h"
-#include "m3math.h"
-#include "llquaternion.h"
 
 #include "glm/glm.hpp"
 
-// LLVector2
-
-LLVector2 LLVector2::zero(0,0);
-
-
-// Non-member functions
-
-// Sets all values to absolute value of their original values
-// Returns true if data changed
-bool LLVector2::abs()
-{
-    bool ret{ false };
-
-    if (mV[VX] < 0.f) { mV[VX] = -mV[VX]; ret = true; }
-    if (mV[VY] < 0.f) { mV[VY] = -mV[VY]; ret = true; }
-
-    return ret;
-}
-
-
-F32 angle_between(const LLVector2& a, const LLVector2& b)
-{
-    LLVector2 an = a;
-    LLVector2 bn = b;
-    an.normalize();
-    bn.normalize();
-    F32 cosine = an * bn;
-    F32 angle = (cosine >= 1.0f) ? 0.0f :
-                (cosine <= -1.0f) ? F_PI :
-                acos(cosine);
-    return angle;
-}
-
-F32 signed_angle_between(const LLVector2& a, const LLVector2& b)
-{
-    F32 angle = angle_between(a, b);
-    F32 rhombus_square = a[VX] * b[VY] - b[VX] * a[VY];
-    return rhombus_square < 0 ? -angle : angle;
-}
-
-bool are_parallel(const LLVector2& a, const LLVector2& b, F32 epsilon)
-{
-    LLVector2 an = a;
-    LLVector2 bn = b;
-    an.normalize();
-    bn.normalize();
-    F32 dot = an * bn;
-    return (1.0f - fabs(dot)) < epsilon;
-}
-
-
-F32 dist_vec(const LLVector2& a, const LLVector2& b)
-{
-    F32 x = a.mV[VX] - b.mV[VX];
-    F32 y = a.mV[VY] - b.mV[VY];
-    return static_cast<F32>(sqrt( x*x + y*y ));
-}
-
-F32 dist_vec_squared(const LLVector2& a, const LLVector2& b)
-{
-    F32 x = a.mV[VX] - b.mV[VX];
-    F32 y = a.mV[VY] - b.mV[VY];
-    return x*x + y*y;
-}
-
-F32 dist_vec_squared2D(const LLVector2& a, const LLVector2& b)
-{
-    F32 x = a.mV[VX] - b.mV[VX];
-    F32 y = a.mV[VY] - b.mV[VY];
-    return x*x + y*y;
-}
-
-LLVector2 lerp(const LLVector2& a, const LLVector2& b, F32 u)
-{
-    return {
-        a.mV[VX] + (b.mV[VX] - a.mV[VX]) * u,
-        a.mV[VY] + (b.mV[VY] - a.mV[VY]) * u };
-}
-
-// glm::vec2 overloads — transitional helpers for the LLVector2 → glm::vec2
-// migration. Mirror the LLVector2 implementations above. When LLVector2
-// is removed entirely, drop the LL versions and rename these.
+#include <cmath>
 
 F32 angle_between(const glm::vec2& a, const glm::vec2& b)
 {
@@ -158,18 +77,3 @@ glm::vec2 lerp(const glm::vec2& a, const glm::vec2& b, F32 u)
 {
     return glm::mix(a, b, u);
 }
-
-LLSD LLVector2::getValue() const
-{
-    LLSD ret;
-    ret[VX] = mV[VX];
-    ret[VY] = mV[VY];
-    return ret;
-}
-
-void LLVector2::setValue(const LLSD& sd)
-{
-    mV[VX] = static_cast<F32>(sd[0].asReal());
-    mV[VY] = static_cast<F32>(sd[1].asReal());
-}
-
