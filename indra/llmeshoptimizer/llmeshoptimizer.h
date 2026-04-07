@@ -26,9 +26,9 @@
 #pragma once
 
 #include "linden_common.h"
+#include "glm/vec2.hpp"
 
 class LLVector4a;
-class LLVector2;
 
 class LLMeshOptimizer
 {
@@ -42,7 +42,7 @@ public:
         U64 index_count,
         const LLVector4a * vertex_positions,
         const LLVector4a * normals,
-        const LLVector2 * text_coords,
+        const glm::vec2 * text_coords,
         U64 vertex_count);
 
     static void generateShadowIndexBufferU16(
@@ -51,7 +51,7 @@ public:
         U64 index_count,
         const LLVector4a * vertex_positions,
         const LLVector4a * normals,
-        const LLVector2 * text_coords,
+        const glm::vec2 * text_coords,
         U64 vertex_count);
 
     static void optimizeVertexCacheU32(
@@ -76,7 +76,7 @@ public:
         U64 index_count,
         const LLVector4a * vertex_positions,
         const LLVector4a * normals,
-        const LLVector2 * text_coords,
+        const glm::vec2 * text_coords,
         U64 vertex_count);
 
     static size_t generateRemapMultiU16(
@@ -85,7 +85,7 @@ public:
         U64 index_count,
         const LLVector4a * vertex_positions,
         const LLVector4a * normals,
-        const LLVector2 * text_coords,
+        const glm::vec2 * text_coords,
         U64 vertex_count);
 
     static void remapIndexBufferU32(U32 * destination_indices,
@@ -109,8 +109,8 @@ public:
         U64 mormals_count,
         const unsigned int* remap);
 
-    static void remapUVBuffer(LLVector2 * destination_uvs,
-        const LLVector2 * uv_positions,
+    static void remapUVBuffer(glm::vec2 * destination_uvs,
+        const glm::vec2 * uv_positions,
         U64 uv_count,
         const unsigned int* remap);
 

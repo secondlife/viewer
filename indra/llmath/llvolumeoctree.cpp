@@ -155,11 +155,10 @@ void LLOctreeTriangleRayIntersect::visit(const LLOctreeNode<LLVolumeTriangle, LL
 
                 if (mTexCoord != NULL && mFace->mTexCoords)
                 {
-                    LLVector2* tc = mFace->mTexCoords;
-                    LLVector2 hit_tc = ((1.f - a - b) * tc[idx0] +
-                                        a             * tc[idx1] +
-                                        b             * tc[idx2]);
-                    *mTexCoord = glm::vec2(hit_tc.mV[0], hit_tc.mV[1]);
+                    glm::vec2* tc = mFace->mTexCoords;
+                    *mTexCoord = ((1.f - a - b) * tc[idx0] +
+                                  a             * tc[idx1] +
+                                  b             * tc[idx2]);
                 }
 
                 if (mNormal != NULL && mFace->mNormals)

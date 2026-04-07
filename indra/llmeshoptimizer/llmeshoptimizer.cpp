@@ -46,7 +46,7 @@ void LLMeshOptimizer::generateShadowIndexBufferU32(U32 *destination,
     U64 index_count,
     const LLVector4a * vertex_positions,
     const LLVector4a * normals,
-    const LLVector2 * text_coords,
+    const glm::vec2 * text_coords,
     U64 vertex_count
 )
 {
@@ -97,7 +97,7 @@ void LLMeshOptimizer::generateShadowIndexBufferU16(U16 *destination,
     U64 index_count,
     const LLVector4a * vertex_positions,
     const LLVector4a * normals,
-    const LLVector2 * text_coords,
+    const glm::vec2 * text_coords,
     U64 vertex_count
 )
 {
@@ -156,7 +156,7 @@ size_t LLMeshOptimizer::generateRemapMultiU32(
     U64 index_count,
     const LLVector4a * vertex_positions,
     const LLVector4a * normals,
-    const LLVector2 * text_coords,
+    const glm::vec2 * text_coords,
     U64 vertex_count)
 {
     meshopt_Stream streams[] = {
@@ -178,7 +178,7 @@ size_t LLMeshOptimizer::generateRemapMultiU16(
     U64 index_count,
     const LLVector4a * vertex_positions,
     const LLVector4a * normals,
-    const LLVector2 * text_coords,
+    const glm::vec2 * text_coords,
     U64 vertex_count)
 {
     S32 out_of_range_count = 0;
@@ -244,12 +244,12 @@ void LLMeshOptimizer::remapNormalsBuffer(LLVector4a * destination_normalss,
     meshopt_remapVertexBuffer((float*)destination_normalss, (const float*)normals, mormals_count, sizeof(LLVector4a), remap);
 }
 
-void LLMeshOptimizer::remapUVBuffer(LLVector2 * destination_uvs,
-    const LLVector2 * uv_positions,
+void LLMeshOptimizer::remapUVBuffer(glm::vec2 * destination_uvs,
+    const glm::vec2 * uv_positions,
     U64 uv_count,
     const unsigned int* remap)
 {
-    meshopt_remapVertexBuffer((float*)destination_uvs, (const float*)uv_positions, uv_count, sizeof(LLVector2), remap);
+    meshopt_remapVertexBuffer((float*)destination_uvs, (const float*)uv_positions, uv_count, sizeof(glm::vec2), remap);
 }
 
 //static

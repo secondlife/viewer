@@ -50,6 +50,7 @@
 #include "llvector4a.h"
 #include "llmatrix4a.h"
 #include "llmeshoptimizer.h"
+#include "glm/glm.hpp"
 #include "lltimer.h"
 #include "llvolumeoctree.h"
 
@@ -135,11 +136,11 @@ void calc_tangent_from_triangle(
     LLVector4a&         normal,
     LLVector4a&         tangent_out,
     const LLVector4a& v1,
-    const LLVector2&  w1,
+    const glm::vec2&  w1,
     const LLVector4a& v2,
-    const LLVector2&  w2,
+    const glm::vec2&  w2,
     const LLVector4a& v3,
-    const LLVector2&  w3)
+    const glm::vec2&  w3)
 {
     const F32* v1ptr = v1.getF32ptr();
     const F32* v2ptr = v2.getF32ptr();
@@ -152,10 +153,10 @@ void calc_tangent_from_triangle(
     float z1 = v2ptr[2] - v1ptr[2];
     float z2 = v3ptr[2] - v1ptr[2];
 
-    float s1 = w2.mV[0] - w1.mV[0];
-    float s2 = w3.mV[0] - w1.mV[0];
-    float t1 = w2.mV[1] - w1.mV[1];
-    float t2 = w3.mV[1] - w1.mV[1];
+    float s1 = w2.x - w1.x;
+    float s2 = w3.x - w1.x;
+    float t1 = w2.y - w1.y;
+    float t2 = w3.y - w1.y;
 
     F32 rd = s1*t2-s2*t1;
 
@@ -2207,12 +2208,12 @@ bool LLVolumeFace::VertexData::operator<(const LLVolumeFace::VertexData& rhs)con
         return lp[2] < rp[2];
     }
 
-    if (mTexCoord.mV[0] != rhs.mTexCoord.mV[0])
+    if (mTexCoord.x != rhs.mTexCoord.x)
     {
-        return mTexCoord.mV[0] < rhs.mTexCoord.mV[0];
+        return mTexCoord.x < rhs.mTexCoord.x;
     }
 
-    return mTexCoord.mV[1] < rhs.mTexCoord.mV[1];
+    return mTexCoord.y < rhs.mTexCoord.y;
 }
 
 bool LLVolumeFace::VertexData::operator==(const LLVolumeFace::VertexData& rhs)const
@@ -2229,8 +2230,8 @@ bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs
     const F32 epsilon = 0.00001f;
 
     if (rhs.mData[POSITION].equals3(mData[POSITION], epsilon) &&
-        fabs(rhs.mTexCoord[0]-mTexCoord[0]) < epsilon &&
-        fabs(rhs.mTexCoord[1]-mTexCoord[1]) < epsilon)
+        fabs(rhs.mTexCoord.x-mTexCoord.x) < epsilon &&
+        fabs(rhs.mTexCoord.y-mTexCoord.y) < epsilon)
     {
         if (angle_cutoff > 1.f)
         {
@@ -2299,7 +2300,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
                 face.resizeVertices(1);
                 face.mPositions->clear();
                 face.mNormals->clear();
-                face.mTexCoords->setZero();
+                *face.mTexCoords = glm::vec2(0.0f);
                 memset(face.mIndices, 0, sizeof(U16)*3);
                 continue;
             }
@@ -2352,8 +2353,8 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
             LLVector3 minp;
             LLVector3 maxp;
-            LLVector2 min_tc;
-            LLVector2 max_tc;
+            glm::vec2 min_tc;
+            glm::vec2 max_tc;
 
             minp.setValue(mdl[i]["PositionDomain"]["Min"]);
             maxp.setValue(mdl[i]["PositionDomain"]["Max"]);
@@ -2361,8 +2362,12 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
             min_pos.load3(minp.mV);
             max_pos.load3(maxp.mV);
 
-            min_tc.setValue(mdl[i]["TexCoord0Domain"]["Min"]);
-            max_tc.setValue(mdl[i]["TexCoord0Domain"]["Max"]);
+            {
+                const LLSD& tc_min_sd = mdl[i]["TexCoord0Domain"]["Min"];
+                const LLSD& tc_max_sd = mdl[i]["TexCoord0Domain"]["Max"];
+                min_tc = glm::vec2(static_cast<F32>(tc_min_sd[0].asReal()), static_cast<F32>(tc_min_sd[1].asReal()));
+                max_tc = glm::vec2(static_cast<F32>(tc_max_sd[0].asReal()), static_cast<F32>(tc_max_sd[1].asReal()));
+            }
 
             //unpack normalized scale/translation
             if (mdl[i].has("NormalizedScale"))
@@ -2376,11 +2381,11 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
             LLVector4a pos_range;
             pos_range.setSub(max_pos, min_pos);
-            LLVector2 tc_range2 = max_tc - min_tc;
+            glm::vec2 tc_range2 = max_tc - min_tc;
 
             LLVector4a tc_range;
-            tc_range.set(tc_range2[0], tc_range2[1], tc_range2[0], tc_range2[1]);
-            LLVector4a min_tc4(min_tc[0], min_tc[1], min_tc[0], min_tc[1]);
+            tc_range.set(tc_range2.x, tc_range2.y, tc_range2.x, tc_range2.y);
+            LLVector4a min_tc4(min_tc.x, min_tc.y, min_tc.x, min_tc.y);
 
             LLVector4a* pos_out = face.mPositions;
             LLVector4a* norm_out = face.mNormals;
@@ -2606,21 +2611,23 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
                 if (face.mTexCoords)
                 {
-                    LLVector2& min_tc = face.mTexCoordExtents[0];
-                    LLVector2& max_tc = face.mTexCoordExtents[1];
+                    glm::vec2& min_tc = face.mTexCoordExtents[0];
+                    glm::vec2& max_tc = face.mTexCoordExtents[1];
 
                     min_tc = face.mTexCoords[0];
                     max_tc = face.mTexCoords[0];
 
                     for (S32 j = 1; j < face.mNumVertices; ++j)
                     {
-                        update_min_max(min_tc, max_tc, face.mTexCoords[j]);
+                        const glm::vec2& tc = face.mTexCoords[j];
+                        min_tc = glm::min(min_tc, tc);
+                        max_tc = glm::max(max_tc, tc);
                     }
                 }
                 else
                 {
-                    face.mTexCoordExtents[0].set(0,0);
-                    face.mTexCoordExtents[1].set(1,1);
+                    face.mTexCoordExtents[0] = glm::vec2(0.0f, 0.0f);
+                    face.mTexCoordExtents[1] = glm::vec2(1.0f, 1.0f);
                 }
             }
         }
@@ -4200,11 +4207,10 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
 
                             if (tex_coord != NULL)
                             {
-                                LLVector2* tc = face.mTexCoords;
-                                LLVector2 hit_tc = ((1.f - a - b) * tc[idx0] +
-                                                    a             * tc[idx1] +
-                                                    b             * tc[idx2]);
-                                *tex_coord = glm::vec2(hit_tc.mV[0], hit_tc.mV[1]);
+                                glm::vec2* tc = face.mTexCoords;
+                                *tex_coord = ((1.f - a - b) * tc[idx0] +
+                                              a             * tc[idx1] +
+                                              b             * tc[idx2]);
                             }
 
                             if (normal!= NULL)
@@ -4876,7 +4882,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
     if (mNumVertices)
     {
         S32 vert_size = mNumVertices*sizeof(LLVector4a);
-        S32 tc_size = (mNumVertices*sizeof(LLVector2)+0xF) & ~0xF;
+        S32 tc_size = (mNumVertices*sizeof(glm::vec2)+0xF) & ~0xF;
 
         LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(mPositions), reinterpret_cast<F32*>(src.mPositions), vert_size);
 
@@ -5030,7 +5036,7 @@ void LLVolumeFace::getVertexData(U16 index, LLVolumeFace::VertexData& cv) const
     }
     else
     {
-        cv.mTexCoord.clear();
+        cv.mTexCoord = glm::vec2(0.0f);
     }
 }
 
@@ -5075,10 +5081,10 @@ void LLVolumeFace::remap()
     S32 size = ((mNumIndices * sizeof(U16)) + 0xF) & ~0xF;
     U16* remap_indices = static_cast<U16*>(ll_aligned_malloc_16(size));
 
-    S32 tc_bytes_size = ((remap_vertices_count * sizeof(LLVector2)) + 0xF) & ~0xF;
+    S32 tc_bytes_size = ((remap_vertices_count * sizeof(glm::vec2)) + 0xF) & ~0xF;
     LLVector4a* remap_positions = static_cast<LLVector4a*>(ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * remap_vertices_count + tc_bytes_size));
     LLVector4a* remap_normals = remap_positions + remap_vertices_count;
-    LLVector2* remap_tex_coords = reinterpret_cast<LLVector2*>(remap_normals + remap_vertices_count);
+    glm::vec2* remap_tex_coords = reinterpret_cast<glm::vec2*>(remap_normals + remap_vertices_count);
 
     // Fill the buffers
     LLMeshOptimizer::remapIndexBufferU16(remap_indices, mIndices, mNumIndices, &remap[0]);
@@ -5475,7 +5481,7 @@ struct MikktData
     LLVolumeFace* face;
     std::vector<LLVector3> p;
     std::vector<LLVector3> n;
-    std::vector<LLVector2> tc;
+    std::vector<glm::vec2> tc;
     std::vector<LLVector4> w;
     std::vector<LLVector4> t;
 
@@ -5513,7 +5519,7 @@ struct MikktData
             n[i].set(face->mNormals[idx].getF32ptr());
             n[i].scaleVec(inv_scale);
             n[i].normalize();
-            tc[i].set(face->mTexCoords[idx]);
+            tc[i] = face->mTexCoords[idx];
 
             if (face->mWeights)
             {
@@ -5540,8 +5546,8 @@ struct MikktData
 
     mikk::float3 GetTexCoord(const uint32_t face_num, const uint32_t vert_num)
     {
-        F32* uv = tc[face_num * 3 + vert_num].mV;
-        return {uv[0], uv[1], 1.0f};
+        const glm::vec2& uv = tc[face_num * 3 + vert_num];
+        return {uv.x, uv.y, 1.0f};
     }
 
     mikk::float3 GetNormal(const uint32_t face_num, const uint32_t vert_num)
@@ -5590,7 +5596,7 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             { &data.p[0], sizeof(LLVector3), sizeof(LLVector3) },
             { &data.n[0], sizeof(LLVector3), sizeof(LLVector3) },
             { &data.t[0], sizeof(LLVector4), sizeof(LLVector4) },
-            { &data.tc[0], sizeof(LLVector2), sizeof(LLVector2) },
+            { &data.tc[0], sizeof(glm::vec2), sizeof(glm::vec2) },
             { data.w.empty() ? nullptr : &data.w[0], sizeof(LLVector4), sizeof(LLVector4) }
         };
 
@@ -5877,8 +5883,8 @@ bool LLVolumeFace::createUnCutCubeCap(LLVolume* volume, bool partial_build)
         for(S32 t = 0; t < 4; t++)
         {
             corners[t].getPosition().load4a(mesh[offset + (grid_size*t)].getF32ptr());
-            corners[t].mTexCoord.mV[0] = profile[grid_size*t][0]+0.5f;
-            corners[t].mTexCoord.mV[1] = 0.5f - profile[grid_size*t][1];
+            corners[t].mTexCoord.x = profile[grid_size*t][0]+0.5f;
+            corners[t].mTexCoord.y = 0.5f - profile[grid_size*t][1];
         }
 
         {
@@ -5897,7 +5903,7 @@ bool LLVolumeFace::createUnCutCubeCap(LLVolume* volume, bool partial_build)
         else
         {
             //Swap the UVs on the U(X) axis for top face
-            LLVector2 swap;
+            glm::vec2 swap;
             swap = corners[0].mTexCoord;
             corners[0].mTexCoord=corners[3].mTexCoord;
             corners[3].mTexCoord=swap;
@@ -5911,7 +5917,7 @@ bool LLVolumeFace::createUnCutCubeCap(LLVolume* volume, bool partial_build)
 
         LLVector4a* pos = mPositions;
         LLVector4a* norm = mNormals;
-        LLVector2* tc = mTexCoords;
+        glm::vec2* tc = mTexCoords;
 
         for(int gx = 0;gx<grid_size+1;gx++)
         {
@@ -6043,13 +6049,13 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
     // Figure out the normal, assume all caps are flat faces.
     // Cross product to get normals.
 
-    LLVector2 cuv;
-    LLVector2 min_uv, max_uv;
+    glm::vec2 cuv;
+    glm::vec2 min_uv, max_uv;
     // VFExtents change
     LLVector4a& min = mExtents[0];
     LLVector4a& max = mExtents[1];
 
-    LLVector2* tc = mTexCoords;
+    glm::vec2* tc = mTexCoords;
     LLVector4a* pos = mPositions;
     LLVector4a* norm = mNormals;
 
@@ -6065,19 +6071,20 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
 
     if (mTypeMask & TOP_MASK)
     {
-        min_uv.set((*p)[0]+0.5f,
-                    (*p)[1]+0.5f);
+        min_uv = glm::vec2((*p)[0]+0.5f,
+                           (*p)[1]+0.5f);
 
         max_uv = min_uv;
 
         while(src < end)
         {
-            tc->mV[0] = (*p)[0]+0.5f;
-            tc->mV[1] = (*p)[1]+0.5f;
+            tc->x = (*p)[0]+0.5f;
+            tc->y = (*p)[1]+0.5f;
 
             llassert(src->isFinite3()); // MAINT-5660; don't know why this happens, does not affect Release builds
             update_min_max(min,max,*src);
-            update_min_max(min_uv, max_uv, *tc);
+            min_uv = glm::min(min_uv, *tc);
+            max_uv = glm::max(max_uv, *tc);
 
             *pos = *src;
 
@@ -6092,19 +6099,20 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
         else
         {
 
-        min_uv.set((*p)[0]+0.5f,
-                   0.5f - (*p)[1]);
+        min_uv = glm::vec2((*p)[0]+0.5f,
+                           0.5f - (*p)[1]);
         max_uv = min_uv;
 
         while(src < end)
         {
             // Mirror for underside.
-            tc->mV[0] = (*p)[0]+0.5f;
-            tc->mV[1] = 0.5f - (*p)[1];
+            tc->x = (*p)[0]+0.5f;
+            tc->y = 0.5f - (*p)[1];
 
             llassert(src->isFinite3());
             update_min_max(min,max,*src);
-            update_min_max(min_uv, max_uv, *tc);
+            min_uv = glm::min(min_uv, *tc);
+            max_uv = glm::max(max_uv, *tc);
 
             *pos = *src;
 
@@ -6446,11 +6454,11 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
     if (num_verts)
     {
         //pad texture coordinate block end to allow for QWORD reads
-        S32 tc_size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
+        S32 tc_size = ((num_verts*sizeof(glm::vec2)) + 0xF) & ~0xF;
 
         mPositions = static_cast<LLVector4a*>(ll_aligned_malloc<64>(sizeof(LLVector4a)*2*num_verts+tc_size));
         mNormals = mPositions+num_verts;
-        mTexCoords = reinterpret_cast<LLVector2*>(mNormals+num_verts);
+        mTexCoords = reinterpret_cast<glm::vec2*>(mNormals+num_verts);
 
         ll_assert_aligned(mPositions, 64);
     }
@@ -6482,7 +6490,7 @@ void LLVolumeFace::pushVertex(const LLVolumeFace::VertexData& cv)
     pushVertex(cv.getPosition(), cv.getNormal(), cv.mTexCoord);
 }
 
-void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, const LLVector2& tc)
+void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, const glm::vec2& tc)
 {
     S32 new_verts = mNumVertices+1;
 
@@ -6502,7 +6510,7 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 
         mPositions = static_cast<LLVector4a*>(ll_aligned_malloc<64>(new_size));
         mNormals = mPositions+new_verts;
-        mTexCoords = reinterpret_cast<LLVector2*>(mNormals+new_verts);
+        mTexCoords = reinterpret_cast<glm::vec2*>(mNormals+new_verts);
 
         if (old_buf != NULL)
         {
@@ -6657,7 +6665,7 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
     LL_CHECK_MEMORY
 
     LLVector4a* pos = mPositions;
-    LLVector2* tc = mTexCoords;
+    glm::vec2* tc = mTexCoords;
     F32 begin_stex = floorf(profile[mBeginS][2]);
     S32 num_s = ((mTypeMask & INNER_MASK) && (mTypeMask & FLAT_MASK) && mNumS > 2) ? mNumS/2 : mNumS;
 
@@ -6719,14 +6727,14 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
             }
 
             mesh[i].store4a(reinterpret_cast<F32*>(pos+cur_vertex));
-            tc[cur_vertex].set(ss,tt);
+            tc[cur_vertex] = glm::vec2(ss,tt);
 
             cur_vertex++;
 
             if (test && s > 0)
             {
                 mesh[i].store4a(reinterpret_cast<F32*>(pos+cur_vertex));
-                tc[cur_vertex].set(ss,tt);
+                tc[cur_vertex] = glm::vec2(ss,tt);
                 cur_vertex++;
             }
         }
@@ -6746,7 +6754,7 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
             ss = profile[mBeginS + s][2] - begin_stex;
 
             mesh[i].store4a(reinterpret_cast<F32*>(pos+cur_vertex));
-            tc[cur_vertex].set(ss,tt);
+            tc[cur_vertex] = glm::vec2(ss,tt);
 
             cur_vertex++;
         }
@@ -6796,10 +6804,10 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
     F32* minp = tc_min.getF32ptr();
     F32* maxp = tc_max.getF32ptr();
 
-    mTexCoordExtents[0].mV[0] = llmin(minp[0], minp[2]);
-    mTexCoordExtents[0].mV[1] = llmin(minp[1], minp[3]);
-    mTexCoordExtents[1].mV[0] = llmax(maxp[0], maxp[2]);
-    mTexCoordExtents[1].mV[1] = llmax(maxp[1], maxp[3]);
+    mTexCoordExtents[0].x = llmin(minp[0], minp[2]);
+    mTexCoordExtents[0].y = llmin(minp[1], minp[3]);
+    mTexCoordExtents[1].x = llmax(maxp[0], maxp[2]);
+    mTexCoordExtents[1].y = llmax(maxp[1], maxp[3]);
 
     mCenter->setAdd(face_min, face_max);
     mCenter->mul(0.5f);
@@ -7080,7 +7088,7 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
 
 //adapted from Lengyel, Eric. "Computing Tangent Space Basis Vectors for an Arbitrary Mesh". Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
-        const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent)
+        const glm::vec2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
@@ -7106,9 +7114,9 @@ void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LL
         const LLVector4a& v2 = vertex[i2];
         const LLVector4a& v3 = vertex[i3];
 
-        const LLVector2& w1 = texcoord[i1];
-        const LLVector2& w2 = texcoord[i2];
-        const LLVector2& w3 = texcoord[i3];
+        const glm::vec2& w1 = texcoord[i1];
+        const glm::vec2& w2 = texcoord[i2];
+        const glm::vec2& w3 = texcoord[i3];
 
         const F32* v1ptr = v1.getF32ptr();
         const F32* v2ptr = v2.getF32ptr();
@@ -7121,10 +7129,10 @@ void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LL
         float z1 = v2ptr[2] - v1ptr[2];
         float z2 = v3ptr[2] - v1ptr[2];
 
-        float s1 = w2.mV[0] - w1.mV[0];
-        float s2 = w3.mV[0] - w1.mV[0];
-        float t1 = w2.mV[1] - w1.mV[1];
-        float t2 = w3.mV[1] - w1.mV[1];
+        float s1 = w2.x - w1.x;
+        float s2 = w3.x - w1.x;
+        float t1 = w2.y - w1.y;
+        float t2 = w3.y - w1.y;
 
         F32 rd = s1*t2-s2*t1;
 

@@ -854,7 +854,7 @@ public:
         void setNormal(const LLVector4a& norm);
 
 
-        LLVector2 mTexCoord;
+        glm::vec2 mTexCoord;
 
         bool operator<(const VertexData& rhs) const;
         bool operator==(const VertexData& rhs) const;
@@ -884,7 +884,7 @@ public:
     void fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, std::vector<U16>& idx);
 
     void pushVertex(const VertexData& cv);
-    void pushVertex(const LLVector4a& pos, const LLVector4a& norm, const LLVector2& tc);
+    void pushVertex(const LLVector4a& pos, const LLVector4a& norm, const glm::vec2& tc);
     void pushIndex(const U16& idx);
 
     void swapData(LLVolumeFace& rhs);
@@ -954,7 +954,7 @@ public:
 
     LLVector4a* mExtents; //minimum and maximum point of face
     LLVector4a* mCenter;
-    LLVector2   mTexCoordExtents[2]; //minimum and maximum of texture coordinates of the face.
+    glm::vec2   mTexCoordExtents[2]; //minimum and maximum of texture coordinates of the face.
 
     S32 mNumVertices; // num vertices == num normals == num texcoords
     S32 mNumAllocatedVertices;
@@ -963,7 +963,7 @@ public:
     LLVector4a* mPositions; // Contains vertices, nortmals and texcoords
     LLVector4a* mNormals; // pointer into mPositions
     LLVector4a* mTangents;
-    LLVector2*  mTexCoords; // pointer into mPositions
+    glm::vec2*  mTexCoords; // pointer into mPositions
 
     // mIndices contains mNumIndices amount of elements.
     // It contains triangles, each 3 indices describe one triangle.
@@ -1150,7 +1150,7 @@ public:
 
 std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);
 
-void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal, const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent);
+void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal, const glm::vec2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent);
 
 bool LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
 bool LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
