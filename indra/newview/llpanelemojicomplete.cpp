@@ -31,6 +31,7 @@
 #include "llpanelemojicomplete.h"
 #include "llscrollbar.h"
 #include "lluictrlfactory.h"
+#include "glm/glm.hpp"
 
 constexpr U32 MIN_MOUSE_MOVE_DELTA = 4;
 constexpr U32 MIN_SHORT_CODE_WIDTH = 100;
@@ -164,8 +165,8 @@ bool LLPanelEmojiComplete::handleHover(S32 x, S32 y, MASK mask)
     if (mScrollbar && mScrollbar->getVisible() && childrenHandleHover(x, y, mask))
         return true;
 
-    LLVector2 curHover(static_cast<F32>(x), static_cast<F32>(y));
-    if ((mLastHover - curHover).lengthSquared() > MIN_MOUSE_MOVE_DELTA)
+    glm::vec2 curHover(static_cast<F32>(x), static_cast<F32>(y));
+    if (glm::dot(mLastHover - curHover, mLastHover - curHover) > MIN_MOUSE_MOVE_DELTA)
     {
         size_t index = posToIndex(x, y);
         if (index < mTotalEmojis)
@@ -236,7 +237,7 @@ bool LLPanelEmojiComplete::handleMouseDown(S32 x, S32 y, MASK mask)
         return true;
 
     mCurSelected = posToIndex(x, y);
-    mLastHover = LLVector2(static_cast<F32>(x), static_cast<F32>(y));
+    mLastHover = glm::vec2(static_cast<F32>(x), static_cast<F32>(y));
 
     return true;
 }

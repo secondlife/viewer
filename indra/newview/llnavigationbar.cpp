@@ -201,7 +201,7 @@ void LLPullButton::onMouseLeave(S32 x, S32 y, MASK mask)
 
     if (mMouseDownTimer.getStarted()) //an user have done a mouse down, if the timer started. see LLButton::handleMouseDown for details
     {
-        const LLVector2 cursor_direction = LLVector2(F32(x), F32(y)) - mLastMouseDown;
+        const glm::vec2 cursor_direction = glm::vec2(F32(x), F32(y)) - mLastMouseDown;
         /* For now cursor_direction points to the direction of mouse movement
          * Need to decide whether should we fire a signal.
          * We fire if angle between mDraggingDirection and cursor_direction is less that 45 degree
@@ -224,7 +224,7 @@ bool LLPullButton::handleMouseDown(S32 x, S32 y, MASK mask)
     {
         //if mouse down was handled by button,
         //capture mouse position to calculate the direction of  mouse move  after mouseLeave event
-        mLastMouseDown.set(F32(x), F32(y));
+        mLastMouseDown = glm::vec2(F32(x), F32(y));
     }
     return handled;
 }
@@ -233,7 +233,7 @@ bool LLPullButton::handleMouseDown(S32 x, S32 y, MASK mask)
 bool LLPullButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     // reset data to get ready for next circle
-    mLastMouseDown.clear();
+    mLastMouseDown = glm::vec2(0.0f);
     return LLButton::handleMouseUp(x, y, mask);
 }
 /**
@@ -244,19 +244,19 @@ void LLPullButton::setDirectionFromName(const std::string& name)
 {
     if (name == "left")
     {
-        mDraggingDirection.set(F32(-1), F32(0));
+        mDraggingDirection = glm::vec2(F32(-1), F32(0));
     }
     else if (name == "right")
     {
-        mDraggingDirection.set(F32(0), F32(1));
+        mDraggingDirection = glm::vec2(F32(0), F32(1));
     }
     else if (name == "down")
     {
-        mDraggingDirection.set(F32(0), F32(-1));
+        mDraggingDirection = glm::vec2(F32(0), F32(-1));
     }
     else if (name == "up")
     {
-        mDraggingDirection.set(F32(0), F32(1));
+        mDraggingDirection = glm::vec2(F32(0), F32(1));
     }
 }
 

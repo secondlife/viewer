@@ -29,6 +29,8 @@
 #include "llmath.h"
 #include "v3math.h"
 
+#include "glm/vec2.hpp"
+
 class LLVector4;
 class LLMatrix3;
 class LLQuaternion;
@@ -112,6 +114,18 @@ F32 dist_vec(const LLVector2& a, const LLVector2& b);       // Returns distance 
 F32 dist_vec_squared(const LLVector2& a, const LLVector2& b);// Returns distance squared between a and b
 F32 dist_vec_squared2D(const LLVector2& a, const LLVector2& b);// Returns distance squared between a and b ignoring Z component
 LLVector2 lerp(const LLVector2& a, const LLVector2& b, F32 u); // Returns a vector that is a linear interpolation between a and b
+
+// glm::vec2 overloads — transitional helpers for the LLVector2 → glm::vec2
+// migration. These mirror the LL helpers above but operate on glm::vec2
+// directly, so files that have been converted can keep their existing
+// call sites. Will be removed once the migration is complete and the
+// LLVector2 overloads are deleted.
+F32 angle_between(const glm::vec2& a, const glm::vec2& b);
+F32 signed_angle_between(const glm::vec2& a, const glm::vec2& b);
+bool are_parallel(const glm::vec2& a, const glm::vec2& b, F32 epsilon = F_APPROXIMATELY_ZERO);
+F32 dist_vec(const glm::vec2& a, const glm::vec2& b);
+F32 dist_vec_squared(const glm::vec2& a, const glm::vec2& b);
+glm::vec2 lerp(const glm::vec2& a, const glm::vec2& b, F32 u);
 
 // Constructors
 

@@ -40,7 +40,6 @@ class LLViewerRegion;
 class LLVector3;
 class LLColor4U;
 class LLUIColor;
-class LLVector2;
 
 class LLViewerParcelOverlay : public LLGLUpdate
 {

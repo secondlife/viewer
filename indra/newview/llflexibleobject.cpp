@@ -263,7 +263,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
     mSection[0].mPosition = getAnchorPosition();
     mSection[0].mDirection = LLVector3::z_axis * getFrameRotation();
     mSection[0].mdPosition = mSection[0].mDirection;
-    mSection[0].mScale.set(scale.mV[VX]*bottom_scale.mV[0], scale.mV[VY]*bottom_scale.mV[1]);
+    mSection[0].mScale = glm::vec2(scale.mV[VX]*bottom_scale.mV[0], scale.mV[VY]*bottom_scale.mV[1]);
     mSection[0].mVelocity.set(0,0,0);
     mSection[0].mAxisRotation.setAngleAxis(begin_rot,0,0,1);
 
@@ -276,7 +276,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
     for ( int i=1; i<= num_sections; i++)
     {
         mSection[i].mAxisRotation.setAngleAxis(lerp(begin_rot,end_rot,t),0,0,1);
-        mSection[i].mScale = LLVector2(
+        mSection[i].mScale = glm::vec2(
             scale.mV[VX] * lerp(bottom_scale.mV[0], top_scale.mV[0], t),
             scale.mV[VY] * lerp(bottom_scale.mV[1], top_scale.mV[1], t));
         t += t_inc;
@@ -711,7 +711,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         }
 
         new_point->mRot.loadu(LLMatrix3(rot));
-        new_point->mScale.set(newSection[i].mScale.mV[0], newSection[i].mScale.mV[1], 0,1);
+        new_point->mScale.set(newSection[i].mScale.x, newSection[i].mScale.y, 0,1);
         new_point->mTexT = static_cast<F32>(i)/(num_render_sections);
     }
     LL_CHECK_MEMORY

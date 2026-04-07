@@ -31,6 +31,7 @@
 
 // Library includes (should move below)
 #include "indra_constants.h"
+#include "v2math.h"
 #include "llavatarnamecache.h"
 #include "llmath.h"
 #include "llfloaterreg.h"
@@ -204,13 +205,13 @@ void LLNetMap::draw()
 
     if (auto_centering || mCentering)
     {
-        mCurPan = lerp(mCurPan, LLVector2(0.0f, 0.0f) , LLSmoothInterpolation::getInterpolant(0.1f));
+        mCurPan = lerp(mCurPan, glm::vec2(0.0f, 0.0f) , LLSmoothInterpolation::getInterpolant(0.1f));
     }
-    bool centered = abs(mCurPan.mV[VX]) < 0.5f && abs(mCurPan.mV[VY]) < 0.5f;
+    bool centered = abs(mCurPan.x) < 0.5f && abs(mCurPan.y) < 0.5f;
     if (centered)
     {
-        mCurPan.mV[0] = 0.0f;
-        mCurPan.mV[1] = 0.0f;
+        mCurPan.x = 0.0f;
+        mCurPan.y = 0.0f;
         mCentering = false;
     }
 
@@ -251,8 +252,8 @@ void LLNetMap::draw()
         }
 
         // region 0,0 is in the middle
-        S32 center_sw_left = getRect().getWidth() / 2 + llfloor(mCurPan.mV[VX]);
-        S32 center_sw_bottom = getRect().getHeight() / 2 + llfloor(mCurPan.mV[VY]);
+        S32 center_sw_left = getRect().getWidth() / 2 + llfloor(mCurPan.x);
+        S32 center_sw_bottom = getRect().getHeight() / 2 + llfloor(mCurPan.y);
 
         gGL.pushMatrix();
 
@@ -330,8 +331,8 @@ void LLNetMap::draw()
 
             // Locate the centre of the object layer, accounting for panning
             LLVector3 new_center = globalPosToView(gAgentCamera.getCameraPositionGlobal());
-            new_center.mV[VX] -= mCurPan.mV[VX];
-            new_center.mV[VY] -= mCurPan.mV[VY];
+            new_center.mV[VX] -= mCurPan.x;
+            new_center.mV[VY] -= mCurPan.y;
             new_center.mV[VZ] = 0.f;
             mObjectImageCenterGlobal = viewPosToGlobal(llfloor(new_center.mV[VX]), llfloor(new_center.mV[VY]));
 
@@ -473,8 +474,8 @@ void LLNetMap::draw()
                 }
             }
 
-            F32 dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-                                          LLVector2(static_cast<F32>(local_mouse_x), static_cast<F32>(local_mouse_y)));
+            F32 dist_to_cursor_squared = dist_vec_squared(glm::vec2(pos_map.mV[VX], pos_map.mV[VY]),
+                                          glm::vec2(static_cast<F32>(local_mouse_x), static_cast<F32>(local_mouse_y)));
             if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
             {
                 closest_dist_squared = dist_to_cursor_squared;
@@ -513,8 +514,8 @@ void LLNetMap::draw()
                       dot_width,
                       dot_width);
 
-            F32 dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-                                          LLVector2(static_cast<F32>(local_mouse_x), static_cast<F32>(local_mouse_y)));
+            F32 dist_to_cursor_squared = dist_vec_squared(glm::vec2(pos_map.mV[VX], pos_map.mV[VY]),
+                                          glm::vec2(static_cast<F32>(local_mouse_x), static_cast<F32>(local_mouse_y)));
             if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
             {
                 mClosestAgentToCursor = gAgent.getID();
@@ -588,8 +589,8 @@ LLVector3 LLNetMap::globalPosToView(const LLVector3d& global_pos)
         pos_local.rotVec( rot );
     }
 
-    pos_local.mV[VX] += getRect().getWidth() / 2 + mCurPan.mV[VX];
-    pos_local.mV[VY] += getRect().getHeight() / 2 + mCurPan.mV[VY];
+    pos_local.mV[VX] += getRect().getWidth() / 2 + mCurPan.x;
+    pos_local.mV[VY] += getRect().getHeight() / 2 + mCurPan.y;
 
     return pos_local;
 }
@@ -683,8 +684,8 @@ void LLNetMap::updateAboutLandPopupButton()
 
 LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 {
-    x -= ll_round(getRect().getWidth() / 2 + mCurPan.mV[VX]);
-    y -= ll_round(getRect().getHeight() / 2 + mCurPan.mV[VY]);
+    x -= ll_round(getRect().getWidth() / 2 + mCurPan.x);
+    y -= ll_round(getRect().getHeight() / 2 + mCurPan.y);
 
     LLVector3 pos_local( static_cast<F32>(x), static_cast<F32>(y), 0 );
 
@@ -717,9 +718,9 @@ bool LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
     if (!auto_center)
     {
         // Adjust pan to center the zoom on the mouse pointer
-        LLVector2 zoom_offset;
-        zoom_offset.mV[VX] = static_cast<F32>(x - getRect().getWidth() / 2);
-        zoom_offset.mV[VY] = static_cast<F32>(y - getRect().getHeight() / 2);
+        glm::vec2 zoom_offset;
+        zoom_offset.x = static_cast<F32>(x - getRect().getWidth() / 2);
+        zoom_offset.y = static_cast<F32>(y - getRect().getHeight() / 2);
         mCurPan -= zoom_offset * mScale / old_scale - zoom_offset;
     }
 
@@ -1049,8 +1050,8 @@ bool LLNetMap::handleMouseUp(S32 x, S32 y, MASK mask)
         {
             // restore mouse cursor
             S32 local_x, local_y;
-            local_x          = mMouseDown.mX + llfloor(mCurPan.mV[VX] - mStartPan.mV[VX]);
-            local_y          = mMouseDown.mY + llfloor(mCurPan.mV[VY] - mStartPan.mV[VY]);
+            local_x          = mMouseDown.mX + llfloor(mCurPan.x - mStartPan.x);
+            local_y          = mMouseDown.mY + llfloor(mCurPan.y - mStartPan.y);
             LLRect clip_rect = getRect();
             clip_rect.stretch(-8);
             clip_rect.clipPointToRect(mMouseDown.mX, mMouseDown.mY, local_x, local_y);
@@ -1168,7 +1169,7 @@ bool LLNetMap::handleHover( S32 x, S32 y, MASK mask )
                 gViewerWindow->hideCursor();
             }
 
-            LLVector2 delta(static_cast<F32>(gViewerWindow->getCurrentMouseDX()),
+            glm::vec2 delta(static_cast<F32>(gViewerWindow->getCurrentMouseDX()),
                             static_cast<F32>(gViewerWindow->getCurrentMouseDY()));
 
             // Set pan to value at start of drag + offset

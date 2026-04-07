@@ -33,6 +33,8 @@
 #include "m3math.h"
 #include "llquaternion.h"
 
+#include "glm/glm.hpp"
+
 // LLVector2
 
 LLVector2 LLVector2::zero(0,0);
@@ -110,6 +112,51 @@ LLVector2 lerp(const LLVector2& a, const LLVector2& b, F32 u)
     return {
         a.mV[VX] + (b.mV[VX] - a.mV[VX]) * u,
         a.mV[VY] + (b.mV[VY] - a.mV[VY]) * u };
+}
+
+// glm::vec2 overloads — transitional helpers for the LLVector2 → glm::vec2
+// migration. Mirror the LLVector2 implementations above. When LLVector2
+// is removed entirely, drop the LL versions and rename these.
+
+F32 angle_between(const glm::vec2& a, const glm::vec2& b)
+{
+    const glm::vec2 an = glm::normalize(a);
+    const glm::vec2 bn = glm::normalize(b);
+    const F32 cosine = glm::dot(an, bn);
+    return (cosine >= 1.0f) ? 0.0f
+         : (cosine <= -1.0f) ? F_PI
+         : std::acos(cosine);
+}
+
+F32 signed_angle_between(const glm::vec2& a, const glm::vec2& b)
+{
+    const F32 angle = angle_between(a, b);
+    const F32 rhombus_square = a.x * b.y - b.x * a.y;
+    return rhombus_square < 0 ? -angle : angle;
+}
+
+bool are_parallel(const glm::vec2& a, const glm::vec2& b, F32 epsilon)
+{
+    const glm::vec2 an = glm::normalize(a);
+    const glm::vec2 bn = glm::normalize(b);
+    const F32 d = glm::dot(an, bn);
+    return (1.0f - std::fabs(d)) < epsilon;
+}
+
+F32 dist_vec(const glm::vec2& a, const glm::vec2& b)
+{
+    return glm::distance(a, b);
+}
+
+F32 dist_vec_squared(const glm::vec2& a, const glm::vec2& b)
+{
+    const glm::vec2 d = a - b;
+    return glm::dot(d, d);
+}
+
+glm::vec2 lerp(const glm::vec2& a, const glm::vec2& b, F32 u)
+{
+    return glm::mix(a, b, u);
 }
 
 LLSD LLVector2::getValue() const
