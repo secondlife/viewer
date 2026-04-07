@@ -215,8 +215,7 @@ bool LLToolPie::handleScrollWheelAny(S32 x, S32 y, S32 clicks_x, S32 clicks_y)
     // in LLViewerMediaFocus in case of media, so just reuse mHoverPick
     if (mHoverPick.mUVCoords.x >= 0.f && mHoverPick.mUVCoords.y >= 0.f)
     {
-        // bridge: LLViewerMediaFocus mouse API still takes LLVector2
-        res = LLViewerMediaFocus::getInstance()->handleScrollWheel(LLVector2(mHoverPick.mUVCoords.x, mHoverPick.mUVCoords.y), clicks_x, clicks_y);
+        res = LLViewerMediaFocus::getInstance()->handleScrollWheel(mHoverPick.mUVCoords, clicks_x, clicks_y);
     }
     else
     {
@@ -1678,8 +1677,7 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
             {
                 if (media_impl.notNull())
                 {
-                    // bridge: LLViewerMediaImpl mouse API still takes LLVector2
-                    media_impl->mouseDown(LLVector2(pick.mUVCoords.x, pick.mUVCoords.y), gKeyboard->currentMask(true));
+                    media_impl->mouseDown(pick.mUVCoords, gKeyboard->currentMask(true));
                     mMediaMouseCaptureID = mep->getMediaID();
                     setMouseCapture(true);
                     return true;
@@ -1692,8 +1690,7 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
             gFocusMgr.setKeyboardFocus(LLViewerMediaFocus::getInstance());
             LLEditMenuHandler::gEditMenuHandler = LLViewerMediaFocus::instance().getFocusedMediaImpl();
 
-            // bridge: LLViewerMediaImpl mouse API still takes LLVector2
-            media_impl->mouseDown(LLVector2(pick.mUVCoords.x, pick.mUVCoords.y), gKeyboard->currentMask(true));
+            media_impl->mouseDown(pick.mUVCoords, gKeyboard->currentMask(true));
             mMediaMouseCaptureID = mep->getMediaID();
             setMouseCapture(true);  // This object will send a mouse-up to the media when it loses capture.
         }
@@ -1747,8 +1744,7 @@ bool LLToolPie::handleMediaDblClick(const LLPickInfo& pick)
             gFocusMgr.setKeyboardFocus(LLViewerMediaFocus::getInstance());
             LLEditMenuHandler::gEditMenuHandler = LLViewerMediaFocus::instance().getFocusedMediaImpl();
 
-            // bridge: LLViewerMediaImpl mouse API still takes LLVector2
-            media_impl->mouseDoubleClick(LLVector2(pick.mUVCoords.x, pick.mUVCoords.y), gKeyboard->currentMask(true));
+            media_impl->mouseDoubleClick(pick.mUVCoords, gKeyboard->currentMask(true));
             mMediaMouseCaptureID = mep->getMediaID();
             setMouseCapture(true);  // This object will send a mouse-up to the media when it loses capture.
         }
@@ -1801,8 +1797,7 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
             // If this is the focused media face, send mouse move events.
             if (LLViewerMediaFocus::getInstance()->isFocusedOnFace(objectp, pick.mObjectFace) || (shouldAllowFirstMediaInteraction(pick, mep->getFirstClickInteract())))
             {
-                // bridge: LLViewerMediaImpl mouse API still takes LLVector2
-                media_impl->mouseMove(LLVector2(pick.mUVCoords.x, pick.mUVCoords.y), gKeyboard->currentMask(true));
+                media_impl->mouseMove(pick.mUVCoords, gKeyboard->currentMask(true));
                 gViewerWindow->setCursor(media_impl->getLastSetCursor());
             }
             else

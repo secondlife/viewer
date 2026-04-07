@@ -6361,8 +6361,7 @@ void LLPickInfo::getSurfaceInfo()
                 LLFace* facep = objectp->mDrawable->getFace(mObjectFace);
                 if (facep)
                 {
-                    LLVector2 uv_ll = facep->surfaceToTexture(LLVector2(mSTCoords.x, mSTCoords.y), intersection, normal);
-                    mUVCoords = glm::vec2(uv_ll.mV[0], uv_ll.mV[1]);
+                    mUVCoords = facep->surfaceToTexture(mSTCoords, intersection, normal);
             }
             }
 

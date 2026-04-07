@@ -812,9 +812,9 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 // integrated with getGeometryVolume() for its texture coordinate
 // generation - but i'll leave that to someone more familiar
 // with the implications.
-LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& position, const LLVector4a& normal)
+glm::vec2 LLFace::surfaceToTexture(glm::vec2 surface_coord, const LLVector4a& position, const LLVector4a& normal)
 {
-    LLVector2 tc = surface_coord;
+    LLVector2 tc(surface_coord.x, surface_coord.y);
 
     const LLTextureEntry *tep = getTextureEntry();
 
@@ -867,7 +867,7 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& po
               tep->mOffsetS, tep->mOffsetT, tep->mScaleS, tep->mScaleT);
     }
 
-    return tc;
+    return glm::vec2(tc.mV[VX], tc.mV[VY]);
 }
 
 // Returns scale compared to default texgen, and face orientation as calculated
