@@ -5539,11 +5539,11 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
             if (!mat->getSpecularID().isNull())
             {
-                LLVector4 specColor;
-                specColor.mV[0] = mat->getSpecularLightColor().mV[0] * (1.f / 255.f);
-                specColor.mV[1] = mat->getSpecularLightColor().mV[1] * (1.f / 255.f);
-                specColor.mV[2] = mat->getSpecularLightColor().mV[2] * (1.f / 255.f);
-                specColor.mV[3] = mat->getSpecularLightExponent() * (1.f / 255.f);
+                LLVector4 specColor(
+                    mat->getSpecularLightColor().mV[0] * (1.f / 255.f),
+                    mat->getSpecularLightColor().mV[1] * (1.f / 255.f),
+                    mat->getSpecularLightColor().mV[2] * (1.f / 255.f),
+                    mat->getSpecularLightExponent() * (1.f / 255.f));
                 draw_info->mSpecColor = specColor;
                 draw_info->mEnvIntensity = mat->getEnvironmentIntensity() * (1.f / 255.f);
                 draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTEOffset());

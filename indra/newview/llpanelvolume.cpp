@@ -1251,10 +1251,10 @@ void LLPanelVolume::onPasteLight()
         if (clipboard.has("spot"))
         {
             volobjp->setLightTextureID(clipboard["spot"]["id"].asUUID());
-            LLVector3 spot_params;
-            spot_params.mV[0] = static_cast<F32>(clipboard["spot"]["fov"].asReal());
-            spot_params.mV[1] = static_cast<F32>(clipboard["spot"]["focus"].asReal());
-            spot_params.mV[2] = static_cast<F32>(clipboard["spot"]["ambiance"].asReal());
+            LLVector3 spot_params(
+                static_cast<F32>(clipboard["spot"]["fov"].asReal()),
+                static_cast<F32>(clipboard["spot"]["focus"].asReal()),
+                static_cast<F32>(clipboard["spot"]["ambiance"].asReal()));
             volobjp->setSpotLightParams(spot_params);
         }
 
@@ -1401,10 +1401,10 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
                     setLightTextureID(id, item_id, volobjp);
                 }
 
-                LLVector3 spot_params;
-                spot_params.mV[0] = static_cast<F32>(self->getChild<LLUICtrl>("Light FOV")->getValue().asReal());
-                spot_params.mV[1] = static_cast<F32>(self->getChild<LLUICtrl>("Light Focus")->getValue().asReal());
-                spot_params.mV[2] = static_cast<F32>(self->getChild<LLUICtrl>("Light Ambiance")->getValue().asReal());
+                LLVector3 spot_params(
+                    static_cast<F32>(self->getChild<LLUICtrl>("Light FOV")->getValue().asReal()),
+                    static_cast<F32>(self->getChild<LLUICtrl>("Light Focus")->getValue().asReal()),
+                    static_cast<F32>(self->getChild<LLUICtrl>("Light Ambiance")->getValue().asReal()));
                 volobjp->setSpotLightParams(spot_params);
             }
         }
