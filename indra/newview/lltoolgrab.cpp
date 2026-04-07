@@ -408,8 +408,7 @@ void LLToolGrabBase::startGrab()
     // of the drag.
     LLVector3d grab_offsetd = root->getPositionGlobal() - objectp->getPositionGlobal();
 
-    LLVector3 grab_offset;
-    grab_offset.set(grab_offsetd);
+    LLVector3 grab_offset(grab_offsetd);
 
     LLQuaternion rotation = root->getRotation();
     rotation.conjugate();
@@ -593,8 +592,7 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
             // Handle grabbing
             //------------------------------------------------------
 
-            LLVector3d x_part;
-            x_part.set(LLViewerCamera::getInstance()->getLeftAxis());
+            LLVector3d x_part(LLViewerCamera::getInstance()->getLeftAxis());
             x_part.mdV[VZ] = 0.0;
             x_part.normalize();
 
@@ -820,8 +818,7 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
             // Handle grabbing
             //------------------------------------------------------
 
-            LLVector3d x_part;
-            x_part.set(LLViewerCamera::getInstance()->getLeftAxis());
+            LLVector3d x_part(LLViewerCamera::getInstance()->getLeftAxis());
             x_part.mdV[VZ] = 0.0;
             x_part.normalize();
 

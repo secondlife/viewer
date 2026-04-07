@@ -167,8 +167,7 @@ void LLHUDEffectSpiral::triggerLocal()
 
     bool show_beam = gSavedSettings.getBOOL("ShowSelectionBeam");
 
-    LLColor4 color;
-    color.set(mColor);
+    LLColor4 color(mColor);
 
     if (!mPartSourcep)
     {

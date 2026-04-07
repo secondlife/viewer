@@ -662,9 +662,7 @@ void LLVOVolume::animateTextures()
 
                 LLMatrix4& tex_mat = *facep->mTextureMatrix;
                 tex_mat.setIdentity();
-                LLVector3 trans ;
-
-                    trans.set(LLVector3(off_s+0.5f, off_t+0.5f, 0.f));
+                LLVector3 trans(off_s+0.5f, off_t+0.5f, 0.f);
                     tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
 
                 LLVector3 scale(scale_s, scale_t, 1.f);

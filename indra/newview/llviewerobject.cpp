@@ -858,8 +858,7 @@ void LLViewerObject::buildReturnablesForChildrenVO( std::vector<PotentialReturna
 void LLViewerObject::constructAndAddReturnable( std::vector<PotentialReturnableObject>& returnables, LLViewerObject* pChild, LLViewerRegion* pTargetRegion )
 {
 
-    LLVector3 targetRegionPos;
-    targetRegionPos.set( pChild->getPositionGlobal() );
+    LLVector3 targetRegionPos( pChild->getPositionGlobal() );
 
     LLBBox childBBox = LLBBox( targetRegionPos, pChild->getRotationRegion(), pChild->getScale() * -0.5f,
                                 pChild->getScale() * 0.5f).getAxisAligned();
@@ -4805,8 +4804,7 @@ void LLViewerObject::setPositionGlobal(const LLVector3d &pos_global, bool damped
         else
         {
             // the relative position with the parent is constant, but the parent's position needs to be changed
-            LLVector3d position_offset;
-            position_offset.set(getPosition()*getParent()->getRotation());
+            LLVector3d position_offset(getPosition()*getParent()->getRotation());
             LLVector3d new_pos_global = pos_global - position_offset;
             static_cast<LLViewerObject*>(getParent())->setPositionGlobal(new_pos_global);
         }

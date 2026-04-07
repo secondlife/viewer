@@ -1318,8 +1318,7 @@ void LLAudioSource::updatePriority()
     else
     {
         // Priority is based on distance
-        LLVector3 dist_vec;
-        dist_vec.set(getPositionGlobal());
+        LLVector3 dist_vec(getPositionGlobal());
 
         if (gAudiop)
         {

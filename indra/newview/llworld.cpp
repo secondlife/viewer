@@ -347,8 +347,7 @@ LLVector3d  LLWorld::clipToVisibleRegions(const LLVector3d &start_pos, const LLV
     }
 
     LLVector3d delta_pos = end_pos - start_pos;
-    LLVector3d delta_pos_abs;
-    delta_pos_abs.set(delta_pos);
+    LLVector3d delta_pos_abs(delta_pos);
     delta_pos_abs.abs();
 
     LLVector3 region_coord = regionp->getPosRegionFromGlobal(end_pos);

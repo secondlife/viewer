@@ -463,8 +463,7 @@ bool LLHUDEffectPointAt::calcTargetPosition()
 
 const LLVector3d LLHUDEffectPointAt::getPointAtPosGlobal()
 {
-    LLVector3d global_pos;
-    global_pos.set(mTargetPos);
+    LLVector3d global_pos(mTargetPos);
     if (mSourceObject.notNull())
     {
         global_pos += mSourceObject->getPositionGlobal();

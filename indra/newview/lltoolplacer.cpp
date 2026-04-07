@@ -133,8 +133,7 @@ bool LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
     }
 
     // Find the simulator-side ray that will be used to place the object accurately
-    LLVector3d      mouse_direction;
-    mouse_direction.set( gViewerWindow->mouseDirectionGlobal( x, y ) );
+    LLVector3d      mouse_direction( gViewerWindow->mouseDirectionGlobal( x, y ) );
 
     *region = regionp;
     *ray_start_region = regionp->getPosRegionFromGlobal( ray_start_global );

@@ -824,8 +824,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
     LLVector3 drag_start_point_agent = gAgent.getPosAgentFromGlobal(mDragStartPointGlobal);
     LLVector3 drag_start_center_agent = gAgent.getPosAgentFromGlobal(mDragStartCenterGlobal);
 
-    LLVector3d drag_start_dir_d;
-    drag_start_dir_d.set(mDragStartPointGlobal - mDragStartCenterGlobal);
+    LLVector3d drag_start_dir_d(mDragStartPointGlobal - mDragStartCenterGlobal);
 
     F32 s = 0;
     F32 t = 0;
@@ -1026,10 +1025,8 @@ void LLManipScale::dragFace( S32 x, S32 y )
     LLVector3 drag_start_point_agent = gAgent.getPosAgentFromGlobal(drag_start_point_global);
     LLVector3 drag_start_center_agent = gAgent.getPosAgentFromGlobal(drag_start_center_global);
 
-    LLVector3d drag_start_dir_d;
-    drag_start_dir_d.set(drag_start_point_global - drag_start_center_global);
-    LLVector3 drag_start_dir_f;
-    drag_start_dir_f.set(drag_start_dir_d);
+    LLVector3d drag_start_dir_d(drag_start_point_global - drag_start_center_global);
+    LLVector3 drag_start_dir_f(drag_start_dir_d);
 
     LLBBox bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
 
@@ -1230,8 +1227,7 @@ void LLManipScale::stretchFace( const LLVector3& drag_start_agent, const LLVecto
             if( !getUniform() )
             {
                 LLVector3 delta_pos_local = axis * (0.5f * desired_delta_size);
-                LLVector3d delta_pos_global;
-                delta_pos_global.set(cur_bbox.localToAgent( delta_pos_local ) - cur_bbox.getCenterAgent());
+                LLVector3d delta_pos_global(cur_bbox.localToAgent( delta_pos_local ) - cur_bbox.getCenterAgent());
                 LLVector3 cur_pos = cur->getPositionEdit();
 
                 if (cur->isRootEdit() && !cur->isAttachment())

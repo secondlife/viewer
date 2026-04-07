@@ -1914,8 +1914,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                         //VECTORIZE THIS
                         if (mDrawablep->isActive())
                         {
-                            LLVector3 t;
-                            t.set(binormal.getF32ptr());
+                            LLVector3 t(binormal.getF32ptr());
                             t *= bump_quat;
                             binormal.load3(t.mV);
                         }
