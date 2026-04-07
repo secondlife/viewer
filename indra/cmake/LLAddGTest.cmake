@@ -62,6 +62,16 @@ function(LL_ADD_GTEST project name extra_libs)
     FOLDER "Tests/${project}_gtests"
   )
 
+  # CRITICAL: force the test exe to be a console subsystem app on Windows.
+  # The viewer's global linker flags set /SUBSYSTEM:WINDOWS (it's a GUI app),
+  # which would silently swallow gtest's stdout. Mirror what
+  # LL_ADD_INTEGRATION_TEST does.
+  if (WINDOWS)
+    set_target_properties(${target} PROPERTIES
+      LINK_FLAGS "/debug /SUBSYSTEM:CONSOLE"
+    )
+  endif()
+
   # Run the test as a custom command, touching a marker file on success.
   # Mirrors the TUT test pattern so build failures surface immediately.
   set(_marker "${CMAKE_CURRENT_BINARY_DIR}/${target}_ok.txt")
