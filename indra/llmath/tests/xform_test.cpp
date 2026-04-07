@@ -79,13 +79,13 @@ namespace tut
         xform_obj.setPosition(x, y, posz);
         ensure("setScale failed: ", xform_obj.getScale() == vec);
 
-        vec.setVec(x, y, posz);
+        vec.set(x, y, posz);
         ensure("getPosition failed: ", xform_obj.getPosition() == vec);
 
         x = x * 2.f;
         y = y + 2.3f;
         z = posz * 4.f;
-        vec.setVec(x, y, z);
+        vec.set(x, y, z);
         xform_obj.setPositionX(x);
         xform_obj.setPositionY(y);
         xform_obj.setPositionZ(z);
@@ -94,7 +94,7 @@ namespace tut
         xform_obj.setScaleChildOffset(true);
         ensure("setScaleChildOffset failed: ", xform_obj.getScaleChildOffset());
 
-        vec.setVec(x, y, z);
+        vec.set(x, y, z);
 
         xform_obj.addPosition(vec);
         vec += vec;
@@ -111,7 +111,7 @@ namespace tut
         ensure("getRotation 2 failed: ", xform_obj.getRotation() == quat);
 
         xform_obj.setRotation(x, y, z);
-        quat.setQuat(x,y,z);
+        quat.setEulerAngles(x, y, z);
         ensure("setRotation xyz failed: ", xform_obj.getRotation() == quat);
 
         // LLXform::setRotation(const F32 x, const F32 y, const F32 z)
@@ -186,7 +186,7 @@ namespace tut
         ensure("16. The value is not NULL", 1.f == formMatrix_obj.getWorldMatrix().mMatrix[3][3]);
     }
 
-    //to test mMin.clearVec() and mMax.clearVec() fns
+    //to test mMin.clear() and mMax.clear() fns
     template<> template<>
     void xform_test_object_t::test<6>()
     {

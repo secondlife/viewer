@@ -29,7 +29,6 @@
 #include "linden_common.h"
 #include "../test/lltut.h"
 
-#include "llcrc.h"
 #include "llrand.h"
 #include "lluuid.h"
 
@@ -226,57 +225,7 @@ namespace tut
 
 }
 
-namespace tut
-{
-    struct crc_data
-    {
-    };
-    using crc_test = test_group<crc_data>;
-    using crc_object = crc_test::object;
-    tut::crc_test tc("LLCrc");
-
-    template<> template<>
-    void crc_object::test<1>()
-    {
-        /* Test buffer update and individual char update */
-        const char TEST_BUFFER[] = "hello &#$)$&Nd0";
-        LLCRC c1, c2;
-        c1.update(reinterpret_cast<const U8*>(TEST_BUFFER), sizeof(TEST_BUFFER) - 1);
-        char* rh = const_cast<char*>(TEST_BUFFER);
-        while(*rh != '\0')
-        {
-            c2.update(*rh);
-            ++rh;
-        }
-        ensure_equals("crc update 1", c1.getCRC(), c2.getCRC());
-    }
-
-    template<> template<>
-    void crc_object::test<2>()
-    {
-        /* Test mixing of buffer and individual char update */
-        const char TEST_BUFFER1[] = "Split Buffer one $^%$%#@$";
-        const char TEST_BUFFER2[] = "Split Buffer two )(8723#5dsds";
-        LLCRC c1, c2;
-        c1.update(reinterpret_cast<const U8*>(TEST_BUFFER1), sizeof(TEST_BUFFER1) - 1);
-        char* rh = const_cast<char*>(TEST_BUFFER2;
-        while(*rh != '\0')
-        {
-            c1.update(*rh);
-            ++rh;
-        }
-
-        rh = const_cast<char*>(TEST_BUFFER1;
-        while(*rh != '\0')
-        {
-            c2.update(*rh);
-            ++rh;
-        }
-        c2.update(reinterpret_cast<const U8*>(TEST_BUFFER2), sizeof(TEST_BUFFER2) - 1);
-
-        ensure_equals("crc update 2", c1.getCRC(), c2.getCRC());
-    }
-}
+// LLCRC class removed from codebase — tests deleted
 
 namespace tut
 {

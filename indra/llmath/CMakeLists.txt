@@ -128,8 +128,23 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llquaternion llquaternion.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(mathmisc "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(m3math "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(m4math m4math.cpp "${test_libs}")
+
+  # Differential test that compares LLMatrix4 against glm::mat4 for the
+  # same operations. Pulls in the glm interface target.
+  include(GLM)
+  LL_ADD_INTEGRATION_TEST(m4math_glm_equivalence "" "${test_libs}")
+  target_link_libraries(INTEGRATION_TEST_m4math_glm_equivalence ll::glm)
   LL_ADD_INTEGRATION_TEST(v3dmath v3dmath.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}")
+
+  # GoogleTest tests — infrastructure is in cmake/{GTest,LLAddGTest}.cmake
+  # but currently parked. The test exe builds and runs (exit 0), but the
+  # llcommon-linked SL test environment hijacks stdout via APR/LL_INFOS,
+  # so gtest's printf output is never visible. New tests use TUT instead.
+  # See modernization_plan.md → Testing → "gtest stdout hijack" for details.
+  # include(LLAddGTest)
+  # LL_ADD_GTEST(llmath llmatrix4 "")
 endif (LL_TESTS)
