@@ -278,13 +278,6 @@ const LLVector3& LLVector3::set(const LLVector4& vec)
     return (*this);
 }
 
-LLVector3::LLVector3(const LLVector2 &vec)
-{
-    mV[VX] = static_cast<F32>(vec.mV[VX]);
-    mV[VY] = static_cast<F32>(vec.mV[VY]);
-    mV[VZ] = 0.f;
-}
-
 LLVector3::LLVector3(const LLVector3d& vec)
 {
     mV[VX] = static_cast<F32>(vec.mdV[VX]);
