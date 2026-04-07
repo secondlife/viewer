@@ -301,7 +301,7 @@ bool LLToolCamera::handleMouseUp(S32 x, S32 y, MASK mask)
                 {
                     LLCoordGL mouse_pos;
                     LLVector3 focus_pos = gAgent.getPosAgentFromGlobal(gAgentCamera.getFocusGlobal());
-                    bool success = LLViewerCamera::getInstance()->projectPosAgentToScreen(focus_pos, mouse_pos);
+                    bool success = LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(focus_pos), mouse_pos);
                     if (success)
                     {
                         LLUI::getInstance()->setMousePositionScreen(mouse_pos.mX, mouse_pos.mY);

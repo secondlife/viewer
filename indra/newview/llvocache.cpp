@@ -995,7 +995,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 
     //localize the camera
     LLVector3 region_agent = mRegionp->getOriginAgent();
-    camera.calcRegionFrustumPlanes(region_agent, gAgentCamera.mDrawDistance);
+    camera.calcRegionFrustumPlanes(static_cast<glm::vec3>(region_agent), gAgentCamera.mDrawDistance);
 
     mFrontCull = true;
     LLVOCacheOctreeCull culler(&camera, mRegionp, region_agent, do_occlusion && use_object_cache_occlusion,

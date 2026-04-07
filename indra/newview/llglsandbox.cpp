@@ -155,7 +155,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
                 {
                     return true;
                 }
-                S32 result = LLViewerCamera::getInstance()->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
+                S32 result = LLViewerCamera::getInstance()->sphereInFrustum(static_cast<glm::vec3>(drawable->getPositionAgent()), drawable->getRadius());
                 switch (result)
                 {
                   case 0:
@@ -214,7 +214,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
                 continue;
             }
 
-            S32 result = LLViewerCamera::getInstance()->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
+            S32 result = LLViewerCamera::getInstance()->sphereInFrustum(static_cast<glm::vec3>(drawable->getPositionAgent()), drawable->getRadius());
             if (result)
             {
                 switch (result)

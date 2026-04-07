@@ -374,7 +374,7 @@ bool LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
     if (mManipPart >= LL_YZ_PLANE && mManipPart <= LL_XY_PLANE)
     {
         LLCoordGL mouse_pos;
-        if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(select_center_agent, mouse_pos))
+        if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(select_center_agent), mouse_pos))
         {
             // mouse_pos may be nonsense
             LL_WARNS() << "Failed to project object center to screen" << LL_ENDL;

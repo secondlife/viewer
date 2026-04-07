@@ -28,6 +28,9 @@
 
 #include "pipeline.h"
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
+#include "glm/geometric.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 // library includes
 #include "llimagepng.h"
@@ -4754,7 +4757,7 @@ void LLPipeline::renderDebug()
 
         for (U32 i = 0; i < 8; i++)
         {
-            LLVector3* frust = mShadowCamera[i].mAgentFrustum;
+            glm::vec3* frust = mShadowCamera[i].mAgentFrustum;
 
             if (i > 3)
             { //render shadow frusta as volumes
@@ -4766,25 +4769,25 @@ void LLPipeline::renderDebug()
                 gGL.color4fv(col+(i-4)*4);
 
                 gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[4].mV);
-                gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[5].mV);
-                gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[6].mV);
-                gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[7].mV);
-                gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[4].mV);
+                gGL.vertex3fv(glm::value_ptr(frust[0])); gGL.vertex3fv(glm::value_ptr(frust[4]));
+                gGL.vertex3fv(glm::value_ptr(frust[1])); gGL.vertex3fv(glm::value_ptr(frust[5]));
+                gGL.vertex3fv(glm::value_ptr(frust[2])); gGL.vertex3fv(glm::value_ptr(frust[6]));
+                gGL.vertex3fv(glm::value_ptr(frust[3])); gGL.vertex3fv(glm::value_ptr(frust[7]));
+                gGL.vertex3fv(glm::value_ptr(frust[0])); gGL.vertex3fv(glm::value_ptr(frust[4]));
                 gGL.end();
 
                 gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.vertex3fv(frust[0].mV);
-                gGL.vertex3fv(frust[1].mV);
-                gGL.vertex3fv(frust[3].mV);
-                gGL.vertex3fv(frust[2].mV);
+                gGL.vertex3fv(glm::value_ptr(frust[0]));
+                gGL.vertex3fv(glm::value_ptr(frust[1]));
+                gGL.vertex3fv(glm::value_ptr(frust[3]));
+                gGL.vertex3fv(glm::value_ptr(frust[2]));
                 gGL.end();
 
                 gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.vertex3fv(frust[4].mV);
-                gGL.vertex3fv(frust[5].mV);
-                gGL.vertex3fv(frust[7].mV);
-                gGL.vertex3fv(frust[6].mV);
+                gGL.vertex3fv(glm::value_ptr(frust[4]));
+                gGL.vertex3fv(glm::value_ptr(frust[5]));
+                gGL.vertex3fv(glm::value_ptr(frust[7]));
+                gGL.vertex3fv(glm::value_ptr(frust[6]));
                 gGL.end();
             }
 
@@ -4818,18 +4821,18 @@ void LLPipeline::renderDebug()
 
                     //render camera frustum splits as outlines
                     gGL.begin(LLRender::LINES);
-                    gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[1].mV);
-                    gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[2].mV);
-                    gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[3].mV);
-                    gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[0].mV);
-                    gGL.vertex3fv(frust[4].mV); gGL.vertex3fv(frust[5].mV);
-                    gGL.vertex3fv(frust[5].mV); gGL.vertex3fv(frust[6].mV);
-                    gGL.vertex3fv(frust[6].mV); gGL.vertex3fv(frust[7].mV);
-                    gGL.vertex3fv(frust[7].mV); gGL.vertex3fv(frust[4].mV);
-                    gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[4].mV);
-                    gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[5].mV);
-                    gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[6].mV);
-                    gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[7].mV);
+                    gGL.vertex3fv(glm::value_ptr(frust[0])); gGL.vertex3fv(glm::value_ptr(frust[1]));
+                    gGL.vertex3fv(glm::value_ptr(frust[1])); gGL.vertex3fv(glm::value_ptr(frust[2]));
+                    gGL.vertex3fv(glm::value_ptr(frust[2])); gGL.vertex3fv(glm::value_ptr(frust[3]));
+                    gGL.vertex3fv(glm::value_ptr(frust[3])); gGL.vertex3fv(glm::value_ptr(frust[0]));
+                    gGL.vertex3fv(glm::value_ptr(frust[4])); gGL.vertex3fv(glm::value_ptr(frust[5]));
+                    gGL.vertex3fv(glm::value_ptr(frust[5])); gGL.vertex3fv(glm::value_ptr(frust[6]));
+                    gGL.vertex3fv(glm::value_ptr(frust[6])); gGL.vertex3fv(glm::value_ptr(frust[7]));
+                    gGL.vertex3fv(glm::value_ptr(frust[7])); gGL.vertex3fv(glm::value_ptr(frust[4]));
+                    gGL.vertex3fv(glm::value_ptr(frust[0])); gGL.vertex3fv(glm::value_ptr(frust[4]));
+                    gGL.vertex3fv(glm::value_ptr(frust[1])); gGL.vertex3fv(glm::value_ptr(frust[5]));
+                    gGL.vertex3fv(glm::value_ptr(frust[2])); gGL.vertex3fv(glm::value_ptr(frust[6]));
+                    gGL.vertex3fv(glm::value_ptr(frust[3])); gGL.vertex3fv(glm::value_ptr(frust[7]));
                     gGL.end();
                 }
             }
@@ -9490,9 +9493,10 @@ bool LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
     pp.push_back(LLVector3(max.mV[0], max.mV[1], max.mV[2]));
 
     //add corners of camera frustum
+    // Bridge: mAgentFrustum is now glm::vec3[]; pp is std::vector<LLVector3>.
     for (U32 i = 0; i < LLCamera::AGENT_FRUSTRUM_NUM; i++)
     {
-        pp.push_back(camera.mAgentFrustum[i]);
+        pp.push_back(LLVector3(camera.mAgentFrustum[i]));
     }
 
     //bounding box line segments
@@ -9939,21 +9943,24 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
             LLViewerCamera::updateFrustumPlanes(shadow_cam, false, false, true);
 
-            LLVector3* frust = shadow_cam.mAgentFrustum;
+            glm::vec3* frust = shadow_cam.mAgentFrustum;
 
-            LLVector3 pn = shadow_cam.getAtAxis();
+            // Bridge: getAtAxis() returns LLVector3 (LLCoordFrame-land).
+            const LLVector3& ll_at = shadow_cam.getAtAxis();
+            const glm::vec3 pn(ll_at.mV[VX], ll_at.mV[VY], ll_at.mV[VZ]);
+            const glm::vec3 eye_glm(eye.mV[VX], eye.mV[VY], eye.mV[VZ]);
 
             LLVector3 min, max;
 
             //construct 8 corners of split frustum section
             for (U32 i = 0; i < 4; i++)
             {
-                LLVector3 delta = frust[i+4]-eye;
-                delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
-                delta.normalize();
-                F32 dp = delta*pn;
-                frust[i] = eye + (delta*dist[j]*0.75f)/dp;
-                frust[i+4] = eye + (delta*dist[j+1]*1.25f)/dp;
+                glm::vec3 delta = frust[i+4] - eye_glm;
+                delta += (frust[i+4] - frust[(i+2)%4+4]) * 0.05f;
+                delta = glm::normalize(delta);
+                F32 dp = glm::dot(delta, pn);
+                frust[i]   = eye_glm + (delta * dist[j]   * 0.75f) / dp;
+                frust[i+4] = eye_glm + (delta * dist[j+1] * 1.25f) / dp;
             }
 
             shadow_cam.calcAgentFrustumPlanes(frust);

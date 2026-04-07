@@ -794,7 +794,7 @@ void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
         render_pos = gAgentAvatarp->getRenderPosition();
     }
     LLCoordGL screen_pos;
-    response["onscreen"] = LLViewerCamera::getInstance()->projectPosAgentToScreen(render_pos, screen_pos, false);
+    response["onscreen"] = LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(render_pos), screen_pos, false);
     response["x"] = screen_pos.mX;
     response["y"] = screen_pos.mY;
 }

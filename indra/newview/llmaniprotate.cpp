@@ -1219,7 +1219,7 @@ bool LLManipRotate::updateVisiblity()
     }
     else
     {
-        visible = LLViewerCamera::getInstance()->projectPosAgentToScreen(center, mCenterScreen );
+        visible = LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(center), mCenterScreen);
         if( visible )
         {
             mCenterToCam = gAgentCamera.getCameraPositionAgent() - center;

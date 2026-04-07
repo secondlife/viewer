@@ -113,10 +113,11 @@ void LLHUDIcon::render()
 
     F32 alpha_factor = clamp_rescale(mDistance, DIST_START_FADE, DIST_END_FADE, 1.f, 0.f);
 
-    LLVector3 x_pixel_vec;
-    LLVector3 y_pixel_vec;
-
-    camera->getPixelVectors(icon_position, y_pixel_vec, x_pixel_vec);
+    // Bridge: getPixelVectors now takes/returns glm::vec3.
+    glm::vec3 x_pixel_glm, y_pixel_glm;
+    camera->getPixelVectors(static_cast<glm::vec3>(icon_position), y_pixel_glm, x_pixel_glm);
+    LLVector3 x_pixel_vec(x_pixel_glm.x, x_pixel_glm.y, x_pixel_glm.z);
+    LLVector3 y_pixel_vec(y_pixel_glm.x, y_pixel_glm.y, y_pixel_glm.z);
 
     F32 scale_factor = 1.f;
     if (mAnimTimer.getElapsedTimeF32() < ANIM_TIME)
@@ -223,10 +224,11 @@ bool LLHUDIcon::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
 
     mDistance = dist_vec(icon_position, camera->getOrigin());
 
-    LLVector3 x_pixel_vec;
-    LLVector3 y_pixel_vec;
-
-    camera->getPixelVectors(icon_position, y_pixel_vec, x_pixel_vec);
+    // Bridge: getPixelVectors now takes/returns glm::vec3.
+    glm::vec3 x_pixel_glm, y_pixel_glm;
+    camera->getPixelVectors(static_cast<glm::vec3>(icon_position), y_pixel_glm, x_pixel_glm);
+    LLVector3 x_pixel_vec(x_pixel_glm.x, x_pixel_glm.y, x_pixel_glm.z);
+    LLVector3 y_pixel_vec(y_pixel_glm.x, y_pixel_glm.y, y_pixel_glm.z);
 
     F32 scale_factor = 1.f;
     if (mAnimTimer.getElapsedTimeF32() < ANIM_TIME)

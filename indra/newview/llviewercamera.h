@@ -33,6 +33,8 @@
 #include "llcoord.h"
 #include "lltrace.h"
 
+#include "glm/vec3.hpp"
+
 class LLViewerObject;
 const bool FOR_SELECTION = true;
 const bool NOT_FOR_SELECTION = false;
@@ -59,9 +61,9 @@ public:
 
     static eCameraID sCurCameraID;
 
-    bool updateCameraLocation(const LLVector3 &center,
-                                const LLVector3 &up_direction,
-                                const LLVector3 &point_of_interest);
+    bool updateCameraLocation(const glm::vec3& center,
+                                const glm::vec3& up_direction,
+                                const glm::vec3& point_of_interest);
 
     static void updateFrustumPlanes(LLCamera& camera, bool ortho = false, bool zflip = false, bool no_hacks = false);
     void setPerspective(bool for_selection, S32 x, S32 y_from_bot, S32 width, S32 height, bool limit_select_distance, F32 z_near = 0, F32 z_far = 0);
@@ -70,19 +72,19 @@ public:
     const LLMatrix4 &getModelview() const;
 
     // Warning!  These assume the current global matrices are correct
-    void projectScreenToPosAgent(const S32 screen_x, const S32 screen_y, LLVector3* pos_agent ) const;
-    bool projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoordGL &out_point, const bool clamp = true) const;
-    bool projectPosAgentToScreenEdge(const LLVector3 &pos_agent, LLCoordGL &out_point) const;
+    void projectScreenToPosAgent(const S32 screen_x, const S32 screen_y, glm::vec3* pos_agent) const;
+    bool projectPosAgentToScreen(const glm::vec3& pos_agent, LLCoordGL& out_point, const bool clamp = true) const;
+    bool projectPosAgentToScreenEdge(const glm::vec3& pos_agent, LLCoordGL& out_point) const;
 
     F32     getCosHalfFov() const { return mCosHalfCameraFOV; }
     F32     getAverageSpeed() const { return mAverageSpeed; }
     F32     getAverageAngularSpeed() const { return mAverageAngularSpeed; }
-    LLVector3 getVelocityDir() const {return mVelocityDir;}
+    glm::vec3 getVelocityDir() const {return mVelocityDir;}
     static LLTrace::CountStatHandle<>* getVelocityStat()           {return &sVelocityStat; }
     static LLTrace::CountStatHandle<>* getAngularVelocityStat()  {return &sAngularVelocityStat; }
 
-    void getPixelVectors(const LLVector3 &pos_agent, LLVector3 &up, LLVector3 &right);
-    LLVector3 roundToPixel(const LLVector3 &pos_agent);
+    void getPixelVectors(const glm::vec3& pos_agent, glm::vec3& up, glm::vec3& right);
+    glm::vec3 roundToPixel(const glm::vec3& pos_agent);
 
     // Sets the current matrix
     /* virtual */ void setView(F32 vertical_fov_rads); // NOTE: broadcasts to simulator
@@ -95,7 +97,7 @@ public:
     bool cameraUnderWater() const;
     bool areVertsVisible(LLViewerObject* volumep, bool all_verts);
 
-    const LLVector3& getPointOfInterest() const { return mLastPointOfInterest; }
+    const glm::vec3& getPointOfInterest() const { return mLastPointOfInterest; }
     F32 getPixelMeterRatio() const              { return mPixelMeterRatio; }
     S32 getScreenPixelArea() const              { return mScreenPixelArea; }
 
@@ -109,7 +111,7 @@ protected:
     static LLTrace::CountStatHandle<> sVelocityStat;
     static LLTrace::CountStatHandle<> sAngularVelocityStat;
 
-    LLVector3 mVelocityDir ;
+    glm::vec3 mVelocityDir ;
     F32       mAverageSpeed ;
     F32       mAverageAngularSpeed ;
     mutable LLMatrix4   mProjectionMatrix;  // Cache of perspective matrix
@@ -117,7 +119,7 @@ protected:
     F32                 mCameraFOVDefault;
     F32                 mPrevCameraFOVDefault;
     F32                 mCosHalfCameraFOV;
-    LLVector3           mLastPointOfInterest;
+    glm::vec3           mLastPointOfInterest;
     F32                 mPixelMeterRatio; // Divide by distance from camera to get pixels per meter at that distance.
     S32                 mScreenPixelArea; // Pixel area of entire window
     F32                 mZoomFactor;

@@ -32,6 +32,7 @@
 #include "llcoordframe.h"
 #include "llplane.h"
 #include "llvector4a.h"
+#include "glm/vec3.hpp"
 
 constexpr F32 DEFAULT_FIELD_OF_VIEW = 60.f * DEG_TO_RAD;
 constexpr F32 DEFAULT_ASPECT_RATIO  = 640.f / 480.f;
@@ -131,14 +132,14 @@ private:
     F32 mNearPlane;
     F32 mFarPlane;
     F32 mFixedDistance;         // Always return this distance, unless < 0
-    LLVector3 mFrustCenter;     // center of frustum and radius squared for ultra-quick exclusion test
+    glm::vec3 mFrustCenter;     // center of frustum and radius squared for ultra-quick exclusion test
     F32 mFrustRadiusSquared;
 
     U32 mPlaneCount;  //defaults to 6, if setUserClipPlane is called, uses user supplied clip plane in
 
-    LLVector3 mWorldPlanePos;       // Position of World Planes (may be offset from camera)
+    glm::vec3 mWorldPlanePos;       // Position of World Planes (may be offset from camera)
 public:
-    LLVector3 mAgentFrustum[AGENT_FRUSTRUM_NUM];  //8 corners of 6-plane frustum
+    glm::vec3 mAgentFrustum[AGENT_FRUSTRUM_NUM];  //8 corners of 6-plane frustum
     F32 mFrustumCornerDist;     //distance to corner of frustum against far clip plane
     LLPlane& getAgentPlane(U32 idx) { return mAgentPlanes[idx]; }
 
@@ -179,7 +180,7 @@ public:
         return atan2f(mXAxis[VZ], xylen);
     }
 
-    const LLVector3& getWorldPlanePos() const       { return mWorldPlanePos; }
+    const glm::vec3& getWorldPlanePos() const       { return mWorldPlanePos; }
 
     // Copy mView, mAspect, mNearPlane, and mFarPlane to buffer.
     // Return number of bytes copied.
@@ -188,26 +189,26 @@ public:
     // Copy mView, mAspect, mNearPlane, and mFarPlane from buffer.
     // Return number of bytes copied.
     size_t readFrustumFromBuffer(const char *buffer);
-    void calcAgentFrustumPlanes(LLVector3* frust);
-    void calcRegionFrustumPlanes(const LLVector3& shift, F32 far_clip_distance); //calculate regional planes from mAgentPlanes.
+    void calcAgentFrustumPlanes(glm::vec3* frust);
+    void calcRegionFrustumPlanes(const glm::vec3& shift, F32 far_clip_distance); //calculate regional planes from mAgentPlanes.
     void ignoreAgentFrustumPlane(S32 idx);
 
     // Returns 1 if partly in, 2 if fully in.
     // NOTE: 'center' is in absolute frame.
-    S32 sphereInFrustum(const LLVector3 &center, const F32 radius) const;
-    S32 pointInFrustum(const LLVector3 &point) const { return sphereInFrustum(point, 0.0f); }
-    S32 sphereInFrustumFull(const LLVector3 &center, const F32 radius) const { return sphereInFrustum(center, radius); }
+    S32 sphereInFrustum(const glm::vec3& center, const F32 radius) const;
+    S32 pointInFrustum(const glm::vec3& point) const { return sphereInFrustum(point, 0.0f); }
+    S32 sphereInFrustumFull(const glm::vec3& center, const F32 radius) const { return sphereInFrustum(center, radius); }
     S32 AABBInFrustum(const LLVector4a& center, const LLVector4a& radius, const LLPlane* planes = NULL);
     S32 AABBInRegionFrustum(const LLVector4a& center, const LLVector4a& radius);
     S32 AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius, const LLPlane* planes = NULL);
     S32 AABBInRegionFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius);
 
     //does a quick 'n dirty sphere-sphere check
-    S32 sphereInFrustumQuick(const LLVector3 &sphere_center, const F32 radius);
+    S32 sphereInFrustumQuick(const glm::vec3& sphere_center, const F32 radius);
 
     // Returns height of object in pixels (must be height because field of view
     // is based on window height).
-    F32 heightInPixels(const LLVector3 &center, F32 radius ) const;
+    F32 heightInPixels(const glm::vec3& center, F32 radius) const;
 
     // return the distance from pos to camera if visible (-distance if not visible)
     void setFixedDistance(F32 distance) { mFixedDistance = distance; }

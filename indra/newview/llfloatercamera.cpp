@@ -368,7 +368,8 @@ void LLFloaterCamera::showDebugInfo(bool show)
     if (show && mViewerCameraInfo->getChildCount() < 2)
     {
         mViewerCameraInfo->addChild(new LLCameraInfoPanel(mViewerCameraInfo, "Viewer Camera", *LLViewerCamera::getInstance(),
-            []() { return LLViewerCamera::getInstance()->getPointOfInterest(); }));
+            // Bridge: getPointOfInterest() now returns glm::vec3; get_vector_t is std::function<LLVector3()>.
+            []() { return LLVector3(LLViewerCamera::getInstance()->getPointOfInterest()); }));
         mAgentCameraInfo->addChild(new LLCameraInfoPanel(mAgentCameraInfo, "Agent Camera", gAgent.getFrameAgent(),
             []() { return gAgent.getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal()); }));
     }

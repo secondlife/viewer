@@ -662,7 +662,7 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
             LLVector3 grab_pos_agent = gAgent.getPosAgentFromGlobal( grab_point_global );
 
             LLCoordGL grab_center_gl( gViewerWindow->getWorldViewWidthScaled() / 2, gViewerWindow->getWorldViewHeightScaled() / 2);
-            LLViewerCamera::getInstance()->projectPosAgentToScreen(grab_pos_agent, grab_center_gl);
+            LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(grab_pos_agent), grab_center_gl);
 
             const S32 ROTATE_H_MARGIN = gViewerWindow->getWorldViewWidthScaled() / 20;
             const F32 ROTATE_ANGLE_PER_SECOND = 30.f * DEG_TO_RAD;
@@ -1034,7 +1034,7 @@ void LLToolGrabBase::onMouseCaptureLost()
             LLVector3 grab_point_agent = objectp->getRenderPosition();
 
             LLCoordGL gl_point;
-            if (LLViewerCamera::getInstance()->projectPosAgentToScreen(grab_point_agent, gl_point))
+            if (LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(grab_point_agent), gl_point))
             {
                 LLUI::getInstance()->setMousePositionScreen(gl_point.mX, gl_point.mY);
             }

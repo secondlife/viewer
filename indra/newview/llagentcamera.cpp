@@ -1468,7 +1468,10 @@ void LLAgentCamera::updateCamera()
 
     // Try to move the camera
 
-    if (!LLViewerCamera::getInstance()->updateCameraLocation(position_agent, mCameraUpVector, focus_agent))
+    if (!LLViewerCamera::getInstance()->updateCameraLocation(
+            static_cast<glm::vec3>(position_agent),
+            static_cast<glm::vec3>(mCameraUpVector),
+            static_cast<glm::vec3>(focus_agent)))
         return;
 
     // Change FOV
@@ -2253,7 +2256,8 @@ void LLAgentCamera::changeCameraToFollow(bool animate)
 
         // bang-in the current focus, position, and up vector of the follow cam
         const LLViewerCamera& camera = LLViewerCamera::instance();
-        mFollowCam.reset(camera.getOrigin(), camera.getPointOfInterest(), LLVector3::z_axis);
+        // Bridge: getPointOfInterest() now returns glm::vec3; LLFollowCam::reset takes LLVector3.
+        mFollowCam.reset(camera.getOrigin(), LLVector3(camera.getPointOfInterest()), LLVector3::z_axis);
 
         if (gBasicToolset)
         {

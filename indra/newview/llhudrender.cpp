@@ -80,7 +80,11 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
     }
     else
     {
-        camera->getPixelVectors(pos_agent, up_axis, right_axis);
+        // Bridge: getPixelVectors now takes/returns glm::vec3.
+        glm::vec3 up_glm, right_glm;
+        camera->getPixelVectors(static_cast<glm::vec3>(pos_agent), up_glm, right_glm);
+        up_axis = LLVector3(up_glm.x, up_glm.y, up_glm.z);
+        right_axis = LLVector3(right_glm.x, right_glm.y, right_glm.z);
     }
     LLCoordFrame render_frame = *camera;
     LLQuaternion rot;

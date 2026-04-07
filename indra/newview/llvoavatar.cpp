@@ -3757,9 +3757,11 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
 {
     LLQuaternion root_rot = mRoot->getWorldRotation();
     LLQuaternion inv_root_rot = ~root_rot;
-    LLVector3 pixel_right_vec;
-    LLVector3 pixel_up_vec;
-    LLViewerCamera::getInstance()->getPixelVectors(root_pos_last, pixel_up_vec, pixel_right_vec);
+    // Bridge: getPixelVectors now takes/returns glm::vec3.
+    glm::vec3 pixel_right_glm, pixel_up_glm;
+    LLViewerCamera::getInstance()->getPixelVectors(static_cast<glm::vec3>(root_pos_last), pixel_up_glm, pixel_right_glm);
+    LLVector3 pixel_right_vec(pixel_right_glm.x, pixel_right_glm.y, pixel_right_glm.z);
+    LLVector3 pixel_up_vec(pixel_up_glm.x, pixel_up_glm.y, pixel_up_glm.z);
     LLVector3 camera_to_av = root_pos_last - LLViewerCamera::getInstance()->getOrigin();
     camera_to_av.normalize();
     LLVector3 local_camera_at = camera_to_av * inv_root_rot;

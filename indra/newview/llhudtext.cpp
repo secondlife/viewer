@@ -170,7 +170,11 @@ void LLHUDText::renderText()
     }
     else
     {
-        LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+        // Bridge: getPixelVectors now takes/returns glm::vec3.
+        glm::vec3 x_pixel_glm, y_pixel_glm;
+        LLViewerCamera::getInstance()->getPixelVectors(static_cast<glm::vec3>(mPositionAgent), y_pixel_glm, x_pixel_glm);
+        x_pixel_vec = LLVector3(x_pixel_glm.x, x_pixel_glm.y, x_pixel_glm.z);
+        y_pixel_vec = LLVector3(y_pixel_glm.x, y_pixel_glm.y, y_pixel_glm.z);
     }
 
     LLVector3 width_vec = mWidth * x_pixel_vec;
@@ -410,17 +414,18 @@ void LLHUDText::updateVisibility()
     }
 
 
-    LLVector3 x_pixel_vec;
-    LLVector3 y_pixel_vec;
-
-    LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+    // Bridge: getPixelVectors / sphereInFrustum now take/return glm::vec3.
+    glm::vec3 x_pixel_glm, y_pixel_glm;
+    LLViewerCamera::getInstance()->getPixelVectors(static_cast<glm::vec3>(mPositionAgent), y_pixel_glm, x_pixel_glm);
+    LLVector3 x_pixel_vec(x_pixel_glm.x, x_pixel_glm.y, x_pixel_glm.z);
+    LLVector3 y_pixel_vec(y_pixel_glm.x, y_pixel_glm.y, y_pixel_glm.z);
 
     LLVector3 render_position = mPositionAgent +
             (x_pixel_vec * mPositionOffset.x) +
             (y_pixel_vec * mPositionOffset.y);
 
     mOffscreen = false;
-    if (!LLViewerCamera::getInstance()->sphereInFrustum(render_position, mRadius))
+    if (!LLViewerCamera::getInstance()->sphereInFrustum(static_cast<glm::vec3>(render_position), mRadius))
     {
 //      if (!mVisibleOffScreen)
 //      {
@@ -441,9 +446,11 @@ glm::vec2 LLHUDText::updateScreenPos(glm::vec2 &offset)
 {
     LLCoordGL screen_pos;
     glm::vec2 screen_pos_vec;
-    LLVector3 x_pixel_vec;
-    LLVector3 y_pixel_vec;
-    LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+    // Bridge: getPixelVectors now takes/returns glm::vec3.
+    glm::vec3 x_pixel_glm, y_pixel_glm;
+    LLViewerCamera::getInstance()->getPixelVectors(static_cast<glm::vec3>(mPositionAgent), y_pixel_glm, x_pixel_glm);
+    LLVector3 x_pixel_vec(x_pixel_glm.x, x_pixel_glm.y, x_pixel_glm.z);
+    LLVector3 y_pixel_vec(y_pixel_glm.x, y_pixel_glm.y, y_pixel_glm.z);
 //  LLVector3 world_pos = mPositionAgent + (offset.x * x_pixel_vec) + (offset.y * y_pixel_vec);
 //  if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(world_pos, screen_pos, false) && mVisibleOffScreen)
 //  {

@@ -712,8 +712,8 @@ void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
     S32 y = 0;
     const bool CLAMP = true;
 
-    if (LLViewerCamera::getInstance()->projectPosAgentToScreen(pos_local, screen, CLAMP)
-        || LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(pos_local, screen) )
+    if (LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(pos_local), screen, CLAMP)
+        || LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(static_cast<glm::vec3>(pos_local), screen) )
     {
         gHUDView->screenPointToLocal(screen.mX, screen.mY, &x, &y);
 
