@@ -29,6 +29,7 @@
 #include "llemojidictionary.h"
 #include "llfloater.h"
 #include "lluictrl.h"
+#include "glm/vec2.hpp"
 
 class LLScrollbar;
 
@@ -105,7 +106,7 @@ protected:
     size_t          mFirstVisible = 0;
     size_t          mScrollPos = 0;
     size_t          mCurSelected = 0;
-    LLVector2       mLastHover;
+    glm::vec2       mLastHover{0.0f};
 };
 
 // ============================================================================

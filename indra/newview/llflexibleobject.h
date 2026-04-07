@@ -39,6 +39,7 @@
 #include "llprimitive.h"
 #include "llvovolume.h"
 #include "llwind.h"
+#include "glm/vec2.hpp"
 
 // 10 ms for the whole thing!
 const F32   FLEXIBLE_OBJECT_TIMESLICE       = 0.003f;
@@ -51,7 +52,7 @@ const U32   FLEXIBLE_OBJECT_MAX_LOD         = 10;
 struct LLFlexibleObjectSection
 {
     // Input parameters
-    LLVector2       mScale;
+    glm::vec2       mScale;
     LLQuaternion    mAxisRotation;
     // Simulated state
     LLVector3       mPosition;
