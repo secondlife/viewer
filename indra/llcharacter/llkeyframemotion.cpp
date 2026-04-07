@@ -1641,10 +1641,9 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                     return false;
                 }
 
-                LLVector3 rot_vec;
-                rot_vec.mV[VX] = U16_to_F32(x, -1.f, 1.f);
-                rot_vec.mV[VY] = U16_to_F32(y, -1.f, 1.f);
-                rot_vec.mV[VZ] = U16_to_F32(z, -1.f, 1.f);
+                LLVector3 rot_vec(U16_to_F32(x, -1.f, 1.f),
+                                  U16_to_F32(y, -1.f, 1.f),
+                                  U16_to_F32(z, -1.f, 1.f));
 
                 if (!rot_vec.isFinite())
                 {

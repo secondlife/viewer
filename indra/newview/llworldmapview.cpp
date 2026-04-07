@@ -1015,8 +1015,7 @@ void LLWorldMapView::drawFrustum()
 LLVector3 LLWorldMapView::globalPosToView( const LLVector3d& global_pos )
 {
     LLVector3d relative_pos_global = global_pos - gAgentCamera.getCameraPositionGlobal();
-    LLVector3 pos_local;
-    pos_local.set(relative_pos_global);  // convert to floats from doubles
+    LLVector3 pos_local(relative_pos_global);  // convert to floats from doubles
 
     pos_local.mV[VX] *= mMapRatio;
     pos_local.mV[VY] *= mMapRatio;
@@ -1104,8 +1103,7 @@ LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
 
     pos_local *= ( REGION_WIDTH_METERS / mMapScale );
 
-    LLVector3d pos_global;
-    pos_global.set( pos_local );
+    LLVector3d pos_global( pos_local );
     pos_global += gAgentCamera.getCameraPositionGlobal();
     if(gAgent.isGodlike())
     {

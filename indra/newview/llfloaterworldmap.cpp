@@ -1000,10 +1000,9 @@ void LLFloaterWorldMap::trackURL(const std::string& region_name, S32 x_coord, S3
     z_coord = llclamp(z_coord, 0, 4096);
     if (sim_info)
     {
-        LLVector3 local_pos;
-        local_pos.mV[VX] = static_cast<F32>(x_coord);
-        local_pos.mV[VY] = static_cast<F32>(y_coord);
-        local_pos.mV[VZ] = static_cast<F32>(z_coord);
+        LLVector3 local_pos(static_cast<F32>(x_coord),
+                            static_cast<F32>(y_coord),
+                            static_cast<F32>(z_coord));
         LLVector3d global_pos = sim_info->getGlobalPos(local_pos);
         trackLocation(global_pos);
         mTrackCtrlsPanel->setDefaultBtn(mTeleportButton);

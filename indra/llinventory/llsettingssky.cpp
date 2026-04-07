@@ -51,11 +51,8 @@ namespace {
         F32 sinPhi   = sin(altitude);
         F32 cosPhi   = cos(altitude);
 
-        LLVector3 dir;
         // +x right, +z up, +y at...
-        dir.mV[0] = cosTheta * cosPhi;
-        dir.mV[1] = sinTheta * cosPhi;
-        dir.mV[2] = sinPhi;
+        LLVector3 dir(cosTheta * cosPhi, sinTheta * cosPhi, sinPhi);
 
         LLVector3 axis = LLVector3::x_axis % dir;
         axis.normalize();

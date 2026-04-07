@@ -574,8 +574,7 @@ LLVector3 LLNetMap::globalPosToView(const LLVector3d& global_pos)
     LLVector3d camera_position = gAgentCamera.getCameraPositionGlobal();
 
     LLVector3d relative_pos_global = global_pos - camera_position;
-    LLVector3 pos_local;
-    pos_local.set(relative_pos_global);  // convert to floats from doubles
+    LLVector3 pos_local(relative_pos_global);  // convert to floats from doubles
 
     pos_local.mV[VX] *= mPixelsPerMeter;
     pos_local.mV[VY] *= mPixelsPerMeter;
@@ -700,8 +699,7 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 
     pos_local *= ( LLWorld::getInstance()->getRegionWidthInMeters() / mScale );
 
-    LLVector3d pos_global;
-    pos_global.set( pos_local );
+    LLVector3d pos_global( pos_local );
     pos_global += gAgentCamera.getCameraPositionGlobal();
 
     return pos_global;
@@ -904,8 +902,7 @@ void LLNetMap::showAvatarInspector(const LLUUID& avatar_id)
 
 void LLNetMap::renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius_meters )
 {
-    LLVector3 local_pos;
-    local_pos.set( pos - mObjectImageCenterGlobal );
+    LLVector3 local_pos( pos - mObjectImageCenterGlobal );
 
     S32 diameter_pixels = ll_round(2 * radius_meters * mObjectMapTPM);
     renderPoint( local_pos, color, diameter_pixels );

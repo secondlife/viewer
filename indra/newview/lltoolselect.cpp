@@ -187,8 +187,7 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
             // have avatar turn to face the selected object(s)
             LLVector3d selection_center = LLSelectMgr::getInstance()->getSelectionCenterGlobal();
             selection_center = selection_center - gAgent.getPositionGlobal();
-            LLVector3 selection_dir;
-            selection_dir.set(selection_center);
+            LLVector3 selection_dir(selection_center);
             selection_dir.mV[VZ] = 0.f;
             selection_dir.normalize();
             if (!object->isAvatar() && gAgent.getAtAxis() * selection_dir < 0.6f)

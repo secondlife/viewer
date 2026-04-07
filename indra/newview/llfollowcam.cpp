@@ -374,13 +374,10 @@ void LLFollowCam::update()
             mPitchSineAndCosineNeedToBeUpdated = false;
         }
 
-        LLVector3 positionOffsetFromSubject;
-        positionOffsetFromSubject.set
-            (
-                horizontalDirectionFromCameraToSubject.mV[ VX ] * mPitchCos,
-                horizontalDirectionFromCameraToSubject.mV[ VY ] * mPitchCos,
-                -mPitchSin
-            );
+        LLVector3 positionOffsetFromSubject(
+            horizontalDirectionFromCameraToSubject.mV[ VX ] * mPitchCos,
+            horizontalDirectionFromCameraToSubject.mV[ VY ] * mPitchCos,
+            -mPitchSin);
 
         positionOffsetFromSubject *= mSimulatedDistance;
 
@@ -451,8 +448,7 @@ bool LLFollowCam::updateBehindnessConstraint(LLVector3 focus, LLVector3& cam_pos
         //--------------------------------------------------------------
         // horizontalized vector from focus to camera
         //--------------------------------------------------------------
-        LLVector3 horizontalVectorFromFocusToCamera;
-        horizontalVectorFromFocusToCamera.set(cam_position - focus);
+        LLVector3 horizontalVectorFromFocusToCamera(cam_position - focus);
         horizontalVectorFromFocusToCamera.mV[ VZ ] = 0.0f;
         F32 cameraZ = cam_position.mV[ VZ ];
 

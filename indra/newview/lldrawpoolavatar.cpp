@@ -801,8 +801,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
         LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
         rot_mat *= cfr;
 
-        LLVector4 wind;
-        wind.set(avatarp->mWindVec);
+        LLVector4 wind(avatarp->mWindVec);
         wind.mV[VW] = 0;
         wind = wind * rot_mat;
         wind.mV[VW] = avatarp->mWindVec.mV[VW];

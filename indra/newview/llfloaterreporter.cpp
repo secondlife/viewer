@@ -337,8 +337,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
             if (regionp)
             {
                 getChild<LLUICtrl>("sim_field")->setValue(regionp->getName());
-                LLVector3d global_pos;
-                global_pos.set(objectp->getPositionRegion());
+                LLVector3d global_pos(objectp->getPositionRegion());
                 setPosBox(global_pos);
             }
 

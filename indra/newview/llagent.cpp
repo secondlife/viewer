@@ -1021,8 +1021,7 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
             mAgentOriginGlobal = regionp->getOriginGlobal();
             LLVector3d agent_offset_global = mRegionp->getOriginGlobal();
 
-            LLVector3 delta;
-            delta.set(regionp->getOriginGlobal() - mRegionp->getOriginGlobal());
+            LLVector3 delta(regionp->getOriginGlobal() - mRegionp->getOriginGlobal());
 
             setPositionAgent(getPositionAgent() - delta);
 
@@ -1055,8 +1054,7 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
             // We've changed regions, we're now going to change our agent coordinate frame.
             mAgentOriginGlobal = regionp->getOriginGlobal();
 
-            LLVector3 delta;
-            delta.set(regionp->getOriginGlobal());
+            LLVector3 delta(regionp->getOriginGlobal());
 
             setPositionAgent(getPositionAgent() - delta);
             LLVector3 camera_position_agent = LLViewerCamera::getInstance()->getOrigin();
@@ -1237,8 +1235,7 @@ void LLAgent::setPositionAgent(const LLVector3 &pos_agent)
     {
         mFrameAgent.setOrigin(pos_agent);
 
-        LLVector3d pos_agent_d;
-        pos_agent_d.set(pos_agent);
+        LLVector3d pos_agent_d(pos_agent);
         mPositionGlobal = pos_agent_d + mAgentOriginGlobal;
     }
 
@@ -1313,8 +1310,7 @@ F64 LLAgent::getDistanceTraveled() const
 //-----------------------------------------------------------------------------
 LLVector3 LLAgent::getPosAgentFromGlobal(const LLVector3d &pos_global) const
 {
-    LLVector3 pos_agent;
-    pos_agent.set(pos_global - mAgentOriginGlobal);
+    LLVector3 pos_agent(pos_global - mAgentOriginGlobal);
     return pos_agent;
 }
 
@@ -1323,8 +1319,7 @@ LLVector3 LLAgent::getPosAgentFromGlobal(const LLVector3d &pos_global) const
 //-----------------------------------------------------------------------------
 LLVector3d LLAgent::getPosGlobalFromAgent(const LLVector3 &pos_agent) const
 {
-    LLVector3d pos_agent_d;
-    pos_agent_d.set(pos_agent);
+    LLVector3d pos_agent_d(pos_agent);
     return pos_agent_d + mAgentOriginGlobal;
 }
 
@@ -1828,8 +1823,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
             setFlying(true);
         }
 
-        LLVector3 at;
-        at.set(mFrameAgent.getAtAxis());
+        LLVector3 at(mFrameAgent.getAtAxis());
         LLVector3 target_agent = getPosAgentFromGlobal(mAutoPilotTargetGlobal);
         LLVector3 direction = target_agent - getPositionAgent();
 
@@ -2517,10 +2511,9 @@ LLSD ll_sdmap_from_vector3(const LLVector3& vec)
 
 LLVector3 ll_vector3_from_sdmap(const LLSD& sd)
 {
-    LLVector3 ret;
-    ret.mV[VX] = F32(sd["X"].asReal());
-    ret.mV[VY] = F32(sd["Y"].asReal());
-    ret.mV[VZ] = F32(sd["Z"].asReal());
+    LLVector3 ret(F32(sd["X"].asReal()),
+                  F32(sd["Y"].asReal()),
+                  F32(sd["Z"].asReal()));
     return ret;
 }
 

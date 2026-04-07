@@ -430,10 +430,9 @@ LLVector3 LLAgentCamera::calcFocusOffset(LLViewerObject *object, LLVector3 origi
 
     // obj_to_cam_ray_proportions are the (positive) ratios of
     // the obj_to_cam_ray x,y,z components with the x,y,z object dimensions.
-    LLVector3 obj_to_cam_ray_proportions;
-    obj_to_cam_ray_proportions.mV[VX] = llabs(obj_to_cam_ray.mV[VX] / object_extents.mV[VX]);
-    obj_to_cam_ray_proportions.mV[VY] = llabs(obj_to_cam_ray.mV[VY] / object_extents.mV[VY]);
-    obj_to_cam_ray_proportions.mV[VZ] = llabs(obj_to_cam_ray.mV[VZ] / object_extents.mV[VZ]);
+    LLVector3 obj_to_cam_ray_proportions(llabs(obj_to_cam_ray.mV[VX] / object_extents.mV[VX]),
+                                         llabs(obj_to_cam_ray.mV[VY] / object_extents.mV[VY]),
+                                         llabs(obj_to_cam_ray.mV[VZ] / object_extents.mV[VZ]));
 
     // find the largest ratio stored in obj_to_cam_ray_proportions
     // this corresponds to the object's local axial plane (XY, YZ, XZ) that is *most* facing the camera
@@ -891,8 +890,7 @@ void LLAgentCamera::cameraOrbitOver(const F32 angle)
 
         F32 angle_from_up = acos( camera_offset_unit * gAgent.getReferenceUpVector() );
 
-        LLVector3d left_axis;
-        left_axis.set(LLViewerCamera::getInstance()->getLeftAxis());
+        LLVector3d left_axis(LLViewerCamera::getInstance()->getLeftAxis());
         F32 new_angle = llclamp(angle_from_up - angle, 1.f * DEG_TO_RAD, 179.f * DEG_TO_RAD);
         mOrbitOverAngle += angle_from_up - new_angle;
         mCameraFocusOffsetTarget.rotVec(angle_from_up - new_angle, left_axis);
@@ -906,8 +904,7 @@ void LLAgentCamera::resetCameraOrbit()
     LLVector3 camera_offset_unit(mCameraFocusOffsetTarget);
     camera_offset_unit.normalize();
 
-    LLVector3d left_axis;
-    left_axis.set(LLViewerCamera::getInstance()->getLeftAxis());
+    LLVector3d left_axis(LLViewerCamera::getInstance()->getLeftAxis());
     mCameraFocusOffsetTarget.rotVec(-mOrbitOverAngle, left_axis);
 
     mCameraFocusOffsetTarget.rotVec(-mOrbitAroundRadians, 0.f, 0.f, 1.f);
@@ -1055,8 +1052,7 @@ void LLAgentCamera::cameraOrbitIn(const F32 meters)
 //-----------------------------------------------------------------------------
 void LLAgentCamera::cameraPanIn(F32 meters)
 {
-    LLVector3d at_axis;
-    at_axis.set(LLViewerCamera::getInstance()->getAtAxis());
+    LLVector3d at_axis(LLViewerCamera::getInstance()->getAtAxis());
 
     mPanFocusDiff += meters * at_axis;
 
@@ -1073,8 +1069,7 @@ void LLAgentCamera::cameraPanIn(F32 meters)
 //-----------------------------------------------------------------------------
 void LLAgentCamera::cameraPanLeft(F32 meters)
 {
-    LLVector3d left_axis;
-    left_axis.set(LLViewerCamera::getInstance()->getLeftAxis());
+    LLVector3d left_axis(LLViewerCamera::getInstance()->getLeftAxis());
 
     mPanFocusDiff += meters * left_axis;
 
@@ -1095,8 +1090,7 @@ void LLAgentCamera::cameraPanLeft(F32 meters)
 //-----------------------------------------------------------------------------
 void LLAgentCamera::cameraPanUp(F32 meters)
 {
-    LLVector3d up_axis;
-    up_axis.set(LLViewerCamera::getInstance()->getUpAxis());
+    LLVector3d up_axis(LLViewerCamera::getInstance()->getUpAxis());
 
     mPanFocusDiff += meters * up_axis;
 
@@ -1727,8 +1721,7 @@ LLVector3d LLAgentCamera::getCameraPositionGlobal() const
 //-----------------------------------------------------------------------------
 F32 LLAgentCamera::calcCameraFOVZoomFactor()
 {
-    LLVector3 camera_offset_dir;
-    camera_offset_dir.set(mCameraFocusOffset);
+    LLVector3 camera_offset_dir(mCameraFocusOffset);
 
     if (mCameraMode == CAMERA_MODE_MOUSELOOK)
     {
@@ -1765,8 +1758,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
         gAgent.getPosGlobalFromAgent(getAvatarRootPosition());
 
     bool        isConstrained = false;
-    LLVector3d  head_offset;
-    head_offset.set(mThirdPersonHeadOffset);
+    LLVector3d  head_offset(mThirdPersonHeadOffset);
 
     LLVector3d camera_position_global;
 
@@ -1855,8 +1847,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
             if (!isDisableCameraConstraints() && !mCameraCollidePlane.isExactlyZero() &&
                 (!isAgentAvatarValid() || !gAgentAvatarp->isSitting()))
             {
-                LLVector3 plane_normal;
-                plane_normal.set(mCameraCollidePlane.mV);
+                LLVector3 plane_normal(mCameraCollidePlane.mV);
 
                 F32 offset_dot_norm = local_camera_offset * plane_normal;
                 if (llabs(offset_dot_norm) < 0.001f)
@@ -1904,9 +1895,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
             local_camera_offset *= mCurrentCameraDistance;
 
             // set the global camera position
-            LLVector3d camera_offset;
-
-            camera_offset.set( local_camera_offset );
+            LLVector3d camera_offset( local_camera_offset );
             camera_position_global = frame_center_global + head_offset + camera_offset;
 
             if (isAgentAvatarValid())

@@ -882,9 +882,7 @@ void LLVOTree::updateMesh()
 
     F32 radius = getScale().length()*0.05f;
     LLMatrix4 scale_mat;
-    scale_mat.mMatrix[0][0] =
-        scale_mat.mMatrix[1][1] =
-        scale_mat.mMatrix[2][2] = radius;
+    scale_mat.initScale(LLVector3(radius, radius, radius));
 
     scale_mat *= rot_mat;
 
@@ -1024,9 +1022,7 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
                 llassert(sLODIndexCount[trunk_LOD] > 0);
                 width = scale * length * aspect;
                 LLMatrix4 scale_mat;
-                scale_mat.mMatrix[0][0] = width;
-                scale_mat.mMatrix[1][1] = width;
-                scale_mat.mMatrix[2][2] = scale*length;
+                scale_mat.initScale(LLVector3(width, width, scale*length));
                 scale_mat *= matrix;
 
                 glm::mat4 norm(glm::make_mat4(reinterpret_cast<F32*>(scale_mat.mMatrix)));
@@ -1072,9 +1068,8 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
             //
             {
                 LLMatrix4 scale_mat;
-                scale_mat.mMatrix[0][0] =
-                    scale_mat.mMatrix[1][1] =
-                    scale_mat.mMatrix[2][2] = scale*mLeafScale;
+                const F32 leaf_size = scale*mLeafScale;
+                scale_mat.initScale(LLVector3(leaf_size, leaf_size, leaf_size));
 
                 scale_mat *= matrix;
 

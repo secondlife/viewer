@@ -2145,15 +2145,13 @@ bool LLViewerRegion::pointInRegionGlobal(const LLVector3d &point_global) const
 
 LLVector3 LLViewerRegion::getPosRegionFromGlobal(const LLVector3d &point_global) const
 {
-    LLVector3 pos_region;
-    pos_region.set(point_global - mImpl->mOriginGlobal);
+    LLVector3 pos_region(point_global - mImpl->mOriginGlobal);
     return pos_region;
 }
 
 LLVector3d LLViewerRegion::getPosGlobalFromRegion(const LLVector3 &pos_region) const
 {
-    LLVector3d pos_region_d;
-    pos_region_d.set(pos_region);
+    LLVector3d pos_region_d(pos_region);
     return pos_region_d + mImpl->mOriginGlobal;
 }
 

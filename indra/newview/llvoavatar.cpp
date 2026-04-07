@@ -3316,8 +3316,7 @@ void LLVOAvatar::idleUpdateWindEffect()
         //RN: velocity varies too much frame to frame for this to work
         mRippleAccel.clear();//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLSmoothInterpolation::getInterpolant(0.02f));
         mLastVel = velocity;
-        LLVector4 wind;
-        wind.set(getRegion()->mWind.getVelocityNoisy(getPositionAgent(), 4.f) - velocity);
+        LLVector4 wind(getRegion()->mWind.getVelocityNoisy(getPositionAgent(), 4.f) - velocity);
 
         if (mInAir)
         {

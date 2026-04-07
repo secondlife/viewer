@@ -312,8 +312,7 @@ void LLAudioChannelOpenAL::update3DPosition()
         alSource3f(mALSource, AL_VELOCITY, 0.0, 0.0, 0.0);
         alSourcei (mALSource, AL_SOURCE_RELATIVE, AL_TRUE);
     } else {
-        LLVector3 float_pos;
-        float_pos.set(mCurrentSourcep->getPositionGlobal());
+        LLVector3 float_pos(mCurrentSourcep->getPositionGlobal());
         alSourcefv(mALSource, AL_POSITION, float_pos.mV);
         alSourcefv(mALSource, AL_VELOCITY, mCurrentSourcep->getVelocity().mV);
         alSourcei (mALSource, AL_SOURCE_RELATIVE, AL_FALSE);

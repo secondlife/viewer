@@ -1424,7 +1424,6 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
             // Add placeholder to not break index.
             // Not going to be used by viewer, will be stripped from skin_info.
             LLMatrix4 gltf_transform;
-            gltf_transform.setIdentity();
             mInverseBindMatrices[skin_idx].push_back(LLMatrix4a(gltf_transform));
         }
         else if (inverse_count > i)

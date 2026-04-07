@@ -4297,8 +4297,7 @@ LLVector3d LLViewerWindow::clickPointInWorldGlobal(S32 x, S32 y_from_bot, LLView
     // where the user clicked on the object
     mouse_direction_global *= static_cast<F32>(relative_object.length());
 
-    LLVector3d new_pos;
-    new_pos.set(mouse_direction_global);
+    LLVector3d new_pos(mouse_direction_global);
     // transform mouse vector back to world coords
     new_pos += gAgentCamera.getCameraPositionGlobal();
 
@@ -4637,11 +4636,8 @@ bool LLViewerWindow::mousePointOnPlaneGlobal(LLVector3d& point, const S32 x, con
                                         const LLVector3d &plane_point_global,
                                         const LLVector3 &plane_normal_global)
 {
-    LLVector3d  mouse_direction_global_d;
-
-    mouse_direction_global_d.set(mouseDirectionGlobal(x,y));
-    LLVector3d  plane_normal_global_d;
-    plane_normal_global_d.set(plane_normal_global);
+    LLVector3d  mouse_direction_global_d(mouseDirectionGlobal(x,y));
+    LLVector3d  plane_normal_global_d(plane_normal_global);
     F64 plane_mouse_dot = (plane_normal_global_d * mouse_direction_global_d);
     LLVector3d plane_origin_camera_rel = plane_point_global - gAgentCamera.getCameraPositionGlobal();
     F64 mouse_look_at_scale = (plane_normal_global_d * plane_origin_camera_rel)
@@ -4683,8 +4679,7 @@ bool LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
     // walk forwards to find the point
     for (mouse_dir_scale = FIRST_PASS_STEP; mouse_dir_scale < draw_distance; mouse_dir_scale += FIRST_PASS_STEP)
     {
-        LLVector3d mouse_direction_global_d;
-        mouse_direction_global_d.set(mouse_direction_global * mouse_dir_scale);
+        LLVector3d mouse_direction_global_d(mouse_direction_global * mouse_dir_scale);
         probe_point_global = camera_pos_global + mouse_direction_global_d;
 
         regionp = LLWorld::getInstance()->resolveRegionGlobal(probe_point_region, probe_point_global);
@@ -4730,8 +4725,7 @@ bool LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
         // take a step backwards, then walk forwards again to refine position
         for ( mouse_dir_scale -= FIRST_PASS_STEP; mouse_dir_scale <= stop_mouse_dir_scale; mouse_dir_scale += SECOND_PASS_STEP)
         {
-            LLVector3d mouse_direction_global_d;
-            mouse_direction_global_d.set(mouse_direction_global * mouse_dir_scale);
+            LLVector3d mouse_direction_global_d(mouse_direction_global * mouse_dir_scale);
             probe_point_global = camera_pos_global + mouse_direction_global_d;
 
             regionp = LLWorld::getInstance()->resolveRegionGlobal(probe_point_region, probe_point_global);

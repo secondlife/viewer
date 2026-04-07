@@ -450,12 +450,10 @@ inline F32 LLVector4::normalize()
 // Because apparently some parts of the viewer use this for color info.
 inline const LLVector4 srgbVector4(const LLVector4& a)
 {
-    LLVector4 srgbColor;
-
-    srgbColor.mV[VX] = linearTosRGB(a.mV[VX]);
-    srgbColor.mV[VY] = linearTosRGB(a.mV[VY]);
-    srgbColor.mV[VZ] = linearTosRGB(a.mV[VZ]);
-    srgbColor.mV[VW] = a.mV[VW];
+    LLVector4 srgbColor(linearTosRGB(a.mV[VX]),
+                        linearTosRGB(a.mV[VY]),
+                        linearTosRGB(a.mV[VZ]),
+                        a.mV[VW]);
 
     return srgbColor;
 }

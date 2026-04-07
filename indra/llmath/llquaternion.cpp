@@ -461,26 +461,22 @@ F32 dot(const LLQuaternion &a, const LLQuaternion &b)
 // lerp from identity to q
 LLQuaternion lerp(F32 t, const LLQuaternion &q)
 {
-    LLQuaternion r;
-    r.mQ[VX] = t * q.mQ[VX];
-    r.mQ[VY] = t * q.mQ[VY];
-    r.mQ[VZ] = t * q.mQ[VZ];
-    r.mQ[VW] = t * (q.mQ[VZ] - 1.f) + 1.f;
+    LLQuaternion r(t * q.mQ[VX],
+                   t * q.mQ[VY],
+                   t * q.mQ[VZ],
+                   t * (q.mQ[VZ] - 1.f) + 1.f);
     r.normalize();
     return r;
 }
 
 LLQuaternion lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q)
 {
-    LLQuaternion r;
-    F32 inv_t;
+    F32 inv_t = 1.f - t;
 
-    inv_t = 1.f - t;
-
-    r.mQ[VX] = t * q.mQ[VX] + (inv_t * p.mQ[VX]);
-    r.mQ[VY] = t * q.mQ[VY] + (inv_t * p.mQ[VY]);
-    r.mQ[VZ] = t * q.mQ[VZ] + (inv_t * p.mQ[VZ]);
-    r.mQ[VW] = t * q.mQ[VW] + (inv_t * p.mQ[VW]);
+    LLQuaternion r(t * q.mQ[VX] + (inv_t * p.mQ[VX]),
+                   t * q.mQ[VY] + (inv_t * p.mQ[VY]),
+                   t * q.mQ[VZ] + (inv_t * p.mQ[VZ]),
+                   t * q.mQ[VW] + (inv_t * p.mQ[VW]));
     r.normalize();
     return r;
 }

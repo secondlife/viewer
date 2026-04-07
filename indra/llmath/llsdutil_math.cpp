@@ -136,11 +136,10 @@ LLSD ll_sd_from_quaternion(const LLQuaternion& quat)
 
 LLQuaternion ll_quaternion_from_sd(const LLSD& sd)
 {
-    LLQuaternion quat;
-    quat.mQ[VX] = static_cast<F32>(sd[0].asReal());
-    quat.mQ[VY] = static_cast<F32>(sd[1].asReal());
-    quat.mQ[VZ] = static_cast<F32>(sd[2].asReal());
-    quat.mQ[VW] = static_cast<F32>(sd[3].asReal());
+    LLQuaternion quat(static_cast<F32>(sd[0].asReal()),
+                      static_cast<F32>(sd[1].asReal()),
+                      static_cast<F32>(sd[2].asReal()),
+                      static_cast<F32>(sd[3].asReal()));
     return quat;
 }
 
