@@ -1613,7 +1613,8 @@ void draw_axes()
     LLGLSUIDefault gls_ui;
     gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     // A vertical white line at origin
-    LLVector3 v = gAgent.getPositionAgent();
+    const LLVector3& agent_pos = gAgent.getPositionAgent();
+    glm::vec3 v(agent_pos.mV[VX], agent_pos.mV[VY], agent_pos.mV[VZ]);
     gGL.begin(LLRender::LINES);
         gGL.color3f(1.0f, 1.0f, 1.0f);
         gGL.vertex3f(0.0f, 0.0f, 0.0f);
@@ -1621,7 +1622,7 @@ void draw_axes()
     gGL.end();
     // Some coordinate axes
     gGL.pushMatrix();
-        gGL.translatef( v.mV[VX], v.mV[VY], v.mV[VZ] );
+        gGL.translatef( v.x, v.y, v.z );
         renderCoordinateAxes();
     gGL.popMatrix();
 }

@@ -34,6 +34,8 @@
 #include "llmath.h"
 #include "llglheaders.h"
 #include "llavatarappearance.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 const F32 DEFAULT_AVATAR_JOINT_LOD = 0.0f;
 
@@ -252,57 +254,57 @@ void LLAvatarJointCollisionVolume::renderCollision()
 
     gGL.begin(LLRender::LINES);
 
-    LLVector3 v[] =
+    glm::vec3 v[] =
     {
-        LLVector3(1,0,0),
-        LLVector3(-1,0,0),
-        LLVector3(0,1,0),
-        LLVector3(0,-1,0),
+        glm::vec3(1,0,0),
+        glm::vec3(-1,0,0),
+        glm::vec3(0,1,0),
+        glm::vec3(0,-1,0),
 
-        LLVector3(0,0,-1),
-        LLVector3(0,0,1),
+        glm::vec3(0,0,-1),
+        glm::vec3(0,0,1),
     };
 
     //sides
-    gGL.vertex3fv(v[0].mV);
-    gGL.vertex3fv(v[2].mV);
+    gGL.vertex3fv(glm::value_ptr(v[0]));
+    gGL.vertex3fv(glm::value_ptr(v[2]));
 
-    gGL.vertex3fv(v[0].mV);
-    gGL.vertex3fv(v[3].mV);
+    gGL.vertex3fv(glm::value_ptr(v[0]));
+    gGL.vertex3fv(glm::value_ptr(v[3]));
 
-    gGL.vertex3fv(v[1].mV);
-    gGL.vertex3fv(v[2].mV);
+    gGL.vertex3fv(glm::value_ptr(v[1]));
+    gGL.vertex3fv(glm::value_ptr(v[2]));
 
-    gGL.vertex3fv(v[1].mV);
-    gGL.vertex3fv(v[3].mV);
+    gGL.vertex3fv(glm::value_ptr(v[1]));
+    gGL.vertex3fv(glm::value_ptr(v[3]));
 
 
     //top
-    gGL.vertex3fv(v[0].mV);
-    gGL.vertex3fv(v[4].mV);
+    gGL.vertex3fv(glm::value_ptr(v[0]));
+    gGL.vertex3fv(glm::value_ptr(v[4]));
 
-    gGL.vertex3fv(v[1].mV);
-    gGL.vertex3fv(v[4].mV);
+    gGL.vertex3fv(glm::value_ptr(v[1]));
+    gGL.vertex3fv(glm::value_ptr(v[4]));
 
-    gGL.vertex3fv(v[2].mV);
-    gGL.vertex3fv(v[4].mV);
+    gGL.vertex3fv(glm::value_ptr(v[2]));
+    gGL.vertex3fv(glm::value_ptr(v[4]));
 
-    gGL.vertex3fv(v[3].mV);
-    gGL.vertex3fv(v[4].mV);
+    gGL.vertex3fv(glm::value_ptr(v[3]));
+    gGL.vertex3fv(glm::value_ptr(v[4]));
 
 
     //bottom
-    gGL.vertex3fv(v[0].mV);
-    gGL.vertex3fv(v[5].mV);
+    gGL.vertex3fv(glm::value_ptr(v[0]));
+    gGL.vertex3fv(glm::value_ptr(v[5]));
 
-    gGL.vertex3fv(v[1].mV);
-    gGL.vertex3fv(v[5].mV);
+    gGL.vertex3fv(glm::value_ptr(v[1]));
+    gGL.vertex3fv(glm::value_ptr(v[5]));
 
-    gGL.vertex3fv(v[2].mV);
-    gGL.vertex3fv(v[5].mV);
+    gGL.vertex3fv(glm::value_ptr(v[2]));
+    gGL.vertex3fv(glm::value_ptr(v[5]));
 
-    gGL.vertex3fv(v[3].mV);
-    gGL.vertex3fv(v[5].mV);
+    gGL.vertex3fv(glm::value_ptr(v[3]));
+    gGL.vertex3fv(glm::value_ptr(v[5]));
 
     gGL.end();
 
