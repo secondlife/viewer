@@ -24,6 +24,7 @@
 #include "../v3math.h"
 #include "../v4math.h"
 #include "../m3math.h"
+#include "../llsdutil_math.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -460,5 +461,37 @@ namespace tut
         glm::vec3 gm_mid = lerp(a_gm, b_gm, 0.25f);
 
         ensure("lerp glm matches LL", vec_near(ll_mid, gm_mid));
+    }
+
+    template<> template<>
+    void v3math_glm_equiv_object::test<28>()
+    {
+        // ll_sd_from_vec3 produces same LLSD as ll_sd_from_vector3 for the
+        // same vector value
+        LLVector3 v_ll(1.5f, -2.5f, 3.5f);
+        glm::vec3 v_gm(1.5f, -2.5f, 3.5f);
+
+        LLSD sd_ll = ll_sd_from_vector3(v_ll);
+        LLSD sd_gm = ll_sd_from_vec3(v_gm);
+
+        ensure_approximately_equals("LLSD x matches",
+            static_cast<F32>(sd_ll[0].asReal()), static_cast<F32>(sd_gm[0].asReal()), 16);
+        ensure_approximately_equals("LLSD y matches",
+            static_cast<F32>(sd_ll[1].asReal()), static_cast<F32>(sd_gm[1].asReal()), 16);
+        ensure_approximately_equals("LLSD z matches",
+            static_cast<F32>(sd_ll[2].asReal()), static_cast<F32>(sd_gm[2].asReal()), 16);
+    }
+
+    template<> template<>
+    void v3math_glm_equiv_object::test<29>()
+    {
+        // ll_vec3_from_sd round-trips correctly
+        glm::vec3 original(7.25f, -1.125f, 0.5f);
+        LLSD sd = ll_sd_from_vec3(original);
+        glm::vec3 round = ll_vec3_from_sd(sd);
+
+        ensure_approximately_equals("round-trip x", round.x, original.x, 16);
+        ensure_approximately_equals("round-trip y", round.y, original.y, 16);
+        ensure_approximately_equals("round-trip z", round.z, original.z, 16);
     }
 }

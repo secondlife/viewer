@@ -29,6 +29,7 @@
 #pragma once
 
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 
 class LL_COMMON_API LLSD;
 
@@ -36,6 +37,10 @@ class LL_COMMON_API LLSD;
 class LLVector3;
 LLSD ll_sd_from_vector3(const LLVector3& vec);
 LLVector3 ll_vector3_from_sd(const LLSD& sd, S32 start_index = 0);
+
+// vec3 (glm)
+LLSD ll_sd_from_vec3(const glm::vec3& vec);
+glm::vec3 ll_vec3_from_sd(const LLSD& sd, S32 start_index = 0);
 
 // vector4
 class LLVector4;

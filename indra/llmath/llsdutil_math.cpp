@@ -106,6 +106,23 @@ LLVector3d ll_vector3d_from_sd(const LLSD& sd, S32 start_index)
     return rv;
 }
 
+// vec3 (glm)
+LLSD ll_sd_from_vec3(const glm::vec3& vec)
+{
+    LLSD rv;
+    rv.append(static_cast<F64>(vec.x));
+    rv.append(static_cast<F64>(vec.y));
+    rv.append(static_cast<F64>(vec.z));
+    return rv;
+}
+
+glm::vec3 ll_vec3_from_sd(const LLSD& sd, S32 start_index)
+{
+    return glm::vec3(static_cast<F32>(sd[start_index].asReal()),
+                     static_cast<F32>(sd[start_index + 1].asReal()),
+                     static_cast<F32>(sd[start_index + 2].asReal()));
+}
+
 // vec2
 LLSD ll_sd_from_vec2(const glm::vec2& vec)
 {
