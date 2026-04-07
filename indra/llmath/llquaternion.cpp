@@ -305,9 +305,9 @@ LLMatrix4   LLQuaternion::getMatrix4() const
 // calculate the shortest rotation from a to b
 void LLQuaternion::shortestArc(const LLVector3 &a, const LLVector3 &b)
 {
-    F32 ab = a * b; // dotproduct
-    LLVector3 c = a % b; // crossproduct
-    F32 cc = c * c; // squared length of the crossproduct
+    F32 ab = dot(a, b); // dotproduct
+    LLVector3 c = cross(a, b); // crossproduct
+    F32 cc = dot(c, c); // squared length of the crossproduct
     if (ab * ab + cc) // test if the arguments have sufficient magnitude
     {
         if (cc > 0.0f) // test if the arguments are (anti)parallel
