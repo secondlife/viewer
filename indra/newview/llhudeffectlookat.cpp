@@ -452,12 +452,12 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
     bool lookAtChanged = (target_type != mTargetType) || (object != mTargetObject);
 
     // lookat position has moved a certain amount and we haven't just sent an update
-    lookAtChanged = lookAtChanged || ((dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) &&
+    lookAtChanged = lookAtChanged || ((dist_vec_squared(glm::vec3(position), mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) &&
         ((current_time - mLastSendTime) > (1.f / MAX_SENDS_PER_SEC)));
 
     if (lookAtChanged)
     {
-        mLastSentOffsetGlobal = position;
+        mLastSentOffsetGlobal = glm::vec3(position);
         F32 timeout = (*mAttentions)[target_type].mTimeout;
         setDuration(timeout);
         setNeedsSendToSim(true);
