@@ -68,12 +68,11 @@ void LLFloaterPreferenceViewAdvanced::updateFocusControl(const LLVector3d& vecto
 
 void LLFloaterPreferenceViewAdvanced::onCommitSettings()
 {
-    LLVector3 vector;
     LLVector3d vector3d;
 
-    vector.mV[VX] = static_cast<F32>(getChild<LLUICtrl>("camera_x")->getValue().asReal());
-    vector.mV[VY] = static_cast<F32>(getChild<LLUICtrl>("camera_y")->getValue().asReal());
-    vector.mV[VZ] = static_cast<F32>(getChild<LLUICtrl>("camera_z")->getValue().asReal());
+    LLVector3 vector(static_cast<F32>(getChild<LLUICtrl>("camera_x")->getValue().asReal()),
+                     static_cast<F32>(getChild<LLUICtrl>("camera_y")->getValue().asReal()),
+                     static_cast<F32>(getChild<LLUICtrl>("camera_z")->getValue().asReal()));
     gSavedSettings.setVector3("CameraOffsetRearView", vector);
 
     vector3d.mdV[VX] = static_cast<F32>(getChild<LLUICtrl>("focus_x")->getValue().asReal());

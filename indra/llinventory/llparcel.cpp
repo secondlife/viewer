@@ -758,10 +758,9 @@ F32 LLParcel::getAdjustedRentPerMeter() const
 
 LLVector3 LLParcel::getCenterpoint() const
 {
-    LLVector3 rv;
-    rv.mV[VX] = (getAABBMin().mV[VX] + getAABBMax().mV[VX]) * 0.5f;
-    rv.mV[VY] = (getAABBMin().mV[VY] + getAABBMax().mV[VY]) * 0.5f;
-    rv.mV[VZ] = 0.0f;
+    LLVector3 rv((getAABBMin().mV[VX] + getAABBMax().mV[VX]) * 0.5f,
+                 (getAABBMin().mV[VY] + getAABBMax().mV[VY]) * 0.5f,
+                 0.0f);
     return rv;
 }
 

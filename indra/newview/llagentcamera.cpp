@@ -430,10 +430,9 @@ LLVector3 LLAgentCamera::calcFocusOffset(LLViewerObject *object, LLVector3 origi
 
     // obj_to_cam_ray_proportions are the (positive) ratios of
     // the obj_to_cam_ray x,y,z components with the x,y,z object dimensions.
-    LLVector3 obj_to_cam_ray_proportions;
-    obj_to_cam_ray_proportions.mV[VX] = llabs(obj_to_cam_ray.mV[VX] / object_extents.mV[VX]);
-    obj_to_cam_ray_proportions.mV[VY] = llabs(obj_to_cam_ray.mV[VY] / object_extents.mV[VY]);
-    obj_to_cam_ray_proportions.mV[VZ] = llabs(obj_to_cam_ray.mV[VZ] / object_extents.mV[VZ]);
+    LLVector3 obj_to_cam_ray_proportions(llabs(obj_to_cam_ray.mV[VX] / object_extents.mV[VX]),
+                                         llabs(obj_to_cam_ray.mV[VY] / object_extents.mV[VY]),
+                                         llabs(obj_to_cam_ray.mV[VZ] / object_extents.mV[VZ]));
 
     // find the largest ratio stored in obj_to_cam_ray_proportions
     // this corresponds to the object's local axial plane (XY, YZ, XZ) that is *most* facing the camera

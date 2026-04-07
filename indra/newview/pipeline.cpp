@@ -6001,8 +6001,7 @@ bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& 
     bool Inside = true;
     LLVector3 MinB = center - size;
     LLVector3 MaxB = center + size;
-    LLVector3 MaxT;
-    MaxT.mV[VX]=MaxT.mV[VY]=MaxT.mV[VZ]=-1.0f;
+    LLVector3 MaxT(-1.0f, -1.0f, -1.0f);
 
     // Find candidate planes.
     for(U32 i=0;i<3;i++)

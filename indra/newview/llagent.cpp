@@ -2517,10 +2517,9 @@ LLSD ll_sdmap_from_vector3(const LLVector3& vec)
 
 LLVector3 ll_vector3_from_sdmap(const LLSD& sd)
 {
-    LLVector3 ret;
-    ret.mV[VX] = F32(sd["X"].asReal());
-    ret.mV[VY] = F32(sd["Y"].asReal());
-    ret.mV[VZ] = F32(sd["Z"].asReal());
+    LLVector3 ret(F32(sd["X"].asReal()),
+                  F32(sd["Y"].asReal()),
+                  F32(sd["Z"].asReal()));
     return ret;
 }
 
