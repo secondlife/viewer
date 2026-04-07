@@ -116,8 +116,8 @@ void LLSprite::updateFace(LLFace &face)
         {
             // The up vector is perpendicular to the camera vector...
             LLVector3 camera_vec = mPosition - sCameraPosition;
-            mScaledRight = camera_vec % LLVector3(0.f, 0.f, 1.f);
-            mScaledUp = -(camera_vec % mScaledRight);
+            mScaledRight = cross(camera_vec, LLVector3(0.f, 0.f, 1.f));
+            mScaledUp = -cross(camera_vec, mScaledRight);
             mScaledUp.normalize();
             mScaledRight.normalize();
             mScaledUp *= mHeightDiv2;
@@ -139,18 +139,18 @@ void LLSprite::updateFace(LLFace &face)
         LLVector3 x_axis;
         LLVector3 y_axis;
 
-        F32 dot = sNormal * LLVector3(0.f, 1.f, 0.f);
-        if (dot == 1.f || dot == -1.f)
+        F32 normal_dot = dot(sNormal, LLVector3(0.f, 1.f, 0.f));
+        if (normal_dot == 1.f || normal_dot == -1.f)
         {
             x_axis.set(1.f, 0.f, 0.f);
             y_axis.set(0.f, 1.f, 0.f);
         }
         else
         {
-            x_axis = sNormal % LLVector3(0.f, -1.f, 0.f);
+            x_axis = cross(sNormal, LLVector3(0.f, -1.f, 0.f));
             x_axis.normalize();
 
-            y_axis = sNormal % x_axis;
+            y_axis = cross(sNormal, x_axis);
         }
 
         LLQuaternion yaw_rot(mYaw, sNormal);

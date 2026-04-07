@@ -902,7 +902,7 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
     LLVector3 binormal(binormal4a.getF32ptr());
     LLVector3 normal(normal4a.getF32ptr());
     binormal.rotVec(ang, normal);
-    LLQuaternion local_rot( binormal % normal, binormal, normal );
+    LLQuaternion local_rot( cross(binormal, normal), binormal, normal );
     *face_rot = local_rot * vol_mat.quaternion();
     *face_pos = vol_mat.getTranslation();
 }

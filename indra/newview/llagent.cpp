@@ -1349,8 +1349,8 @@ void LLAgent::resetAxes(const LLVector3 &look_at)
     // if look_at and skyward are parallel, fail
     //
     // Test both of these conditions with a cross product.
-    LLVector3 cross(look_at % skyward);
-    if (cross.isNull())
+    LLVector3 look_skyward_cross(cross(look_at, skyward));
+    if (look_skyward_cross.isNull())
     {
         LL_INFOS() << "LLAgent::resetAxes cross-product is zero" << LL_ENDL;
         return;
@@ -1358,8 +1358,8 @@ void LLAgent::resetAxes(const LLVector3 &look_at)
 
     // Make sure look_at and skyward are not parallel
     // and neither are zero length
-    LLVector3 left(skyward % look_at);
-    LLVector3 up(look_at % left);
+    LLVector3 left(cross(skyward, look_at));
+    LLVector3 up(cross(look_at, left));
 
     mFrameAgent.setAxes(look_at, left, up);
 }
@@ -1872,7 +1872,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
         yaw = 4.f * yaw / gFPSClamped;
 
         // figure out which direction to turn
-        LLVector3 scratch(at % direction);
+        LLVector3 scratch(cross(at, direction));
 
         if (scratch.mV[VZ] > 0.f)
         {
@@ -3222,8 +3222,8 @@ LLQuaternion LLAgent::getHeadRotation()
 
     // We must be in mouselook
     LLVector3 look_dir( LLViewerCamera::getInstance()->getAtAxis() );
-    LLVector3 up = look_dir % mFrameAgent.getLeftAxis();
-    LLVector3 left = up % look_dir;
+    LLVector3 up = cross(look_dir, mFrameAgent.getLeftAxis());
+    LLVector3 left = cross(up, look_dir);
 
     LLQuaternion rot(look_dir, left, up);
     if (gAgentAvatarp->getParent())

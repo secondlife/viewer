@@ -2802,9 +2802,9 @@ void LLAgentCamera::lookAtLastChat()
         changeCameraToThirdPerson();
 
         LLVector3 new_camera_pos = gAgentAvatarp->mHeadp->getWorldPosition();
-        LLVector3 left = delta_pos % LLVector3::z_axis;
+        LLVector3 left = cross(delta_pos, LLVector3::z_axis);
         left.normalize();
-        LLVector3 up = left % delta_pos;
+        LLVector3 up = cross(left, delta_pos);
         up.normalize();
         new_camera_pos -= delta_pos * 0.4f;
         new_camera_pos += left * 0.3f;
@@ -2833,9 +2833,9 @@ void LLAgentCamera::lookAtLastChat()
         changeCameraToThirdPerson();
 
         LLVector3 new_camera_pos = gAgentAvatarp->mHeadp->getWorldPosition();
-        LLVector3 left = delta_pos % LLVector3::z_axis;
+        LLVector3 left = cross(delta_pos, LLVector3::z_axis);
         left.normalize();
-        LLVector3 up = left % delta_pos;
+        LLVector3 up = cross(left, delta_pos);
         up.normalize();
         new_camera_pos -= delta_pos * 0.4f;
         new_camera_pos += left * 0.3f;
