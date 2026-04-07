@@ -65,6 +65,7 @@
 #include <utility>                  // std::pair
 
 #include <d3d9.h>
+#include <d3d11.h>
 #include <dxgi1_4.h>
 #include <timeapi.h>
 
@@ -115,7 +116,15 @@ static std::thread::id sMainThreadId;
 
 LPWSTR gIconResource = IDI_APPLICATION;
 LPWSTR gIconSmallResource = IDI_APPLICATION;
-LPDIRECTINPUT8 gDirectInput8;
+
+namespace
+{
+    LPDIRECTINPUT8 gDirectInput8;
+    ID3D11Device* gD3D11Device = nullptr;
+    ID3D11DeviceContext* gD3D11Context = nullptr;
+    LUID gExpectedAdapterLUID;
+    HMODULE gD3D11Library;
+}
 
 LLW32MsgCallback gAsyncMsgCallback = NULL;
 
@@ -508,6 +517,10 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     //MAINT-516 -- force a load of opengl32.dll just in case windows went sideways
     LoadLibrary(L"opengl32.dll");
 
+    // Request high-performance GPU before creating OpenGL context
+    // This increases probability of discrete GPU being used when
+    // the context is created.
+    requestHighPerformanceGPU();
 
     if (mMaxCores != 0)
     {
@@ -974,6 +987,7 @@ void LLWindowWin32::close()
     }
 
     mDragDrop->reset();
+    clearHighPerformanceGPURequest();
 
 
     // Go back to screen mode written in the registry.
@@ -4643,6 +4657,238 @@ void LLWindowWin32::setDPIAwareness()
     }
 }
 
+void LLWindowWin32::requestHighPerformanceGPU() const
+{
+    // Try to load d3d11.dll and request high performance adapter
+    gD3D11Library = LoadLibraryA("d3d11.dll");
+    if (gD3D11Library)
+    {
+        typedef HRESULT(WINAPI* PFN_D3D11_CREATE_DEVICE)(
+            IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT,
+            const D3D_FEATURE_LEVEL*, UINT, UINT, ID3D11Device**,
+            D3D_FEATURE_LEVEL*, ID3D11DeviceContext**);
+
+        PFN_D3D11_CREATE_DEVICE pD3D11CreateDevice =
+            (PFN_D3D11_CREATE_DEVICE)GetProcAddress(gD3D11Library, "D3D11CreateDevice");
+
+        if (pD3D11CreateDevice)
+        {
+            // Try to enumerate adapters and select the best one
+            IDXGIFactory1* pFactory = nullptr;
+            IDXGIAdapter1* pSelectedAdapter = nullptr;
+            std::string selected_descr;
+            HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&pFactory);
+
+            if (SUCCEEDED(hr) && pFactory)
+            {
+                IDXGIAdapter1* pAdapter = nullptr;
+                SIZE_T maxDedicatedMemory = 0;
+                UINT adapterIndex = 0;
+                S32 adapter_count = 0;
+
+                // Enumerate all adapters and find the one with the most dedicated video memory
+                while (pFactory->EnumAdapters1(adapterIndex, &pAdapter) != DXGI_ERROR_NOT_FOUND)
+                {
+                    DXGI_ADAPTER_DESC1 desc;
+                    pAdapter->GetDesc1(&desc);
+
+                    std::wstring description_w(desc.Description);
+                    std::string description = ll_convert_wide_to_string(description_w);
+
+
+                    // Skip software adapters
+                    if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+                    {
+                        LL_DEBUGS("Window") << "Adapter " << adapterIndex << ": " << description
+                            << ", Dedicated VRAM: " << (desc.DedicatedVideoMemory / 1024 / 1024) << " MB"
+                            << ", Vendor: 0x" << std::hex << desc.VendorId << std::dec
+                            << ", Flags: " << desc.Flags << LL_ENDL;
+                    }
+                    else
+                    {
+                        LL_INFOS("Window") << "Adapter " << adapterIndex << ": " << description
+                            << ", Dedicated VRAM: " << (desc.DedicatedVideoMemory / 1024 / 1024) << " MB"
+                            << ", Vendor: 0x" << std::hex << desc.VendorId << std::dec
+                            << ", Flags: " << desc.Flags << LL_ENDL;
+
+                        adapter_count++;
+                        // Select adapter with most dedicated video memory (typically the discrete GPU)
+                        if (desc.DedicatedVideoMemory > maxDedicatedMemory)
+                        {
+                            if (pSelectedAdapter)
+                            {
+                                pSelectedAdapter->Release();
+                            }
+                            pSelectedAdapter = pAdapter;
+                            pSelectedAdapter->AddRef();
+                            maxDedicatedMemory = desc.DedicatedVideoMemory;
+                            gExpectedAdapterLUID = desc.AdapterLuid;
+                            selected_descr = description;
+                        }
+                    }
+
+                    pAdapter->Release();
+                    adapterIndex++;
+                }
+                pFactory->Release();
+
+                if (adapter_count < 2)
+                {
+                    // Only one adapter, no need to request high-performance GPU
+                    if (pSelectedAdapter)
+                    {
+                        pSelectedAdapter->Release();
+                    }
+                    gExpectedAdapterLUID = { 0, 0 };
+                    FreeLibrary(gD3D11Library);
+                    gD3D11Library = nullptr;
+                    return;
+                }
+
+                LL_INFOS("Window") << "Selected as preferred adapter (highest VRAM): " << selected_descr << LL_ENDL;
+            }
+
+            // Create a temporary device to ensure high-performance GPU is selected
+            // This initialization can help "wake up" the discrete GPU
+            D3D_FEATURE_LEVEL featureLevel;
+            D3D_FEATURE_LEVEL requestedLevels[] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_11_1 };
+
+            bool adapterSelected = (pSelectedAdapter != nullptr);
+            if (adapterSelected)
+            {
+                hr = pD3D11CreateDevice(
+                    pSelectedAdapter,
+                    D3D_DRIVER_TYPE_UNKNOWN,
+                    nullptr,
+                    0,
+                    requestedLevels,
+                    _countof(requestedLevels),
+                    D3D11_SDK_VERSION,
+                    &gD3D11Device,
+                    &featureLevel,
+                    &gD3D11Context
+                );
+                pSelectedAdapter->Release();
+
+                if (!SUCCEEDED(hr))
+                {
+                    LL_WARNS("Window") << "D3D11 failed to use preffered adapter " << selected_descr << LL_ENDL;
+                    gExpectedAdapterLUID = { 0, 0 };
+                    adapterSelected = false;
+                }
+            }
+
+            if (!adapterSelected)
+            {
+                // Either failed to select or didn't find an adapter.
+                hr = pD3D11CreateDevice(
+                    nullptr,
+                    D3D_DRIVER_TYPE_HARDWARE,
+                    nullptr,
+                    0,
+                    requestedLevels,
+                    _countof(requestedLevels),
+                    D3D11_SDK_VERSION,
+                    &gD3D11Device,
+                    &featureLevel,
+                    &gD3D11Context
+                );
+                if (!SUCCEEDED(hr))
+                {
+                    LL_WARNS("Window") << "D3D11 failed to use hardware adapter" << LL_ENDL;
+                    FreeLibrary(gD3D11Library);
+                    gD3D11Library = nullptr;
+                    // These shouldn't be set, but make sure they are null.
+                    gD3D11Device = nullptr;
+                    gD3D11Context = nullptr;
+                }
+            }
+        }
+        else
+        {
+            LL_WARNS("Window") << "Failed to get D3D11CreateDevice function from d3d11.dll. High-performance GPU request failed." << LL_ENDL;
+            FreeLibrary(gD3D11Library);
+            gD3D11Library = nullptr;
+        }
+    }
+}
+
+bool LLWindowWin32::detectGPUChange() const
+{
+    if (!gD3D11Device)
+    {
+        // Can't detect without D3D11 device
+        return false;
+    }
+
+    if (gExpectedAdapterLUID.LowPart == 0 && gExpectedAdapterLUID.HighPart == 0)
+    {
+        // No specific adapter was selected, can't detect changes.
+        return false;
+    }
+
+    IDXGIDevice* pDXGIDevice = nullptr;
+    HRESULT hr = gD3D11Device->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice);
+
+    if (SUCCEEDED(hr) && pDXGIDevice)
+    {
+        IDXGIAdapter* pCurrentAdapter = nullptr;
+        hr = pDXGIDevice->GetAdapter(&pCurrentAdapter);
+
+        if (SUCCEEDED(hr) && pCurrentAdapter)
+        {
+            DXGI_ADAPTER_DESC desc;
+            pCurrentAdapter->GetDesc(&desc);
+
+            std::wstring description_w(desc.Description);
+
+            bool changed = false;
+
+            // Check if LUID has changed
+            if (desc.AdapterLuid.LowPart != gExpectedAdapterLUID.LowPart ||
+                desc.AdapterLuid.HighPart != gExpectedAdapterLUID.HighPart)
+            {
+                changed = true;
+                std::string current_gpu_name = ll_convert_wide_to_string(description_w);
+                LL_WARNS("Window") << "GPU change detected! Current adapter: " << current_gpu_name << LL_ENDL;
+            }
+
+            pCurrentAdapter->Release();
+            pDXGIDevice->Release();
+
+            return changed;
+        }
+
+        if (pDXGIDevice)
+        {
+            pDXGIDevice->Release();
+        }
+    }
+
+    return false;
+}
+
+void LLWindowWin32::clearHighPerformanceGPURequest() const
+{
+    detectGPUChange();
+    gExpectedAdapterLUID = { 0, 0 };
+    if (gD3D11Context)
+    {
+        gD3D11Context->Release();
+        gD3D11Context = nullptr;
+    }
+    if (gD3D11Device)
+    {
+        gD3D11Device->Release();
+        gD3D11Device = nullptr;
+    }
+    if (gD3D11Library)
+    {
+        FreeLibrary(gD3D11Library);
+        gD3D11Library = nullptr;
+    }
+}
+
 void* LLWindowWin32::getDirectInput8()
 {
     return &gDirectInput8;
@@ -4671,6 +4917,12 @@ bool LLWindowWin32::getInputDevices(U32 device_type_filter,
 void LLWindowWin32::initWatchdog()
 {
     mWindowThread->initTimeout();
+
+    // Watchdog is effectively a 'login complete event', as the
+    // 'unstable' part is done and from now on we are tracking
+    // performance.
+    // No need to hold D3D11 context/device any more.
+    clearHighPerformanceGPURequest();
 }
 
 F32 LLWindowWin32::getSystemUISize()
