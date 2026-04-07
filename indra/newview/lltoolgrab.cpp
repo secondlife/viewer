@@ -898,7 +898,7 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
     // update point-at / look-at
     if (pick.mObjectFace != -1) // if the intersection was on the surface of the obejct
     {
-        LLVector3 local_edit_point = pick.mIntersection;
+        LLVector3 local_edit_point(pick.mIntersection);
         local_edit_point -= objectp->getPositionAgent();
         local_edit_point = local_edit_point * ~objectp->getRenderRotation();
         gAgentCamera.setPointAt(POINTAT_TARGET_GRAB, objectp, local_edit_point );

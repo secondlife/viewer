@@ -1672,7 +1672,7 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
         if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) || media_impl.isNull())
         {
             // It's okay to give this a null impl
-            LLViewerMediaFocus::getInstance()->setFocusFace(pick.getObject(), pick.mObjectFace, media_impl, pick.mNormal);
+            LLViewerMediaFocus::getInstance()->setFocusFace(pick.getObject(), pick.mObjectFace, media_impl, LLVector3(pick.mNormal));
             if (shouldAllowFirstMediaInteraction(pick, mep->getFirstClickInteract()))
             {
                 if (media_impl.notNull())
@@ -1736,7 +1736,7 @@ bool LLToolPie::handleMediaDblClick(const LLPickInfo& pick)
         if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) || media_impl.isNull())
         {
             // It's okay to give this a null impl
-            LLViewerMediaFocus::getInstance()->setFocusFace(pick.getObject(), pick.mObjectFace, media_impl, pick.mNormal);
+            LLViewerMediaFocus::getInstance()->setFocusFace(pick.getObject(), pick.mObjectFace, media_impl, LLVector3(pick.mNormal));
         }
         else
         {
@@ -1791,7 +1791,7 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
             // Update media hover object
             if (!LLViewerMediaFocus::getInstance()->isHoveringOverFace(objectp, pick.mObjectFace))
             {
-                LLViewerMediaFocus::getInstance()->setHoverFace(objectp, pick.mObjectFace, media_impl, pick.mNormal);
+                LLViewerMediaFocus::getInstance()->setHoverFace(objectp, pick.mObjectFace, media_impl, LLVector3(pick.mNormal));
             }
 
             // If this is the focused media face, send mouse move events.

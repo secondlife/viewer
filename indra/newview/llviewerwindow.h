@@ -38,6 +38,7 @@
 #include "v3dmath.h"
 #include "v2math.h"
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include "llcursortypes.h"
 #include "llwindowcallbacks.h"
 #include "lltimer.h"
@@ -114,7 +115,7 @@ public:
     EPickType       mPickType;
     LLCoordGL       mPickPt;
     LLVector3d      mPosGlobal;
-    LLVector3       mObjectOffset;
+    glm::vec3       mObjectOffset;
     LLUUID          mObjectID;
     LLUUID          mParticleOwnerID;
     LLUUID          mParticleSourceID;
@@ -122,13 +123,13 @@ public:
     S32             mGLTFNodeIndex = -1;
     S32             mGLTFPrimitiveIndex = -1;
     LLHUDIcon*      mHUDIcon;
-    LLVector3       mIntersection;
+    glm::vec3       mIntersection;
     glm::vec2       mUVCoords;
     glm::vec2       mSTCoords;
     LLCoordScreen   mXYCoords;
-    LLVector3       mNormal;
+    glm::vec3       mNormal;
     LLVector4       mTangent;
-    LLVector3       mBinormal;
+    glm::vec3       mBinormal;
     bool            mPickTransparent;
     bool            mPickRigged;
     bool            mPickParticle;

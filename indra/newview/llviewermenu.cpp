@@ -4656,7 +4656,7 @@ void handle_object_sit_or_stand()
         return;
     }
 
-    handle_object_sit(object, pick.mObjectOffset);
+    handle_object_sit(object, LLVector3(pick.mObjectOffset));
 }
 
 void handle_object_sit(const LLUUID& object_id)

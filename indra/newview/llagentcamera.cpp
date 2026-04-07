@@ -2512,7 +2512,7 @@ void LLAgentCamera::setFocusGlobal(const LLPickInfo& pick)
     {
         // focus on object plus designated offset
         // which may or may not be same as pick.mPosGlobal
-        setFocusGlobal(objectp->getPositionGlobal() + LLVector3d(pick.mObjectOffset), pick.mObjectID);
+        setFocusGlobal(objectp->getPositionGlobal() + LLVector3d(pick.mObjectOffset.x, pick.mObjectOffset.y, pick.mObjectOffset.z), pick.mObjectID);
     }
     else
     {

@@ -6269,7 +6269,7 @@ void LLPickInfo::fetchResults()
 
             LLVector3 v_intersection(intersection.getF32ptr());
 
-            mObjectOffset = gAgentCamera.calcFocusOffset(objectp, v_intersection, mPickPt.mX, mPickPt.mY);
+            mObjectOffset = static_cast<glm::vec3>(gAgentCamera.calcFocusOffset(objectp, v_intersection, mPickPt.mX, mPickPt.mY));
             mObjectID = objectp->mID;
             mObjectFace = (te_offset == NO_FACE) ? -1 : static_cast<S32>(te_offset);
             mPickHUD = objectp->isHUDAttachment();
@@ -6328,9 +6328,9 @@ void LLPickInfo::getSurfaceInfo()
     mUVCoords     = glm::vec2(-1, -1);
     mSTCoords     = glm::vec2(-1, -1);
     mXYCoords     = LLCoordScreen(-1, -1);
-    mIntersection = LLVector3(0,0,0);
-    mNormal       = LLVector3(0,0,0);
-    mBinormal     = LLVector3(0,0,0);
+    mIntersection = glm::vec3(0,0,0);
+    mNormal       = glm::vec3(0,0,0);
+    mBinormal     = glm::vec3(0,0,0);
     mTangent      = LLVector4(0,0,0,0);
 
     LLVector4a tangent;
@@ -6366,8 +6366,10 @@ void LLPickInfo::getSurfaceInfo()
             }
             }
 
-            mIntersection.set(intersection.getF32ptr());
-            mNormal.set(normal.getF32ptr());
+            const F32* ip = intersection.getF32ptr();
+            const F32* np = normal.getF32ptr();
+            mIntersection = glm::vec3(ip[0], ip[1], ip[2]);
+            mNormal       = glm::vec3(np[0], np[1], np[2]);
             mTangent.set(tangent.getF32ptr());
 
             //extrapoloate binormal from normal and tangent
@@ -6376,10 +6378,11 @@ void LLPickInfo::getSurfaceInfo()
             binormal.setCross3(normal, tangent);
             binormal.mul(tangent.getF32ptr()[3]);
 
-            mBinormal.set(binormal.getF32ptr());
+            const F32* bp = binormal.getF32ptr();
+            mBinormal = glm::vec3(bp[0], bp[1], bp[2]);
 
-            mBinormal.normalize();
-            mNormal.normalize();
+            mBinormal = glm::normalize(mBinormal);
+            mNormal   = glm::normalize(mNormal);
             mTangent.normalize();
 
             // and XY coords:
