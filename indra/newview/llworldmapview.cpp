@@ -28,6 +28,7 @@
 
 #include "llworldmapview.h"
 
+#include "glm/geometric.hpp"
 #include "indra_constants.h"
 #include "llui.h"
 #include "llmath.h"     // clampf()
@@ -103,7 +104,7 @@ S32 LLWorldMapView::sTrackingArrowX = 0;
 S32 LLWorldMapView::sTrackingArrowY = 0;
 bool LLWorldMapView::sVisibleTilesLoaded = false;
 F32 LLWorldMapView::sMapScaleSetting = MAP_DEFAULT_SCALE;
-LLVector2 LLWorldMapView::sZoomPivot = LLVector2(0.0f, 0.0f);
+glm::vec2 LLWorldMapView::sZoomPivot = glm::vec2(0.0f, 0.0f);
 LLFrameTimer LLWorldMapView::sZoomTimer = LLFrameTimer();
 
 std::map<std::string,std::string> LLWorldMapView::sStringsMap;
@@ -248,7 +249,7 @@ void LLWorldMapView::zoom(F32 zoom)
     mTargetMapScale = scaleFromZoom(zoom);
     if (!sZoomTimer.getStarted() && mMapScale != mTargetMapScale)
     {
-        sZoomPivot = LLVector2(0, 0);
+        sZoomPivot = glm::vec2(0, 0);
         sZoomTimer.start();
     }
 }
@@ -256,7 +257,7 @@ void LLWorldMapView::zoom(F32 zoom)
 void LLWorldMapView::zoomWithPivot(F32 zoom, S32 x, S32 y)
 {
     mTargetMapScale = scaleFromZoom(zoom);
-    sZoomPivot      = LLVector2(static_cast<F32>(x), static_cast<F32>(y));
+    sZoomPivot      = glm::vec2(static_cast<F32>(x), static_cast<F32>(y));
     if (!sZoomTimer.getStarted() && mMapScale != mTargetMapScale)
     {
         sZoomTimer.start();
@@ -297,16 +298,16 @@ void LLWorldMapView::setScale(F32 scale, bool snap)
         sVisibleTilesLoaded = false;
 
         // If we are zooming relative to somewhere else rather than the center of the map, compensate for the difference in panning here
-        if (!sZoomPivot.isExactlyZero())
+        if (sZoomPivot != glm::vec2(0.0f))
         {
-            LLVector2 relative_pivot;
-            relative_pivot.mV[VX]     = sZoomPivot.mV[VX] - (getRect().getWidth() / 2.0f);
-            relative_pivot.mV[VY]     = sZoomPivot.mV[VY] - (getRect().getHeight() / 2.0f);
-            LLVector2 zoom_pan_offset = relative_pivot - (relative_pivot * scale / old_scale);
-            mPanX += zoom_pan_offset.mV[VX];
-            mPanY += zoom_pan_offset.mV[VY];
-            mTargetPanX += zoom_pan_offset.mV[VX];
-            mTargetPanY += zoom_pan_offset.mV[VY];
+            glm::vec2 relative_pivot;
+            relative_pivot.x          = sZoomPivot.x - (getRect().getWidth() / 2.0f);
+            relative_pivot.y          = sZoomPivot.y - (getRect().getHeight() / 2.0f);
+            glm::vec2 zoom_pan_offset = relative_pivot - (relative_pivot * scale / old_scale);
+            mPanX += zoom_pan_offset.x;
+            mPanY += zoom_pan_offset.y;
+            mTargetPanX += zoom_pan_offset.x;
+            mTargetPanY += zoom_pan_offset.y;
         }
     }
 
@@ -979,20 +980,20 @@ void LLWorldMapView::drawFrustum()
             LLVector3 left_axis = LLViewerCamera::instance().getLeftAxis();
 
             // grab components along XY plane
-            LLVector2 cam_lookat(at_axis.mV[VX], at_axis.mV[VY]);
-            LLVector2 cam_left(left_axis.mV[VX], left_axis.mV[VY]);
+            glm::vec2 cam_lookat(at_axis.mV[VX], at_axis.mV[VY]);
+            glm::vec2 cam_left(left_axis.mV[VX], left_axis.mV[VY]);
 
             // but, when looking near straight up or down...
-            if (is_approx_zero(cam_lookat.lengthSquared()))
+            if (is_approx_zero(glm::dot(cam_lookat, cam_lookat)))
             {
                 //...just fall back to looking down the x axis
-                cam_lookat = LLVector2(1.f, 0.f); // x axis
-                cam_left = LLVector2(0.f, 1.f); // y axis
+                cam_lookat = glm::vec2(1.f, 0.f); // x axis
+                cam_left = glm::vec2(0.f, 1.f); // y axis
             }
 
             // normalize to unit length
-            cam_lookat.normalize();
-            cam_left.normalize();
+            cam_lookat = glm::normalize(cam_lookat);
+            cam_left = glm::normalize(cam_left);
 
             gGL.color4f(1.f, 1.f, 1.f, 0.25f);
             gGL.vertex2f( 0, 0 );
@@ -1000,11 +1001,11 @@ void LLWorldMapView::drawFrustum()
             gGL.color4f(1.f, 1.f, 1.f, 0.02f);
 
             // use 2d camera vectors to render frustum triangle
-            LLVector2 vert = cam_lookat * far_clip_pixels + cam_left * half_width_pixels;
-            gGL.vertex2f(vert.mV[VX], vert.mV[VY]);
+            glm::vec2 vert = cam_lookat * far_clip_pixels + cam_left * half_width_pixels;
+            gGL.vertex2f(vert.x, vert.y);
 
             vert = cam_lookat * far_clip_pixels - cam_left * half_width_pixels;
-            gGL.vertex2f(vert.mV[VX], vert.mV[VY]);
+            gGL.vertex2f(vert.x, vert.y);
         }
         gGL.end();
     }

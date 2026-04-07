@@ -33,6 +33,7 @@
 #include "v4color.h"
 #include "llpointer.h"
 #include "llcoord.h"
+#include "glm/vec2.hpp"
 
 class LLColor4U;
 class LLImageRaw;
@@ -128,8 +129,8 @@ private:
 
     bool            mPanning; // map is being dragged
     bool            mCentering; // map is being re-centered around the agent
-    LLVector2       mCurPan;
-    LLVector2       mStartPan; // pan offset at start of drag
+    glm::vec2       mCurPan;
+    glm::vec2       mStartPan; // pan offset at start of drag
     LLVector3d      mPopupWorldPos; // world position picked under mouse when context menu is opened
     LLCoordGL       mMouseDown; // pointer position at start of drag
 

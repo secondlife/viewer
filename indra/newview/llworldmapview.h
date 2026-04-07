@@ -34,6 +34,7 @@
 #include "llpanel.h"
 #include "llworldmap.h"
 #include "v4color.h"
+#include "glm/vec2.hpp"
 
 const S32 DEFAULT_TRACKING_ARROW_SIZE = 16;
 
@@ -211,7 +212,7 @@ private:
     F32 mTargetMapScale;
     F32 mMapRatio;
     static F32 sMapScaleSetting;
-    static LLVector2 sZoomPivot;
+    static glm::vec2 sZoomPivot;
     static LLFrameTimer sZoomTimer;
 
     F32 mMapIterpTime;
