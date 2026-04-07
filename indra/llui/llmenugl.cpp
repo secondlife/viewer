@@ -39,6 +39,7 @@
 #include "linden_common.h"
 
 #include "llmenugl.h"
+#include "glm/glm.hpp"
 
 #include "llgl.h"
 #include "llmath.h"
@@ -3141,11 +3142,17 @@ bool LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
     bool no_mouse_data = mLastMouseX == 0 && mLastMouseY == 0;
     S32 mouse_delta_x = no_mouse_data ? 0 : x - mLastMouseX;
     S32 mouse_delta_y = no_mouse_data ? 0 : y - mLastMouseY;
-    LLVector2 mouse_dir(static_cast<F32>(mouse_delta_x), static_cast<F32>(mouse_delta_y));
-    mouse_dir.normalize();
-    LLVector2 mouse_avg_dir(static_cast<F32>(mMouseVelX), static_cast<F32>(mMouseVelY));
-    mouse_avg_dir.normalize();
-    F32 interp = 0.5f * (llclamp(mouse_dir * mouse_avg_dir, 0.f, 1.f));
+    glm::vec2 mouse_dir(static_cast<F32>(mouse_delta_x), static_cast<F32>(mouse_delta_y));
+    if (glm::dot(mouse_dir, mouse_dir) > 0.f)
+    {
+        mouse_dir = glm::normalize(mouse_dir);
+    }
+    glm::vec2 mouse_avg_dir(static_cast<F32>(mMouseVelX), static_cast<F32>(mMouseVelY));
+    if (glm::dot(mouse_avg_dir, mouse_avg_dir) > 0.f)
+    {
+        mouse_avg_dir = glm::normalize(mouse_avg_dir);
+    }
+    F32 interp = 0.5f * (llclamp(glm::dot(mouse_dir, mouse_avg_dir), 0.f, 1.f));
     mMouseVelX = ll_round(lerp(static_cast<F32>(mouse_delta_x), static_cast<F32>(mMouseVelX), interp));
     mMouseVelY = ll_round(lerp(static_cast<F32>(mouse_delta_y), static_cast<F32>(mMouseVelY), interp));
     mLastMouseX = x;

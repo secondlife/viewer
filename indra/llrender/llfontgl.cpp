@@ -28,6 +28,8 @@
 
 #include "llfontgl.h"
 
+#include "glm/vec2.hpp"
+
 // Linden library includes
 #include "llfasttimer.h"
 #include "llfontfreetype.h"
@@ -186,7 +188,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     gGL.loadUIIdentity();
 
-    LLVector2 origin(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY));
+    glm::vec2 origin(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY));
 
     // Depth translation, so that floating text appears 'in-world'
     // and is correctly occluded.
@@ -210,8 +212,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     // Not guaranteed to be set correctly
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-    cur_x = (x * sScaleX) + origin.mV[VX];
-    cur_y = (y * sScaleY) + origin.mV[VY];
+    cur_x = (x * sScaleX) + origin.x;
+    cur_y = (y * sScaleY) + origin.y;
 
     // Offset y by vertical alignment.
     // use unscaled font metrics here
@@ -404,7 +406,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     if (right_x)
     {
-        *right_x = (cur_x - origin.mV[VX]) / sScaleX;
+        *right_x = (cur_x - origin.x) / sScaleX;
     }
 
     //FIXME: add underline as glyph?
@@ -426,7 +428,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         static LLWString elipses_wstr(utf8string_to_wstring(std::string("...")));
         render(elipses_wstr,
                 0,
-                (cur_x - origin.mV[VX]) / sScaleX, y,
+                (cur_x - origin.x) / sScaleX, y,
                 color,
                 HAlign::LEFT, valign,
                 style_to_add,
