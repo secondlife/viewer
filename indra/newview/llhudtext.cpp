@@ -46,6 +46,7 @@
 #include "llstatusbar.h"
 #include "llmenugl.h"
 #include "pipeline.h"
+#include "glm/glm.hpp"
 #include <boost/tokenizer.hpp>
 
 const F32 HORIZONTAL_PADDING = 15.f;
@@ -177,12 +178,12 @@ void LLHUDText::renderText()
 
     mRadius = (width_vec + height_vec).length() * 0.5f;
 
-    LLVector2 screen_offset;
+    glm::vec2 screen_offset;
     screen_offset = mPositionOffset;
 
     LLVector3 render_position = mPositionAgent
-            + (x_pixel_vec * screen_offset.mV[VX])
-            + (y_pixel_vec * screen_offset.mV[VY]);
+            + (x_pixel_vec * screen_offset.x)
+            + (y_pixel_vec * screen_offset.y);
 
     F32 y_offset = static_cast<F32>(mOffsetY);
 
@@ -415,8 +416,8 @@ void LLHUDText::updateVisibility()
     LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
 
     LLVector3 render_position = mPositionAgent +
-            (x_pixel_vec * mPositionOffset.mV[VX]) +
-            (y_pixel_vec * mPositionOffset.mV[VY]);
+            (x_pixel_vec * mPositionOffset.x) +
+            (y_pixel_vec * mPositionOffset.y);
 
     mOffscreen = false;
     if (!LLViewerCamera::getInstance()->sphereInFrustum(render_position, mRadius))
@@ -436,45 +437,45 @@ void LLHUDText::updateVisibility()
     sVisibleTextObjects.push_back(LLPointer<LLHUDText> (this));
 }
 
-LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
+glm::vec2 LLHUDText::updateScreenPos(glm::vec2 &offset)
 {
     LLCoordGL screen_pos;
-    LLVector2 screen_pos_vec;
+    glm::vec2 screen_pos_vec;
     LLVector3 x_pixel_vec;
     LLVector3 y_pixel_vec;
     LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
-//  LLVector3 world_pos = mPositionAgent + (offset.mV[VX] * x_pixel_vec) + (offset.mV[VY] * y_pixel_vec);
+//  LLVector3 world_pos = mPositionAgent + (offset.x * x_pixel_vec) + (offset.y * y_pixel_vec);
 //  if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(world_pos, screen_pos, false) && mVisibleOffScreen)
 //  {
 //      // bubble off-screen, so find a spot for it along screen edge
 //      LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
 //  }
 
-    screen_pos_vec.set(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY));
+    screen_pos_vec = glm::vec2(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY));
 
     LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
     S32 bottom = world_rect.mBottom + STATUS_BAR_HEIGHT;
 
-    LLVector2 screen_center;
-    screen_center.mV[VX] = llclamp(static_cast<F32>(screen_pos_vec.mV[VX]), static_cast<F32>(world_rect.mLeft) + mWidth * 0.5f, static_cast<F32>(world_rect.mRight) - mWidth * 0.5f);
+    glm::vec2 screen_center;
+    screen_center.x = llclamp(static_cast<F32>(screen_pos_vec.x), static_cast<F32>(world_rect.mLeft) + mWidth * 0.5f, static_cast<F32>(world_rect.mRight) - mWidth * 0.5f);
 
     if(mVertAlignment == ALIGN_VERT_TOP)
     {
-        screen_center.mV[VY] = llclamp(static_cast<F32>(screen_pos_vec.mV[VY]),
+        screen_center.y = llclamp(static_cast<F32>(screen_pos_vec.y),
             static_cast<F32>(bottom),
             static_cast<F32>(world_rect.mTop) - mHeight - static_cast<F32>(MENU_BAR_HEIGHT));
-        mSoftScreenRect.setLeftTopAndSize(screen_center.mV[VX] - (mWidth + BUFFER_SIZE) * 0.5f,
-            screen_center.mV[VY] + (mHeight + BUFFER_SIZE), mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
+        mSoftScreenRect.setLeftTopAndSize(screen_center.x - (mWidth + BUFFER_SIZE) * 0.5f,
+            screen_center.y + (mHeight + BUFFER_SIZE), mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
     }
     else
     {
-        screen_center.mV[VY] = llclamp(static_cast<F32>(screen_pos_vec.mV[VY]),
+        screen_center.y = llclamp(static_cast<F32>(screen_pos_vec.y),
             static_cast<F32>(bottom) + mHeight * 0.5f,
             static_cast<F32>(world_rect.mTop) - mHeight * 0.5f - static_cast<F32>(MENU_BAR_HEIGHT));
-        mSoftScreenRect.setCenterAndSize(screen_center.mV[VX], screen_center.mV[VY], mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
+        mSoftScreenRect.setCenterAndSize(screen_center.x, screen_center.y, mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
     }
 
-    return offset + (screen_center - LLVector2(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY)));
+    return offset + (screen_center - glm::vec2(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY)));
 }
 
 void LLHUDText::updateSize()
@@ -522,7 +523,7 @@ void LLHUDText::updateAll()
     for (text_it = sTextObjects.begin(); text_it != sTextObjects.end(); ++text_it)
     {
         LLHUDText* textp = (*text_it);
-        textp->mTargetPositionOffset.clear();
+        textp->mTargetPositionOffset = glm::vec2(0.0f);
         textp->updateSize();
         textp->updateVisibility();
     }
