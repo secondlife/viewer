@@ -123,18 +123,18 @@ bool LLTargetingMotion::onUpdate(F32 time, U8* joint_mask)
     //LLVector3 torso_dir = LLVector3(1.f, 0.f, 0.f) * (mTorsoJoint->getWorldRotation() * mTorsoState->getRotation());
 
     LLVector3 skyward(0.f, 0.f, 1.f);
-    LLVector3 left(skyward % target);
+    LLVector3 left(cross(skyward, target));
     left.normalize();
-    LLVector3 up(target % left);
+    LLVector3 up(cross(target, left));
     up.normalize();
     LLQuaternion target_aim_rot(target, left, up);
 
     LLQuaternion cur_torso_rot = mTorsoJoint->getWorldRotation();
 
     LLVector3 right_hand_at = LLVector3(0.f, -1.f, 0.f) * mRightHandJoint->getWorldRotation();
-    left.set(skyward % right_hand_at);
+    left.set(cross(skyward, right_hand_at));
     left.normalize();
-    up.set(right_hand_at % left);
+    up.set(cross(right_hand_at, left));
     up.normalize();
     LLQuaternion right_hand_rot(right_hand_at, left, up);
 

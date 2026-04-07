@@ -299,9 +299,9 @@ bool LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
         }
         dir = dirLeft;
         dir.normalize();
-        left = up % dir;
+        left = cross(up, dir);
         left.normalize();
-        dir = left % up;
+        dir = cross(left, up);
         mRotationLeft = LLQuaternion( dir, left, up );
 
         up = mNormalRight;
@@ -312,9 +312,9 @@ bool LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
         }
         dir = dirRight;
         dir.normalize();
-        left = up % dir;
+        left = cross(up, dir);
         left.normalize();
-        dir = left % up;
+        dir = cross(left, up);
         mRotationRight = LLQuaternion( dir, left, up );
     }
     mAnkleLeftJoint.setWorldRotation( mRotationLeft );

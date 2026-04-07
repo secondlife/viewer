@@ -196,7 +196,7 @@ bool LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
         else
         {
             LLVector3 root_up = LLVector3(0.f, 0.f, 1.f) * currentRootRotWorld;
-            LLVector3 left(root_up % headLookAt);
+            LLVector3 left(cross(root_up, headLookAt));
             // if look_at has zero length, fail
             // if look_at and skyward are parallel, fail
             //
@@ -211,12 +211,12 @@ bool LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
                 headLookAt = lerp(headLookAt, root_at, 0.4f);
                 headLookAt.normalize();
 
-                left = root_up % headLookAt;
+                left = cross(root_up, headLookAt);
             }
 
             // Make sure look_at and skyward and not parallel
             // and neither are zero length
-            LLVector3 up(headLookAt % left);
+            LLVector3 up(cross(headLookAt, left));
 
             targetHeadRotWorld = LLQuaternion(headLookAt, left, up);
         }
@@ -382,8 +382,8 @@ void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_s
         has_eye_target = true;
         F32 lookAtDistance = eye_look_at.normalize();
 
-        left.set(skyward % eye_look_at);
-        up.set(eye_look_at % left);
+        left.set(cross(skyward, eye_look_at));
+        up.set(cross(eye_look_at, left));
 
         target_eye_rot = LLQuaternion(eye_look_at, left, up);
         // convert target rotation to head-local coordinates

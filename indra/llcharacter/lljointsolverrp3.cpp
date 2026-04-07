@@ -230,17 +230,17 @@ void LLJointSolverRP3::solve()
                 }
                 else
                 {
-                    abcNorm = poleVec % agVec;
+                    abcNorm = cross(poleVec, agVec);
                 }
             }
             else
             {
-                abcNorm = poleVec % abVec;
+                abcNorm = cross(poleVec, abVec);
             }
         }
         else
         {
-            abcNorm = abVec % bcVec;
+            abcNorm = cross(abVec, bcVec);
         }
     }
     else
@@ -255,10 +255,10 @@ void LLJointSolverRP3::solve()
     F32 abbcAng = angle_between(abVec, bcVec);
 
     // vector orthogonal to A->B and B->C
-    LLVector3 abbcOrthoVec = abVec % bcVec;
+    LLVector3 abbcOrthoVec = cross(abVec, bcVec);
     if (abbcOrthoVec.lengthSquared() < 0.001f)
     {
-        abbcOrthoVec = poleVec % abVec;
+        abbcOrthoVec = cross(poleVec, abVec);
         abacCompOrthoVec = poleVec;
     }
     abbcOrthoVec.normalize();
@@ -322,7 +322,7 @@ void LLJointSolverRP3::solve()
         // the solution plane is undefined ==> we're done
         return;
     }
-    LLVector3 apgNorm = poleVec % agVec;
+    LLVector3 apgNorm = cross(poleVec, agVec);
     apgNorm.normalize();
 
     if (!mbUseBAxis)
@@ -338,7 +338,7 @@ void LLJointSolverRP3::solve()
         }
         else
         {
-            abcNorm = abVec % bcVec;
+            abcNorm = cross(abVec, bcVec);
         }
         abcNorm.normalize();
     }
@@ -349,7 +349,7 @@ void LLJointSolverRP3::solve()
     LLQuaternion pRot;
     if ( are_parallel( abcNorm, apgNorm, 0.001f) )
     {
-        if (abcNorm * apgNorm < 0.0f)
+        if (dot(abcNorm, apgNorm) < 0.0f)
         {
             // we must be PI radians off ==> rotate by PI around agVec
             pRot.setAngleAxis(F_PI, agVec);
