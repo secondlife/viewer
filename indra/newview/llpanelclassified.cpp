@@ -261,7 +261,7 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
             getChild<LLUICtrl>("price_for_listing")->setValue(LLSD(price_str));
 
             std::string date_str = date_fmt;
-            LLStringUtil::format(date_str, LLSD().with("datetime", (S32) c_info->creation_date));
+            LLStringUtil::format(date_str, LLSD().with("datetime", static_cast<S32>(c_info->creation_date)));
             getChild<LLUICtrl>("creation_date")->setValue(date_str);
 
             setInfoLoaded(true);
@@ -459,9 +459,9 @@ std::string LLPanelClassifiedInfo::createLocationText(
 
     if (!pos_global.isNull())
     {
-        S32 region_x = ll_round((F32)pos_global.mdV[VX]) % REGION_WIDTH_UNITS;
-        S32 region_y = ll_round((F32)pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
-        S32 region_z = ll_round((F32)pos_global.mdV[VZ]);
+        S32 region_x = ll_round(static_cast<F32>(pos_global.mdV[VX])) % REGION_WIDTH_UNITS;
+        S32 region_y = ll_round(static_cast<F32>(pos_global.mdV[VY])) % REGION_WIDTH_UNITS;
+        S32 region_z = ll_round(static_cast<F32>(pos_global.mdV[VZ]));
         location_text.append(llformat(" (%d, %d, %d)", region_x, region_y, region_z));
     }
 
@@ -493,8 +493,8 @@ void LLPanelClassifiedInfo::stretchSnapshot()
     // Lets increase texture height to force texture look as expected.
     rc.mBottom -= BTN_HEIGHT_SMALL;
 
-    F32 t_width = (F32)texture->getFullWidth();
-    F32 t_height = (F32)texture->getFullHeight();
+    F32 t_width = static_cast<F32>(texture->getFullWidth());
+    F32 t_height = static_cast<F32>(texture->getFullHeight());
 
     F32 ratio = llmin<F32>( (rc.getWidth() / t_width), (rc.getHeight() / t_height) );
 

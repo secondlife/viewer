@@ -208,7 +208,7 @@ void LLPanelGroupBulkImpl::addUsers(const std::vector<std::string>& names, const
         return;
     }
 
-    for (S32 i = 0; i < (S32)names.size(); ++i)
+    for (S32 i = 0; i < static_cast<S32>(names.size()); ++i)
     {
         const LLUUID& id = agent_ids[i];
 

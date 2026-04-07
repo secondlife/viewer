@@ -247,7 +247,7 @@ void LLPanelSettingsSkyAtmosTab::onBlueDensityChanged()
 void LLPanelSettingsSkyAtmosTab::onHazeHorizonChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setHazeHorizon((F32)getChild<LLUICtrl>(FIELD_SKY_HAZE_HORIZON)->getValue().asReal());
+    mSkySettings->setHazeHorizon(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_HAZE_HORIZON)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
 }
@@ -255,7 +255,7 @@ void LLPanelSettingsSkyAtmosTab::onHazeHorizonChanged()
 void LLPanelSettingsSkyAtmosTab::onHazeDensityChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setHazeDensity((F32)getChild<LLUICtrl>(FIELD_SKY_HAZE_DENSITY)->getValue().asReal());
+    mSkySettings->setHazeDensity(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_HAZE_DENSITY)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
 }
@@ -263,7 +263,7 @@ void LLPanelSettingsSkyAtmosTab::onHazeDensityChanged()
 void LLPanelSettingsSkyAtmosTab::onSceneGammaChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setGamma((F32)getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->getValue().asReal());
+    mSkySettings->setGamma(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
 }
@@ -271,7 +271,7 @@ void LLPanelSettingsSkyAtmosTab::onSceneGammaChanged()
 void LLPanelSettingsSkyAtmosTab::onDensityMultipChanged()
 {
     if (!mSkySettings) return;
-    F32 density_mult = (F32)getChild<LLUICtrl>(FIELD_SKY_DENSITY_MULTIP)->getValue().asReal();
+    F32 density_mult = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_DENSITY_MULTIP)->getValue().asReal());
     density_mult *= SLIDER_SCALE_DENSITY_MULTIPLIER;
     mSkySettings->setDensityMultiplier(density_mult);
     mSkySettings->update();
@@ -281,7 +281,7 @@ void LLPanelSettingsSkyAtmosTab::onDensityMultipChanged()
 void LLPanelSettingsSkyAtmosTab::onDistanceMultipChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setDistanceMultiplier((F32)getChild<LLUICtrl>(FIELD_SKY_DISTANCE_MULTIP)->getValue().asReal());
+    mSkySettings->setDistanceMultiplier(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_DISTANCE_MULTIP)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
 }
@@ -289,7 +289,7 @@ void LLPanelSettingsSkyAtmosTab::onDistanceMultipChanged()
 void LLPanelSettingsSkyAtmosTab::onMaxAltChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setMaxY((F32)getChild<LLUICtrl>(FIELD_SKY_MAX_ALT)->getValue().asReal());
+    mSkySettings->setMaxY(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_MAX_ALT)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
 }
@@ -297,7 +297,7 @@ void LLPanelSettingsSkyAtmosTab::onMaxAltChanged()
 void LLPanelSettingsSkyAtmosTab::onMoistureLevelChanged()
 {
     if (!mSkySettings) return;
-    F32 moisture_level = (F32)getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->getValue().asReal();
+    F32 moisture_level = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_DENSITY_MOISTURE_LEVEL)->getValue().asReal());
     mSkySettings->setSkyMoistureLevel(moisture_level);
     mSkySettings->update();
     setIsDirty();
@@ -306,7 +306,7 @@ void LLPanelSettingsSkyAtmosTab::onMoistureLevelChanged()
 void LLPanelSettingsSkyAtmosTab::onDropletRadiusChanged()
 {
     if (!mSkySettings) return;
-    F32 droplet_radius = (F32)getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->getValue().asReal();
+    F32 droplet_radius = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_DENSITY_DROPLET_RADIUS)->getValue().asReal());
     mSkySettings->setSkyDropletRadius(droplet_radius);
     mSkySettings->update();
     setIsDirty();
@@ -315,7 +315,7 @@ void LLPanelSettingsSkyAtmosTab::onDropletRadiusChanged()
 void LLPanelSettingsSkyAtmosTab::onIceLevelChanged()
 {
     if (!mSkySettings) return;
-    F32 ice_level = (F32)getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->getValue().asReal();
+    F32 ice_level = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_DENSITY_ICE_LEVEL)->getValue().asReal());
     mSkySettings->setSkyIceLevel(ice_level);
     mSkySettings->update();
     setIsDirty();
@@ -324,7 +324,7 @@ void LLPanelSettingsSkyAtmosTab::onIceLevelChanged()
 void LLPanelSettingsSkyAtmosTab::onReflectionProbeAmbianceChanged()
 {
     if (!mSkySettings) return;
-    F32 ambiance = (F32)getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->getValue().asReal();
+    F32 ambiance = static_cast<F32>(getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->getValue().asReal());
 
     mSkySettings->setReflectionProbeAmbiance(ambiance);
     mSkySettings->update();
@@ -445,7 +445,7 @@ void LLPanelSettingsSkyCloudTab::onCloudColorChanged()
 void LLPanelSettingsSkyCloudTab::onCloudCoverageChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setCloudShadow((F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->getValue().asReal());
+    mSkySettings->setCloudShadow(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
 }
@@ -453,14 +453,14 @@ void LLPanelSettingsSkyCloudTab::onCloudCoverageChanged()
 void LLPanelSettingsSkyCloudTab::onCloudScaleChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setCloudScale((F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->getValue().asReal());
+    mSkySettings->setCloudScale(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->getValue().asReal()));
     setIsDirty();
 }
 
 void LLPanelSettingsSkyCloudTab::onCloudVarianceChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setCloudVariance((F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_VARIANCE)->getValue().asReal());
+    mSkySettings->setCloudVariance(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_VARIANCE)->getValue().asReal()));
     setIsDirty();
 }
 
@@ -483,9 +483,9 @@ void LLPanelSettingsSkyCloudTab::onCloudMapChanged()
 void LLPanelSettingsSkyCloudTab::onCloudDensityChanged()
 {
     if (!mSkySettings) return;
-    LLColor3 density((F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_X)->getValue().asReal(),
-        (F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->getValue().asReal(),
-        (F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_D)->getValue().asReal());
+    LLColor3 density(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_X)->getValue().asReal()),
+        static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->getValue().asReal()),
+        static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_D)->getValue().asReal()));
 
     mSkySettings->setCloudPosDensity1(density);
     setIsDirty();
@@ -494,9 +494,9 @@ void LLPanelSettingsSkyCloudTab::onCloudDensityChanged()
 void LLPanelSettingsSkyCloudTab::onCloudDetailChanged()
 {
     if (!mSkySettings) return;
-    LLColor3 detail((F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_X)->getValue().asReal(),
-        (F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_Y)->getValue().asReal(),
-        (F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_D)->getValue().asReal());
+    LLColor3 detail(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_X)->getValue().asReal()),
+        static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_Y)->getValue().asReal()),
+        static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_D)->getValue().asReal()));
 
     mSkySettings->setCloudPosDensity2(detail);
     setIsDirty();
@@ -625,7 +625,7 @@ void LLPanelSettingsSkySunMoonTab::onSunMoonColorChanged()
 void LLPanelSettingsSkySunMoonTab::onGlowChanged()
 {
     if (!mSkySettings) return;
-    LLColor3 glow((F32)getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->getValue().asReal(), 0.0f, (F32)getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->getValue().asReal());
+    LLColor3 glow(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->getValue().asReal()), 0.0f, static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->getValue().asReal()));
 
     // takes 0 - 1.99 UI range -> 40 -> 0.2 range
     glow.mV[0] = (2.0f - glow.mV[0]) * SLIDER_SCALE_GLOW_R;
@@ -639,7 +639,7 @@ void LLPanelSettingsSkySunMoonTab::onGlowChanged()
 void LLPanelSettingsSkySunMoonTab::onStarBrightnessChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setStarBrightness((F32)getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->getValue().asReal());
+    mSkySettings->setStarBrightness(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
 }
@@ -662,8 +662,8 @@ void LLPanelSettingsSkySunMoonTab::onSunRotationChanged()
 
 void LLPanelSettingsSkySunMoonTab::onSunAzimElevChanged()
 {
-    F32 azimuth = (F32)getChild<LLUICtrl>(FIELD_SKY_SUN_AZIMUTH)->getValue().asReal();
-    F32 elevation = (F32)getChild<LLUICtrl>(FIELD_SKY_SUN_ELEVATION)->getValue().asReal();
+    F32 azimuth = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_SUN_AZIMUTH)->getValue().asReal());
+    F32 elevation = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_SUN_ELEVATION)->getValue().asReal());
     LLQuaternion quat;
 
     azimuth *= DEG_TO_RAD;
@@ -692,7 +692,7 @@ void LLPanelSettingsSkySunMoonTab::onSunAzimElevChanged()
 void LLPanelSettingsSkySunMoonTab::onSunScaleChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setSunScale((F32)(getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->getValue().asReal()));
+    mSkySettings->setSunScale(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
 }
@@ -724,8 +724,8 @@ void LLPanelSettingsSkySunMoonTab::onMoonRotationChanged()
 
 void LLPanelSettingsSkySunMoonTab::onMoonAzimElevChanged()
 {
-    F32 azimuth = (F32)getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->getValue().asReal();
-    F32 elevation = (F32)getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->getValue().asReal();
+    F32 azimuth = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->getValue().asReal());
+    F32 elevation = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->getValue().asReal());
     LLQuaternion quat;
 
     azimuth *= DEG_TO_RAD;
@@ -762,7 +762,7 @@ void LLPanelSettingsSkySunMoonTab::onMoonImageChanged()
 void LLPanelSettingsSkySunMoonTab::onMoonScaleChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setMoonScale((F32)(getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->getValue().asReal()));
+    mSkySettings->setMoonScale(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
 }
@@ -770,7 +770,7 @@ void LLPanelSettingsSkySunMoonTab::onMoonScaleChanged()
 void LLPanelSettingsSkySunMoonTab::onMoonBrightnessChanged()
 {
     if (!mSkySettings) return;
-    mSkySettings->setMoonBrightness((F32)(getChild<LLUICtrl>(FIELD_SKY_MOON_BRIGHTNESS)->getValue().asReal()));
+    mSkySettings->setMoonBrightness(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_MOON_BRIGHTNESS)->getValue().asReal()));
     mSkySettings->update();
     setIsDirty();
 }
@@ -850,24 +850,24 @@ void LLPanelSettingsSkyDensityTab::refresh()
     LLSD mie_config         = mSkySettings->getMieConfig();
     LLSD absorption_config  = mSkySettings->getAbsorptionConfig();
 
-    F32 rayleigh_exponential_term    = (F32)rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
-    F32 rayleigh_exponential_scale   = (F32)rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
-    F32 rayleigh_linear_term         = (F32)rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
-    F32 rayleigh_constant_term       = (F32)rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
-    F32 rayleigh_max_alt             = (F32)rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
+    F32 rayleigh_exponential_term    = static_cast<F32>(rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal());
+    F32 rayleigh_exponential_scale   = static_cast<F32>(rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal());
+    F32 rayleigh_linear_term         = static_cast<F32>(rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal());
+    F32 rayleigh_constant_term       = static_cast<F32>(rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal());
+    F32 rayleigh_max_alt             = static_cast<F32>(rayleigh_config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal());
 
-    F32 mie_exponential_term         = (F32)mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
-    F32 mie_exponential_scale        = (F32)mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
-    F32 mie_linear_term              = (F32)mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
-    F32 mie_constant_term            = (F32)mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
-    F32 mie_aniso_factor             = (F32)mie_config[LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR].asReal();
-    F32 mie_max_alt                  = (F32)mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
+    F32 mie_exponential_term         = static_cast<F32>(mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal());
+    F32 mie_exponential_scale        = static_cast<F32>(mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal());
+    F32 mie_linear_term              = static_cast<F32>(mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal());
+    F32 mie_constant_term            = static_cast<F32>(mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal());
+    F32 mie_aniso_factor             = static_cast<F32>(mie_config[LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR].asReal());
+    F32 mie_max_alt                  = static_cast<F32>(mie_config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal());
 
-    F32 absorption_exponential_term  = (F32)absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
-    F32 absorption_exponential_scale = (F32)absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
-    F32 absorption_linear_term       = (F32)absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
-    F32 absorption_constant_term     = (F32)absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
-    F32 absorption_max_alt           = (F32)absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
+    F32 absorption_exponential_term  = static_cast<F32>(absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal());
+    F32 absorption_exponential_scale = static_cast<F32>(absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal());
+    F32 absorption_linear_term       = static_cast<F32>(absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal());
+    F32 absorption_constant_term     = static_cast<F32>(absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal());
+    F32 absorption_max_alt           = static_cast<F32>(absorption_config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal());
 
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL)->setValue(rayleigh_exponential_term);
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL_SCALE)->setValue(rayleigh_exponential_scale);

@@ -777,7 +777,7 @@ bool LLPanelEditWearable::postBuild()
         configureAlphaCheckbox(LLAvatarAppearanceDefines::TEX_HAIR_ALPHA, "hair alpha texture invisible");
 
         // configure tab expanded callbacks
-        for (U32 type_index = 0; type_index < (U32)LLWearableType::WT_COUNT; ++type_index)
+        for (U32 type_index = 0; type_index < static_cast<U32>(LLWearableType::WT_COUNT); ++type_index)
         {
                 LLWearableType::EType type = (LLWearableType::EType) type_index;
                 const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(type);
@@ -786,7 +786,7 @@ bool LLPanelEditWearable::postBuild()
                         LL_WARNS() << "could not get wearable dictionary entry for wearable of type: " << type << LL_ENDL;
                         continue;
                 }
-                U8 num_subparts = (U8)(wearable_entry->mSubparts.size());
+                U8 num_subparts = static_cast<U8>(wearable_entry->mSubparts.size());
 
                 for (U8 index = 0; index < num_subparts; ++index)
                 {
@@ -1207,7 +1207,7 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, bool show, bo
                 updatePanelPickerControls(type);
 
                 // clear and rebuild visual param list
-                U8 num_subparts = (U8)(wearable_entry->mSubparts.size());
+                U8 num_subparts = static_cast<U8>(wearable_entry->mSubparts.size());
 
                 for (U8 index = 0; index < num_subparts; ++index)
                 {
@@ -1413,7 +1413,7 @@ void LLPanelEditWearable::updateScrollingPanelUI()
 
                 LLScrollingPanelParam::sUpdateDelayFrames = 0;
 
-                U8 num_subparts = (U8)(wearable_entry->mSubparts.size());
+                U8 num_subparts = static_cast<U8>(wearable_entry->mSubparts.size());
                 for (U8 index = 0; index < num_subparts; ++index)
                 {
                         // dive into data structures to get the panel we need

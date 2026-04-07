@@ -220,7 +220,7 @@ std::string LLPanelDirBrowser::filterShortWords(const std::string source_string,
     std::vector< std::string >::iterator iter = all_words.begin();
     while( iter != all_words.end() )
     {
-        if ( (int)(*iter).length() >= shortest_word_length )
+        if ( static_cast<int>((*iter).length()) >= shortest_word_length )
         {
             dest_string << *iter;
             dest_string << " ";
@@ -360,7 +360,7 @@ void LLPanelDirBrowser::showDetailPanel(S32 type, LLSD id)
         break;
     case EVENT_CODE:
         {
-            U32 event_id = (U32)id.asInteger();
+            U32 event_id = static_cast<U32>(id.asInteger());
             showEvent(event_id);
         }
         break;
@@ -534,7 +534,7 @@ void LLPanelDirBrowser::processDirPlacesReply(LLMessageSystem* msg, void**)
         content["type"] = type;
         content["name"] = name;
 
-        std::string buffer = llformat("%.0f", (F64)dwell);
+        std::string buffer = llformat("%.0f", static_cast<F64>(dwell));
         row["columns"][2]["column"] = "dwell";
         row["columns"][2]["value"] = buffer;
         row["columns"][2]["font"] = "SansSerifSmall";
@@ -619,7 +619,7 @@ void LLPanelDirBrowser::processDirEventsReply(LLMessageSystem* msg, void**)
 
         content["type"] = EVENT_CODE;
         content["name"] = name;
-        content["event_id"] = (S32)event_id;
+        content["event_id"] = static_cast<S32>(event_id);
 
         LLSD row;
         row["id"] = llformat("%u", event_id);
@@ -937,7 +937,7 @@ void LLPanelDirBrowser::processDirLandReply(LLMessageSystem *msg, void**)
             F32 price_per_meter;
             if (actual_area > 0)
             {
-                price_per_meter = (F32)sale_price / (F32)actual_area;
+                price_per_meter = static_cast<F32>(sale_price) / static_cast<F32>(actual_area);
             }
             else
             {
@@ -1099,7 +1099,7 @@ void LLPanelDirBrowser::sendDirFindQuery(
 void LLPanelDirBrowser::onKeystrokeName(LLLineEditor* line, void* data)
 {
     LLPanelDirBrowser *self = (LLPanelDirBrowser*)data;
-    if (line->getLength() >= (S32)self->mMinSearchChars)
+    if (line->getLength() >= static_cast<S32>(self->mMinSearchChars))
     {
         self->setDefaultBtn( "Search" );
         self->childEnable("Search");

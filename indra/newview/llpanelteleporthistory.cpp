@@ -212,7 +212,7 @@ std::string LLTeleportHistoryFlatItem::getTimestamp()
 
     const S32 seconds_in_day = 24 * 60 * 60;
     S32 seconds_today = now_hour * 60 * 60 + now_min * 60 + now_sec;
-    S32 time_diff = (S32) now.secondsSinceEpoch() - (S32) date.secondsSinceEpoch();
+    S32 time_diff = static_cast<S32>(now.secondsSinceEpoch()) - static_cast<S32>(date.secondsSinceEpoch());
 
     // Only show timestamp for today and yesterday
     if(time_diff < seconds_today + seconds_in_day)
@@ -230,7 +230,7 @@ std::string LLTeleportHistoryFlatItem::getTimestamp()
         }
 
         LLSD substitution;
-        substitution["datetime"] = (S32) date.secondsSinceEpoch();
+        substitution["datetime"] = static_cast<S32>(date.secondsSinceEpoch());
         LLStringUtil::format(timestamp, substitution);
     }
 
@@ -320,7 +320,7 @@ LLTeleportHistoryFlatItemStorage::getFlatItemForPersistentItem (
     const std::string &hl)
 {
     LLTeleportHistoryFlatItem* item = NULL;
-    if ( cur_item_index < (S32) mItems.size() )
+    if ( cur_item_index < static_cast<S32>(mItems.size()) )
     {
         item = mItems[cur_item_index].get();
         if (item->getParent() == NULL)

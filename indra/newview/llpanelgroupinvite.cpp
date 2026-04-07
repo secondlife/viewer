@@ -138,7 +138,7 @@ void LLPanelGroupInvite::impl::addUsers(const std::vector<std::string>& names,
         return;
     }
 
-    for (S32 i = 0; i < (S32)names.size(); i++)
+    for (S32 i = 0; i < static_cast<S32>(names.size()); i++)
     {
         name = names[i];
         id = agent_ids[i];
@@ -397,7 +397,7 @@ void LLPanelGroupInvite::impl::callbackClickOK(void* userdata)
 void LLPanelGroupInvite::impl::callbackAddUsers(const uuid_vec_t& agent_ids, void* user_data)
 {
     std::vector<std::string> names;
-    for (S32 i = 0; i < (S32)agent_ids.size(); i++)
+    for (S32 i = 0; i < static_cast<S32>(agent_ids.size()); i++)
     {
         LLAvatarName av_name;
         if (LLAvatarNameCache::get(agent_ids[i], &av_name))
@@ -477,7 +477,7 @@ void LLPanelGroupInvite::clear()
 void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
 {
     std::vector<std::string> names;
-    for (S32 i = 0; i < (S32)agent_ids.size(); i++)
+    for (S32 i = 0; i < static_cast<S32>(agent_ids.size()); i++)
     {
         std::string fullname;
         LLUUID agent_id = agent_ids[i];

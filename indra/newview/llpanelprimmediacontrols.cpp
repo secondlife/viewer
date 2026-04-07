@@ -421,7 +421,7 @@ void LLPanelPrimMediaControls::updateShape()
             if(mUpdateSlider && mMovieDuration!= 0)
             {
                 F64 current_time =  media_plugin->getCurrentTime();
-                F32 percent = (F32)(current_time / mMovieDuration);
+                F32 percent = static_cast<F32>(current_time / mMovieDuration);
                 mMediaPlaySliderCtrl->setValue(percent);
                 mMediaPlaySliderCtrl->setEnabled(true);
             }
@@ -671,12 +671,12 @@ void LLPanelPrimMediaControls::updateShape()
         // convert screenspace bbox to pixels (in screen coords)
         LLRect window_rect = gViewerWindow->getWorldViewRectScaled();
         LLCoordGL screen_min;
-        screen_min.mX = ll_round((F32)window_rect.mLeft + (F32)window_rect.getWidth() * (min.mV[VX] + 1.f) * 0.5f);
-        screen_min.mY = ll_round((F32)window_rect.mBottom + (F32)window_rect.getHeight() * (min.mV[VY] + 1.f) * 0.5f);
+        screen_min.mX = ll_round(static_cast<F32>(window_rect.mLeft) + static_cast<F32>(window_rect.getWidth()) * (min.mV[VX] + 1.f) * 0.5f);
+        screen_min.mY = ll_round(static_cast<F32>(window_rect.mBottom) + static_cast<F32>(window_rect.getHeight()) * (min.mV[VY] + 1.f) * 0.5f);
 
         LLCoordGL screen_max;
-        screen_max.mX = ll_round((F32)window_rect.mLeft + (F32)window_rect.getWidth() * (max.mV[VX] + 1.f) * 0.5f);
-        screen_max.mY = ll_round((F32)window_rect.mBottom + (F32)window_rect.getHeight() * (max.mV[VY] + 1.f) * 0.5f);
+        screen_max.mX = ll_round(static_cast<F32>(window_rect.mLeft) + static_cast<F32>(window_rect.getWidth()) * (max.mV[VX] + 1.f) * 0.5f);
+        screen_max.mY = ll_round(static_cast<F32>(window_rect.mBottom) + static_cast<F32>(window_rect.getHeight()) * (max.mV[VY] + 1.f) * 0.5f);
 
         // grow panel so that screenspace bounding box fits inside "media_region" element of panel
         LLRect media_panel_rect;
@@ -1309,7 +1309,7 @@ void LLPanelPrimMediaControls::onMediaPlaySliderCtrlMouseUp()
             }
             else
             {
-                media_impl->seek((F32)(cur_value * mMovieDuration));
+                media_impl->seek(static_cast<F32>(cur_value * mMovieDuration));
             }
         }
 

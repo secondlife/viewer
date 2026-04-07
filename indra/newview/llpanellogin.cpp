@@ -690,7 +690,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
                 authenticator = LLSD::emptyMap();
                 authenticator["type"] = CRED_AUTHENTICATOR_TYPE_HASH;
                 authenticator["algorithm"] = "md5";
-                LLMD5 pass((const U8 *)password.c_str());
+                LLMD5 pass(reinterpret_cast<const U8 *>(password.c_str()));
                 char md5pass[33];               /* Flawfinder: ignore */
                 pass.hex_digest(md5pass);
                 authenticator["secret"] = md5pass;

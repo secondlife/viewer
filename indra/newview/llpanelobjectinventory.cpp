@@ -1298,7 +1298,7 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
         break;
     default:
         LL_INFOS() << "Unhandled inventory type (llassetstorage.h): "
-                << (S32)type << LL_ENDL;
+                << static_cast<S32>(type) << LL_ENDL;
         break;
     }
     return new_bridge;
@@ -1762,7 +1762,7 @@ void LLPanelObjectInventory::draw()
         if (!text.empty())
         {
             LLFontGL::getFontSansSerif()->renderUTF8(text, 0,
-                (S32)(getRect().getWidth() * 0.5f),
+                static_cast<S32>(getRect().getWidth() * 0.5f),
                 10,
                 LLColor4(1, 1, 1, 1),
                 LLFontGL::HAlign::HCENTER,

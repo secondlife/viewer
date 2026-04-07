@@ -2164,7 +2164,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 
         mRolesList->sortByColumn(std::string("name"), true);
 
-        if ( (gdatap->mRoles.size() < (U32)MAX_ROLES)
+        if ( (gdatap->mRoles.size() < static_cast<U32>(MAX_ROLES))
             && gAgent.hasPowerInGroup(mGroupID, GP_ROLE_CREATE) )
         {
             mCreateRoleButton->setEnabled(true);

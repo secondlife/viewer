@@ -334,20 +334,20 @@ LLUUID  LLPanelFace::getCurrentNormalMap()          { return mBumpyTextureCtrl->
 LLUUID  LLPanelFace::getCurrentSpecularMap()        { return mShinyTextureCtrl->getImageAssetID(); }
 U32     LLPanelFace::getCurrentShininess()          { return mComboShininess->getCurrentIndex(); }
 U32     LLPanelFace::getCurrentBumpiness()          { return mComboBumpiness->getCurrentIndex(); }
-U8      LLPanelFace::getCurrentDiffuseAlphaMode()   { return (U8)mComboAlphaMode->getCurrentIndex(); }
-U8      LLPanelFace::getCurrentAlphaMaskCutoff()    { return (U8)mMaskCutoff->getValue().asInteger(); }
-U8      LLPanelFace::getCurrentEnvIntensity()       { return (U8)mEnvironment->getValue().asInteger(); }
-U8      LLPanelFace::getCurrentGlossiness()         { return (U8)mGlossiness->getValue().asInteger(); }
-F32     LLPanelFace::getCurrentBumpyRot()           { return (F32)mBumpyRotate->getValue().asReal(); }
-F32     LLPanelFace::getCurrentBumpyScaleU()        { return (F32)mBumpyScaleU->getValue().asReal(); }
-F32     LLPanelFace::getCurrentBumpyScaleV()        { return (F32)mBumpyScaleV->getValue().asReal(); }
-F32     LLPanelFace::getCurrentBumpyOffsetU()       { return (F32)mBumpyOffsetU->getValue().asReal(); }
-F32     LLPanelFace::getCurrentBumpyOffsetV()       { return (F32)mBumpyOffsetV->getValue().asReal(); }
-F32     LLPanelFace::getCurrentShinyRot()           { return (F32)mShinyRotate->getValue().asReal(); }
-F32     LLPanelFace::getCurrentShinyScaleU()        { return (F32)mShinyScaleU->getValue().asReal(); }
-F32     LLPanelFace::getCurrentShinyScaleV()        { return (F32)mShinyScaleV->getValue().asReal(); }
-F32     LLPanelFace::getCurrentShinyOffsetU()       { return (F32)mShinyOffsetU->getValue().asReal(); }
-F32     LLPanelFace::getCurrentShinyOffsetV()       { return (F32)mShinyOffsetV->getValue().asReal(); }
+U8      LLPanelFace::getCurrentDiffuseAlphaMode()   { return static_cast<U8>(mComboAlphaMode->getCurrentIndex()); }
+U8      LLPanelFace::getCurrentAlphaMaskCutoff()    { return static_cast<U8>(mMaskCutoff->getValue().asInteger()); }
+U8      LLPanelFace::getCurrentEnvIntensity()       { return static_cast<U8>(mEnvironment->getValue().asInteger()); }
+U8      LLPanelFace::getCurrentGlossiness()         { return static_cast<U8>(mGlossiness->getValue().asInteger()); }
+F32     LLPanelFace::getCurrentBumpyRot()           { return static_cast<F32>(mBumpyRotate->getValue().asReal()); }
+F32     LLPanelFace::getCurrentBumpyScaleU()        { return static_cast<F32>(mBumpyScaleU->getValue().asReal()); }
+F32     LLPanelFace::getCurrentBumpyScaleV()        { return static_cast<F32>(mBumpyScaleV->getValue().asReal()); }
+F32     LLPanelFace::getCurrentBumpyOffsetU()       { return static_cast<F32>(mBumpyOffsetU->getValue().asReal()); }
+F32     LLPanelFace::getCurrentBumpyOffsetV()       { return static_cast<F32>(mBumpyOffsetV->getValue().asReal()); }
+F32     LLPanelFace::getCurrentShinyRot()           { return static_cast<F32>(mShinyRotate->getValue().asReal()); }
+F32     LLPanelFace::getCurrentShinyScaleU()        { return static_cast<F32>(mShinyScaleU->getValue().asReal()); }
+F32     LLPanelFace::getCurrentShinyScaleV()        { return static_cast<F32>(mShinyScaleV->getValue().asReal()); }
+F32     LLPanelFace::getCurrentShinyOffsetU()       { return static_cast<F32>(mShinyOffsetU->getValue().asReal()); }
+F32     LLPanelFace::getCurrentShinyOffsetV()       { return static_cast<F32>(mShinyOffsetV->getValue().asReal()); }
 
 //
 // Methods
@@ -599,7 +599,7 @@ void LLPanelFace::sendBump(U32 bumpiness)
 
     LLUUID current_normal_map = mBumpyTextureCtrl->getImageAssetID();
 
-    U8 bump = (U8)bumpiness & TEM_BUMP_MASK;
+    U8 bump = static_cast<U8>(bumpiness) & TEM_BUMP_MASK;
 
     // Clear legacy bump to None when using an actual normal map
     if (!current_normal_map.isNull())
@@ -616,7 +616,7 @@ void LLPanelFace::sendBump(U32 bumpiness)
 
 void LLPanelFace::sendTexGen()
 {
-    U8 tex_gen = (U8)mComboTexGen->getCurrentIndex() << TEM_TEX_GEN_SHIFT;
+    U8 tex_gen = static_cast<U8>(mComboTexGen->getCurrentIndex()) << TEM_TEX_GEN_SHIFT;
     LLSelectMgr::getInstance()->selectionSetTexGen(tex_gen);
 }
 
@@ -630,7 +630,7 @@ void LLPanelFace::sendShiny(U32 shininess)
 
     LLUUID specmap = getCurrentSpecularMap();
 
-    U8 shiny = (U8) shininess & TEM_SHINY_MASK;
+    U8 shiny = static_cast<U8>(shininess) & TEM_SHINY_MASK;
     if (!specmap.isNull())
     {
         shiny = 0;
@@ -1119,7 +1119,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             !LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected())
         {
             S32 new_selection = -1; // Don't use getLastSelectedTE, it could have been deselected
-            S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+            S32 num_tes = llmin(static_cast<S32>(objectp->getNumTEs()), static_cast<S32>(objectp->getNumFaces()));
             for (S32 te = 0; te < num_tes; ++te)
             {
                 if (node->isTESelected(te))
@@ -1289,7 +1289,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
             shiny = specmap_id.isNull() ? shiny : SHINY_TEXTURE;
 
-            mComboShininess->getSelectionInterface()->selectNthItem((S32)shiny);
+            mComboShininess->getSelectionInterface()->selectNthItem(static_cast<S32>(shiny));
 
             mLabelShininess->setEnabled(editable);
             mComboShininess->setEnabled(editable);
@@ -1319,7 +1319,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
             LLUUID norm_map_id = getCurrentNormalMap();
             bumpy = norm_map_id.isNull() ? bumpy : BUMPY_TEXTURE;
-            mComboBumpiness->getSelectionInterface()->selectNthItem((S32)bumpy);
+            mComboBumpiness->getSelectionInterface()->selectNthItem(static_cast<S32>(bumpy));
 
             mComboBumpiness->setEnabled(editable);
             mComboBumpiness->setTentative(!identical_bumpy);
@@ -1664,7 +1664,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
         {
             // Maps from enum to combobox entry index
-            mComboTexGen->selectNthItem(((S32)selected_texgen) >> 1);
+            mComboTexGen->selectNthItem((static_cast<S32>(selected_texgen)) >> 1);
 
             mComboTexGen->setEnabled(editable);
             mComboTexGen->setTentative(!identical);
@@ -1677,7 +1677,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
             LLSelectedTE::getFullbright(fullbright_flag, identical_fullbright);
 
-            mCheckFullbright->setValue((S32)(fullbright_flag != 0));
+            mCheckFullbright->setValue(static_cast<S32>(fullbright_flag != 0));
             mCheckFullbright->setEnabled(editable && !has_pbr_material);
             mCheckFullbright->setTentative(!identical_fullbright);
             mComboMatMedia->setEnabledByValue("Materials", !has_pbr_material);
@@ -1900,13 +1900,13 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
         // Set variable values for numeric expressions
         LLCalc* calcp = LLCalc::getInstance();
-        calcp->setVar(LLCalc::TEX_U_SCALE, (F32)mTexScaleU->getValue().asReal());
-        calcp->setVar(LLCalc::TEX_V_SCALE, (F32)mTexScaleV->getValue().asReal());
-        calcp->setVar(LLCalc::TEX_U_OFFSET, (F32)mTexOffsetU->getValue().asReal());
-        calcp->setVar(LLCalc::TEX_V_OFFSET, (F32)mTexOffsetV->getValue().asReal());
-        calcp->setVar(LLCalc::TEX_ROTATION, (F32)mTexRotate->getValue().asReal());
-        calcp->setVar(LLCalc::TEX_TRANSPARENCY, (F32)mCtrlColorTransp->getValue().asReal());
-        calcp->setVar(LLCalc::TEX_GLOW, (F32)mCtrlGlow->getValue().asReal());
+        calcp->setVar(LLCalc::TEX_U_SCALE, static_cast<F32>(mTexScaleU->getValue().asReal()));
+        calcp->setVar(LLCalc::TEX_V_SCALE, static_cast<F32>(mTexScaleV->getValue().asReal()));
+        calcp->setVar(LLCalc::TEX_U_OFFSET, static_cast<F32>(mTexOffsetU->getValue().asReal()));
+        calcp->setVar(LLCalc::TEX_V_OFFSET, static_cast<F32>(mTexOffsetV->getValue().asReal()));
+        calcp->setVar(LLCalc::TEX_ROTATION, static_cast<F32>(mTexRotate->getValue().asReal()));
+        calcp->setVar(LLCalc::TEX_TRANSPARENCY, static_cast<F32>(mCtrlColorTransp->getValue().asReal()));
+        calcp->setVar(LLCalc::TEX_GLOW, static_cast<F32>(mCtrlGlow->getValue().asReal()));
     }
     else
     {
@@ -2916,7 +2916,7 @@ void LLPanelFace::updateMediaTitle()
 // static
 F32 LLPanelFace::valueGlow(LLViewerObject* object, S32 face)
 {
-    return (F32)(object->getTE(face)->getGlow());
+    return static_cast<F32>(object->getTE(face)->getGlow());
 }
 
 void LLPanelFace::onCommitColor()
@@ -3701,7 +3701,7 @@ void LLPanelFace::onCommitTextureScaleX()
 {
     if (gSavedSettings.getBOOL("SyncMaterialSettings"))
     {
-        F32 bumpy_scale_u = (F32)mTexScaleU->getValue().asReal();
+        F32 bumpy_scale_u = static_cast<F32>(mTexScaleU->getValue().asReal());
         if (isIdenticalPlanarTexgen())
         {
             bumpy_scale_u *= 0.5f;
@@ -3719,7 +3719,7 @@ void LLPanelFace::onCommitTextureScaleY()
 {
     if (gSavedSettings.getBOOL("SyncMaterialSettings"))
     {
-        F32 bumpy_scale_v = (F32)mTexScaleV->getValue().asReal();
+        F32 bumpy_scale_v = static_cast<F32>(mTexScaleV->getValue().asReal());
         if (isIdenticalPlanarTexgen())
         {
             bumpy_scale_v *= 0.5f;
@@ -3737,7 +3737,7 @@ void LLPanelFace::onCommitTextureRot()
 {
     if (gSavedSettings.getBOOL("SyncMaterialSettings"))
     {
-        syncMaterialRot((F32)mTexRotate->getValue().asReal());
+        syncMaterialRot(static_cast<F32>(mTexRotate->getValue().asReal()));
     }
     else
     {
@@ -3750,7 +3750,7 @@ void LLPanelFace::onCommitTextureOffsetX()
 {
     if (gSavedSettings.getBOOL("SyncMaterialSettings"))
     {
-        syncOffsetX((F32)mTexOffsetU->getValue().asReal());
+        syncOffsetX(static_cast<F32>(mTexOffsetU->getValue().asReal()));
     }
     else
     {
@@ -3763,7 +3763,7 @@ void LLPanelFace::onCommitTextureOffsetY()
 {
     if (gSavedSettings.getBOOL("SyncMaterialSettings"))
     {
-        syncOffsetY((F32)mTexOffsetV->getValue().asReal());
+        syncOffsetY(static_cast<F32>(mTexOffsetV->getValue().asReal()));
     }
     else
     {
@@ -3775,7 +3775,7 @@ void LLPanelFace::onCommitTextureOffsetY()
 // Commit the number of repeats per meter
 void LLPanelFace::onCommitRepeatsPerMeter()
 {
-    F32 repeats_per_meter = (F32)mTexRepeat->getValue().asReal();
+    F32 repeats_per_meter = static_cast<F32>(mTexRepeat->getValue().asReal());
 
     F32 obj_scale_s = 1.0f;
     F32 obj_scale_t = 1.0f;
@@ -3818,7 +3818,7 @@ void LLPanelFace::onCommitRepeatsPerMeter()
 // Commit the number of GLTF repeats per meter
 void LLPanelFace::onCommitGLTFRepeatsPerMeter()
 {
-    F32 repeats_per_meter = (F32)mPBRRepeat->getValue().asReal();
+    F32 repeats_per_meter = static_cast<F32>(mPBRRepeat->getValue().asReal());
 
     LLGLTFMaterial::TextureInfo material_type = getPBRTextureInfo();
     updateGLTFTextureTransformWithScale(material_type, [&](LLGLTFMaterial::TextureTransform* new_transform, F32 scale_s, F32 scale_t)
@@ -3856,8 +3856,8 @@ struct LLPanelFaceSetMediaFunctor : public LLSelectedTEFunctor
                 S32 media_height = media->getHeight();
                 S32 texture_width = media->getTextureWidth();
                 S32 texture_height = media->getTextureHeight();
-                F32 scale_s = (F32)media_width / (F32)texture_width;
-                F32 scale_t = (F32)media_height / (F32)texture_height;
+                F32 scale_s = static_cast<F32>(media_width) / static_cast<F32>(texture_width);
+                F32 scale_t = static_cast<F32>(media_height) / static_cast<F32>(texture_height);
 
                 // set scale and adjust offset
                 object->setTEScaleS(te, scale_s);
@@ -4004,7 +4004,7 @@ void LLPanelFace::onCopyColor()
     std::map<LLUUID, LLUUID> asset_item_map;
 
     // a way to resolve situations where source and target have different amount of faces
-    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    S32 num_tes = llmin(static_cast<S32>(objectp->getNumTEs()), static_cast<S32>(objectp->getNumFaces()));
     mClipboardParams["color_all_tes"] = (num_tes != 1) || (LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool());
     for (S32 te = 0; te < num_tes; ++te)
     {
@@ -4047,7 +4047,7 @@ void LLPanelFace::onPasteColor()
 
     bool face_selection_mode = LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool();
     LLSD &clipboard = mClipboardParams["color"]; // array
-    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    S32 num_tes = llmin(static_cast<S32>(objectp->getNumTEs()), static_cast<S32>(objectp->getNumFaces()));
     S32 compare_tes = num_tes;
 
     if (face_selection_mode)
@@ -4140,7 +4140,7 @@ void LLPanelFace::onPasteColor(LLViewerObject* objectp, S32 te)
             // Glow
             if (te_data["te"].has("glow"))
             {
-                objectp->setTEGlow(te, (F32)te_data["te"]["glow"].asReal());
+                objectp->setTEGlow(te, static_cast<F32>(te_data["te"]["glow"].asReal()));
             }
         }
     }
@@ -4252,7 +4252,7 @@ void LLPanelFace::onCopyTexture()
     std::map<LLUUID, LLUUID> asset_item_map;
 
     // a way to resolve situations where source and target have different amount of faces
-    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    S32 num_tes = llmin(static_cast<S32>(objectp->getNumTEs()), static_cast<S32>(objectp->getNumFaces()));
     mClipboardParams["texture_all_tes"] = (num_tes != 1) || (LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool());
     for (S32 te = 0; te < num_tes; ++te)
     {
@@ -4444,7 +4444,7 @@ void LLPanelFace::onPasteTexture()
 
     bool face_selection_mode = LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool();
     LLSD &clipboard = mClipboardParams["texture"]; // array
-    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    S32 num_tes = llmin(static_cast<S32>(objectp->getNumTEs()), static_cast<S32>(objectp->getNumFaces()));
     S32 compare_tes = num_tes;
 
     if (face_selection_mode)
@@ -4680,19 +4680,19 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
 
             if (te_data["te"].has("bumpmap"))
             {
-                objectp->setTEBumpmap(te, (U8)te_data["te"]["bumpmap"].asInteger());
+                objectp->setTEBumpmap(te, static_cast<U8>(te_data["te"]["bumpmap"].asInteger()));
             }
             if (te_data["te"].has("bumpshiny"))
             {
-                objectp->setTEBumpShiny(te, (U8)te_data["te"]["bumpshiny"].asInteger());
+                objectp->setTEBumpShiny(te, static_cast<U8>(te_data["te"]["bumpshiny"].asInteger()));
             }
             if (te_data["te"].has("bumpfullbright"))
             {
-                objectp->setTEBumpShinyFullbright(te, (U8)te_data["te"]["bumpfullbright"].asInteger());
+                objectp->setTEBumpShinyFullbright(te, static_cast<U8>(te_data["te"]["bumpfullbright"].asInteger()));
             }
             if (te_data["te"].has("texgen"))
             {
-                objectp->setTETexGen(te, (U8)te_data["te"]["texgen"].asInteger());
+                objectp->setTETexGen(te, static_cast<U8>(te_data["te"]["texgen"].asInteger()));
             }
 
             // PBR/GLTF
@@ -4770,15 +4770,15 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
             // Texture map
             if (te_data["te"].has("scales") && te_data["te"].has("scalet"))
             {
-                objectp->setTEScale(te, (F32)te_data["te"]["scales"].asReal(), (F32)te_data["te"]["scalet"].asReal());
+                objectp->setTEScale(te, static_cast<F32>(te_data["te"]["scales"].asReal()), static_cast<F32>(te_data["te"]["scalet"].asReal()));
             }
             if (te_data["te"].has("offsets") && te_data["te"].has("offsett"))
             {
-                objectp->setTEOffset(te, (F32)te_data["te"]["offsets"].asReal(), (F32)te_data["te"]["offsett"].asReal());
+                objectp->setTEOffset(te, static_cast<F32>(te_data["te"]["offsets"].asReal()), static_cast<F32>(te_data["te"]["offsett"].asReal()));
             }
             if (te_data["te"].has("imagerot"))
             {
-                objectp->setTERotation(te, (F32)te_data["te"]["imagerot"].asReal());
+                objectp->setTERotation(te, static_cast<F32>(te_data["te"]["imagerot"].asReal()));
             }
 
             // Media
@@ -4817,11 +4817,11 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                 }
             }
             LLSelectedTEMaterial::setNormalID(this, te_data["material"]["NormMap"].asUUID(), te, object_id);
-            LLSelectedTEMaterial::setNormalRepeatX(this, (F32)te_data["material"]["NormRepX"].asReal(), te, object_id);
-            LLSelectedTEMaterial::setNormalRepeatY(this, (F32)te_data["material"]["NormRepY"].asReal(), te, object_id);
-            LLSelectedTEMaterial::setNormalOffsetX(this, (F32)te_data["material"]["NormOffX"].asReal(), te, object_id);
-            LLSelectedTEMaterial::setNormalOffsetY(this, (F32)te_data["material"]["NormOffY"].asReal(), te, object_id);
-            LLSelectedTEMaterial::setNormalRotation(this, (F32)te_data["material"]["NormRot"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setNormalRepeatX(this, static_cast<F32>(te_data["material"]["NormRepX"].asReal()), te, object_id);
+            LLSelectedTEMaterial::setNormalRepeatY(this, static_cast<F32>(te_data["material"]["NormRepY"].asReal()), te, object_id);
+            LLSelectedTEMaterial::setNormalOffsetX(this, static_cast<F32>(te_data["material"]["NormOffX"].asReal()), te, object_id);
+            LLSelectedTEMaterial::setNormalOffsetY(this, static_cast<F32>(te_data["material"]["NormOffY"].asReal()), te, object_id);
+            LLSelectedTEMaterial::setNormalRotation(this, static_cast<F32>(te_data["material"]["NormRot"].asReal()), te, object_id);
 
             // Specular
                 // Replace placeholders with target's
@@ -4838,20 +4838,20 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                 }
             }
             LLSelectedTEMaterial::setSpecularID(this, te_data["material"]["SpecMap"].asUUID(), te, object_id);
-            LLSelectedTEMaterial::setSpecularRepeatX(this, (F32)te_data["material"]["SpecRepX"].asReal(), te, object_id);
-            LLSelectedTEMaterial::setSpecularRepeatY(this, (F32)te_data["material"]["SpecRepY"].asReal(), te, object_id);
-            LLSelectedTEMaterial::setSpecularOffsetX(this, (F32)te_data["material"]["SpecOffX"].asReal(), te, object_id);
-            LLSelectedTEMaterial::setSpecularOffsetY(this, (F32)te_data["material"]["SpecOffY"].asReal(), te, object_id);
-            LLSelectedTEMaterial::setSpecularRotation(this, (F32)te_data["material"]["SpecRot"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setSpecularRepeatX(this, static_cast<F32>(te_data["material"]["SpecRepX"].asReal()), te, object_id);
+            LLSelectedTEMaterial::setSpecularRepeatY(this, static_cast<F32>(te_data["material"]["SpecRepY"].asReal()), te, object_id);
+            LLSelectedTEMaterial::setSpecularOffsetX(this, static_cast<F32>(te_data["material"]["SpecOffX"].asReal()), te, object_id);
+            LLSelectedTEMaterial::setSpecularOffsetY(this, static_cast<F32>(te_data["material"]["SpecOffY"].asReal()), te, object_id);
+            LLSelectedTEMaterial::setSpecularRotation(this, static_cast<F32>(te_data["material"]["SpecRot"].asReal()), te, object_id);
             LLColor4U spec_color(te_data["material"]["SpecColor"]);
             LLSelectedTEMaterial::setSpecularLightColor(this, spec_color, te);
-            LLSelectedTEMaterial::setSpecularLightExponent(this, (U8)te_data["material"]["SpecExp"].asInteger(), te, object_id);
-            LLSelectedTEMaterial::setEnvironmentIntensity(this, (U8)te_data["material"]["EnvIntensity"].asInteger(), te, object_id);
-            LLSelectedTEMaterial::setDiffuseAlphaMode(this, (U8)te_data["material"]["DiffuseAlphaMode"].asInteger(), te, object_id);
-            LLSelectedTEMaterial::setAlphaMaskCutoff(this, (U8)te_data["material"]["AlphaMaskCutoff"].asInteger(), te, object_id);
+            LLSelectedTEMaterial::setSpecularLightExponent(this, static_cast<U8>(te_data["material"]["SpecExp"].asInteger()), te, object_id);
+            LLSelectedTEMaterial::setEnvironmentIntensity(this, static_cast<U8>(te_data["material"]["EnvIntensity"].asInteger()), te, object_id);
+            LLSelectedTEMaterial::setDiffuseAlphaMode(this, static_cast<U8>(te_data["material"]["DiffuseAlphaMode"].asInteger()), te, object_id);
+            LLSelectedTEMaterial::setAlphaMaskCutoff(this, static_cast<U8>(te_data["material"]["AlphaMaskCutoff"].asInteger()), te, object_id);
             if (te_data.has("te") && te_data["te"].has("shiny"))
             {
-                objectp->setTEShiny(te, (U8)te_data["te"]["shiny"].asInteger());
+                objectp->setTEShiny(te, static_cast<U8>(te_data["te"]["shiny"].asInteger()));
             }
         }
     }
@@ -5121,7 +5121,7 @@ bool LLPanelFace::Selection::compareSelection()
 
 void LLPanelFace::onCommitGLTFTextureScaleU()
 {
-    F32 value = (F32)mPBRScaleU->getValue().asReal();
+    F32 value = static_cast<F32>(mPBRScaleU->getValue().asReal());
     updateGLTFTextureTransform([&](LLGLTFMaterial::TextureTransform* new_transform)
     {
         new_transform->mScale.mV[VX] = value;
@@ -5130,7 +5130,7 @@ void LLPanelFace::onCommitGLTFTextureScaleU()
 
 void LLPanelFace::onCommitGLTFTextureScaleV()
 {
-    F32 value = (F32)mPBRScaleV->getValue().asReal();
+    F32 value = static_cast<F32>(mPBRScaleV->getValue().asReal());
     updateGLTFTextureTransform([&](LLGLTFMaterial::TextureTransform* new_transform)
     {
         new_transform->mScale.mV[VY] = value;
@@ -5139,7 +5139,7 @@ void LLPanelFace::onCommitGLTFTextureScaleV()
 
 void LLPanelFace::onCommitGLTFRotation()
 {
-    F32 value = (F32)mPBRRotate->getValue().asReal() * DEG_TO_RAD;
+    F32 value = static_cast<F32>(mPBRRotate->getValue().asReal()) * DEG_TO_RAD;
     updateGLTFTextureTransform([&](LLGLTFMaterial::TextureTransform* new_transform)
     {
         new_transform->mRotation = value;
@@ -5148,7 +5148,7 @@ void LLPanelFace::onCommitGLTFRotation()
 
 void LLPanelFace::onCommitGLTFTextureOffsetU()
 {
-    F32 value = (F32)mPBROffsetU->getValue().asReal();
+    F32 value = static_cast<F32>(mPBROffsetU->getValue().asReal());
     updateGLTFTextureTransform([&](LLGLTFMaterial::TextureTransform* new_transform)
     {
         new_transform->mOffset.mV[VX] = value;
@@ -5157,7 +5157,7 @@ void LLPanelFace::onCommitGLTFTextureOffsetU()
 
 void LLPanelFace::onCommitGLTFTextureOffsetV()
 {
-    F32 value = (F32)mPBROffsetV->getValue().asReal();
+    F32 value = static_cast<F32>(mPBROffsetV->getValue().asReal());
     updateGLTFTextureTransform([&](LLGLTFMaterial::TextureTransform* new_transform)
     {
         new_transform->mOffset.mV[VY] = value;
@@ -5256,7 +5256,7 @@ bool LLPanelFace::isMediaTexSelected()
     LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
     if (LLViewerObject* objectp = node->getObject())
     {
-        S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+        S32 num_tes = llmin(static_cast<S32>(objectp->getNumTEs()), static_cast<S32>(objectp->getNumFaces()));
         for (S32 te = 0; te < num_tes; ++te)
         {
             if (node->isTESelected(te))

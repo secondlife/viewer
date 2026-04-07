@@ -129,7 +129,7 @@ void LLPanelSnapshotLocal::updateControls(const LLSD& info)
 {
     LLSnapshotModel::ESnapshotFormat fmt =
         (LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
-    getChild<LLComboBox>("local_format_combo")->selectNthItem((S32) fmt);
+    getChild<LLComboBox>("local_format_combo")->selectNthItem(static_cast<S32>(fmt));
 
     const bool show_quality_ctrls = (fmt == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
     getChild<LLUICtrl>("image_quality_slider")->setVisible(show_quality_ctrls);
@@ -154,7 +154,7 @@ void LLPanelSnapshotLocal::onQualitySliderCommit(LLUICtrl* ctrl)
     updateImageQualityLevel();
 
     LLSliderCtrl* slider = (LLSliderCtrl*)ctrl;
-    S32 quality_val = llfloor((F32)slider->getValue().asReal());
+    S32 quality_val = llfloor(static_cast<F32>(slider->getValue().asReal()));
     LLSD info;
     info["image-quality-change"] = quality_val;
     LLFloaterSnapshot::getInstance()->notify(info);
