@@ -4237,16 +4237,16 @@
       <key>Value</key>
       <string>0.0.0</string>
     </map>
-    <key>LastInstallVersion</key>
+    <key>PreviousInstallChecked</key>
     <map>
         <key>Comment</key>
-        <string>Version number of last instance of the viewer that you installed</string>
+        <string>Whether viewer checked previous install on the same channel for NSIS</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
-        <string>String</string>
+        <string>Boolean</string>
         <key>Value</key>
-        <string></string>
+        <integer>0</integer>
     </map>
     <key>LimitDragDistance</key>
     <map>
