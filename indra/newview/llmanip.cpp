@@ -63,7 +63,7 @@ S32     LLManip::sNumTimesHelpTextShown = 0;
 S32     LLManip::sMaxTimesShowHelpText = 5;
 F32     LLManip::sGridMaxSubdivisionLevel = 32.f;
 F32     LLManip::sGridMinSubdivisionLevel = 1.f / 32.f;
-LLVector2 LLManip::sTickLabelSpacing(60.f, 25.f);
+glm::vec2 LLManip::sTickLabelSpacing(60.f, 25.f);
 
 
 //static

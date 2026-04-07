@@ -31,6 +31,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llmaniptranslate.h"
+#include "glm/glm.hpp"
 
 #include "llgl.h"
 #include "llrender.h"
@@ -957,14 +958,14 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
         projected_manipulators.push_back(projected_manip);
     }
 
-    LLVector2 manip_start_2d;
-    LLVector2 manip_end_2d;
-    LLVector2 manip_dir;
+    glm::vec2 manip_start_2d;
+    glm::vec2 manip_end_2d;
+    glm::vec2 manip_dir;
     LLRect world_view_rect = gViewerWindow->getWorldViewRectScaled();
     F32 half_width = static_cast<F32>(world_view_rect.getWidth()) / 2.f;
     F32 half_height = static_cast<F32>(world_view_rect.getHeight()) / 2.f;
-    LLVector2 mousePos(static_cast<F32>(x) - half_width, static_cast<F32>(y) - half_height);
-    LLVector2 mouse_delta;
+    glm::vec2 mousePos(static_cast<F32>(x) - half_width, static_cast<F32>(y) - half_height);
+    glm::vec2 mouse_delta;
 
     // Keep order consistent with insertion via stable_sort
     std::stable_sort( projected_manipulators.begin(),
@@ -976,16 +977,20 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
     {
         ManipulatorHandle& manipulator = *it;
         {
-            manip_start_2d.set(manipulator.mStartPosition.mV[VX] * half_width, manipulator.mStartPosition.mV[VY] * half_height);
-            manip_end_2d.set(manipulator.mEndPosition.mV[VX] * half_width, manipulator.mEndPosition.mV[VY] * half_height);
+            manip_start_2d = glm::vec2(manipulator.mStartPosition.mV[VX] * half_width, manipulator.mStartPosition.mV[VY] * half_height);
+            manip_end_2d = glm::vec2(manipulator.mEndPosition.mV[VX] * half_width, manipulator.mEndPosition.mV[VY] * half_height);
             manip_dir = manip_end_2d - manip_start_2d;
 
             mouse_delta = mousePos - manip_start_2d;
 
-            F32 manip_length = manip_dir.normalize();
+            F32 manip_length = glm::length(manip_dir);
+            if (manip_length > 0.f)
+            {
+                manip_dir /= manip_length;
+            }
 
-            F32 mouse_pos_manip = mouse_delta * manip_dir;
-            F32 mouse_dist_manip_squared = mouse_delta.lengthSquared() - (mouse_pos_manip * mouse_pos_manip);
+            F32 mouse_pos_manip = glm::dot(mouse_delta, manip_dir);
+            F32 mouse_dist_manip_squared = glm::dot(mouse_delta, mouse_delta) - (mouse_pos_manip * mouse_pos_manip);
 
             if (mouse_pos_manip > 0.f &&
                 mouse_pos_manip < manip_length &&
@@ -1364,10 +1369,10 @@ void LLManipTranslate::renderSnapGuides()
 
         sub_div_offset = ll_round(fmod(dist_grid_axis - offset_nearest_grid_unit, getMinGridScale() * 32.f) / smallest_grid_unit_scale);
 
-        LLVector2 screen_translate_axis(llabs(translate_axis * LLViewerCamera::getInstance()->getLeftAxis()), llabs(translate_axis * LLViewerCamera::getInstance()->getUpAxis()));
-        screen_translate_axis.normalize();
+        glm::vec2 screen_translate_axis(llabs(translate_axis * LLViewerCamera::getInstance()->getLeftAxis()), llabs(translate_axis * LLViewerCamera::getInstance()->getUpAxis()));
+        screen_translate_axis = glm::normalize(screen_translate_axis);
 
-        S32 tick_label_spacing = ll_round(screen_translate_axis * sTickLabelSpacing);
+        S32 tick_label_spacing = ll_round(glm::dot(screen_translate_axis, sTickLabelSpacing));
 
         // render tickmark values
         for (S32 i = -num_ticks_per_side; i <= num_ticks_per_side; i++)

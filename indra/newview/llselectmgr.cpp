@@ -29,6 +29,7 @@
 // file include
 #define LLSELECTMGR_CPP
 #include "llselectmgr.h"
+#include "glm/glm.hpp"
 #include "llmaterialmgr.h"
 
 // library includes
@@ -7308,40 +7309,40 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
                 }
 
                 LLVector3 v[4];
-                LLVector2 tc[4];
+                glm::vec2 tc[4];
                 v[0] = mSilhouetteVertices[i] + (mSilhouetteNormals[i] * silhouette_thickness);
-                tc[0].set(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
+                tc[0] = glm::vec2(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
 
                 v[1] = mSilhouetteVertices[i];
-                tc[1].set(u_coord, v_coord);
+                tc[1] = glm::vec2(u_coord, v_coord);
 
                 u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
 
                 v[2] = mSilhouetteVertices[i+1] + (mSilhouetteNormals[i+1] * silhouette_thickness);
-                tc[2].set(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
+                tc[2] = glm::vec2(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
 
                 v[3] = mSilhouetteVertices[i+1];
-                tc[3].set(u_coord,v_coord);
+                tc[3] = glm::vec2(u_coord,v_coord);
 
                 gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
-                gGL.texCoord2fv(tc[0].mV);
+                gGL.texCoord2fv(&tc[0].x);
                 gGL.vertex3fv( v[0].mV );
 
                 gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha);
-                gGL.texCoord2fv( tc[1].mV );
+                gGL.texCoord2fv( &tc[1].x );
                 gGL.vertex3fv( v[1].mV );
 
                 gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
-                gGL.texCoord2fv( tc[2].mV );
+                gGL.texCoord2fv( &tc[2].x );
                 gGL.vertex3fv( v[2].mV );
 
                 gGL.vertex3fv( v[2].mV );
 
                 gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha);
-                gGL.texCoord2fv( tc[1].mV );
+                gGL.texCoord2fv( &tc[1].x );
                 gGL.vertex3fv( v[1].mV );
 
-                gGL.texCoord2fv( tc[3].mV );
+                gGL.texCoord2fv( &tc[3].x );
                 gGL.vertex3fv( v[3].mV );
             }
         }

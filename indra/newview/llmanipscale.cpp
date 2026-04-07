@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llmanipscale.h"
+#include "glm/glm.hpp"
 
 // library includes
 #include "llmath.h"
@@ -522,9 +523,9 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
         LLRect world_view_rect = gViewerWindow->getWorldViewRectScaled();
         F32 half_width = static_cast<F32>(world_view_rect.getWidth()) / 2.f;
         F32 half_height = static_cast<F32>(world_view_rect.getHeight()) / 2.f;
-        LLVector2 manip2d;
-        LLVector2 mousePos(static_cast<F32>(x) - half_width, static_cast<F32>(y) - half_height);
-        LLVector2 delta;
+        glm::vec2 manip2d;
+        glm::vec2 mousePos(static_cast<F32>(x) - half_width, static_cast<F32>(y) - half_height);
+        glm::vec2 delta;
 
         mHighlightedPart = LL_NO_PART;
 
@@ -533,10 +534,10 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
         {
             ManipulatorHandle* manipulator = *iter;
             {
-                manip2d.set(manipulator->mPosition.mV[VX] * half_width, manipulator->mPosition.mV[VY] * half_height);
+                manip2d = glm::vec2(manipulator->mPosition.mV[VX] * half_width, manipulator->mPosition.mV[VY] * half_height);
 
                 delta = manip2d - mousePos;
-                if (delta.lengthSquared() < MAX_MANIP_SELECT_DISTANCE_SQUARED)
+                if (glm::dot(delta, delta) < MAX_MANIP_SELECT_DISTANCE_SQUARED)
                 {
                     mHighlightedPart = manipulator->mManipID;
 
@@ -1641,10 +1642,10 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
             gGL.end();
         }
 
-        LLVector2 screen_translate_axis(llabs(mScaleDir * LLViewerCamera::getInstance()->getLeftAxis()), llabs(mScaleDir * LLViewerCamera::getInstance()->getUpAxis()));
-        screen_translate_axis.normalize();
+        glm::vec2 screen_translate_axis(llabs(mScaleDir * LLViewerCamera::getInstance()->getLeftAxis()), llabs(mScaleDir * LLViewerCamera::getInstance()->getUpAxis()));
+        screen_translate_axis = glm::normalize(screen_translate_axis);
 
-        S32 tick_label_spacing = ll_round(screen_translate_axis * sTickLabelSpacing);
+        S32 tick_label_spacing = ll_round(glm::dot(screen_translate_axis, sTickLabelSpacing));
 
         for (pass = 0; pass < 3; pass++)
         {
