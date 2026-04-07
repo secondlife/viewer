@@ -55,8 +55,8 @@ namespace LL
             ~Primitive();
 
             // CPU copy of mesh data
-            std::vector<LLVector2> mTexCoords0;
-            std::vector<LLVector2> mTexCoords1;
+            std::vector<glm::vec2> mTexCoords0;
+            std::vector<glm::vec2> mTexCoords1;
             std::vector<LLVector4a> mNormals;
             std::vector<LLVector4a> mTangents;
             std::vector<LLVector4a> mPositions;
@@ -99,7 +99,7 @@ namespace LL
             //Line segment must be in the same coordinate frame as this Primitive
             const LLVolumeTriangle* lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                 LLVector4a* intersection = NULL,         // return the intersection point
-                LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
+                glm::vec2* tex_coord = NULL,            // return the texture coordinates of the intersection point
                 LLVector4a* normal = NULL,               // return the surface normal at the intersection point
                 LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
             );

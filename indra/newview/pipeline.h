@@ -61,7 +61,6 @@ enum e_avatar_skinning_method
 };
 using EAvatarSkinningMethod = e_avatar_skinning_method;
 
-bool compute_min_max(LLMatrix4& box, LLVector2& min, LLVector2& max); // Shouldn't be defined here!
 bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& origin, const LLVector3& dir, LLVector3 &coord, F32 epsilon = 0);
 bool setup_hud_matrices(); // use whole screen to render hud
 bool setup_hud_matrices(const LLRect& screen_region); // specify portion of screen (in pixels) to render hud attachments from (for picking)
@@ -218,7 +217,7 @@ public:
                                                 S32* gltf_node_hit = nullptr,           // return the gltf node hit
                                                 S32* gltf_primitive_hit = nullptr,      // return the gltf primitive hit
                                                 LLVector4a* intersection = NULL,         // return the intersection point
-                                                LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
+                                                glm::vec2* tex_coord = NULL,            // return the texture coordinates of the intersection point
                                                 LLVector4a* normal = NULL,               // return the surface normal at the intersection point
                                                 LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
         );
@@ -232,7 +231,7 @@ public:
                                               bool pick_transparent,
                                               S32* face_hit,                          // return the face hit
                                               LLVector4a* intersection = NULL,         // return the intersection point
-                                              LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
+                                              glm::vec2* tex_coord = NULL,            // return the texture coordinates of the intersection point
                                               LLVector4a* normal = NULL,               // return the surface normal at the intersection point
                                               LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
         );
@@ -780,7 +779,6 @@ public:
 
     LLVector4               mSunClipPlanes;
     LLVector4               mSunOrthoClipPlanes;
-    LLVector2               mScreenScale;
 
     //water distortion texture (refraction)
     LLRenderTarget              mWaterDis;

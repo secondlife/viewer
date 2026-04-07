@@ -27,6 +27,7 @@
 #pragma once
 
 #include "lltool.h"
+#include "glm/vec2.hpp"
 //#include "v3math.h"
 
 class LLView;
@@ -159,7 +160,7 @@ protected:
     static S32          sMaxTimesShowHelpText;
     static F32          sGridMaxSubdivisionLevel;
     static F32          sGridMinSubdivisionLevel;
-    static LLVector2    sTickLabelSpacing;
+    static glm::vec2    sTickLabelSpacing;
 };
 
 

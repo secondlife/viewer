@@ -195,8 +195,8 @@ bool LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
         }
 
 
-        numRead = fread(&mTexCoords[v].mV, sizeof(F32), 2, fp);
-        llendianswizzle(&mTexCoords[v].mV, sizeof(F32), 2);
+        numRead = fread(&mTexCoords[v].x, sizeof(F32), 2, fp);
+        llendianswizzle(&mTexCoords[v].x, sizeof(F32), 2);
         if (numRead != 2)
         {
             LL_WARNS() << "Can't read morph target uv" << LL_ENDL;
@@ -563,7 +563,7 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
         LLVector4a *binormals = mMesh->getWritableBinormals();
 
         LLVector4a *clothing_weights = mMesh->getWritableClothingWeights();
-        LLVector2 *tex_coords = mMesh->getWritableTexCoords();
+        glm::vec2 *tex_coords = mMesh->getWritableTexCoords();
 
         F32 *maskWeightArray = (mVertMask) ? mVertMask->getMorphMaskWeights() : NULL;
 
@@ -664,7 +664,7 @@ void    LLPolyMorphTarget::applyMask(const U8 *maskTextureData, S32 width, S32 h
             LLVector4a *coords = mMesh->getWritableCoords();
             LLVector4a *scaled_normals = mMesh->getScaledNormals();
             LLVector4a *scaled_binormals = mMesh->getScaledBinormals();
-            LLVector2 *tex_coords = mMesh->getWritableTexCoords();
+            glm::vec2 *tex_coords = mMesh->getWritableTexCoords();
 
             LLVector4Logical clothing_mask;
             clothing_mask.clear();
@@ -780,7 +780,7 @@ void LLPolyVertexMask::generateMask(const U8 *maskTextureData, S32 width, S32 he
     {
         S32 vertIndex = mMorphData->mVertexIndices[index];
         const S32 *sharedVertIndex = mMorphData->mMesh->getSharedVert(vertIndex);
-        LLVector2 uvCoords;
+        glm::vec2 uvCoords;
 
         if (sharedVertIndex)
         {
@@ -790,8 +790,8 @@ void LLPolyVertexMask::generateMask(const U8 *maskTextureData, S32 width, S32 he
         {
             uvCoords = mMorphData->mMesh->getUVs(vertIndex);
         }
-        U32 s = llclamp(static_cast<U32>(uvCoords.mV[VX] * static_cast<F32>(width - 1)), static_cast<U32>(0), static_cast<U32>(width - 1));
-        U32 t = llclamp(static_cast<U32>(uvCoords.mV[VY] * static_cast<F32>(height - 1)), static_cast<U32>(0), static_cast<U32>(height - 1));
+        U32 s = llclamp(static_cast<U32>(uvCoords.x * static_cast<F32>(width - 1)), static_cast<U32>(0), static_cast<U32>(width - 1));
+        U32 t = llclamp(static_cast<U32>(uvCoords.y * static_cast<F32>(height - 1)), static_cast<U32>(0), static_cast<U32>(height - 1));
 
         mWeights[index] = maskTextureData ? (static_cast<F32>(maskTextureData[((t * width + s) * num_components) + (num_components - 1)])) / 255.f : 0.0f;
 

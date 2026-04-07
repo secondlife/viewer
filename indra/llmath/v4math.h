@@ -31,6 +31,7 @@
 #include "v3math.h"
 #include "v2math.h"
 
+#include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -77,6 +78,8 @@ public:
     }
 
     // GLM interop
+    explicit LLVector4(const glm::vec2& vec); // Initializes LLVector4 to (vec.x, vec.y, 0, 0)
+    explicit LLVector4(const glm::vec2& vec, F32 z, F32 w); // Initializes LLVector4 to (vec.x, vec.y, z, w)
     explicit LLVector4(const glm::vec3& vec); // Initializes LLVector4 to (vec, 1)
     explicit LLVector4(const glm::vec4& vec); // Initializes LLVector4 to vec
     explicit operator glm::vec3() const;      // Initializes glm::vec3 to (vec[0]. vec[1], vec[2])
@@ -205,6 +208,22 @@ inline LLVector4::LLVector4(const LLVector3 &vec, F32 w)
 inline LLVector4::LLVector4(const LLSD &sd)
 {
     setValue(sd);
+}
+
+inline LLVector4::LLVector4(const glm::vec2& vec)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = 0.f;
+    mV[VW] = 0.f;
+}
+
+inline LLVector4::LLVector4(const glm::vec2& vec, F32 z, F32 w)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = z;
+    mV[VW] = w;
 }
 
 inline LLVector4::LLVector4(const glm::vec3& vec)

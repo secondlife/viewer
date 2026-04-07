@@ -194,12 +194,12 @@ U32 LLPolyMeshSharedData::getNumKB()
                 num_kb += mNumVertices *
                         ( sizeof(LLVector3) +   // coords
                           sizeof(LLVector3) +             // normals
-                          sizeof(LLVector2) );    // texCoords
+                          sizeof(glm::vec2) );    // texCoords
         }
 
         if (mHasDetailTexCoords && !isLOD())
         {
-                num_kb += mNumVertices * sizeof(LLVector2);     // detailTexCoords
+                num_kb += mNumVertices * sizeof(glm::vec2);     // detailTexCoords
         }
 
         if (mHasWeights && !isLOD())
@@ -222,15 +222,15 @@ bool LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
         mBaseCoords = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices*sizeof(LLVector4a)));
         mBaseNormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices*sizeof(LLVector4a)));
         mBaseBinormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices*sizeof(LLVector4a)));
-        mTexCoords = static_cast<LLVector2*>(ll_aligned_malloc_16(numVertices*sizeof(LLVector2)));
-        mDetailTexCoords = static_cast<LLVector2*>(ll_aligned_malloc_16(numVertices*sizeof(LLVector2)));
+        mTexCoords = static_cast<glm::vec2*>(ll_aligned_malloc_16(numVertices*sizeof(glm::vec2)));
+        mDetailTexCoords = static_cast<glm::vec2*>(ll_aligned_malloc_16(numVertices*sizeof(glm::vec2)));
         mWeights = static_cast<F32*>(ll_aligned_malloc_16(numVertices*sizeof(F32)));
         for (i = 0; i < numVertices; i++)
         {
             mBaseCoords[i].clear();
             mBaseNormals[i].clear();
             mBaseBinormals[i].clear();
-            mTexCoords[i].clear();
+            mTexCoords[i] = glm::vec2(0.0f);
             mWeights[i] = 0.f;
         }
         mNumVertices = numVertices;
@@ -730,7 +730,7 @@ const S32 *LLPolyMeshSharedData::getSharedVert(S32 vert)
 //-----------------------------------------------------------------------------
 // getUV()
 //-----------------------------------------------------------------------------
-const LLVector2 &LLPolyMeshSharedData::getUVs(U32 index)
+const glm::vec2 &LLPolyMeshSharedData::getUVs(U32 index)
 {
         // TODO: convert all index variables to S32
         llassert(static_cast<S32>(index) < mNumVertices);
@@ -788,7 +788,7 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
         mCoords             =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
         mNormals            =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
         mClothingWeights    =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
-        mTexCoords          =   reinterpret_cast<LLVector2*>(mVertexData + offset);  offset += 2*nverts;
+        mTexCoords          =   reinterpret_cast<glm::vec2*>(mVertexData + offset);  offset += 2*nverts;
         mScaledNormals      =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
         mBinormals          =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
         mScaledBinormals    =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
@@ -941,7 +941,7 @@ LLVector4a       *LLPolyMesh::getWritableClothingWeights()
 //-----------------------------------------------------------------------------
 // getWritableTexCoords()
 //-----------------------------------------------------------------------------
-LLVector2       *LLPolyMesh::getWritableTexCoords()
+glm::vec2       *LLPolyMesh::getWritableTexCoords()
 {
         return mTexCoords;
 }
@@ -973,7 +973,7 @@ void LLPolyMesh::initializeForMorph()
     LLVector4a::memcpyNonAliased16((F32*) mScaledNormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
     LLVector4a::memcpyNonAliased16((F32*) mBinormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
     LLVector4a::memcpyNonAliased16((F32*) mScaledBinormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
-    memcpy((F32*) mTexCoords, (F32*) mSharedData->mTexCoords, sizeof(LLVector2) * (mSharedData->mNumVertices)); // allocated in LLPolyMeshSharedData::allocateVertexData
+    memcpy((F32*) mTexCoords, (F32*) mSharedData->mTexCoords, sizeof(glm::vec2) * (mSharedData->mNumVertices)); // allocated in LLPolyMeshSharedData::allocateVertexData
 
     for (S32 i = 0; i < mSharedData->mNumVertices; ++i)
     {

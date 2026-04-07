@@ -241,8 +241,10 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
 
     shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, std::span<const GLfloat>(light_diffuse.mV, 3));
 
-    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, std::span<const GLfloat>(pwater->getWave1Dir().mV, 2));
-    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, std::span<const GLfloat>(pwater->getWave2Dir().mV, 2));
+    glm::vec2 wave1_dir = pwater->getWave1Dir();
+    glm::vec2 wave2_dir = pwater->getWave2Dir();
+    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, std::span<const GLfloat>(&wave1_dir.x, 2));
+    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, std::span<const GLfloat>(&wave2_dir.x, 2));
 
     shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, std::span<const GLfloat>(light_dir.mV, 3));
 

@@ -676,10 +676,10 @@ const std::array<U32, LLVertexBuffer::TYPE_MAX> LLVertexBuffer::sTypeSize =
 {{
     sizeof(LLVector4), // TYPE_VERTEX,
     sizeof(LLVector4), // TYPE_NORMAL,
-    sizeof(LLVector2), // TYPE_TEXCOORD0,
-    sizeof(LLVector2), // TYPE_TEXCOORD1,
-    sizeof(LLVector2), // TYPE_TEXCOORD2,
-    sizeof(LLVector2), // TYPE_TEXCOORD3,
+    sizeof(glm::vec2), // TYPE_TEXCOORD0,
+    sizeof(glm::vec2), // TYPE_TEXCOORD1,
+    sizeof(glm::vec2), // TYPE_TEXCOORD2,
+    sizeof(glm::vec2), // TYPE_TEXCOORD3,
     sizeof(LLColor4U), // TYPE_COLOR,
     sizeof(LLColor4U), // TYPE_EMISSIVE, only alpha is used currently
     sizeof(LLVector4), // TYPE_TANGENT,
@@ -766,7 +766,7 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos)
 }
 
 //static
-void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, std::span<const U16> indices)
+void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const glm::vec2* tc, std::span<const U16> indices)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
     llassert(LLGLSLShader::sCurBoundShaderPtr != NULL);
@@ -783,7 +783,7 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
     {
         for (U16 idx : indices)
         {
-            gGL.texCoord2fv(tc[idx].mV);
+            gGL.texCoord2f(tc[idx].x, tc[idx].y);
             gGL.vertex3fv(pos[idx].getF32ptr());
         }
     }
@@ -1529,17 +1529,17 @@ bool LLVertexBuffer::getIndexStrider(LLStrider<U16>& strider, U32 index, S32 cou
     llassert(mIndicesType == GL_UNSIGNED_SHORT);
     return VertexBufferStrider<U16,TYPE_INDEX>::get(*this, strider, index, count);
 }
-bool LLVertexBuffer::getTexCoord0Strider(LLStrider<LLVector2>& strider, U32 index, S32 count)
+bool LLVertexBuffer::getTexCoord0Strider(LLStrider<glm::vec2>& strider, U32 index, S32 count)
 {
-    return VertexBufferStrider<LLVector2,TYPE_TEXCOORD0>::get(*this, strider, index, count);
+    return VertexBufferStrider<glm::vec2,TYPE_TEXCOORD0>::get(*this, strider, index, count);
 }
-bool LLVertexBuffer::getTexCoord1Strider(LLStrider<LLVector2>& strider, U32 index, S32 count)
+bool LLVertexBuffer::getTexCoord1Strider(LLStrider<glm::vec2>& strider, U32 index, S32 count)
 {
-    return VertexBufferStrider<LLVector2,TYPE_TEXCOORD1>::get(*this, strider, index, count);
+    return VertexBufferStrider<glm::vec2,TYPE_TEXCOORD1>::get(*this, strider, index, count);
 }
-bool LLVertexBuffer::getTexCoord2Strider(LLStrider<LLVector2>& strider, U32 index, S32 count)
+bool LLVertexBuffer::getTexCoord2Strider(LLStrider<glm::vec2>& strider, U32 index, S32 count)
 {
-    return VertexBufferStrider<LLVector2,TYPE_TEXCOORD2>::get(*this, strider, index, count);
+    return VertexBufferStrider<glm::vec2,TYPE_TEXCOORD2>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector3>& strider, U32 index, S32 count)
 {
@@ -1736,12 +1736,12 @@ void LLVertexBuffer::setPositionData(const LLVector4a* data)
     flush_vbo(GL_ARRAY_BUFFER, 0, sizeof(LLVector4a) * getNumVerts()-1, (U8*) data, mMappedData);
 }
 
-void LLVertexBuffer::setTexCoord0Data(const LLVector2* data)
+void LLVertexBuffer::setTexCoord0Data(const glm::vec2* data)
 {
     flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD0], mOffsets[TYPE_TEXCOORD0] + sTypeSize[TYPE_TEXCOORD0] * getNumVerts() - 1, (U8*)data, mMappedData);
 }
 
-void LLVertexBuffer::setTexCoord1Data(const LLVector2* data)
+void LLVertexBuffer::setTexCoord1Data(const glm::vec2* data)
 {
     flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD1], mOffsets[TYPE_TEXCOORD1] + sTypeSize[TYPE_TEXCOORD1] * getNumVerts() - 1, (U8*)data, mMappedData);
 }
@@ -1799,13 +1799,13 @@ void LLVertexBuffer::setNormalData(std::span<const LLVector4a> data, U32 offset)
     flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_NORMAL] + offset * sTypeSize[TYPE_NORMAL], mOffsets[TYPE_NORMAL] + (offset + count) * sTypeSize[TYPE_NORMAL] - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);
 }
 
-void LLVertexBuffer::setTexCoord0Data(std::span<const LLVector2> data, U32 offset)
+void LLVertexBuffer::setTexCoord0Data(std::span<const glm::vec2> data, U32 offset)
 {
     U32 count = static_cast<U32>(data.size());
     flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD0] + offset * sTypeSize[TYPE_TEXCOORD0], mOffsets[TYPE_TEXCOORD0] + (offset + count) * sTypeSize[TYPE_TEXCOORD0] - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);
 }
 
-void LLVertexBuffer::setTexCoord1Data(std::span<const LLVector2> data, U32 offset)
+void LLVertexBuffer::setTexCoord1Data(std::span<const glm::vec2> data, U32 offset)
 {
     U32 count = static_cast<U32>(data.size());
     flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD1] + offset * sTypeSize[TYPE_TEXCOORD1], mOffsets[TYPE_TEXCOORD1] + (offset + count) * sTypeSize[TYPE_TEXCOORD1] - 1, const_cast<U8*>(reinterpret_cast<const U8*>(data.data())), mMappedData);

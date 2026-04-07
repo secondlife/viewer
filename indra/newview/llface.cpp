@@ -55,6 +55,7 @@
 #include "llvoavatar.h"
 #include "llsculptidsize.h"
 #include "llmeshrepository.h"
+#include "glm/glm.hpp"
 #include "llskinningutil.h"
 
 #define LL_MAX_INDICES_COUNT 1000000
@@ -78,7 +79,7 @@ The resulting texture coordinate <u,v> is:
     u = 2(B dot P)
     v = 2(T dot P)
 */
-void planarProjection(LLVector2 &tc, const LLVector4a& normal,
+void planarProjection(glm::vec2 &tc, const LLVector4a& normal,
                       const LLVector4a &center, const LLVector4a& vec)
 {
     LLVector4a binormal;
@@ -109,8 +110,8 @@ void planarProjection(LLVector2 &tc, const LLVector4a& normal,
     LLVector4a tangent;
     tangent.setCross3(binormal,normal);
 
-    tc.mV[1] = -((tangent.dot3(vec).getF32())*2 - 0.5f);
-    tc.mV[0] = 1.0f+((binormal.dot3(vec).getF32())*2 - 0.5f);
+    tc.y = -((tangent.dot3(vec).getF32())*2 - 0.5f);
+    tc.x = 1.0f+((binormal.dot3(vec).getF32())*2 - 0.5f);
 }
 
 ////////////////////
@@ -162,8 +163,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
     mImportanceToCamera = 0.f ;
     mBoundingSphereRadius = 0.0f ;
 
-    mTexExtents[0].set(0, 0);
-    mTexExtents[1].set(1, 1);
+    mTexExtents[0] = glm::vec2(0, 0);
+    mTexExtents[1] = glm::vec2(1, 1);
     mHasMedia = false ;
     mIsMediaAllowed = true;
 }
@@ -443,7 +444,7 @@ void LLFace::setIndicesIndex(S32 idx)
 U16 LLFace::getGeometryAvatar(
                         LLStrider<LLVector3> &vertices,
                         LLStrider<LLVector3> &normals,
-                        LLStrider<LLVector2> &tex_coords,
+                        LLStrider<glm::vec2> &tex_coords,
                         LLStrider<F32>       &vertex_weights,
                         LLStrider<LLVector4> &clothing_weights)
 {
@@ -460,7 +461,7 @@ U16 LLFace::getGeometryAvatar(
 }
 
 U16 LLFace::getGeometry(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &normals,
-                        LLStrider<LLVector2> &tex_coords, LLStrider<U16> &indicesp)
+                        LLStrider<glm::vec2> &tex_coords, LLStrider<U16> &indicesp)
 {
     if (mVertexBuffer.notNull())
     {
@@ -671,11 +672,11 @@ void LLFace::printDebugInfo() const
 }
 
 // Transform the texture coordinates for this face.
-static void xform(LLVector2 &tex_coord, F32 cosAng, F32 sinAng, F32 offS, F32 offT, F32 magS, F32 magT)
+static void xform(glm::vec2 &tex_coord, F32 cosAng, F32 sinAng, F32 offS, F32 offT, F32 magS, F32 magT)
 {
     // New, good way
-    F32 s = tex_coord.mV[0];
-    F32 t = tex_coord.mV[1];
+    F32 s = tex_coord.x;
+    F32 t = tex_coord.y;
 
     // Texture transforms are done about the center of the face.
     s -= 0.5;
@@ -694,8 +695,8 @@ static void xform(LLVector2 &tex_coord, F32 cosAng, F32 sinAng, F32 offS, F32 of
     s += offS + 0.5f;
     t += offT + 0.5f;
 
-    tex_coord.mV[0] = s;
-    tex_coord.mV[1] = t;
+    tex_coord.x = s;
+    tex_coord.y = t;
 }
 
 // Transform the texture coordinates for this face.
@@ -812,9 +813,9 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 // integrated with getGeometryVolume() for its texture coordinate
 // generation - but i'll leave that to someone more familiar
 // with the implications.
-LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& position, const LLVector4a& normal)
+glm::vec2 LLFace::surfaceToTexture(glm::vec2 surface_coord, const LLVector4a& position, const LLVector4a& normal)
 {
-    LLVector2 tc = surface_coord;
+    glm::vec2 tc = surface_coord;
 
     const LLTextureEntry *tep = getTextureEntry();
 
@@ -856,9 +857,9 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& po
 
     if (mTextureMatrix) // if we have a texture matrix, use it
     {
-        LLVector3 tc3(tc);
+        LLVector3 tc3(tc.x, tc.y, 0.f);
         tc3 = tc3 * *mTextureMatrix;
-        tc = LLVector2(tc3);
+        tc = glm::vec2(tc3.mV[VX], tc3.mV[VY]);
     }
 
     else // otherwise use the texture entry parameters
@@ -887,15 +888,15 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
     binormal4a.setCross3(normal4a, tangent);
     binormal4a.mul(tangent.getF32ptr()[3]);
 
-    LLVector2 projected_binormal;
+    glm::vec2 projected_binormal;
     planarProjection(projected_binormal, normal4a, *vf.mCenter, binormal4a);
-    projected_binormal -= LLVector2(0.5f, 0.5f); // this normally happens in xform()
-    *scale = projected_binormal.length();
+    projected_binormal -= glm::vec2(0.5f, 0.5f); // this normally happens in xform()
+    *scale = glm::length(projected_binormal);
     // rotate binormal to match what planarProjection() thinks it is,
     // then find rotation from that:
-    projected_binormal.normalize();
-    F32 ang = acos(projected_binormal.mV[VY]);
-    ang = (projected_binormal.mV[VX] < 0.f) ? -ang : ang;
+    projected_binormal = glm::normalize(projected_binormal);
+    F32 ang = acos(projected_binormal.y);
+    ang = (projected_binormal.x < 0.f) ? -ang : ang;
 
     //VECTORIZE THIS
     LLVector3 binormal(binormal4a.getF32ptr());
@@ -907,8 +908,8 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
 }
 
 // Returns the necessary texture transform to align this face's TE to align_to's TE
-bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offset,
-                                 LLVector2* res_st_scale, F32* res_st_rot, LLRender::eTexIndex map) const
+bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  glm::vec2* res_st_offset,
+                                 glm::vec2* res_st_scale, F32* res_st_rot, LLRender::eTexIndex map) const
 {
     if (!align_to)
     {
@@ -992,14 +993,14 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
     LLVector3 st_scale(map_scaleS, map_scaleT, 1.f);
     st_scale *= orig_proj_scale;
     centers_dist.scaleVec(st_scale);
-    LLVector2 orig_st_offset(map_offsS, map_offsT);
+    glm::vec2 orig_st_offset(map_offsS, map_offsT);
 
-    *res_st_offset = orig_st_offset + static_cast<LLVector2>(centers_dist);
-    res_st_offset->mV[VX] -= static_cast<S32>(res_st_offset->mV[VX]);
-    res_st_offset->mV[VY] -= static_cast<S32>(res_st_offset->mV[VY]);
+    *res_st_offset = orig_st_offset + glm::vec2(centers_dist.mV[VX], centers_dist.mV[VY]);
+    res_st_offset->x -= static_cast<S32>(res_st_offset->x);
+    res_st_offset->y -= static_cast<S32>(res_st_offset->y);
 
     st_scale /= this_proj_scale;
-    *res_st_scale = static_cast<LLVector2>(st_scale);
+    *res_st_scale = glm::vec2(st_scale.mV[VX], st_scale.mV[VY]);
     return true;
 }
 
@@ -1010,8 +1011,8 @@ F32 dot_product(const LLVector3& a, const LLVector3& b)
 
 bool LLFace::calcAlignedPlanarGLTF(
     const LLFace* align_to,
-    LLVector2* res_st_offset,
-    LLVector2* res_st_scale,
+    glm::vec2* res_st_offset,
+    glm::vec2* res_st_scale,
     F32* res_st_rot,
     S32 gltf_info_index) const
 {
@@ -1070,18 +1071,18 @@ bool LLFace::calcAlignedPlanarGLTF(
     LLVector3 st_scale(map_scaleS, map_scaleT, 1.f);
     st_scale *= orig_proj_scale;
     centers_dist.scaleVec(st_scale);
-    LLVector2 orig_st_offset(map_offsS, map_offsT);
+    glm::vec2 orig_st_offset(map_offsS, map_offsT);
 
-    LLVector2 tex_res_st_offset = orig_st_offset + static_cast<LLVector2>(centers_dist);
-    tex_res_st_offset.mV[VX] -= static_cast<S32>(tex_res_st_offset.mV[VX]);
-    tex_res_st_offset.mV[VY] -= static_cast<S32>(tex_res_st_offset.mV[VY]);
+    glm::vec2 tex_res_st_offset = orig_st_offset + glm::vec2(centers_dist.mV[VX], centers_dist.mV[VY]);
+    tex_res_st_offset.x -= static_cast<S32>(tex_res_st_offset.x);
+    tex_res_st_offset.y -= static_cast<S32>(tex_res_st_offset.y);
 
     st_scale /= this_proj_scale;
 
     // Convert aligned legacy TE transform back to GLTF transform
     LLGLTFMaterial::convertTextureTransformToPBR(
         st_scale.mV[0], st_scale.mV[1],
-        tex_res_st_offset.mV[0], tex_res_st_offset.mV[1],
+        tex_res_st_offset.x, tex_res_st_offset.y,
         z_ang,
         *res_st_scale, *res_st_offset, *res_st_rot);
 
@@ -1283,9 +1284,9 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
     }
 
     LLStrider<LLVector3> vert;
-    LLStrider<LLVector2> tex_coords0;
-    LLStrider<LLVector2> tex_coords1;
-    LLStrider<LLVector2> tex_coords2;
+    LLStrider<glm::vec2> tex_coords0;
+    LLStrider<glm::vec2> tex_coords1;
+    LLStrider<glm::vec2> tex_coords2;
     LLStrider<LLVector3> norm;
     LLStrider<LLColor4U> colors;
     LLStrider<LLVector3> tangent;
@@ -1698,12 +1699,12 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                     { //do tex mat, no texgen, no bump
                         for (S32 i = 0; i < num_vertices; i++)
                         {
-                            LLVector2 tc(vf.mTexCoords[i]);
+                            glm::vec2 tc(vf.mTexCoords[i]);
 
-                            LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+                            LLVector3 tmp(tc.x, tc.y, 0.f);
                             tmp = tmp * *mTextureMatrix;
-                            tc.mV[0] = tmp.mV[0];
-                            tc.mV[1] = tmp.mV[1];
+                            tc.x = tmp.mV[0];
+                            tc.y = tmp.mV[1];
                             *tex_coords0++ = tc;
                         }
                     }
@@ -1715,17 +1716,17 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                     {
                         for (S32 i = 0; i < num_vertices; i++)
                         {
-                            LLVector2 tc(vf.mTexCoords[i]);
+                            glm::vec2 tc(vf.mTexCoords[i]);
                             LLVector4a& norm = vf.mNormals[i];
                             LLVector4a& center = *(vf.mCenter);
                             LLVector4a vec = vf.mPositions[i];
                             vec.mul(scalea);
                             planarProjection(tc, norm, center, vec);
 
-                            LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+                            LLVector3 tmp(tc.x, tc.y, 0.f);
                             tmp = tmp * *mTextureMatrix;
-                            tc.mV[0] = tmp.mV[0];
-                            tc.mV[1] = tmp.mV[1];
+                            tc.x = tmp.mV[0];
+                            tc.y = tmp.mV[1];
 
                             *tex_coords0++ = tc;
                         }
@@ -1734,7 +1735,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                     {
                         for (S32 i = 0; i < num_vertices; i++)
                         {
-                            LLVector2 tc(vf.mTexCoords[i]);
+                            glm::vec2 tc(vf.mTexCoords[i]);
                             LLVector4a& norm = vf.mNormals[i];
                             LLVector4a& center = *(vf.mCenter);
                             LLVector4a vec = vf.mPositions[i];
@@ -1750,7 +1751,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                     {
                         for (S32 i = 0; i < num_vertices; i++)
                         {
-                            LLVector2 tc(vf.mTexCoords[i]);
+                            glm::vec2 tc(vf.mTexCoords[i]);
                             LLVector4a& norm = vf.mNormals[i];
                             LLVector4a& center = *(vf.mCenter);
                             LLVector4a vec = vf.mPositions[i];
@@ -1766,14 +1767,14 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             { //bump mapped or has material, just do the whole expensive loop
                 LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - texgen default");
 
-                LLStrider<LLVector2> bump_tc;
+                LLStrider<glm::vec2> bump_tc;
 
                 if (mat && !mat->getNormalID().isNull())
                 { //writing out normal and specular texture coordinates, not bump offsets
                     do_bump = false;
                 }
 
-                LLStrider<LLVector2> dst;
+                LLStrider<glm::vec2> dst;
 
                 for (U32 ch = 0; ch < 3; ++ch)
                 {
@@ -1839,7 +1840,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("tgd - planar");
                             for (S32 i = 0; i < num_vertices; i++)
                             {
-                                LLVector2 tc(vf.mTexCoords[i]);
+                                glm::vec2 tc(vf.mTexCoords[i]);
                                 LLVector4a& norm = vf.mNormals[i];
                                 LLVector4a& center = *(vf.mCenter);
                                 LLVector4a vec = vf.mPositions[i];
@@ -1850,10 +1851,10 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
                                 if (tex_mode && mTextureMatrix)
                                 {
-                                    LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+                                    LLVector3 tmp(tc.x, tc.y, 0.f);
                                     tmp = tmp * *mTextureMatrix;
-                                    tc.mV[0] = tmp.mV[0];
-                                    tc.mV[1] = tmp.mV[1];
+                                    tc.x = tmp.mV[0];
+                                    tc.y = tmp.mV[1];
                                 }
                                 else if (do_xform)
                                 {
@@ -1869,14 +1870,14 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
                             for (S32 i = 0; i < num_vertices; i++)
                             {
-                                LLVector2 tc(vf.mTexCoords[i]);
+                                glm::vec2 tc(vf.mTexCoords[i]);
 
                                 if (tex_mode && mTextureMatrix)
                                 {
-                                    LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+                                    LLVector3 tmp(tc.x, tc.y, 0.f);
                                     tmp = tmp * *mTextureMatrix;
-                                    tc.mV[0] = tmp.mV[0];
-                                    tc.mV[1] = tmp.mV[1];
+                                    tc.x = tmp.mV[0];
+                                    tc.y = tmp.mV[1];
                                 }
                                 else if (do_xform)
                                 {
@@ -1921,8 +1922,8 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
                         binormal.normalize3fast();
 
-                        LLVector2 tc = bump_tc[i];
-                        tc += LLVector2( bump_s_primary_light_ray.dot3(tangent).getF32(), bump_t_primary_light_ray.dot3(binormal).getF32() );
+                        glm::vec2 tc = bump_tc[i];
+                        tc += glm::vec2( bump_s_primary_light_ray.dot3(tangent).getF32(), bump_t_primary_light_ray.dot3(binormal).getF32() );
 
                         *tex_coords1++ = tc;
                     }
@@ -2106,17 +2107,17 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
     if (rebuild_tcoord)
     {
-        mTexExtents[0].set(0,0);
-        mTexExtents[1].set(1,1);
+        mTexExtents[0] = glm::vec2(0,0);
+        mTexExtents[1] = glm::vec2(1,1);
         xform(mTexExtents[0], cos_ang, sin_ang, os, ot, ms, mt);
         xform(mTexExtents[1], cos_ang, sin_ang, os, ot, ms, mt);
 
-        F32 es = vf.mTexCoordExtents[1].mV[0] - vf.mTexCoordExtents[0].mV[0] ;
-        F32 et = vf.mTexCoordExtents[1].mV[1] - vf.mTexCoordExtents[0].mV[1] ;
-        mTexExtents[0][0] *= es ;
-        mTexExtents[1][0] *= es ;
-        mTexExtents[0][1] *= et ;
-        mTexExtents[1][1] *= et ;
+        F32 es = vf.mTexCoordExtents[1].x - vf.mTexCoordExtents[0].x ;
+        F32 et = vf.mTexCoordExtents[1].y - vf.mTexCoordExtents[0].y ;
+        mTexExtents[0].x *= es ;
+        mTexExtents[1].x *= es ;
+        mTexExtents[0].y *= et ;
+        mTexExtents[1].y *= et ;
     }
 
     return true;
@@ -2170,8 +2171,9 @@ F32 LLFace::getTextureVirtualSize()
     }
 
     //get area of circle in texture space
-    LLVector2 tdim = mTexExtents[1] - mTexExtents[0];
-    F32 texel_area = (tdim * 0.5f).lengthSquared()*3.14159f;
+    glm::vec2 tdim = mTexExtents[1] - mTexExtents[0];
+    glm::vec2 half_tdim = tdim * 0.5f;
+    F32 texel_area = glm::dot(half_tdim, half_tdim) * 3.14159f;
     if (texel_area <= 0)
     {
         // Probably animated, use default

@@ -944,7 +944,7 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 
     LLStrider<LLVector3> vertex_strider;
     LLStrider<LLVector3> normal_strider;
-    LLStrider<LLVector2> tc_strider;
+    LLStrider<glm::vec2> tc_strider;
     LLStrider<U16> index_strider;
 
     mVertexBuffer->getVertexStrider(vertex_strider);
@@ -957,8 +957,8 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
     pos = (LLVector3*) vf.mPositions; pos.setStride(16);
     LLStrider<LLVector3> norm;
     norm = (LLVector3*) vf.mNormals; norm.setStride(16);
-    LLStrider<LLVector2> tc;
-    tc = (LLVector2*) vf.mTexCoords; tc.setStride(8);
+    LLStrider<glm::vec2> tc;
+    tc = vf.mTexCoords; tc.setStride(8);
 
     for (U32 i = 0; i < num_vertices; i++)
     {

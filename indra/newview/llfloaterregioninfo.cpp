@@ -1804,11 +1804,11 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 
             // Assume all texture transforms have the same value
             const LLGLTFMaterial::TextureTransform& transform = mat_override->mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR];
-            mMaterialScaleUCtrl[i]->setValue(transform.mScale.mV[VX]);
-            mMaterialScaleVCtrl[i]->setValue(transform.mScale.mV[VY]);
+            mMaterialScaleUCtrl[i]->setValue(transform.mScale.x);
+            mMaterialScaleVCtrl[i]->setValue(transform.mScale.y);
             mMaterialRotationCtrl[i]->setValue(transform.mRotation * RAD_TO_DEG);
-            mMaterialOffsetUCtrl[i]->setValue(transform.mOffset.mV[VX]);
-            mMaterialOffsetVCtrl[i]->setValue(transform.mOffset.mV[VY]);
+            mMaterialOffsetUCtrl[i]->setValue(transform.mOffset.x);
+            mMaterialOffsetVCtrl[i]->setValue(transform.mOffset.y);
         }
 
         std::string buffer;
@@ -1968,11 +1968,11 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
                 for (U32 tt = 0; tt < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++tt)
                 {
                     LLGLTFMaterial::TextureTransform& transform = mat_override->mTextureTransform[tt];
-                    transform.mScale.mV[VX] = static_cast<F32>(mMaterialScaleUCtrl[i]->getValue().asReal());
-                    transform.mScale.mV[VY] = static_cast<F32>(mMaterialScaleVCtrl[i]->getValue().asReal());
+                    transform.mScale.x = static_cast<F32>(mMaterialScaleUCtrl[i]->getValue().asReal());
+                    transform.mScale.y = static_cast<F32>(mMaterialScaleVCtrl[i]->getValue().asReal());
                     transform.mRotation = static_cast<F32>(mMaterialRotationCtrl[i]->getValue().asReal()) * DEG_TO_RAD;
-                    transform.mOffset.mV[VX] = static_cast<F32>(mMaterialOffsetUCtrl[i]->getValue().asReal());
-                    transform.mOffset.mV[VY] = static_cast<F32>(mMaterialOffsetVCtrl[i]->getValue().asReal());
+                    transform.mOffset.x = static_cast<F32>(mMaterialOffsetUCtrl[i]->getValue().asReal());
+                    transform.mOffset.y = static_cast<F32>(mMaterialOffsetVCtrl[i]->getValue().asReal());
                 }
             }
 

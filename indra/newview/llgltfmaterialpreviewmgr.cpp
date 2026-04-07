@@ -291,14 +291,14 @@ PreviewSphere create_preview_sphere(LLPointer<LLFetchedGLTFMaterial>& material, 
 
     // UV hacks
     // Higher factor helps to see more details on the preview sphere
-    const LLVector2 uv_factor(2.0f, 2.0f);
+    const glm::vec2 uv_factor(2.0f, 2.0f);
     // Offset places center of material in center of view
-    const LLVector2 uv_offset(-0.5f, -0.5f);
+    const glm::vec2 uv_offset(-0.5f, -0.5f);
 
     LLStrider<U16> indices;
     LLStrider<LLVector4a> positions;
     LLStrider<LLVector4a> normals;
-    LLStrider<LLVector2> texcoords;
+    LLStrider<glm::vec2> texcoords;
     LLStrider<LLColor4U> colors;
     LLStrider<LLVector4a> tangents;
     buf->getIndexStrider(indices);
@@ -319,8 +319,8 @@ PreviewSphere create_preview_sphere(LLPointer<LLFetchedGLTFMaterial>& material, 
         {
             *positions++ = face.mPositions[v];
             *normals++ = face.mNormals[v];
-            LLVector2 uv(face.mTexCoords[v]);
-            uv.scaleVec(uv_factor);
+            glm::vec2 uv(face.mTexCoords[v]);
+            uv *= uv_factor;
             uv += uv_offset;
             *texcoords++ = uv;
             *colors++ = vertex_color;

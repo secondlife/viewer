@@ -31,6 +31,7 @@
 
 #include "llsd.h"
 
+#include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -71,6 +72,7 @@ class LLVector3
         explicit LLVector3(const LLSD& sd);
 
         // GLM interop
+        explicit LLVector3(const glm::vec2& vec);   // Initializes LLVector3 to (vec[0]. vec[1], 0)
         explicit LLVector3(const glm::vec3& vec);   // Initializes LLVector3 to (vec[0]. vec[1], vec[2])
         explicit LLVector3(const glm::vec4& vec);   // Initializes LLVector3 to (vec[0]. vec[1], vec[2])
         explicit inline operator glm::vec3() const; // Initializes glm::vec3 to (vec[0]. vec[1], vec[2])
@@ -183,6 +185,13 @@ inline LLVector3::LLVector3(const F32 x, const F32 y, const F32 z)
 inline LLVector3::LLVector3(const F32 *vec)
 {
     set(vec);
+}
+
+inline LLVector3::LLVector3(const glm::vec2& vec)
+{
+    mV[VX] = vec.x;
+    mV[VY] = vec.y;
+    mV[VZ] = 0.f;
 }
 
 inline LLVector3::LLVector3(const glm::vec3& vec)

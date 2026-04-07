@@ -182,6 +182,7 @@
 #include "llworld.h"
 #include "llworldmapview.h"
 #include "pipeline.h"
+#include "glm/glm.hpp"
 #include "llappviewer.h"
 #include "llviewerdisplay.h"
 #include "llspatialpartition.h"
@@ -236,7 +237,7 @@ LLViewerObject*  gDebugRaycastObject = NULL;
 LLVOPartGroup* gDebugRaycastParticle = NULL;
 LLVector4a       gDebugRaycastIntersection;
 LLVector4a      gDebugRaycastParticleIntersection;
-LLVector2        gDebugRaycastTexCoord;
+glm::vec2        gDebugRaycastTexCoord;
 LLVector4a       gDebugRaycastNormal;
 LLVector4a       gDebugRaycastTangent;
 S32             gDebugRaycastFaceHit;
@@ -1000,8 +1001,8 @@ bool LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
     const char* buttonstatestr = "";
     S32 x = pos.mX;
     S32 y = pos.mY;
-    x = ll_round(static_cast<F32>(x) / mDisplayScale.mV[VX]);
-    y = ll_round(static_cast<F32>(y) / mDisplayScale.mV[VY]);
+    x = ll_round(static_cast<F32>(x) / mDisplayScale.x);
+    y = ll_round(static_cast<F32>(y) / mDisplayScale.y);
 
     // Handle non-consuming global keybindings, like voice
     gViewerInput.handleGlobalBindsMouse(clicktype, mask, down);
@@ -1405,8 +1406,8 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
     S32 x = pos.mX;
     S32 y = pos.mY;
 
-    x = ll_round(static_cast<F32>(x) / mDisplayScale.mV[VX]);
-    y = ll_round(static_cast<F32>(y) / mDisplayScale.mV[VY]);
+    x = ll_round(static_cast<F32>(x) / mDisplayScale.x);
+    y = ll_round(static_cast<F32>(y) / mDisplayScale.y);
 
     mMouseInWindow = true;
 
@@ -1969,7 +1970,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     // the size of a window or fullscreen context may have been adjusted slightly...)
     F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor") * mWindow->getSystemUISize(), MIN_UI_SCALE, MAX_UI_SCALE);
 
-    mDisplayScale.set(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
+    mDisplayScale = glm::vec2(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
     mDisplayScale *= ui_scale_factor;
     LLUI::setScaleFactor(mDisplayScale);
     LLFontGL::sResolutionGeneration++;
@@ -1978,7 +1979,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
         LLCoordWindow size;
         mWindow->getSize(&size);
         mWindowRectRaw.set(0, size.mY, size.mX, 0);
-        mWindowRectScaled.set(0, ll_round(static_cast<F32>(size.mY) / mDisplayScale.mV[VY]), ll_round(static_cast<F32>(size.mX) / mDisplayScale.mV[VX]), 0);
+        mWindowRectScaled.set(0, ll_round(static_cast<F32>(size.mY) / mDisplayScale.y), ll_round(static_cast<F32>(size.mX) / mDisplayScale.x), 0);
     }
 
     LLFontManager::initClass();
@@ -1991,8 +1992,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     // currently it takes aprox. 0.5 sec and we would load these fonts anyway
     // before login screen.
     LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
-        mDisplayScale.mV[VX],
-        mDisplayScale.mV[VY],
+        mDisplayScale.x,
+        mDisplayScale.y,
         gDirUtilp->getAppRODataDir());
 
     //
@@ -2541,15 +2542,15 @@ void LLViewerWindow::reshape(S32 width, S32 height)
         LLFontGL::sResolutionGeneration++;
 
         // update our window rectangle
-        mWindowRectScaled.mRight = mWindowRectScaled.mLeft + ll_round(static_cast<F32>(width) / mDisplayScale.mV[VX]);
-        mWindowRectScaled.mTop = mWindowRectScaled.mBottom + ll_round(static_cast<F32>(height) / mDisplayScale.mV[VY]);
+        mWindowRectScaled.mRight = mWindowRectScaled.mLeft + ll_round(static_cast<F32>(width) / mDisplayScale.x);
+        mWindowRectScaled.mTop = mWindowRectScaled.mBottom + ll_round(static_cast<F32>(height) / mDisplayScale.y);
 
         setup2DViewport();
 
         // Inform lower views of the change
         // round up when converting coordinates to make sure there are no gaps at edge of window
         LLView::sForceReshape = display_scale_changed;
-        mRootView->reshape(llceil(static_cast<F32>(width) / mDisplayScale.mV[VX]), llceil(static_cast<F32>(height) / mDisplayScale.mV[VY]));
+        mRootView->reshape(llceil(static_cast<F32>(width) / mDisplayScale.x), llceil(static_cast<F32>(height) / mDisplayScale.y));
         if (display_scale_changed)
         {
             // Needs only a 'scale change' update, everything else gets handled by LLLayoutStack::updateClass()
@@ -2691,7 +2692,7 @@ void LLViewerWindow::drawDebugText()
     gGL.pushUIMatrix();
     {
         // scale view by UI global scale factor and aspect ratio correction factor
-        gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
+        gGL.scaleUI(mDisplayScale.x, mDisplayScale.y, 1.f);
         mDebugText->draw();
     }
     gGL.popUIMatrix();
@@ -2752,9 +2753,9 @@ void LLViewerWindow::draw()
     {
 
         // scale view by UI global scale factor and aspect ratio correction factor
-        gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
+        gGL.scaleUI(mDisplayScale.x, mDisplayScale.y, 1.f);
 
-        LLVector2 old_scale_factor = LLUI::getScaleFactor();
+        glm::vec2 old_scale_factor = LLUI::getScaleFactor();
         // apply camera zoom transform (for high res screenshots)
         F32 zoom_factor = LLViewerCamera::getInstance()->getZoomFactor();
         S16 sub_region = LLViewerCamera::getInstance()->getZoomSubRegion();
@@ -3913,8 +3914,8 @@ void LLViewerWindow::updateMouseDelta()
     S32 dx = delta.mX;
     S32 dy = delta.mY;
 #else
-    S32 dx = lltrunc(static_cast<F32>(mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::getScaleFactor().mV[VX]);
-    S32 dy = lltrunc(static_cast<F32>(mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::getScaleFactor().mV[VY]);
+    S32 dx = lltrunc(static_cast<F32>(mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::getScaleFactor().x);
+    S32 dy = lltrunc(static_cast<F32>(mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::getScaleFactor().y);
 #endif
 
     //RN: fix for asynchronous notification of mouse leaving window not working
@@ -3932,7 +3933,7 @@ void LLViewerWindow::updateMouseDelta()
         mMouseInWindow = true;
     }
 
-    LLVector2 mouse_vel;
+    glm::vec2 mouse_vel;
 
     if (gSavedSettings.getBOOL("MouseSmooth"))
     {
@@ -3944,15 +3945,15 @@ void LLViewerWindow::updateMouseDelta()
         fdy = fdy + (static_cast<F32>(dy) - fdy) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
 
         mCurrentMouseDelta.set(ll_round(fdx), ll_round(fdy));
-        mouse_vel.set(fdx,fdy);
+        mouse_vel = glm::vec2(fdx,fdy);
     }
     else
     {
         mCurrentMouseDelta.set(dx, dy);
-        mouse_vel.set(static_cast<F32>(dx), static_cast<F32>(dy));
+        mouse_vel = glm::vec2(static_cast<F32>(dx), static_cast<F32>(dy));
     }
 
-    sample(sMouseVelocityStat, mouse_vel.length());
+    sample(sMouseVelocityStat, glm::length(mouse_vel));
 }
 
 void LLViewerWindow::updateKeyboardFocus()
@@ -4068,10 +4069,10 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
         new_world_rect.mTop = llmax(new_world_rect.mTop, new_world_rect.mBottom + 1);
         new_world_rect.mRight = llmax(new_world_rect.mRight, new_world_rect.mLeft + 1);
 
-        new_world_rect.mLeft = ll_round(static_cast<F32>(new_world_rect.mLeft) * mDisplayScale.mV[VX]);
-        new_world_rect.mRight = ll_round(static_cast<F32>(new_world_rect.mRight) * mDisplayScale.mV[VX]);
-        new_world_rect.mBottom = ll_round(static_cast<F32>(new_world_rect.mBottom) * mDisplayScale.mV[VY]);
-        new_world_rect.mTop = ll_round(static_cast<F32>(new_world_rect.mTop) * mDisplayScale.mV[VY]);
+        new_world_rect.mLeft = ll_round(static_cast<F32>(new_world_rect.mLeft) * mDisplayScale.x);
+        new_world_rect.mRight = ll_round(static_cast<F32>(new_world_rect.mRight) * mDisplayScale.x);
+        new_world_rect.mBottom = ll_round(static_cast<F32>(new_world_rect.mBottom) * mDisplayScale.y);
+        new_world_rect.mTop = ll_round(static_cast<F32>(new_world_rect.mTop) * mDisplayScale.y);
     }
 
     if (mWorldViewRectRaw != new_world_rect)
@@ -4451,7 +4452,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
                                                 S32* gltf_node_hit,
                                                 S32* gltf_primitive_hit,
                                                 LLVector4a *intersection,
-                                                LLVector2 *uv,
+                                                glm::vec2 *uv,
                                                 LLVector4a *normal,
                                                 LLVector4a *tangent,
                                                 LLVector4a* start,
@@ -5948,8 +5949,8 @@ void LLViewerWindow::initFonts(F32 zoom_factor)
     LLFontManager::initClass();
 
     LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
-                                mDisplayScale.mV[VX] * zoom_factor,
-                                mDisplayScale.mV[VY] * zoom_factor,
+                                mDisplayScale.x * zoom_factor,
+                                mDisplayScale.y * zoom_factor,
                                 gDirUtilp->getAppRODataDir());
 }
 
@@ -5987,19 +5988,18 @@ F32 LLViewerWindow::getWorldViewAspectRatio() const
 void LLViewerWindow::calcDisplayScale()
 {
     F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor") * mWindow->getSystemUISize(), MIN_UI_SCALE, MAX_UI_SCALE);
-    LLVector2 display_scale;
-    display_scale.set(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
+    glm::vec2 display_scale(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
     display_scale *= ui_scale_factor;
 
     // limit minimum display scale
-    if (display_scale.mV[VX] < MIN_DISPLAY_SCALE || display_scale.mV[VY] < MIN_DISPLAY_SCALE)
+    if (display_scale.x < MIN_DISPLAY_SCALE || display_scale.y < MIN_DISPLAY_SCALE)
     {
-        display_scale *= MIN_DISPLAY_SCALE / llmin(display_scale.mV[VX], display_scale.mV[VY]);
+        display_scale *= MIN_DISPLAY_SCALE / llmin(display_scale.x, display_scale.y);
     }
 
     if (display_scale != mDisplayScale)
     {
-        LL_INFOS() << "Setting display scale to " << display_scale << " for ui scale: " << ui_scale_factor << LL_ENDL;
+        LL_INFOS() << "Setting display scale to (" << display_scale.x << ", " << display_scale.y << ") for ui scale: " << ui_scale_factor << LL_ENDL;
 
         mDisplayScale = display_scale;
         // Init default fonts
@@ -6008,13 +6008,13 @@ void LLViewerWindow::calcDisplayScale()
 }
 
 //static
-LLRect  LLViewerWindow::calcScaledRect(const LLRect & rect, const LLVector2& display_scale)
+LLRect  LLViewerWindow::calcScaledRect(const LLRect & rect, const glm::vec2& display_scale)
 {
     LLRect res = rect;
-    res.mLeft = ll_round(static_cast<F32>(res.mLeft) / display_scale.mV[VX]);
-    res.mRight = ll_round(static_cast<F32>(res.mRight) / display_scale.mV[VX]);
-    res.mBottom = ll_round(static_cast<F32>(res.mBottom) / display_scale.mV[VY]);
-    res.mTop = ll_round(static_cast<F32>(res.mTop) / display_scale.mV[VY]);
+    res.mLeft = ll_round(static_cast<F32>(res.mLeft) / display_scale.x);
+    res.mRight = ll_round(static_cast<F32>(res.mRight) / display_scale.x);
+    res.mBottom = ll_round(static_cast<F32>(res.mBottom) / display_scale.y);
+    res.mTop = ll_round(static_cast<F32>(res.mTop) / display_scale.y);
 
     return res;
 }
@@ -6182,7 +6182,7 @@ void LLPickInfo::fetchResults()
     LLVector4a intersection, normal;
     LLVector4a tangent;
 
-    LLVector2 uv;
+    glm::vec2 uv;
 
     LLHUDIcon* hit_icon = gViewerWindow->cursorIntersectIcon(mMousePt.mX, mMousePt.mY, 512.f, &intersection);
 
@@ -6313,10 +6313,10 @@ void LLPickInfo::updateXYCoords()
     {
         const LLTextureEntry* tep = getObject()->getTE(mObjectFace);
         LLPointer<LLViewerTexture> imagep = LLViewerTextureManager::getFetchedTexture(tep->getID());
-        if(mUVCoords.mV[VX] >= 0.f && mUVCoords.mV[VY] >= 0.f && imagep.notNull())
+        if(mUVCoords.x >= 0.f && mUVCoords.y >= 0.f && imagep.notNull())
         {
-            mXYCoords.mX = ll_round(mUVCoords.mV[VX] * static_cast<F32>(imagep->getWidth()));
-            mXYCoords.mY = ll_round((1.f - mUVCoords.mV[VY]) * static_cast<F32>(imagep->getHeight()));
+            mXYCoords.mX = ll_round(mUVCoords.x * static_cast<F32>(imagep->getWidth()));
+            mXYCoords.mY = ll_round((1.f - mUVCoords.y) * static_cast<F32>(imagep->getHeight()));
         }
     }
 }
@@ -6325,8 +6325,8 @@ void LLPickInfo::getSurfaceInfo()
 {
     // set values to uninitialized - this is what we return if no intersection is found
     mObjectFace   = -1;
-    mUVCoords     = LLVector2(-1, -1);
-    mSTCoords     = LLVector2(-1, -1);
+    mUVCoords     = glm::vec2(-1, -1);
+    mSTCoords     = glm::vec2(-1, -1);
     mXYCoords     = LLCoordScreen(-1, -1);
     mIntersection = LLVector3(0,0,0);
     mNormal       = LLVector3(0,0,0);

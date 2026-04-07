@@ -33,7 +33,7 @@
 
 class LLAvatarJointCollisionVolume;
 class LLPolyMeshSharedData;
-class LLVector2;
+#include "glm/vec2.hpp"
 class LLAvatarJointCollisionVolume;
 class LLWearable;
 
@@ -61,7 +61,7 @@ public:
     LLVector4a*         mCoords;
     LLVector4a*         mNormals;
     LLVector4a*         mBinormals;
-    std::vector<LLVector2> mTexCoords;
+    std::vector<glm::vec2> mTexCoords;
 
     F32                 mTotalDistortion;   // vertex distortion summed over entire morph
     F32                 mMaxDistortion;     // maximum single vertex distortion in a given morph

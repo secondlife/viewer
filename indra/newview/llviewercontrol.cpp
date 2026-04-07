@@ -758,11 +758,11 @@ void handleLocalTerrainChanged(const LLSD& newValue)
         // *NOTE: The GLTF spec allows for different texture infos to have their texture transforms set independently, but as a simplification, this debug setting only updates all the transforms in-sync (i.e. only one texture transform per terrain material).
         LLGLTFMaterial::TextureTransform transform;
         const std::string prefix = std::string("LocalTerrainTransform") + std::to_string(i + 1);
-        transform.mScale.mV[VX] = gSavedSettings.getF32(prefix + "ScaleU");
-        transform.mScale.mV[VY] = gSavedSettings.getF32(prefix + "ScaleV");
+        transform.mScale.x = gSavedSettings.getF32(prefix + "ScaleU");
+        transform.mScale.y = gSavedSettings.getF32(prefix + "ScaleV");
         transform.mRotation = gSavedSettings.getF32(prefix + "Rotation") * DEG_TO_RAD;
-        transform.mOffset.mV[VX] = gSavedSettings.getF32(prefix + "OffsetU");
-        transform.mOffset.mV[VY] = gSavedSettings.getF32(prefix + "OffsetV");
+        transform.mOffset.x = gSavedSettings.getF32(prefix + "OffsetU");
+        transform.mOffset.y = gSavedSettings.getF32(prefix + "OffsetV");
         LLPointer<LLGLTFMaterial> mat_override = new LLGLTFMaterial();
         for (U32 info = 0; info < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++info)
         {

@@ -46,6 +46,8 @@
 #include "llrigginginfo.h"
 #include "llreflectionmap.h"
 
+#include "glm/vec2.hpp"
+
 namespace LL
 {
     namespace GLTF
@@ -320,7 +322,7 @@ public:
                                       bool pick_unselectable = true,
                                       S32* face_hit = NULL,                   // which face was hit
                                       LLVector4a* intersection = NULL,         // return the intersection point
-                                      LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
+                                      glm::vec2* tex_coord = NULL,            // return the texture coordinates of the intersection point
                                       LLVector4a* normal = NULL,               // return the surface normal at the intersection point
                                       LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
         );
@@ -1090,7 +1092,7 @@ public:
     virtual void getGeometry(S32 idx,
                                 LLStrider<LLVector4a>& verticesp,
                                 LLStrider<LLVector3>& normalsp,
-                                LLStrider<LLVector2>& texcoordsp,
+                                LLStrider<glm::vec2>& texcoordsp,
                                 LLStrider<LLColor4U>& colorsp,
                                 LLStrider<LLColor4U>& emissivep,
                                 LLStrider<U16>& indicesp) = 0;

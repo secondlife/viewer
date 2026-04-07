@@ -73,7 +73,7 @@ public:
     LLVector3       mAccel;
     LLVector3       mAxis;
     LLColor4        mColor;
-    LLVector2       mScale;
+    glm::vec2       mScale;
     F32             mStartGlow;
     F32             mEndGlow;
     LLColor4U       mGlow;

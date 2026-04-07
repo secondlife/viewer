@@ -130,11 +130,11 @@ namespace tut
         ensure_approximately_equals("mPartData.mEndColor.mV[2] different after unpacking", data.mEndColor.mV[2], 0.f, 8);
         ensure_approximately_equals("mPartData.mEndColor.mV[3] different after unpacking", data.mEndColor.mV[3], 0.f, 8);
         //mStartScale   <1,1>
-        ensure_approximately_equals("mPartData.mStartScale.mV[0] different after unpacking", data.mStartScale.mV[0], 1.f, 8);
-        ensure_approximately_equals("mPartData.mStartScale.mV[1] different after unpacking", data.mStartScale.mV[1], 1.f, 8);
+        ensure_approximately_equals("mPartData.mStartScale.x different after unpacking", data.mStartScale.x, 1.f, 8);
+        ensure_approximately_equals("mPartData.mStartScale.y different after unpacking", data.mStartScale.y, 1.f, 8);
         //mEndScale <0,0>
-        ensure_approximately_equals("mPartData.mEndScale.mV[0] different after unpacking", data.mEndScale.mV[0], 0.f, 8);
-        ensure_approximately_equals("mPartData.mEndScale.mV[1] different after unpacking", data.mEndScale.mV[1], 0.f, 8);
+        ensure_approximately_equals("mPartData.mEndScale.x different after unpacking", data.mEndScale.x, 0.f, 8);
+        ensure_approximately_equals("mPartData.mEndScale.y different after unpacking", data.mEndScale.y, 0.f, 8);
         //mPosOffset    <0,0,0>
         ensure_approximately_equals("mPartData.mPosOffset.mV[0] different after unpacking", data.mPosOffset.mV[0], 0.f, 8);
         ensure_approximately_equals("mPartData.mPosOffset.mV[1] different after unpacking", data.mPosOffset.mV[1], 0.f, 8);

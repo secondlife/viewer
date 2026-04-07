@@ -83,10 +83,10 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
     S32 top =   llmax(y, mDragStartY);
     S32 bottom =llmin(y, mDragStartY);
 
-    left = ll_round(static_cast<F32>(left) * LLUI::getScaleFactor().mV[VX]);
-    right = ll_round(static_cast<F32>(right) * LLUI::getScaleFactor().mV[VX]);
-    top = ll_round(static_cast<F32>(top) * LLUI::getScaleFactor().mV[VY]);
-    bottom = ll_round(static_cast<F32>(bottom) * LLUI::getScaleFactor().mV[VY]);
+    left = ll_round(static_cast<F32>(left) * LLUI::getScaleFactor().x);
+    right = ll_round(static_cast<F32>(right) * LLUI::getScaleFactor().x);
+    top = ll_round(static_cast<F32>(top) * LLUI::getScaleFactor().y);
+    bottom = ll_round(static_cast<F32>(bottom) * LLUI::getScaleFactor().y);
 
     F32 old_far_plane = LLViewerCamera::getInstance()->getFar();
     F32 old_near_plane = LLViewerCamera::getInstance()->getNear();

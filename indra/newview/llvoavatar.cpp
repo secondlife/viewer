@@ -1925,7 +1925,7 @@ bool LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
                                       bool pick_unselectable,
                                       S32* face_hit,
                                       LLVector4a* intersection,
-                                      LLVector2* tex_coord,
+                                      glm::vec2* tex_coord,
                                       LLVector4a* normal,
                                       LLVector4a* tangent)
 {
@@ -2032,7 +2032,7 @@ LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector
                                       bool pick_unselectable,
                                       S32* face_hit,
                                       LLVector4a* intersection,
-                                      LLVector2* tex_coord,
+                                      glm::vec2* tex_coord,
                                       LLVector4a* normal,
                                       LLVector4a* tangent)
 {
@@ -3272,14 +3272,14 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 
             // fancy particle cloud designed by Brent
             particle_parameters.mPartData.mMaxAge            = 4.f;
-            particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
-            particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
-            particle_parameters.mPartData.mStartScale.mV[VY] = 1.0f;
-            particle_parameters.mPartData.mEndScale.mV[VX]   = 0.02f;
-            particle_parameters.mPartData.mEndScale.mV[VY]   = 0.02f;
+            particle_parameters.mPartData.mStartScale.x = 0.8f;
+            particle_parameters.mPartData.mStartScale.x = 0.8f;
+            particle_parameters.mPartData.mStartScale.y = 1.0f;
+            particle_parameters.mPartData.mEndScale.x   = 0.02f;
+            particle_parameters.mPartData.mEndScale.y   = 0.02f;
             particle_parameters.mPartData.mStartColor        = LLColor4(1, 1, 1, 0.5f);
             particle_parameters.mPartData.mEndColor          = LLColor4(1, 1, 1, 0.0f);
-            particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
+            particle_parameters.mPartData.mStartScale.x = 0.8f;
             particle_parameters.mPartImageID                 = sCloudTexture->getID();
             particle_parameters.mMaxAge                      = 0.f;
             particle_parameters.mPattern                     = LLPartSysData::LL_PART_SRC_PATTERN_ANGLE_CONE;
@@ -5432,8 +5432,8 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
     LLVector3 left = LLViewerCamera::getInstance()->getUpAxis() % at;
     LLVector3 up = at%left;
 
-    left *= mImpostorDim.mV[0];
-    up *= mImpostorDim.mV[1];
+    left *= mImpostorDim.x;
+    up *= mImpostorDim.y;
 
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_IMPOSTORS))
     {
@@ -10938,12 +10938,12 @@ const LLVector3& LLVOAvatar::getImpostorOffset() const
     return mImpostorOffset;
 }
 
-const LLVector2& LLVOAvatar::getImpostorDim() const
+const glm::vec2& LLVOAvatar::getImpostorDim() const
 {
     return mImpostorDim;
 }
 
-void LLVOAvatar::setImpostorDim(const LLVector2& dim)
+void LLVOAvatar::setImpostorDim(const glm::vec2& dim)
 {
     mImpostorDim = dim;
 }

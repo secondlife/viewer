@@ -63,7 +63,7 @@ S32     LLManip::sNumTimesHelpTextShown = 0;
 S32     LLManip::sMaxTimesShowHelpText = 5;
 F32     LLManip::sGridMaxSubdivisionLevel = 32.f;
 F32     LLManip::sGridMinSubdivisionLevel = 1.f / 32.f;
-LLVector2 LLManip::sTickLabelSpacing(60.f, 25.f);
+glm::vec2 LLManip::sTickLabelSpacing(60.f, 25.f);
 
 
 //static
@@ -446,14 +446,14 @@ void LLManip::renderXYZ(const LLVector3 &vec)
     {
         LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Square");
         gViewerWindow->setup2DRender();
-        const LLVector2& display_scale = gViewerWindow->getDisplayScale();
+        const glm::vec2& display_scale = gViewerWindow->getDisplayScale();
         gGL.color4f(0.f, 0.f, 0.f, 0.7f);
 
         imagep->draw(
-            static_cast<S32>((window_center_x - 115) * display_scale.mV[VX]),
-            static_cast<S32>((window_center_y + vertical_offset - PAD) * display_scale.mV[VY]),
-            static_cast<S32>(235 * display_scale.mV[VX]),
-            static_cast<S32>((PAD * 2 + 10) * display_scale.mV[VY]),
+            static_cast<S32>((window_center_x - 115) * display_scale.x),
+            static_cast<S32>((window_center_y + vertical_offset - PAD) * display_scale.y),
+            static_cast<S32>(235 * display_scale.x),
+            static_cast<S32>((PAD * 2 + 10) * display_scale.y),
             LLColor4(0.f, 0.f, 0.f, 0.7f) );
 
         LLFontGL* font = LLFontGL::getFontSansSerif();

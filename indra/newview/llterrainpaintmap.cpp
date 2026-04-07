@@ -146,7 +146,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
         U32 vertex_total = 0;
         std::vector<U16> index_array(region_indices);
         std::vector<LLVector4a> positions(region_vertices);
-        std::vector<LLVector2> texcoords1(region_vertices);
+        std::vector<glm::vec2> texcoords1(region_vertices);
         auto idx = index_array.begin();
         auto pos = positions.begin();
         auto tex1 = texcoords1.begin();
@@ -189,8 +189,8 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
                     {
                         LLVector3 scratch3;
                         LLVector3 pos3;
-                        LLVector2 tex0_temp;
-                        LLVector2 tex1_temp;
+                        glm::vec2 tex0_temp;
+                        glm::vec2 tex1_temp;
                         patch->eval(i, j, stride, &pos3, &scratch3, &tex0_temp, &tex1_temp);
                         (*pos++).set(pos3.mV[VX], pos3.mV[VY], pos3.mV[VZ]);
                         *tex1++ = tex1_temp;
@@ -201,7 +201,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
         }
         buf->setIndexData(std::span<const U16>(index_array), 0);
         buf->setPositionData(std::span<const LLVector4a>(positions), 0);
-        buf->setTexCoord1Data(std::span<const LLVector2>(texcoords1), 0);
+        buf->setTexCoord1Data(std::span<const glm::vec2>(texcoords1), 0);
         buf->unmapBuffer();
         buf->unbind();
     }

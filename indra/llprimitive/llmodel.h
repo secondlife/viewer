@@ -196,7 +196,7 @@ public:
         S32 f,
         LLStrider<LLVector3> pos,
         LLStrider<LLVector3> norm,
-        LLStrider<LLVector2> tc,
+        LLStrider<glm::vec2> tc,
         LLStrider<U16> ind,
         U32 num_verts,
         U32 num_indices);

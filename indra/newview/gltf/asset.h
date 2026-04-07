@@ -424,7 +424,7 @@ namespace LL
             // input and output values must be in this asset's local coordinate frame
             S32 lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                 LLVector4a* intersection = nullptr,         // return the intersection point
-                LLVector2* tex_coord = nullptr,            // return the texture coordinates of the intersection point
+                glm::vec2* tex_coord = nullptr,            // return the texture coordinates of the intersection point
                 LLVector4a* normal = nullptr,               // return the surface normal at the intersection point
                 LLVector4a* tangent = nullptr,             // return the surface tangent at the intersection point
                 S32* primitive_hitp = nullptr           // return the index of the primitive that was hit

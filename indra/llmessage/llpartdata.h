@@ -31,6 +31,7 @@
 #include "v3dmath.h"
 #include "v2math.h"
 #include "v4color.h"
+#include "glm/vec2.hpp"
 
 class LLMessageSystem;
 class LLDataPacker;
@@ -163,8 +164,8 @@ public:
     F32                 mMaxAge;                    // Maximum age of the particle
     LLColor4            mStartColor;                // Start color
     LLColor4            mEndColor;                  // End color
-    LLVector2           mStartScale;                // Start scale
-    LLVector2           mEndScale;                  // End scale
+    glm::vec2           mStartScale;                // Start scale
+    glm::vec2           mEndScale;                  // End scale
 
     LLVector3           mPosOffset;                 // Offset from source if using FOLLOW_SOURCE
     F32                 mParameter;                 // A single floating point parameter

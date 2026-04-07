@@ -159,33 +159,33 @@ namespace LL
         }
 
         template<>
-        inline void copyScalar<U32, LLVector2>(U32* src, LLVector2& dst)
+        inline void copyScalar<U32, glm::vec2>(U32* src, glm::vec2& dst)
         {
-            dst.set(static_cast<F32>(*src), 0.f);
+            dst = glm::vec2(static_cast<F32>(*src), 0.f);
         }
 
         template<>
-        inline void copyScalar<U16, LLVector2>(U16* src, LLVector2& dst)
+        inline void copyScalar<U16, glm::vec2>(U16* src, glm::vec2& dst)
         {
-            dst.set(static_cast<F32>(*src), 0.f);
+            dst = glm::vec2(static_cast<F32>(*src), 0.f);
         }
 
         template<>
-        inline void copyScalar<U8, LLVector2>(U8* src, LLVector2& dst)
+        inline void copyScalar<U8, glm::vec2>(U8* src, glm::vec2& dst)
         {
-            dst.set(static_cast<F32>(*src), 0.f);
+            dst = glm::vec2(static_cast<F32>(*src), 0.f);
         }
 
         template<>
-        inline void copyVec2<F32, LLVector2>(F32* src, LLVector2& dst)
+        inline void copyVec2<F32, glm::vec2>(F32* src, glm::vec2& dst)
         {
-            dst.set(src[0], src[1]);
+            dst = glm::vec2(src[0], src[1]);
         }
 
         template<>
-        inline void copyVec3<F32, LLVector2>(F32* src, LLVector2& dst)
+        inline void copyVec3<F32, glm::vec2>(F32* src, glm::vec2& dst)
         {
-            dst.set(src[0], src[1]);
+            dst = glm::vec2(src[0], src[1]);
         }
 
         template<>

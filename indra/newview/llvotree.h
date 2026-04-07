@@ -78,7 +78,7 @@ public:
 
     void appendMesh(LLStrider<LLVector3>& vertices,
                          LLStrider<LLVector3>& normals,
-                         LLStrider<LLVector2>& tex_coords,
+                         LLStrider<glm::vec2>& tex_coords,
                          LLStrider<LLColor4U>& colors,
                          LLStrider<U16>& indices,
                          U16& idx_offset,
@@ -91,7 +91,7 @@ public:
 
     void genBranchPipeline(LLStrider<LLVector3>& vertices,
                                  LLStrider<LLVector3>& normals,
-                                 LLStrider<LLVector2>& tex_coords,
+                                 LLStrider<glm::vec2>& tex_coords,
                                  LLStrider<LLColor4U>& colors,
                                  LLStrider<U16>& indices,
                                  U16& index_offset,
@@ -113,7 +113,7 @@ public:
                                           bool pick_unselectable = true,
                                           S32* face_hit = NULL,                 // which face was hit
                                           LLVector4a* intersection = NULL,       // return the intersection point
-                                          LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
+                                          glm::vec2* tex_coord = NULL,          // return the texture coordinates of the intersection point
                                           LLVector4a* normal = NULL,             // return the surface normal at the intersection point
                                           LLVector4a* tangent = NULL           // return the surface tangent at the intersection point
         );

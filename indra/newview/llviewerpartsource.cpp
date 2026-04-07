@@ -651,8 +651,8 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
         part->mMaxAge = 1.f;
         part->mFlags = LLViewerPart::LL_PART_INTERP_COLOR_MASK;
         part->mLastUpdateTime = 0.f;
-        part->mScale.mV[0] = 0.25f;
-        part->mScale.mV[1] = 0.25f;
+        part->mScale.x = 0.25f;
+        part->mScale.y = 0.25f;
         part->mParameter = ll_frand(F_TWO_PI);
         part->mBlendFuncDest = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
         part->mBlendFuncSource = LLRender::BF_SOURCE_ALPHA;
@@ -802,8 +802,8 @@ void LLViewerPartSourceBeam::update(const F32 dt)
         part->mEndColor.mV[3] = 0.4f;
         part->mColor = part->mStartColor;
 
-        part->mStartScale = LLVector2(0.1f, 0.1f);
-        part->mEndScale = LLVector2(0.1f, 0.1f);
+        part->mStartScale = glm::vec2(0.1f, 0.1f);
+        part->mEndScale = glm::vec2(0.1f, 0.1f);
         part->mScale = part->mStartScale;
 
         part->mPosAgent = mPosAgent;
@@ -916,8 +916,8 @@ void LLViewerPartSourceChat::update(const F32 dt)
         part->mMaxAge = 1.f;
         part->mFlags = LLViewerPart::LL_PART_INTERP_COLOR_MASK;
         part->mLastUpdateTime = 0.f;
-        part->mScale.mV[0] = 0.25f;
-        part->mScale.mV[1] = 0.25f;
+        part->mScale.x = 0.25f;
+        part->mScale.y = 0.25f;
         part->mParameter = ll_frand(F_TWO_PI);
         part->mBlendFuncDest = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;
         part->mBlendFuncSource = LLRender::BF_SOURCE_ALPHA;

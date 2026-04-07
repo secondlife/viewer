@@ -76,8 +76,8 @@ private:
     LLVector4a              *mBaseCoords;
     LLVector4a              *mBaseNormals;
     LLVector4a              *mBaseBinormals;
-    LLVector2               *mTexCoords;
-    LLVector2               *mDetailTexCoords;
+    glm::vec2               *mTexCoords;
+    glm::vec2               *mDetailTexCoords;
     F32                     *mWeights;
 
     bool                    mHasWeights;
@@ -135,7 +135,7 @@ private:
 public:
     void genIndices(S32 offset);
 
-    const LLVector2 &getUVs(U32 index);
+    const glm::vec2 &getUVs(U32 index);
 
     const S32   *getSharedVert(S32 vert);
 
@@ -254,15 +254,15 @@ public:
     LLVector4a *getScaledBinormals();
 
     // Get texCoords
-    const LLVector2 *getTexCoords() const {
+    const glm::vec2 *getTexCoords() const {
         return mTexCoords;
     }
 
     // non const version
-    LLVector2 *getWritableTexCoords();
+    glm::vec2 *getWritableTexCoords();
 
     // Get detailTexCoords
-    const LLVector2 *getDetailTexCoords() const {
+    const glm::vec2 *getDetailTexCoords() const {
         llassert (mSharedData);
         return mSharedData->mDetailTexCoords;
     }
@@ -353,7 +353,7 @@ protected:
     // weight values that mark verts as clothing/skin
     LLVector4a              *mClothingWeights;
     // output texture coordinates
-    LLVector2               *mTexCoords;
+    glm::vec2               *mTexCoords;
 
     LLPolyMesh              *mReferenceMesh;
 

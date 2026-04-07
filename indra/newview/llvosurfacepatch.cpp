@@ -245,8 +245,8 @@ bool LLVOSurfacePatch::updateLOD()
 
 void LLVOSurfacePatch::getTerrainGeometry(LLStrider<LLVector3> &verticesp,
                                               LLStrider<LLVector3> &normalsp,
-                                              LLStrider<LLVector2> &texCoords0p,
-                                              LLStrider<LLVector2> &texCoords1p,
+                                              LLStrider<glm::vec2> &texCoords0p,
+                                              LLStrider<glm::vec2> &texCoords1p,
                                               LLStrider<U16> &indicesp)
 {
     LLFace* facep = mDrawable->getFace(0);
@@ -283,8 +283,8 @@ void LLVOSurfacePatch::getTerrainGeometry(LLStrider<LLVector3> &verticesp,
 void LLVOSurfacePatch::updateMainGeometry(LLFace *facep,
                                         LLStrider<LLVector3> &verticesp,
                                         LLStrider<LLVector3> &normalsp,
-                                        LLStrider<LLVector2> &texCoords0p,
-                                        LLStrider<LLVector2> &texCoords1p,
+                                        LLStrider<glm::vec2> &texCoords0p,
+                                        LLStrider<glm::vec2> &texCoords1p,
                                         LLStrider<U16> &indicesp,
                                         U32 &index_offset)
 {
@@ -387,8 +387,8 @@ void LLVOSurfacePatch::updateMainGeometry(LLFace *facep,
 void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
                                         LLStrider<LLVector3> &verticesp,
                                         LLStrider<LLVector3> &normalsp,
-                                        LLStrider<LLVector2> &texCoords0p,
-                                        LLStrider<LLVector2> &texCoords1p,
+                                        LLStrider<glm::vec2> &texCoords0p,
+                                        LLStrider<glm::vec2> &texCoords1p,
                                         LLStrider<U16> &indicesp,
                                         U32 &index_offset)
 {
@@ -577,8 +577,8 @@ void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
 void LLVOSurfacePatch::updateEastGeometry(LLFace *facep,
                                           LLStrider<LLVector3> &verticesp,
                                           LLStrider<LLVector3> &normalsp,
-                                          LLStrider<LLVector2> &texCoords0p,
-                                          LLStrider<LLVector2> &texCoords1p,
+                                          LLStrider<glm::vec2> &texCoords0p,
+                                          LLStrider<glm::vec2> &texCoords1p,
                                           LLStrider<U16> &indicesp,
                                           U32 &index_offset)
 {
@@ -858,7 +858,7 @@ void LLVOSurfacePatch::getGeomSizesEast(const S32 stride, const S32 east_stride,
 }
 
 bool LLVOSurfacePatch::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32 *face_hitp,
-                                      LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
+                                      LLVector4a* intersection, glm::vec2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 
 {
 
@@ -1000,7 +1000,7 @@ void gen_terrain_tangents(U32                    strider_vertex_count,
     std::vector<LLVector4a> vertices(strider_vertex_count);
     std::vector<LLVector4a> normals(strider_vertex_count);
     std::vector<LLVector4a> tangents(strider_vertex_count);
-    std::vector<LLVector2> texcoords(strider_vertex_count);
+    std::vector<glm::vec2> texcoords(strider_vertex_count);
     std::vector<U16>       indices(strider_index_count);
 
     for (U32 v = 0; v < strider_vertex_count; ++v)
@@ -1012,8 +1012,8 @@ void gen_terrain_tangents(U32                    strider_vertex_count,
         tangents[v]  = tangentsp[v];
 
         // Calculate texcoords on-the-fly using the terrain positions
-        texcoords[v].mV[VX] = verticesp[v].mV[VX] / region_width;
-        texcoords[v].mV[VY] = verticesp[v].mV[VY] / region_width;
+        texcoords[v].x = verticesp[v].mV[VX] / region_width;
+        texcoords[v].y = verticesp[v].mV[VY] / region_width;
     }
     for (U32 i = 0; i < strider_index_count; ++i)
     {
@@ -1039,8 +1039,8 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
     LLStrider<LLVector3> vertices_start;
     LLStrider<LLVector3> normals_start;
     LLStrider<LLVector4a> tangents_start;
-    LLStrider<LLVector2> texcoords0_start; // ownership overlay
-    LLStrider<LLVector2> texcoords2_start;
+    LLStrider<glm::vec2> texcoords0_start; // ownership overlay
+    LLStrider<glm::vec2> texcoords2_start;
     LLStrider<U16> indices_start;
 
     llassert_always(buffer->getVertexStrider(vertices_start));
@@ -1056,8 +1056,8 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
     {
         LLStrider<LLVector3> vertices = vertices_start;
         LLStrider<LLVector3> normals = normals_start;
-        LLStrider<LLVector2> texcoords0 = texcoords0_start;
-        LLStrider<LLVector2> texcoords2 = texcoords2_start;
+        LLStrider<glm::vec2> texcoords0 = texcoords0_start;
+        LLStrider<glm::vec2> texcoords2 = texcoords2_start;
         LLStrider<U16> indices = indices_start;
 
         for (std::vector<LLFace*>::iterator i = mFaceList.begin(); i != mFaceList.end(); ++i)

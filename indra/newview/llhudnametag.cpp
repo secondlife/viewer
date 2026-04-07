@@ -48,6 +48,7 @@
 #include "llstatusbar.h"
 #include "llmenugl.h"
 #include "pipeline.h"
+#include "glm/glm.hpp"
 #include <boost/tokenizer.hpp>
 
 
@@ -92,7 +93,8 @@ LLHUDNameTag::LLHUDNameTag(const U8 type)
     mBoldFontp(LLFontGL::getFontSansSerifBold()),
     mSoftScreenRect(),
     mPositionAgent(),
-    mPositionOffset(),
+    mPositionOffset(0.f, 0.f),
+    mTargetPositionOffset(0.f, 0.f),
     mMass(10.f),
     mMaxLines(10),
     mOffsetY(0),
@@ -176,12 +178,12 @@ bool LLHUDNameTag::lineSegmentIntersect(const LLVector4a& start, const LLVector4
     LLCoordGL screen_pos;
     LLViewerCamera::getInstance()->projectPosAgentToScreen(position, screen_pos, false);
 
-    LLVector2 screen_offset;
+    glm::vec2 screen_offset;
     screen_offset = updateScreenPos(mPositionOffset);
 
     LLVector3 render_position = position
-            + (x_pixel_vec * screen_offset.mV[VX])
-            + (y_pixel_vec * screen_offset.mV[VY]);
+            + (x_pixel_vec * screen_offset.x)
+            + (y_pixel_vec * screen_offset.y);
 
 
     LLVector3 bg_pos = render_position
@@ -283,11 +285,11 @@ void LLHUDNameTag::renderText()
     LLCoordGL screen_pos;
     LLViewerCamera::getInstance()->projectPosAgentToScreen(mPositionAgent, screen_pos, false);
 
-    LLVector2 screen_offset = updateScreenPos(mPositionOffset);
+    glm::vec2 screen_offset = updateScreenPos(mPositionOffset);
 
     LLVector3 render_position = mPositionAgent
-            + (x_pixel_vec * screen_offset.mV[VX])
-            + (y_pixel_vec * screen_offset.mV[VY]);
+            + (x_pixel_vec * screen_offset.x)
+            + (y_pixel_vec * screen_offset.y);
 
     LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
     LLRect screen_rect;
@@ -597,8 +599,8 @@ void LLHUDNameTag::updateVisibility()
     LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
 
     LLVector3 render_position = mPositionAgent +
-            (x_pixel_vec * mPositionOffset.mV[VX]) +
-            (y_pixel_vec * mPositionOffset.mV[VY]);
+            (x_pixel_vec * mPositionOffset.x) +
+            (y_pixel_vec * mPositionOffset.y);
 
     mOffscreen = false;
     if (!LLViewerCamera::getInstance()->sphereInFrustum(render_position, mRadius))
@@ -618,45 +620,45 @@ void LLHUDNameTag::updateVisibility()
     sVisibleTextObjects.push_back(LLPointer<LLHUDNameTag> (this));
 }
 
-LLVector2 LLHUDNameTag::updateScreenPos(LLVector2 &offset)
+glm::vec2 LLHUDNameTag::updateScreenPos(glm::vec2 &offset)
 {
     LLCoordGL screen_pos;
-    LLVector2 screen_pos_vec;
+    glm::vec2 screen_pos_vec;
     LLVector3 x_pixel_vec;
     LLVector3 y_pixel_vec;
     LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
-    LLVector3 world_pos = mPositionAgent + (offset.mV[VX] * x_pixel_vec) + (offset.mV[VY] * y_pixel_vec);
+    LLVector3 world_pos = mPositionAgent + (offset.x * x_pixel_vec) + (offset.y * y_pixel_vec);
     if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(world_pos, screen_pos, false) && mVisibleOffScreen)
     {
         // bubble off-screen, so find a spot for it along screen edge
         LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
     }
 
-    screen_pos_vec.set(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY));
+    screen_pos_vec = glm::vec2(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY));
 
     LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
     S32 bottom = world_rect.mBottom + STATUS_BAR_HEIGHT;
 
-    LLVector2 screen_center;
-    screen_center.mV[VX] = llclamp(static_cast<F32>(screen_pos_vec.mV[VX]), static_cast<F32>(world_rect.mLeft) + mWidth * 0.5f, static_cast<F32>(world_rect.mRight) - mWidth * 0.5f);
+    glm::vec2 screen_center;
+    screen_center.x = llclamp(static_cast<F32>(screen_pos_vec.x), static_cast<F32>(world_rect.mLeft) + mWidth * 0.5f, static_cast<F32>(world_rect.mRight) - mWidth * 0.5f);
 
     if(mVertAlignment == ALIGN_VERT_TOP)
     {
-        screen_center.mV[VY] = llclamp(static_cast<F32>(screen_pos_vec.mV[VY]),
+        screen_center.y = llclamp(static_cast<F32>(screen_pos_vec.y),
             static_cast<F32>(bottom),
             static_cast<F32>(world_rect.mTop) - mHeight - static_cast<F32>(MENU_BAR_HEIGHT));
-        mSoftScreenRect.setLeftTopAndSize(screen_center.mV[VX] - (mWidth + BUFFER_SIZE) * 0.5f,
-            screen_center.mV[VY] + (mHeight + BUFFER_SIZE), mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
+        mSoftScreenRect.setLeftTopAndSize(screen_center.x - (mWidth + BUFFER_SIZE) * 0.5f,
+            screen_center.y + (mHeight + BUFFER_SIZE), mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
     }
     else
     {
-        screen_center.mV[VY] = llclamp(static_cast<F32>(screen_pos_vec.mV[VY]),
+        screen_center.y = llclamp(static_cast<F32>(screen_pos_vec.y),
             static_cast<F32>(bottom) + mHeight * 0.5f,
             static_cast<F32>(world_rect.mTop) - mHeight * 0.5f - static_cast<F32>(MENU_BAR_HEIGHT));
-        mSoftScreenRect.setCenterAndSize(screen_center.mV[VX], screen_center.mV[VY], mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
+        mSoftScreenRect.setCenterAndSize(screen_center.x, screen_center.y, mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
     }
 
-    return offset + (screen_center - LLVector2(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY)));
+    return offset + (screen_center - glm::vec2(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY)));
 }
 
 void LLHUDNameTag::updateSize()
@@ -722,7 +724,7 @@ void LLHUDNameTag::updateAll()
     for (text_it = sTextObjects.begin(); text_it != sTextObjects.end(); ++text_it)
     {
         LLHUDNameTag* textp = (*text_it);
-        textp->mTargetPositionOffset.clear();
+        textp->mTargetPositionOffset = glm::vec2(0.0f);
         textp->updateSize();
         textp->updateVisibility();
     }
@@ -755,7 +757,8 @@ void LLHUDNameTag::updateAll()
         }
         textp->updateSize();
         // find on-screen position and initialize collision rectangle
-        textp->mTargetPositionOffset = textp->updateScreenPos(LLVector2::zero);
+        glm::vec2 zero_offset(0.0f);
+        textp->mTargetPositionOffset = textp->updateScreenPos(zero_offset);
         current_screen_area += static_cast<F32>(textp->mSoftScreenRect.getWidth() * textp->mSoftScreenRect.getHeight());
     }
 
@@ -792,29 +795,29 @@ void LLHUDNameTag::updateAll()
                     F32 dst_center_y = dst_textp->mSoftScreenRect.getCenterY();
                     F32 intersect_center_x = intersect_rect.getCenterX();
                     F32 intersect_center_y = intersect_rect.getCenterY();
-                    LLVector2 force = lerp(LLVector2(dst_center_x - intersect_center_x, dst_center_y - intersect_center_y),
-                                        LLVector2(intersect_center_x - src_center_x, intersect_center_y - src_center_y),
+                    glm::vec2 force = glm::mix(glm::vec2(dst_center_x - intersect_center_x, dst_center_y - intersect_center_y),
+                                        glm::vec2(intersect_center_x - src_center_x, intersect_center_y - src_center_y),
                                         0.5f);
-                    force.set(dst_center_x - src_center_x, dst_center_y - src_center_y);
-                    force.normalize();
+                    force = glm::vec2(dst_center_x - src_center_x, dst_center_y - src_center_y);
+                    force = glm::normalize(force);
 
-                    LLVector2 src_force = -1.f * force;
-                    LLVector2 dst_force = force;
+                    glm::vec2 src_force = -1.f * force;
+                    glm::vec2 dst_force = force;
 
-                    LLVector2 force_strength;
+                    glm::vec2 force_strength;
                     F32 src_mult = dst_textp->mMass / (dst_textp->mMass + src_textp->mMass);
                     F32 dst_mult = 1.f - src_mult;
                     F32 src_aspect_ratio = src_textp->mSoftScreenRect.getWidth() / src_textp->mSoftScreenRect.getHeight();
                     F32 dst_aspect_ratio = dst_textp->mSoftScreenRect.getWidth() / dst_textp->mSoftScreenRect.getHeight();
-                    src_force.mV[VY] *= src_aspect_ratio;
-                    src_force.normalize();
-                    dst_force.mV[VY] *= dst_aspect_ratio;
-                    dst_force.normalize();
+                    src_force.y *= src_aspect_ratio;
+                    src_force = glm::normalize(src_force);
+                    dst_force.y *= dst_aspect_ratio;
+                    dst_force = glm::normalize(dst_force);
 
-                    src_force.mV[VX] *= llmin(intersect_rect.getWidth() * src_mult, intersect_rect.getHeight() * SPRING_STRENGTH);
-                    src_force.mV[VY] *= llmin(intersect_rect.getHeight() * src_mult, intersect_rect.getWidth() * SPRING_STRENGTH);
-                    dst_force.mV[VX] *=  llmin(intersect_rect.getWidth() * dst_mult, intersect_rect.getHeight() * SPRING_STRENGTH);
-                    dst_force.mV[VY] *=  llmin(intersect_rect.getHeight() * dst_mult, intersect_rect.getWidth() * SPRING_STRENGTH);
+                    src_force.x *= llmin(intersect_rect.getWidth() * src_mult, intersect_rect.getHeight() * SPRING_STRENGTH);
+                    src_force.y *= llmin(intersect_rect.getHeight() * src_mult, intersect_rect.getWidth() * SPRING_STRENGTH);
+                    dst_force.x *=  llmin(intersect_rect.getWidth() * dst_mult, intersect_rect.getHeight() * SPRING_STRENGTH);
+                    dst_force.y *=  llmin(intersect_rect.getHeight() * dst_mult, intersect_rect.getWidth() * SPRING_STRENGTH);
 
                     src_textp->mTargetPositionOffset += src_force;
                     dst_textp->mTargetPositionOffset += dst_force;
@@ -828,7 +831,7 @@ void LLHUDNameTag::updateAll()
     VisibleTextObjectIterator this_object_it;
     for (this_object_it = sVisibleTextObjects.begin(); this_object_it != sVisibleTextObjects.end(); ++this_object_it)
     {
-        (*this_object_it)->mPositionOffset = lerp((*this_object_it)->mPositionOffset, (*this_object_it)->mTargetPositionOffset, LLSmoothInterpolation::getInterpolant(POSITION_DAMPING_TC));
+        (*this_object_it)->mPositionOffset = glm::mix((*this_object_it)->mPositionOffset, (*this_object_it)->mTargetPositionOffset, LLSmoothInterpolation::getInterpolant(POSITION_DAMPING_TC));
     }
 }
 
@@ -883,7 +886,7 @@ F32 LLHUDNameTag::getWorldHeight() const
     F32 height_meters = mLastDistance * static_cast<F32>(tan(camera->getView() / 2.f));
     F32 height_pixels = camera->getViewHeightInPixels() / 2.f;
     F32 meters_per_pixel = height_meters / height_pixels;
-    return mHeight * meters_per_pixel * gViewerWindow->getDisplayScale().mV[VY];
+    return mHeight * meters_per_pixel * gViewerWindow->getDisplayScale().y;
 }
 
 //static

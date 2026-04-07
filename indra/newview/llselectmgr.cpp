@@ -29,6 +29,7 @@
 // file include
 #define LLSELECTMGR_CPP
 #include "llselectmgr.h"
+#include "glm/glm.hpp"
 #include "llmaterialmgr.h"
 
 // library includes
@@ -2050,15 +2051,15 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                     existing_rotation = tep->getRotation();
 
                     const LLGLTFMaterial::TextureTransform& default_transform = LLGLTFMaterial::TextureTransform();
-                    if (existing_scale_s != default_transform.mScale.mV[0] || existing_scale_t != default_transform.mScale.mV[1] ||
-                        existing_offset_s != default_transform.mOffset.mV[0] || existing_offset_t != default_transform.mOffset.mV[1] ||
+                    if (existing_scale_s != default_transform.mScale.x || existing_scale_t != default_transform.mScale.y ||
+                        existing_offset_s != default_transform.mOffset.x || existing_offset_t != default_transform.mOffset.y ||
                         existing_rotation != default_transform.mRotation)
                     {
                         // Preserve non-default transforms from texture entry
                         preserved_override = new LLGLTFMaterial();
                         for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
                         {
-                            LLVector2 pbr_scale, pbr_offset;
+                            glm::vec2 pbr_scale, pbr_offset;
                             F32 pbr_rotation;
                             LLGLTFMaterial::convertTextureTransformToPBR(
                                 existing_scale_s, existing_scale_t,
@@ -3245,22 +3246,22 @@ void LLSelectMgr::adjustTexturesByScale(bool send_to_sim, bool stretch)
                                 scale_x = scale_ratio.mV[s_axis] * object_scale.mV[s_axis];
                                 scale_y = scale_ratio.mV[t_axis] * object_scale.mV[t_axis];
                             }
-                            material->mTextureTransform[i].mScale.set(scale_x, scale_y);
+                            material->mTextureTransform[i].mScale = glm::vec2(scale_x, scale_y);
 
-                            LLVector2 scales = selectNode->mGLTFScales[te_num][i];
-                            LLVector2 offsets = selectNode->mGLTFOffsets[te_num][i];
+                            glm::vec2 scales = selectNode->mGLTFScales[te_num][i];
+                            glm::vec2 offsets = selectNode->mGLTFOffsets[te_num][i];
                             F64 int_part = 0;
-                            offset_x = static_cast<F32>(modf((offsets[VX] + (scales[VX] - scale_x)) / 2, &int_part));
+                            offset_x = static_cast<F32>(modf((offsets.x + (scales.x - scale_x)) / 2, &int_part));
                             if (offset_x < 0)
                             {
                                 offset_x++;
                             }
-                            offset_y = static_cast<F32>(modf((offsets[VY] + (scales[VY] - scale_y)) / 2, &int_part));
+                            offset_y = static_cast<F32>(modf((offsets.y + (scales.y - scale_y)) / 2, &int_part));
                             if (offset_y < 0)
                             {
                                 offset_y++;
                             }
-                            material->mTextureTransform[i].mOffset.set(offset_x, offset_y);
+                            material->mTextureTransform[i].mOffset = glm::vec2(offset_x, offset_y);
                         }
                     }
                     else
@@ -7056,15 +7057,15 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
             F32 scale_x = 1;
             F32 scale_y = 1;
             std::vector<LLVector3> material_v_vec;
-            std::vector<LLVector2> material_scales_vec;
-            std::vector<LLVector2> material_offset_vec;
+            std::vector<glm::vec2> material_scales_vec;
+            std::vector<glm::vec2> material_offset_vec;
             for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
             {
                 if (material)
                 {
                     LLGLTFMaterial::TextureTransform& transform = material->mTextureTransform[i];
-                    scale_x = transform.mScale[VX];
-                    scale_y = transform.mScale[VY];
+                    scale_x = transform.mScale.x;
+                    scale_y = transform.mScale.y;
                     material_scales_vec.push_back(transform.mScale);
                     material_offset_vec.push_back(transform.mOffset);
                 }
@@ -7308,40 +7309,40 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
                 }
 
                 LLVector3 v[4];
-                LLVector2 tc[4];
+                glm::vec2 tc[4];
                 v[0] = mSilhouetteVertices[i] + (mSilhouetteNormals[i] * silhouette_thickness);
-                tc[0].set(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
+                tc[0] = glm::vec2(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
 
                 v[1] = mSilhouetteVertices[i];
-                tc[1].set(u_coord, v_coord);
+                tc[1] = glm::vec2(u_coord, v_coord);
 
                 u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
 
                 v[2] = mSilhouetteVertices[i+1] + (mSilhouetteNormals[i+1] * silhouette_thickness);
-                tc[2].set(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
+                tc[2] = glm::vec2(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
 
                 v[3] = mSilhouetteVertices[i+1];
-                tc[3].set(u_coord,v_coord);
+                tc[3] = glm::vec2(u_coord,v_coord);
 
                 gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
-                gGL.texCoord2fv(tc[0].mV);
+                gGL.texCoord2fv(&tc[0].x);
                 gGL.vertex3fv( v[0].mV );
 
                 gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha);
-                gGL.texCoord2fv( tc[1].mV );
+                gGL.texCoord2fv( &tc[1].x );
                 gGL.vertex3fv( v[1].mV );
 
                 gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
-                gGL.texCoord2fv( tc[2].mV );
+                gGL.texCoord2fv( &tc[2].x );
                 gGL.vertex3fv( v[2].mV );
 
                 gGL.vertex3fv( v[2].mV );
 
                 gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha);
-                gGL.texCoord2fv( tc[1].mV );
+                gGL.texCoord2fv( &tc[1].x );
                 gGL.vertex3fv( v[1].mV );
 
-                gGL.texCoord2fv( tc[3].mV );
+                gGL.texCoord2fv( &tc[3].x );
                 gGL.vertex3fv( v[3].mV );
             }
         }

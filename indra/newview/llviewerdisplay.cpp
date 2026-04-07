@@ -1713,7 +1713,7 @@ void render_ui_2d()
         gGL.pushMatrix();
         S32 half_width = (gViewerWindow->getWorldViewWidthScaled() / 2);
         S32 half_height = (gViewerWindow->getWorldViewHeightScaled() / 2);
-        gGL.scalef(LLUI::getScaleFactor().mV[VX], LLUI::getScaleFactor().mV[VY], 1.f);
+        gGL.scalef(LLUI::getScaleFactor().x, LLUI::getScaleFactor().y, 1.f);
         gGL.translatef(static_cast<F32>(half_width), static_cast<F32>(half_height), 0.f);
         F32 zoom = gAgentCamera.mHUDCurZoom;
         gGL.scalef(zoom,zoom,1.f);
@@ -1752,10 +1752,10 @@ void render_ui_2d()
                 LLView::sDirtyRect = last_rect;
                 last_rect = t_rect;
 
-                last_rect.mLeft = LLRect::tCoordType(last_rect.mLeft / LLUI::getScaleFactor().mV[0]);
-                last_rect.mRight = LLRect::tCoordType(last_rect.mRight / LLUI::getScaleFactor().mV[0]);
-                last_rect.mTop = LLRect::tCoordType(last_rect.mTop / LLUI::getScaleFactor().mV[1]);
-                last_rect.mBottom = LLRect::tCoordType(last_rect.mBottom / LLUI::getScaleFactor().mV[1]);
+                last_rect.mLeft = LLRect::tCoordType(last_rect.mLeft / LLUI::getScaleFactor().x);
+                last_rect.mRight = LLRect::tCoordType(last_rect.mRight / LLUI::getScaleFactor().x);
+                last_rect.mTop = LLRect::tCoordType(last_rect.mTop / LLUI::getScaleFactor().y);
+                last_rect.mBottom = LLRect::tCoordType(last_rect.mBottom / LLUI::getScaleFactor().y);
 
                 LLRect clip_rect(last_rect);
 
@@ -1854,8 +1854,8 @@ void render_disconnected_background()
             // scale ui to reflect UIScaleFactor
             // this can't be done in setup2DRender because it requires a
             // pushMatrix/popMatrix pair
-            const LLVector2& display_scale = gViewerWindow->getDisplayScale();
-            gGL.scalef(display_scale.mV[VX], display_scale.mV[VY], 1.f);
+            const glm::vec2& display_scale = gViewerWindow->getDisplayScale();
+            gGL.scalef(display_scale.x, display_scale.y, 1.f);
 
             gGL.getTexUnit(0)->bind(gDisconnectedImagep);
             gGL.color4f(1.f, 1.f, 1.f, 1.f);

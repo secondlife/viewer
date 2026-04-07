@@ -28,9 +28,10 @@
 
 #include <span>
 
+#include "glm/vec2.hpp"
+
 class LLColor4;
 class LLColor4U;
-class LLVector2;
 class LLVector3;
 class LLVector4;
 class LLUUID;
@@ -91,8 +92,8 @@ public:
     virtual bool        unpackColor4U(LLColor4U &value, const char *name) = 0;
     bool                unpackColor4Us(std::span<LLColor4U> values, const char *name);
 
-    virtual bool        packVector2(const LLVector2 &value, const char *name) = 0;
-    virtual bool        unpackVector2(LLVector2 &value, const char *name) = 0;
+    virtual bool        packVector2(const glm::vec2 &value, const char *name) = 0;
+    virtual bool        unpackVector2(glm::vec2 &value, const char *name) = 0;
 
     virtual bool        packVector3(const LLVector3 &value, const char *name) = 0;
     virtual bool        unpackVector3(LLVector3 &value, const char *name) = 0;
@@ -166,8 +167,8 @@ public:
     /*virtual*/ bool        packColor4U(const LLColor4U &value, const char *name);
     /*virtual*/ bool        unpackColor4U(LLColor4U &value, const char *name);
 
-    /*virtual*/ bool        packVector2(const LLVector2 &value, const char *name);
-    /*virtual*/ bool        unpackVector2(LLVector2 &value, const char *name);
+    /*virtual*/ bool        packVector2(const glm::vec2 &value, const char *name);
+    /*virtual*/ bool        unpackVector2(glm::vec2 &value, const char *name);
 
     /*virtual*/ bool        packVector3(const LLVector3 &value, const char *name);
     /*virtual*/ bool        unpackVector3(LLVector3 &value, const char *name);
@@ -277,8 +278,8 @@ public:
     /*virtual*/ bool        packColor4U(const LLColor4U &value, const char *name);
     /*virtual*/ bool        unpackColor4U(LLColor4U &value, const char *name);
 
-    /*virtual*/ bool        packVector2(const LLVector2 &value, const char *name);
-    /*virtual*/ bool        unpackVector2(LLVector2 &value, const char *name);
+    /*virtual*/ bool        packVector2(const glm::vec2 &value, const char *name);
+    /*virtual*/ bool        unpackVector2(glm::vec2 &value, const char *name);
 
     /*virtual*/ bool        packVector3(const LLVector3 &value, const char *name);
     /*virtual*/ bool        unpackVector3(LLVector3 &value, const char *name);
@@ -408,8 +409,8 @@ public:
     /*virtual*/ bool        packColor4U(const LLColor4U &value, const char *name);
     /*virtual*/ bool        unpackColor4U(LLColor4U &value, const char *name);
 
-    /*virtual*/ bool        packVector2(const LLVector2 &value, const char *name);
-    /*virtual*/ bool        unpackVector2(LLVector2 &value, const char *name);
+    /*virtual*/ bool        packVector2(const glm::vec2 &value, const char *name);
+    /*virtual*/ bool        unpackVector2(glm::vec2 &value, const char *name);
 
     /*virtual*/ bool        packVector3(const LLVector3 &value, const char *name);
     /*virtual*/ bool        unpackVector3(LLVector3 &value, const char *name);

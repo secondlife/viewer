@@ -35,6 +35,12 @@ namespace tut
             return std::fabs(a.mV[0] - b.x) <= eps
                 && std::fabs(a.mV[1] - b.y) <= eps;
         }
+
+        static bool gm_near(const glm::vec2& a, const glm::vec2& b, F32 eps = kEps)
+        {
+            return std::fabs(a.x - b.x) <= eps
+                && std::fabs(a.y - b.y) <= eps;
+        }
     };
 
     using v2math_glm_equiv_test = test_group<v2math_glm_equiv_data>;
@@ -229,5 +235,107 @@ namespace tut
         ensure("lerp matches LL", vec_near(mid_ll, mid_gm));
         ensure_approximately_equals("midpoint x", mid_gm.x, 5.0f, 16);
         ensure_approximately_equals("midpoint y", mid_gm.y, 10.0f, 16);
+    }
+
+    // ---------- glm::mix equivalence (formerly LLSettingsBase::lerpVec2) ----------
+    //
+    // LLSettingsBase used to have a static `lerpVec2(glm::vec2& a, const glm::vec2& b, F32 mix)`
+    // helper that did `a.x = lerp(a.x, b.x, mix); a.y = lerp(a.y, b.y, mix);`
+    // per component. These tests originally proved equivalence with `glm::mix`
+    // so we could safely replace the helper with `a = glm::mix(a, b, mix)` at
+    // the three caller sites in llsettingssky.cpp / llsettingswater.cpp.
+    // The helper has been deleted; the tests stay as a regression net.
+    //
+    // The `inline_lerpVec2` here is the OLD lerpVec2 body, kept inline so this
+    // test file doesn't need to drag in llsettingsbase.h. If glm::mix ever
+    // diverges from per-component scalar lerp these tests will fail loudly.
+
+    static void inline_lerpVec2(glm::vec2& a, const glm::vec2& b, F32 mix)
+    {
+        // Mirrors the old LLSettingsBase::lerpVec2 body exactly.
+        a.x = lerp(a.x, b.x, mix);
+        a.y = lerp(a.y, b.y, mix);
+    }
+
+    template<> template<>
+    void v2math_glm_equiv_object::test<14>()
+    {
+        // mix=0: result should equal a (no movement toward b)
+        glm::vec2 a_ll(3.0f, 7.0f);
+        glm::vec2 b(10.0f, 20.0f);
+        glm::vec2 a_gm = a_ll;
+        inline_lerpVec2(a_ll, b, 0.0f);
+        a_gm = glm::mix(a_gm, b, 0.0f);
+        ensure("mix=0 lerpVec2 matches glm::mix", gm_near(a_ll, a_gm));
+        ensure_approximately_equals("mix=0 keeps a.x", a_ll.x, 3.0f, 16);
+        ensure_approximately_equals("mix=0 keeps a.y", a_ll.y, 7.0f, 16);
+    }
+
+    template<> template<>
+    void v2math_glm_equiv_object::test<15>()
+    {
+        // mix=1: result should equal b (full movement to b)
+        glm::vec2 a_ll(3.0f, 7.0f);
+        glm::vec2 b(10.0f, 20.0f);
+        glm::vec2 a_gm = a_ll;
+        inline_lerpVec2(a_ll, b, 1.0f);
+        a_gm = glm::mix(a_gm, b, 1.0f);
+        ensure("mix=1 lerpVec2 matches glm::mix", gm_near(a_ll, a_gm));
+        ensure_approximately_equals("mix=1 reaches b.x", a_ll.x, 10.0f, 16);
+        ensure_approximately_equals("mix=1 reaches b.y", a_ll.y, 20.0f, 16);
+    }
+
+    template<> template<>
+    void v2math_glm_equiv_object::test<16>()
+    {
+        // mix=0.5: result should be the midpoint
+        glm::vec2 a_ll(2.0f, 4.0f);
+        glm::vec2 b(10.0f, 20.0f);
+        glm::vec2 a_gm = a_ll;
+        inline_lerpVec2(a_ll, b, 0.5f);
+        a_gm = glm::mix(a_gm, b, 0.5f);
+        ensure("mix=0.5 lerpVec2 matches glm::mix", gm_near(a_ll, a_gm));
+        ensure_approximately_equals("midpoint x", a_ll.x, 6.0f, 16);
+        ensure_approximately_equals("midpoint y", a_ll.y, 12.0f, 16);
+    }
+
+    template<> template<>
+    void v2math_glm_equiv_object::test<17>()
+    {
+        // arbitrary mix value, arbitrary inputs (the realistic settings case)
+        glm::vec2 a_ll(0.123f, -4.56f);
+        glm::vec2 b(7.89f, 0.001f);
+        const F32 mix = 0.371f;
+        glm::vec2 a_gm = a_ll;
+        inline_lerpVec2(a_ll, b, mix);
+        a_gm = glm::mix(a_gm, b, mix);
+        ensure("arbitrary lerpVec2 matches glm::mix", gm_near(a_ll, a_gm));
+    }
+
+    template<> template<>
+    void v2math_glm_equiv_object::test<18>()
+    {
+        // Negative direction (b less than a)
+        glm::vec2 a_ll(10.0f, 20.0f);
+        glm::vec2 b(-5.0f, -10.0f);
+        const F32 mix = 0.25f;
+        glm::vec2 a_gm = a_ll;
+        inline_lerpVec2(a_ll, b, mix);
+        a_gm = glm::mix(a_gm, b, mix);
+        ensure("negative direction matches", gm_near(a_ll, a_gm));
+    }
+
+    template<> template<>
+    void v2math_glm_equiv_object::test<19>()
+    {
+        // Zero vectors on both sides
+        glm::vec2 a_ll(0.0f, 0.0f);
+        glm::vec2 b(0.0f, 0.0f);
+        glm::vec2 a_gm = a_ll;
+        inline_lerpVec2(a_ll, b, 0.5f);
+        a_gm = glm::mix(a_gm, b, 0.5f);
+        ensure("zero vectors match", gm_near(a_ll, a_gm));
+        ensure_approximately_equals("zero stays zero", a_ll.x, 0.0f, 16);
+        ensure_approximately_equals("zero stays zero", a_ll.y, 0.0f, 16);
     }
 }

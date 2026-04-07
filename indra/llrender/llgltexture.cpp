@@ -317,7 +317,7 @@ bool LLGLTexture::getIsAlphaMask() const
     return mGLTexturep->getIsAlphaMask() ;
 }
 
-bool LLGLTexture::getMask(const LLVector2 &tc)
+bool LLGLTexture::getMask(const glm::vec2 &tc)
 {
     llassert(mGLTexturep.notNull()) ;
 

@@ -2326,10 +2326,10 @@ void LLViewerMediaImpl::mouseMove(S32 x, S32 y, MASK mask)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //static
-void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y)
+void LLViewerMediaImpl::scaleTextureCoords(const glm::vec2& texture_coords, S32 *x, S32 *y)
 {
-    F32 texture_x = texture_coords.mV[VX];
-    F32 texture_y = texture_coords.mV[VY];
+    F32 texture_x = texture_coords.x;
+    F32 texture_y = texture_coords.y;
 
     // Deal with repeating textures by wrapping the coordinates into the range [0, 1.0)
     texture_x = fmodf(texture_x, 1.0f);
@@ -2349,7 +2349,7 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S32 button)
+void LLViewerMediaImpl::mouseDown(const glm::vec2& texture_coords, MASK mask, S32 button)
 {
     if(mMediaSource)
     {
@@ -2360,7 +2360,7 @@ void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S3
     }
 }
 
-void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 button)
+void LLViewerMediaImpl::mouseUp(const glm::vec2& texture_coords, MASK mask, S32 button)
 {
     if(mMediaSource)
     {
@@ -2371,7 +2371,7 @@ void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 
     }
 }
 
-void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
+void LLViewerMediaImpl::mouseMove(const glm::vec2& texture_coords, MASK mask)
 {
     if(mMediaSource)
     {
@@ -2382,7 +2382,7 @@ void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
     }
 }
 
-void LLViewerMediaImpl::mouseDoubleClick(const LLVector2& texture_coords, MASK mask)
+void LLViewerMediaImpl::mouseDoubleClick(const glm::vec2& texture_coords, MASK mask)
 {
     if (mMediaSource)
     {
@@ -2406,7 +2406,7 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::scrollWheel(const LLVector2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask)
+void LLViewerMediaImpl::scrollWheel(const glm::vec2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask)
 {
     if (mMediaSource)
     {

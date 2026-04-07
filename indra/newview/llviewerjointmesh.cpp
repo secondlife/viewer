@@ -367,7 +367,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_w
 
     LLStrider<LLVector3> verticesp;
     LLStrider<LLVector3> normalsp;
-    LLStrider<LLVector2> tex_coordsp;
+    LLStrider<glm::vec2> tex_coordsp;
     LLStrider<F32>       vertex_weightsp;
     LLStrider<LLVector4> clothing_weightsp;
     LLStrider<U16> indicesp;

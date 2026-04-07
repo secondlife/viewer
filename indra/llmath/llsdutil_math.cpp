@@ -106,21 +106,19 @@ LLVector3d ll_vector3d_from_sd(const LLSD& sd, S32 start_index)
     return rv;
 }
 
-//vector2
-LLSD ll_sd_from_vector2(const LLVector2& vec)
+// vec2
+LLSD ll_sd_from_vec2(const glm::vec2& vec)
 {
     LLSD rv;
-    rv.append(static_cast<F64>(vec.mV[VX]));
-    rv.append(static_cast<F64>(vec.mV[VY]));
+    rv.append(static_cast<F64>(vec.x));
+    rv.append(static_cast<F64>(vec.y));
     return rv;
 }
 
-LLVector2 ll_vector2_from_sd(const LLSD& sd)
+glm::vec2 ll_vec2_from_sd(const LLSD& sd)
 {
-    LLVector2 rv;
-    rv.mV[VX] = static_cast<F32>(sd[0].asReal());
-    rv.mV[VY] = static_cast<F32>(sd[1].asReal());
-    return rv;
+    return glm::vec2(static_cast<F32>(sd[0].asReal()),
+                     static_cast<F32>(sd[1].asReal()));
 }
 
 // Quaternion

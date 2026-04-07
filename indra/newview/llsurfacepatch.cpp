@@ -185,7 +185,7 @@ LLVector3 LLSurfacePatch::getPointAgent(const U32 x, const U32 y) const
     return pos;
 }
 
-LLVector2 LLSurfacePatch::getTexCoords(const U32 x, const U32 y) const
+glm::vec2 LLSurfacePatch::getTexCoords(const U32 x, const U32 y) const
 {
     U32 surface_stride = mSurfacep->getGridsPerEdge();
     U32 point_offset = x + y*surface_stride;
@@ -196,12 +196,12 @@ LLVector2 LLSurfacePatch::getTexCoords(const U32 x, const U32 y) const
     pos.mV[VZ] = *(mDataZ + point_offset);
     rel_pos = pos - mSurfacep->getOriginAgent();
     rel_pos *= 1.f/surface_stride;
-    return LLVector2(rel_pos.mV[VX], rel_pos.mV[VY]);
+    return glm::vec2(rel_pos.mV[VX], rel_pos.mV[VY]);
 }
 
 
 void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 *vertex, LLVector3 *normal,
-                          LLVector2* tex0, LLVector2 *tex1) const
+                          glm::vec2* tex0, glm::vec2 *tex1) const
 {
     if (!mSurfacep || !mSurfacep->getRegion() || !mSurfacep->getGridsPerEdge() || !mVObjp)
     {
@@ -223,10 +223,10 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
     // tex0 is used for ownership overlay
     LLVector3 rel_pos = pos_agent - mSurfacep->getOriginAgent();
     LLVector3 tex_pos = rel_pos * (1.f / (surface_stride * mSurfacep->getMetersPerGrid()));
-    tex0->mV[0] = tex_pos.mV[0];
-    tex0->mV[1] = tex_pos.mV[1];
+    tex0->x = tex_pos.mV[0];
+    tex0->y = tex_pos.mV[1];
 
-    tex1->mV[0] = mSurfacep->getRegion()->getCompositionXY(llfloor(mOriginRegion.mV[0])+x, llfloor(mOriginRegion.mV[1])+y);
+    tex1->x = mSurfacep->getRegion()->getCompositionXY(llfloor(mOriginRegion.mV[0])+x, llfloor(mOriginRegion.mV[1])+y);
 
     const F32 xyScale = 4.9215f*7.f; //0.93284f;
     const F32 xyScaleInv = (1.f / xyScale)*(0.2222222222f);
@@ -237,7 +237,7 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
                     0.f
                 };
     F32 rand_val = llclamp(noise2(vec)* 0.75f + 0.5f, 0.f, 1.f);
-    tex1->mV[1] = rand_val;
+    tex1->y = rand_val;
 
 
 }

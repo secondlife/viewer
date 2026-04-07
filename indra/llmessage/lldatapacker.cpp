@@ -589,7 +589,7 @@ bool LLDataPackerBinaryBuffer::unpackColor4U(LLColor4U &value, const char *name)
 
 
 
-bool LLDataPackerBinaryBuffer::packVector2(const LLVector2 &value, const char *name)
+bool LLDataPackerBinaryBuffer::packVector2(const glm::vec2 &value, const char *name)
 {
     if (!verifyLength(8, name))
     {
@@ -598,23 +598,23 @@ bool LLDataPackerBinaryBuffer::packVector2(const LLVector2 &value, const char *n
 
     if (mWriteEnabled)
     {
-        htolememcpy(mCurBufferp, &value.mV[0], MVT_F32, 4);
-        htolememcpy(mCurBufferp+4, &value.mV[1], MVT_F32, 4);
+        htolememcpy(mCurBufferp, &value.x, MVT_F32, 4);
+        htolememcpy(mCurBufferp+4, &value.y, MVT_F32, 4);
     }
     mCurBufferp += 8;
     return true;
 }
 
 
-bool LLDataPackerBinaryBuffer::unpackVector2(LLVector2 &value, const char *name)
+bool LLDataPackerBinaryBuffer::unpackVector2(glm::vec2 &value, const char *name)
 {
     if (!verifyLength(8, name))
     {
         return false;
     }
 
-    htolememcpy(&value.mV[0], mCurBufferp, MVT_F32, 4);
-    htolememcpy(&value.mV[1], mCurBufferp+4, MVT_F32, 4);
+    htolememcpy(&value.x, mCurBufferp, MVT_F32, 4);
+    htolememcpy(&value.y, mCurBufferp+4, MVT_F32, 4);
     mCurBufferp += 8;
     return true;
 }
@@ -1326,18 +1326,18 @@ bool LLDataPackerAsciiBuffer::unpackColor4U(LLColor4U &value, const char *name)
 }
 
 
-bool LLDataPackerAsciiBuffer::packVector2(const LLVector2 &value, const char *name)
+bool LLDataPackerAsciiBuffer::packVector2(const glm::vec2 &value, const char *name)
 {
     bool success = true;
     writeIndentedName(name);
     int numCopied = 0;
     if (mWriteEnabled)
     {
-            numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%f %f\n", value.mV[0], value.mV[1]); /* Flawfinder: ignore */
+            numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%f %f\n", value.x, value.y); /* Flawfinder: ignore */
     }
     else
     {
-        numCopied = snprintf(DUMMY_BUFFER,sizeof(DUMMY_BUFFER),"%f %f\n", value.mV[0], value.mV[1]);        /* Flawfinder: ignore */
+        numCopied = snprintf(DUMMY_BUFFER,sizeof(DUMMY_BUFFER),"%f %f\n", value.x, value.y);        /* Flawfinder: ignore */
     }
     // snprintf returns number of bytes that would have been written
     // had the output not being truncated. In that case, it will
@@ -1356,7 +1356,7 @@ bool LLDataPackerAsciiBuffer::packVector2(const LLVector2 &value, const char *na
 }
 
 
-bool LLDataPackerAsciiBuffer::unpackVector2(LLVector2 &value, const char *name)
+bool LLDataPackerAsciiBuffer::unpackVector2(glm::vec2 &value, const char *name)
 {
     bool success = true;
     char valuestr[DP_BUFSIZE];   /* Flawfinder: ignore */
@@ -1365,7 +1365,7 @@ bool LLDataPackerAsciiBuffer::unpackVector2(LLVector2 &value, const char *name)
         return false;
     }
 
-    sscanf(valuestr,"%f %f", &value.mV[0], &value.mV[1]);
+    sscanf(valuestr,"%f %f", &value.x, &value.y);
     return success;
 }
 
@@ -2001,23 +2001,23 @@ bool LLDataPackerAsciiFile::unpackColor4U(LLColor4U &value, const char *name)
 }
 
 
-bool LLDataPackerAsciiFile::packVector2(const LLVector2 &value, const char *name)
+bool LLDataPackerAsciiFile::packVector2(const glm::vec2 &value, const char *name)
 {
     bool success = true;
     writeIndentedName(name);
     if (mFP)
     {
-        fprintf(mFP,"%f %f\n", value.mV[0], value.mV[1]);
+        fprintf(mFP,"%f %f\n", value.x, value.y);
     }
     else if (mOutputStream)
     {
-        *mOutputStream << convertF32ToString(value.mV[0]) << " " << convertF32ToString(value.mV[1]) << "\n";
+        *mOutputStream << convertF32ToString(value.x) << " " << convertF32ToString(value.y) << "\n";
     }
     return success;
 }
 
 
-bool LLDataPackerAsciiFile::unpackVector2(LLVector2 &value, const char *name)
+bool LLDataPackerAsciiFile::unpackVector2(glm::vec2 &value, const char *name)
 {
     bool success = true;
     char valuestr[DP_BUFSIZE]; /*Flawfinder: ignore */
@@ -2026,7 +2026,7 @@ bool LLDataPackerAsciiFile::unpackVector2(LLVector2 &value, const char *name)
         return false;
     }
 
-    sscanf(valuestr,"%f %f", &value.mV[0], &value.mV[1]);
+    sscanf(valuestr,"%f %f", &value.x, &value.y);
     return success;
 }
 

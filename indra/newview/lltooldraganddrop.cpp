@@ -1304,10 +1304,10 @@ void LLToolDragAndDrop::dropMaterialOneFace(LLViewerObject* hit_obj,
 
         // Preserve existing texture transforms when switching to PBR material
     LLTextureEntry* tep = hit_obj->getTE(hit_face);
-    F32 existing_scale_s = LLGLTFMaterial::TextureTransform().mScale.mV[0];
-    F32 existing_scale_t = LLGLTFMaterial::TextureTransform().mScale.mV[1];
-    F32 existing_offset_s = LLGLTFMaterial::TextureTransform().mOffset.mV[0];
-    F32 existing_offset_t = LLGLTFMaterial::TextureTransform().mOffset.mV[1];
+    F32 existing_scale_s = LLGLTFMaterial::TextureTransform().mScale.x;
+    F32 existing_scale_t = LLGLTFMaterial::TextureTransform().mScale.y;
+    F32 existing_offset_s = LLGLTFMaterial::TextureTransform().mOffset.x;
+    F32 existing_offset_t = LLGLTFMaterial::TextureTransform().mOffset.y;
     F32 existing_rotation = LLGLTFMaterial::TextureTransform().mRotation;
     bool should_preserve_transforms = false;
     LLGLTFMaterial* preserved_override = nullptr;
@@ -1349,15 +1349,15 @@ void LLToolDragAndDrop::dropMaterialOneFace(LLViewerObject* hit_obj,
             existing_rotation = tep->getRotation();
 
             const LLGLTFMaterial::TextureTransform& default_transform = LLGLTFMaterial::TextureTransform();
-            if (existing_scale_s != default_transform.mScale.mV[0] || existing_scale_t != default_transform.mScale.mV[1] ||
-                existing_offset_s != default_transform.mOffset.mV[0] || existing_offset_t != default_transform.mOffset.mV[1] ||
+            if (existing_scale_s != default_transform.mScale.x || existing_scale_t != default_transform.mScale.y ||
+                existing_offset_s != default_transform.mOffset.x || existing_offset_t != default_transform.mOffset.y ||
                 existing_rotation != default_transform.mRotation)
             {
                 // Preserve non-default transforms from texture entry
                 preserved_override = new LLGLTFMaterial();
                 for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
                 {
-                    LLVector2 pbr_scale, pbr_offset;
+                    glm::vec2 pbr_scale, pbr_offset;
                     F32 pbr_rotation;
                     LLGLTFMaterial::convertTextureTransformToPBR(
                         existing_scale_s, existing_scale_t,
@@ -1464,15 +1464,15 @@ void LLToolDragAndDrop::dropMaterialAllFaces(LLViewerObject* hit_obj,
                     tep->getOffset(&existing_offset_s, &existing_offset_t);
                     existing_rotation = tep->getRotation();
 
-                    if (existing_scale_s != default_transform.mScale.mV[0] || existing_scale_t != default_transform.mScale.mV[1] ||
-                        existing_offset_s != default_transform.mOffset.mV[0] || existing_offset_t != default_transform.mOffset.mV[1] ||
+                    if (existing_scale_s != default_transform.mScale.x || existing_scale_t != default_transform.mScale.y ||
+                        existing_offset_s != default_transform.mOffset.x || existing_offset_t != default_transform.mOffset.y ||
                         existing_rotation != default_transform.mRotation)
                     {
                         // Preserve non-default transforms from texture entry
                         preserved_override = new LLGLTFMaterial();
                         for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
                         {
-                            LLVector2 pbr_scale, pbr_offset;
+                            glm::vec2 pbr_scale, pbr_offset;
                             F32 pbr_rotation;
                             LLGLTFMaterial::convertTextureTransformToPBR(
                                 existing_scale_s, existing_scale_t,
@@ -1497,15 +1497,15 @@ void LLToolDragAndDrop::dropMaterialAllFaces(LLViewerObject* hit_obj,
                 existing_rotation = tep->getRotation();
 
                 const LLGLTFMaterial::TextureTransform& default_transform = LLGLTFMaterial::TextureTransform();
-                if (existing_scale_s != default_transform.mScale.mV[0] || existing_scale_t != default_transform.mScale.mV[1] ||
-                    existing_offset_s != default_transform.mOffset.mV[0] || existing_offset_t != default_transform.mOffset.mV[1] ||
+                if (existing_scale_s != default_transform.mScale.x || existing_scale_t != default_transform.mScale.y ||
+                    existing_offset_s != default_transform.mOffset.x || existing_offset_t != default_transform.mOffset.y ||
                     existing_rotation != default_transform.mRotation)
                 {
                     // Preserve non-default transforms from texture entry
                     preserved_override = new LLGLTFMaterial();
                     for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
                     {
-                        LLVector2 pbr_scale, pbr_offset;
+                        glm::vec2 pbr_scale, pbr_offset;
                         F32 pbr_rotation;
                         LLGLTFMaterial::convertTextureTransformToPBR(
                             existing_scale_s, existing_scale_t,

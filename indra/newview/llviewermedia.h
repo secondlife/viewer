@@ -42,6 +42,7 @@
 #include "lleventcoro.h"
 #include "llcoros.h"
 #include "llcorehttputil.h"
+#include "glm/vec2.hpp"
 
 class LLViewerMediaImpl;
 class LLUUID;
@@ -235,12 +236,12 @@ public:
     void mouseDown(S32 x, S32 y, MASK mask, S32 button = 0);
     void mouseUp(S32 x, S32 y, MASK mask, S32 button = 0);
     void mouseMove(S32 x, S32 y, MASK mask);
-    void mouseDown(const LLVector2& texture_coords, MASK mask, S32 button = 0);
-    void mouseUp(const LLVector2& texture_coords, MASK mask, S32 button = 0);
-    void mouseMove(const LLVector2& texture_coords, MASK mask);
-    void mouseDoubleClick(const LLVector2& texture_coords, MASK mask);
+    void mouseDown(const glm::vec2& texture_coords, MASK mask, S32 button = 0);
+    void mouseUp(const glm::vec2& texture_coords, MASK mask, S32 button = 0);
+    void mouseMove(const glm::vec2& texture_coords, MASK mask);
+    void mouseDoubleClick(const glm::vec2& texture_coords, MASK mask);
     void mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button = 0);
-    void scrollWheel(const LLVector2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask);
+    void scrollWheel(const glm::vec2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask);
     void scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask);
     void mouseCapture();
 
@@ -267,7 +268,7 @@ public:
     double getPageZoomFactor() {return mZoomFactor;}
     std::string getMimeType() { return mMimeType; }
     void scaleMouse(S32 *mouse_x, S32 *mouse_y);
-    void scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y);
+    void scaleTextureCoords(const glm::vec2& texture_coords, S32 *x, S32 *y);
 
     void update();
     bool preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*& data, S32& data_width, S32& data_height, S32& x_pos, S32& y_pos, S32& width, S32& height);

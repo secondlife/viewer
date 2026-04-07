@@ -33,6 +33,8 @@
 #include "llvolume.h"
 #include "llvector4a.h"
 
+#include "glm/vec2.hpp"
+
 class alignas(16) LLVolumeTriangle : public LLRefCount
 {
     LL_ALIGN_NEW
@@ -101,7 +103,7 @@ public:
     LLVector4a mDir;
     LLVector4a mEnd;
     LLVector4a* mIntersection;
-    LLVector2* mTexCoord;
+    glm::vec2* mTexCoord;
     LLVector4a* mNormal;
     LLVector4a* mTangent;
     F32* mClosestT;
@@ -112,7 +114,7 @@ public:
     LLOctreeTriangleRayIntersect(const LLVector4a& start, const LLVector4a& dir,
                                     LLVolumeFace* face,
                                    F32* closest_t,
-                                   LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent);
+                                   LLVector4a* intersection, glm::vec2* tex_coord, LLVector4a* normal, LLVector4a* tangent);
 
     void traverse(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* node) override;
 

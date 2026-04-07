@@ -483,7 +483,7 @@ void LLWorldMapView::draw()
             {
                 // Inform the fetch mechanism of the size we need
                 S32 draw_size = ll_round(mMapScale);
-                overlayimage->setKnownDrawSize(ll_round(draw_size * LLUI::getScaleFactor().mV[VX]), ll_round(draw_size * LLUI::getScaleFactor().mV[VY]));
+                overlayimage->setKnownDrawSize(ll_round(draw_size * LLUI::getScaleFactor().x), ll_round(draw_size * LLUI::getScaleFactor().y));
                 // Draw something whenever we have enough info
                 if (overlayimage->hasGLTexture())
                 {
@@ -961,8 +961,8 @@ void LLWorldMapView::drawFrustum()
     F32 half_width_pixels = half_width_meters * mMapRatio;
 
     // Compute the frustum coordinates. Take the UI scale into account.
-    F32 ctr_x = ((getLocalRect().getWidth() * 0.5f + mPanX)  * LLUI::getScaleFactor().mV[VX]);
-    F32 ctr_y = ((getLocalRect().getHeight() * 0.5f + mPanY) * LLUI::getScaleFactor().mV[VY]);
+    F32 ctr_x = ((getLocalRect().getWidth() * 0.5f + mPanX)  * LLUI::getScaleFactor().x);
+    F32 ctr_y = ((getLocalRect().getHeight() * 0.5f + mPanY) * LLUI::getScaleFactor().y);
 
     gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
@@ -1393,7 +1393,7 @@ void LLWorldMapView::drawTrackingCircle( const LLRect& rect, S32 x, S32 y, const
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
-    gGL.translatef(static_cast<F32>(x) * LLUI::getScaleFactor().mV[VX], static_cast<F32>(y) * LLUI::getScaleFactor().mV[VY], 0.f);
+    gGL.translatef(static_cast<F32>(x) * LLUI::getScaleFactor().x, static_cast<F32>(y) * LLUI::getScaleFactor().y, 0.f);
     gl_washer_segment_2d(inner_radius, outer_radius, start_theta, end_theta, 40, color, color);
     gGL.popMatrix();
 

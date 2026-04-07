@@ -1419,10 +1419,10 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     U32* output_indices = static_cast<U32*>(ll_aligned_malloc_32(size_indices * sizeof(U32)));
 
     // extra space for normals and text coords
-    S32 tc_bytes_size = ((size_vertices * sizeof(LLVector2)) + 0xF) & ~0xF;
+    S32 tc_bytes_size = ((size_vertices * sizeof(glm::vec2)) + 0xF) & ~0xF;
     LLVector4a* combined_positions = static_cast<LLVector4a*>(ll_aligned_malloc<64>(sizeof(LLVector4a) * 3 * size_vertices + tc_bytes_size));
     LLVector4a* combined_normals = combined_positions + size_vertices;
-    LLVector2* combined_tex_coords = reinterpret_cast<LLVector2*>(combined_normals + size_vertices);
+    glm::vec2* combined_tex_coords = reinterpret_cast<glm::vec2*>(combined_normals + size_vertices);
 
     // copy indices and vertices into new buffers
     S32 combined_positions_shift = 0;
@@ -1440,7 +1440,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(combined_normals + combined_positions_shift), reinterpret_cast<F32*>(face.mNormals), copy_bytes);
 
         // Tex coords
-        copy_bytes = face.mNumVertices * sizeof(LLVector2);
+        copy_bytes = face.mNumVertices * sizeof(glm::vec2);
         memcpy(static_cast<void*>(combined_tex_coords + combined_positions_shift), static_cast<void*>(face.mTexCoords), copy_bytes);
 
         combined_positions_shift += face.mNumVertices;
@@ -1542,7 +1542,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
 
     LLVector4a* buffer_positions = static_cast<LLVector4a*>(ll_aligned_malloc<64>(sizeof(LLVector4a) * 3 * size_vertices + tc_bytes_size));
     LLVector4a* buffer_normals = buffer_positions + size_vertices;
-    LLVector2* buffer_tex_coords = reinterpret_cast<LLVector2*>(buffer_normals + size_vertices);
+    glm::vec2* buffer_tex_coords = reinterpret_cast<glm::vec2*>(buffer_normals + size_vertices);
     S32 buffer_idx_size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
     U16* buffer_indices = static_cast<U16*>(ll_aligned_malloc_16(buffer_idx_size));
     std::vector<S32> old_to_new_positions_map(size_vertices);
@@ -1655,7 +1655,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
             memset(new_face.mIndices, 0, sizeof(U16) * 3);
             new_face.mPositions[0].clear(); // set first vertice to 0
             new_face.mNormals[0].clear();
-            new_face.mTexCoords[0].setZero();
+            new_face.mTexCoords[0] = glm::vec2(0.0f);
         }
         else
         {
@@ -1668,7 +1668,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
             LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(new_face.mPositions), reinterpret_cast<F32*>(buffer_positions), buf_positions_copied * sizeof(LLVector4a));
             LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(new_face.mNormals), reinterpret_cast<F32*>(buffer_normals), buf_positions_copied * sizeof(LLVector4a));
 
-            U32 tex_size = (buf_positions_copied * sizeof(LLVector2) + 0xF)&~0xF;
+            U32 tex_size = (buf_positions_copied * sizeof(glm::vec2) + 0xF)&~0xF;
             LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(new_face.mTexCoords), reinterpret_cast<F32*>(buffer_tex_coords), tex_size);
 
             valid_faces++;
@@ -1792,7 +1792,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
         memset(new_face.mIndices, 0, sizeof(U16) * 3);
         new_face.mPositions[0].clear(); // set first vertice to 0
         new_face.mNormals[0].clear();
-        new_face.mTexCoords[0].setZero();
+        new_face.mTexCoords[0] = glm::vec2(0.0f);
     }
     else
     {
@@ -2932,7 +2932,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
             LLStrider<LLVector3> vertex_strider;
             LLStrider<LLVector3> normal_strider;
-            LLStrider<LLVector2> tc_strider;
+            LLStrider<glm::vec2> tc_strider;
             LLStrider<U16> index_strider;
             LLStrider<LLVector4> weights_strider;
 
@@ -3253,7 +3253,7 @@ void LLModelPreview::addEmptyFace(LLModel* pTarget)
 
     LLStrider<LLVector3> pos;
     LLStrider<LLVector3> norm;
-    LLStrider<LLVector2> tc;
+    LLStrider<glm::vec2> tc;
     LLStrider<U16> index;
 
     buff->getVertexStrider(pos);

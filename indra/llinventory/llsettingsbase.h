@@ -231,9 +231,12 @@ public:
         setLLSD(name, LLSD::Real(v));
     }
 
-    inline void setValue(const std::string &name, const LLVector2 &value)
+    inline void setValue(const std::string &name, const glm::vec2 &value)
     {
-        setValue(name, value.getValue());
+        LLSD sd;
+        sd.append(static_cast<F64>(value.x));
+        sd.append(static_cast<F64>(value.y));
+        setValue(name, sd);
     }
 
     inline void setValue(const std::string &name, const LLVector3 &value)
@@ -341,7 +344,6 @@ public:
     virtual void updateSettings() { mDirty = false; mReplaced = false; }
     LLSD         cloneSettings();
 
-    static void lerpVector2(LLVector2& a, const LLVector2& b, F32 mix);
     static void lerpVector3(LLVector3& a, const LLVector3& b, F32 mix);
     static void lerpColor(LLColor3& a, const LLColor3& b, F32 mix);
 

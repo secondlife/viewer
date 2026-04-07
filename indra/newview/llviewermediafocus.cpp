@@ -366,7 +366,7 @@ bool LLViewerMediaFocus::handleUnicodeChar(llwchar uni_char, bool called_from_pa
     return true;
 }
 
-bool LLViewerMediaFocus::handleScrollWheel(const LLVector2& texture_coords, S32 clicks_x, S32 clicks_y)
+bool LLViewerMediaFocus::handleScrollWheel(const glm::vec2& texture_coords, S32 clicks_x, S32 clicks_y)
 {
     bool retval = false;
     LLViewerMediaImpl* media_impl = getFocusedMediaImpl();

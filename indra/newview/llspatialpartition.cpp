@@ -3522,7 +3522,7 @@ public:
 
     S32       *mFaceHit;
     LLVector4a *mIntersection;
-    LLVector2 *mTexCoord;
+    glm::vec2 *mTexCoord;
     LLVector4a *mNormal;
     LLVector4a *mTangent;
     LLDrawable* mHit;
@@ -3532,7 +3532,7 @@ public:
     bool mPickReflectionProbe;
 
     LLOctreeIntersect(const LLVector4a& start, const LLVector4a& end, bool pick_transparent, bool pick_rigged, bool pick_unselectable, bool pick_reflection_probe,
-                      S32* face_hit, LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
+                      S32* face_hit, LLVector4a* intersection, glm::vec2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
         : mStart(start),
           mEnd(end),
           mFaceHit(face_hit),
@@ -3677,7 +3677,7 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, co
                                                      bool pick_reflection_probe,
                                                      S32* face_hit,                   // return the face hit
                                                      LLVector4a* intersection,         // return the intersection point
-                                                     LLVector2* tex_coord,            // return the texture coordinates of the intersection point
+                                                     glm::vec2* tex_coord,            // return the texture coordinates of the intersection point
                                                      LLVector4a* normal,               // return the surface normal at the intersection point
                                                      LLVector4a* tangent            // return the surface tangent at the intersection point
     )
@@ -3696,7 +3696,7 @@ LLDrawable* LLSpatialGroup::lineSegmentIntersect(const LLVector4a& start, const 
     bool pick_reflection_probe,
     S32* face_hit,                   // return the face hit
     LLVector4a* intersection,         // return the intersection point
-    LLVector2* tex_coord,            // return the texture coordinates of the intersection point
+    glm::vec2* tex_coord,            // return the texture coordinates of the intersection point
     LLVector4a* normal,               // return the surface normal at the intersection point
     LLVector4a* tangent         // return the surface tangent at the intersection point
 )

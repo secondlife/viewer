@@ -34,6 +34,7 @@
 #include "llsdserialize.h"
 #include "llvector4a.h"
 #include "hbxxh.h"
+#include "glm/glm.hpp"
 
 #ifdef LL_USESYSTEMLIBS
 # include <zlib.h>
@@ -221,21 +222,23 @@ void LLModel::normalizeVolumeFaces()
 
             if (face.mTexCoords)
             {
-                LLVector2& min_tc = face.mTexCoordExtents[0];
-                LLVector2& max_tc = face.mTexCoordExtents[1];
+                glm::vec2& min_tc = face.mTexCoordExtents[0];
+                glm::vec2& max_tc = face.mTexCoordExtents[1];
 
                 min_tc = face.mTexCoords[0];
                 max_tc = face.mTexCoords[0];
 
                 for (S32 j = 1; j < face.mNumVertices; ++j)
                 {
-                    update_min_max(min_tc, max_tc, face.mTexCoords[j]);
+                    const glm::vec2& tc2 = face.mTexCoords[j];
+                    min_tc = glm::min(min_tc, tc2);
+                    max_tc = glm::max(max_tc, tc2);
                 }
             }
             else
             {
-                face.mTexCoordExtents[0].set(0,0);
-                face.mTexCoordExtents[1].set(1,1);
+                face.mTexCoordExtents[0] = glm::vec2(0,0);
+                face.mTexCoordExtents[1] = glm::vec2(1,1);
             }
         }
 
@@ -361,21 +364,23 @@ void LLModel::normalizeVolumeFacesAndWeights()
 
             if (face.mTexCoords)
             {
-                LLVector2& min_tc = face.mTexCoordExtents[0];
-                LLVector2& max_tc = face.mTexCoordExtents[1];
+                glm::vec2& min_tc = face.mTexCoordExtents[0];
+                glm::vec2& max_tc = face.mTexCoordExtents[1];
 
                 min_tc = face.mTexCoords[0];
                 max_tc = face.mTexCoords[0];
 
                 for (S32 j = 1; j < face.mNumVertices; ++j)
                 {
-                    update_min_max(min_tc, max_tc, face.mTexCoords[j]);
+                    const glm::vec2& tc3 = face.mTexCoords[j];
+                    min_tc = glm::min(min_tc, tc3);
+                    max_tc = glm::max(max_tc, tc3);
                 }
             }
             else
             {
-                face.mTexCoordExtents[0].set(0, 0);
-                face.mTexCoordExtents[1].set(1, 1);
+                face.mTexCoordExtents[0] = glm::vec2(0, 0);
+                face.mTexCoordExtents[1] = glm::vec2(1, 1);
             }
         }
 
@@ -543,7 +548,7 @@ void LLModel::setVolumeFaceData(
     S32 f,
     LLStrider<LLVector3> pos,
     LLStrider<LLVector3> norm,
-    LLStrider<LLVector2> tc,
+    LLStrider<glm::vec2> tc,
     LLStrider<U16> ind,
     U32 num_verts,
     U32 num_indices)
@@ -633,7 +638,7 @@ void LLModel::generateNormals(F32 angle_cutoff)
             U32 idx = vol_face.mIndices[i];
 
             faceted.mPositions[i] = src_pos[idx];
-            faceted.mTexCoords[i] = LLVector2(0,0);
+            faceted.mTexCoords[i] = glm::vec2(0,0);
             faceted.mIndices[i] = i;
         }
 
@@ -905,9 +910,9 @@ LLSD LLModel::writeModel(
                 //U32 tan_idx = 0;
                 U32 tc_idx = 0;
 
-                LLVector2* ftc = reinterpret_cast<LLVector2*>(face.mTexCoords);
-                LLVector2 min_tc;
-                LLVector2 max_tc;
+                glm::vec2* ftc = face.mTexCoords;
+                glm::vec2 min_tc;
+                glm::vec2 max_tc;
 
                 if (ftc)
                 {
@@ -917,11 +922,12 @@ LLSD LLModel::writeModel(
                     //get texture coordinate domain
                     for (S32 j = 0; j < face.mNumVertices; ++j)
                     {
-                        update_min_max(min_tc, max_tc, ftc[j]);
+                        min_tc = glm::min(min_tc, ftc[j]);
+                        max_tc = glm::max(max_tc, ftc[j]);
                     }
                 }
 
-                LLVector2 tc_range = max_tc - min_tc;
+                glm::vec2 tc_range = max_tc - min_tc;
 
                 for (S32 j = 0; j < face.mNumVertices; ++j)
                 { //for each vert
@@ -977,12 +983,14 @@ LLSD LLModel::writeModel(
                     //texcoord
                     if (face.mTexCoords)
                     {
-                        const F32* src_tc = reinterpret_cast<const F32*>(face.mTexCoords[j].mV);
+                        const F32 src_tc[2] = { face.mTexCoords[j].x, face.mTexCoords[j].y };
+                        const F32 min_tc_arr[2] = { min_tc.x, min_tc.y };
+                        const F32 tc_range_arr[2] = { tc_range.x, tc_range.y };
 
                         for (U32 k = 0; k < 2; ++k)
                         { //for each component
                             //convert to 16-bit normalized
-                            U16 val = static_cast<U16>((src_tc[k]-min_tc.mV[k])/tc_range.mV[k]*65535);
+                            U16 val = static_cast<U16>((src_tc[k]-min_tc_arr[k])/tc_range_arr[k]*65535);
 
                             const U8* buff = reinterpret_cast<const U8*>(&val);
                             //write to binary buffer
@@ -1021,8 +1029,16 @@ LLSD LLModel::writeModel(
 
                 if (face.mTexCoords)
                 {
-                    mdl[model_names[idx]][i]["TexCoord0Domain"]["Min"] = min_tc.getValue();
-                    mdl[model_names[idx]][i]["TexCoord0Domain"]["Max"] = max_tc.getValue();
+                    {
+                        LLSD min_sd;
+                        min_sd.append(min_tc.x);
+                        min_sd.append(min_tc.y);
+                        mdl[model_names[idx]][i]["TexCoord0Domain"]["Min"] = min_sd;
+                        LLSD max_sd;
+                        max_sd.append(max_tc.x);
+                        max_sd.append(max_tc.y);
+                        mdl[model_names[idx]][i]["TexCoord0Domain"]["Max"] = max_sd;
+                    }
                     mdl[model_names[idx]][i]["TexCoord0"] = tc;
                 }
 

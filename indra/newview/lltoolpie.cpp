@@ -213,7 +213,7 @@ bool LLToolPie::handleScrollWheelAny(S32 x, S32 y, S32 clicks_x, S32 clicks_y)
     bool res = false;
     // mHoverPick should have updated on its own and we should have a face
     // in LLViewerMediaFocus in case of media, so just reuse mHoverPick
-    if (mHoverPick.mUVCoords.mV[VX] >= 0.f && mHoverPick.mUVCoords.mV[VY] >= 0.f)
+    if (mHoverPick.mUVCoords.x >= 0.f && mHoverPick.mUVCoords.y >= 0.f)
     {
         res = LLViewerMediaFocus::getInstance()->handleScrollWheel(mHoverPick.mUVCoords, clicks_x, clicks_y);
     }

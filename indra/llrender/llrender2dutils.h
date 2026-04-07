@@ -36,7 +36,6 @@
 
 class LLColor4;
 class LLVector3;
-class LLVector2;
 class LLUIImage;
 class LLUUID;
 

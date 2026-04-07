@@ -304,7 +304,7 @@ public:
         bool pick_reflection_probe,
         S32* face_hit,                          // return the face hit
         LLVector4a* intersection = NULL,         // return the intersection point
-        LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
+        glm::vec2* tex_coord = NULL,            // return the texture coordinates of the intersection point
         LLVector4a* normal = NULL,               // return the surface normal at the intersection point
         LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
     );
@@ -382,7 +382,7 @@ public:
                                      bool pick_reflection_probe,
                                      S32* face_hit,                          // return the face hit
                                      LLVector4a* intersection = NULL,         // return the intersection point
-                                     LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
+                                     glm::vec2* tex_coord = NULL,            // return the texture coordinates of the intersection point
                                      LLVector4a* normal = NULL,               // return the surface normal at the intersection point
                                      LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
         );

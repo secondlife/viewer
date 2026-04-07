@@ -32,7 +32,7 @@
 
 class LLSurface;
 class LLVOSurfacePatch;
-class LLVector2;
+#include "glm/vec2.hpp"
 class LLColor4U;
 class LLAgent;
 
@@ -100,7 +100,7 @@ public:
     const U64 &getLastUpdateTime() const;
     LLSurface *getSurface() const { return mSurfacep; }
     LLVector3 getPointAgent(const U32 x, const U32 y) const; // get the point at the offset.
-    LLVector2 getTexCoords(const U32 x, const U32 y) const;
+    glm::vec2 getTexCoords(const U32 x, const U32 y) const;
 
     // Per-vertex normals
     // *TODO: PBR=true is a test implementation solely for proof-of-concept.
@@ -115,7 +115,7 @@ public:
     void calcNormalFlat(LLVector3& normal_out, const U32 x, const U32 y, const U32 index /* 0 or 1 */);
 
     void eval(const U32 x, const U32 y, const U32 stride,
-                LLVector3 *vertex, LLVector3 *normal, LLVector2* tex0, LLVector2 *tex1) const;
+                LLVector3 *vertex, LLVector3 *normal, glm::vec2* tex0, glm::vec2 *tex1) const;
 
 
 

@@ -31,7 +31,7 @@
 
 class LLSurfacePatch;
 class LLDrawPool;
-class LLVector2;
+#include "glm/vec2.hpp"
 class LLFacePool;
 class LLFace;
 
@@ -56,8 +56,8 @@ public:
     /*virtual*/ void        updateFaceSize(S32 idx);
     void getTerrainGeometry(LLStrider<LLVector3> &verticesp,
                                 LLStrider<LLVector3> &normalsp,
-                                LLStrider<LLVector2> &texCoords0p,
-                                LLStrider<LLVector2> &texCoords1p,
+                                LLStrider<glm::vec2> &texCoords0p,
+                                LLStrider<glm::vec2> &texCoords1p,
                                 LLStrider<U16> &indicesp);
 
     /*virtual*/ void updateTextures();
@@ -79,7 +79,7 @@ public:
                                           bool pick_unselectable = true,
                                           S32* face_hit = NULL,                 // which face was hit
                                           LLVector4a* intersection = NULL,       // return the intersection point
-                                          LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
+                                          glm::vec2* tex_coord = NULL,          // return the texture coordinates of the intersection point
                                           LLVector4a* normal = NULL,             // return the surface normal at the intersection point
                                           LLVector4a* tangent = NULL           // return the surface tangent at the intersection point
         );
@@ -109,22 +109,22 @@ protected:
     void updateMainGeometry(LLFace *facep,
                        LLStrider<LLVector3> &verticesp,
                        LLStrider<LLVector3> &normalsp,
-                       LLStrider<LLVector2> &texCoords0p,
-                       LLStrider<LLVector2> &texCoords1p,
+                       LLStrider<glm::vec2> &texCoords0p,
+                       LLStrider<glm::vec2> &texCoords1p,
                        LLStrider<U16> &indicesp,
                        U32 &index_offset);
     void updateNorthGeometry(LLFace *facep,
                        LLStrider<LLVector3> &verticesp,
                        LLStrider<LLVector3> &normalsp,
-                       LLStrider<LLVector2> &texCoords0p,
-                       LLStrider<LLVector2> &texCoords1p,
+                       LLStrider<glm::vec2> &texCoords0p,
+                       LLStrider<glm::vec2> &texCoords1p,
                        LLStrider<U16> &indicesp,
                        U32 &index_offset);
     void updateEastGeometry(LLFace *facep,
                        LLStrider<LLVector3> &verticesp,
                        LLStrider<LLVector3> &normalsp,
-                       LLStrider<LLVector2> &texCoords0p,
-                       LLStrider<LLVector2> &texCoords1p,
+                       LLStrider<glm::vec2> &texCoords0p,
+                       LLStrider<glm::vec2> &texCoords1p,
                        LLStrider<U16> &indicesp,
                        U32 &index_offset);
 };

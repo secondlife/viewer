@@ -2137,8 +2137,8 @@ void LLLineEditor::draw()
                 LLRect screen_pos = calcScreenRect();
                 LLCoordGL ime_pos( screen_pos.mLeft + pixels_after_scroll, screen_pos.mTop - lineeditor_v_pad );
 
-                ime_pos.mX = static_cast<S32>(ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
-                ime_pos.mY = static_cast<S32>(ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
+                ime_pos.mX = static_cast<S32>(ime_pos.mX * LLUI::getScaleFactor().x);
+                ime_pos.mY = static_cast<S32>(ime_pos.mY * LLUI::getScaleFactor().y);
                 getWindow()->setLanguageTextInput( ime_pos );
             }
         }
@@ -2708,7 +2708,7 @@ void LLLineEditor::markAsPreedit(S32 position, S32 length)
 
 S32 LLLineEditor::getPreeditFontSize() const
 {
-    return ll_round(mGLFont->getLineHeight() * LLUI::getScaleFactor().mV[VY]);
+    return ll_round(mGLFont->getLineHeight() * LLUI::getScaleFactor().y);
 }
 
 void LLLineEditor::setReplaceNewlinesWithSpaces(bool replace)

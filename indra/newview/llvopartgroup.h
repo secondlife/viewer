@@ -69,7 +69,7 @@ public:
                                           bool pick_unselectable,
                                           S32* face_hit,
                                           LLVector4a* intersection,
-                                          LLVector2* tex_coord,
+                                          glm::vec2* tex_coord,
                                           LLVector4a* normal,
                                           LLVector4a* tangent);
 
@@ -84,7 +84,7 @@ public:
                 void        getGeometry(S32 idx,
                                 LLStrider<LLVector4a>& verticesp,
                                 LLStrider<LLVector3>& normalsp,
-                                LLStrider<LLVector2>& texcoordsp,
+                                LLStrider<glm::vec2>& texcoordsp,
                                 LLStrider<LLColor4U>& colorsp,
                                 LLStrider<LLColor4U>& emissivep,
                                 LLStrider<U16>& indicesp);

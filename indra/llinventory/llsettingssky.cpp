@@ -31,7 +31,10 @@
 #include "lltrace.h"
 #include "llfasttimer.h"
 #include "v3colorutil.h"
+#include "llsdutil_math.h"
 #include <functional>
+
+#include "glm/glm.hpp"
 
 
 
@@ -616,7 +619,7 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mCloudVariance = lerp(mCloudVariance, other->mCloudVariance, static_cast<F32>(blendf));
         mCloudShadow = lerp(mCloudShadow, other->mCloudShadow, static_cast<F32>(blendf));
         mCloudScale = lerp(mCloudScale, other->mCloudScale, static_cast<F32>(blendf));
-        lerpVector2(mScrollRate, other->mScrollRate, static_cast<F32>(blendf));
+        mScrollRate = glm::mix(mScrollRate, other->mScrollRate, static_cast<F32>(blendf));
         lerpColor(mCloudPosDensity1, other->mCloudPosDensity1, static_cast<F32>(blendf));
         lerpColor(mCloudPosDensity2, other->mCloudPosDensity2, static_cast<F32>(blendf));
         lerpColor(mCloudColor, other->mCloudColor, static_cast<F32>(blendf));
@@ -1032,19 +1035,19 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
     }
     if (legacy.has(SETTING_CLOUD_SCROLL_RATE))
     {
-        LLVector2 cloud_scroll(legacy[SETTING_CLOUD_SCROLL_RATE]);
+        glm::vec2 cloud_scroll = ll_vec2_from_sd(legacy[SETTING_CLOUD_SCROLL_RATE]);
 
-        cloud_scroll -= LLVector2(10, 10);
+        cloud_scroll -= glm::vec2(10, 10);
         if (legacy.has(SETTING_LEGACY_ENABLE_CLOUD_SCROLL))
         {
             LLSD enabled = legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL];
             if (!enabled[0].asBoolean())
-                cloud_scroll.mV[0] = 0.0f;
+                cloud_scroll.x = 0.0f;
             if (!enabled[1].asBoolean())
-                cloud_scroll.mV[1] = 0.0f;
+                cloud_scroll.y = 0.0f;
         }
 
-        newsettings[SETTING_CLOUD_SCROLL_RATE] = cloud_scroll.getValue();
+        newsettings[SETTING_CLOUD_SCROLL_RATE] = ll_sd_from_vec2(cloud_scroll);
         converted_something |= true;
     }
     if (legacy.has(SETTING_CLOUD_SHADOW))
@@ -1214,7 +1217,7 @@ void LLSettingsSky::loadValuesFromLLSD()
     mGamma = static_cast<F32>(settings[SETTING_GAMMA].asReal());
     mCloudVariance = static_cast<F32>(settings[SETTING_CLOUD_VARIANCE].asReal());
     mCloudShadow = static_cast<F32>(settings[SETTING_CLOUD_SHADOW].asReal());
-    mScrollRate = LLVector2(settings[SETTING_CLOUD_SCROLL_RATE]);
+    mScrollRate = ll_vec2_from_sd(settings[SETTING_CLOUD_SCROLL_RATE]);
     mCloudScale = static_cast<F32>(settings[SETTING_CLOUD_SCALE].asReal());
     mCloudPosDensity1 = LLColor3(settings[SETTING_CLOUD_POS_DENSITY1]);
     mCloudPosDensity2 = LLColor3(settings[SETTING_CLOUD_POS_DENSITY2]);
@@ -1297,7 +1300,7 @@ void LLSettingsSky::saveValuesToLLSD()
     settings[SETTING_GAMMA] = mGamma;
     settings[SETTING_CLOUD_VARIANCE] = mCloudVariance;
     settings[SETTING_CLOUD_SHADOW] = mCloudShadow;
-    settings[SETTING_CLOUD_SCROLL_RATE] = mScrollRate.getValue();
+    settings[SETTING_CLOUD_SCROLL_RATE] = ll_sd_from_vec2(mScrollRate);
     settings[SETTING_CLOUD_SCALE] = mCloudScale;
     settings[SETTING_CLOUD_POS_DENSITY1] = mCloudPosDensity1.getValue();
     settings[SETTING_CLOUD_POS_DENSITY2] = mCloudPosDensity2.getValue();
@@ -1981,12 +1984,12 @@ void LLSettingsSky::setCloudScale(F32 val)
     setLLSDDirty();
 }
 
-LLVector2 LLSettingsSky::getCloudScrollRate() const
+glm::vec2 LLSettingsSky::getCloudScrollRate() const
 {
     return mScrollRate;
 }
 
-void LLSettingsSky::setCloudScrollRate(const LLVector2 &val)
+void LLSettingsSky::setCloudScrollRate(const glm::vec2 &val)
 {
     mScrollRate = val;
     setDirtyFlag(true);
@@ -1995,14 +1998,14 @@ void LLSettingsSky::setCloudScrollRate(const LLVector2 &val)
 
 void LLSettingsSky::setCloudScrollRateX(F32 val)
 {
-    mScrollRate.mV[0] = val;
+    mScrollRate.x = val;
     setDirtyFlag(true);
     setLLSDDirty();
 }
 
 void LLSettingsSky::setCloudScrollRateY(F32 val)
 {
-    mScrollRate.mV[1] = val;
+    mScrollRate.y = val;
     setDirtyFlag(true);
     setLLSDDirty();
 }

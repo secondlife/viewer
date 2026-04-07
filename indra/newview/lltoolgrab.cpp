@@ -709,8 +709,8 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
                 msg->addVector3Fast(_PREHASH_GrabPosition, grab_pos_region );
                 msg->addU32Fast(_PREHASH_TimeSinceLast, dt_milliseconds );
                 msg->nextBlock("SurfaceInfo");
-                msg->addVector3("UVCoord", LLVector3(mGrabPick.mUVCoords));
-                msg->addVector3("STCoord", LLVector3(mGrabPick.mSTCoords));
+                msg->addVector3("UVCoord", LLVector3(mGrabPick.mUVCoords.x, mGrabPick.mUVCoords.y, 0.f));
+                msg->addVector3("STCoord", LLVector3(mGrabPick.mSTCoords.x, mGrabPick.mSTCoords.y, 0.f));
                 msg->addS32Fast(_PREHASH_FaceIndex, mGrabPick.mObjectFace);
                 msg->addVector3("Position", mGrabPick.mIntersection);
                 msg->addVector3("Normal", mGrabPick.mNormal);
@@ -877,8 +877,8 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
         msg->addVector3Fast(_PREHASH_GrabPosition, grab_pos_region );
         msg->addU32Fast(_PREHASH_TimeSinceLast, dt_milliseconds );
         msg->nextBlock("SurfaceInfo");
-        msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
-        msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
+        msg->addVector3("UVCoord", LLVector3(pick.mUVCoords.x, pick.mUVCoords.y, 0.f));
+        msg->addVector3("STCoord", LLVector3(pick.mSTCoords.x, pick.mSTCoords.y, 0.f));
         msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
         msg->addVector3("Position", pick.mIntersection);
         msg->addVector3("Normal", pick.mNormal);
@@ -1160,8 +1160,8 @@ void send_ObjectGrab_message(LLViewerObject* object, const LLPickInfo & pick, co
     msg->addU32Fast(    _PREHASH_LocalID, object->mLocalID);
     msg->addVector3Fast(_PREHASH_GrabOffset, grab_offset);
     msg->nextBlock("SurfaceInfo");
-    msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
-    msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
+    msg->addVector3("UVCoord", LLVector3(pick.mUVCoords.x, pick.mUVCoords.y, 0.f));
+    msg->addVector3("STCoord", LLVector3(pick.mSTCoords.x, pick.mSTCoords.y, 0.f));
     msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
     msg->addVector3("Position", pick.mIntersection);
     msg->addVector3("Normal", pick.mNormal);
@@ -1196,8 +1196,8 @@ void send_ObjectDeGrab_message(LLViewerObject* object, const LLPickInfo & pick)
     msg->nextBlockFast(_PREHASH_ObjectData);
     msg->addU32Fast(_PREHASH_LocalID, object->mLocalID);
     msg->nextBlock("SurfaceInfo");
-    msg->addVector3("UVCoord", LLVector3(pick.mUVCoords));
-    msg->addVector3("STCoord", LLVector3(pick.mSTCoords));
+    msg->addVector3("UVCoord", LLVector3(pick.mUVCoords.x, pick.mUVCoords.y, 0.f));
+    msg->addVector3("STCoord", LLVector3(pick.mSTCoords.x, pick.mSTCoords.y, 0.f));
     msg->addS32Fast(_PREHASH_FaceIndex, pick.mObjectFace);
     msg->addVector3("Position", pick.mIntersection);
     msg->addVector3("Normal", pick.mNormal);

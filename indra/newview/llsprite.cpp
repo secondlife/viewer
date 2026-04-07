@@ -178,7 +178,7 @@ void LLSprite::updateFace(LLFace &face)
 
     LLStrider<LLVector3> verticesp;
     LLStrider<LLVector3> normalsp;
-    LLStrider<LLVector2> tex_coordsp;
+    LLStrider<glm::vec2> tex_coordsp;
     LLStrider<U16> indicesp;
     U16 index_offset;
 
@@ -195,22 +195,22 @@ void LLSprite::updateFace(LLFace &face)
 
     index_offset = face.getGeometry(verticesp,normalsp,tex_coordsp, indicesp);
 
-    *tex_coordsp = LLVector2(0.f, 0.f);
+    *tex_coordsp = glm::vec2(0.f, 0.f);
     *verticesp = mC;
     tex_coordsp++;
     verticesp++;
 
-    *tex_coordsp = LLVector2(0.f, 1.f);
+    *tex_coordsp = glm::vec2(0.f, 1.f);
     *verticesp = mB;
     tex_coordsp++;
     verticesp++;
 
-    *tex_coordsp = LLVector2(1.f, 1.f);
+    *tex_coordsp = glm::vec2(1.f, 1.f);
     *verticesp = mA;
     tex_coordsp++;
     verticesp++;
 
-    *tex_coordsp = LLVector2(1.f, 0.0f);
+    *tex_coordsp = glm::vec2(1.f, 0.0f);
     *verticesp = mD;
     tex_coordsp++;
     verticesp++;

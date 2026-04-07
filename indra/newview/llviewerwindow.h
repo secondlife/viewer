@@ -37,6 +37,7 @@
 
 #include "v3dmath.h"
 #include "v2math.h"
+#include <glm/vec2.hpp>
 #include "llcursortypes.h"
 #include "llwindowcallbacks.h"
 #include "lltimer.h"
@@ -122,8 +123,8 @@ public:
     S32             mGLTFPrimitiveIndex = -1;
     LLHUDIcon*      mHUDIcon;
     LLVector3       mIntersection;
-    LLVector2       mUVCoords;
-    LLVector2       mSTCoords;
+    glm::vec2       mUVCoords;
+    glm::vec2       mSTCoords;
     LLCoordScreen   mXYCoords;
     LLVector3       mNormal;
     LLVector4       mTangent;
@@ -439,7 +440,7 @@ public:
                                     S32* gltf_node_hit = nullptr,
                                     S32* gltf_primitive_hit = nullptr,
                                     LLVector4a *intersection = NULL,
-                                    LLVector2 *uv = NULL,
+                                    glm::vec2 *uv = NULL,
                                     LLVector4a *normal = NULL,
                                     LLVector4a *tangent = NULL,
                                     LLVector4a* start = NULL,
@@ -467,9 +468,9 @@ public:
     void            checkSettings();
 
     F32             getWorldViewAspectRatio() const;
-    const LLVector2& getDisplayScale() const { return mDisplayScale; }
+    const glm::vec2& getDisplayScale() const { return mDisplayScale; }
     void            calcDisplayScale();
-    static LLRect   calcScaledRect(const LLRect & rect, const LLVector2& display_scale);
+    static LLRect   calcScaledRect(const LLRect & rect, const glm::vec2& display_scale);
 
     void setBalanceVisible(bool visible);
 
@@ -512,7 +513,7 @@ private:
     LLPanel*        mStatusBarContainer = nullptr;
     LLPanel*        mChicletContainer = nullptr;
     LLPanel*        mTopInfoContainer = nullptr;
-    LLVector2       mDisplayScale;
+    glm::vec2       mDisplayScale;
 
     LLCoordGL       mCurrentMousePoint;         // last mouse position in GL coords
     LLCoordGL       mLastMousePoint;        // Mouse point at last frame.
@@ -582,7 +583,7 @@ extern LLViewerObject*  gDebugRaycastObject;
 extern LLVector4a       gDebugRaycastIntersection;
 extern LLVOPartGroup*   gDebugRaycastParticle;
 extern LLVector4a       gDebugRaycastParticleIntersection;
-extern LLVector2        gDebugRaycastTexCoord;
+extern glm::vec2        gDebugRaycastTexCoord;
 extern LLVector4a       gDebugRaycastNormal;
 extern LLVector4a       gDebugRaycastTangent;
 extern S32              gDebugRaycastFaceHit;

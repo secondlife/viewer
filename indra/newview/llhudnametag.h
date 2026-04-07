@@ -33,6 +33,7 @@
 #include "v4color.h"
 //#include "v4coloru.h"
 #include "v2math.h"
+#include "glm/vec2.hpp"
 #include "llrect.h"
 //#include "llframetimer.h"
 #include "llfontgl.h"
@@ -121,7 +122,7 @@ public:
     void setMaxLines(S32 max_lines) { mMaxLines = max_lines; }
     void setFadeDistance(F32 fade_distance, F32 fade_range) { mFadeDistance = fade_distance; mFadeRange = fade_range; }
     void updateVisibility();
-    LLVector2 updateScreenPos(LLVector2 &offset_target);
+    glm::vec2 updateScreenPos(glm::vec2 &offset_target);
     void updateSize();
 //  void setMass(F32 mass) { mMass = llmax(0.1f, mass); }
     void setTextAlignment(ETextAlignment alignment) { mTextAlignment = alignment; }
@@ -170,8 +171,8 @@ private:
     const LLFontGL* mBoldFontp;
     LLRectf         mSoftScreenRect;
     LLVector3       mPositionAgent;
-    LLVector2       mPositionOffset;
-    LLVector2       mTargetPositionOffset;
+    glm::vec2       mPositionOffset;
+    glm::vec2       mTargetPositionOffset;
     F32             mMass;
     S32             mMaxLines;
     S32             mOffsetY;

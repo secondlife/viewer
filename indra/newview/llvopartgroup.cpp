@@ -190,7 +190,7 @@ F32 LLVOPartGroup::getPartSize(S32 idx)
 {
     if (idx < static_cast<S32>(mViewerPartGroupp->mParticles.size()))
     {
-        return mViewerPartGroupp->mParticles[idx]->mScale.mV[0];
+        return mViewerPartGroupp->mParticles[idx]->mScale.x;
     }
 
     return 0.f;
@@ -274,7 +274,7 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 
 
         //remember the largest particle
-        max_scale = llmax(max_scale, part->mScale.mV[0], part->mScale.mV[1]);
+        max_scale = llmax(max_scale, part->mScale.x, part->mScale.y);
 
         if (part->mFlags & LLPartData::LL_PART_RIBBON_MASK)
         { //include ribbon segment length in scale
@@ -310,7 +310,7 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
         llassert(llfinite(inv_camera_dist_squared));
         llassert(!llisnan(inv_camera_dist_squared));
 
-        F32 area = part->mScale.mV[0] * part->mScale.mV[1] * inv_camera_dist_squared;
+        F32 area = part->mScale.x * part->mScale.y * inv_camera_dist_squared;
         tot_area = llmax(tot_area, area);
 
         if (tot_area > max_area)
@@ -393,7 +393,7 @@ bool LLVOPartGroup::lineSegmentIntersect(const LLVector4a& start, const LLVector
                                           bool pick_unselectable,
                                           S32* face_hit,
                                           LLVector4a* intersection,
-                                          LLVector2* tex_coord,
+                                          glm::vec2* tex_coord,
                                           LLVector4a* normal,
                                           LLVector4a* bi_normal)
 {
@@ -451,13 +451,13 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
 
         pos.load3(part.mPosAgent.mV);
         axis.load3(part.mAxis.mV);
-        scale = part.mScale.mV[0];
+        scale = part.mScale.x;
 
         if (part.mParent)
         {
             ppos.load3(part.mParent->mPosAgent.mV);
             paxis.load3(part.mParent->mAxis.mV);
-            pscale = part.mParent->mScale.mV[0];
+            pscale = part.mParent->mScale.x;
         }
         else
         { //use source object as position
@@ -468,7 +468,7 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
                 v *= part.mPartSourcep->mSourceObjectp->getRenderRotation();
                 paxis.load3(v.mV);
                 ppos.load3(part.mPartSourcep->mPosAgent.mV);
-                pscale = part.mStartScale.mV[0];
+                pscale = part.mStartScale.x;
             }
             else
             { //no source object, no parent, nothing to draw
@@ -518,25 +518,25 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
             LLVector4a normvel;
             normvel.load3(part.mVelocity.mV);
             normvel.normalize3fast();
-            LLVector2 up_fracs;
-            up_fracs.mV[0] = normvel.dot3(right).getF32();
-            up_fracs.mV[1] = normvel.dot3(up).getF32();
-            up_fracs.normalize();
+            glm::vec2 up_fracs;
+            up_fracs.x = normvel.dot3(right).getF32();
+            up_fracs.y = normvel.dot3(up).getF32();
+            up_fracs = glm::normalize(up_fracs);
             LLVector4a new_up;
             LLVector4a new_right;
 
-            //new_up = up_fracs.mV[0] * right + up_fracs.mV[1]*up;
+            //new_up = up_fracs.x * right + up_fracs.y*up;
             LLVector4a t = right;
-            t.mul(up_fracs.mV[0]);
+            t.mul(up_fracs.x);
             new_up = up;
-            new_up.mul(up_fracs.mV[1]);
+            new_up.mul(up_fracs.y);
             new_up.add(t);
 
-            //new_right = up_fracs.mV[1] * right - up_fracs.mV[0]*up;
+            //new_right = up_fracs.y * right - up_fracs.x*up;
             t = right;
-            t.mul(up_fracs.mV[1]);
+            t.mul(up_fracs.y);
             new_right = up;
-            new_right.mul(up_fracs.mV[0]);
+            new_right.mul(up_fracs.x);
             t.sub(new_right);
 
             up = new_up;
@@ -545,8 +545,8 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
             right.normalize3fast();
         }
 
-        right.mul(0.5f*part.mScale.mV[0]);
-        up.mul(0.5f*part.mScale.mV[1]);
+        right.mul(0.5f*part.mScale.x);
+        up.mul(0.5f*part.mScale.y);
 
 
         //HACK -- the verticesp->mV[3] = 0.f here are to set the texture index to 0 (particles don't use texture batching, maybe they should)
@@ -575,7 +575,7 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
 void LLVOPartGroup::getGeometry(S32 idx,
                                 LLStrider<LLVector4a>& verticesp,
                                 LLStrider<LLVector3>& normalsp,
-                                LLStrider<LLVector2>& texcoordsp,
+                                LLStrider<glm::vec2>& texcoordsp,
                                 LLStrider<LLColor4U>& colorsp,
                                 LLStrider<LLColor4U>& emissivep,
                                 LLStrider<U16>& indicesp)
@@ -709,16 +709,16 @@ void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
                 geom_idx += 4;
             }
 
-            LLStrider<LLVector2> texcoordsp;
+            LLStrider<glm::vec2> texcoordsp;
 
             group->mVertexBuffer->getTexCoord0Strider(texcoordsp);
 
             for (U32 i = 0; i < vertex_count; i += 4)
             {
-                *texcoordsp++ = LLVector2(0.f, 1.f);
-                *texcoordsp++ = LLVector2(0.f, 0.f);
-                *texcoordsp++ = LLVector2(1.f, 1.f);
-                *texcoordsp++ = LLVector2(1.f, 0.f);
+                *texcoordsp++ = glm::vec2(0.f, 1.f);
+                *texcoordsp++ = glm::vec2(0.f, 0.f);
+                *texcoordsp++ = glm::vec2(1.f, 1.f);
+                *texcoordsp++ = glm::vec2(1.f, 0.f);
             }
 
         }
@@ -819,7 +819,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
         LLStrider<LLColor4U> cur_glow = emissivep + geom_idx;
 
         // not actually used
-        LLStrider<LLVector2> cur_tc;
+        LLStrider<glm::vec2> cur_tc;
         LLStrider<U16> cur_idx;
 
 

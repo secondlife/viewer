@@ -30,6 +30,8 @@
 #include "lltexture.h"
 #include "llgl.h"
 
+#include "glm/vec2.hpp"
+
 class LLImageRaw;
 
 //
@@ -146,7 +148,7 @@ public:
     [[nodiscard]] LLGLenum   getPrimaryFormat() const;
     [[nodiscard]] bool       getIsAlphaMask() const ;
     [[nodiscard]] LLTexUnit::eTextureType getTarget() const ;
-    [[nodiscard]] bool       getMask(const LLVector2 &tc);
+    [[nodiscard]] bool       getMask(const glm::vec2 &tc);
     [[nodiscard]] F32        getTimePassedSinceLastBound();
     [[nodiscard]] bool       getMissed() const ;
     [[nodiscard]] bool       isJustBound()const ;

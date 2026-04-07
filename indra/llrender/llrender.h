@@ -42,6 +42,7 @@
 #include "llglheaders.h"
 #include "llmatrix4a.h"
 #include "glm/mat4x4.hpp"
+#include "glm/vec2.hpp"
 #include <boost/align/aligned_allocator.hpp>
 
 #include <array>
@@ -410,8 +411,8 @@ public:
     void batchTransform(LLVector4a* verts, U32 vert_count);
 
     void vertexBatchPreTransformed(std::span<const LLVector4a> verts);
-    void vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const LLVector2> uvs);
-    void vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const LLVector2> uvs, std::span<const LLColor4U> colors);
+    void vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const glm::vec2> uvs);
+    void vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const glm::vec2> uvs, std::span<const LLColor4U> colors);
 
     void setColorMask(bool writeColor, bool writeAlpha);
     void setColorMask(bool writeColorR, bool writeColorG, bool writeColorB, bool writeAlpha);
@@ -448,7 +449,7 @@ public:
     static U32 sUIVerts;
     static bool sGLCoreProfile;
     static bool sNsightDebugSupport;
-    static LLVector2 sUIGLScaleFactor;
+    static glm::vec2 sUIGLScaleFactor;
     static bool sClassicMode; // classic sky mode active
 
 private:
@@ -475,7 +476,7 @@ private:
 
     LLPointer<LLVertexBuffer>   mBuffer;
     LLStrider<LLVector4a>       mVerticesp;
-    LLStrider<LLVector2>        mTexcoordsp;
+    LLStrider<glm::vec2>        mTexcoordsp;
     LLStrider<LLColor4U>        mColorsp;
     std::array<LLTexUnit, LL_NUM_TEXTURE_LAYERS> mTexUnits;
     LLTexUnit           mDummyTexUnit;

@@ -168,7 +168,7 @@ public:
 
     void                        updateEnvironment(LLSettingsBase::Seconds transition = TRANSITION_DEFAULT, bool forced = false);
 
-    inline LLVector2            getCloudScrollDelta() const { return mCloudScrollDelta; }
+    inline glm::vec2            getCloudScrollDelta() const { return mCloudScrollDelta; }
     void                        pauseCloudScroll()          { mCloudScrollPaused = true; }
     void                        resumeCloudScroll()         { mCloudScrollPaused = false; }
     bool                        isCloudScrollPaused() const { return mCloudScrollPaused; }
@@ -364,7 +364,7 @@ private:
     static const F32            SUN_DELTA_YAW;
     F32                         mLastCamYaw = 0.0f;
 
-    LLVector2                   mCloudScrollDelta;  // cumulative cloud delta
+    glm::vec2                   mCloudScrollDelta;  // cumulative cloud delta
     bool                        mCloudScrollPaused;
 
     InstanceArray_t             mEnvironments;

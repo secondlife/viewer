@@ -126,8 +126,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 
     if(!getDecoupleTextureSize())
     {
-        S32 screen_width = ll_round(static_cast<F32>(getRect().getWidth()) * LLUI::getScaleFactor().mV[VX]);
-        S32 screen_height = ll_round(static_cast<F32>(getRect().getHeight()) * LLUI::getScaleFactor().mV[VY]);
+        S32 screen_width = ll_round(static_cast<F32>(getRect().getWidth()) * LLUI::getScaleFactor().x);
+        S32 screen_height = ll_round(static_cast<F32>(getRect().getHeight()) * LLUI::getScaleFactor().y);
 
         setTextureSize(screen_width, screen_height);
     }
@@ -538,8 +538,8 @@ void LLMediaCtrl::reshape( S32 width, S32 height, bool called_from_parent )
 {
     if(!getDecoupleTextureSize())
     {
-        S32 screen_width = ll_round(static_cast<F32>(width) * LLUI::getScaleFactor().mV[VX]);
-        S32 screen_height = ll_round(static_cast<F32>(height) * LLUI::getScaleFactor().mV[VY]);
+        S32 screen_width = ll_round(static_cast<F32>(width) * LLUI::getScaleFactor().x);
+        S32 screen_height = ll_round(static_cast<F32>(height) * LLUI::getScaleFactor().y);
 
         // when floater is minimized, these sizes are negative
         if ( screen_height > 0 && screen_width > 0 )
@@ -747,7 +747,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
             mMediaSource->setBackgroundColor( getBackgroundColor() );
             mMediaSource->setTrustedBrowser(mTrusted);
 
-            F32 scale_factor = LLUI::getScaleFactor().mV[ VX ];
+            F32 scale_factor = LLUI::getScaleFactor().x;
             if (scale_factor != mMediaSource->getPageZoomFactor())
             {
                 mMediaSource->setPageZoomFactor( scale_factor );
@@ -836,7 +836,7 @@ void LLMediaCtrl::draw()
     {
         gGL.pushUIMatrix();
         {
-            F32 scale_factor = LLUI::getScaleFactor().mV[ VX ];
+            F32 scale_factor = LLUI::getScaleFactor().x;
             if (scale_factor != mMediaSource->getPageZoomFactor())
             {
                 mMediaSource->setPageZoomFactor( scale_factor );
@@ -979,14 +979,14 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
         coords_opengl = mMediaSource->getMediaPlugin()->getTextureCoordsOpenGL();
     }
 
-    x = ll_round(static_cast<F32>(x) * LLUI::getScaleFactor().mV[VX]);
+    x = ll_round(static_cast<F32>(x) * LLUI::getScaleFactor().x);
     if ( ! coords_opengl )
     {
-        y = ll_round(static_cast<F32>(y) * LLUI::getScaleFactor().mV[VY]);
+        y = ll_round(static_cast<F32>(y) * LLUI::getScaleFactor().y);
     }
     else
     {
-        y = ll_round(static_cast<F32>(getRect().getHeight() - y) * LLUI::getScaleFactor().mV[VY]);
+        y = ll_round(static_cast<F32>(getRect().getHeight() - y) * LLUI::getScaleFactor().y);
     };
 }
 

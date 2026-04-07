@@ -535,7 +535,7 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
         LLStrider<LLVector3> vertices;
         LLStrider<LLVector3> normals;
         LLStrider<LLColor4U> colors;
-        LLStrider<LLVector2> tex_coords;
+        LLStrider<glm::vec2> tex_coords;
         LLStrider<U16> indicesp;
 
         mReferenceBuffer->getVertexStrider(vertices);
@@ -549,25 +549,25 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
 
         // First leaf
         *(normals++) =      LLVector3(-SRR2, -SRR2, 0.f);
-        *(tex_coords++) =   LLVector2(LEAF_LEFT, LEAF_BOTTOM);
+        *(tex_coords++) =   glm::vec2(LEAF_LEFT, LEAF_BOTTOM);
         *(vertices++) =     LLVector3(-0.5f*LEAF_WIDTH, 0.f, 0.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(SRR3, -SRR3, SRR3);
-        *(tex_coords++) =   LLVector2(LEAF_RIGHT, LEAF_TOP);
+        *(tex_coords++) =   glm::vec2(LEAF_RIGHT, LEAF_TOP);
         *(vertices++) =     LLVector3(0.5f*LEAF_WIDTH, 0.f, 1.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(-SRR3, -SRR3, SRR3);
-        *(tex_coords++) =   LLVector2(LEAF_LEFT, LEAF_TOP);
+        *(tex_coords++) =   glm::vec2(LEAF_LEFT, LEAF_TOP);
         *(vertices++) =     LLVector3(-0.5f*LEAF_WIDTH, 0.f, 1.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(SRR2, -SRR2, 0.f);
-        *(tex_coords++) =   LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
+        *(tex_coords++) =   glm::vec2(LEAF_RIGHT, LEAF_BOTTOM);
         *(vertices++) =     LLVector3(0.5f*LEAF_WIDTH, 0.f, 0.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
@@ -588,25 +588,25 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
 
         // Same leaf, inverse winding/normals
         *(normals++) =      LLVector3(-SRR2, SRR2, 0.f);
-        *(tex_coords++) =   LLVector2(LEAF_LEFT, LEAF_BOTTOM);
+        *(tex_coords++) =   glm::vec2(LEAF_LEFT, LEAF_BOTTOM);
         *(vertices++) =     LLVector3(-0.5f*LEAF_WIDTH, 0.f, 0.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(SRR3, SRR3, SRR3);
-        *(tex_coords++) =   LLVector2(LEAF_RIGHT, LEAF_TOP);
+        *(tex_coords++) =   glm::vec2(LEAF_RIGHT, LEAF_TOP);
         *(vertices++) =     LLVector3(0.5f*LEAF_WIDTH, 0.f, 1.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(-SRR3, SRR3, SRR3);
-        *(tex_coords++) =   LLVector2(LEAF_LEFT, LEAF_TOP);
+        *(tex_coords++) =   glm::vec2(LEAF_LEFT, LEAF_TOP);
         *(vertices++) =     LLVector3(-0.5f*LEAF_WIDTH, 0.f, 1.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(SRR2, SRR2, 0.f);
-        *(tex_coords++) =   LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
+        *(tex_coords++) =   glm::vec2(LEAF_RIGHT, LEAF_BOTTOM);
         *(vertices++) =     LLVector3(0.5f*LEAF_WIDTH, 0.f, 0.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
@@ -627,25 +627,25 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
 
         // next leaf
         *(normals++) =      LLVector3(SRR2, -SRR2, 0.f);
-        *(tex_coords++) =   LLVector2(LEAF_LEFT, LEAF_BOTTOM);
+        *(tex_coords++) =   glm::vec2(LEAF_LEFT, LEAF_BOTTOM);
         *(vertices++) =     LLVector3(0.f, -0.5f*LEAF_WIDTH, 0.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(SRR3, SRR3, SRR3);
-        *(tex_coords++) =   LLVector2(LEAF_RIGHT, LEAF_TOP);
+        *(tex_coords++) =   glm::vec2(LEAF_RIGHT, LEAF_TOP);
         *(vertices++) =     LLVector3(0.f, 0.5f*LEAF_WIDTH, 1.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(SRR3, -SRR3, SRR3);
-        *(tex_coords++) =   LLVector2(LEAF_LEFT, LEAF_TOP);
+        *(tex_coords++) =   glm::vec2(LEAF_LEFT, LEAF_TOP);
         *(vertices++) =     LLVector3(0.f, -0.5f*LEAF_WIDTH, 1.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(SRR2, SRR2, 0.f);
-        *(tex_coords++) =   LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
+        *(tex_coords++) =   glm::vec2(LEAF_RIGHT, LEAF_BOTTOM);
         *(vertices++) =     LLVector3(0.f, 0.5f*LEAF_WIDTH, 0.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
@@ -666,25 +666,25 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
 
         // other side of same leaf
         *(normals++) =      LLVector3(-SRR2, -SRR2, 0.f);
-        *(tex_coords++) =   LLVector2(LEAF_LEFT, LEAF_BOTTOM);
+        *(tex_coords++) =   glm::vec2(LEAF_LEFT, LEAF_BOTTOM);
         *(vertices++) =     LLVector3(0.f, -0.5f*LEAF_WIDTH, 0.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(-SRR3, SRR3, SRR3);
-        *(tex_coords++) =   LLVector2(LEAF_RIGHT, LEAF_TOP);
+        *(tex_coords++) =   glm::vec2(LEAF_RIGHT, LEAF_TOP);
         *(vertices++) =     LLVector3(0.f, 0.5f*LEAF_WIDTH, 1.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(-SRR3, -SRR3, SRR3);
-        *(tex_coords++) =   LLVector2(LEAF_LEFT, LEAF_TOP);
+        *(tex_coords++) =   glm::vec2(LEAF_LEFT, LEAF_TOP);
         *(vertices++) =     LLVector3(0.f, -0.5f*LEAF_WIDTH, 1.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
 
         *(normals++) =      LLVector3(-SRR2, SRR2, 0.f);
-        *(tex_coords++) =   LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
+        *(tex_coords++) =   glm::vec2(LEAF_RIGHT, LEAF_BOTTOM);
         *(vertices++) =     LLVector3(0.f, 0.5f*LEAF_WIDTH, 0.f);
         *(colors++) =       LLColor4U::white;
         vertex_count++;
@@ -777,7 +777,7 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
 
                     x1 = cos(angle * DEG_TO_RAD);
                     y1 = sin(angle * DEG_TO_RAD);
-                    LLVector2 tc;
+                    glm::vec2 tc;
                     // This isn't totally accurate.  Should compute based on slope as well.
                     start_radius = r0 * (1.f + 1.2f*fabs(z - 0.66f*height)/height);
                     nvec.set(   cos(nangle * DEG_TO_RAD)*start_radius*nvec_scale,
@@ -789,11 +789,11 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
                     if (slices - 1 == j)
                     {
                         // Not 0.5 for slight slop factor to avoid edges on leaves
-                        tc = LLVector2(0.490f, (1.f - z/2.f)*tex_z_repeat);
+                        tc = glm::vec2(0.490f, (1.f - z/2.f)*tex_z_repeat);
                     }
                     else
                     {
-                        tc = LLVector2((angle/360.f)*0.5f, (1.f - z/2.f)*tex_z_repeat);
+                        tc = glm::vec2((angle/360.f)*0.5f, (1.f - z/2.f)*tex_z_repeat);
                     }
 
                     *(vertices++) =     LLVector3(x1*radius, y1*radius, z);
@@ -921,7 +921,7 @@ void LLVOTree::updateMesh()
 
     LLStrider<LLVector3> vertices;
     LLStrider<LLVector3> normals;
-    LLStrider<LLVector2> tex_coords;
+    LLStrider<glm::vec2> tex_coords;
     LLStrider<LLColor4U> colors;
     LLStrider<U16> indices;
     U16 idx_offset = 0;
@@ -940,7 +940,7 @@ void LLVOTree::updateMesh()
 
 void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices,
                          LLStrider<LLVector3>& normals,
-                         LLStrider<LLVector2>& tex_coords,
+                         LLStrider<glm::vec2>& tex_coords,
                          LLStrider<LLColor4U>& colors,
                          LLStrider<U16>& indices,
                          U16& cur_idx,
@@ -953,7 +953,7 @@ void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices,
 {
     LLStrider<LLVector3> v;
     LLStrider<LLVector3> n;
-    LLStrider<LLVector2> t;
+    LLStrider<glm::vec2> t;
     LLStrider<LLColor4U> c;
     LLStrider<U16> idx;
 
@@ -988,7 +988,7 @@ void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices,
 
 void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
                                  LLStrider<LLVector3>& normals,
-                                 LLStrider<LLVector2>& tex_coords,
+                                 LLStrider<glm::vec2>& tex_coords,
                                  LLStrider<LLColor4U>& colors,
                                  LLStrider<U16>& indices,
                                  U16& index_offset,
@@ -1154,7 +1154,7 @@ void LLVOTree::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 }
 
 bool LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32 *face_hitp,
-                                      LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
+                                      LLVector4a* intersection, glm::vec2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 
 {
 

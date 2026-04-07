@@ -35,6 +35,7 @@
 #include <boost/signals2/trackable.hpp>
 
 #include "llavatarappearance.h"
+#include "glm/vec2.hpp"
 #include "llchat.h"
 #include "lldrawpoolalpha.h"
 #include "llviewerobject.h"
@@ -167,7 +168,7 @@ public:
                                                  bool pick_unselectable = true,
                                                  S32* face_hit = NULL,             // which face was hit
                                                  LLVector4a* intersection = NULL,   // return the intersection point
-                                                 LLVector2* tex_coord = NULL,      // return the texture coordinates of the intersection point
+                                                 glm::vec2* tex_coord = NULL,      // return the texture coordinates of the intersection point
                                                  LLVector4a* normal = NULL,         // return the surface normal at the intersection point
                                                  LLVector4a* tangent = NULL);     // return the surface tangent at the intersection point
     virtual LLViewerObject* lineSegmentIntersectRiggedAttachments(
@@ -178,7 +179,7 @@ public:
                                                  bool pick_unselectable = true,
                                                  S32* face_hit = NULL,             // which face was hit
                                                  LLVector4a* intersection = NULL,   // return the intersection point
-                                                 LLVector2* tex_coord = NULL,      // return the texture coordinates of the intersection point
+                                                 glm::vec2* tex_coord = NULL,      // return the texture coordinates of the intersection point
                                                  LLVector4a* normal = NULL,         // return the surface normal at the intersection point
                                                  LLVector4a* tangent = NULL);     // return the surface tangent at the intersection point
 
@@ -718,10 +719,10 @@ public:
     bool        shouldImpostor(const F32 rank_factor = 1.0);
     bool        needsImpostorUpdate() const;
     const LLVector3& getImpostorOffset() const;
-    const LLVector2& getImpostorDim() const;
+    const glm::vec2& getImpostorDim() const;
     void        getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& distance) const;
     void        cacheImpostorValues();
-    void        setImpostorDim(const LLVector2& dim);
+    void        setImpostorDim(const glm::vec2& dim);
     static void resetImpostors();
     static void updateImpostors();
     LLRenderTarget mImpostor;
@@ -733,7 +734,7 @@ public:
 
 private:
     LLVector3   mImpostorOffset;
-    LLVector2   mImpostorDim;
+    glm::vec2   mImpostorDim;
     // This becomes true in the constructor and false after the first
     // idleUpdateMisc(). Not clear it serves any purpose.
     bool        mNeedsAnimUpdate;
