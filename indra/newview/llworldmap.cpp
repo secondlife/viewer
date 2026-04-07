@@ -176,7 +176,7 @@ void LLSimInfo::dump() const
 
     LL_INFOS("WorldMap") << x_pos << "," << y_pos
         << " " << mName
-        << " " << (S32)mAccess
+        << " " << static_cast<S32>(mAccess)
         << " " << std::hex << mRegionFlags << std::dec
 //      << " " << mWaterHeight
         << LL_ENDL;
@@ -447,10 +447,10 @@ bool LLWorldMap::insertRegion(U32 x_world, U32 y_world, std::string& name, LLUUI
 bool LLWorldMap::insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID& uuid, U32 type, S32 extra, S32 extra2)
 {
     // Create an item record for the received object
-    LLItemInfo new_item((F32)x_world, (F32)y_world, name, uuid);
+    LLItemInfo new_item(static_cast<F32>(x_world), static_cast<F32>(y_world), name, uuid);
 
     // Compute a region handle based on the objects coordinates
-    LLVector3d  pos((F32)x_world, (F32)y_world, 40.0);
+    LLVector3d  pos(static_cast<F32>(x_world), static_cast<F32>(y_world), 40.0);
     U64 handle = to_region_handle(pos);
 
     // Get the region record for that handle or NULL if we haven't browsed it yet
@@ -469,9 +469,9 @@ bool LLWorldMap::insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID&
             // Telehub color
             U32 X = x_world / REGION_WIDTH_UNITS;
             U32 Y = y_world / REGION_WIDTH_UNITS;
-            F32 red = fmod((F32)X * 0.11f, 1.f) * 0.8f;
-            F32 green = fmod((F32)Y * 0.11f, 1.f) * 0.8f;
-            F32 blue = fmod(1.5f * (F32)(X + Y) * 0.11f, 1.f) * 0.8f;
+            F32 red = fmod(static_cast<F32>(X) * 0.11f, 1.f) * 0.8f;
+            F32 green = fmod(static_cast<F32>(Y) * 0.11f, 1.f) * 0.8f;
+            F32 blue = fmod(1.5f * static_cast<F32>(X + Y) * 0.11f, 1.f) * 0.8f;
             F32 add_amt = (X % 2) ? 0.15f : -0.15f;
             add_amt += (Y % 2) ? -0.15f : 0.15f;
             LLColor4 color(red + add_amt, green + add_amt, blue + add_amt);
@@ -508,12 +508,12 @@ bool LLWorldMap::insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID&
                     + LLTrans::getString("TimeAMPM") + "]";
             }
             LLSD substitution;
-            substitution["datetime"] = (S32) extra;
+            substitution["datetime"] = static_cast<S32>(extra);
             LLStringUtil::format (timeStr, substitution);
             new_item.setTooltip(timeStr);
 
             // HACK: store Z in extra2
-            new_item.setElevation((F64)extra2);
+            new_item.setElevation(static_cast<F64>(extra2));
             if (type == MAP_ITEM_PG_EVENT)
             {
                 siminfo->insertPGEvent(new_item);
@@ -539,7 +539,7 @@ bool LLWorldMap::insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID&
             // Check for division by zero
             if (extra != 0)
             {
-                tooltip_fmt.setArg("[SQMPRICE]", llformat("%.1f", (F32)extra2 / (F32)extra));
+                tooltip_fmt.setArg("[SQMPRICE]", llformat("%.1f", static_cast<F32>(extra2) / static_cast<F32>(extra)));
             }
             else
             {
