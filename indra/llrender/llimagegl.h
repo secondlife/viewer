@@ -36,6 +36,7 @@
 #include "llpointer.h"
 #include "llrefcount.h"
 #include "v2math.h"
+#include "glm/vec2.hpp"
 #include "llunits.h"
 #include "llthreadsafequeue.h"
 #include "llrender.h"
@@ -187,7 +188,7 @@ public:
     void setUseMipMaps(bool usemips) { mUseMipMaps = usemips; }
     void setHasMipMaps(bool hasmips) { mHasMipMaps = hasmips; }
     void updatePickMask(S32 width, S32 height, const U8* data_in);
-    bool getMask(const LLVector2 &tc);
+    bool getMask(const glm::vec2 &tc);
 
     void checkTexSize(bool forced = false) const ;
 

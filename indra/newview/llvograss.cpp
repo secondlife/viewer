@@ -865,7 +865,7 @@ bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
                                       a              * tc[idx1] +
                                       b              * tc[idx2]);
                 if (pick_transparent ||
-                    getTEImage(0)->getMask(hit_tc))
+                    getTEImage(0)->getMask(glm::vec2(hit_tc.mV[0], hit_tc.mV[1])))
                 {
                     closest_t = t;
                     if (intersection != NULL)

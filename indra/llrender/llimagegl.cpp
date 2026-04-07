@@ -43,6 +43,8 @@
 #include "llframetimer.h"
 #include <unordered_set>
 
+#include "glm/glm.hpp"
+
 extern LL_COMMON_API bool on_main_thread();
 
 #if !LL_IMAGEGL_THREAD_CHECK
@@ -2304,17 +2306,17 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
     }
 }
 
-bool LLImageGL::getMask(const LLVector2 &tc)
+bool LLImageGL::getMask(const glm::vec2 &tc)
 {
     bool res = true;
 
     if (!mPickMask.empty())
     {
         F32 u,v;
-        if (LL_LIKELY(tc.isFinite()))
+        if (LL_LIKELY(std::isfinite(tc.x) && std::isfinite(tc.y)))
         {
-            u = tc.mV[0] - floorf(tc.mV[0]);
-            v = tc.mV[1] - floorf(tc.mV[1]);
+            u = tc.x - floorf(tc.x);
+            v = tc.y - floorf(tc.y);
         }
         else
         {
