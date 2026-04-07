@@ -130,11 +130,16 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(m3math "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(m4math m4math.cpp "${test_libs}")
 
-  # Differential test that compares LLMatrix4 against glm::mat4 for the
-  # same operations. Pulls in the glm interface target.
+  # Differential tests that compare LL math types against their glm
+  # counterparts for the same operations. Pulls in the glm interface
+  # target. The macro doesn't handle namespaced interface targets in
+  # its lib list, so wire glm in directly after the executable is
+  # created (see test_coverage.md → CMake quirks).
   include(GLM)
   LL_ADD_INTEGRATION_TEST(m4math_glm_equivalence "" "${test_libs}")
   target_link_libraries(INTEGRATION_TEST_m4math_glm_equivalence ll::glm)
+  LL_ADD_INTEGRATION_TEST(v3math_glm_equivalence "" "${test_libs}")
+  target_link_libraries(INTEGRATION_TEST_v3math_glm_equivalence ll::glm)
   LL_ADD_INTEGRATION_TEST(v3dmath v3dmath.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
