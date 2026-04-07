@@ -61,7 +61,6 @@ enum e_avatar_skinning_method
 };
 using EAvatarSkinningMethod = e_avatar_skinning_method;
 
-bool compute_min_max(LLMatrix4& box, LLVector2& min, LLVector2& max); // Shouldn't be defined here!
 bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& origin, const LLVector3& dir, LLVector3 &coord, F32 epsilon = 0);
 bool setup_hud_matrices(); // use whole screen to render hud
 bool setup_hud_matrices(const LLRect& screen_region); // specify portion of screen (in pixels) to render hud attachments from (for picking)
@@ -780,7 +779,6 @@ public:
 
     LLVector4               mSunClipPlanes;
     LLVector4               mSunOrthoClipPlanes;
-    LLVector2               mScreenScale;
 
     //water distortion texture (refraction)
     LLRenderTarget              mWaterDis;

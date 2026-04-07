@@ -182,6 +182,7 @@
 #include "llworld.h"
 #include "llworldmapview.h"
 #include "pipeline.h"
+#include "glm/glm.hpp"
 #include "llappviewer.h"
 #include "llviewerdisplay.h"
 #include "llspatialpartition.h"
@@ -3932,7 +3933,7 @@ void LLViewerWindow::updateMouseDelta()
         mMouseInWindow = true;
     }
 
-    LLVector2 mouse_vel;
+    glm::vec2 mouse_vel;
 
     if (gSavedSettings.getBOOL("MouseSmooth"))
     {
@@ -3944,15 +3945,15 @@ void LLViewerWindow::updateMouseDelta()
         fdy = fdy + (static_cast<F32>(dy) - fdy) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
 
         mCurrentMouseDelta.set(ll_round(fdx), ll_round(fdy));
-        mouse_vel.set(fdx,fdy);
+        mouse_vel = glm::vec2(fdx,fdy);
     }
     else
     {
         mCurrentMouseDelta.set(dx, dy);
-        mouse_vel.set(static_cast<F32>(dx), static_cast<F32>(dy));
+        mouse_vel = glm::vec2(static_cast<F32>(dx), static_cast<F32>(dy));
     }
 
-    sample(sMouseVelocityStat, mouse_vel.length());
+    sample(sMouseVelocityStat, glm::length(mouse_vel));
 }
 
 void LLViewerWindow::updateKeyboardFocus()

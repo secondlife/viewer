@@ -5432,8 +5432,8 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
     LLVector3 left = LLViewerCamera::getInstance()->getUpAxis() % at;
     LLVector3 up = at%left;
 
-    left *= mImpostorDim.mV[0];
-    up *= mImpostorDim.mV[1];
+    left *= mImpostorDim.x;
+    up *= mImpostorDim.y;
 
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_IMPOSTORS))
     {
@@ -10938,12 +10938,12 @@ const LLVector3& LLVOAvatar::getImpostorOffset() const
     return mImpostorOffset;
 }
 
-const LLVector2& LLVOAvatar::getImpostorDim() const
+const glm::vec2& LLVOAvatar::getImpostorDim() const
 {
     return mImpostorDim;
 }
 
-void LLVOAvatar::setImpostorDim(const LLVector2& dim)
+void LLVOAvatar::setImpostorDim(const glm::vec2& dim)
 {
     mImpostorDim = dim;
 }

@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "pipeline.h"
+#include "glm/vec2.hpp"
 
 // library includes
 #include "llimagepng.h"
@@ -10711,7 +10712,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
     stateSort(*LLViewerCamera::getInstance(), result);
 
     LLCamera camera = *viewer_camera;
-    LLVector2 tdim;
+    glm::vec2 tdim;
     U32 resY = 0;
     U32 resX = 0;
 
@@ -10738,15 +10739,15 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
         llassert(up.dot3(up).getF32() > F_APPROXIMATELY_ZERO);
         up.normalize3fast();
 
-        tdim.mV[0] = fabsf(half_height.dot3(left).getF32());
-        tdim.mV[1] = fabsf(half_height.dot3(up).getF32());
+        tdim.x = fabsf(half_height.dot3(left).getF32());
+        tdim.y = fabsf(half_height.dot3(up).getF32());
 
         gGL.matrixMode(LLRender::MM_PROJECTION);
         gGL.pushMatrix();
 
         F32 distance = (pos-camera.getOrigin()).length();
-        F32 fov = atanf(tdim.mV[1]/distance)*2.f*RAD_TO_DEG;
-        F32 aspect = tdim.mV[0]/tdim.mV[1];
+        F32 fov = atanf(tdim.y/distance)*2.f*RAD_TO_DEG;
+        F32 aspect = tdim.x/tdim.y;
         glm::mat4 persp = glm::perspective(glm::radians(fov), aspect, 1.f, 256.f);
         set_current_projection(persp);
         gGL.loadMatrix(glm::value_ptr(persp));
@@ -10769,7 +10770,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
 
         //get resolution based on angle width and height of impostor (double desired resolution to prevent aliasing)
         resY = llmin(nhpo2(static_cast<U32>(fov*pa)), static_cast<U32>(512));
-        resX = llmin(nhpo2(static_cast<U32>(atanf(tdim.mV[0]/distance)*2.f*RAD_TO_DEG*pa)), static_cast<U32>(512));
+        resX = llmin(nhpo2(static_cast<U32>(atanf(tdim.x/distance)*2.f*RAD_TO_DEG*pa)), static_cast<U32>(512));
 
         if (!for_profile)
         {

@@ -120,7 +120,7 @@ bool LLVOWater::updateGeometry(LLDrawable *drawable)
         return true;
     }
 
-//  LLVector2 uvs[4];
+//  glm::vec2 uvs[4];
 //  LLVector3 vtx[4];
 
     LLStrider<LLVector3> verticesp, normalsp;
