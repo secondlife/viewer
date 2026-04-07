@@ -31,6 +31,8 @@
 #include "lllayoutstack.h"
 #include "llinitdestroyclass.h"
 
+#include "glm/vec2.hpp"
+
 class LLLocationInputCtrl;
 class LLMenuGL;
 class LLSearchEditor;
@@ -74,8 +76,8 @@ protected:
     explicit LLPullButton(const LLPullButton::Params& params);
 
     commit_signal_t mClickDraggingSignal;
-    LLVector2 mLastMouseDown;
-    LLVector2 mDraggingDirection;
+    glm::vec2 mLastMouseDown;
+    glm::vec2 mDraggingDirection;
 };
 
 /**
