@@ -232,7 +232,7 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
 //-----------------------------------------------------------------------------
 void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
 {
-    LLVector2 bottom_scale, top_scale;
+    glm::vec2 bottom_scale(1.f, 1.f), top_scale(1.f, 1.f);
     F32 begin_rot = 0, end_rot = 0;
     if (mVO->getVolume())
     {
@@ -263,7 +263,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
     mSection[0].mPosition = getAnchorPosition();
     mSection[0].mDirection = LLVector3::z_axis * getFrameRotation();
     mSection[0].mdPosition = mSection[0].mDirection;
-    mSection[0].mScale = glm::vec2(scale.mV[VX]*bottom_scale.mV[0], scale.mV[VY]*bottom_scale.mV[1]);
+    mSection[0].mScale = glm::vec2(scale.mV[VX]*bottom_scale.x, scale.mV[VY]*bottom_scale.y);
     mSection[0].mVelocity.set(0,0,0);
     mSection[0].mAxisRotation.setAngleAxis(begin_rot,0,0,1);
 
@@ -277,8 +277,8 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
     {
         mSection[i].mAxisRotation.setAngleAxis(lerp(begin_rot,end_rot,t),0,0,1);
         mSection[i].mScale = glm::vec2(
-            scale.mV[VX] * lerp(bottom_scale.mV[0], top_scale.mV[0], t),
-            scale.mV[VY] * lerp(bottom_scale.mV[1], top_scale.mV[1], t));
+            scale.mV[VX] * lerp(bottom_scale.x, top_scale.x, t),
+            scale.mV[VY] * lerp(bottom_scale.y, top_scale.y, t));
         t += t_inc;
     }
 }//-----------------------------------------------------------------------------------

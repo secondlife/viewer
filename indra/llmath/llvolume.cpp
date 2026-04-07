@@ -38,6 +38,7 @@
 
 #include "llvolumemgr.h"
 #include "v2math.h"
+#include "glm/glm.hpp"
 #include "v3math.h"
 #include "v4math.h"
 #include "m4math.h"
@@ -1262,9 +1263,9 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     s       = sin(ang)*lerp(radius_start, radius_end, t);
     c       = cos(ang)*lerp(radius_start, radius_end, t);
 
-    pt->mPos.set(0 + lerp(0.f, params.getShear().mV[VX], s)
+    pt->mPos.set(0 + lerp(0.f, params.getShear().x, s)
                       + lerp(-skew ,skew, t) * 0.5f,
-                    c + lerp(0.f, params.getShear().mV[VY], s),
+                    c + lerp(0.f, params.getShear().y, s),
                     s);
 
     pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
@@ -1296,9 +1297,9 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
         c   = cos(ang)*lerp(radius_start, radius_end, t);
         s   = sin(ang)*lerp(radius_start, radius_end, t);
 
-        pt->mPos.set(0 + lerp(0.f, params.getShear().mV[VX], s)
+        pt->mPos.set(0 + lerp(0.f, params.getShear().x, s)
                           + lerp(-skew ,skew, t) * 0.5f,
-                        c + lerp(0.f, params.getShear().mV[VY], s),
+                        c + lerp(0.f, params.getShear().y, s),
                         s);
 
         pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
@@ -1323,9 +1324,9 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     c   = cos(ang)*lerp(radius_start, radius_end, t);
     s   = sin(ang)*lerp(radius_start, radius_end, t);
 
-    pt->mPos.set(0 + lerp(0.f, params.getShear().mV[VX], s)
+    pt->mPos.set(0 + lerp(0.f, params.getShear().x, s)
                       + lerp(-skew ,skew, t) * 0.5f,
-                    c + lerp(0.f, params.getShear().mV[VY], s),
+                    c + lerp(0.f, params.getShear().y, s),
                     s);
     pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
                    hole_y * lerp(taper_y_begin, taper_y_end, t),
@@ -1342,30 +1343,30 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     mTotal = mPath.size();
 }
 
-const LLVector2 LLPathParams::getBeginScale() const
+const glm::vec2 LLPathParams::getBeginScale() const
 {
-    LLVector2 begin_scale(1.f, 1.f);
+    glm::vec2 begin_scale(1.f, 1.f);
     if (getScaleX() > 1)
     {
-        begin_scale.mV[0] = 2-getScaleX();
+        begin_scale.x = 2-getScaleX();
     }
     if (getScaleY() > 1)
     {
-        begin_scale.mV[1] = 2-getScaleY();
+        begin_scale.y = 2-getScaleY();
     }
     return begin_scale;
 }
 
-const LLVector2 LLPathParams::getEndScale() const
+const glm::vec2 LLPathParams::getEndScale() const
 {
-    LLVector2 end_scale(1.f, 1.f);
+    glm::vec2 end_scale(1.f, 1.f);
     if (getScaleX() < 1)
     {
-        end_scale.mV[0] = getScaleX();
+        end_scale.x = getScaleX();
     }
     if (getScaleY() < 1)
     {
-        end_scale.mV[1] = getScaleY();
+        end_scale.y = getScaleY();
     }
     return end_scale;
 }
@@ -1457,21 +1458,21 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 
             mPath.resize(np);
 
-            LLVector2 start_scale = params.getBeginScale();
-            LLVector2 end_scale = params.getEndScale();
+            glm::vec2 start_scale = params.getBeginScale();
+            glm::vec2 end_scale = params.getEndScale();
 
             for (S32 i=0;i<np;i++)
             {
                 F32 t = lerp(params.getBegin(),params.getEnd(),static_cast<F32>(i) * mStep);
-                mPath[i].mPos.set(lerp(0.f, params.getShear().mV[VX], t),
-                                     lerp(0.f ,params.getShear().mV[VY], t),
+                mPath[i].mPos.set(lerp(0.f, params.getShear().x, t),
+                                     lerp(0.f ,params.getShear().y, t),
                                      t - 0.5f);
                 LLQuaternion quat;
                 quat.setAngleAxis(lerp(F_PI * params.getTwistBegin(),F_PI * params.getTwist(),t),0,0,1);
                 LLMatrix3 tmp(quat);
                 mPath[i].mRot.loadu(tmp);
-                mPath[i].mScale.set(lerp(start_scale.mV[0],end_scale.mV[0],t),
-                                    lerp(start_scale.mV[1],end_scale.mV[1],t),
+                mPath[i].mScale.set(lerp(start_scale.x,end_scale.x,t),
+                                    lerp(start_scale.y,end_scale.y,t),
                                     0,1);
                 mPath[i].mTexT        = t;
             }
@@ -1530,8 +1531,8 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
             mPath[i].mPos.set(0,
                                 lerp(0.f,  -sin(F_PI*params.getTwist() * t) * 0.5f, t),
                                 lerp(-0.5f, cos(F_PI*params.getTwist() * t) * 0.5f, t));
-            mPath[i].mScale.set(lerp(1.f, params.getScale().mV[VX], t),
-                                lerp(1.f, params.getScale().mV[VY], t), 0.f, 1.f);
+            mPath[i].mScale.set(lerp(1.f, params.getScale().x, t),
+                                lerp(1.f, params.getScale().y, t), 0.f, 1.f);
             mPath[i].mTexT  = t;
             LLQuaternion quat;
             quat.setAngleAxis(F_PI * params.getTwist() * t,1,0,0);
@@ -2003,8 +2004,8 @@ bool LLVolume::generate()
     S32 split = static_cast<S32>((mDetail)*0.66f);
 
     if (mParams.getPathParams().getCurveType() == LL_PCODE_PATH_LINE &&
-        (mParams.getPathParams().getScale().mV[0] != 1.0f ||
-         mParams.getPathParams().getScale().mV[1] != 1.0f) &&
+        (mParams.getPathParams().getScale().x != 1.0f ||
+         mParams.getPathParams().getScale().y != 1.0f) &&
         (mParams.getProfileParams().getCurveType() == LL_PCODE_PROFILE_SQUARE ||
          mParams.getProfileParams().getCurveType() == LL_PCODE_PROFILE_ISOTRI ||
          mParams.getProfileParams().getCurveType() == LL_PCODE_PROFILE_EQUALTRI ||
@@ -4728,11 +4729,11 @@ std::ostream& operator<<(std::ostream &s, const LLPathParams &path_params)
     s << ", begin=" << path_params.mBegin;
     s << ", end=" << path_params.mEnd;
     s << ", twist=" << path_params.mTwistEnd;
-    s << ", scale=" << path_params.mScale;
-    s << ", shear=" << path_params.mShear;
+    s << ", scale=" << path_params.mScale.x << ", " << path_params.mScale.y;
+    s << ", shear=" << path_params.mShear.x << ", " << path_params.mShear.y;
     s << ", twist_begin=" << path_params.mTwistBegin;
     s << ", radius_offset=" << path_params.mRadiusOffset;
-    s << ", taper=" << path_params.mTaper;
+    s << ", taper=" << path_params.mTaper.x << ", " << path_params.mTaper.y;
     s << ", revolutions=" << path_params.mRevolutions;
     s << ", skew=" << path_params.mSkew;
     s << "}";

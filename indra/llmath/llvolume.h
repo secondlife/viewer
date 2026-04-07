@@ -45,6 +45,7 @@ class LLVolumeOctree;
 #include "lluuid.h"
 #include "v4color.h"
 #include "v2math.h"
+#include "glm/vec2.hpp"
 #include "v3math.h"
 #include "v3dmath.h"
 #include "v4math.h"
@@ -375,12 +376,12 @@ public:
         mEnd = static_cast<F32>(100.f - end) * CUT_QUANTA;
         if (mEnd > 1.f)
             mEnd = 1.f;
-        mScale.set(static_cast<F32>(200 - scx) * SCALE_QUANTA, static_cast<F32>(200 - scy) * SCALE_QUANTA);
-        mShear.set(U8_TO_F32(shx) * SHEAR_QUANTA,U8_TO_F32(shy) * SHEAR_QUANTA);
+        mScale = glm::vec2(static_cast<F32>(200 - scx) * SCALE_QUANTA, static_cast<F32>(200 - scy) * SCALE_QUANTA);
+        mShear = glm::vec2(U8_TO_F32(shx) * SHEAR_QUANTA,U8_TO_F32(shy) * SHEAR_QUANTA);
         mTwistBegin = U8_TO_F32(twistbegin) * SCALE_QUANTA;
         mTwistEnd = U8_TO_F32(twistend) * SCALE_QUANTA;
         mRadiusOffset = U8_TO_F32(radiusoffset) * SCALE_QUANTA;
-        mTaper.set(U8_TO_F32(tx) * TAPER_QUANTA,U8_TO_F32(ty) * TAPER_QUANTA);
+        mTaper = glm::vec2(U8_TO_F32(tx) * TAPER_QUANTA,U8_TO_F32(ty) * TAPER_QUANTA);
         mRevolutions = (static_cast<F32>(revolutions)) * REV_QUANTA + 1.0f;
         mSkew = U8_TO_F32(skew) * SCALE_QUANTA;
 
@@ -405,23 +406,23 @@ public:
 
     const F32& getBegin() const         { return mBegin; }
     const F32& getEnd() const           { return mEnd; }
-    const LLVector2 &getScale() const   { return mScale; }
-    const F32& getScaleX() const        { return mScale.mV[0]; }
-    const F32& getScaleY() const        { return mScale.mV[1]; }
-    const LLVector2 getBeginScale() const;
-    const LLVector2 getEndScale() const;
-    const LLVector2 &getShear() const   { return mShear; }
-    const F32& getShearX() const        { return mShear.mV[0]; }
-    const F32& getShearY() const        { return mShear.mV[1]; }
+    const glm::vec2 &getScale() const   { return mScale; }
+    const F32& getScaleX() const        { return mScale.x; }
+    const F32& getScaleY() const        { return mScale.y; }
+    const glm::vec2 getBeginScale() const;
+    const glm::vec2 getEndScale() const;
+    const glm::vec2 &getShear() const   { return mShear; }
+    const F32& getShearX() const        { return mShear.x; }
+    const F32& getShearY() const        { return mShear.y; }
     const U8& getCurveType () const     { return mCurveType; }
 
     const F32& getTwistBegin() const    { return mTwistBegin;   }
     const F32& getTwistEnd() const      { return mTwistEnd; }
     const F32& getTwist() const         { return mTwistEnd; }   // deprecated
     const F32& getRadiusOffset() const  { return mRadiusOffset; }
-    const LLVector2 &getTaper() const   { return mTaper;        }
-    const F32& getTaperX() const        { return mTaper.mV[0];  }
-    const F32& getTaperY() const        { return mTaper.mV[1];  }
+    const glm::vec2 &getTaper() const   { return mTaper;        }
+    const F32& getTaperX() const        { return mTaper.x;  }
+    const F32& getTaperY() const        { return mTaper.y;  }
     const F32& getRevolutions() const   { return mRevolutions;  }
     const F32& getSkew() const          { return mSkew;         }
 
@@ -429,20 +430,20 @@ public:
     void setBegin(const F32 begin)      { mBegin     = begin;   }
     void setEnd(const F32 end)          { mEnd       = end; }
 
-    void setScale(const F32 x, const F32 y)     { mScale.set(x,y); }
-    void setScaleX(const F32 v)                 { mScale.mV[VX] = v; }
-    void setScaleY(const F32 v)                 { mScale.mV[VY] = v; }
-    void setShear(const F32 x, const F32 y)     { mShear.set(x,y); }
-    void setShearX(const F32 v)                 { mShear.mV[VX] = v; }
-    void setShearY(const F32 v)                 { mShear.mV[VY] = v; }
+    void setScale(const F32 x, const F32 y)     { mScale = glm::vec2(x,y); }
+    void setScaleX(const F32 v)                 { mScale.x = v; }
+    void setScaleY(const F32 v)                 { mScale.y = v; }
+    void setShear(const F32 x, const F32 y)     { mShear = glm::vec2(x,y); }
+    void setShearX(const F32 v)                 { mShear.x = v; }
+    void setShearY(const F32 v)                 { mShear.y = v; }
 
     void setTwistBegin(const F32 twist_begin)   { mTwistBegin   = twist_begin;  }
     void setTwistEnd(const F32 twist_end)       { mTwistEnd     = twist_end;    }
     void setTwist(const F32 twist)              { setTwistEnd(twist); } // deprecated
     void setRadiusOffset(const F32 radius_offset){ mRadiusOffset    = radius_offset; }
-    void setTaper(const F32 x, const F32 y)     { mTaper.set(x,y);           }
-    void setTaperX(const F32 v)                 { mTaper.mV[VX] = v;            }
-    void setTaperY(const F32 v)                 { mTaper.mV[VY] = v;            }
+    void setTaper(const F32 x, const F32 y)     { mTaper = glm::vec2(x,y);           }
+    void setTaperX(const F32 v)                 { mTaper.x = v;            }
+    void setTaperY(const F32 v)                 { mTaper.y = v;            }
     void setRevolutions(const F32 revolutions)  { mRevolutions  = revolutions;  }
     void setSkew(const F32 skew)                { mSkew         = skew;         }
 
@@ -453,13 +454,13 @@ protected:
     U8            mCurveType;
     F32           mBegin;
     F32           mEnd;
-    LLVector2     mScale;
-    LLVector2     mShear;
+    glm::vec2     mScale;
+    glm::vec2     mShear;
 
     F32           mTwistBegin;
     F32           mTwistEnd;
     F32           mRadiusOffset;
-    LLVector2     mTaper;
+    glm::vec2     mTaper;
     F32           mRevolutions;
     F32           mSkew;
 
@@ -508,7 +509,11 @@ inline bool LLPathParams::operator<(const LLPathParams &params) const
     else
     if( getScale() != params.getScale())
     {
-        return getScale() < params.getScale();
+        if (getScale().x == params.getScale().x)
+        {
+            return getScale().y < params.getScale().y;
+        }
+        return getScale().x < params.getScale().x;
     }
     else
     if( getBegin() != params.getBegin())
@@ -523,7 +528,11 @@ inline bool LLPathParams::operator<(const LLPathParams &params) const
     else
     if( getShear() != params.getShear())
     {
-        return getShear() < params.getShear();
+        if (getShear().x == params.getShear().x)
+        {
+            return getShear().y < params.getShear().y;
+        }
+        return getShear().x < params.getShear().x;
     }
     else
     if( getTwist() != params.getTwist())
@@ -543,7 +552,11 @@ inline bool LLPathParams::operator<(const LLPathParams &params) const
     else
     if( getTaper() != params.getTaper())
     {
-        return getTaper() < params.getTaper();
+        if (getTaper().x == params.getTaper().x)
+        {
+            return getTaper().y < params.getTaper().y;
+        }
+        return getTaper().x < params.getTaper().x;
     }
     else
     if( getRevolutions() != params.getRevolutions())
