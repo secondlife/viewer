@@ -57,10 +57,10 @@ namespace {
         // +x right, +z up, +y at...
         LLVector3 dir(cosTheta * cosPhi, sinTheta * cosPhi, sinPhi);
 
-        LLVector3 axis = LLVector3::x_axis % dir;
+        LLVector3 axis = cross(LLVector3::x_axis, dir);
         axis.normalize();
 
-        F32 angle = acos(LLVector3::x_axis * dir);
+        F32 angle = acos(dot(LLVector3::x_axis, dir));
 
         LLQuaternion quat;
         quat.setAngleAxis(angle, axis);
