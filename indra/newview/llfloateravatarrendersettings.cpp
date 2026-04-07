@@ -268,7 +268,7 @@ bool LLFloaterAvatarRenderSettings::handleKeyHere(KEY key, MASK mask )
 
     if (KEY_DELETE == key)
     {
-        setAvatarRenderSetting(mAvatarSettingsList->getCurrentID(), (S32)LLVOAvatar::AV_RENDER_NORMALLY);
+        setAvatarRenderSetting(mAvatarSettingsList->getCurrentID(), static_cast<S32>(LLVOAvatar::AV_RENDER_NORMALLY));
         handled = true;
     }
     return handled;

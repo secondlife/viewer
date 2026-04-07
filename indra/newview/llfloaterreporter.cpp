@@ -695,7 +695,7 @@ bool LLFloaterReporter::validateReport()
 {
     // Ensure user selected a category from the list
     LLSD category_sd = getChild<LLUICtrl>("category_combo")->getValue();
-    U8 category = (U8)category_sd.asInteger();
+    U8 category = static_cast<U8>(category_sd.asInteger());
     if (category == 0)
     {
         LLNotificationsUtil::add("HelpReportAbuseSelectCategory");
@@ -809,7 +809,7 @@ LLSD LLFloaterReporter::gatherReport()
     screenshot_id = getChild<LLUICtrl>("screenshot")->getValue();
 
     LLSD report = LLSD::emptyMap();
-    report["report-type"] = (U8) mReportType;
+    report["report-type"] = static_cast<U8>(mReportType);
     report["category"] = getChild<LLUICtrl>("category_combo")->getValue();
     report["position"] = mPosition.getValue();
     report["check-flags"] = (U8)0; // this is not used
@@ -991,7 +991,7 @@ void LLFloaterReporter::uploadImage()
     gAssetStorage->storeAssetData(mResourceDatap->mAssetInfo.mTransactionID,
                                     mResourceDatap->mAssetInfo.mType,
                                     LLFloaterReporter::uploadDoneCallback,
-                                    (void*)mResourceDatap, true);
+                                    reinterpret_cast<void*>(mResourceDatap), true);
 }
 
 

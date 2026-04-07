@@ -134,9 +134,9 @@ void LLFloaterSettingsDebug::onCommitSettings()
         controlp->set(LLSD(mValText->getValue().asString()));
         break;
       case TYPE_VEC3:
-        vector.mV[VX] = (F32)mValSpinner1->getValue().asReal();
-        vector.mV[VY] = (F32)mValSpinner2->getValue().asReal();
-        vector.mV[VZ] = (F32)mValSpinner3->getValue().asReal();
+        vector.mV[VX] = static_cast<F32>(mValSpinner1->getValue().asReal());
+        vector.mV[VY] = static_cast<F32>(mValSpinner2->getValue().asReal());
+        vector.mV[VZ] = static_cast<F32>(mValSpinner3->getValue().asReal());
         controlp->set(vector.getValue());
         break;
       case TYPE_VEC3D:
@@ -161,7 +161,7 @@ void LLFloaterSettingsDebug::onCommitSettings()
         break;
       case TYPE_COL4:
         col3.setValue(mColorSwatch->getValue());
-        col4 = LLColor4(col3, (F32)mValSpinner4->getValue().asReal());
+        col4 = LLColor4(col3, static_cast<F32>(mValSpinner4->getValue().asReal()));
         controlp->set(col4.getValue());
         break;
       case TYPE_COL3:
@@ -254,8 +254,8 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
             if (!mValSpinner1->hasFocus())
             {
                 mValSpinner1->setValue(sd);
-                mValSpinner1->setMinValue((F32)U32_MIN);
-                mValSpinner1->setMaxValue((F32)U32_MAX);
+                mValSpinner1->setMinValue(static_cast<F32>(U32_MIN));
+                mValSpinner1->setMaxValue(static_cast<F32>(U32_MAX));
                 mValSpinner1->setIncrement(1.f);
                 mValSpinner1->setPrecision(0);
             }
@@ -266,8 +266,8 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
             if (!mValSpinner1->hasFocus())
             {
                 mValSpinner1->setValue(sd);
-                mValSpinner1->setMinValue((F32)S32_MIN);
-                mValSpinner1->setMaxValue((F32)S32_MAX);
+                mValSpinner1->setMinValue(static_cast<F32>(S32_MIN));
+                mValSpinner1->setMaxValue(static_cast<F32>(S32_MAX));
                 mValSpinner1->setIncrement(1.f);
                 mValSpinner1->setPrecision(0);
             }
@@ -422,20 +422,20 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
                 mValSpinner4->setValue(r.mTop);
             }
 
-            mValSpinner1->setMinValue((F32)S32_MIN);
-            mValSpinner1->setMaxValue((F32)S32_MAX);
+            mValSpinner1->setMinValue(static_cast<F32>(S32_MIN));
+            mValSpinner1->setMaxValue(static_cast<F32>(S32_MAX));
             mValSpinner1->setIncrement(1.f);
 
-            mValSpinner2->setMinValue((F32)S32_MIN);
-            mValSpinner2->setMaxValue((F32)S32_MAX);
+            mValSpinner2->setMinValue(static_cast<F32>(S32_MIN));
+            mValSpinner2->setMaxValue(static_cast<F32>(S32_MAX));
             mValSpinner2->setIncrement(1.f);
 
-            mValSpinner3->setMinValue((F32)S32_MIN);
-            mValSpinner3->setMaxValue((F32)S32_MAX);
+            mValSpinner3->setMinValue(static_cast<F32>(S32_MIN));
+            mValSpinner3->setMaxValue(static_cast<F32>(S32_MAX));
             mValSpinner3->setIncrement(1.f);
 
-            mValSpinner4->setMinValue((F32)S32_MIN);
-            mValSpinner4->setMaxValue((F32)S32_MAX);
+            mValSpinner4->setMinValue(static_cast<F32>(S32_MIN));
+            mValSpinner4->setMaxValue(static_cast<F32>(S32_MAX));
             mValSpinner4->setIncrement(1.f);
             break;
           }
@@ -511,7 +511,7 @@ void LLFloaterSettingsDebug::updateList(bool skip_selection)
                 row["columns"][1]["column"] = "setting";
                 row["columns"][1]["value"] = name;
 
-                LLScrollListItem* item = setting_list->addElement(row, EAddPosition::ADD_BOTTOM, (void*)control);
+                LLScrollListItem* item = setting_list->addElement(row, EAddPosition::ADD_BOTTOM, reinterpret_cast<void*>(control));
                 if (!floater->mSearchFilter.empty() && (selected_setting == name) && !skip_selection)
                 {
                     std::string lower_name(name);

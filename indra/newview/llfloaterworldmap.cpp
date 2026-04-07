@@ -575,8 +575,8 @@ bool LLFloaterWorldMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
         S32 map_y = y - mMapView->getRect().mBottom;
         if (mMapView->pointInView(map_x, map_y))
         {
-            F32 old_slider_zoom = (F32) mZoomSlider->getValue().asReal();
-            F32 slider_zoom     = old_slider_zoom + ((F32) clicks * -0.3333f);
+            F32 old_slider_zoom = static_cast<F32>(mZoomSlider->getValue().asReal());
+            F32 slider_zoom     = old_slider_zoom + (static_cast<F32>(clicks) * -0.3333f);
             mZoomSlider->setValue(LLSD(slider_zoom));
             mMapView->zoomWithPivot(slider_zoom, map_x, map_y);
             return true;
@@ -655,14 +655,14 @@ void LLFloaterWorldMap::draw()
         centerOnTarget(true);
     }
 
-    mTeleportButton->setEnabled((bool)tracking_status);
-    mShowDestinationButton->setEnabled((bool)tracking_status || LLWorldMap::getInstance()->isTracking());
+    mTeleportButton->setEnabled(static_cast<bool>(tracking_status));
+    mShowDestinationButton->setEnabled(static_cast<bool>(tracking_status) || LLWorldMap::getInstance()->isTracking());
     mCopySlurlButton->setEnabled((mSLURL.isValid()) );
 
     setMouseOpaque(true);
     getDragHandle()->setMouseOpaque(true);
 
-    mMapView->zoom((F32)mZoomSlider->getValue().asReal());
+    mMapView->zoom(static_cast<F32>(mZoomSlider->getValue().asReal()));
 
     // Enable/disable checkboxes depending on the zoom level
     // If above threshold level (i.e. low res) -> Disable all checkboxes
@@ -703,13 +703,13 @@ void LLFloaterWorldMap::processParcelInfo(const LLParcelData& parcel_data, const
     std::string sim_name = sim_info->getName();
     U32 locX, locY;
     from_region_handle(sim_info->getHandle(), &locX, &locY);
-    F32 region_x = (F32)(pos_global.mdV[VX] - locX);
-    F32 region_y = (F32)(pos_global.mdV[VY] - locY);
+    F32 region_x = static_cast<F32>(pos_global.mdV[VX] - locX);
+    F32 region_y = static_cast<F32>(pos_global.mdV[VY] - locY);
     std::string full_name = llformat("%s (%d, %d, %d)",
         sim_name.c_str(),
         ll_round(region_x),
         ll_round(region_y),
-        ll_round((F32)pos_global.mdV[VZ]));
+        ll_round(static_cast<F32>(pos_global.mdV[VZ])));
 
     LLTracker::trackLocation(pos_global, parcel_data.name.empty() ? getString("UnnamedParcel") : parcel_data.name, full_name);
 }
@@ -866,13 +866,13 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
     }
 
     std::string sim_name = sim_info->getName();
-    F32 region_x = (F32)fmod( pos_global.mdV[VX], (F64)REGION_WIDTH_METERS );
-    F32 region_y = (F32)fmod( pos_global.mdV[VY], (F64)REGION_WIDTH_METERS );
+    F32 region_x = static_cast<F32>(fmod( pos_global.mdV[VX], static_cast<F64>(REGION_WIDTH_METERS) ));
+    F32 region_y = static_cast<F32>(fmod( pos_global.mdV[VY], static_cast<F64>(REGION_WIDTH_METERS) ));
     std::string full_name = llformat("%s (%d, %d, %d)",
                                      sim_name.c_str(),
                                      ll_round(region_x),
                                      ll_round(region_y),
-                                     ll_round((F32)pos_global.mdV[VZ]));
+                                     ll_round(static_cast<F32>(pos_global.mdV[VZ])));
 
     std::string tooltip("");
     mTrackedStatus = LLTracker::TRACKING_LOCATION;
@@ -906,9 +906,9 @@ void LLFloaterWorldMap::updateTeleportCoordsDisplay( const LLVector3d& pos )
     enableTeleportCoordsDisplay( true );
 
     // convert global specified position to a local one
-    F32 region_local_x = (F32)fmod( pos.mdV[VX], (F64)REGION_WIDTH_METERS );
-    F32 region_local_y = (F32)fmod( pos.mdV[VY], (F64)REGION_WIDTH_METERS );
-    F32 region_local_z = (F32)llclamp( pos.mdV[VZ], 0.0, (F64)REGION_HEIGHT_METERS );
+    F32 region_local_x = static_cast<F32>(fmod( pos.mdV[VX], static_cast<F64>(REGION_WIDTH_METERS) ));
+    F32 region_local_y = static_cast<F32>(fmod( pos.mdV[VY], static_cast<F64>(REGION_WIDTH_METERS) ));
+    F32 region_local_z = static_cast<F32>(llclamp( pos.mdV[VZ], 0.0, static_cast<F64>(REGION_HEIGHT_METERS) ));
 
     // write in the values
     mTeleportCoordSpinX->setValue(region_local_x);
@@ -1001,9 +1001,9 @@ void LLFloaterWorldMap::trackURL(const std::string& region_name, S32 x_coord, S3
     if (sim_info)
     {
         LLVector3 local_pos;
-        local_pos.mV[VX] = (F32)x_coord;
-        local_pos.mV[VY] = (F32)y_coord;
-        local_pos.mV[VZ] = (F32)z_coord;
+        local_pos.mV[VX] = static_cast<F32>(x_coord);
+        local_pos.mV[VY] = static_cast<F32>(y_coord);
+        local_pos.mV[VZ] = static_cast<F32>(z_coord);
         LLVector3d global_pos = sim_info->getGlobalPos(local_pos);
         trackLocation(global_pos);
         mTrackCtrlsPanel->setDefaultBtn(mTeleportButton);
@@ -1016,7 +1016,7 @@ void LLFloaterWorldMap::trackURL(const std::string& region_name, S32 x_coord, S3
         // Save local coords to highlight position after region global
         // position is returned.
         mCompletingRegionPos.set(
-                                                   (F32)x_coord, (F32)y_coord, (F32)z_coord);
+                                                   static_cast<F32>(x_coord), static_cast<F32>(y_coord), static_cast<F32>(z_coord));
 
         // pass sim name to combo box
         mCompletingRegionName = region_name;
@@ -1161,7 +1161,7 @@ F32 LLFloaterWorldMap::getDistanceToDestination(const LLVector3d &destination,
     // by attenuating the z-component we effectively
     // give more weight to the x-y plane
     delta.mdV[VZ] *= z_attenuation;
-    F32 distance = (F32)delta.length();
+    F32 distance = static_cast<F32>(delta.length());
     return distance;
 }
 
@@ -1218,8 +1218,8 @@ void LLFloaterWorldMap::adjustZoomSliderBounds()
     S32 view_height = view_rect.getHeight();
 
     // Pixels per region to display entire width/height
-    F32 width_pixels_per_region = (F32) view_width / (F32) world_width_regions;
-    F32 height_pixels_per_region = (F32) view_height / (F32) world_height_regions;
+    F32 width_pixels_per_region = static_cast<F32>(view_width) / static_cast<F32>(world_width_regions);
+    F32 height_pixels_per_region = static_cast<F32>(view_height) / static_cast<F32>(world_height_regions);
 
     F32 pixels_per_region = llmin(width_pixels_per_region,
                                   height_pixels_per_region);
@@ -1440,9 +1440,9 @@ void LLFloaterWorldMap::onCoordinatesCommit()
     }
     mProcessingSearchUpdate = false;
 
-    S32 x_coord = (S32)mTeleportCoordSpinX->getValue().asReal();
-    S32 y_coord = (S32)mTeleportCoordSpinY->getValue().asReal();
-    S32 z_coord = (S32)mTeleportCoordSpinZ->getValue().asReal();
+    S32 x_coord = static_cast<S32>(mTeleportCoordSpinX->getValue().asReal());
+    S32 y_coord = static_cast<S32>(mTeleportCoordSpinY->getValue().asReal());
+    S32 z_coord = static_cast<S32>(mTeleportCoordSpinZ->getValue().asReal());
 
     const std::string region_name = mLocationEditor->getValue().asString();
 
@@ -1538,9 +1538,9 @@ void LLFloaterWorldMap::centerOnTarget(bool animate)
         pos_global.clear();
     }
 
-    F64 map_scale = (F64)mMapView->getScale();
-    mMapView->setPanWithInterpTime(-llfloor((F32)(pos_global.mdV[VX] * map_scale / REGION_WIDTH_METERS)),
-                           -llfloor((F32)(pos_global.mdV[VY] * map_scale / REGION_WIDTH_METERS)),
+    F64 map_scale = static_cast<F64>(mMapView->getScale());
+    mMapView->setPanWithInterpTime(-llfloor(static_cast<F32>(pos_global.mdV[VX] * map_scale / REGION_WIDTH_METERS)),
+                           -llfloor(static_cast<F32>(pos_global.mdV[VY] * map_scale / REGION_WIDTH_METERS)),
                            !animate, 0.1f);
     mWaitingForTracker = false;
 }
@@ -1810,9 +1810,9 @@ void LLFloaterWorldMap::onCommitSearchResult(bool from_search)
                 pos_local = mCompletingRegionPos;
                 mCompletingRegionPos.clear();
             }
-            pos_global.mdV[VX] += (F64)pos_local.mV[VX];
-            pos_global.mdV[VY] += (F64)pos_local.mV[VY];
-            pos_global.mdV[VZ] = (F64)pos_local.mV[VZ];
+            pos_global.mdV[VX] += static_cast<F64>(pos_local.mV[VX]);
+            pos_global.mdV[VY] += static_cast<F64>(pos_local.mV[VY]);
+            pos_global.mdV[VZ] = static_cast<F64>(pos_local.mV[VZ]);
 
             // Commiting search string automatically selects first item in the search list,
             // in such case onCommitSearchResult shouldn't modify search string

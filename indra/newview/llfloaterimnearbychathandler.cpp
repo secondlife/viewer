@@ -265,8 +265,8 @@ bool    LLFloaterIMNearbyChatScreenChannel::createPoolToast()
 
     LLToast::Params p;
     p.panel = panel;
-    p.lifetime_secs = (F32)gSavedSettings.getS32("NearbyToastLifeTime");
-    p.fading_time_secs = (F32)gSavedSettings.getS32("NearbyToastFadingTime");
+    p.lifetime_secs = static_cast<F32>(gSavedSettings.getS32("NearbyToastLifeTime"));
+    p.fading_time_secs = static_cast<F32>(gSavedSettings.getS32("NearbyToastFadingTime"));
 
     LLToast* toast = new LLFloaterIMNearbyChatToast(p, this);
 
@@ -501,9 +501,9 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
     chat["from"] = chat_msg.mFromName;
     chat["from_id"] = chat_msg.mFromID;
     chat["time"] = chat_msg.mTime;
-    chat["source"] = (S32)chat_msg.mSourceType;
-    chat["chat_type"] = (S32)chat_msg.mChatType;
-    chat["chat_style"] = (S32)chat_msg.mChatStyle;
+    chat["source"] = static_cast<S32>(chat_msg.mSourceType);
+    chat["chat_type"] = static_cast<S32>(chat_msg.mChatType);
+    chat["chat_style"] = static_cast<S32>(chat_msg.mChatStyle);
     // Pass sender info so that it can be rendered properly (STORM-1021).
     chat["sender_slurl"] = LLViewerChat::getSenderSLURL(chat_msg, args);
 
@@ -665,7 +665,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 
             chat["text_color"] = r_color_name;
             chat["color_alpha"] = r_color_alpha;
-            chat["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
+            chat["font_size"] = static_cast<S32>(LLViewerChat::getChatFontSize()) ;
             chat["message"] = toast_msg;
             channel->addChat(chat);
         }

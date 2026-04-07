@@ -517,7 +517,7 @@ void LLFloaterPerformance::populateNearbyList()
 void LLFloaterPerformance::setFPSText()
 {
     const S32 NUM_PERIODS = 50;
-    S32 current_fps = (S32)llround(LLTrace::get_frame_recording().getPeriodMedianPerSec(LLStatViewer::FPS, NUM_PERIODS));
+    S32 current_fps = static_cast<S32>(llround(LLTrace::get_frame_recording().getPeriodMedianPerSec(LLStatViewer::FPS, NUM_PERIODS)));
     mTextFPSValue->setValue(current_fps);
 
     std::string fps_text = getString("fps_text");
@@ -684,7 +684,7 @@ void LLFloaterPerformance::changeQualityLevel(const std::string& notif)
             if (instance)
             {
                 gSavedSettings.setU32("RenderQualityPerformance", RENDER_QUALITY_LEVEL);
-                instance->onChangeQuality(LLSD((S32)RENDER_QUALITY_LEVEL));
+                instance->onChangeQuality(LLSD(static_cast<S32>(RENDER_QUALITY_LEVEL)));
             }
         }
     });

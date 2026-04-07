@@ -112,8 +112,8 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std
         mCurrentPage = (mMessages->size() ? (static_cast<int>(mMessages->size()) - 1) / mPageSize : 0);
 
         mPageSpinner->setEnabled(true);
-        mPageSpinner->setMaxValue((F32)(mCurrentPage+1));
-        mPageSpinner->set((F32)(mCurrentPage+1));
+        mPageSpinner->setMaxValue(static_cast<F32>(mCurrentPage+1));
+        mPageSpinner->set(static_cast<F32>(mCurrentPage+1));
 
         std::string total_page_num = llformat("/ %d", mCurrentPage+1);
         getChild<LLTextBox>("page_num_label")->setValue(total_page_num);
@@ -264,7 +264,7 @@ void LLFloaterConversationPreview::showHistory()
 
 void LLFloaterConversationPreview::onMoreHistoryBtnClick()
 {
-    mCurrentPage = (int)(mPageSpinner->getValueF32());
+    mCurrentPage = static_cast<int>(mPageSpinner->getValueF32());
     if (!mCurrentPage)
     {
         return;

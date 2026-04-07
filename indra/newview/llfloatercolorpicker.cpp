@@ -136,8 +136,8 @@ void LLFloaterColorPicker::createUI ()
         {
             F32 rVal, gVal, bVal;
 
-            hslToRgb ( (F32)x / (F32) ( linesize - 1 ),
-                       (F32)y / (F32) ( mRGBViewerImageHeight - 1 ),
+            hslToRgb ( static_cast<F32>(x) / static_cast<F32>( linesize - 1 ),
+                       static_cast<F32>(y) / static_cast<F32>( mRGBViewerImageHeight - 1 ),
                        0.5f,
                        rVal,
                        gVal,
@@ -227,12 +227,12 @@ bool LLFloaterColorPicker::postBuild()
         mApplyImmediateCheck->set(false);
     }
 
-    childSetCommitCallback("rspin", onTextCommit, (void*)this );
-    childSetCommitCallback("gspin", onTextCommit, (void*)this );
-    childSetCommitCallback("bspin", onTextCommit, (void*)this );
-    childSetCommitCallback("hspin", onTextCommit, (void*)this );
-    childSetCommitCallback("sspin", onTextCommit, (void*)this );
-    childSetCommitCallback("lspin", onTextCommit, (void*)this );
+    childSetCommitCallback("rspin", onTextCommit, reinterpret_cast<void*>(this) );
+    childSetCommitCallback("gspin", onTextCommit, reinterpret_cast<void*>(this) );
+    childSetCommitCallback("bspin", onTextCommit, reinterpret_cast<void*>(this) );
+    childSetCommitCallback("hspin", onTextCommit, reinterpret_cast<void*>(this) );
+    childSetCommitCallback("sspin", onTextCommit, reinterpret_cast<void*>(this) );
+    childSetCommitCallback("lspin", onTextCommit, reinterpret_cast<void*>(this) );
 
     mPipetteConnection = LLToolPipette::getInstance()->setToolSelectCallback(
         [this](LLPointer<LLViewerObject> object, S32 te_index)
@@ -706,17 +706,17 @@ void LLFloaterColorPicker::onTextEntryChanged ( LLUICtrl* ctrl )
         // update component value with new value from text
         if ( name == "rspin" )
         {
-            rVal = (F32)ctrl->getValue().asReal() / 255.0f;
+            rVal = static_cast<F32>(ctrl->getValue().asReal()) / 255.0f;
         }
         else
         if ( name == "gspin" )
         {
-            gVal = (F32)ctrl->getValue().asReal() / 255.0f;
+            gVal = static_cast<F32>(ctrl->getValue().asReal()) / 255.0f;
         }
         else
         if ( name == "bspin" )
         {
-            bVal = (F32)ctrl->getValue().asReal() / 255.0f;
+            bVal = static_cast<F32>(ctrl->getValue().asReal()) / 255.0f;
         }
 
         // update current RGB (and implicitly HSL)
@@ -734,13 +734,13 @@ void LLFloaterColorPicker::onTextEntryChanged ( LLUICtrl* ctrl )
 
         // update component value with new value from text
         if ( name == "hspin" )
-            hVal = (F32)ctrl->getValue().asReal() / 360.0f;
+            hVal = static_cast<F32>(ctrl->getValue().asReal()) / 360.0f;
         else
         if ( name == "sspin" )
-            sVal = (F32)ctrl->getValue().asReal() / 100.0f;
+            sVal = static_cast<F32>(ctrl->getValue().asReal()) / 100.0f;
         else
         if ( name == "lspin" )
-            lVal = (F32)ctrl->getValue().asReal() / 100.0f;
+            lVal = static_cast<F32>(ctrl->getValue().asReal()) / 100.0f;
 
         // update current HSL (and implicitly RGB)
         selectCurHsl ( hVal, sVal, lVal );

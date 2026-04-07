@@ -336,8 +336,8 @@ void LLFloaterGodTools::processRegionInfo(LLMessageSystem* msg)
         {
             //compute the grid position of the region
             LLVector3d global_pos = regionp->getPosGlobalFromRegion(LLVector3::zero);
-            S32 grid_pos_x = (S32) (global_pos.mdV[VX] / 256.0f);
-            S32 grid_pos_y = (S32) (global_pos.mdV[VY] / 256.0f);
+            S32 grid_pos_x = static_cast<S32>(global_pos.mdV[VX] / 256.0f);
+            S32 grid_pos_y = static_cast<S32>(global_pos.mdV[VY] / 256.0f);
 
             rtool->setGridPosX(grid_pos_x);
             rtool->setGridPosY(grid_pos_y);
@@ -566,13 +566,13 @@ const std::string LLPanelRegionTools::getSimName() const
 
 U32 LLPanelRegionTools::getEstateID() const
 {
-    U32 id = (U32)getChild<LLUICtrl>("estate")->getValue().asInteger();
+    U32 id = static_cast<U32>(getChild<LLUICtrl>("estate")->getValue().asInteger());
     return id;
 }
 
 U32 LLPanelRegionTools::getParentEstateID() const
 {
-    U32 id = (U32)getChild<LLUICtrl>("parentestate")->getValue().asInteger();
+    U32 id = static_cast<U32>(getChild<LLUICtrl>("parentestate")->getValue().asInteger());
     return id;
 }
 
@@ -675,7 +675,7 @@ U64 LLPanelRegionTools::getRegionFlagsMask() const
 
 F32 LLPanelRegionTools::getBillableFactor() const
 {
-    return (F32)getChild<LLUICtrl>("billable factor")->getValue().asReal();
+    return static_cast<F32>(getChild<LLUICtrl>("billable factor")->getValue().asReal());
 }
 
 S32 LLPanelRegionTools::getPricePerMeter() const
@@ -690,7 +690,7 @@ void LLPanelRegionTools::setSimName(const std::string& name)
 
 void LLPanelRegionTools::setEstateID(U32 id)
 {
-    getChild<LLUICtrl>("estate")->setValue((S32)id);
+    getChild<LLUICtrl>("estate")->setValue(static_cast<S32>(id));
 }
 
 void LLPanelRegionTools::setGridPosX(S32 pos)
@@ -715,7 +715,7 @@ void LLPanelRegionTools::setRedirectGridY(S32 pos)
 
 void LLPanelRegionTools::setParentEstateID(U32 id)
 {
-    getChild<LLUICtrl>("parentestate")->setValue((S32)id);
+    getChild<LLUICtrl>("parentestate")->setValue(static_cast<S32>(id));
 }
 
 void LLPanelRegionTools::setCheckFlags(U64 flags)
@@ -1086,7 +1086,7 @@ void LLPanelObjectTools::onClickDeletePublicOwnedBy()
         args["AVATAR_NAME"] = getChild<LLUICtrl>("target_avatar_name")->getValue().asString();
         LLSD payload;
         payload["avatar_id"] = mTargetAvatar;
-        payload["flags"] = (S32)mSimWideDeletesFlags;
+        payload["flags"] = static_cast<S32>(mSimWideDeletesFlags);
 
         LLNotificationsUtil::add( "GodDeleteAllScriptedPublicObjectsByUser",
                                 args,
@@ -1106,7 +1106,7 @@ void LLPanelObjectTools::onClickDeleteAllScriptedOwnedBy()
         args["AVATAR_NAME"] = getChild<LLUICtrl>("target_avatar_name")->getValue().asString();
         LLSD payload;
         payload["avatar_id"] = mTargetAvatar;
-        payload["flags"] = (S32)mSimWideDeletesFlags;
+        payload["flags"] = static_cast<S32>(mSimWideDeletesFlags);
 
         LLNotificationsUtil::add( "GodDeleteAllScriptedObjectsByUser",
                                 args,
@@ -1126,7 +1126,7 @@ void LLPanelObjectTools::onClickDeleteAllOwnedBy()
         args["AVATAR_NAME"] = getChild<LLUICtrl>("target_avatar_name")->getValue().asString();
         LLSD payload;
         payload["avatar_id"] = mTargetAvatar;
-        payload["flags"] = (S32)mSimWideDeletesFlags;
+        payload["flags"] = static_cast<S32>(mSimWideDeletesFlags);
 
         LLNotificationsUtil::add( "GodDeleteAllObjectsByUser",
                                 args,

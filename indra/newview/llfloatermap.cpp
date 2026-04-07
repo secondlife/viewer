@@ -150,11 +150,11 @@ void LLFloaterMap::setDirectionPos(LLTextBox *text_box, F32 rotation)
     // Rotation is in radians.
     // Rotation of 0 means x = 1, y = 0 on the unit circle.
 
-    F32 map_half_height  = (F32) (getRect().getHeight() / 2) - (getHeaderHeight() / 2);
-    F32 map_half_width   = (F32) (getRect().getWidth() / 2);
-    F32 text_half_height = (F32) (text_box->getRect().getHeight() / 2);
-    F32 text_half_width  = (F32) (text_box->getRect().getWidth() / 2);
-    F32 extra_padding    = (F32) (mTextBoxNorth->getRect().getWidth() / 2);
+    F32 map_half_height  = static_cast<F32>(getRect().getHeight() / 2) - (getHeaderHeight() / 2);
+    F32 map_half_width   = static_cast<F32>(getRect().getWidth() / 2);
+    F32 text_half_height = static_cast<F32>(text_box->getRect().getHeight() / 2);
+    F32 text_half_width  = static_cast<F32>(text_box->getRect().getWidth() / 2);
+    F32 extra_padding    = static_cast<F32>(mTextBoxNorth->getRect().getWidth() / 2);
     F32 pos_half_height  = map_half_height - text_half_height - extra_padding;
     F32 pos_half_width   = map_half_width - text_half_width - extra_padding;
 

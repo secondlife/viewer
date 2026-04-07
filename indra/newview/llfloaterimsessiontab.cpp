@@ -374,7 +374,7 @@ bool LLFloaterIMSessionTab::postBuild()
     mRefreshTimer->start();
     initBtns();
 
-    if (mIsParticipantListExpanded != (bool)gSavedSettings.getBOOL("IMShowControlPanel"))
+    if (mIsParticipantListExpanded != static_cast<bool>(gSavedSettings.getBOOL("IMShowControlPanel")))
     {
         LLFloaterIMSessionTab::onSlide(this);
     }
@@ -637,7 +637,7 @@ std::string LLFloaterIMSessionTab::appendTime()
     }
 
     LLSD substitution;
-    substitution["datetime"] = (S32)time_corrected();
+    substitution["datetime"] = static_cast<S32>(time_corrected());
     LLStringUtil::format(timeStr, substitution);
 
     return timeStr;

@@ -240,14 +240,14 @@ void LLFloaterAuction::onClickStartAuction(void* data)
         std::string* name = new std::string(parcel_name.asString());
         gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_IMAGE_TGA,
                                     &auction_tga_upload_done,
-                                    (void*)name,
+                                    reinterpret_cast<void*>(name),
                                     false);
         self->getWindow()->incBusyCount();
 
         std::string* j2c_name = new std::string(parcel_name.asString());
         gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_TEXTURE,
                                    &auction_j2c_upload_done,
-                                   (void*)j2c_name,
+                                   reinterpret_cast<void*>(j2c_name),
                                    false);
         self->getWindow()->incBusyCount();
 
@@ -332,9 +332,9 @@ void LLFloaterAuction::doResetParcel()
         center_point.snap(0);       // Get rid of fractions
         parcel_name << region->getName()
                     << " ("
-                    << (S32) center_point.mV[VX]
+                    << static_cast<S32>(center_point.mV[VX])
                     << ","
-                    << (S32) center_point.mV[VY]
+                    << static_cast<S32>(center_point.mV[VY])
                     << ") "
                     << region->getSimAccessString()
                     << " "
@@ -345,28 +345,28 @@ void LLFloaterAuction::doResetParcel()
         body["name"] = new_name;
         getChild<LLUICtrl>("parcel_text")->setValue(new_name);  // Set name in dialog as well, since it won't get updated otherwise
 
-        body["sale_price"] = (S32) 0;
+        body["sale_price"] = static_cast<S32>(0);
         body["description"] = empty;
         body["music_url"] = empty;
         body["media_url"] = empty;
         body["media_desc"] = empty;
         body["media_type"] = LLMIMETypes::getDefaultMimeType();
-        body["media_width"] = (S32) 0;
-        body["media_height"] = (S32) 0;
-        body["auto_scale"] = (S32) 0;
-        body["media_loop"] = (S32) 0;
-        body["obscure_media"] = (S32) 0; // OBSOLETE - no longer used
-        body["obscure_music"] = (S32) 0; // OBSOLETE - no longer used
+        body["media_width"] = static_cast<S32>(0);
+        body["media_height"] = static_cast<S32>(0);
+        body["auto_scale"] = static_cast<S32>(0);
+        body["media_loop"] = static_cast<S32>(0);
+        body["obscure_media"] = static_cast<S32>(0); // OBSOLETE - no longer used
+        body["obscure_music"] = static_cast<S32>(0); // OBSOLETE - no longer used
         body["media_id"] = LLUUID::null;
         body["group_id"] = MAINTENANCE_GROUP_ID;    // Use maintenance group
-        body["pass_price"] = (S32) 10;      // Defaults to $10
+        body["pass_price"] = static_cast<S32>(10);      // Defaults to $10
         body["pass_hours"] = 0.0f;
-        body["category"] = (U8) LLParcel::C_NONE;
+        body["category"] = static_cast<U8>(LLParcel::C_NONE);
         body["auth_buyer_id"] = LLUUID::null;
         body["snapshot_id"] = LLUUID::null;
         body["user_location"] = ll_sd_from_vector3( LLVector3::zero );
         body["user_look_at"] = ll_sd_from_vector3( LLVector3::zero );
-        body["landing_type"] = (U8) LLParcel::L_DIRECT;
+        body["landing_type"] = static_cast<U8>(LLParcel::L_DIRECT);
 
         LL_INFOS() << "Sending parcel update to reset for auction via capability to: "
             << mParcelUpdateCapUrl << LL_ENDL;

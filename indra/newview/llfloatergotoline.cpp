@@ -46,7 +46,7 @@ LLFloaterGotoLine::LLFloaterGotoLine(LLScriptEdCore* editor_core)
         sInstance = this;
 
         // find floater in which script panel is embedded
-        LLView* viewp = (LLView*)editor_core;
+        LLView* viewp = static_cast<LLView*>(editor_core);
         while(viewp)
         {
                 LLFloater* floaterp = dynamic_cast<LLFloater*>(viewp);

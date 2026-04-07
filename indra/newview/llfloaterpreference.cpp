@@ -376,7 +376,7 @@ void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType t
         const LLAvatarLegacyData* pAvatarData = static_cast<const LLAvatarLegacyData*>( pData );
         if (pAvatarData && (gAgent.getID() == pAvatarData->avatar_id) && (pAvatarData->avatar_id != LLUUID::null))
         {
-            mAllowPublish = (bool)(pAvatarData->flags & AVATAR_ALLOW_PUBLISH);
+            mAllowPublish = static_cast<bool>(pAvatarData->flags & AVATAR_ALLOW_PUBLISH);
             mAvatarDataInitialized = true;
             getChild<LLUICtrl>("online_searchresults")->setValue(mAllowPublish);
         }
@@ -1136,7 +1136,7 @@ void LLFloaterPreference::onNameTagOpacityChange(const LLSD& newvalue)
     if (color_swatch)
     {
         LLColor4 new_color = color_swatch->get();
-        color_swatch->set(new_color.setAlpha((F32)newvalue.asReal()));
+        color_swatch->set(new_color.setAlpha(static_cast<F32>(newvalue.asReal())));
     }
 }
 
@@ -1199,7 +1199,7 @@ void LLFloaterPreference::onSelectSkin()
 
 void LLFloaterPreference::refreshSkin(void* data)
 {
-    LLPanel*self = (LLPanel*)data;
+    LLPanel*self = static_cast<LLPanel*>(data);
     sSkin = gSavedSettings.getString("SkinCurrent");
     self->getChild<LLRadioGroup>("skin_selection", true)->setValue(sSkin);
 }
@@ -1307,7 +1307,7 @@ void LLAvatarComplexityControls::setIndirectMaxArc()
     else
     {
         // This is the inverse of the calculation in updateMaxComplexity
-        indirect_max_arc = (U32)ll_round(((log(F32(max_arc)) - MIN_ARC_LOG) / ARC_LIMIT_MAP_SCALE)) + MIN_INDIRECT_ARC_LIMIT;
+        indirect_max_arc = static_cast<U32>(ll_round(((log(F32(max_arc)) - MIN_ARC_LOG) / ARC_LIMIT_MAP_SCALE))) + MIN_INDIRECT_ARC_LIMIT;
     }
     gSavedSettings.setU32("IndirectMaxComplexity", indirect_max_arc);
 }
@@ -1345,7 +1345,7 @@ void LLFloaterPreference::onCommitWindowedMode()
 
 void LLFloaterPreference::onChangeQuality(const LLSD& data)
 {
-    U32 level = (U32)(data.asReal());
+    U32 level = static_cast<U32>(data.asReal());
     constexpr U32 LVL_HIGH = 4;
     if (level >= LVL_HIGH && mLastQualityLevel < level)
     {
@@ -1591,10 +1591,10 @@ void LLAvatarComplexityControls::updateMax(LLSliderCtrl* slider, LLTextBox* valu
     {
         // if this is changed, the inverse calculation in setIndirectMaxArc
         // must be changed to match
-        max_arc = (U32)ll_round(exp(MIN_ARC_LOG + (ARC_LIMIT_MAP_SCALE * (indirect_value - MIN_INDIRECT_ARC_LIMIT))));
+        max_arc = static_cast<U32>(ll_round(exp(MIN_ARC_LOG + (ARC_LIMIT_MAP_SCALE * (indirect_value - MIN_INDIRECT_ARC_LIMIT)))));
     }
 
-    gSavedSettings.setU32("RenderAvatarMaxComplexity", (U32)max_arc);
+    gSavedSettings.setU32("RenderAvatarMaxComplexity", static_cast<U32>(max_arc));
     setText(max_arc, value_label, short_val);
 }
 
@@ -1613,7 +1613,7 @@ void LLAvatarComplexityControls::setText(U32 value, LLTextBox* text_box, bool sh
 
 void LLAvatarComplexityControls::updateMaxRenderTime(LLSliderCtrl* slider, LLTextBox* value_label, bool short_val)
 {
-    setRenderTimeText((F32)(LLPerfStats::renderAvatarMaxART_ns/1000), value_label, short_val);
+    setRenderTimeText(static_cast<F32>(LLPerfStats::renderAvatarMaxART_ns/1000), value_label, short_val);
 }
 
 void LLAvatarComplexityControls::setRenderTimeText(F32 value, LLTextBox* text_box, bool short_val)
@@ -1976,8 +1976,8 @@ void LLFloaterPreference::updateClickActionViews()
         }
     }
 
-    getChild<LLComboBox>("single_click_action_combo")->setValue((int)click_to_walk);
-    getChild<LLComboBox>("double_click_action_combo")->setValue(dbl_click_to_teleport ? 2 : (int)dbl_click_to_walk);
+    getChild<LLComboBox>("single_click_action_combo")->setValue(static_cast<int>(click_to_walk));
+    getChild<LLComboBox>("double_click_action_combo")->setValue(dbl_click_to_teleport ? 2 : static_cast<int>(dbl_click_to_walk));
 }
 
 void LLFloaterPreference::updateSearchableItems()
@@ -2055,7 +2055,7 @@ void LLFloaterPreference::saveGraphicsPreset(std::string& preset)
 
 static bool handleBandwidthChanged(const LLSD& newvalue)
 {
-    gViewerThrottle.setMaxBandwidth((F32) newvalue.asReal());
+    gViewerThrottle.setMaxBandwidth(static_cast<F32>(newvalue.asReal()));
     return true;
 }
 

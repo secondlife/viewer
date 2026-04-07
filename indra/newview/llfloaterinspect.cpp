@@ -220,11 +220,11 @@ void LLFloaterInspect::refresh()
             continue;
         }
 
-        time_t timestamp = (time_t) (obj->mCreationDate/1000000);
+        time_t timestamp = static_cast<time_t>(obj->mCreationDate/1000000);
         static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
         std::string timeStr = use_24h ? getString("timeStamp") : getString("timeStampAMPM");
         LLSD substitution;
-        substitution["datetime"] = (S32) timestamp;
+        substitution["datetime"] = static_cast<S32>(timestamp);
         LLStringUtil::format (timeStr, substitution);
 
         const LLUUID& idOwner = obj->mPermissions->getOwner();

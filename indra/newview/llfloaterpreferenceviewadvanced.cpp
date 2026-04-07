@@ -71,13 +71,13 @@ void LLFloaterPreferenceViewAdvanced::onCommitSettings()
     LLVector3 vector;
     LLVector3d vector3d;
 
-    vector.mV[VX] = (F32)getChild<LLUICtrl>("camera_x")->getValue().asReal();
-    vector.mV[VY] = (F32)getChild<LLUICtrl>("camera_y")->getValue().asReal();
-    vector.mV[VZ] = (F32)getChild<LLUICtrl>("camera_z")->getValue().asReal();
+    vector.mV[VX] = static_cast<F32>(getChild<LLUICtrl>("camera_x")->getValue().asReal());
+    vector.mV[VY] = static_cast<F32>(getChild<LLUICtrl>("camera_y")->getValue().asReal());
+    vector.mV[VZ] = static_cast<F32>(getChild<LLUICtrl>("camera_z")->getValue().asReal());
     gSavedSettings.setVector3("CameraOffsetRearView", vector);
 
-    vector3d.mdV[VX] = (F32)getChild<LLUICtrl>("focus_x")->getValue().asReal();
-    vector3d.mdV[VY] = (F32)getChild<LLUICtrl>("focus_y")->getValue().asReal();
-    vector3d.mdV[VZ] = (F32)getChild<LLUICtrl>("focus_z")->getValue().asReal();
+    vector3d.mdV[VX] = static_cast<F32>(getChild<LLUICtrl>("focus_x")->getValue().asReal());
+    vector3d.mdV[VY] = static_cast<F32>(getChild<LLUICtrl>("focus_y")->getValue().asReal());
+    vector3d.mdV[VZ] = static_cast<F32>(getChild<LLUICtrl>("focus_z")->getValue().asReal());
     gSavedSettings.setVector3d("FocusOffsetRearView", vector3d);
 }

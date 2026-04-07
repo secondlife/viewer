@@ -141,7 +141,7 @@ void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
     std::string timeStr = getString ("timeStr");
     LLSD substitution;
 
-    substitution["datetime"] = (S32) mcd->mTime;
+    substitution["datetime"] = static_cast<S32>(mcd->mTime);
     LLStringUtil::format (timeStr, substitution);
 
     std::string action;

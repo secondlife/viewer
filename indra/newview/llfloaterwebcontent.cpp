@@ -225,7 +225,7 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 
         LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class());
 
-        if(instances.size() >= (size_t)browser_window_limit)
+        if(instances.size() >= static_cast<size_t>(browser_window_limit))
         {
             // Destroy the least recently opened instance
             (*instances.begin())->closeFloater();
@@ -358,7 +358,7 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
     }
     else if(event == MEDIA_EVENT_PROGRESS_UPDATED )
     {
-        int percent = (int)self->getProgressPercent();
+        int percent = static_cast<int>(self->getProgressPercent());
         mStatusBarProgress->setValue( percent );
     }
     else if(event == MEDIA_EVENT_NAME_CHANGED )

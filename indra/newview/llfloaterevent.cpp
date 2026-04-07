@@ -104,7 +104,7 @@ void LLFloaterEvent::setEventID(const U32 event_id)
     if (event_id != 0)
     {
         LLSD subs;
-        subs["EVENT_ID"] = (S32)event_id;
+        subs["EVENT_ID"] = static_cast<S32>(event_id);
         // get the search URL and expand all of the substitutions
         // (also adds things like [LANGUAGE], [VERSION], [OS], etc.)
 

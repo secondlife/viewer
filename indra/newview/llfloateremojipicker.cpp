@@ -100,7 +100,7 @@ public:
         LLScrollingPanel::draw();
 
         F32 x = 4; // padding-left
-        F32 y = (F32)(getRect().getHeight() / 2);
+        F32 y = static_cast<F32>(getRect().getHeight() / 2);
         LLFontGL::getFontSansSerif()->render(
             mText,                           // wstr
             0,                               // begin_offset
@@ -136,8 +136,8 @@ public:
     {
         LLScrollingPanel::draw();
 
-        F32 x = (F32)(getRect().getWidth() / 2);
-        F32 y = (F32)(getRect().getHeight() / 2);
+        F32 x = static_cast<F32>(getRect().getWidth() / 2);
+        F32 y = static_cast<F32>(getRect().getHeight() / 2);
         LLFontGL::getFontEmojiLarge()->render(
             mChar,                      // wstr
             0,                          // begin_offset
@@ -204,7 +204,7 @@ public:
 
         static LLUIColor textColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", LLColor4(0.75f, 0.75f, 0.75f, 1.0f));
         S32 max_pixels = clientWidth - iconWidth;
-        drawName((F32)iconWidth, centerY, max_pixels, textColor.get());
+        drawName(static_cast<F32>(iconWidth), centerY, max_pixels, textColor.get());
     }
 
 protected:
@@ -227,7 +227,7 @@ protected:
     void drawName(F32 x, F32 y, S32 max_pixels, const LLColor4& color)
     {
         F32 x0 = x;
-        F32 x1 = (F32)max_pixels;
+        F32 x1 = static_cast<F32>(max_pixels);
         LLFontGL* font = LLFontGL::getFontEmojiLarge();
         if (mBegin)
         {
@@ -580,7 +580,7 @@ void LLFloaterEmojiPicker::createGroupButton(LLButton::Params& params, const LLR
 
 void LLFloaterEmojiPicker::resizeGroupButtons()
 {
-    U32 groupCount = (U32)mGroupButtons.size();
+    U32 groupCount = static_cast<U32>(mGroupButtons.size());
     if (!groupCount)
         return;
 
@@ -824,7 +824,7 @@ void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
         if (it == mGroupButtons.end())
             return;
 
-        selectEmojiGroup((U32)(it - mGroupButtons.begin()));
+        selectEmojiGroup(static_cast<U32>(it - mGroupButtons.begin()));
     }
 }
 
@@ -1102,7 +1102,7 @@ bool LLFloaterEmojiPicker::handleKey(KEY key, MASK mask, bool called_from_parent
                 {
                     mFilterPattern = ":";
                 }
-                mFilterPattern += (char)key;
+                mFilterPattern += static_cast<char>(key);
                 initialize();
             }
             return true;
@@ -1268,7 +1268,7 @@ void LLFloaterEmojiPicker::loadState()
         U32 delta = sFrequentlyUsed.back().second - 1;
         for (auto& it : sFrequentlyUsed)
         {
-            it.second = std::max((U32)0, it.second - delta);
+            it.second = std::max(static_cast<U32>(0), it.second - delta);
         }
     }
 }
@@ -1293,7 +1293,7 @@ void LLFloaterEmojiPicker::saveState()
             if (!recentlyUsed.empty())
                 recentlyUsed += ",";
             char buffer[32];
-            snprintf(buffer, sizeof(buffer), "%u", (U32)emoji);
+            snprintf(buffer, sizeof(buffer), "%u", static_cast<U32>(emoji));
             recentlyUsed += buffer;
             if (!--maxCount)
                 break;
@@ -1310,7 +1310,7 @@ void LLFloaterEmojiPicker::saveState()
             if (!frequentlyUsed.empty())
                 frequentlyUsed += ",";
             char buffer[32];
-            snprintf(buffer, sizeof(buffer), "%u:%u", (U32)character, (U32)count);
+            snprintf(buffer, sizeof(buffer), "%u:%u", static_cast<U32>(character), static_cast<U32>(count));
             frequentlyUsed += buffer;
             if (!--maxCount)
                 break;
