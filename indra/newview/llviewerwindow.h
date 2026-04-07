@@ -37,6 +37,7 @@
 
 #include "v3dmath.h"
 #include "v2math.h"
+#include <glm/vec2.hpp>
 #include "llcursortypes.h"
 #include "llwindowcallbacks.h"
 #include "lltimer.h"
@@ -467,9 +468,9 @@ public:
     void            checkSettings();
 
     F32             getWorldViewAspectRatio() const;
-    const LLVector2& getDisplayScale() const { return mDisplayScale; }
+    const glm::vec2& getDisplayScale() const { return mDisplayScale; }
     void            calcDisplayScale();
-    static LLRect   calcScaledRect(const LLRect & rect, const LLVector2& display_scale);
+    static LLRect   calcScaledRect(const LLRect & rect, const glm::vec2& display_scale);
 
     void setBalanceVisible(bool visible);
 
@@ -512,7 +513,7 @@ private:
     LLPanel*        mStatusBarContainer = nullptr;
     LLPanel*        mChicletContainer = nullptr;
     LLPanel*        mTopInfoContainer = nullptr;
-    LLVector2       mDisplayScale;
+    glm::vec2       mDisplayScale;
 
     LLCoordGL       mCurrentMousePoint;         // last mouse position in GL coords
     LLCoordGL       mLastMousePoint;        // Mouse point at last frame.

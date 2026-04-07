@@ -883,7 +883,7 @@ F32 LLHUDNameTag::getWorldHeight() const
     F32 height_meters = mLastDistance * static_cast<F32>(tan(camera->getView() / 2.f));
     F32 height_pixels = camera->getViewHeightInPixels() / 2.f;
     F32 meters_per_pixel = height_meters / height_pixels;
-    return mHeight * meters_per_pixel * gViewerWindow->getDisplayScale().mV[VY];
+    return mHeight * meters_per_pixel * gViewerWindow->getDisplayScale().y;
 }
 
 //static

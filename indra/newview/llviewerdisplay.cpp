@@ -1854,8 +1854,8 @@ void render_disconnected_background()
             // scale ui to reflect UIScaleFactor
             // this can't be done in setup2DRender because it requires a
             // pushMatrix/popMatrix pair
-            const LLVector2& display_scale = gViewerWindow->getDisplayScale();
-            gGL.scalef(display_scale.mV[VX], display_scale.mV[VY], 1.f);
+            const glm::vec2& display_scale = gViewerWindow->getDisplayScale();
+            gGL.scalef(display_scale.x, display_scale.y, 1.f);
 
             gGL.getTexUnit(0)->bind(gDisconnectedImagep);
             gGL.color4f(1.f, 1.f, 1.f, 1.f);

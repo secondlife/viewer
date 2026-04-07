@@ -442,8 +442,8 @@ bool LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 
     {
         // convert screen coordinates to virtual UI coordinates
-        win_coord.x /= gViewerWindow->getDisplayScale().mV[VX];
-        win_coord.y /= gViewerWindow->getDisplayScale().mV[VY];
+        win_coord.x /= gViewerWindow->getDisplayScale().x;
+        win_coord.y /= gViewerWindow->getDisplayScale().y;
 
         // should now have the x,y coords of grab_point in screen space
         LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
@@ -535,8 +535,8 @@ bool LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
     glm::vec3 win_coord = glm::project(glm::vec3(pos_agent), get_current_modelview(), get_current_projection(), viewport);
 
     {
-        win_coord.x /= gViewerWindow->getDisplayScale().mV[VX];
-        win_coord.y /= gViewerWindow->getDisplayScale().mV[VY];
+        win_coord.x /= gViewerWindow->getDisplayScale().x;
+        win_coord.y /= gViewerWindow->getDisplayScale().y;
         // should now have the x,y coords of grab_point in screen space
         const LLRect& world_rect = gViewerWindow->getWorldViewRectScaled();
 
@@ -666,8 +666,8 @@ void LLViewerCamera::getPixelVectors(const LLVector3 &pos_agent, LLVector3 &up, 
     F32 pixel_aspect = gViewerWindow->getWindow()->getPixelAspectRatio();
 
     F32 meters_per_pixel = height_meters / height_pixels;
-    up = getUpAxis() * meters_per_pixel * gViewerWindow->getDisplayScale().mV[VY];
-    right = -1.f * pixel_aspect * meters_per_pixel * getLeftAxis() * gViewerWindow->getDisplayScale().mV[VX];
+    up = getUpAxis() * meters_per_pixel * gViewerWindow->getDisplayScale().y;
+    right = -1.f * pixel_aspect * meters_per_pixel * getLeftAxis() * gViewerWindow->getDisplayScale().x;
 }
 
 LLVector3 LLViewerCamera::roundToPixel(const LLVector3 &pos_agent)

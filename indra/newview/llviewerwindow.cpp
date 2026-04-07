@@ -1000,8 +1000,8 @@ bool LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
     const char* buttonstatestr = "";
     S32 x = pos.mX;
     S32 y = pos.mY;
-    x = ll_round(static_cast<F32>(x) / mDisplayScale.mV[VX]);
-    y = ll_round(static_cast<F32>(y) / mDisplayScale.mV[VY]);
+    x = ll_round(static_cast<F32>(x) / mDisplayScale.x);
+    y = ll_round(static_cast<F32>(y) / mDisplayScale.y);
 
     // Handle non-consuming global keybindings, like voice
     gViewerInput.handleGlobalBindsMouse(clicktype, mask, down);
@@ -1405,8 +1405,8 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
     S32 x = pos.mX;
     S32 y = pos.mY;
 
-    x = ll_round(static_cast<F32>(x) / mDisplayScale.mV[VX]);
-    y = ll_round(static_cast<F32>(y) / mDisplayScale.mV[VY]);
+    x = ll_round(static_cast<F32>(x) / mDisplayScale.x);
+    y = ll_round(static_cast<F32>(y) / mDisplayScale.y);
 
     mMouseInWindow = true;
 
@@ -1969,16 +1969,16 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     // the size of a window or fullscreen context may have been adjusted slightly...)
     F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor") * mWindow->getSystemUISize(), MIN_UI_SCALE, MAX_UI_SCALE);
 
-    mDisplayScale.set(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
+    mDisplayScale = glm::vec2(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
     mDisplayScale *= ui_scale_factor;
-    LLUI::setScaleFactor(glm::vec2(mDisplayScale.mV[VX], mDisplayScale.mV[VY]));
+    LLUI::setScaleFactor(mDisplayScale);
     LLFontGL::sResolutionGeneration++;
 
     {
         LLCoordWindow size;
         mWindow->getSize(&size);
         mWindowRectRaw.set(0, size.mY, size.mX, 0);
-        mWindowRectScaled.set(0, ll_round(static_cast<F32>(size.mY) / mDisplayScale.mV[VY]), ll_round(static_cast<F32>(size.mX) / mDisplayScale.mV[VX]), 0);
+        mWindowRectScaled.set(0, ll_round(static_cast<F32>(size.mY) / mDisplayScale.y), ll_round(static_cast<F32>(size.mX) / mDisplayScale.x), 0);
     }
 
     LLFontManager::initClass();
@@ -1991,8 +1991,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     // currently it takes aprox. 0.5 sec and we would load these fonts anyway
     // before login screen.
     LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
-        mDisplayScale.mV[VX],
-        mDisplayScale.mV[VY],
+        mDisplayScale.x,
+        mDisplayScale.y,
         gDirUtilp->getAppRODataDir());
 
     //
@@ -2536,21 +2536,20 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
         calcDisplayScale();
 
-        glm::vec2 new_scale(mDisplayScale.mV[VX], mDisplayScale.mV[VY]);
-        bool display_scale_changed = new_scale != LLUI::getScaleFactor();
-        LLUI::setScaleFactor(new_scale);
+        bool display_scale_changed = mDisplayScale != LLUI::getScaleFactor();
+        LLUI::setScaleFactor(mDisplayScale);
         LLFontGL::sResolutionGeneration++;
 
         // update our window rectangle
-        mWindowRectScaled.mRight = mWindowRectScaled.mLeft + ll_round(static_cast<F32>(width) / mDisplayScale.mV[VX]);
-        mWindowRectScaled.mTop = mWindowRectScaled.mBottom + ll_round(static_cast<F32>(height) / mDisplayScale.mV[VY]);
+        mWindowRectScaled.mRight = mWindowRectScaled.mLeft + ll_round(static_cast<F32>(width) / mDisplayScale.x);
+        mWindowRectScaled.mTop = mWindowRectScaled.mBottom + ll_round(static_cast<F32>(height) / mDisplayScale.y);
 
         setup2DViewport();
 
         // Inform lower views of the change
         // round up when converting coordinates to make sure there are no gaps at edge of window
         LLView::sForceReshape = display_scale_changed;
-        mRootView->reshape(llceil(static_cast<F32>(width) / mDisplayScale.mV[VX]), llceil(static_cast<F32>(height) / mDisplayScale.mV[VY]));
+        mRootView->reshape(llceil(static_cast<F32>(width) / mDisplayScale.x), llceil(static_cast<F32>(height) / mDisplayScale.y));
         if (display_scale_changed)
         {
             // Needs only a 'scale change' update, everything else gets handled by LLLayoutStack::updateClass()
@@ -2692,7 +2691,7 @@ void LLViewerWindow::drawDebugText()
     gGL.pushUIMatrix();
     {
         // scale view by UI global scale factor and aspect ratio correction factor
-        gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
+        gGL.scaleUI(mDisplayScale.x, mDisplayScale.y, 1.f);
         mDebugText->draw();
     }
     gGL.popUIMatrix();
@@ -2753,7 +2752,7 @@ void LLViewerWindow::draw()
     {
 
         // scale view by UI global scale factor and aspect ratio correction factor
-        gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
+        gGL.scaleUI(mDisplayScale.x, mDisplayScale.y, 1.f);
 
         glm::vec2 old_scale_factor = LLUI::getScaleFactor();
         // apply camera zoom transform (for high res screenshots)
@@ -4069,10 +4068,10 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
         new_world_rect.mTop = llmax(new_world_rect.mTop, new_world_rect.mBottom + 1);
         new_world_rect.mRight = llmax(new_world_rect.mRight, new_world_rect.mLeft + 1);
 
-        new_world_rect.mLeft = ll_round(static_cast<F32>(new_world_rect.mLeft) * mDisplayScale.mV[VX]);
-        new_world_rect.mRight = ll_round(static_cast<F32>(new_world_rect.mRight) * mDisplayScale.mV[VX]);
-        new_world_rect.mBottom = ll_round(static_cast<F32>(new_world_rect.mBottom) * mDisplayScale.mV[VY]);
-        new_world_rect.mTop = ll_round(static_cast<F32>(new_world_rect.mTop) * mDisplayScale.mV[VY]);
+        new_world_rect.mLeft = ll_round(static_cast<F32>(new_world_rect.mLeft) * mDisplayScale.x);
+        new_world_rect.mRight = ll_round(static_cast<F32>(new_world_rect.mRight) * mDisplayScale.x);
+        new_world_rect.mBottom = ll_round(static_cast<F32>(new_world_rect.mBottom) * mDisplayScale.y);
+        new_world_rect.mTop = ll_round(static_cast<F32>(new_world_rect.mTop) * mDisplayScale.y);
     }
 
     if (mWorldViewRectRaw != new_world_rect)
@@ -5949,8 +5948,8 @@ void LLViewerWindow::initFonts(F32 zoom_factor)
     LLFontManager::initClass();
 
     LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
-                                mDisplayScale.mV[VX] * zoom_factor,
-                                mDisplayScale.mV[VY] * zoom_factor,
+                                mDisplayScale.x * zoom_factor,
+                                mDisplayScale.y * zoom_factor,
                                 gDirUtilp->getAppRODataDir());
 }
 
@@ -5988,19 +5987,18 @@ F32 LLViewerWindow::getWorldViewAspectRatio() const
 void LLViewerWindow::calcDisplayScale()
 {
     F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor") * mWindow->getSystemUISize(), MIN_UI_SCALE, MAX_UI_SCALE);
-    LLVector2 display_scale;
-    display_scale.set(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
+    glm::vec2 display_scale(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
     display_scale *= ui_scale_factor;
 
     // limit minimum display scale
-    if (display_scale.mV[VX] < MIN_DISPLAY_SCALE || display_scale.mV[VY] < MIN_DISPLAY_SCALE)
+    if (display_scale.x < MIN_DISPLAY_SCALE || display_scale.y < MIN_DISPLAY_SCALE)
     {
-        display_scale *= MIN_DISPLAY_SCALE / llmin(display_scale.mV[VX], display_scale.mV[VY]);
+        display_scale *= MIN_DISPLAY_SCALE / llmin(display_scale.x, display_scale.y);
     }
 
     if (display_scale != mDisplayScale)
     {
-        LL_INFOS() << "Setting display scale to " << display_scale << " for ui scale: " << ui_scale_factor << LL_ENDL;
+        LL_INFOS() << "Setting display scale to (" << display_scale.x << ", " << display_scale.y << ") for ui scale: " << ui_scale_factor << LL_ENDL;
 
         mDisplayScale = display_scale;
         // Init default fonts
@@ -6009,13 +6007,13 @@ void LLViewerWindow::calcDisplayScale()
 }
 
 //static
-LLRect  LLViewerWindow::calcScaledRect(const LLRect & rect, const LLVector2& display_scale)
+LLRect  LLViewerWindow::calcScaledRect(const LLRect & rect, const glm::vec2& display_scale)
 {
     LLRect res = rect;
-    res.mLeft = ll_round(static_cast<F32>(res.mLeft) / display_scale.mV[VX]);
-    res.mRight = ll_round(static_cast<F32>(res.mRight) / display_scale.mV[VX]);
-    res.mBottom = ll_round(static_cast<F32>(res.mBottom) / display_scale.mV[VY]);
-    res.mTop = ll_round(static_cast<F32>(res.mTop) / display_scale.mV[VY]);
+    res.mLeft = ll_round(static_cast<F32>(res.mLeft) / display_scale.x);
+    res.mRight = ll_round(static_cast<F32>(res.mRight) / display_scale.x);
+    res.mBottom = ll_round(static_cast<F32>(res.mBottom) / display_scale.y);
+    res.mTop = ll_round(static_cast<F32>(res.mTop) / display_scale.y);
 
     return res;
 }
