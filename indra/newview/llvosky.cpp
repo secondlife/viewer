@@ -100,14 +100,14 @@ LLSkyTex::LLSkyTex() :
 void LLSkyTex::init(bool isShiny)
 {
     mIsShiny = isShiny;
-    mSkyData.resize((U32)(SKYTEX_RESOLUTION * SKYTEX_RESOLUTION));
-    mSkyDirs.resize((U32)(SKYTEX_RESOLUTION * SKYTEX_RESOLUTION));
+    mSkyData.resize(static_cast<U32>(SKYTEX_RESOLUTION * SKYTEX_RESOLUTION));
+    mSkyDirs.resize(static_cast<U32>(SKYTEX_RESOLUTION * SKYTEX_RESOLUTION));
 
     for (S32 i = 0; i < 2; ++i)
     {
         mTexture[i] = LLViewerTextureManager::getLocalTexture(false);
         mTexture[i]->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_CLAMP);
-        mImageRaw[i] = new LLImageRaw((U16)SKYTEX_RESOLUTION, (U16)SKYTEX_RESOLUTION, (S8)SKYTEX_COMPONENTS);
+        mImageRaw[i] = new LLImageRaw(static_cast<U16>(SKYTEX_RESOLUTION), static_cast<U16>(SKYTEX_RESOLUTION), static_cast<S8>(SKYTEX_COMPONENTS));
 
         initEmpty(i);
     }
@@ -132,7 +132,7 @@ LLSkyTex::~LLSkyTex() = default;
 
 S32 LLSkyTex::getResolution()
 {
-    return (S32)SKYTEX_RESOLUTION;
+    return static_cast<S32>(SKYTEX_RESOLUTION);
 }
 
 S32 LLSkyTex::getCurrent()
@@ -165,8 +165,8 @@ void LLSkyTex::initEmpty(const S32 tex)
     {
         for (S32 j = 0; j < SKYTEX_RESOLUTION; ++j)
         {
-            const S32 basic_offset = (i * (S32)SKYTEX_RESOLUTION + j);
-            S32 offset = basic_offset * (S32)SKYTEX_COMPONENTS;
+            const S32 basic_offset = (i * static_cast<S32>(SKYTEX_RESOLUTION) + j);
+            S32 offset = basic_offset * static_cast<S32>(SKYTEX_COMPONENTS);
             data[offset] = 0;
             data[offset+1] = 0;
             data[offset+2] = 0;
@@ -182,14 +182,14 @@ void LLSkyTex::initEmpty(const S32 tex)
 void LLSkyTex::create()
 {
     LLImageDataSharedLock lock(mImageRaw[sCurrent]);
-    const U8* data = mImageRaw[sCurrent]->getData();
+    U8* data = mImageRaw[sCurrent]->getData();
     for (S32 i = 0; i < SKYTEX_RESOLUTION; ++i)
     {
         for (S32 j = 0; j < SKYTEX_RESOLUTION; ++j)
         {
-            const S32 basic_offset = (i * (S32)SKYTEX_RESOLUTION + j);
-            S32 offset = basic_offset * (S32)SKYTEX_COMPONENTS;
-            U32* pix = (U32*)(data + offset);
+            const S32 basic_offset = (i * static_cast<S32>(SKYTEX_RESOLUTION) + j);
+            S32 offset = basic_offset * static_cast<S32>(SKYTEX_COMPONENTS);
+            U32* pix = reinterpret_cast<U32*>(data + offset);
             LLColor4U temp = LLColor4U(mSkyData[basic_offset]);
             *pix = temp.asRGBA();
         }
@@ -385,8 +385,8 @@ const LLVector3* LLHeavenBody::corners() const
         Sky
 ***************************************/
 
-const S32 SKYTEX_TILE_RES_X = (S32)SKYTEX_RESOLUTION / NUM_TILES_X;
-const S32 SKYTEX_TILE_RES_Y = (S32)SKYTEX_RESOLUTION / NUM_TILES_Y;
+const S32 SKYTEX_TILE_RES_X = static_cast<S32>(SKYTEX_RESOLUTION) / NUM_TILES_X;
+const S32 SKYTEX_TILE_RES_Y = static_cast<S32>(SKYTEX_RESOLUTION) / NUM_TILES_Y;
 
 LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 :   LLStaticViewerObject(id, pcode, regionp, true),
@@ -599,7 +599,7 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
     const S32 x_coef = (curr_coef + 1) % 3;
     const S32 y_coef = (x_coef + 1) % 3;
 
-    coeff[curr_coef] = (F32)side_dir;
+    coeff[curr_coef] = static_cast<F32>(side_dir);
 
     F32 inv_res = 1.f/SKYTEX_RESOLUTION;
     S32 x, y;
@@ -683,7 +683,7 @@ bool LLVOSky::updateSky()
     ++next_frame;
     next_frame = next_frame % MAX_TILES;
 
-    mInterpVal = (!mInitialized) ? 1 : (F32)next_frame / MAX_TILES;
+    mInterpVal = (!mInitialized) ? 1 : static_cast<F32>(next_frame) / MAX_TILES;
     LLHeavenBody::setInterpVal( mInterpVal );
     updateDirections(psky);
 
@@ -793,32 +793,32 @@ void LLVOSky::updateTextures()
 {
     if (mSunTexturep[0])
     {
-        mSunTexturep[0]->addTextureStats( (F32)MAX_IMAGE_AREA );
+        mSunTexturep[0]->addTextureStats( static_cast<F32>(MAX_IMAGE_AREA) );
     }
 
     if (mSunTexturep[1])
     {
-        mSunTexturep[1]->addTextureStats( (F32)MAX_IMAGE_AREA );
+        mSunTexturep[1]->addTextureStats( static_cast<F32>(MAX_IMAGE_AREA) );
 }
 
     if (mMoonTexturep[0])
 {
-        mMoonTexturep[0]->addTextureStats( (F32)MAX_IMAGE_AREA );
+        mMoonTexturep[0]->addTextureStats( static_cast<F32>(MAX_IMAGE_AREA) );
 }
 
     if (mMoonTexturep[1])
 {
-        mMoonTexturep[1]->addTextureStats( (F32)MAX_IMAGE_AREA );
+        mMoonTexturep[1]->addTextureStats( static_cast<F32>(MAX_IMAGE_AREA) );
 }
 
     if (mBloomTexturep[0])
     {
-        mBloomTexturep[0]->addTextureStats( (F32)MAX_IMAGE_AREA );
+        mBloomTexturep[0]->addTextureStats( static_cast<F32>(MAX_IMAGE_AREA) );
         }
 
     if (mBloomTexturep[1])
         {
-        mBloomTexturep[1]->addTextureStats( (F32)MAX_IMAGE_AREA );
+        mBloomTexturep[1]->addTextureStats( static_cast<F32>(MAX_IMAGE_AREA) );
         }
     }
 
@@ -827,7 +827,7 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
     pipeline->allocDrawable(this);
     mDrawable->setLit(false);
 
-    LLDrawPoolSky *poolp = (LLDrawPoolSky*) gPipeline.getPool(LLDrawPool::POOL_SKY);
+    LLDrawPoolSky *poolp = static_cast<LLDrawPoolSky*>(gPipeline.getPool(LLDrawPool::POOL_SKY));
     poolp->setSkyTex(mSkyTex);
     mDrawable->setRenderType(LLPipeline::RENDER_TYPE_SKY);
 
@@ -967,7 +967,7 @@ bool LLVOSky::updateGeometry(LLDrawable *drawable)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
     if (mFace[FACE_REFLECTION] == NULL)
     {
-        LLDrawPoolWater *poolp = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);
+        LLDrawPoolWater *poolp = static_cast<LLDrawPoolWater*>(gPipeline.getPool(LLDrawPool::POOL_WATER));
         if (gPipeline.getPool(LLDrawPool::POOL_WATER)->getShaderLevel() != 0)
         {
             mFace[FACE_REFLECTION] = drawable->addFace(poolp, NULL);
@@ -1018,7 +1018,7 @@ bool LLVOSky::updateGeometry(LLDrawable *drawable)
 
             LLVector3 axis;
             axis.mV[curr_bit] = 1;
-            face->mCenterAgent = (F32)((side_dir << 1) - 1) * axis * HORIZON_DIST;
+            face->mCenterAgent = static_cast<F32>((side_dir << 1) - 1) * axis * HORIZON_DIST;
 
             vtx = side_dir << curr_bit;
             *(verticesp++)  = v_agent[vtx];
@@ -1485,8 +1485,8 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
         {
             F32 dt_v0 = raw * raws_inv;
             F32 dt_v1 = (raw + 1) * raws_inv;
-            const LLVector3 BL = v_refl_corner[1] + (F32)raw * left;
-            const LLVector3 BR = v_refl_corner[3] + (F32)raw * right;
+            const LLVector3 BL = v_refl_corner[1] + static_cast<F32>(raw) * left;
+            const LLVector3 BR = v_refl_corner[3] + static_cast<F32>(raw) * right;
             const LLVector3 EL = BL + left;
             const LLVector3 ER = BR + right;
                 dt_v0 = dt_v1 = dtReflection(EL, cos_dir_from_top[0], sin_dir_from_top, diff_angl_dir);

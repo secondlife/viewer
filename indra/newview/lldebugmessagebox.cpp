@@ -68,7 +68,7 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
     case VAR_TYPE_F32:
         slider_p.name("slider 1");
         slider_p.rect(LLRect(20,130,190,110));
-        slider_p.initial_value(*((F32*)var));
+        slider_p.initial_value(*(reinterpret_cast<F32*>(var)));
         slider_p.min_value(-100.f);
         slider_p.max_value(100.f);
         slider_p.increment(0.1f);
@@ -79,7 +79,7 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
     case VAR_TYPE_S32:
         slider_p.name("slider 1");
         slider_p.rect(LLRect(20,100,190,80));
-        slider_p.initial_value((F32)*((S32*)var));
+        slider_p.initial_value(static_cast<F32>(*(reinterpret_cast<S32*>(var))));
         slider_p.min_value(-255.f);
         slider_p.max_value(255.f);
         slider_p.increment(1.f);
@@ -91,7 +91,7 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
         slider_p.name("slider 1");
         slider_p.label("x: ");
         slider_p.rect(LLRect(20,130,190,110));
-        slider_p.initial_value(((LLVector3*)var)->mV[VX]);
+        slider_p.initial_value((static_cast<LLVector3*>(var))->mV[VX]);
         slider_p.min_value(-100.f);
         slider_p.max_value(100.f);
         slider_p.increment(0.1f);
@@ -101,13 +101,13 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
         slider_p.name("slider 2");
         slider_p.label("y: ");
         slider_p.rect(LLRect(20,100,190,80));
-        slider_p.initial_value(((LLVector3*)var)->mV[VY]);
+        slider_p.initial_value((static_cast<LLVector3*>(var))->mV[VY]);
         mSlider2 = LLUICtrlFactory::create<LLSliderCtrl>(slider_p);
 
         slider_p.name("slider 3");
         slider_p.label("z: ");
         slider_p.rect(LLRect(20,70,190,50));
-        slider_p.initial_value(((LLVector3*)var)->mV[VZ]);
+        slider_p.initial_value((static_cast<LLVector3*>(var))->mV[VZ]);
         mSlider2 = LLUICtrlFactory::create<LLSliderCtrl>(slider_p);
 
         addChild(mSlider1);
@@ -146,7 +146,7 @@ LLDebugVarMessageBox::~LLDebugVarMessageBox()
 void LLDebugVarMessageBox::show(const std::string& title, F32 *var, F32 max_value, F32 increment)
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-    LLDebugVarMessageBox* box = show(title, VAR_TYPE_F32, (void*)var);
+    LLDebugVarMessageBox* box = show(title, VAR_TYPE_F32, static_cast<void*>(var));
     max_value = llabs(max_value);
     box->mSlider1->setMaxValue(max_value);
     box->mSlider1->setMinValue(-max_value);
@@ -162,14 +162,14 @@ void LLDebugVarMessageBox::show(const std::string& title, F32 *var, F32 max_valu
 void LLDebugVarMessageBox::show(const std::string& title, S32 *var, S32 max_value, S32 increment)
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-    LLDebugVarMessageBox* box = show(title, VAR_TYPE_S32, (void*)var);
-    F32 max_val = llabs((F32)max_value);
+    LLDebugVarMessageBox* box = show(title, VAR_TYPE_S32, static_cast<void*>(var));
+    F32 max_val = llabs(static_cast<F32>(max_value));
     box->mSlider1->setMaxValue(max_val);
     box->mSlider1->setMinValue(-max_val);
-    box->mSlider1->setIncrement((F32)increment);
+    box->mSlider1->setIncrement(static_cast<F32>(increment));
     if (!gFocusMgr.childHasKeyboardFocus(box))
     {
-        box->mSlider1->setValue((F32)*var);
+        box->mSlider1->setValue(static_cast<F32>(*var));
     }
     box->mSlider1->setCommitCallback(std::bind(&LLDebugVarMessageBox::sliderChanged, box, _2));
 #endif
@@ -178,7 +178,7 @@ void LLDebugVarMessageBox::show(const std::string& title, S32 *var, S32 max_valu
 void LLDebugVarMessageBox::show(const std::string& title, LLVector3 *var, LLVector3 max_value, LLVector3 increment)
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-    LLDebugVarMessageBox* box = show(title, VAR_TYPE_VEC3, (LLVector3*)var);
+    LLDebugVarMessageBox* box = show(title, VAR_TYPE_VEC3, static_cast<LLVector3*>(var));
     max_value.abs();
     box->mSlider1->setMaxValue(max_value.mV[VX]);
     box->mSlider1->setMinValue(-max_value.mV[VX]);
@@ -223,17 +223,17 @@ void LLDebugVarMessageBox::sliderChanged(const LLSD& data)
     switch(mVarType)
     {
     case VAR_TYPE_F32:
-        *((F32*)mVarData) = (F32)mSlider1->getValue().asReal();
+        *(reinterpret_cast<F32*>(mVarData)) = static_cast<F32>(mSlider1->getValue().asReal());
         break;
     case VAR_TYPE_S32:
-        *((S32*)mVarData) = (S32)mSlider1->getValue().asInteger();
+        *(reinterpret_cast<S32*>(mVarData)) = static_cast<S32>(mSlider1->getValue().asInteger());
         break;
     case VAR_TYPE_VEC3:
     {
-        LLVector3* vec_p = (LLVector3*)mVarData;
-        vec_p->set((F32)mSlider1->getValue().asReal(),
-            (F32)mSlider2->getValue().asReal(),
-            (F32)mSlider3->getValue().asReal());
+        LLVector3* vec_p = static_cast<LLVector3*>(mVarData);
+        vec_p->set(static_cast<F32>(mSlider1->getValue().asReal()),
+            static_cast<F32>(mSlider2->getValue().asReal()),
+            static_cast<F32>(mSlider3->getValue().asReal()));
         break;
     }
     default:
@@ -254,14 +254,14 @@ void LLDebugVarMessageBox::draw()
     switch(mVarType)
     {
       case VAR_TYPE_F32:
-        text = llformat("%.3f", *((F32*)mVarData));
+        text = llformat("%.3f", *(reinterpret_cast<F32*>(mVarData)));
         break;
       case VAR_TYPE_S32:
-        text = llformat("%d", *((S32*)mVarData));
+        text = llformat("%d", *(reinterpret_cast<S32*>(mVarData)));
         break;
       case VAR_TYPE_VEC3:
       {
-          LLVector3* vec_p = (LLVector3*)mVarData;
+          LLVector3* vec_p = static_cast<LLVector3*>(mVarData);
           text= llformat("%.3f %.3f %.3f", vec_p->mV[VX], vec_p->mV[VY], vec_p->mV[VZ]);
           break;
       }
@@ -275,7 +275,7 @@ void LLDebugVarMessageBox::draw()
     {
         if (mSlider1)
         {
-            F32 animated_val = clamp_rescale(fmodf((F32)LLFrameTimer::getElapsedSeconds() / 5.f, 1.f), 0.f, 1.f, 0.f, mSlider1->getMaxValue());
+            F32 animated_val = clamp_rescale(fmodf(static_cast<F32>(LLFrameTimer::getElapsedSeconds()) / 5.f, 1.f), 0.f, 1.f, 0.f, mSlider1->getMaxValue());
             mSlider1->setValue(animated_val);
             sliderChanged(LLSD());
             if (mSlider2)

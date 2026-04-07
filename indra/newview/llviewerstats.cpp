@@ -313,12 +313,12 @@ T calcStddev(const std::vector<T>& values)
 
 void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 {
-    if (gFrameCount && mLastTimeDiff > (F64Seconds)0.0)
+    if (gFrameCount && mLastTimeDiff > static_cast<F64Seconds>(0.0))
     {
         mTotalTime += time_diff;
         sample(LLStatViewer::FRAMETIME, time_diff);
         // old stats that were never really used
-        F64Seconds jit = (F64Seconds)std::fabs((mLastTimeDiff - time_diff));
+        F64Seconds jit = static_cast<F64Seconds>(std::fabs((mLastTimeDiff - time_diff)));
         sample(LLStatViewer::FRAMETIME_JITTER, jit);
         mTotalFrametimeJitter += jit;
         sample(LLStatViewer::FRAMETIME_JITTER_CUMULATIVE, mTotalFrametimeJitter);
@@ -394,7 +394,7 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
         {
             mEventMinutes++;
             // Calculate average events per minute
-            U64 frame_time_events_per_minute = (U64)mFrameJitterEvents / mEventMinutes;
+            U64 frame_time_events_per_minute = static_cast<U64>(mFrameJitterEvents) / mEventMinutes;
             sample(LLStatViewer::FRAMETIME_JITTER_EVENTS_PER_MINUTE, frame_time_events_per_minute);
             sample(LLStatViewer::FRAMETIME_JITTER_EVENTS_LAST_MINUTE, mFrameJitterEventsLastMinute);
             mFrameJitterEventsLastMinute   = 0;
@@ -471,8 +471,8 @@ void update_statistics()
 
     record(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME, last_frame_recording.getSum(LLStatViewer::TRIANGLES_DRAWN));
 
-    sample(LLStatViewer::ENABLE_VBO,      (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
-    sample(LLStatViewer::DRAW_DISTANCE,   (F64)gSavedSettings.getF32("RenderFarClip"));
+    sample(LLStatViewer::ENABLE_VBO,      static_cast<F64>(gSavedSettings.getBOOL("RenderVBOEnable")));
+    sample(LLStatViewer::DRAW_DISTANCE,   static_cast<F64>(gSavedSettings.getF32("RenderFarClip")));
     sample(LLStatViewer::CHAT_BUBBLES,    gSavedSettings.getBOOL("UseChatBubbles"));
 
     using stat_type_t = LLTrace::StatType<LLTrace::TimeBlockAccumulator>::instance_tracker_t;
@@ -516,7 +516,7 @@ void update_statistics()
 
     // Reset all of these values.
     gVLManager.resetBitCounts();
-    gObjectData = (U32Bytes)0;
+    gObjectData = static_cast<U32Bytes>(0);
 //  gDecodedBits = 0;
 
     // Only update texture stats periodically so that they are less noisy
@@ -597,12 +597,12 @@ void update_statistics()
                 pct_scene_render_time = llclamp(pct_scene_render_time, 0., 100.);
                 if (tot_sleep_time_raw == 0)
                 {
-                    sample(LLStatViewer::SCENERY_FRAME_PCT, (U32)llround(pct_scene_render_time));
-                    sample(LLStatViewer::AVATAR_FRAME_PCT, (U32)llround(pct_avatar_time));
-                    sample(LLStatViewer::HUDS_FRAME_PCT, (U32)llround(pct_huds_time));
-                    sample(LLStatViewer::UI_FRAME_PCT, (U32)llround(pct_ui_time));
-                    sample(LLStatViewer::SWAP_FRAME_PCT, (U32)llround(pct_swap_time));
-                    sample(LLStatViewer::IDLE_FRAME_PCT, (U32)llround(pct_idle_time));
+                    sample(LLStatViewer::SCENERY_FRAME_PCT, static_cast<U32>(llround(pct_scene_render_time)));
+                    sample(LLStatViewer::AVATAR_FRAME_PCT, static_cast<U32>(llround(pct_avatar_time)));
+                    sample(LLStatViewer::HUDS_FRAME_PCT, static_cast<U32>(llround(pct_huds_time)));
+                    sample(LLStatViewer::UI_FRAME_PCT, static_cast<U32>(llround(pct_ui_time)));
+                    sample(LLStatViewer::SWAP_FRAME_PCT, static_cast<U32>(llround(pct_swap_time)));
+                    sample(LLStatViewer::IDLE_FRAME_PCT, static_cast<U32>(llround(pct_idle_time)));
                 }
             }
             else
@@ -672,7 +672,7 @@ void send_viewer_stats(bool include_preferences)
     agent["foreground_time"] = gForegroundTime.getElapsedTimeF32();
 
     // send fps only for time app spends in foreground
-    agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
+    agent["fps"] = static_cast<F32>(gForegroundFrameCount) / gForegroundTime.getElapsedTimeF32();
 
     agent["normalized_session_jitter"] = LLViewerStats::instance().getLastNormalizedSessionJitter();
     agent["normalized_frametime_variance"] = LLViewerStats::instance().getLastNormalizedFrametimeVariance();
@@ -682,11 +682,11 @@ void send_viewer_stats(bool include_preferences)
     std::string language = LLUI::getLanguage();
     agent["language"] = language;
 
-    agent["sim_fps"] = ((F32) gFrameCount - gSimFrames) /
-        (F32) (gRenderStartTime.getElapsedTimeF32() - gSimLastTime);
+    agent["sim_fps"] = (static_cast<F32>(gFrameCount) - gSimFrames) /
+        static_cast<F32>(gRenderStartTime.getElapsedTimeF32() - gSimLastTime);
 
     gSimLastTime = gRenderStartTime.getElapsedTimeF32();
-    gSimFrames   = (F32) gFrameCount;
+    gSimFrames   = static_cast<F32>(gFrameCount);
 
     agent["agents_in_view"] = LLVOAvatar::sNumVisibleAvatars;
     agent["ping"] = gAvgSimPing.value();
@@ -697,13 +697,13 @@ void send_viewer_stats(bool include_preferences)
 
     LLSD &system = body["system"];
 
-    system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB().value();
+    system["ram"] = static_cast<S32>(gSysMemory.getPhysicalMemoryKB().value());
     system["os"] = LLOSInfo::instance().getOSStringSimple();
     system["cpu"] = gSysCPU.getCPUString();
     system["cpu_sse"] = gSysCPU.getSSEVersions();
     system["address_size"] = ADDRESS_SIZE;
     system["os_bitness"] = LLOSInfo::instance().getOSBitness();
-    system["hardware_concurrency"] = (LLSD::Integer) std::thread::hardware_concurrency();
+    system["hardware_concurrency"] = static_cast<LLSD::Integer>(std::thread::hardware_concurrency());
     unsigned char MACAddress[MAC_ADDRESS_BYTES];
     LLUUID::getNodeID(MACAddress);
     std::string macAddressString = llformat("%02x-%02x-%02x-%02x-%02x-%02x",
@@ -714,11 +714,11 @@ void send_viewer_stats(bool include_preferences)
     std::string gpu_desc = llformat(
         "%-6s Class %d ",
         gGLManager.mGLVendorShort.substr(0,6).c_str(),
-        (S32)LLFeatureManager::getInstance()->getGPUClass())
+        static_cast<S32>(LLFeatureManager::getInstance()->getGPUClass()))
         + gGLManager.getRawGLString();
 
     system["gpu"] = gpu_desc;
-    system["gpu_class"] = (S32)LLFeatureManager::getInstance()->getGPUClass();
+    system["gpu_class"] = static_cast<S32>(LLFeatureManager::getInstance()->getGPUClass());
     system["gpu_memory_bandwidth"] = LLFeatureManager::getInstance()->getGPUMemoryBandwidth();
     system["gpu_vendor"] = gGLManager.mGLVendorShort;
     system["gpu_version"] = gGLManager.mDriverVersionVendorString;
@@ -755,28 +755,28 @@ void send_viewer_stats(bool include_preferences)
     LLSD &in = body["stats"]["net"]["in"];
 
     in["kbytes"] = gMessageSystem->mTotalBytesIn / 1024.0;
-    in["packets"] = (S32) gMessageSystem->mPacketsIn;
-    in["compressed_packets"] = (S32) gMessageSystem->mCompressedPacketsIn;
+    in["packets"] = static_cast<S32>(gMessageSystem->mPacketsIn);
+    in["compressed_packets"] = static_cast<S32>(gMessageSystem->mCompressedPacketsIn);
     in["savings"] = (gMessageSystem->mUncompressedBytesIn -
                      gMessageSystem->mCompressedBytesIn) / 1024.0;
 
     LLSD &out = body["stats"]["net"]["out"];
 
     out["kbytes"] = gMessageSystem->mTotalBytesOut / 1024.0;
-    out["packets"] = (S32) gMessageSystem->mPacketsOut;
-    out["compressed_packets"] = (S32) gMessageSystem->mCompressedPacketsOut;
+    out["packets"] = static_cast<S32>(gMessageSystem->mPacketsOut);
+    out["compressed_packets"] = static_cast<S32>(gMessageSystem->mCompressedPacketsOut);
     out["savings"] = (gMessageSystem->mUncompressedBytesOut -
                       gMessageSystem->mCompressedBytesOut) / 1024.0;
 
     LLSD &fail = body["stats"]["failures"];
 
-    fail["send_packet"] = (S32) gMessageSystem->mSendPacketFailureCount;
-    fail["dropped"] = (S32) gMessageSystem->mDroppedPackets;
-    fail["resent"] = (S32) gMessageSystem->mResentPackets;
-    fail["failed_resends"] = (S32) gMessageSystem->mFailedResendPackets;
-    fail["off_circuit"] = (S32) gMessageSystem->mOffCircuitPackets;
-    fail["invalid"] = (S32) gMessageSystem->mInvalidOnCircuitPackets;
-    fail["missing_updater"] = (S32) LLAppViewer::instance()->isUpdaterMissing();
+    fail["send_packet"] = static_cast<S32>(gMessageSystem->mSendPacketFailureCount);
+    fail["dropped"] = static_cast<S32>(gMessageSystem->mDroppedPackets);
+    fail["resent"] = static_cast<S32>(gMessageSystem->mResentPackets);
+    fail["failed_resends"] = static_cast<S32>(gMessageSystem->mFailedResendPackets);
+    fail["off_circuit"] = static_cast<S32>(gMessageSystem->mOffCircuitPackets);
+    fail["invalid"] = static_cast<S32>(gMessageSystem->mInvalidOnCircuitPackets);
+    fail["missing_updater"] = static_cast<S32>(LLAppViewer::instance()->isUpdaterMissing());
 
     LLSD &inventory = body["inventory"];
     inventory["usable"] = gInventory.isInventoryUsable();
@@ -833,13 +833,13 @@ void send_viewer_stats(bool include_preferences)
 
             // NOTE: Technically we can use GetProcAddress() as a replacement for vkGetInstanceProcAddr()
             //       but the canonical recommendation (mandate?) is to use vkGetInstanceProcAddr().
-            PFN_vkGetInstanceProcAddr pGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr) GetProcAddress(vulkan_loader, "vkGetInstanceProcAddr");
+            PFN_vkGetInstanceProcAddr pGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(GetProcAddress(vulkan_loader, "vkGetInstanceProcAddr"));
             if(pGetInstanceProcAddr)
             {
                 // Check for vkEnumerateInstanceVersion.  If it exists then we have at least 1.1 and can query the max API version.
                 // NOTE: Each VkPhysicalDevice that supports Vulkan has its own VkPhysicalDeviceProperties.apiVersion which is separate from the max API version!
                 // See: https://www.lunarg.com/wp-content/uploads/2019/02/Vulkan-1.1-Compatibility-Statement_01_19.pdf
-                PFN_vkEnumerateInstanceVersion pEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion) pGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion");
+                PFN_vkEnumerateInstanceVersion pEnumerateInstanceVersion = reinterpret_cast<PFN_vkEnumerateInstanceVersion>(pGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion"));
                 if(pEnumerateInstanceVersion)
                 {
                     uint32_t version = VK_MAKE_API_VERSION(0,1,1,0);   // e.g. 4202631 = 1.2.135.0

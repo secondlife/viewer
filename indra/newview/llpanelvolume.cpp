@@ -259,7 +259,7 @@ void LLPanelVolume::getState( )
     LLVOVolume *volobjp = NULL;
     if ( objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        volobjp = (LLVOVolume *)objectp;
+        volobjp = static_cast<LLVOVolume *>(objectp);
     }
     LLVOVolume *root_volobjp = NULL;
     if (root_objectp && (root_objectp->getPCode() == LL_PCODE_VOLUME))
@@ -774,7 +774,7 @@ void LLPanelVolume::sendIsLight()
     {
         return;
     }
-    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
 
     bool value = getChild<LLUICtrl>("Light Checkbox Ctrl")->getValue();
     volobjp->setIsLight(value);
@@ -869,7 +869,7 @@ void LLPanelVolume::sendIsFlexible()
     {
         return;
     }
-    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
 
     bool is_flexible = getChild<LLUICtrl>("Flexible1D Checkbox Ctrl")->getValue();
     //bool is_flexible = mCheckFlexible1D->get();
@@ -979,7 +979,7 @@ void LLPanelVolume::onLightSelectColor(const LLSD& data)
     {
         return;
     }
-    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
 
     LLColorSwatchCtrl*  LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
     if(LightColorSwatch)
@@ -1020,7 +1020,7 @@ void LLPanelVolume::onCopyFeatures()
     LLVOVolume *volobjp = NULL;
     if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        volobjp = (LLVOVolume *)objectp;
+        volobjp = static_cast<LLVOVolume *>(objectp);
     }
 
     // Flexi Prim
@@ -1081,7 +1081,7 @@ void LLPanelVolume::onPasteFeatures()
     LLVOVolume *volobjp = NULL;
     if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        volobjp = (LLVOVolume *)objectp;
+        volobjp = static_cast<LLVOVolume *>(objectp);
     }
 
     // Physics
@@ -1113,7 +1113,7 @@ void LLPanelVolume::onPasteFeatures()
     bool is_flexible = clipboard.has("flex");
     if (is_flexible && volobjp->canBeFlexible())
     {
-        LLVOVolume *volobjp = (LLVOVolume *)objectp;
+        LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
         bool update_shape = false;
 
         // do before setParameterEntry or it will think that it is already flexi
@@ -1150,7 +1150,7 @@ void LLPanelVolume::onPasteFeatures()
     }
     else
     {
-        LLVOVolume *volobjp = (LLVOVolume *)objectp;
+        LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
         if (volobjp->setIsFlexible(false))
         {
             mObject->sendShapeUpdate();
@@ -1172,7 +1172,7 @@ void LLPanelVolume::onCopyLight()
     LLVOVolume *volobjp = NULL;
     if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        volobjp = (LLVOVolume *)objectp;
+        volobjp = static_cast<LLVOVolume *>(objectp);
     }
 
     // Light Source
@@ -1226,7 +1226,7 @@ void LLPanelVolume::onPasteLight()
     LLVOVolume *volobjp = NULL;
     if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        volobjp = (LLVOVolume *)objectp;
+        volobjp = static_cast<LLVOVolume *>(objectp);
     }
 
     // Light Source
@@ -1366,11 +1366,11 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
     {
         return;
     }
-    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
 
-    volobjp->setLightIntensity(static_cast<F32>(self->getChild)<LLUICtrl>("Light Intensity")->getValue().asReal());
-    volobjp->setLightRadius(static_cast<F32>(self->getChild)<LLUICtrl>("Light Radius")->getValue().asReal());
-    volobjp->setLightFalloff(static_cast<F32>(self->getChild)<LLUICtrl>("Light Falloff")->getValue().asReal());
+    volobjp->setLightIntensity(static_cast<F32>(self->getChild<LLUICtrl>("Light Intensity")->getValue().asReal()));
+    volobjp->setLightRadius(static_cast<F32>(self->getChild<LLUICtrl>("Light Radius")->getValue().asReal()));
+    volobjp->setLightFalloff(static_cast<F32>(self->getChild<LLUICtrl>("Light Falloff")->getValue().asReal()));
 
     LLColorSwatchCtrl*  LightColorSwatch = self->getChild<LLColorSwatchCtrl>("colorswatch");
     if(LightColorSwatch)
@@ -1402,9 +1402,9 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
                 }
 
                 LLVector3 spot_params;
-                spot_params.mV[0] = static_cast<F32>(self->getChild)<LLUICtrl>("Light FOV")->getValue().asReal();
-                spot_params.mV[1] = static_cast<F32>(self->getChild)<LLUICtrl>("Light Focus")->getValue().asReal();
-                spot_params.mV[2] = static_cast<F32>(self->getChild)<LLUICtrl>("Light Ambiance")->getValue().asReal();
+                spot_params.mV[0] = static_cast<F32>(self->getChild<LLUICtrl>("Light FOV")->getValue().asReal());
+                spot_params.mV[1] = static_cast<F32>(self->getChild<LLUICtrl>("Light Focus")->getValue().asReal());
+                spot_params.mV[2] = static_cast<F32>(self->getChild<LLUICtrl>("Light Ambiance")->getValue().asReal());
                 volobjp->setSpotLightParams(spot_params);
             }
         }
@@ -1430,8 +1430,8 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
     }
     LLVOVolume* volobjp = (LLVOVolume*)objectp;
 
-    volobjp->setReflectionProbeAmbiance(static_cast<F32>(self->getChild)<LLUICtrl>("Probe Ambiance")->getValue().asReal());
-    volobjp->setReflectionProbeNearClip(static_cast<F32>(self->getChild)<LLUICtrl>("Probe Near Clip")->getValue().asReal());
+    volobjp->setReflectionProbeAmbiance(static_cast<F32>(self->getChild<LLUICtrl>("Probe Ambiance")->getValue().asReal()));
+    volobjp->setReflectionProbeNearClip(static_cast<F32>(self->getChild<LLUICtrl>("Probe Near Clip")->getValue().asReal()));
 
     bool mirrors_enabled = LLPipeline::RenderMirrors;
     bool is_mirror = false;
@@ -1556,13 +1556,13 @@ void LLPanelVolume::onCommitFlexible( LLUICtrl* ctrl, void* userdata )
         new_attributes = *attributes;
 
         new_attributes.setSimulateLOD(self->getChild<LLUICtrl>("FlexNumSections")->getValue().asInteger());//(S32)self->mSpinSections->get());
-        new_attributes.setGravity(static_cast<F32>(self->getChild)<LLUICtrl>("FlexGravity")->getValue().asReal());
-        new_attributes.setTension(static_cast<F32>(self->getChild)<LLUICtrl>("FlexTension")->getValue().asReal());
-        new_attributes.setAirFriction(static_cast<F32>(self->getChild)<LLUICtrl>("FlexFriction")->getValue().asReal());
-        new_attributes.setWindSensitivity(static_cast<F32>(self->getChild)<LLUICtrl>("FlexWind")->getValue().asReal());
-        F32 fx = static_cast<F32>(self->getChild)<LLUICtrl>("FlexForceX")->getValue().asReal();
-        F32 fy = static_cast<F32>(self->getChild)<LLUICtrl>("FlexForceY")->getValue().asReal();
-        F32 fz = static_cast<F32>(self->getChild)<LLUICtrl>("FlexForceZ")->getValue().asReal();
+        new_attributes.setGravity(static_cast<F32>(self->getChild<LLUICtrl>("FlexGravity")->getValue().asReal()));
+        new_attributes.setTension(static_cast<F32>(self->getChild<LLUICtrl>("FlexTension")->getValue().asReal()));
+        new_attributes.setAirFriction(static_cast<F32>(self->getChild<LLUICtrl>("FlexFriction")->getValue().asReal()));
+        new_attributes.setWindSensitivity(static_cast<F32>(self->getChild<LLUICtrl>("FlexWind")->getValue().asReal()));
+        F32 fx = static_cast<F32>(self->getChild<LLUICtrl>("FlexForceX")->getValue().asReal());
+        F32 fy = static_cast<F32>(self->getChild<LLUICtrl>("FlexForceY")->getValue().asReal());
+        F32 fz = static_cast<F32>(self->getChild<LLUICtrl>("FlexForceZ")->getValue().asReal());
         LLVector3 force(fx,fy,fz);
 
         new_attributes.setUserForce(force);
@@ -1580,7 +1580,7 @@ void LLPanelVolume::onCommitAnimatedMeshCheckbox(LLUICtrl *, void*)
     {
         return;
     }
-    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
     bool animated_mesh = getChild<LLUICtrl>("Animated Mesh Checkbox Ctrl")->getValue();
     U32 flags = volobjp->getExtendedMeshFlags();
     U32 new_flags = flags;

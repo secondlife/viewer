@@ -614,7 +614,7 @@ void translateSuccess(const LLUUID& session_id, const std::string& from, const L
     // Extract info packed in time_n_flags
     bool log2file =      (bool)(time_n_flags & (1LL << 32));
     bool is_region_msg = (bool)(time_n_flags & (1LL << 33));
-    U32 time_stamp = (U32)(time_n_flags & 0x00000000ffffffff);
+    U32 time_stamp = static_cast<U32>(time_n_flags & 0x00000000ffffffff);
 
     LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp);
 }
@@ -630,7 +630,7 @@ void translateFailure(const LLUUID& session_id, const std::string& from, const L
     // Extract info packed in time_n_flags
     bool log2file = (bool)(time_n_flags & (1LL << 32));
     bool is_region_msg = (bool)(time_n_flags & (1LL << 33));
-    U32 time_stamp = (U32)(time_n_flags & 0x00000000ffffffff);
+    U32 time_stamp = static_cast<U32>(time_n_flags & 0x00000000ffffffff);
 
     LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp);
 }
@@ -647,7 +647,7 @@ void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, 
     postData["session-id"] = sessionId;
 
     LL_DEBUGS("ChatHistory") << sessionId << ": Chat history posting " << postData << " to " << url
-        << ", from " << from << ", message " << message << ", timestamp " << (S32)timestamp << LL_ENDL;
+        << ", from " << from << ", message " << message << ", timestamp " << static_cast<S32>(timestamp) << LL_ENDL;
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
@@ -687,7 +687,7 @@ void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, 
                     if ((*cur_server_hist).isMap())
                     {   // Take the 'time' value from the server and make the date-time string that will be in local cache log files
                         //   {'from_id':u7aa8c222-8a81-450e-b3d1-9c28491ef717,'message':'Can you hear me now?','from':'Chat Tester','num':i86,'time':r1.66501e+09}
-                        U32 timestamp = (U32)((*cur_server_hist)[LL_IM_TIME].asInteger());
+                        U32 timestamp = static_cast<U32>((*cur_server_hist)[LL_IM_TIME].asInteger());
                         (*cur_server_hist)[LL_IM_DATE_TIME] = LLLogChat::timestamp2LogString(timestamp, true);
                     }
                 }
@@ -1033,8 +1033,8 @@ void LLIMModel::LLIMSession::addMessage(const std::string& from,
     message["from_id"] = from_id;
     message["message"] = utf8_text;
     message["time"] = time;         // string used in display, may be full data YYYY/MM/DD HH:MM or just HH:MM
-    message["timestamp"] = (S32)timestamp;          // use string? LLLogChat::timestamp2LogString(timestamp, true);
-    message["index"] = (LLSD::Integer)mMsgs.size();
+    message["timestamp"] = static_cast<S32>(timestamp);          // use string? LLLogChat::timestamp2LogString(timestamp, true);
+    message["index"] = static_cast<LLSD::Integer>(mMsgs.size());
     message["is_history"] = is_history;
     message["is_region_msg"] = is_region_msg;
 
@@ -1126,7 +1126,7 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
 
     if (!history.isArray())
     {
-        LL_WARNS("ChatHistory") << mSessionID << ": Unexpected history data not array, type " << (S32)history.type() << LL_ENDL;
+        LL_WARNS("ChatHistory") << mSessionID << ": Unexpected history data not array, type " << static_cast<S32>(history.type()) << LL_ENDL;
         return;
     }
 
@@ -1148,7 +1148,7 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
         << " adding history with " << history.size() << " messages"
         << ", target_from: " << target_from
         << ", target_message: " << target_message
-        << ", timestamp: " << (S32)timestamp << LL_ENDL;
+        << ", timestamp: " << static_cast<S32>(timestamp) << LL_ENDL;
 
     // At start of merging, mMsgs is either empty, has some chat messages read from a local cache file, and may have
     // one or more messages that just arrived from the server.
@@ -1169,10 +1169,10 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
                 LL_DEBUGS("ChatHistoryCompare") << mSessionID << ": Finding insertion point, looking at cur_msg: " << cur_msg << LL_ENDL;
 
                 match_timestamp = cur_msg["timestamp"].asInteger();  // get timestamp of message in the session, may be zero
-                if ((S32)timestamp > match_timestamp)
+                if (static_cast<S32>(timestamp) > match_timestamp)
                 {
                     LL_DEBUGS("ChatHistory") << mSessionID << ": found older chat message: " << cur_msg
-                        << ", timestamp " << (S32)timestamp
+                        << ", timestamp " << static_cast<S32>(timestamp)
                         << " vs. match_timestamp " << match_timestamp
                         << ", shift_msgs size is " << shift_msgs.size() << LL_ENDL;
                     break;
@@ -1183,7 +1183,7 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
                 LL_DEBUGS("ChatHistory") << mSessionID << ": shifting chat message " << cur_msg
                     << " to be inserted at end, shift_msgs size is " << shift_msgs.size()
                     << ", match_timestamp " << match_timestamp
-                    << ", timestamp " << (S32)timestamp << LL_ENDL;
+                    << ", timestamp " << static_cast<S32>(timestamp) << LL_ENDL;
             }
             else
             {
@@ -1208,18 +1208,18 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
             //   { 'from':'Laggy Avatar', 'from_id' : u72345678 - 744f - 43b9 - 98af - b06f1c76ddda, 'index' : i24, 'is_history' : 1, 'message' : 'That was slow', 'time' : '02/13/2023 10:03', 'timestamp' : i1676311419 }
 
             // If we reach the message that opened our window, stop adding messages
-            U32 history_msg_timestamp = (U32)cur_server_hist[LL_IM_TIME].asInteger();
+            U32 history_msg_timestamp = static_cast<U32>(cur_server_hist[LL_IM_TIME].asInteger());
             if ((match_timestamp > 0 && match_timestamp <= history_msg_timestamp) ||
                 (timestamp > 0 && timestamp <= history_msg_timestamp))
             {   // we found the message we matched, so stop inserting from chat server history
-                LL_DEBUGS("ChatHistoryCompare") << "Found end of chat history insertion with match_timestamp " << (S32)match_timestamp
-                    << " vs. history_msg_timestamp " << (S32)history_msg_timestamp
-                    << " vs. timestamp " << (S32)timestamp
+                LL_DEBUGS("ChatHistoryCompare") << "Found end of chat history insertion with match_timestamp " << static_cast<S32>(match_timestamp)
+                    << " vs. history_msg_timestamp " << static_cast<S32>(history_msg_timestamp)
+                    << " vs. timestamp " << static_cast<S32>(timestamp)
                     << LL_ENDL;
                 break;
             }
-            LL_DEBUGS("ChatHistoryCompare") << "Compared match_timestamp " << (S32)match_timestamp
-                << " vs. history_msg_timestamp " << (S32)history_msg_timestamp << LL_ENDL;
+            LL_DEBUGS("ChatHistoryCompare") << "Compared match_timestamp " << static_cast<S32>(match_timestamp)
+                << " vs. history_msg_timestamp " << static_cast<S32>(history_msg_timestamp) << LL_ENDL;
 
             bool add_chat_to_conversation = true;
             if (!mLastHistoryCacheDateTime.empty())
@@ -1267,7 +1267,7 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
                             if (history_msg_text == target_compare)
                             {   // Found a match, so don't add a duplicate chat message to the window
                                 LL_DEBUGS("ChatHistory") << mSessionID << ": Found duplicate message text " << history_msg_text
-                                    << " : " << (S32)history_msg_timestamp << ", matching datetime " << history_datetime << LL_ENDL;
+                                    << " : " << static_cast<S32>(history_msg_timestamp) << ", matching datetime " << history_datetime << LL_ENDL;
                                 add_chat_to_conversation = false;
                                 break;
                             }
@@ -1290,7 +1290,7 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
 
             if (add_chat_to_conversation)
             {   // Finally add message to the chat session
-                std::string chat_time_str = LLConversation::createTimestamp((U64Seconds)history_msg_timestamp);
+                std::string chat_time_str = LLConversation::createTimestamp(static_cast<U64Seconds>(history_msg_timestamp));
                 std::string sender_name = cur_server_hist[LL_IM_FROM].asString();
 
                 std::string history_msg_text = cur_server_hist[LL_IM_TEXT].asString();
@@ -1299,8 +1299,8 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
                 message["from_id"] = sender_id;
                 message["message"] = history_msg_text;
                 message["time"] = chat_time_str;
-                message["timestamp"] = (S32)history_msg_timestamp;
-                message["index"] = (LLSD::Integer)mMsgs.size();
+                message["timestamp"] = static_cast<S32>(history_msg_timestamp);
+                message["index"] = static_cast<LLSD::Integer>(mMsgs.size());
                 message["is_history"] = true;
                 mMsgs.push_front(message);
 
@@ -1324,7 +1324,7 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
         LLSD newer_message = shift_msgs.front();
         shift_msgs.pop_front();
         S32 old_index = newer_message["index"];
-        newer_message["index"] = (LLSD::Integer)mMsgs.size();   // Update the index to match the new position in the conversation
+        newer_message["index"] = static_cast<LLSD::Integer>(mMsgs.size());   // Update the index to match the new position in the conversation
         LL_DEBUGS("ChatHistory") << mSessionID << ": Re-adding newest group chat history messages from " << newer_message["from"]
             << ", text: " << newer_message["message"]
             << " old index " << old_index << ", new index " << newer_message["index"] << LL_ENDL;
@@ -1343,7 +1343,7 @@ void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const
 {
     if (!userdata) return;
 
-    LLIMSession* self = (LLIMSession*) userdata;
+    LLIMSession* self = static_cast<LLIMSession*>(userdata);
 
     if (type == LLLogChat::LOG_LINE)
     {
@@ -1374,7 +1374,7 @@ void LLIMModel::LLIMSession::loadHistory()
 
 LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
 {
-    return get_if_there(mId2SessionMap, session_id, (LLIMModel::LLIMSession*) NULL);
+    return get_if_there(mId2SessionMap, session_id, static_cast<LLIMModel::LLIMSession*>(NULL));
 }
 
 //*TODO consider switching to using std::set instead of std::list for holding LLUUIDs across the whole code
@@ -1505,13 +1505,13 @@ LLUUID LLIMModel::LLIMSession::generateHash(const std::set<LLUUID>& sorted_uuids
     std::set<LLUUID>::const_iterator it = sorted_uuids.begin();
     while (it != sorted_uuids.end())
     {
-        md5_uuid.update((unsigned char*)(*it).mData, 16);
+        md5_uuid.update((*it).mData, 16);
         it++;
     }
     md5_uuid.finalize();
 
     LLUUID participants_md5_hash;
-    md5_uuid.raw_digest((unsigned char*) participants_md5_hash.mData);
+    md5_uuid.raw_digest(reinterpret_cast<unsigned char*>(participants_md5_hash.mData));
     return participants_md5_hash;
 }
 
@@ -1728,7 +1728,7 @@ void LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
     {
         const std::string from_lang = ""; // leave empty to trigger autodetect
         const std::string to_lang = LLTranslate::getTranslateLanguage();
-        U64 time_n_flags = ((U64) time_stamp) | (log2file ? (1LL << 32) : 0) | (is_region_msg ? (1LL << 33) : 0);   // std::bind has limited parameters
+        U64 time_n_flags = (static_cast<U64>(time_stamp)) | (log2file ? (1LL << 32) : 0) | (is_region_msg ? (1LL << 33) : 0);   // std::bind has limited parameters
         LLTranslate::translateMessage(from_lang, to_lang, utf8_text,
             std::bind(&translateSuccess, session_id, from, from_id, utf8_text, time_n_flags, utf8_text, from_lang, _1, _2),
             std::bind(&translateFailure, session_id, from, from_id, utf8_text, time_n_flags, _1, _2));
@@ -1974,7 +1974,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
             name.c_str(),
             utf8_text.c_str(),
             offline,
-            (EInstantMessage)new_dialog,
+            static_cast<EInstantMessage>(new_dialog),
             im_session_id);
         gAgent.sendReliableMessage();
     }
@@ -2171,7 +2171,7 @@ bool LLIMModel::sendStartSession(
     else if (dialog == IM_SESSION_CONFERENCE_START )
     {
         LLSD agents;
-        for (int i = 0; i < (S32) ids.size(); i++)
+        for (int i = 0; i < static_cast<S32>(ids.size()); i++)
         {
             agents.append(ids[i]);
         }
@@ -2756,7 +2756,7 @@ void LLOutgoingCallDialog::hideAllText()
 //static
 void LLOutgoingCallDialog::onCancel(void* user_data)
 {
-    LLOutgoingCallDialog* self = (LLOutgoingCallDialog*)user_data;
+    LLOutgoingCallDialog* self = static_cast<LLOutgoingCallDialog*>(user_data);
 
     if (!gIMMgr)
         return;
@@ -2953,7 +2953,7 @@ void LLIncomingCallDialog::onOpen(const LLSD& key)
 //static
 void LLIncomingCallDialog::onAccept(void* user_data)
 {
-    LLIncomingCallDialog* self = (LLIncomingCallDialog*)user_data;
+    LLIncomingCallDialog* self = static_cast<LLIncomingCallDialog*>(user_data);
     processCallResponse(0, self->mPayload);
     self->closeFloater();
 }
@@ -2961,7 +2961,7 @@ void LLIncomingCallDialog::onAccept(void* user_data)
 //static
 void LLIncomingCallDialog::onReject(void* user_data)
 {
-    LLIncomingCallDialog* self = (LLIncomingCallDialog*)user_data;
+    LLIncomingCallDialog* self = static_cast<LLIncomingCallDialog*>(user_data);
     processCallResponse(1, self->mPayload);
     self->closeFloater();
 }
@@ -2969,7 +2969,7 @@ void LLIncomingCallDialog::onReject(void* user_data)
 //static
 void LLIncomingCallDialog::onStartIM(void* user_data)
 {
-    LLIncomingCallDialog* self = (LLIncomingCallDialog*)user_data;
+    LLIncomingCallDialog* self = static_cast<LLIncomingCallDialog*>(user_data);
     processCallResponse(2, self->mPayload);
     self->closeFloater();
 }
@@ -2983,8 +2983,8 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
     LLUUID session_id = payload["session_id"].asUUID();
     LLUUID caller_id = payload["caller_id"].asUUID();
     std::string session_name = payload["session_name"].asString();
-    EInstantMessage type = (EInstantMessage)payload["type"].asInteger();
-    LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)payload["inv_type"].asInteger();
+    EInstantMessage type = static_cast<EInstantMessage>(payload["type"].asInteger());
+    LLIMMgr::EInvitationType inv_type = static_cast<LLIMMgr::EInvitationType>(payload["inv_type"].asInteger());
     bool voice = true;
     switch(response)
     {
@@ -4246,7 +4246,7 @@ public:
             LLUUID from_id = message_params["from_id"].asUUID();
             LLUUID session_id = message_params["id"].asUUID();
             std::vector<U8> bin_bucket = message_params["data"]["binary_bucket"].asBinary();
-            U8 offline = (U8)message_params["offline"].asInteger();
+            U8 offline = static_cast<U8>(message_params["offline"].asInteger());
 
             time_t timestamp =
                 (time_t) message_params["timestamp"].asInteger();
@@ -4280,13 +4280,13 @@ public:
                 name,
                 buffer,
                 IM_OFFLINE == offline,
-                std::string((char*)&bin_bucket[0]),
+                std::string(reinterpret_cast<char*>(&bin_bucket[0])),
                 IM_SESSION_INVITE,
                 message_params["parent_estate_id"].asInteger(),
                 message_params["region_id"].asUUID(),
                 ll_vector3_from_sd(message_params["position"]),
                 false,      // is_region_message
-                (U32)timestamp);
+                static_cast<U32>(timestamp));
 
             if (LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat))
             {

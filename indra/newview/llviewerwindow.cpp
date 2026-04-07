@@ -342,8 +342,8 @@ void normalized_float_to_string(const float x, char *out_str)
 
     int neg = (x < 0);
     int rem = neg
-            ? (int)(x * -10000.)
-            : (int)(x *  10000.);
+            ? static_cast<int>(x * -10000.)
+            : static_cast<int>(x *  10000.);
 
     int d10 = rem % 100; rem /= 100;
     int d32 = rem % 100; rem /= 100;
@@ -389,9 +389,9 @@ void normalized_float_to_string(const float x, char *out_str)
     F32 temp_1 = matrix_row[i+1];                                                \
     F32 temp_2 = matrix_row[i+2];                                                \
                                                                                  \
-    U8 flag_0 = (((U8)(temp_0 < -99999.99)) << 1) | ((U8)(temp_0 > 99999.99));   \
-    U8 flag_1 = (((U8)(temp_1 < -99999.99)) << 1) | ((U8)(temp_1 > 99999.99));   \
-    U8 flag_2 = (((U8)(temp_2 < -99999.99)) << 1) | ((U8)(temp_2 > 99999.99));   \
+    U8 flag_0 = ((static_cast<U8>(temp_0 < -99999.99)) << 1) | (static_cast<U8>(temp_0 > 99999.99));   \
+    U8 flag_1 = ((static_cast<U8>(temp_1 < -99999.99)) << 1) | (static_cast<U8>(temp_1 > 99999.99));   \
+    U8 flag_2 = ((static_cast<U8>(temp_2 < -99999.99)) << 1) | (static_cast<U8>(temp_2 > 99999.99));   \
                                                                                  \
     if (temp_0 < 0.f) out_buffer[ 0] = '-';                                      \
     if (temp_1 < 0.f) out_buffer[11] = '-';                                      \
@@ -492,9 +492,9 @@ public:
         if (debug_show_time())
         {
             F32 time = gFrameTimeSeconds;
-            S32 hours = (S32)(time / (60*60));
-            S32 mins = (S32)((time - hours*(60*60)) / 60);
-            S32 secs = (S32)((time - hours*(60*60) - mins*60));
+            S32 hours = static_cast<S32>(time / (60*60));
+            S32 mins = static_cast<S32>((time - hours*(60*60)) / 60);
+            S32 secs = static_cast<S32>((time - hours*(60*60) - mins*60));
             addText(xpos, ypos, llformat("Time: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc;
         }
 
@@ -520,13 +520,13 @@ public:
             // Update camera center, camera view, wind info every other frame
             tvector = gAgent.getPositionGlobal();
             agent_center_text = llformat("AgentCenter  %f %f %f",
-                                         (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
+                                         static_cast<F32>(tvector.mdV[VX]), static_cast<F32>(tvector.mdV[VY]), static_cast<F32>(tvector.mdV[VZ]));
 
             if (isAgentAvatarValid())
             {
                 tvector = gAgent.getPosGlobalFromAgent(gAgentAvatarp->mRoot->getWorldPosition());
                 agent_root_center_text = llformat("AgentRootCenter %f %f %f",
-                                                  (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
+                                                  static_cast<F32>(tvector.mdV[VX]), static_cast<F32>(tvector.mdV[VY]), static_cast<F32>(tvector.mdV[VZ]));
             }
             else
             {
@@ -536,19 +536,19 @@ public:
 
             tvector = LLVector4(gAgent.getFrameAgent().getAtAxis());
             agent_view_text = llformat("AgentAtAxis  %f %f %f",
-                                       (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
+                                       static_cast<F32>(tvector.mdV[VX]), static_cast<F32>(tvector.mdV[VY]), static_cast<F32>(tvector.mdV[VZ]));
 
             tvector = LLVector4(gAgent.getFrameAgent().getLeftAxis());
             agent_left_text = llformat("AgentLeftAxis  %f %f %f",
-                                       (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
+                                       static_cast<F32>(tvector.mdV[VX]), static_cast<F32>(tvector.mdV[VY]), static_cast<F32>(tvector.mdV[VZ]));
 
             tvector = gAgentCamera.getCameraPositionGlobal();
             camera_center_text = llformat("CameraCenter %f %f %f",
-                                          (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
+                                          static_cast<F32>(tvector.mdV[VX]), static_cast<F32>(tvector.mdV[VY]), static_cast<F32>(tvector.mdV[VZ]));
 
             tvector = LLVector4(LLViewerCamera::getInstance()->getAtAxis());
             camera_view_text = llformat("CameraAtAxis    %f %f %f",
-                                        (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
+                                        static_cast<F32>(tvector.mdV[VX]), static_cast<F32>(tvector.mdV[VY]), static_cast<F32>(tvector.mdV[VZ]));
 
             addText(xpos, ypos, agent_center_text);  ypos += y_inc;
             addText(xpos, ypos, agent_root_center_text);  ypos += y_inc;
@@ -662,7 +662,7 @@ public:
             addText(xpos, ypos, llformat("%d Unique Textures", LLImageGL::sUniqueCount));
             ypos += y_inc;
 
-            addText(xpos, ypos, llformat("%d Render Calls", (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize)));
+            addText(xpos, ypos, llformat("%d Render Calls", static_cast<U32>(last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize))));
             ypos += y_inc;
 
             addText(xpos, ypos, llformat("%d/%d Objects Active", gObjectList.getNumActiveObjects(), gObjectList.getNumObjects()));
@@ -679,7 +679,7 @@ public:
 
             if (last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize) > 0)
             {
-                addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize), (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize), (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize)));
+                addText(xpos, ypos, llformat("Batch min/max/mean: %d/%d/%d", static_cast<U32>(last_frame_recording.getMin(LLPipeline::sStatBatchSize)), static_cast<U32>(last_frame_recording.getMax(LLPipeline::sStatBatchSize)), static_cast<U32>(last_frame_recording.getMean(LLPipeline::sStatBatchSize))));
             }
             ypos += y_inc;
 
@@ -739,7 +739,7 @@ public:
             {
                 for (LLCharacter* character : LLCharacter::sInstances)
                 {
-                    LLVOAvatar* avatar = (LLVOAvatar*)character;
+                    LLVOAvatar* avatar = static_cast<LLVOAvatar*>(character);
                     if (!avatar->isDead()) // Not dead yet
                     {
                         // Stuff into a sorted map so the display is ordered
@@ -800,8 +800,8 @@ public:
             LLCoordGL coord = gViewerWindow->getCurrentMouse();
 
             // Convert x,y to raw pixel coords
-            S32 x_raw = (S32)llround(coord.mX * gViewerWindow->getWindowWidthRaw() / (F32) gViewerWindow->getWindowWidthScaled());
-            S32 y_raw = (S32)llround(coord.mY * gViewerWindow->getWindowHeightRaw() / (F32) gViewerWindow->getWindowHeightScaled());
+            S32 x_raw = static_cast<S32>(llround(coord.mX * gViewerWindow->getWindowWidthRaw() / static_cast<F32>(gViewerWindow->getWindowWidthScaled())));
+            S32 y_raw = static_cast<S32>(llround(coord.mY * gViewerWindow->getWindowHeightRaw() / static_cast<F32>(gViewerWindow->getWindowHeightScaled())));
 
             glReadPixels(x_raw, y_raw, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, color);
             addText(xpos, ypos, llformat("Pixel <%1d, %1d> R:%1d G:%1d B:%1d A:%1d", x_raw, y_raw, color[0], color[1], color[2], color[3]));
@@ -873,7 +873,7 @@ public:
             U32 old_y = ypos ;
             for(S32 i = LLViewerTexture::BOOST_NONE; i < LLViewerTexture::MAX_GL_IMAGE_CATEGORY; i++)
             {
-                if(gTotalTextureBytesPerBoostLevel[i] > (S32Bytes)0)
+                if(gTotalTextureBytesPerBoostLevel[i] > static_cast<S32Bytes>(0))
                 {
                     addText(xpos, ypos, llformat("Boost_Level %d:  %.3f MB", i, F32Megabytes(gTotalTextureBytesPerBoostLevel[i]).value()));
                     ypos += y_inc;
@@ -952,7 +952,7 @@ public:
              iter != mLineList.end(); ++iter)
         {
             const Line& line = *iter;
-            LLFontGL::getFontMonospace()->renderUTF8(line.text, 0, (F32)line.x, (F32)line.y, mTextColor,
+            LLFontGL::getFontMonospace()->renderUTF8(line.text, 0, static_cast<F32>(line.x), static_cast<F32>(line.y), mTextColor,
                     LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW);
         }
     }
@@ -1000,8 +1000,8 @@ bool LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
     const char* buttonstatestr = "";
     S32 x = pos.mX;
     S32 y = pos.mY;
-    x = ll_round((F32)x / mDisplayScale.mV[VX]);
-    y = ll_round((F32)y / mDisplayScale.mV[VY]);
+    x = ll_round(static_cast<F32>(x) / mDisplayScale.mV[VX]);
+    y = ll_round(static_cast<F32>(y) / mDisplayScale.mV[VY]);
 
     // Handle non-consuming global keybindings, like voice
     gViewerInput.handleGlobalBindsMouse(clicktype, mask, down);
@@ -1405,8 +1405,8 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
     S32 x = pos.mX;
     S32 y = pos.mY;
 
-    x = ll_round((F32)x / mDisplayScale.mV[VX]);
-    y = ll_round((F32)y / mDisplayScale.mV[VY]);
+    x = ll_round(static_cast<F32>(x) / mDisplayScale.mV[VX]);
+    y = ll_round(static_cast<F32>(y) / mDisplayScale.mV[VY]);
 
     mMouseInWindow = true;
 
@@ -1681,7 +1681,7 @@ bool LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 #if LL_WINDOWS
     if (gHeadlessClient)
     {
-        HWND window_handle = (HWND)window->getPlatformWindow();
+        HWND window_handle = reinterpret_cast<HWND>(window->getPlatformWindow());
         PAINTSTRUCT ps;
         HDC hdc;
 
@@ -1746,7 +1746,7 @@ void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
     {
     case SLURL_MESSAGE_TYPE:
         // received URL
-        std::string url = (const char*)data;
+        std::string url = reinterpret_cast<const char*>(data);
         LLMediaCtrl* web = NULL;
         const bool trusted_browser = false;
         // don't treat slapps coming from external browsers as "clicks" as this would bypass throttling
@@ -1978,7 +1978,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
         LLCoordWindow size;
         mWindow->getSize(&size);
         mWindowRectRaw.set(0, size.mY, size.mX, 0);
-        mWindowRectScaled.set(0, ll_round((F32)size.mY / mDisplayScale.mV[VY]), ll_round((F32)size.mX / mDisplayScale.mV[VX]), 0);
+        mWindowRectScaled.set(0, ll_round(static_cast<F32>(size.mY) / mDisplayScale.mV[VY]), ll_round(static_cast<F32>(size.mX) / mDisplayScale.mV[VX]), 0);
     }
 
     LLFontManager::initClass();
@@ -2138,7 +2138,7 @@ void LLViewerWindow::initBase()
     gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
     for (S32 i = 0; i < LLToolBarEnums::TOOLBAR_COUNT; ++i)
     {
-        LLToolBar * toolbarp = gToolBarView->getToolbar((LLToolBarEnums::EToolBarLocation)i);
+        LLToolBar * toolbarp = gToolBarView->getToolbar(static_cast<LLToolBarEnums::EToolBarLocation>(i));
         if (toolbarp)
         {
             toolbarp->getCenterLayoutPanel()->setReshapeCallback(std::bind(&LLFloaterView::setToolbarRect, gFloaterView, _1, _2));
@@ -2502,8 +2502,8 @@ void LLViewerWindow::sendShapeToSim()
     msg->addU32Fast(_PREHASH_CircuitCode, gMessageSystem->mOurCircuitCode);
     msg->nextBlockFast(_PREHASH_HeightWidthBlock);
     msg->addU32Fast(_PREHASH_GenCounter, 0);
-    U16 height16 = (U16) mWorldViewRectRaw.getHeight();
-    U16 width16 = (U16) mWorldViewRectRaw.getWidth();
+    U16 height16 = static_cast<U16>(mWorldViewRectRaw.getHeight());
+    U16 width16 = static_cast<U16>(mWorldViewRectRaw.getWidth());
     msg->addU16Fast(_PREHASH_Height, height16);
     msg->addU16Fast(_PREHASH_Width, width16);
     gAgent.sendReliableMessage();
@@ -2541,15 +2541,15 @@ void LLViewerWindow::reshape(S32 width, S32 height)
         LLFontGL::sResolutionGeneration++;
 
         // update our window rectangle
-        mWindowRectScaled.mRight = mWindowRectScaled.mLeft + ll_round((F32)width / mDisplayScale.mV[VX]);
-        mWindowRectScaled.mTop = mWindowRectScaled.mBottom + ll_round((F32)height / mDisplayScale.mV[VY]);
+        mWindowRectScaled.mRight = mWindowRectScaled.mLeft + ll_round(static_cast<F32>(width) / mDisplayScale.mV[VX]);
+        mWindowRectScaled.mTop = mWindowRectScaled.mBottom + ll_round(static_cast<F32>(height) / mDisplayScale.mV[VY]);
 
         setup2DViewport();
 
         // Inform lower views of the change
         // round up when converting coordinates to make sure there are no gaps at edge of window
         LLView::sForceReshape = display_scale_changed;
-        mRootView->reshape(llceil((F32)width / mDisplayScale.mV[VX]), llceil((F32)height / mDisplayScale.mV[VY]));
+        mRootView->reshape(llceil(static_cast<F32>(width) / mDisplayScale.mV[VX]), llceil(static_cast<F32>(height) / mDisplayScale.mV[VY]));
         if (display_scale_changed)
         {
             // Needs only a 'scale change' update, everything else gets handled by LLLayoutStack::updateClass()
@@ -2764,8 +2764,8 @@ void LLViewerWindow::draw()
             int pos_y = sub_region / llceil(zoom_factor);
             int pos_x = sub_region - (pos_y*llceil(zoom_factor));
             // offset for this tile
-            gGL.translatef((F32)getWindowWidthScaled() * -(F32)pos_x,
-                        (F32)getWindowHeightScaled() * -(F32)pos_y,
+            gGL.translatef(static_cast<F32>(getWindowWidthScaled()) * -static_cast<F32>(pos_x),
+                        static_cast<F32>(getWindowHeightScaled()) * -static_cast<F32>(pos_y),
                         0.f);
             gGL.scalef(zoom_factor, zoom_factor, 1.f);
             LLUI::getScaleFactor() *= zoom_factor;
@@ -2798,7 +2798,7 @@ void LLViewerWindow::draw()
 
             gGL.matrixMode(LLRender::MM_MODELVIEW);
             LLUI::pushMatrix();
-            LLUI::translate( (F32) screen_x, (F32) screen_y);
+            LLUI::translate( static_cast<F32>(screen_x), static_cast<F32>(screen_y));
             top_ctrl->draw();
             LLUI::popMatrix();
         }
@@ -3913,8 +3913,8 @@ void LLViewerWindow::updateMouseDelta()
     S32 dx = delta.mX;
     S32 dy = delta.mY;
 #else
-    S32 dx = lltrunc((F32) (mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::getScaleFactor().mV[VX]);
-    S32 dy = lltrunc((F32) (mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::getScaleFactor().mV[VY]);
+    S32 dx = lltrunc(static_cast<F32>(mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::getScaleFactor().mV[VX]);
+    S32 dy = lltrunc(static_cast<F32>(mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::getScaleFactor().mV[VY]);
 #endif
 
     //RN: fix for asynchronous notification of mouse leaving window not working
@@ -3940,8 +3940,8 @@ void LLViewerWindow::updateMouseDelta()
         static F32 fdy = 0.f;
 
         F32 amount = 16.f;
-        fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
-        fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
+        fdx = fdx + (static_cast<F32>(dx) - fdx) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
+        fdy = fdy + (static_cast<F32>(dy) - fdy) * llmin(gFrameIntervalSeconds.value()*amount,1.f);
 
         mCurrentMouseDelta.set(ll_round(fdx), ll_round(fdy));
         mouse_vel.set(fdx,fdy);
@@ -3949,7 +3949,7 @@ void LLViewerWindow::updateMouseDelta()
     else
     {
         mCurrentMouseDelta.set(dx, dy);
-        mouse_vel.set((F32) dx, (F32) dy);
+        mouse_vel.set(static_cast<F32>(dx), static_cast<F32>(dy));
     }
 
     sample(sMouseVelocityStat, mouse_vel.length());
@@ -4068,10 +4068,10 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
         new_world_rect.mTop = llmax(new_world_rect.mTop, new_world_rect.mBottom + 1);
         new_world_rect.mRight = llmax(new_world_rect.mRight, new_world_rect.mLeft + 1);
 
-        new_world_rect.mLeft = ll_round((F32)new_world_rect.mLeft * mDisplayScale.mV[VX]);
-        new_world_rect.mRight = ll_round((F32)new_world_rect.mRight * mDisplayScale.mV[VX]);
-        new_world_rect.mBottom = ll_round((F32)new_world_rect.mBottom * mDisplayScale.mV[VY]);
-        new_world_rect.mTop = ll_round((F32)new_world_rect.mTop * mDisplayScale.mV[VY]);
+        new_world_rect.mLeft = ll_round(static_cast<F32>(new_world_rect.mLeft) * mDisplayScale.mV[VX]);
+        new_world_rect.mRight = ll_round(static_cast<F32>(new_world_rect.mRight) * mDisplayScale.mV[VX]);
+        new_world_rect.mBottom = ll_round(static_cast<F32>(new_world_rect.mBottom) * mDisplayScale.mV[VY]);
+        new_world_rect.mTop = ll_round(static_cast<F32>(new_world_rect.mTop) * mDisplayScale.mV[VY]);
     }
 
     if (mWorldViewRectRaw != new_world_rect)
@@ -4295,7 +4295,7 @@ LLVector3d LLViewerWindow::clickPointInWorldGlobal(S32 x, S32 y_from_bot, LLView
 
     // make mouse vector as long as object vector, so it touchs a point near
     // where the user clicked on the object
-    mouse_direction_global *= (F32) relative_object.length();
+    mouse_direction_global *= static_cast<F32>(relative_object.length());
 
     LLVector3d new_pos;
     new_pos.set(mouse_direction_global);
@@ -4563,11 +4563,11 @@ LLVector3 LLViewerWindow::mouseDirectionGlobal(const S32 x, const S32 y) const
     F32         fov = LLViewerCamera::getInstance()->getView();
 
     // find world view center in scaled ui coordinates
-    F32         center_x = (F32)getWorldViewRectScaled().getCenterX();
-    F32         center_y = (F32)getWorldViewRectScaled().getCenterY();
+    F32         center_x = static_cast<F32>(getWorldViewRectScaled().getCenterX());
+    F32         center_y = static_cast<F32>(getWorldViewRectScaled().getCenterY());
 
     // calculate pixel distance to screen
-    F32         distance = ((F32)getWorldViewHeightScaled() * 0.5f) / (tan(fov / 2.f));
+    F32         distance = (static_cast<F32>(getWorldViewHeightScaled()) * 0.5f) / (tan(fov / 2.f));
 
     // calculate click point relative to middle of screen
     F32         click_x = x - center_x;
@@ -4589,12 +4589,12 @@ LLVector3 LLViewerWindow::mousePointHUD(const S32 x, const S32 y) const
     S32         height = getWorldViewHeightScaled();
 
     // find world view center
-    F32         center_x = (F32)getWorldViewRectScaled().getCenterX();
-    F32         center_y = (F32)getWorldViewRectScaled().getCenterY();
+    F32         center_x = static_cast<F32>(getWorldViewRectScaled().getCenterX());
+    F32         center_y = static_cast<F32>(getWorldViewRectScaled().getCenterY());
 
     // remap with uniform scale (1/height) so that top is -0.5, bottom is +0.5
-    F32 hud_x = -((F32)x - center_x)  / height;
-    F32 hud_y = ((F32)y - center_y) / height;
+    F32 hud_x = -(static_cast<F32>(x) - center_x)  / height;
+    F32 hud_y = (static_cast<F32>(y) - center_y) / height;
 
     return LLVector3(0.f, hud_x/gAgentCamera.mHUDCurZoom, hud_y/gAgentCamera.mHUDCurZoom);
 }
@@ -4612,12 +4612,12 @@ LLVector3 LLViewerWindow::mouseDirectionCamera(const S32 x, const S32 y) const
     S32         width = getWorldViewWidthScaled();
 
     // find world view center
-    F32         center_x = (F32)getWorldViewRectScaled().getCenterX();
-    F32         center_y = (F32)getWorldViewRectScaled().getCenterY();
+    F32         center_x = static_cast<F32>(getWorldViewRectScaled().getCenterX());
+    F32         center_y = static_cast<F32>(getWorldViewRectScaled().getCenterY());
 
     // calculate click point relative to middle of screen
-    F32         click_x = (((F32)x - center_x) / (F32)width) * fov_width * -1.f;
-    F32         click_y = (((F32)y - center_y) / (F32)height) * fov_height;
+    F32         click_x = ((static_cast<F32>(x) - center_x) / static_cast<F32>(width)) * fov_width * -1.f;
+    F32         click_y = ((static_cast<F32>(y) - center_y) / static_cast<F32>(height)) * fov_height;
 
     // compute mouse vector
     LLVector3   mouse_vector =  LLVector3(0.f, 0.f, -1.f);
@@ -4695,9 +4695,9 @@ bool LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
             continue;
         }
 
-        S32 i = (S32) (probe_point_region.mV[VX]/regionp->getLand().getMetersPerGrid());
-        S32 j = (S32) (probe_point_region.mV[VY]/regionp->getLand().getMetersPerGrid());
-        S32 grids_per_edge = (S32) regionp->getLand().mGridsPerEdge;
+        S32 i = static_cast<S32>(probe_point_region.mV[VX]/regionp->getLand().getMetersPerGrid());
+        S32 j = static_cast<S32>(probe_point_region.mV[VY]/regionp->getLand().getMetersPerGrid());
+        S32 grids_per_edge = static_cast<S32>(regionp->getLand().mGridsPerEdge);
         if ((i >= grids_per_edge) || (j >= grids_per_edge))
         {
             //LL_INFOS() << "LLViewerWindow::mousePointOnLand probe_point is out of region" << LL_ENDL;
@@ -4872,7 +4872,7 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
         args["NEED_MEMORY"] = needM_bytes_string;
 
         std::string freeM_bytes_string;
-        LLResMgr::getInstance()->getIntegerString(freeM_bytes_string, (S32)(b_space.free >> 10));
+        LLResMgr::getInstance()->getIntegerString(freeM_bytes_string, static_cast<S32>(b_space.free >> 10));
         args["FREE_MEMORY"] = freeM_bytes_string;
 
         LLNotificationsUtil::add("SnapshotToComputerFailed", args);
@@ -5136,9 +5136,9 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
         if (!reset_deferred)
         {
             // if image cropping or need to enlarge the scene, compute a scale_factor
-            F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
-            snapshot_width  = (S32)(ratio * image_width) ;
-            snapshot_height = (S32)(ratio * image_height) ;
+            F32 ratio = llmin( static_cast<F32>(window_width) / image_width , static_cast<F32>(window_height) / image_height) ;
+            snapshot_width  = static_cast<S32>(ratio * image_width) ;
+            snapshot_height = static_cast<S32>(ratio * image_height) ;
             scale_factor = llmax(1.0f, 1.0f / ratio) ;
         }
     }
@@ -5157,7 +5157,7 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
     if ((image_buffer_x > max_size) || (image_buffer_y > max_size)) // boundary check to avoid memory overflow
     {
-        scale_factor *= llmin((F32)max_size / image_buffer_x, (F32)max_size / image_buffer_y) ;
+        scale_factor *= llmin(static_cast<F32>(max_size) / image_buffer_x, static_cast<F32>(max_size) / image_buffer_y) ;
         image_buffer_x = llfloor(snapshot_width  * scale_factor) ;
         image_buffer_y = llfloor(snapshot_height * scale_factor) ;
     }
@@ -5260,9 +5260,9 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
                                          depth_line_buffer->getData()// current output pixel is beginning of buffer...
                                          );
 
-                            for (S32 i = 0; i < (S32)read_width; i++)
+                            for (S32 i = 0; i < static_cast<S32>(read_width); i++)
                             {
-                                F32 depth_float = *(F32*)(depth_line_buffer->getData() + (i * sizeof(F32)));
+                                F32 depth_float = *reinterpret_cast<F32*>(depth_line_buffer->getData() + (i * sizeof(F32)));
 
                                 F32 linear_depth_float = 1.f / (depth_conversion_factor_1 - (depth_float * depth_conversion_factor_2));
                                 U8 depth_byte = F32_to_U8(linear_depth_float, LLViewerCamera::getInstance()->getNear(), LLViewerCamera::getInstance()->getFar());
@@ -5986,7 +5986,7 @@ void LLViewerWindow::checkSettings()
 
 F32 LLViewerWindow::getWorldViewAspectRatio() const
 {
-    F32 world_aspect = (F32)mWorldViewRectRaw.getWidth() / (F32)mWorldViewRectRaw.getHeight();
+    F32 world_aspect = static_cast<F32>(mWorldViewRectRaw.getWidth()) / static_cast<F32>(mWorldViewRectRaw.getHeight());
     return world_aspect;
 }
 
@@ -6017,10 +6017,10 @@ void LLViewerWindow::calcDisplayScale()
 LLRect  LLViewerWindow::calcScaledRect(const LLRect & rect, const LLVector2& display_scale)
 {
     LLRect res = rect;
-    res.mLeft = ll_round((F32)res.mLeft / display_scale.mV[VX]);
-    res.mRight = ll_round((F32)res.mRight / display_scale.mV[VX]);
-    res.mBottom = ll_round((F32)res.mBottom / display_scale.mV[VY]);
-    res.mTop = ll_round((F32)res.mTop / display_scale.mV[VY]);
+    res.mLeft = ll_round(static_cast<F32>(res.mLeft) / display_scale.mV[VX]);
+    res.mRight = ll_round(static_cast<F32>(res.mRight) / display_scale.mV[VX]);
+    res.mBottom = ll_round(static_cast<F32>(res.mBottom) / display_scale.mV[VY]);
+    res.mTop = ll_round(static_cast<F32>(res.mTop) / display_scale.mV[VY]);
 
     return res;
 }
@@ -6277,7 +6277,7 @@ void LLPickInfo::fetchResults()
 
             mObjectOffset = gAgentCamera.calcFocusOffset(objectp, v_intersection, mPickPt.mX, mPickPt.mY);
             mObjectID = objectp->mID;
-            mObjectFace = (te_offset == NO_FACE) ? -1 : (S32)te_offset;
+            mObjectFace = (te_offset == NO_FACE) ? -1 : static_cast<S32>(te_offset);
             mPickHUD = objectp->isHUDAttachment();
 
 
@@ -6321,8 +6321,8 @@ void LLPickInfo::updateXYCoords()
         LLPointer<LLViewerTexture> imagep = LLViewerTextureManager::getFetchedTexture(tep->getID());
         if(mUVCoords.mV[VX] >= 0.f && mUVCoords.mV[VY] >= 0.f && imagep.notNull())
         {
-            mXYCoords.mX = ll_round(mUVCoords.mV[VX] * (F32)imagep->getWidth());
-            mXYCoords.mY = ll_round((1.f - mUVCoords.mV[VY]) * (F32)imagep->getHeight());
+            mXYCoords.mX = ll_round(mUVCoords.mV[VX] * static_cast<F32>(imagep->getWidth()));
+            mXYCoords.mY = ll_round((1.f - mUVCoords.mV[VY]) * static_cast<F32>(imagep->getHeight()));
         }
     }
 }
@@ -6351,7 +6351,7 @@ void LLPickInfo::getSurfaceInfo()
 
     if (objectp)
     {
-        if (gViewerWindow->cursorIntersect(ll_round((F32)mMousePt.mX), ll_round((F32)mMousePt.mY), 1024.f,
+        if (gViewerWindow->cursorIntersect(ll_round(static_cast<F32>(mMousePt.mX)), ll_round(static_cast<F32>(mMousePt.mY)), 1024.f,
                                            objectp, -1, mPickTransparent, mPickRigged, mPickUnselectable, mPickReflectionProbe,
                                            &mObjectFace,
                                            &mGLTFNodeIndex,

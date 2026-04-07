@@ -398,8 +398,8 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, bool is_
         msg->addUUIDFast(_PREHASH_DestID, uuid);
         msg->addU8Fast(_PREHASH_Flags, pack_transaction_flags(false, is_group));
         msg->addS32Fast(_PREHASH_Amount, amount);
-        msg->addU8Fast(_PREHASH_AggregatePermNextOwner, (U8)LLAggregatePermissions::AP_EMPTY);
-        msg->addU8Fast(_PREHASH_AggregatePermInventory, (U8)LLAggregatePermissions::AP_EMPTY);
+        msg->addU8Fast(_PREHASH_AggregatePermNextOwner, static_cast<U8>(LLAggregatePermissions::AP_EMPTY));
+        msg->addU8Fast(_PREHASH_AggregatePermInventory, static_cast<U8>(LLAggregatePermissions::AP_EMPTY));
         msg->addS32Fast(_PREHASH_TransactionType, trx_type );
         msg->addStringFast(_PREHASH_Description, desc);
         msg->sendReliable(region->getHost());
@@ -502,11 +502,11 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
     LLVLData *vl_datap = new LLVLData(regionp, type, datap, size);
     if (mesgsys->getReceiveCompressedSize())
     {
-        gVLManager.addLayerData(vl_datap, (S32Bytes)mesgsys->getReceiveCompressedSize());
+        gVLManager.addLayerData(vl_datap, static_cast<S32Bytes>(mesgsys->getReceiveCompressedSize()));
     }
     else
     {
-        gVLManager.addLayerData(vl_datap, (S32Bytes)mesgsys->getReceiveSize());
+        gVLManager.addLayerData(vl_datap, static_cast<S32Bytes>(mesgsys->getReceiveSize()));
     }
 }
 
@@ -1496,7 +1496,7 @@ LLOfferInfo::LLOfferInfo()
 
 LLOfferInfo::LLOfferInfo(const LLSD& sd)
 {
-    mIM = (EInstantMessage)sd["im_type"].asInteger();
+    mIM = static_cast<EInstantMessage>(sd["im_type"].asInteger());
     mFromID = sd["from_id"].asUUID();
     mFromGroup = sd["from_group"].asBoolean();
     mFromObject = sd["from_object"].asBoolean();
@@ -1601,15 +1601,15 @@ void LLOfferInfo::sendReceiveResponse(bool accept, const LLUUID &destination_fol
 
     if (accept)
     {
-        msg->addU8Fast(_PREHASH_Dialog, (U8)(im + 1));
+        msg->addU8Fast(_PREHASH_Dialog, static_cast<U8>(im + 1));
         msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(destination_folder_id.mData),
                                 sizeof(destination_folder_id.mData));
 
-        LL_DEBUGS("Messaging") << "Processing" << (U8)(im + 1) << " with transaction id " << mTransactionID << LL_ENDL;
+        LL_DEBUGS("Messaging") << "Processing" << static_cast<U8>(im + 1) << " with transaction id " << mTransactionID << LL_ENDL;
     }
     else
     {
-        msg->addU8Fast(_PREHASH_Dialog, (U8)(im + 2));
+        msg->addU8Fast(_PREHASH_Dialog, static_cast<U8>(im + 2));
         msg->addBinaryDataFast(_PREHASH_BinaryBucket, EMPTY_BINARY_BUCKET, EMPTY_BINARY_BUCKET_SIZE);
     }
     // send the message
@@ -1646,11 +1646,11 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 
     LLInventoryObserver* opener = NULL;
     LLViewerInventoryCategory* catp = NULL;
-    catp = (LLViewerInventoryCategory*)gInventory.getCategory(mObjectID);
+    catp = static_cast<LLViewerInventoryCategory*>(gInventory.getCategory(mObjectID));
     LLViewerInventoryItem* itemp = NULL;
     if(!catp)
     {
-        itemp = (LLViewerInventoryItem*)gInventory.getItem(mObjectID);
+        itemp = static_cast<LLViewerInventoryItem*>(gInventory.getItem(mObjectID));
     }
 
     LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
@@ -2140,7 +2140,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
     msg->getVector3Fast(_PREHASH_MessageBlock, _PREHASH_Position, position);
     msg->getBinaryDataFast(_PREHASH_MessageBlock, _PREHASH_BinaryBucket, binary_bucket, 0, 0, MTUBYTES);
     binary_bucket_size = msg->getSizeFast(_PREHASH_MessageBlock, _PREHASH_BinaryBucket);
-    EInstantMessage dialog = (EInstantMessage)d;
+    EInstantMessage dialog = static_cast<EInstantMessage>(d);
     LLHost sender = msg->getSender();
 
     LLSD metadata;
@@ -2460,7 +2460,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             // Might not have the avatar constructed yet, eg on login.
             if (chatter && chatter->isAvatar())
             {
-                ((LLVOAvatar*)chatter)->startTyping();
+                (static_cast<LLVOAvatar*>(chatter))->startTyping();
             }
             return;
         }
@@ -2471,7 +2471,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             // Might not have the avatar constructed yet, eg on login.
             if (chatter && chatter->isAvatar())
             {
-                ((LLVOAvatar*)chatter)->stopTyping();
+                (static_cast<LLVOAvatar*>(chatter))->stopTyping();
             }
             return;
         }
@@ -2516,7 +2516,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         if (chatter && chatter->isAvatar())
         {
             LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, false);
-            ((LLVOAvatar*)chatter)->stopTyping();
+            (static_cast<LLVOAvatar*>(chatter))->stopTyping();
 
             if (!is_muted && !is_do_not_disturb)
             {
@@ -2525,7 +2525,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
                 LLViewerChat::formatChatMsg(chat, formated_msg);
                 LLChat chat_bubble = chat;
                 chat_bubble.mText = formated_msg;
-                ((LLVOAvatar*)chatter)->addChat(chat_bubble);
+                (static_cast<LLVOAvatar*>(chatter))->addChat(chat_bubble);
             }
         }
 
@@ -2822,7 +2822,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
     // Do teleport effect for where you're leaving
     // VEFFECT: TeleportStart
-    LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true);
+    LLHUDEffectSpiral *effectp = static_cast<LLHUDEffectSpiral*>(LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true));
     effectp->setPositionGlobal(gAgent.getPositionGlobal());
     effectp->setColor(LLColor4U(gAgent.getEffectColor()));
     LLHUDManager::getInstance()->sendEffects();
@@ -2917,7 +2917,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
     // Now do teleport effect for where you're going.
     // VEFFECT: TeleportEnd
-    effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true);
+    effectp = static_cast<LLHUDEffectSpiral*>(LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true));
     effectp->setPositionGlobal(gAgent.getPositionGlobal());
 
     effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -3060,7 +3060,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
     {
         // Check distance to beacon, if < 5m, remove beacon
         LLVector3d beacon_pos = LLTracker::getTrackedPositionGlobal();
-        LLVector3 beacon_dir(agent_pos.mV[VX] - (F32)fmod(beacon_pos.mdV[VX], 256.0), agent_pos.mV[VY] - (F32)fmod(beacon_pos.mdV[VY], 256.0), 0);
+        LLVector3 beacon_dir(agent_pos.mV[VX] - static_cast<F32>(fmod(beacon_pos.mdV[VX], 256.0)), agent_pos.mV[VY] - static_cast<F32>(fmod(beacon_pos.mdV[VY], 256.0)), 0);
         if (beacon_dir.lengthSquared() < 25.f)
         {
             LLTracker::stopTracking(false);
@@ -3071,7 +3071,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
             LLVector3 global_agent_pos = agent_pos;
             global_agent_pos[0] += x;
             global_agent_pos[1] += y;
-            look_at = (LLVector3)beacon_pos - global_agent_pos;
+            look_at = static_cast<LLVector3>(beacon_pos) - global_agent_pos;
             look_at.normalize();
             gAgentCamera.slamLookAt(look_at);
         }
@@ -3310,13 +3310,13 @@ void send_agent_update(bool force_send, bool send_reliable)
             constexpr F64 MIN_HEAD_ROT_QDOT = 0.9997;    // ~= 2.5 degrees -- if its less than this we need to update head_rot
             constexpr F64 MAX_HEAD_ROT_QDOT = 0.99999;   // ~= 0.5 degrees -- if its greater than this then we consider it close enough
 
-            if (fabs((F64)(dot(last_body_rot, body_rotation))) < MIN_HEAD_ROT_QDOT)
+            if (fabs(static_cast<F64>(dot(last_body_rot, body_rotation))) < MIN_HEAD_ROT_QDOT)
             {
                 send_update = true;
                 break;
             }
 
-            F64 head_rot_qdot = fabs((F64)(dot(last_head_rot, head_rotation)));
+            F64 head_rot_qdot = fabs(static_cast<F64>(dot(last_head_rot, head_rotation)));
             if (head_rot_qdot > MAX_HEAD_ROT_QDOT)
             {
                 // close enough
@@ -3381,7 +3381,7 @@ void send_agent_update(bool force_send, bool send_reliable)
         // we reduce the number of attachments sent to the viewer, thus prioritizing
         // closer ones.
         // Todo: revise and remove once server gets distance sorting.
-        last_draw_disatance_step = llmax((F32)(gAgentCamera.mDrawDistance / 2.f), 50.f);
+        last_draw_disatance_step = llmax(static_cast<F32>(gAgentCamera.mDrawDistance / 2.f), 50.f);
         last_draw_disatance_step = llmin(last_draw_disatance_step, memory_limited_draw_distance);
         msg->addF32Fast(_PREHASH_Far, last_draw_disatance_step);
     }
@@ -3553,11 +3553,11 @@ void process_object_update(LLMessageSystem *mesgsys, void **user_data)
     // Update the data counters
     if (mesgsys->getReceiveCompressedSize())
     {
-        gObjectData += (U32Bytes)mesgsys->getReceiveCompressedSize();
+        gObjectData += static_cast<U32Bytes>(mesgsys->getReceiveCompressedSize());
     }
     else
     {
-        gObjectData += (U32Bytes)mesgsys->getReceiveSize();
+        gObjectData += static_cast<U32Bytes>(mesgsys->getReceiveSize());
     }
 
     // Update the object...
@@ -3574,11 +3574,11 @@ void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data
     // Update the data counters
     if (mesgsys->getReceiveCompressedSize())
     {
-        gObjectData += (U32Bytes)mesgsys->getReceiveCompressedSize();
+        gObjectData += static_cast<U32Bytes>(mesgsys->getReceiveCompressedSize());
     }
     else
     {
-        gObjectData += (U32Bytes)mesgsys->getReceiveSize();
+        gObjectData += static_cast<U32Bytes>(mesgsys->getReceiveSize());
     }
 
     // Update the object...
@@ -3595,11 +3595,11 @@ void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
     // Update the data counters
     if (mesgsys->getReceiveCompressedSize())
     {
-        gObjectData += (U32Bytes)mesgsys->getReceiveCompressedSize();
+        gObjectData += static_cast<U32Bytes>(mesgsys->getReceiveCompressedSize());
     }
     else
     {
-        gObjectData += (U32Bytes)mesgsys->getReceiveSize();
+        gObjectData += static_cast<U32Bytes>(mesgsys->getReceiveSize());
     }
 
     // Update the object...
@@ -3611,11 +3611,11 @@ void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_
 {
     if (mesgsys->getReceiveCompressedSize())
     {
-        gObjectData += (U32Bytes)mesgsys->getReceiveCompressedSize();
+        gObjectData += static_cast<U32Bytes>(mesgsys->getReceiveCompressedSize());
     }
     else
     {
-        gObjectData += (U32Bytes)mesgsys->getReceiveSize();
+        gObjectData += static_cast<U32Bytes>(mesgsys->getReceiveSize());
     }
 
     S32 old_num_objects = gObjectList.mNumNewObjects;
@@ -3903,7 +3903,7 @@ void process_health_message(LLMessageSystem *mesgsys, void **user_data)
 
     if (gStatusBar)
     {
-        gStatusBar->setHealth((S32)health);
+        gStatusBar->setHealth(static_cast<S32>(health));
     }
 }
 
@@ -3917,7 +3917,7 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
         F32 stat_value;
         msg->getU32("Stat", "StatID", stat_id, i);
         msg->getF32("Stat", "StatValue", stat_value, i);
-        auto measurementp = LLStatViewer::SimMeasurementSampler::getInstance((ESimStatID)stat_id);
+        auto measurementp = LLStatViewer::SimMeasurementSampler::getInstance(static_cast<ESimStatID>(stat_id));
 
         if (measurementp )
         {
@@ -4145,7 +4145,7 @@ void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
     LLUUID uuid;
     mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_ID, uuid);
 
-    LLVOAvatar* avatarp = (LLVOAvatar *)gObjectList.findObject(uuid);
+    LLVOAvatar* avatarp = static_cast<LLVOAvatar*>(gObjectList.findObject(uuid));
     if (avatarp)
     {
         avatarp->processAvatarAppearance( mesgsys );
@@ -4880,7 +4880,7 @@ bool handle_trusted_experiences_notification(const LLSD& llsdBlock)
         std::string str_list = str.str();
         if(!str_list.empty())
         {
-            LLNotificationsUtil::add("TrustedExperiencesAvailable", LLSD::emptyMap().with("EXPERIENCE_LIST", (LLSD)str_list));
+            LLNotificationsUtil::add("TrustedExperiencesAvailable", LLSD::emptyMap().with("EXPERIENCE_LIST", static_cast<LLSD>(str_list)));
             return true;
         }
     }
@@ -5114,7 +5114,7 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
             {
                 LLSD params;
                 params["NAME"] = llsdBlock["NAME"];
-                params["SECONDS"] = (LLSD::Integer)seconds;
+                params["SECONDS"] = static_cast<LLSD::Integer>(seconds);
                 LLFloaterRegionRestarting* restarting_floater = dynamic_cast<LLFloaterRegionRestarting*>(LLFloaterReg::showInstance("region_restarting", params));
                 if(restarting_floater)
                 {
@@ -5393,7 +5393,7 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
         msgsystem->getF32Fast(_PREHASH_MeanCollision, _PREHASH_Mag, mag);
         msgsystem->getU8Fast(_PREHASH_MeanCollision, _PREHASH_Type, u8type);
 
-        type = (EMeanCollisionType)u8type;
+        type = static_cast<EMeanCollisionType>(u8type);
 
         bool b_found = false;
 
@@ -5853,8 +5853,8 @@ void container_inventory_arrived(LLViewerObject* object,
             {
                 if ((*it)->getType() != LLAssetType::AT_CATEGORY)
                 {
-                    LLInventoryObject* obj = (LLInventoryObject*)(*it);
-                    LLInventoryItem* item = (LLInventoryItem*)(obj);
+                    LLInventoryObject* obj = static_cast<LLInventoryObject*>(*it);
+                    LLInventoryItem* item = static_cast<LLInventoryItem*>((obj));
                     LLUUID item_id;
                     item_id.generate();
                     time_t creation_date_utc = time_corrected();
@@ -5894,7 +5894,7 @@ void container_inventory_arrived(LLViewerObject* object,
             ++it;
         }
 
-        LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
+        LLInventoryItem* item = static_cast<LLInventoryItem*>(static_cast<LLInventoryObject*>(*it));
         const LLUUID category = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(item->getType()));
 
         LLUUID item_id;
@@ -5949,7 +5949,7 @@ std::string formatted_time(const time_t& the_time)
                         +LLTrans::getString("LTimeYear")+"]";
 
     LLSD substitution;
-    substitution["datetime"] = (S32) the_time;
+    substitution["datetime"] = static_cast<S32>(the_time);
     LLStringUtil::format (dateStr, substitution);
     return dateStr;
 }
@@ -6124,7 +6124,7 @@ void send_simple_im(const LLUUID& to_id,
                      dialog,
                      id,
                      NO_TIMESTAMP,
-                     (U8*)EMPTY_BINARY_BUCKET,
+                     reinterpret_cast<const U8*>(EMPTY_BINARY_BUCKET),
                      EMPTY_BINARY_BUCKET_SIZE);
 }
 
@@ -6146,7 +6146,7 @@ void send_group_notice(const LLUUID& group_id,
 
     // Create an empty binary bucket.
     U8 bin_bucket[MAX_INVENTORY_BUFFER_SIZE];
-    U8* bucket_to_send = bin_bucket;
+    const U8* bucket_to_send = bin_bucket;
     bin_bucket[0] = '\0';
     S32 bin_bucket_size = EMPTY_BINARY_BUCKET_SIZE;
     // If there is an item being sent, pack it into the binary bucket.
@@ -6158,12 +6158,12 @@ void send_group_notice(const LLUUID& group_id,
         std::ostringstream ostr;
         LLSDSerialize::serialize(item_def, ostr, LLSDSerialize::LLSD_XML);
         bin_bucket_size = static_cast<S32>(ostr.str().copy(
-            (char*)bin_bucket, ostr.str().size()));
+            reinterpret_cast<char*>(bin_bucket), ostr.str().size()));
         bin_bucket[bin_bucket_size] = '\0';
     }
     else
     {
-        bucket_to_send = (U8*) EMPTY_BINARY_BUCKET;
+        bucket_to_send = reinterpret_cast<const U8*>(EMPTY_BINARY_BUCKET);
     }
 
 
@@ -6192,7 +6192,7 @@ void send_lures(const LLSD& notification, const LLSD& response)
     msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
     msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
     msg->nextBlockFast(_PREHASH_Info);
-    msg->addU8Fast(_PREHASH_LureType, (U8)0); // sim will fill this in.
+    msg->addU8Fast(_PREHASH_LureType, static_cast<U8>(0)); // sim will fill this in.
     msg->addStringFast(_PREHASH_Message, text);
     for(LLSD::array_const_iterator it = notification["payload"]["ids"].beginArray();
         it != notification["payload"]["ids"].endArray();
@@ -6385,7 +6385,7 @@ void send_places_query(const LLUUID& query_id,
     msg->nextBlock("QueryData");
     msg->addString("QueryText", query_text);
     msg->addU32("QueryFlags", query_flags);
-    msg->addS8("Category", (S8)category);
+    msg->addS8("Category", static_cast<S8>(category));
     msg->addString("SimName", sim_name);
     gAgent.sendReliableMessage();
 }
@@ -6729,7 +6729,7 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
             << sim_name << " position " << pos
             << LL_ENDL;
 
-        instance->trackURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
+        instance->trackURL(sim_name, static_cast<S32>(pos.mV[VX]), static_cast<S32>(pos.mV[VY]), static_cast<S32>(pos.mV[VZ]));
         if (flags & BEACON_SHOW_MAP)
         {
             bool old_auto_focus = instance->getAutoFocus();
@@ -6791,7 +6791,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
                         +LLTrans::getString("LTimeSec")+"] ["
                         +LLTrans::getString("LTimeYear")+"]";
         LLSD substitution;
-        substitution["datetime"] = (S32) covenant_timestamp;
+        substitution["datetime"] = static_cast<S32>(covenant_timestamp);
         LLStringUtil::format (last_modified, substitution);
     }
 

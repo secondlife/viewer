@@ -403,8 +403,8 @@ static bool parse_lure_bucket(const std::string& bucket,
         }
     }
 
-    pos.set((F32)rx, (F32)ry, (F32)rz);
-    look_at.set((F32)lx, (F32)ly, (F32)lz);
+    pos.set(static_cast<F32>(rx), static_cast<F32>(ry), static_cast<F32>(rz));
+    look_at.set(static_cast<F32>(lx), static_cast<F32>(ly), static_cast<F32>(lz));
 
     region_handle = to_region_handle(gx, gy);
     return true;
@@ -687,14 +687,14 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 from_group = true; // inaccurate value correction
                 if (has_inventory)
                 {
-                    std::string str_bucket = ll_safe_string((char*)binary_bucket, binary_bucket_size);
+                    std::string str_bucket = ll_safe_string(reinterpret_cast<char*>(binary_bucket), binary_bucket_size);
 
                     using tokenizer = boost::tokenizer<boost::char_separator<char> >;
                     boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
                     tokenizer tokens(str_bucket, sep);
                     tokenizer::iterator iter = tokens.begin();
 
-                    asset_type = (LLAssetType::EType)(atoi((*(iter++)).c_str()));
+                    asset_type = static_cast<LLAssetType::EType>(atoi((*(iter++)).c_str()));
                     iter++; // wearable type if applicable, otherwise asset type
                     item_name = std::string((*(iter++)).c_str());
                 }
@@ -716,7 +716,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
 
                 // Make sure the binary bucket is big enough to hold the header
                 // and a null terminated item name.
-                if ((binary_bucket_size < (S32)((sizeof(notice_bucket_header_t) + sizeof(U8))))
+                if ((binary_bucket_size < static_cast<S32>((sizeof(notice_bucket_header_t) + sizeof(U8))))
                     || (binary_bucket[binary_bucket_size - 1] != '\0'))
                 {
                     LL_WARNS("Messaging") << "Malformed group notice binary bucket" << LL_ENDL;
@@ -727,7 +727,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 has_inventory = notice_bin_bucket->header.has_inventory;
                 asset_type = notice_bin_bucket->header.asset_type;
                 group_id = notice_bin_bucket->header.group_id;
-                item_name = ll_safe_string((const char*)notice_bin_bucket->item_name);
+                item_name = ll_safe_string(reinterpret_cast<const char*>(notice_bin_bucket->item_name));
             }
 
             if (group_id != from_id)
@@ -769,7 +769,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 info->mFromID = from_id;
                 info->mFromGroup = from_group;
                 info->mTransactionID = session_id;
-                info->mType = (LLAssetType::EType) asset_type;
+                info->mType = static_cast<LLAssetType::EType>(asset_type);
                 info->mFolderID = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(info->mType));
                 std::string from_name;
 
@@ -898,7 +898,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     break;
                 }
                 bucketp = (struct offer_agent_bucket_t*) &binary_bucket[0];
-                info->mType = (LLAssetType::EType) bucketp->asset_type;
+                info->mType = static_cast<LLAssetType::EType>(bucketp->asset_type);
                 info->mObjectID = bucketp->object_id;
                 info->mFromObject = false;
             }
@@ -906,7 +906,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             {
                 if (sizeof(S8) == binary_bucket_size)
                 {
-                    info->mType = (LLAssetType::EType) binary_bucket[0];
+                    info->mType = static_cast<LLAssetType::EType>(binary_bucket[0]);
                 }
                 else
                 {
@@ -1016,7 +1016,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             }
 
             // Build a link to open the object IM info window.
-            std::string location = ll_safe_string((char*)binary_bucket, binary_bucket_size - 1);
+            std::string location = ll_safe_string(reinterpret_cast<char*>(binary_bucket), binary_bucket_size - 1);
 
             if (session_id.notNull())
             {
@@ -1145,7 +1145,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     name,
                     buffer,
                     IM_OFFLINE == offline,
-                    ll_safe_string((char*)binary_bucket),
+                    ll_safe_string(reinterpret_cast<char*>(binary_bucket)),
                     IM_SESSION_INVITE,
                     parent_estate_id,
                     region_id,
@@ -1172,7 +1172,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     name,
                     buffer,
                     (IM_OFFLINE == offline),
-                    ll_safe_string((char*)binary_bucket),   // session name
+                    ll_safe_string(reinterpret_cast<char*>(binary_bucket)),   // session name
                     IM_SESSION_INVITE,
                     parent_estate_id,
                     region_id,
@@ -1227,7 +1227,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 LLVector3 pos, look_at;
                 U64 region_handle(0);
                 U8 region_access(SIM_ACCESS_MIN);
-                std::string region_info = ll_safe_string((char*)binary_bucket, binary_bucket_size);
+                std::string region_info = ll_safe_string(reinterpret_cast<char*>(binary_bucket), binary_bucket_size);
                 std::string region_access_str = LLStringUtil::null;
                 std::string region_access_icn = LLStringUtil::null;
                 std::string region_access_lc = LLStringUtil::null;
@@ -1333,7 +1333,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             LLVector3 pos, look_at;
             U64 region_handle(0);
             U8 region_access(SIM_ACCESS_MIN);
-            std::string region_info = ll_safe_string((char*)binary_bucket, binary_bucket_size);
+            std::string region_info = ll_safe_string(reinterpret_cast<char*>(binary_bucket), binary_bucket_size);
             std::string region_access_str = LLStringUtil::null;
             std::string region_access_icn = LLStringUtil::null;
             std::string region_access_lc = LLStringUtil::null;
@@ -1435,7 +1435,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
 
             std::string url;
 
-            url.assign((char*)binary_bucket, binary_bucket_size - 1);
+            url.assign(reinterpret_cast<char*>(binary_bucket), binary_bucket_size - 1);
             args["MESSAGE"] = message;
             args["URL"] = url;
             LLSD payload;
@@ -1517,7 +1517,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         case IM_FRIENDSHIP_DECLINED_DEPRECATED:
         default:
             LL_WARNS("Messaging") << "Instant message calling for unknown dialog "
-                << (S32)dialog << LL_ENDL;
+                << static_cast<S32>(dialog) << LL_ENDL;
             break;
     }
 
@@ -1643,7 +1643,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         }
         else
         {
-            position.set((F32)message_data["local_x"].asReal(), (F32)message_data["local_y"].asReal(), (F32)message_data["local_z"].asReal());
+            position.set(static_cast<F32>(message_data["local_x"].asReal()), static_cast<F32>(message_data["local_y"].asReal()), static_cast<F32>(message_data["local_z"].asReal()));
         }
 
         std::vector<U8> bin_bucket;

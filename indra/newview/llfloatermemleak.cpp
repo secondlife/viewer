@@ -153,7 +153,7 @@ void LLFloaterMemLeak::onChangeLeakingSpeed()
 {
     F32 tmp = static_cast<F32>(getChild<LLUICtrl>("leak_speed")->getValue().asReal());
 
-    if(tmp > static_cast<F32>(0xFFF)FFFFF)
+    if(tmp > static_cast<F32>(0xFFFFFFFF))
     {
         sMemLeakingSpeed = 0xFFFFFFFF ;
     }

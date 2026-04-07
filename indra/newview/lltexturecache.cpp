@@ -1372,7 +1372,7 @@ void LLTextureCache::writeEntriesAndClose(const std::vector<Entry>& entries)
         LLAPRFile* aprfile = openHeaderEntriesFile(false, static_cast<S32>(sizeof(EntriesInfo)));
         for (size_t idx=0; idx<num_entries; idx++)
         {
-            S32 bytes_written = aprfile->write(reinterpret_cast<void*>(&entries[idx]), static_cast<S32>(sizeof(Entry)));
+            S32 bytes_written = aprfile->write(const_cast<void*>(static_cast<const void*>(&entries[idx])), static_cast<S32>(sizeof(Entry)));
             if(bytes_written != sizeof(Entry))
             {
                 clearCorruptedCache() ; //clear the cache.

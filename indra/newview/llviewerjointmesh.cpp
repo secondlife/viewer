@@ -199,11 +199,11 @@ void LLViewerJointMesh::uploadJointMatrices()
 // compare_int is used by the qsort function to sort the index array
 int compare_int(const void *a, const void *b)
 {
-    if (*(U32*)a < *(U32*)b)
+    if (*reinterpret_cast<const U32*>(a) < *reinterpret_cast<const U32*>(b))
     {
         return -1;
     }
-    else if (*(U32*)a > *(U32*)b)
+    else if (*reinterpret_cast<const U32*>(a) > *reinterpret_cast<const U32*>(b))
     {
         return 1;
     }
@@ -304,7 +304,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, bool first_pass, bool is_dummy)
     {
         gGL.pushMatrix();
         LLMatrix4 jointToWorld = getWorldMatrix();
-        gGL.multMatrix((GLfloat*)jointToWorld.mMatrix);
+        gGL.multMatrix(reinterpret_cast<GLfloat*>(jointToWorld.mMatrix));
         buff->setBuffer();
         buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
         gGL.popMatrix();
@@ -385,13 +385,13 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_w
             verticesp += mMesh->mFaceVertexOffset;
             normalsp += mMesh->mFaceVertexOffset;
 
-            F32* v = (F32*) verticesp.get();
-            F32* n = (F32*) normalsp.get();
+            F32* v = reinterpret_cast<F32*>(verticesp.get());
+            F32* n = reinterpret_cast<F32*>(normalsp.get());
 
             U32 words = num_verts*4;
 
-            LLVector4a::memcpyNonAliased16(v, (F32*) mMesh->getCoords(), words*sizeof(F32));
-            LLVector4a::memcpyNonAliased16(n, (F32*) mMesh->getNormals(), words*sizeof(F32));
+            LLVector4a::memcpyNonAliased16(v, reinterpret_cast<const F32*>(mMesh->getCoords()), words*sizeof(F32));
+            LLVector4a::memcpyNonAliased16(n, reinterpret_cast<const F32*>(mMesh->getNormals()), words*sizeof(F32));
 
 
             if (!terse_update)
@@ -400,9 +400,9 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_w
                 clothing_weightsp += mMesh->mFaceVertexOffset;
                 tex_coordsp += mMesh->mFaceVertexOffset;
 
-                F32* tc = (F32*) tex_coordsp.get();
-                F32* vw = (F32*) vertex_weightsp.get();
-                F32* cw = (F32*) clothing_weightsp.get();
+                F32* tc = reinterpret_cast<F32*>(tex_coordsp.get());
+                F32* vw = reinterpret_cast<F32*>(vertex_weightsp.get());
+                F32* cw = reinterpret_cast<F32*>(clothing_weightsp.get());
 
                 //S32 tc_size = (num_verts*2*sizeof(F32)+0xF) & ~0xF;
                 //LLVector4a::memcpyNonAliased16(tc, (F32*) mMesh->getTexCoords(), tc_size);
@@ -414,7 +414,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_w
                 memcpy(tc, mMesh->getTexCoords(), num_verts*2*sizeof(F32) );
                 memcpy(vw, mMesh->getWeights(), num_verts*sizeof(F32) );
 
-                LLVector4a::memcpyNonAliased16(cw, (F32*) mMesh->getClothingWeights(), num_verts*4*sizeof(F32));
+                LLVector4a::memcpyNonAliased16(cw, reinterpret_cast<const F32*>(mMesh->getClothingWeights()), num_verts*4*sizeof(F32));
             }
 
             const U32 idx_count = mMesh->getNumFaces()*3;
@@ -422,9 +422,9 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_w
             indicesp += mMesh->mFaceIndexOffset;
 
             U16* __restrict idx = indicesp.get();
-            S32* __restrict src_idx = (S32*) mMesh->getFaces();
+            S32* __restrict src_idx = reinterpret_cast<S32*>(mMesh->getFaces());
 
-            const S32 offset = (S32) mMesh->mFaceVertexOffset;
+            const S32 offset = static_cast<S32>(mMesh->mFaceVertexOffset);
 
             for (U32 i = 0; i < idx_count; ++i)
             {
@@ -461,8 +461,8 @@ void LLViewerJointMesh::updateGeometry(LLFace *mFace, LLPolyMesh *mMesh)
     F32* __restrict norm = o_normals[0].mV;
 
     const F32* __restrict weights = mMesh->getWeights();
-    const LLVector4a* __restrict coords = (LLVector4a*) mMesh->getCoords();
-    const LLVector4a* __restrict normals = (LLVector4a*) mMesh->getNormals();
+    const LLVector4a* __restrict coords = mMesh->getCoords();
+    const LLVector4a* __restrict normals = mMesh->getNormals();
 
     U32 offset = mMesh->mFaceVertexOffset*4;
     vert += offset;

@@ -200,7 +200,7 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
     sInstance = this;
 
     // find floater in which script panel is embedded
-    LLView* viewp = (LLView*)editor_core;
+    LLView* viewp = static_cast<LLView*>(editor_core);
     while(viewp)
     {
         LLFloater* floaterp = dynamic_cast<LLFloater*>(viewp);
@@ -260,7 +260,7 @@ LLFloaterScriptSearch::~LLFloaterScriptSearch()
 // static
 void LLFloaterScriptSearch::onBtnSearch(void *userdata)
 {
-    LLFloaterScriptSearch* self = (LLFloaterScriptSearch*)userdata;
+    LLFloaterScriptSearch* self = static_cast<LLFloaterScriptSearch*>(userdata);
     self->handleBtnSearch();
 }
 
@@ -273,7 +273,7 @@ void LLFloaterScriptSearch::handleBtnSearch()
 // static
 void LLFloaterScriptSearch::onBtnReplace(void *userdata)
 {
-    LLFloaterScriptSearch* self = (LLFloaterScriptSearch*)userdata;
+    LLFloaterScriptSearch* self = static_cast<LLFloaterScriptSearch*>(userdata);
     self->handleBtnReplace();
 }
 
@@ -286,7 +286,7 @@ void LLFloaterScriptSearch::handleBtnReplace()
 // static
 void LLFloaterScriptSearch::onBtnReplaceAll(void *userdata)
 {
-    LLFloaterScriptSearch* self = (LLFloaterScriptSearch*)userdata;
+    LLFloaterScriptSearch* self = static_cast<LLFloaterScriptSearch*>(userdata);
     self->handleBtnReplaceAll();
 }
 
@@ -446,7 +446,7 @@ void LLLiveLSLEditor::experienceChanged()
 
 void LLLiveLSLEditor::onViewProfile( LLUICtrl *ui, void* userdata )
 {
-    LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
+    LLLiveLSLEditor* self = static_cast<LLLiveLSLEditor*>(userdata);
 
     LLUUID id;
     if(self->mExperienceEnabled->get())
@@ -462,7 +462,7 @@ void LLLiveLSLEditor::onViewProfile( LLUICtrl *ui, void* userdata )
 
 void LLLiveLSLEditor::onToggleExperience( LLUICtrl *ui, void* userdata )
 {
-    LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
+    LLLiveLSLEditor* self = static_cast<LLLiveLSLEditor*>(userdata);
 
     LLUUID id;
     if(self->mExperienceEnabled->get())
@@ -644,7 +644,7 @@ bool LLScriptEdCore::loadScriptText(const std::string& filename)
 
     // read in the whole file
     fseek(file, 0L, SEEK_END);
-    size_t file_length = (size_t) ftell(file);
+    size_t file_length = static_cast<size_t>(ftell(file));
     fseek(file, 0L, SEEK_SET);
     std::vector<char> buffer(file_length + 1);
     size_t nread = fread(buffer.data(), 1, file_length, file);
@@ -930,7 +930,7 @@ bool LLScriptEdCore::handleSaveChangesDialog(const LLSD& notification, const LLS
         mForceClose = true;
         // This will close immediately because mForceClose is true, so we won't
         // infinite loop with these dialogs. JC
-        ((LLFloater*) getParent())->closeFloater();
+        (static_cast<LLFloater*>(getParent()))->closeFloater();
         break;
 
     case 2: // "Cancel"
@@ -991,7 +991,7 @@ void LLScriptEdCore::onBtnDynamicHelp()
 //static
 void LLScriptEdCore::onClickBack(void* userdata)
 {
-    LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
+    LLScriptEdCore* corep = static_cast<LLScriptEdCore*>(userdata);
     LLFloater* live_help_floater = corep->mLiveHelpHandle.get();
     if (live_help_floater)
     {
@@ -1006,7 +1006,7 @@ void LLScriptEdCore::onClickBack(void* userdata)
 //static
 void LLScriptEdCore::onClickForward(void* userdata)
 {
-    LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
+    LLScriptEdCore* corep = static_cast<LLScriptEdCore*>(userdata);
     LLFloater* live_help_floater = corep->mLiveHelpHandle.get();
     if (live_help_floater)
     {
@@ -1021,7 +1021,7 @@ void LLScriptEdCore::onClickForward(void* userdata)
 // static
 void LLScriptEdCore::onCheckLock(LLUICtrl* ctrl, void* userdata)
 {
-    LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
+    LLScriptEdCore* corep = static_cast<LLScriptEdCore*>(userdata);
 
     // clear out token any time we lock the frame, so we will refresh web page immediately when unlocked
     gSavedSettings.setBOOL("ScriptHelpFollowsCursor", ctrl->getValue().asBoolean());
@@ -1032,7 +1032,7 @@ void LLScriptEdCore::onCheckLock(LLUICtrl* ctrl, void* userdata)
 // static
 void LLScriptEdCore::onBtnInsertSample(void* userdata)
 {
-    LLScriptEdCore* self = (LLScriptEdCore*) userdata;
+    LLScriptEdCore* self = static_cast<LLScriptEdCore*>(userdata);
 
     // Insert sample code
     self->mEditor->selectAll();
@@ -1043,7 +1043,7 @@ void LLScriptEdCore::onBtnInsertSample(void* userdata)
 // static
 void LLScriptEdCore::onHelpComboCommit(LLUICtrl* ctrl, void* userdata)
 {
-    LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
+    LLScriptEdCore* corep = static_cast<LLScriptEdCore*>(userdata);
 
     LLFloater* live_help_floater = corep->mLiveHelpHandle.get();
     if (live_help_floater)
@@ -1062,7 +1062,7 @@ void LLScriptEdCore::onHelpComboCommit(LLUICtrl* ctrl, void* userdata)
 // static
 void LLScriptEdCore::onBtnInsertFunction(LLUICtrl *ui, void* userdata)
 {
-    LLScriptEdCore* self = (LLScriptEdCore*) userdata;
+    LLScriptEdCore* self = static_cast<LLScriptEdCore*>(userdata);
 
     // Insert sample code
     if(self->mEditor->getEnabled())
@@ -1153,7 +1153,7 @@ void LLScriptEdCore::onBtnUndoChanges()
 // static
 void LLScriptEdCore::onErrorList(LLUICtrl*, void* user_data)
 {
-    LLScriptEdCore* self = (LLScriptEdCore*)user_data;
+    LLScriptEdCore* self = static_cast<LLScriptEdCore*>(user_data);
     LLScrollListItem* item = self->mErrorList->getFirstSelected();
     if(item)
     {
@@ -1280,7 +1280,7 @@ void LLScriptEdCore::loadScriptFromFile(const std::vector<std::string>& filename
     fin.close();
 
     // Only replace the script if there is something to replace with.
-    LLScriptEdCore* self = (LLScriptEdCore*)data;
+    LLScriptEdCore* self = static_cast<LLScriptEdCore*>(data);
     if (self && (text.length() > 0))
     {
         self->mEditor->selectAll();
@@ -1293,7 +1293,7 @@ void LLScriptEdCore::onBtnSaveToFile( void* userdata )
 {
     add(LLStatViewer::LSL_SAVES, 1);
 
-    LLScriptEdCore* self = (LLScriptEdCore*) userdata;
+    LLScriptEdCore* self = static_cast<LLScriptEdCore*>(userdata);
 
     if( self->mSaveCallback )
     {
@@ -1303,7 +1303,7 @@ void LLScriptEdCore::onBtnSaveToFile( void* userdata )
 
 void LLScriptEdCore::saveScriptToFile(const std::vector<std::string>& filenames, void* data)
 {
-    LLScriptEdCore* self = (LLScriptEdCore*)data;
+    LLScriptEdCore* self = static_cast<LLScriptEdCore*>(data);
     if (self)
     {
         std::string filename = filenames[0];
@@ -1317,14 +1317,14 @@ void LLScriptEdCore::saveScriptToFile(const std::vector<std::string>& filenames,
 
 bool LLScriptEdCore::canLoadOrSaveToFile( void* userdata )
 {
-    LLScriptEdCore* self = (LLScriptEdCore*) userdata;
+    LLScriptEdCore* self = static_cast<LLScriptEdCore*>(userdata);
     return self->mEditor->canLoadOrSaveToFile();
 }
 
 // static
 bool LLScriptEdCore::enableSaveToFileMenu(void* userdata)
 {
-    LLScriptEdCore* self = (LLScriptEdCore*)userdata;
+    LLScriptEdCore* self = static_cast<LLScriptEdCore*>(userdata);
     if (!self || !self->mEditor) return false;
     return self->mEditor->canLoadOrSaveToFile();
 }
@@ -1332,7 +1332,7 @@ bool LLScriptEdCore::enableSaveToFileMenu(void* userdata)
 // static
 bool LLScriptEdCore::enableLoadFromFileMenu(void* userdata)
 {
-    LLScriptEdCore* self = (LLScriptEdCore*)userdata;
+    LLScriptEdCore* self = static_cast<LLScriptEdCore*>(userdata);
     return (self && self->mEditor) ? self->mEditor->canLoadOrSaveToFile() : false;
 }
 
@@ -1518,7 +1518,7 @@ std::string LLScriptEdContainer::getTmpFileName(const std::string& script_name)
 
     // Use MD5 sum to make the file name shorter and not exceed maximum path length.
     char script_id_hash_str[33];               /* Flawfinder: ignore */
-    LLMD5 script_id_hash((const U8 *)script_id.c_str());
+    LLMD5 script_id_hash(reinterpret_cast<const U8*>(script_id.c_str()));
     script_id_hash.hex_digest(script_id_hash_str);
 
     if (script_name.empty())
@@ -1578,7 +1578,7 @@ struct LLScriptSaveInfo
 void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 {
 
-    LLPreviewLSL *self = (LLPreviewLSL*)userdata;
+    LLPreviewLSL *self = static_cast<LLPreviewLSL*>(userdata);
 
     self->mScriptEd =  new LLScriptEdCore(
                                    self,
@@ -1706,7 +1706,7 @@ void LLPreviewLSL::loadAsset()
                                         item->getAssetUUID(),
                                         item->getType(),
                                         &LLPreviewLSL::onLoadComplete,
-                                        (void*)new_uuid,
+                                        static_cast<void*>(new_uuid),
                                         true);
             mAssetStatus = PREVIEW_ASSET_LOADING;
         }
@@ -1747,7 +1747,7 @@ void LLPreviewLSL::closeIfNeeded()
 
 void LLPreviewLSL::onSearchReplace(void* userdata)
 {
-    LLPreviewLSL* self = (LLPreviewLSL*)userdata;
+    LLPreviewLSL* self = static_cast<LLPreviewLSL*>(userdata);
     LLScriptEdCore* sec = self->mScriptEd;
     LLFloaterScriptSearch::show(sec);
 }
@@ -1755,14 +1755,14 @@ void LLPreviewLSL::onSearchReplace(void* userdata)
 // static
 void LLPreviewLSL::onLoad(void* userdata)
 {
-    LLPreviewLSL* self = (LLPreviewLSL*)userdata;
+    LLPreviewLSL* self = static_cast<LLPreviewLSL*>(userdata);
     self->loadAsset();
 }
 
 // static
 void LLPreviewLSL::onSave(void* userdata, bool close_after_save)
 {
-    LLPreviewLSL* self = (LLPreviewLSL*)userdata;
+    LLPreviewLSL* self = static_cast<LLPreviewLSL*>(userdata);
     self->mCloseAfterSave = close_after_save;
     self->saveIfNeeded();
 }
@@ -1863,7 +1863,7 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
 {
     LL_DEBUGS() << "LLPreviewLSL::onLoadComplete: got uuid " << asset_uuid
          << LL_ENDL;
-    LLUUID* item_uuid = (LLUUID*)user_data;
+    LLUUID* item_uuid = static_cast<LLUUID*>(user_data);
     LLPreviewLSL* preview = LLFloaterReg::findTypedInstance<LLPreviewLSL>("preview_script", *item_uuid);
     if( preview )
     {
@@ -1931,7 +1931,7 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
 //static
 void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 {
-    LLLiveLSLEditor *self = (LLLiveLSLEditor*)userdata;
+    LLLiveLSLEditor *self = static_cast<LLLiveLSLEditor*>(userdata);
 
     self->mScriptEd =  new LLScriptEdCore(
                                    self,
@@ -2071,7 +2071,7 @@ void LLLiveLSLEditor::loadAsset()
                         item->getAssetUUID(),
                         item->getType(),
                         &LLLiveLSLEditor::onLoadComplete,
-                        (void*)user_data,
+                        static_cast<void*>(user_data),
                         true);
                     LLMessageSystem* msg = gMessageSystem;
                     msg->newMessageFast(_PREHASH_GetScriptRunning);
@@ -2141,7 +2141,7 @@ void LLLiveLSLEditor::onLoadComplete(const LLUUID& asset_id,
 {
     LL_DEBUGS() << "LLLiveLSLEditor::onLoadComplete: got uuid " << asset_id
          << LL_ENDL;
-    LLSD* floater_key = (LLSD*)user_data;
+    LLSD* floater_key = static_cast<LLSD*>(user_data);
 
     LLLiveLSLEditor* instance = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", *floater_key);
 
@@ -2207,7 +2207,7 @@ void LLLiveLSLEditor::loadScriptText(const LLUUID &uuid, LLAssetType::EType type
 
 void LLLiveLSLEditor::onRunningCheckboxClicked( LLUICtrl*, void* userdata )
 {
-    LLLiveLSLEditor* self = (LLLiveLSLEditor*) userdata;
+    LLLiveLSLEditor* self = static_cast<LLLiveLSLEditor*>(userdata);
     LLViewerObject* object = gObjectList.findObject( self->mObjectUUID );
     LLCheckBoxCtrl* runningCheckbox = self->getChild<LLCheckBoxCtrl>("running");
     bool running =  runningCheckbox->get();
@@ -2234,7 +2234,7 @@ void LLLiveLSLEditor::onRunningCheckboxClicked( LLUICtrl*, void* userdata )
 
 void LLLiveLSLEditor::onReset(void *userdata)
 {
-    LLLiveLSLEditor* self = (LLLiveLSLEditor*) userdata;
+    LLLiveLSLEditor* self = static_cast<LLLiveLSLEditor*>(userdata);
 
     LLViewerObject* object = gObjectList.findObject( self->mObjectUUID );
     if(object)
@@ -2296,7 +2296,7 @@ void LLLiveLSLEditor::draw()
 
 void LLLiveLSLEditor::onSearchReplace(void* userdata)
 {
-    LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
+    LLLiveLSLEditor* self = static_cast<LLLiveLSLEditor*>(userdata);
 
     LLScriptEdCore* sec = self->mScriptEd;
     LLFloaterScriptSearch::show(sec);
@@ -2434,14 +2434,14 @@ void LLLiveLSLEditor::closeIfNeeded()
 // static
 void LLLiveLSLEditor::onLoad(void* userdata)
 {
-    LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
+    LLLiveLSLEditor* self = static_cast<LLLiveLSLEditor*>(userdata);
     self->loadAsset();
 }
 
 // static
 void LLLiveLSLEditor::onSave(void* userdata, bool close_after_save)
 {
-    if (LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata)
+    if (LLLiveLSLEditor* self = static_cast<LLLiveLSLEditor*>(userdata))
     {
         self->mCloseAfterSave = close_after_save;
         self->mScriptEd->mErrorList->setCommentText("");

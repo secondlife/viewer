@@ -736,7 +736,7 @@ bool idle_startup()
             if (NULL == getenv("LL_BAD_OPENAL_DRIVER"))
 #endif // !LL_WINDOWS
             {
-                gAudiop = (LLAudioEngine *) new LLAudioEngine_OpenAL();
+                gAudiop = static_cast<LLAudioEngine*>(new LLAudioEngine_OpenAL());
             }
 #endif
 
@@ -745,7 +745,7 @@ bool idle_startup()
 #if LL_WINDOWS
                 // FMOD Ex on Windows needs the window handle to stop playing audio
                 // when window is minimized. JC
-                void* window_handle = (HWND)gViewerWindow->getPlatformWindow();
+                void* window_handle = reinterpret_cast<HWND>(gViewerWindow->getPlatformWindow());
 #else
                 void* window_handle = NULL;
 #endif
@@ -1035,7 +1035,7 @@ bool idle_startup()
         // and startup time is close enough if we don't have a real value.
         if (gSavedPerAccountSettings.getU32("LastLogoff") == 0)
         {
-            gSavedPerAccountSettings.setU32("LastLogoff", (U32)time_corrected());
+            gSavedPerAccountSettings.setU32("LastLogoff", static_cast<U32>(time_corrected()));
         }
 
         //Default the path if one isn't set.
@@ -1175,7 +1175,7 @@ bool idle_startup()
                     if (date.fromString(message_args["TIME"].asString()))
                     {
                         LLSD args;
-                        args["datetime"] = (S32)date.secondsSinceEpoch();
+                        args["datetime"] = static_cast<S32>(date.secondsSinceEpoch());
                         LLTrans::findString(time_string, "LocalTime", args);
                     }
                     else
@@ -1684,7 +1684,7 @@ bool idle_startup()
         const S32 DECODE_TIME_SEC = 2;
         for (int i = 0; i < DECODE_TIME_SEC; i++)
         {
-            F32 frac = (F32)i / (F32)DECODE_TIME_SEC;
+            F32 frac = static_cast<F32>(i) / static_cast<F32>(DECODE_TIME_SEC);
             set_startup_status(0.45f + frac*0.1f, LLTrans::getString("LoginDecodingImages"), gAgent.mMOTD);
             do_startup_frame();
             gTextureList.decodeAllImages(1.f);
@@ -1715,7 +1715,7 @@ bool idle_startup()
             gFirstSim,
             gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
             false,
-            (F32Seconds)gSavedSettings.getF32("UseCircuitCodeTimeout"),
+            static_cast<F32Seconds>(gSavedSettings.getF32("UseCircuitCodeTimeout")),
             use_circuit_callback,
             NULL);
 
@@ -1776,7 +1776,7 @@ bool idle_startup()
         // But not on first login, because you can't see your avatar then
         if (!gAgent.isFirstLogin())
         {
-            LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true);
+            LLHUDEffectSpiral *effectp = static_cast<LLHUDEffectSpiral*>(LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true));
             effectp->setPositionGlobal(gAgent.getPositionGlobal());
             effectp->setColor(LLColor4U(gAgent.getEffectColor()));
             LLHUDManager::getInstance()->sendEffects();
@@ -3376,7 +3376,7 @@ bool LLStartUp::startLLProxy()
             {
                 LLSD subs;
                 subs["HOST"] = gSavedSettings.getString("Socks5ProxyHost");
-                subs["PORT"] = (S32)gSavedSettings.getU32("Socks5ProxyPort");
+                subs["PORT"] = static_cast<S32>(gSavedSettings.getU32("Socks5ProxyPort"));
 
                 std::string error_string;
 
@@ -3438,7 +3438,7 @@ bool LLStartUp::startLLProxy()
             {
                 LLSD subs;
                 subs["HOST"] = http_host.getIPString();
-                subs["PORT"] = (S32)http_host.getPort();
+                subs["PORT"] = static_cast<S32>(http_host.getPort());
                 LLNotificationsUtil::add("PROXY_INVALID_HTTP_HOST", subs);
                 proxy_ok = false;
             }
@@ -3452,7 +3452,7 @@ bool LLStartUp::startLLProxy()
             {
                 LLSD subs;
                 subs["HOST"] = socks_host.getIPString();
-                subs["PORT"] = (S32)socks_host.getPort();
+                subs["PORT"] = static_cast<S32>(socks_host.getPort());
                 LLNotificationsUtil::add("PROXY_INVALID_SOCKS_HOST", subs);
                 proxy_ok = false;
             }
@@ -3756,7 +3756,7 @@ bool process_login_success_response()
     text = response["agent_region_access"].asString();
     if (!text.empty())
     {
-        U32 preferredMaturity = (U32)LLAgent::convertTextToMaturity(text[0]);
+        U32 preferredMaturity = static_cast<U32>(LLAgent::convertTextToMaturity(text[0]));
 
         gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
     }
@@ -3796,7 +3796,7 @@ bool process_login_success_response()
     if (!look_at_str.empty())
     {
         size_t len = look_at_str.size();
-        LLMemoryStream mstr(std::span<const U8>((const U8*)look_at_str.c_str(), len));
+        LLMemoryStream mstr(std::span<const U8>(reinterpret_cast<const U8*>(look_at_str.c_str()), len));
         LLSD sd = LLSDSerialize::fromNotation(mstr, len);
         gAgentStartLookAt = ll_vector3_from_sd(sd);
     }
@@ -3811,11 +3811,11 @@ bool process_login_success_response()
         if(server_utc_time)
         {
             time_t now = time(NULL);
-            gUTCOffset = (S32)(server_utc_time - now);
+            gUTCOffset = static_cast<S32>(server_utc_time - now);
 
             // Print server timestamp
             LLSD substitution;
-            substitution["datetime"] = (S32)server_utc_time;
+            substitution["datetime"] = static_cast<S32>(server_utc_time);
             std::string timeStr = "[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second, datetime, slt]";
             LLStringUtil::format(timeStr, substitution);
             LL_INFOS("AppInit") << "Server SLT timestamp: " << timeStr << ". Server-viewer time offset before correction: " << gUTCOffset << "s" << LL_ENDL;
@@ -3834,7 +3834,7 @@ bool process_login_success_response()
     if(!home_location.empty())
     {
         size_t len = home_location.size();
-        LLMemoryStream mstr(std::span<const U8>((const U8*)home_location.c_str(), len));
+        LLMemoryStream mstr(std::span<const U8>(reinterpret_cast<const U8*>(home_location.c_str()), len));
         LLSD sd = LLSDSerialize::fromNotation(mstr, len);
         S32 region_x = sd["region_handle"][0].asInteger();
         S32 region_y = sd["region_handle"][1].asInteger();
