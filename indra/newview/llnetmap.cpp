@@ -263,7 +263,7 @@ void LLNetMap::draw()
         if( rotate_map )
         {
             // rotate subsequent draws to agent rotation
-            rotation = atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
+            rotation = atan2( LLViewerCamera::getInstance()->getAtAxis().x, LLViewerCamera::getInstance()->getAtAxis().y );
             gGL.rotatef( rotation * RAD_TO_DEG, 0.f, 0.f, 1.f);
         }
 
@@ -552,7 +552,7 @@ void LLNetMap::draw()
             gGL.pushMatrix();
                 gGL.translatef( ctr_x, ctr_y, 0 );
                 // If we don't rotate the map, we have to rotate the frustum.
-                gGL.rotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
+                gGL.rotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().x, LLViewerCamera::getInstance()->getAtAxis().y ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
                 gl_washer_segment_2d(far_clip_pixels, 0, arc_start, arc_end, steps, map_frustum_color(), map_frustum_color());
             gGL.popMatrix();
         }
@@ -584,7 +584,7 @@ LLVector3 LLNetMap::globalPosToView(const LLVector3d& global_pos)
     static LLUICachedControl<bool> rotate_map("MiniMapRotate", true);
     if( rotate_map )
     {
-        F32 radians = atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
+        F32 radians = atan2( LLViewerCamera::getInstance()->getAtAxis().x, LLViewerCamera::getInstance()->getAtAxis().y );
         LLQuaternion rot(radians, LLVector3(0.f, 0.f, 1.f));
         pos_local.rotVec( rot );
     }
@@ -689,7 +689,7 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 
     LLVector3 pos_local( static_cast<F32>(x), static_cast<F32>(y), 0 );
 
-    F32 radians = - atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
+    F32 radians = - atan2( LLViewerCamera::getInstance()->getAtAxis().x, LLViewerCamera::getInstance()->getAtAxis().y );
 
     static LLUICachedControl<bool> rotate_map("MiniMapRotate", true);
     if( rotate_map )

@@ -68,7 +68,7 @@ U32 LLViewerPart::sNextPartID = 1;
 
 F32 calc_desired_size(LLViewerCamera* camera, LLVector3 pos, glm::vec2 scale)
 {
-    F32 desired_size = (pos - camera->getOrigin()).length();
+    F32 desired_size = (pos - LLVector3(camera->getOrigin())).length();
     desired_size /= 4;
     return llclamp(desired_size, glm::length(scale)*0.5f, PART_SIM_BOX_SIDE*2);
 }

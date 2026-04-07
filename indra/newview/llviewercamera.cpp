@@ -91,13 +91,12 @@ bool LLViewerCamera::updateCameraLocation(const glm::vec3& center, const glm::ve
         return true;
     }
 
-    // Bridge: getOrigin/getAtAxis/setOrigin/setAxes are LLCoordFrame-land (LLVector3).
-    const LLVector3 last_position = getOrigin();
-    const LLVector3 last_axis = getAtAxis();
+    const glm::vec3 last_position = getOrigin();
+    const glm::vec3 last_axis = getAtAxis();
 
     mLastPointOfInterest = point_of_interest;
 
-    LLViewerRegion* regp = LLWorld::instance().getRegionFromPosAgent(getOrigin());
+    LLViewerRegion* regp = LLWorld::instance().getRegionFromPosAgent(LLVector3(getOrigin().x, getOrigin().y, getOrigin().z));
     if (!regp)
     {
         regp = gAgent.getRegion();
@@ -142,13 +141,10 @@ bool LLViewerCamera::updateCameraLocation(const glm::vec3& center, const glm::ve
         return false;
     up /= up_len;
 
-    // Bridge: setOrigin/setAxes take LLVector3 (LLCoordFrame-land).
-    setOrigin(LLVector3(origin.x, origin.y, origin.z));
-    setAxes(LLVector3(at.x, at.y, at.z),
-            LLVector3(left.x, left.y, left.z),
-            LLVector3(up.x, up.y, up.z));
+    setOrigin(origin);
+    setAxes(at, left, up);
 
-    mVelocityDir = origin - glm::vec3(last_position.mV[VX], last_position.mV[VY], last_position.mV[VZ]);
+    mVelocityDir = origin - last_position;
     F32 dpos = glm::length(mVelocityDir);
     if (dpos > F_APPROXIMATELY_ZERO)
     {
@@ -159,7 +155,8 @@ bool LLViewerCamera::updateCameraLocation(const glm::vec3& center, const glm::ve
         mVelocityDir = glm::vec3(0.0f);
     }
     LLQuaternion rotation;
-    rotation.shortestArc(last_axis, getAtAxis());
+    rotation.shortestArc(LLVector3(last_axis.x, last_axis.y, last_axis.z),
+                         LLVector3(getAtAxis().x, getAtAxis().y, getAtAxis().z));
 
     F32 drot, x, y, z;
     rotation.getAngleAxis(&drot, &x, &y, &z);
@@ -263,9 +260,7 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, bool ortho, bool zfli
 
         if (ortho)
         {
-            // Bridge: camera.getAtAxis() is LLCoordFrame-land (LLVector3).
-            const LLVector3& ll_at = camera.getAtAxis();
-            glm::vec3 far_shift = glm::vec3(ll_at.mV[VX], ll_at.mV[VY], ll_at.mV[VZ]) * camera.getFar() * 2.f;
+            glm::vec3 far_shift = camera.getAtAxis() * camera.getFar() * 2.f;
             for (U32 i = 0; i < 4; i++)
             {
                 frust[i+4] = frust[i] + far_shift;
@@ -273,9 +268,7 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, bool ortho, bool zfli
         }
         else
         {
-            // Bridge: camera.getOrigin() is LLCoordFrame-land (LLVector3).
-            const LLVector3& ll_origin = camera.getOrigin();
-            const glm::vec3 cam_origin(ll_origin.mV[VX], ll_origin.mV[VY], ll_origin.mV[VZ]);
+            const glm::vec3& cam_origin = camera.getOrigin();
             for (U32 i = 0; i < 4; i++)
             {
                 glm::vec3 vec = glm::normalize(frust[i] - cam_origin);
@@ -419,11 +412,8 @@ bool LLViewerCamera::projectPosAgentToScreen(const glm::vec3& pos_agent, LLCoord
 {
     bool in_front = true;
 
-    // Bridge: getOrigin/getAtAxis are LLCoordFrame-land (LLVector3).
-    const LLVector3& ll_origin = getOrigin();
-    const LLVector3& ll_at = getAtAxis();
-    const glm::vec3 cam_origin(ll_origin.mV[VX], ll_origin.mV[VY], ll_origin.mV[VZ]);
-    const glm::vec3 cam_at(ll_at.mV[VX], ll_at.mV[VY], ll_at.mV[VZ]);
+    const glm::vec3& cam_origin = getOrigin();
+    const glm::vec3& cam_at = getAtAxis();
 
     glm::vec3 dir_to_point = pos_agent - cam_origin;
     dir_to_point /= glm::length(dir_to_point);
@@ -524,11 +514,8 @@ bool LLViewerCamera::projectPosAgentToScreen(const glm::vec3& pos_agent, LLCoord
 bool LLViewerCamera::projectPosAgentToScreenEdge(const glm::vec3& pos_agent,
                                                  LLCoordGL& out_point) const
 {
-    // Bridge: getOrigin/getAtAxis are LLCoordFrame-land (LLVector3).
-    const LLVector3& ll_origin = getOrigin();
-    const LLVector3& ll_at = getAtAxis();
-    const glm::vec3 cam_origin(ll_origin.mV[VX], ll_origin.mV[VY], ll_origin.mV[VZ]);
-    const glm::vec3 cam_at(ll_at.mV[VX], ll_at.mV[VY], ll_at.mV[VZ]);
+    const glm::vec3& cam_origin = getOrigin();
+    const glm::vec3& cam_at = getAtAxis();
 
     glm::vec3 dir_to_point = pos_agent - cam_origin;
     dir_to_point /= glm::length(dir_to_point);
@@ -666,15 +653,10 @@ bool LLViewerCamera::projectPosAgentToScreenEdge(const glm::vec3& pos_agent,
 
 void LLViewerCamera::getPixelVectors(const glm::vec3& pos_agent, glm::vec3& up, glm::vec3& right)
 {
-    // Bridge: getOrigin/getAtAxis/getUpAxis/getLeftAxis are LLCoordFrame-land (LLVector3).
-    const LLVector3& ll_origin = getOrigin();
-    const LLVector3& ll_at = getAtAxis();
-    const LLVector3& ll_up = getUpAxis();
-    const LLVector3& ll_left = getLeftAxis();
-    const glm::vec3 cam_origin(ll_origin.mV[VX], ll_origin.mV[VY], ll_origin.mV[VZ]);
-    const glm::vec3 cam_at(ll_at.mV[VX], ll_at.mV[VY], ll_at.mV[VZ]);
-    const glm::vec3 cam_up(ll_up.mV[VX], ll_up.mV[VY], ll_up.mV[VZ]);
-    const glm::vec3 cam_left(ll_left.mV[VX], ll_left.mV[VY], ll_left.mV[VZ]);
+    const glm::vec3& cam_origin = getOrigin();
+    const glm::vec3& cam_at = getAtAxis();
+    const glm::vec3& cam_up = getUpAxis();
+    const glm::vec3& cam_left = getLeftAxis();
 
     glm::vec3 to_vec = pos_agent - cam_origin;
 
@@ -692,9 +674,7 @@ void LLViewerCamera::getPixelVectors(const glm::vec3& pos_agent, glm::vec3& up, 
 
 glm::vec3 LLViewerCamera::roundToPixel(const glm::vec3& pos_agent)
 {
-    // Bridge: getOrigin() is LLCoordFrame-land (LLVector3).
-    const LLVector3& ll_origin = getOrigin();
-    const glm::vec3 cam_origin(ll_origin.mV[VX], ll_origin.mV[VY], ll_origin.mV[VZ]);
+    const glm::vec3& cam_origin = getOrigin();
 
     F32 dist = glm::length(pos_agent - cam_origin);
     // Convert to screen space and back, preserving the depth.
@@ -723,7 +703,8 @@ glm::vec3 LLViewerCamera::roundToPixel(const glm::vec3& pos_agent)
 
 bool LLViewerCamera::cameraUnderWater() const
 {
-    LLViewerRegion* regionp = LLWorld::instance().getRegionFromPosAgent(getOrigin());
+    const glm::vec3& cam_orig = getOrigin();
+    LLViewerRegion* regionp = LLWorld::instance().getRegionFromPosAgent(LLVector3(cam_orig.x, cam_orig.y, cam_orig.z));
 
     if (gPipeline.mHeroProbeManager.isMirrorPass())
     {
@@ -741,7 +722,7 @@ bool LLViewerCamera::cameraUnderWater() const
         return false ;
     }
 
-    return getOrigin().mV[VZ] < regionp->getWaterHeight();
+    return getOrigin().z < regionp->getWaterHeight();
 }
 
 bool LLViewerCamera::areVertsVisible(LLViewerObject* volumep, bool all_verts)

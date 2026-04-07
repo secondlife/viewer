@@ -351,8 +351,8 @@ void init_audio()
 
     gAudiop->setListener(lpos_global_f,
                           LLVector3::zero,  // LLViewerCamera::getInstance()->getVelocity(),    // !!! BUG need to replace this with smoothed velocity!
-                          LLViewerCamera::getInstance()->getUpAxis(),
-                          LLViewerCamera::getInstance()->getAtAxis());
+                          LLVector3(LLViewerCamera::getInstance()->getUpAxis()),
+                          LLVector3(LLViewerCamera::getInstance()->getAtAxis()));
 
 // load up our initial set of sounds we'll want so they're in memory and ready to be played
 
@@ -526,8 +526,8 @@ void audio_update_listener()
                              // LLViewerCamera::getInstance()VelocitySmoothed,
                              // LLVector3::zero,
                              gAgent.getVelocity(),    // !!! *TODO: need to replace this with smoothed velocity!
-                             LLViewerCamera::getInstance()->getUpAxis(),
-                             LLViewerCamera::getInstance()->getAtAxis());
+                             LLVector3(LLViewerCamera::getInstance()->getUpAxis()),
+                             LLVector3(LLViewerCamera::getInstance()->getAtAxis()));
     }
 }
 
@@ -551,7 +551,7 @@ void audio_update_wind(bool force_update)
         LLVector3 final_wind_vec = scaled_wind_vec - gAgent.getVelocity();
 
         // rotate the wind vector to be listener (agent) relative
-        gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal( final_wind_vec );
+        gRelativeWindVec = LLVector3(gAgent.getFrameAgent().rotateToLocal(static_cast<glm::vec3>(final_wind_vec)));
 
         // don't use the setter setMaxWindGain() because we don't
         // want to screw up the fade-in on startup by setting actual source gain

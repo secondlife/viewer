@@ -6614,7 +6614,7 @@ void handle_look_at_selection(const LLSD& param)
         F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
         F32 distance = selection_bbox.getExtentLocal().length() * PADDING_FACTOR / atan(angle_of_view);
 
-        LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - selection_bbox.getCenterAgent();
+        LLVector3 obj_to_cam = LLVector3(LLViewerCamera::getInstance()->getOrigin()) - selection_bbox.getCenterAgent();
         obj_to_cam.normalize();
 
         LLUUID object_id;
@@ -6654,7 +6654,7 @@ bool handle_zoom_to_object(const LLUUID& object_id)
         F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
         F32 distance = bbox.getExtentLocal().length() * PADDING_FACTOR / atan(angle_of_view);
 
-        LLVector3 obj_to_cam = LLViewerCamera::getInstance()->getOrigin() - bbox.getCenterAgent();
+        LLVector3 obj_to_cam = LLVector3(LLViewerCamera::getInstance()->getOrigin()) - bbox.getCenterAgent();
         obj_to_cam.normalize();
 
 

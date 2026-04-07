@@ -270,7 +270,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
         }
 
         // Distance from camera
-        F32 dist = (mPosAgent - LLViewerCamera::getInstance()->getOrigin()).length();
+        F32 dist = (mPosAgent - LLVector3(LLViewerCamera::getInstance()->getOrigin())).length();
 
         // Particle size vs distance vs maxage throttling
 

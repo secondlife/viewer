@@ -364,26 +364,28 @@ void LLHUDText::updateVisibility()
     }
 
     // push text towards camera by radius of object, but not past camera
-    LLVector3 vec_from_camera = mPositionAgent - LLViewerCamera::getInstance()->getOrigin();
+    const LLVector3 cam_origin_ll(LLViewerCamera::getInstance()->getOrigin());
+    const LLVector3 cam_at_ll(LLViewerCamera::getInstance()->getAtAxis());
+    LLVector3 vec_from_camera = mPositionAgent - cam_origin_ll;
     LLVector3 dir_from_camera = vec_from_camera;
     dir_from_camera.normalize();
 
-    if (dir_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= 0.f)
+    if (dir_from_camera * cam_at_ll <= 0.f)
     { //text is behind camera, don't render
         mVisible = false;
         return;
     }
 
-    if (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
+    if (vec_from_camera * cam_at_ll <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
     {
-        mPositionAgent = LLViewerCamera::getInstance()->getOrigin() + vec_from_camera * ((LLViewerCamera::getInstance()->getNear() + 0.1f) / (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis()));
+        mPositionAgent = cam_origin_ll + vec_from_camera * ((LLViewerCamera::getInstance()->getNear() + 0.1f) / (vec_from_camera * cam_at_ll));
     }
     else
     {
         mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
     }
 
-    mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).length();
+    mLastDistance = (mPositionAgent - cam_origin_ll).length();
 
     if (!mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
     {
@@ -392,7 +394,7 @@ void LLHUDText::updateVisibility()
     }
 
     LLVector3 pos_agent_center = gAgent.getPosAgentFromGlobal(mPositionGlobal) - dir_from_camera;
-    F32 last_distance_center = (pos_agent_center - LLViewerCamera::getInstance()->getOrigin()).length();
+    F32 last_distance_center = (pos_agent_center - cam_origin_ll).length();
     static LLCachedControl<F32> prim_text_max_dist(gSavedSettings, "PrimTextMaxDrawDistance");
     F32 max_draw_distance = prim_text_max_dist;
 

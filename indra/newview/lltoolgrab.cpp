@@ -568,7 +568,7 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
             LLQuaternion rotation_around_vertical( dx*RADIANS_PER_PIXEL_X, up );
 
             // y motion maps to rotation around left axis
-            const LLVector3 &agent_left = LLViewerCamera::getInstance()->getLeftAxis();
+            const LLVector3 agent_left(LLViewerCamera::getInstance()->getLeftAxis());
             LLQuaternion rotation_around_left( dy*RADIANS_PER_PIXEL_Y, agent_left );
 
             // compose with current rotation
@@ -592,14 +592,14 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
             // Handle grabbing
             //------------------------------------------------------
 
-            LLVector3d x_part(LLViewerCamera::getInstance()->getLeftAxis());
+            LLVector3d x_part(LLVector3(LLViewerCamera::getInstance()->getLeftAxis()));
             x_part.mdV[VZ] = 0.0;
             x_part.normalize();
 
             LLVector3d y_part;
             if( mVerticalDragging )
             {
-                y_part.set(LLViewerCamera::getInstance()->getUpAxis());
+                y_part.set(LLVector3(LLViewerCamera::getInstance()->getUpAxis()));
                 // y_part.set(0.f, 0.f, 1.f);
             }
             else
@@ -818,14 +818,14 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
             // Handle grabbing
             //------------------------------------------------------
 
-            LLVector3d x_part(LLViewerCamera::getInstance()->getLeftAxis());
+            LLVector3d x_part(LLVector3(LLViewerCamera::getInstance()->getLeftAxis()));
             x_part.mdV[VZ] = 0.0;
             x_part.normalize();
 
             LLVector3d y_part;
             if( mVerticalDragging )
             {
-                y_part.set(LLViewerCamera::getInstance()->getUpAxis());
+                y_part.set(LLVector3(LLViewerCamera::getInstance()->getUpAxis()));
                 // y_part.set(0.f, 0.f, 1.f);
             }
             else

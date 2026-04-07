@@ -6425,7 +6425,7 @@ void LLSelectMgr::updateSilhouettes()
                 {
                     if (num_sils_genned++ < MAX_SILS_PER_FRAME)
                     {
-                        generateSilhouette(node, LLViewerCamera::getInstance()->getOrigin());
+                        generateSilhouette(node, LLVector3(LLViewerCamera::getInstance()->getOrigin()));
                         changed_objects.push_back(objectp);
                     }
                     else if (objectp->isAttachment() && objectp->getRootEdit()->mDrawable.notNull())
@@ -6495,7 +6495,7 @@ void LLSelectMgr::updateSelectionSilhouette(LLObjectSelectionHandle object_handl
                 {
                     if (num_sils_genned++ < MAX_SILS_PER_FRAME)// && objectp->mDrawable->isVisible())
                     {
-                        generateSilhouette(node, LLViewerCamera::getInstance()->getOrigin());
+                        generateSilhouette(node, LLVector3(LLViewerCamera::getInstance()->getOrigin()));
                         changed_objects.push_back(objectp);
                     }
                     else if (objectp->isAttachment())
@@ -7262,7 +7262,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
         }
         else
         {
-            LLVector3 view_vector = LLViewerCamera::getInstance()->getOrigin() - objectp->getRenderPosition();
+            LLVector3 view_vector = LLVector3(LLViewerCamera::getInstance()->getOrigin()) - objectp->getRenderPosition();
             silhouette_thickness = view_vector.length() * LLSelectMgr::sHighlightThickness * (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV());
         }
         F32 animationTime = static_cast<F32>(LLFrameTimer::getElapsedSeconds());
@@ -8661,7 +8661,7 @@ bool LLSelectMgr::selectionMove(const LLVector3& displ,
         {
             obj_pos = (*it)->getObject()->getPositionEdit();
 
-            F32 obj_dist_squared = dist_vec_squared(obj_pos, LLViewerCamera::getInstance()->getOrigin());
+            F32 obj_dist_squared = dist_vec_squared(obj_pos, LLVector3(LLViewerCamera::getInstance()->getOrigin()));
             if (obj_dist_squared < min_dist_squared)
             {
                 min_dist_squared = obj_dist_squared;
@@ -8676,16 +8676,16 @@ bool LLSelectMgr::selectionMove(const LLVector3& displ,
                             displ.mV[2] * min_dist);
 
         // equates to: Displ_global = Displ * M_cam_axes_in_global_frame
-        displ_global = LLViewerCamera::getInstance()->rotateToAbsolute(displ_global);
+        displ_global = LLVector3(LLViewerCamera::getInstance()->rotateToAbsolute(static_cast<glm::vec3>(displ_global)));
     }
 
     LLQuaternion new_rot;
     if (update_rotation)
     {
         // let's calculate the rotation around each camera axes
-        LLQuaternion qx(roll, LLViewerCamera::getInstance()->getAtAxis());
-        LLQuaternion qy(pitch, LLViewerCamera::getInstance()->getLeftAxis());
-        LLQuaternion qz(yaw, LLViewerCamera::getInstance()->getUpAxis());
+        LLQuaternion qx(roll, LLVector3(LLViewerCamera::getInstance()->getAtAxis()));
+        LLQuaternion qy(pitch, LLVector3(LLViewerCamera::getInstance()->getLeftAxis()));
+        LLQuaternion qz(yaw, LLVector3(LLViewerCamera::getInstance()->getUpAxis()));
         new_rot.set(qx * qy * qz);
     }
 

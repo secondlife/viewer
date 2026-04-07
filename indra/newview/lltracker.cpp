@@ -504,7 +504,7 @@ void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 
 
     gGL.color4fv(fogged_color.mV);
 
-    LLVector3 x_axis = LLViewerCamera::getInstance()->getLeftAxis();
+    LLVector3 x_axis(LLViewerCamera::getInstance()->getLeftAxis());
     F32 t = gRenderStartTime.getElapsedTimeF32();
 
     F32 x = x_axis.mV[0];

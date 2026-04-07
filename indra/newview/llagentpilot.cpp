@@ -238,10 +238,10 @@ void LLAgentPilot::addAction(enum EActionType action_type)
     action.mTime = mTimer.getElapsedTimeF32();
     LLViewerCamera *cam = LLViewerCamera::getInstance();
     action.mCameraView = cam->getView();
-    action.mCameraOrigin = cam->getOrigin();
-    action.mCameraXAxis = cam->getXAxis();
-    action.mCameraYAxis = cam->getYAxis();
-    action.mCameraZAxis = cam->getZAxis();
+    action.mCameraOrigin = LLVector3(cam->getOrigin());
+    action.mCameraXAxis = LLVector3(cam->getXAxis());
+    action.mCameraYAxis = LLVector3(cam->getYAxis());
+    action.mCameraZAxis = LLVector3(cam->getZAxis());
     mLastRecordTime = static_cast<F32>(action.mTime);
     mActions.push_back(action);
 }
@@ -319,7 +319,7 @@ void LLAgentPilot::moveCamera()
         LLMatrix3 mat(quat);
 
         LLViewerCamera::getInstance()->setView(view);
-        LLViewerCamera::getInstance()->setOrigin(origin);
+        LLViewerCamera::getInstance()->setOrigin(static_cast<glm::vec3>(origin));
         LLViewerCamera::getInstance()->setAxes(mat);
     }
 }

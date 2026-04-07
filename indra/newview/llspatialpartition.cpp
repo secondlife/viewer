@@ -643,7 +643,7 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 
     LLVector4a eye;
     LLVector4a origin;
-    origin.load3(camera.getOrigin().mV);
+    origin.load3(&camera.getOrigin().x);
 
     eye.setSub(group->mObjectBounds[0], origin);
 
@@ -680,8 +680,7 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 
         //calculate depth of node for alpha sorting
 
-        LLVector3 at_ll = camera.getAtAxis();
-        glm::vec3 at(at_ll.mV[VX], at_ll.mV[VY], at_ll.mV[VZ]);
+        const glm::vec3& at = camera.getAtAxis();
 
         LLVector4a ata;
         ata.load3(glm::value_ptr(at));
@@ -2954,7 +2953,7 @@ void renderRaycast(LLDrawable* drawablep)
             LLVector3 normal(gDebugRaycastNormal.getF32ptr());
             LLVector3 binormal(debug_binormal.getF32ptr());
 
-            orient.lookDir(normal, binormal);
+            orient.lookDir(static_cast<glm::vec3>(normal), static_cast<glm::vec3>(binormal));
             LLMatrix4 rotation;
             orient.getRotMatrixToParent(rotation);
             gGL.multMatrix(reinterpret_cast<float*>(rotation.mMatrix));

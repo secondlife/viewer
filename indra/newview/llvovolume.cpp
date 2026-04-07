@@ -3324,7 +3324,7 @@ void LLVOVolume::updateSpotLightPriority()
     at *= getRenderRotation();
     pos += at * r;
 
-    at = LLViewerCamera::getInstance()->getAtAxis();
+    at = LLVector3(LLViewerCamera::getInstance()->getAtAxis());
     pos -= at * r;
 
     mSpotLightPriority = gPipeline.calcPixelArea(pos, LLVector3(r,r,r), *LLViewerCamera::getInstance());

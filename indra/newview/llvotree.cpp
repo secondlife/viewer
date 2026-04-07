@@ -416,7 +416,7 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
     LLVector3 viewer_pos_agent = gAgentCamera.getCameraPositionAgent();
     LLVector3 lookAt = center - viewer_pos_agent;
     F32 dist = lookAt.normalize() ;
-    F32 cos_angle_to_view_dir = lookAt * LLViewerCamera::getInstance()->getXAxis() ;
+    F32 cos_angle_to_view_dir = lookAt * LLVector3(LLViewerCamera::getInstance()->getXAxis()) ;
     F32 radius = getScale().length()*0.5f;
     F32 range = dist - radius;
 

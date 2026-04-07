@@ -897,7 +897,7 @@ private:
     //a sphere around the camera origin, including objects behind camera.
     S32 backSphereCheck(const LLVector4a& min, const LLVector4a& max)
     {
-        return AABBSphereIntersect(min, max, mCamera->getOrigin() - mLocalShift, mSphereRadius);
+        return AABBSphereIntersect(min, max, LLVector3(mCamera->getOrigin()) - mLocalShift, mSphereRadius);
     }
 
 private:

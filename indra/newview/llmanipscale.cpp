@@ -1320,7 +1320,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
     }
     else
     {
-        F32 object_distance = dist_vec(box_corner_agent, LLViewerCamera::getInstance()->getOrigin());
+        F32 object_distance = dist_vec(box_corner_agent, LLVector3(LLViewerCamera::getInstance()->getOrigin()));
         mSnapRegimeOffset = (SNAP_GUIDE_SCREEN_OFFSET * gViewerWindow->getWorldViewWidthRaw() * object_distance) / LLViewerCamera::getInstance()->getPixelMeterRatio();
     }
     LLVector3 cam_at_axis;
@@ -1332,8 +1332,8 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
     }
     else
     {
-        cam_at_axis = LLViewerCamera::getInstance()->getAtAxis();
-        F32 manipulator_distance = dist_vec(box_corner_agent, LLViewerCamera::getInstance()->getOrigin());
+        cam_at_axis = LLVector3(LLViewerCamera::getInstance()->getAtAxis());
+        F32 manipulator_distance = dist_vec(box_corner_agent, LLVector3(LLViewerCamera::getInstance()->getOrigin()));
         snap_guide_length = (SNAP_GUIDE_SCREEN_LENGTH * gViewerWindow->getWorldViewWidthRaw() * manipulator_distance) / LLViewerCamera::getInstance()->getPixelMeterRatio();
     }
 
@@ -1362,7 +1362,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
         LLVector3 scale_snap = grid_scale;
         mScaleSnapUnit1 = scale_snap.scaleVec(partToUnitVector( mManipPart )).length();
         mScaleSnapUnit2 = mScaleSnapUnit1;
-        mSnapGuideDir1 *= mSnapGuideDir1 * LLViewerCamera::getInstance()->getUpAxis() > 0.f ? 1.f : -1.f;
+        mSnapGuideDir1 *= mSnapGuideDir1 * LLVector3(LLViewerCamera::getInstance()->getUpAxis()) > 0.f ? 1.f : -1.f;
         mSnapGuideDir2 = mSnapGuideDir1 * -1.f;
         mSnapDir1 = mScaleDir;
         mSnapDir2 = mScaleDir;
@@ -1376,7 +1376,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
         }
         else
         {
-            local_camera_dir = (LLViewerCamera::getInstance()->getOrigin() - box_corner_agent) * ~bbox.getRotation();
+            local_camera_dir = (LLVector3(LLViewerCamera::getInstance()->getOrigin()) - box_corner_agent) * ~bbox.getRotation();
             local_camera_dir.normalize();
         }
 
@@ -1642,7 +1642,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
             gGL.end();
         }
 
-        glm::vec2 screen_translate_axis(llabs(mScaleDir * LLViewerCamera::getInstance()->getLeftAxis()), llabs(mScaleDir * LLViewerCamera::getInstance()->getUpAxis()));
+        glm::vec2 screen_translate_axis(llabs(mScaleDir * LLVector3(LLViewerCamera::getInstance()->getLeftAxis())), llabs(mScaleDir * LLVector3(LLViewerCamera::getInstance()->getUpAxis())));
         screen_translate_axis = glm::normalize(screen_translate_axis);
 
         S32 tick_label_spacing = ll_round(glm::dot(screen_translate_axis, sTickLabelSpacing));
@@ -1826,7 +1826,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
                 LLVector3 selection_center_start = LLSelectMgr::getInstance()->getSavedBBoxOfSelection().getCenterAgent();
 
                 LLVector3 offset_dir;
-                if (mSnapGuideDir1 * LLViewerCamera::getInstance()->getAtAxis() > mSnapGuideDir2 * LLViewerCamera::getInstance()->getAtAxis())
+                if (mSnapGuideDir1 * LLVector3(LLViewerCamera::getInstance()->getAtAxis()) > mSnapGuideDir2 * LLVector3(LLViewerCamera::getInstance()->getAtAxis()))
                 {
                     offset_dir = mSnapGuideDir2;
                 }
@@ -1843,7 +1843,7 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
                 help_text_color.mV[VALPHA] = clamp_rescale(mHelpTextTimer.getElapsedTimeF32(), sHelpTextVisibleTime, sHelpTextVisibleTime + sHelpTextFadeTime, grid_alpha, 0.f);
                 hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, false);
                 help_text = LLTrans::getString("manip_hint2");
-                help_text_pos -= LLViewerCamera::getInstance()->getUpAxis() * mSnapRegimeOffset * 0.4f;
+                help_text_pos -= LLVector3(LLViewerCamera::getInstance()->getUpAxis()) * mSnapRegimeOffset * 0.4f;
                 hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, false);
             }
         }

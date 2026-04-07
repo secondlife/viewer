@@ -95,21 +95,21 @@ void LLHUDIcon::render()
     // put icon above object, and in front
     // RN: don't use drawable radius, it's fricking HUGE
     LLViewerCamera* camera = LLViewerCamera::getInstance();
-    LLVector3 icon_relative_pos = (camera->getUpAxis() * ~mSourceObject->getRenderRotation());
+    LLVector3 icon_relative_pos = (LLVector3(camera->getUpAxis()) * ~mSourceObject->getRenderRotation());
     icon_relative_pos.abs();
 
     F32 distance_scale = llmin(mSourceObject->getScale().mV[VX] / icon_relative_pos.mV[VX],
         mSourceObject->getScale().mV[VY] / icon_relative_pos.mV[VY],
         mSourceObject->getScale().mV[VZ] / icon_relative_pos.mV[VZ]);
     F32 up_distance = 0.5f * distance_scale;
-    LLVector3 icon_position = obj_position + (up_distance * camera->getUpAxis()) * 1.2f;
+    LLVector3 icon_position = obj_position + (up_distance * LLVector3(camera->getUpAxis())) * 1.2f;
 
-    LLVector3 icon_to_cam = LLViewerCamera::getInstance()->getOrigin() - icon_position;
+    LLVector3 icon_to_cam = LLVector3(LLViewerCamera::getInstance()->getOrigin()) - icon_position;
     icon_to_cam.normalize();
 
     icon_position += icon_to_cam * mSourceObject->mDrawable->getRadius() * 1.1f;
 
-    mDistance = dist_vec(icon_position, camera->getOrigin());
+    mDistance = dist_vec(icon_position, LLVector3(camera->getOrigin()));
 
     F32 alpha_factor = clamp_rescale(mDistance, DIST_START_FADE, DIST_END_FADE, 1.f, 0.f);
 
@@ -208,21 +208,21 @@ bool LLHUDIcon::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
     // put icon above object, and in front
     // RN: don't use drawable radius, it's fricking HUGE
     LLViewerCamera* camera = LLViewerCamera::getInstance();
-    LLVector3 icon_relative_pos = (camera->getUpAxis() * ~mSourceObject->getRenderRotation());
+    LLVector3 icon_relative_pos = (LLVector3(camera->getUpAxis()) * ~mSourceObject->getRenderRotation());
     icon_relative_pos.abs();
 
     F32 distance_scale = llmin(mSourceObject->getScale().mV[VX] / icon_relative_pos.mV[VX],
         mSourceObject->getScale().mV[VY] / icon_relative_pos.mV[VY],
         mSourceObject->getScale().mV[VZ] / icon_relative_pos.mV[VZ]);
     F32 up_distance = 0.5f * distance_scale;
-    LLVector3 icon_position = obj_position + (up_distance * camera->getUpAxis()) * 1.2f;
+    LLVector3 icon_position = obj_position + (up_distance * LLVector3(camera->getUpAxis())) * 1.2f;
 
-    LLVector3 icon_to_cam = LLViewerCamera::getInstance()->getOrigin() - icon_position;
+    LLVector3 icon_to_cam = LLVector3(LLViewerCamera::getInstance()->getOrigin()) - icon_position;
     icon_to_cam.normalize();
 
     icon_position += icon_to_cam * mSourceObject->mDrawable->getRadius() * 1.1f;
 
-    mDistance = dist_vec(icon_position, camera->getOrigin());
+    mDistance = dist_vec(icon_position, LLVector3(camera->getOrigin()));
 
     // Bridge: getPixelVectors now takes/returns glm::vec3.
     glm::vec3 x_pixel_glm, y_pixel_glm;

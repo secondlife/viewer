@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "glm/vec3.hpp"
 #include "v3math.h"
 #include "v4math.h"
 #include "llerror.h"
@@ -40,54 +41,60 @@ class LLCoordFrame
 {
 public:
     LLCoordFrame();                                         // Inits at zero with identity rotation
-    explicit LLCoordFrame(const LLVector3 &origin);         // Sets origin, and inits rotation = Identity
-    LLCoordFrame(const LLVector3 &x_axis,
-                 const LLVector3 &y_axis,
-                 const LLVector3 &z_axis);                  // Sets coordinate axes and inits origin at zero
-    LLCoordFrame(const LLVector3 &origin,
-                 const LLVector3 &x_axis,
-                 const LLVector3 &y_axis,
-                 const LLVector3 &z_axis);                  // Sets the origin and coordinate axes
-    LLCoordFrame(const LLVector3 &origin,
+    explicit LLCoordFrame(const glm::vec3 &origin);         // Sets origin, and inits rotation = Identity
+    LLCoordFrame(const glm::vec3 &x_axis,
+                 const glm::vec3 &y_axis,
+                 const glm::vec3 &z_axis);                  // Sets coordinate axes and inits origin at zero
+    LLCoordFrame(const glm::vec3 &origin,
+                 const glm::vec3 &x_axis,
+                 const glm::vec3 &y_axis,
+                 const glm::vec3 &z_axis);                  // Sets the origin and coordinate axes
+    LLCoordFrame(const glm::vec3 &origin,
                  const LLMatrix3 &rotation);                // Sets axes to 3x3 matrix
-    LLCoordFrame(const LLVector3 &origin,
-                 const LLVector3 &direction);               // Sets origin and calls lookDir(direction)
+    LLCoordFrame(const glm::vec3 &origin,
+                 const glm::vec3 &direction);               // Sets origin and calls lookDir(direction)
     explicit LLCoordFrame(const LLQuaternion &q);           // Sets axes using q and inits mOrigin to zero
-    LLCoordFrame(const LLVector3 &origin,
+    LLCoordFrame(const glm::vec3 &origin,
                  const LLQuaternion &q);                    // Uses quaternion to init axes
     explicit LLCoordFrame(const LLMatrix4 &mat);            // Extracts frame from a 4x4 matrix
     // The folowing two constructors are dangerous due to implicit casting and have been disabled - SJB
     //LLCoordFrame(const F32 *origin, const F32 *rotation); // Assumes "origin" is 1x3 and "rotation" is 1x9 array
     //LLCoordFrame(const F32 *origin_and_rotation);         // Assumes "origin_and_rotation" is 1x12 array
 
-    [[nodiscard]] bool isFinite() const { return mOrigin.isFinite() && mXAxis.isFinite() && mYAxis.isFinite() && mZAxis.isFinite(); }
+    [[nodiscard]] bool isFinite() const
+    {
+        return std::isfinite(mOrigin.x) && std::isfinite(mOrigin.y) && std::isfinite(mOrigin.z)
+            && std::isfinite(mXAxis.x) && std::isfinite(mXAxis.y) && std::isfinite(mXAxis.z)
+            && std::isfinite(mYAxis.x) && std::isfinite(mYAxis.y) && std::isfinite(mYAxis.z)
+            && std::isfinite(mZAxis.x) && std::isfinite(mZAxis.y) && std::isfinite(mZAxis.z);
+    }
 
     void reset();
     void resetAxes();
 
     void setOrigin(F32 x, F32 y, F32 z);                    // Set mOrigin
-    void setOrigin(const LLVector3 &origin);
+    void setOrigin(const glm::vec3 &origin);
     void setOrigin(const F32 *origin);
     void setOrigin(const LLCoordFrame &frame);
 
-    inline void setOriginX(F32 x) { mOrigin.mV[VX] = x; }
-    inline void setOriginY(F32 y) { mOrigin.mV[VY] = y; }
-    inline void setOriginZ(F32 z) { mOrigin.mV[VZ] = z; }
+    inline void setOriginX(F32 x) { mOrigin.x = x; }
+    inline void setOriginY(F32 y) { mOrigin.y = y; }
+    inline void setOriginZ(F32 z) { mOrigin.z = z; }
 
-    void setAxes(const LLVector3 &x_axis,                   // Set axes
-                 const LLVector3 &y_axis,
-                 const LLVector3 &z_axis);
+    void setAxes(const glm::vec3 &x_axis,                   // Set axes
+                 const glm::vec3 &y_axis,
+                 const glm::vec3 &z_axis);
     void setAxes(const LLMatrix3 &rotation_matrix);
     void setAxes(const LLQuaternion &q);
     void setAxes(const F32 *rotation_matrix);
     void setAxes(const LLCoordFrame &frame);
 
     void translate(F32 x, F32 y, F32 z);                    // Move mOrgin
-    void translate(const LLVector3 &v);
+    void translate(const glm::vec3 &v);
     void translate(const F32 *origin);
 
     void rotate(F32 angle, F32 x, F32 y, F32 z);            // Move axes
-    void rotate(F32 angle, const LLVector3 &rotation_axis);
+    void rotate(F32 angle, const glm::vec3 &rotation_axis);
     void rotate(const LLQuaternion &q);
     void rotate(const LLMatrix3 &m);
 
@@ -98,15 +105,15 @@ public:
     void pitch(F32 angle);      // RH rotation about mYAxis, radians
     void yaw(F32 angle);        // RH rotation about mZAxis, radians
 
-    inline const LLVector3 &getOrigin() const { return mOrigin; }
+    inline const glm::vec3 &getOrigin() const { return mOrigin; }
 
-    inline const LLVector3 &getXAxis() const  { return mXAxis; }
-    inline const LLVector3 &getYAxis() const  { return mYAxis; }
-    inline const LLVector3 &getZAxis() const  { return mZAxis; }
+    inline const glm::vec3 &getXAxis() const  { return mXAxis; }
+    inline const glm::vec3 &getYAxis() const  { return mYAxis; }
+    inline const glm::vec3 &getZAxis() const  { return mZAxis; }
 
-    inline const LLVector3 &getAtAxis() const   { return mXAxis; }
-    inline const LLVector3 &getLeftAxis() const { return mYAxis; }
-    inline const LLVector3 &getUpAxis() const   { return mZAxis; }
+    inline const glm::vec3 &getAtAxis() const   { return mXAxis; }
+    inline const glm::vec3 &getLeftAxis() const { return mYAxis; }
+    inline const glm::vec3 &getUpAxis() const   { return mZAxis; }
 
     // These return representations of the rotation or orientation of the LLFrame
     // it its absolute frame.  That is, these rotations acting on the X-axis {1,0,0}
@@ -131,14 +138,14 @@ public:
     // Assumes the data in buffer is correct.
     size_t readOrientation(const char *buffer);
 
-    LLVector3 rotateToLocal(const LLVector3 &v) const;      // Returns v' rotated to local
+    glm::vec3 rotateToLocal(const glm::vec3 &v) const;      // Returns v' rotated to local
     LLVector4 rotateToLocal(const LLVector4 &v) const;      // Returns v' rotated to local
-    LLVector3 rotateToAbsolute(const LLVector3 &v) const;   // Returns v' rotated to absolute
+    glm::vec3 rotateToAbsolute(const glm::vec3 &v) const;   // Returns v' rotated to absolute
     LLVector4 rotateToAbsolute(const LLVector4 &v) const;   // Returns v' rotated to absolute
 
-    LLVector3 transformToLocal(const LLVector3 &v) const;       // Returns v' in local coord
+    glm::vec3 transformToLocal(const glm::vec3 &v) const;       // Returns v' in local coord
     LLVector4 transformToLocal(const LLVector4 &v) const;       // Returns v' in local coord
-    LLVector3 transformToAbsolute(const LLVector3 &v) const;    // Returns v' in absolute coord
+    glm::vec3 transformToAbsolute(const glm::vec3 &v) const;    // Returns v' in absolute coord
     LLVector4 transformToAbsolute(const LLVector4 &v) const;    // Returns v' in absolute coord
 
     // Write coord frame orientation into provided array in OpenGL matrix format.
@@ -147,14 +154,14 @@ public:
     void getOpenGLTransform(F32 *ogl_matrix) const;
 
     // lookDir orients to (xuv, presumed normalized) and does not affect origin
-    void lookDir(const LLVector3 &xuv, const LLVector3 &up);
-    void lookDir(const LLVector3 &xuv); // up = 0,0,1
+    void lookDir(const glm::vec3 &xuv, const glm::vec3 &up);
+    void lookDir(const glm::vec3 &xuv); // up = 0,0,1
     // lookAt orients to (point_of_interest - origin) and sets origin
-    void lookAt(const LLVector3 &origin, const LLVector3 &point_of_interest, const LLVector3 &up);
-    void lookAt(const LLVector3 &origin, const LLVector3 &point_of_interest); // up = 0,0,1
+    void lookAt(const glm::vec3 &origin, const glm::vec3 &point_of_interest, const glm::vec3 &up);
+    void lookAt(const glm::vec3 &origin, const glm::vec3 &point_of_interest); // up = 0,0,1
 
     // deprecated
-    void setOriginAndLookAt(const LLVector3 &origin, const LLVector3 &up, const LLVector3 &point_of_interest)
+    void setOriginAndLookAt(const glm::vec3 &origin, const glm::vec3 &up, const glm::vec3 &point_of_interest)
     {
         lookAt(origin, point_of_interest, up);
     }
@@ -162,10 +169,10 @@ public:
     friend std::ostream& operator<<(std::ostream &s, const LLCoordFrame &C);
 
     // These vectors are in absolute frame
-    LLVector3 mOrigin;
-    LLVector3 mXAxis;
-    LLVector3 mYAxis;
-    LLVector3 mZAxis;
+    glm::vec3 mOrigin;
+    glm::vec3 mXAxis;
+    glm::vec3 mYAxis;
+    glm::vec3 mZAxis;
 };
 
 

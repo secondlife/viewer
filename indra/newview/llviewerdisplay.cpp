@@ -1280,7 +1280,7 @@ void render_hud_attachments()
         LLPipeline::sRenderingHUDs = true;
         LLCamera hud_cam = *LLViewerCamera::getInstance();
         hud_cam.setOrigin(-1.f, 0.f, 0.f);
-        hud_cam.setAxes(LLVector3(1.f, 0.f, 0.f), LLVector3(0.f, 1.f, 0.f), LLVector3(0.f, 0.f, 1.f));
+        hud_cam.setAxes(glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
         LLViewerCamera::updateFrustumPlanes(hud_cam, true);
 
         static LLCachedControl<bool> render_hud_particles(gSavedSettings, "RenderHUDParticles", false);

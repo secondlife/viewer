@@ -107,16 +107,16 @@ bool LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 
             if (gSavedSettings.getBOOL("MouseSun"))
             {
-                LLVector3 sunpos = LLViewerCamera::getInstance()->getAtAxis();
+                LLVector3 sunpos(LLViewerCamera::getInstance()->getAtAxis());
                 gSky.setSunDirectionCFR(sunpos);
-                gSavedSettings.setVector3("SkySunDefaultPosition", LLViewerCamera::getInstance()->getAtAxis());
+                gSavedSettings.setVector3("SkySunDefaultPosition", LLVector3(LLViewerCamera::getInstance()->getAtAxis()));
             }
 
             if (gSavedSettings.getBOOL("MouseMoon"))
             {
-                LLVector3 moonpos = LLViewerCamera::getInstance()->getAtAxis();
+                LLVector3 moonpos(LLViewerCamera::getInstance()->getAtAxis());
                 gSky.setMoonDirectionCFR(moonpos);
-                gSavedSettings.setVector3("SkyMoonDefaultPosition", LLViewerCamera::getInstance()->getAtAxis());
+                gSavedSettings.setVector3("SkyMoonDefaultPosition", LLVector3(LLViewerCamera::getInstance()->getAtAxis()));
             }
 
             gViewerWindow->moveCursorToCenter();

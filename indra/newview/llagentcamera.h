@@ -138,7 +138,7 @@ private:
     //--------------------------------------------------------------------
 public:
     LLVector3d      getCameraPositionGlobal() const;
-    const LLVector3& getCameraPositionAgent() const;
+    LLVector3 getCameraPositionAgent() const;
     LLVector3d      calcCameraPositionTargetGlobal(bool *hit_limit = NULL); // Calculate the camera position target
     F32             getCameraMinOffGround();        // Minimum height off ground for this mode, meters
     void            setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }

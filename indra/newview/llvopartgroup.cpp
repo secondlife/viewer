@@ -127,7 +127,7 @@ void LLVOPartGroup::setPixelAreaAndAngle(LLAgent &agent)
 {
     // mPixelArea is calculated during render
     F32 mid_scale = getMidScale();
-    F32 range = (getRenderPosition()-LLViewerCamera::getInstance()->getOrigin()).length();
+    F32 range = (getRenderPosition()-LLVector3(LLViewerCamera::getInstance()->getOrigin())).length();
 
     if (range < 0.001f || isHUDAttachment())        // range == zero
     {
@@ -629,7 +629,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
 
     if (!(part.mFlags & LLPartData::LL_PART_EMISSIVE_MASK))
     { //not fullbright, needs normal
-        LLVector3 normal = -LLViewerCamera::getInstance()->getXAxis();
+        LLVector3 normal = -LLVector3(LLViewerCamera::getInstance()->getXAxis());
         *normalsp++   = normal;
         *normalsp++   = normal;
         *normalsp++   = normal;
@@ -768,7 +768,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
             index_count += facep->getIndicesCount();
 
             count++;
-            facep->mDistance = (facep->mCenterLocal - camera->getOrigin()) * camera->getAtAxis();
+            facep->mDistance = (facep->mCenterLocal - LLVector3(camera->getOrigin())) * LLVector3(camera->getAtAxis());
             obj->mDepth += facep->mDistance;
 
             mFaceList.push_back(facep);

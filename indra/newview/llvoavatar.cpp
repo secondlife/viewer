@@ -3762,10 +3762,10 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
     LLViewerCamera::getInstance()->getPixelVectors(static_cast<glm::vec3>(root_pos_last), pixel_up_glm, pixel_right_glm);
     LLVector3 pixel_right_vec(pixel_right_glm.x, pixel_right_glm.y, pixel_right_glm.z);
     LLVector3 pixel_up_vec(pixel_up_glm.x, pixel_up_glm.y, pixel_up_glm.z);
-    LLVector3 camera_to_av = root_pos_last - LLViewerCamera::getInstance()->getOrigin();
+    LLVector3 camera_to_av = root_pos_last - LLVector3(LLViewerCamera::getInstance()->getOrigin());
     camera_to_av.normalize();
     LLVector3 local_camera_at = camera_to_av * inv_root_rot;
-    LLVector3 local_camera_up = cross(camera_to_av, LLViewerCamera::getInstance()->getLeftAxis());
+    LLVector3 local_camera_up = cross(camera_to_av, LLVector3(LLViewerCamera::getInstance()->getLeftAxis()));
     local_camera_up.normalize();
     local_camera_up = local_camera_up * inv_root_rot;
 
@@ -4401,11 +4401,11 @@ void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
                 // make sure fwdDir stays in same general direction as primdir
                 if (gAgent.getFlying())
                 {
-                    fwdDir = LLViewerCamera::getInstance()->getAtAxis();
+                    fwdDir = LLVector3(LLViewerCamera::getInstance()->getAtAxis());
                 }
                 else
                 {
-                    LLVector3 at_axis = LLViewerCamera::getInstance()->getAtAxis();
+                    LLVector3 at_axis(LLViewerCamera::getInstance()->getAtAxis());
                     LLVector3 up_vector = gAgent.getReferenceUpVector();
                     at_axis -= up_vector * (at_axis * up_vector);
                     at_axis.normalize();
@@ -5429,9 +5429,9 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
     }
 
     LLVector3 pos(getRenderPosition()+mImpostorOffset);
-    LLVector3 at = (pos - LLViewerCamera::getInstance()->getOrigin());
+    LLVector3 at = (pos - LLVector3(LLViewerCamera::getInstance()->getOrigin()));
     at.normalize();
-    LLVector3 left = cross(LLViewerCamera::getInstance()->getUpAxis(), at);
+    LLVector3 left = cross(LLVector3(LLViewerCamera::getInstance()->getUpAxis()), at);
     LLVector3 up = cross(at, left);
 
     left *= mImpostorDim.x;
@@ -10961,9 +10961,9 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
     extents[0] = ext[0];
     extents[1] = ext[1];
 
-    LLVector3 at = LLViewerCamera::getInstance()->getOrigin()-(getRenderPosition()+mImpostorOffset);
+    LLVector3 at = LLVector3(LLViewerCamera::getInstance()->getOrigin())-(getRenderPosition()+mImpostorOffset);
     distance = at.normalize();
-    F32 da = 1.f - (at*LLViewerCamera::getInstance()->getAtAxis());
+    F32 da = 1.f - (at*LLVector3(LLViewerCamera::getInstance()->getAtAxis()));
     angle.mV[0] = LLViewerCamera::getInstance()->getYaw()*da;
     angle.mV[1] = LLViewerCamera::getInstance()->getPitch()*da;
     angle.mV[2] = da;

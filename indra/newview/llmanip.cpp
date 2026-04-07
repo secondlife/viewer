@@ -118,7 +118,7 @@ void LLManip::getManipNormal(LLViewerObject* object, EManipPart manip, LLVector3
         LLVector3 arrow_axis;
         getManipAxis(object, manip, arrow_axis);
 
-        LLVector3 arrow_cross = cross(arrow_axis, LLViewerCamera::getInstance()->getAtAxis());
+        LLVector3 arrow_cross = cross(arrow_axis, LLVector3(LLViewerCamera::getInstance()->getAtAxis()));
         normal = cross(arrow_cross, arrow_axis);
         normal.normalize();
     }
@@ -186,7 +186,7 @@ F32 LLManip::getSubdivisionLevel(const LLVector3 &reference_point, const LLVecto
     }
     else
     {
-        cam_to_reference = reference_point - LLViewerCamera::getInstance()->getOrigin();
+        cam_to_reference = reference_point - LLVector3(LLViewerCamera::getInstance()->getOrigin());
     }
     F32 current_range = cam_to_reference.normalize();
 

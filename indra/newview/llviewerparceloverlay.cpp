@@ -695,13 +695,13 @@ void LLViewerParcelOverlay::renderPropertyLines()
 
     // Find camera height off the ground (not from zero)
     F32 ground_height_at_camera = land.resolveHeightGlobal( gAgentCamera.getCameraPositionGlobal() );
-    F32 camera_z = LLViewerCamera::getInstance()->getOrigin().mV[VZ];
+    F32 camera_z = LLViewerCamera::getInstance()->getOrigin().z;
     F32 camera_height = camera_z - ground_height_at_camera;
 
     camera_height = llclamp(camera_height, 0.f, 100.f);
 
     // Pull lines toward camera by 1 cm per meter off the ground.
-    const LLVector3& CAMERA_AT = LLViewerCamera::getInstance()->getAtAxis();
+    const LLVector3 CAMERA_AT(LLViewerCamera::getInstance()->getAtAxis());
     F32 pull_toward_camera_scale = 0.01f * camera_height;
     LLVector3 pull_toward_camera = CAMERA_AT;
     pull_toward_camera *= -pull_toward_camera_scale;
@@ -726,7 +726,7 @@ void LLViewerParcelOverlay::renderPropertyLines()
 
     // Set up a cull plane 2 * PARCEL_GRID_STEP_METERS behind
     // the camera.  The cull plane normal is the camera's at axis.
-    LLVector3 cull_plane_point = LLViewerCamera::getInstance()->getAtAxis();
+    LLVector3 cull_plane_point(LLViewerCamera::getInstance()->getAtAxis());
     cull_plane_point *= -2.f * PARCEL_GRID_STEP_METERS;
     cull_plane_point += camera_region;
 

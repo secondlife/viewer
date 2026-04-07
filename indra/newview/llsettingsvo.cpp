@@ -756,7 +756,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[static_cast<int>(LLGLSLShader::eGroup::SG_DEFAULT)];
     {
         shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, light_direction);
-        shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, LLViewerCamera::getInstance()->getOrigin());
+        shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, LLVector3(LLViewerCamera::getInstance()->getOrigin()));
     }
 
     shader = &((LLShaderUniforms*)ptarget)[static_cast<int>(LLGLSLShader::eGroup::SG_SKY)];
@@ -1075,7 +1075,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         if (LLViewerCamera::instance().cameraUnderWater())
         { // when the camera is under water, use the water height at the camera position
-            LLViewerRegion* region = LLWorld::instance().getRegionFromPosAgent(LLViewerCamera::instance().getOrigin());
+            LLViewerRegion* region = LLWorld::instance().getRegionFromPosAgent(LLVector3(LLViewerCamera::instance().getOrigin()));
             if (region)
             {
                 water_height = region->getWaterHeight();
@@ -1125,7 +1125,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         shader->uniform1f(LLShaderMgr::WATER_FOGKS, waterFogKS);
 
-        F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - water_height;
+        F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().z - water_height;
         bool underwater = (eyedepth <= 0.0f);
 
         F32 waterFogDensity = env.getCurrentWater()->getModifiedWaterFogDensity(underwater);

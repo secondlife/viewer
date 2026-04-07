@@ -901,13 +901,13 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
                         LLVector4a box;
                         box.setSub(facep->mExtents[1], facep->mExtents[0]);
                         box.mul(0.25f);
-                        LLVector3 v = (facep->mCenterLocal-camera.getOrigin());
-                        const LLVector3& at = camera.getAtAxis();
+                        LLVector3 v = (facep->mCenterLocal - LLVector3(camera.getOrigin()));
+                        const LLVector3 at(camera.getAtAxis());
                         for (U32 j = 0; j < 3; j++)
                         {
                             v.mV[j] -= box[j] * at.mV[j];
                         }
-                        facep->mDistance = v * camera.getAtAxis();
+                        facep->mDistance = v * at;
                     }
                 }
             }
@@ -918,7 +918,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
             if (volume->getAvatar())
             {
                 const LLVector3* av_box = volume->getAvatar()->getLastAnimExtents();
-                LLVector3 cam_pos_from_agent = LLViewerCamera::getInstance()->getOrigin();
+                LLVector3 cam_pos_from_agent(LLViewerCamera::getInstance()->getOrigin());
                 LLVector3 cam_to_box_offset = point_to_box_offset(cam_pos_from_agent, av_box);
                 mDistanceWRTCamera = llmax(0.01f, ll_round(cam_to_box_offset.length(), 0.01f));
                 if (mVObjp)
@@ -933,7 +933,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
             pos = LLVector3(getPositionGroup().getF32ptr());
         }
 
-        pos -= camera.getOrigin();
+        pos -= LLVector3(camera.getOrigin());
         mDistanceWRTCamera = ll_round(pos.length(), 0.01f);
         if (mVObjp)
         {
@@ -1397,13 +1397,13 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
     LLXformMatrix* mat = mDrawable->getXform();
     LLVector3 center = LLVector3(0,0,0) * mat->getWorldMatrix();
 
-    LLVector3 delta = ret.getOrigin() - center;
+    LLVector3 delta = LLVector3(ret.getOrigin()) - center;
     LLQuaternion rot = ~mat->getRotation();
 
     delta *= rot;
-    LLVector3 lookAt = ret.getAtAxis();
-    LLVector3 up_axis = ret.getUpAxis();
-    LLVector3 left_axis = ret.getLeftAxis();
+    LLVector3 lookAt(ret.getAtAxis());
+    LLVector3 up_axis(ret.getUpAxis());
+    LLVector3 left_axis(ret.getLeftAxis());
 
     lookAt *= rot;
     up_axis *= rot;
@@ -1414,8 +1414,8 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
         delta.clear();
     }
 
-    ret.setOrigin(delta);
-    ret.setAxes(lookAt, left_axis, up_axis);
+    ret.setOrigin(static_cast<glm::vec3>(delta));
+    ret.setAxes(static_cast<glm::vec3>(lookAt), static_cast<glm::vec3>(left_axis), static_cast<glm::vec3>(up_axis));
 
     return ret;
 }
@@ -1518,7 +1518,7 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
     if ((LLPipeline::sShadowRender && camera_in.AABBInFrustum(center, size)) ||
         LLPipeline::sImpostorRender ||
         (camera_in.AABBInFrustumNoFarClip(center, size) &&
-        AABBSphereIntersect(exts[0], exts[1], camera_in.getOrigin(), camera_in.mFrustumCornerDist)))
+        AABBSphereIntersect(exts[0], exts[1], LLVector3(camera_in.getOrigin()), camera_in.mFrustumCornerDist)))
     {
         if (!LLPipeline::sImpostorRender &&
             !LLPipeline::sShadowRender &&

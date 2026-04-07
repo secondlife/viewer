@@ -280,13 +280,18 @@ public:
         static constexpr U32 HPADDING = 10;
         static constexpr U32 VPADDING = 5;
         LLVector3 focus = mGetFocus();
-        LLVector3 sight = focus - mCamera.mOrigin;
+        LLVector3 sight = focus - LLVector3(mCamera.mOrigin);
+        // Bridge: LLCoordFrame members are glm::vec3; convert for display to LLVector3.
+        const LLVector3 cam_origin(mCamera.mOrigin);
+        const LLVector3 cam_x(mCamera.mXAxis);
+        const LLVector3 cam_y(mCamera.mYAxis);
+        const LLVector3 cam_z(mCamera.mZAxis);
         std::pair<const char*, const LLVector3&> const data[] =
         {
-            { "Origin:", mCamera.mOrigin },
-            { "X Axis:", mCamera.mXAxis },
-            { "Y Axis:", mCamera.mYAxis },
-            { "Z Axis:", mCamera.mZAxis },
+            { "Origin:", cam_origin },
+            { "X Axis:", cam_x },
+            { "Y Axis:", cam_y },
+            { "Z Axis:", cam_z },
             { "Focus:", focus },
             { "Sight:", sight }
         };

@@ -192,7 +192,7 @@ public:
     LLVector3       getPosAgentFromGlobal(const LLVector3d &pos_global) const;
     LLVector3d      getPosGlobalFromAgent(const LLVector3 &pos_agent) const;
     const LLVector3d &getPositionGlobal() const;
-    const LLVector3 &getPositionAgent();
+    LLVector3 getPositionAgent();
     // Call once per frame to update position, angles (radians).
     void            updateAgentPosition(const F32 dt, const F32 yaw, const S32 mouse_x, const S32 mouse_y);
     void            setPositionAgent(const LLVector3 &center);
@@ -223,9 +223,10 @@ public:
     void            resetAxes();
     void            resetAxes(const LLVector3 &look_at); // Makes reasonable left and up
     // The following three get*Axis functions return direction avatar is looking, not camera.
-    const LLVector3& getAtAxis() const      { return mFrameAgent.getAtAxis(); }
-    const LLVector3& getUpAxis() const      { return mFrameAgent.getUpAxis(); }
-    const LLVector3& getLeftAxis() const    { return mFrameAgent.getLeftAxis(); }
+    // Bridge: LLCoordFrame now returns glm::vec3; LLAgent API still LLVector3 (separate cluster).
+    LLVector3 getAtAxis() const      { const glm::vec3& v = mFrameAgent.getAtAxis();   return LLVector3(v.x, v.y, v.z); }
+    LLVector3 getUpAxis() const      { const glm::vec3& v = mFrameAgent.getUpAxis();   return LLVector3(v.x, v.y, v.z); }
+    LLVector3 getLeftAxis() const    { const glm::vec3& v = mFrameAgent.getLeftAxis(); return LLVector3(v.x, v.y, v.z); }
     LLQuaternion    getQuat() const;        // Returns the quat that represents the rotation of the agent in the absolute frame
 private:
     LLVector3d      mAgentOriginGlobal;     // Origin of agent coords from global coords

@@ -523,7 +523,7 @@ void LLFloater360Capture::capture360Images()
         }
 
         // set up camera to look in each direction
-        camera->lookDir(look_dirs[i], look_upvecs[i]);
+        camera->lookDir(static_cast<glm::vec3>(look_dirs[i]), static_cast<glm::vec3>(look_upvecs[i]));
 
         // record if camera changed to try to understand the "all shots are the same issue"
         if (camera->isChanged())

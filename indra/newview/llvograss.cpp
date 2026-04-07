@@ -453,7 +453,7 @@ void LLVOGrass::plantBlades()
         face->mExtents[1] = ext[1];
     }
 
-    mDepth = (face->mCenterLocal - LLViewerCamera::getInstance()->getOrigin())*LLViewerCamera::getInstance()->getAtAxis();
+    mDepth = (face->mCenterLocal - LLVector3(LLViewerCamera::getInstance()->getOrigin()))*LLVector3(LLViewerCamera::getInstance()->getAtAxis());
     mDrawable->setPosition(face->mCenterLocal);
     mDrawable->movePartition();
     LLPipeline::sCompiles++;
@@ -634,7 +634,7 @@ void LLGrassPartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_count
             if ((facep->getGeomCount() + vertex_count) <= 65536)
             {
                 count++;
-                facep->mDistance = (facep->mCenterLocal - camera->getOrigin()) * camera->getAtAxis();
+                facep->mDistance = (facep->mCenterLocal - LLVector3(camera->getOrigin())) * LLVector3(camera->getAtAxis());
                 obj->mDepth += facep->mDistance;
 
                 mFaceList.push_back(facep);

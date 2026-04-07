@@ -135,7 +135,7 @@ static void touch_default_probe(LLReflectionMap* probe)
 {
     if (LLViewerCamera::getInstance())
     {
-        LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
+        LLVector3 origin(LLViewerCamera::getInstance()->getOrigin());
         origin.mV[2] += 64.f;
 
         probe->mOrigin.load3(origin.mV);
@@ -295,7 +295,7 @@ void LLReflectionMapManager::update()
     llassert(mProbes[0] == mDefaultProbe);
 
     LLVector4a camera_pos;
-    camera_pos.load3(LLViewerCamera::instance().getOrigin().mV);
+    camera_pos.load3(&LLViewerCamera::instance().getOrigin().x);
 
     // process kill list
     for (auto& probe : mKillList)
@@ -931,7 +931,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
                 for (int cf = 0; cf < 6; ++cf)
                 { // for each cube face
                     LLCoordFrame frame;
-                    frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
+                    frame.lookAt(glm::vec3(0, 0, 0), static_cast<glm::vec3>(LLCubeMapArray::sClipToCubeLookVecs[cf]), static_cast<glm::vec3>(LLCubeMapArray::sClipToCubeUpVecs[cf]));
 
                     F32 mat[16];
                     frame.getOpenGLRotation(mat);
@@ -980,7 +980,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
                 for (int cf = 0; cf < 6; ++cf)
                 { // for each cube face
                     LLCoordFrame frame;
-                    frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
+                    frame.lookAt(glm::vec3(0, 0, 0), static_cast<glm::vec3>(LLCubeMapArray::sClipToCubeLookVecs[cf]), static_cast<glm::vec3>(LLCubeMapArray::sClipToCubeUpVecs[cf]));
 
                     F32 mat[16];
                     frame.getOpenGLRotation(mat);
@@ -1465,7 +1465,7 @@ void LLReflectionMapManager::cleanup()
 void LLReflectionMapManager::doOcclusion()
 {
     LLVector4a eye;
-    eye.load3(LLViewerCamera::instance().getOrigin().mV);
+    eye.load3(&LLViewerCamera::instance().getOrigin().x);
 
     for (auto& probe : mProbes)
     {

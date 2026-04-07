@@ -389,7 +389,7 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
     // LLWorld::getInstance()->getWaterHeight();
     F32 camera_height = gAgentCamera.getCameraPositionAgent().mV[2];
 
-    F32 near_clip_height = LLViewerCamera::getInstance()->getAtAxis().mV[VZ] * LLViewerCamera::getInstance()->getNear();
+    F32 near_clip_height = LLViewerCamera::getInstance()->getAtAxis().z * LLViewerCamera::getInstance()->getNear();
     camera_height += near_clip_height;
 
     F32 fog_distance = 0.f;

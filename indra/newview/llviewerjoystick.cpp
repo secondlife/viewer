@@ -1322,10 +1322,10 @@ void LLViewerJoystick::moveFlycam(bool reset)
 
     LLViewerCamera::getInstance()->setView(sFlycamZoom);
     LLVector3 new_camera_pos = gAgent.getPosAgentFromGlobal(sFlycamPosition);
-    LLViewerCamera::getInstance()->setOrigin(new_camera_pos);
-    LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
-    LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
-    LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
+    LLViewerCamera::getInstance()->setOrigin(static_cast<glm::vec3>(new_camera_pos));
+    LLViewerCamera::getInstance()->mXAxis = glm::vec3(mat.mMatrix[0][0], mat.mMatrix[0][1], mat.mMatrix[0][2]);
+    LLViewerCamera::getInstance()->mYAxis = glm::vec3(mat.mMatrix[1][0], mat.mMatrix[1][1], mat.mMatrix[1][2]);
+    LLViewerCamera::getInstance()->mZAxis = glm::vec3(mat.mMatrix[2][0], mat.mMatrix[2][1], mat.mMatrix[2][2]);
 }
 
 // -----------------------------------------------------------------------------

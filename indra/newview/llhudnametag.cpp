@@ -153,8 +153,8 @@ bool LLHUDNameTag::lineSegmentIntersect(const LLVector4a& start, const LLVector4
         //using this position keeps the camera from focusing on some seemingly random
         //point several meters in front of the nametag
         const LLVector3& p = mSourceObject->getPositionAgent();
-        const LLVector3& n = LLViewerCamera::getInstance()->getAtAxis();
-        const LLVector3& eye = LLViewerCamera::getInstance()->getOrigin();
+        const LLVector3 n(LLViewerCamera::getInstance()->getAtAxis());
+        const LLVector3 eye(LLViewerCamera::getInstance()->getOrigin());
 
         LLVector3 ray = position-eye;
         ray.normalize();
@@ -568,26 +568,28 @@ void LLHUDNameTag::updateVisibility()
     }
 
     // push text towards camera by radius of object, but not past camera
-    LLVector3 vec_from_camera = mPositionAgent - LLViewerCamera::getInstance()->getOrigin();
+    const LLVector3 cam_origin_ll(LLViewerCamera::getInstance()->getOrigin());
+    const LLVector3 cam_at_ll(LLViewerCamera::getInstance()->getAtAxis());
+    LLVector3 vec_from_camera = mPositionAgent - cam_origin_ll;
     LLVector3 dir_from_camera = vec_from_camera;
     dir_from_camera.normalize();
 
-    if (dir_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= 0.f)
+    if (dir_from_camera * cam_at_ll <= 0.f)
     { //text is behind camera, don't render
         mVisible = false;
         return;
     }
 
-    if (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
+    if (vec_from_camera * cam_at_ll <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
     {
-        mPositionAgent = LLViewerCamera::getInstance()->getOrigin() + vec_from_camera * ((LLViewerCamera::getInstance()->getNear() + 0.1f) / (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis()));
+        mPositionAgent = cam_origin_ll + vec_from_camera * ((LLViewerCamera::getInstance()->getNear() + 0.1f) / (vec_from_camera * cam_at_ll));
     }
     else
     {
         mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
     }
 
-    mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).length();
+    mLastDistance = (mPositionAgent - cam_origin_ll).length();
 
     if (mLOD >= 3 || !mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
     {

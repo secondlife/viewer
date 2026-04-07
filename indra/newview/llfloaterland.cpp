@@ -2400,7 +2400,7 @@ void LLPanelLandOptions::onClickSet(void* userdata)
 
     LLVector3 pos_region = gAgent.getPositionAgent();
     selected_parcel->setUserLocation(pos_region);
-    selected_parcel->setUserLookAt(gAgent.getFrameAgent().getAtAxis());
+    selected_parcel->setUserLookAt(LLVector3(gAgent.getFrameAgent().getAtAxis()));
 
     LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate(selected_parcel);
 

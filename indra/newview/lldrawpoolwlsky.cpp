@@ -145,7 +145,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         return;
     }
 
-    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+    LLVector3 const origin(LLViewerCamera::getInstance()->getOrigin());
 
     if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
     {
@@ -356,7 +356,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
     LLGLSPipelineBlendSkyBox gls_skybox(true, true); // SL-14113 we need moon to write to depth to clip stars behind
 
-    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+    LLVector3 const origin(LLViewerCamera::getInstance()->getOrigin());
     gGL.pushMatrix();
     gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
@@ -480,7 +480,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
     const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
 
-    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
+    LLVector3 const origin(LLViewerCamera::getInstance()->getOrigin());
 
     if (gPipeline.canUseWindLightShaders())
     {

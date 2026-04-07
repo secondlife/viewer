@@ -130,10 +130,10 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
     {
         // ...select distance from control
         LLVector3 relative_av_pos = av_pos;
-        relative_av_pos -= LLViewerCamera::getInstance()->getOrigin();
+        relative_av_pos -= LLVector3(LLViewerCamera::getInstance()->getOrigin());
 
-        F32 new_far = relative_av_pos * LLViewerCamera::getInstance()->getAtAxis() + gSavedSettings.getF32("MaxSelectDistance");
-        F32 new_near = relative_av_pos * LLViewerCamera::getInstance()->getAtAxis() - gSavedSettings.getF32("MaxSelectDistance");
+        F32 new_far = relative_av_pos * LLVector3(LLViewerCamera::getInstance()->getAtAxis()) + gSavedSettings.getF32("MaxSelectDistance");
+        F32 new_near = relative_av_pos * LLVector3(LLViewerCamera::getInstance()->getAtAxis()) - gSavedSettings.getF32("MaxSelectDistance");
 
         new_near = llmax(new_near, 0.1f);
 

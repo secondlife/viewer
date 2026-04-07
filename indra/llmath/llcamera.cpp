@@ -348,8 +348,7 @@ F32 LLCamera::heightInPixels(const glm::vec3& center, F32 radius) const
     if (mViewHeightInPixels > -1)
     {
         // Convert sphere to coord system with 0,0,0 at camera.
-        // Bridge: mOrigin is LLVector3 (LLCoordFrame-land).
-        glm::vec3 vec = center - glm::vec3(mOrigin.mV[VX], mOrigin.mV[VY], mOrigin.mV[VZ]);
+        glm::vec3 vec = center - mOrigin;
 
         // Compute distance to sphere
         F32 dist = glm::length(vec);
@@ -376,10 +375,15 @@ F32 LLCamera::heightInPixels(const glm::vec3& center, F32 radius) const
 std::ostream& operator<<(std::ostream &s, const LLCamera &C)
 {
     s << "{ \n";
-    s << "  Center = " << C.getOrigin() << "\n";
-    s << "  AtAxis = " << C.getXAxis() << "\n";
-    s << "  LeftAxis = " << C.getYAxis() << "\n";
-    s << "  UpAxis = " << C.getZAxis() << "\n";
+    auto fmt = [](const glm::vec3& v) {
+        std::ostringstream o;
+        o << "{ " << v.x << ", " << v.y << ", " << v.z << " }";
+        return o.str();
+    };
+    s << "  Center = " << fmt(C.getOrigin()) << "\n";
+    s << "  AtAxis = " << fmt(C.getXAxis()) << "\n";
+    s << "  LeftAxis = " << fmt(C.getYAxis()) << "\n";
+    s << "  UpAxis = " << fmt(C.getZAxis()) << "\n";
     s << "  View = " << C.getView() << "\n";
     s << "  Aspect = " << C.getAspect() << "\n";
     s << "  NearPlane   = " << C.mNearPlane << "\n";
@@ -438,10 +442,7 @@ void LLCamera::calcAgentFrustumPlanes(glm::vec3* frust)
         mAgentFrustum[i] = frust[i];
     }
 
-    // Bridge: getOrigin() returns LLVector3 (LLCoordFrame-land).
-    const LLVector3& ll_origin = getOrigin();
-    const glm::vec3 origin(ll_origin.mV[VX], ll_origin.mV[VY], ll_origin.mV[VZ]);
-    mFrustumCornerDist = glm::length(frust[5] - origin);
+    mFrustumCornerDist = glm::length(frust[5] - getOrigin());
 
     //frust contains the 8 points of the frustum, calculate 6 planes
 
@@ -478,9 +479,7 @@ void LLCamera::calcRegionFrustumPlanes(const glm::vec3& shift, F32 far_clip_dist
 {
     F32 far_w;
     {
-        // Bridge: getOrigin() returns LLVector3 (LLCoordFrame-land).
-        const LLVector3& ll_origin = getOrigin();
-        glm::vec3 p(ll_origin.mV[VX], ll_origin.mV[VY], ll_origin.mV[VZ]);
+        const glm::vec3& p = getOrigin();
         glm::vec3 n(mAgentPlanes[5][0], mAgentPlanes[5][1], mAgentPlanes[5][2]);
         F32 dd = glm::dot(n, p);
         if(dd + mAgentPlanes[5][3] < 0) //signed distance
@@ -519,11 +518,8 @@ void LLCamera::calcRegionFrustumPlanes(const glm::vec3& shift, F32 far_clip_dist
 void LLCamera::calculateFrustumPlanes(F32 left, F32 right, F32 top, F32 bottom)
 {
     //calculate center and radius squared of frustum in world absolute coordinates
-    // Bridge: transformToAbsolute is LLCoordFrame-land (takes/returns LLVector3).
-    static LLVector3 const X_AXIS(1.f, 0.f, 0.f);
-    LLVector3 ll_center = X_AXIS * mFarPlane * 0.5f;
-    ll_center = transformToAbsolute(ll_center);
-    mFrustCenter = glm::vec3(ll_center.mV[VX], ll_center.mV[VY], ll_center.mV[VZ]);
+    static const glm::vec3 X_AXIS(1.f, 0.f, 0.f);
+    mFrustCenter = transformToAbsolute(X_AXIS * mFarPlane * 0.5f);
     mFrustRadiusSquared = mFarPlane*0.5f;
     mFrustRadiusSquared *= mFrustRadiusSquared * 1.05f; //pad radius squared by 5%
 }
