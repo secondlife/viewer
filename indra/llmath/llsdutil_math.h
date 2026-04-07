@@ -28,6 +28,8 @@
 
 #pragma once
 
+#include "glm/vec2.hpp"
+
 class LL_COMMON_API LLSD;
 
 // vector3
@@ -49,6 +51,10 @@ LLVector3d ll_vector3d_from_sd(const LLSD& sd, S32 start_index = 0);
 class LLVector2;
 LLSD ll_sd_from_vector2(const LLVector2& vec);
 LLVector2 ll_vector2_from_sd(const LLSD& sd);
+
+// glm::vec2 — LLSD round-trip helpers (transitional, for LLVector2 → glm::vec2 migration)
+LLSD ll_sd_from_vec2(const glm::vec2& vec);
+glm::vec2 ll_vec2_from_sd(const LLSD& sd);
 
 // Quaternion
 class LLQuaternion;

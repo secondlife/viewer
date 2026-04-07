@@ -192,8 +192,8 @@ public:
     F32 getCloudScale() const;
     void setCloudScale(F32 val);
 
-    LLVector2 getCloudScrollRate() const;
-    void setCloudScrollRate(const LLVector2 &val);
+    glm::vec2 getCloudScrollRate() const;
+    void setCloudScrollRate(const glm::vec2 &val);
 
     void setCloudScrollRateX(F32 val);
     void setCloudScrollRateY(F32 val);
@@ -390,7 +390,7 @@ protected:
     F32 mHDROffset;
     F32 mHDRMax;
     F32 mHDRMin;
-    LLVector2 mScrollRate;
+    glm::vec2 mScrollRate;
     LLColor3 mCloudPosDensity1;
     LLColor3 mCloudPosDensity2;
     LLColor3 mCloudColor;

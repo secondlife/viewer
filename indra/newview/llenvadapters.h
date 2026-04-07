@@ -245,24 +245,24 @@ private:
 class WLVect2Control
 {
 public:
-    inline WLVect2Control(LLVector2 val, const std::string& n):
-        mU(val.mV[0]),
-        mV(val.mV[1]),
+    inline WLVect2Control(glm::vec2 val, const std::string& n):
+        mU(val.x),
+        mV(val.y),
         mName(n)
     {
     }
 
-    inline WLVect2Control & operator = (const LLVector2 & val)
+    inline WLVect2Control & operator = (const glm::vec2 & val)
     {
-        mU = val.mV[0];
-        mV = val.mV[1];
+        mU = val.x;
+        mV = val.y;
 
         return *this;
     }
 
     inline void update(const LLSettingsBase::ptr_t &psetting) const
     {
-        psetting->setValue(mName, LLVector2(mU, mV));
+        psetting->setValue(mName, glm::vec2(mU, mV));
     }
 
     inline F32 getU() const

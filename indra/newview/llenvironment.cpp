@@ -1669,14 +1669,14 @@ void LLEnvironment::updateCloudScroll()
 
     if (mCurrentEnvironment->getSky() && !mCloudScrollPaused)
     {
-        LLVector2 rate = mCurrentEnvironment->getSky()->getCloudScrollRate();
-        if (rate.isExactlyZero())
+        glm::vec2 rate = mCurrentEnvironment->getSky()->getCloudScrollRate();
+        if (rate.x == 0.0f && rate.y == 0.0f)
         {
-            mCloudScrollDelta.setZero();
+            mCloudScrollDelta = glm::vec2(0.0f, 0.0f);
         }
         else
         {
-            LLVector2 cloud_delta = static_cast<F32>(delta_t) * (mCurrentEnvironment->getSky()->getCloudScrollRate()) / 100.0;
+            glm::vec2 cloud_delta = (static_cast<F32>(delta_t) * rate) / 100.0f;
             mCloudScrollDelta += cloud_delta;
         }
     }

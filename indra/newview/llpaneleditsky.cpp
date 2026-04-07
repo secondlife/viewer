@@ -36,6 +36,7 @@
 #include "llsettingssky.h"
 #include "llenvironment.h"
 #include "llviewercontrol.h"
+#include "llsdutil_math.h"
 
 namespace
 {
@@ -417,8 +418,8 @@ void LLPanelSettingsSkyCloudTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->setValue(mSkySettings->getCloudScale());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_VARIANCE)->setValue(mSkySettings->getCloudVariance());
 
-    LLVector2 cloudScroll(mSkySettings->getCloudScrollRate());
-    getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCROLL_XY)->setValue(cloudScroll.getValue());
+    glm::vec2 cloudScroll = mSkySettings->getCloudScrollRate();
+    getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCROLL_XY)->setValue(ll_sd_from_vec2(cloudScroll));
 
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setValue(mSkySettings->getCloudNoiseTextureId());
 
@@ -467,7 +468,7 @@ void LLPanelSettingsSkyCloudTab::onCloudVarianceChanged()
 void LLPanelSettingsSkyCloudTab::onCloudScrollChanged()
 {
     if (!mSkySettings) return;
-    LLVector2 scroll(getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCROLL_XY)->getValue());
+    glm::vec2 scroll = ll_vec2_from_sd(getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCROLL_XY)->getValue());
     mSkySettings->setCloudScrollRate(scroll);
     setIsDirty();
 }

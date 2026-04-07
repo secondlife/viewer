@@ -765,7 +765,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
     // Legacy? SETTING_CLOUD_SCROLL_RATE("cloud_scroll_rate")
     LLVector4 vect_c_p_d1(mCloudPosDensity1.mV[0], mCloudPosDensity1.mV[1], mCloudPosDensity1.mV[2]);
-    LLVector4 cloud_scroll( LLEnvironment::instance().getCloudScrollDelta() );
+    glm::vec2 cloud_scroll_delta = LLEnvironment::instance().getCloudScrollDelta();
+    LLVector4 cloud_scroll(cloud_scroll_delta.x, cloud_scroll_delta.y, 0.0f, 0.0f);
 
     // SL-13084 EEP added support for custom cloud textures -- flip them horizontally to match the preview of Clouds > Cloud Scroll
     // Keep in Sync!

@@ -309,7 +309,8 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
         F32 cloud_variance = psky ? static_cast<F32>(psky->getCloudVariance()) : 0.0f;
         F32 blend_factor   = psky ? static_cast<F32>(psky->getBlendFactor()) : 0.0f;
 
-        if (psky->getCloudScrollRate().isExactlyZero())
+        glm::vec2 cloud_scroll_rate = psky->getCloudScrollRate();
+        if (cloud_scroll_rate.x == 0.0f && cloud_scroll_rate.y == 0.0f)
         {
             blend_factor = 0.f;
         }

@@ -207,24 +207,24 @@ public:
         setLLSDDirty();
     }
 
-    LLVector2 getWave1Dir() const
+    glm::vec2 getWave1Dir() const
     {
         return mWave1Dir;
     }
 
-    void setWave1Dir(LLVector2 val)
+    void setWave1Dir(glm::vec2 val)
     {
         mWave1Dir = val;
         setDirtyFlag(true);
         setLLSDDirty();
     }
 
-    LLVector2 getWave2Dir() const
+    glm::vec2 getWave2Dir() const
     {
         return mWave2Dir;
     }
 
-    void setWave2Dir(LLVector2 val)
+    void setWave2Dir(glm::vec2 val)
     {
         mWave2Dir = val;
         setDirtyFlag(true);
@@ -284,7 +284,7 @@ protected:
     LLVector3 mNormalScale;
     F32 mScaleAbove;
     F32 mScaleBelow;
-    LLVector2 mWave1Dir;
-    LLVector2 mWave2Dir;
+    glm::vec2 mWave1Dir;
+    glm::vec2 mWave2Dir;
 };
 

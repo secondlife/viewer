@@ -32,6 +32,7 @@
 #include "lltexturectrl.h"
 #include "llcolorswatch.h"
 #include "llxyvector.h"
+#include "llsdutil_math.h"
 
 namespace
 {
@@ -142,10 +143,10 @@ void LLPanelSettingsWaterMainTab::refresh()
     getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->setValue(mWaterSettings->getWaterFogDensity());
     getChild<LLUICtrl>(FIELD_WATER_UNDERWATER_MOD)->setValue(mWaterSettings->getFogMod());
     mTxtNormalMap->setValue(mWaterSettings->getNormalMapID());
-    LLVector2 vect2 = mWaterSettings->getWave1Dir() * -1.0; // Flip so that north and east are +
-    getChild<LLUICtrl>(FIELD_WATER_WAVE1_XY)->setValue(vect2.getValue());
-    vect2 = mWaterSettings->getWave2Dir() * -1.0; // Flip so that north and east are +
-    getChild<LLUICtrl>(FIELD_WATER_WAVE2_XY)->setValue(vect2.getValue());
+    glm::vec2 vect2 = mWaterSettings->getWave1Dir() * -1.0f; // Flip so that north and east are +
+    getChild<LLUICtrl>(FIELD_WATER_WAVE1_XY)->setValue(ll_sd_from_vec2(vect2));
+    vect2 = mWaterSettings->getWave2Dir() * -1.0f; // Flip so that north and east are +
+    getChild<LLUICtrl>(FIELD_WATER_WAVE2_XY)->setValue(ll_sd_from_vec2(vect2));
     LLVector3 vect3 = mWaterSettings->getNormalScale();
     getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_X)->setValue(vect3[0]);
     getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Y)->setValue(vect3[1]);
@@ -190,8 +191,8 @@ void LLPanelSettingsWaterMainTab::onNormalMapChanged()
 void LLPanelSettingsWaterMainTab::onLargeWaveChanged()
 {
     if (!mWaterSettings) return;
-    LLVector2 vect(getChild<LLUICtrl>(FIELD_WATER_WAVE1_XY)->getValue());
-    vect *= -1.0; // Flip so that north and east are -
+    glm::vec2 vect = ll_vec2_from_sd(getChild<LLUICtrl>(FIELD_WATER_WAVE1_XY)->getValue());
+    vect *= -1.0f; // Flip so that north and east are -
     mWaterSettings->setWave1Dir(vect);
     setIsDirty();
 }
@@ -199,8 +200,8 @@ void LLPanelSettingsWaterMainTab::onLargeWaveChanged()
 void LLPanelSettingsWaterMainTab::onSmallWaveChanged()
 {
     if (!mWaterSettings) return;
-    LLVector2 vect(getChild<LLUICtrl>(FIELD_WATER_WAVE2_XY)->getValue());
-    vect *= -1.0; // Flip so that north and east are -
+    glm::vec2 vect = ll_vec2_from_sd(getChild<LLUICtrl>(FIELD_WATER_WAVE2_XY)->getValue());
+    vect *= -1.0f; // Flip so that north and east are -
     mWaterSettings->setWave2Dir(vect);
     setIsDirty();
 }

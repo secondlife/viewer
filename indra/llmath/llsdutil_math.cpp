@@ -123,6 +123,21 @@ LLVector2 ll_vector2_from_sd(const LLSD& sd)
     return rv;
 }
 
+// glm::vec2 — mirrors the LLVector2 helpers above for the migration.
+LLSD ll_sd_from_vec2(const glm::vec2& vec)
+{
+    LLSD rv;
+    rv.append(static_cast<F64>(vec.x));
+    rv.append(static_cast<F64>(vec.y));
+    return rv;
+}
+
+glm::vec2 ll_vec2_from_sd(const LLSD& sd)
+{
+    return glm::vec2(static_cast<F32>(sd[0].asReal()),
+                     static_cast<F32>(sd[1].asReal()));
+}
+
 // Quaternion
 LLSD ll_sd_from_quaternion(const LLQuaternion& quat)
 {

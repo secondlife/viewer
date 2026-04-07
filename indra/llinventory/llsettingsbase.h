@@ -236,6 +236,14 @@ public:
         setValue(name, value.getValue());
     }
 
+    inline void setValue(const std::string &name, const glm::vec2 &value)
+    {
+        LLSD sd;
+        sd.append(static_cast<F64>(value.x));
+        sd.append(static_cast<F64>(value.y));
+        setValue(name, sd);
+    }
+
     inline void setValue(const std::string &name, const LLVector3 &value)
     {
         setValue(name, value.getValue());
@@ -342,6 +350,7 @@ public:
     LLSD         cloneSettings();
 
     static void lerpVector2(LLVector2& a, const LLVector2& b, F32 mix);
+    static void lerpVec2(glm::vec2& a, const glm::vec2& b, F32 mix);
     static void lerpVector3(LLVector3& a, const LLVector3& b, F32 mix);
     static void lerpColor(LLColor3& a, const LLColor3& b, F32 mix);
 

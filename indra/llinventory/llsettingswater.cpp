@@ -31,6 +31,7 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 #include "indra_constants.h"
+#include "llsdutil_math.h"
 #include <functional>
 
 
@@ -105,8 +106,8 @@ LLSD LLSettingsWater::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_NORMAL_SCALE] = LLVector3(2.0f + normal_scale_offset, 2.0f + normal_scale_offset, 2.0f + normal_scale_offset).getValue();
         dfltsetting[SETTING_SCALE_ABOVE] = LLSD::Real(0.0299f);
         dfltsetting[SETTING_SCALE_BELOW] = LLSD::Real(0.2000f);
-        dfltsetting[SETTING_WAVE1_DIR] = LLVector2(1.04999f, -0.42000f).getValue();
-        dfltsetting[SETTING_WAVE2_DIR] = LLVector2(1.10999f, -1.16000f).getValue();
+        dfltsetting[SETTING_WAVE1_DIR] = ll_sd_from_vec2(glm::vec2(1.04999f, -0.42000f));
+        dfltsetting[SETTING_WAVE2_DIR] = ll_sd_from_vec2(glm::vec2(1.10999f, -1.16000f));
 
         dfltsetting[SETTING_TYPE] = "water";
     }
@@ -131,8 +132,8 @@ void LLSettingsWater::loadValuesFromLLSD()
     mNormalScale = LLVector3(settings[SETTING_NORMAL_SCALE]);
     mScaleAbove = static_cast<F32>(settings[SETTING_SCALE_ABOVE].asReal());
     mScaleBelow = static_cast<F32>(settings[SETTING_SCALE_BELOW].asReal());
-    mWave1Dir = LLVector2(settings[SETTING_WAVE1_DIR]);
-    mWave2Dir = LLVector2(settings[SETTING_WAVE2_DIR]);
+    mWave1Dir = ll_vec2_from_sd(settings[SETTING_WAVE1_DIR]);
+    mWave2Dir = ll_vec2_from_sd(settings[SETTING_WAVE2_DIR]);
 
     mNormalMapID = settings[SETTING_NORMAL_MAP].asUUID();
     mTransparentTextureID = settings[SETTING_TRANSPARENT_TEXTURE].asUUID();
@@ -154,8 +155,8 @@ void LLSettingsWater::saveValuesToLLSD()
     settings[SETTING_NORMAL_SCALE] = mNormalScale.getValue();
     settings[SETTING_SCALE_ABOVE] = LLSD::Real(mScaleAbove);
     settings[SETTING_SCALE_BELOW] = LLSD::Real(mScaleBelow);
-    settings[SETTING_WAVE1_DIR] = mWave1Dir.getValue();
-    settings[SETTING_WAVE2_DIR] = mWave2Dir.getValue();
+    settings[SETTING_WAVE1_DIR] = ll_sd_from_vec2(mWave1Dir);
+    settings[SETTING_WAVE2_DIR] = ll_sd_from_vec2(mWave2Dir);
 
     settings[SETTING_NORMAL_MAP] = mNormalMapID;
     settings[SETTING_TRANSPARENT_TEXTURE] = mTransparentTextureID;
@@ -218,12 +219,12 @@ LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
     }
     if (legacy.has(SETTING_LEGACY_WAVE1_DIR))
     {
-        newsettings[SETTING_WAVE1_DIR] = LLVector2(legacy[SETTING_LEGACY_WAVE1_DIR]).getValue();
+        newsettings[SETTING_WAVE1_DIR] = ll_sd_from_vec2(ll_vec2_from_sd(legacy[SETTING_LEGACY_WAVE1_DIR]));
         converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_WAVE2_DIR))
     {
-        newsettings[SETTING_WAVE2_DIR] = LLVector2(legacy[SETTING_LEGACY_WAVE2_DIR]).getValue();
+        newsettings[SETTING_WAVE2_DIR] = ll_sd_from_vec2(ll_vec2_from_sd(legacy[SETTING_LEGACY_WAVE2_DIR]));
         converted_something |= true;
     }
 
@@ -249,8 +250,8 @@ void LLSettingsWater::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         lerpVector3(mNormalScale, other->mNormalScale, static_cast<F32>(blendf));
         mScaleAbove = lerp(mScaleAbove, other->mScaleAbove, static_cast<F32>(blendf));
         mScaleBelow = lerp(mScaleBelow, other->mScaleBelow, static_cast<F32>(blendf));
-        lerpVector2(mWave1Dir, other->mWave1Dir, static_cast<F32>(blendf));
-        lerpVector2(mWave2Dir, other->mWave2Dir, static_cast<F32>(blendf));
+        lerpVec2(mWave1Dir, other->mWave1Dir, static_cast<F32>(blendf));
+        lerpVec2(mWave2Dir, other->mWave2Dir, static_cast<F32>(blendf));
 
         setDirtyFlag(true);
         setReplaced();

@@ -59,8 +59,8 @@ LLWatterSettingsAdapter::LLWatterSettingsAdapter():
     mScaleAbove(0.025f, LLSettingsWater::SETTING_SCALE_ABOVE),
     mScaleBelow(0.2f, LLSettingsWater::SETTING_SCALE_BELOW),
     mBlurMultiplier(0.1f, LLSettingsWater::SETTING_BLUR_MULTIPILER),
-    mWave1Dir(LLVector2(0.5f, 0.5f), LLSettingsWater::SETTING_WAVE1_DIR),
-    mWave2Dir(LLVector2(0.5f, 0.5f), LLSettingsWater::SETTING_WAVE2_DIR)
+    mWave1Dir(glm::vec2(0.5f, 0.5f), LLSettingsWater::SETTING_WAVE1_DIR),
+    mWave2Dir(glm::vec2(0.5f, 0.5f), LLSettingsWater::SETTING_WAVE2_DIR)
 
 {
 
