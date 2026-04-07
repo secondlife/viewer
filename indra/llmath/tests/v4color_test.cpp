@@ -109,35 +109,35 @@ namespace tut
     {
         F32 r = 0x20, g = 0xFFFF, b = 0xFF, a = 0xAF;
         LLColor4 llcolor4;
-        llcolor4.setVec(r,g,b);
-        ensure("1:setVec:Fail to set the values ", ((r == llcolor4.mV[VRED]) && (g == llcolor4.mV[VGREEN]) && (b == llcolor4.mV[VBLUE])&& (1.f == llcolor4.mV[VALPHA])));
+        llcolor4.set(r,g,b);
+        ensure("1:set:Fail to set the values ", ((r == llcolor4.mV[VRED]) && (g == llcolor4.mV[VGREEN]) && (b == llcolor4.mV[VBLUE])&& (1.f == llcolor4.mV[VALPHA])));
 
-        llcolor4.setVec(r,g,b,a);
-        ensure("2:setVec:Fail to set the values ", ((r == llcolor4.mV[VRED]) && (g == llcolor4.mV[VGREEN]) && (b == llcolor4.mV[VBLUE])&& (a == llcolor4.mV[VALPHA])));
+        llcolor4.set(r,g,b,a);
+        ensure("2:set:Fail to set the values ", ((r == llcolor4.mV[VRED]) && (g == llcolor4.mV[VGREEN]) && (b == llcolor4.mV[VBLUE])&& (a == llcolor4.mV[VALPHA])));
 
         LLColor4 llcolor4a;
-        llcolor4a.setVec(llcolor4);
-        ensure_equals("3:setVec:Fail to set the values ", llcolor4a,llcolor4);
+        llcolor4a.set(llcolor4);
+        ensure_equals("3:set:Fail to set the values ", llcolor4a,llcolor4);
 
         LLColor3 llcolor3(-2.23f,1.01f,42.3f);
-        llcolor4a.setVec(llcolor3);
-        ensure("4:setVec:Fail to set the values ", ((llcolor3.mV[VRED] == llcolor4a.mV[VRED]) && (llcolor3.mV[VGREEN] == llcolor4a.mV[VGREEN]) && (llcolor3.mV[VBLUE] == llcolor4a.mV[VBLUE])));
+        llcolor4a.set(llcolor3);
+        ensure("4:set:Fail to set the values ", ((llcolor3.mV[VRED] == llcolor4a.mV[VRED]) && (llcolor3.mV[VGREEN] == llcolor4a.mV[VGREEN]) && (llcolor3.mV[VBLUE] == llcolor4a.mV[VBLUE])));
 
         F32 val = -.33f;
-        llcolor4a.setVec(llcolor3,val);
-        ensure("4:setVec:Fail to set the values ", ((llcolor3.mV[VRED] == llcolor4a.mV[VRED]) && (llcolor3.mV[VGREEN] == llcolor4a.mV[VGREEN]) && (llcolor3.mV[VBLUE] == llcolor4a.mV[VBLUE]) && (val == llcolor4a.mV[VALPHA])));
+        llcolor4a.set(llcolor3,val);
+        ensure("4:set:Fail to set the values ", ((llcolor3.mV[VRED] == llcolor4a.mV[VRED]) && (llcolor3.mV[VGREEN] == llcolor4a.mV[VGREEN]) && (llcolor3.mV[VBLUE] == llcolor4a.mV[VBLUE]) && (val == llcolor4a.mV[VALPHA])));
 
         const F32 vec[4] = {.112f ,23.2f, -4.2f, -.0001f};
         LLColor4 llcolor4c;
-        llcolor4c.setVec(vec);
-        ensure("5:setVec:Fail to initialize ", ((vec[0] == llcolor4c.mV[VRED]) && (vec[1] == llcolor4c.mV[VGREEN]) && (vec[2] == llcolor4c.mV[VBLUE])&& (vec[3] == llcolor4c.mV[VALPHA])));
+        llcolor4c.set(vec);
+        ensure("5:set:Fail to initialize ", ((vec[0] == llcolor4c.mV[VRED]) && (vec[1] == llcolor4c.mV[VGREEN]) && (vec[2] == llcolor4c.mV[VBLUE])&& (vec[3] == llcolor4c.mV[VALPHA])));
 
         U8 r1 = 0xF2, g1 = 0xFA, b1= 0xBF;
         LLColor4U color4u(r1,g1,b1);
-        llcolor4.setVec(color4u);
+        llcolor4.set(color4u);
         const F32 SCALE = 1.f/255.f;
         F32 r2 = r1*SCALE, g2 = g1* SCALE, b2 = b1* SCALE;
-        ensure("6:setVec:Fail to initialize ", ((r2 == llcolor4.mV[VRED]) && (g2 == llcolor4.mV[VGREEN]) && (b2 == llcolor4.mV[VBLUE])));
+        ensure("6:set:Fail to initialize ", ((r2 == llcolor4.mV[VRED]) && (g2 == llcolor4.mV[VGREEN]) && (b2 == llcolor4.mV[VBLUE])));
     }
 
     template<> template<>
@@ -154,8 +154,8 @@ namespace tut
     {
         F32 r = 0x20, g = 0xFFFF, b = 0xFF;
         LLColor4 llcolor4(r,g,b);
-        ensure("magVecSquared:Fail ", is_approx_equal(llcolor4.magVecSquared(), (r*r + g*g + b*b)));
-        ensure("magVec:Fail ", is_approx_equal(llcolor4.magVec(), static_cast<F32>(sqrt(r*r + g*g + b*b))));
+        ensure("lengthSquared:Fail ", is_approx_equal(llcolor4.lengthSquared(), (r*r + g*g + b*b)));
+        ensure("length:Fail ", is_approx_equal(llcolor4.length(), static_cast<F32>(sqrt(r*r + g*g + b*b))));
     }
 
     template<> template<>
@@ -163,11 +163,11 @@ namespace tut
     {
         F32 r = 0x20, g = 0xFFFF, b = 0xFF;
         LLColor4 llcolor4(r,g,b);
-        F32 vecMag = llcolor4.normVec();
+        F32 vecMag = llcolor4.normalize();
         F32 mag = static_cast<F32>(sqrt(r*r + g*g + b*b));
         F32 oomag = 1.f / mag;
         F32 val1 = r * oomag, val2 = g * oomag, val3 = b * oomag;
-        ensure("1:normVec failed ", (is_approx_equal(val1, llcolor4.mV[0]) && is_approx_equal(val2, llcolor4.mV[1]) && is_approx_equal(val3, llcolor4.mV[2]) && is_approx_equal(vecMag, mag)));
+        ensure("1:normalize failed ", (is_approx_equal(val1, llcolor4.mV[0]) && is_approx_equal(val2, llcolor4.mV[1]) && is_approx_equal(val3, llcolor4.mV[2]) && is_approx_equal(vecMag, mag)));
     }
 
     template<> template<>
@@ -176,10 +176,10 @@ namespace tut
         LLColor4 llcolor4;
         ensure("1:isOpaque failed ",(1 == llcolor4.isOpaque()));
         F32 r = 0x20, g = 0xFFFF, b = 0xFF,a = 1.f;
-        llcolor4.setVec(r,g,b,a);
+        llcolor4.set(r,g,b,a);
         ensure("2:isOpaque failed ",(1 == llcolor4.isOpaque()));
         a = 2.f;
-        llcolor4.setVec(r,g,b,a);
+        llcolor4.set(r,g,b,a);
         ensure("3:isOpaque failed ",(0 == llcolor4.isOpaque()));
     }
 
@@ -193,7 +193,7 @@ namespace tut
         ensure("3:operator [] failed",( b ==  llcolor4[2]));
 
         r = 0xA20, g = 0xFBFF, b = 0xFFF;
-        llcolor4.setVec(r,g,b);
+        llcolor4.set(r,g,b);
         F32 &ref1 = llcolor4[0];
         ensure("4:operator [] failed",( ref1 ==  llcolor4[0]));
         F32 &ref2 = llcolor4[1];
@@ -222,7 +222,7 @@ namespace tut
         std::ostringstream stream1, stream2;
         LLColor4 llcolor4a(r,g,b),llcolor4b;
         stream1 << llcolor4a;
-        llcolor4b.setVec(r,g,b);
+        llcolor4b.set(r,g,b);
         stream2 << llcolor4b;
         ensure("operator << failed ", (stream1.str() == stream2.str()));
     }
@@ -342,7 +342,7 @@ namespace tut
         ensure_equals("2:parseColor() failed to parse the color value ",  llcolor4a,llcolor4b);
 
         color = "yellow5";
-        llcolor4a.setVec(r,g,b);
+        llcolor4a.set(r,g,b);
         LLColor4::parseColor(color, &llcolor4a);
         ensure_equals("3:parseColor() failed to parse the color value ", llcolor4a, LLColor4::yellow5);
     }

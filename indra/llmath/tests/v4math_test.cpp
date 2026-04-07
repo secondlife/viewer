@@ -69,26 +69,26 @@ namespace tut
     {
         F32 x = 10.f, y = -2.3f, z = -.023f, w = -2.0f;
         LLVector4 vec4;
-        vec4.setVec(x,y,z);
-        ensure("1:setVec:Fail to initialize " ,((x == vec4.mV[VX]) && (y == vec4.mV[VY]) && (z == vec4.mV[VZ])&& (1.0f == vec4.mV[VW])));
-        vec4.clearVec();
-        ensure("2:clearVec:Fail " ,((0 == vec4.mV[VX]) && (0 == vec4.mV[VY]) && (0 == vec4.mV[VZ])&& (1.0f == vec4.mV[VW])));
-        vec4.setVec(x,y,z,w);
-        ensure("3:setVec:Fail to initialize " ,((x == vec4.mV[VX]) && (y == vec4.mV[VY]) && (z == vec4.mV[VZ])&& (w == vec4.mV[VW])));
-        vec4.zeroVec();
-        ensure("4:zeroVec:Fail " ,((0 == vec4.mV[VX]) && (0 == vec4.mV[VY]) && (0 == vec4.mV[VZ])&& (0 == vec4.mV[VW])));
+        vec4.set(x,y,z);
+        ensure("1:set:Fail to initialize " ,((x == vec4.mV[VX]) && (y == vec4.mV[VY]) && (z == vec4.mV[VZ])&& (1.0f == vec4.mV[VW])));
+        vec4.clear();
+        ensure("2:clear:Fail " ,((0 == vec4.mV[VX]) && (0 == vec4.mV[VY]) && (0 == vec4.mV[VZ])&& (1.0f == vec4.mV[VW])));
+        vec4.set(x,y,z,w);
+        ensure("3:set:Fail to initialize " ,((x == vec4.mV[VX]) && (y == vec4.mV[VY]) && (z == vec4.mV[VZ])&& (w == vec4.mV[VW])));
+        vec4.setZero();
+        ensure("4:setZero:Fail " ,((0 == vec4.mV[VX]) && (0 == vec4.mV[VY]) && (0 == vec4.mV[VZ])&& (0 == vec4.mV[VW])));
         LLVector3 vec3(-2.23f,1.01f,42.3f);
-        vec4.clearVec();
-        vec4.setVec(vec3);
-        ensure("5:setVec:Fail to initialize " ,((vec3.mV[VX] == vec4.mV[VX]) && (vec3.mV[VY] == vec4.mV[VY]) && (vec3.mV[VZ] == vec4.mV[VZ])&& (1.f == vec4.mV[VW])));
+        vec4.clear();
+        vec4.set(vec3);
+        ensure("5:set:Fail to initialize " ,((vec3.mV[VX] == vec4.mV[VX]) && (vec3.mV[VY] == vec4.mV[VY]) && (vec3.mV[VZ] == vec4.mV[VZ])&& (1.f == vec4.mV[VW])));
         F32 w1 = -.234f;
-        vec4.zeroVec();
-        vec4.setVec(vec3,w1);
-        ensure("6:setVec:Fail to initialize " ,((vec3.mV[VX] == vec4.mV[VX]) && (vec3.mV[VY] == vec4.mV[VY]) && (vec3.mV[VZ] == vec4.mV[VZ])&& (w1 == vec4.mV[VW])));
+        vec4.setZero();
+        vec4.set(vec3,w1);
+        ensure("6:set:Fail to initialize " ,((vec3.mV[VX] == vec4.mV[VX]) && (vec3.mV[VY] == vec4.mV[VY]) && (vec3.mV[VZ] == vec4.mV[VZ])&& (w1 == vec4.mV[VW])));
         const F32 vec[4] = {.112f ,23.2f, -4.2f, -.0001f};
         LLVector4 vec4a;
-        vec4a.setVec(vec);
-        ensure("7:setVec:Fail to initialize " ,((vec[0] == vec4a.mV[VX]) && (vec[1] == vec4a.mV[VY]) && (vec[2] == vec4a.mV[VZ])&& (vec[3] == vec4a.mV[VW])));
+        vec4a.set(vec);
+        ensure("7:set:Fail to initialize " ,((vec[0] == vec4a.mV[VX]) && (vec[1] == vec4a.mV[VY]) && (vec[2] == vec4a.mV[VZ])&& (vec[3] == vec4a.mV[VW])));
     }
 
     template<> template<>
@@ -96,8 +96,8 @@ namespace tut
     {
         F32 x = 10.f, y = -2.3f, z = -.023f;
         LLVector4 vec4(x,y,z);
-        ensure("magVec:Fail ", is_approx_equal(vec4.magVec(), static_cast<F32>(sqrt(x*x + y*y + z*z))));
-        ensure("magVecSquared:Fail ", is_approx_equal(vec4.magVecSquared(), (x*x + y*y + z*z)));
+        ensure("length:Fail ", is_approx_equal(vec4.length(), static_cast<F32>(sqrt(x*x + y*y + z*z))));
+        ensure("lengthSquared:Fail ", is_approx_equal(vec4.lengthSquared(), (x*x + y*y + z*z)));
     }
 
     template<> template<>
@@ -105,14 +105,14 @@ namespace tut
     {
         F32 x = 10.f, y = -2.3f, z = -.023f;
         LLVector4 vec4(x,y,z);
-        F32 mag = vec4.normVec();
+        F32 mag = vec4.normalize();
         mag = 1.f/ mag;
-        ensure("1:normVec: Fail " ,is_approx_equal(mag*x,vec4.mV[VX]) && is_approx_equal(mag*y, vec4.mV[VY])&& is_approx_equal(mag*z, vec4.mV[VZ]));
+        ensure("1:normalize: Fail " ,is_approx_equal(mag*x,vec4.mV[VX]) && is_approx_equal(mag*y, vec4.mV[VY])&& is_approx_equal(mag*z, vec4.mV[VZ]));
         x = 0.000000001f, y = 0.000000001f, z = 0.000000001f;
-        vec4.clearVec();
-        vec4.setVec(x,y,z);
-        mag = vec4.normVec();
-        ensure("2:normVec: Fail " ,is_approx_equal(mag*x,vec4.mV[VX]) && is_approx_equal(mag*y, vec4.mV[VY])&& is_approx_equal(mag*z, vec4.mV[VZ]));
+        vec4.clear();
+        vec4.set(x,y,z);
+        mag = vec4.normalize();
+        ensure("2:normalize: Fail " ,is_approx_equal(mag*x,vec4.mV[VX]) && is_approx_equal(mag*y, vec4.mV[VY])&& is_approx_equal(mag*z, vec4.mV[VZ]));
     }
 
     template<> template<>
@@ -122,9 +122,9 @@ namespace tut
         LLVector4 vec4(x,y,z,w);
         vec4.abs();
         ensure("abs:Fail " ,((x == vec4.mV[VX]) && (-y == vec4.mV[VY]) && (-z == vec4.mV[VZ])&& (-w == vec4.mV[VW])));
-        vec4.clearVec();
+        vec4.clear();
         ensure("isExactlyClear:Fail " ,(true == vec4.isExactlyClear()));
-        vec4.zeroVec();
+        vec4.setZero();
         ensure("isExactlyZero:Fail " ,(true == vec4.isExactlyZero()));
     }
 
@@ -147,7 +147,7 @@ namespace tut
         ensure("3:operator [] failed " ,( z ==  vec4[2]));
         ensure("4:operator [] failed " ,( w ==  vec4[3]));
         x = 23.f, y = -.2361f, z = 3.25;
-        vec4.setVec(x,y,z);
+        vec4.set(x,y,z);
         F32 &ref1 = vec4[0];
         ensure("5:operator [] failed " ,( ref1 ==  vec4[0]));
         F32 &ref2 = vec4[1];
@@ -171,14 +171,14 @@ namespace tut
         LLMatrix4 mat(val);
         LLVector4 vec4(x,y,z,w),vec4a;
         vec4.rotVec(mat);
-        vec4a.setVec(x,y,z,w);
+        vec4a.set(x,y,z,w);
         vec4a.rotVec(mat);
         ensure_equals("1:rotVec: Fail " ,vec4a, vec4);
         F32 a = 2.32f, b = -23.2f, c = -34.1112f, d = 1.010112f;
         LLQuaternion q(a,b,c,d);
         LLVector4 vec4b(a,b,c,d),vec4c;
         vec4b.rotVec(q);
-        vec4c.setVec(a, b, c, d);
+        vec4c.set(a, b, c, d);
         vec4c.rotVec(q);
         ensure_equals("2:rotVec: Fail " ,vec4b, vec4c);
     }
@@ -190,7 +190,7 @@ namespace tut
         LLVector4 vec4(x,y,z,w),vec4a;;
         std::ostringstream stream1, stream2;
         stream1 << vec4;
-        vec4a.setVec(x,y,z,w);
+        vec4a.set(x,y,z,w);
         stream2 << vec4a;
         ensure("operator << failed",(stream1.str() == stream2.str()));
     }
@@ -204,9 +204,9 @@ namespace tut
         vec4b = vec4a + vec4;
         ensure("1:operator+:Fail to initialize " ,(is_approx_equal(x1+x2,vec4b.mV[VX]) && is_approx_equal(y1+y2,vec4b.mV[VY]) && is_approx_equal(z1+z2,vec4b.mV[VZ])));
         x1 = -2.45f, y1 = 2.1f, z1 = 3.0f;
-        vec4.clearVec();
-        vec4a.clearVec();
-        vec4.setVec(x1,y1,z1);
+        vec4.clear();
+        vec4a.clear();
+        vec4.set(x1,y1,z1);
         vec4a +=vec4;
         ensure_equals("2:operator+=: Fail to initialize", vec4a,vec4);
         vec4a += vec4;
@@ -221,9 +221,9 @@ namespace tut
         vec4b = vec4a - vec4;
         ensure("1:operator-:Fail to initialize " ,(is_approx_equal(x2-x1,vec4b.mV[VX]) && is_approx_equal(y2-y1,vec4b.mV[VY]) && is_approx_equal(z2-z1,vec4b.mV[VZ])));
         x1 = -2.45f, y1 = 2.1f, z1 = 3.0f;
-        vec4.clearVec();
-        vec4a.clearVec();
-        vec4.setVec(x1,y1,z1);
+        vec4.clear();
+        vec4a.clear();
+        vec4.set(x1,y1,z1);
         vec4a -=vec4;
         ensure_equals("2:operator-=: Fail to initialize" , vec4a,-vec4);
         vec4a -=vec4;
@@ -238,11 +238,11 @@ namespace tut
         LLVector4 vec4(x1,y1,z1),vec4a(x2,y2,z2);
         F32 res = vec4 * vec4a;
         ensure("1:operator* failed " ,is_approx_equal(res, x1*x2 + y1*y2 + z1*z2));
-        vec4a.clearVec();
+        vec4a.clear();
         F32 mulVal = 4.2f;
         vec4a = vec4 * mulVal;
         ensure("2:operator* failed " ,is_approx_equal(x1*mulVal,vec4a.mV[VX]) && is_approx_equal(y1*mulVal, vec4a.mV[VY])&& is_approx_equal(z1*mulVal, vec4a.mV[VZ]));
-        vec4a.clearVec();
+        vec4a.clear();
         vec4a = mulVal *  vec4 ;
         ensure("3:operator* failed " ,is_approx_equal(x1*mulVal, vec4a.mV[VX]) && is_approx_equal(y1*mulVal, vec4a.mV[VY])&& is_approx_equal(z1*mulVal, vec4a.mV[VZ]));
         vec4 *= mulVal;
@@ -270,9 +270,9 @@ namespace tut
         vec4a = vec4/div;
         ensure("1:operator/ failed " ,is_approx_equal(x*t, vec4a.mV[VX]) && is_approx_equal(y*t, vec4a.mV[VY])&& is_approx_equal(z*t, vec4a.mV[VZ]));
         x = 1.23f, y = 4.f, z = -2.32f;
-        vec4.clearVec();
-        vec4a.clearVec();
-        vec4.setVec(x,y,z);
+        vec4.clear();
+        vec4a.clear();
+        vec4.set(x,y,z);
         vec4a = vec4/div;
         ensure("2:operator/ failed " ,is_approx_equal(x*t, vec4a.mV[VX]) && is_approx_equal(y*t, vec4a.mV[VY])&& is_approx_equal(z*t, vec4a.mV[VZ]));
         vec4 /= div;
@@ -305,8 +305,8 @@ namespace tut
         LLVector4 vec4(x,y,z), vec4a(x,y,z);
         ensure("1:are_parallel: Fail " ,(true == are_parallel(vec4a,vec4,epsilon)));
         x = 21.f, y = 12.f, z = -123.1f;
-        vec4a.clearVec();
-        vec4a.setVec(x,y,z);
+        vec4a.clear();
+        vec4a.set(x,y,z);
         ensure("2:are_parallel: Fail " ,(false == are_parallel(vec4a,vec4,epsilon)));
     }
 
@@ -317,15 +317,15 @@ namespace tut
         F32 angle1, angle2;
         LLVector4 vec4(x,y,z), vec4a(x,y,z);
         angle1 = angle_between(vec4, vec4a);
-        vec4.normVec();
-        vec4a.normVec();
+        vec4.normalize();
+        vec4a.normalize();
         angle2 = acos(vec4 * vec4a);
         ensure_approximately_equals("1:angle_between: Fail " ,angle1,angle2,8);
         F32 x1 = 21.f, y1 = 2.23f, z1 = -1.1f;
         LLVector4 vec4b(x,y,z), vec4c(x1,y1,z1);
         angle1 = angle_between(vec4b, vec4c);
-        vec4b.normVec();
-        vec4c.normVec();
+        vec4b.normalize();
+        vec4c.normalize();
         angle2 = acos(vec4b * vec4c);
         ensure_approximately_equals("2:angle_between: Fail " ,angle1,angle2,8);
     }

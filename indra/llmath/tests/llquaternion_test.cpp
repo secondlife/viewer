@@ -106,7 +106,7 @@ namespace tut
                                         234.764423f == llmat.mMatrix[2][2]);
     }
 
-    //test case for LLQuaternion(F32 x, F32 y, F32 z, F32 w), setQuatInit() and normQuat() fns.
+    //test case for LLQuaternion(F32 x, F32 y, F32 z, F32 w), set() and normalize() fns.
     template<> template<>
     void llquat_test_object_t::test<4>()
     {
@@ -116,10 +116,10 @@ namespace tut
         F32 w_val = 1.0f;
 
         LLQuaternion res_quat;
-        res_quat.setQuatInit(x_val, y_val, z_val, w_val);
-        res_quat.normQuat();
+        res_quat.set(x_val, y_val, z_val, w_val);
+        res_quat.normalize();
 
-        ensure("LLQuaternion::normQuat() fn failed",
+        ensure("LLQuaternion::normalize() fn failed",
                             is_approx_equal(0.42426407f, res_quat.mQ[0]) &&
                             is_approx_equal(0.28284273f, res_quat.mQ[1]) &&
                             is_approx_equal(0.84852815f, res_quat.mQ[2]) &&
@@ -130,24 +130,24 @@ namespace tut
         z_val = 0.0f;
         w_val = 0.0f;
 
-        res_quat.setQuatInit(x_val, y_val, z_val, w_val);
-        res_quat.normQuat();
+        res_quat.set(x_val, y_val, z_val, w_val);
+        res_quat.normalize();
 
-        ensure("LLQuaternion::normQuat() fn. failed.",
+        ensure("LLQuaternion::normalize() fn. failed.",
                             is_approx_equal(0.0f, res_quat.mQ[0]) &&
                             is_approx_equal(0.0f, res_quat.mQ[1]) &&
                             is_approx_equal(0.0f, res_quat.mQ[2]) &&
                             is_approx_equal(1.0f, res_quat.mQ[3]));
 
 
-        ensure("LLQuaternion::normQuat() fn. failed.",
+        ensure("LLQuaternion::normalize() fn. failed.",
                             is_approx_equal(0.0f, res_quat.mQ[0]) &&
                             is_approx_equal(0.0f, res_quat.mQ[1]) &&
                             is_approx_equal(0.0f, res_quat.mQ[2]) &&
                             is_approx_equal(1.0f, res_quat.mQ[3]));
     }
 
-    //test case for conjQuat() and transQuat() fns.
+    //test case for conjugate() and transpose() fns.
     template<> template<>
     void llquat_test_object_t::test<5>()
     {
@@ -158,12 +158,12 @@ namespace tut
 
         LLQuaternion res_quat;
         LLQuaternion result, result1;
-        result1 = result = res_quat.setQuatInit(x_val, y_val, z_val, w_val);
+        result1 = result = res_quat.set(x_val, y_val, z_val, w_val);
 
-        result.conjQuat();
-        result1.transQuat();
+        result.conjugate();
+        result1.transpose();
 
-        ensure("LLQuaternion::conjQuat and LLQuaternion::transQuat failed ",
+        ensure("LLQuaternion::conjugate and LLQuaternion::transpose failed ",
                                 is_approx_equal(result1.mQ[0], result.mQ[0]) &&
                                 is_approx_equal(result1.mQ[1], result.mQ[1]) &&
                                 is_approx_equal(result1.mQ[2], result.mQ[2]));
@@ -603,23 +603,23 @@ namespace tut
     void llquat_test_object_t::test<20>()
     {
         //test case for LLQuaternion::Order StringToOrder( const char *str ) fn
-        int result = StringToOrder("XYZ");
-        ensure("1. LLQuaternion::Order StringToOrder(const char *str ) failed for XYZ", 0 == result);
+        LLQuaternion::Order result = StringToOrder("XYZ");
+        ensure("1. LLQuaternion::Order StringToOrder(const char *str ) failed for XYZ", LLQuaternion::Order::XYZ == result);
 
         result = StringToOrder("YZX");
-        ensure("2. LLQuaternion::Order StringToOrder(const char *str) failed for YZX", 1 == result);
+        ensure("2. LLQuaternion::Order StringToOrder(const char *str) failed for YZX", LLQuaternion::Order::YZX == result);
 
         result = StringToOrder("ZXY");
-        ensure("3. LLQuaternion::Order StringToOrder(const char *str) failed for ZXY", 2 == result);
+        ensure("3. LLQuaternion::Order StringToOrder(const char *str) failed for ZXY", LLQuaternion::Order::ZXY == result);
 
         result = StringToOrder("XZY");
-        ensure("4. LLQuaternion::Order StringToOrder(const char *str) failed for XZY", 3 == result);
+        ensure("4. LLQuaternion::Order StringToOrder(const char *str) failed for XZY", LLQuaternion::Order::XZY == result);
 
         result = StringToOrder("YXZ");
-        ensure("5. LLQuaternion::Order StringToOrder(const char *str) failed for YXZ", 4 == result);
+        ensure("5. LLQuaternion::Order StringToOrder(const char *str) failed for YXZ", LLQuaternion::Order::YXZ == result);
 
         result = StringToOrder("ZYX");
-        ensure("6. LLQuaternion::Order StringToOrder(const char *str) failed for  ZYX", 5 == result);
+        ensure("6. LLQuaternion::Order StringToOrder(const char *str) failed for  ZYX", LLQuaternion::Order::ZYX == result);
 
     }
 

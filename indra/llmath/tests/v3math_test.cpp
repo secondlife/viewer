@@ -100,12 +100,12 @@ namespace tut
         F32 x = 2.32f, y = 1.212f, z = -.12f;
         LLVector3 vec3(x,y,z);
         ensure("1:isFinite= Fail to initialize ", (true == vec3.isFinite()));//need more test cases:
-        vec3.clearVec();
-        ensure("2:clearVec:Fail to set values ", ((0.f == vec3.mV[VX]) && (0.f == vec3.mV[VY]) && (0.f == vec3.mV[VZ])));
-        vec3.setVec(x,y,z);
-        ensure("3:setVec:Fail to set values ", ((2.32f == vec3.mV[VX]) && (1.212f == vec3.mV[VY]) && (-.12f == vec3.mV[VZ])));
-        vec3.zeroVec();
-        ensure("4:zeroVec:Fail to set values ", ((0.f == vec3.mV[VX]) && (0.f == vec3.mV[VY]) && (0.f == vec3.mV[VZ])));
+        vec3.clear();
+        ensure("2:clear:Fail to set values ", ((0.f == vec3.mV[VX]) && (0.f == vec3.mV[VY]) && (0.f == vec3.mV[VZ])));
+        vec3.set(x,y,z);
+        ensure("3:set:Fail to set values ", ((2.32f == vec3.mV[VX]) && (1.212f == vec3.mV[VY]) && (-.12f == vec3.mV[VZ])));
+        vec3.setZero();
+        ensure("4:setZero:Fail to set values ", ((0.f == vec3.mV[VX]) && (0.f == vec3.mV[VY]) && (0.f == vec3.mV[VZ])));
     }
 
     template<> template<>
@@ -115,20 +115,20 @@ namespace tut
         LLVector3 vec3(x,y,z),vec3a;
         vec3.abs();
         ensure("1:abs:Fail ", ((x == vec3.mV[VX]) && (y == vec3.mV[VY]) && (-z == vec3.mV[VZ])));
-        vec3a.setVec(vec3);
-        ensure("2:setVec:Fail to initialize ", (vec3a == vec3));
+        vec3a.set(vec3);
+        ensure("2:set:Fail to initialize ", (vec3a == vec3));
         const F32 vec[3] = {1.2f ,3.2f, -4.2f};
-        vec3.clearVec();
-        vec3.setVec(vec);
-        ensure("3:setVec:Fail to initialize ", ((1.2f == vec3.mV[VX]) && (3.2f == vec3.mV[VY]) && (-4.2f == vec3.mV[VZ])));
-        vec3a.clearVec();
+        vec3.clear();
+        vec3.set(vec);
+        ensure("3:set:Fail to initialize ", ((1.2f == vec3.mV[VX]) && (3.2f == vec3.mV[VY]) && (-4.2f == vec3.mV[VZ])));
+        vec3a.clear();
         LLVector3d vector3d(vec3);
-        vec3a.setVec(vector3d);
-        ensure("4:setVec:Fail to initialize ", (vec3 == vec3a));
+        vec3a.set(vector3d);
+        ensure("4:set:Fail to initialize ", (vec3 == vec3a));
         LLVector4 vector4(vec3);
-        vec3a.clearVec();
-        vec3a.setVec(vector4);
-        ensure("5:setVec:Fail to initialize ", (vec3 == vec3a));
+        vec3a.clear();
+        vec3a.set(vector4);
+        ensure("5:set:Fail to initialize ", (vec3 == vec3a));
     }
 
     template<> template<>
@@ -139,7 +139,7 @@ namespace tut
         LLVector3 vec3(x,y,z);
         ensure("1:clamp:Fail  ", true == vec3.clamp(min, max) && x == vec3.mV[VX] && max == vec3.mV[VY] && min == vec3.mV[VZ]);
         x = 1.f, y = 2.2f, z = 2.8f;
-        vec3.setVec(x,y,z);
+        vec3.set(x,y,z);
         ensure("2:clamp:Fail  ", false == vec3.clamp(min, max));
     }
 
@@ -148,8 +148,8 @@ namespace tut
     {
         F32 x = 2.32f, y = 1.212f, z = -.12f;
         LLVector3 vec3(x,y,z);
-        ensure("1:magVecSquared:Fail ", is_approx_equal(vec3.magVecSquared(), (x*x + y*y + z*z)));
-        ensure("2:magVec:Fail ", is_approx_equal(vec3.magVec(), static_cast<F32>(sqrt(x*x + y*y + z*z))));
+        ensure("1:lengthSquared:Fail ", is_approx_equal(vec3.lengthSquared(), (x*x + y*y + z*z)));
+        ensure("2:length:Fail ", is_approx_equal(vec3.length(), static_cast<F32>(sqrt(x*x + y*y + z*z))));
     }
 
     template<> template<>
@@ -160,7 +160,7 @@ namespace tut
         ensure("1:abs():Fail ", (true == vec3.abs()));
         ensure("2:isNull():Fail", (false == vec3.isNull()));    //Returns true if vector has a _very_small_ length
         x =.00000001f, y = .000001001f, z = .000001001f;
-        vec3.setVec(x,y,z);
+        vec3.set(x,y,z);
         ensure("3:isNull(): Fail ", (true == vec3.isNull()));
     }
 
@@ -172,7 +172,7 @@ namespace tut
         ensure("1:isExactlyZero():Fail ", (true == vec3a.isExactlyZero()));
         vec3a = vec3a.scaleVec(vec3);
         ensure("2:scaleVec: Fail ", vec3a.mV[VX] == 0.f && vec3a.mV[VY] == 0.f && vec3a.mV[VZ] == 0.f);
-        vec3a.setVec(x,y,z);
+        vec3a.set(x,y,z);
         vec3a = vec3a.scaleVec(vec3);
         ensure("3:scaleVec: Fail ", ((4 == vec3a.mV[VX]) && (9 == vec3a.mV[VY]) &&(1 == vec3a.mV[VZ])));
         ensure("4:isExactlyZero():Fail ", (false == vec3.isExactlyZero()));
@@ -199,9 +199,9 @@ namespace tut
         ensure("2:operator [] failed",( y ==  vec3[1]));
         ensure("3:operator [] failed",( z ==  vec3[2]));
 
-        vec3.clearVec();
+        vec3.clear();
         x = 23.f, y = -.2361f, z = 3.25;
-        vec3.setVec(x,y,z);
+        vec3.set(x,y,z);
         F32 &ref1 = vec3[0];
         ensure("4:operator [] failed",( ref1 ==  vec3[0]));
         F32 &ref2 = vec3[1];
@@ -222,12 +222,12 @@ namespace tut
         val3 = z1+z2;
         ensure("1:operator+ failed",(val1 == vec3b.mV[VX]) && (val2 == vec3b.mV[VY]) && (val3 == vec3b.mV[VZ]));
 
-        vec3.clearVec();
-        vec3a.clearVec();
-        vec3b.clearVec();
+        vec3.clear();
+        vec3a.clear();
+        vec3b.clear();
         x1 = -.235f, y1 = -24.32f,z1 = 2.13f,  x2 = -2.3f, y2 = 1.f, z2 = 34.21f;
-        vec3.setVec(x1,y1,z1);
-        vec3a.setVec(x2,y2,z2);
+        vec3.set(x1,y1,z1);
+        vec3a.set(x2,y2,z2);
         vec3b = vec3 + vec3a;
         val1 = x1+x2;
         val2 = y1+y2;
@@ -247,12 +247,12 @@ namespace tut
         val3 = z1-z2;
         ensure("1:operator- failed",(val1 == vec3b.mV[VX]) && (val2 == vec3b.mV[VY]) && (val3 == vec3b.mV[VZ]));
 
-        vec3.clearVec();
-        vec3a.clearVec();
-        vec3b.clearVec();
+        vec3.clear();
+        vec3a.clear();
+        vec3b.clear();
         x1 = -.235f, y1 = -24.32f,z1 = 2.13f,  x2 = -2.3f, y2 = 1.f, z2 = 34.21f;
-        vec3.setVec(x1,y1,z1);
-        vec3a.setVec(x2,y2,z2);
+        vec3.set(x1,y1,z1);
+        vec3a.set(x2,y2,z2);
         vec3b = vec3 - vec3a;
         val1 = x1-x2;
         val2 = y1-y2;
@@ -270,14 +270,14 @@ namespace tut
         val2 = x1*x2 + y1*y2 + z1*z2;
         ensure_equals("1:operator* failed",val1,val2);
 
-        vec3a.clearVec();
+        vec3a.clear();
         F32 mulVal = 4.332f;
         vec3a = vec3 * mulVal;
         val1 = x1*mulVal;
         val2 = y1*mulVal;
         val3 = z1*mulVal;
         ensure("2:operator* failed",(val1 == vec3a.mV[VX]) && (val2 == vec3a.mV[VY])&& (val3 == vec3a.mV[VZ]));
-        vec3a.clearVec();
+        vec3a.clear();
         vec3a = mulVal * vec3;
         ensure("3:operator* failed ", (val1 == vec3a.mV[VX]) && (val2 == vec3a.mV[VY])&& (val3 == vec3a.mV[VZ]));
     }
@@ -294,12 +294,12 @@ namespace tut
         val3 = x1*y2-x2*y1;
         ensure("1:operator% failed",(val1 == vec3b.mV[VX]) && (val2 == vec3b.mV[VY]) && (val3 == vec3b.mV[VZ]));
 
-        vec3.clearVec();
-        vec3a.clearVec();
-        vec3b.clearVec();
+        vec3.clear();
+        vec3a.clear();
+        vec3b.clear();
         x1 =112.f, y1 = 22.3f,z1 = 1.2f, x2 = -2.3f, y2 = 341.11f, z2 = 1234.234f;
-        vec3.setVec(x1,y1,z1);
-        vec3a.setVec(x2,y2,z2);
+        vec3.set(x1,y1,z1);
+        vec3a.set(x2,y2,z2);
         vec3b = vec3 % vec3a ;
         val1 = y1*z2 - y2*z1;
         val2 = z1*x2 -z2*x1;
@@ -319,10 +319,10 @@ namespace tut
         val3 = z1 *t;
         ensure("1:operator/ failed",(val1 == vec3a.mV[VX]) && (val2 == vec3a.mV[VY]) && (val3 == vec3a.mV[VZ]));
 
-        vec3a.clearVec();
+        vec3a.clear();
         x1 = -.235f, y1 = -24.32f, z1 = .342f, div = -2.2f;
         t = 1.f / div;
-        vec3.setVec(x1,y1,z1);
+        vec3.set(x1,y1,z1);
         vec3a = vec3 / div;
         val1 = x1 * t;
         val2 = y1 * t;
@@ -337,12 +337,12 @@ namespace tut
         LLVector3 vec3(x1,y1,z1), vec3a(x1,y1,z1);
         ensure("1:operator== failed",(vec3 == vec3a));
 
-        vec3a.clearVec();
+        vec3a.clear();
         x1 = -.235f, y1 = -24.32f, z1 = .342f;
-        vec3.clearVec();
-        vec3a.clearVec();
-        vec3.setVec(x1,y1,z1);
-        vec3a.setVec(x1,y1,z1);
+        vec3.clear();
+        vec3a.clear();
+        vec3.set(x1,y1,z1);
+        vec3a.set(x1,y1,z1);
         ensure("2:operator== failed ", (vec3 == vec3a));
     }
 
@@ -353,9 +353,9 @@ namespace tut
         LLVector3 vec3(x1,y1,z1), vec3a(x2,y2,z2);
         ensure("1:operator!= failed",(vec3a != vec3));
 
-        vec3.clearVec();
-        vec3.clearVec();
-        vec3a.setVec(vec3);
+        vec3.clear();
+        vec3.clear();
+        vec3a.set(vec3);
         ensure("2:operator!= failed", ( false == (vec3a != vec3)));
     }
 
@@ -444,7 +444,7 @@ namespace tut
         std::ostringstream stream1, stream2;
         LLVector3 vec3(x1,y1,z1), vec3a;
         stream1 << vec3;
-        vec3a.setVec(x1,y1,z1);
+        vec3a.set(x1,y1,z1);
         stream2 << vec3a;
         ensure("1:operator << failed",(stream1.str() == stream2.str()));
     }
@@ -456,12 +456,12 @@ namespace tut
         LLVector3 vec3(x1,y1,z1), vec3a(x2,y2,z2);
         ensure("1:operator< failed", (true == (vec3 < vec3a)));
         x1 =-2.3f, y1 = 2.f,z1 = 1.2f, x2 = 1.3f, y2 = 2.f, z2 = 1234.234f;
-        vec3.setVec(x1,y1,z1);
-        vec3a.setVec(x2,y2,z2);
+        vec3.set(x1,y1,z1);
+        vec3a.set(x2,y2,z2);
         ensure("2:operator< failed ", (true == (vec3 < vec3a)));
         x1 =2.3f, y1 = 2.f,z1 = 1.2f, x2 = 1.3f,
-        vec3.setVec(x1,y1,z1);
-        vec3a.setVec(x2,y2,z2);
+        vec3.set(x1,y1,z1);
+        vec3a.set(x2,y2,z2);
         ensure("3:operator< failed ", (false == (vec3 < vec3a)));
     }
 
@@ -480,11 +480,11 @@ namespace tut
     {
         F32 x1 =1.f, y1 = 2.f,z1 = 4.f;
         LLVector3 vec3(x1,y1,z1),vec3a,vec3b;
-        vec3a.setVec(1,1,1);
+        vec3a.set(1,1,1);
         vec3a.scaleVec(vec3);
         ensure_equals("1:scaleVec failed", vec3, vec3a);
-        vec3a.clearVec();
-        vec3a.setVec(x1,y1,z1);
+        vec3a.clear();
+        vec3a.set(x1,y1,z1);
         vec3a.scaleVec(vec3);
         ensure("2:scaleVec failed", ((1.f ==vec3a.mV[VX])&& (4.f ==vec3a.mV[VY]) && (16.f ==vec3a.mV[VZ])));
     }
@@ -524,16 +524,16 @@ namespace tut
     {
         F32 x =12.3524f, y = -342.f,z = 4.126341f;
         LLVector3 vec3(x,y,z);
-        F32 mag = vec3.normVec();
+        F32 mag = vec3.normalize();
         mag = 1.f/ mag;
         F32 val1 = x* mag, val2 = y* mag, val3 = z* mag;
-        ensure("1:normVec: Fail ", is_approx_equal(val1, vec3.mV[VX]) && is_approx_equal(val2, vec3.mV[VY]) && is_approx_equal(val3, vec3.mV[VZ]));
+        ensure("1:normalize: Fail ", is_approx_equal(val1, vec3.mV[VX]) && is_approx_equal(val2, vec3.mV[VY]) && is_approx_equal(val3, vec3.mV[VZ]));
         x = 0.000000001f, y = 0.f, z = 0.f;
-        vec3.clearVec();
-        vec3.setVec(x,y,z);
-        mag = vec3.normVec();
+        vec3.clear();
+        vec3.set(x,y,z);
+        mag = vec3.normalize();
         val1 = x* mag, val2 = y* mag, val3 = z* mag;
-        ensure("2:normVec: Fail ", (mag == 0.) && (0. == vec3.mV[VX]) && (0. == vec3.mV[VY])&& (0. == vec3.mV[VZ]));
+        ensure("2:normalize: Fail ", (mag == 0.) && (0. == vec3.mV[VX]) && (0. == vec3.mV[VY])&& (0. == vec3.mV[VZ]));
     }
 
     template<> template<>

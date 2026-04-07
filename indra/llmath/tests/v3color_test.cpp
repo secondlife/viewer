@@ -77,14 +77,14 @@ namespace tut
     {
         F32 r = 2.3436212f, g = 1231.f, b = 4.7849321232f;
         LLColor3 llcolor3, llcolor3a;
-        llcolor3.setVec(r,g,b);
-        ensure("1:setVec(r,g,b) Fail ",((r == llcolor3.mV[0]) && (g == llcolor3.mV[1]) && (b == llcolor3.mV[2])));
-        llcolor3a.setVec(llcolor3);
-        ensure_equals("2:setVec(LLColor3) Fail ", llcolor3,llcolor3a);
+        llcolor3.set(r,g,b);
+        ensure("1:set(r,g,b) Fail ",((r == llcolor3.mV[0]) && (g == llcolor3.mV[1]) && (b == llcolor3.mV[2])));
+        llcolor3a.set(llcolor3);
+        ensure_equals("2:set(LLColor3) Fail ", llcolor3,llcolor3a);
         F32 vec[3] = {1.2324f, 2.45634f, .234563f};
         llcolor3.setToBlack();
-        llcolor3.setVec(vec);
-        ensure("3:setVec(F32*) Fail ",((vec[0] == llcolor3.mV[0]) && (vec[1] == llcolor3.mV[1]) && (vec[2] == llcolor3.mV[2])));
+        llcolor3.set(vec);
+        ensure("3:set(F32*) Fail ",((vec[0] == llcolor3.mV[0]) && (vec[1] == llcolor3.mV[1]) && (vec[2] == llcolor3.mV[2])));
     }
 
     template<> template<>
@@ -92,8 +92,8 @@ namespace tut
     {
         F32 r = 2.3436212f, g = 1231.f, b = 4.7849321232f;
         LLColor3 llcolor3(r,g,b);
-        ensure("magVecSquared:Fail ", is_approx_equal(llcolor3.magVecSquared(), (r*r + g*g + b*b)));
-        ensure("magVec:Fail ", is_approx_equal(llcolor3.magVec(), static_cast<F32>(sqrt(r*r + g*g + b*b))));
+        ensure("lengthSquared:Fail ", is_approx_equal(llcolor3.lengthSquared(), (r*r + g*g + b*b)));
+        ensure("length:Fail ", is_approx_equal(llcolor3.length(), static_cast<F32>(sqrt(r*r + g*g + b*b))));
     }
 
     template<> template<>
@@ -102,17 +102,17 @@ namespace tut
         F32 r = 2.3436212f, g = 1231.f, b = 4.7849321232f;
         F32 val1, val2,val3;
         LLColor3 llcolor3(r,g,b);
-        F32 vecMag = llcolor3.normVec();
+        F32 vecMag = llcolor3.normalize();
         F32 mag = static_cast<F32>(sqrt(r*r + g*g + b*b));
         F32 oomag = 1.f / mag;
         val1 = r * oomag;
         val2 = g * oomag;
         val3 = b * oomag;
-        ensure("1:normVec failed ", (is_approx_equal(val1, llcolor3.mV[0]) && is_approx_equal(val2, llcolor3.mV[1]) && is_approx_equal(val3, llcolor3.mV[2]) && is_approx_equal(vecMag, mag)));
+        ensure("1:normalize failed ", (is_approx_equal(val1, llcolor3.mV[0]) && is_approx_equal(val2, llcolor3.mV[1]) && is_approx_equal(val3, llcolor3.mV[2]) && is_approx_equal(vecMag, mag)));
         r = .000000000f, g = 0.f, b = 0.0f;
-        llcolor3.setVec(r,g,b);
-        vecMag = llcolor3.normVec();
-        ensure("2:normVec failed should be 0. ", (0. == llcolor3.mV[0] && 0. == llcolor3.mV[1] && 0. == llcolor3.mV[2] && vecMag == 0.));
+        llcolor3.set(r,g,b);
+        vecMag = llcolor3.normalize();
+        ensure("2:normalize failed should be 0. ", (0. == llcolor3.mV[0] && 0. == llcolor3.mV[1] && 0. == llcolor3.mV[2] && vecMag == 0.));
     }
 
     template<> template<>
@@ -122,7 +122,7 @@ namespace tut
         std::ostringstream stream1, stream2;
         LLColor3 llcolor3(r,g,b),llcolor3a;
         stream1 << llcolor3;
-        llcolor3a.setVec(r,g,b);
+        llcolor3a.set(r,g,b);
         stream2 << llcolor3a;
         ensure("operator << failed ", (stream1.str() == stream2.str()));
     }
@@ -144,8 +144,8 @@ namespace tut
         llcolor3b = llcolor3 + llcolor3a ;
         ensure("1:operator+ failed",is_approx_equal(r1+r2 ,llcolor3b.mV[0]) && is_approx_equal(g1+g2,llcolor3b.mV[1])&& is_approx_equal(b1+b2,llcolor3b.mV[2]));
         r1 = -.235f, g1 = -24.32f, b1 = 2.13f,  r2 = -2.3f, g2 = 1.f, b2 = 34.21f;
-        llcolor3.setVec(r1,g1,b1);
-        llcolor3a.setVec(r2,g2,b2);
+        llcolor3.set(r1,g1,b1);
+        llcolor3a.set(r2,g2,b2);
         llcolor3b = llcolor3 + llcolor3a;
         ensure("2:operator+ failed",is_approx_equal(r1+r2 ,llcolor3b.mV[0]) && is_approx_equal(g1+g2,llcolor3b.mV[1])&& is_approx_equal(b1+b2,llcolor3b.mV[2]));
     }
@@ -158,8 +158,8 @@ namespace tut
         llcolor3b = llcolor3 - llcolor3a ;
         ensure("1:operator- failed",is_approx_equal(r1-r2 ,llcolor3b.mV[0]) && is_approx_equal(g1-g2,llcolor3b.mV[1])&& is_approx_equal(b1-b2,llcolor3b.mV[2]));
         r1 = -.235f, g1 = -24.32f, b1 = 2.13f,  r2 = -2.3f, g2 = 1.f, b2 = 34.21f;
-        llcolor3.setVec(r1,g1,b1);
-        llcolor3a.setVec(r2,g2,b2);
+        llcolor3.set(r1,g1,b1);
+        llcolor3a.set(r2,g2,b2);
         llcolor3b = llcolor3 - llcolor3a;
         ensure("2:operator- failed",is_approx_equal(r1-r2 ,llcolor3b.mV[0]) && is_approx_equal(g1-g2,llcolor3b.mV[1])&& is_approx_equal(b1-b2,llcolor3b.mV[2]));
     }
@@ -196,8 +196,8 @@ namespace tut
         LLColor3 llcolor3(r,g,b),llcolor3a(r,g,b);
         ensure_equals("1:operator== failed",llcolor3a,llcolor3);
         r = 13.3436212f, g = -11.f, b = .7849321232f;
-        llcolor3.setVec(r,g,b);
-        llcolor3a.setVec(r,g,b);
+        llcolor3.set(r,g,b);
+        llcolor3a.set(r,g,b);
         ensure_equals("2:operator== failed",llcolor3a,llcolor3);
     }
 
@@ -208,7 +208,7 @@ namespace tut
         LLColor3 llcolor3(r1,g1,b1),llcolor3a(r2,g2,b2);
         ensure("1:operator!= failed",(llcolor3 != llcolor3a));
         llcolor3.setToBlack();
-        llcolor3a.setVec(llcolor3);
+        llcolor3a.set(llcolor3);
         ensure("2:operator!= failed", ( false == (llcolor3a != llcolor3)));
     }
 
@@ -219,8 +219,8 @@ namespace tut
         LLColor3 llcolor3(r1,g1,b1),llcolor3a(r2,g2,b2);
         llcolor3a += llcolor3;
         ensure("1:operator+= failed",is_approx_equal(r1+r2 ,llcolor3a.mV[0]) && is_approx_equal(g1+g2,llcolor3a.mV[1])&& is_approx_equal(b1+b2,llcolor3a.mV[2]));
-        llcolor3.setVec(r1,g1,b1);
-        llcolor3a.setVec(r2,g2,b2);
+        llcolor3.set(r1,g1,b1);
+        llcolor3a.set(r2,g2,b2);
         llcolor3a += llcolor3;
         ensure("2:operator+= failed",is_approx_equal(r1+r2 ,llcolor3a.mV[0]) && is_approx_equal(g1+g2,llcolor3a.mV[1])&& is_approx_equal(b1+b2,llcolor3a.mV[2]));
     }
@@ -234,8 +234,8 @@ namespace tut
         ensure("1:operator-= failed", is_approx_equal(r2-r1, llcolor3a.mV[0]));
         ensure("2:operator-= failed", is_approx_equal(g2-g1, llcolor3a.mV[1]));
         ensure("3:operator-= failed", is_approx_equal(b2-b1, llcolor3a.mV[2]));
-        llcolor3.setVec(r1,g1,b1);
-        llcolor3a.setVec(r2,g2,b2);
+        llcolor3.set(r1,g1,b1);
+        llcolor3a.set(r2,g2,b2);
         llcolor3a -= llcolor3;
         ensure("4:operator-= failed", is_approx_equal(r2-r1, llcolor3a.mV[0]));
         ensure("5:operator-= failed", is_approx_equal(g2-g1, llcolor3a.mV[1]));
@@ -262,7 +262,7 @@ namespace tut
         llcolor3.clamp();
         ensure("1:clamp:Fail to clamp " ,(1.0f == llcolor3.mV[0]) && (0.f == llcolor3.mV[1]) && (b == llcolor3.mV[2]));
         r = -2.3436212f, g = -1231.f, b = 67.7849321232f;
-        llcolor3.setVec(r,g,b);
+        llcolor3.set(r,g,b);
         llcolor3.clamp();
         ensure("2:clamp:Fail to clamp " ,(0.f == llcolor3.mV[0]) && (0.f == llcolor3.mV[1]) && (1.f == llcolor3.mV[2]));
     }

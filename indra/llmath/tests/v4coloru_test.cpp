@@ -103,21 +103,21 @@ namespace tut
     {
         U8 r = 0x12, g = 0xFF, b = 0xAF, a = 0x23;
         LLColor4U llcolor4u;
-        llcolor4u.setVec(r,g,b,a);
-        ensure("1:setVec:Fail to set the values ", ((r == llcolor4u.mV[VRED]) && (g == llcolor4u.mV[VGREEN]) && (b == llcolor4u.mV[VBLUE])&& (a == llcolor4u.mV[VALPHA])));
+        llcolor4u.set(r,g,b,a);
+        ensure("1:set:Fail to set the values ", ((r == llcolor4u.mV[VRED]) && (g == llcolor4u.mV[VGREEN]) && (b == llcolor4u.mV[VBLUE])&& (a == llcolor4u.mV[VALPHA])));
 
         llcolor4u.setToBlack();
-        llcolor4u.setVec(r,g,b);
-        ensure("2:setVec:Fail to set the values ", ((r == llcolor4u.mV[VRED]) && (g == llcolor4u.mV[VGREEN]) && (b == llcolor4u.mV[VBLUE])&& (255 == llcolor4u.mV[VALPHA])));
+        llcolor4u.set(r,g,b);
+        ensure("2:set:Fail to set the values ", ((r == llcolor4u.mV[VRED]) && (g == llcolor4u.mV[VGREEN]) && (b == llcolor4u.mV[VBLUE])&& (255 == llcolor4u.mV[VALPHA])));
 
         LLColor4U llcolor4u1;
-        llcolor4u1.setVec(llcolor4u);
-        ensure_equals("3:setVec:Fail to set the values ", llcolor4u1,llcolor4u);
+        llcolor4u1.set(llcolor4u);
+        ensure_equals("3:set:Fail to set the values ", llcolor4u1,llcolor4u);
 
         const U8 vec[4] = {0x12,0xFF,0xAF,0x23};
         LLColor4U llcolor4u2;
-        llcolor4u2.setVec(vec);
-        ensure("4:setVec:Fail to set the values ", ((vec[0] == llcolor4u2.mV[VRED]) && (vec[1] == llcolor4u2.mV[VGREEN]) && (vec[2] == llcolor4u2.mV[VBLUE])&& (vec[3] == llcolor4u2.mV[VALPHA])));
+        llcolor4u2.set(vec);
+        ensure("4:set:Fail to set the values ", ((vec[0] == llcolor4u2.mV[VRED]) && (vec[1] == llcolor4u2.mV[VGREEN]) && (vec[2] == llcolor4u2.mV[VBLUE])&& (vec[3] == llcolor4u2.mV[VALPHA])));
     }
 
     template<> template<>
@@ -134,8 +134,8 @@ namespace tut
     {
         U8 r = 0x12, g = 0xFF, b = 0xAF;
         LLColor4U llcolor4u(r,g,b);
-        ensure("magVecSquared:Fail ", is_approx_equal(llcolor4u.magVecSquared(), static_cast<F32>(r*r + g*g + b*b)));
-        ensure("magVec:Fail ", is_approx_equal(llcolor4u.magVec(), static_cast<F32>(sqrt(static_cast<F32>(r*r + g*g + b*b)))));
+        ensure("lengthSquared:Fail ", is_approx_equal(llcolor4u.lengthSquared(), static_cast<F32>(r*r + g*g + b*b)));
+        ensure("length:Fail ", is_approx_equal(llcolor4u.length(), static_cast<F32>(sqrt(static_cast<F32>(r*r + g*g + b*b)))));
     }
 
     template<> template<>
@@ -145,7 +145,7 @@ namespace tut
         std::ostringstream stream1, stream2;
         LLColor4U llcolor4u1(r,g,b),llcolor4u2;
         stream1 << llcolor4u1;
-        llcolor4u2.setVec(r,g,b);
+        llcolor4u2.set(r,g,b);
         stream2 << llcolor4u2;
         ensure("operator << failed ", (stream1.str() == stream2.str()));
     }

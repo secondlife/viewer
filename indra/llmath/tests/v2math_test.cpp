@@ -55,11 +55,11 @@ namespace tut
         LLVector2 vec4(vec);
         ensure("LLVector2(const F32 *vec):Fail to initialize ", (vec[0] == vec4.mV[VX]) && (vec[1] == vec4.mV[VY]));
 
-        vec4.clearVec();
-        ensure("clearVec():Fail to clean the values ", (0.f == vec4.mV[VX] && 0.f == vec4.mV[VY]));
+        vec4.clear();
+        ensure("clear():Fail to clean the values ", (0.f == vec4.mV[VX] && 0.f == vec4.mV[VY]));
 
-        vec3.zeroVec();
-        ensure("zeroVec():Fail to fill the zero ", (0.f == vec3.mV[VX] && 0.f == vec3.mV[VY]));
+        vec3.setZero();
+        ensure("setZero():Fail to fill the zero ", (0.f == vec3.mV[VX] && 0.f == vec3.mV[VY]));
     }
 
     template<> template<>
@@ -67,16 +67,16 @@ namespace tut
     {
         F32 x = 123.356f, y = 2387.453f;
         LLVector2 vec2,vec3;
-        vec2.setVec(x, y);
-        ensure("1:setVec: Fail  ", (x == vec2.mV[VX]) && (y == vec2.mV[VY]));
+        vec2.set(x, y);
+        ensure("1:set: Fail  ", (x == vec2.mV[VX]) && (y == vec2.mV[VY]));
 
-        vec3.setVec(vec2);
-        ensure("2:setVec: Fail   " ,(vec2 == vec3));
+        vec3.set(vec2);
+        ensure("2:set: Fail   " ,(vec2 == vec3));
 
-        vec3.zeroVec();
+        vec3.setZero();
         const F32 vec[2] = {3.24653f, 457653.4f};
-        vec3.setVec(vec);
-        ensure("3:setVec: Fail  ", (vec[0] == vec3.mV[VX]) && (vec[1] == vec3.mV[VY]));
+        vec3.set(vec);
+        ensure("3:set: Fail  ", (vec[0] == vec3.mV[VX]) && (vec[1] == vec3.mV[VY]));
     }
 
     template<> template<>
@@ -84,8 +84,8 @@ namespace tut
     {
         F32 x = 2.2345f, y = 3.5678f ;
         LLVector2 vec2(x,y);
-        ensure("magVecSquared:Fail ", is_approx_equal(vec2.magVecSquared(), (x*x + y*y)));
-        ensure("magVec:Fail ", is_approx_equal(vec2.magVec(), static_cast<F32>(sqrt(x*x + y*y))));
+        ensure("lengthSquared:Fail ", is_approx_equal(vec2.lengthSquared(), (x*x + y*y)));
+        ensure("length:Fail ", is_approx_equal(vec2.length(), static_cast<F32>(sqrt(x*x + y*y))));
     }
 
     template<> template<>
@@ -100,7 +100,7 @@ namespace tut
         ensure("isNull():Fail ", false == vec2.isNull());   //Returns true if vector has a _very_small_ length
 
         x =.00000001f, y = .000001001f;
-        vec2.setVec(x, y);
+        vec2.set(x, y);
         ensure("isNull(): Fail ", true == vec2.isNull());
     }
 
@@ -113,7 +113,7 @@ namespace tut
         ensure("scaleVec: Fail ", vec3.mV[VX] == 0. && vec3.mV[VY] == 0.);
         ensure("isExactlyZero(): Fail", true == vec3.isExactlyZero());
 
-        vec3.setVec(2.f, 1.f);
+        vec3.set(2.f, 1.f);
         vec3 = vec3.scaleVec(vec2);
         ensure("scaleVec: Fail ", (2.f == vec3.mV[VX]) && (2.f == vec3.mV[VY]));
         ensure("isExactlyZero():Fail", false == vec3.isExactlyZero());
@@ -130,11 +130,11 @@ namespace tut
         val2 = y1+y2;
         ensure("1:operator+ failed",(val1 == vec4.mV[VX]) && ((val2 == vec4.mV[VY])));
 
-        vec2.clearVec();
-        vec3.clearVec();
+        vec2.clear();
+        vec3.clear();
         x1 = -.235f, y1 = -24.32f,  x2 = -2.3f, y2 = 1.f;
-        vec2.setVec(x1, y1);
-        vec3.setVec(x2, y2);
+        vec2.set(x1, y1);
+        vec3.set(x2, y2);
         vec4 = vec2 + vec3;
         val1 = x1+x2;
         val2 = y1+y2;
@@ -152,12 +152,12 @@ namespace tut
         val2 = y1-y2;
         ensure("1:operator- failed",(val1 == vec4.mV[VX]) && ((val2 == vec4.mV[VY])));
 
-        vec2.clearVec();
-        vec3.clearVec();
-        vec4.clearVec();
+        vec2.clear();
+        vec3.clear();
+        vec4.clear();
         x1 = -.235f, y1 = -24.32f,  x2 = -2.3f, y2 = 1.f;
-        vec2.setVec(x1, y1);
-        vec3.setVec(x2, y2);
+        vec2.set(x1, y1);
+        vec3.set(x2, y2);
         vec4 = vec2 - vec3;
         val1 = x1-x2;
         val2 = y1-y2;
@@ -174,14 +174,14 @@ namespace tut
         val2 = x1*x2 + y1*y2;
         ensure("1:operator* failed",(val1 == val2));
 
-        vec3.clearVec();
+        vec3.clear();
         F32 mulVal = 4.332f;
         vec3 = vec2 * mulVal;
         val1 = x1*mulVal;
         val2 = y1*mulVal;
         ensure("2:operator* failed",(val1 == vec3.mV[VX]) && (val2 == vec3.mV[VY]));
 
-        vec3.clearVec();
+        vec3.clear();
         vec3 = mulVal * vec2;
         ensure("3:operator* failed",(val1 == vec3.mV[VX]) && (val2 == vec3.mV[VY]));
     }
@@ -197,9 +197,9 @@ namespace tut
         val2 = y1 / div;
         ensure("1:operator/ failed", is_approx_equal(val1, vec3.mV[VX]) && is_approx_equal(val2, vec3.mV[VY]));
 
-        vec3.clearVec();
+        vec3.clear();
         x1 = -.235f, y1 = -24.32f, div = -2.2f;
-        vec2.setVec(x1, y1);
+        vec2.set(x1, y1);
         vec3 = vec2 / div;
         val1 = x1 / div;
         val2 = y1 / div;
@@ -217,12 +217,12 @@ namespace tut
         val2 = y1*x2 - y2*x1;
         ensure("1:operator% failed",(val1 == vec4.mV[VX]) && (val2 == vec4.mV[VY]));
 
-        vec2.clearVec();
-        vec3.clearVec();
-        vec4.clearVec();
+        vec2.clear();
+        vec3.clear();
+        vec4.clear();
         x1 = -.235f, y1 = -24.32f,  x2 = -2.3f, y2 = 1.f;
-        vec2.setVec(x1, y1);
-        vec3.setVec(x2, y2);
+        vec2.set(x1, y1);
+        vec3.set(x2, y2);
         vec4 = vec2 % vec3;
         val1 = x1*y2 - x2*y1;
         val2 = y1*x2 - y2*x1;
@@ -235,11 +235,11 @@ namespace tut
         LLVector2 vec2(x1, y1), vec3(x1, y1);
         ensure("1:operator== failed",(vec2 == vec3));
 
-        vec2.clearVec();
-        vec3.clearVec();
+        vec2.clear();
+        vec3.clear();
         x1 = -.235f, y1 = -24.32f;
-        vec2.setVec(x1, y1);
-        vec3.setVec(vec2);
+        vec2.set(x1, y1);
+        vec3.set(vec2);
         ensure("2:operator== failed",(vec2 == vec3));
     }
 
@@ -250,10 +250,10 @@ namespace tut
         LLVector2 vec2(x1, y1), vec3(x2, y2);
         ensure("1:operator!= failed",(vec2 != vec3));
 
-        vec2.clearVec();
-        vec3.clearVec();
-        vec2.setVec(x1, y1);
-        vec3.setVec(vec2);
+        vec2.clear();
+        vec3.clear();
+        vec2.set(x1, y1);
+        vec3.set(vec2);
         ensure("2:operator!= failed", (false == (vec2 != vec3)));
     }
     template<> template<>
@@ -267,23 +267,23 @@ namespace tut
         val2 = y1+y2;
         ensure("1:operator+= failed",(val1 == vec2.mV[VX]) && (val2 == vec2.mV[VY]));
 
-        vec2.setVec(x1, y1);
+        vec2.set(x1, y1);
         vec2 -=vec3;
         val1 = x1-x2;
         val2 = y1-y2;
         ensure("2:operator-= failed",(val1 == vec2.mV[VX]) && (val2 == vec2.mV[VY]));
 
-        vec2.clearVec();
-        vec3.clearVec();
+        vec2.clear();
+        vec3.clear();
         x1 = -21.000466f, y1 = 2.98382f,x2 = 0.332f, y2 = -01.23f;
-        vec2.setVec(x1, y1);
-        vec3.setVec(x2, y2);
+        vec2.set(x1, y1);
+        vec3.set(x2, y2);
         vec2 +=vec3;
         val1 = x1+x2;
         val2 = y1+y2;
         ensure("3:operator+= failed",(val1 == vec2.mV[VX]) && (val2 == vec2.mV[VY]));
 
-        vec2.setVec(x1, y1);
+        vec2.set(x1, y1);
         vec2 -=vec3;
         val1 = x1-x2;
         val2 = y1-y2;
@@ -301,9 +301,9 @@ namespace tut
         val2 = y1 / mulVal;
         ensure("1:operator/= failed", is_approx_equal(val1, vec2.mV[VX]) && is_approx_equal(val2, vec2.mV[VY]));
 
-        vec2.clearVec();
+        vec2.clear();
         x1 = .213f, y1 = -2.34f, mulVal = -.23f;
-        vec2.setVec(x1, y1);
+        vec2.set(x1, y1);
         vec2 /=mulVal;
         val1 = x1 / mulVal;
         val2 = y1 / mulVal;
@@ -321,9 +321,9 @@ namespace tut
         val2 = y1*mulVal;
         ensure("1:operator*= failed",(val1 == vec2.mV[VX]) && (val2 == vec2.mV[VY]));
 
-        vec2.clearVec();
+        vec2.clear();
         x1 = .213f, y1 = -2.34f, mulVal = -.23f;
-        vec2.setVec(x1, y1);
+        vec2.set(x1, y1);
         vec2 *=mulVal;
         val1 = x1*mulVal;
         val2 = y1*mulVal;
@@ -358,7 +358,7 @@ namespace tut
         std::ostringstream stream1, stream2;
         LLVector2 vec2(x1, y1),vec3;
         stream1 << vec2;
-        vec3.setVec(x1, y1);
+        vec3.set(x1, y1);
         stream2 << vec3;
         ensure("1:operator << failed",(stream1.str() == stream2.str()));
     }
@@ -371,8 +371,8 @@ namespace tut
         ensure("1:operator < failed",(vec3 < vec2));
 
         x1 = 1.0f, y1 = 2.0f, x2 = 1.0f, y2 = 3.2234f;
-        vec2.setVec(x1, y1);
-        vec3.setVec(x2, y2);
+        vec2.set(x1, y1);
+        vec3.set(x2, y2);
         ensure("2:operator < failed", (false == (vec3 < vec2)));
     }
 
@@ -384,9 +384,9 @@ namespace tut
         ensure("1:operator [] failed",( x1 ==  vec2[0]));
         ensure("2:operator [] failed",( y1 ==  vec2[1]));
 
-        vec2.clearVec();
+        vec2.clear();
         x1 = 23.0f, y1 = -.2361f;
-        vec2.setVec(x1, y1);
+        vec2.set(x1, y1);
         F32 ref1 = vec2[0];
         ensure("3:operator [] failed", ( ref1 ==  x1));
         F32 ref2 = vec2[1];
@@ -430,19 +430,19 @@ namespace tut
         F32 val1, val2;
         LLVector2 vec2(x1, y1);
 
-        F32 vecMag = vec2.normVec();
+        F32 vecMag = vec2.normalize();
         F32 mag = static_cast<F32>(sqrt(x1*x1 + y1*y1));
 
         F32 oomag = 1.f / mag;
         val1 = x1 * oomag;
         val2 = y1 * oomag;
 
-        ensure("normVec failed", is_approx_equal(val1, vec2.mV[VX]) && is_approx_equal(val2, vec2.mV[VY]) && is_approx_equal(vecMag, mag));
+        ensure("normalize failed", is_approx_equal(val1, vec2.mV[VX]) && is_approx_equal(val2, vec2.mV[VY]) && is_approx_equal(vecMag, mag));
 
         x1 =.00000001f, y1 = 0.f;
 
-        vec2.setVec(x1, y1);
-        vecMag = vec2.normVec();
-        ensure("normVec failed should be 0.", 0. == vec2.mV[VX] && 0. == vec2.mV[VY] && vecMag == 0.);
+        vec2.set(x1, y1);
+        vecMag = vec2.normalize();
+        ensure("normalize failed should be 0.", 0. == vec2.mV[VX] && 0. == vec2.mV[VY] && vecMag == 0.);
     }
 }
