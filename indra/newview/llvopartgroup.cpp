@@ -190,7 +190,7 @@ F32 LLVOPartGroup::getPartSize(S32 idx)
 {
     if (idx < static_cast<S32>(mViewerPartGroupp->mParticles.size()))
     {
-        return mViewerPartGroupp->mParticles[idx]->mScale.mV[0];
+        return mViewerPartGroupp->mParticles[idx]->mScale.x;
     }
 
     return 0.f;
@@ -274,7 +274,7 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 
 
         //remember the largest particle
-        max_scale = llmax(max_scale, part->mScale.mV[0], part->mScale.mV[1]);
+        max_scale = llmax(max_scale, part->mScale.x, part->mScale.y);
 
         if (part->mFlags & LLPartData::LL_PART_RIBBON_MASK)
         { //include ribbon segment length in scale
@@ -310,7 +310,7 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
         llassert(llfinite(inv_camera_dist_squared));
         llassert(!llisnan(inv_camera_dist_squared));
 
-        F32 area = part->mScale.mV[0] * part->mScale.mV[1] * inv_camera_dist_squared;
+        F32 area = part->mScale.x * part->mScale.y * inv_camera_dist_squared;
         tot_area = llmax(tot_area, area);
 
         if (tot_area > max_area)
@@ -451,13 +451,13 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
 
         pos.load3(part.mPosAgent.mV);
         axis.load3(part.mAxis.mV);
-        scale = part.mScale.mV[0];
+        scale = part.mScale.x;
 
         if (part.mParent)
         {
             ppos.load3(part.mParent->mPosAgent.mV);
             paxis.load3(part.mParent->mAxis.mV);
-            pscale = part.mParent->mScale.mV[0];
+            pscale = part.mParent->mScale.x;
         }
         else
         { //use source object as position
@@ -468,7 +468,7 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
                 v *= part.mPartSourcep->mSourceObjectp->getRenderRotation();
                 paxis.load3(v.mV);
                 ppos.load3(part.mPartSourcep->mPosAgent.mV);
-                pscale = part.mStartScale.mV[0];
+                pscale = part.mStartScale.x;
             }
             else
             { //no source object, no parent, nothing to draw
@@ -545,8 +545,8 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
             right.normalize3fast();
         }
 
-        right.mul(0.5f*part.mScale.mV[0]);
-        up.mul(0.5f*part.mScale.mV[1]);
+        right.mul(0.5f*part.mScale.x);
+        up.mul(0.5f*part.mScale.y);
 
 
         //HACK -- the verticesp->mV[3] = 0.f here are to set the texture index to 0 (particles don't use texture batching, maybe they should)

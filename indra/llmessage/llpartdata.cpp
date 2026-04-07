@@ -82,10 +82,10 @@ bool LLPartData::unpackLegacy(LLDataPacker &dp)
     mStartColor.set(coloru);
     dp.unpackColor4U(coloru, "pdendcolor");
     mEndColor.set(coloru);
-    dp.unpackFixed(mStartScale.mV[0], "pdstartscalex", false, 3, 5);
-    dp.unpackFixed(mStartScale.mV[1], "pdstartscaley", false, 3, 5);
-    dp.unpackFixed(mEndScale.mV[0], "pdendscalex", false, 3, 5);
-    dp.unpackFixed(mEndScale.mV[1], "pdendscaley", false, 3, 5);
+    dp.unpackFixed(mStartScale.x, "pdstartscalex", false, 3, 5);
+    dp.unpackFixed(mStartScale.y, "pdstartscaley", false, 3, 5);
+    dp.unpackFixed(mEndScale.x, "pdendscalex", false, 3, 5);
+    dp.unpackFixed(mEndScale.y, "pdendscaley", false, 3, 5);
 
     mStartGlow = 0.f;
     mEndGlow = 0.f;
@@ -165,15 +165,15 @@ void LLPartData::setMaxAge(const F32 max_age)
 
 void LLPartData::setStartScale(const F32 xs, const F32 ys)
 {
-    mStartScale.mV[VX] = llmin(xs, MAX_PART_SCALE);
-    mStartScale.mV[VY] = llmin(ys, MAX_PART_SCALE);
+    mStartScale.x = llmin(xs, MAX_PART_SCALE);
+    mStartScale.y = llmin(ys, MAX_PART_SCALE);
 }
 
 
 void LLPartData::setEndScale(const F32 xs, const F32 ys)
 {
-    mEndScale.mV[VX] = llmin(xs, MAX_PART_SCALE);
-    mEndScale.mV[VY] = llmin(ys, MAX_PART_SCALE);
+    mEndScale.x = llmin(xs, MAX_PART_SCALE);
+    mEndScale.y = llmin(ys, MAX_PART_SCALE);
 }
 
 
@@ -214,8 +214,8 @@ LLPartSysData::LLPartSysData()
     mPartData.mFlags = 0;
     mPartData.mStartColor = LLColor4(1.f, 1.f, 1.f, 1.f);
     mPartData.mEndColor = LLColor4(1.f, 1.f, 1.f, 1.f);
-    mPartData.mStartScale = LLVector2(1.f, 1.f);
-    mPartData.mEndScale = LLVector2(1.f, 1.f);
+    mPartData.mStartScale = glm::vec2(1.f, 1.f);
+    mPartData.mEndScale = glm::vec2(1.f, 1.f);
     mPartData.mMaxAge = 10.0;
     mPartData.mBlendFuncSource = LLPartData::LL_PART_BF_SOURCE_ALPHA;
     mPartData.mBlendFuncDest = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_ALPHA;

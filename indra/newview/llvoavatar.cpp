@@ -3272,14 +3272,14 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 
             // fancy particle cloud designed by Brent
             particle_parameters.mPartData.mMaxAge            = 4.f;
-            particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
-            particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
-            particle_parameters.mPartData.mStartScale.mV[VY] = 1.0f;
-            particle_parameters.mPartData.mEndScale.mV[VX]   = 0.02f;
-            particle_parameters.mPartData.mEndScale.mV[VY]   = 0.02f;
+            particle_parameters.mPartData.mStartScale.x = 0.8f;
+            particle_parameters.mPartData.mStartScale.x = 0.8f;
+            particle_parameters.mPartData.mStartScale.y = 1.0f;
+            particle_parameters.mPartData.mEndScale.x   = 0.02f;
+            particle_parameters.mPartData.mEndScale.y   = 0.02f;
             particle_parameters.mPartData.mStartColor        = LLColor4(1, 1, 1, 0.5f);
             particle_parameters.mPartData.mEndColor          = LLColor4(1, 1, 1, 0.0f);
-            particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
+            particle_parameters.mPartData.mStartScale.x = 0.8f;
             particle_parameters.mPartImageID                 = sCloudTexture->getID();
             particle_parameters.mMaxAge                      = 0.f;
             particle_parameters.mPattern                     = LLPartSysData::LL_PART_SRC_PATTERN_ANGLE_CONE;

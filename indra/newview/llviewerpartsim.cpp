@@ -28,6 +28,8 @@
 
 #include "llviewerpartsim.h"
 
+#include "glm/glm.hpp"
+
 #include "llviewercontrol.h"
 
 #include "llagent.h"
@@ -64,11 +66,11 @@ const F32 LLViewerPartSim::PART_ADAPT_RATE_MULT_RECIP = 1.0f/PART_ADAPT_RATE_MUL
 
 U32 LLViewerPart::sNextPartID = 1;
 
-F32 calc_desired_size(LLViewerCamera* camera, LLVector3 pos, LLVector2 scale)
+F32 calc_desired_size(LLViewerCamera* camera, LLVector3 pos, glm::vec2 scale)
 {
     F32 desired_size = (pos - camera->getOrigin()).length();
     desired_size /= 4;
-    return llclamp(desired_size, scale.length()*0.5f, PART_SIM_BOX_SIDE*2);
+    return llclamp(desired_size, glm::length(scale)*0.5f, PART_SIM_BOX_SIDE*2);
 }
 
 LLViewerPart::LLViewerPart() :
@@ -250,7 +252,7 @@ bool LLViewerPartGroup::addPart(LLViewerPart* part, F32 desired_size)
         return false;
     }
 
-    bool uniform_part = part->mScale.mV[0] == part->mScale.mV[1] &&
+    bool uniform_part = part->mScale.x == part->mScale.y &&
                     !(part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK);
 
     if (!posInGroup(part->mPosAgent, desired_size) ||
@@ -377,7 +379,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         // Do scale interpolation
         if (part->mFlags & LLPartData::LL_PART_INTERP_SCALE_MASK)
         {
-            part->mScale.set(part->mStartScale);
+            part->mScale = part->mStartScale;
             part->mScale *= 1.f - frac;
             part->mScale += frac*part->mEndScale;
         }
@@ -588,7 +590,7 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
         {
             llassert_always(part->mPosAgent.isFinite());
             LLViewerPartGroup *groupp = createViewerPartGroup(part->mPosAgent, desired_size, part->mFlags & LLPartData::LL_PART_HUD);
-            groupp->mUniformParticles = (part->mScale.mV[0] == part->mScale.mV[1] &&
+            groupp->mUniformParticles = (part->mScale.x == part->mScale.y &&
                                     !(part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK));
             if (!groupp->addPart(part))
             {
