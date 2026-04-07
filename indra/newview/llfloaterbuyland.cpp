@@ -410,10 +410,10 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 
     mParcelSoldWithObjects = parcel->getSellWithObjects();
 
-    LLVector3 center = parcel->getCenterpoint();
+    glm::vec3 center(parcel->getCenterpoint());
     mParcelLocation = llformat("%s %d,%d",
                 mRegion->getName().c_str(),
-                static_cast<int>(center[VX]), static_cast<int>(center[VY])
+                static_cast<int>(center.x), static_cast<int>(center.y)
                 );
 
     mParcelSnapshot = parcel->getSnapshotID();

@@ -165,12 +165,12 @@ namespace
             if (gAgent.getRegion())
             {
                 // region location, when we have it
-                LLVector3 loc = gAgent.getPositionAgent();
+                glm::vec3 loc(gAgent.getPositionAgent());
                 sBugSplatSender->resetAppIdentifier(
                     WCSTR(STRINGIZE(gAgent.getRegion()->getName()
-                                    << '/' << loc.mV[0]
-                                    << '/' << loc.mV[1]
-                                    << '/' << loc.mV[2])));
+                                    << '/' << loc.x
+                                    << '/' << loc.y
+                                    << '/' << loc.z)));
             }
 
             LLAppViewer* app = LLAppViewer::instance();
