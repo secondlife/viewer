@@ -426,7 +426,7 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
     }
     else
     {
-        mAppAngle = (F32) atan2( getMaxScale(), range) * RAD_TO_DEG;
+        mAppAngle = static_cast<F32>(atan2( getMaxScale(), range)) * RAD_TO_DEG;
     }
 
     F32 max_scale = mBillboardScale * getMaxScale();
@@ -450,7 +450,7 @@ void LLVOTree::updateTextures()
     {
         if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
         {
-            setDebugText(llformat("%4.0f", (F32) sqrt(mPixelArea)));
+            setDebugText(llformat("%4.0f", static_cast<F32>(sqrt(mPixelArea))));
         }
     }
 }
@@ -1029,7 +1029,7 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
                 scale_mat.mMatrix[2][2] = scale*length;
                 scale_mat *= matrix;
 
-                glm::mat4 norm(glm::make_mat4((F32*) scale_mat.mMatrix));
+                glm::mat4 norm(glm::make_mat4(reinterpret_cast<F32*>(scale_mat.mMatrix)));
                 LLMatrix4 norm_mat = LLMatrix4(glm::value_ptr(glm::transpose(glm::inverse(norm))));
 
                 appendMesh(vertices, normals, tex_coords, colors, indices, index_offset, scale_mat, norm_mat,

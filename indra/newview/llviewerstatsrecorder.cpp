@@ -138,7 +138,7 @@ void LLViewerStatsRecorder::recordCacheFullUpdate(LLViewerRegion::eCacheUpdateRe
             mObjectCacheUpdateReplacements++;
             break;
         default:
-            LL_WARNS() << "Unknown update_result type " << (S32) update_result << LL_ENDL;
+            LL_WARNS() << "Unknown update_result type " << static_cast<S32>(update_result) << LL_ENDL;
             break;
     };
 }
@@ -307,7 +307,7 @@ void LLViewerStatsRecorder::makeStatsFileName()
 
 F32 LLViewerStatsRecorder::getTimeSinceStart()
 {
-    return (F32) (LLFrameTimer::getTotalSeconds() - mFileOpenTime);
+    return static_cast<F32>((LLFrameTimer::getTotalSeconds() - mFileOpenTime));
 }
 
 

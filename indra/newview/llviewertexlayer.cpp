@@ -240,12 +240,12 @@ void LLViewerTexLayerSetBuffer::doUpdate()
         const bool highest_lod = layer_set->isLocalTextureDataFinal();
         const std::string lod_str = highest_lod ? "HighRes" : "LowRes";
         LLSD args;
-        args["EXISTENCE"] = llformat("%d",(U32)layer_set->getAvatar()->debugGetExistenceTimeElapsedF32());
-        args["TIME"] = llformat("%d",(U32)mNeedsUpdateTimer.getElapsedTimeF32());
+        args["EXISTENCE"] = llformat("%d",static_cast<U32>(layer_set->getAvatar()->debugGetExistenceTimeElapsedF32()));
+        args["TIME"] = llformat("%d",static_cast<U32>(mNeedsUpdateTimer.getElapsedTimeF32()));
         args["BODYREGION"] = layer_set->getBodyRegionName();
         args["RESOLUTION"] = lod_str;
         LLNotificationsUtil::add("AvatarRezSelfBakedTextureUpdateNotification",args);
-        LL_DEBUGS("Avatar") << self_av_string() << "Locally updating [ name: " << layer_set->getBodyRegionName() << " res:" << lod_str << " time:" << (U32)mNeedsUpdateTimer.getElapsedTimeF32() << " ]" << LL_ENDL;
+        LL_DEBUGS("Avatar") << self_av_string() << "Locally updating [ name: " << layer_set->getBodyRegionName() << " res:" << lod_str << " time:" << static_cast<U32>(mNeedsUpdateTimer.getElapsedTimeF32()) << " ]" << LL_ENDL;
     }
 }
 

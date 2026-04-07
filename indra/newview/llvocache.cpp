@@ -493,7 +493,7 @@ void LLVOCacheEntry::updateDebugSettings()
         // For safety cap reduction at 50%, we don't want to go below half of draw distance
         draw_radius = llmax(draw_radius / LLViewerTexture::getSystemMemoryBudgetFactor(), draw_radius / 2.f);
     }
-    const F32 clamped_min_radius = llclamp((F32) min_radius, MIN_RADIUS, draw_radius); // [1, mDrawDistance]
+    const F32 clamped_min_radius = llclamp(static_cast<F32>(min_radius), MIN_RADIUS, draw_radius); // [1, mDrawDistance]
     sNearRadius = MIN_RADIUS + ((clamped_min_radius - MIN_RADIUS) * adjust_factor);
 
     // a percentage of draw distance beyond which all objects outside of view frustum will be unloaded, regardless of pixel threshold
@@ -1432,7 +1432,7 @@ void LLVOCache::writeCacheHeader()
         for(header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ; success && iter != mHeaderEntryQueue.end(); ++iter)
         {
             (*iter)->mIndex = mNumEntries++ ;
-            success = check_write(&apr_file, (void*)*iter, sizeof(HeaderEntryInfo));
+            success = check_write(&apr_file, reinterpret_cast<void*>(*iter), sizeof(HeaderEntryInfo));
         }
 
         mNumEntries = static_cast<U32>(mHeaderEntryQueue.size());
@@ -1463,7 +1463,7 @@ bool LLVOCache::updateEntry(const HeaderEntryInfo* entry)
     LLAPRFile apr_file(mHeaderFileName, APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
     apr_file.seek(APR_SET, entry->mIndex * sizeof(HeaderEntryInfo) + sizeof(HeaderMetaInfo)) ;
 
-    return check_write(&apr_file, (void*)entry, sizeof(HeaderEntryInfo)) ;
+    return check_write(&apr_file, const_cast<void*>(static_cast<const void*>(entry)), sizeof(HeaderEntryInfo)) ;
 }
 
 // we now return bool to trigger dirty cache

@@ -1379,8 +1379,8 @@ void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 
     // only request parcel info if position has changed outside of the
     // last parcel grid step
-    const U32 west_parcel_step = (U32) floor( pos.mdV[VX] / PARCEL_GRID_STEP_METERS );
-    const U32 south_parcel_step = (U32) floor( pos.mdV[VY] / PARCEL_GRID_STEP_METERS );
+    const U32 west_parcel_step = static_cast<U32>(floor( pos.mdV[VX] / PARCEL_GRID_STEP_METERS ));
+    const U32 south_parcel_step = static_cast<U32>(floor( pos.mdV[VY] / PARCEL_GRID_STEP_METERS ));
 
     if ((west_parcel_step == last_west) && (south_parcel_step == last_south))
     {
@@ -2161,7 +2161,7 @@ void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 which)
 void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 flags, const LLAccessEntry::map& entries, LLViewerRegion* region, S32 parcel_local_id)
 {
     S32 count = static_cast<S32>(entries.size());
-    S32 num_sections = (S32) ceil(count/PARCEL_MAX_ENTRIES_PER_PACKET);
+    S32 num_sections = static_cast<S32>(ceil(count/PARCEL_MAX_ENTRIES_PER_PACKET));
     S32 sequence_id = 1;
     bool start_message = true;
     bool initial = true;

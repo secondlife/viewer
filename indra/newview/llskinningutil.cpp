@@ -88,12 +88,12 @@ void dump_avatar_and_skin_state(const std::string& reason, LLVOAvatar *avatar, c
 
 S32 LLSkinningUtil::getMaxJointCount()
 {
-    return (S32)LL_MAX_JOINTS_PER_MESH_OBJECT;
+    return static_cast<S32>(LL_MAX_JOINTS_PER_MESH_OBJECT);
 }
 
 U32 LLSkinningUtil::getMeshJointCount(const LLMeshSkinInfo *skin)
 {
-    return llmin((U32)getMaxJointCount(), (U32)skin->mJointNames.size());
+    return llmin(static_cast<U32>(getMaxJointCount()), static_cast<U32>(skin->mJointNames.size()));
 }
 
 S32 LLSkinningUtil::getMaxGLTFJointCount()
@@ -248,7 +248,7 @@ void LLSkinningUtil::getPerVertexSkinMatrix(
         // >= 0.0, we can use int instead of floorf; the latter
         // allegedly has a lot of overhead due to ieeefp error
         // checking which we should not need.
-        idx[k] = llclamp((S32) floorf(w), (S32)0, max_joints-1);
+        idx[k] = llclamp(static_cast<S32>(floorf(w)), static_cast<S32>(0), max_joints-1);
 
         wght[k] = w - floorf(w);
         scale += wght[k];
@@ -344,7 +344,7 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                     for (U32 k = 0; k < 4; k++)
                     {
                         F32 w = weights[k];
-                        idx[k] = llclamp((S32) floorf(w), (S32)0, (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS-1);
+                        idx[k] = llclamp(static_cast<S32>(floorf(w)), static_cast<S32>(0), static_cast<S32>(LL_CHARACTER_MAX_ANIMATED_JOINTS)-1);
                         wght[k] = w - idx[k];
                     }
 

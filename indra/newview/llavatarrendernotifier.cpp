@@ -172,7 +172,7 @@ void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLi
     // save current values for later use
     mLatestAgentsCount = agentcount > overLimit ? agentcount - 1 : agentcount; // subtract self
     mLatestOverLimitAgents = overLimit;
-    mLatestOverLimitPct = mLatestAgentsCount != 0 ? ((F32)overLimit / (F32)mLatestAgentsCount) * 100.0f : 0.f;
+    mLatestOverLimitPct = mLatestAgentsCount != 0 ? (static_cast<F32>(overLimit) / static_cast<F32>(mLatestAgentsCount)) * 100.0f : 0.f;
 
     if (mAgentsCount == mLatestAgentsCount
         && mOverLimitAgents == mLatestOverLimitAgents)
@@ -191,7 +191,7 @@ void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLi
 
         // default timeout before next notification
         static LLCachedControl<U32> pop_up_delay(gSavedSettings, "ComplexityChangesPopUpDelay", 300);
-        mPopUpDelayTimer.resetWithExpiry((F32)pop_up_delay);
+        mPopUpDelayTimer.resetWithExpiry(static_cast<F32>(pop_up_delay));
     }
 }
 
@@ -498,6 +498,6 @@ void LLHUDRenderNotifier::displayHUDNotification(EWarnLevel warn_type, LLUUID ob
         .name("HUDComplexityWarning")
         .expiry(expire_date)
         .substitutions(msg_args));
-    mHUDPopUpDelayTimer.resetWithExpiry((F32)pop_up_delay);
+    mHUDPopUpDelayTimer.resetWithExpiry(static_cast<F32>(pop_up_delay));
 }
 

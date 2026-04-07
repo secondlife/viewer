@@ -780,7 +780,7 @@ void LLFloaterTexturePicker::draw()
 
         if( preview )
         {
-            preview->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
+            preview->addTextureStats( static_cast<F32>((interior.getWidth() * interior.getHeight())) );
             if( preview->getComponents() == 4 )
             {
                 gl_rect_2d_checkerboard( interior, alpha );
@@ -2381,7 +2381,7 @@ void LLTextureCtrl::draw()
         }
 
         gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), preview, UI_VERTEX_COLOR % alpha);
-        preview->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
+        preview->addTextureStats( static_cast<F32>((interior.getWidth() * interior.getHeight())) );
     }
     else if (!mFallbackImage.isNull())
     {

@@ -812,7 +812,7 @@ LLSD LLFloaterReporter::gatherReport()
     report["report-type"] = static_cast<U8>(mReportType);
     report["category"] = getChild<LLUICtrl>("category_combo")->getValue();
     report["position"] = mPosition.getValue();
-    report["check-flags"] = (U8)0; // this is not used
+    report["check-flags"] = static_cast<U8>(0); // this is not used
     report["screenshot-id"] = screenshot_id;
     report["object-id"] = mObjectID;
     report["abuser-id"] = mAbuserID;

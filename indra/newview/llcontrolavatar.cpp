@@ -496,7 +496,7 @@ void LLControlAvatar::updateDebugText()
         }
         addDebugText(llformat("CAV obj %d anim %d active %s impost %d upprd %d strcst %f",
                               total_linkset_count, animated_volume_count,
-                              active_string.c_str(), (S32) isImpostor(), getUpdatePeriod(), streaming_cost));
+                              active_string.c_str(), static_cast<S32>(isImpostor()), getUpdatePeriod(), streaming_cost));
         addDebugText(llformat("types %s lods %s", type_string.c_str(), lod_string.c_str()));
         addDebugText(llformat("flags %s", animated_object_flag_string.c_str()));
         addDebugText(llformat("tris %d (est %.1f, streaming %.1f), verts %d", total_tris, est_tris, est_streaming_tris, total_verts));

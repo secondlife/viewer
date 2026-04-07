@@ -105,7 +105,7 @@ const char *DATA = _DATA(VALID_OBJECT_ID,"1.0","true");
 "================================================================================\n" << LL_ENDL;
 
 LLSD *gPostRecords = NULL;
-F64   gMinimumInterestLevel = (F64)0.0;
+F64   gMinimumInterestLevel = static_cast<F64>(0.0);
 
 const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
 
@@ -194,7 +194,7 @@ namespace tut
     {
         mediadataclient() {
             gPostRecords = &mLLSD;
-            gMinimumInterestLevel = (F64)0.0;
+            gMinimumInterestLevel = static_cast<F64>(0.0);
 
 //          LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 //          LLError::setClassLevel("LLMediaDataClient", LLError::LEVEL_DEBUG);
@@ -854,7 +854,7 @@ namespace tut
 
             // Okay, now futz with object 1's interest, such that it is now
             // "interesting enough"
-            object1->setMediaInterest((F64)5.0);
+            object1->setMediaInterest(static_cast<F64>(5.0));
 
             // This should sort so that the queue is now [1 2]
             ::pump_timers();

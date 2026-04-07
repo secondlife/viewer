@@ -808,7 +808,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
                     // Set the low priority size for downsampling to approximately the size the texture is displayed at.
                     {
-                        F32 approximate_interest_dimension = (F32) sqrt(pimpl->getInterest());
+                        F32 approximate_interest_dimension = static_cast<F32>(sqrt(pimpl->getInterest()));
 
                         pimpl->setLowPrioritySizeLimit(ll_round(approximate_interest_dimension));
                     }
@@ -2001,7 +2001,7 @@ void LLViewerMediaImpl::loadURI()
         // or a seek happened before the media loaded.  In either case, seek to the saved time.
         if(mPreviousMediaTime != 0.0f)
         {
-            seek((F32)mPreviousMediaTime);
+            seek(static_cast<F32>(mPreviousMediaTime));
         }
 
         if(mPreviousMediaState == MEDIA_PLAYING)
@@ -2136,7 +2136,7 @@ void LLViewerMediaImpl::skipBack(F32 step_scale)
             {
                 back_step = 0.0;
             }
-            mMediaSource->seek((F32)back_step);
+            mMediaSource->seek(static_cast<F32>(back_step));
         }
     }
 }
@@ -2153,7 +2153,7 @@ void LLViewerMediaImpl::skipForward(F32 step_scale)
             {
                 forward_step = mMediaSource->getDuration();
             }
-            mMediaSource->seek((F32)forward_step);
+            mMediaSource->seek(static_cast<F32>(forward_step));
         }
     }
 }
@@ -2205,7 +2205,7 @@ void LLViewerMediaImpl::updateVolume()
                 F64 attenuation = 1.0 + (media_rolloff_rate() * adjusted_distance);
                 attenuation = 1.0 / (attenuation * attenuation);
                 // the attenuation multiplier should never be more than one since that would increase volume
-                volume = volume * (F32)llmin(1.0, attenuation);
+                volume = volume * static_cast<F32>(llmin(1.0, attenuation));
             }
         }
 

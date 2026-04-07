@@ -468,7 +468,7 @@ bool LLFeatureManager::loadGPUClass()
 
         // bias by CPU speed
         F32 cpu_basis_mhz = gSavedSettings.getF32("RenderCPUBasis");
-        F32 cpu_mhz = (F32) gSysCPU.getMHz();
+        F32 cpu_mhz = static_cast<F32>(gSysCPU.getMHz());
         F32 cpu_bias = llclamp(cpu_mhz / cpu_basis_mhz, 0.5f, 1.f);
         gbps *= cpu_bias;
 

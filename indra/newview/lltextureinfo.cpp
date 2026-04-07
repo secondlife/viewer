@@ -200,8 +200,8 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
                 texture_cache["cache_write"] = LLSD::Integer(cache_write);
                 texture_cache["hit_rate"] = LLSD::Real(cache_hit_rate);
                 texture_cache["entries"] = LLSD::Integer(LLAppViewer::getTextureCache()->getEntries());
-                texture_cache["space_max"] = ll_sd_from_U64((U64)LLAppViewer::getTextureCache()->getMaxUsage().value()); // bytes
-                texture_cache["space_used"] = ll_sd_from_U64((U64)LLAppViewer::getTextureCache()->getUsage().value()); // bytes
+                texture_cache["space_max"] = ll_sd_from_U64(static_cast<U64>(LLAppViewer::getTextureCache()->getMaxUsage().value())); // bytes
+                texture_cache["space_used"] = ll_sd_from_U64(static_cast<U64>(LLAppViewer::getTextureCache()->getUsage().value())); // bytes
                 texture_data["texture_cache"] = texture_cache;
 
                 // VO and mesh cache
@@ -214,7 +214,7 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
                 F64 region_vocache_hit_rate = 0;
                 if (region_hit_count > 0 || region_miss_count > 0)
                 {
-                    region_vocache_hit_rate = (F64)region_hit_count / (region_hit_count + region_miss_count);
+                    region_vocache_hit_rate = static_cast<F64>(region_hit_count) / (region_hit_count + region_miss_count);
                 }
                 object_cache["vo_region_hitcount"] = ll_sd_from_U64(region_hit_count);
                 object_cache["vo_region_misscount"] = ll_sd_from_U64(region_miss_count);

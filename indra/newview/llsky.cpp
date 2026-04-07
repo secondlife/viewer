@@ -311,10 +311,10 @@ F32 LLSky::getFogRatio() const
 F32 elevation_from_vector(const LLVector3 &v)
 {
     F32 elevation = 0.0f;
-    F32 xy_component = (F32) sqrt(v.mV[VX] * v.mV[VX] + v.mV[VY] * v.mV[VY]);
+    F32 xy_component = static_cast<F32>(sqrt(v.mV[VX] * v.mV[VX] + v.mV[VY] * v.mV[VY]));
     if (xy_component != 0.0f)
     {
-        elevation = RAD_TO_DEG * (F32) atan(v.mV[VZ]/xy_component);
+        elevation = RAD_TO_DEG * static_cast<F32>(atan(v.mV[VZ]/xy_component));
     }
     else
     {

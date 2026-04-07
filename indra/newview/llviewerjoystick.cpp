@@ -328,7 +328,7 @@ LLViewerJoystick::LLViewerJoystick()
     memset(mBtn, 0, sizeof(mBtn));
 
     // factor in bandwidth? bandwidth = gViewerStats->mKBitStat
-    mPerfScale = 4000.f / (F32)gSysCPU.getMHz(); // hmm.  why?
+    mPerfScale = 4000.f / static_cast<F32>(gSysCPU.getMHz()); // hmm.  why?
 
     mLastDeviceUUID = LLSD::Integer(1);
 }
@@ -612,7 +612,7 @@ void LLViewerJoystick::updateStatus()
 
     for (int i=0; i<6; i++)
     {
-        mAxes[i] = (F32) mNdofDev->axes[i] / mNdofDev->axes_max;
+        mAxes[i] = static_cast<F32>(mNdofDev->axes[i]) / mNdofDev->axes_max;
     }
 
     for (int i=0; i<16; i++)
@@ -1091,7 +1091,7 @@ void LLViewerJoystick::moveAvatar(bool reset)
     sDelta[RX_I] += (cur_delta[RX_I] - sDelta[RX_I]) * time * feather;
     sDelta[RY_I] += (cur_delta[RY_I] - sDelta[RY_I]) * time * feather;
 
-    handleRun((F32) sqrt(sDelta[Z_I]*sDelta[Z_I] + sDelta[X_I]*sDelta[X_I]));
+    handleRun(static_cast<F32>(sqrt(sDelta[Z_I]*sDelta[Z_I] + sDelta[X_I]*sDelta[X_I])));
 
     // Allow forward/backward movement some priority
     if (dom_axis == Z_I)

@@ -789,7 +789,7 @@ public:
 // virtual
 void LLTaskSoundBridge::openItem()
 {
-    openSoundPreview((void*)this);
+    openSoundPreview(reinterpret_cast<void*>(this));
 }
 
 // static

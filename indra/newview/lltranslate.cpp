@@ -1248,10 +1248,10 @@ LLSD LLTranslate::asLLSD() const
     LLSD res;
     bool on = gSavedSettings.getBOOL("TranslateChat");
     res["on"] = on;
-    res["chars_seen"] = (S32) mCharsSeen;
+    res["chars_seen"] = static_cast<S32>(mCharsSeen);
     if (on)
     {
-        res["chars_sent"] = (S32) mCharsSent;
+        res["chars_sent"] = static_cast<S32>(mCharsSent);
         res["success_count"] = mSuccessCount;
         res["failure_count"] = mFailureCount;
         res["language"] = getTranslateLanguage();

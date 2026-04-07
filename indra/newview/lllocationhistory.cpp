@@ -52,11 +52,11 @@ void LLLocationHistory::addItem(const LLLocationHistoryItem& item) {
     mItems.push_back(item);
 
     // If the vector size exceeds the maximum, purge the oldest items (at the start of the mItems vector).
-    if ((S32)mItems.size() > max_items)
+    if (static_cast<S32>(mItems.size()) > max_items)
     {
         mItems.erase(mItems.begin(), mItems.end()-max_items);
     }
-    llassert((S32)mItems.size() <= max_items);
+    llassert(static_cast<S32>(mItems.size()) <= max_items);
     mChangedSignal(ADD);
 }
 

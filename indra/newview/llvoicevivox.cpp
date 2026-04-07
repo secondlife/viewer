@@ -113,7 +113,7 @@ namespace {
 
     // Cosine of a "trivially" small angle
     const F32 FOUR_DEGREES = 4.0f * (F_PI / 180.0f);
-    const F32 MINUSCULE_ANGLE_COS = (F32) cos(0.5f * FOUR_DEGREES);
+    const F32 MINUSCULE_ANGLE_COS = static_cast<F32>(cos(0.5f * FOUR_DEGREES));
 
     const F32 SESSION_JOIN_TIMEOUT = 30.0f;
 

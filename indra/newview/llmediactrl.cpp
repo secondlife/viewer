@@ -847,8 +847,8 @@ void LLMediaCtrl::draw()
             gGL.getTexUnit(0)->bind(media_texture);
             LLColor4 media_color = LLColor4::white % alpha;
             gGL.color4fv( media_color.mV );
-            F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();
-            F32 max_v = ( F32 )media_plugin->getHeight() / ( F32 )media_plugin->getTextureHeight();
+            F32 max_u = static_cast<F32>(media_plugin->getWidth()) / static_cast<F32>(media_plugin->getTextureWidth());
+            F32 max_v = static_cast<F32>(media_plugin->getHeight()) / static_cast<F32>(media_plugin->getTextureHeight());
 
             S32 x_offset, y_offset, width, height;
             calcOffsetsAndSize(&x_offset, &y_offset, &width, &height);

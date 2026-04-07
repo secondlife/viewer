@@ -69,7 +69,7 @@ void LLVLManager::addLayerData(LLVLData *vl_datap, const S32Bytes mesg_size)
     else
     {
         // Corrupted message? New feature?
-        LL_WARNS() << "Unknown layer type!" << (S32)vl_datap->mType
+        LL_WARNS() << "Unknown layer type!" << static_cast<S32>(vl_datap->mType)
             << " for region " << vl_datap->mRegionp->getName() << LL_ENDL;
         delete vl_datap; // addLayerData took ownership
         return;

@@ -352,7 +352,7 @@ void LLAvatarList::refresh()
         }
 
         // Send refresh_complete signal.
-        mRefreshCompleteSignal(this, LLSD((S32)size(false)));
+        mRefreshCompleteSignal(this, LLSD(static_cast<S32>(size(false))));
     }
 
     // Commit if we've added/removed items.
@@ -541,7 +541,7 @@ void LLAvatarList::computeDifference(
 // Refresh shown time of our last interaction with all listed avatars.
 void LLAvatarList::updateLastInteractionTimes()
 {
-    S32 now = (S32) LLDate::now().secondsSinceEpoch();
+    S32 now = static_cast<S32>(LLDate::now().secondsSinceEpoch());
     std::vector<LLPanel*> items;
     getItems(items);
 
@@ -549,7 +549,7 @@ void LLAvatarList::updateLastInteractionTimes()
     {
         // *TODO: error handling
         LLAvatarListItem* item = static_cast<LLAvatarListItem*>(*it);
-        S32 secs_since = now - (S32) LLRecentPeople::instance().getDate(item->getAvatarId()).secondsSinceEpoch();
+        S32 secs_since = now - static_cast<S32>(LLRecentPeople::instance().getDate(item->getAvatarId()).secondsSinceEpoch());
         if (secs_since >= 0)
             item->setLastInteractionTime(secs_since);
     }

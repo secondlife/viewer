@@ -577,7 +577,7 @@ void LLViewerMediaFocus::focusZoomOnMedia(LLUUID media_id)
                 // If that didn't work, use the inverse of the camera "look at" axis, which should keep the camera pointed in the same direction.
 //              LL_INFOS() << "approximate face normal invalid, using camera direction." << LL_ENDL;
                 normal = LLViewerCamera::getInstance()->getAtAxis();
-                normal *= (F32)-1.0f;
+                normal *= static_cast<F32>(-1.0f);
             }
 
             // Attempt to focus/zoom on that face.

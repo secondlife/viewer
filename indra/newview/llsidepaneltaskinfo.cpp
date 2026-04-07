@@ -108,7 +108,7 @@ LLSidepanelTaskInfo::LLSidepanelTaskInfo()
 {
     setMouseOpaque(false);
     mSelectionUpdateSlot = LLSelectMgr::instance().mUpdateSignal.connect(std::bind(&LLSidepanelTaskInfo::refreshAll, this));
-    gIdleCallbacks.addFunction(&LLSidepanelTaskInfo::onIdle, (void*)this);
+    gIdleCallbacks.addFunction(&LLSidepanelTaskInfo::onIdle, reinterpret_cast<void*>(this));
 }
 
 
@@ -116,7 +116,7 @@ LLSidepanelTaskInfo::~LLSidepanelTaskInfo()
 {
     if (sActivePanel == this)
         sActivePanel = NULL;
-    gIdleCallbacks.deleteFunction(&LLSidepanelTaskInfo::onIdle, (void*)this);
+    gIdleCallbacks.deleteFunction(&LLSidepanelTaskInfo::onIdle, reinterpret_cast<void*>(this));
 
     if (mSelectionUpdateSlot.connected())
     {

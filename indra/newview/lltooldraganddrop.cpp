@@ -638,7 +638,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
             {
                 handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, false,
                                                     mCargoTypes[mCurItemIndex],
-                                                    (void*)cargo,
+                                                    reinterpret_cast<void*>(cargo),
                                                     &item_acceptance,
                                                     mToolTipMsg);
             }
@@ -646,7 +646,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
             {
                 handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, false,
                                                     mCargoTypes[mCurItemIndex],
-                                                    (void*)&mCargoIDs[mCurItemIndex],
+                                                    reinterpret_cast<void*>(&mCargoIDs[mCurItemIndex]),
                                                     &item_acceptance,
                                                     mToolTipMsg);
             }
@@ -679,7 +679,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
                 {
                     handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, true,
                                                         mCargoTypes[mCurItemIndex],
-                                                        (void*)cargo,
+                                                        reinterpret_cast<void*>(cargo),
                                                         &item_acceptance,
                                                         mToolTipMsg);
                 }
@@ -687,7 +687,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
                 {
                     handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, false,
                                                         mCargoTypes[mCurItemIndex],
-                                                        (void*)&mCargoIDs[mCurItemIndex],
+                                                        reinterpret_cast<void*>(&mCargoIDs[mCurItemIndex]),
                                                         &item_acceptance,
                                                         mToolTipMsg);
                 }
@@ -716,7 +716,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
             {
                 handled = handled && root_view->handleDragAndDrop(x, y, mask, false,
                                                     mCargoTypes[mCurItemIndex],
-                                                    (void*)cargo,
+                                                    reinterpret_cast<void*>(cargo),
                                                     &item_acceptance,
                                                     mToolTipMsg);
             }
@@ -724,7 +724,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
             {
                 handled = handled && root_view->handleDragAndDrop(x, y, mask, false,
                                                     mCargoTypes[mCurItemIndex],
-                                                    (void*)&mCargoIDs[mCurItemIndex],
+                                                    reinterpret_cast<void*>(&mCargoIDs[mCurItemIndex]),
                                                     &item_acceptance,
                                                     mToolTipMsg);
             }
@@ -754,7 +754,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
                 {
                     handled = handled && root_view->handleDragAndDrop(x, y, mask, true,
                                               mCargoTypes[mCurItemIndex],
-                                              (void*)cargo,
+                                              reinterpret_cast<void*>(cargo),
                                               &item_acceptance,
                                               mToolTipMsg);
                 }
@@ -762,7 +762,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
                 {
                     handled = handled && root_view->handleDragAndDrop(x, y, mask, true,
                                               mCargoTypes[mCurItemIndex],
-                                              (void*)&mCargoIDs[mCurItemIndex],
+                                              reinterpret_cast<void*>(&mCargoIDs[mCurItemIndex]),
                                               &item_acceptance,
                                               mToolTipMsg);
                 }

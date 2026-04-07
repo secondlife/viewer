@@ -605,7 +605,7 @@ void GLTFSceneManager::render(U8 variant)
     // HACK -- implicitly render multi-uv variant
     if (!(variant & LLGLSLShader::GLTFVariant::MULTI_UV))
     {
-        render((U8) (variant | LLGLSLShader::GLTFVariant::MULTI_UV));
+        render(static_cast<U8>((variant | LLGLSLShader::GLTFVariant::MULTI_UV)));
     }
 
     bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;

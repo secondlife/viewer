@@ -8933,7 +8933,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
     //matrix from volume space to agent space
     LLMatrix4 light_mat(quat, LLVector4(origin,1.f));
 
-    glm::mat4 light_to_agent(glm::make_mat4((F32*) light_mat.mMatrix));
+    glm::mat4 light_to_agent(glm::make_mat4(reinterpret_cast<F32*>(light_mat.mMatrix)));
     glm::mat4 light_to_screen = get_current_modelview() * light_to_agent;
 
     glm::mat4 screen_to_light = glm::inverse(light_to_screen);

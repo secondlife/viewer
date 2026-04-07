@@ -307,7 +307,7 @@ void LLVOGrass::setPixelAreaAndAngle(LLAgent &agent)
 
     F32 max_scale = getMaxScale();
 
-    mAppAngle = (F32) atan2( max_scale, range) * RAD_TO_DEG;
+    mAppAngle = static_cast<F32>(atan2( max_scale, range)) * RAD_TO_DEG;
 
     // Compute pixels per meter at the given range
     F32 pixels_per_meter = LLViewerCamera::getInstance()->getViewHeightInPixels() / (tan(LLViewerCamera::getInstance()->getView()) * range);
@@ -324,7 +324,7 @@ void LLVOGrass::updateTextures()
     {
         if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
         {
-            setDebugText(llformat("%4.0f", (F32) sqrt(mPixelArea)));
+            setDebugText(llformat("%4.0f", static_cast<F32>(sqrt(mPixelArea))));
         }
         getTEImage(0)->addTextureStats(mPixelArea);
     }
@@ -702,7 +702,7 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
 
         if (idx >= 0 && draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
             draw_vec[idx]->mTexture == facep->getTexture() &&
-            (U16) (draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount()) <= (U32) gGLManager.mGLMaxVertexRange &&
+            static_cast<U16>((draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount())) <= static_cast<U32>(gGLManager.mGLMaxVertexRange) &&
             //draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
             draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() < 4096 &&
             draw_vec[idx]->mFullbright == fullbright)

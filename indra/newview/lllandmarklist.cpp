@@ -204,7 +204,7 @@ void LLLandmarkList::processGetAssetReply(
         {
             LL_WARNS("Landmarks") << "Unable to load Landmark " << uuid
                 << ". asset status: " << status
-                << ". Extended status: " << (S64)ext_status << LL_ENDL;
+                << ". Extended status: " << static_cast<S64>(ext_status) << LL_ENDL;
         }
 
         gLandmarkList.mRetryList.erase(uuid);

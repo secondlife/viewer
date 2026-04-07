@@ -393,7 +393,7 @@ bool LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
         mStartingZ = regionp->getLand().getZ(i+j*grids);
         mMouseX = x;
         mMouseY = y;
-        gIdleCallbacks.addFunction( &LLToolBrushLand::onIdle, (void*)this );
+        gIdleCallbacks.addFunction( &LLToolBrushLand::onIdle, reinterpret_cast<void*>(this) );
         setMouseCapture( true );
 
         LLViewerParcelMgr::getInstance()->setSelectionVisible(false);
@@ -436,7 +436,7 @@ bool LLToolBrushLand::handleMouseUp(S32 x, S32 y, MASK mask)
 
         LLViewerParcelMgr::getInstance()->setSelectionVisible(true);
 
-        gIdleCallbacks.deleteFunction( &LLToolBrushLand::onIdle, (void*)this );
+        gIdleCallbacks.deleteFunction( &LLToolBrushLand::onIdle, reinterpret_cast<void*>(this) );
         handled = true;
     }
 

@@ -1391,7 +1391,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - indices tail");
-            U16* idx = (U16*) dst;
+            U16* idx = reinterpret_cast<U16*>(const_cast<__m128i*>(dst));
 
             for (S32 i = end*8; i < num_indices; ++i)
             {
@@ -1654,13 +1654,13 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                         if (xforms == XFORM_NONE)
                         {
                             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("ggv - texgen 1");
-                            S32 tc_size = (num_vertices*2*sizeof(F32)+0xF) & ~0xF;
+                            S32 tc_size = (num_vertices*2*sizeof(F32) +0xF) & ~0xF;
                             LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(tex_coords0.get()), reinterpret_cast<F32*>(vf.mTexCoords), tc_size);
                         }
                         else
                         {
                             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("ggv - texgen 2");
-                            F32* dst = (F32*) tex_coords0.get();
+                            F32* dst = reinterpret_cast<F32*>(tex_coords0.get());
                             LLVector4a* src = (LLVector4a*) vf.mTexCoords;
 
                             LLVector4a trans;
@@ -1944,7 +1944,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
             mVertexBuffer->getVertexStrider(vert, mGeomIndex, mGeomCount);
 
-            F32* dst = (F32*) vert.get();
+            F32* dst = reinterpret_cast<F32*>(vert.get());
             F32* end_f32 = dst+mGeomCount*4;
 
             //_mm_prefetch((char*)dst, _MM_HINT_NTA);
@@ -1959,7 +1959,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             S32 index = mTextureIndex < FACE_DO_NOT_BATCH_TEXTURES ? mTextureIndex : 0;
 
             F32 val = 0.f;
-            S32* vp = (S32*) &val;
+            S32* vp = reinterpret_cast<S32*>(&val);
             *vp = index;
 
             llassert(index < LLGLSLShader::sIndexedTextureChannels);
@@ -1976,13 +1976,13 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             {
                 mat_vert.affineTransform(*src++, res0);
                 tmp.setSelectWithMask(mask, texIdx, res0);
-                tmp.store4a((F32*) dst);
+                tmp.store4a(reinterpret_cast<F32*>(dst));
                 dst += 4;
             }
 
             while (dst < end_f32)
             {
-                res0.store4a((F32*) dst);
+                res0.store4a(reinterpret_cast<F32*>(dst));
                 dst += 4;
             }
         }
@@ -1992,7 +1992,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - normal");
 
             mVertexBuffer->getNormalStrider(norm, mGeomIndex, mGeomCount);
-            F32* normals = (F32*) norm.get();
+            F32* normals = reinterpret_cast<F32*>(norm.get());
             LLVector4a* src = vf.mNormals;
             LLVector4a* end = src+num_vertices;
 
@@ -2009,7 +2009,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - tangent");
             mVertexBuffer->getTangentStrider(tangent, mGeomIndex, mGeomCount);
-            F32* tangents = (F32*) tangent.get();
+            F32* tangents = reinterpret_cast<F32*>(tangent.get());
 
             mVObjp->getVolume()->genTangents(face_index);
 
@@ -2050,9 +2050,9 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             U32 vec[4];
             vec[0] = vec[1] = vec[2] = vec[3] = color.asRGBA();
 
-            src.loadua((F32*) vec);
+            src.loadua(reinterpret_cast<F32*>(vec));
 
-            F32* dst = (F32*) colors.get();
+            F32* dst = reinterpret_cast<F32*>(colors.get());
             S32 num_vecs = num_vertices/4;
             if (num_vertices%4 > 0)
             {
@@ -2088,9 +2088,9 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             U32 vec[4];
             vec[0] = vec[1] = vec[2] = vec[3] = glow32;
 
-            src.loadua((F32*) vec);
+            src.loadua(reinterpret_cast<F32*>(vec));
 
-            F32* dst = (F32*) emissive.get();
+            F32* dst = reinterpret_cast<F32*>(emissive.get());
             S32 num_vecs = num_vertices/4;
             if (num_vertices%4 > 0)
             {
@@ -2264,7 +2264,7 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
                         if (joint)
                         {
                             LLMatrix4a worldMat;
-                            worldMat.loadu((F32*)&joint->getWorldMatrix().mMatrix[0][0]);
+                            worldMat.loadu(reinterpret_cast<const F32*>(&joint->getWorldMatrix().mMatrix[0][0]));
 
                             LLVector4a extents[2];
 

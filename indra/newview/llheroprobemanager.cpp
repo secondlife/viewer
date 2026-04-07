@@ -448,7 +448,7 @@ void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
                 static LLStaticHashedString sWidth("u_width");
                 static LLStaticHashedString sStrength("probe_strength");
 
-                gHeroRadianceGenProgram.uniform1f(sRoughness, (F32) i / (F32) (mMipChain.size() - 1));
+                gHeroRadianceGenProgram.uniform1f(sRoughness, static_cast<F32>(i) / static_cast<F32>((mMipChain.size() - 1)));
                 gHeroRadianceGenProgram.uniform1f(sMipLevel, (GLfloat)i);
                 gHeroRadianceGenProgram.uniform1i(sWidth, mProbeResolution);
                 gHeroRadianceGenProgram.uniform1f(sStrength, 1);

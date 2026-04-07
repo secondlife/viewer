@@ -6699,7 +6699,7 @@ void process_initiate_download(LLMessageSystem* msg, void**)
         msg->getSender(),
         false,  // don't delete remote
         callback_download_complete,
-        (void**)new std::string(viewer_filename));
+        reinterpret_cast<void**>(new std::string(viewer_filename)));
 }
 
 void process_script_teleport_request(LLMessageSystem* msg, void**)

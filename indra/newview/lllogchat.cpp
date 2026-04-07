@@ -327,11 +327,11 @@ std::string LLLogChat::timestamp2LogString(U32 timestamp, bool withdate)
     LLSD substitution;
     if (timestamp == 0)
     {
-        substitution["datetime"] = (S32)time_corrected();
+        substitution["datetime"] = static_cast<S32>(time_corrected());
     }
     else
     {   // timestamp is correct utc already
-        substitution["datetime"] = (S32)timestamp;
+        substitution["datetime"] = static_cast<S32>(timestamp);
     }
 
     LLStringUtil::format (timeStr, substitution);
@@ -528,7 +528,7 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 
     LL_DEBUGS("ChatHistory") << "Read " << (messages.size() - save_num_messages)
         << " messages of chat history from " << log_file_name
-        << " file mod time " << (F64)stat_data.st_mtime << LL_ENDL;
+        << " file mod time " << static_cast<F64>(stat_data.st_mtime) << LL_ENDL;
 }
 
 bool LLLogChat::historyThreadsFinished(LLUUID session_id)

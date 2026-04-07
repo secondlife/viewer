@@ -292,7 +292,7 @@ void LLPreviewNotecard::loadAsset()
                                                 item->getAssetUUID(),
                                                 item->getType(),
                                                 &onLoadComplete,
-                                                (void*)user_data,
+                                                reinterpret_cast<void*>(user_data),
                                                 true);
                 mAssetStatus = PREVIEW_ASSET_LOADING;
             }
@@ -557,7 +557,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
 
                 gAssetStorage->storeAssetData(tid, LLAssetType::AT_NOTECARD,
                                                 &onSaveComplete,
-                                                (void*)info,
+                                                reinterpret_cast<void*>(info),
                                                 false);
                 return true;
             }
@@ -862,7 +862,7 @@ std::string LLPreviewNotecard::getTmpFileName()
 
     // Use MD5 sum to make the file name shorter and not exceed maximum path length.
     char notecard_id_hash_str[33];             /* Flawfinder: ignore */
-    LLMD5 notecard_id_hash((const U8 *)notecard_id.c_str());
+    LLMD5 notecard_id_hash(reinterpret_cast<const U8*>(notecard_id.c_str()));
     notecard_id_hash.hex_digest(notecard_id_hash_str);
 
     return std::string(LLFile::tmpdir()) + "sl_notecard_" + notecard_id_hash_str + ".txt";

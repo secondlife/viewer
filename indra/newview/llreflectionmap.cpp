@@ -240,7 +240,7 @@ F32 LLReflectionMap::getNearClip() const
 bool LLReflectionMap::getIsDynamic() const
 {
     static LLCachedControl<S32> detail(gSavedSettings, "RenderReflectionProbeDetail", 1);
-    if (detail() > (S32)LLReflectionMapManager::DetailLevel::STATIC_ONLY &&
+    if (detail() > static_cast<S32>(LLReflectionMapManager::DetailLevel::STATIC_ONLY) &&
         mViewerObject &&
         !mViewerObject->isDead() &&
         mViewerObject->getVolumeConst())
@@ -265,7 +265,7 @@ bool LLReflectionMap::getBox(LLMatrix4& box)
             if (mViewerObject->mDrawable != nullptr)
             {
                 // object to agent space (no scale)
-                glm::mat4 rm(glm::make_mat4((F32*)mViewerObject->mDrawable->getWorldMatrix().mMatrix));
+                glm::mat4 rm(glm::make_mat4(reinterpret_cast<const F32*>(mViewerObject->mDrawable->getWorldMatrix().mMatrix)));
 
                 // construct object to camera space (with scale)
                 mv = mv * rm * scale;

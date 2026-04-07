@@ -243,7 +243,7 @@ protected:
                 LLFontGL::NORMAL,              // style
                 LLFontGL::ShadowType::DROP_SHADOW_SOFT,    // shadow
                 static_cast<S32>(text.size()), // max_chars
-                (S32)x1);                      // max_pixels
+                static_cast<S32>(x1));                      // max_pixels
             F32 dx = font->getWidthF32(text.c_str());
             x0 += dx;
             x1 -= dx;
@@ -262,7 +262,7 @@ protected:
                 LLFontGL::NORMAL,              // style
                 LLFontGL::ShadowType::DROP_SHADOW_SOFT,    // shadow
                 static_cast<S32>(text.size()), // max_chars
-                (S32)x1);                      // max_pixels
+                static_cast<S32>(x1));                      // max_pixels
             F32 dx = font->getWidthF32(text.c_str());
             x0 += dx;
             x1 -= dx;
@@ -281,7 +281,7 @@ protected:
                 LLFontGL::NORMAL,              // style
                 LLFontGL::ShadowType::DROP_SHADOW_SOFT,    // shadow
                 static_cast<S32>(text.size()), // max_chars
-                (S32)x1);                      // max_pixels
+                static_cast<S32>(x1));                      // max_pixels
         }
     }
 

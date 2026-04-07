@@ -268,7 +268,7 @@ void LLInspectAvatar::processAvatarData(LLAvatarData* data)
     std::string birth_date = LLTrans::getString(data->hide_age ?
         "AvatarBirthDateFormatShort" :
         "AvatarBirthDateFormatFull");
-        LLStringUtil::format(birth_date, LLSD().with("datetime", (S32) data->born_on.secondsSinceEpoch()));
+        LLStringUtil::format(birth_date, LLSD().with("datetime", static_cast<S32>(data->born_on.secondsSinceEpoch())));
         args["[BORN_ON]"] = birth_date;
     args["[AGE]"] = data->hide_age ?
         LLStringUtilBase<char>::null :
@@ -332,7 +332,7 @@ void LLInspectAvatar::updateVolumeSlider()
             // actual volume
             volume = LLVoiceClient::getInstance()->getUserVolume(mAvatarID);
         }
-        volume_slider->setValue( (F64)volume );
+        volume_slider->setValue( static_cast<F64>(volume) );
     }
 
 }
@@ -358,7 +358,7 @@ void LLInspectAvatar::onClickMuteVolume()
 
 void LLInspectAvatar::onVolumeChange(const LLSD& data)
 {
-    F32 volume = (F32)data.asReal();
+    F32 volume = static_cast<F32>(data.asReal());
     LLVoiceClient::getInstance()->setUserVolume(mAvatarID, volume);
 }
 

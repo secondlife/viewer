@@ -65,8 +65,8 @@ void LLSceneView::onClickCloseBtn(bool)
 void LLSceneView::draw()
 {
     S32 margin = 10;
-    S32 height = (S32) (gViewerWindow->getWindowRectScaled().getHeight()*0.75f);
-    S32 width = (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f);
+    S32 height = static_cast<S32>((gViewerWindow->getWindowRectScaled().getHeight()*0.75f));
+    S32 width = static_cast<S32>((gViewerWindow->getWindowRectScaled().getWidth() * 0.75f));
 
     LLRect new_rect;
     new_rect.setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);
@@ -205,7 +205,7 @@ void LLSceneView::draw()
                 F32 rad = size[idx][i];
                 total += rad;
                 F32 y = (rad-size_domain[0])/size_range*size_rect.getHeight()+size_rect.mBottom;
-                F32 x = (F32) i / count * size_rect.getWidth() + size_rect.mLeft;
+                F32 x = static_cast<F32>(i) / count * size_rect.getWidth() + size_rect.mLeft;
 
                 gGL.vertex2f(x,y);
 
@@ -267,8 +267,8 @@ void LLSceneView::draw()
             for (size_t i = 0; i < count; ++i)
             {
                 U32 tri_count = triangles[idx][i];
-                F32 y = (F32) (tri_count-tri_domain[0])/triangle_range*tri_rect.getHeight()+tri_rect.mBottom;
-                F32 x = (F32) i / count * tri_rect.getWidth() + tri_rect.mLeft;
+                F32 y = static_cast<F32>((tri_count-tri_domain[0]))/triangle_range*tri_rect.getHeight()+tri_rect.mBottom;
+                F32 x = static_cast<F32>(i) / count * tri_rect.getWidth() + tri_rect.mLeft;
 
                 gGL.vertex2f(x,y);
 
@@ -335,8 +335,8 @@ void LLSceneView::draw()
             {
                 F32 sc = streaming_cost[idx][i];
                 total += sc;
-                F32 y = (F32) (sc-streaming_domain[0])/cost_range*tri_rect.getHeight()+tri_rect.mBottom;
-                F32 x = (F32) i / count * tri_rect.getWidth() + tri_rect.mLeft;
+                F32 y = static_cast<F32>((sc-streaming_domain[0]))/cost_range*tri_rect.getHeight()+tri_rect.mBottom;
+                F32 x = static_cast<F32>(i) / count * tri_rect.getWidth() + tri_rect.mLeft;
 
                 gGL.vertex2f(x,y);
 
@@ -401,8 +401,8 @@ void LLSceneView::draw()
             {
                 F32 pc = physics_cost[idx][i];
                 total += pc;
-                F32 y = (F32) (pc-physics_domain[0])/cost_range*tri_rect.getHeight()+tri_rect.mBottom;
-                F32 x = (F32) i / count * tri_rect.getWidth() + tri_rect.mLeft;
+                F32 y = static_cast<F32>((pc-physics_domain[0]))/cost_range*tri_rect.getHeight()+tri_rect.mBottom;
+                F32 x = static_cast<F32>(i) / count * tri_rect.getWidth() + tri_rect.mLeft;
 
                 gGL.vertex2f(x,y);
 

@@ -527,7 +527,7 @@ void LLWorldMapView::draw()
                         LLColor4::white,
                         LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW,
                         S32_MAX, //max_chars
-                        (S32)mMapScale, //max_pixels
+                        static_cast<S32>(mMapScale), //max_pixels
                         NULL,
                         use_ellipses);
                 };

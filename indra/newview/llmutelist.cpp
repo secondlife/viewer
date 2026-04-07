@@ -670,7 +670,7 @@ bool LLMuteList::saveToFile(const std::string& filename)
          it != mLegacyMutes.end();
          ++it)
     {
-        fprintf(fp, "%d %s %s|\n", (S32)LLMute::BY_NAME, id_string.c_str(), it->c_str());
+        fprintf(fp, "%d %s %s|\n", static_cast<S32>(LLMute::BY_NAME), id_string.c_str(), it->c_str());
     }
     for (mute_set_t::iterator it = mMutes.begin();
          it != mMutes.end();
@@ -682,7 +682,7 @@ bool LLMuteList::saveToFile(const std::string& filename)
         {
             it->mID.toString(id_string);
             const std::string& name = it->mName;
-            fprintf(fp, "%d %s %s|%u\n", (S32)it->mType, id_string.c_str(), name.c_str(), it->mFlags);
+            fprintf(fp, "%d %s %s|%u\n", static_cast<S32>(it->mType), id_string.c_str(), name.c_str(), it->mFlags);
         }
     }
     fclose(fp);
@@ -826,7 +826,7 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
                               msg->getSender(),
                               true, // make the remote file temporary.
                               onFileMuteList,
-                              (void**)local_filename_and_path,
+                              reinterpret_cast<void**>(local_filename_and_path),
                               LLXferManager::HIGH_PRIORITY);
 }
 
@@ -961,7 +961,7 @@ bool LLRenderMuteList::saveToFile()
         {
             std::string id_string;
             it->first.toString(id_string);
-            fprintf(fp, "%d %s [%d]\n", (S32)it->second, id_string.c_str(), (S32)sVisuallyMuteDateMap[it->first]);
+            fprintf(fp, "%d %s [%d]\n", static_cast<S32>(it->second), id_string.c_str(), static_cast<S32>(sVisuallyMuteDateMap[it->first]));
         }
     }
     fclose(fp);
@@ -989,7 +989,7 @@ bool LLRenderMuteList::loadFromFile()
         S32 time = 0;
         sscanf(buffer, " %d %254s [%d]\n", &setting, id_buffer, &time);
         sVisuallyMuteSettingsMap[LLUUID(id_buffer)] = setting;
-        sVisuallyMuteDateMap[LLUUID(id_buffer)] = (time == 0) ? (S32)time_corrected() : time;
+        sVisuallyMuteDateMap[LLUUID(id_buffer)] = (time == 0) ? static_cast<S32>(time_corrected()) : time;
     }
     fclose(fp);
     return true;
@@ -1007,7 +1007,7 @@ void LLRenderMuteList::saveVisualMuteSetting(const LLUUID& agent_id, S32 setting
         sVisuallyMuteSettingsMap[agent_id] = setting;
         if (sVisuallyMuteDateMap.find(agent_id) == sVisuallyMuteDateMap.end())
         {
-            sVisuallyMuteDateMap[agent_id] =  (S32)time_corrected();
+            sVisuallyMuteDateMap[agent_id] =  static_cast<S32>(time_corrected());
         }
     }
     saveToFile();

@@ -563,13 +563,13 @@ void LLAgentListener::lookAt(LLSD const & event_data) const
         object = findObjectClosestTo(target_position);
     }
 
-    S32 look_at_type = (S32) LOOKAT_TARGET_NONE;
+    S32 look_at_type = static_cast<S32>(LOOKAT_TARGET_NONE);
     if (event_data.has("type"))
     {
         look_at_type = event_data["type"].asInteger();
     }
-    if (look_at_type >= (S32) LOOKAT_TARGET_NONE &&
-        look_at_type < (S32) LOOKAT_NUM_TARGETS)
+    if (look_at_type >= static_cast<S32>(LOOKAT_TARGET_NONE) &&
+        look_at_type < static_cast<S32>(LOOKAT_NUM_TARGETS))
     {
         gAgentCamera.setLookAt((ELookAtType) look_at_type, object);
     }

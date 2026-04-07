@@ -185,7 +185,7 @@ void    LLNameListCtrl::mouseOverHighlightNthItem( S32 target_index )
         if (LLToolTipMgr::getInstance()->toolTipVisible() && is_mouse_over_name_cell)
             return;
 
-        if(0 <= cur_index && cur_index < (S32)getItemList().size())
+        if(0 <= cur_index && cur_index < static_cast<S32>(getItemList().size()))
         {
             LLScrollListItem* item = getItemList()[cur_index];
             if (item)

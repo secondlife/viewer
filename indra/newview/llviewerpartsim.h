@@ -109,7 +109,7 @@ public:
     part_list_t mParticles;
 
     const LLVector3 &getCenterAgent() const     { return mCenterAgent; }
-    S32 getCount() const                    { return (S32) mParticles.size(); }
+    S32 getCount() const                    { return static_cast<S32>(mParticles.size()); }
     LLViewerRegion *getRegion() const       { return mRegionp; }
 
     void removeParticlesByID(const U32 source_id);
@@ -160,7 +160,7 @@ public:
         }
         if (sParticleCount > PART_THROTTLE_THRESHOLD*sMaxParticleCount)
         {
-            return (((F32)sParticleCount/(F32)sMaxParticleCount)-PART_THROTTLE_THRESHOLD)*PART_THROTTLE_RESCALE;
+            return ((static_cast<F32>(sParticleCount)/static_cast<F32>(sMaxParticleCount))-PART_THROTTLE_THRESHOLD)*PART_THROTTLE_RESCALE;
         }
         return 0.f;
     }

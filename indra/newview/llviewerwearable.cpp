@@ -49,7 +49,7 @@ class LLOverrideBakedTextureUpdate
 public:
     LLOverrideBakedTextureUpdate(bool temp_state)
     {
-        U32 num_bakes = (U32) LLAvatarAppearanceDefines::BAKED_NUM_INDICES;
+        U32 num_bakes = static_cast<U32>(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
         for( U32 index = 0; index < num_bakes; ++index )
         {
             composite_enabled[index] = gAgentAvatarp->isCompositeUpdateEnabled(index);
@@ -59,7 +59,7 @@ public:
 
     ~LLOverrideBakedTextureUpdate()
     {
-        U32 num_bakes = (U32)LLAvatarAppearanceDefines::BAKED_NUM_INDICES;
+        U32 num_bakes = static_cast<U32>(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
         for( U32 index = 0; index < num_bakes; ++index )
         {
             gAgentAvatarp->setCompositeUpdatesEnabled(index, composite_enabled[index]);
@@ -552,7 +552,7 @@ void LLViewerWearable::saveNewAsset() const
          data->mType = mType;
          gAssetStorage->storeAssetData(filename, mTransactionID, getAssetType(),
                                      &LLViewerWearable::onSaveNewAssetComplete,
-                                     (void*)data);
+                                     reinterpret_cast<void*>(data));
     }
 }
 

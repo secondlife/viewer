@@ -168,7 +168,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
             rot.setRot(0.f, hdri_rotation*DEG_TO_RAD, 0.f);
 
             sky_shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, powf(2.f, hdri_exposure));
-            sky_shader->uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, GL_FALSE, std::span<const GLfloat>((F32*) rot.mMatrix, 9));
+            sky_shader->uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, GL_FALSE, std::span<const GLfloat>(reinterpret_cast<F32*>(rot.mMatrix), 9));
             sky_shader->uniform1f(hdri_split_screen, gCubeSnapshot ? 1.f : hdri_split);
         }
         else

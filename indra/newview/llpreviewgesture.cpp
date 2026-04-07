@@ -839,7 +839,7 @@ void LLPreviewGesture::loadAsset()
     gAssetStorage->getAssetData(asset_id,
                                 LLAssetType::AT_GESTURE,
                                 onLoadComplete,
-                                (void**)item_idp,
+                                reinterpret_cast<void**>(item_idp),
                                 high_priority);
     mAssetStatus = PREVIEW_ASSET_LOADING;
 }
@@ -1537,7 +1537,7 @@ void LLPreviewGesture::onCommitWait(LLUICtrl* ctrl, void* data)
     {
         LLLocale locale(LLLocale::USER_LOCALE);
 
-        F32 wait_seconds = (F32)atof(self->mWaitTimeEditor->getText().c_str());
+        F32 wait_seconds = static_cast<F32>(atof(self->mWaitTimeEditor->getText().c_str()));
         if (wait_seconds < 0.f) wait_seconds = 0.f;
         if (wait_seconds > 3600.f) wait_seconds = 3600.f;
         wait_step->mWaitSeconds = wait_seconds;
@@ -1622,7 +1622,7 @@ LLScrollListItem* LLPreviewGesture::addStep( const EStepType step_type )
             step = new LLGestureStepWait();
             break;
         default:
-            LL_ERRS() << "Unknown step type: " << (S32)step_type << LL_ENDL;
+            LL_ERRS() << "Unknown step type: " << static_cast<S32>(step_type) << LL_ENDL;
             return NULL;
     }
 

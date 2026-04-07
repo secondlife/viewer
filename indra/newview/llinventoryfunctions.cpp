@@ -1430,7 +1430,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
 
     // Compare the whole with the nested folders depth limit
     // Note: substract 2 as we leave root and version folder out of the count threshold
-    if ((incoming_folder_depth + insertion_point_folder_depth - 2) > (S32)(gSavedSettings.getU32("InventoryOutboxMaxFolderDepth")))
+    if ((incoming_folder_depth + insertion_point_folder_depth - 2) > static_cast<S32>((gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))))
     {
         LLStringUtil::format_map_t args;
         U32 amount = gSavedSettings.getU32("InventoryOutboxMaxFolderDepth");
@@ -1892,13 +1892,13 @@ void validate_marketplacelistings(
             type = viewer_inv_item->getInventoryType();
             perms = viewer_inv_item->getPermissions().getMaskNextOwner();
         }
-        U32 key = (((U32)(type) & 0xFF) << 24) | (perms & 0xFFFFFF);
+        U32 key = ((static_cast<U32>((type)) & 0xFF) << 24) | (perms & 0xFFFFFF);
         items_vector[key].push_back(viewer_inv_item->getUUID());
     }
 
     // How many types of items? Which type is it if only one?
     auto count = items_vector.size();
-    U32 default_key = (U32)(LLInventoryType::IT_COUNT) << 24; // This is the key for any normal copyable item
+    U32 default_key = static_cast<U32>((LLInventoryType::IT_COUNT)) << 24; // This is the key for any normal copyable item
     U32 unique_key = (count == 1 ? items_vector.begin()->first : default_key); // The key in the case of one item type only
 
     // If we have no items in there (only folders or empty), analyze a bit further

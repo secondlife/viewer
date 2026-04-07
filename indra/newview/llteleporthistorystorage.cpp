@@ -134,7 +134,7 @@ void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d
         // Avoid it by preserving original position.
         item.mGlobalPos = item_iter->mGlobalPos;
 
-        removed_index = (S32)(item_iter - mItems.begin());
+        removed_index = static_cast<S32>((item_iter - mItems.begin()));
         mItems.erase(item_iter);
     }
 
@@ -161,7 +161,7 @@ void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d
 
 void LLTeleportHistoryStorage::removeItem(S32 idx)
 {
-    if (idx < 0 || idx >= (S32)mItems.size())
+    if (idx < 0 || idx >= static_cast<S32>(mItems.size()))
         return;
 
     mItems.erase (mItems.begin() + idx);
@@ -257,7 +257,7 @@ boost::signals2::connection LLTeleportHistoryStorage::setHistoryChangedCallback(
 void LLTeleportHistoryStorage::goToItem(S32 idx)
 {
     // Validate specified index.
-    if (idx < 0 || idx >= (S32)mItems.size())
+    if (idx < 0 || idx >= static_cast<S32>(mItems.size()))
     {
         LL_WARNS() << "Invalid teleport history index (" << idx << ") specified" << LL_ENDL;
         dump();
@@ -271,7 +271,7 @@ void LLTeleportHistoryStorage::goToItem(S32 idx)
 void LLTeleportHistoryStorage::showItemOnMap(S32 idx)
 {
     // Validate specified index.
-    if (idx < 0 || idx >= (S32)mItems.size())
+    if (idx < 0 || idx >= static_cast<S32>(mItems.size()))
     {
         LL_WARNS() << "Invalid teleport history index (" << idx << ") specified" << LL_ENDL;
         dump();

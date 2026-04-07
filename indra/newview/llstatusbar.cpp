@@ -312,7 +312,7 @@ void LLStatusBar::refresh()
         std::string timeStr = use_24h ? getString("time") : getString("time_ampm");
 
         LLSD substitution;
-        substitution["datetime"] = (S32) utc_time;
+        substitution["datetime"] = static_cast<S32>(utc_time);
         LLStringUtil::format (timeStr, substitution);
         mTextTime->setText(timeStr);
 
@@ -413,7 +413,7 @@ void LLStatusBar::setBalance(S32 balance)
         updateMenuSearchPosition();
     }
 
-    if (mBalance && (fabs((F32)(mBalance - balance)) > gSavedSettings.getF32("UISndMoneyChangeThreshold")))
+    if (mBalance && (fabs(static_cast<F32>((mBalance - balance))) > gSavedSettings.getF32("UISndMoneyChangeThreshold")))
     {
         if (mBalance > balance)
             make_ui_sound("UISndMoneyChangeDown");

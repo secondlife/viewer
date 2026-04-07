@@ -339,7 +339,7 @@ public:
     void updateVirtualSize() ;
 
     S32  getDesiredDiscardLevel()            { return mDesiredDiscardLevel; }
-    void setMinDiscardLevel(S32 discard)    { mMinDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel,(S8)discard); }
+    void setMinDiscardLevel(S32 discard)    { mMinDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel,static_cast<S8>(discard)); }
 
     void setBoostLevel(S32 level) override;
     bool updateFetch();

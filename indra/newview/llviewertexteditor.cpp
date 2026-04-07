@@ -1050,7 +1050,7 @@ std::string LLViewerTextEditor::appendTime(bool prepend_newline)
 
     LLSD substitution;
 
-    substitution["datetime"] = (S32) utc_time;
+    substitution["datetime"] = static_cast<S32>(utc_time);
     LLStringUtil::format (timeStr, substitution);
     appendText(timeStr, prepend_newline, LLStyle::Params().color(LLColor4::grey));
     blockUndo();
@@ -1364,7 +1364,7 @@ bool LLViewerTextEditor::hasEmbeddedInventory()
 
 bool LLViewerTextEditor::importBuffer( const char* buffer, S32 length )
 {
-    LLMemoryStream str(std::span<const U8>((const U8*)buffer, length));
+    LLMemoryStream str(std::span<const U8>(reinterpret_cast<const U8*>(buffer), length));
     return importStream(str);
 }
 

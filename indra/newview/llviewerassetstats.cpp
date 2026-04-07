@@ -311,7 +311,7 @@ void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
         getStat(rec, r.get_other_http, EVACOtherHTTPGet, compact_output);
         getStat(rec, r.get_other_udp, EVACOtherUDPGet, compact_output);
 
-        S32 fps = (S32)rec.getLastValue(LLStatViewer::FPS_SAMPLE);
+        S32 fps = static_cast<S32>(rec.getLastValue(LLStatViewer::FPS_SAMPLE));
         if (!compact_output || fps != 0)
         {
             r.fps   .count(fps)

@@ -432,7 +432,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
         // Unpack texture entry data
         //
 
-        S32 result = unpackTEMessage(mesgsys, _PREHASH_ObjectData, (S32) block_num);
+        S32 result = unpackTEMessage(mesgsys, _PREHASH_ObjectData, static_cast<S32>(block_num));
 
         if (result & TEM_CHANGE_MEDIA)
         {
@@ -3046,7 +3046,7 @@ F64 LLVOVolume::getTotalMediaInterest() const
     if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == getID())
         return F64_MAX;
 
-    F64 interest = (F64)-1.0;  // means not interested;
+    F64 interest = static_cast<F64>(-1.0);  // means not interested;
 
     // If this object is selected, this object has "high" interest, but since
     // there can be more than one, we still add in calculated impl interest
@@ -5467,8 +5467,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         info->mEnd == facep->getGeomIndex()-1 &&
         (LLPipeline::sTextureBindTest || draw_vec[idx]->mTexture == tex || batchable) &&
 #if LL_DARWIN
-        info->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= (U32) gGLManager.mGLMaxVertexRange &&
-        info->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
+        info->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= static_cast<U32>(gGLManager.mGLMaxVertexRange) &&
+        info->mCount + facep->getIndicesCount() <= static_cast<U32>(gGLManager.mGLMaxIndexRange) &&
 #endif
         info->mMaterialID == mat_id &&
         info->mFullbright == fullbright &&
@@ -5680,7 +5680,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
     static LLCachedControl<S32> max_node_size(gSavedSettings, "RenderMaxNodeSize", 65536);
     U32 max_vertices = (max_vbo_size * 1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
     U32 max_total = (max_node_size * 1024) / LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
-    max_vertices = llmin(max_vertices, (U32) 65535);
+    max_vertices = llmin(max_vertices, static_cast<U32>(65535));
 
     U32 cur_total = 0;
 
@@ -6297,7 +6297,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::s
     //calculate maximum number of vertices to store in a single buffer
     static LLCachedControl<S32> max_vbo_size(gSavedSettings, "RenderMaxVBOSize", 512);
     U32 max_vertices = (max_vbo_size * 1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
-    max_vertices = llmin(max_vertices, (U32) 65535);
+    max_vertices = llmin(max_vertices, static_cast<U32>(65535));
 
     {
         LL_PROFILE_ZONE_NAMED("genDrawInfo - sort");
@@ -6730,7 +6730,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::s
 
                     llassert(mask < sizeof(pass)/sizeof(U32));
 
-                    mask = llmin(mask, (U32)(sizeof(pass)/sizeof(U32)-1));
+                    mask = llmin(mask, static_cast<U32>((sizeof(pass)/sizeof(U32) -1)));
 
                     // if this is going into alpha pool, distance sort MUST be true
                     llassert(pass[mask] == LLRenderPass::PASS_ALPHA ? distance_sort : true);

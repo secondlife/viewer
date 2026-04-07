@@ -251,7 +251,7 @@ bool LLToolPie::handleLeftClickPick()
                 && !LLViewerParcelMgr::getInstance()->isCollisionBanned())
             {
                 // if selling passes, just buy one
-                void* deselect_when_done = (void*)true;
+                void* deselect_when_done = reinterpret_cast<void*>(true);
                 LLPanelLandGeneral::onClickBuyPass(deselect_when_done);
             }
             else

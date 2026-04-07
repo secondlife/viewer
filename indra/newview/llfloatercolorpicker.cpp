@@ -143,9 +143,9 @@ void LLFloaterColorPicker::createUI ()
                        gVal,
                        bVal );
 
-            * ( bits + x + y * linesize + 0 ) = ( U8 )( rVal * 255.0f );
-            * ( bits + x + y * linesize + 1 ) = ( U8 )( gVal * 255.0f );
-            * ( bits + x + y * linesize + 2 ) = ( U8 )( bVal * 255.0f );
+            * ( bits + x + y * linesize + 0 ) = static_cast<U8>(( rVal * 255.0f ));
+            * ( bits + x + y * linesize + 1 ) = static_cast<U8>(( gVal * 255.0f ));
+            * ( bits + x + y * linesize + 2 ) = static_cast<U8>(( bVal * 255.0f ));
         }
     }
     mRGBImage = LLViewerTextureManager::getLocalTexture( (LLImageRaw*)raw, false );
@@ -512,8 +512,8 @@ void LLFloaterColorPicker::draw()
     gl_draw_image ( mRGBViewerImageLeft, mRGBViewerImageTop - mRGBViewerImageHeight, mRGBImage, LLColor4::white % alpha);
 
     // update 'cursor' into RGB Section
-    S32 xPos = ( S32 ) ( ( F32 )mRGBViewerImageWidth * getCurH () ) - 8;
-    S32 yPos = ( S32 ) ( ( F32 )mRGBViewerImageHeight * getCurS () ) - 8;
+    S32 xPos = static_cast<S32>(( static_cast<F32>(mRGBViewerImageWidth) * getCurH () )) - 8;
+    S32 yPos = static_cast<S32>(( static_cast<F32>(mRGBViewerImageHeight) * getCurS () )) - 8;
     gl_line_2d ( mRGBViewerImageLeft + xPos,
                  mRGBViewerImageTop - mRGBViewerImageHeight + yPos + 8,
                  mRGBViewerImageLeft + xPos + 16,
@@ -538,7 +538,7 @@ void LLFloaterColorPicker::draw()
     for ( S32 y = 0; y < mLumRegionHeight; ++y )
     {
         F32 rValSlider, gValSlider, bValSlider;
-        hslToRgb ( getCurH (), getCurS (), ( F32 )y / ( F32 )mLumRegionHeight, rValSlider, gValSlider, bValSlider );
+        hslToRgb ( getCurH (), getCurS (), static_cast<F32>(y) / static_cast<F32>(mLumRegionHeight), rValSlider, gValSlider, bValSlider );
 
         gl_rect_2d( mLumRegionLeft,
             mLumRegionTop - mLumRegionHeight + y,
@@ -550,7 +550,7 @@ void LLFloaterColorPicker::draw()
 
     // draw luninance marker
     S32 startX = mLumRegionLeft + mLumRegionWidth;
-    S32 startY = mLumRegionTop - mLumRegionHeight + ( S32 ) ( mLumRegionHeight * getCurL () );
+    S32 startY = mLumRegionTop - mLumRegionHeight + static_cast<S32>(( mLumRegionHeight * getCurL () ));
     gl_triangle_2d ( startX, startY,
             startX + mLumMarkerSize, startY - mLumMarkerSize,
                 startX + mLumMarkerSize, startY + mLumMarkerSize,
@@ -759,8 +759,8 @@ bool LLFloaterColorPicker::updateRgbHslFromPoint ( S32 xPosIn, S32 yPosIn )
          yPosIn >= mRGBViewerImageTop - mRGBViewerImageHeight )
     {
         // update HSL (and therefore RGB) based on new H & S and current L
-        selectCurHsl ( ( ( F32 )xPosIn - ( F32 )mRGBViewerImageLeft ) / ( F32 )mRGBViewerImageWidth,
-                    ( ( F32 )yPosIn - ( ( F32 )mRGBViewerImageTop - ( F32 )mRGBViewerImageHeight ) ) / ( F32 )mRGBViewerImageHeight,
+        selectCurHsl ( ( static_cast<F32>(xPosIn) - static_cast<F32>(mRGBViewerImageLeft) ) / static_cast<F32>(mRGBViewerImageWidth),
+                    ( static_cast<F32>(yPosIn) - ( static_cast<F32>(mRGBViewerImageTop) - static_cast<F32>(mRGBViewerImageHeight) ) ) / static_cast<F32>(mRGBViewerImageHeight),
                     getCurL () );
 
         // indicate a value changed
@@ -776,7 +776,7 @@ bool LLFloaterColorPicker::updateRgbHslFromPoint ( S32 xPosIn, S32 yPosIn )
         // update HSL (and therefore RGB) based on current HS and new L
          selectCurHsl ( getCurH (),
                      getCurS (),
-                    ( ( F32 )yPosIn - ( ( F32 )mRGBViewerImageTop - ( F32 )mRGBViewerImageHeight ) ) / ( F32 )mRGBViewerImageHeight );
+                    ( static_cast<F32>(yPosIn) - ( static_cast<F32>(mRGBViewerImageTop) - static_cast<F32>(mRGBViewerImageHeight) ) ) / static_cast<F32>(mRGBViewerImageHeight) );
 
         // indicate a value changed
         return true;

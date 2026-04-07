@@ -311,7 +311,7 @@ F32 LLViewerParcelOverlay::getOwnedRatio() const
         }
     }
 
-    return (F32)total / (F32)size;
+    return static_cast<F32>(total) / static_cast<F32>(size);
 }
 
 //---------------------------------------------------------------------------
@@ -402,10 +402,10 @@ void LLViewerParcelOverlay::updateOverlayTexture()
             break;
         }
 
-        raw[pixel_index + VRED]   = (U8)r;
-        raw[pixel_index + VGREEN] = (U8)g;
-        raw[pixel_index + VBLUE]  = (U8)b;
-        raw[pixel_index + VALPHA] = (U8)a;
+        raw[pixel_index + VRED]   = static_cast<U8>(r);
+        raw[pixel_index + VGREEN] = static_cast<U8>(g);
+        raw[pixel_index + VBLUE]  = static_cast<U8>(b);
+        raw[pixel_index + VALPHA] = static_cast<U8>(a);
 
         pixel_index += OVERLAY_IMG_COMPONENTS;
     }
@@ -601,7 +601,7 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
 
     // Points C, D, E
     F32 distance = 1.f - LINE_WIDTH;
-    constexpr S32 GRID_STEP = (S32)PARCEL_GRID_STEP_METERS;
+    constexpr S32 GRID_STEP = static_cast<S32>(PARCEL_GRID_STEP_METERS);
     for (U32 i = 1; i < GRID_STEP; ++i)
     {
         move(distance);

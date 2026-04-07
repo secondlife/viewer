@@ -973,7 +973,7 @@ void commit_radio_group_focus(LLUICtrl* ctrl)
 void commit_slider_zoom(LLUICtrl *ctrl)
 {
     // renormalize value, since max "volume" level is 0.5 for some reason
-    F32 zoom_level = (F32)ctrl->getValue().asReal() * 2.f; // / 0.5f;
+    F32 zoom_level = static_cast<F32>(ctrl->getValue().asReal()) * 2.f; // / 0.5f;
     gAgentCamera.setCameraZoomFraction(zoom_level);
 }
 

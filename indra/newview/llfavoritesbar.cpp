@@ -1854,7 +1854,7 @@ void LLFavoritesOrderStorage::load()
         for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
             iter != settings_llsd.endMap(); ++iter)
         {
-            mSortIndexes.insert(std::make_pair(LLUUID(iter->first), (S32)iter->second.asInteger()));
+            mSortIndexes.insert(std::make_pair(LLUUID(iter->first), static_cast<S32>(iter->second.asInteger())));
         }
     }
     else

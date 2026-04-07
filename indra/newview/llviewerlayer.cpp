@@ -65,13 +65,13 @@ F32 LLViewerLayer::getValueScaled(const F32 x, const F32 y) const
     y2 = y1 + 1;
     y_frac -= y1;
 
-    x1 = llmin((S32)mWidth-1, x1);
+    x1 = llmin(static_cast<S32>(mWidth)-1, x1);
     x1 = llmax(0, x1);
-    x2 = llmin((S32)mWidth-1, x2);
+    x2 = llmin(static_cast<S32>(mWidth)-1, x2);
     x2 = llmax(0, x2);
-    y1 = llmin((S32)mWidth-1, y1);
+    y1 = llmin(static_cast<S32>(mWidth)-1, y1);
     y1 = llmax(0, y1);
-    y2 = llmin((S32)mWidth-1, y2);
+    y2 = llmin(static_cast<S32>(mWidth)-1, y2);
     y2 = llmax(0, y2);
 
     // Take weighted average of all four points (bilinear interpolation)

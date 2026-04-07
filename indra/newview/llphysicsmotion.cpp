@@ -565,8 +565,8 @@ bool LLPhysicsMotion::onUpdate(F32 time)
     // bounce at right (relatively) position.
     // Note: this doesn't look to be optimal, since it provides only "roughly same" behavior, but
     // irregularity at higher fps looks to be insignificant so it works good enough for low fps.
-    U32 steps = (U32)(time_delta / TIME_ITERATION_STEP_MAX) + 1;
-    F32 time_iteration_step = time_delta / (F32)steps; //minimal step size ends up as 0.025
+    U32 steps = static_cast<U32>((time_delta / TIME_ITERATION_STEP_MAX)) + 1;
+    F32 time_iteration_step = time_delta / static_cast<F32>(steps); //minimal step size ends up as 0.025
     for (U32 i = 0; i < steps; i++)
     {
         // mPositon_local should be in normalized 0,1 range already.  Just making sure...
@@ -604,7 +604,7 @@ bool LLPhysicsMotion::onUpdate(F32 time)
 
         // Drag is a force imparted by velocity (intuitively it is similar to wind resistance)
         // F = .5kv^2
-        const F32 force_drag = (F32)(.5 * behavior_drag * velocity_joint_local * velocity_joint_local * llsgn(velocity_joint_local));
+        const F32 force_drag = static_cast<F32>((.5 * behavior_drag * velocity_joint_local * velocity_joint_local * llsgn(velocity_joint_local)));
 
         const F32 force_net = (force_accel +
                        force_gravity +

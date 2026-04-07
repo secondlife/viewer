@@ -191,7 +191,7 @@ class LLBPSListener : public LLSimpleListener
 public:
     virtual bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
     {
-        gViewerThrottle.setMaxBandwidth((F32) event->getValue().asReal()*1024);
+        gViewerThrottle.setMaxBandwidth(static_cast<F32>(event->getValue().asReal())*1024);
         return true;
     }
 };

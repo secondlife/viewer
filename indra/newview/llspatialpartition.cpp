@@ -1978,7 +1978,7 @@ void renderNormals(LLDrawable *drawablep)
         gGL.pushMatrix();
         if (vol)
         {
-            gGL.multMatrix((F32 *) vol->getRelativeXform().mMatrix);
+            gGL.multMatrix(reinterpret_cast<const F32*>(vol->getRelativeXform().mMatrix));
         }
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
@@ -2207,7 +2207,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
     LLVector3 size(0.25f,0.25f,0.25f);
 
     gGL.pushMatrix();
-    gGL.multMatrix((F32*) volume->getRelativeXform().mMatrix);
+    gGL.multMatrix(reinterpret_cast<const F32*>(volume->getRelativeXform().mMatrix));
 
     if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::USER_MESH)
     {
@@ -2318,7 +2318,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
                     phys_volume->mNumHullPoints = res.mNumVertices;
 
                     S32 idx_size = (res.mNumTriangles*3*2+0xF) & ~0xF;
-                    phys_volume->mHullIndices = (U16*) ll_aligned_malloc_16(idx_size);
+                    phys_volume->mHullIndices = reinterpret_cast<U16*>(ll_aligned_malloc_16(idx_size));
                     phys_volume->mNumHullIndices = res.mNumTriangles*3;
 
                     const F32* v = res.mVertexBase;
@@ -2873,7 +2873,7 @@ void renderRaycast(LLDrawable* drawablep)
 
                     gGL.pushMatrix();
                     gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
-                    gGL.multMatrix((F32*) vobj->getRelativeXform().mMatrix);
+                    gGL.multMatrix(reinterpret_cast<const F32*>(vobj->getRelativeXform().mMatrix));
 
                     LLVector4a start, end;
                     if (transform)

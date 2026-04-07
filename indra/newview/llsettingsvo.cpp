@@ -349,7 +349,7 @@ void LLSettingsVOBase::onAssetDownloadComplete(const LLUUID &asset_id, S32 statu
     }
     else
     {
-        LL_WARNS("SETTINGS") << "Error retrieving asset " << asset_id << ". Status code=" << status << "(" << LLAssetStorage::getErrorString(status) << ") ext_status=" << (U32)ext_status << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Error retrieving asset " << asset_id << ". Status code=" << status << "(" << LLAssetStorage::getErrorString(status) << ") ext_status=" << static_cast<U32>(ext_status) << LL_ENDL;
     }
     if (callback)
         callback(asset_id, settings, status, ext_status);
@@ -608,8 +608,8 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
     legacy[SETTING_CLOUD_POS_DENSITY2] = ensure_array_4(settings[SETTING_CLOUD_POS_DENSITY2], 1.0);
     legacy[SETTING_CLOUD_SCALE] = llsd::array(settings[SETTING_CLOUD_SCALE], LLSD::Real(0.0), LLSD::Real(0.0), LLSD::Real(1.0));
     legacy[SETTING_CLOUD_SCROLL_RATE] = settings[SETTING_CLOUD_SCROLL_RATE];
-    legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL] = llsd::array(LLSD::Boolean(!is_approx_zero((F32)settings[SETTING_CLOUD_SCROLL_RATE][0].asReal())),
-        LLSD::Boolean(!is_approx_zero((F32)settings[SETTING_CLOUD_SCROLL_RATE][1].asReal())));
+    legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL] = llsd::array(LLSD::Boolean(!is_approx_zero(static_cast<F32>(settings[SETTING_CLOUD_SCROLL_RATE][0].asReal()))),
+        LLSD::Boolean(!is_approx_zero(static_cast<F32>(settings[SETTING_CLOUD_SCROLL_RATE][1].asReal()))));
     legacy[SETTING_CLOUD_SHADOW] = llsd::array(settings[SETTING_CLOUD_SHADOW].asReal(), 0.0f, 0.0f, 1.0f);
     legacy[SETTING_GAMMA] = llsd::array(settings[SETTING_GAMMA], 0.0f, 0.0f, 1.0f);
     legacy[SETTING_GLOW] = ensure_array_4(settings[SETTING_GLOW], 1.0);
@@ -1135,7 +1135,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR_LINEAR, linearColor3(fog_color).mV);
 
-        F32 blend_factor = (F32)env.getCurrentWater()->getBlendFactor();
+        F32 blend_factor = static_cast<F32>(env.getCurrentWater()->getBlendFactor());
         shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
         // update to normal lightnorm, water shader itself will use rotated lightnorm as necessary

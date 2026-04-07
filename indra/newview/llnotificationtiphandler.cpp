@@ -119,12 +119,12 @@ bool LLTipHandler::processNotification(const LLNotificationPtr& notification, bo
     if (exp_time > cur_time)
     {
         // we have non-default expiration time - keep visible until expires
-        p.lifetime_secs = (F32)(exp_time.secondsSinceEpoch() - cur_time.secondsSinceEpoch());
+        p.lifetime_secs = static_cast<F32>((exp_time.secondsSinceEpoch() - cur_time.secondsSinceEpoch()));
     }
     else
     {
         // use default time
-        p.lifetime_secs = (F32)gSavedSettings.getS32("NotificationTipToastLifeTime");
+        p.lifetime_secs = static_cast<F32>(gSavedSettings.getS32("NotificationTipToastLifeTime"));
     }
 
     LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());

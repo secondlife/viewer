@@ -152,7 +152,7 @@ LLVector3 LLWind::getAverage()
         average.mV[VY] += mVelY[i];
     }
 
-    average *= 1.f/((F32)(grid_count)) * WIND_SCALE_HACK;
+    average *= 1.f/(static_cast<F32>((grid_count))) * WIND_SCALE_HACK;
     return average;
 }
 
@@ -207,7 +207,7 @@ LLVector3 LLWind::getVelocity(const LLVector3 &pos_region)
     }
     else if (pos_clamped_region.mV[VX] >= region_width_meters)
     {
-        pos_clamped_region.mV[VX] = (F32) fmod(pos_clamped_region.mV[VX], region_width_meters);
+        pos_clamped_region.mV[VX] = static_cast<F32>(fmod(pos_clamped_region.mV[VX], region_width_meters));
     }
 
     if (pos_clamped_region.mV[VY] < 0.f)
@@ -216,15 +216,15 @@ LLVector3 LLWind::getVelocity(const LLVector3 &pos_region)
     }
     else if (pos_clamped_region.mV[VY] >= region_width_meters)
     {
-        pos_clamped_region.mV[VY] = (F32) fmod(pos_clamped_region.mV[VY], region_width_meters);
+        pos_clamped_region.mV[VY] = static_cast<F32>(fmod(pos_clamped_region.mV[VY], region_width_meters));
     }
 
 
     S32 i = llfloor(pos_clamped_region.mV[VX] * mSize / region_width_meters);
     S32 j = llfloor(pos_clamped_region.mV[VY] * mSize / region_width_meters);
     k = i + j*mSize;
-    dx = ((pos_clamped_region.mV[VX] * mSize / region_width_meters) - (F32) i);
-    dy = ((pos_clamped_region.mV[VY] * mSize / region_width_meters) - (F32) j);
+    dx = ((pos_clamped_region.mV[VX] * mSize / region_width_meters) - static_cast<F32>(i));
+    dy = ((pos_clamped_region.mV[VY] * mSize / region_width_meters) - static_cast<F32>(j));
 
     if ((i < mSize-1) && (j < mSize-1))
     {

@@ -5572,7 +5572,7 @@ void LLSelectMgr::packDeRezHeader(void* user_data)
     gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
     gMessageSystem->nextBlockFast(_PREHASH_AgentBlock);
     gMessageSystem->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID());
-    gMessageSystem->addU8Fast(_PREHASH_Destination, (U8)info->mDestination);
+    gMessageSystem->addU8Fast(_PREHASH_Destination, static_cast<U8>(info->mDestination));
     gMessageSystem->addUUIDFast(_PREHASH_DestinationID, info->mDestinationID);
     LLUUID tid;
     tid.generate();
@@ -6603,7 +6603,7 @@ void LLSelectMgr::renderSilhouettes(bool for_hud)
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces()); // avatars have TEs but no faces
+        S32 num_tes = llmin(static_cast<S32>(objectp->getNumTEs()), static_cast<S32>(objectp->getNumFaces())); // avatars have TEs but no faces
         for (S32 te = 0; te < num_tes; ++te)
         {
             if (node->isTESelected(te))

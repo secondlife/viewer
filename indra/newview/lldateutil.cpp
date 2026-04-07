@@ -211,5 +211,5 @@ S32 LLDateUtil::secondsSinceEpochFromString(const std::string& format, const std
     // is calculated with no time zone corrections.
     time_duration diff = time_t_date - time_t_epoch;
 
-    return (S32)diff.total_seconds();
+    return static_cast<S32>(diff.total_seconds());
 }

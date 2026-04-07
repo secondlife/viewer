@@ -593,7 +593,7 @@ void LLSurfacePatch::updateVerticalStats()
             k++;
         }
     }
-    mMeanZ = total / (F32) k;
+    mMeanZ = total / static_cast<F32>(k);
     mCenterRegion.mV[VZ] = 0.5f * (mMinZ + mMaxZ);
 
     LLVector3 diam_vec(meters_per_grid*grids_per_patch_edge,

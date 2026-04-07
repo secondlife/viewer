@@ -286,7 +286,7 @@ public:
             // No longer waiting for this item - either serviced
             // already or gave up after too many retries.
             LL_WARNS() << "duplicate or late operation, src_id " << src_id << "dst_id " << dst_id
-                    << " elapsed " << elapsed << " after end " << (S32) mCompletionOrFailureCalled << LL_ENDL;
+                    << " elapsed " << elapsed << " after end " << static_cast<S32>(mCompletionOrFailureCalled) << LL_ENDL;
         }
         mTimeStats.push(elapsed);
         mWaitTimes.erase(src_id);
@@ -3812,7 +3812,7 @@ LLSD LLAppearanceMgr::dumpCOF() const
         {
             LL_WARNS() << "Non-link item '" << inv_item->getName()
                     << "' (" << inv_item->getUUID()
-                    << ") type " << (S32) inv_item->getActualType()
+                    << ") type " << static_cast<S32>(inv_item->getActualType())
                     << " during requestServerAppearanceUpdate" << LL_ENDL;
             continue;
         }

@@ -6626,7 +6626,7 @@ void handle_look_at_selection(const LLSD& param)
         {
             // Make sure we are not increasing the distance between the camera and object
             LLVector3d orig_distance = gAgentCamera.getCameraPositionGlobal() - LLSelectMgr::getInstance()->getSelectionCenterGlobal();
-            distance = llmin(distance, (F32) orig_distance.length());
+            distance = llmin(distance, static_cast<F32>(orig_distance.length()));
 
             gAgentCamera.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance),
                                         LLSelectMgr::getInstance()->getSelectionCenterGlobal(),

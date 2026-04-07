@@ -151,7 +151,7 @@ bool LLAdaptiveRetryPolicy::shouldRetry(F32& seconds_to_wait) const
         seconds_to_wait = F32_MAX;
         return false;
     }
-    seconds_to_wait = mShouldRetry ? (F32) mRetryTimer.getRemainingTimeF32() : F32_MAX;
+    seconds_to_wait = mShouldRetry ? static_cast<F32>(mRetryTimer.getRemainingTimeF32()) : F32_MAX;
     return mShouldRetry;
 }
 
@@ -172,7 +172,7 @@ bool LLAdaptiveRetryPolicy::getSecondsUntilRetryAfter(const std::string& retry_a
     if (end != 0 && *end == 0)
     {
         // Successful parse
-        seconds_to_wait = (F32)seconds;
+        seconds_to_wait = static_cast<F32>(seconds);
         return true;
     }
 
@@ -180,7 +180,7 @@ bool LLAdaptiveRetryPolicy::getSecondsUntilRetryAfter(const std::string& retry_a
     time_t date = curl_getdate(retry_after.c_str(), NULL);
     if (-1 == date) return false;
 
-    seconds_to_wait = (F32)((F64)date - LLTimer::getTotalSeconds());
+    seconds_to_wait = static_cast<F32>((static_cast<F64>(date) - LLTimer::getTotalSeconds()));
 
     return true;
 }

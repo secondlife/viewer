@@ -1258,7 +1258,7 @@ void LLFloaterPreference::buildPopupLists()
 
         if (item)
         {
-            item->setUserdata((void*)&iter->first);
+            item->setUserdata(const_cast<void*>(static_cast<const void*>(&iter->first)));
         }
     }
 }
