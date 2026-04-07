@@ -867,7 +867,7 @@ void LLRender::syncLightState()
         std::array<LLVector3, LL_NUM_LIGHT_UNITS> diffuse;
         std::array<LLVector3, LL_NUM_LIGHT_UNITS> diffuse_b;
         std::array<bool, LL_NUM_LIGHT_UNITS>      sun_primary;
-        std::array<LLVector2, LL_NUM_LIGHT_UNITS> size;
+        std::array<glm::vec2, LL_NUM_LIGHT_UNITS> size;
 
         for (U32 i = 0; i < LL_NUM_LIGHT_UNITS; i++)
         {
@@ -879,13 +879,13 @@ void LLRender::syncLightState()
             diffuse[i].set(light->mDiffuse.mV);
             diffuse_b[i].set(light->mDiffuseB.mV);
             sun_primary[i] = light->mSunIsPrimary;
-            size[i].set(light->mSize, light->mFalloff);
+            size[i] = glm::vec2(light->mSize, light->mFalloff);
         }
 
         shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, std::span<const GLfloat>(position[0].mV, LL_NUM_LIGHT_UNITS * 4));
         shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, std::span<const GLfloat>(direction[0].mV, LL_NUM_LIGHT_UNITS * 3));
         shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, std::span<const GLfloat>(attenuation[0].mV, LL_NUM_LIGHT_UNITS * 4));
-        shader->uniform2fv(LLShaderMgr::LIGHT_DEFERRED_ATTENUATION, std::span<const GLfloat>(size[0].mV, LL_NUM_LIGHT_UNITS * 2));
+        shader->uniform2fv(LLShaderMgr::LIGHT_DEFERRED_ATTENUATION, std::span<const GLfloat>(reinterpret_cast<const GLfloat*>(size.data()), LL_NUM_LIGHT_UNITS * 2));
         shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, std::span<const GLfloat>(diffuse[0].mV, LL_NUM_LIGHT_UNITS * 3));
         shader->uniform3fv(LLShaderMgr::LIGHT_AMBIENT, std::span<const GLfloat>(mAmbientLightColor.mV, 3));
         shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_primary[0] ? 1 : 0);
@@ -1570,7 +1570,7 @@ LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
         hash.update(reinterpret_cast<U8*>(mVerticesp.get()), count * sizeof(LLVector4a));
         if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
         {
-            hash.update(reinterpret_cast<U8*>(mTexcoordsp.get()), count * sizeof(LLVector2));
+            hash.update(reinterpret_cast<U8*>(mTexcoordsp.get()), count * sizeof(glm::vec2));
         }
 
         if (attribute_mask & LLVertexBuffer::MAP_COLOR)
@@ -1769,7 +1769,7 @@ void LLRender::vertexBatchPreTransformed(std::span<const LLVector4a> verts)
         mVerticesp[mCount] = mVerticesp[mCount-1];
 }
 
-void LLRender::vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const LLVector2> uvs)
+void LLRender::vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const glm::vec2> uvs)
 {
     S32 vert_count = narrow(verts.size());
     if (mCount + vert_count > 4094) [[unlikely]]
@@ -1794,7 +1794,7 @@ void LLRender::vertexBatchPreTransformed(std::span<const LLVector4a> verts, std:
     }
 }
 
-void LLRender::vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const LLVector2> uvs, std::span<const LLColor4U> colors)
+void LLRender::vertexBatchPreTransformed(std::span<const LLVector4a> verts, std::span<const glm::vec2> uvs, std::span<const LLColor4U> colors)
 {
     S32 vert_count = narrow(verts.size());
     if (mCount + vert_count > 4094) [[unlikely]]
@@ -1842,7 +1842,7 @@ void LLRender::vertex3fv(const GLfloat* v)
 
 void LLRender::texCoord2f(const GLfloat& x, const GLfloat& y)
 {
-    mTexcoordsp[mCount] = LLVector2(x,y);
+    mTexcoordsp[mCount] = glm::vec2(x,y);
 }
 
 void LLRender::texCoord2i(const GLint& x, const GLint& y)

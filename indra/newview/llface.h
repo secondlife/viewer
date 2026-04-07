@@ -107,8 +107,8 @@ public:
     void            getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_pos, F32* scale) const;
     bool            calcAlignedPlanarGLTF(const LLFace* align_to, glm::vec2* res_st_offset,
                                         glm::vec2* res_st_scale, F32* res_st_rot, S32 gltf_info_index = 0) const;
-    bool            calcAlignedPlanarTE(const LLFace* align_to, LLVector2* st_offset,
-                                        LLVector2* st_scale, F32* st_rot, LLRender::eTexIndex map = LLRender::DIFFUSE_MAP) const;
+    bool            calcAlignedPlanarTE(const LLFace* align_to, glm::vec2* st_offset,
+                                        glm::vec2* st_scale, F32* st_rot, LLRender::eTexIndex map = LLRender::DIFFUSE_MAP) const;
 
     U32             getState()          const   { return mState; }
     void            setState(U32 state)         { mState |= state; }
@@ -164,14 +164,14 @@ public:
     U16          getGeometryAvatar(
                                     LLStrider<LLVector3> &vertices,
                                     LLStrider<LLVector3> &normals,
-                                    LLStrider<LLVector2> &texCoords,
+                                    LLStrider<glm::vec2> &texCoords,
                                     LLStrider<F32>       &vertex_weights,
                                     LLStrider<LLVector4> &clothing_weights);
 
     // For volumes, etc.
     U16             getGeometry(LLStrider<LLVector3> &vertices,
                                 LLStrider<LLVector3> &normals,
-                                LLStrider<LLVector2> &texCoords,
+                                LLStrider<glm::vec2> &texCoords,
                                 LLStrider<U16>  &indices);
 
     S32 getColors(LLStrider<LLColor4U> &colors);
@@ -251,7 +251,7 @@ public:
     LLVector3       mCenterLocal;
     LLVector3       mCenterAgent;
 
-    LLVector2       mTexExtents[2];
+    glm::vec2       mTexExtents[2];
     F32             mDistance;
     F32         mLastUpdateTime;
     F32         mLastSkinTime;

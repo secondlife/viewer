@@ -462,7 +462,7 @@ void LLVOGrass::plantBlades()
 void LLVOGrass::getGeometry(S32 idx,
                                 LLStrider<LLVector4a>& verticesp,
                                 LLStrider<LLVector3>& normalsp,
-                                LLStrider<LLVector2>& texcoordsp,
+                                LLStrider<glm::vec2>& texcoordsp,
                                 LLStrider<LLColor4U>& colorsp,
                                 LLStrider<LLColor4U>& emissivep,
                                 LLStrider<U16>& indicesp)
@@ -503,14 +503,14 @@ void LLVOGrass::getGeometry(S32 idx,
         LLVector3 v1,v2,v3;
         F32 blade_height= GRASS_BLADE_HEIGHT * height * w_mod[i];
 
-        *texcoordsp++   = LLVector2(0, 0);
-        *texcoordsp++   = LLVector2(0, 0);
-        *texcoordsp++   = LLVector2(0, 0.98f);
-        *texcoordsp++   = LLVector2(0, 0.98f);
-        *texcoordsp++   = LLVector2(1, 0);
-        *texcoordsp++   = LLVector2(1, 0);
-        *texcoordsp++   = LLVector2(1, 0.98f);
-        *texcoordsp++   = LLVector2(1, 0.98f);
+        *texcoordsp++   = glm::vec2(0, 0);
+        *texcoordsp++   = glm::vec2(0, 0);
+        *texcoordsp++   = glm::vec2(0, 0.98f);
+        *texcoordsp++   = glm::vec2(0, 0.98f);
+        *texcoordsp++   = glm::vec2(1, 0);
+        *texcoordsp++   = glm::vec2(1, 0);
+        *texcoordsp++   = glm::vec2(1, 0.98f);
+        *texcoordsp++   = glm::vec2(1, 0.98f);
 
         position.mV[0]  = mPosition.mV[VX] + x + xf;
         position.mV[1]  = mPosition.mV[VY] + y + yf;
@@ -668,7 +668,7 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
     LLStrider<U16> indicesp;
     LLStrider<LLVector4a> verticesp;
     LLStrider<LLVector3> normalsp;
-    LLStrider<LLVector2> texcoordsp;
+    LLStrider<glm::vec2> texcoordsp;
     LLStrider<LLColor4U> colorsp;
 
     buffer->getVertexStrider(verticesp);
@@ -768,7 +768,7 @@ bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
     F32 width  = sSpeciesTable[mSpecies]->mBladeSizeX;
     F32 height = sSpeciesTable[mSpecies]->mBladeSizeY;
 
-    LLVector2 tc[4];
+    glm::vec2 tc[4];
     LLVector3 v[4];
     //LLVector3 n[4];
 
@@ -786,10 +786,10 @@ bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
         LLVector3 v1,v2,v3;
         F32 blade_height= GRASS_BLADE_HEIGHT * height * w_mod[i];
 
-        tc[0]   = LLVector2(0, 0);
-        tc[1]   = LLVector2(0, 0.98f);
-        tc[2]   = LLVector2(1, 0);
-        tc[3]   = LLVector2(1, 0.98f);
+        tc[0]   = glm::vec2(0, 0);
+        tc[1]   = glm::vec2(0, 0.98f);
+        tc[2]   = glm::vec2(1, 0);
+        tc[3]   = glm::vec2(1, 0.98f);
 
         position.mV[0]  = mPosition.mV[VX] + x + xf;
         position.mV[1]  = mPosition.mV[VY] + y + yf;
@@ -861,11 +861,11 @@ bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
                 t < closest_t)
             {
 
-                LLVector2 hit_tc = ((1.f - a - b)  * tc[idx0] +
+                glm::vec2 hit_tc = ((1.f - a - b)  * tc[idx0] +
                                       a              * tc[idx1] +
                                       b              * tc[idx2]);
                 if (pick_transparent ||
-                    getTEImage(0)->getMask(glm::vec2(hit_tc.mV[0], hit_tc.mV[1])))
+                    getTEImage(0)->getMask(hit_tc))
                 {
                     closest_t = t;
                     if (intersection != NULL)
@@ -876,7 +876,7 @@ bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
 
                     if (tex_coord != NULL)
                     {
-                        *tex_coord = glm::vec2(hit_tc.mV[0], hit_tc.mV[1]);
+                        *tex_coord = hit_tc;
                     }
 
                     if (normal != NULL)

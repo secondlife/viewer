@@ -833,27 +833,27 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
         }
         if (set_aligned)
         {
-            LLVector2 uv_offset, uv_scale;
+            glm::vec2 uv_offset, uv_scale;
             F32 uv_rot;
             set_aligned = facep->calcAlignedPlanarTE(mCenterFace, &uv_offset, &uv_scale, &uv_rot);
             if (set_aligned)
             {
-                object->setTEOffset(te, uv_offset.mV[VX], uv_offset.mV[VY]);
-                object->setTEScale(te, uv_scale.mV[VX], uv_scale.mV[VY]);
+                object->setTEOffset(te, uv_offset.x, uv_offset.y);
+                object->setTEScale(te, uv_scale.x, uv_scale.y);
                 object->setTERotation(te, uv_rot);
 
                 LLPanelFace::LLSelectedTEMaterial::setNormalRotation(mPanel, uv_rot, te, object->getID());
                 LLPanelFace::LLSelectedTEMaterial::setSpecularRotation(mPanel, uv_rot, te, object->getID());
 
-                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, uv_offset.mV[VX], te, object->getID());
-                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, uv_offset.mV[VY], te, object->getID());
-                LLPanelFace::LLSelectedTEMaterial::setNormalRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
-                LLPanelFace::LLSelectedTEMaterial::setNormalRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
+                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, uv_offset.x, te, object->getID());
+                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, uv_offset.y, te, object->getID());
+                LLPanelFace::LLSelectedTEMaterial::setNormalRepeatX(mPanel, uv_scale.x, te, object->getID());
+                LLPanelFace::LLSelectedTEMaterial::setNormalRepeatY(mPanel, uv_scale.y, te, object->getID());
 
-                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, uv_offset.mV[VX], te, object->getID());
-                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.mV[VY], te, object->getID());
-                LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
-                LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
+                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, uv_offset.x, te, object->getID());
+                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.y, te, object->getID());
+                LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, uv_scale.x, te, object->getID());
+                LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, uv_scale.y, te, object->getID());
             }
 
             // Also align GLTF material if any
@@ -912,30 +912,30 @@ struct LLPanelFaceSetAlignedConcreteTEFunctor : public LLSelectedTEFunctor
 
         if (mChefFace != facep)
         {
-            LLVector2 uv_offset, uv_scale;
+            glm::vec2 uv_offset, uv_scale;
             F32 uv_rot;
             if (facep->calcAlignedPlanarTE(mChefFace, &uv_offset, &uv_scale, &uv_rot, mMap))
             {
                 switch (mMap)
                 {
                 case LLRender::DIFFUSE_MAP:
-                        object->setTEOffset(te, uv_offset.mV[VX], uv_offset.mV[VY]);
-                        object->setTEScale(te, uv_scale.mV[VX], uv_scale.mV[VY]);
+                        object->setTEOffset(te, uv_offset.x, uv_offset.y);
+                        object->setTEScale(te, uv_scale.x, uv_scale.y);
                         object->setTERotation(te, uv_rot);
                     break;
                 case LLRender::NORMAL_MAP:
                         LLPanelFace::LLSelectedTEMaterial::setNormalRotation(mPanel, uv_rot, te, object->getID());
-                        LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, uv_offset.mV[VX], te, object->getID());
-                        LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, uv_offset.mV[VY], te, object->getID());
-                        LLPanelFace::LLSelectedTEMaterial::setNormalRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
-                        LLPanelFace::LLSelectedTEMaterial::setNormalRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
+                        LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, uv_offset.x, te, object->getID());
+                        LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, uv_offset.y, te, object->getID());
+                        LLPanelFace::LLSelectedTEMaterial::setNormalRepeatX(mPanel, uv_scale.x, te, object->getID());
+                        LLPanelFace::LLSelectedTEMaterial::setNormalRepeatY(mPanel, uv_scale.y, te, object->getID());
                     break;
                 case LLRender::SPECULAR_MAP:
                         LLPanelFace::LLSelectedTEMaterial::setSpecularRotation(mPanel, uv_rot, te, object->getID());
-                        LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, uv_offset.mV[VX], te, object->getID());
-                        LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.mV[VY], te, object->getID());
-                        LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
-                        LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
+                        LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, uv_offset.x, te, object->getID());
+                        LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.y, te, object->getID());
+                        LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, uv_scale.x, te, object->getID());
+                        LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, uv_scale.y, te, object->getID());
                     break;
                 default: /*make compiler happy*/
                     break;
@@ -975,7 +975,7 @@ struct LLPanelFaceGetIsAlignedTEFunctor : public LLSelectedTEFunctor
             return true;
         }
 
-        LLVector2 aligned_st_offset, aligned_st_scale;
+        glm::vec2 aligned_st_offset, aligned_st_scale;
         F32 aligned_st_rot;
         if (facep->calcAlignedPlanarTE(mCenterFace, &aligned_st_offset, &aligned_st_scale, &aligned_st_rot))
         {
@@ -984,15 +984,15 @@ struct LLPanelFaceGetIsAlignedTEFunctor : public LLSelectedTEFunctor
             {
                 return false;
             }
-            LLVector2 st_offset, st_scale;
-            tep->getOffset(&st_offset.mV[VX], &st_offset.mV[VY]);
-            tep->getScale(&st_scale.mV[VX], &st_scale.mV[VY]);
+            glm::vec2 st_offset, st_scale;
+            tep->getOffset(&st_offset.x, &st_offset.y);
+            tep->getScale(&st_scale.x, &st_scale.y);
             F32 st_rot = tep->getRotation();
 
-            bool eq_offset_x = is_approx_equal_fraction(st_offset.mV[VX], aligned_st_offset.mV[VX], 12);
-            bool eq_offset_y = is_approx_equal_fraction(st_offset.mV[VY], aligned_st_offset.mV[VY], 12);
-            bool eq_scale_x  = is_approx_equal_fraction(st_scale.mV[VX], aligned_st_scale.mV[VX], 12);
-            bool eq_scale_y  = is_approx_equal_fraction(st_scale.mV[VY], aligned_st_scale.mV[VY], 12);
+            bool eq_offset_x = is_approx_equal_fraction(st_offset.x, aligned_st_offset.x, 12);
+            bool eq_offset_y = is_approx_equal_fraction(st_offset.y, aligned_st_offset.y, 12);
+            bool eq_scale_x  = is_approx_equal_fraction(st_scale.x, aligned_st_scale.x, 12);
+            bool eq_scale_y  = is_approx_equal_fraction(st_scale.y, aligned_st_scale.y, 12);
             bool eq_rot      = is_approx_equal_fraction(st_rot, aligned_st_rot, 6);
 
             // needs a fuzzy comparison, because of fp errors

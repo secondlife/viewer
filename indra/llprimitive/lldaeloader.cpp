@@ -228,7 +228,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(
 
         if (tc_source)
         {
-            cv.mTexCoord.set(static_cast<F32>(tc[idx[i+tc_offset]*2+0]),
+            cv.mTexCoord = glm::vec2(static_cast<F32>(tc[idx[i+tc_offset]*2+0]),
                                 static_cast<F32>(tc[idx[i+tc_offset]*2+1]));
         }
 
@@ -463,7 +463,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 
                 if (idx_y < tc.getCount())
                 {
-                    cv.mTexCoord.set(static_cast<F32>(tc[idx_x]), static_cast<F32>(tc[idx_y]));
+                    cv.mTexCoord = glm::vec2(static_cast<F32>(tc[idx_x]), static_cast<F32>(tc[idx_y]));
                 }
                 else if (log_tc_msg)
                 {
@@ -771,12 +771,12 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
             {
                 U32 t_idx = static_cast<U32>(idx[j*stride+t_offset])*2;
                 t_idx = llclamp(t_idx, static_cast<U32>(0), static_cast<U32>(t->getCount()));
-                vert.mTexCoord.set(static_cast<F32>(t->get(t_idx)),
+                vert.mTexCoord = glm::vec2(static_cast<F32>(t->get(t_idx)),
                                 static_cast<F32>(t->get(t_idx+1)));
             }
             else
             {
-                vert.mTexCoord.clear();
+                vert.mTexCoord = glm::vec2(0.0f);
             }
 
 

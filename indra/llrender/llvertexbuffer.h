@@ -105,7 +105,7 @@ public:
     static void cleanupClass();
     static void setupClientArrays(U32 data_mask);
     static void drawArrays(U32 mode, const std::vector<LLVector3>& pos);
-    static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, std::span<const U16> indices);
+    static void drawElements(U32 mode, const LLVector4a* pos, const glm::vec2* tc, std::span<const U16> indices);
 
     static void unbind(); //unbind any bound vertex buffer
 
@@ -211,9 +211,9 @@ public:
     bool getVertexStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
     bool getVertexStrider(LLStrider<LLVector4a>& strider, U32 index=0, S32 count = -1);
     bool getIndexStrider(LLStrider<U16>& strider, U32 index=0, S32 count = -1);
-    bool getTexCoord0Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    bool getTexCoord1Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
-    bool getTexCoord2Strider(LLStrider<LLVector2>& strider, U32 index=0, S32 count = -1);
+    bool getTexCoord0Strider(LLStrider<glm::vec2>& strider, U32 index=0, S32 count = -1);
+    bool getTexCoord1Strider(LLStrider<glm::vec2>& strider, U32 index=0, S32 count = -1);
+    bool getTexCoord2Strider(LLStrider<glm::vec2>& strider, U32 index=0, S32 count = -1);
     bool getNormalStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
     bool getNormalStrider(LLStrider<LLVector4a>& strider, U32 index = 0, S32 count = -1);
     bool getTangentStrider(LLStrider<LLVector3>& strider, U32 index=0, S32 count = -1);
@@ -229,8 +229,8 @@ public:
     void setTangentData(const LLVector4a* data);
     void setWeight4Data(const LLVector4a* data);
     void setJointData(const U64* data);
-    void setTexCoord0Data(const LLVector2* data);
-    void setTexCoord1Data(const LLVector2* data);
+    void setTexCoord0Data(const glm::vec2* data);
+    void setTexCoord1Data(const glm::vec2* data);
     void setColorData(const LLColor4U* data);
     void setIndexData(const U16* data);
     void setIndexData(const U32* data);
@@ -240,8 +240,8 @@ public:
     void setTangentData(std::span<const LLVector4a> data, U32 offset);
     void setWeight4Data(std::span<const LLVector4a> data, U32 offset);
     void setJointData(std::span<const U64> data, U32 offset);
-    void setTexCoord0Data(std::span<const LLVector2> data, U32 offset);
-    void setTexCoord1Data(std::span<const LLVector2> data, U32 offset);
+    void setTexCoord0Data(std::span<const glm::vec2> data, U32 offset);
+    void setTexCoord1Data(std::span<const glm::vec2> data, U32 offset);
     void setColorData(std::span<const LLColor4U> data, U32 offset);
     void setIndexData(std::span<const U16> data, U32 offset);
     void setIndexData(std::span<const U32> data, U32 offset);

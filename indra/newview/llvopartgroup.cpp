@@ -518,25 +518,25 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
             LLVector4a normvel;
             normvel.load3(part.mVelocity.mV);
             normvel.normalize3fast();
-            LLVector2 up_fracs;
-            up_fracs.mV[0] = normvel.dot3(right).getF32();
-            up_fracs.mV[1] = normvel.dot3(up).getF32();
-            up_fracs.normalize();
+            glm::vec2 up_fracs;
+            up_fracs.x = normvel.dot3(right).getF32();
+            up_fracs.y = normvel.dot3(up).getF32();
+            up_fracs = glm::normalize(up_fracs);
             LLVector4a new_up;
             LLVector4a new_right;
 
-            //new_up = up_fracs.mV[0] * right + up_fracs.mV[1]*up;
+            //new_up = up_fracs.x * right + up_fracs.y*up;
             LLVector4a t = right;
-            t.mul(up_fracs.mV[0]);
+            t.mul(up_fracs.x);
             new_up = up;
-            new_up.mul(up_fracs.mV[1]);
+            new_up.mul(up_fracs.y);
             new_up.add(t);
 
-            //new_right = up_fracs.mV[1] * right - up_fracs.mV[0]*up;
+            //new_right = up_fracs.y * right - up_fracs.x*up;
             t = right;
-            t.mul(up_fracs.mV[1]);
+            t.mul(up_fracs.y);
             new_right = up;
-            new_right.mul(up_fracs.mV[0]);
+            new_right.mul(up_fracs.x);
             t.sub(new_right);
 
             up = new_up;
@@ -575,7 +575,7 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
 void LLVOPartGroup::getGeometry(S32 idx,
                                 LLStrider<LLVector4a>& verticesp,
                                 LLStrider<LLVector3>& normalsp,
-                                LLStrider<LLVector2>& texcoordsp,
+                                LLStrider<glm::vec2>& texcoordsp,
                                 LLStrider<LLColor4U>& colorsp,
                                 LLStrider<LLColor4U>& emissivep,
                                 LLStrider<U16>& indicesp)
@@ -709,16 +709,16 @@ void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
                 geom_idx += 4;
             }
 
-            LLStrider<LLVector2> texcoordsp;
+            LLStrider<glm::vec2> texcoordsp;
 
             group->mVertexBuffer->getTexCoord0Strider(texcoordsp);
 
             for (U32 i = 0; i < vertex_count; i += 4)
             {
-                *texcoordsp++ = LLVector2(0.f, 1.f);
-                *texcoordsp++ = LLVector2(0.f, 0.f);
-                *texcoordsp++ = LLVector2(1.f, 1.f);
-                *texcoordsp++ = LLVector2(1.f, 0.f);
+                *texcoordsp++ = glm::vec2(0.f, 1.f);
+                *texcoordsp++ = glm::vec2(0.f, 0.f);
+                *texcoordsp++ = glm::vec2(1.f, 1.f);
+                *texcoordsp++ = glm::vec2(1.f, 0.f);
             }
 
         }
@@ -819,7 +819,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
         LLStrider<LLColor4U> cur_glow = emissivep + geom_idx;
 
         // not actually used
-        LLStrider<LLVector2> cur_tc;
+        LLStrider<glm::vec2> cur_tc;
         LLStrider<U16> cur_idx;
 
 

@@ -78,7 +78,7 @@ public:
 
     void appendMesh(LLStrider<LLVector3>& vertices,
                          LLStrider<LLVector3>& normals,
-                         LLStrider<LLVector2>& tex_coords,
+                         LLStrider<glm::vec2>& tex_coords,
                          LLStrider<LLColor4U>& colors,
                          LLStrider<U16>& indices,
                          U16& idx_offset,
@@ -91,7 +91,7 @@ public:
 
     void genBranchPipeline(LLStrider<LLVector3>& vertices,
                                  LLStrider<LLVector3>& normals,
-                                 LLStrider<LLVector2>& tex_coords,
+                                 LLStrider<glm::vec2>& tex_coords,
                                  LLStrider<LLColor4U>& colors,
                                  LLStrider<U16>& indices,
                                  U16& index_offset,

@@ -124,7 +124,7 @@ bool LLVOWater::updateGeometry(LLDrawable *drawable)
 //  LLVector3 vtx[4];
 
     LLStrider<LLVector3> verticesp, normalsp;
-    LLStrider<LLVector2> texCoordsp;
+    LLStrider<glm::vec2> texCoordsp;
     LLStrider<U16> indicesp;
     U16 index_offset;
 
@@ -198,10 +198,10 @@ bool LLVOWater::updateGeometry(LLDrawable *drawable)
             *verticesp++  = position_agent + right + up;
             *verticesp++  = position_agent + right - up;
 
-            *texCoordsp++ = LLVector2(x*size_inv_x, (y+1)*size_inv_y);
-            *texCoordsp++ = LLVector2(x*size_inv_x, y*size_inv_y);
-            *texCoordsp++ = LLVector2((x+1)*size_inv_x, (y+1)*size_inv_y);
-            *texCoordsp++ = LLVector2((x+1)*size_inv_x, y*size_inv_y);
+            *texCoordsp++ = glm::vec2(x*size_inv_x, (y+1)*size_inv_y);
+            *texCoordsp++ = glm::vec2(x*size_inv_x, y*size_inv_y);
+            *texCoordsp++ = glm::vec2((x+1)*size_inv_x, (y+1)*size_inv_y);
+            *texCoordsp++ = glm::vec2((x+1)*size_inv_x, y*size_inv_y);
 
             *normalsp++   = normal;
             *normalsp++   = normal;

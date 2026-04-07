@@ -146,7 +146,7 @@ bool LLVOWLSky::updateGeometry(LLDrawable * drawable)
 {
     LL_PROFILE_ZONE_SCOPED;
     LLStrider<LLVector3>    vertices;
-    LLStrider<LLVector2>    texCoords;
+    LLStrider<glm::vec2>    texCoords;
     LLStrider<U16>          indices;
 
     if (mFsSkyVerts.isNull())
@@ -172,10 +172,10 @@ bool LLVOWLSky::updateGeometry(LLDrawable * drawable)
         *vertices++ = LLVector3(-1.0f,  1.0f, 0.0f);
         *vertices++ = LLVector3( 1.0f,  1.0f, 0.0f);
 
-        *texCoords++ = LLVector2(0.0f, 0.0f);
-        *texCoords++ = LLVector2(1.0f, 0.0f);
-        *texCoords++ = LLVector2(0.0f, 1.0f);
-        *texCoords++ = LLVector2(1.0f, 1.0f);
+        *texCoords++ = glm::vec2(0.0f, 0.0f);
+        *texCoords++ = glm::vec2(1.0f, 0.0f);
+        *texCoords++ = glm::vec2(0.0f, 1.0f);
+        *texCoords++ = glm::vec2(1.0f, 1.0f);
 
         *indices++ = 0;
         *indices++ = 1;
@@ -372,7 +372,7 @@ void LLVOWLSky::initStars()
 void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
                                   U32 end_stack,
                                   LLStrider<LLVector3> & vertices,
-                                  LLStrider<LLVector2> & texCoords,
+                                  LLStrider<glm::vec2> & texCoords,
                                   LLStrider<U16> & indices,
                                   const F32 dome_radius,
                                   const U32& num_slices,
@@ -424,7 +424,7 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
             // note: x and z are transposed in order for things to animate
             // correctly in the global coordinate system where +x is east and
             // +y is north
-            *texCoords++    = LLVector2((-z0 + 1.f) / 2.f, (-x0 + 1.f) / 2.f);
+            *texCoords++    = glm::vec2((-z0 + 1.f) / 2.f, (-x0 + 1.f) / 2.f);
         }
     }
 
@@ -510,7 +510,7 @@ bool LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
 {
     LLStrider<LLVector3> verticesp;
     LLStrider<LLColor4U> colorsp;
-    LLStrider<LLVector2> texcoordsp;
+    LLStrider<glm::vec2> texcoordsp;
 
     if (mStarsVerts.isNull())
     {
@@ -557,12 +557,12 @@ bool LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
         *(verticesp++) = mStarVertices[vtx]+left+up;
         *(verticesp++) = mStarVertices[vtx]+left;
 
-        *(texcoordsp++) = LLVector2(1,0);
-        *(texcoordsp++) = LLVector2(1,1);
-        *(texcoordsp++) = LLVector2(0,1);
-        *(texcoordsp++) = LLVector2(1,0);
-        *(texcoordsp++) = LLVector2(0,1);
-        *(texcoordsp++) = LLVector2(0,0);
+        *(texcoordsp++) = glm::vec2(1,0);
+        *(texcoordsp++) = glm::vec2(1,1);
+        *(texcoordsp++) = glm::vec2(0,1);
+        *(texcoordsp++) = glm::vec2(1,0);
+        *(texcoordsp++) = glm::vec2(0,1);
+        *(texcoordsp++) = glm::vec2(0,0);
 
         *(colorsp++)    = LLColor4U(mStarColors[vtx]);
         *(colorsp++)    = LLColor4U(mStarColors[vtx]);

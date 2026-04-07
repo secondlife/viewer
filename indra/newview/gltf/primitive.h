@@ -55,8 +55,8 @@ namespace LL
             ~Primitive();
 
             // CPU copy of mesh data
-            std::vector<LLVector2> mTexCoords0;
-            std::vector<LLVector2> mTexCoords1;
+            std::vector<glm::vec2> mTexCoords0;
+            std::vector<glm::vec2> mTexCoords1;
             std::vector<LLVector4a> mNormals;
             std::vector<LLVector4a> mTangents;
             std::vector<LLVector4a> mPositions;

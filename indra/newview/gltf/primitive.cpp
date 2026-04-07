@@ -45,8 +45,8 @@ struct MikktMesh
     std::vector<LLVector3> p;       //positions
     std::vector<LLVector3> n;       //normals
     std::vector<LLVector4> t;       //tangents
-    std::vector<LLVector2> tc0;     //texcoords 0
-    std::vector<LLVector2> tc1;     //texcoords 1
+    std::vector<glm::vec2> tc0;     //texcoords 0
+    std::vector<glm::vec2> tc1;     //texcoords 1
     std::vector<LLColor4U> c;       //colors
     std::vector<LLVector4> w;       //weights
     std::vector<U64> j;             //joints
@@ -146,12 +146,12 @@ struct MikktMesh
             {
                 U32 i = tri_idx * 3 + v;
                 p[i].set(prim->mPositions[idx[v]].getF32ptr());
-                tc0[i].set(prim->mTexCoords0[idx[v]]);
+                tc0[i] = prim->mTexCoords0[idx[v]];
                 c[i] = prim->mColors[idx[v]];
 
                 if (multi_uv)
                 {
-                    tc1[i].set(prim->mTexCoords1[idx[v]]);
+                    tc1[i] = prim->mTexCoords1[idx[v]];
                 }
 
                 if (has_normals)
@@ -205,7 +205,7 @@ struct MikktMesh
             { &p[0], sizeof(LLVector3), sizeof(LLVector3) },
             { &n[0], sizeof(LLVector3), sizeof(LLVector3) },
             { &t[0], sizeof(LLVector4), sizeof(LLVector4) },
-            { &tc0[0], sizeof(LLVector2), sizeof(LLVector2) },
+            { &tc0[0], sizeof(glm::vec2), sizeof(glm::vec2) },
             { &c[0], sizeof(LLColor4U), sizeof(LLColor4U) }
         };
 
@@ -217,7 +217,7 @@ struct MikktMesh
 
         if (!tc1.empty())
         {
-            mos.push_back({ &tc1[0], sizeof(LLVector2), sizeof(LLVector2) });
+            mos.push_back({ &tc1[0], sizeof(glm::vec2), sizeof(glm::vec2) });
         }
 
         std::vector<U32> remap;
@@ -290,8 +290,8 @@ struct MikktMesh
 
     mikk::float3 GetTexCoord(const uint32_t face_num, const uint32_t vert_num)
     {
-        F32* uv = tc0[face_num * 3 + vert_num].mV;
-        return mikk::float3(uv[0], 1.f-uv[1], 1.0f);
+        const glm::vec2& uv = tc0[face_num * 3 + vert_num];
+        return mikk::float3(uv.x, 1.f-uv.y, 1.0f);
     }
 
     mikk::float3 GetNormal(const uint32_t face_num, const uint32_t vert_num)
@@ -308,7 +308,7 @@ struct MikktMesh
 };
 
 
-static void vertical_flip(std::vector<LLVector2>& texcoords)
+static void vertical_flip(std::vector<glm::vec2>& texcoords)
 {
     for (auto& tc : texcoords)
     {
@@ -567,13 +567,13 @@ void Primitive::upload(LLVertexBuffer* buffer)
 
     // flip texcoord y, upload, then flip back (keep the off-spec data in vram only)
     vertical_flip(mTexCoords0);
-    mVertexBuffer->setTexCoord0Data(std::span<const LLVector2>(mTexCoords0.data(), count), offset);
+    mVertexBuffer->setTexCoord0Data(std::span<const glm::vec2>(mTexCoords0.data(), count), offset);
     vertical_flip(mTexCoords0);
 
     if (!mTexCoords1.empty())
     {
         vertical_flip(mTexCoords1);
-        mVertexBuffer->setTexCoord1Data(std::span<const LLVector2>(mTexCoords1.data(), count), offset);
+        mVertexBuffer->setTexCoord1Data(std::span<const glm::vec2>(mTexCoords1.data(), count), offset);
         vertical_flip(mTexCoords1);
     }
 

@@ -84,7 +84,7 @@ public:
                 void        getGeometry(S32 idx,
                                 LLStrider<LLVector4a>& verticesp,
                                 LLStrider<LLVector3>& normalsp,
-                                LLStrider<LLVector2>& texcoordsp,
+                                LLStrider<glm::vec2>& texcoordsp,
                                 LLStrider<LLColor4U>& colorsp,
                                 LLStrider<LLColor4U>& emissivep,
                                 LLStrider<U16>& indicesp);

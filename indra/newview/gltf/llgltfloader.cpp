@@ -965,7 +965,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
             LLVector4a normal = LLVector4a(vertices[i].normal.x, vertices[i].normal.y, vertices[i].normal.z);
             vert.setPosition(position);
             vert.setNormal(normal);
-            vert.mTexCoord = LLVector2(vertices[i].uv0.x, vertices[i].uv0.y);
+            vert.mTexCoord = glm::vec2(vertices[i].uv0.x, vertices[i].uv0.y);
             faceVertices.push_back(vert);
 
             if (skinIdx >= 0)

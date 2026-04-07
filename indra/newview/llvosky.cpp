@@ -74,10 +74,10 @@ namespace
     const F32 SUN_INTENSITY = 1e5;
 
 // Texture coordinates:
-    const LLVector2 TEX00 = LLVector2(0.f, 0.f);
-    const LLVector2 TEX01 = LLVector2(0.f, 1.f);
-    const LLVector2 TEX10 = LLVector2(1.f, 0.f);
-    const LLVector2 TEX11 = LLVector2(1.f, 1.f);
+    const glm::vec2 TEX00 = glm::vec2(0.f, 0.f);
+    const glm::vec2 TEX01 = glm::vec2(0.f, 1.f);
+    const glm::vec2 TEX10 = glm::vec2(1.f, 0.f);
+    const glm::vec2 TEX11 = glm::vec2(1.f, 1.f);
 
     F32Seconds UPDATE_EXPRY(0.25f);
 
@@ -990,7 +990,7 @@ bool LLVOSky::updateGeometry(LLDrawable *drawable)
 
     LLStrider<LLVector3> verticesp;
     LLStrider<LLVector3> normalsp;
-    LLStrider<LLVector2> texCoordsp;
+    LLStrider<glm::vec2> texCoordsp;
     LLStrider<U16> indicesp;
     U16 index_offset;
     LLFace *face;
@@ -1088,7 +1088,7 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
 
     LLStrider<LLVector3> verticesp;
     LLStrider<LLVector3> normalsp;
-    LLStrider<LLVector2> texCoordsp;
+    LLStrider<glm::vec2> texCoordsp;
     LLStrider<U16> indicesp;
     S32 index_offset;
     LLFace *facep;
@@ -1253,8 +1253,8 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
     LLVector3 top_hb = v_corner[0] = stretch_corner[0] = hb_pos - Right + Up;
     v_corner[1] = stretch_corner[1] = hb_pos - Right - Up;
 
-    LLVector2 TEX0t = TEX00;
-    LLVector2 TEX1t = TEX10;
+    glm::vec2 TEX0t = TEX00;
+    glm::vec2 TEX1t = TEX10;
     LLVector3 lower_corner = v_corner[1];
 
     top_hb.normalize();
@@ -1288,8 +1288,8 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
     v_corner[1] = lower_corner;
 
 
-    LLVector2 TEX0tt = TEX01;
-    LLVector2 TEX1tt = TEX11;
+    glm::vec2 TEX0tt = TEX01;
+    glm::vec2 TEX1tt = TEX11;
 
     LLVector3 v_refl_corner[4];
     LLVector3 v_sprite_corner[4];
@@ -1356,8 +1356,8 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 
         F32 dt_tex = dtReflection(P, cos_dir_from_top[0], sin_dir_from_top, diff_angl_dir);
 
-        TEX0tt = LLVector2(0, dt_tex);
-        TEX1tt = LLVector2(1, dt_tex);
+        TEX0tt = glm::vec2(0, dt_tex);
+        TEX1tt = glm::vec2(1, dt_tex);
         quads++;
     }
     else
@@ -1387,7 +1387,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 
     LLStrider<LLVector3> verticesp;
     LLStrider<LLVector3> normalsp;
-    LLStrider<LLVector2> texCoordsp;
+    LLStrider<glm::vec2> texCoordsp;
     LLStrider<U16> indicesp;
     S32 index_offset;
 
@@ -1499,10 +1499,10 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
                 *(verticesp++) = (1 - dt_h1) * EL + dt_h1 * ER + mCameraPosAgent;
                 *(verticesp++) = (1 - dt_h1) * BL + dt_h1 * BR + mCameraPosAgent;
 
-                *(texCoordsp++) = LLVector2(dt_h0, dt_v1);
-                *(texCoordsp++) = LLVector2(dt_h0, dt_v0);
-                *(texCoordsp++) = LLVector2(dt_h1, dt_v1);
-                *(texCoordsp++) = LLVector2(dt_h1, dt_v0);
+                *(texCoordsp++) = glm::vec2(dt_h0, dt_v1);
+                *(texCoordsp++) = glm::vec2(dt_h0, dt_v0);
+                *(texCoordsp++) = glm::vec2(dt_h1, dt_v1);
+                *(texCoordsp++) = glm::vec2(dt_h1, dt_v0);
 
                 *indicesp++ = index_offset + 0;
                 *indicesp++ = index_offset + 2;
