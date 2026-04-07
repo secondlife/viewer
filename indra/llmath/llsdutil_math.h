@@ -47,12 +47,7 @@ class LLVector3d;
 LLSD ll_sd_from_vector3d(const LLVector3d& vec);
 LLVector3d ll_vector3d_from_sd(const LLSD& sd, S32 start_index = 0);
 
-// vector2
-class LLVector2;
-LLSD ll_sd_from_vector2(const LLVector2& vec);
-LLVector2 ll_vector2_from_sd(const LLSD& sd);
-
-// glm::vec2 — LLSD round-trip helpers (transitional, for LLVector2 → glm::vec2 migration)
+// vec2
 LLSD ll_sd_from_vec2(const glm::vec2& vec);
 glm::vec2 ll_vec2_from_sd(const LLSD& sd);
 

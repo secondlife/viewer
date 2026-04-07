@@ -32,7 +32,6 @@
 
 class LLColor4;
 class LLColor4U;
-class LLVector2;
 class LLVector3;
 class LLVector4;
 class LLUUID;

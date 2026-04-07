@@ -28,6 +28,8 @@
 #include "llsettingsbase.h"
 
 #include "llmath.h"
+#include "llsdutil_math.h"
+#include "glm/glm.hpp"
 #include <algorithm>
 
 #include "llsdserialize.h"
@@ -131,12 +133,6 @@ void LLSettingsBase::saveValuesIfNeeded()
 }
 
 //=========================================================================
-void LLSettingsBase::lerpVector2(LLVector2& a, const LLVector2& b, F32 mix)
-{
-    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
-    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
-}
-
 void LLSettingsBase::lerpVec2(glm::vec2& a, const glm::vec2& b, F32 mix)
 {
     a.x = lerp(a.x, b.x, mix);
@@ -635,11 +631,15 @@ bool LLSettingsBase::Validator::verifyVectorNormalized(LLSD &value, U32, S32 len
     {
     case 2:
     {
-        LLVector2 vect(value);
-
-        if (is_approx_equal(vect.normalize(), 1.0f))
+        glm::vec2 vect = ll_vec2_from_sd(value);
+        F32 length = glm::length(vect);
+        if (is_approx_equal(length, 1.0f))
             return true;
-        newvector = vect.getValue();
+        if (length > 0.f)
+        {
+            vect /= length;
+        }
+        newvector = ll_sd_from_vec2(vect);
         break;
     }
     case 3:
