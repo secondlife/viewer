@@ -804,7 +804,6 @@ void LLHUDNameTag::updateAll()
                     glm::vec2 src_force = -1.f * force;
                     glm::vec2 dst_force = force;
 
-                    glm::vec2 force_strength;
                     F32 src_mult = dst_textp->mMass / (dst_textp->mMass + src_textp->mMass);
                     F32 dst_mult = 1.f - src_mult;
                     F32 src_aspect_ratio = src_textp->mSoftScreenRect.getWidth() / src_textp->mSoftScreenRect.getHeight();
