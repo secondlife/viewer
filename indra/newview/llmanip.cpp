@@ -193,7 +193,7 @@ F32 LLManip::getSubdivisionLevel(const LLVector3 &reference_point, const LLVecto
     F32 projected_translation_axis_length = (translate_axis % cam_to_reference).length();
     F32 subdivisions = llmax(projected_translation_axis_length * grid_scale / (current_range / LLViewerCamera::getInstance()->getPixelMeterRatio() * min_pixel_spacing), 0.f);
     // figure out nearest power of 2 that subdivides grid_scale with result > min_pixel_spacing
-    subdivisions = llclamp((F32)pow(2.f, llfloor(log(subdivisions) / log(2.f))), min_subdivisions, max_subdivisions);
+    subdivisions = llclamp(static_cast<F32>(pow(2.f, llfloor(log(subdivisions) / log(2.f)))), min_subdivisions, max_subdivisions);
 
     return subdivisions;
 }
@@ -251,7 +251,7 @@ bool LLManip::handleMouseUp(S32 x, S32 y, MASK mask)
 
 void LLManip::updateGridSettings()
 {
-    sGridMaxSubdivisionLevel = gSavedSettings.getBOOL("GridSubUnit") ? (F32)gSavedSettings.getS32("GridSubdivision") : 1.f;
+    sGridMaxSubdivisionLevel = gSavedSettings.getBOOL("GridSubUnit") ? static_cast<F32>(gSavedSettings.getS32("GridSubdivision")) : 1.f;
 }
 
 bool LLManip::getMousePointOnPlaneAgent(LLVector3& point, S32 x, S32 y, LLVector3 origin, LLVector3 normal)
@@ -268,8 +268,8 @@ bool LLManip::getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVect
     if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
     {
         bool result = false;
-        F32 mouse_x = ((F32)x / gViewerWindow->getWorldViewWidthScaled() - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgentCamera.mHUDCurZoom;
-        F32 mouse_y = ((F32)y / gViewerWindow->getWorldViewHeightScaled() - 0.5f) / gAgentCamera.mHUDCurZoom;
+        F32 mouse_x = (static_cast<F32>(x) / gViewerWindow->getWorldViewWidthScaled() - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgentCamera.mHUDCurZoom;
+        F32 mouse_y = (static_cast<F32>(y) / gViewerWindow->getWorldViewHeightScaled() - 0.5f) / gAgentCamera.mHUDCurZoom;
 
         LLVector3 origin_agent = gAgent.getPosAgentFromGlobal(origin);
         LLVector3 mouse_pos = LLVector3(0.f, -mouse_x, mouse_y);
@@ -307,8 +307,8 @@ bool LLManip::nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, co
 
     if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
     {
-        F32 mouse_x = (((F32)x / gViewerWindow->getWindowWidthScaled()) - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgentCamera.mHUDCurZoom;
-        F32 mouse_y = (((F32)y / gViewerWindow->getWindowHeightScaled()) - 0.5f) / gAgentCamera.mHUDCurZoom;
+        F32 mouse_x = ((static_cast<F32>(x) / gViewerWindow->getWindowWidthScaled()) - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgentCamera.mHUDCurZoom;
+        F32 mouse_y = ((static_cast<F32>(y) / gViewerWindow->getWindowHeightScaled()) - 0.5f) / gAgentCamera.mHUDCurZoom;
         a1 = LLVector3(llmin(b1.mV[VX] - 0.1f, b2.mV[VX] - 0.1f, 0.f), -mouse_x, mouse_y);
         a2 = a1 + LLVector3(1.f, 0.f, 0.f);
     }
@@ -450,10 +450,10 @@ void LLManip::renderXYZ(const LLVector3 &vec)
         gGL.color4f(0.f, 0.f, 0.f, 0.7f);
 
         imagep->draw(
-            (S32)((window_center_x - 115) * display_scale.mV[VX]),
-            (S32)((window_center_y + vertical_offset - PAD) * display_scale.mV[VY]),
-            (S32)(235 * display_scale.mV[VX]),
-            (S32)((PAD * 2 + 10) * display_scale.mV[VY]),
+            static_cast<S32>((window_center_x - 115) * display_scale.mV[VX]),
+            static_cast<S32>((window_center_y + vertical_offset - PAD) * display_scale.mV[VY]),
+            static_cast<S32>(235 * display_scale.mV[VX]),
+            static_cast<S32>((PAD * 2 + 10) * display_scale.mV[VY]),
             LLColor4(0.f, 0.f, 0.f, 0.7f) );
 
         LLFontGL* font = LLFontGL::getFontSansSerif();
@@ -463,33 +463,33 @@ void LLManip::renderXYZ(const LLVector3 &vec)
         // render drop shadowed text (manually because of bigger 'distance')
         F32 right_x;
         feedback_string = llformat("X: %.3f", vec.mV[VX]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 102.f + 1.f, (F32)(window_center_y + vertical_offset) - 2.f, LLColor4::black,
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 102.f + 1.f, static_cast<F32>(window_center_y + vertical_offset) - 2.f, LLColor4::black,
             LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE,
             LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, 1000, &right_x);
 
         feedback_string = llformat("Y: %.3f", vec.mV[VY]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 27.f + 1.f, (F32)(window_center_y + vertical_offset) - 2.f, LLColor4::black,
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 27.f + 1.f, static_cast<F32>(window_center_y + vertical_offset) - 2.f, LLColor4::black,
             LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE,
             LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, 1000, &right_x);
 
         feedback_string = llformat("Z: %.3f", vec.mV[VZ]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x + 48.f + 1.f, (F32)(window_center_y + vertical_offset) - 2.f, LLColor4::black,
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x + 48.f + 1.f, static_cast<F32>(window_center_y + vertical_offset) - 2.f, LLColor4::black,
             LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE,
             LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, 1000, &right_x);
 
         // render text on top
         feedback_string = llformat("X: %.3f", vec.mV[VX]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 102.f, (F32)(window_center_y + vertical_offset), LLColor4(1.f, 0.5f, 0.5f, 1.f),
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 102.f, static_cast<F32>(window_center_y + vertical_offset), LLColor4(1.f, 0.5f, 0.5f, 1.f),
             LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE,
             LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, 1000, &right_x);
 
         feedback_string = llformat("Y: %.3f", vec.mV[VY]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 27.f, (F32)(window_center_y + vertical_offset), LLColor4(0.5f, 1.f, 0.5f, 1.f),
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 27.f, static_cast<F32>(window_center_y + vertical_offset), LLColor4(0.5f, 1.f, 0.5f, 1.f),
             LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE,
             LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, 1000, &right_x);
 
         feedback_string = llformat("Z: %.3f", vec.mV[VZ]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x + 48.f, (F32)(window_center_y + vertical_offset), LLColor4(0.5f, 0.5f, 1.f, 1.f),
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x + 48.f, static_cast<F32>(window_center_y + vertical_offset), LLColor4(0.5f, 0.5f, 1.f, 1.f),
             LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE,
             LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, 1000, &right_x);
     }

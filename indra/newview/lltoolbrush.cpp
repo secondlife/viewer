@@ -167,15 +167,15 @@ void LLToolBrushLand::modifyLandAtPointGlobal(const LLVector3d &pos_global,
 
         // tell the simulator what we've done
         F32 seconds = (1.0f / gFPSClamped) * gSavedSettings.getF32("LandBrushForce");
-        F32 x_pos = (F32)pos_region.mV[VX];
-        F32 y_pos = (F32)pos_region.mV[VY];
+        F32 x_pos = static_cast<F32>(pos_region.mV[VX]);
+        F32 y_pos = static_cast<F32>(pos_region.mV[VY]);
         LLMessageSystem* msg = gMessageSystem;
         msg->newMessageFast(_PREHASH_ModifyLand);
         msg->nextBlockFast(_PREHASH_AgentData);
         msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
         msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
         msg->nextBlockFast(_PREHASH_ModifyBlock);
-        msg->addU8Fast(_PREHASH_Action, (U8)action);
+        msg->addU8Fast(_PREHASH_Action, static_cast<U8>(action));
         msg->addU8Fast(_PREHASH_BrushSize, getBrushIndex());
         msg->addF32Fast(_PREHASH_Seconds, seconds);
         msg->addF32Fast(_PREHASH_Height, mStartingZ);
@@ -224,8 +224,8 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
     {
         LLVector3 pos_region = mid_point_region.getPositionRegion();
         U32 grids = center_region->getLand().mGridsPerEdge;
-        S32 i = llclamp( (S32)pos_region.mV[VX], 0, (S32)grids );
-        S32 j = llclamp( (S32)pos_region.mV[VY], 0, (S32)grids );
+        S32 i = llclamp( static_cast<S32>(pos_region.mV[VX]), 0, static_cast<S32>(grids) );
+        S32 j = llclamp( static_cast<S32>(pos_region.mV[VY]), 0, static_cast<S32>(grids) );
         mStartingZ = center_region->getLand().getZ(i+j*grids);
     }
     else
@@ -313,7 +313,7 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
         msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
         msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
         msg->nextBlockFast(_PREHASH_ModifyBlock);
-        msg->addU8Fast(_PREHASH_Action, (U8)action);
+        msg->addU8Fast(_PREHASH_Action, static_cast<U8>(action));
         msg->addU8Fast(_PREHASH_BrushSize, getBrushIndex());
         msg->addF32Fast(_PREHASH_Seconds, seconds);
         msg->addF32Fast(_PREHASH_Height, mStartingZ);
@@ -388,8 +388,8 @@ bool LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
 
         LLVector3 pos_region = region_position.getPositionRegion();
         U32 grids = regionp->getLand().mGridsPerEdge;
-        S32 i = llclamp( (S32)pos_region.mV[VX], 0, (S32)grids );
-        S32 j = llclamp( (S32)pos_region.mV[VY], 0, (S32)grids );
+        S32 i = llclamp( static_cast<S32>(pos_region.mV[VX]), 0, static_cast<S32>(grids) );
+        S32 j = llclamp( static_cast<S32>(pos_region.mV[VY]), 0, static_cast<S32>(grids) );
         mStartingZ = regionp->getLand().getZ(i+j*grids);
         mMouseX = x;
         mMouseY = y;
@@ -531,8 +531,8 @@ void LLToolBrushLand::renderOverlay(LLSurface& land, const LLVector3& pos_region
     gGL.color4fv(OVERLAY_COLOR.mV);
     gGL.translatef(0.0f, 0.0f, 1.0f);
 
-    S32 i = (S32) pos_region.mV[VX];
-    S32 j = (S32) pos_region.mV[VY];
+    S32 i = static_cast<S32>(pos_region.mV[VX]);
+    S32 j = static_cast<S32>(pos_region.mV[VY]);
     S32 half_edge = llfloor(mBrushSize);
     S32 radioAction = gSavedSettings.getS32("RadioLandBrushAction");
     F32 force = gSavedSettings.getF32("LandBrushForce"); // .1 to 100?
@@ -540,10 +540,10 @@ void LLToolBrushLand::renderOverlay(LLSurface& land, const LLVector3& pos_region
     gGL.begin(LLRender::LINES);
     for(S32 di = -half_edge; di <= half_edge; di++)
     {
-        if((i+di) < 0 || (i+di) >= (S32)land.mGridsPerEdge) continue;
+        if((i+di) < 0 || (i+di) >= static_cast<S32>(land.mGridsPerEdge)) continue;
         for(S32 dj = -half_edge; dj <= half_edge; dj++)
         {
-            if( (j+dj) < 0 || (j+dj) >= (S32)land.mGridsPerEdge ) continue;
+            if( (j+dj) < 0 || (j+dj) >= static_cast<S32>(land.mGridsPerEdge) ) continue;
             const F32
                 wx = pos_world.mV[VX] + di,
                 wy = pos_world.mV[VY] + dj,

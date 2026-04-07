@@ -185,7 +185,7 @@ bool LLHUDNameTag::lineSegmentIntersect(const LLVector4a& start, const LLVector4
 
 
     LLVector3 bg_pos = render_position
-        + (F32)mOffsetY * y_pixel_vec
+        + static_cast<F32>(mOffsetY) * y_pixel_vec
         - (width_vec / 2.f)
         - (height_vec);
 
@@ -296,7 +296,7 @@ void LLHUDNameTag::renderText()
     if (mLabelSegments.size())
     {
         LLRect label_top_rect = screen_rect;
-        const S32 label_height = ll_round((mFontp->getLineHeight() * (F32)mLabelSegments.size() + (VERTICAL_PADDING / 3.f)));
+        const S32 label_height = ll_round((mFontp->getLineHeight() * static_cast<F32>(mLabelSegments.size()) + (VERTICAL_PADDING / 3.f)));
         label_top_rect.mBottom = label_top_rect.mTop - label_height;
         LLColor4 label_top_color = text_color;
         label_top_color.mV[VALPHA] = bubble_opacity() * alpha_factor;
@@ -304,7 +304,7 @@ void LLHUDNameTag::renderText()
         mRoundedRectTopImgp->draw3D(render_position, x_pixel_vec, y_pixel_vec, label_top_rect, label_top_color);
     }
 
-    F32 y_offset = (F32)mOffsetY;
+    F32 y_offset = static_cast<F32>(mOffsetY);
 
     // Render label
     {
@@ -342,7 +342,7 @@ void LLHUDNameTag::renderText()
         }
         else
         {
-            start_segment = llmax((S32)0, (S32)mTextSegments.size() - max_lines);
+            start_segment = llmax(static_cast<S32>(0), static_cast<S32>(mTextSegments.size()) - max_lines);
         }
 
         for (std::vector<LLHUDTextSegment>::iterator segment_iter = mTextSegments.begin() + start_segment;
@@ -429,7 +429,7 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
                         // token does does not fit into signle line, need to draw "...".
                         // Use four dots for ellipsis width to generate padding
                         const LLWString dots_pad(utf8str_to_wstring(std::string("....")));
-                        S32 elipses_width = (S32)font->getWidthF32(dots_pad.c_str());
+                        S32 elipses_width = static_cast<S32>(font->getWidthF32(dots_pad.c_str()));
                         // truncated string length
                         segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels - elipses_width, static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::ANYWHERE);
                         const LLWString dots(utf8str_to_wstring(std::string("...")));
@@ -632,31 +632,31 @@ LLVector2 LLHUDNameTag::updateScreenPos(LLVector2 &offset)
         LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
     }
 
-    screen_pos_vec.set((F32)screen_pos.mX, (F32)screen_pos.mY);
+    screen_pos_vec.set(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY));
 
     LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
     S32 bottom = world_rect.mBottom + STATUS_BAR_HEIGHT;
 
     LLVector2 screen_center;
-    screen_center.mV[VX] = llclamp((F32)screen_pos_vec.mV[VX], (F32)world_rect.mLeft + mWidth * 0.5f, (F32)world_rect.mRight - mWidth * 0.5f);
+    screen_center.mV[VX] = llclamp(static_cast<F32>(screen_pos_vec.mV[VX]), static_cast<F32>(world_rect.mLeft) + mWidth * 0.5f, static_cast<F32>(world_rect.mRight) - mWidth * 0.5f);
 
     if(mVertAlignment == ALIGN_VERT_TOP)
     {
-        screen_center.mV[VY] = llclamp((F32)screen_pos_vec.mV[VY],
-            (F32)bottom,
-            (F32)world_rect.mTop - mHeight - (F32)MENU_BAR_HEIGHT);
+        screen_center.mV[VY] = llclamp(static_cast<F32>(screen_pos_vec.mV[VY]),
+            static_cast<F32>(bottom),
+            static_cast<F32>(world_rect.mTop) - mHeight - static_cast<F32>(MENU_BAR_HEIGHT));
         mSoftScreenRect.setLeftTopAndSize(screen_center.mV[VX] - (mWidth + BUFFER_SIZE) * 0.5f,
             screen_center.mV[VY] + (mHeight + BUFFER_SIZE), mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
     }
     else
     {
-        screen_center.mV[VY] = llclamp((F32)screen_pos_vec.mV[VY],
-            (F32)bottom + mHeight * 0.5f,
-            (F32)world_rect.mTop - mHeight * 0.5f - (F32)MENU_BAR_HEIGHT);
+        screen_center.mV[VY] = llclamp(static_cast<F32>(screen_pos_vec.mV[VY]),
+            static_cast<F32>(bottom) + mHeight * 0.5f,
+            static_cast<F32>(world_rect.mTop) - mHeight * 0.5f - static_cast<F32>(MENU_BAR_HEIGHT));
         mSoftScreenRect.setCenterAndSize(screen_center.mV[VX], screen_center.mV[VY], mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
     }
 
-    return offset + (screen_center - LLVector2((F32)screen_pos.mX, (F32)screen_pos.mY));
+    return offset + (screen_center - LLVector2(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY)));
 }
 
 void LLHUDNameTag::updateSize()
@@ -670,7 +670,7 @@ void LLHUDNameTag::updateSize()
 
     S32 start_segment;
     if (max_lines < 0) start_segment = 0;
-    else start_segment = llmax((S32)0, (S32)mTextSegments.size() - max_lines);
+    else start_segment = llmax(static_cast<S32>(0), static_cast<S32>(mTextSegments.size()) - max_lines);
 
     std::vector<LLHUDTextSegment>::iterator iter = mTextSegments.begin() + start_segment;
     while (iter != mTextSegments.end())
@@ -731,7 +731,7 @@ void LLHUDNameTag::updateAll()
     std::ranges::sort(sVisibleTextObjects, llhudnametag_further_away());
 
     // iterate from front to back, and set LOD based on current screen coverage
-    F32 screen_area = (F32)(gViewerWindow->getWindowWidthScaled() * gViewerWindow->getWindowHeightScaled());
+    F32 screen_area = static_cast<F32>(gViewerWindow->getWindowWidthScaled() * gViewerWindow->getWindowHeightScaled());
     F32 current_screen_area = 0.f;
     std::vector<LLPointer<LLHUDNameTag> >::reverse_iterator r_it;
     for (r_it = sVisibleTextObjects.rbegin(); r_it != sVisibleTextObjects.rend(); ++r_it)
@@ -756,11 +756,11 @@ void LLHUDNameTag::updateAll()
         textp->updateSize();
         // find on-screen position and initialize collision rectangle
         textp->mTargetPositionOffset = textp->updateScreenPos(LLVector2::zero);
-        current_screen_area += (F32)(textp->mSoftScreenRect.getWidth() * textp->mSoftScreenRect.getHeight());
+        current_screen_area += static_cast<F32>(textp->mSoftScreenRect.getWidth() * textp->mSoftScreenRect.getHeight());
     }
 
     LLTrace::CountStatHandle<>* camera_vel_stat = LLViewerCamera::getVelocityStat();
-    F32 camera_vel = (F32)LLTrace::get_frame_recording().getLastRecording().getPerSec(*camera_vel_stat);
+    F32 camera_vel = static_cast<F32>(LLTrace::get_frame_recording().getLastRecording().getPerSec(*camera_vel_stat));
     if (camera_vel > MAX_STABLE_CAMERA_VELOCITY)
     {
         return;
@@ -880,7 +880,7 @@ void LLHUDNameTag::shift(const LLVector3& offset)
 F32 LLHUDNameTag::getWorldHeight() const
 {
     const LLViewerCamera* camera = LLViewerCamera::getInstance();
-    F32 height_meters = mLastDistance * (F32)tan(camera->getView() / 2.f);
+    F32 height_meters = mLastDistance * static_cast<F32>(tan(camera->getView() / 2.f));
     F32 height_pixels = camera->getViewHeightInPixels() / 2.f;
     F32 meters_per_pixel = height_meters / height_pixels;
     return mHeight * meters_per_pixel * gViewerWindow->getDisplayScale().mV[VY];

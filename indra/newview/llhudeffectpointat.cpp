@@ -126,7 +126,7 @@ void LLHUDEffectPointAt::packData(LLMessageSystem *mesgsys)
 
     htolememcpy(&(packed_data[TARGET_POS]), mTargetOffsetGlobal.mdV, MVT_LLVector3d, 24);
 
-    U8 pointAtTypePacked = (U8)mTargetType;
+    U8 pointAtTypePacked = static_cast<U8>(mTargetType);
     htolememcpy(&(packed_data[POINTAT_TYPE]), &pointAtTypePacked, MVT_U8, 1);
 
     mesgsys->addBinaryDataFast(_PREHASH_TypeData, packed_data, PKT_SIZE);
@@ -190,7 +190,7 @@ void LLHUDEffectPointAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
         setTargetPosGlobal(new_target);
     }
 
-    mTargetType = (EPointAtType)pointAtTypeUnpacked;
+    mTargetType = static_cast<EPointAtType>(pointAtTypeUnpacked);
 
 //  mKillTime = mTimer.getElapsedTimeF32() + mDuration;
     update();
@@ -310,7 +310,7 @@ void LLHUDEffectPointAt::markDead()
 {
     if (!mSourceObject.isNull() && mSourceObject->isAvatar())
     {
-        ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->removeAnimationData("PointAtPoint");
+        (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->removeAnimationData("PointAtPoint");
     }
 
     clearPointAtTarget();
@@ -386,13 +386,13 @@ void LLHUDEffectPointAt::update()
     {
         if (mTargetType == POINTAT_TARGET_NONE)
         {
-            ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->removeAnimationData("PointAtPoint");
+            (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->removeAnimationData("PointAtPoint");
         }
         else
         {
             if (calcTargetPosition())
             {
-                ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->startMotion(ANIM_AGENT_EDITING);
+                (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->startMotion(ANIM_AGENT_EDITING);
             }
         }
     }
@@ -404,7 +404,7 @@ void LLHUDEffectPointAt::update()
 //-----------------------------------------------------------------------------
 bool LLHUDEffectPointAt::calcTargetPosition()
 {
-    LLViewerObject *targetObject = (LLViewerObject *)mTargetObject;
+    LLViewerObject *targetObject = static_cast<LLViewerObject*>(mTargetObject);
     LLVector3 local_offset;
 
     if (targetObject)
@@ -455,7 +455,7 @@ bool LLHUDEffectPointAt::calcTargetPosition()
 
     if (mSourceObject->isAvatar())
     {
-        ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->setAnimationData("PointAtPoint", (void *)&mTargetPos);
+        static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject))->setAnimationData("PointAtPoint", reinterpret_cast<void*>(&mTargetPos));
     }
 
     return true;

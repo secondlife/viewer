@@ -518,7 +518,7 @@ void LLToolset::selectTool(LLTool* tool)
 
 void LLToolset::selectToolByIndex( S32 index )
 {
-    LLTool *tool = (index >= 0 && index < (S32)mToolList.size()) ? mToolList[index] : NULL;
+    LLTool *tool = (index >= 0 && index < static_cast<S32>(mToolList.size())) ? mToolList[index] : NULL;
     if (tool)
     {
         mSelectedTool = tool;
@@ -528,7 +528,7 @@ void LLToolset::selectToolByIndex( S32 index )
 
 bool LLToolset::isToolSelected( S32 index )
 {
-    LLTool *tool = (index >= 0 && index < (S32)mToolList.size()) ? mToolList[index] : NULL;
+    LLTool *tool = (index >= 0 && index < static_cast<S32>(mToolList.size())) ? mToolList[index] : NULL;
     return (tool == mSelectedTool);
 }
 
@@ -586,7 +586,7 @@ void LLToolset::selectPrevTool()
     }
     else if (mToolList.size() > 0)
     {
-        selectToolByIndex((S32)mToolList.size()-1);
+        selectToolByIndex(static_cast<S32>(mToolList.size())-1);
     }
 }
 

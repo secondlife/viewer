@@ -135,7 +135,7 @@ LLSnapshotLivePreview::~LLSnapshotLivePreview()
 
 void LLSnapshotLivePreview::setMaxImageSize(S32 size)
 {
-    mMaxImageSize = llmin(size,(S32)(MAX_SNAPSHOT_IMAGE_SIZE));
+    mMaxImageSize = llmin(size, static_cast<S32>(MAX_SNAPSHOT_IMAGE_SIZE));
 }
 
 LLViewerTexture* LLSnapshotLivePreview::getCurrentImage()
@@ -150,7 +150,7 @@ F32 LLSnapshotLivePreview::getImageAspect()
         return 0.f;
     }
     // mKeepAspectRatio) == gSavedSettings.getBOOL("KeepAspectForSnapshot"))
-    return (mKeepAspectRatio ? ((F32)getRect().getWidth()) / ((F32)getRect().getHeight()) : ((F32)getWidth()) / ((F32)getHeight()));
+    return (mKeepAspectRatio ? (static_cast<F32>(getRect().getWidth())) / (static_cast<F32>(getRect().getHeight())) : (static_cast<F32>(getWidth())) / (static_cast<F32>(getHeight())));
 }
 
 void LLSnapshotLivePreview::updateSnapshot(bool new_snapshot, bool new_thumbnail, F32 delay)
@@ -173,22 +173,22 @@ void LLSnapshotLivePreview::updateSnapshot(bool new_snapshot, bool new_thumbnail
         LLRect& rect = mImageRect[mCurImageIndex];
         rect.set(0, getRect().getHeight(), getRect().getWidth(), 0);
 
-        F32 image_aspect_ratio = ((F32)getWidth()) / ((F32)getHeight());
-        F32 window_aspect_ratio = ((F32)getRect().getWidth()) / ((F32)getRect().getHeight());
+        F32 image_aspect_ratio = (static_cast<F32>(getWidth())) / (static_cast<F32>(getHeight()));
+        F32 window_aspect_ratio = (static_cast<F32>(getRect().getWidth())) / (static_cast<F32>(getRect().getHeight()));
 
         if (mKeepAspectRatio)//gSavedSettings.getBOOL("KeepAspectForSnapshot"))
         {
             if (image_aspect_ratio > window_aspect_ratio)
             {
                 // trim off top and bottom
-                S32 new_height = ll_round((F32)getRect().getWidth() / image_aspect_ratio);
+                S32 new_height = ll_round(static_cast<F32>(getRect().getWidth()) / image_aspect_ratio);
                 rect.mBottom += (getRect().getHeight() - new_height) / 2;
                 rect.mTop -= (getRect().getHeight() - new_height) / 2;
             }
             else if (image_aspect_ratio < window_aspect_ratio)
             {
                 // trim off left and right
-                S32 new_width = ll_round((F32)getRect().getHeight() * image_aspect_ratio);
+                S32 new_width = ll_round(static_cast<F32>(getRect().getHeight()) * image_aspect_ratio);
                 rect.mLeft += (getRect().getWidth() - new_width) / 2;
                 rect.mRight -= (getRect().getWidth() - new_width) / 2;
             }
@@ -290,11 +290,11 @@ void LLSnapshotLivePreview::draw()
         gGL.color4fv(image_color.mV);
         gGL.getTexUnit(0)->bind(getCurrentImage());
         // calculate UV scale
-        F32 uv_width = isImageScaled() ? 1.f : llmin((F32)getWidth() / (F32)getCurrentImage()->getWidth(), 1.f);
-        F32 uv_height = isImageScaled() ? 1.f : llmin((F32)getHeight() / (F32)getCurrentImage()->getHeight(), 1.f);
+        F32 uv_width = isImageScaled() ? 1.f : llmin(static_cast<F32>(getWidth()) / static_cast<F32>(getCurrentImage()->getWidth()), 1.f);
+        F32 uv_height = isImageScaled() ? 1.f : llmin(static_cast<F32>(getHeight()) / static_cast<F32>(getCurrentImage()->getHeight()), 1.f);
         gGL.pushMatrix();
         {
-            gGL.translatef((F32)rect.mLeft, (F32)rect.mBottom + TOP_PANEL_HEIGHT, 0.f);
+            gGL.translatef(static_cast<F32>(rect.mLeft), static_cast<F32>(rect.mBottom) + TOP_PANEL_HEIGHT, 0.f);
             gGL.begin(LLRender::TRIANGLES);
             {
                 gGL.texCoord2f(uv_width, uv_height);
@@ -416,12 +416,12 @@ void LLSnapshotLivePreview::draw()
             // calculate UV scale
             // *FIX get this to work with old image
             bool rescale = !mImageScaled[old_image_index] && mViewerImage[mCurImageIndex].notNull();
-            F32 uv_width = rescale ? llmin((F32)mWidth[old_image_index] / (F32)mViewerImage[mCurImageIndex]->getWidth(), 1.f) : 1.f;
-            F32 uv_height = rescale ? llmin((F32)mHeight[old_image_index] / (F32)mViewerImage[mCurImageIndex]->getHeight(), 1.f) : 1.f;
+            F32 uv_width = rescale ? llmin(static_cast<F32>(mWidth[old_image_index]) / static_cast<F32>(mViewerImage[mCurImageIndex]->getWidth()), 1.f) : 1.f;
+            F32 uv_height = rescale ? llmin(static_cast<F32>(mHeight[old_image_index]) / static_cast<F32>(mViewerImage[mCurImageIndex]->getHeight()), 1.f) : 1.f;
             gGL.pushMatrix();
             {
                 LLRect& rect = mImageRect[old_image_index];
-                gGL.translatef((F32)rect.mLeft, (F32)rect.mBottom - ll_round(getRect().getHeight() * 2.f * (fall_interp * fall_interp)), 0.f);
+                gGL.translatef(static_cast<F32>(rect.mLeft), static_cast<F32>(rect.mBottom) - ll_round(getRect().getHeight() * 2.f * (fall_interp * fall_interp)), 0.f);
                 gGL.rotatef(-45.f * fall_interp, 0.f, 0.f, 1.f);
                 gGL.begin(LLRender::TRIANGLES);
                 {
@@ -478,23 +478,23 @@ bool LLSnapshotLivePreview::setThumbnailImageSize()
     S32 width  = (mThumbnailSubsampled ? mPreviewImage->getWidth()  : gViewerWindow->getWindowWidthRaw());
     S32 height = (mThumbnailSubsampled ? mPreviewImage->getHeight() : gViewerWindow->getWindowHeightRaw()) ;
 
-    F32 aspect_ratio = ((F32)width) / ((F32)height);
+    F32 aspect_ratio = (static_cast<F32>(width)) / (static_cast<F32>(height));
 
     // UI size for thumbnail
     S32 max_width  = mThumbnailPlaceholderRect.getWidth();
     S32 max_height = mThumbnailPlaceholderRect.getHeight();
 
-    if (aspect_ratio > (F32)max_width / (F32)max_height)
+    if (aspect_ratio > static_cast<F32>(max_width) / static_cast<F32>(max_height))
     {
         // image too wide, shrink to width
         mThumbnailWidth = max_width;
-        mThumbnailHeight = ll_round((F32)max_width / aspect_ratio);
+        mThumbnailHeight = ll_round(static_cast<F32>(max_width) / aspect_ratio);
     }
     else
     {
         // image too tall, shrink to height
         mThumbnailHeight = max_height;
-        mThumbnailWidth = ll_round((F32)max_height * aspect_ratio);
+        mThumbnailWidth = ll_round(static_cast<F32>(max_height) * aspect_ratio);
     }
 
     if (mThumbnailWidth > width || mThumbnailHeight > height)
@@ -505,19 +505,19 @@ bool LLSnapshotLivePreview::setThumbnailImageSize()
     S32 left = 0 , top = mThumbnailHeight, right = mThumbnailWidth, bottom = 0 ;
     if (!mKeepAspectRatio)
     {
-        F32 ratio_x = (F32)getWidth()  / width ;
-        F32 ratio_y = (F32)getHeight() / height ;
+        F32 ratio_x = static_cast<F32>(getWidth())  / width ;
+        F32 ratio_y = static_cast<F32>(getHeight()) / height ;
 
         if (ratio_x > ratio_y)
         {
-            top = (S32)(top * ratio_y / ratio_x) ;
+            top = static_cast<S32>(top * ratio_y / ratio_x) ;
         }
         else
         {
-            right = (S32)(right * ratio_x / ratio_y) ;
+            right = static_cast<S32>(right * ratio_x / ratio_y) ;
         }
-        left = (S32)((mThumbnailWidth - right) * 0.5f) ;
-        bottom = (S32)((mThumbnailHeight - top) * 0.5f) ;
+        left = static_cast<S32>((mThumbnailWidth - right) * 0.5f) ;
+        bottom = static_cast<S32>((mThumbnailHeight - top) * 0.5f) ;
         top += bottom ;
         right += left ;
     }
@@ -940,14 +940,14 @@ void LLSnapshotLivePreview::estimateDataSize()
                 break;
             case LLSnapshotModel::SNAPSHOT_FORMAT_JPEG:
                 // Observed from JPG compression tests
-                ratio = (F32)(110 - mSnapshotQuality) / 2.f;
+                ratio = static_cast<F32>(110 - mSnapshotQuality) / 2.f;
                 break;
             case LLSnapshotModel::SNAPSHOT_FORMAT_BMP:
                 ratio = 1.0;    // No compression with BMP
                 break;
         }
     }
-    mDataSize = (S32)((F32)mPreviewImage->getDataSize() / ratio);
+    mDataSize = static_cast<S32>(static_cast<F32>(mPreviewImage->getDataSize()) / ratio);
 }
 
 LLPointer<LLImageFormatted> LLSnapshotLivePreview::getFormattedImage()

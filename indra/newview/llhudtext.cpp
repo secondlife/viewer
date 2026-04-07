@@ -149,11 +149,11 @@ void LLHUDText::renderText()
 
     if (border_height * 2 > mHeight)
     {
-        border_scale = (F32)mHeight / ((F32)border_height * 2.f);
+        border_scale = static_cast<F32>(mHeight) / (static_cast<F32>(border_height) * 2.f);
     }
     if (border_width * 2 > mWidth)
     {
-        border_scale = llmin(border_scale, (F32)mWidth / ((F32)border_width * 2.f));
+        border_scale = llmin(border_scale, static_cast<F32>(mWidth) / (static_cast<F32>(border_width) * 2.f));
     }
 
     // scale screen size of borders down
@@ -164,8 +164,8 @@ void LLHUDText::renderText()
 
     if (mOnHUDAttachment)
     {
-        x_pixel_vec = LLVector3::y_axis / (F32)gViewerWindow->getWorldViewWidthRaw();
-        y_pixel_vec = LLVector3::z_axis / (F32)gViewerWindow->getWorldViewHeightRaw();
+        x_pixel_vec = LLVector3::y_axis / static_cast<F32>(gViewerWindow->getWorldViewWidthRaw());
+        y_pixel_vec = LLVector3::z_axis / static_cast<F32>(gViewerWindow->getWorldViewHeightRaw());
     }
     else
     {
@@ -184,7 +184,7 @@ void LLHUDText::renderText()
             + (x_pixel_vec * screen_offset.mV[VX])
             + (y_pixel_vec * screen_offset.mV[VY]);
 
-    F32 y_offset = (F32)mOffsetY;
+    F32 y_offset = static_cast<F32>(mOffsetY);
 
     // Render label
 
@@ -200,7 +200,7 @@ void LLHUDText::renderText()
         }
         else
         {
-            start_segment = llmax((S32)0, (S32)mTextSegments.size() - max_lines);
+            start_segment = llmax(static_cast<S32>(0), static_cast<S32>(mTextSegments.size()) - max_lines);
         }
 
         for (std::vector<LLHUDTextSegment>::iterator segment_iter = mTextSegments.begin() + start_segment;
@@ -450,31 +450,31 @@ LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
 //      LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
 //  }
 
-    screen_pos_vec.set((F32)screen_pos.mX, (F32)screen_pos.mY);
+    screen_pos_vec.set(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY));
 
     LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
     S32 bottom = world_rect.mBottom + STATUS_BAR_HEIGHT;
 
     LLVector2 screen_center;
-    screen_center.mV[VX] = llclamp((F32)screen_pos_vec.mV[VX], (F32)world_rect.mLeft + mWidth * 0.5f, (F32)world_rect.mRight - mWidth * 0.5f);
+    screen_center.mV[VX] = llclamp(static_cast<F32>(screen_pos_vec.mV[VX]), static_cast<F32>(world_rect.mLeft) + mWidth * 0.5f, static_cast<F32>(world_rect.mRight) - mWidth * 0.5f);
 
     if(mVertAlignment == ALIGN_VERT_TOP)
     {
-        screen_center.mV[VY] = llclamp((F32)screen_pos_vec.mV[VY],
-            (F32)bottom,
-            (F32)world_rect.mTop - mHeight - (F32)MENU_BAR_HEIGHT);
+        screen_center.mV[VY] = llclamp(static_cast<F32>(screen_pos_vec.mV[VY]),
+            static_cast<F32>(bottom),
+            static_cast<F32>(world_rect.mTop) - mHeight - static_cast<F32>(MENU_BAR_HEIGHT));
         mSoftScreenRect.setLeftTopAndSize(screen_center.mV[VX] - (mWidth + BUFFER_SIZE) * 0.5f,
             screen_center.mV[VY] + (mHeight + BUFFER_SIZE), mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
     }
     else
     {
-        screen_center.mV[VY] = llclamp((F32)screen_pos_vec.mV[VY],
-            (F32)bottom + mHeight * 0.5f,
-            (F32)world_rect.mTop - mHeight * 0.5f - (F32)MENU_BAR_HEIGHT);
+        screen_center.mV[VY] = llclamp(static_cast<F32>(screen_pos_vec.mV[VY]),
+            static_cast<F32>(bottom) + mHeight * 0.5f,
+            static_cast<F32>(world_rect.mTop) - mHeight * 0.5f - static_cast<F32>(MENU_BAR_HEIGHT));
         mSoftScreenRect.setCenterAndSize(screen_center.mV[VX], screen_center.mV[VY], mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
     }
 
-    return offset + (screen_center - LLVector2((F32)screen_pos.mX, (F32)screen_pos.mY));
+    return offset + (screen_center - LLVector2(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY)));
 }
 
 void LLHUDText::updateSize()
@@ -486,7 +486,7 @@ void LLHUDText::updateSize()
 
     S32 start_segment;
     if (max_lines < 0) start_segment = 0;
-    else start_segment = llmax((S32)0, (S32)mTextSegments.size() - max_lines);
+    else start_segment = llmax(static_cast<S32>(0), static_cast<S32>(mTextSegments.size()) - max_lines);
 
     std::vector<LLHUDTextSegment>::iterator iter = mTextSegments.begin() + start_segment;
     while (iter != mTextSegments.end())
@@ -507,8 +507,8 @@ void LLHUDText::updateSize()
 
     // *TODO: Could do some sort of timer-based resize logic here
     F32 u = 1.f;
-    mWidth = llmax(width, lerp(mWidth, (F32)width, u));
-    mHeight = llmax(height, lerp(mHeight, (F32)height, u));
+    mWidth = llmax(width, lerp(mWidth, static_cast<F32>(width), u));
+    mHeight = llmax(height, lerp(mHeight, static_cast<F32>(height), u));
 }
 
 void LLHUDText::updateAll()

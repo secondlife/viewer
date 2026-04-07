@@ -395,7 +395,7 @@ bool LLManipRotate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
     // save selection center
     mRotationCenter = gAgent.getPosGlobalFromAgent( getPivotPoint() ); //LLSelectMgr::getInstance()->getSelectionCenterGlobal();
 
-    mManipPart = (EManipPart)hit_part;
+    mManipPart = static_cast<EManipPart>(hit_part);
     LLVector3 center = gAgent.getPosAgentFromGlobal( mRotationCenter );
 
     if( mManipPart == LL_ROT_GENERAL)
@@ -584,7 +584,7 @@ void LLManipRotate::drag( S32 x, S32 y )
                 if (!object->isRootEdit())
                 {
                     // child objects should not update if parent is selected
-                    LLViewerObject* editable_root = (LLViewerObject*)object->getParent();
+                    LLViewerObject* editable_root = static_cast<LLViewerObject*>(object->getParent());
                     if (editable_root->isSelected())
                     {
                         // we will be moved properly by our parent, so skip
@@ -699,7 +699,7 @@ void LLManipRotate::drag( S32 x, S32 y )
                     // for individually selected child objects
                     if (!object->isRootEdit() && selectNode->mIndividualSelection)
                     {
-                        LLViewerObject* parentp = (LLViewerObject*)object->getParent();
+                        LLViewerObject* parentp = static_cast<LLViewerObject*>(object->getParent());
                         if (!parentp->isSelected())
                         {
                             if (object->isAttachment() && object->mDrawable.notNull())
@@ -909,7 +909,7 @@ void LLManipRotate::renderSnapGuides()
             for (S32 i = 0; i < 64; i++)
             {
                 bool render_text = true;
-                F32 deg = 5.625f * (F32)i;
+                F32 deg = 5.625f * static_cast<F32>(i);
                 LLVector3 inner_point;
                 LLVector3 outer_point;
                 LLVector3 text_point;
@@ -1203,7 +1203,7 @@ bool LLManipRotate::updateVisiblity()
         mCenterToCamNorm = mCenterToCam;
         mCenterToCamMag = mCenterToCamNorm.normalize();
 
-        mRadiusMeters = RADIUS_PIXELS / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
+        mRadiusMeters = RADIUS_PIXELS / static_cast<F32>(LLViewerCamera::getInstance()->getViewHeightInPixels());
         mRadiusMeters /= gAgentCamera.mHUDCurZoom;
         mRadiusMeters *= ui_scale_factor;
 
@@ -1213,8 +1213,8 @@ bool LLManipRotate::updateVisiblity()
         // x axis range is (-aspect * 0.5f, +aspect * 0.5)
         // y axis range is (-0.5, 0.5)
         // so use getWorldViewHeightRaw as scale factor when converting to pixel coordinates
-        mCenterScreen.set((S32)((0.5f - center.mV[VY]) / gAgentCamera.mHUDCurZoom * gViewerWindow->getWorldViewHeightScaled()),
-                            (S32)((center.mV[VZ] + 0.5f) / gAgentCamera.mHUDCurZoom * gViewerWindow->getWorldViewHeightScaled()));
+        mCenterScreen.set(static_cast<S32>((0.5f - center.mV[VY]) / gAgentCamera.mHUDCurZoom * gViewerWindow->getWorldViewHeightScaled()),
+                            static_cast<S32>((center.mV[VZ] + 0.5f) / gAgentCamera.mHUDCurZoom * gViewerWindow->getWorldViewHeightScaled()));
         visible = true;
     }
     else
@@ -1242,7 +1242,7 @@ bool LLManipRotate::updateVisiblity()
 
             if (mCenterToCamMag > 0.001f)
             {
-                F32 fraction_of_fov = RADIUS_PIXELS / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
+                F32 fraction_of_fov = RADIUS_PIXELS / static_cast<F32>(LLViewerCamera::getInstance()->getViewHeightInPixels());
                 F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
                 mRadiusMeters = z_dist * tan(apparent_angle);
                 mRadiusMeters *= ui_scale_factor;
@@ -1274,8 +1274,8 @@ LLQuaternion LLManipRotate::dragUnconstrained( S32 x, S32 y )
 
     mMouseCur = intersectMouseWithSphere( x, y, center, mRadiusMeters);
 
-    F32 delta_x = (F32)(mCenterScreen.mX - x);
-    F32 delta_y = (F32)(mCenterScreen.mY - y);
+    F32 delta_x = static_cast<F32>(mCenterScreen.mX - x);
+    F32 delta_y = static_cast<F32>(mCenterScreen.mY - y);
 
     F32 dist_from_sphere_center = sqrt(delta_x * delta_x + delta_y * delta_y);
 
@@ -1745,8 +1745,8 @@ void LLManipRotate::mouseToRay( S32 x, S32 y, LLVector3* ray_pt, LLVector3* ray_
 {
     if (LLSelectMgr::getInstance()->getSelection()->getSelectType() == SELECT_TYPE_HUD)
     {
-        F32 mouse_x = (((F32)x / gViewerWindow->getWorldViewRectScaled().getWidth()) - 0.5f) / gAgentCamera.mHUDCurZoom;
-        F32 mouse_y = ((((F32)y) / gViewerWindow->getWorldViewRectScaled().getHeight()) - 0.5f) / gAgentCamera.mHUDCurZoom;
+        F32 mouse_x = ((static_cast<F32>(x) / gViewerWindow->getWorldViewRectScaled().getWidth()) - 0.5f) / gAgentCamera.mHUDCurZoom;
+        F32 mouse_y = ((static_cast<F32>(y) / gViewerWindow->getWorldViewRectScaled().getHeight()) - 0.5f) / gAgentCamera.mHUDCurZoom;
 
         *ray_pt = LLVector3(-1.f, -mouse_x, mouse_y);
         *ray_dir = LLVector3(1.f, 0.f, 0.f);

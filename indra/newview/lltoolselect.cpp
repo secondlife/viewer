@@ -209,7 +209,7 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
         {
             if (!already_selected)
             {
-                LLViewerObject* root_object = (LLViewerObject*)object->getRootEdit();
+                LLViewerObject* root_object = static_cast<LLViewerObject*>(object->getRootEdit());
                 LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 
                 // this is just a temporary selection

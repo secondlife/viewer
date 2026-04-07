@@ -189,7 +189,7 @@ bool LLVisualParamHint::render()
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
     gGL.loadIdentity();
-    gGL.ortho(0.0f, (F32)mFullWidth, 0.0f, (F32)mFullHeight, -1.0f, 1.0f);
+    gGL.ortho(0.0f, static_cast<F32>(mFullWidth), 0.0f, static_cast<F32>(mFullHeight), -1.0f, 1.0f);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
@@ -238,7 +238,7 @@ bool LLVisualParamHint::render()
 
     gGL.flush();
 
-    LLViewerCamera::getInstance()->setAspect((F32)mFullWidth / (F32)mFullHeight);
+    LLViewerCamera::getInstance()->setAspect(static_cast<F32>(mFullWidth) / static_cast<F32>(mFullHeight));
     LLViewerCamera::getInstance()->setOriginAndLookAt(
         camera_pos,         // camera
         LLVector3::z_axis,  // up

@@ -291,7 +291,7 @@ void LLHUDEffectBeam::render()
 
         F32 alpha = mFadeInterp.getCurVal()*mColor.mV[3];
         alpha *= mInterpFade[i].getCurVal();
-        coloru.mV[3] = (U8)alpha;
+        coloru.mV[3] = static_cast<U8>(alpha);
         gGL.color4ubv(coloru.mV);
 
         gGL.pushMatrix();
