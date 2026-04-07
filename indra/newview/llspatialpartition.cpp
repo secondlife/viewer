@@ -2344,7 +2344,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
                     {
                         for (S32 i = 0; i < res.mNumTriangles; ++i)
                         {
-                            U32* idx = reinterpret_cast<U32*>(reinterpret_cast<U8*>(res.mIndexBase) + i * res.mIndexStrideBytes);
+                            const U32* idx = reinterpret_cast<const U32*>(reinterpret_cast<const U8*>(res.mIndexBase) + i * res.mIndexStrideBytes);
 
                             phys_volume->mHullIndices[i*3+0] = static_cast<U16>(idx[0]);
                             phys_volume->mHullIndices[i*3+1] = static_cast<U16>(idx[1]);
