@@ -1636,7 +1636,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
                 // In case of a partial response, our offset may
                 // not be trivially contiguous with the data we have.
                 // Get back into alignment.
-                if ( ((S32)mHttpReplyOffset > cur_size) || (cur_size > (S32)mHttpReplyOffset + append_size))
+                if ( (static_cast<S32>(mHttpReplyOffset) > cur_size) || (cur_size > static_cast<S32>(mHttpReplyOffset) + append_size))
                 {
                     LL_WARNS(LOG_TXT) << "Partial HTTP response produces break in image data for texture "
                                       << mID << ".  Aborting load."  << LL_ENDL;
@@ -1651,7 +1651,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
                 mRequestedOffset += src_offset;
             }
 
-            U8 * buffer = (U8 *)ll_aligned_malloc_16(total_size);
+            U8 * buffer = static_cast<U8*>(ll_aligned_malloc_16(total_size));
             if (!buffer)
             {
                 // abort. If we have no space for packet, we have not enough space to decode image
@@ -1688,7 +1688,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
                 // Copy previously collected data into buffer
                 memcpy(buffer, mFormattedImage->getData(), cur_size);
             }
-            mHttpBufferArray->read(src_offset, (char *) buffer + cur_size, append_size);
+            mHttpBufferArray->read(src_offset, reinterpret_cast<char*>(buffer) + cur_size, append_size);
 
             // NOTE: setData releases current data and owns new data (buffer)
             mFormattedImage->setData(buffer, total_size);
@@ -2349,7 +2349,7 @@ void LLTextureFetchWorker::callbackDecoded(bool success, const std::string &erro
     }
     else
     {
-        LL_WARNS(LOG_TXT) << "DECODE FAILED: " << mID << " Discard: " << (S32)mFormattedImage->getDiscardLevel() << ", reason: " << error_message << LL_ENDL;
+        LL_WARNS(LOG_TXT) << "DECODE FAILED: " << mID << " Discard: " << static_cast<S32>(mFormattedImage->getDiscardLevel()) << ", reason: " << error_message << LL_ENDL;
         removeFromCache();
         mDecodedDiscard = -1; // Redundant, here for clarity and paranoia
     }
@@ -2710,7 +2710,7 @@ void LLTextureFetch::deleteAllRequests()
 S32 LLTextureFetch::getNumRequests()
 {
     lockQueue();                                                        // +Mfq
-    S32 size = (S32)mRequestMap.size();
+    S32 size = static_cast<S32>(mRequestMap.size());
     unlockQueue();                                                      // -Mfq
 
     return size;
@@ -2720,7 +2720,7 @@ S32 LLTextureFetch::getNumRequests()
 S32 LLTextureFetch::getNumHTTPRequests()
 {
     mNetworkQueueMutex.lock();                                          // +Mfq
-    S32 size = (S32)mHTTPTextureQueue.size();
+    S32 size = static_cast<S32>(mHTTPTextureQueue.size());
     mNetworkQueueMutex.unlock();                                        // -Mfq
 
     return size;
@@ -3122,7 +3122,7 @@ S32 LLTextureFetch::getFetchState(const LLUUID& id, F32& data_progress_p, F32& r
         {
             if (worker->mFormattedImage.notNull())
             {
-                data_progress = (F32)worker->mFormattedImage->getDataSize() / (F32)worker->mFileSize;
+                data_progress = static_cast<F32>(worker->mFormattedImage->getDataSize()) / static_cast<F32>(worker->mFileSize);
             }
         }
         if (state >= LLTextureFetchWorker::LOAD_FROM_NETWORK && state <= LLTextureFetchWorker::WAIT_HTTP_REQ)
@@ -3133,7 +3133,7 @@ S32 LLTextureFetch::getFetchState(const LLUUID& id, F32& data_progress_p, F32& r
         {
             requested_priority = worker->mImagePriority;
         }
-        fetch_priority = (U32)worker->getImagePriority();
+        fetch_priority = static_cast<U32>(worker->getImagePriority());
         can_use_http = worker->getCanUseHTTP() ;
         worker->unlockWorkMutex();                                      // -Mw
     }

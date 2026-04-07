@@ -244,7 +244,7 @@ void LLModelPreview::updateDimentionsAndOffsets()
 
     std::set<LLModel*> accounted;
 
-    mPelvisZOffset = mFMP ? (F32)mFMP->childGetValue("pelvis_offset").asReal() : 3.0f;
+    mPelvisZOffset = mFMP ? static_cast<F32>(mFMP->childGetValue("pelvis_offset").asReal()) : 3.0f;
 
     if (mFMP && mFMP->childGetValue("upload_joints").asBoolean())
     {
@@ -274,9 +274,9 @@ void LLModelPreview::updateDimentionsAndOffsets()
         }
     }
 
-    F32 scale = mFMP ? (F32)mFMP->childGetValue("import_scale").asReal()*2.f : 2.f;
+    F32 scale = mFMP ? static_cast<F32>(mFMP->childGetValue("import_scale").asReal()) * 2.f : 2.f;
 
-    mDetailsSignal((F32)(mPreviewScale[0] * scale), (F32)(mPreviewScale[1] * scale), (F32)(mPreviewScale[2] * scale));
+    mDetailsSignal(static_cast<F32>(mPreviewScale[0] * scale), static_cast<F32>(mPreviewScale[1] * scale), static_cast<F32>(mPreviewScale[2] * scale));
 
     updateStatusMessages();
 }
@@ -295,7 +295,7 @@ void LLModelPreview::rebuildUploadData()
 
     LLSpinCtrl* scale_spinner = mFMP->getChild<LLSpinCtrl>("import_scale");
 
-    F32 scale = (F32)scale_spinner->getValue().asReal();
+    F32 scale = static_cast<F32>(scale_spinner->getValue().asReal());
 
     LLMatrix4 scale_mat;
     scale_mat.initScale(LLVector3(scale, scale, scale));
@@ -1304,7 +1304,7 @@ void LLModelPreview::generateNormals()
         return;
     }
 
-    F32 angle_cutoff = (F32)mFMP->childGetValue("crease_angle").asReal();
+    F32 angle_cutoff = static_cast<F32>(mFMP->childGetValue("crease_angle").asReal());
 
     mRequestedCreaseAngle[which_lod] = angle_cutoff;
 
@@ -1415,14 +1415,14 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     }
 
     // Allocate buffers, note that we are using U32 buffer instead of U16
-    U32* combined_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
-    U32* output_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+    U32* combined_indices = static_cast<U32*>(ll_aligned_malloc_32(size_indices * sizeof(U32)));
+    U32* output_indices = static_cast<U32*>(ll_aligned_malloc_32(size_indices * sizeof(U32)));
 
     // extra space for normals and text coords
     S32 tc_bytes_size = ((size_vertices * sizeof(LLVector2)) + 0xF) & ~0xF;
-    LLVector4a* combined_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 3 * size_vertices + tc_bytes_size);
+    LLVector4a* combined_positions = static_cast<LLVector4a*>(ll_aligned_malloc<64>(sizeof(LLVector4a) * 3 * size_vertices + tc_bytes_size));
     LLVector4a* combined_normals = combined_positions + size_vertices;
-    LLVector2* combined_tex_coords = (LLVector2*)(combined_normals + size_vertices);
+    LLVector2* combined_tex_coords = reinterpret_cast<LLVector2*>(combined_normals + size_vertices);
 
     // copy indices and vertices into new buffers
     S32 combined_positions_shift = 0;
@@ -1434,14 +1434,14 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
 
         // Vertices
         S32 copy_bytes = face.mNumVertices * sizeof(LLVector4a);
-        LLVector4a::memcpyNonAliased16((F32*)(combined_positions + combined_positions_shift), (F32*)face.mPositions, copy_bytes);
+        LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(combined_positions + combined_positions_shift), reinterpret_cast<F32*>(face.mPositions), copy_bytes);
 
         // Normals
-        LLVector4a::memcpyNonAliased16((F32*)(combined_normals + combined_positions_shift), (F32*)face.mNormals, copy_bytes);
+        LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(combined_normals + combined_positions_shift), reinterpret_cast<F32*>(face.mNormals), copy_bytes);
 
         // Tex coords
         copy_bytes = face.mNumVertices * sizeof(LLVector2);
-        memcpy((void*)(combined_tex_coords + combined_positions_shift), (void*)face.mTexCoords, copy_bytes);
+        memcpy(static_cast<void*>(combined_tex_coords + combined_positions_shift), static_cast<void*>(face.mTexCoords), copy_bytes);
 
         combined_positions_shift += face.mNumVertices;
 
@@ -1469,13 +1469,13 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     if (simplification_mode == MESH_OPTIMIZER_NO_NORMALS)
     {
         // strip normals, reflections should restore relatively correctly
-        shadow_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+        shadow_indices = static_cast<U32*>(ll_aligned_malloc_32(size_indices * sizeof(U32)));
         LLMeshOptimizer::generateShadowIndexBufferU32(shadow_indices, combined_indices, size_indices, combined_positions, NULL, combined_tex_coords, size_vertices);
     }
     if (simplification_mode == MESH_OPTIMIZER_NO_UVS)
     {
         // strip uvs, can heavily affect textures
-        shadow_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+        shadow_indices = static_cast<U32*>(ll_aligned_malloc_32(size_indices * sizeof(U32)));
         LLMeshOptimizer::generateShadowIndexBufferU32(shadow_indices, combined_indices, size_indices, combined_positions, NULL, NULL, size_vertices);
     }
 
@@ -1496,14 +1496,14 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
 
     if (indices_decimator > 0)
     {
-        target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+        target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, static_cast<S32>(size_indices)); // leave at least one triangle
     }
     else // indices_decimator can be zero for error_threshold based calculations
     {
         target_indices = 3;
     }
 
-    size_new_indices = (S32)LLMeshOptimizer::simplifyU32(
+    size_new_indices = static_cast<S32>(LLMeshOptimizer::simplifyU32(
         output_indices,
         source_indices,
         size_indices,
@@ -1513,7 +1513,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         target_indices,
         error_threshold,
         simplification_mode == MESH_OPTIMIZER_NO_TOPOLOGY,
-        &result_error);
+        &result_error));
 
     if (result_error < 0)
     {
@@ -1540,11 +1540,11 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
 
     // IV. Repack back into individual faces
 
-    LLVector4a* buffer_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 3 * size_vertices + tc_bytes_size);
+    LLVector4a* buffer_positions = static_cast<LLVector4a*>(ll_aligned_malloc<64>(sizeof(LLVector4a) * 3 * size_vertices + tc_bytes_size));
     LLVector4a* buffer_normals = buffer_positions + size_vertices;
-    LLVector2* buffer_tex_coords = (LLVector2*)(buffer_normals + size_vertices);
+    LLVector2* buffer_tex_coords = reinterpret_cast<LLVector2*>(buffer_normals + size_vertices);
     S32 buffer_idx_size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
-    U16* buffer_indices = (U16*)ll_aligned_malloc_16(buffer_idx_size);
+    U16* buffer_indices = static_cast<U16*>(ll_aligned_malloc_16(buffer_idx_size));
     std::vector<S32> old_to_new_positions_map(size_vertices);
 
     S32 buf_positions_copied = 0;
@@ -1571,7 +1571,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         // Copy relevant indices and vertices
         for (S32 i = 0; i < size_new_indices; ++i)
         {
-            S32 idx = (S32)output_indices[i];
+            S32 idx = static_cast<S32>(output_indices[i]);
 
             if ((i % 3) == 0)
             {
@@ -1612,7 +1612,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
                         }
                         if (valid_faces)
                         {
-                            return (F32)size_indices / (F32)size_new_indices;
+                            return static_cast<F32>(size_indices) / static_cast<F32>(size_new_indices);
                         }
                         else
                         {
@@ -1627,13 +1627,13 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
 
                     old_to_new_positions_map[idx] = buf_positions_copied;
 
-                    buffer_indices[buf_indices_copied] = (U16)buf_positions_copied;
+                    buffer_indices[buf_indices_copied] = static_cast<U16>(buf_positions_copied);
                     buf_positions_copied++;
                 }
                 else
                 {
                     // existing position
-                    buffer_indices[buf_indices_copied] = (U16)old_to_new_positions_map[idx];
+                    buffer_indices[buf_indices_copied] = static_cast<U16>(old_to_new_positions_map[idx]);
                 }
                 buf_indices_copied++;
             }
@@ -1663,13 +1663,13 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
             new_face.resizeVertices(buf_positions_copied);
             new_face.allocateTangents(buf_positions_copied);
             S32 idx_size = (buf_indices_copied * sizeof(U16) + 0xF) & ~0xF;
-            LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)buffer_indices, idx_size);
+            LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(new_face.mIndices), reinterpret_cast<F32*>(buffer_indices), idx_size);
 
-            LLVector4a::memcpyNonAliased16((F32*)new_face.mPositions, (F32*)buffer_positions, buf_positions_copied * sizeof(LLVector4a));
-            LLVector4a::memcpyNonAliased16((F32*)new_face.mNormals, (F32*)buffer_normals, buf_positions_copied * sizeof(LLVector4a));
+            LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(new_face.mPositions), reinterpret_cast<F32*>(buffer_positions), buf_positions_copied * sizeof(LLVector4a));
+            LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(new_face.mNormals), reinterpret_cast<F32*>(buffer_normals), buf_positions_copied * sizeof(LLVector4a));
 
             U32 tex_size = (buf_positions_copied * sizeof(LLVector2) + 0xF)&~0xF;
-            LLVector4a::memcpyNonAliased16((F32*)new_face.mTexCoords, (F32*)buffer_tex_coords, tex_size);
+            LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(new_face.mTexCoords), reinterpret_cast<F32*>(buffer_tex_coords), tex_size);
 
             valid_faces++;
         }
@@ -1688,7 +1688,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         return -1;
     }
 
-    return (F32)size_indices / (F32)size_new_indices;
+    return static_cast<F32>(size_indices) / static_cast<F32>(size_new_indices);
 }
 
 F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target_model, U32 face_idx, F32 indices_decimator, F32 error_threshold, eSimplificationMode simplification_mode)
@@ -1701,7 +1701,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     }
 
     S32 size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
-    U16* output_indices = (U16*)ll_aligned_malloc_16(size);
+    U16* output_indices = static_cast<U16*>(ll_aligned_malloc_16(size));
 
     U16* shadow_indices = NULL;
     // if MESH_OPTIMIZER_FULL, just leave as is, since generateShadowIndexBufferU32
@@ -1710,12 +1710,12 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     // since 'simplifySloppy' ignores all topology, including normals and uvs.
     if (simplification_mode == MESH_OPTIMIZER_NO_NORMALS)
     {
-        U16* shadow_indices = (U16*)ll_aligned_malloc_16(size);
+        U16* shadow_indices = static_cast<U16*>(ll_aligned_malloc_16(size));
         LLMeshOptimizer::generateShadowIndexBufferU16(shadow_indices, face.mIndices, size_indices, face.mPositions, NULL, face.mTexCoords, face.mNumVertices);
     }
     if (simplification_mode == MESH_OPTIMIZER_NO_UVS)
     {
-        U16* shadow_indices = (U16*)ll_aligned_malloc_16(size);
+        U16* shadow_indices = static_cast<U16*>(ll_aligned_malloc_16(size));
         LLMeshOptimizer::generateShadowIndexBufferU16(shadow_indices, face.mIndices, size_indices, face.mPositions, NULL, NULL, face.mNumVertices);
     }
     // Don't run ShadowIndexBuffer for MESH_OPTIMIZER_NO_TOPOLOGY, it's pointless
@@ -1736,14 +1736,14 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
 
     if (indices_decimator > 0)
     {
-        target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+        target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, static_cast<S32>(size_indices)); // leave at least one triangle
     }
     else
     {
         target_indices = 3;
     }
 
-    size_new_indices = (S32)LLMeshOptimizer::simplify(
+    size_new_indices = static_cast<S32>(LLMeshOptimizer::simplify(
         output_indices,
         source_indices,
         size_indices,
@@ -1753,7 +1753,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
         target_indices,
         error_threshold,
         simplification_mode == MESH_OPTIMIZER_NO_TOPOLOGY,
-        &result_error);
+        &result_error));
 
     if (result_error < 0)
     {
@@ -1799,7 +1799,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
         // Assign new values
         new_face.resizeIndices(size_new_indices); // will wipe out mIndices, so new_face can't substitute output
         S32 idx_size = (size_new_indices * sizeof(U16) + 0xF) & ~0xF;
-        LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output_indices, idx_size);
+        LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(new_face.mIndices), reinterpret_cast<F32*>(output_indices), idx_size);
 
         // Clear unused values
         new_face.optimize();
@@ -1814,7 +1814,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
         return -1;
     }
 
-    return (F32)size_indices / (F32)size_new_indices;
+    return static_cast<F32>(size_indices) / static_cast<F32>(size_new_indices);
 }
 
 void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 decimation, bool enforce_tri_limit)
@@ -1864,9 +1864,9 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
         {
             if (!enforce_tri_limit)
             {
-                triangle_limit = (F32)base_triangle_count;
+                triangle_limit = static_cast<F32>(base_triangle_count);
                 // reset to default value for this lod
-                F32 pw = pow((F32)decimation, (F32)(LLModel::LOD_HIGH - which_lod));
+                F32 pw = pow(static_cast<F32>(decimation), static_cast<F32>(LLModel::LOD_HIGH - which_lod));
 
                 triangle_limit /= pw; //indices_ratio can be 1/pw
             }
@@ -1874,24 +1874,24 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             {
 
                 // UI spacifies limit for all models of single lod
-                triangle_limit = (F32)mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asReal();
+                triangle_limit = static_cast<F32>(mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asReal());
 
             }
             // meshoptimizer doesn't use triangle limit, it uses indices limit, so convert it to aproximate ratio
             // triangle_limit can be 0.
-            indices_decimator = (F32)base_triangle_count / llmax(triangle_limit, 1.f);
+            indices_decimator = static_cast<F32>(base_triangle_count) / llmax(triangle_limit, 1.f);
         }
         else
         {
             // UI shows 0 to 100%, but meshoptimizer works with 0 to 1
-            lod_error_threshold = (F32)mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal() / 100.f;
+            lod_error_threshold = static_cast<F32>(mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal()) / 100.f;
         }
     }
     else
     {
         // we are genrating all lods and each lod will get own indices_decimator
         indices_decimator = 1;
-        triangle_limit = (F32)base_triangle_count;
+        triangle_limit = static_cast<F32>(base_triangle_count);
     }
 
     mMaxTriangleLimit = base_triangle_count;
@@ -1925,7 +1925,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             }
         }
 
-        mRequestedTriangleCount[lod] = (S32)triangle_limit;
+        mRequestedTriangleCount[lod] = static_cast<S32>(triangle_limit);
         mRequestedErrorThreshold[lod] = lod_error_threshold * 100;
         mRequestedLoDMode[lod] = lod_mode;
 
@@ -2070,7 +2070,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                         // Sloppy method didn't work, try with smaller decimation values
                         {
                             // Find a decimator that does work
-                            F32 sloppy_decimation_step = sqrt((F32)decimation); // example: 27->15->9->5->3
+                            F32 sloppy_decimation_step = sqrt(static_cast<F32>(decimation)); // example: 27->15->9->5->3
                             F32 sloppy_decimator = indices_decimator / sloppy_decimation_step;
                             U64Microseconds end_time = LLTimer::getTotalTime() + U64Seconds(5);
 
@@ -2809,7 +2809,7 @@ void LLModelPreview::updateLodControls(S32 lod)
         LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold_" + lod_name[lod]);
         LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod]);
 
-        limit->setMaxValue((F32)mMaxTriangleLimit);
+        limit->setMaxValue(static_cast<F32>(mMaxTriangleLimit));
         limit->forceSetValue(mRequestedTriangleCount[lod]);
 
         threshold->forceSetValue(mRequestedErrorThreshold[lod]);
@@ -2821,8 +2821,8 @@ void LLModelPreview::updateLodControls(S32 lod)
             limit->setVisible(true);
             threshold->setVisible(false);
 
-            limit->setMaxValue((F32)mMaxTriangleLimit);
-            limit->setIncrement((F32)llmax((U32)1, mMaxTriangleLimit / 32));
+            limit->setMaxValue(static_cast<F32>(mMaxTriangleLimit));
+            limit->setIncrement(static_cast<F32>(llmax(static_cast<U32>(1), mMaxTriangleLimit / 32)));
         }
         else
         {
@@ -2889,7 +2889,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
         LLMatrix4a mat_normal;
         if (skinned)
         {
-            glm::mat4 m = glm::make_mat4((F32*)mdl->mSkinInfo.mBindShapeMatrix.getF32ptr());
+            glm::mat4 m = glm::make_mat4(mdl->mSkinInfo.mBindShapeMatrix.getF32ptr());
             m = glm::transpose(glm::inverse(m));
             mat_normal.loadu(glm::value_ptr(m));
         }
@@ -2944,13 +2944,13 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
                 vb->getWeight4Strider(weights_strider);
             }
 
-            LLVector4a::memcpyNonAliased16((F32*)vertex_strider.get(), (F32*)vf.mPositions, num_vertices * 4 * sizeof(F32));
+            LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(vertex_strider.get()), reinterpret_cast<F32*>(vf.mPositions), num_vertices * 4 * sizeof(F32));
 
             if (skinned)
             {
                 for (U32 i = 0; i < num_vertices; ++i)
                 {
-                    LLVector4a* v = (LLVector4a*)vertex_strider.get();
+                    LLVector4a* v = reinterpret_cast<LLVector4a*>(vertex_strider.get());
                     mdl->mSkinInfo.mBindShapeMatrix.affineTransform(*v, *v);
                     vertex_strider++;
                 }
@@ -2959,7 +2959,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
             {
                 vb->getTexCoord0Strider(tc_strider);
                 S32 tex_size = (num_vertices * 2 * sizeof(F32) + 0xF) & ~0xF;
-                LLVector4a::memcpyNonAliased16((F32*)tc_strider.get(), (F32*)vf.mTexCoords, tex_size);
+                LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(tc_strider.get()), reinterpret_cast<F32*>(vf.mTexCoords), tex_size);
             }
 
             if (vf.mNormals)
@@ -2968,7 +2968,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
                 if (skinned)
                 {
-                    F32* normals = (F32*)normal_strider.get();
+                    F32* normals = reinterpret_cast<F32*>(normal_strider.get());
                     LLVector4a* src = vf.mNormals;
                     LLVector4a* end = src + num_vertices;
 
@@ -2982,7 +2982,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
                 }
                 else
                 {
-                    LLVector4a::memcpyNonAliased16((F32*)normal_strider.get(), (F32*)vf.mNormals, num_vertices * 4 * sizeof(F32));
+                    LLVector4a::memcpyNonAliased16(reinterpret_cast<F32*>(normal_strider.get()), reinterpret_cast<F32*>(vf.mNormals), num_vertices * 4 * sizeof(F32));
                 }
             }
 
@@ -3001,9 +3001,9 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
                     for (U32 i = 0; i < weight_list.size(); ++i)
                     {
                         F32 wght = llclamp(weight_list[i].mWeight, 0.001f, 0.999f);
-                        F32 joint = (F32)weight_list[i].mJointIdx;
+                        F32 joint = static_cast<F32>(weight_list[i].mJointIdx);
                         w.mV[i] = joint + wght;
-                        llassert(w.mV[i] - (S32)w.mV[i]>0.0f); // because weights are non-zero, and range of wt values
+                        llassert(w.mV[i] - static_cast<S32>(w.mV[i]) > 0.0f); // because weights are non-zero, and range of wt values
                         //should not cause floating point precision issues.
                     }
 
@@ -3246,8 +3246,8 @@ void LLModelPreview::addEmptyFace(LLModel* pTarget)
     LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(type_mask);
 
     buff->allocateBuffer(1, 3);
-    memset((U8*)buff->getMappedData(), 0, buff->getSize());
-    memset((U8*)buff->getMappedIndices(), 0, buff->getIndicesSize());
+    memset(reinterpret_cast<U8*>(buff->getMappedData()), 0, buff->getSize());
+    memset(reinterpret_cast<U8*>(buff->getMappedIndices()), 0, buff->getIndicesSize());
 
     (void)buff->validateRange(0, buff->getNumVerts() - 1, buff->getNumIndices(), 0);
 
@@ -3310,7 +3310,7 @@ bool LLModelPreview::render()
         gGL.matrixMode(LLRender::MM_PROJECTION);
         gGL.pushMatrix();
         gGL.loadIdentity();
-        gGL.ortho(0.0f, (F32)width, 0.0f, (F32)height, -1.0f, 1.0f);
+        gGL.ortho(0.0f, static_cast<F32>(width), 0.0f, static_cast<F32>(height), -1.0f, 1.0f);
 
         gGL.matrixMode(LLRender::MM_MODELVIEW);
         gGL.pushMatrix();
@@ -3448,7 +3448,7 @@ bool LLModelPreview::render()
         mFMP->childSetEnabled("upload_joints", upload_skin);
     }
 
-    F32 physics_explode = (F32)mFMP->childGetValue("physics_explode").asReal();
+    F32 physics_explode = static_cast<F32>(mFMP->childGetValue("physics_explode").asReal());
 
     LLGLDepthTest gls_depth(GL_TRUE); // SL-12781 re-enable z-buffer for 3D model preview
 
@@ -3456,7 +3456,7 @@ bool LLModelPreview::render()
 
     preview_rect = mFMP->getChildView("preview_panel")->getRect();
 
-    F32 aspect = (F32)preview_rect.getWidth() / preview_rect.getHeight();
+    F32 aspect = static_cast<F32>(preview_rect.getWidth()) / preview_rect.getHeight();
 
     LLViewerCamera::getInstance()->setAspect(aspect);
 
@@ -4041,7 +4041,7 @@ void LLModelPreview::pan(F32 right, F32 up)
 
 void LLModelPreview::setPreviewLOD(S32 lod)
 {
-    lod = llclamp(lod, 0, (S32)LLModel::LOD_HIGH);
+    lod = llclamp(lod, 0, static_cast<S32>(LLModel::LOD_HIGH));
 
     if (lod != mPreviewLOD)
     {

@@ -109,7 +109,7 @@ void Node::updateTransforms(Asset& asset, const mat4& parentMatrix)
 
     mAssetMatrixInv = glm::inverse(mAssetMatrix);
 
-    S32 my_index = (S32)(this - &asset.mNodes[0]);
+    S32 my_index = static_cast<S32>(this - &asset.mNodes[0]);
 
     for (auto& childIndex : mChildren)
     {
@@ -196,7 +196,7 @@ void Asset::uploadMaterials()
     U32 material_size = sizeof(vec4) * 12;
     U32 max_materials = gGLManager.mMaxUniformBlockSize / material_size;
 
-    U32 mat_count = (U32)mMaterials.size();
+    U32 mat_count = static_cast<U32>(mMaterials.size());
     mat_count = llmin(mat_count, max_materials);
 
     md.resize(mat_count * 12);
@@ -207,15 +207,15 @@ void Asset::uploadMaterials()
 
         // add texture transforms and UV indices
         material.mPbrMetallicRoughness.mBaseColorTexture.mTextureTransform.getPacked(&md[i+0]);
-        md[i + 1].g = (F32)material.mPbrMetallicRoughness.mBaseColorTexture.getTexCoord();
+        md[i + 1].g = static_cast<F32>(material.mPbrMetallicRoughness.mBaseColorTexture.getTexCoord());
         material.mNormalTexture.mTextureTransform.getPacked(&md[i + 2]);
-        md[i + 3].g = (F32)material.mNormalTexture.getTexCoord();
+        md[i + 3].g = static_cast<F32>(material.mNormalTexture.getTexCoord());
         material.mPbrMetallicRoughness.mMetallicRoughnessTexture.mTextureTransform.getPacked(&md[i+4]);
-        md[i + 5].g = (F32)material.mPbrMetallicRoughness.mMetallicRoughnessTexture.getTexCoord();
+        md[i + 5].g = static_cast<F32>(material.mPbrMetallicRoughness.mMetallicRoughnessTexture.getTexCoord());
         material.mEmissiveTexture.mTextureTransform.getPacked(&md[i + 6]);
-        md[i + 7].g = (F32)material.mEmissiveTexture.getTexCoord();
+        md[i + 7].g = static_cast<F32>(material.mEmissiveTexture.getTexCoord());
         material.mOcclusionTexture.mTextureTransform.getPacked(&md[i + 8]);
-        md[i + 9].g = (F32)material.mOcclusionTexture.getTexCoord();
+        md[i + 9].g = static_cast<F32>(material.mOcclusionTexture.getTexCoord());
 
         // add material properties
         F32 min_alpha = material.mAlphaMode == Material::AlphaMode::MASK ? material.mAlphaCutoff : -1.0f;
@@ -274,11 +274,11 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                     local_end = p;
 
                     // pointer math to get the node index
-                    node_hit = (S32)(&node - &mNodes[0]);
+                    node_hit = static_cast<S32>(&node - &mNodes[0]);
                     llassert(&mNodes[node_hit] == &node);
 
                     //pointer math to get the primitive index
-                    primitive_hit = (S32)(&primitive - &mesh.mPrimitives[0]);
+                    primitive_hit = static_cast<S32>(&primitive - &mesh.mPrimitives[0]);
                     llassert(&mesh.mPrimitives[primitive_hit] == &primitive);
                 }
             }
@@ -557,7 +557,7 @@ bool Asset::prep()
         // prepare vertex buffers
 
         // material count is number of materials + 1 for default material
-        U32 mat_count = (U32) mMaterials.size() + 1;
+        U32 mat_count = static_cast<U32>(mMaterials.size()) + 1;
 
         if (LLGLSLShader::sCurBoundShaderPtr == nullptr)
         { // make sure a shader is bound to satisfy mVertexBuffer->setBuffer
@@ -573,7 +573,7 @@ bool Asset::prep()
             }
 
             // for each material
-            for (S32 mat_id = -1; mat_id < (S32)mMaterials.size(); ++mat_id)
+            for (S32 mat_id = -1; mat_id < static_cast<S32>(mMaterials.size()); ++mat_id)
             {
                 // for each shader variant
                 U32 vertex_count[LLGLSLShader::NUM_GLTF_VARIANTS] = { 0 };
@@ -682,7 +682,7 @@ bool Asset::loadBinary(const std::string& data, bool loadIntoVRAM)
 {
     mLoadIntoVRAM = loadIntoVRAM;
     // load from binary gltf
-    const U8* ptr = (const U8*)data.data();
+    const U8* ptr = reinterpret_cast<const U8*>(data.data());
     const U8* end = ptr + data.size();
 
     if (end - ptr < 12)
@@ -691,7 +691,7 @@ bool Asset::loadBinary(const std::string& data, bool loadIntoVRAM)
         return false;
     }
 
-    U32 magic = *(U32*)ptr;
+    U32 magic = *reinterpret_cast<const U32*>(ptr);
     ptr += 4;
 
     if (magic != 0x46546C67)
@@ -700,7 +700,7 @@ bool Asset::loadBinary(const std::string& data, bool loadIntoVRAM)
         return false;
     }
 
-    U32 version = *(U32*)ptr;
+    U32 version = *reinterpret_cast<const U32*>(ptr);
     ptr += 4;
 
     if (version != 2)
@@ -709,7 +709,7 @@ bool Asset::loadBinary(const std::string& data, bool loadIntoVRAM)
         return false;
     }
 
-    U32 length = *(U32*)ptr;
+    U32 length = *reinterpret_cast<const U32*>(ptr);
     ptr += 4;
 
     if (length != data.size())
@@ -718,7 +718,7 @@ bool Asset::loadBinary(const std::string& data, bool loadIntoVRAM)
         return false;
     }
 
-    U32 chunkLength = *(U32*)ptr;
+    U32 chunkLength = *reinterpret_cast<const U32*>(ptr);
     ptr += 4;
 
     if (end - ptr < chunkLength + 8)
@@ -727,7 +727,7 @@ bool Asset::loadBinary(const std::string& data, bool loadIntoVRAM)
         return false;
     }
 
-    U32 chunkType = *(U32*)ptr;
+    U32 chunkType = *reinterpret_cast<const U32*>(ptr);
     ptr += 4;
 
     if (chunkType != 0x4E4F534A)
@@ -736,7 +736,7 @@ bool Asset::loadBinary(const std::string& data, bool loadIntoVRAM)
         return false;
     }
 
-    Value val = parse(std::string_view((const char*)ptr, chunkLength));
+    Value val = parse(std::string_view(reinterpret_cast<const char*>(ptr), chunkLength));
     *this = val;
 
     if (mBuffers.size() > 0 && mBuffers[0].mUri.empty())
@@ -750,10 +750,10 @@ bool Asset::loadBinary(const std::string& data, bool loadIntoVRAM)
             return false;
         }
 
-        chunkLength = *(U32*)ptr;
+        chunkLength = *reinterpret_cast<const U32*>(ptr);
         ptr += 4;
 
-        chunkType = *(U32*)ptr;
+        chunkType = *reinterpret_cast<const U32*>(ptr);
         ptr += 4;
 
         if (chunkType != 0x004E4942)
@@ -1042,7 +1042,7 @@ bool Image::save(Asset& asset, const std::string& folder)
     const std::string& delim = gDirUtilp->getDirDelimiter();
     if (name.empty())
     {
-        S32 idx = (S32)(this - asset.mImages.data());
+        S32 idx = static_cast<S32>(this - asset.mImages.data());
         name = llformat("image_%d", idx);
     }
 
@@ -1075,7 +1075,7 @@ bool Image::save(Asset& asset, const std::string& folder)
         mUri = name + extension;
 
         std::ofstream file(filename, std::ios::binary);
-        file.write((const char*)buffer.mData.data() + bufferView.mByteOffset, bufferView.mByteLength);
+        file.write(reinterpret_cast<const char*>(buffer.mData.data()) + bufferView.mByteOffset, bufferView.mByteLength);
     }
     else if (mTexture.notNull())
     {

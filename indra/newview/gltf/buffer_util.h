@@ -143,37 +143,37 @@ namespace LL
         template<>
         inline void copyScalar<U32, LLVector4a>(U32* src, LLVector4a& dst)
         {
-            dst.set((F32)*src, 0.f, 0.f, 0.f);
+            dst.set(static_cast<F32>(*src), 0.f, 0.f, 0.f);
         }
 
         template<>
         inline void copyScalar<U16, LLVector4a>(U16* src, LLVector4a& dst)
         {
-            dst.set((F32)*src, 0.f, 0.f, 0.f);
+            dst.set(static_cast<F32>(*src), 0.f, 0.f, 0.f);
         }
 
         template<>
         inline void copyScalar<U8, LLVector4a>(U8* src, LLVector4a& dst)
         {
-            dst.set((F32)*src, 0.f, 0.f, 0.f);
+            dst.set(static_cast<F32>(*src), 0.f, 0.f, 0.f);
         }
 
         template<>
         inline void copyScalar<U32, LLVector2>(U32* src, LLVector2& dst)
         {
-            dst.set((F32)*src, 0.f);
+            dst.set(static_cast<F32>(*src), 0.f);
         }
 
         template<>
         inline void copyScalar<U16, LLVector2>(U16* src, LLVector2& dst)
         {
-            dst.set((F32)*src, 0.f);
+            dst.set(static_cast<F32>(*src), 0.f);
         }
 
         template<>
         inline void copyScalar<U8, LLVector2>(U8* src, LLVector2& dst)
         {
-            dst.set((F32)*src, 0.f);
+            dst.set(static_cast<F32>(*src), 0.f);
         }
 
         template<>
@@ -203,13 +203,13 @@ namespace LL
         template<>
         inline void copyVec3<F32, LLColor4U>(F32* src, LLColor4U& dst)
         {
-            dst.set((U8)(src[0] * 255.f), (U8)(src[1] * 255.f), (U8)(src[2] * 255.f), 255);
+            dst.set(static_cast<U8>(src[0] * 255.f), static_cast<U8>(src[1] * 255.f), static_cast<U8>(src[2] * 255.f), 255);
         }
 
         template<>
         inline void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
-            dst.set((U8)(src[0]), (U8)(src[1]), (U8)(src[2]), 255);
+            dst.set(static_cast<U8>(src[0]), static_cast<U8>(src[1]), static_cast<U8>(src[2]), 255);
         }
 
         template<>
@@ -221,7 +221,7 @@ namespace LL
         template<>
         inline void copyVec4<U16, U64>(U16* src, U64& dst)
         {
-            U16* data = (U16*)&dst;
+            U16* data = reinterpret_cast<U16*>(&dst);
             data[0] = src[0];
             data[1] = src[1];
             data[2] = src[2];
@@ -231,7 +231,7 @@ namespace LL
         template<>
         inline void copyVec4<U8, U64>(U8* src, U64& dst)
         {
-            U8* data = (U8*)&dst;
+            U8* data = reinterpret_cast<U8*>(&dst);
             data[0] = src[0];
             data[1] = src[1];
             data[2] = src[2];
@@ -241,13 +241,13 @@ namespace LL
         template<>
         inline void copyVec4<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
-            dst.set((U8)(src[0]), (U8)(src[1]), (U8)(src[2]), ((U8)src[3]));
+            dst.set(static_cast<U8>(src[0]), static_cast<U8>(src[1]), static_cast<U8>(src[2]), static_cast<U8>(src[3]));
         }
 
         template<>
         inline void copyVec4<F32, LLColor4U>(F32* src, LLColor4U& dst)
         {
-            dst.set((U8)(src[0]*255.f), (U8)(src[1]*255.f), (U8)(src[2]*255.f), (U8)(src[3]*255.f));
+            dst.set(static_cast<U8>(src[0]*255.f), static_cast<U8>(src[1]*255.f), static_cast<U8>(src[2]*255.f), static_cast<U8>(src[3]*255.f));
         }
 
         template<>
@@ -259,7 +259,7 @@ namespace LL
         template<>
         inline void copyVec4<U32, LLVector4a>(U32* src, LLVector4a& dst)
         {
-            dst.set((F32)src[0], (F32)src[1], (F32)src[2], (F32)src[3]);
+            dst.set(static_cast<F32>(src[0]), static_cast<F32>(src[1]), static_cast<F32>(src[2]), static_cast<F32>(src[3]));
         }
 
         template<>
@@ -299,7 +299,7 @@ namespace LL
             {
                 copyScalar(src, *dst);
                 dst++;
-                src = (S*)((U8*)src + stride);
+                src = reinterpret_cast<S*>(reinterpret_cast<U8*>(src) + stride);
             }
         }
 
@@ -311,7 +311,7 @@ namespace LL
             {
                 copyVec2(src, *dst);
                 dst++;
-                src = (S*)((U8*)src + stride);
+                src = reinterpret_cast<S*>(reinterpret_cast<U8*>(src) + stride);
             }
         }
 
@@ -323,7 +323,7 @@ namespace LL
             {
                 copyVec3(src, *dst);
                 dst++;
-                src = (S*)((U8*)src + stride);
+                src = reinterpret_cast<S*>(reinterpret_cast<U8*>(src) + stride);
             }
         }
 
@@ -335,7 +335,7 @@ namespace LL
             {
                 copyVec4(src, *dst);
                 dst++;
-                src = (S*)((U8*)src + stride);
+                src = reinterpret_cast<S*>(reinterpret_cast<U8*>(src) + stride);
             }
         }
 
@@ -347,7 +347,7 @@ namespace LL
             {
                 copyMat2(src, *dst);
                 dst++;
-                src = (S*)((U8*)src + stride);
+                src = reinterpret_cast<S*>(reinterpret_cast<U8*>(src) + stride);
             }
         }
 
@@ -359,7 +359,7 @@ namespace LL
             {
                 copyMat3(src, *dst);
                 dst++;
-                src = (S*)((U8*)src + stride);
+                src = reinterpret_cast<S*>(reinterpret_cast<U8*>(src) + stride);
             }
         }
 
@@ -371,7 +371,7 @@ namespace LL
             {
                 copyMat4(src, *dst);
                 dst++;
-                src = (S*)((U8*)src + stride);
+                src = reinterpret_cast<S*>(reinterpret_cast<U8*>(src) + stride);
             }
         }
 
@@ -381,41 +381,41 @@ namespace LL
             if (accessor.mType == Accessor::Type::SCALAR)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 1 : byteStride;
-                copyScalar((S*)src, dst, stride, accessor.mCount);
+                copyScalar(const_cast<S*>(src), dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::VEC2)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 2 : byteStride;
-                copyVec2((S*)src, dst, stride, accessor.mCount);
+                copyVec2(const_cast<S*>(src), dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::VEC3)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 3 : byteStride;
-                copyVec3((S*)src, dst, stride, accessor.mCount);
+                copyVec3(const_cast<S*>(src), dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::VEC4)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 4 : byteStride;
-                copyVec4((S*)src, dst, stride, accessor.mCount);
+                copyVec4(const_cast<S*>(src), dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::MAT2)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 4 : byteStride;
-                copyMat2((S*)src, dst, stride, accessor.mCount);
+                copyMat2(const_cast<S*>(src), dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::MAT3)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 9 : byteStride;
-                copyMat3((S*)src, dst, stride, accessor.mCount);
+                copyMat3(const_cast<S*>(src), dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::MAT4)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 16 : byteStride;
-                copyMat4((S*)src, dst, stride, accessor.mCount);
+                copyMat4(const_cast<S*>(src), dst, stride, accessor.mCount);
             }
             else
             {
-                LL_ERRS("GLTF") << "Unsupported accessor type " << (S32)accessor.mType << LL_ENDL;
+                LL_ERRS("GLTF") << "Unsupported accessor type " << static_cast<S32>(accessor.mType) << LL_ENDL;
             }
         }
 
@@ -441,22 +441,22 @@ namespace LL
             switch (accessor.mComponentType)
             {
             case Accessor::ComponentType::FLOAT:
-                copy(asset, accessor, (const F32*)src, dst, bufferView.mByteStride);
+                copy(asset, accessor, reinterpret_cast<const F32*>(src), dst, bufferView.mByteStride);
                 break;
             case Accessor::ComponentType::UNSIGNED_INT:
-                copy(asset, accessor, (const U32*)src, dst, bufferView.mByteStride);
+                copy(asset, accessor, reinterpret_cast<const U32*>(src), dst, bufferView.mByteStride);
                 break;
             case Accessor::ComponentType::SHORT:
-                copy(asset, accessor, (const S16*)src, dst, bufferView.mByteStride);
+                copy(asset, accessor, reinterpret_cast<const S16*>(src), dst, bufferView.mByteStride);
                 break;
             case Accessor::ComponentType::UNSIGNED_SHORT:
-                copy(asset, accessor, (const U16*)src, dst, bufferView.mByteStride);
+                copy(asset, accessor, reinterpret_cast<const U16*>(src), dst, bufferView.mByteStride);
                 break;
             case Accessor::ComponentType::BYTE:
-                copy(asset, accessor, (const S8*)src, dst, bufferView.mByteStride);
+                copy(asset, accessor, reinterpret_cast<const S8*>(src), dst, bufferView.mByteStride);
                 break;
             case Accessor::ComponentType::UNSIGNED_BYTE:
-                copy(asset, accessor, (const U8*)src, dst, bufferView.mByteStride);
+                copy(asset, accessor, reinterpret_cast<const U8*>(src), dst, bufferView.mByteStride);
                 break;
             default:
                 LL_ERRS("GLTF") << "Invalid component type" << LL_ENDL;
@@ -752,7 +752,7 @@ namespace LL
         {
             if (src.is_int64())
             {
-                dst = (Accessor::ComponentType)src.get_int64();
+                dst = static_cast<Accessor::ComponentType>(src.get_int64());
                 return true;
             }
             return false;
@@ -761,7 +761,7 @@ namespace LL
         template<>
         inline bool write(const Accessor::ComponentType& src, Value& dst)
         {
-            dst = (S32)src;
+            dst = static_cast<S32>(src);
             return true;
         }
 
@@ -771,7 +771,7 @@ namespace LL
         {
             if (src.is_int64())
             {
-                dst = (Primitive::Mode)src.get_int64();
+                dst = static_cast<Primitive::Mode>(src.get_int64());
                 return true;
             }
             return false;
@@ -780,7 +780,7 @@ namespace LL
         template<>
         inline bool write(const Primitive::Mode& src, Value& dst)
         {
-            dst = (S32)src;
+            dst = static_cast<S32>(src);
             return true;
         }
 
@@ -967,7 +967,7 @@ namespace LL
         {
             if (src.is_int64())
             {
-                dst = (U32)src.get_int64();
+                dst = static_cast<U32>(src.get_int64());
                 return true;
             }
             return false;
@@ -1022,7 +1022,7 @@ namespace LL
         {
             if (src.is_int64())
             {
-                dst = (U32)src.get_int64();
+                dst = static_cast<U32>(src.get_int64());
                 return true;
             }
             return false;

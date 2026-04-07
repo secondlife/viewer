@@ -127,8 +127,8 @@ void Animation::apply(Asset& asset, float time)
 bool Animation::Sampler::prep(Asset& asset)
 {
     Accessor& accessor = asset.mAccessors[mInput];
-    mMinTime = (F32)accessor.mMin[0];
-    mMaxTime = (F32)accessor.mMax[0];
+    mMinTime = static_cast<F32>(accessor.mMin[0]);
+    mMaxTime = static_cast<F32>(accessor.mMax[0]);
 
     mFrameTimes.resize(accessor.mCount);
 
@@ -232,7 +232,7 @@ void Animation::Sampler::getFrameInfo(Asset& asset, F32 time, U32& frameIndex, F
 
     U32 idx = mLastFrameIndex;
 
-    for (U32 i = idx; i < (U32)mFrameTimes.size() - 1; i++)
+    for (U32 i = idx; i < static_cast<U32>(mFrameTimes.size()) - 1; i++)
     {
         if (time >= mFrameTimes[i] && time < mFrameTimes[i + 1])
         {

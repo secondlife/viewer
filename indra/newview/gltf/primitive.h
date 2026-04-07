@@ -85,8 +85,8 @@ namespace LL
             U32 mVertexOffset = 0;
             U32 mIndexOffset = 0;
 
-            U32 getVertexCount() const { return (U32) mPositions.size(); }
-            U32 getIndexCount() const { return (U32) mIndexArray.size(); }
+            U32 getVertexCount() const { return static_cast<U32>(mPositions.size()); }
+            U32 getIndexCount() const { return static_cast<U32>(mIndexArray.size()); }
 
             std::unordered_map<std::string, S32> mAttributes;
 

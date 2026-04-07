@@ -476,14 +476,14 @@ void get_vertex_buffer_from_mesh(LLCDMeshData& mesh, LLModel::PhysicsMesh& res, 
 
     if (mesh.mIndexType == LLCDMeshData::INT_16)
     {
-        U16* idx = (U16*) mesh.mIndexBase;
+        const U16* idx = reinterpret_cast<const U16*>(mesh.mIndexBase);
         for (S32 j = 0; j < mesh.mNumTriangles; ++j)
         {
-            F32* mp0 = (F32*) ((U8*)v+idx[0]*mesh.mVertexStrideBytes);
-            F32* mp1 = (F32*) ((U8*)v+idx[1]*mesh.mVertexStrideBytes);
-            F32* mp2 = (F32*) ((U8*)v+idx[2]*mesh.mVertexStrideBytes);
+            const F32* mp0 = reinterpret_cast<const F32*>(reinterpret_cast<const U8*>(v) + idx[0] * mesh.mVertexStrideBytes);
+            const F32* mp1 = reinterpret_cast<const F32*>(reinterpret_cast<const U8*>(v) + idx[1] * mesh.mVertexStrideBytes);
+            const F32* mp2 = reinterpret_cast<const F32*>(reinterpret_cast<const U8*>(v) + idx[2] * mesh.mVertexStrideBytes);
 
-            idx = (U16*) (((U8*)idx)+mesh.mIndexStrideBytes);
+            idx = reinterpret_cast<const U16*>(reinterpret_cast<const U8*>(idx) + mesh.mIndexStrideBytes);
 
             LLVector3 v0(mp0);
             LLVector3 v1(mp1);
@@ -503,14 +503,14 @@ void get_vertex_buffer_from_mesh(LLCDMeshData& mesh, LLModel::PhysicsMesh& res, 
     }
     else
     {
-        U32* idx = (U32*) mesh.mIndexBase;
+        const U32* idx = reinterpret_cast<const U32*>(mesh.mIndexBase);
         for (S32 j = 0; j < mesh.mNumTriangles; ++j)
         {
-            F32* mp0 = (F32*) ((U8*)v+idx[0]*mesh.mVertexStrideBytes);
-            F32* mp1 = (F32*) ((U8*)v+idx[1]*mesh.mVertexStrideBytes);
-            F32* mp2 = (F32*) ((U8*)v+idx[2]*mesh.mVertexStrideBytes);
+            const F32* mp0 = reinterpret_cast<const F32*>(reinterpret_cast<const U8*>(v) + idx[0] * mesh.mVertexStrideBytes);
+            const F32* mp1 = reinterpret_cast<const F32*>(reinterpret_cast<const U8*>(v) + idx[1] * mesh.mVertexStrideBytes);
+            const F32* mp2 = reinterpret_cast<const F32*>(reinterpret_cast<const U8*>(v) + idx[2] * mesh.mVertexStrideBytes);
 
-            idx = (U32*) (((U8*)idx)+mesh.mIndexStrideBytes);
+            idx = reinterpret_cast<const U32*>(reinterpret_cast<const U8*>(idx) + mesh.mIndexStrideBytes);
 
             LLVector3 v0(mp0);
             LLVector3 v1(mp1);
@@ -535,7 +535,7 @@ void RequestStats::updateTime()
     U32 modifier = 1 << mRetries; // before ++
     mRetries++;
     mTimer.reset();
-    mTimer.setTimerExpirySec(DOWNLOAD_RETRY_DELAY * (F32)modifier); // up to 32s, 64 total wait
+    mTimer.setTimerExpirySec(DOWNLOAD_RETRY_DELAY * static_cast<F32>(modifier)); // up to 32s, 64 total wait
 }
 
 bool RequestStats::canRetry() const
@@ -2213,9 +2213,9 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
     if (data_size > 0)
     {
         llssize dsize = data_size;
-        char* result_ptr = strip_deprecated_header((char*)data, dsize, &header_size);
+        char* result_ptr = strip_deprecated_header(reinterpret_cast<char*>(data), dsize, &header_size);
 
-        data_size = (S32)dsize;
+        data_size = static_cast<S32>(dsize);
 
         boost::iostreams::stream<boost::iostreams::array_source> stream(result_ptr, data_size);
 
@@ -2242,7 +2242,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
         // make sure there is at least one lod, function returns -1 and marks as 404 otherwise
         else if (LLMeshRepository::getActualMeshLOD(header, 0) >= 0)
         {
-            header.mHeaderSize = (S32)stream.tellg();
+            header.mHeaderSize = static_cast<S32>(stream.tellg());
             header_size += header.mHeaderSize;
             skin_offset = header.mSkinOffset;
             skin_size = header.mSkinSize;
@@ -2290,7 +2290,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
         {
             LLMutexLock lock(mHeaderMutex);
             mMeshHeader[mesh_id] = header;
-            LLMeshRepository::sCacheBytesHeaders += (U32)header_size;
+            LLMeshRepository::sCacheBytesHeaders += static_cast<U32>(header_size);
         }
 
         // immediately request SkinInfo since we'll need it before we can render any LoD if it is present
@@ -2305,7 +2305,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
                 }
             }
 
-            S32 offset = (S32)header_size + skin_offset;
+            S32 offset = static_cast<S32>(header_size) + skin_offset;
             bool request_skin = true;
             if (offset + skin_size < data_size)
             {
@@ -2353,7 +2353,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
                 {
                     // try to load from data we just received
                     bool request_lod = true;
-                    S32 offset = (S32)header_size + lod_offset[i];
+                    S32 offset = static_cast<S32>(header_size) + lod_offset[i];
                     if (offset + lod_size[i] <= data_size)
                     {
                         // initial request is 4096 bytes, it's big enough to fit this lod
@@ -2794,11 +2794,11 @@ void LLMeshUploadThread::packModelIntance(
         if (model->mSubmodelID)
         {
             // Should it really be different?
-            instance_entry["physics_shape_type"] = (U8)(LLViewerObject::PHYSICS_SHAPE_NONE);
+            instance_entry["physics_shape_type"] = static_cast<U8>(LLViewerObject::PHYSICS_SHAPE_NONE);
         }
         else
         {
-            instance_entry["physics_shape_type"] = data.mModel[LLModel::LOD_PHYSICS].notNull() ? (U8)(LLViewerObject::PHYSICS_SHAPE_PRIM) : (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
+            instance_entry["physics_shape_type"] = data.mModel[LLModel::LOD_PHYSICS].notNull() ? static_cast<U8>(LLViewerObject::PHYSICS_SHAPE_PRIM) : static_cast<U8>(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
         }
         instance_entry["mesh"] = mesh_index[data.mBaseModel];
         instance_entry["mesh_name"] = instance.mLabel;
@@ -2807,7 +2807,7 @@ void LLMeshUploadThread::packModelIntance(
 
         // We want to be able to allow more than 8 materials...
         //
-        S32 end = llmin((S32)data.mBaseModel->mMaterialList.size(), instance.mModel->getNumVolumeFaces());
+        S32 end = llmin(static_cast<S32>(data.mBaseModel->mMaterialList.size()), instance.mModel->getNumVolumeFaces());
 
         for (S32 face_num = 0; face_num < end; face_num++)
         {
@@ -2840,7 +2840,7 @@ void LLMeshUploadThread::packModelIntance(
 
                     if (!upload_file.isNull() && upload_file->getDataSize() && !upload_file->isBufferInvalid())
                     {
-                        texture_str.write((const char*)upload_file->getData(), upload_file->getDataSize());
+                        texture_str.write(reinterpret_cast<const char*>(upload_file->getData()), upload_file->getDataSize());
                     }
                 }
             }
@@ -3615,7 +3615,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
             data = new(std::nothrow) U8[data_size - body_offset];
             if (data)
             {
-                body->read(body_offset, (char *) data, data_size - body_offset);
+                body->read(body_offset, reinterpret_cast<char*>(data), data_size - body_offset);
                 LLMeshRepository::sBytesReceived += static_cast<U32>(data_size);
             }
             else
@@ -4610,7 +4610,7 @@ void LLMeshRepository::notifyLoadedMeshes()
         // Checking sRequestHighWater to keep queues at least somewhat populated
         // for faster transition into http
         S32 active_count = LLMeshRepoThread::sActiveHeaderRequests + LLMeshRepoThread::sActiveLODRequests + LLMeshRepoThread::sActiveSkinRequests;
-        active_count += (S32)(mThread->mLODReqQ.size() + mThread->mHeaderReqQ.size() + mThread->mSkinInfoQ.size());
+        active_count += static_cast<S32>(mThread->mLODReqQ.size() + mThread->mHeaderReqQ.size() + mThread->mSkinInfoQ.size());
         if (active_count < LLMeshRepoThread::sRequestHighWater)
         {
             S32 push_count = LLMeshRepoThread::sRequestHighWater - active_count;
@@ -5219,9 +5219,9 @@ F32 LLMeshRepository::getStreamingCostLegacy(LLMeshHeader& header, F32 radius, S
     static LLCachedControl<U32> minimum_size_ch(gSavedSettings, "MeshMinimumByteSize", 16); //make sure nothing is "free"
     static LLCachedControl<U32> bytes_per_triangle_ch(gSavedSettings, "MeshBytesPerTriangle", 16);
 
-    F32 metadata_discount = (F32)metadata_discount_ch;
-    F32 minimum_size = (F32)minimum_size_ch;
-    F32 bytes_per_triangle = (F32)bytes_per_triangle_ch;
+    F32 metadata_discount = static_cast<F32>(metadata_discount_ch());
+    F32 minimum_size = static_cast<F32>(minimum_size_ch());
+    F32 bytes_per_triangle = static_cast<F32>(bytes_per_triangle_ch());
 
     S32 bytes_lowest = header.mLodSize[0];
     S32 bytes_low = header.mLodSize[1];
@@ -5248,10 +5248,10 @@ F32 LLMeshRepository::getStreamingCostLegacy(LLMeshHeader& header, F32 radius, S
         bytes_lowest = bytes_low;
     }
 
-    F32 triangles_lowest = llmax((F32) bytes_lowest-metadata_discount, minimum_size)/bytes_per_triangle;
-    F32 triangles_low = llmax((F32) bytes_low-metadata_discount, minimum_size)/bytes_per_triangle;
-    F32 triangles_mid = llmax((F32) bytes_mid-metadata_discount, minimum_size)/bytes_per_triangle;
-    F32 triangles_high = llmax((F32) bytes_high-metadata_discount, minimum_size)/bytes_per_triangle;
+    F32 triangles_lowest = llmax(static_cast<F32>(bytes_lowest) - metadata_discount, minimum_size) / bytes_per_triangle;
+    F32 triangles_low = llmax(static_cast<F32>(bytes_low) - metadata_discount, minimum_size) / bytes_per_triangle;
+    F32 triangles_mid = llmax(static_cast<F32>(bytes_mid) - metadata_discount, minimum_size) / bytes_per_triangle;
+    F32 triangles_high = llmax(static_cast<F32>(bytes_high) - metadata_discount, minimum_size) / bytes_per_triangle;
 
     if (bytes)
     {
@@ -5348,7 +5348,7 @@ bool LLMeshCostData::init(const LLMeshHeader& header)
 
     for (S32 i=0; i<LLVolumeLODGroup::NUM_LODS; i++)
     {
-        mEstTrisByLOD[i] = llmax((F32)mSizeByLOD[i] - (F32)metadata_discount, (F32)minimum_size) / (F32)bytes_per_triangle;
+        mEstTrisByLOD[i] = llmax(static_cast<F32>(mSizeByLOD[i]) - static_cast<F32>(metadata_discount()), static_cast<F32>(minimum_size())) / static_cast<F32>(bytes_per_triangle());
     }
 
     return true;
@@ -5638,7 +5638,7 @@ void LLPhysicsDecomp::doDecomposition()
 
         if (param->mType == LLCDParam::LLCD_FLOAT)
         {
-            ret = LLConvexDecomposition::getInstance()->setParam(param->mName, (F32) value.asReal());
+            ret = LLConvexDecomposition::getInstance()->setParam(param->mName, static_cast<F32>(value.asReal()));
         }
         else if (param->mType == LLCDParam::LLCD_INTEGER ||
             param->mType == LLCDParam::LLCD_ENUM)
@@ -5703,7 +5703,7 @@ void LLPhysicsDecomp::doDecomposition()
             {
                 LLVector3 vert(v[0], v[1], v[2]);
                 p.push_back(vert);
-                v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
+                v = reinterpret_cast<const F32*>(reinterpret_cast<const U8*>(v) + hull.mVertexStrideBytes);
             }
 
             LLCDMeshData mesh;
@@ -5816,7 +5816,7 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
         {
             LLVector3 vert(v[0], v[1], v[2]);
             p.push_back(vert);
-            v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
+            v = reinterpret_cast<const F32*>(reinterpret_cast<const U8*>(v) + hull.mVertexStrideBytes);
         }
 
         {
@@ -6161,13 +6161,13 @@ void on_new_single_inventory_upload_complete(
         U32 inventory_item_flags = 0;
         if (server_response.has("inventory_flags"))
         {
-            inventory_item_flags = (U32)server_response["inventory_flags"].asInteger();
+            inventory_item_flags = static_cast<U32>(server_response["inventory_flags"].asInteger());
             if (inventory_item_flags != 0)
             {
                 LL_INFOS() << "inventory_item_flags " << inventory_item_flags << LL_ENDL;
             }
         }
-        S32 creation_date_now = (S32)time_corrected();
+        S32 creation_date_now = static_cast<S32>(time_corrected());
         LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem(
             server_response["new_inventory_item"].asUUID(),
             item_folder_id,
