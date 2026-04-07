@@ -1,10 +1,23 @@
 /**
  * @file v2math_glm_equivalence_test.cpp
- * @brief Differential tests for LLVector2 ↔ glm::vec2.
+ * @brief Regression tests for the glm::vec2 free function helpers in v2math.h.
  *
- * Smallest of the differential tests — LLVector2 has no exotic
- * conventions and the operators behave correctly. Mostly used for UI
- * coordinate math.
+ * This file used to be a differential test that compared LLVector2 against
+ * glm::vec2 across construction, arithmetic, dot, cross, length, normalize,
+ * scaling, distance, and the helper functions (angle_between etc.). After
+ * the LLVector2 → glm::vec2 migration completed and LLVector2 itself was
+ * deleted, the differential side disappeared.
+ *
+ * What remains here:
+ *   1. **glm::vec2 helper regression tests** — exercise the free functions
+ *      in v2math.h (angle_between, signed_angle_between, are_parallel,
+ *      dist_vec, dist_vec_squared, lerp) and pin their expected outputs.
+ *   2. **lerpVec2 ↔ glm::mix equivalence tests** — historic regression net
+ *      proving that the deleted LLSettingsBase::lerpVec2 helper was
+ *      mathematically identical to glm::mix.
+ *
+ * The file name is kept for git history continuity. A future cleanup pass
+ * could rename it to something like `v2math_helpers_test.cpp` if desired.
  *
  * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -27,15 +40,6 @@ namespace tut
     {
         static constexpr F32 kEps = 1e-5f;
 
-        static glm::vec2 to_glm(const LLVector2& v) { return glm::vec2(v.mV[0], v.mV[1]); }
-        static LLVector2 to_ll(const glm::vec2& v)  { return LLVector2(v.x, v.y); }
-
-        static bool vec_near(const LLVector2& a, const glm::vec2& b, F32 eps = kEps)
-        {
-            return std::fabs(a.mV[0] - b.x) <= eps
-                && std::fabs(a.mV[1] - b.y) <= eps;
-        }
-
         static bool gm_near(const glm::vec2& a, const glm::vec2& b, F32 eps = kEps)
         {
             return std::fabs(a.x - b.x) <= eps
@@ -47,194 +51,134 @@ namespace tut
     using v2math_glm_equiv_object = v2math_glm_equiv_test::object;
     tut::v2math_glm_equiv_test v2math_glm_equiv_testcase("v2math_glm_equivalence");
 
+    // ---------- v2math.h helper regression tests ----------
+
     template<> template<>
     void v2math_glm_equiv_object::test<1>()
     {
-        LLVector2 ll(1.0f, 2.0f);
-        glm::vec2 gm(1.0f, 2.0f);
-        ensure("xy construction matches", vec_near(ll, gm));
+        // angle_between(perpendicular vectors) == PI/2
+        const glm::vec2 a(1.0f, 0.0f);
+        const glm::vec2 b(0.0f, 1.0f);
+        ensure_approximately_equals("perp angle is PI/2",
+                                    angle_between(a, b), F_PI_BY_TWO, 16);
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<2>()
     {
-        LLVector2 a_ll(1.0f, 2.0f);
-        LLVector2 b_ll(10.0f, 20.0f);
-        LLVector2 sum_ll = a_ll + b_ll;
-
-        glm::vec2 a_gm(1.0f, 2.0f);
-        glm::vec2 b_gm(10.0f, 20.0f);
-        glm::vec2 sum_gm = a_gm + b_gm;
-
-        ensure("addition matches", vec_near(sum_ll, sum_gm));
+        // angle_between(parallel vectors) ≈ 0. The acos of a near-1 dot
+        // is numerically unstable, so the result drifts a few mrad
+        // (acos(1 - epsilon) ≈ sqrt(2*epsilon)). Use a coarser bound.
+        const glm::vec2 a(2.0f, 4.0f);
+        const glm::vec2 b(1.0f, 2.0f);
+        const F32 ang = angle_between(a, b);
+        ensure("parallel angle is approximately 0", std::fabs(ang) < 1e-3f);
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<3>()
     {
-        LLVector2 a_ll(5.0f, -3.0f);
-        LLVector2 b_ll(2.0f, 4.0f);
-        LLVector2 diff_ll = a_ll - b_ll;
-
-        glm::vec2 a_gm(5.0f, -3.0f);
-        glm::vec2 b_gm(2.0f, 4.0f);
-        glm::vec2 diff_gm = a_gm - b_gm;
-
-        ensure("subtraction matches", vec_near(diff_ll, diff_gm));
+        // angle_between(antiparallel vectors) == PI
+        const glm::vec2 a(1.0f, 0.0f);
+        const glm::vec2 b(-1.0f, 0.0f);
+        ensure_approximately_equals("antiparallel angle is PI",
+                                    angle_between(a, b), F_PI, 16);
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<4>()
     {
-        LLVector2 v_ll(3.0f, 4.0f);
-        LLVector2 scaled_ll = v_ll * 2.5f;
-
-        glm::vec2 v_gm(3.0f, 4.0f);
-        glm::vec2 scaled_gm = v_gm * 2.5f;
-
-        ensure("scalar multiply matches", vec_near(scaled_ll, scaled_gm));
+        // signed_angle_between is positive when b is CCW from a
+        const glm::vec2 a(1.0f, 0.0f);
+        const glm::vec2 b(0.0f, 1.0f);
+        ensure_approximately_equals("CCW signed angle is +PI/2",
+                                    signed_angle_between(a, b), F_PI_BY_TWO, 16);
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<5>()
     {
-        // SL uses operator* for dot product on vectors.
-        LLVector2 a_ll(1.0f, 2.0f);
-        LLVector2 b_ll(3.0f, 4.0f);
-        F32 dot_ll = a_ll * b_ll;
-
-        glm::vec2 a_gm(1.0f, 2.0f);
-        glm::vec2 b_gm(3.0f, 4.0f);
-        F32 dot_gm = glm::dot(a_gm, b_gm);
-
-        // 1*3 + 2*4 = 11
-        ensure_approximately_equals("dot matches", dot_ll, dot_gm, 16);
+        // signed_angle_between is negative when b is CW from a
+        const glm::vec2 a(1.0f, 0.0f);
+        const glm::vec2 b(0.0f, -1.0f);
+        ensure_approximately_equals("CW signed angle is -PI/2",
+                                    signed_angle_between(a, b), -F_PI_BY_TWO, 16);
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<6>()
     {
-        LLVector2 v_ll(3.0f, 4.0f);  // length 5
-        F32 len_ll = v_ll.length();
-
-        glm::vec2 v_gm(3.0f, 4.0f);
-        F32 len_gm = glm::length(v_gm);
-
-        ensure_approximately_equals("length matches", len_ll, len_gm, 16);
+        // are_parallel detects parallel vectors
+        const glm::vec2 a(2.0f, 4.0f);
+        const glm::vec2 b(1.0f, 2.0f);
+        ensure("parallel detected", are_parallel(a, b, 1e-5f));
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<7>()
     {
-        LLVector2 v_ll(3.0f, 4.0f);
-        v_ll.normalize();
-
-        glm::vec2 v_gm(3.0f, 4.0f);
-        glm::vec2 norm_gm = glm::normalize(v_gm);
-
-        ensure("normalize matches", vec_near(v_ll, norm_gm));
+        // are_parallel detects anti-parallel vectors (1 - |dot| ≈ 0 for both)
+        const glm::vec2 a(2.0f, 4.0f);
+        const glm::vec2 b(-1.0f, -2.0f);
+        ensure("antiparallel detected as parallel", are_parallel(a, b, 1e-5f));
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<8>()
     {
-        // Distance between two points.
-        LLVector2 a_ll(1.0f, 2.0f);
-        LLVector2 b_ll(4.0f, 6.0f);  // distance is 5
-        F32 dist_ll = (a_ll - b_ll).length();
-
-        glm::vec2 a_gm(1.0f, 2.0f);
-        glm::vec2 b_gm(4.0f, 6.0f);
-        F32 dist_gm = glm::distance(a_gm, b_gm);
-
-        ensure_approximately_equals("distance matches", dist_ll, dist_gm, 16);
+        // are_parallel rejects non-parallel
+        const glm::vec2 a(1.0f, 0.0f);
+        const glm::vec2 b(0.0f, 1.0f);
+        ensure("perpendicular not parallel", !are_parallel(a, b, 1e-5f));
     }
-
-    // ---------- Migration helper functions on glm::vec2 ----------
-    // These verify the transitional helpers in v2math.h/cpp produce the
-    // same results as their LLVector2 counterparts. When LLVector2 is
-    // removed, the LL versions of the helpers go away and these tests
-    // become "the" tests for the helpers.
 
     template<> template<>
     void v2math_glm_equiv_object::test<9>()
     {
-        // angle_between (LL vs glm overload)
-        LLVector2 a_ll(1.0f, 0.0f);
-        LLVector2 b_ll(0.0f, 1.0f);
-        F32 ang_ll = angle_between(a_ll, b_ll);
-
-        glm::vec2 a_gm(1.0f, 0.0f);
-        glm::vec2 b_gm(0.0f, 1.0f);
-        F32 ang_gm = angle_between(a_gm, b_gm);
-
-        ensure_approximately_equals("angle_between glm overload matches LL",
-                                    ang_ll, ang_gm, 16);
+        // dist_vec computes Euclidean distance
+        const glm::vec2 a(1.0f, 2.0f);
+        const glm::vec2 b(4.0f, 6.0f);  // distance is 5
+        ensure_approximately_equals("3-4-5 distance",
+                                    dist_vec(a, b), 5.0f, 16);
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<10>()
     {
-        // signed_angle_between
-        LLVector2 a_ll(1.0f, 0.0f);
-        LLVector2 b_ll(0.0f, -1.0f);
-        F32 ang_ll = signed_angle_between(a_ll, b_ll);
-
-        glm::vec2 a_gm(1.0f, 0.0f);
-        glm::vec2 b_gm(0.0f, -1.0f);
-        F32 ang_gm = signed_angle_between(a_gm, b_gm);
-
-        ensure_approximately_equals("signed_angle_between matches LL", ang_ll, ang_gm, 16);
+        // dist_vec_squared returns the squared distance
+        const glm::vec2 a(1.0f, 2.0f);
+        const glm::vec2 b(4.0f, 6.0f);  // distance² == 25
+        ensure_approximately_equals("3-4-5 distance squared",
+                                    dist_vec_squared(a, b), 25.0f, 16);
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<11>()
     {
-        // are_parallel
-        LLVector2 a_ll(2.0f, 4.0f);
-        LLVector2 b_ll(1.0f, 2.0f);  // parallel to a
-        bool ll_par = are_parallel(a_ll, b_ll, 1e-5f);
-
-        glm::vec2 a_gm(2.0f, 4.0f);
-        glm::vec2 b_gm(1.0f, 2.0f);
-        bool gm_par = are_parallel(a_gm, b_gm, 1e-5f);
-
-        ensure("are_parallel matches LL", ll_par == gm_par);
-        ensure("both report parallel", ll_par && gm_par);
+        // dist_vec to self is zero
+        const glm::vec2 a(7.0f, -3.0f);
+        ensure_approximately_equals("self distance is zero",
+                                    dist_vec(a, a), 0.0f, 16);
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<12>()
     {
-        // dist_vec / dist_vec_squared
-        LLVector2 a_ll(1.0f, 2.0f);
-        LLVector2 b_ll(4.0f, 6.0f);  // distance 5
-
-        glm::vec2 a_gm(1.0f, 2.0f);
-        glm::vec2 b_gm(4.0f, 6.0f);
-
-        ensure_approximately_equals("dist_vec matches",
-                                    dist_vec(a_ll, b_ll), dist_vec(a_gm, b_gm), 16);
-        ensure_approximately_equals("dist_vec_squared matches",
-                                    dist_vec_squared(a_ll, b_ll),
-                                    dist_vec_squared(a_gm, b_gm), 16);
+        // lerp midpoint
+        const glm::vec2 a(0.0f, 0.0f);
+        const glm::vec2 b(10.0f, 20.0f);
+        const glm::vec2 mid = lerp(a, b, 0.5f);
+        ensure("midpoint matches", gm_near(mid, glm::vec2(5.0f, 10.0f)));
     }
 
     template<> template<>
     void v2math_glm_equiv_object::test<13>()
     {
-        // lerp
-        LLVector2 a_ll(0.0f, 0.0f);
-        LLVector2 b_ll(10.0f, 20.0f);
-        LLVector2 mid_ll = lerp(a_ll, b_ll, 0.5f);
-
-        glm::vec2 a_gm(0.0f, 0.0f);
-        glm::vec2 b_gm(10.0f, 20.0f);
-        glm::vec2 mid_gm = lerp(a_gm, b_gm, 0.5f);
-
-        ensure("lerp matches LL", vec_near(mid_ll, mid_gm));
-        ensure_approximately_equals("midpoint x", mid_gm.x, 5.0f, 16);
-        ensure_approximately_equals("midpoint y", mid_gm.y, 10.0f, 16);
+        // lerp at u=0 returns a, at u=1 returns b
+        const glm::vec2 a(3.0f, 7.0f);
+        const glm::vec2 b(11.0f, 13.0f);
+        ensure("u=0 returns a", gm_near(lerp(a, b, 0.0f), a));
+        ensure("u=1 returns b", gm_near(lerp(a, b, 1.0f), b));
     }
 
     // ---------- glm::mix equivalence (formerly LLSettingsBase::lerpVec2) ----------

@@ -112,11 +112,14 @@ if (LL_TESTS)
     llbboxlocal.cpp
     llmodularmath.cpp
     llrect.cpp
-    v2math.cpp
     v3color.cpp
     v4color.cpp
     v4coloru.cpp
     )
+  # Note: v2math is no longer in the unit test source list because the
+  # LLVector2 class was deleted. v2math.cpp now contains only glm::vec2
+  # free function helpers, which are exercised by the
+  # v2math_glm_equivalence integration test.
 
   LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
 
