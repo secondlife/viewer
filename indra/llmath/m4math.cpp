@@ -692,23 +692,19 @@ LLVector4 rotate_vector(const LLVector4 &a, const LLMatrix4 &b)
 {
     // Rotates but does not translate
     // Operate "to the left" on row-vector a
-    LLVector4   vec;
-    vec.mV[VX] = a.mV[VX] * b.mMatrix[VX][VX] +
-                 a.mV[VY] * b.mMatrix[VY][VX] +
-                 a.mV[VZ] * b.mMatrix[VZ][VX];
-
-    vec.mV[VY] = a.mV[VX] * b.mMatrix[VX][VY] +
-                 a.mV[VY] * b.mMatrix[VY][VY] +
-                 a.mV[VZ] * b.mMatrix[VZ][VY];
-
-    vec.mV[VZ] = a.mV[VX] * b.mMatrix[VX][VZ] +
-                 a.mV[VY] * b.mMatrix[VY][VZ] +
-                 a.mV[VZ] * b.mMatrix[VZ][VZ];
-
 //  vec.mV[VW] = a.mV[VX] * b.mMatrix[VX][VW] +
 //               a.mV[VY] * b.mMatrix[VY][VW] +
 //               a.mV[VZ] * b.mMatrix[VZ][VW] +
-    vec.mV[VW] = a.mV[VW];
+    LLVector4 vec(a.mV[VX] * b.mMatrix[VX][VX] +
+                      a.mV[VY] * b.mMatrix[VY][VX] +
+                      a.mV[VZ] * b.mMatrix[VZ][VX],
+                  a.mV[VX] * b.mMatrix[VX][VY] +
+                      a.mV[VY] * b.mMatrix[VY][VY] +
+                      a.mV[VZ] * b.mMatrix[VZ][VY],
+                  a.mV[VX] * b.mMatrix[VX][VZ] +
+                      a.mV[VY] * b.mMatrix[VY][VZ] +
+                      a.mV[VZ] * b.mMatrix[VZ][VZ],
+                  a.mV[VW]);
     return vec;
 }
 

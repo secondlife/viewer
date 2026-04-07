@@ -430,17 +430,16 @@ LLVector3 LLCoordFrame::rotateToLocal(const LLVector3 &absolute_vector) const
 
 LLVector4 LLCoordFrame::rotateToLocal(const LLVector4 &absolute_vector) const
 {
-    LLVector4 local_vector;
-    local_vector.mV[VX] = mXAxis.mV[VX] * absolute_vector.mV[VX] +
-                          mXAxis.mV[VY] * absolute_vector.mV[VY] +
-                          mXAxis.mV[VZ] * absolute_vector.mV[VZ];
-    local_vector.mV[VY] = mYAxis.mV[VX] * absolute_vector.mV[VX] +
-                          mYAxis.mV[VY] * absolute_vector.mV[VY] +
-                          mYAxis.mV[VZ] * absolute_vector.mV[VZ];
-    local_vector.mV[VZ] = mZAxis.mV[VX] * absolute_vector.mV[VX] +
-                          mZAxis.mV[VY] * absolute_vector.mV[VY] +
-                          mZAxis.mV[VZ] * absolute_vector.mV[VZ];
-    local_vector.mV[VW] = absolute_vector.mV[VW];
+    LLVector4 local_vector(mXAxis.mV[VX] * absolute_vector.mV[VX] +
+                               mXAxis.mV[VY] * absolute_vector.mV[VY] +
+                               mXAxis.mV[VZ] * absolute_vector.mV[VZ],
+                           mYAxis.mV[VX] * absolute_vector.mV[VX] +
+                               mYAxis.mV[VY] * absolute_vector.mV[VY] +
+                               mYAxis.mV[VZ] * absolute_vector.mV[VZ],
+                           mZAxis.mV[VX] * absolute_vector.mV[VX] +
+                               mZAxis.mV[VY] * absolute_vector.mV[VY] +
+                               mZAxis.mV[VZ] * absolute_vector.mV[VZ],
+                           absolute_vector.mV[VW]);
     return local_vector;
 }
 
@@ -462,17 +461,16 @@ LLVector3 LLCoordFrame::rotateToAbsolute(const LLVector3 &local_vector) const
 
 LLVector4 LLCoordFrame::rotateToAbsolute(const LLVector4 &local_vector) const
 {
-    LLVector4 absolute_vector;
-    absolute_vector.mV[VX] = mXAxis.mV[VX] * local_vector.mV[VX] +
-                             mYAxis.mV[VX] * local_vector.mV[VY] +
-                             mZAxis.mV[VX] * local_vector.mV[VZ];
-    absolute_vector.mV[VY] = mXAxis.mV[VY] * local_vector.mV[VX] +
-                             mYAxis.mV[VY] * local_vector.mV[VY] +
-                             mZAxis.mV[VY] * local_vector.mV[VZ];
-    absolute_vector.mV[VZ] = mXAxis.mV[VZ] * local_vector.mV[VX] +
-                             mYAxis.mV[VZ] * local_vector.mV[VY] +
-                             mZAxis.mV[VZ] * local_vector.mV[VZ];
-    absolute_vector.mV[VW] = local_vector[VW];
+    LLVector4 absolute_vector(mXAxis.mV[VX] * local_vector.mV[VX] +
+                                  mYAxis.mV[VX] * local_vector.mV[VY] +
+                                  mZAxis.mV[VX] * local_vector.mV[VZ],
+                              mXAxis.mV[VY] * local_vector.mV[VX] +
+                                  mYAxis.mV[VY] * local_vector.mV[VY] +
+                                  mZAxis.mV[VY] * local_vector.mV[VZ],
+                              mXAxis.mV[VZ] * local_vector.mV[VX] +
+                                  mYAxis.mV[VZ] * local_vector.mV[VY] +
+                                  mZAxis.mV[VZ] * local_vector.mV[VZ],
+                              local_vector[VW]);
     return absolute_vector;
 }
 
