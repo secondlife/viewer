@@ -34,6 +34,8 @@
 #include "llsdutil_math.h"
 #include <functional>
 
+#include "glm/glm.hpp"
+
 
 const std::string LLSettingsWater::SETTING_BLUR_MULTIPLIER("blur_multiplier");
 const std::string LLSettingsWater::SETTING_FOG_COLOR("water_fog_color");
@@ -250,8 +252,8 @@ void LLSettingsWater::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         lerpVector3(mNormalScale, other->mNormalScale, static_cast<F32>(blendf));
         mScaleAbove = lerp(mScaleAbove, other->mScaleAbove, static_cast<F32>(blendf));
         mScaleBelow = lerp(mScaleBelow, other->mScaleBelow, static_cast<F32>(blendf));
-        lerpVec2(mWave1Dir, other->mWave1Dir, static_cast<F32>(blendf));
-        lerpVec2(mWave2Dir, other->mWave2Dir, static_cast<F32>(blendf));
+        mWave1Dir = glm::mix(mWave1Dir, other->mWave1Dir, static_cast<F32>(blendf));
+        mWave2Dir = glm::mix(mWave2Dir, other->mWave2Dir, static_cast<F32>(blendf));
 
         setDirtyFlag(true);
         setReplaced();

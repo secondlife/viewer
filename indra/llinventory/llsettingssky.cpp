@@ -34,6 +34,8 @@
 #include "llsdutil_math.h"
 #include <functional>
 
+#include "glm/glm.hpp"
+
 
 
 //=========================================================================
@@ -617,7 +619,7 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mCloudVariance = lerp(mCloudVariance, other->mCloudVariance, static_cast<F32>(blendf));
         mCloudShadow = lerp(mCloudShadow, other->mCloudShadow, static_cast<F32>(blendf));
         mCloudScale = lerp(mCloudScale, other->mCloudScale, static_cast<F32>(blendf));
-        lerpVec2(mScrollRate, other->mScrollRate, static_cast<F32>(blendf));
+        mScrollRate = glm::mix(mScrollRate, other->mScrollRate, static_cast<F32>(blendf));
         lerpColor(mCloudPosDensity1, other->mCloudPosDensity1, static_cast<F32>(blendf));
         lerpColor(mCloudPosDensity2, other->mCloudPosDensity2, static_cast<F32>(blendf));
         lerpColor(mCloudColor, other->mCloudColor, static_cast<F32>(blendf));

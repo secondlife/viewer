@@ -133,12 +133,6 @@ void LLSettingsBase::saveValuesIfNeeded()
 }
 
 //=========================================================================
-void LLSettingsBase::lerpVec2(glm::vec2& a, const glm::vec2& b, F32 mix)
-{
-    a.x = lerp(a.x, b.x, mix);
-    a.y = lerp(a.y, b.y, mix);
-}
-
 void LLSettingsBase::lerpVector3(LLVector3& a, const LLVector3& b, F32 mix)
 {
     a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
