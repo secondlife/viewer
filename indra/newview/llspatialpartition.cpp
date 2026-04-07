@@ -54,6 +54,9 @@
 #include "llviewershadermgr.h"
 #include "llcontrolavatar.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 extern bool gShiftFrame;
 
 static U32 sZombieGroups = 0;
@@ -88,18 +91,18 @@ S32 LLSphereAABB(const LLVector3& center, const LLVector3& size, const LLVector3
 {
     S32 ret = 2;
 
-    LLVector3 min = center - size;
-    LLVector3 max = center + size;
+    glm::vec3 min(center.mV[VX] - size.mV[VX], center.mV[VY] - size.mV[VY], center.mV[VZ] - size.mV[VZ]);
+    glm::vec3 max(center.mV[VX] + size.mV[VX], center.mV[VY] + size.mV[VY], center.mV[VZ] + size.mV[VZ]);
     for (U32 i = 0; i < 3; i++)
     {
-        if (min.mV[i] > pos.mV[i] + rad ||
-            max.mV[i] < pos.mV[i] - rad)
+        if (min[i] > pos.mV[i] + rad ||
+            max[i] < pos.mV[i] - rad)
         {   //totally outside
             return 0;
         }
 
-        if (min.mV[i] < pos.mV[i] - rad ||
-            max.mV[i] > pos.mV[i] + rad)
+        if (min[i] < pos.mV[i] - rad ||
+            max[i] > pos.mV[i] + rad)
         {   //intersecting
             ret = 1;
         }
@@ -677,10 +680,11 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 
         //calculate depth of node for alpha sorting
 
-        LLVector3 at = camera.getAtAxis();
+        LLVector3 at_ll = camera.getAtAxis();
+        glm::vec3 at(at_ll.mV[VX], at_ll.mV[VY], at_ll.mV[VZ]);
 
         LLVector4a ata;
-        ata.load3(at.mV);
+        ata.load3(glm::value_ptr(at));
 
         LLVector4a t = ata;
         //front of bounding box
@@ -1627,8 +1631,9 @@ void renderOctree(LLSpatialGroup* group)
                 if (!group->getSpatialPartition()->isBridge())
                 {
                     gGL.pushMatrix();
-                    LLVector3 trans = drawable->getRegion()->getOriginAgent();
-                    gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
+                    LLVector3 trans_ll = drawable->getRegion()->getOriginAgent();
+                    glm::vec3 trans(trans_ll.mV[VX], trans_ll.mV[VY], trans_ll.mV[VZ]);
+                    gGL.translatef(trans.x, trans.y, trans.z);
                 }
 
                 LLFace* face = drawable->getFace(0);
@@ -1958,16 +1963,17 @@ void renderNormals(LLDrawable *drawablep)
         float scale_len;
         if (vol)
         {
-            LLVector3  scale_v3 = vol->getScale();
-            LLVector4a obj_scale(scale_v3.mV[VX], scale_v3.mV[VY], scale_v3.mV[VZ]);
+            LLVector3 scale_v3_ll = vol->getScale();
+            glm::vec3 scale_v3(scale_v3_ll.mV[VX], scale_v3_ll.mV[VY], scale_v3_ll.mV[VZ]);
+            LLVector4a obj_scale(scale_v3.x, scale_v3.y, scale_v3.z);
             obj_scale.normalize3();
 
             // Create inverse-scale vector for normals
-            inv_scale.set(1.0f / scale_v3.mV[VX], 1.0f / scale_v3.mV[VY], 1.0f/ scale_v3.mV[VZ], 0.0f);
+            inv_scale.set(1.0f / scale_v3.x, 1.0f / scale_v3.y, 1.0f/ scale_v3.z, 0.0f);
             inv_scale.mul(inv_scale);  // Squared, to apply inverse scale twice
 
             inv_scale.normalize3fast();
-            scale_len = scale_v3.length();
+            scale_len = glm::length(scale_v3);
         }
         else
         {
@@ -2499,8 +2505,9 @@ void renderPhysicsShapes(LLSpatialGroup* group, bool wireframe)
                 if (!group->getSpatialPartition()->isBridge())
                 {
                     gGL.pushMatrix();
-                    LLVector3 trans = drawable->getRegion()->getOriginAgent();
-                    gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
+                    LLVector3 trans_ll = drawable->getRegion()->getOriginAgent();
+                    glm::vec3 trans(trans_ll.mV[VX], trans_ll.mV[VY], trans_ll.mV[VZ]);
+                    gGL.translatef(trans.x, trans.y, trans.z);
                     renderPhysicsShape(drawable, volume, wireframe);
                     gGL.popMatrix();
                 }
@@ -2865,14 +2872,15 @@ void renderRaycast(LLDrawable* drawablep)
 
             if (volume)
             {
-                LLVector3 trans = drawablep->getRegion()->getOriginAgent();
+                LLVector3 trans_ll = drawablep->getRegion()->getOriginAgent();
+                glm::vec3 trans(trans_ll.mV[VX], trans_ll.mV[VY], trans_ll.mV[VZ]);
 
                 for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
                 {
                     const LLVolumeFace& face = volume->getVolumeFace(i);
 
                     gGL.pushMatrix();
-                    gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
+                    gGL.translatef(trans.x, trans.y, trans.z);
                     gGL.multMatrix(reinterpret_cast<const F32*>(vobj->getRelativeXform().mMatrix));
 
                     LLVector4a start, end;

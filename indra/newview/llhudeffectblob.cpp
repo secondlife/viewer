@@ -32,6 +32,9 @@
 #include "llviewercamera.h"
 #include "llui.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 LLHUDEffectBlob::LLHUDEffectBlob(const U8 type)
 :   LLHUDEffect(type),
     mPixelSize(10)
@@ -73,24 +76,33 @@ void LLHUDEffectBlob::render()
 
     { gGL.pushMatrix();
         gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
-        LLVector3 u_scale = pixel_right * static_cast<F32>(mPixelSize);
-        LLVector3 v_scale = pixel_up * static_cast<F32>(mPixelSize);
+        glm::vec3 u_scale(pixel_right.mV[VX], pixel_right.mV[VY], pixel_right.mV[VZ]);
+        u_scale *= static_cast<F32>(mPixelSize);
+        glm::vec3 v_scale(pixel_up.mV[VX], pixel_up.mV[VY], pixel_up.mV[VZ]);
+        v_scale *= static_cast<F32>(mPixelSize);
 
         gGL.begin(LLRender::TRIANGLES);
         {
+            glm::vec3 tmp;
             gGL.texCoord2f(0.f, 1.f);
-            gGL.vertex3fv((v_scale - u_scale).mV);
+            tmp = v_scale - u_scale;
+            gGL.vertex3fv(glm::value_ptr(tmp));
             gGL.texCoord2f(0.f, 0.f);
-            gGL.vertex3fv((-v_scale - u_scale).mV);
+            tmp = -v_scale - u_scale;
+            gGL.vertex3fv(glm::value_ptr(tmp));
             gGL.texCoord2f(1.f, 0.f);
-            gGL.vertex3fv((-v_scale + u_scale).mV);
+            tmp = -v_scale + u_scale;
+            gGL.vertex3fv(glm::value_ptr(tmp));
 
             gGL.texCoord2f(0.f, 1.f);
-            gGL.vertex3fv((v_scale - u_scale).mV);
+            tmp = v_scale - u_scale;
+            gGL.vertex3fv(glm::value_ptr(tmp));
             gGL.texCoord2f(1.f, 0.f);
-            gGL.vertex3fv((-v_scale + u_scale).mV);
+            tmp = -v_scale + u_scale;
+            gGL.vertex3fv(glm::value_ptr(tmp));
             gGL.texCoord2f(1.f, 1.f);
-            gGL.vertex3fv((v_scale + u_scale).mV);
+            tmp = v_scale + u_scale;
+            gGL.vertex3fv(glm::value_ptr(tmp));
         }
         gGL.end();
 
