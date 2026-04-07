@@ -129,8 +129,8 @@ private:
     bool            mValidSelection;
 
     S32             mLastFace;
-    LLVector2       mLastUVCoords;
-    LLVector2       mLastSTCoords;
+    glm::vec2       mLastUVCoords;
+    glm::vec2       mLastSTCoords;
     LLVector3       mLastIntersection;
     LLVector3       mLastNormal;
     LLVector3       mLastBinormal;

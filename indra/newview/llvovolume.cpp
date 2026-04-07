@@ -4701,7 +4701,7 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 }
 
 bool LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32 *face_hitp,
-                                      LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
+                                      LLVector4a* intersection, glm::vec2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 
 {
     if (!mbCanSelect
@@ -4763,7 +4763,7 @@ bool LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
         LLVector4a p;
         LLVector4a n;
-        LLVector2 tc;
+        glm::vec2 tc;
         LLVector4a tn;
 
         if (intersection != NULL)
@@ -4844,7 +4844,7 @@ bool LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
                 }
 
                 bool no_texture = !face->getTexture() || !face->getTexture()->hasGLTexture();
-                bool mask       = no_texture ? false : face->getTexture()->getMask(face->surfaceToTexture(tc, p, n));
+                bool mask       = no_texture ? false : face->getTexture()->getMask(face->surfaceToTexture(LLVector2(tc.x, tc.y), p, n));
                 if (face &&
                     (ignore_alpha || pick_transparent || no_texture || mask))
                 {

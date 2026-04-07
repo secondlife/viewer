@@ -218,7 +218,7 @@ public:
                                                 S32* gltf_node_hit = nullptr,           // return the gltf node hit
                                                 S32* gltf_primitive_hit = nullptr,      // return the gltf primitive hit
                                                 LLVector4a* intersection = NULL,         // return the intersection point
-                                                LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
+                                                glm::vec2* tex_coord = NULL,            // return the texture coordinates of the intersection point
                                                 LLVector4a* normal = NULL,               // return the surface normal at the intersection point
                                                 LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
         );
@@ -232,7 +232,7 @@ public:
                                               bool pick_transparent,
                                               S32* face_hit,                          // return the face hit
                                               LLVector4a* intersection = NULL,         // return the intersection point
-                                              LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
+                                              glm::vec2* tex_coord = NULL,            // return the texture coordinates of the intersection point
                                               LLVector4a* normal = NULL,               // return the surface normal at the intersection point
                                               LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
         );

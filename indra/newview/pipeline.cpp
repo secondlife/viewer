@@ -6373,7 +6373,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
                                                         S32* gltf_node_hit,
                                                         S32* gltf_primitive_hit,
                                                         LLVector4a* intersection,         // return the intersection point
-                                                        LLVector2* tex_coord,            // return the texture coordinates of the intersection point
+                                                        glm::vec2* tex_coord,            // return the texture coordinates of the intersection point
                                                         LLVector4a* normal,               // return the surface normal at the intersection point
                                                         LLVector4a* tangent             // return the surface tangent at the intersection point
     )
@@ -6421,7 +6421,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
         //due to attachment override
         LLVector4a local_normal;
         LLVector4a local_tangent;
-        LLVector2 local_texcoord;
+        glm::vec2 local_texcoord;
         S32 local_face_hit = -1;
 
         if (face_hit)
@@ -6544,7 +6544,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector4a& start, c
                                                       bool pick_transparent,
                                                       S32* face_hit,
                                                       LLVector4a* intersection,         // return the intersection point
-                                                      LLVector2* tex_coord,            // return the texture coordinates of the intersection point
+                                                      glm::vec2* tex_coord,            // return the texture coordinates of the intersection point
                                                       LLVector4a* normal,               // return the surface normal at the intersection point
                                                       LLVector4a* tangent               // return the surface tangent at the intersection point
     )

@@ -238,7 +238,7 @@ void Asset::uploadMaterials()
 
 S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
     LLVector4a* intersection,         // return the intersection point
-    LLVector2* tex_coord,            // return the texture coordinates of the intersection point
+    glm::vec2* tex_coord,            // return the texture coordinates of the intersection point
     LLVector4a* normal,               // return the surface normal at the intersection point
     LLVector4a* tangent,             // return the surface tangent at the intersection point
     S32* primitive_hitp

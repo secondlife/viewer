@@ -726,7 +726,7 @@ void Primitive::createOctree()
 }
 
 const LLVolumeTriangle* Primitive::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
-    LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent_out)
+    LLVector4a* intersection, glm::vec2* tex_coord, LLVector4a* normal, LLVector4a* tangent_out)
 {
     if (mOctree.isNull())
     {

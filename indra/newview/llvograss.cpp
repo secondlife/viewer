@@ -743,7 +743,7 @@ void LLVOGrass::updateDrawable(bool force_damped)
 
 // virtual
 bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32 *face_hitp,
-                                      LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
+                                      LLVector4a* intersection, glm::vec2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 
 {
     bool ret = false;
@@ -876,7 +876,7 @@ bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
 
                     if (tex_coord != NULL)
                     {
-                        *tex_coord = hit_tc;
+                        *tex_coord = glm::vec2(hit_tc.mV[0], hit_tc.mV[1]);
                     }
 
                     if (normal != NULL)

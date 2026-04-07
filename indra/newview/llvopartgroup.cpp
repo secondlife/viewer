@@ -393,7 +393,7 @@ bool LLVOPartGroup::lineSegmentIntersect(const LLVector4a& start, const LLVector
                                           bool pick_unselectable,
                                           S32* face_hit,
                                           LLVector4a* intersection,
-                                          LLVector2* tex_coord,
+                                          glm::vec2* tex_coord,
                                           LLVector4a* normal,
                                           LLVector4a* bi_normal)
 {

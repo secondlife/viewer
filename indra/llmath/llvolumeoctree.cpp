@@ -94,7 +94,7 @@ void LLVolumeOctreeListener::handleChildAddition(const LLOctreeNode<LLVolumeTria
 
 LLOctreeTriangleRayIntersect::LLOctreeTriangleRayIntersect(const LLVector4a& start, const LLVector4a& dir,
                                 LLVolumeFace* face, F32* closest_t,
-                               LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
+                               LLVector4a* intersection, glm::vec2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
    : mStart(start),
      mDir(dir),
      mIntersection(intersection),
@@ -156,10 +156,10 @@ void LLOctreeTriangleRayIntersect::visit(const LLOctreeNode<LLVolumeTriangle, LL
                 if (mTexCoord != NULL && mFace->mTexCoords)
                 {
                     LLVector2* tc = mFace->mTexCoords;
-                    *mTexCoord = ((1.f - a - b)  * tc[idx0] +
-                        a              * tc[idx1] +
-                        b              * tc[idx2]);
-
+                    LLVector2 hit_tc = ((1.f - a - b) * tc[idx0] +
+                                        a             * tc[idx1] +
+                                        b             * tc[idx2]);
+                    *mTexCoord = glm::vec2(hit_tc.mV[0], hit_tc.mV[1]);
                 }
 
                 if (mNormal != NULL && mFace->mNormals)

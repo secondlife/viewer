@@ -236,7 +236,7 @@ LLViewerObject*  gDebugRaycastObject = NULL;
 LLVOPartGroup* gDebugRaycastParticle = NULL;
 LLVector4a       gDebugRaycastIntersection;
 LLVector4a      gDebugRaycastParticleIntersection;
-LLVector2        gDebugRaycastTexCoord;
+glm::vec2        gDebugRaycastTexCoord;
 LLVector4a       gDebugRaycastNormal;
 LLVector4a       gDebugRaycastTangent;
 S32             gDebugRaycastFaceHit;
@@ -4451,7 +4451,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
                                                 S32* gltf_node_hit,
                                                 S32* gltf_primitive_hit,
                                                 LLVector4a *intersection,
-                                                LLVector2 *uv,
+                                                glm::vec2 *uv,
                                                 LLVector4a *normal,
                                                 LLVector4a *tangent,
                                                 LLVector4a* start,
@@ -6181,7 +6181,7 @@ void LLPickInfo::fetchResults()
     LLVector4a intersection, normal;
     LLVector4a tangent;
 
-    LLVector2 uv;
+    glm::vec2 uv;
 
     LLHUDIcon* hit_icon = gViewerWindow->cursorIntersectIcon(mMousePt.mX, mMousePt.mY, 512.f, &intersection);
 
@@ -6312,10 +6312,10 @@ void LLPickInfo::updateXYCoords()
     {
         const LLTextureEntry* tep = getObject()->getTE(mObjectFace);
         LLPointer<LLViewerTexture> imagep = LLViewerTextureManager::getFetchedTexture(tep->getID());
-        if(mUVCoords.mV[VX] >= 0.f && mUVCoords.mV[VY] >= 0.f && imagep.notNull())
+        if(mUVCoords.x >= 0.f && mUVCoords.y >= 0.f && imagep.notNull())
         {
-            mXYCoords.mX = ll_round(mUVCoords.mV[VX] * static_cast<F32>(imagep->getWidth()));
-            mXYCoords.mY = ll_round((1.f - mUVCoords.mV[VY]) * static_cast<F32>(imagep->getHeight()));
+            mXYCoords.mX = ll_round(mUVCoords.x * static_cast<F32>(imagep->getWidth()));
+            mXYCoords.mY = ll_round((1.f - mUVCoords.y) * static_cast<F32>(imagep->getHeight()));
         }
     }
 }
@@ -6324,8 +6324,8 @@ void LLPickInfo::getSurfaceInfo()
 {
     // set values to uninitialized - this is what we return if no intersection is found
     mObjectFace   = -1;
-    mUVCoords     = LLVector2(-1, -1);
-    mSTCoords     = LLVector2(-1, -1);
+    mUVCoords     = glm::vec2(-1, -1);
+    mSTCoords     = glm::vec2(-1, -1);
     mXYCoords     = LLCoordScreen(-1, -1);
     mIntersection = LLVector3(0,0,0);
     mNormal       = LLVector3(0,0,0);
@@ -6361,7 +6361,8 @@ void LLPickInfo::getSurfaceInfo()
                 LLFace* facep = objectp->mDrawable->getFace(mObjectFace);
                 if (facep)
                 {
-                    mUVCoords = facep->surfaceToTexture(mSTCoords, intersection, normal);
+                    LLVector2 uv_ll = facep->surfaceToTexture(LLVector2(mSTCoords.x, mSTCoords.y), intersection, normal);
+                    mUVCoords = glm::vec2(uv_ll.mV[0], uv_ll.mV[1]);
             }
             }
 

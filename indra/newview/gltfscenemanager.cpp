@@ -841,7 +841,7 @@ LLMatrix4a inverse(const LLMatrix4a& mat)
 }
 
 bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32* node_hit, S32* primitive_hit,
-    LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
+    LLVector4a* intersection, glm::vec2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 
 {
     // line segment intersection test
@@ -862,7 +862,7 @@ bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const
 
     LLVector4a p;
     LLVector4a n;
-    LLVector2 tc;
+    glm::vec2 tc;
     LLVector4a tn;
 
     if (intersection != NULL)
@@ -941,7 +941,7 @@ LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, cons
     S32* node_hit,                   // return the index of the node that was hit
     S32* primitive_hit,               // return the index of the primitive that was hit
     LLVector4a* intersection,         // return the intersection point
-    LLVector2* tex_coord,            // return the texture coordinates of the intersection point
+    glm::vec2* tex_coord,            // return the texture coordinates of the intersection point
     LLVector4a* normal,               // return the surface normal at the intersection point
     LLVector4a* tangent)            // return the surface tangent at the intersection point
 {
