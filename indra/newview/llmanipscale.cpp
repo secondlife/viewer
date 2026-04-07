@@ -1337,9 +1337,9 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
         snap_guide_length = (SNAP_GUIDE_SCREEN_LENGTH * gViewerWindow->getWorldViewWidthRaw() * manipulator_distance) / LLViewerCamera::getInstance()->getPixelMeterRatio();
     }
 
-    mSnapGuideLength = snap_guide_length / llmax(0.1f, (llmin(mSnapGuideDir1 * cam_at_axis, mSnapGuideDir2 * cam_at_axis)));
+    mSnapGuideLength = snap_guide_length / llmax(0.1f, (llmin(dot(mSnapGuideDir1, cam_at_axis), dot(mSnapGuideDir2, cam_at_axis))));
 
-    LLVector3 off_axis_dir = mScaleDir % cam_at_axis;
+    LLVector3 off_axis_dir = cross(mScaleDir, cam_at_axis);
     off_axis_dir.normalize();
 
     if( (LL_FACE_MIN <= static_cast<S32>(mManipPart)) && (static_cast<S32>(mManipPart) <= LL_FACE_MAX) )
@@ -1515,11 +1515,11 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
     mScalePlaneNormal2 = mSnapGuideDir2 % mScaleDir;
     mScalePlaneNormal2.normalize();
 
-    mScaleSnapUnit1 = mScaleSnapUnit1 / (mSnapDir1 * mScaleDir);
-    mScaleSnapUnit2 = mScaleSnapUnit2 / (mSnapDir2 * mScaleDir);
+    mScaleSnapUnit1 = mScaleSnapUnit1 / dot(mSnapDir1, mScaleDir);
+    mScaleSnapUnit2 = mScaleSnapUnit2 / dot(mSnapDir2, mScaleDir);
 
-    mTickPixelSpacing1 = static_cast<F32>(ll_round(static_cast<F32>(MIN_DIVISION_PIXEL_WIDTH) / (mScaleDir % mSnapGuideDir1).length()));
-    mTickPixelSpacing2 = static_cast<F32>(ll_round(static_cast<F32>(MIN_DIVISION_PIXEL_WIDTH) / (mScaleDir % mSnapGuideDir2).length()));
+    mTickPixelSpacing1 = static_cast<F32>(ll_round(static_cast<F32>(MIN_DIVISION_PIXEL_WIDTH) / cross(mScaleDir, mSnapGuideDir1).length()));
+    mTickPixelSpacing2 = static_cast<F32>(ll_round(static_cast<F32>(MIN_DIVISION_PIXEL_WIDTH) / cross(mScaleDir, mSnapGuideDir2).length()));
 
     if (uniform)
     {
