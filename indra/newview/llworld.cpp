@@ -180,8 +180,8 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
     U32 iindex = 0;
     U32 jindex = 0;
     from_region_handle(region_handle, &iindex, &jindex);
-    S32 x = (S32)(iindex/mWidth);
-    S32 y = (S32)(jindex/mWidth);
+    S32 x = static_cast<S32>(iindex/mWidth);
+    S32 y = static_cast<S32>(jindex/mWidth);
     LL_INFOS() << "Adding new region (" << x << ":" << y << ")"
         << " on host: " << host << LL_ENDL;
 
@@ -394,11 +394,11 @@ LLVector3d  LLWorld::clipToVisibleRegions(const LLVector3d &start_pos, const LLV
     // clamp to within region dimensions
     LLVector3d final_region_pos = LLVector3d(region_coord) - (delta_pos * clip_factor);
     final_region_pos.mdV[VX] = llclamp(final_region_pos.mdV[VX], 0.0,
-                                       (F64)(region_width - F_ALMOST_ZERO));
+                                       static_cast<F64>(region_width - F_ALMOST_ZERO));
     final_region_pos.mdV[VY] = llclamp(final_region_pos.mdV[VY], 0.0,
-                                       (F64)(region_width - F_ALMOST_ZERO));
+                                       static_cast<F64>(region_width - F_ALMOST_ZERO));
     final_region_pos.mdV[VZ] = llclamp(final_region_pos.mdV[VZ], 0.0,
-                                       (F64)(LLWorld::getInstance()->getRegionMaxHeight() - F_ALMOST_ZERO));
+                                       static_cast<F64>(LLWorld::getInstance()->getRegionMaxHeight() - F_ALMOST_ZERO));
     return regionp->getPosGlobalFromRegion(LLVector3(final_region_pos));
 }
 
@@ -526,7 +526,7 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
     }
 
     // calculate the length of the segment
-    F32 segment_length = (F32)((point_a - point_b).length());
+    F32 segment_length = static_cast<F32>((point_a - point_b).length());
     if (0.0f == segment_length)
     {
         intersection = point_a;
@@ -540,7 +540,7 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
     F32 normalized_land_distance;
 
     land_intersection.mdV[VZ] = regionp->getLand().resolveHeightGlobal(point_a);
-    normalized_land_distance = (F32)(point_a.mdV[VZ] - land_intersection.mdV[VZ]) / segment_length;
+    normalized_land_distance = static_cast<F32>(point_a.mdV[VZ] - land_intersection.mdV[VZ]) / segment_length;
     intersection = land_intersection;
     intersection_normal = resolveLandNormalGlobal(land_intersection);
 
@@ -669,7 +669,7 @@ void LLWorld::updateRegions(F32 max_update_time)
         max_update_time = llmax(max_update_time, 1.0f); //seconds, loosen the time throttle.
     }
 
-    F32 max_time = llmin((F32)(max_update_time - update_timer.getElapsedTimeF32()), max_update_time * 0.25f);
+    F32 max_time = llmin(static_cast<F32>(max_update_time - update_timer.getElapsedTimeF32()), max_update_time * 0.25f);
     //update the self avatar region
     LLViewerRegion* self_regionp = gAgent.getRegion();
     if(self_regionp)
@@ -697,7 +697,7 @@ void LLWorld::updateRegions(F32 max_update_time)
     {
         if(max_time > 0.f)
         {
-            max_time = llmin((F32)(max_update_time - update_timer.getElapsedTimeF32()), max_update_time * 0.25f);
+            max_time = llmin(static_cast<F32>(max_update_time - update_timer.getElapsedTimeF32()), max_update_time * 0.25f);
         }
 
         if(max_time > 0.f)
@@ -713,7 +713,7 @@ void LLWorld::updateRegions(F32 max_update_time)
 
     if(max_time > 0.f)
     {
-        max_time = llmin((F32)(max_update_time - update_timer.getElapsedTimeF32()), max_update_time * 0.25f);
+        max_time = llmin(static_cast<F32>(max_update_time - update_timer.getElapsedTimeF32()), max_update_time * 0.25f);
     }
     if(max_time > 0.f)
     {
@@ -779,11 +779,11 @@ void LLWorld::updateNetStats()
     add(LLStatViewer::PACKETS_OUT, packets_out);
     add(LLStatViewer::PACKETS_LOST, packets_lost);
 
-    F32 total_packets_in = (F32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
+    F32 total_packets_in = static_cast<F32>(LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN));
     if (total_packets_in > 0.f)
     {
-        F32 total_packets_lost = (F32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
-        sample(LLStatViewer::PACKETS_LOST_PERCENT, LLUnits::Ratio::fromValue((F32)total_packets_lost/(F32)total_packets_in));
+        F32 total_packets_lost = static_cast<F32>(LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST));
+        sample(LLStatViewer::PACKETS_LOST_PERCENT, LLUnits::Ratio::fromValue(total_packets_lost/total_packets_in));
     }
 
     mLastPacketsIn = gMessageSystem->mPacketsIn;
@@ -830,7 +830,7 @@ F32 LLWorld::getLandFarClip() const
 void LLWorld::setLandFarClip(const F32 far_clip)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
-    static S32 const rwidth = (S32)REGION_WIDTH_U32;
+    static S32 const rwidth = static_cast<S32>(REGION_WIDTH_U32);
     S32 const n1 = (llceil(mLandFarClip) - 1) / rwidth;
     S32 const n2 = (llceil(far_clip) - 1) / rwidth;
     bool need_water_objects_update = n1 != n2;
@@ -904,10 +904,10 @@ void LLWorld::updateWaterObjects()
     LLViewerRegion* regionp = gAgent.getRegion();
     from_region_handle(regionp->getHandle(), &region_x, &region_y);
 
-    min_x = (S32)region_x - range;
-    min_y = (S32)region_y - range;
-    max_x = (S32)region_x + range;
-    max_y = (S32)region_y + range;
+    min_x = static_cast<S32>(region_x) - range;
+    min_y = static_cast<S32>(region_y) - range;
+    max_x = static_cast<S32>(region_x) + range;
+    max_y = static_cast<S32>(region_y) + range;
 
     for (region_list_t::iterator iter = mRegionList.begin();
          iter != mRegionList.end(); ++iter)
@@ -934,11 +934,11 @@ void LLWorld::updateWaterObjects()
             U64 region_handle = to_region_handle(x, y);
             if (!getRegionFromHandle(region_handle))
             {   // No region at that area, so make water
-                LLVOWater* waterp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, gAgent.getRegion());
+                LLVOWater* waterp = static_cast<LLVOWater*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, gAgent.getRegion()));
                 waterp->setPositionGlobal(LLVector3d(x + rwidth/2,
                                                      y + rwidth/2,
                                                      256.f + water_height));
-                waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, 512.f));
+                waterp->setScale(LLVector3(static_cast<F32>(rwidth), static_cast<F32>(rwidth), 512.f));
                 gPipeline.createObject(waterp);
                 mHoleWaterObjects.push_back(waterp);
             }
@@ -954,10 +954,10 @@ void LLWorld::updateWaterObjects()
     center_y = min_y + (wy >> 1);
 
     S32 add_boundary[4] = {
-        (S32)(512 - (max_x - region_x)),
-        (S32)(512 - (max_y - region_y)),
-        (S32)(512 - (region_x - min_x)),
-        (S32)(512 - (region_y - min_y)) };
+        static_cast<S32>(512 - (max_x - region_x)),
+        static_cast<S32>(512 - (max_y - region_y)),
+        static_cast<S32>(512 - (region_x - min_x)),
+        static_cast<S32>(512 - (region_y - min_y)) };
 
     S32 dir;
     for (dir = 0; dir < EDGE_WATER_OBJECTS_COUNT; dir++)
@@ -985,8 +985,8 @@ void LLWorld::updateWaterObjects()
         {
             // The edge water objects can be dead because they're attached to the region that the
             // agent was in when they were originally created.
-            mEdgeWaterObjects[dir] = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_VOID_WATER,
-                                                                                 gAgent.getRegion());
+            mEdgeWaterObjects[dir] = static_cast<LLVOWater*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_VOID_WATER,
+                                                                                 gAgent.getRegion()));
             waterp = mEdgeWaterObjects[dir];
             waterp->setIsEdgePatch(true);
             gPipeline.createObject(waterp);
@@ -994,7 +994,7 @@ void LLWorld::updateWaterObjects()
 
         waterp->setRegion(gAgent.getRegion());
         LLVector3d water_pos(water_center_x, water_center_y, 256.f + water_height) ;
-        LLVector3 water_scale((F32) dim[0], (F32) dim[1], 512.f);
+        LLVector3 water_scale(static_cast<F32>(dim[0]), static_cast<F32>(dim[1]), 512.f);
 
         //stretch out to horizon
         water_scale.mV[0] += fabsf(2048.f * gDirAxes[dir][0]);
@@ -1291,7 +1291,7 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
     // when agent is above 1020m and other avatars are nearby
     for (LLCharacter* character : LLCharacter::sInstances)
     {
-        LLVOAvatar* avatar = (LLVOAvatar*)character;
+        LLVOAvatar* avatar = static_cast<LLVOAvatar*>(character);
         if (!avatar->isDead() && !avatar->mIsDummy && !avatar->isOrphaned())
         {
             LLVector3d pos_global = avatar->getPositionGlobal();
@@ -1344,7 +1344,7 @@ F32 LLWorld::getNearbyAvatarsAndMaxGPUTime(std::vector<LLVOAvatar*> &valid_nearb
 
     for (LLCharacter* character : LLCharacter::sInstances)
     {
-        LLVOAvatar* avatar = (LLVOAvatar*)character;
+        LLVOAvatar* avatar = static_cast<LLVOAvatar*>(character);
         if (!avatar->isDead() && !avatar->isControlAvatar())
         {
             if ((dist_vec_squared(avatar->getPositionGlobal(), gAgent.getPositionGlobal()) <= radius) ||

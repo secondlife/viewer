@@ -42,11 +42,11 @@ void    init_patch_coding(LLBitPack &bitpack)
 void    code_patch_group_header(LLBitPack &bitpack, LLGroupHeader *gopp)
 {
 #ifdef LL_BIG_ENDIAN
-    U8 *stride = (U8 *)&gopp->stride;
+    U8 *stride = reinterpret_cast<U8*>(&gopp->stride);
     bitpack.bitPack(&(stride[1]), 8);
     bitpack.bitPack(&(stride[0]), 8);
 #else
-    bitpack.bitPack((U8 *)&gopp->stride, 16);
+    bitpack.bitPack(reinterpret_cast<U8*>(&gopp->stride), 16);
 #endif
     bitpack.bitPack((&gopp->patch_size), 8);
     bitpack.bitPack((&gopp->layer_type), 8);
@@ -61,14 +61,14 @@ void    code_patch_header(LLBitPack &bitpack, LLPatchHeader *ph, S32 *patch)
 
     wbits = min_wbits;
 
-    for (i = 0; i < (int) patch_size*patch_size; i++)
+    for (i = 0; i < static_cast<int>(patch_size*patch_size); i++)
     {
         temp = patch[i];
         if (temp)
         {
             if (temp < 0)
                 temp *= -1;
-            for (j = max_wbits; j > (int) min_wbits; j--)
+            for (j = max_wbits; j > static_cast<int>(min_wbits); j--)
             {
                 if (temp & (1<<j))
                 {
@@ -94,27 +94,27 @@ void    code_patch_header(LLBitPack &bitpack, LLPatchHeader *ph, S32 *patch)
 
     bitpack.bitPack((&ph->quant_wbits), 8);
 #ifdef LL_BIG_ENDIAN
-    U8 *offset = (U8 *)&ph->dc_offset;
+    U8 *offset = reinterpret_cast<U8*>(&ph->dc_offset);
     bitpack.bitPack(&(offset[3]), 8);
     bitpack.bitPack(&(offset[2]), 8);
     bitpack.bitPack(&(offset[1]), 8);
     bitpack.bitPack(&(offset[0]), 8);
 #else
-    bitpack.bitPack((U8 *)&ph->dc_offset, 32);
+    bitpack.bitPack(reinterpret_cast<U8*>(&ph->dc_offset), 32);
 #endif
 #ifdef LL_BIG_ENDIAN
-    U8 *range = (U8 *)&ph->range;
+    U8 *range = reinterpret_cast<U8*>(&ph->range);
     bitpack.bitPack(&(range[1]), 8);
     bitpack.bitPack(&(range[0]), 8);
 #else
-    bitpack.bitPack((U8 *)&ph->range, 16);
+    bitpack.bitPack(reinterpret_cast<U8*>(&ph->range), 16);
 #endif
 #ifdef LL_BIG_ENDIAN
-    U8 *ids = (U8 *)&ph->patchids;
+    U8 *ids = reinterpret_cast<U8*>(&ph->patchids);
     bitpack.bitPack(&(ids[1]), 8);
     bitpack.bitPack(&(ids[0]), 2);
 #else
-    bitpack.bitPack((U8 *)&ph->patchids, 10);
+    bitpack.bitPack(reinterpret_cast<U8*>(&ph->patchids), 10);
 #endif
 
     gWordBits = wbits;
@@ -122,7 +122,7 @@ void    code_patch_header(LLBitPack &bitpack, LLPatchHeader *ph, S32 *patch)
 
 void    code_end_of_data(LLBitPack &bitpack)
 {
-    bitpack.bitPack((U8 *)&END_OF_PATCHES, 8);
+    bitpack.bitPack(reinterpret_cast<const U8*>(&END_OF_PATCHES), 8);
 }
 
 void code_patch(LLBitPack &bitpack, S32 *patch, S32 postquant)
@@ -157,12 +157,12 @@ void code_patch(LLBitPack &bitpack, S32 *patch, S32 postquant)
             }
             if (b_eob)
             {
-                bitpack.bitPack((U8 *)&ZERO_EOB, 2);
+                bitpack.bitPack(reinterpret_cast<const U8*>(&ZERO_EOB), 2);
                 return;
             }
             else
             {
-                bitpack.bitPack((U8 *)&ZERO_CODE, 1);
+                bitpack.bitPack(reinterpret_cast<const U8*>(&ZERO_CODE), 1);
             }
         }
         else
@@ -175,8 +175,8 @@ void code_patch(LLBitPack &bitpack, S32 *patch, S32 postquant)
                     temp = (1<<wbits);
 //                  printf("patch quatization exceeding allowable bits!");
                 }
-                bitpack.bitPack((U8 *)&NEGATIVE_VALUE, 3);
-                bitpack.bitPack((U8 *)&temp, wbits);
+                bitpack.bitPack(reinterpret_cast<const U8*>(&NEGATIVE_VALUE), 3);
+                bitpack.bitPack(reinterpret_cast<U8*>(&temp), wbits);
             }
             else
             {
@@ -185,8 +185,8 @@ void code_patch(LLBitPack &bitpack, S32 *patch, S32 postquant)
                     temp = (1<<wbits);
 //                  printf("patch quatization exceeding allowable bits!");
                 }
-                bitpack.bitPack((U8 *)&POSITIVE_VALUE, 3);
-                bitpack.bitPack((U8 *)&temp, wbits);
+                bitpack.bitPack(reinterpret_cast<const U8*>(&POSITIVE_VALUE), 3);
+                bitpack.bitPack(reinterpret_cast<U8*>(&temp), wbits);
             }
         }
     }
@@ -209,11 +209,11 @@ void    decode_patch_group_header(LLBitPack &bitpack, LLGroupHeader *gopp)
 
     retvalu16 = 0;
 #ifdef LL_BIG_ENDIAN
-    U8 *ret = (U8 *)&retvalu16;
+    U8 *ret = reinterpret_cast<U8*>(&retvalu16);
     bitpack.bitUnpack(&(ret[1]), 8);
     bitpack.bitUnpack(&(ret[0]), 8);
 #else
-    bitpack.bitUnpack((U8 *)&retvalu16, 16);
+    bitpack.bitUnpack(reinterpret_cast<U8*>(&retvalu16), 16);
 #endif
     gopp->stride = retvalu16;
 
@@ -247,33 +247,33 @@ void    decode_patch_header(LLBitPack &bitpack, LLPatchHeader *ph)
 
     U32 retvalu32 = 0;
 #ifdef LL_BIG_ENDIAN
-    U8 *ret = (U8 *)&retvalu32;
+    U8 *ret = reinterpret_cast<U8*>(&retvalu32);
     bitpack.bitUnpack(&(ret[3]), 8);
     bitpack.bitUnpack(&(ret[2]), 8);
     bitpack.bitUnpack(&(ret[1]), 8);
     bitpack.bitUnpack(&(ret[0]), 8);
 #else
-    bitpack.bitUnpack((U8 *)&retvalu32, 32);
+    bitpack.bitUnpack(reinterpret_cast<U8*>(&retvalu32), 32);
 #endif
-    ph->dc_offset = *(F32 *)&retvalu32;
+    ph->dc_offset = *reinterpret_cast<F32*>(&retvalu32);
 
     U16 retvalu16 = 0;
 #ifdef LL_BIG_ENDIAN
-    ret = (U8 *)&retvalu16;
+    ret = reinterpret_cast<U8*>(&retvalu16);
     bitpack.bitUnpack(&(ret[1]), 8);
     bitpack.bitUnpack(&(ret[0]), 8);
 #else
-    bitpack.bitUnpack((U8 *)&retvalu16, 16);
+    bitpack.bitUnpack(reinterpret_cast<U8*>(&retvalu16), 16);
 #endif
     ph->range = retvalu16;
 
     retvalu16 = 0;
 #ifdef LL_BIG_ENDIAN
-    ret = (U8 *)&retvalu16;
+    ret = reinterpret_cast<U8*>(&retvalu16);
     bitpack.bitUnpack(&(ret[1]), 8);
     bitpack.bitUnpack(&(ret[0]), 2);
 #else
-    bitpack.bitUnpack((U8 *)&retvalu16, 10);
+    bitpack.bitUnpack(reinterpret_cast<U8*>(&retvalu16), 10);
 #endif
     ph->patchids = retvalu16;
 
@@ -289,15 +289,15 @@ void    decode_patch(LLBitPack &bitpack, S32 *patches)
     U32     tempu32;
     for (i = 0; i < patch_size*patch_size; i++)
     {
-        bitpack.bitUnpack((U8 *)&tempu8, 1);
+        bitpack.bitUnpack(reinterpret_cast<U8*>(&temp)u8, 1);
         if (tempu8)
         {
             // either 0 EOB or Value
-            bitpack.bitUnpack((U8 *)&tempu8, 1);
+            bitpack.bitUnpack(reinterpret_cast<U8*>(&temp)u8, 1);
             if (tempu8)
             {
                 // value
-                bitpack.bitUnpack((U8 *)&tempu8, 1);
+                bitpack.bitUnpack(reinterpret_cast<U8*>(&temp)u8, 1);
                 if (tempu8)
                 {
                     // negative
@@ -310,13 +310,13 @@ void    decode_patch(LLBitPack &bitpack, S32 *patches)
                 }
                 if (wbits <= 8)
                 {
-                    bitpack.bitUnpack((U8 *)&tempu8, wbits);
+                    bitpack.bitUnpack(reinterpret_cast<U8*>(&temp)u8, wbits);
                     patches[i] *= tempu8;
                 }
                 else if (wbits <= 16)
                 {
                     tempu16 = 0;
-                    U8 *ret = (U8 *)&tempu16;
+                    U8 *ret = reinterpret_cast<U8*>(&tempu16);
                     bitpack.bitUnpack(&(ret[1]), 8);
                     bitpack.bitUnpack(&(ret[0]), wbits - 8);
                     patches[i] *= tempu16;
@@ -324,7 +324,7 @@ void    decode_patch(LLBitPack &bitpack, S32 *patches)
                 else if (wbits <= 24)
                 {
                     tempu32 = 0;
-                    U8 *ret = (U8 *)&tempu32;
+                    U8 *ret = reinterpret_cast<U8*>(&tempu32);
                     bitpack.bitUnpack(&(ret[2]), 8);
                     bitpack.bitUnpack(&(ret[1]), 8);
                     bitpack.bitUnpack(&(ret[0]), wbits - 16);
@@ -333,7 +333,7 @@ void    decode_patch(LLBitPack &bitpack, S32 *patches)
                 else if (wbits <= 32)
                 {
                     tempu32 = 0;
-                    U8 *ret = (U8 *)&tempu32;
+                    U8 *ret = reinterpret_cast<U8*>(&tempu32);
                     bitpack.bitUnpack(&(ret[3]), 8);
                     bitpack.bitUnpack(&(ret[2]), 8);
                     bitpack.bitUnpack(&(ret[1]), 8);
@@ -361,22 +361,22 @@ void    decode_patch(LLBitPack &bitpack, S32 *patches)
     for (i = 0; i < patch_size*patch_size; i++)
     {
         temp = 0;
-        bitpack.bitUnpack((U8 *)&temp, 1);
+        bitpack.bitUnpack(reinterpret_cast<U8*>(&temp), 1);
         if (temp)
         {
             // either 0 EOB or Value
             temp = 0;
-            bitpack.bitUnpack((U8 *)&temp, 1);
+            bitpack.bitUnpack(reinterpret_cast<U8*>(&temp), 1);
             if (temp)
             {
                 // value
                 temp = 0;
-                bitpack.bitUnpack((U8 *)&temp, 1);
+                bitpack.bitUnpack(reinterpret_cast<U8*>(&temp), 1);
                 if (temp)
                 {
                     // negative
                     temp = 0;
-                    bitpack.bitUnpack((U8 *)&temp, wbits);
+                    bitpack.bitUnpack(reinterpret_cast<U8*>(&temp), wbits);
                     patches[i] = temp;
                     patches[i] *= -1;
                 }
@@ -384,7 +384,7 @@ void    decode_patch(LLBitPack &bitpack, S32 *patches)
                 {
                     // positive
                     temp = 0;
-                    bitpack.bitUnpack((U8 *)&temp, wbits);
+                    bitpack.bitUnpack(reinterpret_cast<U8*>(&temp), wbits);
                     patches[i] = temp;
                 }
             }

@@ -1054,7 +1054,7 @@ void LLOutfitGalleryItem::draw()
         interior.stretch(-1);
 
         // Pump the priority
-        const F32 stats = (F32)llmin(interior.getWidth() * interior.getHeight(), MAX_OUTFIT_PHOTO_LOAD_WIDTH * MAX_OUTFIT_PHOTO_LOAD_HEIGHT);
+        const F32 stats = static_cast<F32>(llmin(interior.getWidth() * interior.getHeight(), MAX_OUTFIT_PHOTO_LOAD_WIDTH * MAX_OUTFIT_PHOTO_LOAD_HEIGHT));
         mTexturep->addTextureStats(stats);
 
         // If the floater is focused, don't apply its alpha to the texture (STORM-677).

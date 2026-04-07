@@ -45,7 +45,7 @@ const U32   MIN_PER_HOUR    = 60;
 const U32   USEC_PER_MIN    = USEC_PER_SEC * SEC_PER_MIN;
 const U32   USEC_PER_HOUR   = USEC_PER_MIN * MIN_PER_HOUR;
 const U32   SEC_PER_HOUR    = SEC_PER_MIN * MIN_PER_HOUR;
-const F64   SEC_PER_USEC    = 1.0 / (F64) USEC_PER_SEC;
+const F64   SEC_PER_USEC    = 1.0 / static_cast<F64>(USEC_PER_SEC);
 
 class LL_COMMON_API LLTimer
 {

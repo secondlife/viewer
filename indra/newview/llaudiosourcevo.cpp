@@ -122,7 +122,7 @@ bool LLAudioSourceVO::isInCutOffRadius(const LLVector3d pos_global, const F32 cu
     }
     LLVector3d to_vec = pos_global - pos_ear;
 
-    F32 dist = (F32)to_vec.length();
+    F32 dist = static_cast<F32>(to_vec.length());
 
     return dist < cutoff;
 }

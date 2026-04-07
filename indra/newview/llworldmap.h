@@ -110,7 +110,7 @@ public:
     // Accessors
     std::string getName() const { return mName; }
     const std::string getFlagsString() const { return LLViewerRegion::regionFlagsToString(mRegionFlags); }
-    const std::string getAccessString() const { return LLViewerRegion::accessToString((U8)mAccess); }
+    const std::string getAccessString() const { return LLViewerRegion::accessToString(static_cast<U8>(mAccess)); }
 
     const S32 getAgentCount() const;                // Compute the total agents count
     LLPointer<LLViewerFetchedTexture> getLandForSaleImage();    // Get the overlay image, fetch it if necessary

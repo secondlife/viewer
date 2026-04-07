@@ -81,7 +81,7 @@ void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 {
     llassert(pCharacterData.has(CHARACTER_CPU_TIME_FIELD));
     llassert(pCharacterData.get(CHARACTER_CPU_TIME_FIELD).isReal());
-    mCPUTime = (F32)pCharacterData.get(CHARACTER_CPU_TIME_FIELD).asReal();
+    mCPUTime = static_cast<F32>(pCharacterData.get(CHARACTER_CPU_TIME_FIELD).asReal());
 
     llassert(pCharacterData.has(CHARACTER_HORIZONTAL_FIELD));
     llassert(pCharacterData.get(CHARACTER_HORIZONTAL_FIELD).isBoolean());
@@ -89,9 +89,9 @@ void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 
     llassert(pCharacterData.has(CHARACTER_LENGTH_FIELD));
     llassert(pCharacterData.get(CHARACTER_LENGTH_FIELD).isReal());
-    mLength = (F32)pCharacterData.get(CHARACTER_LENGTH_FIELD).asReal();
+    mLength = static_cast<F32>(pCharacterData.get(CHARACTER_LENGTH_FIELD).asReal());
 
     llassert(pCharacterData.has(CHARACTER_RADIUS_FIELD));
     llassert(pCharacterData.get(CHARACTER_RADIUS_FIELD).isReal());
-    mRadius = (F32)pCharacterData.get(CHARACTER_RADIUS_FIELD).asReal();
+    mRadius = static_cast<F32>(pCharacterData.get(CHARACTER_RADIUS_FIELD).asReal());
 }

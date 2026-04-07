@@ -395,12 +395,12 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
     parcel_data.name = parcel->getName();
     parcel_data.sim_name = region->getName();
     parcel_data.snapshot_id = parcel->getSnapshotID();
-    mPosRegion.set((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
-                      (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
-                      (F32)pos_global.mdV[VZ]);
-    parcel_data.global_x = (F32)pos_global.mdV[VX];
-    parcel_data.global_y = (F32)pos_global.mdV[VY];
-    parcel_data.global_z = (F32)pos_global.mdV[VZ];
+    mPosRegion.set(static_cast<F32>(fmod(pos_global.mdV[VX], static_cast<F64>(REGION_WIDTH_METERS))),
+                      static_cast<F32>(fmod(pos_global.mdV[VY], static_cast<F64>(REGION_WIDTH_METERS))),
+                      static_cast<F32>(pos_global.mdV[VZ]));
+    parcel_data.global_x = static_cast<F32>(pos_global.mdV[VX]);
+    parcel_data.global_y = static_cast<F32>(pos_global.mdV[VY]);
+    parcel_data.global_z = static_cast<F32>(pos_global.mdV[VZ]);
     parcel_data.owner_id = parcel->getOwnerID();
 
     std::string on = getString("on");
@@ -571,7 +571,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
         // Can't have more than region max tasks, regardless of parcel
         // object bonus factor.
         S32 primitives = llmin(ll_round(parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()),
-                               (S32)region->getMaxTasks());
+                               static_cast<S32>(region->getMaxTasks()));
 
         mPrimitivesText->setText(llformat("%d %s, %d %s", primitives, getString("available").c_str(), parcel->getPrimCount(), getString("allocated").c_str()));
 

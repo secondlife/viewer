@@ -115,7 +115,7 @@ bool LLMultiGesture::serialize(LLDataPacker& dp) const
     dp.packString(mTrigger, "trigger");
     dp.packString(mReplaceText, "replace");
 
-    S32 count = (S32)mSteps.size();
+    S32 count = static_cast<S32>(mSteps.size());
     dp.packS32(count, "step_count");
     S32 i;
     for (i = 0; i < count; ++i)
@@ -166,7 +166,7 @@ bool LLMultiGesture::deserialize(LLDataPacker& dp)
         S32 type;
         dp.unpackS32(type, "step_type");
 
-        EStepType step_type = (EStepType)type;
+        EStepType step_type = static_cast<EStepType>(type);
         switch(step_type)
         {
         case STEP_ANIMATION:
@@ -474,7 +474,7 @@ std::vector<std::string> LLGestureStepWait::getLabel() const
     if (mFlags & WAIT_FLAG_TIME)
     {
         char buffer[64];        /* Flawfinder: ignore */
-        snprintf(buffer, sizeof(buffer), "%.1f seconds", (double)mWaitSeconds); /* Flawfinder: ignore */
+        snprintf(buffer, sizeof(buffer), "%.1f seconds", static_cast<double>(mWaitSeconds)); /* Flawfinder: ignore */
         strings.emplace_back(buffer);
 //      label += buffer;
     }

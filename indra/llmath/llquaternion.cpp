@@ -569,7 +569,7 @@ LLQuaternion slerp(F32 t, const LLQuaternion &q)
     LLQuaternion r;
     F32 s, angle, stq, stp;
 
-    s = (F32) sqrt(1.f - c*c);
+    s = static_cast<F32>(sqrt(1.f - c*c));
 
     if (c < 0.0f)
     {
@@ -578,15 +578,15 @@ LLQuaternion slerp(F32 t, const LLQuaternion &q)
         // p or q to reduce unecessary spins
         // A equivalent way to do it is to convert acos(c) as if it had
         // been negative, and to negate stp
-        angle   = (F32) acos(-c);
-        stp     = -(F32) sin(angle * (1.f - t));
-        stq     = (F32) sin(angle * t);
+        angle   = static_cast<F32>(acos(-c));
+        stp     = -static_cast<F32>(sin(angle * (1.f - t)));
+        stq     = static_cast<F32>(sin(angle * t));
     }
     else
     {
-        angle   = (F32) acos(c);
-        stp     = (F32) sin(angle * (1.f - t));
-        stq     = (F32) sin(angle * t);
+        angle   = static_cast<F32>(acos(c));
+        stp     = static_cast<F32>(sin(angle * (1.f - t)));
+        stq     = static_cast<F32>(sin(angle * t));
     }
 
     r.mQ[VX] = (q.mQ[VX] * stq) / s;

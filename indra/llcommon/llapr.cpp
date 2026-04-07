@@ -41,7 +41,7 @@ bool gAPRInitialized = false;
 
 int abortfunc(int retcode)
 {
-    LL_WARNS("APR") << "Allocation failure in apr pool with code " << (S32)retcode << LL_ENDL;
+    LL_WARNS("APR") << "Allocation failure in apr pool with code " << static_cast<S32>(retcode) << LL_ENDL;
     return 0;
 }
 
@@ -369,7 +369,7 @@ apr_status_t LLAPRFile::open(const std::string& filename, apr_int32_t flags, LLV
         if (apr_file_seek(mFile, APR_END, &offset) == APR_SUCCESS)
         {
             llassert_always(offset <= 0x7fffffff);
-            file_size = (S32)offset;
+            file_size = static_cast<S32>(offset);
             offset = 0;
             apr_file_seek(mFile, APR_SET, &offset);
         }
@@ -425,7 +425,7 @@ S32 LLAPRFile::read(void *buf, S32 nbytes)
     else
     {
         llassert_always(sz <= 0x7fffffff);
-        return (S32)sz;
+        return static_cast<S32>(sz);
     }
 }
 
@@ -447,7 +447,7 @@ S32 LLAPRFile::write(const void *buf, S32 nbytes)
     else
     {
         llassert_always(sz <= 0x7fffffff);
-        return (S32)sz;
+        return static_cast<S32>(sz);
     }
 }
 
@@ -522,7 +522,7 @@ S32 LLAPRFile::seek(apr_file_t* file_handle, apr_seek_where_t where, S32 offset)
     else
     {
         llassert_always(apr_offset <= 0x7fffffff);
-        return (S32)apr_offset;
+        return static_cast<S32>(apr_offset);
     }
 }
 
@@ -568,7 +568,7 @@ S32 LLAPRFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nb
     //*****************************************
     close(file_handle) ;
     //*****************************************
-    return (S32)bytes_read;
+    return static_cast<S32>(bytes_read);
 }
 
 //static
@@ -625,7 +625,7 @@ S32 LLAPRFile::writeEx(const std::string& filename, const void *buf, S32 offset,
     LLAPRFile::close(file_handle);
     //*****************************************
 
-    return (S32)bytes_written;
+    return static_cast<S32>(bytes_written);
 }
 
 //static
@@ -704,7 +704,7 @@ S32 LLAPRFile::size(const std::string& filename, LLVolatileAPRPool* pool)
 
         if (s == APR_SUCCESS)
         {
-            return (S32)info.size;
+            return static_cast<S32>(info.size);
         }
         else
         {

@@ -310,8 +310,8 @@ void LLFloaterPay::processPayPriceReply(LLMessageSystem* msg, void **userdata)
         const S32 threshold = 100000;
         if ( max_pay_amount >= threshold )
         {
-            S32 num_digits_threshold = (S32)log10((double)threshold) + 1;
-            S32 num_digits_max = (S32)log10((double)max_pay_amount) + 1;
+            S32 num_digits_threshold = static_cast<S32>(log10(static_cast<double>(threshold))) + 1;
+            S32 num_digits_max = static_cast<S32>(log10(static_cast<double>(max_pay_amount))) + 1;
 
             // calculate the extra width required by 2 buttons with max amount and some commas
             padding_required = ( num_digits_max - num_digits_threshold + ( num_digits_max / 3 ) ) * font->getWidth( std::string("0") );
@@ -388,7 +388,7 @@ void LLFloaterPay::payViaObject(money_callback callback, LLSafeHandle<LLObjectSe
     msg->nextBlockFast(_PREHASH_ObjectData);
     msg->addUUIDFast(_PREHASH_ObjectID, object->getID());
     msg->sendReliable(target_region);
-    msg->setHandlerFuncFast(_PREHASH_PayPriceReply, processPayPriceReply,(void **)floater);
+    msg->setHandlerFuncFast(_PREHASH_PayPriceReply, processPayPriceReply, reinterpret_cast<void**>(floater));
 
     LLUUID owner_id;
     bool is_group = false;

@@ -1694,7 +1694,7 @@ void AISUpdate::doUpdate()
     // LOST ITEMS
     if (!mItemsLost.empty())
     {
-        LL_INFOS("Inventory") << "Received " << (S32)mItemsLost.size() << " items without a parent" << LL_ENDL;
+        LL_INFOS("Inventory") << "Received " << static_cast<S32>(mItemsLost.size()) << " items without a parent" << LL_ENDL;
         const LLUUID lost_uuid(gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND));
         if (lost_uuid.notNull())
         {

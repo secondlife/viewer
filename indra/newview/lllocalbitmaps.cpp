@@ -1275,7 +1275,7 @@ void LLLocalBitmapMgr::feedScrollList(LLScrollListCtrl* ctrl)
 
                 LLSD data;
                 data["id"] = (*iter)->getTrackingID();
-                data["type"] = (S32)LLAssetType::AT_TEXTURE;
+                data["type"] = static_cast<S32>(LLAssetType::AT_TEXTURE);
                 element["value"] = data;
 
                 ctrl->addElement(element);

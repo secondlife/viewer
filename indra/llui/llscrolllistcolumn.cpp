@@ -186,7 +186,7 @@ void LLScrollColumnHeader::handleReshape(const LLRect& new_rect, bool by_user)
                         columnp->setWidth(columnp->getWidth() + remaining_width);
                         if (columnp->mRelWidth > 0.f)
                         {
-                            columnp->mRelWidth = (F32)columnp->getWidth() / (F32)mColumn->mParentCtrl->getItemListRect().getWidth();
+                            columnp->mRelWidth = static_cast<F32>(columnp->getWidth()) / static_cast<F32>(mColumn->mParentCtrl->getItemListRect().getWidth());
                         }
                         // all padding went to this widget, we're done
                         break;
@@ -202,7 +202,7 @@ void LLScrollColumnHeader::handleReshape(const LLRect& new_rect, bool by_user)
                         columnp->setWidth(columnp->getWidth() - llmin(columnp->getWidth() - MIN_COLUMN_WIDTH, delta_width));
                         if (columnp->mRelWidth > 0.f)
                         {
-                            columnp->mRelWidth = (F32)columnp->getWidth() / (F32)mColumn->mParentCtrl->getItemListRect().getWidth();
+                            columnp->mRelWidth = static_cast<F32>(columnp->getWidth()) / static_cast<F32>(mColumn->mParentCtrl->getItemListRect().getWidth());
                         }
                     }
 
@@ -230,7 +230,7 @@ void LLScrollColumnHeader::handleReshape(const LLRect& new_rect, bool by_user)
         // update proportional spacing
         if (mColumn->mRelWidth > 0.f)
         {
-            mColumn->mRelWidth = (F32)new_width / (F32)mColumn->mParentCtrl->getItemListRect().getWidth();
+            mColumn->mRelWidth = static_cast<F32>(new_width) / static_cast<F32>(mColumn->mParentCtrl->getItemListRect().getWidth());
         }
 
         // tell scroll list to layout columns again

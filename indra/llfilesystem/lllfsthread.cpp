@@ -47,7 +47,7 @@ void LLLFSThread::initClass(bool local_is_threaded)
 //static
 S32 LLLFSThread::updateClass(U32 ms_elapsed)
 {
-    return static_cast<S32>(sLocal->update((F32)ms_elapsed));
+    return static_cast<S32>(sLocal->update(static_cast<F32>(ms_elapsed)));
 }
 
 //static
@@ -230,7 +230,7 @@ bool LLLFSThread::Request::processRequest()
     }
     else
     {
-        LL_ERRS() << "LLLFSThread::unknown operation: " << (S32)mOperation << LL_ENDL;
+        LL_ERRS() << "LLLFSThread::unknown operation: " << static_cast<S32>(mOperation) << LL_ENDL;
     }
     return complete;
 }

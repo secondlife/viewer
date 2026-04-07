@@ -61,23 +61,23 @@ LLFloaterMemLeak::LLFloaterMemLeak(const LLSD& key)
 bool LLFloaterMemLeak::postBuild()
 {
     F32 a, b ;
-    a = (F32)getChild<LLUICtrl>("leak_speed")->getValue().asReal();
-    if(a > (F32)(0xFFFFFFFF))
+    a = static_cast<F32>(getChild<LLUICtrl>("leak_speed")->getValue().asReal());
+    if(a > static_cast<F32>(0xFFFFFFFF))
     {
         sMemLeakingSpeed = 0xFFFFFFFF ;
     }
     else
     {
-        sMemLeakingSpeed = (U32)a ;
+        sMemLeakingSpeed = static_cast<U32>(a);
     }
-    b = (F32)getChild<LLUICtrl>("max_leak")->getValue().asReal();
-    if(b > (F32)0xFFF)
+    b = static_cast<F32>(getChild<LLUICtrl>("max_leak")->getValue().asReal());
+    if(b > static_cast<F32>(0xFFF))
     {
         sMaxLeakedMem = 0xFFFFFFFF ;
     }
     else
     {
-        sMaxLeakedMem = ((U32)b) << 20 ;
+        sMaxLeakedMem = (static_cast<U32>(b)) << 20 ;
     }
 
     sbAllocationFailed = false ;
@@ -98,7 +98,7 @@ void LLFloaterMemLeak::release()
         return ;
     }
 
-    for(S32 i = 0 ; i < (S32)mLeakedMem.size() ; i++)
+    for(S32 i = 0 ; i < static_cast<S32>(mLeakedMem.size()) ; i++)
     {
         delete[] mLeakedMem[i] ;
     }
@@ -151,28 +151,28 @@ void LLFloaterMemLeak::idle()
 //----------------------
 void LLFloaterMemLeak::onChangeLeakingSpeed()
 {
-    F32 tmp = (F32)getChild<LLUICtrl>("leak_speed")->getValue().asReal();
+    F32 tmp = static_cast<F32>(getChild<LLUICtrl>("leak_speed")->getValue().asReal());
 
-    if(tmp > (F32)0xFFFFFFFF)
+    if(tmp > static_cast<F32>(0xFFFFFFFF))
     {
         sMemLeakingSpeed = 0xFFFFFFFF ;
     }
     else
     {
-        sMemLeakingSpeed = (U32)tmp ;
+        sMemLeakingSpeed = static_cast<U32>(tmp);
     }
 }
 
 void LLFloaterMemLeak::onChangeMaxMemLeaking()
 {
-    F32 tmp = (F32)getChild<LLUICtrl>("max_leak")->getValue().asReal();
-    if(tmp > (F32)0xFFF)
+    F32 tmp = static_cast<F32>(getChild<LLUICtrl>("max_leak")->getValue().asReal());
+    if(tmp > static_cast<F32>(0xFFF))
     {
         sMaxLeakedMem = 0xFFFFFFFF ;
     }
     else
     {
-        sMaxLeakedMem = ((U32)tmp) << 20 ;
+        sMaxLeakedMem = (static_cast<U32>(tmp)) << 20 ;
     }
 }
 

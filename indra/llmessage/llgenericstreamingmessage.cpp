@@ -54,7 +54,7 @@ void LLGenericStreamingMessage::send(LLMessageSystem* msg)
 
 void LLGenericStreamingMessage::unpack(LLMessageSystem* msg)
 {
-    U16* m = (U16*)&mMethod; // squirrely pass enum as U16 by reference
+    U16* m = reinterpret_cast<U16*>(&mMethod); // squirrely pass enum as U16 by reference
     msg->getU16Fast(_PREHASH_MethodData, _PREHASH_Method, *m);
 
     constexpr int MAX_SIZE = 7 * 1024;

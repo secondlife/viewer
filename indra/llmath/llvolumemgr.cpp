@@ -196,8 +196,8 @@ void LLVolumeMgr::dump()
         LLVolumeLODGroup *volgroupp = mVolumeLODGroup.second;
         avg += volgroupp->dump();
     }
-    int count = (int)mVolumeLODGroups.size();
-    avg = count ? avg / (F32)count : 0.0f;
+    int count = static_cast<int>(mVolumeLODGroups.size());
+    avg = count ? avg / static_cast<F32>(count) : 0.0f;
     if (mDataMutex)
     {
         mDataMutex->unlock();
@@ -377,7 +377,7 @@ F32 LLVolumeLODGroup::dump()
             usage += 1.f;
         }
     }
-    usage = usage / (F32)NUM_LODS;
+    usage = usage / static_cast<F32>(NUM_LODS);
 
     std::string dump_str = llformat("%.3f %d %d %d %d", usage, mAccessCount[0], mAccessCount[1], mAccessCount[2], mAccessCount[3]);
 

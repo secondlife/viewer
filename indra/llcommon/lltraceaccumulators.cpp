@@ -232,7 +232,7 @@ F64 EventAccumulator::mergeSumsOfSquares(const EventAccumulator& a, const EventA
             m_2 = b.mMean;
         F64 v_1 = a.mSumOfSquares / a.mNumSamples,
             v_2 = b.mSumOfSquares / b.mNumSamples;
-        return (F64)a.mNumSamples
+        return static_cast<F64>(a.mNumSamples)
             * ((((n_1 - 1.f) * v_1)
             + ((n_2 - 1.f) * v_2)
             + (((n_1 * n_2) / (n_1 + n_2))
@@ -261,7 +261,7 @@ void EventAccumulator::addSamples(const EventAccumulator& other, EBufferAppendTy
 
             mSumOfSquares = mergeSumsOfSquares(*this, other);
 
-            F64 weight = (F64)mNumSamples / (F64)(mNumSamples + other.mNumSamples);
+            F64 weight = static_cast<F64>(mNumSamples) / static_cast<F64>(mNumSamples + other.mNumSamples);
             mNumSamples += other.mNumSamples;
             mMean = mMean * weight + other.mMean * (1.f - weight);
             if (append_type == SEQUENTIAL) mLastValue = other.mLastValue;

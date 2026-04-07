@@ -124,10 +124,10 @@ LLColor4 LLColor4::cyan6(0.2f, 0.6f, 0.6f, 1.0f);
 // conversion
 LLColor4::operator LLColor4U() const
 {
-    return {(U8)llclampb(ll_round(mV[VRED] * 255.f)),
-                     (U8)llclampb(ll_round(mV[VGREEN] * 255.f)),
-                     (U8)llclampb(ll_round(mV[VBLUE] * 255.f)),
-                     (U8)llclampb(ll_round(mV[VALPHA] * 255.f))};
+    return {static_cast<U8>(llclampb(ll_round(mV[VRED] * 255.f))),
+                     static_cast<U8>(llclampb(ll_round(mV[VGREEN] * 255.f))),
+                     static_cast<U8>(llclampb(ll_round(mV[VBLUE] * 255.f))),
+                     static_cast<U8>(llclampb(ll_round(mV[VALPHA] * 255.f)))};
 }
 
 LLColor4::LLColor4(const LLColor3& vec, F32 a)
@@ -188,10 +188,10 @@ const LLColor4& LLColor4::set(const LLColor3& vec, F32 a)
 
 void LLColor4::setValue(const LLSD& sd)
 {
-    mV[VRED]   = (F32)sd[VRED].asReal();
-    mV[VGREEN] = (F32)sd[VGREEN].asReal();
-    mV[VBLUE]  = (F32)sd[VBLUE].asReal();
-    mV[VALPHA] = (F32)sd[VALPHA].asReal();
+    mV[VRED]   = static_cast<F32>(sd[VRED].asReal());
+    mV[VGREEN] = static_cast<F32>(sd[VGREEN].asReal());
+    mV[VBLUE]  = static_cast<F32>(sd[VBLUE].asReal());
+    mV[VALPHA] = static_cast<F32>(sd[VALPHA].asReal());
 }
 
 const LLColor4& LLColor4::operator=(const LLColor3& a)

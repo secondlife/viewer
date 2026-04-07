@@ -78,8 +78,8 @@ void LLTemplateMessageReader::getData(const char *blockname, const char *varname
         return;
     }
 
-    char *bnamep = (char *)blockname + blocknum; // this works because it's just a hash.  The bnamep is never derefference
-    char *vnamep = (char *)varname;
+    char *bnamep = const_cast<char*>(blockname) + blocknum; // this works because it's just a hash.  The bnamep is never derefference
+    char *vnamep = const_cast<char*>(varname);
 
     LLMsgData::msg_blk_data_map_t::const_iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
 
@@ -119,17 +119,17 @@ void LLTemplateMessageReader::getData(const char *blockname, const char *varname
         switch( vardata_size )
         {
         case 1:
-            *((U8*)datap) = *((U8*)vardata.getData());
+            *reinterpret_cast<U8*>(datap) = *reinterpret_cast<U8*>(vardata.getData());
             break;
         case 2:
-            *((U16*)datap) = *((U16*)vardata.getData());
+            *reinterpret_cast<U16*>(datap) = *reinterpret_cast<U16*>(vardata.getData());
             break;
         case 4:
-            *((U32*)datap) = *((U32*)vardata.getData());
+            *reinterpret_cast<U32*>(datap) = *reinterpret_cast<U32*>(vardata.getData());
             break;
         case 8:
-            ((U32*)datap)[0] = ((U32*)vardata.getData())[0];
-            ((U32*)datap)[1] = ((U32*)vardata.getData())[1];
+            reinterpret_cast<U32*>(datap)[0] = reinterpret_cast<U32*>(vardata.getData())[0];
+            reinterpret_cast<U32*>(datap)[1] = reinterpret_cast<U32*>(vardata.getData())[1];
             break;
         default:
             memcpy(datap, vardata.getData(), vardata_size);
@@ -163,7 +163,7 @@ S32 LLTemplateMessageReader::getNumberOfBlocks(const char *blockname)
         return -1;
     }
 
-    char *bnamep = (char *)blockname;
+    char *bnamep = const_cast<char*>(blockname);
 
     LLMsgData::msg_blk_data_map_t::const_iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
 
@@ -190,7 +190,7 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, const char *varname)
         return LL_MESSAGE_ERROR;
     }
 
-    char *bnamep = (char *)blockname;
+    char *bnamep = const_cast<char*>(blockname);
 
     LLMsgData::msg_blk_data_map_t::const_iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
 
@@ -201,7 +201,7 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, const char *varname)
         return LL_BLOCK_NOT_IN_MESSAGE;
     }
 
-    char *vnamep = (char *)varname;
+    char *vnamep = const_cast<char*>(varname);
 
     LLMsgBlkData* msg_data = iter->second;
     const LLMsgVarData& vardata = msg_data->mMemberVarData[vnamep];
@@ -238,8 +238,8 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, S32 blocknum, const 
         return LL_MESSAGE_ERROR;
     }
 
-    char *bnamep = (char *)blockname + blocknum;
-    char *vnamep = (char *)varname;
+    char *bnamep = const_cast<char*>(blockname) + blocknum;
+    char *vnamep = const_cast<char*>(varname);
 
     LLMsgData::msg_blk_data_map_t::const_iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
 
@@ -463,12 +463,12 @@ bool LLTemplateMessageReader::decodeTemplate(
         // high frequency message
         num = header[0];
     }
-    else if ((buffer_size >= ((S32) LL_MINIMUM_VALID_PACKET_SIZE + 1)) && (header[1] != 255))
+    else if ((buffer_size >= (static_cast<S32>(LL_MINIMUM_VALID_PACKET_SIZE) + 1)) && (header[1] != 255))
     {
         // medium frequency message
         num = (255 << 8) | header[1];
     }
-    else if ((buffer_size >= ((S32) LL_MINIMUM_VALID_PACKET_SIZE + 3)) && (header[1] == 255))
+    else if ((buffer_size >= (static_cast<S32>(LL_MINIMUM_VALID_PACKET_SIZE) + 3)) && (header[1] == 255))
     {
         // low frequency message
         U16 message_id_U16 = 0;

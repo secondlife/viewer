@@ -253,7 +253,7 @@ LLToolDragAndDrop::dragOrDrop3dImpl LLToolDragAndDrop::LLDragAndDropDictionary::
     const DragAndDropEntry *entry = lookup(dad_type);
     if (entry)
     {
-        return (entry->mFunctions[(U8)drop_target]);
+        return (entry->mFunctions[static_cast<U8>(drop_target)]);
     }
     return &LLToolDragAndDrop::dad3dNULL;
 }
@@ -627,7 +627,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
     {
         handled = true;
 
-        for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
+        for (mCurItemIndex = 0; mCurItemIndex < static_cast<S32>(mCargoIDs.size()); mCurItemIndex++)
         {
             S32 local_x, local_y;
             top_view->screenPointToLocal( x, y, &local_x, &local_y );
@@ -638,7 +638,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
             {
                 handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, false,
                                                     mCargoTypes[mCurItemIndex],
-                                                    (void*)cargo,
+                                                    reinterpret_cast<void*>(cargo),
                                                     &item_acceptance,
                                                     mToolTipMsg);
             }
@@ -646,21 +646,21 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
             {
                 handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, false,
                                                     mCargoTypes[mCurItemIndex],
-                                                    (void*)&mCargoIDs[mCurItemIndex],
+                                                    reinterpret_cast<void*>(&mCargoIDs[mCurItemIndex]),
                                                     &item_acceptance,
                                                     mToolTipMsg);
             }
             if (handled)
             {
                 // use sort order to determine priority of acceptance
-                *acceptance = (EAcceptance)llmin((U32)item_acceptance, (U32)*acceptance);
+                *acceptance = static_cast<EAcceptance>(llmin(static_cast<U32>(item_acceptance), static_cast<U32>(*acceptance)));
             }
         }
 
         // all objects passed, go ahead and perform drop if necessary
-        if (handled && drop && (U32)*acceptance >= ACCEPT_YES_COPY_SINGLE)
+        if (handled && drop && static_cast<U32>(*acceptance) >= ACCEPT_YES_COPY_SINGLE)
         {
-            if ((U32)*acceptance < ACCEPT_YES_COPY_MULTI &&
+            if (static_cast<U32>(*acceptance) < ACCEPT_YES_COPY_MULTI &&
                 mCargoIDs.size() > 1)
             {
                 // tried to give multi-cargo to a single-acceptor - refuse and return.
@@ -668,7 +668,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
                 return;
             }
 
-            for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
+            for (mCurItemIndex = 0; mCurItemIndex < static_cast<S32>(mCargoIDs.size()); mCurItemIndex++)
             {
                 S32 local_x, local_y;
                 EAcceptance item_acceptance;
@@ -679,7 +679,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
                 {
                     handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, true,
                                                         mCargoTypes[mCurItemIndex],
-                                                        (void*)cargo,
+                                                        reinterpret_cast<void*>(cargo),
                                                         &item_acceptance,
                                                         mToolTipMsg);
                 }
@@ -687,7 +687,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
                 {
                     handled = handled && top_view->handleDragAndDrop(local_x, local_y, mask, false,
                                                         mCargoTypes[mCurItemIndex],
-                                                        (void*)&mCargoIDs[mCurItemIndex],
+                                                        reinterpret_cast<void*>(&mCargoIDs[mCurItemIndex]),
                                                         &item_acceptance,
                                                         mToolTipMsg);
                 }
@@ -695,7 +695,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
         }
         if (handled)
         {
-            mLastAccept = (EAcceptance)*acceptance;
+            mLastAccept = static_cast<EAcceptance>(*acceptance);
         }
     }
 
@@ -705,7 +705,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
 
         LLRootView* root_view = gViewerWindow->getRootView();
 
-        for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
+        for (mCurItemIndex = 0; mCurItemIndex < static_cast<S32>(mCargoIDs.size()); mCurItemIndex++)
         {
             EAcceptance item_acceptance = ACCEPT_NO;
 
@@ -716,7 +716,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
             {
                 handled = handled && root_view->handleDragAndDrop(x, y, mask, false,
                                                     mCargoTypes[mCurItemIndex],
-                                                    (void*)cargo,
+                                                    reinterpret_cast<void*>(cargo),
                                                     &item_acceptance,
                                                     mToolTipMsg);
             }
@@ -724,20 +724,20 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
             {
                 handled = handled && root_view->handleDragAndDrop(x, y, mask, false,
                                                     mCargoTypes[mCurItemIndex],
-                                                    (void*)&mCargoIDs[mCurItemIndex],
+                                                    reinterpret_cast<void*>(&mCargoIDs[mCurItemIndex]),
                                                     &item_acceptance,
                                                     mToolTipMsg);
             }
             if (handled)
             {
                 // use sort order to determine priority of acceptance
-                *acceptance = (EAcceptance)llmin((U32)item_acceptance, (U32)*acceptance);
+                *acceptance = static_cast<EAcceptance>(llmin(static_cast<U32>(item_acceptance), static_cast<U32>(*acceptance)));
             }
         }
         // all objects passed, go ahead and perform drop if necessary
-        if (handled && drop && (U32)*acceptance > ACCEPT_NO_LOCKED)
+        if (handled && drop && static_cast<U32>(*acceptance) > ACCEPT_NO_LOCKED)
         {
-            if ((U32)*acceptance < ACCEPT_YES_COPY_MULTI &&
+            if (static_cast<U32>(*acceptance) < ACCEPT_YES_COPY_MULTI &&
                 mCargoIDs.size() > 1)
             {
                 // tried to give multi-cargo to a single-acceptor - refuse and return.
@@ -745,7 +745,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
                 return;
             }
 
-            for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
+            for (mCurItemIndex = 0; mCurItemIndex < static_cast<S32>(mCargoIDs.size()); mCurItemIndex++)
             {
                 EAcceptance item_acceptance;
 
@@ -754,7 +754,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
                 {
                     handled = handled && root_view->handleDragAndDrop(x, y, mask, true,
                                               mCargoTypes[mCurItemIndex],
-                                              (void*)cargo,
+                                              reinterpret_cast<void*>(cargo),
                                               &item_acceptance,
                                               mToolTipMsg);
                 }
@@ -762,7 +762,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
                 {
                     handled = handled && root_view->handleDragAndDrop(x, y, mask, true,
                                               mCargoTypes[mCurItemIndex],
-                                              (void*)&mCargoIDs[mCurItemIndex],
+                                              reinterpret_cast<void*>(&mCargoIDs[mCurItemIndex]),
                                               &item_acceptance,
                                               mToolTipMsg);
                 }
@@ -771,7 +771,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
 
         if (handled)
         {
-            mLastAccept = (EAcceptance)*acceptance;
+            mLastAccept = static_cast<EAcceptance>(*acceptance);
         }
     }
 
@@ -781,7 +781,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, bool drop,
         const LLUUID marketplacelistings_id = gInventory.getMarketplaceListingsUUID();
         if (marketplacelistings_id.notNull())
         {
-            for (S32 item_index = 0; item_index < (S32)mCargoIDs.size(); item_index++)
+            for (S32 item_index = 0; item_index < static_cast<S32>(mCargoIDs.size()); item_index++)
             {
                 if (gInventory.isObjectDescendentOf(mCargoIDs[item_index], marketplacelistings_id))
                 {
@@ -881,25 +881,25 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 
     mLastAccept = ACCEPT_YES_MULTI;
 
-    for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
+    for (mCurItemIndex = 0; mCurItemIndex < static_cast<S32>(mCargoIDs.size()); mCurItemIndex++)
     {
         const S32 item_index = mCurItemIndex;
         const EDragAndDropType dad_type = mCargoTypes[item_index];
         // Call the right implementation function
-        mLastAccept = (EAcceptance)llmin(
-            (U32)mLastAccept,
-            (U32)callMemberFunction(*this,
+        mLastAccept = static_cast<EAcceptance>(llmin(
+            static_cast<U32>(mLastAccept),
+            static_cast<U32>(callMemberFunction(*this,
                                     LLDragAndDropDictionary::instance().get(dad_type, target))
-                (hit_obj, hit_face, pick_info.mKeyMask, false));
+                (hit_obj, hit_face, pick_info.mKeyMask, false))));
     }
 
-    if (mDrop && ((U32)mLastAccept >= ACCEPT_YES_COPY_SINGLE))
+    if (mDrop && (static_cast<U32>(mLastAccept) >= ACCEPT_YES_COPY_SINGLE))
     {
         // if target allows multi-drop or there is only one item being dropped, go ahead
         if ((mLastAccept >= ACCEPT_YES_COPY_MULTI) || (mCargoIDs.size() == 1))
         {
             // Target accepts multi, or cargo is a single-drop
-            for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
+            for (mCurItemIndex = 0; mCurItemIndex < static_cast<S32>(mCargoIDs.size()); mCurItemIndex++)
             {
                 const S32 item_index = mCurItemIndex;
                 const EDragAndDropType dad_type = mCargoTypes[item_index];
@@ -919,7 +919,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
     {
         // if any item being dragged will be applied to the object under our cursor
         // highlight that object
-        for (S32 i = 0; i < (S32)mCargoIDs.size(); i++)
+        for (S32 i = 0; i < static_cast<S32>(mCargoIDs.size()); i++)
         {
             if (mCargoTypes[i] != DAD_OBJECT || (pick_info.mKeyMask & MASK_CONTROL))
             {
@@ -1944,7 +1944,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
     // think folderid == mSourceID. This will be a later
     // optimization.
     msg->addUUIDFast(_PREHASH_FromTaskID, source_id);
-    msg->addU8Fast(_PREHASH_BypassRaycast, (U8) bypass_sim_raycast);
+    msg->addU8Fast(_PREHASH_BypassRaycast, static_cast<U8>(bypass_sim_raycast));
     msg->addVector3Fast(_PREHASH_RayStart, ray_start);
     msg->addVector3Fast(_PREHASH_RayEnd, ray_end);
     msg->addUUIDFast(_PREHASH_RayTargetID, ray_target_id );
@@ -2558,7 +2558,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezScript(
         LLViewerObject* root_object = obj;
         if (obj && obj->getParent())
         {
-            LLViewerObject* parent_obj = (LLViewerObject*)obj->getParent();
+            LLViewerObject* parent_obj = static_cast<LLViewerObject*>(obj->getParent());
             if (!parent_obj->isAvatar())
             {
                 root_object = parent_obj;
@@ -2956,7 +2956,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventory(
     LLViewerObject* root_object = obj;
     if (obj && obj->getParent())
     {
-        LLViewerObject* parent_obj = (LLViewerObject*)obj->getParent();
+        LLViewerObject* parent_obj = static_cast<LLViewerObject*>(obj->getParent());
         if (!parent_obj->isAvatar())
         {
             root_object = parent_obj;
@@ -3022,7 +3022,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
     LLViewerObject* root_object = obj;
     if (obj->getParent())
     {
-        LLViewerObject* parent_obj = (LLViewerObject*)obj->getParent();
+        LLViewerObject* parent_obj = static_cast<LLViewerObject*>(obj->getParent());
         if (!parent_obj->isAvatar())
         {
             root_object = parent_obj;

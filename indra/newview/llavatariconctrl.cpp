@@ -189,8 +189,8 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
     // don't request larger image then necessary to save gl memory,
     // but ensure that quality is sufficient
     LLRect rect = p.rect;
-    mMaxHeight = llmax((S32)p.min_height, rect.getHeight());
-    mMaxWidth = llmax((S32)p.min_width, rect.getWidth());
+    mMaxHeight = llmax(static_cast<S32>(p.min_height), rect.getHeight());
+    mMaxWidth = llmax(static_cast<S32>(p.min_width), rect.getWidth());
 
     if (p.avatar_id.isProvided())
     {

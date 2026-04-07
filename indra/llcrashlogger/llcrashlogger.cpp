@@ -190,7 +190,7 @@ bool LLCrashLogger::readMinidump(std::string minidump_path)
     if (minidump_stream.is_open())
     {
         minidump_stream.seekg(0, std::ios::end);
-        length = (size_t)minidump_stream.tellg();
+        length = static_cast<size_t>(minidump_stream.tellg());
         LL_WARNS("CRASHREPORT") << "minidump length "<< length <<LL_ENDL;
         minidump_stream.seekg(0, std::ios::beg);
 

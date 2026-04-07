@@ -1007,8 +1007,8 @@ void LLPanelMainInventory::updateItemcountText()
         LLInventoryModel::item_array_t* items;
 
         gInventory.getDirectDescendentsOf(getCurrentSFVRoot(), cats, items);
-        S32 item_count = items ? (S32)items->size() : 0;
-        S32 cat_count = cats ? (S32)cats->size() : 0;
+        S32 item_count = items ? static_cast<S32>(items->size()) : 0;
+        S32 cat_count = cats ? static_cast<S32>(cats->size()) : 0;
 
         if (mItemCount != item_count)
         {
@@ -1227,8 +1227,8 @@ void LLFloaterInventoryFinder::onTimeAgo()
     {
         mCheckSinceLogoff->setValue(false);
 
-        U32 days = (U32)mSpinSinceDays->get();
-        U32 hours = (U32)mSpinSinceHours->get();
+        U32 days = static_cast<U32>(mSpinSinceDays->get());
+        U32 hours = static_cast<U32>(mSpinSinceHours->get());
         if (hours >= 24)
         {
             // Try to handle both cases of spinner clicking and text input in a sensible fashion as best as possible.
@@ -1243,11 +1243,11 @@ void LLFloaterInventoryFinder::onTimeAgo()
             {
                 days = hours / 24;
             }
-            hours = (U32)hours % 24;
+            hours = static_cast<U32>(hours) % 24;
             mSpinSinceHours->setFocus(false);
             mSpinSinceDays->setFocus(false);
-            mSpinSinceDays->set((F32)days);
-            mSpinSinceHours->set((F32)hours);
+            mSpinSinceDays->set(static_cast<F32>(days));
+            mSpinSinceHours->set(static_cast<F32>(hours));
             mSpinSinceHours->setFocus(true);
         }
     }
@@ -1265,7 +1265,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
         return;
 
     // Get data needed for filter display
-    U32 filter_types = (U32)mFilter->getFilterObjectTypes();
+    U32 filter_types = static_cast<U32>(mFilter->getFilterObjectTypes());
     LLInventoryFilter::EFolderShow show_folders = mFilter->getShowFolderState();
     U32 hours = mFilter->getHoursAgo();
     U32 date_search_direction = mFilter->getDateSearchDirection();
@@ -1277,27 +1277,27 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
     // update the ui elements
     setTitle(mFilter->getName());
 
-    mCheckAnimation->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_ANIMATION));
-    mCheckCallingCard->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_CALLINGCARD));
-    mCheckClothing->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_WEARABLE));
-    mCheckGesture->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_GESTURE));
-    mCheckLandmark->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LANDMARK));
-    mCheckMaterial->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_MATERIAL));
-    mCheckNotecard->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_NOTECARD));
-    mCheckObject->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_OBJECT));
-    mCheckScript->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LSL));
-    mCheckSounds->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SOUND));
-    mCheckTexture->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_TEXTURE));
-    mCheckSnapshot->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SNAPSHOT));
-    mCheckSettings->setValue((S32)(filter_types & 0x1 << LLInventoryType::IT_SETTINGS));
+    mCheckAnimation->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_ANIMATION));
+    mCheckCallingCard->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_CALLINGCARD));
+    mCheckClothing->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_WEARABLE));
+    mCheckGesture->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_GESTURE));
+    mCheckLandmark->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_LANDMARK));
+    mCheckMaterial->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_MATERIAL));
+    mCheckNotecard->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_NOTECARD));
+    mCheckObject->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_OBJECT));
+    mCheckScript->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_LSL));
+    mCheckSounds->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_SOUND));
+    mCheckTexture->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_TEXTURE));
+    mCheckSnapshot->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_SNAPSHOT));
+    mCheckSettings->setValue(static_cast<S32>(filter_types & 0x1 << LLInventoryType::IT_SETTINGS));
     mCheckShowEmpty->setValue(show_folders == LLInventoryFilter::SHOW_ALL_FOLDERS);
 
     mCreatorSelf->setValue(show_created_by_me);
     mCreatorOthers->setValue(show_created_by_others);
 
     mCheckSinceLogoff->setValue(mFilter->isSinceLogoff());
-    mSpinSinceHours->set((F32)(hours % 24));
-    mSpinSinceDays->set((F32)(hours / 24));
+    mSpinSinceHours->set(static_cast<F32>(hours % 24));
+    mSpinSinceDays->set(static_cast<F32>(hours / 24));
     mRadioDateSearchDirection->setSelectedIndex(date_search_direction);
 }
 
@@ -1417,17 +1417,17 @@ void LLFloaterInventoryFinder::draw()
         mSpinSinceDays->set(0);
         mSpinSinceHours->set(0);
     }
-    U32 days = (U32)mSpinSinceDays->get();
-    U32 hours = (U32)mSpinSinceHours->get();
+    U32 days = static_cast<U32>(mSpinSinceDays->get());
+    U32 hours = static_cast<U32>(mSpinSinceHours->get());
     if (hours >= 24)
     {
         days = hours / 24;
-        hours = (U32)hours % 24;
+        hours = static_cast<U32>(hours) % 24;
         // A UI element that has focus will not display a new value set to it
         mSpinSinceHours->setFocus(false);
         mSpinSinceDays->setFocus(false);
-        mSpinSinceDays->set((F32)days);
-        mSpinSinceHours->set((F32)hours);
+        mSpinSinceDays->set(static_cast<F32>(days));
+        mSpinSinceHours->set(static_cast<F32>(hours));
         mSpinSinceHours->setFocus(true);
     }
     hours += days * 24;

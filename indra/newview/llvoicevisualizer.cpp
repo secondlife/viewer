@@ -233,11 +233,11 @@ void LLVoiceVisualizer::setPreferences( )
 
     std::string oohPowerString = gSavedSettings.getString("LipSyncOohPowerTransfer");
     lipStringToF32s (oohPowerString, sOohPowerTransfer, sOohPowerTransfers);
-    sOohPowerTransfersf = (F32) sOohPowerTransfers;
+    sOohPowerTransfersf = static_cast<F32>(sOohPowerTransfers);
 
     std::string aahPowerString = gSavedSettings.getString("LipSyncAahPowerTransfer");
     lipStringToF32s (aahPowerString, sAahPowerTransfer, sAahPowerTransfers);
-    sAahPowerTransfersf = (F32) sAahPowerTransfers;
+    sAahPowerTransfersf = static_cast<F32>(sAahPowerTransfers);
 
 }//---------------------------------------------------
 
@@ -275,7 +275,7 @@ void LLVoiceVisualizer::lipStringToF32s ( std::string& in_string, F32*& out_F32s
             {
                 four_bits = 9;
             }
-            out_F32s[i] = 0.11f * (F32) four_bits;
+            out_F32s[i] = 0.11f * static_cast<F32>(four_bits);
         }
     }
 
@@ -289,14 +289,14 @@ void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 {
     if (sLipSyncEnabled && mCurrentlySpeaking)
     {
-        U32 transfer_index = (U32) (sOohPowerTransfersf * mSpeakingAmplitude);
+        U32 transfer_index = static_cast<U32>((sOohPowerTransfersf * mSpeakingAmplitude));
         if (transfer_index >= sOohPowerTransfers)
         {
            transfer_index = sOohPowerTransfers - 1;
         }
         F32 transfer_ooh = sOohPowerTransfer[transfer_index];
 
-        transfer_index = (U32) (sAahPowerTransfersf * mSpeakingAmplitude);
+        transfer_index = static_cast<U32>((sAahPowerTransfersf * mSpeakingAmplitude));
         if (transfer_index >= sAahPowerTransfers)
         {
            transfer_index = sAahPowerTransfers - 1;
@@ -305,7 +305,7 @@ void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 
         F64 current_time   = mTimer.getTotalSeconds();
         F64 elapsed_time   = current_time - mStartTime;
-        U32 elapsed_frames = (U32) (elapsed_time * sOohAahRate);
+        U32 elapsed_frames = static_cast<U32>((elapsed_time * sOohAahRate));
         U32 elapsed_oohs   = elapsed_frames % sOohs;
         U32 elapsed_aahs   = elapsed_frames % sAahs;
 
@@ -466,7 +466,7 @@ void LLVoiceVisualizer::render()
         {
             if ( mSoundSymbol.mWaveActive[i] )
             {
-                F32 fadeOutFraction = (F32)( mCurrentTime - mSoundSymbol.mWaveFadeOutStartTime[i] ) / FADE_OUT_DURATION;
+                F32 fadeOutFraction = static_cast<F32>(( mCurrentTime - mSoundSymbol.mWaveFadeOutStartTime[i] )) / FADE_OUT_DURATION;
 
                 mSoundSymbol.mWaveOpacity[i] = 1.0f - fadeOutFraction;
 
@@ -481,7 +481,7 @@ void LLVoiceVisualizer::render()
                 // This is where we calculate the expansion of the waves - that is, the
                 // rate at which they are scaled greater than 1.0 so that they grow over time.
                 //----------------------------------------------------------------------------------
-                F32 timeSlice = (F32)( mCurrentTime - mPreviousTime );
+                F32 timeSlice = static_cast<F32>(( mCurrentTime - mPreviousTime ));
                 F32 waveSpeed = mSpeakingAmplitude * WAVE_MOTION_RATE;
                 mSoundSymbol.mWaveExpansion[i] *= ( 1.0f + EXPANSION_RATE * timeSlice * waveSpeed );
 

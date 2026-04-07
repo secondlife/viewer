@@ -135,7 +135,7 @@ void LLPanelVoiceDeviceSettings::draw()
     {
         const S32 num_bars = 5;
         F32 voice_power = LLVoiceClient::getInstance()->tuningGetEnergy() / LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
-        S32 discrete_power = llmin(num_bars, llfloor(voice_power * (F32)num_bars + 0.1f));
+        S32 discrete_power = llmin(num_bars, llfloor(voice_power * static_cast<F32>(num_bars) + 0.1f));
 
         for(S32 power_bar_idx = 0; power_bar_idx < num_bars; power_bar_idx++)
         {
@@ -184,7 +184,7 @@ void LLPanelVoiceDeviceSettings::apply()
     LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
     if(volume_slider)
     {
-        F32 slider_value = (F32)volume_slider->getValue().asReal();
+        F32 slider_value = static_cast<F32>(volume_slider->getValue().asReal());
         gSavedSettings.setF32("AudioLevelMic", slider_value);
         mMicVolume = slider_value;
     }
@@ -214,7 +214,7 @@ void LLPanelVoiceDeviceSettings::refresh()
     //grab current volume
     LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
     // set mic volume tuning slider based on last mic volume setting
-    F32 current_volume = (F32)volume_slider->getValue().asReal();
+    F32 current_volume = static_cast<F32>(volume_slider->getValue().asReal());
     LLVoiceClient::getInstance()->tuningSetMicVolume(current_volume);
 
     // Fill in popup menus

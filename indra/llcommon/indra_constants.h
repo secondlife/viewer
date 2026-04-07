@@ -351,7 +351,7 @@ constexpr U32 AGENT_CONTROL_AWAY                = 0x1 << CONTROL_AWAY_INDEX;    
 constexpr U32 AGENT_CONTROL_LBUTTON_DOWN        = 0x1 << CONTROL_LBUTTON_DOWN_INDEX;    // 0x10000000
 constexpr U32 AGENT_CONTROL_LBUTTON_UP          = 0x1 << CONTROL_LBUTTON_UP_INDEX;      // 0x20000000
 constexpr U32 AGENT_CONTROL_ML_LBUTTON_DOWN     = 0x1 << CONTROL_ML_LBUTTON_DOWN_INDEX; // 0x40000000
-constexpr U32 AGENT_CONTROL_ML_LBUTTON_UP       = ((U32)0x1) << CONTROL_ML_LBUTTON_UP_INDEX;    // 0x80000000
+constexpr U32 AGENT_CONTROL_ML_LBUTTON_UP       = (static_cast<U32>(0x1)) << CONTROL_ML_LBUTTON_UP_INDEX;    // 0x80000000
 
 // move these up so that we can hide them in "State" for object updates
 // (for now)
@@ -360,7 +360,7 @@ constexpr U32 AGENT_ATTACH_MASK                 = 0xf << AGENT_ATTACH_OFFSET;
 
 // RN: this method swaps the upper and lower nibbles to maintain backward
 // compatibility with old objects that only used the upper nibble
-#define ATTACHMENT_ID_FROM_STATE(state) ((S32)((((U8)state & AGENT_ATTACH_MASK) >> 4) | (((U8)state & ~AGENT_ATTACH_MASK) << 4)))
+#define ATTACHMENT_ID_FROM_STATE(state) (static_cast<S32>(((static_cast<U8>(state) & AGENT_ATTACH_MASK) >> 4) | ((static_cast<U8>(state) & ~AGENT_ATTACH_MASK) << 4)))
 
 // DO NOT CHANGE THE SEQUENCE OF THIS LIST!!
 constexpr U8 CLICK_ACTION_NONE = 0;

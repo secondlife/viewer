@@ -286,7 +286,7 @@ public:
             // No longer waiting for this item - either serviced
             // already or gave up after too many retries.
             LL_WARNS() << "duplicate or late operation, src_id " << src_id << "dst_id " << dst_id
-                    << " elapsed " << elapsed << " after end " << (S32) mCompletionOrFailureCalled << LL_ENDL;
+                    << " elapsed " << elapsed << " after end " << static_cast<S32>(mCompletionOrFailureCalled) << LL_ENDL;
         }
         mTimeStats.push(elapsed);
         mWaitTimes.erase(src_id);
@@ -526,7 +526,7 @@ LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool enforce_item_restr
 
 void LLUpdateAppearanceOnDestroy::fire(const LLUUID& inv_item)
 {
-    LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(inv_item);
+    LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(gInventory.getItem(inv_item));
     const std::string item_name = item ? item->getName() : "ITEM NOT FOUND";
 #ifndef LL_RELEASE_FOR_DOWNLOAD
     LL_DEBUGS("Avatar") << self_av_string() << "callback fired [ name:" << item_name << " UUID:" << inv_item << " count:" << mFireCount << " ] " << LL_ENDL;
@@ -812,7 +812,7 @@ void LLWearableHoldingPattern::setGestItems(const LLInventoryModel::item_array_t
 
 bool LLWearableHoldingPattern::isFetchCompleted()
 {
-    return (mResolved >= (S32)getFoundList().size()); // have everything we were waiting for?
+    return (mResolved >= static_cast<S32>(getFoundList().size())); // have everything we were waiting for?
 }
 
 bool LLWearableHoldingPattern::isTimedOut()
@@ -1307,7 +1307,7 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
 
 static void onWearableAssetFetch(LLViewerWearable* wearable, void* data)
 {
-    LLWearableHoldingPattern* holder = (LLWearableHoldingPattern*)data;
+    LLWearableHoldingPattern* holder = static_cast<LLWearableHoldingPattern*>(data);
     holder->onWearableAssetFetch(wearable);
 }
 
@@ -2118,7 +2118,7 @@ void LLAppearanceMgr::filterWearableItems(
         items.clear();
         for (S32 i=0; i<LLWearableType::WT_COUNT; i++)
         {
-            S32 size = (S32)items_by_type[i].size();
+            S32 size = static_cast<S32>(items_by_type[i].size());
             if (size <= 0)
                 continue;
             S32 start_index = llmax(0,size-max_per_type);
@@ -2297,9 +2297,9 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder)
         {
             LLFoundData& data = *iter;
             LLViewerWearable* wearable = data.mWearable;
-            if( wearable && ((S32)wearable->getType() == i) )
+            if( wearable && (static_cast<S32>(wearable->getType()) == i) )
             {
-                LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(data.mItemID);
+                LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(gInventory.getItem(data.mItemID));
                 if( item && (item->getAssetUUID() == wearable->getAssetID()) )
                 {
                     items.push_back(item);
@@ -2750,7 +2750,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
                                             gAgentAvatarp,
                                             found.mAssetType,
                                             onWearableAssetFetch,
-                                            (void*)holder);
+                                            static_cast<void*>(holder));
 
     }
 
@@ -3777,13 +3777,13 @@ LLSD LLAppearanceMgr::dumpCOF() const
         const LLViewerInventoryItem* inv_item = item_array.at(i).get();
         LLSD item;
         LLUUID item_id(inv_item->getUUID());
-        md5.update((unsigned char*)item_id.mData, 16);
+        md5.update(reinterpret_cast<unsigned char*>(item_id.mData), 16);
         item["description"] = inv_item->getActualDescription();
         md5.update(inv_item->getActualDescription());
         item["asset_type"] = inv_item->getActualType();
         LLUUID linked_id(inv_item->getLinkedUUID());
         item["linked_id"] = linked_id;
-        md5.update((unsigned char*)linked_id.mData, 16);
+        md5.update(reinterpret_cast<unsigned char*>(linked_id.mData), 16);
 
         if (LLAssetType::AT_LINK == inv_item->getActualType())
         {
@@ -3804,7 +3804,7 @@ LLSD LLAppearanceMgr::dumpCOF() const
             //  continue;
             //}
             LLUUID linked_asset_id(linked_item->getAssetUUID());
-            md5.update((unsigned char*)linked_asset_id.mData, 16);
+            md5.update(reinterpret_cast<unsigned char*>(linked_asset_id.mData), 16);
             U32 flags = linked_item->getFlags();
             md5.update(std::to_string(flags));
         }
@@ -3812,7 +3812,7 @@ LLSD LLAppearanceMgr::dumpCOF() const
         {
             LL_WARNS() << "Non-link item '" << inv_item->getName()
                     << "' (" << inv_item->getUUID()
-                    << ") type " << (S32) inv_item->getActualType()
+                    << ") type " << static_cast<S32>(inv_item->getActualType())
                     << " during requestServerAppearanceUpdate" << LL_ENDL;
             continue;
         }
@@ -4287,7 +4287,7 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
         if (pos == count - 1)  return false; // already last
     }
 
-    U32 old_pos = (U32)pos;
+    U32 old_pos = static_cast<U32>(pos);
     U32 swap_with = closer_to_body ? old_pos - 1 : old_pos + 1;
     LLUUID swap_item_id = gAgentWearables.getWearableItemID(item->getWearableType(), swap_with);
 
@@ -4407,8 +4407,8 @@ LLAppearanceMgr::LLAppearanceMgr():
     outfit_observer.addCOFSavedCallback(std::bind(
             &LLAppearanceMgr::setOutfitLocked, this, false));
 
-    mUnlockOutfitTimer = std::make_unique<LLOutfitUnLockTimer>((F32)gSavedSettings.getS32(
-            "OutfitOperationsTimeout"));
+    mUnlockOutfitTimer = std::make_unique<LLOutfitUnLockTimer>(static_cast<F32>(gSavedSettings.getS32(
+            "OutfitOperationsTimeout")));
 
     gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, NULL);
     gIdleCallbacks.addFunction(&LLAppearanceMgr::onIdle, NULL); //sheduling appearance update requests

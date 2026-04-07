@@ -623,7 +623,7 @@ void LLPanelObject::getState( )
         }
         else
         {
-            LL_INFOS("FloaterTools") << "Unknown path " << (S32) path << " profile " << (S32) profile << " in getState" << LL_ENDL;
+            LL_INFOS("FloaterTools") << "Unknown path " << static_cast<S32>(path) << " profile " << static_cast<S32>(profile) << " in getState" << LL_ENDL;
             selected_item = MI_BOX;
         }
 
@@ -2298,7 +2298,7 @@ void LLPanelObject::onPasteParams()
     {
         LLSculptParams sculpt_params;
         LLUUID sculpt_id = mClipboardParams["sculpt"]["id"].asUUID();
-        U8 sculpt_type = (U8)mClipboardParams["sculpt"]["type"].asInteger();
+        U8 sculpt_type = static_cast<U8>(mClipboardParams["sculpt"]["type"].asInteger());
         sculpt_params.setSculptTexture(sculpt_id, sculpt_type);
         objectp->setParameterEntry(LLNetworkData::PARAMS_SCULPT, sculpt_params, true);
     }

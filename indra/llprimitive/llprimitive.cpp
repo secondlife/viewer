@@ -125,13 +125,13 @@ const LLUUID SCULPT_DEFAULT_TEXTURE("be293869-d0d9-0a69-5989-ad27f1946fd4"); // 
 // Texture rotations are sent over the wire as a S16.  This is used to scale the actual float
 // value to a S16.   Don't use 7FFF as it introduces some odd rounding with 180 since it
 // can't be divided by 2.   See DEV-19108
-const F32   TEXTURE_ROTATION_PACK_FACTOR = ((F32) 0x08000);
+const F32   TEXTURE_ROTATION_PACK_FACTOR = (static_cast<F32>(0x08000));
 
 struct material_id_type // originally from llrendermaterialtable
 {
     material_id_type()
     {
-        memset((void*)m_value, 0, sizeof(m_value));
+        memset(static_cast<void*>(m_value), 0, sizeof(m_value));
     }
 
     bool operator==(const material_id_type& other) const
@@ -528,7 +528,7 @@ LLPCode LLPrimitive::legacyToPCode(const U8 legacy)
         pcode = LL_PCODE_TREE_NEW;
         break;
     default:
-        LL_WARNS() << "Unknown legacy code " << legacy << " [" << (S32)legacy << "]!" << LL_ENDL;
+        LL_WARNS() << "Unknown legacy code " << legacy << " [" << static_cast<S32>(legacy) << "]!" << LL_ENDL;
     }
 
     return pcode;
@@ -623,7 +623,7 @@ U8 LLPrimitive::pCodeToLegacy(const LLPCode pcode)
         legacy = TREE_NEW;
         break;
     default:
-        LL_WARNS() << "Unknown pcode " << (S32)pcode << ":" << pcode << "!" << LL_ENDL;
+        LL_WARNS() << "Unknown pcode " << static_cast<S32>(pcode) << ":" << pcode << "!" << LL_ENDL;
         return 0;
     }
     return legacy;
@@ -665,7 +665,7 @@ std::string LLPrimitive::pCodeToString(const LLPCode pcode)
           pcode_string = "tree_new";
             break;
         default:
-          pcode_string = llformat( "unknown legacy pcode %i",(U32)pcode);
+          pcode_string = llformat( "unknown legacy pcode %i",static_cast<U32>(pcode));
         }
     }
     else
@@ -762,7 +762,7 @@ void LLPrimitive::copyTEs(const LLPrimitive *primitivep)
 S32 face_index_from_id(LLFaceID face_ID, const std::vector<LLProfile::Face>& faceArray)
 {
     S32 i;
-    for (i = 0; i < (S32)faceArray.size(); i++)
+    for (i = 0; i < static_cast<S32>(faceArray.size()); i++)
     {
         if (faceArray[i].mFaceID == face_ID)
         {
@@ -1077,48 +1077,48 @@ S32 LLPrimitive::packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_fa
             {
                 if (!memcmp(data_ptr+(data_size *face_index), data_ptr+(data_size *i), data_size))
                 {
-                    exception_faces |= ((U64)1 << i);
+                    exception_faces |= (static_cast<U64>(1) << i);
                 }
             }
 
             //assign exception faces to cur_ptr
-            if (exception_faces >= ((U64)0x1 << 7))
+            if (exception_faces >= (static_cast<U64>(0x1) << 7))
             {
-                if (exception_faces >= ((U64)0x1 << 14))
+                if (exception_faces >= (static_cast<U64>(0x1) << 14))
                 {
-                    if (exception_faces >= ((U64)0x1 << 21))
+                    if (exception_faces >= (static_cast<U64>(0x1) << 21))
                     {
-                        if (exception_faces >= ((U64)0x1 << 28))
+                        if (exception_faces >= (static_cast<U64>(0x1) << 28))
                         {
-                            if (exception_faces >= ((U64)0x1 << 35))
+                            if (exception_faces >= (static_cast<U64>(0x1) << 35))
                             {
-                                if (exception_faces >= ((U64)0x1 << 42))
+                                if (exception_faces >= (static_cast<U64>(0x1) << 42))
                                 {
-                                    if (exception_faces >= ((U64)0x1 << 49))
+                                    if (exception_faces >= (static_cast<U64>(0x1) << 49))
                                     {
-                                        *cur_ptr++ = (U8)(((exception_faces >> 49) & 0x7F) | 0x80);
+                                        *cur_ptr++ = static_cast<U8>(((exception_faces >> 49) & 0x7F) | 0x80);
                                     }
-                                    *cur_ptr++ = (U8)(((exception_faces >> 42) & 0x7F) | 0x80);
+                                    *cur_ptr++ = static_cast<U8>(((exception_faces >> 42) & 0x7F) | 0x80);
                                 }
-                                *cur_ptr++ = (U8)(((exception_faces >> 35) & 0x7F) | 0x80);
+                                *cur_ptr++ = static_cast<U8>(((exception_faces >> 35) & 0x7F) | 0x80);
                             }
-                            *cur_ptr++ = (U8)(((exception_faces >> 28) & 0x7F) | 0x80);
+                            *cur_ptr++ = static_cast<U8>(((exception_faces >> 28) & 0x7F) | 0x80);
                         }
-                        *cur_ptr++ = (U8)(((exception_faces >> 21) & 0x7F) | 0x80);
+                        *cur_ptr++ = static_cast<U8>(((exception_faces >> 21) & 0x7F) | 0x80);
                     }
-                    *cur_ptr++ = (U8)(((exception_faces >> 14) & 0x7F) | 0x80);
+                    *cur_ptr++ = static_cast<U8>(((exception_faces >> 14) & 0x7F) | 0x80);
                 }
-                *cur_ptr++ = (U8)(((exception_faces >> 7) & 0x7F) | 0x80);
+                *cur_ptr++ = static_cast<U8>(((exception_faces >> 7) & 0x7F) | 0x80);
             }
 
 
-            *cur_ptr++ = (U8)(exception_faces & 0x7F);
+            *cur_ptr++ = static_cast<U8>(exception_faces & 0x7F);
 
             htolememcpy(cur_ptr,data_ptr + (face_index * data_size), type, data_size);
             cur_ptr += data_size;
         }
     }
-    return (S32)(cur_ptr - start_loc);
+    return static_cast<S32>(cur_ptr - start_loc);
 }
 
 namespace
@@ -1221,7 +1221,7 @@ bool LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
     U8 packed_buffer[MAX_TE_BUFFER];
     U8 *cur_ptr = packed_buffer;
 
-    S32 last_face_index = llmin((U32) getNumTEs(), MAX_TES) - 1;
+    S32 last_face_index = llmin(static_cast<U32>(getNumTEs()), MAX_TES) - 1;
 
     if (last_face_index > -1)
     {
@@ -1245,42 +1245,42 @@ bool LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
             colors[4*face_index + 3] = 255 - coloru.mV[3];
 
             const LLTextureEntry* te = getTE(face_index);
-            scale_s[face_index] = (F32) te->mScaleS;
-            scale_t[face_index] = (F32) te->mScaleT;
-            offset_s[face_index] = (S16) ll_round((llclamp(te->mOffsetS,-1.0f,1.0f) * (F32)0x7FFF)) ;
-            offset_t[face_index] = (S16) ll_round((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
-            image_rot[face_index] = (S16) ll_round(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR));
+            scale_s[face_index] = static_cast<F32>(te->mScaleS);
+            scale_t[face_index] = static_cast<F32>(te->mScaleT);
+            offset_s[face_index] = static_cast<S16>(ll_round((llclamp(te->mOffsetS,-1.0f,1.0f) * static_cast<F32>(0x7FFF)))) ;
+            offset_t[face_index] = static_cast<S16>(ll_round((llclamp(te->mOffsetT,-1.0f,1.0f) * static_cast<F32>(0x7FFF)))) ;
+            image_rot[face_index] = static_cast<S16>(ll_round(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR)));
             bump[face_index] = te->getBumpShinyFullbright();
             media_flags[face_index] = te->getMediaTexGen();
-            glow[face_index] = (U8) ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
+            glow[face_index] = static_cast<U8>(ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * static_cast<F32>(0xFF))));
 
             // Directly sending material_ids is not safe!
             memcpy(&material_data[face_index*16],getTE(face_index)->getMaterialID().get(),16);  /* Flawfinder: ignore */
         }
 
-        cur_ptr += packTEField(cur_ptr, (U8 *)image_ids, sizeof(LLUUID),last_face_index, MVT_LLUUID);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(image_ids), sizeof(LLUUID),last_face_index, MVT_LLUUID);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)colors, 4 ,last_face_index, MVT_U8);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(colors), 4 ,last_face_index, MVT_U8);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)scale_s, 4 ,last_face_index, MVT_F32);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(scale_s), 4 ,last_face_index, MVT_F32);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)scale_t, 4 ,last_face_index, MVT_F32);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(scale_t), 4 ,last_face_index, MVT_F32);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)offset_s, 2 ,last_face_index, MVT_S16Array);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(offset_s), 2 ,last_face_index, MVT_S16Array);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)offset_t, 2 ,last_face_index, MVT_S16Array);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(offset_t), 2 ,last_face_index, MVT_S16Array);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)image_rot, 2 ,last_face_index, MVT_S16Array);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(image_rot), 2 ,last_face_index, MVT_S16Array);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)bump, 1 ,last_face_index, MVT_U8);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(bump), 1 ,last_face_index, MVT_U8);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)media_flags, 1 ,last_face_index, MVT_U8);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(media_flags), 1 ,last_face_index, MVT_U8);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(glow), 1 ,last_face_index, MVT_U8);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)material_data, 16, last_face_index, MVT_LLUUID);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(material_data), 16, last_face_index, MVT_LLUUID);
     }
-    mesgsys->addBinaryDataFast(_PREHASH_TextureEntry, packed_buffer, (S32)(cur_ptr - packed_buffer));
+    mesgsys->addBinaryDataFast(_PREHASH_TextureEntry, packed_buffer, static_cast<S32>(cur_ptr - packed_buffer));
 
     return true;
 }
@@ -1330,43 +1330,43 @@ bool LLPrimitive::packTEMessage(LLDataPacker &dp) const
             colors[4*face_index + 3] = 255 - coloru.mV[3];
 
             const LLTextureEntry* te = getTE(face_index);
-            scale_s[face_index] = (F32) te->mScaleS;
-            scale_t[face_index] = (F32) te->mScaleT;
-            offset_s[face_index] = (S16) ll_round((llclamp(te->mOffsetS,-1.0f,1.0f) * (F32)0x7FFF)) ;
-            offset_t[face_index] = (S16) ll_round((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
-            image_rot[face_index] = (S16) ll_round(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR));
+            scale_s[face_index] = static_cast<F32>(te->mScaleS);
+            scale_t[face_index] = static_cast<F32>(te->mScaleT);
+            offset_s[face_index] = static_cast<S16>(ll_round((llclamp(te->mOffsetS,-1.0f,1.0f) * static_cast<F32>(0x7FFF)))) ;
+            offset_t[face_index] = static_cast<S16>(ll_round((llclamp(te->mOffsetT,-1.0f,1.0f) * static_cast<F32>(0x7FFF)))) ;
+            image_rot[face_index] = static_cast<S16>(ll_round(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR)));
             bump[face_index] = te->getBumpShinyFullbright();
             media_flags[face_index] = te->getMediaTexGen();
-            glow[face_index] = (U8) ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
+            glow[face_index] = static_cast<U8>(ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * static_cast<F32>(0xFF))));
 
             // Directly sending material_ids is not safe!
             memcpy(&material_data[face_index*16],getTE(face_index)->getMaterialID().get(),16);  /* Flawfinder: ignore */
         }
 
-        cur_ptr += packTEField(cur_ptr, (U8 *)image_ids, sizeof(LLUUID),last_face_index, MVT_LLUUID);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(image_ids), sizeof(LLUUID),last_face_index, MVT_LLUUID);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)colors, 4 ,last_face_index, MVT_U8);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(colors), 4 ,last_face_index, MVT_U8);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)scale_s, 4 ,last_face_index, MVT_F32);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(scale_s), 4 ,last_face_index, MVT_F32);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)scale_t, 4 ,last_face_index, MVT_F32);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(scale_t), 4 ,last_face_index, MVT_F32);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)offset_s, 2 ,last_face_index, MVT_S16Array);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(offset_s), 2 ,last_face_index, MVT_S16Array);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)offset_t, 2 ,last_face_index, MVT_S16Array);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(offset_t), 2 ,last_face_index, MVT_S16Array);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)image_rot, 2 ,last_face_index, MVT_S16Array);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(image_rot), 2 ,last_face_index, MVT_S16Array);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)bump, 1 ,last_face_index, MVT_U8);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(bump), 1 ,last_face_index, MVT_U8);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)media_flags, 1 ,last_face_index, MVT_U8);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(media_flags), 1 ,last_face_index, MVT_U8);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(glow), 1 ,last_face_index, MVT_U8);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)material_data, 16, last_face_index, MVT_LLUUID);
+        cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8 *>(material_data), 16, last_face_index, MVT_LLUUID);
     }
 
-    dp.packBinaryData(packed_buffer, (S32)(cur_ptr - packed_buffer), "TextureEntry");
+    dp.packBinaryData(packed_buffer, static_cast<S32>(cur_ptr - packed_buffer), "TextureEntry");
     return true;
 }
 
@@ -1405,7 +1405,7 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
     tec.packed_buffer[tec.size] = 0x00;
     ++tec.size;
 
-    tec.face_count = llmin((U32)getNumTEs(),(U32)LLTEContents::MAX_TES);
+    tec.face_count = llmin(static_cast<U32>(getNumTEs()),static_cast<U32>(LLTEContents::MAX_TES));
 
     U8 *cur_ptr = tec.packed_buffer;
     LL_DEBUGS("TEXTUREENTRY") << "Texture Entry with buffere sized: " << tec.size << LL_ENDL;
@@ -1428,7 +1428,7 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
 
     if (cur_ptr >= buffer_end || !unpack_TEField<material_id_type>(material_data, tec.face_count, cur_ptr, buffer_end, MVT_LLUUID))
     {
-        memset((void*)material_data, 0, sizeof(material_data));
+        memset(static_cast<void*>(material_data), 0, sizeof(material_data));
     }
 
     for (U32 i = 0; i < tec.face_count; i++)
@@ -1447,14 +1447,14 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
     LLColor4 color;
     for (U32 i = 0; i < tec.face_count; i++)
     {
-        const LLUUID& req_id = ((LLUUID*)tec.image_data)[i];
+        const LLUUID& req_id = (reinterpret_cast<LLUUID*>(tec.image_data))[i];
         retval |= setTETexture(i, req_id);
         retval |= setTEScale(i, tec.scale_s[i], tec.scale_t[i]);
-        retval |= setTEOffset(i, (F32)tec.offset_s[i] / (F32)0x7FFF, (F32) tec.offset_t[i] / (F32) 0x7FFF);
-        retval |= setTERotation(i, ((F32)tec.image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
+        retval |= setTEOffset(i, static_cast<F32>(tec.offset_s[i]) / static_cast<F32>(0x7FFF), static_cast<F32>(tec.offset_t[i]) / static_cast<F32>(0x7FFF));
+        retval |= setTERotation(i, (static_cast<F32>(tec.image_rot[i]) / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
         retval |= setTEBumpShinyFullbright(i, tec.bump[i]);
         retval |= setTEMediaTexGen(i, tec.media_flags[i]);
-        retval |= setTEGlow(i, (F32)tec.glow[i] / (F32)0xFF);
+        retval |= setTEGlow(i, static_cast<F32>(tec.glow[i]) / static_cast<F32>(0xFF));
         retval |= setTEMaterialID(i, tec.material_ids[i]);
 
         // Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
@@ -1491,7 +1491,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 
     constexpr U32 MAX_TE_BUFFER = 4096;
     U8 packed_buffer[MAX_TE_BUFFER];
-    memset((void*)packed_buffer, 0, MAX_TE_BUFFER);
+    memset(static_cast<void*>(packed_buffer), 0, MAX_TE_BUFFER);
 
     LLUUID      image_data[MAX_TES];
     LLColor4U   colors[MAX_TES];
@@ -1505,14 +1505,14 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     U8          glow[MAX_TES];
     material_id_type material_data[MAX_TES];
 
-    memset((void*)scale_s, 0, sizeof(scale_s));
-    memset((void*)scale_t, 0, sizeof(scale_t));
-    memset((void*)offset_s, 0, sizeof(offset_s));
-    memset((void*)offset_t, 0, sizeof(offset_t));
-    memset((void*)image_rot, 0, sizeof(image_rot));
-    memset((void*)bump, 0, sizeof(bump));
-    memset((void*)media_flags, 0, sizeof(media_flags));
-    memset((void*)glow, 0, sizeof(glow));
+    memset(static_cast<void*>(scale_s), 0, sizeof(scale_s));
+    memset(static_cast<void*>(scale_t), 0, sizeof(scale_t));
+    memset(static_cast<void*>(offset_s), 0, sizeof(offset_s));
+    memset(static_cast<void*>(offset_t), 0, sizeof(offset_t));
+    memset(static_cast<void*>(image_rot), 0, sizeof(image_rot));
+    memset(static_cast<void*>(bump), 0, sizeof(bump));
+    memset(static_cast<void*>(media_flags), 0, sizeof(media_flags));
+    memset(static_cast<void*>(glow), 0, sizeof(glow));
 
     S32 size;
     U32 face_count = 0;
@@ -1538,7 +1538,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     // Rather than special case the upack functions.  Just make it 0x00 terminated.
     packed_buffer[size] = 0x00;
     ++size;
-    face_count = llmin((U32) getNumTEs(), MAX_TES);
+    face_count = llmin(static_cast<U32>(getNumTEs()), MAX_TES);
     U32 i;
 
     U8 *cur_ptr = packed_buffer;
@@ -1562,7 +1562,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 
     if (cur_ptr >= buffer_end || !unpack_TEField<material_id_type>(material_data, face_count, cur_ptr, buffer_end, MVT_LLUUID))
     {
-        memset((void*)material_data, 0, sizeof(material_data));
+        memset(static_cast<void*>(material_data), 0, sizeof(material_data));
     }
 
     for (i = 0; i < face_count; i++)
@@ -1573,13 +1573,13 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     LLColor4 color;
     for (i = 0; i < face_count; i++)
     {
-        retval |= setTETexture(i, ((LLUUID*)image_data)[i]);
+        retval |= setTETexture(i, (reinterpret_cast<LLUUID*>(image_data))[i]);
         retval |= setTEScale(i, scale_s[i], scale_t[i]);
-        retval |= setTEOffset(i, (F32)offset_s[i] / (F32)0x7FFF, (F32) offset_t[i] / (F32) 0x7FFF);
-        retval |= setTERotation(i, ((F32)image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
+        retval |= setTEOffset(i, static_cast<F32>(offset_s[i]) / static_cast<F32>(0x7FFF), static_cast<F32>(offset_t[i]) / static_cast<F32>(0x7FFF));
+        retval |= setTERotation(i, (static_cast<F32>(image_rot[i]) / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
         retval |= setTEBumpShinyFullbright(i, bump[i]);
         retval |= setTEMediaTexGen(i, media_flags[i]);
-        retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
+        retval |= setTEGlow(i, static_cast<F32>(glow[i]) / static_cast<F32>(0xFF));
         retval |= setTEMaterialID(i, material_ids[i]);
 
         // Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
@@ -1759,7 +1759,7 @@ bool LLLightParams::operator==(const LLNetworkData& data) const
     {
         return false;
     }
-    const LLLightParams *param = (const LLLightParams*)&data;
+    const auto *param = static_cast<const LLLightParams*>(&data);
     return !(param->mColor != mColor ||
         param->mRadius != mRadius ||
         param->mCutoff != mCutoff ||
@@ -1768,7 +1768,7 @@ bool LLLightParams::operator==(const LLNetworkData& data) const
 
 void LLLightParams::copy(const LLNetworkData& data)
 {
-    const LLLightParams *param = (LLLightParams*)&data;
+    const auto *param = static_cast<const LLLightParams*>(&data);
     mType = param->mType;
     mColor = param->mColor;
     mRadius = param->mRadius;
@@ -1799,17 +1799,17 @@ bool LLLightParams::fromLLSD(LLSD& sd)
     w = "radius";
     if (sd.has(w))
     {
-        setRadius( (F32)sd[w].asReal() );
+        setRadius( static_cast<F32>(sd[w].asReal()) );
     } else goto fail;
     w = "falloff";
     if (sd.has(w))
     {
-        setFalloff( (F32)sd[w].asReal() );
+        setFalloff( static_cast<F32>(sd[w].asReal()) );
     } else goto fail;
     w = "cutoff";
     if (sd.has(w))
     {
-        setCutoff( (F32)sd[w].asReal() );
+        setCutoff( static_cast<F32>(sd[w].asReal()) );
     } else goto fail;
 
     return true;
@@ -1856,7 +1856,7 @@ bool LLReflectionProbeParams::operator==(const LLNetworkData& data) const
     {
         return false;
     }
-    const LLReflectionProbeParams *param = (const LLReflectionProbeParams*)&data;
+    const auto *param = static_cast<const LLReflectionProbeParams*>(&data);
     if (param->mAmbiance != mAmbiance)
     {
         return false;
@@ -1874,7 +1874,7 @@ bool LLReflectionProbeParams::operator==(const LLNetworkData& data) const
 
 void LLReflectionProbeParams::copy(const LLNetworkData& data)
 {
-    const LLReflectionProbeParams *param = (LLReflectionProbeParams*)&data;
+    const auto *param = static_cast<const LLReflectionProbeParams*>(&data);
     mType = param->mType;
     mAmbiance = param->mAmbiance;
     mClipDistance = param->mClipDistance;
@@ -1899,9 +1899,9 @@ bool LLReflectionProbeParams::fromLLSD(LLSD& sd)
         return false;
     }
 
-    setAmbiance((F32)sd["ambiance"].asReal());
-    setClipDistance((F32)sd["clip_distance"].asReal());
-    mFlags = (U8) sd["flags"].asInteger();
+    setAmbiance(static_cast<F32>(sd["ambiance"].asReal()));
+    setClipDistance(static_cast<F32>(sd["clip_distance"].asReal()));
+    mFlags = static_cast<U8>(sd["flags"].asInteger());
 
     return true;
 }
@@ -1963,10 +1963,10 @@ bool LLFlexibleObjectData::pack(LLDataPacker &dp) const
     // Custom, uber-svelte pack "softness" in upper bits of tension & drag
     U8 bit1 = (mSimulateLOD & 2) << 6;
     U8 bit2 = (mSimulateLOD & 1) << 7;
-    dp.packU8((U8)(mTension*10.01f) + bit1, "tension");
-    dp.packU8((U8)(mAirFriction*10.01f) + bit2, "drag");
-    dp.packU8((U8)((mGravity+10.f)*10.01f), "gravity");
-    dp.packU8((U8)(mWindSensitivity*10.01f), "wind");
+    dp.packU8(static_cast<U8>(mTension*10.01f) + bit1, "tension");
+    dp.packU8(static_cast<U8>(mAirFriction*10.01f) + bit2, "drag");
+    dp.packU8(static_cast<U8>((mGravity+10.f)*10.01f), "gravity");
+    dp.packU8(static_cast<U8>(mWindSensitivity*10.01f), "wind");
     dp.packVector3(mUserForce, "userforce");
     return true;
 }
@@ -1976,12 +1976,12 @@ bool LLFlexibleObjectData::unpack(LLDataPacker &dp)
     U8 tension, friction, gravity, wind;
     U8 bit1, bit2;
     dp.unpackU8(tension, "tension");    bit1 = (tension >> 6) & 2;
-                                        mTension = ((F32)(tension&0x7f))/10.f;
+                                        mTension = (static_cast<F32>(tension&0x7f))/10.f;
     dp.unpackU8(friction, "drag");      bit2 = (friction >> 7) & 1;
-                                        mAirFriction = ((F32)(friction&0x7f))/10.f;
+                                        mAirFriction = (static_cast<F32>(friction&0x7f))/10.f;
                                         mSimulateLOD = bit1 | bit2;
-    dp.unpackU8(gravity, "gravity");    mGravity = ((F32)gravity)/10.f - 10.f;
-    dp.unpackU8(wind, "wind");          mWindSensitivity = ((F32)wind)/10.f;
+    dp.unpackU8(gravity, "gravity");    mGravity = (static_cast<F32>(gravity))/10.f - 10.f;
+    dp.unpackU8(wind, "wind");          mWindSensitivity = (static_cast<F32>(wind))/10.f;
     if (dp.hasNext())
     {
         dp.unpackVector3(mUserForce, "userforce");
@@ -1999,7 +1999,7 @@ bool LLFlexibleObjectData::operator==(const LLNetworkData& data) const
     {
         return false;
     }
-    const LLFlexibleObjectData *flex_data = (const LLFlexibleObjectData*)&data;
+    const auto *flex_data = static_cast<const LLFlexibleObjectData*>(&data);
     return (mSimulateLOD == flex_data->mSimulateLOD &&
             mGravity == flex_data->mGravity &&
             mAirFriction == flex_data->mAirFriction &&
@@ -2012,7 +2012,7 @@ bool LLFlexibleObjectData::operator==(const LLNetworkData& data) const
 
 void LLFlexibleObjectData::copy(const LLNetworkData& data)
 {
-    const LLFlexibleObjectData *flex_data = (LLFlexibleObjectData*)&data;
+    const auto *flex_data = static_cast<const LLFlexibleObjectData*>(&data);
     mSimulateLOD = flex_data->mSimulateLOD;
     mGravity = flex_data->mGravity;
     mAirFriction = flex_data->mAirFriction;
@@ -2043,12 +2043,12 @@ bool LLFlexibleObjectData::fromLLSD(LLSD& sd)
     w = "air_friction";
     if (sd.has(w))
     {
-        setAirFriction( (F32)sd[w].asReal() );
+        setAirFriction( static_cast<F32>(sd[w].asReal()) );
     } else goto fail;
     w = "gravity";
     if (sd.has(w))
     {
-        setGravity( (F32)sd[w].asReal() );
+        setGravity( static_cast<F32>(sd[w].asReal()) );
     } else goto fail;
     w = "simulate_lod";
     if (sd.has(w))
@@ -2058,7 +2058,7 @@ bool LLFlexibleObjectData::fromLLSD(LLSD& sd)
     w = "tension";
     if (sd.has(w))
     {
-        setTension( (F32)sd[w].asReal() );
+        setTension( static_cast<F32>(sd[w].asReal()) );
     } else goto fail;
     w = "user_force";
     if (sd.has(w))
@@ -2069,7 +2069,7 @@ bool LLFlexibleObjectData::fromLLSD(LLSD& sd)
     w = "wind_sensitivity";
     if (sd.has(w))
     {
-        setWindSensitivity( (F32)sd[w].asReal() );
+        setWindSensitivity( static_cast<F32>(sd[w].asReal()) );
     } else goto fail;
 
     return true;
@@ -2112,14 +2112,14 @@ bool LLSculptParams::operator==(const LLNetworkData& data) const
         return false;
     }
 
-    const LLSculptParams *param = (const LLSculptParams*)&data;
+    const auto *param = static_cast<const LLSculptParams*>(&data);
     return !((param->mSculptTexture != mSculptTexture) ||
          (param->mSculptType != mSculptType));
 }
 
 void LLSculptParams::copy(const LLNetworkData& data)
 {
-    const LLSculptParams *param = (LLSculptParams*)&data;
+    const auto *param = static_cast<const LLSculptParams*>(&data);
     setSculptTexture(param->mSculptTexture, param->mSculptType);
 }
 
@@ -2203,7 +2203,7 @@ bool LLLightImageParams::operator==(const LLNetworkData& data) const
         return false;
     }
 
-    const LLLightImageParams *param = (const LLLightImageParams*)&data;
+    const auto *param = static_cast<const LLLightImageParams*>(&data);
     if ( (param->mLightTexture != mLightTexture) )
     {
         return false;
@@ -2219,7 +2219,7 @@ bool LLLightImageParams::operator==(const LLNetworkData& data) const
 
 void LLLightImageParams::copy(const LLNetworkData& data)
 {
-    const LLLightImageParams *param = (LLLightImageParams*)&data;
+    const auto *param = static_cast<const LLLightImageParams*>(&data);
     mLightTexture = param->mLightTexture;
     mParams = param->mParams;
 }
@@ -2277,13 +2277,13 @@ bool LLExtendedMeshParams::operator==(const LLNetworkData& data) const
         return false;
     }
 
-    const LLExtendedMeshParams *param = (const LLExtendedMeshParams*)&data;
+    const auto *param = static_cast<const LLExtendedMeshParams*>(&data);
     return param->mFlags == mFlags;
 }
 
 void LLExtendedMeshParams::copy(const LLNetworkData& data)
 {
-    const LLExtendedMeshParams *param = (LLExtendedMeshParams*)&data;
+    const auto *param = static_cast<const LLExtendedMeshParams*>(&data);
     mFlags = param->mFlags;
 }
 
@@ -2316,7 +2316,7 @@ LLRenderMaterialParams::LLRenderMaterialParams()
 
 bool LLRenderMaterialParams::pack(LLDataPacker& dp) const
 {
-    U8 count = (U8)llmin((S32)mEntries.size(), 14); //limited to 255 bytes, no more than 14 material ids
+    U8 count = static_cast<U8>(llmin(static_cast<S32>(mEntries.size()), 14)); //limited to 255 bytes, no more than 14 material ids
 
     dp.packU8(count, "count");
     for (auto& entry : mEntries)

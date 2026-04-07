@@ -118,8 +118,8 @@ void LLWorldMapMessage::sendHandleRegionRequest(U64 region_handle,
     U32 global_x;
     U32 global_y;
     from_region_handle(region_handle, &global_x, &global_y);
-    U16 grid_x = (U16)(global_x / REGION_WIDTH_UNITS);
-    U16 grid_y = (U16)(global_y / REGION_WIDTH_UNITS);
+    U16 grid_x = static_cast<U16>((global_x / REGION_WIDTH_UNITS));
+    U16 grid_y = static_cast<U16>((global_y / REGION_WIDTH_UNITS));
 
     sendMapBlockRequest(grid_x, grid_y, grid_x, grid_y, true);
 }
@@ -192,14 +192,14 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 //      msg->getU8Fast(_PREHASH_Data, _PREHASH_Agents, agents, block);
         msg->getUUIDFast(_PREHASH_Data, _PREHASH_MapImageID, image_id, block);
 
-        U32 x_world = (U32)(x_regions) * REGION_WIDTH_UNITS;
-        U32 y_world = (U32)(y_regions) * REGION_WIDTH_UNITS;
+        U32 x_world = static_cast<U32>((x_regions)) * REGION_WIDTH_UNITS;
+        U32 y_world = static_cast<U32>((y_regions)) * REGION_WIDTH_UNITS;
 
         // Name shouldn't be empty unless region doesn't exist
         if (!name.empty())
         {
             // Insert that region in the world map, if failure, flag it as a "null_sim"
-            if (!(LLWorldMap::getInstance()->insertRegion(x_world, y_world, name, image_id, (U32)accesscode, region_flags)))
+            if (!(LLWorldMap::getInstance()->insertRegion(x_world, y_world, name, image_id, static_cast<U32>(accesscode), region_flags)))
             {
                 found_null_sim = true;
             }

@@ -221,7 +221,7 @@ inline const LLVector3d&    LLVector3d::set(const F64 *vec)
 
 inline F64 LLVector3d::normalize()
 {
-    F64 mag = (F32)sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]); // Same as in normalize() above.
+    F64 mag = static_cast<F32>(sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ])); // Same as in normalize() above.
     F64 oomag;
 
     if (mag > FP_MAG_THRESHOLD)
@@ -355,7 +355,7 @@ inline F64  dist_vec(const LLVector3d& a, const LLVector3d& b)
     F64 x = a.mdV[VX] - b.mdV[VX];
     F64 y = a.mdV[VY] - b.mdV[VY];
     F64 z = a.mdV[VZ] - b.mdV[VZ];
-    return (F32) sqrt( x*x + y*y + z*z );
+    return static_cast<F32>(sqrt( x*x + y*y + z*z ));
 }
 
 inline F64  dist_vec_squared(const LLVector3d& a, const LLVector3d& b)

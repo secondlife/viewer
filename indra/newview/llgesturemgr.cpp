@@ -288,7 +288,7 @@ void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
         gAssetStorage->getAssetData(asset_id,
                                     LLAssetType::AT_GESTURE,
                                     onLoadComplete,
-                                    (void*)info,
+                                    reinterpret_cast<void*>(info),
                                     high_priority);
     }
     else
@@ -508,7 +508,7 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_ges
         gAssetStorage->getAssetData(asset_id,
                                     LLAssetType::AT_GESTURE,
                                     onLoadComplete,
-                                    (void*)info,
+                                    reinterpret_cast<void*>(info),
                                     high_priority);
     }
 
@@ -568,7 +568,7 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture, bool fromKeyPress)
                     gAssetStorage->getAssetData(anim_id,
                                     LLAssetType::AT_ANIMATION,
                                     onAssetLoadComplete,
-                                    (void *)id,
+                                    reinterpret_cast<void*>(id),
                                     true);
                 }
                 break;
@@ -798,7 +798,7 @@ struct IsGesturePlaying
 void LLGestureMgr::update()
 {
     S32 i;
-    for (i = 0; i < (S32)mPlaying.size(); ++i)
+    for (i = 0; i < static_cast<S32>(mPlaying.size()); ++i)
     {
         stepGesture(mPlaying[i]);
     }
@@ -896,7 +896,7 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
         // Get the current step, if there is one.
         // Otherwise enter the waiting at end state.
         LLGestureStep* step = NULL;
-        if (gesture->mCurrentStep < (S32)gesture->mSteps.size())
+        if (gesture->mCurrentStep < static_cast<S32>(gesture->mSteps.size()))
         {
             step = gesture->mSteps[gesture->mCurrentStep];
             llassert(step != NULL);

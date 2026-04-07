@@ -80,7 +80,7 @@ protected:
     }
     static U64 getFrame()       // Return the current frame number
     {
-        return (U64) LLFrameTimer::getFrameCount();
+        return static_cast<U64>(LLFrameTimer::getFrameCount());
     }
 };
 
@@ -162,7 +162,7 @@ public:
         // (now) time.
 
         // compute current, windowed rate
-        F64 timeInCurrent = ((F64)(now - m.startTime) / m.intervalLength);
+        F64 timeInCurrent = (static_cast<F64>(now - m.startTime) / m.intervalLength);
         F64 averageCount = curr.count + prevCount * (1.0 - timeInCurrent);
         return averageCount;
     }
@@ -226,7 +226,7 @@ public:
         // (now) time.
 
         // compute current, windowed rate
-        F64 timeInCurrent = ((F64)(now - m.startTime) / m.intervalLength);
+        F64 timeInCurrent = (static_cast<F64>(now - m.startTime) / m.intervalLength);
         F64 averageCount = curr.count + prevCount * (1.0 - timeInCurrent);
 
         curr.blocked |= averageCount > m.countLimit;
@@ -301,12 +301,12 @@ public:
         m.countLimit = limit;
         if ( mIsRealtime )
         {
-            m.intervalLength = (U64)(interval * USEC_PER_SEC);
+            m.intervalLength = static_cast<U64>(interval * USEC_PER_SEC);
             m.startTime = LLKeyThrottleImpl<T>::getTime();
         }
         else
         {
-            m.intervalLength = (U64)interval;
+            m.intervalLength = static_cast<U64>(interval);
             m.startTime = LLKeyThrottleImpl<T>::getFrame();
         }
 

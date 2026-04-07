@@ -205,8 +205,8 @@ std::string LLAvatarPropertiesProcessor::accountType(const LLAvatarData* avatar_
         "AcctTypeCharterMember",
         "AcctTypeEmployee"
     };
-    U8 caption_max = (U8)LL_ARRAY_SIZE(ACCT_TYPE)-1;
-    U8 caption_index = llclamp(avatar_data->caption_index, (U8)0, caption_max);
+    U8 caption_max = static_cast<U8>(LL_ARRAY_SIZE(ACCT_TYPE))-1;
+    U8 caption_index = llclamp(avatar_data->caption_index, static_cast<U8>(0), caption_max);
     return LLTrans::getString(ACCT_TYPE[caption_index]);
 }
 
@@ -367,7 +367,7 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
     LLAppViewer::instance()->postToMainCoro(
         [avatar_id, avatar_data, type]()
         {
-            LLAvatarPropertiesProcessor::instance().notifyObservers(avatar_id, (void*) &avatar_data, type);
+            LLAvatarPropertiesProcessor::instance().notifyObservers(avatar_id, const_cast<void*>(static_cast<const void*>(&avatar_data)), type);
         });
 }
 
@@ -697,7 +697,7 @@ bool LLAvatarPropertiesProcessor::isPendingRequest(const LLUUID& avatar_id, EAva
     if (it == mRequestTimestamps.end()) return false;
 
     // We found a request, check if it has timed out
-    U32 now = (U32)time(nullptr);
+    U32 now = static_cast<U32>(time(nullptr));
     const U32 REQUEST_EXPIRE_SECS = 5;
     U32 expires = it->second + REQUEST_EXPIRE_SECS;
 
@@ -711,7 +711,7 @@ bool LLAvatarPropertiesProcessor::isPendingRequest(const LLUUID& avatar_id, EAva
 void LLAvatarPropertiesProcessor::addPendingRequest(const LLUUID& avatar_id, EAvatarProcessorType type)
 {
     timestamp_map_t::key_type key = std::make_pair(avatar_id, type);
-    U32 now = (U32)time(nullptr);
+    U32 now = static_cast<U32>(time(nullptr));
     // Add or update existing (expired) request
     mRequestTimestamps[ key ] = now;
 }

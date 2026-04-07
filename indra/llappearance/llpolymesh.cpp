@@ -219,12 +219,12 @@ U32 LLPolyMeshSharedData::getNumKB()
 bool LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 {
         U32 i;
-        mBaseCoords = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
-        mBaseNormals = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
-        mBaseBinormals = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
-        mTexCoords = (LLVector2*) ll_aligned_malloc_16(numVertices*sizeof(LLVector2));
-        mDetailTexCoords = (LLVector2*) ll_aligned_malloc_16(numVertices*sizeof(LLVector2));
-        mWeights = (F32*) ll_aligned_malloc_16(numVertices*sizeof(F32));
+        mBaseCoords = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices*sizeof(LLVector4a)));
+        mBaseNormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices*sizeof(LLVector4a)));
+        mBaseBinormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(numVertices*sizeof(LLVector4a)));
+        mTexCoords = static_cast<LLVector2*>(ll_aligned_malloc_16(numVertices*sizeof(LLVector2)));
+        mDetailTexCoords = static_cast<LLVector2*>(ll_aligned_malloc_16(numVertices*sizeof(LLVector2)));
+        mWeights = static_cast<F32*>(ll_aligned_malloc_16(numVertices*sizeof(F32)));
         for (i = 0; i < numVertices; i++)
         {
             mBaseCoords[i].clear();
@@ -733,7 +733,7 @@ const S32 *LLPolyMeshSharedData::getSharedVert(S32 vert)
 const LLVector2 &LLPolyMeshSharedData::getUVs(U32 index)
 {
         // TODO: convert all index variables to S32
-        llassert((S32)index < mNumVertices);
+        llassert(static_cast<S32>(index) < mNumVertices);
 
         return mTexCoords[index];
 }
@@ -783,15 +783,15 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
                     4); //scaled binormals
 
         //use 16 byte aligned vertex data to make LLPolyMesh SSE friendly
-        mVertexData = (F32*) ll_aligned_malloc_16(nfloats*4);
+        mVertexData = static_cast<F32*>(ll_aligned_malloc_16(nfloats*4));
         S32 offset = 0;
-        mCoords             =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
-        mNormals            =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
-        mClothingWeights    =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
-        mTexCoords          =   (LLVector2*)(mVertexData + offset);  offset += 2*nverts;
-        mScaledNormals      =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
-        mBinormals          =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
-        mScaledBinormals    =   (LLVector4a*)(mVertexData + offset); offset += 4*nverts;
+        mCoords             =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
+        mNormals            =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
+        mClothingWeights    =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
+        mTexCoords          =   reinterpret_cast<LLVector2*>(mVertexData + offset);  offset += 2*nverts;
+        mScaledNormals      =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
+        mBinormals          =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
+        mScaledBinormals    =   reinterpret_cast<LLVector4a*>(mVertexData + offset); offset += 4*nverts;
         initializeForMorph();
     }
 }
@@ -815,7 +815,7 @@ LLPolyMesh *LLPolyMesh::getMesh(const std::string &name, LLPolyMesh* reference_m
         //-------------------------------------------------------------------------
         // search for an existing mesh by this name
         //-------------------------------------------------------------------------
-        LLPolyMeshSharedData* meshSharedData = get_if_there(sGlobalSharedMeshList, name, (LLPolyMeshSharedData*)NULL);
+        LLPolyMeshSharedData* meshSharedData = get_if_there(sGlobalSharedMeshList, name, static_cast<LLPolyMeshSharedData*>(nullptr));
         if (meshSharedData)
         {
 //              LL_INFOS() << "Polymesh " << name << " found in global mesh table." << LL_ENDL;

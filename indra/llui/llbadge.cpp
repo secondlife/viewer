@@ -197,10 +197,10 @@ void renderBadgeBackground(F32 centerX, F32 centerY, F32 width, F32 height, cons
     F32 x = LLFontGL::sCurOrigin.mX + centerX - width * 0.5f;
     F32 y = LLFontGL::sCurOrigin.mY + centerY - height * 0.5f;
 
-    LLRectf screen_rect((F32)ll_round(x),
-                        (F32)ll_round(y),
-                        (F32)ll_round(x) + width,
-                        (F32)ll_round(y) + height);
+    LLRectf screen_rect(static_cast<F32>(ll_round(x)),
+                        static_cast<F32>(ll_round(y)),
+                        static_cast<F32>(ll_round(x)) + width,
+                        static_cast<F32>(ll_round(y)) + height);
 
     LLVector4a vertices[4];
     vertices[0].set(screen_rect.mLeft,  screen_rect.mTop,    1.0f);
@@ -300,7 +300,7 @@ void LLBadge::draw()
             }
             else
             {
-                badge_center_x = (F32)location_offset_horiz;
+                badge_center_x = static_cast<F32>(location_offset_horiz);
             }
 
             // Compute y position
@@ -317,7 +317,7 @@ void LLBadge::draw()
             }
             else
             {
-                badge_center_y = (F32)location_offset_vert;
+                badge_center_y = static_cast<F32>(location_offset_vert);
             }
 
             //
@@ -332,11 +332,11 @@ void LLBadge::draw()
                 F32 badge_x = badge_center_x - badge_width * 0.5f;
                 F32 badge_y = badge_center_y - badge_height * 0.5f;
 
-                mImage->drawSolid((S32) badge_x, (S32) badge_y, (S32) badge_width, (S32) badge_height, mImageColor % alpha);
+                mImage->drawSolid(static_cast<S32>(badge_x), static_cast<S32>(badge_y), static_cast<S32>(badge_width), static_cast<S32>(badge_height), mImageColor % alpha);
 
                 if (!mBorderImage.isNull())
                 {
-                    mBorderImage->drawSolid((S32) badge_x, (S32) badge_y, (S32) badge_width, (S32) badge_height, mBorderColor % alpha);
+                    mBorderImage->drawSolid(static_cast<S32>(badge_x), static_cast<S32>(badge_y), static_cast<S32>(badge_width), static_cast<S32>(badge_height), mBorderColor % alpha);
                 }
             }
             else

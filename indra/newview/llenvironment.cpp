@@ -168,7 +168,7 @@ namespace
         // early out to avoid divide by zero.  if len is zero then jump to end position
         if (len == 0.f) return 1.f;
 
-        LLSettingsBase::TrackPosition position = LLSettingsBase::TrackPosition(fmod((F64)time, (F64)len) / (F64)len);
+        LLSettingsBase::TrackPosition position = LLSettingsBase::TrackPosition(fmod(static_cast<F64>(time), static_cast<F64>(len)) / static_cast<F64>(len));
         return llclamp(position, 0.0f, 1.0f);
     }
 
@@ -692,7 +692,7 @@ namespace
             // Ideally we need to check for texture in injection, but
             // in this case user is setting value explicitly, potentially
             // with different transitions, don't ignore it
-            F64 result = lerp((F32)value, (F32)injection->mValue.asReal(), (F32)mix);
+            F64 result = lerp(static_cast<F32>(value), static_cast<F32>(injection->mValue.asReal()), static_cast<F32>(mix));
             injection->mLastValue = LLSD::Real(result);
             settings[injection->mKeyName] = injection->mLastValue;
             this->setSettings(settings);
@@ -896,7 +896,7 @@ void LLEnvironment::initSingleton()
     gSavedSettings.getControl("RenderSkyAutoAdjustProbeAmbiance")->getSignal()->connect(
         [](LLControlVariable*, const LLSD& new_val, const LLSD& old_val)
         {
-            LLSettingsSky::sAutoAdjustProbeAmbiance = (F32)new_val.asReal();
+            LLSettingsSky::sAutoAdjustProbeAmbiance = static_cast<F32>(new_val.asReal());
         }
     );
     LLSettingsSky::sAutoAdjustProbeAmbiance = gSavedSettings.getF32("RenderSkyAutoAdjustProbeAmbiance");
@@ -1812,8 +1812,8 @@ void LLEnvironment::adjustRegionOffset(F32 adjust)
 
     if (mEnvironments[ENV_REGION])
     {
-        F32 day_length = (F32)mEnvironments[ENV_REGION]->getDayLength();
-        F32 day_offset = (F32)mEnvironments[ENV_REGION]->getDayOffset();
+        F32 day_length = static_cast<F32>(mEnvironments[ENV_REGION]->getDayLength());
+        F32 day_offset = static_cast<F32>(mEnvironments[ENV_REGION]->getDayOffset());
 
         F32 day_adjustment = adjust * day_length;
 
@@ -2230,7 +2230,7 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
     {
         for (int idx = 0; idx < 3; idx++)
         {
-            pinfo->mAltitudes[idx+1] = (F32)environment[KEY_TRACKALTS][idx].asReal();
+            pinfo->mAltitudes[idx+1] = static_cast<F32>(environment[KEY_TRACKALTS][idx].asReal());
         }
         pinfo->mAltitudes[0] = 0;
     }
@@ -2454,7 +2454,7 @@ void LLEnvironment::handleEnvironmentPush(LLSD &message)
     std::string action = message[KEY_ACTION].asString();
     LLUUID experience_id = message[KEY_EXPERIENCEID].asUUID();
     LLSD action_data = message[KEY_ACTIONDATA];
-    F32 transition_time = (F32)action_data[KEY_TRANSITIONTIME].asReal();
+    F32 transition_time = static_cast<F32>(action_data[KEY_TRANSITIONTIME].asReal());
 
     //TODO: Check here that the viewer thinks the experience is still valid.
 
@@ -2486,7 +2486,7 @@ void LLEnvironment::handleEnvironmentPushFull(LLUUID experience_id, LLSD &messag
 {
     LLUUID asset_id(message[KEY_ASSETID].asUUID());
 
-    setExperienceEnvironment(experience_id, asset_id, (F32)LLSettingsBase::Seconds(transition));
+    setExperienceEnvironment(experience_id, asset_id, static_cast<F32>(LLSettingsBase::Seconds(transition)));
 }
 
 void LLEnvironment::handleEnvironmentPushPartial(LLUUID experience_id, LLSD &message, F32 transition)
@@ -2496,7 +2496,7 @@ void LLEnvironment::handleEnvironmentPushPartial(LLUUID experience_id, LLSD &mes
     if (settings.isUndefined())
         return;
 
-    setExperienceEnvironment(experience_id, settings, (F32)LLSettingsBase::Seconds(transition));
+    setExperienceEnvironment(experience_id, settings, static_cast<F32>(LLSettingsBase::Seconds(transition)));
 }
 
 void LLEnvironment::clearExperienceEnvironment(LLUUID experience_id, LLSettingsBase::Seconds transition_time)
@@ -2845,7 +2845,7 @@ void LLEnvironment::DayTransition::animate()
 
 
     // pause probe updates and reset reflection maps on sky change
-    gPipeline.mReflectionMapManager.pause((F32)mTransitionTime);
+    gPipeline.mReflectionMapManager.pause(static_cast<F32>(mTransitionTime));
     gPipeline.mReflectionMapManager.reset();
 
     mSky = mStartSky->buildClone();
@@ -3448,7 +3448,7 @@ namespace
             mInjectedSky->setSource(target_sky);
 
             // clear reflection probes and pause updates during sky change
-            gPipeline.mReflectionMapManager.pause((F32)transition);
+            gPipeline.mReflectionMapManager.pause(static_cast<F32>(transition));
             gPipeline.mReflectionMapManager.reset();
 
             mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(target_sky, start_sky, psky, transition);

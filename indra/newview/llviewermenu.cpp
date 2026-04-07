@@ -1460,7 +1460,7 @@ class LLAdvancedTerrainCreateLocalPaintMap : public view_listener_t
             return false;
         }
 
-        U16 dim = (U16)gSavedSettings.getU32("TerrainPaintResolution");
+        U16 dim = static_cast<U16>(gSavedSettings.getU32("TerrainPaintResolution"));
         // Ensure a reasonable image size of power two
         const U32 max_resolution = gSavedSettings.getU32("RenderMaxTextureResolution");
         dim = llclamp(dim, 16, max_resolution);
@@ -3001,7 +3001,7 @@ void handle_object_show_original()
         return;
     }
 
-    LLViewerObject *parent = (LLViewerObject*)object->getParent();
+    LLViewerObject *parent = static_cast<LLViewerObject*>(object->getParent());
     while (parent)
     {
         if(parent->isAvatar())
@@ -3009,7 +3009,7 @@ void handle_object_show_original()
             break;
         }
         object = parent;
-        parent = (LLViewerObject*)parent->getParent();
+        parent = static_cast<LLViewerObject*>(parent->getParent());
     }
 
     if (!object || object->isAvatar())
@@ -3027,7 +3027,7 @@ void handle_object_set_favorite(const LLSD& userdata)
     {
         return;
     }
-    LLViewerObject *parent = (LLViewerObject*)object->getParent();
+    LLViewerObject *parent = static_cast<LLViewerObject*>(object->getParent());
     while (parent)
     {
         if(parent->isAvatar())
@@ -3035,7 +3035,7 @@ void handle_object_set_favorite(const LLSD& userdata)
             break;
         }
         object = parent;
-        parent = (LLViewerObject*)parent->getParent();
+        parent = static_cast<LLViewerObject*>(parent->getParent());
     }
     if (!object || object->isAvatar())
     {
@@ -3090,7 +3090,7 @@ bool enable_object_touch(LLUICtrl* ctrl)
     LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
     if (obj)
     {
-        LLViewerObject* parent = (LLViewerObject*)obj->getParent();
+        LLViewerObject* parent = static_cast<LLViewerObject*>(obj->getParent());
         new_value = obj->flagHandleTouch() || (parent && parent->flagHandleTouch());
     }
 
@@ -3117,7 +3117,7 @@ bool enable_object_favorite(const LLSD& userdata)
     {
         return false;
     }
-    LLViewerObject* parent = (LLViewerObject*)object->getParent();
+    LLViewerObject* parent = static_cast<LLViewerObject*>(object->getParent());
     while (parent)
     {
         if (parent->isAvatar())
@@ -3125,7 +3125,7 @@ bool enable_object_favorite(const LLSD& userdata)
             break;
         }
         object = parent;
-        parent = (LLViewerObject*)parent->getParent();
+        parent = static_cast<LLViewerObject*>(parent->getParent());
     }
     if (!object || object->isAvatar())
     {
@@ -3453,7 +3453,7 @@ class LLLandBuyPass : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        LLPanelLandGeneral::onClickBuyPass((void *)false);
+        LLPanelLandGeneral::onClickBuyPass(static_cast<void *>(nullptr));
         return true;
     }
 };
@@ -3923,7 +3923,7 @@ class LLAvatarDebug : public view_listener_t
         {
             if (avatar->isSelf())
             {
-                ((LLVOAvatarSelf *)avatar)->dumpLocalTextures();
+                (static_cast<LLVOAvatarSelf *>(avatar))->dumpLocalTextures();
             }
             LL_INFOS() << "Dumping temporary asset data to simulator logs for avatar " << avatar->getID() << LL_ENDL;
             std::vector<std::string> strings;
@@ -4473,12 +4473,12 @@ void set_god_level(U8 god_level)
         LLSD args;
     if(god_level > GOD_NOT)
     {
-        args["LEVEL"] = llformat("%d",(S32)god_level);
+        args["LEVEL"] = llformat("%d",static_cast<S32>(god_level));
         LLNotificationsUtil::add("EnteringGodMode", args);
     }
     else
     {
-        args["LEVEL"] = llformat("%d",(S32)old_god_level);
+        args["LEVEL"] = llformat("%d",static_cast<S32>(old_god_level));
         LLNotificationsUtil::add("LeavingGodMode", args);
     }
 
@@ -5072,18 +5072,18 @@ static void derez_objects(
     // satisfy anybody.
     const S32 MAX_ROOTS_PER_PACKET = 250;
     const S32 MAX_PACKET_COUNT = 254;
-    F32 packets = ceil((F32)objectsp->size() / (F32)MAX_ROOTS_PER_PACKET);
-    if(packets > (F32)MAX_PACKET_COUNT)
+    F32 packets = ceil(static_cast<F32>(objectsp->size()) / static_cast<F32>(MAX_ROOTS_PER_PACKET));
+    if(packets > static_cast<F32>(MAX_PACKET_COUNT))
     {
         error = "AcquireErrorTooManyObjects";
     }
 
     if(error.empty() && objectsp->size() > 0)
     {
-        U8 d = (U8)dest;
+        U8 d = static_cast<U8>(dest);
         LLUUID tid;
         tid.generate();
-        U8 packet_count = (U8)packets;
+        U8 packet_count = static_cast<U8>(packets);
         S32 object_index = 0;
         S32 objects_in_packet = 0;
         LLMessageSystem* msg = gMessageSystem;
@@ -5111,7 +5111,7 @@ static void derez_objects(
                 msg->nextBlockFast(_PREHASH_ObjectData);
                 msg->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
                 // VEFFECT: DerezObject
-                LLHUDEffectSpiral* effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true);
+                LLHUDEffectSpiral* effectp = static_cast<LLHUDEffectSpiral*>(LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true));
                 effectp->setPositionGlobal(object->getPositionGlobal());
                 effectp->setColor(LLColor4U(gAgent.getEffectColor()));
             }
@@ -5804,7 +5804,7 @@ class LLToolsSnapObjectXY : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        F64 snap_size = (F64)gSavedSettings.getF32("GridResolution");
+        F64 snap_size = static_cast<F64>(gSavedSettings.getF32("GridResolution"));
 
         for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
              iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
@@ -6626,7 +6626,7 @@ void handle_look_at_selection(const LLSD& param)
         {
             // Make sure we are not increasing the distance between the camera and object
             LLVector3d orig_distance = gAgentCamera.getCameraPositionGlobal() - LLSelectMgr::getInstance()->getSelectionCenterGlobal();
-            distance = llmin(distance, (F32) orig_distance.length());
+            distance = llmin(distance, static_cast<F32>(orig_distance.length()));
 
             gAgentCamera.setCameraPosAndFocusGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance),
                                         LLSelectMgr::getInstance()->getSelectionCenterGlobal(),
@@ -6778,9 +6778,9 @@ class LLAvatarResetSkeleton : public view_listener_t
         {
             if(avatar->getID() == gAgentID)
             {
-                LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
+                LLHUDEffectResetSkeleton* effectp = static_cast<LLHUDEffectResetSkeleton*>(LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true));
                 effectp->setSourceObject(gAgentAvatarp);
-                effectp->setTargetObject((LLViewerObject*)avatar);
+                effectp->setTargetObject(static_cast<LLViewerObject*>(avatar));
                 effectp->setResetAnimations(false);
             }
             else
@@ -6809,9 +6809,9 @@ class LLAvatarResetSkeletonAndAnimations : public view_listener_t
         {
             if(avatar->getID() == gAgentID)
             {
-                LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
+                LLHUDEffectResetSkeleton* effectp = static_cast<LLHUDEffectResetSkeleton*>(LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true));
                 effectp->setSourceObject(gAgentAvatarp);
-                effectp->setTargetObject((LLViewerObject*)avatar);
+                effectp->setTargetObject(static_cast<LLViewerObject*>(avatar));
                 effectp->setResetAnimations(true);
             }
             else
@@ -6847,9 +6847,9 @@ class LLAvatarResetSelfSkeletonAndAnimations : public view_listener_t
         {
             if(avatar->getID() == gAgentID)
             {
-                LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
+                LLHUDEffectResetSkeleton* effectp = static_cast<LLHUDEffectResetSkeleton*>(LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true));
                 effectp->setSourceObject(gAgentAvatarp);
-                effectp->setTargetObject((LLViewerObject*)avatar);
+                effectp->setTargetObject(static_cast<LLViewerObject*>(avatar));
                 effectp->setResetAnimations(true);
         }
         else
@@ -6859,7 +6859,7 @@ class LLAvatarResetSelfSkeletonAndAnimations : public view_listener_t
         }
         else
         {
-            LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
+            LLHUDEffectResetSkeleton* effectp = static_cast<LLHUDEffectResetSkeleton*>(LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true));
             effectp->setSourceObject(gAgentAvatarp);
             effectp->setTargetObject(gAgentAvatarp);
             effectp->setResetAnimations(true);
@@ -6896,7 +6896,7 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
     {
         while (objectp && !objectp->isAvatar())
         {
-            objectp = (LLViewerObject*)objectp->getParent();
+            objectp = static_cast<LLViewerObject*>(objectp->getParent());
         }
     }
 
@@ -6945,7 +6945,7 @@ bool enable_pay_object()
     LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
     if( object )
     {
-        LLViewerObject *parent = (LLViewerObject *)object->getParent();
+        LLViewerObject *parent = static_cast<LLViewerObject *>(object->getParent());
         if((object->flagTakesMoney()) || (parent && parent->flagTakesMoney()))
         {
             return true;
@@ -7403,7 +7403,7 @@ private:
             S32 index = userdata.asInteger();
             LLViewerJointAttachment* attachment_point = NULL;
             if (index > 0)
-                attachment_point = get_if_there(gAgentAvatarp->mAttachmentPoints, index, (LLViewerJointAttachment*)NULL);
+                attachment_point = get_if_there(gAgentAvatarp->mAttachmentPoints, index, static_cast<LLViewerJointAttachment*>(NULL));
             confirmReplaceAttachment(0, attachment_point);
         }
         return true;
@@ -7513,7 +7513,7 @@ void callback_attachment_drop(const LLSD& notification, const LLSD& response)
         return;
     }
 
-    LLViewerObject *parent = (LLViewerObject*)object->getParent();
+    LLViewerObject *parent = static_cast<LLViewerObject*>(object->getParent());
     while (parent)
     {
         if(parent->isAvatar())
@@ -7521,7 +7521,7 @@ void callback_attachment_drop(const LLSD& notification, const LLSD& response)
             break;
         }
         object = parent;
-        parent = (LLViewerObject*)parent->getParent();
+        parent = static_cast<LLViewerObject*>(parent->getParent());
     }
 
     if (!object)
@@ -7572,7 +7572,7 @@ class LLAttachmentDetachFromPoint : public view_listener_t
     bool handleEvent(const LLSD& user_data)
     {
         uuid_vec_t ids_to_remove;
-        const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, user_data.asInteger(), (LLViewerJointAttachment*)NULL);
+        const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, user_data.asInteger(), static_cast<LLViewerJointAttachment*>(NULL));
         if (attachment->getNumObjects() > 0)
         {
             for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator iter = attachment->mAttachedObjects.begin();
@@ -7597,7 +7597,7 @@ static bool onEnableAttachmentLabel(LLUICtrl* ctrl, const LLSD& data)
     LLMenuItemGL* menu = dynamic_cast<LLMenuItemGL*>(ctrl);
     if (menu)
     {
-        const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, data["index"].asInteger(), (LLViewerJointAttachment*)NULL);
+        const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, data["index"].asInteger(), static_cast<LLViewerJointAttachment*>(NULL));
         if (attachment)
         {
             label = data["label"].asString();
@@ -7652,7 +7652,7 @@ class LLAttachmentDetach : public view_listener_t
                     return false;
                 }
 
-                LLViewerObject* parent = (LLViewerObject*)objectp->getParent();
+                LLViewerObject* parent = static_cast<LLViewerObject*>(objectp->getParent());
         while (parent)
         {
             if(parent->isAvatar())
@@ -7660,7 +7660,7 @@ class LLAttachmentDetach : public view_listener_t
                 break;
             }
                     objectp = parent;
-            parent = (LLViewerObject*)parent->getParent();
+            parent = static_cast<LLViewerObject*>(parent->getParent());
         }
 
                 // std::set to avoid dupplicate 'roots' from linksets
@@ -7741,7 +7741,7 @@ class LLAttachmentEnableDrop : public view_listener_t
         if (object && LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
         {
             S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getAttachmentState());
-            attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
+            attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, attachmentID, static_cast<LLViewerJointAttachment*>(NULL));
 
             if (attachment)
             {
@@ -7795,7 +7795,7 @@ bool enable_detach(const LLSD&)
             return true;
         }
 
-        avatar = (LLViewerObject*)avatar->getParent();
+        avatar = static_cast<LLViewerObject*>(avatar->getParent());
     }
 
     return false;
@@ -7836,7 +7836,7 @@ bool object_selected_and_point_valid()
         selection->getFirstRootObject()->permYouOwner() &&
         selection->getFirstRootObject()->flagObjectMove() &&
         !selection->getFirstRootObject()->flagObjectPermanent() &&
-        !((LLViewerObject*)selection->getFirstRootObject()->getRoot())->isAvatar() &&
+        !(static_cast<LLViewerObject*>(selection->getFirstRootObject()->getRoot()))->isAvatar() &&
         (selection->getFirstRootObject()->getNVPair("AssetContainer") == NULL);
 }
 
@@ -8074,7 +8074,7 @@ void handle_selected_texture_info()
                                 (components == 4 ? "alpha" : "opaque")));
             for (U8 i = 0; i < it->second.size(); ++i)
             {
-                msg.append( llformat("%d ", (S32)(it->second[i])));
+                msg.append( llformat("%d ", static_cast<S32>(it->second[i])));
             }
         }
         LLSD args;
@@ -8113,7 +8113,7 @@ void handle_selected_material_info()
             msg += llformat("%s on face ", material_id.asString().c_str());
             for (U8 i = 0; i < it->second.size(); ++i)
             {
-                msg.append( llformat("%d ", (S32)(it->second[i])));
+                msg.append( llformat("%d ", static_cast<S32>(it->second[i])));
             }
             msg.append("\n");
         }
@@ -8949,7 +8949,7 @@ class LLToolsUseSelectionForGrid : public view_listener_t
         } func;
         LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
         LLSelectMgr::getInstance()->setGridMode(GRID_MODE_REF_OBJECT);
-        LLFloaterTools::setGridMode((S32)GRID_MODE_REF_OBJECT);
+        LLFloaterTools::setGridMode(static_cast<S32>(GRID_MODE_REF_OBJECT));
         return true;
     }
 };

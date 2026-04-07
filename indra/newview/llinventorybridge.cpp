@@ -1205,7 +1205,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         static LLCachedControl<U32> max_depth(gSavedSettings, "InventoryOutboxMaxFolderDepth", 4);
         static LLCachedControl<U32> max_count(gSavedSettings, "InventoryOutboxMaxFolderCount", 20);
         if (categories.size() >= (size_t)max_count
-            || (U32)depth > (max_depth + 1))
+            || static_cast<U32>(depth) > (max_depth + 1))
         {
             disabled_items.push_back(std::string("New Folder"));
             disabled_items.push_back(std::string("New Listing Folder"));
@@ -1561,7 +1561,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 
         default:
             LL_INFOS_ONCE() << "Unhandled asset type (llassetstorage.h): "
-                    << (S32)asset_type << " (" << LLAssetType::lookup(asset_type) << ")" << LL_ENDL;
+                    << static_cast<S32>(asset_type) << " (" << LLAssetType::lookup(asset_type) << ")" << LL_ENDL;
             break;
     }
 
@@ -6380,7 +6380,7 @@ void LLSoundBridge::performAction(LLInventoryModel* model, std::string action)
     }
     else if ("open" == action)
     {
-        openSoundPreview((void*)this);
+        openSoundPreview(reinterpret_cast<void*>(this));
     }
     else LLItemBridge::performAction(model, action);
 }

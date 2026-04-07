@@ -217,7 +217,7 @@ void LLGLTFLoader::addModelToScene(
         LLSD args;
         args["Message"] = "ModelTooManySubmodels";
         args["MODEL_NAME"] = pModel->mLabel;
-        args["SUBMODEL_COUNT"] = static_cast<S32>(llfloor((F32)volume_faces / LL_SCULPT_MESH_MAX_FACES));
+        args["SUBMODEL_COUNT"] = static_cast<S32>(llfloor(static_cast<F32>(volume_faces) / LL_SCULPT_MESH_MAX_FACES));
         args["SUBMODEL_LIMIT"] = static_cast<S32>(submodel_limit);
         mWarningsArray.append(args);
 
@@ -249,7 +249,7 @@ void LLGLTFLoader::addModelToScene(
             std::string instance_name = model_name;
             if (next->mSubmodelID > 0)
             {
-                instance_name += (char)((int)'a' + next->mSubmodelID);
+                instance_name += static_cast<char>(static_cast<int>('a') + next->mSubmodelID);
             }
             // Check for duplicates and add copy suffix if needed
             int duplicate_count = 0;
@@ -302,7 +302,7 @@ void LLGLTFLoader::addModelToScene(
         mModelList.push_back(model);
 
         std::map<std::string, LLImportMaterial> materials;
-        for (U32 i = 0; i < (U32)model->mMaterialList.size(); ++i)
+        for (U32 i = 0; i < static_cast<U32>(model->mMaterialList.size()); ++i)
         {
             material_map::const_iterator found = mats.find(model->mMaterialList[i]);
             if (found != mats.end())
@@ -358,7 +358,7 @@ bool LLGLTFLoader::parseMeshes()
     std::map<std::string, S32> mesh_name_counts;
 
     // For now use mesh count, but might be better to do 'mNodes.size() - joints count'.
-    U32 submodel_limit = mGLTFAsset.mMeshes.size() > 0 ? mGeneratedModelLimit / (U32)mGLTFAsset.mMeshes.size() : 0;
+    U32 submodel_limit = mGLTFAsset.mMeshes.size() > 0 ? mGeneratedModelLimit / static_cast<U32>(mGLTFAsset.mMeshes.size()) : 0;
 
     // Check if we have scenes defined
     if (!mGLTFAsset.mScenes.empty())
@@ -909,7 +909,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
                 // Detect and unpack accordingly.
                 if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_BYTE)
                 {
-                    auto ujoint = glm::unpackUint4x8((U32)(prim.mJoints[i] & 0xFFFFFFFF));
+                    auto ujoint = glm::unpackUint4x8(static_cast<U32>(prim.mJoints[i] & 0xFFFFFFFF));
                     vert.joints = glm::u16vec4(ujoint.x, ujoint.y, ujoint.z, ujoint.w);
                 }
                 else if (componentType == LL::GLTF::Accessor::ComponentType::UNSIGNED_SHORT)
@@ -1007,7 +1007,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
                 std::vector<LLModel::JointWeight> wght;
                 F32                               total = 0.f;
 
-                for (U32 j = 0; j < llmin((U32)4, (U32)weight_list.size()); ++j)
+                for (U32 j = 0; j < llmin(static_cast<U32>(4), static_cast<U32>(weight_list.size())); ++j)
                 {
                     // take up to 4 most significant weights
                     // Ported from the DAE loader - however, GLTF right now only supports up to four weights per vertex.
@@ -1090,7 +1090,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
                 {
                     // First encounter, add it
                     size_t new_vert_idx = face_verts.size();
-                    vertices_remap[vert_index] = (S64)new_vert_idx;
+                    vertices_remap[vert_index] = static_cast<S64>(new_vert_idx);
                     face_verts.push_back(optimized_vertices[vert_index]);
                     vert_index = new_vert_idx;
 
@@ -1116,9 +1116,9 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
                 else
                 {
                     // already in vector, get position
-                    vert_index = (size_t)vertices_remap[vert_index];
+                    vert_index = static_cast<size_t>(vertices_remap[vert_index]);
                 }
-                indices_16.push_back((U16)vert_index);
+                indices_16.push_back(static_cast<U16>(vert_index));
 
                 if (indices_16.size() % 3 == 0 && face_verts.size() >= VERTEX_LIMIT)
                 {
@@ -1149,7 +1149,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
                 created_faces++;
             }
 
-            LL_INFOS("GLTF_IMPORT") << "Primitive " << (S32)prim_idx << " from model " << pModel->mLabel
+            LL_INFOS("GLTF_IMPORT") << "Primitive " << static_cast<S32>(prim_idx) << " from model " << pModel->mLabel
                 << " is over vertices limit, it was split into " << created_faces
                 << " faces" << LL_ENDL;
             LLSD args;
@@ -1204,7 +1204,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
         size_t jointCnt = gltf_skin.mJoints.size();
         gltfindex_to_joitindex_map.resize(jointCnt, -1);
 
-        if (valid_joints_count > (S32)mMaxJointsPerMesh)
+        if (valid_joints_count > static_cast<S32>(mMaxJointsPerMesh))
         {
             std::map<std::string, S32> goup_use_count;
 
@@ -1306,13 +1306,13 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
             // mMaxJointsPerMesh ususlly is equal to LL_MAX_JOINTS_PER_MESH_OBJECT
             // and is 110.
             LL_WARNS("GLTF_IMPORT") << "Too many jonts in " << pModel->mLabel
-                << " Count: " << (S32)skin_info.mInvBindMatrix.size()
-                << " Limit:" << (S32)mMaxJointsPerMesh << LL_ENDL;
+                << " Count: " << static_cast<S32>(skin_info.mInvBindMatrix.size())
+                << " Limit:" << static_cast<S32>(mMaxJointsPerMesh) << LL_ENDL;
             LLSD args;
             args["Message"] = "ModelTooManyJoints";
             args["MODEL_NAME"] = pModel->mLabel;
-            args["JOINT_COUNT"] = (S32)skin_info.mInvBindMatrix.size();
-            args["MAX"] = (S32)mMaxJointsPerMesh;
+            args["JOINT_COUNT"] = static_cast<S32>(skin_info.mInvBindMatrix.size());
+            args["MAX"] = static_cast<S32>(mMaxJointsPerMesh);
             mWarningsArray.append(args);
         }
 
@@ -1343,8 +1343,8 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
         mWarningsArray.append(args);
     }
 
-    S32 joint_count = (S32)skin.mJoints.size();
-    S32 inverse_count = (S32)skin.mInverseBindMatricesData.size();
+    S32 joint_count = static_cast<S32>(skin.mJoints.size());
+    S32 inverse_count = static_cast<S32>(skin.mInverseBindMatricesData.size());
     if (mInverseBindMatrices.size() <= skin_idx)
     {
         mInverseBindMatrices.resize(skin_idx + 1);
@@ -1702,7 +1702,7 @@ void LLGLTFLoader::checkForXYrotation(const LL::GLTF::Skin& gltf_skin)
     constexpr char right_shoulder_str[] = "mShoulderRight";
     constexpr char left_shoulder_str[] = "mShoulderLeft";
 
-    S32 size = (S32)gltf_skin.mJoints.size();
+    S32 size = static_cast<S32>(gltf_skin.mJoints.size());
     S32 joints_found = 0;
     for (S32 i= 0; i < size; i++)
     {
@@ -1740,10 +1740,10 @@ void LLGLTFLoader::checkForXYrotation(const LL::GLTF::Skin& gltf_skin)
 void LLGLTFLoader::checkGlobalJointUsage()
 {
     // Check if some joints remained unused
-    for (S32 skin_idx = 0; skin_idx < (S32)mGLTFAsset.mSkins.size(); ++skin_idx)
+    for (S32 skin_idx = 0; skin_idx < static_cast<S32>(mGLTFAsset.mSkins.size()); ++skin_idx)
     {
         const LL::GLTF::Skin& gltf_skin = mGLTFAsset.mSkins[skin_idx];
-        S32 joint_count = (S32)gltf_skin.mJoints.size();
+        S32 joint_count = static_cast<S32>(gltf_skin.mJoints.size());
         S32 used_joints = 0;
         for (S32 i = 0; i < joint_count; ++i)
         {
@@ -1770,7 +1770,7 @@ void LLGLTFLoader::checkGlobalJointUsage()
                 << " remained unused" << LL_ENDL;
             LLSD args;
             args["Message"] = "SkinUnusedJoints";
-            args["SKIN_INDEX"] = (S32)skin_idx;
+            args["SKIN_INDEX"] = static_cast<S32>(skin_idx);
             args["JOINT_COUNT"] = valid_joints;
             args["USED_COUNT"] = used_joints;
             mWarningsArray.append(args);

@@ -380,7 +380,7 @@ public:
 
     bool                    isAllLocalTextureDataFinal() const;
 
-    const LLViewerTexLayerSet*  debugGetLayerSet(LLAvatarAppearanceDefines::EBakedTextureIndex index) const { return (LLViewerTexLayerSet*)(mBakedTextureDatas[index].mTexLayerSet); }
+    const LLViewerTexLayerSet*  debugGetLayerSet(LLAvatarAppearanceDefines::EBakedTextureIndex index) const { return static_cast<LLViewerTexLayerSet*>(mBakedTextureDatas[index].mTexLayerSet); }
     const std::string       verboseDebugDumpLocalTextureDataInfo(const LLViewerTexLayerSet* layerset) const; // Lists out state of this particular baked texture layer
     void                    dumpAllTextures() const;
     const std::string       debugDumpLocalTextureDataInfo(const LLViewerTexLayerSet* layerset) const; // Lists out state of this particular baked texture layer

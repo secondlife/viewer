@@ -368,7 +368,7 @@ bool LLMessageSystem::poll(F32 seconds)
 {
     S32 num_socks;
     apr_status_t status;
-    status = apr_poll(&(mPollInfop->mPollFD), 1, &num_socks,(U64)(seconds*1000000.f));
+    status = apr_poll(&(mPollInfop->mPollFD), 1, &num_socks, static_cast<U64>(seconds*1000000.f));
     if (status != APR_TIMEUP)
     {
         ll_apr_warn_status(status);
@@ -508,7 +508,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
 
         U8* buffer = mTrueReceiveBuffer;
 
-        mTrueReceiveSize = mPacketRing.receivePacket(mSocket, (char *)mTrueReceiveBuffer);
+        mTrueReceiveSize = mPacketRing.receivePacket(mSocket, reinterpret_cast<char*>(mTrueReceiveBuffer));
         // If you want to dump all received packets into SecondLife.log, uncomment this
         //dumpPacketToLog();
 
@@ -516,7 +516,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
         mLastSender = mPacketRing.getLastSender();
         mLastReceivingIF = mPacketRing.getLastReceivingInterface();
 
-        if (receive_size < (S32) LL_MINIMUM_VALID_PACKET_SIZE)
+        if (receive_size < static_cast<S32>(LL_MINIMUM_VALID_PACKET_SIZE))
         {
             // A receive size of zero is OK, that means that there are no more packets available.
             // Ones that are non-zero but below the minimum packet size are worrisome.
@@ -556,7 +556,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
 
             // process the message as normal
             mIncomingCompressedSize = zeroCodeExpand(&buffer, &receive_size);
-            mCurrentRecvPacketID = ntohl(*((U32*)(&buffer[1])));
+            mCurrentRecvPacketID = ntohl(*reinterpret_cast<U32*>(&buffer[1]));
             host = getSender();
 
             const bool resetPacketId = true;
@@ -1183,10 +1183,10 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
     cdp->nextPacketOutID();
 
     // Packet ID size is always 4
-    *((S32*)&mSendBuffer[static_cast<S32>(EPacketHeaderLayout::PHL_PACKET_ID)]) = htonl(cdp->getPacketOutID());
+    *reinterpret_cast<S32*>(&mSendBuffer[static_cast<S32>(EPacketHeaderLayout::PHL_PACKET_ID)]) = htonl(cdp->getPacketOutID());
 
     // Compress the message, which will usually reduce its size.
-    U8 * buf_ptr = (U8 *)mSendBuffer;
+    U8 * buf_ptr = mSendBuffer;
     U32 buffer_length = mSendSize;
     mMessageBuilder->compressMessage(buf_ptr, buffer_length);
 
@@ -1218,7 +1218,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 
     // tack packet acks onto the end of this message
     S32 space_left = (MTUBYTES - buffer_length) / sizeof(TPACKETID); // space left for packet ids
-    S32 ack_count = (S32)cdp->mAcks.size();
+    S32 ack_count = static_cast<S32>(cdp->mAcks.size());
     bool is_ack_appended = false;
     std::vector<TPACKETID> acks;
     if((space_left > 0) && (ack_count > 0) &&
@@ -1268,13 +1268,13 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
         cdp->mAcks.erase(cdp->mAcks.begin(), last);
 
         // tack the count in the final byte
-        U8 count = (U8)append_ack_count;
+        U8 count = static_cast<U8>(append_ack_count);
         buf_ptr[buffer_length++] = count;
         is_ack_appended = true;
     }
 
     bool success;
-    success = mPacketRing.sendPacket(mSocket, (char *)buf_ptr, buffer_length, host);
+    success = mPacketRing.sendPacket(mSocket, reinterpret_cast<char*>(buf_ptr), buffer_length, host);
 
     if (!success)
     {
@@ -1561,8 +1561,8 @@ void LLMessageSystem::disableCircuit(const LLHost &host)
 
             gMessageSystem->mCircuitCodeToIPPort.erase(iter);
 
-            U32 old_port = (U32)(ip_port & (U64)0xFFFFFFFF);
-            U32 old_ip = (U32)(ip_port >> 32);
+            U32 old_port = static_cast<U32>(ip_port & static_cast<U64>(0xFFFFFFFF));
+            U32 old_ip = static_cast<U32>(ip_port >> 32);
 
             LL_INFOS("Messaging") << "Host " << LLHost(old_ip, old_port) << " circuit " << code << " removed from lookup table" << LL_ENDL;
             gMessageSystem->mIPPortToCircuitCode.erase(ip_port);
@@ -1666,8 +1666,8 @@ void LLMessageSystem::setCircuitProtection(bool b_protect)
 
 U32 LLMessageSystem::findCircuitCode(const LLHost &host) const
 {
-    U64 ip64 = (U64) host.getAddress();
-    U64 port64 = (U64) host.getPort();
+    U64 ip64 = static_cast<U64>(host.getAddress());
+    U64 port64 = static_cast<U64>(host.getPort());
     U64 ip_port = (ip64 << 32) | port64;
 
     return get_if_there(mIPPortToCircuitCode, ip_port, U32(0));
@@ -1921,8 +1921,8 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
             U32 circut_code_old_ip_port = get_if_there(msg->mIPPortToCircuitCode, ip_port_old, U32(0));
             msg->mCircuitCodeToIPPort.erase(circut_code_old_ip_port);
             msg->mIPPortToCircuitCode.erase(ip_port_old);
-            U32 old_port = (U32)(ip_port_old & (U64)0xFFFFFFFF);
-            U32 old_ip = (U32)(ip_port_old >> 32);
+            U32 old_port = static_cast<U32>(ip_port_old & static_cast<U64>(0xFFFFFFFF));
+            U32 old_ip = static_cast<U32>(ip_port_old >> 32);
             LL_INFOS("Messaging") << "Removing derelict lookup entry for circuit " << circuit_code_old << " to " << LLHost(old_ip, old_port) << LL_ENDL;
         }
 
@@ -2182,7 +2182,7 @@ S32 LLMessageSystem::sendError(
     }
     if(pack_data)
     {
-        addBinaryData("Data", (void*)temp.c_str(), static_cast<S32>(temp.size()));
+        addBinaryData("Data", static_cast<const void*>(temp.c_str()), static_cast<S32>(temp.size()));
     }
     else
     {
@@ -2554,54 +2554,54 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
     // Incoming
     str << buffer << std::endl << "Incoming:" << std::endl;
     tmp_str = U64_to_str(mTotalBytesIn);
-    buffer = llformat( "Total bytes received:      %20s (%5.2f kbits per second)", tmp_str.c_str(), ((F32)mTotalBytesIn * 0.008f) / run_time);
+    buffer = llformat( "Total bytes received:      %20s (%5.2f kbits per second)", tmp_str.c_str(), (static_cast<F32>(mTotalBytesIn) * 0.008f) / run_time);
     str << buffer << std::endl;
     tmp_str = U64_to_str(mPacketsIn);
-    buffer = llformat( "Total packets received:    %20s (%5.2f packets per second)", tmp_str.c_str(), ((F32) mPacketsIn / run_time));
+    buffer = llformat( "Total packets received:    %20s (%5.2f packets per second)", tmp_str.c_str(), (static_cast<F32>(mPacketsIn) / run_time));
     str << buffer << std::endl;
-    buffer = llformat( "Average packet size:       %20.0f bytes", (F32)mTotalBytesIn / (F32)mPacketsIn);
+    buffer = llformat( "Average packet size:       %20.0f bytes", static_cast<F32>(mTotalBytesIn) / static_cast<F32>(mPacketsIn));
     str << buffer << std::endl;
     tmp_str = U64_to_str(mReliablePacketsIn);
-    buffer = llformat( "Total reliable packets:    %20s (%5.2f%%)", tmp_str.c_str(), 100.f * ((F32) mReliablePacketsIn)/((F32) mPacketsIn + 1));
+    buffer = llformat( "Total reliable packets:    %20s (%5.2f%%)", tmp_str.c_str(), 100.f * (static_cast<F32>(mReliablePacketsIn))/(static_cast<F32>(mPacketsIn) + 1));
     str << buffer << std::endl;
     tmp_str = U64_to_str(mCompressedPacketsIn);
-    buffer = llformat( "Total compressed packets:  %20s (%5.2f%%)", tmp_str.c_str(), 100.f * ((F32) mCompressedPacketsIn)/((F32) mPacketsIn + 1));
+    buffer = llformat( "Total compressed packets:  %20s (%5.2f%%)", tmp_str.c_str(), 100.f * (static_cast<F32>(mCompressedPacketsIn))/(static_cast<F32>(mPacketsIn) + 1));
     str << buffer << std::endl;
     S64 savings = mUncompressedBytesIn - mCompressedBytesIn;
     tmp_str = U64_to_str(savings);
     buffer = llformat( "Total compression savings: %20s bytes", tmp_str.c_str());
     str << buffer << std::endl;
     tmp_str = U64_to_str(savings/(mCompressedPacketsIn +1));
-    buffer = llformat( "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str.c_str(), ((F32) mUncompressedBytesIn)/((F32) mCompressedBytesIn+1));
+    buffer = llformat( "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str.c_str(), (static_cast<F32>(mUncompressedBytesIn))/(static_cast<F32>(mCompressedBytesIn)+1));
     str << buffer << std::endl;
     tmp_str = U64_to_str(savings/(mPacketsIn+1));
-    buffer = llformat( "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str.c_str(), ((F32) mTotalBytesIn + (F32) savings)/((F32) mTotalBytesIn + 1.f));
+    buffer = llformat( "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str.c_str(), (static_cast<F32>(mTotalBytesIn) + static_cast<F32>(savings))/(static_cast<F32>(mTotalBytesIn) + 1.f));
 
     // Outgoing
     str << buffer << std::endl << std::endl << "Outgoing:" << std::endl;
     tmp_str = U64_to_str(mTotalBytesOut);
-    buffer = llformat( "Total bytes sent:          %20s (%5.2f kbits per second)", tmp_str.c_str(), ((F32)mTotalBytesOut * 0.008f) / run_time );
+    buffer = llformat( "Total bytes sent:          %20s (%5.2f kbits per second)", tmp_str.c_str(), (static_cast<F32>(mTotalBytesOut) * 0.008f) / run_time );
     str << buffer << std::endl;
     tmp_str = U64_to_str(mPacketsOut);
-    buffer = llformat( "Total packets sent:        %20s (%5.2f packets per second)", tmp_str.c_str(), ((F32)mPacketsOut / run_time));
+    buffer = llformat( "Total packets sent:        %20s (%5.2f packets per second)", tmp_str.c_str(), (static_cast<F32>(mPacketsOut) / run_time));
     str << buffer << std::endl;
-    buffer = llformat( "Average packet size:       %20.0f bytes", (F32)mTotalBytesOut / (F32)mPacketsOut);
+    buffer = llformat( "Average packet size:       %20.0f bytes", static_cast<F32>(mTotalBytesOut) / static_cast<F32>(mPacketsOut));
     str << buffer << std::endl;
     tmp_str = U64_to_str(mReliablePacketsOut);
-    buffer = llformat( "Total reliable packets:    %20s (%5.2f%%)", tmp_str.c_str(), 100.f * ((F32) mReliablePacketsOut)/((F32) mPacketsOut + 1));
+    buffer = llformat( "Total reliable packets:    %20s (%5.2f%%)", tmp_str.c_str(), 100.f * (static_cast<F32>(mReliablePacketsOut))/(static_cast<F32>(mPacketsOut) + 1));
     str << buffer << std::endl;
     tmp_str = U64_to_str(mCompressedPacketsOut);
-    buffer = llformat( "Total compressed packets:  %20s (%5.2f%%)", tmp_str.c_str(), 100.f * ((F32) mCompressedPacketsOut)/((F32) mPacketsOut + 1));
+    buffer = llformat( "Total compressed packets:  %20s (%5.2f%%)", tmp_str.c_str(), 100.f * (static_cast<F32>(mCompressedPacketsOut))/(static_cast<F32>(mPacketsOut) + 1));
     str << buffer << std::endl;
     savings = mUncompressedBytesOut - mCompressedBytesOut;
     tmp_str = U64_to_str(savings);
     buffer = llformat( "Total compression savings: %20s bytes", tmp_str.c_str());
     str << buffer << std::endl;
     tmp_str = U64_to_str(savings/(mCompressedPacketsOut +1));
-    buffer = llformat( "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str.c_str(), ((F32) mUncompressedBytesOut)/((F32) mCompressedBytesOut+1));
+    buffer = llformat( "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str.c_str(), (static_cast<F32>(mUncompressedBytesOut))/(static_cast<F32>(mCompressedBytesOut)+1));
     str << buffer << std::endl;
     tmp_str = U64_to_str(savings/(mPacketsOut+1));
-    buffer = llformat( "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str.c_str(), ((F32) mTotalBytesOut + (F32) savings)/((F32) mTotalBytesOut + 1.f));
+    buffer = llformat( "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str.c_str(), (static_cast<F32>(mTotalBytesOut) + static_cast<F32>(savings))/(static_cast<F32>(mTotalBytesOut) + 1.f));
     str << buffer << std::endl << std::endl;
     buffer = llformat( "SendPacket failures:       %20d", mSendPacketFailureCount);
     str << buffer << std::endl;
@@ -2625,7 +2625,7 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
         const LLMessageTemplate* mt = mMessageTemplate.second;
         if(mt->mTotalDecoded > 0)
         {
-            avg = mt->mTotalDecodeTime / (F32)mt->mTotalDecoded;
+            avg = mt->mTotalDecodeTime / static_cast<F32>(mt->mTotalDecoded);
             buffer = llformat( "%35s%10u%10f%10f%10f", mt->mName, mt->mTotalDecoded, mt->mTotalDecodeTime, mt->mMaxDecodeTimePerMsg, avg);
             str << buffer << std::endl;
         }
@@ -2758,7 +2758,7 @@ S32 LLMessageSystem::zeroCodeAdjustCurrentSendTotal()
     S32 net_gain = 0;
     U8 num_zeroes = 0;
 
-    const U8 *inptr = (U8 *)mSendBuffer;
+    const U8 *inptr = mSendBuffer;
 
 // skip the packet id field
 
@@ -2838,7 +2838,7 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
     S32 count = (*data_size);
 
     const U8 *inptr = (*data);
-    U8 *outptr = (U8 *)mEncodedRecvBuffer;
+    U8 *outptr = mEncodedRecvBuffer;
 
 // skip the packet id field
 
@@ -2900,7 +2900,7 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
     }
 
     *data = mEncodedRecvBuffer;
-    *data_size = (S32)(outptr - mEncodedRecvBuffer);
+    *data_size = static_cast<S32>(outptr - mEncodedRecvBuffer);
     mUncompressedBytesIn += *data_size;
 
     return(in_size);
@@ -3056,32 +3056,32 @@ bool LLMessageSystem::generateDigestForNumberAndUUIDs(
     std::string id1string = id1.asString();
     std::string id2string = id2.asString();
     std::string shared_secret = get_shared_secret();
-    unsigned char * secret = (unsigned char*)shared_secret.c_str();
-    unsigned char * id1str = (unsigned char*)id1string.c_str();
-    unsigned char * id2str = (unsigned char*)id2string.c_str();
+    unsigned char * secret = reinterpret_cast<unsigned char*>(const_cast<char*>(shared_secret.c_str()));
+    unsigned char * id1str = reinterpret_cast<unsigned char*>(const_cast<char*>(id1string.c_str()));
+    unsigned char * id2str = reinterpret_cast<unsigned char*>(const_cast<char*>(id2string.c_str()));
 
     memset(digest, 0, MD5HEX_STR_SIZE);
 
     if( secret != NULL)
     {
-        d.update(secret, (U32)strlen((char *) secret)); /* Flawfinder: ignore */
+        d.update(secret, static_cast<U32>(strlen(reinterpret_cast<const char*>(secret)))); /* Flawfinder: ignore */
     }
 
-    d.update((const unsigned char *) colon, (U32)strlen(colon));    /* Flawfinder: ignore */
+    d.update(reinterpret_cast<const unsigned char*>(colon), static_cast<U32>(strlen(colon)));    /* Flawfinder: ignore */
 
     snprintf(tbuf, sizeof(tbuf),"%i", number);      /* Flawfinder: ignore */
-    d.update((unsigned char *) tbuf, (U32)strlen(tbuf));    /* Flawfinder: ignore */
+    d.update(reinterpret_cast<unsigned char*>(tbuf), static_cast<U32>(strlen(tbuf)));    /* Flawfinder: ignore */
 
-    d.update((const unsigned char *) colon, (U32)strlen(colon));    /* Flawfinder: ignore */
-    if( (char*) id1str != NULL)
+    d.update(reinterpret_cast<const unsigned char*>(colon), static_cast<U32>(strlen(colon)));    /* Flawfinder: ignore */
+    if( id1str != NULL)
     {
-        d.update(id1str, (U32)strlen((char *) id1str)); /* Flawfinder: ignore */
+        d.update(id1str, static_cast<U32>(strlen(reinterpret_cast<char*>(id1str)))); /* Flawfinder: ignore */
     }
-    d.update((const unsigned char *) colon, (U32)strlen(colon));    /* Flawfinder: ignore */
+    d.update(reinterpret_cast<const unsigned char*>(colon), static_cast<U32>(strlen(colon)));    /* Flawfinder: ignore */
 
-    if( (char*) id2str != NULL)
+    if( id2str != NULL)
     {
-        d.update(id2str, (U32)strlen((char *) id2str)); /* Flawfinder: ignore */
+        d.update(id2str, static_cast<U32>(strlen(reinterpret_cast<char*>(id2str)))); /* Flawfinder: ignore */
     }
 
     d.finalize();
@@ -3100,7 +3100,7 @@ bool LLMessageSystem::generateDigestForWindowAndUUIDs(char* digest, const S32 wi
         LL_ERRS("Messaging") << "Trying to generate complex digest on a machine without a shared secret!" << LL_ENDL;
     }
 
-    U32 now = (U32)time(NULL);
+    U32 now = static_cast<U32>(time(NULL));
 
     now /= window;
 
@@ -3120,7 +3120,7 @@ bool LLMessageSystem::isMatchingDigestForWindowAndUUIDs(const char* digest, cons
     }
 
     char our_digest[MD5HEX_STR_SIZE];   /* Flawfinder: ignore */
-    U32 now = (U32)time(NULL);
+    U32 now = static_cast<U32>(time(NULL));
 
     now /= window;
 
@@ -3149,7 +3149,7 @@ bool LLMessageSystem::generateDigestForNumber(char* digest, const U32 number) co
 
     LLMD5 d;
     std::string shared_secret = get_shared_secret();
-    d = LLMD5((const unsigned char *)shared_secret.c_str(), number);
+    d = LLMD5(reinterpret_cast<const unsigned char*>(shared_secret.c_str()), number);
     d.hex_digest(digest);
     digest[MD5HEX_STR_SIZE - 1] = '\0';
 
@@ -3166,7 +3166,7 @@ bool LLMessageSystem::generateDigestForWindow(char* digest, const S32 window) co
         LL_ERRS("Messaging") << "Trying to generate simple digest on a machine without a shared secret!" << LL_ENDL;
     }
 
-    U32 now = (U32)time(NULL);
+    U32 now = static_cast<U32>(time(NULL));
 
     now /= window;
 
@@ -3186,7 +3186,7 @@ bool LLMessageSystem::isMatchingDigestForWindow(const char* digest, S32 const wi
     }
 
     char our_digest[MD5HEX_STR_SIZE];   /* Flawfinder: ignore */
-    U32 now = (S32)time(NULL);
+    U32 now = static_cast<U32>(time(NULL));
 
     now /= window;
 

@@ -118,7 +118,7 @@ void pack_instant_message_block(
     msg->addUUIDFast(_PREHASH_RegionID, region_id);
     msg->addVector3Fast(_PREHASH_Position, position);
     msg->addU8Fast(_PREHASH_Offline, offline);
-    msg->addU8Fast(_PREHASH_Dialog, (U8) dialog);
+    msg->addU8Fast(_PREHASH_Dialog, static_cast<U8>(dialog));
     msg->addUUIDFast(_PREHASH_ID, id);
     msg->addU32Fast(_PREHASH_Timestamp, timestamp);
     msg->addStringFast(_PREHASH_FromAgentName, name);

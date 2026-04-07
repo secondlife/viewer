@@ -61,10 +61,10 @@ public:
     virtual ~LLSlider();
     void            setValue( F32 value, bool from_event = false );
     // overrides for LLF32UICtrl methods
-    virtual void    setValue(const LLSD& value )    { setValue((F32)value.asReal(), true); }
+    virtual void    setValue(const LLSD& value )    { setValue(static_cast<F32>(value.asReal()), true); }
 
-    virtual void    setMinValue(const LLSD& min_value) { setMinValue((F32)min_value.asReal()); }
-    virtual void    setMaxValue(const LLSD& max_value) { setMaxValue((F32)max_value.asReal()); }
+    virtual void    setMinValue(const LLSD& min_value) { setMinValue(static_cast<F32>(min_value.asReal())); }
+    virtual void    setMaxValue(const LLSD& max_value) { setMaxValue(static_cast<F32>(max_value.asReal())); }
     virtual void    setMinValue(F32 min_value) { LLF32UICtrl::setMinValue(min_value); updateThumbRect(); }
     virtual void    setMaxValue(F32 max_value) { LLF32UICtrl::setMaxValue(max_value); updateThumbRect(); }
 

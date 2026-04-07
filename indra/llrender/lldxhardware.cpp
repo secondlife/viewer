@@ -73,7 +73,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
         CLSID_WbemLocator,
         0,
         CLSCTX_INPROC_SERVER,
-        IID_IWbemLocator, (LPVOID *)&pLoc);
+        IID_IWbemLocator, reinterpret_cast<LPVOID *>(&pLoc));
 
     if (FAILED(hres))
     {
@@ -344,7 +344,7 @@ LLSD LLDXHardware::getDisplayInfo()
                           NULL,
                           CLSCTX_INPROC_SERVER,
                           IID_IDxDiagProvider,
-                          (LPVOID*) &dx_diag_providerp);
+                          reinterpret_cast<LPVOID*>(&dx_diag_providerp));
 
     if (FAILED(hr))
     {
@@ -435,7 +435,7 @@ LLSD LLDXHardware::getDisplayInfo()
                 DWORD dwType = REG_SZ;
                 DWORD dwSize = sizeof(WCHAR) * RV_SIZE;
                 if(ERROR_SUCCESS == RegQueryValueEx(hKey, TEXT("ReleaseVersion"),
-                    NULL, &dwType, (LPBYTE)release_version, &dwSize))
+                    NULL, &dwType, reinterpret_cast<LPBYTE>(release_version), &dwSize))
                 {
                     // print the value
                     // windows doesn't guarantee to be null terminated

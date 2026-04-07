@@ -289,7 +289,7 @@ void LLFloaterEnvironmentAdjust::onHazeHorizonChanged()
 {
     if (!mLiveSky)
         return;
-    mLiveSky->setHazeHorizon((F32)getChild<LLUICtrl>(FIELD_SKY_HAZE_HORIZON)->getValue().asReal());
+    mLiveSky->setHazeHorizon(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_HAZE_HORIZON)->getValue().asReal()));
     mLiveSky->update();
 }
 
@@ -297,7 +297,7 @@ void LLFloaterEnvironmentAdjust::onHazeDensityChanged()
 {
     if (!mLiveSky)
         return;
-    mLiveSky->setHazeDensity((F32)getChild<LLUICtrl>(FIELD_SKY_HAZE_DENSITY)->getValue().asReal());
+    mLiveSky->setHazeDensity(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_HAZE_DENSITY)->getValue().asReal()));
     mLiveSky->update();
 }
 
@@ -305,7 +305,7 @@ void LLFloaterEnvironmentAdjust::onSceneGammaChanged()
 {
     if (!mLiveSky)
         return;
-    mLiveSky->setGamma((F32)getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->getValue().asReal());
+    mLiveSky->setGamma(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->getValue().asReal()));
     mLiveSky->update();
 }
 
@@ -321,7 +321,7 @@ void LLFloaterEnvironmentAdjust::onCloudCoverageChanged()
 {
     if (!mLiveSky)
         return;
-    mLiveSky->setCloudShadow((F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->getValue().asReal());
+    mLiveSky->setCloudShadow(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->getValue().asReal()));
     mLiveSky->update();
 }
 
@@ -329,7 +329,7 @@ void LLFloaterEnvironmentAdjust::onCloudScaleChanged()
 {
     if (!mLiveSky)
         return;
-    mLiveSky->setCloudScale((F32)getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->getValue().asReal());
+    mLiveSky->setCloudScale(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->getValue().asReal()));
     mLiveSky->update();
 }
 
@@ -337,7 +337,7 @@ void LLFloaterEnvironmentAdjust::onGlowChanged()
 {
     if (!mLiveSky)
         return;
-    LLColor3 glow((F32)getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->getValue().asReal(), 0.0f, (F32)getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->getValue().asReal());
+    LLColor3 glow(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->getValue().asReal()), 0.0f, static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->getValue().asReal()));
 
     // takes 0 - 1.99 UI range -> 40 -> 0.2 range
     glow.mV[0] = (2.0f - glow.mV[0]) * SLIDER_SCALE_GLOW_R;
@@ -351,7 +351,7 @@ void LLFloaterEnvironmentAdjust::onStarBrightnessChanged()
 {
     if (!mLiveSky)
         return;
-    mLiveSky->setStarBrightness((F32)getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->getValue().asReal());
+    mLiveSky->setStarBrightness(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->getValue().asReal()));
     mLiveSky->update();
 }
 
@@ -372,8 +372,8 @@ void LLFloaterEnvironmentAdjust::onSunRotationChanged()
 
 void LLFloaterEnvironmentAdjust::onSunAzimElevChanged()
 {
-    F32 azimuth = (F32)getChild<LLUICtrl>(FIELD_SKY_SUN_AZIMUTH)->getValue().asReal();
-    F32 elevation = (F32)getChild<LLUICtrl>(FIELD_SKY_SUN_ELEVATION)->getValue().asReal();
+    F32 azimuth = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_SUN_AZIMUTH)->getValue().asReal());
+    F32 elevation = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_SUN_ELEVATION)->getValue().asReal());
     LLQuaternion quat;
 
     azimuth *= DEG_TO_RAD;
@@ -402,7 +402,7 @@ void LLFloaterEnvironmentAdjust::onSunScaleChanged()
 {
     if (!mLiveSky)
         return;
-    mLiveSky->setSunScale((F32)(getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->getValue().asReal()));
+    mLiveSky->setSunScale(static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->getValue().asReal()));
     mLiveSky->update();
 }
 
@@ -423,8 +423,8 @@ void LLFloaterEnvironmentAdjust::onMoonRotationChanged()
 
 void LLFloaterEnvironmentAdjust::onMoonAzimElevChanged()
 {
-    F32 azimuth = (F32)getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->getValue().asReal();
-    F32 elevation = (F32)getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->getValue().asReal();
+    F32 azimuth = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->getValue().asReal());
+    F32 elevation = static_cast<F32>(getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->getValue().asReal());
     LLQuaternion quat;
 
     azimuth *= DEG_TO_RAD;
@@ -500,7 +500,7 @@ void LLFloaterEnvironmentAdjust::onSunColorChanged()
 void LLFloaterEnvironmentAdjust::onReflectionProbeAmbianceChanged()
 {
     if (!mLiveSky) return;
-    F32 ambiance = (F32)getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->getValue().asReal();
+    F32 ambiance = static_cast<F32>(getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->getValue().asReal());
     mLiveSky->setReflectionProbeAmbiance(ambiance);
 
     updateGammaLabel();

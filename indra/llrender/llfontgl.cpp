@@ -117,7 +117,7 @@ S32 LLFontGL::getCacheGeneration() const
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style,
     ShadowType shadow, S32 max_chars, F32* right_x, bool use_ellipses, bool use_color) const
 {
-    LLRectf rect_float((F32)rect.mLeft, (F32)rect.mTop, (F32)rect.mRight, (F32)rect.mBottom);
+    LLRectf rect_float(static_cast<F32>(rect.mLeft), static_cast<F32>(rect.mTop), static_cast<F32>(rect.mRight), static_cast<F32>(rect.mBottom));
     return render(wstr, begin_offset, rect_float, color, halign, valign, style, shadow, max_chars, right_x, use_ellipses, use_color);
 }
 
@@ -143,7 +143,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRectf& rec
         y = rect.mBottom;
         break;
     }
-    return render(wstr, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, (S32)rect.getWidth(), right_x, use_ellipses, use_color);
+    return render(wstr, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, static_cast<S32>(rect.getWidth()), right_x, use_ellipses, use_color);
 }
 
 
@@ -164,7 +164,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     gGL.getTexUnit(0)->enable(LLTexUnit::eTextureType::TT_TEXTURE);
 
-    S32 scaled_max_pixels = max_pixels == S32_MAX ? S32_MAX : llceil((F32)max_pixels * sScaleX);
+    S32 scaled_max_pixels = max_pixels == S32_MAX ? S32_MAX : llceil(static_cast<F32>(max_pixels) * sScaleX);
 
     // determine which style flags need to be added programmatically by stripping off the
     // style bits that are drawn by the underlying Freetype font
@@ -198,11 +198,11 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     if (-1 == max_chars)
     {
-        max_chars = length = (S32)wstr.length() - begin_offset;
+        max_chars = length = static_cast<S32>(wstr.length()) - begin_offset;
     }
     else
     {
-        length = llmin((S32)wstr.length() - begin_offset, max_chars );
+        length = llmin(static_cast<S32>(wstr.length()) - begin_offset, max_chars );
     }
 
     F32 cur_x, cur_y, cur_render_x, cur_render_y;
@@ -250,7 +250,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     cur_render_y = cur_y;
     cur_render_x = cur_x;
 
-    F32 start_x = (F32)ll_round(cur_x);
+    F32 start_x = static_cast<F32>(ll_round(cur_x));
 
     const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
 
@@ -350,10 +350,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
                 (fgi->mXBitmapOffset + fgi->mWidth) * inv_width,
                 (fgi->mYBitmapOffset - PAD_UVY) * inv_height);
         // snap glyph origin to whole screen pixel
-        LLRectf screen_rect((F32)ll_round(cur_render_x + (F32)fgi->mXBearing),
-                    (F32)ll_round(cur_render_y + (F32)fgi->mYBearing),
-                    (F32)ll_round(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
-                    (F32)ll_round(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
+        LLRectf screen_rect(static_cast<F32>(ll_round(cur_render_x + static_cast<F32>(fgi->mXBearing))),
+                    static_cast<F32>(ll_round(cur_render_y + static_cast<F32>(fgi->mYBearing))),
+                    static_cast<F32>(ll_round(cur_render_x + static_cast<F32>(fgi->mXBearing))) + static_cast<F32>(fgi->mWidth),
+                    static_cast<F32>(ll_round(cur_render_y + static_cast<F32>(fgi->mYBearing))) - static_cast<F32>(fgi->mHeight));
 
         if (glyph_count >= GLYPH_BATCH_SIZE)
         {
@@ -388,8 +388,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         // Must do this to cur_x, not just to cur_render_x, otherwise you
         // will squish sub-pixel kerned characters too close together.
         // For example, "CCCCC" looks bad.
-        cur_x = (F32)ll_round(cur_x);
-        //cur_y = (F32)ll_round(cur_y);
+        cur_x = static_cast<F32>(ll_round(cur_x));
+        //cur_y = static_cast<F32>(ll_round(cur_y));
 
         cur_render_x = cur_x;
         cur_render_y = cur_y;
@@ -410,7 +410,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     //FIXME: add underline as glyph?
     if (style_to_add & UNDERLINE)
     {
-        F32 descender = (F32)llfloor(mFontFreetype->getDescenderHeight());
+        F32 descender = static_cast<F32>(llfloor(mFontFreetype->getDescenderHeight()));
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gGL.begin(LLRender::LINES);
@@ -454,12 +454,12 @@ S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y
 
 S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color) const
 {
-    return renderUTF8(text, begin_offset, (F32)x, (F32)y, color, HAlign::LEFT, VAlign::BASELINE, NORMAL, ShadowType::NO_SHADOW);
+    return renderUTF8(text, begin_offset, static_cast<F32>(x), static_cast<F32>(y), color, HAlign::LEFT, VAlign::BASELINE, NORMAL, ShadowType::NO_SHADOW);
 }
 
 S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, ShadowType shadow) const
 {
-    return renderUTF8(text, begin_offset, (F32)x, (F32)y, color, halign, valign, style, shadow);
+    return renderUTF8(text, begin_offset, static_cast<F32>(x), static_cast<F32>(y), color, halign, valign, style, shadow);
 }
 
 // font metrics - override for LLFontFreetype that returns units of virtual pixels
@@ -549,7 +549,7 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
             // so we can fix things up at the end
             width_padding = llmax(0.f,                                          // always use positive padding amount
                 width_padding - advance,                        // previous padding left over after advance of current character
-                (F32)(fgi->mWidth + fgi->mXBearing) - advance); // difference between width of this character and advance to next character
+                static_cast<F32>(fgi->mWidth + fgi->mXBearing) - advance); // difference between width of this character and advance to next character
         }
 
         cur_x += advance;
@@ -564,7 +564,7 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
             cur_x += mFontFreetype->getXKerning(fgi, next_glyph);
         }
         // Round after kerning.
-        cur_x = (F32)ll_round(cur_x);
+        cur_x = static_cast<F32>(ll_round(cur_x));
     }
 
     if (!no_padding)
@@ -666,7 +666,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
         // account for glyphs that run beyond the starting point for the next glyphs
         width_padding = llmax(  0.f,                                                    // always use positive padding amount
                                 width_padding - fgi->mXAdvance,                         // previous padding left over after advance of current character
-                                (F32)(fgi->mWidth + fgi->mXBearing) - fgi->mXAdvance);  // difference between width of this character and advance to next character
+                                static_cast<F32>(fgi->mWidth + fgi->mXBearing) - fgi->mXAdvance);  // difference between width of this character and advance to next character
 
         cur_x += fgi->mXAdvance;
 
@@ -685,7 +685,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
         }
 
         // Round after kerning.
-        cur_x = (F32)ll_round(cur_x);
+        cur_x = static_cast<F32>(ll_round(cur_x));
     }
 
     if( clip )
@@ -732,7 +732,7 @@ S32 LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
         // last character uses character width, since the whole character needs to be visible
         // other characters just use advance
         F32 width = (i == start)
-            ? (F32)(fgi->mWidth + fgi->mXBearing)   // use actual width for last character
+            ? static_cast<F32>(fgi->mWidth + fgi->mXBearing)   // use actual width for last character
             : fgi->mXAdvance;                       // use advance for all other characters
 
         if( scaled_max_pixels < (total_width + width) )
@@ -755,7 +755,7 @@ S32 LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
         }
 
         // Round after kerning.
-        total_width = (F32)ll_round(total_width);
+        total_width = static_cast<F32>(ll_round(total_width));
     }
 
     if (drawable_chars == 0)
@@ -838,7 +838,7 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 t
 
 
         // Round after kerning.
-        cur_x = (F32)ll_round(cur_x);
+        cur_x = static_cast<F32>(ll_round(cur_x));
     }
 
     return llmin(max_chars, pos - begin_offset);
@@ -852,8 +852,8 @@ const LLFontDescriptor& LLFontGL::getFontDesc() const
 // static
 void LLFontGL::initClass(F32 screen_dpi, F32 x_scale, F32 y_scale, const std::string& app_dir, bool create_gl_textures)
 {
-    sVertDPI = (F32)llfloor(screen_dpi * y_scale);
-    sHorizDPI = (F32)llfloor(screen_dpi * x_scale);
+    sVertDPI = static_cast<F32>(llfloor(screen_dpi * y_scale));
+    sHorizDPI = static_cast<F32>(llfloor(screen_dpi * x_scale));
     sScaleX = x_scale;
     sScaleY = y_scale;
     sAppDir = app_dir;
@@ -1292,7 +1292,7 @@ void LLFontGL::drawGlyph(S32& glyph_count, LLVector4a* vertex_out, LLVector2* uv
         {
             LLRectf screen_rect_offset = screen_rect;
 
-            screen_rect_offset.translate((F32)(pass * BOLD_OFFSET), 0.f);
+            screen_rect_offset.translate(static_cast<F32>(pass * BOLD_OFFSET), 0.f);
             renderTriangle(&vertex_out[glyph_count * 6], &uv_out[glyph_count * 6], &colors_out[glyph_count * 6], screen_rect_offset, uv_rect, color, slant_offset);
             glyph_count++;
         }

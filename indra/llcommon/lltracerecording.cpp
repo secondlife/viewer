@@ -184,8 +184,8 @@ F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator>& stat)
     update();
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
     const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-    return F64Seconds((F64)(accumulator.mTotalTimeCounter) + (F64)(active_accumulator ? active_accumulator->mTotalTimeCounter : 0))
-                / (F64)LLTrace::BlockTimer::countsPerSecond();
+    return F64Seconds(static_cast<F64>(accumulator.mTotalTimeCounter) + static_cast<F64>(active_accumulator ? active_accumulator->mTotalTimeCounter : 0))
+                / static_cast<F64>(LLTrace::BlockTimer::countsPerSecond());
 }
 
 F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator::SelfTimeFacet>& stat)
@@ -193,7 +193,7 @@ F64Seconds Recording::getSum(const StatType<TimeBlockAccumulator::SelfTimeFacet>
     update();
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
     const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-    return F64Seconds(((F64)(accumulator.mSelfTimeCounter) + (F64)(active_accumulator ? active_accumulator->mSelfTimeCounter : 0)) / (F64)LLTrace::BlockTimer::countsPerSecond());
+    return F64Seconds((static_cast<F64>(accumulator.mSelfTimeCounter) + static_cast<F64>(active_accumulator ? active_accumulator->mSelfTimeCounter : 0)) / static_cast<F64>(LLTrace::BlockTimer::countsPerSecond()));
 }
 
 S32 Recording::getSum(const StatType<TimeBlockAccumulator::CallCountFacet>& stat)
@@ -210,8 +210,8 @@ F64Seconds Recording::getPerSec(const StatType<TimeBlockAccumulator>& stat)
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
     const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
 
-    return F64Seconds((F64)(accumulator.mTotalTimeCounter + (active_accumulator ? active_accumulator->mTotalTimeCounter : 0))
-                / ((F64)LLTrace::BlockTimer::countsPerSecond() * mElapsedSeconds.value()));
+    return F64Seconds(static_cast<F64>(accumulator.mTotalTimeCounter + (active_accumulator ? active_accumulator->mTotalTimeCounter : 0))
+                / (static_cast<F64>(LLTrace::BlockTimer::countsPerSecond()) * mElapsedSeconds.value()));
 }
 
 F64Seconds Recording::getPerSec(const StatType<TimeBlockAccumulator::SelfTimeFacet>& stat)
@@ -220,8 +220,8 @@ F64Seconds Recording::getPerSec(const StatType<TimeBlockAccumulator::SelfTimeFac
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
     const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
 
-    return F64Seconds((F64)(accumulator.mSelfTimeCounter + (active_accumulator ? active_accumulator->mSelfTimeCounter : 0))
-            / ((F64)LLTrace::BlockTimer::countsPerSecond() * mElapsedSeconds.value()));
+    return F64Seconds(static_cast<F64>(accumulator.mSelfTimeCounter + (active_accumulator ? active_accumulator->mSelfTimeCounter : 0))
+            / (static_cast<F64>(LLTrace::BlockTimer::countsPerSecond()) * mElapsedSeconds.value()));
 }
 
 F32 Recording::getPerSec(const StatType<TimeBlockAccumulator::CallCountFacet>& stat)
@@ -229,7 +229,7 @@ F32 Recording::getPerSec(const StatType<TimeBlockAccumulator::CallCountFacet>& s
     update();
     const TimeBlockAccumulator& accumulator = mBuffers->mStackTimers[stat.getIndex()];
     const TimeBlockAccumulator* active_accumulator = mActiveBuffers ? &mActiveBuffers->mStackTimers[stat.getIndex()] : NULL;
-    return (F32)(accumulator.mCalls + (active_accumulator ? active_accumulator->mCalls : 0)) / (F32)mElapsedSeconds.value();
+    return static_cast<F32>(accumulator.mCalls + (active_accumulator ? active_accumulator->mCalls : 0)) / static_cast<F32>(mElapsedSeconds.value());
 }
 
 bool Recording::hasValue(const StatType<CountAccumulator>& stat)
@@ -300,7 +300,7 @@ F64 Recording::getMean( const StatType<SampleAccumulator>& stat )
         S32 div = accumulator.getSampleCount() + active_accumulator->getSampleCount();
         if (div > 0)
         {
-            t = (F64)active_accumulator->getSampleCount() / (F64)div;
+            t = static_cast<F64>(active_accumulator->getSampleCount()) / static_cast<F64>(div);
         }
         return lerp(accumulator.getMean(), active_accumulator->getMean(), t);
     }
@@ -319,7 +319,7 @@ F64 Recording::getStandardDeviation( const StatType<SampleAccumulator>& stat )
     if (active_accumulator && active_accumulator->hasValue())
     {
         F64 sum_of_squares = SampleAccumulator::mergeSumsOfSquares(accumulator, *active_accumulator);
-        return sqrt(sum_of_squares / (F64)(accumulator.getSamplingTime() + active_accumulator->getSamplingTime()));
+        return sqrt(sum_of_squares / static_cast<F64>(accumulator.getSamplingTime() + active_accumulator->getSamplingTime()));
     }
     else
     {
@@ -386,7 +386,7 @@ F64 Recording::getMean( const StatType<EventAccumulator>& stat )
         S32 div = accumulator.getSampleCount() + active_accumulator->getSampleCount();
         if (div > 0)
         {
-            t = (F64)active_accumulator->getSampleCount() / (F64)div;
+            t = static_cast<F64>(active_accumulator->getSampleCount()) / static_cast<F64>(div);
         }
         return lerp(accumulator.getMean(), active_accumulator->getMean(), t);
     }
@@ -405,7 +405,7 @@ F64 Recording::getStandardDeviation( const StatType<EventAccumulator>& stat )
     if (active_accumulator && active_accumulator->hasValue())
     {
         F64 sum_of_squares = EventAccumulator::mergeSumsOfSquares(accumulator, *active_accumulator);
-        return sqrt(sum_of_squares / (F64)(accumulator.getSampleCount() + active_accumulator->getSampleCount()));
+        return sqrt(sum_of_squares / static_cast<F64>(accumulator.getSampleCount() + active_accumulator->getSampleCount()));
     }
     else
     {
@@ -690,7 +690,7 @@ F64 PeriodicRecording::getPeriodMean( const StatType<EventAccumulator>& stat, si
     }
 
     return valid_period_count
-            ? mean / (F64)valid_period_count
+            ? mean / static_cast<F64>(valid_period_count)
             : NaN;
 }
 
@@ -715,7 +715,7 @@ F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<EventAccumulat
     }
 
     return valid_period_count
-            ? sqrt(sum_of_squares / (F64)valid_period_count)
+            ? sqrt(sum_of_squares / static_cast<F64>(valid_period_count))
             : NaN;
 }
 
@@ -834,7 +834,7 @@ F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<SampleAccumula
     }
 
     return valid_period_count
-            ? sqrt(sum_of_squares / (F64)valid_period_count)
+            ? sqrt(sum_of_squares / static_cast<F64>(valid_period_count))
             : NaN;
 }
 

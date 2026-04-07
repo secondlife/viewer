@@ -1110,7 +1110,7 @@ void LLSpeakerVolumeStorage::load()
         iter != settings_llsd.endMap(); ++iter)
     {
         // Maintain compatibility with 1.23 non-linear saved volume levels
-        F32 volume = transformFromLegacyVolume((F32)iter->second.asReal());
+        F32 volume = transformFromLegacyVolume(static_cast<F32>(iter->second.asReal()));
 
         storeSpeakerVolume(LLUUID(iter->first), volume);
     }

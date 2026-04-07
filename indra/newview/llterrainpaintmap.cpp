@@ -128,7 +128,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
     // Vertex and index counts adapted from LLVOSurfacePatch::getGeomSizesMain,
     // with additional vertices added as we are including the north and east
     // edges here.
-    const U32 patch_size = (U32)surface.getGridsPerPatchEdge();
+    const U32 patch_size = static_cast<U32>(surface.getGridsPerPatchEdge());
     constexpr U32 stride = 1;
     const U32 vert_size = (patch_size / stride) + 1;
     const U32 n = vert_size * vert_size;

@@ -36,21 +36,21 @@ F32 noise3(float *vec);
 
 inline F32 bias(F32 a, F32 b)
 {
-    return (F32)pow(a, (F32)(log(b) / log(0.5f)));
+    return static_cast<F32>(pow(a, static_cast<F32>((log(b) / log(0.5f)))));
 }
 
 inline F32 gain(F32 a, F32 b)
 {
-    F32 p = (F32) (log(1.f - b) / log(0.5f));
+    F32 p = static_cast<F32>((log(1.f - b) / log(0.5f)));
 
     if (a < .001f)
         return 0.f;
     else if (a > .999f)
         return 1.f;
     if (a < 0.5f)
-        return (F32)(pow(2 * a, p) / 2.f);
+        return static_cast<F32>((pow(2 * a, p) / 2.f));
     else
-        return (F32)(1.f - pow(2 * (1.f - a), p) / 2.f);
+        return static_cast<F32>((1.f - pow(2 * (1.f - a), p) / 2.f));
 }
 
 inline F32 turbulence2(F32 *v, F32 freq)
@@ -133,7 +133,7 @@ inline void fast_setup(F32 vec, U8 &b0, U8 &b1, F32 &r0, F32 &r1)
 
     r1  = vec + NF32;
     t_S32 = lltrunc(r1);
-    b0 = (U8)t_S32;
+    b0 = static_cast<U8>(t_S32);
     b1 = b0 + 1;
     r0 = r1 - t_S32;
     r1 = r0 - 1.f;
@@ -292,7 +292,7 @@ static void normalize2(F32 v[2])
 {
     F32 s;
 
-    s = 1.f/(F32)sqrt(v[0] * v[0] + v[1] * v[1]);
+    s = 1.f/static_cast<F32>(sqrt(v[0] * v[0] + v[1] * v[1]));
     v[0] = v[0] * s;
     v[1] = v[1] * s;
 }
@@ -301,7 +301,7 @@ static void normalize3(F32 v[3])
 {
     F32 s;
 
-    s = 1.f/(F32)sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    s = 1.f/static_cast<F32>(sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
     v[0] = v[0] * s;
     v[1] = v[1] * s;
     v[2] = v[2] * s;
@@ -316,14 +316,14 @@ static void init()
     for (i = 0 ; i < B ; i++) {
         p[i] = i;
 
-        g1[i] = (F32)((rand() % (B + B)) - B) / B;
+        g1[i] = static_cast<F32>(((rand() % (B + B)) - B)) / B;
 
         for (j = 0 ; j < 2 ; j++)
-            g2[i][j] = (F32)((rand() % (B + B)) - B) / B;
+            g2[i][j] = static_cast<F32>(((rand() % (B + B)) - B)) / B;
         normalize2(g2[i]);
 
         for (j = 0 ; j < 3 ; j++)
-            g3[i][j] = (F32)((rand() % (B + B)) - B) / B;
+            g3[i][j] = static_cast<F32>(((rand() % (B + B)) - B)) / B;
         normalize3(g3[i]);
     }
 

@@ -292,9 +292,9 @@ LLSphere LLSphere::getBoundingSphere(const std::vector<LLSphere>& sphere_list)
                         }
 
                         LLVector3 center = bounding_center;
-                        center.mV[VX] += (F32) dx * step_length;
-                        center.mV[VY] += (F32) dy * step_length;
-                        center.mV[VZ] += (F32) dz * step_length;
+                        center.mV[VX] += static_cast<F32>(dx) * step_length;
+                        center.mV[VY] += static_cast<F32>(dy) * step_length;
+                        center.mV[VZ] += static_cast<F32>(dz) * step_length;
 
                         // compute the radius of the bounding sphere
                         F32 max_radius = 0.f;

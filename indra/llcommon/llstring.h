@@ -160,31 +160,31 @@ public:
     static std::string sAM;
     static std::string sPM;
 
-    static char toUpper(char elem) { return toupper((unsigned char)elem); }
+    static char toUpper(char elem) { return toupper(static_cast<unsigned char>(elem)); }
     static llwchar toUpper(llwchar elem) { return towupper(elem); }
 
-    static char toLower(char elem) { return tolower((unsigned char)elem); }
+    static char toLower(char elem) { return tolower(static_cast<unsigned char>(elem)); }
     static llwchar toLower(llwchar elem) { return towlower(elem); }
 
-    static bool isSpace(char elem) { return isspace((unsigned char)elem) != 0; }
+    static bool isSpace(char elem) { return isspace(static_cast<unsigned char>(elem)) != 0; }
     static bool isSpace(llwchar elem) { return iswspace(elem) != 0; }
 
-    static bool isUpper(char elem) { return isupper((unsigned char)elem) != 0; }
+    static bool isUpper(char elem) { return isupper(static_cast<unsigned char>(elem)) != 0; }
     static bool isUpper(llwchar elem) { return iswupper(elem) != 0; }
 
-    static bool isLower(char elem) { return islower((unsigned char)elem) != 0; }
+    static bool isLower(char elem) { return islower(static_cast<unsigned char>(elem)) != 0; }
     static bool isLower(llwchar elem) { return iswlower(elem) != 0; }
 
-    static bool isDigit(char a) { return isdigit((unsigned char)a) != 0; }
+    static bool isDigit(char a) { return isdigit(static_cast<unsigned char>(a)) != 0; }
     static bool isDigit(llwchar a) { return iswdigit(a) != 0; }
 
-    static bool isPunct(char a) { return ispunct((unsigned char)a) != 0; }
+    static bool isPunct(char a) { return ispunct(static_cast<unsigned char>(a)) != 0; }
     static bool isPunct(llwchar a) { return iswpunct(a) != 0; }
 
-    static bool isAlpha(char a) { return isalpha((unsigned char)a) != 0; }
+    static bool isAlpha(char a) { return isalpha(static_cast<unsigned char>(a)) != 0; }
     static bool isAlpha(llwchar a) { return iswalpha(a) != 0; }
 
-    static bool isAlnum(char a) { return isalnum((unsigned char)a) != 0; }
+    static bool isAlnum(char a) { return isalnum(static_cast<unsigned char>(a)) != 0; }
     static bool isAlnum(llwchar a) { return iswalnum(a) != 0; }
 
     // Returns true when 'a' corresponds to a "genuine" emoji. HB
@@ -1838,7 +1838,7 @@ bool LLStringUtilBase<T>::convertToU8(const string_type& string, U8& value)
     bool success = convertToS32(string, value32);
     if( success && (U8_MIN <= value32) && (value32 <= U8_MAX) )
     {
-        value = (U8) value32;
+        value = static_cast<U8>(value32);
         return true;
     }
     return false;
@@ -1851,7 +1851,7 @@ bool LLStringUtilBase<T>::convertToS8(const string_type& string, S8& value)
     bool success = convertToS32(string, value32);
     if( success && (S8_MIN <= value32) && (value32 <= S8_MAX) )
     {
-        value = (S8) value32;
+        value = static_cast<S8>(value32);
         return true;
     }
     return false;
@@ -1864,7 +1864,7 @@ bool LLStringUtilBase<T>::convertToS16(const string_type& string, S16& value)
     bool success = convertToS32(string, value32);
     if( success && (S16_MIN <= value32) && (value32 <= S16_MAX) )
     {
-        value = (S16) value32;
+        value = static_cast<S16>(value32);
         return true;
     }
     return false;
@@ -1877,7 +1877,7 @@ bool LLStringUtilBase<T>::convertToU16(const string_type& string, U16& value)
     bool success = convertToS32(string, value32);
     if( success && (U16_MIN <= value32) && (value32 <= U16_MAX) )
     {
-        value = (U16) value32;
+        value = static_cast<U16>(value32);
         return true;
     }
     return false;
@@ -1937,7 +1937,7 @@ bool LLStringUtilBase<T>::convertToF32(const string_type& string, F32& value)
     bool success = convertToF64(string, value64);
     if( success && (-F32_MAX <= value64) && (value64 <= F32_MAX) )
     {
-        value = (F32) value64;
+        value = static_cast<F32>(value64);
         return true;
     }
     return false;

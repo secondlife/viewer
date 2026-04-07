@@ -339,7 +339,7 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLUUID& uuid,
                                              U32 flags,
                                              time_t creation_date_utc) :
     LLInventoryItem(uuid, parent_uuid, perm, asset_uuid, type, inv_type,
-                    name, desc, sale_info, flags, (S32)creation_date_utc),
+                    name, desc, sale_info, flags, static_cast<S32>(creation_date_utc)),
     mIsComplete(true)
 {
 }
@@ -539,7 +539,7 @@ void LLViewerInventoryItem::packMessage(LLMessageSystem* msg) const
     mSaleInfo.packMessage(msg);
     msg->addStringFast(_PREHASH_Name, mName);
     msg->addStringFast(_PREHASH_Description, mDescription);
-    msg->addS32Fast(_PREHASH_CreationDate, (S32)mCreationDate);
+    msg->addS32Fast(_PREHASH_CreationDate, static_cast<S32>(mCreationDate));
     U32 crc = getCRC32();
     msg->addU32Fast(_PREHASH_CRC, crc);
 }
@@ -678,7 +678,7 @@ bool LLViewerInventoryCategory::fetch(S32 expiry_seconds)
     {
         LL_DEBUGS(LOG_INV) << "Fetching category children: " << mName << ", UUID: " << mUUID << LL_ENDL;
         mDescendentsRequested.reset();
-        mDescendentsRequested.setTimerExpirySec((F32)expiry_seconds);
+        mDescendentsRequested.setTimerExpirySec(static_cast<F32>(expiry_seconds));
 
         std::string url;
         if (gAgent.getRegion())
@@ -724,7 +724,7 @@ void LLViewerInventoryCategory::setFetching(LLViewerInventoryCategory::EFetchTyp
             mDescendentsRequested.reset();
             if (AISAPI::isAvailable())
             {
-                mDescendentsRequested.setTimerExpirySec((F32)AISAPI::HTTP_TIMEOUT);
+                mDescendentsRequested.setTimerExpirySec(static_cast<F32>(AISAPI::HTTP_TIMEOUT));
             }
             else
             {
@@ -1173,9 +1173,9 @@ void create_inventory_item(
     msg->addUUIDFast(_PREHASH_FolderID, parent_id);
     msg->addUUIDFast(_PREHASH_TransactionID, transaction_id);
     msg->addU32Fast(_PREHASH_NextOwnerMask, next_owner_perm);
-    msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
-    msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
-    msg->addU8Fast(_PREHASH_WearableType, (U8)subtype);
+    msg->addS8Fast(_PREHASH_Type, static_cast<S8>(asset_type));
+    msg->addS8Fast(_PREHASH_InvType, static_cast<S8>(inv_type));
+    msg->addU8Fast(_PREHASH_WearableType, static_cast<U8>(subtype));
     msg->addStringFast(_PREHASH_Name, server_name);
     msg->addStringFast(_PREHASH_Description, desc);
 
@@ -1349,8 +1349,8 @@ void link_inventory_array(const LLUUID& category,
 
         LLSD link = LLSD::emptyMap();
         link["linked_id"] = linkee_id;
-        link["type"] = (S8)asset_type;
-        link["inv_type"] = (S8)inv_type;
+        link["type"] = static_cast<S8>(asset_type);
+        link["inv_type"] = static_cast<S8>(inv_type);
         link["name"] = baseobj->getName();
         link["desc"] = new_desc;
         links.append(link);

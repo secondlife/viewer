@@ -309,9 +309,9 @@ public:
         LLVector3 coords(128, 128, 0);
         if (tokens.size() <= 4)
         {
-            coords = LLVector3((F32)tokens[1].asReal(),
-                               (F32)tokens[2].asReal(),
-                               (F32)tokens[3].asReal());
+            coords = LLVector3(static_cast<F32>(tokens[1].asReal()),
+                               static_cast<F32>(tokens[2].asReal()),
+                               static_cast<F32>(tokens[3].asReal()));
         }
 
         // Region names may be %20 escaped.
@@ -335,9 +335,9 @@ public:
         {
             // region specified, coordinates (if any) are region-local
             LLVector3 local_pos(
-                params.has("x")? (F32)params["x"].asReal() : 128.f,
-                params.has("y")? (F32)params["y"].asReal() : 128.f,
-                params.has("z")? (F32)params["z"].asReal() : 0.f);
+                params.has("x")? static_cast<F32>(params["x"].asReal()) : 128.f,
+                params.has("y")? static_cast<F32>(params["y"].asReal()) : 128.f,
+                params.has("z")? static_cast<F32>(params["z"].asReal()) : 0.f);
             std::string regionname(params["regionname"]);
             std::string destination(LLSLURL(regionname, local_pos).getSLURLString());
             // have to resolve region's global coordinates first

@@ -1263,7 +1263,7 @@ void LLViewerRegion::updateReflectionProbes(bool full_update)
 
     F32 start = probe_spacing * 0.5f;
 
-    U32 grid_width = (U32)(REGION_WIDTH_METERS / probe_spacing);
+    U32 grid_width = static_cast<U32>(REGION_WIDTH_METERS / probe_spacing);
 
     mReflectionMaps.resize(grid_width * grid_width);
 
@@ -1445,7 +1445,7 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
         {
             if((*i)->hasVOCacheEntry())
             {
-                LLVOCacheEntry* vo_entry = (LLVOCacheEntry*)(*i)->getVOCacheEntry();
+                LLVOCacheEntry* vo_entry = static_cast<LLVOCacheEntry*>((*i)->getVOCacheEntry());
 
                 if(vo_entry->getParentID() > 0) //is a child
                 {
@@ -1555,7 +1555,7 @@ void LLViewerRegion::clearCachedVisibleObjects()
         {
             continue;
         }
-        LLDrawable* drawablep = (LLDrawable*)vo_entry->getEntry()->getDrawable();
+        LLDrawable* drawablep = static_cast<LLDrawable*>(vo_entry->getEntry()->getDrawable());
 
         if(drawablep && !drawablep->getParent())
         {
@@ -1795,7 +1795,7 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>& delete_list)
 {
     //kill the object.
-    LLDrawable* drawablep = (LLDrawable*)entry->getEntry()->getDrawable();
+    LLDrawable* drawablep = static_cast<LLDrawable*>(entry->getEntry()->getDrawable());
     llassert(drawablep);
     llassert(drawablep->getRegion() == this);
 
@@ -1806,7 +1806,7 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
             || (v_obj->flagAnimSource() && isAgentAvatarValid() && gAgentAvatarp->hasMotionFromSource(v_obj->getID())))
         {
             // do not remove objects user is interacting with
-            ((LLViewerOctreeEntryData*)drawablep)->setVisible();
+            static_cast<LLViewerOctreeEntryData*>(drawablep)->setVisible();
             return;
         }
         LLViewerObject::const_child_list_t& child_list = v_obj->getChildren();
@@ -1823,7 +1823,7 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
                 {
                     //do not remove parent if any of its children non-cacheable, animating or selected
                     //especially for the case that an avatar sits on a cache-able object
-                    ((LLViewerOctreeEntryData*)drawablep)->setVisible();
+                    static_cast<LLViewerOctreeEntryData*>(drawablep)->setVisible();
                     return;
                 }
 
@@ -1831,7 +1831,7 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
                 if(group && group->isAnyRecentlyVisible())
                 {
                     //set the parent visible if any of its children visible.
-                    ((LLViewerOctreeEntryData*)drawablep)->setVisible();
+                    static_cast<LLViewerOctreeEntryData*>(drawablep)->setVisible();
                     return;
                 }
             }
@@ -1868,7 +1868,7 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
     }
     else
     {
-        LLViewerRegion* old_regionp = ((LLDrawable*)entry->getEntry()->getDrawable())->getRegion();
+        LLViewerRegion* old_regionp = (static_cast<LLDrawable*>(entry->getEntry()->getDrawable()))->getRegion();
         if(old_regionp != this)
         {
             //this object exists in two regions at the same time;
@@ -1991,8 +1991,8 @@ F32 LLViewerRegion::getCompositionXY(const S32 x, const S32 y) const
                 // If we're attempting to blend, then we want to make the fractional part of
                 // this region match the fractional of the adjacent.  For now, just minimize
                 // the delta.
-                F32 our_comp = getComposition()->getValueScaled(255.f, (F32)y);
-                F32 adj_comp = regionp->getComposition()->getValueScaled(x - 256.f, (F32)y);
+                F32 our_comp = getComposition()->getValueScaled(255.f, static_cast<F32>(y));
+                F32 adj_comp = regionp->getComposition()->getValueScaled(x - 256.f, static_cast<F32>(y));
                 while (llabs(our_comp - adj_comp) >= 1.f)
                 {
                     if (our_comp > adj_comp)
@@ -2019,8 +2019,8 @@ F32 LLViewerRegion::getCompositionXY(const S32 x, const S32 y) const
             // If we're attempting to blend, then we want to make the fractional part of
             // this region match the fractional of the adjacent.  For now, just minimize
             // the delta.
-            F32 our_comp = getComposition()->getValueScaled((F32)x, 255.f);
-            F32 adj_comp = regionp->getComposition()->getValueScaled((F32)x, y - 256.f);
+            F32 our_comp = getComposition()->getValueScaled(static_cast<F32>(x), 255.f);
+            F32 adj_comp = regionp->getComposition()->getValueScaled(static_cast<F32>(x), y - 256.f);
             while (llabs(our_comp - adj_comp) >= 1.f)
             {
                 if (our_comp > adj_comp)
@@ -2036,7 +2036,7 @@ F32 LLViewerRegion::getCompositionXY(const S32 x, const S32 y) const
         }
     }
 
-    return getComposition()->getValueScaled((F32)x, (F32)y);
+    return getComposition()->getValueScaled(static_cast<F32>(x), static_cast<F32>(y));
 }
 
 void LLViewerRegion::calculateCenterGlobal()
@@ -2049,7 +2049,7 @@ void LLViewerRegion::calculateCenterGlobal()
 
 void LLViewerRegion::calculateCameraDistance()
 {
-    mCameraDistanceSquared = (F32)(gAgentCamera.getCameraPositionGlobal() - getCenterGlobal()).lengthSquared();
+    mCameraDistanceSquared = static_cast<F32>((gAgentCamera.getCameraPositionGlobal() - getCenterGlobal()).lengthSquared());
 }
 
 std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region)
@@ -2255,9 +2255,9 @@ public:
             if(i == target_index)
             {
                 LLVector3d global_pos(region->getOriginGlobal());
-                global_pos.mdV[VX] += (F64)x;
-                global_pos.mdV[VY] += (F64)y;
-                global_pos.mdV[VZ] += (F64)z * 4.0;
+                global_pos.mdV[VX] += static_cast<F64>(x);
+                global_pos.mdV[VY] += static_cast<F64>(y);
+                global_pos.mdV[VZ] += static_cast<F64>(z) * 4.0;
                 LLAvatarTracker::instance().setTrackedCoarseLocation(global_pos);
             }
             else if( i != you_index)
@@ -2329,9 +2329,9 @@ void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
         if(i == target_index)
         {
             LLVector3d global_pos(mImpl->mOriginGlobal);
-            global_pos.mdV[VX] += (F64)(x_pos);
-            global_pos.mdV[VY] += (F64)(y_pos);
-            global_pos.mdV[VZ] += (F64)(z_pos) * 4.0;
+            global_pos.mdV[VX] += static_cast<F64>(x_pos);
+            global_pos.mdV[VY] += static_cast<F64>(y_pos);
+            global_pos.mdV[VZ] += static_cast<F64>(z_pos) * 4.0;
             LLAvatarTracker::instance().setTrackedCoarseLocation(global_pos);
         }
 
@@ -2536,10 +2536,10 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 
     if(entry->getEntry()->hasDrawable()) //already in the rendering pipeline
     {
-        LLViewerRegion* old_regionp = ((LLDrawable*)entry->getEntry()->getDrawable())->getRegion();
+        LLViewerRegion* old_regionp = (static_cast<LLDrawable*>(entry->getEntry()->getDrawable()))->getRegion();
         if(old_regionp != this && old_regionp)
         {
-            LLViewerObject* obj = ((LLDrawable*)entry->getEntry()->getDrawable())->getVObj();
+            LLViewerObject* obj = (static_cast<LLDrawable*>(entry->getEntry()->getDrawable()))->getVObj();
             if(obj)
             {
                 //remove from old region
@@ -2843,7 +2843,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 
             if(entry->isState(LLVOCacheEntry::ACTIVE))
             {
-                LLDrawable* drawable = (LLDrawable*)entry->getEntry()->getDrawable();
+                LLDrawable* drawable = static_cast<LLDrawable*>(entry->getEntry()->getDrawable());
                 if (drawable && drawable->getVObj())
                 {
                     drawable->getVObj()->loadFlags(flags);
@@ -3618,7 +3618,7 @@ LLVOCachePartition* LLViewerRegion::getVOCachePartition()
 {
     if(PARTITION_VO_CACHE < mImpl->mObjectPartition.size())
     {
-        return (LLVOCachePartition*)mImpl->mObjectPartition[PARTITION_VO_CACHE];
+        return static_cast<LLVOCachePartition*>(mImpl->mObjectPartition[PARTITION_VO_CACHE]);
     }
     return NULL;
 }
@@ -3726,7 +3726,7 @@ void LLViewerRegion::resetMaterialsCapThrottle()
     if (   mSimulatorFeatures.has("RenderMaterialsCapability")
         && mSimulatorFeatures["RenderMaterialsCapability"].isReal() )
     {
-        requests_per_sec = (F32)mSimulatorFeatures["RenderMaterialsCapability"].asReal();
+        requests_per_sec = static_cast<F32>(mSimulatorFeatures["RenderMaterialsCapability"].asReal());
         if ( requests_per_sec == 0.0f )
         {
             requests_per_sec = 1.0f;

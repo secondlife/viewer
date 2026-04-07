@@ -326,7 +326,7 @@ LLSLURL::LLSLURL(const std::string& grid, const std::string& region)
     mGrid = grid;
     mRegion = region;
     mType = LOCATION;
-    mPosition = LLVector3((F64)REGION_WIDTH_METERS / 2, (F64)REGION_WIDTH_METERS / 2, 0);
+    mPosition = LLVector3(static_cast<F64>(REGION_WIDTH_METERS) / 2, static_cast<F64>(REGION_WIDTH_METERS) / 2, 0);
 }
 
 // create a slurl given the position.  The position will be modded with the region
@@ -337,11 +337,11 @@ LLSLURL::LLSLURL(const std::string& grid,
 {
     mGrid = grid;
     mRegion = region;
-    S32 x = ll_round((F32)fmod(position[VX], (F32)REGION_WIDTH_METERS));
-    S32 y = ll_round((F32)fmod(position[VY], (F32)REGION_WIDTH_METERS));
-    S32 z = ll_round((F32)position[VZ]);
+    S32 x = ll_round(static_cast<F32>(fmod(position[VX], static_cast<F32>(REGION_WIDTH_METERS))));
+    S32 y = ll_round(static_cast<F32>(fmod(position[VY], static_cast<F32>(REGION_WIDTH_METERS))));
+    S32 z = ll_round(static_cast<F32>(position[VZ]));
     mType = LOCATION;
-    mPosition = LLVector3((F32)x, (F32)y, (F32)z);
+    mPosition = LLVector3(static_cast<F32>(x), static_cast<F32>(y), static_cast<F32>(z));
 }
 
 // create a simstring
@@ -357,7 +357,7 @@ LLSLURL::LLSLURL(const std::string& grid,
          const LLVector3d& global_position)
 {
     *this = LLSLURL(LLGridManager::getInstance()->getGridId(grid), region,
-        LLVector3((F32)global_position.mdV[VX], (F32)global_position.mdV[VY], (F32)global_position.mdV[VZ]));
+        LLVector3(static_cast<F32>(global_position.mdV[VX]), static_cast<F32>(global_position.mdV[VY]), static_cast<F32>(global_position.mdV[VZ])));
 }
 
 // create a slurl from a global position
@@ -388,9 +388,9 @@ std::string LLSLURL::getSLURLString() const
         case LOCATION:
         {
             // lookup the grid
-            S32 x = ll_round((F32)mPosition[VX]);
-            S32 y = ll_round((F32)mPosition[VY]);
-            S32 z = ll_round((F32)mPosition[VZ]);
+            S32 x = ll_round(static_cast<F32>(mPosition[VX]));
+            S32 y = ll_round(static_cast<F32>(mPosition[VY]));
+            S32 z = ll_round(static_cast<F32>(mPosition[VZ]));
             return LLGridManager::getInstance()->getSLURLBase(mGrid) +
                 LLURI::escape(mRegion) + llformat("/%d/%d/%d", x, y, z);
         }
@@ -411,7 +411,7 @@ std::string LLSLURL::getSLURLString() const
             return app_url.str();
         }
         default:
-            LL_WARNS("AppInit") << "Unexpected SLURL type for SLURL string" << (int)mType << LL_ENDL;
+            LL_WARNS("AppInit") << "Unexpected SLURL type for SLURL string" << static_cast<int>(mType) << LL_ENDL;
             return std::string();
     }
 }
@@ -435,7 +435,7 @@ std::string LLSLURL::getLoginString() const
             unescaped_start << "last";
             break;
         default:
-            LL_WARNS("AppInit") << "Unexpected SLURL type (" << (int)mType << ")for login string" << LL_ENDL;
+            LL_WARNS("AppInit") << "Unexpected SLURL type (" << static_cast<int>(mType) << ")for login string" << LL_ENDL;
             break;
     }
     return  LLStringFn::xml_encode(unescaped_start.str(), true);
@@ -474,9 +474,9 @@ std::string LLSLURL::getLocationString() const
 {
     return llformat("%s/%d/%d/%d",
         mRegion.c_str(),
-        (int)ll_round(mPosition[0]),
-        (int)ll_round(mPosition[1]),
-        (int)ll_round(mPosition[2]));
+        static_cast<int>(ll_round(mPosition[0])),
+        static_cast<int>(ll_round(mPosition[1])),
+        static_cast<int>(ll_round(mPosition[2])));
 }
 
 // static

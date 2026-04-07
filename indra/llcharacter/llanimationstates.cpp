@@ -389,7 +389,7 @@ LLUUID LLAnimationLibrary::stringToAnimState( const std::string& name, bool allo
     else if (allow_ids)
     {
         // try to convert string to LLUUID
-        (void)id.set(name, false);
+        static_cast<void>(id.set(name, false));
     }
 
     return id;

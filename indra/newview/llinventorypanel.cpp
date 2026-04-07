@@ -379,7 +379,7 @@ void LLInventoryPanel::initializeViewBuilding()
             {
                 LL_INFOS("Inventory")
                     << "Fully initialized inventory panel " << getName()
-                    << " with " << (S32)mItemMap.size()
+                    << " with " << static_cast<S32>(mItemMap.size())
                     << " views in " << timer.getElapsedTimeF32() << " seconds."
                     << LL_ENDL;
             }
@@ -387,16 +387,16 @@ void LLInventoryPanel::initializeViewBuilding()
             {
                 LL_INFOS("Inventory")
                     << "Partially initialized inventory panel " << getName()
-                    << " with " << (S32)mItemMap.size()
+                    << " with " << static_cast<S32>(mItemMap.size())
                     << " views in " << timer.getElapsedTimeF32()
-                    << " seconds. Pending known views: " << (S32)mBuildViewsQueue.size()
+                    << " seconds. Pending known views: " << static_cast<S32>(mBuildViewsQueue.size())
                     << LL_ENDL;
             }
         }
         else
         {
             mViewsInitialized = VIEWS_INITIALIZING;
-            gIdleCallbacks.addFunction(onIdle, (void*)this);
+            gIdleCallbacks.addFunction(onIdle, reinterpret_cast<void*>(this));
         }
     }
 }
@@ -452,7 +452,7 @@ void LLInventoryPanel::setFilterWorn()
 
 U32 LLInventoryPanel::getFilterObjectTypes() const
 {
-    return (U32)getFilter().getFilterObjectTypes();
+    return static_cast<U32>(getFilter().getFilterObjectTypes());
 }
 
 U32 LLInventoryPanel::getFilterPermMask() const
@@ -874,7 +874,7 @@ void LLInventoryPanel::onIdle(void *userdata)
     }
     if (self->mViewsInitialized >= VIEWS_BUILDING)
     {
-        gIdleCallbacks.deleteFunction(onIdle, (void*)self);
+        gIdleCallbacks.deleteFunction(onIdle, reinterpret_cast<void*>(self));
     }
 }
 
@@ -1172,7 +1172,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
             if (objectp->getType() <= LLAssetType::AT_NONE)
             {
                 LL_WARNS() << "LLInventoryPanel::buildViewsTree called with invalid objectp->mType : "
-                    << ((S32)objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
+                    << (static_cast<S32>(objectp->getType())) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
                     << LL_ENDL;
                 return NULL;
             }
@@ -1181,7 +1181,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
             {
                 // Example: Happens when we add assets of new, not yet supported type to library
                 LL_DEBUGS("Inventory") << "LLInventoryPanel::buildViewsTree called with unknown objectp->mType : "
-                << ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
+                << (static_cast<S32>(objectp->getType())) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
                 << LL_ENDL;
 
                 LLInventoryItem* item = (LLInventoryItem*)objectp;

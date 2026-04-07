@@ -140,7 +140,7 @@ public:
     // Returns the index of the current file.
     S32 getCurFileNum() const { return mCurrentFile; }
 
-    S32 getFileCount() const { return (S32)mFiles.size(); }
+    S32 getFileCount() const { return static_cast<S32>(mFiles.size()); }
 
     // see lldir.h : getBaseFileName and getDirName to extract base or directory names
 

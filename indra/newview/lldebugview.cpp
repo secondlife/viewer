@@ -83,8 +83,8 @@ void LLDebugView::init()
 
     r.set(150 - 25, rect.getHeight() - 50, rect.getWidth()/2 - 25, rect.getHeight() - 450);
 
-    r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f),
-                                     (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
+    r.setLeftTopAndSize(25, rect.getHeight() - 50, static_cast<S32>((gViewerWindow->getWindowRectScaled().getWidth() * 0.75f)),
+                                     static_cast<S32>((gViewerWindow->getWindowRectScaled().getHeight() * 0.75f)));
 
     gSceneView = new LLSceneView(r);
     gSceneView->setFollowsTop();

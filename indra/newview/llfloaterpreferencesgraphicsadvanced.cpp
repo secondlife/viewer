@@ -213,7 +213,7 @@ void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, L
         return;
 
     // get range and points when text should change
-    F32 value = (F32)ctrl->getValue().asReal();
+    F32 value = static_cast<F32>(ctrl->getValue().asReal());
     F32 min = ctrl->getMinValue();
     F32 max = ctrl->getMaxValue();
     F32 range = max - min;

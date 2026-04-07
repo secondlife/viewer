@@ -124,7 +124,7 @@ std::string LLDate::toHTTPDateString (tm * gmt, std::string fmt)
 
 void LLDate::toStream(std::ostream& s) const
 {
-    apr_time_t time = (apr_time_t)(mSecondsSinceEpoch * LL_APR_USEC_PER_SEC);
+    apr_time_t time = static_cast<apr_time_t>(mSecondsSinceEpoch * LL_APR_USEC_PER_SEC);
 
     apr_time_exp_t exp_time;
     if (apr_time_exp_gmt(&exp_time, time) != APR_SUCCESS)
@@ -148,7 +148,7 @@ void LLDate::toStream(std::ostream& s) const
     if (exp_time.tm_usec > 0)
     {
         s << '.' << std::setw(2)
-          << (int)(exp_time.tm_usec / (LL_APR_USEC_PER_SEC / 100));
+          << static_cast<int>(exp_time.tm_usec / (LL_APR_USEC_PER_SEC / 100));
     }
     s << 'Z'
       << std::setfill(' ');
@@ -156,7 +156,7 @@ void LLDate::toStream(std::ostream& s) const
 
 bool LLDate::split(S32 *year, S32 *month, S32 *day, S32 *hour, S32 *min, S32 *sec) const
 {
-    apr_time_t time = (apr_time_t)(mSecondsSinceEpoch * LL_APR_USEC_PER_SEC);
+    apr_time_t time = static_cast<apr_time_t>(mSecondsSinceEpoch * LL_APR_USEC_PER_SEC);
 
     apr_time_exp_t exp_time;
     if (apr_time_exp_gmt(&exp_time, time) != APR_SUCCESS)

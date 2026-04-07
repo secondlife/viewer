@@ -144,7 +144,7 @@ bool LLImageBMP::updateData()
     llassert( sizeof( header ) == BITMAP_HEADER_SIZE );
 
     memcpy( /* Flawfinder: ignore */
-        (void*)&header,
+        static_cast<void*>(&header),
         mdata + FILE_HEADER_SIZE,
         BITMAP_HEADER_SIZE);
 
@@ -426,10 +426,10 @@ bool LLImageBMP::decodeColorMask16( U8* dst, const U8* src )
     {
         for( S32 col = 0; col < getWidth(); col++ )
         {
-            U32 value = *((U16*)src);
-            dst[0] = U8((value & mBitfieldMask[2]) >> r_shift); // Red
-            dst[1] = U8((value & mBitfieldMask[1]) >> g_shift); // Green
-            dst[2] = U8((value & mBitfieldMask[0]) >> b_shift); // Blue
+            U32 value = *reinterpret_cast<const U16*>(src);
+            dst[0] = static_cast<U8>((value & mBitfieldMask[2]) >> r_shift); // Red
+            dst[1] = static_cast<U8>((value & mBitfieldMask[1]) >> g_shift); // Green
+            dst[2] = static_cast<U8>((value & mBitfieldMask[0]) >> b_shift); // Blue
             src += 2;
             dst += 3;
         }
@@ -469,10 +469,10 @@ bool LLImageBMP::decodeColorMask32( U8* dst, const U8* src )
     {
         for( S32 col = 0; col < getWidth(); col++ )
         {
-            U32 value = *((U32*)src);
-            dst[0] = U8((value & mBitfieldMask[0]) >> r_shift); // Red
-            dst[1] = U8((value & mBitfieldMask[1]) >> g_shift); // Green
-            dst[2] = U8((value & mBitfieldMask[2]) >> b_shift); // Blue
+            U32 value = *reinterpret_cast<const U32*>(src);
+            dst[0] = static_cast<U8>((value & mBitfieldMask[0]) >> r_shift); // Red
+            dst[1] = static_cast<U8>((value & mBitfieldMask[1]) >> g_shift); // Green
+            dst[2] = static_cast<U8>((value & mBitfieldMask[2]) >> b_shift); // Blue
             src += 4;
             dst += 3;
         }
@@ -586,15 +586,15 @@ bool LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
     }
 
     magic[0] = 'B'; magic[1] = 'M';
-    magic[2] = (U8) file_bytes;
-    magic[3] = (U8)(file_bytes>>8);
-    magic[4] = (U8)(file_bytes>>16);
-    magic[5] = (U8)(file_bytes>>24);
+    magic[2] = static_cast<U8>(file_bytes);
+    magic[3] = static_cast<U8>(file_bytes>>8);
+    magic[4] = static_cast<U8>(file_bytes>>16);
+    magic[5] = static_cast<U8>(file_bytes>>24);
     magic[6] = magic[7] = magic[8] = magic[9] = 0;
-    magic[10] = (U8) header_bytes;
-    magic[11] = (U8)(header_bytes>>8);
-    magic[12] = (U8)(header_bytes>>16);
-    magic[13] = (U8)(header_bytes>>24);
+    magic[10] = static_cast<U8>(header_bytes);
+    magic[11] = static_cast<U8>(header_bytes>>8);
+    magic[12] = static_cast<U8>(header_bytes>>16);
+    magic[13] = static_cast<U8>(header_bytes>>24);
     header.mSize = 40;
     header.mWidth = getWidth();
     header.mHeight = getHeight();
@@ -637,9 +637,9 @@ bool LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
         S32 n;
         for (n=0; n < 256; n++)
         {
-            mdata[cur_pos++] = (U8)n;
-            mdata[cur_pos++] = (U8)n;
-            mdata[cur_pos++] = (U8)n;
+            mdata[cur_pos++] = static_cast<U8>(n);
+            mdata[cur_pos++] = static_cast<U8>(n);
+            mdata[cur_pos++] = static_cast<U8>(n);
             mdata[cur_pos++] = 0;
         }
     }
@@ -661,7 +661,7 @@ bool LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
                 {
                     U32 lum = src[0];
                     U32 alpha = src[1];
-                    *dst++ = (U8)(lum * alpha / 255);
+                    *dst++ = static_cast<U8>(lum * alpha / 255);
                     src += 2;
                     break;
                 }

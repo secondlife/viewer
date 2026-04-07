@@ -533,8 +533,8 @@ bool LLVLComposition::generateHeights(const F32 x, const F32 y,
             F32 height = mSurfacep->resolveHeightRegion(location) + z_offset;
 
             // Step 0: Measure the exact height at this texel
-            vec[0] = (F32)(origin_global.mdV[VX]+location.mV[VX])*xyScaleInv;   //  Adjust to non-integer lattice
-            vec[1] = (F32)(origin_global.mdV[VY]+location.mV[VY])*xyScaleInv;
+            vec[0] = static_cast<F32>((origin_global.mdV[VX]+location.mV[VX]))*xyScaleInv;   //  Adjust to non-integer lattice
+            vec[1] = static_cast<F32>((origin_global.mdV[VY]+location.mV[VY]))*xyScaleInv;
             vec[2] = height*zScaleInv;
             //
             //  Choose material value by adding to the exact height a random value

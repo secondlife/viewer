@@ -451,7 +451,7 @@ bool LLImageDXT::convertToDXR()
     S32 nmips = calcNumMips(width,height);
     S32 total_bytes = getDataSize();
     U8* olddata = getData();
-    U8* newdata = (U8*)ll_aligned_malloc_16(total_bytes);
+    U8* newdata = static_cast<U8*>(ll_aligned_malloc_16(total_bytes));
     if (!newdata)
     {
         LLError::LLUserWarningMsg::showOutOfMemory();

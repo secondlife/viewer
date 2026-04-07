@@ -656,7 +656,7 @@ struct hash<LLSD>
         result_type seed(0);
 
         LLSD::Type stype = s.type();
-        boost::hash_combine(seed, (S32)stype);
+        boost::hash_combine(seed, static_cast<S32>(stype));
 
         switch (stype)
         {

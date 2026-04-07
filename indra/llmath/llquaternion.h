@@ -173,10 +173,10 @@ inline LLSD LLQuaternion::getValue() const
 
 inline void LLQuaternion::setValue(const LLSD& sd)
 {
-    mQ[0] = (F32)sd[0].asReal();
-    mQ[1] = (F32)sd[1].asReal();
-    mQ[2] = (F32)sd[2].asReal();
-    mQ[3] = (F32)sd[3].asReal();
+    mQ[0] = static_cast<F32>(sd[0].asReal());
+    mQ[1] = static_cast<F32>(sd[1].asReal());
+    mQ[2] = static_cast<F32>(sd[2].asReal());
+    mQ[3] = static_cast<F32>(sd[3].asReal());
 }
 
 // checker

@@ -52,7 +52,7 @@ struct InventoryEntry : public LLDictionaryEntry
         // Read in local textures
         for (U8 i=0; i < num_asset_types; i++)
         {
-            LLAssetType::EType t = (LLAssetType::EType)va_arg(argp,int);
+            LLAssetType::EType t = static_cast<LLAssetType::EType>(va_arg(argp,int));
             mAssetTypes.push_back(t);
         }
         va_end(argp);

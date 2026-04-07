@@ -335,7 +335,7 @@ bool LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
     // we just started a drag, so save initial object positions
     LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_MOVE);
 
-    mManipPart = (EManipPart)hit_part;
+    mManipPart = static_cast<EManipPart>(hit_part);
     mMouseDownX = x;
     mMouseDownY = y;
     mMouseOutsideSlop = false;
@@ -648,7 +648,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
     }
 
     LLVector3d clamped_relative_move = axis_magnitude * axis_d; // scalar multiply
-    LLVector3 clamped_relative_move_f = (F32)axis_magnitude * axis_f; // scalar multiply
+    LLVector3 clamped_relative_move_f = static_cast<F32>(axis_magnitude) * axis_f; // scalar multiply
 
     for (LLObjectSelection::iterator iter = mObjectSelection->begin();
         iter != mObjectSelection->end(); iter++)
@@ -675,7 +675,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
             if (!object->isRootEdit())
             {
                 // child objects should not update if parent is selected
-                LLViewerObject* editable_root = (LLViewerObject*)object->getParent();
+                LLViewerObject* editable_root = static_cast<LLViewerObject*>(object->getParent());
                 if (editable_root->isSelected())
                 {
                     // we will be moved properly by our parent, so skip
@@ -961,9 +961,9 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
     LLVector2 manip_end_2d;
     LLVector2 manip_dir;
     LLRect world_view_rect = gViewerWindow->getWorldViewRectScaled();
-    F32 half_width = (F32)world_view_rect.getWidth() / 2.f;
-    F32 half_height = (F32)world_view_rect.getHeight() / 2.f;
-    LLVector2 mousePos((F32)x - half_width, (F32)y - half_height);
+    F32 half_width = static_cast<F32>(world_view_rect.getWidth()) / 2.f;
+    F32 half_height = static_cast<F32>(world_view_rect.getHeight()) / 2.f;
+    LLVector2 mousePos(static_cast<F32>(x) - half_width, static_cast<F32>(y) - half_height);
     LLVector2 mouse_delta;
 
     // Keep order consistent with insertion via stable_sort
@@ -1232,7 +1232,7 @@ void LLManipTranslate::renderSnapGuides()
             F32 current_range = cam_to_selection.normalize();
             guide_size_meters = SNAP_GUIDE_SCREEN_SIZE * gViewerWindow->getWorldViewHeightRaw() * current_range / LLViewerCamera::getInstance()->getPixelMeterRatio();
 
-            F32 fraction_of_fov = mAxisArrowLength / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
+            F32 fraction_of_fov = mAxisArrowLength / static_cast<F32>(LLViewerCamera::getInstance()->getViewHeightInPixels());
             F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
             F32 offset_at_camera = tan(apparent_angle) * 1.5f;
             F32 range = dist_vec(gAgent.getPosAgentFromGlobal(first_node->mSavedPositionGlobal), LLViewerCamera::getInstance()->getOrigin());
@@ -1285,7 +1285,7 @@ void LLManipTranslate::renderSnapGuides()
 
                 for (S32 i = -num_ticks_per_side; i <= num_ticks_per_side; i++)
                 {
-                    tick_start = selection_center + (translate_axis * (smallest_grid_unit_scale * (F32)i - offset_nearest_grid_unit));
+                    tick_start = selection_center + (translate_axis * (smallest_grid_unit_scale * static_cast<F32>(i) - offset_nearest_grid_unit));
 
                     //No need check this condition to prevent tick position scaling (FIX MAINT-5207/5208)
                     //F32 cur_subdivisions = getSubdivisionLevel(tick_start, translate_axis, getMinGridScale());
@@ -1300,7 +1300,7 @@ void LLManipTranslate::renderSnapGuides()
                     F32 tick_scale = 1.f;
                     for (F32 division_level = max_subdivisions; division_level >= sGridMinSubdivisionLevel; division_level /= 2.f)
                     {
-                        if (fmodf((F32)(i + sub_div_offset), division_level) == 0.f)
+                        if (fmodf(static_cast<F32>(i + sub_div_offset), division_level) == 0.f)
                         {
                             break;
                         }
@@ -1317,7 +1317,7 @@ void LLManipTranslate::renderSnapGuides()
                     gGL.vertex3fv(tick_end.mV);
 
                     tick_start = selection_center + (mSnapOffsetAxis * -mSnapOffsetMeters) +
-                        (translate_axis * (getMinGridScale() / (F32)(max_subdivisions) * (F32)i - offset_nearest_grid_unit));
+                        (translate_axis * (getMinGridScale() / static_cast<F32>(max_subdivisions) * static_cast<F32>(i) - offset_nearest_grid_unit));
                     tick_end = tick_start - (mSnapOffsetAxis * mSnapOffsetMeters * tick_scale);
 
                     gGL.vertex3fv(tick_start.mV);
@@ -1372,20 +1372,20 @@ void LLManipTranslate::renderSnapGuides()
         // render tickmark values
         for (S32 i = -num_ticks_per_side; i <= num_ticks_per_side; i++)
         {
-            LLVector3 tick_pos = selection_center + (translate_axis * ((smallest_grid_unit_scale * (F32)i) - offset_nearest_grid_unit));
-            F32 alpha = line_alpha * (1.f - (0.5f *  ((F32)llabs(i) / (F32)num_ticks_per_side)));
+            LLVector3 tick_pos = selection_center + (translate_axis * ((smallest_grid_unit_scale * static_cast<F32>(i)) - offset_nearest_grid_unit));
+            F32 alpha = line_alpha * (1.f - (0.5f *  (static_cast<F32>(llabs(i)) / static_cast<F32>(num_ticks_per_side))));
 
             F32 tick_scale = 1.f;
             for (F32 division_level = max_subdivisions; division_level >= sGridMinSubdivisionLevel; division_level /= 2.f)
             {
-                if (fmodf((F32)(i + sub_div_offset), division_level) == 0.f)
+                if (fmodf(static_cast<F32>(i + sub_div_offset), division_level) == 0.f)
                 {
                     break;
                 }
                 tick_scale *= 0.7f;
             }
 
-            if (fmodf((F32)(i + sub_div_offset), (max_subdivisions / getSubdivisionLevel(tick_pos, translate_axis, getMinGridScale(), tick_label_spacing))) == 0.f)
+            if (fmodf(static_cast<F32>(i + sub_div_offset), (max_subdivisions / getSubdivisionLevel(tick_pos, translate_axis, getMinGridScale(), tick_label_spacing))) == 0.f)
             {
                 F32 snap_offset_meters;
 
@@ -1398,7 +1398,7 @@ void LLManipTranslate::renderSnapGuides()
                     snap_offset_meters = -mSnapOffsetMeters;
                 }
                 LLVector3 text_origin = selection_center +
-                        (translate_axis * ((smallest_grid_unit_scale * (F32)i) - offset_nearest_grid_unit)) +
+                        (translate_axis * ((smallest_grid_unit_scale * static_cast<F32>(i)) - offset_nearest_grid_unit)) +
                             (mSnapOffsetAxis * snap_offset_meters * (1.f + tick_scale));
 
                 LLVector3 tick_offset = (tick_pos - mGridOrigin) * ~mGridRotation;
@@ -1722,7 +1722,7 @@ void LLManipTranslate::renderTranslationHandles()
         if (range > 0.001f)
         {
             // range != zero
-            F32 fraction_of_fov = mAxisArrowLength / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
+            F32 fraction_of_fov = mAxisArrowLength / static_cast<F32>(LLViewerCamera::getInstance()->getViewHeightInPixels());
             F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
             mArrowLengthMeters = range * tan(apparent_angle);
         }

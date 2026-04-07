@@ -202,7 +202,7 @@ LLAssetType::EType LLFolderType::folderTypeToAssetType(LLFolderType::EType folde
     {
         LL_WARNS() << "Converting to unknown asset type " << folder_type << LL_ENDL;
     }
-    return (LLAssetType::EType)folder_type;
+    return static_cast<LLAssetType::EType>(folder_type);
 }
 
 // static
@@ -212,7 +212,7 @@ LLFolderType::EType LLFolderType::assetTypeToFolderType(LLAssetType::EType asset
     {
         LL_WARNS() << "Converting to unknown folder type " << asset_type << LL_ENDL;
     }
-    return (LLFolderType::EType)asset_type;
+    return static_cast<LLFolderType::EType>(asset_type);
 }
 
 // static
@@ -227,10 +227,10 @@ LLSD LLFolderType::getTypeNames()
     LLSD type_names;
     for (S32 type = FT_TEXTURE; type < FT_COUNT; ++type)
     {
-        if (lookupIsEnsembleType((LLFolderType::EType)type))
+        if (lookupIsEnsembleType(static_cast<LLFolderType::EType>(type)))
             continue;
 
-        const FolderEntry* entry = LLFolderDictionary::getInstance()->lookup((LLFolderType::EType)type);
+        const FolderEntry* entry = LLFolderDictionary::getInstance()->lookup(static_cast<LLFolderType::EType>(type));
         // skip llfoldertype_bad_lookup
         if (entry)
         {

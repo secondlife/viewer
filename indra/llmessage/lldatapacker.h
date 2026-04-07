@@ -178,7 +178,7 @@ public:
     /*virtual*/ bool        packUUID(const LLUUID &value, const char *name);
     /*virtual*/ bool        unpackUUID(LLUUID &value, const char *name);
 
-                S32         getCurrentSize() const  { return (S32)(mCurBufferp - mBufferp); }
+                S32         getCurrentSize() const  { return static_cast<S32>(mCurBufferp - mBufferp); }
                 S32         getBufferSize() const   { return mBufferSize; }
                 const U8*   getBuffer() const   { return mBufferp; }
                 void        reset()             { mCurBufferp = mBufferp; mWriteEnabled = (mCurBufferp != NULL); }
@@ -213,7 +213,7 @@ inline bool LLDataPackerBinaryBuffer::verifyLength(const S32 data_size, const ch
     if (mWriteEnabled && (mCurBufferp - mBufferp) > mBufferSize - data_size)
     {
         LL_WARNS() << "Buffer overflow in BinaryBuffer length verify, field name " << name << "!" << LL_ENDL;
-        LL_WARNS() << "Current pos: " << (int)(mCurBufferp - mBufferp) << " Buffer size: " << mBufferSize << " Data size: " << data_size << LL_ENDL;
+        LL_WARNS() << "Current pos: " << static_cast<int>(mCurBufferp - mBufferp) << " Buffer size: " << mBufferSize << " Data size: " << data_size << LL_ENDL;
         return false;
     }
 
@@ -292,7 +292,7 @@ public:
     void        setIncludeNames(bool b) { mIncludeNames = b; }
 
     // Include the trailing NULL so it's always a valid string
-    S32         getCurrentSize() const  { return (S32)(mCurBufferp - mBufferp) + 1; }
+    S32         getCurrentSize() const  { return static_cast<S32>(mCurBufferp - mBufferp) + 1; }
 
     S32         getBufferSize() const   { return mBufferSize; }
     /*virtual*/ void        reset()                 { mCurBufferp = mBufferp; mWriteEnabled = (mCurBufferp != NULL); }
@@ -337,7 +337,7 @@ inline bool LLDataPackerAsciiBuffer::verifyLength(const S32 data_size, const cha
     if (mWriteEnabled && (mCurBufferp - mBufferp) > mBufferSize - data_size)
     {
         LL_WARNS() << "Buffer overflow in AsciiBuffer length verify, field name " << name << "!" << LL_ENDL;
-        LL_WARNS() << "Current pos: " << (int)(mCurBufferp - mBufferp) << " Buffer size: " << mBufferSize << " Data size: " << data_size << LL_ENDL;
+        LL_WARNS() << "Current pos: " << static_cast<int>(mCurBufferp - mBufferp) << " Buffer size: " << mBufferSize << " Data size: " << data_size << LL_ENDL;
         return false;
     }
 

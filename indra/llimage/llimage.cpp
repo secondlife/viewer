@@ -650,8 +650,8 @@ void LLImageBase::sanityCheck()
 {
     if (mWidth > MAX_IMAGE_SIZE
         || mHeight > MAX_IMAGE_SIZE
-        || mDataSize > (S32)MAX_IMAGE_DATA_SIZE
-        || mComponents > (S8)MAX_IMAGE_COMPONENTS
+        || mDataSize > static_cast<S32>(MAX_IMAGE_DATA_SIZE)
+        || mComponents > static_cast<S8>(MAX_IMAGE_COMPONENTS)
         )
     {
         LL_ERRS() << "Failed LLImageBase::sanityCheck "
@@ -684,7 +684,7 @@ U8* LLImageBase::allocateData(S32 size)
         size = mWidth * mHeight * mComponents;
         if (size <= 0)
         {
-            LL_WARNS() << llformat("LLImageBase::allocateData called with bad dimensions: %dx%dx%d",mWidth,mHeight,(S32)mComponents) << LL_ENDL;
+            LL_WARNS() << llformat("LLImageBase::allocateData called with bad dimensions: %dx%dx%d",mWidth,mHeight,static_cast<S32>(mComponents)) << LL_ENDL;
             mBadBufferAllocation = true;
         }
     }
@@ -706,7 +706,7 @@ U8* LLImageBase::allocateData(S32 size)
     if (!mBadBufferAllocation && (!mData || size != mDataSize))
     {
         deleteData(); // virtual
-        mData = (U8*)ll_aligned_malloc_16(size);
+        mData = static_cast<U8*>(ll_aligned_malloc_16(size));
         if (!mData)
         {
             constexpr S32 MAX_TOLERANCE = 1024 * 1024 * 4; // 4 MB
@@ -744,7 +744,7 @@ U8* LLImageBase::allocateData(S32 size)
 // virtual
 U8* LLImageBase::reallocateData(S32 size)
 {
-    U8 *new_datap = (U8*)ll_aligned_malloc_16(size);
+    U8 *new_datap = static_cast<U8*>(ll_aligned_malloc_16(size));
     if (!new_datap)
     {
         LL_WARNS() << "Out of memory in LLImageBase::reallocateData" << LL_ENDL;
@@ -1057,7 +1057,7 @@ bool LLImageRaw::optimizeAwayAlpha()
         }
 
         // alpha channel is all 255, make a new copy of data without alpha channel
-        U8* new_data = (U8*) ll_aligned_malloc_16(getWidth() * getHeight() * 3);
+        U8* new_data = static_cast<U8*>(ll_aligned_malloc_16(getWidth() * getHeight() * 3));
 
         for (U32 i = 0; i < pixels; ++i)
         {
@@ -1085,7 +1085,7 @@ bool LLImageRaw::makeAlpha()
         U32 pixels = getWidth() * getHeight();
 
         // alpha channel doesn't exist, make a new copy of data with alpha channel
-        U8* new_data = (U8*) ll_aligned_malloc_16(getWidth() * getHeight() * 4);
+        U8* new_data = static_cast<U8*>(ll_aligned_malloc_16(getWidth() * getHeight() * 4));
 
         for (U32 i = 0; i < pixels; ++i)
         {
@@ -1142,7 +1142,7 @@ S32 LLImageRaw::biasedDimToPowerOfTwo(S32 curr_dim, S32 max_dim)
         larger_dim = smaller_dim;
         smaller_dim >>= 1;
     }
-    return ( ((F32)curr_dim / (F32)smaller_dim) > THRESHOLD ) ? larger_dim : smaller_dim;
+    return ( (static_cast<F32>(curr_dim) / static_cast<F32>(smaller_dim)) > THRESHOLD ) ? larger_dim : smaller_dim;
 }
 
 // static
@@ -1345,7 +1345,7 @@ void LLImageRaw::fill( const LLColor4U& color )
     S32 pixels = getWidth() * getHeight();
     if( 4 == getComponents() )
     {
-        U32* data = (U32*) getData();
+        U32* data = reinterpret_cast<U32*>(getData());
         U32 rgbaColor = color.asRGBA();
         for( S32 i = 0; i < pixels; i++ )
         {
@@ -1383,9 +1383,9 @@ void LLImageRaw::tint( const LLColor3& color )
         const float c0 = data[0] * color.mV[0];
         const float c1 = data[1] * color.mV[1];
         const float c2 = data[2] * color.mV[2];
-        data[0] = llclamp((U8)c0, 0, 255);
-        data[1] = llclamp((U8)c1, 0, 255);
-        data[2] = llclamp((U8)c2, 0, 255);
+        data[0] = llclamp(static_cast<U8>(c0), 0, 255);
+        data[1] = llclamp(static_cast<U8>(c1), 0, 255);
+        data[2] = llclamp(static_cast<U8>(c2), 0, 255);
         data += components;
     }
 }
@@ -1625,7 +1625,7 @@ bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
 
         if (new_data_size > 0)
         {
-            U8 *new_data = (U8*)ll_aligned_malloc_16(new_data_size);
+            U8 *new_data = static_cast<U8*>(ll_aligned_malloc_16(new_data_size));
             if(NULL == new_data)
             {
                 return false;
@@ -2053,7 +2053,7 @@ file_extensions[] =
 static std::string find_file(std::string &name, S8 *codec)
 {
     std::string tname;
-    for (int i=0; i<(int)(NUM_FILE_EXTENSIONS); i++)
+    for (int i=0; i<static_cast<int>(NUM_FILE_EXTENSIONS); i++)
     {
         tname = name + "." + std::string(file_extensions[i].exten);
         llifstream ifs(tname.c_str(), llifstream::binary);
@@ -2132,7 +2132,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
     llassert(image.notNull());
 
     U8 *buffer = image->allocateData(length);
-    ifs.read ((char*)buffer, length);
+    ifs.read (reinterpret_cast<char*>(buffer), length);
     ifs.close();
 
     bool success;
@@ -2151,7 +2151,7 @@ bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip
                 height >>= 1;
                 discard_level++;
             }
-            ((LLImageJ2C *)((LLImageFormatted*)image))->setDiscardLevel(discard_level);
+            static_cast<LLImageJ2C*>(static_cast<LLImageFormatted*>(image))->setDiscardLevel(discard_level);
         }
         success = image->decode(this, 100000.0f);
     }
@@ -2511,7 +2511,7 @@ bool LLImageFormatted::load(const std::string &filename, int load_size)
     {
         apr_size_t bytes_read = load_size;
         apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read
-        if (s != APR_SUCCESS || (S32) bytes_read != load_size)
+        if (s != APR_SUCCESS || static_cast<S32>(bytes_read) != load_size)
         {
             deleteData();
             setLastError("Unable to read file",filename);
@@ -2557,23 +2557,23 @@ S8 LLImageFormatted::getCodec() const
 
 static void avg4_colors4(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
 {
-    dst[0] = (U8)(((U32)(a[0]) + b[0] + c[0] + d[0])>>2);
-    dst[1] = (U8)(((U32)(a[1]) + b[1] + c[1] + d[1])>>2);
-    dst[2] = (U8)(((U32)(a[2]) + b[2] + c[2] + d[2])>>2);
-    dst[3] = (U8)(((U32)(a[3]) + b[3] + c[3] + d[3])>>2);
+    dst[0] = static_cast<U8>((static_cast<U32>(a[0]) + b[0] + c[0] + d[0])>>2);
+    dst[1] = static_cast<U8>((static_cast<U32>(a[1]) + b[1] + c[1] + d[1])>>2);
+    dst[2] = static_cast<U8>((static_cast<U32>(a[2]) + b[2] + c[2] + d[2])>>2);
+    dst[3] = static_cast<U8>((static_cast<U32>(a[3]) + b[3] + c[3] + d[3])>>2);
 }
 
 static void avg4_colors3(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
 {
-    dst[0] = (U8)(((U32)(a[0]) + b[0] + c[0] + d[0])>>2);
-    dst[1] = (U8)(((U32)(a[1]) + b[1] + c[1] + d[1])>>2);
-    dst[2] = (U8)(((U32)(a[2]) + b[2] + c[2] + d[2])>>2);
+    dst[0] = static_cast<U8>((static_cast<U32>(a[0]) + b[0] + c[0] + d[0])>>2);
+    dst[1] = static_cast<U8>((static_cast<U32>(a[1]) + b[1] + c[1] + d[1])>>2);
+    dst[2] = static_cast<U8>((static_cast<U32>(a[2]) + b[2] + c[2] + d[2])>>2);
 }
 
 static void avg4_colors2(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
 {
-    dst[0] = (U8)(((U32)(a[0]) + b[0] + c[0] + d[0])>>2);
-    dst[1] = (U8)(((U32)(a[1]) + b[1] + c[1] + d[1])>>2);
+    dst[0] = static_cast<U8>((static_cast<U32>(a[0]) + b[0] + c[0] + d[0])>>2);
+    dst[1] = static_cast<U8>((static_cast<U32>(a[1]) + b[1] + c[1] + d[1])>>2);
 }
 
 void LLImageBase::setDataAndSize(U8 *data, S32 size)
@@ -2605,7 +2605,7 @@ void LLImageBase::generateMip(const U8* indata, U8* mipdata, S32 width, S32 heig
                 avg4_colors2(indata, indata+2, indata+2*in_width, indata+2*in_width+2, data);
                 break;
               case 1:
-                *data = (U8)(((U32)(indata[0]) + indata[1] + indata[in_width] + indata[in_width+1])>>2);
+                *data = static_cast<U8>((static_cast<U32>(indata[0]) + indata[1] + indata[in_width] + indata[in_width+1])>>2);
                 break;
               default:
                 LL_ERRS() << "generateMmip called with bad num channels" << LL_ENDL;
@@ -2673,7 +2673,7 @@ F32 LLImageBase::calc_download_priority(F32 virtual_size, F32 visible_pixels, S3
     //LL_INFOS() << "BytesSent: " << bytes_sent << LL_ENDL;
     //LL_INFOS() << "BytesWeight: " << bytes_weight << LL_ENDL;
     //LL_INFOS() << "PreLog: " << bytes_weight * virtual_size_factor << LL_ENDL;
-    w_priority = (F32)log10(bytes_weight * virtual_size_factor);
+    w_priority = static_cast<F32>(log10(bytes_weight * virtual_size_factor));
 
     //LL_INFOS() << "PreScale: " << w_priority << LL_ENDL;
 
@@ -2681,7 +2681,7 @@ F32 LLImageBase::calc_download_priority(F32 virtual_size, F32 visible_pixels, S3
     // in which they're sent.  We post-multiply so we don't change the zero point.
     if (w_priority > 0.f)
     {
-        F32 pixel_weight = (F32)log10(visible_pixels + 1)*3.0f;
+        F32 pixel_weight = static_cast<F32>(log10(visible_pixels + 1))*3.0f;
         w_priority *= pixel_weight;
     }
 

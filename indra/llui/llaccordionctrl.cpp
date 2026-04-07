@@ -333,7 +333,7 @@ void LLAccordionCtrl::addCollapsibleCtrl(LLAccordionCtrlTab* accordion_tab)
         addChild(accordion_tab);
     mAccordionTabs.push_back(accordion_tab);
 
-    accordion_tab->setDropDownStateChangedCallback( [this, index = (S16)(mAccordionTabs.size() - 1)](LLUICtrl*, const LLSD&) { onCollapseCtrlCloseOpen(index); } );
+    accordion_tab->setDropDownStateChangedCallback( [this, index = static_cast<S16>(mAccordionTabs.size() - 1)](LLUICtrl*, const LLSD&) { onCollapseCtrlCloseOpen(index); } );
     scheduleArrange();
 }
 

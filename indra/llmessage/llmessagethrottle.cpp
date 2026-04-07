@@ -63,7 +63,7 @@ void LLMessageThrottle::pruneEntries()
         message_list_reverse_iterator_t r_last      = message_list->rend();
 
         // Look for the first entry younger than the maximum age.
-        F32 max_age = (F32)MAX_MESSAGE_AGE[cat];
+        F32 max_age = static_cast<F32>(MAX_MESSAGE_AGE[cat]);
         bool found = false;
         while (r_iterator != r_last && !found)
         {

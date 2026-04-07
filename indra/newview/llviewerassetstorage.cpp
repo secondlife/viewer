@@ -231,7 +231,7 @@ void LLViewerAssetStorage::storeAssetData(
             mMessageSys->newMessageFast(_PREHASH_AssetUploadRequest);
             mMessageSys->nextBlockFast(_PREHASH_AssetBlock);
             mMessageSys->addUUIDFast(_PREHASH_TransactionID, tid);
-            mMessageSys->addS8Fast(_PREHASH_Type, (S8)asset_type);
+            mMessageSys->addS8Fast(_PREHASH_Type, static_cast<S8>(asset_type));
             mMessageSys->addBOOLFast(_PREHASH_Tempfile, temp_file);
             mMessageSys->addBOOLFast(_PREHASH_StoreLocal, store_local);
             mMessageSys->addBinaryDataFast( _PREHASH_AssetData, buffer, asset_size );
@@ -301,7 +301,7 @@ void LLViewerAssetStorage::storeAssetData(
 
         const S32 buf_size = 65536;
         U8 copy_buf[buf_size];
-        while ((size = (S32)fread(copy_buf, 1, buf_size, fp)))
+        while ((size = static_cast<S32>(fread(copy_buf, 1, buf_size, fp))))
         {
             file.write(std::span{copy_buf, static_cast<size_t>(size)});
         }
@@ -319,7 +319,7 @@ void LLViewerAssetStorage::storeAssetData(
             tid,
             asset_type,
             legacyStoreDataCallback,
-            (void**)legacy,
+            reinterpret_cast<void**>(legacy),
             temp_file,
             is_priority);
     }

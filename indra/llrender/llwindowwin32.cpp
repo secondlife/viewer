@@ -334,7 +334,7 @@ public:
 
     LLMonitorInfo()
     {
-        EnumDisplayMonitors(0, 0, MonitorEnum, (LPARAM)this);
+        EnumDisplayMonitors(0, 0, MonitorEnum, reinterpret_cast<LPARAM>(this));
     }
 
 private:
@@ -513,7 +513,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     if (mMaxCores != 0)
     {
         HANDLE hProcess = GetCurrentProcess();
-        mMaxCores = llmin(mMaxCores, (U32) 64);
+        mMaxCores = llmin(mMaxCores, static_cast<U32>(64));
         DWORD_PTR mask = 0;
 
         for (U32 i = 0; i < mMaxCores; ++i)
@@ -747,7 +747,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
     {
         current_refresh = dev_mode.dmDisplayFrequency;
-        mNativeAspectRatio = ((F32)dev_mode.dmPelsWidth) / ((F32)dev_mode.dmPelsHeight);
+        mNativeAspectRatio = (static_cast<F32>(dev_mode.dmPelsWidth)) / (static_cast<F32>(dev_mode.dmPelsHeight));
     }
     else
     {
@@ -1416,26 +1416,26 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
     LL_INFOS("Window") << "pfd.nSize:            " << pfd.nSize << LL_ENDL ;
     LL_INFOS("Window") << "pfd.nVersion:         " << pfd.nVersion << LL_ENDL ;
     LL_INFOS("Window") << "pfd.dwFlags:          0x" << std::hex << pfd.dwFlags << std::dec << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.iPixelType:       " << (int)pfd.iPixelType << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cColorBits:       " << (int)pfd.cColorBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cRedBits:         " << (int)pfd.cRedBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cRedShift:        " << (int)pfd.cRedShift << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cGreenBits:       " << (int)pfd.cGreenBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cGreenShift:      " << (int)pfd.cGreenShift << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cBlueBits:        " << (int)pfd.cBlueBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cBlueShift:       " << (int)pfd.cBlueShift << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cAlphaBits:       " << (int)pfd.cAlphaBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cAlphaShift:      " << (int)pfd.cAlphaShift << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cAccumBits:       " << (int)pfd.cAccumBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cAccumRedBits:    " << (int)pfd.cAccumRedBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cAccumGreenBits:  " << (int)pfd.cAccumGreenBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cAccumBlueBits:   " << (int)pfd.cAccumBlueBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cAccumAlphaBits:  " << (int)pfd.cAccumAlphaBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cDepthBits:       " << (int)pfd.cDepthBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cStencilBits:     " << (int)pfd.cStencilBits << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.cAuxBuffers:      " << (int)pfd.cAuxBuffers << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.iLayerType:       " << (int)pfd.iLayerType << LL_ENDL ;
-    LL_INFOS("Window") << "pfd.bReserved:        " << (int)pfd.bReserved << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.iPixelType:       " << static_cast<int>(pfd.iPixelType) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cColorBits:       " << static_cast<int>(pfd.cColorBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cRedBits:         " << static_cast<int>(pfd.cRedBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cRedShift:        " << static_cast<int>(pfd.cRedShift) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cGreenBits:       " << static_cast<int>(pfd.cGreenBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cGreenShift:      " << static_cast<int>(pfd.cGreenShift) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cBlueBits:        " << static_cast<int>(pfd.cBlueBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cBlueShift:       " << static_cast<int>(pfd.cBlueShift) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cAlphaBits:       " << static_cast<int>(pfd.cAlphaBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cAlphaShift:      " << static_cast<int>(pfd.cAlphaShift) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cAccumBits:       " << static_cast<int>(pfd.cAccumBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cAccumRedBits:    " << static_cast<int>(pfd.cAccumRedBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cAccumGreenBits:  " << static_cast<int>(pfd.cAccumGreenBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cAccumBlueBits:   " << static_cast<int>(pfd.cAccumBlueBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cAccumAlphaBits:  " << static_cast<int>(pfd.cAccumAlphaBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cDepthBits:       " << static_cast<int>(pfd.cDepthBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cStencilBits:     " << static_cast<int>(pfd.cStencilBits) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.cAuxBuffers:      " << static_cast<int>(pfd.cAuxBuffers) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.iLayerType:       " << static_cast<int>(pfd.iLayerType) << LL_ENDL ;
+    LL_INFOS("Window") << "pfd.bReserved:        " << static_cast<int>(pfd.bReserved) << LL_ENDL ;
     LL_INFOS("Window") << "pfd.dwLayerMask:      " << pfd.dwLayerMask << LL_ENDL ;
     LL_INFOS("Window") << "pfd.dwVisibleMask:    " << pfd.dwVisibleMask << LL_ENDL ;
     LL_INFOS("Window") << "pfd.dwDamageMask:     " << pfd.dwDamageMask << LL_ENDL ;
@@ -1605,7 +1605,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
 
         S32 swap_method = 0;
         S32   cur_format  = 0;
-const   S32   max_format  = (S32)num_formats - 1;
+const   S32   max_format  = static_cast<S32>(num_formats) - 1;
         GLint swap_query = WGL_SWAP_METHOD_ARB;
 
         // SL-14705 Fix name tags showing in front of objects with AMD GPUs.
@@ -1725,7 +1725,7 @@ const   S32   max_format  = (S32)num_formats - 1;
     mhRC = 0;
     if (wglCreateContextAttribsARB)
     { //attempt to create a specific versioned context
-        mhRC = (HGLRC) createSharedContext();
+        mhRC = static_cast<HGLRC>(createSharedContext());
         if (!mhRC)
         {
             return false;
@@ -1904,7 +1904,7 @@ void* LLWindowWin32::createSharedContext()
     mMaxGLVersion = llclamp(mMaxGLVersion, 3.f, 4.6f);
 
     S32 version_major = llfloor(mMaxGLVersion);
-    S32 version_minor = (S32)llround((mMaxGLVersion-version_major)*10);
+    S32 version_minor = static_cast<S32>(llround((mMaxGLVersion-version_major)*10));
 
     S32 attribs[] =
     {
@@ -1957,13 +1957,13 @@ void* LLWindowWin32::createSharedContext()
 
 void LLWindowWin32::makeContextCurrent(void* contextPtr)
 {
-    wglMakeCurrent(mhDC, (HGLRC) contextPtr);
+    wglMakeCurrent(mhDC, static_cast<HGLRC>(contextPtr));
     LL_PROFILER_GPU_CONTEXT;
 }
 
 void LLWindowWin32::destroySharedContext(void* contextPtr)
 {
-    wglDeleteContext((HGLRC)contextPtr);
+    wglDeleteContext(static_cast<HGLRC>(contextPtr));
 }
 
 void LLWindowWin32::toggleVSync(bool enable_vsync)
@@ -2359,13 +2359,13 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
     // This is to avoid triggering double click teleport after returning focus (see MAINT-3786).
     static bool sHandleDoubleClick = true;
 
-    LLWindowWin32* window_imp = (LLWindowWin32*)GetWindowLongPtr(h_wnd, GWLP_USERDATA);
+    LLWindowWin32* window_imp = reinterpret_cast<LLWindowWin32*>(GetWindowLongPtr(h_wnd, GWLP_USERDATA));
 
     if (NULL != window_imp)
     {
         // Juggle to make sure we can get negative positions for when
         // mouse is outside window.
-        LLCoordWindow window_coord((S32)(S16)LOWORD(l_param), (S32)(S16)HIWORD(l_param));
+        LLCoordWindow window_coord(static_cast<S32>(static_cast<S16>(LOWORD(l_param))), static_cast<S32>(static_cast<S16>(HIWORD(l_param))));
 
         // pass along extended flag in mask
         MASK mask = (l_param >> 16 & KF_EXTENDED) ? MASK_EXTENDED : 0x0;
@@ -2447,7 +2447,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             window_imp->post([=]()
                 {
                     // This message should be sent whenever the app gains or loses focus.
-                    BOOL activating = (BOOL)w_param;
+                    BOOL activating = static_cast<BOOL>(w_param);
 
                     if (window_imp->mFullscreen)
                     {
@@ -2542,7 +2542,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         {
             // Generally means that OS is going to shut down or user is going to log off.
             // Can use ShutdownBlockReasonCreate here.
-            LL_INFOS("Window") << "Received WM_QUERYENDSESSION with wParam: " << (U32)w_param << " lParam: " << (U32)l_param << LL_ENDL;
+            LL_INFOS("Window") << "Received WM_QUERYENDSESSION with wParam: " << static_cast<U32>(w_param) << " lParam: " << static_cast<U32>(l_param) << LL_ENDL;
             return TRUE; // 1 = ok to end session. 0 no longer works by itself, use ShutdownBlockReasonCreate
         }
         case WM_ENDSESSION:
@@ -2550,8 +2550,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // OS session is shutting down, initiate cleanup.
             // Comes after WM_QUERYENDSESSION
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ENDSESSION");
-            LL_INFOS("Window") << "Received WM_ENDSESSION with wParam: " << (U32)w_param << " lParam: " << (U32)l_param << LL_ENDL;
-            unsigned int end_session_flags = (U32)l_param;
+            LL_INFOS("Window") << "Received WM_ENDSESSION with wParam: " << static_cast<U32>(w_param) << " lParam: " << static_cast<U32>(l_param) << LL_ENDL;
+            unsigned int end_session_flags = static_cast<U32>(l_param);
 
             if (w_param == TRUE // if true, session is ending
                 || end_session_flags == 0 // not possible to determine type of the event
@@ -2603,12 +2603,12 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 {
                     window_imp->mKeyCharCode = 0; // don't know until wm_char comes in next
                     window_imp->mKeyScanCode = (l_param >> 16) & 0xff;
-                    window_imp->mKeyVirtualKey = (U32)w_param;
+                    window_imp->mKeyVirtualKey = static_cast<U32>(w_param);
                     window_imp->mRawMsg = u_msg;
-                    window_imp->mRawWParam = (U32)w_param;
-                    window_imp->mRawLParam = (U32)l_param;
+                    window_imp->mRawWParam = static_cast<U32>(w_param);
+                    window_imp->mRawLParam = static_cast<U32>(l_param);
 
-                    gKeyboard->handleKeyDown((U16)w_param, mask);
+                    gKeyboard->handleKeyDown(static_cast<U16>(w_param), mask);
                 });
             if (eat_keystroke) return 0;    // skip DefWindowProc() handling if we're consuming the keypress
             break;
@@ -2623,14 +2623,14 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             window_imp->post([=]()
             {
                 window_imp->mKeyScanCode = (l_param >> 16) & 0xff;
-                window_imp->mKeyVirtualKey = (U32)w_param;
+                window_imp->mKeyVirtualKey = static_cast<U32>(w_param);
                 window_imp->mRawMsg = u_msg;
-                window_imp->mRawWParam = (U32)w_param;
-                window_imp->mRawLParam = (U32)l_param;
+                window_imp->mRawWParam = static_cast<U32>(w_param);
+                window_imp->mRawLParam = static_cast<U32>(l_param);
 
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_KEYUP");
-                    gKeyboard->handleKeyUp((U16)w_param, mask);
+                    gKeyboard->handleKeyUp(static_cast<U16>(w_param), mask);
                 }
             });
             if (eat_keystroke) return 0;    // skip DefWindowProc() handling if we're consuming the keypress
@@ -2670,7 +2670,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_COMPOSITION");
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
-                WINDOW_IMP_POST(window_imp->handleCompositionMessage((U32)l_param));
+                WINDOW_IMP_POST(window_imp->handleCompositionMessage(static_cast<U32>(l_param)));
                 return 0;
             }
             break;
@@ -2691,10 +2691,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_CHAR");
             window_imp->post([=]()
                 {
-                    window_imp->mKeyCharCode = (U32)w_param;
+                    window_imp->mKeyCharCode = static_cast<U32>(w_param);
                     window_imp->mRawMsg = u_msg;
-                    window_imp->mRawWParam = (U32)w_param;
-                    window_imp->mRawLParam = (U32)l_param;
+                    window_imp->mRawWParam = static_cast<U32>(w_param);
+                    window_imp->mRawLParam = static_cast<U32>(l_param);
 
                     // Should really use WM_UNICHAR eventually, but it requires a specific Windows version and I need
                     // to figure out how that works. - Doug
@@ -2709,7 +2709,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
                     // Even if LLWindowCallbacks::handleUnicodeChar(llwchar, bool) returned false,
                     // we *did* processed the event, so I believe we should not pass it to DefWindowProc...
-                    window_imp->handleUnicodeUTF16((U16)w_param, gKeyboard->currentMask(false));
+                    window_imp->handleUnicodeUTF16(static_cast<U16>(w_param), gKeyboard->currentMask(false));
                 });
             return 0;
         }
@@ -2912,7 +2912,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // eat scroll events that occur outside our window, since we use mouse position to direct scroll
             // instead of keyboard focus
             // NOTE: mouse_coord is in *window* coordinates for scroll events
-            POINT mouse_coord = { (S32)(S16)LOWORD(l_param), (S32)(S16)HIWORD(l_param) };
+            POINT mouse_coord = { static_cast<S32>(static_cast<S16>(LOWORD(l_param))), static_cast<S32>(static_cast<S16>(HIWORD(l_param))) };
 
             if (ScreenToClient(window_imp->mWindowHandle, &mouse_coord)
                 && GetClientRect(window_imp->mWindowHandle, &client_rect))
@@ -2969,7 +2969,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // eat scroll events that occur outside our window, since we use mouse position to direct scroll
             // instead of keyboard focus
             // NOTE: mouse_coord is in *window* coordinates for scroll events
-            POINT mouse_coord = { (S32)(S16)LOWORD(l_param), (S32)(S16)HIWORD(l_param) };
+            POINT mouse_coord = { static_cast<S32>(static_cast<S16>(LOWORD(l_param))), static_cast<S32>(static_cast<S16>(HIWORD(l_param))) };
 
             if (ScreenToClient(window_imp->mWindowHandle, &mouse_coord)
                 && GetClientRect(window_imp->mWindowHandle, &client_rect))
@@ -3123,7 +3123,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
                 window_imp->post([=]()
                     {
-                       window_imp->mCallbacks->handleDataCopy(window_imp, (S32)myType, data);
+                       window_imp->mCallbacks->handleDataCopy(window_imp, static_cast<S32>(myType), data);
                        delete[] data;
                     });
             };
@@ -3194,8 +3194,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                             S32 width = GetSystemMetrics(v_desktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
                             S32 height = GetSystemMetrics(v_desktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
 
-                            absolute_x = (S32)((raw->data.mouse.lLastX / 65535.0f) * width);
-                            absolute_y = (S32)((raw->data.mouse.lLastY / 65535.0f) * height);
+                            absolute_x = static_cast<S32>((raw->data.mouse.lLastX / 65535.0f) * width);
+                            absolute_y = static_cast<S32>((raw->data.mouse.lLastY / 65535.0f) * height);
                         }
 
                         window_imp->mRawMouseDelta.mX += absolute_x - prev_absolute_x;
@@ -3217,8 +3217,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                         }
                         else
                         {
-                            window_imp->mRawMouseDelta.mX += (S32)round((F32)raw->data.mouse.lLastX * (F32)speed / DEFAULT_SPEED);
-                            window_imp->mRawMouseDelta.mY -= (S32)round((F32)raw->data.mouse.lLastY * (F32)speed / DEFAULT_SPEED);
+                            window_imp->mRawMouseDelta.mX += static_cast<S32>(round(static_cast<F32>(raw->data.mouse.lLastX) * static_cast<F32>(speed) / DEFAULT_SPEED));
+                            window_imp->mRawMouseDelta.mY -= static_cast<S32>(round(static_cast<F32>(raw->data.mouse.lLastY) * static_cast<F32>(speed) / DEFAULT_SPEED));
                         }
                         window_imp->mAbsoluteCursorPosition = false;
                     }
@@ -3382,7 +3382,7 @@ bool LLWindowWin32::pasteTextFromClipboard(LLWString &dst)
             HGLOBAL h_data = GetClipboardData(CF_UNICODETEXT);
             if (h_data)
             {
-                WCHAR *utf16str = (WCHAR*) GlobalLock(h_data);
+                WCHAR *utf16str = reinterpret_cast<WCHAR*>(GlobalLock(h_data));
                 if (utf16str)
                 {
                     dst = ll_convert<LLWString>(std::wstring(utf16str));
@@ -3417,7 +3417,7 @@ bool LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
         HGLOBAL hglobal_copy_utf16 = GlobalAlloc(GMEM_MOVEABLE, size_utf16);
         if (hglobal_copy_utf16)
         {
-            WCHAR* copy_utf16 = (WCHAR*) GlobalLock(hglobal_copy_utf16);
+            WCHAR* copy_utf16 = reinterpret_cast<WCHAR*>(GlobalLock(hglobal_copy_utf16));
             if (copy_utf16)
             {
                 memcpy(copy_utf16, out_utf16.c_str(), size_utf16);  /* Flawfinder: ignore */
@@ -3643,7 +3643,7 @@ F32 LLWindowWin32::getNativeAspectRatio()
     S32 num_resolutions;
     LLWindowResolution* resolutions = getSupportedResolutions(num_resolutions);
 
-    return ((F32)resolutions[num_resolutions - 1].mWidth / (F32)resolutions[num_resolutions - 1].mHeight);
+    return (static_cast<F32>(resolutions[num_resolutions - 1].mWidth) / static_cast<F32>(resolutions[num_resolutions - 1].mHeight));
 }
 
 F32 LLWindowWin32::getPixelAspectRatio()
@@ -3653,7 +3653,7 @@ F32 LLWindowWin32::getPixelAspectRatio()
     {
         LLCoordScreen screen_size;
         getSize(&screen_size);
-        pixel_aspect = getNativeAspectRatio() * (F32)screen_size.mY / (F32)screen_size.mX;
+        pixel_aspect = getNativeAspectRatio() * static_cast<F32>(screen_size.mY) / static_cast<F32>(screen_size.mX);
     }
 
     return pixel_aspect;
@@ -3792,7 +3792,7 @@ void LLSplashScreenWin32::updateImpl(const std::string& mesg)
         666,        // HACK: text id
         WM_SETTEXT,
         FALSE,
-        (LPARAM)w_mesg);
+        reinterpret_cast<LPARAM>(w_mesg));
 }
 
 
@@ -3930,8 +3930,8 @@ LLSD LLWindowWin32::getNativeKeyData()
 {
     LLSD result = LLSD::emptyMap();
 
-    result["scan_code"] = (S32)mKeyScanCode;
-    result["virtual_key"] = (S32)mKeyVirtualKey;
+    result["scan_code"] = static_cast<S32>(mKeyScanCode);
+    result["virtual_key"] = static_cast<S32>(mKeyVirtualKey);
     result["msg"] = ll_sd_from_U32(mRawMsg);
     result["w_param"] = ll_sd_from_U32(mRawWParam);
     result["l_param"] = ll_sd_from_U32(mRawLParam);
@@ -3963,18 +3963,18 @@ bool LLWindowWin32::dialogColorPicker( F32 *r, F32 *g, F32 *b )
     }
     //send_agent_resume();  // this is in newview and we don't want to set up a dependency
 
-    *b = ((F32)((cc.rgbResult >> 16) & 0xff)) / 255.f;
+    *b = (static_cast<F32>((cc.rgbResult >> 16) & 0xff)) / 255.f;
 
-    *g = ((F32)((cc.rgbResult >> 8) & 0xff)) / 255.f;
+    *g = (static_cast<F32>((cc.rgbResult >> 8) & 0xff)) / 255.f;
 
-    *r = ((F32)(cc.rgbResult & 0xff)) / 255.f;
+    *r = (static_cast<F32>(cc.rgbResult & 0xff)) / 255.f;
 
     return (retval);
 }
 
 void *LLWindowWin32::getPlatformWindow()
 {
-    return (void*)mWindowHandle;
+    return reinterpret_cast<void*>(mWindowHandle);
 }
 
 void LLWindowWin32::bringToFront()
@@ -4435,7 +4435,7 @@ static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_leng
 {
     static constexpr S32 CONTEXT_EXCESS = 30;   // This value is by experiences.
 
-    const S32 e = llmin((S32) wtext.length(), focus + focus_length + CONTEXT_EXCESS);
+    const S32 e = llmin(static_cast<S32>(wtext.length()), focus + focus_length + CONTEXT_EXCESS);
     S32 end = focus + focus_length;
     while (end < e && '\n' != wtext[end])
     {
@@ -4571,7 +4571,7 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                 S32 context_offset;
                 LLWString context = find_context(wtext, preedit, preedit_length, &context_offset);
                 preedit -= context_offset;
-                preedit_length = llmin(preedit_length, (S32)context.length() - preedit);
+                preedit_length = llmin(preedit_length, static_cast<S32>(context.length()) - preedit);
                 if (preedit_length > 0 && preedit >= 0)
                 {
                     // IMR_DOCUMENTFEED may be called when we have an active preedit.
@@ -4631,9 +4631,9 @@ bool LLWindowWin32::getInputDevices(U32 device_type_filter,
     {
         // Enumerate devices
         HRESULT status = gDirectInput8->EnumDevices(
-            (DWORD) device_type_filter,        // DWORD dwDevType,
-            (LPDIENUMDEVICESCALLBACK)di8_devices_callback,  // LPDIENUMDEVICESCALLBACK lpCallback, // BOOL DIEnumDevicesCallback( LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef ) // BOOL CALLBACK DinputDevice::DevicesCallback
-            (LPVOID*)userdata, // LPVOID pvRef
+            static_cast<DWORD>(device_type_filter),        // DWORD dwDevType,
+            reinterpret_cast<LPDIENUMDEVICESCALLBACK>(di8_devices_callback),  // LPDIENUMDEVICESCALLBACK lpCallback, // BOOL DIEnumDevicesCallback( LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef ) // BOOL CALLBACK DinputDevice::DevicesCallback
+            reinterpret_cast<LPVOID*>(userdata), // LPVOID pvRef
             DIEDFL_ATTACHEDONLY       // DWORD dwFlags
             );
 
@@ -4650,7 +4650,7 @@ void LLWindowWin32::initWatchdog()
 F32 LLWindowWin32::getSystemUISize()
 {
     F32 scale_value = 1.f;
-    HWND hWnd = (HWND)getPlatformWindow();
+    HWND hWnd = static_cast<HWND>(getPlatformWindow());
     HDC hdc = GetDC(hWnd);
     HMONITOR hMonitor;
     HANDLE hProcess = GetCurrentProcess();
@@ -4843,9 +4843,9 @@ void LLWindowWin32::LLWindowWin32Thread::checkDXMem()
                             budget_mb = llmin(budget_mb, (UINT64)2048);
                         }
                     }
-                    if (gGLManager.mVRAM < (S32)budget_mb)
+                    if (gGLManager.mVRAM < static_cast<S32>(budget_mb))
                     {
-                        gGLManager.mVRAM = (S32)budget_mb;
+                        gGLManager.mVRAM = static_cast<S32>(budget_mb);
                         LL_INFOS("RenderInit") << "New VRAM Budget (DX9): " << gGLManager.mVRAM << " MB" << LL_ENDL;
                     }
                     else
@@ -4903,7 +4903,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
     TIMECAPS tc;
     if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) == TIMERR_NOERROR)
     {
-        timeBeginPeriod(llclamp((U32) 1, tc.wPeriodMin, tc.wPeriodMax));
+        timeBeginPeriod(llclamp(static_cast<U32>(1), tc.wPeriodMin, tc.wPeriodMax));
     }
 
     // Normally won't exist yet, but in case of re-init, make sure it's cleaned up
@@ -5161,8 +5161,8 @@ void LLWindowWin32::setCustomIcon()
             HICON hSmallIcon   = LoadIcon(mhInstance, mIconSmallResource);
             mWindowThread->post([=, this]()
                 {
-                    SendMessage(mWindowHandle, WM_SETICON, ICON_BIG, (LPARAM)hDefaultIcon);
-                    SendMessage(mWindowHandle, WM_SETICON, ICON_SMALL, (LPARAM)hSmallIcon);
+                    SendMessage(mWindowHandle, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(hDefaultIcon));
+                    SendMessage(mWindowHandle, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(hSmallIcon));
 
                     SetClassLongPtr(mWindowHandle, GCLP_HICON, (LONG_PTR)hDefaultIcon);
                     SetClassLongPtr(mWindowHandle, GCLP_HICONSM, (LONG_PTR)hSmallIcon);

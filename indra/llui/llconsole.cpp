@@ -96,7 +96,7 @@ void LLConsole::reshape(S32 width, S32 height, bool called_from_parent)
 
     for(auto & mParagraph : mParagraphs)
     {
-        mParagraph.updateLines((F32)getRect().getWidth(), mFont, true);
+        mParagraph.updateLines(static_cast<F32>(getRect().getWidth()), mFont, true);
     }
 }
 
@@ -126,7 +126,7 @@ void LLConsole::setFontSize(S32 size_index)
 
     for(auto & mParagraph : mParagraphs)
     {
-        mParagraph.updateLines((F32)getRect().getWidth(), mFont, true);
+        mParagraph.updateLines(static_cast<F32>(getRect().getWidth()), mFont, true);
     }
 }
 
@@ -158,7 +158,7 @@ void LLConsole::draw()
     {
         num_lines += (*paragraph_it).mLines.size();
         if(num_lines > mMaxLines
-            || ( (mLinePersistTime > (F32)0.f) && ((*paragraph_it).mAddTime - skip_time)/(mLinePersistTime - mFadeTime) <= (F32)0.f))
+            || ( (mLinePersistTime > 0.f) && ((*paragraph_it).mAddTime - skip_time)/(mLinePersistTime - mFadeTime) <= 0.f))
         {                           //All lines above here are done.  Lose them.
             for (size_t i = 0; i < paragraph_num; i++)
             {
@@ -188,7 +188,7 @@ void LLConsole::draw()
     LLColor4 color = console_color;
     color.mV[VALPHA] *= console_opacity;
 
-    F32 line_height = (F32)mFont->getLineHeight();
+    F32 line_height = static_cast<F32>(mFont->getLineHeight());
 
     for(paragraph_it = mParagraphs.rbegin(); paragraph_it != mParagraphs.rend(); paragraph_it++)
     {
@@ -196,7 +196,7 @@ void LLConsole::draw()
         S32 target_width =  llfloor( (*paragraph_it).mMaxWidth + padding_horizontal);
 
         y_pos += ((*paragraph_it).mLines.size()) * line_height;
-        imagep->drawSolid(-14, (S32)(y_pos + line_height - target_height), target_width, target_height, color);
+        imagep->drawSolid(-14, static_cast<S32>(y_pos + line_height - target_height), target_width, target_height, color);
 
         F32 y_off=0;
 
@@ -294,7 +294,7 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
     S32 paragraph_offset = 0;           //Offset into the paragraph text.
 
     // Wrap lines that are longer than the view is wide.
-    while( paragraph_offset < (S32)mParagraphText.length() &&
+    while( paragraph_offset < static_cast<S32>(mParagraphText.length()) &&
            mParagraphText[paragraph_offset] != 0)
     {
         S32 skip_chars; // skip '\n'
@@ -316,7 +316,7 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
         {
             F32 x_position = 0;                     //Screen X position of text.
 
-            mMaxWidth = llmax( mMaxWidth, (F32)font->getWidth( mParagraphText.substr( paragraph_offset, drawable ).c_str() ) );
+            mMaxWidth = llmax( mMaxWidth, static_cast<F32>(font->getWidth( mParagraphText.substr( paragraph_offset, drawable ).c_str() )) );
             Line line;
 
             U32 left_to_draw = drawable;
@@ -388,13 +388,13 @@ void LLConsole::update()
                             LLColor4::white,
                             mTimer.getElapsedTimeF32(),
                             mFont,
-                            (F32)getRect().getWidth());
+                            static_cast<F32>(getRect().getWidth()));
             mLines.pop_front();
         }
     }
 
     // remove old paragraphs which can't possibly be visible any more.  ::draw() will do something similar but more conservative - we do this here because ::draw() isn't guaranteed to ever be called!  (i.e. the console isn't visible)
-    while ((S32)mParagraphs.size() > llmax((S32)0, (S32)(mMaxLines)))
+    while (static_cast<S32>(mParagraphs.size()) > llmax(static_cast<S32>(0), static_cast<S32>(mMaxLines)))
     {
             mParagraphs.pop_front();
     }

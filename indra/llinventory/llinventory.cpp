@@ -473,7 +473,7 @@ U32 LLInventoryItem::getCRC32() const
     //LL_DEBUGS() << "7 crc: " << std::hex << crc << std::dec << LL_ENDL;
     crc += mSaleInfo.getCRC32();
     //LL_DEBUGS() << "8 crc: " << std::hex << crc << std::dec << LL_ENDL;
-    crc += (U32)mCreationDate;
+    crc += static_cast<U32>(mCreationDate);
     //LL_DEBUGS() << "9 crc: " << std::hex << crc << std::dec << LL_ENDL;
     crc += mThumbnailUUID.getCRC32();
     return crc;
@@ -596,7 +596,7 @@ void LLInventoryItem::packMessage(LLMessageSystem* msg) const
     mSaleInfo.packMessage(msg);
     msg->addStringFast(_PREHASH_Name, mName);
     msg->addStringFast(_PREHASH_Description, mDescription);
-    msg->addS32Fast(_PREHASH_CreationDate, (S32)mCreationDate);
+    msg->addS32Fast(_PREHASH_CreationDate, static_cast<S32>(mCreationDate));
     U32 crc = getCRC32();
     msg->addU32Fast(_PREHASH_CRC, crc);
 }
@@ -966,14 +966,14 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
     }
     else
     {
-        sd[INV_INVENTORY_TYPE_LABEL] = (LLSD::Integer)mInventoryType;
+        sd[INV_INVENTORY_TYPE_LABEL] = static_cast<LLSD::Integer>(mInventoryType);
     }
     //sd[INV_FLAGS_LABEL] = (S32)mFlags;
     sd[INV_FLAGS_LABEL] = ll_sd_from_U32(mFlags);
     mSaleInfo.asLLSD(sd[INV_SALE_INFO_LABEL]);
     sd[INV_NAME_LABEL] = mName;
     sd[INV_DESC_LABEL] = mDescription;
-    sd[INV_CREATION_DATE_LABEL] = (LLSD::Integer)mCreationDate;
+    sd[INV_CREATION_DATE_LABEL] = static_cast<LLSD::Integer>(mCreationDate);
 }
 
 bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
@@ -1108,7 +1108,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             }
             else if (label.isInteger())
             {
-                S8 type = (U8) label.asInteger();
+                S8 type = static_cast<U8>(label.asInteger());
                 mType   = static_cast<LLAssetType::EType>(type);
             }
             continue;
@@ -1123,7 +1123,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
             }
             else if (label.isInteger())
             {
-                S8 type        = (U8) label.asInteger();
+                S8 type        = static_cast<U8>(label.asInteger());
                 mInventoryType = static_cast<LLInventoryType::EType>(type);
             }
             continue;
@@ -1326,13 +1326,13 @@ bool LLInventoryCategory::fromLLSD(const LLSD& sd)
     w = INV_ASSET_TYPE_LABEL;
     if (sd.has(w))
     {
-        S8 type = (U8)sd[w].asInteger();
+        S8 type = static_cast<U8>(sd[w].asInteger());
         mPreferredType = static_cast<LLFolderType::EType>(type);
     }
     w = INV_ASSET_TYPE_LABEL_WS;
     if (sd.has(w))
     {
-        S8 type = (U8)sd[w].asInteger();
+        S8 type = static_cast<U8>(sd[w].asInteger());
         mPreferredType = static_cast<LLFolderType::EType>(type);
     }
 
@@ -1601,8 +1601,8 @@ LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item)
         ll_create_sd_from_permissions(item->getPermissions());
     rv[INV_INVENTORY_TYPE_LABEL] =
         LLInventoryType::lookup(item->getInventoryType());
-    rv[INV_FLAGS_LABEL] = (S32)item->getFlags();
-    rv[INV_CREATION_DATE_LABEL] = (S32)item->getCreationDate();
+    rv[INV_FLAGS_LABEL] = static_cast<S32>(item->getFlags());
+    rv[INV_CREATION_DATE_LABEL] = static_cast<S32>(item->getCreationDate());
     return rv;
 }
 

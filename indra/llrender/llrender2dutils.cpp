@@ -64,8 +64,8 @@ bool ui_point_in_rect(S32 x, S32 y, S32 left, S32 top, S32 right, S32 bottom)
 void gl_state_for_2d(S32 width, S32 height)
 {
     stop_glerror();
-    F32 window_width = (F32) width;//gViewerWindow->getWindowWidth();
-    F32 window_height = (F32) height;//gViewerWindow->getWindowHeight();
+    F32 window_width = static_cast<F32>(width);//gViewerWindow->getWindowWidth();
+    F32 window_height = static_cast<F32>(height);//gViewerWindow->getWindowHeight();
 
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.loadIdentity();
@@ -106,10 +106,10 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixe
     top += LLFontGL::sCurOrigin.mY;
 
     gGL.loadUIIdentity();
-    gl_rect_2d(llfloor((F32)left * LLRender::sUIGLScaleFactor.mV[VX]) - pixel_offset,
-                llfloor((F32)top * LLRender::sUIGLScaleFactor.mV[VY]) + pixel_offset,
-                llfloor((F32)right * LLRender::sUIGLScaleFactor.mV[VX]) + pixel_offset,
-                llfloor((F32)bottom * LLRender::sUIGLScaleFactor.mV[VY]) - pixel_offset,
+    gl_rect_2d(llfloor(static_cast<F32>(left) * LLRender::sUIGLScaleFactor.mV[VX]) - pixel_offset,
+                llfloor(static_cast<F32>(top) * LLRender::sUIGLScaleFactor.mV[VY]) + pixel_offset,
+                llfloor(static_cast<F32>(right) * LLRender::sUIGLScaleFactor.mV[VX]) + pixel_offset,
+                llfloor(static_cast<F32>(bottom) * LLRender::sUIGLScaleFactor.mV[VY]) - pixel_offset,
                 filled);
     gGL.popUIMatrix();
 }
@@ -290,8 +290,8 @@ void gl_corners_2d(S32 left, S32 top, S32 right, S32 bottom, S32 length, F32 max
 {
     gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
-    length = llmin((S32)(max_frac*(right - left)), length);
-    length = llmin((S32)(max_frac*(top - bottom)), length);
+    length = llmin(static_cast<S32>(max_frac*(right - left)), length);
+    length = llmin(static_cast<S32>(max_frac*(top - bottom)), length);
     gGL.begin(LLRender::LINES);
     gGL.vertex2i(left, top);
     gGL.vertex2i(left + length, top);
@@ -354,8 +354,8 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border
     }
 
     // scale screen size of borders down
-    F32 border_width_fraction = (F32)border_width / (F32)image->getWidth(0);
-    F32 border_height_fraction = (F32)border_height / (F32)image->getHeight(0);
+    F32 border_width_fraction = static_cast<F32>(border_width) / static_cast<F32>(image->getWidth(0));
+    F32 border_height_fraction = static_cast<F32>(border_height) / static_cast<F32>(image->getHeight(0));
 
     LLRectf scale_rect(border_width_fraction, 1.f - border_height_fraction, 1.f - border_width_fraction, border_height_fraction);
     gl_draw_scaled_image_with_border(x, y, width, height, image, color, solid_color, uv_rect, scale_rect, scale_inner);
@@ -387,7 +387,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
     {
         // add in offset of current image to current UI translation
         const LLVector3 ui_scale = gGL.getUIScale();
-        const LLVector3 ui_translation = (gGL.getUITranslation() + LLVector3((F32)x, (F32)y, 0.f)).scaledVec(ui_scale);
+        const LLVector3 ui_translation = (gGL.getUITranslation() + LLVector3(static_cast<F32>(x), static_cast<F32>(y), 0.f)).scaledVec(ui_scale);
 
         F32 uv_width = uv_outer_rect.getWidth();
         F32 uv_height = uv_outer_rect.getHeight();
@@ -398,8 +398,8 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
                                 uv_outer_rect.mLeft + (center_rect.mRight * uv_width),
                                 uv_outer_rect.mBottom + (center_rect.mBottom * uv_height));
 
-        F32 image_width = (F32)image->getWidth(0);
-        F32 image_height = (F32)image->getHeight(0);
+        F32 image_width = static_cast<F32>(image->getWidth(0));
+        F32 image_height = static_cast<F32>(image->getHeight(0));
 
         S32 image_natural_width = ll_round(image_width * uv_width);
         S32 image_natural_height = ll_round(image_height * uv_height);
@@ -418,28 +418,28 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
             const F32 border_shrink_width = llmax(0.f, draw_center_rect.mLeft - draw_center_rect.mRight);
             const F32 border_shrink_height = llmax(0.f, draw_center_rect.mBottom - draw_center_rect.mTop);
 
-            const F32 shrink_width_ratio = center_rect.getWidth() == 1.f ? 0.f : border_shrink_width / ((F32)image_natural_width * (1.f - center_rect.getWidth()));
-            const F32 shrink_height_ratio = center_rect.getHeight() == 1.f ? 0.f : border_shrink_height / ((F32)image_natural_height * (1.f - center_rect.getHeight()));
+            const F32 shrink_width_ratio = center_rect.getWidth() == 1.f ? 0.f : border_shrink_width / (static_cast<F32>(image_natural_width) * (1.f - center_rect.getWidth()));
+            const F32 shrink_height_ratio = center_rect.getHeight() == 1.f ? 0.f : border_shrink_height / (static_cast<F32>(image_natural_height) * (1.f - center_rect.getHeight()));
 
             const F32 border_shrink_scale = 1.f - llmax(shrink_width_ratio, shrink_height_ratio);
             draw_center_rect.mLeft *= border_shrink_scale;
-            draw_center_rect.mTop = lerp((F32)height, (F32)draw_center_rect.mTop, border_shrink_scale);
-            draw_center_rect.mRight = lerp((F32)width, (F32)draw_center_rect.mRight, border_shrink_scale);
+            draw_center_rect.mTop = lerp(static_cast<F32>(height), draw_center_rect.mTop, border_shrink_scale);
+            draw_center_rect.mRight = lerp(static_cast<F32>(width), draw_center_rect.mRight, border_shrink_scale);
             draw_center_rect.mBottom *= border_shrink_scale;
         }
         else
         {
             // keep center region of image at fixed scale, but in same relative position
-            F32 scale_factor = llmin((F32)width / draw_center_rect.getWidth(), (F32)height / draw_center_rect.getHeight(), 1.f);
+            F32 scale_factor = llmin(static_cast<F32>(width) / draw_center_rect.getWidth(), static_cast<F32>(height) / draw_center_rect.getHeight(), 1.f);
             F32 scaled_width = draw_center_rect.getWidth() * scale_factor;
             F32 scaled_height = draw_center_rect.getHeight() * scale_factor;
             draw_center_rect.setCenterAndSize(uv_center_rect.getCenterX() * width, uv_center_rect.getCenterY() * height, scaled_width, scaled_height);
         }
 
-        draw_center_rect.mLeft   = (F32)ll_round(ui_translation.mV[VX] + (F32)draw_center_rect.mLeft * ui_scale.mV[VX]);
-        draw_center_rect.mTop    = (F32)ll_round(ui_translation.mV[VY] + (F32)draw_center_rect.mTop * ui_scale.mV[VY]);
-        draw_center_rect.mRight  = (F32)ll_round(ui_translation.mV[VX] + (F32)draw_center_rect.mRight * ui_scale.mV[VX]);
-        draw_center_rect.mBottom = (F32)ll_round(ui_translation.mV[VY] + (F32)draw_center_rect.mBottom * ui_scale.mV[VY]);
+        draw_center_rect.mLeft   = static_cast<F32>(ll_round(ui_translation.mV[VX] + draw_center_rect.mLeft * ui_scale.mV[VX]));
+        draw_center_rect.mTop    = static_cast<F32>(ll_round(ui_translation.mV[VY] + draw_center_rect.mTop * ui_scale.mV[VY]));
+        draw_center_rect.mRight  = static_cast<F32>(ll_round(ui_translation.mV[VX] + draw_center_rect.mRight * ui_scale.mV[VX]));
+        draw_center_rect.mBottom = static_cast<F32>(ll_round(ui_translation.mV[VY] + draw_center_rect.mBottom * ui_scale.mV[VY]));
 
         LLRectf draw_outer_rect(ui_translation.mV[VX],
                                 ui_translation.mV[VY] + height * ui_scale.mV[VY],
@@ -776,7 +776,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
     else
     {
         gGL.pushUIMatrix();
-        gGL.translateUI((F32)x, (F32)y, 0.f);
+        gGL.translateUI(static_cast<F32>(x), static_cast<F32>(y), 0.f);
 
         F32 offset_x = F32(width/2);
         F32 offset_y = F32(height/2);
@@ -933,7 +933,7 @@ void gl_deep_circle( F32 radius, F32 depth, S32 steps )
 {
     F32 x = radius;
     F32 y = 0.f;
-    F32 angle_delta = F_TWO_PI / (F32)steps;
+    F32 angle_delta = F_TWO_PI / static_cast<F32>(steps);
     gGL.begin( LLRender::TRIANGLE_STRIP  );
     {
         S32 step = steps + 1; // An extra step to close the circle.
@@ -1117,8 +1117,8 @@ void gl_segmented_rect_2d_tex(const S32 left,
 
     gGL.pushUIMatrix();
 
-    gGL.translateUI((F32)left, (F32)bottom, 0.f);
-    LLVector2 border_uv_scale((F32)border_size / (F32)texture_width, (F32)border_size / (F32)texture_height);
+    gGL.translateUI(static_cast<F32>(left), static_cast<F32>(bottom), 0.f);
+    LLVector2 border_uv_scale(static_cast<F32>(border_size) / static_cast<F32>(texture_width), static_cast<F32>(border_size) / static_cast<F32>(texture_height));
 
     if (border_uv_scale.mV[VX] > 0.5f)
     {
@@ -1129,13 +1129,13 @@ void gl_segmented_rect_2d_tex(const S32 left,
         border_uv_scale *= 0.5f / border_uv_scale.mV[VY];
     }
 
-    F32 border_scale = llmin((F32)border_size, (F32)width * 0.5f, (F32)height * 0.5f);
-    LLVector2 border_width_left = ((edges & (~(U32)ROUNDED_RECT_RIGHT)) != 0) ? LLVector2(border_scale, 0.f) : LLVector2::zero;
-    LLVector2 border_width_right = ((edges & (~(U32)ROUNDED_RECT_LEFT)) != 0) ? LLVector2(border_scale, 0.f) : LLVector2::zero;
-    LLVector2 border_height_bottom = ((edges & (~(U32)ROUNDED_RECT_TOP)) != 0) ? LLVector2(0.f, border_scale) : LLVector2::zero;
-    LLVector2 border_height_top = ((edges & (~(U32)ROUNDED_RECT_BOTTOM)) != 0) ? LLVector2(0.f, border_scale) : LLVector2::zero;
-    LLVector2 width_vec((F32)width, 0.f);
-    LLVector2 height_vec(0.f, (F32)height);
+    F32 border_scale = llmin(static_cast<F32>(border_size), static_cast<F32>(width) * 0.5f, static_cast<F32>(height) * 0.5f);
+    LLVector2 border_width_left = ((edges & (~static_cast<U32>(ROUNDED_RECT_RIGHT))) != 0) ? LLVector2(border_scale, 0.f) : LLVector2::zero;
+    LLVector2 border_width_right = ((edges & (~static_cast<U32>(ROUNDED_RECT_LEFT))) != 0) ? LLVector2(border_scale, 0.f) : LLVector2::zero;
+    LLVector2 border_height_bottom = ((edges & (~static_cast<U32>(ROUNDED_RECT_TOP))) != 0) ? LLVector2(0.f, border_scale) : LLVector2::zero;
+    LLVector2 border_height_top = ((edges & (~static_cast<U32>(ROUNDED_RECT_BOTTOM))) != 0) ? LLVector2(0.f, border_scale) : LLVector2::zero;
+    LLVector2 width_vec(static_cast<F32>(width), 0.f);
+    LLVector2 height_vec(0.f, static_cast<F32>(height));
 
     gGL.begin(LLRender::TRIANGLES);
     {
@@ -1333,8 +1333,8 @@ void gl_segmented_rect_2d_fragment_tex(const LLRect& rect,
 
     gGL.pushUIMatrix();
 
-    gGL.translateUI((F32)left, (F32)bottom, 0.f);
-    LLVector2 border_uv_scale((F32)border_size / (F32)texture_width, (F32)border_size / (F32)texture_height);
+    gGL.translateUI(static_cast<F32>(left), static_cast<F32>(bottom), 0.f);
+    LLVector2 border_uv_scale(static_cast<F32>(border_size) / static_cast<F32>(texture_width), static_cast<F32>(border_size) / static_cast<F32>(texture_height));
 
     if (border_uv_scale.mV[VX] > 0.5f)
     {
@@ -1345,15 +1345,15 @@ void gl_segmented_rect_2d_fragment_tex(const LLRect& rect,
         border_uv_scale *= 0.5f / border_uv_scale.mV[VY];
     }
 
-    F32 border_scale = llmin((F32)border_size, (F32)width * 0.5f, (F32)height * 0.5f);
-    LLVector2 border_width_left = ((edges & (~(U32)ROUNDED_RECT_RIGHT)) != 0) ? LLVector2(border_scale, 0.f) : LLVector2::zero;
-    LLVector2 border_width_right = ((edges & (~(U32)ROUNDED_RECT_LEFT)) != 0) ? LLVector2(border_scale, 0.f) : LLVector2::zero;
-    LLVector2 border_height_bottom = ((edges & (~(U32)ROUNDED_RECT_TOP)) != 0) ? LLVector2(0.f, border_scale) : LLVector2::zero;
-    LLVector2 border_height_top = ((edges & (~(U32)ROUNDED_RECT_BOTTOM)) != 0) ? LLVector2(0.f, border_scale) : LLVector2::zero;
-    LLVector2 width_vec((F32)width, 0.f);
-    LLVector2 height_vec(0.f, (F32)height);
+    F32 border_scale = llmin(static_cast<F32>(border_size), static_cast<F32>(width) * 0.5f, static_cast<F32>(height) * 0.5f);
+    LLVector2 border_width_left = ((edges & (~static_cast<U32>(ROUNDED_RECT_RIGHT))) != 0) ? LLVector2(border_scale, 0.f) : LLVector2::zero;
+    LLVector2 border_width_right = ((edges & (~static_cast<U32>(ROUNDED_RECT_LEFT))) != 0) ? LLVector2(border_scale, 0.f) : LLVector2::zero;
+    LLVector2 border_height_bottom = ((edges & (~static_cast<U32>(ROUNDED_RECT_TOP))) != 0) ? LLVector2(0.f, border_scale) : LLVector2::zero;
+    LLVector2 border_height_top = ((edges & (~static_cast<U32>(ROUNDED_RECT_BOTTOM))) != 0) ? LLVector2(0.f, border_scale) : LLVector2::zero;
+    LLVector2 width_vec(static_cast<F32>(width), 0.f);
+    LLVector2 height_vec(0.f, static_cast<F32>(height));
 
-    F32 middle_start = border_scale / (F32)width;
+    F32 middle_start = border_scale / static_cast<F32>(width);
     F32 middle_end = 1.f - middle_start;
 
     F32 u_min;
@@ -1765,8 +1765,8 @@ LLRender2D::~LLRender2D()
 void LLRender2D::translate(F32 x, F32 y, F32 z)
 {
     gGL.translateUI(x,y,z);
-    LLFontGL::sCurOrigin.mX += (S32) x;
-    LLFontGL::sCurOrigin.mY += (S32) y;
+    LLFontGL::sCurOrigin.mX += static_cast<S32>(x);
+    LLFontGL::sCurOrigin.mY += static_cast<S32>(y);
     LLFontGL::sCurDepth += z;
 }
 

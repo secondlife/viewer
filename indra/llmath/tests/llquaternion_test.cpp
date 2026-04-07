@@ -395,18 +395,18 @@ namespace tut
         result = vect1 * quat1;
         ensure(
             "2. LLVector3d operator*(const LLVector3d &a, const LLQuaternion &rot) failed",
-            is_approx_equal_fraction(-120.29f, (F32) result.mdV[0], 8) &&
-            is_approx_equal_fraction(-1683.958f, (F32) result.mdV[1], 8) &&
-            is_approx_equal_fraction(516.56f, (F32) result.mdV[2], 8));
+            is_approx_equal_fraction(-120.29f, static_cast<F32>(result.mdV[0]), 8) &&
+            is_approx_equal_fraction(-1683.958f, static_cast<F32>(result.mdV[1]), 8) &&
+            is_approx_equal_fraction(516.56f, static_cast<F32>(result.mdV[2]), 8));
 
         LLVector3d vect2(2.0f, 3.5f, 1.1f);
         LLQuaternion quat2(1.0f, 4.0f, 2.0f, 5.0f);
         result = vect2 * quat2;
         ensure(
             "3. LLVector3d operator*(const LLVector3d &a, const LLQuaternion &rot) failed",
-            is_approx_equal_fraction(18.400001f, (F32) result.mdV[0], 8) &&
-            is_approx_equal_fraction(188.6f, (F32) result.mdV[1], 8) &&
-            is_approx_equal_fraction(32.20f, (F32) result.mdV[2], 8));
+            is_approx_equal_fraction(18.400001f, static_cast<F32>(result.mdV[0]), 8) &&
+            is_approx_equal_fraction(188.6f, static_cast<F32>(result.mdV[1]), 8) &&
+            is_approx_equal_fraction(32.20f, static_cast<F32>(result.mdV[2]), 8));
     }
 
     //test case for inline LLQuaternion operator-(const LLQuaternion &a) fn.

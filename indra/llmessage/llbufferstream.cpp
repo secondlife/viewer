@@ -63,7 +63,7 @@ int LLBufferStreamBuf::underflow()
     LLMutexLock lock(mBuffer->getMutex());
     LLBufferArray::segment_iterator_t iter;
     LLBufferArray::segment_iterator_t end = mBuffer->endSegment();
-    U8* last_pos = (U8*)gptr();
+    U8* last_pos = reinterpret_cast<U8*>(gptr());
     LLSegment segment;
     if(last_pos)
     {
@@ -118,7 +118,7 @@ int LLBufferStreamBuf::underflow()
     }
 
     // set up the stream to read from the next segment.
-    char* start = (char*)segment.data();
+    char* start = reinterpret_cast<char*>(segment.data());
     setg(start, start, start + segment.size());
     return *gptr();
 }
@@ -151,8 +151,8 @@ int LLBufferStreamBuf::overflow(int c)
     it = mBuffer->makeSegment(mChannels.out(), DEFAULT_OUTPUT_SEGMENT_SIZE);
     if(it != mBuffer->endSegment())
     {
-        char* start = (char*)(*it).data();
-        (*start) = (char)(c);
+        char* start = reinterpret_cast<char*>((*it).data());
+        (*start) = static_cast<char>(c);
         setp(start + 1, start + (*it).size());
         return c;
     }
@@ -203,7 +203,7 @@ int LLBufferStreamBuf::sync()
 
     // set the put pointer so that we force an overflow on the next
     // write.
-    U8* address = (U8*)pptr();
+    U8* address = reinterpret_cast<U8*>(pptr());
     setp(NULL, NULL);
 
     // *NOTE: I bet we could just --address if address is not NULL.
@@ -259,12 +259,12 @@ streampos LLBufferStreamBuf::seekoff(
         switch(way)
         {
         case std::ios::end:
-            base_addr = (U8*)LLBufferArray::npos;
+            base_addr = reinterpret_cast<U8*>(LLBufferArray::npos);
             break;
         case std::ios::cur:
             // get the current get pointer and adjust it for buffer
             // array semantics.
-            base_addr = (U8*)gptr();
+            base_addr = reinterpret_cast<U8*>(gptr());
             break;
         case std::ios::beg:
         default:
@@ -273,17 +273,17 @@ streampos LLBufferStreamBuf::seekoff(
         }
 
         LLMutexLock lock(mBuffer->getMutex());
-        address = mBuffer->seek(mChannels.in(), base_addr, (S32)off);
+        address = mBuffer->seek(mChannels.in(), base_addr, static_cast<S32>(off));
         if(address)
         {
             LLBufferArray::segment_iterator_t iter;
             iter = mBuffer->getSegment(address);
-            char* start = (char*)(*iter).data();
-            setg(start, (char*)address, start + (*iter).size());
+            char* start = reinterpret_cast<char*>((*iter).data());
+            setg(start, reinterpret_cast<char*>(address), start + (*iter).size());
         }
         else
         {
-            address = (U8*)(-1);
+            address = reinterpret_cast<U8*>(-1);
         }
     }
     if(which & std::ios::out)
@@ -292,12 +292,12 @@ streampos LLBufferStreamBuf::seekoff(
         switch(way)
         {
         case std::ios::end:
-            base_addr = (U8*)LLBufferArray::npos;
+            base_addr = reinterpret_cast<U8*>(LLBufferArray::npos);
             break;
         case std::ios::cur:
             // get the current put pointer and adjust it for buffer
             // array semantics.
-            base_addr = (U8*)pptr();
+            base_addr = reinterpret_cast<U8*>(pptr());
             break;
         case std::ios::beg:
         default:
@@ -306,24 +306,24 @@ streampos LLBufferStreamBuf::seekoff(
         }
 
         LLMutexLock lock(mBuffer->getMutex());
-        address = mBuffer->seek(mChannels.out(), base_addr, (S32)off);
+        address = mBuffer->seek(mChannels.out(), base_addr, static_cast<S32>(off));
         if(address)
         {
             LLBufferArray::segment_iterator_t iter;
             iter = mBuffer->getSegment(address);
-            setp((char*)address, (char*)(*iter).data() + (*iter).size());
+            setp(reinterpret_cast<char*>(address), reinterpret_cast<char*>((*iter).data()) + (*iter).size());
         }
         else
         {
-            address = (U8*)(-1);
+            address = reinterpret_cast<U8*>(-1);
         }
     }
 
 #if( LL_WINDOWS || __GNUC__ > 2 )
-    S32 rv = (S32)(intptr_t)address;
-    return (pos_type)rv;
+    S32 rv = static_cast<S32>(reinterpret_cast<intptr_t>(address));
+    return static_cast<pos_type>(rv);
 #else
-    return (streampos)address;
+    return static_cast<streampos>(address);
 #endif
 }
 

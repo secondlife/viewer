@@ -96,7 +96,7 @@ void LLEstateInfoModel::update(const strings_t& strings)
     mOwnerID    = LLUUID(strings[1].c_str());
     mID         = strtoul(strings[2].c_str(), NULL, 10);
     mFlags      = strtoul(strings[3].c_str(), NULL, 10);
-    mSunHour    = ((F32)(strtod(strings[4].c_str(), NULL)))/1024.0f;
+    mSunHour    = (static_cast<F32>((strtod(strings[4].c_str(), NULL))))/1024.0f;
 
     LL_DEBUGS("WindlightSync") << "Received estate info: "
         << "is_sun_fixed = " << getUseFixedSun()
@@ -210,7 +210,7 @@ void LLEstateInfoModel::commitEstateInfoDataserver()
     msg->addString("Parameter", llformat("%u", getFlags()));
 
     msg->nextBlock("ParamList");
-    msg->addString("Parameter", llformat("%d", (S32) (getSunHour() * 1024.0f)));
+    msg->addString("Parameter", llformat("%d", static_cast<S32>((getSunHour() * 1024.0f))));
 
     gAgent.sendMessage();
 }

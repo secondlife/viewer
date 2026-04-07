@@ -272,11 +272,11 @@ void LLMotionController::setTimeStep(F32 step)
         for (auto motionp : mActiveMotions)
         {
             F32 activation_time = motionp->mActivationTimestamp;
-            motionp->mActivationTimestamp = (F32)(llfloor(activation_time / step)) * step;
+            motionp->mActivationTimestamp = static_cast<F32>(llfloor(activation_time / step)) * step;
             bool stopped = motionp->isStopped();
-            motionp->setStopTime((F32)(llfloor(motionp->getStopTime() / step)) * step);
+            motionp->setStopTime(static_cast<F32>(llfloor(motionp->getStopTime() / step)) * step);
             motionp->setStopped(stopped);
-            motionp->mSendStopTimestamp = (F32)llfloor(motionp->mSendStopTimestamp / step) * step;
+            motionp->mSendStopTimestamp = static_cast<F32>(llfloor(motionp->mSendStopTimestamp / step)) * step;
         }
     }
 }
@@ -576,8 +576,8 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
         {
             for (S32 i = 0; i < NUM_JOINT_SIGNATURE_STRIDES; i++)
             {
-                U32 *current_signature = (U32*)&(mJointSignature[0][i * 4]);
-                U32 test_signature = *(U32*)&(motionp->mJointSignature[0][i * 4]);
+                U32 *current_signature = reinterpret_cast<U32*>(&(mJointSignature[0][i * 4]));
+                U32 test_signature = *reinterpret_cast<U32*>(&(motionp->mJointSignature[0][i * 4]));
 
                 if ((*current_signature | test_signature) > (*current_signature))
                 {
@@ -585,9 +585,9 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
                     update_motion = true;
                 }
 
-                *((U32*)&last_joint_signature[i * 4]) = *(U32*)&(mJointSignature[1][i * 4]);
-                current_signature = (U32*)&(mJointSignature[1][i * 4]);
-                test_signature = *(U32*)&(motionp->mJointSignature[1][i * 4]);
+                *reinterpret_cast<U32*>(&last_joint_signature[i * 4]) = *reinterpret_cast<U32*>(&(mJointSignature[1][i * 4]));
+                current_signature = reinterpret_cast<U32*>(&(mJointSignature[1][i * 4]));
+                test_signature = *reinterpret_cast<U32*>(&(motionp->mJointSignature[1][i * 4]));
 
                 if ((*current_signature | test_signature) > (*current_signature))
                 {
@@ -854,7 +854,7 @@ void LLMotionController::updateMotions(bool force_update)
             clearBlenders();
 
             mTimeStepCount = quantum_count;
-            mAnimTime = (F32)quantum_count * mTimeStep;
+            mAnimTime = static_cast<F32>(quantum_count) * mTimeStep;
             mLastInterp = 0.f;
         }
         else

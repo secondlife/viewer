@@ -90,8 +90,8 @@ public:
 
     // ACCESSORS
     [[nodiscard]] bool hasExpired() const                         { return (sFrameTime >= mExpiry); }
-    [[nodiscard]] F32  getTimeToExpireF32() const                 { return (F32)(mExpiry - sFrameTime); }
-    [[nodiscard]] F32  getElapsedTimeF32() const                  { return mStarted ? (F32)(sFrameTime - mStartTime) : (F32)mStartTime; }
+    [[nodiscard]] F32  getTimeToExpireF32() const                 { return static_cast<F32>(mExpiry - sFrameTime); }
+    [[nodiscard]] F32  getElapsedTimeF32() const                  { return mStarted ? static_cast<F32>(sFrameTime - mStartTime) : static_cast<F32>(mStartTime); }
     [[nodiscard]] bool getStarted() const                         { return mStarted; }
 
     // return the seconds since epoch when this timer will expire.

@@ -170,7 +170,7 @@ void send_improved_im(const LLUUID& to_id,
                     EInstantMessage dialog = IM_NOTHING_SPECIAL,
                     const LLUUID& id = LLUUID::null,
                     U32 timestamp = NO_TIMESTAMP,
-                    const U8* binary_bucket = (U8*)EMPTY_BINARY_BUCKET,
+                    const U8* binary_bucket = reinterpret_cast<const U8*>(EMPTY_BINARY_BUCKET),
                     S32 binary_bucket_size = EMPTY_BINARY_BUCKET_SIZE);
 
 void process_user_info_reply(LLMessageSystem* msg, void**);

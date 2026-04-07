@@ -239,8 +239,8 @@ void LLDrawPoolTerrain::renderFullShaderTextures()
     LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
     LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-    F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
-    F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+    F32 offset_x = static_cast<F32>(fmod(region_origin_global.mdV[VX], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
+    F32 offset_y = static_cast<F32>(fmod(region_origin_global.mdV[VY], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
 
     LLVector4 tp0, tp1;
 
@@ -481,7 +481,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
     constexpr U32 vec4_size = 4;
     const U32 transform_vec4_count = (transform_param_count + (vec4_size - 1)) / vec4_size;
     llassert(transform_vec4_count == 5); // If false, need to update shader
-    shader->uniform4fv(LLShaderMgr::TERRAIN_TEXTURE_TRANSFORMS, std::span<const GLfloat>((F32*)transforms_packed, transform_vec4_count * 4));
+    shader->uniform4fv(LLShaderMgr::TERRAIN_TEXTURE_TRANSFORMS, std::span<const GLfloat>(reinterpret_cast<F32*>(transforms_packed), transform_vec4_count * 4));
 
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 
@@ -542,7 +542,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
         }
         minimum_alphas[i] = min_alpha;
     }
-    shader->uniform4fv(LLShaderMgr::TERRAIN_BASE_COLOR_FACTORS, std::span<const GLfloat>((F32*)base_color_factors, terrain_material_count * 4));
+    shader->uniform4fv(LLShaderMgr::TERRAIN_BASE_COLOR_FACTORS, std::span<const GLfloat>(reinterpret_cast<F32*>(base_color_factors), terrain_material_count * 4));
     if (sPBRDetailMode >= TERRAIN_PBR_DETAIL_METALLIC_ROUGHNESS)
     {
         shader->uniform4f(LLShaderMgr::TERRAIN_METALLIC_FACTORS, metallic_factors[0], metallic_factors[1], metallic_factors[2], metallic_factors[3]);
@@ -550,7 +550,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
     }
     if (sPBRDetailMode >= TERRAIN_PBR_DETAIL_EMISSIVE)
     {
-        shader->uniform3fv(LLShaderMgr::TERRAIN_EMISSIVE_COLORS, std::span<const GLfloat>((F32*)emissive_colors, terrain_material_count * 3));
+        shader->uniform3fv(LLShaderMgr::TERRAIN_EMISSIVE_COLORS, std::span<const GLfloat>(reinterpret_cast<F32*>(emissive_colors), terrain_material_count * 3));
     }
     shader->uniform4f(LLShaderMgr::TERRAIN_MINIMUM_ALPHAS, minimum_alphas[0], minimum_alphas[1], minimum_alphas[2], minimum_alphas[3]);
 
@@ -647,8 +647,8 @@ void LLDrawPoolTerrain::renderFull4TU()
     LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
     LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-    F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
-    F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+    F32 offset_x = static_cast<F32>(fmod(region_origin_global.mdV[VX], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
+    F32 offset_y = static_cast<F32>(fmod(region_origin_global.mdV[VY], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
 
     LLVector4 tp0, tp1;
 
@@ -824,8 +824,8 @@ void LLDrawPoolTerrain::renderFull2TU()
     LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
     LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-    F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
-    F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+    F32 offset_x = static_cast<F32>(fmod(region_origin_global.mdV[VX], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
+    F32 offset_y = static_cast<F32>(fmod(region_origin_global.mdV[VY], 1.0 / static_cast<F64>(sDetailScale))) * sDetailScale;
 
     LLVector4 tp0, tp1;
 
@@ -1023,7 +1023,7 @@ void LLDrawPoolTerrain::renderOwnership()
     LLFace                  *facep              = mDrawFace[0];
     LLDrawable              *drawablep          = facep->getDrawable();
     const LLViewerObject    *objectp                = drawablep->getVObj();
-    const LLVOSurfacePatch  *vo_surface_patchp  = (LLVOSurfacePatch *)objectp;
+    const LLVOSurfacePatch  *vo_surface_patchp  = static_cast<const LLVOSurfacePatch*>(objectp);
     LLSurfacePatch          *surface_patchp     = vo_surface_patchp->getPatch();
     LLSurface               *surfacep           = surface_patchp->getSurface();
     LLViewerRegion          *regionp            = surfacep->getRegion();

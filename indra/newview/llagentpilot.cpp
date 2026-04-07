@@ -143,7 +143,7 @@ void LLAgentPilot::loadXML(const std::string& filename)
         Action action;
         action.mTime = record["time"].asReal();
         action.mType = (EActionType)record["type"].asInteger();
-        action.mCameraView = (F32)record["camera_view"].asReal();
+        action.mCameraView = static_cast<F32>(record["camera_view"].asReal());
         action.mTarget = ll_vector3d_from_sd(record["target"]);
         action.mCameraOrigin = ll_vector3_from_sd(record["camera_origin"]);
         action.mCameraXAxis = ll_vector3_from_sd(record["camera_xaxis"]);
@@ -242,7 +242,7 @@ void LLAgentPilot::addAction(enum EActionType action_type)
     action.mCameraXAxis = cam->getXAxis();
     action.mCameraYAxis = cam->getYAxis();
     action.mCameraZAxis = cam->getZAxis();
-    mLastRecordTime = (F32)action.mTime;
+    mLastRecordTime = static_cast<F32>(action.mTime);
     mActions.push_back(action);
 }
 
@@ -295,8 +295,8 @@ void LLAgentPilot::moveCamera()
         S32 start_index = llmax(mCurrentAction-1,0);
         S32 end_index = mCurrentAction;
         F32 t = 0.0;
-        F32 timedelta = (F32)(mActions[end_index].mTime - mActions[start_index].mTime);
-        F32 tickelapsed = mTimer.getElapsedTimeF32()-(F32)mActions[start_index].mTime;
+        F32 timedelta = static_cast<F32>((mActions[end_index].mTime - mActions[start_index].mTime));
+        F32 tickelapsed = mTimer.getElapsedTimeF32()-static_cast<F32>(mActions[start_index].mTime);
         if (timedelta > 0.0)
         {
             t = tickelapsed/timedelta;

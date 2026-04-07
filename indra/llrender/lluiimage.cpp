@@ -56,13 +56,13 @@ LLUIImage::~LLUIImage()
 S32 LLUIImage::getWidth() const
 {
     // return clipped dimensions of actual image area
-    return ll_round((F32)mImage->getWidth(0) * mClipRegion.getWidth());
+    return ll_round(static_cast<F32>(mImage->getWidth(0)) * mClipRegion.getWidth());
 }
 
 S32 LLUIImage::getHeight() const
 {
     // return clipped dimensions of actual image area
-    return ll_round((F32)mImage->getHeight(0) * mClipRegion.getHeight());
+    return ll_round(static_cast<F32>(mImage->getHeight(0)) * mClipRegion.getHeight());
 }
 
 void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, const LLVector3& y_axis,
@@ -75,17 +75,17 @@ void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, c
     {
          if(border_height - rect.getHeight() > border_width - rect.getWidth())
          {
-             border_scale = (F32)rect.getHeight() / border_height;
+             border_scale = static_cast<F32>(rect.getHeight()) / border_height;
          }
          else
          {
-            border_scale = (F32)rect.getWidth() / border_width;
+            border_scale = static_cast<F32>(rect.getWidth()) / border_width;
          }
     }
 
     LLRender2D::pushMatrix();
     {
-        LLVector3 rect_origin = origin_agent + ((F32)rect.mLeft * x_axis) + ((F32)rect.mBottom * y_axis);
+        LLVector3 rect_origin = origin_agent + (static_cast<F32>(rect.mLeft) * x_axis) + (static_cast<F32>(rect.mBottom) * y_axis);
         LLRender2D::translate(rect_origin.mV[VX],
                                             rect_origin.mV[VY],
                                             rect_origin.mV[VZ]);
@@ -98,12 +98,12 @@ void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, c
                             mClipRegion.mBottom + mScaleRegion.mBottom * mClipRegion.getHeight());
         gl_segmented_rect_3d_tex(mClipRegion,
                                 center_uv_rect,
-                                LLRectf(border_width * border_scale * 0.5f / (F32)rect.getWidth(),
-                                        (rect.getHeight() - (border_height * border_scale * 0.5f)) / (F32)rect.getHeight(),
-                                        (rect.getWidth() - (border_width * border_scale * 0.5f)) / (F32)rect.getWidth(),
-                                        (border_height * border_scale * 0.5f) / (F32)rect.getHeight()),
-                                (F32)rect.getWidth() * x_axis,
-                                (F32)rect.getHeight() * y_axis);
+                                LLRectf(border_width * border_scale * 0.5f / static_cast<F32>(rect.getWidth()),
+                                        (rect.getHeight() - (border_height * border_scale * 0.5f)) / static_cast<F32>(rect.getHeight()),
+                                        (rect.getWidth() - (border_width * border_scale * 0.5f)) / static_cast<F32>(rect.getWidth()),
+                                        (border_height * border_scale * 0.5f) / static_cast<F32>(rect.getHeight())),
+                                static_cast<F32>(rect.getWidth()) * x_axis,
+                                static_cast<F32>(rect.getHeight()) * y_axis);
 
     } LLRender2D::popMatrix();
 }

@@ -58,7 +58,7 @@ public:
         mTable[0] = 0;
         for( S32 i = 1; i < 257; i++ )
         {
-            mTable[i] = log((F32)i);
+            mTable[i] = log(static_cast<F32>(i));
         }
     }
 
@@ -98,7 +98,7 @@ public:
 
     F32 pow( F32 x, F32 y )
     {
-        return (F32)LL_FAST_EXP(y * ln(x));
+        return static_cast<F32>(LL_FAST_EXP(y * ln(x)));
     }
 
 
@@ -538,7 +538,7 @@ F32 azimuth(const LLVector3 &v)
     }
     else
     {
-        azimuth = (F32) atan(v.mV[VY] / v.mV[VX]);
+        azimuth = static_cast<F32>(atan(v.mV[VY] / v.mV[VX]));
         if (v.mV[VX] < 0.0f)
         {
             azimuth += F_PI;

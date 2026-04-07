@@ -1068,7 +1068,7 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
             facep->setGeomIndex(index_offset);
             facep->setVertexBuffer(buffer);
 
-            LLVOSurfacePatch* patchp = (LLVOSurfacePatch*) facep->getViewerObject();
+            LLVOSurfacePatch* patchp = static_cast<LLVOSurfacePatch*>(facep->getViewerObject());
             patchp->getTerrainGeometry(vertices, normals, texcoords0, texcoords2, indices);
 
             indices_index += facep->getIndicesCount();

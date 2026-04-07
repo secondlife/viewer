@@ -72,22 +72,22 @@ public:
 
     inline F32* getF32ptr()
     {
-        return (F32*) &mMatrix;
+        return reinterpret_cast<F32*>(&mMatrix);
     }
 
     inline const F32* getF32ptr() const
     {
-        return (F32*)&mMatrix;
+        return reinterpret_cast<const F32*>(&mMatrix);
     }
 
     inline LLMatrix4& asMatrix4()
     {
-        return *(LLMatrix4*)this;
+        return *reinterpret_cast<LLMatrix4*>(this);
     }
 
     inline const LLMatrix4& asMatrix4() const
     {
-        return *(LLMatrix4*)this;
+        return *reinterpret_cast<const LLMatrix4*>(this);
     }
 
     inline void clear()

@@ -134,7 +134,7 @@ void LLViewerObjectList::getUUIDFromLocal(LLUUID &id,
                                           const U32 ip,
                                           const U32 port)
 {
-    U64 ipport = (((U64)ip) << 32) | (U64)port;
+    U64 ipport = (static_cast<U64>(ip) << 32) | static_cast<U64>(port);
 
     U32 index = mIPAndPortToIndex[ipport];
 
@@ -144,7 +144,7 @@ void LLViewerObjectList::getUUIDFromLocal(LLUUID &id,
         mIPAndPortToIndex[ipport] = index;
     }
 
-    U64 indexid = (((U64)index) << 32) | (U64)local_id;
+    U64 indexid = (static_cast<U64>(index) << 32) | static_cast<U64>(local_id);
 
     id = get_if_there(mIndexAndLocalIDToUUID, indexid, LLUUID::null);
 }
@@ -153,7 +153,7 @@ U64 LLViewerObjectList::getIndex(const U32 local_id,
                                  const U32 ip,
                                  const U32 port)
 {
-    U64 ipport = (((U64)ip) << 32) | (U64)port;
+    U64 ipport = (static_cast<U64>(ip) << 32) | static_cast<U64>(port);
 
     U32 index = mIPAndPortToIndex[ipport];
 
@@ -162,7 +162,7 @@ U64 LLViewerObjectList::getIndex(const U32 local_id,
         return 0;
     }
 
-    return (((U64)index) << 32) | (U64)local_id;
+    return (static_cast<U64>(index) << 32) | static_cast<U64>(local_id);
 }
 
 bool LLViewerObjectList::removeFromLocalIDTable(LLViewerObject* objectp)
@@ -172,7 +172,7 @@ bool LLViewerObjectList::removeFromLocalIDTable(LLViewerObject* objectp)
     if(objectp && objectp->mRegionIndex != 0)
     {
         U32 local_id = objectp->mLocalID;
-        U64 indexid = (((U64)objectp->mRegionIndex) << 32) | (U64)local_id;
+        U64 indexid = (static_cast<U64>(objectp->mRegionIndex) << 32) | static_cast<U64>(local_id);
 
         auto iter = mIndexAndLocalIDToUUID.find(indexid);
         if (iter == mIndexAndLocalIDToUUID.end())
@@ -201,7 +201,7 @@ void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
                                           const U32 port,
                                           LLViewerObject* objectp)
 {
-    U64 ipport = (((U64)ip) << 32) | (U64)port;
+    U64 ipport = (static_cast<U64>(ip) << 32) | static_cast<U64>(port);
 
     U32 index = mIPAndPortToIndex[ipport];
 
@@ -212,7 +212,7 @@ void LLViewerObjectList::setUUIDAndLocal(const LLUUID &id,
     }
 
     objectp->mRegionIndex = index; // should never be zero, sSimulatorMachineIndex starts from 1
-    U64 indexid = (((U64)index) << 32) | (U64)local_id;
+    U64 indexid = (static_cast<U64>(index) << 32) | static_cast<U64>(local_id);
 
     mIndexAndLocalIDToUUID[indexid] = id;
 
@@ -550,7 +550,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
             LL_DEBUGS("ObjectUpdate") << "uuid " << fullid << " received compressed data from message (earlier in function)" << LL_ENDL;
         }
         LL_DEBUGS("ObjectUpdate") << "uuid " << fullid << " objectp " << objectp
-                                     << " update_cache " << (S32) update_cache << " compressed " << compressed
+                                     << " update_cache " << static_cast<S32>(update_cache) << " compressed " << compressed
                                      << " update_type "  << update_type << LL_ENDL;
 
         if(update_cache)
@@ -718,7 +718,7 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
         }
         else
         {   // Cache Miss
-            LL_DEBUGS("ObjectUpdate") << "cache miss for id " << id << " crc " << crc << " miss type " << (S32) cache_miss_type << LL_ENDL;
+            LL_DEBUGS("ObjectUpdate") << "cache miss for id " << id << " crc " << crc << " miss type " << static_cast<S32>(cache_miss_type) << LL_ENDL;
             recorder.cacheMissEvent(cache_miss_type);
         }
     }
@@ -743,13 +743,13 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
     if (NUM_BINS - 1 == mCurBin)
     {
         // Remainder (mObjects.size() could have changed)
-        num_updates = (S32) mObjects.size() - mCurLazyUpdateIndex;
-        max_value = (S32) mObjects.size();
+        num_updates = static_cast<S32>(mObjects.size()) - mCurLazyUpdateIndex;
+        max_value = static_cast<S32>(mObjects.size());
     }
     else
     {
-        num_updates = ((S32) mObjects.size() / NUM_BINS) + 1;
-        max_value = llmin((S32) mObjects.size(), mCurLazyUpdateIndex + num_updates);
+        num_updates = (static_cast<S32>(mObjects.size()) / NUM_BINS) + 1;
+        max_value = llmin(static_cast<S32>(mObjects.size()), mCurLazyUpdateIndex + num_updates);
     }
 
     // Iterate through some of the objects and lazy update their texture priorities
@@ -1084,10 +1084,10 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
         {
             LLSD objectData = result[it->asString()];
 
-            F32 linkCost = (F32)objectData["linked_set_resource_cost"].asReal();
-            F32 objectCost = (F32)objectData["resource_cost"].asReal();
-            F32 physicsCost = (F32)objectData["physics_cost"].asReal();
-            F32 linkPhysicsCost = (F32)objectData["linked_set_physics_cost"].asReal();
+            F32 linkCost = static_cast<F32>(objectData["linked_set_resource_cost"].asReal());
+            F32 objectCost = static_cast<F32>(objectData["resource_cost"].asReal());
+            F32 physicsCost = static_cast<F32>(objectData["physics_cost"].asReal());
+            F32 linkPhysicsCost = static_cast<F32>(objectData["linked_set_physics_cost"].asReal());
 
             gObjectList.updateObjectCost(objectId, objectCost, linkCost, physicsCost, linkPhysicsCost);
         }
@@ -1212,10 +1212,10 @@ void LLViewerObjectList::fetchPhisicsFlagsCoro(std::string url)
 
             if (data.has("Density"))
             {
-                F32 density = (F32)data["Density"].asReal();
-                F32 friction = (F32)data["Friction"].asReal();
-                F32 restitution = (F32)data["Restitution"].asReal();
-                F32 gravityMult = (F32)data["GravityMultiplier"].asReal();
+                F32 density = static_cast<F32>(data["Density"].asReal());
+                F32 friction = static_cast<F32>(data["Friction"].asReal());
+                F32 restitution = static_cast<F32>(data["Restitution"].asReal());
+                F32 gravityMult = static_cast<F32>(data["GravityMultiplier"].asReal());
 
                 gObjectList.updatePhysicsProperties(objectId, density,
                     friction, restitution, gravityMult);
@@ -1429,7 +1429,7 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
     {
         objectp->setListIndex(-1);
 
-        S32 size = (S32)mActiveObjects.size();
+        S32 size = static_cast<S32>(mActiveObjects.size());
         if (size > 0) // mActiveObjects could have been cleaned already
         {
             // Remove by moving last element to this object's position
@@ -1501,7 +1501,7 @@ void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 {
     if (!object->isRoot())
     { //always fetch cost for the parent when fetching cost for children
-        mStaleObjectCost.insert(((LLViewerObject*)object->getParent())->getID());
+        mStaleObjectCost.insert(static_cast<LLViewerObject*>(object->getParent())->getID());
     }
     mStaleObjectCost.insert(object->getID());
 }
@@ -1910,7 +1910,7 @@ void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip
     if (childp->mDrawable.notNull())
     {
         bool make_invisible = true;
-        LLViewerObject *parentp = (LLViewerObject *)childp->getParent();
+        LLViewerObject *parentp = static_cast<LLViewerObject*>(childp->getParent());
         if (parentp)
         {
             if (parentp->getRegion() != childp->getRegion())

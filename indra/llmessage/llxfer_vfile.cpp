@@ -155,11 +155,11 @@ S32 LLXfer_VFile::startDownload()
     gMessageSystem->nextBlockFast(_PREHASH_XferID);
     gMessageSystem->addU64Fast(_PREHASH_ID, mID);
     gMessageSystem->addStringFast(_PREHASH_Filename, "");
-    gMessageSystem->addU8("FilePath", (U8) LL_PATH_NONE);
+    gMessageSystem->addU8("FilePath", static_cast<U8>(LL_PATH_NONE));
     gMessageSystem->addBOOL("DeleteOnCompletion", false);
     gMessageSystem->addBOOL("UseBigPackets", mChunkSize == LL_XFER_LARGE_PAYLOAD);
     gMessageSystem->addUUIDFast(_PREHASH_VFileID, mRemoteID);
-    gMessageSystem->addS16Fast(_PREHASH_VFileType, (S16)mType);
+    gMessageSystem->addS16Fast(_PREHASH_VFileType, static_cast<S16>(mType));
 
     gMessageSystem->sendReliable(mRemoteHost);
     mStatus = e_LL_XFER_IN_PROGRESS;

@@ -106,7 +106,7 @@ void MediaPluginBase::setStatus(EStatus status)
  */
 void MediaPluginBase::staticReceiveMessage(const char *message_string, void **user_data)
 {
-    MediaPluginBase *self = (MediaPluginBase*)*user_data;
+    MediaPluginBase *self = static_cast<MediaPluginBase*>(*user_data);
 
     if(self != NULL)
     {

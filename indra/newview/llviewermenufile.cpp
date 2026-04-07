@@ -222,7 +222,7 @@ void LLFilePickerThread::modelessStringCallback(bool success,
                                           std::string &response,
                                           void *user_data)
 {
-    LLFilePickerThread *picker = (LLFilePickerThread*)user_data;
+    LLFilePickerThread *picker = static_cast<LLFilePickerThread*>(user_data);
     if (success)
     {
         picker->mResponses.push_back(response);
@@ -238,7 +238,7 @@ void LLFilePickerThread::modelessVectorCallback(bool success,
                                           std::vector<std::string> &responses,
                                           void *user_data)
 {
-    LLFilePickerThread *picker = (LLFilePickerThread*)user_data;
+    LLFilePickerThread *picker = static_cast<LLFilePickerThread*>(user_data);
     if (success)
     {
         if (picker->mIsGetMultiple)
@@ -606,13 +606,13 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLU
                     if (orig_width > max_width || orig_height > max_height)
                     {
                         // Calculate scale factors
-                        F32 width_scale  = (F32)max_width / (F32)orig_width;
-                        F32 height_scale = (F32)max_height / (F32)orig_height;
+                        F32 width_scale  = static_cast<F32>(max_width) / static_cast<F32>(orig_width);
+                        F32 height_scale = static_cast<F32>(max_height) / static_cast<F32>(orig_height);
                         F32 scale        = llmin(width_scale, height_scale);
 
                         // Calculate new dimensions, preserving aspect ratio
-                        S32 new_width  = LLImageRaw::contractDimToPowerOfTwo(llclamp((S32)llroundf(orig_width * scale), 4, max_width));
-                        S32 new_height = LLImageRaw::contractDimToPowerOfTwo(llclamp((S32)llroundf(orig_height * scale), 4, max_height));
+                        S32 new_width  = LLImageRaw::contractDimToPowerOfTwo(llclamp(static_cast<S32>(llroundf(orig_width * scale)), 4, max_width));
+                        S32 new_height = LLImageRaw::contractDimToPowerOfTwo(llclamp(static_cast<S32>(llroundf(orig_height * scale)), 4, max_height));
 
                         if (!raw_image->scale(new_width, new_height))
                         {
@@ -754,13 +754,13 @@ bool get_bulk_upload_expected_cost(
                     if (orig_width > max_width || orig_height > max_height)
                     {
                         // Calculate scale factors
-                        F32 width_scale  = (F32)max_width / (F32)orig_width;
-                        F32 height_scale = (F32)max_height / (F32)orig_height;
+                        F32 width_scale  = static_cast<F32>(max_width) / static_cast<F32>(orig_width);
+                        F32 height_scale = static_cast<F32>(max_height) / static_cast<F32>(orig_height);
                         F32 scale        = llmin(width_scale, height_scale);
 
                         // Calculate new dimensions, preserving aspect ratio
-                        biased_width = LLImageRaw::contractDimToPowerOfTwo(llclamp((S32)llroundf(orig_width * scale), 4, max_width));
-                        biased_height = LLImageRaw::contractDimToPowerOfTwo(llclamp((S32)llroundf(orig_height * scale), 4, max_height));
+                        biased_width = LLImageRaw::contractDimToPowerOfTwo(llclamp(static_cast<S32>(llroundf(orig_width * scale)), 4, max_width));
+                        biased_height = LLImageRaw::contractDimToPowerOfTwo(llclamp(static_cast<S32>(llroundf(orig_height * scale)), 4, max_height));
                     }
                     else
                     {
@@ -1173,7 +1173,7 @@ size_t get_file_size(std::string &filename)
 
     // read in the whole file
     fseek(file, 0L, SEEK_END);
-    size_t file_length = (size_t)ftell(file);
+    size_t file_length = static_cast<size_t>(ftell(file));
     fclose(file);
     return file_length;
 }
@@ -1282,7 +1282,7 @@ void upload_done_callback(
     S32 result,
     LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
-    LLResourceData* data = (LLResourceData*)user_data;
+    LLResourceData* data = static_cast<LLResourceData*>(user_data);
     S32 expected_upload_cost = data ? data->mExpectedUploadCost : 0;
     //LLAssetType::EType pref_loc = data->mPreferredLocation;
     bool is_balance_sufficient = true;
@@ -1322,8 +1322,8 @@ void upload_done_callback(
                     // we tell the sim how much we were expecting to pay so it
                     // can respond to any discrepancy
                     msg->addS32Fast(_PREHASH_Amount, expected_upload_cost);
-                    msg->addU8Fast(_PREHASH_AggregatePermNextOwner, (U8)LLAggregatePermissions::AP_EMPTY);
-                    msg->addU8Fast(_PREHASH_AggregatePermInventory, (U8)LLAggregatePermissions::AP_EMPTY);
+                    msg->addU8Fast(_PREHASH_AggregatePermNextOwner, static_cast<U8>(LLAggregatePermissions::AP_EMPTY));
+                    msg->addU8Fast(_PREHASH_AggregatePermInventory, static_cast<U8>(LLAggregatePermissions::AP_EMPTY));
                     msg->addS32Fast(_PREHASH_TransactionType, TRANS_UPLOAD_CHARGE);
                     msg->addStringFast(_PREHASH_Description, NULL);
                     msg->sendReliable(region->getHost());
@@ -1463,7 +1463,7 @@ void upload_new_resource(
             data->mAssetInfo.mTransactionID,
             data->mAssetInfo.mType,
             asset_callback,
-            (void*)data,
+            static_cast<void*>(data),
             false);
     }
 }

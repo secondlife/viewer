@@ -464,7 +464,7 @@ void LLChatBar::stopChat()
 // static
 void LLChatBar::onInputEditorKeystroke( LLLineEditor* caller, void* userdata )
 {
-    LLChatBar* self = (LLChatBar *)userdata;
+    LLChatBar* self = static_cast<LLChatBar *>(userdata);
 
     LLWString raw_text;
     if (self->mInputEditor) raw_text = self->mInputEditor->getWText();

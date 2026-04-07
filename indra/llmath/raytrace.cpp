@@ -162,7 +162,7 @@ bool ray_sphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
         return false;
     }
 
-    F32 half_chord = (F32) sqrt(radius_squared - shortest_distance);
+    F32 half_chord = static_cast<F32>(sqrt(radius_squared - shortest_distance));
     closest_approach = sphere_center + closest_approach;            // closest_approach now in absolute coordinates
     intersection = closest_approach + half_chord * ray_direction;
     dot = ray_direction * (intersection - ray_point);
@@ -281,7 +281,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // check for intersection with infinite cylinder
-    shortest_distance = (F32) fabs(ray_to_cyl * shortest_direction);
+    shortest_distance = static_cast<F32>(fabs(ray_to_cyl * shortest_direction));
     if (shortest_distance <= cyl_radius)
     {
         F32         dist_to_closest_point;              // dist from ray_point to closest_point
@@ -291,8 +291,8 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
         dist_to_closest_point = - (temp_vector * shortest_direction);
         temp_vector = shortest_direction % cyl_axis;
         temp_vector.normalize();
-        half_chord_length = (F32) fabs( sqrt(cyl_radius*cyl_radius - shortest_distance * shortest_distance) /
-                            (ray_direction * temp_vector) );
+        half_chord_length = static_cast<F32>(fabs( sqrt(cyl_radius*cyl_radius - shortest_distance * shortest_distance) /
+                            (ray_direction * temp_vector) ));
 
         out = dist_to_closest_point + half_chord_length;    // dist to exiting point
         if (out < 0.0f)

@@ -115,7 +115,7 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
             // reshapeToFitText uses LLView::reshape() which always reshapes
             // from bottom to top, but we want to extend the bottom
             // Note: might be better idea to use getRect().mTop of LLCheckBoxCtrl (+pad) as top point of new rect
-            S32 delta = ll_round((F32)mLabel->getFont()->getLineHeight() * mLabel->getLineSpacingMult()) - label_rect.getHeight();
+            S32 delta = ll_round(static_cast<F32>(mLabel->getFont()->getLineHeight()) * mLabel->getLineSpacingMult()) - label_rect.getHeight();
             label_rect.translate(0, delta);
             mLabel->setRect(label_rect);
         }

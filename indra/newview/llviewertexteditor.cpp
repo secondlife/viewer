@@ -233,7 +233,7 @@ public:
         LLRectf image_rect = draw_rect;
         image_rect.mRight = image_rect.mLeft + mImage->getWidth();
         image_rect.mTop = image_rect.mBottom + mImage->getHeight();
-        mImage->draw(LLRect((S32)image_rect.mLeft, (S32)image_rect.mTop, (S32)image_rect.mRight, (S32)image_rect.mBottom));
+        mImage->draw(LLRect(static_cast<S32>(image_rect.mLeft), static_cast<S32>(image_rect.mTop), static_cast<S32>(image_rect.mRight), static_cast<S32>(image_rect.mBottom)));
 
         static const LLUIColor embedded_item_readonly_col = LLUIColorTable::instance().getColor("TextEmbeddedItemReadOnlyColor");
         static const LLUIColor embedded_item_col = LLUIColorTable::instance().getColor("TextEmbeddedItemColor");
@@ -458,7 +458,7 @@ bool LLEmbeddedItems::getEmbeddedItemSaved(llwchar ext_char)
 
 llwchar LLEmbeddedItems::getEmbeddedCharFromIndex(S32 index)
 {
-    if (index >= (S32)mEmbeddedIndexedChars.size())
+    if (index >= static_cast<S32>(mEmbeddedIndexedChars.size()))
     {
         LL_WARNS() << "No item for embedded char " << index << " using LL_UNKNOWN_CHAR" << LL_ENDL;
         return LL_UNKNOWN_CHAR;
@@ -470,7 +470,7 @@ void LLEmbeddedItems::removeUnusedChars()
 {
     std::set<llwchar> used = mEmbeddedUsedChars;
     const LLWString& wtext = mEditor->getWText();
-    for (S32 i=0; i<(S32)wtext.size(); i++)
+    for (S32 i=0; i<static_cast<S32>(wtext.size()); i++)
     {
         llwchar wc = wtext[i];
         if( wc >= LLTextEditor::FIRST_EMBEDDED_CHAR && wc <= LLTextEditor::LAST_EMBEDDED_CHAR )
@@ -510,13 +510,13 @@ S32 LLEmbeddedItems::getIndexFromEmbeddedChar(llwchar wch)
             break;
         ++idx;
     }
-    if (idx < (S32)mEmbeddedIndexedChars.size())
+    if (idx < static_cast<S32>(mEmbeddedIndexedChars.size()))
     {
         return idx;
     }
     else
     {
-        LL_WARNS() << "Embedded char " << (int)wch << " not found, using 0" << LL_ENDL;
+        LL_WARNS() << "Embedded char " << static_cast<int>(wch) << " not found, using 0" << LL_ENDL;
         return 0;
     }
 }
@@ -631,7 +631,7 @@ public:
 
     virtual bool execute( LLTextBase* editor, S32* delta )
     {
-        LLViewerTextEditor* viewer_editor = (LLViewerTextEditor*)editor;
+        LLViewerTextEditor* viewer_editor = static_cast<LLViewerTextEditor*>(editor);
         // Take this opportunity to remove any unused embedded items from this editor
         viewer_editor->mEmbeddedItemList->removeUnusedChars();
         if(viewer_editor->mEmbeddedItemList->insertEmbeddedItem( mItem, &mExtCharValue, true ) )
@@ -915,7 +915,7 @@ bool LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
             break;
         }
 
-        LLInventoryItem *item = (LLInventoryItem *)cargo_data;
+        LLInventoryItem *item = static_cast<LLInventoryItem *>(cargo_data);
         if (item && allowsEmbeddedItems() && supported)
         {
             U32 mask_next = item->getPermissions().getMaskNextOwner();
@@ -967,14 +967,14 @@ bool LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 void LLViewerTextEditor::setASCIIEmbeddedText(const std::string& instr)
 {
     LLWString wtext;
-    const U8* buffer = (U8*)(instr.c_str());
+    const U8* buffer = reinterpret_cast<const U8*>(instr.c_str());
     while (*buffer)
     {
         llwchar wch;
         U8 c = *buffer++;
         if (c >= 0x80)
         {
-            S32 index = (S32)(c - 0x80);
+            S32 index = static_cast<S32>(c - 0x80);
             wch = mEmbeddedItemList->getEmbeddedCharFromIndex(index);
         }
         else
@@ -989,7 +989,7 @@ void LLViewerTextEditor::setASCIIEmbeddedText(const std::string& instr)
 void LLViewerTextEditor::setEmbeddedText(const std::string& instr)
 {
     LLWString wtext = utf8str_to_wstring(instr);
-    for (S32 i=0; i<(S32)wtext.size(); i++)
+    for (S32 i=0; i<static_cast<S32>(wtext.size()); i++)
     {
         llwchar wch = wtext[i];
         if( wch >= FIRST_EMBEDDED_CHAR && wch <= LAST_EMBEDDED_CHAR )
@@ -1007,7 +1007,7 @@ std::string LLViewerTextEditor::getEmbeddedText()
     // New version (Version 2)
     mEmbeddedItemList->copyUsedCharsToIndexed();
     LLWString outtextw;
-    for (S32 i=0; i<(S32)getWText().size(); i++)
+    for (S32 i=0; i<static_cast<S32>(getWText().size()); i++)
     {
         llwchar wch = getWText()[i];
         if( wch >= FIRST_EMBEDDED_CHAR && wch <= LAST_EMBEDDED_CHAR )
@@ -1023,7 +1023,7 @@ std::string LLViewerTextEditor::getEmbeddedText()
     // Old version (Version 1)
     mEmbeddedItemList->copyUsedCharsToIndexed();
     std::string outtext;
-    for (S32 i=0; i<(S32)mWText.size(); i++)
+    for (S32 i=0; i<static_cast<S32>(mWText.size()); i++)
     {
         llwchar wch = mWText[i];
         if( wch >= FIRST_EMBEDDED_CHAR && wch <= LAST_EMBEDDED_CHAR )
@@ -1035,7 +1035,7 @@ std::string LLViewerTextEditor::getEmbeddedText()
         {
             wch = LL_UNKNOWN_CHAR;
         }
-        outtext.push_back((U8)wch);
+        outtext.push_back(static_cast<U8>(wch));
     }
     return outtext;
 #endif
@@ -1050,7 +1050,7 @@ std::string LLViewerTextEditor::appendTime(bool prepend_newline)
 
     LLSD substitution;
 
-    substitution["datetime"] = (S32) utc_time;
+    substitution["datetime"] = static_cast<S32>(utc_time);
     LLStringUtil::format (timeStr, substitution);
     appendText(timeStr, prepend_newline, LLStyle::Params().color(LLColor4::grey));
     blockUndo();
@@ -1364,7 +1364,7 @@ bool LLViewerTextEditor::hasEmbeddedInventory()
 
 bool LLViewerTextEditor::importBuffer( const char* buffer, S32 length )
 {
-    LLMemoryStream str(std::span<const U8>((const U8*)buffer, length));
+    LLMemoryStream str(std::span<const U8>(reinterpret_cast<const U8*>(buffer), length));
     return importStream(str);
 }
 

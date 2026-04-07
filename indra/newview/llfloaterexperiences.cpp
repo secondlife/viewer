@@ -392,7 +392,7 @@ void LLFloaterExperiences::retrieveExperienceListCoro(std::string url,
             << ". Type: " << errorNotify << " Message: " << status.getMessage() << LL_ENDL;
 
         LLSD subs;
-        subs["ERROR_MESSAGE"] = llformat(" %d\n %s", (S32)status.getType(), status.getMessage().c_str());
+        subs["ERROR_MESSAGE"] = llformat(" %d\n %s", static_cast<S32>(status.getType()), status.getMessage().c_str());
         LLNotificationsUtil::add(errorNotify, subs);
 
         return;

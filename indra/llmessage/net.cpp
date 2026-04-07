@@ -201,7 +201,7 @@ S32 start_net(S32& socket_out, int& nPort)
     }
 
     // Get a datagram socket
-    hSocket = (int)socket(AF_INET, SOCK_DGRAM, 0);
+    hSocket = static_cast<int>(socket(AF_INET, SOCK_DGRAM, 0));
     if (hSocket == INVALID_SOCKET)
     {
         S32 err = WSAGetLastError();
@@ -274,20 +274,20 @@ S32 start_net(S32& socket_out, int& nPort)
     }
 
     // set a large receive buffer
-    nRet = setsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, (char *)&rec_size, buff_size);
+    nRet = setsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&rec_size), buff_size);
     if (nRet)
     {
         LL_INFOS("AppInit") << "Can't set receive buffer size!" << LL_ENDL;
     }
 
-    nRet = setsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, (char *)&snd_size, buff_size);
+    nRet = setsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&snd_size), buff_size);
     if (nRet)
     {
         LL_INFOS("AppInit") << "Can't set send buffer size!" << LL_ENDL;
     }
 
-    getsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, (char *)&rec_size, &buff_size);
-    getsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, (char *)&snd_size, &buff_size);
+    getsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&rec_size), &buff_size);
+    getsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&snd_size), &buff_size);
 
     LL_DEBUGS("AppInit") << "startNet - receive buffer size : " << rec_size << LL_ENDL;
     LL_DEBUGS("AppInit") << "startNet - send buffer size    : " << snd_size << LL_ENDL;
@@ -467,18 +467,18 @@ S32 start_net(S32& socket_out, int& nPort)
     // Set socket to be non-blocking
     fcntl(hSocket, F_SETFL, O_NONBLOCK);
     // set a large receive buffer
-    nRet = setsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, (char *)&rec_size, buff_size);
+    nRet = setsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&rec_size), buff_size);
     if (nRet)
     {
         LL_INFOS() << "Can't set receive size!" << LL_ENDL;
     }
-    nRet = setsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, (char *)&snd_size, buff_size);
+    nRet = setsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&snd_size), buff_size);
     if (nRet)
     {
         LL_INFOS() << "Can't set send size!" << LL_ENDL;
     }
-    getsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, (char *)&rec_size, &buff_size);
-    getsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, (char *)&snd_size, &buff_size);
+    getsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&rec_size), &buff_size);
+    getsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&snd_size), &buff_size);
 
     LL_INFOS() << "startNet - receive buffer size : " << rec_size << LL_ENDL;
     LL_INFOS() << "startNet - send buffer size    : " << snd_size << LL_ENDL;

@@ -245,13 +245,13 @@ bool    LLFloaterTools::postBuild()
     mBtnUnlink          = getChild<LLButton>("unlink_btn");
 
     mCheckSelectIndividual  = getChild<LLCheckBoxCtrl>("checkbox edit linked parts");
-    getChild<LLUICtrl>("checkbox edit linked parts")->setValue((bool)gSavedSettings.getBOOL("EditLinkedParts"));
+    getChild<LLUICtrl>("checkbox edit linked parts")->setValue(static_cast<bool>(gSavedSettings.getBOOL("EditLinkedParts")));
     mCheckSnapToGrid        = getChild<LLCheckBoxCtrl>("checkbox snap to grid");
-    getChild<LLUICtrl>("checkbox snap to grid")->setValue((bool)gSavedSettings.getBOOL("SnapEnabled"));
+    getChild<LLUICtrl>("checkbox snap to grid")->setValue(static_cast<bool>(gSavedSettings.getBOOL("SnapEnabled")));
     mCheckStretchUniform    = getChild<LLCheckBoxCtrl>("checkbox uniform");
-    getChild<LLUICtrl>("checkbox uniform")->setValue((bool)gSavedSettings.getBOOL("ScaleUniform"));
+    getChild<LLUICtrl>("checkbox uniform")->setValue(static_cast<bool>(gSavedSettings.getBOOL("ScaleUniform")));
     mCheckStretchTexture    = getChild<LLCheckBoxCtrl>("checkbox stretch textures");
-    getChild<LLUICtrl>("checkbox stretch textures")->setValue((bool)gSavedSettings.getBOOL("ScaleStretchTextures"));
+    getChild<LLUICtrl>("checkbox stretch textures")->setValue(static_cast<bool>(gSavedSettings.getBOOL("ScaleStretchTextures")));
     mComboGridMode          = getChild<LLComboBox>("combobox grid mode");
 
     //
@@ -270,13 +270,13 @@ bool    LLFloaterTools::postBuild()
         }
     }
     mCheckCopySelection = getChild<LLCheckBoxCtrl>("checkbox copy selection");
-    getChild<LLUICtrl>("checkbox copy selection")->setValue((bool)gSavedSettings.getBOOL("CreateToolCopySelection"));
+    getChild<LLUICtrl>("checkbox copy selection")->setValue(static_cast<bool>(gSavedSettings.getBOOL("CreateToolCopySelection")));
     mCheckSticky = getChild<LLCheckBoxCtrl>("checkbox sticky");
-    getChild<LLUICtrl>("checkbox sticky")->setValue((bool)gSavedSettings.getBOOL("CreateToolKeepSelected"));
+    getChild<LLUICtrl>("checkbox sticky")->setValue(static_cast<bool>(gSavedSettings.getBOOL("CreateToolKeepSelected")));
     mCheckCopyCenters = getChild<LLCheckBoxCtrl>("checkbox copy centers");
-    getChild<LLUICtrl>("checkbox copy centers")->setValue((bool)gSavedSettings.getBOOL("CreateToolCopyCenters"));
+    getChild<LLUICtrl>("checkbox copy centers")->setValue(static_cast<bool>(gSavedSettings.getBOOL("CreateToolCopyCenters")));
     mCheckCopyRotates = getChild<LLCheckBoxCtrl>("checkbox copy rotates");
-    getChild<LLUICtrl>("checkbox copy rotates")->setValue((bool)gSavedSettings.getBOOL("CreateToolCopyRotates"));
+    getChild<LLUICtrl>("checkbox copy rotates")->setValue(static_cast<bool>(gSavedSettings.getBOOL("CreateToolCopyRotates")));
 
     mRadioGroupLand         = getChild<LLRadioGroup>("land_radio_group");
     mBtnApplyToSelection    = getChild<LLButton>("button apply to selection");
@@ -492,7 +492,7 @@ void LLFloaterTools::refresh()
                 LLViewerObject* object = (*nextiter)->getObject();
                 if (!object)
                     continue;
-                S32 num_tes = llmin((S32)object->getNumTEs(), (S32)object->getNumFaces());
+                S32 num_tes = llmin(static_cast<S32>(object->getNumTEs()), static_cast<S32>(object->getNumFaces()));
                 for (S32 te = 0; te < num_tes; ++te)
                 {
                     if (node->isTESelected(te))
@@ -514,7 +514,7 @@ void LLFloaterTools::refresh()
 
         LLStringUtil::format_map_t selection_args;
         selection_args["OBJ_COUNT"] = llformat("%.1d", link_count);
-        selection_args["LAND_IMPACT"] = llformat("%.1d", (S32)link_cost);
+        selection_args["LAND_IMPACT"] = llformat("%.1d", static_cast<S32>(link_cost));
 
         mTextSelectionCount->setText(getString("status_selectcount", selection_args));
     }
@@ -746,7 +746,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
     else
     {
         // Highlight the correct placer button
-        for( S32 t = 0; t < (S32)mButtons.size(); t++ )
+        for( S32 t = 0; t < static_cast<S32>(mButtons.size()); t++ )
         {
             LLPCode pcode = LLToolPlacer::getObjectType();
             LLPCode button_pcode = toolData[t];
@@ -973,14 +973,14 @@ void commit_radio_group_focus(LLUICtrl* ctrl)
 void commit_slider_zoom(LLUICtrl *ctrl)
 {
     // renormalize value, since max "volume" level is 0.5 for some reason
-    F32 zoom_level = (F32)ctrl->getValue().asReal() * 2.f; // / 0.5f;
+    F32 zoom_level = static_cast<F32>(ctrl->getValue().asReal()) * 2.f; // / 0.5f;
     gAgentCamera.setCameraZoomFraction(zoom_level);
 }
 
 void commit_slider_dozer_force(LLUICtrl *ctrl)
 {
     // the slider is logarithmic, so we exponentiate to get the actual force multiplier
-    F32 dozer_force = pow(10.f, (F32)ctrl->getValue().asReal());
+    F32 dozer_force = pow(10.f, static_cast<F32>(ctrl->getValue().asReal()));
     gSavedSettings.setF32("LandBrushForce", dozer_force);
 }
 

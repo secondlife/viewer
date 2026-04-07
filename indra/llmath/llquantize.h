@@ -30,13 +30,13 @@
 const U16 U16MAX = 65535;
 LL_ALIGN_16( const F32 F_U16MAX_4A[4] ) = { 65535.f, 65535.f, 65535.f, 65535.f };
 
-const F32 OOU16MAX = 1.f/(F32)(U16MAX);
+const F32 OOU16MAX = 1.f/static_cast<F32>(U16MAX);
 LL_ALIGN_16( const F32 F_OOU16MAX_4A[4] ) = { OOU16MAX, OOU16MAX, OOU16MAX, OOU16MAX };
 
 const U8 U8MAX = 255;
 LL_ALIGN_16( const F32 F_U8MAX_4A[4] ) = { 255.f, 255.f, 255.f, 255.f };
 
-const F32 OOU8MAX = 1.f/(F32)(U8MAX);
+const F32 OOU8MAX = 1.f/static_cast<F32>(U8MAX);
 LL_ALIGN_16( const F32 F_OOU8MAX_4A[4] ) = { OOU8MAX, OOU8MAX, OOU8MAX, OOU8MAX };
 
 const U8 FIRSTVALIDCHAR = 54;
@@ -51,7 +51,7 @@ inline U16 F32_to_U16_ROUND(F32 val, F32 lower, F32 upper)
     val /= (upper - lower);
 
     // round the value.   Sreturn the U16
-    return (U16)(ll_round(val*U16MAX));
+    return static_cast<U16>(ll_round(val*U16MAX));
 }
 
 
@@ -63,7 +63,7 @@ inline U16 F32_to_U16(F32 val, F32 lower, F32 upper)
     val /= (upper - lower);
 
     // return the U16
-    return (U16)(llfloor(val*U16MAX));
+    return static_cast<U16>(llfloor(val*U16MAX));
 }
 
 inline F32 U16_to_F32(U16 ival, F32 lower, F32 upper)
@@ -91,7 +91,7 @@ inline U8 F32_to_U8_ROUND(F32 val, F32 lower, F32 upper)
     val /= (upper - lower);
 
     // return the rounded U8
-    return (U8)(ll_round(val*U8MAX));
+    return static_cast<U8>(ll_round(val*U8MAX));
 }
 
 
@@ -103,7 +103,7 @@ inline U8 F32_to_U8(F32 val, F32 lower, F32 upper)
     val /= (upper - lower);
 
     // return the U8
-    return (U8)(llfloor(val*U8MAX));
+    return static_cast<U8>(llfloor(val*U8MAX));
 }
 
 inline F32 U8_to_F32(U8 ival, F32 lower, F32 upper)
@@ -131,7 +131,7 @@ inline U8 F32_TO_STRING(F32 val, F32 lower, F32 upper)
     val = val * MAXSTRINGVAL;       //[0, MAXSTRINGVAL]
     val = floor(val + 0.5f);        //[0, MAXSTRINGVAL]
 
-    U8 stringVal = (U8)(val) + FIRSTVALIDCHAR;          //[FIRSTVALIDCHAR, MAXSTRINGVAL + FIRSTVALIDCHAR]
+    U8 stringVal = static_cast<U8>(val) + FIRSTVALIDCHAR;          //[FIRSTVALIDCHAR, MAXSTRINGVAL + FIRSTVALIDCHAR]
     return stringVal;
 }
 
@@ -140,7 +140,7 @@ inline F32 STRING_TO_F32(U8 ival, F32 lower, F32 upper)
     // remove empty space left for NULL, newline, etc.
     ival -= FIRSTVALIDCHAR;                             //[0, MAXSTRINGVAL]
 
-    F32 val = (F32)ival * (1.f / (F32)MAXSTRINGVAL);    //[0, 1]
+    F32 val = static_cast<F32>(ival) * (1.f / static_cast<F32>(MAXSTRINGVAL));    //[0, 1]
     F32 delta = (upper - lower);
     val *= delta;                                       //[0, upper - lower]
     val += lower;                                       //[lower, upper]

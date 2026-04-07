@@ -984,8 +984,8 @@ void null_message_callback(LLMessageSystem *msg, void **data);
 
 static inline void *htolememcpy(void *vs, const void *vct, EMsgVariableType type, size_t n)
 {
-    char *s = (char *)vs;
-    const char *ct = (const char *)vct;
+    char *s = static_cast<char*>(vs);
+    const char *ct = static_cast<const char*>(vct);
 #ifdef LL_BIG_ENDIAN
     S32 i, length;
 #endif

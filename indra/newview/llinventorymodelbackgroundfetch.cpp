@@ -750,7 +750,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     // Reserve one request for actions outside of fetch (like renames)
     const U32 max_concurrent_fetches = llclamp(ais_pool - 1, 1, 50);
 
-    if ((U32)mFetchCount >= max_concurrent_fetches)
+    if (static_cast<U32>(mFetchCount) >= max_concurrent_fetches)
     {
         return;
     }
@@ -763,7 +763,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     const F64 end_time = curent_time + max_time;
     S32 last_fetch_count = mFetchCount;
 
-    while (!mFetchFolderQueue.empty() && (U32)mFetchCount < max_concurrent_fetches && curent_time < end_time)
+    while (!mFetchFolderQueue.empty() && static_cast<U32>(mFetchCount) < max_concurrent_fetches && curent_time < end_time)
     {
         const FetchQueueInfo& fetch_info(mFetchFolderQueue.front());
         bulkFetchViaAis(fetch_info);
@@ -774,7 +774,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     // Ideally we shouldn't fetch items if recursive fetch isn't done,
     // but there is a chance some request will start timeouting and recursive
     // fetch will get stuck on a single folder, don't block item fetch in such case
-    while (!mFetchItemQueue.empty() && (U32)mFetchCount < max_concurrent_fetches && curent_time < end_time)
+    while (!mFetchItemQueue.empty() && static_cast<U32>(mFetchCount) < max_concurrent_fetches && curent_time < end_time)
     {
         const FetchQueueInfo& fetch_info(mFetchItemQueue.front());
         bulkFetchViaAis(fetch_info);
@@ -786,8 +786,8 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
         || mLastFetchCount != mFetchCount) // if anything was substracted
     {
         LL_DEBUGS(LOG_INV , "AIS3") << "Total active fetches: " << mLastFetchCount << "->" << last_fetch_count << "->" << mFetchCount
-            << ", scheduled folder fetches: " << (S32)mFetchFolderQueue.size()
-            << ", scheduled item fetches: " << (S32)mFetchItemQueue.size()
+            << ", scheduled folder fetches: " << static_cast<S32>(mFetchFolderQueue.size())
+            << ", scheduled item fetches: " << static_cast<S32>(mFetchItemQueue.size())
             << LL_ENDL;
         mLastFetchCount = mFetchCount;
 

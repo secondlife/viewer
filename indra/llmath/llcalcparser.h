@@ -173,8 +173,8 @@ private:
     F32 _log(const F32& a) const { return log(a); }
     F32 _exp(const F32& a) const { return exp(a); }
     F32 _fabs(const F32& a) const { return fabs(a); }
-    F32 _floor(const F32& a) const { return (F32)llfloor(a); }
-    F32 _ceil(const F32& a) const { return (F32)llceil(a); }
+    F32 _floor(const F32& a) const { return static_cast<F32>(llfloor(a)); }
+    F32 _ceil(const F32& a) const { return static_cast<F32>(llceil(a)); }
     F32 _atan2(const F32& a,const F32& b) const { return atan2(a,b); }
 
     LLCalc::calc_map_t* mConstants;

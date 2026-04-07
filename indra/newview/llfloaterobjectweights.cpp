@@ -206,7 +206,7 @@ void LLFloaterObjectWeights::draw()
             toggleRenderLoadingIndicators(false);
         }
         mTrianglesShown->setText(llformat("%d", total_tris));
-        mPixelArea->setText(llformat("%ld", (S64)pixel_area)); // value capped at 10M
+        mPixelArea->setText(llformat("%ld", static_cast<S64>(pixel_area))); // value capped at 10M
     }
     LLFloater::draw();
 }
@@ -226,7 +226,7 @@ void LLFloaterObjectWeights::updateLandImpacts(const LLParcel* parcel)
         LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
         if (region)
         {
-            S32 max_tasks_per_region = (S32)region->getMaxTasks();
+            S32 max_tasks_per_region = static_cast<S32>(region->getMaxTasks());
             total_capacity = llmin(total_capacity, max_tasks_per_region);
         }
 
@@ -254,7 +254,7 @@ void LLFloaterObjectWeights::refresh()
 
         mSelectedObjects->setText(llformat("%d", link_count));
         mSelectedPrims->setText(llformat("%d", prim_count));
-        mSelectedOnLand->setText(llformat("%.1d", (S32)prim_equiv));
+        mSelectedOnLand->setText(llformat("%.1d", static_cast<S32>(prim_equiv)));
 
         LLCrossParcelFunctor func;
         if (sel_mgr->getSelection()->applyToRootObjects(&func, true))

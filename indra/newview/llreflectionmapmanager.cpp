@@ -223,7 +223,7 @@ void LLReflectionMapManager::update()
         resume();
     }
 
-    mResetFade = llmin((F32)(mResetFade + gFrameIntervalSeconds * 2.f), 1.f);
+    mResetFade = llmin(static_cast<F32>(mResetFade + gFrameIntervalSeconds * 2.f), 1.f);
 
     {
         U32 probe_count_temp = mDynamicProbeCount;
@@ -235,11 +235,11 @@ void LLReflectionMapManager::update()
             }
             else if (mRenderReflectionProbeLevel == 1)
             {
-                mDynamicProbeCount = (U32)mProbes.size();
+                mDynamicProbeCount = static_cast<U32>(mProbes.size());
             }
             else if (mRenderReflectionProbeLevel == 2)
             {
-                mDynamicProbeCount = llmax((U32)mProbes.size(), 128);
+                mDynamicProbeCount = llmax(static_cast<U32>(mProbes.size()), 128);
             }
             else
             {
@@ -282,7 +282,7 @@ void LLReflectionMapManager::update()
     if (mMipChain.empty())
     {
         U32 res = mProbeResolution;
-        U32 count = (U32)(log2((F32)res) + 0.5f);
+        U32 count = static_cast<U32>(log2(static_cast<F32>(res)) + 0.5f);
 
         mMipChain.resize(count);
         for (U32 i = 0; i < count; ++i)
@@ -303,7 +303,7 @@ void LLReflectionMapManager::update()
         auto const & iter = std::ranges::find(mProbes, probe);
         if (iter != mProbes.end())
         {
-            deleteProbe((U32)(iter - mProbes.begin()));
+            deleteProbe(static_cast<U32>(iter - mProbes.begin()));
         }
     }
 
@@ -324,7 +324,7 @@ void LLReflectionMapManager::update()
 
     bool did_update = false;
 
-    bool realtime = mRenderReflectionProbeDetail >= (S32)LLReflectionMapManager::DetailLevel::REALTIME;
+    bool realtime = mRenderReflectionProbeDetail >= static_cast<S32>(LLReflectionMapManager::DetailLevel::REALTIME);
 
     LLReflectionMap* closestDynamic = nullptr;
 
@@ -363,7 +363,7 @@ void LLReflectionMapManager::update()
     }
 
     // next distribute the free indices
-    U32 count = llmin(mReflectionProbeCount, (U32)mProbes.size());
+    U32 count = llmin(mReflectionProbeCount, static_cast<U32>(mProbes.size()));
 
     for (U32 i = 1; i < count && !mCubeFree.empty(); ++i)
     {
@@ -379,7 +379,7 @@ void LLReflectionMapManager::update()
         }
     }
 
-    mResetFade = llmin((F32)(mResetFade + gFrameIntervalSeconds * 2.f), 1.f);
+    mResetFade = llmin(static_cast<F32>(mResetFade + gFrameIntervalSeconds * 2.f), 1.f);
 
     for (unsigned int i = 0; i < mProbes.size(); ++i)
     {
@@ -421,7 +421,7 @@ void LLReflectionMapManager::update()
         if (probe->mComplete)
         {
             probe->autoAdjustOrigin();
-            probe->mFadeIn = llmin((F32) (probe->mFadeIn + gFrameIntervalSeconds), 1.f);
+            probe->mFadeIn = llmin(static_cast<F32>(probe->mFadeIn + gFrameIntervalSeconds), 1.f);
         }
         if (probe->mOccluded && probe->mComplete)
         {
@@ -728,7 +728,7 @@ void LLReflectionMapManager::doProbeUpdate()
     {
         if (debug_updates)
         {
-            mUpdatingProbe->mViewerObject->setDebugText(llformat("%.1f", (F32)gFrameTimeSeconds), LLColor4(1, 1, 1, 1));
+            mUpdatingProbe->mViewerObject->setDebugText(llformat("%.1f", static_cast<F32>(gFrameTimeSeconds)), LLColor4(1, 1, 1, 1));
         }
         updateNeighbors(mUpdatingProbe);
         mUpdatingFace = 0;
@@ -745,7 +745,7 @@ void LLReflectionMapManager::doProbeUpdate()
     }
     else if (debug_updates)
     {
-        mUpdatingProbe->mViewerObject->setDebugText(llformat("%.1f", (F32)gFrameTimeSeconds), LLColor4(1, 1, 0, 1));
+        mUpdatingProbe->mViewerObject->setDebugText(llformat("%.1f", static_cast<F32>(gFrameTimeSeconds)), LLColor4(1, 1, 0, 1));
     }
 }
 
@@ -848,7 +848,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             screen_rt->flush();
         }
 
-        S32 mips = (S32)(log2((F32)mProbeResolution) + 0.5f);
+        S32 mips = static_cast<S32>(log2(static_cast<F32>(mProbeResolution)) + 0.5f);
 
         gReflectionMipProgram.bind();
         S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::eTextureType::TT_TEXTURE);
@@ -924,8 +924,8 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
                 static LLStaticHashedString sRoughness("roughness");
                 static LLStaticHashedString sWidth("u_width");
 
-                gRadianceGenProgram.uniform1f(sRoughness, (F32)i / (F32)(mMipChain.size() - 1));
-                gRadianceGenProgram.uniform1f(sMipLevel, (GLfloat)i);
+                gRadianceGenProgram.uniform1f(sRoughness, static_cast<F32>(i) / static_cast<F32>(mMipChain.size() - 1));
+                gRadianceGenProgram.uniform1f(sMipLevel, static_cast<GLfloat>(i));
                 gRadianceGenProgram.uniform1i(sWidth, mProbeResolution);
 
                 for (int cf = 0; cf < 6; ++cf)
@@ -1149,7 +1149,7 @@ void LLReflectionMapManager::updateUniforms()
         {
             if (refmap->mViewerObject && refmap->mViewerObject->getVolume())
             { // have active manual probes live-track the object they're associated with
-                LLVOVolume* vobj = (LLVOVolume*)refmap->mViewerObject.get();
+                LLVOVolume* vobj = static_cast<LLVOVolume*>(refmap->mViewerObject.get());
 
                 refmap->mOrigin.load3(vobj->getPositionAgent().mV);
 
@@ -1332,7 +1332,7 @@ void LLReflectionMapManager::renderDebug()
 void LLReflectionMapManager::initReflectionMaps()
 {
     static LLCachedControl<U32> ref_probe_res(gSavedSettings, "RenderReflectionProbeResolution", 128U);
-    U32 probe_resolution = nhpo2(llclamp(ref_probe_res(), (U32)64, (U32)512));
+    U32 probe_resolution = nhpo2(llclamp(ref_probe_res(), static_cast<U32>(64), static_cast<U32>(512)));
     if (mTexture.isNull() || mReflectionProbeCount != mDynamicProbeCount || mProbeResolution != probe_resolution || mReset)
     {
         if(mProbeResolution != probe_resolution)
@@ -1345,7 +1345,7 @@ void LLReflectionMapManager::initReflectionMaps()
         mReset = false;
         mReflectionProbeCount = mDynamicProbeCount;
         mProbeResolution = probe_resolution;
-        mMaxProbeLOD = log2f((F32)mProbeResolution) - 1.f; // number of mips - 1
+        mMaxProbeLOD = log2f(static_cast<F32>(mProbeResolution)) - 1.f; // number of mips - 1
 
         if (mTexture.isNull() ||
             mTexture->getWidth() != mProbeResolution ||

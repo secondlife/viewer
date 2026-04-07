@@ -46,10 +46,10 @@ template <typename FTYPE>
 inline bool is_approx_equal_fraction_impl(FTYPE x, FTYPE y, U32 frac_bits)
 {
     bool ret = true;
-    FTYPE diff = (FTYPE) fabs(x - y);
+    FTYPE diff = static_cast<FTYPE>(fabs(x - y));
 
-    S32 diffInt = (S32) diff;
-    S32 diffFracTolerance = (S32) ((diff - (FTYPE) diffInt) * (1 << frac_bits));
+    S32 diffInt = static_cast<S32>(diff);
+    S32 diffFracTolerance = static_cast<S32>((diff - static_cast<FTYPE>(diffInt)) * (1 << frac_bits));
 
     // if integer portion is not equal, not enough bits were used for packing
     // so error out since either the use case is not correct OR there is

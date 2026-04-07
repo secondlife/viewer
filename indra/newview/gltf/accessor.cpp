@@ -94,7 +94,7 @@ namespace LL
                 return "MAT4";
             }
 
-            LL_WARNS("GLTF") << "Unknown accessor type: " << (S32)type << LL_ENDL;
+            LL_WARNS("GLTF") << "Unknown accessor type: " << static_cast<S32>(type) << LL_ENDL;
             llassert(false);
 
             return "SCALAR";
@@ -104,7 +104,7 @@ namespace LL
 
 void Buffer::erase(Asset& asset, S32 offset, S32 length)
 {
-    S32 idx = (S32)(this - &asset.mBuffers[0]);
+    S32 idx = static_cast<S32>(this - &asset.mBuffers[0]);
 
     mData.erase(mData.begin() + offset, mData.begin() + offset + length);
 
@@ -180,7 +180,7 @@ bool Buffer::prep(Asset& asset)
         file.seekg(0, std::ios::beg);
 
         mData.resize(mByteLength);
-        file.read((char*)mData.data(), mData.size());
+        file.read(reinterpret_cast<char*>(mData.data()), mData.size());
     }
 
     // POSTCONDITION: on success, mData.size == mByteLength
@@ -202,7 +202,7 @@ bool Buffer::save(Asset& asset, const std::string& folder)
     {
         if (mName.empty())
         {
-            S32 idx = (S32)(this - &asset.mBuffers[0]);
+            S32 idx = static_cast<S32>(this - &asset.mBuffers[0]);
             mUri = llformat("buffer_%d.bin", idx);
         }
         else
@@ -220,7 +220,7 @@ bool Buffer::save(Asset& asset, const std::string& folder)
         return false;
     }
 
-    file.write((char*)mData.data(), mData.size());
+    file.write(reinterpret_cast<char*>(mData.data()), mData.size());
 
     return true;
 }

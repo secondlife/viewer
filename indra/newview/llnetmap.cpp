@@ -157,12 +157,12 @@ void LLNetMap::setScale( F32 scale )
 
     if (mObjectImagep.notNull())
     {
-        F32 width = (F32)(getRect().getWidth());
-        F32 height = (F32)(getRect().getHeight());
+        F32 width = static_cast<F32>(getRect().getWidth());
+        F32 height = static_cast<F32>(getRect().getHeight());
         F32 diameter = sqrt(width * width + height * height);
         F32 region_widths = diameter / mScale;
         F32 meters = region_widths * LLWorld::getInstance()->getRegionWidthInMeters();
-        F32 num_pixels = (F32)mObjectImagep->getWidth();
+        F32 num_pixels = static_cast<F32>(mObjectImagep->getWidth());
         mObjectMapTPM = num_pixels / meters;
         mObjectMapPixels = diameter;
     }
@@ -256,7 +256,7 @@ void LLNetMap::draw()
 
         gGL.pushMatrix();
 
-        gGL.translatef( (F32) center_sw_left, (F32) center_sw_bottom, 0.f);
+        gGL.translatef( static_cast<F32>(center_sw_left), static_cast<F32>(center_sw_bottom), 0.f);
 
         static LLUICachedControl<bool> rotate_map("MiniMapRotate", true);
         if( rotate_map )
@@ -474,7 +474,7 @@ void LLNetMap::draw()
             }
 
             F32 dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-                                          LLVector2((F32)local_mouse_x, (F32)local_mouse_y));
+                                          LLVector2(static_cast<F32>(local_mouse_x), static_cast<F32>(local_mouse_y)));
             if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
             {
                 closest_dist_squared = dist_to_cursor_squared;
@@ -514,7 +514,7 @@ void LLNetMap::draw()
                       dot_width);
 
             F32 dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-                                          LLVector2((F32)local_mouse_x, (F32)local_mouse_y));
+                                          LLVector2(static_cast<F32>(local_mouse_x), static_cast<F32>(local_mouse_y)));
             if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
             {
                 mClosestAgentToCursor = gAgent.getID();
@@ -528,14 +528,14 @@ void LLNetMap::draw()
         F32 far_clip_meters = LLViewerCamera::getInstance()->getFar();
         F32 far_clip_pixels = far_clip_meters * meters_to_pixels;
 
-        F32 ctr_x = (F32)center_sw_left;
-        F32 ctr_y = (F32)center_sw_bottom;
+        F32 ctr_x = static_cast<F32>(center_sw_left);
+        F32 ctr_y = static_cast<F32>(center_sw_bottom);
 
         const F32 steps_per_circle = 40.0f;
         const F32 steps_per_radian = steps_per_circle / F_TWO_PI;
         const F32 arc_start = -(horiz_fov / 2.0f) + F_PI_BY_TWO;
         const F32 arc_end = (horiz_fov / 2.0f) + F_PI_BY_TWO;
-        const S32 steps = llmax(1, (S32)((horiz_fov * steps_per_radian) + 0.5f));
+        const S32 steps = llmax(1, static_cast<S32>((horiz_fov * steps_per_radian) + 0.5f));
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
@@ -687,7 +687,7 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
     x -= ll_round(getRect().getWidth() / 2 + mCurPan.mV[VX]);
     y -= ll_round(getRect().getHeight() / 2 + mCurPan.mV[VY]);
 
-    LLVector3 pos_local( (F32)x, (F32)y, 0 );
+    LLVector3 pos_local( static_cast<F32>(x), static_cast<F32>(y), 0 );
 
     F32 radians = - atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
 
@@ -710,7 +710,7 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 bool LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     // note that clicks are reversed from what you'd think: i.e. > 0  means zoom out, < 0 means zoom in
-    F32 new_scale = mScale * (F32)pow(MAP_SCALE_ZOOM_FACTOR, -clicks);
+    F32 new_scale = mScale * static_cast<F32>(pow(MAP_SCALE_ZOOM_FACTOR, -clicks));
     F32 old_scale = mScale;
 
     setScale(new_scale);
@@ -720,8 +720,8 @@ bool LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
     {
         // Adjust pan to center the zoom on the mouse pointer
         LLVector2 zoom_offset;
-        zoom_offset.mV[VX] = (F32)(x - getRect().getWidth() / 2);
-        zoom_offset.mV[VY] = (F32)(y - getRect().getHeight() / 2);
+        zoom_offset.mV[VX] = static_cast<F32>(x - getRect().getWidth() / 2);
+        zoom_offset.mV[VY] = static_cast<F32>(y - getRect().getHeight() / 2);
         mCurPan -= zoom_offset * mScale / old_scale - zoom_offset;
     }
 
@@ -920,8 +920,8 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
         return;
     }
 
-    const S32 image_width = (S32)mObjectImagep->getWidth();
-    const S32 image_height = (S32)mObjectImagep->getHeight();
+    const S32 image_width = static_cast<S32>(mObjectImagep->getWidth());
+    const S32 image_height = static_cast<S32>(mObjectImagep->getHeight());
 
     S32 x_offset = ll_round(pos_local.mV[VX] * mObjectMapTPM + image_width / 2);
     S32 y_offset = ll_round(pos_local.mV[VY] * mObjectMapTPM + image_height / 2);
@@ -957,7 +957,7 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
                 continue;
             }
             S32 offset = px + py * image_width;
-            ((U32*)datap)[offset] = color.asRGBA();
+            (reinterpret_cast<U32*>(datap))[offset] = color.asRGBA();
         }
 
         // top line
@@ -970,7 +970,7 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
                 continue;
             }
             S32 offset = px + py * image_width;
-            ((U32*)datap)[offset] = color.asRGBA();
+            (reinterpret_cast<U32*>(datap))[offset] = color.asRGBA();
         }
     }
     else
@@ -992,7 +992,7 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
                     continue;
                 }
                 S32 offset = p_x + p_y * image_width;
-                ((U32*)datap)[offset] = color.asRGBA();
+                (reinterpret_cast<U32*>(datap))[offset] = color.asRGBA();
             }
         }
     }
@@ -1002,8 +1002,8 @@ void LLNetMap::createObjectImage()
 {
     // Find the size of the side of a square that surrounds the circle that surrounds getRect().
     // ... which is, the diagonal of the rect.
-    F32 width = (F32)getRect().getWidth();
-    F32 height = (F32)getRect().getHeight();
+    F32 width = static_cast<F32>(getRect().getWidth());
+    F32 height = static_cast<F32>(getRect().getHeight());
     S32 square_size = ll_round( sqrt(width*width + height*height) );
 
     // Find the least power of two >= the minimum size.

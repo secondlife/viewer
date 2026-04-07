@@ -105,7 +105,7 @@ LLTSCode LLTransferSourceFile::dataCallback(const S32 packet_id,
     delete_returned = true;
     U8 *tmpp = new U8[max_bytes];
     *data_handle = tmpp;
-    returned_bytes = (S32)fread(tmpp, 1, max_bytes, mFP);
+    returned_bytes = static_cast<S32>(fread(tmpp, 1, max_bytes, mFP));
     if (!returned_bytes)
     {
         delete[] tmpp;
@@ -158,7 +158,7 @@ LLTransferSourceParamsFile::LLTransferSourceParamsFile() :
 void LLTransferSourceParamsFile::packParams(LLDataPacker &dp) const
 {
     dp.packString(mFilename, "Filename");
-    dp.packU8((U8)mDeleteOnCompletion, "Delete");
+    dp.packU8(static_cast<U8>(mDeleteOnCompletion), "Delete");
 }
 
 

@@ -166,7 +166,7 @@ F32 clamp_precision(F32 value, S32 decimal_precision)
     for (S32 i = 0; i < decimal_precision; i++)
         clamped_value /= 10.0;
 
-    return (F32)clamped_value;
+    return static_cast<F32>(clamped_value);
 }
 
 
@@ -179,7 +179,7 @@ void LLSpinCtrl::onUpBtn( const LLSD& data )
         {
 
             LLLocale locale(LLLocale::USER_LOCALE);
-            F32 cur_val = (F32) atof(text.c_str());
+            F32 cur_val = static_cast<F32>(atof(text.c_str()));
 
             // use getValue()/setValue() to force reload from/to control
             F32 val = cur_val + mIncrement;
@@ -188,7 +188,7 @@ void LLSpinCtrl::onUpBtn( const LLSD& data )
             if (val < mMinValue) val = mMinValue;
             if (val > mMaxValue) val = mMaxValue;
 
-            F32 saved_val = (F32)getValue().asReal();
+            F32 saved_val = static_cast<F32>(getValue().asReal());
             setValue(val);
             if( mValidateSignal && !(*mValidateSignal)( this, val ) )
             {
@@ -213,7 +213,7 @@ void LLSpinCtrl::onDownBtn( const LLSD& data )
         {
 
             LLLocale locale(LLLocale::USER_LOCALE);
-            F32 cur_val = (F32) atof(text.c_str());
+            F32 cur_val = static_cast<F32>(atof(text.c_str()));
 
             F32 val = cur_val - mIncrement;
             val = clamp_precision(val, mPrecision);
@@ -222,7 +222,7 @@ void LLSpinCtrl::onDownBtn( const LLSD& data )
             if (val < mMinValue) val = mMinValue;
             if (val > mMaxValue) val = mMaxValue;
 
-            F32 saved_val = (F32)getValue().asReal();
+            F32 saved_val = static_cast<F32>(getValue().asReal());
             setValue(val);
             if( mValidateSignal && !(*mValidateSignal)( this, val ) )
             {
@@ -258,7 +258,7 @@ void LLSpinCtrl::onEditorLostFocus( LLFocusableElement* caller, void *userdata )
     std::string text = self->mEditor->getText();
 
     LLLocale locale(LLLocale::USER_LOCALE);
-    F32 val = (F32)atof(text.c_str());
+    F32 val = static_cast<F32>(atof(text.c_str()));
 
     F32 saved_val = self->getValueF32();
     if (saved_val != val && !self->mEditor->isDirty())
@@ -274,7 +274,7 @@ void LLSpinCtrl::onEditorLostFocus( LLFocusableElement* caller, void *userdata )
 
 void LLSpinCtrl::setValue(const LLSD& value )
 {
-    F32 v = (F32)value.asReal();
+    F32 v = static_cast<F32>(value.asReal());
     if (getValueF32() != v || !mbHasBeenSet)
     {
         mbHasBeenSet = true;
@@ -290,7 +290,7 @@ void LLSpinCtrl::setValue(const LLSD& value )
 //no matter if Editor has the focus, update the value
 void LLSpinCtrl::forceSetValue(const LLSD& value )
 {
-    F32 v = (F32)value.asReal();
+    F32 v = static_cast<F32>(value.asReal());
     if (getValueF32() != v || !mbHasBeenSet)
     {
         mbHasBeenSet = true;
@@ -321,7 +321,7 @@ void LLSpinCtrl::updateEditor()
     LLLocale locale(LLLocale::USER_LOCALE);
 
     // Don't display very small negative valu   es as -0.000
-    F32 displayed_value = clamp_precision((F32)getValue().asReal(), mPrecision);
+    F32 displayed_value = clamp_precision(static_cast<F32>(getValue().asReal()), mPrecision);
 
 //  if( S32( displayed_value * pow( 10, mPrecision ) ) == 0 )
 //  {
@@ -342,7 +342,7 @@ void LLSpinCtrl::onEditorCommit( const LLSD& data )
         std::string text = mEditor->getText();
 
         LLLocale locale(LLLocale::USER_LOCALE);
-        F32 val = (F32) atof(text.c_str());
+        F32 val = static_cast<F32>(atof(text.c_str()));
 
         if (val < mMinValue) val = mMinValue;
         if (val > mMaxValue) val = mMaxValue;

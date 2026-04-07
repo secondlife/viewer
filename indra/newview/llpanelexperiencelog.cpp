@@ -77,7 +77,7 @@ bool LLPanelExperienceLog::postBuild()
 
 
     LLSpinCtrl* spin = getChild<LLSpinCtrl>("logsizespinner");
-    spin->set((F32)log->getMaxDays());
+    spin->set(static_cast<F32>(log->getMaxDays()));
     spin->setCommitCallback(std::bind(&LLPanelExperienceLog::logSizeChanged, this));
 
     mPageSize = log->getPageSize();
@@ -244,7 +244,7 @@ void LLPanelExperienceLog::notifyChanged()
 
 void LLPanelExperienceLog::logSizeChanged()
 {
-    int value = (int)(getChild<LLSpinCtrl>("logsizespinner")->get());
+    int value = static_cast<int>(getChild<LLSpinCtrl>("logsizespinner")->get());
     LLExperienceLog::instance().setMaxDays(value);
     refresh();
 }

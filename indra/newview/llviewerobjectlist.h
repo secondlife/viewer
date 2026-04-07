@@ -128,8 +128,8 @@ public:
 
     void updateAvatarVisibility();
 
-    inline S32 getNumObjects() { return (S32) mObjects.size(); }
-    inline S32 getNumActiveObjects() { return (S32) mActiveObjects.size(); }
+    inline S32 getNumObjects() { return static_cast<S32>(mObjects.size()); }
+    inline S32 getNumActiveObjects() { return static_cast<S32>(mActiveObjects.size()); }
 
     void addToMap(LLViewerObject *objectp);
     void removeFromMap(LLViewerObject *objectp);
@@ -143,7 +143,7 @@ public:
 
     S32 findReferences(LLDrawable *drawablep) const; // Find references to drawable in all objects, and return value.
 
-    S32 getOrphanParentCount() const { return (S32) mOrphanParents.size(); }
+    S32 getOrphanParentCount() const { return static_cast<S32>(mOrphanParents.size()); }
     S32 getOrphanCount() const { return mNumOrphans; }
     S32 getAvatarCount() const { return mNumAvatars; }
     void orphanize(LLViewerObject *childp, U32 parent_id, U32 ip, U32 port);

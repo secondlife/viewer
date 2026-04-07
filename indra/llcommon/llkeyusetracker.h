@@ -124,7 +124,7 @@ public:
         mMaxCount( max_count ),
         mCount(0)
     {
-        mMemUsecs = ((U64)memory_seconds) * 1000000;
+        mMemUsecs = (static_cast<U64>(memory_seconds)) * 1000000;
     }
 
     ~LLKeyUseTracker()
@@ -190,7 +190,7 @@ public:
         {
             U64 now = getTime();
             U64 delta = now - node->mLastUse;
-            return (U32)( delta / 1000000 );
+            return static_cast<U32>( delta / 1000000 );
         }
         return 0;
     }

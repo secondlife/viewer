@@ -184,7 +184,7 @@ void LLAudioEngine::updateInternetStream()
 LLAudioEngine::LLAudioPlayState LLAudioEngine::isInternetStreamPlaying()
 {
     if (mStreamingAudioImpl)
-        return (LLAudioEngine::LLAudioPlayState) mStreamingAudioImpl->isPlaying();
+        return static_cast<LLAudioEngine::LLAudioPlayState>(mStreamingAudioImpl->isPlaying());
 
     return LLAudioEngine::AUDIO_STOPPED; // Stopped
 }

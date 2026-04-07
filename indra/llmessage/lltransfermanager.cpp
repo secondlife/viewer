@@ -369,7 +369,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
             size = packetp->mSize;
             if (size)
             {
-                if (!packetp->mData.empty() && (size<(S32)sizeof(tmp_data)))
+                if (!packetp->mData.empty() && (size<static_cast<S32>(sizeof(tmp_data))))
                 {
                     memcpy(tmp_data, packetp->mData.data(), size);    /*Flawfinder: ignore*/
                 }
@@ -545,7 +545,7 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
             size = packetp->mSize;
             if (size)
             {
-                if (!packetp->mData.empty() && (size<(S32)sizeof(tmp_data)))
+                if (!packetp->mData.empty() && (size<static_cast<S32>(sizeof(tmp_data))))
                 {
                     memcpy(tmp_data, packetp->mData.data(), size);    /*Flawfinder: ignore*/
                 }

@@ -60,8 +60,8 @@ void VolumeCatcherImpl::setVolume(F32 volume)
 
     // set both left/right to same volume
     // TODO: use pan value to set independently
-    DWORD left_channel = (DWORD)(mVolume * 65535.0f);
-    DWORD right_channel = (DWORD)(mVolume * 65535.0f);
+    DWORD left_channel = static_cast<DWORD>(mVolume * 65535.0f);
+    DWORD right_channel = static_cast<DWORD>(mVolume * 65535.0f);
     DWORD hw_volume = left_channel << 16 | right_channel;
     ::waveOutSetVolume(NULL, hw_volume);
 }

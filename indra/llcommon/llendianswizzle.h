@@ -59,9 +59,9 @@
                 U16 temp;
                 for(i=count ;i!=0 ;i--)
                 {
-                    temp = ((U16*)p)[0];
-                    ((U16*)p)[0] =  ((temp >> 8)  & 0x000000FF) | ((temp << 8)  & 0x0000FF00);
-                    p = (void*)(((U16*)p) + 1);
+                    temp = (static_cast<U16*>(p))[0];
+                    (static_cast<U16*>(p))[0] =  ((temp >> 8)  & 0x000000FF) | ((temp << 8)  & 0x0000FF00);
+                    p = static_cast<void*>(static_cast<U16*>(p) + 1);
                 }
             }
             break;
@@ -71,13 +71,13 @@
                 U32 temp;
                 for(i=count; i!=0; i--)
                 {
-                    temp = ((U32*)p)[0];
-                    ((U32*)p)[0] =
+                    temp = (static_cast<U32*>(p))[0];
+                    (static_cast<U32*>(p))[0] =
                             ((temp >> 24) & 0x000000FF) |
                             ((temp >> 8)  & 0x0000FF00) |
                             ((temp << 8)  & 0x00FF0000) |
                             ((temp << 24) & 0xFF000000);
-                    p = (void*)(((U32*)p) + 1);
+                    p = static_cast<void*>(static_cast<U32*>(p) + 1);
                 }
             }
             break;

@@ -45,7 +45,7 @@ HttpStatus::operator U32() const
     // Effectively, concatenate mType (high) with mStatus (low).
     static const int shift(sizeof(mDetails->mStatus) * 8);
 
-    U32 result(U32(mDetails->mType) << shift | U32((int)mDetails->mStatus));
+    U32 result(static_cast<U32>(mDetails->mType) << shift | static_cast<U32>(static_cast<int>(mDetails->mStatus)));
     return result;
 }
 

@@ -371,9 +371,9 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
             if (mCtrlEnrollmentFee && mSpinEnrollmentFee)
             {
                 gdatap->mMembershipFee = (mCtrlEnrollmentFee->get()) ?
-                    (S32) mSpinEnrollmentFee->get() : 0;
+                    static_cast<S32>(mSpinEnrollmentFee->get()) : 0;
                 // Set to the used value, and reset initial value used for isdirty check
-                mSpinEnrollmentFee->set( (F32)gdatap->mMembershipFee );
+                mSpinEnrollmentFee->set( static_cast<F32>(gdatap->mMembershipFee) );
             }
         }
 
@@ -544,7 +544,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
     if (mSpinEnrollmentFee)
     {
         S32 fee = gdatap->mMembershipFee;
-        mSpinEnrollmentFee->set((F32)fee);
+        mSpinEnrollmentFee->set(static_cast<F32>(fee));
         mSpinEnrollmentFee->setEnabled( mAllowEdit &&
                         (fee > 0) &&
                         can_change_member_opts);
@@ -643,7 +643,7 @@ void LLPanelGroupGeneral::reset()
     mCtrlEnrollmentFee->setEnabled(true);
 
     mSpinEnrollmentFee->setEnabled(true);
-    mSpinEnrollmentFee->set((F32)0);
+    mSpinEnrollmentFee->set(static_cast<F32>(0));
 
     mGroupNameEditor->setVisible(true);
 

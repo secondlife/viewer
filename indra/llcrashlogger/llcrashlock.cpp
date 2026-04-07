@@ -67,7 +67,7 @@ bool LLCrashLock::isProcessAlive(U32 pid, const std::string& pname)
                 std::string execname = ll_convert_wide_to_string(wexecname);
                 if (!wpname.compare(pe32.szExeFile))
                 {
-                    if (pid == (U32)pe32.th32ProcessID)
+                    if (pid == static_cast<U32>(pe32.th32ProcessID))
                     {
                         matched = true;
                         break;
@@ -151,7 +151,7 @@ bool LLCrashLock::requestMaster( F32 timeout )
     }
 
     U32 pid = getpid();
-    lock_sd["pid"] = (LLSD::Integer)pid;
+    lock_sd["pid"] = static_cast<LLSD::Integer>(pid);
     return putLockFile(mMaster,lock_sd);
 }
 

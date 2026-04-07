@@ -56,7 +56,7 @@ namespace tut
         const F64 vec[3] = {1.2f ,3.2f, -4.2f};
         LLVector3d vec3Db(vec);
         ensure("3:LLVector3d:Fail to initialize ", ((1.2f == vec3Db.mdV[VX]) && (3.2f == vec3Db.mdV[VY]) && (-4.2f == vec3Db.mdV[VZ])));
-        LLVector3 vec3((F32)x,(F32)y,(F32)z);
+        LLVector3 vec3(static_cast<F32>(x),static_cast<F32>(y),static_cast<F32>(z));
         LLVector3d vec3Dc(vec3);
         ensure_equals("4:LLVector3d Fail to initialize",vec3Da,vec3Dc);
     }
@@ -109,7 +109,7 @@ namespace tut
         vec3D.zeroVec();
         ensure("3:zeroVec:Fail to initialize ", ((0 == vec3D.mdV[VX]) && (0 == vec3D.mdV[VY]) && (0 == vec3D.mdV[VZ])));
         vec3D.clearVec();
-        LLVector3 vec3((F32)x,(F32)y,(F32)z);
+        LLVector3 vec3(static_cast<F32>(x),static_cast<F32>(y),static_cast<F32>(z));
         vec3D.setVec(vec3);
         ensure("4:setVec:Fail to initialize ", ((x == vec3D.mdV[VX]) && (y == vec3D.mdV[VY]) && (z == vec3D.mdV[VZ])));
         vec3D.clearVec();
@@ -403,7 +403,7 @@ namespace tut
         LLVector3d vec3D(x,y,z);
         F64 res = (x*x + y*y + z*z) - vec3D.magVecSquared();
         ensure("1:magVecSquared:Fail ", ((-F_APPROXIMATELY_ZERO <= res)&& (res <=F_APPROXIMATELY_ZERO)));
-        res = (F32) sqrt(x*x + y*y + z*z) - vec3D.magVec();
+        res = static_cast<F32>(sqrt(x*x + y*y + z*z)) - vec3D.magVec();
         ensure("2:magVec: Fail ", ((-F_APPROXIMATELY_ZERO <= res)&& (res <=F_APPROXIMATELY_ZERO)));
     }
 

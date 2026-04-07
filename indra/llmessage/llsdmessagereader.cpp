@@ -89,7 +89,7 @@ void LLSDMessageReader::getBinaryData(const char *block, const char *var,
                                       S32 max_size)
 {
     std::vector<U8> data = getLLSD(mMessage, block, var, blocknum);
-    S32 data_size = (S32)data.size();
+    S32 data_size = static_cast<S32>(data.size());
 
     if (size && data_size != size)
     {
@@ -157,7 +157,7 @@ void LLSDMessageReader::getS32(const char *block, const char *var, S32 &data,
 void LLSDMessageReader::getF32(const char *block, const char *var, F32 &data,
                         S32 blocknum)
 {
-    data = (F32)getLLSD(mMessage, block, var, blocknum).asReal();
+    data = static_cast<F32>(getLLSD(mMessage, block, var, blocknum).asReal());
 }
 
 //virtual

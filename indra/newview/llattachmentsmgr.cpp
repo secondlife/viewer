@@ -150,7 +150,7 @@ void LLAttachmentsMgr::requestAttachments(attachments_vec_t& attachment_requests
     // frequent server-side failures. Here we're limiting the number
     // of attachments requested per idle loop.
     const S32 max_objects_per_request = 5;
-    S32 obj_count = llmin((S32)attachment_requests.size(),max_objects_per_request);
+    S32 obj_count = llmin(static_cast<S32>(attachment_requests.size()),max_objects_per_request);
     if (obj_count == 0)
     {
         return;

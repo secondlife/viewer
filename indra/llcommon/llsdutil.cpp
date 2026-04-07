@@ -78,8 +78,8 @@ LLSD ll_sd_from_U64(const U64 val)
     LLSD::Binary v;
     U32 high, low;
 
-    high = (U32)(val >> 32);
-    low = (U32)val;
+    high = static_cast<U32>(val >> 32);
+    low = static_cast<U32>(val);
     high = htonl(high);
     low = htonl(low);
 
@@ -105,7 +105,7 @@ U64 ll_U64_from_sd(const LLSD& sd)
     high = ntohl(high);
     low = ntohl(low);
 
-    return ((U64)high) << 32 | low;
+    return static_cast<U64>(high) << 32 | low;
 }
 
 // IP Address (stored in net order in a U32, so don't need swizzling)

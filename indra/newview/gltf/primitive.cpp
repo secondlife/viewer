@@ -71,7 +71,7 @@ struct MikktMesh
         }
         else
         {
-            LL_WARNS("GLTF") << "Unsupported primitive mode for conversion to triangles: " << (S32)prim->mMode << LL_ENDL;
+            LL_WARNS("GLTF") << "Unsupported primitive mode for conversion to triangles: " << static_cast<S32>(prim->mMode) << LL_ENDL;
             return false;
         }
 

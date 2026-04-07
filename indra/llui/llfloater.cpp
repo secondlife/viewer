@@ -2075,7 +2075,7 @@ void    LLFloater::drawShadow(LLPanel* panel)
 
     static LLUIColor shadow_color_cached = LLUIColorTable::instance().getColor("ColorDropShadow");
     LLColor4 shadow_color = shadow_color_cached;
-    F32 shadow_offset = (F32)DROP_SHADOW_FLOATER;
+    F32 shadow_offset = static_cast<F32>(DROP_SHADOW_FLOATER);
 
     if (!panel->isBackgroundOpaque())
     {
@@ -2212,16 +2212,16 @@ void LLFloater::updateTitleButtons()
                 btn_rect.setLeftTopAndSize(
                     LLPANEL_BORDER_WIDTH,
                     getRect().getHeight() - close_box_from_top - (floater_close_box_size + 1) * button_count,
-                    ll_round((F32)floater_close_box_size * mButtonScale),
-                    ll_round((F32)floater_close_box_size * mButtonScale));
+                    ll_round(static_cast<F32>(floater_close_box_size) * mButtonScale),
+                    ll_round(static_cast<F32>(floater_close_box_size) * mButtonScale));
             }
             else
             {
                 btn_rect.setLeftTopAndSize(
                     getRect().getWidth() - LLPANEL_BORDER_WIDTH - (floater_close_box_size + 1) * button_count,
                     getRect().getHeight() - close_box_from_top,
-                    ll_round((F32)floater_close_box_size * mButtonScale),
-                    ll_round((F32)floater_close_box_size * mButtonScale));
+                    ll_round(static_cast<F32>(floater_close_box_size) * mButtonScale),
+                    ll_round(static_cast<F32>(floater_close_box_size) * mButtonScale));
             }
 
             // first time here, init 'buttons_rect'
@@ -3239,7 +3239,7 @@ void LLFloaterView::setToolbarRect(LLToolBarEnums::EToolBarLocation tb, const LL
         mToolbarRightRect = toolbar_rect;
         break;
     default:
-        LL_WARNS() << "setToolbarRect() passed odd toolbar number " << (S32) tb << LL_ENDL;
+        LL_WARNS() << "setToolbarRect() passed odd toolbar number " << static_cast<S32>(tb) << LL_ENDL;
         break;
     }
 }
@@ -3669,28 +3669,28 @@ LLCoordCommon LL_COORD_FLOATER::convertToCommon() const
     LLCoordCommon out;
     if (self.mX < -0.5f)
     {
-        out.mX = ll_round(rescale(self.mX, -1.f, -0.5f, (F32)(snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mLeft));
+        out.mX = ll_round(rescale(self.mX, -1.f, -0.5f, static_cast<F32>(snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS)), static_cast<F32>(snap_rect.mLeft)));
     }
     else if (self.mX > 0.5f)
     {
-        out.mX = ll_round(rescale(self.mX, 0.5f, 1.f, (F32)(snap_rect.mRight - floater_width), (F32)(snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS)));
+        out.mX = ll_round(rescale(self.mX, 0.5f, 1.f, static_cast<F32>(snap_rect.mRight - floater_width), static_cast<F32>(snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS)));
     }
     else
     {
-        out.mX = ll_round(rescale(self.mX, -0.5f, 0.5f, (F32)snap_rect.mLeft, (F32)(snap_rect.mRight - floater_width)));
+        out.mX = ll_round(rescale(self.mX, -0.5f, 0.5f, static_cast<F32>(snap_rect.mLeft), static_cast<F32>(snap_rect.mRight - floater_width)));
     }
 
     if (self.mY < -0.5f)
     {
-        out.mY = ll_round(rescale(self.mY, -1.f, -0.5f, (F32)(snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mBottom));
+        out.mY = ll_round(rescale(self.mY, -1.f, -0.5f, static_cast<F32>(snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS)), static_cast<F32>(snap_rect.mBottom)));
     }
     else if (self.mY > 0.5f)
     {
-        out.mY = ll_round(rescale(self.mY, 0.5f, 1.f, (F32)(snap_rect.mTop - floater_height), (F32)(snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS)));
+        out.mY = ll_round(rescale(self.mY, 0.5f, 1.f, static_cast<F32>(snap_rect.mTop - floater_height), static_cast<F32>(snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS)));
     }
     else
     {
-        out.mY = ll_round(rescale(self.mY, -0.5f, 0.5f, (F32)snap_rect.mBottom, (F32)(snap_rect.mTop - floater_height)));
+        out.mY = ll_round(rescale(self.mY, -0.5f, 0.5f, static_cast<F32>(snap_rect.mBottom), static_cast<F32>(snap_rect.mTop - floater_height)));
     }
 
     // return center point instead of lower left
@@ -3717,27 +3717,27 @@ void LL_COORD_FLOATER::convertFromCommon(const LLCoordCommon& from)
 
     if (from_x < snap_rect.mLeft)
     {
-        self.mX = rescale((F32)from_x, (F32)(snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mLeft, -1.f, -0.5f);
+        self.mX = rescale(static_cast<F32>(from_x), static_cast<F32>(snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS)), static_cast<F32>(snap_rect.mLeft), -1.f, -0.5f);
     }
     else if (from_x + floater_width > snap_rect.mRight)
     {
-        self.mX = rescale((F32)from_x, (F32)(snap_rect.mRight - floater_width), (F32)(snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS), 0.5f, 1.f);
+        self.mX = rescale(static_cast<F32>(from_x), static_cast<F32>(snap_rect.mRight - floater_width), static_cast<F32>(snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS), 0.5f, 1.f);
     }
     else
     {
-        self.mX = rescale((F32)from_x, (F32)snap_rect.mLeft, (F32)(snap_rect.mRight - floater_width), -0.5f, 0.5f);
+        self.mX = rescale(static_cast<F32>(from_x), static_cast<F32>(snap_rect.mLeft), static_cast<F32>(snap_rect.mRight - floater_width), -0.5f, 0.5f);
     }
 
     if (from_y < snap_rect.mBottom)
     {
-        self.mY = rescale((F32)from_y, (F32)(snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mBottom, -1.f, -0.5f);
+        self.mY = rescale(static_cast<F32>(from_y), static_cast<F32>(snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS)), static_cast<F32>(snap_rect.mBottom), -1.f, -0.5f);
     }
     else if (from_y + floater_height > snap_rect.mTop)
     {
-        self.mY = rescale((F32)from_y, (F32)(snap_rect.mTop - floater_height), (F32)(snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS), 0.5f, 1.f);
+        self.mY = rescale(static_cast<F32>(from_y), static_cast<F32>(snap_rect.mTop - floater_height), static_cast<F32>(snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS), 0.5f, 1.f);
     }
     else
     {
-        self.mY = rescale((F32)from_y, (F32)snap_rect.mBottom, (F32)(snap_rect.mTop - floater_height), -0.5f, 0.5f);
+        self.mY = rescale(static_cast<F32>(from_y), static_cast<F32>(snap_rect.mBottom), static_cast<F32>(snap_rect.mTop - floater_height), -0.5f, 0.5f);
     }
 }

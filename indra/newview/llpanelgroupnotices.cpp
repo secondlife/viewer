@@ -202,7 +202,7 @@ std::string build_notice_date(const U32& the_time)
                                 + LLTrans::getString("LTimeMin") + "]:["
                                 + LLTrans::getString("LTimeSec") + "]";
     LLSD substitution;
-    substitution["datetime"] = (S32) t;
+    substitution["datetime"] = static_cast<S32>(t);
     LLStringUtil::format (dateStr, substitution);
     return dateStr;
 }

@@ -193,7 +193,7 @@ S32 LLPacketRing::receiveOrDropBufferedPacket(char *datap, bool drop)
     assert(mNumBufferedPackets > 0);
     S32 packet_size = 0;
 
-    S16 ring_size = (S16)(mPacketRing.size());
+    S16 ring_size = static_cast<S16>(mPacketRing.size());
     S16 packet_index = (mHeadIndex + ring_size - mNumBufferedPackets) % ring_size;
     const LLPacketBuffer* packet = mPacketRing[packet_index];
     packet_size = packet->getSize();
@@ -254,7 +254,7 @@ S32 LLPacketRing::bufferInboundPacket(S32 socket)
                 packet_size -= SOCKS_HEADER_SIZE; // The unwrapped packet size
                 packet->init(buffer + SOCKS_HEADER_SIZE, packet_size, sender);
 
-                mHeadIndex = (mHeadIndex + 1) % (S16)(mPacketRing.size());
+                mHeadIndex = (mHeadIndex + 1) % static_cast<S16>(mPacketRing.size());
                 if (mNumBufferedPackets < MAX_BUFFER_RING_SIZE)
                 {
                     ++mNumBufferedPackets;
@@ -280,7 +280,7 @@ S32 LLPacketRing::bufferInboundPacket(S32 socket)
         {
             mActualBytesIn += packet_size;
 
-            mHeadIndex = (mHeadIndex + 1) % (S16)(mPacketRing.size());
+            mHeadIndex = (mHeadIndex + 1) % static_cast<S16>(mPacketRing.size());
             if (mNumBufferedPackets < MAX_BUFFER_RING_SIZE)
             {
                 ++mNumBufferedPackets;
@@ -314,14 +314,14 @@ S32 LLPacketRing::drainSocket(S32 socket)
         // and mPacketsLost, but track it here for logging purposes.
         mNumDroppedPackets += num_dropped_packets;
     }
-    return (S32)(mNumBufferedPackets);
+    return static_cast<S32>(mNumBufferedPackets);
 }
 
 bool LLPacketRing::expandRing()
 {
     // compute larger size
     constexpr S16 BUFFER_RING_EXPANSION = 256;
-    S16 old_size = (S16)(mPacketRing.size());
+    S16 old_size = static_cast<S16>(mPacketRing.size());
     S16 new_size = llmin(old_size + BUFFER_RING_EXPANSION, MAX_BUFFER_RING_SIZE);
     if (new_size == old_size)
     {
@@ -353,7 +353,7 @@ bool LLPacketRing::expandRing()
 F32 LLPacketRing::getBufferLoadRate() const
 {
     // goes up to MAX_BUFFER_RING_SIZE
-    return (F32)mNumBufferedPackets / (F32)DEFAULT_BUFFER_RING_SIZE;
+    return static_cast<F32>(mNumBufferedPackets) / static_cast<F32>(DEFAULT_BUFFER_RING_SIZE);
 }
 
 void LLPacketRing::dumpPacketRingStats()

@@ -186,7 +186,7 @@ void LLMultiSlider::setSliderValue(const std::string& name, F32 value, bool from
 
         for(;mIt != mValue.endMap(); mIt++)
         {
-            F32 locationVal = (F32)mIt->second.asReal();
+            F32 locationVal = static_cast<F32>(mIt->second.asReal());
             // Check nearby values
             F32 testVal = locationVal - newValue;
             if (testVal > -threshold
@@ -261,7 +261,7 @@ void LLMultiSlider::setValue(const LLSD& value)
         mCurSlider = mIt->first;
 
         for(; mIt != value.endMap(); mIt++) {
-            setSliderValue(mIt->first, (F32)mIt->second.asReal(), true);
+            setSliderValue(mIt->first, static_cast<F32>(mIt->second.asReal()), true);
         }
     }
 }
@@ -270,7 +270,7 @@ F32 LLMultiSlider::getSliderValue(const std::string& name) const
 {
     if (mValue.has(name))
     {
-        return (F32)mValue[name].asReal();
+        return static_cast<F32>(mValue[name].asReal());
     }
     return 0;
 }
@@ -430,7 +430,7 @@ bool LLMultiSlider::findUnusedValue(F32& initVal)
         LLSD::map_iterator mIt = mValue.beginMap();
         for(;mIt != mValue.endMap(); mIt++) {
 
-            F32 testVal = (F32)mIt->second.asReal() - initVal;
+            F32 testVal = static_cast<F32>(mIt->second.asReal()) - initVal;
             if(testVal > -threshold && testVal < threshold)
             {
                 hit = true;

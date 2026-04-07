@@ -216,7 +216,7 @@ S32 LLCamera::AABBInFrustum(const LLVector4a &center, const LLVector4a& radius, 
     bool result = false;
     LLVector4a rscale, maxp, minp;
     LLSimdScalar d;
-    U32 max_planes = llmin(mPlaneCount, (U32) AGENT_PLANE_USER_CLIP_NUM);       // mAgentPlanes[] size is 7
+    U32 max_planes = llmin(mPlaneCount, static_cast<U32>(AGENT_PLANE_USER_CLIP_NUM));       // mAgentPlanes[] size is 7
     for (U32 i = 0; i < max_planes; i++)
     {
         mask = mPlaneMask[i];
@@ -262,7 +262,7 @@ S32 LLCamera::AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a&
     bool result = false;
     LLVector4a rscale, maxp, minp;
     LLSimdScalar d;
-    U32 max_planes = llmin(mPlaneCount, (U32) AGENT_PLANE_USER_CLIP_NUM);       // mAgentPlanes[] size is 7
+    U32 max_planes = llmin(mPlaneCount, static_cast<U32>(AGENT_PLANE_USER_CLIP_NUM));       // mAgentPlanes[] size is 7
     for (U32 i = 0; i < max_planes; i++)
     {
         mask = mPlaneMask[i];
@@ -350,7 +350,7 @@ F32 LLCamera::heightInPixels(const LLVector3 &center, F32 radius ) const
         F32 dist = vec.length();
 
         // Calculate angle of whole object
-        F32 angle = 2.0f * (F32) atan2(radius, dist);
+        F32 angle = 2.0f * static_cast<F32>(atan2(radius, dist));
 
         // Calculate fraction of field of view
         F32 fraction_of_fov = angle / mView;
@@ -396,7 +396,7 @@ void LLCamera::calculateFrustumPlanes()
     // view frame.
 
     F32 left,right,top,bottom;
-    top = mFarPlane * (F32)tanf(0.5f * mView);
+    top = mFarPlane * static_cast<F32>(tanf(0.5f * mView));
     bottom = -top;
     left = top * mAspect;
     right = -left;
@@ -415,7 +415,7 @@ LLPlane planeFromPoints(LLVector3 p1, LLVector3 p2, LLVector3 p3)
 
 void LLCamera::ignoreAgentFrustumPlane(S32 idx)
 {
-    if (idx < 0 || idx > (S32) mPlaneCount)
+    if (idx < 0 || idx > static_cast<S32>(mPlaneCount))
     {
         return;
     }
@@ -518,7 +518,7 @@ void LLCamera::calculateFrustumPlanes(F32 left, F32 right, F32 top, F32 bottom)
 void LLCamera::calculateFrustumPlanesFromWindow(F32 x1, F32 y1, F32 x2, F32 y2)
 {
     F32 bottom, top, left, right;
-    F32 view_height = (F32)tanf(0.5f * mView) * mFarPlane;
+    F32 view_height = static_cast<F32>(tanf(0.5f * mView)) * mFarPlane;
     F32 view_width = view_height * mAspect;
 
     left =   x1 * -2.f * view_width;

@@ -378,7 +378,7 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
         {
             break;
         }
-        count = get_till_eol(input, (char *)buffer, BUFFER_SIZE);
+        count = get_till_eol(input, static_cast<char*>(buffer), BUFFER_SIZE);
         if (!count)
         {
             break;
@@ -402,10 +402,10 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
     {
         if (buffer)
         {
-            ((char*) buffer)[count ? count - 1 : 0] = '\0';
+            (static_cast<char*>(buffer))[count ? count - 1 : 0] = '\0';
             if (mEmitErrors)
             {
-                LL_INFOS() << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR parsing:" << (char*)buffer << LL_ENDL;
+                LL_INFOS() << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR parsing:" << static_cast<char*>(buffer) << LL_ENDL;
             }
         }
         else
@@ -455,7 +455,7 @@ S32 LLSDXMLParser::Impl::parseLines(std::istream& input, LLSD& data)
         }
 
         // Get one line
-        input.getline((char*)buffer, BUFFER_SIZE);
+        input.getline(static_cast<char*>(buffer), BUFFER_SIZE);
         std::streamsize num_read = input.gcount();
 
         //memcpy( last_buffer, buffer, num_read );
@@ -469,14 +469,14 @@ S32 LLSDXMLParser::Impl::parseLines(std::istream& input, LLSD& data)
             }
 
             // Re-insert with the \n that was absorbed by getline()
-            char * text = (char *) buffer;
+            char * text = static_cast<char*>(buffer);
             if ( text[num_read - 1] == 0)
             {
                 text[num_read - 1] = '\n';
             }
         }
 
-        status = XML_ParseBuffer(mParser, (int)num_read, false);
+        status = XML_ParseBuffer(mParser, static_cast<int>(num_read), false);
         if (status == XML_STATUS_ERROR)
         {
             break;
@@ -553,7 +553,7 @@ void LLSDXMLParser::Impl::parsePart(const char* buf, llssize len)
     if ( buf != NULL
         && len > 0 )
     {
-        XML_Status status = XML_Parse(mParser, buf, (int)len, 0);
+        XML_Status status = XML_Parse(mParser, buf, static_cast<int>(len), 0);
         if (status == XML_STATUS_ERROR)
         {
             LL_INFOS() << "Unexpected XML parsing error at start" << LL_ENDL;
@@ -748,7 +748,7 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
                     // ".23" portion.
 
                     // Utilizes implementation used internally by LLSD::ImplString::asInteger
-                    value = (int)llsd::string_to_real(mCurrentContent);
+                    value = static_cast<int>(llsd::string_to_real(mCurrentContent));
                 }
             }
             break;

@@ -355,7 +355,7 @@ void BlockTimer::logStats()
             LL_DEBUGS("FastTimers") << "LLProcessorInfo().getCPUFrequency() " << LLProcessorInfo().getCPUFrequency() << LL_ENDL;
             LL_DEBUGS("FastTimers") << "getCPUClockCount32() " << getCPUClockCount32() << LL_ENDL;
             LL_DEBUGS("FastTimers") << "getCPUClockCount64() " << getCPUClockCount64() << LL_ENDL;
-            LL_DEBUGS("FastTimers") << "elapsed sec " << ((F64)getCPUClockCount64() / (F64HertzImplicit)LLProcessorInfo().getCPUFrequency()) << LL_ENDL;
+            LL_DEBUGS("FastTimers") << "elapsed sec " << (static_cast<F64>(getCPUClockCount64()) / static_cast<F64HertzImplicit>(LLProcessorInfo().getCPUFrequency())) << LL_ENDL;
         }
         call_count++;
 
@@ -483,7 +483,7 @@ F64Seconds BlockTimer::getElapsedTime() const
 {
     U64 total_time = getCPUClockCount64() - mStartTime;
 
-    return F64Seconds((F64)total_time / (F64)BlockTimer::countsPerSecond());
+    return F64Seconds(static_cast<F64>(total_time) / static_cast<F64>(BlockTimer::countsPerSecond()));
 }
 
 

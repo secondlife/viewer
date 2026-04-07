@@ -113,7 +113,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 {
     {
         LLColor4 color = p.caret_color().get();
-        setCaretColor( (unsigned int)color.mV[0], (unsigned int)color.mV[1], (unsigned int)color.mV[2] );
+        setCaretColor( static_cast<unsigned int>(color.mV[0]), static_cast<unsigned int>(color.mV[1]), static_cast<unsigned int>(color.mV[2]) );
     }
 
     setHomePageUrl(p.start_url, p.initial_mime_type);
@@ -126,8 +126,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 
     if(!getDecoupleTextureSize())
     {
-        S32 screen_width = ll_round((F32)getRect().getWidth() * LLUI::getScaleFactor().mV[VX]);
-        S32 screen_height = ll_round((F32)getRect().getHeight() * LLUI::getScaleFactor().mV[VY]);
+        S32 screen_width = ll_round(static_cast<F32>(getRect().getWidth()) * LLUI::getScaleFactor().mV[VX]);
+        S32 screen_height = ll_round(static_cast<F32>(getRect().getHeight()) * LLUI::getScaleFactor().mV[VY]);
 
         setTextureSize(screen_width, screen_height);
     }
@@ -538,8 +538,8 @@ void LLMediaCtrl::reshape( S32 width, S32 height, bool called_from_parent )
 {
     if(!getDecoupleTextureSize())
     {
-        S32 screen_width = ll_round((F32)width * LLUI::getScaleFactor().mV[VX]);
-        S32 screen_height = ll_round((F32)height * LLUI::getScaleFactor().mV[VY]);
+        S32 screen_width = ll_round(static_cast<F32>(width) * LLUI::getScaleFactor().mV[VX]);
+        S32 screen_height = ll_round(static_cast<F32>(height) * LLUI::getScaleFactor().mV[VY]);
 
         // when floater is minimized, these sizes are negative
         if ( screen_height > 0 && screen_width > 0 )
@@ -847,8 +847,8 @@ void LLMediaCtrl::draw()
             gGL.getTexUnit(0)->bind(media_texture);
             LLColor4 media_color = LLColor4::white % alpha;
             gGL.color4fv( media_color.mV );
-            F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();
-            F32 max_v = ( F32 )media_plugin->getHeight() / ( F32 )media_plugin->getTextureHeight();
+            F32 max_u = static_cast<F32>(media_plugin->getWidth()) / static_cast<F32>(media_plugin->getTextureWidth());
+            F32 max_v = static_cast<F32>(media_plugin->getHeight()) / static_cast<F32>(media_plugin->getTextureHeight());
 
             S32 x_offset, y_offset, width, height;
             calcOffsetsAndSize(&x_offset, &y_offset, &width, &height);
@@ -931,8 +931,8 @@ void LLMediaCtrl::calcOffsetsAndSize(S32 *x_offset, S32 *y_offset, S32 *width, S
     {
         if (mMaintainAspectRatio && mMediaSource && mMediaSource->getMediaPlugin())
         {
-            F32 media_aspect = (F32)(mMediaSource->getMediaPlugin()->getWidth()) / (F32)(mMediaSource->getMediaPlugin()->getHeight());
-            F32 view_aspect = (F32)(r.getWidth()) / (F32)(r.getHeight());
+            F32 media_aspect = static_cast<F32>(mMediaSource->getMediaPlugin()->getWidth()) / static_cast<F32>(mMediaSource->getMediaPlugin()->getHeight());
+            F32 view_aspect = static_cast<F32>(r.getWidth()) / static_cast<F32>(r.getHeight());
             if (media_aspect > view_aspect)
             {
                 // max width, adjusted height
@@ -979,14 +979,14 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
         coords_opengl = mMediaSource->getMediaPlugin()->getTextureCoordsOpenGL();
     }
 
-    x = ll_round((F32)x * LLUI::getScaleFactor().mV[VX]);
+    x = ll_round(static_cast<F32>(x) * LLUI::getScaleFactor().mV[VX]);
     if ( ! coords_opengl )
     {
-        y = ll_round((F32)(y) * LLUI::getScaleFactor().mV[VY]);
+        y = ll_round(static_cast<F32>(y) * LLUI::getScaleFactor().mV[VY]);
     }
     else
     {
-        y = ll_round((F32)(getRect().getHeight() - y) * LLUI::getScaleFactor().mV[VY]);
+        y = ll_round(static_cast<F32>(getRect().getHeight() - y) * LLUI::getScaleFactor().mV[VY]);
     };
 }
 

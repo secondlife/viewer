@@ -330,7 +330,7 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
         static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
         std::string timeStr = use_24h ? getString("acquired_date") : getString("acquired_date_ampm");
         LLSD substitution;
-        substitution["datetime"] = (S32) time_utc;
+        substitution["datetime"] = static_cast<S32>(time_utc);
         LLStringUtil::format (timeStr, substitution);
         mCreated->setText(timeStr);
     }

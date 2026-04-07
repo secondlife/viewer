@@ -231,14 +231,14 @@ void doPeriodically(bool_func_t callable, F32 seconds)
 
 void test1(void *data)
 {
-    S32 *s32_data = (S32 *)data;
+    S32 *s32_data = reinterpret_cast<S32*>(data);
     LL_INFOS() << "testfunc1 " << *s32_data << LL_ENDL;
 }
 
 
 void test2(void *data)
 {
-    S32 *s32_data = (S32 *)data;
+    S32 *s32_data = reinterpret_cast<S32*>(data);
     LL_INFOS() << "testfunc2 " << *s32_data << LL_ENDL;
 }
 

@@ -70,10 +70,10 @@ public:
 
     void setValue(const LLSD& sd)
     {
-        mV[VX] = (F32)sd[VX].asReal();
-        mV[VY] = (F32)sd[VY].asReal();
-        mV[VZ] = (F32)sd[VZ].asReal();
-        mV[VW] = (F32)sd[VW].asReal();
+        mV[VX] = static_cast<F32>(sd[VX].asReal());
+        mV[VY] = static_cast<F32>(sd[VY].asReal());
+        mV[VZ] = static_cast<F32>(sd[VZ].asReal());
+        mV[VW] = static_cast<F32>(sd[VW].asReal());
     }
 
     // GLM interop
@@ -170,10 +170,10 @@ inline LLVector4::LLVector4(const F32 *vec)
 
 inline LLVector4::LLVector4(const F64 *vec)
 {
-    mV[VX] = (F32) vec[VX];
-    mV[VY] = (F32) vec[VY];
-    mV[VZ] = (F32) vec[VZ];
-    mV[VW] = (F32) vec[VW];
+    mV[VX] = static_cast<F32>(vec[VX]);
+    mV[VY] = static_cast<F32>(vec[VY]);
+    mV[VZ] = static_cast<F32>(vec[VZ]);
+    mV[VW] = static_cast<F32>(vec[VW]);
 }
 
 inline LLVector4::LLVector4(const LLVector2 &vec)

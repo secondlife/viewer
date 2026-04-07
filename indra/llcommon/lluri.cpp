@@ -141,11 +141,11 @@ std::string LLURI::unescape(const std::string& str)
                 if(is_char_hex(*it))
                 {
                     c |= hex_as_nybble(*it);
-                    ostr.put((char)c);
+                    ostr.put(static_cast<char>(c));
                 }
                 else
                 {
-                    ostr.put((char)c);
+                    ostr.put(static_cast<char>(c));
                     ostr.put(*it);
                 }
             }

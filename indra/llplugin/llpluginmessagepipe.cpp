@@ -183,7 +183,7 @@ bool LLPluginMessagePipe::pumpOutput()
         if(*output_data != '\0')
         {
             // write any outgoing messages
-            in_size = (apr_size_t) (mOutput.size() - mOutputStartIndex);
+            in_size = static_cast<apr_size_t>(mOutput.size() - mOutputStartIndex);
             out_size = in_size;
 
             setSocketTimeout(0);
@@ -259,7 +259,7 @@ bool LLPluginMessagePipe::pumpInput(F64 timeout)
         {
             if(timeout != 0.0f)
             {
-                ms_sleep((int)(timeout * 1000.0f));
+                ms_sleep(static_cast<int>(timeout * 1000.0f));
                 timeout = 0.0f;
             }
         }
@@ -283,7 +283,7 @@ bool LLPluginMessagePipe::pumpInput(F64 timeout)
             }
 
             // and use the timeout so we'll sleep if no data is available.
-            setSocketTimeout((apr_interval_time_t)(timeout * 1000000));
+            setSocketTimeout(static_cast<apr_interval_time_t>(timeout * 1000000));
 
             while(true)
             {

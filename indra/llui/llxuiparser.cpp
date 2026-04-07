@@ -1393,7 +1393,7 @@ bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBl
         return false;
     }
 
-    bytes_read = (S32)fread(buffer, 1, buffer_size, file.mFile);
+    bytes_read = static_cast<S32>(fread(buffer, 1, buffer_size, file.mFile));
     if( bytes_read <= 0 )
     {
         LL_WARNS("ReadXUI") << "Error while reading file  " << filename << LL_ENDL;

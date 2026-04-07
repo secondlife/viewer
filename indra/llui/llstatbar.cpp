@@ -65,9 +65,9 @@ F32 calc_tick_value(F32 min, F32 max)
         S32 num_whole_digits = llceil(logf(llabs(min + possible_tick_value)) * OO_LN10);
         for (S32 digit_count = -(num_whole_digits - 1); digit_count < 6; digit_count++)
         {
-            F32 test_tick_value = min + (possible_tick_value * (F32)pow(10.0, digit_count));
+            F32 test_tick_value = min + (possible_tick_value * static_cast<F32>(pow(10.0, digit_count)));
 
-            if (is_approx_equal((F32)(S32)test_tick_value, test_tick_value))
+            if (is_approx_equal(static_cast<F32>(static_cast<S32>(test_tick_value)), test_tick_value))
             {
                 if (digit_count < best_decimal_digit_count)
                 {
@@ -98,7 +98,7 @@ void calc_auto_scale_range(F32& min, F32& max, F32& tick)
                             : llceil(logf(llabs(min)) * OO_LN10);
 
     const S32 num_digits = llmax(num_digits_max, num_digits_min);
-    const F32 power_of_10 = (F32)pow(10.0, num_digits - 1);
+    const F32 power_of_10 = static_cast<F32>(pow(10.0, num_digits - 1));
     const F32 starting_max = power_of_10 * ((max < 0.f) ? -1 : 1);
     const F32 starting_min = power_of_10 * ((min < 0.f) ? -1 : 1);
 
@@ -312,13 +312,13 @@ void LLStatBar::draw()
             const LLTrace::StatType<LLTrace::CountAccumulator>& count_stat = *mStat.countStatp;
 
             unit_label    = std::string(count_stat.getUnitLabel()) + "/s";
-            current       = (F32)last_frame_recording.getPerSec(count_stat);
-            min           = (F32)frame_recording.getPeriodMinPerSec(count_stat, num_frames);
-            max           = (F32)frame_recording.getPeriodMaxPerSec(count_stat, num_frames);
-            mean          = (F32)frame_recording.getPeriodMeanPerSec(count_stat, num_frames);
+            current       = static_cast<F32>(last_frame_recording.getPerSec(count_stat));
+            min           = static_cast<F32>(frame_recording.getPeriodMinPerSec(count_stat, num_frames));
+            max           = static_cast<F32>(frame_recording.getPeriodMaxPerSec(count_stat, num_frames));
+            mean          = static_cast<F32>(frame_recording.getPeriodMeanPerSec(count_stat, num_frames));
             if (mShowMedian)
             {
-                display_value = (F32)frame_recording.getPeriodMedianPerSec(count_stat, num_frames);
+                display_value = static_cast<F32>(frame_recording.getPeriodMedianPerSec(count_stat, num_frames));
             }
             else
             {
@@ -331,10 +331,10 @@ void LLStatBar::draw()
             const LLTrace::StatType<LLTrace::EventAccumulator>& event_stat = *mStat.eventStatp;
 
             unit_label        = mUnitLabel.empty() ? event_stat.getUnitLabel() : mUnitLabel;
-            current           = (F32)last_frame_recording.getLastValue(event_stat);
-            min               = (F32)frame_recording.getPeriodMin(event_stat, num_frames);
-            max               = (F32)frame_recording.getPeriodMax(event_stat, num_frames);
-            mean              = (F32)frame_recording.getPeriodMean(event_stat, num_frames);
+            current           = static_cast<F32>(last_frame_recording.getLastValue(event_stat));
+            min               = static_cast<F32>(frame_recording.getPeriodMin(event_stat, num_frames));
+            max               = static_cast<F32>(frame_recording.getPeriodMax(event_stat, num_frames));
+            mean              = static_cast<F32>(frame_recording.getPeriodMean(event_stat, num_frames));
             display_value     = mean;
         }
         break;
@@ -343,15 +343,15 @@ void LLStatBar::draw()
             const LLTrace::StatType<LLTrace::SampleAccumulator>& sample_stat = *mStat.sampleStatp;
 
             unit_label        = mUnitLabel.empty() ? sample_stat.getUnitLabel() : mUnitLabel;
-            current           = (F32)last_frame_recording.getLastValue(sample_stat);
-            min               = (F32)frame_recording.getPeriodMin(sample_stat, num_frames);
-            max               = (F32)frame_recording.getPeriodMax(sample_stat, num_frames);
-            mean              = (F32)frame_recording.getPeriodMean(sample_stat, num_frames);
+            current           = static_cast<F32>(last_frame_recording.getLastValue(sample_stat));
+            min               = static_cast<F32>(frame_recording.getPeriodMin(sample_stat, num_frames));
+            max               = static_cast<F32>(frame_recording.getPeriodMax(sample_stat, num_frames));
+            mean              = static_cast<F32>(frame_recording.getPeriodMean(sample_stat, num_frames));
             num_rapid_changes = calc_num_rapid_changes(frame_recording, sample_stat, RAPID_CHANGE_WINDOW);
 
             if (mShowMedian)
             {
-                display_value = (F32)frame_recording.getPeriodMedian(sample_stat, num_frames);
+                display_value = static_cast<F32>(frame_recording.getPeriodMedian(sample_stat, num_frames));
             }
             else if (num_rapid_changes / RAPID_CHANGE_WINDOW.value() > MAX_RAPID_CHANGES_PER_SEC)
             {
@@ -362,7 +362,7 @@ void LLStatBar::draw()
                 display_value = current;
                 // always display current value, don't rate limit
                 mLastDisplayValue = current;
-                if (is_approx_equal((F32)(S32)display_value, display_value))
+                if (is_approx_equal(static_cast<F32>(static_cast<S32>(display_value)), display_value))
                 {
                     decimal_digits = 0;
                 }
@@ -431,14 +431,14 @@ void LLStatBar::draw()
         if (!llisnan(display_value) && frame_recording.getNumRecordedPeriods() != 0)
         {
             // draw min and max
-            S32 begin = (S32) ((min - mCurMinBar) * value_scale);
+            S32 begin = static_cast<S32>((min - mCurMinBar) * value_scale);
 
             if (begin < 0)
             {
                 begin = 0;
             }
 
-            S32 end = (S32) ((max - mCurMinBar) * value_scale);
+            S32 end = static_cast<S32>((max - mCurMinBar) * value_scale);
             if (mOrientation == HORIZONTAL)
             {
                 gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, LLColor4(1.f, 0.f, 0.f, 0.25f));
@@ -449,8 +449,8 @@ void LLStatBar::draw()
             }
 
             F32 span = (mOrientation == HORIZONTAL)
-                    ? (F32)(bar_rect.getWidth())
-                    : (F32)(bar_rect.getHeight());
+                    ? static_cast<F32>(bar_rect.getWidth())
+                    : static_cast<F32>(bar_rect.getHeight());
 
             if (mDisplayHistory && mStat.valid)
             {
@@ -464,24 +464,24 @@ void LLStatBar::draw()
                 U32 num_samples = 0;
                 for (S32 i = 1; i <= max_frame; i++)
                 {
-                    F32 offset = ((F32)i / (F32)num_frames) * span;
+                    F32 offset = (static_cast<F32>(i) / static_cast<F32>(num_frames)) * span;
                     LLTrace::Recording& recording = frame_recording.getPrevRecording(i);
 
                     switch(mStatType)
                     {
                         case STAT_COUNT:
-                            min_value       = (F32)recording.getPerSec(*mStat.countStatp);
+                            min_value       = static_cast<F32>(recording.getPerSec(*mStat.countStatp));
                             max_value       = min_value;
                             num_samples     = recording.getSampleCount(*mStat.countStatp);
                             break;
                         case STAT_EVENT:
-                            min_value       = (F32)recording.getMin(*mStat.eventStatp);
-                            max_value       = (F32)recording.getMax(*mStat.eventStatp);
+                            min_value       = static_cast<F32>(recording.getMin(*mStat.eventStatp));
+                            max_value       = static_cast<F32>(recording.getMax(*mStat.eventStatp));
                             num_samples     = recording.getSampleCount(*mStat.eventStatp);
                             break;
                         case STAT_SAMPLE:
-                            min_value       = (F32)recording.getMin(*mStat.sampleStatp);
-                            max_value       = (F32)recording.getMax(*mStat.sampleStatp);
+                            min_value       = static_cast<F32>(recording.getMin(*mStat.sampleStatp));
+                            max_value       = static_cast<F32>(recording.getMax(*mStat.sampleStatp));
                             num_samples     = recording.getSampleCount(*mStat.sampleStatp);
                             break;
                         default:
@@ -494,31 +494,31 @@ void LLStatBar::draw()
                     F32 max = llmax(min + 1, (max_value - mCurMinBar) * value_scale);
                     if (mOrientation == HORIZONTAL)
                     {
-                        gGL.vertex2f((F32)bar_rect.mRight - offset, max);
-                        gGL.vertex2f((F32)bar_rect.mRight - offset, min);
-                        gGL.vertex2f((F32)bar_rect.mRight - offset - 1, min);
+                        gGL.vertex2f(static_cast<F32>(bar_rect.mRight) - offset, max);
+                        gGL.vertex2f(static_cast<F32>(bar_rect.mRight) - offset, min);
+                        gGL.vertex2f(static_cast<F32>(bar_rect.mRight) - offset - 1, min);
 
-                        gGL.vertex2f((F32)bar_rect.mRight - offset, max);
-                        gGL.vertex2f((F32)bar_rect.mRight - offset - 1, min);
-                        gGL.vertex2f((F32)bar_rect.mRight - offset - 1, max);
+                        gGL.vertex2f(static_cast<F32>(bar_rect.mRight) - offset, max);
+                        gGL.vertex2f(static_cast<F32>(bar_rect.mRight) - offset - 1, min);
+                        gGL.vertex2f(static_cast<F32>(bar_rect.mRight) - offset - 1, max);
                     }
                     else
                     {
-                        gGL.vertex2f(min, (F32)bar_rect.mBottom + offset + 1);
-                        gGL.vertex2f(min, (F32)bar_rect.mBottom + offset);
-                        gGL.vertex2f(max, (F32)bar_rect.mBottom + offset);
+                        gGL.vertex2f(min, static_cast<F32>(bar_rect.mBottom) + offset + 1);
+                        gGL.vertex2f(min, static_cast<F32>(bar_rect.mBottom) + offset);
+                        gGL.vertex2f(max, static_cast<F32>(bar_rect.mBottom) + offset);
 
-                        gGL.vertex2f(min, (F32)bar_rect.mBottom + offset + 1);
-                        gGL.vertex2f(max, (F32)bar_rect.mBottom + offset);
-                        gGL.vertex2f(max, (F32)bar_rect.mBottom + offset + 1);
+                        gGL.vertex2f(min, static_cast<F32>(bar_rect.mBottom) + offset + 1);
+                        gGL.vertex2f(max, static_cast<F32>(bar_rect.mBottom) + offset);
+                        gGL.vertex2f(max, static_cast<F32>(bar_rect.mBottom) + offset + 1);
                     }
                 }
                 gGL.end();
             }
             else
             {
-                S32 begin = (S32) ((current - mCurMinBar) * value_scale) - 1;
-                S32 end = (S32) ((current - mCurMinBar) * value_scale) + 1;
+                S32 begin = static_cast<S32>((current - mCurMinBar) * value_scale) - 1;
+                S32 end = static_cast<S32>((current - mCurMinBar) * value_scale) + 1;
                 // draw current
                 if (mOrientation == HORIZONTAL)
                 {
@@ -532,8 +532,8 @@ void LLStatBar::draw()
 
             // draw mean bar
             {
-                const S32 begin = (S32) ((mean - mCurMinBar) * value_scale) - 1;
-                const S32 end = (S32) ((mean - mCurMinBar) * value_scale) + 1;
+                const S32 begin = static_cast<S32>((mean - mCurMinBar) * value_scale) - 1;
+                const S32 end = static_cast<S32>((mean - mCurMinBar) * value_scale) + 1;
                 if (mOrientation == HORIZONTAL)
                 {
                     gl_rect_2d(bar_rect.mLeft - 2, begin, bar_rect.mRight + 2, end, LLColor4(0.f, 1.f, 0.f, 1.f));
@@ -603,7 +603,7 @@ LLRect LLStatBar::getRequiredRect()
 
 void LLStatBar::drawLabelAndValue( F32 value, std::string &label, LLRect &bar_rect, S32 decimal_digits )
 {
-    LLFontGL::getFontMonospace()->render(mLabel.getWString(), 0, 0.F, (F32)getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, 1.f),
+    LLFontGL::getFontMonospace()->render(mLabel.getWString(), 0, 0.F, static_cast<F32>(getRect().getHeight()), LLColor4(1.f, 1.f, 1.f, 1.f),
         LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
     std::string value_str   = !llisnan(value)
@@ -665,7 +665,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
         for (F32 tick_value = start; ;tick_value += mTickSpacing)
         {
             // clamp to S32_MAX / 2 to avoid floating point to integer overflow resulting in S32_MIN
-            const S32 tick_begin = llfloor(llmin((F32)(S32_MAX / 2), (tick_value - mCurMinBar)*value_scale));
+            const S32 tick_begin = llfloor(llmin(static_cast<F32>(S32_MAX / 2), (tick_value - mCurMinBar)*value_scale));
             const S32 tick_end = tick_begin + TICK_WIDTH;
             if (tick_begin < last_tick + MIN_TICK_SPACING)
             {
@@ -674,7 +674,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
             last_tick = tick_begin;
 
             S32 decimal_digits = mDecimalDigits;
-            if (is_approx_equal((F32)(S32)tick_value, tick_value))
+            if (is_approx_equal(static_cast<F32>(static_cast<S32>(tick_value)), tick_value))
             {
                 decimal_digits = 0;
             }
@@ -685,7 +685,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
                 if (tick_begin > last_label + MIN_LABEL_SPACING)
                 {
                     gl_rect_2d(bar_rect.mLeft, tick_end, bar_rect.mRight - TICK_LENGTH, tick_begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
-                    LLFontGL::getFontMonospace()->render(tick_label, 0, (F32)bar_rect.mRight, (F32)tick_begin,
+                    LLFontGL::getFontMonospace()->render(tick_label, 0, static_cast<F32>(bar_rect.mRight), static_cast<F32>(tick_begin),
                         LLColor4(1.f, 1.f, 1.f, 0.5f),
                         LLFontGL::HAlign::LEFT, LLFontGL::VAlign::VCENTER);
                     last_label = tick_begin;
@@ -700,8 +700,8 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
                 if (tick_begin > last_label + MIN_LABEL_SPACING)
                 {
                     gl_rect_2d(tick_begin, bar_rect.mTop, tick_end, bar_rect.mBottom - TICK_LENGTH, LLColor4(1.f, 1.f, 1.f, 0.25f));
-                    S32 label_pos = tick_begin - ll_round((F32)tick_label_width * ((F32)tick_begin / (F32)bar_rect.getWidth()));
-                    LLFontGL::getFontMonospace()->render(tick_label, 0, (F32)label_pos, (F32)(bar_rect.mBottom - TICK_LENGTH),
+                    S32 label_pos = tick_begin - ll_round(static_cast<F32>(tick_label_width) * (static_cast<F32>(tick_begin) / static_cast<F32>(bar_rect.getWidth())));
+                    LLFontGL::getFontMonospace()->render(tick_label, 0, static_cast<F32>(label_pos), static_cast<F32>(bar_rect.mBottom - TICK_LENGTH),
                         LLColor4(1.f, 1.f, 1.f, 0.5f),
                         LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
                     last_label = label_pos;

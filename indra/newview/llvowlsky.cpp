@@ -357,7 +357,7 @@ void LLVOWLSky::initStars()
 
         v_p->normalize();
         *v_p *= DISTANCE_TO_STARS;
-        *v_i = llmin((F32)pow(ll_frand(),2.f) + 0.1f, 1.f);
+        *v_i = llmin(static_cast<F32>(pow(ll_frand(),2.f)) + 0.1f, 1.f);
         v_c->mV[VRED]   = 0.75f + ll_frand() * 0.25f ;
         v_c->mV[VGREEN] = 1.f ;
         v_c->mV[VBLUE]  = 0.75f + ll_frand() * 0.25f ;

@@ -69,9 +69,9 @@ static constexpr F32 MAP_SCALE_SNAP_THRESHOLD = 0.005f;
 // Basically a C++ implementation of the OCEAN_COLOR defined in mapstitcher.py
 // Please ensure consistency between those 2 files (TODO: would be better to get that color from an asset source...)
 // OCEAN_COLOR = "#1D475F"
-constexpr F32 OCEAN_RED   = (F32)(0x1D)/255.f;
-constexpr F32 OCEAN_GREEN = (F32)(0x47)/255.f;
-constexpr F32 OCEAN_BLUE  = (F32)(0x5F)/255.f;
+constexpr F32 OCEAN_RED   = static_cast<F32>(0x1D)/255.f;
+constexpr F32 OCEAN_GREEN = static_cast<F32>(0x47)/255.f;
+constexpr F32 OCEAN_BLUE  = static_cast<F32>(0x5F)/255.f;
 
 constexpr F32 GODLY_TELEPORT_HEIGHT = 200.f;
 constexpr F32 BIG_DOT_RADIUS = 5.f;
@@ -256,7 +256,7 @@ void LLWorldMapView::zoom(F32 zoom)
 void LLWorldMapView::zoomWithPivot(F32 zoom, S32 x, S32 y)
 {
     mTargetMapScale = scaleFromZoom(zoom);
-    sZoomPivot      = LLVector2((F32)x, (F32)y);
+    sZoomPivot      = LLVector2(static_cast<F32>(x), static_cast<F32>(y));
     if (!sZoomTimer.getStarted() && mMapScale != mTargetMapScale)
     {
         sZoomTimer.start();
@@ -331,8 +331,8 @@ void LLWorldMapView::translatePan(S32 delta_x, S32 delta_y)
 void LLWorldMapView::setPan(S32 x, S32 y, bool snap)
 {
     mMapIterpTime = MAP_ITERP_TIME_CONSTANT;
-    mTargetPanX = (F32) x;
-    mTargetPanY = (F32) y;
+    mTargetPanX = static_cast<F32>(x);
+    mTargetPanY = static_cast<F32>(y);
     if (snap)
     {
         mPanX = mTargetPanX;
@@ -427,8 +427,8 @@ void LLWorldMapView::draw()
 
         // Find x and y position relative to camera's center.
         LLVector3d rel_region_pos = origin_global - camera_global;
-        F32 relative_x = (F32)(rel_region_pos.mdV[0] * mMapRatio);
-        F32 relative_y = (F32)(rel_region_pos.mdV[1] * mMapRatio);
+        F32 relative_x = static_cast<F32>(rel_region_pos.mdV[0] * mMapRatio);
+        F32 relative_y = static_cast<F32>(rel_region_pos.mdV[1] * mMapRatio);
 
         // Coordinates of the sim in pixels in the UI panel
         // When the view isn't panned, 0,0 = center of rectangle
@@ -523,11 +523,11 @@ void LLWorldMapView::draw()
             auto print = [&](std::string text, F32 x, F32 y, bool use_ellipses)
                 {
                     font->renderUTF8(text, 0,
-                        (F32)llfloor(left + x), (F32)llfloor(bottom + y),
+                        static_cast<F32>(llfloor(left + x)), static_cast<F32>(llfloor(bottom + y)),
                         LLColor4::white,
                         LLFontGL::HAlign::LEFT, LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW,
                         S32_MAX, //max_chars
-                        (S32)mMapScale, //max_pixels
+                        static_cast<S32>(mMapScale), //max_pixels
                         NULL,
                         use_ellipses);
                 };
@@ -1038,7 +1038,7 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
     S32 y = ll_round( pos_local.mV[VY] );
     LLFontGL* font = LLFontGL::getFontSansSerifSmall();
     S32 text_x = x;
-    S32 text_y = (S32)(y - sTrackCircleImage->getHeight()/2 - font->getLineHeight());
+    S32 text_y = static_cast<S32>(y - sTrackCircleImage->getHeight()/2 - font->getLineHeight());
 
     if(    x < 0
         || y < 0
@@ -1075,8 +1075,8 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 
         font->render(
             wlabel, 0,
-            (F32)text_x,
-            (F32)text_y,
+            static_cast<F32>(text_x),
+            static_cast<F32>(text_y),
             LLColor4::white, LLFontGL::HAlign::HCENTER,
             LLFontGL::VAlign::BASELINE, LLFontGL::NORMAL, LLFontGL::ShadowType::DROP_SHADOW);
 
@@ -1100,7 +1100,7 @@ LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
     x -= llfloor((getRect().getWidth() / 2 + mPanX));
     y -= llfloor((getRect().getHeight() / 2 + mPanY));
 
-    LLVector3 pos_local( (F32)x, (F32)y, 0.f );
+    LLVector3 pos_local( static_cast<F32>(x), static_cast<F32>(y), 0.f );
 
     pos_local *= ( REGION_WIDTH_METERS / mMapScale );
 
@@ -1312,20 +1312,20 @@ void LLWorldMapView::drawTrackingCircle( const LLRect& rect, S32 x, S32 y, const
 
     if (x < 0)
     {
-        x_delta = 0.f - (F32)x;
+        x_delta = 0.f - static_cast<F32>(x);
         start_theta = F_PI + F_PI_BY_TWO;
         end_theta = F_TWO_PI + F_PI_BY_TWO;
     }
     else if (x > rect.getWidth())
     {
-        x_delta = (F32)(x - rect.getWidth());
+        x_delta = static_cast<F32>(x - rect.getWidth());
         start_theta = F_PI_BY_TWO;
         end_theta = F_PI + F_PI_BY_TWO;
     }
 
     if (y < 0)
     {
-        y_delta = 0.f - (F32)y;
+        y_delta = 0.f - static_cast<F32>(y);
         if (x < 0)
         {
             start_theta = 0.f;
@@ -1344,7 +1344,7 @@ void LLWorldMapView::drawTrackingCircle( const LLRect& rect, S32 x, S32 y, const
     }
     else if (y > rect.getHeight())
     {
-        y_delta = (F32)(y - rect.getHeight());
+        y_delta = static_cast<F32>(y - rect.getHeight());
         if (x < 0)
         {
             start_theta = F_PI + F_PI_BY_TWO;
@@ -1366,8 +1366,8 @@ void LLWorldMapView::drawTrackingCircle( const LLRect& rect, S32 x, S32 y, const
 
     distance = llmax(0.1f, distance);
 
-    F32 outer_radius = distance + (1.f + (9.f * sqrtf(x_delta * y_delta) / distance)) * (F32)overlap;
-    F32 inner_radius = outer_radius - (F32)min_thickness;
+    F32 outer_radius = distance + (1.f + (9.f * sqrtf(x_delta * y_delta) / distance)) * static_cast<F32>(overlap);
+    F32 inner_radius = outer_radius - static_cast<F32>(min_thickness);
 
     F32 angle_adjust_x = asin(x_delta / outer_radius);
     F32 angle_adjust_y = asin(y_delta / outer_radius);
@@ -1394,7 +1394,7 @@ void LLWorldMapView::drawTrackingCircle( const LLRect& rect, S32 x, S32 y, const
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
-    gGL.translatef((F32)x * LLUI::getScaleFactor().mV[VX], (F32)y * LLUI::getScaleFactor().mV[VY], 0.f);
+    gGL.translatef(static_cast<F32>(x) * LLUI::getScaleFactor().mV[VX], static_cast<F32>(y) * LLUI::getScaleFactor().mV[VY], 0.f);
     gl_washer_segment_2d(inner_radius, outer_radius, start_theta, end_theta, 40, color, color);
     gGL.popMatrix();
 
@@ -1405,35 +1405,35 @@ void LLWorldMapView::drawTrackingArrow(const LLRect& rect, S32 x, S32 y,
                                        const LLColor4& color,
                                        S32 arrow_size)
 {
-    F32 x_center = (F32)rect.getWidth() / 2.f;
-    F32 y_center = (F32)rect.getHeight() / 2.f;
+    F32 x_center = static_cast<F32>(rect.getWidth()) / 2.f;
+    F32 y_center = static_cast<F32>(rect.getHeight()) / 2.f;
 
-    F32 x_clamped = (F32)llclamp( x, 0, rect.getWidth() - arrow_size );
-    F32 y_clamped = (F32)llclamp( y, 0, rect.getHeight() - arrow_size );
+    F32 x_clamped = static_cast<F32>(llclamp( x, 0, rect.getWidth() - arrow_size ));
+    F32 y_clamped = static_cast<F32>(llclamp( y, 0, rect.getHeight() - arrow_size ));
 
-    F32 slope = (F32)(y - y_center) / (F32)(x - x_center);
-    F32 window_ratio = (F32)rect.getHeight() / (F32)rect.getWidth();
+    F32 slope = static_cast<F32>(y - y_center) / static_cast<F32>(x - x_center);
+    F32 window_ratio = static_cast<F32>(rect.getHeight()) / static_cast<F32>(rect.getWidth());
 
-    if (llabs(slope) > window_ratio && y_clamped != (F32)y)
+    if (llabs(slope) > window_ratio && y_clamped != static_cast<F32>(y))
     {
         // clamp by y
         x_clamped = (y_clamped - y_center) / slope + x_center;
         // adjust for arrow size
-        x_clamped  = llclamp(x_clamped , 0.f, (F32)(rect.getWidth() - arrow_size) );
+        x_clamped  = llclamp(x_clamped , 0.f, static_cast<F32>(rect.getWidth() - arrow_size) );
     }
-    else if (x_clamped != (F32)x)
+    else if (x_clamped != static_cast<F32>(x))
     {
         // clamp by x
         y_clamped = (x_clamped - x_center) * slope + y_center;
         // adjust for arrow size
-        y_clamped = llclamp( y_clamped, 0.f, (F32)(rect.getHeight() - arrow_size) );
+        y_clamped = llclamp( y_clamped, 0.f, static_cast<F32>(rect.getHeight() - arrow_size) );
     }
 
     // *FIX: deal with non-square window properly.
     // I do not understand what this comment means -- is it actually
     // broken or is it correctly dealing with non-square
     // windows. Phoenix 2007-01-03.
-    S32 half_arrow_size = (S32) (0.5f * arrow_size);
+    S32 half_arrow_size = static_cast<S32>(0.5f * arrow_size);
 
     F32 angle = atan2( y + half_arrow_size - y_center, x + half_arrow_size - x_center);
 
@@ -1766,8 +1766,8 @@ bool LLWorldMapView::handleHover( S32 x, S32 y, MASK mask )
                 gViewerWindow->hideCursor();
             }
 
-            F32 delta_x = (F32)(gViewerWindow->getCurrentMouseDX());
-            F32 delta_y = (F32)(gViewerWindow->getCurrentMouseDY());
+            F32 delta_x = static_cast<F32>(gViewerWindow->getCurrentMouseDX());
+            F32 delta_y = static_cast<F32>(gViewerWindow->getCurrentMouseDY());
 
             // Set pan to value at start of drag + offset
             mPanX += delta_x;

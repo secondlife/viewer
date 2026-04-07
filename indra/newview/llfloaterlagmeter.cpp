@@ -76,26 +76,26 @@ bool LLFloaterLagMeter::postBuild()
     mServerCause = getChild<LLTextBox>("server_lag_cause");
 
     std::string config_string = getString("client_frame_rate_critical_fps", mStringArgs);
-    mClientFrameTimeCritical = F32Seconds(1.0f / (float)atof( config_string.c_str() ));
+    mClientFrameTimeCritical = F32Seconds(1.0f / static_cast<float>(atof( config_string.c_str() )));
     config_string = getString("client_frame_rate_warning_fps", mStringArgs);
-    mClientFrameTimeWarning = F32Seconds(1.0f / (float)atof( config_string.c_str() ));
+    mClientFrameTimeWarning = F32Seconds(1.0f / static_cast<float>(atof( config_string.c_str() )));
 
     config_string = getString("network_packet_loss_critical_pct", mStringArgs);
-    mNetworkPacketLossCritical = F32Percent((float)atof( config_string.c_str() ));
+    mNetworkPacketLossCritical = F32Percent(static_cast<float>(atof( config_string.c_str() )));
     config_string = getString("network_packet_loss_warning_pct", mStringArgs);
-    mNetworkPacketLossWarning = F32Percent((float)atof( config_string.c_str() ));
+    mNetworkPacketLossWarning = F32Percent(static_cast<float>(atof( config_string.c_str() )));
 
     config_string = getString("network_ping_critical_ms", mStringArgs);
-    mNetworkPingCritical = F32Milliseconds((float)atof( config_string.c_str() ));
+    mNetworkPingCritical = F32Milliseconds(static_cast<float>(atof( config_string.c_str() )));
     config_string = getString("network_ping_warning_ms", mStringArgs);
-    mNetworkPingWarning = F32Milliseconds((float)atof( config_string.c_str() ));
+    mNetworkPingWarning = F32Milliseconds(static_cast<float>(atof( config_string.c_str() )));
     config_string = getString("server_frame_rate_critical_fps", mStringArgs);
 
-    mServerFrameTimeCritical = F32Seconds(1.0f / (float)atof( config_string.c_str() ));
+    mServerFrameTimeCritical = F32Seconds(1.0f / static_cast<float>(atof( config_string.c_str() )));
     config_string = getString("server_frame_rate_warning_fps", mStringArgs);
-    mServerFrameTimeWarning = F32Seconds(1.0f / (float)atof( config_string.c_str() ));
+    mServerFrameTimeWarning = F32Seconds(1.0f / static_cast<float>(atof( config_string.c_str() )));
     config_string = getString("server_single_process_max_time_ms", mStringArgs);
-    mServerSingleProcessMaxTime = F32Seconds((float)atof( config_string.c_str() ));
+    mServerSingleProcessMaxTime = F32Seconds(static_cast<float>(atof( config_string.c_str() )));
 
 //  mShrunk = false;
     config_string = getString("max_width_px", mStringArgs);

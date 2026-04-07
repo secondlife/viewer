@@ -1163,7 +1163,7 @@ void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
     bool hide_age = avatar_data->hide_age && !getSelfProfile();
     std::string name_and_date = getString(hide_age ? "date_format_short" : "date_format_full");
     LLSD args_name;
-    args_name["datetime"] = (S32)avatar_data->born_on.secondsSinceEpoch();
+    args_name["datetime"] = static_cast<S32>(avatar_data->born_on.secondsSinceEpoch());
     LLStringUtil::format(name_and_date, args_name);
     getChild<LLUICtrl>("sl_birth_date")->setValue(name_and_date);
 
@@ -1343,7 +1343,7 @@ void LLProfileImagePicker::notify(const std::vector<std::string>& filenames)
         LLSD notif_args;
         notif_args["REASON"] = LLImage::getLastThreadError().c_str();
         LLNotificationsUtil::add("CannotUploadTexture", notif_args);
-        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)mType << ", " << notif_args["REASON"].asString() << LL_ENDL;
+        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << static_cast<S32>(mType) << ", " << notif_args["REASON"].asString() << LL_ENDL;
         return;
     }
 
@@ -1353,7 +1353,7 @@ void LLProfileImagePicker::notify(const std::vector<std::string>& filenames)
         LLSD args;
         args["CAPABILITY"] = PROFILE_IMAGE_UPLOAD_CAP;
         LLNotificationsUtil::add("RegionCapabilityRequestError", args);
-        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)mType << ", no cap found" << LL_ENDL;
+        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << static_cast<S32>(mType) << ", no cap found" << LL_ENDL;
         return;
     }
 

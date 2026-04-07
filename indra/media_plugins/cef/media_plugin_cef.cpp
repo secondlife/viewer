@@ -507,7 +507,7 @@ void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type)
         //case dullahan::CT_CUSTOM:
 
         default:
-            LL_WARNS() << "Unknown cursor ID: " << (int)type << LL_ENDL;
+            LL_WARNS() << "Unknown cursor ID: " << static_cast<int>(type) << LL_ENDL;
             break;
     }
 
@@ -577,7 +577,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             {
                 SharedSegmentInfo info;
                 info.mAddress = message_in.getValuePointer("address");
-                info.mSize = (size_t)message_in.getValueS32("size");
+                info.mSize = static_cast<size_t>(message_in.getValueS32("size"));
                 std::string name = message_in.getValue("name");
 
                 mSharedSegments.insert(SharedSegmentMap::value_type(name, info));
@@ -722,7 +722,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 }
 
                 // now we can set page zoom factor
-                F32 factor = (F32)message_in.getValueReal("factor");
+                F32 factor = static_cast<F32>(message_in.getValueReal("factor"));
 #if LL_DARWIN
                 //temporary fix for SL-10473: issue with displaying checkboxes on Mojave
                 factor*=1.001;
@@ -789,7 +789,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                     SharedSegmentMap::iterator iter = mSharedSegments.find(name);
                     if (iter != mSharedSegments.end())
                     {
-                        mPixels = (unsigned char*)iter->second.mAddress;
+                        mPixels = static_cast<unsigned char*>(iter->second.mAddress);
                         mWidth = width;
                         mHeight = height;
 
@@ -986,7 +986,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
         {
             if (message_name == "set_page_zoom_factor")
             {
-                F32 factor = (F32)message_in.getValueReal("factor");
+                F32 factor = static_cast<F32>(message_in.getValueReal("factor"));
 #if LL_DARWIN
                 //temporary fix for SL-10473: issue with displaying checkboxes on Mojave
                 factor*=1.001;
@@ -1057,7 +1057,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
         {
             if (message_name == "set_volume")
             {
-                F32 volume = (F32)message_in.getValueReal("volume");
+                F32 volume = static_cast<F32>(message_in.getValueReal("volume"));
                 mCurVolume = volume;
                 setVolume();
             }
@@ -1083,7 +1083,7 @@ void MediaPluginCEF::keyEvent(dullahan::EKeyEvent key_event, LLSD native_key_dat
     // here too or we get double key presses on a mac.
     bool esc_key = (event_umodchars == 27);
     bool tab_key_up = (event_umodchars == 9) && (key_event == dullahan::EKeyEvent::KE_KEY_UP);
-    if ((esc_key || ((unsigned char)event_chars < 0x10 || (unsigned char)event_chars >= 0x7f )) && !tab_key_up)
+    if ((esc_key || (static_cast<unsigned char>(event_chars) < 0x10 || static_cast<unsigned char>(event_chars) >= 0x7f )) && !tab_key_up)
     {
         mCEFLib->nativeKeyboardEventOSX(key_event, event_modifiers,
                                         event_keycode, event_chars,
@@ -1216,7 +1216,7 @@ int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func,
 {
     MediaPluginCEF* self = new MediaPluginCEF(host_send_func, host_user_data);
     *plugin_send_func = MediaPluginCEF::staticReceiveMessage;
-    *plugin_user_data = (void*)self;
+    *plugin_user_data = static_cast<void*>(self);
 
     return 0;
 }

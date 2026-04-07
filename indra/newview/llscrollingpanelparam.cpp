@@ -154,7 +154,7 @@ void LLScrollingPanelParam::draw()
     gGL.pushUIMatrix();
     {
         const LLRect& r = mHintMin->getRect();
-        gGL.translateUI((F32)r.mLeft, (F32)r.mBottom, 0.f);
+        gGL.translateUI(static_cast<F32>(r.mLeft), static_cast<F32>(r.mBottom), 0.f);
         mHintMin->draw(alpha);
     }
     gGL.popUIMatrix();
@@ -162,7 +162,7 @@ void LLScrollingPanelParam::draw()
     gGL.pushUIMatrix();
     {
         const LLRect& r = mHintMax->getRect();
-        gGL.translateUI((F32)r.mLeft, (F32)r.mBottom, 0.f);
+        gGL.translateUI(static_cast<F32>(r.mLeft), static_cast<F32>(r.mBottom), 0.f);
         mHintMax->draw(alpha);
     }
     gGL.popUIMatrix();

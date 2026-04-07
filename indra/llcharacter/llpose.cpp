@@ -166,7 +166,7 @@ F32 LLPose::getWeight() const
 //-----------------------------------------------------------------------------
 S32 LLPose::getNumJointStates() const
 {
-    return (S32)mJointMap.size();
+    return static_cast<S32>(mJointMap.size());
 }
 
 //-----------------------------------------------------------------------------

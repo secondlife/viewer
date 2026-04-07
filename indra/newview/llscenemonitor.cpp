@@ -159,8 +159,8 @@ void LLSceneMonitor::generateDitheringTexture(S32 width, S32 height)
     mDitheringTexture->setAddressMode(LLTexUnit::eTextureAddressMode::TAM_WRAP);
     mDitheringTexture->setFilteringOption(LLTexUnit::eTextureFilterOptions::TFO_POINT);
 
-    mDitherScaleS = (F32)width / mDitherMatrixWidth;
-    mDitherScaleT = (F32)height / mDitherMatrixWidth;
+    mDitherScaleS = static_cast<F32>(width) / mDitherMatrixWidth;
+    mDitherScaleT = static_cast<F32>(height) / mDitherMatrixWidth;
 }
 
 void LLSceneMonitor::setDebugViewerVisible(bool visible)
@@ -718,8 +718,8 @@ void LLSceneMonitorView::draw()
     }
 
     F32 ratio = LLSceneMonitor::getInstance()->getDiffPixelRatio();
-    S32 height = (S32)(target->getHeight() * ratio);
-    S32 width = (S32)(target->getWidth() * ratio);
+    S32 height = static_cast<S32>((target->getHeight() * ratio));
+    S32 width = static_cast<S32>((target->getWidth() * ratio));
 
     LLRect new_rect;
     new_rect.setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);
@@ -748,7 +748,7 @@ void LLSceneMonitorView::draw()
     LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     lines++;
 
-    num_str = llformat("Scene Loading time: %.3f seconds", (F32)LLSceneMonitor::getInstance()->getRecording()->getResults().getDuration().value());
+    num_str = llformat("Scene Loading time: %.3f seconds", static_cast<F32>(LLSceneMonitor::getInstance()->getRecording()->getResults().getDuration().value()));
     LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, 5, getRect().getHeight() - line_height * lines, color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     lines++;
 

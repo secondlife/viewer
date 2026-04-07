@@ -118,7 +118,7 @@ bool LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
 
     // Make sure the surface isn't too far away.
     LLVector3d ray_start_global = gAgentCamera.getCameraPositionGlobal();
-    F32 dist_to_surface_sq = (F32)((surface_pos_global - ray_start_global).lengthSquared());
+    F32 dist_to_surface_sq = static_cast<F32>((surface_pos_global - ray_start_global).lengthSquared());
     if( dist_to_surface_sq > (max_dist_from_camera * max_dist_from_camera) )
     {
         return false;
@@ -400,8 +400,8 @@ bool LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
     gMessageSystem->addQuatFast(_PREHASH_Rotation,          rotation );
     gMessageSystem->addVector3Fast(_PREHASH_RayStart,       ray_start_region );
     gMessageSystem->addVector3Fast(_PREHASH_RayEnd,         ray_end_region );
-    gMessageSystem->addU8Fast(_PREHASH_BypassRaycast,       (U8)b_hit_land );
-    gMessageSystem->addU8Fast(_PREHASH_RayEndIsIntersection, (U8)false );
+    gMessageSystem->addU8Fast(_PREHASH_BypassRaycast,       static_cast<U8>(b_hit_land) );
+    gMessageSystem->addU8Fast(_PREHASH_RayEndIsIntersection, static_cast<U8>(false) );
     gMessageSystem->addU8Fast(_PREHASH_State, state);
 
     // Limit raycast to a single object.
@@ -430,7 +430,7 @@ bool LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 
     // VEFFECT: AddObject
     LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, true);
-    effectp->setSourceObject((LLViewerObject*)gAgentAvatarp);
+    effectp->setSourceObject(static_cast<LLViewerObject*>(gAgentAvatarp));
     effectp->setPositionGlobal(regionp->getPosGlobalFromRegion(ray_end_region));
     effectp->setDuration(LL_HUD_DUR_SHORT);
     effectp->setColor(LLColor4U(gAgent.getEffectColor()));

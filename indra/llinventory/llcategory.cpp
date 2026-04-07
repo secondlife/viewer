@@ -95,7 +95,7 @@ void LLCategory::init(U32 value)
     U8 v;
     for(S32 i = 0; i < CATEGORY_DEPTH; i++)
     {
-        v = (U8)((0x000000ff) & value);
+        v = static_cast<U8>((0x000000ff) & value);
         mData[CATEGORY_DEPTH - 1 - i] = v;
         value >>= 8;
     }

@@ -243,7 +243,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
     if (!edit_text_name.empty())
     {
         dialog_height += EDITOR_HEIGHT + VPAD;
-        dialog_width = llmax(dialog_width, (S32)(font->getWidth( edit_text_contents ) + 0.99f));
+        dialog_width = llmax(dialog_width, static_cast<S32>((font->getWidth( edit_text_contents ) + 0.99f)));
     }
 
     if (mCaution)

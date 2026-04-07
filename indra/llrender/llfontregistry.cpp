@@ -401,7 +401,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
         LL_WARNS() << "createFont unrecognized size " << norm_desc.getSize() << LL_ENDL;
         return NULL;
     }
-    LL_INFOS() << "createFont " << norm_desc.getName() << " size " << norm_desc.getSize() << " style " << ((S32) norm_desc.getStyle()) << LL_ENDL;
+    LL_INFOS() << "createFont " << norm_desc.getName() << " size " << norm_desc.getSize() << " style " << (static_cast<S32>(norm_desc.getStyle())) << LL_ENDL;
     F32 fallback_scale = 1.0;
 
     // Find corresponding font template (based on same descriptor with no size specified)
@@ -411,7 +411,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
     if (!match_desc)
     {
         LL_WARNS() << "createFont failed, no template found for "
-                << norm_desc.getName() << " style [" << ((S32)norm_desc.getStyle()) << "]" << LL_ENDL;
+                << norm_desc.getName() << " style [" << (static_cast<S32>(norm_desc.getStyle())) << "]" << LL_ENDL;
         return NULL;
     }
 
@@ -424,7 +424,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
     // This may not be the best solution, but it at least prevents a crash.
     if (it != mFontMap.end() && it->second != NULL)
     {
-        LL_INFOS() << "-- matching font exists: " << nearest_exact_desc.getName() << " size " << nearest_exact_desc.getSize() << " style " << ((S32) nearest_exact_desc.getStyle()) << LL_ENDL;
+        LL_INFOS() << "-- matching font exists: " << nearest_exact_desc.getName() << " size " << nearest_exact_desc.getSize() << " style " << (static_cast<S32>(nearest_exact_desc.getStyle())) << LL_ENDL;
 
         // copying underlying Freetype font, and storing in LLFontGL with requested font descriptor
         LLFontGL *font = new LLFontGL;
@@ -592,7 +592,7 @@ LLFontGL *LLFontRegistry::getFont(const LLFontDescriptor& desc)
         if (!fontp)
         {
             LL_WARNS() << "getFont failed, name " << desc.getName()
-                    <<" style=[" << ((S32) desc.getStyle()) << "]"
+                    <<" style=[" << (static_cast<S32>(desc.getStyle())) << "]"
                     << " size=[" << desc.getSize() << "]" << LL_ENDL;
         }
         else
@@ -708,7 +708,7 @@ void LLFontRegistry::dump()
     {
         const LLFontDescriptor& desc = font_it.first;
         LL_INFOS() << "Font: name=" << desc.getName()
-                << " style=[" << ((S32)desc.getStyle()) << "]"
+                << " style=[" << (static_cast<S32>(desc.getStyle())) << "]"
                 << " size=[" << desc.getSize() << "]"
                 << " fileNames="
                 << LL_ENDL;

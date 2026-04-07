@@ -32,7 +32,7 @@
 
 #ifdef LL_WINDOWS
 #pragma warning(push)
-#pragma warning(disable : 4244) // possible loss of data on conversions
+#pragma warning(disable : 4244) // unavoidable narrowing in template unit conversion arithmetic
 #endif
 
 //lightweight replacement of type traits for simple type equality check
@@ -121,7 +121,7 @@ struct LLUnit
         LLUnit<result_storage_t, UNITS> result;
         result_storage_t divisor = ll_convert_units(v, result);
         result.value(result.value() / divisor);
-        return self_t(result.value());
+        return self_t(static_cast<STORAGE_TYPE>(result.value()));
     }
 
 
@@ -716,27 +716,27 @@ struct LLUnitLinearOps
     template<typename OTHER_T>
     self_t operator * (OTHER_T other)
     {
-        return mValue * other;
+        return static_cast<T>(mValue * other);
     }
 
     template<typename OTHER_T>
     self_t operator / (OTHER_T other)
     {
-        mDivisor *= other;
+        mDivisor = static_cast<T>(mDivisor * other);
         return *this;
     }
 
     template<typename OTHER_T>
     self_t operator + (OTHER_T other)
     {
-        mValue += other * mDivisor;
+        mValue = static_cast<T>(mValue + other * mDivisor);
         return *this;
     }
 
     template<typename OTHER_T>
     self_t operator - (OTHER_T other)
     {
-        mValue -= other * mDivisor;
+        mValue = static_cast<T>(mValue - other * mDivisor);
         return *this;
     }
 
@@ -758,29 +758,29 @@ struct LLUnitInverseLinearOps
     template<typename OTHER_T>
     self_t operator * (OTHER_T other)
     {
-        mDivisor *= other;
+        mDivisor = static_cast<T>(mDivisor * other);
         return *this;
     }
 
     template<typename OTHER_T>
     self_t operator / (OTHER_T other)
     {
-        mValue *= other;
-        mMultiplicand *= other;
+        mValue = static_cast<T>(mValue * other);
+        mMultiplicand = static_cast<T>(mMultiplicand * other);
         return *this;
     }
 
     template<typename OTHER_T>
     self_t operator + (OTHER_T other)
     {
-        mValue -= other * mMultiplicand;
+        mValue = static_cast<T>(mValue - other * mMultiplicand);
         return *this;
     }
 
     template<typename OTHER_T>
     self_t operator - (OTHER_T other)
     {
-        mValue += other * mMultiplicand;
+        mValue = static_cast<T>(mValue + other * mMultiplicand);
         return *this;
     }
 
@@ -822,7 +822,7 @@ LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, unit_name> in, LLUnit<S2, base_un
     using result_storage_t = typename LLResultTypePromote<S1, S2>::type_t;                       \
     LLUnitInverseLinearOps<result_storage_t> result =                                            \
         LLUnitInverseLinearOps<result_storage_t>(in.value()) conversion_operation;               \
-    out = LLUnit<S2, base_unit_name>((S2)result.mValue);                                         \
+    out = LLUnit<S2, base_unit_name>(static_cast<S2>(result.mValue));                              \
     return result.mDivisor;                                                                      \
 }                                                                                                \
                                                                                                  \
@@ -832,7 +832,7 @@ LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, un
     using result_storage_t = typename LLResultTypePromote<S1, S2>::type_t;                       \
     LLUnitLinearOps<result_storage_t> result =                                                   \
         LLUnitLinearOps<result_storage_t>(in.value()) conversion_operation;                      \
-    out = LLUnit<S2, unit_name>((S2)result.mValue);                                              \
+    out = LLUnit<S2, unit_name>(static_cast<S2>(result.mValue));                                 \
     return result.mDivisor;                                                                      \
 }
 

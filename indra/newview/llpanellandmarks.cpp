@@ -1107,9 +1107,9 @@ void LLLandmarksPanel::doCreatePick(LLLandmark* landmark, const LLUUID &item_id)
     LLUUID region_id;
     landmark->getGlobalPos(pos_global);
     landmark->getRegionID(region_id);
-    LLVector3 region_pos((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
-                      (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
-                      (F32)pos_global.mdV[VZ]);
+    LLVector3 region_pos(static_cast<F32>(fmod(pos_global.mdV[VX], static_cast<F64>(REGION_WIDTH_METERS))),
+                      static_cast<F32>(fmod(pos_global.mdV[VY], static_cast<F64>(REGION_WIDTH_METERS))),
+                      static_cast<F32>(pos_global.mdV[VZ]));
 
     LLSD body;
     std::string url = region->getCapability("RemoteParcelRequest");

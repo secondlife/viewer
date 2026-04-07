@@ -468,7 +468,7 @@ bool LLFeatureManager::loadGPUClass()
 
         // bias by CPU speed
         F32 cpu_basis_mhz = gSavedSettings.getF32("RenderCPUBasis");
-        F32 cpu_mhz = (F32) gSysCPU.getMHz();
+        F32 cpu_mhz = static_cast<F32>(gSysCPU.getMHz());
         F32 cpu_bias = llclamp(cpu_mhz / cpu_basis_mhz, 0.5f, 1.f);
         gbps *= cpu_bias;
 
@@ -613,15 +613,15 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
         }
         else if (ctrl->isType(TYPE_S32))
         {
-            gSavedSettings.setS32(mIt->first, (S32)getRecommendedValue(mIt->first));
+            gSavedSettings.setS32(mIt->first, static_cast<S32>(getRecommendedValue(mIt->first)));
         }
         else if (ctrl->isType(TYPE_U32))
         {
-            gSavedSettings.setU32(mIt->first, (U32)getRecommendedValue(mIt->first));
+            gSavedSettings.setU32(mIt->first, static_cast<U32>(getRecommendedValue(mIt->first)));
         }
         else if (ctrl->isType(TYPE_F32))
         {
-            gSavedSettings.setF32(mIt->first, (F32)getRecommendedValue(mIt->first));
+            gSavedSettings.setF32(mIt->first, static_cast<F32>(getRecommendedValue(mIt->first)));
         }
         else
         {

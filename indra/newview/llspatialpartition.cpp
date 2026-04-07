@@ -140,7 +140,7 @@ bool LLSpatialGroup::isHUDGroup() const
     if (hasState(DEAD))
         return false;
 
-    LLSpatialPartition* part = (LLSpatialPartition*)mSpatialPartition;
+    LLSpatialPartition* part = static_cast<LLSpatialPartition*>(mSpatialPartition);
     return part && part->isHUDPartition();
 }
 
@@ -175,14 +175,14 @@ void LLSpatialGroup::validate()
             {
                 LL_ERRS() << "Drawable reports it is a spatial bridge but not a partition." << LL_ENDL;
             }
-            LLSpatialGroup* group = (LLSpatialGroup*) part->mOctree->getListener(0);
+            LLSpatialGroup* group = static_cast<LLSpatialGroup*>(part->mOctree->getListener(0));
             group->validate();
         }*/
     }
 
     for (U32 i = 0; i < mOctreeNode->getChildCount(); ++i)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) mOctreeNode->getChild(i)->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(mOctreeNode->getChild(i)->getListener(0));
 
         group->validate();
 
@@ -309,7 +309,7 @@ bool LLSpatialGroup::addObject(LLDrawable *drawablep)
         gPipeline.markRebuild(this);
         if (drawablep->isSpatialBridge())
         {
-            mBridgeList.push_back((LLSpatialBridge*) drawablep);
+            mBridgeList.push_back(static_cast<LLSpatialBridge*>(drawablep));
         }
         if (drawablep->getRadius() > 1.f)
         {
@@ -406,7 +406,7 @@ void LLSpatialPartition::rebuildMesh(LLSpatialGroup* group)
 
 LLSpatialGroup* LLSpatialGroup::getParent()
 {
-    return (LLSpatialGroup*)LLViewerOctreeGroup::getParent();
+    return static_cast<LLSpatialGroup*>(LLViewerOctreeGroup::getParent());
     }
 
 bool LLSpatialGroup::removeObject(LLDrawable *drawablep, bool from_octree)
@@ -479,7 +479,7 @@ class LLSpatialSetState : public OctreeTraveler
 public:
     U32 mState;
     LLSpatialSetState(U32 state) : mState(state) { }
-    virtual void visit(const OctreeNode* branch) { ((LLSpatialGroup*) branch->getListener(0))->setState(mState); }
+    virtual void visit(const OctreeNode* branch) { static_cast<LLSpatialGroup*>(branch->getListener(0))->setState(mState); }
 };
 
 class LLSpatialSetStateDiff : public LLSpatialSetState
@@ -489,7 +489,7 @@ public:
 
     virtual void traverse(const OctreeNode* n)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(n->getListener(0));
 
         if (!group->hasState(mState))
         {
@@ -528,7 +528,7 @@ class LLSpatialClearState : public OctreeTraveler
 public:
     U32 mState;
     LLSpatialClearState(U32 state) : mState(state) { }
-    virtual void visit(const OctreeNode* branch) { ((LLSpatialGroup*) branch->getListener(0))->clearState(mState); }
+    virtual void visit(const OctreeNode* branch) { static_cast<LLSpatialGroup*>(branch->getListener(0))->clearState(mState); }
 };
 
 class LLSpatialClearStateDiff : public LLSpatialClearState
@@ -538,7 +538,7 @@ public:
 
     virtual void traverse(const OctreeNode* n)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(n->getListener(0));
 
         if (group->hasState(mState))
         {
@@ -628,7 +628,7 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
     if (!isEmpty())
     {
         mRadius = getSpatialPartition()->mRenderByGroup ? mObjectBounds[1].getLength3().getF32() :
-                        (F32) mOctreeNode->getSize().getLength3().getF32();
+                        static_cast<F32>(mOctreeNode->getSize().getLength3().getF32());
         mDistance = getSpatialPartition()->calcDistance(this, camera);
         mPixelArea = getSpatialPartition()->calcPixelArea(this, camera);
     }
@@ -771,14 +771,14 @@ bool LLSpatialGroup::changeLOD()
 
 void LLSpatialGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* entry)
 {
-    addObject((LLDrawable*)entry->getDrawable());
+    addObject(static_cast<LLDrawable*>(entry->getDrawable()));
     unbound();
     setState(OBJECT_DIRTY);
 }
 
 void LLSpatialGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntry* entry)
 {
-    removeObject((LLDrawable*)entry->getDrawable(), true);
+    removeObject(static_cast<LLDrawable*>(entry->getDrawable()), true);
     LLViewerOctreeGroup::handleRemoval(node, entry);
 }
 
@@ -798,7 +798,7 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
         {
             if(entry->hasDrawable())
             {
-                ((LLDrawable*)entry->getDrawable())->setGroup(NULL);
+                (static_cast<LLDrawable*>(entry->getDrawable()))->setGroup(NULL);
             }
         }
     }
@@ -852,7 +852,7 @@ void LLSpatialGroup::rebound()
                 controlAvatar->mControlAVBridge &&
                 controlAvatar->mControlAVBridge->mOctree)
             {
-                LLSpatialGroup* root = (LLSpatialGroup*)controlAvatar->mControlAVBridge->mOctree->getListener(0);
+                LLSpatialGroup* root = static_cast<LLSpatialGroup*>(controlAvatar->mControlAVBridge->mOctree->getListener(0));
                 if (this == root)
                 {
                     const LLVector4a* addingExtents = controlAvatar->mDrawable->getSpatialExtents();
@@ -886,7 +886,7 @@ void LLSpatialGroup::destroyGLState(bool keep_occlusion)
 
     for (LLSpatialGroup::element_iter i = getDataBegin(); i != getDataEnd(); ++i)
     {
-        LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
+        LLDrawable* drawable = static_cast<LLDrawable*>((*i)->getDrawable());
         if(!drawable)
         {
             continue;
@@ -1018,7 +1018,7 @@ public:
     LLSpatialShift(const LLVector4a& offset) : mOffset(offset) { }
     virtual void visit(const OctreeNode* branch)
     {
-        ((LLSpatialGroup*) branch->getListener(0))->shift(mOffset);
+        (static_cast<LLSpatialGroup*>(branch->getListener(0)))->shift(mOffset);
     }
 };
 
@@ -1040,7 +1040,7 @@ public:
             return false;
         }
 
-        LLSpatialGroup* group = (LLSpatialGroup*)base_group;
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(base_group);
         group->checkOcclusion();
 
         if (group->getOctreeNode() &&
@@ -1077,7 +1077,7 @@ public:
 
     virtual void processGroup(LLViewerOctreeGroup* base_group)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*)base_group;
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(base_group);
         /*if (group->needsUpdate() ||
             group->getVisible(LLViewerCamera::sCurCameraID) < LLDrawable::getCurrentFrame() - 1)
         {
@@ -1130,7 +1130,7 @@ public:
 
     virtual bool earlyFail(LLViewerOctreeGroup* base_group)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*)base_group;
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(base_group);
 
         if (group->getOctreeNode()->getParent() &&  //never occlusion cull the root node
             LLPipeline::sUseOcclusion &&            //ignore occlusion if disabled
@@ -1144,7 +1144,7 @@ public:
 
     virtual void traverse(const OctreeNode* n)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(n->getListener(0));
 
         if (earlyFail(group))
         {
@@ -1171,7 +1171,7 @@ public:
 
     virtual void processGroup(LLViewerOctreeGroup* base_group)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*)base_group;
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(base_group);
 
         llassert(!group->hasState(LLSpatialGroup::DIRTY) && !group->isEmpty());
 
@@ -1207,7 +1207,7 @@ public:
 
     virtual bool earlyFail(LLViewerOctreeGroup* base_group)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*)base_group;
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(base_group);
 
         if (mResult || //already found a node, don't check any more
             (group->getOctreeNode()->getParent() && //never occlusion cull the root node
@@ -1242,12 +1242,12 @@ public:
 
     virtual void processGroup(LLViewerOctreeGroup* base_group)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*)base_group;
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(base_group);
         OctreeNode* branch = group->getOctreeNode();
 
         for (OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
         {
-            LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
+            LLDrawable* drawable = static_cast<LLDrawable*>((*i)->getDrawable());
             if(!drawable)
         {
                 continue;
@@ -1379,7 +1379,7 @@ bool LLSpatialPartition::getVisibleExtents(LLCamera& camera, LLVector3& visMin, 
     visMaxa.load3(visMax.mV);
 
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(mOctree->getListener(0));
         group->rebound();
     }
 
@@ -1402,15 +1402,15 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 #if LL_OCTREE_PARANOIA_CHECK
-    ((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
+    (static_cast<LLSpatialGroup*>(mOctree->getListener(0)))->checkStates();
 #endif
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(mOctree->getListener(0));
         group->rebound();
     }
 
 #if LL_OCTREE_PARANOIA_CHECK
-    ((LLSpatialGroup*)mOctree->getListener(0))->validate();
+    (static_cast<LLSpatialGroup*>(mOctree->getListener(0)))->validate();
 #endif
 
         LLOctreeSelect selecter(&camera, results);
@@ -1425,13 +1425,13 @@ S32 LLSpatialPartition::cull(LLCamera &camera, bool do_occlusion)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 #if LL_OCTREE_PARANOIA_CHECK
-    ((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
+    (static_cast<LLSpatialGroup*>(mOctree->getListener(0)))->checkStates();
 #endif
-    LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
+    LLSpatialGroup* group = static_cast<LLSpatialGroup*>(mOctree->getListener(0));
     group->rebound();
 
 #if LL_OCTREE_PARANOIA_CHECK
-    ((LLSpatialGroup*)mOctree->getListener(0))->validate();
+    (static_cast<LLSpatialGroup*>(mOctree->getListener(0)))->validate();
 #endif
 
     if (LLPipeline::sShadowRender)
@@ -1616,7 +1616,7 @@ void renderOctree(LLSpatialGroup* group)
 
             for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
             {
-                LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
+                LLDrawable* drawable = static_cast<LLDrawable*>((*i)->getDrawable());
                 if(!drawable || drawable->getNumFaces() == 0)
                 {
                     continue;
@@ -1731,7 +1731,7 @@ void renderXRay(LLSpatialGroup* group, LLCamera* camera)
 
         for (LLSpatialGroup::element_iter iter = group->getDataBegin(); iter != group->getDataEnd(); ++iter)
         {
-            LLDrawable* drawable = (LLDrawable*)(*iter)->getDrawable();
+            LLDrawable* drawable = static_cast<LLDrawable*>((*iter)->getDrawable());
             if (drawable->getVObj().notNull() && drawable->getVObj()->isSelected())
             {
                 selected = true;
@@ -1978,7 +1978,7 @@ void renderNormals(LLDrawable *drawablep)
         gGL.pushMatrix();
         if (vol)
         {
-            gGL.multMatrix((F32 *) vol->getRelativeXform().mMatrix);
+            gGL.multMatrix(reinterpret_cast<const F32*>(vol->getRelativeXform().mMatrix));
         }
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
@@ -2207,7 +2207,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
     LLVector3 size(0.25f,0.25f,0.25f);
 
     gGL.pushMatrix();
-    gGL.multMatrix((F32*) volume->getRelativeXform().mMatrix);
+    gGL.multMatrix(reinterpret_cast<const F32*>(volume->getRelativeXform().mMatrix));
 
     if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::USER_MESH)
     {
@@ -2318,14 +2318,14 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
                     phys_volume->mNumHullPoints = res.mNumVertices;
 
                     S32 idx_size = (res.mNumTriangles*3*2+0xF) & ~0xF;
-                    phys_volume->mHullIndices = (U16*) ll_aligned_malloc_16(idx_size);
+                    phys_volume->mHullIndices = reinterpret_cast<U16*>(ll_aligned_malloc_16(idx_size));
                     phys_volume->mNumHullIndices = res.mNumTriangles*3;
 
                     const F32* v = res.mVertexBase;
 
                     for (S32 i = 0; i < res.mNumVertices; ++i)
                     {
-                        F32* p = (F32*) ((U8*)v+i*res.mVertexStrideBytes);
+                        const F32* p = reinterpret_cast<const F32*>(reinterpret_cast<const U8*>(v)+i*res.mVertexStrideBytes);
                         phys_volume->mHullPoints[i].load3(p);
                     }
 
@@ -2333,7 +2333,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
                     {
                         for (S32 i = 0; i < res.mNumTriangles; ++i)
                         {
-                            U16* idx = (U16*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
+                            const U16* idx = reinterpret_cast<const U16*>(reinterpret_cast<const U8*>(res.mIndexBase) + i*res.mIndexStrideBytes);
 
                             phys_volume->mHullIndices[i*3+0] = idx[0];
                             phys_volume->mHullIndices[i*3+1] = idx[1];
@@ -2344,11 +2344,11 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
                     {
                         for (S32 i = 0; i < res.mNumTriangles; ++i)
                         {
-                            U32* idx = (U32*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
+                            const U32* idx = reinterpret_cast<const U32*>(reinterpret_cast<const U8*>(res.mIndexBase) + i * res.mIndexStrideBytes);
 
-                            phys_volume->mHullIndices[i*3+0] = (U16) idx[0];
-                            phys_volume->mHullIndices[i*3+1] = (U16) idx[1];
-                            phys_volume->mHullIndices[i*3+2] = (U16) idx[2];
+                            phys_volume->mHullIndices[i*3+0] = static_cast<U16>(idx[0]);
+                            phys_volume->mHullIndices[i*3+1] = static_cast<U16>(idx[1]);
+                            phys_volume->mHullIndices[i*3+2] = static_cast<U16>(idx[2]);
                         }
                     }
                 }
@@ -2473,7 +2473,7 @@ void renderPhysicsShapes(LLSpatialGroup* group, bool wireframe)
 {
     for (OctreeNode::const_element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
     {
-        LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
+        LLDrawable* drawable = static_cast<LLDrawable*>((*i)->getDrawable());
         if(!drawable)
     {
             continue;
@@ -2486,7 +2486,7 @@ void renderPhysicsShapes(LLSpatialGroup* group, bool wireframe)
             if (bridge)
             {
                 gGL.pushMatrix();
-                gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
+                gGL.multMatrix(const_cast<F32*>(reinterpret_cast<const F32*>(bridge->mDrawable->getRenderMatrix().mMatrix)));
                 bridge->renderPhysicsShapes(wireframe);
                 gGL.popMatrix();
             }
@@ -2654,11 +2654,11 @@ void renderTexelDensity(LLDrawable* drawable)
             break;
         }
 
-        checkerboard_matrix.initScale(LLVector3((F32)texturep->getWidth(discard_level) / 8.f, (F32)texturep->getHeight(discard_level) / 8.f, 1.f));
+        checkerboard_matrix.initScale(LLVector3(static_cast<F32>(texturep->getWidth(discard_level)) / 8.f, static_cast<F32>(texturep->getHeight(discard_level)) / 8.f, 1.f));
 
         gGL.getTexUnit(0)->bind(LLViewerTexture::sCheckerBoardImagep, true);
         gGL.matrixMode(LLRender::MM_TEXTURE);
-        gGL.loadMatrix((GLfloat*)&checkerboard_matrix.mMatrix);
+        gGL.loadMatrix(reinterpret_cast<const GLfloat*>(&checkerboard_matrix.mMatrix));
 
         if (buffer && (facep->getGeomCount() >= 3))
         {
@@ -2772,7 +2772,7 @@ public:
 
     void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch)
     {
-        LLVolumeOctreeListener* vl = (LLVolumeOctreeListener*) branch->getListener(0);
+        LLVolumeOctreeListener* vl = static_cast<LLVolumeOctreeListener*>(branch->getListener(0));
 
         LLVector3 center, size;
 
@@ -2873,7 +2873,7 @@ void renderRaycast(LLDrawable* drawablep)
 
                     gGL.pushMatrix();
                     gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
-                    gGL.multMatrix((F32*) vobj->getRelativeXform().mMatrix);
+                    gGL.multMatrix(reinterpret_cast<const F32*>(vobj->getRelativeXform().mMatrix));
 
                     LLVector4a start, end;
                     if (transform)
@@ -2909,7 +2909,7 @@ void renderRaycast(LLDrawable* drawablep)
                     {
                         if (!face.getOctree())
                         {
-                            ((LLVolumeFace*) &face)->createOctree();
+                            const_cast<LLVolumeFace*>(&face)->createOctree();
                         }
 
                         renderOctreeRaycast(start, end, face.getOctree());
@@ -2925,7 +2925,7 @@ void renderRaycast(LLDrawable* drawablep)
             if (drawablep->getVObj() == gDebugRaycastObject)
             {
                 LLGLDepthTest depth(GL_FALSE);
-                LLVOAvatar* av = (LLVOAvatar*) drawablep->getVObj().get();
+                LLVOAvatar* av = static_cast<LLVOAvatar*>(drawablep->getVObj().get());
                 av->renderCollisionVolumes();
             }
         }
@@ -2949,7 +2949,7 @@ void renderRaycast(LLDrawable* drawablep)
             orient.lookDir(normal, binormal);
             LLMatrix4 rotation;
             orient.getRotMatrixToParent(rotation);
-            gGL.multMatrix((float*)rotation.mMatrix);
+            gGL.multMatrix(reinterpret_cast<float*>(rotation.mMatrix));
 
             gGL.diffuseColor4f(1,0,0,0.5f);
             drawBox(LLVector3(0, 0, 0), LLVector3(0.1f, 0.022f, 0.022f));
@@ -3060,7 +3060,7 @@ public:
 
     virtual void traverse(const OctreeNode* node)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(node->getListener(0));
 
         const LLVector4a* bounds = group->getBounds();
         if (!mCamera || mCamera->AABBInFrustumNoFarClip(bounds[0], bounds[1]))
@@ -3088,7 +3088,7 @@ public:
 
     virtual void visit(const OctreeNode* branch)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) branch->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(branch->getListener(0));
         const LLVector4a* bounds = group->getBounds();
         if (group->hasState(LLSpatialGroup::GEOM_DIRTY) || (mCamera && !mCamera->AABBInFrustumNoFarClip(bounds[0], bounds[1])))
         {
@@ -3110,7 +3110,7 @@ public:
 
         for (OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
         {
-            LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
+            LLDrawable* drawable = static_cast<LLDrawable*>((*i)->getDrawable());
             if(!drawable || drawable->isDead())
         {
                 continue;
@@ -3205,7 +3205,7 @@ public:
 
     virtual void traverse(const OctreeNode* node)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(node->getListener(0));
 
         const LLVector4a* bounds = group->getBounds();
         if (!mCamera || mCamera->AABBInFrustumNoFarClip(bounds[0], bounds[1]))
@@ -3251,7 +3251,7 @@ public:
 
     virtual void traverse(const OctreeNode* node)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(node->getListener(0));
 
         const LLVector4a* bounds = group->getBounds();
         if (!mCamera || mCamera->AABBInFrustumNoFarClip(bounds[0], bounds[1]))
@@ -3286,7 +3286,7 @@ public:
 
     virtual void traverse(const OctreeNode* node)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(node->getListener(0));
 
         const LLVector4a* bounds = group->getBounds();
         if (!mCamera || mCamera->AABBInFrustum(bounds[0], bounds[1]))
@@ -3302,7 +3302,7 @@ public:
 
     virtual void visit(const OctreeNode* branch)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) branch->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(branch->getListener(0));
 
         const LLVector4a* bounds = group->getBounds();
         if (group->hasState(LLSpatialGroup::GEOM_DIRTY) || (mCamera && !mCamera->AABBInFrustumNoFarClip(bounds[0], bounds[1])))
@@ -3312,7 +3312,7 @@ public:
 
         for (OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
         {
-            LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
+            LLDrawable* drawable = static_cast<LLDrawable*>((*i)->getDrawable());
             if(!drawable)
         {
                 continue;
@@ -3343,7 +3343,7 @@ public:
 
     virtual void traverse(const OctreeNode* node)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(node->getListener(0));
 
         node->accept(this);
 
@@ -3368,7 +3368,7 @@ public:
 
     virtual void visit(const OctreeNode* state)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) state->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(state->getListener(0));
 
         for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
         {
@@ -3442,7 +3442,7 @@ void LLSpatialPartition::renderDebug()
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
     {
         //sLastMaxTexPriority = lerp(sLastMaxTexPriority, sCurMaxTexPriority, gFrameIntervalSeconds);
-        sLastMaxTexPriority = (F32) LLViewerCamera::getInstance()->getScreenPixelArea();
+        sLastMaxTexPriority = static_cast<F32>(LLViewerCamera::getInstance()->getScreenPixelArea());
         sCurMaxTexPriority = 0.f;
     }
 
@@ -3565,7 +3565,7 @@ public:
             const OctreeNode* child = node->getChild(i);
             LLVector3 res;
 
-            LLSpatialGroup* group = (LLSpatialGroup*) child->getListener(0);
+            LLSpatialGroup* group = static_cast<LLSpatialGroup*>(child->getListener(0));
 
             LLVector4a size;
             LLVector4a center;
@@ -3600,7 +3600,7 @@ public:
 
     virtual bool check(LLViewerOctreeEntry* entry)
     {
-        LLDrawable* drawable = (LLDrawable*)entry->getDrawable();
+        LLDrawable* drawable = static_cast<LLDrawable*>(entry->getDrawable());
 
         if (!drawable || !gPipeline.hasRenderType(drawable->getRenderType()) || !drawable->isVisible())
         {
@@ -3632,7 +3632,7 @@ public:
                 bool skip_check = false;
                 if (vobj->isAvatar())
                 {
-                    LLVOAvatar* avatar = (LLVOAvatar*) vobj;
+                    LLVOAvatar* avatar = static_cast<LLVOAvatar*>(vobj);
                     if ((mPickRigged) || ((avatar->isSelf()) && (LLFloater::isVisible(gFloaterTools))))
                     {
                         LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mPickRigged, mPickUnselectable, mFaceHit, &intersection, mTexCoord, mNormal, mTangent);
@@ -3741,9 +3741,9 @@ LLColor4U LLDrawInfo::getDebugColor() const
     LLColor4U color;
 
     LLCRC hash;
-    hash.update(std::span<const U8>((U8*)this + sizeof(S32), sizeof(LLDrawInfo) - sizeof(S32)));
+    hash.update(std::span<const U8>(reinterpret_cast<const U8*>(this) + sizeof(S32), sizeof(LLDrawInfo) - sizeof(S32)));
 
-    *((U32*) color.mV) = hash.getCRC();
+    *reinterpret_cast<U32*>(color.mV) = hash.getCRC();
 
     color.mV[3] = 200;
 
@@ -3837,7 +3837,7 @@ void LLCullResult::clear()
     for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
     {
         drawinfo_list_t& render_map = mRenderMap[i];
-        U32 render_map_size = llmin((U32)render_map.size(), mRenderMapSize[i]);
+        U32 render_map_size = llmin(static_cast<U32>(render_map.size()), mRenderMapSize[i]);
         for (U32 j = 0; j < render_map_size; j++)
         {
             render_map[j] = 0;

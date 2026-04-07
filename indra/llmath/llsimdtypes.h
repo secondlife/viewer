@@ -39,7 +39,7 @@ public:
     inline LLBool32(int rhs) : m_bool(rhs) {}
     inline LLBool32(unsigned int rhs) : m_bool(rhs) {}
     inline LLBool32(bool rhs) { m_bool = static_cast<const int>(rhs); }
-    inline LLBool32& operator= (bool rhs) { m_bool = (int)rhs; return *this; }
+    inline LLBool32& operator= (bool rhs) { m_bool = static_cast<int>(rhs); return *this; }
     inline bool operator== (bool rhs) const { return static_cast<const bool&>(m_bool) == rhs; }
     inline bool operator!= (bool rhs) const { return !operator==(rhs); }
     inline operator bool() const { return static_cast<const bool&>(m_bool); }

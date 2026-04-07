@@ -349,7 +349,7 @@ llmediaimplgstreamer_bus_callback (GstBus     *bus,
                    GstMessage *message,
                    gpointer    data)
 {
-    MediaPluginGStreamer010 *impl = (MediaPluginGStreamer010*)data;
+    MediaPluginGStreamer010 *impl = static_cast<MediaPluginGStreamer010*>(data);
     return impl->processGSTEvents(bus, message);
 }
 } // extern "C"
@@ -1002,7 +1002,7 @@ void MediaPluginGStreamer010::receiveMessage(const char *message_string)
                 double time = message_in.getValueReal("time");
 
                 // Convert time to milliseconds for update()
-                update((int)(time * 1000.0f));
+                update(static_cast<int>(time * 1000.0f));
             }
             else if(message_name == "cleanup")
             {
@@ -1013,7 +1013,7 @@ void MediaPluginGStreamer010::receiveMessage(const char *message_string)
             {
                 SharedSegmentInfo info;
                 info.mAddress = message_in.getValuePointer("address");
-                info.mSize = (size_t)message_in.getValueS32("size");
+                info.mSize = static_cast<size_t>(message_in.getValueS32("size"));
                 std::string name = message_in.getValue("name");
 
                 std::ostringstream str;
@@ -1116,7 +1116,7 @@ void MediaPluginGStreamer010::receiveMessage(const char *message_string)
                         INFOMSG("*** Got size change with matching shm, new size is %d x %d", width, height);
                         INFOMSG("*** Got size change with matching shm, texture size size is %d x %d", texture_width, texture_height);
 
-                        mPixels = (unsigned char*)iter->second.mAddress;
+                        mPixels = static_cast<unsigned char*>(iter->second.mAddress);
                         mTextureSegmentName = name;
                         mWidth = width;
                         mHeight = height;
@@ -1217,7 +1217,7 @@ int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func, void
     {
         MediaPluginGStreamer010 *self = new MediaPluginGStreamer010(host_send_func, host_user_data);
         *plugin_send_func = MediaPluginGStreamer010::staticReceiveMessage;
-        *plugin_user_data = (void*)self;
+        *plugin_user_data = static_cast<void*>(self);
 
         return 0; // okay
     }

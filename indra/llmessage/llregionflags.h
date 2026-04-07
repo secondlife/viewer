@@ -178,7 +178,7 @@ constexpr U32 ESTATE_ACCESS_FAILED_BAN_ESTATE_MANAGER   = 1U << 11;
 constexpr S32 ESTATE_MAX_MANAGERS = 20;
 constexpr S32 ESTATE_MAX_ACCESS_IDS = 500;  // max for access
 constexpr S32 ESTATE_MAX_BANNED_IDS = 750;  // max for banned
-constexpr S32 ESTATE_MAX_GROUP_IDS = (S32) ESTATE_ACCESS_MAX_ENTRIES_PER_PACKET;
+constexpr S32 ESTATE_MAX_GROUP_IDS = static_cast<S32>(ESTATE_ACCESS_MAX_ENTRIES_PER_PACKET);
 
 // 'Sim Wide Delete' flags
 constexpr U32 SWD_OTHERS_LAND_ONLY      = (1 << 0);

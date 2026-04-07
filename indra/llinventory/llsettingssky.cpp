@@ -586,51 +586,51 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
             // If there is no cloud texture in destination, reduce coverage to imitate disappearance
             // See LLDrawPoolWLSky::renderSkyClouds... we don't blend present texture with null
             // Note: Probably can be done by shader
-            mCloudShadow = lerp(mCloudShadow, 0.f, (F32)blendf);
+            mCloudShadow = lerp(mCloudShadow, 0.f, static_cast<F32>(blendf));
             cloud_noise_id_next = cloud_noise_id;
         }
         else if (cloud_noise_id.isNull() && !cloud_noise_id_next.isNull())
         {
             // Source has no cloud texture, reduce initial coverage to imitate appearance
             // use same texture as destination
-            mCloudShadow = lerp(0.f, mCloudShadow, (F32)blendf);
+            mCloudShadow = lerp(0.f, mCloudShadow, static_cast<F32>(blendf));
             setCloudNoiseTextureId(cloud_noise_id_next);
         }
         else
         {
-            mCloudShadow = lerp(mCloudShadow, other->mCloudShadow, (F32)blendf);
+            mCloudShadow = lerp(mCloudShadow, other->mCloudShadow, static_cast<F32>(blendf));
         }
 
         mSettingFlags |= other->mSettingFlags;
 
         mCanAutoAdjust = other->mCanAutoAdjust;
 
-        mSunRotation = slerp((F32)blendf, mSunRotation, other->mSunRotation);
-        mMoonRotation = slerp((F32)blendf, mMoonRotation, other->mMoonRotation);
-        lerpColor(mSunlightColor, other->mSunlightColor, (F32)blendf);
-        lerpColor(mGlow, other->mGlow, (F32)blendf);
-        mReflectionProbeAmbiance = lerp(mReflectionProbeAmbiance, other->mReflectionProbeAmbiance, (F32)blendf);
-        mSunScale = lerp(mSunScale, other->mSunScale, (F32)blendf);
-        mStarBrightness = lerp(mStarBrightness, other->mStarBrightness, (F32)blendf);
-        mMoonBrightness = lerp(mMoonBrightness, other->mMoonBrightness, (F32)blendf);
-        mMoonScale = lerp(mMoonScale, other->mMoonScale, (F32)blendf);
-        mMaxY = lerp(mMaxY, other->mMaxY, (F32)blendf);
-        mGamma = lerp(mGamma, other->mGamma, (F32)blendf);
-        mCloudVariance = lerp(mCloudVariance, other->mCloudVariance, (F32)blendf);
-        mCloudShadow = lerp(mCloudShadow, other->mCloudShadow, (F32)blendf);
-        mCloudScale = lerp(mCloudScale, other->mCloudScale, (F32)blendf);
-        lerpVector2(mScrollRate, other->mScrollRate, (F32)blendf);
-        lerpColor(mCloudPosDensity1, other->mCloudPosDensity1, (F32)blendf);
-        lerpColor(mCloudPosDensity2, other->mCloudPosDensity2, (F32)blendf);
-        lerpColor(mCloudColor, other->mCloudColor, (F32)blendf);
+        mSunRotation = slerp(static_cast<F32>(blendf), mSunRotation, other->mSunRotation);
+        mMoonRotation = slerp(static_cast<F32>(blendf), mMoonRotation, other->mMoonRotation);
+        lerpColor(mSunlightColor, other->mSunlightColor, static_cast<F32>(blendf));
+        lerpColor(mGlow, other->mGlow, static_cast<F32>(blendf));
+        mReflectionProbeAmbiance = lerp(mReflectionProbeAmbiance, other->mReflectionProbeAmbiance, static_cast<F32>(blendf));
+        mSunScale = lerp(mSunScale, other->mSunScale, static_cast<F32>(blendf));
+        mStarBrightness = lerp(mStarBrightness, other->mStarBrightness, static_cast<F32>(blendf));
+        mMoonBrightness = lerp(mMoonBrightness, other->mMoonBrightness, static_cast<F32>(blendf));
+        mMoonScale = lerp(mMoonScale, other->mMoonScale, static_cast<F32>(blendf));
+        mMaxY = lerp(mMaxY, other->mMaxY, static_cast<F32>(blendf));
+        mGamma = lerp(mGamma, other->mGamma, static_cast<F32>(blendf));
+        mCloudVariance = lerp(mCloudVariance, other->mCloudVariance, static_cast<F32>(blendf));
+        mCloudShadow = lerp(mCloudShadow, other->mCloudShadow, static_cast<F32>(blendf));
+        mCloudScale = lerp(mCloudScale, other->mCloudScale, static_cast<F32>(blendf));
+        lerpVector2(mScrollRate, other->mScrollRate, static_cast<F32>(blendf));
+        lerpColor(mCloudPosDensity1, other->mCloudPosDensity1, static_cast<F32>(blendf));
+        lerpColor(mCloudPosDensity2, other->mCloudPosDensity2, static_cast<F32>(blendf));
+        lerpColor(mCloudColor, other->mCloudColor, static_cast<F32>(blendf));
 
-        mSunArcRadians = lerp(mSunArcRadians, other->mSunArcRadians, (F32)blendf);
-        mSkyTopRadius = lerp(mSkyTopRadius, other->mSkyTopRadius, (F32)blendf);
-        mSkyBottomRadius = lerp(mSkyBottomRadius, other->mSkyBottomRadius, (F32)blendf);
-        mSkyMoistureLevel = lerp(mSkyMoistureLevel, other->mSkyMoistureLevel, (F32)blendf);
-        mSkyDropletRadius = lerp(mSkyDropletRadius, other->mSkyDropletRadius, (F32)blendf);
-        mSkyIceLevel = lerp(mSkyIceLevel, other->mSkyIceLevel, (F32)blendf);
-        mPlanetRadius = lerp(mPlanetRadius, other->mPlanetRadius, (F32)blendf);
+        mSunArcRadians = lerp(mSunArcRadians, other->mSunArcRadians, static_cast<F32>(blendf));
+        mSkyTopRadius = lerp(mSkyTopRadius, other->mSkyTopRadius, static_cast<F32>(blendf));
+        mSkyBottomRadius = lerp(mSkyBottomRadius, other->mSkyBottomRadius, static_cast<F32>(blendf));
+        mSkyMoistureLevel = lerp(mSkyMoistureLevel, other->mSkyMoistureLevel, static_cast<F32>(blendf));
+        mSkyDropletRadius = lerp(mSkyDropletRadius, other->mSkyDropletRadius, static_cast<F32>(blendf));
+        mSkyIceLevel = lerp(mSkyIceLevel, other->mSkyIceLevel, static_cast<F32>(blendf));
+        mPlanetRadius = lerp(mPlanetRadius, other->mPlanetRadius, static_cast<F32>(blendf));
 
         // Legacy settings
 
@@ -654,10 +654,10 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
             }
         }
 
-        mHasLegacyHaze |= lerp_legacy_float(mHazeDensity, mLegacyHazeDensity, other->mHazeDensity, other->mLegacyHazeDensity, 0.7f, (F32)blendf);
-        mHasLegacyHaze |= lerp_legacy_float(mDistanceMultiplier, mLegacyDistanceMultiplier, other->mDistanceMultiplier, other->mLegacyDistanceMultiplier, 0.8f, (F32)blendf);
-        mHasLegacyHaze |= lerp_legacy_color(mAmbientColor, mLegacyAmbientColor, other->mAmbientColor, other->mLegacyAmbientColor, LLColor3(0.25f, 0.25f, 0.25f), (F32)blendf);
-        mHasLegacyHaze |= lerp_legacy_color(mBlueDensity, mLegacyBlueDensity, other->mBlueDensity, other->mLegacyBlueDensity, LLColor3(0.2447f, 0.4487f, 0.7599f), (F32)blendf);
+        mHasLegacyHaze |= lerp_legacy_float(mHazeDensity, mLegacyHazeDensity, other->mHazeDensity, other->mLegacyHazeDensity, 0.7f, static_cast<F32>(blendf));
+        mHasLegacyHaze |= lerp_legacy_float(mDistanceMultiplier, mLegacyDistanceMultiplier, other->mDistanceMultiplier, other->mLegacyDistanceMultiplier, 0.8f, static_cast<F32>(blendf));
+        mHasLegacyHaze |= lerp_legacy_color(mAmbientColor, mLegacyAmbientColor, other->mAmbientColor, other->mLegacyAmbientColor, LLColor3(0.25f, 0.25f, 0.25f), static_cast<F32>(blendf));
+        mHasLegacyHaze |= lerp_legacy_color(mBlueDensity, mLegacyBlueDensity, other->mBlueDensity, other->mLegacyBlueDensity, LLColor3(0.2447f, 0.4487f, 0.7599f), static_cast<F32>(blendf));
 
         if (mLegacyHazeHorizon == mLegacyDensityMultiplier == mLegacyBlueHorizon)
         {
@@ -671,21 +671,21 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
             // End: 0.03 Haze Horiz, 0.775 Density, 90.95 Distance, black ambient, black blue horizon
             F32 strt_level = mHazeHorizon * mDensityMultiplier * mBlueHorizon.length();
             F32 end_level = other->mHazeHorizon * other->mDensityMultiplier * other->mBlueHorizon.length();
-            mHasLegacyHaze |= lerp_legacy_float(mHazeHorizon, mLegacyHazeHorizon, other->mHazeHorizon, other->mLegacyHazeHorizon, 0.19f, (F32)blendf);
-            mHasLegacyHaze |= lerp_legacy_float(mDensityMultiplier, mLegacyDensityMultiplier, other->mDensityMultiplier, other->mLegacyDensityMultiplier, 0.0001f, (F32)blendf);
-            mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), (F32)blendf);
+            mHasLegacyHaze |= lerp_legacy_float(mHazeHorizon, mLegacyHazeHorizon, other->mHazeHorizon, other->mLegacyHazeHorizon, 0.19f, static_cast<F32>(blendf));
+            mHasLegacyHaze |= lerp_legacy_float(mDensityMultiplier, mLegacyDensityMultiplier, other->mDensityMultiplier, other->mLegacyDensityMultiplier, 0.0001f, static_cast<F32>(blendf));
+            mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), static_cast<F32>(blendf));
 
             // lerp the fake level instead of density multiplier to avoid brightening the sky too much.
             // This makes density multiplier non linear.
-            F32 new_level = lerp(strt_level, end_level, (F32)blendf);
+            F32 new_level = lerp(strt_level, end_level, static_cast<F32>(blendf));
             mDensityMultiplier = new_level / (mHazeHorizon * mBlueHorizon.length());
         }
         else
         {
             // default values are used, so we should lerp settings independently
-            mHasLegacyHaze |= lerp_legacy_float(mHazeHorizon, mLegacyHazeHorizon, other->mHazeHorizon, other->mLegacyHazeHorizon, 0.19f, (F32)blendf);
-            mHasLegacyHaze |= lerp_legacy_float(mDensityMultiplier, mLegacyDensityMultiplier, other->mDensityMultiplier, other->mLegacyDensityMultiplier, 0.0001f, (F32)blendf);
-            mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), (F32)blendf);
+            mHasLegacyHaze |= lerp_legacy_float(mHazeHorizon, mLegacyHazeHorizon, other->mHazeHorizon, other->mLegacyHazeHorizon, 0.19f, static_cast<F32>(blendf));
+            mHasLegacyHaze |= lerp_legacy_float(mDensityMultiplier, mLegacyDensityMultiplier, other->mDensityMultiplier, other->mLegacyDensityMultiplier, 0.0001f, static_cast<F32>(blendf));
+            mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), static_cast<F32>(blendf));
         }
         parammapping_t defaults = other->getParameterMap();
         stringset_t skip = getSkipInterpolateKeys();
@@ -1111,8 +1111,8 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
     if (legacy.has(SETTING_LEGACY_EAST_ANGLE) && legacy.has(SETTING_LEGACY_SUN_ANGLE))
     {
         // get counter-clockwise radian angle from clockwise legacy WL east angle...
-        F32 azimuth  = -(F32)legacy[SETTING_LEGACY_EAST_ANGLE].asReal();
-        F32 altitude = (F32)legacy[SETTING_LEGACY_SUN_ANGLE].asReal();
+        F32 azimuth  = -static_cast<F32>(legacy[SETTING_LEGACY_EAST_ANGLE].asReal());
+        F32 altitude = static_cast<F32>(legacy[SETTING_LEGACY_SUN_ANGLE].asReal());
 
         LLQuaternion sunquat  = convert_azimuth_and_altitude_to_quat(azimuth, altitude);
         // original WL moon dir was diametrically opposed to the sun dir
@@ -1149,11 +1149,11 @@ F32 get_float(bool &use_legacy, LLSD& settings, std::string key, F32 default_val
     if (settings.has(LLSettingsSky::SETTING_LEGACY_HAZE) && settings[LLSettingsSky::SETTING_LEGACY_HAZE].has(key))
     {
         use_legacy = true;
-        return (F32)settings[LLSettingsSky::SETTING_LEGACY_HAZE][key].asReal();
+        return static_cast<F32>(settings[LLSettingsSky::SETTING_LEGACY_HAZE][key].asReal());
     }
     if (settings.has(key))
     {
-        return (F32)settings[key].asReal();
+        return static_cast<F32>(settings[key].asReal());
     }
     use_legacy = true;
     return default_value;
@@ -1190,7 +1190,7 @@ void LLSettingsSky::loadValuesFromLLSD()
     }
     else
     {
-        mReflectionProbeAmbiance = (F32)settings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
+        mReflectionProbeAmbiance = static_cast<F32>(settings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal());
     }
 
     mHDRMax = 2.0f;
@@ -1205,33 +1205,33 @@ void LLSettingsSky::loadValuesFromLLSD()
     mRainbowTextureId = settings[SETTING_RAINBOW_TEXTUREID].asUUID();
     mBloomTextureId = settings[SETTING_BLOOM_TEXTUREID].asUUID();
 
-    mSunScale = (F32)settings[SETTING_SUN_SCALE].asReal();
+    mSunScale = static_cast<F32>(settings[SETTING_SUN_SCALE].asReal());
     mSunRotation = LLQuaternion(settings[SETTING_SUN_ROTATION]);
     mSunlightColor = LLColor3(settings[SETTING_SUNLIGHT_COLOR]);
-    mStarBrightness = (F32)settings[SETTING_STAR_BRIGHTNESS].asReal();
-    mMoonBrightness = (F32)settings[SETTING_MOON_BRIGHTNESS].asReal();
-    mMoonScale = (F32)settings[SETTING_MOON_SCALE].asReal();
+    mStarBrightness = static_cast<F32>(settings[SETTING_STAR_BRIGHTNESS].asReal());
+    mMoonBrightness = static_cast<F32>(settings[SETTING_MOON_BRIGHTNESS].asReal());
+    mMoonScale = static_cast<F32>(settings[SETTING_MOON_SCALE].asReal());
     mMoonRotation = LLQuaternion(settings[SETTING_MOON_ROTATION]);
-    mMaxY = (F32)settings[SETTING_MAX_Y].asReal();
+    mMaxY = static_cast<F32>(settings[SETTING_MAX_Y].asReal());
     mGlow = LLColor3(settings[SETTING_GLOW]);
-    mGamma = (F32)settings[SETTING_GAMMA].asReal();
-    mCloudVariance = (F32)settings[SETTING_CLOUD_VARIANCE].asReal();
-    mCloudShadow = (F32)settings[SETTING_CLOUD_SHADOW].asReal();
+    mGamma = static_cast<F32>(settings[SETTING_GAMMA].asReal());
+    mCloudVariance = static_cast<F32>(settings[SETTING_CLOUD_VARIANCE].asReal());
+    mCloudShadow = static_cast<F32>(settings[SETTING_CLOUD_SHADOW].asReal());
     mScrollRate = LLVector2(settings[SETTING_CLOUD_SCROLL_RATE]);
-    mCloudScale = (F32)settings[SETTING_CLOUD_SCALE].asReal();
+    mCloudScale = static_cast<F32>(settings[SETTING_CLOUD_SCALE].asReal());
     mCloudPosDensity1 = LLColor3(settings[SETTING_CLOUD_POS_DENSITY1]);
     mCloudPosDensity2 = LLColor3(settings[SETTING_CLOUD_POS_DENSITY2]);
     mCloudColor = LLColor3(settings[SETTING_CLOUD_COLOR]);
     mAbsorptionConfigs = settings[SETTING_ABSORPTION_CONFIG];
     mMieConfigs = settings[SETTING_MIE_CONFIG];
     mRayleighConfigs = settings[SETTING_RAYLEIGH_CONFIG];
-    mSunArcRadians = (F32)settings[SETTING_SUN_ARC_RADIANS].asReal();
-    mSkyTopRadius = (F32)settings[SETTING_SKY_TOP_RADIUS].asReal();
-    mSkyBottomRadius = (F32)settings[SETTING_SKY_BOTTOM_RADIUS].asReal();
-    mSkyMoistureLevel = (F32)settings[SETTING_SKY_MOISTURE_LEVEL].asReal();
-    mSkyDropletRadius = (F32)settings[SETTING_SKY_DROPLET_RADIUS].asReal();
-    mSkyIceLevel = (F32)settings[SETTING_SKY_ICE_LEVEL].asReal();
-    mPlanetRadius = (F32)settings[SETTING_PLANET_RADIUS].asReal();
+    mSunArcRadians = static_cast<F32>(settings[SETTING_SUN_ARC_RADIANS].asReal());
+    mSkyTopRadius = static_cast<F32>(settings[SETTING_SKY_TOP_RADIUS].asReal());
+    mSkyBottomRadius = static_cast<F32>(settings[SETTING_SKY_BOTTOM_RADIUS].asReal());
+    mSkyMoistureLevel = static_cast<F32>(settings[SETTING_SKY_MOISTURE_LEVEL].asReal());
+    mSkyDropletRadius = static_cast<F32>(settings[SETTING_SKY_DROPLET_RADIUS].asReal());
+    mSkyIceLevel = static_cast<F32>(settings[SETTING_SKY_ICE_LEVEL].asReal());
+    mPlanetRadius = static_cast<F32>(settings[SETTING_PLANET_RADIUS].asReal());
 
     // special case for legacy handling
     mHasLegacyHaze = settings.has(LLSettingsSky::SETTING_LEGACY_HAZE);
@@ -1417,11 +1417,11 @@ F32 LLSettingsSky::getFloat(const std::string& key, F32 default_value)
     LLSD& settings = getSettings();
     if (settings.has(SETTING_LEGACY_HAZE) && settings[SETTING_LEGACY_HAZE].has(key))
     {
-        return (F32)settings[SETTING_LEGACY_HAZE][key].asReal();
+        return static_cast<F32>(settings[SETTING_LEGACY_HAZE][key].asReal());
     }
     if (settings.has(key))
     {
-        return (F32)settings[key].asReal();
+        return static_cast<F32>(settings[key].asReal());
     }
     return default_value;
 }
@@ -1858,7 +1858,7 @@ F32 LLSettingsSky::getSunArcRadians() const
 
 F32 LLSettingsSky::getMieAnisotropy() const
 {
-    return (F32)getMieConfig()[SETTING_MIE_ANISOTROPY_FACTOR].asReal();
+    return static_cast<F32>(getMieConfig()[SETTING_MIE_ANISOTROPY_FACTOR].asReal());
 }
 
 LLSD LLSettingsSky::getRayleighConfig() const

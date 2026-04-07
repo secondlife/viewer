@@ -215,10 +215,10 @@ void LLProgressView::drawStartTexture(F32 alpha)
         LLGLSUIDefault gls_ui;
         gGL.getTexUnit(0)->bind(gStartTexture.get());
         gGL.color4f(1.f, 1.f, 1.f, alpha);
-        F32 image_aspect = (F32)gStartImageWidth / (F32)gStartImageHeight;
+        F32 image_aspect = static_cast<F32>(gStartImageWidth) / static_cast<F32>(gStartImageHeight);
         S32 width = getRect().getWidth();
         S32 height = getRect().getHeight();
-        F32 view_aspect = (F32)width / (F32)height;
+        F32 view_aspect = static_cast<F32>(width) / static_cast<F32>(height);
         // stretch image to maintain aspect ratio
         if (image_aspect > view_aspect)
         {
@@ -346,7 +346,7 @@ void LLProgressView::initStartTexture(S32 location_id, bool is_in_production)
     U8 image_codec = IMG_CODEC_PNG;
     std::string temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
 
-    if ((S32)START_LOCATION_ID_LAST == location_id)
+    if (static_cast<S32>(START_LOCATION_ID_LAST) == location_id)
     {
         temp_str += LLStartUp::getScreenLastFilename();
     }
@@ -491,7 +491,7 @@ bool LLProgressView::handleUpdate(const LLSD& event_data)
 
     if(percent.isDefined())
     {
-        setPercent((F32)percent.asReal());
+        setPercent(static_cast<F32>(percent.asReal()));
     }
     return false;
 }

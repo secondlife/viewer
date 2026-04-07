@@ -101,7 +101,7 @@ void LLScrollListItem::setNumColumns(S32 columns)
 
 void LLScrollListItem::setColumn( S32 column, LLScrollListCell *cell )
 {
-    if (column < (S32)mColumns.size())
+    if (column < static_cast<S32>(mColumns.size()))
     {
         delete mColumns[column];
         mColumns[column] = cell;
@@ -120,7 +120,7 @@ S32 LLScrollListItem::getNumColumns() const
 
 LLScrollListCell* LLScrollListItem::getColumn(const S32 i) const
 {
-    if (0 <= i && i < (S32)mColumns.size())
+    if (0 <= i && i < static_cast<S32>(mColumns.size()))
     {
         return mColumns[i];
     }
@@ -173,7 +173,7 @@ void LLScrollListItem::draw(const LLRect& rect, const LLColor4& fg_color, const 
 
         LLUI::pushMatrix();
         {
-            LLUI::translate((F32) cur_x, (F32) rect.mBottom);
+            LLUI::translate(static_cast<F32>(cur_x), static_cast<F32>(rect.mBottom));
 
             if (mSelectedIndex == cur_col)
             {

@@ -87,7 +87,7 @@ public:
     ~LLDriverParam();
 
     // Special: These functions are overridden by child classes
-    LLDriverParamInfo* getInfo() const { return (LLDriverParamInfo*)mInfo; }
+    LLDriverParamInfo* getInfo() const { return static_cast<LLDriverParamInfo*>(mInfo); }
     //   This sets mInfo and calls initialization functions
     bool                    setInfo(LLDriverParamInfo* info);
 

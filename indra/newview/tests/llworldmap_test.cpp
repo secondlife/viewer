@@ -386,7 +386,7 @@ namespace tut
         }
         // Test 7 : getObjectsTile()
         try {
-            LLPointer<LLViewerFetchedTexture> image = mWorld->getObjectsTile((U32)(X_WORLD_TEST/REGION_WIDTH_METERS), (U32)(Y_WORLD_TEST/REGION_WIDTH_METERS), 1);
+            LLPointer<LLViewerFetchedTexture> image = mWorld->getObjectsTile(static_cast<U32>((X_WORLD_TEST/REGION_WIDTH_METERS)), static_cast<U32>((Y_WORLD_TEST/REGION_WIDTH_METERS)), 1);
             ensure("LLWorldMap::getObjectsTile() failed", image.isNull());
         } catch (...) {
             fail("LLWorldMap::getObjectsTile() test failed with exception");

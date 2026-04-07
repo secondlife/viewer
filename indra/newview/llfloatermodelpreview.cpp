@@ -334,8 +334,8 @@ void LLFloaterModelPreview::initModelPreview()
     S32 tex_width = 512;
     S32 tex_height = 512;
 
-    S32 max_width = llmin(PREVIEW_RENDER_SIZE, (S32)gPipeline.mRT->width);
-    S32 max_height = llmin(PREVIEW_RENDER_SIZE, (S32)gPipeline.mRT->height);
+    S32 max_width = llmin(PREVIEW_RENDER_SIZE, static_cast<S32>(gPipeline.mRT->width));
+    S32 max_height = llmin(PREVIEW_RENDER_SIZE, static_cast<S32>(gPipeline.mRT->height));
 
     while ((tex_width << 1) < max_width)
     {
@@ -896,20 +896,20 @@ bool LLFloaterModelPreview::handleHover (S32 x, S32 y, MASK mask)
         if (local_mask == MASK_PAN)
         {
             // pan here
-            mModelPreview->pan((F32)(x - mLastMouseX) * -0.005f, (F32)(y - mLastMouseY) * -0.005f);
+            mModelPreview->pan(static_cast<F32>(x - mLastMouseX) * -0.005f, static_cast<F32>(y - mLastMouseY) * -0.005f);
         }
         else if (local_mask == MASK_ORBIT)
         {
-            F32 yaw_radians = (F32)(x - mLastMouseX) * -0.01f;
-            F32 pitch_radians = (F32)(y - mLastMouseY) * 0.02f;
+            F32 yaw_radians = static_cast<F32>(x - mLastMouseX) * -0.01f;
+            F32 pitch_radians = static_cast<F32>(y - mLastMouseY) * 0.02f;
 
             mModelPreview->rotate(yaw_radians, pitch_radians);
         }
         else
         {
 
-            F32 yaw_radians = (F32)(x - mLastMouseX) * -0.01f;
-            F32 zoom_amt = (F32)(y - mLastMouseY) * 0.02f;
+            F32 yaw_radians = static_cast<F32>(x - mLastMouseX) * -0.01f;
+            F32 zoom_amt = static_cast<F32>(y - mLastMouseY) * 0.02f;
 
             mModelPreview->rotate(yaw_radians, 0.f);
             mModelPreview->zoom(zoom_amt);
@@ -948,7 +948,7 @@ bool LLFloaterModelPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     if (mPreviewRect.pointInRect(x, y) && mModelPreview)
     {
-        mModelPreview->zoom((F32)clicks * -0.2f);
+        mModelPreview->zoom(static_cast<F32>(clicks) * -0.2f);
         mModelPreview->refresh();
     }
     else
@@ -1170,7 +1170,7 @@ void LLFloaterModelPreview::initDecompControls()
         LLButton* button = getChild<LLButton>(stage[j].mName);
         if (button)
         {
-            button->setCommitCallback(onPhysicsStageExecute, (void*) &stage[j]);
+            button->setCommitCallback(onPhysicsStageExecute, const_cast<void*>(static_cast<const void*>(&stage[j])));
         }
 
         gMeshRepo.mDecompThread->mStageID[stage[j].mName] = j;
@@ -1207,18 +1207,18 @@ void LLFloaterModelPreview::initDecompControls()
                     slider->setMaxValue(param[i].mDetails.mRange.mHigh.mFloat);
                     slider->setIncrement(param[i].mDetails.mRange.mDelta.mFloat);
                     slider->setValue(param[i].mDefault.mFloat);
-                    slider->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+                    slider->setCommitCallback(onPhysicsParamCommit, const_cast<void*>(static_cast<const void*>(&param[i])));
                 }
                 else if (LLSpinCtrl* spinner = dynamic_cast<LLSpinCtrl*>(ctrl))
                 {
                     bool is_retain_ctrl = "Retain%" == name;
-                    float coefficient = is_retain_ctrl ? (F32)RETAIN_COEFFICIENT : 1.f;
+                    float coefficient = is_retain_ctrl ? static_cast<F32>(RETAIN_COEFFICIENT) : 1.f;
 
                     spinner->setMinValue(param[i].mDetails.mRange.mLow.mFloat * coefficient);
                     spinner->setMaxValue(param[i].mDetails.mRange.mHigh.mFloat * coefficient);
                     spinner->setIncrement(param[i].mDetails.mRange.mDelta.mFloat * coefficient);
                     spinner->setValue(param[i].mDefault.mFloat * coefficient);
-                    spinner->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+                    spinner->setCommitCallback(onPhysicsParamCommit, const_cast<void*>(static_cast<const void*>(&param[i])));
                 }
                 else if (LLComboBox* combo_box = dynamic_cast<LLComboBox*>(ctrl))
                 {
@@ -1240,7 +1240,7 @@ void LLFloaterModelPreview::initDecompControls()
                         }
                     }
                     combo_box->setValue(is_smooth_cb ? 0: param[i].mDefault.mFloat);
-                    combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+                    combo_box->setCommitCallback(onPhysicsParamCommit, const_cast<void*>(static_cast<const void*>(&param[i])));
                 }
             }
             else if (param[i].mType == LLCDParam::LLCD_INTEGER)
@@ -1252,11 +1252,11 @@ void LLFloaterModelPreview::initDecompControls()
                 LLUICtrl* ctrl = getChild<LLUICtrl>(name);
                 if (LLSliderCtrl* slider = dynamic_cast<LLSliderCtrl*>(ctrl))
                 {
-                    slider->setMinValue((F32)param[i].mDetails.mRange.mLow.mIntOrEnumValue);
-                    slider->setMaxValue((F32)param[i].mDetails.mRange.mHigh.mIntOrEnumValue);
-                    slider->setIncrement((F32)param[i].mDetails.mRange.mDelta.mIntOrEnumValue);
-                    slider->setValue((F32)param[i].mDefault.mIntOrEnumValue);
-                    slider->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+                    slider->setMinValue(static_cast<F32>(param[i].mDetails.mRange.mLow.mIntOrEnumValue));
+                    slider->setMaxValue(static_cast<F32>(param[i].mDetails.mRange.mHigh.mIntOrEnumValue));
+                    slider->setIncrement(static_cast<F32>(param[i].mDetails.mRange.mDelta.mIntOrEnumValue));
+                    slider->setValue(static_cast<F32>(param[i].mDefault.mIntOrEnumValue));
+                    slider->setCommitCallback(onPhysicsParamCommit, const_cast<void*>(static_cast<const void*>(&param[i])));
                 }
                 else if (LLComboBox* combo_box = dynamic_cast<LLComboBox*>(ctrl))
                 {
@@ -1266,7 +1266,7 @@ void LLFloaterModelPreview::initDecompControls()
                         combo_box->add(name, k, EAddPosition::ADD_BOTTOM, true);
                     }
                     combo_box->setValue(param[i].mDefault.mIntOrEnumValue);
-                    combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+                    combo_box->setCommitCallback(onPhysicsParamCommit, const_cast<void*>(static_cast<const void*>(&param[i])));
                 }
             }
             else if (param[i].mType == LLCDParam::LLCD_BOOLEAN)
@@ -1278,7 +1278,7 @@ void LLFloaterModelPreview::initDecompControls()
                 if (check_box)
                 {
                     check_box->setValue(param[i].mDefault.mBool);
-                    check_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+                    check_box->setCommitCallback(onPhysicsParamCommit, const_cast<void*>(static_cast<const void*>(&param[i])));
                 }
             }
             else if (param[i].mType == LLCDParam::LLCD_ENUM)
@@ -1303,7 +1303,7 @@ void LLFloaterModelPreview::initDecompControls()
                             LLSD::Integer(param[i].mDetails.mEnumValues.mEnumsArray[k].mValue));
                     }
                     combo_box->setValue(param[i].mDefault.mIntOrEnumValue);
-                    combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
+                    combo_box->setCommitCallback(onPhysicsParamCommit, const_cast<void*>(static_cast<const void*>(&param[i])));
                 }
 
                 //LL_INFOS() << "----" << LL_ENDL;

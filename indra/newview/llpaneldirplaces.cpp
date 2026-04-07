@@ -174,7 +174,7 @@ void LLPanelDirPlaces::queryCore(const std::string& name, S32 category, U32 flag
     msg->addUUID("QueryID", getSearchID());
     msg->addString("QueryText", name);
     msg->addU32("QueryFlags", flags);
-    msg->addS8("Category", (S8)category);
+    msg->addS8("Category", static_cast<S8>(category));
     // No longer support queries by region name, too many regions
     // for combobox, no easy way to do autocomplete. JC
     msg->addString("SimName", "");

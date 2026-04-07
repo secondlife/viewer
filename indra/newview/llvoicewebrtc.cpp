@@ -107,7 +107,7 @@ namespace {
 
     // Cosine of a "trivially" small angle
     const F32 FOUR_DEGREES = 4.0f * (F_PI / 180.0f);
-    const F32 MINUSCULE_ANGLE_COS = (F32) cos(0.5f * FOUR_DEGREES);
+    const F32 MINUSCULE_ANGLE_COS = static_cast<F32>(cos(0.5f * FOUR_DEGREES));
 
 }  // namespace
 
@@ -389,7 +389,7 @@ void LLWebRTCVoiceClient::updateSettings()
             "VoiceNoiseSuppressionLevel",
             llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel::NOISE_SUPPRESSION_LEVEL_VERY_HIGH);
         auto noiseSuppressionLevel =
-            (llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel)(U32)sNoiseSuppressionLevel;
+            (llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel)static_cast<U32>(sNoiseSuppressionLevel);
         if (noiseSuppressionLevel != config.mNoiseSuppressionLevel)
         {
             config.mNoiseSuppressionLevel = noiseSuppressionLevel;
@@ -843,7 +843,7 @@ void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
 
     if (volume != mTuningSpeakerVolume)
     {
-        mTuningSpeakerVolume = (int)volume;
+        mTuningSpeakerVolume = static_cast<int>(volume);
     }
 }
 
@@ -1123,7 +1123,7 @@ void LLWebRTCVoiceClient::enforceTether()
     // constrain 'tethered' to within 50m of mAvatarPosition.
     {
         LLVector3d camera_offset   = mListenerRequestedPosition - mAvatarPosition;
-        F32        camera_distance = (F32) camera_offset.length();
+        F32        camera_distance = static_cast<F32>(camera_offset.length());
         if (camera_distance > MAX_AUDIO_DIST)
         {
             tethered = mAvatarPosition + (MAX_AUDIO_DIST / camera_distance) * camera_offset;
@@ -1155,28 +1155,28 @@ void LLWebRTCVoiceClient::sendPositionUpdate(bool force)
         boost::json::object spatial;
 
         spatial["sp"] = {
-            {"x", (int) (mAvatarPosition[0] * 100)},
-            {"y", (int) (mAvatarPosition[1] * 100)},
-            {"z", (int) (mAvatarPosition[2] * 100)}
+            {"x", static_cast<int>(mAvatarPosition[0] * 100)},
+            {"y", static_cast<int>(mAvatarPosition[1] * 100)},
+            {"z", static_cast<int>(mAvatarPosition[2] * 100)}
         };
         spatial["sh"]  = {
-            {"x", (int) (mAvatarRot[0] * 100)},
-            {"y", (int) (mAvatarRot[1] * 100)},
-            {"z", (int) (mAvatarRot[2] * 100)},
-            {"w", (int) (mAvatarRot[3] * 100)}
+            {"x", static_cast<int>(mAvatarRot[0] * 100)},
+            {"y", static_cast<int>(mAvatarRot[1] * 100)},
+            {"z", static_cast<int>(mAvatarRot[2] * 100)},
+            {"w", static_cast<int>(mAvatarRot[3] * 100)}
         };
 
         spatial["lp"] = {
-            {"x", (int) (mListenerPosition[0] * 100)},
-            {"y", (int) (mListenerPosition[1] * 100)},
-            {"z", (int) (mListenerPosition[2] * 100)}
+            {"x", static_cast<int>(mListenerPosition[0] * 100)},
+            {"y", static_cast<int>(mListenerPosition[1] * 100)},
+            {"z", static_cast<int>(mListenerPosition[2] * 100)}
         };
 
         spatial["lh"] = {
-            {"x", (int) (mListenerRot[0] * 100)},
-            {"y", (int) (mListenerRot[1] * 100)},
-            {"z", (int) (mListenerRot[2] * 100)},
-            {"w", (int) (mListenerRot[3] * 100)}};
+            {"x", static_cast<int>(mListenerRot[0] * 100)},
+            {"y", static_cast<int>(mListenerRot[1] * 100)},
+            {"z", static_cast<int>(mListenerRot[2] * 100)},
+            {"w", static_cast<int>(mListenerRot[3] * 100)}};
 
         mSpatialCoordsDirty = false;
         spatial_data = boost::json::serialize(spatial);
@@ -2324,7 +2324,7 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
 
     // retries wait a short period...randomize it so
     // all clients don't try to reconnect at once.
-    mRetryWaitSecs = (F32)((F32) rand() / (RAND_MAX)) + 0.5f;
+    mRetryWaitSecs = static_cast<F32>(static_cast<F32>(rand()) / (RAND_MAX)) + 0.5f;
 
     mWebRTCPeerConnectionInterface = llwebrtc::newPeerConnection();
     mWebRTCPeerConnectionInterface->setSignalingObserver(this);
@@ -2934,7 +2934,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         case VOICE_STATE_SESSION_UP:
         {
             mRetryWaitPeriod = 0;
-            mRetryWaitSecs = (F32)((F32)rand() / (RAND_MAX)) + 0.5f;
+            mRetryWaitSecs = static_cast<F32>(static_cast<F32>(rand()) / (RAND_MAX)) + 0.5f;
 
             // we'll stay here as long as the session remains up.
             if (mShutDown)
@@ -2972,7 +2972,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                 {
                     // back off the retry period, and do it by a small random
                     // bit so all clients don't reconnect at once.
-                    mRetryWaitSecs += (F32)((F32) rand() / (RAND_MAX)) + 0.5f;
+                    mRetryWaitSecs += static_cast<F32>(static_cast<F32>(rand()) / (RAND_MAX)) + 0.5f;
                     mRetryWaitPeriod = 0;
                 }
             }
@@ -3162,7 +3162,7 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                     {
                         // server sends up power as an integer which is level * 128 to save
                         // character count.
-                        participant->mLevel = (F32)participant_obj["p"].as_int64()/128.0f;
+                        participant->mLevel = static_cast<F32>(participant_obj["p"].as_int64())/128.0f;
                     }
 
                     if (participant_obj.contains("v") && participant_obj["v"].is_bool())

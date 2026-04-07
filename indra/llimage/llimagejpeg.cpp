@@ -179,8 +179,8 @@ void LLImageJPEG::decodeSkipInputData (j_decompress_ptr cinfo, long num_bytes)
     jpeg_source_mgr* src = cinfo->src;
 //  LLImageJPEG* self = (LLImageJPEG*) cinfo->client_data;
 
-    src->next_input_byte += (size_t) num_bytes;
-    src->bytes_in_buffer -= (size_t) num_bytes;
+    src->next_input_byte += static_cast<size_t>(num_bytes);
+    src->bytes_in_buffer -= static_cast<size_t>(num_bytes);
 }
 
 void LLImageJPEG::decodeTermSource (j_decompress_ptr cinfo)
@@ -356,7 +356,7 @@ bool LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 // static
 void LLImageJPEG::encodeInitDestination ( j_compress_ptr cinfo )
 {
-  const LLImageJPEG* self = (const LLImageJPEG*) cinfo->client_data;
+  const LLImageJPEG* self = static_cast<const LLImageJPEG*>(cinfo->client_data);
 
   cinfo->dest->next_output_byte = self->mOutputBuffer;
   cinfo->dest->free_in_buffer = self->mOutputBufferSize;
@@ -386,7 +386,7 @@ void LLImageJPEG::encodeInitDestination ( j_compress_ptr cinfo )
 
 boolean LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )
 {
-  LLImageJPEG* self = (LLImageJPEG*) cinfo->client_data;
+  LLImageJPEG* self = static_cast<LLImageJPEG*>(cinfo->client_data);
 
   // Should very rarely happen, since our output buffer is
   // as large as the input to start out with.
@@ -418,11 +418,11 @@ boolean LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )
 //  for error exit.
 void LLImageJPEG::encodeTermDestination( j_compress_ptr cinfo )
 {
-    LLImageJPEG* self = (LLImageJPEG*) cinfo->client_data;
+    LLImageJPEG* self = static_cast<LLImageJPEG*>(cinfo->client_data);
 
     LLImageDataLock lock(self);
 
-    S32 file_bytes = (S32)(self->mOutputBufferSize - cinfo->dest->free_in_buffer);
+    S32 file_bytes = static_cast<S32>(self->mOutputBufferSize - cinfo->dest->free_in_buffer);
     self->allocateData(file_bytes);
 
     memcpy( self->getData(), self->mOutputBuffer, file_bytes ); /* Flawfinder: ignore */

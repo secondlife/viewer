@@ -120,7 +120,7 @@ std::string LLAudioEngine_OpenAL::getDriverName(bool verbose)
 // virtual
 void LLAudioEngine_OpenAL::allocateListener()
 {
-    mListenerp = (LLListener *) new LLListener_OpenAL();
+    mListenerp = static_cast<LLListener *>(new LLListener_OpenAL());
     if(!mListenerp)
     {
         LL_WARNS() << "LLAudioEngine_OpenAL::allocateListener() Listener creation failed" << LL_ENDL;
@@ -213,7 +213,7 @@ void LLAudioChannelOpenAL::playSynced(LLAudioChannel *channelp)
     if (channelp)
     {
         LLAudioChannelOpenAL *masterchannelp =
-            (LLAudioChannelOpenAL*)channelp;
+            static_cast<LLAudioChannelOpenAL*>(channelp);
         if (mALSource != AL_NONE &&
             masterchannelp->mALSource != AL_NONE)
         {
@@ -259,7 +259,7 @@ bool LLAudioChannelOpenAL::updateBuffer()
     {
         // Base class update returned true, which means that we need to actually
         // set up the source for a different buffer.
-        LLAudioBufferOpenAL *bufferp = (LLAudioBufferOpenAL *)mCurrentSourcep->getCurrentBuffer();
+        LLAudioBufferOpenAL *bufferp = static_cast<LLAudioBufferOpenAL *>(mCurrentSourcep->getCurrentBuffer());
         ALuint buffer = bufferp->getBuffer();
         alSourcei(mALSource, AL_BUFFER, buffer);
         mLastSamplePos = 0;
@@ -472,9 +472,9 @@ void LLAudioEngine_OpenAL::updateWind(LLVector3 wind_vec, F32 camera_altitude)
         pitch = 1.0 + mapWindVecToPitch(wind_vec);
         center_freq = 80.0 * pow(pitch,2.5*(mapWindVecToGain(wind_vec)+1.0));
 
-        mWindGen->mTargetFreq = (F32)center_freq;
-        mWindGen->mTargetGain = (F32)mapWindVecToGain(wind_vec) * mMaxWindGain;
-        mWindGen->mTargetPanGainR = (F32)mapWindVecToPan(wind_vec);
+        mWindGen->mTargetFreq = static_cast<F32>(center_freq);
+        mWindGen->mTargetGain = static_cast<F32>(mapWindVecToGain(wind_vec)) * mMaxWindGain;
+        mWindGen->mTargetPanGainR = static_cast<F32>(mapWindVecToPan(wind_vec));
 
         alSourcei(mWindSource, AL_LOOPING, AL_FALSE);
         alSource3f(mWindSource, AL_POSITION, 0.0, 0.0, 0.0);

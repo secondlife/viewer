@@ -221,12 +221,12 @@ inline const LLColor4U& LLColor4U::setAlpha(U8 a)
 
 inline F32 LLColor4U::length() const
 {
-    return sqrt(((F32)mV[VRED]) * mV[VRED] + ((F32)mV[VGREEN]) * mV[VGREEN] + ((F32)mV[VBLUE]) * mV[VBLUE]);
+    return sqrt(static_cast<F32>(mV[VRED]) * mV[VRED] + static_cast<F32>(mV[VGREEN]) * mV[VGREEN] + static_cast<F32>(mV[VBLUE]) * mV[VBLUE]);
 }
 
 inline F32 LLColor4U::lengthSquared() const
 {
-    return ((F32)mV[VRED]) * mV[VRED] + ((F32)mV[VGREEN]) * mV[VGREEN] + ((F32)mV[VBLUE]) * mV[VBLUE];
+    return static_cast<F32>(mV[VRED]) * mV[VRED] + static_cast<F32>(mV[VGREEN]) * mV[VGREEN] + static_cast<F32>(mV[VBLUE]) * mV[VBLUE];
 }
 
 inline LLColor4U operator+(const LLColor4U& a, const LLColor4U& b)
@@ -246,16 +246,16 @@ inline LLColor4U operator*(const LLColor4U& a, const LLColor4U& b)
 
 inline LLColor4U LLColor4U::addClampMax(const LLColor4U& color)
 {
-    return LLColor4U(llmin((S32)mV[VRED] + color.mV[VRED], 255),
-                     llmin((S32)mV[VGREEN] + color.mV[VGREEN], 255),
-                     llmin((S32)mV[VBLUE] + color.mV[VBLUE], 255),
-                     llmin((S32)mV[VALPHA] + color.mV[VALPHA], 255));
+    return LLColor4U(llmin(static_cast<S32>(mV[VRED]) + color.mV[VRED], 255),
+                     llmin(static_cast<S32>(mV[VGREEN]) + color.mV[VGREEN], 255),
+                     llmin(static_cast<S32>(mV[VBLUE]) + color.mV[VBLUE], 255),
+                     llmin(static_cast<S32>(mV[VALPHA]) + color.mV[VALPHA], 255));
 }
 
 inline LLColor4U LLColor4U::multAll(const F32 k)
 {
     // Round to nearest
-    return LLColor4U((U8)ll_round(mV[VRED] * k), (U8)ll_round(mV[VGREEN] * k), (U8)ll_round(mV[VBLUE] * k), (U8)ll_round(mV[VALPHA] * k));
+    return LLColor4U(static_cast<U8>(ll_round(mV[VRED] * k)), static_cast<U8>(ll_round(mV[VGREEN] * k)), static_cast<U8>(ll_round(mV[VBLUE] * k)), static_cast<U8>(ll_round(mV[VALPHA] * k)));
 }
 
 inline bool operator==(const LLColor4U& a, const LLColor4U& b)

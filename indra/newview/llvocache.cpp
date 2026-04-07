@@ -208,7 +208,7 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 
     mDP.assignBuffer(mBuffer, 0);
 
-    success = check_read(apr_file, (void *)data_buffer, ENTRY_HEADER_SIZE);
+    success = check_read(apr_file, static_cast<void*>(data_buffer), ENTRY_HEADER_SIZE);
     if (success)
     {
         memcpy(&mLocalID, data_buffer, sizeof(U32));
@@ -445,7 +445,7 @@ S32 LLVOCacheEntry::writeToBuffer(U8 *data_buffer) const
     memcpy(data_buffer + (3 * sizeof(U32)), &mDupeCount, sizeof(S32));
     memcpy(data_buffer + (4 * sizeof(U32)), &mCRCChangeCount, sizeof(S32));
     memcpy(data_buffer + (5 * sizeof(U32)), &size, sizeof(S32));
-    memcpy(data_buffer + ENTRY_HEADER_SIZE, (void*)mBuffer, size);
+    memcpy(data_buffer + ENTRY_HEADER_SIZE, static_cast<void*>(mBuffer), size);
 
     return ENTRY_HEADER_SIZE + size;
 }
@@ -478,8 +478,8 @@ void LLVOCacheEntry::updateDebugSettings()
     LLMemory::updateMemoryInfo() ;
     U32 allocated_mem = LLMemory::getAllocatedMemKB().value();
     static constexpr F32 KB_to_MB = 1.f / 1024.f;
-    U32 clamped_memory = (U32)llclamp(allocated_mem * KB_to_MB, (F32) low_mem_bound_MB, (F32) high_mem_bound_MB);
-    const F32 adjust_range = (F32)(high_mem_bound_MB - low_mem_bound_MB);
+    U32 clamped_memory = static_cast<U32>(llclamp(allocated_mem * KB_to_MB, static_cast<F32>(low_mem_bound_MB), static_cast<F32>(high_mem_bound_MB)));
+    const F32 adjust_range = static_cast<F32>(high_mem_bound_MB - low_mem_bound_MB);
     const F32 adjust_factor = (high_mem_bound_MB - clamped_memory) / adjust_range; // [0, 1]
 
     //min radius: all objects within this radius remain loaded in memory
@@ -493,7 +493,7 @@ void LLVOCacheEntry::updateDebugSettings()
         // For safety cap reduction at 50%, we don't want to go below half of draw distance
         draw_radius = llmax(draw_radius / LLViewerTexture::getSystemMemoryBudgetFactor(), draw_radius / 2.f);
     }
-    const F32 clamped_min_radius = llclamp((F32) min_radius, MIN_RADIUS, draw_radius); // [1, mDrawDistance]
+    const F32 clamped_min_radius = llclamp(static_cast<F32>(min_radius), MIN_RADIUS, draw_radius); // [1, mDrawDistance]
     sNearRadius = MIN_RADIUS + ((clamped_min_radius - MIN_RADIUS) * adjust_factor);
 
     // a percentage of draw distance beyond which all objects outside of view frustum will be unloaded, regardless of pixel threshold
@@ -507,8 +507,8 @@ void LLVOCacheEntry::updateDebugSettings()
     static LLCachedControl<U32> inv_obj_time(gSavedSettings,"NonvisibleObjectsInMemoryTime");
     static constexpr U32 MIN_FRAMES = 10;
     static constexpr U32 MAX_FRAMES = 64;
-    const U32 clamped_frames = inv_obj_time ? llclamp((U32) inv_obj_time, MIN_FRAMES, MAX_FRAMES) : MAX_FRAMES; // [10, 64], with zero => 64
-    sMinFrameRange = MIN_FRAMES + (U32)((clamped_frames - MIN_FRAMES) * adjust_factor);
+    const U32 clamped_frames = inv_obj_time ? llclamp(static_cast<U32>(inv_obj_time), MIN_FRAMES, MAX_FRAMES) : MAX_FRAMES; // [10, 64], with zero => 64
+    sMinFrameRange = MIN_FRAMES + static_cast<U32>((clamped_frames - MIN_FRAMES) * adjust_factor);
 }
 #endif // LL_TEST
 
@@ -664,7 +664,7 @@ LLVOCacheGroup::~LLVOCacheGroup()
 {
     if(mOcclusionState[LLViewerCamera::CAMERA_WORLD] & ACTIVE_OCCLUSION)
     {
-        ((LLVOCachePartition*)mSpatialPartition)->removeOccluder(this);
+        static_cast<LLVOCachePartition*>(mSpatialPartition)->removeOccluder(this);
     }
 }
 
@@ -682,7 +682,7 @@ void LLVOCacheGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 
     unbound();
 
-    ((LLViewerOctreeGroup*)child->getListener(0))->unbound();
+    static_cast<LLViewerOctreeGroup*>(child->getListener(0))->unbound();
 }
 
 LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
@@ -918,7 +918,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 pixel_threshold
     if(mBackSlectionEnabled < 0)
     {
         mBackSlectionEnabled = LLVOCacheEntry::sMinFrameRange - 1;
-        mBackSlectionEnabled = llmax(mBackSlectionEnabled, (S32)1);
+        mBackSlectionEnabled = llmax(mBackSlectionEnabled, static_cast<S32>(1));
     }
 
     if(!mBackSlectionEnabled)
@@ -955,7 +955,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
         return 0;
     }
 
-    ((LLViewerOctreeGroup*)mOctree->getListener(0))->rebound();
+    static_cast<LLViewerOctreeGroup*>(mOctree->getListener(0))->rebound();
 
     if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
     {
@@ -970,7 +970,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 
     if(!mCullHistory && LLViewerRegion::isViewerCameraStatic())
     {
-        U32 seed = llmax(mLODPeriod >> 1, (U32)4);
+        U32 seed = llmax(mLODPeriod >> 1, static_cast<U32>(4));
         if(LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
         {
             if(!(LLViewerOctreeEntryData::getCurrentFrame() % seed))
@@ -1018,7 +1018,7 @@ void LLVOCachePartition::setCullHistory(bool has_new_object)
 
 void LLVOCachePartition::addOccluders(LLViewerOctreeGroup* gp)
 {
-    LLVOCacheGroup* group = (LLVOCacheGroup*)gp;
+    LLVOCacheGroup* group = static_cast<LLVOCacheGroup*>(gp);
 
     if(!group->isOcclusionState(LLOcclusionCullingGroup::ACTIVE_OCCLUSION))
     {
@@ -1432,7 +1432,7 @@ void LLVOCache::writeCacheHeader()
         for(header_entry_queue_t::iterator iter = mHeaderEntryQueue.begin() ; success && iter != mHeaderEntryQueue.end(); ++iter)
         {
             (*iter)->mIndex = mNumEntries++ ;
-            success = check_write(&apr_file, (void*)*iter, sizeof(HeaderEntryInfo));
+            success = check_write(&apr_file, reinterpret_cast<void*>(*iter), sizeof(HeaderEntryInfo));
         }
 
         mNumEntries = static_cast<U32>(mHeaderEntryQueue.size());
@@ -1463,7 +1463,7 @@ bool LLVOCache::updateEntry(const HeaderEntryInfo* entry)
     LLAPRFile apr_file(mHeaderFileName, APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
     apr_file.seek(APR_SET, entry->mIndex * sizeof(HeaderEntryInfo) + sizeof(HeaderMetaInfo)) ;
 
-    return check_write(&apr_file, (void*)entry, sizeof(HeaderEntryInfo)) ;
+    return check_write(&apr_file, const_cast<void*>(static_cast<const void*>(entry)), sizeof(HeaderEntryInfo)) ;
 }
 
 // we now return bool to trigger dirty cache
@@ -1710,7 +1710,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 
         entry = new HeaderEntryInfo();
         entry->mHandle = handle ;
-        entry->mTime = (U32)time(NULL) ;
+        entry->mTime = static_cast<U32>(time(NULL)) ;
         entry->mIndex = mNumEntries++;
         mHeaderEntryQueue.insert(entry) ;
         mHandleEntryMap[handle] = entry ;
@@ -1723,7 +1723,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
         //resort
         mHeaderEntryQueue.erase(entry) ;
 
-        entry->mTime = (U32)time(NULL) ;
+        entry->mTime = static_cast<U32>(time(NULL)) ;
         mHeaderEntryQueue.insert(entry) ;
     }
 
@@ -1747,7 +1747,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
         getObjectCacheFilename(handle, filename);
         LLAPRFile apr_file(filename, APR_CREATE|APR_WRITE|APR_BINARY|APR_TRUNCATE, mLocalAPRFilePoolp);
 
-        success = check_write(&apr_file, (void*)id.mData, UUID_BYTES);
+        success = check_write(&apr_file, const_cast<void*>(static_cast<const void*>(id.mData)), UUID_BYTES);
 
         if(success)
         {
@@ -1780,7 +1780,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
                         // Make sure we have space in buffer for next element
                         if (buffer_size - size_in_buffer < MAX_ENTRY_BODY_SIZE + ENTRY_HEADER_SIZE)
                         {
-                            success = check_write(&apr_file, (void*)data_buffer, size_in_buffer);
+                            success = check_write(&apr_file, static_cast<void*>(data_buffer), size_in_buffer);
                             size_in_buffer = 0;
                             if (!success)
                             {
@@ -1794,7 +1794,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
                 if (success && size_in_buffer > 0)
                 {
                     // final write
-                    success = check_write(&apr_file, (void*)data_buffer, size_in_buffer);
+                    success = check_write(&apr_file, static_cast<void*>(data_buffer), size_in_buffer);
                     if(!success)
                     {
                         LL_WARNS() << "Failed to write cache entry to disk " << filename << LL_ENDL;
@@ -1903,7 +1903,7 @@ void LLVOCache::writeGenericExtrasToCache(U64 handle, const LLUUID& id, const LL
           )
         {
             LLSD entry_llsd = entry.toLLSD();
-            entry_llsd["local_id"] = (S32)local_id;
+            entry_llsd["local_id"] = static_cast<S32>(local_id);
             LLSDSerialize::serialize(entry_llsd, out, LLSDSerialize::LLSD_XML);
             out << '\n';
             if(!out.good())

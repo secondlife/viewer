@@ -289,7 +289,7 @@ void LLHUDEffectLookAt::packData(LLMessageSystem *mesgsys)
 
     htolememcpy(&(packed_data[TARGET_POS]), mTargetOffsetGlobal.mdV, MVT_LLVector3d, 24);
 
-    U8 lookAtTypePacked = (U8)mTargetType;
+    U8 lookAtTypePacked = static_cast<U8>(mTargetType);
 
     htolememcpy(&(packed_data[LOOKAT_TYPE]), &lookAtTypePacked, MVT_U8, 1);
 
@@ -359,7 +359,7 @@ void LLHUDEffectLookAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 
     U8 lookAtTypeUnpacked = 0;
     htolememcpy(&lookAtTypeUnpacked, &(packed_data[LOOKAT_TYPE]), MVT_U8, 1);
-    mTargetType = (ELookAtType)lookAtTypeUnpacked;
+    mTargetType = static_cast<ELookAtType>(lookAtTypeUnpacked);
 
     if (mTargetType == LOOKAT_TARGET_NONE)
     {
@@ -496,7 +496,7 @@ void LLHUDEffectLookAt::clearLookAtTarget()
     mTargetType = LOOKAT_TARGET_NONE;
     if (mSourceObject.notNull())
     {
-        ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->stopMotion(ANIM_AGENT_HEAD_ROT);
+        (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->stopMotion(ANIM_AGENT_HEAD_ROT);
     }
 }
 
@@ -507,7 +507,7 @@ void LLHUDEffectLookAt::markDead()
 {
     if (mSourceObject.notNull())
     {
-        ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->removeAnimationData("LookAtPoint");
+        (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->removeAnimationData("LookAtPoint");
     }
 
     mSourceObject = NULL;
@@ -535,7 +535,7 @@ void LLHUDEffectLookAt::render()
 
         //LLGLDisable gls_stencil(GL_STENCIL_TEST);
 
-        LLVector3 target = mTargetPos + ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->mHeadp->getWorldPosition();
+        LLVector3 target = mTargetPos + (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->mHeadp->getWorldPosition();
         gGL.matrixMode(LLRender::MM_MODELVIEW);
         gGL.pushMatrix();
         gGL.translatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
@@ -576,7 +576,7 @@ void LLHUDEffectLookAt::update()
     }
 
     // make sure the proper set of avatar attention are currently being used.
-    LLVOAvatar* source_avatar = (LLVOAvatar*)(LLViewerObject*)mSourceObject;
+    LLVOAvatar* source_avatar = static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject));
     // for now the first cut will just switch on sex. future development could adjust
     // timeouts according to avatar age and/or other features.
     mAttentions = (source_avatar->getSex() == SEX_MALE) ? &gBoyAttentions : &gGirlAttentions;
@@ -600,24 +600,24 @@ void LLHUDEffectLookAt::update()
         if (calcTargetPosition())
         {
             static LLCachedControl<bool> disable_look_at(gSavedSettings, "DisableLookAtAnimation", true);
-            LLMotion* head_motion = ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->findMotion(ANIM_AGENT_HEAD_ROT);
+            LLMotion* head_motion = (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->findMotion(ANIM_AGENT_HEAD_ROT);
             if (disable_look_at())
             {
                 if (head_motion)
                 {
-                    ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->stopMotion(ANIM_AGENT_HEAD_ROT);
+                    (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->stopMotion(ANIM_AGENT_HEAD_ROT);
                 }
             }
             else if (!head_motion || head_motion->isStopped())
             {
-                ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->startMotion(ANIM_AGENT_HEAD_ROT);
+                (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->startMotion(ANIM_AGENT_HEAD_ROT);
             }
         }
     }
 
     if (sDebugLookAt)
     {
-        ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->addDebugText((*mAttentions)[mTargetType].mName);
+        (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->addDebugText((*mAttentions)[mTargetType].mName);
     }
 }
 
@@ -633,7 +633,7 @@ void LLHUDEffectLookAt::update()
  */
 bool LLHUDEffectLookAt::calcTargetPosition()
 {
-    LLViewerObject *target_obj = (LLViewerObject *)mTargetObject;
+    LLViewerObject *target_obj = static_cast<LLViewerObject*>(mTargetObject);
     LLVector3 local_offset;
 
     if (target_obj)
@@ -645,7 +645,7 @@ bool LLHUDEffectLookAt::calcTargetPosition()
         local_offset = gAgent.getPosAgentFromGlobal(mTargetOffsetGlobal);
     }
 
-    LLVOAvatar* source_avatar = (LLVOAvatar*)(LLViewerObject*)mSourceObject;
+    LLVOAvatar* source_avatar = static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject));
     if (!source_avatar->isBuilt())
         return false;
 
@@ -718,7 +718,7 @@ bool LLHUDEffectLookAt::calcTargetPosition()
     }
     else
     {
-        source_avatar->setAnimationData("LookAtPoint", (void*)&mTargetPos);
+        source_avatar->setAnimationData("LookAtPoint", reinterpret_cast<void*>(&mTargetPos));
     }
 
     return true;

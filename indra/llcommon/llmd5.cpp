@@ -141,7 +141,7 @@ void LLMD5::update(FILE* file)
     unsigned char buffer[BLOCK_LEN]; /* Flawfinder: ignore */
     int len;
 
-    while ((len = (int)fread(buffer, 1, BLOCK_LEN, file)))
+    while ((len = static_cast<int>(fread(buffer, 1, BLOCK_LEN, file))))
         update(buffer, len);
 
     fclose(file);
@@ -156,15 +156,15 @@ void LLMD5::update(std::istream& stream)
 
     while (stream.good())
     {
-        stream.read((char*)buffer, BLOCK_LEN); /* Flawfinder: ignore */ // note that return value of read is unusable.
-        len = (int)stream.gcount();
+        stream.read(reinterpret_cast<char*>(buffer), BLOCK_LEN); /* Flawfinder: ignore */ // note that return value of read is unusable.
+        len = static_cast<int>(stream.gcount());
         update(buffer, len);
     }
 }
 
 void LLMD5::update(const std::string& s)
 {
-    update((unsigned char*)s.c_str(), s.length());
+    update(reinterpret_cast<const unsigned char*>(s.c_str()), s.length());
 }
 
 // MD5 finalization. Ends an MD5 message-digest operation, writing the
@@ -227,10 +227,10 @@ LLMD5::LLMD5(const unsigned char* string, const unsigned int number)
     const char* colon = ":";
     char tbuf[16]; /* Flawfinder: ignore */
     init();
-    update(string, (U32)strlen((const char*)string));        /* Flawfinder: ignore */
-    update((const unsigned char*)colon, (U32)strlen(colon)); /* Flawfinder: ignore */
+    update(string, static_cast<U32>(strlen(reinterpret_cast<const char*>(string))));        /* Flawfinder: ignore */
+    update(reinterpret_cast<const unsigned char*>(colon), static_cast<U32>(strlen(colon))); /* Flawfinder: ignore */
     snprintf(tbuf, sizeof(tbuf), "%i", number);              /* Flawfinder: ignore */
-    update((const unsigned char*)tbuf, (U32)strlen(tbuf));   /* Flawfinder: ignore */
+    update(reinterpret_cast<const unsigned char*>(tbuf), static_cast<U32>(strlen(tbuf)));   /* Flawfinder: ignore */
     finalize();
 }
 
@@ -238,7 +238,7 @@ LLMD5::LLMD5(const unsigned char* string, const unsigned int number)
 LLMD5::LLMD5(const unsigned char* s)
 {
     init();
-    update(s, (U32)strlen((const char*)s)); /* Flawfinder: ignore */
+    update(s, static_cast<U32>(strlen(reinterpret_cast<const char*>(s)))); /* Flawfinder: ignore */
     finalize();
 }
 
@@ -347,29 +347,29 @@ void LLMD5::init()
 /* FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
 Rotation is separate from addition to prevent recomputation.
  */
-#define FF(a, b, c, d, x, s, ac)                   \
-    {                                              \
-        (a) += F((b), (c), (d)) + (x) + (U32)(ac); \
-        (a) = ROTATE_LEFT((a), (s));               \
-        (a) += (b);                                \
+#define FF(a, b, c, d, x, s, ac)                                   \
+    {                                                              \
+        (a) += F((b), (c), (d)) + (x) + static_cast<U32>(ac);      \
+        (a) = ROTATE_LEFT((a), (s));                               \
+        (a) += (b);                                                \
     }
-#define GG(a, b, c, d, x, s, ac)                   \
-    {                                              \
-        (a) += G((b), (c), (d)) + (x) + (U32)(ac); \
-        (a) = ROTATE_LEFT((a), (s));               \
-        (a) += (b);                                \
+#define GG(a, b, c, d, x, s, ac)                                   \
+    {                                                              \
+        (a) += G((b), (c), (d)) + (x) + static_cast<U32>(ac);      \
+        (a) = ROTATE_LEFT((a), (s));                               \
+        (a) += (b);                                                \
     }
-#define HH(a, b, c, d, x, s, ac)                   \
-    {                                              \
-        (a) += H((b), (c), (d)) + (x) + (U32)(ac); \
-        (a) = ROTATE_LEFT((a), (s));               \
-        (a) += (b);                                \
+#define HH(a, b, c, d, x, s, ac)                                   \
+    {                                                              \
+        (a) += H((b), (c), (d)) + (x) + static_cast<U32>(ac);      \
+        (a) = ROTATE_LEFT((a), (s));                               \
+        (a) += (b);                                                \
     }
-#define II(a, b, c, d, x, s, ac)                   \
-    {                                              \
-        (a) += I((b), (c), (d)) + (x) + (U32)(ac); \
-        (a) = ROTATE_LEFT((a), (s));               \
-        (a) += (b);                                \
+#define II(a, b, c, d, x, s, ac)                                   \
+    {                                                              \
+        (a) += I((b), (c), (d)) + (x) + static_cast<U32>(ac);      \
+        (a) = ROTATE_LEFT((a), (s));                               \
+        (a) += (b);                                                \
     }
 
 // LLMD5 basic transformation. Transforms state based on block.

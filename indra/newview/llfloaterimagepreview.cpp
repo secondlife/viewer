@@ -441,7 +441,7 @@ bool LLFloaterImagePreview::loadImage(const std::string& src_filename)
     if (image_info.getWidth() * image_info.getHeight() > MAX_IMAGE_AREA)
     {
         LLStringUtil::format_map_t args;
-        args["PIXELS"] = llformat("%dM", (S32)(MAX_IMAGE_AREA / 1000000));
+        args["PIXELS"] = llformat("%dM", static_cast<S32>(MAX_IMAGE_AREA / 1000000));
 
         mImageLoadError = LLTrans::getString("texture_load_area_error", args);
         return false;
@@ -479,16 +479,16 @@ bool LLFloaterImagePreview::loadImage(const std::string& src_filename)
     if (orig_width > max_width || orig_height > max_height)
     {
         // Calculate scale factors
-        F32 width_scale  = (F32)max_width / (F32)orig_width;
-        F32 height_scale = (F32)max_height / (F32)orig_height;
+        F32 width_scale  = static_cast<F32>(max_width) / static_cast<F32>(orig_width);
+        F32 height_scale = static_cast<F32>(max_height) / static_cast<F32>(orig_height);
         F32 scale        = llmin(width_scale, height_scale);
 
         // Calculate new dimensions, preserving aspect ratio
         S32 new_width  = LLImageRaw::contractDimToPowerOfTwo(
-            llclamp((S32)llroundf(orig_width * scale), 4, max_width)
+            llclamp(static_cast<S32>(llroundf(orig_width * scale)), 4, max_width)
         );
         S32 new_height = LLImageRaw::contractDimToPowerOfTwo(
-            llclamp((S32)llroundf(orig_height * scale), 4, max_height)
+            llclamp(static_cast<S32>(llroundf(orig_height * scale)), 4, max_height)
         );
 
         if (!raw_image->scale(new_width, new_height))
@@ -565,19 +565,19 @@ bool LLFloaterImagePreview::handleHover(S32 x, S32 y, MASK mask)
             LLCtrlSelectionInterface* iface = childGetSelectionInterface("clothing_type_combo");
             if (iface && iface->getFirstSelectedIndex() <= 0)
             {
-                mPreviewImageRect.translate((F32)(x - mLastMouseX) * -0.005f * mPreviewImageRect.getWidth(),
-                    (F32)(y - mLastMouseY) * -0.005f * mPreviewImageRect.getHeight());
+                mPreviewImageRect.translate(static_cast<F32>(x - mLastMouseX) * -0.005f * mPreviewImageRect.getWidth(),
+                    static_cast<F32>(y - mLastMouseY) * -0.005f * mPreviewImageRect.getHeight());
             }
             else
             {
-                mAvatarPreview->pan((F32)(x - mLastMouseX) * -0.005f, (F32)(y - mLastMouseY) * -0.005f);
-                mSculptedPreview->pan((F32)(x - mLastMouseX) * -0.005f, (F32)(y - mLastMouseY) * -0.005f);
+                mAvatarPreview->pan(static_cast<F32>(x - mLastMouseX) * -0.005f, static_cast<F32>(y - mLastMouseY) * -0.005f);
+                mSculptedPreview->pan(static_cast<F32>(x - mLastMouseX) * -0.005f, static_cast<F32>(y - mLastMouseY) * -0.005f);
             }
         }
         else if (local_mask == MASK_ORBIT)
         {
-            F32 yaw_radians = (F32)(x - mLastMouseX) * -0.01f;
-            F32 pitch_radians = (F32)(y - mLastMouseY) * 0.02f;
+            F32 yaw_radians = static_cast<F32>(x - mLastMouseX) * -0.01f;
+            F32 pitch_radians = static_cast<F32>(y - mLastMouseY) * 0.02f;
 
             mAvatarPreview->rotate(yaw_radians, pitch_radians);
             mSculptedPreview->rotate(yaw_radians, pitch_radians);
@@ -587,13 +587,13 @@ bool LLFloaterImagePreview::handleHover(S32 x, S32 y, MASK mask)
             LLCtrlSelectionInterface* iface = childGetSelectionInterface("clothing_type_combo");
             if (iface && iface->getFirstSelectedIndex() <= 0)
             {
-                F32 zoom_amt = (F32)(y - mLastMouseY) * -0.002f;
+                F32 zoom_amt = static_cast<F32>(y - mLastMouseY) * -0.002f;
                 mPreviewImageRect.stretch(zoom_amt);
             }
             else
             {
-                F32 yaw_radians = (F32)(x - mLastMouseX) * -0.01f;
-                F32 zoom_amt = (F32)(y - mLastMouseY) * 0.02f;
+                F32 yaw_radians = static_cast<F32>(x - mLastMouseX) * -0.01f;
+                F32 zoom_amt = static_cast<F32>(y - mLastMouseY) * 0.02f;
 
                 mAvatarPreview->rotate(yaw_radians, 0.f);
                 mAvatarPreview->zoom(zoom_amt);
@@ -677,10 +677,10 @@ bool LLFloaterImagePreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     if (mPreviewRect.pointInRect(x, y) && mAvatarPreview)
     {
-        mAvatarPreview->zoom((F32)clicks * -0.2f);
+        mAvatarPreview->zoom(static_cast<F32>(clicks) * -0.2f);
         mAvatarPreview->refresh();
 
-        mSculptedPreview->zoom((F32)clicks * -0.2f);
+        mSculptedPreview->zoom(static_cast<F32>(clicks) * -0.2f);
         mSculptedPreview->refresh();
     }
 
@@ -791,7 +791,7 @@ bool LLImagePreviewAvatar::render()
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
     gGL.loadIdentity();
-    gGL.ortho(0.0f, (F32)mFullWidth, 0.0f, (F32)mFullHeight, -1.0f, 1.0f);
+    gGL.ortho(0.0f, static_cast<F32>(mFullWidth), 0.0f, static_cast<F32>(mFullHeight), -1.0f, 1.0f);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
@@ -825,7 +825,7 @@ bool LLImagePreviewAvatar::render()
 
     stop_glerror();
 
-    LLViewerCamera::getInstance()->setAspect((F32)mFullWidth / mFullHeight);
+    LLViewerCamera::getInstance()->setAspect(static_cast<F32>(mFullWidth) / mFullHeight);
     LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
     LLViewerCamera::getInstance()->setPerspective(false, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, false);
 
@@ -993,7 +993,7 @@ bool LLImagePreviewSculpted::render()
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
     gGL.loadIdentity();
-    gGL.ortho(0.0f, (F32)mFullWidth, 0.0f, (F32)mFullHeight, -1.0f, 1.0f);
+    gGL.ortho(0.0f, static_cast<F32>(mFullWidth), 0.0f, static_cast<F32>(mFullHeight), -1.0f, 1.0f);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
@@ -1026,7 +1026,7 @@ bool LLImagePreviewSculpted::render()
 
     stop_glerror();
 
-    LLViewerCamera::getInstance()->setAspect((F32) mFullWidth / mFullHeight);
+    LLViewerCamera::getInstance()->setAspect(static_cast<F32>(mFullWidth) / mFullHeight);
     LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
     LLViewerCamera::getInstance()->setPerspective(false, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, false);
 

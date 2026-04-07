@@ -82,12 +82,12 @@ void* operator new[](std::size_t count)
 
 void* operator new(size_t size, std::align_val_t align)
 {
-    return ll_tracy_aligned_new(size, (size_t)align);
+    return ll_tracy_aligned_new(size, static_cast<size_t>(align));
 }
 
 void* operator new[](std::size_t count, std::align_val_t align)
 {
-    return ll_tracy_aligned_new(count, (size_t)align);
+    return ll_tracy_aligned_new(count, static_cast<size_t>(align));
 }
 
 void operator delete(void *ptr) noexcept

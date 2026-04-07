@@ -99,7 +99,7 @@ U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center)
 
     S32 cypher = center.greaterThan(origin).getGatheredBits() & 0x7;
 
-    return (U8*) (sOcclusionIndices+cypher*8);
+    return reinterpret_cast<U8*>((sOcclusionIndices+cypher*8));
 }
 
 //create a vertex buffer for efficiently rendering cubes

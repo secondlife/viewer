@@ -148,9 +148,9 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLUUID& region_id,
     if (!region)
         return;
 
-    mPosRegion.set((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
-                      (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
-                      (F32)pos_global.mdV[VZ]);
+    mPosRegion.set(static_cast<F32>(fmod(pos_global.mdV[VX], static_cast<F64>(REGION_WIDTH_METERS))),
+                      static_cast<F32>(fmod(pos_global.mdV[VY], static_cast<F64>(REGION_WIDTH_METERS))),
+                      static_cast<F32>(pos_global.mdV[VZ]));
 
     LLSD body;
     std::string url = region->getCapability("RemoteParcelRequest");

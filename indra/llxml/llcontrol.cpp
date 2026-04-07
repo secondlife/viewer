@@ -409,7 +409,7 @@ void LLControlGroup::cleanup()
         else
         {
             F64 end_time = LLTimer::getTotalSeconds();
-            U32 total_seconds = (U32)(end_time - start_time);
+            U32 total_seconds = static_cast<U32>(end_time - start_time);
 
             std::string msg = llformat("Runtime (seconds): %d\n\n No. accesses   Avg. accesses/sec  Name\n", total_seconds);
             std::ostringstream data_msg;
@@ -456,11 +456,11 @@ void LLControlGroup::cleanup()
 
 eControlType LLControlGroup::typeStringToEnum(const std::string& typestr)
 {
-    for(int i = 0; i < (int)TYPE_COUNT; ++i)
+    for(int i = 0; i < static_cast<int>(TYPE_COUNT); ++i)
     {
-        if(mTypeString[i] == typestr) return (eControlType)i;
+        if(mTypeString[i] == typestr) return static_cast<eControlType>(i);
     }
-    return (eControlType)-1;
+    return static_cast<eControlType>(-1);
 }
 
 std::string LLControlGroup::typeEnumToString(eControlType typeenum)
@@ -1361,7 +1361,7 @@ template<>
 F32 convert_from_llsd<F32>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
     if (type == TYPE_F32)
-        return (F32) sd.asReal();
+        return static_cast<F32>(sd.asReal());
     else
     {
         CONTROL_ERRS << "Invalid F32 value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
@@ -1391,7 +1391,7 @@ template<>
 LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
     if (type == TYPE_VEC3)
-        return (LLVector3)sd;
+        return static_cast<LLVector3>(sd);
     else
     {
         CONTROL_ERRS << "Invalid LLVector3 value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
@@ -1403,7 +1403,7 @@ template<>
 LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
     if (type == TYPE_VEC3D)
-        return (LLVector3d)sd;
+        return static_cast<LLVector3d>(sd);
     else
     {
         CONTROL_ERRS << "Invalid LLVector3d value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
@@ -1415,7 +1415,7 @@ template<>
 LLQuaternion convert_from_llsd<LLQuaternion>(const LLSD& sd, eControlType type, std::string_view control_name)
 {
     if (type == TYPE_QUAT)
-        return (LLQuaternion)sd;
+        return static_cast<LLQuaternion>(sd);
     else
     {
         CONTROL_ERRS << "Invalid LLQuaternion value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
@@ -1490,9 +1490,9 @@ LLSD convert_from_llsd<LLSD>(const LLSD& sd, eControlType type, std::string_view
 #if TEST_CACHED_CONTROL
 
 #define DECL_LLCC(T, V) static LLCachedControl<T> mySetting_##T("TestCachedControl"#T, V)
-DECL_LLCC(U32, (U32)666);
-DECL_LLCC(S32, (S32)-666);
-DECL_LLCC(F32, (F32)-666.666);
+DECL_LLCC(U32, static_cast<U32>(666));
+DECL_LLCC(S32, static_cast<S32>(-666));
+DECL_LLCC(F32, static_cast<F32>(-666.666));
 DECL_LLCC(bool, true);
 static LLCachedControl<std::string> mySetting_string("TestCachedControlstring", "Default String Value");
 DECL_LLCC(LLVector3, LLVector3(1.0f, 2.0f, 3.0f));
@@ -1507,12 +1507,12 @@ DECL_LLCC(LLSD, test_llsd);
 
 void test_cached_control()
 {
-#define TEST_LLCC(T, V) if((T)mySetting_##T != V) LL_ERRS() << "Fail "#T << LL_ENDL
+#define TEST_LLCC(T, V) if(static_cast<T>(mySetting_##T) != V) LL_ERRS() << "Fail "#T << LL_ENDL
     TEST_LLCC(U32, 666);
-    TEST_LLCC(S32, (S32)-666);
-    TEST_LLCC(F32, (F32)-666.666);
+    TEST_LLCC(S32, static_cast<S32>(-666));
+    TEST_LLCC(F32, static_cast<F32>(-666.666));
     TEST_LLCC(bool, true);
-    if((std::string)mySetting_string != "Default String Value") LL_ERRS() << "Fail string" << LL_ENDL;
+    if(static_cast<std::string>(mySetting_string) != "Default String Value") LL_ERRS() << "Fail string" << LL_ENDL;
     TEST_LLCC(LLVector3, LLVector3(1.0f, 2.0f, 3.0f));
     TEST_LLCC(LLVector3d, LLVector3d(6.0f, 5.0f, 4.0f));
     TEST_LLCC(LLRect, LLRect(0, 0, 100, 500));

@@ -467,7 +467,7 @@ bool LLImageTGA::decodeTruecolorNonRle( LLImageRaw* raw_image, bool &alpha_opaqu
 
     S32 pixels = getWidth() * getHeight();
 
-    if (pixels * (mIs15Bit ? 2 : getComponents()) > getDataSize() - (S32)mDataOffset)
+    if (pixels * (mIs15Bit ? 2 : getComponents()) > getDataSize() - static_cast<S32>(mDataOffset))
     { //here we have situation when data size in src less than actually needed
         return false;
     }
@@ -804,13 +804,13 @@ bool LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, bool &alpha_opaque
     alpha_opaque = true;
 
     U8* dst = raw_image->getData();
-    U32* dst_pixels = (U32*) dst;
+    U32* dst_pixels = reinterpret_cast<U32*>(dst);
 
     U8* src = getData() + mDataOffset;
     const U8* last_src = src + getDataSize();
 
     U32 rgba;
-    U8* rgba_byte_p = (U8*) &rgba;
+    U8* rgba_byte_p = reinterpret_cast<U8*>(&rgba);
 
     const U32* last_dst_pixel = dst_pixels + getHeight() * getWidth() - 1;
     while( dst_pixels <= last_dst_pixel )
@@ -858,10 +858,10 @@ bool LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, bool &alpha_opaque
                 if (src + 3 >= last_src)
                     return false;
 
-                ((U8*)dst_pixels)[0] = src[2];
-                ((U8*)dst_pixels)[1] = src[1];
-                ((U8*)dst_pixels)[2] = src[0];
-                ((U8*)dst_pixels)[3] = src[3];
+                reinterpret_cast<U8*>(dst_pixels)[0] = src[2];
+                reinterpret_cast<U8*>(dst_pixels)[1] = src[1];
+                reinterpret_cast<U8*>(dst_pixels)[2] = src[0];
+                reinterpret_cast<U8*>(dst_pixels)[3] = src[3];
                 if (src[3] != 255)
                 {
                     alpha_opaque = false;
@@ -1109,7 +1109,7 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 
         for( i = 0; i < LUT_LEN; i++ )
         {
-            lut[i] = (U8)llclampb( 255.f * ( i/255.f * scale + bias ) );
+            lut[i] = static_cast<U8>(llclampb( 255.f * ( i/255.f * scale + bias ) ));
         }
 
         while( dst <= last_dst )
@@ -1143,7 +1143,7 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
     else
     {
         // Process using a simple comparison agains a threshold
-        const U8 threshold = (U8)(0xFF * llclampf( 1.f - weight ));
+        const U8 threshold = static_cast<U8>(0xFF * llclampf( 1.f - weight ));
 
         while( dst <= last_dst )
         {

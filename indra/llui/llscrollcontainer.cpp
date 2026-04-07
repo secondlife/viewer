@@ -373,8 +373,8 @@ bool LLScrollContainer::autoScroll(S32 x, S32 y, bool do_scroll)
 
         S32 auto_scroll_speed = ll_round(mAutoScrollRate * LLFrameTimer::getFrameDeltaTimeF32());
         // autoscroll region should take up no more than one third of visible scroller area
-        S32 auto_scroll_region_width = llmin(inner_rect_local.getWidth() / 3, (S32)mMaxAutoScrollZone);
-        S32 auto_scroll_region_height = llmin(inner_rect_local.getHeight() / 3, (S32)mMaxAutoScrollZone);
+        S32 auto_scroll_region_width = llmin(inner_rect_local.getWidth() / 3, static_cast<S32>(mMaxAutoScrollZone));
+        S32 auto_scroll_region_height = llmin(inner_rect_local.getHeight() / 3, static_cast<S32>(mMaxAutoScrollZone));
 
         if( mScrollbar[HORIZONTAL]->getVisible() )
         {

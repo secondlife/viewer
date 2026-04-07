@@ -39,7 +39,7 @@ public:
 
     LLMsgVarData(const char *name, EMsgVariableType type) : mSize(-1), mDataSize(-1), mData(NULL), mType(type)
     {
-        mName = (char *)name;
+        mName = const_cast<char*>(name);
     }
 
     ~LLMsgVarData()
@@ -57,8 +57,8 @@ public:
 
     char *getName() const   { return mName; }
     S32 getSize() const     { return mSize; }
-    void *getData()         { return (void*)mData; }
-    const void *getData() const { return (const void*)mData; }
+    void *getData()         { return static_cast<void*>(mData); }
+    const void *getData() const { return static_cast<const void*>(mData); }
     S32 getDataSize() const { return mDataSize; }
     EMsgVariableType getType() const    { return mType; }
 
@@ -76,7 +76,7 @@ class LLMsgBlkData
 public:
         LLMsgBlkData(const char *name, S32 blocknum) : mBlockNumber(blocknum), mTotalSize(-1)
     {
-        mName = (char *)name;
+        mName = const_cast<char*>(name);
     }
 
     ~LLMsgBlkData()
@@ -112,7 +112,7 @@ class LLMsgData
 public:
     explicit LLMsgData(const char *name) : mTotalSize(-1)
     {
-        mName = (char *)name;
+        mName = const_cast<char*>(name);
     }
     ~LLMsgData()
     {

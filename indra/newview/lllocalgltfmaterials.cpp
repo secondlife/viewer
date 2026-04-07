@@ -476,7 +476,7 @@ void LLLocalGLTFMaterialMgr::feedScrollList(LLScrollListCtrl* ctrl)
 
                 LLSD data;
                 data["id"] = (*iter)->getTrackingID();
-                data["type"] = (S32)LLAssetType::AT_MATERIAL;
+                data["type"] = static_cast<S32>(LLAssetType::AT_MATERIAL);
                 element["value"] = data;
 
                 ctrl->addElement(element);

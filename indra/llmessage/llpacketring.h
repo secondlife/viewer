@@ -60,7 +60,7 @@ public:
     S32 getAndResetActualInBits()   { S32 bits = mActualBytesIn * 8; mActualBytesIn = 0; return bits;}
     S32 getAndResetActualOutBits()  { S32 bits = mActualBytesOut * 8; mActualBytesOut = 0; return bits;}
 
-    S32 getNumBufferedPackets() const { return (S32)(mNumBufferedPackets); }
+    S32 getNumBufferedPackets() const { return static_cast<S32>(mNumBufferedPackets); }
     S32 getNumBufferedBytes() const { return mNumBufferedBytes; }
     S32 getNumDroppedPackets() const { return mNumDroppedPacketsTotal + mNumDroppedPackets; }
 

@@ -123,7 +123,7 @@ void LLDriverParamInfo::toStream(std::ostream &out)
         for (LLDrivenEntryInfo& driven : mDrivenInfoList)
         {
             const LLViewerVisualParam *param =
-                (const LLViewerVisualParam*)mDriverParam->getAvatarAppearance()->getVisualParam(driven.mDrivenID);
+                static_cast<const LLViewerVisualParam*>(mDriverParam->getAvatarAppearance()->getVisualParam(driven.mDrivenID));
             if (param)
             {
                 param->getInfo()->toStream(out);
@@ -320,7 +320,7 @@ const LLVector4a    &LLDriverParam::getAvgDistortion()
         sum.add(driven.mParam->getAvgDistortion());
         count++;
     }
-    sum.mul( 1.f/(F32)count);
+    sum.mul( 1.f/static_cast<F32>(count));
 
     mDefaultVec = sum;
     return mDefaultVec;
@@ -482,7 +482,7 @@ bool LLDriverParam::linkDrivenParams(visual_param_mapper mapper, bool only_cross
 
         if (!found)
         {
-            LLViewerVisualParam* param = (LLViewerVisualParam*)mapper(driven_id);
+            LLViewerVisualParam* param = static_cast<LLViewerVisualParam*>(mapper(driven_id));
             if (param) param->setParamLocation(this->getParamLocation());
             bool push = param && (!only_cross_params || param->getCrossWearable());
             if (push)
@@ -521,7 +521,7 @@ void LLDriverParam::updateCrossDrivenParams(LLWearableType::EType driven_type)
 
     if (needs_update)
     {
-        LLWearableType::EType driver_type = (LLWearableType::EType)getWearableType();
+        LLWearableType::EType driver_type = static_cast<LLWearableType::EType>(getWearableType());
 
         // If we've gotten here, we've added a new wearable of type "type"
         // Thus this wearable needs to get updates from the driver wearable.
@@ -610,7 +610,7 @@ void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight)
     if (use_self)
     {
         // call setWeight through LLVOAvatarSelf so other wearables can be updated with the correct values
-        mAvatarAppearance->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight);
+        mAvatarAppearance->setVisualParamWeight( static_cast<LLVisualParam*>(driven->mParam), driven_weight);
     }
     else
     {

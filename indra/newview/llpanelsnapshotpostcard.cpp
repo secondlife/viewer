@@ -220,7 +220,7 @@ void LLPanelSnapshotPostcard::onQualitySliderCommit(LLUICtrl* ctrl)
     updateImageQualityLevel();
 
     LLSliderCtrl* slider = (LLSliderCtrl*)ctrl;
-    S32 quality_val = llfloor((F32)slider->getValue().asReal());
+    S32 quality_val = llfloor(static_cast<F32>(slider->getValue().asReal()));
     LLSD info;
     info["image-quality-change"] = quality_val;
     LLFloaterSnapshot::getInstance()->notify(info); // updates the "SnapshotQuality" setting

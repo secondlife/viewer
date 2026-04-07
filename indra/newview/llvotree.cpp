@@ -301,7 +301,7 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
     //
     if (mData)
     {
-        mSpecies = ((U8 *)mData)[0];
+        mSpecies = mData[0];
     }
 
     if (!sSpeciesTable.count(mSpecies))
@@ -426,7 +426,7 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
     }
     else
     {
-        mAppAngle = (F32) atan2( getMaxScale(), range) * RAD_TO_DEG;
+        mAppAngle = static_cast<F32>(atan2( getMaxScale(), range)) * RAD_TO_DEG;
     }
 
     F32 max_scale = mBillboardScale * getMaxScale();
@@ -450,7 +450,7 @@ void LLVOTree::updateTextures()
     {
         if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
         {
-            setDebugText(llformat("%4.0f", (F32) sqrt(mPixelArea)));
+            setDebugText(llformat("%4.0f", static_cast<F32>(sqrt(mPixelArea))));
         }
     }
 }
@@ -784,7 +784,7 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
                                 sin(nangle * DEG_TO_RAD)*start_radius*nvec_scale,
                                 z*nvec_scalez);
                     // First and last slice at 0 radius (to bring in top/bottom of structure)
-                    radius = start_radius + turbulence3((F32*)&nvec.mV, (F32)fractal_depth)*noise_scale;
+                    radius = start_radius + turbulence3(reinterpret_cast<F32*>(&nvec.mV), static_cast<F32>(fractal_depth))*noise_scale;
 
                     if (slices - 1 == j)
                     {
@@ -815,28 +815,28 @@ bool LLVOTree::updateGeometry(LLDrawable *drawable)
                     }
                     // Generate the matching quads
                     *(indicesp) = j + (i*slices) + sLODVertexOffset[lod];
-                    llassert(*(indicesp) < (U32)max_vertices);
+                    llassert(*(indicesp) < static_cast<U32>(max_vertices));
                     indicesp++;
                     index_count++;
                     *(indicesp) = x1_offset + ((i+1)*slices) + sLODVertexOffset[lod];
-                    llassert(*(indicesp) < (U32)max_vertices);
+                    llassert(*(indicesp) < static_cast<U32>(max_vertices));
                     indicesp++;
                     index_count++;
                     *(indicesp) = j + ((i+1)*slices) + sLODVertexOffset[lod];
-                    llassert(*(indicesp) < (U32)max_vertices);
+                    llassert(*(indicesp) < static_cast<U32>(max_vertices));
                     indicesp++;
                     index_count++;
 
                     *(indicesp) = j + (i*slices) + sLODVertexOffset[lod];
-                    llassert(*(indicesp) < (U32)max_vertices);
+                    llassert(*(indicesp) < static_cast<U32>(max_vertices));
                     indicesp++;
                     index_count++;
                     *(indicesp) = x1_offset + (i*slices) + sLODVertexOffset[lod];
-                    llassert(*(indicesp) < (U32)max_vertices);
+                    llassert(*(indicesp) < static_cast<U32>(max_vertices));
                     indicesp++;
                     index_count++;
                     *(indicesp) = x1_offset + ((i+1)*slices) + sLODVertexOffset[lod];
-                    llassert(*(indicesp) < (U32)max_vertices);
+                    llassert(*(indicesp) < static_cast<U32>(max_vertices));
                     indicesp++;
                     index_count++;
                 }
@@ -910,8 +910,8 @@ void LLVOTree::updateMesh()
             << vert_count << " vertices and "
             << index_count << " indices" << LL_ENDL;
         buff->allocateBuffer(1, 3);
-        memset((U8*)buff->getMappedData(), 0, buff->getSize());
-        memset((U8*)buff->getMappedIndices(), 0, buff->getIndicesSize());
+        memset(buff->getMappedData(), 0, buff->getSize());
+        memset(buff->getMappedIndices(), 0, buff->getIndicesSize());
         facep->setSize(1, 3);
         facep->setVertexBuffer(buff);
         mReferenceBuffer->unmapBuffer();
@@ -1029,7 +1029,7 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
                 scale_mat.mMatrix[2][2] = scale*length;
                 scale_mat *= matrix;
 
-                glm::mat4 norm(glm::make_mat4((F32*) scale_mat.mMatrix));
+                glm::mat4 norm(glm::make_mat4(reinterpret_cast<F32*>(scale_mat.mMatrix)));
                 LLMatrix4 norm_mat = LLMatrix4(glm::value_ptr(glm::transpose(glm::inverse(norm))));
 
                 appendMesh(vertices, normals, tex_coords, colors, indices, index_offset, scale_mat, norm_mat,
@@ -1037,7 +1037,7 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
             }
 
             // Recurse to create more branches
-            for (S32 i=0; i < (S32)branches; i++)
+            for (S32 i=0; i < static_cast<S32>(branches); i++)
             {
                 LLMatrix4 trans_mat;
                 trans_mat.setTranslation(0,0,scale*length);
@@ -1078,7 +1078,7 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
 
                 scale_mat *= matrix;
 
-                glm::mat4 norm(glm::make_mat4((F32*)scale_mat.mMatrix));
+                glm::mat4 norm(glm::make_mat4(reinterpret_cast<F32*>(scale_mat.mMatrix)));
                 LLMatrix4 norm_mat = LLMatrix4(glm::value_ptr(glm::transpose(glm::inverse(norm))));
 
                 appendMesh(vertices, normals, tex_coords, colors, indices, index_offset, scale_mat, norm_mat, 0, LEAF_VERTICES, LEAF_INDICES, 0);
@@ -1097,7 +1097,7 @@ void LLVOTree::calcNumVerts(U32& vert_count, U32& index_count, S32 trunk_LOD, S3
             vert_count += sLODVertexCount[trunk_LOD];
 
             // Recurse to create more branches
-            for (S32 i=0; i < (S32)branches; i++)
+            for (S32 i=0; i < static_cast<S32>(branches); i++)
             {
                 calcNumVerts(vert_count, index_count, trunk_LOD, stop_level, depth - 1, 0, branches);
             }

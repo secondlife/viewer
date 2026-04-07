@@ -627,10 +627,10 @@ void LLJoystickCameraRotate::drawRotatedImage( LLPointer<LLUIImage> image, S32 r
      */
     F32 uv[][2] =
     {
-        { (F32)width/texture->getWidth(), (F32)height/texture->getHeight() },
-        { 0.f, (F32)height/texture->getHeight() },
+        { static_cast<F32>(width)/texture->getWidth(), static_cast<F32>(height)/texture->getHeight() },
+        { 0.f, static_cast<F32>(height)/texture->getHeight() },
         { 0.f, 0.f },
-        { (F32)width/texture->getWidth(), 0.f }
+        { static_cast<F32>(width)/texture->getWidth(), 0.f }
     };
 
     gGL.getTexUnit(0)->bind(texture);
@@ -905,10 +905,10 @@ void LLJoystickQuaternion::drawRotatedImage(LLPointer<LLUIImage> image, S32 rota
     */
     F32 uv[][2] =
     {
-        { (F32)width / texture->getWidth(), (F32)height / texture->getHeight() },
-        { 0.f, (F32)height / texture->getHeight() },
+        { static_cast<F32>(width) / texture->getWidth(), static_cast<F32>(height) / texture->getHeight() },
+        { 0.f, static_cast<F32>(height) / texture->getHeight() },
         { 0.f, 0.f },
-        { (F32)width / texture->getWidth(), 0.f }
+        { static_cast<F32>(width) / texture->getWidth(), 0.f }
     };
 
     gGL.getTexUnit(0)->bind(texture);

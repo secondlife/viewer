@@ -259,7 +259,7 @@ void LLPanelVolume::getState( )
     LLVOVolume *volobjp = NULL;
     if ( objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        volobjp = (LLVOVolume *)objectp;
+        volobjp = static_cast<LLVOVolume *>(objectp);
     }
     LLVOVolume *root_volobjp = NULL;
     if (root_objectp && (root_objectp->getPCode() == LL_PCODE_VOLUME))
@@ -521,7 +521,7 @@ void LLPanelVolume::getState( )
 
         LLFlexibleObjectData *attributes = objectp->getFlexibleObjectData();
 
-        getChild<LLUICtrl>("FlexNumSections")->setValue((F32)attributes->getSimulateLOD());
+        getChild<LLUICtrl>("FlexNumSections")->setValue(static_cast<F32>(attributes->getSimulateLOD()));
         getChild<LLUICtrl>("FlexGravity")->setValue(attributes->getGravity());
         getChild<LLUICtrl>("FlexTension")->setValue(attributes->getTension());
         getChild<LLUICtrl>("FlexFriction")->setValue(attributes->getAirFriction());
@@ -774,7 +774,7 @@ void LLPanelVolume::sendIsLight()
     {
         return;
     }
-    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
 
     bool value = getChild<LLUICtrl>("Light Checkbox Ctrl")->getValue();
     volobjp->setIsLight(value);
@@ -869,7 +869,7 @@ void LLPanelVolume::sendIsFlexible()
     {
         return;
     }
-    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
 
     bool is_flexible = getChild<LLUICtrl>("Flexible1D Checkbox Ctrl")->getValue();
     //bool is_flexible = mCheckFlexible1D->get();
@@ -904,25 +904,25 @@ void LLPanelVolume::sendPhysicsShapeType(LLUICtrl* ctrl, void* userdata)
 
 void LLPanelVolume::sendPhysicsGravity(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = (F32)ctrl->getValue().asReal();
+    F32 val = static_cast<F32>(ctrl->getValue().asReal());
     LLSelectMgr::getInstance()->selectionSetGravity(val);
 }
 
 void LLPanelVolume::sendPhysicsFriction(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = (F32)ctrl->getValue().asReal();
+    F32 val = static_cast<F32>(ctrl->getValue().asReal());
     LLSelectMgr::getInstance()->selectionSetFriction(val);
 }
 
 void LLPanelVolume::sendPhysicsRestitution(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = (F32)ctrl->getValue().asReal();
+    F32 val = static_cast<F32>(ctrl->getValue().asReal());
     LLSelectMgr::getInstance()->selectionSetRestitution(val);
 }
 
 void LLPanelVolume::sendPhysicsDensity(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = (F32)ctrl->getValue().asReal();
+    F32 val = static_cast<F32>(ctrl->getValue().asReal());
     LLSelectMgr::getInstance()->selectionSetDensity(val);
 }
 
@@ -979,7 +979,7 @@ void LLPanelVolume::onLightSelectColor(const LLSD& data)
     {
         return;
     }
-    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
 
     LLColorSwatchCtrl*  LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
     if(LightColorSwatch)
@@ -1020,7 +1020,7 @@ void LLPanelVolume::onCopyFeatures()
     LLVOVolume *volobjp = NULL;
     if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        volobjp = (LLVOVolume *)objectp;
+        volobjp = static_cast<LLVOVolume *>(objectp);
     }
 
     // Flexi Prim
@@ -1081,7 +1081,7 @@ void LLPanelVolume::onPasteFeatures()
     LLVOVolume *volobjp = NULL;
     if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        volobjp = (LLVOVolume *)objectp;
+        volobjp = static_cast<LLVOVolume *>(objectp);
     }
 
     // Physics
@@ -1096,16 +1096,16 @@ void LLPanelVolume::onPasteFeatures()
 
     if (clipboard.has("physics"))
     {
-        objectp->setPhysicsShapeType((U8)clipboard["physics"]["shape"].asInteger());
+        objectp->setPhysicsShapeType(static_cast<U8>(clipboard["physics"]["shape"].asInteger()));
         U8 cur_material = objectp->getMaterial();
-        U8 material = (U8)clipboard["physics"]["material"].asInteger() | (cur_material & ~LL_MCODE_MASK);
+        U8 material = static_cast<U8>(clipboard["physics"]["material"].asInteger()) | (cur_material & ~LL_MCODE_MASK);
 
         objectp->setMaterial(material);
         objectp->sendMaterialUpdate();
-        objectp->setPhysicsGravity((F32)clipboard["physics"]["gravity"].asReal());
-        objectp->setPhysicsFriction((F32)clipboard["physics"]["friction"].asReal());
-        objectp->setPhysicsDensity((F32)clipboard["physics"]["density"].asReal());
-        objectp->setPhysicsRestitution((F32)clipboard["physics"]["restitution"].asReal());
+        objectp->setPhysicsGravity(static_cast<F32>(clipboard["physics"]["gravity"].asReal()));
+        objectp->setPhysicsFriction(static_cast<F32>(clipboard["physics"]["friction"].asReal()));
+        objectp->setPhysicsDensity(static_cast<F32>(clipboard["physics"]["density"].asReal()));
+        objectp->setPhysicsRestitution(static_cast<F32>(clipboard["physics"]["restitution"].asReal()));
         objectp->updateFlags(true);
     }
 
@@ -1113,7 +1113,7 @@ void LLPanelVolume::onPasteFeatures()
     bool is_flexible = clipboard.has("flex");
     if (is_flexible && volobjp->canBeFlexible())
     {
-        LLVOVolume *volobjp = (LLVOVolume *)objectp;
+        LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
         bool update_shape = false;
 
         // do before setParameterEntry or it will think that it is already flexi
@@ -1130,13 +1130,13 @@ void LLPanelVolume::onPasteFeatures()
             LLFlexibleObjectData new_attributes;
             new_attributes = *attributes;
             new_attributes.setSimulateLOD(clipboard["flex"]["lod"].asInteger());
-            new_attributes.setGravity((F32)clipboard["flex"]["gav"].asReal());
-            new_attributes.setTension((F32)clipboard["flex"]["ten"].asReal());
-            new_attributes.setAirFriction((F32)clipboard["flex"]["fri"].asReal());
-            new_attributes.setWindSensitivity((F32)clipboard["flex"]["sen"].asReal());
-            F32 fx = (F32)clipboard["flex"]["forx"].asReal();
-            F32 fy = (F32)clipboard["flex"]["fory"].asReal();
-            F32 fz = (F32)clipboard["flex"]["forz"].asReal();
+            new_attributes.setGravity(static_cast<F32>(clipboard["flex"]["gav"].asReal()));
+            new_attributes.setTension(static_cast<F32>(clipboard["flex"]["ten"].asReal()));
+            new_attributes.setAirFriction(static_cast<F32>(clipboard["flex"]["fri"].asReal()));
+            new_attributes.setWindSensitivity(static_cast<F32>(clipboard["flex"]["sen"].asReal()));
+            F32 fx = static_cast<F32>(clipboard["flex"]["forx"].asReal());
+            F32 fy = static_cast<F32>(clipboard["flex"]["fory"].asReal());
+            F32 fz = static_cast<F32>(clipboard["flex"]["forz"].asReal());
             LLVector3 force(fx, fy, fz);
             new_attributes.setUserForce(force);
             objectp->setParameterEntry(LLNetworkData::PARAMS_FLEXIBLE, new_attributes, true);
@@ -1150,7 +1150,7 @@ void LLPanelVolume::onPasteFeatures()
     }
     else
     {
-        LLVOVolume *volobjp = (LLVOVolume *)objectp;
+        LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
         if (volobjp->setIsFlexible(false))
         {
             mObject->sendShapeUpdate();
@@ -1172,7 +1172,7 @@ void LLPanelVolume::onCopyLight()
     LLVOVolume *volobjp = NULL;
     if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        volobjp = (LLVOVolume *)objectp;
+        volobjp = static_cast<LLVOVolume *>(objectp);
     }
 
     // Light Source
@@ -1226,7 +1226,7 @@ void LLPanelVolume::onPasteLight()
     LLVOVolume *volobjp = NULL;
     if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        volobjp = (LLVOVolume *)objectp;
+        volobjp = static_cast<LLVOVolume *>(objectp);
     }
 
     // Light Source
@@ -1235,12 +1235,12 @@ void LLPanelVolume::onPasteLight()
         if (clipboard.has("light"))
         {
             volobjp->setIsLight(true);
-            volobjp->setLightIntensity((F32)clipboard["light"]["intensity"].asReal());
-            volobjp->setLightRadius((F32)clipboard["light"]["radius"].asReal());
-            volobjp->setLightFalloff((F32)clipboard["light"]["falloff"].asReal());
-            F32 r = (F32)clipboard["light"]["r"].asReal();
-            F32 g = (F32)clipboard["light"]["g"].asReal();
-            F32 b = (F32)clipboard["light"]["b"].asReal();
+            volobjp->setLightIntensity(static_cast<F32>(clipboard["light"]["intensity"].asReal()));
+            volobjp->setLightRadius(static_cast<F32>(clipboard["light"]["radius"].asReal()));
+            volobjp->setLightFalloff(static_cast<F32>(clipboard["light"]["falloff"].asReal()));
+            F32 r = static_cast<F32>(clipboard["light"]["r"].asReal());
+            F32 g = static_cast<F32>(clipboard["light"]["g"].asReal());
+            F32 b = static_cast<F32>(clipboard["light"]["b"].asReal());
             volobjp->setLightSRGBColor(LLColor3(r, g, b));
         }
         else
@@ -1252,9 +1252,9 @@ void LLPanelVolume::onPasteLight()
         {
             volobjp->setLightTextureID(clipboard["spot"]["id"].asUUID());
             LLVector3 spot_params;
-            spot_params.mV[0] = (F32)clipboard["spot"]["fov"].asReal();
-            spot_params.mV[1] = (F32)clipboard["spot"]["focus"].asReal();
-            spot_params.mV[2] = (F32)clipboard["spot"]["ambiance"].asReal();
+            spot_params.mV[0] = static_cast<F32>(clipboard["spot"]["fov"].asReal());
+            spot_params.mV[1] = static_cast<F32>(clipboard["spot"]["focus"].asReal());
+            spot_params.mV[2] = static_cast<F32>(clipboard["spot"]["ambiance"].asReal());
             volobjp->setSpotLightParams(spot_params);
         }
 
@@ -1262,8 +1262,8 @@ void LLPanelVolume::onPasteLight()
         {
             volobjp->setIsReflectionProbe(true);
             volobjp->setReflectionProbeIsBox(clipboard["reflection_probe"]["is_box"].asBoolean());
-            volobjp->setReflectionProbeAmbiance((F32)clipboard["reflection_probe"]["ambiance"].asReal());
-            volobjp->setReflectionProbeNearClip((F32)clipboard["reflection_probe"]["near_clip"].asReal());
+            volobjp->setReflectionProbeAmbiance(static_cast<F32>(clipboard["reflection_probe"]["ambiance"].asReal()));
+            volobjp->setReflectionProbeNearClip(static_cast<F32>(clipboard["reflection_probe"]["near_clip"].asReal()));
             volobjp->setReflectionProbeIsDynamic(clipboard["reflection_probe"]["dynamic"].asBoolean());
             volobjp->setReflectionProbeIsMirror(clipboard["reflection_probe"]["mirror"].asBoolean());
         }
@@ -1366,11 +1366,11 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
     {
         return;
     }
-    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
 
-    volobjp->setLightIntensity((F32)self->getChild<LLUICtrl>("Light Intensity")->getValue().asReal());
-    volobjp->setLightRadius((F32)self->getChild<LLUICtrl>("Light Radius")->getValue().asReal());
-    volobjp->setLightFalloff((F32)self->getChild<LLUICtrl>("Light Falloff")->getValue().asReal());
+    volobjp->setLightIntensity(static_cast<F32>(self->getChild<LLUICtrl>("Light Intensity")->getValue().asReal()));
+    volobjp->setLightRadius(static_cast<F32>(self->getChild<LLUICtrl>("Light Radius")->getValue().asReal()));
+    volobjp->setLightFalloff(static_cast<F32>(self->getChild<LLUICtrl>("Light Falloff")->getValue().asReal()));
 
     LLColorSwatchCtrl*  LightColorSwatch = self->getChild<LLColorSwatchCtrl>("colorswatch");
     if(LightColorSwatch)
@@ -1402,9 +1402,9 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
                 }
 
                 LLVector3 spot_params;
-                spot_params.mV[0] = (F32) self->getChild<LLUICtrl>("Light FOV")->getValue().asReal();
-                spot_params.mV[1] = (F32) self->getChild<LLUICtrl>("Light Focus")->getValue().asReal();
-                spot_params.mV[2] = (F32) self->getChild<LLUICtrl>("Light Ambiance")->getValue().asReal();
+                spot_params.mV[0] = static_cast<F32>(self->getChild<LLUICtrl>("Light FOV")->getValue().asReal());
+                spot_params.mV[1] = static_cast<F32>(self->getChild<LLUICtrl>("Light Focus")->getValue().asReal());
+                spot_params.mV[2] = static_cast<F32>(self->getChild<LLUICtrl>("Light Ambiance")->getValue().asReal());
                 volobjp->setSpotLightParams(spot_params);
             }
         }
@@ -1430,8 +1430,8 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
     }
     LLVOVolume* volobjp = (LLVOVolume*)objectp;
 
-    volobjp->setReflectionProbeAmbiance((F32)self->getChild<LLUICtrl>("Probe Ambiance")->getValue().asReal());
-    volobjp->setReflectionProbeNearClip((F32)self->getChild<LLUICtrl>("Probe Near Clip")->getValue().asReal());
+    volobjp->setReflectionProbeAmbiance(static_cast<F32>(self->getChild<LLUICtrl>("Probe Ambiance")->getValue().asReal()));
+    volobjp->setReflectionProbeNearClip(static_cast<F32>(self->getChild<LLUICtrl>("Probe Near Clip")->getValue().asReal()));
 
     bool mirrors_enabled = LLPipeline::RenderMirrors;
     bool is_mirror = false;
@@ -1556,13 +1556,13 @@ void LLPanelVolume::onCommitFlexible( LLUICtrl* ctrl, void* userdata )
         new_attributes = *attributes;
 
         new_attributes.setSimulateLOD(self->getChild<LLUICtrl>("FlexNumSections")->getValue().asInteger());//(S32)self->mSpinSections->get());
-        new_attributes.setGravity((F32)self->getChild<LLUICtrl>("FlexGravity")->getValue().asReal());
-        new_attributes.setTension((F32)self->getChild<LLUICtrl>("FlexTension")->getValue().asReal());
-        new_attributes.setAirFriction((F32)self->getChild<LLUICtrl>("FlexFriction")->getValue().asReal());
-        new_attributes.setWindSensitivity((F32)self->getChild<LLUICtrl>("FlexWind")->getValue().asReal());
-        F32 fx = (F32)self->getChild<LLUICtrl>("FlexForceX")->getValue().asReal();
-        F32 fy = (F32)self->getChild<LLUICtrl>("FlexForceY")->getValue().asReal();
-        F32 fz = (F32)self->getChild<LLUICtrl>("FlexForceZ")->getValue().asReal();
+        new_attributes.setGravity(static_cast<F32>(self->getChild<LLUICtrl>("FlexGravity")->getValue().asReal()));
+        new_attributes.setTension(static_cast<F32>(self->getChild<LLUICtrl>("FlexTension")->getValue().asReal()));
+        new_attributes.setAirFriction(static_cast<F32>(self->getChild<LLUICtrl>("FlexFriction")->getValue().asReal()));
+        new_attributes.setWindSensitivity(static_cast<F32>(self->getChild<LLUICtrl>("FlexWind")->getValue().asReal()));
+        F32 fx = static_cast<F32>(self->getChild<LLUICtrl>("FlexForceX")->getValue().asReal());
+        F32 fy = static_cast<F32>(self->getChild<LLUICtrl>("FlexForceY")->getValue().asReal());
+        F32 fz = static_cast<F32>(self->getChild<LLUICtrl>("FlexForceZ")->getValue().asReal());
         LLVector3 force(fx,fy,fz);
 
         new_attributes.setUserForce(force);
@@ -1580,7 +1580,7 @@ void LLPanelVolume::onCommitAnimatedMeshCheckbox(LLUICtrl *, void*)
     {
         return;
     }
-    LLVOVolume *volobjp = (LLVOVolume *)objectp;
+    LLVOVolume *volobjp = static_cast<LLVOVolume *>(objectp);
     bool animated_mesh = getChild<LLUICtrl>("Animated Mesh Checkbox Ctrl")->getValue();
     U32 flags = volobjp->getExtendedMeshFlags();
     U32 new_flags = flags;

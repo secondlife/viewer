@@ -90,7 +90,7 @@ void LLWearableList::getAsset(const LLAssetID& assetID, const std::string& weara
         gAssetStorage->getAssetData(assetID,
             asset_type,
             LLWearableList::processGetAssetReply,
-            (void*)new LLWearableArrivedData( asset_type, wearable_name, avatarp, asset_arrived_callback, userdata ),
+            static_cast<void*>(new LLWearableArrivedData( asset_type, wearable_name, avatarp, asset_arrived_callback, userdata )),
             true);
     }
 }

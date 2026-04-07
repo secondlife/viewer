@@ -524,11 +524,11 @@ bool LLPanelLandGeneral::postBuild()
     mTextDwell = getChild<LLTextBox>("DwellText");
 
     mBtnBuyLand = getChild<LLButton>("Buy Land...");
-    mBtnBuyLand->setClickedCallback(onClickBuyLand, (void*)&BUY_PERSONAL_LAND);
+    mBtnBuyLand->setClickedCallback(onClickBuyLand, reinterpret_cast<void*>(const_cast<bool*>(&BUY_PERSONAL_LAND)));
 
 
     mBtnBuyGroupLand = getChild<LLButton>("Buy For Group...");
-    mBtnBuyGroupLand->setClickedCallback(onClickBuyLand, (void*)&BUY_GROUP_LAND);
+    mBtnBuyGroupLand->setClickedCallback(onClickBuyLand, reinterpret_cast<void*>(const_cast<bool*>(&BUY_GROUP_LAND)));
 
 
     mBtnBuyPass = getChild<LLButton>("Buy Pass...");
@@ -739,7 +739,7 @@ void LLPanelLandGeneral::refresh()
             static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
             std::string claim_date_str = use_24h ? getString("time_stamp_template") : getString("time_stamp_template_ampm");
             LLSD substitution;
-            substitution["datetime"] = (S32) claim_date;
+            substitution["datetime"] = static_cast<S32>(claim_date);
             LLStringUtil::format (claim_date_str, substitution);
             mTextClaimDate->setText(claim_date_str);
             mTextClaimDate->setEnabled(is_leased);
@@ -833,7 +833,7 @@ void LLPanelLandGeneral::refresh()
             F32 cost_per_sqm = 0.0f;
             if (area > 0)
             {
-                cost_per_sqm = (F32)parcel->getSalePrice() / (F32)area;
+                cost_per_sqm = static_cast<F32>(parcel->getSalePrice()) / static_cast<F32>(area);
             }
 
             S32 price = parcel->getSalePrice();
@@ -1000,7 +1000,7 @@ void LLPanelLandGeneral::setGroup(const LLUUID& group_id)
 // static
 void LLPanelLandGeneral::onClickBuyLand(void* data)
 {
-    bool* for_group = (bool*)data;
+    bool* for_group = static_cast<bool*>(data);
     LLViewerParcelMgr::getInstance()->startBuyLand(*for_group);
 }
 
@@ -1337,7 +1337,7 @@ void LLPanelLandObjects::refresh()
         LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
         if (region)
         {
-            S32 max_tasks_per_region = (S32)region->getMaxTasks();
+            S32 max_tasks_per_region = static_cast<S32>(region->getMaxTasks());
             sw_max = llmin(sw_max, max_tasks_per_region);
             max = llmin(max, max_tasks_per_region);
         }
@@ -1439,7 +1439,7 @@ void send_return_objects_message(S32 parcel_local_id, S32 return_type,
     msg->addUUIDFast(_PREHASH_SessionID,gAgent.getSessionID());
     msg->nextBlockFast(_PREHASH_ParcelData);
     msg->addS32Fast(_PREHASH_LocalID, parcel_local_id);
-    msg->addU32Fast(_PREHASH_ReturnType, (U32) return_type);
+    msg->addU32Fast(_PREHASH_ReturnType, static_cast<U32>(return_type));
 
     // Dummy task id, not used
     msg->nextBlock("TaskIDs");
@@ -1710,7 +1710,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
         object_count_str = llformat("%d", object_count);
         item_params.columns.add().value(object_count_str).font(FONT).column("count");
-        item_params.columns.add().value(LLDate((double)most_recent_time)).font(FONT).column("mostrecent").type("date");
+        item_params.columns.add().value(LLDate(static_cast<double>(most_recent_time))).font(FONT).column("mostrecent").type("date");
 
         self->mOwnerList->addNameItemRow(item_params);
         LL_DEBUGS() << "object owner " << owner_id << " (" << (is_group_owned ? "group" : "agent")
@@ -1885,7 +1885,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 // static
 void LLPanelLandObjects::onLostFocus(LLFocusableElement* caller, void* user_data)
 {
-    onCommitClean((LLUICtrl*)caller, user_data);
+    onCommitClean(static_cast<LLUICtrl*>(caller), user_data);
 }
 
 // static
@@ -2137,7 +2137,7 @@ void LLPanelLandOptions::refresh()
 
         bool can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel,
                                                         GP_LAND_SET_LANDING_POINT);
-        mLandingTypeCombo->setCurrentByIndex((S32)parcel->getLandingType());
+        mLandingTypeCombo->setCurrentByIndex(static_cast<S32>(parcel->getLandingType()));
         mLandingTypeCombo->setEnabled( can_change_landing_point );
 
         bool can_change_identity =
@@ -2148,7 +2148,7 @@ void LLPanelLandOptions::refresh()
 
         // find out where we're looking and convert that to an angle in degrees on a regular compass (not the internal representation)
         LLVector3 user_look_at = parcel->getUserLookAt();
-        U32 user_look_at_angle = ( (U32)( ( atan2(user_look_at[1], -user_look_at[0]) + F_PI * 2 ) * RAD_TO_DEG + 0.5) - 90) % 360;
+        U32 user_look_at_angle = ( static_cast<U32>(( atan2(user_look_at[1], -user_look_at[0]) + F_PI * 2 ) * RAD_TO_DEG + 0.5) - 90) % 360;
 
         LLVector3 pos = parcel->getUserLocation();
         if (pos.isExactlyZero())
@@ -2544,7 +2544,7 @@ void LLPanelLandAccess::refresh()
                 if (entry.mTime != 0)
                 {
                     LLStringUtil::format_map_t args;
-                    S32 now = (S32)time(NULL);
+                    S32 now = static_cast<S32>(time(NULL));
                     S32 seconds = entry.mTime - now;
                     if (seconds < 0) seconds = 0;
                     prefix.assign(" (");
@@ -2593,7 +2593,7 @@ void LLPanelLandAccess::refresh()
                 if (entry.mTime != 0)
                 {
                     LLStringUtil::format_map_t args;
-                    S32 now = (S32)time(NULL);
+                    S32 now = static_cast<S32>(time(NULL));
                     seconds = entry.mTime - now;
                     if (seconds < 0) seconds = 0;
 
@@ -2669,7 +2669,7 @@ void LLPanelLandAccess::refresh()
         }
 
         S32 pass_price = parcel->getPassPrice();
-        mTemporaryPassPriceSpin->setValue((F32)pass_price);
+        mTemporaryPassPriceSpin->setValue(static_cast<F32>(pass_price));
 
         F32 pass_hours = parcel->getPassHours();
         mTemporaryPassHourSpin->setValue(pass_hours);
@@ -2682,7 +2682,7 @@ void LLPanelLandAccess::refresh()
         mGroupAccessCheck->setValue(false);
         mGroupAccessCheck->setLabelArg("[GROUP]", LLStringUtil::null );
         mTemporaryPassCheck->setValue(false);
-        mTemporaryPassPriceSpin->setValue((F32)PARCEL_PASS_PRICE_DEFAULT);
+        mTemporaryPassPriceSpin->setValue(static_cast<F32>(PARCEL_PASS_PRICE_DEFAULT));
         mTemporaryPassHourSpin->setValue(PARCEL_PASS_HOURS_DEFAULT );
         mListAccess->setToolTipArg(LLStringExplicit("[LISTED]"), llformat("%d",0));
         mListAccess->setToolTipArg(LLStringExplicit("[MAX]"), llformat("%d",0));
@@ -2891,8 +2891,8 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
         }
     }
 
-    S32 pass_price = llfloor((F32)self->mTemporaryPassPriceSpin->getValue().asReal());
-    F32 pass_hours = (F32)self->mTemporaryPassHourSpin->getValue().asReal();
+    S32 pass_price = llfloor(static_cast<F32>(self->mTemporaryPassPriceSpin->getValue().asReal()));
+    F32 pass_hours = static_cast<F32>(self->mTemporaryPassHourSpin->getValue().asReal());
 
     // Push data into current parcel
     parcel->setParcelFlag(PF_USE_ACCESS_GROUP,  use_access_group);

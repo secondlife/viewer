@@ -114,7 +114,7 @@ bool LLWearable::exportStream( std::ostream& output_stream ) const
     }
 
     // wearable type
-    output_stream << "type " << (S32) getType() << "\n";
+    output_stream << "type " << static_cast<S32>(getType()) << "\n";
 
     // parameters
     output_stream << "parameters " << mVisualParamIndexMap.size() << "\n";
@@ -141,9 +141,9 @@ bool LLWearable::exportStream( std::ostream& output_stream ) const
 
 void LLWearable::createVisualParams(LLAvatarAppearance *avatarp)
 {
-    for (LLViewerVisualParam* param = (LLViewerVisualParam*) avatarp->getFirstVisualParam();
+    for (LLViewerVisualParam* param = static_cast<LLViewerVisualParam*>(avatarp->getFirstVisualParam());
          param;
-         param = (LLViewerVisualParam*) avatarp->getNextVisualParam())
+         param = static_cast<LLViewerVisualParam*>(avatarp->getNextVisualParam()))
     {
         if (param->getWearableType() == mType)
         {
@@ -173,7 +173,7 @@ void LLWearable::createVisualParams(LLAvatarAppearance *avatarp)
 void LLWearable::createLayers(S32 te, LLAvatarAppearance *avatarp)
 {
     LLTexLayerSet *layer_set = NULL;
-    const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearance::getDictionary()->getTexture((ETextureIndex)te);
+    const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearance::getDictionary()->getTexture(static_cast<ETextureIndex>(te));
     if (texture_dict && texture_dict->mIsUsedByBakedTexture)
     {
         const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
@@ -183,7 +183,7 @@ void LLWearable::createLayers(S32 te, LLAvatarAppearance *avatarp)
 
     if (layer_set)
     {
-           layer_set->cloneTemplates(mTEMap[te], (ETextureIndex)te, this);
+           layer_set->cloneTemplates(mTEMap[te], static_cast<ETextureIndex>(te), this);
     }
     else
     {
@@ -332,7 +332,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     }
     if( 0 <= type && type < LLWearableType::WT_COUNT )
     {
-        setType((LLWearableType::EType)type, avatarp);
+        setType(static_cast<LLWearableType::EType>(type), avatarp);
     }
     else
     {
@@ -573,7 +573,7 @@ void LLWearable::syncImages(te_map_t &src, te_map_t &dst)
     // Deep copy of src (copies only those tes that are current, filling in defaults where needed)
     for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
     {
-        if (LLAvatarAppearance::getDictionary()->getTEWearableType((ETextureIndex) te) == mType)
+        if (LLAvatarAppearance::getDictionary()->getTEWearableType(static_cast<ETextureIndex>(te)) == mType)
         {
             te_map_t::const_iterator iter = src.find(te);
             LLUUID image_id;
@@ -589,7 +589,7 @@ void LLWearable::syncImages(te_map_t &src, te_map_t &dst)
             else
             {
                 // there is no Local Texture Object in the source image map. Get defaults values for populating the destination image map.
-                image_id = getDefaultTextureImageID((ETextureIndex) te);
+                image_id = getDefaultTextureImageID(static_cast<ETextureIndex>(te));
                 image = gTextureManagerBridgep->getFetchedTexture( image_id );
             }
 
@@ -662,7 +662,7 @@ F32 LLWearable::getVisualParamWeight(S32 param_index) const
     {
         LL_WARNS() << "LLWearable::getVisualParam passed invalid parameter index: "  << param_index << " for wearable type: " << this->getName() << LL_ENDL;
     }
-    return (F32)-1.0;
+    return static_cast<F32>(-1.0);
 }
 
 LLVisualParam* LLWearable::getVisualParam(S32 index) const
@@ -685,7 +685,7 @@ void LLWearable::animateParams(F32 delta)
 {
     for(visual_param_index_map_t::value_type& vp_pair : mVisualParamIndexMap)
     {
-        LLVisualParam *param = (LLVisualParam*)vp_pair.second;
+        LLVisualParam *param = vp_pair.second;
         param->animate(delta);
     }
 }
@@ -694,7 +694,7 @@ LLColor4 LLWearable::getClothesColor(S32 te) const
 {
     LLColor4 color;
     std::array<U32, 3> param_name;
-    if( LLAvatarAppearance::teToColorParams( (LLAvatarAppearanceDefines::ETextureIndex)te, param_name.data() ) )
+    if( LLAvatarAppearance::teToColorParams( static_cast<LLAvatarAppearanceDefines::ETextureIndex>(te), param_name.data() ) )
     {
         for( U8 index = 0; index < 3; index++ )
         {
@@ -707,7 +707,7 @@ LLColor4 LLWearable::getClothesColor(S32 te) const
 void LLWearable::setClothesColor( S32 te, const LLColor4& new_color)
 {
     std::array<U32, 3> param_name;
-    if( LLAvatarAppearance::teToColorParams( (LLAvatarAppearanceDefines::ETextureIndex)te, param_name.data() ) )
+    if( LLAvatarAppearance::teToColorParams( static_cast<LLAvatarAppearanceDefines::ETextureIndex>(te), param_name.data() ) )
     {
         for( U8 index = 0; index < 3; index++ )
         {
@@ -725,7 +725,7 @@ void LLWearable::writeToAvatar(LLAvatarAppearance* avatarp)
     {
         // cross-wearable parameters are not authoritative, as they are driven by a different wearable. So don't copy the values to the
         // avatar object if cross wearable. Cross wearable params get their values from the avatar, they shouldn't write the other way.
-        if( (((LLViewerVisualParam*)param)->getWearableType() == mType) && (!((LLViewerVisualParam*)param)->getCrossWearable()) )
+        if( ((static_cast<const LLViewerVisualParam*>(param))->getWearableType() == mType) && (!(static_cast<const LLViewerVisualParam*>(param))->getCrossWearable()) )
         {
             S32 param_id = param->getID();
             F32 weight = getVisualParamWeight(param_id);

@@ -238,7 +238,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
             {
                 // the weight/complexity is unsigned, but LLSD only stores signed integers,
                 // so if it's over that (which would be ridiculously high), just store the maximum signed int value
-                info[KEY_WEIGHT] = (S32)(avatar_complexity < S32_MAX ? avatar_complexity : S32_MAX);
+                info[KEY_WEIGHT] = static_cast<S32>((avatar_complexity < S32_MAX ? avatar_complexity : S32_MAX));
                 info[KEY_TOO_COMPLEX] = LLSD::Boolean(avatar->isTooComplex());
                 agents[avatar->getID().asString()] = info;
 

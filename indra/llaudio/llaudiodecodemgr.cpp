@@ -102,9 +102,9 @@ protected:
 
 size_t cache_read(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
-    LLFileSystem *file = (LLFileSystem *)datasource;
+    LLFileSystem *file = reinterpret_cast<LLFileSystem *>(datasource);
 
-    if (file->read(std::span<U8>((U8*)ptr, size * nmemb)))  /*Flawfinder: ignore*/
+    if (file->read(std::span<U8>(reinterpret_cast<U8*>(ptr), size * nmemb)))  /*Flawfinder: ignore*/
     {
         S32 read = file->getLastBytesRead();
         return  read / size;    /*Flawfinder: ignore*/
@@ -117,7 +117,7 @@ size_t cache_read(void *ptr, size_t size, size_t nmemb, void *datasource)
 
 S32 cache_seek(void *datasource, ogg_int64_t offset, S32 whence)
 {
-    LLFileSystem *file = (LLFileSystem *)datasource;
+    LLFileSystem *file = reinterpret_cast<LLFileSystem *>(datasource);
 
     // cache has 31-bit files
     if (offset > S32_MAX)
@@ -141,7 +141,7 @@ S32 cache_seek(void *datasource, ogg_int64_t offset, S32 whence)
         return -1;
     }
 
-    if (file->seek((S32)offset, origin))
+    if (file->seek(static_cast<S32>(offset), origin))
     {
         return 0;
     }
@@ -153,14 +153,14 @@ S32 cache_seek(void *datasource, ogg_int64_t offset, S32 whence)
 
 S32 cache_close (void *datasource)
 {
-    LLFileSystem *file = (LLFileSystem *)datasource;
+    LLFileSystem *file = reinterpret_cast<LLFileSystem *>(datasource);
     delete file;
     return 0;
 }
 
 long cache_tell (void *datasource)
 {
-    LLFileSystem *file = (LLFileSystem *)datasource;
+    LLFileSystem *file = reinterpret_cast<LLFileSystem *>(datasource);
     return file->tell();
 }
 
@@ -216,8 +216,8 @@ bool LLVorbisDecodeState::initDecode()
         return(false);
     }
 
-    S32 sample_count = (S32)ov_pcm_total(&mVF, -1);
-    size_t size_guess = (size_t)sample_count;
+    S32 sample_count = static_cast<S32>(ov_pcm_total(&mVF, -1));
+    size_t size_guess = static_cast<size_t>(sample_count);
     vorbis_info* vi = ov_info(&mVF, -1);
     size_guess *= (vi? vi->channels : 1);
     size_guess *= 2;
@@ -239,8 +239,8 @@ bool LLVorbisDecodeState::initDecode()
         LL_WARNS("AudioEngine") << "No default bitstream found" << LL_ENDL;
     }
 
-    if( (size_t)sample_count > LLVORBIS_CLIP_REJECT_SAMPLES ||
-        (size_t)sample_count <= 0)
+    if( static_cast<size_t>(sample_count) > LLVORBIS_CLIP_REJECT_SAMPLES ||
+        static_cast<size_t>(sample_count) <= 0)
     {
         abort_decode = true;
         LL_WARNS("AudioEngine") << "Illegal sample count: " << sample_count << LL_ENDL;
@@ -446,41 +446,41 @@ bool LLVorbisDecodeState::finishDecode()
             S32 fade_length;
             char pcmout[4096];      /*Flawfinder: ignore*/
 
-            fade_length = llmin((S32)128,(S32)(data_length-36)/8);
-            if((S32)mWAVBuffer.size() >= (WAV_HEADER_SIZE + 2* fade_length))
+            fade_length = llmin(static_cast<S32>(128), static_cast<S32>((data_length-36)/8));
+            if(static_cast<S32>(mWAVBuffer.size()) >= (WAV_HEADER_SIZE + 2* fade_length))
             {
                 memcpy(pcmout, &mWAVBuffer[WAV_HEADER_SIZE], (2 * fade_length));    /*Flawfinder: ignore*/
             }
             llendianswizzle(&pcmout, 2, fade_length);
 
-            samplep = (S16 *)pcmout;
+            samplep = reinterpret_cast<S16 *>(pcmout);
             for (i = 0 ;i < fade_length; i++)
             {
-                *samplep = llfloor((F32)*samplep * ((F32)i/(F32)fade_length));
+                *samplep = llfloor(static_cast<F32>(*samplep) * (static_cast<F32>(i)/static_cast<F32>(fade_length)));
                 samplep++;
             }
 
             llendianswizzle(&pcmout, 2, fade_length);
-            if((WAV_HEADER_SIZE+(2 * fade_length)) < (S32)mWAVBuffer.size())
+            if((WAV_HEADER_SIZE+(2 * fade_length)) < static_cast<S32>(mWAVBuffer.size()))
             {
                 memcpy(&mWAVBuffer[WAV_HEADER_SIZE], pcmout, (2 * fade_length));    /*Flawfinder: ignore*/
             }
             S32 near_end = static_cast<S32>(mWAVBuffer.size()) - (2 * fade_length);
-            if ((S32)mWAVBuffer.size() >= ( near_end + 2* fade_length))
+            if (static_cast<S32>(mWAVBuffer.size()) >= ( near_end + 2* fade_length))
             {
                 memcpy(pcmout, &mWAVBuffer[near_end], (2 * fade_length));   /*Flawfinder: ignore*/
             }
             llendianswizzle(&pcmout, 2, fade_length);
 
-            samplep = (S16 *)pcmout;
+            samplep = reinterpret_cast<S16 *>(pcmout);
             for (i = fade_length-1 ; i >=  0; i--)
             {
-                *samplep = llfloor((F32)*samplep * ((F32)i/(F32)fade_length));
+                *samplep = llfloor(static_cast<F32>(*samplep) * (static_cast<F32>(i)/static_cast<F32>(fade_length)));
                 samplep++;
             }
 
             llendianswizzle(&pcmout, 2, fade_length);
-            if (near_end + (2 * fade_length) < (S32)mWAVBuffer.size())
+            if (near_end + (2 * fade_length) < static_cast<S32>(mWAVBuffer.size()))
             {
                 memcpy(&mWAVBuffer[near_end], pcmout, (2 * fade_length));/*Flawfinder: ignore*/
             }

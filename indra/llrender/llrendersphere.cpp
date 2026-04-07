@@ -64,7 +64,7 @@ void LLRenderSphere::renderGGL()
         mSpherePoints.resize(LATITUDE_SLICES + 1);
         mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX);
 
-        mVertexBuffer->allocateBuffer((U32)(LATITUDE_SLICES + 1) * (LONGITUDE_SLICES + 1), LATITUDE_SLICES * LONGITUDE_SLICES * 6);
+        mVertexBuffer->allocateBuffer(static_cast<U32>(LATITUDE_SLICES + 1) * (LONGITUDE_SLICES + 1), LATITUDE_SLICES * LONGITUDE_SLICES * 6);
 
         LLStrider<LLVector3> v;
         mVertexBuffer->getVertexStrider(v);
@@ -74,8 +74,8 @@ void LLRenderSphere::renderGGL()
             mSpherePoints[lat_i].resize(LONGITUDE_SLICES + 1);
             for (S32 lon_i = 0; lon_i < LONGITUDE_SLICES + 1; lon_i++)
             {
-                F32 lat = (F32)lat_i / LATITUDE_SLICES;
-                F32 lon = (F32)lon_i / LONGITUDE_SLICES;
+                F32 lat = static_cast<F32>(lat_i) / LATITUDE_SLICES;
+                F32 lon = static_cast<F32>(lon_i) / LONGITUDE_SLICES;
 
                 mSpherePoints[lat_i][lon_i] = polar_to_cart(lat, lon);
                 v[lat_i * (LONGITUDE_SLICES + 1) + lon_i] = mSpherePoints[lat_i][lon_i];

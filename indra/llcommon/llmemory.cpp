@@ -182,7 +182,7 @@ void* LLMemory::tryToAlloc(void* address, U32 size)
     }
     return address ;
 #else
-    return (void*)0x01 ; //skip checking
+    return reinterpret_cast<void*>(0x01) ; //skip checking
 #endif
 }
 
@@ -324,13 +324,13 @@ void* ll_aligned_malloc_fallback( size_t size, int align )
         __asm int 3;
     }
     DWORD old;
-    bool Res = VirtualProtect((void*)((char*)p + for_alloc), sysinfo.dwPageSize, PAGE_NOACCESS, &old);
+    bool Res = VirtualProtect(static_cast<void*>(static_cast<char*>(p) + for_alloc), sysinfo.dwPageSize, PAGE_NOACCESS, &old);
     if(false == Res) {
         // call debugger
         __asm int 3;
     }
 
-    void* ret = (void*)((char*)p + for_alloc-size);
+    void* ret = static_cast<void*>(static_cast<char*>(p) + for_alloc-size);
 
     {
         LLMutexLock lock(&mem_info::get().mutex);

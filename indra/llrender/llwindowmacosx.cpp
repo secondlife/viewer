@@ -195,7 +195,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
     mForceRebuild = false;
 
     // Get the original aspect ratio of the main device.
-    mOriginalAspectRatio = (double)CGDisplayPixelsWide(mDisplay) / (double)CGDisplayPixelsHigh(mDisplay);
+    mOriginalAspectRatio = static_cast<double>(CGDisplayPixelsWide(mDisplay)) / static_cast<double>(CGDisplayPixelsHigh(mDisplay));
 
     // Stash the window title
     mWindowTitle = title;
@@ -1322,7 +1322,7 @@ F32 LLWindowMacOSX::getNativeAspectRatio()
 {
     if (mFullscreen)
     {
-        return (F32)mFullscreenWidth / (F32)mFullscreenHeight;
+        return static_cast<F32>(mFullscreenWidth) / static_cast<F32>(mFullscreenHeight);
     }
     else
     {
@@ -2332,9 +2332,9 @@ static void get_devices(std::list<HidDevice> &list_of_devices,
         {
             LL_DEBUGS("Joystick");
             list_of_devices.push_back(device);
-            LL_CONT << "Device axes: " << (S32)device.mAxis
-                    << " Device HIDUsepage: " << (S32)device.mUsagePage
-                    << " Device HIDUsage: " << (S32)device.mUsage;
+            LL_CONT << "Device axes: " << static_cast<S32>(device.mAxis)
+                    << " Device HIDUsepage: " << static_cast<S32>(device.mUsagePage)
+                    << " Device HIDUsage: " << static_cast<S32>(device.mUsage);
             LL_ENDL;
         }
 
@@ -2439,9 +2439,9 @@ bool LLWindowMacOSX::dialogColorPicker( F32 *r, F32 *g, F32 *b)
         retval = info.newColorChosen;
         if (info.newColorChosen)
         {
-            *r = ((float) info.theColor.color.rgb.red) / 65535.0;
-            *g = ((float) info.theColor.color.rgb.green) / 65535.0;
-            *b = ((float) info.theColor.color.rgb.blue) / 65535.0;
+            *r = (static_cast<float>(info.theColor.color.rgb.red)) / 65535.0;
+            *g = (static_cast<float>(info.theColor.color.rgb.green)) / 65535.0;
+            *b = (static_cast<float>(info.theColor.color.rgb.blue)) / 65535.0;
         }
     }
 
@@ -2451,7 +2451,7 @@ bool LLWindowMacOSX::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 void *LLWindowMacOSX::getPlatformWindow()
 {
     // NOTE: this will be NULL in fullscreen mode.  Plan accordingly.
-    return (void*)mWindow;
+    return reinterpret_cast<void*>(mWindow);
 }
 
 // get a double value from a dictionary
@@ -2529,7 +2529,7 @@ void* LLWindowMacOSX::createSharedContext()
         CGLEnable(mContext, kCGLCEMPEngine);
     }
 
-    return (void *)sc;
+    return reinterpret_cast<void *>(sc);
 }
 
 void LLWindowMacOSX::makeContextCurrent(void* context)

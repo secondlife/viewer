@@ -587,7 +587,7 @@ bool LLScrollbar::changeLine( S32 delta, bool update_thumb )
 
 void LLScrollbar::setValue(const LLSD& value)
 {
-    setDocPos((S32) value.asInteger());
+    setDocPos(static_cast<S32>(value.asInteger()));
 }
 
 

@@ -387,7 +387,7 @@ void LLGiveInventory::commitGiveInventoryItem(const LLUUID& to_agent,
     transaction_id.generate();
     const S32 BUCKET_SIZE = sizeof(U8) + UUID_BYTES;
     U8 bucket[BUCKET_SIZE];
-    bucket[0] = (U8)item->getType();
+    bucket[0] = static_cast<U8>(item->getType());
     memcpy(&bucket[1], &(item->getUUID().mData), UUID_BYTES);       /* Flawfinder: ignore */
     pack_instant_message(
         gMessageSystem,
@@ -527,7 +527,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
         S32 bucket_size = (sizeof(U8) + UUID_BYTES) * (static_cast<S32>(count) + 1);
         std::vector<U8> bucket(bucket_size);
         U8* pos = bucket.data();
-        U8 type = (U8)cat->getType();
+        U8 type = static_cast<U8>(cat->getType());
         memcpy(pos, &type, sizeof(U8));     /* Flawfinder: ignore */
         pos += sizeof(U8);
         memcpy(pos, &(cat->getUUID()), UUID_BYTES);     /* Flawfinder: ignore */
@@ -544,7 +544,7 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
         count = items.size();
         for(i = 0; i < count; ++i)
         {
-            type = (U8)items.at(i)->getType();
+            type = static_cast<U8>(items.at(i)->getType());
             memcpy(pos, &type, sizeof(U8));     /* Flawfinder: ignore */
             pos += sizeof(U8);
             memcpy(pos, &(items.at(i)->getUUID()), UUID_BYTES);     /* Flawfinder: ignore */

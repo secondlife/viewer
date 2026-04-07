@@ -91,7 +91,7 @@ bool LLPanelSnapshot::postBuild()
 void LLPanelSnapshot::onOpen(const LLSD& key)
 {
     S32 old_format = gSavedSettings.getS32("SnapshotFormat");
-    S32 new_format = (S32) getImageFormat();
+    S32 new_format = static_cast<S32>(getImageFormat());
 
     gSavedSettings.setS32("SnapshotFormat", new_format);
     setCtrlsEnabled(true);
@@ -171,7 +171,7 @@ LLSideTrayPanelContainer* LLPanelSnapshot::getParentContainer()
 void LLPanelSnapshot::updateImageQualityLevel()
 {
     LLSliderCtrl* quality_slider = getChild<LLSliderCtrl>("image_quality_slider");
-    S32 quality_val = llfloor((F32) quality_slider->getValue().asReal());
+    S32 quality_val = llfloor(static_cast<F32>(quality_slider->getValue().asReal()));
 
     std::string quality_lvl;
 
@@ -228,12 +228,12 @@ void LLPanelSnapshot::onCustomResolutionCommit()
         S32 width = widthSpinner->getValue().asInteger();
         width = power_of_two(width, MAX_TEXTURE_SIZE);
         info["w"] = width;
-        widthSpinner->setIncrement((F32)(width >> 1));
+        widthSpinner->setIncrement(static_cast<F32>(width >> 1));
         widthSpinner->forceSetValue(width);
         S32 height =  heightSpinner->getValue().asInteger();
         height = power_of_two(height, MAX_TEXTURE_SIZE);
-        heightSpinner->setIncrement((F32)(height >> 1));
-        heightSpinner->forceSetValue((F32)height);
+        heightSpinner->setIncrement(static_cast<F32>(height >> 1));
+        heightSpinner->forceSetValue(static_cast<F32>(height));
         info["h"] = height;
     }
     else

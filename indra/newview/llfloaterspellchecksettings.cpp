@@ -352,7 +352,7 @@ void LLFloaterSpellCheckerImport::onBtnOK()
     if ( imported )
     {
         LLSD custom_dict_info;
-        custom_dict_info["is_primary"] = (bool)gDirUtilp->fileExists(dict_aff);
+        custom_dict_info["is_primary"] = static_cast<bool>(gDirUtilp->fileExists(dict_aff));
         custom_dict_info["name"] = mDictionaryBasename;
         custom_dict_info["language"] = dict_language;
 

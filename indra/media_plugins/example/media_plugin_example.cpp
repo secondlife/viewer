@@ -117,7 +117,7 @@ void mediaPluginExample::receiveMessage(const char* message_string)
                 F64 time = message_in.getValueReal("time");
 
                 // Convert time to milliseconds for update()
-                update((int)(time * 1000.0f));
+                update(static_cast<int>(time * 1000.0f));
             }
             else if (message_name == "cleanup")
             {
@@ -134,7 +134,7 @@ void mediaPluginExample::receiveMessage(const char* message_string)
             {
                 SharedSegmentInfo info;
                 info.mAddress = message_in.getValuePointer("address");
-                info.mSize = (size_t)message_in.getValueS32("size");
+                info.mSize = static_cast<size_t>(message_in.getValueS32("size"));
                 std::string name = message_in.getValue("name");
 
                 mSharedSegments.insert(SharedSegmentMap::value_type(name, info));
@@ -200,7 +200,7 @@ void mediaPluginExample::receiveMessage(const char* message_string)
                     SharedSegmentMap::iterator iter = mSharedSegments.find(name);
                     if (iter != mSharedSegments.end())
                     {
-                        mPixels = (unsigned char*)iter->second.mAddress;
+                        mPixels = static_cast<unsigned char*>(iter->second.mAddress);
                         mWidth = width;
                         mHeight = height;
 
@@ -387,7 +387,7 @@ int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func,
 {
     mediaPluginExample* self = new mediaPluginExample(host_send_func, host_user_data);
     *plugin_send_func = mediaPluginExample::staticReceiveMessage;
-    *plugin_user_data = (void*)self;
+    *plugin_user_data = static_cast<void*>(self);
 
     return 0;
 }

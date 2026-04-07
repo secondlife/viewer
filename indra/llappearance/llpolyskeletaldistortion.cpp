@@ -156,7 +156,7 @@ bool LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
         // apply to children that need to inherit it
         for (LLJoint* joint : joint->mChildren)
         {
-            LLAvatarJoint* child_joint = (LLAvatarJoint*)joint;
+            LLAvatarJoint* child_joint = static_cast<LLAvatarJoint*>(joint);
             if (child_joint->inheritScale())
             {
                 LLVector3 childDeformation = LLVector3(child_joint->getScale());

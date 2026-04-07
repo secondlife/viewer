@@ -168,7 +168,7 @@ bool LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
             mPick = transparent_pick;
         }
     }
-    LL_INFOS() << "pick_rigged is " << (S32) pick_rigged << " pick time elapsed " << pick_timer.getElapsedTimeF32() << LL_ENDL;
+    LL_INFOS() << "pick_rigged is " << static_cast<S32>(pick_rigged) << " pick time elapsed " << pick_timer.getElapsedTimeF32() << LL_ENDL;
 
     mPick.mKeyMask = mask;
 
@@ -251,7 +251,7 @@ bool LLToolPie::handleLeftClickPick()
                 && !LLViewerParcelMgr::getInstance()->isCollisionBanned())
             {
                 // if selling passes, just buy one
-                void* deselect_when_done = (void*)true;
+                void* deselect_when_done = reinterpret_cast<void*>(true);
                 LLPanelLandGeneral::onClickBuyPass(deselect_when_done);
             }
             else
@@ -438,7 +438,7 @@ bool LLToolPie::handleLeftClickPick()
         {
             break;
         }
-        object = (LLViewerObject*)object->getParent();
+        object = static_cast<LLViewerObject*>(object->getParent());
     }
     if (object && object == gAgentAvatarp)
     {
@@ -609,7 +609,7 @@ bool LLToolPie::walkToClickedLocation()
     // get pointer to avatar
     while (avatar_object && !avatar_object->isAvatar())
     {
-        avatar_object = (LLViewerObject*)avatar_object->getParent();
+        avatar_object = static_cast<LLViewerObject*>(avatar_object->getParent());
     }
 
     if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
@@ -1061,7 +1061,7 @@ bool LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
             // Strange parenting issue, don't show any text
             return true;
         }
-        hover_object = (LLViewerObject*)root_edit->getParent();
+        hover_object = static_cast<LLViewerObject*>(root_edit->getParent());
         if (!hover_object)
         {
             // another strange parenting issue, bail out
@@ -1941,7 +1941,7 @@ bool LLToolPie::handleRightClickPick()
             // Find the attachment's avatar
             while( object && object->isAttachment())
             {
-                object = (LLViewerObject*)object->getParent();
+                object = static_cast<LLViewerObject*>(object->getParent());
                 llassert(object);
             }
 
@@ -2072,7 +2072,7 @@ void LLToolPie::startCameraSteering()
         // get pointer to avatar
         while (avatar_object && !avatar_object->isAvatar())
         {
-            avatar_object = (LLViewerObject*)avatar_object->getParent();
+            avatar_object = static_cast<LLViewerObject*>(avatar_object->getParent());
         }
 
         // if clicking on own avatar...

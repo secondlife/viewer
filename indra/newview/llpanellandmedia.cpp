@@ -275,8 +275,8 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl*, void *userdata)
     std::string mime_type   = self->getChild<LLUICtrl>("mime_type")->getValue().asString();
     U8 media_auto_scale     = static_cast<U8>(self->mMediaAutoScaleCheck->get());
     U8 media_loop           = static_cast<U8>(self->mMediaLoopCheck->get());
-    S32 media_width         = (S32)self->mMediaWidthCtrl->get();
-    S32 media_height        = (S32)self->mMediaHeightCtrl->get();
+    S32 media_width         = static_cast<S32>(self->mMediaWidthCtrl->get());
+    S32 media_height        = static_cast<S32>(self->mMediaHeightCtrl->get());
     LLUUID media_id         = self->mMediaTextureCtrl->getImageAssetID();
 
 

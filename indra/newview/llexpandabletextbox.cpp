@@ -63,7 +63,7 @@ public:
         }
         else
         {
-            width = (F32)(mEditor.getDocumentView()->getRect().getWidth() - mEditor.getHPad());
+            width = static_cast<F32>(mEditor.getDocumentView()->getRect().getWidth() - mEditor.getHPad());
             height = mStyle->getFont()->getLineHeight();
         }
         return true;
@@ -95,7 +95,7 @@ public:
                                     LLFontGL::HAlign::RIGHT, LLFontGL::VAlign::TOP,
                                     0,
                                     mStyle->getShadowType(),
-                                    end - start, (S32)draw_rect.getWidth(),
+                                    end - start, static_cast<S32>(draw_rect.getWidth()),
                                     &right_x,
                                     mEditor.getUseEllipses(), mEditor.getUseColor());
         return right_x;

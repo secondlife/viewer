@@ -67,7 +67,7 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
     delete mCurrentSMessageData;
     mCurrentSMessageData = NULL;
 
-    char* namep = (char*)name;
+    char* namep = const_cast<char*>(name);
     if (mMessageTemplates.count(namep) > 0)
     {
         mCurrentSMessageTemplate = mMessageTemplates.find(name)->second;
@@ -121,7 +121,7 @@ void LLTemplateMessageBuilder::clearMessage()
 // virtual
 void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 {
-    char *bnamep = (char *)blockname;
+    char *bnamep = const_cast<char*>(blockname);
 
     if (!mCurrentSMessageTemplate)
     {
@@ -280,7 +280,7 @@ bool LLTemplateMessageBuilder::removeLastBlock()
 // add data to variable in current block
 void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EMsgVariableType type, S32 size)
 {
-    char *vnamep = (char *)varname;
+    char *vnamep = const_cast<char*>(varname);
 
     // do we have a current message?
     if (!mCurrentSMessageTemplate)
@@ -315,7 +315,7 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
                    << "attempted to stuff more than 255 bytes in "
                    << "(" << size << ").  Clamping size and truncating data." << LL_ENDL;
             size = 255;
-            char *truncate = (char *)data;
+            char *truncate = const_cast<char*>(static_cast<const char*>(data));
             truncate[254] = 0; // array size is 255 but the last element index is 254
         }
 
@@ -340,7 +340,7 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 // add data to variable in current block - fails if variable isn't MVT_FIXED
 void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EMsgVariableType type)
 {
-    char *vnamep = (char *)varname;
+    char *vnamep = const_cast<char*>(varname);
 
     // do we have a current message?
     if (!mCurrentSMessageTemplate)
@@ -449,7 +449,7 @@ void LLTemplateMessageBuilder::addBOOL(const char* varname, bool b)
 void LLTemplateMessageBuilder::addString(const char* varname, const char* s)
 {
     if (s)
-        addData( varname, (void *)s, MVT_VARIABLE, (S32)strlen(s) + 1);  /* Flawfinder: ignore */
+        addData( varname, const_cast<void*>(static_cast<const void*>(s)), MVT_VARIABLE, static_cast<S32>(strlen(s)) + 1);  /* Flawfinder: ignore */
     else
         addData( varname, NULL, MVT_VARIABLE, 0);
 }
@@ -457,7 +457,7 @@ void LLTemplateMessageBuilder::addString(const char* varname, const char* s)
 void LLTemplateMessageBuilder::addString(const char* varname, const std::string& s)
 {
     if (!s.empty())
-        addData( varname, (void *)s.c_str(), MVT_VARIABLE, (S32)(s.size()) + 1);
+        addData( varname, const_cast<void*>(static_cast<const void*>(s.c_str())), MVT_VARIABLE, static_cast<S32>(s.size()) + 1);
     else
         addData( varname, NULL, MVT_VARIABLE, 0);
 }
@@ -499,7 +499,7 @@ static S32 zero_code(U8 **data, U32 *data_size)
     U8 num_zeroes = 0;
 
     const U8 *inptr = (*data);
-    U8 *outptr = (U8 *)encodedSendBuffer;
+    U8 *outptr = encodedSendBuffer;
 
 // skip the packet id field
 
@@ -587,7 +587,7 @@ bool LLTemplateMessageBuilder::isMessageFull(const char* blockname) const
     {
         return false;
     }
-    char* bnamep = (char*)blockname;
+    char* bnamep = const_cast<char*>(blockname);
     S32 max;
 
     const LLMessageBlock* template_data = mCurrentSMessageTemplate->getBlock(bnamep);
@@ -621,7 +621,7 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
     if (template_data->mType == EMsgBlockType::MBT_VARIABLE)
     {
         // remember that mBlockNumber is a S32
-        U8 temp_block_number = (U8)mbci->mBlockNumber;
+        U8 temp_block_number = static_cast<U8>(mbci->mBlockNumber);
         if ((S32)(result + sizeof(U8)) < MAX_BUFFER_SIZE)
         {
             memcpy(&buffer[result], &temp_block_number, sizeof(U8));
@@ -765,7 +765,7 @@ U32 LLTemplateMessageBuilder::buildMessage(
 //      memcpy(&buffer[result], &mCurrentMessageTemplate->mMessageNumber, sizeof(U8));
 
 // new, independant way
-        buffer[result] = (U8)mCurrentSMessageTemplate->mMessageNumber;
+        buffer[result] = static_cast<U8>(mCurrentSMessageTemplate->mMessageNumber);
         result += sizeof(U8);
     }
     else if (mCurrentSMessageTemplate->mFrequency == EMsgFrequency::MFT_MEDIUM)
@@ -835,7 +835,7 @@ void LLTemplateMessageBuilder::copyFromMessageData(const LLMsgData& data)
         if (block_count == 0)
         {
             block_count = mbci->mBlockNumber;
-            block_name = (char *)mbci->mName;
+            block_name = mbci->mName;
         }
 
         // counting down mutliple blocks

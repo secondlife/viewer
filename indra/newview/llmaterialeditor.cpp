@@ -141,7 +141,7 @@ LLFloaterComboOptions* LLFloaterComboOptions::showUI(
             combo_picker->mComboOptions->addSimpleElement(*iter);
         }
         // select 'Bulk Upload All' option
-        combo_picker->mComboOptions->selectNthItem((S32)options.size() - 1);
+        combo_picker->mComboOptions->selectNthItem(static_cast<S32>(options.size()) - 1);
 
         combo_picker->openFloater(LLSD(title));
         combo_picker->setFocus(true);
@@ -366,7 +366,7 @@ bool LLSelectedTEUpdateOverrides::apply(LLSelectNode* nodep)
     {
         return false;
     }
-    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces()); // avatars have TEs but no faces
+    S32 num_tes = llmin(static_cast<S32>(objectp->getNumTEs()), static_cast<S32>(objectp->getNumFaces())); // avatars have TEs but no faces
     for (S32 te_index = 0; te_index < num_tes; ++te_index)
     {
 
@@ -496,16 +496,16 @@ bool LLMaterialEditor::postBuild()
 
     std::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void* userData)
     {
-        const U32 *flag = (const U32*)userData;
+        const U32 *flag = reinterpret_cast<const U32*>(userData);
         markChangesUnsaved(*flag);
         // Apply changes to object live
         applyToSelection();
     };
 
-    childSetCommitCallback("double sided", changes_callback, (void*)&MATERIAL_DOUBLE_SIDED_DIRTY);
+    childSetCommitCallback("double sided", changes_callback, const_cast<void*>(static_cast<const void*>(&MATERIAL_DOUBLE_SIDED_DIRTY)));
 
     // BaseColor
-    mBaseColorCtrl->setCommitCallback(changes_callback, (void*)&MATERIAL_BASE_COLOR_DIRTY);
+    mBaseColorCtrl->setCommitCallback(changes_callback, const_cast<void*>(static_cast<const void*>(&MATERIAL_BASE_COLOR_DIRTY)));
     if (mIsOverride)
     {
         mBaseColorCtrl->setOnCancelCallback(std::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_BASE_COLOR_DIRTY));
@@ -516,16 +516,16 @@ bool LLMaterialEditor::postBuild()
         mBaseColorCtrl->setCanApplyImmediately(false);
     }
     // transparency is a part of base color
-    childSetCommitCallback("transparency", changes_callback, (void*)&MATERIAL_BASE_COLOR_DIRTY);
-    childSetCommitCallback("alpha mode", changes_callback, (void*)&MATERIAL_ALPHA_MODE_DIRTY);
-    childSetCommitCallback("alpha cutoff", changes_callback, (void*)&MATERIAL_ALPHA_CUTOFF_DIRTY);
+    childSetCommitCallback("transparency", changes_callback, const_cast<void*>(static_cast<const void*>(&MATERIAL_BASE_COLOR_DIRTY)));
+    childSetCommitCallback("alpha mode", changes_callback, const_cast<void*>(static_cast<const void*>(&MATERIAL_ALPHA_MODE_DIRTY)));
+    childSetCommitCallback("alpha cutoff", changes_callback, const_cast<void*>(static_cast<const void*>(&MATERIAL_ALPHA_CUTOFF_DIRTY)));
 
     // Metallic-Roughness
-    childSetCommitCallback("metalness factor", changes_callback, (void*)&MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY);
-    childSetCommitCallback("roughness factor", changes_callback, (void*)&MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY);
+    childSetCommitCallback("metalness factor", changes_callback, const_cast<void*>(static_cast<const void*>(&MATERIAL_METALLIC_ROUGHTNESS_METALNESS_DIRTY)));
+    childSetCommitCallback("roughness factor", changes_callback, const_cast<void*>(static_cast<const void*>(&MATERIAL_METALLIC_ROUGHTNESS_ROUGHNESS_DIRTY)));
 
     // Emissive
-    mEmissiveColorCtrl->setCommitCallback(changes_callback, (void*)&MATERIAL_EMISIVE_COLOR_DIRTY);
+    mEmissiveColorCtrl->setCommitCallback(changes_callback, const_cast<void*>(static_cast<const void*>(&MATERIAL_EMISIVE_COLOR_DIRTY)));
     if (mIsOverride)
     {
         mEmissiveColorCtrl->setOnCancelCallback(std::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_EMISIVE_COLOR_DIRTY));
@@ -650,7 +650,7 @@ void LLMaterialEditor::setBaseColor(const LLColor4& color)
 
 F32 LLMaterialEditor::getTransparency()
 {
-    return (F32)childGetValue("transparency").asReal();
+    return static_cast<F32>(childGetValue("transparency").asReal());
 }
 
 void LLMaterialEditor::setTransparency(F32 transparency)
@@ -670,7 +670,7 @@ void LLMaterialEditor::setAlphaMode(const std::string& alpha_mode)
 
 F32 LLMaterialEditor::getAlphaCutoff()
 {
-    return (F32)childGetValue("alpha cutoff").asReal();
+    return static_cast<F32>(childGetValue("alpha cutoff").asReal());
 }
 
 void LLMaterialEditor::setAlphaCutoff(F32 alpha_cutoff)
@@ -710,7 +710,7 @@ void LLMaterialEditor::setMetallicRoughnessUploadId(const LLUUID& id)
 
 F32 LLMaterialEditor::getMetalnessFactor()
 {
-    return (F32)childGetValue("metalness factor").asReal();
+    return static_cast<F32>(childGetValue("metalness factor").asReal());
 }
 
 void LLMaterialEditor::setMetalnessFactor(F32 factor)
@@ -720,7 +720,7 @@ void LLMaterialEditor::setMetalnessFactor(F32 factor)
 
 F32 LLMaterialEditor::getRoughnessFactor()
 {
-    return (F32)childGetValue("roughness factor").asReal();
+    return static_cast<F32>(childGetValue("roughness factor").asReal());
 }
 
 void LLMaterialEditor::setRoughnessFactor(F32 factor)
@@ -1089,7 +1089,7 @@ void LLMaterialEditor::onCommitTexture(LLUICtrl* ctrl, const LLSD& data, S32 dir
         }
     }
 
-    LLTextureCtrl* tex_ctrl = (LLTextureCtrl*)ctrl;
+    LLTextureCtrl* tex_ctrl = static_cast<LLTextureCtrl*>(ctrl);
     if (tex_ctrl->isImageLocal())
     {
         subscribeToLocalTexture(dirty_flag, tex_ctrl->getLocalTrackingID());
@@ -1116,7 +1116,7 @@ void LLMaterialEditor::onCancelCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
 
 void update_local_texture(LLUICtrl* ctrl, LLGLTFMaterial* mat)
 {
-    LLTextureCtrl* tex_ctrl = (LLTextureCtrl*)ctrl;
+    LLTextureCtrl* tex_ctrl = static_cast<LLTextureCtrl*>(ctrl);
     if (tex_ctrl->isImageLocal())
     {
         // subscrive material to updates of local textures
@@ -1142,7 +1142,7 @@ void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
             {
                 return false;
             }
-            S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces()); // avatars have TEs but no faces
+            S32 num_tes = llmin(static_cast<S32>(objectp->getNumTEs()), static_cast<S32>(objectp->getNumFaces())); // avatars have TEs but no faces
             for (S32 te = 0; te < num_tes; ++te)
             {
                 if (nodep->isTESelected(te) && nodep->mSavedGLTFOverrideMaterials.size() > te)
@@ -1931,7 +1931,7 @@ void LLMaterialEditor::uploadMaterialFromModel(
     // Todo: no point in loading whole editor
     // This uses 'filename' to make sure multiple bulk uploads work
     // instead of fighting for a single instance.
-    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD().with("filename", filename).with("index", LLSD::Integer(index)));
+    LLMaterialEditor* me = static_cast<LLMaterialEditor*>(LLFloaterReg::getInstance("material_editor", LLSD().with("filename", filename).with("index", LLSD::Integer(index))));
     me->mUploadFolder = dest;
     me->loadMaterial(model_in, filename, index, false);
     me->saveIfNeeded();
@@ -1986,14 +1986,14 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
     if (index >= 0)
     {
         // Prespecified material
-        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+        LLMaterialEditor* me = static_cast<LLMaterialEditor*>(LLFloaterReg::getInstance("material_editor"));
         me->mUploadFolder = dest_folder;
         me->loadMaterial(model_in, filename, index);
     }
     else if (model_in.materials.size() == 1)
     {
         // Only one material, just load it
-        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+        LLMaterialEditor* me = static_cast<LLMaterialEditor*>(LLFloaterReg::getInstance("material_editor"));
         me->mUploadFolder = dest_folder;
         me->loadMaterial(model_in, filename, 0);
     }
@@ -2024,7 +2024,7 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
         {
             if (index >= 0) // -1 on cancel
             {
-                LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+                LLMaterialEditor* me = static_cast<LLMaterialEditor*>(LLFloaterReg::getInstance("material_editor"));
                 me->mUploadFolder = dest_folder;
                 me->loadMaterial(model_in, filename, index);
             }
@@ -2056,7 +2056,7 @@ void LLMaterialEditor::updateLive()
 
 void LLMaterialEditor::loadLive()
 {
-    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("live_material_editor");
+    LLMaterialEditor* me = static_cast<LLMaterialEditor*>(LLFloaterReg::getInstance("live_material_editor"));
     if (me)
     {
         me->mOverrideInProgress = false;
@@ -2336,7 +2336,7 @@ void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_materi
         // on next login.
         LLMaterialEditor::loadMaterialFromFile(local_material->getFilename(), local_material->getIndexInFile());
 
-        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+        LLMaterialEditor* me = static_cast<LLMaterialEditor*>(LLFloaterReg::getInstance("material_editor"));
         if (me)
         {
             // don't use override material here, it has 'hacked ids'
@@ -2668,13 +2668,13 @@ bool LLMaterialEditor::setFromGltfModel(const tinygltf::Model& model, S32 index,
         }
 
         setAlphaMode(material_in.alphaMode);
-        setAlphaCutoff((F32)material_in.alphaCutoff);
+        setAlphaCutoff(static_cast<F32>(material_in.alphaCutoff));
 
         setBaseColor(LLTinyGLTFHelper::getColor(material_in.pbrMetallicRoughness.baseColorFactor));
         setEmissiveColor(LLTinyGLTFHelper::getColor(material_in.emissiveFactor));
 
-        setMetalnessFactor((F32)material_in.pbrMetallicRoughness.metallicFactor);
-        setRoughnessFactor((F32)material_in.pbrMetallicRoughness.roughnessFactor);
+        setMetalnessFactor(static_cast<F32>(material_in.pbrMetallicRoughness.metallicFactor));
+        setRoughnessFactor(static_cast<F32>(material_in.pbrMetallicRoughness.roughnessFactor));
 
         setDoubleSided(material_in.doubleSided);
     }
@@ -2918,7 +2918,7 @@ public:
     {
         if (objectp && objectp->permModify() && objectp->getVolume())
         {
-            LLVOVolume* vobjp = (LLVOVolume*)objectp;
+            LLVOVolume* vobjp = static_cast<LLVOVolume*>(objectp);
             vobjp->setRenderMaterialID(te, mMatId, false /*preview only*/);
             vobjp->updateTEMaterialTextures(te);
         }
@@ -2949,7 +2949,7 @@ public:
         {
             return false;
         }
-        S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces()); // avatars have TEs but no faces
+        S32 num_tes = llmin(static_cast<S32>(objectp->getNumTEs()), static_cast<S32>(objectp->getNumFaces())); // avatars have TEs but no faces
 
         // post override from given object and te to the simulator
         // requestData should have:
@@ -3430,7 +3430,7 @@ void LLMaterialEditor::loadAsset()
                 gAssetStorage->getAssetData(item->getAssetUUID(),
                     LLAssetType::AT_MATERIAL,
                     &onLoadComplete,
-                    (void*)user_data,
+                    static_cast<void*>(user_data),
                     true);
             }
         }
@@ -3475,7 +3475,7 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
     LLAssetType::EType type,
     void* user_data, S32 status, LLExtStat ext_status)
 {
-    LLSD* floater_key = (LLSD*)user_data;
+    LLSD* floater_key = static_cast<LLSD*>(user_data);
     LL_DEBUGS("MaterialEditor") << "loading " << asset_uuid << " for " << *floater_key << LL_ENDL;
     LLMaterialEditor* editor = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", *floater_key);
     if (editor)
@@ -3555,7 +3555,7 @@ void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, con
 
     // copy image bytes into string
     std::string buffer;
-    buffer.assign((const char*) img->getData(), img->getDataSize());
+    buffer.assign(reinterpret_cast<const char*>(img->getData()), img->getDataSize());
 
     U32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(img);
     LLSD key = getKey();

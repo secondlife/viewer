@@ -170,7 +170,7 @@ LLInventoryGallery::~LLInventoryGallery()
     delete mRootGalleryMenu;
     delete mFilter;
 
-    gIdleCallbacks.deleteFunction(onIdle, (void*)this);
+    gIdleCallbacks.deleteFunction(onIdle, reinterpret_cast<void*>(this));
 
     while (!mUnusedRowPanels.empty())
     {
@@ -220,7 +220,7 @@ void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
         mBackwardFolders.push_back(mFolderID);
     }
 
-    gIdleCallbacks.deleteFunction(onIdle, (void*)this);
+    gIdleCallbacks.deleteFunction(onIdle, reinterpret_cast<void*>(this));
 
     for (const LLUUID& id : mSelectedItemIDs)
     {
@@ -337,7 +337,7 @@ void LLInventoryGallery::updateRootFolder()
 
     if (!mItemBuildQuery.empty())
     {
-        gIdleCallbacks.addFunction(onIdle, (void*)this);
+        gIdleCallbacks.addFunction(onIdle, reinterpret_cast<void*>(this));
     }
 }
 
@@ -381,7 +381,7 @@ void LLInventoryGallery::onVisibilityChange(bool new_visibility)
         }
         else if (mNeedsArrange)
         {
-            gIdleCallbacks.addFunction(onIdle, (void*)this);
+            gIdleCallbacks.addFunction(onIdle, reinterpret_cast<void*>(this));
         }
     }
     LLPanel::onVisibilityChange(new_visibility);
@@ -876,7 +876,7 @@ void LLInventoryGallery::onIdle(void* userdata)
 
     if (self->mItemsToSelect.empty() && self->mItemBuildQuery.empty())
     {
-        gIdleCallbacks.deleteFunction(onIdle, (void*)self);
+        gIdleCallbacks.deleteFunction(onIdle, reinterpret_cast<void*>(self));
     }
 }
 
@@ -1475,7 +1475,7 @@ void LLInventoryGallery::onFocusReceived()
         // choose any items from visible rect
         S32 vert_offset = mScrollPanel->getDocPosVertical();
         S32 panel_size = mVerticalGap + mRowPanelHeight;
-        S32 n = llclamp((S32)(vert_offset / panel_size) * mItemsInRow, 0, (S32)(mIndexToItemMap.size() - 1) );
+        S32 n = llclamp(static_cast<S32>((vert_offset / panel_size)) * mItemsInRow, 0, static_cast<S32>((mIndexToItemMap.size() - 1)) );
 
         LLInventoryGalleryItem* focus_item = mIndexToItemMap[n];
         changeItemSelection(focus_item->getUUID(), true);
@@ -2381,7 +2381,7 @@ void LLInventoryGallery::refreshList(const LLUUID& category_id)
     {
         // Don't scroll to target/arrange immediately
         // since more updates might be pending
-        gIdleCallbacks.addFunction(onIdle, (void*)this);
+        gIdleCallbacks.addFunction(onIdle, reinterpret_cast<void*>(this));
     }
     updateMessageVisibility();
 }
@@ -2699,7 +2699,7 @@ bool LLInventoryGallery::checkAgainstFilterType(const LLUUID& object_id)
         object_type = inv_item->getInventoryType();
     }
 
-    const U32 filterTypes = (U32)mFilter->getFilterTypes();
+    const U32 filterTypes = static_cast<U32>(mFilter->getFilterTypes());
     if ((filterTypes & LLInventoryFilter::FILTERTYPE_OBJECT) && inv_item)
     {
         switch (object_type)
@@ -2781,7 +2781,7 @@ void LLInventoryGallery::setSortOrder(U32 order, bool update)
     if (update && dirty)
     {
         mNeedsArrange = true;
-        gIdleCallbacks.addFunction(onIdle, (void*)this);
+        gIdleCallbacks.addFunction(onIdle, reinterpret_cast<void*>(this));
     }
 }
 //-----------------------------

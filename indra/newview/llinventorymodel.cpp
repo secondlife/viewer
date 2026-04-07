@@ -3410,7 +3410,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
     }
     else
     {
-        S32 version = (S32)ntohl(value_nbo);
+        S32 version = static_cast<S32>(ntohl(value_nbo));
         if (version == sCurrentInvCacheVersion)
         {
             // Cache is up to date
@@ -3575,7 +3575,7 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 
         fileSD.close();
 
-        LL_INFOS(LOG_INV) << "Inventory saved: " << (S32)cat_count << " categories, " << (S32)it_count << " items." << LL_ENDL;
+        LL_INFOS(LOG_INV) << "Inventory saved: " << static_cast<S32>(cat_count) << " categories, " << static_cast<S32>(it_count) << " items." << LL_ENDL;
     }
     catch(std::bad_alloc&)
     {

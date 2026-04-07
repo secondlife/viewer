@@ -110,7 +110,7 @@ const LLVector3d& LLVector3d::rotVec(F64 angle, const LLVector3d& vec)
 {
     if (!vec.isExactlyZero() && angle)
     {
-        *this = *this * LLMatrix3((F32)angle, vec);
+        *this = *this * LLMatrix3(static_cast<F32>(angle), vec);
     }
     return *this;
 }
@@ -120,7 +120,7 @@ const LLVector3d& LLVector3d::rotVec(F64 angle, F64 x, F64 y, F64 z)
     LLVector3d vec(x, y, z);
     if (!vec.isExactlyZero() && angle)
     {
-        *this = *this * LLMatrix3((F32)angle, vec);
+        *this = *this * LLMatrix3(static_cast<F32>(angle), vec);
     }
     return *this;
 }

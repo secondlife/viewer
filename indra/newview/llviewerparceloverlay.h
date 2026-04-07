@@ -87,7 +87,7 @@ public:
 private:
     // This is in parcel rows and columns, not grid rows and columns
     // Stored in bottom three bits.
-    U8      ownership(S32 row, S32 col) const { return parcelFlags(row, col, (U8)0x7); }
+    U8      ownership(S32 row, S32 col) const { return parcelFlags(row, col, static_cast<U8>(0x7)); }
 
     U8      parcelFlags(S32 row, S32 col, U8 flags) const;
 

@@ -626,7 +626,7 @@ LLPurgeDiskCacheThread* LLAppViewer::sPurgeDiskCacheThread = NULL;
 
 std::string getRuntime()
 {
-    return llformat("%.4f", (F32)LLTimer::getElapsedSeconds().value());
+    return llformat("%.4f", static_cast<F32>(LLTimer::getElapsedSeconds().value()));
 }
 
 LLAppViewer::LLAppViewer()
@@ -1059,7 +1059,7 @@ bool LLAppViewer::init()
                              LLVersionInfo::instance().getChannelAndVersion());
 
     gSimLastTime = gRenderStartTime.getElapsedTimeF32();
-    gSimFrames = (F32)gFrameCount;
+    gSimFrames = static_cast<F32>(gFrameCount);
 
     if (gSavedSettings.getBOOL("JoystickEnabled"))
     {
@@ -1257,9 +1257,9 @@ void LLAppViewer::initMaxHeapSize()
     //currently SL is built under 32-bit setting, we set its max heap size no more than 1.6 GB.
 
  #if !defined(LL_X86_64) && !defined(LL_ARM64)
-    F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize") ;
+    F32Gigabytes max_heap_size_gb = static_cast<F32Gigabytes>(gSavedSettings.getF32("MaxHeapSize")) ;
 #else
-    F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize64");
+    F32Gigabytes max_heap_size_gb = static_cast<F32Gigabytes>(gSavedSettings.getF32("MaxHeapSize64"));
 #endif
 
     LLMemory::initMaxHeapSizeGB(max_heap_size_gb);
@@ -1524,7 +1524,7 @@ bool LLAppViewer::doFrame()
             {
                 // Sleep if we're not rendering, or the window is minimized.
                 static LLCachedControl<S32> s_background_yield_time(gSavedSettings, "BackgroundYieldTime", 40);
-                S32 milliseconds_to_sleep = llclamp((S32)s_background_yield_time, 0, 1000);
+                S32 milliseconds_to_sleep = llclamp(static_cast<S32>(s_background_yield_time), 0, 1000);
                 // don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads
                 // of equal priority on Windows
                 if (milliseconds_to_sleep > 0)
@@ -1874,7 +1874,7 @@ bool LLAppViewer::cleanup()
     LL_INFOS() << "Saving Data" << LL_ENDL;
 
     // Store the time of our current logoff
-    gSavedPerAccountSettings.setU32("LastLogoff", (U32)time_corrected());
+    gSavedPerAccountSettings.setU32("LastLogoff", static_cast<U32>(time_corrected()));
 
     if (LLEnvironment::instanceExists())
     {
@@ -2178,7 +2178,7 @@ bool LLAppViewer::initThreads()
     U32 max_cores = gSavedSettings.getU32("EmulateCoreCount");
     if (max_cores != 0)
     {
-        cores = llmin(cores, (S32) max_cores);
+        cores = llmin(cores, static_cast<S32>(max_cores));
     }
 
     // always use at least 2 threads for image decoding to prevent
@@ -2331,7 +2331,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         int log_stat_result = LLFile::stat(log_file, &log_file_stat);
         if (0 == start_stat_result && 0 == log_stat_result)
         {
-            int elapsed_seconds = (int)(log_file_stat.st_ctime - start_marker_stat.st_ctime);
+            int elapsed_seconds = static_cast<int>(log_file_stat.st_ctime - start_marker_stat.st_ctime);
             // only report a last run time if the last viewer was the same version
             // because this stat will be counted against this version
             if (markerIsSameVersion(start_marker_file_name))
@@ -2394,7 +2394,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
         // skip settings groups that aren't the one we requested
         if (group.name() != location_key) continue;
 
-        ELLPath path_index = (ELLPath)group.path_index();
+        ELLPath path_index = static_cast<ELLPath>(group.path_index());
         if(path_index <= LL_PATH_NONE || path_index >= LL_PATH_LAST)
         {
             LL_ERRS() << "Out of range path index in app_settings/settings_files.xml" << LL_ENDL;
@@ -2427,13 +2427,13 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
                 else if (!gDirUtilp->fileExists(full_settings_path))
                 {
                     // search in default path
-                    full_settings_path = gDirUtilp->getExpandedFilename((ELLPath)path_index, full_settings_path);
+                    full_settings_path = gDirUtilp->getExpandedFilename(static_cast<ELLPath>(path_index), full_settings_path);
                 }
             }
             else
             {
                 // by default, use specified file name
-                full_settings_path = gDirUtilp->getExpandedFilename((ELLPath)path_index, file.file_name());
+                full_settings_path = gDirUtilp->getExpandedFilename(static_cast<ELLPath>(path_index), file.file_name());
             }
 
             // Be softer for files in the user's folders, user can't just reinstall those
@@ -3326,8 +3326,8 @@ LLSD LLAppViewer::getViewerInfo() const
     info["MEMORY_MB"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().valueInUnits<LLUnits::Megabytes>());
     // Moved hack adjustment to Windows memory size into llsys.cpp
     info["OS_VERSION"] = LLOSInfo::instance().getOSString();
-    info["GRAPHICS_CARD_VENDOR"] = ll_safe_string((const char*)(glGetString(GL_VENDOR)));
-    info["GRAPHICS_CARD"] = ll_safe_string((const char*)(glGetString(GL_RENDERER)));
+    info["GRAPHICS_CARD_VENDOR"] = ll_safe_string(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+    info["GRAPHICS_CARD"] = ll_safe_string(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
 
 #if LL_WINDOWS
     std::string drvinfo;
@@ -3367,7 +3367,7 @@ LLSD LLAppViewer::getViewerInfo() const
     }
 #endif
 
-    info["OPENGL_VERSION"] = ll_safe_string((const char*)(glGetString(GL_VERSION)));
+    info["OPENGL_VERSION"] = ll_safe_string(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
     // Settings
 
@@ -3379,7 +3379,7 @@ LLSD LLAppViewer::getViewerInfo() const
     info["DRAW_DISTANCE"] = gSavedSettings.getF32("RenderFarClip");
     info["NET_BANDWITH"] = LLViewerThrottle::getMaxBandwidthKbps();
     info["LOD_FACTOR"] = gSavedSettings.getF32("RenderVolumeLODFactor");
-    info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
+    info["RENDER_QUALITY"] = static_cast<F32>(gSavedSettings.getU32("RenderQualityPerformance"));
     info["TEXTURE_MEMORY"] = LLSD::Integer(gGLManager.mVRAM);
 
 #if LL_DARWIN
@@ -3454,7 +3454,7 @@ LLSD LLAppViewer::getViewerInfo() const
     info["LIBVLC_VERSION"] = "Undefined";
 #endif
 
-    S32 packets_in = (S32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
+    S32 packets_in = static_cast<S32>(LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN));
     if (packets_in > 0)
     {
         info["PACKETS_LOST"] = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
@@ -3559,7 +3559,7 @@ std::string LLAppViewer::getViewerInfoString(bool default_string) const
 
     // SLT timestamp
     LLSD substitution;
-    substitution["datetime"] = (S32)time(NULL);//(S32)time_corrected();
+    substitution["datetime"] = static_cast<S32>(time(NULL));//(S32)time_corrected();
     support << "\n" << LLTrans::getString("AboutTime", substitution, default_string);
 
     return support.str();
@@ -3640,7 +3640,7 @@ void LLAppViewer::writeSystemInfo()
 
     gDebugInfo["CPUInfo"]["CPUString"] = gSysCPU.getCPUString();
     gDebugInfo["CPUInfo"]["CPUFamily"] = gSysCPU.getFamily();
-    gDebugInfo["CPUInfo"]["CPUMhz"] = (S32)gSysCPU.getMHz();
+    gDebugInfo["CPUInfo"]["CPUMhz"] = static_cast<S32>(gSysCPU.getMHz());
     gDebugInfo["CPUInfo"]["CPUAltivec"] = gSysCPU.hasAltivec();
     gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
     gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
@@ -3656,7 +3656,7 @@ void LLAppViewer::writeSystemInfo()
     // *FIX:Mani - move this down in llappviewerwin32
 #ifdef LL_WINDOWS
     DWORD thread_id = GetCurrentThreadId();
-    gDebugInfo["MainloopThreadID"] = (S32)thread_id;
+    gDebugInfo["MainloopThreadID"] = static_cast<S32>(thread_id);
 #endif
 
 #ifndef LL_BUGSPLAT
@@ -3815,8 +3815,8 @@ void LLAppViewer::recordSessionToMarker()
             << LL_ENDL;
     }
 
-    mMarkerFile.seek(APR_SET, (S32)marker_version.length());
-    mMarkerFile.write(uuid_str.data(), (S32)uuid_str.length());
+    mMarkerFile.seek(APR_SET, static_cast<S32>(marker_version.length()));
+    mMarkerFile.write(uuid_str.data(), static_cast<S32>(uuid_str.length()));
 }
 
 LLUUID LLAppViewer::getMarkerSessionId(const std::string& marker_name) const
@@ -4016,7 +4016,7 @@ void LLAppViewer::processMarkerFiles()
                 gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
                 LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to LOGOUT_CRASH" << LL_ENDL;
             }
-            else if (marker_code > 0 && marker_code < (S32)LAST_EXEC_COUNT)
+            else if (marker_code > 0 && marker_code < static_cast<S32>(LAST_EXEC_COUNT))
             {
                 gLastExecEvent = (eLastExecEvent)marker_code;
                 LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
@@ -4115,7 +4115,7 @@ void LLAppViewer::fastQuit(S32 error_code)
     // flush network buffers by shutting down messaging system
     end_messaging_system();
     // figure out the error code
-    S32 final_error_code = error_code ? error_code : (S32)isError();
+    S32 final_error_code = error_code ? error_code : static_cast<S32>(isError());
     // this isn't a crash
     removeMarkerFiles();
     // get outta here
@@ -4152,7 +4152,7 @@ void LLAppViewer::requestQuit()
         gAgentAvatarp->updateAvatarRezMetrics(true); // force a last packet to be sent.
     }
 
-    LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true);
+    LLHUDEffectSpiral *effectp = static_cast<LLHUDEffectSpiral*>(LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true));
     effectp->setPositionGlobal(gAgent.getPositionGlobal());
     effectp->setColor(LLColor4U(gAgent.getEffectColor()));
     LLHUDManager::getInstance()->sendEffects();
@@ -5444,7 +5444,7 @@ void LLAppViewer::createErrorMarker(eLastExecEvent error_code) const
         if (file.getFileHandle())
         {
             recordMarkerVersion(file);
-            std::string data = "\n" + std::to_string((S32)error_code);
+            std::string data = "\n" + std::to_string(static_cast<S32>(error_code));
             file.write(data.data(), static_cast<S32>(data.length()));
             file.close();
         }

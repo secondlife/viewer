@@ -606,7 +606,7 @@ bool LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, bool r
         S32 i = 0;
         for (LLScrollListCell* cell = item->getColumn(i); i < num_cols; cell = item->getColumn(++i))
         {
-            if (i >= (S32)mColumnsIndexed.size())
+            if (i >= static_cast<S32>(mColumnsIndexed.size()))
                 break;
 
             cell->setWidth(mColumnsIndexed[i]->getWidth());
@@ -746,7 +746,7 @@ void LLScrollListCtrl::updateColumns(bool force_update)
             S32 top = mItemListRect.mTop;
             S32 right = left + column->getWidth();
 
-            if (column->mIndex != (S32)mColumnsIndexed.size()-1)
+            if (column->mIndex != static_cast<S32>(mColumnsIndexed.size())-1)
             {
                 right += mColumnPadding;
             }
@@ -788,7 +788,7 @@ void LLScrollListCtrl::updateColumns(bool force_update)
             S32 i = 0;
             for (LLScrollListCell* cell = itemp->getColumn(i); i < num_cols; cell = itemp->getColumn(++i))
             {
-                if (i >= (S32)mColumnsIndexed.size())
+                if (i >= static_cast<S32>(mColumnsIndexed.size()))
                     break;
 
                 cell->setWidth(mColumnsIndexed[i]->getWidth());
@@ -885,7 +885,7 @@ bool LLScrollListCtrl::selectItemRange(S32 first_index, S32 last_index)
     // make sure sort is up to date
     updateSort();
 
-    S32 bottom = (S32)mItemList.size() - 1;
+    S32 bottom = static_cast<S32>(mItemList.size()) - 1;
     first_index = llclamp(first_index, 0, bottom);
     last_index = last_index < 0 ? bottom : llclamp(last_index, first_index, bottom);
 
@@ -930,7 +930,7 @@ bool LLScrollListCtrl::selectItemRange(S32 first_index, S32 last_index)
 
 void LLScrollListCtrl::swapWithNext(S32 index)
 {
-    if (index >= ((S32)mItemList.size() - 1))
+    if (index >= (static_cast<S32>(mItemList.size()) - 1))
     {
         // At end of list, doesn't do anything
         return;
@@ -958,7 +958,7 @@ void LLScrollListCtrl::swapWithPrevious(S32 index)
 
 void LLScrollListCtrl::deleteSingleItem(S32 target_index)
 {
-    if (target_index < 0 || target_index >= (S32)mItemList.size())
+    if (target_index < 0 || target_index >= static_cast<S32>(mItemList.size()))
     {
         return;
     }
@@ -1280,7 +1280,7 @@ LLScrollListItem* LLScrollListCtrl::getItemByLabel(const std::string& label, boo
 
 LLScrollListItem* LLScrollListCtrl::getItemByIndex(S32 index)
 {
-    if (index >= 0 && index < (S32)mItemList.size())
+    if (index >= 0 && index < static_cast<S32>(mItemList.size()))
     {
         return mItemList[index];
     }
@@ -1602,7 +1602,7 @@ void LLScrollListCtrl::drawItems()
         highlight_color.mV[VALPHA] = clamp_rescale(mSearchTimer.getElapsedTimeF32(), type_ahead_timeout * 0.7f, type_ahead_timeout(), 0.4f, 0.f);
 
         S32 first_line = mScrollLines;
-        S32 last_line = llmin((S32)mItemList.size() - 1, mScrollLines + getLinesPerPage());
+        S32 last_line = llmin(static_cast<S32>(mItemList.size()) - 1, mScrollLines + getLinesPerPage());
 
         if (first_line >= mItemList.size())
         {
@@ -2982,7 +2982,7 @@ void LLScrollListCtrl::addColumn(const LLScrollListColumn::Params& column_params
             }
 
             S32 right = left+new_column->getWidth();
-            if (new_column->mIndex != (S32)mColumns.size()-1)
+            if (new_column->mIndex != static_cast<S32>(mColumns.size())-1)
             {
                 right += mColumnPadding;
             }
@@ -3106,7 +3106,7 @@ void LLScrollListCtrl::setColumnLabel(const std::string& column, const std::stri
 
 LLScrollListColumn* LLScrollListCtrl::getColumn(S32 index)
 {
-    if (index < 0 || index >= (S32)mColumnsIndexed.size())
+    if (index < 0 || index >= static_cast<S32>(mColumnsIndexed.size()))
     {
         return NULL;
     }

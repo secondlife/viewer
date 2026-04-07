@@ -501,7 +501,7 @@ bool LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
         if(mMouseDownSignal) (*mMouseDownSignal)(this, LLSD());
 
         mMouseDownTimer.start();
-        mMouseDownFrame = (S32) LLFrameTimer::getFrameCount();
+        mMouseDownFrame = static_cast<S32>(LLFrameTimer::getFrameCount());
         mMouseHeldDownCount = 0;
 
 
@@ -645,7 +645,7 @@ bool LLButton::handleHover(S32 x, S32 y, MASK mask)
         if (mMouseDownTimer.getStarted())
         {
             F32 elapsed = getHeldDownTime();
-            if( mHeldDownDelay <= elapsed && mHeldDownFrameDelay <= (S32)LLFrameTimer::getFrameCount() - mMouseDownFrame)
+            if( mHeldDownDelay <= elapsed && mHeldDownFrameDelay <= static_cast<S32>(LLFrameTimer::getFrameCount()) - mMouseDownFrame)
             {
                 LLSD param;
                 param["count"] = mMouseHeldDownCount++;
@@ -665,9 +665,9 @@ void LLButton::getOverlayImageSize(S32& overlay_width, S32& overlay_height)
     overlay_width = mImageOverlay->getWidth();
     overlay_height = mImageOverlay->getHeight();
 
-    F32 scale_factor = llmin((F32)getRect().getWidth() / (F32)overlay_width, (F32)getRect().getHeight() / (F32)overlay_height, 1.f);
-    overlay_width = ll_round((F32)overlay_width * scale_factor);
-    overlay_height = ll_round((F32)overlay_height * scale_factor);
+    F32 scale_factor = llmin(static_cast<F32>(getRect().getWidth()) / static_cast<F32>(overlay_width), static_cast<F32>(getRect().getHeight()) / static_cast<F32>(overlay_height), 1.f);
+    overlay_width = ll_round(static_cast<F32>(overlay_width) * scale_factor);
+    overlay_height = ll_round(static_cast<F32>(overlay_height) * scale_factor);
 }
 
 
@@ -999,8 +999,8 @@ void LLButton::draw()
         // Due to U32_MAX is equal to S32 -1 value I have rest this value for non-ellipses mode.
         // Not sure if it is really needed. Probably S32_MAX should be always passed as max_chars.
         mLastDrawCharsCount = mFontBuffer.render(mGLFont, label, 0,
-            (F32)x,
-            (F32)(getRect().getHeight() / 2 + mBottomVPad),
+            static_cast<F32>(x),
+            static_cast<F32>(getRect().getHeight() / 2 + mBottomVPad),
             label_color % alpha,
             mHAlign, LLFontGL::VAlign::VCENTER,
             LLFontGL::NORMAL,
@@ -1161,8 +1161,8 @@ void LLButton::resize(const LLUIString& label)
         if (mImageOverlay)
         {
             S32 overlay_width = mImageOverlay->getWidth();
-            F32 scale_factor = (getRect().getHeight() - (mImageOverlayBottomPad + mImageOverlayTopPad)) / (F32)mImageOverlay->getHeight();
-            overlay_width = ll_round((F32)overlay_width * scale_factor);
+            F32 scale_factor = (getRect().getHeight() - (mImageOverlayBottomPad + mImageOverlayTopPad)) / static_cast<F32>(mImageOverlay->getHeight());
+            overlay_width = ll_round(static_cast<F32>(overlay_width) * scale_factor);
 
             switch(mImageOverlayAlignment)
             {

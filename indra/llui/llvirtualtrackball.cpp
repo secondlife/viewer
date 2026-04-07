@@ -221,14 +221,14 @@ void LLVirtualTrackball::draw()
     bool upper_hemisphere = (draw_point.mV[VZ] >= 0.f);
 
     mImgSphere->draw(mTouchArea->getRect(), upper_hemisphere ? UI_VERTEX_COLOR : UI_VERTEX_COLOR % 0.5f);
-    drawThumb((S32)draw_point.mV[VX], (S32)draw_point.mV[VY], mThumbMode, upper_hemisphere);
+    drawThumb(static_cast<S32>(draw_point.mV[VX]), static_cast<S32>(draw_point.mV[VY]), mThumbMode, upper_hemisphere);
 
 
     if (LLView::sDebugRects)
     {
         gGL.color4fv(LLColor4::red.mV);
-        gl_circle_2d((F32)mTouchArea->getRect().getCenterX(), (F32)mTouchArea->getRect().getCenterY(), (F32)mImgSphere->getWidth() / 2.f, 60, false);
-        gl_circle_2d(draw_point.mV[VX], draw_point.mV[VY], (F32)mImgSunFront->getWidth() / 2.f, 12, false);
+        gl_circle_2d(static_cast<F32>(mTouchArea->getRect().getCenterX()), static_cast<F32>(mTouchArea->getRect().getCenterY()), static_cast<F32>(mImgSphere->getWidth()) / 2.f, 60, false);
+        gl_circle_2d(draw_point.mV[VX], draw_point.mV[VY], static_cast<F32>(mImgSunFront->getWidth()) / 2.f, 12, false);
     }
 
     // hide the direction labels when disabled
@@ -391,8 +391,8 @@ bool LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
         { // trackball (move to roll) mode
             LLQuaternion delta;
 
-            F32 rotX = (F32)(x - mPrevX);
-            F32 rotY = (F32)(y - mPrevY);
+            F32 rotX = static_cast<F32>(x - mPrevX);
+            F32 rotY = static_cast<F32>(y - mPrevY);
 
             if (abs(rotX) > 1)
             {
@@ -415,10 +415,10 @@ bool LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
                 return true; // don't drag outside the circle
             }
 
-            F32 radius = (F32)mTouchArea->getRect().getWidth() / 2.f;
-            F32 xx = (F32)(x - mTouchArea->getRect().getCenterX());
-            F32 yy = (F32)(y - mTouchArea->getRect().getCenterY());
-            F32 dist = (F32)(sqrt(pow(xx, 2) + pow(yy, 2)));
+            F32 radius = static_cast<F32>(mTouchArea->getRect().getWidth()) / 2.f;
+            F32 xx = static_cast<F32>(x - mTouchArea->getRect().getCenterX());
+            F32 yy = static_cast<F32>(y - mTouchArea->getRect().getCenterY());
+            F32 dist = static_cast<F32>(sqrt(pow(xx, 2) + pow(yy, 2)));
 
             F32 azimuth = llclamp(acosf(xx / dist), 0.0f, F_PI);
             F32 altitude = llclamp(acosf(dist / radius), 0.0f, F_PI_BY_TWO);

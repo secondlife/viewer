@@ -357,7 +357,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
         child->setText(getString("empty_slurl"));
     }
 
-    setMaturityString((U8)(experience[LLExperienceCache::MATURITY].asInteger()), getChild<LLTextBox>(TF_MATURITY), getChild<LLComboBox>(EDIT TF_MATURITY));
+    setMaturityString(static_cast<U8>(experience[LLExperienceCache::MATURITY].asInteger()), getChild<LLTextBox>(TF_MATURITY), getChild<LLComboBox>(EDIT TF_MATURITY));
 
     LLUUID id = experience[LLExperienceCache::AGENT_ID].asUUID();
     child = getChild<LLTextBox>(TF_OWNER);

@@ -655,19 +655,19 @@ namespace tut
 
             // Read each of the 4 Pem certs and store in mX509*Cert pointers
             BIO * validation_bio;
-            validation_bio = BIO_new_mem_buf((void*)mPemTestCert.c_str(), static_cast<S32>(mPemTestCert.length()));
+            validation_bio = BIO_new_mem_buf(reinterpret_cast<void*>(mPemTestCert.c_str()), static_cast<S32>(mPemTestCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509TestCert, 0, NULL);
             BIO_free(validation_bio);
 
-            validation_bio = BIO_new_mem_buf((void*)mPemRootCert.c_str(), static_cast<S32>(mPemRootCert.length()));
+            validation_bio = BIO_new_mem_buf(reinterpret_cast<void*>(mPemRootCert.c_str()), static_cast<S32>(mPemRootCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509RootCert, 0, NULL);
             BIO_free(validation_bio);
 
-            validation_bio = BIO_new_mem_buf((void*)mPemIntermediateCert.c_str(), static_cast<S32>(mPemIntermediateCert.length()));
+            validation_bio = BIO_new_mem_buf(reinterpret_cast<void*>(mPemIntermediateCert.c_str()), static_cast<S32>(mPemIntermediateCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509IntermediateCert, 0, NULL);
             BIO_free(validation_bio);
 
-            validation_bio = BIO_new_mem_buf((void*)mPemChildCert.c_str(), static_cast<S32>(mPemChildCert.length()));
+            validation_bio = BIO_new_mem_buf(reinterpret_cast<void*>(mPemChildCert.c_str()), static_cast<S32>(mPemChildCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509ChildCert, 0, NULL);
             BIO_free(validation_bio);
         }
@@ -953,11 +953,11 @@ namespace tut
         std::vector<char> decoded_password(length);
         apr_base64_decode(&decoded_password[0], hashed_password.c_str());
         LLXORCipher cipher(gMACAddress, MAC_ADDRESS_BYTES);
-        cipher.decrypt((U8*)&decoded_password[0], length);
+        cipher.decrypt(reinterpret_cast<U8*>(&decoded_password[0]), length);
         unsigned char unique_id[MAC_ADDRESS_BYTES];
         LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
         LLXORCipher cipher2(unique_id, sizeof(unique_id));
-        cipher2.encrypt((U8*)&decoded_password[0], length);
+        cipher2.encrypt(reinterpret_cast<U8*>(&decoded_password[0]), length);
         llofstream password_file("test_password.dat", std::ofstream::binary);
         password_file.write(&decoded_password[0], length);
         password_file.close();

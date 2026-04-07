@@ -307,14 +307,14 @@ bool LLPartSysData::unpack(LLDataPacker &dp)
 std::ostream& operator<<(std::ostream& s, const LLPartSysData &data)
 {
     s << "Flags: " << std::hex << data.mFlags;
-    s << "Pattern: " << std::hex << (U32) data.mPattern << "\n";
+    s << "Pattern: " << std::hex << static_cast<U32>(data.mPattern) << "\n";
     s << "Source Age: [" << data.mStartAge << ", " << data.mMaxAge << "]\n";
     s << "Particle Age: " << data.mPartData.mMaxAge << "\n";
     s << "Angle: [" << data.mInnerAngle << ", " << data.mOuterAngle << "]\n";
     s << "Burst Rate: " << data.mBurstRate << "\n";
     s << "Burst Radius: " << data.mBurstRadius << "\n";
     s << "Burst Speed: [" << data.mBurstSpeedMin << ", " << data.mBurstSpeedMax << "]\n";
-    s << "Burst Part Count: " << std::hex << (U32) data.mBurstPartCount << "\n";
+    s << "Burst Part Count: " << std::hex << static_cast<U32>(data.mBurstPartCount) << "\n";
     s << "Angular Velocity: " << data.mAngularVelocity << "\n";
     s << "Accel: " << data.mPartAccel;
     return s;
@@ -399,7 +399,7 @@ void LLPartSysData::clampSourceParticleRate()
     particle_rate = mBurstPartCount/mBurstRate;
     if (particle_rate > 256.f)
     {
-        mBurstPartCount = llfloor(((F32)mBurstPartCount)*(256.f/particle_rate));
+        mBurstPartCount = llfloor((static_cast<F32>(mBurstPartCount))*(256.f/particle_rate));
     }
 }
 

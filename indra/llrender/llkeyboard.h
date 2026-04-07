@@ -62,7 +62,7 @@ public:
 
 
     F32             getCurKeyElapsedTime()  { return getKeyDown(mCurScanKey) ? getKeyElapsedTime( mCurScanKey ) : 0.f; }
-    F32             getCurKeyElapsedFrameCount()    { return getKeyDown(mCurScanKey) ? (F32)getKeyElapsedFrameCount( mCurScanKey ) : 0.f; }
+    F32             getCurKeyElapsedFrameCount()    { return getKeyDown(mCurScanKey) ? static_cast<F32>(getKeyElapsedFrameCount( mCurScanKey )) : 0.f; }
     bool            getKeyDown(const KEY key) { return mKeyLevel[key]; }
     bool            getKeyRepeated(const KEY key) { return mKeyRepeated[key]; }
 

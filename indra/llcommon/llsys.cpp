@@ -588,7 +588,7 @@ LLCPUInfo::LLCPUInfo()
     mHasSSE42 = proc.hasSSE42();
     mHasSSE4a = proc.hasSSE4a();
     mHasAltivec = proc.hasAltivec();
-    mCPUMHz = (F64)proc.getCPUFrequency();
+    mCPUMHz = static_cast<F64>(proc.getCPUFrequency());
     mFamily = proc.getCPUFamilyName();
     mCPUString = "Unknown";
 
@@ -692,14 +692,14 @@ void LLCPUInfo::stream(std::ostream& s) const
 
     // These are interesting as they reflect our internal view of the
     // CPU's attributes regardless of platform
-    s << "->mHasSSE:     " << (U32)mHasSSE << std::endl;
-    s << "->mHasSSE2:    " << (U32)mHasSSE2 << std::endl;
-    s << "->mHasSSE3:    " << (U32)mHasSSE3 << std::endl;
-    s << "->mHasSSE3S:    " << (U32)mHasSSE3S << std::endl;
-    s << "->mHasSSE41:    " << (U32)mHasSSE41 << std::endl;
-    s << "->mHasSSE42:    " << (U32)mHasSSE42 << std::endl;
-    s << "->mHasSSE4a:    " << (U32)mHasSSE4a << std::endl;
-    s << "->mHasAltivec: " << (U32)mHasAltivec << std::endl;
+    s << "->mHasSSE:     " << static_cast<U32>(mHasSSE) << std::endl;
+    s << "->mHasSSE2:    " << static_cast<U32>(mHasSSE2) << std::endl;
+    s << "->mHasSSE3:    " << static_cast<U32>(mHasSSE3) << std::endl;
+    s << "->mHasSSE3S:    " << static_cast<U32>(mHasSSE3S) << std::endl;
+    s << "->mHasSSE41:    " << static_cast<U32>(mHasSSE41) << std::endl;
+    s << "->mHasSSE42:    " << static_cast<U32>(mHasSSE42) << std::endl;
+    s << "->mHasSSE4a:    " << static_cast<U32>(mHasSSE4a) << std::endl;
+    s << "->mHasAltivec: " << static_cast<U32>(mHasAltivec) << std::endl;
     s << "->mCPUMHz:     " << mCPUMHz << std::endl;
     s << "->mCPUString:  " << mCPUString << std::endl;
 }
@@ -789,7 +789,7 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 
 #elif LL_LINUX
     U64 phys = 0;
-    phys = (U64)(getpagesize()) * (U64)(get_phys_pages());
+    phys = static_cast<U64>(getpagesize()) * static_cast<U64>(get_phys_pages());
     return U64Bytes(phys);
 
 #else
@@ -1325,7 +1325,7 @@ bool gunzip_file(const std::string& srcfile, const std::string& dstfile)
     {
         bytes = gzread(src, buffer, UNCOMPRESS_BUFFER_SIZE);
         size_t nwrit = fwrite(buffer, sizeof(U8), bytes, dst);
-        if (nwrit < (size_t) bytes)
+        if (nwrit < static_cast<size_t>(bytes))
         {
             LL_WARNS() << "Short write on " << tmpfile << ": Wrote " << nwrit << " of " << bytes << " bytes." << LL_ENDL;
             goto err;
@@ -1363,7 +1363,7 @@ bool gzip_file(const std::string& srcfile, const std::string& dstfile)
     src = LLFile::fopen(srcfile, "rb");     /* Flawfinder: ignore */
     if (! src) goto err;
 
-    while ((bytes = (S32)fread(buffer, sizeof(U8), COMPRESS_BUFFER_SIZE, src)) > 0)
+    while ((bytes = static_cast<S32>(fread(buffer, sizeof(U8), COMPRESS_BUFFER_SIZE, src))) > 0)
     {
         if (gzwrite(dst, buffer, bytes) <= 0)
         {

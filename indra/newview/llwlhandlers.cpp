@@ -165,7 +165,7 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content, LLEnvironment::env
     if (current < sLastUpdate + (UPDATE_WAIT_SECONDS * CLOCKS_PER_SEC))
     {
         LLSD args(LLSD::emptyMap());
-        args["WAIT"] = (F64)UPDATE_WAIT_SECONDS;
+        args["WAIT"] = static_cast<F64>(UPDATE_WAIT_SECONDS);
         LLNotificationsUtil::add("EnvUpdateRate", args);
         return false;
     }

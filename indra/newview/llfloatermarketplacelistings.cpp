@@ -219,11 +219,11 @@ void LLPanelMarketplaceListings::onTabChange()
         panel->setFilterSubString(mFilterSubString);
 
         // Show/hide the drop zone and resize the inventory tabs panel accordingly
-        LLPanel* drop_zone = (LLPanel*)getChild<LLPanel>("marketplace_drop_zone");
+        LLPanel* drop_zone = getChild<LLPanel>("marketplace_drop_zone");
         bool drop_zone_visible = drop_zone->getVisible();
         if (drop_zone_visible != panel->getAllowDropOnRoot())
         {
-            LLPanel* tabs = (LLPanel*)getChild<LLPanel>("tab_container_panel");
+            LLPanel* tabs = getChild<LLPanel>("tab_container_panel");
             S32 delta_height = drop_zone->getRect().getHeight();
             delta_height = (drop_zone_visible ? delta_height : -delta_height);
             tabs->reshape(tabs->getRect().getWidth(),tabs->getRect().getHeight() + delta_height);
@@ -848,7 +848,7 @@ void LLFloaterAssociateListing::apply(bool user_confirm)
 {
     if (mUUID.notNull())
     {
-        S32 id = (S32)getChild<LLUICtrl>("listing_id")->getValue().asInteger();
+        S32 id = static_cast<S32>(getChild<LLUICtrl>("listing_id")->getValue().asInteger());
         if (id > 0)
         {
             // Check if the id exists in the merchant SLM DB: note that this record might exist in the LLMarketplaceData

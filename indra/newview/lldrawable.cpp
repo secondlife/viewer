@@ -84,7 +84,7 @@ std::vector<LLPointer<LLDrawable> > LLDrawable::sDeadList;
 void LLDrawable::incrementVisible()
 {
     LLViewerOctreeEntryData::incrementVisible();
-    sCurPixelAngle = (F32) gViewerWindow->getWindowHeightRaw()/LLViewerCamera::getInstance()->getView();
+    sCurPixelAngle = static_cast<F32>(gViewerWindow->getWindowHeightRaw()) / LLViewerCamera::getInstance()->getView();
 }
 
 LLDrawable::LLDrawable(LLViewerObject *vobj, bool new_entry)
@@ -215,7 +215,7 @@ LLVOVolume* LLDrawable::getVOVolume() const
     LLViewerObject* objectp = mVObjp;
     if ( !isDead() && objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
     {
-        return ((LLVOVolume*)objectp);
+        return static_cast<LLVOVolume*>(objectp);
     }
     else
     {
@@ -233,7 +233,7 @@ bool LLDrawable::isLight() const
     LLViewerObject* objectp = mVObjp;
     if ( objectp && (objectp->getPCode() == LL_PCODE_VOLUME) && !isDead())
     {
-        return ((LLVOVolume*)objectp)->getIsLight();
+        return static_cast<LLVOVolume*>(objectp)->getIsLight();
     }
     else
     {
@@ -275,7 +275,7 @@ void LLDrawable::removeFromOctree()
     mEntry->removeData(this);
     if(mEntry->hasVOCacheEntry())
     {
-        getRegion()->removeActiveCacheEntry((LLVOCacheEntry*)mEntry->getVOCacheEntry(), this);
+        getRegion()->removeActiveCacheEntry(static_cast<LLVOCacheEntry*>(mEntry->getVOCacheEntry()), this);
     }
     mEntry = NULL;
 }
@@ -409,11 +409,11 @@ void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerText
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
-    if (newFaces == (S32)mFaces.size())
+    if (newFaces == static_cast<S32>(mFaces.size()))
     {
         return;
     }
-    else if (newFaces < (S32)mFaces.size())
+    else if (newFaces < static_cast<S32>(mFaces.size()))
     {
         std::for_each(mFaces.begin() + newFaces, mFaces.end(), [](auto* p) { delete p; });
         mFaces.erase(mFaces.begin() + newFaces, mFaces.end());
@@ -434,11 +434,11 @@ void LLDrawable::setNumFacesFast(const S32 newFaces, LLFacePool *poolp, LLViewer
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
-    if (newFaces <= (S32)mFaces.size() && newFaces >= (S32)mFaces.size()/2)
+    if (newFaces <= static_cast<S32>(mFaces.size()) && newFaces >= static_cast<S32>(mFaces.size())/2)
     {
         return;
     }
-    else if (newFaces < (S32)mFaces.size())
+    else if (newFaces < static_cast<S32>(mFaces.size()))
     {
         std::for_each(mFaces.begin() + newFaces, mFaces.end(), [](auto* p) { delete p; });
         mFaces.erase(mFaces.begin() + newFaces, mFaces.end());
@@ -1145,7 +1145,7 @@ bool LLDrawable::isRecentlyVisible() const
 
 void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
 {
-    LLSpatialGroup* cur_groupp = (LLSpatialGroup*)getGroup();
+    LLSpatialGroup* cur_groupp = static_cast<LLSpatialGroup*>(getGroup());
 
     //precondition: mGroupp MUST be null or DEAD or mGroupp MUST NOT contain this
     //llassert(!cur_groupp || cur_groupp->isDead() || !cur_groupp->hasElement(this));
@@ -1232,7 +1232,7 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
             else if (mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
             {
                 setSpatialBridge(new LLControlAVBridge(this, getRegion()));
-                mVObjp->getControlAvatar()->mControlAVBridge = (LLControlAVBridge*)getSpatialBridge();
+                mVObjp->getControlAvatar()->mControlAVBridge = static_cast<LLControlAVBridge*>(getSpatialBridge());
             }
             // check HUD first, because HUD is also attachment
             else if (mVObjp->isAttachment())
@@ -1319,7 +1319,7 @@ void LLSpatialBridge::updateSpatialExtents()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
-    LLSpatialGroup* root = (LLSpatialGroup*) mOctree->getListener(0);
+    LLSpatialGroup* root = static_cast<LLSpatialGroup*>(mOctree->getListener(0));
 
     root->rebound();
 
@@ -1445,14 +1445,14 @@ public:
 
     virtual void traverse(const OctreeNode* node)
     {
-        LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+        LLSpatialGroup* group = static_cast<LLSpatialGroup*>(node->getListener(0));
         group->setVisible();
         OctreeTraveler::traverse(node);
     }
 
     void visit(const OctreeNode* branch)
     {
-        gPipeline.markNotCulled((LLSpatialGroup*) branch->getListener(0), *mCamera);
+        gPipeline.markNotCulled(static_cast<LLSpatialGroup*>(branch->getListener(0)), *mCamera);
     }
 };
 
@@ -1482,11 +1482,11 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
             bool loaded = false;
             if (objparent->isAvatar())
             {
-                LLVOAvatar* avatarp = (LLVOAvatar*) objparent;
+                LLVOAvatar* avatarp = static_cast<LLVOAvatar*>(objparent);
                 if (avatarp->isVisible())
                 {
-                    impostor = objparent->isAvatar() && !LLPipeline::sImpostorRender && ((LLVOAvatar*) objparent)->isImpostor();
-                    loaded   = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isFullyLoaded();
+                    impostor = objparent->isAvatar() && !LLPipeline::sImpostorRender && static_cast<LLVOAvatar*>(objparent)->isImpostor();
+                    loaded   = objparent->isAvatar() && static_cast<LLVOAvatar*>(objparent)->isFullyLoaded();
                 }
                 else
                 {
@@ -1504,7 +1504,7 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
         }
     }
 
-    LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
+    LLSpatialGroup* group = static_cast<LLSpatialGroup*>(mOctree->getListener(0));
     group->rebound();
 
     LLVector4a center;

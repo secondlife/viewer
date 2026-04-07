@@ -110,7 +110,7 @@ void LLMotion::addJointState(const LLPointer<LLJointState>& jointState)
 
     // for now, usage is everything
     S32 joint_num = jointState->getJoint()->getJointNum();
-    if ((joint_num >= (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS) || (joint_num < 0))
+    if ((joint_num >= static_cast<S32>(LL_CHARACTER_MAX_ANIMATED_JOINTS)) || (joint_num < 0))
     {
         LL_WARNS() << "joint_num " << joint_num << " is outside of legal range [0-" << LL_CHARACTER_MAX_ANIMATED_JOINTS << ") for joint " << jointState->getJoint()->getName() << LL_ENDL;
         return;

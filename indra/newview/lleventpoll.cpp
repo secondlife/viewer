@@ -223,7 +223,7 @@ namespace Details
                         // - libcurl easy 28 status code
                         // - Linden 499 special http status code
                         // - RFC - standard 502 - 504 http status codes
-                        LL_DEBUGS("LLEventPollImpl") << "No events, from: " << mSenderIp <<" status: " << (S32)status.getStatus() << LL_ENDL;
+                        LL_DEBUGS("LLEventPollImpl") << "No events, from: " << mSenderIp <<" status: " << static_cast<S32>(status.getStatus()) << LL_ENDL;
                         errorCount = 0;
                         continue;
                     }

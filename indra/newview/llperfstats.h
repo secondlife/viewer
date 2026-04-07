@@ -342,9 +342,9 @@ namespace LLPerfStats
     inline double raw_to_us(U64 raw)    { return (static_cast<double>(raw) *    1000000.0) / LLPerfStats::cpu_hertz; };
     inline double raw_to_ms(U64 raw)    { return (static_cast<double>(raw) *       1000.0) / LLPerfStats::cpu_hertz; };
 
-    inline U64 ns_to_raw(double ns)     { return (U64)(LLPerfStats::cpu_hertz * (ns / 1000000000.0)); }
-    inline U64 us_to_raw(double us)     { return (U64)(LLPerfStats::cpu_hertz * (us / 1000000.0)); }
-    inline U64 ms_to_raw(double ms)     { return (U64)(LLPerfStats::cpu_hertz * (ms / 1000.0));
+    inline U64 ns_to_raw(double ns)     { return static_cast<U64>(LLPerfStats::cpu_hertz * (ns / 1000000000.0)); }
+    inline U64 us_to_raw(double us)     { return static_cast<U64>(LLPerfStats::cpu_hertz * (us / 1000000.0)); }
+    inline U64 ms_to_raw(double ms)     { return static_cast<U64>(LLPerfStats::cpu_hertz * (ms / 1000.0));
 
     }
 

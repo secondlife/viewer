@@ -246,7 +246,7 @@ void RetryPolicyTestObject::test<6>()
 
     time_t nowseconds;
     time(&nowseconds);
-    std::string str3 = LLDate((F64)(nowseconds+44)).asRFC1123();
+    std::string str3 = LLDate(static_cast<F64>((nowseconds+44))).asRFC1123();
     seconds_to_wait = F32_MAX;
     success = LLAdaptiveRetryPolicy::getSecondsUntilRetryAfter(str3, seconds_to_wait);
     std::cerr << " str3 [" << str3 << "]" << std::endl;
@@ -277,7 +277,7 @@ void RetryPolicyTestObject::test<7>()
     ensure_approximately_equals("header 1", seconds_to_wait, 17.0F, 6);
 
     // retry header should override, give delay of 0
-    std::string date_string = LLDate((F64)(nowseconds+7)).asRFC1123();
+    std::string date_string = LLDate(static_cast<F64>((nowseconds+7))).asRFC1123();
     sd_headers[HTTP_IN_HEADER_RETRY_AFTER] = date_string;
     policy.onFailure(503,sd_headers);
     should_retry = policy.shouldRetry(seconds_to_wait);
@@ -303,7 +303,7 @@ void RetryPolicyTestObject::test<7>()
     response->setStatus(503);
     response->setHeaders(headers);
     time(&nowseconds);
-    date_string = LLDate((F64)(nowseconds+77)).asRFC1123();
+    date_string = LLDate(static_cast<F64>((nowseconds+77))).asRFC1123();
     std::cerr << "date_string [" << date_string << "]" << std::endl;
     headers->append(HTTP_IN_HEADER_RETRY_AFTER,date_string);
     policy.onFailure(response);

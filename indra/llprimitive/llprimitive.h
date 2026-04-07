@@ -275,7 +275,7 @@ protected:
     //bool      mRenderingCollisionSphere;
 
 public:
-    void        setSimulateLOD(S32 lod)         { mSimulateLOD = llclamp(lod, (S32)FLEXIBLE_OBJECT_MIN_SECTIONS, (S32)FLEXIBLE_OBJECT_MAX_SECTIONS); }
+    void        setSimulateLOD(S32 lod)         { mSimulateLOD = llclamp(lod, static_cast<S32>(FLEXIBLE_OBJECT_MIN_SECTIONS), static_cast<S32>(FLEXIBLE_OBJECT_MAX_SECTIONS)); }
     void        setGravity(F32 gravity)         { mGravity = llclamp(gravity, FLEXIBLE_OBJECT_MIN_GRAVITY, FLEXIBLE_OBJECT_MAX_GRAVITY); }
     void        setAirFriction(F32 friction)    { mAirFriction = llclamp(friction, FLEXIBLE_OBJECT_MIN_AIR_FRICTION, FLEXIBLE_OBJECT_MAX_AIR_FRICTION); }
     void        setWindSensitivity(F32 wind)    { mWindSensitivity = llclamp(wind, FLEXIBLE_OBJECT_MIN_WIND_SENSITIVITY, FLEXIBLE_OBJECT_MAX_WIND_SENSITIVITY); }

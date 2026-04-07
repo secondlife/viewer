@@ -176,7 +176,7 @@ void LLTexLayerParamAlpha::deleteCaches()
 
 bool LLTexLayerParamAlpha::getMultiplyBlend() const
 {
-    return ((LLTexLayerParamAlphaInfo *)getInfo())->mMultiplyBlend;
+    return static_cast<LLTexLayerParamAlphaInfo *>(getInfo())->mMultiplyBlend;
 }
 
 void LLTexLayerParamAlpha::setWeight(F32 weight)
@@ -238,7 +238,7 @@ bool LLTexLayerParamAlpha::getSkip() const
 
     const LLAvatarAppearance *appearance = mTexLayer->getTexLayerSet()->getAvatarAppearance();
 
-    if (((LLTexLayerParamAlphaInfo *)getInfo())->mSkipIfZeroWeight)
+    if (static_cast<LLTexLayerParamAlphaInfo *>(getInfo())->mSkipIfZeroWeight)
     {
         F32 effective_weight = (appearance->getSex() & getSex()) ? mCurWeight : getDefaultWeight();
         if (is_approx_zero(effective_weight))
@@ -247,7 +247,7 @@ bool LLTexLayerParamAlpha::getSkip() const
         }
     }
 
-    LLWearableType::EType type = (LLWearableType::EType)getWearableType();
+    LLWearableType::EType type = static_cast<LLWearableType::EType>(getWearableType());
     return (type != LLWearableType::WT_INVALID) && !appearance->isWearingWearableType(type);
 }
 
@@ -269,7 +269,7 @@ bool LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
         return success;
     }
 
-    LLTexLayerParamAlphaInfo *info = (LLTexLayerParamAlphaInfo *)getInfo();
+    LLTexLayerParamAlphaInfo *info = static_cast<LLTexLayerParamAlphaInfo *>(getInfo());
     gGL.flush();
     if (info->mMultiplyBlend)
     {
@@ -439,7 +439,7 @@ LLViewerVisualParam* LLTexLayerParamColor::cloneParam(LLWearable* wearable) cons
 
 LLColor4 LLTexLayerParamColor::getNetColor() const
 {
-    const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
+    const LLTexLayerParamColorInfo *info = static_cast<LLTexLayerParamColorInfo *>(getInfo());
 
     llassert(info->mNumColors >= 1);
 
@@ -447,7 +447,7 @@ LLColor4 LLTexLayerParamColor::getNetColor() const
 
     S32 index_last = info->mNumColors - 1;
     F32 scaled_weight = effective_weight * index_last;
-    S32 index_start = (S32) scaled_weight;
+    S32 index_start = static_cast<S32>(scaled_weight);
     S32 index_end = index_start + 1;
     if (index_start == index_last)
     {
@@ -482,7 +482,7 @@ void LLTexLayerParamColor::setWeight(F32 weight)
     {
         mCurWeight = new_weight;
 
-                const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)getInfo();
+                const LLTexLayerParamColorInfo *info = static_cast<LLTexLayerParamColorInfo *>(getInfo());
 
         if (info->mNumColors <= 0)
         {

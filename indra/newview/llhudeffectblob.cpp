@@ -68,13 +68,13 @@ void LLHUDEffectBlob::render()
     gGL.getTexUnit(0)->bind(mImage->getImage());
 
     LLColor4U color = mColor;
-    color.mV[VALPHA] = (U8)clamp_rescale(time, 0.f, mDuration, 255.f, 0.f);
+    color.mV[VALPHA] = static_cast<U8>(clamp_rescale(time, 0.f, mDuration, 255.f, 0.f));
     gGL.color4ubv(color.mV);
 
     { gGL.pushMatrix();
         gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
-        LLVector3 u_scale = pixel_right * (F32)mPixelSize;
-        LLVector3 v_scale = pixel_up * (F32)mPixelSize;
+        LLVector3 u_scale = pixel_right * static_cast<F32>(mPixelSize);
+        LLVector3 v_scale = pixel_up * static_cast<F32>(mPixelSize);
 
         gGL.begin(LLRender::TRIANGLES);
         {

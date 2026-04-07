@@ -574,7 +574,7 @@ LLFetchedGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
             AssetLoadUserData *user_data = new AssetLoadUserData();
             user_data->mMaterial = mat;
 
-            gAssetStorage->getAssetData(id, LLAssetType::AT_MATERIAL, onAssetLoadComplete, (void*)user_data);
+            gAssetStorage->getAssetData(id, LLAssetType::AT_MATERIAL, onAssetLoadComplete, reinterpret_cast<void*>(user_data));
         }
 
         return mat;
@@ -598,8 +598,8 @@ void LLGLTFMaterialList::flushMaterials()
     // Similar variant to what textures use
     static const S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinCount");       // default: 32
     //update MIN_UPDATE_COUNT or 5% of materials, whichever is greater
-    U32 update_count = llmax((U32)MIN_UPDATE_COUNT, (U32)mList.size() / 20);
-    update_count = llmin(update_count, (U32)mList.size());
+    U32 update_count = llmax(static_cast<U32>(MIN_UPDATE_COUNT), static_cast<U32>(mList.size()) / 20);
+    update_count = llmin(update_count, static_cast<U32>(mList.size()));
 
     const F64 MAX_INACTIVE_TIME = 30.f;
     F64 cur_time = LLTimer::getTotalSeconds();

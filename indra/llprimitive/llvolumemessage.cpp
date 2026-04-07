@@ -52,13 +52,13 @@ bool LLVolumeMessage::packProfileParams(
     tempU8 = params->getCurveType();
     mesgsys->addU8Fast(_PREHASH_ProfileCurve, tempU8);
 
-    tempU16 = (U16) ll_round( params->getBegin() / CUT_QUANTA);
+    tempU16 = static_cast<U16>( ll_round( params->getBegin() / CUT_QUANTA));
     mesgsys->addU16Fast(_PREHASH_ProfileBegin, tempU16);
 
-    tempU16 = 50000 - (U16) ll_round(params->getEnd() / CUT_QUANTA);
+    tempU16 = 50000 - static_cast<U16>( ll_round(params->getEnd() / CUT_QUANTA));
     mesgsys->addU16Fast(_PREHASH_ProfileEnd, tempU16);
 
-    tempU16 = (U16) ll_round(params->getHollow() / HOLLOW_QUANTA);
+    tempU16 = static_cast<U16>( ll_round(params->getHollow() / HOLLOW_QUANTA));
     mesgsys->addU16Fast(_PREHASH_ProfileHollow, tempU16);
 
     return true;
@@ -80,13 +80,13 @@ bool LLVolumeMessage::packProfileParams(
     tempU8 = params->getCurveType();
     dp.packU8(tempU8, "Curve");
 
-    tempU16 = (U16) ll_round( params->getBegin() / CUT_QUANTA);
+    tempU16 = static_cast<U16>( ll_round( params->getBegin() / CUT_QUANTA));
     dp.packU16(tempU16, "Begin");
 
-    tempU16 = 50000 - (U16) ll_round(params->getEnd() / CUT_QUANTA);
+    tempU16 = 50000 - static_cast<U16>( ll_round(params->getEnd() / CUT_QUANTA));
     dp.packU16(tempU16, "End");
 
-    tempU16 = (U16) ll_round(params->getHollow() / HOLLOW_QUANTA);
+    tempU16 = static_cast<U16>( ll_round(params->getHollow() / HOLLOW_QUANTA));
     dp.packU16(tempU16, "Hollow");
     return true;
 }
@@ -140,7 +140,7 @@ bool LLVolumeMessage::unpackProfileParams(
 
     /*
     LL_INFOS() << "Unpacking Profile Block " << block_num << LL_ENDL;
-    LL_INFOS() << "Curve:     " << (U32)getCurve() << LL_ENDL;
+    LL_INFOS() << "Curve:     " << static_cast<U32>(getCurve() << LL_ENDL);
     LL_INFOS() << "Begin:     " << getBegin() << LL_ENDL;
     LL_INFOS() << "End:     " << getEnd() << LL_ENDL;
     LL_INFOS() << "Hollow:     " << getHollow() << LL_ENDL;
@@ -217,46 +217,46 @@ bool LLVolumeMessage::packPathParams(
     U8 curve = params->getCurveType();
     mesgsys->addU8Fast(_PREHASH_PathCurve, curve);
 
-    U16 begin = (U16) ll_round(params->getBegin() / CUT_QUANTA);
+    U16 begin = static_cast<U16>( ll_round(params->getBegin() / CUT_QUANTA));
     mesgsys->addU16Fast(_PREHASH_PathBegin, begin);
 
-    U16 end = 50000 - (U16) ll_round(params->getEnd() / CUT_QUANTA);
+    U16 end = 50000 - static_cast<U16>( ll_round(params->getEnd() / CUT_QUANTA));
     mesgsys->addU16Fast(_PREHASH_PathEnd, end);
 
     // Avoid truncation problem with direct F32->U8 cast.
-    // (e.g., (U8) (0.50 / 0.01) = (U8) 49.9999999 = 49 not 50.
+    // (e.g., static_cast<U8>( (0.50 / 0.01) = static_cast<U8>( 49.9999999 = 49 not 50.)
 
-    U8 pack_scale_x = 200 - (U8) ll_round(params->getScaleX() / SCALE_QUANTA);
+    U8 pack_scale_x = 200 - static_cast<U8>( ll_round(params->getScaleX() / SCALE_QUANTA));
     mesgsys->addU8Fast(_PREHASH_PathScaleX, pack_scale_x );
 
-    U8 pack_scale_y = 200 - (U8) ll_round(params->getScaleY() / SCALE_QUANTA);
+    U8 pack_scale_y = 200 - static_cast<U8>( ll_round(params->getScaleY() / SCALE_QUANTA));
     mesgsys->addU8Fast(_PREHASH_PathScaleY, pack_scale_y );
 
-    U8 pack_shear_x = (U8) ll_round(params->getShearX() / SHEAR_QUANTA);
+    U8 pack_shear_x = static_cast<U8>( ll_round(params->getShearX() / SHEAR_QUANTA));
     mesgsys->addU8Fast(_PREHASH_PathShearX, pack_shear_x );
 
-    U8 pack_shear_y = (U8) ll_round(params->getShearY() / SHEAR_QUANTA);
+    U8 pack_shear_y = static_cast<U8>( ll_round(params->getShearY() / SHEAR_QUANTA));
     mesgsys->addU8Fast(_PREHASH_PathShearY, pack_shear_y );
 
-    S8 twist = (S8) ll_round(params->getTwist() / SCALE_QUANTA);
+    S8 twist = static_cast<S8>( ll_round(params->getTwist() / SCALE_QUANTA));
     mesgsys->addS8Fast(_PREHASH_PathTwist, twist);
 
-    S8 twist_begin = (S8) ll_round(params->getTwistBegin() / SCALE_QUANTA);
+    S8 twist_begin = static_cast<S8>( ll_round(params->getTwistBegin() / SCALE_QUANTA));
     mesgsys->addS8Fast(_PREHASH_PathTwistBegin, twist_begin);
 
-    S8 radius_offset = (S8) ll_round(params->getRadiusOffset() / SCALE_QUANTA);
+    S8 radius_offset = static_cast<S8>( ll_round(params->getRadiusOffset() / SCALE_QUANTA));
     mesgsys->addS8Fast(_PREHASH_PathRadiusOffset, radius_offset);
 
-    S8 taper_x = (S8) ll_round(params->getTaperX() / TAPER_QUANTA);
+    S8 taper_x = static_cast<S8>( ll_round(params->getTaperX() / TAPER_QUANTA));
     mesgsys->addS8Fast(_PREHASH_PathTaperX, taper_x);
 
-    S8 taper_y = (S8) ll_round(params->getTaperY() / TAPER_QUANTA);
+    S8 taper_y = static_cast<S8>( ll_round(params->getTaperY() / TAPER_QUANTA));
     mesgsys->addS8Fast(_PREHASH_PathTaperY, taper_y);
 
-    U8 revolutions = (U8) ll_round( (params->getRevolutions() - 1.0f) / REV_QUANTA);
+    U8 revolutions = static_cast<U8>( ll_round( (params->getRevolutions() - 1.0f) / REV_QUANTA));
     mesgsys->addU8Fast(_PREHASH_PathRevolutions, revolutions);
 
-    S8 skew = (S8) ll_round(params->getSkew() / SCALE_QUANTA);
+    S8 skew = static_cast<S8>( ll_round(params->getSkew() / SCALE_QUANTA));
     mesgsys->addS8Fast(_PREHASH_PathSkew, skew);
 
     return true;
@@ -274,47 +274,47 @@ bool LLVolumeMessage::packPathParams(
     U8 curve = params->getCurveType();
     dp.packU8(curve, "Curve");
 
-    U16 begin = (U16) ll_round(params->getBegin() / CUT_QUANTA);
+    U16 begin = static_cast<U16>( ll_round(params->getBegin() / CUT_QUANTA));
     dp.packU16(begin, "Begin");
 
-    U16 end = 50000 - (U16) ll_round(params->getEnd() / CUT_QUANTA);
+    U16 end = 50000 - static_cast<U16>( ll_round(params->getEnd() / CUT_QUANTA));
     dp.packU16(end, "End");
 
     // Avoid truncation problem with direct F32->U8 cast.
-    // (e.g., (U8) (0.50 / 0.01) = (U8) 49.9999999 = 49 not 50.
+    // (e.g., static_cast<U8>( (0.50 / 0.01) = static_cast<U8>( 49.9999999 = 49 not 50.)
 
-    U8 pack_scale_x = 200 - (U8) ll_round(params->getScaleX() / SCALE_QUANTA);
+    U8 pack_scale_x = 200 - static_cast<U8>(ll_round(params->getScaleX() / SCALE_QUANTA));
     dp.packU8(pack_scale_x, "ScaleX");
 
-    U8 pack_scale_y = 200 - (U8) ll_round(params->getScaleY() / SCALE_QUANTA);
+    U8 pack_scale_y = 200 - static_cast<U8>(ll_round(params->getScaleY() / SCALE_QUANTA));
     dp.packU8(pack_scale_y, "ScaleY");
 
-    S8 pack_shear_x = (S8) ll_round(params->getShearX() / SHEAR_QUANTA);
-    dp.packU8(*(U8 *)&pack_shear_x, "ShearX");
+    S8 pack_shear_x = static_cast<S8>(ll_round(params->getShearX() / SHEAR_QUANTA));
+    dp.packU8(*reinterpret_cast<U8 *>(&pack_shear_x), "ShearX");
 
-    S8 pack_shear_y = (S8) ll_round(params->getShearY() / SHEAR_QUANTA);
-    dp.packU8(*(U8 *)&pack_shear_y, "ShearY");
+    S8 pack_shear_y = static_cast<S8>(ll_round(params->getShearY() / SHEAR_QUANTA));
+    dp.packU8(*reinterpret_cast<U8 *>(&pack_shear_y), "ShearY");
 
-    S8 twist = (S8) ll_round(params->getTwist() / SCALE_QUANTA);
-    dp.packU8(*(U8 *)&twist, "Twist");
+    S8 twist = static_cast<S8>(ll_round(params->getTwist() / SCALE_QUANTA));
+    dp.packU8(*reinterpret_cast<U8 *>(&twist), "Twist");
 
-    S8 twist_begin = (S8) ll_round(params->getTwistBegin() / SCALE_QUANTA);
-    dp.packU8(*(U8 *)&twist_begin, "TwistBegin");
+    S8 twist_begin = static_cast<S8>(ll_round(params->getTwistBegin() / SCALE_QUANTA));
+    dp.packU8(*reinterpret_cast<U8 *>(&twist_begin), "TwistBegin");
 
-    S8 radius_offset = (S8) ll_round(params->getRadiusOffset() / SCALE_QUANTA);
-    dp.packU8(*(U8 *)&radius_offset, "RadiusOffset");
+    S8 radius_offset = static_cast<S8>(ll_round(params->getRadiusOffset() / SCALE_QUANTA));
+    dp.packU8(*reinterpret_cast<U8 *>(&radius_offset), "RadiusOffset");
 
-    S8 taper_x = (S8) ll_round(params->getTaperX() / TAPER_QUANTA);
-    dp.packU8(*(U8 *)&taper_x, "TaperX");
+    S8 taper_x = static_cast<S8>(ll_round(params->getTaperX() / TAPER_QUANTA));
+    dp.packU8(*reinterpret_cast<U8 *>(&taper_x), "TaperX");
 
-    S8 taper_y = (S8) ll_round(params->getTaperY() / TAPER_QUANTA);
-    dp.packU8(*(U8 *)&taper_y, "TaperY");
+    S8 taper_y = static_cast<S8>(ll_round(params->getTaperY() / TAPER_QUANTA));
+    dp.packU8(*reinterpret_cast<U8 *>(&taper_y), "TaperY");
 
-    U8 revolutions = (U8) ll_round( (params->getRevolutions() - 1.0f) / REV_QUANTA);
+    U8 revolutions = static_cast<U8>(ll_round((params->getRevolutions() - 1.0f) / REV_QUANTA));
     dp.packU8(*(&revolutions), "Revolutions");
 
-    S8 skew = (S8) ll_round(params->getSkew() / SCALE_QUANTA);
-    dp.packU8(*(U8 *)&skew, "Skew");
+    S8 skew = static_cast<S8>(ll_round(params->getSkew() / SCALE_QUANTA));
+    dp.packU8(*reinterpret_cast<U8 *>(&skew), "Skew");
 
     return true;
 }
@@ -331,56 +331,56 @@ bool LLVolumeMessage::unpackPathParams(
 
     U16 begin;
     mesgsys->getU16Fast(block_name, _PREHASH_PathBegin, begin, block_num);
-    params->setBegin((F32)(begin * CUT_QUANTA));
+    params->setBegin(static_cast<F32>(begin * CUT_QUANTA));
 
     U16 end;
     mesgsys->getU16Fast(block_name, _PREHASH_PathEnd, end, block_num);
-    params->setEnd((F32)((50000 - end) * CUT_QUANTA));
+    params->setEnd(static_cast<F32>(((50000 - end) * CUT_QUANTA)));
 
     U8 pack_scale_x, pack_scale_y;
     mesgsys->getU8Fast(block_name, _PREHASH_PathScaleX, pack_scale_x, block_num);
     mesgsys->getU8Fast(block_name, _PREHASH_PathScaleY, pack_scale_y, block_num);
-    F32 x = (F32) (200 - pack_scale_x) * SCALE_QUANTA;
-    F32 y = (F32) (200 - pack_scale_y) * SCALE_QUANTA;
+    F32 x = static_cast<F32>( (200 - pack_scale_x) * SCALE_QUANTA);
+    F32 y = static_cast<F32>( (200 - pack_scale_y) * SCALE_QUANTA);
     params->setScale( x, y );
 
     S8 shear_x_quant, shear_y_quant;
     mesgsys->getS8Fast(block_name, _PREHASH_PathShearX, shear_x_quant, block_num);
     mesgsys->getS8Fast(block_name, _PREHASH_PathShearY, shear_y_quant, block_num);
-    F32 shear_x = (F32) shear_x_quant * SHEAR_QUANTA;
-    F32 shear_y = (F32) shear_y_quant * SHEAR_QUANTA;
+    F32 shear_x = static_cast<F32>(shear_x_quant * SHEAR_QUANTA);
+    F32 shear_y = static_cast<F32>(shear_y_quant * SHEAR_QUANTA);
     params->setShear( shear_x, shear_y );
 
     S8 twist;
     mesgsys->getS8Fast(block_name, _PREHASH_PathTwist, twist, block_num );
-    params->setTwist((F32)(twist * SCALE_QUANTA));
+    params->setTwist(static_cast<F32>(twist * SCALE_QUANTA));
 
     S8 twist_begin;
     mesgsys->getS8Fast(block_name, _PREHASH_PathTwistBegin, twist_begin, block_num );
-    params->setTwistBegin((F32)(twist_begin * SCALE_QUANTA));
+    params->setTwistBegin(static_cast<F32>(twist_begin * SCALE_QUANTA));
 
     S8 radius_offset;
     mesgsys->getS8Fast(block_name, _PREHASH_PathRadiusOffset, radius_offset, block_num );
-    params->setRadiusOffset((F32)(radius_offset * SCALE_QUANTA));
+    params->setRadiusOffset(static_cast<F32>(radius_offset * SCALE_QUANTA));
 
     S8 taper_x_quant, taper_y_quant;
     mesgsys->getS8Fast(block_name, _PREHASH_PathTaperX, taper_x_quant, block_num );
     mesgsys->getS8Fast(block_name, _PREHASH_PathTaperY, taper_y_quant, block_num );
-    F32 taper_x = (F32)(taper_x_quant * TAPER_QUANTA);
-    F32 taper_y = (F32)(taper_y_quant * TAPER_QUANTA);
+    F32 taper_x = static_cast<F32>(taper_x_quant * TAPER_QUANTA);
+    F32 taper_y = static_cast<F32>(taper_y_quant * TAPER_QUANTA);
     params->setTaper( taper_x, taper_y );
 
     U8 revolutions;
     mesgsys->getU8Fast(block_name, _PREHASH_PathRevolutions, revolutions, block_num );
-    params->setRevolutions((F32)(revolutions * REV_QUANTA + 1.0f));
+    params->setRevolutions(static_cast<F32>(revolutions * REV_QUANTA + 1.0f));
 
     S8 skew;
     mesgsys->getS8Fast(block_name, _PREHASH_PathSkew, skew, block_num );
-    params->setSkew((F32)(skew * SCALE_QUANTA));
+    params->setSkew(static_cast<F32>(skew * SCALE_QUANTA));
 
 /*
     LL_INFOS() << "Unpacking Path Block " << block_num << LL_ENDL;
-    LL_INFOS() << "Curve:     " << (U32)params->getCurve() << LL_ENDL;
+    LL_INFOS() << "Curve:     " << static_cast<U32>(params->getCurve() << LL_ENDL);
     LL_INFOS() << "Begin:     " << params->getBegin() << LL_ENDL;
     LL_INFOS() << "End:     " << params->getEnd() << LL_ENDL;
     LL_INFOS() << "Scale:     " << params->getScale() << LL_ENDL;
@@ -401,51 +401,51 @@ bool LLVolumeMessage::unpackPathParams(LLPathParams* params, LLDataPacker &dp)
     params->setCurveType( value );
 
     dp.unpackU16(temp_u16, "Begin");
-    params->setBegin((F32)(temp_u16 * CUT_QUANTA));
+    params->setBegin(static_cast<F32>(temp_u16 * CUT_QUANTA));
 
     dp.unpackU16(temp_u16, "End");
-    params->setEnd((F32)((50000 - temp_u16) * CUT_QUANTA));
+    params->setEnd(static_cast<F32>(((50000 - temp_u16) * CUT_QUANTA)));
 
     dp.unpackU8(value, "ScaleX");
-    F32 x = (F32) (200 - value) * SCALE_QUANTA;
+    F32 x = static_cast<F32>((200 - value) * SCALE_QUANTA);
     dp.unpackU8(value, "ScaleY");
-    F32 y = (F32) (200 - value) * SCALE_QUANTA;
+    F32 y = static_cast<F32>((200 - value) * SCALE_QUANTA);
     params->setScale( x, y );
 
     dp.unpackU8(value, "ShearX");
-    svalue = *(S8 *)&value;
-    F32 shear_x = (F32) svalue * SHEAR_QUANTA;
+    svalue = *reinterpret_cast<S8 *>(&value);
+    F32 shear_x = static_cast<F32>(svalue * SHEAR_QUANTA);
     dp.unpackU8(value, "ShearY");
-    svalue = *(S8 *)&value;
-    F32 shear_y = (F32) svalue * SHEAR_QUANTA;
+    svalue = *reinterpret_cast<S8 *>(&value);
+    F32 shear_y = static_cast<F32>(svalue * SHEAR_QUANTA);
     params->setShear( shear_x, shear_y );
 
     dp.unpackU8(value, "Twist");
-    svalue = *(S8 *)&value;
-    params->setTwist((F32)(svalue * SCALE_QUANTA));
+    svalue = *reinterpret_cast<S8 *>(&value);
+    params->setTwist(static_cast<F32>(svalue * SCALE_QUANTA));
 
     dp.unpackU8(value, "TwistBegin");
-    svalue = *(S8 *)&value;
-    params->setTwistBegin((F32)(svalue * SCALE_QUANTA));
+    svalue = *reinterpret_cast<S8 *>(&value);
+    params->setTwistBegin(static_cast<F32>(svalue * SCALE_QUANTA));
 
     dp.unpackU8(value, "RadiusOffset");
-    svalue = *(S8 *)&value;
-    params->setRadiusOffset((F32)(svalue * SCALE_QUANTA));
+    svalue = *reinterpret_cast<S8 *>(&value);
+    params->setRadiusOffset(static_cast<F32>(svalue * SCALE_QUANTA));
 
     dp.unpackU8(value, "TaperX");
-    svalue = *(S8 *)&value;
-    params->setTaperX((F32)(svalue * TAPER_QUANTA));
+    svalue = *reinterpret_cast<S8 *>(&value);
+    params->setTaperX(static_cast<F32>(svalue * TAPER_QUANTA));
 
     dp.unpackU8(value, "TaperY");
-    svalue = *(S8 *)&value;
-    params->setTaperY((F32)(svalue * TAPER_QUANTA));
+    svalue = *reinterpret_cast<S8 *>(&value);
+    params->setTaperY(static_cast<F32>(svalue * TAPER_QUANTA));
 
     dp.unpackU8(value, "Revolutions");
-    params->setRevolutions((F32)(value * REV_QUANTA + 1.0f));
+    params->setRevolutions(static_cast<F32>(value * REV_QUANTA + 1.0f));
 
     dp.unpackU8(value, "Skew");
-    svalue = *(S8 *)&value;
-    params->setSkew((F32)(svalue * SCALE_QUANTA));
+    svalue = *reinterpret_cast<S8 *>(&value);
+    params->setSkew(static_cast<F32>(svalue * SCALE_QUANTA));
 
     return true;
 }

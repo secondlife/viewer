@@ -185,12 +185,12 @@ bool LLPanelEnvironmentInfo::postBuild()
     mCheckAllowOverride = getChild<LLCheckBoxCtrl>(CHK_ALLOWOVERRIDE);
 
     mSliderDayLength = getChild<LLSliderCtrl>(SLD_DAYLENGTH);
-    mSliderDayLength->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayLengthChanged((F32)value.asReal()); });
+    mSliderDayLength->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayLengthChanged(static_cast<F32>(value.asReal())); });
     mSliderDayLength->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
     mSliderDayLength->setSliderEditorCommitCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
 
     mSliderDayOffset = getChild<LLSliderCtrl>(SLD_DAYOFFSET);
-    mSliderDayOffset->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayOffsetChanged((F32)value.asReal()); });
+    mSliderDayOffset->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayOffsetChanged(static_cast<F32>(value.asReal())); });
     mSliderDayOffset->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
     mSliderDayOffset->setSliderEditorCommitCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
 
@@ -222,7 +222,7 @@ bool LLPanelEnvironmentInfo::postBuild()
         }
 
         // set initial values to prevent [ALTITUDE] from displaying
-        updateAltLabel(idx, idx + 2, (F32)(idx * 1000));
+        updateAltLabel(idx, idx + 2, static_cast<F32>(idx * 1000));
     }
     mAltitudeDropTarget[3]->setPanel(this, alt_prefixes[3]);
     mAltitudeDropTarget[4]->setPanel(this, alt_prefixes[4]);
@@ -431,7 +431,7 @@ LLFloaterEditExtDayCycle * LLPanelEnvironmentInfo::getEditFloater(bool create)
     if (!editor && create)
     {
         LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, isRegion() ? LLFloaterEditExtDayCycle::CONTEXT_REGION : LLFloaterEditExtDayCycle::CONTEXT_PARCEL)
-            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
+            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? static_cast<S32>(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
 
         editor = (LLFloaterEditExtDayCycle *)LLFloaterReg::getInstance(FLOATER_DAY_CYCLE_EDIT, params);
 
@@ -578,7 +578,7 @@ void LLPanelEnvironmentInfo::updateAltLabel(U32 alt_index, U32 sky_index, F32 al
     S32 sld_range = sld_rect.getHeight();
     S32 sld_bottom = sld_rect.mBottom;
     S32 sld_offset = sld_rect.getWidth(); // Roughly identical to thumb's width in slider.
-    S32 pos = (S32)((sld_range - sld_offset) * ((alt_value - 100) / (4000 - 100)));
+    S32 pos = static_cast<S32>((sld_range - sld_offset) * ((alt_value - 100) / (4000 - 100)));
 
     // get related views
     LLTextBox* text = mAltitudeLabels[alt_index];
@@ -668,18 +668,18 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
     // Account for edges
     LLRect midle_rect = view_midle->getRect();
     F32 factor = 0.5f;
-    S32 edge_zone_height = (S32)(midle_rect.getHeight() * 1.5f);
+    S32 edge_zone_height = static_cast<S32>(midle_rect.getHeight() * 1.5f);
 
     if (midle_rect.mBottom - sld_rect.mBottom < edge_zone_height)
     {
-        factor = 1.f - (F32)((midle_rect.mBottom - sld_rect.mBottom) / (edge_zone_height * 2));
+        factor = 1.f - static_cast<F32>((midle_rect.mBottom - sld_rect.mBottom) / (edge_zone_height * 2));
     }
     else if (sld_rect.mTop - midle_rect.mTop < edge_zone_height )
     {
-        factor = (F32)((sld_rect.mTop - midle_rect.mTop) / (edge_zone_height * 2));
+        factor = static_cast<F32>((sld_rect.mTop - midle_rect.mTop) / (edge_zone_height * 2));
     }
 
-    S32 shift_middle = (S32)(((F32)shift_down * factor) + ((F32)shift_up * (1.f - factor)));
+    S32 shift_middle = static_cast<S32>((static_cast<F32>(shift_down) * factor) + (static_cast<F32>(shift_up) * (1.f - factor)));
     shift_down = shift_down - shift_middle;
     shift_up = shift_up - shift_middle;
 
@@ -760,8 +760,8 @@ void LLPanelEnvironmentInfo::commitDayLenOffsetChanges(bool need_callback)
         {
             LLEnvironment::instance().updateParcel(getParcelId(),
                                                    LLSettingsDay::ptr_t(),
-                                                   (S32)mCurrentEnvironment->mDayLength.value(),
-                                                   (S32)mCurrentEnvironment->mDayOffset.value(),
+                                                   static_cast<S32>(mCurrentEnvironment->mDayLength.value()),
+                                                   static_cast<S32>(mCurrentEnvironment->mDayOffset.value()),
                                                    LLEnvironment::altitudes_vect_t(),
                                                    [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
@@ -769,8 +769,8 @@ void LLPanelEnvironmentInfo::commitDayLenOffsetChanges(bool need_callback)
         {
             LLEnvironment::instance().updateParcel(getParcelId(),
                                                    LLSettingsDay::ptr_t(),
-                                                   (S32)mCurrentEnvironment->mDayLength.value(),
-                                                   (S32)mCurrentEnvironment->mDayOffset.value(),
+                                                   static_cast<S32>(mCurrentEnvironment->mDayLength.value()),
+                                                   static_cast<S32>(mCurrentEnvironment->mDayOffset.value()),
                                                    LLEnvironment::altitudes_vect_t());
         }
 
@@ -834,8 +834,8 @@ void LLPanelEnvironmentInfo::onAltSliderMouseUp()
         setControlsEnabled(false);
         LLEnvironment::instance().updateParcel(getParcelId(),
                                                LLSettingsDay::ptr_t(),
-                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
-                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
+                                               mCurrentEnvironment ? static_cast<S32>(mCurrentEnvironment->mDayLength.value()) : -1,
+                                               mCurrentEnvironment ? static_cast<S32>(mCurrentEnvironment->mDayOffset.value()) : -1,
                                                alts);
     }
 }
@@ -863,7 +863,7 @@ void LLPanelEnvironmentInfo::onBtnEdit()
     LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
 
     LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, isRegion() ? LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION : LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL)
-            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
+            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? static_cast<S32>(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
 
     dayeditor->openFloater(params);
 
@@ -914,8 +914,8 @@ void LLPanelEnvironmentInfo::onBtnRstAltitudes()
 
         LLEnvironment::instance().updateParcel(getParcelId(),
                                                LLSettingsDay::ptr_t(),
-                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
-                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
+                                               mCurrentEnvironment ? static_cast<S32>(mCurrentEnvironment->mDayLength.value()) : -1,
+                                               mCurrentEnvironment ? static_cast<S32>(mCurrentEnvironment->mDayOffset.value()) : -1,
                                                alts,
             [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
     }
@@ -932,13 +932,13 @@ void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
     }
     mLabelApparentTime->setVisible(true);
 
-    S32Seconds now((S32)LLDate::now().secondsSinceEpoch());
+    S32Seconds now(static_cast<S32>(LLDate::now().secondsSinceEpoch()));
 
     now += mCurrentEnvironment->mDayOffset;
 
-    F32 perc = (F32)(now.value() % mCurrentEnvironment->mDayLength.value()) / (F32)(mCurrentEnvironment->mDayLength.value());
+    F32 perc = static_cast<F32>(now.value() % mCurrentEnvironment->mDayLength.value()) / static_cast<F32>(mCurrentEnvironment->mDayLength.value());
 
-    S32Seconds  secondofday((S32)(perc * SECONDSINDAY));
+    S32Seconds  secondofday(static_cast<S32>(perc * SECONDSINDAY));
     S32Hours    hourofday(secondofday);
     S32Seconds  secondofhour(secondofday - hourofday);
     S32Minutes  minutesofhour(secondofhour);
@@ -965,7 +965,7 @@ void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
     {
         mLabelApparentTime->setTextArg("[AP]", std::string(am_pm ? "PM" : "AM"));
     }
-    mLabelApparentTime->setTextArg("[PRC]", LLSD((S32)(100 * perc)).asString());
+    mLabelApparentTime->setTextArg("[PRC]", LLSD(static_cast<S32>(100 * perc)).asString());
 
 }
 
@@ -1019,8 +1019,8 @@ void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id, S32 track_num)
             itemp->getAssetUUID(),
             itemp->getName(),
             track_num,
-            mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
-            mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
+            mCurrentEnvironment ? static_cast<S32>(mCurrentEnvironment->mDayLength.value()) : -1,
+            mCurrentEnvironment ? static_cast<S32>(mCurrentEnvironment->mDayOffset.value()) : -1,
             flags,
             LLEnvironment::altitudes_vect_t(),
             [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
@@ -1060,8 +1060,8 @@ void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
 
         LLEnvironment::instance().updateParcel(getParcelId(),
                                                newday,
-                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
-                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
+                                               mCurrentEnvironment ? static_cast<S32>(mCurrentEnvironment->mDayLength.value()) : -1,
+                                               mCurrentEnvironment ? static_cast<S32>(mCurrentEnvironment->mDayOffset.value()) : -1,
                                                LLEnvironment::altitudes_vect_t(),
             [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
     }

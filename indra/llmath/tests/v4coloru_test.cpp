@@ -134,8 +134,8 @@ namespace tut
     {
         U8 r = 0x12, g = 0xFF, b = 0xAF;
         LLColor4U llcolor4u(r,g,b);
-        ensure("magVecSquared:Fail ", is_approx_equal(llcolor4u.magVecSquared(), (F32)(r*r + g*g + b*b)));
-        ensure("magVec:Fail ", is_approx_equal(llcolor4u.magVec(), (F32) sqrt((F32) (r*r + g*g + b*b))));
+        ensure("magVecSquared:Fail ", is_approx_equal(llcolor4u.magVecSquared(), static_cast<F32>(r*r + g*g + b*b)));
+        ensure("magVec:Fail ", is_approx_equal(llcolor4u.magVec(), static_cast<F32>(sqrt(static_cast<F32>(r*r + g*g + b*b)))));
     }
 
     template<> template<>
@@ -160,29 +160,29 @@ namespace tut
         ensure_equals(
             "1a.operator+:Fail to Add the values ",
             llcolor4u3.mV[VRED],
-            (U8)(r1+r2));
+            static_cast<U8>(r1+r2));
         ensure_equals(
             "1b.operator+:Fail to Add the values ",
             llcolor4u3.mV[VGREEN],
-            (U8)(g1+g2));
+            static_cast<U8>(g1+g2));
         ensure_equals(
             "1c.operator+:Fail to Add the values ",
             llcolor4u3.mV[VBLUE],
-            (U8)(b1+b2));
+            static_cast<U8>(b1+b2));
 
         llcolor4u2 += llcolor4u1;
         ensure_equals(
             "2a.operator+=:Fail to Add the values ",
             llcolor4u2.mV[VRED],
-            (U8)(r1+r2));
+            static_cast<U8>(r1+r2));
         ensure_equals(
             "2b.operator+=:Fail to Add the values ",
             llcolor4u2.mV[VGREEN],
-            (U8)(g1+g2));
+            static_cast<U8>(g1+g2));
         ensure_equals(
             "2c.operator+=:Fail to Add the values ",
             llcolor4u2.mV[VBLUE],
-            (U8)(b1+b2));
+            static_cast<U8>(b1+b2));
     }
 
     template<> template<>
@@ -195,29 +195,29 @@ namespace tut
         ensure_equals(
             "1a. operator-:Fail to Add the values ",
             llcolor4u3.mV[VRED],
-            (U8)(r1-r2));
+            static_cast<U8>(r1-r2));
         ensure_equals(
             "1b. operator-:Fail to Add the values ",
             llcolor4u3.mV[VGREEN],
-            (U8)(g1-g2));
+            static_cast<U8>(g1-g2));
         ensure_equals(
             "1c. operator-:Fail to Add the values ",
             llcolor4u3.mV[VBLUE],
-            (U8)(b1-b2));
+            static_cast<U8>(b1-b2));
 
         llcolor4u1 -= llcolor4u2;
         ensure_equals(
             "2a. operator-=:Fail to Add the values ",
             llcolor4u1.mV[VRED],
-            (U8)(r1-r2));
+            static_cast<U8>(r1-r2));
         ensure_equals(
             "2b. operator-=:Fail to Add the values ",
             llcolor4u1.mV[VGREEN],
-            (U8)(g1-g2));
+            static_cast<U8>(g1-g2));
         ensure_equals(
             "2c. operator-=:Fail to Add the values ",
             llcolor4u1.mV[VBLUE],
-            (U8)(b1-b2));
+            static_cast<U8>(b1-b2));
     }
 
     template<> template<>
@@ -230,30 +230,30 @@ namespace tut
         ensure_equals(
             "1a. operator*:Fail to multiply the values",
             llcolor4u3.mV[VRED],
-            (U8)(r1*r2));
+            static_cast<U8>(r1*r2));
         ensure_equals(
             "1b. operator*:Fail to multiply the values",
             llcolor4u3.mV[VGREEN],
-            (U8)(g1*g2));
+            static_cast<U8>(g1*g2));
         ensure_equals(
             "1c. operator*:Fail to multiply the values",
             llcolor4u3.mV[VBLUE],
-            (U8)(b1*b2));
+            static_cast<U8>(b1*b2));
 
         U8 mulVal = 123;
         llcolor4u1 *= mulVal;
         ensure_equals(
             "2a. operator*=:Fail to multiply the values",
             llcolor4u1.mV[VRED],
-            (U8)(r1*mulVal));
+            static_cast<U8>(r1*mulVal));
         ensure_equals(
             "2b. operator*=:Fail to multiply the values",
             llcolor4u1.mV[VGREEN],
-            (U8)(g1*mulVal));
+            static_cast<U8>(g1*mulVal));
         ensure_equals(
             "2c. operator*=:Fail to multiply the values",
             llcolor4u1.mV[VBLUE],
-            (U8)(b1*mulVal));
+            static_cast<U8>(b1*mulVal));
     }
 
     template<> template<>
@@ -274,7 +274,7 @@ namespace tut
         LLColor4U llcolor4u(r,g,b,a);
         U8 modVal = 45;
         llcolor4u %= modVal;
-        ensure_equals("operator%=:Fail ", llcolor4u.mV[VALPHA], (U8)(a * modVal));
+        ensure_equals("operator%=:Fail ", llcolor4u.mV[VALPHA], static_cast<U8>(a * modVal));
     }
 
     template<> template<>
@@ -300,8 +300,8 @@ namespace tut
         LLColor4U llcolor4u(r,g,b,a),llcolor4u1;
         const F32 fVal = 3.f;
         llcolor4u1 = llcolor4u.multAll(fVal);
-        ensure("multAll:Fail to multiply ", (((U8)ll_round(r * fVal) == llcolor4u1.mV[VRED]) && (U8)ll_round(g * fVal) == llcolor4u1.mV[VGREEN]
-                                            && ((U8)ll_round(b * fVal) == llcolor4u1.mV[VBLUE])&& ((U8)ll_round(a * fVal) == llcolor4u1.mV[VALPHA])));
+        ensure("multAll:Fail to multiply ", ((static_cast<U8>(ll_round(r * fVal)) == llcolor4u1.mV[VRED]) && static_cast<U8>(ll_round(g * fVal)) == llcolor4u1.mV[VGREEN]
+                                            && (static_cast<U8>(ll_round(b * fVal)) == llcolor4u1.mV[VBLUE])&& (static_cast<U8>(ll_round(a * fVal)) == llcolor4u1.mV[VALPHA])));
     }
 
     template<> template<>

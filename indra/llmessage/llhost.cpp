@@ -121,7 +121,7 @@ bool LLHost::setHostByName(const std::string& hostname)
 
     if (he)
     {
-        mIP = *(U32 *)he->h_addr_list[0];
+        mIP = *reinterpret_cast<U32*>(he->h_addr_list[0]);
         return true;
     }
     else

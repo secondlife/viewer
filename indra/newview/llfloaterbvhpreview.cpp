@@ -281,7 +281,7 @@ bool LLFloaterBvhPreview::postBuild()
         // motion will be returned, but it will be in a load-pending state, as this is a new motion
         // this motion will not request an asset transfer until next update, so we have a chance to
         // load the keyframe data locally
-        motionp = (LLKeyframeMotion*)mAnimPreview->getDummyAvatar()->createMotion(mMotionID);
+        motionp = static_cast<LLKeyframeMotion*>(mAnimPreview->getDummyAvatar()->createMotion(mMotionID));
 
         // create data buffer for keyframe initialization
         S32 buffer_size = loaderp->getOutputSize();
@@ -325,7 +325,7 @@ bool LLFloaterBvhPreview::postBuild()
             getChild<LLUICtrl>("loop_check")->setValue(LLSD(motionp->getLoop()));
             getChild<LLUICtrl>("loop_in_point")->setValue(LLSD(motionp->getLoopIn() / motionp->getDuration() * 100.f));
             getChild<LLUICtrl>("loop_out_point")->setValue(LLSD(motionp->getLoopOut() / motionp->getDuration() * 100.f));
-            getChild<LLUICtrl>("priority")->setValue(LLSD((F32)motionp->getPriority()));
+            getChild<LLUICtrl>("priority")->setValue(LLSD(static_cast<F32>(motionp->getPriority())));
             getChild<LLUICtrl>("hand_pose_combo")->setValue(LLHandMotion::getHandPoseName(motionp->getHandPose()));
             getChild<LLUICtrl>("ease_in_time")->setValue(LLSD(motionp->getEaseInDuration()));
             getChild<LLUICtrl>("ease_out_time")->setValue(LLSD(motionp->getEaseOutDuration()));
@@ -511,19 +511,19 @@ bool LLFloaterBvhPreview::handleHover(S32 x, S32 y, MASK mask)
         if (local_mask == MASK_PAN)
         {
             // pan here
-            mAnimPreview->pan((F32)(x - mLastMouseX) * -0.005f, (F32)(y - mLastMouseY) * -0.005f);
+            mAnimPreview->pan(static_cast<F32>(x - mLastMouseX) * -0.005f, static_cast<F32>(y - mLastMouseY) * -0.005f);
         }
         else if (local_mask == MASK_ORBIT)
         {
-            F32 yaw_radians = (F32)(x - mLastMouseX) * -0.01f;
-            F32 pitch_radians = (F32)(y - mLastMouseY) * 0.02f;
+            F32 yaw_radians = static_cast<F32>(x - mLastMouseX) * -0.01f;
+            F32 pitch_radians = static_cast<F32>(y - mLastMouseY) * 0.02f;
 
             mAnimPreview->rotate(yaw_radians, pitch_radians);
         }
         else
         {
-            F32 yaw_radians = (F32)(x - mLastMouseX) * -0.01f;
-            F32 zoom_amt = (F32)(y - mLastMouseY) * 0.02f;
+            F32 yaw_radians = static_cast<F32>(x - mLastMouseX) * -0.01f;
+            F32 zoom_amt = static_cast<F32>(y - mLastMouseY) * 0.02f;
 
             mAnimPreview->rotate(yaw_radians, 0.f);
             mAnimPreview->zoom(zoom_amt);
@@ -562,7 +562,7 @@ bool LLFloaterBvhPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
     if (!mAnimPreview)
         return false;
 
-    mAnimPreview->zoom((F32)clicks * -0.2f);
+    mAnimPreview->zoom(static_cast<F32>(clicks) * -0.2f);
     mAnimPreview->requestUpdate();
 
     return true;
@@ -649,7 +649,7 @@ void LLFloaterBvhPreview::onSliderMove()
     if (mAnimPreview)
     {
         LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-        F32 slider_value = (F32)getChild<LLUICtrl>("playback_slider")->getValue().asReal();
+        F32 slider_value = static_cast<F32>(getChild<LLUICtrl>("playback_slider")->getValue().asReal());
         LLUUID base_id = mIDList[getChild<LLUICtrl>("preview_base_anim")->getValue().asString()];
         LLMotion* motionp = avatarp->findMotion(mMotionID);
         F32 duration = motionp->getDuration();// + motionp->getEaseOutDuration();
@@ -701,13 +701,13 @@ void LLFloaterBvhPreview::onCommitLoop()
         return;
 
     LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-    LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
 
     if (motionp)
     {
         motionp->setLoop(getChild<LLUICtrl>("loop_check")->getValue().asBoolean());
-        motionp->setLoopIn((F32)getChild<LLUICtrl>("loop_in_point")->getValue().asReal() * 0.01f * motionp->getDuration());
-        motionp->setLoopOut((F32)getChild<LLUICtrl>("loop_out_point")->getValue().asReal() * 0.01f * motionp->getDuration());
+        motionp->setLoopIn(static_cast<F32>(getChild<LLUICtrl>("loop_in_point")->getValue().asReal()) * 0.01f * motionp->getDuration());
+        motionp->setLoopOut(static_cast<F32>(getChild<LLUICtrl>("loop_out_point")->getValue().asReal()) * 0.01f * motionp->getDuration());
     }
 }
 
@@ -720,11 +720,11 @@ void LLFloaterBvhPreview::onCommitLoopIn()
         return;
 
     LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-    LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
 
     if (motionp)
     {
-        motionp->setLoopIn((F32)getChild<LLUICtrl>("loop_in_point")->getValue().asReal() / 100.f);
+        motionp->setLoopIn(static_cast<F32>(getChild<LLUICtrl>("loop_in_point")->getValue().asReal()) / 100.f);
         resetMotion();
         getChild<LLUICtrl>("loop_check")->setValue(LLSD(true));
         onCommitLoop();
@@ -740,11 +740,11 @@ void LLFloaterBvhPreview::onCommitLoopOut()
         return;
 
     LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-    LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
 
     if (motionp)
     {
-        motionp->setLoopOut((F32)getChild<LLUICtrl>("loop_out_point")->getValue().asReal() * 0.01f * motionp->getDuration());
+        motionp->setLoopOut(static_cast<F32>(getChild<LLUICtrl>("loop_out_point")->getValue().asReal()) * 0.01f * motionp->getDuration());
         resetMotion();
         getChild<LLUICtrl>("loop_check")->setValue(LLSD(true));
         onCommitLoop();
@@ -760,7 +760,7 @@ void LLFloaterBvhPreview::onCommitName()
         return;
 
     LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-    LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
 
     if (motionp)
     {
@@ -801,9 +801,9 @@ void LLFloaterBvhPreview::onCommitPriority()
         return;
 
     LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-    LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
 
-    motionp->setPriority(llfloor((F32)getChild<LLUICtrl>("priority")->getValue().asReal()));
+    motionp->setPriority(llfloor(static_cast<F32>(getChild<LLUICtrl>("priority")->getValue().asReal())));
 }
 
 //-----------------------------------------------------------------------------
@@ -815,9 +815,9 @@ void LLFloaterBvhPreview::onCommitEaseIn()
         return;
 
     LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-    LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
 
-    motionp->setEaseIn((F32)getChild<LLUICtrl>("ease_in_time")->getValue().asReal());
+    motionp->setEaseIn(static_cast<F32>(getChild<LLUICtrl>("ease_in_time")->getValue().asReal()));
     resetMotion();
 }
 
@@ -830,9 +830,9 @@ void LLFloaterBvhPreview::onCommitEaseOut()
         return;
 
     LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-    LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
 
-    motionp->setEaseOut((F32)getChild<LLUICtrl>("ease_out_time")->getValue().asReal());
+    motionp->setEaseOut(static_cast<F32>(getChild<LLUICtrl>("ease_out_time")->getValue().asReal()));
     resetMotion();
 }
 
@@ -845,11 +845,11 @@ bool LLFloaterBvhPreview::validateEaseIn(const LLSD& data)
         return false;
 
     LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-    LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
 
     if (!motionp->getLoop())
     {
-        F32 new_ease_in = llclamp((F32)getChild<LLUICtrl>("ease_in_time")->getValue().asReal(), 0.f, motionp->getDuration() - motionp->getEaseOutDuration());
+        F32 new_ease_in = llclamp(static_cast<F32>(getChild<LLUICtrl>("ease_in_time")->getValue().asReal()), 0.f, motionp->getDuration() - motionp->getEaseOutDuration());
         getChild<LLUICtrl>("ease_in_time")->setValue(LLSD(new_ease_in));
     }
 
@@ -865,11 +865,11 @@ bool LLFloaterBvhPreview::validateEaseOut(const LLSD& data)
         return false;
 
     LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
-    LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+    LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
 
     if (!motionp->getLoop())
     {
-        F32 new_ease_out = llclamp((F32)getChild<LLUICtrl>("ease_out_time")->getValue().asReal(), 0.f, motionp->getDuration() - motionp->getEaseInDuration());
+        F32 new_ease_out = llclamp(static_cast<F32>(getChild<LLUICtrl>("ease_out_time")->getValue().asReal()), 0.f, motionp->getDuration() - motionp->getEaseInDuration());
         getChild<LLUICtrl>("ease_out_time")->setValue(LLSD(new_ease_out));
     }
 
@@ -884,8 +884,8 @@ bool LLFloaterBvhPreview::validateLoopIn(const LLSD& data)
     if (!getEnabled())
         return false;
 
-    F32 loop_in_value = (F32)getChild<LLUICtrl>("loop_in_point")->getValue().asReal();
-    F32 loop_out_value = (F32)getChild<LLUICtrl>("loop_out_point")->getValue().asReal();
+    F32 loop_in_value = static_cast<F32>(getChild<LLUICtrl>("loop_in_point")->getValue().asReal());
+    F32 loop_out_value = static_cast<F32>(getChild<LLUICtrl>("loop_out_point")->getValue().asReal());
 
     if (loop_in_value < 0.f)
     {
@@ -912,8 +912,8 @@ bool LLFloaterBvhPreview::validateLoopOut(const LLSD& data)
     if (!getEnabled())
         return false;
 
-    F32 loop_out_value = (F32)getChild<LLUICtrl>("loop_out_point")->getValue().asReal();
-    F32 loop_in_value = (F32)getChild<LLUICtrl>("loop_in_point")->getValue().asReal();
+    F32 loop_out_value = static_cast<F32>(getChild<LLUICtrl>("loop_out_point")->getValue().asReal());
+    F32 loop_in_value = static_cast<F32>(getChild<LLUICtrl>("loop_in_point")->getValue().asReal());
 
     if (loop_out_value < 0.f)
     {
@@ -958,7 +958,7 @@ void LLFloaterBvhPreview::refresh()
         if (avatarp->isMotionActive(mMotionID))
         {
             mStopButton->setEnabled(true);
-            LLKeyframeMotion* motionp = (LLKeyframeMotion*)avatarp->findMotion(mMotionID);
+            LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(avatarp->findMotion(mMotionID));
             if (!avatarp->areAnimationsPaused())
             {
                 // animation is playing
@@ -992,7 +992,7 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 
     if (floaterp->mAnimPreview)
     {
-        LLKeyframeMotion* motionp = (LLKeyframeMotion*)floaterp->mAnimPreview->getDummyAvatar()->findMotion(floaterp->mMotionID);
+        LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*>(floaterp->mAnimPreview->getDummyAvatar()->findMotion(floaterp->mMotionID));
 
         S32 file_size = motionp->getFileSize();
         std::vector<U8> buffer(file_size);
@@ -1089,7 +1089,7 @@ bool    LLPreviewAnimation::render()
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
     gGL.loadIdentity();
-    gGL.ortho(0.0f, (F32)mFullWidth, 0.0f, (F32)mFullHeight, -1.0f, 1.0f);
+    gGL.ortho(0.0f, static_cast<F32>(mFullWidth), 0.0f, static_cast<F32>(mFullHeight), -1.0f, 1.0f);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
@@ -1125,7 +1125,7 @@ bool    LLPreviewAnimation::render()
         target_pos + (mCameraOffset  * av_rot) );                                           // point of interest
 
     camera->setViewNoBroadcast(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
-    camera->setAspect((F32) mFullWidth / (F32) mFullHeight);
+    camera->setAspect(static_cast<F32>(mFullWidth) / static_cast<F32>(mFullHeight));
     camera->setPerspective(false, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, false);
 
     //SJB: Animation is updated in LLVOAvatar::updateCharacter

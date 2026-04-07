@@ -165,7 +165,7 @@ public:
     // *NOTE: it is possible for hasMedia() to return true, but getMediaData() to return NULL.
     // CONVERSELY, it is also possible for hasMedia() to return false, but getMediaData()
     // to NOT return NULL.
-    bool hasMedia() const { return (bool)(mMediaFlags & MF_HAS_MEDIA); }
+    bool hasMedia() const { return static_cast<bool>(mMediaFlags & MF_HAS_MEDIA); }
     LLMediaEntry* getMediaData() const { return mMediaEntry; }
 
     // Completely change the media data on this texture entry.

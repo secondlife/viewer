@@ -194,9 +194,9 @@ bool LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 
     error = FT_Set_Char_Size(mFTFace,    /* handle to face object           */
                             0,       /* char_width in 1/64th of points  */
-                            (S32)(point_size*64),   /* char_height in 1/64th of points */
-                            (U32)horz_dpi,     /* horizontal device resolution    */
-                            (U32)vert_dpi);   /* vertical device resolution      */
+                            static_cast<S32>(point_size*64),   /* char_height in 1/64th of points */
+                            static_cast<U32>(horz_dpi),     /* horizontal device resolution    */
+                            static_cast<U32>(vert_dpi));   /* vertical device resolution      */
 
     if (error)
     {
@@ -325,7 +325,7 @@ F32 LLFontFreetype::getXAdvance(llwchar wch) const
     }
 
     // Last ditch fallback - no glyphs defined at all.
-    return (F32)mFontBitmapCachep->getMaxCharWidth();
+    return static_cast<F32>(mFontBitmapCachep->getMaxCharWidth());
 }
 
 F32 LLFontFreetype::getXAdvance(const LLFontGlyphInfo* glyph) const
@@ -663,7 +663,7 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
             error = FT_Load_Glyph(mFTFace, 0, FT_LOAD_FORCE_AUTOHINT);
             if (FT_Err_Ok != error)
             {
-                LL_ERRS() << "Loading fallback for char '" << (U32)wch << "', glyph " << glyph_index << " failed with error : " << (S32)error << LL_ENDL;
+                LL_ERRS() << "Loading fallback for char '" << static_cast<U32>(wch) << "', glyph " << glyph_index << " failed with error : " << static_cast<S32>(error) << LL_ENDL;
             }
         }
         llassert_always_msg(FT_Err_Ok == error, message.c_str());
@@ -741,13 +741,13 @@ void LLFontFreetype::dumpFontBitmaps() const
     // Dump all the regular bitmaps (if any)
     for (int idx = 0, cnt = mFontBitmapCachep->getNumBitmaps(EFontGlyphType::Grayscale); idx < cnt; idx++)
     {
-        dumpFontBitmap(mFontBitmapCachep->getImageRaw(EFontGlyphType::Grayscale, idx), llformat("%s_%d_%d_%d.png", mFTFace->family_name, (int)(mPointSize * 10), mStyle, idx));
+        dumpFontBitmap(mFontBitmapCachep->getImageRaw(EFontGlyphType::Grayscale, idx), llformat("%s_%d_%d_%d.png", mFTFace->family_name, static_cast<int>(mPointSize * 10), mStyle, idx));
     }
 
     // Dump all the color bitmaps (if any)
     for (int idx = 0, cnt = mFontBitmapCachep->getNumBitmaps(EFontGlyphType::Color); idx < cnt; idx++)
     {
-        dumpFontBitmap(mFontBitmapCachep->getImageRaw(EFontGlyphType::Color, idx), llformat("%s_%d_%d_%d_clr.png", mFTFace->family_name, (int)(mPointSize * 10), mStyle, idx));
+        dumpFontBitmap(mFontBitmapCachep->getImageRaw(EFontGlyphType::Color, idx), llformat("%s_%d_%d_%d_clr.png", mFTFace->family_name, static_cast<int>(mPointSize * 10), mStyle, idx));
     }
 }
 
@@ -778,7 +778,7 @@ bool LLFontFreetype::setSubImageBGRA(U32 x, U32 y, U32 bitmap_num, U16 width, U1
     llassert(image_raw->getComponents() == 4);
 
     // NOTE: inspired by LLImageRaw::setSubImage()
-    U32* image_data = (U32*)image_raw->getData();
+    U32* image_data = reinterpret_cast<U32*>(image_raw->getData());
     if (!image_data)
     {
         return false;

@@ -181,9 +181,9 @@ void LLWearableData::pullCrossWearableValues(const LLWearableType::EType type)
 {
     llassert(mAvatarAppearance);
     // scan through all of the avatar's visual parameters
-    for (LLViewerVisualParam* param = (LLViewerVisualParam*) mAvatarAppearance->getFirstVisualParam();
+    for (LLViewerVisualParam* param = static_cast<LLViewerVisualParam*>(mAvatarAppearance->getFirstVisualParam());
          param;
-         param = (LLViewerVisualParam*) mAvatarAppearance->getNextVisualParam())
+         param = static_cast<LLViewerVisualParam*>(mAvatarAppearance->getNextVisualParam()))
     {
         if( param )
         {
@@ -231,7 +231,7 @@ U32 LLWearableData::getClothingLayerCount() const
     LLWearableType *wr_inst = LLWearableType::getInstance();
     for (S32 i = 0; i < LLWearableType::WT_COUNT; i++)
     {
-        LLWearableType::EType type = (LLWearableType::EType)i;
+        LLWearableType::EType type = static_cast<LLWearableType::EType>(i);
         if (wr_inst->getAssetType(type)==LLAssetType::AT_CLOTHING)
         {
             count += getWearableCount(type);
@@ -337,6 +337,6 @@ U32 LLWearableData::getWearableCount(const LLWearableType::EType type) const
 
 U32 LLWearableData::getWearableCount(const U32 tex_index) const
 {
-    const LLWearableType::EType wearable_type = LLAvatarAppearance::getDictionary()->getTEWearableType((LLAvatarAppearanceDefines::ETextureIndex)tex_index);
+    const LLWearableType::EType wearable_type = LLAvatarAppearance::getDictionary()->getTEWearableType(static_cast<LLAvatarAppearanceDefines::ETextureIndex>(tex_index));
     return getWearableCount(wearable_type);
 }

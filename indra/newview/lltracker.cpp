@@ -146,7 +146,7 @@ void LLTracker::drawHUDArrow()
 
     case TRACKING_LOCATION:
         // HACK -- try to keep the location just above the terrain
-        instance()->mTrackedPositionGlobal.mdV[VZ] = llclamp((F32)instance()->mTrackedPositionGlobal.mdV[VZ], LLWorld::getInstance()->resolveLandHeightGlobal(getTrackedPositionGlobal()) + 1.5f, (F32)instance()->getTrackedPositionGlobal().mdV[VZ]);
+        instance()->mTrackedPositionGlobal.mdV[VZ] = llclamp(static_cast<F32>(instance()->mTrackedPositionGlobal.mdV[VZ]), LLWorld::getInstance()->resolveLandHeightGlobal(getTrackedPositionGlobal()) + 1.5f, static_cast<F32>(instance()->getTrackedPositionGlobal().mdV[VZ]));
         instance()->drawMarker( getTrackedPositionGlobal(), map_track_color );
         break;
 
@@ -171,7 +171,7 @@ void LLTracker::render3D()
     {
         if (!instance()->mBeaconText)
         {
-            instance()->mBeaconText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
+            instance()->mBeaconText = static_cast<LLHUDText*>(LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT));
             instance()->mBeaconText->setDoFade(false);
         }
 
@@ -195,7 +195,7 @@ void LLTracker::render3D()
     {
         if (!instance()->mBeaconText)
         {
-            instance()->mBeaconText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
+            instance()->mBeaconText = static_cast<LLHUDText*>(LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT));
             instance()->mBeaconText->setDoFade(false);
         }
 
@@ -245,7 +245,7 @@ void LLTracker::render3D()
         {
             if (!instance()->mBeaconText)
             {
-                instance()->mBeaconText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
+                instance()->mBeaconText = static_cast<LLHUDText*>(LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT));
                 instance()->mBeaconText->setDoFade(false);
             }
 
@@ -436,7 +436,7 @@ void draw_shockwave(F32 center_z, F32 t, S32 steps, LLColor4 color)
 
     t *= 0.6284f/F_PI;
 
-    t -= (F32) (S32) t;
+    t -= static_cast<F32>(static_cast<S32>(t));
 
     t = llmax(t, 0.5f);
     t -= 0.5f;
@@ -498,7 +498,7 @@ void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 
         height = pos_agent.mV[2];
     }
 
-    nRows = (U32)ceil((BEACON_ROWS * height) / MAX_HEIGHT);
+    nRows = static_cast<U32>(ceil((BEACON_ROWS * height) / MAX_HEIGHT));
     if(nRows<2) nRows=2;
     rowHeight = height / nRows;
 
@@ -593,7 +593,7 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
     sCheesyBeacon = gSavedSettings.getBOOL("CheesyBeacon");
     LLVector3d to_vec = pos_global - gAgentCamera.getCameraPositionGlobal();
 
-    F32 dist = (F32)to_vec.length();
+    F32 dist = static_cast<F32>(to_vec.length());
     F32 color_frac = 1.f;
     if (dist > 0.99f * LLViewerCamera::getInstance()->getFar())
     {
@@ -727,11 +727,11 @@ void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
         // from those rules we can compute the position of the
         // lower left corner of the image
         LLRect rect = gHUDView->getRect();
-        S32 x_center = lltrunc(0.5f * (F32)rect.getWidth());
-        S32 y_center = lltrunc(0.5f * (F32)rect.getHeight());
+        S32 x_center = lltrunc(0.5f * static_cast<F32>(rect.getWidth()));
+        S32 y_center = lltrunc(0.5f * static_cast<F32>(rect.getHeight()));
         x = x - x_center;   // x and y relative to center
         y = y - y_center;
-        F32 dist = sqrt((F32)(x*x + y*y));
+        F32 dist = sqrt(static_cast<F32>(x*x + y*y));
         S32 half_arrow_size = lltrunc(0.5f * HUD_ARROW_SIZE);
         if (dist > 0.f)
         {
@@ -739,30 +739,30 @@ void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
             const F32 ARROW_ELLIPSE_RADIUS_Y = HUD_ARROW_SIZE;
 
             // compute where the arrow should be
-            F32 x_target = (F32)(x + x_center) - (ARROW_ELLIPSE_RADIUS_X * ((F32)x / dist) );
-            F32 y_target = (F32)(y + y_center) - (ARROW_ELLIPSE_RADIUS_Y * ((F32)y / dist) );
+            F32 x_target = static_cast<F32>((x + x_center)) - (ARROW_ELLIPSE_RADIUS_X * (static_cast<F32>(x) / dist) );
+            F32 y_target = static_cast<F32>((y + y_center)) - (ARROW_ELLIPSE_RADIUS_Y * (static_cast<F32>(y) / dist) );
 
             // keep the arrow within the window
-            F32 x_clamped = llclamp( x_target, (F32)half_arrow_size, (F32)(rect.getWidth() - half_arrow_size));
-            F32 y_clamped = llclamp( y_target, (F32)half_arrow_size, (F32)(rect.getHeight() - half_arrow_size));
+            F32 x_clamped = llclamp( x_target, static_cast<F32>(half_arrow_size), static_cast<F32>(rect.getWidth() - half_arrow_size));
+            F32 y_clamped = llclamp( y_target, static_cast<F32>(half_arrow_size), static_cast<F32>(rect.getHeight() - half_arrow_size));
 
-            F32 slope = (F32)(y) / (F32)(x);
-            F32 window_ratio = (F32)(rect.getHeight() - HUD_ARROW_SIZE) / (F32)(rect.getWidth() - HUD_ARROW_SIZE);
+            F32 slope = static_cast<F32>((y))/ static_cast<F32>((x));
+            F32 window_ratio = static_cast<F32>(rect.getHeight() - HUD_ARROW_SIZE) / static_cast<F32>(rect.getWidth() - HUD_ARROW_SIZE);
 
             // if the arrow has been clamped on one axis
             // then we need to compute the other axis
             if (llabs(slope) > window_ratio)
             {
-                if (y_clamped != (F32)y_target)
+                if (y_clamped != static_cast<F32>(y_target))
                 {
                     // clamp by y
-                    x_clamped = (y_clamped - (F32)y_center) / slope + (F32)x_center;
+                    x_clamped = (y_clamped - static_cast<F32>(y_center)) / slope + static_cast<F32>(x_center);
                 }
             }
-            else if (x_clamped != (F32)x_target)
+            else if (x_clamped != static_cast<F32>(x_target))
             {
                 // clamp by x
-                y_clamped = (x_clamped - (F32)x_center) * slope + (F32)y_center;
+                y_clamped = (x_clamped - static_cast<F32>(x_center)) * slope + static_cast<F32>(y_center);
             }
             mHUDArrowCenterX = lltrunc(x_clamped);
             mHUDArrowCenterY = lltrunc(y_clamped);
@@ -774,7 +774,7 @@ void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
             y = mHUDArrowCenterY - y_center;
         }
 
-        F32 angle = atan2( (F32)y, (F32)x );
+        F32 angle = atan2( static_cast<F32>(y), static_cast<F32>(x) );
 
         gl_draw_scaled_rotated_image(mHUDArrowCenterX - half_arrow_size,
                                      mHUDArrowCenterY - half_arrow_size,
@@ -791,7 +791,7 @@ void LLTracker::setLandmarkVisited()
     if (!mTrackedLandmarkItemID.isNull())
     {
         LLInventoryItem* i = gInventory.getItem( mTrackedLandmarkItemID );
-        LLViewerInventoryItem* item = (LLViewerInventoryItem*)i;
+        LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(i);
         if (   item
             && !(item->getFlags()&LLInventoryItemFlags::II_FLAGS_LANDMARK_VISITED))
         {

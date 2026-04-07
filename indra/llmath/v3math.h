@@ -262,7 +262,7 @@ inline void LLVector3::set(const glm::vec3& vec)
 
 inline F32 LLVector3::normalize()
 {
-    F32 mag = (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+    F32 mag = static_cast<F32>(sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]));
 
     if (mag > FP_MAG_THRESHOLD)
     {

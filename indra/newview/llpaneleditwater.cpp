@@ -169,14 +169,14 @@ void LLPanelSettingsWaterMainTab::onFogColorChanged()
 void LLPanelSettingsWaterMainTab::onFogDensityChanged()
 {
     if (!mWaterSettings) return;
-    mWaterSettings->setWaterFogDensity((F32)getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->getValue().asReal());
+    mWaterSettings->setWaterFogDensity(static_cast<F32>(getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->getValue().asReal()));
     setIsDirty();
 }
 
 void LLPanelSettingsWaterMainTab::onFogUnderWaterChanged()
 {
     if (!mWaterSettings) return;
-    mWaterSettings->setFogMod((F32)getChild<LLUICtrl>(FIELD_WATER_UNDERWATER_MOD)->getValue().asReal());
+    mWaterSettings->setFogMod(static_cast<F32>(getChild<LLUICtrl>(FIELD_WATER_UNDERWATER_MOD)->getValue().asReal()));
     setIsDirty();
 }
 
@@ -209,7 +209,7 @@ void LLPanelSettingsWaterMainTab::onSmallWaveChanged()
 void LLPanelSettingsWaterMainTab::onNormalScaleChanged()
 {
     if (!mWaterSettings) return;
-    LLVector3 vect((F32)getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_X)->getValue().asReal(), (F32)getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Y)->getValue().asReal(), (F32)getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Z)->getValue().asReal());
+    LLVector3 vect(static_cast<F32>(getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_X)->getValue().asReal()), static_cast<F32>(getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Y)->getValue().asReal()), static_cast<F32>(getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Z)->getValue().asReal()));
     mWaterSettings->setNormalScale(vect);
     setIsDirty();
 }
@@ -217,34 +217,34 @@ void LLPanelSettingsWaterMainTab::onNormalScaleChanged()
 void LLPanelSettingsWaterMainTab::onFresnelScaleChanged()
 {
     if (!mWaterSettings) return;
-    mWaterSettings->setFresnelScale((F32)getChild<LLUICtrl>(FIELD_WATER_FRESNEL_SCALE)->getValue().asReal());
+    mWaterSettings->setFresnelScale(static_cast<F32>(getChild<LLUICtrl>(FIELD_WATER_FRESNEL_SCALE)->getValue().asReal()));
     setIsDirty();
 }
 
 void LLPanelSettingsWaterMainTab::onFresnelOffsetChanged()
 {
     if (!mWaterSettings) return;
-    mWaterSettings->setFresnelOffset((F32)getChild<LLUICtrl>(FIELD_WATER_FRESNEL_OFFSET)->getValue().asReal());
+    mWaterSettings->setFresnelOffset(static_cast<F32>(getChild<LLUICtrl>(FIELD_WATER_FRESNEL_OFFSET)->getValue().asReal()));
     setIsDirty();
 }
 
 void LLPanelSettingsWaterMainTab::onScaleAboveChanged()
 {
     if (!mWaterSettings) return;
-    mWaterSettings->setScaleAbove((F32)getChild<LLUICtrl>(FIELD_WATER_SCALE_ABOVE)->getValue().asReal());
+    mWaterSettings->setScaleAbove(static_cast<F32>(getChild<LLUICtrl>(FIELD_WATER_SCALE_ABOVE)->getValue().asReal()));
     setIsDirty();
 }
 
 void LLPanelSettingsWaterMainTab::onScaleBelowChanged()
 {
     if (!mWaterSettings) return;
-    mWaterSettings->setScaleBelow((F32)getChild<LLUICtrl>(FIELD_WATER_SCALE_BELOW)->getValue().asReal());
+    mWaterSettings->setScaleBelow(static_cast<F32>(getChild<LLUICtrl>(FIELD_WATER_SCALE_BELOW)->getValue().asReal()));
     setIsDirty();
 }
 
 void LLPanelSettingsWaterMainTab::onBlurMultipChanged()
 {
     if (!mWaterSettings) return;
-    mWaterSettings->setBlurMultiplier((F32)getChild<LLUICtrl>(FIELD_WATER_BLUR_MULTIP)->getValue().asReal());
+    mWaterSettings->setBlurMultiplier(static_cast<F32>(getChild<LLUICtrl>(FIELD_WATER_BLUR_MULTIP)->getValue().asReal()));
     setIsDirty();
 }

@@ -72,7 +72,7 @@ public:
     virtual ~LLViewerVisualParam();
 
     // Special: These functions are overridden by child classes
-    LLViewerVisualParamInfo     *getInfo() const { return (LLViewerVisualParamInfo*)mInfo; };
+    LLViewerVisualParamInfo     *getInfo() const { return static_cast<LLViewerVisualParamInfo*>(mInfo); };
     //   This sets mInfo and calls initialization functions
     bool                        setInfo(LLViewerVisualParamInfo *info);
 

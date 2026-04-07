@@ -507,11 +507,11 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     panel->getChild<LLUICtrl>("allow_land_resell_check")->setValue(!is_flag_set(region_flags, REGION_FLAGS_BLOCK_LAND_RESELL));
     panel->getChild<LLUICtrl>("allow_parcel_changes_check")->setValue(is_flag_set(region_flags, REGION_FLAGS_ALLOW_PARCEL_CHANGES));
     panel->getChild<LLUICtrl>("block_parcel_search_check")->setValue(is_flag_set(region_flags, REGION_FLAGS_BLOCK_PARCEL_SEARCH));
-    panel->getChild<LLUICtrl>("agent_limit_spin")->setValue(LLSD((F32)agent_limit));
+    panel->getChild<LLUICtrl>("agent_limit_spin")->setValue(LLSD(static_cast<F32>(agent_limit)));
     panel->getChild<LLUICtrl>("object_bonus_spin")->setValue(LLSD(object_bonus_factor));
     panel->getChild<LLUICtrl>("access_combo")->setValue(LLSD(sim_access));
 
-    panel->getChild<LLSpinCtrl>("agent_limit_spin")->setMaxValue((F32)hard_agent_limit);
+    panel->getChild<LLSpinCtrl>("agent_limit_spin")->setMaxValue(static_cast<F32>(hard_agent_limit));
 
     LLPanelRegionGeneralInfo* panel_general = LLFloaterRegionInfo::getPanelGeneral();
     if (panel)
@@ -527,12 +527,12 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     panel->getChildView("access_combo")->setEnabled(gAgent.isGodlike() || (region && region->canManageEstate() && !teen_grid));
     panel->setCtrlsEnabled(allow_modify);
 
-    panel->getChild<LLLineEditor>("estate_id")->setValue((S32)region_info.mEstateID);
+    panel->getChild<LLLineEditor>("estate_id")->setValue(static_cast<S32>(region_info.mEstateID));
 
     if (region)
     {
-        panel->getChild<LLLineEditor>("grid_position_x")->setValue((S32)(region->getOriginGlobal()[VX] / 256));
-        panel->getChild<LLLineEditor>("grid_position_y")->setValue((S32)(region->getOriginGlobal()[VY] / 256));
+        panel->getChild<LLLineEditor>("grid_position_x")->setValue(static_cast<S32>(region->getOriginGlobal()[VX] / 256));
+        panel->getChild<LLLineEditor>("grid_position_y")->setValue(static_cast<S32>(region->getOriginGlobal()[VY] / 256));
     }
     else
     {
@@ -544,9 +544,9 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     panel = tab->getChild<LLPanel>("Debug");
 
     panel->getChild<LLUICtrl>("region_text")->setValue(LLSD(sim_name) );
-    panel->getChild<LLUICtrl>("disable_scripts_check")->setValue(LLSD((bool)(region_flags & REGION_FLAGS_SKIP_SCRIPTS)));
-    panel->getChild<LLUICtrl>("disable_collisions_check")->setValue(LLSD((bool)(region_flags & REGION_FLAGS_SKIP_COLLISIONS)));
-    panel->getChild<LLUICtrl>("disable_physics_check")->setValue(LLSD((bool)(region_flags & REGION_FLAGS_SKIP_PHYSICS)));
+    panel->getChild<LLUICtrl>("disable_scripts_check")->setValue(LLSD(static_cast<bool>(region_flags & REGION_FLAGS_SKIP_SCRIPTS)));
+    panel->getChild<LLUICtrl>("disable_collisions_check")->setValue(LLSD(static_cast<bool>(region_flags & REGION_FLAGS_SKIP_COLLISIONS)));
+    panel->getChild<LLUICtrl>("disable_physics_check")->setValue(LLSD(static_cast<bool>(region_flags & REGION_FLAGS_SKIP_PHYSICS)));
     panel->setCtrlsEnabled(allow_modify);
 
     // TERRAIN PANEL
@@ -1131,11 +1131,11 @@ bool LLPanelRegionGeneralInfo::sendUpdate()
         buffer = llformat("%s", (getChild<LLUICtrl>("allow_land_resell_check")->getValue().asBoolean() ? "Y" : "N"));
         strings.push_back(strings_t::value_type(buffer));
 
-        F32 value = (F32)getChild<LLUICtrl>("agent_limit_spin")->getValue().asReal();
+        F32 value = static_cast<F32>(getChild<LLUICtrl>("agent_limit_spin")->getValue().asReal());
         buffer = llformat("%f", value);
         strings.push_back(strings_t::value_type(buffer));
 
-        value = (F32)getChild<LLUICtrl>("object_bonus_spin")->getValue().asReal();
+        value = static_cast<F32>(getChild<LLUICtrl>("object_bonus_spin")->getValue().asReal());
         buffer = llformat("%f", value);
         strings.push_back(strings_t::value_type(buffer));
 
@@ -1388,7 +1388,7 @@ bool LLPanelRegionTerrainInfo::validateTextureSizes()
 
     bool valid = true;
     static LLCachedControl<U32> max_texture_resolution(gSavedSettings, "RenderMaxTextureResolution", 2048);
-    const S32 max_terrain_texture_size = (S32)max_texture_resolution;
+    const S32 max_terrain_texture_size = static_cast<S32>(max_texture_resolution);
     for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
     {
         LLTextureCtrl* texture_ctrl = mTextureDetailCtrl[i];
@@ -1881,9 +1881,9 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
 
     // update the model
     LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
-    region_info.mWaterHeight = (F32) getChild<LLUICtrl>("water_height_spin")->getValue().asReal();
-    region_info.mTerrainRaiseLimit = (F32) getChild<LLUICtrl>("terrain_raise_spin")->getValue().asReal();
-    region_info.mTerrainLowerLimit = (F32) getChild<LLUICtrl>("terrain_lower_spin")->getValue().asReal();
+    region_info.mWaterHeight = static_cast<F32>(getChild<LLUICtrl>("water_height_spin")->getValue().asReal());
+    region_info.mTerrainRaiseLimit = static_cast<F32>(getChild<LLUICtrl>("terrain_raise_spin")->getValue().asReal());
+    region_info.mTerrainLowerLimit = static_cast<F32>(getChild<LLUICtrl>("terrain_lower_spin")->getValue().asReal());
 
     // and sync the region with it
     region_info.sendRegionTerrain(invoice);
@@ -1936,7 +1936,7 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
     {
         buffer = llformat("height_start_spin_%d", i);
         std::string buffer2 = llformat("height_range_spin_%d", i);
-        std::string buffer3 = llformat("%d %f %f", i, (F32)getChild<LLUICtrl>(buffer)->getValue().asReal(), (F32)getChild<LLUICtrl>(buffer2)->getValue().asReal());
+        std::string buffer3 = llformat("%d %f %f", i, static_cast<F32>(getChild<LLUICtrl>(buffer)->getValue().asReal()), static_cast<F32>(getChild<LLUICtrl>(buffer2)->getValue().asReal()));
         strings.push_back(buffer3);
     }
     sendEstateOwnerMessage(msg, "textureheights", invoice, strings);
@@ -1968,11 +1968,11 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
                 for (U32 tt = 0; tt < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++tt)
                 {
                     LLGLTFMaterial::TextureTransform& transform = mat_override->mTextureTransform[tt];
-                    transform.mScale.mV[VX] = (F32)mMaterialScaleUCtrl[i]->getValue().asReal();
-                    transform.mScale.mV[VY] = (F32)mMaterialScaleVCtrl[i]->getValue().asReal();
-                    transform.mRotation = (F32)mMaterialRotationCtrl[i]->getValue().asReal() * DEG_TO_RAD;
-                    transform.mOffset.mV[VX] = (F32)mMaterialOffsetUCtrl[i]->getValue().asReal();
-                    transform.mOffset.mV[VY] = (F32)mMaterialOffsetVCtrl[i]->getValue().asReal();
+                    transform.mScale.mV[VX] = static_cast<F32>(mMaterialScaleUCtrl[i]->getValue().asReal());
+                    transform.mScale.mV[VY] = static_cast<F32>(mMaterialScaleVCtrl[i]->getValue().asReal());
+                    transform.mRotation = static_cast<F32>(mMaterialRotationCtrl[i]->getValue().asReal()) * DEG_TO_RAD;
+                    transform.mOffset.mV[VX] = static_cast<F32>(mMaterialOffsetUCtrl[i]->getValue().asReal());
+                    transform.mOffset.mV[VY] = static_cast<F32>(mMaterialOffsetVCtrl[i]->getValue().asReal());
                 }
             }
 
@@ -2249,7 +2249,7 @@ struct LLEstateAccessChangeInfo
     LLEstateAccessChangeInfo(const LLSD& sd)
     {
         mDialogName = sd["dialog_name"].asString();
-        mOperationFlag = (U32)sd["operation"].asInteger();
+        mOperationFlag = static_cast<U32>(sd["operation"].asInteger());
         LLSD::array_const_iterator end_it = sd["allowed_ids"].endArray();
         for (LLSD::array_const_iterator id_it = sd["allowed_ids"].beginArray();
             id_it != end_it;
@@ -2263,7 +2263,7 @@ struct LLEstateAccessChangeInfo
     {
         LLSD sd;
         sd["name"] = mDialogName;
-        sd["operation"] = (S32)mOperationFlag;
+        sd["operation"] = static_cast<S32>(mOperationFlag);
         for (U32 i = 0; i < mAgentOrGroupIDs.size(); ++i)
         {
             sd["allowed_ids"].append(mAgentOrGroupIDs[i]);
@@ -2728,7 +2728,7 @@ void LLPanelEstateCovenant::loadInvItem(LLInventoryItem *itemp)
                                     itemp->getAssetUUID(),
                                     itemp->getType(),
                                     onLoadComplete,
-                                    (void*)this,
+                                    reinterpret_cast<void*>(this),
                                     high_priority);
         mAssetStatus = ASSET_LOADING;
     }
@@ -3067,7 +3067,7 @@ void LLPanelRegionExperiences::processResponse( const LLSD& content )
 bool LLPanelRegionExperiences::experienceCoreConfirm(const LLSD& notification, const LLSD& response)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    const U32 originalFlags = (U32)notification["payload"]["operation"].asInteger();
+    const U32 originalFlags = static_cast<U32>(notification["payload"]["operation"].asInteger());
 
     LLViewerRegion* region = gAgent.getRegion();
 
@@ -3239,7 +3239,7 @@ void LLPanelRegionExperiences::itemChanged( U32 event_type, const LLUUID& id )
     }
 
     LLSD payload;
-    payload["operation"] = (S32)event_type;
+    payload["operation"] = static_cast<S32>(event_type);
     payload["dialog_name"] = dialog_name;
     payload["allowed_ids"].append(id);
 
@@ -3519,7 +3519,7 @@ void LLPanelEstateAccess::addAllowedGroup2(LLUUID id)
     }
 
     LLSD payload;
-    payload["operation"] = (S32)ESTATE_ACCESS_ALLOWED_GROUP_ADD;
+    payload["operation"] = static_cast<S32>(ESTATE_ACCESS_ALLOWED_GROUP_ADD);
     payload["dialog_name"] = "EstateAllowedGroupAdd";
     payload["allowed_ids"].append(id);
 
@@ -3544,7 +3544,7 @@ void LLPanelEstateAccess::addAllowedGroup2(LLUUID id)
 void LLPanelEstateAccess::accessAddCore(U32 operation_flag, const std::string& dialog_name)
 {
     LLSD payload;
-    payload["operation"] = (S32)operation_flag;
+    payload["operation"] = static_cast<S32>(operation_flag);
     payload["dialog_name"] = dialog_name;
     // agent id filled in after avatar picker
 
@@ -3598,7 +3598,7 @@ bool LLPanelEstateAccess::accessAddCore2(const LLSD& notification, const LLSD& r
     }
 
     // avatar picker yes multi-select, yes close-on-select
-    LLFloater* child_floater = LLFloaterAvatarPicker::show(std::bind(&LLPanelEstateAccess::accessAddCore3, _1, _2, (void*)change_info),
+    LLFloater* child_floater = LLFloaterAvatarPicker::show(std::bind(&LLPanelEstateAccess::accessAddCore3, _1, _2, reinterpret_cast<void*>(change_info)),
         true, true, false, parent_floater_name, button);
 
     //Allows the closed parent floater to close the child floater (avatar picker)
@@ -3796,7 +3796,7 @@ void LLPanelEstateAccess::accessRemoveCore(U32 operation_flag, const std::string
         return;
 
     LLSD payload;
-    payload["operation"] = (S32)operation_flag;
+    payload["operation"] = static_cast<S32>(operation_flag);
     payload["dialog_name"] = dialog_name;
 
     for (std::vector<LLScrollListItem*>::const_iterator iter = list_vector.begin();
@@ -3857,7 +3857,7 @@ bool LLPanelEstateAccess::accessRemoveCore2(const LLSD& notification, const LLSD
 bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD& response)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    const U32 originalFlags = (U32)notification["payload"]["operation"].asInteger();
+    const U32 originalFlags = static_cast<U32>(notification["payload"]["operation"].asInteger());
     U32 flags = originalFlags;
 
     LLViewerRegion* region = gAgent.getRegion();
@@ -3896,7 +3896,7 @@ bool LLPanelEstateAccess::accessCoreConfirm(const LLSD& notification, const LLSD
         }
 
         const LLUUID id = notification["payload"]["allowed_ids"][i].asUUID();
-        if (((U32)notification["payload"]["operation"].asInteger() & ESTATE_ACCESS_BANNED_AGENT_ADD)
+        if ((static_cast<U32>(notification["payload"]["operation"].asInteger()) & ESTATE_ACCESS_BANNED_AGENT_ADD)
             && region && (region->getOwner() == id))
         {
             LLNotificationsUtil::add("OwnerCanNotBeDenied");

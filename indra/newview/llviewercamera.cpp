@@ -78,7 +78,7 @@ LLViewerCamera::LLViewerCamera() : LLCamera()
     {
         cntrl_ptr->getCommitSignal()->connect([](LLControlVariable* control, const LLSD& value, const LLSD& previous)
         {
-            LLViewerCamera::getInstance()->setDefaultFOV((F32)value.asReal());
+            LLViewerCamera::getInstance()->setDefaultFOV(static_cast<F32>(value.asReal()));
         });
     }
 }
@@ -150,14 +150,14 @@ bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
     add(sVelocityStat, dpos);
     add(sAngularVelocityStat, drot);
 
-    mAverageSpeed = (F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(sVelocityStat, 50);
-    mAverageAngularSpeed = (F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(sAngularVelocityStat);
+    mAverageSpeed = static_cast<F32>(LLTrace::get_frame_recording().getPeriodMeanPerSec(sVelocityStat, 50));
+    mAverageAngularSpeed = static_cast<F32>(LLTrace::get_frame_recording().getPeriodMeanPerSec(sAngularVelocityStat));
     mCosHalfCameraFOV = cosf(0.5f * getView() * llmax(1.0f, getAspect()));
 
     // update pixel meter ratio using default fov, not modified one
-    mPixelMeterRatio = (F32)(getViewHeightInPixels()/ (2.f*tanf(mCameraFOVDefault*0.5f)));
+    mPixelMeterRatio = static_cast<F32>(getViewHeightInPixels() / (2.f*tanf(mCameraFOVDefault*0.5f)));
     // update screen pixel area
-    mScreenPixelArea =(S32)((F32)getViewHeightInPixels() * ((F32)getViewHeightInPixels() * getAspect()));
+    mScreenPixelArea = static_cast<S32>(static_cast<F32>(getViewHeightInPixels()) * (static_cast<F32>(getViewHeightInPixels()) * getAspect()));
 
     return true;
 }
@@ -201,7 +201,7 @@ void LLViewerCamera::calcProjection(const F32 far_distance) const
 //static
 void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, bool ortho, bool zflip, bool no_hacks)
 {
-    glm::ivec4 viewport = glm::make_vec4((GLint*) gGLViewport);
+    glm::ivec4 viewport = glm::make_vec4(gGLViewport);
     glm::mat4 model = get_current_modelview();
     glm::mat4 proj = get_current_projection();
 
@@ -323,7 +323,7 @@ void LLViewerCamera::setPerspective(bool for_selection,
             gViewerWindow->getWorldViewRectRaw().getWidth(),
             gViewerWindow->getWorldViewRectRaw().getHeight());
 
-        proj_mat = glm::pickMatrix(glm::vec2(x + width / 2.f, y_from_bot + height / 2.f), glm::vec2((GLfloat)width, (GLfloat)height), viewport);
+        proj_mat = glm::pickMatrix(glm::vec2(x + width / 2.f, y_from_bot + height / 2.f), glm::vec2(static_cast<GLfloat>(width), static_cast<GLfloat>(height)), viewport);
 
         if (limit_select_distance)
         {
@@ -356,7 +356,7 @@ void LLViewerCamera::setPerspective(bool for_selection,
         int pos_x = mZoomSubregion - (pos_y * llceil(mZoomFactor));
 
         glm::mat4 translate;
-        translate = glm::translate(glm::vec3(offset - (F32)pos_x * 2.f, offset - (F32)pos_y * 2.f, 0.f));
+        translate = glm::translate(glm::vec3(offset - static_cast<F32>(pos_x) * 2.f, offset - static_cast<F32>(pos_y) * 2.f, 0.f));
         glm::mat4 scale;
         scale = glm::scale(glm::vec3(mZoomFactor, mZoomFactor, 1.f));
 
@@ -374,7 +374,7 @@ void LLViewerCamera::setPerspective(bool for_selection,
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 
-    glm::mat4 modelview(glm::make_mat4((GLfloat*)OGL_TO_CFR_ROTATION));
+    glm::mat4 modelview(glm::make_mat4(OGL_TO_CFR_ROTATION));
 
     GLfloat         ogl_matrix[16];
 
@@ -389,10 +389,10 @@ void LLViewerCamera::setPerspective(bool for_selection,
         // NB: as of this writing, i believe the code below is broken (doesn't take into account the world view, assumes entire window)
         // however, it is also unused (the GL matricies are used for selection, (see LLCamera::sphereInFrustum())) and so i'm not
         // comfortable hacking on it.
-        calculateFrustumPlanesFromWindow((F32)(x - width / 2) / (F32)gViewerWindow->getWindowWidthScaled() - 0.5f,
-            (F32)(y_from_bot - height / 2) / (F32)gViewerWindow->getWindowHeightScaled() - 0.5f,
-            (F32)(x + width / 2) / (F32)gViewerWindow->getWindowWidthScaled() - 0.5f,
-            (F32)(y_from_bot + height / 2) / (F32)gViewerWindow->getWindowHeightScaled() - 0.5f);
+        calculateFrustumPlanesFromWindow(static_cast<F32>(x - width / 2) / static_cast<F32>(gViewerWindow->getWindowWidthScaled()) - 0.5f,
+            static_cast<F32>(y_from_bot - height / 2) / static_cast<F32>(gViewerWindow->getWindowHeightScaled()) - 0.5f,
+            static_cast<F32>(x + width / 2) / static_cast<F32>(gViewerWindow->getWindowWidthScaled()) - 0.5f,
+            static_cast<F32>(y_from_bot + height / 2) / static_cast<F32>(gViewerWindow->getWindowHeightScaled()) - 0.5f);
 
     }
 
@@ -411,7 +411,7 @@ void LLViewerCamera::setPerspective(bool for_selection,
 void LLViewerCamera::projectScreenToPosAgent(const S32 screen_x, const S32 screen_y, LLVector3* pos_agent) const
 {
     glm::vec3 agent_coord = glm::unProject(glm::vec3(screen_x, screen_y, 0.f), get_current_modelview(), get_current_projection(), glm::make_vec4(gGLViewport));
-    pos_agent->set( (F32)agent_coord.x, (F32)agent_coord.y, (F32)agent_coord.z );
+    pos_agent->set( static_cast<F32>(agent_coord.x), static_cast<F32>(agent_coord.y), static_cast<F32>(agent_coord.z) );
 }
 
 // Uses the last GL matrices set in set_perspective to project a point from
@@ -545,8 +545,8 @@ bool LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
         S32 int_y = lltrunc(win_coord.y);
 
         // find the center
-        F32 center_x = (F32)world_rect.getCenterX();
-        F32 center_y = (F32)world_rect.getCenterY();
+        F32 center_x = static_cast<F32>(world_rect.getCenterX());
+        F32 center_y = static_cast<F32>(world_rect.getCenterY());
 
         if (win_coord.x == center_x  && win_coord.y == center_y)
         {
@@ -588,8 +588,8 @@ bool LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
         }
         else
         {
-            F32 line_slope = (F32)(line_y / line_x);
-            F32 rect_slope = ((F32)world_rect.getHeight()) / ((F32)world_rect.getWidth());
+            F32 line_slope = static_cast<F32>(line_y / line_x);
+            F32 rect_slope = static_cast<F32>(world_rect.getHeight()) / static_cast<F32>(world_rect.getWidth());
 
             if (fabs(line_slope) > rect_slope)
             {
@@ -603,7 +603,7 @@ bool LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
                     // top
                     int_y = world_rect.mTop;
                 }
-                int_x = lltrunc(((F32)int_y - center_y) / line_slope + center_x);
+                int_x = lltrunc((static_cast<F32>(int_y) - center_y) / line_slope + center_x);
             }
             else if (fabs(line_slope) < rect_slope)
             {
@@ -617,7 +617,7 @@ bool LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
                     // right
                     int_x = world_rect.mRight;
                 }
-                int_y = lltrunc(((F32)int_x - center_x) * line_slope + center_y);
+                int_y = lltrunc((static_cast<F32>(int_x) - center_x) * line_slope + center_y);
             }
             else
             {
@@ -660,7 +660,7 @@ void LLViewerCamera::getPixelVectors(const LLVector3 &pos_agent, LLVector3 &up, 
 
     F32 at_dist = to_vec * getAtAxis();
 
-    F32 height_meters = at_dist* (F32)tan(getView()/2.f);
+    F32 height_meters = at_dist * static_cast<F32>(tan(getView()/2.f));
     F32 height_pixels = getViewHeightInPixels()/2.f;
 
     F32 pixel_aspect = gViewerWindow->getWindow()->getPixelAspectRatio();
@@ -736,7 +736,7 @@ bool LLViewerCamera::areVertsVisible(LLViewerObject* volumep, bool all_verts)
         return false;
     }
 
-    LLVOVolume* vo_volume = (LLVOVolume*) volumep;
+    LLVOVolume* vo_volume = static_cast<LLVOVolume*>(volumep);
 
     vo_volume->updateRelativeXform();
     LLMatrix4 mat = vo_volume->getRelativeXform();

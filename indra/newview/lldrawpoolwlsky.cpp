@@ -168,7 +168,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
             rot.setRot(0.f, hdri_rotation*DEG_TO_RAD, 0.f);
 
             sky_shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, powf(2.f, hdri_exposure));
-            sky_shader->uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, GL_FALSE, std::span<const GLfloat>((F32*) rot.mMatrix, 9));
+            sky_shader->uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, GL_FALSE, std::span<const GLfloat>(reinterpret_cast<F32*>(rot.mMatrix), 9));
             sky_shader->uniform1f(hdri_split_screen, gCubeSnapshot ? 1.f : hdri_split);
         }
         else
@@ -188,9 +188,9 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->bindTexture(LLShaderMgr::RAINBOW_MAP, rainbow_tex);
         sky_shader->bindTexture(LLShaderMgr::HALO_MAP,  halo_tex);
 
-        F32 moisture_level  = (float)psky->getSkyMoistureLevel();
-        F32 droplet_radius  = (float)psky->getSkyDropletRadius();
-        F32 ice_level       = (float)psky->getSkyIceLevel();
+        F32 moisture_level  = static_cast<float>(psky->getSkyMoistureLevel());
+        F32 droplet_radius  = static_cast<float>(psky->getSkyDropletRadius());
+        F32 ice_level       = static_cast<float>(psky->getSkyIceLevel());
 
         // hobble halos and rainbows when there's no light source to generate them
         if (!psky->getIsSunUp() && !psky->getIsMoonUp())
@@ -239,7 +239,7 @@ void LLDrawPoolWLSky::renderStarsDeferred(const LLVector3& camPosLocal) const
     LLViewerTexture* tex_a = gSky.mVOSkyp->getBloomTex();
     LLViewerTexture* tex_b = gSky.mVOSkyp->getBloomTexNext();
 
-    F32 blend_factor = (F32)LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+    F32 blend_factor = static_cast<F32>(LLEnvironment::instance().getCurrentSky()->getBlendFactor());
 
     if (tex_a && (!tex_b || (tex_a == tex_b)))
     {
@@ -271,7 +271,7 @@ void LLDrawPoolWLSky::renderStarsDeferred(const LLVector3& camPosLocal) const
     }
     gDeferredStarProgram.uniform1f(sCustomAlpha, star_alpha);
 
-    sStarTime = (F32)LLFrameTimer::getElapsedSeconds() * 0.5f;
+    sStarTime = static_cast<F32>(LLFrameTimer::getElapsedSeconds()) * 0.5f;
 
     gDeferredStarProgram.uniform1f(LLShaderMgr::WATER_TIME, sStarTime);
 
@@ -306,8 +306,8 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
         gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
         gGL.getTexUnit(1)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
 
-        F32 cloud_variance = psky ? (F32)psky->getCloudVariance() : 0.0f;
-        F32 blend_factor   = psky ? (F32)psky->getBlendFactor() : 0.0f;
+        F32 cloud_variance = psky ? static_cast<F32>(psky->getCloudVariance()) : 0.0f;
+        F32 blend_factor   = psky ? static_cast<F32>(psky->getBlendFactor()) : 0.0f;
 
         if (psky->getCloudScrollRate().isExactlyZero())
         {
@@ -361,7 +361,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
     LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_SUN];
 
-    F32 blend_factor = (F32)LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+    F32 blend_factor = static_cast<F32>(LLEnvironment::instance().getCurrentSky()->getBlendFactor());
     bool can_use_vertex_shaders = gPipeline.shadersLoaded();
     bool can_use_windlight_shaders = gPipeline.canUseWindLightShaders();
 
@@ -446,7 +446,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
             LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-            F32 moon_brightness = (float)psky->getMoonBrightness();
+            F32 moon_brightness = static_cast<float>(psky->getMoonBrightness());
 
             moon_shader->uniform1f(LLShaderMgr::MOON_BRIGHTNESS, moon_brightness);
             moon_shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, std::span<const GLfloat>(gSky.mVOSkyp->getMoon().getColor().mV, 3));

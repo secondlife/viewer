@@ -87,7 +87,7 @@ bool LLDataPacker::packFixed(const F32 value, const char *name,
     max_val = 1 << int_bits;
 
     // Clamp to be within range
-    F32 fixed_val = llclamp(value, (F32)min_val, (F32)max_val);
+    F32 fixed_val = llclamp(value, static_cast<F32>(min_val), static_cast<F32>(max_val));
     if (is_signed)
     {
         fixed_val += max_val;
@@ -96,15 +96,15 @@ bool LLDataPacker::packFixed(const F32 value, const char *name,
 
     if (total_bits <= 8)
     {
-        packU8((U8)fixed_val, name);
+        packU8(static_cast<U8>(fixed_val), name);
     }
     else if (total_bits <= 16)
     {
-        packU16((U16)fixed_val, name);
+        packU16(static_cast<U16>(fixed_val), name);
     }
     else if (total_bits <= 31)
     {
-        packU32((U32)fixed_val, name);
+        packU32(static_cast<U32>(fixed_val), name);
     }
     else
     {
@@ -134,19 +134,19 @@ bool LLDataPacker::unpackFixed(F32 &value, const char *name,
     {
         U8 fixed_8;
         success = unpackU8(fixed_8, name);
-        fixed_val = (F32)fixed_8;
+        fixed_val = static_cast<F32>(fixed_8);
     }
     else if (total_bits <= 16)
     {
         U16 fixed_16;
         success = unpackU16(fixed_16, name);
-        fixed_val = (F32)fixed_16;
+        fixed_val = static_cast<F32>(fixed_16);
     }
     else if (total_bits <= 31)
     {
         U32 fixed_32;
         success = unpackU32(fixed_32, name);
-        fixed_val = (F32)fixed_32;
+        fixed_val = static_cast<F32>(fixed_32);
     }
     else
     {
@@ -156,7 +156,7 @@ bool LLDataPacker::unpackFixed(F32 &value, const char *name,
 
     //LL_INFOS() << "Fixed_val:" << fixed_val << LL_ENDL;
 
-    fixed_val /= (F32)(1 << frac_bits);
+    fixed_val /= static_cast<F32>(1 << frac_bits);
     if (is_signed)
     {
         fixed_val -= max_val;
@@ -255,14 +255,14 @@ bool LLDataPackerBinaryBuffer::packString(const std::string& value, const char *
 
 bool LLDataPackerBinaryBuffer::unpackString(std::string& value, const char *name)
 {
-    S32 length = (S32)strlen((char *)mCurBufferp) + 1; /*Flawfinder: ignore*/
+    S32 length = static_cast<S32>(strlen(reinterpret_cast<char*>(mCurBufferp))) + 1; /*Flawfinder: ignore*/
 
     if (!verifyLength(length, name))
     {
         return false;
     }
 
-    value = std::string((char*)mCurBufferp); // We already assume NULL termination calling strlen()
+    value = std::string(reinterpret_cast<char*>(mCurBufferp)); // We already assume NULL termination calling strlen()
 
     mCurBufferp += length;
     return true;
@@ -1522,7 +1522,7 @@ void LLDataPackerAsciiBuffer::writeIndentedName(const char *name)
         }
         else
         {
-            numCopied = (S32)strlen(name) + 1;  /* Flawfinder: ignore */ //name + tab
+            numCopied = static_cast<S32>(strlen(name)) + 1;  /* Flawfinder: ignore */ //name + tab
         }
 
         // snprintf returns number of bytes that would have been written
@@ -1557,7 +1557,7 @@ bool LLDataPackerAsciiBuffer::getValueStr(const char *name, char *out_value, S32
         // Read both the name and the value, and validate the name.
         sscanf(mCurBufferp, "%511[^\n]", buffer);
         // Skip the \n
-        mCurBufferp += (S32)strlen(buffer) + 1; /* Flawfinder: ignore */
+        mCurBufferp += static_cast<S32>(strlen(buffer)) + 1; /* Flawfinder: ignore */
 
         sscanf(buffer, "%511s %511[^\n]", keyword, value);  /* Flawfinder: ignore */
 
@@ -1572,10 +1572,10 @@ bool LLDataPackerAsciiBuffer::getValueStr(const char *name, char *out_value, S32
         // Just the value exists
         sscanf(mCurBufferp, "%511[^\n]", value);
         // Skip the \n
-        mCurBufferp += (S32)strlen(value) + 1;  /* Flawfinder: ignore */
+        mCurBufferp += static_cast<S32>(strlen(value)) + 1;  /* Flawfinder: ignore */
     }
 
-    S32 in_value_len = (S32)strlen(value)+1;    /* Flawfinder: ignore */
+    S32 in_value_len = static_cast<S32>(strlen(value))+1;    /* Flawfinder: ignore */
     S32 min_len = llmin(in_value_len, value_len);
     memcpy(out_value, value, min_len);  /* Flawfinder: ignore */
     out_value[min_len-1] = 0;
@@ -1763,7 +1763,7 @@ bool LLDataPackerAsciiFile::packU8(const U8 value, const char *name)
     {
         // We have to cast this to an integer because streams serialize
         // bytes as bytes - not as text.
-        *mOutputStream << (S32)value << "\n";
+        *mOutputStream << static_cast<S32>(value) << "\n";
     }
     return success;
 }
@@ -1975,7 +1975,7 @@ bool LLDataPackerAsciiFile::packColor4U(const LLColor4U &value, const char *name
     }
     else if (mOutputStream)
     {
-        *mOutputStream << (S32)(value.mV[0]) << " " << (S32)(value.mV[1]) << " " << (S32)(value.mV[2]) << " " << (S32)(value.mV[3]) << "\n";
+        *mOutputStream << static_cast<S32>(value.mV[0]) << " " << static_cast<S32>(value.mV[1]) << " " << static_cast<S32>(value.mV[2]) << " " << static_cast<S32>(value.mV[3]) << "\n";
     }
     return success;
 }
@@ -2186,7 +2186,7 @@ bool LLDataPackerAsciiFile::getValueStr(const char *name, char *out_value, S32 v
             return false;
         }
 
-        S32 in_value_len = (S32)strlen(value)+1; /*Flawfinder: ignore*/
+        S32 in_value_len = static_cast<S32>(strlen(value))+1; /*Flawfinder: ignore*/
         S32 min_len = llmin(in_value_len, value_len);
         memcpy(out_value, value, min_len); /*Flawfinder: ignore*/
         out_value[min_len-1] = 0;
@@ -2208,7 +2208,7 @@ bool LLDataPackerAsciiFile::getValueStr(const char *name, char *out_value, S32 v
             return false;
         }
 
-        S32 in_value_len = (S32)strlen(value)+1; /*Flawfinder: ignore*/
+        S32 in_value_len = static_cast<S32>(strlen(value))+1; /*Flawfinder: ignore*/
         S32 min_len = llmin(in_value_len, value_len);
         memcpy(out_value, value, min_len); /*Flawfinder: ignore*/
         out_value[min_len-1] = 0;

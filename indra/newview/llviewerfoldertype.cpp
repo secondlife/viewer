@@ -148,7 +148,7 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 
     addEntry(LLFolderType::FT_NONE,                 new ViewerFolderEntry("New Folder",             "Inv_FolderOpen",       "Inv_FolderClosed",     false,     false, "default"));
 
-    for (U32 type = (U32)LLFolderType::FT_ENSEMBLE_START; type <= (U32)LLFolderType::FT_ENSEMBLE_END; ++type)
+    for (U32 type = static_cast<U32>(LLFolderType::FT_ENSEMBLE_START); type <= static_cast<U32>(LLFolderType::FT_ENSEMBLE_END); ++type)
     {
         addEntry((LLFolderType::EType)type,         new ViewerFolderEntry("New Folder",             "Inv_FolderOpen",       "Inv_FolderClosed",     false,     false));
     }

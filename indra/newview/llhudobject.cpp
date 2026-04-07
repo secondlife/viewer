@@ -122,7 +122,7 @@ void LLHUDObject::cleanupHUDObjects()
         (*object_it)->markDead();
         if ((*object_it)->getNumRefs() > 1)
         {
-            LL_INFOS() << "LLHUDObject " << (LLHUDObject *)(*object_it) << " type " << (S32)(*object_it)->getType() << " has " << (*object_it)->getNumRefs() << " refs!" << LL_ENDL;
+            LL_INFOS() << "LLHUDObject " << static_cast<LLHUDObject*>(*object_it) << " type " << static_cast<S32>((*object_it)->getType()) << " has " << (*object_it)->getNumRefs() << " refs!" << LL_ENDL;
         }
     }
     sHUDObjects.clear();
@@ -145,7 +145,7 @@ LLHUDObject *LLHUDObject::addHUDObject(const U8 type)
         hud_objectp = new LLHUDNameTag(type);
         break;
     default:
-        LL_WARNS() << "Unknown type of hud object:" << (U32) type << LL_ENDL;
+        LL_WARNS() << "Unknown type of hud object:" << static_cast<U32>(type) << LL_ENDL;
     }
     if (hud_objectp)
     {
@@ -244,7 +244,7 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
         hud_objectp = new LLHUDEffectResetSkeleton(type);
         break;
     default:
-        LL_WARNS() << "Unknown type of hud effect:" << (U32) type << LL_ENDL;
+        LL_WARNS() << "Unknown type of hud effect:" << static_cast<U32>(type) << LL_ENDL;
     }
 
     if (hud_objectp)

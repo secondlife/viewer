@@ -199,7 +199,7 @@ void LLExperienceLog::loadEvents()
 
     if(settings.has("MaxDays"))
     {
-        setMaxDays((U32)settings["MaxDays"].asInteger());
+        setMaxDays(static_cast<U32>(settings["MaxDays"].asInteger()));
     }
     if(settings.has("Notify"))
     {
@@ -207,7 +207,7 @@ void LLExperienceLog::loadEvents()
     }
     if(settings.has("PageSize"))
     {
-        setPageSize((U32)settings["PageSize"].asInteger());
+        setPageSize(static_cast<U32>(settings["PageSize"].asInteger()));
     }
     mEvents.clear();
     if(mMaxDays > 0 && settings.has("Events"))

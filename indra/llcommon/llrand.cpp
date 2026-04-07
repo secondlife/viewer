@@ -121,7 +121,7 @@ S32 ll_rand()
 S32 ll_rand(S32 val)
 {
     // The clamping rules are described above.
-    S32 rv = (S32)(ll_internal_random_double() * val);
+    S32 rv = static_cast<S32>(ll_internal_random_double() * val);
     if(rv == val) return 0;
     return rv;
 }

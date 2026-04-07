@@ -194,7 +194,7 @@ void LLFloaterOpenObject::callbackCreateInventoryCategory(const LLUUID& category
                                                     {
                                                         callbackMoveInventory(result, data);
                                                     },
-                                                    (void*)wear_data);
+                                                    reinterpret_cast<void*>(wear_data));
     if (!success)
     {
         delete wear_data;

@@ -349,12 +349,12 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 
     // Adjust Time&Percentage labels' location according to length
     LLRect label_rect = getChild<LLTextBox>("p0", true)->getRect();
-    F32 slider_width = (F32)mFramesSlider->getRect().getWidth();
+    F32 slider_width = static_cast<F32>(mFramesSlider->getRect().getWidth());
     for (int i = 1; i < max_elm; i++)
     {
         LLTextBox *pcnt_label = getChild<LLTextBox>("p" + llformat("%d", i), true);
         LLRect new_rect = pcnt_label->getRect();
-        new_rect.mLeft = label_rect.mLeft + (S32)(slider_width * (F32)i / (F32)(max_elm - 1)) - (S32)(pcnt_label->getTextPixelWidth() / 2);
+        new_rect.mLeft = label_rect.mLeft + static_cast<S32>(slider_width * static_cast<F32>(i) / static_cast<F32>(max_elm - 1)) - static_cast<S32>(pcnt_label->getTextPixelWidth() / 2);
         pcnt_label->setRect(new_rect);
     }
 
@@ -729,10 +729,10 @@ void LLFloaterEditExtDayCycle::onAddFrame()
         // scratch sky should always have the current sky settings.
         LLSettingsSky::ptr_t sky(mScratchSky->buildClone());
         setting = sky;
-        mEditDay->setSkyAtKeyframe(sky, (LLSettingsBase::TrackPosition)frame, mCurrentTrack);
+        mEditDay->setSkyAtKeyframe(sky, static_cast<LLSettingsBase::TrackPosition>(frame), mCurrentTrack);
     }
     setDirtyFlag();
-    addSliderFrame((F32)frame, setting);
+    addSliderFrame(static_cast<F32>(frame), setting);
     updateTabs();
 }
 
@@ -1211,7 +1211,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     mDeleteFrameButton->setEnabled(can_manipulate && isRemovingFrameAllowed());
     mLoadFrame->setEnabled(can_manipulate);
 
-    bool enable_play = (bool)mEditDay;
+    bool enable_play = static_cast<bool>(mEditDay);
     childSetEnabled(BTN_PLAY, enable_play);
     childSetEnabled(BTN_SKIP_BACK, enable_play);
     childSetEnabled(BTN_SKIP_FORWARD, enable_play);

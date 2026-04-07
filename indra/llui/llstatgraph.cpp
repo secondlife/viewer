@@ -67,11 +67,11 @@ void LLStatGraph::draw()
 
         if (mPerSec)
         {
-            mValue = (F32)recording.getPerSec(*mNewStatFloatp);
+            mValue = static_cast<F32>(recording.getPerSec(*mNewStatFloatp));
         }
         else
         {
-            mValue = (F32)recording.getSum(*mNewStatFloatp);
+            mValue = static_cast<F32>(recording.getSum(*mNewStatFloatp));
         }
     }
 

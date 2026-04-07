@@ -62,7 +62,7 @@ constexpr PermissionBit PERM_MOVE               = (1 << 19); // 0x00080000
 //const PermissionBit   PERM_DAMAGE         = (1 << 20); // 0x00100000
 
 // don't use bit 31 -- printf/scanf with "%x" assume signed numbers
-constexpr PermissionBit PERM_RESERVED           = ((U32)1) << 31;
+constexpr PermissionBit PERM_RESERVED           = (static_cast<U32>(1)) << 31;
 
 constexpr PermissionMask PERM_NONE              = 0x00000000;
 constexpr PermissionMask PERM_ALL               = 0x7FFFFFFF;

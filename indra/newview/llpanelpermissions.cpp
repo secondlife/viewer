@@ -993,7 +993,7 @@ void shorten_name(std::string &name, const LLStyle::Params& style_params, S32 ma
 
     LLWString wline = utf8str_to_wstring(name);
     // panel supports two lines long names
-    S32 segment_length = font->maxDrawableChars(wline.c_str(), (F32)max_pixels, static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::WORD_BOUNDARY_IF_POSSIBLE);
+    S32 segment_length = font->maxDrawableChars(wline.c_str(), static_cast<F32>(max_pixels), static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::WORD_BOUNDARY_IF_POSSIBLE);
     if (segment_length == wline.length())
     {
         // no work needed
@@ -1001,7 +1001,7 @@ void shorten_name(std::string &name, const LLStyle::Params& style_params, S32 ma
     }
 
     S32 first_line_length = segment_length;
-    segment_length = font->maxDrawableChars(wline.substr(first_line_length).c_str(), (F32)max_pixels, static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::ANYWHERE);
+    segment_length = font->maxDrawableChars(wline.substr(first_line_length).c_str(), static_cast<F32>(max_pixels), static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::ANYWHERE);
     if (segment_length + first_line_length == wline.length())
     {
         // no work needed
@@ -1011,7 +1011,7 @@ void shorten_name(std::string &name, const LLStyle::Params& style_params, S32 ma
     // name does not fit, cut it, add ...
     const LLWString dots_pad(utf8str_to_wstring(std::string("....")));
     F32 elipses_width = font->getWidthF32(dots_pad.c_str());
-    segment_length = font->maxDrawableChars(wline.substr(first_line_length).c_str(), (F32)max_pixels - elipses_width, static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::ANYWHERE);
+    segment_length = font->maxDrawableChars(wline.substr(first_line_length).c_str(), static_cast<F32>(max_pixels) - elipses_width, static_cast<S32>(wline.length()), LLFontGL::EWordWrapStyle::ANYWHERE);
 
     name = name.substr(0, segment_length + first_line_length) + std::string("...");
 }

@@ -109,7 +109,7 @@ void LLFloaterLinkReplace::updateFoundLinks()
                                     items,
                                     LLInventoryModel::INCLUDE_TRASH,
                                     is_linked_item_match);
-    mRemainingItems = (U32)items.size();
+    mRemainingItems = static_cast<U32>(items.size());
 
     LLStringUtil::format_map_t args;
     args["NUM"] = llformat("%d", mRemainingItems);
@@ -194,7 +194,7 @@ void LLFloaterLinkReplace::onStartClickedResponse(const LLSD& notification, cons
             LLViewerInventoryItem* target_item = gInventory.getItem(mTargetUUID);
             if (target_item)
             {
-                mRemainingItems = (U32)mRemainingInventoryItems.size();
+                mRemainingItems = static_cast<U32>(mRemainingInventoryItems.size());
 
                 LLStringUtil::format_map_t args;
                 args["NUM"] = llformat("%d", mRemainingItems);

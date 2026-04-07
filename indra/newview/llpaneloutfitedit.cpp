@@ -194,7 +194,7 @@ private:
         LLView* menu_bp         = gMenuHolder->getChildView("COF.Gear.New_Body_Parts", false);
         LLWearableType * wearable_type_inst = LLWearableType::getInstance();
 
-        for (U8 i = LLWearableType::WT_SHAPE; i != (U8) LLWearableType::WT_COUNT; ++i)
+        for (U8 i = LLWearableType::WT_SHAPE; i != static_cast<U8>(LLWearableType::WT_COUNT); ++i)
         {
             LLWearableType::EType type = (LLWearableType::EType) i;
             const std::string& type_name = wearable_type_inst->getTypeName(type);

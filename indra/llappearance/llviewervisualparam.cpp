@@ -100,7 +100,7 @@ bool LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
     static LLStdStringHandle edit_group_order_string = LLXmlTree::addAttributeString("edit_group_order");
     if( !node->getFastAttributeF32( edit_group_order_string, mEditGroupDisplayOrder ) )
     {
-        mEditGroupDisplayOrder = (F32)params_loaded;
+        mEditGroupDisplayOrder = static_cast<F32>(params_loaded);
     }
 
     params_loaded++;

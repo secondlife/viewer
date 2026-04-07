@@ -904,8 +904,8 @@ void LLAgentWearables::removeWearable(const LLWearableType::EType type, bool do_
             if (old_wearable->isDirty())
             {
                 LLSD payload;
-                payload["wearable_type"] = (S32)type;
-                payload["wearable_index"] = (S32)index;
+                payload["wearable_type"] = static_cast<S32>(type);
+                payload["wearable_index"] = static_cast<S32>(index);
                 // Bring up view-modal dialog: Save changes? Yes, No, Cancel
                 LLNotificationsUtil::add("WearableSave", LLSD(), payload, &LLAgentWearables::onRemoveWearableDialog);
                 return;
@@ -924,7 +924,7 @@ bool LLAgentWearables::onRemoveWearableDialog(const LLSD& notification, const LL
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     LLWearableType::EType type = (LLWearableType::EType)notification["payload"]["wearable_type"].asInteger();
-    S32 index = (S32)notification["payload"]["wearable_index"].asInteger();
+    S32 index = static_cast<S32>(notification["payload"]["wearable_index"].asInteger());
     switch(option)
     {
         case 0:  // "Save"
@@ -1058,7 +1058,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
     // TODO: Removed check for ensuring that teens don't remove undershirt and underwear. Handle later
     // note: shirt is the first non-body part wearable item. Update if wearable order changes.
     // This loop should remove all clothing, but not any body parts
-    for (S32 j = 0; j < (S32)LLWearableType::WT_COUNT; j++)
+    for (S32 j = 0; j < static_cast<S32>(LLWearableType::WT_COUNT); j++)
     {
         if (wearable_type_inst->getAssetType((LLWearableType::EType)j) == LLAssetType::AT_CLOTHING)
         {
@@ -1474,7 +1474,7 @@ void LLAgentWearables::animateAllWearableParams(F32 delta)
 {
     for( S32 type = 0; type < LLWearableType::WT_COUNT; ++type )
     {
-        for (S32 count = 0; count < (S32)getWearableCount((LLWearableType::EType)type); ++count)
+        for (S32 count = 0; count < static_cast<S32>(getWearableCount((LLWearableType::EType)type)); ++count)
         {
             LLViewerWearable *wearable = getViewerWearable((LLWearableType::EType)type,count);
             llassert(wearable);

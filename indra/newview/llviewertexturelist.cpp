@@ -272,7 +272,7 @@ void LLViewerTextureList::doPrefetchImages()
             if (image)
             {
                 texture_count += 1;
-                image->addTextureStats((F32)pixel_area);
+                image->addTextureStats(static_cast<F32>(pixel_area));
             }
         }
     }
@@ -325,7 +325,7 @@ void LLViewerTextureList::shutdown()
          riter != image_area_list.rend(); ++riter)
     {
         LLViewerFetchedTexture* image = riter->second;
-        image_type = (S32)image->getType() ;
+        image_type = static_cast<S32>(image->getType()) ;
         imagelist[count]["area"] = riter->first;
         imagelist[count]["uuid"] = image->getID();
         imagelist[count]["type"] = image_type;
@@ -825,7 +825,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
         cleared = false;
     }
 
-    LLAppViewer::getTextureFetch()->setTextureBandwidth((F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED).value());
+    LLAppViewer::getTextureFetch()->setTextureBandwidth(static_cast<F32>(LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED).value()));
 
     {
         using namespace LLStatViewer;
@@ -914,7 +914,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         F32 bias = llclamp(max_discard - 2.f, 1.f, LLViewerTexture::sDesiredDiscardBias);
 
         // convert bias into a vsize scaler
-        bias = (F32) llroundf(powf(4, bias - 1.f));
+        bias = static_cast<F32>(llroundf(powf(4, bias - 1.f)));
 
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
         for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
@@ -1139,7 +1139,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
         // do at least 5 and make sure we don't get too far behind even if it violates
         // the time limit.  If we don't downscale quickly the viewer will hit swap and may
         // freeze.
-        S32 min_count = (S32)mCreateTextureList.size() / 20 + 5;
+        S32 min_count = static_cast<S32>(mCreateTextureList.size()) / 20 + 5;
 
         create_timer.reset();
         while (!mDownScaleQueue.empty())
@@ -1230,20 +1230,20 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
     // Deletion rules check ref count, so be careful not to hold any LLPointer references to the textures here other than the one in entries.
 
     //update MIN_UPDATE_COUNT or 5% of other textures, whichever is greater
-    update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/20);
+    update_count = llmax(static_cast<U32>(MIN_UPDATE_COUNT), static_cast<U32>(mUUIDMap.size()) / 20);
     if (LLViewerTexture::sDesiredDiscardBias > 1.f
-        && LLViewerTexture::sBiasTexturesUpdated < (U32)mUUIDMap.size())
+        && LLViewerTexture::sBiasTexturesUpdated < static_cast<U32>(mUUIDMap.size()))
     {
         // We are over memory target. Bias affects discard rates, so update
         // existing textures agresively to free memory faster.
-        update_count = (S32)(update_count * LLViewerTexture::sDesiredDiscardBias);
+        update_count = static_cast<S32>(update_count * LLViewerTexture::sDesiredDiscardBias);
 
         // This isn't particularly precise and can overshoot, but it doesn't need
         // to be, just making sure it did a full circle and doesn't get stuck updating
         // at bias = 4 with 4 times the rate permanently.
         LLViewerTexture::sBiasTexturesUpdated += update_count;
     }
-    update_count = llmin(update_count, (U32) mUUIDMap.size());
+    update_count = llmin(update_count, static_cast<U32>(mUUIDMap.size()));
 
     { // copy entries out of UUID map to avoid iterator invalidation from deletion inside updateImageDecodeProiroty or updateFetch below
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vtluift - copy");
@@ -1710,7 +1710,7 @@ void LLUIImageList::onUIImageLoaded( bool success, LLViewerFetchedTexture *src_v
         return;
     }
 
-    LLUIImageLoadData* image_datap = (LLUIImageLoadData*)user_data;
+    LLUIImageLoadData* image_datap = static_cast<LLUIImageLoadData*>(user_data);
     std::string ui_image_name = image_datap->mImageName;
     LLRect scale_rect = image_datap->mImageScaleRegion;
     LLRect clip_rect = image_datap->mImageClipRegion;
@@ -1730,16 +1730,16 @@ void LLUIImageList::onUIImageLoaded( bool success, LLViewerFetchedTexture *src_v
         // from power-of-2 gl image
         if (success && imagep.notNull() && src_vi && src_vi->getUrl().starts_with("file://"))
         {
-            F32 full_width = (F32)src_vi->getFullWidth();
-            F32 full_height = (F32)src_vi->getFullHeight();
-            F32 clip_x = (F32)src_vi->getOriginalWidth() / full_width;
-            F32 clip_y = (F32)src_vi->getOriginalHeight() / full_height;
+            F32 full_width = static_cast<F32>(src_vi->getFullWidth());
+            F32 full_height = static_cast<F32>(src_vi->getFullHeight());
+            F32 clip_x = static_cast<F32>(src_vi->getOriginalWidth()) / full_width;
+            F32 clip_y = static_cast<F32>(src_vi->getOriginalHeight()) / full_height;
             if (clip_rect != LLRect::null)
             {
-                imagep->setClipRegion(LLRectf(llclamp((F32)clip_rect.mLeft / full_width, 0.f, 1.f),
-                                            llclamp((F32)clip_rect.mTop / full_height, 0.f, 1.f),
-                                            llclamp((F32)clip_rect.mRight / full_width, 0.f, 1.f),
-                                            llclamp((F32)clip_rect.mBottom / full_height, 0.f, 1.f)));
+                imagep->setClipRegion(LLRectf(llclamp(static_cast<F32>(clip_rect.mLeft) / full_width, 0.f, 1.f),
+                                            llclamp(static_cast<F32>(clip_rect.mTop) / full_height, 0.f, 1.f),
+                                            llclamp(static_cast<F32>(clip_rect.mRight) / full_width, 0.f, 1.f),
+                                            llclamp(static_cast<F32>(clip_rect.mBottom) / full_height, 0.f, 1.f)));
             }
             else
             {
@@ -1748,10 +1748,10 @@ void LLUIImageList::onUIImageLoaded( bool success, LLViewerFetchedTexture *src_v
             if (scale_rect != LLRect::null)
             {
                 imagep->setScaleRegion(
-                    LLRectf(llclamp((F32)scale_rect.mLeft / (F32)imagep->getWidth(), 0.f, 1.f),
-                        llclamp((F32)scale_rect.mTop / (F32)imagep->getHeight(), 0.f, 1.f),
-                        llclamp((F32)scale_rect.mRight / (F32)imagep->getWidth(), 0.f, 1.f),
-                        llclamp((F32)scale_rect.mBottom / (F32)imagep->getHeight(), 0.f, 1.f)));
+                    LLRectf(llclamp(static_cast<F32>(scale_rect.mLeft) / static_cast<F32>(imagep->getWidth()), 0.f, 1.f),
+                        llclamp(static_cast<F32>(scale_rect.mTop) / static_cast<F32>(imagep->getHeight()), 0.f, 1.f),
+                        llclamp(static_cast<F32>(scale_rect.mRight) / static_cast<F32>(imagep->getWidth()), 0.f, 1.f),
+                        llclamp(static_cast<F32>(scale_rect.mBottom) / static_cast<F32>(imagep->getHeight()), 0.f, 1.f)));
             }
 
             imagep->onImageLoaded();

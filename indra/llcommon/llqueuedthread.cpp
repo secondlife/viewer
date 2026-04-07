@@ -180,7 +180,7 @@ size_t LLQueuedThread::updateQueue(F32 max_time_ms)
     }
     else
     {
-        mRequestQueue.runFor(std::chrono::microseconds((int) (max_time_ms*1000.f)));
+        mRequestQueue.runFor(std::chrono::microseconds(static_cast<int>(max_time_ms*1000.f)));
         threadedUpdate();
     }
     return getPending();
@@ -470,7 +470,7 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
 
                             if (sleep_time.count() > 0)
                             {
-                                ms_sleep((U32)sleep_time.count());
+                                ms_sleep(static_cast<U32>(sleep_time.count()));
                             }
                         }
                         processRequest(req);

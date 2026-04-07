@@ -218,12 +218,12 @@ void LLImageGL::checkTexSize(bool forced) const
             if (gDebugSession)
             {
                 gFailLog << "wrong texture size and discard level!" <<
-                    mWidth << " Height: " << mHeight << " Current Level: " << (S32)mCurrentDiscardLevel << std::endl;
+                    mWidth << " Height: " << mHeight << " Current Level: " << static_cast<S32>(mCurrentDiscardLevel) << std::endl;
             }
             else
             {
                 LL_ERRS() << "wrong texture size and discard level: width: " <<
-                    mWidth << " Height: " << mHeight << " Current Level: " << (S32)mCurrentDiscardLevel << LL_ENDL ;
+                    mWidth << " Height: " << mHeight << " Current Level: " << static_cast<S32>(mCurrentDiscardLevel) << LL_ENDL ;
             }
         }
 
@@ -359,7 +359,7 @@ S64 LLImageGL::dataFormatBytes(S32 dataformat, S32 width, S32 height)
     default:
         break;
     }
-    S64 bytes (((S64)width * (S64)height * (S64)dataFormatBits(dataformat)+7)>>3);
+    S64 bytes ((static_cast<S64>(width) * static_cast<S64>(height) * static_cast<S64>(dataFormatBits(dataformat))+7)>>3);
     S64 aligned = (bytes+3)&~3;
     return aligned;
 }
@@ -755,7 +755,7 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
         S32 w = getWidth();
         S32 h = getHeight();
         LLImageGL::setManualImage(mTarget, 0, mFormatInternal, w, h,
-            mFormatPrimary, mFormatType, (GLvoid*)data_in, mAllowCompression);
+            mFormatPrimary, mFormatType, static_cast<const GLvoid*>(data_in), mAllowCompression);
     }
     else if (mUseMipMaps)
     {
@@ -778,8 +778,8 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                 }
                 if (is_compressed)
                 {
-                    GLsizei tex_size = (GLsizei)dataFormatBytes(mFormatPrimary, w, h);
-                    glCompressedTexImage2D(mTarget, gl_level, mFormatPrimary, w, h, 0, tex_size, (GLvoid *)data_in);
+                    GLsizei tex_size = static_cast<GLsizei>(dataFormatBytes(mFormatPrimary, w, h));
+                    glCompressedTexImage2D(mTarget, gl_level, mFormatPrimary, w, h, 0, tex_size, static_cast<const GLvoid *>(data_in));
                     stop_glerror();
                 }
                 else
@@ -790,7 +790,7 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                         stop_glerror();
                     }
 
-                    LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in, mAllowCompression);
+                    LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, static_cast<const GLvoid*>(data_in), mAllowCompression);
                     if (gl_level == 0)
                     {
                         analyzeAlpha(data_in, w, h);
@@ -979,8 +979,8 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
         S32 h = getHeight();
         if (is_compressed)
         {
-            GLsizei tex_size = (GLsizei)dataFormatBytes(mFormatPrimary, w, h);
-            glCompressedTexImage2D(mTarget, 0, mFormatPrimary, w, h, 0, tex_size, (GLvoid *)data_in);
+            GLsizei tex_size = static_cast<GLsizei>(dataFormatBytes(mFormatPrimary, w, h));
+            glCompressedTexImage2D(mTarget, 0, mFormatPrimary, w, h, 0, tex_size, static_cast<const GLvoid *>(data_in));
             stop_glerror();
         }
         else
@@ -992,7 +992,7 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
             }
 
             LLImageGL::setManualImage(mTarget, 0, mFormatInternal, w, h,
-                         mFormatPrimary, mFormatType, (GLvoid *)data_in, mAllowCompression);
+                         mFormatPrimary, mFormatType, static_cast<const GLvoid *>(data_in), mAllowCompression);
             analyzeAlpha(data_in, w, h);
 
             updatePickMask(w, h, data_in);
@@ -1249,7 +1249,7 @@ void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
         name_count = pool_size;
     }
 
-    if ((U32)numTextures <= name_count)
+    if (static_cast<U32>(numTextures) <= name_count)
     {
         //copy teture names off the end of the pool
         memcpy(textures, name_pool.data() + name_count - numTextures, sizeof(U32) * numTextures);
@@ -1276,8 +1276,8 @@ void LLImageGL::updateClass()
 
     if (!sFreeList[idx].empty())
     {
-        free_tex_images((GLsizei) sFreeList[idx].size(), sFreeList[idx].data());
-        glDeleteTextures((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
+        free_tex_images(static_cast<GLsizei>(sFreeList[idx].size()), sFreeList[idx].data());
+        glDeleteTextures(static_cast<GLsizei>(sFreeList[idx].size()), sFreeList[idx].data());
         sFreeList[idx].resize(0);
     }
 }
@@ -1496,7 +1496,7 @@ bool LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
          (mFormatPrimary == GL_RGB  && mComponents < 3)))
 
     {
-        LL_WARNS()  << "Incorrect format: " << std::hex << mFormatPrimary << " components: " << (U32)mComponents <<  LL_ENDL;
+        LL_WARNS()  << "Incorrect format: " << std::hex << mFormatPrimary << " components: " << static_cast<U32>(mComponents) <<  LL_ENDL;
         mHasExplicitFormat = false;
     }
 
@@ -1527,7 +1527,7 @@ bool LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
             mFormatType = GL_UNSIGNED_BYTE;
             break;
         default:
-            LL_ERRS() << "Bad number of components for texture: " << (U32)getComponents() << LL_ENDL;
+            LL_ERRS() << "Bad number of components for texture: " << static_cast<U32>(getComponents()) << LL_ENDL;
         }
 
         calcAlphaChannelOffsetAndStride() ;
@@ -1572,7 +1572,7 @@ bool LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, bool data_
         llassert(mCurrentDiscardLevel >= 0);
         discard_level = mCurrentDiscardLevel;
     }
-    discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
+    discard_level = llclamp(discard_level, 0, static_cast<S32>(mMaxDiscardLevel));
     discard_level = llmin(discard_level, MAX_DISCARD_LEVEL);
 
     if (main_thread // <--- always force creation of new_texname when not on main thread ...
@@ -1770,7 +1770,7 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
     {
         LL_WARNS() << "texture size is smaller than it should be." << LL_ENDL ;
         LL_WARNS() << "width: " << width << " glwidth: " << glwidth << " mWidth: " << mWidth <<
-            " mCurrentDiscardLevel: " << (S32)mCurrentDiscardLevel << " discard_level: " << discard_level << LL_ENDL ;
+            " mCurrentDiscardLevel: " << static_cast<S32>(mCurrentDiscardLevel) << " discard_level: " << discard_level << LL_ENDL ;
         return false ;
     }
 
@@ -1815,7 +1815,7 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
             return false ;
         }
 
-        glGetCompressedTexImage(mTarget, gl_discard, (GLvoid*)(imageraw->getData()));
+        glGetCompressedTexImage(mTarget, gl_discard, static_cast<GLvoid*>(imageraw->getData()));
         //stop_glerror();
     }
     else
@@ -1823,7 +1823,7 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
         if(!imageraw->allocateDataSize(width, height, ncomponents))
         {
             constexpr F32 MAX_IMAGE_SIZE = 2048 * 2048;
-            F32 size = (F32)width * (F32)height * (F32)ncomponents;
+            F32 size = static_cast<F32>(width) * static_cast<F32>(height) * static_cast<F32>(ncomponents);
             if (size > 0 && size <= MAX_IMAGE_SIZE)
             {
                 LLError::LLUserWarningMsg::showOutOfMemory();
@@ -1837,7 +1837,7 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
             return false ;
         }
 
-        glGetTexImage(GL_TEXTURE_2D, gl_discard, mFormatPrimary, mFormatType, (GLvoid*)(imageraw->getData()));
+        glGetTexImage(GL_TEXTURE_2D, gl_discard, mFormatPrimary, mFormatType, static_cast<GLvoid*>(imageraw->getData()));
         //stop_glerror();
     }
 
@@ -2339,12 +2339,12 @@ bool LLImageGL::getMask(const LLVector2 &tc)
         if (LL_UNLIKELY(x > mPickMaskWidth))
         {
             LL_WARNS_ONCE("render") << "Ooh, width overrun on pick mask read, that coulda been bad." << LL_ENDL;
-            x = llmax((U16)0, mPickMaskWidth);
+            x = llmax(static_cast<U16>(0), mPickMaskWidth);
         }
         if (LL_UNLIKELY(y > mPickMaskHeight))
         {
             LL_WARNS_ONCE("render") << "Ooh, height overrun on pick mask read, that woulda been bad." << LL_ENDL;
-            y = llmax((U16)0, mPickMaskHeight);
+            y = llmax(static_cast<U16>(0), mPickMaskHeight);
         }
 
         S32 idx = y*mPickMaskWidth+x;
@@ -2445,7 +2445,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         if (size > sScratchPBOSize)
         {
             glBufferData(GL_PIXEL_PACK_BUFFER, size, NULL, GL_STREAM_COPY);
-            sScratchPBOSize = (U32)size;
+            sScratchPBOSize = static_cast<U32>(size);
         }
 
         glGetTexImage(mTarget, mip, mFormatPrimary, mFormatType, nullptr);

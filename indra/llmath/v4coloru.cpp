@@ -38,7 +38,7 @@ LLColor4U LLColor4U::blue (  0,   0, 255, 255);
 
 std::ostream& operator<<(std::ostream& s, const LLColor4U& a)
 {
-    s << "{ " << (S32)a.mV[VRED] << ", " << (S32)a.mV[VGREEN] << ", " << (S32)a.mV[VBLUE] << ", " << (S32)a.mV[VALPHA] << " }";
+    s << "{ " << static_cast<S32>(a.mV[VRED]) << ", " << static_cast<S32>(a.mV[VGREEN]) << ", " << static_cast<S32>(a.mV[VBLUE]) << ", " << static_cast<S32>(a.mV[VALPHA]) << " }";
     return s;
 }
 

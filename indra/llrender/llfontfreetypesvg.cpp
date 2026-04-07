@@ -82,7 +82,7 @@ FT_Error LLFontFreeTypeSvgRenderer::OnPresetGlypthSlot(FT_GlyphSlot glyph_slot, 
 {
     FT_SVG_Document document = static_cast<FT_SVG_Document>(glyph_slot->other);
 
-    llassert(!glyph_slot->generic.data || !cache || glyph_slot->glyph_index == ((LLSvgRenderData*)glyph_slot->generic.data)->GlyphIndex);
+    llassert(!glyph_slot->generic.data || !cache || glyph_slot->glyph_index == (static_cast<LLSvgRenderData*>(glyph_slot->generic.data))->GlyphIndex);
     if (!glyph_slot->generic.data)
     {
         glyph_slot->generic.data = new LLSvgRenderData();
@@ -129,15 +129,15 @@ FT_Error LLFontFreeTypeSvgRenderer::OnPresetGlypthSlot(FT_GlyphSlot glyph_slot, 
         svg_height = document->units_per_EM;
     }
 
-    float svg_x_scale = (float)document->metrics.x_ppem / floorf(svg_width);
-    float svg_y_scale = (float)document->metrics.y_ppem / floorf(svg_height);
+    float svg_x_scale = static_cast<float>(document->metrics.x_ppem) / floorf(svg_width);
+    float svg_y_scale = static_cast<float>(document->metrics.y_ppem) / floorf(svg_height);
     float svg_scale = llmin(svg_x_scale, svg_y_scale);
     datap->Scale = svg_scale;
 
-    glyph_slot->bitmap.width = (unsigned int)(floorf(svg_width) * svg_scale);
-    glyph_slot->bitmap.rows = (unsigned int)(floorf(svg_height) * svg_scale);
+    glyph_slot->bitmap.width = static_cast<unsigned int>(floorf(svg_width) * svg_scale);
+    glyph_slot->bitmap.rows = static_cast<unsigned int>(floorf(svg_height) * svg_scale);
     glyph_slot->bitmap_left = (document->metrics.x_ppem - glyph_slot->bitmap.width) / 2;
-    glyph_slot->bitmap_top = (FT_Int)(glyph_slot->face->size->metrics.ascender / 64.f);
+    glyph_slot->bitmap_top = static_cast<FT_Int>(glyph_slot->face->size->metrics.ascender / 64.f);
     glyph_slot->bitmap.pitch = glyph_slot->bitmap.width * 4;
     glyph_slot->bitmap.pixel_mode = FT_PIXEL_MODE_BGRA;
 
@@ -145,7 +145,7 @@ FT_Error LLFontFreeTypeSvgRenderer::OnPresetGlypthSlot(FT_GlyphSlot glyph_slot, 
 
     // Compute all the bearings and set them correctly. The outline is scaled already, we just need to use the bounding box.
     float horiBearingX = 0.f;
-    float horiBearingY = -(float)glyph_slot->bitmap_top;
+    float horiBearingY = -static_cast<float>(glyph_slot->bitmap_top);
 
     // XXX parentheses correct?
     float vertBearingX = glyph_slot->metrics.horiBearingX / 64.0f - glyph_slot->metrics.horiAdvance / 64.0f / 2;
@@ -154,13 +154,13 @@ FT_Error LLFontFreeTypeSvgRenderer::OnPresetGlypthSlot(FT_GlyphSlot glyph_slot, 
     // Do conversion in two steps to avoid 'bad function cast' warning
     glyph_slot->metrics.width = glyph_slot->bitmap.width * 64;
     glyph_slot->metrics.height = glyph_slot->bitmap.rows * 64;
-    glyph_slot->metrics.horiBearingX = (FT_Pos)(horiBearingX * 64);
-    glyph_slot->metrics.horiBearingY = (FT_Pos)(horiBearingY * 64);
-    glyph_slot->metrics.vertBearingX = (FT_Pos)(vertBearingX * 64);
-    glyph_slot->metrics.vertBearingY = (FT_Pos)(vertBearingY * 64);
+    glyph_slot->metrics.horiBearingX = static_cast<FT_Pos>(horiBearingX * 64);
+    glyph_slot->metrics.horiBearingY = static_cast<FT_Pos>(horiBearingY * 64);
+    glyph_slot->metrics.vertBearingX = static_cast<FT_Pos>(vertBearingX * 64);
+    glyph_slot->metrics.vertBearingY = static_cast<FT_Pos>(vertBearingY * 64);
     if (glyph_slot->metrics.vertAdvance == 0)
     {
-        glyph_slot->metrics.vertAdvance = (FT_Pos)(glyph_slot->bitmap.rows * 1.2f * 64);
+        glyph_slot->metrics.vertAdvance = static_cast<FT_Pos>(glyph_slot->bitmap.rows * 1.2f * 64);
     }
 
     return FT_Err_Ok;
@@ -184,7 +184,7 @@ FT_Error LLFontFreeTypeSvgRenderer::OnRender(FT_GlyphSlot glyph_slot, FT_Pointer
     datap->pNSvgImage = nullptr;
 
     // Convert from RGBA to BGRA
-    U32* pixel_buffer = (U32*)glyph_slot->bitmap.buffer; U8* byte_buffer = glyph_slot->bitmap.buffer;
+    U32* pixel_buffer = reinterpret_cast<U32*>(glyph_slot->bitmap.buffer); U8* byte_buffer = glyph_slot->bitmap.buffer;
     for (size_t y = 0, h = glyph_slot->bitmap.rows; y < h; y++)
     {
         for (size_t x = 0, w = glyph_slot->bitmap.pitch / 4; x < w; x++)

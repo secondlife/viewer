@@ -400,7 +400,7 @@ bool LLDrawPoolAlpha::TexSetup(LLDrawInfo* draw, bool use_material)
             tex_setup = true;
             gGL.getTexUnit(0)->activate();
             gGL.matrixMode(LLRender::MM_TEXTURE);
-            gGL.loadMatrix((GLfloat*)draw->mTextureMatrix->mMatrix);
+            gGL.loadMatrix(reinterpret_cast<const GLfloat*>(draw->mTextureMatrix->mMatrix));
             gPipeline.mTextureMatrixOps++;
         }
     }
@@ -451,7 +451,7 @@ bool LLDrawPoolAlpha::TexSetup(LLDrawInfo* draw, bool use_material)
                     tex_setup = true;
                     gGL.getTexUnit(0)->activate();
                     gGL.matrixMode(LLRender::MM_TEXTURE);
-                    gGL.loadMatrix((GLfloat*)draw->mTextureMatrix->mMatrix);
+                    gGL.loadMatrix(reinterpret_cast<const GLfloat*>(draw->mTextureMatrix->mMatrix));
                     gPipeline.mTextureMatrixOps++;
                 }
             }

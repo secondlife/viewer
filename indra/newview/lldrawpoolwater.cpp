@@ -175,7 +175,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     LLTexUnit::eTextureFilterOptions filter_mode = has_normal_mips ? LLTexUnit::eTextureFilterOptions::TFO_ANISOTROPIC : LLTexUnit::eTextureFilterOptions::TFO_POINT;
 
     LLColor4      specular(sun_up ? psky->getSunlightColor() : psky->getMoonlightColor());
-    F32           phase_time = (F32) LLFrameTimer::getElapsedSeconds() * 0.5f;
+    F32           phase_time = static_cast<F32>(LLFrameTimer::getElapsedSeconds()) * 0.5f;
     LLGLSLShader *shader     = nullptr;
 
     // One pass, one of two shaders.  Void water and region water share state.
@@ -198,7 +198,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     LLViewerTexture* tex_a = mWaterNormp[0];
     LLViewerTexture* tex_b = mWaterNormp[1];
 
-    F32 blend_factor = (F32)pwater->getBlendFactor();
+    F32 blend_factor = static_cast<F32>(pwater->getBlendFactor());
 
     if (tex_a && (!tex_b || (tex_a == tex_b)))
     {
@@ -230,7 +230,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
 
     if (mShaderLevel == 1)
     {
-        fog_color.mV[VALPHA] = (F32)(log(fog_density) / log(2));
+        fog_color.mV[VALPHA] = static_cast<F32>(log(fog_density) / log(2));
     }
 
     F32 water_height = environment.getWaterHeight();

@@ -59,7 +59,7 @@ LLGLTFMaterial::LLGLTFMaterial()
     // starting at mLocalTexDataDigest and up to the end of the members, can be
     // safely zeroed. HB
     const size_t offset = intptr_t(&mLocalTexDataDigest) - intptr_t(this);
-    memset((void*)((const char*)this + offset), 0, sizeof(*this) - offset);
+    memset(static_cast<void*>(reinterpret_cast<char*>(this) + offset), 0, sizeof(*this) - offset);
 
     // Now that we zeroed out our member variables, we can set the ones that
     // should not be zero to their default value. HB
@@ -234,13 +234,13 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
     setFromTexture(model, material_in.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE);
 
     setAlphaMode(material_in.alphaMode);
-    mAlphaCutoff = llclamp((F32)material_in.alphaCutoff, 0.f, 1.f);
+    mAlphaCutoff = llclamp(static_cast<F32>(material_in.alphaCutoff), 0.f, 1.f);
 
     mBaseColor.set(material_in.pbrMetallicRoughness.baseColorFactor);
     mEmissiveColor.set(material_in.emissiveFactor);
 
-    mMetallicFactor = llclamp((F32)material_in.pbrMetallicRoughness.metallicFactor, 0.f, 1.f);
-    mRoughnessFactor = llclamp((F32)material_in.pbrMetallicRoughness.roughnessFactor, 0.f, 1.f);
+    mMetallicFactor = llclamp(static_cast<F32>(material_in.pbrMetallicRoughness.metallicFactor), 0.f, 1.f);
+    mRoughnessFactor = llclamp(static_cast<F32>(material_in.pbrMetallicRoughness.roughnessFactor), 0.f, 1.f);
 
     mDoubleSided = material_in.doubleSided;
 
@@ -282,7 +282,7 @@ LLVector2 LLGLTFMaterial::vec2FromJson(const tinygltf::Value::Object& object, co
         {
             return default_value;
         }
-        value.mV[i] = (F32)real_json.Get<double>();
+        value.mV[i] = static_cast<F32>(real_json.Get<double>());
     }
     return value;
 }
@@ -300,7 +300,7 @@ F32 LLGLTFMaterial::floatFromJson(const tinygltf::Value::Object& object, const c
     {
         return default_value;
     }
-    return (F32)real_json.GetNumberAsDouble();
+    return static_cast<F32>(real_json.GetNumberAsDouble());
 }
 
 void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
@@ -787,7 +787,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& mf = data["mf"];
     if (mf.isReal())
     {
-        mMetallicFactor = (F32)mf.asReal();
+        mMetallicFactor = static_cast<F32>(mf.asReal());
         if (mMetallicFactor == getDefaultMetallicFactor())
         {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
@@ -798,7 +798,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& rf = data["rf"];
     if (rf.isReal())
     {
-        mRoughnessFactor = (F32)rf.asReal();
+        mRoughnessFactor = static_cast<F32>(rf.asReal());
         if (mRoughnessFactor == getDefaultRoughnessFactor())
         {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
@@ -816,7 +816,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& ac = data["ac"];
     if (ac.isReal())
     {
-        mAlphaCutoff = (F32)ac.asReal();
+        mAlphaCutoff = static_cast<F32>(ac.asReal());
         if (mAlphaCutoff == getDefaultAlphaCutoff())
         {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
@@ -851,7 +851,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
             const LLSD& r = ti[i]["r"];
             if (r.isReal())
             {
-                mTextureTransform[i].mRotation = (F32)r.asReal();
+                mTextureTransform[i].mRotation = static_cast<F32>(r.asReal());
             }
         }
     }
@@ -869,7 +869,7 @@ LLUUID LLGLTFMaterial::getHash() const
     // only because the padding bytes between their member variables have been
     // dutifully zeroed in the constructor. HB
     const size_t offset = intptr_t(&mLocalTexDataDigest) - intptr_t(this);
-    return HBXXH128::digest((const void*)((const char*)this + offset),
+    return HBXXH128::digest(reinterpret_cast<const char*>(this) + offset,
                             sizeof(*this) - offset);
 }
 

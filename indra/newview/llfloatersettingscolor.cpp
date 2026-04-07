@@ -113,7 +113,7 @@ void LLFloaterSettingsColor::onCommitSettings()
     LLColor4 col4;
     LLColor3 col3;
     col3.setValue(mColorSwatch->getValue());
-    col4 = LLColor4(col3, (F32)mAlphaSpinner->getValue().asReal());
+    col4 = LLColor4(col3, static_cast<F32>(mAlphaSpinner->getValue().asReal()));
     LLUIColorTable::instance().setColor(color_name, col4);
 
     updateDefaultColumn(color_name);

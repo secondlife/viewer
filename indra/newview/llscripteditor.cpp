@@ -128,7 +128,7 @@ void LLScriptEditor::drawLineNumbers()
                                  ltext, // string to draw
                                  0, // begin offset
                                  UI_TEXTEDITOR_LINE_NUMBER_MARGIN - 2, // x
-                                 (F32)line_bottom, // y
+                                 static_cast<F32>(line_bottom), // y
                                  fg_color,
                                  LLFontGL::HAlign::RIGHT, // horizontal alignment
                                  LLFontGL::VAlign::BOTTOM, // vertical alignment

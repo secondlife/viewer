@@ -341,7 +341,7 @@ void LLMultiSliderCtrl::updateText()
         LLLocale locale(LLLocale::USER_LOCALE);
 
         // Don't display very small negative values as -0.000
-        F32 displayed_value = (F32)(floor(getCurSliderValue() * pow(10.0, (F64)mPrecision) + 0.5) / pow(10.0, (F64)mPrecision));
+        F32 displayed_value = static_cast<F32>(floor(getCurSliderValue() * pow(10.0, static_cast<F64>(mPrecision)) + 0.5) / pow(10.0, static_cast<F64>(mPrecision)));
 
         std::string format = llformat("%%.%df", mPrecision);
         std::string text = llformat(format.c_str(), displayed_value);
@@ -376,7 +376,7 @@ void LLMultiSliderCtrl::onEditorCommit( LLUICtrl* ctrl, const LLSD& userdata)
     if( LLLineEditor::postvalidateFloat( text ) )
     {
         LLLocale locale(LLLocale::USER_LOCALE);
-        val = (F32) atof( text.c_str() );
+        val = static_cast<F32>(atof( text.c_str() ));
         if( self->mMultiSlider->getMinValue() <= val && val <= self->mMultiSlider->getMaxValue() )
         {
             self->setCurSliderValue( val );  // set the value temporarily so that the callback can retrieve it.

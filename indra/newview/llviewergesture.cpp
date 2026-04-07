@@ -166,7 +166,7 @@ bool LLViewerGestureList::matchPrefix(const std::string& in_str, std::string* ou
         LLGesture* gesture = get(i);
         const std::string &trigger = gesture->getTrigger();
 
-        if (in_len > (S32)trigger.length())
+        if (in_len > static_cast<S32>(trigger.length()))
         {
             // too short, bail out
             continue;
@@ -189,7 +189,7 @@ void LLViewerGestureList::xferCallback(void *data, S32 size, void** /*user_data*
 {
     if (LL_ERR_NOERR == status)
     {
-        U8 *buffer = (U8 *)data;
+        U8 *buffer = reinterpret_cast<U8*>(data);
         U8 *end = gGestureList.deserialize(buffer, size);
 
         if (end - buffer > size)

@@ -566,7 +566,7 @@ void LLFloaterIMContainer::idleProcessEvents()
         if (!events.empty())
         {
             S32 events_to_handle;
-            S32 query_size = (S32)events.size();
+            S32 query_size = static_cast<S32>(events.size());
             if (current_session_id == iter->first)
             {
                 events_to_handle = EVENTS_PER_IDLE_LOOP_CURRENT_SESSION;
@@ -579,7 +579,7 @@ void LLFloaterIMContainer::idleProcessEvents()
             if (events_to_handle <= query_size)
             {
                 // Some groups can be very large and can generate huge amount of updates, scale processing up to keep up
-                events_to_handle = llmax(events_to_handle, (S32)(query_size * EVENTS_PER_IDLE_LOOP_MIN_PERCENTAGE));
+                events_to_handle = llmax(events_to_handle, static_cast<S32>(query_size * EVENTS_PER_IDLE_LOOP_MIN_PERCENTAGE));
             }
             else
             {
@@ -1162,7 +1162,7 @@ void LLFloaterIMContainer::setSortOrder(const LLConversationSort& order)
         }
     }
 
-    gSavedSettings.setU32("ConversationSortOrder", (U32)order);
+    gSavedSettings.setU32("ConversationSortOrder", static_cast<U32>(order));
 }
 
 void LLFloaterIMContainer::getSelectedUUIDs(uuid_vec_t& selected_uuids, bool participant_uuids/* = true*/)
@@ -1973,7 +1973,7 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
     }
     else
     {
-        LL_INFOS() << "Conversation widgets: " << (S32)mConversationsWidgets.size() << LL_ENDL;
+        LL_INFOS() << "Conversation widgets: " << static_cast<S32>(mConversationsWidgets.size()) << LL_ENDL;
     }
     return is_widget_selected;
 }

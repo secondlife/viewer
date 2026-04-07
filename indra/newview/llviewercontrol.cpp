@@ -116,7 +116,7 @@ static bool handleRenderFarClipChanged(const LLSD& newvalue)
 {
     if (LLStartUp::getStartupState() >= STATE_STARTED)
     {
-        F32 draw_distance = (F32)newvalue.asReal();
+        F32 draw_distance = static_cast<F32>(newvalue.asReal());
     gAgentCamera.mDrawDistance = draw_distance;
     LLWorld::getInstance()->setLandFarClip(draw_distance);
     return true;
@@ -309,7 +309,7 @@ static bool handleVSyncChanged(const LLSD& newvalue)
         if (newvalue.asBoolean())
         {
             U32 current_target = gSavedSettings.getU32("TargetFPS");
-            gSavedSettings.setU32("TargetFPS", std::min((U32)gViewerWindow->getWindow()->getRefreshRate(), current_target));
+            gSavedSettings.setU32("TargetFPS", std::min(static_cast<U32>(gViewerWindow->getWindow()->getRefreshRate()), current_target));
         }
     }
 
@@ -318,26 +318,26 @@ static bool handleVSyncChanged(const LLSD& newvalue)
 
 static bool handleVolumeLODChanged(const LLSD& newvalue)
 {
-    LLVOVolume::sLODFactor = llclamp((F32) newvalue.asReal(), 0.01f, MAX_LOD_FACTOR);
+    LLVOVolume::sLODFactor = llclamp(static_cast<F32>(newvalue.asReal()), 0.01f, MAX_LOD_FACTOR);
     LLVOVolume::sDistanceFactor = 1.f-LLVOVolume::sLODFactor * 0.1f;
     return true;
 }
 
 static bool handleAvatarLODChanged(const LLSD& newvalue)
 {
-    LLVOAvatar::sLODFactor = llclamp((F32) newvalue.asReal(), 0.f, MAX_AVATAR_LOD_FACTOR);
+    LLVOAvatar::sLODFactor = llclamp(static_cast<F32>(newvalue.asReal()), 0.f, MAX_AVATAR_LOD_FACTOR);
     return true;
 }
 
 static bool handleAvatarPhysicsLODChanged(const LLSD& newvalue)
 {
-    LLVOAvatar::sPhysicsLODFactor = llclamp((F32) newvalue.asReal(), 0.f, MAX_AVATAR_LOD_FACTOR);
+    LLVOAvatar::sPhysicsLODFactor = llclamp(static_cast<F32>(newvalue.asReal()), 0.f, MAX_AVATAR_LOD_FACTOR);
     return true;
 }
 
 static bool handleTerrainLODChanged(const LLSD& newvalue)
 {
-    LLVOSurfacePatch::sLODFactor = (F32)newvalue.asReal();
+    LLVOSurfacePatch::sLODFactor = static_cast<F32>(newvalue.asReal());
     //sqaure lod factor to get exponential range of [0,4] and keep
     //a value of 1 in the middle of the detail slider for consistency
     //with other detail sliders (see panel_preferences_graphics1.xml)
@@ -347,19 +347,19 @@ static bool handleTerrainLODChanged(const LLSD& newvalue)
 
 static bool handleTreeLODChanged(const LLSD& newvalue)
 {
-    LLVOTree::sTreeFactor = (F32) newvalue.asReal();
+    LLVOTree::sTreeFactor = static_cast<F32>(newvalue.asReal());
     return true;
 }
 
 static bool handleFlexLODChanged(const LLSD& newvalue)
 {
-    LLVolumeImplFlexible::sUpdateFactor = (F32) newvalue.asReal();
+    LLVolumeImplFlexible::sUpdateFactor = static_cast<F32>(newvalue.asReal());
     return true;
 }
 
 static bool handleGammaChanged(const LLSD& newvalue)
 {
-    F32 gamma = (F32) newvalue.asReal();
+    F32 gamma = static_cast<F32>(newvalue.asReal());
     if (gamma == 0.0f)
     {
         gamma = 1.0f; // restore normal gamma
@@ -381,7 +381,7 @@ const F32 MIN_USER_FOG_RATIO = 0.5f;
 
 static bool handleFogRatioChanged(const LLSD& newvalue)
 {
-    F32 fog_ratio = llmax(MIN_USER_FOG_RATIO, llmin((F32) newvalue.asReal(), MAX_USER_FOG_RATIO));
+    F32 fog_ratio = llmax(MIN_USER_FOG_RATIO, llmin(static_cast<F32>(newvalue.asReal()), MAX_USER_FOG_RATIO));
     gSky.setFogRatio(fog_ratio);
     return true;
 }
@@ -694,7 +694,7 @@ void handleAutoTuneFPSChanged(const LLSD& newValue)
     LLPerfStats::tunables.userAutoTuneEnabled = newval;
     if(newval && LLPerfStats::renderAvatarMaxART_ns == 0) // If we've enabled autotune we override "unlimited" to max
     {
-        gSavedSettings.setF32("RenderAvatarMaxART", (F32)log10(LLPerfStats::ART_UNLIMITED_NANOS-1000));//triggers callback to update static var
+        gSavedSettings.setF32("RenderAvatarMaxART", static_cast<F32>(log10(LLPerfStats::ART_UNLIMITED_NANOS-1000)));//triggers callback to update static var
     }
 }
 
@@ -1004,9 +1004,9 @@ void settings_setup_listeners()
 #if TEST_CACHED_CONTROL
 
 #define DECL_LLCC(T, V) static LLCachedControl<T> mySetting_##T("TestCachedControl"#T, V)
-DECL_LLCC(U32, (U32)666);
-DECL_LLCC(S32, (S32)-666);
-DECL_LLCC(F32, (F32)-666.666);
+DECL_LLCC(U32, static_cast<U32>(666));
+DECL_LLCC(S32, static_cast<S32>(-666));
+DECL_LLCC(F32, static_cast<F32>(-666.666));
 DECL_LLCC(bool, true);
 DECL_LLCC(bool, false);
 static LLCachedControl<std::string> mySetting_string("TestCachedControlstring", "Default String Value");
@@ -1024,8 +1024,8 @@ void test_cached_control()
 {
 #define do { TEST_LLCC(T, V) if((T)mySetting_##T != V) LL_ERRS() << "Fail "#T << LL_ENDL; } while(0)
     TEST_LLCC(U32, 666);
-    TEST_LLCC(S32, (S32)-666);
-    TEST_LLCC(F32, (F32)-666.666);
+    TEST_LLCC(S32, static_cast<S32>(-666));
+    TEST_LLCC(F32, static_cast<F32>(-666.666));
     TEST_LLCC(bool, true);
     TEST_LLCC(bool, false);
     if((std::string)mySetting_string != "Default String Value") LL_ERRS() << "Fail string" << LL_ENDL;

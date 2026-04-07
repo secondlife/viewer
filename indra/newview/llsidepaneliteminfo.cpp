@@ -136,14 +136,14 @@ LLSidepanelItemInfo::LLSidepanelItemInfo(const LLPanel::Params& p)
     , mLabelItemDesc(NULL)
 {
     gInventory.addObserver(this);
-    gIdleCallbacks.addFunction(&LLSidepanelItemInfo::onIdle, (void*)this);
+    gIdleCallbacks.addFunction(&LLSidepanelItemInfo::onIdle, reinterpret_cast<void*>(this));
 }
 
 // Destroys the object
 LLSidepanelItemInfo::~LLSidepanelItemInfo()
 {
     gInventory.removeObserver(this);
-    gIdleCallbacks.deleteFunction(&LLSidepanelItemInfo::onIdle, (void*)this);
+    gIdleCallbacks.deleteFunction(&LLSidepanelItemInfo::onIdle, reinterpret_cast<void*>(this));
 
     stopObjectInventoryObserver();
 
@@ -493,7 +493,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
         static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
         std::string timeStr = use_24h ? getString("acquiredDate") : getString("acquiredDateAMPM");
         LLSD substitution;
-        substitution["datetime"] = (S32) time_utc;
+        substitution["datetime"] = static_cast<S32>(time_utc);
         LLStringUtil::format (timeStr, substitution);
         getChild<LLUICtrl>("LabelAcquiredDate")->setValue(timeStr);
     }

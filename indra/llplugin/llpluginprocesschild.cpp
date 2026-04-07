@@ -270,7 +270,7 @@ void LLPluginProcessChild::sleep(F64 seconds)
     }
     else
     {
-    ms_sleep((int)(seconds * 1000.0f));
+    ms_sleep(static_cast<int>(seconds * 1000.0f));
     }
 }
 
@@ -392,7 +392,7 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
             else if (message_name == "shm_add")
             {
                 std::string name = parsed.getValue("name");
-                size_t size = (size_t)parsed.getValueS32("size");
+                size_t size = static_cast<size_t>(parsed.getValueS32("size"));
 
                 sharedMemoryRegionsType::iterator iter = mSharedMemoryRegions.find(name);
                 if (iter != mSharedMemoryRegions.end())
@@ -414,7 +414,7 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
                         // Send the add notification to the plugin
                         LLPluginMessage message("base", "shm_added");
                         message.setValue("name", name);
-                        message.setValueS32("size", (S32)size);
+                        message.setValueS32("size", static_cast<S32>(size));
                         message.setValuePointer("address", region->getMappedAddress());
                         sendMessageToPlugin(message);
 

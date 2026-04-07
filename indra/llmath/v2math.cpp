@@ -88,7 +88,7 @@ F32 dist_vec(const LLVector2& a, const LLVector2& b)
 {
     F32 x = a.mV[VX] - b.mV[VX];
     F32 y = a.mV[VY] - b.mV[VY];
-    return (F32) sqrt( x*x + y*y );
+    return static_cast<F32>(sqrt( x*x + y*y ));
 }
 
 F32 dist_vec_squared(const LLVector2& a, const LLVector2& b)
@@ -122,7 +122,7 @@ LLSD LLVector2::getValue() const
 
 void LLVector2::setValue(const LLSD& sd)
 {
-    mV[VX] = (F32) sd[0].asReal();
-    mV[VY] = (F32) sd[1].asReal();
+    mV[VX] = static_cast<F32>(sd[0].asReal());
+    mV[VY] = static_cast<F32>(sd[1].asReal());
 }
 

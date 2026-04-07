@@ -83,7 +83,7 @@ void LLHUDEffectResetSkeleton::packData(LLMessageSystem *mesgsys)
         htolememcpy(&(packed_data[TARGET_OBJECT]), LLUUID::null.mData, MVT_LLUUID, 16);
     }
 
-    U8 resetAnimations = (U8)mResetAnimations;
+    U8 resetAnimations = static_cast<U8>(mResetAnimations);
     htolememcpy(&(packed_data[RESET_ANIMATIONS]), &resetAnimations, MVT_U8, 1);
 
     mesgsys->addBinaryDataFast(_PREHASH_TypeData, packed_data, PKT_SIZE);

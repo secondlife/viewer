@@ -479,7 +479,7 @@ LLMediaDataClient::Request::Request(Type in_type,
   mNum(++sNum),
   mRetryCount(0),
   mMDC(mdc),
-  mScore((F64)0.0),
+  mScore(static_cast<F64>(0.0)),
   mFace(face)
 {
     mObjectID = mObject->getID();
@@ -1021,7 +1021,7 @@ void LLObjectMediaNavigateClient::navigate(LLMediaDataClientObject *object, U8 t
 }
 
 LLObjectMediaNavigateClient::RequestNavigate::RequestNavigate(LLMediaDataClientObject *obj, LLMediaDataClient *mdc, U8 texture_index, const std::string &url):
-    LLMediaDataClient::Request(LLMediaDataClient::Request::NAVIGATE, obj, mdc, (S32)texture_index),
+    LLMediaDataClient::Request(LLMediaDataClient::Request::NAVIGATE, obj, mdc, static_cast<S32>(texture_index)),
     mURL(url)
 {
 }

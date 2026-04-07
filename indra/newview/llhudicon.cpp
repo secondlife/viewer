@@ -136,9 +136,9 @@ void LLHUDIcon::render()
         alpha_factor *= clamp_rescale(time_elapsed, MAX_VISIBLE_TIME - FADE_OUT_TIME, MAX_VISIBLE_TIME, 1.f, 0.f);
     }
 
-    F32 image_aspect = (F32)mImagep->getFullWidth() / (F32)mImagep->getFullHeight() ;
-    LLVector3 x_scale = image_aspect * (F32)gViewerWindow->getWindowHeightScaled() * mScale * scale_factor * x_pixel_vec;
-    LLVector3 y_scale = (F32)gViewerWindow->getWindowHeightScaled() * mScale * scale_factor * y_pixel_vec;
+    F32 image_aspect = static_cast<F32>(mImagep->getFullWidth()) / static_cast<F32>(mImagep->getFullHeight()) ;
+    LLVector3 x_scale = image_aspect * static_cast<F32>(gViewerWindow->getWindowHeightScaled()) * mScale * scale_factor * x_pixel_vec;
+    LLVector3 y_scale = static_cast<F32>(gViewerWindow->getWindowHeightScaled()) * mScale * scale_factor * y_pixel_vec;
 
     LLVector3 lower_left = icon_position - (x_scale * 0.5f);
     LLVector3 lower_right = icon_position + (x_scale * 0.5f);
@@ -241,9 +241,9 @@ bool LLHUDIcon::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
         return false;
     }
 
-    F32 image_aspect = (F32)mImagep->getFullWidth() / (F32)mImagep->getFullHeight() ;
-    LLVector3 x_scale = image_aspect * (F32)gViewerWindow->getWindowHeightScaled() * mScale * scale_factor * x_pixel_vec;
-    LLVector3 y_scale = (F32)gViewerWindow->getWindowHeightScaled() * mScale * scale_factor * y_pixel_vec;
+    F32 image_aspect = static_cast<F32>(mImagep->getFullWidth()) / static_cast<F32>(mImagep->getFullHeight()) ;
+    LLVector3 x_scale = image_aspect * static_cast<F32>(gViewerWindow->getWindowHeightScaled()) * mScale * scale_factor * x_pixel_vec;
+    LLVector3 y_scale = static_cast<F32>(gViewerWindow->getWindowHeightScaled()) * mScale * scale_factor * y_pixel_vec;
 
     LLVector4a x_scalea;
     LLVector4a icon_positiona;
@@ -349,5 +349,5 @@ void LLHUDIcon::cleanupDeadIcons()
 //static
 S32 LLHUDIcon::getNumInstances()
 {
-    return (S32)sIconInstances.size();
+    return static_cast<S32>(sIconInstances.size());
 }

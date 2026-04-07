@@ -36,7 +36,7 @@
 
 #ifdef LL_WINDOWS
 #pragma warning(push)
-#pragma warning(disable : 4244) // possible loss of data on conversions
+#pragma warning(disable : 4244) // unavoidable narrowing in template unit conversion arithmetic
 #endif
 
 class LLStopWatchControlsMixinCommon

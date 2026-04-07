@@ -313,7 +313,7 @@ inline LLFace* LLDrawable::getFace(const S32 i) const
     //llassert((U32)i < mFaces.size());
     //llassert(mFaces[i]);
 
-    if ((U32) i >= mFaces.size())
+    if (static_cast<U32>(i) >= mFaces.size())
     {
         LL_WARNS() << "Invalid face index." << LL_ENDL;
         return NULL;
@@ -331,6 +331,6 @@ inline LLFace* LLDrawable::getFace(const S32 i) const
 
 inline S32 LLDrawable::getNumFaces()const
 {
-    return (S32)mFaces.size();
+    return static_cast<S32>(mFaces.size());
 }
 

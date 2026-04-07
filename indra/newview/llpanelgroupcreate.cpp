@@ -224,7 +224,7 @@ void LLPanelGroupCreate::createGroup()
     LL_INFOS() << "Creating group" << LL_ENDL;
 
     U32 enrollment_fee = (mCtrlEnrollmentFee->get() ?
-        (U32)mSpinEnrollmentFee->get() : 0);
+        static_cast<U32>(mSpinEnrollmentFee->get()) : 0);
     LLUUID insignia_id = mInsignia->getImageItemID().isNull() ? LLUUID::null : mInsignia->getImageAssetID();
 
     std::string gr_name = mGroupNameEditor->getText();

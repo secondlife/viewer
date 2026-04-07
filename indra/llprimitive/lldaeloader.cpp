@@ -83,13 +83,13 @@ bool get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S
 
     for (U32 j = 0; j < inputs.getCount(); ++j)
     {
-        idx_stride = llmax((S32) inputs[j]->getOffset(), idx_stride);
+        idx_stride = llmax(static_cast<S32>(inputs[j]->getOffset()), idx_stride);
 
         if (strcmp(COMMON_PROFILE_INPUT_VERTEX, inputs[j]->getSemantic()) == 0)
         { //found vertex array
             const domURIFragmentType& uri = inputs[j]->getSource();
             daeElementRef elem = uri.getElement();
-            domVertices* vertices = (domVertices*) elem.cast();
+            domVertices* vertices = static_cast<domVertices*>(elem.cast());
             if ( !vertices )
             {
                 return false;
@@ -102,20 +102,20 @@ bool get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S
             {
                 if (strcmp(COMMON_PROFILE_INPUT_POSITION, v_inp[k]->getSemantic()) == 0)
                 {
-                    pos_offset = (S32)inputs[j]->getOffset();
+                    pos_offset = static_cast<S32>(inputs[j]->getOffset());
 
                     const domURIFragmentType& uri = v_inp[k]->getSource();
                     daeElementRef elem = uri.getElement();
-                    pos_source = (domSource*) elem.cast();
+                    pos_source = static_cast<domSource*>(elem.cast());
                 }
 
                 if (strcmp(COMMON_PROFILE_INPUT_NORMAL, v_inp[k]->getSemantic()) == 0)
                 {
-                    norm_offset = (S32)inputs[j]->getOffset();
+                    norm_offset = static_cast<S32>(inputs[j]->getOffset());
 
                     const domURIFragmentType& uri = v_inp[k]->getSource();
                     daeElementRef elem = uri.getElement();
-                    norm_source = (domSource*) elem.cast();
+                    norm_source = static_cast<domSource*>(elem.cast());
                 }
             }
         }
@@ -123,17 +123,17 @@ bool get_dom_sources(const domInputLocalOffset_Array& inputs, S32& pos_offset, S
         if (strcmp(COMMON_PROFILE_INPUT_NORMAL, inputs[j]->getSemantic()) == 0)
         {
             //found normal array for this triangle list
-            norm_offset = (S32)inputs[j]->getOffset();
+            norm_offset = static_cast<S32>(inputs[j]->getOffset());
             const domURIFragmentType& uri = inputs[j]->getSource();
             daeElementRef elem = uri.getElement();
-            norm_source = (domSource*) elem.cast();
+            norm_source = static_cast<domSource*>(elem.cast());
         }
         else if (strcmp(COMMON_PROFILE_INPUT_TEXCOORD, inputs[j]->getSemantic()) == 0)
         { //found texCoords
-            tc_offset = (S32)inputs[j]->getOffset();
+            tc_offset = static_cast<S32>(inputs[j]->getOffset());
             const domURIFragmentType& uri = inputs[j]->getSource();
             daeElementRef elem = uri.getElement();
-            tc_source = (domSource*) elem.cast();
+            tc_source = static_cast<domSource*>(elem.cast());
         }
     }
 
@@ -196,8 +196,8 @@ LLModel::EModelStatus load_face_from_dom_triangles(
             return LLModel::EModelStatus::BAD_ELEMENT;
         }
         // VFExtents change
-        face.mExtents[0].set((F32)v[0], (F32)v[1], (F32)v[2]);
-        face.mExtents[1].set((F32)v[0], (F32)v[1], (F32)v[2]);
+        face.mExtents[0].set(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]));
+        face.mExtents[1].set(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]));
     }
 
     LLVolumeFace::VertexMapData::PointMap point_map;
@@ -221,22 +221,22 @@ LLModel::EModelStatus load_face_from_dom_triangles(
         LLVolumeFace::VertexData cv;
         if (pos_source)
         {
-            cv.setPosition(LLVector4a((F32)v[idx[i+pos_offset]*3+0],
-                                (F32)v[idx[i+pos_offset]*3+1],
-                                (F32)v[idx[i+pos_offset]*3+2]));
+            cv.setPosition(LLVector4a(static_cast<F32>(v[idx[i+pos_offset]*3+0]),
+                                static_cast<F32>(v[idx[i+pos_offset]*3+1]),
+                                static_cast<F32>(v[idx[i+pos_offset]*3+2])));
         }
 
         if (tc_source)
         {
-            cv.mTexCoord.set((F32)tc[idx[i+tc_offset]*2+0],
-                                (F32)tc[idx[i+tc_offset]*2+1]);
+            cv.mTexCoord.set(static_cast<F32>(tc[idx[i+tc_offset]*2+0]),
+                                static_cast<F32>(tc[idx[i+tc_offset]*2+1]));
         }
 
         if (norm_source)
         {
-            cv.setNormal(LLVector4a((F32)n[idx[i+norm_offset]*3+0],
-                                (F32)n[idx[i+norm_offset]*3+1],
-                                (F32)n[idx[i+norm_offset]*3+2]));
+            cv.setNormal(LLVector4a(static_cast<F32>(n[idx[i+norm_offset]*3+0]),
+                                static_cast<F32>(n[idx[i+norm_offset]*3+1]),
+                                static_cast<F32>(n[idx[i+norm_offset]*3+2])));
         }
 
         bool found = false;
@@ -279,7 +279,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(
                 //llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << LL_ENDL;
                 return LLModel::EModelStatus::VERTEX_NUMBER_OVERFLOW ;
             }
-            U16 index = (U16) (verts.size()-1);
+            U16 index = static_cast<U16>( (verts.size()-1));
             indices.push_back(index);
 
             LLVolumeFace::VertexMapData d;
@@ -324,8 +324,8 @@ LLModel::EModelStatus load_face_from_dom_triangles(
 
             face = LLVolumeFace();
             // VFExtents change
-            face.mExtents[0].set((F32)v[0], (F32)v[1], (F32)v[2]);
-            face.mExtents[1].set((F32)v[0], (F32)v[1], (F32)v[2]);
+            face.mExtents[0].set(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]));
+            face.mExtents[1].set(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]));
 
             verts.clear();
             indices.clear();
@@ -414,8 +414,8 @@ LLModel::EModelStatus load_face_from_dom_polylist(
     {
         v = pos_source->getFloat_array()->getValue();
         // VFExtents change
-        face.mExtents[0].set((F32)v[0], (F32)v[1], (F32)v[2]);
-        face.mExtents[1].set((F32)v[0], (F32)v[1], (F32)v[2]);
+        face.mExtents[0].set(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]));
+        face.mExtents[1].set(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]));
     }
 
     if (tc_source)
@@ -443,9 +443,9 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 
             if (pos_source)
             {
-                cv.getPosition().set((F32)v[idx[cur_idx+pos_offset]*3+0],
-                                    (F32)v[idx[cur_idx+pos_offset]*3+1],
-                                    (F32)v[idx[cur_idx+pos_offset]*3+2]);
+                cv.getPosition().set(static_cast<F32>(v[idx[cur_idx+pos_offset]*3+0]),
+                                    static_cast<F32>(v[idx[cur_idx+pos_offset]*3+1]),
+                                    static_cast<F32>(v[idx[cur_idx+pos_offset]*3+2]));
                 if (!cv.getPosition().isFinite3())
                 {
                     LL_WARNS() << "Found NaN while loading position data from DAE-Model, invalid model." << LL_ENDL;
@@ -463,7 +463,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 
                 if (idx_y < tc.getCount())
                 {
-                    cv.mTexCoord.set((F32)tc[idx_x], (F32)tc[idx_y]);
+                    cv.mTexCoord.set(static_cast<F32>(tc[idx_x]), static_cast<F32>(tc[idx_y]));
                 }
                 else if (log_tc_msg)
                 {
@@ -477,9 +477,9 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 
             if (norm_source)
             {
-                cv.getNormal().set((F32)n[idx[cur_idx+norm_offset]*3+0],
-                                    (F32)n[idx[cur_idx+norm_offset]*3+1],
-                                    (F32)n[idx[cur_idx+norm_offset]*3+2]);
+                cv.getNormal().set(static_cast<F32>(n[idx[cur_idx+norm_offset]*3+0]),
+                                    static_cast<F32>(n[idx[cur_idx+norm_offset]*3+1]),
+                                    static_cast<F32>(n[idx[cur_idx+norm_offset]*3+2]));
 
                 if (!cv.getNormal().isFinite3())
                 {
@@ -542,7 +542,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
                     //llerrs << "Attempted to write model exceeding 16-bit index buffer limitation." << LL_ENDL;
                     return LLModel::EModelStatus::VERTEX_NUMBER_OVERFLOW ;
                 }
-                U16 index = (U16) (verts.size()-1);
+                U16 index = static_cast<U16>( (verts.size()-1));
 
                 if (j == 0)
                 {
@@ -605,8 +605,8 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 
                 face = LLVolumeFace();
                 // VFExtents change
-                face.mExtents[0].set((F32)v[0], (F32)v[1], (F32)v[2]);
-                face.mExtents[1].set((F32)v[0], (F32)v[1], (F32)v[2]);
+                face.mExtents[0].set(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]));
+                face.mExtents[1].set(static_cast<F32>(v[0]), static_cast<F32>(v[1]), static_cast<F32>(v[2]));
                 verts.clear();
                 indices.clear();
                 point_map.clear();
@@ -663,15 +663,15 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
     U32 stride = 0;
     for (U32 i = 0; i < inputs.getCount(); ++i)
     {
-        stride = llmax((U32) inputs[i]->getOffset()+1, stride);
+        stride = llmax(static_cast<U32>(inputs[i]->getOffset()+1), stride);
 
         if (strcmp(COMMON_PROFILE_INPUT_VERTEX, inputs[i]->getSemantic()) == 0)
         { //found vertex array
-            v_offset = (S32)inputs[i]->getOffset();
+            v_offset = static_cast<S32>(inputs[i]->getOffset());
 
             const domURIFragmentType& uri = inputs[i]->getSource();
             daeElementRef elem = uri.getElement();
-            domVertices* vertices = (domVertices*) elem.cast();
+            domVertices* vertices = static_cast<domVertices*>(elem.cast());
             if (!vertices)
             {
                 return LLModel::EModelStatus::BAD_ELEMENT;
@@ -684,7 +684,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
                 {
                     const domURIFragmentType& uri = v_inp[k]->getSource();
                     daeElementRef elem = uri.getElement();
-                    domSource* src = (domSource*) elem.cast();
+                    domSource* src = static_cast<domSource*>(elem.cast());
                     if (!src)
                     {
                         return LLModel::EModelStatus::BAD_ELEMENT;
@@ -695,11 +695,11 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
         }
         else if (strcmp(COMMON_PROFILE_INPUT_NORMAL, inputs[i]->getSemantic()) == 0)
         {
-            n_offset = (S32)inputs[i]->getOffset();
+            n_offset = static_cast<S32>(inputs[i]->getOffset());
             //found normal array for this triangle list
             const domURIFragmentType& uri = inputs[i]->getSource();
             daeElementRef elem = uri.getElement();
-            domSource* src = (domSource*) elem.cast();
+            domSource* src = static_cast<domSource*>(elem.cast());
             if (!src)
             {
                 return LLModel::EModelStatus::BAD_ELEMENT;
@@ -708,10 +708,10 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
         }
         else if (strcmp(COMMON_PROFILE_INPUT_TEXCOORD, inputs[i]->getSemantic()) == 0 && inputs[i]->getSet() == 0)
         { //found texCoords
-            t_offset = (S32)inputs[i]->getOffset();
+            t_offset = static_cast<S32>(inputs[i]->getOffset());
             const domURIFragmentType& uri = inputs[i]->getSource();
             daeElementRef elem = uri.getElement();
-            domSource* src = (domSource*) elem.cast();
+            domSource* src = static_cast<domSource*>(elem.cast());
             if (!src)
             {
                 return LLModel::EModelStatus::BAD_ELEMENT;
@@ -743,11 +743,11 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 
             if (v)
             {
-                U32 v_idx = (U32)idx[j*stride+v_offset]*3;
-                v_idx = llclamp(v_idx, (U32) 0, (U32) v->getCount());
-                vert.getPosition().set((F32)v->get(v_idx),
-                                (F32)v->get(v_idx+1),
-                                (F32)v->get(v_idx+2));
+                U32 v_idx = static_cast<U32>(idx[j*stride+v_offset])*3;
+                v_idx = llclamp(v_idx, static_cast<U32>(0), static_cast<U32>(v->getCount()));
+                vert.getPosition().set(static_cast<F32>(v->get(v_idx)),
+                                static_cast<F32>(v->get(v_idx+1)),
+                                static_cast<F32>(v->get(v_idx+2)));
             }
 
             //bounds check n and t lookups because some FBX to DAE converters
@@ -755,11 +755,11 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
             //for a particular channel
             if (n && n->getCount() > 0)
             {
-                U32 n_idx = (U32)idx[j*stride+n_offset]*3;
-                n_idx = llclamp(n_idx, (U32) 0, (U32) n->getCount());
-                vert.getNormal().set((F32)n->get(n_idx),
-                                (F32)n->get(n_idx+1),
-                                (F32)n->get(n_idx+2));
+                U32 n_idx = static_cast<U32>(idx[j*stride+n_offset])*3;
+                n_idx = llclamp(n_idx, static_cast<U32>(0), static_cast<U32>(n->getCount()));
+                vert.getNormal().set(static_cast<F32>(n->get(n_idx)),
+                                static_cast<F32>(n->get(n_idx+1)),
+                                static_cast<F32>(n->get(n_idx+2)));
             }
             else
             {
@@ -769,10 +769,10 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 
             if (t && t->getCount() > 0)
             {
-                U32 t_idx = (U32)idx[j*stride+t_offset]*2;
-                t_idx = llclamp(t_idx, (U32) 0, (U32) t->getCount());
-                vert.mTexCoord.set((F32)t->get(t_idx),
-                                (F32)t->get(t_idx+1));
+                U32 t_idx = static_cast<U32>(idx[j*stride+t_offset])*2;
+                t_idx = llclamp(t_idx, static_cast<U32>(0), static_cast<U32>(t->getCount()));
+                vert.mTexCoord.set(static_cast<F32>(t->get(t_idx)),
+                                static_cast<F32>(t->get(t_idx+1)));
             }
             else
             {
@@ -836,7 +836,7 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
     // DEBUG just build an expanded triangle list
     /*for (U32 i = 0; i < verts.size(); ++i)
     {
-        indices.push_back((U16) i);
+        indices.push_back(static_cast<U16>( i));
         update_min_max(face.mExtents[0], face.mExtents[1], verts[i].getPosition());
     }*/
 
@@ -1024,7 +1024,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 
     if (unit)
     {
-        F32 meter = (F32)unit->getMeter();
+        F32 meter = static_cast<F32>(unit->getMeter());
         mTransform.mMatrix[0][0] = meter;
         mTransform.mMatrix[1][1] = meter;
         mTransform.mMatrix[2][2] = meter;
@@ -1220,7 +1220,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         mesh_scale *= normalized_transformation;
         normalized_transformation = mesh_scale;
 
-        glm::mat4 inv_mat = glm::make_mat4((F32*)normalized_transformation.mMatrix);
+        glm::mat4 inv_mat = glm::make_mat4(reinterpret_cast<F32*>(normalized_transformation.mMatrix));
         inv_mat = glm::inverse(inv_mat);
         LLMatrix4 inverse_normalized_transformation(glm::value_ptr(inv_mat));
 
@@ -1237,7 +1237,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
             {
                 for(int j = 0; j < 4; j++)
                 {
-                    mat.mMatrix[i][j] = (F32)dom_value[i + j*4];
+                    mat.mMatrix[i][j] = static_cast<F32>(dom_value[i + j*4]);
                 }
             }
 
@@ -1459,7 +1459,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                             {
                                 for(int j = 0; j < 4; j++)
                                 {
-                                    mat.mMatrix[i][j] = (F32)transform[k*16 + i + j*4];
+                                    mat.mMatrix[i][j] = static_cast<F32>(transform[k*16 + i + j*4]);
                                 }
                             }
                             model->mSkinInfo.mInvBindMatrix.emplace_back(mat);
@@ -1577,7 +1577,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                                     LL_ERRS() << "Invalid position array size." << LL_ENDL;
                                 }
 
-                                LLVector3 v((F32)pos[j], (F32)pos[j+1], (F32)pos[j+2]);
+                                LLVector3 v(static_cast<F32>(pos[j]), static_cast<F32>(pos[j+1]), static_cast<F32>(pos[j+2]));
 
                                 //transform from COLLADA space to volume space
                                 v = v * inverse_normalized_transformation;
@@ -1617,15 +1617,15 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                 U32 c_idx = 0;
                 for (size_t vc_idx = 0; vc_idx < vcount.getCount(); ++vc_idx)
                 { //for each vertex
-                    daeUInt count = (daeUInt)vcount[vc_idx];
+                    daeUInt count = static_cast<daeUInt>(vcount[vc_idx]);
 
                     //create list of weights that influence this vertex
                     LLModel::weight_list weight_list;
 
                     for (daeUInt i = 0; i < count; ++i)
                     { //for each weight
-                        daeInt joint_idx = (daeInt)v[c_idx++];
-                        daeInt weight_idx = (daeInt)v[c_idx++];
+                        daeInt joint_idx = static_cast<daeInt>(v[c_idx++]);
+                        daeInt weight_idx = static_cast<daeInt>(v[c_idx++]);
 
                         if (joint_idx == -1)
                         {
@@ -1633,7 +1633,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                             continue;
                         }
 
-                        F32 weight_value = (F32)w[weight_idx];
+                        F32 weight_value = static_cast<F32>(w[weight_idx]);
 
                         weight_list.emplace_back(joint_idx, weight_value);
                     }
@@ -1645,7 +1645,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 
                     F32 total = 0.f;
 
-                    for (U32 i = 0; i < llmin((U32) 4, (U32) weight_list.size()); ++i)
+                    for (U32 i = 0; i < llmin(static_cast<U32>(4), static_cast<U32>(weight_list.size())); ++i)
                     { //take up to 4 most significant weights
                         if (weight_list[i].mWeight > 0.f)
                         {
@@ -1804,8 +1804,8 @@ bool LLDAELoader::verifyController( domController* pController )
         {
             //Skin is reference directly by geometry and get the vertex count from skin
             domSkin::domVertex_weights* pVertexWeights = pSkin->getVertex_weights();
-            U32 vertexWeightsCount = (U32)pVertexWeights->getCount();
-            domGeometry* pGeometry = (domGeometry*) (domElement*) uri.getElement();
+            U32 vertexWeightsCount = static_cast<U32>(pVertexWeights->getCount());
+            domGeometry* pGeometry = static_cast<domGeometry*>(static_cast<domElement*>(uri.getElement()));
             domMesh* pMesh = pGeometry->getMesh();
 
             if ( pMesh )
@@ -1821,8 +1821,8 @@ bool LLDAELoader::verifyController( domController* pController )
                 if ( pVertices )
                 {
                     xsAnyURI src = pVertices->getInput_array()[0]->getSource();
-                    domSource* pSource = (domSource*) (domElement*) src.getElement();
-                    U32 verticesCount = (U32)pSource->getTechnique_common()->getAccessor()->getCount();
+                    domSource* pSource = static_cast<domSource*>(static_cast<domElement*>(src.getElement()));
+                    U32 verticesCount = static_cast<U32>(pSource->getTechnique_common()->getAccessor()->getCount());
                     result = verifyCount( verticesCount, vertexWeightsCount );
                     if ( !result )
                     {
@@ -1831,7 +1831,7 @@ bool LLDAELoader::verifyController( domController* pController )
                 }
             }
 
-            U32 vcountCount = (U32) pVertexWeights->getVcount()->getValue().getCount();
+            U32 vcountCount = static_cast<U32>(pVertexWeights->getVcount()->getValue().getCount());
             result = verifyCount( vcountCount, vertexWeightsCount );
             if ( !result )
             {
@@ -1842,9 +1842,9 @@ bool LLDAELoader::verifyController( domController* pController )
             U32 sum = 0;
             for (size_t i=0; i<vcountCount; i++)
             {
-                sum += (U32)pVertexWeights->getVcount()->getValue()[i];
+                sum += static_cast<U32>(pVertexWeights->getVcount()->getValue()[i]);
             }
-            result = verifyCount( sum * static_cast<U32>(inputs.getCount()), (domInt) static_cast<int>(pVertexWeights->getV()->getValue().getCount()) );
+            result = verifyCount( sum * static_cast<U32>(inputs.getCount()), static_cast<domInt>(static_cast<int>(pVertexWeights->getV()->getValue().getCount())) );
         }
     }
 
@@ -1857,7 +1857,7 @@ bool LLDAELoader::verifyController( domController* pController )
 void LLDAELoader::extractTranslation( domTranslate* pTranslate, LLMatrix4& transform )
 {
     const domFloat3& jointTrans = pTranslate->getValue();
-    LLVector3 singleJointTranslation((F32)jointTrans[0], (F32)jointTrans[1], (F32)jointTrans[2]);
+    LLVector3 singleJointTranslation(static_cast<F32>(jointTrans[0]), static_cast<F32>(jointTrans[1]), static_cast<F32>(jointTrans[2]));
     transform.setTranslation( singleJointTranslation );
 }
 //-----------------------------------------------------------------------------
@@ -1869,7 +1869,7 @@ void LLDAELoader::extractTranslationViaElement( daeElement* pTranslateElement, L
     {
         domTranslate* pTranslateChild = static_cast<domTranslate*>( pTranslateElement );
         domFloat3 translateChild = pTranslateChild->getValue();
-        LLVector3 singleJointTranslation((F32)translateChild[0], (F32)translateChild[1], (F32)translateChild[2]);
+        LLVector3 singleJointTranslation(static_cast<F32>(translateChild[0]), static_cast<F32>(translateChild[1]), static_cast<F32>(translateChild[2]));
         transform.setTranslation( singleJointTranslation );
     }
 }
@@ -1891,7 +1891,7 @@ void LLDAELoader::extractTranslationViaSID( daeElement* pElement, LLMatrix4& tra
             {
                 for( int j = 0; j < 4; j++ )
                 {
-                    workingTransform.mMatrix[i][j] = (F32)domArray[i + j*4];
+                    workingTransform.mMatrix[i][j] = static_cast<F32>(domArray[i + j*4]);
                 }
             }
             LLVector3 trans = workingTransform.getTranslation();
@@ -1954,7 +1954,7 @@ void LLDAELoader::processJointNode( domNode* pNode, JointTransformMap& jointTran
                         {
                             for (int j = 0; j < 4; j++)
                             {
-                                workingTransform.mMatrix[i][j] = (F32)domArray[i + j * 4];
+                                workingTransform.mMatrix[i][j] = static_cast<F32>(domArray[i + j * 4]);
                             }
                         }
                     }
@@ -2020,7 +2020,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
         domFloat3 dom_value = translate->getValue();
 
         LLMatrix4 translation;
-        translation.setTranslation(LLVector3((F32)dom_value[0], (F32)dom_value[1], (F32)dom_value[2]));
+        translation.setTranslation(LLVector3(static_cast<F32>(dom_value[0]), static_cast<F32>(dom_value[1]), static_cast<F32>(dom_value[2])));
 
         translation *= mTransform;
         mTransform = translation;
@@ -2033,7 +2033,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
         domFloat4 dom_value = rotate->getValue();
 
         LLMatrix4 rotation;
-        rotation.initRotTrans((F32)dom_value[3] * DEG_TO_RAD, LLVector3((F32)dom_value[0], (F32)dom_value[1], (F32)dom_value[2]), LLVector3(0, 0, 0));
+        rotation.initRotTrans(static_cast<F32>(dom_value[3]) * DEG_TO_RAD, LLVector3(static_cast<F32>(dom_value[0]), static_cast<F32>(dom_value[1]), static_cast<F32>(dom_value[2])), LLVector3(0, 0, 0));
 
         rotation *= mTransform;
         mTransform = rotation;
@@ -2046,7 +2046,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
         domFloat3 dom_value = scale->getValue();
 
 
-        LLVector3 scale_vector = LLVector3((F32)dom_value[0], (F32)dom_value[1], (F32)dom_value[2]);
+        LLVector3 scale_vector = LLVector3(static_cast<F32>(dom_value[0]), static_cast<F32>(dom_value[1]), static_cast<F32>(dom_value[2]));
         scale_vector.abs(); // Set all values positive, since we don't currently support mirrored meshes
         LLMatrix4 scaling;
         scaling.initScale(scale_vector);
@@ -2067,7 +2067,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
         {
             for(int j = 0; j < 4; j++)
             {
-                matrix_transform.mMatrix[i][j] = (F32)dom_value[i + j*4];
+                matrix_transform.mMatrix[i][j] = static_cast<F32>(dom_value[i + j*4]);
             }
         }
 
@@ -2137,7 +2137,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
 
                             if (model->mSubmodelID)
                             {
-                                label += (char)((int)'a' + model->mSubmodelID);
+                                label += static_cast<char>(static_cast<int>('a') + model->mSubmodelID);
                             }
 
                             model->mLabel = label + lod_suffix[mLod];
@@ -2331,7 +2331,7 @@ LLImportMaterial LLDAELoader::profileToMaterial(domProfile_COMMON* material, DAE
         if (color)
         {
             domFx_color_common domfx_color = color->getValue();
-            LLColor4 value = LLColor4((F32)domfx_color[0], (F32)domfx_color[1], (F32)domfx_color[2], (F32)domfx_color[3]);
+            LLColor4 value = LLColor4(static_cast<F32>(domfx_color[0]), static_cast<F32>(domfx_color[1]), static_cast<F32>(domfx_color[2]), static_cast<F32>(domfx_color[3]));
             mat.mDiffuseColor = value;
         }
     }
@@ -2443,7 +2443,7 @@ LLColor4 LLDAELoader::getDaeColor(daeElement* element)
     if (color)
     {
         domFx_color_common domfx_color = color->getValue();
-        value = LLColor4((F32)domfx_color[0], (F32)domfx_color[1], (F32)domfx_color[2], (F32)domfx_color[3]);
+        value = LLColor4(static_cast<F32>(domfx_color[0]), static_cast<F32>(domfx_color[1]), static_cast<F32>(domfx_color[2]), static_cast<F32>(domfx_color[3]));
     }
 
     return value;
@@ -2572,7 +2572,7 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
         {
             LLModel* next = new LLModel(volume_params, 0.f);
             next->mSubmodelID = ++submodelID;
-            next->mLabel = model_name + (char)((int)'a' + next->mSubmodelID) + lod_suffix[mLod];
+            next->mLabel = model_name + static_cast<char>(static_cast<int>('a') + next->mSubmodelID) + lod_suffix[mLod];
             next->getVolumeFaces() = remainder;
             next->mNormalizedScale = ret->mNormalizedScale;
             next->mNormalizedTranslation = ret->mNormalizedTranslation;

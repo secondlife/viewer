@@ -502,7 +502,7 @@ void LLSidepanelAppearance::fetchInventory()
 {
     uuid_vec_t ids;
     LLUUID item_id;
-    for(S32 type = (S32)LLWearableType::WT_SHAPE; type < (S32)LLWearableType::WT_COUNT; ++type)
+    for(S32 type = static_cast<S32>(LLWearableType::WT_SHAPE); type < static_cast<S32>(LLWearableType::WT_COUNT); ++type)
     {
         for (U32 index = 0; index < gAgentWearables.getWearableCount((LLWearableType::EType)type); ++index)
         {

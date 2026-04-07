@@ -128,32 +128,32 @@ bool LLFloaterChangeItemThumbnail::postBuild()
     mMultipleTextBox->setVisible(false);
 
     LLButton *upload_local = getChild<LLButton>("upload_local");
-    upload_local->setClickedCallback(onUploadLocal, (void*)this);
+    upload_local->setClickedCallback(onUploadLocal, reinterpret_cast<void*>(this));
     upload_local->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_UPLOAD_LOCAL));
     upload_local->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_UPLOAD_LOCAL));
 
     LLButton *upload_snapshot = getChild<LLButton>("upload_snapshot");
-    upload_snapshot->setClickedCallback(onUploadSnapshot, (void*)this);
+    upload_snapshot->setClickedCallback(onUploadSnapshot, reinterpret_cast<void*>(this));
     upload_snapshot->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_UPLOAD_SNAPSHOT));
     upload_snapshot->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_UPLOAD_SNAPSHOT));
 
     LLButton *use_texture = getChild<LLButton>("use_texture");
-    use_texture->setClickedCallback(onUseTexture, (void*)this);
+    use_texture->setClickedCallback(onUseTexture, reinterpret_cast<void*>(this));
     use_texture->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_USE_TEXTURE));
     use_texture->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_USE_TEXTURE));
 
     mCopyToClipboardBtn = getChild<LLButton>("copy_to_clipboard");
-    mCopyToClipboardBtn->setClickedCallback(onCopyToClipboard, (void*)this);
+    mCopyToClipboardBtn->setClickedCallback(onCopyToClipboard, reinterpret_cast<void*>(this));
     mCopyToClipboardBtn->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_COPY_TO_CLIPBOARD));
     mCopyToClipboardBtn->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_COPY_TO_CLIPBOARD));
 
     mPasteFromClipboardBtn = getChild<LLButton>("paste_from_clipboard");
-    mPasteFromClipboardBtn->setClickedCallback(onPasteFromClipboard, (void*)this);
+    mPasteFromClipboardBtn->setClickedCallback(onPasteFromClipboard, reinterpret_cast<void*>(this));
     mPasteFromClipboardBtn->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_COPY_FROM_CLIPBOARD));
     mPasteFromClipboardBtn->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_COPY_FROM_CLIPBOARD));
 
     mRemoveImageBtn = getChild<LLButton>("remove_image");
-    mRemoveImageBtn->setClickedCallback(onRemove, (void*)this);
+    mRemoveImageBtn->setClickedCallback(onRemove, reinterpret_cast<void*>(this));
     mRemoveImageBtn->setMouseEnterCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseEnter, this, _1, _2, TOOLTIP_REMOVE));
     mRemoveImageBtn->setMouseLeaveCallback(std::bind(&LLFloaterChangeItemThumbnail::onButtonMouseLeave, this, _1, _2, TOOLTIP_REMOVE));
 
@@ -693,7 +693,7 @@ void LLFloaterChangeItemThumbnail::assignAndValidateAsset(const LLUUID &asset_id
             MAX_DISCARD_LEVEL, // Don't need full image, just size data
             false,
             false,
-            (void*)data,
+            reinterpret_cast<void*>(data),
             NULL,
             false);
     }
@@ -984,7 +984,7 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
                                             0, // Need best quality
                                             true,
                                             false,
-                                            (void*)data,
+                                            reinterpret_cast<void*>(data),
                                             NULL,
                                             false);
                 texturep->forceToSaveRawImage(0);

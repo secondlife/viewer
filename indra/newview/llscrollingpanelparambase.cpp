@@ -89,7 +89,7 @@ void LLScrollingPanelParamBase::onSliderMoved(LLUICtrl* ctrl, void* userdata)
     LLViewerVisualParam* param = self->mParam;
 
     F32 current_weight = self->mWearable->getVisualParamWeight( param->getID() );
-    F32 new_weight = self->percentToWeight( (F32)slider->getValue().asReal() );
+    F32 new_weight = self->percentToWeight( static_cast<F32>(slider->getValue().asReal()) );
     if (current_weight != new_weight )
     {
         self->mWearable->setVisualParamWeight( param->getID(), new_weight);

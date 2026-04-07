@@ -135,7 +135,7 @@ void LLVOPartGroup::setPixelAreaAndAngle(LLAgent &agent)
     }
     else
     {
-        mAppAngle = (F32) atan2( mid_scale, range) * RAD_TO_DEG;
+        mAppAngle = static_cast<F32>(atan2( mid_scale, range)) * RAD_TO_DEG;
     }
 }
 
@@ -159,7 +159,7 @@ LLDrawable* LLVOPartGroup::createDrawable(LLPipeline *pipeline)
  {
      LLUUID ret = LLUUID::null;
 
-     if (idx < (S32) mViewerPartGroupp->mParticles.size())
+     if (idx < static_cast<S32>(mViewerPartGroupp->mParticles.size()))
      {
          ret = mViewerPartGroupp->mParticles[idx]->mPartSourcep->getOwnerUUID();
      }
@@ -171,7 +171,7 @@ LLDrawable* LLVOPartGroup::createDrawable(LLPipeline *pipeline)
  {
      LLUUID ret = LLUUID::null;
 
-     if (idx < (S32) mViewerPartGroupp->mParticles.size())
+     if (idx < static_cast<S32>(mViewerPartGroupp->mParticles.size()))
      {
          LLViewerPart* part = mViewerPartGroupp->mParticles[idx];
          if (part && part->mPartSourcep.notNull() &&
@@ -188,7 +188,7 @@ LLDrawable* LLVOPartGroup::createDrawable(LLPipeline *pipeline)
 
 F32 LLVOPartGroup::getPartSize(S32 idx)
 {
-    if (idx < (S32) mViewerPartGroupp->mParticles.size())
+    if (idx < static_cast<S32>(mViewerPartGroupp->mParticles.size()))
     {
         return mViewerPartGroupp->mParticles[idx]->mScale.mV[0];
     }
@@ -198,7 +198,7 @@ F32 LLVOPartGroup::getPartSize(S32 idx)
 
 void LLVOPartGroup::getBlendFunc(S32 idx, LLRender::eBlendFactor& src, LLRender::eBlendFactor& dst)
 {
-    if (idx < (S32) mViewerPartGroupp->mParticles.size())
+    if (idx < static_cast<S32>(mViewerPartGroupp->mParticles.size()))
     {
         LLViewerPart* part = mViewerPartGroupp->mParticles[idx];
         src = (LLRender::eBlendFactor) part->mBlendFuncSource;
@@ -268,7 +268,7 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
     F32 max_scale = 0.f;
 
 
-    for (i = 0 ; i < (S32)mViewerPartGroupp->mParticles.size(); i++)
+    for (i = 0 ; i < static_cast<S32>(mViewerPartGroupp->mParticles.size()); i++)
     {
         const LLViewerPart *part = mViewerPartGroupp->mParticles[i];
 
@@ -580,7 +580,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
                                 LLStrider<LLColor4U>& emissivep,
                                 LLStrider<U16>& indicesp)
 {
-    if (idx >= (S32) mViewerPartGroupp->mParticles.size())
+    if (idx >= static_cast<S32>(mViewerPartGroupp->mParticles.size()))
     {
         return;
     }
@@ -603,7 +603,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
         }
         else
         {
-            pglow = LLColor4U(0, 0, 0, (U8) ll_round(255.f*part.mStartGlow));
+            pglow = LLColor4U(0, 0, 0, static_cast<U8>(ll_round(255.f*part.mStartGlow)));
             pcolor = part.mStartColor;
         }
     }
@@ -693,7 +693,7 @@ void LLParticlePartition::rebuildGeom(LLSpatialGroup* group)
             group->mVertexBuffer->allocateBuffer(vertex_count, index_count);
 
             // initialize index and texture coordinates only when buffer is reallocated
-            U16* indicesp = (U16*)group->mVertexBuffer->mapIndexBuffer(0, index_count);
+            U16* indicesp = reinterpret_cast<U16*>(group->mVertexBuffer->mapIndexBuffer(0, index_count));
 
             U16 geom_idx = 0;
             for (U32 i = 0; i < index_count; i += 6)

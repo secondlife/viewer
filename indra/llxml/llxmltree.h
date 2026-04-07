@@ -150,7 +150,7 @@ public:
     LLXmlTreeNode*  getParent()                         { return mParent; }
     LLXmlTreeNode*  getFirstChild();
     LLXmlTreeNode*  getNextChild();
-    S32             getChildCount()                     { return (S32)mChildren.size(); }
+    S32             getChildCount()                     { return static_cast<S32>(mChildren.size()); }
     LLXmlTreeNode*  getChildByName( const std::string& name );  // returns first child with name, NULL if none
     LLXmlTreeNode*  getNextNamedChild();                // returns next child with name, NULL if none
 

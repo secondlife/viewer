@@ -348,7 +348,7 @@ LLIOPipe::EStatus LLIOSocketReader::process_impl(
         PUMP_DEBUG;
         len = READ_BUFFER_SIZE;
         status = apr_socket_recv(mSource->getSocket(), read_buf, &len);
-        buffer->append(channels.out(), (U8*)read_buf, static_cast<S32>(len));
+        buffer->append(channels.out(), reinterpret_cast<U8*>(read_buf), static_cast<S32>(len));
     } while((APR_SUCCESS == status) && (READ_BUFFER_SIZE == len));
     LL_DEBUGS() << "socket read status: " << status << LL_ENDL;
     LLIOPipe::EStatus rv = STATUS_OK;
@@ -482,10 +482,10 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
         if((*it).isOnChannel(channels.in()))
         {
             PUMP_DEBUG;
-            len = (apr_size_t)segment.size();
+            len = static_cast<apr_size_t>(segment.size());
             status = apr_socket_send(
                 mDestination->getSocket(),
-                (const char*)segment.data(),
+                reinterpret_cast<const char*>(segment.data()),
                 &len);
             // We sometimes get a 'non-blocking socket operation could not be
             // completed immediately' error from apr_socket_send.  In this
@@ -500,7 +500,7 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
             mLastWritten = segment.data() + len - 1;
 
             PUMP_DEBUG;
-            if((S32)len < segment.size())
+            if(static_cast<S32>(len) < segment.size())
             {
                 break;
             }

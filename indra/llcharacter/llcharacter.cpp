@@ -247,7 +247,7 @@ void LLCharacter::setAnimationData(std::string name, void *data)
 //-----------------------------------------------------------------------------
 void* LLCharacter::getAnimationData(std::string name)
 {
-    return get_if_there(mAnimationData, name, (void*)NULL);
+    return get_if_there(mAnimationData, name, static_cast<void*>(nullptr));
 }
 
 //-----------------------------------------------------------------------------

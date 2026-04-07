@@ -339,7 +339,7 @@ void LLToolGrabBase::startSpin()
     mSpinGrabbing = true;
 
     // Was saveSelectedObjectTransform()
-    LLViewerObject *root = (LLViewerObject *)objectp->getRoot();
+    LLViewerObject *root = static_cast<LLViewerObject*>(objectp->getRoot());
     mSpinRotation = root->getRotation();
 
     LLMessageSystem *msg = gMessageSystem;
@@ -397,7 +397,7 @@ void LLToolGrabBase::startGrab()
         return;
     }
 
-    LLViewerObject *root = (LLViewerObject *)objectp->getRoot();
+    LLViewerObject *root = static_cast<LLViewerObject*>(objectp->getRoot());
 
     // drag from center
     LLVector3d grab_start_global = root->getPositionGlobal();
@@ -619,7 +619,7 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
 
             // Send the message to the viewer.
             F32 dt = mGrabTimer.getElapsedTimeAndResetF32();
-            U32 dt_milliseconds = (U32) (1000.f * dt);
+            U32 dt_milliseconds = static_cast<U32>(1000.f * dt);
 
             // need to return offset from mGrabStartPoint
             LLVector3d grab_point_global;
@@ -774,7 +774,7 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
 
     // compute elapsed time
     F32 dt = mGrabTimer.getElapsedTimeAndResetF32();
-    U32 dt_milliseconds = (U32) (1000.f * dt);
+    U32 dt_milliseconds = static_cast<U32>(1000.f * dt);
 
     // i'm not a big fan of the following code - it's been culled from the physical grab case.
     // ideally these two would be nicely integrated - but the code in that method is a serious

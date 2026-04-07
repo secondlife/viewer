@@ -193,7 +193,7 @@ public:
 
     LLMatrix3 getMat3() const;
 
-    const LLVector3& getTranslation() const { return *(LLVector3*)&mMatrix[3][0]; }
+    const LLVector3& getTranslation() const { return *reinterpret_cast<const LLVector3*>(&mMatrix[3][0]); }
 
     ///////////////////////////
     //

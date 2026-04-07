@@ -172,7 +172,7 @@ S32 LLXfer_File::startDownload()
         gMessageSystem->nextBlockFast(_PREHASH_XferID);
         gMessageSystem->addU64Fast(_PREHASH_ID, mID);
         gMessageSystem->addStringFast(_PREHASH_Filename, mRemoteFilename);
-        gMessageSystem->addU8("FilePath", (U8) mRemotePath);
+        gMessageSystem->addU8("FilePath", static_cast<U8>(mRemotePath));
         gMessageSystem->addBOOL("DeleteOnCompletion", mDeleteRemoteOnCompletion);
         gMessageSystem->addBOOL("UseBigPackets", mChunkSize == LL_XFER_LARGE_PAYLOAD);
         gMessageSystem->addUUIDFast(_PREHASH_VFileID, LLUUID::null);
@@ -282,7 +282,7 @@ S32 LLXfer_File::suck(S32 start_position)
         // grab a buffer from the right place in the file
         fseek (mFp,start_position,SEEK_SET);
 
-        mBufferLength = (U32)fread(mBuffer,1,LL_MAX_XFER_FILE_BUFFER,mFp);
+        mBufferLength = static_cast<U32>(fread(mBuffer,1,LL_MAX_XFER_FILE_BUFFER,mFp));
         mBufferStartOffset = start_position;
 
         mBufferContainsEOF = feof(mFp) != 0;
@@ -453,7 +453,7 @@ S32 copy_file(const std::string& from, const std::string& to)
         const S32 COPY_BUFFER_SIZE = 16384;
         U8 buffer[COPY_BUFFER_SIZE];
         while(((read = fread(buffer, 1, sizeof(buffer), in)) > 0)
-              && (fwrite(buffer, 1, read, out) == (U32)read));      /* Flawfinder : ignore */
+              && (fwrite(buffer, 1, read, out) == static_cast<U32>(read)));      /* Flawfinder : ignore */
         if(ferror(in) || ferror(out)) rv = -2;
     }
     else

@@ -183,10 +183,10 @@ namespace std
             // Shift by 31: mixes upper half into lower half for better bit distribution
             // Shift by 47: ensures highest bits influence final hash output
             for (int i = 0; i < UUID_BYTES; i += 8) {
-                size_t chunk = (size_t)id.mData[i] | ((size_t)id.mData[i+1] << 8) |
-                               ((size_t)id.mData[i+2] << 16) | ((size_t)id.mData[i+3] << 24) |
-                               ((size_t)id.mData[i+4] << 32) | ((size_t)id.mData[i+5] << 40) |
-                               ((size_t)id.mData[i+6] << 48) | ((size_t)id.mData[i+7] << 56);
+                size_t chunk = static_cast<size_t>(id.mData[i]) | (static_cast<size_t>(id.mData[i+1]) << 8) |
+                               (static_cast<size_t>(id.mData[i+2]) << 16) | (static_cast<size_t>(id.mData[i+3]) << 24) |
+                               (static_cast<size_t>(id.mData[i+4]) << 32) | (static_cast<size_t>(id.mData[i+5]) << 40) |
+                               (static_cast<size_t>(id.mData[i+6]) << 48) | (static_cast<size_t>(id.mData[i+7]) << 56);
                 h ^= (chunk * 0x9e3779b97f4a7c15ULL) ^ (h >> 31) ^ (h >> 47);
             }
             return h;

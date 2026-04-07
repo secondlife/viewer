@@ -63,7 +63,7 @@ S32 LLFontVertexBuffer::render(
     bool use_ellipses,
     bool use_color)
 {
-    LLRectf rect_float((F32)rect.mLeft, (F32)rect.mTop, (F32)rect.mRight, (F32)rect.mBottom);
+    LLRectf rect_float(static_cast<F32>(rect.mLeft), static_cast<F32>(rect.mTop), static_cast<F32>(rect.mRight), static_cast<F32>(rect.mBottom));
     return render(fontp, text, begin_offset, rect_float, color, halign, valign, style, shadow, max_chars, right_x, use_ellipses, use_color);
 }
 
@@ -100,7 +100,7 @@ S32 LLFontVertexBuffer::render(
         y = rect.mBottom;
         break;
     }
-    return render(fontp, text, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, (S32)rect.getWidth(), right_x, use_ellipses, use_color);
+    return render(fontp, text, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, static_cast<S32>(rect.getWidth()), right_x, use_ellipses, use_color);
 }
 
 S32 LLFontVertexBuffer::render(

@@ -406,8 +406,8 @@ std::vector<LLRect> LLTextBase::getSelectionRects()
 
             // Use F32 otherwise a string of multiple segments
             // will accumulate a large error
-            F32 left_precise = (F32)line_iter->mRect.mLeft;
-            F32 right_precise = (F32)line_iter->mRect.mLeft;
+            F32 left_precise = static_cast<F32>(line_iter->mRect.mLeft);
+            F32 right_precise = static_cast<F32>(line_iter->mRect.mLeft);
 
             for (; segment_iter != mSegments.end(); ++segment_iter, segment_offset = 0)
             {
@@ -453,8 +453,8 @@ std::vector<LLRect> LLTextBase::getSelectionRects()
             }
 
             LLRect selection_rect;
-            selection_rect.mLeft = (S32)left_precise;
-            selection_rect.mRight = (S32)right_precise;
+            selection_rect.mLeft = static_cast<S32>(left_precise);
+            selection_rect.mRight = static_cast<S32>(right_precise);
             selection_rect.mBottom = line_iter->mRect.mBottom;
             selection_rect.mTop = line_iter->mRect.mTop;
 
@@ -485,8 +485,8 @@ std::vector<std::pair<LLRect, LLUIColor>> LLTextBase::getHighlightedBgRects()
 
             // Use F32 otherwise a string of multiple segments
             // will accumulate a large error
-            F32 left_precise  = (F32)line_iter->mRect.mLeft;
-            F32 right_precise = (F32)line_iter->mRect.mLeft;
+            F32 left_precise  = static_cast<F32>(line_iter->mRect.mLeft);
+            F32 right_precise = static_cast<F32>(line_iter->mRect.mLeft);
 
             for (; segment_iter != mSegments.end(); ++segment_iter, segment_offset = 0)
             {
@@ -508,8 +508,8 @@ std::vector<std::pair<LLRect, LLUIColor>> LLTextBase::getHighlightedBgRects()
                 if (segmentp->getStyle()->getDrawHighlightBg())
                 {
                     LLRect selection_rect;
-                    selection_rect.mLeft = (S32)left_precise;
-                    selection_rect.mRight = (S32)right_precise;
+                    selection_rect.mLeft = static_cast<S32>(left_precise);
+                    selection_rect.mRight = static_cast<S32>(right_precise);
                     selection_rect.mBottom = line_iter->mRect.mBottom;
                     selection_rect.mTop = line_iter->mRect.mTop;
 
@@ -721,8 +721,8 @@ void LLTextBase::drawCursor()
             LLRect screen_pos = calcScreenRect();
             LLCoordGL ime_pos( screen_pos.mLeft + cursor_rect.mLeft, screen_pos.mBottom + cursor_rect.mTop );
 
-            ime_pos.mX = (S32) (ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
-            ime_pos.mY = (S32) (ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
+            ime_pos.mX = static_cast<S32>(ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
+            ime_pos.mY = static_cast<S32>(ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
             getWindow()->setLanguageTextInput( ime_pos );
         }
     }
@@ -876,9 +876,9 @@ void LLTextBase::drawText()
             line_end = next_start;
         }
 
-        LLRectf text_rect((F32)line.mRect.mLeft, (F32)line.mRect.mTop, (F32)line.mRect.mRight, (F32)line.mRect.mBottom);
-        text_rect.mRight = (F32)mDocumentView->getRect().getWidth(); // clamp right edge to document extents
-        text_rect.translate((F32)mDocumentView->getRect().mLeft, (F32)mDocumentView->getRect().mBottom); // adjust by scroll position
+        LLRectf text_rect(static_cast<F32>(line.mRect.mLeft), static_cast<F32>(line.mRect.mTop), static_cast<F32>(line.mRect.mRight), static_cast<F32>(line.mRect.mBottom));
+        text_rect.mRight = static_cast<F32>(mDocumentView->getRect().getWidth()); // clamp right edge to document extents
+        text_rect.translate(static_cast<F32>(mDocumentView->getRect().mLeft), static_cast<F32>(mDocumentView->getRect().mBottom)); // adjust by scroll position
 
         // draw a single line of text
         S32 seg_start = line_start;
@@ -902,7 +902,7 @@ void LLTextBase::drawText()
             if (mUseEllipses                                // using ellipses
                 && clipped_end == line_end                  // last segment on line
                 && next_line == last_line                   // this is the last visible line
-                && last_line < (S32)mLineInfoList.size())   // and there is more text to display
+                && last_line < static_cast<S32>(mLineInfoList.size()))   // and there is more text to display
             {
                 // more lines of text to go, but we can't fit them
                 // so shrink text rect to force ellipses
@@ -910,26 +910,26 @@ void LLTextBase::drawText()
             }
 
             // Draw squiggly lines under any visible misspelled words
-            while ( (mMisspellRanges.end() != misspell_it) && (misspell_it->first < (U32)seg_end) && (misspell_it->second > (U32)seg_start) )
+            while ( (mMisspellRanges.end() != misspell_it) && (misspell_it->first < static_cast<U32>(seg_end)) && (misspell_it->second > static_cast<U32>(seg_start)) )
             {
                 // Skip the current word if the user is still busy editing it
-                if ( (!mSpellCheckTimer.hasExpired()) && (misspell_it->first <= (U32)mCursorPos) && (misspell_it->second >= (U32)mCursorPos) )
+                if ( (!mSpellCheckTimer.hasExpired()) && (misspell_it->first <= static_cast<U32>(mCursorPos)) && (misspell_it->second >= static_cast<U32>(mCursorPos)) )
                 {
                     ++misspell_it;
                     continue;
                 }
 
-                U32 misspell_start = llmax<U32>(misspell_it->first, (U32)seg_start), misspell_end = llmin<U32>(misspell_it->second, (U32)seg_end);
+                U32 misspell_start = llmax<U32>(misspell_it->first, static_cast<U32>(seg_start)), misspell_end = llmin<U32>(misspell_it->second, static_cast<U32>(seg_end));
                 S32 squiggle_start = 0, squiggle_end = 0, pony = 0;
                 cur_segment->getDimensions(seg_start - cur_segment->getStart(), misspell_start - seg_start, squiggle_start, pony);
                 cur_segment->getDimensions(misspell_start - cur_segment->getStart(), misspell_end - misspell_start, squiggle_end, pony);
-                squiggle_start += (S32)text_rect.mLeft;
+                squiggle_start += static_cast<S32>(text_rect.mLeft);
 
                 pony = (squiggle_end + 3) / 6;
                 squiggle_start += squiggle_end / 2 - pony * 3;
                 squiggle_end = squiggle_start + pony * 6;
 
-                S32 squiggle_bottom = (S32)text_rect.mBottom + (S32)cur_segment->getStyle()->getFont()->getDescenderHeight();
+                S32 squiggle_bottom = static_cast<S32>(text_rect.mBottom) + static_cast<S32>(cur_segment->getStyle()->getFont()->getDescenderHeight());
 
                 gGL.color4ub(255, 0, 0, 200);
                 while (squiggle_start + 1 < squiggle_end)
@@ -942,7 +942,7 @@ void LLTextBase::drawText()
                     squiggle_start += 4;
                 }
 
-                if (misspell_it->second > (U32)seg_end)
+                if (misspell_it->second > static_cast<U32>(seg_end))
                 {
                     break;
                 }
@@ -1651,7 +1651,7 @@ void LLTextBase::replaceWithSuggestion(U32 index)
 {
     for (auto mMisspellRange : mMisspellRanges)
     {
-        if ( (mMisspellRange.first <= (U32)mCursorPos) && (mMisspellRange.second >= (U32)mCursorPos) )
+        if ( (mMisspellRange.first <= static_cast<U32>(mCursorPos)) && (mMisspellRange.second >= static_cast<U32>(mCursorPos)) )
         {
             deselect();
             // Insert the suggestion in its place
@@ -1659,10 +1659,10 @@ void LLTextBase::replaceWithSuggestion(U32 index)
             insertStringNoUndo(mMisspellRange.first, utf8str_to_wstring(mSuggestionList[index]));
 
             // Delete the misspelled word
-            removeStringNoUndo(mMisspellRange.first + (S32)suggestion.length(), mMisspellRange.second - mMisspellRange.first);
+            removeStringNoUndo(mMisspellRange.first + static_cast<S32>(suggestion.length()), mMisspellRange.second - mMisspellRange.first);
 
 
-            setCursorPos(mMisspellRange.first + (S32)suggestion.length());
+            setCursorPos(mMisspellRange.first + static_cast<S32>(suggestion.length()));
             onSpellCheckPerformed();
 
             break;
@@ -1849,7 +1849,7 @@ void LLTextBase::reflow()
         segment_set_t::iterator seg_iter = mSegments.begin();
         S32 seg_offset = 0;
         S32 line_start_index = 0;
-        const F32 text_available_width = (F32)(mVisibleTextRect.getWidth() - mHPad);  // reserve room for margin
+        const F32 text_available_width = static_cast<F32>(mVisibleTextRect.getWidth() - mHPad);  // reserve room for margin
         F32 remaining_pixels = text_available_width;
         S32 line_count = 0;
 
@@ -1916,7 +1916,7 @@ void LLTextBase::reflow()
                                             line_count);
 
                 line_start_index = segment->getStart() + seg_offset;
-                cur_top -= ll_round((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
+                cur_top -= ll_round(static_cast<F32>(line_height) * mLineSpacingMult) + mLineSpacingPixels;
                 remaining_pixels = text_available_width;
                 line_height = 0;
             }
@@ -1928,7 +1928,7 @@ void LLTextBase::reflow()
                                             last_segment_char_on_line,
                                             line_rect,
                                             line_count);
-                cur_top -= ll_round((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
+                cur_top -= ll_round(static_cast<F32>(line_height) * mLineSpacingMult) + mLineSpacingPixels;
                 break;
             }
             // ...or finished a segment and there are segments remaining on this line
@@ -1943,7 +1943,7 @@ void LLTextBase::reflow()
                                                 line_rect,
                                                 line_count);
                     line_start_index = segment->getStart() + seg_offset;
-                    cur_top -= ll_round((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
+                    cur_top -= ll_round(static_cast<F32>(line_height) * mLineSpacingMult) + mLineSpacingPixels;
                     line_height = 0;
                     remaining_pixels = text_available_width;
                 }
@@ -2053,7 +2053,7 @@ S32 LLTextBase::getLineNumFromDocIndex( S32 doc_index, bool include_wordwrap) co
         line_list_t::const_iterator iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), doc_index, line_end_compare());
         if (include_wordwrap)
         {
-            return (S32)(iter - mLineInfoList.begin());
+            return static_cast<S32>(iter - mLineInfoList.begin());
         }
         else
         {
@@ -2090,7 +2090,7 @@ S32 LLTextBase::getFirstVisibleLine() const
     // binary search for line that starts before top of visible buffer
     line_list_t::const_iterator iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mTop, compare_bottom());
 
-    return (S32)(iter - mLineInfoList.begin());
+    return static_cast<S32>(iter - mLineInfoList.begin());
 }
 
 std::pair<S32, S32> LLTextBase::getVisibleLines(bool require_fully_visible)
@@ -2112,7 +2112,7 @@ std::pair<S32, S32> LLTextBase::getVisibleLines(bool require_fully_visible)
         first_iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mTop, compare_bottom());
         last_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mBottom, compare_top());
     }
-    return std::pair<S32, S32>((S32)(first_iter - mLineInfoList.begin()), (S32)(last_iter - mLineInfoList.begin()));
+    return std::pair<S32, S32>(static_cast<S32>(first_iter - mLineInfoList.begin()), static_cast<S32>(last_iter - mLineInfoList.begin()));
 }
 
 
@@ -2399,7 +2399,7 @@ void LLTextBase::appendTextImpl(const std::string& new_text, const LLStyle::Para
     // want to stop once maximum size was reached to avoid
     // expensive findUrl, replaceUrl calls.
 
-    S32 part = (S32)LLTextParser::WHOLE;
+    S32 part = static_cast<S32>(LLTextParser::WHOLE);
     if ((mParseHTML || force_slurl) && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
     {
         S32 start=0,end=0;
@@ -2417,14 +2417,14 @@ void LLTextBase::appendTextImpl(const std::string& new_text, const LLStyle::Para
             // output the text before the Url
             if (start > 0)
             {
-                if (part == (S32)LLTextParser::WHOLE ||
-                    part == (S32)LLTextParser::START)
+                if (part == static_cast<S32>(LLTextParser::WHOLE) ||
+                    part == static_cast<S32>(LLTextParser::START))
                 {
-                    part = (S32)LLTextParser::START;
+                    part = static_cast<S32>(LLTextParser::START);
                 }
                 else
                 {
-                    part = (S32)LLTextParser::MIDDLE;
+                    part = static_cast<S32>(LLTextParser::MIDDLE);
                 }
                 std::string subtext=text.substr(0,start);
                 appendAndHighlightText(subtext, part, style_params);
@@ -2463,20 +2463,20 @@ void LLTextBase::appendTextImpl(const std::string& new_text, const LLStyle::Para
             }
 
             // move on to the rest of the text after the Url
-            if (end < (S32)text.length())
+            if (end < static_cast<S32>(text.length()))
             {
                 text = text.substr(end,text.length() - end);
                 end=0;
-                part=(S32)LLTextParser::END;
+                part=static_cast<S32>(LLTextParser::END);
             }
             else
             {
                 break;
             }
         }
-        if (part != (S32)LLTextParser::WHOLE)
-            part=(S32)LLTextParser::END;
-        if (end < (S32)text.length())
+        if (part != static_cast<S32>(LLTextParser::WHOLE))
+            part=static_cast<S32>(LLTextParser::END);
+        if (end < static_cast<S32>(text.length()))
             appendAndHighlightText(text, part, style_params);
     }
     else
@@ -2546,7 +2546,7 @@ void LLTextBase::setFont(const LLFontGL* font)
 
 void LLTextBase::needsReflow(S32 index)
 {
-    LL_DEBUGS() << "reflow on object " << (void*)this << " index = " << mReflowIndex << ", new index = " << index << LL_ENDL;
+    LL_DEBUGS() << "reflow on object " << static_cast<void*>(this) << " index = " << mReflowIndex << ", new index = " << index << LL_ENDL;
     mReflowIndex = llmin(mReflowIndex, index);
 }
 
@@ -2837,7 +2837,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, bool round,
     }
 
     S32 pos = getLength();
-    F32 start_x = (F32)(line_iter->mRect.mLeft + doc_rect.mLeft);
+    F32 start_x = static_cast<F32>(line_iter->mRect.mLeft + doc_rect.mLeft);
 
     segment_set_t::iterator line_seg_iter;
     S32 line_seg_offset;
@@ -2855,7 +2855,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, bool round,
 
         if(newline)
         {
-            pos = segment_line_start + segmentp->getOffset(local_x - (S32)start_x, line_seg_offset, segment_line_length, round);
+            pos = segment_line_start + segmentp->getOffset(local_x - static_cast<S32>(start_x), line_seg_offset, segment_line_length, round);
             break;
         }
 
@@ -2885,7 +2885,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, bool round,
             }
             else
             {
-                offset = segmentp->getOffset(local_x - (S32)start_x, line_seg_offset, segment_line_length, round);
+                offset = segmentp->getOffset(local_x - static_cast<S32>(start_x), line_seg_offset, segment_line_length, round);
             }
             pos = segment_line_start + offset;
             break;
@@ -2932,7 +2932,7 @@ LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
     getSegmentAndOffset(line_iter->mDocIndexStart, &line_seg_iter, &line_seg_offset);
     getSegmentAndOffset(pos, &cursor_seg_iter, &cursor_seg_offset);
 
-    F32 doc_left_precise = (F32)line_iter->mRect.mLeft;
+    F32 doc_left_precise = static_cast<F32>(line_iter->mRect.mLeft);
 
     while(line_seg_iter != mSegments.end())
     {
@@ -2963,7 +2963,7 @@ LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
     }
 
     LLRect doc_rect;
-    doc_rect.mLeft = (S32)doc_left_precise;
+    doc_rect.mLeft = static_cast<S32>(doc_left_precise);
     doc_rect.mBottom = line_iter->mRect.mBottom;
     doc_rect.mTop = line_iter->mRect.mTop;
 
@@ -3857,7 +3857,7 @@ S32 LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, 
 {
     const LLWString &text = getWText();
     return mStyle->getFont()->charFromPixelOffset(text.c_str(), mStart + start_offset,
-                                               (F32)segment_local_x_coord,
+                                               static_cast<F32>(segment_local_x_coord),
                                                F32_MAX,
                                                num_chars,
                                                round);
@@ -3900,7 +3900,7 @@ S32 LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
     }
 
     S32 num_chars = mStyle->getFont()->maxDrawableChars( text.c_str() + (segment_offset + mStart),
-                                                (F32)num_pixels,
+                                                static_cast<F32>(num_pixels),
                                                 max_chars,
                                                 word_wrap_style);
 
@@ -4106,7 +4106,7 @@ bool LLInlineViewSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& w
     }
     else
     {
-        width = (F32)(mLeftPad + mRightPad + mView->getRect().getWidth());
+        width = static_cast<F32>(mLeftPad + mRightPad + mView->getRect().getWidth());
         height = mBottomPad + mTopPad + mView->getRect().getHeight();
     }
 
@@ -4142,7 +4142,7 @@ F32 LLInlineViewSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
 {
     // return padded width of widget
     // widget is actually drawn during mDocumentView's draw()
-    return (F32)(draw_rect.mLeft + mView->getRect().getWidth() + mLeftPad + mRightPad);
+    return static_cast<F32>(draw_rect.mLeft + mView->getRect().getWidth() + mLeftPad + mRightPad);
 }
 
 void LLInlineViewSegment::unlinkFromDocument(LLTextBase* editor)
@@ -4267,10 +4267,10 @@ F32 LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 select
             S32 style_image_width = image->getWidth();
             // Text is drawn from the top of the draw_rect downward
 
-            S32 text_center = (S32)(draw_rect.mTop - (draw_rect.getHeight() / 2.f));
+            S32 text_center = static_cast<S32>(draw_rect.mTop - (draw_rect.getHeight() / 2.f));
             // Align image to center of draw rect
             S32 image_bottom = text_center - (style_image_height / 2);
-            image->draw((S32)draw_rect.mLeft, image_bottom,
+            image->draw(static_cast<S32>(draw_rect.mLeft), image_bottom,
                 style_image_width, style_image_height, color);
 
             const S32 IMAGE_HPAD = 3;

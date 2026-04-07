@@ -378,7 +378,7 @@ void XMLCALL StartXMLNode(void *userData,
     LLXMLNodePtr ptr_new_node = new_node;
 
     // Set the parent-child relationship with the current active node
-    LLXMLNode* parent = (LLXMLNode *)userData;
+    auto* parent = static_cast<LLXMLNode*>(userData);
 
     if (NULL == parent)
     {
@@ -391,7 +391,7 @@ void XMLCALL StartXMLNode(void *userData,
 
     // Set the current active node to the new node
     XML_Parser *parser = parent->mParser;
-    XML_SetUserData(*parser, (void *)new_node_ptr);
+    XML_SetUserData(*parser, static_cast<void*>(new_node_ptr));
 
     // Parse attributes
     U32 pos = 0;
@@ -497,9 +497,9 @@ void XMLCALL EndXMLNode(void *userData,
                         const XML_Char *name)
 {
     // [FUGLY] Set the current active node to the current node's parent
-    LLXMLNode *node = (LLXMLNode *)userData;
+    auto* node = static_cast<LLXMLNode*>(userData);
     XML_Parser *parser = node->mParser;
-    XML_SetUserData(*parser, (void *)node->mParent);
+    XML_SetUserData(*parser, static_cast<void*>(node->mParent));
     // SJB: total hack:
     if (LLXMLNode::sStripWhitespaceValues)
     {
@@ -526,7 +526,7 @@ void XMLCALL XMLData(void *userData,
                      const XML_Char *s,
                      int len)
 {
-    LLXMLNode* current_node = (LLXMLNode *)userData;
+    auto* current_node = static_cast<LLXMLNode*>(userData);
     std::string value = current_node->getValue();
     if (LLXMLNode::sStripEscapedStrings)
     {
@@ -684,7 +684,7 @@ bool LLXMLNode::parseBuffer(
     XML_SetUserData(my_parser, file_node_ptr);
 
     // Do the parsing
-    bool success = XML_STATUS_OK == XML_Parse(my_parser, buffer, (int)length, true);
+    bool success = XML_STATUS_OK == XML_Parse(my_parser, buffer, static_cast<int>(length), true);
     if (!success)
     {
         LL_WARNS() << "Error parsing xml error code: "
@@ -734,17 +734,17 @@ bool LLXMLNode::parseStream(
 
     file_node->mParser = &my_parser;
 
-    XML_SetUserData(my_parser, (void *)file_node_ptr);
+    XML_SetUserData(my_parser, static_cast<void*>(file_node_ptr));
 
     const int BUFSIZE = 1024;
     std::vector<U8> buffer(BUFSIZE);
 
     while(str.good())
     {
-        str.read((char*)buffer.data(), BUFSIZE);
-        int count = (int)str.gcount();
+        str.read(reinterpret_cast<char*>(buffer.data()), BUFSIZE);
+        int count = static_cast<int>(str.gcount());
 
-        if (XML_Parse(my_parser, (const char *)buffer.data(), count, !str.good()) != XML_STATUS_OK)
+        if (XML_Parse(my_parser, reinterpret_cast<const char*>(buffer.data()), count, !str.good()) != XML_STATUS_OK)
         {
             LL_WARNS() << "Error parsing xml error code: "
                     << XML_ErrorString(XML_GetErrorCode(my_parser))
@@ -1517,22 +1517,22 @@ const char *LLXMLNode::parseFloat(const char *str, F64 *dest, U32 precision, Enc
 
         if (memcmp(str, "inf", 3) == 0)
         {
-            *(U64 *)dest = 0x7FF0000000000000ll;
+            *reinterpret_cast<U64*>(dest) = 0x7FF0000000000000ll;
             return str + 3;
         }
         if (memcmp(str, "-inf", 4) == 0)
         {
-            *(U64 *)dest = 0xFFF0000000000000ll;
+            *reinterpret_cast<U64*>(dest) = 0xFFF0000000000000ll;
             return str + 4;
         }
         if (memcmp(str, "1.#INF", 6) == 0)
         {
-            *(U64 *)dest = 0x7FF0000000000000ll;
+            *reinterpret_cast<U64*>(dest) = 0x7FF0000000000000ll;
             return str + 6;
         }
         if (memcmp(str, "-1.#INF", 7) == 0)
         {
-            *(U64 *)dest = 0xFFF0000000000000ll;
+            *reinterpret_cast<U64*>(dest) = 0xFFF0000000000000ll;
             return str + 7;
         }
 
@@ -1657,13 +1657,13 @@ const char *LLXMLNode::parseFloat(const char *str, F64 *dest, U32 precision, Enc
         {
         case 32:
             {
-                U32 short_dest = (U32)bytes_dest;
-                F32 ret_val = *(F32 *)&short_dest;
+                U32 short_dest = static_cast<U32>(bytes_dest);
+                F32 ret_val = *reinterpret_cast<F32*>(&short_dest);
                 *dest = ret_val;
             }
             break;
         case 64:
-            *dest = *(F64 *)&bytes_dest;
+            *dest = *reinterpret_cast<F64*>(&bytes_dest);
             break;
         default:
             return NULL;
@@ -2250,11 +2250,11 @@ void LLXMLNode::setIntValue(U32 length, const S32 *array, Encoding encoding)
         {
             if (pos > 0 && pos % 16 == 0)
             {
-                new_value.append(llformat(" %08X", ((U32 *)array)[pos]));
+                new_value.append(llformat(" %08X", (reinterpret_cast<const U32*>(array))[pos]));
             }
             else
             {
-                new_value.append(llformat("%08X", ((U32 *)array)[pos]));
+                new_value.append(llformat("%08X", (reinterpret_cast<const U32*>(array))[pos]));
             }
         }
         mValue = new_value;
@@ -2406,7 +2406,7 @@ void LLXMLNode::setFloatValue(U32 length, const F32 *array, Encoding encoding, U
     }
     else if (encoding == Encoding::ENCODING_HEX)
     {
-        const U32 *byte_array = (const U32 *)array;
+        const auto* byte_array = reinterpret_cast<const U32*>(array);
         setUnsignedValue(length, byte_array, Encoding::ENCODING_HEX);
     }
     else
@@ -2456,7 +2456,7 @@ void LLXMLNode::setDoubleValue(U32 length, const F64 *array, Encoding encoding, 
     }
     if (encoding == Encoding::ENCODING_HEX)
     {
-        const U64 *byte_array = (const U64 *)array;
+        const auto* byte_array = reinterpret_cast<const U64*>(array);
         setLongValue(length, byte_array, Encoding::ENCODING_HEX);
     }
     else
@@ -2681,7 +2681,7 @@ U32 LLXMLNode::getChildCount() const
 
 U32 get_rand(U32 max_value)
 {
-    U32 random_num = rand() + ((U32)rand() << 16);
+    U32 random_num = rand() + (static_cast<U32>(rand()) << 16);
     return (random_num % max_value);
 }
 
@@ -2821,7 +2821,7 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
                     S32 sign = get_rand(2) * 2 - 1;
                     random_float_values[value] = F32(fractional_part) / F32(0xffffffff) * exp(F32(exponent)) * F32(sign);
 
-                    U32 *float_bits = &((U32 *)random_float_values)[value];
+                    U32 *float_bits = &(reinterpret_cast<U32*>(random_float_values))[value];
                     if (*float_bits == 0x80000000)
                     {
                         *float_bits = 0x00000000;
@@ -2841,7 +2841,7 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
                     S32 sign = get_rand(2) * 2 - 1;
                     random_float_values[value] = F64(fractional_part) / F64(0xffffffff) * exp(F64(exponent)) * F64(sign);
 
-                    U64 *float_bits = &((U64 *)random_float_values)[value];
+                    U64 *float_bits = &(reinterpret_cast<U64*>(random_float_values))[value];
                     if (*float_bits == 0x8000000000000000ll)
                     {
                         *float_bits = 0x0000000000000000ll;
@@ -2995,7 +2995,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                     }
                     for (U32 pos=0; pos<node->mLength; ++pos)
                     {
-                        U32 float_bits = ((U32 *)float_array)[pos];
+                        U32 float_bits = (reinterpret_cast<U32*>(float_array))[pos];
                         float_checksum ^= (float_bits & 0xfffff000);
                     }
                 }
@@ -3009,7 +3009,7 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
                     }
                     for (U32 pos=0; pos<node->mLength; ++pos)
                     {
-                        U64 float_bits = ((U64 *)float_array)[pos];
+                        U64 float_bits = (reinterpret_cast<U64*>(float_array))[pos];
                         float_checksum ^= ((float_bits & 0xfffffff000000000ll) >> 32);
                     }
                 }
@@ -3084,8 +3084,8 @@ bool LLXMLNode::performUnitTest(std::string &error_buffer)
         }
         if (node_long_checksum != long_checksum)
         {
-            U32 *pp1 = (U32 *)&node_long_checksum;
-            U32 *pp2 = (U32 *)&long_checksum;
+            auto* pp1 = reinterpret_cast<U32*>(&node_long_checksum);
+            auto* pp2 = reinterpret_cast<U32*>(&long_checksum);
             error_buffer.append(llformat("ERROR Node %s: Long Integer checksum mismatch: read %08X%08X / calc %08X%08X.\n", mName->mString, pp1[1], pp1[0], pp2[1], pp2[0]));
             return false;
         }
@@ -3412,7 +3412,7 @@ bool LLXMLNode::fromXMLRPCValue(LLSD& target)
         LLSD::Binary binary(size);
         if (size)
         {
-            memcpy((void*)binary.data(), (void*)decoded.data(), size);
+            memcpy(binary.data(), decoded.data(), size);
         }
         target.assign(binary);
         return true;

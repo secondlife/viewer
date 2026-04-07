@@ -656,9 +656,9 @@ void LLAgent::ageChat()
     if (isAgentAvatarValid())
     {
         // get amount of time since I last chatted
-        F64 elapsed_time = (F64)gAgentAvatarp->mChatTimer.getElapsedTimeF32();
+        F64 elapsed_time = static_cast<F64>(gAgentAvatarp->mChatTimer.getElapsedTimeF32());
         // add in frame time * 3 (so it ages 4x)
-        gAgentAvatarp->mChatTimer.setAge(elapsed_time + (F64)gFrameDTClamped * (CHAT_AGE_FAST_RATE - 1.0));
+        gAgentAvatarp->mChatTimer.setAge(elapsed_time + static_cast<F64>(gFrameDTClamped) * (CHAT_AGE_FAST_RATE - 1.0));
     }
 }
 
@@ -1225,7 +1225,7 @@ void LLAgent::setPositionAgent(const LLVector3 &pos_agent)
     {
         LLVector3 pos_agent_sitting;
         LLVector3d pos_agent_d;
-        LLViewerObject *parent = (LLViewerObject*)gAgentAvatarp->getParent();
+        LLViewerObject *parent = static_cast<LLViewerObject*>(gAgentAvatarp->getParent());
 
         pos_agent_sitting = gAgentAvatarp->getPosition() * parent->getRotation() + parent->getPositionAgent();
         pos_agent_d.set(pos_agent_sitting);
@@ -1417,7 +1417,7 @@ LLVector3 LLAgent::getReferenceUpVector()
         if (camera_mode == CAMERA_MODE_THIRD_PERSON)
         {
             // make the up vector point to the absolute +z axis
-            up_vector = up_vector * ~((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation();
+            up_vector = up_vector * ~(static_cast<LLViewerObject*>(gAgentAvatarp->getParent()))->getRenderRotation();
         }
         else if (camera_mode == CAMERA_MODE_MOUSELOOK)
         {
@@ -1658,7 +1658,7 @@ void LLAgent::startAutoPilotGlobal(
     else
     {
         // Guess at a reasonable stop distance.
-        mAutoPilotStopDistance = (F32) sqrt( distance );
+        mAutoPilotStopDistance = static_cast<F32>(sqrt( distance ));
         if (mAutoPilotStopDistance < 0.5f)
         {
             mAutoPilotStopDistance = 0.5f;
@@ -1728,11 +1728,11 @@ void LLAgent::setAutoPilotTargetGlobal(const LLVector3d &target_global)
         LLWorld::getInstance()->resolveStepHeightGlobal(NULL, target_global, traceEndPt, targetOnGround, groundNorm, &obj);
         // Note: this might malfunction for sitting agent, since pelvis stays same, but agent's position becomes lower
         // But for autopilot to work we assume that agent is standing and ready to go.
-        F64 target_height = llmax((F64)gAgentAvatarp->getPelvisToFoot(), target_global.mdV[VZ] - targetOnGround.mdV[VZ]);
+        F64 target_height = llmax(static_cast<F64>(gAgentAvatarp->getPelvisToFoot()), target_global.mdV[VZ] - targetOnGround.mdV[VZ]);
 
         // clamp z value of target to minimum height above ground
         mAutoPilotTargetGlobal.mdV[VZ] = targetOnGround.mdV[VZ] + target_height;
-        mAutoPilotTargetDist = (F32)dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal);
+        mAutoPilotTargetDist = static_cast<F32>(dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal));
     }
 }
 
@@ -1909,7 +1909,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
             if (isAgentAvatarValid())
             {
                 F64 current_height = gAgentAvatarp->getPositionGlobal().mdV[VZ];
-                F32 delta_z = (F32)(mAutoPilotTargetGlobal.mdV[VZ] - current_height);
+                F32 delta_z = static_cast<F32>(mAutoPilotTargetGlobal.mdV[VZ] - current_height);
                 F32 slope = delta_z / xy_distance;
                 if (slope > 0.45f && delta_z > 6.f)
                 {
@@ -2427,14 +2427,14 @@ void LLAgent::endAnimationUpdateUI()
             if (gAgentAvatarp->getParent())
             {
                 LLVector3 at_axis = LLViewerCamera::getInstance()->getAtAxis();
-                LLViewerObject* root_object = (LLViewerObject*)gAgentAvatarp->getRoot();
+                LLViewerObject* root_object = static_cast<LLViewerObject*>(gAgentAvatarp->getRoot());
                 if (root_object->flagCameraDecoupled())
                 {
                     resetAxes(at_axis);
                 }
                 else
                 {
-                    resetAxes(at_axis * ~((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation());
+                    resetAxes(at_axis * ~(static_cast<LLViewerObject*>(gAgentAvatarp->getParent()))->getRenderRotation());
                 }
             }
         }
@@ -2602,9 +2602,9 @@ void LLAgent::setStartPositionSuccess(const LLSD &result)
                 (!result["HomeLocation"]["LocationPos"].has("Z")))
             break;
 
-        agent_pos.mV[VX] = (F32)result["HomeLocation"]["LocationPos"]["X"].asInteger();
-        agent_pos.mV[VY] = (F32)result["HomeLocation"]["LocationPos"]["Y"].asInteger();
-        agent_pos.mV[VZ] = (F32)result["HomeLocation"]["LocationPos"]["Z"].asInteger();
+        agent_pos.mV[VX] = static_cast<F32>(result["HomeLocation"]["LocationPos"]["X"].asInteger());
+        agent_pos.mV[VY] = static_cast<F32>(result["HomeLocation"]["LocationPos"]["Y"].asInteger());
+        agent_pos.mV[VZ] = static_cast<F32>(result["HomeLocation"]["LocationPos"]["Z"].asInteger());
 
         error = false;
 
@@ -2732,7 +2732,7 @@ bool LLAgent::canAccessMaturityInRegion( U64 region_handle ) const
 
 bool LLAgent::canAccessMaturityAtGlobal( LLVector3d pos_global ) const
 {
-    U64 region_handle = to_region_handle_global((F32)pos_global.mdV[0], (F32)pos_global.mdV[1]);
+    U64 region_handle = to_region_handle_global(static_cast<F32>(pos_global.mdV[0]), static_cast<F32>(pos_global.mdV[1]));
     return canAccessMaturityInRegion( region_handle );
 }
 
@@ -3212,7 +3212,7 @@ bool LLAgent::setUserGroupFlags(const LLUUID& group_id, bool accept_notices, boo
 
 bool LLAgent::canJoinGroups() const
 {
-    return (S32)mGroups.size() < LLAgentBenefitsMgr::current().getGroupMembershipLimit();
+    return static_cast<S32>(mGroups.size()) < LLAgentBenefitsMgr::current().getGroupMembershipLimit();
 }
 
 LLQuaternion LLAgent::getHeadRotation()
@@ -3339,7 +3339,7 @@ void LLAgent::sendRevokePermissions(const LLUUID & target, U32 permissions)
 
         msg->nextBlockFast(_PREHASH_Data);
         msg->addUUIDFast(_PREHASH_ObjectID, target);        // Must be in the region
-        msg->addS32Fast(_PREHASH_ObjectPermissions, (S32) permissions);
+        msg->addS32Fast(_PREHASH_ObjectPermissions, static_cast<S32>(permissions));
 
         sendReliableMessage();
     }
@@ -4284,7 +4284,7 @@ void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
     {
         LLVector3d pos_global;
         landmark->getGlobalPos(pos_global);
-        is_local = (regionp->getHandle() == to_region_handle_global((F32)pos_global.mdV[VX], (F32)pos_global.mdV[VY]));
+        is_local = (regionp->getHandle() == to_region_handle_global(static_cast<F32>(pos_global.mdV[VX]), static_cast<F32>(pos_global.mdV[VY])));
     }
 
     if(regionp && teleportCore(is_local))
@@ -4402,13 +4402,13 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
     {
         LLVector3d region_origin = info->getGlobalOrigin();
         LLVector3 pos_local(
-            (F32)(pos_global.mdV[VX] - region_origin.mdV[VX]),
-            (F32)(pos_global.mdV[VY] - region_origin.mdV[VY]),
-            (F32)(pos_global.mdV[VZ]));
+            static_cast<F32>(pos_global.mdV[VX] - region_origin.mdV[VX]),
+            static_cast<F32>(pos_global.mdV[VY] - region_origin.mdV[VY]),
+            static_cast<F32>(pos_global.mdV[VZ]));
         teleportRequest(handle, pos_local);
     }
     else if(regionp &&
-        teleportCore(regionp->getHandle() == to_region_handle_global((F32)pos_global.mdV[VX], (F32)pos_global.mdV[VY])))
+        teleportCore(regionp->getHandle() == to_region_handle_global(static_cast<F32>(pos_global.mdV[VX]), static_cast<F32>(pos_global.mdV[VY]))))
     {
         // send the message
         LLMessageSystem* msg = gMessageSystem;
@@ -4419,11 +4419,11 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 
         msg->nextBlockFast(_PREHASH_Info);
         F32 width = regionp->getWidth();
-        LLVector3 pos(fmod((F32)pos_global.mdV[VX], width),
-                      fmod((F32)pos_global.mdV[VY], width),
-                      (F32)pos_global.mdV[VZ]);
-        F32 region_x = (F32)(pos_global.mdV[VX]);
-        F32 region_y = (F32)(pos_global.mdV[VY]);
+        LLVector3 pos(fmod(static_cast<F32>(pos_global.mdV[VX]), width),
+                      fmod(static_cast<F32>(pos_global.mdV[VY]), width),
+                      static_cast<F32>(pos_global.mdV[VZ]));
+        F32 region_x = static_cast<F32>(pos_global.mdV[VX]);
+        F32 region_y = static_cast<F32>(pos_global.mdV[VY]);
         U64 region_handle = to_region_handle_global(region_x, region_y);
         msg->addU64Fast(_PREHASH_RegionHandle, region_handle);
         msg->addVector3Fast(_PREHASH_Position, pos);
@@ -4458,7 +4458,7 @@ void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
     }
 
     U64 region_handle = to_region_handle(pos_global);
-    LLVector3 pos_local = (LLVector3)(pos_global - from_region_handle(region_handle));
+    LLVector3 pos_local = static_cast<LLVector3>(pos_global - from_region_handle(region_handle));
     teleportRequest(region_handle, pos_local, getTeleportKeepsLookAt());
 }
 
@@ -4933,7 +4933,7 @@ void LLAgent::renderAutoPilotTarget()
 
         target_global = mAutoPilotTargetGlobal;
 
-        gGL.translatef((F32)(target_global.mdV[VX]), (F32)(target_global.mdV[VY]), (F32)(target_global.mdV[VZ]));
+        gGL.translatef(static_cast<F32>(target_global.mdV[VX]), static_cast<F32>(target_global.mdV[VY]), static_cast<F32>(target_global.mdV[VZ]));
 
         height_meters = 1.f;
 
@@ -5063,7 +5063,7 @@ LLTeleportRequestViaLure::~LLTeleportRequestViaLure()
 
 void LLTeleportRequestViaLure::toOstream(std::ostream& os) const
 {
-    os << "mIsLureGodLike " << (S32) mIsLureGodLike << " ";
+    os << "mIsLureGodLike " << static_cast<S32>(mIsLureGodLike) << " ";
     LLTeleportRequestViaLandmark::toOstream(os);
 }
 

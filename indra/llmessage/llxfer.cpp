@@ -140,7 +140,7 @@ S32 LLXfer::receiveData (char *datap, S32 data_size)
 {
     S32 retval = 0;
 
-    if (((S32) mBufferLength + data_size) > getMaxBufferSize())
+    if ((static_cast<S32>(mBufferLength) + data_size) > getMaxBufferSize())
     {   // Write existing data to disk if it's larger than the buffer size
         retval = flush();
     }
@@ -191,8 +191,8 @@ void LLXfer::sendPacket(S32 packet_num)
     S32 num_copy = 0;
 
     // if the desired packet is not in our current buffered excerpt from the file. . .
-    if (((U32)packet_num*fdata_size < mBufferStartOffset)
-        || ((U32)llmin((U32)mXferSize,(U32)((U32)(packet_num+1)*fdata_size)) > mBufferStartOffset + mBufferLength))
+    if ((static_cast<U32>(packet_num)*fdata_size < mBufferStartOffset)
+        || (static_cast<U32>(llmin(static_cast<U32>(mXferSize), static_cast<U32>(static_cast<U32>(packet_num+1)*fdata_size))) > mBufferStartOffset + mBufferLength))
 
     {
         if (suck(packet_num*fdata_size))  // returns non-zero on failure
@@ -206,7 +206,7 @@ void LLXfer::sendPacket(S32 packet_num)
 
     desired_read_position = packet_num * fdata_size - mBufferStartOffset;
 
-    fdata_size = llmin((S32)mBufferLength-desired_read_position, mChunkSize);
+    fdata_size = llmin(static_cast<S32>(mBufferLength)-desired_read_position, mChunkSize);
 
     if (fdata_size < 0)
     {
@@ -215,15 +215,15 @@ void LLXfer::sendPacket(S32 packet_num)
         return;
     }
 
-    if (((U32)(desired_read_position + fdata_size) >= mBufferLength) && (mBufferContainsEOF))
+    if ((static_cast<U32>(desired_read_position + fdata_size) >= mBufferLength) && (mBufferContainsEOF))
     {
         last_packet = true;
     }
 
     if (packet_num)
     {
-        num_copy = llmin(fdata_size, (S32)sizeof(fdata_buf));
-        num_copy = llmin(num_copy, (S32)(mBufferLength - desired_read_position));
+        num_copy = llmin(fdata_size, static_cast<S32>(sizeof(fdata_buf)));
+        num_copy = llmin(num_copy, static_cast<S32>(mBufferLength - desired_read_position));
         if (num_copy > 0)
         {
             memcpy(fdata_buf,&mBuffer[desired_read_position],num_copy); /*Flawfinder: ignore*/
@@ -233,10 +233,10 @@ void LLXfer::sendPacket(S32 packet_num)
     {
         // if we're the first packet, encode size as an additional S32
         // at start of data.
-        num_copy = llmin(fdata_size, (S32)(sizeof(fdata_buf)-sizeof(S32)));
+        num_copy = llmin(fdata_size, static_cast<S32>(sizeof(fdata_buf)-sizeof(S32)));
         num_copy = llmin(
             num_copy,
-            (S32)(mBufferLength - desired_read_position));
+            static_cast<S32>(mBufferLength - desired_read_position));
         if (num_copy > 0)
         {
             memcpy( /*Flawfinder: ignore*/

@@ -347,7 +347,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
             packetp->mBuffer[0] |= LL_RESENT_FLAG;  // tag packet id as being a resend
 
             gMessageSystem->mPacketRing.sendPacket(packetp->mSocket,
-                                               (char *)packetp->mBuffer.data(), packetp->mBufferLength,
+                                               reinterpret_cast<char*>(packetp->mBuffer.data()), packetp->mBufferLength,
                                                packetp->mHost);
 
             mThrottles.throttleOverflow(TC_RESEND, packetp->mBufferLength * 8.f);
@@ -521,13 +521,13 @@ void LLCircuitData::checkPeriodTime()
     F64Seconds period_length = mt_sec - mPeriodTime;
     if ( period_length > TARGET_PERIOD_LENGTH)
     {
-        F32 bps_in = F32Bits(mBytesInThisPeriod).value() / (F32)period_length.value();
+        F32 bps_in = F32Bits(mBytesInThisPeriod).value() / static_cast<F32>(period_length.value());
         if (bps_in > mPeakBPSIn)
         {
             mPeakBPSIn = bps_in;
         }
 
-        F32 bps_out = F32Bits(mBytesOutThisPeriod).value() / (F32)period_length.value();
+        F32 bps_out = F32Bits(mBytesOutThisPeriod).value() / static_cast<F32>(period_length.value());
         if (bps_out > mPeakBPSOut)
         {
             mPeakBPSOut = bps_out;
@@ -649,7 +649,7 @@ void LLCircuitData::checkPacketInID(TPACKETID id, bool receive_resent)
 {
     // Done as floats so we don't have to worry about running out of room
     // with U32 getting poked into an S32.
-    F32 delta = (F32)mHighestPacketID - (F32)id;
+    F32 delta = static_cast<F32>(mHighestPacketID) - static_cast<F32>(id);
     if (delta > (0.5f*LL_MAX_OUT_PACKET_ID))
     {
         // We've almost definitely wrapped, reset the mLastPacketID to be low again.
@@ -1091,7 +1091,7 @@ void LLCircuit::sendAcks(F32 collect_time)
     {
         circuit_data_map::iterator cur_it = it++;
         cd = (*cur_it).second;
-        S32 count = (S32)cd->mAcks.size();
+        S32 count = static_cast<S32>(cd->mAcks.size());
         F32 age = cd->getAgeInSeconds() - cd->mAckCreationTime;
         if (age > collect_time || count == 0)
         {
@@ -1170,13 +1170,13 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
         << "/"
         << circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kilobytes>()
         << " Kbps: "
-        << (S32)(circuit.mBytesInLastPeriod.valueInUnits<LLUnits::Kilobits>() / circuit.mLastPeriodLength.value())
+        << static_cast<S32>(circuit.mBytesInLastPeriod.valueInUnits<LLUnits::Kilobits>() / circuit.mLastPeriodLength.value())
         << "/"
-        << (S32)(circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kilobits>() / circuit.mLastPeriodLength.value())
+        << static_cast<S32>(circuit.mBytesOutLastPeriod.valueInUnits<LLUnits::Kilobits>() / circuit.mLastPeriodLength.value())
         << " Peak kbps: "
-        << S32(circuit.mPeakBPSIn / 1024.f)
+        << static_cast<S32>(circuit.mPeakBPSIn / 1024.f)
         << "/"
-        << S32(circuit.mPeakBPSOut / 1024.f)
+        << static_cast<S32>(circuit.mPeakBPSOut / 1024.f)
         << endl;
 
     return s;
@@ -1275,7 +1275,7 @@ void LLCircuitData::pingTimerStop(const U8 ping_id)
 
     // If ping is longer than 1 second, we'll get sequence deltas in the ping.
     // Approximate by assuming each ping counts for 1 second (slightly low, probably)
-    S32 delta_ping = (S32)mLastPingID - (S32) ping_id;
+    S32 delta_ping = static_cast<S32>(mLastPingID) - static_cast<S32>(ping_id);
     if (delta_ping < 0)
     {
         delta_ping += 256;

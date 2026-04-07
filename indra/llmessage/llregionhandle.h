@@ -33,17 +33,17 @@
 inline U64 to_region_handle(const U32 x_origin, const U32 y_origin)
 {
     U64 region_handle;
-    region_handle =  ((U64)x_origin) << 32;
-    region_handle |= (U64) y_origin;
+    region_handle =  static_cast<U64>(x_origin) << 32;
+    region_handle |= static_cast<U64>(y_origin);
     return region_handle;
 }
 
 inline U64 to_region_handle(const LLVector3d& pos_global)
 {
-    U32 global_x = (U32)pos_global.mdV[VX];
+    U32 global_x = static_cast<U32>(pos_global.mdV[VX]);
     global_x -= global_x % 256;
 
-    U32 global_y = (U32)pos_global.mdV[VY];
+    U32 global_y = static_cast<U32>(pos_global.mdV[VY]);
     global_y -= global_y % 256;
 
     return to_region_handle(global_x, global_y);
@@ -52,13 +52,13 @@ inline U64 to_region_handle(const LLVector3d& pos_global)
 inline U64 to_region_handle_global(const F32 x_global, const F32 y_global)
 {
     // Round down to the nearest origin
-    U32 x_origin = (U32)x_global;
+    U32 x_origin = static_cast<U32>(x_global);
     x_origin -= x_origin % REGION_WIDTH_U32;
-    U32 y_origin = (U32)y_global;
+    U32 y_origin = static_cast<U32>(y_global);
     y_origin -= y_origin % REGION_WIDTH_U32;
     U64 region_handle;
-    region_handle =  ((U64)x_origin) << 32;
-    region_handle |= (U64) y_origin;
+    region_handle =  static_cast<U64>(x_origin) << 32;
+    region_handle |= static_cast<U64>(y_origin);
     return region_handle;
 }
 
@@ -72,7 +72,7 @@ inline bool to_region_handle(const F32 x_pos, const F32 y_pos, U64 *region_handl
     }
     else
     {
-        x_int = (U32)ll_round(x_pos);
+        x_int = static_cast<U32>(ll_round(x_pos));
     }
     if (y_pos < 0.f)
     {
@@ -81,7 +81,7 @@ inline bool to_region_handle(const F32 x_pos, const F32 y_pos, U64 *region_handl
     }
     else
     {
-        y_int = (U32)ll_round(y_pos);
+        y_int = static_cast<U32>(ll_round(y_pos));
     }
     *region_handle = to_region_handle(x_int, y_int);
     return true;
@@ -90,21 +90,21 @@ inline bool to_region_handle(const F32 x_pos, const F32 y_pos, U64 *region_handl
 // stuff the word-frame XY location of sim's SouthWest corner in x_pos, y_pos
 inline void from_region_handle(const U64 &region_handle, F32 *x_pos, F32 *y_pos)
 {
-    *x_pos = (F32)((U32)(region_handle >> 32));
-    *y_pos = (F32)((U32)(region_handle & 0xFFFFFFFF));
+    *x_pos = static_cast<F32>(static_cast<U32>(region_handle >> 32));
+    *y_pos = static_cast<F32>(static_cast<U32>(region_handle & 0xFFFFFFFF));
 }
 
 // stuff the word-frame XY location of sim's SouthWest corner in x_pos, y_pos
 inline void from_region_handle(const U64 &region_handle, U32 *x_pos, U32 *y_pos)
 {
-    *x_pos = ((U32)(region_handle >> 32));
-    *y_pos = ((U32)(region_handle & 0xFFFFFFFF));
+    *x_pos = static_cast<U32>(region_handle >> 32);
+    *y_pos = static_cast<U32>(region_handle & 0xFFFFFFFF);
 }
 
 // return the word-frame XY location of sim's SouthWest corner in LLVector3d
 inline LLVector3d from_region_handle(const U64 &region_handle)
 {
-    return LLVector3d(((U32)(region_handle >> 32)), (U32)(region_handle & 0xFFFFFFFF), 0.f);
+    return LLVector3d(static_cast<U32>(region_handle >> 32), static_cast<U32>(region_handle & 0xFFFFFFFF), 0.f);
 }
 
 // grid-based region handle encoding. pass in a grid position

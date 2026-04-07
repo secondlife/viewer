@@ -104,7 +104,7 @@ void LLTexLayerSetBuffer::pushProjection() const
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
     gGL.loadIdentity();
-    gGL.ortho(0.0f, (F32)getCompositeWidth(), 0.0f, (F32)getCompositeHeight(), -1.0f, 1.0f);
+    gGL.ortho(0.0f, static_cast<F32>(getCompositeWidth()), 0.0f, static_cast<F32>(getCompositeHeight()), -1.0f, 1.0f);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
@@ -780,7 +780,7 @@ bool LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
             }
             else
             {
-                param_color = (LLTexLayerParamColor*)wearable->getVisualParam(color_info->getID());
+                param_color = static_cast<LLTexLayerParamColor*>(wearable->getVisualParam(color_info->getID()));
                 if (!param_color)
                 {
                     mInfo = NULL;
@@ -805,7 +805,7 @@ bool LLTexLayerInterface::setInfo(const LLTexLayerInfo *info, LLWearable* wearab
             }
             else
             {
-                param_alpha = (LLTexLayerParamAlpha*) wearable->getVisualParam(alpha_info->getID());
+                param_alpha = static_cast<LLTexLayerParamAlpha*>(wearable->getVisualParam(alpha_info->getID()));
                 if (!param_alpha)
                 {
                     mInfo = NULL;
@@ -830,7 +830,7 @@ const std::string& LLTexLayerInterface::getName() const
 
 ETextureIndex LLTexLayerInterface::getLocalTextureIndex() const
 {
-    return (ETextureIndex) mInfo->mLocalTexture;
+    return static_cast<ETextureIndex>(mInfo->mLocalTexture);
 }
 
 LLWearableType::EType LLTexLayerInterface::getWearableType() const
@@ -844,7 +844,7 @@ LLWearableType::EType LLTexLayerInterface::getWearableType() const
         {
             if (param)
             {
-                LLWearableType::EType new_type = (LLWearableType::EType)param->getWearableType();
+                LLWearableType::EType new_type = static_cast<LLWearableType::EType>(param->getWearableType());
                 if (new_type != LLWearableType::WT_INVALID && new_type != type)
                 {
                     if (type != LLWearableType::WT_INVALID)
@@ -860,7 +860,7 @@ LLWearableType::EType LLTexLayerInterface::getWearableType() const
         {
             if (param)
             {
-                LLWearableType::EType new_type = (LLWearableType::EType)param->getWearableType();
+                LLWearableType::EType new_type = static_cast<LLWearableType::EType>(param->getWearableType());
                 if (new_type != LLWearableType::WT_INVALID && new_type != type)
                 {
                     if (type != LLWearableType::WT_INVALID)
@@ -985,7 +985,7 @@ void LLTexLayer::calculateTexLayerColor(const param_color_list_t &param_list, LL
     for (const LLTexLayerParamColor* param : param_list)
     {
         LLColor4 param_net = param->getNetColor();
-        const LLTexLayerParamColorInfo *info = (LLTexLayerParamColorInfo *)param->getInfo();
+        const LLTexLayerParamColorInfo *info = static_cast<LLTexLayerParamColorInfo *>(param->getInfo());
         switch(info->getOperation())
         {
             case LLTexLayerParamColor::EColorOperation::OP_ADD:
@@ -1401,7 +1401,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
             LL_DEBUGS("Morph") << "gl alpha cache of morph mask not found, doing readback: " << getName() << LL_ENDL;
             // clear out a slot if we have filled our cache
             S32 max_cache_entries = getTexLayerSet()->getAvatarAppearance()->isSelf() ? 4 : 1;
-            while ((S32)mAlphaCache.size() >= max_cache_entries)
+            while (static_cast<S32>(mAlphaCache.size()) >= max_cache_entries)
             {
                 alpha_cache_t::iterator iter2 = mAlphaCache.begin(); // arbitrarily grab the first entry
                 alpha_data = iter2->second;
@@ -1417,11 +1417,11 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
             size_t pixels          = (row_size * height);
             size_t mem_size        = pixels * bytes_per_pixel;
 
-            alpha_data = (U8*)ll_aligned_malloc_32(mem_size);
+            alpha_data = static_cast<U8*>(ll_aligned_malloc_32(mem_size));
             if (!alpha_data)
             {
                 LLError::LLUserWarningMsg::showOutOfMemory();
-                LL_ERRS() << "Failed to allocate memory for morph texture: " << (S32)(mem_size) << LL_ENDL;
+                LL_ERRS() << "Failed to allocate memory for morph texture: " << static_cast<S32>(mem_size) << LL_ENDL;
                 return;
             }
 
@@ -1432,11 +1432,11 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
                 if (gGLManager.mIsIntel)
                 { // work-around for broken intel drivers which cannot do glReadPixels on an RGBA FBO
                   // returning only the alpha portion without locking up downstream
-                    U8* temp = (U8*)ll_aligned_malloc_32(mem_size << 2); // allocate same size, but RGBA
+                    U8* temp = static_cast<U8*>(ll_aligned_malloc_32(mem_size << 2)); // allocate same size, but RGBA
                     if (!temp)
                     {
                         LLError::LLUserWarningMsg::showOutOfMemory();
-                        LL_ERRS() << "Failed to allocate temporary memory for morph texture readback: " << (S32)(mem_size << 2) << LL_ENDL;
+                        LL_ERRS() << "Failed to allocate temporary memory for morph texture readback: " << static_cast<S32>(mem_size << 2) << LL_ENDL;
                         return;
                     }
 
@@ -1474,11 +1474,11 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
                 { // platforms with working drivers...
                     // We just want GL_ALPHA, but that isn't supported in OGL core profile 4.
                     static constexpr size_t TEMP_BYTES_PER_PIXEL = 4;
-                    U8* temp_data = (U8*)ll_aligned_malloc_32(mem_size * TEMP_BYTES_PER_PIXEL);
+                    U8* temp_data = static_cast<U8*>(ll_aligned_malloc_32(mem_size * TEMP_BYTES_PER_PIXEL));
                     if (!temp_data)
                     {
                         LLError::LLUserWarningMsg::showOutOfMemory();
-                        LL_ERRS() << "Failed to allocate temporary memory for morph texture: " << (S32)(mem_size * TEMP_BYTES_PER_PIXEL) << LL_ENDL;
+                        LL_ERRS() << "Failed to allocate temporary memory for morph texture: " << static_cast<S32>(mem_size * TEMP_BYTES_PER_PIXEL) << LL_ENDL;
                         return;
                     }
                     glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, temp_data);
@@ -1525,9 +1525,9 @@ void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32
         {
             U8 curAlpha = data[i];
             U16 resultAlpha = curAlpha;
-            resultAlpha *= ( ((U16)alphaData[i]) + 1);
+            resultAlpha *= ( (static_cast<U16>(alphaData[i])) + 1);
             resultAlpha = resultAlpha >> 8;
-            data[i] = (U8)resultAlpha;
+            data[i] = static_cast<U8>(resultAlpha);
         }
     }
 }
@@ -1779,16 +1779,16 @@ void LLTexLayerSet::cloneTemplates(LLLocalTextureObject *lto, LLAvatarAppearance
     // initialize all texlayers with this texture type for this LTO
     for(LLTexLayerInterface* layer : mLayerList)
     {
-        LLTexLayerTemplate* layer_template = (LLTexLayerTemplate*)layer;
-        if (layer_template->getInfo()->getLocalTexture() == (S32)tex_index)
+        LLTexLayerTemplate* layer_template = static_cast<LLTexLayerTemplate*>(layer);
+        if (layer_template->getInfo()->getLocalTexture() == static_cast<S32>(tex_index))
         {
             lto->addTexLayer(layer_template, wearable);
         }
     }
     for(LLTexLayerInterface* layer : mMaskLayerList)
     {
-        LLTexLayerTemplate* layer_template = (LLTexLayerTemplate*)layer;
-        if (layer_template->getInfo()->getLocalTexture() == (S32)tex_index)
+        LLTexLayerTemplate* layer_template = static_cast<LLTexLayerTemplate*>(layer);
+        if (layer_template->getInfo()->getLocalTexture() == static_cast<S32>(tex_index))
         {
             lto->addTexLayer(layer_template, wearable);
         }

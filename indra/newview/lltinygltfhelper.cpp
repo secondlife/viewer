@@ -138,9 +138,9 @@ void LLTinyGLTFHelper::initFetchedTextures(tinygltf::Material& material,
 LLColor4 LLTinyGLTFHelper::getColor(const std::vector<double>& in)
 {
     LLColor4 out;
-    for (S32 i = 0; i < llmin((S32)in.size(), 4); ++i)
+    for (S32 i = 0; i < llmin(static_cast<S32>(in.size()), 4); ++i)
     {
-        out.mV[i] = (F32)in[i];
+        out.mV[i] = static_cast<F32>(in[i]);
     }
 
     return out;

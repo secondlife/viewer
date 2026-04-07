@@ -54,13 +54,13 @@ std::string U64_to_str(U64 value)
     std::string res;
     U32 part1,part2,part3;
 
-    part3 = (U32)(value % (U64)10000000);
+    part3 = static_cast<U32>(value % static_cast<U64>(10000000));
 
     value /= 10000000;
-    part2 = (U32)(value % (U64)10000000);
+    part2 = static_cast<U32>(value % static_cast<U64>(10000000));
 
     value /= 10000000;
-    part1 = (U32)(value % (U64)10000000);
+    part1 = static_cast<U32>(value % static_cast<U64>(10000000));
 
     // three cases to avoid leading zeroes unless necessary
 
@@ -88,10 +88,10 @@ char* U64_to_str(U64 value, char* result, S32 result_size)
 
 F64 U64_to_F64(const U64 value)
 {
-    S64 top_bits = (S64)(value >> 1);
-    F64 result = (F64)top_bits;
+    S64 top_bits = static_cast<S64>(value >> 1);
+    F64 result = static_cast<F64>(top_bits);
     result *= 2.f;
-    result += (U32)(value & 0x01);
+    result += static_cast<U32>(value & 0x01);
     return result;
 }
 

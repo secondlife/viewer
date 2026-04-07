@@ -83,10 +83,10 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
     S32 top =   llmax(y, mDragStartY);
     S32 bottom =llmin(y, mDragStartY);
 
-    left = ll_round((F32) left * LLUI::getScaleFactor().mV[VX]);
-    right = ll_round((F32) right * LLUI::getScaleFactor().mV[VX]);
-    top = ll_round((F32) top * LLUI::getScaleFactor().mV[VY]);
-    bottom = ll_round((F32) bottom * LLUI::getScaleFactor().mV[VY]);
+    left = ll_round(static_cast<F32>(left) * LLUI::getScaleFactor().mV[VX]);
+    right = ll_round(static_cast<F32>(right) * LLUI::getScaleFactor().mV[VX]);
+    top = ll_round(static_cast<F32>(top) * LLUI::getScaleFactor().mV[VY]);
+    bottom = ll_round(static_cast<F32>(bottom) * LLUI::getScaleFactor().mV[VY]);
 
     F32 old_far_plane = LLViewerCamera::getInstance()->getFar();
     F32 old_near_plane = LLViewerCamera::getInstance()->getNear();
@@ -266,7 +266,7 @@ void LLWind::renderVectors()
             x = mVelX[i + j*mSize] * WIND_SCALE_HACK;
             y = mVelY[i + j*mSize] * WIND_SCALE_HACK;
             gGL.pushMatrix();
-            gGL.translatef((F32)i * region_width_meters/mSize, (F32)j * region_width_meters/mSize, 0.f);
+            gGL.translatef(static_cast<F32>(i) * region_width_meters/mSize, static_cast<F32>(j) * region_width_meters/mSize, 0.f);
             gGL.color3f(0.f, 1.f, 0.f);
             gGL.begin(LLRender::POINTS);
                 gGL.vertex3f(0.f, 0.f, 0.f);
@@ -729,7 +729,7 @@ void LLViewerObjectList::renderObjectBeacons()
             if (line_width != last_line_width)
             {
                 gGL.flush();
-                glLineWidth( (F32)line_width );
+                glLineWidth( static_cast<F32>(line_width) );
                 last_line_width = line_width;
             }
 
@@ -759,7 +759,7 @@ void LLViewerObjectList::renderObjectBeacons()
             if (line_width != last_line_width)
             {
                 gGL.flush();
-                glLineWidth( (F32)line_width );
+                glLineWidth( static_cast<F32>(line_width) );
                 last_line_width = line_width;
             }
 
@@ -782,7 +782,7 @@ void LLViewerObjectList::renderObjectBeacons()
             {
                 continue;
             }
-            LLHUDText *hud_textp = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
+            LLHUDText *hud_textp = static_cast<LLHUDText *>(LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT));
 
             hud_textp->setZCompare(false);
             LLColor4 color;
@@ -930,9 +930,9 @@ F32 shader_timer_benchmark(std::vector<LLRenderTarget> & dest, TextureHolder & t
     F32 ms = gBenchmarkProgram.mTimeElapsed / 1000000.f;
     seconds = ms / 1000.f;
 
-    F64 samples_drawn = (F64)gBenchmarkProgram.mSamplesDrawn;
+    F64 samples_drawn = static_cast<F64>(gBenchmarkProgram.mSamplesDrawn);
     F64 gpixels_drawn = samples_drawn / 1000000000.0;
-    F32 samples_sec = (F32)(gpixels_drawn / seconds);
+    F32 samples_sec = static_cast<F32>(gpixels_drawn / seconds);
     return samples_sec * 4;  // 4 bytes per sample
 }
 
@@ -984,7 +984,7 @@ F32 gpu_benchmark()
 
     for (U32 i = 0; i < res*res*4; ++i)
     {
-        pixels[i] = (U8) ll_rand(255);
+        pixels[i] = static_cast<U8>(ll_rand(255));
     }
 
     gGL.setColorMask(true, true);

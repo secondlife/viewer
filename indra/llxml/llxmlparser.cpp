@@ -94,7 +94,7 @@ bool LLXmlParser::parseFile(const std::string &path)
             goto exit_label;
         }
 
-        bytes_read = (S32)fread(buffer, 1, buffer_size, file);
+        bytes_read = static_cast<S32>(fread(buffer, 1, buffer_size, file));
         if( bytes_read <= 0 )
         {
             mAuxErrorString = llformat( "Error while reading file  %s", path.c_str() );
@@ -165,7 +165,7 @@ void LLXmlParser::startElementHandler(
      const XML_Char *name,
      const XML_Char **atts)
 {
-    LLXmlParser* self = (LLXmlParser*) userData;
+    auto* self = static_cast<LLXmlParser*>(userData);
     self->startElement( name, atts );
     self->mDepth++;
 }
@@ -175,7 +175,7 @@ void LLXmlParser::endElementHandler(
     void *userData,
     const XML_Char *name)
 {
-    LLXmlParser* self = (LLXmlParser*) userData;
+    auto* self = static_cast<LLXmlParser*>(userData);
     self->mDepth--;
     self->endElement( name );
 }
@@ -187,7 +187,7 @@ void LLXmlParser::characterDataHandler(
     const XML_Char *s,
     int len)
 {
-    LLXmlParser* self = (LLXmlParser*) userData;
+    auto* self = static_cast<LLXmlParser*>(userData);
     self->characterData( s, len );
 }
 
@@ -198,7 +198,7 @@ void LLXmlParser::processingInstructionHandler(
     const XML_Char *target,
     const XML_Char *data)
 {
-    LLXmlParser* self = (LLXmlParser*) userData;
+    auto* self = static_cast<LLXmlParser*>(userData);
     self->processingInstruction( target, data );
 }
 
@@ -206,14 +206,14 @@ void LLXmlParser::processingInstructionHandler(
 // static
 void LLXmlParser::commentHandler(void *userData, const XML_Char *data)
 {
-    LLXmlParser* self = (LLXmlParser*) userData;
+    auto* self = static_cast<LLXmlParser*>(userData);
     self->comment( data );
 }
 
 // static
 void LLXmlParser::startCdataSectionHandler(void *userData)
 {
-    LLXmlParser* self = (LLXmlParser*) userData;
+    auto* self = static_cast<LLXmlParser*>(userData);
     self->mDepth++;
     self->startCdataSection();
 }
@@ -221,7 +221,7 @@ void LLXmlParser::startCdataSectionHandler(void *userData)
 // static
 void LLXmlParser::endCdataSectionHandler(void *userData)
 {
-    LLXmlParser* self = (LLXmlParser*) userData;
+    auto* self = static_cast<LLXmlParser*>(userData);
     self->endCdataSection();
     self->mDepth++;
 }
@@ -245,7 +245,7 @@ void LLXmlParser::defaultDataHandler(
     const XML_Char *s,
     int len)
 {
-    LLXmlParser* self = (LLXmlParser*) userData;
+    auto* self = static_cast<LLXmlParser*>(userData);
     self->defaultData( s, len );
 }
 
@@ -262,7 +262,7 @@ void LLXmlParser::unparsedEntityDeclHandler(
     const XML_Char *publicId,
     const XML_Char *notationName)
 {
-    LLXmlParser* self = (LLXmlParser*) userData;
+    auto* self = static_cast<LLXmlParser*>(userData);
     self->unparsedEntityDecl( entityName, base, systemId, publicId, notationName );
 }
 

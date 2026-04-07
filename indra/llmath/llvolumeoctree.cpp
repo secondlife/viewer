@@ -110,7 +110,7 @@ LLOctreeTriangleRayIntersect::LLOctreeTriangleRayIntersect(const LLVector4a& sta
 
 void LLOctreeTriangleRayIntersect::traverse(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* node)
 {
-    LLVolumeOctreeListener* vl = (LLVolumeOctreeListener*) node->getListener(0);
+    LLVolumeOctreeListener* vl = static_cast<LLVolumeOctreeListener*>(node->getListener(0));
 
     if (LLLineSegmentBoxIntersect(mStart, mEnd, vl->mBounds[0], vl->mBounds[1]))
     {
@@ -221,7 +221,7 @@ const F32& LLVolumeTriangle::getBinRadius() const
 
 void LLVolumeOctreeValidate::visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch)
 {
-    LLVolumeOctreeListener* node = (LLVolumeOctreeListener*) branch->getListener(0);
+    LLVolumeOctreeListener* node = static_cast<LLVolumeOctreeListener*>(branch->getListener(0));
 
     //make sure bounds matches extents
     LLVector4a& min = node->mExtents[0];
@@ -245,7 +245,7 @@ void LLVolumeOctreeValidate::visit(const LLOctreeNode<LLVolumeTriangle, LLVolume
 
     for (U32 i = 0; i < branch->getChildCount(); ++i)
     {
-        LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
+        LLVolumeOctreeListener* child = static_cast<LLVolumeOctreeListener*>(branch->getChild(i)->getListener(0));
 
         //make sure all children fit inside this node
         if (child->mExtents[0].lessThan(test_min).areAnySet(LLVector4Logical::MASK_XYZ) ||

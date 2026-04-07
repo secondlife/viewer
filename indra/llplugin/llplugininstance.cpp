@@ -107,7 +107,7 @@ int LLPluginInstance::load(const std::string& plugin_dir, std::string &plugin_fi
 
     if(result == APR_SUCCESS)
     {
-        result = apr_dso_sym((apr_dso_handle_sym_t*)&init_function,
+        result = apr_dso_sym(reinterpret_cast<apr_dso_handle_sym_t*>(&init_function),
                          mDSOHandle,
                          PLUGIN_INIT_FUNCTION_NAME);
 
@@ -119,7 +119,7 @@ int LLPluginInstance::load(const std::string& plugin_dir, std::string &plugin_fi
 
     if(result == APR_SUCCESS)
     {
-        result = init_function(staticReceiveMessage, (void*)this, &mPluginSendMessageFunction, &mPluginUserData);
+        result = init_function(staticReceiveMessage, reinterpret_cast<void*>(this), &mPluginSendMessageFunction, &mPluginUserData);
 
         if(result != APR_SUCCESS)
         {

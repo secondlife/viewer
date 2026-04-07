@@ -65,8 +65,8 @@ LLReliablePacket::LLReliablePacket(
         mMessageName = NULL;
     }
 
-    mExpirationTime = (F64Seconds)totalTime() + mTimeout;
-    mPacketID = ntohl(*((U32*)(&buf_ptr[static_cast<S32>(EPacketHeaderLayout::PHL_PACKET_ID)])));
+    mExpirationTime = static_cast<F64Seconds>(totalTime()) + mTimeout;
+    mPacketID = ntohl(*reinterpret_cast<U32*>(&buf_ptr[static_cast<S32>(EPacketHeaderLayout::PHL_PACKET_ID)]));
 
     mSocket = socket;
     if (mRetries)

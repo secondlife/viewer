@@ -404,7 +404,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
     LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
     if (region)
     {
-        S32 max_tasks_per_region = (S32)region->getMaxTasks();
+        S32 max_tasks_per_region = static_cast<S32>(region->getMaxTasks());
         mParcelSupportedObjects = llmin(mParcelSupportedObjects, max_tasks_per_region);
     }
 
@@ -413,7 +413,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
     LLVector3 center = parcel->getCenterpoint();
     mParcelLocation = llformat("%s %d,%d",
                 mRegion->getName().c_str(),
-                (int)center[VX], (int)center[VY]
+                static_cast<int>(center[VX]), static_cast<int>(center[VY])
                 );
 
     mParcelSnapshot = parcel->getSnapshotID();
@@ -993,7 +993,7 @@ void LLFloaterBuyLandUI::refreshUI()
             F32 cost_per_sqm = 0.0f;
             if (mParcelActualArea > 0)
             {
-                cost_per_sqm = (F32)mParcelPrice / (F32)mParcelActualArea;
+                cost_per_sqm = static_cast<F32>(mParcelPrice) / static_cast<F32>(mParcelActualArea);
             }
 
             LLStringUtil::format_map_t info_price_args;
@@ -1170,7 +1170,7 @@ void LLFloaterBuyLandUI::refreshUI()
     S32 finalBalance = mAgentCashBalance + mCurrency.getAmount() - mParcelPrice;
     bool willHaveEnough = finalBalance >= 0;
     bool haveEnough = mAgentCashBalance >= mParcelPrice;
-    S32 minContribution = llceil((F32)mParcelBillableArea / GROUP_LAND_BONUS_FACTOR);
+    S32 minContribution = llceil(static_cast<F32>(mParcelBillableArea) / GROUP_LAND_BONUS_FACTOR);
     bool groupContributionEnough = mParcelGroupContribution >= minContribution;
 
     mCurrency.updateUI(!showingError  &&  !haveEnough);
