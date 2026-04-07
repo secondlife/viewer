@@ -39,7 +39,15 @@ class LLQuaternion;
 
 static constexpr U32 LENGTHOFVECTOR2 = 2;
 
-class LLVector2
+// alignas(8) ensures LLVector2 has the same alignment as glm::vec2 under
+// GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1. This is a prerequisite for the
+// LLVector2 → glm::vec2 migration of vertex pipeline / LLStrider code:
+// without it, reinterpret_cast<LLVector2*>(...) sites in the texture
+// coord allocation paths could land at 4-byte-aligned addresses where
+// glm::vec2 (8-byte aligned) would be UB. With alignas(8) on LLVector2,
+// every existing LLVector2 storage site is automatically 8-byte aligned,
+// so eventual replacement with glm::vec2 is guaranteed safe.
+class alignas(8) LLVector2
 {
     public:
         F32 mV[LENGTHOFVECTOR2];
@@ -104,6 +112,8 @@ class LLVector2
 static_assert(std::is_trivially_copyable<LLVector2>::value, "LLVector2 must be trivial copy");
 static_assert(std::is_trivially_move_assignable<LLVector2>::value, "LLVector2 must be trivial move");
 static_assert(std::is_standard_layout<LLVector2>::value, "LLVector2 must be a standard layout type");
+static_assert(sizeof(LLVector2) == 8, "LLVector2 must be 8 bytes (2 floats)");
+static_assert(alignof(LLVector2) == 8, "LLVector2 must be 8-byte aligned for glm::vec2 compat");
 
 // Non-member functions
 
