@@ -129,12 +129,12 @@ void LLGLTFMaterial::writeToTexture(tinygltf::Model& model, T& texture_info, con
     {
         tinygltf::Value::Object transform_map;
         transform_map[GLTF_FILE_EXTENSION_TRANSFORM_OFFSET] = tinygltf::Value(tinygltf::Value::Array({
-            tinygltf::Value(transform.mOffset.mV[VX]),
-            tinygltf::Value(transform.mOffset.mV[VY])
+            tinygltf::Value(transform.mOffset.x),
+            tinygltf::Value(transform.mOffset.y)
         }));
         transform_map[GLTF_FILE_EXTENSION_TRANSFORM_SCALE] = tinygltf::Value(tinygltf::Value::Array({
-            tinygltf::Value(transform.mScale.mV[VX]),
-            tinygltf::Value(transform.mScale.mV[VY])
+            tinygltf::Value(transform.mScale.x),
+            tinygltf::Value(transform.mScale.y)
         }));
         transform_map[GLTF_FILE_EXTENSION_TRANSFORM_ROTATION] = tinygltf::Value(transform.mRotation);
         texture_info.extensions[GLTF_FILE_EXTENSION_TRANSFORM] = tinygltf::Value(transform_map);

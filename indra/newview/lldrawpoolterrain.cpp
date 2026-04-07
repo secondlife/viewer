@@ -472,8 +472,8 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
         // RenderTerrainPBRScale into the KHR_texture_transform. This only
         // works if the scale is uniform and no other transforms are
         // applied to the terrain UVs.
-        transform.mScale.mV[VX] *= sPBRDetailScale;
-        transform.mScale.mV[VY] *= sPBRDetailScale;
+        transform.mScale.x *= sPBRDetailScale;
+        transform.mScale.y *= sPBRDetailScale;
 
         transform.getPackedTight(transforms_packed[i]);
     }

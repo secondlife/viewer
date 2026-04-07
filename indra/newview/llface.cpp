@@ -1010,8 +1010,8 @@ F32 dot_product(const LLVector3& a, const LLVector3& b)
 
 bool LLFace::calcAlignedPlanarGLTF(
     const LLFace* align_to,
-    LLVector2* res_st_offset,
-    LLVector2* res_st_scale,
+    glm::vec2* res_st_offset,
+    glm::vec2* res_st_scale,
     F32* res_st_rot,
     S32 gltf_info_index) const
 {
@@ -1070,18 +1070,18 @@ bool LLFace::calcAlignedPlanarGLTF(
     LLVector3 st_scale(map_scaleS, map_scaleT, 1.f);
     st_scale *= orig_proj_scale;
     centers_dist.scaleVec(st_scale);
-    LLVector2 orig_st_offset(map_offsS, map_offsT);
+    glm::vec2 orig_st_offset(map_offsS, map_offsT);
 
-    LLVector2 tex_res_st_offset = orig_st_offset + static_cast<LLVector2>(centers_dist);
-    tex_res_st_offset.mV[VX] -= static_cast<S32>(tex_res_st_offset.mV[VX]);
-    tex_res_st_offset.mV[VY] -= static_cast<S32>(tex_res_st_offset.mV[VY]);
+    glm::vec2 tex_res_st_offset = orig_st_offset + glm::vec2(centers_dist.mV[VX], centers_dist.mV[VY]);
+    tex_res_st_offset.x -= static_cast<S32>(tex_res_st_offset.x);
+    tex_res_st_offset.y -= static_cast<S32>(tex_res_st_offset.y);
 
     st_scale /= this_proj_scale;
 
     // Convert aligned legacy TE transform back to GLTF transform
     LLGLTFMaterial::convertTextureTransformToPBR(
         st_scale.mV[0], st_scale.mV[1],
-        tex_res_st_offset.mV[0], tex_res_st_offset.mV[1],
+        tex_res_st_offset.x, tex_res_st_offset.y,
         z_ang,
         *res_st_scale, *res_st_offset, *res_st_rot);
 

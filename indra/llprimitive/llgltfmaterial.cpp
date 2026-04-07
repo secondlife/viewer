@@ -30,6 +30,9 @@
 #include "llgltfmaterial.h"
 
 #include "llsdserialize.h"
+#include "llsdutil_math.h"
+
+#include "glm/glm.hpp"
 
 // NOTE -- this should be the one and only place tiny_gltf.h is included
 #include "tinygltf/tiny_gltf.h"
@@ -68,9 +71,9 @@ LLGLTFMaterial::LLGLTFMaterial()
     mAlphaCutoff = 0.5f;
     for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
     {
-        mTextureTransform[i].mScale.set(1.f, 1.f);
+        mTextureTransform[i].mScale = glm::vec2(1.f, 1.f);
 #if 0
-        mTextureTransform[i].mOffset.clear();
+        mTextureTransform[i].mOffset = glm::vec2(0.f, 0.f);
         mTextureTransform[i].mRotation = 0.f;
 #endif
     }
@@ -83,22 +86,22 @@ LLGLTFMaterial::LLGLTFMaterial()
 
 void LLGLTFMaterial::TextureTransform::getPacked(Pack& packed) const
 {
-    packed[0] = mScale.mV[VX];
-    packed[1] = mScale.mV[VY];
+    packed[0] = mScale.x;
+    packed[1] = mScale.y;
     packed[2] = mRotation;
-    packed[4] = mOffset.mV[VX];
-    packed[5] = mOffset.mV[VY];
+    packed[4] = mOffset.x;
+    packed[5] = mOffset.y;
     // Not used but nonetheless zeroed for proper hashing. HB
     packed[3] = packed[6] = packed[7] = 0.f;
 }
 
 void LLGLTFMaterial::TextureTransform::getPackedTight(PackTight& packed) const
 {
-    packed[0] = mScale.mV[VX];
-    packed[1] = mScale.mV[VY];
+    packed[0] = mScale.x;
+    packed[1] = mScale.y;
     packed[2] = mRotation;
-    packed[3] = mOffset.mV[VX];
-    packed[4] = mOffset.mV[VY];
+    packed[3] = mOffset.x;
+    packed[4] = mOffset.y;
 }
 
 bool LLGLTFMaterial::TextureTransform::operator==(const TextureTransform& other) const
@@ -262,7 +265,7 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
 }
 
 // static
-LLVector2 LLGLTFMaterial::vec2FromJson(const tinygltf::Value::Object& object, const char* key, const LLVector2& default_value)
+glm::vec2 LLGLTFMaterial::vec2FromJson(const tinygltf::Value::Object& object, const char* key, const glm::vec2& default_value)
 {
     const auto it = object.find(key);
     if (it == object.end())
@@ -274,7 +277,7 @@ LLVector2 LLGLTFMaterial::vec2FromJson(const tinygltf::Value::Object& object, co
     {
         return default_value;
     }
-    LLVector2 value;
+    glm::vec2 value(0.f);
     for (U32 i = 0; i < LENGTHOFVECTOR2; ++i)
     {
         const tinygltf::Value& real_json = vec2_json.Get(i);
@@ -282,7 +285,7 @@ LLVector2 LLGLTFMaterial::vec2FromJson(const tinygltf::Value::Object& object, co
         {
             return default_value;
         }
-        value.mV[i] = static_cast<F32>(real_json.Get<double>());
+        value[i] = static_cast<F32>(real_json.Get<double>());
     }
     return value;
 }
@@ -520,12 +523,12 @@ void LLGLTFMaterial::setDoubleSided(bool double_sided, bool for_override)
     mOverrideDoubleSided = for_override && mDoubleSided == getDefaultDoubleSided();
 }
 
-void LLGLTFMaterial::setTextureOffset(TextureInfo texture_info, const LLVector2& offset)
+void LLGLTFMaterial::setTextureOffset(TextureInfo texture_info, const glm::vec2& offset)
 {
     mTextureTransform[texture_info].mOffset = offset;
 }
 
-void LLGLTFMaterial::setTextureScale(TextureInfo texture_info, const LLVector2& scale)
+void LLGLTFMaterial::setTextureScale(TextureInfo texture_info, const glm::vec2& scale)
 {
     mTextureTransform[texture_info].mScale = scale;
 }
@@ -575,12 +578,12 @@ bool LLGLTFMaterial::getDefaultDoubleSided()
     return sDefault.mDoubleSided;
 }
 
-LLVector2 LLGLTFMaterial::getDefaultTextureOffset()
+glm::vec2 LLGLTFMaterial::getDefaultTextureOffset()
 {
     return sDefault.mTextureTransform[0].mOffset;
 }
 
-LLVector2 LLGLTFMaterial::getDefaultTextureScale()
+glm::vec2 LLGLTFMaterial::getDefaultTextureScale()
 {
     return sDefault.mTextureTransform[0].mScale;
 }
@@ -734,12 +737,12 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
     {
         if (override_mat.mTextureTransform[i].mOffset != getDefaultTextureOffset())
         {
-            data["ti"][i]["o"] = override_mat.mTextureTransform[i].mOffset.getValue();
+            data["ti"][i]["o"] = ll_sd_from_vec2(override_mat.mTextureTransform[i].mOffset);
         }
 
         if (override_mat.mTextureTransform[i].mScale != getDefaultTextureScale())
         {
-            data["ti"][i]["s"] = override_mat.mTextureTransform[i].mScale.getValue();
+            data["ti"][i]["s"] = ll_sd_from_vec2(override_mat.mTextureTransform[i].mScale);
         }
 
         if (override_mat.mTextureTransform[i].mRotation != getDefaultTextureRotation())
@@ -839,13 +842,13 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
             const LLSD& o = ti[i]["o"];
             if (o.isDefined())
             {
-                mTextureTransform[i].mOffset.setValue(o);
+                mTextureTransform[i].mOffset = ll_vec2_from_sd(o);
             }
 
             const LLSD& s = ti[i]["s"];
             if (s.isDefined())
             {
-                mTextureTransform[i].mScale.setValue(s);
+                mTextureTransform[i].mScale = ll_vec2_from_sd(s);
             }
 
             const LLSD& r = ti[i]["r"];
@@ -946,11 +949,11 @@ void LLGLTFMaterial::convertTextureTransformToPBR(
     F32 tex_offset_s,
     F32 tex_offset_t,
     F32 tex_rotation,
-    LLVector2& pbr_scale,
-    LLVector2& pbr_offset,
+    glm::vec2& pbr_scale,
+    glm::vec2& pbr_offset,
     F32& pbr_rotation)
 {
-    pbr_scale.set(tex_scale_s, tex_scale_t);
+    pbr_scale = glm::vec2(tex_scale_s, tex_scale_t);
     pbr_rotation = -tex_rotation;
 
     // Center of the tile
@@ -972,14 +975,14 @@ void LLGLTFMaterial::convertTextureTransformToPBR(
     F32 rot_t = -pos_s * s + pos_t * c;
 
     // 4. Move back to top-left and apply offset
-    pbr_offset.set(rot_s + center_s + tex_offset_s, rot_t + center_t - tex_offset_t);
+    pbr_offset = glm::vec2(rot_s + center_s + tex_offset_s, rot_t + center_t - tex_offset_t);
 }
 
 // Convert PBR transform values back to legacy TE transform values.
 // This is the reverse of convertTextureTransformToPBR.
 void LLGLTFMaterial::convertPBRTransformToTexture(
-    const LLVector2& pbr_scale,
-    const LLVector2& pbr_offset,
+    const glm::vec2& pbr_scale,
+    const glm::vec2& pbr_offset,
     F32 pbr_rotation,
     F32& tex_scale_s,
     F32& tex_scale_t,
@@ -987,8 +990,8 @@ void LLGLTFMaterial::convertPBRTransformToTexture(
     F32& tex_offset_t,
     F32& tex_rotation)
 {
-    tex_scale_s = pbr_scale.mV[0];
-    tex_scale_t = pbr_scale.mV[1];
+    tex_scale_s = pbr_scale.x;
+    tex_scale_t = pbr_scale.y;
     tex_rotation = -pbr_rotation;
 
     // Center of the tile
@@ -1010,6 +1013,6 @@ void LLGLTFMaterial::convertPBRTransformToTexture(
     F32 rot_t = -pos_s * s + pos_t * c;
 
     // 3. Recover legacy offset
-    tex_offset_s = pbr_offset.mV[0] - rot_s - center_s;
-    tex_offset_t = -(pbr_offset.mV[1] - rot_t - center_t);
+    tex_offset_s = pbr_offset.x - rot_s - center_s;
+    tex_offset_t = -(pbr_offset.y - rot_t - center_t);
 }

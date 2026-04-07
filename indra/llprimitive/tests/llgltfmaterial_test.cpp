@@ -77,10 +77,10 @@ namespace tut
     void apply_test_material_texture_transforms(LLGLTFMaterial& material)
     {
         LLGLTFMaterial::TextureTransform test_transform;
-        test_transform.mOffset.mV[VX] = test_fraction;
-        test_transform.mOffset.mV[VY] = test_fraction;
-        test_transform.mScale.mV[VX] = test_fraction;
-        test_transform.mScale.mV[VY] = test_fraction;
+        test_transform.mOffset.x = test_fraction;
+        test_transform.mOffset.y = test_fraction;
+        test_transform.mScale.x = test_fraction;
+        test_transform.mScale.y = test_fraction;
         test_transform.mRotation = test_fraction;
         for (LLGLTFMaterial::TextureInfo i = LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; i = LLGLTFMaterial::TextureInfo((U32)i + 1))
         {
@@ -145,7 +145,8 @@ namespace tut
 #if LL_WINDOWS
         // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
         // This test result will vary between compilers, so only test a single platform
-        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 232);
+        // NOTE: grew from 232 -> 248 when LLVector2 members were migrated to glm::vec2 (8-byte aligned due to GLM_FORCE_DEFAULT_ALIGNED_GENTYPES), adding 4 bytes of tail padding per TextureTransform
+        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 248);
 #endif
 #endif
         ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 4);
@@ -197,10 +198,10 @@ namespace tut
     {
         LLGLTFMaterial material;
         LLGLTFMaterial::TextureTransform& transform = material.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR];
-        transform.mOffset[VX] = 1.f;
-        transform.mOffset[VY] = 2.f;
-        transform.mScale[VX] = 0.05f;
-        transform.mScale[VY] = 100.f;
+        transform.mOffset.x = 1.f;
+        transform.mOffset.y = 2.f;
+        transform.mScale.x = 0.05f;
+        transform.mScale.y = 100.f;
         transform.mRotation = 1.571f;
         ensure_gltf_material_serialize("material with transform", material);
     }

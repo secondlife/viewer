@@ -45,6 +45,8 @@
 #include "llmaterial.h"
 #include "lluicolor.h"
 
+#include "glm/vec2.hpp"
+
 #include <deque>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/signals2.hpp>
@@ -245,8 +247,8 @@ public:
     gltf_materials_vec_t mSavedGLTFOverrideMaterials;
     std::vector<LLVector3>  mTextureScaleRatios;
     std::vector< std::vector<LLVector3> >  mGLTFScaleRatios;
-    std::vector< std::vector<LLVector2> >  mGLTFScales;
-    std::vector< std::vector<LLVector2> >  mGLTFOffsets;
+    std::vector< std::vector<glm::vec2> >  mGLTFScales;
+    std::vector< std::vector<glm::vec2> >  mGLTFOffsets;
     std::vector<LLVector3>  mSilhouetteVertices;    // array of vertices to render silhouette of object
     std::vector<LLVector3>  mSilhouetteNormals; // array of normals to render silhouette of object
     bool                    mSilhouetteExists;  // need to generate silhouette?

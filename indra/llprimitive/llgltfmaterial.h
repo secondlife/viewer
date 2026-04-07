@@ -34,6 +34,8 @@
 #include "lluuid.h"
 #include "hbxxh.h"
 
+#include "glm/vec2.hpp"
+
 #include <array>
 #include <string>
 #include <map>
@@ -64,8 +66,8 @@ public:
 
     struct TextureTransform
     {
-        LLVector2 mOffset = { 0.f, 0.f };
-        LLVector2 mScale = { 1.f, 1.f };
+        glm::vec2 mOffset = { 0.f, 0.f };
+        glm::vec2 mScale = { 1.f, 1.f };
         F32 mRotation = 0.f;
 
         static constexpr size_t PACK_SIZE = 8;
@@ -138,8 +140,8 @@ public:
 
     // *NOTE: texture offsets only exist in overrides, so "for_override" is not needed
 
-    void setTextureOffset(TextureInfo texture_info, const LLVector2& offset);
-    void setTextureScale(TextureInfo texture_info, const LLVector2& scale);
+    void setTextureOffset(TextureInfo texture_info, const glm::vec2& offset);
+    void setTextureScale(TextureInfo texture_info, const glm::vec2& scale);
     void setTextureRotation(TextureInfo texture_info, float rotation);
 
     // Default value accessors
@@ -150,8 +152,8 @@ public:
     static LLColor4 getDefaultBaseColor();
     static LLColor3 getDefaultEmissiveColor();
     static bool getDefaultDoubleSided();
-    static LLVector2 getDefaultTextureOffset();
-    static LLVector2 getDefaultTextureScale();
+    static glm::vec2 getDefaultTextureOffset();
+    static glm::vec2 getDefaultTextureScale();
     static F32 getDefaultTextureRotation();
 
     static void hackOverrideUUID(LLUUID& id);
@@ -219,19 +221,19 @@ public:
     static void convertTextureTransformToPBR(F32 tex_scale_s, F32 tex_scale_t,
                                              F32 tex_offset_s, F32 tex_offset_t,
                                              F32 tex_rotation,
-                                             LLVector2& pbr_scale,
-                                             LLVector2& pbr_offset,
+                                             glm::vec2& pbr_scale,
+                                             glm::vec2& pbr_offset,
                                              F32& pbr_rotation);
 
     // Convert PBR transform values to legacy TE transform values.
-    static void convertPBRTransformToTexture(const LLVector2& pbr_scale,
-                                             const LLVector2& pbr_offset,
+    static void convertPBRTransformToTexture(const glm::vec2& pbr_scale,
+                                             const glm::vec2& pbr_offset,
                                              F32 pbr_rotation,
                                              F32& tex_scale_s, F32& tex_scale_t,
                                              F32& tex_offset_s, F32& tex_offset_t,
                                              F32& tex_rotation);
 protected:
-    static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
+    static glm::vec2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const glm::vec2& default_value);
     static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);
 
     template<typename T>
