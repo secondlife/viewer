@@ -42,6 +42,7 @@
 #include "llglheaders.h"
 #include "llmatrix4a.h"
 #include "glm/mat4x4.hpp"
+#include "glm/vec2.hpp"
 #include <boost/align/aligned_allocator.hpp>
 
 #include <array>
@@ -448,7 +449,7 @@ public:
     static U32 sUIVerts;
     static bool sGLCoreProfile;
     static bool sNsightDebugSupport;
-    static LLVector2 sUIGLScaleFactor;
+    static glm::vec2 sUIGLScaleFactor;
     static bool sClassicMode; // classic sky mode active
 
 private:

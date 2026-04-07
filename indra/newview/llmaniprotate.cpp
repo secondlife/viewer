@@ -1194,7 +1194,7 @@ bool LLManipRotate::updateVisiblity()
     bool visible = false;
 
     //Assume that UI scale factor is equivalent for X and Y axis
-    F32 ui_scale_factor = LLUI::getScaleFactor().mV[VX];
+    F32 ui_scale_factor = LLUI::getScaleFactor().x;
 
     LLVector3 center = gAgent.getPosAgentFromGlobal( mRotationCenter );
     if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)

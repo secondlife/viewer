@@ -1971,7 +1971,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
     mDisplayScale.set(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
     mDisplayScale *= ui_scale_factor;
-    LLUI::setScaleFactor(mDisplayScale);
+    LLUI::setScaleFactor(glm::vec2(mDisplayScale.mV[VX], mDisplayScale.mV[VY]));
     LLFontGL::sResolutionGeneration++;
 
     {
@@ -2536,8 +2536,9 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
         calcDisplayScale();
 
-        bool display_scale_changed = mDisplayScale != LLUI::getScaleFactor();
-        LLUI::setScaleFactor(mDisplayScale);
+        glm::vec2 new_scale(mDisplayScale.mV[VX], mDisplayScale.mV[VY]);
+        bool display_scale_changed = new_scale != LLUI::getScaleFactor();
+        LLUI::setScaleFactor(new_scale);
         LLFontGL::sResolutionGeneration++;
 
         // update our window rectangle
@@ -2754,7 +2755,7 @@ void LLViewerWindow::draw()
         // scale view by UI global scale factor and aspect ratio correction factor
         gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
 
-        LLVector2 old_scale_factor = LLUI::getScaleFactor();
+        glm::vec2 old_scale_factor = LLUI::getScaleFactor();
         // apply camera zoom transform (for high res screenshots)
         F32 zoom_factor = LLViewerCamera::getInstance()->getZoomFactor();
         S16 sub_region = LLViewerCamera::getInstance()->getZoomSubRegion();
@@ -3913,8 +3914,8 @@ void LLViewerWindow::updateMouseDelta()
     S32 dx = delta.mX;
     S32 dy = delta.mY;
 #else
-    S32 dx = lltrunc(static_cast<F32>(mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::getScaleFactor().mV[VX]);
-    S32 dy = lltrunc(static_cast<F32>(mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::getScaleFactor().mV[VY]);
+    S32 dx = lltrunc(static_cast<F32>(mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::getScaleFactor().x);
+    S32 dy = lltrunc(static_cast<F32>(mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::getScaleFactor().y);
 #endif
 
     //RN: fix for asynchronous notification of mouse leaving window not working

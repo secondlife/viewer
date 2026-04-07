@@ -3113,7 +3113,7 @@ void LLTextEditor::markAsPreedit(S32 position, S32 length)
 
 S32 LLTextEditor::getPreeditFontSize() const
 {
-    return ll_round(static_cast<F32>(mFont->getLineHeight()) * LLUI::getScaleFactor().mV[VY]);
+    return ll_round(static_cast<F32>(mFont->getLineHeight()) * LLUI::getScaleFactor().y);
 }
 
 bool LLTextEditor::isDirty() const

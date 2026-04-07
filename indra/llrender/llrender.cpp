@@ -69,7 +69,7 @@ U32 LLRender::sUIVerts = 0;
 U32 LLTexUnit::sWhiteTexture = 0;
 bool LLRender::sGLCoreProfile = false;
 bool LLRender::sNsightDebugSupport = false;
-LLVector2 LLRender::sUIGLScaleFactor = LLVector2(1.f, 1.f);
+glm::vec2 LLRender::sUIGLScaleFactor = glm::vec2(1.f, 1.f);
 bool LLRender::sClassicMode = false;
 
 struct LLVBCache

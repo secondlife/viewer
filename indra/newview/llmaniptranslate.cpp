@@ -1733,7 +1733,7 @@ void LLManipTranslate::renderTranslationHandles()
         }
     }
     //Assume that UI scale factor is equivalent for X and Y axis
-    F32 ui_scale_factor = LLUI::getScaleFactor().mV[VX];
+    F32 ui_scale_factor = LLUI::getScaleFactor().x;
     mArrowLengthMeters *= ui_scale_factor;
 
     mPlaneManipOffsetMeters = mArrowLengthMeters * 1.8f;

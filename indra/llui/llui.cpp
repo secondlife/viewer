@@ -214,8 +214,8 @@ void LLUI::setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t& rem
 
 void LLUI::setMousePositionScreen(S32 x, S32 y)
 {
-    S32 screen_x = ll_round(static_cast<F32>(x) * getScaleFactor().mV[VX]);
-    S32 screen_y = ll_round(static_cast<F32>(y) * getScaleFactor().mV[VY]);
+    S32 screen_x = ll_round(static_cast<F32>(x) * getScaleFactor().x);
+    S32 screen_y = ll_round(static_cast<F32>(y) * getScaleFactor().y);
 
     LLView::getWindow()->setCursorPosition(LLCoordGL(screen_x, screen_y).convert());
 }
@@ -225,8 +225,8 @@ void LLUI::getMousePositionScreen(S32 *x, S32 *y) const
     LLCoordWindow cursor_pos_window;
     getWindow()->getCursorPosition(&cursor_pos_window);
     LLCoordGL cursor_pos_gl(cursor_pos_window.convert());
-    *x = ll_round(static_cast<F32>(cursor_pos_gl.mX) / getScaleFactor().mV[VX]);
-    *y = ll_round(static_cast<F32>(cursor_pos_gl.mY) / getScaleFactor().mV[VY]);
+    *x = ll_round(static_cast<F32>(cursor_pos_gl.mX) / getScaleFactor().x);
+    *y = ll_round(static_cast<F32>(cursor_pos_gl.mY) / getScaleFactor().y);
 }
 
 void LLUI::setMousePositionLocal(const LLView* viewp, S32 x, S32 y)
@@ -338,24 +338,24 @@ std::string LLUI::locateSkin(const std::string& filename)
     return "";
 }
 
-LLVector2 LLUI::getWindowSize() const
+glm::vec2 LLUI::getWindowSize() const
 {
     LLCoordWindow window_rect;
     mWindow->getSize(&window_rect);
 
-    return {window_rect.mX / getScaleFactor().mV[VX], window_rect.mY / getScaleFactor().mV[VY]};
+    return {window_rect.mX / getScaleFactor().x, window_rect.mY / getScaleFactor().y};
 }
 
 void LLUI::screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y)
 {
-    *gl_x = ll_round(static_cast<F32>(screen_x) * getScaleFactor().mV[VX]);
-    *gl_y = ll_round(static_cast<F32>(screen_y) * getScaleFactor().mV[VY]);
+    *gl_x = ll_round(static_cast<F32>(screen_x) * getScaleFactor().x);
+    *gl_y = ll_round(static_cast<F32>(screen_y) * getScaleFactor().y);
 }
 
 void LLUI::glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y)
 {
-    *screen_x = ll_round(static_cast<F32>(gl_x) / getScaleFactor().mV[VX]);
-    *screen_y = ll_round(static_cast<F32>(gl_y) / getScaleFactor().mV[VY]);
+    *screen_x = ll_round(static_cast<F32>(gl_x) / getScaleFactor().x);
+    *screen_y = ll_round(static_cast<F32>(gl_y) / getScaleFactor().y);
 }
 
 void LLUI::screenRectToGL(const LLRect& screen, LLRect *gl)
@@ -501,13 +501,13 @@ const LLView* LLUI::resolvePath(const LLView* context, const std::string& path) 
 }
 
 //static
-LLVector2& LLUI::getScaleFactor()
+glm::vec2& LLUI::getScaleFactor()
 {
     return LLRender::sUIGLScaleFactor;
 }
 
 //static
-void LLUI::setScaleFactor(const LLVector2& scale_factor)
+void LLUI::setScaleFactor(const glm::vec2& scale_factor)
 {
     LLRender::sUIGLScaleFactor = scale_factor;
 }

@@ -231,7 +231,7 @@ void LLManipScale::render()
         const F32 BOX_HANDLE_BASE_FACTOR    = 0.2f;
 
         //Assume that UI scale factor is equivalent for X and Y axis
-        F32 ui_scale_factor = LLUI::getScaleFactor().mV[VX];
+        F32 ui_scale_factor = LLUI::getScaleFactor().x;
 
         if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
         {

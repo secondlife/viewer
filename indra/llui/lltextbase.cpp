@@ -721,8 +721,8 @@ void LLTextBase::drawCursor()
             LLRect screen_pos = calcScreenRect();
             LLCoordGL ime_pos( screen_pos.mLeft + cursor_rect.mLeft, screen_pos.mBottom + cursor_rect.mTop );
 
-            ime_pos.mX = static_cast<S32>(ime_pos.mX * LLUI::getScaleFactor().mV[VX]);
-            ime_pos.mY = static_cast<S32>(ime_pos.mY * LLUI::getScaleFactor().mV[VY]);
+            ime_pos.mX = static_cast<S32>(ime_pos.mX * LLUI::getScaleFactor().x);
+            ime_pos.mY = static_cast<S32>(ime_pos.mY * LLUI::getScaleFactor().y);
             getWindow()->setLanguageTextInput( ime_pos );
         }
     }

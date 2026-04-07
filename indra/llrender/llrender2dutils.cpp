@@ -106,10 +106,10 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixe
     top += LLFontGL::sCurOrigin.mY;
 
     gGL.loadUIIdentity();
-    gl_rect_2d(llfloor(static_cast<F32>(left) * LLRender::sUIGLScaleFactor.mV[VX]) - pixel_offset,
-                llfloor(static_cast<F32>(top) * LLRender::sUIGLScaleFactor.mV[VY]) + pixel_offset,
-                llfloor(static_cast<F32>(right) * LLRender::sUIGLScaleFactor.mV[VX]) + pixel_offset,
-                llfloor(static_cast<F32>(bottom) * LLRender::sUIGLScaleFactor.mV[VY]) - pixel_offset,
+    gl_rect_2d(llfloor(static_cast<F32>(left) * LLRender::sUIGLScaleFactor.x) - pixel_offset,
+                llfloor(static_cast<F32>(top) * LLRender::sUIGLScaleFactor.y) + pixel_offset,
+                llfloor(static_cast<F32>(right) * LLRender::sUIGLScaleFactor.x) + pixel_offset,
+                llfloor(static_cast<F32>(bottom) * LLRender::sUIGLScaleFactor.y) - pixel_offset,
                 filled);
     gGL.popUIMatrix();
 }
@@ -1806,7 +1806,7 @@ void LLRender2D::setLineWidth(F32 width)
     {
         glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, range.data());
     }
-    width *= lerp(LLRender::sUIGLScaleFactor.mV[VX], LLRender::sUIGLScaleFactor.mV[VY], 0.5f);
+    width *= lerp(LLRender::sUIGLScaleFactor.x, LLRender::sUIGLScaleFactor.y, 0.5f);
     glLineWidth(llclamp(width, range[0], range[1]));
 }
 

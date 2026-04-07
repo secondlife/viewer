@@ -40,6 +40,7 @@
 #include <boost/signals2.hpp>
 #include "llframetimer.h"
 #include "v2math.h"
+#include "glm/vec2.hpp"
 #include <limits>
 
 // for initparam specialization
@@ -286,7 +287,7 @@ public:
     void getMousePositionScreen(S32 *x, S32 *y) const;
     void setMousePositionLocal(const LLView* viewp, S32 x, S32 y);
     void getMousePositionLocal(const LLView* viewp, S32 *x, S32 *y);
-    LLVector2 getWindowSize() const;
+    glm::vec2 getWindowSize() const;
     void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
     void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);
     void screenRectToGL(const LLRect& screen, LLRect *gl);
@@ -315,8 +316,8 @@ public:
     static void loadIdentity() { LLRender2D::loadIdentity(); }
     static void translate(F32 x, F32 y, F32 z = 0.0f) { LLRender2D::translate(x, y, z); }
 
-    static LLVector2& getScaleFactor();
-    static void setScaleFactor(const LLVector2& scale_factor);
+    static glm::vec2& getScaleFactor();
+    static void setScaleFactor(const glm::vec2& scale_factor);
     static void setLineWidth(F32 width) { LLRender2D::setLineWidth(width); }
     static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0)
         { return LLRender2D::getInstance()->getUIImageByID(image_id, priority); }
