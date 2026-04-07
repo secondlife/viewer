@@ -139,6 +139,24 @@ static_assert(std::is_trivially_move_assignable<LLVector4>::value, "LLVector4 mu
 static_assert(std::is_standard_layout<LLVector4>::value, "LLVector4 must be a standard layout type");
 
 // Non-member functions
+
+// Free-function helpers for dot/cross products. These delegate to the existing
+// operator* (dot) and operator% (cross). NOTE: LLVector4's operator* and
+// operator% are 3D-only -- they ignore the W component entirely. operator*
+// computes a 3D dot product (x*x + y*y + z*z) and operator% computes a 3D
+// cross product, returning a vector whose W is left at the default 1.0f.
+// This matches the historical (and arguably broken) semantics; consumers that
+// truly want a 4D dot/cross should compute it explicitly.
+[[nodiscard]] inline F32 dot(const LLVector4& a, const LLVector4& b)
+{
+    return a * b; // delegates to operator* (3D dot product, W ignored)
+}
+
+[[nodiscard]] inline LLVector4 cross(const LLVector4& a, const LLVector4& b)
+{
+    return a % b; // delegates to operator% (3D cross product, result W = 1.0f)
+}
+
 F32 angle_between(const LLVector4 &a, const LLVector4 &b);      // Returns angle (radians) between a and b
 bool are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon = F_APPROXIMATELY_ZERO);      // Returns true if a and b are very close to parallel
 F32 dist_vec(const LLVector4 &a, const LLVector4 &b);           // Returns distance between a and b

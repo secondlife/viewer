@@ -421,9 +421,9 @@ size_t LLCoordFrame::readOrientation(const char *buffer)
 
 LLVector3 LLCoordFrame::rotateToLocal(const LLVector3 &absolute_vector) const
 {
-    LLVector3 local_vector(mXAxis * absolute_vector,
-                           mYAxis * absolute_vector,
-                           mZAxis * absolute_vector);
+    LLVector3 local_vector(dot(mXAxis, absolute_vector),
+                           dot(mYAxis, absolute_vector),
+                           dot(mZAxis, absolute_vector));
     return local_vector;
 }
 
@@ -479,9 +479,9 @@ void LLCoordFrame::orthonormalize()
 // Makes sure the axes are orthogonal and normalized.
 {
     mXAxis.normalize();                       // X is renormalized
-    mYAxis -= mXAxis * (mXAxis * mYAxis);   // Y remains in X-Y plane
+    mYAxis -= mXAxis * dot(mXAxis, mYAxis); // Y remains in X-Y plane
     mYAxis.normalize();                       // Y is normalized
-    mZAxis = mXAxis % mYAxis;               // Z = X cross Y
+    mZAxis = cross(mXAxis, mYAxis);         // Z = X cross Y
 }
 
 
@@ -588,17 +588,17 @@ void LLCoordFrame::getOpenGLTransform(F32 *ogl_matrix) const
     *(ogl_matrix + 0)  = mXAxis.mV[VX];
     *(ogl_matrix + 4)  = mXAxis.mV[VY];
     *(ogl_matrix + 8)  = mXAxis.mV[VZ];
-    *(ogl_matrix + 12) = -mOrigin * mXAxis;
+    *(ogl_matrix + 12) = -dot(mOrigin, mXAxis);
 
     *(ogl_matrix + 1)  = mYAxis.mV[VX];
     *(ogl_matrix + 5)  = mYAxis.mV[VY];
     *(ogl_matrix + 9)  = mYAxis.mV[VZ];
-    *(ogl_matrix + 13) = -mOrigin * mYAxis;
+    *(ogl_matrix + 13) = -dot(mOrigin, mYAxis);
 
     *(ogl_matrix + 2)  = mZAxis.mV[VX];
     *(ogl_matrix + 6)  = mZAxis.mV[VY];
     *(ogl_matrix + 10) = mZAxis.mV[VZ];
-    *(ogl_matrix + 14) = -mOrigin * mZAxis;
+    *(ogl_matrix + 14) = -dot(mOrigin, mZAxis);
 
     *(ogl_matrix + 3)  = 0.0f;
     *(ogl_matrix + 7)  = 0.0f;
@@ -612,17 +612,17 @@ void LLCoordFrame::lookDir(const LLVector3 &at, const LLVector3 &up_direction)
 {
     // Make sure 'at' and 'up_direction' are not parallel
     // and that neither are zero-length vectors
-    LLVector3 left(up_direction % at);
+    LLVector3 left(cross(up_direction, at));
     if (left.isNull())
     {
         //tweak lookat pos so we don't get a degenerate matrix
         LLVector3 tempat(at[VX] + 0.01f, at[VY], at[VZ]);
         tempat.normalize();
-        left = (up_direction % tempat);
+        left = cross(up_direction, tempat);
     }
     left.normalize();
 
-    LLVector3 up = at % left;
+    LLVector3 up = cross(at, left);
 
     if (at.isFinite() && left.isFinite() && up.isFinite())
     {

@@ -126,12 +126,12 @@ bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
     if (at.isNull() || !at.isFinite())
         return false;
 
-    LLVector3 left(up_direction % at);
+    LLVector3 left(cross(up_direction, at));
     left.normalize();
     if (left.isNull() || !left.isFinite())
         return false;
 
-    LLVector3 up = at % left;
+    LLVector3 up = cross(at, left);
     up.normalize();
     if (up.isNull() || !up.isFinite())
         return false;

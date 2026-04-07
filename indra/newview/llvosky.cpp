@@ -1045,8 +1045,8 @@ bool LLVOSky::updateGeometry(LLDrawable *drawable)
     }
 
     const LLVector3 &look_at = LLViewerCamera::getInstance()->getAtAxis();
-    LLVector3 right = look_at % LLVector3::z_axis;
-    LLVector3 up = right % look_at;
+    LLVector3 right = cross(look_at, LLVector3::z_axis);
+    LLVector3 up = cross(right, look_at);
     right.normalize();
     up.normalize();
 
@@ -1097,11 +1097,11 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
     LLQuaternion rot    = hb.getRotation();
     LLVector3 to_dir    = LLVector3::x_axis * rot;
 
-    LLVector3 hb_right = to_dir % LLVector3::z_axis;
-    LLVector3 hb_up    = hb_right % to_dir;
+    LLVector3 hb_right = cross(to_dir, LLVector3::z_axis);
+    LLVector3 hb_up    = cross(hb_right, to_dir);
 
     // at zenith so math below fails spectacularly
-    if ((to_dir * LLVector3::z_axis) > 0.99f)
+    if (dot(to_dir, LLVector3::z_axis) > 0.99f)
     {
         hb_right  = LLVector3::y_axis_neg * rot;
         hb_up     = LLVector3::z_axis     * rot;
@@ -1230,13 +1230,13 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
     to_dir_proj.mV[VZ] = 0;
     to_dir_proj.normalize();
 
-    LLVector3 Right = to_dir % LLVector3::z_axis;
-    LLVector3 Up = Right % to_dir;
+    LLVector3 Right = cross(to_dir, LLVector3::z_axis);
+    LLVector3 Up = cross(Right, to_dir);
     Right.normalize();
     Up.normalize();
 
     // finding angle between  look direction and sprite.
-    LLVector3 look_at_right = look_at % LLVector3::z_axis;
+    LLVector3 look_at_right = cross(look_at, LLVector3::z_axis);
     look_at_right.normalize();
 
     const F32 enlargm_factor = ( 1 - to_dir.mV[2] );
@@ -1312,7 +1312,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 
     for (vtx = 2; vtx < 4; ++vtx)
     {
-        const LLVector3 to_dir_vec = (to_dir_proj * v_refl_corner[vtx-2]) * to_dir_proj;
+        const LLVector3 to_dir_vec = dot(to_dir_proj, v_refl_corner[vtx-2]) * to_dir_proj;
         v_refl_corner[vtx] = v_refl_corner[vtx-2] + 2 * (to_dir_vec - v_refl_corner[vtx-2]);
     }
 
@@ -1327,8 +1327,8 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
     refl_corn_norm[1].normalize();
 
     F32 cos_refl_look_at[2];
-    cos_refl_look_at[0] = refl_corn_norm[0] * look_at;
-    cos_refl_look_at[1] = refl_corn_norm[1] * look_at;
+    cos_refl_look_at[0] = dot(refl_corn_norm[0], look_at);
+    cos_refl_look_at[1] = dot(refl_corn_norm[1], look_at);
 
     if (cos_refl_look_at[1] > cos_refl_look_at[0])
     {

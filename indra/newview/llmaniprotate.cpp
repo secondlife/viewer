@@ -168,9 +168,9 @@ void LLManipRotate::render()
 
                 // Inverse change of basis vectors
                 LLVector3 forward = mCenterToCamNorm;
-                LLVector3 left = gAgent.getUpAxis() % forward;
+                LLVector3 left = cross(gAgent.getUpAxis(), forward);
                 left.normalize();
-                LLVector3 up = forward % left;
+                LLVector3 up = cross(forward, left);
 
                 LLVector4 a(-forward);
                 a.mV[3] = 0;
@@ -407,11 +407,11 @@ bool LLManipRotate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
         // Project onto the plane of the ring
         LLVector3 axis = getConstraintAxis();
 
-        F32 axis_onto_cam = llabs( axis * mCenterToCamNorm );
+        F32 axis_onto_cam = llabs( dot(axis, mCenterToCamNorm) );
         const F32 AXIS_ONTO_CAM_TOL = cos( 85.f * DEG_TO_RAD );
         if( axis_onto_cam < AXIS_ONTO_CAM_TOL )
         {
-            LLVector3 up_from_axis = mCenterToCamNorm % axis;
+            LLVector3 up_from_axis = cross(mCenterToCamNorm, axis);
             up_from_axis.normalize();
             LLVector3 cur_intersection;
             getMousePointOnPlaneAgent(cur_intersection, x, y, center, mCenterToCam);
@@ -890,12 +890,12 @@ void LLManipRotate::renderSnapGuides()
             if (mCamEdgeOn)
             {
                 // render an arc
-                LLVector3 edge_normal = cam_at_axis % constraint_axis;
+                LLVector3 edge_normal = cross(cam_at_axis, constraint_axis);
                 edge_normal.normalize();
                 LLVector3 x_axis_snap = LLVector3::x_axis * snap_guide_rot;
                 LLVector3 y_axis_snap = LLVector3::y_axis * snap_guide_rot;
 
-                F32 end_angle = atan2(y_axis_snap * edge_normal, x_axis_snap * edge_normal);
+                F32 end_angle = atan2(dot(y_axis_snap, edge_normal), dot(x_axis_snap, edge_normal));
                 //F32 start_angle = angle_between((-1.f * LLVector3::x_axis) * snap_guide_rot, edge_normal);
                 F32 start_angle = end_angle - F_PI;
                 gl_arc_2d(0.f, 0.f, mRadiusMeters * SNAP_GUIDE_INNER_RADIUS, CIRCLE_STEPS, false, start_angle, end_angle);
@@ -1087,7 +1087,7 @@ void LLManipRotate::renderSnapGuides()
                 // project onto constraint plane
                 LLSelectNode* first_node = mObjectSelection->getFirstMoveableNode(true);
                 object_axis = object_axis * first_node->getObject()->getRenderRotation();
-                object_axis = object_axis - (object_axis * getConstraintAxis()) * getConstraintAxis();
+                object_axis = object_axis - dot(object_axis, getConstraintAxis()) * getConstraintAxis();
                 object_axis.normalize();
                 object_axis = object_axis * SNAP_GUIDE_INNER_RADIUS * mRadiusMeters + center;
                 LLVector3 line_start = center;
@@ -1103,7 +1103,7 @@ void LLManipRotate::renderSnapGuides()
                 gGL.begin(LLRender::TRIANGLES);
                 {
                     LLVector3 arrow_dir;
-                    LLVector3 arrow_span = (object_axis - line_start) % getConstraintAxis();
+                    LLVector3 arrow_span = cross(object_axis - line_start, getConstraintAxis());
                     arrow_span.normalize();
 
                     arrow_dir = mCamEdgeOn ? getConstraintAxis() : object_axis - line_start;
@@ -1131,7 +1131,7 @@ void LLManipRotate::renderSnapGuides()
                     gGL.begin(LLRender::TRIANGLES);
                     {
                         LLVector3 arrow_dir;
-                        LLVector3 arrow_span = (object_axis - line_start) % getConstraintAxis();
+                        LLVector3 arrow_span = cross(object_axis - line_start, getConstraintAxis());
                         arrow_span.normalize();
 
                         arrow_dir = mCamEdgeOn ? getConstraintAxis() : object_axis - line_start;
@@ -1258,7 +1258,7 @@ bool LLManipRotate::updateVisiblity()
     }
 
     mCamEdgeOn = false;
-    F32 axis_onto_cam = mManipPart >= LL_ROT_X ? llabs( getConstraintAxis() * mCenterToCamNorm ) : 0.f;
+    F32 axis_onto_cam = mManipPart >= LL_ROT_X ? llabs( dot(getConstraintAxis(), mCenterToCamNorm) ) : 0.f;
     if( axis_onto_cam < AXIS_ONTO_CAM_TOLERANCE )
     {
         mCamEdgeOn = true;
@@ -1279,12 +1279,12 @@ LLQuaternion LLManipRotate::dragUnconstrained( S32 x, S32 y )
 
     F32 dist_from_sphere_center = sqrt(delta_x * delta_x + delta_y * delta_y);
 
-    LLVector3 axis = mMouseDown % mMouseCur;
-    F32 angle = atan2(sqrtf(axis * axis), mMouseDown * mMouseCur);
+    LLVector3 axis = cross(mMouseDown, mMouseCur);
+    F32 angle = atan2(sqrtf(dot(axis, axis)), dot(mMouseDown, mMouseCur));
     axis.normalize();
     LLQuaternion sphere_rot( angle, axis );
 
-    if (is_approx_zero(1.f - mMouseDown * mMouseCur))
+    if (is_approx_zero(1.f - dot(mMouseDown, mMouseCur)))
     {
         return LLQuaternion::DEFAULT;
     }
@@ -1313,11 +1313,11 @@ LLQuaternion LLManipRotate::dragUnconstrained( S32 x, S32 y )
         LLVector3 axis;
         if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
         {
-            axis = LLVector3(-1.f, 0.f, 0.f) % profile_center_to_intersection;
+            axis = cross(LLVector3(-1.f, 0.f, 0.f), profile_center_to_intersection);
         }
         else
         {
-            axis = (cam - center) % profile_center_to_intersection;
+            axis = cross(cam - center, profile_center_to_intersection);
             axis.normalize();
         }
         return sphere_rot * LLQuaternion( angle, axis );
@@ -1419,11 +1419,11 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
     }
 
     //project axis onto constraint plane
-    axis1 -= (axis1 * constraint_axis) * constraint_axis;
+    axis1 -= dot(axis1, constraint_axis) * constraint_axis;
     axis1.normalize();
 
     // calculate third and final axis
-    axis2 = constraint_axis % axis1;
+    axis2 = cross(constraint_axis, axis1);
 
     //F32 axis_onto_cam = llabs( constraint_axis * mCenterToCamNorm );
     if( mCamEdgeOn )
@@ -1448,23 +1448,23 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
         if (gSavedSettings.getBOOL("SnapEnabled")) {
             S32 snap_plane = 0;
 
-            F32 dot = cam_to_snap_plane * constraint_axis;
-            if (llabs(dot) < 0.01f)
+            F32 cam_axis_dot = dot(cam_to_snap_plane, constraint_axis);
+            if (llabs(cam_axis_dot) < 0.01f)
             {
                 // looking at ring edge on, project onto view plane and check if mouse is past ring
                 getMousePointOnPlaneAgent(projected_mouse, x, y, snap_plane_center, cam_to_snap_plane);
                 projected_mouse -= snap_plane_center;
-                dot = projected_mouse * constraint_axis;
-                if (projected_mouse * constraint_axis > 0)
+                cam_axis_dot = dot(projected_mouse, constraint_axis);
+                if (dot(projected_mouse, constraint_axis) > 0)
                 {
                     snap_plane = 1;
                 }
-                projected_mouse -= dot * constraint_axis;
+                projected_mouse -= cam_axis_dot * constraint_axis;
             }
-            else if (dot > 0.f)
+            else if (cam_axis_dot > 0.f)
             {
                 // look for mouse position outside and in front of snap circle
-                if (hit && projected_mouse.length() > SNAP_GUIDE_INNER_RADIUS * mRadiusMeters && projected_mouse * cam_to_snap_plane < 0.f)
+                if (hit && projected_mouse.length() > SNAP_GUIDE_INNER_RADIUS * mRadiusMeters && dot(projected_mouse, cam_to_snap_plane) < 0.f)
                 {
                     snap_plane = 1;
                 }
@@ -1472,7 +1472,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
             else
             {
                 // look for mouse position inside or in back of snap circle
-                if (projected_mouse.length() < SNAP_GUIDE_INNER_RADIUS * mRadiusMeters || projected_mouse * cam_to_snap_plane > 0.f || !hit)
+                if (projected_mouse.length() < SNAP_GUIDE_INNER_RADIUS * mRadiusMeters || dot(projected_mouse, cam_to_snap_plane) > 0.f || !hit)
                 {
                     snap_plane = 1;
                 }
@@ -1495,23 +1495,23 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
                 hit = getMousePointOnPlaneAgent(projected_mouse, x, y, snap_plane_center, constraint_axis);
                 projected_mouse -= snap_plane_center;
 
-                dot = cam_to_snap_plane * constraint_axis;
-                if (llabs(dot) < 0.01f)
+                cam_axis_dot = dot(cam_to_snap_plane, constraint_axis);
+                if (llabs(cam_axis_dot) < 0.01f)
                 {
                     // looking at ring edge on, project onto view plane and check if mouse is past ring
                     getMousePointOnPlaneAgent(projected_mouse, x, y, snap_plane_center, cam_to_snap_plane);
                     projected_mouse -= snap_plane_center;
-                    dot = projected_mouse * constraint_axis;
-                    if (projected_mouse * constraint_axis < 0)
+                    cam_axis_dot = dot(projected_mouse, constraint_axis);
+                    if (dot(projected_mouse, constraint_axis) < 0)
                     {
                         snap_plane = 2;
                     }
-                    projected_mouse -= dot * constraint_axis;
+                    projected_mouse -= cam_axis_dot * constraint_axis;
                 }
-                else if (dot < 0.f)
+                else if (cam_axis_dot < 0.f)
                 {
                     // look for mouse position outside and in front of snap circle
-                    if (hit && projected_mouse.length() > SNAP_GUIDE_INNER_RADIUS * mRadiusMeters && projected_mouse * cam_to_snap_plane < 0.f)
+                    if (hit && projected_mouse.length() > SNAP_GUIDE_INNER_RADIUS * mRadiusMeters && dot(projected_mouse, cam_to_snap_plane) < 0.f)
                     {
                         snap_plane = 2;
                     }
@@ -1519,7 +1519,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
                 else
                 {
                     // look for mouse position inside or in back of snap circle
-                    if (projected_mouse.length() < SNAP_GUIDE_INNER_RADIUS * mRadiusMeters || projected_mouse * cam_to_snap_plane > 0.f || !hit)
+                    if (projected_mouse.length() < SNAP_GUIDE_INNER_RADIUS * mRadiusMeters || dot(projected_mouse, cam_to_snap_plane) > 0.f || !hit)
                     {
                         snap_plane = 2;
                     }
@@ -1561,7 +1561,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
                 }
                 mInSnapRegime = true;
                 // 0 to 360 deg
-                F32 mouse_angle = fmodf(atan2(projected_mouse * axis1, projected_mouse * axis2) * RAD_TO_DEG + 360.f, 360.f);
+                F32 mouse_angle = fmodf(atan2(dot(projected_mouse, axis1), dot(projected_mouse, axis2)) * RAD_TO_DEG + 360.f, 360.f);
 
                 F32 relative_mouse_angle = fmodf(mouse_angle + (SNAP_ANGLE_DETENTE / 2), SNAP_ANGLE_INCREMENT);
 
@@ -1573,17 +1573,17 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
                 }
 
                 // project onto constraint plane
-                object_axis = object_axis - (object_axis * getConstraintAxis()) * getConstraintAxis();
+                object_axis = object_axis - dot(object_axis, getConstraintAxis()) * getConstraintAxis();
                 object_axis.normalize();
 
                 if (relative_mouse_angle < SNAP_ANGLE_DETENTE)
                 {
                     F32 quantized_mouse_angle = mouse_angle - (relative_mouse_angle - (SNAP_ANGLE_DETENTE * 0.5f));
-                    angle = (quantized_mouse_angle * DEG_TO_RAD) - atan2(object_axis * axis1, object_axis * axis2);
+                    angle = (quantized_mouse_angle * DEG_TO_RAD) - atan2(dot(object_axis, axis1), dot(object_axis, axis2));
                 }
                 else
                 {
-                    angle = (mouse_angle * DEG_TO_RAD) - atan2(object_axis * axis1, object_axis * axis2);
+                    angle = (mouse_angle * DEG_TO_RAD) - atan2(dot(object_axis, axis1), dot(object_axis, axis2));
                 }
                 return LLQuaternion( -angle, constraint_axis );
             }
@@ -1606,7 +1606,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 
         if (!mInSnapRegime)
         {
-            LLVector3 up_from_axis = mCenterToCamNorm % constraint_axis;
+            LLVector3 up_from_axis = cross(mCenterToCamNorm, constraint_axis);
             up_from_axis.normalize();
             LLVector3 cur_intersection;
             getMousePointOnPlaneAgent(cur_intersection, x, y, center, mCenterToCam);
@@ -1622,7 +1622,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
             LLVector3 projected_center_to_cam = mCenterToCamNorm - projected_vec(mCenterToCamNorm, constraint_axis);
             mMouseCur += mouse_depth * projected_center_to_cam;
 
-            F32 dist = (cur_intersection * up_from_axis) - (mMouseDown * up_from_axis);
+            F32 dist = dot(cur_intersection, up_from_axis) - dot(mMouseDown, up_from_axis);
             angle = dist / (SNAP_GUIDE_INNER_RADIUS * mRadiusMeters) * -F_PI_BY_TWO;
         }
     }
@@ -1647,7 +1647,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
             }
             mInSnapRegime = true;
             // 0 to 360 deg
-            F32 mouse_angle = fmodf(atan2(projected_mouse * axis1, projected_mouse * axis2) * RAD_TO_DEG + 360.f, 360.f);
+            F32 mouse_angle = fmodf(atan2(dot(projected_mouse, axis1), dot(projected_mouse, axis2)) * RAD_TO_DEG + 360.f, 360.f);
 
             F32 relative_mouse_angle = fmodf(mouse_angle + (SNAP_ANGLE_DETENTE / 2), SNAP_ANGLE_INCREMENT);
 
@@ -1656,17 +1656,17 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
             object_axis = object_axis * first_object_node->mSavedRotation;
 
             // project onto constraint plane
-            object_axis = object_axis - (object_axis * getConstraintAxis()) * getConstraintAxis();
+            object_axis = object_axis - dot(object_axis, getConstraintAxis()) * getConstraintAxis();
             object_axis.normalize();
 
             if (relative_mouse_angle < SNAP_ANGLE_DETENTE)
             {
                 F32 quantized_mouse_angle = mouse_angle - (relative_mouse_angle - (SNAP_ANGLE_DETENTE * 0.5f));
-                angle = (quantized_mouse_angle * DEG_TO_RAD) - atan2(object_axis * axis1, object_axis * axis2);
+                angle = (quantized_mouse_angle * DEG_TO_RAD) - atan2(dot(object_axis, axis1), dot(object_axis, axis2));
             }
             else
             {
-                angle = (mouse_angle * DEG_TO_RAD) - atan2(object_axis * axis1, object_axis * axis2);
+                angle = (mouse_angle * DEG_TO_RAD) - atan2(dot(object_axis, axis1), dot(object_axis, axis2));
             }
             return LLQuaternion( -angle, constraint_axis );
         }
@@ -1679,9 +1679,9 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
             mInSnapRegime = false;
         }
 
-        LLVector3 cross_product = mMouseDown % mMouseCur;
-        angle = atan2(sqrtf(cross_product * cross_product), mMouseCur * mMouseDown);
-        F32 dir = cross_product * constraint_axis;  // cross product
+        LLVector3 cross_product = cross(mMouseDown, mMouseCur);
+        angle = atan2(sqrtf(dot(cross_product, cross_product)), dot(mMouseCur, mMouseDown));
+        F32 dir = dot(cross_product, constraint_axis);  // cross product
         if( dir < 0.f )
         {
             angle *= -1.f;
@@ -1786,9 +1786,9 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
     LLVector3 rot_y_axis = LLVector3::y_axis * grid_rotation;
     LLVector3 rot_z_axis = LLVector3::z_axis * grid_rotation;
 
-    F32 proj_rot_x_axis = llabs(rot_x_axis * mCenterToCamNorm);
-    F32 proj_rot_y_axis = llabs(rot_y_axis * mCenterToCamNorm);
-    F32 proj_rot_z_axis = llabs(rot_z_axis * mCenterToCamNorm);
+    F32 proj_rot_x_axis = llabs(dot(rot_x_axis, mCenterToCamNorm));
+    F32 proj_rot_y_axis = llabs(dot(rot_y_axis, mCenterToCamNorm));
+    F32 proj_rot_z_axis = llabs(dot(rot_z_axis, mCenterToCamNorm));
 
     F32 min_select_distance = 0.f;
     F32 cur_select_distance = 0.f;
@@ -1797,17 +1797,17 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
     getMousePointOnPlaneAgent(mouse_dir_x, x, y, rotation_center, rot_x_axis);
     mouse_dir_x -= rotation_center;
     // push intersection point out when working at obtuse angle to make ring easier to hit
-    mouse_dir_x *= 1.f + (1.f - llabs(rot_x_axis * mCenterToCamNorm)) * 0.1f;
+    mouse_dir_x *= 1.f + (1.f - llabs(dot(rot_x_axis, mCenterToCamNorm))) * 0.1f;
 
     // test y
     getMousePointOnPlaneAgent(mouse_dir_y, x, y, rotation_center, rot_y_axis);
     mouse_dir_y -= rotation_center;
-    mouse_dir_y *= 1.f + (1.f - llabs(rot_y_axis * mCenterToCamNorm)) * 0.1f;
+    mouse_dir_y *= 1.f + (1.f - llabs(dot(rot_y_axis, mCenterToCamNorm))) * 0.1f;
 
     // test z
     getMousePointOnPlaneAgent(mouse_dir_z, x, y, rotation_center, rot_z_axis);
     mouse_dir_z -= rotation_center;
-    mouse_dir_z *= 1.f + (1.f - llabs(rot_z_axis * mCenterToCamNorm)) * 0.1f;
+    mouse_dir_z *= 1.f + (1.f - llabs(dot(rot_z_axis, mCenterToCamNorm))) * 0.1f;
 
     // test roll
     getMousePointOnPlaneAgent(intersection_roll, x, y, rotation_center, mCenterToCamNorm);
@@ -1822,7 +1822,7 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
     if (llabs(dist_x - mRadiusMeters) * llmax(0.05f, proj_rot_x_axis) < distance_threshold)
     {
         // selected x
-        cur_select_distance = dist_x * mouse_dir_x * mCenterToCamNorm;
+        cur_select_distance = dist_x * dot(mouse_dir_x, mCenterToCamNorm);
         if (cur_select_distance >= -0.05f && (min_select_distance == 0.f || cur_select_distance > min_select_distance))
         {
             min_select_distance = cur_select_distance;
@@ -1832,7 +1832,7 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
     if (llabs(dist_y - mRadiusMeters) * llmax(0.05f, proj_rot_y_axis) < distance_threshold)
     {
         // selected y
-        cur_select_distance = dist_y * mouse_dir_y * mCenterToCamNorm;
+        cur_select_distance = dist_y * dot(mouse_dir_y, mCenterToCamNorm);
         if (cur_select_distance >= -0.05f && (min_select_distance == 0.f || cur_select_distance > min_select_distance))
         {
             min_select_distance = cur_select_distance;
@@ -1842,7 +1842,7 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
     if (llabs(dist_z - mRadiusMeters) * llmax(0.05f, proj_rot_z_axis) < distance_threshold)
     {
         // selected z
-        cur_select_distance = dist_z * mouse_dir_z * mCenterToCamNorm;
+        cur_select_distance = dist_z * dot(mouse_dir_z, mCenterToCamNorm);
         if (cur_select_distance >= -0.05f && (min_select_distance == 0.f || cur_select_distance > min_select_distance))
         {
             min_select_distance = cur_select_distance;
@@ -1853,8 +1853,8 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
     // test for edge-on intersections
     if (proj_rot_x_axis < 0.05f)
     {
-        if ((proj_rot_y_axis > 0.05f && (dist_y * llabs(mouse_dir_y * rot_x_axis) < distance_threshold) && dist_y < mRadiusMeters) ||
-            (proj_rot_z_axis > 0.05f && (dist_z * llabs(mouse_dir_z * rot_x_axis) < distance_threshold) && dist_z < mRadiusMeters))
+        if ((proj_rot_y_axis > 0.05f && (dist_y * llabs(dot(mouse_dir_y, rot_x_axis)) < distance_threshold) && dist_y < mRadiusMeters) ||
+            (proj_rot_z_axis > 0.05f && (dist_z * llabs(dot(mouse_dir_z, rot_x_axis)) < distance_threshold) && dist_z < mRadiusMeters))
         {
             mHighlightedPart = LL_ROT_X;
         }
@@ -1862,8 +1862,8 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
 
     if (proj_rot_y_axis < 0.05f)
     {
-        if ((proj_rot_x_axis > 0.05f && (dist_x * llabs(mouse_dir_x * rot_y_axis) < distance_threshold) && dist_x < mRadiusMeters) ||
-            (proj_rot_z_axis > 0.05f && (dist_z * llabs(mouse_dir_z * rot_y_axis) < distance_threshold) && dist_z < mRadiusMeters))
+        if ((proj_rot_x_axis > 0.05f && (dist_x * llabs(dot(mouse_dir_x, rot_y_axis)) < distance_threshold) && dist_x < mRadiusMeters) ||
+            (proj_rot_z_axis > 0.05f && (dist_z * llabs(dot(mouse_dir_z, rot_y_axis)) < distance_threshold) && dist_z < mRadiusMeters))
         {
             mHighlightedPart = LL_ROT_Y;
         }
@@ -1871,8 +1871,8 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
 
     if (proj_rot_z_axis < 0.05f)
     {
-        if ((proj_rot_x_axis > 0.05f && (dist_x * llabs(mouse_dir_x * rot_z_axis) < distance_threshold) && dist_x < mRadiusMeters) ||
-            (proj_rot_y_axis > 0.05f && (dist_y * llabs(mouse_dir_y * rot_z_axis) < distance_threshold) && dist_y < mRadiusMeters))
+        if ((proj_rot_x_axis > 0.05f && (dist_x * llabs(dot(mouse_dir_x, rot_z_axis)) < distance_threshold) && dist_x < mRadiusMeters) ||
+            (proj_rot_y_axis > 0.05f && (dist_y * llabs(dot(mouse_dir_y, rot_z_axis)) < distance_threshold) && dist_y < mRadiusMeters))
         {
             mHighlightedPart = LL_ROT_Z;
         }

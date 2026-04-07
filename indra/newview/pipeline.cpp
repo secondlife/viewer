@@ -5330,7 +5330,7 @@ void LLPipeline::setupAvatarLights(bool for_edit)
     {
         LLVector3 light_dir = sun_up ? LLVector3(mSunDir) : LLVector3(mMoonDir);
         LLVector3 opposite_pos = -light_dir;
-        LLVector3 orthog_light_pos = light_dir % LLVector3::z_axis;
+        LLVector3 orthog_light_pos = cross(light_dir, LLVector3::z_axis);
         LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
         backlight_pos.normalize();
 
@@ -9211,10 +9211,10 @@ glm::mat4 look(const LLVector3 pos, const LLVector3 dir, const LLVector3 up)
     LLVector3 upN;
     LLVector3 lftN;
 
-    lftN = dir % up;
+    lftN = cross(dir, up);
     lftN.normalize();
 
-    upN = lftN % dir;
+    upN = cross(lftN, dir);
     upN.normalize();
 
     dirN = dir;

@@ -436,9 +436,9 @@ const LLMatrix3&    LLMatrix3::orthogonalize()
     LLVector3 z_axis(mMatrix[VZ]);
 
     x_axis.normalize();
-    y_axis -= x_axis * (x_axis * y_axis);
+    y_axis -= x_axis * dot(x_axis, y_axis);
     y_axis.normalize();
-    z_axis = x_axis % y_axis;
+    z_axis = cross(x_axis, y_axis);
     setRows(x_axis, y_axis, z_axis);
     return (*this);
 }

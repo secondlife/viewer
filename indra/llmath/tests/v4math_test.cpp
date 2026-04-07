@@ -380,4 +380,55 @@ namespace tut
         LLVector4 vec4a = vec3to4(vec3);
         ensure_equals("getValue failed",vec4a,vec4);
     }
+
+    // dot()/cross() free-function helper tests. Note: LLVector4's operator*
+    // and operator% are 3D-only (W is ignored), so the helpers inherit that.
+    template<> template<>
+    void v4math_object::test<23>()
+    {
+        LLVector4 a(1.f, 2.f, 3.f, 99.f);
+        LLVector4 b(4.f, -5.f, 6.f, -42.f);
+        // operator* ignores W, so dot() should too.
+        ensure("dot:matches_op", is_approx_equal(dot(a, b), a * b));
+        ensure("dot:ignores_w", is_approx_equal(dot(a, b), 1.f*4.f + 2.f*-5.f + 3.f*6.f));
+        // commutative
+        ensure("dot:commutative", is_approx_equal(dot(a, b), dot(b, a)));
+    }
+
+    template<> template<>
+    void v4math_object::test<24>()
+    {
+        LLVector4 a(1.f, 0.f, 0.f);
+        LLVector4 b(0.f, 1.f, 0.f);
+        ensure_equals("cross:basis", cross(a, b), a % b);
+
+        LLVector4 c(2.f, 3.f, 4.f);
+        LLVector4 d(-5.f, 6.f, -7.f);
+        ensure_equals("cross:arbitrary", cross(c, d), c % d);
+    }
+
+    template<> template<>
+    void v4math_object::test<25>()
+    {
+        // anti-commutative (3D portion)
+        LLVector4 a(1.f, 2.f, 3.f);
+        LLVector4 b(4.f, 5.f, 6.f);
+        LLVector4 ab = cross(a, b);
+        LLVector4 ba = cross(b, a);
+        // Negation in LLVector4 only flips xyz, preserving w. Compare components directly.
+        ensure("cross:anti-commutative_x", is_approx_equal(ab.mV[VX], -ba.mV[VX]));
+        ensure("cross:anti-commutative_y", is_approx_equal(ab.mV[VY], -ba.mV[VY]));
+        ensure("cross:anti-commutative_z", is_approx_equal(ab.mV[VZ], -ba.mV[VZ]));
+    }
+
+    template<> template<>
+    void v4math_object::test<26>()
+    {
+        // orthogonality of cross product (3D portion)
+        LLVector4 a(1.f, 2.f, 3.f);
+        LLVector4 b(-4.f, 5.f, -6.f);
+        LLVector4 ab = cross(a, b);
+        ensure("cross:ortho_a", is_approx_equal(dot(a, ab), 0.f));
+        ensure("cross:ortho_b", is_approx_equal(dot(b, ab), 0.f));
+    }
 }

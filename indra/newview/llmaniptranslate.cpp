@@ -535,8 +535,8 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
     F64 off_axis_magnitude;
 
-    getMousePointOnPlaneGlobal(cursor_point_snap_line, x, y, current_pos_global, mSnapOffsetAxis % axis_f);
-    off_axis_magnitude = axis_exists ? llabs((cursor_point_snap_line - current_pos_global) * LLVector3d(mSnapOffsetAxis)) : 0.f;
+    getMousePointOnPlaneGlobal(cursor_point_snap_line, x, y, current_pos_global, cross(mSnapOffsetAxis, axis_f));
+    off_axis_magnitude = axis_exists ? llabs(dot(cursor_point_snap_line - current_pos_global, LLVector3d(mSnapOffsetAxis))) : 0.f;
 
     if (gSavedSettings.getBOOL("SnapEnabled"))
     {

@@ -37,7 +37,7 @@ bool line_plane(const LLVector3 &line_point, const LLVector3 &line_direction,
                 const LLVector3 &plane_point, const LLVector3 plane_normal,
                 LLVector3 &intersection)
 {
-    F32 N = line_direction * plane_normal;
+    F32 N = dot(line_direction, plane_normal);
     if (0.0f == N)
     {
         // line is perpendicular to plane normal
@@ -48,7 +48,7 @@ bool line_plane(const LLVector3 &line_point, const LLVector3 &line_direction,
     // D = - (plane_point * plane_normal)
     // N = line_direction * plane_normal
     // intersection = line_point - ((D + plane_normal * line_point) / N) * line_direction
-    intersection = line_point - ((plane_normal * line_point - plane_point * plane_normal) / N) * line_direction;
+    intersection = line_point - ((dot(plane_normal, line_point) - dot(plane_point, plane_normal)) / N) * line_direction;
     return true;
 }
 
@@ -57,7 +57,7 @@ bool ray_plane(const LLVector3 &ray_point, const LLVector3 &ray_direction,
                const LLVector3 &plane_point, const LLVector3 plane_normal,
                LLVector3 &intersection)
 {
-    F32 N = ray_direction * plane_normal;
+    F32 N = dot(ray_direction, plane_normal);
     if (0.0f == N)
     {
         // ray is perpendicular to plane normal
@@ -68,7 +68,7 @@ bool ray_plane(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     // D = - (plane_point * plane_normal)
     // N = ray_direction * plane_normal
     // intersection = ray_point - ((D + plane_normal * ray_point) / N) * ray_direction
-    F32 alpha = -(plane_normal * ray_point - plane_point * plane_normal) / N;
+    F32 alpha = -(dot(plane_normal, ray_point) - dot(plane_point, plane_normal)) / N;
     if (alpha < 0.0f)
     {
         // ray points away from plane
@@ -101,15 +101,15 @@ bool ray_triangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     LLVector3 side_01 = point_1 - point_0;
     LLVector3 side_12 = point_2 - point_1;
 
-    intersection_normal = side_01 % side_12;
+    intersection_normal = cross(side_01, side_12);
     intersection_normal.normalize();
 
     if (ray_plane(ray_point, ray_direction, point_0, intersection_normal, intersection))
     {
         LLVector3 side_20 = point_0 - point_2;
-        if (intersection_normal * (side_01 % (intersection - point_0)) >= 0.0f  &&
-            intersection_normal * (side_12 % (intersection - point_1)) >= 0.0f  &&
-            intersection_normal * (side_20 % (intersection - point_2)) >= 0.0f)
+        if (dot(intersection_normal, cross(side_01, intersection - point_0)) >= 0.0f  &&
+            dot(intersection_normal, cross(side_12, intersection - point_1)) >= 0.0f  &&
+            dot(intersection_normal, cross(side_20, intersection - point_2)) >= 0.0f)
         {
             return true;
         }
@@ -126,7 +126,7 @@ bool ray_quadrangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     LLVector3 side_01 = point_1 - point_0;
     LLVector3 side_12 = point_2 - point_1;
 
-    intersection_normal = side_01 % side_12;
+    intersection_normal = cross(side_01, side_12);
     intersection_normal.normalize();
 
     if (ray_plane(ray_point, ray_direction, point_0, intersection_normal, intersection))
@@ -134,10 +134,10 @@ bool ray_quadrangle(const LLVector3 &ray_point, const LLVector3 &ray_direction,
         LLVector3 point_3 = point_0 + (side_12);
         LLVector3 side_23 = point_3 - point_2;
         LLVector3 side_30 = point_0 - point_3;
-        if (intersection_normal * (side_01 % (intersection - point_0)) >= 0.0f  &&
-            intersection_normal * (side_12 % (intersection - point_1)) >= 0.0f  &&
-            intersection_normal * (side_23 % (intersection - point_2)) >= 0.0f  &&
-            intersection_normal * (side_30 % (intersection - point_3)) >= 0.0f)
+        if (dot(intersection_normal, cross(side_01, intersection - point_0)) >= 0.0f  &&
+            dot(intersection_normal, cross(side_12, intersection - point_1)) >= 0.0f  &&
+            dot(intersection_normal, cross(side_23, intersection - point_2)) >= 0.0f  &&
+            dot(intersection_normal, cross(side_30, intersection - point_3)) >= 0.0f)
         {
             return true;
         }
@@ -151,9 +151,9 @@ bool ray_sphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
                 LLVector3 &intersection, LLVector3 &intersection_normal)
 {
     LLVector3 ray_to_sphere = sphere_center - ray_point;
-    F32 dot = ray_to_sphere * ray_direction;
+    F32 ray_dot = dot(ray_to_sphere, ray_direction);
 
-    LLVector3 closest_approach = dot * ray_direction - ray_to_sphere;
+    LLVector3 closest_approach = ray_dot * ray_direction - ray_to_sphere;
 
     F32 shortest_distance = closest_approach.lengthSquared();
     F32 radius_squared = sphere_radius * sphere_radius;
@@ -165,14 +165,14 @@ bool ray_sphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     F32 half_chord = static_cast<F32>(sqrt(radius_squared - shortest_distance));
     closest_approach = sphere_center + closest_approach;            // closest_approach now in absolute coordinates
     intersection = closest_approach + half_chord * ray_direction;
-    dot = ray_direction * (intersection - ray_point);
-    if (dot < 0.0f)
+    ray_dot = dot(ray_direction, intersection - ray_point);
+    if (ray_dot < 0.0f)
     {
         // ray shoots away from sphere and is not inside it
         return false;
     }
 
-    shortest_distance = ray_direction * ((closest_approach - half_chord * ray_direction) - ray_point);
+    shortest_distance = dot(ray_direction, (closest_approach - half_chord * ray_direction) - ray_point);
     if (shortest_distance > 0.0f)
     {
         // ray enters sphere
@@ -222,23 +222,23 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     cyl_axis = cyl_bottom - cyl_top;
     cyl_length = cyl_axis.normalize();
     ray_to_cyl = ray_point - cyl_bottom;
-    shortest_direction = ray_direction % cyl_axis;
+    shortest_direction = cross(ray_direction, cyl_axis);
     shortest_distance = shortest_direction.normalize();   // recycle shortest_distance
 
     // check for ray parallel to cylinder axis
     if (0.0f == shortest_distance)
     {
         // ray is parallel to cylinder axis
-        temp_vector = ray_to_cyl - (ray_to_cyl * cyl_axis) * cyl_axis;
+        temp_vector = ray_to_cyl - dot(ray_to_cyl, cyl_axis) * cyl_axis;
         shortest_distance = temp_vector.length();
         if (shortest_distance <= cyl_radius)
         {
-            shortest_distance = ray_to_cyl * cyl_axis;
-            F32 dot = ray_direction * cyl_axis;
+            shortest_distance = dot(ray_to_cyl, cyl_axis);
+            F32 ray_axis_dot = dot(ray_direction, cyl_axis);
 
             if (shortest_distance > 0.0)
             {
-                if (dot > 0.0f)
+                if (ray_axis_dot > 0.0f)
                 {
                     // ray points away from cylinder bottom
                     return false;
@@ -251,7 +251,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
             else if (shortest_distance > -cyl_length)
             {
                 // ray starts inside cylinder
-                if (dot < 0.0f)
+                if (ray_axis_dot < 0.0f)
                 {
                     // ray hit top from inside
                     intersection = ray_point - (cyl_length + shortest_distance) * cyl_axis;
@@ -266,7 +266,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
             }
             else
             {
-                if (dot < 0.0f)
+                if (ray_axis_dot < 0.0f)
                 {
                     // ray points away from cylinder bottom
                     return false;
@@ -281,18 +281,18 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // check for intersection with infinite cylinder
-    shortest_distance = static_cast<F32>(fabs(ray_to_cyl * shortest_direction));
+    shortest_distance = static_cast<F32>(fabs(dot(ray_to_cyl, shortest_direction)));
     if (shortest_distance <= cyl_radius)
     {
         F32         dist_to_closest_point;              // dist from ray_point to closest_point
         F32         half_chord_length;                  // half length of intersection chord
         F32         in, out;                            // distances to entering/exiting points
-        temp_vector = ray_to_cyl % cyl_axis;
-        dist_to_closest_point = - (temp_vector * shortest_direction);
-        temp_vector = shortest_direction % cyl_axis;
+        temp_vector = cross(ray_to_cyl, cyl_axis);
+        dist_to_closest_point = -dot(temp_vector, shortest_direction);
+        temp_vector = cross(shortest_direction, cyl_axis);
         temp_vector.normalize();
         half_chord_length = static_cast<F32>(fabs( sqrt(cyl_radius*cyl_radius - shortest_distance * shortest_distance) /
-                            (ray_direction * temp_vector) ));
+                            dot(ray_direction, temp_vector) ));
 
         out = dist_to_closest_point + half_chord_length;    // dist to exiting point
         if (out < 0.0f)
@@ -325,7 +325,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
         else
         {
             temp_vector = intersection - cyl_bottom;
-            intersection_normal = temp_vector - (temp_vector * cyl_axis) * cyl_axis;
+            intersection_normal = temp_vector - dot(temp_vector, cyl_axis) * cyl_axis;
             intersection_normal.normalize();
         }
 
@@ -334,7 +334,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
         if (line_plane(ray_point, ray_direction, cyl_top, -cyl_axis, temp_vector))  // NOTE side-effect: changing temp_vector
         {
             shortest_distance = (temp_vector - ray_point).length();
-            if ( (ray_direction * cyl_axis) > 0.0f)
+            if ( dot(ray_direction, cyl_axis) > 0.0f)
             {
                 // ray potentially enters the cylinder at top
                 if (shortest_distance > out)
@@ -363,7 +363,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
             // calculate intersection of ray and bottom plane
             line_plane(ray_point, ray_direction, cyl_bottom, cyl_axis, temp_vector); // NOTE side-effect: changing temp_vector
             shortest_distance = (temp_vector - ray_point).length();
-            if ( (ray_direction * cyl_axis) < 0.0)
+            if ( dot(ray_direction, cyl_axis) < 0.0)
             {
                 // ray potentially enters the cylinder at bottom
                 if (shortest_distance > out)
@@ -394,7 +394,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
         {
             // ray is parallel to end cap planes
             temp_vector = cyl_bottom - ray_point;
-            shortest_distance = temp_vector * cyl_axis;
+            shortest_distance = dot(temp_vector, cyl_axis);
             if (shortest_distance < 0.0f  ||  shortest_distance > cyl_length)
             {
                 // ray missed finite cylinder
@@ -756,7 +756,7 @@ bool ray_prism(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     F32 temp;
 
     // face 0
-    if (ray_direction * ( (point0 - point2) % (point5 - point2)) < 0.0f  &&
+    if (dot(ray_direction, cross(point0 - point2, point5 - point2)) < 0.0f  &&
         ray_quadrangle(ray_point, ray_direction, point5, point2, point0, intersection, intersection_normal))
     {
         distance_squared = (ray_point - intersection).lengthSquared();
@@ -764,7 +764,7 @@ bool ray_prism(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 1
-    if (ray_direction * ( (point0 - point3) % (point2 - point3)) < 0.0f  &&
+    if (dot(ray_direction, cross(point0 - point3, point2 - point3)) < 0.0f  &&
         ray_triangle(ray_point, ray_direction, point2, point3, point0, face_intersection, face_normal))
     {
         if (b_hit)
@@ -787,7 +787,7 @@ bool ray_prism(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 2
-    if (ray_direction * ( (point1 - point4) % (point3 - point4)) < 0.0f  &&
+    if (dot(ray_direction, cross(point1 - point4, point3 - point4)) < 0.0f  &&
         ray_quadrangle(ray_point, ray_direction, point3, point4, point1, face_intersection, face_normal))
     {
         if (b_hit)
@@ -810,7 +810,7 @@ bool ray_prism(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 3
-    if (ray_direction * ( (point5 - point4) % (point1 - point4)) < 0.0f  &&
+    if (dot(ray_direction, cross(point5 - point4, point1 - point4)) < 0.0f  &&
         ray_triangle(ray_point, ray_direction, point1, point4, point5, face_intersection, face_normal))
     {
         if (b_hit)
@@ -833,7 +833,7 @@ bool ray_prism(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 4
-    if (ray_direction * ( (point4 - point5) % (point2 - point5)) < 0.0f  &&
+    if (dot(ray_direction, cross(point4 - point5, point2 - point5)) < 0.0f  &&
         ray_quadrangle(ray_point, ray_direction, point2, point5, point4, face_intersection, face_normal))
     {
         if (b_hit)
@@ -895,7 +895,7 @@ bool ray_tetrahedron(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     F32 temp;
 
     // face 0
-    if (ray_direction * ( (point2 - point1) % (point0 - point1)) < 0.0f  &&
+    if (dot(ray_direction, cross(point2 - point1, point0 - point1)) < 0.0f  &&
         ray_triangle(ray_point, ray_direction, point1, point2, point0, intersection, intersection_normal))
     {
         distance_squared = (ray_point - intersection).lengthSquared();
@@ -903,7 +903,7 @@ bool ray_tetrahedron(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 1
-    if (ray_direction * ( (point3 - point2) % (point0 - point2)) < 0.0f  &&
+    if (dot(ray_direction, cross(point3 - point2, point0 - point2)) < 0.0f  &&
         ray_triangle(ray_point, ray_direction, point2, point3, point0, face_intersection, face_normal))
     {
         if (b_hit)
@@ -926,7 +926,7 @@ bool ray_tetrahedron(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 2
-    if (ray_direction * ( (point1 - point3) % (point0 - point3)) < 0.0f  &&
+    if (dot(ray_direction, cross(point1 - point3, point0 - point3)) < 0.0f  &&
         ray_triangle(ray_point, ray_direction, point3, point1, point0, face_intersection, face_normal))
     {
         if (b_hit)
@@ -949,7 +949,7 @@ bool ray_tetrahedron(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 3
-    if (ray_direction * ( (point2 - point3) % (point1 - point3)) < 0.0f  &&
+    if (dot(ray_direction, cross(point2 - point3, point1 - point3)) < 0.0f  &&
         ray_triangle(ray_point, ray_direction, point3, point2, point1, face_intersection, face_normal))
     {
         if (b_hit)
@@ -1002,7 +1002,7 @@ bool ray_pyramid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     F32 temp;
 
     // face 0
-    if (ray_direction * ( (point1 - point4) % (point0 - point4)) < 0.0f  &&
+    if (dot(ray_direction, cross(point1 - point4, point0 - point4)) < 0.0f  &&
         ray_triangle(ray_point, ray_direction, point4, point1, point0, intersection, intersection_normal))
     {
         distance_squared = (ray_point - intersection).lengthSquared();
@@ -1010,7 +1010,7 @@ bool ray_pyramid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 1
-    if (ray_direction * ( (point2 - point1) % (point0 - point1)) < 0.0f  &&
+    if (dot(ray_direction, cross(point2 - point1, point0 - point1)) < 0.0f  &&
         ray_triangle(ray_point, ray_direction, point1, point2, point0, face_intersection, face_normal))
     {
         if (b_hit)
@@ -1033,7 +1033,7 @@ bool ray_pyramid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 2
-    if (ray_direction * ( (point3 - point2) % (point0 - point2)) < 0.0f  &&
+    if (dot(ray_direction, cross(point3 - point2, point0 - point2)) < 0.0f  &&
         ray_triangle(ray_point, ray_direction, point2, point3, point0, face_intersection, face_normal))
     {
         if (b_hit)
@@ -1056,7 +1056,7 @@ bool ray_pyramid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 3
-    if (ray_direction * ( (point4 - point3) % (point0 - point3)) < 0.0f  &&
+    if (dot(ray_direction, cross(point4 - point3, point0 - point3)) < 0.0f  &&
         ray_triangle(ray_point, ray_direction, point3, point4, point0, face_intersection, face_normal))
     {
         if (b_hit)
@@ -1079,7 +1079,7 @@ bool ray_pyramid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
     }
 
     // face 4
-    if (ray_direction * ( (point3 - point4) % (point2 - point4)) < 0.0f  &&
+    if (dot(ray_direction, cross(point3 - point4, point2 - point4)) < 0.0f  &&
         ray_quadrangle(ray_point, ray_direction, point4, point3, point2, face_intersection, face_normal))
     {
         if (b_hit)

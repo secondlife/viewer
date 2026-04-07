@@ -534,7 +534,7 @@ void LLVOGrass::getGeometry(S32 idx,
         (*verticesp++).load3(v3.mV);
         (*verticesp++).load3(v3.mV);
 
-        LLVector3 normal1 = (v1-v2) % (v2-v3);
+        LLVector3 normal1 = cross(v1-v2, v2-v3);
         normal1.mV[VZ] = 0.75f;
         normal1.normalize();
         LLVector3 normal2 = -normal1;
@@ -808,7 +808,7 @@ bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
         position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
         v[2]    = v3 = position + mRegionp->getOriginAgent();
 
-        LLVector3 normal1 = (v1-v2) % (v2-v3);
+        LLVector3 normal1 = cross(v1-v2, v2-v3);
         normal1.normalize();
 
         position.mV[0] += dzx;

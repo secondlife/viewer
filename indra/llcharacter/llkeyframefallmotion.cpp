@@ -107,9 +107,9 @@ bool LLKeyframeFallMotion::onActivate()
     ground_normal = ground_normal * inverse_pelvis_rot;
 
     // calculate new foward axis
-    fwd_axis = fwd_axis - (ground_normal * (ground_normal * fwd_axis));
+    fwd_axis = fwd_axis - ground_normal * dot(ground_normal, fwd_axis);
     fwd_axis.normalize();
-    mRotationToGroundNormal = LLQuaternion(fwd_axis, ground_normal % fwd_axis, ground_normal);
+    mRotationToGroundNormal = LLQuaternion(fwd_axis, cross(ground_normal, fwd_axis), ground_normal);
 
     return LLKeyframeMotion::onActivate();
 }

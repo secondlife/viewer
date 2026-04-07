@@ -605,7 +605,7 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
             else
             {
                 // drag toward camera
-                y_part = x_part % LLVector3d::z_axis;
+                y_part = cross(x_part, LLVector3d::z_axis);
                 y_part.mdV[VZ] = 0.0;
                 y_part.normalize();
             }
@@ -831,7 +831,7 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
             else
             {
                 // drag toward camera
-                y_part = x_part % LLVector3d::z_axis;
+                y_part = cross(x_part, LLVector3d::z_axis);
                 y_part.mdV[VZ] = 0.0;
                 y_part.normalize();
             }

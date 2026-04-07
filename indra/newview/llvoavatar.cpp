@@ -3763,7 +3763,7 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
     LLVector3 camera_to_av = root_pos_last - LLViewerCamera::getInstance()->getOrigin();
     camera_to_av.normalize();
     LLVector3 local_camera_at = camera_to_av * inv_root_rot;
-    LLVector3 local_camera_up = camera_to_av % LLViewerCamera::getInstance()->getLeftAxis();
+    LLVector3 local_camera_up = cross(camera_to_av, LLViewerCamera::getInstance()->getLeftAxis());
     local_camera_up.normalize();
     local_camera_up = local_camera_up * inv_root_rot;
 
@@ -4483,14 +4483,14 @@ void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
             }
 
             // Now compute the full world space rotation for the whole body (wQv)
-            LLVector3 leftDir = upDir % fwdDir;
+            LLVector3 leftDir = cross(upDir, fwdDir);
             leftDir.normalize();
-            fwdDir = leftDir % upDir;
+            fwdDir = cross(leftDir, upDir);
             LLQuaternion wQv( fwdDir, leftDir, upDir );
 
             if (isSelf() && mTurning)
             {
-                if ((fwdDir % pelvisDir) * upDir > 0.f)
+                if (dot(cross(fwdDir, pelvisDir), upDir) > 0.f)
                 {
                     gAgent.setControlFlags(AGENT_CONTROL_TURN_RIGHT);
                 }
@@ -5429,8 +5429,8 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
     LLVector3 pos(getRenderPosition()+mImpostorOffset);
     LLVector3 at = (pos - LLViewerCamera::getInstance()->getOrigin());
     at.normalize();
-    LLVector3 left = LLViewerCamera::getInstance()->getUpAxis() % at;
-    LLVector3 up = at%left;
+    LLVector3 left = cross(LLViewerCamera::getInstance()->getUpAxis(), at);
+    LLVector3 up = cross(at, left);
 
     left *= mImpostorDim.x;
     up *= mImpostorDim.y;
@@ -5956,7 +5956,7 @@ void LLVOAvatar::resolveHeightGlobal(const LLVector3d &inPos, LLVector3d &outPos
         LLVector3 angularVelocity = obj->getAngularVelocity();
         LLVector3 relativePos = gAgent.getPosAgentFromGlobal(outPos) - obj->getPositionAgent();
 
-        LLVector3 linearComponent = angularVelocity % relativePos;
+        LLVector3 linearComponent = cross(angularVelocity, relativePos);
 //      LL_INFOS() << "Linear Component of Rotation Velocity " << linearComponent << LL_ENDL;
         mStepObjectVelocity = obj->getVelocity() + linearComponent;
     }

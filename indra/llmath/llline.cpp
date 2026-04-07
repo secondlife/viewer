@@ -57,7 +57,7 @@ void LLLine::setPointDirection( const LLVector3& first_point, const LLVector3& s
 bool LLLine::intersects( const LLVector3& point, F32 radius ) const
 {
     LLVector3 other_direction = point - mPoint;
-    LLVector3 nearest_point = mPoint + mDirection * (other_direction * mDirection);
+    LLVector3 nearest_point = mPoint + mDirection * dot(other_direction, mDirection);
     F32 nearest_approach = (nearest_point - point).length();
     return (nearest_approach <= radius);
 }
@@ -65,7 +65,7 @@ bool LLLine::intersects( const LLVector3& point, F32 radius ) const
 // returns the point on this line that is closest to some_point
 LLVector3 LLLine::nearestApproach( const LLVector3& some_point ) const
 {
-    return (mPoint + mDirection * ((some_point - mPoint) * mDirection));
+    return (mPoint + mDirection * dot(some_point - mPoint, mDirection));
 }
 
 // the accuracy of this method sucks when you give it two nearly
@@ -76,7 +76,7 @@ LLVector3 LLLine::nearestApproach( const LLVector3& some_point ) const
 LLVector3 LLLine::nearestApproach( const LLLine& other_line ) const
 {
     LLVector3 between_points = other_line.mPoint - mPoint;
-    F32 dir_dot_dir = mDirection * other_line.mDirection;
+    F32 dir_dot_dir = dot(mDirection, other_line.mDirection);
     F32 one_minus_dir_dot_dir = 1.0f - fabs(dir_dot_dir);
     if ( one_minus_dir_dot_dir < SOME_VERY_SMALL_NUMBER )
     {
@@ -94,7 +94,7 @@ LLVector3 LLLine::nearestApproach( const LLLine& other_line ) const
         return 0.5f * (mPoint + other_line.mPoint);
     }
 
-    F32 odir_dot_bp = other_line.mDirection * between_points;
+    F32 odir_dot_bp = dot(other_line.mDirection, between_points);
 
     F32 numerator = 0;
     F32 denominator = 0;
@@ -134,14 +134,14 @@ bool LLLine::intersectsPlane( LLVector3& result, const LLLine& plane ) const
     // l =  ( D - N*P ) / ( N*d )
     //
 
-    F32 dot = plane.mDirection * mDirection;
-    if (fabs(dot) < TOO_SMALL_FOR_DIVISION)
+    F32 plane_dir_dot = dot(plane.mDirection, mDirection);
+    if (fabs(plane_dir_dot) < TOO_SMALL_FOR_DIVISION)
     {
         return false;
     }
 
-    F32 plane_dot = plane.mDirection * plane.mPoint;
-    F32 length = ( plane_dot - (plane.mDirection * mPoint) ) / dot;
+    F32 plane_dot = dot(plane.mDirection, plane.mPoint);
+    F32 length = ( plane_dot - dot(plane.mDirection, mPoint) ) / plane_dir_dot;
     result = mPoint + length * mDirection;
     return true;
 }
@@ -158,20 +158,20 @@ bool LLLine::getIntersectionBetweenTwoPlanes( LLLine& result, const LLLine& firs
     // then we should just use that, since this problem is really just
     // linear algebra.
 
-    F32 dot = fabs(first_plane.mDirection * second_plane.mDirection);
-    if (dot > ALMOST_PARALLEL)
+    F32 dir_dot = fabs(dot(first_plane.mDirection, second_plane.mDirection));
+    if (dir_dot > ALMOST_PARALLEL)
     {
         // the planes are nearly parallel
         return false;
     }
 
-    LLVector3 direction = first_plane.mDirection % second_plane.mDirection;
+    LLVector3 direction = cross(first_plane.mDirection, second_plane.mDirection);
     direction.normalize();
 
     LLVector3 first_intersection;
     {
         LLLine intersection_line(first_plane);
-        intersection_line.mDirection = direction % first_plane.mDirection;
+        intersection_line.mDirection = cross(direction, first_plane.mDirection);
         intersection_line.mDirection.normalize();
         intersection_line.intersectsPlane(first_intersection, second_plane);
     }

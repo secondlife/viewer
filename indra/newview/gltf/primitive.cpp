@@ -179,7 +179,7 @@ struct MikktMesh
             LLVector3 v1 = p[i * 3 + 1];
             LLVector3 v2 = p[i * 3 + 2];
 
-            LLVector3 normal = (v1 - v0) % (v2 - v0);
+            LLVector3 normal = cross(v1 - v0, v2 - v0);
             normal.normalize();
 
             n[i * 3] = normal;
