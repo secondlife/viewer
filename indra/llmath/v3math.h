@@ -186,6 +186,18 @@ LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u); // Returns a vect
 LLVector3 point_to_box_offset(LLVector3& pos, const LLVector3* box); // Displacement from query point to nearest point on bounding box.
 bool box_valid_and_non_zero(const LLVector3* box);
 
+// glm::vec3 overloads — transitional helpers for the LLVector3 -> glm::vec3
+// migration. Mirror the LLVector3 helpers above but operate on glm::vec3
+// directly. Will be retained or removed depending on whether they have
+// callers after the migration completes (compare LLVector2 migration:
+// the glm::vec2 helpers were retained because they had production callers).
+F32 angle_between(const glm::vec3& a, const glm::vec3& b);
+bool are_parallel(const glm::vec3& a, const glm::vec3& b, F32 epsilon = F_APPROXIMATELY_ZERO);
+F32 dist_vec(const glm::vec3& a, const glm::vec3& b);
+F32 dist_vec_squared(const glm::vec3& a, const glm::vec3& b);
+F32 dist_vec_squared2D(const glm::vec3& a, const glm::vec3& b);
+glm::vec3 lerp(const glm::vec3& a, const glm::vec3& b, F32 u);
+
 inline LLVector3::LLVector3()
 {
     clear();
