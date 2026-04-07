@@ -132,4 +132,8 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}")
+
+  # GoogleTest tests (new). Source lives in tests_gtest/.
+  include(LLAddGTest)
+  LL_ADD_GTEST(llmath llmatrix4 "")
 endif (LL_TESTS)
