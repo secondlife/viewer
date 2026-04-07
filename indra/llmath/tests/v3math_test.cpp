@@ -582,4 +582,62 @@ namespace tut
         LLVector3 parsed_3(sd);
         ensure("3:LLSD parse: Fail ", is_approx_equal(parsed_3.mV[VX], 1.f) && is_approx_equal(parsed_3.mV[VY], 2.f) && is_approx_equal(parsed_3.mV[VZ], 3.f));
     }
+
+    // dot()/cross() free-function helper tests -- prep for glm::vec3 migration.
+    template<> template<>
+    void v3math_object::test<36>()
+    {
+        // dot(a, b) must match operator* exactly for several inputs.
+        LLVector3 a(1.f, 2.f, 3.f);
+        LLVector3 b(4.f, -5.f, 6.f);
+        ensure("dot:basic", is_approx_equal(dot(a, b), a * b));
+
+        LLVector3 c(0.f, 0.f, 0.f);
+        ensure("dot:zero", is_approx_equal(dot(a, c), 0.f));
+
+        LLVector3 d(-1.5f, 2.25f, -3.75f);
+        LLVector3 e(7.f, 8.f, 9.f);
+        ensure("dot:mixed", is_approx_equal(dot(d, e), d * e));
+
+        // commutativity
+        ensure("dot:commutative", is_approx_equal(dot(a, b), dot(b, a)));
+    }
+
+    template<> template<>
+    void v3math_object::test<37>()
+    {
+        // cross(a, b) must match operator% exactly.
+        LLVector3 a(1.f, 0.f, 0.f);
+        LLVector3 b(0.f, 1.f, 0.f);
+        LLVector3 ab_op = a % b;
+        LLVector3 ab_fn = cross(a, b);
+        ensure_equals("cross:basis", ab_fn, ab_op);
+        ensure("cross:basis_z", is_approx_equal(ab_fn.mV[VZ], 1.f));
+
+        LLVector3 c(2.f, 3.f, 4.f);
+        LLVector3 d(-5.f, 6.f, -7.f);
+        ensure_equals("cross:arbitrary", cross(c, d), c % d);
+    }
+
+    template<> template<>
+    void v3math_object::test<38>()
+    {
+        // anti-commutativity: cross(a, b) == -cross(b, a)
+        LLVector3 a(1.f, 2.f, 3.f);
+        LLVector3 b(4.f, 5.f, 6.f);
+        LLVector3 ab = cross(a, b);
+        LLVector3 ba = cross(b, a);
+        ensure_equals("cross:anti-commutative", ab, -ba);
+    }
+
+    template<> template<>
+    void v3math_object::test<39>()
+    {
+        // orthogonality: a.dot(a x b) == 0 and b.dot(a x b) == 0
+        LLVector3 a(1.f, 2.f, 3.f);
+        LLVector3 b(-4.f, 5.f, -6.f);
+        LLVector3 ab = cross(a, b);
+        ensure("cross:ortho_a", is_approx_equal(dot(a, ab), 0.f));
+        ensure("cross:ortho_b", is_approx_equal(dot(b, ab), 0.f));
+    }
 }

@@ -157,6 +157,22 @@ using LLSimLocalVec = LLVector3;
 
 // Non-member functions
 
+// Free-function helpers for dot/cross products. These delegate to the existing
+// operator* (dot) and operator% (cross) so call sites can be expressed without
+// reliance on overloaded arithmetic operators. This is the prep step for the
+// LLVector3 -> glm::vec3 migration: in glm, `a * b` for vec3 is component-wise
+// multiply, NOT a dot product, so swapping the type without first extracting
+// dot/cross to explicit calls would silently corrupt every dot product.
+[[nodiscard]] inline F32 dot(const LLVector3& a, const LLVector3& b)
+{
+    return a * b; // delegates to operator* (dot product)
+}
+
+[[nodiscard]] inline LLVector3 cross(const LLVector3& a, const LLVector3& b)
+{
+    return a % b; // delegates to operator% (cross product)
+}
+
 F32 angle_between(const LLVector3 &a, const LLVector3 &b);  // Returns angle (radians) between a and b
 bool are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon=F_APPROXIMATELY_ZERO);    // Returns true if a and b are very close to parallel
 F32 dist_vec(const LLVector3 &a, const LLVector3 &b);       // Returns distance between a and b

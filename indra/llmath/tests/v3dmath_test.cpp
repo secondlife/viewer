@@ -528,4 +528,51 @@ namespace tut
 
 #endif
     }
+
+    // dot()/cross() free-function helper tests -- prep for glm::dvec3 migration.
+    template<> template<>
+    void v3dmath_object::test<25>()
+    {
+        LLVector3d a(1.0, 2.0, 3.0);
+        LLVector3d b(4.0, -5.0, 6.0);
+        ensure_approximately_equals("dot:basic", dot(a, b), a * b, 16);
+
+        LLVector3d c(0.0, 0.0, 0.0);
+        ensure_approximately_equals("dot:zero", dot(a, c), 0.0, 16);
+
+        // commutative
+        ensure_approximately_equals("dot:commutative", dot(a, b), dot(b, a), 16);
+    }
+
+    template<> template<>
+    void v3dmath_object::test<26>()
+    {
+        LLVector3d a(1.0, 0.0, 0.0);
+        LLVector3d b(0.0, 1.0, 0.0);
+        ensure_equals("cross:basis", cross(a, b), a % b);
+
+        LLVector3d c(2.0, 3.0, 4.0);
+        LLVector3d d(-5.0, 6.0, -7.0);
+        ensure_equals("cross:arbitrary", cross(c, d), c % d);
+    }
+
+    template<> template<>
+    void v3dmath_object::test<27>()
+    {
+        // anti-commutative
+        LLVector3d a(1.0, 2.0, 3.0);
+        LLVector3d b(4.0, 5.0, 6.0);
+        ensure_equals("cross:anti-commutative", cross(a, b), -cross(b, a));
+    }
+
+    template<> template<>
+    void v3dmath_object::test<28>()
+    {
+        // orthogonality
+        LLVector3d a(1.0, 2.0, 3.0);
+        LLVector3d b(-4.0, 5.0, -6.0);
+        LLVector3d ab = cross(a, b);
+        ensure_approximately_equals("cross:ortho_a", dot(a, ab), 0.0, 16);
+        ensure_approximately_equals("cross:ortho_b", dot(b, ab), 0.0, 16);
+    }
 }

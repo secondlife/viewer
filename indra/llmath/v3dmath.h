@@ -123,6 +123,22 @@ static_assert(std::is_standard_layout<LLVector3d>::value, "LLVector3d must be a 
 
 using LLGlobalVec = LLVector3d;
 
+// Non-member functions
+
+// Free-function helpers for dot/cross products. These delegate to the existing
+// operator* (dot) and operator% (cross) so call sites can be expressed without
+// reliance on overloaded arithmetic operators. This mirrors the helpers in
+// v3math.h and prepares LLVector3d call sites for an eventual glm::dvec3 swap.
+[[nodiscard]] inline F64 dot(const LLVector3d& a, const LLVector3d& b)
+{
+    return a * b; // delegates to operator* (dot product)
+}
+
+[[nodiscard]] inline LLVector3d cross(const LLVector3d& a, const LLVector3d& b)
+{
+    return a % b; // delegates to operator% (cross product)
+}
+
 inline const LLVector3d &LLVector3d::set(const LLVector3 &vec)
 {
     mdV[VX] = vec.mV[VX];
