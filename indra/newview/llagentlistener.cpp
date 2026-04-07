@@ -219,9 +219,9 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
     else
     {
         std::string url = LLSLURL(event_data["regionname"],
-                                  LLVector3((F32)event_data["x"].asReal(),
-                                            (F32)event_data["y"].asReal(),
-                                            (F32)event_data["z"].asReal())).getSLURLString();
+                                  LLVector3(static_cast<F32>(event_data["x"].asReal()),
+                                            static_cast<F32>(event_data["y"].asReal()),
+                                            static_cast<F32>(event_data["z"].asReal()))).getSLURLString();
         LLURLDispatcher::dispatch(url, LLCommandHandler::NAV_TYPE_CLICKED, NULL, false);
     }
 }
@@ -400,7 +400,7 @@ void LLAgentListener::startAutoPilot(LLSD const & event_data)
     F32 rotation_threshold = 0.03f;
     if (event_data.has("rotation_threshold"))
     {
-        rotation_threshold = (F32)event_data["rotation_threshold"].asReal();
+        rotation_threshold = static_cast<F32>(event_data["rotation_threshold"].asReal());
     }
 
     bool allow_flying = true;
@@ -413,7 +413,7 @@ void LLAgentListener::startAutoPilot(LLSD const & event_data)
     F32 stop_distance = 0.f;
     if (event_data.has("stop_distance"))
     {
-        stop_distance = (F32)event_data["stop_distance"].asReal();
+        stop_distance = static_cast<F32>(event_data["stop_distance"].asReal());
     }
 
     std::string behavior_name = LLCoros::getName();
@@ -516,7 +516,7 @@ void LLAgentListener::startFollowPilot(LLSD const & event_data)
     F32 stop_distance = 0.f;
     if (event_data.has("stop_distance"))
     {
-        stop_distance = (F32)event_data["stop_distance"].asReal();
+        stop_distance = static_cast<F32>(event_data["stop_distance"].asReal());
     }
 
     if (!gObjectList.findObject(target_id))
@@ -725,7 +725,7 @@ F32 get_search_radius(LLSD const& event_data)
     F32 dist = render_far_clip;
     if (event_data.has("dist"))
     {
-        dist = llclamp((F32)event_data["dist"].asReal(), 1, 512);
+        dist = llclamp(static_cast<F32>(event_data["dist"].asReal()), 1, 512);
     }
    return dist * dist;
 }
@@ -737,7 +737,7 @@ void LLAgentListener::getNearbyAvatarsList(LLSD const& event_data)
     LLVector3d agent_pos = gAgent.getPositionGlobal();
     for (LLCharacter* character : LLCharacter::sInstances)
     {
-        LLVOAvatar* avatar = (LLVOAvatar*)character;
+        LLVOAvatar* avatar = static_cast<LLVOAvatar*>(character);
         if (avatar && !avatar->isDead() && !avatar->isControlAvatar() && !avatar->isSelf())
         {
             if ((dist_vec_squared(avatar->getPositionGlobal(), agent_pos) <= radius))
@@ -781,7 +781,7 @@ void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
         LLUUID avatar_id(event_data["avatar_id"]);
         for (LLCharacter* character : LLCharacter::sInstances)
         {
-            LLVOAvatar* avatar = (LLVOAvatar*)character;
+            LLVOAvatar* avatar = static_cast<LLVOAvatar*>(character);
             if (!avatar->isDead() && (avatar->getID() == avatar_id))
             {
                 render_pos = avatar->getRenderPosition();

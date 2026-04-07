@@ -289,7 +289,7 @@ S32 LLViewerParcelMgr::getSelectedArea() const
     {
         F64 width = mEastNorth.mdV[VX] - mWestSouth.mdV[VX];
         F64 height = mEastNorth.mdV[VY] - mWestSouth.mdV[VY];
-        F32 area = (F32)(width * height);
+        F32 area = static_cast<F32>(width * height);
         rv = ll_round(area);
     }
     return rv;
@@ -425,12 +425,12 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectParcelAt(const LLVector3d& pos_
     LLVector3d northeast = pos_global;
 
     southwest -= LLVector3d( PARCEL_GRID_STEP_METERS/2, PARCEL_GRID_STEP_METERS/2, 0 );
-    southwest.mdV[VX] = ll_round( southwest.mdV[VX], (F64)PARCEL_GRID_STEP_METERS );
-    southwest.mdV[VY] = ll_round( southwest.mdV[VY], (F64)PARCEL_GRID_STEP_METERS );
+    southwest.mdV[VX] = ll_round( southwest.mdV[VX], static_cast<F64>(PARCEL_GRID_STEP_METERS) );
+    southwest.mdV[VY] = ll_round( southwest.mdV[VY], static_cast<F64>(PARCEL_GRID_STEP_METERS) );
 
     northeast += LLVector3d( PARCEL_GRID_STEP_METERS/2, PARCEL_GRID_STEP_METERS/2, 0 );
-    northeast.mdV[VX] = ll_round( northeast.mdV[VX], (F64)PARCEL_GRID_STEP_METERS );
-    northeast.mdV[VY] = ll_round( northeast.mdV[VY], (F64)PARCEL_GRID_STEP_METERS );
+    northeast.mdV[VX] = ll_round( northeast.mdV[VX], static_cast<F64>(PARCEL_GRID_STEP_METERS) );
+    northeast.mdV[VY] = ll_round( northeast.mdV[VY], static_cast<F64>(PARCEL_GRID_STEP_METERS) );
 
     // Snap to parcel
     return selectLand( southwest, northeast, true );
@@ -1304,8 +1304,8 @@ void LLViewerParcelMgr::makeLandmarkAtSelection()
 
     std::string name("My Land");
     std::string buffer;
-    S32 pos_x = (S32)floor((west_south_bottom_region.mV[VX] + east_north_top_region.mV[VX]) / 2.0f);
-    S32 pos_y = (S32)floor((west_south_bottom_region.mV[VY] + east_north_top_region.mV[VY]) / 2.0f);
+    S32 pos_x = static_cast<S32>(floor((west_south_bottom_region.mV[VX] + east_north_top_region.mV[VX]) / 2.0f));
+    S32 pos_y = static_cast<S32>(floor((west_south_bottom_region.mV[VY] + east_north_top_region.mV[VY]) / 2.0f));
     buffer = llformat("%s in %s (%d, %d)",
             name.c_str(),
             region->getName().c_str(),
@@ -1410,8 +1410,8 @@ void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
         // decide that parcel actually changed, but it still allows to
         // reduce amount of requests significantly
 
-        S32 west_parcel_local = (S32)(pos_in_region.mV[VX] / PARCEL_GRID_STEP_METERS);
-        S32 south_parcel_local = (S32)(pos_in_region.mV[VY] / PARCEL_GRID_STEP_METERS);
+        S32 west_parcel_local = static_cast<S32>(pos_in_region.mV[VX] / PARCEL_GRID_STEP_METERS);
+        S32 south_parcel_local = static_cast<S32>(pos_in_region.mV[VY] / PARCEL_GRID_STEP_METERS);
 
         LLViewerParcelOverlay* overlay = region->getParcelOverlay();
         if (!overlay)

@@ -279,7 +279,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
     LLViewerCamera* camera = LLViewerCamera::getInstance();
     LLViewerRegion *regionp = getRegion();
     S32 end = (S32) mParticles.size();
-    for (S32 i = 0 ; i < (S32)mParticles.size();)
+    for (S32 i = 0 ; i < static_cast<S32>(mParticles.size());)
     {
         LLVector3 a(0.f, 0.f, 0.f);
         LLViewerPart* part = mParticles[i] ;
@@ -412,7 +412,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         }
     }
 
-    S32 removed = end - (S32)mParticles.size();
+    S32 removed = end - static_cast<S32>(mParticles.size());
     if (removed > 0)
     {
         // we removed one or more particles, so flag this group for update
@@ -439,7 +439,7 @@ void LLViewerPartGroup::shift(const LLVector3 &offset)
     mMinObjPos += offset;
     mMaxObjPos += offset;
 
-    for (S32 i = 0 ; i < (S32)mParticles.size(); i++)
+    for (S32 i = 0 ; i < static_cast<S32>(mParticles.size()); i++)
     {
         mParticles[i]->mPosAgent += offset;
     }
@@ -447,7 +447,7 @@ void LLViewerPartGroup::shift(const LLVector3 &offset)
 
 void LLViewerPartGroup::removeParticlesByID(const U32 source_id)
 {
-    for (S32 i = 0; i < (S32)mParticles.size(); i++)
+    for (S32 i = 0; i < static_cast<S32>(mParticles.size()); i++)
     {
         if(mParticles[i]->mPartSourcep->getID() == source_id)
         {
@@ -470,7 +470,7 @@ void LLViewerPartSim::checkParticleCount(U32 size)
         LL_ERRS() << "sParticleCount: " << LLViewerPartSim::sParticleCount << " ; sParticleCount2: " << LLViewerPartSim::sParticleCount2 << LL_ENDL ;
     }
 
-    if(size > (U32)LLViewerPartSim::sParticleCount2)
+    if(size > static_cast<U32>(LLViewerPartSim::sParticleCount2))
     {
         LL_ERRS() << "curren particle size: " << LLViewerPartSim::sParticleCount2 << " array size: " << size << LL_ENDL ;
     }
@@ -525,7 +525,7 @@ bool LLViewerPartSim::shouldAddPart()
 
     if (sParticleCount > PART_THROTTLE_THRESHOLD*sMaxParticleCount)
     {
-        F32 frac = (F32)sParticleCount/(F32)sMaxParticleCount;
+        F32 frac = static_cast<F32>(sParticleCount)/static_cast<F32>(sMaxParticleCount);
         frac -= PART_THROTTLE_THRESHOLD;
         frac *= PART_THROTTLE_RESCALE;
         if (ll_frand() < frac)
@@ -663,7 +663,7 @@ void LLViewerPartSim::updateSimulation()
     // pain.
     S32 i;
     S32 count = (S32) mViewerPartSources.size();
-    S32 start = (S32)ll_frand((F32)count);
+    S32 start = static_cast<S32>(ll_frand(static_cast<F32>(count)));
     S32 dir = 1;
     S32 deldir = 0;
     if (ll_frand() > 0.5f)

@@ -187,7 +187,7 @@ bool LLPreviewTexture::postBuild()
 // static
 void LLPreviewTexture::onSaveAsBtn(void* data)
 {
-    LLPreviewTexture* self = (LLPreviewTexture*)data;
+    LLPreviewTexture* self = static_cast<LLPreviewTexture*>(data);
     self->saveAs();
 }
 
@@ -221,7 +221,7 @@ void LLPreviewTexture::draw()
                                 mImage);
 
             // Pump the texture priority
-            F32 pixel_area = mLoadingFullImage ? (F32)MAX_IMAGE_AREA  : (F32)(interior.getWidth() * interior.getHeight() );
+            F32 pixel_area = mLoadingFullImage ? static_cast<F32>(MAX_IMAGE_AREA)  : static_cast<F32>(interior.getWidth() * interior.getHeight());
             mImage->addTextureStats( pixel_area );
 
             // Don't bother decoding more than we can display, unless
@@ -267,7 +267,7 @@ void LLPreviewTexture::draw()
                 if (data_progress > 0.0f)
                 {
                     // Downloaded bytes
-                    right = left + llfloor(data_progress * (F32)bar_width);
+                    right = left + llfloor(data_progress * static_cast<F32>(bar_width));
                     if (right > left)
                     {
                         gl_rect_2d(left, top, right, bottom, downloaded_color);
@@ -379,20 +379,20 @@ void LLPreviewTexture::reshape(S32 width, S32 height, bool called_from_parent)
     {
         if(mAspectRatio > 1.f)
         {
-            client_height = llceil((F32)client_width / mAspectRatio);
+            client_height = llceil(static_cast<F32>(client_width) / mAspectRatio);
             if(client_height > client_rect.getHeight())
             {
                 client_height = client_rect.getHeight();
-                client_width = llceil((F32)client_height * mAspectRatio);
+                client_width = llceil(static_cast<F32>(client_height) * mAspectRatio);
             }
         }
         else//mAspectRatio < 1.f
         {
-            client_width = llceil((F32)client_height * mAspectRatio);
+            client_width = llceil(static_cast<F32>(client_height) * mAspectRatio);
             if(client_width > client_rect.getWidth())
             {
                 client_width = client_rect.getWidth();
-                client_height = llceil((F32)client_width / mAspectRatio);
+                client_height = llceil(static_cast<F32>(client_width) / mAspectRatio);
             }
         }
     }
@@ -679,7 +679,7 @@ void LLPreviewTexture::adjustAspectRatio()
     S32 num = mImage->getFullWidth() / divisor;
     S32 denom = mImage->getFullHeight() / divisor;
 
-    if (setAspectRatio((F32)num, (F32)denom))
+    if (setAspectRatio(static_cast<F32>(num), static_cast<F32>(denom)))
     {
         // Select corresponding ratio entry in the combo list
         LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
@@ -699,7 +699,7 @@ void LLPreviewTexture::adjustAspectRatio()
             }
             else
             {
-                combo->setCurrentByIndex((S32)(found - mRatiosList.begin()));
+                combo->setCurrentByIndex(static_cast<S32>(found - mRatiosList.begin()));
             }
         }
     }

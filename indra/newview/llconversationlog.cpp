@@ -119,7 +119,7 @@ const std::string LLConversation::createTimestamp(const U64Seconds& utc_time)
 {
     std::string timeStr;
     LLSD substitution;
-    substitution["datetime"] = (S32)utc_time.value();
+    substitution["datetime"] = static_cast<S32>(utc_time.value());
 
     static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
     timeStr = "[" + LLTrans::getString("TimeMonth") + "]/["
@@ -539,10 +539,10 @@ bool LLConversationLog::saveToFile(const std::string& filename)
         // [1343221177] 0 1 0 John Doe| 7e4ec5be-783f-49f5-71dz-16c58c64c145 4ec62a74-c246-0d25-2af6-846beac2aa55 john.doe|
         // [1343222639] 2 0 0 Ad-hoc Conference| c3g67c89-c479-4c97-b21d-32869bcfe8rc 68f1c33e-4135-3e3e-a897-8c9b23115c09 Ad-hoc Conference hash597394a0-9982-766d-27b8-c75560213b9a|
         fprintf(fp, "[%lld] %d %d %d %s| %s %s %s|\n",
-                (S64)conv_it->getTime().value(),
-                (S32)conv_it->getConversationType(),
-                (S32)0,
-                (S32)conv_it->hasOfflineMessages(),
+                static_cast<S64>(conv_it->getTime().value()),
+                static_cast<S32>(conv_it->getConversationType()),
+                static_cast<S32>(0),
+                static_cast<S32>(conv_it->hasOfflineMessages()),
                 conv_name.c_str(),
                 participant_id.c_str(),
                 conversation_id.c_str(),

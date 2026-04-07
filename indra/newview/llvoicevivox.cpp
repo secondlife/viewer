@@ -140,14 +140,14 @@ static int scale_mic_volume(float volume)
 {
     // incoming volume has the range [0.0 ... 2.0], with 1.0 as the default.
     // Map it to Vivox levels as follows: 0.0 -> 30, 1.0 -> 50, 2.0 -> 70
-    return 30 + (int)(volume * 20.0f);
+    return 30 + static_cast<int>(volume * 20.0f);
 }
 
 static int scale_speaker_volume(float volume)
 {
     // incoming volume has the range [0.0 ... 1.0], with 0.5 as the default.
     // Map it to Vivox levels as follows: 0.0 -> 30, 0.5 -> 50, 1.0 -> 70
-    return 30 + (int)(volume * 40.0f);
+    return 30 + static_cast<int>(volume * 40.0f);
 
 }
 
@@ -800,7 +800,7 @@ void LLVivoxVoiceClient::voiceControlStateMachine(S32 &coro_state)
             {
                 // We failed to connect, give it a bit time before retrying.
                 retry++;
-                F32 full_delay = llmin(5.f * (F32)retry, 60.f);
+                F32 full_delay = llmin(5.f * static_cast<F32>(retry), 60.f);
                 F32 current_delay = 0.f;
                 LL_INFOS("Voice") << "Voice failed to establish session after " << retry
                                   << " tries. Will attempt to reconnect in " << full_delay
@@ -1191,7 +1191,7 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         if (status == LLCore::HttpStatus(404))
         {
             F32 timeout = pow(PROVISION_RETRY_TIMEOUT, static_cast<float>(retryCount));
-            LL_WARNS("Voice") << "Provision CAP 404.  Retrying in " << timeout << " seconds. Retries: " << (S32)retryCount << LL_ENDL;
+            LL_WARNS("Voice") << "Provision CAP 404.  Retrying in " << timeout << " seconds. Retries: " << static_cast<S32>(retryCount) << LL_ENDL;
             llcoro::suspendUntilTimeout(timeout);
 
             if (sShuttingDown)
@@ -1285,7 +1285,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
             {
                 if (result.has("retry") && ++retries <= CONNECT_RETRY_MAX && !sShuttingDown)
                 {
-                    F32 timeout = (F32)LLSD::Real(result["retry"]);
+                    F32 timeout = static_cast<F32>(LLSD::Real(result["retry"]));
                     timeout *= retries;
                     LL_INFOS("Voice") << "Retry connection to voice service in " << timeout << " seconds" << LL_ENDL;
                     llcoro::suspendUntilTimeout(timeout);
@@ -4295,7 +4295,7 @@ void LLVivoxVoiceClient::participantUpdatedEvent(
             //  is a volume or mute change pending.
             if ( !participant->mVolumeSet && !participant->mVolumeDirty)
             {
-                participant->mVolume = (F32)volume * VOLUME_SCALE_VIVOX;
+                participant->mVolume = static_cast<F32>(volume) * VOLUME_SCALE_VIVOX;
             }
 
             // *HACK: mantipov: added while working on EXT-3544
@@ -5350,7 +5350,7 @@ void LLVivoxVoiceClient::enforceTether()
     {
         F32 max_dist = 50.0f;
         LLVector3d camera_offset = mCameraRequestedPosition - mAvatarPosition;
-        F32 camera_distance = (F32)camera_offset.length();
+        F32 camera_distance = static_cast<F32>(camera_offset.length());
         if(camera_distance > max_dist)
         {
             tethered = mAvatarPosition +
@@ -7243,7 +7243,7 @@ void XMLCALL LLVivoxProtocolParser::ExpatStartTag(void *data, const char *el, co
 {
     if (data)
     {
-        LLVivoxProtocolParser   *object = (LLVivoxProtocolParser*)data;
+        LLVivoxProtocolParser   *object = static_cast<LLVivoxProtocolParser*>(data);
         object->StartTag(el, attr);
     }
 }
@@ -7254,7 +7254,7 @@ void XMLCALL LLVivoxProtocolParser::ExpatEndTag(void *data, const char *el)
 {
     if (data)
     {
-        LLVivoxProtocolParser   *object = (LLVivoxProtocolParser*)data;
+        LLVivoxProtocolParser   *object = static_cast<LLVivoxProtocolParser*>(data);
         object->EndTag(el);
     }
 }
@@ -7265,7 +7265,7 @@ void XMLCALL LLVivoxProtocolParser::ExpatCharHandler(void *data, const XML_Char 
 {
     if (data)
     {
-        LLVivoxProtocolParser   *object = (LLVivoxProtocolParser*)data;
+        LLVivoxProtocolParser   *object = static_cast<LLVivoxProtocolParser*>(data);
         object->CharData(s, len);
     }
 }
@@ -7413,7 +7413,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
         else if (!stricmp("Volume", tag))
             volume = strtol(string.c_str(), NULL, 10);
         else if (!stricmp("Energy", tag))
-            energy = (F32)strtod(string.c_str(), NULL);
+            energy = static_cast<F32>(strtod(string.c_str(), NULL));
         else if (!stricmp("IsModeratorMuted", tag))
             isModeratorMuted = !stricmp(string.c_str(), "true");
         else if (!stricmp("IsSpeaking", tag))
@@ -7459,7 +7459,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
         else if (!stricmp("IsLocallyMuted", tag))
             isLocallyMuted = !stricmp(string.c_str(), "true");
         else if (!stricmp("MicEnergy", tag))
-            energy = (F32)strtod(string.c_str(), NULL);
+            energy = static_cast<F32>(strtod(string.c_str(), NULL));
         else if (!stricmp("ChannelName", tag))
             nameString = string;
         else if (!stricmp("ChannelURI", tag))

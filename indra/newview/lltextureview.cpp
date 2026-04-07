@@ -114,8 +114,8 @@ public:
     {
         bool operator()(const LLView* i1, const LLView* i2)
         {
-            LLTextureBar* bar1p = (LLTextureBar*)i1;
-            LLTextureBar* bar2p = (LLTextureBar*)i2;
+            const LLTextureBar* bar1p = static_cast<const LLTextureBar*>(i1);
+            const LLTextureBar* bar2p = static_cast<const LLTextureBar*>(i2);
             LLViewerFetchedTexture *i1p = bar1p->mImagep;
             LLViewerFetchedTexture *i2p = bar2p->mImagep;
             F32 pri1 = i1p->getMaxVirtualSize();
@@ -133,8 +133,8 @@ public:
     {
         bool operator()(const LLView* i1, const LLView* i2)
         {
-            LLTextureBar* bar1p = (LLTextureBar*)i1;
-            LLTextureBar* bar2p = (LLTextureBar*)i2;
+            const LLTextureBar* bar1p = static_cast<const LLTextureBar*>(i1);
+            const LLTextureBar* bar2p = static_cast<const LLTextureBar*>(i2);
             LLViewerFetchedTexture *i1p = bar1p->mImagep;
             LLViewerFetchedTexture *i2p = bar2p->mImagep;
             U32 pri1 = i1p->getFetchPriority() ;
@@ -234,7 +234,7 @@ void LLTextureBar::draw()
         { "MIS", LLColor4::red }, // LAST_STATE+4
         { "---", LLColor4::white }, // LAST_STATE+5
     };
-    const S32 fetch_state_desc_size = (S32)LL_ARRAY_SIZE(fetch_state_desc);
+    const S32 fetch_state_desc_size = static_cast<S32>(LL_ARRAY_SIZE(fetch_state_desc));
     S32 state =
         mImagep->mNeedsCreateTexture ? LAST_STATE+1 :
         mImagep->mFullyLoaded ? LAST_STATE+2 :
@@ -263,7 +263,7 @@ void LLTextureBar::draw()
     if (data_progress > 0.0f)
     {
         // Downloaded bytes
-        right = left + llfloor(data_progress * (F32)bar_width);
+        right = left + llfloor(data_progress * static_cast<F32>(bar_width));
         if (right > left)
         {
             gGL.color4f(0.f, 0.f, 1.f, 0.75f);
@@ -477,8 +477,8 @@ private:
 void LLGLTexMemBar::draw()
 {
     F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-    F32 cache_usage = (F32)LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
-    F32 cache_max_usage = (F32)LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();
+    F32 cache_usage = static_cast<F32>(LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>());
+    F32 cache_max_usage = static_cast<F32>(LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>());
     S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
     S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
     F32Bytes total_texture_downloaded = gTotalTextureData;
@@ -561,7 +561,7 @@ void LLGLTexMemBar::draw()
     gl_rect_2d(-10, getRect().getHeight() + line_height*2 + 1, getRect().getWidth()+2, getRect().getHeight()+2);
 
     text = llformat("Est. Free: %d MB Sys Free: %d MB FBO: %d MB Probe#: %d Probe Mem: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
-                    (S32)LLViewerTexture::sFreeVRAMMegabytes,
+                    static_cast<S32>(LLViewerTexture::sFreeVRAMMegabytes),
                     LLMemory::getAvailableMemKB()/1024,
                     LLRenderTarget::sBytesAllocated/(1024*1024),
                     gPipeline.mReflectionMapManager.probeCount(),
@@ -629,7 +629,7 @@ void LLGLTexMemBar::draw()
                     gTextureList.mCreateTextureList.size());
 
     x_right = 550.0f;
-    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0.f, (F32)(v_offset + line_height*3),
+    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0.f, static_cast<F32>(v_offset + line_height*3),
                                              text_color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP,
                                              LLFontGL::NORMAL, LLFontGL::ShadowType::NO_SHADOW, S32_MAX, S32_MAX, &x_right);
 
@@ -638,14 +638,14 @@ void LLGLTexMemBar::draw()
     color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
     color[VALPHA] = text_color[VALPHA];
     text = llformat("BW:%.0f/%.0f",bandwidth.value(), max_bandwidth.value());
-    LLFontGL::getFontMonospace()->renderUTF8(text, 0, (S32)x_right, v_offset + line_height*3,
+    LLFontGL::getFontMonospace()->renderUTF8(text, 0, static_cast<S32>(x_right), v_offset + line_height*3,
                                              color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
     // Mesh status line
     text = llformat("Mesh: Reqs(Tot/Htp/Big): %u/%u/%u Rtr/Err: %u/%u Cread/Cwrite: %u/%u Low/At/High: %d/%d/%d",
                     LLMeshRepository::sMeshRequestCount, LLMeshRepository::sHTTPRequestCount, LLMeshRepository::sHTTPLargeRequestCount,
                     LLMeshRepository::sHTTPRetryCount, LLMeshRepository::sHTTPErrorCount,
-                    (U32)LLMeshRepository::sCacheReads, (U32)LLMeshRepository::sCacheWrites,
+                    static_cast<U32>(LLMeshRepository::sCacheReads), static_cast<U32>(LLMeshRepository::sCacheWrites),
                     LLMeshRepoThread::sRequestLowWater, LLMeshRepoThread::sRequestWaterLevel, LLMeshRepoThread::sRequestHighWater);
     LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*2,
                                              text_color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
@@ -731,7 +731,7 @@ private:
 
 bool LLGLTexSizeBar::handleHover(S32 x, S32 y, MASK mask, bool set_pick_size)
 {
-    if(y > mBottom && (y < mBottom + (S32)(mTopLoaded * mScale) || y < mBottom + (S32)(mTopBound * mScale)))
+    if(y > mBottom && (y < mBottom + static_cast<S32>(mTopLoaded * mScale) || y < mBottom + static_cast<S32>(mTopBound * mScale)))
     {
         LLImageGL::setCurTexSizebar(mIndex, set_pick_size);
     }
@@ -747,18 +747,18 @@ void LLGLTexSizeBar::draw()
         std::string text;
 
         text = llformat("%d", mTopLoaded) ;
-        LLFontGL::getFontMonospace()->renderUTF8(text, 0, mLeft, mBottom + (S32)(mTopLoaded * mScale) + mLineHeight,
+        LLFontGL::getFontMonospace()->renderUTF8(text, 0, mLeft, mBottom + static_cast<S32>(mTopLoaded * mScale) + mLineHeight,
                                      text_color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
 
         text = llformat("%d", mTopBound) ;
-        LLFontGL::getFontMonospace()->renderUTF8(text, 0, (mLeft + mRight) / 2, mBottom + (S32)(mTopBound * mScale) + mLineHeight,
+        LLFontGL::getFontMonospace()->renderUTF8(text, 0, (mLeft + mRight) / 2, mBottom + static_cast<S32>(mTopBound * mScale) + mLineHeight,
                                      text_color, LLFontGL::HAlign::LEFT, LLFontGL::VAlign::TOP);
     }
 
     LLColor4 loaded_color(1.0f, 0.0f, 0.0f, 0.75f);
     LLColor4 bound_color(1.0f, 1.0f, 0.0f, 0.75f);
-    gl_rect_2d(mLeft, mBottom + (S32)(mTopLoaded * mScale), (mLeft + mRight) / 2, mBottom, loaded_color) ;
-    gl_rect_2d((mLeft + mRight) / 2, mBottom + (S32)(mTopBound * mScale), mRight, mBottom, bound_color) ;
+    gl_rect_2d(mLeft, mBottom + static_cast<S32>(mTopLoaded * mScale), (mLeft + mRight) / 2, mBottom, loaded_color) ;
+    gl_rect_2d((mLeft + mRight) / 2, mBottom + static_cast<S32>(mTopBound * mScale), mRight, mBottom, bound_color) ;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -870,7 +870,7 @@ void LLTextureView::draw()
             F32 pri;
             if (mOrderFetch)
             {
-                pri = ((F32)imagep->mFetchPriority)/256.f;
+                pri = static_cast<F32>(imagep->mFetchPriority)/256.f;
             }
             else
             {
@@ -957,7 +957,7 @@ void LLTextureView::draw()
             F32 pri = iter->first;
             if (pri >= 1 * HIGH_PRIORITY)
             {
-                hilite = (S32)((pri+1) / HIGH_PRIORITY) - 1;
+                hilite = static_cast<S32>((pri+1) / HIGH_PRIORITY) - 1;
             }
             if ((hilite || count < max_count-10) && (count < max_count))
             {
@@ -996,7 +996,7 @@ void LLTextureView::draw()
 
         LLUI::popMatrix();
         LLUI::pushMatrix();
-        LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
+        LLUI::translate(static_cast<F32>(getRect().mLeft), static_cast<F32>(getRect().mBottom));
 
         for (child_list_const_iter_t child_iter = getChildList()->begin();
              child_iter != getChildList()->end(); ++child_iter)

@@ -176,7 +176,7 @@ void GLTFSceneManager::uploadSelection()
                     LLUUID asset_id = LLUUID::generateNewID();
 
                     std::string name;
-                    S32 idx = (S32)(&image - &asset.mImages[0]);
+                    S32 idx = static_cast<S32>(&image - &asset.mImages[0]);
 
                     if (image.mName.empty())
                     {
@@ -235,7 +235,7 @@ void GLTFSceneManager::uploadSelection()
         {
             mPendingBinaryUploads++;
 
-            S32 idx = (S32)(&bin - &asset.mBuffers[0]);
+            S32 idx = static_cast<S32>(&bin - &asset.mBuffers[0]);
 
             std::string buffer;
             buffer.assign((const char*)bin.mData.data(), bin.mData.size());
@@ -383,7 +383,7 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
 {
     LLAppViewer::instance()->postToMainCoro([=]()
         {
-            LLViewerObject* obj = (LLViewerObject*)user_data;
+            LLViewerObject* obj = static_cast<LLViewerObject*>(user_data);
             llassert(asset_type == LLAssetType::AT_GLTF_BIN);
 
             if (status == LL_ERR_NOERR)
@@ -429,7 +429,7 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
 //static
 void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
 {
-    LLViewerObject* obj = (LLViewerObject*)user_data;
+    LLViewerObject* obj = static_cast<LLViewerObject*>(user_data);
     llassert(asset_type == LLAssetType::AT_GLTF);
 
     if (status == LL_ERR_NOERR)
@@ -751,7 +751,7 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
 
 void GLTFSceneManager::bindTexture(Asset& asset, TextureType texture_type, TextureInfo& info, LLViewerTexture* fallback)
 {
-    U8 type_idx = (U8)texture_type;
+    U8 type_idx = static_cast<U8>(texture_type);
 
     if (info.mIndex == mLastTexture[type_idx])
     { //already bound
@@ -767,7 +767,7 @@ void GLTFSceneManager::bindTexture(Asset& asset, TextureType texture_type, Textu
         LLShaderMgr::EMISSIVE_MAP
     };
 
-    S32 channel = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(uniform[(U8)type_idx]);
+    S32 channel = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(uniform[static_cast<U8>(type_idx)]);
 
     if (channel > -1)
     {
@@ -833,7 +833,7 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
 
 LLMatrix4a inverse(const LLMatrix4a& mat)
 {
-    glm::mat4 m = glm::make_mat4((F32*)mat.mMatrix);
+    glm::mat4 m = glm::make_mat4(reinterpret_cast<const F32*>(mat.mMatrix));
     m = glm::inverse(m);
     LLMatrix4a ret;
     ret.loadu(glm::value_ptr(m));
@@ -1011,7 +1011,7 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
         if (node.mMesh != INVALID_INDEX)
         {
             gGL.pushMatrix();
-            gGL.multMatrix((F32*)glm::value_ptr(node.mAssetMatrix));
+            gGL.multMatrix(const_cast<F32*>(glm::value_ptr(node.mAssetMatrix)));
 
             // draw bounding box of mesh primitives
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BBOXES))
@@ -1190,7 +1190,7 @@ void GLTFSceneManager::renderDebug()
 
                 gGL.multMatrix(glm::value_ptr(node->mAssetMatrix));
 
-                auto* listener = (LLVolumeOctreeListener*)primitive->mOctree->getListener(0);
+                auto* listener = static_cast<LLVolumeOctreeListener*>(primitive->mOctree->getListener(0));
                 drawBoxOutline(listener->mBounds[0], listener->mBounds[1]);
 
                 gGL.flush();

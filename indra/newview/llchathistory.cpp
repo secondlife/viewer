@@ -454,7 +454,7 @@ public:
 
                 LLSD substitution;
 
-                substitution["datetime"] = (S32)message_time;
+                substitution["datetime"] = static_cast<S32>(message_time);
                 LLStringUtil::format(time_string, substitution);
             }
             else
@@ -474,7 +474,7 @@ public:
                     LLSD substitution;
                     // To avoid adding today's date to yesterday's timestamp,
                     // use creation time instead of current time
-                    substitution["datetime"] = (S32)mCreationTime;
+                    substitution["datetime"] = static_cast<S32>(mCreationTime);
                     LLStringUtil::format(time_string, substitution);
                 }
             }
@@ -886,7 +886,7 @@ protected:
 
     void showObjectContextMenu(S32 x,S32 y)
     {
-        LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandleObject.get();
+        LLMenuGL* menu = static_cast<LLMenuGL*>(mPopupMenuHandleObject.get());
         if (!menu)
         {
             LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -914,7 +914,7 @@ protected:
 
     void showAvatarContextMenu(S32 x,S32 y)
     {
-        LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandleAvatar.get();
+        LLMenuGL* menu = static_cast<LLMenuGL*>(mPopupMenuHandleAvatar.get());
         if (!menu)
         {
             LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;

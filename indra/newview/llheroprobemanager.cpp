@@ -112,7 +112,7 @@ void LLHeroProbeManager::update()
     if (mMipChain.empty())
     {
         U32 res = mProbeResolution;
-        U32 count = (U32)(log2((F32)res) + 0.5f);
+        U32 count = static_cast<U32>(log2(static_cast<F32>(res)) + 0.5f);
 
         mMipChain.resize(count);
         for (U32 i = 0; i < count; ++i)
@@ -359,7 +359,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
             gGaussianProgram.unbind();
         }
 
-        S32 mips = (S32)(log2((F32)mProbeResolution) + 0.5f);
+        S32 mips = static_cast<S32>(log2(static_cast<F32>(mProbeResolution)) + 0.5f);
 
         gReflectionMipProgram.bind();
         S32 diffuseChannel = gReflectionMipProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::eTextureType::TT_TEXTURE);
@@ -552,7 +552,7 @@ void LLHeroProbeManager::initReflectionMaps()
         mReset = false;
         mReflectionProbeCount = count;
         mProbeResolution      = gSavedSettings.getS32("RenderHeroProbeResolution");
-        mMaxProbeLOD = log2f((F32)mProbeResolution) - 1.f; // number of mips - 1
+        mMaxProbeLOD = log2f(static_cast<F32>(mProbeResolution)) - 1.f; // number of mips - 1
 
         mTexture = new LLCubeMapArray();
 

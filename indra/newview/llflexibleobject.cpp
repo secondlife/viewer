@@ -93,7 +93,7 @@ void LLVolumeImplFlexible::updateClass()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    U64 virtual_frame_num = (U64)(LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME);
+    U64 virtual_frame_num = static_cast<U64>(LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME);
     for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
             iter != sInstanceList.end();
             ++iter)
@@ -122,7 +122,7 @@ void LLVolumeImplFlexible::onParameterChanged(U16 param_type, LLNetworkData *dat
 {
     if (param_type == LLNetworkData::PARAMS_FLEXIBLE)
     {
-        mAttributes = (LLFlexibleObjectData*)data;
+        mAttributes = static_cast<LLFlexibleObjectData*>(data);
         setAttributesOfAllSections();
     }
 }
@@ -150,8 +150,8 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
 {
     S32 num_output_sections = 1<<dest_sections;
     LLVector3 scale = mVO->mDrawable->getScale();
-    F32 source_section_length = scale.mV[VZ] / (F32)(1<<source_sections);
-    F32 section_length = scale.mV[VZ] / (F32)num_output_sections;
+    F32 source_section_length = scale.mV[VZ] / static_cast<F32>(1<<source_sections);
+    F32 section_length = scale.mV[VZ] / static_cast<F32>(num_output_sections);
     if (source_sections == -1)
     {
         // Generate all from section 0
@@ -251,7 +251,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
     S32 num_sections = 1 << mSimulateRes;
 
     LLVector3 scale;
-    if (inScale == (LLVector3*)NULL)
+    if (inScale == nullptr)
     {
         scale = mVO->mDrawable->getScale();
     }
@@ -308,7 +308,7 @@ void LLVolumeImplFlexible::updateRenderRes()
     F32 app_angle = ll_round((F32) atan2( mVO->getScale().mV[2]*2.f, drawablep->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
 
     // Rendering sections increases with visible angle on the screen
-    mRenderRes = (S32)(FLEXIBLE_OBJECT_MAX_SECTIONS*4*app_angle*DEG_TO_RAD/LLViewerCamera::getInstance()->getView());
+    mRenderRes = static_cast<S32>(FLEXIBLE_OBJECT_MAX_SECTIONS*4*app_angle*DEG_TO_RAD/LLViewerCamera::getInstance()->getView());
 #endif
 
     mRenderRes = llclamp(mRenderRes, new_res-1, (S32) FLEXIBLE_OBJECT_MAX_SECTIONS);
@@ -361,7 +361,7 @@ void LLVolumeImplFlexible::doIdleUpdate()
                 update_period = llclamp(update_period, 1U, 32U);
 
                 // We control how fast flexies update, buy splitting updates among frames
-                U64 virtual_frame_num = (U64)(LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME);
+                U64 virtual_frame_num = static_cast<U64>(LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME);
 
                 if  (visible)
                 {
@@ -375,7 +375,7 @@ void LLVolumeImplFlexible::doIdleUpdate()
                         }
                         else
                         {
-                            LLVOVolume* parent = (LLVOVolume*)mVO->getParent();
+                            LLVOVolume* parent = static_cast<LLVOVolume*>(mVO->getParent());
                             id = parent->getVolumeInterfaceID();
                         }
 
@@ -470,7 +470,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
     LLVector3 anchorDirectionRotated = LLVector3::z_axis * parentSegmentRotation;
     LLVector3 anchorScale = mVO->mDrawable->getScale();
 
-    F32 section_length = anchorScale.mV[VZ] / (F32)num_sections;
+    F32 section_length = anchorScale.mV[VZ] / static_cast<F32>(num_sections);
     F32 inv_section_length = 1.f / section_length;
 
     S32 i;
@@ -712,7 +712,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 
         new_point->mRot.loadu(LLMatrix3(rot));
         new_point->mScale.set(newSection[i].mScale.mV[0], newSection[i].mScale.mV[1], 0,1);
-        new_point->mTexT = ((F32)i)/(num_render_sections);
+        new_point->mTexT = static_cast<F32>(i)/(num_render_sections);
     }
     LL_CHECK_MEMORY
     mLastSegmentRotation = parentSegmentRotation;
@@ -753,7 +753,7 @@ void LLVolumeImplFlexible::onSetScale(const LLVector3& scale, bool damped)
 bool LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 {
     LL_PROFILE_ZONE_SCOPED;
-    LLVOVolume *volume = (LLVOVolume*)mVO;
+    LLVOVolume *volume = static_cast<LLVOVolume*>(mVO);
 
     if (mVO->isAttachment())
     {   //don't update flexible attachments for impostored avatars unless the

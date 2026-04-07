@@ -45,7 +45,7 @@ namespace LLPerfStats
     std::atomic<F32> sMaxAvatarTime = 0.f;
 
     std::atomic<int64_t> tunedAvatars{0};
-    std::atomic<U64> renderAvatarMaxART_ns{(U64)(ART_UNLIMITED_NANOS)}; // highest render time we'll allow without culling features
+    std::atomic<U64> renderAvatarMaxART_ns{static_cast<U64>(ART_UNLIMITED_NANOS)}; // highest render time we'll allow without culling features
     bool belowTargetFPS{false};
     U32 lastGlobalPrefChange{0};
     U32 lastSleepedFrame{0};
@@ -91,7 +91,7 @@ namespace LLPerfStats
         const auto newval = gSavedSettings.getF32("RenderAvatarMaxART");
         if(newval < log10(LLPerfStats::ART_UNLIMITED_NANOS/1000))
         {
-            LLPerfStats::renderAvatarMaxART_ns = (U64)pow(10,newval)*1000;
+            LLPerfStats::renderAvatarMaxART_ns = static_cast<U64>(pow(10,newval))*1000;
         }
         else
         {
@@ -102,15 +102,15 @@ namespace LLPerfStats
     // static
     void Tunables::updateSettingsFromRenderCostLimit()
     {
-        if( userARTCutoffSliderValue != log10( ( (F32)LLPerfStats::renderAvatarMaxART_ns )/1000 ) )
+        if( userARTCutoffSliderValue != log10( ( static_cast<F32>(LLPerfStats::renderAvatarMaxART_ns) )/1000 ) )
         {
             if( LLPerfStats::renderAvatarMaxART_ns != 0 )
             {
-                updateUserARTCutoffSlider(log10( ( (F32)LLPerfStats::renderAvatarMaxART_ns )/1000 ) );
+                updateUserARTCutoffSlider(log10( ( static_cast<F32>(LLPerfStats::renderAvatarMaxART_ns) )/1000 ) );
             }
             else
             {
-                updateUserARTCutoffSlider(log10( (F32)LLPerfStats::ART_UNLIMITED_NANOS/1000 ) );
+                updateUserARTCutoffSlider(log10( static_cast<F32>(LLPerfStats::ART_UNLIMITED_NANOS)/1000 ) );
             }
         }
     }
@@ -150,7 +150,7 @@ namespace LLPerfStats
     {
         // create a queue
         tunables.initialiseFromSettings();
-        LLPerfStats::cpu_hertz = (F64)LLTrace::BlockTimer::countsPerSecond();
+        LLPerfStats::cpu_hertz = static_cast<F64>(LLTrace::BlockTimer::countsPerSecond());
         LLPerfStats::vsync_max_fps = gViewerWindow->getWindow()->getRefreshRate();
     }
 
@@ -292,7 +292,7 @@ namespace LLPerfStats
 
         std::vector<LLVector3d> positions;
         uuid_vec_t avatar_ids;
-        LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, our_pos, (F32)distance);
+        LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, our_pos, static_cast<F32>(distance));
         return static_cast<int>(positions.size());
     }
 
@@ -365,10 +365,10 @@ namespace LLPerfStats
         {
             // if we have less than the user's "max Non-Impostors" avatars within the desired range then adjust the limit.
             // also adjusts back up again for nearby crowds.
-            auto count = countNearbyAvatars((S32)std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance));
+            auto count = countNearbyAvatars(static_cast<S32>(std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance)));
             if( count != tunables.nonImpostors )
             {
-                tunables.updateNonImposters(((U32)count < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER) ? count : 0);
+                tunables.updateNonImposters((static_cast<U32>(count) < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER) ? count : 0);
                 LL_DEBUGS("AutoTune") << "There are " << count << "avatars within " << std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance) << "m of the camera" << LL_ENDL;
             }
         }
@@ -379,9 +379,9 @@ namespace LLPerfStats
         auto tot_avatar_time_raw = ms_to_raw(sTotalAvatarTime);
 
         // The frametime budget we have based on the target FPS selected
-        auto target_frame_time_raw = (U64)llround(LLPerfStats::cpu_hertz / (target_fps == 0 ? 1 : target_fps));
+        auto target_frame_time_raw = static_cast<U64>(llround(LLPerfStats::cpu_hertz / (target_fps == 0 ? 1 : target_fps)));
         // LL_INFOS() << "Effective FPS(raw):" << tot_frame_time_raw << " Target:" << target_frame_time_raw << LL_ENDL;
-        auto inferredFPS{1000/(U32)std::max(raw_to_ms(tot_frame_time_raw),1.0)};
+        auto inferredFPS{1000/static_cast<U32>(std::max(raw_to_ms(tot_frame_time_raw),1.0))};
         U32 settingsChangeFrequency{inferredFPS > 50?inferredFPS:50};
         /*if( tot_limit_time_raw != 0)
         {
@@ -466,7 +466,7 @@ namespace LLPerfStats
                 // max render this frame may be higher than the last (cos new entrants and jitter) so make sure we are heading in the right direction
                 if( new_render_limit_ns > renderAvatarMaxART_ns )
                 {
-                    new_render_limit_ns = (double)renderAvatarMaxART_ns;
+                    new_render_limit_ns = static_cast<double>(renderAvatarMaxART_ns);
                 }
 
                 if (new_render_limit_ns > LLPerfStats::ART_MIN_ADJUST_DOWN_NANOS)
@@ -475,12 +475,12 @@ namespace LLPerfStats
                 }
 
                 // bounce at the bottom to prevent "no limit"
-                new_render_limit_ns = (double)std::max((U64)new_render_limit_ns, (U64)LLPerfStats::ART_MINIMUM_NANOS);
+                new_render_limit_ns = static_cast<double>(std::max(static_cast<U64>(new_render_limit_ns), static_cast<U64>(LLPerfStats::ART_MINIMUM_NANOS)));
 
                 // assign the new value
                 if (renderAvatarMaxART_ns != new_render_limit_ns)
                 {
-                    renderAvatarMaxART_ns = (U64)new_render_limit_ns;
+                    renderAvatarMaxART_ns = static_cast<U64>(new_render_limit_ns);
                     tunables.updateSettingsFromRenderCostLimit();
                 }
                 // LL_DEBUGS() << "AUTO_TUNE: avatar_budget adjusted to:" << new_render_limit_ns << LL_ENDL;

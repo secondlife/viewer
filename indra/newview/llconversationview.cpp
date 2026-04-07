@@ -687,8 +687,8 @@ void LLConversationViewParticipant::draw()
     const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
     F32 right_x  = 0;
 
-    F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad;
-    F32 text_left = (F32)getLabelXPos();
+    F32 y = static_cast<F32>(getRect().getHeight()) - font->getLineHeight() - static_cast<F32>(mTextPad);
+    F32 text_left = static_cast<F32>(getLabelXPos());
 
     LLUIColor* color;
 

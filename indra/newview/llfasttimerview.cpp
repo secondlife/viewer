@@ -917,7 +917,7 @@ void LLFastTimerView::outputAllMetrics()
         for (LLMetricPerformanceTesterBasic::name_tester_map_t::iterator iter = LLMetricPerformanceTesterBasic::sTesterMap.begin();
             iter != LLMetricPerformanceTesterBasic::sTesterMap.end(); ++iter)
         {
-            LLMetricPerformanceTesterBasic* tester = ((LLMetricPerformanceTesterBasic*)iter->second);
+            LLMetricPerformanceTesterBasic* tester = static_cast<LLMetricPerformanceTesterBasic*>(iter->second);
             tester->outputTestResults();
         }
     }
@@ -1167,7 +1167,7 @@ void LLFastTimerView::drawLineGraph()
         axis_label = llformat("%4.2f ms", F32Milliseconds(max_time).value());
         break;
     case DISPLAY_CALLS:
-        axis_label = llformat("%d calls", (int)max_calls);
+        axis_label = llformat("%d calls", static_cast<int>(max_calls));
         break;
     case DISPLAY_HZ:
         axis_label = llformat("%4.2f Hz", max_time.value() ? 1.f / max_time.value() : 0.f);

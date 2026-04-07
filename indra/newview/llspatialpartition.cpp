@@ -2325,7 +2325,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
 
                     for (S32 i = 0; i < res.mNumVertices; ++i)
                     {
-                        F32* p = (F32*) ((U8*)v+i*res.mVertexStrideBytes);
+                        const F32* p = reinterpret_cast<const F32*>(reinterpret_cast<const U8*>(v)+i*res.mVertexStrideBytes);
                         phys_volume->mHullPoints[i].load3(p);
                     }
 
@@ -2333,7 +2333,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
                     {
                         for (S32 i = 0; i < res.mNumTriangles; ++i)
                         {
-                            U16* idx = (U16*) (((U8*)res.mIndexBase)+i*res.mIndexStrideBytes);
+                            const U16* idx = reinterpret_cast<const U16*>(reinterpret_cast<const U8*>(res.mIndexBase) + i*res.mIndexStrideBytes);
 
                             phys_volume->mHullIndices[i*3+0] = idx[0];
                             phys_volume->mHullIndices[i*3+1] = idx[1];
@@ -2486,7 +2486,7 @@ void renderPhysicsShapes(LLSpatialGroup* group, bool wireframe)
             if (bridge)
             {
                 gGL.pushMatrix();
-                gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
+                gGL.multMatrix(const_cast<F32*>(reinterpret_cast<const F32*>(bridge->mDrawable->getRenderMatrix().mMatrix)));
                 bridge->renderPhysicsShapes(wireframe);
                 gGL.popMatrix();
             }
@@ -2949,7 +2949,7 @@ void renderRaycast(LLDrawable* drawablep)
             orient.lookDir(normal, binormal);
             LLMatrix4 rotation;
             orient.getRotMatrixToParent(rotation);
-            gGL.multMatrix((float*)rotation.mMatrix);
+            gGL.multMatrix(reinterpret_cast<float*>(rotation.mMatrix));
 
             gGL.diffuseColor4f(1,0,0,0.5f);
             drawBox(LLVector3(0, 0, 0), LLVector3(0.1f, 0.022f, 0.022f));

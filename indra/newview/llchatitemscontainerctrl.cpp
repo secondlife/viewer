@@ -153,7 +153,7 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
     std::string color_name = notification["text_color"].asString();
 
     LLUIColor textColor = LLUIColorTable::instance().getColor(color_name);
-    F32 textAlpha = (F32)notification["color_alpha"].asReal();
+    F32 textAlpha = static_cast<F32>(notification["color_alpha"].asReal());
 
     S32 font_size = notification["font_size"].asInteger();
 
@@ -210,7 +210,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
     std::string color_name = notification["text_color"].asString();
 
     LLUIColor textColor = LLUIColorTable::instance().getColor(color_name);
-    F32 textAlpha = (F32)notification["color_alpha"].asReal();
+    F32 textAlpha = static_cast<F32>(notification["color_alpha"].asReal());
 
     S32 font_size = notification["font_size"].asInteger();
 

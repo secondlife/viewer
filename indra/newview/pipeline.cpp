@@ -4637,7 +4637,7 @@ void LLPipeline::renderDebug()
             if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
             {
                 gGL.pushMatrix();
-                gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
+                gGL.multMatrix(const_cast<F32*>(reinterpret_cast<const F32*>(bridge->mDrawable->getRenderMatrix().mMatrix)));
                 bridge->renderDebug();
                 gGL.popMatrix();
             }
@@ -10371,7 +10371,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
             LLMatrix4 mat(quat, LLVector4(origin, 1.f));
 
-            view[i + 4] = glm::make_mat4((F32*)mat.mMatrix);
+            view[i + 4] = glm::make_mat4(reinterpret_cast<F32*>(mat.mMatrix));
 
             view[i + 4] = glm::inverse(view[i + 4]);
 

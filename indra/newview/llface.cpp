@@ -994,12 +994,12 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
     centers_dist.scaleVec(st_scale);
     LLVector2 orig_st_offset(map_offsS, map_offsT);
 
-    *res_st_offset = orig_st_offset + (LLVector2)centers_dist;
+    *res_st_offset = orig_st_offset + static_cast<LLVector2>(centers_dist);
     res_st_offset->mV[VX] -= static_cast<S32>(res_st_offset->mV[VX]);
     res_st_offset->mV[VY] -= static_cast<S32>(res_st_offset->mV[VY]);
 
     st_scale /= this_proj_scale;
-    *res_st_scale = (LLVector2)st_scale;
+    *res_st_scale = static_cast<LLVector2>(st_scale);
     return true;
 }
 
@@ -1072,7 +1072,7 @@ bool LLFace::calcAlignedPlanarGLTF(
     centers_dist.scaleVec(st_scale);
     LLVector2 orig_st_offset(map_offsS, map_offsT);
 
-    LLVector2 tex_res_st_offset = orig_st_offset + (LLVector2)centers_dist;
+    LLVector2 tex_res_st_offset = orig_st_offset + static_cast<LLVector2>(centers_dist);
     tex_res_st_offset.mV[VX] -= static_cast<S32>(tex_res_st_offset.mV[VX]);
     tex_res_st_offset.mV[VY] -= static_cast<S32>(tex_res_st_offset.mV[VY]);
 
@@ -1511,7 +1511,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             }
 
             //TODO -- cache this (check profile marker above)?
-            glm::mat4 m = glm::make_mat4((F32*)skin->mBindShapeMatrix.getF32ptr());
+            glm::mat4 m = glm::make_mat4(skin->mBindShapeMatrix.getF32ptr());
             m = glm::transpose(glm::inverse(m));
             mat_normal.loadu(glm::value_ptr(m));
         }

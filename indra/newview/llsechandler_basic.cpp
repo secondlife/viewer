@@ -75,7 +75,7 @@ LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert,
 {
     // BIO_new_mem_buf returns a read only bio, but takes a void* which isn't const
     // so we need to cast it.
-    BIO * pem_bio = BIO_new_mem_buf((void*)pem_cert.c_str(), static_cast<int>(pem_cert.length()));
+    BIO * pem_bio = BIO_new_mem_buf(const_cast<void*>(static_cast<const void*>(pem_cert.c_str())), static_cast<int>(pem_cert.length()));
     if(pem_bio == NULL)
     {
         LL_WARNS("SECAPI") << "Could not allocate an openssl memory BIO." << LL_ENDL;
@@ -213,7 +213,7 @@ LLSD _basic_constraints_ext(X509* cert)
             }
             else
             {
-                result[CERT_BASIC_CONSTRAINTS_PATHLEN] = (int)ASN1_INTEGER_get(bs->pathlen);
+                result[CERT_BASIC_CONSTRAINTS_PATHLEN] = static_cast<int>(ASN1_INTEGER_get(bs->pathlen));
             }
         }
 
@@ -404,7 +404,7 @@ std::string cert_string_from_octet_string(ASN1_OCTET_STRING* value)
         {
             result << ":";
         }
-        result  << std::setfill('0') << std::setw(2) << (int)value->data[i];
+        result  << std::setfill('0') << std::setw(2) << static_cast<int>(value->data[i]);
     }
     return result.str();
 }
@@ -463,9 +463,9 @@ LLDate cert_date_from_asn1_time(ASN1_TIME* asn1_time)
     timestruct.tm_sec = (asn1_time->data[10]-'0') * 10 + (asn1_time->data[11]-'0');
 
 #if LL_WINDOWS
-    return LLDate((F64)_mkgmtime(&timestruct));
+    return LLDate(static_cast<F64>(_mkgmtime(&timestruct)));
 #else // LL_WINDOWS
-    return LLDate((F64)timegm(&timestruct));
+    return LLDate(static_cast<F64>(timegm(&timestruct)));
 #endif // LL_WINDOWS
 }
 
@@ -899,7 +899,7 @@ void _validateCert(int validation_policy,
 
     if (validation_policy & VALIDATION_POLICY_TIME)
     {
-        LLDate validation_date((double)time(NULL));
+        LLDate validation_date(static_cast<double>(time(NULL)));
         if(validation_params.has(CERT_VALIDATION_DATE))
         {
             validation_date = validation_params[CERT_VALIDATION_DATE];
@@ -1109,7 +1109,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
             }
             else
             {
-                validation_date = LLDate((double)time(NULL)); // current time
+                validation_date = LLDate(static_cast<double>(time(NULL))); // current time
             }
 
             if((validation_date < cache_entry->second.first) ||
@@ -1323,7 +1323,7 @@ void LLSecAPIBasicHandler::_readProtectedData(unsigned char *unique_id, U32 id_l
         LLXORCipher cipher(unique_id, id_len);
 
         // read in the salt and key
-        protected_data_stream.read((char *)salt, STORE_SALT_SIZE);
+        protected_data_stream.read(reinterpret_cast<char *>(salt), STORE_SALT_SIZE);
         if (protected_data_stream.gcount() < STORE_SALT_SIZE)
         {
             LLTHROW(LLProtectedDataException("Config file too short."));
@@ -1353,11 +1353,11 @@ void LLSecAPIBasicHandler::_readProtectedData(unsigned char *unique_id, U32 id_l
 
         while(protected_data_stream.good()) {
             // read data as a block:
-            protected_data_stream.read((char *)buffer, BUFFER_READ_SIZE);
+            protected_data_stream.read(reinterpret_cast<char *>(buffer), BUFFER_READ_SIZE);
 
             EVP_DecryptUpdate(ctx, decrypted_buffer, &decrypted_length,
-                              buffer, (int)protected_data_stream.gcount());
-            decrypted_data.append((const char *)decrypted_buffer, (int)protected_data_stream.gcount());
+                              buffer, static_cast<int>(protected_data_stream.gcount()));
+            decrypted_data.append(reinterpret_cast<const char *>(decrypted_buffer), static_cast<int>(protected_data_stream.gcount()));
         }
 
         // RC4 is a stream cipher, so we don't bother to EVP_DecryptFinal, as there is
@@ -1438,15 +1438,15 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 
         while (formatted_data_istream.good())
         {
-            formatted_data_istream.read((char *)buffer, BUFFER_READ_SIZE);
+            formatted_data_istream.read(reinterpret_cast<char *>(buffer), BUFFER_READ_SIZE);
             if(formatted_data_istream.gcount() == 0)
             {
                 break;
             }
             int encrypted_length;
             EVP_EncryptUpdate(ctx, encrypted_buffer, &encrypted_length,
-                          buffer, (int)formatted_data_istream.gcount());
-            protected_data_stream.write((const char *)encrypted_buffer, encrypted_length);
+                          buffer, static_cast<int>(formatted_data_istream.gcount()));
+            protected_data_stream.write(reinterpret_cast<const char *>(encrypted_buffer), encrypted_length);
         }
 
         // no EVP_EncrypteFinal, as this is a stream cipher

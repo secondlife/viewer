@@ -116,11 +116,11 @@ void LLSurfacePatch::dirty()
 void LLSurfacePatch::setSurface(LLSurface *surfacep)
 {
     mSurfacep = surfacep;
-    if (mVObjp == (LLVOSurfacePatch *)NULL)
+    if (mVObjp == nullptr)
     {
         llassert(mSurfacep->mType == 'l');
 
-        mVObjp = (LLVOSurfacePatch *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SURFACE_PATCH, mSurfacep->getRegion());
+        mVObjp = static_cast<LLVOSurfacePatch *>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_SURFACE_PATCH, mSurfacep->getRegion()));
         mVObjp->setPatch(this);
         mVObjp->setPositionRegion(mCenterRegion);
         gPipeline.createObject(mVObjp);
@@ -232,8 +232,8 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
     const F32 xyScaleInv = (1.f / xyScale)*(0.2222222222f);
 
     F32 vec[3] = {
-                    (F32)fmod((F32)(mOriginGlobal.mdV[0] + x)*xyScaleInv, 256.f),
-                    (F32)fmod((F32)(mOriginGlobal.mdV[1] + y)*xyScaleInv, 256.f),
+                    static_cast<F32>(fmod(static_cast<F32>(mOriginGlobal.mdV[0] + x)*xyScaleInv, 256.f)),
+                    static_cast<F32>(fmod(static_cast<F32>(mOriginGlobal.mdV[1] + y)*xyScaleInv, 256.f)),
                     0.f
                 };
     F32 rand_val = llclamp(noise2(vec)* 0.75f + 0.5f, 0.f, 1.f);
@@ -302,7 +302,7 @@ void LLSurfacePatch::calcNormal</*PBR=*/false>(const U32 x, const U32 y, const U
                     ppatches[i][j] = ppatches[i][j]->getNeighborPatch(SOUTH);
                 }
             }
-            if (poffsets[i][j][0] >= (S32)patch_width)
+            if (poffsets[i][j][0] >= static_cast<S32>(patch_width))
             {
                 if (!ppatches[i][j]->getNeighborPatch(EAST))
                 {
@@ -314,7 +314,7 @@ void LLSurfacePatch::calcNormal</*PBR=*/false>(const U32 x, const U32 y, const U
                     ppatches[i][j] = ppatches[i][j]->getNeighborPatch(EAST);
                 }
             }
-            if (poffsets[i][j][1] >= (S32)patch_width)
+            if (poffsets[i][j][1] >= static_cast<S32>(patch_width))
             {
                 if (!ppatches[i][j]->getNeighborPatch(NORTH))
                 {
@@ -433,7 +433,7 @@ void LLSurfacePatch::calcNormalFlat(LLVector3& normal_out, const U32 x, const U3
                     ppatches[i][j] = ppatches[i][j]->getNeighborPatch(SOUTH);
                 }
             }
-            if (poffsets[i][j][0] >= (S32)patch_width)
+            if (poffsets[i][j][0] >= static_cast<S32>(patch_width))
             {
                 if (!ppatches[i][j]->getNeighborPatch(EAST))
                 {
@@ -445,7 +445,7 @@ void LLSurfacePatch::calcNormalFlat(LLVector3& normal_out, const U32 x, const U3
                     ppatches[i][j] = ppatches[i][j]->getNeighborPatch(EAST);
                 }
             }
-            if (poffsets[i][j][1] >= (S32)patch_width)
+            if (poffsets[i][j][1] >= static_cast<S32>(patch_width))
             {
                 if (!ppatches[i][j]->getNeighborPatch(NORTH))
                 {
@@ -533,7 +533,7 @@ void LLSurfacePatch::updateCameraDistanceRegion(const LLVector3 &pos_region)
         {
             LLVector3 dv = pos_region;
             dv -= mCenterRegion;
-            mVisInfo.mDistance = llmax(0.f, (F32)(dv.length() - mRadius))/
+            mVisInfo.mDistance = llmax(0.f, static_cast<F32>(dv.length() - mRadius))/
                 llmax(LLVOSurfacePatch::sLODFactor, 0.1f);
         }
     }
@@ -849,7 +849,7 @@ bool LLSurfacePatch::updateTexture()
     if (mSTexUpdate)        //  Update texture as needed
     {
         F32 meters_per_grid = getSurface()->getMetersPerGrid();
-        F32 grids_per_patch_edge = (F32)getSurface()->getGridsPerPatchEdge();
+        F32 grids_per_patch_edge = static_cast<F32>(getSurface()->getGridsPerPatchEdge());
 
         if ((!getNeighborPatch(EAST) || getNeighborPatch(EAST)->getHasReceivedData())
             && (!getNeighborPatch(WEST) || getNeighborPatch(WEST)->getHasReceivedData())
@@ -864,7 +864,7 @@ bool LLSurfacePatch::updateTexture()
             if (!mHeightsGenerated)
             {
                 F32 patch_size = meters_per_grid*(grids_per_patch_edge+1);
-                if (comp->generateHeights((F32)origin_region[VX], (F32)origin_region[VY],
+                if (comp->generateHeights(static_cast<F32>(origin_region[VX]), static_cast<F32>(origin_region[VY]),
                                           patch_size, patch_size))
                 {
                     mHeightsGenerated = true;
@@ -897,7 +897,7 @@ void LLSurfacePatch::updateGL()
 {
     LL_PROFILE_ZONE_SCOPED;
     F32 meters_per_grid = getSurface()->getMetersPerGrid();
-    F32 grids_per_patch_edge = (F32)getSurface()->getGridsPerPatchEdge();
+    F32 grids_per_patch_edge = static_cast<F32>(getSurface()->getGridsPerPatchEdge());
 
     LLViewerRegion *regionp = getSurface()->getRegion();
     LLVector3d origin_region = getOriginGlobal() - getSurface()->getOriginGlobal();

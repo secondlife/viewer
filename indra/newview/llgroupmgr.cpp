@@ -176,7 +176,7 @@ S32 LLGroupRoleData::getMembersInRole(uuid_vec_t members,
     in_role_end = std::set_intersection(mMemberIDs.begin(), mMemberIDs.end(),
                                     members.begin(), members.end(),
                                     in_role.begin());
-    return (S32)(in_role_end - in_role.begin());
+    return static_cast<S32>(in_role_end - in_role.begin());
 }
 
 void LLGroupRoleData::addMember(const LLUUID& member)
@@ -235,7 +235,7 @@ LLGroupMgrGroupData::LLGroupMgrGroupData(const LLUUID& id) :
 
 void LLGroupMgrGroupData::setAccessed()
 {
-    mAccessTime = (F32)LLFrameTimer::getTotalSeconds();
+    mAccessTime = static_cast<F32>(LLFrameTimer::getTotalSeconds());
 }
 
 bool LLGroupMgrGroupData::getRoleData(const LLUUID& role_id, LLRoleData& role_data)
@@ -625,7 +625,7 @@ bool packRoleUpdateMessageBlock(LLMessageSystem* msg,
     msg->addString("Description", role_data.mRoleDescription);
     msg->addString("Title", role_data.mRoleTitle);
     msg->addU64("Powers", role_data.mRolePowers);
-    msg->addU8("UpdateType", (U8)role_data.mChangeType);
+    msg->addU8("UpdateType", static_cast<U8>(role_data.mChangeType));
 
     if (msg->isSendFullFast())
     {
@@ -1020,7 +1020,7 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 
     group_datap->mMemberVersion.generate();
 
-    if (group_datap->mMembers.size() == (U32)group_datap->mMemberCount)
+    if (group_datap->mMembers.size() == static_cast<U32>(group_datap->mMemberCount))
     {
         group_datap->mMemberDataComplete = true;
         group_datap->mMemberRequestID.setNull();
@@ -1190,7 +1190,7 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
         group_datap->mRoles[role_id] = rd;
     }
 
-    if (group_datap->mRoles.size() == (U32)group_datap->mRoleCount)
+    if (group_datap->mRoles.size() == static_cast<U32>(group_datap->mRoleCount))
     {
         group_datap->mRoleDataComplete = true;
         group_datap->mRoleDataRequestID.setNull();
@@ -1552,7 +1552,7 @@ void LLGroupMgr::addGroup(LLGroupMgrGroupData* group_datap)
     {
         // LRU: Remove the oldest un-observed group from cache until group size is small enough
 
-        F32 oldest_access = (F32)LLFrameTimer::getTotalSeconds();
+        F32 oldest_access = static_cast<F32>(LLFrameTimer::getTotalSeconds());
         group_map_t::iterator oldest_gi = mGroups.end();
 
         for (group_map_t::iterator gi = mGroups.begin(); gi != mGroups.end(); ++gi )
@@ -1818,7 +1818,7 @@ void LLGroupMgr::sendGroupRoleMemberChanges(const LLUUID& group_id)
         msg->nextBlock("RoleChange");
         msg->addUUID("RoleID",citer->second.mRole);
         msg->addUUID("MemberID",citer->second.mMember);
-        msg->addU32("Change",(U32)citer->second.mChange);
+        msg->addU32("Change",static_cast<U32>(citer->second.mChange));
 
         if (msg->isSendFullFast())
         {
@@ -2235,7 +2235,7 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id, U32 page_siz
         else
         {
             // Use offset (1) because 0 means "no sorting"
-            sort_column = 1 + (U32)std::distance(column_names.begin(), it);
+            sort_column = 1 + static_cast<U32>(std::distance(column_names.begin(), it));
         }
     }
 
@@ -2345,9 +2345,9 @@ void LLGroupMgr::processCapGroupMembersResponse(const LLSD& response, const std:
         group_datap->mMembers[member_id] = data;
     }
 
-    U32 member_count = (U32)group_datap->mMembers.size();
+    U32 member_count = static_cast<U32>(group_datap->mMembers.size());
 
-    group_datap->mMemberCount = (S32)member_count;
+    group_datap->mMemberCount = static_cast<S32>(member_count);
     group_datap->mMemberDataComplete = true;
     group_datap->mMemberRequestID.setNull();
     group_datap->mMemberVersion.generate();
